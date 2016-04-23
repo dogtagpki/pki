@@ -1954,7 +1954,7 @@ tokendb._064=#     is set to YES. Otherwise, re-enrollment is not
 tokendb._065=#     allowed.
 tokendb._066=# tokendb.allowedTransitions:
 tokendb._067=#   - has transitions between the following states
-tokendb._068=#     UNINITIALIZED = 0,
+tokendb._068=#     READY = 0,
 tokendb._069=#     DAMAGED = 1,
 tokendb._070=#     PERM_LOST = 2,
 tokendb._071=#     SUSPENDED = 3,
@@ -2023,7 +2023,7 @@ tps._005=# tps.cert.subsystem.nickname=xxx
 tps._007=# tps.cert.audit_signing.nickname=xxx
 tps._008=# operations.allowedTransitions:
 tps._009=#   - token operations, like formatting and enrollment have transitions between the following states
-tps._010=#     UNINITIALIZED = 0,
+tps._010=#     READY = 0,
 tps._011=#     DAMAGED = 1,
 tps._012=#     PERM_LOST = 2,
 tps._013=#     SUSPENDED = 3,

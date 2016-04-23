@@ -319,7 +319,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
             }
         } else {
             CMS.debug(method + " token does not exist");
-            tokenRecord.setStatus("uninitialized");
+            tokenRecord.setStatus("ready");
 
             checkAllowUnknownToken(TPSEngine.OP_FORMAT_PREFIX);
         }
@@ -368,7 +368,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
         if (!isTokenPresent) {
             try {
-                tps.tdb.tdbAddTokenEntry(tokenRecord, "uninitialized");
+                tps.tdb.tdbAddTokenEntry(tokenRecord, "ready");
             } catch (Exception e) {
                 String failMsg = "add token failure";
                 logMsg = failMsg + ":" + e.toString();
@@ -1031,7 +1031,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
                 //same token
                 logMsg = "found current token entry";
                 CMS.debug(method + ":" + logMsg);
-                if (tokenRecord.getStatus().equals("uninitialized")) {
+                if (tokenRecord.getStatus().equals("ready")) {
                     // this is the current token
                     if (tokenRecords.size() == 1) {
                         // the current token is the only token owned by the user

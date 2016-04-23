@@ -186,7 +186,7 @@ public class TPSTokendb {
         } catch (Exception e) {
             CMS.debug("TPSTokendb.tdbUpdateTokenEntry: token entry not found; Adding");
             // add and exit
-            tdbAddTokenEntry(tokenRecord, "uninitialized");
+            tdbAddTokenEntry(tokenRecord, "ready");
             return;
         }
         // token found; modify

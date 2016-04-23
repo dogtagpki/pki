@@ -91,9 +91,9 @@ public class TokenService extends PKIService implements TokenResource {
         auditModParams.put("UserID", tokenRecord.getUserID());
 
         switch (tokenState.getValue()) {
-        case TokenStatus.TOKEN_UNINITIALIZED:
-            tokenRecord.setStatus("uninitialized");
-            newStatus = "uninitialized";
+        case TokenStatus.TOKEN_READY:
+            tokenRecord.setStatus("ready");
+            newStatus = "ready";
             tokenRecord.setReason(null);
             break;
 
@@ -377,9 +377,9 @@ public class TokenService extends PKIService implements TokenResource {
                 auditModParams.put("Policy", policy);
             }
 
-            // new tokens are uninitialized when created
-            tokenRecord.setStatus("uninitialized");
-            auditModParams.put("Status", "uninitialized");
+            // new tokens are ready when created
+            tokenRecord.setStatus("ready");
+            auditModParams.put("Status", "ready");
 
             database.addRecord(tokenID, tokenRecord);
             subsystem.tdb.tdbActivity(ActivityDatabase.OP_ADD, tokenRecord,

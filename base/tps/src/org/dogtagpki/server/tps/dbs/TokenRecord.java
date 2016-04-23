@@ -242,8 +242,8 @@ public class TokenRecord extends DBRecord {
     public TokenStatus getTokenStatus() {
         String status = getStatus();
 
-        if ("uninitialized".equals(status)) {
-            return TokenStatus.UNINITIALIZED;
+        if ("ready".equals(status)) {
+            return TokenStatus.READY;
 
         } else if ("active".equals(status)) {
             return TokenStatus.ACTIVE;

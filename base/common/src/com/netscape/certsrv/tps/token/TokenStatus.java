@@ -48,7 +48,7 @@ public class TokenStatus {
     static Map<String, TokenStatus> instancesByName = new HashMap<String, TokenStatus>();
     static Map<Integer, TokenStatus> instancesByValue = new HashMap<Integer, TokenStatus>();
 
-    public final static int TOKEN_UNINITIALIZED       = 0;
+    public final static int TOKEN_READY               = 0;
     public final static int TOKEN_DAMAGED             = 1;
     public final static int TOKEN_PERM_LOST           = 2;
     public final static int TOKEN_SUSPENDED           = 3;
@@ -56,7 +56,7 @@ public class TokenStatus {
     public final static int TOKEN_TEMP_LOST_PERM_LOST = 5;
     public final static int TOKEN_TERMINATED          = 6;
 
-    public final static TokenStatus UNINITIALIZED       = new TokenStatus("UNINITIALIZED", TOKEN_UNINITIALIZED);
+    public final static TokenStatus READY               = new TokenStatus("READY", TOKEN_READY);
     public final static TokenStatus DAMAGED             = new TokenStatus("DAMAGED", TOKEN_DAMAGED);
     public final static TokenStatus PERM_LOST           = new TokenStatus("PERM_LOST", TOKEN_PERM_LOST);
     public final static TokenStatus SUSPENDED           = new TokenStatus("SUSPENDED", TOKEN_SUSPENDED);
@@ -135,6 +135,11 @@ public class TokenStatus {
     }
 
     public static TokenStatus valueOf(String name) {
+
+        if ("UNINITIALIZED".equals(name)) {
+            System.err.println("WARNING: The token status " + name + " has been deprecated. Please use READY instead.");
+            return READY;
+        }
 
         if ("TEMP_LOST".equals(name)) {
             System.err.println("WARNING: The token status " + name + " has been deprecated. Please use SUSPENDED instead.");
