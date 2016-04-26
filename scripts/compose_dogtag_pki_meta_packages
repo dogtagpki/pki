@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # BEGIN COPYRIGHT BLOCK
 # (C) 2010 Red Hat, Inc.
 # All rights reserved.
@@ -9,7 +9,7 @@
 ##
 
 COMPOSE_PWD=`dirname $0`
-source ${COMPOSE_PWD}/compose_functions
+. ${COMPOSE_PWD}/compose_functions
 
 
 ## Always switch into the base directory three levels

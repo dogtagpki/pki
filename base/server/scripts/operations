@@ -1,4 +1,4 @@
-#!/bin/bash -X
+#!/bin/sh -X
 
 # From "http://fedoraproject.org/wiki/FCNewInit/Initscripts":
 #
@@ -1117,7 +1117,7 @@ verify_symlinks()
         jni_jar_dir="/usr/share/java"
         tomcat_dir="/usr/share/tomcat7"
     else
-        jni_jar_dir=`source /usr/share/pki/etc/pki.conf && source /etc/pki/pki.conf && echo $JNI_JAR_DIR`
+        jni_jar_dir=`. /usr/share/pki/etc/pki.conf && . /etc/pki/pki.conf && echo $JNI_JAR_DIR`
         tomcat_dir="/usr/share/tomcat"
     fi
 
@@ -1637,12 +1637,12 @@ catalina_sh() {
     AUTHBIND_COMMAND=""
     if [ "$AUTHBIND" = "yes" -a "$1" = "start" ]; then
             JAVA_OPTS="$JAVA_OPTS -Djava.net.preferIPv4Stack=true"
-            AUTHBIND_COMMAND="/usr/bin/authbind --deep /bin/bash -c "
+            AUTHBIND_COMMAND="/usr/bin/authbind --deep /bin/sh -c "
     fi
 
     # Define the command to run Tomcat's catalina.sh as a daemon
     # set -a tells sh to export assigned variables to spawned shells.
-    TOMCAT_SH="set -a; JAVA_HOME=\"$JAVA_HOME\"; source \"$DEFAULT\"; \
+    TOMCAT_SH="set -a; JAVA_HOME=\"$JAVA_HOME\"; . \"$DEFAULT\"; \
             CATALINA_HOME=\"$CATALINA_HOME\"; \
             CATALINA_BASE=\"$CATALINA_BASE\"; \
             JAVA_OPTS=\"$JAVA_OPTS\"; \
@@ -1661,7 +1661,7 @@ catalina_sh() {
     chown $TOMCAT7_USER "$CATALINA_PID" "$CATALINA_BASE"/logs/catalina.out
     start-stop-daemon --start -b -u "$TOMCAT7_USER" -g "$TOMCAT7_GROUP" \
             -c "$TOMCAT7_USER" -d "$CATALINA_TMPDIR" -p "$CATALINA_PID" \
-            -x /bin/bash -- -c "$AUTHBIND_COMMAND $TOMCAT_SH"
+            -x /bin/sh -- -c "$AUTHBIND_COMMAND $TOMCAT_SH"
     status="$?"
     set +a
     return $status

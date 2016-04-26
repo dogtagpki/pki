@@ -1,4 +1,4 @@
-#! /bin/bash
+#! /bin/sh
 
 ### Exit if there not enough parameters specified.
 if [ $# -lt 2 ];

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # BEGIN COPYRIGHT BLOCK
 # (C) 2010 Red Hat, Inc.
 # All rights reserved.
@@ -9,7 +9,7 @@
 ##
 
 COMPOSE_PWD=`dirname $0`
-source ${COMPOSE_PWD}/compose_functions
+. ${COMPOSE_PWD}/compose_functions
 
 
 ## Always switch into the base directory three levels
@@ -187,7 +187,7 @@ fi
 ##
 
 rm -rf ${DOGTAG_PKI_THEME_PACKAGE_SCRIPT}
-printf "#!/bin/bash\n\n"                >  ${DOGTAG_PKI_THEME_PACKAGE_SCRIPT}
+printf "#!/bin/sh\n\n"                >  ${DOGTAG_PKI_THEME_PACKAGE_SCRIPT}
 printf "${DOGTAG_PKI_THEME_PACKAGE_COMMAND}\n\n" >> ${DOGTAG_PKI_THEME_PACKAGE_SCRIPT}
 chmod 775 ${DOGTAG_PKI_THEME_PACKAGE_SCRIPT}
 
@@ -197,5 +197,5 @@ chmod 775 ${DOGTAG_PKI_THEME_PACKAGE_SCRIPT}
 ##
 
 cd ${PKI_PACKAGES} ;
-bash ./package_${DOGTAG_PKI_THEME} | tee package_${DOGTAG_PKI_THEME}.log 2>&1
+sh ./package_${DOGTAG_PKI_THEME} | tee package_${DOGTAG_PKI_THEME}.log 2>&1
 

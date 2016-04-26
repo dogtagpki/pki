@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # BEGIN COPYRIGHT BLOCK
 # (C) 2010 Red Hat, Inc.
 # All rights reserved.
@@ -9,7 +9,7 @@
 ##
 
 COMPOSE_PWD=`dirname $0`
-source ${COMPOSE_PWD}/compose_functions
+. ${COMPOSE_PWD}/compose_functions
 
 ## Always switch into the base directory three levels
 ## above this shell script prior to executing it so
@@ -202,7 +202,7 @@ fi
 ##
 
 rm -rf ${PKI_CORE_PACKAGE_SCRIPT}
-printf "#!/bin/bash\n\n"                 >  ${PKI_CORE_PACKAGE_SCRIPT}
+printf "#!/bin/sh\n\n"                 >  ${PKI_CORE_PACKAGE_SCRIPT}
 printf "${PKI_CORE_PACKAGE_COMMAND}\n\n" >> ${PKI_CORE_PACKAGE_SCRIPT}
 chmod 775 ${PKI_CORE_PACKAGE_SCRIPT}
 
@@ -212,7 +212,7 @@ chmod 775 ${PKI_CORE_PACKAGE_SCRIPT}
 ##
 
 cd ${PKI_PACKAGES} ;
-bash ./package_${PKI_CORE} | tee package_${PKI_CORE}.log 2>&1
+sh ./package_${PKI_CORE} | tee package_${PKI_CORE}.log 2>&1
 
 if [ "$CREATEREPO" == "Y" ] ; then
    echo "Creating a repository of the built rpms"

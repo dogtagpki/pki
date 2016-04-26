@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 . /etc/tomcat/tomcat.conf
 NAME=$1

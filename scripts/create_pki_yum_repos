@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # This script may ONLY be run on Linux!
 PKI_OS=`uname`

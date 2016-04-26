@@ -110,7 +110,7 @@ fi
 ##      order this command wrapper uses to find jar files.                   ##
 ###############################################################################
 
-JNI_JAR_DIR=`source /usr/share/pki/etc/pki.conf && source /etc/pki/pki.conf && echo $JNI_JAR_DIR`
+JNI_JAR_DIR=`. /usr/share/pki/etc/pki.conf && . /etc/pki/pki.conf && echo $JNI_JAR_DIR`
 CP=${JNI_JAR_DIR}/jss4.jar
 CP=/usr/share/java/commons-cli.jar:${CP}
 CP=/usr/share/java/commons-codec.jar:${CP}
@@ -124,7 +124,7 @@ CP=/usr/share/java/${PRODUCT}/pki-cmsutil.jar:${CP}
 CP=/usr/share/java/${PRODUCT}/pki-tools.jar:${CP}
 export CP
 
-LOGGING_CONFIG=`source /usr/share/pki/etc/pki.conf && source /etc/pki/pki.conf && echo $LOGGING_CONFIG`
+LOGGING_CONFIG=`. /usr/share/pki/etc/pki.conf && . /etc/pki/pki.conf && echo $LOGGING_CONFIG`
 
 ###############################################################################
 ##  (6) Execute the java command specified by this java command wrapper      ##
