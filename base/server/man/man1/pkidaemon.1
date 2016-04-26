@@ -19,7 +19,7 @@
 
 .SH SYNOPSIS
 .nf
-\fBpkidaemon {start|status} instance-type [instance-name]\fR
+\fBpkidaemon {start|status} [instance-name]\fR
 .fi
 .TP
 \fBNote:\fP Although this tool currently resides in the \fB/usr/bin\fP directory, proper use of it requires it to be run with super user privileges.
@@ -29,8 +29,6 @@
 The \fBpkidaemon\fR command with the 'status' argument provides a way to display the status of all existing PKI instances on a machine.  Optionally, an individual PKI instance may be specified by using an optional \fB[instance-name]\fP.
 .PP
 The \fBpkidaemon\fR 'start' argument is currently only used internally by the systemctl scripts.
-.PP
-Currently, although the \fBpkidaemon\fR 'instance-type' argument states that it can be either \fBapache\fP or \fBtomcat\fP, only the \fBtomcat\fP argument will yield useful details.
 
 .SH OPTIONS
 As stated above, the only optional argument to \fBpkidaemon\fR is \fB[instance-name]\fP.  If a valid instance name is specified, only the status of that instance will be displayed.
@@ -44,7 +42,7 @@ For the OCSP 'Unsecure URL' and the OCSP 'Secure EE URL' which both specify a st
 .SS Listing the status of all local PKI instances on this machine:
 .BR
 .PP
-\fB# pkidaemon status tomcat\fR
+\fB# pkidaemon status\fR
 
 REPORT STATUS OF 'tomcat' INSTANCE(S):
 
@@ -58,7 +56,7 @@ Status for pki-tomcat: pki-tomcat is running ..
     PKI Console Command = pkiconsole https://pki.example.com:8443/ca
     Tomcat Port         = 8005 (for shutdown)
 
-    [DRM Status Definitions]
+    [KRA Status Definitions]
     Secure Agent URL    = https://pki.example.com:8443/kra/agent/kra
     Secure Admin URL    = https://pki.example.com:8443/kra/services
     PKI Console Command = pkiconsole https://pki.example.com:8443/kra
@@ -81,9 +79,9 @@ Status for pki-tomcat: pki-tomcat is running ..
     [TPS Status Definitions]
     Unsecure URL        = http://pki.example.com:8080/tps
     Secure URL          = https://pki.example.com:8443/tps
-    Tomcat Port         = 8005 (for shutdown)
     Unsecure PHONE HOME = http://pki.example.com:8080/tps/phoneHome
     Secure PHONE HOME   = https://pki.example.com:8443/tps/phoneHome
+    Tomcat Port         = 8005 (for shutdown)
 
     [CA Configuration Definitions]
     PKI Instance Name:   pki-tomcat
@@ -96,10 +94,10 @@ Status for pki-tomcat: pki-tomcat is running ..
     URL:   https://pki.example.com:8443
     ====================================================================
 
-    [DRM Configuration Definitions]
+    [KRA Configuration Definitions]
     PKI Instance Name:   pki-tomcat
 
-    PKI Subsystem Type:  DRM
+    PKI Subsystem Type:  KRA
 
     Registered PKI Security Domain Information:
     ====================================================================
@@ -166,7 +164,7 @@ FINISHED REPORTING STATUS OF 'tomcat' INSTANCE(S).
 .SS Listing the status of the PKI instance named 'pki-tomcat':
 .BR
 .PP
-\fB# pkidaemon status tomcat pki-tomcat\fR
+\fB# pkidaemon status pki-tomcat\fR
 
 Status for pki-tomcat: pki-tomcat is running ..
 
@@ -178,7 +176,7 @@ Status for pki-tomcat: pki-tomcat is running ..
     PKI Console Command = pkiconsole https://pki.example.com:8443/ca
     Tomcat Port         = 8005 (for shutdown)
 
-    [DRM Status Definitions]
+    [KRA Status Definitions]
     Secure Agent URL    = https://pki.example.com:8443/kra/agent/kra
     Secure Admin URL    = https://pki.example.com:8443/kra/services
     PKI Console Command = pkiconsole https://pki.example.com:8443/kra
@@ -201,9 +199,9 @@ Status for pki-tomcat: pki-tomcat is running ..
     [TPS Status Definitions]
     Unsecure URL        = http://pki.example.com:8080/tps
     Secure URL          = https://pki.example.com:8443/tps
-    Tomcat Port         = 8005 (for shutdown)
     Unsecure PHONE HOME = http://pki.example.com:8080/tps/phoneHome
     Secure PHONE HOME   = https://pki.example.com:8443/tps/phoneHome
+    Tomcat Port         = 8005 (for shutdown)
 
     [CA Configuration Definitions]
     PKI Instance Name:   pki-tomcat
@@ -216,10 +214,10 @@ Status for pki-tomcat: pki-tomcat is running ..
     URL:   https://pki.example.com:8443
     ====================================================================
 
-    [DRM Configuration Definitions]
+    [KRA Configuration Definitions]
     PKI Instance Name:   pki-tomcat
 
-    PKI Subsystem Type:  DRM
+    PKI Subsystem Type:  KRA
 
     Registered PKI Security Domain Information:
     ====================================================================
@@ -263,7 +261,7 @@ Status for pki-tomcat: pki-tomcat is running ..
 .SS Listing the status of the PKI instance named 'pki-tomcat-2':
 .BR
 .PP
-\fB# pkidaemon status tomcat pki-tomcat-2\fR
+\fB# pkidaemon status pki-tomcat-2\fR
 
 Status for pki-tomcat-2: pki-tomcat-2 is running ..
 

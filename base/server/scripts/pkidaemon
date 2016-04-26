@@ -24,8 +24,8 @@ SERVICE_NAME="pkidaemon"
 SERVICE_PROG="/bin/systemctl"
 
 command="$1"
-pki_instance_type="$2"
-pki_instance_id="$3"
+pki_instance_type="tomcat"
+pki_instance_id="$2"
 
 PKI_REGISTRY="/etc/sysconfig/pki/${pki_instance_type}"
 PKI_TYPE="${pki_instance_type}"
@@ -38,9 +38,7 @@ print_usage()
 {
     echo
     usage
-    echo "where valid instance types include:"
-    list_instance_types
-    echo "and where valid instance names include:"
+    echo "where valid instance names include:"
     list_instances
     exit ${default_error}
 }
@@ -75,9 +73,7 @@ case $command in
         echo "unknown action ($command)"
         echo
         usage
-        echo "where valid instance types include:"
-        list_instance_types
-        echo "and where valid instance names include:"
+        echo "where valid instance names include:"
         list_instances
         exit ${default_error}
         ;;

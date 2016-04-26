@@ -7,7 +7,7 @@ Type=simple
 EnvironmentFile=/etc/tomcat/tomcat.conf
 Environment="NAME=%i"
 EnvironmentFile=-/etc/sysconfig/%i
-ExecStartPre=/usr/bin/pkidaemon start tomcat %i
+ExecStartPre=/usr/bin/pkidaemon start %i
 ExecStart=/usr/libexec/tomcat/server start
 ExecStop=/usr/libexec/tomcat/server stop
 SuccessExitStatus=143

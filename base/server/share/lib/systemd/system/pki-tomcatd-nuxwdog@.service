@@ -8,7 +8,7 @@ EnvironmentFile=/etc/tomcat/tomcat.conf
 Environment="NAME=%i"
 Environment="STARTED_BY_SYSTEMD=1"
 EnvironmentFile=-/etc/sysconfig/%i
-ExecStartPre=/usr/bin/pkidaemon start tomcat %i
+ExecStartPre=/usr/bin/pkidaemon start %i
 ExecStart=/bin/nuxwdog -f /etc/pki/%i/nuxwdog.conf
 SuccessExitStatus=143
 TimeoutStartSec=180
