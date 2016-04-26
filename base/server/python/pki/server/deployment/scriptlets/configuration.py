@@ -36,7 +36,6 @@ import pki.util
 
 # PKI Deployment Configuration Scriptlet
 class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
-    rv = 0
 
     def spawn(self, deployer):
 
@@ -49,7 +48,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if config.str2bool(deployer.mdict['pki_skip_configuration']):
             config.pki_log.info(log.SKIP_CONFIGURATION_SPAWN_1, __name__,
                                 extra=config.PKI_INDENTATION_LEVEL_1)
-            return self.rv
+            return
+
         config.pki_log.info(log.CONFIGURATION_SPAWN_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
 
@@ -234,7 +234,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             nssdb.close()
 
         if external and step_one:
-            return self.rv
+            return
 
         if len(deployer.instance.tomcat_instance_subsystems()) < 2:
 
@@ -326,8 +326,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         deployer.config_client.configure_pki_data(
             json.dumps(data, cls=pki.encoder.CustomTypeEncoder))
 
-        return self.rv
-
     def destroy(self, deployer):
 
         config.pki_log.info(log.CONFIGURATION_DESTROY_1, __name__,
@@ -336,4 +334,3 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             if deployer.directory.exists(deployer.mdict['pki_client_dir']):
                 deployer.directory.delete(deployer.mdict['pki_client_dir'])
             deployer.symlink.delete(deployer.mdict['pki_systemd_service_link'])
-        return self.rv

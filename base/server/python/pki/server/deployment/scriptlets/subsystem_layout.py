@@ -28,14 +28,14 @@ from .. import pkiscriptlet
 
 # PKI Deployment Subsystem Layout Scriptlet
 class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
-    rv = 0
 
     def spawn(self, deployer):
 
         if config.str2bool(deployer.mdict['pki_skip_installation']):
             config.pki_log.info(log.SKIP_SUBSYSTEM_SPAWN_1, __name__,
                                 extra=config.PKI_INDENTATION_LEVEL_1)
-            return self.rv
+            return
+
         config.pki_log.info(log.SUBSYSTEM_SPAWN_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
         # establish instance-based subsystem logs
@@ -118,7 +118,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         deployer.symlink.create(
             deployer.mdict['pki_instance_registry_path'],
             deployer.mdict['pki_subsystem_registry_link'])
-        return self.rv
 
     def destroy(self, deployer):
 
@@ -146,4 +145,3 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # remove instance-based subsystem registry
         deployer.directory.delete(
             deployer.mdict['pki_subsystem_registry_path'])
-        return self.rv

@@ -29,14 +29,14 @@ from .. import pkiscriptlet
 
 # PKI Deployment Top-Level Infrastructure Layout Scriptlet
 class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
-    rv = 0
 
     def spawn(self, deployer):
 
         if config.str2bool(deployer.mdict['pki_skip_installation']):
             config.pki_log.info(log.SKIP_ADMIN_DOMAIN_SPAWN_1, __name__,
                                 extra=config.PKI_INDENTATION_LEVEL_1)
-            return self.rv
+            return
+
         config.pki_log.info(log.ADMIN_DOMAIN_SPAWN_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
         # NOTE:  It was determined that since the "pkidestroy" command
@@ -100,7 +100,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if deployer.mdict['pki_configuration_path'] != \
            config.PKI_DEPLOYMENT_CONFIGURATION_ROOT:
             deployer.directory.create(deployer.mdict['pki_configuration_path'])
-        return self.rv
 
     def destroy(self, deployer):
 
@@ -125,4 +124,3 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     deployer.mdict['pki_configuration_path'])
             # remove top-level infrastructure registry
             deployer.directory.delete(deployer.mdict['pki_registry_path'])
-        return self.rv

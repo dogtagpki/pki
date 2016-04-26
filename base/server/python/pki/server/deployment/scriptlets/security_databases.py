@@ -32,14 +32,13 @@ from .. import pkiscriptlet
 
 # PKI Deployment Security Databases Scriptlet
 class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
-    rv = 0
 
     def spawn(self, deployer):
 
         if config.str2bool(deployer.mdict['pki_skip_installation']):
             config.pki_log.info(log.SKIP_SECURITY_DATABASES_SPAWN_1, __name__,
                                 extra=config.PKI_INDENTATION_LEVEL_1)
-            return self.rv
+            return
 
         config.pki_log.info(log.SECURITY_DATABASES_SPAWN_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
@@ -158,7 +157,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         # Always delete the temporary 'pfile'
         deployer.file.delete(deployer.mdict['pki_shared_pfile'])
-        return self.rv
 
     def update_external_certs_conf(self, external_path, deployer):
         external_certs = pki.server.PKIInstance.read_external_certs(
@@ -182,4 +180,3 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             deployer.file.delete(deployer.mdict['pki_key_database'])
             deployer.file.delete(deployer.mdict['pki_secmod_database'])
             deployer.file.delete(deployer.mdict['pki_shared_password_conf'])
-        return self.rv

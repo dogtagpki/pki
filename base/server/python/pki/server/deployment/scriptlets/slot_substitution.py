@@ -28,14 +28,14 @@ from .. import pkiscriptlet
 
 # PKI Deployment Slot Substitution Scriptlet
 class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
-    rv = 0
 
     def spawn(self, deployer):
 
         if config.str2bool(deployer.mdict['pki_skip_installation']):
             config.pki_log.info(log.SKIP_SLOT_ASSIGNMENT_SPAWN_1, __name__,
                                 extra=config.PKI_INDENTATION_LEVEL_1)
-            return self.rv
+            return
+
         config.pki_log.info(log.SLOT_ASSIGNMENT_SPAWN_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
         deployer.file.copy_with_slot_substitution(
@@ -84,11 +84,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             deployer.file.copy_with_slot_substitution(
                 deployer.mdict['pki_source_phone_home_xml'],
                 deployer.mdict['pki_target_phone_home_xml'])
-        return self.rv
 
     def destroy(self, deployer):
         config.pki_log.info(log.SLOT_ASSIGNMENT_DESTROY_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
         config.pki_log.info("NOTHING NEEDS TO BE IMPLEMENTED",
                             extra=config.PKI_INDENTATION_LEVEL_2)
-        return self.rv

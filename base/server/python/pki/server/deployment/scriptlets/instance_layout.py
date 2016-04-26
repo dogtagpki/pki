@@ -30,14 +30,13 @@ from .. import pkiscriptlet
 
 # PKI Deployment Instance Layout Scriptlet
 class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
-    rv = 0
 
     def spawn(self, deployer):
 
         if config.str2bool(deployer.mdict['pki_skip_installation']):
             config.pki_log.info(log.SKIP_INSTANCE_SPAWN_1, __name__,
                                 extra=config.PKI_INDENTATION_LEVEL_1)
-            return self.rv
+            return
 
         config.pki_log.info(log.INSTANCE_SPAWN_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
@@ -293,7 +292,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     deployer.symlink.create(
                         deployer.mdict['pki_symkey_jar'],
                         deployer.mdict['pki_symkey_jar_link'])
-        return self.rv
 
     def destroy(self, deployer):
 
@@ -320,8 +318,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             if deployer.instance.tomcat_instances() == 0:
                 deployer.directory.delete(
                     deployer.mdict['pki_instance_type_registry_path'])
-
-        return self.rv
 
 
 # Callback only when the /usr/share/pki/server/conf directory

@@ -30,14 +30,13 @@ from .. import pkiscriptlet
 
 # PKI Web Application Deployment Scriptlet
 class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
-    rv = 0
 
     def spawn(self, deployer):
         if config.str2bool(deployer.mdict['pki_skip_installation']):
             config.pki_log.info(log.SKIP_WEBAPP_DEPLOYMENT_SPAWN_1,
                                 __name__,
                                 extra=config.PKI_INDENTATION_LEVEL_1)
-            return self.rv
+            return
 
         config.pki_log.info(log.WEBAPP_DEPLOYMENT_SPAWN_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
@@ -67,8 +66,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 "localhost",
                 deployer.mdict['pki_subsystem'].lower() + ".xml"))
 
-        return self.rv
-
     def destroy(self, deployer):
         config.pki_log.info(log.WEBAPP_DEPLOYMENT_DESTROY_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
@@ -80,5 +77,3 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 "Catalina",
                 "localhost",
                 deployer.mdict['pki_subsystem'].lower() + ".xml"))
-
-        return self.rv

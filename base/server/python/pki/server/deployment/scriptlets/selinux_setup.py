@@ -42,7 +42,7 @@ if selinux.is_selinux_enabled():
 
 # PKI Deployment Selinux Setup Scriptlet
 class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
-    rv = 0
+
     suffix = "(/.*)?"
 
     def restore_context(self, mdict):
@@ -56,12 +56,12 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if config.str2bool(deployer.mdict['pki_skip_installation']):
             config.pki_log.info(log.SKIP_SELINUX_SPAWN_1, __name__,
                                 extra=config.PKI_INDENTATION_LEVEL_1)
-            return self.rv
+            return
 
         if not selinux.is_selinux_enabled() or seobject is None:
             config.pki_log.info(log.SELINUX_DISABLED_SPAWN_1, __name__,
                                 extra=config.PKI_INDENTATION_LEVEL_1)
-            return self.rv
+            return
 
         config.pki_log.info(log.SELINUX_SPAWN_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
@@ -74,7 +74,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 if len(ports) == 0 and deployer.mdict['pki_instance_name'] == \
                         config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_INSTANCE_NAME:
                     self.restore_context(deployer.mdict)
-                    return self.rv
+                    return
 
                 # add SELinux contexts when adding the first subsystem
                 if len(deployer.instance.tomcat_instance_subsystems()) == 1:
@@ -148,21 +148,21 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 else:
                     raise
 
-        return self.rv
-
     def destroy(self, deployer):
 
         if not bool(selinux.is_selinux_enabled()):
             config.pki_log.info(log.SELINUX_DISABLED_DESTROY_1, __name__,
                                 extra=config.PKI_INDENTATION_LEVEL_1)
-            return self.rv
+            return
+
         config.pki_log.info(log.SELINUX_DESTROY_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
 
         # check first if any transactions are required
         if (len(ports) == 0 and deployer.mdict['pki_instance_name'] ==
                 config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_INSTANCE_NAME):
-            return self.rv
+            return
+
         # A maximum of 10 tries to delete the SELinux contexts
         counter = 1
         max_tries = 10
@@ -234,5 +234,3 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                         "Retrying to remove selinux context ...")
                 else:
                     raise
-
-        return self.rv

@@ -28,7 +28,6 @@ from .. import pkiscriptlet
 
 # PKI Deployment Initialization Scriptlet
 class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
-    rv = 0
 
     def spawn(self, deployer):
 
@@ -48,7 +47,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if config.str2bool(deployer.mdict['pki_skip_installation']):
             config.pki_log.info(log.SKIP_INITIALIZATION_SPAWN_1, __name__,
                                 extra=config.PKI_INDENTATION_LEVEL_1)
-            return self.rv
+            return
+
         else:
             config.pki_log.info(log.INITIALIZATION_SPAWN_1, __name__,
                                 extra=config.PKI_INDENTATION_LEVEL_1)
@@ -76,7 +76,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         deployer.configuration_file.verify_selinux_ports()
         # If secure DS connection is required, verify parameters
         deployer.configuration_file.verify_ds_secure_connection_data()
-        return self.rv
 
     def destroy(self, deployer):
 
@@ -121,4 +120,3 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         deployer.security_domain.deregister(None)
         # ALWAYS Stop this Tomcat PKI Process
         deployer.systemd.stop()
-        return self.rv

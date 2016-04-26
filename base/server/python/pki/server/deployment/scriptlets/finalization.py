@@ -29,7 +29,6 @@ from .. import pkiscriptlet
 
 # PKI Deployment Finalization Scriptlet
 class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
-    rv = 0
 
     def spawn(self, deployer):
 
@@ -93,7 +92,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                             deployer.mdict['pki_instance_name'],
                             extra=config.PKI_INDENTATION_LEVEL_0)
         deployer.file.modify(deployer.mdict['pki_spawn_log'], silent=True)
-        return self.rv
 
     def destroy(self, deployer):
 
@@ -112,4 +110,3 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                             deployer.mdict['pki_subsystem'],
                             deployer.mdict['pki_instance_name'],
                             extra=config.PKI_INDENTATION_LEVEL_0)
-        return self.rv

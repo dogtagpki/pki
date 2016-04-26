@@ -35,6 +35,7 @@ try:
     import struct
     import subprocess
     import time
+    import traceback
     from time import strftime as date
     from pki.server.deployment import pkiconfig as config
     from pki.server.deployment.pkiparser import PKIConfigParser
@@ -256,15 +257,26 @@ def main(argv):
     # Process the various "scriptlets" to remove the specified PKI subsystem.
     pki_subsystem_scriptlets = parser.mdict['destroy_scriplets'].split()
     deployer = util.PKIDeployer(parser.mdict)
-    rv = 0
-    for scriptlet_name in pki_subsystem_scriptlets:
-        scriptlet_module = __import__(
-            "pki.server.deployment.scriptlets." + scriptlet_name,
-            fromlist=[scriptlet_name])
-        scriptlet = scriptlet_module.PkiScriptlet()
-        rv = scriptlet.destroy(deployer)
-        if rv != 0:
-            sys.exit(1)
+
+    try:
+        for scriptlet_name in pki_subsystem_scriptlets:
+
+            scriptlet_module = __import__(
+                "pki.server.deployment.scriptlets." + scriptlet_name,
+                fromlist=[scriptlet_name])
+
+            scriptlet = scriptlet_module.PkiScriptlet()
+
+            scriptlet.destroy(deployer)
+
+    # pylint: disable=W0703
+    except Exception as e:
+        log_error_details()
+        print()
+        print("Uninstallation failed: %s" % e)
+        print()
+        sys.exit(1)
+
     config.pki_log.debug(log.PKI_DICTIONARY_MASTER,
                          extra=config.PKI_INDENTATION_LEVEL_0)
     config.pki_log.debug(pkilogging.log_format(parser.mdict),
@@ -273,6 +285,19 @@ def main(argv):
     print()
     print("Uninstallation complete.")
 
+
+def log_error_details():
+    e_type, e_value, e_stacktrace = sys.exc_info()
+    config.pki_log.debug(
+        "Error Type: " + e_type.__name__, extra=config.PKI_INDENTATION_LEVEL_2)
+    config.pki_log.debug(
+        "Error Message: " + str(e_value), extra=config.PKI_INDENTATION_LEVEL_2)
+    stacktrace_list = traceback.format_list(traceback.extract_tb(e_stacktrace))
+    e_stacktrace = ""
+    for l in stacktrace_list:
+        e_stacktrace += l
+    config.pki_log.debug(e_stacktrace, extra=config.PKI_INDENTATION_LEVEL_2)
+    del e_type, e_value, e_stacktrace
 
 # PKI Deployment Entry Point
 if __name__ == "__main__":
