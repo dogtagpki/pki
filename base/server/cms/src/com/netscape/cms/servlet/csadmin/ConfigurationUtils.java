@@ -1168,7 +1168,7 @@ public class ConfigurationUtils {
         CryptoManager cm = CryptoManager.getInstance();
         X509Certificate[] permcerts = cm.getPermCerts();
         for (int i = 0; i < permcerts.length; i++) {
-            String issuer_p = permcerts[i].getSubjectDN().toString();
+            String issuer_p = permcerts[i].getIssuerDN().toString();
             BigInteger serial_p = permcerts[i].getSerialNumber();
             if (issuer_p.equals(issuer_impl) && serial_p.compareTo(serial_impl) == 0) {
                 return permcerts[i];
