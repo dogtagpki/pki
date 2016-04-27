@@ -22,7 +22,6 @@ from __future__ import absolute_import
 
 # PKI Deployment Imports
 from .. import pkiconfig as config
-from .. import pkimanifest as manifest
 from .. import pkimessages as log
 from .. import pkiscriptlet
 
@@ -32,30 +31,19 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
     def spawn(self, deployer):
 
-        # ALWAYS finalize execution of scriptlets
+        external = deployer.configuration_file.external
+        standalone = deployer.configuration_file.standalone
+        step_one = deployer.configuration_file.external_step_one
+        skip_configuration = deployer.configuration_file.skip_configuration
+
+        if (external or standalone) and step_one or skip_configuration:
+            config.pki_log.info(log.SKIP_FINALIZATION_SPAWN_1, __name__,
+                                extra=config.PKI_INDENTATION_LEVEL_1)
+            return
+
         config.pki_log.info(log.FINALIZATION_SPAWN_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
-        # For debugging/auditing purposes, save a timestamped copy of
-        # this configuration file in the subsystem archive
-        deployer.file.copy(
-            deployer.mdict['pki_user_deployment_cfg_replica'],
-            deployer.mdict['pki_user_deployment_cfg_spawn_archive'])
-        # Save a copy of the installation manifest file
-        config.pki_log.info(
-            log.PKI_MANIFEST_MESSAGE_1, deployer.mdict['pki_manifest'],
-            extra=config.PKI_INDENTATION_LEVEL_2)
-        # for record in manifest.database:
-        #     print tuple(record)
-        manifest_file = manifest.File(deployer.manifest_db)
-        manifest_file.register(deployer.mdict['pki_manifest'])
-        manifest_file.write()
-        deployer.file.modify(deployer.mdict['pki_manifest'], silent=True)
 
-        # Also, for debugging/auditing purposes, save a timestamped copy of
-        # this installation manifest file
-        deployer.file.copy(
-            deployer.mdict['pki_manifest'],
-            deployer.mdict['pki_manifest_spawn_archive'])
         # Optionally, programmatically 'enable' the configured PKI instance
         # to be started upon system boot (default is True)
         if not config.str2bool(deployer.mdict['pki_enable_on_system_boot']):
@@ -66,13 +54,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             # Modify contents of 'serverCertNick.conf' (if necessary)
             deployer.servercertnick_conf.modify()
 
-        external = config.str2bool(deployer.mdict['pki_external'])
-        step_one = not config.str2bool(deployer.mdict['pki_external_step_two'])
-
-        if not (external and step_one):
-            # Optionally, programmatically 'restart' the configured PKI instance
-            if config.str2bool(deployer.mdict['pki_restart_configured_instance']):
-                deployer.systemd.restart()
+        # Optionally, programmatically 'restart' the configured PKI instance
+        if config.str2bool(deployer.mdict['pki_restart_configured_instance']):
+            deployer.systemd.restart()
 
         # Optionally, 'purge' the entire temporary client infrastructure
         # including the client NSS security databases and password files

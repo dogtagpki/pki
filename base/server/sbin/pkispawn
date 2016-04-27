@@ -40,6 +40,7 @@ try:
     import traceback
     from time import strftime as date
     from pki.server.deployment import pkiconfig as config
+    from pki.server.deployment import pkimanifest as manifest
     from pki.server.deployment.pkiparser import PKIConfigParser
     from pki.server.deployment import pkilogging
     from pki.server.deployment import pkimessages as log
@@ -534,18 +535,60 @@ def main(argv):
         print()
         sys.exit(1)
 
+    # ALWAYS archive configuration file and manifest file
+
+    config.pki_log.info(
+        log.PKI_ARCHIVE_CONFIG_MESSAGE_1,
+        deployer.mdict['pki_user_deployment_cfg_spawn_archive'],
+        extra=config.PKI_INDENTATION_LEVEL_1)
+
+    # For debugging/auditing purposes, save a timestamped copy of
+    # this configuration file in the subsystem archive
+    deployer.file.copy(
+        deployer.mdict['pki_user_deployment_cfg_replica'],
+        deployer.mdict['pki_user_deployment_cfg_spawn_archive'])
+
+    config.pki_log.info(
+        log.PKI_ARCHIVE_MANIFEST_MESSAGE_1,
+        deployer.mdict['pki_manifest_spawn_archive'],
+        extra=config.PKI_INDENTATION_LEVEL_1)
+
+    # for record in manifest.database:
+    #     print tuple(record)
+
+    manifest_file = manifest.File(deployer.manifest_db)
+    manifest_file.register(deployer.mdict['pki_manifest'])
+    manifest_file.write()
+
+    deployer.file.modify(deployer.mdict['pki_manifest'], silent=True)
+
+    # Also, for debugging/auditing purposes, save a timestamped copy of
+    # this installation manifest file
+    deployer.file.copy(
+        deployer.mdict['pki_manifest'],
+        deployer.mdict['pki_manifest_spawn_archive'])
+
     config.pki_log.debug(log.PKI_DICTIONARY_MASTER,
                          extra=config.PKI_INDENTATION_LEVEL_0)
     config.pki_log.debug(pkilogging.log_format(parser.mdict),
                          extra=config.PKI_INDENTATION_LEVEL_0)
 
     external = deployer.configuration_file.external
+    standalone = deployer.configuration_file.standalone
     step_one = deployer.configuration_file.external_step_one
+    skip_configuration = deployer.configuration_file.skip_configuration
 
     if external and step_one:
         print_external_ca_step_one_information(parser.mdict)
+
+    elif standalone and step_one:
+        print_standalone_step_one_information(parser.mdict)
+
+    elif skip_configuration:
+        print_skip_configuration_information(parser.mdict)
+
     else:
-        print_install_information(parser.mdict)
+        print_final_install_information(parser.mdict)
 
 
 def start_logging():
@@ -672,48 +715,76 @@ def print_external_ca_step_one_information(mdict):
     print(log.PKI_SPAWN_INFORMATION_FOOTER)
 
 
-def print_install_information(mdict):
+def print_standalone_step_one_information(mdict):
 
-    skip_configuration = config.str2bool(mdict['pki_skip_configuration'])
     print(log.PKI_SPAWN_INFORMATION_HEADER)
-    if skip_configuration:
-        print("      The %s subsystem of the '%s' instance\n"
-              "      must still be configured!" %
-              (config.pki_subsystem, mdict['pki_instance_name']))
+    print("      The %s subsystem of the '%s' instance is still incomplete." %
+          (config.pki_subsystem, mdict['pki_instance_name']))
+    print()
+    print("      The CSRs for the %s certificates have been generated in:\n"
+          "            %s"
+          % (config.pki_subsystem, mdict['pki_instance_configuration_path']))
+    print(log.PKI_CHECK_STATUS_MESSAGE % mdict['pki_instance_name'])
+    print(log.PKI_INSTANCE_RESTART_MESSAGE % mdict['pki_instance_name'])
+    print(log.PKI_CONFIGURATION_STANDALONE_1 % config.pki_subsystem)
+    print(log.PKI_SPAWN_INFORMATION_FOOTER)
+
+
+def print_skip_configuration_information(mdict):
+
+    print(log.PKI_SPAWN_INFORMATION_HEADER)
+    print("      The %s subsystem of the '%s' instance\n"
+          "      must still be configured!" %
+          (config.pki_subsystem, mdict['pki_instance_name']))
+    print(log.PKI_CHECK_STATUS_MESSAGE % mdict['pki_instance_name'])
+    print(log.PKI_INSTANCE_RESTART_MESSAGE % mdict['pki_instance_name'])
+
+    print(log.PKI_ACCESS_URL % (mdict['pki_hostname'],
+                                mdict['pki_https_port'],
+                                config.pki_subsystem.lower()))
+    if not config.str2bool(mdict['pki_enable_on_system_boot']):
+        print(log.PKI_SYSTEM_BOOT_STATUS_MESSAGE % "disabled")
     else:
-        print("      Administrator's username:             %s" %
-              mdict['pki_admin_uid'])
-        if os.path.isfile(mdict['pki_client_admin_cert_p12']):
-            print("      Administrator's PKCS #12 file:\n            %s" %
-                  mdict['pki_client_admin_cert_p12'])
-        if not config.str2bool(mdict['pki_client_database_purge']):
-            print()
-            print("      Administrator's certificate nickname:\n            %s"
-                  % mdict['pki_admin_nickname'])
-        if not config.str2bool(mdict['pki_clone']):
-            print("      Administrator's certificate database:\n            %s"
-                  % mdict['pki_client_database_dir'])
-        else:
-            print()
-            print("      This %s subsystem of the '%s' instance\n"
-                  "      is a clone." %
-                  (config.pki_subsystem, mdict['pki_instance_name']))
-        print(log.PKI_CHECK_STATUS_MESSAGE % mdict['pki_instance_name'])
-        print(log.PKI_INSTANCE_RESTART_MESSAGE % mdict['pki_instance_name'])
-        if (((config.pki_subsystem == "KRA" or
-              config.pki_subsystem == "OCSP") and
-             config.str2bool(mdict['pki_standalone'])) and
-                not config.str2bool(mdict['pki_external_step_two'])):
-            # Stand-alone PKI KRA/OCSP (External CA Step 1)
-            print(log.PKI_CONFIGURATION_STANDALONE_1 % config.pki_subsystem)
-        else:
-            print(log.PKI_ACCESS_URL % (mdict['pki_hostname'],
-                                        mdict['pki_https_port'],
-                                        config.pki_subsystem.lower()))
-            if not config.str2bool(mdict['pki_enable_on_system_boot']):
-                print(log.PKI_SYSTEM_BOOT_STATUS_MESSAGE % "disabled")
-            else:
-                print(log.PKI_SYSTEM_BOOT_STATUS_MESSAGE % "enabled")
+        print(log.PKI_SYSTEM_BOOT_STATUS_MESSAGE % "enabled")
+    print(log.PKI_SPAWN_INFORMATION_FOOTER)
+
+
+def print_final_install_information(mdict):
+
+    print(log.PKI_SPAWN_INFORMATION_HEADER)
+    print("      Administrator's username:             %s" %
+          mdict['pki_admin_uid'])
+
+    if os.path.isfile(mdict['pki_client_admin_cert_p12']):
+        print("      Administrator's PKCS #12 file:\n            %s" %
+              mdict['pki_client_admin_cert_p12'])
+
+    if not config.str2bool(mdict['pki_client_database_purge']):
+        print()
+        print("      Administrator's certificate nickname:\n            %s"
+              % mdict['pki_admin_nickname'])
+
+    if not config.str2bool(mdict['pki_clone']):
+        print("      Administrator's certificate database:\n            %s"
+              % mdict['pki_client_database_dir'])
+
+    else:
+        print()
+        print("      This %s subsystem of the '%s' instance\n"
+              "      is a clone." %
+              (config.pki_subsystem, mdict['pki_instance_name']))
+
+    print(log.PKI_CHECK_STATUS_MESSAGE % mdict['pki_instance_name'])
+    print(log.PKI_INSTANCE_RESTART_MESSAGE % mdict['pki_instance_name'])
+
+    print(log.PKI_ACCESS_URL % (mdict['pki_hostname'],
+                                mdict['pki_https_port'],
+                                config.pki_subsystem.lower()))
+    if not config.str2bool(mdict['pki_enable_on_system_boot']):
+        print(log.PKI_SYSTEM_BOOT_STATUS_MESSAGE % "disabled")
+    else:
+        print(log.PKI_SYSTEM_BOOT_STATUS_MESSAGE % "enabled")
+
     print(log.PKI_SPAWN_INFORMATION_FOOTER)
 
 
