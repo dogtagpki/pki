@@ -456,17 +456,17 @@ public class TPSMessage {
             break;
         case MSG_EXTENDED_LOGIN_RESPONSE:
             result =
-                new ExtendedLoginResponseMsg(op_val,
-                    get(UID_NAME),
-                    get(PASSWORD_NAME),
-                    extsMap);
+                    new ExtendedLoginResponseMsg(op_val,
+                            Util.uriDecode(get(UID_NAME)),
+                            Util.uriDecode(get(PASSWORD_NAME)),
+                            extsMap);
             break;
         case MSG_LOGIN_REQUEST:
             break;
         case MSG_LOGIN_RESPONSE:
             result =
-                new LoginResponseMsg(get(SCREEN_NAME_NAME),
-                    get(PASSWORD_NAME_1));
+                    new LoginResponseMsg(Util.uriDecode(get(SCREEN_NAME_NAME)),
+                            Util.uriDecode(get(PASSWORD_NAME_1)));
             break;
         case MSG_NEW_PIN_REQUEST:
             break;
