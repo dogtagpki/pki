@@ -23,8 +23,6 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Vector;
 
-import org.apache.commons.codec.binary.StringUtils;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzManagerProxy;
@@ -514,7 +512,7 @@ public class AuthzSubsystem implements IAuthzSubsystem {
 
                 List<String> mgrRealms = Arrays.asList(mgrRealmString.split(","));
                 for (String mgrRealm : mgrRealms) {
-                    if (StringUtils.equals(mgrRealm, realm))
+                    if (mgrRealm.equals(realm))
                         return mgr.getName();
                 }
             }
