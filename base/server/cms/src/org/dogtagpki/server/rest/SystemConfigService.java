@@ -618,6 +618,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
                 if (data.getImportAdminCert().equalsIgnoreCase("true")) {
                     String b64 = CryptoUtil.stripCertBrackets(data.getAdminCert().trim());
+                    b64 = CryptoUtil.normalizeCertStr(b64);
                     if (data.getStandAlone() && data.getStepTwo()) {
                         // Stand-alone PKI (Step 2)
                         CMS.debug("SystemConfigService:  Stand-alone " + csType + " Admin Cert");
