@@ -1959,9 +1959,10 @@ tokendb._069=#     DAMAGED = 1,
 tokendb._070=#     PERM_LOST = 2,
 tokendb._071=#     SUSPENDED = 3,
 tokendb._072=#     ACTIVE = 4,
-tokendb._073=#     TEMP_LOST_PERM_LOST = 5,
-tokendb._074=#     TERMINATED = 6
-tokendb._075=#########################################
+tokendb._073=#     TERMINATED = 6
+tokendb._074=# Note: Default transitions can be removed from the list if necessary.
+tokendb._075=# Do not add other transitions since they may not be supported.
+tokendb._076=#########################################
 tokendb.activityBaseDN=ou=Activities,[TOKENDB_ROOT]
 tokendb.addConfigTemplate=addConfig.template
 tokendb.addResultTemplate=addResults.template
@@ -2021,23 +2022,19 @@ tps._002=# tps.cert.list=sslserver,subsystem,audit_signing
 tps._003=# tps.cert.sslserver.nickname=xxx
 tps._005=# tps.cert.subsystem.nickname=xxx
 tps._007=# tps.cert.audit_signing.nickname=xxx
-tps._008=# operations.allowedTransitions:
+tps._008=# tps.operations.allowedTransitions:
 tps._009=#   - token operations, like formatting and enrollment have transitions between the following states
 tps._010=#     READY = 0,
-tps._011=#     DAMAGED = 1,
-tps._012=#     PERM_LOST = 2,
-tps._013=#     SUSPENDED = 3,
-tps._014=#     ACTIVE = 4,
-tps._015=#     TEMP_LOST_PERM_LOST = 5,
-tps._016=#     TERMINATED = 6
-tps._017=# Sample: tps.operations.allowedTransitions=0:0,0:4,4:4,4:6,6:0
-tps._018=########################################
+tps._011=#     ACTIVE = 4
+tps._012=# Note: Default transitions can be removed from the list if necessary.
+tps._013=# Do not add other transitions since they may not be supported.
+tps._014=########################################
 tps.cert.audit_signing.certusage=ObjectSigner
 tps.cert.audit_signing.nickname=[HSM_LABEL][NICKNAME]
 tps.cert.list=sslserver,subsystem,audit_signing
 tps.cert.sslserver.certusage=SSLServer
 tps.cert.subsystem.certusage=SSLClient
-tps.operations.allowedTransitions=0:0,0:4,4:0
+tps.operations.allowedTransitions=0:0,0:4,4:4,4:0
 usrgrp._000=##
 usrgrp._001=## User/Group
 usrgrp._002=##
