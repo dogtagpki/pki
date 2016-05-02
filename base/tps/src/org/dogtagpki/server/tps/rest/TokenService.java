@@ -83,17 +83,16 @@ public class TokenService extends PKIService implements TokenResource {
                     throws Exception {
         TPSSubsystem tps = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
 
-        String oldStatus = tokenRecord.getStatus();
+        TokenStatus oldStatus = tokenRecord.getTokenStatus();
         String oldReason = tokenRecord.getReason();
-        String newStatus = String.valueOf(tokenState);
+        TokenStatus newStatus = tokenState;
         String newReason = null;
 
         auditModParams.put("UserID", tokenRecord.getUserID());
 
         switch (tokenState.getValue()) {
         case TokenStatus.TOKEN_READY:
-            tokenRecord.setStatus("ready");
-            newStatus = "ready";
+            tokenRecord.setTokenStatus(tokenState);
             tokenRecord.setReason(null);
             break;
 
@@ -103,15 +102,13 @@ public class TokenService extends PKIService implements TokenResource {
                 tps.tdb.unRevokeCertsByCUID(tokenRecord.getId(), ipAddress, remoteUser);
             }
 
-            tokenRecord.setStatus("active");
-            newStatus = "active";
+            tokenRecord.setTokenStatus(tokenState);
             tokenRecord.setReason(null);
             break;
 
         case TokenStatus.TOKEN_PERM_LOST:
         case TokenStatus.TOKEN_TEMP_LOST_PERM_LOST:
-            tokenRecord.setStatus("lost");
-            newStatus = "lost";
+            tokenRecord.setTokenStatus(tokenState);
             tokenRecord.setReason("keyCompromise");
             newReason = "keyCompromise";
 
@@ -120,8 +117,7 @@ public class TokenService extends PKIService implements TokenResource {
             break;
 
         case TokenStatus.TOKEN_DAMAGED:
-            tokenRecord.setStatus("lost");
-            newStatus = "lost";
+            tokenRecord.setTokenStatus(tokenState);
             tokenRecord.setReason("destroyed");
             newReason = "destroyed";
 
@@ -130,8 +126,7 @@ public class TokenService extends PKIService implements TokenResource {
             break;
 
         case TokenStatus.TOKEN_SUSPENDED:
-            tokenRecord.setStatus("lost");
-            newStatus = "lost";
+            tokenRecord.setTokenStatus(tokenState);
             tokenRecord.setReason("onHold");
             newReason = "onHold";
 
@@ -141,15 +136,11 @@ public class TokenService extends PKIService implements TokenResource {
 
         case TokenStatus.TOKEN_TERMINATED:
             String reason = "terminated";
-            String origStatus2 = tokenRecord.getStatus();
-            String origReason2 = tokenRecord.getReason();
-            // temp token looks at "onHold"
-            if (origStatus2.equalsIgnoreCase("lost") &&
-                    origReason2.equalsIgnoreCase("onHold")) {
-                reason = "onHold";
+            // keep original reason for suspension
+            if (oldStatus == TokenStatus.SUSPENDED) {
+                reason = oldReason;
             }
-            tokenRecord.setStatus("terminated");
-            newStatus = "terminated";
+            tokenRecord.setTokenStatus(tokenState);
             tokenRecord.setReason(reason);
             newReason = reason;
 
@@ -378,8 +369,8 @@ public class TokenService extends PKIService implements TokenResource {
             }
 
             // new tokens are ready when created
-            tokenRecord.setStatus("ready");
-            auditModParams.put("Status", "ready");
+            tokenRecord.setTokenStatus(TokenStatus.READY);
+            auditModParams.put("Status", TokenStatus.READY.toString());
 
             database.addRecord(tokenID, tokenRecord);
             subsystem.tdb.tdbActivity(ActivityDatabase.OP_ADD, tokenRecord,
@@ -617,9 +608,9 @@ public class TokenService extends PKIService implements TokenResource {
 
         TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
         // for auditing
-        String oldStatus = null;
+        TokenStatus oldStatus = null;
         String oldReason = null;
-        String newStatus = null;
+        TokenStatus newStatus = null;
         String newReason = null;
 
         TokenRecord tokenRecord = null;
@@ -631,9 +622,9 @@ public class TokenService extends PKIService implements TokenResource {
             TokenStatus currentTokenStatus = tokenRecord.getTokenStatus();
             CMS.debug("TokenService.changeTokenStatus(): current status: " + currentTokenStatus);
 
-            oldStatus = tokenRecord.getStatus();
+            oldStatus = tokenRecord.getTokenStatus();
             oldReason = tokenRecord.getReason();
-            newStatus = String.valueOf(tokenStatus);
+            newStatus = tokenStatus;
 
             if (currentTokenStatus == tokenStatus) {
                 CMS.debug("TokenService.changeTokenStatus(): no status change, no activity log generated");
@@ -789,16 +780,16 @@ public class TokenService extends PKIService implements TokenResource {
     /*
      *
      */
-    public void auditTokenStateChange(String status, String oldState, String newState, String oldReason,
+    public void auditTokenStateChange(String status, TokenStatus oldState, TokenStatus newState, String oldReason,
             String newReason, Map<String, String> params, String info) {
 
         String msg = CMS.getLogMessage(
                 "LOGGING_SIGNED_AUDIT_TOKEN_STATE_CHANGE_8",
                 servletRequest.getUserPrincipal().getName(),
                 status,
-                oldState,
+                oldState.toString(),
                 oldReason,
-                newState,
+                newState.toString(),
                 newReason,
                 auditor.getParamString(null, params),
                 info);

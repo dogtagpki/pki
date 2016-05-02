@@ -319,7 +319,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
             }
         } else {
             CMS.debug(method + " token does not exist");
-            tokenRecord.setStatus("ready");
+            tokenRecord.setTokenStatus(TokenStatus.READY);
 
             checkAllowUnknownToken(TPSEngine.OP_FORMAT_PREFIX);
         }
@@ -368,7 +368,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
         if (!isTokenPresent) {
             try {
-                tps.tdb.tdbAddTokenEntry(tokenRecord, "ready");
+                tps.tdb.tdbAddTokenEntry(tokenRecord, TokenStatus.READY);
             } catch (Exception e) {
                 String failMsg = "add token failure";
                 logMsg = failMsg + ":" + e.toString();
@@ -537,7 +537,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
         channel.setLifeycleState((byte) 0x0f);
 
         try {
-            tokenRecord.setStatus("active");
+            tokenRecord.setTokenStatus(TokenStatus.ACTIVE);
             tps.tdb.tdbUpdateTokenEntry(tokenRecord);
         } catch (Exception e) {
             String failMsg = "update token failure";
@@ -1024,14 +1024,15 @@ public class TPSEnrollProcessor extends TPSProcessor {
         for (TokenRecord tokenRecord : tokenRecords) {
             CMS.debug(method + " token id:"
                     + tokenRecord.getId() + "; status="
-                    + tokenRecord.getStatus());
+                    + tokenRecord.getTokenStatus());
 
             //Is this the same token (current token)?
             if (tokenRecord.getId().equals(aInfo.getCUIDhexStringPlain())) {
                 //same token
                 logMsg = "found current token entry";
                 CMS.debug(method + ":" + logMsg);
-                if (tokenRecord.getStatus().equals("ready")) {
+
+                if (tokenRecord.getTokenStatus() == TokenStatus.READY) {
                     // this is the current token
                     if (tokenRecords.size() == 1) {
                         // the current token is the only token owned by the user
@@ -1058,7 +1059,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
                         CMS.debug(logMsg);
                         throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_HAS_AT_LEAST_ONE_ACTIVE_TOKEN);
                     }
-                } else if (tokenRecord.getStatus().equals("active")) {
+
+                } else if (tokenRecord.getTokenStatus() == TokenStatus.ACTIVE) {
                     // current token is already active; renew if allowed
                     if (tokenPolicy.isAllowdTokenRenew(aInfo.getCUIDhexStringPlain())) {
                         return processRenewal(certsInfo, channel, aInfo, tokenRecord);
@@ -1067,53 +1069,49 @@ public class TPSEnrollProcessor extends TPSProcessor {
                         CMS.debug(method + ":" + logMsg);
                     }
                     break;
-                } else if (tokenRecord.getStatus().equals("terminated")) {
+
+                } else if (tokenRecord.getTokenStatus() == TokenStatus.TERMINATED) {
                     logMsg = "terminated token cuid="
                             + aInfo.getCUIDhexStringPlain() + " cannot be reused";
                     CMS.debug(method + ":" + logMsg);
                     throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_CONTACT_ADMIN);
-                } else if (tokenRecord.getStatus().equals("lost")) {
-                    String reasonStr = tokenRecord.getReason();
-                    if (reasonStr.equals("keyCompromise")) {
-                        logMsg = "This token cannot be reused because it has been reported lost";
-                        CMS.debug(method + ": "
-                                + logMsg);
-                        throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_UNUSABLE_TOKEN_KEYCOMPROMISE);
-                    } else if (reasonStr.equals("onHold")) {
-                        try {
-                            tps.tdb.tdbHasActiveToken(userid);
-                            logMsg = "user already has an active token";
-                            CMS.debug(method + ": "
-                                    + logMsg);
-                            throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_HAS_AT_LEAST_ONE_ACTIVE_TOKEN);
-                        } catch (Exception e2) {
-                            logMsg = "User needs to contact administrator to report lost token (it should be put on Hold).";
-                            CMS.debug(method + ": "
-                                    + logMsg);
-                            break;
-                        }
-                    } else if (reasonStr.equals("destroyed")) {
-                        logMsg = "This destroyed lost case should not be executed because the token is so damaged. It should not get here";
-                        CMS.debug(method + ": "
-                                + logMsg);
-                        throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_TOKEN_DISABLED);
-                    } else {
-                        logMsg = "No such lost reason: " + reasonStr + " for this cuid: "
-                                + aInfo.getCUIDhexStringPlain();
-                        CMS.debug(method + ":" + logMsg);
-                        throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_NO_SUCH_LOST_REASON);
+
+                } else if (tokenRecord.getTokenStatus() == TokenStatus.PERM_LOST) {
+                    logMsg = "This token cannot be reused because it has been reported lost";
+                    CMS.debug(method + ": " + logMsg);
+                    throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_UNUSABLE_TOKEN_KEYCOMPROMISE);
+
+                } else if (tokenRecord.getTokenStatus() == TokenStatus.SUSPENDED) {
+                    try {
+                        tps.tdb.tdbHasActiveToken(userid);
+                        logMsg = "user already has an active token";
+                        CMS.debug(method + ": " + logMsg);
+                        throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_HAS_AT_LEAST_ONE_ACTIVE_TOKEN);
+
+                    } catch (Exception e2) {
+                        logMsg = "User needs to contact administrator to report lost token (it should be put on Hold).";
+                        CMS.debug(method + ": " + logMsg);
+                        break;
                     }
+
+                } else if (tokenRecord.getTokenStatus() == TokenStatus.DAMAGED) {
+                    logMsg = "This destroyed lost case should not be executed because the token is so damaged. It should not get here";
+                    CMS.debug(method + ": "
+                            + logMsg);
+                    throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_TOKEN_DISABLED);
 
                 } else {
                     logMsg = "No such token status for this cuid=" + aInfo.getCUIDhexStringPlain();
                     CMS.debug(method + ":" + logMsg);
                     throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_NO_SUCH_TOKEN_STATE);
                 }
+
             } else { //cuid != current token
                 logMsg = "found token entry different from current token";
                 CMS.debug(method + ":" + logMsg);
-                if (tokenRecord.getStatus().equals("lost")) {
-                    //lostostToken keeps track of the latest token that's lost
+                TokenStatus st = tokenRecord.getTokenStatus();
+                if (st == TokenStatus.PERM_LOST || st == TokenStatus.SUSPENDED || st == TokenStatus.DAMAGED) {
+                    //lostToken keeps track of the latest token that's lost
                     //last one in the look should be the latest
                     lostToken = tokenRecord;
                     logMsg = "found a lost token: cuid = " + tokenRecord.getId();

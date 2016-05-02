@@ -2151,7 +2151,7 @@ public class TPSProcessor {
         }
 
         // Update Token DB
-        tokenRecord.setStatus("ready");
+        tokenRecord.setTokenStatus(TokenStatus.READY);
         try {
             tps.tdb.tdbUpdateTokenEntry(tokenRecord);
         } catch (Exception e) {

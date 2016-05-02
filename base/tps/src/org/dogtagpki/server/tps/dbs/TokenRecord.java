@@ -241,31 +241,10 @@ public class TokenRecord extends DBRecord {
 
     public TokenStatus getTokenStatus() {
         String status = getStatus();
-
-        if ("ready".equals(status)) {
-            return TokenStatus.READY;
-
-        } else if ("active".equals(status)) {
-            return TokenStatus.ACTIVE;
-
-        } else if ("lost".equals(status)) {
-            String reason = getReason();
-
-            if ("keyCompromise".equals(reason)) {
-                return TokenStatus.PERM_LOST;
-
-            } else if ("destroyed".equals(reason)) {
-                return TokenStatus.DAMAGED;
-
-            } else if ("onHold".equals(reason)) {
-                return TokenStatus.SUSPENDED;
-            }
-
-        } else if ("terminated".equals(status)) {
-            return TokenStatus.TERMINATED;
-        }
-
-        return TokenStatus.PERM_LOST;
+        return TokenStatus.valueOf(status);
     }
 
+    public void setTokenStatus(TokenStatus status) {
+        setStatus(status.toString());
+    }
 }

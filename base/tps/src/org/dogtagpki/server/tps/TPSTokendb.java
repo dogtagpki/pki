@@ -161,7 +161,7 @@ public class TPSTokendb {
                 tdbFindTokenRecordsByUID(userid);
         boolean foundActive = false;
         for (TokenRecord tokenRecord:tokens) {
-            if (tokenRecord.getStatus().equals("active")) {
+            if (tokenRecord.getTokenStatus().equals(TokenStatus.ACTIVE)) {
                 foundActive = true;
             }
         }
@@ -170,9 +170,9 @@ public class TPSTokendb {
         }
     }
 
-    public void tdbAddTokenEntry(TokenRecord tokenRecord, String status)
+    public void tdbAddTokenEntry(TokenRecord tokenRecord, TokenStatus status)
             throws Exception {
-        tokenRecord.setStatus(status);
+        tokenRecord.setTokenStatus(status);
 
         tps.tokenDatabase.addRecord(tokenRecord.getId(), tokenRecord);
     }
@@ -186,11 +186,11 @@ public class TPSTokendb {
         } catch (Exception e) {
             CMS.debug("TPSTokendb.tdbUpdateTokenEntry: token entry not found; Adding");
             // add and exit
-            tdbAddTokenEntry(tokenRecord, "ready");
+            tdbAddTokenEntry(tokenRecord, TokenStatus.READY);
             return;
         }
         // token found; modify
-        CMS.debug("TPSTokendb.tdbUpdateTokenEntry: token entry found; Modifying with status: "+ tokenRecord.getStatus());
+        CMS.debug("TPSTokendb.tdbUpdateTokenEntry: token entry found; Modifying with status: " + tokenRecord.getTokenStatus());
         // don't change the create time of an existing token record; put it back
         tokenRecord.setCreateTimestamp(existingTokenRecord.getCreateTimestamp());
         tps.tokenDatabase.updateRecord(id, tokenRecord);
