@@ -9,7 +9,7 @@ import sys
 
 from jwcrypto.common import json_decode
 
-from ipalib.constants import constants
+from ipalib import constants
 from ipaplatform.paths import paths
 from ipapython.secrets.client import CustodiaClient
 
