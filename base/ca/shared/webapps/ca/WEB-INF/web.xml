@@ -451,7 +451,7 @@
              <init-param><param-name>  GetClientCert  </param-name>
                          <param-value> true        </param-value> </init-param>
              <init-param><param-name>  successTemplate  </param-name>
-                         <param-value> /ca/ImportCert.template </param-value> </init-param>
+                         <param-value> /agent/ca/ImportCert.template </param-value> </init-param>
              <init-param><param-name>  AuthzMgr    </param-name>
                          <param-value> BasicAclAuthz </param-value> </init-param>
              <init-param><param-name>  authority   </param-name>
@@ -1868,7 +1868,7 @@
 
    <servlet-mapping>
       <servlet-name>  caGetAdminCertBySerial  </servlet-name>
-      <url-pattern>   /ca/getAdminCertBySerial  </url-pattern>
+      <url-pattern>   /getAdminCertBySerial  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>
@@ -1988,7 +1988,7 @@
 
    <servlet-mapping>
       <servlet-name>  caGetBySerial-agent  </servlet-name>
-      <url-pattern>   /ca/getBySerial  </url-pattern>
+      <url-pattern>   /agent/ca/getBySerial  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>

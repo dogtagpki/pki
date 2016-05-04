@@ -745,14 +745,14 @@ cmsgateway._002=## for a given instance, perform the following steps to
 cmsgateway._003=## re-enroll for a new Admin Certificate:
 cmsgateway._004=##
 cmsgateway._005=##   (1) Become 'root'
-cmsgateway._006=##   (2) Type:  'service [PKI_INSTANCE_NAME] stop'
+cmsgateway._006=##   (2) Type:  'systemctl stop pki-tomcatd@[PKI_INSTANCE_NAME].service'
 cmsgateway._007=##   (3) Edit '[PKI_CFG_PATH_NAME]'
 cmsgateway._008=##       and set the following name-value pairs (if necessary):
 cmsgateway._009=##
 cmsgateway._010=##           ca.Policy.enable=true
 cmsgateway._011=##           cmsgateway.enableAdminEnroll=true
 cmsgateway._012=##
-cmsgateway._013=##   (4) Type:  'service [PKI_INSTANCE_NAME] start'
+cmsgateway._013=##   (4) Type:  'systemctl start pki-tomcatd@[PKI_INSTANCE_NAME].service'
 cmsgateway._014=##   (5) Launch a browser and re-enroll for
 cmsgateway._015=##       a new Admin Certificate by typing:
 cmsgateway._016=##
