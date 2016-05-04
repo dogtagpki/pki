@@ -42,8 +42,7 @@ import com.netscape.cmscore.util.Debug;
  */
 public class KRAService implements IService {
 
-    public final static String ENROLLMENT =
-            IRequest.ENROLLMENT_REQUEST;
+    public final static String ENROLLMENT = IRequest.ENROLLMENT_REQUEST;
     public final static String RECOVERY = IRequest.KEYRECOVERY_REQUEST;
     public final static String NETKEY_KEYGEN = IRequest.NETKEY_KEYGEN_REQUEST;
     public final static String NETKEY_KEYRECOVERY = IRequest.NETKEY_KEYRECOVERY_REQUEST;

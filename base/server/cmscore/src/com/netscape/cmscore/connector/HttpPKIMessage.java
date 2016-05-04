@@ -43,6 +43,7 @@ public class HttpPKIMessage implements IHttpPKIMessage {
     public String reqType = "";
     public String reqId = "";
     protected String reqStatus = "";
+    protected String reqRealm = "";
     protected Vector<Object> mNameVals = new Vector<Object>(); // sequence of name/vals.
 
     public HttpPKIMessage() {
@@ -60,6 +61,10 @@ public class HttpPKIMessage implements IHttpPKIMessage {
         return reqId;
     }
 
+    public String getReqRealm() {
+        return reqRealm;
+    }
+
     /**
      * copy contents of request to make a simple name/value message.
      */
@@ -68,6 +73,7 @@ public class HttpPKIMessage implements IHttpPKIMessage {
         reqType = r.getRequestType();
         reqId = r.getRequestId().toString();
         reqStatus = r.getRequestStatus().toString();
+        reqRealm = r.getRealm();
 
         CMS.debug("HttpPKIMessage.fromRequest: requestId="
                 + r.getRequestId().toString() + " requestStatus=" + reqStatus + " instance=" + r);
@@ -136,6 +142,9 @@ public class HttpPKIMessage implements IHttpPKIMessage {
         out.writeObject(reqStatus);
         if (Debug.ON)
             Debug.trace("read object req source status " + reqStatus);
+        out.writeObject(reqRealm);
+        if (Debug.ON)
+            Debug.trace("read object req realm " + reqRealm);
         Enumeration<Object> enum1 = mNameVals.elements();
 
         while (enum1.hasMoreElements()) {
@@ -174,6 +183,7 @@ public class HttpPKIMessage implements IHttpPKIMessage {
         reqType = (String) in.readObject();
         reqId = (String) in.readObject();
         reqStatus = (String) in.readObject();
+        reqRealm = (String) in.readObject();
         mNameVals = new Vector<Object>();
         Object keyorval = null;
 

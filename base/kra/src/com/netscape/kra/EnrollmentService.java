@@ -27,16 +27,6 @@ import java.util.Arrays;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
-import netscape.security.provider.RSAPublicKey;
-import netscape.security.util.BigInt;
-import netscape.security.util.DerInputStream;
-import netscape.security.util.DerOutputStream;
-import netscape.security.util.DerValue;
-import netscape.security.x509.CertificateSubjectName;
-import netscape.security.x509.CertificateX509Key;
-import netscape.security.x509.X509CertInfo;
-import netscape.security.x509.X509Key;
-
 import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.ASN1Value;
 import org.mozilla.jss.asn1.InvalidBERException;
@@ -71,6 +61,16 @@ import com.netscape.cmscore.crmf.CRMFParser;
 import com.netscape.cmscore.crmf.PKIArchiveOptionsContainer;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmsutil.util.Utils;
+
+import netscape.security.provider.RSAPublicKey;
+import netscape.security.util.BigInt;
+import netscape.security.util.DerInputStream;
+import netscape.security.util.DerOutputStream;
+import netscape.security.util.DerValue;
+import netscape.security.x509.CertificateSubjectName;
+import netscape.security.x509.CertificateX509Key;
+import netscape.security.x509.X509CertInfo;
+import netscape.security.x509.X509Key;
 
 /**
  * A class represents archival request processor. It
@@ -424,7 +424,7 @@ public class EnrollmentService implements IService {
                     audit(auditMessage);
                     throw new EKRAException(CMS.getUserMessage("CMS_KRA_INVALID_KEYRECORD"));
                 }
-           } else if (keyAlg.equals("EC")) {
+            } else if (keyAlg.equals("EC")) {
 
                 String oidDescription = "UNDETERMINED";
                 // for KeyRecordParser
@@ -474,6 +474,13 @@ public class EnrollmentService implements IService {
                 audit(auditMessage);
                 throw new EKRAException(CMS.getUserMessage("CMS_KRA_INVALID_STATE"));
             }
+
+            // set authz realm if available
+            String realm = request.getRealm();
+            if (realm != null) {
+                rec.set(KeyRecord.ATTR_REALM, realm);
+            }
+
             IKeyRepository storage = mKRA.getKeyRepository();
             BigInteger serialNo = storage.getNextSerialNumber();
 

@@ -68,4 +68,10 @@ public interface IPKIMessage extends Serializable {
      */
     public void toRequest(IRequest r);
 
+    /**
+     * Retrieves the request realm
+     *
+     * @return String of authz realm
+     */
+    public String getReqRealm();
 }

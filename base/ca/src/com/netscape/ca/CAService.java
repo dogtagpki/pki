@@ -31,33 +31,6 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import netscape.security.extensions.CertInfo;
-import netscape.security.util.BigInt;
-import netscape.security.util.DerValue;
-import netscape.security.x509.AlgorithmId;
-import netscape.security.x509.BasicConstraintsExtension;
-import netscape.security.x509.CRLExtensions;
-import netscape.security.x509.CRLReasonExtension;
-import netscape.security.x509.CertificateAlgorithmId;
-import netscape.security.x509.CertificateChain;
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.CertificateIssuerName;
-import netscape.security.x509.CertificateSerialNumber;
-import netscape.security.x509.CertificateSubjectName;
-import netscape.security.x509.CertificateValidity;
-import netscape.security.x509.Extension;
-import netscape.security.x509.LdapV3DNStrConverter;
-import netscape.security.x509.PKIXExtensions;
-import netscape.security.x509.RevocationReason;
-import netscape.security.x509.RevokedCertImpl;
-import netscape.security.x509.SerialNumber;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X500NameAttrMap;
-import netscape.security.x509.X509CRLImpl;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
-import netscape.security.x509.X509ExtensionException;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.authority.ICertAuthority;
@@ -66,8 +39,8 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.ca.AuthorityID;
-import com.netscape.certsrv.ca.ECAException;
 import com.netscape.certsrv.ca.CANotFoundException;
+import com.netscape.certsrv.ca.ECAException;
 import com.netscape.certsrv.ca.ICAService;
 import com.netscape.certsrv.ca.ICRLIssuingPoint;
 import com.netscape.certsrv.ca.ICertificateAuthority;
@@ -94,6 +67,33 @@ import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.dbs.RevocationInfo;
 import com.netscape.cmscore.util.Debug;
 import com.netscape.cmsutil.util.Utils;
+
+import netscape.security.extensions.CertInfo;
+import netscape.security.util.BigInt;
+import netscape.security.util.DerValue;
+import netscape.security.x509.AlgorithmId;
+import netscape.security.x509.BasicConstraintsExtension;
+import netscape.security.x509.CRLExtensions;
+import netscape.security.x509.CRLReasonExtension;
+import netscape.security.x509.CertificateAlgorithmId;
+import netscape.security.x509.CertificateChain;
+import netscape.security.x509.CertificateExtensions;
+import netscape.security.x509.CertificateIssuerName;
+import netscape.security.x509.CertificateSerialNumber;
+import netscape.security.x509.CertificateSubjectName;
+import netscape.security.x509.CertificateValidity;
+import netscape.security.x509.Extension;
+import netscape.security.x509.LdapV3DNStrConverter;
+import netscape.security.x509.PKIXExtensions;
+import netscape.security.x509.RevocationReason;
+import netscape.security.x509.RevokedCertImpl;
+import netscape.security.x509.SerialNumber;
+import netscape.security.x509.X500Name;
+import netscape.security.x509.X500NameAttrMap;
+import netscape.security.x509.X509CRLImpl;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509CertInfo;
+import netscape.security.x509.X509ExtensionException;
 
 /**
  * Request Service for CertificateAuthority.
@@ -377,11 +377,11 @@ public class CAService implements ICAService, IService {
         // short cut profile-based request
         if (isProfileRequest(request)) {
             try {
-                CMS.debug("CAServic: x0 requestStatus="
+                CMS.debug("CAService: x0 requestStatus="
                         + request.getRequestStatus().toString() + " instance=" + request);
                 serviceProfileRequest(request);
                 request.setExtData(IRequest.RESULT, IRequest.RES_SUCCESS);
-                CMS.debug("CAServic: x1 requestStatus=" + request.getRequestStatus().toString());
+                CMS.debug("CAService: x1 requestStatus=" + request.getRequestStatus().toString());
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
                             LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST,
@@ -394,7 +394,7 @@ public class CAService implements ICAService, IService {
 
                 return true;
             } catch (EBaseException e) {
-                CMS.debug("CAServic: x2 requestStatus=" + request.getRequestStatus().toString());
+                CMS.debug("CAService: x2 requestStatus=" + request.getRequestStatus().toString());
                 // need to put error into the request
                 CMS.debug("CAService: serviceRequest " + e.toString());
                 request.setExtData(IRequest.RESULT, IRequest.RES_ERROR);
@@ -434,6 +434,8 @@ public class CAService implements ICAService, IService {
 
             return true;
         }
+
+        // NOTE to alee: The request must include the realm by this point.
 
         try {
             // send request to KRA first
