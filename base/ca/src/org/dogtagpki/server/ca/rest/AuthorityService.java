@@ -179,10 +179,14 @@ public class AuthorityService extends PKIService implements AuthorityResource {
     public Response createCA(AuthorityData data) {
         String parentAIDString = data.getParentID();
         AuthorityID parentAID = null;
-        try {
-            parentAID = new AuthorityID(parentAIDString);
-        } catch (IllegalArgumentException e) {
-            throw new BadRequestException("Bad Authority ID: " + parentAIDString);
+        if (AuthorityResource.HOST_AUTHORITY.equals(parentAIDString)) {
+            parentAID = hostCA.getAuthorityID();
+        } else {
+            try {
+                parentAID = new AuthorityID(parentAIDString);
+            } catch (IllegalArgumentException e) {
+                throw new BadRequestException("Bad Authority ID: " + parentAIDString, e);
+            }
         }
 
         PKIPrincipal principal =
