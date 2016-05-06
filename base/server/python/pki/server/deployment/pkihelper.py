@@ -1780,6 +1780,52 @@ class File:
                 raise
         return
 
+    def substitute_deployment_params(self, line):
+        """
+        Replace all occurrences of [param] in the line with the value of the deployment parameter.
+        """
+
+        # find the first parameter in the line
+        begin = line.find('[')
+
+        # repeat while there are parameters in the line
+        while begin >= 0:
+
+            # find the end of the parameter
+            end = line.find(']', begin + 1)
+
+            # if the end not is found not found, don't do anything
+            if end < 0:
+                return line
+
+            # get parameter name
+            name = line[begin + 1:end]
+
+            try:
+                # get parameter value as string
+                value = str(self.mdict[name])
+
+                config.pki_log.debug(
+                    log.PKIHELPER_SLOT_SUBSTITUTION_2,
+                    line[begin:end + 1], value,
+                    extra=config.PKI_INDENTATION_LEVEL_3)
+
+                # replace parameter with value
+                line = line[0:begin] + value + line[end + 1]
+
+                # calculate the new end position
+                end = begin + len(value) + 1
+
+            except KeyError:
+                # undefined parameter, skip
+                pass
+
+            # find the next parameter in the remainder of the line
+            begin = line.find('[', end + 1)
+
+        # return modified line
+        return line
+
     def copy_with_slot_substitution(
             self, old_name, new_name, uid=None, gid=None,
             perms=config.PKI_DEPLOYMENT_DEFAULT_FILE_PERMISSIONS,
@@ -1805,8 +1851,11 @@ class File:
                 config.pki_log.info(log.PKIHELPER_COPY_WITH_SLOT_SUBSTITUTION_2,
                                     old_name, new_name,
                                     extra=config.PKI_INDENTATION_LEVEL_2)
+
                 with open(new_name, "w") as FILE:
                     for line in fileinput.FileInput(old_name):
+
+                        # substitute registered slots
                         for slot in self.slots:
                             if slot != '__name__' and self.slots[slot] in line:
                                 config.pki_log.debug(
@@ -1816,7 +1865,12 @@ class File:
                                 line = line.replace(
                                     self.slots[slot],
                                     self.mdict[slot])
+
+                        # substitute deployment parameters
+                        line = self.substitute_deployment_params(line)
+
                         FILE.write(line)
+
                 if uid is None:
                     uid = self.identity.get_uid()
                 if gid is None:
