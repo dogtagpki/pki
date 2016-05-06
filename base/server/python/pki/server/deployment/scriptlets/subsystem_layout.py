@@ -46,12 +46,20 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 config.PKI_SIGNED_AUDIT_SUBSYSTEMS:
             deployer.directory.create(
                 deployer.mdict['pki_subsystem_signed_audit_log_path'])
-        # establish instance-based subsystem configuration
+
+        # create /var/lib/pki/<instance>/<subsystem>/conf
         deployer.directory.create(
             deployer.mdict['pki_subsystem_configuration_path'])
+
         # deployer.directory.copy(
         #   deployer.mdict['pki_source_conf_path'],
         #   deployer.mdict['pki_subsystem_configuration_path'])
+
+        # create /var/lib/pki/<instance>/<subsystem>/conf/CS.cfg
+        deployer.file.copy_with_slot_substitution(
+            deployer.mdict['pki_source_cs_cfg'],
+            deployer.mdict['pki_target_cs_cfg'])
+
         # establish instance-based Tomcat specific subsystems
 
         # establish instance-based Tomcat PKI subsystem base
