@@ -264,7 +264,7 @@ public class TokenKeyRecoveryService implements IService {
                 (wrapped_des_key.length > 0)) {
 
             // unwrap the des key
-            sk = (PK11SymKey) mTransportUnit.unwrap_encrypt_sym(wrapped_des_key);
+            sk = (PK11SymKey) mTransportUnit.unwrap_sym(wrapped_des_key);
 
             if (sk == null) {
                 CMS.debug("TokenKeyRecoveryService: no des key");
@@ -516,6 +516,7 @@ public class TokenKeyRecoveryService implements IService {
                     return false;
                 }
 
+                CMS.debug("TokenKeyRecoveryService: about to wrap...");
                 KeyWrapper wrapper = token.getKeyWrapper(
                     KeyWrapAlgorithm.DES3_CBC_PAD);
 
@@ -688,6 +689,7 @@ public class TokenKeyRecoveryService implements IService {
                 CMS.debug( "TokenKeyRecoveryService: recoverKey() - recovery failure");
                 throw new EKRAException(CMS.getUserMessage("CMS_KRA_RECOVERY_FAILED_1", "private key recovery/unwrapping failure"));
             }
+            CMS.debug( "TokenKeyRecoveryService: recoverKey() - recovery completed, returning privKey");
             return privKey;
 
         } catch (Exception e) {
