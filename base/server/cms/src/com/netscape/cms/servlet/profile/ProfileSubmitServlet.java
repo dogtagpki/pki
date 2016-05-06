@@ -33,6 +33,9 @@ import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.certsrv.authorization.EAuthzException;
 import com.netscape.certsrv.base.BadRequestDataException;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.ca.AuthorityID;
+import com.netscape.certsrv.ca.CANotFoundException;
+import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IEnrollProfile;
@@ -220,8 +223,23 @@ public class ProfileSubmitServlet extends ProfileServlet {
                     CMSTemplate.escapeJavaScriptStringHTML(profileId)));
         }
 
+        String aidString = request.getParameter("authorityId");
+        AuthorityID aid = null;
+        if (aidString != null && !aidString.isEmpty()) {
+            try {
+                aid = new AuthorityID(aidString);
+            } catch (IllegalArgumentException e) {
+                throw new BadRequestDataException("invalid AuthorityID: " + aidString, e);
+            }
+            ICertificateAuthority ca = (ICertificateAuthority)
+                CMS.getSubsystem(CMS.SUBSYSTEM_CA);
+            ca = ca.getCA(aid);
+            if (ca == null)
+                throw new CANotFoundException("CA not found: " + aidString);
+        }
+
         CertEnrollmentRequest data = CertEnrollmentRequestFactory.create(cmsReq, profile, locale);
-        return processor.processEnrollment(data, request, null, null);
+        return processor.processEnrollment(data, request, aid, null);
     }
 
     public HashMap<String, Object> processRenewal(CMSRequest cmsReq) throws EBaseException {
