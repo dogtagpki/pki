@@ -41,6 +41,7 @@ import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfileInput;
 import com.netscape.certsrv.request.INotify;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.common.AuthCredentials;
 import com.netscape.cms.servlet.processors.CAProcessor;
@@ -152,14 +153,15 @@ public class CertProcessor extends CAProcessor {
 
     }
 
-    protected String codeToReason(Locale locale, String errorCode) {
-        if (errorCode == null) return null;
+    protected String codeToReason(Locale locale, String errorCode, String errorString, RequestId requestId) {
+        if (errorCode == null)
+            return null;
         if (errorCode.equals("1")) {
-            return CMS.getUserMessage(locale, "CMS_INTERNAL_ERROR");
+            return CMS.getUserMessage(locale, "CMS_PROFILE_INTERNAL_ERROR", requestId.toString());
         } else if (errorCode.equals("2")) {
-            return CMS.getUserMessage(locale, "CMS_PROFILE_DEFERRED");
+            return CMS.getUserMessage(locale, "CMS_PROFILE_DEFERRED", errorString);
         } else if (errorCode.equals("3")) {
-            return CMS.getUserMessage(locale, "CMS_PROFILE_REJECTED");
+            return CMS.getUserMessage(locale, "CMS_PROFILE_REJECTED", requestId.toString(), errorString);
         }
         return null;
     }
@@ -222,7 +224,7 @@ public class CertProcessor extends CAProcessor {
 
                 CMS.debug("CertProcessor: submit " + e);
                 errorCode = "2";
-                errorReason = CMS.getUserMessage(locale, "CMS_PROFILE_DEFERRED", e.toString());
+                req.setExtData(IRequest.ERROR_CODE, errorCode);
 
                 // do NOT store a message in the signed audit log file
                 // as this errorCode indicates that a process has been
@@ -232,7 +234,8 @@ public class CertProcessor extends CAProcessor {
                 req.setRequestStatus(RequestStatus.REJECTED);
                 CMS.debug("CertProcessor: submit " + e);
                 errorCode = "3";
-                errorReason = CMS.getUserMessage(locale, "CMS_PROFILE_REJECTED", e.toString());
+                req.setExtData(IRequest.ERROR, e.toString());
+                req.setExtData(IRequest.ERROR_CODE, errorCode);
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
@@ -241,7 +244,7 @@ public class CertProcessor extends CAProcessor {
                         ILogger.FAILURE,
                         auditRequesterID,
                         ILogger.SIGNED_AUDIT_REJECTION,
-                        errorReason);
+                        codeToReason(locale, errorCode, e.toString(), req.getRequestId()));
 
                 audit(auditMessage);
             } catch (Throwable e) {
@@ -249,7 +252,10 @@ public class CertProcessor extends CAProcessor {
                 CMS.debug(e);
                 CMS.debug("CertProcessor: submit " + e);
                 errorCode = "1";
-                errorReason = CMS.getUserMessage(locale, "CMS_INTERNAL_ERROR");
+                errorReason = codeToReason(locale, errorCode, null, req.getRequestId());
+                req.setExtData(IRequest.ERROR, errorReason);
+                req.setExtData(IRequest.ERROR_CODE, errorCode);
+
                 auditMessage = CMS.getLogMessage(
                         LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED,
                         auditSubjectID,

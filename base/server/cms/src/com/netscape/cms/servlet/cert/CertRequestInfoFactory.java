@@ -24,8 +24,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
-import netscape.security.x509.X509CertImpl;
-
 import com.netscape.certsrv.cert.CertRequestInfo;
 import com.netscape.certsrv.cert.CertRequestResource;
 import com.netscape.certsrv.cert.CertResource;
@@ -34,6 +32,8 @@ import com.netscape.certsrv.profile.IEnrollProfile;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
+
+import netscape.security.x509.X509CertImpl;
 
 public class CertRequestInfoFactory {
 
@@ -61,9 +61,10 @@ public class CertRequestInfoFactory {
             info.setOperationResult(CertRequestInfo.RES_SUCCESS);
         } else {
             info.setOperationResult(CertRequestInfo.RES_ERROR);
-            String error = request.getExtDataInString(IRequest.ERROR);
-            info.setErrorMessage(error);
         }
+
+        String error = request.getExtDataInString(IRequest.ERROR);
+        info.setErrorMessage(error);
 
         if (requestType == null || requestStatus != RequestStatus.COMPLETE)
             return info;

@@ -305,6 +305,9 @@ public interface IRequest extends Serializable {
     // String error messages
     public static final String ERROR = "Error";
 
+    // Request Error code
+    public static final String ERROR_CODE = "errorCode";
+
     // authentication realm
     public static final String REALM = "realm";
 
@@ -351,6 +354,13 @@ public interface IRequest extends Serializable {
      * @return error message from connector transfer
      */
     public String getError(Locale locale);
+
+    /**
+     * Get error code
+     * @param locale request locale
+     * @return error code
+     */
+    public String getErrorCode(Locale locale);
 
     /**************************************************************
      * ExtData data methods:

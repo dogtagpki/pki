@@ -17,11 +17,15 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.cert;
 
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.lang.StringUtils;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
@@ -182,7 +186,19 @@ public class EnrollmentProcessor extends CertProcessor {
             // submit request
             ///////////////////////////////////////////////
             String errorCode = submitRequests(locale, profile, authToken, reqs);
-            String errorReason = codeToReason(locale, errorCode);
+            String errorReason = null;
+
+            List<String> errors = new ArrayList<String>();
+            if (errorCode != null) {
+                for (IRequest req: reqs) {
+                    String error = req.getError(locale);
+                    if (error != null) {
+                        String code = req.getErrorCode(locale);
+                        errors.add(codeToReason(locale, code, error, req.getRequestId()));
+                    }
+                }
+                errorReason = StringUtils.join(errors, '\n');
+            }
 
             HashMap<String, Object> ret = new HashMap<String, Object>();
             ret.put(ARG_REQUESTS, reqs);

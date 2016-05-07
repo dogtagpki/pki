@@ -101,6 +101,10 @@ public class RequestDefaultStub implements IRequest {
         return null;
     }
 
+    public String getErrorCode(Locale locale) {
+        return null;
+    }
+
     public boolean setExtData(String key, String value) {
         return false;
     }

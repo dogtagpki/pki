@@ -789,6 +789,10 @@ class Request implements IRequest {
         return getExtDataInString(IRequest.ERROR);
     }
 
+    public String getErrorCode(Locale locale) {
+        return getExtDataInString(IRequest.ERROR_CODE);
+    }
+
     // IRequest.getSourceId
     public String getSourceId() {
         return mSourceId;
