@@ -27,6 +27,7 @@ import netscape.security.x509.X509CertInfo;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
+import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
@@ -166,19 +167,14 @@ public class SubjectNameDefault extends EnrollDefault {
             return;
         try {
             name = new X500Name(subjectName);
-        } catch (IOException e) {
-            // failed to build x500 name
-            CMS.debug("SubjectNameDefault: populate " + e.toString());
-        }
-        if (name == null) {
-            // failed to build x500 name
-        }
-        try {
             info.set(X509CertInfo.SUBJECT,
                     new CertificateSubjectName(name));
         } catch (Exception e) {
-            // failed to insert subject name
-            CMS.debug("SubjectNameDefault: populate " + e.toString());
+            CMS.debug("SubjectNameDefault: failed to populate: " + e);
+            throw new ERejectException(CMS.getUserMessage(
+                getLocale(request),
+                "CMS_PROFILE_INVALID_SUBJECT_NAME",
+                subjectName), e);
         }
     }
 }

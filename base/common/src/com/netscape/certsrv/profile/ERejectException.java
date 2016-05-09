@@ -43,4 +43,12 @@ public class ERejectException extends EProfileException {
     public ERejectException(String msg) {
         super(msg);
     }
+
+    public ERejectException(String msg, Throwable cause) {
+        super(msg, cause);
+    }
+
+    public ERejectException(Throwable cause) {
+        super(cause.getMessage(), cause);
+    }
 }
