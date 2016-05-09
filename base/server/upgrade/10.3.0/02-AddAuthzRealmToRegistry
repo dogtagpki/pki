@@ -1,0 +1,80 @@
+#!/usr/bin/python
+# Authors:
+#     Ade Lee <alee@redhat.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+# Copyright (C) 2016 Red Hat, Inc.
+# All rights reserved.
+
+from __future__ import absolute_import
+import os.path
+import pki.server.upgrade
+
+
+class AddAuthzRealmToRegistry(pki.server.upgrade.PKIServerUpgradeScriptlet):
+
+    new_config = {
+        'defaultPolicy.authzRealmDefaultImpl.class':
+            'com.netscape.cms.profile.def.AuthzRealmDefault',
+        'defaultPolicy.authzRealmDefaultImpl.desc':
+            'Authz Realm Default',
+        'defaultPolicy.authzRealmDefaultImpl.name':
+            'Authz Realm Default',
+        'constraintPolicy.authzRealmConstraintImpl.class':
+            'com.netscape.cms.profile.constraint.AuthzRealmConstraint',
+        'constraintPolicy.authzRealmConstraintImpl.desc':
+            'Authz Realm Constraint',
+        'constraintPolicy.authzRealmConstraintImpl.name':
+            'Authz Realm Constraint'
+    }
+
+    constraint_name = 'authzRealmConstraintImpl'
+
+    default_name = 'authzRealmDefaultImpl'
+
+    def __init__(self):
+        super(AddAuthzRealmToRegistry, self).__init__()
+        self.message = 'Add authz realm constraint and default to registry'
+
+    def upgrade_subsystem(self, instance, subsystem):
+        if subsystem.name == 'ca':
+            self.add_new_entries(instance, subsystem)
+
+    def add_new_entries(self, instance, subsystem):  # pylint: disable=W0613
+        filename = os.path.join(subsystem.conf_dir, 'registry.cfg')
+        self.backup(filename)
+
+        properties = pki.PropertyFile(filename)
+        properties.read()
+
+        for k, v in self.new_config.items():
+            existing_value = properties.get(k)
+            if existing_value is not None:
+                continue
+            properties.set(k, v)
+
+        # add constraint to constraint list
+        constraints = properties.get('constraintPolicy.ids').split(',')
+        if self.constraint_name not in constraints:
+            constraints.append(self.constraint_name)
+            properties.set('constraintPolicy.ids', ','.join(constraints))
+
+        # add default to default list
+        defaults = properties.get('defaultPolicy.ids').split(',')
+        if self.default_name not in defaults:
+            defaults.append(self.default_name)
+            properties.set('defaultPolicy.ids', ','.join(defaults))
+
+        properties.write()
