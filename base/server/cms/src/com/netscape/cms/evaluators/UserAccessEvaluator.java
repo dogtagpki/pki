@@ -95,6 +95,9 @@ public class UserAccessEvaluator implements IAccessEvaluator {
             if ((s.equals(ANYBODY) || s.equals(EVERYBODY)) && op.equals("="))
                 return true;
 
+            // user should be authenticated at this point.
+            if (authToken == null) return false;
+
             // should define "uid" at a common place
             String uid = null;
 

@@ -183,6 +183,17 @@ public class EnrollmentProcessor extends CertProcessor {
             endTiming("request_population");
 
             ///////////////////////////////////////////////
+            // validate realm (if present)
+            ///////////////////////////////////////////////
+            for (IRequest req : reqs) {
+                String realm = req.getRealm();
+                if (StringUtils.isNotBlank(realm)) {
+                    authz.checkRealm(realm, authToken, null,
+                            "certServer.ca.request.enrollment", "submit");
+                }
+            }
+
+            ///////////////////////////////////////////////
             // submit request
             ///////////////////////////////////////////////
             String errorCode = submitRequests(locale, profile, authToken, reqs);
