@@ -22,6 +22,8 @@ from __future__ import absolute_import
 from __future__ import print_function
 import getopt
 import io
+import ldap
+import nss.nss as nss
 import os
 import shutil
 import sys
@@ -38,6 +40,7 @@ class CACLI(pki.cli.CLI):
 
         self.add_module(CACertCLI())
         self.add_module(CACloneCLI())
+        self.add_module(CADBUpgrade())
 
 
 class CACertCLI(pki.cli.CLI):
@@ -407,3 +410,81 @@ class CAClonePrepareCLI(pki.cli.CLI):
 
         finally:
             shutil.rmtree(tmpdir)
+
+
+class CADBUpgrade(pki.cli.CLI):
+    def __init__(self):
+        super(CADBUpgrade, self).__init__(
+            'db-upgrade', 'Upgrade certificate records')
+
+    def usage(self):
+        print('Usage: pki-server ca-db-upgrade [OPTIONS]')
+        print()
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -v, --verbose                      Run in verbose mode.')
+        print('      --help                         Show help message.')
+        print()
+
+    def execute(self, args):
+        try:
+            opts, _ = getopt.gnu_getopt(
+                args, 'i:v', ['instance=', 'verbose', 'help'])
+
+        except getopt.GetoptError as e:
+            print('ERROR: ' + str(e))
+            self.usage()
+            sys.exit(1)
+
+        instance_name = 'pki-tomcat'
+
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o in ('-v', '--verbose'):
+                self.set_verbose(True)
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                print('ERROR: unknown option ' + o)
+                self.usage()
+                sys.exit(1)
+
+        nss.nss_init_nodb()
+
+        instance = pki.server.PKIInstance(instance_name)
+        instance.load()
+
+        subsystem = instance.get_subsystem('ca')
+        base_dn = subsystem.config['internaldb.basedn']
+        conn = subsystem.open_database()
+        try:
+            entries = conn.ldap.search_s(
+                'ou=certificateRepository,ou=ca,%s' % base_dn,
+                ldap.SCOPE_ONELEVEL,
+                '(&(objectclass=certificateRecord)(!(issuerName=*)))',
+                None)
+            for entry in entries:
+                self.__add_issuer(conn, entry)
+        finally:
+            conn.close()
+
+    @staticmethod
+    def __add_issuer(conn, entry):
+        dn, attrs = entry
+        attr_cert = attrs.get('userCertificate;binary')
+        if not attr_cert:
+            return  # shouldn't happen, but nothing we can do if it does
+
+        cert = nss.Certificate(bytearray(attr_cert[0]))
+        issuer_name = str(cert.issuer)
+
+        try:
+            conn.ldap.modify_s(dn, [(ldap.MOD_ADD, 'issuerName', issuer_name)])
+        except ldap.LDAPError as e:
+            print(
+                'Failed to add issuerName to certificate {}: {}'
+                .format(attrs.get('cn', ['<unknown>'])[0], e))
