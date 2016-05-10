@@ -31,6 +31,10 @@ var TokenStatus = {
     TERMINATED          : "Terminated"
 };
 
+var TOKEN_REUSE_MESSAGE = "When reusing a token that was previously " +
+    "enrolled, out of security concerns, make sure the certificate and " +
+    "key objects are removed from the token.";
+
 var TokenModel = Model.extend({
     urlRoot: "/tps/rest/tokens",
     parseResponse: function(response) {
@@ -210,6 +214,19 @@ var TokenPage = EntryPage.extend({
                 dialog.close();
             });
 
+            var orig_status = dialog.entry["status"].name;
+            var status_field = dialog.$("select[name=status]");
+            var warning_area = dialog.$(".pki-warning");
+
+            status_field.change(function() {
+                var status = status_field.val();
+                if (orig_status == "TERMINATED" && status == "UNFORMATTED") {
+                    warning_area.text(TOKEN_REUSE_MESSAGE);
+                } else {
+                    warning_area.empty();
+                }
+            });
+
             dialog.open();
         });
 
@@ -331,6 +348,19 @@ var TokenTableItem = TableItem.extend({
             }
 
             dialog.close();
+        });
+
+        var orig_status = dialog.entry["status"].name;
+        var status_field = dialog.$("select[name=status]");
+        var warning_area = dialog.$(".pki-warning");
+
+        status_field.change(function() {
+            var status = status_field.val();
+            if (orig_status == "TERMINATED" && status == "UNFORMATTED") {
+                warning_area.text(TOKEN_REUSE_MESSAGE);
+            } else {
+                warning_area.empty();
+            }
         });
 
         dialog.open();

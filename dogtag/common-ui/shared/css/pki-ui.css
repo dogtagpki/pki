@@ -99,6 +99,11 @@ textarea[readonly="readonly"] {
   background-color: #F8F8F8;
 }
 
+.pki-warning {
+  width: 100%;
+  color: red;
+}
+
 table tfoot tr th {
   padding: 6px 15px;
   font-size: 11.5px;
