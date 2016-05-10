@@ -40,6 +40,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class CertSearchRequest {
 
+    @XmlElement
+    protected String issuerDN;
+
     //Serial Number
     @XmlElement
     protected boolean serialNumberRangeInUse;
@@ -188,6 +191,14 @@ public class CertSearchRequest {
 
     @XmlElement
     protected boolean certTypeInUse;
+
+    public String getIssuerDN() {
+        return issuerDN;
+    }
+
+    public void setIssuerDN(String issuerDN) {
+        this.issuerDN = issuerDN;
+    }
 
     //Boolean values
     public boolean getSerialNumberRangeInUse() {

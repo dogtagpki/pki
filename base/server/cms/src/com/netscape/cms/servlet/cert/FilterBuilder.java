@@ -42,6 +42,7 @@ public class FilterBuilder {
 
     public String buildFilter() {
 
+        buildIssuerDNFilter();
         buildSerialNumberRangeFilter();
         buildSubjectFilter();
         buildStatusFilter();
@@ -67,6 +68,15 @@ public class FilterBuilder {
                 sb.append(filter);
             }
             return "(&" + sb + ")";
+        }
+    }
+
+    private void buildIssuerDNFilter() {
+        String issuerDN = request.getIssuerDN();
+        if (issuerDN != null && !issuerDN.isEmpty()) {
+            filters.add(
+                "(" + ICertRecord.ATTR_X509CERT_ISSUER
+                + "=" + LDAPUtil.escapeFilter(issuerDN) + ")");
         }
     }
 
