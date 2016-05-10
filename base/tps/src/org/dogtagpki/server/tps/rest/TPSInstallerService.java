@@ -48,6 +48,13 @@ public class TPSInstallerService extends SystemConfigService  {
 
         super.configureSubsystem(request, certList, token, domainXML);
 
+        // get token prefix, if applicable
+        String tokPrefix = "";
+        if (!request.getToken().equals(request.TOKEN_DEFAULT) &&
+                !request.getToken().equals("internal")) {
+            tokPrefix = request.getToken() + ":";
+        }
+
         // get subsystem certificate nickname
         String nickname = null;
         for (SystemCertData cert : request.getSystemCerts()) {
@@ -62,13 +69,13 @@ public class TPSInstallerService extends SystemConfigService  {
         }
 
         // CA Info Panel
-        configureCAConnector(request, nickname);
+        configureCAConnector(request, tokPrefix + nickname);
 
         // TKS Info Panel
-        configureTKSConnector(request, nickname);
+        configureTKSConnector(request, tokPrefix + nickname);
 
         //DRM Info Panel
-        configureKRAConnector(request, nickname);
+        configureKRAConnector(request, tokPrefix + nickname);
 
         //AuthDBPanel
         ConfigurationUtils.updateAuthdbInfo(request.getAuthdbBaseDN(),
@@ -77,7 +84,6 @@ public class TPSInstallerService extends SystemConfigService  {
     }
 
     public void configureCAConnector(ConfigurationRequest request, String nickname) {
-
         // TODO: get installer from session
         TPSInstaller installer = new TPSInstaller();
         installer.configureCAConnector(request.getCaUri(), nickname);
