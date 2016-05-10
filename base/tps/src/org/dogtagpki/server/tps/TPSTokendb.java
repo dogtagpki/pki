@@ -38,6 +38,7 @@ import org.dogtagpki.tps.msg.EndOpMsg.TPSStatus;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
 import com.netscape.certsrv.tps.token.TokenStatus;
 
 import netscape.security.x509.RevocationReason;
@@ -183,8 +184,9 @@ public class TPSTokendb {
         TokenRecord existingTokenRecord;
         try {
             existingTokenRecord = tps.tokenDatabase.getRecord(id);
-        } catch (Exception e) {
-            CMS.debug("TPSTokendb.tdbUpdateTokenEntry: token entry not found; Adding");
+        } catch (EDBRecordNotFoundException e) {
+            CMS.debug("TPSTokendb.tdbUpdateTokenEntry: " + e);
+            CMS.debug("TPSTokendb.tdbUpdateTokenEntry: Adding token " + id);
             // add and exit
             tdbAddTokenEntry(tokenRecord, TokenStatus.FORMATTED);
             return;

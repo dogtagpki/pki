@@ -55,6 +55,7 @@ public class TokenStatus {
     public final static int TOKEN_ACTIVE              = 4;
     public final static int TOKEN_TEMP_LOST_PERM_LOST = 5;
     public final static int TOKEN_TERMINATED          = 6;
+    public final static int TOKEN_UNFORMATTED         = 7;
 
     public final static TokenStatus FORMATTED           = new TokenStatus("FORMATTED", TOKEN_FORMATTED);
     public final static TokenStatus DAMAGED             = new TokenStatus("DAMAGED", TOKEN_DAMAGED);
@@ -63,6 +64,7 @@ public class TokenStatus {
     public final static TokenStatus ACTIVE              = new TokenStatus("ACTIVE", TOKEN_ACTIVE);
     public final static TokenStatus TEMP_LOST_PERM_LOST = new TokenStatus("TEMP_LOST_PERM_LOST", TOKEN_TEMP_LOST_PERM_LOST);
     public final static TokenStatus TERMINATED          = new TokenStatus("TERMINATED", TOKEN_TERMINATED);
+    public final static TokenStatus UNFORMATTED         = new TokenStatus("UNFORMATTED", TOKEN_UNFORMATTED);
 
     String name;
     Integer value;

@@ -91,6 +91,16 @@ public class TokenService extends PKIService implements TokenResource {
         auditModParams.put("UserID", tokenRecord.getUserID());
 
         switch (tokenState.getValue()) {
+        case TokenStatus.TOKEN_UNFORMATTED:
+            tokenRecord.setUserID(null);
+            tokenRecord.setType(null);
+            tokenRecord.setAppletID(null);
+            tokenRecord.setKeyInfo(null);
+            tokenRecord.setPolicy(null);
+            tokenRecord.setTokenStatus(tokenState);
+            tokenRecord.setReason(null);
+            break;
+
         case TokenStatus.TOKEN_FORMATTED:
             tokenRecord.setTokenStatus(tokenState);
             tokenRecord.setReason(null);
@@ -368,9 +378,9 @@ public class TokenService extends PKIService implements TokenResource {
                 auditModParams.put("Policy", policy);
             }
 
-            // new tokens are FORMATTED when added via UI/CLI
-            tokenRecord.setTokenStatus(TokenStatus.FORMATTED);
-            auditModParams.put("Status", TokenStatus.FORMATTED.toString());
+            // new tokens are UNFORMATTED when added via UI/CLI
+            tokenRecord.setTokenStatus(TokenStatus.UNFORMATTED);
+            auditModParams.put("Status", TokenStatus.UNFORMATTED.toString());
 
             database.addRecord(tokenID, tokenRecord);
             subsystem.tdb.tdbActivity(ActivityDatabase.OP_ADD, tokenRecord,
