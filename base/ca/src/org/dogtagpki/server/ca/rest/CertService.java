@@ -552,6 +552,7 @@ public class CertService extends PKIService implements CertResource {
         info.setID(id);
 
         X509Certificate cert = record.getCertificate();
+        info.setIssuerDN(cert.getIssuerDN().toString());
         info.setSubjectDN(cert.getSubjectDN().toString());
         info.setStatus(record.getStatus());
         info.setVersion(cert.getVersion());

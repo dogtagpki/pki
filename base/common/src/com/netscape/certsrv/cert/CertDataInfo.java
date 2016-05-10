@@ -61,6 +61,7 @@ public class CertDataInfo {
 
     CertId id;
     String subjectDN;
+    String issuerDN;
     String status;
     String type;
     Integer version;
@@ -90,6 +91,15 @@ public class CertDataInfo {
 
     public void setSubjectDN(String subjectDN) {
         this.subjectDN = subjectDN;
+    }
+
+    @XmlElement(name="IssuerDN")
+    public String getIssuerDN() {
+        return issuerDN;
+    }
+
+    public void setIssuerDN(String issuerDN) {
+        this.issuerDN = issuerDN;
     }
 
     @XmlElement(name="Status")
@@ -199,6 +209,7 @@ public class CertDataInfo {
         result = prime * result + ((notValidBefore == null) ? 0 : notValidBefore.hashCode());
         result = prime * result + ((status == null) ? 0 : status.hashCode());
         result = prime * result + ((subjectDN == null) ? 0 : subjectDN.hashCode());
+        result = prime * result + ((issuerDN == null) ? 0 : issuerDN.hashCode());
         result = prime * result + ((type == null) ? 0 : type.hashCode());
         result = prime * result + ((version == null) ? 0 : version.hashCode());
         return result;
@@ -263,6 +274,11 @@ public class CertDataInfo {
                 return false;
         } else if (!subjectDN.equals(other.subjectDN))
             return false;
+        if (issuerDN == null) {
+            if (other.issuerDN != null) return false;
+        } else if (!issuerDN.equals(other.issuerDN)) {
+            return false;
+        }
         if (type == null) {
             if (other.type != null)
                 return false;
