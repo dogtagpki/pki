@@ -2055,8 +2055,8 @@ public class TPSProcessor {
 
         if (isTokenPresent) {
             CMS.debug("TPSProcessor.format: token exists");
-            TokenStatus newState = TokenStatus.READY;
-            // Check for transition to 0/READY status.
+            TokenStatus newState = TokenStatus.FORMATTED;
+            // Check for transition to FORMATTED status.
 
             if (!tps.engine.isOperationTransitionAllowed(tokenRecord.getTokenStatus(), newState)) {
                 String info = " illegal transition attempted: " + tokenRecord.getTokenStatus() +
@@ -2151,7 +2151,7 @@ public class TPSProcessor {
         }
 
         // Update Token DB
-        tokenRecord.setTokenStatus(TokenStatus.READY);
+        tokenRecord.setTokenStatus(TokenStatus.FORMATTED);
         try {
             tps.tdb.tdbUpdateTokenEntry(tokenRecord);
         } catch (Exception e) {

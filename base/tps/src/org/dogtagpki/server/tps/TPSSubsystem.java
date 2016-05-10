@@ -146,7 +146,7 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
      * Return the allowed next states for a given token based on TPS configuration.
      *
      * If the current state is SUSPENDED, token will be allowed transition to either
-     * READY or ACTIVE depending on whether the token has certificates.
+     * FORMATTED or ACTIVE depending on whether the token has certificates.
      *
      * @param tokenRecord
      * @return A non-null collection of allowed next token states.
@@ -163,11 +163,11 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
             // check token certificates
             Collection<TPSCertRecord> certRecords = tdb.tdbGetCertRecordsByCUID(tokenRecord.getId());
 
-            // if token has no certificates, allow token to become ready again
+            // if token has no certificates, allow token to become FORMATTED again
             if (certRecords.isEmpty()) {
-                ns.add(TokenStatus.READY);
+                ns.add(TokenStatus.FORMATTED);
 
-            } else { // otherwise, allow token to become active again
+            } else { // otherwise, allow token to become ACTIVE again
                 ns.add(TokenStatus.ACTIVE);
             }
 

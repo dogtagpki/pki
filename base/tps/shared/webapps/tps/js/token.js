@@ -21,9 +21,9 @@
 
 // TODO: load labels from server
 var TokenStatus = {
-    READY               : "Uninitialized/ready",
+    FORMATTED           : "Formatted (uninitialized)",
     ACTIVE              : "Active",
-    SUSPENDED           : "Temporarily lost/suspended",
+    SUSPENDED           : "Suspended (temporarily lost)",
     PERM_LOST           : "Permanently lost",
     DAMAGED             : "Physically damaged",
     TEMP_LOST_PERM_LOST : "Temporarily lost then permanently lost",
