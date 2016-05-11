@@ -169,7 +169,10 @@ class NSSDatabase(object):
 
     def create_request(self, subject_dn, request_file, noise_file=None,
                        key_type=None, key_size=None, curve=None,
-                       hash_alg=None):
+                       hash_alg=None,
+                       basic_constraints_ext=None,
+                       key_usage_ext=None):
+
         tmpdir = tempfile.mkdtemp()
 
         try:
@@ -184,6 +187,8 @@ class NSSDatabase(object):
                     size=size)
 
             binary_request_file = os.path.join(tmpdir, 'request.bin')
+
+            keystroke = ''
 
             cmd = [
                 'certutil',
@@ -213,8 +218,49 @@ class NSSDatabase(object):
             if hash_alg:
                 cmd.extend(['-Z', hash_alg])
 
+            if key_usage_ext:
+
+                cmd.extend(['--keyUsage'])
+
+                usages = []
+                for usage in key_usage_ext:
+                    if key_usage_ext[usage]:
+                        usages.append(usage)
+
+                cmd.extend([','.join(usages)])
+
+            if basic_constraints_ext:
+
+                cmd.extend(['-2', hash_alg])
+
+                # Is this a CA certificate [y/N]?
+                if basic_constraints_ext['ca']:
+                    keystroke += 'y'
+
+                keystroke += '\n'
+
+                # Enter the path length constraint, enter to skip [<0 for unlimited path]:
+                if basic_constraints_ext['path_length'] is not None:
+                    keystroke += basic_constraints_ext['path_length']
+
+                keystroke += '\n'
+
+                # Is this a critical extension [y/N]?
+                if basic_constraints_ext['critical']:
+                    keystroke += 'y'
+
+                keystroke += '\n'
+
             # generate binary request
-            subprocess.check_call(cmd)
+            p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                                 stderr=subprocess.STDOUT)
+
+            p.communicate(keystroke)
+
+            rc = p.wait()
+
+            if rc:
+                raise Exception('Failed to generate certificate request. RC: %d' % rc)
 
             # encode binary request in base-64
             b64_request_file = os.path.join(tmpdir, 'request.b64')

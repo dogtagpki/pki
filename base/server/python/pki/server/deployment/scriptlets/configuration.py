@@ -98,6 +98,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             if external and step_one:  # external CA step 1 only
 
                 # Determine CA signing key type and algorithm
+
                 key_type = deployer.mdict['pki_ca_signing_key_type']
                 key_alg = deployer.mdict['pki_ca_signing_key_algorithm']
 
@@ -125,19 +126,38 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
                 # If filename specified, generate CA cert request and
                 # import it into CS.cfg.
+
                 external_csr_path = deployer.mdict['pki_external_csr_path']
                 if external_csr_path:
+
                     config.pki_log.info(
                         "generating CA signing certificate request in %s",
                         external_csr_path,
                         extra=config.PKI_INDENTATION_LEVEL_2)
+
+                    basic_constraints_ext = {
+                        'ca': True,
+                        'path_length': None,
+                        'critical': True
+                    }
+
+                    key_usage_ext = {
+                        'digitalSignature': True,
+                        'nonRepudiation': True,
+                        'certSigning': True,
+                        'crlSigning': True,
+                        'critical': True
+                    }
+
                     nssdb.create_request(
                         subject_dn=deployer.mdict['pki_ca_signing_subject_dn'],
                         request_file=external_csr_path,
                         key_type=key_type,
                         key_size=key_size,
                         curve=curve,
-                        hash_alg=hash_alg)
+                        hash_alg=hash_alg,
+                        basic_constraints_ext=basic_constraints_ext,
+                        key_usage_ext=key_usage_ext)
 
                     with open(external_csr_path) as f:
                         signing_csr = f.read()
@@ -148,6 +168,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
                 # This is needed by IPA to detect step 1 completion.
                 # See is_step_one_done() in ipaserver/install/cainstance.py.
+
                 subsystem.config['preop.ca.type'] = 'otherca'
 
                 subsystem.save()
