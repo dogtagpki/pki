@@ -327,15 +327,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 for (SystemCertData systemCert : request.getSystemCerts()) {
                     if (systemCert.getTag().equals(tag)) {
                         certData = systemCert;
-                        CMS.debug("Found data for '" + tag + "'");
-                        if (tag.equals("signing") &&
-                                certData.getReqExtOID() != null &&
-                                certData.getReqExtData() != null) {
-                            CMS.debug("SystemConfigService:processCerts: adding request extension to config");
-                            cs.putString("preop.cert.signing.ext.oid", certData.getReqExtOID());
-                            cs.putString("preop.cert.signing.ext.data", certData.getReqExtData());
-                            cs.putBoolean("preop.cert.signing.ext.critical", certData.getReqExtCritical());
-                        }
                         break;
                     }
                 }
@@ -399,16 +390,12 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 }
 
                 String signingalgorithm = certData.getSigningAlgorithm() != null ? certData.getSigningAlgorithm() : keyalgorithm;
-                String nickname = certData.getNickname() != null ? certData.getNickname() :
-                    cs.getString("preop.cert." + tag + ".nickname");
-                String dn = certData.getSubjectDN() != null ? certData.getSubjectDN() :
-                    cs.getString("preop.cert." + tag + ".dn");
+                String nickname = cs.getString("preop.cert." + tag + ".nickname");
+                String dn = cs.getString("preop.cert." + tag + ".dn");
 
                 cs.putString("preop.cert." + tag + ".keytype", keytype);
                 cs.putString("preop.cert." + tag + ".keyalgorithm", keyalgorithm);
                 cs.putString("preop.cert." + tag + ".signingalgorithm", signingalgorithm);
-                cs.putString("preop.cert." + tag + ".nickname", nickname);
-                cs.putString("preop.cert." + tag + ".dn", dn);
 
                 // support injecting SAN into server cert
                 if ( tag.equals("sslserver") && certData.getServerCertSAN() != null) {
@@ -578,10 +565,8 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         cs.putString("preop.cert." + tag + ".pubkey.modulus", CryptoUtil.byte2string(modulus));
         cs.putString("preop.cert." + tag + ".pubkey.exponent", CryptoUtil.byte2string(exponent));
         cs.putString("preop.cert." + tag + ".privkey.id", CryptoUtil.byte2string(privk.getUniqueID()));
-        cs.putString("preop.cert." + tag + ".dn", cdata.getSubjectDN());
         cs.putString("preop.cert." + tag + ".keyalgorithm", cdata.getKeyAlgorithm());
         cs.putString("preop.cert." + tag + ".keytype", cdata.getKeyType());
-        cs.putString("preop.cert." + tag + ".nickname", cdata.getNickname());
     }
 
     private void updateConfiguration(ConfigurationRequest data, SystemCertData cdata, String tag) {

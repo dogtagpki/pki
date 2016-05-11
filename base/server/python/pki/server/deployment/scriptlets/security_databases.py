@@ -43,6 +43,12 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         config.pki_log.info(log.SECURITY_DATABASES_SPAWN_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
 
+        instance = pki.server.PKIInstance(deployer.mdict['pki_instance_name'])
+        instance.load()
+
+        subsystem = instance.get_subsystem(
+            deployer.mdict['pki_subsystem'].lower())
+
         if config.str2bool(deployer.mdict['pki_hsm_enable']):
             deployer.password.create_hsm_password_conf(
                 deployer.mdict['pki_shared_password_conf'],
@@ -157,6 +163,49 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         # Always delete the temporary 'pfile'
         deployer.file.delete(deployer.mdict['pki_shared_pfile'])
+
+        # Store system cert parameters in installation step to guarantee the
+        # parameters exist during configuration step and to allow customization.
+
+        certs = subsystem.find_system_certs()
+        for cert in certs:
+
+            # get CS.cfg tag and pkispawn tag
+            config_tag = cert['id']
+            deploy_tag = config_tag
+
+            if config_tag == 'signing':  # for CA and OCSP
+                deploy_tag = subsystem.name + '_signing'
+
+            elif config_tag == 'sslserver':
+                deploy_tag = 'ssl_server'
+
+            # store nickname
+            nickname = deployer.mdict['pki_%s_nickname' % deploy_tag]
+            subsystem.config['preop.cert.%s.nickname' % config_tag] = nickname
+
+            # store subject DN
+            subject_dn = deployer.mdict['pki_%s_subject_dn' % deploy_tag]
+            subsystem.config['preop.cert.%s.dn' % config_tag] = subject_dn
+
+            # TODO: move more system cert params here
+
+        # If specified in the deployment parameter, add generic CA signing cert
+        # extension parameters into the CS.cfg. Generic extension for other
+        # system certs can be added directly into CS.cfg after before the
+        # configuration step.
+
+        if subsystem.type == 'CA':
+            if deployer.configuration_file.add_req_ext:
+
+                subsystem.config['preop.cert.signing.ext.oid'] = \
+                    deployer.configuration_file.req_ext_oid
+                subsystem.config['preop.cert.signing.ext.data'] = \
+                    deployer.configuration_file.req_ext_data
+                subsystem.config['preop.cert.signing.ext.critical'] = \
+                    deployer.configuration_file.req_ext_critical.lower()
+
+        subsystem.save()
 
     def update_external_certs_conf(self, external_path, deployer):
         external_certs = pki.server.PKIInstance.read_external_certs(

@@ -2936,11 +2936,14 @@ public class ConfigurationUtils {
 
         cert.setDN(caDN);
 
-        Extensions exts = null;
+        Extensions exts = new Extensions();
         if (certTag.equals("signing")) {
             CMS.debug("generateCertRequest: generating basic CA extensions");
-            exts = createBasicCAExtensions(config);
+            createBasicCAExtensions(config, exts);
         }
+
+        CMS.debug("generateCertRequest: generating generic extensions");
+        createGenericExtensions(config, certTag, exts);
 
         CMS.debug("generateCertRequest: generating PKCS #10 request");
         PKCS10 certReq = CryptoUtil.createCertificationRequest(caDN, pubk, privk, algorithm, exts);
@@ -2961,8 +2964,7 @@ public class ConfigurationUtils {
      * createBasicCAExtensions creates the basic Extensions needed for a CSR to a
      * CA signing certificate
      */
-    private static Extensions createBasicCAExtensions(IConfigStore config) throws Exception {
-        Extensions exts = new Extensions();
+    private static void createBasicCAExtensions(IConfigStore config, Extensions exts) throws Exception {
         CMS.debug("ConfigurationUtils: createBasicCAExtensions: begins");
 
         // create BasicConstraintsExtension
@@ -2991,15 +2993,18 @@ public class ConfigurationUtils {
         NSCertTypeExtension nsctExt = new NSCertTypeExtension(false, nsBits);
         exts.add(nsctExt);
         */
+    }
 
-        // add a generic extension
+    private static void createGenericExtensions(IConfigStore config, String tag, Extensions exts) throws Exception {
+        CMS.debug("ConfigurationUtils: createGenericExtensions: begins");
+        // if specified, add a generic extension
         try {
-            String oidString = config.getString(PCERT_PREFIX + "signing.ext.oid");
-            String dataString = config.getString(PCERT_PREFIX + "signing.ext.data");
+            String oidString = config.getString(PCERT_PREFIX + tag + ".ext.oid");
+            String dataString = config.getString(PCERT_PREFIX + tag + ".ext.data");
 
             if (oidString != null && dataString != null) {
-                CMS.debug("ConfigurationUtils: createBasicCAExtensions: processing generic extension");
-                boolean critical = config.getBoolean("preop.cert.signing.ext.critical");
+                CMS.debug("ConfigurationUtils: createGenericExtensions: adding generic extension for " + tag);
+                boolean critical = config.getBoolean(PCERT_PREFIX + tag + ".ext.critical");
                 ObjectIdentifier oid = new ObjectIdentifier(oidString);
 
                 byte data[] = CryptoUtil.hexString2Bytes(dataString);
@@ -3010,18 +3015,16 @@ public class ConfigurationUtils {
                 out.close();
 
                 exts.add(genExt);
-                CMS.debug("ConfigurationUtils: createBasicCAExtensions: generic extension added: " + oidString);
+                CMS.debug("ConfigurationUtils: createGenericExtensions: generic extension added: " + oidString);
             }
 
         } catch (EPropertyNotFound e) {
             // generic extension not specified, ignore
 
         } catch (EBaseException e) {
-            CMS.debug("ConfigurationUtils: createBasicCAExtensions: Unable to add generic extension: " + e);
+            CMS.debug("ConfigurationUtils: createGenericExtensions: Unable to add generic extension: " + e);
             throw new BadRequestException("Unable to add generic certificate extension: " + e, e);
         }
-
-        return exts;
     }
 
     public static X509Key getECCX509Key(IConfigStore config, String certTag) throws EPropertyNotFound, EBaseException,

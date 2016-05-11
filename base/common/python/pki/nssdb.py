@@ -171,7 +171,8 @@ class NSSDatabase(object):
                        key_type=None, key_size=None, curve=None,
                        hash_alg=None,
                        basic_constraints_ext=None,
-                       key_usage_ext=None):
+                       key_usage_ext=None,
+                       generic_exts=None):
 
         tmpdir = tempfile.mkdtemp()
 
@@ -250,6 +251,30 @@ class NSSDatabase(object):
                     keystroke += 'y'
 
                 keystroke += '\n'
+
+            if generic_exts:
+
+                cmd.extend(['--extGeneric'])
+
+                counter = 0
+                exts = []
+
+                for generic_ext in generic_exts:
+
+                    data_file = os.path.join(tmpdir, 'csr-ext-%d' % counter)
+                    with open(data_file, 'w') as f:
+                        f.write(generic_ext['data'])
+
+                    critical = 'critical' if generic_ext['critical'] else 'not-critical'
+
+                    ext = generic_ext['oid']
+                    ext += ':' + critical
+                    ext += ':' + data_file
+
+                    exts.append(ext)
+                    counter += 1
+
+                cmd.append(','.join(exts))
 
             # generate binary request
             p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE,

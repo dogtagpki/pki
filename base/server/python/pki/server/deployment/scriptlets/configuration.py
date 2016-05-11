@@ -19,6 +19,7 @@
 #
 
 from __future__ import absolute_import
+import binascii
 import json
 import re
 
@@ -97,6 +98,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         try:
             if external and step_one:  # external CA step 1 only
 
+                subject_dn = subsystem.config['preop.cert.signing.dn']
+
                 # Determine CA signing key type and algorithm
 
                 key_type = deployer.mdict['pki_ca_signing_key_type']
@@ -149,15 +152,33 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                         'critical': True
                     }
 
+                    # if specified, add generic CSR extension
+                    generic_exts = None
+
+                    if 'preop.cert.signing.ext.oid' in subsystem.config and \
+                       'preop.cert.signing.ext.data' in subsystem.config:
+
+                        data = subsystem.config['preop.cert.signing.ext.data']
+                        critical = subsystem.config['preop.cert.signing.ext.critical']
+
+                        generic_ext = {
+                            'oid': subsystem.config['preop.cert.signing.ext.oid'],
+                            'data': binascii.unhexlify(data),
+                            'critical': config.str2bool(critical)
+                        }
+
+                        generic_exts = [generic_ext]
+
                     nssdb.create_request(
-                        subject_dn=deployer.mdict['pki_ca_signing_subject_dn'],
+                        subject_dn=subject_dn,
                         request_file=external_csr_path,
                         key_type=key_type,
                         key_size=key_size,
                         curve=curve,
                         hash_alg=hash_alg,
                         basic_constraints_ext=basic_constraints_ext,
-                        key_usage_ext=key_usage_ext)
+                        key_usage_ext=key_usage_ext,
+                        generic_exts=generic_exts)
 
                     with open(external_csr_path) as f:
                         signing_csr = f.read()
