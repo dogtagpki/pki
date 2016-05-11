@@ -35,11 +35,9 @@ import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
 import java.security.Principal;
 import java.security.PublicKey;
 import java.security.SecureRandom;
-import java.security.SignatureException;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateExpiredException;
@@ -119,6 +117,7 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.certsrv.authentication.IAuthSubsystem;
 import com.netscape.certsrv.authorization.IAuthzSubsystem;
+import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.ConflictingOperationException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
@@ -2899,39 +2898,37 @@ public class ConfigurationUtils {
         cert.setRequest(formattedCertreq);
     }
 
-    public static void handleCertRequest(IConfigStore config, String certTag, Cert cert) throws EPropertyNotFound,
-            EBaseException, InvalidKeyException, NotInitializedException, TokenException, NoSuchAlgorithmException,
-            NoSuchProviderException, CertificateException, SignatureException, IOException {
+    public static void generateCertRequest(IConfigStore config, String certTag, Cert cert) throws Exception {
 
-        CMS.debug("ConfigurationUtils: handleCertRequest() begins");
-        // get public key
+        CMS.debug("generateCertRequest: getting public key for certificate " + certTag);
+
         String pubKeyType = config.getString(PCERT_PREFIX + certTag + ".keytype");
         String algorithm = config.getString(PCERT_PREFIX + certTag + ".keyalgorithm");
 
-        X509Key pubk = null;
+        X509Key pubk;
         if (pubKeyType.equals("rsa")) {
             pubk = getRSAX509Key(config, certTag);
+
         } else if (pubKeyType.equals("ecc")) {
             pubk = getECCX509Key(config, certTag);
+
         } else {
-            CMS.debug("handleCertRequest() - " + "pubKeyType " + pubKeyType + " is unsupported!");
-            return;
+            CMS.debug("generateCertRequest: Unsupported public key type: " + pubKeyType);
+            throw new BadRequestException("Unsupported public key type: " + pubKeyType);
         }
 
-        CMS.debug("handleCertRequest: tag=" + certTag);
-        if (pubk == null) {
-            CMS.debug("handleCertRequest: error getting public key null");
-            return;
-        }
+        // public key cannot be null here
 
-        // get private key
+        CMS.debug("generateCertRequest: getting private key for certificate " + certTag);
         String privKeyID = config.getString(PCERT_PREFIX + certTag + ".privkey.id");
-        CMS.debug("privKeyID=" + privKeyID);
+
+        CMS.debug("generateCertRequest: private key ID: " + privKeyID);
         byte[] keyIDb = CryptoUtil.string2byte(privKeyID);
 
         PrivateKey privk = CryptoUtil.findPrivateKeyFromID(keyIDb);
         if (privk == null) {
-            CMS.debug("handleCertRequest: error getting private key");
+            CMS.debug("generateCertRequest: Unable to find private key for certificate " + certTag);
+            throw new BadRequestException("Unable to find private key for certificate " + certTag);
         }
 
         // construct cert request
@@ -2941,12 +2938,14 @@ public class ConfigurationUtils {
 
         Extensions exts = null;
         if (certTag.equals("signing")) {
-            CMS.debug("handleCertRequest: certTag is siging -- about to call createBasicCAExtensions()");
+            CMS.debug("generateCertRequest: generating basic CA extensions");
             exts = createBasicCAExtensions(config);
         }
+
+        CMS.debug("generateCertRequest: generating PKCS #10 request");
         PKCS10 certReq = CryptoUtil.createCertificationRequest(caDN, pubk, privk, algorithm, exts);
 
-        CMS.debug("handleCertRequest: created cert request");
+        CMS.debug("generateCertRequest: storing cert request");
         byte[] certReqb = certReq.toByteArray();
         String certReqs = CryptoUtil.base64Encode(certReqb);
         String certReqf = CryptoUtil.reqFormat(certReqs);
@@ -2954,15 +2953,15 @@ public class ConfigurationUtils {
         String subsystem = config.getString(PCERT_PREFIX + certTag + ".subsystem");
         config.putString(subsystem + "." + certTag + ".certreq", certReqs);
         config.commit(false);
-        cert.setRequest(certReqf);
 
+        cert.setRequest(certReqf);
     }
 
     /*
      * createBasicCAExtensions creates the basic Extensions needed for a CSR to a
      * CA signing certificate
      */
-    private static Extensions createBasicCAExtensions(IConfigStore config) throws IOException {
+    private static Extensions createBasicCAExtensions(IConfigStore config) throws Exception {
         Extensions exts = new Extensions();
         CMS.debug("ConfigurationUtils: createBasicCAExtensions: begins");
 
@@ -2994,27 +2993,32 @@ public class ConfigurationUtils {
         */
 
         // add a generic extension
-        Extension genExt = null;
         try {
             String oidString = config.getString(PCERT_PREFIX + "signing.ext.oid");
             String dataString = config.getString(PCERT_PREFIX + "signing.ext.data");
-            boolean critical = false;
+
             if (oidString != null && dataString != null) {
                 CMS.debug("ConfigurationUtils: createBasicCAExtensions: processing generic extension");
-                critical = config.getBoolean("preop.cert.signing.ext.critical");
+                boolean critical = config.getBoolean("preop.cert.signing.ext.critical");
                 ObjectIdentifier oid = new ObjectIdentifier(oidString);
 
                 byte data[] = CryptoUtil.hexString2Bytes(dataString);
                 DerOutputStream out = new DerOutputStream();
                 out.putOctetString(data);
-                genExt = new Extension(oid, critical, out.toByteArray());
+
+                Extension genExt = new Extension(oid, critical, out.toByteArray());
                 out.close();
 
                 exts.add(genExt);
                 CMS.debug("ConfigurationUtils: createBasicCAExtensions: generic extension added: " + oidString);
             }
+
+        } catch (EPropertyNotFound e) {
+            // generic extension not specified, ignore
+
         } catch (EBaseException e) {
-            CMS.debug("ConfigurationUtils: createBasicCAExtensions: generic extension not processed:" + e);
+            CMS.debug("ConfigurationUtils: createBasicCAExtensions: Unable to add generic extension: " + e);
+            throw new BadRequestException("Unable to add generic certificate extension: " + e, e);
         }
 
         return exts;

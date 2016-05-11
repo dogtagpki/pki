@@ -492,7 +492,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                     // Handle Cert Requests for everything EXCEPT Stand-alone PKI (Step 2)
                     if (!request.getStepTwo()) {
                         // Stand-alone PKI (Step 1)
-                        ConfigurationUtils.handleCertRequest(cs, tag, cert);
+                        ConfigurationUtils.generateCertRequest(cs, tag, cert);
 
                         CMS.debug("Stand-alone " + csType + " Admin CSR");
                         String adminSubjectDN = request.getAdminSubjectDN();
@@ -505,7 +505,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                     }
 
                 } else {
-                    ConfigurationUtils.handleCertRequest(cs, tag, cert);
+                    ConfigurationUtils.generateCertRequest(cs, tag, cert);
                 }
 
                 if (request.isClone()) {
@@ -550,6 +550,9 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         } catch (NoSuchAlgorithmException e) {
             throw new BadRequestException("Invalid algorithm " + e);
+
+        } catch (PKIException e) {
+            throw e;
 
         } catch (Exception e) {
             CMS.debug(e);
