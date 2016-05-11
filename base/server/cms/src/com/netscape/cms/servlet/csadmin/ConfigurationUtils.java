@@ -2268,11 +2268,16 @@ public class ConfigurationUtils {
         certObj.setCertChain(certChainStr);
     }
 
-    public static KeyPair loadKeyPair(String nickname) throws Exception {
+    public static KeyPair loadKeyPair(String nickname, String token) throws Exception {
 
         CMS.debug("ConfigurationUtils: loadKeyPair(" + nickname + ")");
 
         CryptoManager cm = CryptoManager.getInstance();
+
+        if (token != null) {
+            if (!token.equals("internal") && !token.equals("Internal Key Storage Token"))
+                nickname = token + ":" + nickname;
+        }
 
         X509Certificate cert = cm.findCertByNickname(nickname);
         PublicKey publicKey = cert.getPublicKey();

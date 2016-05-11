@@ -424,7 +424,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 if (request.isExternal() && tag.equals("signing")) { // external/existing CA
                     // load key pair for existing and externally-signed signing cert
                     CMS.debug("SystemConfigService: loading signing cert key pair");
-                    KeyPair pair = ConfigurationUtils.loadKeyPair(certData.getNickname());
+                    KeyPair pair = ConfigurationUtils.loadKeyPair(certData.getNickname(), certData.getToken());
                     ConfigurationUtils.storeKeyPair(cs, tag, pair);
 
                 } else if (!request.getStepTwo()) {
