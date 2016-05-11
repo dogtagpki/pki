@@ -40,12 +40,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
     def spawn(self, deployer):
 
-        # ALWAYS establish the following Tomcat instance symbolic link since
-        # this link is required by both automatic pkispawn instance
-        # configuration as well as manual browser GUI instance configuration
-        deployer.symlink.create(deployer.mdict['pki_systemd_service'],
-                                deployer.mdict['pki_systemd_service_link'])
-
         if config.str2bool(deployer.mdict['pki_skip_configuration']):
             config.pki_log.info(log.SKIP_CONFIGURATION_SPAWN_1, __name__,
                                 extra=config.PKI_INDENTATION_LEVEL_1)
@@ -354,4 +348,3 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if len(deployer.instance.tomcat_instance_subsystems()) == 1:
             if deployer.directory.exists(deployer.mdict['pki_client_dir']):
                 deployer.directory.delete(deployer.mdict['pki_client_dir'])
-            deployer.symlink.delete(deployer.mdict['pki_systemd_service_link'])

@@ -293,12 +293,20 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                         deployer.mdict['pki_symkey_jar'],
                         deployer.mdict['pki_symkey_jar_link'])
 
+            # create Tomcat instance systemd service link
+            deployer.symlink.create(deployer.mdict['pki_systemd_service'],
+                                    deployer.mdict['pki_systemd_service_link'])
+
     def destroy(self, deployer):
 
         config.pki_log.info(log.INSTANCE_DESTROY_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
 
         if len(deployer.instance.tomcat_instance_subsystems()) == 0:
+
+            # remove Tomcat instance systemd service link
+            deployer.symlink.delete(deployer.mdict['pki_systemd_service_link'])
+
             # remove Tomcat instance base
             deployer.directory.delete(deployer.mdict['pki_instance_path'])
             # remove Tomcat instance logs

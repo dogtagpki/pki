@@ -568,24 +568,19 @@ def main(argv):
         deployer.mdict['pki_manifest'],
         deployer.mdict['pki_manifest_spawn_archive'])
 
-    config.pki_log.debug(log.PKI_DICTIONARY_MASTER,
-                         extra=config.PKI_INDENTATION_LEVEL_0)
-    config.pki_log.debug(pkilogging.log_format(parser.mdict),
-                         extra=config.PKI_INDENTATION_LEVEL_0)
-
     external = deployer.configuration_file.external
     standalone = deployer.configuration_file.standalone
     step_one = deployer.configuration_file.external_step_one
     skip_configuration = deployer.configuration_file.skip_configuration
 
-    if external and step_one:
+    if skip_configuration:
+        print_skip_configuration_information(parser.mdict)
+
+    elif external and step_one:
         print_external_ca_step_one_information(parser.mdict)
 
     elif standalone and step_one:
         print_standalone_step_one_information(parser.mdict)
-
-    elif skip_configuration:
-        print_skip_configuration_information(parser.mdict)
 
     else:
         print_final_install_information(parser.mdict)
