@@ -19,15 +19,6 @@ package com.netscape.cms.authorization;
 
 import java.util.Enumeration;
 
-import netscape.ldap.LDAPAttribute;
-import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPEntry;
-import netscape.ldap.LDAPException;
-import netscape.ldap.LDAPModification;
-import netscape.ldap.LDAPModificationSet;
-import netscape.ldap.LDAPSearchResults;
-import netscape.ldap.LDAPv2;
-
 import com.netscape.certsrv.acls.ACL;
 import com.netscape.certsrv.acls.EACLsException;
 import com.netscape.certsrv.apps.CMS;
@@ -42,6 +33,15 @@ import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.logging.ILogger;
+
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPModification;
+import netscape.ldap.LDAPModificationSet;
+import netscape.ldap.LDAPSearchResults;
+import netscape.ldap.LDAPv2;
 
 /**
  * A class for ldap acls based authorization manager
@@ -139,8 +139,11 @@ public class DirAclAuthz extends AAclAuthz
             @SuppressWarnings("unused")
             String hostname = ldapConfig.getString("ldapconn.host"); // check for errors
         } catch (EBaseException e) {
-            if (CMS.isPreOpMode())
+            CMS.debug(e);
+            if (CMS.isPreOpMode()) {
+                CMS.debug("DirAclAuthz.init(): Swallow exception in pre-op mode");
                 return;
+            }
         }
 
         mLdapConnFactory = CMS.getLdapBoundConnFactory("DirAclAuthz");

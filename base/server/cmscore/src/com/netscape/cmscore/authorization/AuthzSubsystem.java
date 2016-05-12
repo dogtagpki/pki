@@ -177,10 +177,14 @@ public class AuthzSubsystem implements IAuthzSubsystem {
                     Debug.trace("loaded authz instance " + insName + " impl " + implName);
                 }
             }
-        } catch (EBaseException ee) {
-            if (CMS.isPreOpMode())
+
+        } catch (EBaseException e) {
+            CMS.debug(e);
+            if (CMS.isPreOpMode()) {
+                CMS.debug("AuthzSubsystem.init(): Swallow exception in pre-op mode");
                 return;
-            throw ee;
+            }
+            throw e;
         }
 
         log(ILogger.LL_INFO, CMS.getLogMessage("INIT_DONE", getId()));

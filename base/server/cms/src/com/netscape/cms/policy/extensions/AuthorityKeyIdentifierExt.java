@@ -22,14 +22,6 @@ import java.security.cert.CertificateException;
 import java.util.Locale;
 import java.util.Vector;
 
-import netscape.security.x509.AuthorityKeyIdentifierExtension;
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.CertificateVersion;
-import netscape.security.x509.KeyIdentifier;
-import netscape.security.x509.SubjectKeyIdentifierExtension;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.base.EBaseException;
@@ -43,6 +35,14 @@ import com.netscape.certsrv.policy.IPolicyProcessor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cms.policy.APolicyRule;
+
+import netscape.security.x509.AuthorityKeyIdentifierExtension;
+import netscape.security.x509.CertificateExtensions;
+import netscape.security.x509.CertificateVersion;
+import netscape.security.x509.KeyIdentifier;
+import netscape.security.x509.SubjectKeyIdentifierExtension;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509CertInfo;
 
 /**
  * Authority Public Key Extension Policy
@@ -163,6 +163,7 @@ public class AuthorityKeyIdentifierExt extends APolicyRule
         //X509Certificate caCert = caChain.getFirstCertificate();
         X509CertImpl caCert = certAuthority.getCACert();
         if (caCert == null || CMS.isPreOpMode()) {
+            CMS.debug("AuthorityKeyIdentifierExt.init(): Abort due to missing CA certificate or in pre-op-mode");
             return;
         }
         KeyIdentifier keyId = formKeyIdentifier(caCert);

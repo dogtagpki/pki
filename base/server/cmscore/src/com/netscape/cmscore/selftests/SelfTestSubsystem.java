@@ -1793,7 +1793,7 @@ public class SelfTestSubsystem
         }
 
         if (CMS.isPreOpMode()) {
-            // do not run selftests in pre-op mode
+            CMS.debug("SelfTestSubsystem.startup(): Do not run selftests in pre-op mode");
             return;
         }
 

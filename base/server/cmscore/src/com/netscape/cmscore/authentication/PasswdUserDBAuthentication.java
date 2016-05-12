@@ -84,8 +84,10 @@ public class PasswdUserDBAuthentication implements IAuthManager, IPasswdUserDBAu
         /* internal database directory used */
         DBSubsystem dbs = (DBSubsystem) DBSubsystem.getInstance();
         LdapConnInfo ldapinfo = dbs.getLdapConnInfo();
-        if (ldapinfo == null && CMS.isPreOpMode())
+        if (ldapinfo == null && CMS.isPreOpMode()) {
+            CMS.debug("PasswdUserDBAuthentication.init(): Abort due to missing LDAP connection info in pre-op mode");
             return;
+        }
 
         mAnonConnFactory = new LdapAnonConnFactory("PasswdUserDBAuthentication", 3, 20, ldapinfo);
 

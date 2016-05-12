@@ -513,11 +513,14 @@ public class CertificateAuthority
                 initSigUnit(/* retrieveKeys */ true);
                 // init default CA attributes like cert version, validity.
                 initDefCaAttrs();
+
             } catch (EBaseException e) {
-                if (CMS.isPreOpMode())
-                    ;
-                else
+                CMS.debug(e);
+                if (CMS.isPreOpMode()) {
+                    CMS.debug("CertificateAuthority.init(): Swallow exception in pre-op mode");
+                } else {
                     throw e;
+                }
             }
 
             mUseNonces = mConfig.getBoolean("enableNonces", true);
@@ -526,8 +529,10 @@ public class CertificateAuthority
             // init request queue and related modules.
             CMS.debug("CertificateAuthority init: initRequestQueue");
             initRequestQueue();
-            if (CMS.isPreOpMode())
+            if (CMS.isPreOpMode()) {
+                CMS.debug("CertificateAuthority.init(): Abort in pre-op mode");
                 return;
+            }
 
             /* The host CA owns these resources so skip these
              * steps for lightweight CAs.
@@ -587,10 +592,12 @@ public class CertificateAuthority
                 CMS.debug("CertificateAuthority: finished init of host authority");
             }
         } catch (EBaseException e) {
-            if (CMS.isPreOpMode())
+            CMS.debug(e);
+            if (CMS.isPreOpMode()) {
+                CMS.debug("CertificateAuthority.init(): Swallow exception in pre-op mode");
                 return;
-            else
-                throw e;
+            }
+            throw e;
         }
     }
 
@@ -758,6 +765,7 @@ public class CertificateAuthority
      */
     public void startup() throws EBaseException {
         if (CMS.isPreOpMode()) {
+            CMS.debug("CertificateAuthority.startup(): Do not start CA in pre-op mode");
             return;
         }
         mService.startup();

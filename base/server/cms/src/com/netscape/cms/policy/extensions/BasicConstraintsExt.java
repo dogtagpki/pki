@@ -23,12 +23,6 @@ import java.security.cert.X509Certificate;
 import java.util.Locale;
 import java.util.Vector;
 
-import netscape.security.x509.BasicConstraintsExtension;
-import netscape.security.x509.CertificateChain;
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.CertificateVersion;
-import netscape.security.x509.X509CertInfo;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.base.EBaseException;
@@ -45,6 +39,12 @@ import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cms.policy.APolicyRule;
+
+import netscape.security.x509.BasicConstraintsExtension;
+import netscape.security.x509.CertificateChain;
+import netscape.security.x509.CertificateExtensions;
+import netscape.security.x509.CertificateVersion;
+import netscape.security.x509.X509CertInfo;
 
 /**
  * Basic Constraints policy.
@@ -121,6 +121,7 @@ public class BasicConstraintsExt extends APolicyRule
         } else {
             CertificateChain caChain = certAuthority.getCACertChain();
             if (caChain == null || CMS.isPreOpMode()) {
+                CMS.debug("BasicConstraintsExt.init(): Abort due to missing CA certificate chain or in pre-op-mode");
                 return;
             }
             X509Certificate caCert = caChain.getFirstCertificate();

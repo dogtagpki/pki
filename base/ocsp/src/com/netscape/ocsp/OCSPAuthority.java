@@ -27,14 +27,6 @@ import java.security.cert.CertificateParsingException;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
-import netscape.security.util.DerOutputStream;
-import netscape.security.util.DerValue;
-import netscape.security.x509.AlgorithmId;
-import netscape.security.x509.CertificateChain;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509Key;
-
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.InvalidBERException;
@@ -64,6 +56,14 @@ import com.netscape.cmsutil.ocsp.OCSPRequest;
 import com.netscape.cmsutil.ocsp.OCSPResponse;
 import com.netscape.cmsutil.ocsp.ResponderID;
 import com.netscape.cmsutil.ocsp.ResponseData;
+
+import netscape.security.util.DerOutputStream;
+import netscape.security.util.DerValue;
+import netscape.security.x509.AlgorithmId;
+import netscape.security.x509.CertificateChain;
+import netscape.security.x509.X500Name;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509Key;
 
 /**
  * A class represents a Certificate Authority that is
@@ -157,11 +157,14 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
             } catch (IllegalAccessException e) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_OCSP_SIGNING_UNIT", e.toString()));
             }
-        } catch (EBaseException ee) {
-            if (CMS.isPreOpMode())
+
+        } catch (EBaseException e) {
+            CMS.debug(e);
+            if (CMS.isPreOpMode()) {
+                CMS.debug("OCSPAuthority.init(): Swallow exception in pre-op mode");
                 return;
-            else
-                throw ee;
+            }
+            throw e;
         }
     }
 
@@ -320,12 +323,17 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
         try {
             if (mDefStore != null)
                 mDefStore.startup();
+
         } catch (EBaseException e) {
+            CMS.debug(e);
             if (CMS.isPreOpMode()) {
+                CMS.debug("OCSPAuthority.init(): Swallow exception in pre-op mode");
                 return;
-            } else
-                throw e;
+            }
+            throw e;
+
         } catch (Exception e) {
+            CMS.debug(e);
         }
     }
 

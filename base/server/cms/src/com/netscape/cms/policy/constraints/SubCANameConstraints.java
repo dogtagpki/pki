@@ -20,11 +20,6 @@ package com.netscape.cms.policy.constraints;
 import java.util.Locale;
 import java.util.Vector;
 
-import netscape.security.x509.CertificateSubjectName;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.base.EBaseException;
@@ -39,6 +34,11 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.certsrv.security.ISigningUnit;
 import com.netscape.cms.policy.APolicyRule;
+
+import netscape.security.x509.CertificateSubjectName;
+import netscape.security.x509.X500Name;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509CertInfo;
 
 /**
  * This simple policy checks the subordinate CA CSR to see
@@ -104,6 +104,7 @@ public class SubCANameConstraints extends APolicyRule implements IEnrollmentPoli
         mCA = (ICertificateAuthority) certAuthority;
         ISigningUnit su = mCA.getSigningUnit();
         if (su == null || CMS.isPreOpMode()) {
+            CMS.debug("SubCANameConstraints.init(): Abort due to missing signing unit or in pre-op mode");
             return;
         }
 

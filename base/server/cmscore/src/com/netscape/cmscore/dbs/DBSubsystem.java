@@ -20,19 +20,6 @@ package com.netscape.cmscore.dbs;
 import java.math.BigInteger;
 import java.util.Hashtable;
 
-import netscape.ldap.LDAPAttribute;
-import netscape.ldap.LDAPAttributeSchema;
-import netscape.ldap.LDAPAttributeSet;
-import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPEntry;
-import netscape.ldap.LDAPException;
-import netscape.ldap.LDAPModification;
-import netscape.ldap.LDAPObjectClassSchema;
-import netscape.ldap.LDAPSchema;
-import netscape.ldap.LDAPSearchResults;
-import netscape.ldap.LDAPv3;
-import netscape.security.x509.CertificateValidity;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotDefined;
@@ -52,6 +39,19 @@ import com.netscape.cmscore.base.PropConfigStore;
 import com.netscape.cmscore.ldapconn.LdapAuthInfo;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.ldapconn.LdapConnInfo;
+
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPAttributeSchema;
+import netscape.ldap.LDAPAttributeSet;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPModification;
+import netscape.ldap.LDAPObjectClassSchema;
+import netscape.ldap.LDAPSchema;
+import netscape.ldap.LDAPSearchResults;
+import netscape.ldap.LDAPv3;
+import netscape.security.x509.CertificateValidity;
 
 /**
  * A class represents the database subsystem that manages
@@ -640,10 +640,13 @@ public class DBSubsystem implements IDBSubsystem {
             tmpConfig = (IConfigStore) (((PropConfigStore) mConfig).clone());
 
             tmpConfig.putString(PROP_BASEDN, mBaseDN);
+
         } catch (EBaseException e) {
             CMS.debug(e);
-            if (CMS.isPreOpMode())
+            if (CMS.isPreOpMode()) {
+                CMS.debug("DBSubsystem.init(): Swallow exception in pre-op mode");
                 return;
+            }
             throw e;
         }
 

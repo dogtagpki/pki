@@ -25,15 +25,6 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Enumeration;
 
-import netscape.ldap.LDAPAttribute;
-import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPEntry;
-import netscape.ldap.LDAPException;
-import netscape.ldap.LDAPModification;
-import netscape.ldap.LDAPModificationSet;
-import netscape.ldap.LDAPSearchResults;
-import netscape.ldap.LDAPv2;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -45,6 +36,15 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.publish.IPublisherProcessor;
 import com.netscape.certsrv.publish.IXcertPublisherProcessor;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
+
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPModification;
+import netscape.ldap.LDAPModificationSet;
+import netscape.ldap.LDAPSearchResults;
+import netscape.ldap.LDAPv2;
 
 /**
  * Subsystem for handling cross certificate pairing and publishing
@@ -128,9 +128,13 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
                                 PROP_LDAP));
                 return;
             }
+
         } catch (EBaseException e) {
-            if (CMS.isPreOpMode())
+            CMS.debug(e);
+            if (CMS.isPreOpMode()) {
+                CMS.debug("CrossCertPairSubsystem.init(): Swallow exception in pre-op mode");
                 return;
+            }
             throw e;
         }
     }

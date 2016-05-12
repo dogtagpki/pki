@@ -139,9 +139,13 @@ public final class UGSubsystem implements IUGSubsystem {
 
             mLdapConnFactory = new LdapBoundConnFactory("UGSubsystem");
             mLdapConnFactory.init(ldapConfig);
+
         } catch (EBaseException e) {
-            if (CMS.isPreOpMode())
+            CMS.debug(e);
+            if (CMS.isPreOpMode()) {
+                CMS.debug("UGSubsystem.init(): Swallow exception in pre-op mode");
                 return;
+            }
             throw e;
         }
     }

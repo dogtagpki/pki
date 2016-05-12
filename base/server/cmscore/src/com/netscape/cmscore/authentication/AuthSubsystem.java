@@ -258,10 +258,14 @@ public class AuthSubsystem implements IAuthSubsystem {
                 }
             }
             log(ILogger.LL_INFO, CMS.getLogMessage("INIT_DONE", getId()));
-        } catch (EBaseException ee) {
-            if (CMS.isPreOpMode())
+
+        } catch (EBaseException e) {
+            CMS.debug(e);
+            if (CMS.isPreOpMode()) {
+                CMS.debug("AuthSubsystem.init(): Swallow exception in pre-op mode");
                 return;
-            throw ee;
+            }
+            throw e;
         }
     }
 
