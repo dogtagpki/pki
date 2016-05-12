@@ -94,6 +94,7 @@ import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.ca.IssuerUnavailableException;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
 import com.netscape.certsrv.dbs.IDBSubsystem;
+import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.dbs.crldb.ICRLRepository;
@@ -121,6 +122,7 @@ import com.netscape.certsrv.security.ISigningUnit;
 import com.netscape.certsrv.util.IStatsSubsystem;
 import com.netscape.cms.servlet.cert.CertEnrollmentRequestFactory;
 import com.netscape.cms.servlet.cert.EnrollmentProcessor;
+import com.netscape.cms.servlet.cert.RenewalProcessor;
 import com.netscape.cms.servlet.processors.CAProcessor;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.dbs.CRLRepository;
@@ -210,6 +212,7 @@ public class CertificateAuthority
     protected CertificateAuthority hostCA = null;
     protected AuthorityID authorityID = null;
     protected AuthorityID authorityParentID = null;
+    protected BigInteger authoritySerial = null;
     protected String authorityDescription = null;
     protected Collection<String> authorityKeyHosts = null;
     protected boolean authorityEnabled = true;
@@ -346,6 +349,7 @@ public class CertificateAuthority
             X500Name dn,
             AuthorityID aid,
             AuthorityID parentAID,
+            BigInteger serial,
             String signingKeyNickname,
             Collection<String> authorityKeyHosts,
             String authorityDescription,
@@ -360,6 +364,7 @@ public class CertificateAuthority
 
         this.authorityID = aid;
         this.authorityParentID = parentAID;
+        this.authoritySerial = serial;
         this.authorityDescription = authorityDescription;
         this.authorityEnabled = authorityEnabled;
         mNickname = signingKeyNickname;
@@ -526,6 +531,8 @@ public class CertificateAuthority
                 }
             }
 
+            checkForNewerCert();
+
             mUseNonces = mConfig.getBoolean("enableNonces", true);
             mMaxNonces = mConfig.getInteger("maxNumberOfNonces", 100);
 
@@ -601,6 +608,49 @@ public class CertificateAuthority
                 return;
             }
             throw e;
+        }
+    }
+
+    private void checkForNewerCert() throws EBaseException {
+        if (authoritySerial == null)
+            return;
+        if (authoritySerial.equals(mCaCert.getSerialNumber()))
+            return;
+
+        // The authoritySerial recorded in LDAP differs from the
+        // certificate in NSSDB.  Import the newer cert.
+        //
+        // Note that the new serial number need not be greater,
+        // e.g. if random serial numbers are enabled.
+        //
+        CMS.debug(
+            "Updating certificate in NSSDB; new serial number: "
+            + authoritySerial);
+        try {
+            X509Certificate oldCert = mCaX509Cert;
+            CryptoManager manager = CryptoManager.getInstance();
+
+            // add new cert
+            X509CertImpl newCert = mCertRepot.getX509Certificate(authoritySerial);
+            manager.importUserCACertPackage(newCert.getEncoded(), mNickname);
+
+            // delete old cert
+            manager.getInternalKeyStorageToken().getCryptoStore()
+                .deleteCert(oldCert);
+
+            // reinit signing unit
+            initSigUnit(false);
+        } catch (CertificateException e) {
+            throw new ECAException("Failed to update certificate", e);
+        } catch (CryptoManager.NotInitializedException e) {
+            throw new ECAException("CryptoManager not initialized", e);
+        } catch (CryptoManager.NicknameConflictException e) {
+            throw new ECAException("Failed to update certificate; nickname conflict", e);
+        } catch (CryptoManager.UserCertConflictException e) {
+            throw new ECAException("Failed to update certificate; user cert conflict", e);
+        } catch (TokenException | NoSuchItemOnTokenException e) {
+            // really shouldn't happen
+            throw new ECAException("Failed to update certificate", e);
         }
     }
 
@@ -2580,6 +2630,8 @@ public class CertificateAuthority
 
         addAuthorityEntry(aid, ldapEntry);
 
+        X509CertImpl cert = null;
+
         try {
             // Generate signing key
             CryptoManager cryptoManager = CryptoManager.getInstance();
@@ -2628,7 +2680,7 @@ public class CertificateAuthority
                 throw new EBaseException("createSubCA: certificate request did not complete; status: " + requestStatus);
 
             // Add certificate to nssdb
-            X509CertImpl cert = request.getExtDataInCert(IEnrollProfile.REQUEST_ISSUED_CERT);
+            cert = request.getExtDataInCert(IEnrollProfile.REQUEST_ISSUED_CERT);
             cryptoManager.importCertPackage(cert.getEncoded(), nickname);
         } catch (Exception e) {
             // something went wrong; delete just-added entry
@@ -2644,11 +2696,65 @@ public class CertificateAuthority
             throw new ECAException("Error creating lightweight CA certificate: " + e);
         }
 
-        return new CertificateAuthority(
+        CertificateAuthority ca = new CertificateAuthority(
             hostCA, subjectX500Name,
-            aid, this.authorityID,
+            aid, this.authorityID, cert.getSerialNumber(),
             nickname, Collections.singleton(thisClone),
             description, true);
+
+        // Update authority record with serial of issued cert
+        LDAPModificationSet mods = new LDAPModificationSet();
+        mods.add(
+            LDAPModification.REPLACE,
+            new LDAPAttribute("authoritySerial", cert.getSerialNumber().toString()));
+        ca.modifyAuthorityEntry(mods);
+
+        return ca;
+    }
+
+    /**
+     * Renew certificate of this CA.
+     */
+    public void renewAuthority(HttpServletRequest httpReq)
+            throws EBaseException {
+        if (
+            authorityParentID != null
+            && !authorityParentID.equals(authorityID)
+        ) {
+            ICertificateAuthority issuer = getCA(authorityParentID);
+            issuer.ensureReady();
+        }
+
+        IProfileSubsystem ps = (IProfileSubsystem)
+            CMS.getSubsystem(IProfileSubsystem.ID);
+        IProfile profile = ps.getProfile("caManualRenewal");
+        CertEnrollmentRequest req = CertEnrollmentRequestFactory.create(
+            new ArgBlock(), profile, httpReq.getLocale());
+        req.setSerialNum(new CertId(mCaCert.getSerialNumber()));
+        RenewalProcessor processor =
+            new RenewalProcessor("renewAuthority", httpReq.getLocale());
+        Map<String, Object> resultMap =
+            processor.processRenewal(req, httpReq, null);
+        IRequest requests[] = (IRequest[]) resultMap.get(CAProcessor.ARG_REQUESTS);
+        IRequest request = requests[0];
+        Integer result = request.getExtDataInInteger(IRequest.RESULT);
+        if (result != null && !result.equals(IRequest.RES_SUCCESS))
+            throw new EBaseException("renewAuthority: certificate renewal submission resulted in error: " + result);
+        RequestStatus requestStatus = request.getRequestStatus();
+        if (requestStatus != RequestStatus.COMPLETE)
+            throw new EBaseException("renewAuthority: certificate renewal did not complete; status: " + requestStatus);
+        X509CertImpl cert = request.getExtDataInCert(IEnrollProfile.REQUEST_ISSUED_CERT);
+        authoritySerial = cert.getSerialNumber();
+
+        // Update authority record with serial of issued cert
+        LDAPModificationSet mods = new LDAPModificationSet();
+        mods.add(
+            LDAPModification.REPLACE,
+            new LDAPAttribute("authoritySerial", authoritySerial.toString()));
+        modifyAuthorityEntry(mods);
+
+        // update cert in NSSDB
+        checkForNewerCert();
     }
 
     /**
@@ -3041,6 +3147,7 @@ public class CertificateAuthority
         LDAPAttribute dnAttr = entry.getAttribute("authorityDN");
         LDAPAttribute parentAIDAttr = entry.getAttribute("authorityParentID");
         LDAPAttribute parentDNAttr = entry.getAttribute("authorityParentDN");
+        LDAPAttribute serialAttr = entry.getAttribute("authoritySerial");
 
         if (aidAttr == null || nickAttr == null || dnAttr == null) {
             CMS.debug("Malformed authority object; required attribute(s) missing: " + entry.getDN());
@@ -3115,6 +3222,10 @@ public class CertificateAuthority
             parentAID = new AuthorityID((String)
                 parentAIDAttr.getStringValues().nextElement());
 
+        BigInteger serial = null;
+        if (serialAttr != null)
+            serial = new BigInteger(serialAttr.getStringValueArray()[0]);
+
         boolean enabled = true;
         LDAPAttribute enabledAttr = entry.getAttribute("authorityEnabled");
         if (enabledAttr != null) {
@@ -3125,7 +3236,8 @@ public class CertificateAuthority
 
         try {
             CertificateAuthority ca = new CertificateAuthority(
-                hostCA, dn, aid, parentAID, keyNick, keyHosts, desc, enabled);
+                hostCA, dn, aid, parentAID, serial,
+                keyNick, keyHosts, desc, enabled);
             caMap.put(aid, ca);
             entryUSNs.put(aid, newEntryUSN);
             nsUniqueIds.put(aid, nsUniqueId);

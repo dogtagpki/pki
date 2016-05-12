@@ -19,6 +19,7 @@ package com.netscape.cms.servlet.cert;
 
 import java.math.BigInteger;
 import java.security.cert.X509Certificate;
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Enumeration;
@@ -51,6 +52,7 @@ import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.certsrv.registry.IPluginRegistry;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.input.SerialNumRenewInput;
+import com.netscape.cms.realm.PKIPrincipal;
 import com.netscape.cms.servlet.common.AuthCredentials;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.profile.SSLClientCertProvider;
@@ -265,7 +267,12 @@ public class RenewalProcessor extends CertProcessor {
                 context.put("origSubjectDN", origSubjectDN);
 
             // before creating the request, authenticate the request
-            IAuthToken authToken = authenticate(request, origReq, authenticator, context, true, credentials);
+            IAuthToken authToken = null;
+            Principal principal = request.getUserPrincipal();
+            if (principal instanceof PKIPrincipal)
+                authToken = ((PKIPrincipal) principal).getAuthToken();
+            if (authToken == null)
+                authToken = authenticate(request, origReq, authenticator, context, true, credentials);
 
             // authentication success, now authorize
             authorize(profileId, renewProfile, authToken);

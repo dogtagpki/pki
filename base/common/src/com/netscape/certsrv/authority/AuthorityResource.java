@@ -94,6 +94,13 @@ public interface AuthorityResource {
     @ACLMapping("authorities.modify")
     public Response disableCA(@PathParam("id") String caIDString);
 
+    @POST
+    @Path("{id}/renew")
+    @ClientResponseType(entityType=AuthorityData.class)
+    @AuthMethodMapping("authorities")
+    @ACLMapping("authorities.modify")
+    public Response renewCA(@PathParam("id") String caIDString);
+
     @DELETE
     @Path("{id}")
     @ClientResponseType(entityType=Void.class)

@@ -598,6 +598,12 @@ public interface ICertificateAuthority extends ISubsystem {
         throws EBaseException;
 
     /**
+     * Renew certificate of CA.
+     */
+    public void renewAuthority(HttpServletRequest httpReq)
+        throws EBaseException;
+
+    /**
      * Delete this lightweight CA.
      */
     public void deleteAuthority()

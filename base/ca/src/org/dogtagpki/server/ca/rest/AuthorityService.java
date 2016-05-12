@@ -282,6 +282,37 @@ public class AuthorityService extends PKIService implements AuthorityResource {
     }
 
     @Override
+    public Response renewCA(String aidString) {
+        AuthorityID aid = null;
+        try {
+            aid = new AuthorityID(aidString);
+        } catch (IllegalArgumentException e) {
+            throw new BadRequestException("Bad AuthorityID: " + aidString);
+        }
+
+        ICertificateAuthority ca = hostCA.getCA(aid);
+        if (ca == null)
+            throw new ResourceNotFoundException("CA \"" + aidString + "\" not found");
+
+        Map<String, String> auditParams = new LinkedHashMap<>();
+
+        try {
+            ca.renewAuthority(servletRequest);
+            audit(ILogger.SUCCESS, OpDef.OP_MODIFY, aidString, null);
+            return createNoContentResponse();
+        } catch (CADisabledException e) {
+            auditParams.put("exception", e.toString());
+            audit(ILogger.FAILURE, OpDef.OP_MODIFY, aidString, auditParams);
+            throw new ConflictingOperationException(e.toString());
+        } catch (EBaseException e) {
+            CMS.debug(e);
+            auditParams.put("exception", e.toString());
+            audit(ILogger.FAILURE, OpDef.OP_MODIFY, aidString, auditParams);
+            throw new PKIException("Error renewing authority: " + e.toString());
+        }
+    }
+
+    @Override
     public Response deleteCA(String aidString) {
         AuthorityID aid = null;
         try {
