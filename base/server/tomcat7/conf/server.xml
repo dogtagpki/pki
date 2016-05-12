@@ -125,7 +125,7 @@ Tomcat Port         = [TOMCAT_SERVER_PORT] (for shutdown)
     <Connector name="[PKI_UNSECURE_PORT_CONNECTOR_NAME]" port="[PKI_UNSECURE_PORT]" protocol="HTTP/1.1" redirectPort="[PKI_SECURE_PORT]"
            maxHttpHeaderSize="8192"
            acceptCount="100" maxThreads="150" minSpareThreads="25"
-           enableLookups="false" connectionTimeout="20000" disableUploadTimeout="true"
+           enableLookups="false" connectionTimeout="80000" disableUploadTimeout="true"
            />
 
     <!-- Define a SSL HTTP/1.1 Connector on port 8443 -->
@@ -185,6 +185,7 @@ Tomcat Port         = [TOMCAT_SERVER_PORT] (for shutdown)
     -->
     <Connector name="[PKI_SECURE_PORT_CONNECTOR_NAME]" port="[PKI_SECURE_PORT]" protocol="HTTP/1.1" SSLEnabled="true" sslProtocol="SSL" scheme="https" secure="true"
            maxHttpHeaderSize="8192"
+           connectionTimeout="80000"
            acceptCount="100" maxThreads="150" minSpareThreads="25"
            enableLookups="false" disableUploadTimeout="true"
            sslImplementationName="org.apache.tomcat.util.net.jss.JSSImplementation"

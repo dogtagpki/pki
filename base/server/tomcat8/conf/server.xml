@@ -131,7 +131,7 @@ Tomcat Port         = [TOMCAT_SERVER_PORT] (for shutdown)
            maxThreads="150"
            minSpareThreads="25"
            enableLookups="false"
-           connectionTimeout="20000"
+           connectionTimeout="80000"
            disableUploadTimeout="true"
            />
 
@@ -209,6 +209,7 @@ Tomcat Port         = [TOMCAT_SERVER_PORT] (for shutdown)
            sslProtocol="SSL"
            scheme="https"
            secure="true"
+           connectionTimeout="80000"
            maxHttpHeaderSize="8192"
            acceptCount="100" maxThreads="150" minSpareThreads="25"
            enableLookups="false" disableUploadTimeout="true"
