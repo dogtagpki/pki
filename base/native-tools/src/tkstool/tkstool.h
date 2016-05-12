@@ -94,7 +94,7 @@
 #define HEX_SESSION_KEY_BUF_LENGTH             32
 #define HEX_SESSION_KEY_KCV_BUF_LENGTH         8
 
-#define MASTER_KEY_LENGTH                      16
+#define MASTER_KEY_LENGTH                      24 
 
 #define WRAPPED_KEY_LENGTH                     16
 #define HEX_WRAPPED_KEY_LENGTH                 32

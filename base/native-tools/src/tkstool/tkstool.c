@@ -1682,13 +1682,14 @@ main( int argc, char **argv )
                     "on the specified token . . .\n\n" );
 
         if( MASTER_KEY_LENGTH == ( 2 * DES_LENGTH ) ) {
-            masterKey = PK11_TokenKeyGen(
+            masterKey = PK11_TokenKeyGenWithFlags(
             /* slot                     */  slot,
             /* mechanism                */  CKM_DES2_KEY_GEN,
             /* param                    */  0,
             /* keySize                  */  0,
             /* keyid                    */  0,
-            /* isToken (i. e. - isPerm) */  PR_TRUE,
+            /* opFlags */ CKF_SIGN | CKF_DECRYPT | CKF_ENCRYPT | CKF_DERIVE,
+            /* pk11AtrFlags */ PK11_ATTR_SENSITIVE | PK11_ATTR_PRIVATE | PK11_ATTR_TOKEN,
             /* wincx                    */  &pwdata );
             if( masterKey == NULL ) {
                 PR_fprintf( PR_STDERR,
@@ -1701,13 +1702,14 @@ main( int argc, char **argv )
                 goto shutdown;
             }
         } else if( MASTER_KEY_LENGTH == ( 3 * DES_LENGTH ) ) {
-            masterKey = PK11_TokenKeyGen(
+            masterKey = PK11_TokenKeyGenWithFlags(
             /* slot                     */  slot,
             /* mechanism                */  CKM_DES3_KEY_GEN,
             /* param                    */  0,
             /* keySize                  */  0,
             /* keyid                    */  0,
-            /* isToken (i. e. - isPerm) */  PR_TRUE,
+            /* opFlags */ CKF_SIGN | CKF_DECRYPT | CKF_ENCRYPT | CKF_DERIVE,
+            /* pk11AtrFlags */ PK11_ATTR_SENSITIVE | PK11_ATTR_PRIVATE | PK11_ATTR_TOKEN,
             /* wincx                    */  &pwdata );
             if( masterKey == NULL ) {
                 PR_fprintf( PR_STDERR,
@@ -2307,13 +2309,14 @@ main( int argc, char **argv )
                     "on the specified token . . .\n\n" );
 
         if( WRAPPED_KEY_LENGTH == ( 2 * DES_LENGTH ) ) {
-            masterKey = PK11_TokenKeyGen(
+            masterKey = PK11_TokenKeyGenWithFlags(
             /* slot                     */  slot,
             /* mechanism                */  CKM_DES2_KEY_GEN,
             /* param                    */  0,
             /* keySize                  */  0,
             /* keyid                    */  0,
-            /* isToken (i. e. - isPerm) */  PR_TRUE,
+            /* opFlags */ CKF_SIGN | CKF_DECRYPT | CKF_ENCRYPT | CKF_DERIVE,
+            /* pk11AtrFlags */ PK11_ATTR_SENSITIVE | PK11_ATTR_PRIVATE | PK11_ATTR_TOKEN,
             /* wincx                    */  &pwdata );
             if( masterKey == NULL ) {
                 PR_fprintf( PR_STDERR,
@@ -2326,13 +2329,14 @@ main( int argc, char **argv )
                 goto shutdown;
             }
         } else if( WRAPPED_KEY_LENGTH == ( 3 * DES_LENGTH ) ) {
-            masterKey = PK11_TokenKeyGen(
+            masterKey = PK11_TokenKeyGenWithFlags(
             /* slot                     */  slot,
             /* mechanism                */  CKM_DES3_KEY_GEN,
             /* param                    */  0,
             /* keySize                  */  0,
             /* keyid                    */  0,
-            /* isToken (i. e. - isPerm) */  PR_TRUE,
+            /* opFlags */ CKF_SIGN | CKF_DECRYPT |  CKF_ENCRYPT | CKF_DERIVE,
+            /* pk11AtrFlags */ PK11_ATTR_SENSITIVE | PK11_ATTR_PRIVATE | PK11_ATTR_TOKEN,
             /* wincx                    */  &pwdata );
             if( masterKey == NULL ) {
                 PR_fprintf( PR_STDERR,
