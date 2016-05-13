@@ -47,6 +47,61 @@ var key = new Object();
 key.type = "EC";
 keyList[1] = key;
 
+// Obtain browser name and version information
+// (credit: 'http://www.javascripter.net/faq/browsern.htm')
+var nAgt = navigator.userAgent;
+var browserName  = navigator.appName;
+var fullVersion  = ''+parseFloat(navigator.appVersion);
+var majorVersion = parseInt(navigator.appVersion, 10);
+var nameOffset,verOffset,ix;
+if ((verOffset = nAgt.indexOf("OPR/")) != -1) {
+   browserName = "Opera";
+   fullVersion = nAgt.substring(verOffset + 4);
+} else if ((verOffset = nAgt.indexOf("Opera")) != -1) {
+   browserName = "Opera";
+   fullVersion = nAgt.substring(verOffset + 6);
+   if ((verOffset = nAgt.indexOf("Version")) != -1) {
+      fullVersion = nAgt.substring(verOffset + 8);
+   }
+} else if ((verOffset = nAgt.indexOf("MSIE")) != -1) {
+   browserName = "Microsoft Internet Explorer";
+   fullVersion = nAgt.substring(verOffset + 5);
+} else if ((verOffset = nAgt.indexOf("Chrome")) != -1) {
+   browserName = "Chrome";
+   fullVersion = nAgt.substring(verOffset + 7);
+} else if ((verOffset = nAgt.indexOf("Safari")) != -1) {
+   browserName = "Safari";
+   fullVersion = nAgt.substring(verOffset + 7);
+   if ((verOffset = nAgt.indexOf("Version")) != -1) {
+      fullVersion = nAgt.substring(verOffset + 8);
+   }
+} else if ((verOffset = nAgt.indexOf("Firefox")) != -1) {
+   browserName = "Firefox";
+   fullVersion = nAgt.substring(verOffset + 8);
+} else if ((nameOffset = nAgt.lastIndexOf(' ') + 1) <
+           (verOffset = nAgt.lastIndexOf('/'))) {
+   browserName = nAgt.substring(nameOffset, verOffset);
+   fullVersion = nAgt.substring(verOffset + 1);
+   if (browserName.toLowerCase() == browserName.toUpperCase()) {
+      browserName = navigator.appName;
+   }
+}
+
+// trim the fullVersion string at semicolon/space if present
+if ((ix = fullVersion.indexOf(";")) != -1) {
+   fullVersion = fullVersion.substring(0, ix);
+}
+if ((ix = fullVersion.indexOf(" ")) != -1) {
+   fullVersion=fullVersion.substring(0, ix);
+}
+
+majorVersion = parseInt(''+fullVersion, 10);
+if (isNaN(majorVersion)) {
+   fullVersion  = ''+parseFloat(navigator.appVersion);
+   majorVersion = parseInt(navigator.appVersion, 10);
+}
+
+
 function isIE() {
    if ( "ActiveXObject" in window ) {
      return true;
@@ -62,11 +117,35 @@ function isIE() {
    return false;
  }
 
+function isKeyGenSupported() {
+   var keygen = document.createElement("KEYGEN");
+   if ((typeof(keygen) == "object") &&
+       (typeof(keygen.name) == "undefined")) {
+       // Firefox
+       return true;
+   } else if ((typeof(keygen) == "object") &&
+              (typeof(keygen.name) == "string")) {
+       // Chrome
+       return true;
+   }
+   return false;
+}
+
 function getIE11Warning() {
      document.write('<p> <font color="red"> Warning: Internet Explore Version 11 is not currently supported for certain enrollment operations. Please use an earlier version of the browser.  </font> </p>');
      document.write('<br>');
 }
 
+
+function getNoKeyGenWarning() {
+     document.write('<p> <font color="red"> Warning: This version of ' + browserName + ' no longer supports the &lt;keygen&gt; tag used to facilitate generation of key material and submission of a public key as part of an HTML form from a browser.  As a result, certificate requests must be generated and submitted manually. </font> </p>');
+     document.write('<br>');
+}
+
+function getKeyGenDisabledWarning() {
+     document.write('<p> <font color="red"> Warning: Please verify that this version of ' + browserName + ' has not disabled &lt;keygen&gt; functionality.<br><br>For example, to enable &lt;keygen&gt; on Chrome, create a new tab, type in "chrome://settings/content", find the section entitled "Key generation", select the radio button labeled "Allow all sites to use key generation in forms.", press the "Done" button, return to the previous tab, and reload this webpage. </font> </p>');
+     document.write('<br>');
+}
 
 function getKeyStrengthTableForKeyGen() {
 
@@ -78,7 +157,7 @@ function getKeyStrengthTableForKeyGen() {
 }
 
 function getNoCryptoWarning() {
-     document.write('<p> <font color="red"> Warning: This version of Firefox no longer supports the crypto web object used to generate and archive keys from the browser.  As a result expect limited functionality in this area. </font> </p>');
+     document.write('<p> <font color="red"> Warning: This version of ' + browserName + ' no longer supports the crypto web object used to generate and archive keys from the browser.  As a result expect limited functionality in this area. </font> </p>');
      document.write('<br>');
 }
 
@@ -244,7 +323,7 @@ function keyLengthsCurvesOptions (keyPurpose)
           included = false;
       } else if (keyType == "EC" &&
                  isIE() &&
-                 value != "nistp256" && value != "nistp384" && value != "nistp521" &
+                 value != "nistp256" && value != "nistp384" && value != "nistp521" &&
                  value != "ECDSA_P256" && value != "ECDSA_P384" && value != "ECDSA_P521") {
           included = false;
       }
@@ -761,6 +840,11 @@ for (var m = 0; m < inputPluginListSet.length; m++) {
         }
         document.writeln('<input type=hidden name=' + inputListSet[n].inputId + '>');
         document.writeln('<SELECT NAME="keyLength">'+keyLengthsCurvesOptions("")+'</SELECT>&nbsp;&nbsp;<SELECT NAME=\"cryptprovider\"></SELECT>');
+      } else if (!isKeyGenSupported()) {
+          // KeyGen is no longer supported by this version of the browser
+          getNoKeyGenWarning();
+          // TODO:  Consider short-circuiting displaying the form at this point
+          //        in time since nothing more can be done from the browser!
       } else if (typeof(crypto) != "undefined" && typeof(crypto.version) != "undefined") {
         document.write('<SELECT NAME="keyParam">'+keyLengthsCurvesOptions("")+'</SELECT>');
         document.write('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">');
@@ -777,7 +861,16 @@ for (var m = 0; m < inputPluginListSet.length; m++) {
         document.writeln('<input type=hidden name=cert_request value="">');
       } else {
 
-        getNoCryptoWarning();
+        if (browserName == "Firefox") {
+          // the crypto web object is no longer supported
+          // by this version of the browser
+          getNoCryptoWarning();
+        } else if ((browserName == "Chrome") &&
+                   (majorVersion >= 49)) {
+          // KeyGen exists but may have been disabled
+          getKeyGenDisabledWarning();
+        }
+
         getKeyStrengthTableForKeyGen();
 
         var keyTypesOptions = getKeyTypesOptionsForKeyGen();
@@ -800,10 +893,22 @@ for (var m = 0; m < inputPluginListSet.length; m++) {
           getIE11Warning();
         }
         document.writeln('Not Supported<input type=hidden name=' + inputListSet[n].inputId + ' value=>');
+      } else if (!isKeyGenSupported()) {
+          // KeyGen is no longer supported by this version of the browser
+          getNoKeyGenWarning();
       } else if (typeof(crypto) != "undefined" && typeof(crypto.version) != "undefined") {
         document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">crmf</FONT><input type=hidden name=' + inputListSet[n].inputId + ' value=crmf>');
       } else {
-        getNoCryptoWarning();
+        if (browserName == "Firefox") {
+          // the crypto web object is no longer supported
+          // by this version of the browser
+          getNoCryptoWarning();
+        } else if ((browserName == "Chrome") &&
+                   (majorVersion >= 49)) {
+          // KeyGen exists but may have been disabled
+          getKeyGenDisabledWarning();
+        }
+
         document.writeln('Not Supported<input type=hidden name=' + inputListSet[n].inputId + ' value=>');
       }
     } else if ((inputListSet[n].inputSyntax == 'keygen_request_type') ||
