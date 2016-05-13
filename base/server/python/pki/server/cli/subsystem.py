@@ -779,55 +779,106 @@ class SubsystemCertValidateCLI(pki.cli.CLI):
         instance.load()
 
         subsystem = instance.get_subsystem(subsystem_name)
+        if not subsystem:
+            self.print_message('ERROR: missing subsystem ' + subsystem_name)
+            sys.exit(1)
 
         if cert_id is not None:
             certs = [subsystem.get_subsystem_cert(cert_id)]
         else:
             certs = subsystem.find_system_certs()
 
+        first = True
         certs_valid = True
+
         for cert in certs:
-            token = cert['token']
 
-            # get token password and store in temporary file
-            if token == 'Internal Key Storage Token':
-                passwd = instance.get_password('internal')
+            if first:
+                first = False
             else:
-                passwd = instance.get_password("hardware-%s" % token)
+                print()
 
-            pwfile_handle, pwfile_path = mkstemp()
-            os.write(pwfile_handle, passwd)
-            os.close(pwfile_handle)
-
-            cmd = ['pki', '-d', instance.nssdb_dir,
-                   '-W', pwfile_path ]
-
-            if token != 'Internal Key Storage Token':
-                cmd.extend(['--token', token])
-
-            cmd.extend(
-                ['client-cert-validate',
-                 cert['nickname'],
-                 '--certusage', cert['certusage']]
-            )
-
-            try:
-                subprocess.check_output(cmd, stderr=subprocess.STDOUT)
-                self.print_message("Valid certificate : %s" %cert['nickname'])
-            except subprocess.CalledProcessError as e:
-                certs_valid = False
-                if e.returncode == 1:
-                    self.print_message("Invalid certificate: %s"
-                                       % cert['nickname'])
-                else:
-                    self.print_message("Error in validating certificate: %s"
-                                       % cert['nickname'])
-                self.print_message(e.output)
-            finally:
-                os.unlink(pwfile_path)
+            certs_valid &= self.validate_certificate(instance, cert)
 
         if certs_valid:
+            self.print_message("Validation succeeded")
             sys.exit(0)
         else:
+            self.print_message("Validation failed")
             sys.exit(1)
 
+    def validate_certificate(self, instance, cert):
+
+        if self.verbose:
+            print(cert)
+
+        print('  Cert ID: %s' % cert['id'])
+
+        if not cert['request']:
+            print('  Status: ERROR: missing certificate request')
+            return False
+
+        if not cert['data']:
+            print('  Status: ERROR: missing certificate data')
+            return False
+
+        nickname = cert['nickname']
+        if not nickname:
+            print('  Status: ERROR: missing nickname')
+            return False
+
+        print('  Nickname: %s' % nickname)
+
+        usage = cert['certusage']
+        if not usage:
+            print('  Status: ERROR: missing usage')
+            return False
+
+        print('  Usage: %s' % usage)
+
+        token = cert['token']
+        if not token:
+            print('  Status: ERROR: missing token name')
+            return False
+
+        print('  Token: %s' % token)
+
+        if token == 'Internal Key Storage Token':
+            token = 'internal'
+
+        # get token password and store in temporary file
+        if token == 'internal':
+            passwd = instance.get_password('internal')
+        else:
+            passwd = instance.get_password("hardware-%s" % token)
+
+        pwfile_handle, pwfile_path = mkstemp()
+        os.write(pwfile_handle, passwd)
+        os.close(pwfile_handle)
+
+        try:
+            cmd = ['pki', '-d', instance.nssdb_dir,
+                   '-C', pwfile_path ]
+
+            if token != 'internal':
+                cmd.extend(['--token', token])
+
+            cmd.extend(['client-cert-validate',
+                nickname,
+                '--certusage', usage]
+            )
+
+            subprocess.check_output(cmd, stderr=subprocess.STDOUT)
+            print('  Status: VALID')
+
+            return True
+
+        except subprocess.CalledProcessError as e:
+            if e.returncode == 1:
+                print('  Status: INVALID')
+            else:
+                print('  Status: ERROR: %s' % e.output)
+            return False
+
+        finally:
+            os.unlink(pwfile_path)
