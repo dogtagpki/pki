@@ -147,6 +147,11 @@ function getKeyGenDisabledWarning() {
      document.write('<br>');
 }
 
+function getChromeECCSupportWarning() {
+     document.write('<p> <font color="red"> Warning: Currently, this profile is unable to successfully construct an ECC certificate request on Chrome.<br><br>At this time, please use Firefox to generate ECC certificate requests.</font> </p>');
+     document.write('<br>');
+}
+
 function getKeyStrengthTableForKeyGen() {
 
   document.writeln("<table border='1'> <caption> KeyGen Key Strength Info </caption> <tr> <th> Key Type </th> <th> High Grade </th> <th> Medium Grade </th> </tr>");
@@ -869,6 +874,12 @@ for (var m = 0; m < inputPluginListSet.length; m++) {
                    (majorVersion >= 49)) {
           // KeyGen exists but may have been disabled
           getKeyGenDisabledWarning();
+        }
+
+        if (browserName == "Chrome") {
+          // PKI TRAC Ticket #2306 - Chrome Can Not Submit EC
+          //                         Client Cert Requests
+          getChromeECCSupportWarning();
         }
 
         getKeyStrengthTableForKeyGen();
