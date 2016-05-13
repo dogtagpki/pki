@@ -1,5 +1,7 @@
 package com.netscape.cmstools.authority;
 
+import java.math.BigInteger;
+
 import com.netscape.certsrv.authority.AuthorityClient;
 import com.netscape.certsrv.authority.AuthorityData;
 import com.netscape.cmstools.cli.CLI;
@@ -42,9 +44,19 @@ public class AuthorityCLI extends CLI {
             System.out.println("  Host authority: true");
         System.out.println("  Authority DN:   " + data.getDN());
         System.out.println("  ID:             " + data.getID());
+
         String parentAID = data.getParentID();
         if (parentAID != null)
-            System.out.println("  Parent ID:      " + data.getParentID());
+            System.out.println("  Parent ID:      " + parentAID);
+
+        String issuerDN = data.getIssuerDN();
+        if (issuerDN != null)
+            System.out.println("  Issuer DN:      " + issuerDN);
+
+        BigInteger serial = data.getSerial();
+        if (serial != null)
+            System.out.println("  Serial no:      " + serial);
+
         System.out.println("  Enabled:        " + data.getEnabled());
         System.out.println("  Ready to sign:  " + data.getReady());
         String desc = data.getDescription();

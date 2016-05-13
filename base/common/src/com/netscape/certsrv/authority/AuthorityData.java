@@ -21,6 +21,8 @@
  */
 package com.netscape.certsrv.authority;
 
+import java.math.BigInteger;
+
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
@@ -68,6 +70,23 @@ public class AuthorityData {
 
     public String getParentID() {
         return parentID;
+    }
+
+    /* Read-only for existing CAs */
+    @XmlAttribute
+    protected String issuerDN;
+
+    public String getIssuerDN() {
+        return issuerDN;
+    }
+
+
+    /* Read-only attribute */
+    @XmlAttribute
+    protected BigInteger serial;
+
+    public BigInteger getSerial() {
+        return serial;
     }
 
 
@@ -124,12 +143,15 @@ public class AuthorityData {
     public AuthorityData(
             Boolean isHostAuthority,
             String dn, String id, String parentID,
+            String issuerDN, BigInteger serial,
             Boolean enabled, String description,
             Boolean ready) {
         this.isHostAuthority = isHostAuthority;
         this.dn = dn;
         this.id = id;
         this.parentID = parentID;
+        this.issuerDN = issuerDN;
+        this.serial = serial;
         this.enabled = enabled;
         this.description = description;
         this.ready = ready;

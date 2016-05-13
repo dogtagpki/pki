@@ -81,7 +81,7 @@ public class AuthorityCreateCLI extends CLI {
 
         String dn = cmdArgs[0];
         AuthorityData data = new AuthorityData(
-            null, dn, null, parentAIDString, true /* enabled */, desc, null);
+            null, dn, null, parentAIDString, null, null, true /* enabled */, desc, null);
         AuthorityData newData = authorityCLI.authorityClient.createCA(data);
         AuthorityCLI.printAuthorityData(newData);
     }

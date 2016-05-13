@@ -20,6 +20,7 @@ package org.dogtagpki.server.ca.rest;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.security.cert.CertificateEncodingException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -270,14 +271,14 @@ public class AuthorityService extends PKIService implements AuthorityResource {
     public Response enableCA(String aidString) {
         return modifyCA(
             aidString,
-            new AuthorityData(null, null, null, null, true, null, null));
+            new AuthorityData(null, null, null, null, null, null, true, null, null));
     }
 
     @Override
     public Response disableCA(String aidString) {
         return modifyCA(
             aidString,
-            new AuthorityData(null, null, null, null, false, null, null));
+            new AuthorityData(null, null, null, null, null, null, false, null, null));
     }
 
     @Override
@@ -321,7 +322,16 @@ public class AuthorityService extends PKIService implements AuthorityResource {
         try {
             dn = ca.getX500Name().toLdapDNString();
         } catch (IOException e) {
-            throw new PKIException("Error reading CA data: could not determine Issuer DN");
+            throw new PKIException("Error reading CA data: could not determine subject DN");
+        }
+
+        String issuerDN;
+        BigInteger serial;
+        try {
+            issuerDN = ca.getCACert().getIssuerDN().toString();
+            serial = ca.getCACert().getSerialNumber();
+        } catch (EBaseException e) {
+            throw new PKIException("Error reading CA data: missing CA cert", e);
         }
 
         AuthorityID parentAID = ca.getAuthorityParentID();
@@ -330,6 +340,8 @@ public class AuthorityService extends PKIService implements AuthorityResource {
             dn,
             ca.getAuthorityID().toString(),
             parentAID != null ? parentAID.toString() : null,
+            issuerDN,
+            serial,
             ca.getAuthorityEnabled(),
             ca.getAuthorityDescription(),
             ca.isReady()
