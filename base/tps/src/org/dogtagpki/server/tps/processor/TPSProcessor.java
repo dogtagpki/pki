@@ -1345,9 +1345,9 @@ public class TPSProcessor {
         try {
             tokenRecord = tps.tdb.tdbGetTokenEntry(appletInfo.getCUIDhexStringPlain());
             // now the in memory tokenRecord is replaced by the actual token data
-            CMS.debug("TPSProcessor.enroll: found token...");
+            CMS.debug("TPSProcessor.isTokenRecordPresent: found token...");
         } catch (Exception e) {
-            CMS.debug("TPSProcessor.enroll: token does not exist in tokendb... create one in memory");
+            CMS.debug("TPSProcessor.isTokenRecordPresent: token does not exist in tokendb... create one in memory");
         }
 
         return tokenRecord;
@@ -3952,7 +3952,7 @@ public class TPSProcessor {
         String auditType = "";
         switch (status) {
         case "success":
-            auditType = "LOGGING_SIGNED_AUDIT_TOKEN_KEY_CHANGEOVER_SUCCESS_9";
+            auditType = "LOGGING_SIGNED_AUDIT_TOKEN_KEY_CHANGEOVER_SUCCESS_10";
             break;
         default:
             auditType = "LOGGING_SIGNED_AUDIT_TOKEN_KEY_CHANGEOVER_FAILURE_10";
