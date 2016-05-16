@@ -2850,9 +2850,13 @@ public class CertificateAuthority
 
         shutdown();
 
-        // delete ldap entry
         deleteAuthorityEntry(authorityID);
+        deleteAuthorityNSSDB();
+    }
 
+    /** Delete keys and certs of this authority from NSSDB.
+     */
+    private void deleteAuthorityNSSDB() throws ECAException {
         CryptoManager cryptoManager;
         try {
             cryptoManager = CryptoManager.getInstance();
@@ -3137,6 +3141,18 @@ public class CertificateAuthority
         attr = entry.getAttribute("authorityID");
         if (attr != null) {
             aid = new AuthorityID(attr.getStringValueArray()[0]);
+            CertificateAuthority ca = (CertificateAuthority) getCA(aid);
+            if (ca == null)
+                return;  // shouldn't happen
+
+            try {
+                ca.deleteAuthorityNSSDB();
+            } catch (ECAException e) {
+                // log and carry on
+                CMS.debug(
+                    "Caught exception attempting to delete NSSDB material "
+                    + "for authority '" + aid + "': " + e);
+            }
             forgetAuthority(aid);
         }
     }
