@@ -2861,7 +2861,11 @@ public class CertificateAuthority
             throw new ECAException("CryptoManager not initialized");
         }
 
-        // delete cert
+        // NOTE: PK11Store.deleteCert deletes the cert AND the
+        // private key (which is what we want).  A subsequent call
+        // to PK11Store.deletePrivateKey() is not necessary and
+        // indeed would throw an exception.
+        //
         CryptoStore cryptoStore =
             cryptoManager.getInternalKeyStorageToken().getCryptoStore();
         try {
@@ -2872,19 +2876,6 @@ public class CertificateAuthority
         } catch (TokenException e) {
             CMS.debug("deleteAuthority: TokenExcepetion while deleting cert: " + e);
             throw new ECAException("TokenException while deleting cert: " + e);
-        }
-
-        // delete key
-        try {
-            cryptoStore.deletePrivateKey(mSigningUnit.getPrivateKey());
-        } catch (NoSuchItemOnTokenException e) {
-            CMS.debug("deleteAuthority: private key is not on token: " + e);
-            // if the key isn't there, never mind
-        } catch (TokenException e) {
-            CMS.debug("deleteAuthority: TokenExcepetion while deleting private key: " + e);
-            // TODO don't know what causes this yet, or how to
-            // prevent it.
-            //throw new ECAException("TokenException while deleting private key: " + e);
         }
     }
 
