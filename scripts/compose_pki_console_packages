@@ -31,7 +31,7 @@ PKI_PWD=`pwd`
 ##
 
 PKI_CONSOLE="pki-console"
-PKI_CONSOLE_VERSION="10.3.0.b1"
+PKI_CONSOLE_VERSION="10.3.0"
 
 
 ##

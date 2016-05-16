@@ -42,7 +42,7 @@
 %define pki_homedir /usr/share/pki
 
 Name:             pki-core
-Version:          10.3.0.b1
+Version:          10.3.0
 Release:          1%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
@@ -1106,6 +1106,9 @@ systemctl daemon-reload
 %endif # %{with server}
 
 %changelog
+* Mon May 16 2016 Dogtag Team <pki-devel@redhat.com> 10.3.0-1
+- Updated version number to 10.3.0-1
+
 * Mon Apr 18 2016 Dogtag Team <pki-devel@redhat.com> 10.3.0.b1-1
 - Build for F24 beta
 
