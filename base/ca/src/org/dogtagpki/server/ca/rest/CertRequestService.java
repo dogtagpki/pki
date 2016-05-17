@@ -41,6 +41,7 @@ import com.netscape.certsrv.base.BadRequestDataException;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.ConflictingOperationException;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.HTTPGoneException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.certsrv.base.ServiceUnavailableException;
@@ -49,6 +50,7 @@ import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.CADisabledException;
 import com.netscape.certsrv.ca.CAMissingCertException;
 import com.netscape.certsrv.ca.CAMissingKeyException;
+import com.netscape.certsrv.ca.CANotFoundException;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
 import com.netscape.certsrv.cert.CertRequestInfo;
@@ -252,6 +254,11 @@ public class CertRequestService extends PKIService implements CertRequestResourc
         } catch (BadRequestDataException e) {
             CMS.debug("changeRequestState: bad request data: " + e);
             throw new BadRequestException(e.toString());
+        } catch (CANotFoundException e) {
+            // The target CA does not exist (deleted between
+            // request submission and approval).
+            CMS.debug("changeRequestState: CA not found: " + e);
+            throw new HTTPGoneException(e.toString());
         } catch (CADisabledException e) {
             CMS.debug("changeRequestState: CA disabled: " + e);
             throw new ConflictingOperationException(e.toString());
