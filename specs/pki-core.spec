@@ -106,8 +106,17 @@ BuildRequires:    resteasy >= 3.0.6-2
 
 %if ! 0%{?rhel}
 BuildRequires:    pylint
+%if 0%{?fedora} >= 24
+BuildRequires:    python-flake8 >= 2.5.4
+BuildRequires:    python3-flake8 >= 2.5.4
+# python-flake8 2.5.4 package should require pyflakes >= 1.2.3
+BuildRequires:    pyflakes >= 1.2.3
+# python3-flake8 2.5.4 package should require python3-pyflakes >= 1.2.3
+BuildRequires:    python3-pyflakes >= 1.2.3
+%else
 BuildRequires:    python-flake8
 BuildRequires:    python3-flake8
+%endif
 %endif
 
 BuildRequires:    python-nss
