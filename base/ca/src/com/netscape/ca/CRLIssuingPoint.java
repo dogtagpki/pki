@@ -31,23 +31,6 @@ import java.util.StringTokenizer;
 import java.util.TimeZone;
 import java.util.Vector;
 
-import netscape.security.util.BitArray;
-import netscape.security.x509.AlgorithmId;
-import netscape.security.x509.CRLExtensions;
-import netscape.security.x509.CRLNumberExtension;
-import netscape.security.x509.CRLReasonExtension;
-import netscape.security.x509.DeltaCRLIndicatorExtension;
-import netscape.security.x509.Extension;
-import netscape.security.x509.FreshestCRLExtension;
-import netscape.security.x509.IssuingDistributionPoint;
-import netscape.security.x509.IssuingDistributionPointExtension;
-import netscape.security.x509.RevocationReason;
-import netscape.security.x509.RevokedCertImpl;
-import netscape.security.x509.RevokedCertificate;
-import netscape.security.x509.X509CRLImpl;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509ExtensionException;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -82,6 +65,23 @@ import com.netscape.cmscore.dbs.CRLIssuingPointRecord;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.util.Debug;
+
+import netscape.security.util.BitArray;
+import netscape.security.x509.AlgorithmId;
+import netscape.security.x509.CRLExtensions;
+import netscape.security.x509.CRLNumberExtension;
+import netscape.security.x509.CRLReasonExtension;
+import netscape.security.x509.DeltaCRLIndicatorExtension;
+import netscape.security.x509.Extension;
+import netscape.security.x509.FreshestCRLExtension;
+import netscape.security.x509.IssuingDistributionPoint;
+import netscape.security.x509.IssuingDistributionPointExtension;
+import netscape.security.x509.RevocationReason;
+import netscape.security.x509.RevokedCertImpl;
+import netscape.security.x509.RevokedCertificate;
+import netscape.security.x509.X509CRLImpl;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509ExtensionException;
 
 /**
  * This class encapsulates CRL issuing mechanism. CertificateAuthority
@@ -242,11 +242,11 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     /**
      * time to wait at the next loop if exception happens during CRL generation
      */
-    private long mUnexpectedExceptionWaitTime; 
+    private long mUnexpectedExceptionWaitTime;
 
     /**
      * Max number allowed to loop if exception happens during CRL generation.
-     * When mUnexpectedExceptionLoopMax is reached, a slow down procedure 
+     * When mUnexpectedExceptionLoopMax is reached, a slow down procedure
      * will be executed
      */
     private int mUnexpectedExceptionLoopMax;
@@ -1808,7 +1808,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                                 if (timeLapse < mUnexpectedExceptionWaitTime) {
                                     long waitTime = mUnexpectedExceptionWaitTime - timeLapse;
                                     CMS.debug("CRLIssuingPoint:run(): wait time after last failure:" + waitTime);
-                                    try { 
+                                    try {
                                         wait (waitTime);
                                     } catch (InterruptedException e) {
                                     } catch (IllegalArgumentException e) {
@@ -2996,7 +2996,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                 }
             }
             if (x509crl != null &&
-                    mPublisherProcessor != null && mPublisherProcessor.enabled()) {
+                    mPublisherProcessor != null && mPublisherProcessor.isCRLPublishingEnabled()) {
                 Enumeration<ILdapRule> rules = mPublisherProcessor.getRules(IPublisherProcessor.PROP_LOCAL_CRL);
                 if (rules == null || !rules.hasMoreElements()) {
                     CMS.debug("CRL publishing is not enabled.");

@@ -29,9 +29,6 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import netscape.security.x509.X509CRLImpl;
-import netscape.security.x509.X509CertImpl;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
@@ -57,6 +54,9 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+
+import netscape.security.x509.X509CRLImpl;
+import netscape.security.x509.X509CertImpl;
 
 /**
  * Update the configured LDAP server with specified objects
@@ -176,8 +176,8 @@ public class UpdateDir extends CMSServlet {
         try {
             String crlIssuingPointId = req.getParameter("crlIssuingPoint");
 
-            if (mPublisherProcessor == null ||
-                    !mPublisherProcessor.enabled())
+            if (mPublisherProcessor == null || (!mPublisherProcessor.isCertPublishingEnabled()
+                    && !mPublisherProcessor.isCRLPublishingEnabled()))
                 throw new ECMSGWException(CMS.getUserMessage("CMS_GW_NO_PUB_MODULE"));
 
             String[] updateValue = new String[updateName.length];

@@ -400,7 +400,7 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
         LDAPConnection conn = null;
 
         if ((mPublisherProcessor == null) ||
-                !mPublisherProcessor.enabled())
+                !mPublisherProcessor.isCertPublishingEnabled())
             return;
 
         try {

@@ -1776,7 +1776,7 @@ public class CertificateAuthority
         // if ldap publishing is not enabled while publishing isenabled
         // there will be a lot of problem.
         try {
-            if (mPublisherProcessor.enabled()) {
+            if (mPublisherProcessor.isCertPublishingEnabled()) {
                 mPublisherProcessor.publishCACert(mCaCert);
                 CMS.debug("published ca cert");
             }

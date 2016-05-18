@@ -21,8 +21,6 @@ import java.math.BigInteger;
 import java.security.cert.Certificate;
 import java.util.Hashtable;
 
-import netscape.security.x509.X509CertImpl;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
@@ -40,6 +38,8 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.dbs.CertRecord;
+
+import netscape.security.x509.X509CertImpl;
 
 public class LdapRequestListener implements IRequestListener {
     private boolean mInited = false;

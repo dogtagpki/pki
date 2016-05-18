@@ -24,12 +24,12 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import netscape.security.x509.X509CRLImpl;
-
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ILdapConnModule;
 import com.netscape.certsrv.request.IRequest;
+
+import netscape.security.x509.X509CRLImpl;
 
 /**
  * Controls the publishing process from the top level. Maintains
@@ -56,6 +56,8 @@ public interface IPublisherProcessor extends ISubsystem {
 
     public static final String PROP_PREDICATE = "predicate";
     public static final String PROP_ENABLE = "enable";
+    public static final String PROP_CERT_ENABLE = "cert.enable";
+    public static final String PROP_CRL_ENABLE = "crl.enable";
     public static final String PROP_LDAP = "ldap";
     public static final String PROP_MAPPER = "mapper";
     public static final String PROP_PUBLISHER = "publisher";
@@ -250,6 +252,7 @@ public interface IPublisherProcessor extends ISubsystem {
      *
      * @param cert X509 certificate to be published.
      * @exception ELdapException publish failed due to Ldap error.
+     * @throws ELdapException
      */
     public void publishCACert(X509Certificate cert)
             throws ELdapException;
@@ -257,6 +260,7 @@ public interface IPublisherProcessor extends ISubsystem {
     /**
      * This function is never called. CMS does not unpublish
      * CA certificate.
+     * @throws ELdapException
      */
     public void unpublishCACert(X509Certificate cert)
             throws ELdapException;
@@ -268,6 +272,7 @@ public interface IPublisherProcessor extends ISubsystem {
      * @param cert X509 certificate to be published.
      * @param req request which provides the criteria
      * @exception ELdapException publish failed due to Ldap error.
+     * @throws ELdapException
      */
     public void publishCert(X509Certificate cert, IRequest req)
             throws ELdapException;
@@ -279,6 +284,7 @@ public interface IPublisherProcessor extends ISubsystem {
      * @param cert X509 certificate to be unpublished.
      * @param req request which provides the criteria
      * @exception ELdapException unpublish failed due to Ldap error.
+     * @throws ELdapException
      */
     public void unpublishCert(X509Certificate cert, IRequest req)
             throws ELdapException;
@@ -291,6 +297,7 @@ public interface IPublisherProcessor extends ISubsystem {
      * @param crl Certificate Revocation List
      * @param crlIssuingPointId name of the issuing point.
      * @exception ELdapException publish failed due to Ldap error.
+     * @throws ELdapException
      */
     public void publishCRL(X509CRLImpl crl, String crlIssuingPointId)
             throws ELdapException;
@@ -302,6 +309,7 @@ public interface IPublisherProcessor extends ISubsystem {
      * @param dn Distinguished name to publish.
      * @param crl Certificate Revocation List
      * @exception ELdapException publish failed due to Ldap error.
+     * @throws ELdapException
      */
     public void publishCRL(String dn, X509CRL crl)
             throws ELdapException;
@@ -316,13 +324,16 @@ public interface IPublisherProcessor extends ISubsystem {
     public boolean ldapEnabled();
 
     /**
-     *
-     * Return true of PublisherProcessor is enabled.
-     *
-     * @return true if is enabled, otherwise false.
-     *
+     * Return true if Certificate Publishing is enabled.
+     * @return true if enabled, false otherwise
      */
-    public boolean enabled();
+    public boolean isCertPublishingEnabled();
+
+    /**
+     * Return true if CRL publishing is enabled,
+     * @return true if enabled,  false otherwise.
+     */
+    public boolean isCRLPublishingEnabled();
 
     /**
      *

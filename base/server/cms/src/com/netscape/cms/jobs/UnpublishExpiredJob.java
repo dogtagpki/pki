@@ -22,8 +22,6 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Locale;
 
-import netscape.security.x509.X509CertImpl;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -42,6 +40,8 @@ import com.netscape.certsrv.publish.IPublisherProcessor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
+
+import netscape.security.x509.X509CertImpl;
 
 /**
  * a job for the Jobs Scheduler. This job checks in the internal ldap
@@ -284,7 +284,7 @@ public class UnpublishExpiredJob extends AJobBase
                 }
                 try {
                     if ((mPublisherProcessor != null) &&
-                            mPublisherProcessor.enabled()) {
+                            mPublisherProcessor.isCertPublishingEnabled()) {
                         mPublisherProcessor.unpublishCert(cert, req);
                         if (mSummary == true)
                             buildItemParams(IEmailFormProcessor.TOKEN_STATUS,
@@ -307,7 +307,7 @@ public class UnpublishExpiredJob extends AJobBase
             else {
                 try {
                     if ((mPublisherProcessor != null) &&
-                            mPublisherProcessor.enabled()) {
+                            mPublisherProcessor.isCertPublishingEnabled()) {
                         mPublisherProcessor.unpublishCert(cert, null);
                         if (mSummary == true)
                             buildItemParams(IEmailFormProcessor.TOKEN_STATUS,

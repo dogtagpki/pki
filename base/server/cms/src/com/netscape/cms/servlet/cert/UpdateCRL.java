@@ -30,12 +30,6 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import netscape.security.x509.CRLExtensions;
-import netscape.security.x509.CRLReasonExtension;
-import netscape.security.x509.InvalidityDateExtension;
-import netscape.security.x509.RevocationReason;
-import netscape.security.x509.RevokedCertImpl;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.IAuthToken;
@@ -59,6 +53,12 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+
+import netscape.security.x509.CRLExtensions;
+import netscape.security.x509.CRLReasonExtension;
+import netscape.security.x509.InvalidityDateExtension;
+import netscape.security.x509.RevocationReason;
+import netscape.security.x509.RevokedCertImpl;
 
 /**
  * Force the CRL to be updated now.
@@ -445,7 +445,7 @@ public class UpdateCRL extends CMSServlet {
                             publishError = e;
                         }
 
-                        if (lpm != null && lpm.enabled()) {
+                        if (lpm != null && lpm.isCRLPublishingEnabled()) {
                             Enumeration<ILdapRule> rules = lpm.getRules(IPublisherProcessor.PROP_LOCAL_CRL);
                             if (rules != null && rules.hasMoreElements()) {
                                 if (publishError != null) {
@@ -501,7 +501,7 @@ public class UpdateCRL extends CMSServlet {
                         }
                     } catch (EBaseException e) {
                         log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_ERR_UPDATE_CRL", e.toString()));
-                        if ((lpm != null) && lpm.enabled() && (e instanceof ELdapException)) {
+                        if ((lpm != null) && lpm.isCRLPublishingEnabled() && (e instanceof ELdapException)) {
                             header.addStringValue("crlPublished", "Failure");
                             header.addStringValue("error", e.toString(locale));
                         } else {

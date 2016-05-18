@@ -31,6 +31,7 @@ public interface IXcertPublisherProcessor extends IPublisherProcessor {
      * Publish crossCertificatePair.
      *
      * @param pair Byte array representing cert pair.
+     * @throws ELdapException
      * @exception EldapException publish failed due to Ldap error.
      */
     public void publishXCertPair(byte[] pair)

@@ -833,7 +833,7 @@ public class PublisherProcessor implements
         boolean error = false;
         StringBuffer errorRule = new StringBuffer();
 
-        if (!enabled())
+        if (!isCertPublishingEnabled())
             return;
 
         CMS.debug("PublishProcessor::publishCACert");
@@ -903,7 +903,7 @@ public class PublisherProcessor implements
         boolean error = false;
         StringBuffer errorRule = new StringBuffer();
 
-        if (!enabled())
+        if (!isCertPublishingEnabled())
             return;
 
         // get mapper and publisher for cert type.
@@ -968,7 +968,7 @@ public class PublisherProcessor implements
             throws ELdapException {
         String errorRule = "";
 
-        if (!enabled())
+        if (!isCertPublishingEnabled())
             return;
         CMS.debug("PublisherProcessor: in publishXCertPair()");
 
@@ -1030,7 +1030,7 @@ public class PublisherProcessor implements
         StringBuffer errorRule = new StringBuffer();
 
         CMS.debug("In  PublisherProcessor::publishCert");
-        if (!enabled())
+        if (!isCertPublishingEnabled())
             return;
 
         // get mapper and publisher for cert type.
@@ -1087,7 +1087,7 @@ public class PublisherProcessor implements
         boolean error = false;
         StringBuffer errorRule = new StringBuffer();
 
-        if (!enabled())
+        if (!isCertPublishingEnabled())
             return;
 
         // get mapper and publisher for cert type.
@@ -1148,13 +1148,14 @@ public class PublisherProcessor implements
      * publishes a crl by mapping the issuer name in the crl to an entry
      * and publishing it there. entry must be a certificate authority.
      * Note that this is used by cmsgateway/cert/UpdateDir.java
+     * @throws ELdapException
      */
     public void publishCRL(X509CRLImpl crl, String crlIssuingPointId)
             throws ELdapException {
         boolean error = false;
         String errorRule = "";
 
-        if (!enabled())
+        if (!isCRLPublishingEnabled())
             return;
         ILdapMapper mapper = null;
         ILdapPublisher publisher = null;
@@ -1249,7 +1250,7 @@ public class PublisherProcessor implements
         boolean error = false;
         String errorRule = "";
 
-        if (!enabled())
+        if (!isCRLPublishingEnabled())
             return;
         // get mapper and publisher for cert type.
         Enumeration<ILdapRule> rules = getRules(PROP_LOCAL_CRL);
@@ -1302,7 +1303,7 @@ public class PublisherProcessor implements
 
     private void publishNow(ILdapMapper mapper, ILdapPublisher publisher,
             IRequest r, Object obj) throws ELdapException {
-        if (!enabled())
+        if (!isCertPublishingEnabled())
             return;
         CMS.debug("PublisherProcessor: in publishNow()");
         LDAPConnection conn = null;
@@ -1365,7 +1366,7 @@ public class PublisherProcessor implements
     // for crosscerts
     private void publishNow(ILdapMapper mapper, ILdapPublisher publisher,
             IRequest r, byte[] bytes) throws EBaseException {
-        if (!enabled())
+        if (!isCertPublishingEnabled())
             return;
         CMS.debug("PublisherProcessor: in publishNow() for xcerts");
 
@@ -1414,7 +1415,7 @@ public class PublisherProcessor implements
 
     private void unpublishNow(ILdapMapper mapper, ILdapPublisher publisher,
             IRequest r, Object obj) throws ELdapException {
-        if (!enabled())
+        if (!isCertPublishingEnabled())
             return;
         LDAPConnection conn = null;
 
@@ -1452,13 +1453,28 @@ public class PublisherProcessor implements
         }
     }
 
-    public boolean enabled() {
+    @Override
+    public boolean isCertPublishingEnabled() {
+        if (!mInited) return false;
         try {
-            if (mInited)
-                return mConfig.getBoolean(PROP_ENABLE, false);
-            else
-                return false;
+            if (!mConfig.getBoolean(PROP_ENABLE, false)) return false;
+            return mConfig.getBoolean(PROP_CERT_ENABLE, true);
         } catch (EBaseException e) {
+            // this should never happen
+            CMS.debug("Error getting publishing config: " + e);
+            return false;
+        }
+    }
+
+    @Override
+    public boolean isCRLPublishingEnabled() {
+        if (!mInited) return false;
+        try {
+            if (!mConfig.getBoolean(PROP_ENABLE, false)) return false;
+            return mConfig.getBoolean(PROP_CRL_ENABLE, true);
+        } catch (EBaseException e) {
+            // this should never happen
+            CMS.debug("Error getting publishing config: " + e);
             return false;
         }
     }

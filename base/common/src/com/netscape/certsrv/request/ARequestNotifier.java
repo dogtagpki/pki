@@ -363,7 +363,7 @@ public class ARequestNotifier implements IRequestNotifier {
         IPublisherProcessor pp = null;
         if (mCA != null)
             pp = mCA.getPublisherProcessor();
-        if (pp != null && pp.enabled()) {
+        if (pp != null && (pp.isCertPublishingEnabled() || pp.isCRLPublishingEnabled())) {
             ILdapConnModule ldapConnModule = pp.getLdapConnModule();
             if (ldapConnModule != null) {
                 ILdapConnFactory ldapConnFactory = ldapConnModule.getLdapConnFactory();
