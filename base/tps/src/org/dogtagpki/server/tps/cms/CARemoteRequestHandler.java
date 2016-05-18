@@ -108,6 +108,9 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
                 (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
         HttpConnector conn =
                 (HttpConnector) subsystem.getConnectionManager().getConnector(connid);
+        if (conn == null) {
+            throw new EBaseException("CARemoteRequestHandler: enrollCertificate() to connid: " + connid + ": HttpConnector conn null.");
+        }
         CMS.debug("CARemoteRequestHandler: enrollCertificate(): sending request to CA");
         String encodedPubKey = null;
         try {
@@ -192,12 +195,14 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
         CMS.debug("CARemoteRequestHandler: enrollCertificate(): sendMsg =" + sendMsg);
         HttpResponse resp =
                 conn.send("enrollment", sendMsg);
+        if (resp == null) {
+            throw new EBaseException("CARemoteRequestHandler: enrollCertificate() to connid: " + connid + ": response null.");
+        }
 
         String content = resp.getContent();
 
-        CMS.debug("CARemoteRequestHandler: enrollCertificate(): got content = " + content);
-
         if (content != null && !content.equals("")) {
+            CMS.debug("CARemoteRequestHandler: enrollCertificate(): got content = " + content);
             XMLObject xmlResponse =
                     getXMLparser(content);
 
@@ -298,12 +303,18 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
                 (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
         HttpConnector conn =
                 (HttpConnector) subsystem.getConnectionManager().getConnector(connid);
+        if (conn == null) {
+            throw new EBaseException("CARemoteRequestHandler: retrieveCertificate() to connid: " + connid + ": HttpConnector conn null.");
+        }
         CMS.debug("CARemoteRequestHandler: retrieveCertificate(): sending request to CA");
         HttpResponse resp =
                 conn.send("getcert",
                         IRemoteRequest.GET_XML + "=" + true +
                                 "&" + IRemoteRequest.CA_GET_CERT_B64CertOnly + "=" + true +
                                 "&" + IRemoteRequest.CA_GET_CERT_SERIAL + "=" + serialno.toString());
+        if (resp == null) {
+            throw new EBaseException("CARemoteRequestHandler: retrieveCertificate() to connid: " + connid + ": response null.");
+        }
 
         String content = resp.getContent();
         if (content != null && !content.equals("")) {
@@ -395,6 +406,9 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
                 (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
         HttpConnector conn =
                 (HttpConnector) subsystem.getConnectionManager().getConnector(connid);
+        if (conn == null) {
+            throw new EBaseException("CARemoteRequestHandler: renewCertificate() to connid: " + connid + ": HttpConnector conn null.");
+        }
         CMS.debug("CARemoteRequestHandler: renewCertificate(): sending request to CA");
         HttpResponse resp =
                 conn.send("renewal",
@@ -403,6 +417,9 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
                                 "&" + IRemoteRequest.CA_RENEWAL_SerialNum + "=" + serialno.toString() +
                                 "&" + IRemoteRequest.CA_ProfileId + "=" + profileId);
 
+        if (resp == null) {
+            throw new EBaseException("CARemoteRequestHandler: renewCertificate() to connid: " + connid + ": response null.");
+        }
         String content = resp.getContent();
 
         if (content != null && !content.equals("")) {
@@ -503,6 +520,9 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
                 (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
         HttpConnector conn =
                 (HttpConnector) subsystem.getConnectionManager().getConnector(connid);
+        if (conn == null) {
+            throw new EBaseException("CARemoteRequestHandler: revokeCertificate() to connid: " + connid + ": HttpConnector conn null.");
+        }
         CMS.debug("CARemoteRequestHandler: revokeCertificate(): sending request to CA");
         HttpResponse resp =
                 conn.send("revoke",
@@ -511,10 +531,13 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
                                 "&" + IRemoteRequest.CA_REVOKE_ALL + "=(" +
                                 IRemoteRequest.CA_REVOKE_SERIAL + "=" + serialno + ")&" +
                                 IRemoteRequest.CA_REVOKE_COUNT + "=1");
+        if (resp == null) {
+            throw new EBaseException("CARemoteRequestHandler: revokeCertificate() to connid: " + connid + ": response null.");
+        }
         String content = resp.getContent();
 
-        CMS.debug("CARemoteRequestHandler: revokeCertificate(): got content = " + content);
         if (content != null && !content.equals("")) {
+            CMS.debug("CARemoteRequestHandler: revokeCertificate(): got content = " + content);
             Hashtable<String, Object> response =
                     parseResponse(content);
 
@@ -570,14 +593,20 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
                 (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
         HttpConnector conn =
                 (HttpConnector) subsystem.getConnectionManager().getConnector(connid);
+        if (conn == null) {
+            throw new EBaseException("CARemoteRequestHandler: unrevokeCertificate() to connid: " + connid + ": HttpConnector conn null.");
+        }
         CMS.debug("CARemoteRequestHandler: unrevokeCertificate(): sending request to CA");
         HttpResponse resp =
                 conn.send("unrevoke",
                         IRemoteRequest.CA_UNREVOKE_SERIAL + "=" + serialno);
+        if (resp == null) {
+            throw new EBaseException("CARemoteRequestHandler: unrevokeCertificate() to connid: " + connid + ": response null.");
+        }
         String content = resp.getContent();
 
-        CMS.debug("CARemoteRequestHandler: unrevokeCertificate(): got content = " + content);
         if (content != null && !content.equals("")) {
+            CMS.debug("CARemoteRequestHandler: unrevokeCertificate(): got content = " + content);
             Hashtable<String, Object> response =
                     parseResponse(content);
 

@@ -1376,7 +1376,7 @@ public class TPSProcessor {
                 ".ca.conn";
             CMS.debug(method + " finding config: " + config);
         } else {
-            config = "op." + currentTokenOperation + "." +
+            config = TPSEngine.OP_FORMAT_PREFIX + "." +
                 selectedTokenType +
                 ".ca.conn";
             CMS.debug(method + " finding config: " + config);
@@ -1424,7 +1424,9 @@ public class TPSProcessor {
         String logMsg;
 
         IConfigStore configStore = CMS.getConfigStore();
-        String configName = TPSEngine.OP_FORMAT_PREFIX + "." + selectedTokenType + ".revokeCert.revokeReason";
+        String configName = TPSEngine.OP_FORMAT_PREFIX + "." + selectedTokenType + ".revokeCert.reason";
+        CMS.debug(method + " finding config: " + configName);
+
         RevocationReason revokeReason = RevocationReason.UNSPECIFIED;
         try {
             int revokeReasonInt = configStore.getInteger(configName);
@@ -2137,7 +2139,19 @@ public class TPSProcessor {
                 revokeCertificates(tokenRecord.getId(), reason, caConnId);
             } catch (TPSException te) {
                 // failed revocation; capture message and continue
-                logMsg = te.getMessage();
+                String failMsg = "revoke certificates failure";
+                logMsg = failMsg + ":" + te.toString();
+                CMS.debug("TPSProcessor.format: " + logMsg);
+                tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), logMsg,
+                    "failure");
+                throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_CONTACT_ADMIN);
+            } catch (Exception ee) {
+                String failMsg = "revoke certificates failure";
+                logMsg = failMsg + ":" + ee.toString();
+                CMS.debug("TPSProcessor.format: " + logMsg);
+                tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), logMsg,
+                    "failure");
+                throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_CONTACT_ADMIN);
             }
         }
 
@@ -2160,7 +2174,7 @@ public class TPSProcessor {
             tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), failMsg,
                     "failure");
 
-            throw new TPSException(logMsg);
+            throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_CONTACT_ADMIN);
         }
 
         logMsg = "format operation succeeded";
