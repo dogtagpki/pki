@@ -19,6 +19,7 @@
 package com.netscape.cmstools.cert;
 
 import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
@@ -128,6 +129,16 @@ public class CertCLI extends CLI {
         System.out.println("  Issued On: "+info.getIssuedOn());
         System.out.println("  Issued By: "+info.getIssuedBy());
 
+        Date revokedOn = info.getRevokedOn();
+        if (revokedOn != null) {
+            System.out.println("  Revoked On: " + revokedOn);
+        }
+
+        String revokedBy = info.getRevokedBy();
+        if (revokedBy != null) {
+            System.out.println("  Revoked By: " + revokedBy);
+        }
+
         Link link = info.getLink();
         if (verbose && link != null) {
             System.out.println("  Link: " + link.getHref());
@@ -145,6 +156,16 @@ public class CertCLI extends CLI {
         System.out.println("  Status: " + certData.getStatus());
         System.out.println("  Not Before: " + certData.getNotBefore());
         System.out.println("  Not After: " + certData.getNotAfter());
+
+        Date revokedOn = certData.getRevokedOn();
+        if (revokedOn != null) {
+            System.out.println("  Revoked On: " + revokedOn);
+        }
+
+        String revokedBy = certData.getRevokedBy();
+        if (revokedBy != null) {
+            System.out.println("  Revoked By: " + revokedBy);
+        }
 
         Link link = certData.getLink();
         if (verbose && link != null) {

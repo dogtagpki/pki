@@ -20,6 +20,7 @@ package com.netscape.certsrv.cert;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.Date;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
@@ -33,6 +34,7 @@ import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.dbs.certdb.CertIdAdapter;
+import com.netscape.certsrv.util.DateAdapter;
 
 /**
  * @author alee
@@ -67,6 +69,9 @@ public class CertData {
     String notBefore;
     String notAfter;
     String status;
+    Date revokedOn;
+    String revokedBy;
+
     Long nonce;
 
     Link link;
@@ -162,6 +167,25 @@ public class CertData {
         this.nonce = nonce;
     }
 
+    @XmlElement(name="RevokedOn")
+    @XmlJavaTypeAdapter(DateAdapter.class)
+    public Date getRevokedOn() {
+        return revokedOn;
+    }
+
+    public void setRevokedOn(Date revokedOn) {
+        this.revokedOn = revokedOn;
+    }
+
+    @XmlElement(name="RevokedBy")
+    public String getRevokedBy() {
+        return revokedBy;
+    }
+
+    public void setRevokedBy(String revokedBy) {
+        this.revokedBy = revokedBy;
+    }
+
     @XmlElement(name="Link")
     public Link getLink() {
         return link;
@@ -185,6 +209,8 @@ public class CertData {
         result = prime * result + ((serialNumber == null) ? 0 : serialNumber.hashCode());
         result = prime * result + ((status == null) ? 0 : status.hashCode());
         result = prime * result + ((subjectDN == null) ? 0 : subjectDN.hashCode());
+        result = prime * result + ((revokedOn == null) ? 0 : revokedOn.hashCode());
+        result = prime * result + ((revokedBy == null) ? 0 : revokedBy.hashCode());
         return result;
     }
 
@@ -246,6 +272,16 @@ public class CertData {
             if (other.subjectDN != null)
                 return false;
         } else if (!subjectDN.equals(other.subjectDN))
+            return false;
+        if (revokedOn == null) {
+            if (other.revokedOn != null)
+                return false;
+        } else if (!revokedOn.equals(other.revokedOn))
+            return false;
+        if (revokedBy == null) {
+            if (other.revokedBy != null)
+                return false;
+        } else if (!revokedBy.equals(other.revokedBy))
             return false;
         return true;
     }

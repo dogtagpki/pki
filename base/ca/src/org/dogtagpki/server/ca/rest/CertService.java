@@ -41,15 +41,6 @@ import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import netscape.security.pkcs.ContentInfo;
-import netscape.security.pkcs.PKCS7;
-import netscape.security.pkcs.SignerInfo;
-import netscape.security.provider.RSAPublicKey;
-import netscape.security.x509.AlgorithmId;
-import netscape.security.x509.RevocationReason;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509Key;
-
 import org.apache.catalina.realm.GenericPrincipal;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
@@ -83,6 +74,15 @@ import com.netscape.cms.servlet.cert.RevocationProcessor;
 import com.netscape.cms.servlet.processors.CAProcessor;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 import com.netscape.cmsutil.util.Utils;
+
+import netscape.security.pkcs.ContentInfo;
+import netscape.security.pkcs.PKCS7;
+import netscape.security.pkcs.SignerInfo;
+import netscape.security.provider.RSAPublicKey;
+import netscape.security.x509.AlgorithmId;
+import netscape.security.x509.RevocationReason;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509Key;
 
 /**
  * @author alee
@@ -527,6 +527,9 @@ public class CertService extends PKIService implements CertResource {
         Date notAfter = cert.getNotAfter();
         if (notAfter != null) certData.setNotAfter(notAfter.toString());
 
+        certData.setRevokedOn(record.getRevokedOn());
+        certData.setRevokedBy(record.getRevokedBy());
+
         certData.setStatus(record.getStatus());
 
         if (authority.noncesEnabled() && generateNonce) {
@@ -574,6 +577,9 @@ public class CertService extends PKIService implements CertResource {
 
         info.setIssuedOn(record.getCreateTime());
         info.setIssuedBy(record.getIssuedBy());
+
+        info.setRevokedOn(record.getRevokedOn());
+        info.setRevokedBy(record.getRevokedBy());
 
         URI uri = uriInfo.getBaseUriBuilder().path(CertResource.class, "getCert").build(id.toHexString());
         info.setLink(new Link("self", uri));

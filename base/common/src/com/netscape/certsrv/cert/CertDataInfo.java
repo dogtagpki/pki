@@ -71,6 +71,8 @@ public class CertDataInfo {
     Date notValidAfter;
     Date issuedOn;
     String issuedBy;
+    Date revokedOn;
+    String revokedBy;
 
     Link link;
 
@@ -186,6 +188,25 @@ public class CertDataInfo {
         this.issuedBy = issuedBy;
     }
 
+    @XmlElement(name="RevokedOn")
+    @XmlJavaTypeAdapter(DateAdapter.class)
+    public Date getRevokedOn() {
+        return revokedOn;
+    }
+
+    public void setRevokedOn(Date revokedOn) {
+        this.revokedOn = revokedOn;
+    }
+
+    @XmlElement(name="RevokedBy")
+    public String getRevokedBy() {
+        return revokedBy;
+    }
+
+    public void setRevokedBy(String revokedBy) {
+        this.revokedBy = revokedBy;
+    }
+
     @XmlElement(name="Link")
     public Link getLink() {
         return link;
@@ -212,6 +233,8 @@ public class CertDataInfo {
         result = prime * result + ((issuerDN == null) ? 0 : issuerDN.hashCode());
         result = prime * result + ((type == null) ? 0 : type.hashCode());
         result = prime * result + ((version == null) ? 0 : version.hashCode());
+        result = prime * result + ((revokedOn == null) ? 0 : revokedOn.hashCode());
+        result = prime * result + ((revokedBy == null) ? 0 : revokedBy.hashCode());
         return result;
     }
 
@@ -288,6 +311,16 @@ public class CertDataInfo {
             if (other.version != null)
                 return false;
         } else if (!version.equals(other.version))
+            return false;
+        if (revokedOn == null) {
+            if (other.revokedOn != null)
+                return false;
+        } else if (!revokedOn.equals(other.revokedOn))
+            return false;
+        if (revokedBy == null) {
+            if (other.revokedBy != null)
+                return false;
+        } else if (!revokedBy.equals(other.revokedBy))
             return false;
         return true;
     }
