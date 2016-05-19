@@ -37,6 +37,8 @@ import com.netscape.certsrv.cert.CertSearchRequest;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
+import netscape.security.x509.RevocationReason;
+
 /**
  * @author Endi S. Dewata
  */
@@ -126,7 +128,10 @@ public class CertFindCLI extends CLI {
         options.addOption(option);
 
         //revocationReason
-        option = new Option(null, "revocationReason", true, "Reason for revocation");
+        option = new Option(null, "revocationReason", true,
+                "Reason for revocation: Unspecified(0), Key_compromise(1), CA_Compromise(2), Affiliation_Changed(3), " +
+                "Superseded(4), Cessation_of_Operation(5), Certificate_Hold(6), Remove_from_CRL(8), " +
+                "Privilege_Withdrawn(9), AA_Compromise(10)");
         option.setArgName("reason");
         options.addOption(option);
 
@@ -369,7 +374,21 @@ public class CertFindCLI extends CLI {
         }
         if (cmd.hasOption("revocationReason")) {
             csd.setRevocationReasonInUse(true);
-            csd.setRevocationReason(cmd.getOptionValue("revocationReason"));
+            String value = cmd.getOptionValue("revocationReason");
+            RevocationReason reason = null;
+            try {
+                // accept integer reason codes
+                int val = Integer.parseInt(value);
+                reason = RevocationReason.valueOf(val);
+            } catch (NumberFormatException e) {
+                // accept reason labels
+                reason = RevocationReason.valueOf(value);
+            }
+            if (reason != null) {
+                csd.setRevocationReason(Integer.toString(reason.getCode()));
+            } else {
+                throw new Error("Invalid revocation reason");
+            }
         }
         if (cmd.hasOption("issuedBy")) {
             csd.setIssuedByInUse(true);
