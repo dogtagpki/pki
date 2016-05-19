@@ -19,6 +19,7 @@ package com.netscape.cms.publish.publishers;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileOutputStream;
 import java.io.FilterOutputStream;
 import java.io.IOException;
@@ -28,14 +29,17 @@ import java.security.cert.CRLException;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509CRL;
 import java.security.cert.X509Certificate;
+import java.text.ParseException;
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.TimeZone;
 import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import netscape.ldap.LDAPConnection;
-
+import org.apache.commons.io.filefilter.RegexFileFilter;
 import org.mozilla.jss.util.Base64OutputStream;
 
 import com.netscape.certsrv.apps.CMS;
@@ -46,6 +50,8 @@ import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.publish.ILdapPublisher;
 import com.netscape.cmsutil.util.Utils;
+
+import netscape.ldap.LDAPConnection;
 
 /**
  * This publisher writes certificate and CRL into
@@ -62,6 +68,8 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
     private static final String PROP_EXT = "crlLinkExt";
     private static final String PROP_ZIP = "zipCRLs";
     private static final String PROP_LEV = "zipLevel";
+    private static final String PROP_MAX_AGE = "maxAge";
+    private static final String PROP_MAX_FULL_CRLS = "maxFullCRLs";
     private IConfigStore mConfig = null;
     private String mDir = null;
     private ILogger mLogger = CMS.getLogger();
@@ -73,6 +81,8 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
     protected String mTimeStamp = null;
     protected String mLinkExt = null;
     protected int mZipLevel = 9;
+    protected int maxAge = 0;
+    protected int maxFullCRLs = 0;
 
     public void setIssuingPointId(String crlIssuingPointId) {
         mCrlIssuingPointId = crlIssuingPointId;
@@ -108,6 +118,10 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
                         + ";string;Name extension used by link to the latest CRL. Default name extension is 'der'.",
                 PROP_ZIP + ";boolean;Generate compressed CRLs.",
                 PROP_LEV + ";choice(0,1,2,3,4,5,6,7,8,9);Set compression level from 0 to 9.",
+                PROP_MAX_AGE
+                    + ";integer;Number of days after which files should expire and be purged. Default is 0, which means to never expire.",
+                PROP_MAX_FULL_CRLS
+                    + ";integer;Maximum number of full CRLs to be kept.  Once new files are published, the oldest files will be purged.  Default is 0 (no limit)",
                 IExtendedPluginInfo.HELP_TOKEN +
                         ";configuration-ldappublish-publisher-filepublisher",
                 IExtendedPluginInfo.HELP_TEXT
@@ -143,6 +157,14 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
         } catch (EBaseException e) {
         }
         try {
+            maxFullCRLs = mConfig.getInteger(PROP_MAX_FULL_CRLS, 0);
+        } catch (EBaseException e) {
+        }
+        try {
+            maxAge = mConfig.getInteger(PROP_MAX_AGE, 0);
+        } catch (EBaseException e) {
+        }
+        try {
             if (mTimeStamp == null || (!mTimeStamp.equals("GMT")))
                 mTimeStamp = "LocalTime";
             v.addElement(PROP_DIR + "=" + dir);
@@ -153,6 +175,8 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
             v.addElement(PROP_EXT + "=" + ext);
             v.addElement(PROP_ZIP + "=" + mConfig.getBoolean(PROP_ZIP, false));
             v.addElement(PROP_LEV + "=" + mZipLevel);
+            v.addElement(PROP_MAX_FULL_CRLS +"=" + maxFullCRLs);
+            v.addElement(PROP_MAX_AGE + "=" + maxAge);
         } catch (Exception e) {
         }
         return v;
@@ -172,6 +196,8 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
         v.addElement(PROP_EXT + "=");
         v.addElement(PROP_ZIP + "=false");
         v.addElement(PROP_LEV + "=9");
+        v.addElement(PROP_MAX_FULL_CRLS + "=0");
+        v.addElement(PROP_MAX_AGE + "=0");
         return v;
     }
 
@@ -191,6 +217,8 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
             mLinkExt = mConfig.getString(PROP_EXT, null);
             mZipCRL = mConfig.getBoolean(PROP_ZIP, false);
             mZipLevel = mConfig.getInteger(PROP_LEV, 9);
+            maxFullCRLs = mConfig.getInteger(PROP_MAX_FULL_CRLS, 0);
+            maxAge = mConfig.getInteger(PROP_MAX_AGE, 0);
         } catch (EBaseException e) {
         }
         if (dir == null) {
@@ -228,13 +256,16 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
         return mConfig;
     }
 
-    private String[] getCrlNamePrefix(X509CRL crl, boolean useGMT) {
-        String[] namePrefix = { "crl", "crl" };
-
+    private String getGeneralCrlPrefix() {
         if (mCrlIssuingPointId != null && mCrlIssuingPointId.length() != 0) {
-            namePrefix[0] = mCrlIssuingPointId;
-            namePrefix[1] = mCrlIssuingPointId;
+            return mCrlIssuingPointId;
         }
+        return "crl";
+    }
+
+    private String[] getCrlNamePrefix(X509CRL crl, boolean useGMT) {
+        String[] namePrefix = {getGeneralCrlPrefix(), getGeneralCrlPrefix()};
+
         java.text.SimpleDateFormat format = new java.text.SimpleDateFormat("yyyyMMdd-HHmmss");
         TimeZone tz = TimeZone.getTimeZone("GMT");
         if (useGMT)
@@ -274,7 +305,7 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
     }
 
     /**
-     * Publishs a object to the ldap directory.
+     * Publishes a object to the ldap directory.
      *
      * @param conn a Ldap connection
      *            (null if LDAP publishing is not enabled)
@@ -409,6 +440,8 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
                     renameFile = new File(tempFile);
                     renameFile.renameTo(destFile);
                 }
+                purgeExpiredFiles();
+                purgeExcessFiles();
             }
         } catch (IOException e) {
             mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
@@ -423,7 +456,107 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
     }
 
     /**
-     * Unpublishs a object to the ldap directory.
+     * Gets all the CRLS (full and delta) in the directory
+     * These match <prefix>-<yyyyMMDD>-<HHmmss>.* and <prefix>-<yyyyMMDD>-<HHmmss>-delta.*
+     *
+     * @param dir
+     * @return array of files
+     */
+    public File[] getCRLFiles(File dir) {
+        String pattern = getGeneralCrlPrefix() + "-\\d{8}-\\d{6}(-delta)?.(der|b64|zip)";
+        FileFilter filter = new RegexFileFilter(pattern);
+        return dir.listFiles(filter);
+    }
+
+    /**
+     * Gets the full CRLs in the directory
+     * * These match <prefix>-<yyyyMMDD>-<HHmmss>.*
+     *
+     * @param dir
+     * @return array of files
+     */
+    public File[] getFullCRLFiles(File dir) {
+        String pattern = getGeneralCrlPrefix() + "-\\d{8}-\\d{6}.(der|b64|zip)";
+        FileFilter filter = new RegexFileFilter(pattern);
+        return dir.listFiles(filter);
+    }
+
+    long getCreationTime(File file) throws ParseException {
+        // parse and get the creation time from the file name
+        String pattern = getGeneralCrlPrefix() + "-(\\d{8}-\\d{6})(-delta)?.(der|b64|zip)";
+        Pattern p = Pattern.compile(pattern);
+        Matcher m = p.matcher(file.getName());
+
+        if (!m.matches())
+            throw new ParseException("Invalid date format.", 0);
+
+        String creationTimeString = m.group(1);
+        java.text.SimpleDateFormat format = new java.text.SimpleDateFormat("yyyyMMdd-HHmmss");
+        java.util.Date creationTime = format.parse(creationTimeString);
+        return creationTime.getTime();
+    }
+
+    public void purgeExpiredFiles() {
+        File dir = new File(mDir);
+
+        if (!dir.isDirectory())
+            return;
+
+        if (maxAge != 0) {
+            long now = System.currentTimeMillis();
+            long duration = 24 * 60 * 1000 * 60 * maxAge;
+            long expiration = now - duration;
+
+            // purge any CRLs older than maxAge hours
+            File[] files = getCRLFiles(dir);
+            for (File file : files) {
+                try {
+                    long creationTime = getCreationTime(file);
+                    if (creationTime < expiration) {
+                        CMS.debug("Expiring and deleting CRLs older than " + maxAge + " hours: " +
+                                file.getName());
+                        if (file.isFile())
+                            file.delete();
+                    }
+                } catch (ParseException e) {
+                    CMS.debug("Unable to correctly parse CRL " + file + ": " + e);
+                }
+            }
+        }
+    }
+
+    public void purgeExcessFiles() {
+        File dir = new File(mDir);
+
+        if (!dir.isDirectory())
+            return;
+
+        if (maxFullCRLs != 0) {
+
+            File[] fullCRLs = getFullCRLFiles(dir);
+
+            // purge any files over maxFullCRLs limit
+            if (fullCRLs.length <= maxFullCRLs)
+                return;
+
+            Arrays.sort(fullCRLs);
+            File lastFullCRLToKeep = fullCRLs[fullCRLs.length - maxFullCRLs];
+
+            File[] crls = getCRLFiles(dir);
+            Arrays.sort(crls);
+
+            for (File crl : crls) {
+                if (crl.getName().equals(lastFullCRLToKeep.getName())) break;
+
+                CMS.debug("Deleting file as publishing directory has more than " + maxFullCRLs
+                        + " files: " + crl);
+                if (crl.isFile()) crl.delete();
+            }
+        }
+    }
+
+    /**
+     * Unpublishes a object to the ldap directory.
      *
      * @param conn the Ldap connection
      *            (null if LDAP publishing is not enabled)
