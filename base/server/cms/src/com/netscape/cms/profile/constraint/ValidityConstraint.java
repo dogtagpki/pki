@@ -22,9 +22,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
-import netscape.security.x509.CertificateValidity;
-import netscape.security.x509.X509CertInfo;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
@@ -40,6 +37,9 @@ import com.netscape.cms.profile.def.NoDefault;
 import com.netscape.cms.profile.def.RandomizedValidityDefault;
 import com.netscape.cms.profile.def.UserValidityDefault;
 import com.netscape.cms.profile.def.ValidityDefault;
+
+import netscape.security.x509.CertificateValidity;
+import netscape.security.x509.X509CertInfo;
 
 /**
  * This class implements the validity constraint.
@@ -113,7 +113,7 @@ public class ValidityConstraint extends EnrollConstraint {
         } else if (unit.equals("month")) {
             return Calendar.MONTH;
 
-        } else if (unit.equals("day")) {
+        } else if (unit.equals("day") || unit.equals("")) {
             return Calendar.DAY_OF_YEAR;
 
         } else if (unit.equals("hour")) {

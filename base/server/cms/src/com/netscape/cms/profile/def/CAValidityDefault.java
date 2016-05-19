@@ -316,7 +316,7 @@ public class CAValidityDefault extends EnrollDefault {
         } else if (unit.equals("month")) {
             return Calendar.MONTH;
 
-        } else if (unit.equals("day")) {
+        } else if (unit.equals("day") || unit.equals("")) {
             return Calendar.DAY_OF_YEAR;
 
         } else if (unit.equals("hour")) {

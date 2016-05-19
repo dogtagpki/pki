@@ -24,9 +24,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
-import netscape.security.x509.CertificateValidity;
-import netscape.security.x509.X509CertInfo;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
@@ -35,6 +32,9 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
+
+import netscape.security.x509.CertificateValidity;
+import netscape.security.x509.X509CertInfo;
 
 /**
  * This class implements an enrollment default policy
@@ -231,7 +231,7 @@ public class ValidityDefault extends EnrollDefault {
         } else if (unit.equals("month")) {
             return Calendar.MONTH;
 
-        } else if (unit.equals("day")) {
+        } else if (unit.equals("day") || unit.equals("")) {
             return Calendar.DAY_OF_YEAR;
 
         } else if (unit.equals("hour")) {
