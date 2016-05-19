@@ -198,14 +198,13 @@ var TokenPage = EntryPage.extend({
 
                     self.model.changeStatus({
                         status: dialog.entry.status,
-                        success: function(data, textStatus, jqXHR) {
+                        success: function(data, textStatus, response) {
                             self.render();
                         },
-                        error: function(jqXHR, textStatus, errorThrow) {
+                        error: function(response, textStatus, errorThrow) {
                             new ErrorDialog({
                                 el: $("#error-dialog"),
-                                title: "HTTP Error " + jqXHR.responseJSON.Code,
-                                content: jqXHR.responseJSON.Message
+                                response: response
                             }).open();
                         }
                     });
@@ -334,14 +333,13 @@ var TokenTableItem = TableItem.extend({
 
                 model.changeStatus({
                     status: dialog.entry.status,
-                    success: function(data, textStatus, jqXHR) {
+                    success: function(data, textStatus, response) {
                         self.table.render();
                     },
-                    error: function(jqXHR, textStatus, errorThrow) {
+                    error: function(response, textStatus, errorThrow) {
                         new ErrorDialog({
                             el: $("#error-dialog"),
-                            title: "HTTP Error " + jqXHR.responseJSON.Code,
-                            content: jqXHR.responseJSON.Message
+                            response: response
                         }).open();
                     }
                 });

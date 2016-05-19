@@ -82,6 +82,74 @@ var UserCollection = Collection.extend({
     }
 });
 
+var UserRoleModel = Model.extend({
+    url: function() {
+        var self = this;
+
+        var userID = self.get("userID");
+        var url = "/tps/rest/admin/users/" + userID + "/memberships";
+
+        if (self.id) url = url + "/" + self.id;
+
+        return url;
+    },
+    parseResponse: function(response) {
+        return {
+            id: response.id,
+            roleID: response.id,
+            userID: response.UserID
+        };
+    },
+    createRequest: function(entry) {
+        return {
+            id: entry.roleID,
+            UserID: entry.userID
+        };
+    },
+    save: function(attributes, options) {
+        var self = this;
+        $.ajax({
+            type: "POST",
+            url: self.url(),
+            dataType: "json",
+            data: attributes.roleID,
+        }).done(function(data, textStatus, response) {
+            self.set(self.parseResponse(data));
+            if (options.success) options.success.call(self, self, response, options);
+        }).fail(function(response, textStatus, errorThrown) {
+            if (options.error) options.error.call(self, self, response, options);
+        });
+    }
+});
+
+var UserRoleCollection = Collection.extend({
+    initialize: function(models, options) {
+        var self = this;
+        UserRoleCollection.__super__.initialize.call(self, models, options);
+        options = options || {};
+        self.userID = options.userID;
+        self.urlRoot = "/tps/rest/admin/users/" + self.userID + "/memberships";
+    },
+    getEntries: function(response) {
+        return response.Membership;
+    },
+    getLinks: function(response) {
+        return response.Link;
+    },
+    model: function(attrs, options) {
+        return new UserRoleModel({
+            userID: this.userID
+        });
+    },
+    parseEntry: function(entry) {
+        return new UserRoleModel({
+            id: entry.id,
+            roleID: entry.id,
+            userID: entry.UserID
+        });
+    }
+});
+
 var UserProfilesTableItem = TableItem.extend({
     initialize: function(options) {
         var self = this;
@@ -199,10 +267,8 @@ var UserPage = EntryPage.extend({
 
         UserPage.__super__.setup.call(self);
 
-        var dialog = self.$("#user-profile-dialog");
-
-        var addDialog = new Dialog({
-            el: dialog,
+        var addProfileDialog = new Dialog({
+            el: self.$("#user-profile-dialog"),
             title: "Add Profile",
             actions: ["cancel", "add"]
         });
@@ -212,11 +278,17 @@ var UserPage = EntryPage.extend({
 
         self.profilesTable = new UserProfilesTable({
             el: self.profilesList,
-            addDialog: addDialog,
+            addDialog: addProfileDialog,
             pageSize: 10,
             parent: self
         });
 
+        self.showRolesAction = $("[name='showRoles']", self.viewMenu);
+
+        $("a", self.showRolesAction).click(function(e) {
+            e.preventDefault();
+            window.location.hash = window.location.hash + "/roles";
+        });
     },
     saveFields: function() {
         var self = this;
@@ -297,6 +369,35 @@ var UsersPage = Page.extend({
         var table = new UsersTable({
             el: $("table[name='users']"),
             collection: new UserCollection()
+        });
+
+        table.render();
+    }
+});
+
+var UserRolesPage = Page.extend({
+    load: function() {
+        var self = this;
+
+        if (self.collection && self.collection.options && self.collection.options.userID) {
+            $(".breadcrumb li[name='user'] a")
+                .attr("href", "#users/" + self.collection.options.userID)
+                .text("User " + self.collection.options.userID);
+            $(".pki-title").text("Roles for User " + self.collection.options.userID);
+        }
+
+        var addRoleDialog = new Dialog({
+            el: self.$("#user-role-dialog"),
+            title: "Add Role",
+            readonly: ["userID"],
+            actions: ["cancel", "add"]
+        });
+
+        var table = new ModelTable({
+            el: self.$("table[name='roles']"),
+            pageSize: 10,
+            addDialog: addRoleDialog,
+            collection: self.collection
         });
 
         table.render();

@@ -314,7 +314,7 @@ $(function() {
         new CertificatesPage({
             el: content,
             url: "certs.html",
-            collection: new CertificateCollection({ tokenID: id })
+            collection: new CertificateCollection(null, { tokenID: id })
         }).open();
     });
 
@@ -343,6 +343,14 @@ $(function() {
             url: "user.html",
             model: new UserModel({ id: id }),
             editable: ["fullName", "email", "tpsProfiles"]
+        }).open();
+    });
+
+    router.route("users/:id/roles", "user-roles", function(id) {
+        new UserRolesPage({
+            el: content,
+            url: "user-roles.html",
+            collection: new UserRoleCollection(null, { userID: id })
         }).open();
     });
 
