@@ -324,6 +324,12 @@ var Dialog = Backbone.View.extend({
             var input = $(this);
             self.saveField(input);
         });
+
+        // save textareas
+        self.$(".modal-body textarea").each(function(index) {
+            var input = $(this);
+            self.saveField(input);
+        });
     },
     saveField: function(input) {
         var self = this;

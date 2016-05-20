@@ -12,54 +12,24 @@
      with this program; if not, write to the Free Software Foundation, Inc.,
      51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-     Copyright (C) 2014 Red Hat, Inc.
+     Copyright (C) 2013 Red Hat, Inc.
      All rights reserved.
      --- END COPYRIGHT BLOCK --- -->
 <div class="pki-header">
 <ol class="breadcrumb">
     <li><a href="#">Home</a></li>
     <li><a href="#users">Users</a></li>
-    <li class="active"><strong><span name="title">User ${id}</span></strong></li>
+    <li name="user"><a href="#users/${userID}">User ${id}</a></li>
+    <li class="active"><strong>Certificates</strong></li>
 </ol>
 
-<span name="title" class="pki-title">User ${id}</span>
-
-<span class="pki-actions">
-
-<ul name="view" class="pki-actions-menu">
-<li name="edit"><a href="#">Edit</a></li>
-<li name="showRoles"><a href="#">Show Roles</a></li>
-<li name="showCerts"><a href="#">Show Certificates</a></li>
-</ul>
-
-<span name="edit" class="pki-actions-menu" style="display: none;">
-<button name="cancel">Cancel</button>
-<button name="save" class="primary">Save</button>
-</span>
-
-</span>
-
+<span class="pki-title">User Certificates</span>
 </div>
 
-<div name="user" class="pki-fields">
-<fieldset>
-    <label>User ID</label>
-    <input name="userID" readonly="readonly"><br>
-    <label>Full Name</label>
-    <input name="fullName" readonly="readonly"><br>
-    <label>Email</label>
-    <input name="email" readonly="readonly"><br>
-</fieldset>
-</div>
-
-<div name="profiles">
-
-<h2>Profiles</h2>
-
-<table name="list">
+<table name="certs">
 <thead>
     <tr>
-         <th class="pki-table-actions" colspan="2">
+         <th class="pki-table-actions" colspan="10">
              <span name="search">
                  <input name="search" type="text" placeholder="Search...">
              </span>
@@ -70,19 +40,23 @@
          </th>
     </tr>
     <tr>
-        <th class="pki-select-column"><input id="user-profiles-selectall" type="checkbox"><label for="user-profiles-selectall">&nbsp;</label></th>
-        <th>Profile ID</th>
+        <th class="pki-select-column"><input id="certs-selectall" type="checkbox"><label for="certs-selectall">&nbsp;</label></tdh>
+        <th>Serial Number</th>
+        <th>Subject DN</th>
+        <th>Issuer DN</th>
     </tr>
 </thead>
 <tbody>
     <tr>
-        <td class="pki-select-column"><input id="user-profiles-select" type="checkbox"><label for="user-profiles-select">&nbsp;</label></td>
-        <td name="id">${id}</td>
+        <td class="pki-select-column"><input id="certs-select" type="checkbox"><label for="certs-select">&nbsp;</label></td>
+        <td name="serialNumber">${serialNumber}</td>
+        <td name="subjectDN">${subjectDN}</td>
+        <td name="issuerDN">${issuerDN}</td>
     </tr>
 </tbody>
 <tfoot>
     <tr>
-         <th class="pki-table-actions" colspan="2">
+         <th class="pki-table-actions" colspan="10">
              <div class="pki-table-info">
                  Total: <span name="totalEntries">0</span> entries
              </div>
@@ -104,24 +78,27 @@
 </tfoot>
 </table>
 
-</div>
-
-<div id="user-profile-dialog" class="modal">
+<div id="user-cert-dialog" class="modal">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
                     <span class="pficon pficon-close"></span>
                 </button>
-                <h4 class="modal-title">Add Profile</h4>
+                <h4 class="modal-title">User Certificate</h4>
             </div>
             <div class="modal-body">
-                Profile:
-                <select name="id">
-                </select>
+                <fieldset>
+                    <label>User ID</label>
+                    <input name="userID" readonly="readonly"><br>
+                    <label>Certificate</label>
+                    <textarea name="encoded" rows="20" cols="80"></textarea><br>
+                    Enter a PEM certificate or PKCS #7 data.
+                </fieldset>
             </div>
             <div class="modal-footer">
                 <button name="add" class="btn btn-primary">Add</button>
+                <button name="close" class="btn btn-primary">Close</button>
                 <button name="cancel" class="btn btn-default" data-dismiss="modal">Cancel</button>
             </div>
         </div>

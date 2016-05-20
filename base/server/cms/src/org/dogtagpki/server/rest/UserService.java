@@ -858,6 +858,7 @@ public class UserService extends PKIService implements UserResource {
                 cert = new X509CertImpl(binaryCert);
 
             } catch (CertificateException e) {
+                CMS.debug("UserService: Submitted data is not an X.509 certificate: " + e);
                 // ignore
             }
 
@@ -866,7 +867,7 @@ public class UserService extends PKIService implements UserResource {
                 boolean assending = true;
 
                 // could it be a pkcs7 blob?
-                CMS.debug("UserCertResourceService: " + CMS.getLogMessage("ADMIN_SRVLT_IS_PK_BLOB"));
+                CMS.debug("UserService: " + CMS.getLogMessage("ADMIN_SRVLT_IS_PK_BLOB"));
 
                 try {
                     CryptoManager manager = CryptoManager.getInstance();
@@ -876,7 +877,8 @@ public class UserService extends PKIService implements UserResource {
                     X509Certificate p7certs[] = pkcs7.getCertificates();
 
                     if (p7certs.length == 0) {
-                        throw new BadRequestException(getUserMessage("CMS_USRGRP_SRVLT_CERT_ERROR", headers));
+                        CMS.debug("UserService: PKCS #7 data contains no certificates");
+                        throw new BadRequestException("PKCS #7 data contains no certificates");
                     }
 
                     // fix for 370099 - cert ordering can not be assumed
@@ -888,24 +890,24 @@ public class UserService extends PKIService implements UserResource {
                             p7certs[0].getIssuerDN().toString()) &&
                             (p7certs.length == 1)) {
                         cert = p7certs[0];
-                        CMS.debug("UserCertResourceService: " + CMS.getLogMessage("ADMIN_SRVLT_SINGLE_CERT_IMPORT"));
+                        CMS.debug("UserService: " + CMS.getLogMessage("ADMIN_SRVLT_SINGLE_CERT_IMPORT"));
 
                     } else if (p7certs[0].getIssuerDN().toString().equals(p7certs[1].getSubjectDN().toString())) {
                         cert = p7certs[0];
-                        CMS.debug("UserCertResourceService: " + CMS.getLogMessage("ADMIN_SRVLT_CERT_CHAIN_ACEND_ORD"));
+                        CMS.debug("UserService: " + CMS.getLogMessage("ADMIN_SRVLT_CERT_CHAIN_ACEND_ORD"));
 
                     } else if (p7certs[1].getIssuerDN().toString().equals(p7certs[0].getSubjectDN().toString())) {
                         assending = false;
-                        CMS.debug("UserCertResourceService: " + CMS.getLogMessage("ADMIN_SRVLT_CERT_CHAIN_DESC_ORD"));
+                        CMS.debug("UserService: " + CMS.getLogMessage("ADMIN_SRVLT_CERT_CHAIN_DESC_ORD"));
                         cert = p7certs[p7certs.length - 1];
 
                     } else {
                         // not a chain, or in random order
-                        CMS.debug("UserCertResourceService: " + CMS.getLogMessage("ADMIN_SRVLT_CERT_BAD_CHAIN"));
+                        CMS.debug("UserService: " + CMS.getLogMessage("ADMIN_SRVLT_CERT_BAD_CHAIN"));
                         throw new BadRequestException(getUserMessage("CMS_USRGRP_SRVLT_CERT_ERROR", headers));
                     }
 
-                    CMS.debug("UserCertResourceService: "
+                    CMS.debug("UserService: "
                             + CMS.getLogMessage("ADMIN_SRVLT_CHAIN_STORED_DB", String.valueOf(p7certs.length)));
 
                     int j = 0;
@@ -922,16 +924,17 @@ public class UserService extends PKIService implements UserResource {
 
                     // store the chain into cert db, except for the user cert
                     for (j = jBegin; j < jEnd; j++) {
-                        CMS.debug("UserCertResourceService: "
+                        CMS.debug("UserService: "
                                 + CMS.getLogMessage("ADMIN_SRVLT_CERT_IN_CHAIN", String.valueOf(j),
                                         String.valueOf(p7certs[j].getSubjectDN())));
                         org.mozilla.jss.crypto.X509Certificate leafCert =
                                 manager.importCACertPackage(p7certs[j].getEncoded());
 
                         if (leafCert == null) {
+                            CMS.debug("UserService: missing leaf certificate");
                             log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_LEAF_CERT_NULL"));
                         } else {
-                            CMS.debug("UserCertResourceService: " + CMS.getLogMessage("ADMIN_SRVLT_LEAF_CERT_NON_NULL"));
+                            CMS.debug("UserService: " + CMS.getLogMessage("ADMIN_SRVLT_LEAF_CERT_NON_NULL"));
                         }
 
                         if (leafCert instanceof InternalCertificate) {
@@ -952,16 +955,19 @@ public class UserService extends PKIService implements UserResource {
                         log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_PKS7_IGNORED", e.toString()));
                     */
                 } catch (PKIException e) {
+                    CMS.debug("UserService: Unable to import user certificate from PKCS #7 data: " + e);
                     log(ILogger.LL_FAILURE, CMS.getLogMessage("USRGRP_SRVLT_CERT_ERROR", e.toString()));
                     throw e;
+
                 } catch (Exception e) {
+                    CMS.debug(e);
                     log(ILogger.LL_FAILURE, CMS.getLogMessage("USRGRP_SRVLT_CERT_ERROR", e.toString()));
-                    throw new PKIException(getUserMessage("CMS_USRGRP_SRVLT_CERT_ERROR", headers));
+                    throw new PKIException("Unable to import user certificate from PKCS #7 data: " + e.getMessage(), e);
                 }
             }
 
             try {
-                CMS.debug("UserCertResourceService: " + CMS.getLogMessage("ADMIN_SRVLT_BEFORE_VALIDITY"));
+                CMS.debug("UserService: " + CMS.getLogMessage("ADMIN_SRVLT_BEFORE_VALIDITY"));
                 cert.checkValidity(); // throw exception if fails
 
                 user.setX509Certificates(new X509Certificate[] { cert });
@@ -982,24 +988,28 @@ public class UserService extends PKIService implements UserResource {
                 return createCreatedResponse(userCertData, userCertData.getLink().getHref());
 
             } catch (CertificateExpiredException e) {
+                CMS.debug("UserService: Certificate expired: " + e);
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_ADD_CERT_EXPIRED",
                         String.valueOf(cert.getSubjectDN())));
-                throw new BadRequestException(getUserMessage("CMS_USRGRP_SRVLT_CERT_EXPIRED", headers));
+                throw new BadRequestException("Certificate expired: " + e.getMessage(), e);
 
             } catch (CertificateNotYetValidException e) {
+                CMS.debug("UserService: Certificate not yet valid: " + e);
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("USRGRP_SRVLT_CERT_NOT_YET_VALID",
                         String.valueOf(cert.getSubjectDN())));
-                throw new BadRequestException(getUserMessage("CMS_USRGRP_SRVLT_CERT_NOT_YET_VALID", headers));
+                throw new BadRequestException("Certificate not yet valid: " + e.getMessage(), e);
             }
 
         } catch (PKIException e) {
+            CMS.debug("UserService: Unable to import user certificate: " + e);
             auditAddUserCert(userID, userCertData, ILogger.FAILURE);
             throw e;
 
         } catch (Exception e) {
+            CMS.debug(e);
             log(ILogger.LL_FAILURE, e.toString());
             auditAddUserCert(userID, userCertData, ILogger.FAILURE);
-            throw new PKIException(getUserMessage("CMS_USRGRP_USER_MOD_FAILED", headers));
+            throw new PKIException("Unable to import user certificate: " + e.getMessage(), e);
         }
     }
 

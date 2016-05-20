@@ -354,6 +354,14 @@ $(function() {
         }).open();
     });
 
+    router.route("users/:id/certs", "user-certs", function(id) {
+        new UserCertsPage({
+            el: content,
+            url: "user-certs.html",
+            collection: new UserCertCollection(null, { userID: id })
+        }).open();
+    });
+
     router.route("new-user", "new-user", function() {
         new UserPage({
             el: content,

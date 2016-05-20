@@ -150,6 +150,83 @@ var UserRoleCollection = Collection.extend({
     }
 });
 
+var UserCertModel = Model.extend({
+    url: function() {
+        var self = this;
+
+        var userID = self.get("userID");
+        var url = "/tps/rest/admin/users/" + userID + "/certs";
+
+        if (self.id) url = url + "/" + encodeURIComponent(self.id);
+
+        return url;
+    },
+    parseResponse: function(response) {
+        return {
+            id: response.id,
+            certID: response.id,
+            serialNumber: response.SerialNumber,
+            subjectDN: response.SubjectDN,
+            issuerDN: response.IssuerDN,
+            userID: response.UserID
+        };
+    },
+    createRequest: function(entry) {
+        return {
+            Encoded: entry.encoded
+        };
+    },
+    save: function(attributes, options) {
+        var self = this;
+        var request = self.createRequest(attributes);
+        $.ajax({
+            type: "POST",
+            url: self.url(),
+            dataType: "json",
+            contentType: "application/json",
+            data: JSON.stringify(request),
+        }).done(function(data, textStatus, response) {
+            self.set(self.parseResponse(data));
+            if (options.success) options.success.call(self, self, response, options);
+        }).fail(function(response, textStatus, errorThrown) {
+            if (options.error) options.error.call(self, self, response, options);
+        });
+    }
+});
+
+var UserCertCollection = Collection.extend({
+    initialize: function(models, options) {
+        var self = this;
+        UserCertCollection.__super__.initialize.call(self, models, options);
+        options = options || {};
+        self.userID = options.userID;
+        self.urlRoot = "/tps/rest/admin/users/" + self.userID + "/certs";
+    },
+    getEntries: function(response) {
+        return response.Cert;
+    },
+    getLinks: function(response) {
+        return response.Link;
+    },
+    model: function(attrs, options) {
+        var self = this;
+        return new UserCertModel({
+            userID: self.userID
+        });
+    },
+    parseEntry: function(entry) {
+        var self = this;
+        return new UserCertModel({
+            id: entry.id,
+            certID: entry.id,
+            serialNumber: entry.SerialNumber,
+            subjectDN: entry.SubjectDN,
+            issuerDN: entry.IssuerDN,
+            userID: self.userID
+        });
+    }
+});
+
 var UserProfilesTableItem = TableItem.extend({
     initialize: function(options) {
         var self = this;
@@ -289,6 +366,13 @@ var UserPage = EntryPage.extend({
             e.preventDefault();
             window.location.hash = window.location.hash + "/roles";
         });
+
+        self.showCertsAction = $("[name='showCerts']", self.viewMenu);
+
+        $("a", self.showCertsAction).click(function(e) {
+            e.preventDefault();
+            window.location.hash = window.location.hash + "/certs";
+        });
     },
     saveFields: function() {
         var self = this;
@@ -397,6 +481,35 @@ var UserRolesPage = Page.extend({
             el: self.$("table[name='roles']"),
             pageSize: 10,
             addDialog: addRoleDialog,
+            collection: self.collection
+        });
+
+        table.render();
+    }
+});
+
+var UserCertsPage = Page.extend({
+    load: function() {
+        var self = this;
+
+        if (self.collection && self.collection.options && self.collection.options.userID) {
+            $(".breadcrumb li[name='user'] a")
+                .attr("href", "#users/" + self.collection.options.userID)
+                .text("User " + self.collection.options.userID);
+            $(".pki-title").text("Certificates for User " + self.collection.options.userID);
+        }
+
+        var addCertDialog = new Dialog({
+            el: self.$("#user-cert-dialog"),
+            title: "Add Cert",
+            readonly: ["userID"],
+            actions: ["cancel", "add"]
+        });
+
+        var table = new ModelTable({
+            el: self.$("table[name='certs']"),
+            pageSize: 10,
+            addDialog: addCertDialog,
             collection: self.collection
         });
 
