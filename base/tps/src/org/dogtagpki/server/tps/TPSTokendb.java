@@ -393,6 +393,7 @@ public class TPSTokendb {
 
             // get conn ID
             String config = "op.enroll." + cert.getType() + ".keyGen." + cert.getKeyType() + ".ca.conn";
+            CMS.debug(method + ": " + " getting config: " + config);
             String connID = configStore.getString(config);
 
             RevocationReason revokeReason = RevocationReason.UNSPECIFIED;
@@ -408,6 +409,7 @@ public class TPSTokendb {
             // get revoke reason
             config = "op.enroll." + cert.getType() + ".keyGen." + cert.getKeyType() +
                     ".recovery." + tokenReason + ".revokeCert.reason";
+            CMS.debug(method + ": " + " getting config: " + config);
             int reasonInt = configStore.getInteger(config, 0);
             revokeReason = RevocationReason.fromInt(reasonInt);
 

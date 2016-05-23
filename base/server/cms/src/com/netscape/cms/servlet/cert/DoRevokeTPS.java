@@ -51,6 +51,7 @@ import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
+import com.netscape.certsrv.dbs.certdb.IRevocationInfo;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.publish.IPublisherProcessor;
@@ -332,6 +333,7 @@ public class DoRevokeTPS extends CMSServlet {
         String auditRequestType = auditRequestType(reason);
         RequestStatus auditApprovalStatus = null;
         String auditReasonNum = String.valueOf(reason);
+        String method = "DoRevokeTPS.process";
 
         if (revokeAll != null) {
             CMS.debug("DoRevokeTPS.process revokeAll" + revokeAll);
@@ -405,9 +407,10 @@ public class DoRevokeTPS extends CMSServlet {
                     rarg.addStringValue("serialNumber",
                             xcert.getSerialNumber().toString(16));
 
-                    if (rec.getStatus().equals(ICertRecord.STATUS_REVOKED)) {
+                    if (rec.getStatus().equals(ICertRecord.STATUS_REVOKED)
+                          && !rec.isCertOnHold()) {
                         alreadyRevokedCertFound = true;
-                        CMS.debug("Certificate 0x" + xcert.getSerialNumber().toString(16) + " has been revoked.");
+                        CMS.debug(method + "Certificate 0x" + xcert.getSerialNumber().toString(16) + " has already been revoked.");
                     } else {
                         oldCertsV.addElement(xcert);
 
@@ -416,7 +419,7 @@ public class DoRevokeTPS extends CMSServlet {
                                         CMS.getCurrentDate(), entryExtn);
 
                         revCertImplsV.addElement(revCertImpl);
-                        CMS.debug("Certificate 0x" + xcert.getSerialNumber().toString(16) + " is going to be revoked.");
+                        CMS.debug(method + "Certificate 0x" + xcert.getSerialNumber().toString(16) + " is going to be revoked.");
                         count++;
                     }
                 } else {
@@ -428,7 +431,7 @@ public class DoRevokeTPS extends CMSServlet {
                 // Situation where no certs were reoked here, but some certs
                 // requested happened to be already revoked. Don't return error.
                 if (alreadyRevokedCertFound == true && badCertsRequested == false) {
-                    CMS.debug("Only have previously revoked certs in the list.");
+                    CMS.debug(method + "Only have previously revoked certs in the list.");
                     // store a message in the signed audit log file
                     auditMessage = CMS.getLogMessage(
                             LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST,
@@ -842,6 +845,7 @@ public class DoRevokeTPS extends CMSServlet {
 
         return;
     }
+
 
     /**
      * Signed Audit Log Requester ID

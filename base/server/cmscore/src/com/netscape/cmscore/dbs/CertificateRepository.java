@@ -1110,24 +1110,52 @@ public class CertificateRepository extends Repository
 
     /**
      * Marks certificate as revoked.
+     * isAlreadyOnHold - boolean to indicate that the cert was revoked onHold
+     *   When a cert was originally onHold, some of the ldap attributes
+     *   already exist, so "MOD_REPLACE" is needed instead of "MOD_ADD"
      */
     public void markAsRevoked(BigInteger id, IRevocationInfo info)
             throws EBaseException {
+        markAsRevoked(id, info, false);
+    }
+    public void markAsRevoked(BigInteger id, IRevocationInfo info, boolean isAlreadyOnHold)
+            throws EBaseException {
+        String method = "CertificateRepository.markAsRevoked:";
         ModificationSet mods = new ModificationSet();
-
-        mods.add(CertRecord.ATTR_REVO_INFO, Modification.MOD_ADD, info);
+        if (isAlreadyOnHold) {
+            mods.add(CertRecord.ATTR_REVO_INFO, Modification.MOD_REPLACE, info);
+        } else { 
+            mods.add(CertRecord.ATTR_REVO_INFO, Modification.MOD_ADD, info);
+        }
         SessionContext ctx = SessionContext.getContext();
         String uid = (String) ctx.get(SessionContext.USER_ID);
 
-        if (uid == null) {
-            mods.add(CertRecord.ATTR_REVOKED_BY, Modification.MOD_ADD,
+        /*
+         * When already revoked onHold, the fields already existing in record
+         * can only be replaced instead of added
+         */
+        if (isAlreadyOnHold) {
+            if (uid == null) {
+                mods.add(CertRecord.ATTR_REVOKED_BY, Modification.MOD_REPLACE,
                     "system");
-        } else {
-            mods.add(CertRecord.ATTR_REVOKED_BY, Modification.MOD_ADD,
+            } else {
+                mods.add(CertRecord.ATTR_REVOKED_BY, Modification.MOD_REPLACE,
                     uid);
-        }
-        mods.add(CertRecord.ATTR_REVOKED_ON, Modification.MOD_ADD,
+            }
+            mods.add(CertRecord.ATTR_REVOKED_ON, Modification.MOD_REPLACE,
                 CMS.getCurrentDate());
+        } else {
+            if (uid == null) {
+                mods.add(CertRecord.ATTR_REVOKED_BY, Modification.MOD_ADD,
+                    "system");
+            } else {
+                mods.add(CertRecord.ATTR_REVOKED_BY, Modification.MOD_ADD,
+                    uid);
+            }
+            mods.add(CertRecord.ATTR_REVOKED_ON, Modification.MOD_ADD,
+                CMS.getCurrentDate());
+        }
+
         mods.add(CertRecord.ATTR_CERT_STATUS, Modification.MOD_REPLACE,
                 CertRecord.STATUS_REVOKED);
         modifyCertificateRecord(id, mods);

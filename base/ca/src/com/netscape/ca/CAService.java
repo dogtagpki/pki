@@ -1001,9 +1001,11 @@ public class CAService implements ICAService, IService {
         Date revdate = crlentry.getRevocationDate();
         CRLExtensions crlentryexts = crlentry.getExtensions();
 
+        CMS.debug("CAService.revokeCert: revokeCert begins");
         CertRecord certRec = (CertRecord) mCA.getCertificateRepository().readCertificateRecord(serialno);
 
         if (certRec == null) {
+            CMS.debug("CAService.revokeCert: cert record not found");
             mCA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CERT_NOT_FOUND", serialno.toString(16)));
             throw new ECAException(
                     CMS.getUserMessage("CMS_CA_CANT_FIND_CERT_SERIAL",
@@ -1013,14 +1015,24 @@ public class CAService implements ICAService, IService {
         // allow revoking certs that are on hold.
         String certStatus = certRec.getStatus();
 
-        if (certStatus.equals(ICertRecord.STATUS_REVOKED) ||
+        if ((certStatus.equals(ICertRecord.STATUS_REVOKED) &&
+            !certRec.isCertOnHold()) ||
                 certStatus.equals(ICertRecord.STATUS_REVOKED_EXPIRED)) {
+            CMS.debug("CAService.revokeCert: cert already revoked:" +
+                serialno.toString());
             throw new ECAException(CMS.getUserMessage("CMS_CA_CERT_ALREADY_REVOKED",
                     "0x" + Long.toHexString(serialno.longValue())));
         }
         try {
-            mCA.getCertificateRepository().markAsRevoked(serialno,
+            CMS.debug("CAService.revokeCert: about to call markAsRevoked");
+            if (certRec.isCertOnHold()) {
+                mCA.getCertificateRepository().markAsRevoked(serialno,
+                    new RevocationInfo(revdate, crlentryexts), true /*isAlreadyOnHold*/);
+            } else {
+                mCA.getCertificateRepository().markAsRevoked(serialno,
                     new RevocationInfo(revdate, crlentryexts));
+            }
+            CMS.debug("CAService.revokeCert: cert revoked");
             mCA.log(ILogger.LL_INFO, CMS.getLogMessage("CMSCORE_CA_CERT_REVOKED",
                     serialno.toString(16)));
             // inform all CRLIssuingPoints about revoked certificate
@@ -1052,6 +1064,7 @@ public class CAService implements ICAService, IService {
                 }
             }
         } catch (EBaseException e) {
+            CMS.debug("CAService.revokeCert: " + e.toString());
             mCA.log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSCORE_CA_ERROR_REVOCATION", serialno.toString(), e.toString()));
             //e.printStackTrace();

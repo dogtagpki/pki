@@ -135,9 +135,12 @@ public interface ICertificateRepository extends IRepository {
      *
      * @param id serial number
      * @param info revocation information
+     * @param isAlreadyOnHold boolean to indicate if the cert was revoked onHold
      * @exception EBaseException failed to mark
      */
     public void markAsRevoked(BigInteger id, IRevocationInfo info)
+            throws EBaseException;
+    public void markAsRevoked(BigInteger id, IRevocationInfo info, boolean isAlreadyOnHold)
             throws EBaseException;
 
     /**

@@ -23,7 +23,11 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Vector;
 
+import netscape.security.x509.CRLExtensions;
+import netscape.security.x509.CRLReasonExtension;
+import netscape.security.x509.RevocationReason;
 import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509ExtensionException;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
@@ -268,6 +272,30 @@ public class CertRecord implements IDBObj, ICertRecord {
 
     public Date getModifyTime() {
         return mModifyTime;
+    }
+
+    public boolean isCertOnHold() {
+        String method = "CertRecord.isCertOnHold:";
+        CMS.debug(method + " checking for cert serial: "
+             + getSerialNumber().toString());
+        IRevocationInfo revInfo = getRevocationInfo();
+        if (revInfo != null) {
+            CRLExtensions crlExts = revInfo.getCRLEntryExtensions();
+            if (crlExts == null) return false;
+            CRLReasonExtension reasonExt = null;
+            try {
+                reasonExt = (CRLReasonExtension) crlExts.get(CRLReasonExtension.NAME);
+            } catch (X509ExtensionException e) {
+                CMS.debug(method + " returning false:" + e.toString());
+                return false;
+            }
+            if (reasonExt.getReason() == RevocationReason.CERTIFICATE_HOLD) {
+                CMS.debug(method + " returning true");
+                return true;
+            }
+        }
+        CMS.debug(method + " returning false");
+        return false;
     }
 
     /**

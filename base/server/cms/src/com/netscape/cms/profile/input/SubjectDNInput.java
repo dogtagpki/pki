@@ -94,7 +94,7 @@ public class SubjectDNInput extends EnrollInput implements IProfileInput {
         String subjectName = "";
 
         subjectName = ctx.get(VAL_SUBJECT);
-        if (subjectName.equals("")) {
+        if (subjectName == null || subjectName.equals("")) {
             throw new EProfileException(
                     CMS.getUserMessage(getLocale(request),
                             "CMS_PROFILE_SUBJECT_NAME_NOT_FOUND"));
