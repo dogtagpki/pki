@@ -70,6 +70,14 @@ public class CertRequestInfoFactory {
             return info;
 
         X509CertImpl impl = request.getExtDataInCert(IEnrollProfile.REQUEST_ISSUED_CERT);
+        if (impl == null && requestType.equals(IRequest.REVOCATION_REQUEST)) {
+            // revocation request; try and get serial of revoked cert
+            X509CertImpl[] certs =
+                request.getExtDataInCertArray(IRequest.OLD_CERTS);
+            if (certs != null && certs.length > 0)
+                impl = certs[0];
+        }
+
         if (impl == null)
             return info;
 
