@@ -123,8 +123,12 @@ class PKISubsystem(object):
 
         lines = open(self.cs_conf).read().splitlines()
 
-        for line in lines:
+        for index, line in enumerate(lines):
+            if not line or line.startswith('#'):
+                continue
             parts = line.split('=', 1)
+            if len(parts) < 2:
+                raise Exception('Missing delimiter in %s line %d' % (self.cs_conf, index + 1))
             name = parts[0]
             value = parts[1]
             self.config[name] = value
@@ -473,8 +477,13 @@ class PKIInstance(object):
 
             lines = open(self.password_conf).read().splitlines()
 
-            for line in lines:
+            for index, line in enumerate(lines):
+                if not line or line.startswith('#'):
+                    continue
                 parts = line.split('=', 1)
+                if len(parts) < 2:
+                    raise Exception('Missing delimiter in %s line %d' %
+                                    (self.password_conf, index + 1))
                 name = parts[0]
                 value = parts[1]
                 self.passwords[name] = value
