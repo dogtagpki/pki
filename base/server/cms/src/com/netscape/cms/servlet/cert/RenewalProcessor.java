@@ -33,6 +33,7 @@ import org.apache.commons.lang.StringUtils;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.BadRequestDataException;
+import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.SessionContext;
@@ -115,11 +116,6 @@ public class RenewalProcessor extends CertProcessor {
                 // for orig request and find the right profile
                 CMS.debug("RenewalSubmitter: renewal: serial_num not found, must do ssl client auth");
                 certSerial = getSerialNumberFromCert(request);
-
-                if (certSerial == null) {
-                    CMS.debug(CMS.getUserMessage(locale, "CMS_GW_MISSING_CERTS_RENEW_FROM_AUTHMGR"));
-                    throw new EBaseException(CMS.getUserMessage(locale, "CMS_GW_MISSING_CERTS_RENEW_FROM_AUTHMGR"));
-                }
             }
 
             CMS.debug("processRenewal: serial number of cert to renew:" + certSerial.toString());
@@ -252,64 +248,56 @@ public class RenewalProcessor extends CertProcessor {
     }
 
     private BigInteger getSerialNumberFromCert(HttpServletRequest request) throws EBaseException {
-        BigInteger certSerial;
+
         SSLClientCertProvider sslCCP = new SSLClientCertProvider(request);
         X509Certificate[] certs = sslCCP.getClientCertificateChain();
-        certSerial = null;
+
         if (certs == null || certs.length == 0) {
-            CMS.debug("RenewalSubmitter: renewal: no ssl client cert chain");
-            return null;
-        } else { // has ssl client cert
-            CMS.debug("RenewalSubmitter: renewal: has ssl client cert chain");
-            // shouldn't expect leaf cert to be always at the
-            // same location
-            X509Certificate clientCert = null;
-            for (int i = 0; i < certs.length; i++) {
-                clientCert = certs[i];
-                byte[] extBytes = clientCert.getExtensionValue("2.5.29.19");
-                // try to see if this is a leaf cert
-                // look for BasicConstraint extension
-                if (extBytes == null) {
-                    // found leaf cert
-                    CMS.debug("RenewalSubmitter: renewal: found leaf cert");
-                    break;
-                } else {
-                    CMS.debug("RenewalSubmitter: renewal: found cert having BasicConstraints ext");
-                    // it's got BasicConstraints extension
-                    // so it's not likely to be a leaf cert,
-                    // however, check the isCA field regardless
-                    try {
-                        BasicConstraintsExtension bce =
-                                new BasicConstraintsExtension(true, extBytes);
-                        if (bce != null) {
-                            if (!(Boolean) bce.get("is_ca")) {
-                                CMS.debug("RenewalSubmitter: renewal: found CA cert in chain");
-                                break;
-                            } // else found a ca cert, continue
-                        }
-                    } catch (Exception e) {
-                        CMS.debug("RenewalSubmitter: renewal: exception:" + e.toString());
-                        return null;
-                    }
-                }
-            }
-            if (clientCert == null) {
-                CMS.debug("RenewalSubmitter: renewal: no client cert in chain");
-                return null;
-            }
-            // convert to java X509 cert interface
-            try {
-                byte[] certEncoded = clientCert.getEncoded();
-                clientCert = new X509CertImpl(certEncoded);
-            } catch (Exception e) {
-                e.printStackTrace();
-                CMS.debug("RenewalSubmitter: renewal: exception:" + e.toString());
-                return null;
+            CMS.debug("RenewalProcessor: missing SSL client certificate chain");
+            throw new BadRequestException("Missing SSL client certificate chain");
+        }
+
+        CMS.debug("RenewalProcessor: has SSL client cert chain");
+        // shouldn't expect leaf cert to be always at the
+        // same location
+
+        X509Certificate clientCert = null;
+        for (X509Certificate cert : certs) {
+
+            CMS.debug("RenewalProcessor: cert " + cert.getSubjectDN());
+            clientCert = cert;
+
+            byte[] extBytes = clientCert.getExtensionValue("2.5.29.19");
+
+            // try to see if this is a leaf cert
+            // look for BasicConstraint extension
+            if (extBytes == null) {
+                // found leaf cert
+                CMS.debug("RenewalProcessor: found leaf cert");
+                break;
             }
 
-            certSerial = clientCert.getSerialNumber();
+            CMS.debug("RenewalProcessor: found cert having BasicConstraints ext");
+            // it's got BasicConstraints extension
+            // so it's not likely to be a leaf cert,
+            // however, check the isCA field regardless
+
+            try {
+                BasicConstraintsExtension bce = new BasicConstraintsExtension(true, extBytes);
+                if (!(Boolean) bce.get("is_ca")) {
+                    CMS.debug("RenewalProcessor: found CA cert in chain");
+                    break;
+                } // else found a ca cert, continue
+
+            } catch (Exception e) {
+                CMS.debug("RenewalProcessor: Invalid certificate extension:" + e);
+                throw new BadRequestException("Invalid certificate extension: " + e.getMessage(), e);
+            }
         }
-        return certSerial;
+
+        // clientCert cannot be null here
+
+        return clientCert.getSerialNumber();
     }
 
     /*
