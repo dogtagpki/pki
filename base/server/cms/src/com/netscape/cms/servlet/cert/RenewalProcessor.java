@@ -38,13 +38,19 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
+import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.profile.IEnrollProfile;
 import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.profile.IProfileAuthenticator;
 import com.netscape.certsrv.profile.IProfileContext;
 import com.netscape.certsrv.profile.IProfileInput;
+import com.netscape.certsrv.profile.ProfileAttribute;
+import com.netscape.certsrv.profile.ProfileInput;
+import com.netscape.certsrv.registry.IPluginInfo;
+import com.netscape.certsrv.registry.IPluginRegistry;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cms.profile.input.SerialNumRenewInput;
 import com.netscape.cms.servlet.common.AuthCredentials;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.profile.SSLClientCertProvider;
@@ -77,7 +83,8 @@ public class RenewalProcessor extends CertProcessor {
                 HashMap<String, String> params = data.toParams();
                 printParameterValues(params);
             }
-            CMS.debug("RenewalSubmitter: isRenewal true");
+
+            CMS.debug("RenewalProcessor: processRenewal()");
 
             startTiming("enrollment");
             request.setAttribute("reqType", "renewal");
@@ -85,7 +92,7 @@ public class RenewalProcessor extends CertProcessor {
             // in case of renew, "profile" is the orig profile
             // while "renewProfile" is the current profile used for renewal
             String renewProfileId = (this.profileID == null) ? data.getProfileId() : this.profileID;
-            CMS.debug("processRenewal: renewProfileId " + renewProfileId);
+            CMS.debug("RenewalProcessor: profile: " + renewProfileId);
 
             IProfile renewProfile = ps.getProfile(renewProfileId);
             if (renewProfile == null) {
@@ -94,27 +101,79 @@ public class RenewalProcessor extends CertProcessor {
                 throw new BadRequestDataException(CMS.getUserMessage(locale, "CMS_PROFILE_NOT_FOUND",CMSTemplate.escapeJavaScriptStringHTML(renewProfileId)));
             }
             if (!ps.isProfileEnable(renewProfileId)) {
-                CMS.debug("RenewalSubmitter: Profile " + renewProfileId + " not enabled");
+                CMS.debug("RenewalProcessor: Profile " + renewProfileId + " not enabled");
                 throw new BadRequestDataException("Profile " + renewProfileId + " not enabled");
             }
 
-            String serial = data.getSerialNum();
             BigInteger certSerial = null;
 
-            if (StringUtils.isNotEmpty(serial)) {
-                // if serial number is sent with request, then the authentication
-                // method is not ssl client auth.  In this case, an alternative
-                // authentication method is used (default: ldap based)
-                // usr_origreq evaluator should be used to authorize ownership
-                // of the cert
-                CMS.debug("RenewalSubmitter: renewal: serial number: " + serial);
-                certSerial = new BigInteger(serial);
+            // get serial number from <SerialNumber> element (no auth required)
+            CertId serial = data.getSerialNum();
+            if (serial != null) {
+                CMS.debug("RenewalProcessor: serial number: " + serial);
+                certSerial = serial.toBigInteger();
+            }
 
-            } else {
+            // if not found, get serial number from profile input (no auth required)
+            if (certSerial == null) {
+
+                IPluginRegistry registry = (IPluginRegistry) CMS.getSubsystem(CMS.SUBSYSTEM_REGISTRY);
+
+                // find SerialNumRenewInput
+                for (ProfileInput input : data.getInputs()) {
+
+                    String inputId = input.getId();
+                    if (inputId == null) {
+                        throw new BadRequestException("Missing input ID");
+                    }
+
+                    String classId = input.getClassId();
+                    if (classId == null) {
+                        throw new BadRequestException("Missing class ID in input " + inputId);
+                    }
+
+                    IPluginInfo pluginInfo = registry.getPluginInfo("profileInput", classId);
+                    if (pluginInfo == null) {
+                        throw new BadRequestException("Unregistered class ID " + classId + " in input " + inputId);
+                    }
+
+                    String className = pluginInfo.getClassName();
+                    if (!SerialNumRenewInput.class.getName().equals(className)) {
+                        // check the next input
+                        continue;
+                    }
+
+                    CMS.debug("RenewalProcessor: found SerialNumRenewInput");
+                    ProfileAttribute attribute = input.getAttribute(SerialNumRenewInput.SERIAL_NUM);
+
+                    if (attribute == null) {
+                        throw new BadRequestException("Missing attribute " + SerialNumRenewInput.SERIAL_NUM + " in input " + inputId);
+                    }
+
+                    String value = attribute.getValue();
+                    CMS.debug("RenewalProcessor: profile input " + SerialNumRenewInput.SERIAL_NUM + " value: " + value);
+
+                    if (StringUtils.isEmpty(value)) {
+                        throw new BadRequestException("Missing attribute value for " + SerialNumRenewInput.SERIAL_NUM + " in input " + inputId);
+                    }
+
+                    serial = new CertId(value);
+                    certSerial = serial.toBigInteger();
+                    break;
+                }
+            }
+
+            // if still not found, get serial number from client certificate (if provided)
+            if (certSerial == null) {
+
+                if (!request.isSecure()) {
+                    throw new BadRequestException("Missing serial number");
+                }
+
                 // ssl client auth is to be used
                 // this is not authentication. Just use the cert to search
                 // for orig request and find the right profile
-                CMS.debug("RenewalSubmitter: renewal: serial_num not found, must do ssl client auth");
+                CMS.debug("RenewalProcessor: get serial number from client certificate");
                 certSerial = getSerialNumberFromCert(request);
             }
 

@@ -37,6 +37,7 @@ import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.CANotFoundException;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
+import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IEnrollProfile;
 import com.netscape.certsrv.profile.IProfile;
@@ -138,8 +139,8 @@ public class ProfileSubmitServlet extends ProfileServlet {
             CMS.debug("ProfileSubmitServlet: authentication error in processing request: " + e.toString());
             errorExit(response, xmlOutput, e.getMessage(), null);
             return;
-        } catch (EBaseException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            CMS.debug(e);
             CMS.debug("ProfileSubmitServlet: error in processing request: " + e.toString());
             errorExit(response, xmlOutput, e.getMessage(), null);
             return;
@@ -264,7 +265,10 @@ public class ProfileSubmitServlet extends ProfileServlet {
         CertEnrollmentRequest data = CertEnrollmentRequestFactory.create(cmsReq, profile, locale);
 
         //only used in renewal
-        data.setSerialNum(request.getParameter("serial_num"));
+        String serialNumber = request.getParameter("serial_num");
+        if (serialNumber != null) {
+            data.setSerialNum(new CertId(serialNumber));
+        }
 
         return processor.processRenewal(data, request, null);
     }

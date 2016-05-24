@@ -36,8 +36,11 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import com.netscape.certsrv.base.ResourceMessage;
+import com.netscape.certsrv.dbs.certdb.CertId;
+import com.netscape.certsrv.dbs.certdb.CertIdAdapter;
 import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfileInput;
 import com.netscape.certsrv.profile.ProfileOutput;
@@ -62,7 +65,8 @@ public class CertEnrollmentRequest extends ResourceMessage {
     protected boolean renewal;
 
     @XmlElement(name="SerialNumber")
-    protected String serialNum;   // used for one type of renewal
+    @XmlJavaTypeAdapter(CertIdAdapter.class)
+    protected CertId serialNum;   // used for one type of renewal
 
     @XmlElement(name="RemoteHost")
     protected String remoteHost;
@@ -83,7 +87,7 @@ public class CertEnrollmentRequest extends ResourceMessage {
     public CertEnrollmentRequest(MultivaluedMap<String, String> form) {
         profileId = form.getFirst(PROFILE_ID);
         String renewalStr = form.getFirst(RENEWAL);
-        serialNum = form.getFirst(SERIAL_NUM);
+        serialNum = new CertId(form.getFirst(SERIAL_NUM));
         renewal = new Boolean(renewalStr);
     }
 
@@ -206,7 +210,7 @@ public class CertEnrollmentRequest extends ResourceMessage {
         HashMap<String, String> ret = new HashMap<String, String>();
         ret.put("isRenewal", Boolean.valueOf(renewal).toString());
         if (profileId != null) ret.put(PROFILE_ID, profileId);
-        if (serialNum != null) ret.put(SERIAL_NUM, serialNum);
+        if (serialNum != null) ret.put(SERIAL_NUM, serialNum.toHexString());
         if (remoteHost != null) ret.put("remoteHost", remoteHost);
         if (remoteAddr != null) ret.put("remoteAddr", remoteAddr);
 
@@ -219,11 +223,11 @@ public class CertEnrollmentRequest extends ResourceMessage {
         return ret;
     }
 
-    public String getSerialNum() {
+    public CertId getSerialNum() {
         return serialNum;
     }
 
-    public void setSerialNum(String serialNum) {
+    public void setSerialNum(CertId serialNum) {
         this.serialNum = serialNum;
     }
 
