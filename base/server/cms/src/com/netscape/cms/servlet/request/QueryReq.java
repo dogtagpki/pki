@@ -32,6 +32,7 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
+import com.netscape.certsrv.authorization.EAuthzException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.common.ICMSRequest;
@@ -45,6 +46,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmsutil.ldap.LDAPUtil;
 
 /**
  * Show paged list of requests matching search criteria
@@ -67,6 +69,7 @@ public class QueryReq extends CMSServlet {
     private final static String IN_MAXCOUNT = "maxCount";
     private final static String IN_TOTALCOUNT = "totalRecordCount";
     private final static String PROP_PARSER = "parser";
+    private final static String REALM = "realm";
 
     private final static String TPL_FILE = "queryReq.template";
 
@@ -232,6 +235,20 @@ public class QueryReq extends CMSServlet {
             return;
         }
 
+        String realm = null;
+        if (mAuthority.getId().equals("kra")) {
+            // for the KRA, check the realm (if present)
+            realm = req.getParameter(REALM);
+            try {
+                mAuthz.checkRealm(realm, authToken, null, mAuthzResourceName, "list");
+            } catch (EAuthzException e) {
+                log(ILogger.LL_FAILURE,
+                        CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                cmsReq.setStatus(ICMSRequest.UNAUTHORIZED);
+                return;
+            }
+        }
+
         CMSTemplate form = null;
         Locale[] locale = new Locale[1];
 
@@ -267,6 +284,15 @@ public class QueryReq extends CMSServlet {
         } else {
             filter = "(&" + getRequestState(reqState) +
                     getRequestType(reqType) + ")";
+        }
+
+        if (mAuthority.getId().equals("kra")) {
+            // add realm to filter for KRA requests
+            if (realm != null) {
+                filter = "(&" + filter + "(realm=" + LDAPUtil.escapeFilter(realm) +"))";
+            } else {
+                filter = "(&" + filter + "(!(realm=*)))";
+            }
         }
 
         String direction = "begin";
