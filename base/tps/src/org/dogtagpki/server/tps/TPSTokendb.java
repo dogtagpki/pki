@@ -64,7 +64,7 @@ public class TPSTokendb {
         TokenStatus currentTokenStatus = tokenRecord.getTokenStatus();
 
         CMS.debug("TokenRecord.isTransitionAllowed(): current status: " + currentTokenStatus);
-        Collection<TokenStatus> nextStatuses = tps.getNextTokenStates(tokenRecord);
+        Collection<TokenStatus> nextStatuses = tps.getUINextTokenStates(tokenRecord);
 
         CMS.debug("TokenRecord.isTransitionAllowed(): allowed next statuses: " + nextStatuses);
         if (!nextStatuses.contains(newState)) {

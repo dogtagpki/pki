@@ -37,8 +37,6 @@ import org.dogtagpki.tps.msg.EndOpMsg.TPSStatus;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.tps.token.TokenStatus;
 
 public class TPSEngine {
 
@@ -194,8 +192,6 @@ public class TPSEngine {
     public static final String ENROLL_MODE_ENROLLMENT = ENROLL_OP;
     public static final String ENROLL_MODE_RECOVERY = RECOVERY_OP;
     public static final String ERNOLL_MODE_RENEWAL = RENEWAL_OP;
-
-    private static String transitionList;
 
     public void init() {
         //ToDo
@@ -589,51 +585,4 @@ public class TPSEngine {
         return resp;
 
     }
-
-    //Check to see if special operations transition is allowed
-
-    public boolean isOperationTransitionAllowed(TokenStatus oldState, TokenStatus newState) throws TPSException {
-        boolean allowed = true;
-
-        if (transitionList == null) {
-
-            IConfigStore configStore = CMS.getConfigStore();
-
-            String transConfig = CFG_OPERATIONS_ALLOWED_TRANSITIONS;
-
-            CMS.debug("TPSEngine.isOperationTransistionAllowed: getting config: " + transConfig);
-            try {
-                transitionList = configStore.getString(transConfig, null);
-            } catch (EBaseException e) {
-                throw new TPSException(
-                        "TPSProcessor.isOperationTransitionAllowed: Internal error getting config value for operations transition list!",
-                        TPSStatus.STATUS_ERROR_MISCONFIGURATION);
-            }
-
-            if (transitionList == null) {
-                throw new TPSException(
-                        "TPSProcessor.isOperationTransitionAllowed: Can't find non null config value for operations transition list!",
-                        TPSStatus.STATUS_ERROR_MISCONFIGURATION);
-            }
-
-            CMS.debug("TPSEngine.isOperationTransistionAllowed: transitionList is: " + transitionList);
-
-        }
-
-        String transition = oldState.getValue() + ":" + newState.getValue();
-
-        CMS.debug("TPSEngine.isOperationTransistionAllowed: checking for transition: " + transition);
-
-        if (transitionList.indexOf(transition) == -1) {
-            CMS.debug("TPSEngine.isOperationTransistionAllowed: checking for transition: " + transition);
-            allowed = false;
-        }
-
-        CMS.debug("TPSEngine.isOperationTransistionAllowed: checking for transition: " + transition + " allowed: "
-                + allowed);
-
-        return allowed;
-
-    }
-
 }

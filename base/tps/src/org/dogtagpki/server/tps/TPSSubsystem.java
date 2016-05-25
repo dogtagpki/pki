@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.dogtagpki.server.tps.authentication.AuthenticationManager;
 import org.dogtagpki.server.tps.cms.ConnectionManager;
 import org.dogtagpki.server.tps.config.AuthenticatorDatabase;
@@ -36,6 +37,7 @@ import org.dogtagpki.server.tps.dbs.TokenDatabase;
 import org.dogtagpki.server.tps.dbs.TokenRecord;
 import org.dogtagpki.server.tps.engine.TPSEngine;
 import org.dogtagpki.server.tps.mapping.MappingResolverManager;
+import org.dogtagpki.tps.main.TPSException;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.CryptoManager.NotInitializedException;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
@@ -51,6 +53,7 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.tps.token.TokenStatus;
+import com.netscape.cmscore.base.FileConfigStore;
 import com.netscape.cmscore.dbs.DBSubsystem;
 
 /**
@@ -81,7 +84,9 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
 
     public TPSEngine engine;
     public TPSTokendb tdb;
-    public Map<TokenStatus, Collection<TokenStatus>> allowedTransitions = new HashMap<TokenStatus, Collection<TokenStatus>>();
+
+    public Map<TokenStatus, Collection<TokenStatus>> uiTransitions;
+    public Map<TokenStatus, Collection<TokenStatus>> operationTransitions;
 
     @Override
     public String getId() {
@@ -116,45 +121,109 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
         profileDatabase = new ProfileDatabase();
         profileMappingDatabase = new ProfileMappingDatabase();
 
-        CMS.debug("TokenSubsystem: allowed transitions:");
+        FileConfigStore defaultConfig = new FileConfigStore("/usr/share/pki/tps/conf/CS.cfg");
 
-        // initialize allowed token state transitions with empty containers
-        for (TokenStatus state : TokenStatus.values()) {
-            allowedTransitions.put(state, new LinkedHashSet<TokenStatus>());
-        }
+        uiTransitions = loadAndValidateTokenStateTransitions(
+                defaultConfig, cs, TPSEngine.CFG_TOKENDB_ALLOWED_TRANSITIONS);
 
-        // load allowed token state transitions from TPS configuration
-        for (String transition : cs.getString(TPSEngine.CFG_TOKENDB_ALLOWED_TRANSITIONS).split(",")) {
-            String states[] = transition.split(":");
-
-            TokenStatus fromState = TokenStatus.fromInt(Integer.valueOf(states[0]));
-            TokenStatus toState = TokenStatus.fromInt(Integer.valueOf(states[1]));
-            CMS.debug("TokenSubsystem:  - " + fromState + " to " + toState);
-
-            Collection<TokenStatus> nextStates = allowedTransitions.get(fromState);
-            nextStates.add(toState);
-        }
+        operationTransitions = loadAndValidateTokenStateTransitions(
+                defaultConfig, cs, TPSEngine.CFG_OPERATIONS_ALLOWED_TRANSITIONS);
 
         tdb = new TPSTokendb(this);
 
         engine = new TPSEngine();
         engine.init();
-
     }
 
+    public Map<TokenStatus, Collection<TokenStatus>> loadTokenStateTransitions(IConfigStore cs, String property) throws EBaseException {
+
+        String value = cs.getString(property);
+
+        if (StringUtils.isEmpty(value)) {
+            CMS.debug("Missing token state transitions in " + property);
+            throw new EBaseException("Missing token state transition in " + property);
+        }
+
+        Map<TokenStatus, Collection<TokenStatus>> transitions = new HashMap<TokenStatus, Collection<TokenStatus>>();
+
+        // initialize list with empty containers
+        for (TokenStatus state : TokenStatus.values()) {
+            transitions.put(state, new LinkedHashSet<TokenStatus>());
+        }
+
+        for (String transition : value.split(",")) {
+
+            String states[] = transition.split(":");
+            if (states.length < 2) {
+                CMS.debug("Invalid token state transition in " + property + ": " + transition);
+                throw new EBaseException("Invalid token state transition in " + property + ": " + transition);
+            }
+
+            TokenStatus currentState = TokenStatus.fromInt(Integer.valueOf(states[0]));
+            TokenStatus nextState = TokenStatus.fromInt(Integer.valueOf(states[1]));
+
+            String info = currentState + " to " + nextState +
+                    " (" + currentState.getValue() + ":" + nextState.getValue() + ")";
+            CMS.debug("TokenSubsystem:   - " + info);
+
+            Collection<TokenStatus> nextStates = transitions.get(currentState);
+            nextStates.add(nextState);
+        }
+
+        return transitions;
+    }
+
+    public void validateTokenStateTransitions(
+            Map<TokenStatus, Collection<TokenStatus>> defaultConfig,
+            Map<TokenStatus, Collection<TokenStatus>> userConfig) throws EBaseException {
+
+        for (TokenStatus currentState : userConfig.keySet()) {
+            Collection<TokenStatus> nextStates = userConfig.get(currentState);
+            Collection<TokenStatus> defaultNextStates = defaultConfig.get(currentState);
+
+            for (TokenStatus nextState : nextStates) {
+                if (!defaultNextStates.contains(nextState)) {
+                    String info = currentState + " to " + nextState +
+                            " (" + currentState.getValue() + ":" + nextState.getValue() + ")";
+                    throw new EBaseException("Unsupported token state transition: " + info);
+                }
+            }
+        }
+    }
+
+    public Map<TokenStatus, Collection<TokenStatus>> loadAndValidateTokenStateTransitions(
+            IConfigStore defaultConfig,
+            IConfigStore userDefinedConfig,
+            String property) throws EBaseException {
+
+        CMS.debug("TokenSubsystem: Loading transitions in " + property);
+
+        CMS.debug("TokenSubsystem: * default transitions:");
+        Map<TokenStatus, Collection<TokenStatus>> defaultTransitions =
+                loadTokenStateTransitions(defaultConfig, property);
+
+        CMS.debug("TokenSubsystem: * user-defined transitions:");
+        Map<TokenStatus, Collection<TokenStatus>> userDefinedTransitions =
+                loadTokenStateTransitions(userDefinedConfig, property);
+
+        CMS.debug("TokenSubsystem: Validating transitions in " + property);
+        validateTokenStateTransitions(defaultTransitions, userDefinedTransitions);
+
+        return userDefinedTransitions;
+    }
     /**
-     * Return the allowed next states for a given token based on TPS configuration.
+     * Return the allowed next states for changing token state via Web UI or CLI.
      *
-     * If the current state is SUSPENDED, token will be allowed transition to either
-     * FORMATTED or ACTIVE depending on whether the token has certificates.
+     * If the current state is SUSPENDED, token will be allowed to transition to
+     * either FORMATTED or ACTIVE depending on whether the token has certificates.
      *
      * @param tokenRecord
      * @return A non-null collection of allowed next token states.
      */
-    public Collection<TokenStatus> getNextTokenStates(TokenRecord tokenRecord) throws Exception {
+    public Collection<TokenStatus> getUINextTokenStates(TokenRecord tokenRecord) throws TPSException {
 
         TokenStatus currentState = tokenRecord.getTokenStatus();
-        Collection<TokenStatus> nextStates = allowedTransitions.get(currentState);
+        Collection<TokenStatus> nextStates = uiTransitions.get(currentState);
 
         if (currentState == TokenStatus.SUSPENDED) {
 
@@ -178,6 +247,17 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
         }
 
         return nextStates;
+    }
+
+    /**
+     * Return the allowed next states for TPS token operations (i.e. format and enrollment).
+     *
+     * @param tokenRecord
+     * @return A non-null collection of allowed next token states.
+     */
+    public Collection<TokenStatus> getOperationNextTokenStates(TokenRecord tokenRecord) {
+        TokenStatus currentState = tokenRecord.getTokenStatus();
+        return operationTransitions.get(currentState);
     }
 
     @Override
@@ -295,5 +375,15 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
 
     public TPSEngine getEngine() {
         return engine;
+    }
+
+    public boolean isUITransitionAllowed(TokenRecord tokenRecord, TokenStatus nextState) throws Exception {
+        Collection<TokenStatus> nextStates = getUINextTokenStates(tokenRecord);
+        return nextStates.contains(nextState);
+    }
+
+    public boolean isOperationTransitionAllowed(TokenRecord tokenRecord, TokenStatus nextState) {
+        Collection<TokenStatus> nextStates = getOperationNextTokenStates(tokenRecord);
+        return nextStates.contains(nextState);
     }
 }

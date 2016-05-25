@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
 import javax.servlet.http.HttpServletRequest;
@@ -185,15 +186,23 @@ public class TokenService extends PKIService implements TokenResource {
         TokenStatus status = tokenRecord.getTokenStatus();
         TokenStatusData statusData = new TokenStatusData();
         statusData.name = status;
-        statusData.label = labels.getString(status.toString());
+        try {
+            statusData.label = labels.getString(status.toString());
+        } catch (MissingResourceException e) {
+            statusData.label = status.toString();
+        }
         tokenData.setStatus(statusData);
 
-        Collection<TokenStatus> nextStates = subsystem.getNextTokenStates(tokenRecord);
+        Collection<TokenStatus> nextStates = subsystem.getUINextTokenStates(tokenRecord);
         Collection<TokenStatusData> nextStatesData = new ArrayList<TokenStatusData>();
         for (TokenStatus nextState : nextStates) {
             TokenStatusData nextStateData = new TokenStatusData();
             nextStateData.name = nextState;
-            nextStateData.label = labels.getString(status + "." + nextState);
+            try {
+                nextStateData.label = labels.getString(status + "." + nextState);
+            } catch (MissingResourceException e) {
+                nextStateData.label = nextState.toString();
+            }
             nextStatesData.add(nextStateData);
         }
         tokenData.setNextStates(nextStatesData);
@@ -646,10 +655,7 @@ public class TokenService extends PKIService implements TokenResource {
             msg = msg + " from " + currentTokenStatus + " to " + tokenStatus;
 
             // make sure transition is allowed
-            Collection<TokenStatus> nextStatuses = subsystem.getNextTokenStates(tokenRecord);
-            CMS.debug("TokenService.changeTokenStatus(): allowed next statuses: " + nextStatuses);
-
-            if (!nextStatuses.contains(tokenStatus)) {
+            if (!subsystem.isUITransitionAllowed(tokenRecord, tokenStatus)) {
                 CMS.debug("TokenService.changeTokenStatus(): next status not allowed: " + tokenStatus);
                 Exception ex = new BadRequestException("Invalid token status transition");
                 auditTokenStateChange(ILogger.FAILURE, oldStatus,
