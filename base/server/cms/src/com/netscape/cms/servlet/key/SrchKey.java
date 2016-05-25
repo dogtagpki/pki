@@ -27,12 +27,11 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import netscape.security.x509.X500Name;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
+import com.netscape.certsrv.authorization.EAuthzException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.common.ICMSRequest;
@@ -45,6 +44,9 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmsutil.ldap.LDAPUtil;
+
+import netscape.security.x509.X500Name;
 
 /**
  * Retrieve archived keys matching search criteria
@@ -65,6 +67,7 @@ public class SrchKey extends CMSServlet {
     private final static String IN_MAXCOUNT = "maxCount";
     private final static String IN_FILTER = "queryFilter";
     private final static String IN_SENTINEL = "querySentinel";
+    private final static String REALM = "realm";
 
     // output parameters
     private final static String OUT_FILTER = IN_FILTER;
@@ -144,6 +147,7 @@ public class SrchKey extends CMSServlet {
      * <li>http.param queryFilter ldap-style filter to search with
      * <li>http.param querySentinel ID of first request to show
      * <li>http.param timeLimit number of seconds to limit ldap search to
+     * <li>http.param realm authorization realm to search
      * </ul>
      *
      * @param cmsReq the object holding the request and response information
@@ -172,6 +176,22 @@ public class SrchKey extends CMSServlet {
             cmsReq.setStatus(ICMSRequest.UNAUTHORIZED);
             return;
         }
+
+        String realm = req.getParameter(REALM);
+        try {
+            mAuthz.checkRealm(realm, authToken, null, mAuthzResourceName, "list");
+        } catch (EAuthzException e) {
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+            cmsReq.setStatus(ICMSRequest.UNAUTHORIZED);
+            return;
+        } catch (EBaseException e) {
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+            cmsReq.setStatus(ICMSRequest.EXCEPTION);
+            return;
+        }
+
 
         CMSTemplate form = null;
         Locale[] locale = new Locale[1];
@@ -212,9 +232,10 @@ public class SrchKey extends CMSServlet {
 
             if (timeLimitStr != null && timeLimitStr.length() > 0)
                 timeLimit = Integer.parseInt(timeLimitStr);
+
             process(argSet, header, ctx, maxCount, maxResults,
                     timeLimit, sentinel,
-                    req.getParameter(IN_FILTER), req, resp, locale[0]);
+                    req.getParameter(IN_FILTER), req, resp, locale[0], realm);
         } catch (NumberFormatException e) {
             header.addStringValue(OUT_ERROR,
                     CMS.getUserMessage(locale[0], "CMS_BASE_INTERNAL_ERROR", e.toString()));
@@ -240,9 +261,19 @@ public class SrchKey extends CMSServlet {
     private void process(CMSTemplateParams argSet,
             IArgBlock header, IArgBlock ctx,
             int maxCount, int maxResults, int timeLimit, int sentinel, String filter,
-            HttpServletRequest req, HttpServletResponse resp, Locale locale) {
+            HttpServletRequest req, HttpServletResponse resp, Locale locale, String realm) {
 
         try {
+            if (filter.contains("(realm=")) {
+                throw new EBaseException("Query filter cannot contain realm");
+            }
+
+            if (realm != null) {
+                filter = "(&" + filter + "(realm=" + LDAPUtil.escapeFilter(realm) +"))";
+            } else {
+                filter = "(&" + filter + "(!(realm=*)))";
+            }
+
             // Fill header
             header.addStringValue(OUT_OP,
                     req.getParameter(OUT_OP));
@@ -263,6 +294,7 @@ public class SrchKey extends CMSServlet {
                 CMS.debug("Resetting timelimit from " + timeLimit + " to " + mTimeLimits);
                 timeLimit = mTimeLimits;
             }
+
             CMS.debug("Start searching ... timelimit=" + timeLimit);
             Enumeration<IKeyRecord> e = mKeyDB.searchKeys(filter,
                     maxResults, timeLimit);

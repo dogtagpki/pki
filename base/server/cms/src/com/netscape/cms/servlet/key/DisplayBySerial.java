@@ -31,6 +31,7 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
+import com.netscape.certsrv.authorization.EAuthzException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.common.ICMSRequest;
@@ -154,7 +155,12 @@ public class DisplayBySerial extends CMSServlet {
             if (req.getParameter(IN_SERIALNO) != null) {
                 seqNum = new BigInteger(req.getParameter(IN_SERIALNO));
             }
-            process(argSet, header, seqNum, req, resp, locale[0]);
+            process(argSet, header, seqNum, req, resp, locale[0], authToken);
+        } catch (EAuthzException e) {
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+            cmsReq.setStatus(ICMSRequest.UNAUTHORIZED);
+            return;
         } catch (NumberFormatException e) {
             header.addStringValue(OUT_ERROR,
                     CMS.getUserMessage(locale[0], "CMS_BASE_INTERNAL_ERROR", e.toString()));
@@ -175,19 +181,23 @@ public class DisplayBySerial extends CMSServlet {
 
     /**
      * Display information about a particular key.
+     * @throws EAuthzException
      */
     private void process(CMSTemplateParams argSet,
             IArgBlock header, BigInteger seq,
             HttpServletRequest req, HttpServletResponse resp,
-            Locale locale) {
+            Locale locale, IAuthToken authToken) throws EAuthzException {
         try {
             header.addStringValue(OUT_OP,
                     req.getParameter(OUT_OP));
             header.addStringValue(OUT_SERVICE_URL,
                     req.getRequestURI());
             IKeyRecord rec = mKeyDB.readKeyRecord(seq);
-
+            mAuthz.checkRealm(rec.getRealm(), authToken, rec.getOwnerName(),
+                    mAuthzResourceName, "read");
             KeyRecordParser.fillRecordIntoArg(rec, header);
+        } catch (EAuthzException e) {
+            throw e;
         } catch (EBaseException e) {
             header.addStringValue(OUT_ERROR, e.toString(locale));
         }

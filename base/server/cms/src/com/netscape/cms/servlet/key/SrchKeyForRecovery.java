@@ -27,12 +27,11 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import netscape.security.x509.X500Name;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
+import com.netscape.certsrv.authorization.EAuthzUnknownRealm;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.common.ICMSRequest;
@@ -45,6 +44,9 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmsutil.ldap.LDAPUtil;
+
+import netscape.security.x509.X500Name;
 
 /**
  * Retrieve archived keys matching given public key material
@@ -66,6 +68,7 @@ public class SrchKeyForRecovery extends CMSServlet {
     private final static String IN_MAXCOUNT = "maxCount";
     private final static String IN_FILTER = "queryFilter";
     private final static String IN_SENTINEL = "querySentinel";
+    private final static String REALM = "realm";
 
     // output parameters
     private final static String OUT_FILTER = IN_FILTER;
@@ -142,6 +145,7 @@ public class SrchKeyForRecovery extends CMSServlet {
      * <li>http.param publicKeyData public key data to search on
      * <li>http.param querySentinel ID of first request to show
      * <li>http.param timeLimit number of seconds to limit ldap search to
+     * <li>http.param realm authorization realm to search
      * </ul>
      *
      * @param cmsReq the object holding the request and response information
@@ -168,6 +172,21 @@ public class SrchKeyForRecovery extends CMSServlet {
 
         if (authzToken == null) {
             cmsReq.setStatus(ICMSRequest.UNAUTHORIZED);
+            return;
+        }
+
+        String realm = req.getParameter(REALM);
+        try {
+            mAuthz.checkRealm(realm, authToken, null, mAuthzResourceName, "list");
+        } catch (EAuthzAccessDenied | EAuthzUnknownRealm e) {
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+            cmsReq.setStatus(ICMSRequest.UNAUTHORIZED);
+            return;
+        } catch (EBaseException e) {
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+            cmsReq.setStatus(ICMSRequest.EXCEPTION);
             return;
         }
 
@@ -212,7 +231,8 @@ public class SrchKeyForRecovery extends CMSServlet {
             if (timeLimitStr != null && timeLimitStr.length() > 0)
                 timeLimit = Integer.parseInt(timeLimitStr);
             process(argSet, header, ctx, maxCount, maxResults, timeLimit, sentinel,
-                    req.getParameter("publicKeyData"), req.getParameter(IN_FILTER), req, resp, locale[0]);
+                    req.getParameter("publicKeyData"), req.getParameter(IN_FILTER),
+                    req, resp, locale[0], realm);
         } catch (NumberFormatException e) {
             log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("BASE_INVALID_NUMBER_FORMAT"));
@@ -255,10 +275,20 @@ public class SrchKeyForRecovery extends CMSServlet {
             IArgBlock header, IArgBlock ctx,
             int maxCount, int maxResults, int timeLimit, int sentinel, String publicKeyData,
             String filter,
-            HttpServletRequest req, HttpServletResponse resp, Locale locale)
+            HttpServletRequest req, HttpServletResponse resp, Locale locale, String realm)
             throws EBaseException {
 
         try {
+            if (filter.contains("(realm=")) {
+                throw new EBaseException("Query filter cannot contain realm");
+            }
+
+            if (realm != null) {
+                filter = "(&" + filter + "(realm=" + LDAPUtil.escapeFilter(realm) +"))";
+            } else {
+                filter = "(&" + filter + "(!(realm=*)))";
+            }
+
             // Fill header
             header.addStringValue(OUT_OP,
                     req.getParameter(OUT_OP));

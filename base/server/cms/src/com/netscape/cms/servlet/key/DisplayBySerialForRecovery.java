@@ -31,6 +31,7 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
+import com.netscape.certsrv.authorization.EAuthzException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.common.ICMSRequest;
@@ -159,7 +160,12 @@ public class DisplayBySerialForRecovery extends CMSServlet {
             }
             process(argSet, header,
                     req.getParameter("publicKeyData"),
-                    seqNum, req, resp, locale[0]);
+                    seqNum, req, resp, locale[0], authToken);
+        } catch (EAuthzException e) {
+                log(ILogger.LL_FAILURE,
+                        CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                cmsReq.setStatus(ICMSRequest.UNAUTHORIZED);
+                return;
         } catch (NumberFormatException e) {
             header.addStringValue(OUT_ERROR,
                     CMS.getUserMessage(locale[0], "CMS_BASE_INTERNAL_ERROR", e.toString()));
@@ -183,11 +189,12 @@ public class DisplayBySerialForRecovery extends CMSServlet {
 
     /**
      * Display information about a particular key.
+     * @throws EAuthzException
      */
     private synchronized void process(CMSTemplateParams argSet,
             IArgBlock header, String publicKeyData, BigInteger seq,
             HttpServletRequest req, HttpServletResponse resp,
-            Locale locale) {
+            Locale locale, IAuthToken authToken) throws EAuthzException {
         try {
             header.addIntegerValue("noOfRequiredAgents",
                     mService.getNoOfRequiredAgents());
@@ -202,11 +209,14 @@ public class DisplayBySerialForRecovery extends CMSServlet {
                         publicKeyData);
             }
             IKeyRecord rec = mKeyDB.readKeyRecord(seq);
-
+            mAuthz.checkRealm(rec.getRealm(), authToken, rec.getOwnerName(),
+                    mAuthzResourceName, "read");
             KeyRecordParser.fillRecordIntoArg(rec, header);
 
             // recovery identifier
             header.addStringValue("recoveryID", mService.getRecoveryID());
+        } catch (EAuthzException e) {
+            throw e;
         } catch (EBaseException e) {
             header.addStringValue(OUT_ERROR, e.toString(locale));
         }
