@@ -28,11 +28,6 @@ import java.util.Hashtable;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
-import netscape.security.util.DerOutputStream;
-import netscape.security.x509.CertificateChain;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CertImpl;
-
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NoSuchTokenException;
 import org.mozilla.jss.crypto.CryptoToken;
@@ -72,6 +67,11 @@ import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.dbs.KeyRepository;
 import com.netscape.cmscore.dbs.ReplicaIDRepository;
 import com.netscape.cmscore.request.RequestSubsystem;
+
+import netscape.security.util.DerOutputStream;
+import netscape.security.x509.CertificateChain;
+import netscape.security.x509.X500Name;
+import netscape.security.x509.X509CertImpl;
 
 /**
  * A class represents an key recovery authority (KRA). A KRA
@@ -841,7 +841,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     /**
      * async key recovery initiation
      */
-    public String initAsyncKeyRecovery(BigInteger kid, X509CertImpl cert, String agent)
+    public String initAsyncKeyRecovery(BigInteger kid, X509CertImpl cert, String agent, String realm)
             throws EBaseException {
 
         String auditPublicKey = auditPublicKey(cert);
@@ -861,6 +861,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
             // first one in the "approvingAgents" list is the initiating agent
             r.setExtData(IRequest.ATTR_APPROVE_AGENTS, agent);
             r.setRequestStatus(RequestStatus.PENDING);
+            r.setRealm(realm);
             queue.updateRequest(r);
             auditRecoveryID = r.getRequestId().toString();
 

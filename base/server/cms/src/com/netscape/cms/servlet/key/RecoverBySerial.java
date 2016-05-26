@@ -29,16 +29,19 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import netscape.security.x509.X509CertImpl;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
+import com.netscape.certsrv.authorization.EAuthzException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.common.ICMSRequest;
+import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
+import com.netscape.certsrv.dbs.keydb.IKeyRecord;
+import com.netscape.certsrv.dbs.keydb.IKeyRepository;
+import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.security.Credential;
@@ -48,6 +51,8 @@ import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmsutil.util.Cert;
+
+import netscape.security.x509.X509CertImpl;
 
 /**
  * A class representing a recoverBySerial servlet.
@@ -83,6 +88,7 @@ public class RecoverBySerial extends CMSServlet {
     private final static String PORT = "port";
 
     private com.netscape.certsrv.kra.IKeyService mService = null;
+    private IKeyRepository repo;
     private String mFormPath = null;
 
     /**
@@ -99,6 +105,7 @@ public class RecoverBySerial extends CMSServlet {
         super.init(sc);
         mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
         mService = (com.netscape.certsrv.kra.IKeyService) mAuthority;
+        repo = ((IKeyRecoveryAuthority) mAuthority).getKeyRepository();
 
         mTemplates.remove(ICMSRequest.SUCCESS);
         if (mOutputTemplatePath != null)
@@ -181,6 +188,27 @@ public class RecoverBySerial extends CMSServlet {
         try {
             String initAsyncRecovery = req.getParameter("initAsyncRecovery");
 
+            // First confirm that the requester has access to the authz realm (if present)
+            KeyId keyId = new KeyId(req.getParameter(IN_SERIALNO));
+            IKeyRecord rec = null;
+            try {
+                rec = repo.readKeyRecord(keyId.toBigInteger());
+            } catch (EDBRecordNotFoundException e) {
+                header.addStringValue(OUT_ERROR, "serialNumber not found");
+                return;
+            }
+
+            String realm = rec.getRealm();
+            try {
+                mAuthz.checkRealm(realm, authToken, rec.getOwnerName(),
+                        mAuthzResourceName, "recover");
+            } catch (EAuthzException e) {
+                log(ILogger.LL_FAILURE,
+                        CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                cmsReq.setStatus(ICMSRequest.UNAUTHORIZED);
+                return;
+            }
+
             // this information is needed within the server for
             // various signed audit log messages to report
             ctx = SessionContext.getContext();
@@ -198,7 +226,7 @@ public class RecoverBySerial extends CMSServlet {
                 process(form, argSet, header,
                         req.getParameter(IN_SERIALNO),
                         req.getParameter(IN_CERT),
-                        req, resp, locale[0]);
+                        req, resp, locale[0], realm);
 
                 int requiredNumber = mService.getNoOfRequiredAgents();
                 header.addIntegerValue("noOfRequiredAgents", requiredNumber);
@@ -217,7 +245,7 @@ public class RecoverBySerial extends CMSServlet {
                         req.getParameter(IN_CERT),
                         req.getParameter(IN_DELIVERY),
                         req.getParameter(IN_NICKNAME),
-                        req, resp, locale[0]);
+                        req, resp, locale[0], realm);
 
                 if (pkcs12 != null) {
                     //resp.setStatus(HttpServletResponse.SC_OK);
@@ -260,7 +288,7 @@ public class RecoverBySerial extends CMSServlet {
     private void process(CMSTemplate form, CMSTemplateParams argSet,
             IArgBlock header, String seq, String cert,
             HttpServletRequest req, HttpServletResponse resp,
-            Locale locale) {
+            Locale locale, String realm) {
 
         // seq is the key id
         if (seq == null) {
@@ -289,7 +317,7 @@ public class RecoverBySerial extends CMSServlet {
         try {
             String reqID = mService.initAsyncKeyRecovery(
                     new BigInteger(seq), x509cert,
-                      (String) sContext.get(SessionContext.USER_ID));
+                      (String) sContext.get(SessionContext.USER_ID), realm);
             header.addStringValue(OUT_SERIALNO, req.getParameter(IN_SERIALNO));
             header.addStringValue(OUT_SERIALNO_IN_HEX,
                     new BigInteger(req.getParameter(IN_SERIALNO)).toString(16));
@@ -320,7 +348,7 @@ public class RecoverBySerial extends CMSServlet {
             String password, String passwordAgain,
             String cert, String delivery, String nickname,
             HttpServletRequest req, HttpServletResponse resp,
-            Locale locale) {
+            Locale locale, String realm) {
         if (seq == null) {
             header.addStringValue(OUT_ERROR, "sequence number not found");
             return null;

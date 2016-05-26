@@ -321,8 +321,9 @@ public class KeyRequestDAO extends CMSRequestDAO {
             throw new KeyNotFoundException(keyId, "key not found to recover", e);
         }
 
+        String realm = rec.getRealm();
         try {
-            authz.checkRealm(rec.getRealm(), authToken, rec.getOwnerName(), "certServer.kra.key", "recover");
+            authz.checkRealm(realm, authToken, rec.getOwnerName(), "certServer.kra.key", "recover");
         } catch (EAuthzUnknownRealm e) {
             throw new UnauthorizedException("Invalid realm", e);
         } catch (EBaseException e) {
@@ -333,8 +334,8 @@ public class KeyRequestDAO extends CMSRequestDAO {
         byte[] certData = Utils.base64decode(b64Certificate);
         String requestId = null;
         try {
-            requestId = service.initAsyncKeyRecovery(new BigInteger(keyId.toString()), new X509CertImpl(certData), requestor);
-            // TODO - update request with realm
+            requestId = service.initAsyncKeyRecovery(new BigInteger(keyId.toString()),
+                    new X509CertImpl(certData), requestor, realm);
         } catch (EBaseException | CertificateException e) {
             e.printStackTrace();
             throw new PKIException(e.toString(), e);

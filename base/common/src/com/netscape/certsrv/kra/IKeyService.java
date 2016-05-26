@@ -20,10 +20,10 @@ package com.netscape.certsrv.kra;
 import java.math.BigInteger;
 import java.util.Hashtable;
 
-import netscape.security.x509.X509CertImpl;
-
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.security.Credential;
+
+import netscape.security.x509.X509CertImpl;
 
 /**
  * An interface representing a recovery service.
@@ -66,10 +66,12 @@ public interface IKeyService {
      *
      * @param kid key identifier
      * @param cert certificate embedded in PKCS12
+     * @param agent agent requesting recovery
+     * @param realm authorization realm
      * @return requestId
      * @exception EBaseException failed to initiate async recovery
      */
-    public String initAsyncKeyRecovery(BigInteger kid, X509CertImpl cert, String agent)
+    public String initAsyncKeyRecovery(BigInteger kid, X509CertImpl cert, String agent, String realm)
             throws EBaseException;
 
     /**
