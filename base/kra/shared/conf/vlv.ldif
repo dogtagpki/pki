@@ -4,7 +4,7 @@ objectClass: vlvSearch
 cn: allKeys-{instanceId}
 vlvBase: ou=keyRepository,ou=kra,{rootSuffix}
 vlvScope: 1
-vlvFilter: (&(&(objectClass=top)(objectClass=keyRecord))(serialno=*))
+vlvFilter: (&(serialno=*)(!(realm=*)))
 
 dn: cn=kraAll-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
 objectClass: top
@@ -12,7 +12,7 @@ objectClass: vlvSearch
 cn: kraAll-{instanceId}
 vlvBase: ou=kra,ou=requests,{rootSuffix}
 vlvScope: 1
-vlvFilter: (requeststate=*)
+vlvFilter: (&(requeststate=*)(!(realm=*)))
 
 dn: cn=kraArchival-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
 objectClass: top
@@ -20,7 +20,7 @@ objectClass: vlvSearch
 cn: kraArchival-{instanceId}
 vlvBase: ou=kra,ou=requests,{rootSuffix}
 vlvScope: 1
-vlvFilter: (requesttype=enrollment)
+vlvFilter: (&(requesttype=enrollment)(!(realm=*)))
 
 dn: cn=kraRecovery-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
 objectClass: top
@@ -28,7 +28,7 @@ objectClass: vlvSearch
 cn: kraRecovery-{instanceId}
 vlvBase: ou=kra,ou=requests,{rootSuffix}
 vlvScope: 1
-vlvFilter: (requesttype=recovery)
+vlvFilter: (&(requesttype=recovery)(!(realm=*)))
 
 dn: cn=kraCanceled-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
 objectClass: top
@@ -36,7 +36,7 @@ objectClass: vlvSearch
 cn: kraCanceled-{instanceId}
 vlvBase: ou=kra,ou=requests,{rootSuffix}
 vlvScope: 1
-vlvFilter: (requeststate=canceled)
+vlvFilter: (&(requeststate=canceled)(!(realm=*)))
 
 dn: cn=kraCanceledEnrollment-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
 objectClass: top
@@ -44,7 +44,7 @@ objectClass: vlvSearch
 cn: kraCanceledEnrollment-{instanceId}
 vlvBase: ou=kra,ou=requests,{rootSuffix}
 vlvScope: 1
-vlvFilter: (&(requeststate=canceled)(requesttype=enrollment))
+vlvFilter: (&(&(requeststate=canceled)(requesttype=enrollment))(!(realm=*)))
 
 dn: cn=kraCanceledRecovery-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
 objectClass: top
@@ -52,7 +52,7 @@ objectClass: vlvSearch
 cn: kraCanceledRecovery-{instanceId}
 vlvBase: ou=kra,ou=requests,{rootSuffix}
 vlvScope: 1
-vlvFilter: (&(requeststate=canceled)(requesttype=recovery))
+vlvFilter: (&(&(requeststate=canceled)(requesttype=recovery))(!(realm=*)))
 
 dn: cn=kraRejected-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
 objectClass: top
@@ -60,7 +60,7 @@ objectClass: vlvSearch
 cn: kraRejected-{instanceId}
 vlvBase: ou=kra,ou=requests,{rootSuffix}
 vlvScope: 1
-vlvFilter: (requeststate=rejected)
+vlvFilter: (&(requeststate=rejected)(!(realm=*))))
 
 dn: cn=kraRejectedEnrollment-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
 objectClass: top
@@ -68,7 +68,7 @@ objectClass: vlvSearch
 cn: kraRejectedEnrollment-{instanceId}
 vlvBase: ou=kra,ou=requests,{rootSuffix}
 vlvScope: 1
-vlvFilter: (&(requeststate=rejected)(requesttype=enrollment))
+vlvFilter: (&(&(requeststate=rejected)(requesttype=enrollment))(!(realm=*)))
 
 dn: cn=kraRejectedRecovery-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
 objectClass: top
@@ -76,7 +76,7 @@ objectClass: vlvSearch
 cn: kraRejectedRecovery-{instanceId}
 vlvBase: ou=kra,ou=requests,{rootSuffix}
 vlvScope: 1
-vlvFilter: (&(requeststate=rejected)(requesttype=recovery))
+vlvFilter: (&(&(requeststate=rejected)(requesttype=recovery))(!(realm=*)))
 
 dn: cn=kraComplete-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
 objectClass: top
@@ -84,7 +84,7 @@ objectClass: vlvSearch
 cn: kraComplete-{instanceId}
 vlvBase: ou=kra,ou=requests,{rootSuffix}
 vlvScope: 1
-vlvFilter: (requeststate=complete)
+vlvFilter: (&(requeststate=complete)(!(realm=*)))
 
 dn: cn=kraCompleteEnrollment-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
 objectClass: top
@@ -92,7 +92,7 @@ objectClass: vlvSearch
 cn: kraCompleteEnrollment-{instanceId}
 vlvBase: ou=kra,ou=requests,{rootSuffix}
 vlvScope: 1
-vlvFilter: (&(requeststate=complete)(requesttype=enrollment))
+vlvFilter: (&(&(requeststate=complete)(requesttype=enrollment))(!(realm=*)))
 
 dn: cn=kraCompleteRecovery-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
 objectClass: top
@@ -100,7 +100,7 @@ objectClass: vlvSearch
 cn: kraCompleteRecovery-{instanceId}
 vlvBase: ou=kra,ou=requests,{rootSuffix}
 vlvScope: 1
-vlvFilter: (&(requeststate=complete)(requesttype=recovery))
+vlvFilter: (&(&(requeststate=complete)(requesttype=recovery))(!(realm=*)))
 
 dn: cn=allKeys-{instanceId}Index, cn=allKeys-{instanceId}, cn={database}, cn=ldbm database, cn=plugins, cn=config
 objectClass: top
