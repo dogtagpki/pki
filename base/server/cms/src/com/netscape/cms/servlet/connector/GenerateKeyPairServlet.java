@@ -234,13 +234,17 @@ public class GenerateKeyPairServlet extends CMSServlet {
         String ivString = thisreq.getExtDataInString("iv_s");
 
         /*
-         * clean up fields in request
+         * zero out the fields in request
          */
         thisreq.setExtData("wrappedUserPrivate", "");
         thisreq.setExtData("public_key", "");
         thisreq.setExtData("iv_s", "");
         thisreq.setExtData(IRequest.NETKEY_ATTR_DRMTRANS_DES_KEY, "");
-        String test = thisreq.getExtDataInString("wrappedUserPrivate");
+        /* delete the fields */
+        thisreq.deleteExtData("wrappedUserPrivate");
+        thisreq.deleteExtData("public_key");
+        thisreq.deleteExtData("iv_s");
+        thisreq.deleteExtData(IRequest.NETKEY_ATTR_DRMTRANS_DES_KEY);
 
         // now that fields are cleared, we can really write to ldap
         thisreq.setExtData("delayLDAPCommit", "false");

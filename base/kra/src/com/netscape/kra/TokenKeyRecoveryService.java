@@ -254,9 +254,15 @@ public class TokenKeyRecoveryService implements IService {
         String rCUID = request.getExtDataInString(IRequest.NETKEY_ATTR_CUID);
         String rUserid = request.getExtDataInString(IRequest.NETKEY_ATTR_USERID);
         String rWrappedDesKeyString = request.getExtDataInString(IRequest.NETKEY_ATTR_DRMTRANS_DES_KEY);
+        // the request reocrd field delayLDAPCommit == "true" will cause
+        // updateRequest() to delay actual write to ldap
+        request.setExtData("delayLDAPCommit", "true");
+        // wrappedDesKey no longer needed. removing.
+        request.setExtData(IRequest.NETKEY_ATTR_DRMTRANS_DES_KEY, "");
+
         auditSubjectID = rCUID + ":" + rUserid;
 
-        CMS.debug("TokenKeyRecoveryService: received DRM-trans-wrapped des key =" + rWrappedDesKeyString);
+        //CMS.debug("TokenKeyRecoveryService: received DRM-trans-wrapped des key =" + rWrappedDesKeyString);
         wrapped_des_key = com.netscape.cmsutil.util.Utils.SpecialDecode(rWrappedDesKeyString);
         CMS.debug("TokenKeyRecoveryService: wrapped_des_key specialDecoded");
 

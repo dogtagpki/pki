@@ -169,6 +169,10 @@ public class EnrollmentService implements IService {
         if (CMS.debugOn())
             CMS.debug("EnrollmentServlet: KRA services enrollment request");
 
+        // the request reocrd field delayLDAPCommit == "true" will cause
+        // updateRequest() to delay actual write to ldap
+        request.setExtData("delayLDAPCommit", "true");
+
         String transportCert = request.getExtDataInString(IEnrollProfile.REQUEST_TRANSPORT_CERT);
         if (transportCert != null && transportCert.length() > 0) {
             CMS.debug("EnrollmentService: serviceRequest: transportCert=" + transportCert);
@@ -591,6 +595,20 @@ public class EnrollmentService implements IService {
          */
 
         request.setExtData(IRequest.RESULT, IRequest.RES_SUCCESS);
+
+        /* zero out the fields */
+        request.setExtData(IEnrollProfile.CTX_CERT_REQUEST, "");
+        request.setExtData(IEnrollProfile.REQUEST_ARCHIVE_OPTIONS, "");
+        request.setExtData(ATTR_PROOF_OF_ARCHIVAL, "");
+        request.setExtData(IEnrollProfile.REQUEST_KEY, "");
+        /* delete the fields */
+        request.deleteExtData(IEnrollProfile.CTX_CERT_REQUEST);
+        request.deleteExtData(IEnrollProfile.REQUEST_ARCHIVE_OPTIONS);
+        request.deleteExtData(ATTR_PROOF_OF_ARCHIVAL);
+        request.deleteExtData(IEnrollProfile.REQUEST_KEY);
+
+        // now that fields are cleared, we can really write to ldap
+        request.setExtData("delayLDAPCommit", "false");
 
         // update request
         mKRA.log(ILogger.LL_INFO, "KRA updating request");

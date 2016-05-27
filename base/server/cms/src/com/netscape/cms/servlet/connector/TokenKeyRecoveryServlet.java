@@ -250,6 +250,25 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
         wrappedPrivKeyString = thisreq.getExtDataInString("wrappedUserPrivate");
 
         ivString = thisreq.getExtDataInString("iv_s");
+
+        /*
+         * zero out fields in request
+         */
+        thisreq.setExtData("wrappedUserPrivate", "");
+        thisreq.setExtData("public_key", "");
+        thisreq.setExtData("iv_s", "");
+        thisreq.setExtData(IRequest.NETKEY_ATTR_DRMTRANS_DES_KEY, "");
+
+        /* delete the fields */
+        thisreq.deleteExtData("wrappedUserPrivate");
+        thisreq.deleteExtData("public_key");
+        thisreq.deleteExtData("iv_s");
+        thisreq.deleteExtData(IRequest.NETKEY_ATTR_DRMTRANS_DES_KEY);
+
+        // now that fields are cleared, we can really write to ldap
+        thisreq.setExtData("delayLDAPCommit", "false");
+        queue.updateRequest(thisreq);
+
         /*
           if (selectedToken == null)
           status = "4";
@@ -268,7 +287,7 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
             value = sb.toString();
 
         }
-        CMS.debug("ProcessTokenKeyRecovery:outputString.encode " + value);
+        //CMS.debug("ProcessTokenKeyRecovery:outputString.encode " + value);
 
         try {
             resp.setContentLength(value.length());
