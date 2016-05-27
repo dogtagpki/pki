@@ -24,7 +24,6 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.ResourceBundle;
 
@@ -46,6 +45,7 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.dbs.EDBException;
+import com.netscape.certsrv.dbs.IDBVirtualList;
 import com.netscape.certsrv.ldap.LDAPExceptionConverter;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.tps.token.TokenCollection;
@@ -259,31 +259,31 @@ public class TokenService extends PKIService implements TokenResource {
             TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
             TokenDatabase database = subsystem.getTokenDatabase();
 
-            Iterator<TokenRecord> tokens = database.findRecords(filter, attributes).iterator();
+            IDBVirtualList<TokenRecord> list = database.findRecords(filter, null, "modifyTimestamp", size);
+            int total = list.getSize();
 
             TokenCollection response = new TokenCollection();
-            int i = 0;
-
-            // skip to the start of the page
-            for (; i < start && tokens.hasNext(); i++)
-                tokens.next();
 
             // return entries up to the page size
-            for (; i < start + size && tokens.hasNext(); i++) {
-                response.addEntry(createTokenData(tokens.next()));
+            for (int i = start; i < start + size && i < total; i++) {
+                TokenRecord record = list.getElementAt(i);
+
+                if (record == null) {
+                    CMS.debug("TokenService: Token record not found");
+                    throw new PKIException("Token record not found");
+                }
+
+                response.addEntry(createTokenData(record));
             }
 
-            // count the total entries
-            for (; tokens.hasNext(); i++)
-                tokens.next();
-            response.setTotal(i);
+            response.setTotal(total);
 
             if (start > 0) {
                 URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start - size, 0)).build();
                 response.addLink(new Link("prev", uri));
             }
 
-            if (start + size < i) {
+            if (start + size < total) {
                 URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", start + size).build();
                 response.addLink(new Link("next", uri));
             }

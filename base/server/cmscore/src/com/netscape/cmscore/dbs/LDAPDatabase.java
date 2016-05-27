@@ -16,6 +16,7 @@ import com.netscape.certsrv.dbs.IDBRegistry;
 import com.netscape.certsrv.dbs.IDBSSession;
 import com.netscape.certsrv.dbs.IDBSearchResults;
 import com.netscape.certsrv.dbs.IDBSubsystem;
+import com.netscape.certsrv.dbs.IDBVirtualList;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.cmsutil.ldap.LDAPUtil;
@@ -137,6 +138,25 @@ public abstract class LDAPDatabase<E extends IDBObj> extends Database<E> {
             }
 
             return list;
+        }
+    }
+
+    public IDBVirtualList<E> findRecords(String keyword, Map<String, String> attributes,
+            String sortKey, int pageSize) throws Exception {
+
+        CMS.debug("LDAPDatabase: findRecords()");
+
+        try (IDBSSession session = dbSubsystem.createSession()) {
+
+            String ldapFilter = createFilter(keyword, attributes);
+            CMS.debug("LDAPDatabase: searching " + baseDN + " with filter " + ldapFilter);
+
+            return session.<E>createVirtualList(
+                    baseDN,
+                    ldapFilter,
+                    null,
+                    sortKey,
+                    pageSize);
         }
     }
 

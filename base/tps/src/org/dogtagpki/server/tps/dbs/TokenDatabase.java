@@ -67,7 +67,7 @@ public class TokenDatabase extends LDAPDatabase<TokenRecord> {
         createFilter(sb, attributes);
 
         if (sb.length() == 0) {
-            sb.append("(id=*)");
+            sb.append("(&(id=*)(userID=*))"); // listTokens VLV
         }
 
         return sb.toString();

@@ -107,7 +107,7 @@ public class ActivityDatabase extends LDAPDatabase<ActivityRecord> {
         createFilter(sb, attributes);
 
         if (sb.length() == 0) {
-            sb.append("(id=*)");
+            sb.append("(&(tokenID=*)(userID=*))"); // listActivities VLV
         }
 
         return sb.toString();

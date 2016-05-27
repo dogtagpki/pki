@@ -21,7 +21,6 @@ package org.dogtagpki.server.tps.rest;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
-import java.util.Iterator;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
@@ -38,6 +37,7 @@ import org.jboss.resteasy.plugins.providers.atom.Link;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.PKIException;
+import com.netscape.certsrv.dbs.IDBVirtualList;
 import com.netscape.certsrv.logging.ActivityCollection;
 import com.netscape.certsrv.logging.ActivityData;
 import com.netscape.certsrv.logging.ActivityResource;
@@ -121,37 +121,39 @@ public class ActivityService extends PKIService implements ActivityResource {
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             ActivityDatabase database = subsystem.getActivityDatabase();
 
-            Iterator<ActivityRecord> activities = database.findRecords(filter).iterator();
+            IDBVirtualList<ActivityRecord> list = database.findRecords(filter, null, "date", size);
+            int total = list.getSize();
 
             ActivityCollection response = new ActivityCollection();
-            int i = 0;
 
-            // skip to the start of the page
-            for ( ; i<start && activities.hasNext(); i++) activities.next();
+            // return entries in the requested page
+            for (int i = start; i < start + size && i < total; i++) {
+                ActivityRecord record = list.getElementAt(i);
 
-            // return entries up to the page size
-            for ( ; i<start+size && activities.hasNext(); i++) {
-                response.addEntry(createActivityData(activities.next()));
+                if (record == null) {
+                    CMS.debug("ActivityService: Activity record not found");
+                    throw new PKIException("Activity record not found");
+                }
+
+                response.addEntry(createActivityData(record));
             }
 
-            // count the total entries
-            for ( ; activities.hasNext(); i++) activities.next();
-            response.setTotal(i);
+            response.setTotal(total);
 
             if (start > 0) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start-size, 0)).build();
+                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start - size, 0)).build();
                 response.addLink(new Link("prev", uri));
             }
 
-            if (start+size < i) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", start+size).build();
+            if (start+size < total) {
+                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", start + size).build();
                 response.addLink(new Link("next", uri));
             }
 
             return createOKResponse(response);
 
         } catch (Exception e) {
-            e.printStackTrace();
+            CMS.debug(e);
             throw new PKIException(e.getMessage());
         }
     }
@@ -170,7 +172,7 @@ public class ActivityService extends PKIService implements ActivityResource {
             return createOKResponse(createActivityData(database.getRecord(activityID)));
 
         } catch (Exception e) {
-            e.printStackTrace();
+            CMS.debug(e);
             throw new PKIException(e.getMessage());
         }
     }

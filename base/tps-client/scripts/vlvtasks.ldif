@@ -23,6 +23,6 @@ objectclass: top
 objectclass: extensibleObject
 cn: index1160528734
 ttl: 4
-nsinstance: userRoot
+nsinstance: {database}
 nsindexVLVAttribute: listTokensIndex
 nsindexVLVAttribute: listActivitiesIndex
