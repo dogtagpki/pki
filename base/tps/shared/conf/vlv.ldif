@@ -24,7 +24,7 @@ objectClass: top
 objectClass: vlvsearch
 vlvBase: ou=Tokens,{rootSuffix}
 vlvFilter: (&(cn=*)(tokenUserID=*))
-vlvScope: 2
+vlvScope: 1
 
 dn: cn=listActivities,cn={database},cn=ldbm database,cn=plugins,cn=config
 cn: listActivities
@@ -32,20 +32,18 @@ objectClass: top
 objectClass: vlvsearch
 vlvBase: ou=Activities,{rootSuffix}
 vlvFilter: (&(tokenID=*)(tokenUserID=*))
-vlvScope: 2
+vlvScope: 1
 
 dn: cn=listTokensIndex,cn=listTokens,cn={database},cn=ldbm database,cn=plugins,cn=config
 cn: listTokensIndex
 objectClass: top
 objectClass: vlvindex
-vlvSort: -dateOfModify
-vlvEnabled: 1
+vlvSort: dateOfModify
 vlvUses: 0
 
 dn: cn=listActivitiesIndex,cn=listActivities,cn={database},cn=ldbm database,cn=plugins,cn=config
 cn: listActivitiesIndex
 objectClass: top
 objectClass: vlvindex
-vlvSort: -dateOfCreate
-vlvEnabled: 1
+vlvSort: dateOfCreate
 vlvUses: 0
