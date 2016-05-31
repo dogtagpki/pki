@@ -1496,7 +1496,7 @@ public class CertificateAuthority
                     if (!keyRetrieverThreads.containsKey(authorityID)) {
                         CMS.debug("Starting KeyRetrieverRunner thread");
                         Thread t = new Thread(
-                            new KeyRetrieverRunner(this),
+                            new KeyRetrieverRunner(authorityID, mNickname, authorityKeyHosts),
                             "KeyRetrieverRunner-" + authorityID);
                         t.start();
                         keyRetrieverThreads.put(authorityID, t);
@@ -3187,10 +3187,15 @@ public class CertificateAuthority
     }
 
     private class KeyRetrieverRunner implements Runnable {
-        private CertificateAuthority ca;
+        private AuthorityID aid;
+        private String nickname;
+        private Collection<String> hosts;
 
-        public KeyRetrieverRunner(CertificateAuthority ca) {
-            this.ca = ca;
+        public KeyRetrieverRunner(
+                AuthorityID aid, String nickname, Collection<String> hosts) {
+            this.aid = aid;
+            this.nickname = nickname;
+            this.hosts = hosts;
         }
 
         public void run() {
@@ -3198,7 +3203,7 @@ public class CertificateAuthority
                 _run();
             } finally {
                 // remove self from tracker
-                keyRetrieverThreads.remove(ca.authorityID);
+                keyRetrieverThreads.remove(aid);
             }
         }
 
@@ -3233,7 +3238,7 @@ public class CertificateAuthority
 
             KeyRetriever.Result krr = null;
             try {
-                krr = kr.retrieveKey(ca.mNickname, ca.authorityKeyHosts);
+                krr = kr.retrieveKey(nickname, hosts);
             } catch (Throwable e) {
                 CMS.debug("Caught exception during execution of KeyRetriever.retrieveKey");
                 CMS.debug(e);
@@ -3261,16 +3266,28 @@ public class CertificateAuthority
                 CryptoUtil.importPKIArchiveOptions(
                     token, unwrappingKey, pubkey, paoData);
 
-                cert = manager.importUserCACertPackage(certBytes, ca.mNickname);
+                cert = manager.importUserCACertPackage(certBytes, nickname);
             } catch (Throwable e) {
                 CMS.debug("Caught exception during cert/key import");
                 CMS.debug(e);
                 return;
             }
 
+            CertificateAuthority ca;
             boolean initSigUnitSucceeded = false;
             try {
                 CMS.debug("Reinitialising SigningUnit");
+
+                /* While we were retrieving the key and cert, the
+                 * CertificateAuthority instance in the caMap might
+                 * have been replaced, so look it up afresh.
+                 */
+                ca = (CertificateAuthority) getCA(aid);
+                if (ca == null) {
+                    CMS.debug("Authority is no longer in caMap; returning.");
+                    return;
+                }
+
                 // re-init signing unit, but avoid triggering
                 // key replication if initialisation fails again
                 // for some reason
