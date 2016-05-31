@@ -3200,21 +3200,39 @@ public class CertificateAuthority
 
         public void run() {
             try {
-                _run();
+                long d = 10000;  // initial delay of 10 seconds
+                while (!_run()) {
+                    CMS.debug("Retrying in " + d / 1000 + " seconds");
+                    try {
+                        Thread.sleep(d);
+                    } catch (InterruptedException e) {
+                        break;
+                    }
+                    d += d / 2;  // back off
+                }
             } finally {
                 // remove self from tracker
                 keyRetrieverThreads.remove(aid);
             }
         }
 
-        private void _run() {
+        /**
+         * Main routine of key retrieval and key import.
+         *
+         * @return false if retrieval should be retried, or true if
+         *         the process is "done".  Note that a result of true
+         *         does not necessarily imply that the process fully
+         *         completed.  See comments at sites of 'return true;'
+         *         below.
+         */
+        private boolean _run() {
             String KR_CLASS_KEY = "features.authority.keyRetrieverClass";
             String className = null;
             try {
                 className = CMS.getConfigStore().getString(KR_CLASS_KEY);
             } catch (EBaseException e) {
                 CMS.debug("Unable to read key retriever class from CS.cfg: " + e);
-                return;
+                return false;
             }
 
             KeyRetriever kr = null;
@@ -3225,15 +3243,15 @@ public class CertificateAuthority
             } catch (ClassNotFoundException e) {
                 CMS.debug("Could not find class: " + className);
                 CMS.debug(e);
-                return;
+                return false;
             } catch (ClassCastException e) {
                 CMS.debug("Class is not an instance of KeyRetriever: " + className);
                 CMS.debug(e);
-                return;
+                return false;
             } catch (InstantiationException | IllegalAccessException e) {
                 CMS.debug("Could not instantiate class: " + className);
                 CMS.debug(e);
-                return;
+                return false;
             }
 
             KeyRetriever.Result krr = null;
@@ -3242,12 +3260,12 @@ public class CertificateAuthority
             } catch (Throwable e) {
                 CMS.debug("Caught exception during execution of KeyRetriever.retrieveKey");
                 CMS.debug(e);
-                return;
+                return false;
             }
 
             if (krr == null) {
                 CMS.debug("KeyRetriever did not return a result.");
-                return;
+                return false;
             }
 
             CMS.debug("Importing key and cert");
@@ -3270,7 +3288,7 @@ public class CertificateAuthority
             } catch (Throwable e) {
                 CMS.debug("Caught exception during cert/key import");
                 CMS.debug(e);
-                return;
+                return false;
             }
 
             CertificateAuthority ca;
@@ -3284,8 +3302,11 @@ public class CertificateAuthority
                  */
                 ca = (CertificateAuthority) getCA(aid);
                 if (ca == null) {
-                    CMS.debug("Authority is no longer in caMap; returning.");
-                    return;
+                    /* We got the key, but the authority has been
+                     * deleted.  Do not retry.
+                     */
+                    CMS.debug("Authority was deleted; returning.");
+                    return true;
                 }
 
                 // re-init signing unit, but avoid triggering
@@ -3296,22 +3317,31 @@ public class CertificateAuthority
             } catch (Throwable e) {
                 CMS.debug("Caught exception during SigningUnit re-init");
                 CMS.debug(e);
-                return;
+                return false;
             }
 
             if (!initSigUnitSucceeded) {
                 CMS.debug("Failed to re-init SigningUnit");
-                return;
+                return false;
             }
 
             CMS.debug("Adding self to authorityKeyHosts attribute");
             try {
                 ca.addInstanceToAuthorityKeyHosts();
             } catch (Throwable e) {
+                /* We retrieved key, imported it, and successfully
+                 * re-inited the signing unit.  The only thing that
+                 * failed was adding this host to the list of hosts
+                 * that possess the key.  This is unlikely, and the
+                 * key is available elsewhere, so no need to retry.
+                 */
                 CMS.debug("Failed to add self to authorityKeyHosts");
                 CMS.debug(e);
-                return;
+                return true;
             }
+
+            /* All good! */
+            return true;
         }
     }
 
