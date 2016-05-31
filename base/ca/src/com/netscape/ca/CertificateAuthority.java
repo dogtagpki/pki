@@ -204,6 +204,8 @@ public class CertificateAuthority
 
     private static final Map<AuthorityID, ICertificateAuthority> caMap =
         Collections.synchronizedSortedMap(new TreeMap<AuthorityID, ICertificateAuthority>());
+    private static final Map<AuthorityID, Thread> keyRetrieverThreads =
+        Collections.synchronizedSortedMap(new TreeMap<AuthorityID, Thread>());
     protected CertificateAuthority hostCA = null;
     protected AuthorityID authorityID = null;
     protected AuthorityID authorityParentID = null;
@@ -1460,7 +1462,7 @@ public class CertificateAuthority
     /**
      * init CA signing unit & cert chain.
      */
-    private boolean initSigUnit(boolean retrieveKeys)
+    private synchronized boolean initSigUnit(boolean retrieveKeys)
             throws EBaseException {
         try {
             // init signing unit
@@ -1491,11 +1493,16 @@ public class CertificateAuthority
                 CMS.debug("CA signing key and cert not (yet) present in NSSDB");
                 signingUnitException = e;
                 if (retrieveKeys == true) {
-                    CMS.debug("Starting KeyRetrieverRunner thread");
-                    new Thread(
-                        new KeyRetrieverRunner(this),
-                        "KeyRetrieverRunner-" + authorityID
-                    ).start();
+                    if (!keyRetrieverThreads.containsKey(authorityID)) {
+                        CMS.debug("Starting KeyRetrieverRunner thread");
+                        Thread t = new Thread(
+                            new KeyRetrieverRunner(this),
+                            "KeyRetrieverRunner-" + authorityID);
+                        t.start();
+                        keyRetrieverThreads.put(authorityID, t);
+                    } else {
+                        CMS.debug("KeyRetriever thread already running for authority " + authorityID);
+                    }
                 }
                 return false;
             }
@@ -3187,6 +3194,15 @@ public class CertificateAuthority
         }
 
         public void run() {
+            try {
+                _run();
+            } finally {
+                // remove self from tracker
+                keyRetrieverThreads.remove(ca.authorityID);
+            }
+        }
+
+        private void _run() {
             String KR_CLASS_KEY = "features.authority.keyRetrieverClass";
             String className = null;
             try {
