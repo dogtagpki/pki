@@ -27,13 +27,32 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ArrayUtils;
 
 import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.EPropertyNotFound;
+import com.netscape.certsrv.base.IConfigStore;
 
-public class IPACustodiaKeyRetriever implements KeyRetriever {
+
+public class ExternalProcessKeyRetriever implements KeyRetriever {
+    protected String executable;
+
+    public ExternalProcessKeyRetriever(IConfigStore config) {
+        if (config == null)
+            throw new IllegalArgumentException("Missing config");
+
+        try {
+            this.executable = config.getString("executable");
+        } catch (EPropertyNotFound e) {
+            throw new IllegalArgumentException("Missing 'executable' config property");
+        } catch (EBaseException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public Result retrieveKey(String nickname, Collection<String> hostPorts) {
-        CMS.debug("Running IPACustodiaKeyRetriever");
+        CMS.debug("Running ExternalProcessKeyRetriever");
 
         Stack<String> command = new Stack<>();
-        command.push("/usr/libexec/pki-ipa-retrieve-key");
+        command.push(this.executable);
         command.push(nickname);
 
         for (String hostPort : hostPorts) {
@@ -47,11 +66,9 @@ public class IPACustodiaKeyRetriever implements KeyRetriever {
                 if (exitValue != 0)
                     continue;
 
-                /* Custodia returns a PEM-encoded certificate and a
-                 * base64-encoded PKIArchiveOptions containing the
-                 * wrapped private key.  These values are output by
-                 * the Python 'pki-ipa-retrieve-key' program,
-                 * separated by a null byte (password first)
+                /* Read a PEM-encoded certificate and a base64-encoded
+                 * PKIArchiveOptions containing the wrapped private key,
+                 * separated by a null byte.
                  */
                 byte[] output = IOUtils.toByteArray(p.getInputStream());
                 int splitIndex = ArrayUtils.indexOf(output, (byte) 0);

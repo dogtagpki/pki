@@ -24,6 +24,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
 import java.security.KeyPair;
 import java.security.MessageDigest;
@@ -3227,6 +3228,8 @@ public class CertificateAuthority
          */
         private boolean _run() {
             String KR_CLASS_KEY = "features.authority.keyRetrieverClass";
+            String KR_CONFIG_KEY = "features.authority.keyRetrieverConfig";
+
             String className = null;
             try {
                 className = CMS.getConfigStore().getString(KR_CLASS_KEY);
@@ -3235,11 +3238,23 @@ public class CertificateAuthority
                 return false;
             }
 
+            IConfigStore krConfig = CMS.getConfigStore().getSubStore(KR_CONFIG_KEY);
+
             KeyRetriever kr = null;
             try {
-                kr = Class.forName(className)
-                    .asSubclass(KeyRetriever.class)
-                    .newInstance();
+                Class<? extends KeyRetriever> cls =
+                    Class.forName(className).asSubclass(KeyRetriever.class);
+
+                // If there is an accessible constructor that takes
+                // an IConfigStore, invoke that; otherwise invoke
+                // the nullary constructor.
+                try {
+                    kr = cls.getDeclaredConstructor(IConfigStore.class)
+                        .newInstance(krConfig);
+                } catch (NoSuchMethodException | SecurityException
+                        | IllegalAccessException e) {
+                    kr = cls.newInstance();
+                }
             } catch (ClassNotFoundException e) {
                 CMS.debug("Could not find class: " + className);
                 CMS.debug(e);
@@ -3248,7 +3263,8 @@ public class CertificateAuthority
                 CMS.debug("Class is not an instance of KeyRetriever: " + className);
                 CMS.debug(e);
                 return false;
-            } catch (InstantiationException | IllegalAccessException e) {
+            } catch (InstantiationException | IllegalAccessException
+                    | IllegalArgumentException | InvocationTargetException e) {
                 CMS.debug("Could not instantiate class: " + className);
                 CMS.debug(e);
                 return false;
