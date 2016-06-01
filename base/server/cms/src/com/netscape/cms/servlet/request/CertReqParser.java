@@ -59,6 +59,7 @@ import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.RawJS;
+import com.netscape.cmsutil.util.Utils;
 
 /**
  * Output a 'pretty print' of a certificate request
@@ -653,8 +654,10 @@ public class CertReqParser extends ReqParser {
 
         arg.addStringValue("certExtsEnabled", "yes");
         String profile = req.getExtDataInString("profile");
+        String reqType = req.getExtDataInString(IRequest.ATTR_REQUEST_TYPE);
 
         //CMS.debug("CertReqParser: profile=" + profile);
+        //profile null can mean either recovery case or TMS reqs
         if (profile != null) {
             arg.addStringValue("profile", profile);
             String requestorDN = getRequestorDN(req);
@@ -662,13 +665,33 @@ public class CertReqParser extends ReqParser {
             if (requestorDN != null) {
                 arg.addStringValue("subject", requestorDN);
             }
-        } else {
+        } else if (IRequest.KEYRECOVERY_REQUEST.equals(reqType)) {
+            arg.addStringValue("profile", "false");
+
+            String cert = req.getExtDataInString("cert");
+
+            if (cert != null) {
+
+                X509CertImpl theCert = null;
+                try {
+                    theCert = new X509CertImpl(Utils.base64decode(cert));
+                } catch (CertificateException e) {
+                }
+
+                if (theCert != null) {
+                    String subject = theCert.getSubjectDN().toString();
+                    arg.addStringValue("subject", subject);
+                }
+            }
+
+        } else { //TMS
             arg.addStringValue("profile", "false");
             String keyID = getKeyID(req);
 
-            if (keyID != null) {
+            if (keyID != null && !keyID.isEmpty()) {
                 arg.addStringValue("subject", keyID);
             }
+
         }
 
         int saCounter = 0;
