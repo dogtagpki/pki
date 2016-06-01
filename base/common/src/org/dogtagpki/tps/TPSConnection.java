@@ -93,9 +93,11 @@ public class TPSConnection {
         String s = message.encode();
 
         // don't print the pdu_data
-        int idx = s.lastIndexOf("pdu_data=");
-        String toDebug = null; 
-        if (idx == -1)
+        int idx =  s.lastIndexOf("pdu_data=");
+
+        int debug = 0;
+        String toDebug = null;
+        if (idx == -1 || debug == 1)
             CMS.debug("TPSConnection.write: Writing: " + s);
         else {
             toDebug = s.substring(0, idx-1);

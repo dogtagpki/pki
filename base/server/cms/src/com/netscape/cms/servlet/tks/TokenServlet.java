@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.security.PublicKey;
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 import javax.servlet.ServletConfig;
@@ -1570,8 +1571,11 @@ public class TokenServlet extends CMSServlet {
         return cs.getString("tks.tksSharedSymKeyName", TRANSPORT_KEY_NAME);
     }
 
+    //Accepts protocol param and supports scp03.
     private void processDiversifyKey(HttpServletRequest req,
             HttpServletResponse resp) throws EBaseException {
+
+        String method = "TokenServlet.processDiversifyKey: ";
         byte[] KeySetData, xCUID, xKDD; // AC: KDF SPEC CHANGE: removed duplicative 'CUID' variable and added xKDD
 
         // AC: BUGFIX:  Record the actual parameters to DiversifyKey in the audit log.
@@ -1609,6 +1613,9 @@ public class TokenServlet extends CMSServlet {
 
         String rProtocol = req.getParameter(IRemoteRequest.CHANNEL_PROTOCOL);
         String rWrappedDekKey = req.getParameter(IRemoteRequest.WRAPPED_DEK_SESSION_KEY);
+
+        CMS.debug(method + "rWrappedDekKey: " + rWrappedDekKey);
+
         int protocol = 1;
         String auditMessage = "";
 
@@ -1670,13 +1677,13 @@ public class TokenServlet extends CMSServlet {
 
         if (!missingParam) {
             xkeyInfo = com.netscape.cmsutil.util.Utils.SpecialDecode(oldMasterKeyName);
-            if (xkeyInfo == null || xkeyInfo.length != 2) {
+            if (xkeyInfo == null || (xkeyInfo.length != 2 && xkeyInfo.length != 3)) {
                 badParams += " KeyInfo length,";
                 CMS.debug("TokenServlet: Invalid key info length");
                 missingParam = true;
             }
             xnewkeyInfo = com.netscape.cmsutil.util.Utils.SpecialDecode(newMasterKeyName);
-            if (xnewkeyInfo == null || xnewkeyInfo.length != 2) {
+            if (xnewkeyInfo == null || (xnewkeyInfo.length != 2 && xnewkeyInfo.length != 3)) {
                 badParams += " NewKeyInfo length,";
                 CMS.debug("TokenServlet: Invalid new key info length");
                 missingParam = true;
@@ -1692,7 +1699,6 @@ public class TokenServlet extends CMSServlet {
             CMS.debug("process DiversifyKey: protocol value: " + protocol);
 
             if (protocol == 2) {
-
                 if ((rWrappedDekKey == null) || (rWrappedDekKey.equals(""))) {
                     badParams += " WrappedDekKey,";
                     CMS.debug("TokenServlet: processDiversifyKey(): missing request parameter: WrappedDekKey, with SCP02.");
@@ -1766,7 +1772,12 @@ public class TokenServlet extends CMSServlet {
             if (mNewKeyNickName != null)
                 newMasterKeyName = mNewKeyNickName;
 
-            String oldKeyInfoMap = "tks." + keySet + ".mk_mappings." + req.getParameter(IRemoteRequest.TOKEN_KEYINFO); //#xx#xx
+            String tokKeyInfo =  req.getParameter(IRemoteRequest.TOKEN_KEYINFO);
+
+            // Get the first 6 characters, since scp03 gives us extra characters.
+            tokKeyInfo = tokKeyInfo.substring(0,6);
+            String oldKeyInfoMap = "tks." + keySet + ".mk_mappings." + tokKeyInfo; //#xx#xx
+            CMS.debug(method + " oldKeyInfoMap: " + oldKeyInfoMap);
             String oldMappingValue = CMS.getConfigStore().getString(oldKeyInfoMap, null);
             String oldSelectedToken = null;
             if (oldMappingValue == null) {
@@ -1778,7 +1789,9 @@ public class TokenServlet extends CMSServlet {
                 oldKeyNickName = st.nextToken();
             }
 
-            String newKeyInfoMap = "tks.mk_mappings." + rnewKeyInfo; //#xx#xx
+
+            String newKeyInfoMap = "tks.mk_mappings." + rnewKeyInfo.substring(0,6); //#xx#xx
+            CMS.debug(method + " newKeyInfoMap: " + newKeyInfoMap);
             String newMappingValue = CMS.getConfigStore().getString(newKeyInfoMap, null);
             String newSelectedToken = null;
             if (newMappingValue == null) {
@@ -1795,14 +1808,22 @@ public class TokenServlet extends CMSServlet {
                     " oldKeyNickName=" + oldKeyNickName + " newKeyNickName=" +
                     newKeyNickName);
 
-            byte kekKeyArray[] =
-                    com.netscape.cmsutil.util.Utils.SpecialDecode(sconfig.getString("tks." + keySet + ".kek_key"));
+            byte kekKeyArray[] = getDeveKeyArray("kek_key", sconfig, keySet);
+            byte macKeyArray[] = getDeveKeyArray("auth_key", sconfig, keySet);
+            byte encKeyArray[] = getDeveKeyArray("mac_key", sconfig, keySet);
 
-            SecureChannelProtocol secProtocol = new SecureChannelProtocol();
+            //        com.netscape.cmsutil.util.Utils.SpecialDecode(sconfig.getString("tks." + keySet + ".kek_key"));
+
+            //GPParams for scp03 right now, reads some scp03 specific values from the config of a given keyset
+            // passed down to the SecureChannelProtocol functions that deal with SCP03
+
+            GPParams gp3Params = readGPSettings(keySet);
+
+            SecureChannelProtocol secProtocol = new SecureChannelProtocol(protocol);
             // AC: KDF SPEC CHANGE - check for error reading settings
             if (missingSetting_exception == null) {
-                if (protocol == 1) {
-                    KeySetData = secProtocol.diversifyKey(oldSelectedToken,
+                if (protocol == 1 || protocol == 3) {
+                   KeySetData = secProtocol.diversifyKey(oldSelectedToken,
                             newSelectedToken, oldKeyNickName,
                             newKeyNickName,
                             xkeyInfo, // AC: KDF SPEC CHANGE - pass in old key info so symkey can make decision about which KDF version to use
@@ -1811,7 +1832,7 @@ public class TokenServlet extends CMSServlet {
                             nistSP800_108KdfUseCuidAsKdd, // AC: KDF SPEC CHANGE - pass in configuration file value
                             xCUID, // AC: KDF SPEC CHANGE - removed duplicative 'CUID' variable and replaced with 'xCUID'
                             xKDD, // AC: KDF SPEC CHANGE - pass in KDD so symkey can make decision about which value (KDD,CUID) to use
-                            (protocol == 2) ? xWrappedDekKey : kekKeyArray, useSoftToken_s, keySet, (byte) protocol);
+                            kekKeyArray,encKeyArray,macKeyArray, useSoftToken_s, keySet, (byte) protocol,gp3Params);
 
                 } else if (protocol == 2) {
                     KeySetData = SessionKey.DiversifyKey(oldSelectedToken, newSelectedToken, oldKeyNickName,
@@ -1954,6 +1975,8 @@ public class TokenServlet extends CMSServlet {
         String rKeyInfo = req.getParameter(IRemoteRequest.TOKEN_KEYINFO);
         String rCUID = req.getParameter(IRemoteRequest.TOKEN_CUID);
 
+        String protocolValue = req.getParameter(IRemoteRequest.CHANNEL_PROTOCOL);
+
         // AC: KDF SPEC CHANGE - read new KDD parameter from TPS
         String rKDD = req.getParameter("KDD");
         if ((rKDD == null) || (rKDD.length() == 0)) {
@@ -1995,6 +2018,8 @@ public class TokenServlet extends CMSServlet {
                 agentId,
                 s_isRandom);
         audit(auditMessage);
+
+        GPParams gp3Params = readGPSettings(keySet);
 
         if (isRandom) {
             if ((rdata == null) || (rdata.equals(""))) {
@@ -2058,7 +2083,7 @@ public class TokenServlet extends CMSServlet {
             }
 
             xkeyInfo = com.netscape.cmsutil.util.Utils.SpecialDecode(rKeyInfo);
-            if (xkeyInfo == null || xkeyInfo.length != 2) {
+            if (xkeyInfo == null || (xkeyInfo.length != 2 && xkeyInfo.length != 3)) {
                 badParams += " KeyInfo length,";
                 CMS.debug("TokenServlet: Invalid key info length");
                 missingParam = true;
@@ -2103,7 +2128,7 @@ public class TokenServlet extends CMSServlet {
                 data = com.netscape.cmsutil.util.Utils.SpecialDecode(rdata);
             keyInfo = com.netscape.cmsutil.util.Utils.SpecialDecode(rKeyInfo);
 
-            String keyInfoMap = "tks." + keySet + ".mk_mappings." + rKeyInfo;
+            String keyInfoMap = "tks." + keySet + ".mk_mappings." +  rKeyInfo.substring(0,6);
             String mappingValue = CMS.getConfigStore().getString(keyInfoMap, null);
             if (mappingValue == null) {
                 selectedToken = CMS.getConfigStore().getString("tks.defaultSlot", CryptoUtil.INTERNAL_TOKEN_NAME);
@@ -2114,20 +2139,53 @@ public class TokenServlet extends CMSServlet {
                 keyNickName = st.nextToken();
             }
 
+
+            //calculate the protocol
+
+            int protocolInt = SecureChannelProtocol.PROTOCOL_ONE;
+            try
+            {
+                 protocolInt = Integer.parseInt(protocolValue);
+            }
+            catch (NumberFormatException nfe)
+            {
+                protocolInt = SecureChannelProtocol.PROTOCOL_ONE;
+            }
+
+            CMS.debug( "TokenServerlet.encryptData: protocol input: " + protocolInt);
+
+            //Check for reasonable sanity, leave room for future versions
+            if(protocolInt <= 0 || protocolInt > 20) {
+                CMS.debug( "TokenServerlet.encryptData: unfamliar protocl, assume default of 1.");
+                protocolInt = 1;
+
+            }
+
             byte kekKeyArray[] =
                     com.netscape.cmsutil.util.Utils.SpecialDecode(sconfig.getString("tks." + keySet + ".kek_key"));
             // AC: KDF SPEC CHANGE - check for error reading settings
             if (missingSetting_exception == null) {
 
-                SecureChannelProtocol protocol = new SecureChannelProtocol();
 
-                encryptedData = protocol.encryptData(
-                        selectedToken, keyNickName, data, keyInfo,
-                        nistSP800_108KdfOnKeyVersion, // AC: KDF SPEC CHANGE - pass in configuration file value
-                        nistSP800_108KdfUseCuidAsKdd, // AC: KDF SPEC CHANGE - pass in configuration file value
-                        xCUID, // AC: KDF SPEC CHANGE - removed duplicative 'CUID' variable and replaced with 'xCUID'
-                        xKDD, // AC: KDF SPEC CHANGE - pass in KDD so symkey can make decision about which value (KDD,CUID) to use
-                        kekKeyArray, useSoftToken_s, keySet);
+                SecureChannelProtocol protocol = new SecureChannelProtocol(protocolInt);
+
+                if (protocolInt != SecureChannelProtocol.PROTOCOL_THREE) {
+
+                    encryptedData = protocol.encryptData(
+                            selectedToken, keyNickName, data, keyInfo,
+                            nistSP800_108KdfOnKeyVersion, // AC: KDF SPEC CHANGE - pass in configuration file value
+                            nistSP800_108KdfUseCuidAsKdd, // AC: KDF SPEC CHANGE - pass in configuration file value
+                            xCUID, // AC: KDF SPEC CHANGE - removed duplicative 'CUID' variable and replaced with 'xCUID'
+                            xKDD, // AC: KDF SPEC CHANGE - pass in KDD so symkey can make decision about which value (KDD,CUID) to use
+                            kekKeyArray, useSoftToken_s, keySet);
+
+                } else {
+
+                    encryptedData = protocol.encryptData_SCP03(selectedToken, keyNickName, data, xkeyInfo,
+                            nistSP800_108KdfOnKeyVersion, nistSP800_108KdfUseCuidAsKdd, xCUID, xKDD, kekKeyArray,
+                            useSoftToken_s, keySet,gp3Params);
+
+                }
 
                 SecureChannelProtocol.debugByteArray(encryptedData, "New Encrypt Data: ");
 
@@ -2402,7 +2460,7 @@ public class TokenServlet extends CMSServlet {
         //CMS.debug("Protocol: " + protocol + " temp: " + temp);
 
         setDefaultSlotAndKeyName(req);
-        if (temp != null) {
+        if (temp != null && protocol == null) {
             processComputeSessionKey(req, resp);
         } else if (req.getParameter(IRemoteRequest.TOKEN_DATA) != null) {
             processEncryptData(req, resp);
@@ -2413,10 +2471,515 @@ public class TokenServlet extends CMSServlet {
         } else if (protocol != null && protocol.contains("2") && (derivationConstant != null)) {
             //SCP02 compute one session key.
             processComputeSessionKeySCP02(req, resp);
+
+        }  else if (protocol != null && protocol.contains("3") ) {
+            processComputeSessionKeysSCP03(req,resp);
         } else {
             throw new EBaseException("Process: Can't decide upon function to call!");
+        }
+    }
+
+    //Create all the session keys for scp03 at once and return.
+    //ToDo: calcualte the optional rmac key
+    private void processComputeSessionKeysSCP03(HttpServletRequest req, HttpServletResponse resp) throws EBaseException {
+        String method = "processComputeSessionKeysSCP03:";
+        CMS.debug(method + " entering ...");
+
+        byte[] card_challenge, host_challenge, xCUID, xKDD;
+        byte[] card_crypto, host_cryptogram, input_card_crypto;
+        byte[] xcard_challenge, xhost_challenge;
+        byte[] enc_session_key, xkeyInfo,mac_session_key, kek_session_key;
+        String auditMessage = null;
+        String errorMsg = "";
+        String badParams = "";
+        String transportKeyName = "";
+        String rCUID = req.getParameter(IRemoteRequest.TOKEN_CUID);
+
+        String rKDD = req.getParameter("KDD");
+        if ((rKDD == null) || (rKDD.length() == 0)) {
+            // KDF phase1: default to rCUID if not present
+            CMS.debug("TokenServlet: KDD not supplied, set to CUID before TPS change");
+            rKDD = rCUID;
+        }
+
+        String keySet = req.getParameter(IRemoteRequest.TOKEN_KEYSET);
+        if (keySet == null || keySet.equals("")) {
+            keySet = "defKeySet";
+        }
+        CMS.debug("keySet selected: " + keySet);
+
+        GPParams gp3Params = readGPSettings(keySet);
+
+        boolean serversideKeygen = false;
+
+        IConfigStore sconfig = CMS.getConfigStore();
+        boolean isCryptoValidate = true;
+        boolean missingParam = false;
+
+        Exception missingSetting_exception = null;
+
+        mac_session_key = null;
+        kek_session_key = null;
+        card_crypto = null;
+        host_cryptogram = null;
+        enc_session_key = null;
+
+        SessionContext sContext = SessionContext.getContext();
+
+        String agentId = "";
+        if (sContext != null) {
+            agentId =
+                    (String) sContext.get(SessionContext.USER_ID);
+        }
+
+        auditMessage = CMS.getLogMessage(
+                LOGGING_SIGNED_AUDIT_COMPUTE_SESSION_KEY_REQUEST,
+                rCUID,
+                rKDD,
+                ILogger.SUCCESS,
+                agentId);
+
+        audit(auditMessage);
+
+        String kek_wrapped_desKeyString = null;
+        String keycheck_s = null;
+
+        String useSoftToken_s = CMS.getConfigStore().getString("tks.useSoftToken", "true");
+        if (!useSoftToken_s.equalsIgnoreCase("true"))
+            useSoftToken_s = "false";
+
+        CMS.debug(method + " useSoftToken: " + useSoftToken_s);
+
+        String rServersideKeygen = req.getParameter(IRemoteRequest.SERVER_SIDE_KEYGEN);
+        if (rServersideKeygen.equals("true")) {
+
+            serversideKeygen = true;
+        }
+
+        CMS.debug(method + " serversideKeygen: " + serversideKeygen);
+
+        try {
+            isCryptoValidate = sconfig.getBoolean("cardcryptogram.validate.enable", true);
+        } catch (EBaseException eee) {
+        }
+
+        CMS.debug(method + " Do crypto validation: " + isCryptoValidate);
+
+        transportKeyName = getSharedSecretName(sconfig);
+
+        String rcard_challenge = req.getParameter(IRemoteRequest.TOKEN_CARD_CHALLENGE);
+        String rhost_challenge = req.getParameter(IRemoteRequest.TOKEN_HOST_CHALLENGE);
+        String rKeyInfo = req.getParameter(IRemoteRequest.TOKEN_KEYINFO);
+        String rcard_cryptogram = req.getParameter(IRemoteRequest.TOKEN_CARD_CRYPTOGRAM);
+
+        if ((rCUID == null) || (rCUID.equals(""))) {
+            CMS.debug(method + " missing request parameter: CUID");
+            badParams += " CUID,";
+            missingParam = true;
+        }
+
+        if ((rKDD == null) || (rKDD.length() == 0)) {
+            CMS.debug(method + " missing request parameter: KDD");
+            badParams += " KDD,";
+            missingParam = true;
+        }
+
+        if ((rcard_challenge == null) || (rcard_challenge.equals(""))) {
+            badParams += " card_challenge,";
+            CMS.debug(method + " missing request parameter: card challenge");
+            missingParam = true;
+        }
+
+        if ((rhost_challenge == null) || (rhost_challenge.equals(""))) {
+            badParams += " host_challenge,";
+            CMS.debug(method + " missing request parameter: host challenge");
+            missingParam = true;
+        }
+
+        if ((rcard_cryptogram == null) || (rcard_cryptogram.equals(""))) {
+            badParams += " card_cryptogram,";
+            CMS.debug(method + " missing request parameter: card_cryptogram");
+            missingParam = true;
+        }
+
+        if ((rKeyInfo == null) || (rKeyInfo.equals(""))) {
+            badParams += " KeyInfo,";
+            CMS.debug(method + "missing request parameter: key info");
+            missingParam = true;
+        }
+
+        String selectedToken = null;
+        String keyNickName = null;
+        boolean sameCardCrypto = true;
+
+        xCUID = null;
+        xKDD = null;
+        xkeyInfo = null;
+        xcard_challenge = null;
+        xhost_challenge = null;
+
+        if (!missingParam) {
+            xCUID = com.netscape.cmsutil.util.Utils.SpecialDecode(rCUID);
+            if (xCUID == null || xCUID.length != 10) {
+                badParams += " CUID length,";
+                CMS.debug("TokenServlet: Invalid CUID length");
+                missingParam = true;
+            }
+
+            xKDD = com.netscape.cmsutil.util.Utils.SpecialDecode(rKDD);
+            if (xKDD == null || xKDD.length != 10) {
+                badParams += " KDD length,";
+                CMS.debug("TokenServlet: Invalid KDD length");
+                missingParam = true;
+            }
+
+            xkeyInfo = com.netscape.cmsutil.util.Utils.SpecialDecode(rKeyInfo);
+            if (xkeyInfo == null || xkeyInfo.length != 3) {
+                badParams += " KeyInfo length,";
+                CMS.debug("TokenServlet: Invalid key info length.");
+                missingParam = true;
+            }
+            xcard_challenge =
+                    com.netscape.cmsutil.util.Utils.SpecialDecode(rcard_challenge);
+            if (xcard_challenge == null || xcard_challenge.length != 8) {
+                badParams += " card_challenge length,";
+                CMS.debug("TokenServlet: Invalid card challenge length.");
+                missingParam = true;
+            }
+
+            xhost_challenge = com.netscape.cmsutil.util.Utils.SpecialDecode(rhost_challenge);
+            if (xhost_challenge == null || xhost_challenge.length != 8) {
+                badParams += " host_challenge length,";
+                CMS.debug("TokenServlet: Invalid host challenge length");
+                missingParam = true;
+            }
+        }
+
+        ArrayList<String> serverSideValues = null;
+
+        if (!missingParam) {
+            card_challenge =
+                    com.netscape.cmsutil.util.Utils.SpecialDecode(rcard_challenge);
+
+            host_challenge = com.netscape.cmsutil.util.Utils.SpecialDecode(rhost_challenge);
+
+            String keyInfoMap = "tks." + keySet + ".mk_mappings." + rKeyInfo.substring(0,6); //#xx#xx
+            String mappingValue = CMS.getConfigStore().getString(keyInfoMap, null);
+
+
+            if (mappingValue == null) {
+                selectedToken =
+                        CMS.getConfigStore().getString("tks.defaultSlot", "internal");
+                keyNickName = rKeyInfo;
+            } else {
+                StringTokenizer st = new StringTokenizer(mappingValue, ":");
+                if (st.hasMoreTokens())
+                    selectedToken = st.nextToken();
+                if (st.hasMoreTokens())
+                    keyNickName = st.nextToken();
+            }
+
+            CMS.debug(method + " selectedToken: " + selectedToken + " keyNickName: " + keyNickName );
+
+            SymmetricKey macSessionKey = null;
+            SymmetricKey encSessionKey = null;
+            SymmetricKey kekSessionKey = null;
+
+            if (selectedToken != null && keyNickName != null
+                    && missingSetting_exception == null) {
+
+                try {
+
+                    byte macKeyArray[] =
+                            com.netscape.cmsutil.util.Utils.SpecialDecode(sconfig.getString("tks."
+                                    + keySet + ".mac_key"));
+                    CMS.debug("TokenServlet about to try ComputeSessionKey selectedToken="
+                            + selectedToken + " keyNickName=" + keyNickName);
+
+                    SecureChannelProtocol protocol = new SecureChannelProtocol(SecureChannelProtocol.PROTOCOL_THREE);
+
+                    macSessionKey = protocol.computeSessionKey_SCP03(selectedToken, keyNickName,xkeyInfo,
+                            SecureChannelProtocol.macType, macKeyArray, keySet,xCUID, xKDD, xhost_challenge, xcard_challenge,
+                            transportKeyName,gp3Params);
+
+                    mac_session_key = protocol.wrapSessionKey(selectedToken, macSessionKey, null);
+
+                    if (mac_session_key == null) {
+                        CMS.debug(method + " Can't get mac session key bytes");
+                        throw new Exception(method + " Can't get mac session key bytes");
+
+                    }
+
+                    byte encKeyArray[] =
+                            com.netscape.cmsutil.util.Utils.SpecialDecode(sconfig.getString("tks."
+                                    + keySet + ".auth_key"));
+
+                    encSessionKey = protocol.computeSessionKey_SCP03(selectedToken, keyNickName,xkeyInfo,
+                            SecureChannelProtocol.encType, encKeyArray, keySet, xCUID, xKDD, xhost_challenge, xcard_challenge,
+                            transportKeyName,gp3Params);
+
+                    enc_session_key = protocol.wrapSessionKey(selectedToken, encSessionKey, null);
+
+                    if (enc_session_key == null) {
+                        CMS.debug("TokenServlet:Tried ComputeEncSessionKey, got NULL ");
+                        throw new Exception("Can't compute enc session key!");
+
+                    }
+
+                    byte kekKeyArray[] =
+                            com.netscape.cmsutil.util.Utils.SpecialDecode(sconfig.getString("tks."
+                                    + keySet + ".kek_key"));
+
+                    kekSessionKey = protocol.computeSessionKey_SCP03(selectedToken, keyNickName, xkeyInfo,
+                            SecureChannelProtocol.kekType, kekKeyArray, keySet, xCUID, xKDD, xhost_challenge,
+                            xcard_challenge,
+                            transportKeyName,gp3Params);
+
+                    kek_session_key = protocol.wrapSessionKey(selectedToken, kekSessionKey, null);
+
+
+                    //Offload some of the tedious params gathering to another method
+                    //ToDo, create a method that reads all this stuff at once for all major methods
+                    if (serversideKeygen) {
+                        try {
+                            serverSideValues = calculateServerSideKeygenValues(useSoftToken_s, selectedToken,
+                                    kekSessionKey, protocol);
+                        } catch (EBaseException e) {
+
+                            CMS.debug(method + " Can't calcualte server side keygen required values...");
+
+                        }
+                    }
+
+                    try {
+                        isCryptoValidate = sconfig.getBoolean("cardcryptogram.validate.enable", true);
+                    } catch (EBaseException eee) {
+                    }
+
+                    ByteArrayOutputStream contextStream = new ByteArrayOutputStream();
+                    try {
+                        contextStream.write(host_challenge);
+                        contextStream.write(card_challenge);
+                    } catch (IOException e) {
+                        throw new EBaseException(method + " Error calculating derivation data!");
+                    }
+
+                    host_cryptogram = protocol.computeCryptogram_SCP03(macSessionKey, selectedToken, contextStream.toByteArray(),NistSP800_108KDF.HOST_CRYPTO_KDF_CONSTANT);
+                    SecureChannelProtocol.debugByteArray(host_cryptogram, method + " calculated host crypto: " + host_cryptogram.length);
+
+
+                   if( isCryptoValidate) {
+                       if (rcard_cryptogram == null) {
+                           CMS.debug(method + " missing card cryptogram");
+                           throw new Exception(method + "Missing card cryptogram");
+                       }
+                       input_card_crypto =
+                               com.netscape.cmsutil.util.Utils.SpecialDecode(rcard_cryptogram);
+                       card_crypto = protocol.computeCryptogram_SCP03(macSessionKey, selectedToken, contextStream.toByteArray(),NistSP800_108KDF.CARD_CRYPTO_KDF_CONSTANT);
+                       SecureChannelProtocol.debugByteArray(card_crypto, method + " calculated card crypto: ");
+                       SecureChannelProtocol.debugByteArray(input_card_crypto, method + " original card crypto: ");
+
+                       if(!cryptoGramsAreEqual(input_card_crypto, card_crypto)) {
+                           throw new Exception(method + "Card cryptogram mismatch!");
+                       }
+
+                   }
+                } catch (Exception e) {
+                    CMS.debug(e);
+                    CMS.debug("TokenServlet Computing Session Key: " + e.toString());
+                    if (isCryptoValidate)
+                        sameCardCrypto = false;
+                }
+            }
+        } // ! missingParam
+
+        String value = "";
+
+        resp.setContentType("text/html");
+
+        String encSessionKeyString = "";
+        String macSessionKeyString = "";
+        String kekSessionKeyString = "";
+
+        String drm_trans_wrapped_desKeyString = "";
+        String cryptogram = "";
+        String status = "0";
+
+        if (enc_session_key != null && enc_session_key.length > 0) {
+            encSessionKeyString =
+                    com.netscape.cmsutil.util.Utils.SpecialEncode(enc_session_key);
+        } else {
+            status = "1";
+        }
+
+        if (mac_session_key != null && mac_session_key.length > 0) {
+            macSessionKeyString =
+                    com.netscape.cmsutil.util.Utils.SpecialEncode(mac_session_key);
+        } else {
+            status = "1";
+        }
+
+        if (kek_session_key != null && kek_session_key.length > 0) {
+            kekSessionKeyString =
+                    com.netscape.cmsutil.util.Utils.SpecialEncode(kek_session_key);
+        } else {
+            status = "1";
+        }
+
+        if (serversideKeygen == true) {
+            if (serverSideValues.size() == 3) {
+                drm_trans_wrapped_desKeyString = serverSideValues.get(2);
+                kek_wrapped_desKeyString = serverSideValues.get(0);
+                keycheck_s = serverSideValues.get(1);
+            }
+            else {
+                status = "1";
+            }
+        }
+
+        if (host_cryptogram != null && host_cryptogram.length > 0) {
+            cryptogram =
+                    com.netscape.cmsutil.util.Utils.SpecialEncode(host_cryptogram);
+        } else {
+            if (status.equals("0") == true) {
+                status = "2";
+            }
+        }
+
+        if (selectedToken == null || keyNickName == null) {
+            // AC: Bugfix: Don't override status's value if an error was already flagged
+            if (status.equals("0") == true) {
+                status = "4";
+            }
+        }
+
+        if (!sameCardCrypto) {
+            if (status.equals("0") == true) {
+                status = "5";
+            }
+        }
+
+        if (missingSetting_exception != null) {
+            status = "6";
+        }
+
+        if (missingParam) {
+            status = "3";
+        }
+
+        if (!status.equals("0")) {
+
+            if (status.equals("1")) {
+                errorMsg = "Problem generating session key info.";
+            }
+
+            if (status.equals("2")) {
+                errorMsg = "Problem creating host_cryptogram.";
+            }
+
+            if (status.equals("5")) {
+                errorMsg = "Card cryptogram mismatch. Token likely has incorrect keys.";
+            }
+
+            if (status.equals("4")) {
+                errorMsg = "Problem obtaining token information.";
+            }
+
+            if (status.equals("6")) {
+                errorMsg = "Problem reading required configuration value.";
+            }
+
+            if (status.equals("3")) {
+                if (badParams.endsWith(",")) {
+                    badParams = badParams.substring(0, badParams.length() - 1);
+                }
+                errorMsg = "Missing input parameters :" + badParams;
+            }
+
+            value = IRemoteRequest.RESPONSE_STATUS + "=" + status;
+        } else {
+            if (serversideKeygen == true) {
+                StringBuffer sb = new StringBuffer();
+                sb.append(IRemoteRequest.RESPONSE_STATUS + "=0&");
+                sb.append(IRemoteRequest.TKS_RESPONSE_MacSessionKey + "=");
+                sb.append(macSessionKeyString);
+                sb.append("&" + IRemoteRequest.TKS_RESPONSE_HostCryptogram + "=");
+                sb.append(cryptogram);
+                sb.append("&" + IRemoteRequest.TKS_RESPONSE_EncSessionKey + "=");
+                sb.append(encSessionKeyString);
+                sb.append("&" + IRemoteRequest.TKS_RESPONSE_KekSessionKey + "=");
+                sb.append(kekSessionKeyString);
+                sb.append("&" + IRemoteRequest.TKS_RESPONSE_KEK_DesKey + "=");
+                sb.append(kek_wrapped_desKeyString);
+                sb.append("&" + IRemoteRequest.TKS_RESPONSE_KeyCheck + "=");
+                sb.append(keycheck_s);
+                sb.append("&" + IRemoteRequest.TKS_RESPONSE_DRM_Trans_DesKey + "=");
+                sb.append(drm_trans_wrapped_desKeyString);
+                value = sb.toString();
+            } else {
+                StringBuffer sb = new StringBuffer();
+                sb.append(IRemoteRequest.RESPONSE_STATUS + "=0&");
+                sb.append(IRemoteRequest.TKS_RESPONSE_MacSessionKey + "=");
+                sb.append(macSessionKeyString);
+                sb.append("&" + IRemoteRequest.TKS_RESPONSE_HostCryptogram + "=");
+                sb.append(cryptogram);
+                sb.append("&" + IRemoteRequest.TKS_RESPONSE_EncSessionKey + "=");
+                sb.append(encSessionKeyString);
+                sb.append("&" + IRemoteRequest.TKS_RESPONSE_KekSessionKey + "=");
+                value = sb.toString();
+            }
 
         }
+        //CMS.debug(method + "outputString.encode " + value);
+
+        try {
+            resp.setContentLength(value.length());
+            CMS.debug("TokenServlet:outputString.length " + value.length());
+            OutputStream ooss = resp.getOutputStream();
+            ooss.write(value.getBytes());
+            ooss.flush();
+            mRenderResult = false;
+        } catch (IOException e) {
+            CMS.debug("TokenServlet: " + e.toString());
+        }
+
+        if (status.equals("0")) {
+            String[] logParams = { log_string_from_specialDecoded_byte_array(xCUID), // CUID_decoded
+                    log_string_from_specialDecoded_byte_array(xKDD), // KDD_decoded
+                    ILogger.SUCCESS, // Outcome
+                    status, // status
+                    agentId, // AgentID
+                    isCryptoValidate ? "true" : "false", // IsCryptoValidate
+                    serversideKeygen ? "true" : "false", // IsServerSideKeygen
+                    selectedToken, // SelectedToken
+                    keyNickName, // KeyNickName
+                    keySet, // TKSKeyset
+                    log_string_from_keyInfo(xkeyInfo), // KeyInfo_KeyVersion
+            };
+            auditMessage = CMS.getLogMessage(LOGGING_SIGNED_AUDIT_COMPUTE_SESSION_KEY_REQUEST_PROCESSED_SUCCESS,
+                    logParams);
+
+        } else {
+            String[] logParams = { log_string_from_specialDecoded_byte_array(xCUID), // CUID_decoded
+                    log_string_from_specialDecoded_byte_array(xKDD), // KDD_decoded
+                    ILogger.FAILURE, // Outcome
+                    status, // status
+                    agentId, // AgentID
+                    isCryptoValidate ? "true" : "false", // IsCryptoValidate
+                    serversideKeygen ? "true" : "false", // IsServerSideKeygen
+                    selectedToken, // SelectedToken
+                    keyNickName, // KeyNickName
+                    keySet, // TKSKeyset
+                    log_string_from_keyInfo(xkeyInfo), // KeyInfo_KeyVersion
+                    errorMsg // Error
+            };
+            auditMessage = CMS.getLogMessage(LOGGING_SIGNED_AUDIT_COMPUTE_SESSION_KEY_REQUEST_PROCESSED_FAILURE,
+                    logParams);
+
+        }
+
+        audit(auditMessage);
+
     }
 
     /**
@@ -2478,5 +3041,198 @@ public class TokenServlet extends CMSServlet {
         return sharedSecret;
 
     }
+
+    //returns ArrayList of following values
+    // 0 : Kek wrapped des key
+    // 1 : keycheck value
+    // 2 : trans wrapped des key
+    private ArrayList<String> calculateServerSideKeygenValues(String useSoftToken, String selectedToken,
+            SymmetricKey kekSessionKey, SecureChannelProtocol protocol) throws EBaseException {
+
+        SymmetricKey desKey = null;
+        String method = "TokenServlet.calculateSErverSideKeygenValues: ";
+        ArrayList<String> values = new ArrayList<String>();
+
+        /**
+         * 0. generate des key
+         * 1. encrypt des key with kek key
+         * 2. encrypt des key with DRM transport key
+         * These two wrapped items are to be sent back to
+         * TPS. 2nd item is to DRM
+         **/
+        CMS.debug(method + " entering...");
+
+        // (1) generate DES key
+        /* applet does not support DES3
+        org.mozilla.jss.crypto.KeyGenerator kg =
+            internalToken.getKeyGenerator(KeyGenAlgorithm.DES3);
+            desKey = kg.generate();*/
+
+        /*
+         * GenerateSymkey firt generates a 16 byte DES2 key.
+         * It then pads it into a 24 byte key with last
+         * 8 bytes copied from the 1st 8 bytes.  Effectively
+         * making it a 24 byte DES2 key.  We need this for
+         * wrapping private keys on DRM.
+         */
+        /*generate it on whichever token the master key is at*/
+
+        if (useSoftToken.equals("true")) {
+            CMS.debug(method + " key encryption key generated on internal");
+            desKey = protocol.generateSymKey("internal");
+            //cfu audit here? sym key gen done
+        } else {
+            CMS.debug("TokenServlet: key encryption key generated on " + selectedToken);
+            desKey = protocol.generateSymKey(selectedToken);
+        }
+        if (desKey == null) {
+            throw new EBaseException(method + "can't generate key encryption key");
+        }
+
+        /*
+         * ECBencrypt actually takes the 24 byte DES2 key
+         * and discard the last 8 bytes before it encrypts.
+         * This is done so that the applet can digest it
+         */
+
+
+       // protocol.wrapSessionKey(tokenName, sessionKey, wrappingKey)
+
+        byte[] encDesKey = protocol.ecbEncrypt(kekSessionKey, desKey, selectedToken);
+
+        String kek_wrapped_desKeyString =
+                com.netscape.cmsutil.util.Utils.SpecialEncode(encDesKey);
+
+        CMS.debug(method + "kek_wrapped_desKeyString: " + kek_wrapped_desKeyString);
+
+        values.add(kek_wrapped_desKeyString);
+
+        // get keycheck
+
+        byte[] keycheck = null;
+
+        keycheck = protocol.computeKeyCheck(desKey, selectedToken);
+
+        String keycheck_s =
+                com.netscape.cmsutil.util.Utils.SpecialEncode(keycheck);
+
+        CMS.debug(method + "keycheck_s " + keycheck_s);
+
+        values.add(keycheck_s);
+
+        //use DRM transport cert to wrap desKey
+        String drmTransNickname = CMS.getConfigStore().getString("tks.drm_transport_cert_nickname", "");
+
+        if ((drmTransNickname == null) || (drmTransNickname == "")) {
+            CMS.debug(method + " did not find DRM transport certificate nickname");
+            throw new EBaseException(method + "can't find DRM transport certificate nickname");
+        } else {
+            CMS.debug(method + " drmtransport_cert_nickname=" + drmTransNickname);
+        }
+
+        X509Certificate drmTransCert = null;
+        try {
+
+            drmTransCert = CryptoManager.getInstance().findCertByNickname(drmTransNickname);
+            // wrap kek session key with DRM transport public key
+            CryptoToken token = null;
+            if (useSoftToken.equals("true")) {
+                //token = CryptoManager.getInstance().getTokenByName(selectedToken);
+                token = CryptoManager.getInstance().getInternalCryptoToken();
+            } else {
+                token = CryptoManager.getInstance().getTokenByName(selectedToken);
+            }
+            PublicKey pubKey = drmTransCert.getPublicKey();
+            String pubKeyAlgo = pubKey.getAlgorithm();
+            CMS.debug("Transport Cert Key Algorithm: " + pubKeyAlgo);
+            KeyWrapper keyWrapper = null;
+            //For wrapping symmetric keys don't need IV, use ECB
+            if (pubKeyAlgo.equals("EC")) {
+                keyWrapper = token.getKeyWrapper(KeyWrapAlgorithm.AES_ECB);
+                keyWrapper.initWrap(pubKey, null);
+            } else {
+                keyWrapper = token.getKeyWrapper(KeyWrapAlgorithm.RSA);
+                keyWrapper.initWrap(pubKey, null);
+            }
+            CMS.debug("desKey token " + desKey.getOwningToken().getName() + " token: " + token.getName());
+            byte[] drm_trans_wrapped_desKey = keyWrapper.wrap(desKey);
+
+            String drmWrappedDesStr =
+                    com.netscape.cmsutil.util.Utils.SpecialEncode(drm_trans_wrapped_desKey);
+
+            CMS.debug(method + " drmWrappedDesStr: " + drmWrappedDesStr);
+            values.add(drmWrappedDesStr);
+
+        } catch (Exception e) {
+            throw new EBaseException(e);
+        }
+
+        return values;
+    }
+
+    private boolean cryptoGramsAreEqual(byte[] original_cryptogram, byte[] calculated_cryptogram) {
+        boolean sameCardCrypto = true;
+
+        if (original_cryptogram == null || calculated_cryptogram == null) {
+            return false;
+        }
+        if (original_cryptogram.length == calculated_cryptogram.length) {
+            for (int i = 0; i < original_cryptogram.length; i++) {
+                if (original_cryptogram[i] != calculated_cryptogram[i]) {
+                    sameCardCrypto = false;
+                    break;
+                }
+            }
+        } else {
+            // different length; must be different
+            sameCardCrypto = false;
+        }
+
+        return sameCardCrypto;
+    }
+
+  //For now only used for scp03
+
+    static GPParams readGPSettings(String keySet) {
+        GPParams params = new GPParams();
+
+        String method = "TokenServlet.readGPSettings: ";
+        String gp3Settings = "tks." + keySet + ".prot3";
+
+        String divers = "emv";
+        try {
+            divers = CMS.getConfigStore().getString(gp3Settings + ".divers", "emv");
+        } catch (EBaseException e) {
+        }
+
+        params.setDiversificationScheme(divers);
+
+        CMS.debug(method + " Divers: " + divers);
+
+        String diversVer1Keys = "emv";
+
+        try {
+            diversVer1Keys = CMS.getConfigStore().getString(gp3Settings + ".diversVer1Keys","emv");
+        } catch (EBaseException e) {
+        }
+
+        params.setVersion1DiversificationScheme(diversVer1Keys);
+        CMS.debug(method + " Version 1 keys Divers: " + divers);
+
+        return params;
+    }
+
+    private byte[] getDeveKeyArray(String keyType,IConfigStore sconfig,String keySet) throws EBaseException {
+        byte devKeyArray[] = null;
+        try {
+            devKeyArray = com.netscape.cmsutil.util.Utils.SpecialDecode(sconfig.getString("tks."
+                    + keySet + "." + keyType));
+        } catch (Exception e) {
+            throw new EBaseException("Can't read static developer key array: " + keySet + ": " + keyType);
+        }
+
+        return devKeyArray;
+    }
+
 
 }

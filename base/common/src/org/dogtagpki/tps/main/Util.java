@@ -24,6 +24,9 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.security.spec.AlgorithmParameterSpec;
 import java.util.Calendar;
 
@@ -34,10 +37,14 @@ import netscape.security.x509.SubjectKeyIdentifierExtension;
 import netscape.security.x509.X509CertImpl;
 
 import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.crypto.BadPaddingException;
 import org.mozilla.jss.crypto.Cipher;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.EncryptionAlgorithm;
 import org.mozilla.jss.crypto.IVParameterSpec;
+import org.mozilla.jss.crypto.IllegalBlockSizeException;
+import org.mozilla.jss.crypto.SymmetricKey;
+import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.pkcs11.PK11SymKey;
 
 import com.netscape.certsrv.apps.CMS;
@@ -46,6 +53,13 @@ import com.netscape.cmsutil.util.Utils;
 import com.netscape.symkey.SessionKey;
 
 public class Util {
+
+    //SCP03 AES-CMAC related constants
+    private static final byte AES_CMAC_CONSTANT = (byte) 0x87;
+    private static final int AES_CMAC_BLOCK_SIZE = 16;
+
+    public static final byte CARD_CRYPTO_KDF_CONSTANT_SCP03 = 0x0;
+    public static final byte HOST_CRYPTO_KDF_CONSTANT_SCP03 = 0x1;
 
     public Util() {
     }
@@ -82,11 +96,6 @@ public class Util {
     public static String intToHex(int val) {
 
         return Integer.toHexString(val);
-    }
-
-    public static void main(String[] args) {
-        // TODO Auto-generated method stub
-
     }
 
     public static String uriDecode(String encoded) throws UnsupportedEncodingException {
@@ -332,6 +341,196 @@ public class Util {
         return output;
     }
 
+    //Use AES-CMAC (SCP03, counter method) to calculate cryptogram, constant determines whether it is a card or host cryptogram
+    public static TPSBuffer compute_AES_CMAC_Cryptogram(SymmetricKey symKey, TPSBuffer context, byte kdfConstant)
+             throws EBaseException {
+
+        String method = "Util compute_AES_Crypto:";
+        // 11 bytes label
+        byte[] label = new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+
+        // sanity checking
+
+        if (symKey == null || context == null ) {
+            throw new EBaseException(method + " Invalid input!");
+        }
+
+        TPSBuffer data = new TPSBuffer();
+        int outputBits = 8 * 8;
+
+        //output size of cmac PRF
+        final int h = 128;
+
+        int remainder = outputBits % h;
+
+        //calculate counter size
+        int n = 0;
+        if (remainder == 0) {
+            n = outputBits / h;
+        } else {
+            n = outputBits / h + 1;
+        }
+
+        byte b1 = (byte) ((outputBits >> 8) & 0xFF);
+        byte b2 = (byte) (outputBits & 0xFF);
+
+        TPSBuffer outputBitsBinary = new TPSBuffer(2);
+        outputBitsBinary.setAt(0, b1);
+        outputBitsBinary.setAt(1, b2);
+
+        data.addBytes(label);
+        data.add(kdfConstant);
+        data.add((byte) 0x0);
+        data.add(outputBitsBinary);
+
+        TPSBuffer output = new TPSBuffer();
+        TPSBuffer input = new TPSBuffer();
+
+        TPSBuffer kI = null;
+
+        for (int i = 1; i <= n; i++) {
+            input.add(data);
+            input.add((byte) i);
+            input.add(context);
+
+            kI = Util.computeAES_CMAC(symKey, input);
+
+            output.add(kI);
+        }
+
+        return output.substr(0,8);
+    }
+
+    // Implements agorithm http://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38b.pdf
+    // Input an aes key of 128, 192, or 256 bits
+
+    public static TPSBuffer computeAES_CMAC(SymmetricKey aesKey, TPSBuffer input) throws EBaseException {
+
+        String method = "Util.computeAES_CMAC:";
+        byte iv[] = null;
+
+        if (aesKey == null || input == null) {
+            throw new EBaseException(method + " invalid input data!");
+        }
+
+        TPSBuffer data = new TPSBuffer(input);
+
+        String alg = aesKey.getAlgorithm();
+        System.out.println(" AES ALG: " + alg);
+
+        EncryptionAlgorithm eAlg = EncryptionAlgorithm.AES_128_CBC;
+        int ivLength = eAlg.getIVLength();
+
+        if (ivLength > 0) {
+            iv = new byte[ivLength];
+        }
+
+        if (!("AES".equals(alg))) {
+            throw new EBaseException(method + " invalid in put key type , must be AES!");
+        }
+
+        byte[] k0 = new byte[AES_CMAC_BLOCK_SIZE];
+
+        //Encrypt the zero array
+        CryptoToken token = aesKey.getOwningToken();
+        Cipher encryptor = null;
+
+        try {
+            encryptor = token.getCipherContext(EncryptionAlgorithm.AES_128_CBC);
+            encryptor.initEncrypt(aesKey, new IVParameterSpec(iv));
+            k0 = encryptor.doFinal(k0);
+
+        } catch (NoSuchAlgorithmException | TokenException | IllegalStateException | IllegalBlockSizeException
+                | BadPaddingException | InvalidKeyException | InvalidAlgorithmParameterException e) {
+            throw new EBaseException(e);
+        }
+
+        byte[] k1 = getAES_CMAC_SubKey(k0);
+        byte[] k2 = getAES_CMAC_SubKey(k1);
+
+        int numBlocks = 0;
+        int messageSize = data.size();
+        boolean perfectBlocks = false;
+
+        if (((messageSize % AES_CMAC_BLOCK_SIZE) == 0) && (messageSize != 0)) {
+            numBlocks = messageSize / AES_CMAC_BLOCK_SIZE;
+            perfectBlocks = true;
+        }
+        else {
+            numBlocks = messageSize / AES_CMAC_BLOCK_SIZE + 1;
+            perfectBlocks = false;
+        }
+
+        int index = 0;
+        byte inb = 0;
+        if (perfectBlocks == true)
+        {
+            // If the size of the message is an integer multiple of the block  block size (namely, 128 bits) (16 bytes)
+            // the last block shall be exclusive-OR'ed with the first subKey k1
+
+            for (int j = 0; j < k1.length; j++) {
+                index = messageSize - AES_CMAC_BLOCK_SIZE + j;
+                inb = data.at(index);
+                data.setAt(index, (byte) (inb ^ k1[j]));
+            }
+        }
+        else
+        {
+            // Otherwise, the last block shall be padded with 10^i
+            TPSBuffer padding = new TPSBuffer(AES_CMAC_BLOCK_SIZE - messageSize % AES_CMAC_BLOCK_SIZE);
+            padding.setAt(0, (byte) 0x80);
+
+            data.add(padding);
+            //Get new data size , it's changed
+            messageSize = data.size();
+
+            // and exclusive-OR'ed with K2
+            for (int j = 0; j < k2.length; j++) {
+                index = messageSize - AES_CMAC_BLOCK_SIZE + j;
+                inb = data.at(index);
+                data.setAt(index, (byte) (inb ^ k2[j]));
+            }
+        }
+
+        // Initialization vector starts as zeroes but changes inside the loop's
+        // subsequent iterations, it becomes the last encryption output
+        byte[] encData = new byte[AES_CMAC_BLOCK_SIZE];
+        TPSBuffer currentBlock = null;
+
+        for (int i = 0; i < numBlocks; i++) {
+            try {
+                encryptor.initEncrypt(aesKey, new IVParameterSpec(encData));
+                currentBlock = data.substr(i * AES_CMAC_BLOCK_SIZE, AES_CMAC_BLOCK_SIZE);
+                encData = encryptor.doFinal(currentBlock.toBytesArray());
+            } catch (TokenException | IllegalStateException | IllegalBlockSizeException
+                    | BadPaddingException | InvalidKeyException | InvalidAlgorithmParameterException e) {
+                throw new EBaseException(e);
+            }
+        }
+
+        TPSBuffer aesMacData = new TPSBuffer(encData);
+        return aesMacData;
+
+    }
+
+    //Support method for AES-CMAC alg (SCP03).
+    private static byte[] getAES_CMAC_SubKey(byte[] input) {
+
+        byte[] output = new byte[input.length];
+
+        boolean msbSet = ((input[0]&0x80) != 0);
+        for (int i=0; i<input.length; i++) {
+            output[i] = (byte) (input[i] << 1);
+            if (i+1 < input.length && ((input[i+1]&0x80) != 0)) {
+                output[i] |= 0x01;
+            }
+        }
+        if (msbSet) {
+            output[output.length-1] ^= AES_CMAC_CONSTANT;
+        }
+        return output;
+    }
+
     public static TPSBuffer computeMAC(PK11SymKey symKey, TPSBuffer input, TPSBuffer icv) throws EBaseException {
         TPSBuffer output = null;
         TPSBuffer result = null;
@@ -423,6 +622,43 @@ public class Util {
         byte[] data = uriDecodeFromHex(str);
         TPSBuffer tbuf = new TPSBuffer(data);
         return tbuf;
+    }
+
+    //Encrypt data with aes. Supports 128 for now.
+    public static TPSBuffer encryptDataAES(TPSBuffer dataToEnc, PK11SymKey encKey,TPSBuffer iv) throws EBaseException {
+
+        TPSBuffer encrypted = null;
+        if (encKey == null || dataToEnc == null) {
+            throw new EBaseException("Util.encryptDataAES: called with no sym key or no data!");
+        }
+
+        CryptoToken token = null;
+
+
+        try {
+            token = CryptoManager.getInstance().getInternalKeyStorageToken();
+            Cipher cipher = token.getCipherContext(EncryptionAlgorithm.AES_128_CBC);
+            AlgorithmParameterSpec algSpec = null;
+            int len = EncryptionAlgorithm.AES_128_CBC.getIVLength();
+
+            byte[] ivEnc = null;
+            if(iv == null) { //create one
+                ivEnc = new byte[len];
+            } else {
+                ivEnc = iv.toBytesArray();
+             }
+
+            algSpec = new IVParameterSpec(ivEnc);
+            cipher.initEncrypt(encKey, algSpec);
+            byte[] encryptedBytes = cipher.doFinal(dataToEnc.toBytesArray());
+            encrypted = new TPSBuffer(encryptedBytes);
+
+        } catch (Exception e) {
+            throw new EBaseException("Util.encryptDataAES: problem encrypting data: " + e.toString());
+        }
+
+        return encrypted;
+
     }
 
     public static TPSBuffer encryptData(TPSBuffer dataToEnc, PK11SymKey encKey) throws EBaseException {
@@ -532,5 +768,329 @@ public class Util {
 
         return timeString;
     }
+
+    //AES CMAC test samples
+    public static void main(String[] args) {
+
+   /*     Options options = new Options();
+
+        options.addOption("d", true, "Directory for tokendb");
+
+        String db_dir = null;
+        CryptoManager cm = null;
+
+        // 128 bit aes test key
+        byte devKey[] = { (byte) 0x2b, (byte) 0x7e, (byte) 0x15, (byte) 0x16, (byte) 0x28, (byte) 0xae, (byte) 0xd2,
+                (byte) 0xa6, (byte) 0xab, (byte) 0xf7, (byte) 0x15, (byte) 0x88, (byte) 0x09, (byte) 0xcf, (byte) 0x4f,
+                (byte) 0x3c };
+
+        // 192 bit aes test key
+        byte devKey192[] = { (byte) 0x8e, (byte) 0x73, (byte) 0xb0, (byte) 0xf7, (byte) 0xda, (byte) 0x0e, (byte) 0x64,
+                (byte) 0x52,
+                (byte) 0xc8, (byte) 0x10, (byte) 0xf3, (byte) 0x2b, (byte) 0x80, (byte) 0x90, (byte) 0x79, (byte) 0xe5,
+                (byte) 0x62, (byte) 0xf8, (byte) 0xea, (byte) 0xd2, (byte) 0x52, (byte) 0x2c, (byte) 0x6b, (byte) 0x7b
+        };
+
+        byte devKey256[] = { (byte) 0x60, (byte) 0x3d, (byte) 0xeb, (byte) 0x10, (byte) 0x15, (byte) 0xca, (byte) 0x71,
+                (byte) 0xbe,
+                (byte) 0x2b, (byte) 0x73, (byte) 0xae, (byte) 0xf0, (byte) 0x85, (byte) 0x7d, (byte) 0x77, (byte) 0x81,
+                (byte) 0x1f, (byte) 0x35, (byte) 0x2c, (byte) 0x07, (byte) 0x3b, (byte) 0x61, (byte) 0x08, (byte) 0xd7,
+                (byte) 0x2d,
+                (byte) 0x98, (byte) 0x10, (byte) 0xa3, (byte) 0x09, (byte) 0x14, (byte) 0xdf, (byte) 0xf4
+
+        };
+
+        byte message[] = { (byte) 0x6b, (byte) 0xc1, (byte) 0xbe, (byte) 0xe2, (byte) 0x2e, (byte) 0x40, (byte) 0x9f,
+                (byte) 0x96, (byte) 0xe9, (byte) 0x3d, (byte) 0x7e, (byte) 0x11,
+                (byte) 0x73, (byte) 0x93, (byte) 0x17, (byte) 0x2a };
+
+        byte message320[] = { (byte) 0x6b, (byte) 0xc1, (byte) 0xbe, (byte) 0xe2, (byte) 0x2e, (byte) 0x40,
+                (byte) 0x9f, (byte) 0x96, (byte) 0xe9,
+                (byte) 0x3d, (byte) 0x7e, (byte) 0x11, (byte) 0x73, (byte) 0x93, (byte) 0x17, (byte) 0x2a,
+                (byte) 0xae, (byte) 0x2d, (byte) 0x8a, (byte) 0x57, (byte) 0x1e, (byte) 0x03, (byte) 0xac, (byte) 0x9c,
+                (byte) 0x9e, (byte) 0xb7,
+                (byte) 0x6f, (byte) 0xac, (byte) 0x45, (byte) 0xaf, (byte) 0x8e, (byte) 0x51,
+                (byte) 0x30, (byte) 0xc8, (byte) 0x1c, (byte) 0x46, (byte) 0xa3, (byte) 0x5c, (byte) 0xe4, (byte) 0x11 };
+
+        byte message512[] = { (byte) 0x6b, (byte) 0xc1, (byte) 0xbe, (byte) 0xe2, (byte) 0x2e, (byte) 0x40,
+                (byte) 0x9f, (byte) 0x96, (byte) 0xe9, (byte) 0x3d,
+                (byte) 0x7e, (byte) 0x11, (byte) 0x73, (byte) 0x93, (byte) 0x17, (byte) 0x2a,
+                (byte) 0xae, (byte) 0x2d, (byte) 0x8a, (byte) 0x57, (byte) 0x1e, (byte) 0x03, (byte) 0xac, (byte) 0x9c,
+                (byte) 0x9e, (byte) 0xb7, (byte) 0x6f,
+                (byte) 0xac, (byte) 0x45, (byte) 0xaf, (byte) 0x8e, (byte) 0x51,
+                (byte) 0x30, (byte) 0xc8, (byte) 0x1c, (byte) 0x46, (byte) 0xa3, (byte) 0x5c, (byte) 0xe4, (byte) 0x11,
+                (byte) 0xe5, (byte) 0xfb, (byte) 0xc1,
+                (byte) 0x19, (byte) 0x1a, (byte) 0x0a, (byte) 0x52, (byte) 0xef,
+                (byte) 0xf6, (byte) 0x9f, (byte) 0x24, (byte) 0x45, (byte) 0xdf, (byte) 0x4f, (byte) 0x9b, (byte) 0x17,
+                (byte) 0xad, (byte) 0x2b, (byte) 0x41,
+                (byte) 0x7b, (byte) 0xe6, (byte) 0x6c, (byte) 0x37, (byte) 0x10
+
+        };
+
+
+        byte message_test1[] = { 0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x04,0x0,0x0,(byte) 0x80,0x01,
+                (byte)0xd0,(byte)0x61,(byte) 0xff,(byte)0xf4,(byte)0xd8,(byte)0x2f,(byte)0xdf,
+                (byte)0x87,(byte)0x5a,(byte)0x5c,(byte)0x90,(byte)0x99,(byte)0x98,(byte)0x3b,(byte)0x24,(byte)0xdc };
+
+        byte devKey_test1[] = {(byte)0x88,(byte)0xc6,(byte)0x46,(byte)0x2e,(byte)0x55,(byte)0x58,(byte)0x6c,
+                (byte)0x47,(byte)0xf9,(byte)0xff,0x00,(byte)0x92,(byte)0x39,(byte)0xce,(byte)0xb6,(byte)0xea};
+
+        //Test keys and messages found here: http://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38b.pdf
+        //Results computed in this test program can be compared against those in the preceding document.
+
+        try {
+            CommandLineParser parser = new DefaultParser();
+            CommandLine cmd = parser.parse(options, args);
+
+            if (cmd.hasOption("d")) {
+                db_dir = cmd.getOptionValue("d");
+            }
+
+        } catch (ParseException e) {
+            System.err.println("Error in parsing command line options: " + e.getMessage());
+
+        }
+
+        SymmetricKey aes128 = null;
+        SymmetricKey aes192 = null;
+        SymmetricKey aes256 = null;
+
+        SymmetricKey tempKey = null;
+
+        // Initialize token
+        try {
+            CryptoManager.initialize(db_dir);
+            cm = CryptoManager.getInstance();
+
+            CryptoToken token = cm.getInternalKeyStorageToken();
+
+            // Generate temp key with only function is to
+            // unwrap the various test keys onto the token
+
+            KeyGenerator kg = token.getKeyGenerator(KeyGenAlgorithm.AES);
+
+            SymmetricKey.Usage usages[] = new SymmetricKey.Usage[4];
+            usages[0] = SymmetricKey.Usage.WRAP;
+            usages[1] = SymmetricKey.Usage.UNWRAP;
+            usages[2] = SymmetricKey.Usage.ENCRYPT;
+            usages[3] = SymmetricKey.Usage.DECRYPT;
+
+            kg.setKeyUsages(usages);
+            kg.temporaryKeys(true);
+            kg.initialize(128);
+            tempKey = kg.generate();
+
+            //unwrap the test aes keys onto the token
+
+            Cipher encryptor = token.getCipherContext(EncryptionAlgorithm.AES_128_CBC);
+
+            int ivLength = EncryptionAlgorithm.AES_128_CBC.getIVLength();
+            byte[] iv = null;
+
+            if (ivLength > 0) {
+                iv = new byte[ivLength]; // all zeroes
+            }
+
+            encryptor.initEncrypt(tempKey, new IVParameterSpec(iv));
+            byte[] wrappedKey = encryptor.doFinal(devKey);
+
+            encryptor.initEncrypt(tempKey, new IVParameterSpec(iv));
+            byte[]wrappedKey_test1 = encryptor.doFinal(devKey_test1);
+
+            // 192 bit key
+
+            TPSBuffer aesKey192Buf = new TPSBuffer(devKey192);
+            TPSBuffer aesKey192Pad = new TPSBuffer(8);
+            aesKey192Pad.setAt(0, (byte) 0x80);
+            aesKey192Buf.add(aesKey192Pad);
+
+            encryptor.initEncrypt(tempKey, new IVParameterSpec(iv));
+            byte[] wrappedKey192 = encryptor.doFinal(aesKey192Buf.toBytesArray());
+
+            // 128 bit key
+
+            KeyWrapper keyWrap = token.getKeyWrapper(KeyWrapAlgorithm.AES_CBC);
+            keyWrap.initUnwrap(tempKey, new IVParameterSpec(iv));
+            aes128 = keyWrap.unwrapSymmetric(wrappedKey, SymmetricKey.AES, 16);
+
+
+            KeyWrapper keyWrap1 = token.getKeyWrapper(KeyWrapAlgorithm.AES_CBC);
+            keyWrap1.initUnwrap(tempKey,new IVParameterSpec(iv));
+            SymmetricKey aes128_test = keyWrap1.unwrapSymmetric(wrappedKey_test1,SymmetricKey.AES,16);
+
+            System.out.println(new TPSBuffer(message_test1).toHexString());
+            System.out.println(new TPSBuffer(devKey_test1).toHexString());
+            System.out.println(new TPSBuffer(aes128_test.getKeyData()).toHexString());
+            TPSBuffer input1 = new TPSBuffer(message_test1);
+            TPSBuffer output1 = Util.computeAES_CMAC(aes128_test, input1);
+            System.out.println("blub: " + output1.toHexString());
+
+            // 192 bit key
+
+            KeyWrapper keyWrap192 = token.getKeyWrapper(KeyWrapAlgorithm.AES_CBC);
+            keyWrap192.initUnwrap(tempKey, new IVParameterSpec(iv));
+            aes192 = keyWrap.unwrapSymmetric(wrappedKey192, SymmetricKey.AES, 24);
+
+            // 256 bit key
+
+            TPSBuffer aesKey256Buf = new TPSBuffer(devKey256);
+            encryptor.initEncrypt(tempKey, new IVParameterSpec(iv));
+            byte[] wrappedKey256 = encryptor.doFinal(aesKey256Buf.toBytesArray());
+
+            KeyWrapper keyWrap256 = token.getKeyWrapper(KeyWrapAlgorithm.AES_CBC);
+            keyWrap256.initUnwrap(tempKey, new IVParameterSpec(iv));
+            aes256 = keyWrap.unwrapSymmetric(wrappedKey256, SymmetricKey.AES, 32);
+
+            System.out.println("");
+            System.out.println("Now use 128 bit AES key:");
+            System.out.println("");
+
+            //Attempt 0 bytes
+
+            System.out.println("");
+            System.out.println("Use message of 0 bytes:");
+            System.out.println("");
+
+            TPSBuffer input0 = new TPSBuffer(0);
+            TPSBuffer output0 = Util.computeAES_CMAC(aes128, input0);
+
+            System.out.println("Message:" + input0.toHexString());
+            System.out.println("AES-CMAC output: " + output0.toHexString());
+            System.out.println("");
+
+            System.out.println("");
+            System.out.println("Use message of 16 bytes:");
+            System.out.println("");
+
+            //Attempt 16 bytes
+
+            TPSBuffer input = new TPSBuffer(message);
+            TPSBuffer output = Util.computeAES_CMAC(aes128, input);
+
+            System.out.println("Message:" + input.toHexString());
+            System.out.println("AES-CMAC output: " + output.toHexString());
+            System.out.println("");
+
+            System.out.println("");
+            System.out.println("Use message of 40 bytes:");
+            System.out.println("");
+
+            //Attempt 40 bytes
+
+            TPSBuffer input320 = new TPSBuffer(message320);
+            TPSBuffer output320 = Util.computeAES_CMAC(aes128, input320);
+
+            System.out.println("Message:" + input320.toHexString());
+            System.out.println("AES-CMAC output: " + output320.toHexString());
+            System.out.println("");
+
+            System.out.println("");
+            System.out.println("Use message of 64 bytes:");
+            System.out.println("");
+
+            //Attempt 64 bytes
+
+            TPSBuffer input512 = new TPSBuffer(message512);
+            TPSBuffer output512 = Util.computeAES_CMAC(aes128, input512);
+            System.out.println("Message:" + input512.toHexString());
+            System.out.println("AES-CMAC output: " + output512.toHexString());
+
+            // Now used the AES 192 key
+
+            System.out.println("");
+            System.out.println("Now use 192 bit AES key:");
+            System.out.println("");
+
+            System.out.println("");
+            System.out.println("Use message of 0 bytes:");
+            System.out.println("");
+
+            // Attempt 0 bytes
+
+            TPSBuffer input192_0 = new TPSBuffer(0);
+            TPSBuffer output192_0 = Util.computeAES_CMAC(aes192, input192_0);
+            System.out.println("Message:" + input192_0.toHexString());
+            System.out.println("AES-CMAC output: " + output192_0.toHexString());
+            System.out.println("");
+
+            System.out.println("");
+            System.out.println("Use message of 16 bytes:");
+            System.out.println("");
+
+            //Attempt 16 bytes
+
+            TPSBuffer input192_128 = new TPSBuffer(message);
+            TPSBuffer output192_128 = Util.computeAES_CMAC(aes192, input);
+            System.out.println("Message:" + input192_128.toHexString());
+            System.out.println("AES-CMAC output: " + output192_128.toHexString());
+            System.out.println("");
+
+            System.out.println("");
+            System.out.println("Use message of 40 bytes:");
+            System.out.println("");
+
+            //Attempt 40 bytes
+
+            TPSBuffer input192_320 = new TPSBuffer(message320);
+            TPSBuffer output192_320 = Util.computeAES_CMAC(aes192, input192_320);
+            System.out.println("Message:" + input192_320.toHexString());
+            System.out.println("AES-CMAC output: " + output192_320.toHexString());
+            System.out.println("");
+
+            System.out.println("");
+            System.out.println("Use message of 64 bytes:");
+            System.out.println("");
+
+            //Attempt 64 bytes
+
+            TPSBuffer input192_512 = new TPSBuffer(message512);
+            TPSBuffer output192_512 = Util.computeAES_CMAC(aes192, input512);
+            System.out.println("Message:" + input192_512.toHexString());
+            System.out.println("AES-CMAC output: " + output192_512.toHexString());
+
+            System.out.println("");
+            System.out.println("Now use 256 bit AES key:");
+            System.out.println("");
+
+            // Attempt 0 bytes
+
+            TPSBuffer input256_0 = new TPSBuffer(0);
+            TPSBuffer output256_0 = Util.computeAES_CMAC(aes256, input256_0);
+            System.out.println("Message:" + input256_0.toHexString());
+            System.out.println("AES-CMAC output: " + output256_0.toHexString());
+            System.out.println("");
+
+            //Attempt 16 bytes
+
+            TPSBuffer input256_128 = new TPSBuffer(message);
+            TPSBuffer output256_128 = Util.computeAES_CMAC(aes256, input256_128);
+            System.out.println("Message:" + input256_128.toHexString());
+            System.out.println("AES-CMAC output: " + output256_128.toHexString());
+            System.out.println("");
+
+            //Attempt 40 bytes
+
+            TPSBuffer input256_320 = new TPSBuffer(message320);
+            TPSBuffer output256_320 = Util.computeAES_CMAC(aes256, input256_320);
+            System.out.println("Message:" + input256_320.toHexString());
+            System.out.println("AES-CMAC output: " + output256_320.toHexString());
+            System.out.println("");
+
+            //Attempt 64 bytes
+
+            TPSBuffer input256_512 = new TPSBuffer(message512);
+            TPSBuffer output256_512 = Util.computeAES_CMAC(aes256, input256_512);
+            System.out.println("Message:" + input256_512.toHexString());
+            System.out.println("AES-CMAC output: " + output256_512.toHexString());
+
+        } catch (AlreadyInitializedException e) {
+            // it is ok if it is already initialized
+        } catch (Exception e) {
+            System.err.println("JSS error!" + e);
+            System.exit(1);
+        }
+*/
+    }
+
 
 }
