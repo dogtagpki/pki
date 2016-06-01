@@ -3183,8 +3183,9 @@ class TPSConnector:
                 self.mdict['pki_target_cs_cfg'])
             tpshost = cs_cfg.get('service.machineName')
             tpsport = cs_cfg.get('pkicreate.secure_port')
-            tkshostport = cs_cfg.get('conn.tks1.hostport')
-            if tkshostport is None:
+            tkshost = cs_cfg.get('tps.connector.tks1.host')
+            tksport = cs_cfg.get('tps.connector.tks1.port')
+            if tkshost is None or tksport is None:
                 config.pki_log.warning(
                     log.PKIHELPER_TPSCONNECTOR_UPDATE_FAILURE,
                     extra=config.PKI_INDENTATION_LEVEL_2)
@@ -3195,14 +3196,6 @@ class TPSConnector:
                     raise Exception(log.PKIHELPER_UNDEFINED_TKS_HOST_PORT)
                 else:
                     return
-
-            # retrieve tks host and port
-            if ':' in tkshostport:
-                tkshost = tkshostport.split(':')[0]
-                tksport = tkshostport.split(':')[1]
-            else:
-                tkshost = tkshostport
-                tksport = '443'
 
             # retrieve subsystem nickname
             subsystemnick = cs_cfg.get('tps.cert.subsystem.nickname')
