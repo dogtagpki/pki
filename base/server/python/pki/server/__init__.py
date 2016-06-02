@@ -318,7 +318,8 @@ class PKISubsystem(object):
     def disable(self):
         self.instance.undeploy(self.name)
 
-    def open_database(self, name='internaldb'):
+    def open_database(self, name='internaldb', bind_dn=None,
+                      bind_password=None):
 
         # TODO: add LDAPI support
         hostname = self.config['%s.ldapconn.host' % name]
@@ -341,7 +342,13 @@ class PKISubsystem(object):
         connection.set_security_database(self.instance.nssdb_dir)
 
         auth_type = self.config['%s.ldapauth.authtype' % name]
-        if auth_type == 'BasicAuth':
+        if (bind_dn is not None and bind_password is not None):
+            # connect using the provided credentials
+            connection.set_credentials(
+                bind_dn=bind_dn,
+                bind_password=bind_password
+            )
+        elif auth_type == 'BasicAuth':
             connection.set_credentials(
                 bind_dn=self.config['%s.ldapauth.bindDN' % name],
                 bind_password=self.instance.get_password(name)
