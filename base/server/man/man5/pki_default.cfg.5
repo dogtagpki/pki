@@ -84,6 +84,10 @@ Secure and unsecure ports.  Defaults to standard Tomcat ports 8443 and 8080, res
 .IP
 Ports for Tomcat subsystems.  Defaults to standard Tomcat ports of 8009 and 8005, respectively.
 .TP
+.B pki_ajp_host
+.IP
+Host on which to listen for AJP requests.  Defaults to 127.0.0.1 to listen to local traffic only.
+.TP
 .B pki_proxy_http_port, pki_proxy_https_port, pki_enable_proxy
 .IP
 Ports for an Apache proxy server. Certificate Server instances can be run behind an Apache proxy server, which will communicate with the Tomcat instance through the AJP port.  See the Red Hat Certificate System documentation at https://access.redhat.com/knowledge/docs/Red_Hat_Certificate_System/ for details.
