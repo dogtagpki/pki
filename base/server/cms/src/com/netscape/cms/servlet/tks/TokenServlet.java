@@ -803,7 +803,7 @@ public class TokenServlet extends CMSServlet {
 
         }
 
-        CMS.debug("TokenServlet:outputString.encode " + value);
+        //CMS.debug("TokenServlet:outputString.encode " + value);
 
         try {
             resp.setContentLength(value.length());
@@ -1298,8 +1298,8 @@ public class TokenServlet extends CMSServlet {
                         input_card_crypto =
                                 com.netscape.cmsutil.util.Utils.SpecialDecode(rcard_cryptogram);
 
-                        SecureChannelProtocol.debugByteArray(input_card_crypto, "input_card_crypto");
-                        SecureChannelProtocol.debugByteArray(card_crypto, "card_crypto");
+                        //SecureChannelProtocol.debugByteArray(input_card_crypto, "input_card_crypto");
+                        //SecureChannelProtocol.debugByteArray(card_crypto, "card_crypto");
 
                         if (card_crypto.length == input_card_crypto.length) {
                             for (int i = 0; i < card_crypto.length; i++) {
@@ -1462,7 +1462,7 @@ public class TokenServlet extends CMSServlet {
             }
 
         }
-        CMS.debug("TokenServlet:outputString.encode " + value);
+        //CMS.debug("TokenServlet:outputString.encode " + value);
 
         try {
             resp.setContentLength(value.length());
@@ -1802,7 +1802,8 @@ public class TokenServlet extends CMSServlet {
                             xnewkeyInfo, nistSP800_108KdfOnKeyVersion, nistSP800_108KdfUseCuidAsKdd, xCUID, xKDD,
                             (protocol == 2) ? xWrappedDekKey : kekKeyArray, useSoftToken_s, keySet, (byte) protocol);
                 }
-                SecureChannelProtocol.debugByteArray(KeySetData, " New keyset data: ");
+                //SecureChannelProtocol.debugByteArray(KeySetData, " New keyset data: ");
+                CMS.debug("TokenServlet.processDiversifyKey: New keyset data obtained");
 
                 if (KeySetData == null || KeySetData.length <= 1) {
                     CMS.getLogger().log(ILogger.EV_AUDIT,
@@ -1832,7 +1833,8 @@ public class TokenServlet extends CMSServlet {
         if (KeySetData != null && KeySetData.length > 1) {
             value = IRemoteRequest.RESPONSE_STATUS + "=0&" + IRemoteRequest.TKS_RESPONSE_KeySetData + "=" +
                     com.netscape.cmsutil.util.Utils.SpecialEncode(KeySetData);
-            CMS.debug("TokenServlet:process DiversifyKey.encode " + value);
+            //CMS.debug("TokenServlet:process DiversifyKey.encode " + value);
+            CMS.debug("TokenServlet:process DiversifyKey.encode returning KeySetData");
             // AC: KDF SPEC CHANGE - check for settings file issue (flag)
         } else if (missingSetting_exception != null) {
             status = "6";
@@ -2154,7 +2156,7 @@ public class TokenServlet extends CMSServlet {
             value = IRemoteRequest.RESPONSE_STATUS + "=" + status;
         }
 
-        CMS.debug("TokenServlet:process EncryptData.encode " + value);
+        //CMS.debug("TokenServlet:process EncryptData.encode " + value);
 
         try {
             resp.setContentLength(value.length());
@@ -2378,7 +2380,7 @@ public class TokenServlet extends CMSServlet {
         String temp = req.getParameter(IRemoteRequest.TOKEN_CARD_CHALLENGE);
         String protocol = req.getParameter(IRemoteRequest.CHANNEL_PROTOCOL);
         String derivationConstant = req.getParameter(IRemoteRequest.DERIVATION_CONSTANT);
-        CMS.debug("Protocol: " + protocol + " temp: " + temp);
+        //CMS.debug("Protocol: " + protocol + " temp: " + temp);
 
         setDefaultSlotAndKeyName(req);
         if (temp != null) {

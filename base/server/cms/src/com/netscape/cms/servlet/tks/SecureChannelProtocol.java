@@ -583,7 +583,8 @@ public class SecureChannelProtocol {
             }
         }
 
-        CMS.debug(method + "Returning symkey: " + unwrapped);
+        //CMS.debug(method + "Returning symkey: " + unwrapped);
+        CMS.debug(method + "Returning symkey...");
 
         return unwrapped;
     }
@@ -624,7 +625,8 @@ public class SecureChannelProtocol {
             throw new EBaseException(e);
         }
 
-        CMS.debug(method + "Returning symkey: " + unwrapped);
+        //CMS.debug(method + "Returning symkey: " + unwrapped);
+        CMS.debug(method + "Returning symkey...");
 
         return finalUnwrapped;
     }
@@ -857,7 +859,8 @@ public class SecureChannelProtocol {
 
             SymmetricKey extracted8 = extract8.derive();
 
-            CMS.debug(method + " extracted8 key: " + extracted8);
+            //CMS.debug(method + " extracted8 key: " + extracted8);
+            CMS.debug(method + " extracted8 key");
 
             SymmetricKeyDeriver concat = token.getSymmetricKeyDeriver();
             concat.initDerive(
@@ -943,7 +946,8 @@ public class SecureChannelProtocol {
             throw new EBaseException(e);
         }
 
-        CMS.debug(method + " About to return session key: " + wrappedSessKeyData);
+        //CMS.debug(method + " About to return session key: " + wrappedSessKeyData);
+        CMS.debug(method + " returning session key");
 
         return wrappedSessKeyData;
 
@@ -962,14 +966,15 @@ public class SecureChannelProtocol {
         try {
             CryptoManager cm = this.getCryptoManger();
             CryptoToken token = returnTokenByName(selectedToken, cm);
-            CMS.debug("desKey: owning token: " + desKey.getOwningToken().getName());
-            CMS.debug("desKey: current token: " + token.getName());
+            CMS.debug(method + "desKey: owning token: " + desKey.getOwningToken().getName());
+            CMS.debug(method + "desKey: current token: " + token.getName());
             Cipher encryptor = token.getCipherContext(EncryptionAlgorithm.DES3_ECB);
-            CMS.debug("got encryptor");
+            CMS.debug(method + "got encryptor");
             encryptor.initEncrypt(desKey);
-            CMS.debug("done initEncrypt");
+            CMS.debug(method + "done initEncrypt");
             output = encryptor.doFinal(input);
-            CMS.debug("done doFinal " + output);
+            //CMS.debug(method + "done doFinal " + output);
+            CMS.debug(method + "done doFinal");
 
             // SecureChannelProtocol.debugByteArray(output, "Encrypted data:");
         } catch (EBaseException | NoSuchTokenException | NoSuchAlgorithmException | TokenException
@@ -1017,7 +1022,8 @@ public class SecureChannelProtocol {
         //Get the 3 bytes needed
         System.arraycopy(output, 0, finalOutput, 0, 3);
 
-        SecureChannelProtocol.debugByteArray(finalOutput, "Calculated KeyCheck Value:");
+        //SecureChannelProtocol.debugByteArray(finalOutput, "Calculated KeyCheck Value:");
+        CMS.debug(method + " ends");
 
         return finalOutput;
     }
@@ -1405,10 +1411,11 @@ public class SecureChannelProtocol {
             keycheck_enc_key = this.computeKeyCheck(encKey, tokenName);
             keycheck_mac_key = this.computeKeyCheck(macKey, tokenName);
             keycheck_kek_key = this.computeKeyCheck(kekKey, tokenName);
-
+            /*
             debugByteArray(keycheck_enc_key, " Keycheck enc key: ");
             debugByteArray(keycheck_mac_key, " Keycheck mac key: ");
             debugByteArray(keycheck_kek_key, " KeyCheck kek key: ");
+            */
 
         } else if (protocol == PROTOCOL_TWO) {
             alg = (byte) 0x80;
@@ -1447,7 +1454,8 @@ public class SecureChannelProtocol {
             throw new EBaseException(method + " Can't compose final output byte array!");
         }
 
-        SecureChannelProtocol.debugByteArray(output, " Final output to createKeySetData: ");
+        //SecureChannelProtocol.debugByteArray(output, " Final output to createKeySetData: ");
+        CMS.debug(method + " returning output");
 
         return output;
     }

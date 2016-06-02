@@ -241,7 +241,8 @@ public class EnrolledCertsInfo {
             byte[] certBytes = null;
             try {
                 certBytes = cert.getEncoded();
-                CMS.debug("EnrolledCertsInfo.toTPSCertRecords: certBytes ="+ CMS.BtoA(certBytes));
+                //CMS.debug("EnrolledCertsInfo.toTPSCertRecords: certBytes ="+ CMS.BtoA(certBytes));
+                CMS.debug("EnrolledCertsInfo.toTPSCertRecords: cert encoded");
             } catch (CertificateEncodingException e) {
                 CMS.debug("EnrolledCertsInfo.toTPSCertRecord: "+ e);
                 //TODO: throw

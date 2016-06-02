@@ -420,7 +420,11 @@ public abstract class CMSServlet extends HttpServlet {
                     pn.equalsIgnoreCase("pwd") ||
                     pn.equalsIgnoreCase("pwdagain") ||
                     pn.startsWith("p12Password") ||
-                    pn.equalsIgnoreCase("uPasswd")) {
+                    pn.equalsIgnoreCase("uPasswd") ||
+                    pn.equalsIgnoreCase("host_challenge") ||
+                    pn.equalsIgnoreCase("card_challenge") ||
+                    pn.equalsIgnoreCase("card_cryptogram") ||
+                    pn.equalsIgnoreCase("drm_trans_desKey")) {
                 CMS.debug("CMSServlet::service() param name='" + pn +
                         "' value='(sensitive)'");
             } else {

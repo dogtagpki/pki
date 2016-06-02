@@ -333,7 +333,8 @@ public class SecureChannel {
             attr = new TPSBuffer(Util.bool2Byte(value));
             appendPKCS11Attribute(buffer, PKCS11Constants.CKA_TOKEN, attr);
 
-            CMS.debug("SecureChannel.appendKeyCapabilities: returning: " + buffer.toHexString());
+            //CMS.debug("SecureChannel.appendKeyCapabilities: returning: " + buffer.toHexString());
+            CMS.debug("SecureChannel.appendKeyCapabilities: returning");
 
         } catch (EBaseException e) {
             throw new TPSException("SecureChannel.appentKeyCapabilities. Can't obtain config value!",
@@ -423,9 +424,9 @@ public class SecureChannel {
 
         if (secLevel == SecurityLevel.SECURE_MSG_MAC_ENC) {
             try {
-                CMS.debug("SecureChannel.computeAPDU: Before encryption data value: " + apdu.getData().toHexString());
+                //CMS.debug("SecureChannel.computeAPDU: Before encryption data value: " + apdu.getData().toHexString());
                 apdu.secureMessage(encSessionKey, (byte) 1);
-                CMS.debug("SecureChannel.computeAPDU: After encryption data value: " + apdu.getData().toHexString());
+                //CMS.debug("SecureChannel.computeAPDU: After encryption data value: " + apdu.getData().toHexString());
             } catch (EBaseException e) {
                 throw new TPSException("SecureChannel.computeAPDU: Can't encrypt outgoing data! " + e);
             }
@@ -519,7 +520,8 @@ public class SecureChannel {
 
         data = apdu.getDataToMAC();
 
-        CMS.debug("SecureChannel.computeAPDUMac: data To MAC: " + data.toHexString());
+        //CMS.debug("SecureChannel.computeAPDUMac: data To MAC: " + data.toHexString());
+        CMS.debug("SecureChannel.computeAPDUMac: got data To MAC");
 
         try {
             newMac = Util.computeMAC(sessionKey, data, icv);
@@ -529,7 +531,8 @@ public class SecureChannel {
                     TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
         }
 
-        CMS.debug("SecureChannel.computeAPDUMac: computed MAC: " + newMac.toHexString());
+        //CMS.debug("SecureChannel.computeAPDUMac: computed MAC: " + newMac.toHexString());
+        CMS.debug("SecureChannel.computeAPDUMac: MAC computed");
 
         apdu.setMAC(newMac);
 
@@ -707,12 +710,13 @@ public class SecureChannel {
     //Load one piece of the applet file onto the token.
     private void loadFileSegment(byte refControl, int count, TPSBuffer piece) throws TPSException, IOException {
 
+        CMS.debug("SecureChannel.loadFileSegment: begins");
         if (piece == null || count < 0) {
             throw new TPSException("SecureChannel.loadFileSegment: invalid input data.",
                     TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
         }
 
-        CMS.debug("SecureChannel.loadFileSegment: count: " + count + " piece: " + piece.toHexString());
+        //CMS.debug("SecureChannel.loadFileSegment: count: " + count + " piece: " + piece.toHexString());
 
         APDUResponse response = null;
 
@@ -738,6 +742,7 @@ public class SecureChannel {
                     TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
         }
 
+        CMS.debug("SecureChannel.loadFileSegment: ends");
     }
 
     // Kick off the applet loading process.
@@ -1023,7 +1028,8 @@ public class SecureChannel {
 
         finalizeObjectBuffer(result, id);
 
-        CMS.debug("SecureChannel.createPKCS11PriKeyAttrsBuffer: returing: " + result.toHexString());
+        //CMS.debug("SecureChannel.createPKCS11PriKeyAttrsBuffer: returing: " + result.toHexString());
+        CMS.debug("SecureChannel.createPKCS11PriKeyAttrsBuffer: returing");
 
         return result;
 
@@ -1070,7 +1076,8 @@ public class SecureChannel {
 
         finalizeObjectBuffer(result, id);
 
-        CMS.debug("SecureChannel.createPKCS11PublicKeyAttrsBuffer: returing: " + result.toHexString());
+        //CMS.debug("SecureChannel.createPKCS11PublicKeyAttrsBuffer: returing: " + result.toHexString());
+        CMS.debug("SecureChannel.createPKCS11PublicKeyAttrsBuffer: returing");
 
         return result;
 
@@ -1144,7 +1151,8 @@ public class SecureChannel {
 
         finalizeObjectBuffer(result, id);
 
-        CMS.debug("SecureChannel.createPKCS11CertAttrsBuffer: returing: " + result.toHexString());
+        //CMS.debug("SecureChannel.createPKCS11CertAttrsBuffer: returing: " + result.toHexString());
+        CMS.debug("SecureChannel.createPKCS11CertAttrsBuffer: returing");
 
         return result;
 

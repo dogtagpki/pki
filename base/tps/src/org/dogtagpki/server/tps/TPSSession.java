@@ -66,11 +66,12 @@ public class TPSSession {
     public TPSMessage read() throws IOException {
         TPSMessage message = null;
 
-        CMS.debug("TPSSession.process() about to call read on connection : " + connection);
+        CMS.debug("TPSSession.read() about to call read on connection : " + connection);
 
         try {
             message = connection.read();
-            CMS.debug("TPSSession.process() created message " + message);
+            //CMS.debug("TPSSession.read() created message " + message);
+            CMS.debug("TPSSession.read() message created");
 
         } catch (IOException e) {
             //Catch here so we can log

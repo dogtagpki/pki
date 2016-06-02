@@ -115,7 +115,7 @@ public class KDF {
 
         }
 
-        CMS.debug("desKey: len: " + desKey.length);
+        CMS.debug(method + "desKey: len: " + desKey.length);
 
         return desKey;
     }

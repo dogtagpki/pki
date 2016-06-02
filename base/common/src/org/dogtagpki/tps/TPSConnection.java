@@ -46,7 +46,7 @@ public class TPSConnection {
     }
 
     public TPSMessage read() throws IOException {
-        CMS.debug("TPSMessage read()");
+        CMS.debug("TPSConnection read()");
 
         StringBuilder sb = new StringBuilder();
         int b;
@@ -80,7 +80,10 @@ public class TPSConnection {
             sb.append(c);
         }
 
-        CMS.debug("TPSMessage.read: Reading:  " + sb.toString());
+        if (size <= 38) // for pdu_data size is 2 and only contains status
+            CMS.debug("TPSConnection.read: Reading:  " + sb.toString());
+        else
+            CMS.debug("TPSConnection.read: Reading...");
 
         // parse the entire message
         return TPSMessage.createMessage(sb.toString());
@@ -89,7 +92,15 @@ public class TPSConnection {
     public void write(TPSMessage message) throws IOException {
         String s = message.encode();
 
-        CMS.debug("TPSMessage.write: Writing: " + s);
+        // don't print the pdu_data
+        int idx = s.lastIndexOf("pdu_data=");
+        String toDebug = null; 
+        if (idx == -1)
+            CMS.debug("TPSConnection.write: Writing: " + s);
+        else {
+            toDebug = s.substring(0, idx-1);
+            CMS.debug("TPSConnection.write: Writing: " + toDebug + "pdu_data=<do not print>");
+        }
         // send message
         out.print(s);
 

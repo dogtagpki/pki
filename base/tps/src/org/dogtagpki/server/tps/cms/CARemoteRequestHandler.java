@@ -192,7 +192,7 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
                 }
             }
         }
-        CMS.debug("CARemoteRequestHandler: enrollCertificate(): sendMsg =" + sendMsg);
+        //CMS.debug("CARemoteRequestHandler: enrollCertificate(): sendMsg =" + sendMsg);
         HttpResponse resp =
                 conn.send("enrollment", sendMsg);
         if (resp == null) {
@@ -202,15 +202,13 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
         String content = resp.getContent();
 
         if (content != null && !content.equals("")) {
-            CMS.debug("CARemoteRequestHandler: enrollCertificate(): got content = " + content);
+            //CMS.debug("CARemoteRequestHandler: enrollCertificate(): got content = " + content);
+            CMS.debug("CARemoteRequestHandler: enrollCertificate(): got content");
             XMLObject xmlResponse =
                     getXMLparser(content);
 
             Hashtable<String, Object> response =
                     new Hashtable<String, Object>();
-
-            CMS.debug("CARemoteRequestHandler: enrollCertificate(): received:" +
-                    content);
 
             /**
              * When a value is not found in response, keep going so we know
@@ -222,7 +220,8 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
             String value = xmlResponse.getValue(IRemoteRequest.RESPONSE_STATUS_XML);
             if (value == null) {
                 CMS.debug("CARemoteRequestHandler: enrollCertificate(): Status not found.");
-                CMS.debug("CARemoteRequestHandler: enrollCertificate(): got content = " + content);
+                //CMS.debug("CARemoteRequestHandler: enrollCertificate(): got content = " + content);
+                CMS.debug("CARemoteRequestHandler: enrollCertificate(): got content");
             } else {
                 CMS.debug("CARemoteRequestHandler: enrollCertificate(): got Status = " + value);
                 ist = Integer.parseInt(value);
@@ -255,8 +254,9 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
                         IRemoteRequest.CA_RESPONSE_Certificate_b64);
             } else {
                 try {
-                    CMS.debug("CARemoteRequestHandler:: enrollCertificate(): got IRemoteRequest.CA_RESPONSE_Certificate_b64 = "
-                            + value);
+                    //CMS.debug("CARemoteRequestHandler:: enrollCertificate(): got IRemoteRequest.CA_RESPONSE_Certificate_b64 = "
+                    //        + value);
+                    CMS.debug("CARemoteRequestHandler:: enrollCertificate(): got IRemoteRequest.CA_RESPONSE_Certificate_b64");
                     response.put(IRemoteRequest.CA_RESPONSE_Certificate_b64, value);
                     X509CertImpl newCert = new X509CertImpl(Utils.base64decode(value));
                     response.put(IRemoteRequest.CA_RESPONSE_Certificate_x509, newCert);
@@ -324,8 +324,9 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
             Hashtable<String, Object> response =
                     new Hashtable<String, Object>();
 
-            CMS.debug("CARemoteRequestHandler: retrieveCertificate(): received:" +
-                    content);
+            //CMS.debug("CARemoteRequestHandler: retrieveCertificate(): received:" +
+            //        content);
+            CMS.debug("CARemoteRequestHandler: retrieveCertificate(): content received");
 
             /**
              * When a value is not found in response, keep going so we know
@@ -335,7 +336,8 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
             String value = xmlResponse.getValue(IRemoteRequest.RESPONSE_STATUS_XML);
             if (value == null) {
                 CMS.debug("CARemoteRequestHandler: retrieveCertificate(): Status not found.");
-                CMS.debug("CARemoteRequestHandler: retrieveCertificate(): got content = " + content);
+                //CMS.debug("CARemoteRequestHandler: retrieveCertificate(): got content = " + content);
+                CMS.debug("CARemoteRequestHandler: retrieveCertificate(): got content");
             } else {
                 CMS.debug("CARemoteRequestHandler: retrieveCertificate(): got Status = " + value);
                 ist = Integer.parseInt(value);
@@ -347,8 +349,9 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
                 CMS.debug("CARemoteRequestHandler:: retrieveCertificate(): response missing name-value pair for: " +
                         IRemoteRequest.CA_RESPONSE_Certificate_chain_b64);
             } else {
-                CMS.debug("CARemoteRequestHandler:: retrieveCertificate(): got IRemoteRequest.CA_RESPONSE_Certificate_chain_b64 = "
-                        + value);
+                //CMS.debug("CARemoteRequestHandler:: retrieveCertificate(): got IRemoteRequest.CA_RESPONSE_Certificate_chain_b64 = "
+                //        + value);
+                CMS.debug("CARemoteRequestHandler:: retrieveCertificate(): got IRemoteRequest.CA_RESPONSE_Certificate_chain_b64");
                 response.put(IRemoteRequest.CA_RESPONSE_Certificate_chain_b64, value);
                 try {
                     X509CertImpl newCert = new X509CertImpl(Utils.base64decode(value));
@@ -442,7 +445,8 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
             String value = xmlResponse.getValue(IRemoteRequest.RESPONSE_STATUS_XML);
             if (value == null) {
                 CMS.debug("CARemoteRequestHandler: renewCertificate(): Status not found.");
-                CMS.debug("CARemoteRequestHandler: renewCertificate(): got content = " + content);
+                //CMS.debug("CARemoteRequestHandler: renewCertificate(): got content = " + content);
+                CMS.debug("CARemoteRequestHandler: renewCertificate(): got content");
             } else {
                 CMS.debug("CARemoteRequestHandler: renewCertificate(): got Status = " + value);
                 ist = Integer.parseInt(value);
@@ -474,8 +478,9 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
                 CMS.debug("CARemoteRequestHandler:: renewCertificate(): response missing name-value pair for: " +
                         IRemoteRequest.CA_RESPONSE_Certificate_b64);
             } else {
-                CMS.debug("CARemoteRequestHandler:: renewCertificate(): got IRemoteRequest.CA_RESPONSE_Certificate_b64 = "
-                        + value);
+                //CMS.debug("CARemoteRequestHandler:: renewCertificate(): got IRemoteRequest.CA_RESPONSE_Certificate_b64 = "
+                //        + value);
+                CMS.debug("CARemoteRequestHandler:: renewCertificate(): got IRemoteRequest.CA_RESPONSE_Certificate_b64");
                 response.put(IRemoteRequest.CA_RESPONSE_Certificate_b64, value);
                 try {
                     X509CertImpl newCert = new X509CertImpl(Utils.base64decode(value));

@@ -73,11 +73,12 @@ public abstract class RemoteRequestHandler
      * @return XMLObject the parser
      */
     protected XMLObject getXMLparser(String text) {
+        CMS.debug("RemoteRequestHandler: getXMLparser(): begins");
         if (text == null) {
             return null;
-        } else {
+        }/* else {
             CMS.debug("RemoteRequestHandler: getXMLparser(): parsing: " + text);
-        }
+        }*/
         try {
             ByteArrayInputStream bis =
                     new ByteArrayInputStream(text.getBytes());

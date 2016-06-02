@@ -133,7 +133,8 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
                 + Util.specialURLEncode(card_cryptogram.toBytesArray()) +
                 "&" + IRemoteRequest.TOKEN_KEYSET + "=" + keySet;
 
-        CMS.debug("TKSRemoteRequestHandler.computeSessionKey: outgoing message: " + requestString);
+        //CMS.debug("TKSRemoteRequestHandler.computeSessionKey: outgoing message: " + requestString);
+        CMS.debug("TKSRemoteRequestHandler.computeSessionKey: sending request to TKS");
 
         HttpResponse resp =
                 conn.send("computeSessionKey",
@@ -156,7 +157,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
             String value = (String) response.get(IRemoteRequest.RESPONSE_STATUS);
             if (value == null) {
                 CMS.debug("TKSRemoteRequestHandler: computeSessionKey(): status not found.");
-                CMS.debug("TKSRemoteRequestHandler: computeSessionKey(): got content = " + content);
+                //CMS.debug("TKSRemoteRequestHandler: computeSessionKey(): got content = " + content);
             } else {
                 CMS.debug("TKSRemoteRequestHandler: computeSessionKey(): got status = " + value);
                 ist = Integer.parseInt(value);
@@ -168,7 +169,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
                 CMS.debug("TKSRemoteRequestHandler: computeSessionKey(): response missing name-value pair for: " +
                         IRemoteRequest.TKS_RESPONSE_SessionKey);
             } else {
-                CMS.debug("TKSRemoteRequestHandler: computeSessionKey(): got IRemoteRequest.TKS_RESPONSE_SessionKey = ");
+                CMS.debug("TKSRemoteRequestHandler: computeSessionKey(): got IRemoteRequest.TKS_RESPONSE_SessionKey");
                 response.put(IRemoteRequest.TKS_RESPONSE_SessionKey, Util.specialDecode(value));
             }
 
@@ -177,7 +178,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
                 CMS.debug("TKSRemoteRequestHandler: computeSessionKey(): response missing name-value pair for: " +
                         IRemoteRequest.TKS_RESPONSE_EncSessionKey);
             } else {
-                CMS.debug("TKSRemoteRequestHandler: computeSessionKey(): got IRemoteRequest.TKS_RESPONSE_EncSessionKey = ");
+                CMS.debug("TKSRemoteRequestHandler: computeSessionKey(): got IRemoteRequest.TKS_RESPONSE_EncSessionKey");
                 response.put(IRemoteRequest.TKS_RESPONSE_EncSessionKey, Util.specialDecode(value));
             }
 
@@ -186,7 +187,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
                 CMS.debug("TKSRemoteRequestHandler: computeSessionKey(): response missing name-value pair for: " +
                         IRemoteRequest.TKS_RESPONSE_DRM_Trans_DesKey);
             } else {
-                CMS.debug("TKSRemoteRequestHandler: computeSessionKey(): got IRemoteRequest.TKS_RESPONSE_DRM_Trans_DesKey = ");
+                CMS.debug("TKSRemoteRequestHandler: computeSessionKey(): got IRemoteRequest.TKS_RESPONSE_DRM_Trans_DesKey");
                 response.put(IRemoteRequest.TKS_RESPONSE_DRM_Trans_DesKey, Util.specialDecode(value));
             }
 
@@ -195,7 +196,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
                 CMS.debug("TKSRemoteRequestHandler: computeSessionKey(): response missing name-value pair for: " +
                         IRemoteRequest.TKS_RESPONSE_KEK_DesKey);
             } else {
-                CMS.debug("TKSRemoteRequestHandler: computeSessionKey(): got IRemoteRequest.TKS_RESPONSE_KEK_DesKey = ");
+                CMS.debug("TKSRemoteRequestHandler: computeSessionKey(): got IRemoteRequest.TKS_RESPONSE_KEK_DesKey");
                 response.put(IRemoteRequest.TKS_RESPONSE_KEK_DesKey, Util.specialDecode(value));
             }
 
@@ -204,7 +205,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
                 CMS.debug("TKSRemoteRequestHandler: computeSessionKey(): response missing name-value pair for: " +
                         IRemoteRequest.TKS_RESPONSE_KeyCheck);
             } else {
-                CMS.debug("TKSRemoteRequestHandler: computeSessionKey(): got IRemoteRequest.TKS_RESPONSE_KeyCheck = ");
+                CMS.debug("TKSRemoteRequestHandler: computeSessionKey(): got IRemoteRequest.TKS_RESPONSE_KeyCheck");
                 response.put(IRemoteRequest.TKS_RESPONSE_KeyCheck, Util.specialDecode(value));
             }
 
@@ -213,7 +214,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
                 CMS.debug("TKSRemoteRequestHandler: computeSessionKey(): response missing name-value pair for: " +
                         IRemoteRequest.TKS_RESPONSE_HostCryptogram);
             } else {
-                CMS.debug("TKSRemoteRequestHandler: computeSessionKey(): got IRemoteRequest.TKS_RESPONSE_HostCryptogram = ");
+                CMS.debug("TKSRemoteRequestHandler: computeSessionKey(): got IRemoteRequest.TKS_RESPONSE_HostCryptogram");
                 response.put(IRemoteRequest.TKS_RESPONSE_HostCryptogram, Util.specialDecode(value));
             }
             CMS.debug("TKSRemoteRequestHandler: computeSessionKey(): ends.");
@@ -310,7 +311,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
             String value = (String) response.get(IRemoteRequest.RESPONSE_STATUS);
             if (value == null) {
                 CMS.debug("TKSRemoteRequestHandler: computeSessionKeySCP02(): status not found.");
-                CMS.debug("TKSRemoteRequestHandler: computeSessionKeySCP02(): got content = " + content);
+                //CMS.debug("TKSRemoteRequestHandler: computeSessionKeySCP02(): got content = " + content);
             } else {
                 CMS.debug("TKSRemoteRequestHandler: computeSessionKeySCP02(): got status = " + value);
                 ist = Integer.parseInt(value);
@@ -322,7 +323,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
                 CMS.debug("TKSRemoteRequestHandler: computeSessionKeySCP02(): response missing name-value pair for: " +
                         IRemoteRequest.TKS_RESPONSE_SessionKey);
             } else {
-                CMS.debug("TKSRemoteRequestHandler: computeSessionKeySCP02(): got IRemoteRequest.TKS_RESPONSE_SessionKey = ");
+                CMS.debug("TKSRemoteRequestHandler: computeSessionKeySCP02(): got IRemoteRequest.TKS_RESPONSE_SessionKey");
                 response.put(IRemoteRequest.TKS_RESPONSE_SessionKey, Util.specialDecode(value));
             }
 
@@ -331,7 +332,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
                 CMS.debug("TKSRemoteRequestHandler: computeSessionKeySCP02(): response missing name-value pair for: " +
                         IRemoteRequest.TKS_RESPONSE_DRM_Trans_DesKey);
             } else {
-                CMS.debug("TKSRemoteRequestHandler: computeSessionKeySCP02(): got IRemoteRequest.TKS_RESPONSE_DRM_Trans_DesKey = ");
+                CMS.debug("TKSRemoteRequestHandler: computeSessionKeySCP02(): got IRemoteRequest.TKS_RESPONSE_DRM_Trans_DesKey");
                 response.put(IRemoteRequest.TKS_RESPONSE_DRM_Trans_DesKey, Util.specialDecode(value));
             }
 
@@ -340,7 +341,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
                 CMS.debug("TKSRemoteRequestHandler: computeSessionKeySCP02(): response missing name-value pair for: " +
                         IRemoteRequest.TKS_RESPONSE_KEK_DesKey);
             } else {
-                CMS.debug("TKSRemoteRequestHandler: computeSessionKeySCP02(): got IRemoteRequest.TKS_RESPONSE_KEK_DesKey = ");
+                CMS.debug("TKSRemoteRequestHandler: computeSessionKeySCP02(): got IRemoteRequest.TKS_RESPONSE_KEK_DesKey");
                 response.put(IRemoteRequest.TKS_RESPONSE_KEK_DesKey, Util.specialDecode(value));
 
             }
@@ -352,7 +353,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
                         IRemoteRequest.TKS_RESPONSE_KeyCheck);
 
             } else {
-                CMS.debug("TKSRemoteRequestHandler: computeSessionKeySCP02(): got IRemoteRequest.TKS_RESPONSE_KeyCheck = ");
+                CMS.debug("TKSRemoteRequestHandler: computeSessionKeySCP02(): got IRemoteRequest.TKS_RESPONSE_KeyCheck");
                 response.put(IRemoteRequest.TKS_RESPONSE_KeyCheck, Util.specialDecode(value));
             }
 
@@ -438,7 +439,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
             String value = (String) response.get(IRemoteRequest.RESPONSE_STATUS);
             if (value == null) {
                 CMS.debug("TKSRemoteRequestHandler: createKeySetData(): status not found.");
-                CMS.debug("TKSRemoteRequestHandler: createKeySetData(): got content = " + content);
+                //CMS.debug("TKSRemoteRequestHandler: createKeySetData(): got content = " + content);
             } else {
                 CMS.debug("TKSRemoteRequestHandler: createKeySetData(): got status = " + value);
                 ist = Integer.parseInt(value);
@@ -450,7 +451,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
                 CMS.debug("TKSRemoteRequestHandler: createKeySetData(): response missing name-value pair for: " +
                         IRemoteRequest.TKS_RESPONSE_KeySetData);
             } else {
-                CMS.debug("TKSRemoteRequestHandler: createKeySetData(): got IRemoteRequest.TKS_RESPONSE_KeySetData = ");
+                CMS.debug("TKSRemoteRequestHandler: createKeySetData(): got IRemoteRequest.TKS_RESPONSE_KeySetData");
                 response.put(IRemoteRequest.TKS_RESPONSE_KeySetData, Util.specialDecode(value));
             }
             CMS.debug("TKSRemoteRequestHandler: createKeySetData(): ends.");
@@ -510,7 +511,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
             String value = (String) response.get(IRemoteRequest.RESPONSE_STATUS);
             if (value == null) {
                 CMS.debug("TKSRemoteRequestHandler: computeRandomData(): status not found.");
-                CMS.debug("TKSRemoteRequestHandler: computeRandomData(): got content = " + content);
+                //CMS.debug("TKSRemoteRequestHandler: computeRandomData(): got content = " + content);
             } else {
                 CMS.debug("TKSRemoteRequestHandler: computeRandomData(): got status = " + value);
                 ist = Integer.parseInt(value);
@@ -522,8 +523,9 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
                 CMS.debug("TKSRemoteRequestHandler: computeRandomData(): response missing name-value pair for: " +
                         IRemoteRequest.TKS_RESPONSE_RandomData);
             } else {
-                CMS.debug("TKSRemoteRequestHandler: computeRandomData(): got IRemoteRequest.TKS_RESPONSE_RandomData = "
-                        + value);
+                //CMS.debug("TKSRemoteRequestHandler: computeRandomData(): got IRemoteRequest.TKS_RESPONSE_RandomData"
+                //        + value);
+                CMS.debug("TKSRemoteRequestHandler: computeRandomData(): got IRemoteRequest.TKS_RESPONSE_RandomData");
                 response.put(IRemoteRequest.TKS_RESPONSE_RandomData, Util.uriDecodeFromHex(value));
             }
             CMS.debug("TKSRemoteRequestHandler: computeRandomData(): ends.");
@@ -596,7 +598,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
             String value = (String) response.get(IRemoteRequest.RESPONSE_STATUS);
             if (value == null) {
                 CMS.debug("TKSRemoteRequestHandler: encryptData(): status not found.");
-                CMS.debug("TKSRemoteRequestHandler: encryptData(): got content = " + content);
+                //CMS.debug("TKSRemoteRequestHandler: encryptData(): got content = " + content);
             } else {
                 CMS.debug("TKSRemoteRequestHandler: encryptData(): got status = " + value);
                 ist = Integer.parseInt(value);
@@ -608,7 +610,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
                 CMS.debug("TKSRemoteRequestHandler: encryptData(): response missing name-value pair for: " +
                         IRemoteRequest.TKS_RESPONSE_EncryptedData);
             } else {
-                CMS.debug("TKSRemoteRequestHandler: encryptData(): got IRemoteRequest.TKS_RESPONSE_EncryptedData = ");
+                CMS.debug("TKSRemoteRequestHandler: encryptData(): got IRemoteRequest.TKS_RESPONSE_EncryptedData");
                 response.put(IRemoteRequest.TKS_RESPONSE_EncryptedData, Util.specialDecode(value));
             }
             CMS.debug("TKSRemoteRequestHandler: encryptData(): ends.");

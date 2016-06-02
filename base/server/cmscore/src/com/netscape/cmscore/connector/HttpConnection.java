@@ -215,7 +215,7 @@ public class HttpConnection implements IHttpConnection {
             throw new EBaseException("HttpConnection.send: with String content: null or empty");
         }
 
-        CMS.debug("HttpConnection.send: with String content: " + content);
+        //CMS.debug("HttpConnection.send: with String content: " + content);
 
         resp = doSend(content);
         return resp;

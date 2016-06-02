@@ -182,8 +182,9 @@ public class KRARemoteRequestHandler extends RemoteRequestHandler
                 CMS.debug("KRARemoteRequestHandler: serverSideKeyGen(): response missing name-value pair for: " +
                         IRemoteRequest.KRA_RESPONSE_PublicKey);
             } else {
-                CMS.debug("KRARemoteRequestHandler:serverSideKeyGen(): got IRemoteRequest.KRA_RESPONSE_PublicKey= "
-                        + value);
+                //CMS.debug("KRARemoteRequestHandler:serverSideKeyGen(): got IRemoteRequest.KRA_RESPONSE_PublicKey= "
+                //        + value);
+                CMS.debug("KRARemoteRequestHandler:serverSideKeyGen(): got IRemoteRequest.KRA_RESPONSE_PublicKey");
                 response.put(IRemoteRequest.KRA_RESPONSE_PublicKey, value);
             }
 
@@ -326,7 +327,8 @@ public class KRARemoteRequestHandler extends RemoteRequestHandler
                 CMS.debug("KRARemoteRequestHandler: recoverKey(): response missing name-value pair for: " +
                         IRemoteRequest.KRA_RESPONSE_PublicKey);
             } else {
-                CMS.debug("KRARemoteRequestHandler:recoverKey(): got IRemoteRequest.KRA_RESPONSE_PublicKey= " + value);
+                //CMS.debug("KRARemoteRequestHandler:recoverKey(): got IRemoteRequest.KRA_RESPONSE_PublicKey= " + value);
+                CMS.debug("KRARemoteRequestHandler:recoverKey(): got IRemoteRequest.KRA_RESPONSE_PublicKey");
                 response.put(IRemoteRequest.KRA_RESPONSE_PublicKey, value);
             }
 

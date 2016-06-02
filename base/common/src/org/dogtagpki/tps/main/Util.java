@@ -432,7 +432,7 @@ public class Util {
             throw new EBaseException("Util.encryptData: called with no sym key or no data!");
         }
 
-        CMS.debug("Util.encryptData: dataToEnc: " + dataToEnc.toHexString());
+        //CMS.debug("Util.encryptData: dataToEnc: " + dataToEnc.toHexString());
 
         CryptoToken token = null;
         try {

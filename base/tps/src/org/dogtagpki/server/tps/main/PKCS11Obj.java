@@ -71,7 +71,8 @@ public class PKCS11Obj {
             throw new TPSException("PKCS11Obj.parse: error parsing object data!");
         }
 
-        CMS.debug("PKCS11Obj.parse: uncompressed data: " + data.toHexString());
+        //CMS.debug("PKCS11Obj.parse: uncompressed data: " + data.toHexString());
+        CMS.debug("PKCS11Obj.parse: uncompressed data");
 
         int objOffset = data.getIntFrom2Bytes(0);
         int objCount = data.getIntFrom2Bytes(2);
@@ -373,7 +374,7 @@ public class PKCS11Obj {
         TPSBuffer data = getRawData(); // new TPSBuffer();
 
         CMS.debug("PKCS11Obj.getCompressedData: " + "before compress length = " + data.size());
-        CMS.debug("PKCS11Obj.getCompressedData: " + "before compress data = " + data.toHexString());
+        //CMS.debug("PKCS11Obj.getCompressedData: " + "before compress data = " + data.toHexString());
 
         System.out.println("Raw data before compress length: " + data.size());
 
@@ -388,7 +389,8 @@ public class PKCS11Obj {
         TPSBuffer result = new TPSBuffer(header);
         result.add(compressed);
 
-        CMS.debug("PKCS11Obj.getCompressedData: PKCS11 Data: " + result.toHexString());
+        //CMS.debug("PKCS11Obj.getCompressedData: PKCS11 Data: " + result.toHexString());
+        CMS.debug("PKCS11Obj.getCompressedData: PKCS11 Data: ends");
 
         return result;
     }

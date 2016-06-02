@@ -898,7 +898,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
             objects = listObjects(seq);
 
             if (objects != null) {
-                CMS.debug("PKCS11Obj.getCurrentObjectsOnToken: objects: " + objects.toHexString());
+                //CMS.debug("PKCS11Obj.getCurrentObjectsOnToken: objects: " + objects.toHexString());
+                CMS.debug("PKCS11Obj.getCurrentObjectsOnToken: objects exist ");
             }
 
             if (objects == null) {
@@ -917,7 +918,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
                 TPSBuffer obj = channel.readObject(objectID, 0, (int) objectLenVal);
 
                 if (obj != null) {
-                    CMS.debug("PKCS11Obj.getCurrentObjectsOnToken: obj: " + obj.toHexString());
+                    //CMS.debug("PKCS11Obj.getCurrentObjectsOnToken: obj: " + obj.toHexString());
+                    CMS.debug("PKCS11Obj.getCurrentObjectsOnToken: obj exists");
                 }
 
                 if ((char) objectID.at(0) == (byte) 'z' && objectID.at(1) == (byte) '0') {
@@ -939,8 +941,9 @@ public class TPSEnrollProcessor extends TPSProcessor {
                     pkcs11objx.addObjectSpec(objSpec);
                 }
 
-                CMS.debug("TPSEnrollProcessor.getCurrentObjectsOnToken. just read object from token: "
-                        + obj.toHexString());
+                //CMS.debug("TPSEnrollProcessor.getCurrentObjectsOnToken. just read object from token: "
+                //        + obj.toHexString());
+                CMS.debug("TPSEnrollProcessor.getCurrentObjectsOnToken. just read object from token");
             }
 
         } while (seq != 0);
@@ -1247,8 +1250,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
                 cert_bytes = Utils.base64decode(retCertB64);
 
                 TPSBuffer cert_bytes_buf = new TPSBuffer(cert_bytes);
-                CMS.debug(method + "recovered: retCertB64: "
-                        + cert_bytes_buf.toHexString());
+                //CMS.debug(method + "recovered: retCertB64: "
+                //        + cert_bytes_buf.toHexString());
             } else {
                 logMsg = "recovering cert b64 not found";
                 CMS.debug(method + logMsg);
@@ -1804,7 +1807,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
                             serialToRecover, keyTypeValue, caConnId);
 
                     b64cert = certResponse.getCertB64();
-                    CMS.debug("TPSEnrollProcessor.processRecovery: recoverd cert blob: " + b64cert);
+                    //CMS.debug("TPSEnrollProcessor.processRecovery: recoverd cert blob: " + b64cert);
+                    CMS.debug("TPSEnrollProcessor.processRecovery: cert blob recovered");
 
                     KRARecoverKeyResponse keyResponse = tps.getEngine().recoverKey(toBeRecovered.getId(),
                             toBeRecovered.getUserID(),
@@ -2264,7 +2268,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
                                 archive, isECC);
 
                 publicKeyStr = ssKeyGenResponse.getPublicKey();
-                CMS.debug("TPSEnrollProcessor.enrollOneCertificate: public key string from server: " + publicKeyStr);
+                //CMS.debug("TPSEnrollProcessor.enrollOneCertificate: public key string from server: " + publicKeyStr);
+                CMS.debug("TPSEnrollProcessor.enrollOneCertificate: got public key string from server ");
                 public_key_blob = new TPSBuffer(Utils.base64decode(publicKeyStr));
 
             } else {
@@ -2470,7 +2475,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
                 String retCertB64 = caEnrollResp.getCertB64();
                 if (retCertB64 != null)
-                    CMS.debug("TPSEnrollProcessor.enrollOneCertificate:: new cert b64 =" + retCertB64);
+                    //CMS.debug("TPSEnrollProcessor.enrollOneCertificate:: new cert b64 =" + retCertB64);
+                    CMS.debug("TPSEnrollProcessor.enrollOneCertificate:: new cert b64 retrieved from caEnrollResp");
                 else {
                     auditInfo = "new cert b64 not found";
                     CMS.debug("TPSEnrollProcessor.enrollOneCertificate:: " + auditInfo);
@@ -2480,12 +2486,11 @@ public class TPSEnrollProcessor extends TPSProcessor {
                             TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
                 }
 
-                CMS.debug("TPSEnrollProcessor.enrollOneCertificate: retCertB64: " + retCertB64);
-
                 cert_bytes = Utils.base64decode(retCertB64);
 
                 TPSBuffer cert_bytes_buf = new TPSBuffer(cert_bytes);
-                CMS.debug("TPSEnrollProcessor.enrollOneCertificate: retCertB64: " + cert_bytes_buf.toHexString());
+                //CMS.debug("TPSEnrollProcessor.enrollOneCertificate: retCertB64: " + cert_bytes_buf.toHexString());
+                CMS.debug("TPSEnrollProcessor.enrollOneCertificate: retCertB64 base64decode done");
 
                 x509Cert = caEnrollResp.getCert();
                 if (x509Cert != null)
@@ -2516,21 +2521,25 @@ public class TPSEnrollProcessor extends TPSProcessor {
                     }
 
                     String retCertB64 = certResp.getCertB64();
-                    CMS.debug("TPSEnrollProcessor.enrollOneCertificate: recovering:  retCertB64: " + retCertB64);
-                    cert_bytes = Utils.base64decode(retCertB64);
 
-                    TPSBuffer cert_bytes_buf = new TPSBuffer(cert_bytes);
-                    CMS.debug("TPSEnrollProcessor.enrollOneCertificate: recovering: retCertB64: "
-                            + cert_bytes_buf.toHexString());
-
-                    if (retCertB64 != null)
-                        CMS.debug("TPSEnrollProcessor.enrollOneCertificate:: recovering: new cert b64 =" + retCertB64);
-                    else {
+                    if (retCertB64 != null) {
+                        //CMS.debug("TPSEnrollProcessor.enrollOneCertificate:: recovering: new cert b64 =" + retCertB64);
+                        CMS.debug("TPSEnrollProcessor.enrollOneCertificate:: recovering: new cert b64 not null");
+                    } else {
                         CMS.debug("TPSEnrollProcessor.enrollOneCertificate:: recovering new cert b64 not found");
                         throw new TPSException(
                                 "TPSEnrollProcessor.enrollOneCertificate: recovering: new cert b64 not found",
                                 TPSStatus.STATUS_ERROR_RECOVERY_FAILED);
                     }
+                    //CMS.debug("TPSEnrollProcessor.enrollOneCertificate: recovering:  retCertB64: " + retCertB64);
+                    CMS.debug("TPSEnrollProcessor.enrollOneCertificate: recovering:  retCertB64 retrieved from certResp");
+                    cert_bytes = Utils.base64decode(retCertB64);
+
+                    TPSBuffer cert_bytes_buf = new TPSBuffer(cert_bytes);
+                    CMS.debug("TPSEnrollProcessor.enrollOneCertificate: recovering: retCertB64 base64decode done");
+                    //CMS.debug("TPSEnrollProcessor.enrollOneCertificate: recovering: retCertB64: "
+                    //        + cert_bytes_buf.toHexString());
+
                     x509Cert = certResp.getCert();
                     if (x509Cert != null) {
                         CMS.debug("TPSEnrollProcessor.enrollOneCertificate:: recovering new cert retrieved");
@@ -2564,10 +2573,10 @@ public class TPSEnrollProcessor extends TPSProcessor {
                     }
 
                     String retCertB64 = certResp.getRenewedCertB64();
-                    cert_bytes = Utils.base64decode(retCertB64);
 
                     if (retCertB64 != null)
-                        CMS.debug("TPSEnrollProcessor.enrollOneCertificate:: renewing: new cert b64 =" + retCertB64);
+                        //CMS.debug("TPSEnrollProcessor.enrollOneCertificate:: renewing: new cert b64 =" + retCertB64);
+                        CMS.debug("TPSEnrollProcessor.enrollOneCertificate:: renewing: new cert b64 retrieved");
                     else {
                         auditInfo = "renewing new cert b64 not found";
                         CMS.debug("TPSEnrollProcessor.enrollOneCertificate:: " + auditInfo);
@@ -2577,6 +2586,12 @@ public class TPSEnrollProcessor extends TPSProcessor {
                                 "TPSEnrollProcessor.enrollOneCertificate: remewomg: new cert b64 not found",
                                 TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
                     }
+
+                    cert_bytes = Utils.base64decode(retCertB64);
+                    TPSBuffer cert_bytes_buf = new TPSBuffer(cert_bytes);
+                    CMS.debug("TPSEnrollProcessor.enrollOneCertificate: renewing: retCertB64 base64decode done");
+                    //CMS.debug("TPSEnrollProcessor.enrollOneCertificate: renewing: retCertB64: "
+                    //        + cert_bytes_buf.toHexString());
 
                     x509Cert = certResp.getRenewedCert();
 
@@ -2593,10 +2608,6 @@ public class TPSEnrollProcessor extends TPSProcessor {
                         throw new TPSException("TPSEnrollProcessor.enrollOneCertificate: " + auditInfo,
                                 TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
                     }
-
-                    TPSBuffer cert_bytes_buf = new TPSBuffer(cert_bytes);
-                    CMS.debug("TPSEnrollProcessor.enrollOneCertificate: renewing: retCertB64: "
-                            + cert_bytes_buf.toHexString());
 
                 }
 
@@ -2835,10 +2846,11 @@ public class TPSEnrollProcessor extends TPSProcessor {
             keyCheck = new TPSBuffer();
         }
 
-        CMS.debug("TPSEnrollProcessor.importprivateKeyPKCS8 : keyCheck: " + keyCheck.toHexString());
+        //CMS.debug("TPSEnrollProcessor.importPrivateKeyPKCS8 : keyCheck: " + keyCheck.toHexString());
+        CMS.debug("TPSEnrollProcessor.importPrivateKeyPKCS8 : got keyCheck");
 
         // String ivParams = ssKeyGenResponse.getIVParam();
-        //CMS.debug("TPSEnrollProcessor.importprivateKeyPKCS8: ivParams: " + ivParams);
+        //CMS.debug("TPSEnrollProcessor.importPrivateKeyPKCS8: ivParams: " + ivParams);
         TPSBuffer ivParamsBuff = new TPSBuffer(Util.uriDecodeFromHex(ivParams));
 
         if (ivParamsBuff.size() == 0) {
@@ -2851,6 +2863,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
         if (kekWrappedDesKey != null) {
             //CMS.debug("TPSEnrollProcessor.importPrivateKeyPKCS8: keyWrappedDesKey: " + kekWrappedDesKey.toHexString());
+            CMS.debug("TPSEnrollProcessor.importPrivateKeyPKCS8: got keyWrappedDesKey");
         } else
             CMS.debug("TPSEnrollProcessor.iportPrivateKeyPKC8: null kekWrappedDesKey!");
 
@@ -3012,8 +3025,10 @@ public class TPSEnrollProcessor extends TPSProcessor {
                     TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
         }
 
-        CMS.debug("TPSEnrollProcessor.parsePublicKeyBlob: public key blob from token to parse: "
-                + public_key_blob.toHexString());
+        //CMS.debug("TPSEnrollProcessor.parsePublicKeyBlob: public key blob from token to parse: "
+        //        + public_key_blob.toHexString());
+        CMS.debug("TPSEnrollProcessor.parsePublicKeyBlob: parsing public key blob from token");
+
         /*
          * decode blob into structures
          */
@@ -3040,9 +3055,10 @@ public class TPSEnrollProcessor extends TPSProcessor {
             throw new TPSException("TPSEnrollProcessor.parsePublicKeyBlob: Bad input data! pkeyb null",
                     TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
         }
-        CMS.debug("TPSEnrollProcessor.parsePublicKeyBlob: pkeyb = "
-                + pkeyb.toHexString());
+        //CMS.debug("TPSEnrollProcessor.parsePublicKeyBlob: pkeyb = "
+        //        + pkeyb.toHexString());
 
+        CMS.debug("TPSEnrollProcessor.parsePublicKeyBlob: public key pkeyb extracted from blob");
         //  2nd, proof blob length
         int proofb_len_offset = pkeyb_len_offset + 2 + pkeyb_len;
         /*
@@ -3058,8 +3074,9 @@ public class TPSEnrollProcessor extends TPSProcessor {
             throw new TPSException("TPSEnrollProcessor.parsePublicKeyBlob: Bad input data! proofb null",
                     TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
         }
-        CMS.debug("TPSEnrollProcessor.parsePublicKeyBlob: proofb = "
-                + proofb.toHexString());
+        //CMS.debug("TPSEnrollProcessor.parsePublicKeyBlob: proofb = "
+        //        + proofb.toHexString());
+        CMS.debug("TPSEnrollProcessor.parsePublicKeyBlob: proof proofb extracted from blob");
 
         // convert pkeyb to pkey
         // 1 byte encoding, 1 byte key type, 2 bytes key length, then the key
@@ -3086,8 +3103,9 @@ public class TPSEnrollProcessor extends TPSProcessor {
                 throw new TPSException("TPSEnrollProcessor.parsePublicKeyBlob: Bad input data! modb null",
                         TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
             }
-            CMS.debug("TPSEnrollProcessor.parsePublicKeyBlob: modb= "
-                    + modb.toHexString());
+            //CMS.debug("TPSEnrollProcessor.parsePublicKeyBlob: modb= "
+            //        + modb.toHexString());
+            CMS.debug("TPSEnrollProcessor.parsePublicKeyBlob: modulus modb extracted from blob");
             TPSBuffer expb = pkeyb.substr(pkey_offset + 2 + mod_len + 2, exp_len);
 
             if (expb == null) {
@@ -3095,8 +3113,9 @@ public class TPSEnrollProcessor extends TPSProcessor {
                 throw new TPSException("TPSEnrollProcessor.parsePublicKeyBlob: Bad input data! expb null",
                         TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
             }
-            CMS.debug("TPSEnrollProcessor.parsePublicKeyBlob: expb= "
-                    + expb.toHexString());
+            //CMS.debug("TPSEnrollProcessor.parsePublicKeyBlob: expb= "
+            //        + expb.toHexString());
+            CMS.debug("TPSEnrollProcessor.parsePublicKeyBlob:processing exponent expb extracted from blob");
             BigInt modb_bi = new BigInt(modb.toBytesArray());
             BigInt expb_bi = new BigInt(expb.toBytesArray());
             try {
@@ -3460,8 +3479,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
         mozillaDigestOut = mozillaDigest.digest(publicKeyInfo);
 
         if (mozillaDigestOut.length == mozillaDigest.getDigestLength()) {
-            System.out.println(mozillaDigest.getAlgorithm() + " " +
-                    " digest output size is " + mozillaDigestOut.length);
+            //System.out.println(mozillaDigest.getAlgorithm() + " " +
+            //        " digest output size is " + mozillaDigestOut.length);
         } else {
             throw new TPSException("ERROR: digest output size is " +
                     mozillaDigestOut.length + ", should be " +

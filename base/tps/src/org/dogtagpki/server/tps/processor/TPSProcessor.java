@@ -498,7 +498,10 @@ public class TPSProcessor {
 
 
         TPSBuffer randomData = computeRandomData(8, connId);
-        CMS.debug("TPSProcessor.setupSecureChannel: obtained randomData: " + randomData.toHexString());
+        if (randomData != null) {
+            //CMS.debug("TPSProcessor.setupSecureChannel: obtained randomData: " + randomData.toHexString());
+            CMS.debug("TPSProcessor.setupSecureChannel: obtained randomData");
+        }
 
         acquireChannelPlatformAndProtocolInfo();
 
@@ -525,7 +528,8 @@ public class TPSProcessor {
         }
 
         card_cryptogram = initUpdateResp.substr(CARD_CRYPTOGRAM_OFFSET, CARD_CRYPTOGRAM_SIZE);
-        CMS.debug("TPSProcessor.setupSecureChannel: card cryptogram: " + card_cryptogram.toHexString());
+        //CMS.debug("TPSProcessor.setupSecureChannel: card cryptogram: " + card_cryptogram.toHexString());
+        CMS.debug("TPSProcessor.setupSecureChannel: card cryptogram: extracted");
 
         TPSBuffer card_challenge = null;
 
@@ -537,9 +541,13 @@ public class TPSProcessor {
                         .substr(CARD_CHALLENGE_OFFSET_GP211_SC02, CARD_CHALLENGE_SIZE_GP211_SC02);
                 card_cryptogram = initUpdateResp.substr(CARD_CRYPTOGRAM_OFFSET, CARD_CRYPTOGRAM_SIZE); //new TPSBuffer(canned_card_challenge);
 
+                /*
                 CMS.debug("TPSProcessor.setupSecureChannel 02: card cryptogram: " + card_cryptogram.toHexString());
                 CMS.debug("TPSProcessor.setupSecureChannel 02: card challenge: " + card_challenge.toHexString());
                 CMS.debug("TPSProcessor.setupSecureChannel 02: host challenge: " + randomData.toHexString());
+                */
+                CMS.debug("TPSProcessor.setupSecureChannel 02: card cryptogram: extracted");
+                CMS.debug("TPSProcessor.setupSecureChannel 02: card challenge: extracted");
 
             }
 
@@ -554,7 +562,8 @@ public class TPSProcessor {
         } else {
             card_challenge = initUpdateResp.substr(CARD_CHALLENGE_OFFSET, CARD_CHALLENGE_SIZE);
         }
-        CMS.debug("TPSProcessor.setupSecureChannel: card challenge: " + card_challenge.toHexString());
+        //CMS.debug("TPSProcessor.setupSecureChannel: card challenge: " + card_challenge.toHexString());
+        CMS.debug("TPSProcessor.setupSecureChannel: card challenge: extracted");
 
         SecureChannel channel = null;
 
@@ -699,7 +708,8 @@ public class TPSProcessor {
                             TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
                 }
 
-                CMS.debug("TPSProcessor.generateSecureChannel: retrieved enc session key: " + encSessionKey);
+                //CMS.debug("TPSProcessor.generateSecureChannel: retrieved enc session key: " + encSessionKey);
+                CMS.debug("TPSProcessor.generateSecureChannel: retrieved enc session key");
 
                 TPSBuffer drmDesKey = null;
                 TPSBuffer kekDesKey = null;
@@ -710,10 +720,12 @@ public class TPSProcessor {
                 kekDesKey = resp.getKekWrappedDesKey();
 
                 if (checkServerSideKeyGen(connId)) {
-
+                    CMS.debug("TPSProcessor.generateSecureChannel: true for checkServerSideKeyGen");
+                    /*
                     CMS.debug("TPSProcessor.generateSecureChannel: drmDesKey: " + drmDesKey + " kekDesKey : "
                             + kekDesKey
                             + " keyCheck: " + keyCheck);
+                    */
                     //ToDo handle server side keygen.
 
                 }
@@ -3108,7 +3120,8 @@ public class TPSProcessor {
                 TPSBuffer keySetData = engine.createKeySetData(newVersion, curKeyInfo, protocol,
                         appletInfo.getCUID(),channel.getKeyDiversificationData(), channel.getDekSessionKeyWrapped(), connId, getSelectedKeySet());
 
-                CMS.debug("TPSProcessor.checkAndUpgradeSymKeys: new keySetData from TKS: " + keySetData.toHexString());
+                //CMS.debug("TPSProcessor.checkAndUpgradeSymKeys: new keySetData from TKS: " + keySetData.toHexString());
+                CMS.debug("TPSProcessor.checkAndUpgradeSymKeys: received new keySetData from TKS");
 
                 byte curVersion = curKeyInfo.at(0);
                 byte curIndex = curKeyInfo.at(1);
@@ -3540,7 +3553,8 @@ public class TPSProcessor {
                     TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
         }
 
-        CMS.debug("TPSProcessor.gp211GetSecureChannelProtocolDetails: returned data: " + data.toHexString());
+        //CMS.debug("TPSProcessor.gp211GetSecureChannelProtocolDetails: returned data: " + data.toHexString());
+        CMS.debug("TPSProcessor.gp211GetSecureChannelProtocolDetails: card data returned");
 
         // Now process the GP211 data returned by the card.
 

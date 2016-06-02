@@ -76,7 +76,8 @@ public class SignedAuditEventFactory implements ILogEventFactory {
 
             eventType = typeMessage.substring(typeBegin + 6, colon);
             message = typeMessage.substring(colon + 2);
-            Debug.trace("SignedAuditEventFactory: create() message=" + message + "\n");
+            //Debug.trace("SignedAuditEventFactory: create() message=" + message + "\n");
+            Debug.trace("SignedAuditEventFactory: create() message created for eventType=" + eventType + "\n");
 
         } else {
             // no type specified
