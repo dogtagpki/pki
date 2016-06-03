@@ -164,6 +164,8 @@ public class QueryReq extends CMSServlet {
             filter = "(requestType=" + IRequest.GETCERTS_REQUEST + ")";
         } else if (p.equals(IRequest.NETKEY_KEYGEN_REQUEST)) {
             filter = "(requestType=" + IRequest.NETKEY_KEYGEN_REQUEST + ")";
+        } else if (p.equals(IRequest.NETKEY_KEYRECOVERY_REQUEST)) {
+            filter = "(requestType=" + IRequest.NETKEY_KEYRECOVERY_REQUEST + ")";
         } else if (p.equals(IN_SHOW_ALL)) {
             filter = "(requestType=*)";
         }
