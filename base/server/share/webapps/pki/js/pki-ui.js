@@ -1080,7 +1080,7 @@ var EntryPage = Page.extend({
 
         if (self.mode == "view") {
             // All fields are read-only.
-            self.$(".pki-fields input").each(function(index) {
+            self.$(".pki-fields input, select, textarea").each(function(index) {
                 var input = $(this);
                 input.attr("readonly", "readonly");
             });
@@ -1091,7 +1091,7 @@ var EntryPage = Page.extend({
         } else {
 
             // Show editable fields.
-            self.$(".pki-fields input").each(function(index) {
+            self.$(".pki-fields input, select, textarea").each(function(index) {
                 var input = $(this);
                 var name = input.attr("name");
                 if (_.contains(self.editable, name)) {
@@ -1105,7 +1105,7 @@ var EntryPage = Page.extend({
             self.editMenu.show();
         }
 
-        self.$(".pki-fields input").each(function(index) {
+        self.$(".pki-fields input, select, textarea").each(function(index) {
             var input = $(this);
             self.loadField(input);
         });
