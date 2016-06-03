@@ -38,7 +38,9 @@
     <script src="/tps/js/group.js"></script>
     <script src="/tps/js/profile.js"></script>
     <script src="/tps/js/profile-mapping.js"></script>
+<!--
     <script src="/tps/js/selftest.js"></script>
+-->
     <script src="/tps/js/token.js"></script>
     <script src="/tps/js/user.js"></script>
     <script>
@@ -281,7 +283,7 @@ $(function() {
             parentHash: "#profile-mappings"
         }).open();
     });
-
+/*
     router.route("selftests", "selftests", function() {
         new SelfTestsPage({
             el: content,
@@ -296,7 +298,7 @@ $(function() {
             model: new SelfTestModel({ id: id })
         }).open();
     });
-
+*/
     router.route("tokens", "tokens", function() {
         tokensPage.open();
     });
@@ -457,7 +459,9 @@ $(function() {
         <li name="profiles" style="display: none;"><a href="#profiles">Profiles</a></li>
         <li name="profile-mappings" style="display: none;"><a href="#profile-mappings">Profile Mappings</a></li>
         <li name="audit" style="display: none;"><a href="#audit">Audit Logging</a></li>
+<!--
         <li name="selftests" style="display: none;"><a href="#selftests">Self Tests</a></li>
+-->
       </ul>
     </li>
     </ul>
