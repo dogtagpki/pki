@@ -180,19 +180,18 @@ public class TPSTokendb {
 
     public void tdbUpdateTokenEntry(TokenRecord tokenRecord)
             throws Exception {
+        String method = "TPSTokendb.tdbUpdateTokenEntry:";
         String id = tokenRecord.getId();
         TokenRecord existingTokenRecord;
         try {
             existingTokenRecord = tps.tokenDatabase.getRecord(id);
         } catch (EDBRecordNotFoundException e) {
-            CMS.debug("TPSTokendb.tdbUpdateTokenEntry: " + e);
-            CMS.debug("TPSTokendb.tdbUpdateTokenEntry: Adding token " + id);
-            // add and exit
-            tdbAddTokenEntry(tokenRecord, TokenStatus.FORMATTED);
-            return;
+            String logMsg = method + e;
+            CMS.debug(logMsg);
+            throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_CONTACT_ADMIN);
         }
         // token found; modify
-        CMS.debug("TPSTokendb.tdbUpdateTokenEntry: token entry found; Modifying with status: " + tokenRecord.getTokenStatus());
+        CMS.debug(method + " token entry found; Modifying with status: " + tokenRecord.getTokenStatus());
         // don't change the create time of an existing token record; put it back
         tokenRecord.setCreateTimestamp(existingTokenRecord.getCreateTimestamp());
         tps.tokenDatabase.updateRecord(id, tokenRecord);

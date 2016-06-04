@@ -266,7 +266,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
                 }
             } catch (TPSException e) {
                 logMsg = e.toString();
-                tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), logMsg,
+                tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), logMsg,
                         "failure");
 
                 throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
@@ -301,6 +301,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
             }
 
             do_force_format = tokenPolicy.isForceTokenFormat(cuid);
+            CMS.debug(method + " Will force format first due to policy.");
 
             if (!isExternalReg &&
                     !tokenPolicy.isAllowdTokenReenroll(cuid) &&
@@ -319,9 +320,9 @@ public class TPSEnrollProcessor extends TPSProcessor {
             }
         } else {
             CMS.debug(method + " token does not exist");
-            tokenRecord.setTokenStatus(TokenStatus.FORMATTED);
-
             checkAllowUnknownToken(TPSEngine.OP_FORMAT_PREFIX);
+            CMS.debug(method + "force a format");
+            do_force_format = true;
         }
 
         // isExternalReg : user already authenticated earlier
@@ -329,7 +330,6 @@ public class TPSEnrollProcessor extends TPSProcessor {
             checkAndAuthenticateUser(appletInfo, getSelectedTokenType());
 
         if (do_force_format) {
-            CMS.debug(method + " About to force format first due to policy.");
             //We will skip the auth step inside of format
             format(true);
         } else {
@@ -366,18 +366,6 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
         pkcs11objx.setCUID(appletInfo.getCUID());
 
-        if (!isTokenPresent) {
-            try {
-                tps.tdb.tdbAddTokenEntry(tokenRecord, TokenStatus.FORMATTED);
-            } catch (Exception e) {
-                String failMsg = "add token failure";
-                logMsg = failMsg + ":" + e.toString();
-                tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), logMsg,
-                        "failure");
-                throw new TPSException(logMsg);
-            }
-        }
-
         statusUpdate(10, "PROGRESS_PROCESS_PROFILE");
 
         EnrolledCertsInfo certsInfo = new EnrolledCertsInfo();
@@ -397,6 +385,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
         }
 
         //most failed would have thrown an exception
+        logMsg = " generateCertsAfterRenewalRecoveryPolicy returned status=" + status;
         String statusString = "Unknown"; // gives some meaningful debug message
         if (status == TPSStatus.STATUS_NO_ERROR)
             statusString = "Enrollment to follow";
@@ -409,7 +398,6 @@ public class TPSEnrollProcessor extends TPSProcessor {
             renewed = true;
             tps.tdb.tdbActivity(ActivityDatabase.OP_RENEWAL, tokenRecord, session.getIpAddress(), logMsg, "success");
         } else {
-            logMsg = " generateCertsAfterRenewalRecoveryPolicy returned status=" + status;
             CMS.debug(method + logMsg);
             tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), logMsg,
                     "failure");
@@ -535,17 +523,6 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
         statusUpdate(99, "PROGRESS_SET_LIFECYCLE");
         channel.setLifeycleState((byte) 0x0f);
-
-        try {
-            tokenRecord.setTokenStatus(TokenStatus.ACTIVE);
-            tps.tdb.tdbUpdateTokenEntry(tokenRecord);
-        } catch (Exception e) {
-            String failMsg = "update token failure";
-            logMsg = failMsg + ":" + e.toString();
-            tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), logMsg,
-                    "failure");
-            throw new TPSException(logMsg);
-        }
         //update the tokendb with new certs
         CMS.debug(method + " updating tokendb with certs.");
         try {
@@ -566,8 +543,16 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
         logMsg = "appletVersion=" + lastObjVer + "; tokenType =" + selectedTokenType + "; userid =" + userid;
         CMS.debug(method + logMsg);
-        tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), logMsg,
-                "success");
+        try {
+            tokenRecord.setTokenStatus(TokenStatus.ACTIVE);
+            tps.tdb.tdbUpdateTokenEntry(tokenRecord);
+            tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), logMsg, "success");
+        } catch (Exception e) {
+            logMsg = logMsg + ":" + e.toString();
+            tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), logMsg,
+                    "failure");
+            throw new TPSException(logMsg);
+        }
 
         CMS.debug(method + " leaving ...");
 

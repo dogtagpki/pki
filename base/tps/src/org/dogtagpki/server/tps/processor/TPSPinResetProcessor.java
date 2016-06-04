@@ -78,7 +78,7 @@ public class TPSPinResetProcessor extends TPSProcessor {
             // appletInfo is null as expected at this point
             // but audit for the record anyway
             auditOpRequest("pinReset", appletInfo, "failure", logMsg);
-            tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), logMsg,
+            tps.tdb.tdbActivity(ActivityDatabase.OP_PIN_RESET, tokenRecord, session.getIpAddress(), logMsg,
                     "failure");
 
             throw e;
@@ -89,10 +89,12 @@ public class TPSPinResetProcessor extends TPSProcessor {
 
         if (tokenRecord == null) {
             //We can't reset the pin of a token that does not exist.
-            logMsg = "Token does not exist!";
+            logMsg = method + "Token does not exist!";
             auditPinReset(session.getIpAddress(), userid, appletInfo, "failure", null, logMsg);
-            CMS.debug(method + ": " + logMsg);
-            throw new TPSException(method + logMsg +
+            tps.tdb.tdbActivity(ActivityDatabase.OP_PIN_RESET, tokenRecord, session.getIpAddress(), logMsg,
+                    "failure");
+            CMS.debug(logMsg);
+            throw new TPSException(logMsg +
                     TPSStatus.STATUS_ERROR_MAC_RESET_PIN_PDU);
         }
 
@@ -153,22 +155,18 @@ public class TPSPinResetProcessor extends TPSProcessor {
         auditPinReset(session.getIpAddress(), userid, appletInfo, "success",
                 channel.getKeyInfoData().toHexStringPlain(), null);
 
+        statusUpdate(100, "PROGRESS_PIN_RESET_COMPLETE");
+        logMsg = "update token during pin reset";
         try {
             tps.tdb.tdbUpdateTokenEntry(tokenRecord);
+            tps.tdb.tdbActivity(ActivityDatabase.OP_PIN_RESET, tokenRecord, session.getIpAddress(), logMsg, "success");
             CMS.debug(method + ": token record updated!");
         } catch (Exception e) {
-            String failMsg = "update token failure";
-            logMsg = failMsg + ":" + e.toString();
+            logMsg = logMsg + ":" + e.toString();
             tps.tdb.tdbActivity(ActivityDatabase.OP_PIN_RESET, tokenRecord, session.getIpAddress(), logMsg,
                     "failure");
             throw new TPSException(logMsg);
         }
-
-        statusUpdate(100, "PROGRESS_PIN_RESET_COMPLETE");
-
-        logMsg = "pin reset operation completed successfully";
-        tps.tdb.tdbActivity(ActivityDatabase.OP_PIN_RESET, tokenRecord, session.getIpAddress(), logMsg,
-                "success");
 
         CMS.debug(method + ": Token Pin successfully reset!");
 

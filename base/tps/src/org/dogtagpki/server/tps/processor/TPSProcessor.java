@@ -2119,9 +2119,22 @@ public class TPSProcessor {
                         " to " + newState);
             }
         } else {
-            CMS.debug("TPSProcessor.format: token does not exist");
-
             checkAllowUnknownToken(TPSEngine.OP_FORMAT_PREFIX);
+
+            tokenRecord.setTokenStatus(TokenStatus.UNFORMATTED);
+            CMS.debug("TPSProcessor.format: token does not exist");
+            logMsg = "add token during format";
+            try {
+                tps.tdb.tdbAddTokenEntry(tokenRecord, TokenStatus.UNFORMATTED);
+                tps.tdb.tdbActivity(ActivityDatabase.OP_ADD, tokenRecord, session.getIpAddress(), logMsg, "success");
+                CMS.debug("TPSProcessor.format: token added");
+            } catch (Exception e) {
+                logMsg = logMsg + ":" + e.toString();
+                tps.tdb.tdbActivity(ActivityDatabase.OP_ADD, tokenRecord, session.getIpAddress(), logMsg,
+                        "failure");
+                throw new TPSException(logMsg);
+            }
+
         }
 
         // TODO: the following lines of code could be replaced with call to
@@ -2205,20 +2218,17 @@ public class TPSProcessor {
 
         // Update Token DB
         tokenRecord.setTokenStatus(TokenStatus.FORMATTED);
+        logMsg = "token format operation";
         try {
             tps.tdb.tdbUpdateTokenEntry(tokenRecord);
+            tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), logMsg, "success");
         } catch (Exception e) {
-            String failMsg = "update token failure";
-            logMsg = failMsg + ":" + e.toString();
-            tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), failMsg,
+            logMsg = logMsg + ":" + e.toString();
+            tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), logMsg,
                     "failure");
 
             throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_CONTACT_ADMIN);
         }
-
-        logMsg = "format operation succeeded";
-
-        tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), logMsg, "success");
 
         CMS.debug("TPSProcessor.format:: ends");
 
