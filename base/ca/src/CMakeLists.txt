@@ -38,6 +38,20 @@ find_file(COMMONS_LANG_JAR
         /usr/share/java
 )
 
+find_file(JACKSON_CORE_JAR
+    NAMES
+        jackson-core-asl.jar
+    PATHS
+        /usr/share/java/jackson
+)
+
+find_file(JACKSON_MAPPER_JAR
+    NAMES
+        jackson-mapper-asl.jar
+    PATHS
+        /usr/share/java/jackson
+)
+
 find_file(JAXRS_API_JAR
     NAMES
         jaxrs-api.jar
@@ -81,6 +95,7 @@ javac(pki-ca-classes
         org/dogtagpki/server/ca/*.java
     CLASSPATH
         ${COMMONS_CODEC_JAR} ${COMMONS_IO_JAR} ${COMMONS_LANG_JAR}
+        ${JACKSON_CORE_JAR} ${JACKSON_MAPPER_JAR}
         ${JSS_JAR} ${SYMKEY_JAR}
         ${LDAPJDK_JAR}
         ${SERVLET_JAR} ${TOMCAT_CATALINA_JAR}
