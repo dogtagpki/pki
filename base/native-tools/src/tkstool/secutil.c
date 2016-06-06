@@ -668,7 +668,7 @@ SECU_ReadDERFromFile(SECItem *der, PRFileDesc *inFile, PRBool ascii)
     SECStatus rv;
     if (ascii) {
 	/* First convert ascii to binary */
-	SECItem filedata;
+	SECItem filedata = {siBuffer,0};
 	char *asc, *body;
 
 	/* Read in ascii data */
@@ -1419,7 +1419,7 @@ SECU_PrintAlgorithmID(FILE *out, SECAlgorithmID *a, char *m, int level)
 {
     SECU_PrintObjectID(out, &a->algorithm, m, level);
 
-    if (a->parameters.len == 0
+    if (a == NULL || a->parameters.len == 0
 	|| (a->parameters.len == 2
 	    && PORT_Memcmp(a->parameters.data, "\005\000", 2) == 0)) {
 	/* No arguments or NULL argument */
@@ -2471,6 +2471,10 @@ static void
 secu_PrintPKCS7EncContent(FILE *out, SEC_PKCS7EncryptedContentInfo *src, 
 			  char *m, int level)
 {
+    if (src == NULL) {
+        fprintf(out,"Invalid input to secu_PrintPKCS7EncContent!\n");
+        return;
+    }
     if (src->contentTypeTag == NULL)
 	src->contentTypeTag = SECOID_FindOID(&(src->contentType));
 
@@ -3074,16 +3078,23 @@ SECU_ParseCommandLine(int argc, char **argv, char *progName, secuCommand *cmd)
 		if (optstate->value) {
 		    cmd->options[i].arg = (char *)optstate->value;
 		} else if (cmd->options[i].needsArg) {
-                    return SECFailure;
+                    status = PL_OPT_BAD;
+                    goto done;
                 }
 		found = PR_TRUE;
 		break;
 	    }
 	}
 
-	if (!found)
-	    return SECFailure;
+	if (!found) {
+            status = PL_OPT_BAD;
+            goto done;
+        }
     }
+done:
+
+    if (optstring != NULL)
+        free(optstring);
     if (status == PL_OPT_BAD)
 	return SECFailure;
     return SECSuccess;
