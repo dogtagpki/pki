@@ -17,10 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.dbs;
 
-import netscape.ldap.LDAPSearchResults;
-
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ISubsystem;
+
+import netscape.ldap.LDAPSearchResults;
 
 /**
  * An interface represents the database session. Operations
@@ -192,6 +192,21 @@ public interface IDBSSession extends AutoCloseable {
      */
     public <T> IDBVirtualList<T> createVirtualList(String base, String filter,
             String attrs[], String sortKey, int pageSize)
+            throws EBaseException;
+
+    /**
+     * Retrieves a list of objects.
+     *
+     * @param base starting point of the search
+     * @param filter search filter
+     * @param attrs selected attributes
+     * @param sortKeys keys used to sort the list
+     * @param pageSize page size in the virtual list
+     * @return search results in virtual list
+     * @exception EBaseException failed to search
+     */
+    public <T> IDBVirtualList<T> createVirtualList(String base, String filter,
+            String attrs[], String sortKeys[], int pageSize)
             throws EBaseException;
 
     /**

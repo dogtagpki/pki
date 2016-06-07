@@ -20,6 +20,13 @@ package com.netscape.cmscore.dbs;
 import java.util.Arrays;
 import java.util.Vector;
 
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.dbs.IDBRegistry;
+import com.netscape.certsrv.dbs.IDBVirtualList;
+import com.netscape.certsrv.dbs.IElementProcessor;
+import com.netscape.certsrv.logging.ILogger;
+
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPControl;
 import netscape.ldap.LDAPEntry;
@@ -29,13 +36,6 @@ import netscape.ldap.LDAPSortKey;
 import netscape.ldap.controls.LDAPSortControl;
 import netscape.ldap.controls.LDAPVirtualListControl;
 import netscape.ldap.controls.LDAPVirtualListResponse;
-
-import com.netscape.certsrv.apps.CMS;
-import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.dbs.IDBRegistry;
-import com.netscape.certsrv.dbs.IDBVirtualList;
-import com.netscape.certsrv.dbs.IElementProcessor;
-import com.netscape.certsrv.logging.ILogger;
 
 /**
  * A class represents a virtual list of search results.
@@ -305,36 +305,29 @@ public class DBVirtualList<E> implements IDBVirtualList<E> {
      * @param sortKey the attributes to sort by
      */
     public void setSortKey(String[] sortKeys) throws EBaseException {
+
         if (sortKeys == null)
             throw new EBaseException("sort keys cannot be null");
-        try {
-            mKeys = new LDAPSortKey[sortKeys.length];
-            String la[] = null;
-            synchronized (this) {
-                la = mRegistry.getLDAPAttributes(sortKeys);
-            }
 
-            for (int j = 0; j < sortKeys.length; j++) {
-                mKeys[j] = new LDAPSortKey(la[j]);
-            }
-        } catch (Exception e) {
-
-            /*LogDoc
-             *
-             * @phase local ldap search
-             * @reason Failed at setSortKey.
-             * @message DBVirtualList: <exception thrown>
-             */
-            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_DB, ILogger.LL_FAILURE,
-                    CMS.getLogMessage("OPERATION_ERROR", e.toString()));
+        mKeys = new LDAPSortKey[sortKeys.length];
+        String la[] = null;
+        synchronized (this) {
+            la = mRegistry.getLDAPAttributes(sortKeys);
         }
+
+        if (la == null)
+            throw new EBaseException("sort keys cannot be null");
+
+        for (int i = 0; i < sortKeys.length; i++) {
+            mKeys[i] = new LDAPSortKey(la[i]);
+        }
+
         // Paged results also require a sort control
-        if (mKeys != null) {
-            mPageControls[0] =
-                    new LDAPSortControl(mKeys, true);
-        } else {
+        if (mKeys == null) {
             throw new EBaseException("sort keys cannot be null");
         }
+
+        mPageControls[0] = new LDAPSortControl(mKeys, true);
     }
 
     /**

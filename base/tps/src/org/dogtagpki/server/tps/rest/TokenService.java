@@ -268,7 +268,8 @@ public class TokenService extends PKIService implements TokenResource {
             TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
             TokenDatabase database = subsystem.getTokenDatabase();
 
-            IDBVirtualList<TokenRecord> list = database.findRecords(filter, null, "modifyTimestamp", size);
+            IDBVirtualList<TokenRecord> list = database.findRecords(
+                    filter, null, new String[] { "-modifyTimestamp", "-createTimestamp" }, size);
             int total = list.getSize();
 
             TokenCollection response = new TokenCollection();

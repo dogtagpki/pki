@@ -20,10 +20,9 @@ package com.netscape.cmscore.dbs;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.Vector;
-
-import netscape.ldap.LDAPAttribute;
-import netscape.ldap.LDAPAttributeSet;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
@@ -36,6 +35,9 @@ import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.dbs.IDBRegistry;
 import com.netscape.certsrv.dbs.IFilterConverter;
 import com.netscape.certsrv.logging.ILogger;
+
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPAttributeSet;
 
 /**
  * A class represents a registry where all the
@@ -362,21 +364,31 @@ public class DBRegistry implements IDBRegistry, ISubsystem {
      */
     public String[] getLDAPAttributes(String attrs[])
             throws EBaseException {
-        IDBAttrMapper mapper;
 
         if (attrs == null)
             return null;
-        Vector<String> v = new Vector<String>();
+
+        // ignore duplicates, maintain order
+        Set<String> v = new LinkedHashSet<String>();
 
         for (int i = 0; i < attrs.length; i++) {
 
-            if (attrs[i].equals("objectclass")) {
-                v.addElement("objectclass");
+            String attr = attrs[i];
+            String prefix = "";
+
+            // check reverse sort order
+            if (attr.startsWith("-")) {
+                attr = attr.substring(1);
+                prefix = "-";
+            }
+
+            if (attr.equalsIgnoreCase("objectclass")) {
+                v.add(prefix + attr);
                 continue;
             }
 
-            if (isAttributeRegistered(attrs[i])) {
-                mapper = mAttrufNames.get(attrs[i].toLowerCase());
+            if (isAttributeRegistered(attr)) {
+                IDBAttrMapper mapper = mAttrufNames.get(attr.toLowerCase());
                 if (mapper == null) {
                     throw new EDBException(CMS.getUserMessage("CMS_DBS_INVALID_ATTRS"));
                 }
@@ -384,24 +396,23 @@ public class DBRegistry implements IDBRegistry, ISubsystem {
 
                 while (e.hasMoreElements()) {
                     String s = e.nextElement();
-
-                    if (!v.contains(s)) {
-                        v.addElement(s);
-                    }
+                    v.add(prefix + s);
                 }
+
             } else {
                 IDBDynAttrMapper matchingDynAttrMapper = null;
                 // check if a dynamic mapper can handle the attribute
                 for (Iterator<IDBDynAttrMapper> dynMapperIter = mDynAttrMappers.iterator(); dynMapperIter.hasNext();) {
-                    IDBDynAttrMapper dynAttrMapper =
-                            dynMapperIter.next();
-                    if (dynAttrMapper.supportsLDAPAttributeName(attrs[i])) {
+                    IDBDynAttrMapper dynAttrMapper = dynMapperIter.next();
+                    if (dynAttrMapper.supportsLDAPAttributeName(attr)) {
                         matchingDynAttrMapper = dynAttrMapper;
                         break;
                     }
                 }
+
                 if (matchingDynAttrMapper != null) {
-                    v.addElement(attrs[i]);
+                    v.add(prefix + attr);
+
                 } else {
                     /*LogDoc
                      *
@@ -410,17 +421,18 @@ public class DBRegistry implements IDBRegistry, ISubsystem {
                      * @message DBRegistry: <attr> is not registered
                      */
                     mLogger.log(ILogger.EV_SYSTEM, ILogger.S_DB,
-                            ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_DBS_ATTR_NOT_REGISTER", attrs[i]));
-                    throw new EDBException(CMS.getLogMessage("CMSCORE_DBS_ATTR_NOT_REGISTER", attrs[i]));
+                            ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_DBS_ATTR_NOT_REGISTER", attr));
+                    throw new EDBException(CMS.getLogMessage("CMSCORE_DBS_ATTR_NOT_REGISTER", attr));
                 }
             }
-
         }
+
         if (v.size() == 0)
             return null;
-        String ldapAttrs[] = new String[v.size()];
 
-        v.copyInto(ldapAttrs);
+        String ldapAttrs[] = new String[v.size()];
+        v.toArray(ldapAttrs);
+
         return ldapAttrs;
     }
 

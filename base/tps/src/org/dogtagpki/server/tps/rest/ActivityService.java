@@ -121,7 +121,7 @@ public class ActivityService extends PKIService implements ActivityResource {
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             ActivityDatabase database = subsystem.getActivityDatabase();
 
-            IDBVirtualList<ActivityRecord> list = database.findRecords(filter, null, "date", size);
+            IDBVirtualList<ActivityRecord> list = database.findRecords(filter, null, new String[] { "-date" }, size);
             int total = list.getSize();
 
             ActivityCollection response = new ActivityCollection();

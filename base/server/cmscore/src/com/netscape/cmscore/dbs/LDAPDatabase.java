@@ -142,7 +142,7 @@ public abstract class LDAPDatabase<E extends IDBObj> extends Database<E> {
     }
 
     public IDBVirtualList<E> findRecords(String keyword, Map<String, String> attributes,
-            String sortKey, int pageSize) throws Exception {
+            String[] sortKeys, int pageSize) throws Exception {
 
         CMS.debug("LDAPDatabase: findRecords()");
 
@@ -154,8 +154,8 @@ public abstract class LDAPDatabase<E extends IDBObj> extends Database<E> {
             return session.<E>createVirtualList(
                     baseDN,
                     ldapFilter,
-                    null,
-                    sortKey,
+                    (String[]) null,
+                    sortKeys,
                     pageSize);
         }
     }

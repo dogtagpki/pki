@@ -38,12 +38,12 @@ dn: cn=listTokensIndex,cn=listTokens,cn={database},cn=ldbm database,cn=plugins,c
 cn: listTokensIndex
 objectClass: top
 objectClass: vlvindex
-vlvSort: dateOfModify
+vlvSort: -dateOfModify -dateOfCreate
 vlvUses: 0
 
 dn: cn=listActivitiesIndex,cn=listActivities,cn={database},cn=ldbm database,cn=plugins,cn=config
 cn: listActivitiesIndex
 objectClass: top
 objectClass: vlvindex
-vlvSort: dateOfCreate
+vlvSort: -dateOfCreate
 vlvUses: 0
