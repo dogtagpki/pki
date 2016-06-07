@@ -424,7 +424,7 @@ Requires:         jpackage-utils >= 0:1.7.5-10
 Requires:         tomcat-servlet-3.1-api
 %else
 %if 0%{?fedora} >= 22
-Requires:         tomcat-servlet-3.0-api
+Requires:         tomcat-servlet-3.0-api >= 7.0.68
 %endif
 %endif
 
@@ -486,17 +486,17 @@ Requires:         selinux-policy-targeted >= 3.12.1-153
 Obsoletes:        pki-selinux
 
 %if 0%{?rhel}
-Requires:         tomcat >= 7.0.54
+Requires:         tomcat >= 7.0.69
 %else
-Requires:         tomcat >= 7.0.47
+Requires:         tomcat >= 7.0.68
 %if 0%{?fedora} >= 23
 Requires:         tomcat-el-3.0-api
 Requires:         tomcat-jsp-2.3-api
 Requires:         tomcat-servlet-3.1-api
 %else
-Requires:         tomcat-el-2.2-api
-Requires:         tomcat-jsp-2.2-api
-Requires:         tomcat-servlet-3.0-api
+Requires:         tomcat-el-2.2-api >= 7.0.68
+Requires:         tomcat-jsp-2.2-api >= 7.0.68
+Requires:         tomcat-servlet-3.0-api >= 7.0.68
 %endif
 %endif
 
@@ -1151,6 +1151,9 @@ systemctl daemon-reload
 %changelog
 * Tue Jun  7 2016 Dogtag Team <pki-devel@redhat.com> 10.3.3-0.1
 - Updated version number to 10.3.3-0.1
+
+* Tue Jun  7 2016 Dogtag Team <pki-devel@redhat.com> 10.3.2-2
+- Updated tomcat version dependencies
 
 * Tue Jun  7 2016 Dogtag Team <pki-devel@redhat.com> 10.3.2-1
 - Updated version number to 10.3.2-1
