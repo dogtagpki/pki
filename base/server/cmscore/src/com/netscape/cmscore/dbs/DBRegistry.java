@@ -320,7 +320,7 @@ public class DBRegistry implements IDBRegistry, ISubsystem {
 
         // if value contains no '*', then it is equality
         if (value.indexOf('*') == -1) {
-            if (type.equals("objectclass")) {
+            if (type.equalsIgnoreCase("objectclass")) {
                 String ldapNames[] = mOCclassNames.get(value);
 
                 if (ldapNames == null)

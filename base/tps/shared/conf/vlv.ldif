@@ -23,7 +23,7 @@ cn: listtokens
 objectClass: top
 objectClass: vlvsearch
 vlvBase: ou=Tokens,{rootSuffix}
-vlvFilter: (&(cn=*)(tokenUserID=*))
+vlvFilter: (&(objectClass=top)(objectClass=tokenRecord))
 vlvScope: 1
 
 dn: cn=listActivities,cn={database},cn=ldbm database,cn=plugins,cn=config
@@ -31,7 +31,7 @@ cn: listActivities
 objectClass: top
 objectClass: vlvsearch
 vlvBase: ou=Activities,{rootSuffix}
-vlvFilter: (&(tokenID=*)(tokenUserID=*))
+vlvFilter: (&(objectClass=top)(objectClass=tokenActivity))
 vlvScope: 1
 
 dn: cn=listTokensIndex,cn=listTokens,cn={database},cn=ldbm database,cn=plugins,cn=config
