@@ -8,6 +8,17 @@
 %global with_python3 1
 %endif
 
+%if 0%{?rhel}
+# Package RHEL-specific RPMS Only
+%global package_rhel_packages 1
+# Package RHCS-specific RPMS Only
+%global package_rhcs_packages 1
+%else
+# 0%{?fedora}
+# Fedora always packages all RPMS
+%global package_fedora_packages 1
+%endif
+
 # Tomcat
 %if 0%{?fedora} >= 23
 %define with_tomcat7 0
@@ -43,7 +54,7 @@
 
 Name:             pki-core
 Version:          10.3.2
-Release:          0.1%{?dist}
+Release:          1%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -919,13 +930,16 @@ systemctl daemon-reload
 %endif # %{with server}
 
 
+%if 0%{?package_fedora_packages} || 0%{?package_rhel_packages}
 %files -n pki-symkey
 %defattr(-,root,root,-)
 %doc base/symkey/LICENSE
 %{_jnidir}/symkey.jar
 %{_libdir}/symkey/
+%endif
 
 
+%if 0%{?package_fedora_packages} || 0%{?package_rhel_packages}
 %files -n pki-base
 %defattr(-,root,root,-)
 %doc base/common/LICENSE
@@ -942,20 +956,26 @@ systemctl daemon-reload
 %{_sbindir}/pki-upgrade
 %{_mandir}/man8/pki-upgrade.8.gz
 %{_mandir}/man1/pki-python-client.1.gz
+%endif
 
+%if 0%{?package_fedora_packages} || 0%{?package_rhel_packages}
 %files -n pki-base-java
 %dir %{_javadir}/pki
 %{_javadir}/pki/pki-cmsutil.jar
 %{_javadir}/pki/pki-nsutil.jar
 %{_javadir}/pki/pki-certsrv.jar
+%endif
 
+%if 0%{?package_fedora_packages} || 0%{?package_rhel_packages}
 %if %{with_python3}
 %files -n pki-base-python3
 %defattr(-,root,root,-)
 %doc base/common/LICENSE
 %{python3_sitelib}/pki
 %endif # with_python3
+%endif
 
+%if 0%{?package_fedora_packages} || 0%{?package_rhel_packages}
 %files -n pki-tools
 %defattr(-,root,root,-)
 %doc base/native-tools/LICENSE base/native-tools/doc/README
@@ -1002,9 +1022,11 @@ systemctl daemon-reload
 %{_mandir}/man1/pki-user-membership.1.gz
 %{_mandir}/man1/pki-ca-profile.1.gz
 %{_mandir}/man1/pki-tps-profile.1.gz
+%endif
 
 %if %{with server}
 
+%if 0%{?package_fedora_packages} || 0%{?package_rhel_packages}
 %files -n pki-server
 %defattr(-,root,root,-)
 %doc base/common/THIRD_PARTY_LICENSES
@@ -1046,8 +1068,10 @@ systemctl daemon-reload
 
 %{_datadir}/pki/setup/
 %{_datadir}/pki/server/
+%endif
 
 
+%if 0%{?package_fedora_packages} || 0%{?package_rhel_packages}
 %files -n pki-ca
 %defattr(-,root,root,-)
 %doc base/ca/LICENSE
@@ -1059,7 +1083,9 @@ systemctl daemon-reload
 %{_datadir}/pki/ca/profiles/ca/
 %{_datadir}/pki/ca/setup/
 %{_datadir}/pki/ca/webapps/
+%endif
 
+%if 0%{?package_fedora_packages} || 0%{?package_rhel_packages}
 %files -n pki-kra
 %defattr(-,root,root,-)
 %doc base/kra/LICENSE
@@ -1068,7 +1094,9 @@ systemctl daemon-reload
 %{_datadir}/pki/kra/conf/
 %{_datadir}/pki/kra/setup/
 %{_datadir}/pki/kra/webapps/
+%endif
 
+%if 0%{?package_fedora_packages} || 0%{?package_rhcs_packages}
 %files -n pki-ocsp
 %defattr(-,root,root,-)
 %doc base/ocsp/LICENSE
@@ -1077,7 +1105,9 @@ systemctl daemon-reload
 %{_datadir}/pki/ocsp/conf/
 %{_datadir}/pki/ocsp/setup/
 %{_datadir}/pki/ocsp/webapps/
+%endif
 
+%if 0%{?package_fedora_packages} || 0%{?package_rhcs_packages}
 %files -n pki-tks
 %defattr(-,root,root,-)
 %doc base/tks/LICENSE
@@ -1086,7 +1116,9 @@ systemctl daemon-reload
 %{_datadir}/pki/tks/conf/
 %{_datadir}/pki/tks/setup/
 %{_datadir}/pki/tks/webapps/
+%endif
 
+%if 0%{?package_fedora_packages} || 0%{?package_rhcs_packages}
 %files -n pki-tps
 %defattr(-,root,root,-)
 %doc base/tps/LICENSE
@@ -1104,16 +1136,22 @@ systemctl daemon-reload
 %{_bindir}/tpsclient
 %{_libdir}/tps/libtps.so
 %{_libdir}/tps/libtokendb.so
+%endif
 
+%if 0%{?package_fedora_packages} || 0%{?package_rhel_packages}
 %if %{with javadoc}
 %files -n pki-javadoc
 %defattr(-,root,root,-)
 %{_javadocdir}/pki-%{version}/
 %endif
+%endif
 
 %endif # %{with server}
 
 %changelog
+* Tue Jun  7 2016 Dogtag Team <pki-devel@redhat.com> 10.3.2-1
+- Updated version number to 10.3.2-1
+
 * Wed May 18 2016 Dogtag Team <pki-devel@redhat.com> 10.3.2-0.1
 - Updated version number to 10.3.2-0.1
 
