@@ -52,7 +52,6 @@ public class RequestTransfer {
             IRequest.CERT_FILTER,
             "keyRecord",
             "uid", // UidPwdDirAuthentication.CRED_UID,
-            "udn", // UdnPwdDirAuthentication.CRED_UDN,
     };
 
     public static boolean isProfileRequest(IRequest request) {

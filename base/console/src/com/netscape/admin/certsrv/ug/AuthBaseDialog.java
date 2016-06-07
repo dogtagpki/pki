@@ -110,8 +110,6 @@ public class AuthBaseDialog extends JDialog
                 mAuthName.setText("PinDirEnrollment");
             else if (!userDirExist && str.equals("UidPwdDirAuth"))
                 mAuthName.setText("UserDirEnrollment");
-            else if (!userDirExist && str.equals("UdnPwdDirAuth"))
-                mAuthName.setText("UserDnEnrollment");
             else if (!userDirExist && str.equals("UserPwdDirAuth"))
                 mAuthName.setText("UserDirAuth");
             // Inserted by beomsuk
