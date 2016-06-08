@@ -64,7 +64,7 @@ BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:    cmake >= 2.8.9-1
 BuildRequires:    zip
-BuildRequires:    java-devel >= 1:1.7.0
+BuildRequires:    java-devel >= 1:1.8.0
 BuildRequires:    redhat-rpm-config
 BuildRequires:    ldapjdk
 BuildRequires:    apache-commons-cli
@@ -280,7 +280,7 @@ least one PKI Theme package:                                           \
 Summary:          Symmetric Key JNI Package
 Group:            System Environment/Libraries
 
-Requires:         java-headless >= 1:1.7.0
+Requires:         java-headless >= 1:1.8.0
 Requires:         nss
 Requires:         jpackage-utils >= 0:1.7.5-10
 Requires:         jss >= 4.2.6-40
@@ -334,7 +334,7 @@ Requires:         apache-commons-io
 Requires:         apache-commons-lang
 Requires:         apache-commons-logging
 Requires:         jakarta-commons-httpclient
-Requires:         java-headless >= 1:1.7.0
+Requires:         java-headless >= 1:1.8.0
 Requires:         javassist
 Requires:         jpackage-utils >= 0:1.7.5-10
 Requires:         jss >= 4.2.6-40
@@ -416,7 +416,7 @@ Obsoletes:        pki-java-tools < %{version}-%{release}
 Requires:         openldap-clients
 Requires:         nss
 Requires:         nss-tools
-Requires:         java-headless >= 1:1.7.0
+Requires:         java-headless >= 1:1.8.0
 Requires:         pki-base = %{version}-%{release}
 Requires:         pki-base-java = %{version}-%{release}
 Requires:         jpackage-utils >= 0:1.7.5-10
@@ -453,7 +453,7 @@ Obsoletes:        pki-deploy < %{version}-%{release}
 Obsoletes:        pki-setup < %{version}-%{release}
 Obsoletes:        pki-silent < %{version}-%{release}
 
-Requires:         java-headless >= 1:1.7.0
+Requires:         java-headless >= 1:1.8.0
 Requires:         net-tools
 
 Requires:         python-ldap
@@ -536,7 +536,7 @@ Group:            System Environment/Daemons
 
 BuildArch:        noarch
 
-Requires:         java-headless >= 1:1.7.0
+Requires:         java-headless >= 1:1.8.0
 Requires:         pki-server = %{version}-%{release}
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
@@ -563,7 +563,7 @@ Group:            System Environment/Daemons
 
 BuildArch:        noarch
 
-Requires:         java-headless >= 1:1.7.0
+Requires:         java-headless >= 1:1.8.0
 Requires:         pki-server = %{version}-%{release}
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
@@ -596,7 +596,7 @@ Group:            System Environment/Daemons
 
 BuildArch:        noarch
 
-Requires:         java-headless >= 1:1.7.0
+Requires:         java-headless >= 1:1.8.0
 Requires:         pki-server = %{version}-%{release}
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
@@ -636,7 +636,7 @@ Group:            System Environment/Daemons
 
 BuildArch:        noarch
 
-Requires:         java-headless >= 1:1.7.0
+Requires:         java-headless >= 1:1.8.0
 Requires:         pki-server = %{version}-%{release}
 Requires:         pki-symkey = %{version}-%{release}
 Requires(post):   systemd-units
@@ -675,7 +675,7 @@ Provides:         pki-tps-client
 Obsoletes:        pki-tps-tomcat
 Obsoletes:        pki-tps-client
 
-Requires:         java-headless >= 1:1.7.0
+Requires:         java-headless >= 1:1.8.0
 Requires:         pki-server = %{version}-%{release}
 Requires(post):   systemd-units
 Requires(preun):  systemd-units

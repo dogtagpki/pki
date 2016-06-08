@@ -11,7 +11,7 @@ BuildArch:        noarch
 BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:    cmake
-BuildRequires:    java-devel >= 1:1.7.0
+BuildRequires:    java-devel >= 1:1.8.0
 BuildRequires:    jpackage-utils >= 1.7.5-10
 
 %if 0%{?rhel}
@@ -91,7 +91,7 @@ This package is used by the Dogtag Certificate System.
 Summary:          Certificate System - PKI Console User Interface
 Group:            System Environment/Base
 
-Requires:         java >= 1:1.7.0
+Requires:         java >= 1:1.8.0
 
 %if 0%{?rhel}
 # EPEL version of Dogtag "theme" conflicts with all versions of Red Hat "theme"
