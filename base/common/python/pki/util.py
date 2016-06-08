@@ -123,3 +123,15 @@ def chown(path, uid, gid):
             os.chown(itempath, uid, gid)
         elif os.path.isdir(itempath):
             chown(itempath, uid, gid)
+
+
+def customize_file(input_file, output_file, params):
+    """
+    Customize a file with specified parameters.
+    """
+
+    with open(input_file) as infile, open(output_file, 'w') as outfile:
+        for line in infile:
+            for src, target in params.items():
+                line = line.replace(src, target)
+            outfile.write(line)

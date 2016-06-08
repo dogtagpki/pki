@@ -35,6 +35,7 @@ import tempfile
 
 import pki
 import pki.nssdb
+import pki.util
 
 INSTANCE_BASE_DIR = '/var/lib/pki'
 REGISTRY_DIR = '/etc/sysconfig/pki'
@@ -369,6 +370,15 @@ class PKISubsystem(object):
         connection.open()
 
         return connection
+
+    def customize_file(self, input_file, output_file):
+        params = {
+            '{instanceId}': self.instance.name,
+            '{database}': self.config['internaldb.database'],
+            '{rootSuffix}': self.config['internaldb.basedn']
+        }
+
+        pki.util.customize_file(input_file, output_file, params)
 
     def __repr__(self):
         return str(self.instance) + '/' + self.name
