@@ -293,66 +293,6 @@ run_admin-subca-authplugin_tests()
         rlAssertGrep "ldapByteAttributes=$LDAP_BYTE_ATTR" "$admin_out"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_console_authplugin_subca-009:SUBCA - Admin Interface - Add udnpwddirauth plugin"
-        local plugin_id="plug$RANDOM"
-	header_009="$TmpDir/subca_auth_009.txt"
-        local OP_TYPE="OP_ADD"
-        local LDAP_BYTE_ATTR="mail"
-	admin_out="$TmpDir/admin_out_addudnpwddirauth"
-        rlLog "Add udnpwddirauth auth plugin $plugin_id"
-	rlLog "curl --capath "$CERTDB_DIR" --basic \
-                --dump-header  $header_009 \
-                --user "$valid_admin_user:$valid_admin_user_password" \
-                -d \"OP_TYPE=$OP_TYPE&OP_SCOPE=instance&RS_ID=$plugin_id&implName=UdnPwdDirAuth&RULENAME=$plugin_id&ldap.ldapconn.host=$LDAP_HOST&dnpattern=$LDAP_DN_PATTERN&ldapStringAttributes=$LDAP_STR_ATTR&ldap.ldapconn.version=3&ldap.ldapconn.port=$ROOTCA_LDAP_PORT&ldap.maxConns=$LDAP_MAX_CONNS&ldap.basedn=$ROOTCA_DB_SUFFIX&ldap.minConns=$LDAP_MIN_CONNS&ldap.ldapconn.secureConn=$LDAP_SEC_CONN&ldapByteAttributes=$LDAP_BYTE_ATTR&\" \
-                -k https://$tmp_ca_host:$target_secure_port/ca/auths >> $admin_out"
-	rlRun "curl --capath "$CERTDB_DIR" --basic \
-		--dump-header  $header_009 \
-		--user "$valid_admin_user:$valid_admin_user_password" \
-                -d \"OP_TYPE=$OP_TYPE&OP_SCOPE=instance&RS_ID=$plugin_id&implName=UdnPwdDirAuth&RULENAME=$plugin_id&ldap.ldapconn.host=$LDAP_HOST&dnpattern=$LDAP_DN_PATTERN&ldapStringAttributes=$LDAP_STR_ATTR&ldap.ldapconn.version=3&ldap.ldapconn.port=$ROOTCA_LDAP_PORT&ldap.maxConns=$LDAP_MAX_CONNS&ldap.basedn=$ROOTCA_DB_SUFFIX&ldap.minConns=$LDAP_MIN_CONNS&ldap.ldapconn.secureConn=$LDAP_SEC_CONN&ldapByteAttributes=$LDAP_BYTE_ATTR&\" \
-                -k https://$tmp_ca_host:$target_secure_port/ca/auths >> $admin_out" 0 "Add udnpwddirauth auth plugin $plugin_id"
-	rlAssertGrep "HTTP/1.1 200 OK" "$header_009"
-        rlRun "curl --capath "$CERTDB_DIR" --basic \
-		--dump-header  $header_009 \
-		--user "$valid_admin_user:$valid_admin_user_password" \
-                -d \"OP_TYPE=OP_SEARCH&OP_SCOPE=instance&\" \
-                -k https://$tmp_ca_host:$target_secure_port/ca/auths >> $admin_out" 0 "List all auth plugins"
-        rlRun "process_curl_output $admin_out" 0 "Process curl output file"
-	rlAssertGrep "HTTP/1.1 200 OK" "$header_009"
-        rlAssertGrep "$plugin_id" "$admin_out"
-        rlPhaseEnd
-
-	rlPhaseStartTest "pki_console_authplugin_subca-010:SUBCA - Admin Interface - Edit udnpwddirauth plugin"
-	header_010="$TmpDir/subca_auth_010.txt"
-        local OP_TYPE="OP_MODIFY"
-        local LDAP_BYTE_ATTR="uid"
-	admin_out="$TmpDir/admin_out_editudnpwddirauth"
-        rlLog "Edit udnpwddirauth auth plugin $plugin_id"
-	rlLog "curl --capath "$CERTDB_DIR" \
-                --dump-header  $header_010 \
-                --basic --user "$valid_admin_user:$valid_admin_user_password" \
-                -d \"OP_TYPE=$OP_TYPE&OP_SCOPE=instance&RS_ID=$plugin_id&implName=UdnPwdDirAuth&RULENAME=$plugin_id&ldap.ldapconn.host=$LDAP_HOST&dnpattern=$LDAP_DN_PATTERN&ldapStringAttributes=$LDAP_STR_ATTR&ldap.ldapconn.version=3&ldap.ldapconn.port=$ROOTCA_LDAP_PORT&ldap.maxConns=$LDAP_MAX_CONNS&ldap.basedn=$ROOTCA_DB_SUFFIX&ldap.minConns=$LDAP_MIN_CONNS&ldap.ldapconn.secureConn=$LDAP_SEC_CONN&ldapByteAttributes=$LDAP_BYTE_ATTR&\" \
-                -k https://$tmp_ca_host:$target_secure_port/ca/auths >> $admin_out"
-        rlRun "curl --capath "$CERTDB_DIR" \
-		--dump-header  $header_010 \
-		--basic --user "$valid_admin_user:$valid_admin_user_password" \
-                -d \"OP_TYPE=$OP_TYPE&OP_SCOPE=instance&RS_ID=$plugin_id&implName=UdnPwdDirAuth&RULENAME=$plugin_id&ldap.ldapconn.host=$LDAP_HOST&dnpattern=$LDAP_DN_PATTERN&ldapStringAttributes=$LDAP_STR_ATTR&ldap.ldapconn.version=3&ldap.ldapconn.port=$ROOTCA_LDAP_PORT&ldap.maxConns=$LDAP_MAX_CONNS&ldap.basedn=$ROOTCA_DB_SUFFIX&ldap.minConns=$LDAP_MIN_CONNS&ldap.ldapconn.secureConn=$LDAP_SEC_CONN&ldapByteAttributes=$LDAP_BYTE_ATTR&\" \
-                -k https://$tmp_ca_host:$target_secure_port/ca/auths >> $admin_out" 0 "Edit udnpwddirauth auth plugin $plugin_id"
-	rlAssertGrep "HTTP/1.1 200 OK" "$header_010"
-	rlLog "curl --capath "$CERTDB_DIR" --basic \
-                --dump-header  $header_010 \
-                --user "$valid_admin_user:$valid_admin_user_password" \
-                -d \"OP_TYPE=OP_READ&OP_SCOPE=instance&RS_ID=$plugin_id&\" \
-                -k https://$tmp_ca_host:$target_secure_port/ca/auths >> $admin_out"
-	rlRun "curl --capath "$CERTDB_DIR" --basic \
-		--dump-header  $header_010 \
-		--user "$valid_admin_user:$valid_admin_user_password" \
-                -d \"OP_TYPE=OP_READ&OP_SCOPE=instance&RS_ID=$plugin_id&\" \
-                -k https://$tmp_ca_host:$target_secure_port/ca/auths >> $admin_out" 0 "Verify UdnPwdDirAuth auth plugin $plugin_id modification"
-        rlRun "process_curl_output $admin_out" 0 "Process curl output file"
-	rlAssertGrep "HTTP/1.1 200 OK" "$header_010"
-        rlAssertGrep "ldapByteAttributes=$LDAP_BYTE_ATTR" "$admin_out"
-        rlPhaseEnd
-
 	rlPhaseStartTest "pki_console_authplugin_subca-011:SUBCA - Admin Interface - Delete auth plugin"
         local OP_TYPE="OP_DELETE"
 	header_011="$TmpDir/subca_auth_011.txt"
