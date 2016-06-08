@@ -162,6 +162,9 @@ cd build
 * Tue Jun  7 2016 Dogtag Team <pki-devel@redhat.com> 10.3.3-0.1
 - Updated version number to 10.3.3-0.1
 
+* Tue Jun  7 2016 Dogtag Team <pki-devel@redhat.com> 10.3.2-2
+- Updated 'java', 'java-headless', and 'java-devel' dependencies to 1:1.8.0.
+
 * Tue Jun  7 2016 Dogtag Team <pki-devel@redhat.com> 10.3.2-1
 - Updated version number to 10.3.2-1
 
