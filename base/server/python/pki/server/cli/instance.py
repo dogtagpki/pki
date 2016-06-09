@@ -261,13 +261,6 @@ class InstanceShowCLI(pki.cli.CLI):
             self.print_help()
             sys.exit(1)
 
-        if len(args) != 1:
-            print('ERROR: missing instance ID')
-            self.print_help()
-            sys.exit(1)
-
-        instance_name = args[0]
-
         for o, _ in opts:
             if o in ('-v', '--verbose'):
                 self.set_verbose(True)
@@ -280,6 +273,13 @@ class InstanceShowCLI(pki.cli.CLI):
                 print('ERROR: unknown option ' + o)
                 self.print_help()
                 sys.exit(1)
+
+        if len(args) != 1:
+            print('ERROR: missing instance ID')
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = args[0]
 
         instance = pki.server.PKIInstance(instance_name)
         instance.load()
@@ -310,13 +310,6 @@ class InstanceStartCLI(pki.cli.CLI):
             self.print_help()
             sys.exit(1)
 
-        if len(args) != 1:
-            print('ERROR: missing instance ID')
-            self.print_help()
-            sys.exit(1)
-
-        instance_name = args[0]
-
         for o, _ in opts:
             if o in ('-v', '--verbose'):
                 self.set_verbose(True)
@@ -329,6 +322,13 @@ class InstanceStartCLI(pki.cli.CLI):
                 print('ERROR: unknown option ' + o)
                 self.print_help()
                 sys.exit(1)
+
+        if len(args) != 1:
+            print('ERROR: missing instance ID')
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = args[0]
 
         instance = pki.server.PKIInstance(instance_name)
         instance.load()
@@ -360,13 +360,6 @@ class InstanceStopCLI(pki.cli.CLI):
             self.print_help()
             sys.exit(1)
 
-        if len(args) != 1:
-            print('ERROR: missing instance ID')
-            self.print_help()
-            sys.exit(1)
-
-        instance_name = args[0]
-
         for o, _ in opts:
             if o in ('-v', '--verbose'):
                 self.set_verbose(True)
@@ -379,6 +372,13 @@ class InstanceStopCLI(pki.cli.CLI):
                 print('ERROR: unknown option ' + o)
                 self.print_help()
                 sys.exit(1)
+
+        if len(args) != 1:
+            print('ERROR: missing instance ID')
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = args[0]
 
         instance = pki.server.PKIInstance(instance_name)
         instance.load()
@@ -412,12 +412,6 @@ class InstanceMigrateCLI(pki.cli.CLI):
             self.print_help()
             sys.exit(1)
 
-        if len(args) != 1:
-            print('ERROR: missing instance ID')
-            self.print_help()
-            sys.exit(1)
-
-        instance_name = args[0]
         tomcat_version = None
 
         for o, a in opts:
@@ -439,6 +433,13 @@ class InstanceMigrateCLI(pki.cli.CLI):
                 print('ERROR: unknown option ' + o)
                 self.print_help()
                 sys.exit(1)
+
+        if len(args) != 1:
+            print('ERROR: missing instance ID')
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = args[0]
 
         if not tomcat_version:
             tomcat_version = pki.server.Tomcat.get_major_version()
@@ -484,13 +485,6 @@ class InstanceNuxwdogEnableCLI(pki.cli.CLI):
             self.print_help()
             sys.exit(1)
 
-        if len(args) != 1:
-            print('ERROR: missing instance ID')
-            self.print_help()
-            sys.exit(1)
-
-        instance_name = args[0]
-
         for o, _ in opts:
             if o in ('-v', '--verbose'):
                 self.set_verbose(True)
@@ -501,6 +495,13 @@ class InstanceNuxwdogEnableCLI(pki.cli.CLI):
                 print('ERROR: unknown option ' + o)
                 self.print_help()
                 sys.exit(1)
+
+        if len(args) != 1:
+            print('ERROR: missing instance ID')
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = args[0]
 
         module = self.get_top_module().find_module('nuxwdog-enable')
         module = pki.server.cli.nuxwdog.NuxwdogEnableCLI()
@@ -539,13 +540,6 @@ class InstanceNuxwdogDisableCLI(pki.cli.CLI):
             self.print_help()
             sys.exit(1)
 
-        if len(args) != 1:
-            print('ERROR: missing instance ID')
-            self.print_help()
-            sys.exit(1)
-
-        instance_name = args[0]
-
         for o, _ in opts:
             if o in ('-v', '--verbose'):
                 self.set_verbose(True)
@@ -556,6 +550,13 @@ class InstanceNuxwdogDisableCLI(pki.cli.CLI):
                 print('ERROR: unknown option ' + o)
                 self.print_help()
                 sys.exit(1)
+
+        if len(args) != 1:
+            print('ERROR: missing instance ID')
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = args[0]
 
         module = self.get_top_module().find_module('nuxwdog-disable')
         module.set_verbose(self.verbose)
