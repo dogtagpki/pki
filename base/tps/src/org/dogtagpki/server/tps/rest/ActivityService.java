@@ -21,6 +21,7 @@ package org.dogtagpki.server.tps.rest;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
+import java.util.Iterator;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
@@ -120,32 +121,20 @@ public class ActivityService extends PKIService implements ActivityResource {
         try {
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             ActivityDatabase database = subsystem.getActivityDatabase();
-
-            IDBVirtualList<ActivityRecord> list = database.findRecords(filter, null, new String[] { "-date" }, size);
-            int total = list.getSize();
-
             ActivityCollection response = new ActivityCollection();
 
-            // return entries in the requested page
-            for (int i = start; i < start + size && i < total; i++) {
-                ActivityRecord record = list.getElementAt(i);
-
-                if (record == null) {
-                    CMS.debug("ActivityService: Activity record not found");
-                    throw new PKIException("Activity record not found");
-                }
-
-                response.addEntry(createActivityData(record));
+            if (filter == null) {
+                retrieveActivitiesWithVLV(database, start, size, response);
+            } else {
+                retrieveActivitiesWithoutVLV(database, filter, start, size, response);
             }
-
-            response.setTotal(total);
 
             if (start > 0) {
                 URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start - size, 0)).build();
                 response.addLink(new Link("prev", uri));
             }
 
-            if (start+size < total) {
+            if (start + size < response.getTotal()) {
                 URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", start + size).build();
                 response.addLink(new Link("next", uri));
             }
@@ -156,6 +145,62 @@ public class ActivityService extends PKIService implements ActivityResource {
             CMS.debug(e);
             throw new PKIException(e.getMessage());
         }
+    }
+
+    protected void retrieveActivitiesWithVLV(
+            ActivityDatabase database,
+            Integer start,
+            Integer size,
+            ActivityCollection response) throws Exception {
+
+        // search with VLV sorted by date in reverse order
+        IDBVirtualList<ActivityRecord> list = database.findRecords(
+                null, null, new String[] { "-date" }, size);
+
+        int total = list.getSize();
+
+        // return entries in the requested page
+        for (int i = start; i < start + size && i < total; i++) {
+            ActivityRecord record = list.getElementAt(i);
+
+            if (record == null) {
+                CMS.debug("ActivityService: Activity record not found");
+                throw new PKIException("Activity record not found");
+            }
+
+            response.addEntry(createActivityData(record));
+        }
+
+        response.setTotal(total);
+    }
+
+    protected void retrieveActivitiesWithoutVLV(
+            ActivityDatabase database,
+            String filter,
+            Integer start,
+            Integer size,
+            ActivityCollection response) throws Exception {
+
+        // search without VLV
+        Iterator<ActivityRecord> activities = database.findRecords(filter).iterator();
+
+        // TODO: sort results by date in reverse order
+
+        int i = 0;
+
+        // skip to the start of the page
+        for (; i < start && activities.hasNext(); i++)
+            activities.next();
+
+        // return entries in the requested page
+        for (; i < start + size && activities.hasNext(); i++) {
+            ActivityRecord record = activities.next();
+            response.addEntry(createActivityData(record));
+        }
+
+        // count the total entries
+        for (; activities.hasNext(); i++) activities.next();
+        response.setTotal(i);
     }
 
     @Override

@@ -24,6 +24,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
@@ -267,33 +268,20 @@ public class TokenService extends PKIService implements TokenResource {
         try {
             TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
             TokenDatabase database = subsystem.getTokenDatabase();
-
-            IDBVirtualList<TokenRecord> list = database.findRecords(
-                    filter, null, new String[] { "-modifyTimestamp", "-createTimestamp" }, size);
-            int total = list.getSize();
-
             TokenCollection response = new TokenCollection();
 
-            // return entries up to the page size
-            for (int i = start; i < start + size && i < total; i++) {
-                TokenRecord record = list.getElementAt(i);
-
-                if (record == null) {
-                    CMS.debug("TokenService: Token record not found");
-                    throw new PKIException("Token record not found");
-                }
-
-                response.addEntry(createTokenData(record));
+            if (filter == null && attributes.isEmpty()) {
+                retrieveTokensWithVLV(database, start, size, response);
+            } else {
+                retrieveTokensWithoutVLV(database, filter, attributes, start, size, response);
             }
-
-            response.setTotal(total);
 
             if (start > 0) {
                 URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start - size, 0)).build();
                 response.addLink(new Link("prev", uri));
             }
 
-            if (start + size < total) {
+            if (start + size < response.getTotal()) {
                 URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", start + size).build();
                 response.addLink(new Link("next", uri));
             }
@@ -314,6 +302,66 @@ public class TokenService extends PKIService implements TokenResource {
             CMS.debug(e);
             throw new PKIException(e);
         }
+    }
+
+    protected void retrieveTokensWithVLV(
+            TokenDatabase database,
+            Integer start,
+            Integer size,
+            TokenCollection response) throws Exception {
+
+        // search with VLV sorted by date in reverse order
+        IDBVirtualList<TokenRecord> list = database.findRecords(
+                null, null, new String[] { "-modifyTimestamp", "-createTimestamp" }, size);
+
+        int total = list.getSize();
+
+        // return entries in the requested page
+        for (int i = start; i < start + size && i < total; i++) {
+            TokenRecord record = list.getElementAt(i);
+
+            if (record == null) {
+                CMS.debug("TokenService: Token record not found");
+                throw new PKIException("Token record not found");
+            }
+
+            response.addEntry(createTokenData(record));
+        }
+
+        response.setTotal(total);
+    }
+
+    protected void retrieveTokensWithoutVLV(
+            TokenDatabase database,
+            String filter,
+            Map<String, String> attributes,
+            Integer start,
+            Integer size,
+            TokenCollection response) throws Exception {
+
+        // search without VLV
+        Iterator<TokenRecord> tokens = database.findRecords(filter, attributes).iterator();
+
+        // TODO: sort results by date in reverse order
+
+        int i = 0;
+
+        // skip to the start of the page
+        for (; i < start && tokens.hasNext(); i++)
+            tokens.next();
+
+        // return entries in the requested page
+        for (; i < start + size && tokens.hasNext(); i++) {
+            TokenRecord record = tokens.next();
+
+            response.addEntry(createTokenData(record));
+        }
+
+        // count the total entries
+        for (; tokens.hasNext(); i++)
+            tokens.next();
+
+        response.setTotal(i);
     }
 
     @Override
