@@ -20,6 +20,7 @@ pki-server-instance \- Command-Line Interface for managing Certificate System in
 .SH SYNOPSIS
 .nf
 \fBpki-server [CLI options] instance\fR
+\fBpki-server [CLI options] instance-cert-export\fR
 \fBpki-server [CLI options] instance-find\fR
 \fBpki-server [CLI options] instance-show\fR <instance ID>
 \fBpki-server [CLI options] instance-start\fR <instance ID>
@@ -46,6 +47,15 @@ enabling or disabling password prompted instance startup using \fBnuxwdog\fR.
 \fBpki-server [CLI options] instance\fR
 .RS 4
 This command is to list available instance commands.
+.RE
+.PP
+\fBpki-server [CLI options] instance-cert-export\fR
+.RS 4
+This command is to export system certificates and keys to a PKCS #12 file.  The output
+filename and either a password or a password file are required.  If no nicknames
+are specified, all the system certificates will be exported.  Otherwise, it is
+possible to extract individual certificates (with or without their keys and trust arguments),
+and to append to an existing PKCS #12 file.
 .RE
 .PP
 \fBpki-server [CLI options] instance-find\fR
