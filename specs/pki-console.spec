@@ -14,7 +14,12 @@ BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:    cmake >= 2.8.9-1
 BuildRequires:    idm-console-framework
+%if 0%{?rhel}
+# HACK:  RHEL builds currently suppress 'Provides: java-devel' . . .
+BuildRequires:    java-1.8.0-openjdk-devel
+%else
 BuildRequires:    java-devel >= 1:1.8.0
+%endif
 BuildRequires:    ldapjdk
 BuildRequires:    nspr-devel
 BuildRequires:    nss-devel

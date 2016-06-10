@@ -11,7 +11,12 @@ BuildArch:        noarch
 BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:    cmake
+%if 0%{?rhel}
+# HACK:  RHEL builds currently suppress 'Provides: java-devel' . . .
+BuildRequires:    java-1.8.0-openjdk-devel
+%else
 BuildRequires:    java-devel >= 1:1.8.0
+%endif
 BuildRequires:    jpackage-utils >= 1.7.5-10
 
 %if 0%{?rhel}

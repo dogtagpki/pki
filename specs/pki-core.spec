@@ -64,7 +64,14 @@ BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:    cmake >= 2.8.9-1
 BuildRequires:    zip
+%if 0%{?rhel}
+# HACK:  RHEL builds currently suppress 'Provides: java-devel' . . .
+BuildRequires:    java-1.8.0-openjdk-devel
+# Add temporary build dependency on tomcat (override tomcatjss dependency)
+BuildRequires:    tomcat >= 7.0.69
+%else
 BuildRequires:    java-devel >= 1:1.8.0
+%endif
 BuildRequires:    redhat-rpm-config
 BuildRequires:    ldapjdk
 BuildRequires:    apache-commons-cli
