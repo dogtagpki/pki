@@ -324,6 +324,19 @@ The type of security used for the replication data.  This can be set to SSL (usi
 Hostname and port, or URI of the subsystem being cloned.  The URI format is https://<master_hostname>:<master_https_port>
 where the default master hostname and https port are set to be the security domain's hostname and https port.
 
+.SS CA SERIAL NUMBER PARAMETERS
+\x'-1'\fBpki_serial_number_range_start, pki_serial_number_range_end\fR
+.IP
+Sets the range of serial numbers to be used when issuing certificates.  Values here are hexadecimal (without the 0x prefix).  It is useful to override these values when migrating data from another CA, so that serial number conflicts do not occur.  Defaults to 1 and 10000000 respectively.
+.PP
+.B pki_request_number_range_start, pki_request_number_range_end
+.IP
+Sets the range of request numbers to be used by the CA.  Values here are decimal.  It is useful to override these values when migrating data from another CA, so that request number conflicts do not occur.  Defaults to 1 and 10000000 respectively.
+.PP
+.B pki_replica_number_range_start, pki_replica_number_range_end
+.IP
+Sets the range of replica numbers to be used by the CA.  These numbers are used to identify database replicas in a replication topology.  Values here are decimal.  Defaults to 1 and 100 respectively.
+
 .SS EXTERNAL CA CERTIFICATE PARAMETERS
 \x'-1'\fBpki_external\fR
 .IP
