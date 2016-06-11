@@ -20,6 +20,7 @@ package com.netscape.cmstools.system;
 import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Option;
 
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
@@ -34,10 +35,22 @@ public class KRAConnectorRemoveCLI extends CLI {
     public KRAConnectorRemoveCLI(KRAConnectorCLI kraConnectorCLI) {
         super("del", "Remove KRA connector from CA", kraConnectorCLI);
         this.kraConnectorCLI = kraConnectorCLI;
+
+        createOptions();
     }
 
     public void printHelp() {
-        formatter.printHelp(getFullName() + " <KRA Host> <KRA Port> [OPTIONS...]", options);
+        formatter.printHelp(getFullName() + " [OPTIONS...]", options);
+    }
+
+    public void createOptions() {
+        Option option = new Option(null, "host", true, "KRA host");
+        option.setArgName("host");
+        options.addOption(option);
+
+        option = new Option(null, "port", true, "KRA port");
+        option.setArgName("port");
+        options.addOption(option);
     }
 
     public void execute(String[] args) throws Exception {
@@ -61,17 +74,17 @@ public class KRAConnectorRemoveCLI extends CLI {
 
         String[] cmdArgs = cmd.getArgs();
 
-        if (cmdArgs.length != 2) {
+        if (cmdArgs.length != 0) {
             System.err.println("Error: Incorrect number of arguments specified.");
             printHelp();
             System.exit(-1);
         }
 
-        String kraHost = args[0];
-        String kraPort = args[1];
+        String kraHost = cmd.getOptionValue("host");
+        String kraPort = cmd.getOptionValue("port");
 
         kraConnectorCLI.kraConnectorClient.removeConnector(kraHost, kraPort);
 
-        MainCLI.printMessage("Removed KRA connector \""+kraHost + ":" + kraPort +"\"");
+        MainCLI.printMessage("Removed KRA host \"" + kraHost + ":" + kraPort + "\"");
     }
 }

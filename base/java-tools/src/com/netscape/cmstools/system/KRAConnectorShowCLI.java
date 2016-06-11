@@ -4,7 +4,6 @@ import java.util.Arrays;
 
 import com.netscape.certsrv.system.KRAConnectorInfo;
 import com.netscape.cmstools.cli.CLI;
-import com.netscape.cmstools.cli.MainCLI;
 
 public class KRAConnectorShowCLI extends CLI {
 
@@ -31,7 +30,6 @@ public class KRAConnectorShowCLI extends CLI {
 
         // Print the KRA Connector Information.
 
-        MainCLI.printMessage("KRA Connector Information");
         System.out.println();
         String host = info.getHost().trim();
         if (host.indexOf(' ') == -1) {

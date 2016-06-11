@@ -24,6 +24,7 @@ import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.PKIException;
@@ -52,14 +53,26 @@ public class KRAConnectorService extends PKIService implements KRAConnectorResou
     @Override
     public Response addConnector(KRAConnectorInfo info) {
 
-        if (info == null) throw new BadRequestException("KRA connector info is null.");
+        if (info == null) throw new BadRequestException("Missing KRA connector info.");
 
         try {
             KRAConnectorProcessor processor = new KRAConnectorProcessor(getLocale(headers));
             processor.addConnector(info);
             return createNoContentResponse();
         } catch (EBaseException e) {
-            e.printStackTrace();
+            CMS.debug(e);
+            throw new PKIException(e.getMessage());
+        }
+    }
+
+    @Override
+    public Response addHost(String host, String port) {
+        try {
+            KRAConnectorProcessor processor = new KRAConnectorProcessor(getLocale(headers));
+            processor.addHost(host, port);
+            return createNoContentResponse();
+        } catch (EBaseException e) {
+            CMS.debug(e);
             throw new PKIException(e.getMessage());
         }
     }
@@ -67,22 +80,17 @@ public class KRAConnectorService extends PKIService implements KRAConnectorResou
     @Override
     public Response removeConnector(String host, String port) {
 
-        if (host == null) throw new BadRequestException("KRA connector host is null.");
-        if (port == null) throw new BadRequestException("KRA connector port is null.");
+        if (host == null) throw new BadRequestException("Missing KRA connector host.");
+        if (port == null) throw new BadRequestException("Missing KRA connector port.");
 
         try {
             KRAConnectorProcessor processor = new KRAConnectorProcessor(getLocale(headers));
             processor.removeConnector(host, port);
             return createNoContentResponse();
         } catch (EBaseException e) {
-            e.printStackTrace();
+            CMS.debug(e);
             throw new PKIException(e.getMessage());
         }
-    }
-
-    @Override
-    public Response removeConnectorForm(String host, String port) {
-        return removeConnector(host, port);
     }
 
     @Override
@@ -92,7 +100,7 @@ public class KRAConnectorService extends PKIService implements KRAConnectorResou
             KRAConnectorProcessor processor = new KRAConnectorProcessor(getLocale(headers));
             return createOKResponse(processor.getConnectorInfo());
         } catch (EBaseException e) {
-            e.printStackTrace();
+            CMS.debug(e);
             throw new PKIException(e.getMessage());
         }
     }

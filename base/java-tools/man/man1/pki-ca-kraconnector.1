@@ -1,0 +1,98 @@
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH pki-ca-kraconnector 1 "June 10, 2016" "version 10.3" "PKI CA-KRA Connector Management Commands" Dogtag Team
+.\" Please adjust this date whenever revising the man page.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for man page specific macros, see man(7)
+.SH NAME
+pki-ca-kraconnector \- Command-Line Interface for managing CA-KRA connectors.
+
+.SH SYNOPSIS
+.nf
+\fBpki\fR [CLI options] \fBca-kraconnector\fR
+\fBpki\fR [CLI options] \fBca-kraconnector-show\fR
+\fBpki\fR [CLI options] \fBca-kraconnector-add\fR --input-file <input file> | --host <KRA host> --port <KRA port>
+\fBpki\fR [CLI options] \fBca-kraconnector-del\fR --host <KRA host> --port <KRA port>
+.fi
+
+.SH DESCRIPTION
+.PP
+The \fBpki-ca-kraconnector\fR commands provide command-line interfaces to manage CA-KRA
+connectors.  This command should be applied against CAs only.
+
+When keys are archived, the CA communicates with the KRA through authenticated
+persistent connections called Connectors.  Because the CA initiates the communication,
+the connector configuration is performed on the CA only.  A Connector is automatically
+configured on the issuing CA whenever a KRA is set up by \fBpkispawn\fR.
+
+A CA may have only one KRA connector.  This connector can be configured to talk to
+multiple KRAs (for high availability) only if the KRAs are clones.
+.PP
+\fBpki\fR [CLI options] \fBca-kraconnector\fR
+.RS 4
+This command is to list available KRA connector commands.
+.RE
+.PP
+\fBpki\fR [CLI options] \fBca-kraconnector-show\fR
+.RS 4
+This command is to view the configuration settings for the CA-KRA connector configured
+on the CA.  These details can be redirected to a file, modified as needed, and used as the
+input file for the \fBca-kraconnector-add\fR command.
+.RE
+.PP
+\fBpki\fR [CLI options] \fBca-kraconnector-add\fR --input-file <input_file>
+.RS 4
+This command is to configure the CA-KRA connector on the CA subsystem.  The input file
+is an XML document as provided by the \fBca-kraconnector-show\fR command.
+
+A CA-KRA connector can only be created from an input file only if a connector does not already
+exist.  If one already exists, it should be removed first.
+.RE
+.PP
+\fBpki\fR [CLI options] \fBca-kraconnector-add\fR --host <KRA host> --port <KRA Port>
+.RS 4
+This command is to add a host to an existing CA-KRA connector.
+.RE
+.PP
+\fBpki\fR [CLI options] \fBca-kraconnector-del\fR --host <KRA Host> --port <KRA Port>
+.RS 4
+This command is to delete a host from the CA-KRA connector on a CA.  If the last KRA
+host is removed, the connector configuration is removed from the CA.
+.RE
+
+.SH OPTIONS
+The CLI options are described in \fBpki\fR(1).
+
+.SH OPERATIONS
+To view available CA-KRA connector commands, type \fBpki ca-kraconnector\fP. To view each command's usage, type \fB pki ca-kraconnector-<command> \-\-help\fP.
+
+All CA-KRA connector commands must be executed as the CA administrator.
+
+To retrieve the CA-KRA connector configuration from the CA:
+
+.B pki <CA admin authentication> ca-kraconnector-show
+
+One of the most common use cases for these commands is to add a KRA clone to an existing CA-KRA connector for
+high availability.  This can be done using the pki ca-kraconnector-add command as shown:
+
+.B pki <CA admin authentication> ca-kraconnector-add --host kra2.example.com --port 8443
+
+To delete a KRA clone from the connector:
+
+.B pki <CA admin authentication> ca-kraconnector-del --host kra2.example.com --port 8443
+
+.SH AUTHOR
+Ade Lee <alee@redhat.com>.
+
+.SH COPYRIGHT
+Copyright (c) 2016 Red Hat, Inc. This is licensed under the GNU General Public License, version 2 (GPLv2). A copy of this license is available at http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.

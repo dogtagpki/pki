@@ -17,13 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.system;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.jboss.resteasy.annotations.ClientResponseType;
@@ -50,10 +47,9 @@ public interface KRAConnectorResource {
     public Response removeConnector(@QueryParam("host") String host, @QueryParam("port") String port);
 
     @POST
-    @Path("remove")
-    @Consumes({ MediaType.APPLICATION_FORM_URLENCODED })
+    @Path("addHost")
     @ClientResponseType(entityType=Void.class)
-    public Response removeConnectorForm(@FormParam("host") String host, @FormParam("port") String port);
+    public Response addHost(@QueryParam("host") String host, @QueryParam("port") String port);
 
     @GET
     @ClientResponseType(entityType = KRAConnectorInfo.class)

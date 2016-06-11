@@ -46,6 +46,11 @@ public class KRAConnectorClient extends Client {
         client.getEntity(response, Void.class);
     }
 
+    public void addHost(String host, String port) {
+        Response response = kraConnectorClient.addHost(host, port);
+        client.getEntity(response, Void.class);
+    }
+
     public void removeConnector(String host, String port) {
         Response response = kraConnectorClient.removeConnector(host, port);
         client.getEntity(response, Void.class);

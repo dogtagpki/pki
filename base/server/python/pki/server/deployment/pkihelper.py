@@ -3068,7 +3068,7 @@ class KRAConnector:
                 # noinspection PyBroadException
                 # pylint: disable=W0703
                 try:
-                    self.execute_using_sslget(
+                    self.execute_using_pki(
                         ca_port, ca_host, subsystemnick,
                         token_pwd, krahost, kraport)
                 except Exception:
@@ -3119,7 +3119,9 @@ class KRAConnector:
                    "-P", "https",
                    "-d", self.mdict['pki_database_path'],
                    "-c", token_pwd,
-                   "ca-kraconnector-del", krahost, str(kraport)]
+                   "ca-kraconnector-del",
+                   "--host", krahost,
+                   "--port", str(kraport)]
 
         output = subprocess.check_output(command,
                                          stderr=subprocess.STDOUT)

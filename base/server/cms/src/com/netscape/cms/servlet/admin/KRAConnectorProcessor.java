@@ -164,10 +164,11 @@ public class KRAConnectorProcessor extends CAProcessor {
         }
 
         if (connectorExists) {
-            String host = cs.getString(PREFIX + ".host");
-            String port = cs.getString(PREFIX + ".port");
+            String currentHost = cs.getString(PREFIX + ".host");
+            String currentPort = cs.getString(PREFIX + ".port");
 
-            if ((!host.equals(newHost)) || (!port.equals(newPort))) { //existing connector is not the same
+            if ((!currentHost.equals(newHost)) || (!currentPort.equals(newPort))) {
+                //existing connector is not the same
 
                 // check transport cert
                 String transportCert = cs.getString(PREFIX + ".transportCert");
@@ -176,29 +177,8 @@ public class KRAConnectorProcessor extends CAProcessor {
                     throw new BadRequestException("KRA connector has already been defined for this CA");
                 }
 
-                String hostport = newHost + ":" + newPort;
-                if (host.indexOf(' ') != -1) { // host is a list
-                    String[] hostList = host.trim().split(" ");
-                    for (String h : hostList) {
-                        if (h.equals(hostport)) {
-                            CMS.debug("addConnector: connector for " + hostport +
-                                    " is already present.  Returning success");
-                            return;
-                        }
-                    }
-
-                    CMS.debug("addConnector: adding " + hostport + " to KRA connector host list");
-                    cs.putString(PREFIX + ".host", host + " " + hostport);
-                    cs.commit(true);
-                    replaceConnector();
-                    return;
-                } else { // host is not a list, turn it into one
-                    CMS.debug("addConnector: adding " + hostport + " to KRA connector");
-                    cs.putString(PREFIX + ".host", host + ":" + port + " " + hostport);
-                    cs.commit(true);
-                    replaceConnector();
-                    return;
-                }
+                addHostPortToConnector(cs, newHost, newPort, currentHost, currentPort);
+                return;
             }
         }
 
@@ -240,6 +220,52 @@ public class KRAConnectorProcessor extends CAProcessor {
         info.setTransportCert(cs.getString(PREFIX + ".transportCert"));
 
         return info;
+    }
+
+    public void addHost(String newHost, String newPort) throws EPropertyNotFound, EBaseException {
+        IConfigStore cs = CMS.getConfigStore();
+
+        if ((newHost == null) || (newPort == null)) {
+            CMS.debug("addHost: malformed request.  newHost, newPort or transport cert is null");
+            throw new BadRequestException("Bad Request: KRA host or port not defined");
+        }
+
+        if (connectorExists) {
+            String currentHost = cs.getString(PREFIX + ".host");
+            String currentPort = cs.getString(PREFIX + ".port");
+
+            if ((!currentHost.equals(newHost)) || (!currentPort.equals(newPort))) {
+                addHostPortToConnector(cs, newHost, newPort, currentHost, currentPort);
+            }
+        } else {
+            throw new BadRequestException(
+                    "Cannot add host:port to existing connector.  Connector does not exit");
+        }
+    }
+
+    private void addHostPortToConnector(IConfigStore cs, String newHost, String newPort, String currentHost,
+            String currentPort) throws EBaseException {
+        String hostport = newHost + ":" + newPort;
+        if (currentHost.indexOf(' ') != -1) {
+            // host is a list
+            String[] hostList = currentHost.trim().split(" ");
+            for (String h : hostList) {
+                if (h.equals(hostport)) {
+                    CMS.debug("addHost: connector for " + hostport +
+                            " is already present.  Returning success");
+                    return;
+                }
+            }
+
+            CMS.debug("addHostPort: adding " + hostport + " to KRA connector host list");
+            cs.putString(PREFIX + ".host", currentHost + " " + hostport);
+        } else {
+            // host is not a list, turn it into one
+            CMS.debug("addHostPort: adding " + hostport + " to KRA connector");
+            cs.putString(PREFIX + ".host", currentHost + ":" + currentPort + " " + hostport);
+        }
+        cs.commit(true);
+        replaceConnector();
     }
 
 }

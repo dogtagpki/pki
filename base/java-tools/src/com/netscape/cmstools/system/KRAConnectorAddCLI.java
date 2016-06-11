@@ -24,8 +24,10 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
 
 import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Option;
 import org.apache.commons.cli.ParseException;
 
+import com.netscape.certsrv.system.ConnectorNotFoundException;
 import com.netscape.certsrv.system.KRAConnectorInfo;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
@@ -40,10 +42,27 @@ public class KRAConnectorAddCLI extends CLI {
     public KRAConnectorAddCLI(KRAConnectorCLI kraConnectorCLI) {
         super("add", "Add KRA Connector", kraConnectorCLI);
         this.kraConnectorCLI = kraConnectorCLI;
+
+        createOptions();
     }
 
     public void printHelp() {
-        formatter.printHelp(getFullName() + " <File Name> [OPTIONS...]", options);
+        formatter.printHelp(
+                getFullName() + " --input-file <file> | --host <KRA host> --port <KRA port>", options);
+    }
+
+    public void createOptions() {
+        Option option = new Option(null, "host", true, "KRA host");
+        option.setArgName("host");
+        options.addOption(option);
+
+        option = new Option(null, "port", true, "KRA port");
+        option.setArgName("port");
+        options.addOption(option);
+
+        option = new Option(null, "input-file", true, "Input file");
+        option.setArgName("input-file");
+        options.addOption(option);
     }
 
     public void execute(String[] args) throws Exception {
@@ -66,20 +85,47 @@ public class KRAConnectorAddCLI extends CLI {
 
         String[] cmdArgs = cmd.getArgs();
 
-        if (cmdArgs.length < 1) {
-            System.err.println("Error: No file name specified.");
+        if (cmdArgs.length != 0) {
+            System.err.println("Error: Too many arguments specified.");
             printHelp();
             System.exit(-1);
         }
 
-        FileInputStream fis = new FileInputStream(cmdArgs[0].trim());
+        String kraHost = cmd.getOptionValue("host");
+        String kraPort = cmd.getOptionValue("port");
+        String inputFile = cmd.getOptionValue("input-file");
 
-        JAXBContext context = JAXBContext.newInstance(KRAConnectorInfo.class);
-        Unmarshaller unmarshaller = context.createUnmarshaller();
-        KRAConnectorInfo info = (KRAConnectorInfo) unmarshaller.unmarshal(fis);
+        //check if connector exists
+        boolean connectorExists = true;
+        try {
+            @SuppressWarnings("unused")
+            KRAConnectorInfo info = kraConnectorCLI.kraConnectorClient.getConnectorInfo();
+        } catch (ConnectorNotFoundException e) {
+            connectorExists = false;
+        }
 
-        kraConnectorCLI.kraConnectorClient.addConnector(info);
+        if (inputFile != null) {
+            if (connectorExists) {
+                System.err.println("Error: Cannot add new connector from file.  " +
+                        "Delete the existing connector first");
+                System.exit(-1);
+            }
+            FileInputStream fis = new FileInputStream(inputFile);
+            JAXBContext context = JAXBContext.newInstance(KRAConnectorInfo.class);
+            Unmarshaller unmarshaller = context.createUnmarshaller();
+            KRAConnectorInfo info = (KRAConnectorInfo) unmarshaller.unmarshal(fis);
 
-        MainCLI.printMessage("Added KRA Connector");
+            kraConnectorCLI.kraConnectorClient.addConnector(info);
+            MainCLI.printMessage("Added KRA connector");
+
+        } else {
+            if (!connectorExists) {
+                System.err.println("Error: Cannot add new host to existing connector.  " +
+                        "No connector currently exists");
+                System.exit(-1);
+            }
+            kraConnectorCLI.kraConnectorClient.addHost(kraHost, kraPort);
+            MainCLI.printMessage("Added KRA host \"" + kraHost + ":" + kraPort + "\"");
+        }
     }
 }
