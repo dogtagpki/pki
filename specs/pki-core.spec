@@ -67,8 +67,6 @@ BuildRequires:    zip
 %if 0%{?rhel}
 # HACK:  RHEL builds currently suppress 'Provides: java-devel' . . .
 BuildRequires:    java-1.8.0-openjdk-devel
-# Add temporary build dependency on tomcat (override tomcatjss dependency)
-BuildRequires:    tomcat >= 7.0.69
 %else
 BuildRequires:    java-devel >= 1:1.8.0
 %endif
@@ -152,12 +150,12 @@ BuildRequires:    jss >= 4.2.6-40
 BuildRequires:    systemd-units
 
 %if 0%{?rhel}
-BuildRequires:    tomcatjss >= 7.1.0-6
+BuildRequires:    tomcatjss >= 7.1.2-2
 %else
 %if 0%{?fedora} >= 23
 BuildRequires:    tomcatjss >= 7.1.3
 %else
-BuildRequires:    tomcatjss >= 7.1.2
+BuildRequires:    tomcatjss >= 7.1.2-2
 %endif
 %endif
 
@@ -514,12 +512,12 @@ Requires(postun): systemd-units
 Requires(pre):    shadow-utils
 
 %if 0%{?rhel}
-Requires:         tomcatjss >= 7.1.0-6
+Requires:         tomcatjss >= 7.1.2-2
 %else
 %if 0%{?fedora} >= 23
 Requires:         tomcatjss >= 7.1.3
 %else
-Requires:         tomcatjss >= 7.1.2
+Requires:         tomcatjss >= 7.1.2-2
 %endif
 %endif
 
@@ -1158,6 +1156,9 @@ systemctl daemon-reload
 %changelog
 * Tue Jun  7 2016 Dogtag Team <pki-devel@redhat.com> 10.3.3-0.1
 - Updated version number to 10.3.3-0.1
+
+* Sun Jun  7 2016 Dogtag Team <pki-devel@redhat.com> 10.3.2-4
+- Updated tomcatjss version dependencies
 
 * Tue Jun  7 2016 Dogtag Team <pki-devel@redhat.com> 10.3.2-3
 - Updated 'java', 'java-headless', and 'java-devel' dependencies to 1:1.8.0.
