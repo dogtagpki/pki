@@ -47,7 +47,32 @@ import java.util.Random;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
-import javax.crypto.SecretKey;
+import netscape.security.pkcs.PKCS10;
+import netscape.security.pkcs.PKCS10Attribute;
+import netscape.security.pkcs.PKCS10Attributes;
+import netscape.security.pkcs.PKCS7;
+import netscape.security.pkcs.PKCS9Attribute;
+import netscape.security.util.BigInt;
+import netscape.security.util.DerInputStream;
+import netscape.security.util.DerOutputStream;
+import netscape.security.util.DerValue;
+import netscape.security.util.ObjectIdentifier;
+import netscape.security.x509.AlgorithmId;
+import netscape.security.x509.CertificateAlgorithmId;
+import netscape.security.x509.CertificateChain;
+import netscape.security.x509.CertificateExtensions;
+import netscape.security.x509.CertificateIssuerName;
+import netscape.security.x509.CertificateSerialNumber;
+import netscape.security.x509.CertificateSubjectName;
+import netscape.security.x509.CertificateValidity;
+import netscape.security.x509.CertificateVersion;
+import netscape.security.x509.CertificateX509Key;
+import netscape.security.x509.Extensions;
+import netscape.security.x509.X500Name;
+import netscape.security.x509.X500Signer;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509CertInfo;
+import netscape.security.x509.X509Key;
 
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.CryptoManager.NotInitializedException;
@@ -82,7 +107,6 @@ import org.mozilla.jss.crypto.NoSuchItemOnTokenException;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.PBEAlgorithm;
 import org.mozilla.jss.crypto.PrivateKey;
-import org.mozilla.jss.crypto.SecretKeyFacade;
 import org.mozilla.jss.crypto.Signature;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.crypto.SymmetricKey;
@@ -107,33 +131,6 @@ import org.mozilla.jss.util.Password;
 
 import com.netscape.cmsutil.util.Cert;
 import com.netscape.cmsutil.util.Utils;
-
-import netscape.security.pkcs.PKCS10;
-import netscape.security.pkcs.PKCS10Attribute;
-import netscape.security.pkcs.PKCS10Attributes;
-import netscape.security.pkcs.PKCS7;
-import netscape.security.pkcs.PKCS9Attribute;
-import netscape.security.util.BigInt;
-import netscape.security.util.DerInputStream;
-import netscape.security.util.DerOutputStream;
-import netscape.security.util.DerValue;
-import netscape.security.util.ObjectIdentifier;
-import netscape.security.x509.AlgorithmId;
-import netscape.security.x509.CertificateAlgorithmId;
-import netscape.security.x509.CertificateChain;
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.CertificateIssuerName;
-import netscape.security.x509.CertificateSerialNumber;
-import netscape.security.x509.CertificateSubjectName;
-import netscape.security.x509.CertificateValidity;
-import netscape.security.x509.CertificateVersion;
-import netscape.security.x509.CertificateX509Key;
-import netscape.security.x509.Extensions;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X500Signer;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
-import netscape.security.x509.X509Key;
 
 @SuppressWarnings("serial")
 public class CryptoUtil {
@@ -2072,55 +2069,117 @@ public class CryptoUtil {
         km.deleteUniqueNamedKey(nickname);
     }
 
-    public static byte[] exportSharedSecret(String nickname, java.security.cert.X509Certificate wrappingCert)
+    // Return a list of two wrapped keys: first element: temp DES3 key wrapped by cert , second element: shared secret wrapped by temp DES3 key
+    public static List<byte[]> exportSharedSecret(String nickname, java.security.cert.X509Certificate wrappingCert,SymmetricKey wrappingKey)
             throws NotInitializedException, TokenException, IOException, NoSuchAlgorithmException, InvalidKeyException,
             InvalidAlgorithmParameterException, InvalidKeyFormatException {
         CryptoManager cm = CryptoManager.getInstance();
         CryptoToken token = cm.getInternalKeyStorageToken();
+
+        List<byte[]> listWrappedKeys = new ArrayList<byte[]>();
+
+
         KeyManager km = new KeyManager(token);
         if (!km.uniqueNamedKeyExists(nickname)) {
             throw new IOException("Shared secret " + nickname + " does not exist");
         }
-        SecretKey skey = km.lookupUniqueNamedKey(EncryptionAlgorithm.DES3_ECB, nickname);
+
+        SymmetricKey sharedSecretKey =  null;
+
+        try {
+            sharedSecretKey = getSymKeyByName(token, nickname);
+        } catch (Exception e) {
+            sharedSecretKey = null;
+        }
+
+        if (sharedSecretKey == null) {
+            throw new IOException("Shared secret " + nickname + " does not exist");
+        }
 
         KeyWrapper keyWrap = token.getKeyWrapper(KeyWrapAlgorithm.RSA);
         PublicKey pub = wrappingCert.getPublicKey();
         PK11PubKey pubK = PK11PubKey.fromSPKI(pub.getEncoded());
         keyWrap.initWrap(pubK, null);
-        byte[] wrappedKey = keyWrap.wrap(((SecretKeyFacade) skey).key);
-        return wrappedKey;
+
+        //Wrap the temp DES3 key with the cert
+        byte[] wrappedKey = keyWrap.wrap(wrappingKey);
+
+        listWrappedKeys.add(wrappedKey);
+        //Use the DES3 key to wrap the shared secret
+
+        KeyWrapper keyWrapSharedSecret = token.getKeyWrapper(KeyWrapAlgorithm.DES3_ECB);
+        keyWrapSharedSecret.initWrap(wrappingKey,null);
+
+        byte[] wrappedSharedSecret = keyWrapSharedSecret.wrap(sharedSecretKey);
+
+        listWrappedKeys.add(wrappedSharedSecret);
+
+        if(listWrappedKeys.size() != 2) {
+            throw new IOException("Can't write out shared secret data to export for nickname: " + nickname);
+        }
+
+        return listWrappedKeys;
     }
 
-    /*
-    public static void importSharedSecret(KeyData data) throws EBaseException, NotInitializedException, TokenException,
+
+    public static void importSharedSecret(byte[] wrappedSessionKey,byte[] wrappedSharedSecret,String subsystemCertNickname,String sharedSecretNickname) throws Exception, NotInitializedException, TokenException,
             NoSuchAlgorithmException, ObjectNotFoundException, InvalidKeyException, InvalidAlgorithmParameterException,
             IOException {
-        byte[] wrappedKey = Utils.base64decode(data.getWrappedPrivateData());
-
-        IConfigStore cs = CMS.getConfigStore();
-        String subsystemNick = cs.getString("tps.cert.subsystem.nickname");
-        String keyNick = cs.getString("conn.tks1.tksSharedSymKeyName", "sharedSecret");
 
         CryptoManager cm = CryptoManager.getInstance();
         CryptoToken token = cm.getInternalKeyStorageToken();
+
         KeyManager km = new KeyManager(token);
 
-        if (km.uniqueNamedKeyExists(keyNick)) {
-            throw new IOException("Shared secret " + keyNick + " already exists");
+        if (km.uniqueNamedKeyExists(sharedSecretNickname)) {
+            throw new IOException("Shared secret " + sharedSecretNickname + " already exists");
         }
 
+        //Unwrap session key
+
         KeyWrapper keyWrap = token.getKeyWrapper(KeyWrapAlgorithm.RSA);
-        X509Certificate cert = cm.findCertByNickname(subsystemNick);
+        X509Certificate cert = cm.findCertByNickname(subsystemCertNickname);
         PrivateKey subsystemPrivateKey = cm.findPrivKeyByCert(cert);
         keyWrap.initUnwrap(subsystemPrivateKey, null);
 
-        @SuppressWarnings("unused")
-        SymmetricKey unwrapped = keyWrap.unwrapSymmetric(wrappedKey, SymmetricKey.DES,
-                SymmetricKey.Usage.DECRYPT, 0);
+        SymmetricKey unwrappedSessionKey = keyWrap.unwrapSymmetric(wrappedSessionKey, SymmetricKey.DES3,
+                0);
 
-        // TODO - I have a key - now what to do with it?
-        // need to somehow import/label the symkey
-    }*/
+        SymmetricKey unwrappedSharedSecret = null;
+
+        //Unwrap shared secret permanently with session key
+
+        KeyWrapper sharedSecretWrap = token.getKeyWrapper(KeyWrapAlgorithm.DES3_ECB);
+        sharedSecretWrap.initUnwrap(unwrappedSessionKey,null);
+        unwrappedSharedSecret = sharedSecretWrap.unwrapSymmetricPerm(wrappedSharedSecret,SymmetricKey.DES3,0 );
+        unwrappedSharedSecret.setNickName(sharedSecretNickname);
+    }
+
+    public static SymmetricKey getSymKeyByName(CryptoToken token, String name) throws Exception {
+
+        String method = "CryptoUtil.getSymKeyByName:";
+        if (token == null || name == null) {
+            throw new Exception(method + "Invalid input data!");
+        }
+        SymmetricKey[] keys;
+
+        try {
+            keys = token.getCryptoStore().getSymmetricKeys();
+        } catch (TokenException e) {
+            throw new Exception(method + "Can't get the list of symmetric keys!");
+        }
+        int len = keys.length;
+        for (int i = 0; i < len; i++) {
+            SymmetricKey cur = keys[i];
+            if (cur != null) {
+                if (name.equals(cur.getNickName())) {
+                    return cur;
+                }
+            }
+        }
+
+        return null;
+    }
 
     public static String[] getECcurves() {
         return ecCurves;

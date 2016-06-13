@@ -1,5 +1,6 @@
 package org.dogtagpki.server.tks.rest;
 
+import java.io.CharConversionException;
 import java.io.IOException;
 import java.net.URI;
 import java.security.InvalidAlgorithmParameterException;
@@ -10,6 +11,7 @@ import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.TreeSet;
 
 import javax.servlet.http.HttpServletRequest;
@@ -20,8 +22,13 @@ import javax.ws.rs.core.UriInfo;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jboss.resteasy.plugins.providers.atom.Link;
+import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.CryptoManager.NotInitializedException;
+import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.InvalidKeyFormatException;
+import org.mozilla.jss.crypto.KeyGenAlgorithm;
+import org.mozilla.jss.crypto.KeyGenerator;
+import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.crypto.TokenException;
 
 import com.netscape.certsrv.apps.CMS;
@@ -60,30 +67,32 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
     public Response findConnectors(Integer start, Integer size) {
         try {
             String tpsList = cs.getString(TPS_LIST, "");
-            Iterator<String> entries = Arrays.asList(StringUtils.split(tpsList,",")).iterator();
+            Iterator<String> entries = Arrays.asList(StringUtils.split(tpsList, ",")).iterator();
 
             TPSConnectorCollection response = new TPSConnectorCollection();
             int i = 0;
 
             // skip to the start of the page
-            for ( ; i<start && entries.hasNext(); i++) entries.next();
+            for (; i < start && entries.hasNext(); i++)
+                entries.next();
 
             // return entries up to the page size
-            for ( ; i<start+size && entries.hasNext(); i++) {
+            for (; i < start + size && entries.hasNext(); i++) {
                 response.addEntry(createTPSConnectorData(entries.next()));
             }
 
             // count the total entries
-            for ( ; entries.hasNext(); i++) entries.next();
+            for (; entries.hasNext(); i++)
+                entries.next();
             response.setTotal(i);
 
             if (start > 0) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start-size, 0)).build();
+                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start - size, 0)).build();
                 response.addLink(new Link("prev", uri));
             }
 
-            if (start+size < i) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", start+size).build();
+            if (start + size < i) {
+                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", start + size).build();
                 response.addLink(new Link("next", uri));
             }
 
@@ -114,7 +123,8 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
 
     public TPSConnectorData getConnectorData(String id) {
 
-        if (id == null) throw new BadRequestException("TPS connector ID is null.");
+        if (id == null)
+            throw new BadRequestException("TPS connector ID is null.");
 
         try {
             if (!connectorExists(id))
@@ -131,8 +141,10 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
     @Override
     public Response getConnector(String host, String port) {
 
-        if (host == null) throw new BadRequestException("TPS connector host is null.");
-        if (port == null) throw new BadRequestException("TPS connector port is null.");
+        if (host == null)
+            throw new BadRequestException("TPS connector host is null.");
+        if (port == null)
+            throw new BadRequestException("TPS connector port is null.");
 
         try {
             String id = getConnectorID(host, port);
@@ -151,8 +163,10 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
     @Override
     public Response createConnector(String tpsHost, String tpsPort) {
 
-        if (tpsHost == null) throw new BadRequestException("TPS connector host is null.");
-        if (tpsPort == null) throw new BadRequestException("TPS connector port is null.");
+        if (tpsHost == null)
+            throw new BadRequestException("TPS connector host is null.");
+        if (tpsPort == null)
+            throw new BadRequestException("TPS connector port is null.");
 
         try {
             String id = getConnectorID(tpsHost, tpsPort);
@@ -245,7 +259,8 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
             if (StringUtils.isEmpty(id))
                 throw new BadRequestException("Attempt to delete TPS connection with null or empty id");
 
-            if (!connectorExists(id)) return createNoContentResponse();
+            if (!connectorExists(id))
+                return createNoContentResponse();
 
             deleteSharedSecret(id);
             cs.removeSubStore("tps." + id);
@@ -263,8 +278,10 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
     @Override
     public Response deleteConnector(String host, String port) {
 
-        if (host == null) throw new BadRequestException("TPS connector host is null.");
-        if (port == null) throw new BadRequestException("TPS connector port is null.");
+        if (host == null)
+            throw new BadRequestException("TPS connector host is null.");
+        if (port == null)
+            throw new BadRequestException("TPS connector port is null.");
 
         String id;
         try {
@@ -281,7 +298,10 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
     @Override
     public Response createSharedSecret(String id) {
 
-        if (id == null) throw new BadRequestException("TPS connector ID is null.");
+        CMS.debug("TPSConnectorService.createSharedSecret.id: " + id);
+
+        if (id == null)
+            throw new BadRequestException("TPS connector ID is null.");
 
         try {
             if (!connectorExists(id)) {
@@ -293,9 +313,13 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
 
             // get user cert
             IUser user = userGroupManager.getUser(userid);
+
+            CMS.debug("TPSConnectorService.createSharedSecret.userid: " + userid);
             X509Certificate[] certs = user.getX509Certificates();
 
             String nickname = userid + " sharedSecret";
+
+            CMS.debug("TPSConnectorService.createSharedSecret. nickname: " + nickname);
             if (CryptoUtil.sharedSecretExists(nickname)) {
                 throw new BadRequestException("Shared secret already exists");
             }
@@ -305,9 +329,21 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
             cs.putString("tps." + id + ".nickname", nickname);
             cs.commit(true);
 
-            byte[] wrappedKey = CryptoUtil.exportSharedSecret(nickname, certs[0]);
+            //Create des3 session sym key to wrap the shared secret.
+            SymmetricKey tempKey = createDes3SessionKeyOnInternal();
+
+            if (tempKey == null) {
+                return createNoContentResponse();
+            }
+
+            List<byte[]> listWrappedKeys = CryptoUtil.exportSharedSecret(nickname, certs[0], tempKey);
+
+            byte[] wrappedSessionKey = listWrappedKeys.get(0);
+            byte[] wrappedSharedSecret = listWrappedKeys.get(1);
+
             KeyData keyData = new KeyData();
-            keyData.setWrappedPrivateData(Utils.base64encode(wrappedKey));
+            keyData.setWrappedPrivateData(Utils.base64encode(wrappedSessionKey));
+            keyData.setAdditionalWrappedPrivateData(Utils.base64encode(wrappedSharedSecret));
 
             return createOKResponse(keyData);
 
@@ -341,7 +377,8 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
     @Override
     public Response replaceSharedSecret(String id) {
 
-        if (id == null) throw new BadRequestException("TPS connector ID is null.");
+        if (id == null)
+            throw new BadRequestException("TPS connector ID is null.");
 
         try {
             if (!connectorExists(id)) {
@@ -362,9 +399,22 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
 
             CryptoUtil.deleteSharedSecret(nickname);
             CryptoUtil.createSharedSecret(nickname);
-            byte[] wrappedKey = CryptoUtil.exportSharedSecret(nickname, certs[0]);
+
+            //Create des3 session sym key to wrap the shared secret.
+            SymmetricKey tempKey = createDes3SessionKeyOnInternal();
+
+            if (tempKey == null) {
+                return createNoContentResponse();
+            }
+
+            List<byte[]> listWrappedKeys = CryptoUtil.exportSharedSecret(nickname,certs[0], tempKey);
+
+            byte[] wrappedSessionKey = listWrappedKeys.get(0);
+            byte[] wrappedSharedSecret = listWrappedKeys.get(1);
+
             KeyData keyData = new KeyData();
-            keyData.setWrappedPrivateData(Utils.base64encode(wrappedKey));
+            keyData.setWrappedPrivateData(Utils.base64encode(wrappedSessionKey));
+            keyData.setAdditionalWrappedPrivateData(Utils.base64encode(wrappedSharedSecret));
 
             return createOKResponse(keyData);
 
@@ -380,7 +430,8 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
     @Override
     public Response deleteSharedSecret(String id) {
 
-        if (id == null) throw new BadRequestException("TPS connector ID is null.");
+        if (id == null)
+            throw new BadRequestException("TPS connector ID is null.");
 
         try {
             if (!connectorExists(id)) {
@@ -415,8 +466,10 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
     @Override
     public Response getSharedSecret(String id) {
 
-        if (id == null) throw new BadRequestException("TPS connector ID is null.");
+        if (id == null)
+            throw new BadRequestException("TPS connector ID is null.");
 
+        CMS.debug("TPSConnectorServlet.getSharedSecret: id : " + id);
         try {
             if (!connectorExists(id)) {
                 throw new ResourceNotFoundException("TPS connection does not exist");
@@ -434,9 +487,20 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
             IUser user = userGroupManager.getUser(userid);
             X509Certificate[] certs = user.getX509Certificates();
 
-            byte[] wrappedKey = CryptoUtil.exportSharedSecret(nickname, certs[0]);
+            //Create des3 session sym key to wrap the shared secrt.
+            SymmetricKey tempKey = createDes3SessionKeyOnInternal();
+
+            if (tempKey == null) {
+                return createNoContentResponse();
+            }
+
+            List<byte[]> listWrappedKeys = CryptoUtil.exportSharedSecret(nickname, certs[0], tempKey);
+            byte[] wrappedSessionKey = listWrappedKeys.get(0);
+            byte[] wrappedSharedSecret = listWrappedKeys.get(1);
+
             KeyData keyData = new KeyData();
-            keyData.setWrappedPrivateData(Utils.base64encode(wrappedKey));
+            keyData.setWrappedPrivateData(Utils.base64encode(wrappedSessionKey));
+            keyData.setAdditionalWrappedPrivateData(Utils.base64encode(wrappedSharedSecret));
 
             return createOKResponse(keyData);
 
@@ -456,7 +520,7 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
 
     private String getConnectorID(String host, String port) throws EBaseException {
         String tpsList = cs.getString(TPS_LIST, "");
-        for (String tpsID : StringUtils.split(tpsList,",")) {
+        for (String tpsID : StringUtils.split(tpsList, ",")) {
             TPSConnectorData data = createTPSConnectorData(tpsID);
             if (data.getHost().equals(host) && data.getPort().equals(port))
                 return tpsID;
@@ -486,7 +550,36 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
         sorted.addAll(Arrays.asList(StringUtils.split(tpsList, ",")));
 
         int index = 0;
-        while (sorted.contains(Integer.toString(index))) index++;
+        while (sorted.contains(Integer.toString(index)))
+            index++;
         return Integer.toString(index);
     }
+
+    private SymmetricKey createDes3SessionKeyOnInternal() throws EBaseException {
+
+        SymmetricKey tempKey = null;
+        try {
+            CryptoManager cm = CryptoManager.getInstance();
+            CryptoToken token = cm.getInternalKeyStorageToken();
+            KeyGenerator kg = token.getKeyGenerator(KeyGenAlgorithm.DES3);
+
+            SymmetricKey.Usage usages[] = new SymmetricKey.Usage[4];
+            usages[0] = SymmetricKey.Usage.WRAP;
+            usages[1] = SymmetricKey.Usage.UNWRAP;
+            usages[2] = SymmetricKey.Usage.ENCRYPT;
+            usages[3] = SymmetricKey.Usage.DECRYPT;
+
+            kg.setKeyUsages(usages);
+            kg.temporaryKeys(true);
+            tempKey = kg.generate();
+        } catch (NoSuchAlgorithmException | TokenException | IllegalStateException | CharConversionException
+                | NotInitializedException e) {
+            CMS.debug("TPSConnectorService.createDes3SesisonKeyOnInternal: Can't generate temporary session key.");
+
+            throw new EBaseException(e);
+        }
+
+        return tempKey;
+    }
+
 }

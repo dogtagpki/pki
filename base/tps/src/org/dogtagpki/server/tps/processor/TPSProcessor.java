@@ -33,6 +33,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import netscape.security.x509.RevocationReason;
+
 import org.dogtagpki.server.tps.TPSSession;
 import org.dogtagpki.server.tps.TPSSubsystem;
 import org.dogtagpki.server.tps.authentication.AuthUIParameter;
@@ -95,8 +97,6 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.tps.token.TokenStatus;
 import com.netscape.cms.servlet.tks.SecureChannelProtocol;
 import com.netscape.symkey.SessionKey;
-
-import netscape.security.x509.RevocationReason;
 
 public class TPSProcessor {
 
@@ -686,9 +686,6 @@ public class TPSProcessor {
                sessionKey =  (PK11SymKey) protocol.unwrapWrappedSymKeyOnToken(token, sharedSecret, sessionKeyWrapped.toBytesArray(), false);
 
 
-
-
-
                 if (sessionKey == null) {
                     CMS.debug("TPSProcessor.generateSecureChannel: Can't extract session key!");
                     throw new TPSException("TPSProcessor.generateSecureChannel: Can't extract session key!",
@@ -708,7 +705,6 @@ public class TPSProcessor {
                             TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
                 }
 
-                //CMS.debug("TPSProcessor.generateSecureChannel: retrieved enc session key: " + encSessionKey);
                 CMS.debug("TPSProcessor.generateSecureChannel: retrieved enc session key");
 
                 TPSBuffer drmDesKey = null;

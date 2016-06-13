@@ -142,11 +142,21 @@ public class TPSInstallerService extends SystemConfigService  {
                 ConfigurationUtils.exportTransportCert(secdomainURI, tksURI, transportCert);
             }
 
+            String doImportStr = request.getImportSharedSecret();
+            CMS.debug("finalizeConfiguration: importSharedSecret:" + doImportStr);
             // generate shared secret from the tks
+
+            boolean doImport = false;
+
+            if("true".equalsIgnoreCase(doImportStr)) {
+                CMS.debug("finalizeConfiguration: importSharedSecret: importSharedSecret is true.");
+                doImport = true;
+            }
+
             ConfigurationUtils.getSharedSecret(
                     tksURI.getHost(),
                     tksURI.getPort(),
-                    Boolean.getBoolean(request.getImportSharedSecret()));
+                    doImport);
 
         } catch (URISyntaxException e) {
             throw new BadRequestException("Invalid URI for CA, TKS or KRA");

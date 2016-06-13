@@ -48,7 +48,11 @@ public class KeyData {
     @XmlElement
     Integer size;
 
-    String privateData;
+    @XmlElement
+    String additionalWrappedPrivateData;
+    // Optionally used for importing a shared secret from TKS to TPS
+    // Will contain wrapped shared secret data.
+    // Can be used for anything in other scenarios
 
     public KeyData() {
         // required for JAXB (defaults)
@@ -66,6 +70,15 @@ public class KeyData {
      */
     public void setWrappedPrivateData(String wrappedPrivateData) {
         this.wrappedPrivateData = wrappedPrivateData;
+    }
+
+    public String getAdditionalWrappedPrivateData() {
+        return additionalWrappedPrivateData;
+    }
+
+
+    public void setAdditionalWrappedPrivateData(String additionalWrappedPrivateData) {
+        this.additionalWrappedPrivateData = additionalWrappedPrivateData;
     }
 
     /**
@@ -126,11 +139,5 @@ public class KeyData {
         this.size = size;
     }
 
-    public String getPrivateData() {
-        return privateData;
-    }
 
-    public void setPrivateData(String privateData) {
-        this.privateData = privateData;
-    }
 }

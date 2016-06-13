@@ -719,10 +719,15 @@ pki_tks_uri=\fIhttps://<tks_hostname>:<tks_https_port>\fP
 .fi
 
 .PP
-If TPS and TKS are installed on separate instances the shared secret key needs
-to be generated manually in TKS, then manually imported into TPS.
+If TPS and TKS are installed on separate instances the shared secret key
+should be imported over the wire between the TKS and TPS automatically.
 
-Generate the shared secret key in TKS with the following command:
+If the automated procedure fails for any unlikely reason the following
+manual procedure will serve as a fallback. The key needs to be created
+on the TKS side and imported into the TPS side in this case.
+
+
+Generate the shared secret key (if needed) in TKS with the following command:
 
 .IP
 tkstool -T -d /var/lib/pki/pki-tomcat/alias -n sharedSecret

@@ -15,7 +15,7 @@
 // (C) 2012 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
- package com.netscape.cms.servlet.csadmin;
+package com.netscape.cms.servlet.csadmin;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -57,6 +57,34 @@ import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.xml.parsers.ParserConfigurationException;
+
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPAttributeSet;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPDN;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPModification;
+import netscape.ldap.LDAPSearchConstraints;
+import netscape.ldap.LDAPSearchResults;
+import netscape.ldap.LDAPv3;
+import netscape.security.pkcs.ContentInfo;
+import netscape.security.pkcs.PKCS10;
+import netscape.security.pkcs.PKCS12;
+import netscape.security.pkcs.PKCS12Util;
+import netscape.security.pkcs.PKCS7;
+import netscape.security.pkcs.SignerInfo;
+import netscape.security.util.DerOutputStream;
+import netscape.security.util.ObjectIdentifier;
+import netscape.security.x509.AlgorithmId;
+import netscape.security.x509.BasicConstraintsExtension;
+import netscape.security.x509.CertificateChain;
+import netscape.security.x509.Extension;
+import netscape.security.x509.Extensions;
+import netscape.security.x509.KeyUsageExtension;
+import netscape.security.x509.X500Name;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509Key;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.velocity.context.Context;
@@ -149,35 +177,8 @@ import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.ldap.LDAPUtil;
+import com.netscape.cmsutil.util.Utils;
 import com.netscape.cmsutil.xml.XMLObject;
-
-import netscape.ldap.LDAPAttribute;
-import netscape.ldap.LDAPAttributeSet;
-import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPDN;
-import netscape.ldap.LDAPEntry;
-import netscape.ldap.LDAPException;
-import netscape.ldap.LDAPModification;
-import netscape.ldap.LDAPSearchConstraints;
-import netscape.ldap.LDAPSearchResults;
-import netscape.ldap.LDAPv3;
-import netscape.security.pkcs.ContentInfo;
-import netscape.security.pkcs.PKCS10;
-import netscape.security.pkcs.PKCS12;
-import netscape.security.pkcs.PKCS12Util;
-import netscape.security.pkcs.PKCS7;
-import netscape.security.pkcs.SignerInfo;
-import netscape.security.util.DerOutputStream;
-import netscape.security.util.ObjectIdentifier;
-import netscape.security.x509.AlgorithmId;
-import netscape.security.x509.BasicConstraintsExtension;
-import netscape.security.x509.CertificateChain;
-import netscape.security.x509.Extension;
-import netscape.security.x509.Extensions;
-import netscape.security.x509.KeyUsageExtension;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509Key;
 
 /**
  * Utility class for functions to be used by the RESTful installer.
@@ -377,7 +378,7 @@ public class ConfigurationUtils {
             if (eqPos != -1) {
                 String name = line.substring(0, eqPos).trim();
                 String tempval = line.substring(eqPos + 1).trim();
-                String value = tempval.replaceAll("(^\")|(\";$)","");
+                String value = tempval.replaceAll("(^\")|(\";$)", "");
 
                 if (name.equals(header)) {
                     return value;
@@ -634,7 +635,7 @@ public class ConfigurationUtils {
                 throw new IOException("The server you want to contact is not available");
             }
 
-            CMS.debug("content from admin interface ="+ c);
+            CMS.debug("content from admin interface =" + c);
             // when the admin servlet is unavailable, we return a badly formatted error page
             // in that case, this will throw an exception and be passed into the catch block.
             parser = new XMLObject(new ByteArrayInputStream(c.getBytes()));
@@ -685,8 +686,7 @@ public class ConfigurationUtils {
 
     public static boolean updateConfigEntries(String hostname, int port, boolean https,
             String servlet, MultivaluedMap<String, String> content, IConfigStore config)
-                    throws Exception {
-
+            throws Exception {
         CMS.debug("updateConfigEntries start");
         String c = post(hostname, port, https, servlet, content, null, null);
 
@@ -892,7 +892,8 @@ public class ConfigurationUtils {
                     // pkeyinfo_v stores private key (PrivateKeyInfo) and subject DN (String)
                     Vector<Object> pkeyinfo_v = new Vector<Object>();
                     pkeyinfo_v.addElement(pkeyinfo);
-                    if (subjectDN != null) pkeyinfo_v.addElement(subjectDN);
+                    if (subjectDN != null)
+                        pkeyinfo_v.addElement(subjectDN);
 
                     pkeyinfo_collection.addElement(pkeyinfo_v);
 
@@ -941,7 +942,8 @@ public class ConfigurationUtils {
                     // cert_v stores certificate (byte[]) and nickname (String)
                     Vector<Object> cert_v = new Vector<Object>();
                     cert_v.addElement(x509cert);
-                    if (nickname != null) cert_v.addElement(nickname);
+                    if (nickname != null)
+                        cert_v.addElement(nickname);
 
                     cert_collection.addElement(cert_v);
                 }
@@ -992,10 +994,11 @@ public class ConfigurationUtils {
     public static void importKeyCert(
             Vector<Vector<Object>> pkeyinfo_collection,
             Vector<Vector<Object>> cert_collection
-        ) throws IOException, CertificateException, TokenException,
-            NoSuchAlgorithmException, InvalidKeyException, InvalidAlgorithmParameterException, IllegalStateException,
-            IllegalBlockSizeException, BadPaddingException, NotInitializedException, NicknameConflictException,
-            UserCertConflictException, NoSuchItemOnTokenException, EPropertyNotFound, EBaseException {
+            ) throws IOException, CertificateException, TokenException,
+                    NoSuchAlgorithmException, InvalidKeyException, InvalidAlgorithmParameterException,
+                    IllegalStateException,
+                    IllegalBlockSizeException, BadPaddingException, NotInitializedException, NicknameConflictException,
+                    UserCertConflictException, NoSuchItemOnTokenException, EPropertyNotFound, EBaseException {
 
         CMS.debug("ConfigurationUtils.importKeyCert()");
         CryptoManager cm = CryptoManager.getInstance();
@@ -1069,7 +1072,7 @@ public class ConfigurationUtils {
                 String name = (String) cert_v.elementAt(1);
                 CMS.debug("- Certificate: " + name);
 
-                if (! masterList.contains(name)) {
+                if (!masterList.contains(name)) {
                     CMS.debug("  Certificate not in master list, ignore certificate");
                     continue;
                 }
@@ -1160,10 +1163,11 @@ public class ConfigurationUtils {
             return true;
         try {
             X500Name xname = new X500Name(nickname);
-            for (String key: masterList) {
+            for (String key : masterList) {
                 try {
                     X500Name xkey = new X500Name(key);
-                    if (xkey.equals(xname)) return true;
+                    if (xkey.equals(xname))
+                        return true;
                 } catch (IOException e) {
                     // xkey not an X500Name
                 }
@@ -1216,10 +1220,12 @@ public class ConfigurationUtils {
         return false;
     }
 
+
     public static boolean isAuditSigningCert(String name) throws EPropertyNotFound, EBaseException {
         IConfigStore cs = CMS.getConfigStore();
         String nickname = cs.getString("preop.master.audit_signing.nickname");
-        if (nickname.equals(name)) return true;
+        if (nickname.equals(name))
+            return true;
         return false;
     }
 
@@ -1271,7 +1277,7 @@ public class ConfigurationUtils {
         while (st.hasMoreTokens()) {
             String s = st.nextToken();
             if (s.equals("sslserver"))
-                    continue;
+                continue;
             String name = "preop.master." + s + ".nickname";
             String nickname = cs.getString(name);
             list.add(nickname);
@@ -1293,14 +1299,16 @@ public class ConfigurationUtils {
             X509CertImpl impl = null;
             impl = new X509CertImpl(b);
             Principal subjectdn = impl.getSubjectDN();
-            if (LDAPDN.equals(subjectdn.toString(), nickname)) return b;
+            if (LDAPDN.equals(subjectdn.toString(), nickname))
+                return b;
         }
         return null;
     }
 
     public static void releaseConnection(LDAPConnection conn) {
         try {
-            if (conn != null) conn.disconnect();
+            if (conn != null)
+                conn.disconnect();
         } catch (LDAPException e) {
             CMS.debug(e);
             CMS.debug("releaseConnection: " + e);
@@ -1551,14 +1559,15 @@ public class ConfigurationUtils {
             LDAPSearchResults res = conn.search(
                     "cn=mapping tree, cn=config", LDAPConnection.SCOPE_ONE,
                     "nsslapd-backend=" + LDAPUtil.escapeFilter(database),
-                    null, false, (LDAPSearchConstraints)null);
+                    null, false, (LDAPSearchConstraints) null);
 
             while (res.hasMoreElements()) {
                 LDAPEntry entry = res.next();
 
                 LDAPAttribute cn = entry.getAttribute("cn");
                 String dn = cn.getStringValueArray()[0];
-                if (LDAPDN.equals(baseDN, dn)) continue;
+                if (LDAPDN.equals(baseDN, dn))
+                    continue;
 
                 CMS.debug("confirmMappings: Database " + database + " is used by " + dn + ".");
                 throw new EBaseException("The database (" + database + ") is used by another base DN. " +
@@ -1646,12 +1655,12 @@ public class ConfigurationUtils {
 
     private static void checkParentExists(String baseDN, LDAPConnection conn) throws EBaseException {
         String[] dns = LDAPDN.explodeDN(baseDN, false);
-        if (dns.length == 1 ) {
+        if (dns.length == 1) {
             CMS.debug("checkParentExists: no parent in baseDN: " + baseDN);
             throw new EBaseException("Invalid BaseDN. No parent DN in " + baseDN);
         }
         String parentDN = Arrays.toString(Arrays.copyOfRange(dns, 1, dns.length));
-        parentDN = parentDN.substring(1,parentDN.length() -1);
+        parentDN = parentDN.substring(1, parentDN.length() - 1);
         try {
             CMS.debug("checkParentExists: Checking parent " + parentDN + ".");
             conn.read(parentDN);
@@ -1666,11 +1675,13 @@ public class ConfigurationUtils {
         }
     }
 
-    public static void importLDIFS(String param, LDAPConnection conn) throws EPropertyNotFound, IOException, EBaseException {
+    public static void importLDIFS(String param, LDAPConnection conn) throws EPropertyNotFound, IOException,
+            EBaseException {
         importLDIFS(param, conn, true);
     }
 
-    public static void importLDIFS(String param, LDAPConnection conn, boolean suppressErrors) throws IOException, EPropertyNotFound,
+    public static void importLDIFS(String param, LDAPConnection conn, boolean suppressErrors) throws IOException,
+            EPropertyNotFound,
             EBaseException {
         IConfigStore cs = CMS.getConfigStore();
 
@@ -1764,7 +1775,7 @@ public class ConfigurationUtils {
         try {
             LDAPSearchResults res = conn.search(
                     dn, LDAPConnection.SCOPE_BASE, "objectclass=*",
-                    null, true, (LDAPSearchConstraints)null);
+                    null, true, (LDAPSearchConstraints) null);
             deleteEntries(res, conn, excludedDNs);
 
         } catch (LDAPException e) {
@@ -1777,14 +1788,15 @@ public class ConfigurationUtils {
         }
     }
 
-    public static void deleteEntries(LDAPSearchResults res, LDAPConnection conn, String[] excludedDNs) throws LDAPException {
+    public static void deleteEntries(LDAPSearchResults res, LDAPConnection conn, String[] excludedDNs)
+            throws LDAPException {
         while (res.hasMoreElements()) {
             LDAPEntry entry = res.next();
             String dn = entry.getDN();
 
             LDAPSearchResults res1 = conn.search(
                     dn, 1, "objectclass=*",
-                    null, true, (LDAPSearchConstraints)null);
+                    null, true, (LDAPSearchConstraints) null);
             deleteEntries(res1, conn, excludedDNs);
             deleteEntry(conn, dn, excludedDNs);
         }
@@ -1792,7 +1804,8 @@ public class ConfigurationUtils {
 
     public static void deleteEntry(LDAPConnection conn, String dn, String[] excludedDNs) throws LDAPException {
         for (String excludedDN : excludedDNs) {
-            if (!LDAPDN.equals(dn, excludedDN)) continue;
+            if (!LDAPDN.equals(dn, excludedDN))
+                continue;
 
             CMS.debug("deleteEntry: entry with this dn " + dn + " is not deleted.");
             return;
@@ -1997,7 +2010,7 @@ public class ConfigurationUtils {
 
             String status = replicationStatus(replicadn, masterConn, masterAgreementName);
             if (!status.startsWith("0 ")) {
-                CMS.debug("setupReplication: consumer initialization failed. " +status);
+                CMS.debug("setupReplication: consumer initialization failed. " + status);
                 throw new IOException("consumer initialization failed. " + status);
             }
 
@@ -2015,7 +2028,7 @@ public class ConfigurationUtils {
             releaseConnection(masterConn);
             releaseConnection(replicaConn);
         }
-}
+    }
 
     public static void createReplicationManager(LDAPConnection conn, String bindUser, String pwd)
             throws LDAPException {
@@ -2277,7 +2290,8 @@ public class ConfigurationUtils {
         CMS.reinit(IUGSubsystem.ID);
     }
 
-    public static void setExternalCACert(String certStr, String subsystem, IConfigStore config, Cert certObj) throws Exception {
+    public static void setExternalCACert(String certStr, String subsystem, IConfigStore config, Cert certObj)
+            throws Exception {
         certStr = CryptoUtil.stripCertBrackets(certStr.trim());
         certStr = CryptoUtil.normalizeCertStr(certStr);
         config.putString(subsystem + ".external_ca.cert", certStr);
@@ -2365,7 +2379,8 @@ public class ConfigurationUtils {
         String sslType = "ECDHE";
         try {
             sslType = config.getString(PCERT_PREFIX + ct + "ec.type", "ECDHE");
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
 
         // ECDHE needs "SIGN" but no "DERIVE"
         org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage usages_mask[] = {
@@ -2380,13 +2395,15 @@ public class ConfigurationUtils {
 
         do {
             if (ct.equals("sslserver") && sslType.equalsIgnoreCase("ECDH")) {
-                CMS.debug("ConfigurationUtils: createECCKeypair: sslserver cert for ECDH. Make sure server.xml is set " +
-                          "properly with -TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,+TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA");
+                CMS.debug("ConfigurationUtils: createECCKeypair: sslserver cert for ECDH. Make sure server.xml is set "
+                        +
+                        "properly with -TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,+TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA");
                 pair = CryptoUtil.generateECCKeyPair(token, curveName, null, ECDH_usages_mask);
             } else {
                 if (ct.equals("sslserver")) {
-                    CMS.debug("ConfigurationUtils: createECCKeypair: sslserver cert for ECDHE. Make sure server.xml is set " +
-                              "properly with +TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,-TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA");
+                    CMS.debug("ConfigurationUtils: createECCKeypair: sslserver cert for ECDHE. Make sure server.xml is set "
+                            +
+                            "properly with +TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,-TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA");
                 }
                 pair = CryptoUtil.generateECCKeyPair(token, curveName, null, usages_mask);
             }
@@ -2443,7 +2460,8 @@ public class ConfigurationUtils {
         setSigningAlgorithm(ct, keyAlgo, config);
     }
 
-    public static void setSigningAlgorithm(String ct, String keyAlgo, IConfigStore config) throws EPropertyNotFound, EBaseException {
+    public static void setSigningAlgorithm(String ct, String keyAlgo, IConfigStore config) throws EPropertyNotFound,
+            EBaseException {
         String systemType = config.getString("cs.type");
         if (systemType.equalsIgnoreCase("CA")) {
             if (ct.equals("signing")) {
@@ -2523,16 +2541,16 @@ public class ConfigurationUtils {
                 // retrieve and store original 'CS.cfg' entries
                 preop_ca_type = config.getString("preop.ca.type", "");
                 preop_cert_signing_type = config.getString("preop.cert.signing.type", "");
-                preop_cert_signing_profile = config.getString("preop.cert.signing.profile","");
+                preop_cert_signing_profile = config.getString("preop.cert.signing.profile", "");
                 preop_cert_sslserver_type = config.getString("preop.cert.sslserver.type", "");
-                preop_cert_sslserver_profile = config.getString("preop.cert.sslserver.profile","");
+                preop_cert_sslserver_profile = config.getString("preop.cert.sslserver.profile", "");
 
                 // add/modify 'CS.cfg' entries
                 config.putString("preop.ca.type", "sdca");
                 config.putString("preop.cert.signing.type", "remote");
-                config.putString("preop.cert.signing.profile","caInstallCACert");
+                config.putString("preop.cert.signing.profile", "caInstallCACert");
                 config.putString("preop.cert.sslserver.type", "remote");
-                config.putString("preop.cert.sslserver.profile","caInternalAuthServerCert");
+                config.putString("preop.cert.sslserver.profile", "caInternalAuthServerCert");
 
                 // store original caType
                 original_caType = caType;
@@ -2568,7 +2586,7 @@ public class ConfigurationUtils {
                     if (standalone) {
                         // Treat standalone subsystem the same as "otherca"
                         config.putString(subsystem + "." + certTag + ".cert",
-                                         "...paste certificate here...");
+                                "...paste certificate here...");
 
                     } else {
                         String sd_hostname = config.getString("securitydomain.host", "");
@@ -2594,8 +2612,8 @@ public class ConfigurationUtils {
                     try {
                         if (sign_clone_sslserver_cert_using_master) {
                             CMS.debug("ConfigurationUtils: For this Cloned CA, always use its Master CA to generate " +
-                                      "the 'sslserver' certificate to avoid any changes which may have been " +
-                                      "made to the X500Name directory string encoding order.");
+                                    "the 'sslserver' certificate to avoid any changes which may have been " +
+                                    "made to the X500Name directory string encoding order.");
                             ca_hostname = config.getString("preop.master.hostname", "");
                             ca_port = config.getInteger("preop.master.httpsport", -1);
                         } else {
@@ -2607,12 +2625,12 @@ public class ConfigurationUtils {
 
                     String sslserver_extension = "";
                     Boolean injectSAN = config.getBoolean(
-                                      "service.injectSAN", false);
-                    CMS.debug("ConfigurationUtils: injectSAN="+injectSAN);
+                            "service.injectSAN", false);
+                    CMS.debug("ConfigurationUtils: injectSAN=" + injectSAN);
                     if (certTag.equals("sslserver") &&
-                        injectSAN == true) {
+                            injectSAN == true) {
                         sslserver_extension =
-                            CertUtil.buildSANSSLserverURLExtension(config);
+                                CertUtil.buildSANSSLserverURLExtension(config);
                     }
 
                     MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
@@ -3115,7 +3133,8 @@ public class ConfigurationUtils {
         IConfigStore config = CMS.getConfigStore();
 
         boolean enable = config.getBoolean(PCERT_PREFIX + certTag + ".enable", true);
-        if (!enable) return 0;
+        if (!enable)
+            return 0;
 
         CMS.debug("handleCerts(): for cert tag '" + cert.getCertTag() + "' using cert type '" + cert.getType() + "'");
         String b64 = cert.getCert();
@@ -3131,7 +3150,8 @@ public class ConfigurationUtils {
             }
 
             if (findCertificate(tokenname, nickname)) {
-                if (!certTag.equals("sslserver")) return 0;
+                if (!certTag.equals("sslserver"))
+                    return 0;
             }
             X509CertImpl impl = CertUtil.createLocalCert(config, x509key,
                     PCERT_PREFIX, certTag, cert.getType(), null);
@@ -3156,7 +3176,8 @@ public class ConfigurationUtils {
                     CMS.debug("handleCerts(): cert imported for certTag '" + certTag + "'");
                 } catch (Exception ee) {
                     CMS.debug(ee);
-                    CMS.debug("handleCerts(): import certificate for certTag=" + certTag + " Exception: " + ee.toString());
+                    CMS.debug("handleCerts(): import certificate for certTag=" + certTag + " Exception: "
+                            + ee.toString());
                 }
             }
         } else if (cert.getType().equals("remote")) {
@@ -3216,7 +3237,7 @@ public class ConfigurationUtils {
                     CMS.debug("handleCerts(): import certificate successfully, certTag=" + certTag);
                 } catch (Exception ee) {
                     ee.printStackTrace();
-                    CMS.debug("handleCerts: import certificate for certTag=" + certTag + " Exception: "+ ee.toString());
+                    CMS.debug("handleCerts: import certificate for certTag=" + certTag + " Exception: " + ee.toString());
                 }
 
             } else {
@@ -3268,7 +3289,8 @@ public class ConfigurationUtils {
 
     public static void setCertPermissions(String tag) throws EBaseException, NotInitializedException,
             ObjectNotFoundException, TokenException {
-        if (tag.equals("signing") || tag.equals("external_signing")) return;
+        if (tag.equals("signing") || tag.equals("external_signing"))
+            return;
 
         IConfigStore cs = CMS.getConfigStore();
         String nickname = cs.getString("preop.cert." + tag + ".nickname", "");
@@ -3327,7 +3349,6 @@ public class ConfigurationUtils {
         return true;
     }
 
-
     public static boolean findBootstrapServerCert() throws EBaseException, NotInitializedException, TokenException {
         IConfigStore cs = CMS.getConfigStore();
 
@@ -3342,7 +3363,8 @@ public class ConfigurationUtils {
         }
         Principal issuerDN = cert.getIssuerDN();
         Principal subjectDN = cert.getSubjectDN();
-        if (issuerDN.equals(subjectDN)) return true;
+        if (issuerDN.equals(subjectDN))
+            return true;
 
         return false;
     }
@@ -3473,7 +3495,8 @@ public class ConfigurationUtils {
     }
 
     public static byte[] addCertBag(X509Certificate x509cert, String nickname,
-            SEQUENCE safeContents) throws CertificateEncodingException, NoSuchAlgorithmException, CharConversionException {
+            SEQUENCE safeContents) throws CertificateEncodingException, NoSuchAlgorithmException,
+            CharConversionException {
         byte[] localKeyId = null;
 
         ASN1Value cert = new OCTET_STRING(x509cert.getEncoded());
@@ -3636,49 +3659,56 @@ public class ConfigurationUtils {
         if (select.equals("new")) {
             group = system.getGroupFromName("Security Domain Administrators");
             if (group != null && !group.isMember(uid)) {
-                CMS.debug("ConfigurationUtils: createAdmin:  add user '" + uid + "' to group 'Security Domain Administrators'");
+                CMS.debug("ConfigurationUtils: createAdmin:  add user '" + uid
+                        + "' to group 'Security Domain Administrators'");
                 group.addMemberName(uid);
                 system.modifyGroup(group);
             }
 
             group = system.getGroupFromName("Enterprise CA Administrators");
             if (group != null && !group.isMember(uid)) {
-                CMS.debug("ConfigurationUtils: createAdmin:  add user '" + uid + "' to group 'Enterprise CA Administrators'");
+                CMS.debug("ConfigurationUtils: createAdmin:  add user '" + uid
+                        + "' to group 'Enterprise CA Administrators'");
                 group.addMemberName(uid);
                 system.modifyGroup(group);
             }
 
             group = system.getGroupFromName("Enterprise KRA Administrators");
             if (group != null && !group.isMember(uid)) {
-                CMS.debug("ConfigurationUtils: createAdmin:  add user '" + uid + "' to group 'Enterprise KRA Administrators'");
+                CMS.debug("ConfigurationUtils: createAdmin:  add user '" + uid
+                        + "' to group 'Enterprise KRA Administrators'");
                 group.addMemberName(uid);
                 system.modifyGroup(group);
             }
 
             group = system.getGroupFromName("Enterprise RA Administrators");
             if (group != null && !group.isMember(uid)) {
-                CMS.debug("ConfigurationUtils: createAdmin:  add user '" + uid + "' to group 'Enterprise RA Administrators'");
+                CMS.debug("ConfigurationUtils: createAdmin:  add user '" + uid
+                        + "' to group 'Enterprise RA Administrators'");
                 group.addMemberName(uid);
                 system.modifyGroup(group);
             }
 
             group = system.getGroupFromName("Enterprise TKS Administrators");
             if (group != null && !group.isMember(uid)) {
-                CMS.debug("ConfigurationUtils: createAdmin:  add user '" + uid + "' to group 'Enterprise TKS Administrators'");
+                CMS.debug("ConfigurationUtils: createAdmin:  add user '" + uid
+                        + "' to group 'Enterprise TKS Administrators'");
                 group.addMemberName(uid);
                 system.modifyGroup(group);
             }
 
             group = system.getGroupFromName("Enterprise OCSP Administrators");
             if (group != null && !group.isMember(uid)) {
-                CMS.debug("ConfigurationUtils: createAdmin:  add user '" + uid + "' to group 'Enterprise OCSP Administrators'");
+                CMS.debug("ConfigurationUtils: createAdmin:  add user '" + uid
+                        + "' to group 'Enterprise OCSP Administrators'");
                 group.addMemberName(uid);
                 system.modifyGroup(group);
             }
 
             group = system.getGroupFromName("Enterprise TPS Administrators");
             if (group != null && !group.isMember(uid)) {
-                CMS.debug("ConfigurationUtils: createAdmin:  add user '" + uid + "' to group 'Enterprise TPS Administrators'");
+                CMS.debug("ConfigurationUtils: createAdmin:  add user '" + uid
+                        + "' to group 'Enterprise TPS Administrators'");
                 group.addMemberName(uid);
                 system.modifyGroup(group);
             }
@@ -3833,7 +3863,7 @@ public class ConfigurationUtils {
             CMS.debug("Cloning a domain master");
         }
 
-        String url =  "/ca/admin/ca/updateDomainXML";
+        String url = "/ca/admin/ca/updateDomainXML";
 
         MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
         content.putSingle("list", type + "List");
@@ -3862,7 +3892,7 @@ public class ConfigurationUtils {
             CMS.debug("Unable to access admin interface: " + e);
 
             CMS.debug("Update security domain using agent interface");
-            url =  "/ca/agent/ca/updateDomainXML";
+            url = "/ca/agent/ca/updateDomainXML";
             updateDomainXML(sd_host, sd_agent_port, true, url, content, true);
         }
 
@@ -3903,7 +3933,7 @@ public class ConfigurationUtils {
 
     public static void updateDomainXML(String hostname, int port, boolean https,
             String servlet, MultivaluedMap<String, String> content, boolean useClientAuth)
-                    throws Exception {
+            throws Exception {
 
         CMS.debug("ConfigurationUtils: updateDomainXML start hostname=" + hostname + " port=" + port);
 
@@ -4047,7 +4077,7 @@ public class ConfigurationUtils {
             try {
                 CMS.debug("setupClientAuthUser: Adding cert to user: " + id);
                 system.addUserCert(user);
-            } catch(ConflictingOperationException e) {
+            } catch (ConflictingOperationException e) {
                 // ignore exception
                 CMS.debug("setupClientAuthUser: Cert already added: " + e);
             }
@@ -4121,7 +4151,9 @@ public class ConfigurationUtils {
     }
 
     public static void getSharedSecret(String tksHost, int tksPort, boolean importKey) throws EPropertyNotFound,
-            EBaseException, URISyntaxException {
+            EBaseException, URISyntaxException, InvalidKeyException, NoSuchAlgorithmException,
+            InvalidAlgorithmParameterException, NotInitializedException, TokenException, ObjectNotFoundException,
+            IOException {
         IConfigStore cs = CMS.getConfigStore();
         String host = cs.getString("service.machineName");
         String port = cs.getString("service.securePort");
@@ -4140,6 +4172,8 @@ public class ConfigurationUtils {
 
         PKIClient client = new PKIClient(config, null);
 
+        CMS.debug("In ConfigurationUtils.getSharedSecret! importKey: " + importKey);
+
         // Ignore the "UNTRUSTED_ISSUER" and "CA_CERT_INVALID" validity status
         // during PKI instance creation since we are using an untrusted temporary CA cert.
         client.addIgnoredCertStatus(SSLCertificateApprovalCallback.ValidityStatus.UNTRUSTED_ISSUER);
@@ -4156,6 +4190,9 @@ public class ConfigurationUtils {
             // no connector exists
             data = null;
         }
+
+
+        // The connId or data.getID will be the id of the shared secret
         KeyData keyData = null;
         if (data == null) {
             data = tpsConnectorClient.createConnector(host, port);
@@ -4171,14 +4208,24 @@ public class ConfigurationUtils {
         }
         accountClient.logout();
 
+        String nick = "TPS-" + host + "-" + port + " sharedSecret";
+
         if (importKey) {
-            // TODO - we need code here to import the key into the tps certdb
+            CMS.debug("getSharedSecret: About to attempt to import shared secret key.");
+            byte[] sessionKeyData = Utils.base64decode(keyData.getWrappedPrivateData());
+            byte[] sharedSecretData = Utils.base64decode(keyData.getAdditionalWrappedPrivateData());
+
+            try {
+                CryptoUtil.importSharedSecret(sessionKeyData, sharedSecretData, dbNick, nick);
+            } catch (Exception e) {
+                CMS.debug("getSharedSecret()): WARNING, Failed to automatically import shared secret. Please follow the manual procedure." + e.toString());
+            }
             // this is not needed if we are using a shared database with
             // the tks.
         }
 
         // store the new nick in CS.cfg
-        String nick = "TPS-" + host + "-" + port + " sharedSecret";
+
         cs.putString("conn.tks1.tksSharedSymKeyName", nick);
         cs.commit(false);
     }
@@ -4388,7 +4435,7 @@ public class ConfigurationUtils {
 
             if (status.equals(SUCCESS)) {
                 CMS.debug("registerUser: Successfully added user " + uid + " to " + targetURI +
-                          " using " + targetURL);
+                        " using " + targetURL);
 
             } else if (status.equals(AUTH_FAILURE)) {
                 throw new EAuthException(AUTH_FAILURE);
@@ -4500,7 +4547,6 @@ public class ConfigurationUtils {
         cs.putString("auths.instance.ldap1.ldap.ldapconn.secureConn", secureConn);
     }
 
-
     public static void updateNextRanges() throws EBaseException, LDAPException {
         IConfigStore cs = CMS.getConfigStore();
 
@@ -4541,6 +4587,7 @@ public class ConfigurationUtils {
 
     /**
      * save variables needed for cloning and remove preops
+     *
      * @throws EBaseException
      */
     public static void removePreopConfigEntries() throws EBaseException {

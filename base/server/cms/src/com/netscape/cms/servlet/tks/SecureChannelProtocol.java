@@ -418,7 +418,8 @@ public class SecureChannelProtocol {
         String method = "SecureChannelProtocol.getSharedSecretKeyName:";
         CMS.debug(method + " Entering...");
 
-        if (name != null && SecureChannelProtocol.sharedSecretKeyName == null) {
+        // No longer cache the secret name, there could be a different one for each incoming TPS connection.
+        if (name != null) {
             SecureChannelProtocol.sharedSecretKeyName = name;
         }
 

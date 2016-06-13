@@ -70,6 +70,7 @@ public class TokenServlet extends CMSServlet {
     public static int ERROR = 1;
     String mKeyNickName = null;
     String mNewKeyNickName = null;
+    String mCurrentUID = null;
     IPrettyPrintFormat pp = CMS.getPrettyPrintFormat(":");
 
     private final static String LOGGING_SIGNED_AUDIT_COMPUTE_SESSION_KEY_REQUEST =
@@ -951,8 +952,6 @@ public class TokenServlet extends CMSServlet {
 
         transportKeyName = getSharedSecretName(sconfig);
 
-        CMS.debug("TokenServlet: ComputeSessionKey(): tksSharedSymKeyName: " + transportKeyName);
-
         String rcard_challenge = req.getParameter(IRemoteRequest.TOKEN_CARD_CHALLENGE);
         String rhost_challenge = req.getParameter(IRemoteRequest.TOKEN_HOST_CHALLENGE);
         String rKeyInfo = req.getParameter(IRemoteRequest.TOKEN_KEYINFO);
@@ -1537,12 +1536,31 @@ public class TokenServlet extends CMSServlet {
 
         if (useNewNames) {
             String tpsList = cs.getString("tps.list", "");
+            String firstSharedSecretName = null;
             if (!tpsList.isEmpty()) {
                 for (String tpsID : tpsList.split(",")) {
                     String sharedSecretName = cs.getString("tps." + tpsID + ".nickname", "");
-                    if (!sharedSecretName.isEmpty()) {
-                        return sharedSecretName;
+
+                    // This one will be a fall back in case we can't get a specific one
+                    if (firstSharedSecretName == null) {
+                        firstSharedSecretName = sharedSecretName;
                     }
+
+                    if (!sharedSecretName.isEmpty()) {
+                        if (mCurrentUID != null) {
+                            String csUid = cs.getString("tps." + tpsID + ".userid", "");
+
+                            if (mCurrentUID.equalsIgnoreCase(csUid)) {
+                                CMS.debug("TokenServlet.getSharedSecretName: found a match of the user id! " + csUid);
+                                return sharedSecretName;
+                            }
+                        }
+                    }
+                }
+
+                if (firstSharedSecretName != null) {
+                    //Return the first in the list if we couldn't isolate one
+                    return firstSharedSecretName;
                 }
             }
             CMS.debug("getSharedSecretName: no shared secret has been configured");
@@ -2350,6 +2368,8 @@ public class TokenServlet extends CMSServlet {
 
         IAuthToken authToken = authenticate(cmsReq);
         AuthzToken authzToken = null;
+
+        mCurrentUID = (String) authToken.get(IAuthToken.UID) ;
 
         try {
             authzToken = authorize(mAclMethod, authToken,
