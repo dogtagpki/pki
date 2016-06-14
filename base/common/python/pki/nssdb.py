@@ -477,6 +477,13 @@ class NSSDatabase(object):
             else:  # import PKCS #7 data without header/footer
                 with open(cert_chain_file, 'r') as f:
                     base64_data = f.read()
+
+                # TODO: fix ipaserver/install/cainstance.py in IPA
+                # to no longer remove PKCS #7 header/footer
+
+                # join base-64 data into a single line
+                base64_data = base64_data.replace('\r', '').replace('\n', '')
+
                 pkcs7_data = convert_pkcs7(base64_data, 'base64', 'pem')
 
                 tmp_cert_chain_file = os.path.join(tmpdir, 'cert_chain.p7b')
