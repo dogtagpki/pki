@@ -46,8 +46,8 @@ import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.certsrv.base.ServiceUnavailableException;
 import com.netscape.certsrv.ca.AuthorityID;
-import com.netscape.certsrv.ca.CAEnabledException;
 import com.netscape.certsrv.ca.CADisabledException;
+import com.netscape.certsrv.ca.CAEnabledException;
 import com.netscape.certsrv.ca.CAMissingCertException;
 import com.netscape.certsrv.ca.CAMissingKeyException;
 import com.netscape.certsrv.ca.CANotFoundException;
@@ -97,7 +97,7 @@ public class AuthorityService extends PKIService implements AuthorityResource {
 
         GenericEntity<List<AuthorityData>> entity =
             new GenericEntity<List<AuthorityData>>(results) {};
-        return Response.ok(entity).build();
+        return createOKResponse(entity);
     }
 
     @Override

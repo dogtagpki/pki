@@ -31,7 +31,7 @@ public class FeatureService extends PKIService implements FeatureResource {
             features.add(feature);
         }
         GenericEntity<List<Feature>> entity = new GenericEntity<List<Feature>>(features) {};
-        return Response.ok(entity).build();
+        return createOKResponse(entity);
     }
 
     @Override

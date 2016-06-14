@@ -132,9 +132,7 @@ public class ConfigService extends PKIService implements ConfigResource {
             auditConfigTokenGeneral(ILogger.SUCCESS, method,
                     newProperties, null);
 
-            return Response
-                    .ok(configData)
-                    .build();
+            return createOKResponse(configData);
 
         } catch (PKIException e) {
             CMS.debug(method +": " + e);
