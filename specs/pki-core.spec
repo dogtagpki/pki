@@ -13,6 +13,7 @@
 %global package_rhel_packages 1
 # Package RHCS-specific RPMS Only
 %global package_rhcs_packages 1
+%define pki_core_rhel_version 10.3.2
 %else
 # 0%{?fedora}
 # Fedora always packages all RPMS
@@ -602,7 +603,11 @@ Group:            System Environment/Daemons
 BuildArch:        noarch
 
 Requires:         java-headless >= 1:1.8.0
+%if 0%{?package_fedora_packages} || 0%{?package_rhel_packages}
 Requires:         pki-server = %{version}-%{release}
+%else
+Requires:         pki-server >= %{pki_core_rhel_version}
+%endif
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
 Requires(postun): systemd-units
@@ -642,8 +647,13 @@ Group:            System Environment/Daemons
 BuildArch:        noarch
 
 Requires:         java-headless >= 1:1.8.0
+%if 0%{?package_fedora_packages} || 0%{?package_rhel_packages}
 Requires:         pki-server = %{version}-%{release}
 Requires:         pki-symkey = %{version}-%{release}
+%else
+Requires:         pki-server >= %{pki_core_rhel_version}
+Requires:         pki-symkey >= %{pki_core_rhel_version}
+%endif
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
 Requires(postun): systemd-units
@@ -681,7 +691,11 @@ Obsoletes:        pki-tps-tomcat
 Obsoletes:        pki-tps-client
 
 Requires:         java-headless >= 1:1.8.0
+%if 0%{?package_fedora_packages} || 0%{?package_rhel_packages}
 Requires:         pki-server = %{version}-%{release}
+%else
+Requires:         pki-server >= %{pki_core_rhel_version}
+%endif
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
 Requires(postun): systemd-units
@@ -691,7 +705,11 @@ Requires(postun): systemd-units
 Requires:         nss >= 3.14.3
 Requires:         nss-tools >= 3.14.3
 Requires:         openldap-clients
+%if 0%{?package_fedora_packages} || 0%{?package_rhel_packages}
 Requires:         pki-symkey = %{version}-%{release}
+%else
+Requires:         pki-symkey >= %{pki_core_rhel_version}
+%endif
 
 %description -n   pki-tps
 The Token Processing System (TPS) is an optional PKI subsystem that acts
@@ -1157,6 +1175,9 @@ systemctl daemon-reload
 %changelog
 * Tue Jun  7 2016 Dogtag Team <pki-devel@redhat.com> 10.3.3-0.1
 - Updated version number to 10.3.3-0.1
+
+* Tue Jun  7 2016 Dogtag Team <pki-devel@redhat.com> 10.3.2-5
+- Provided cleaner runtime dependency separation
 
 * Sun Jun  7 2016 Dogtag Team <pki-devel@redhat.com> 10.3.2-4
 - Updated tomcatjss version dependencies
