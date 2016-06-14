@@ -331,6 +331,15 @@ class InstanceStartCLI(pki.cli.CLI):
         instance_name = args[0]
 
         instance = pki.server.PKIInstance(instance_name)
+
+        if not instance.is_valid():
+            self.print_message('%s instance not found' % instance_name)
+            sys.exit(1)
+
+        if instance.is_active():
+            self.print_message('%s instance already started' % instance_name)
+            return
+
         instance.load()
         instance.start()
 
@@ -381,6 +390,15 @@ class InstanceStopCLI(pki.cli.CLI):
         instance_name = args[0]
 
         instance = pki.server.PKIInstance(instance_name)
+
+        if not instance.is_valid():
+            self.print_message('%s instance not found' % instance_name)
+            sys.exit(1)
+
+        if not instance.is_active():
+            self.print_message('%s instance already stopped' % instance_name)
+            return
+
         instance.load()
         instance.stop()
 
