@@ -1,3 +1,9 @@
+%if 0%{?rhel} || 0%{?fedora} < 24
+%global with_python3 0
+%else
+%global with_python3 1
+%endif
+
 Summary:          Dogtag Public Key Infrastructure (PKI) Suite
 Name:             dogtag-pki
 Version:          10.3.3
@@ -11,9 +17,13 @@ BuildArch:        noarch
 
 %define dogtag_pki_theme_version   %{version}
 %define esc_version                1.1.0
-%define jss_version                4.2.6-40
 # NOTE:  The following package versions are TLS compliant:
+%if 0%{?rhel}
+%define pki_core_rhel_version      10.3.2
+%define pki_core_rhcs_version      %{version}
+%else
 %define pki_core_version           %{version}
+%endif
 %define pki_console_version        %{version}
 
 # Make certain that this 'meta' package requires the latest version(s)
@@ -21,17 +31,42 @@ BuildArch:        noarch
 Requires:         dogtag-pki-server-theme >= %{dogtag_pki_theme_version}
 Requires:         dogtag-pki-console-theme >= %{dogtag_pki_theme_version}
 
+%if 0%{?rhel}
+# Make certain that this 'meta' package requires the latest version(s)
+# of ALL Red Hat PKI core (RHEL) packages
+Requires:         pki-base >= %{pki_core_rhel_version}
+Requires:         pki-base-java >= %{pki_core_rhel_version}
+%if 0%{?with_python3}
+Requires:         pki-base-python3 >= %{pki_core_rhel_version}
+%endif
+Requires:         pki-ca >= %{pki_core_rhel_version}
+Requires:         pki-kra >= %{pki_core_rhel_version}
+Requires:         pki-server >= %{pki_core_rhel_version}
+Requires:         pki-symkey >= %{pki_core_rhel_version}
+Requires:         pki-tools >= %{pki_core_rhel_version}
+
+# Make certain that this 'meta' package requires the latest version(s)
+# of ALL Red Hat PKI core (RHCS) packages
+Requires:         pki-ocsp >= %{pki_core_rhcs_version}
+Requires:         pki-tks >= %{pki_core_rhcs_version}
+Requires:         pki-tps >= %{pki_core_rhcs_version}
+%else
 # Make certain that this 'meta' package requires the latest version(s)
 # of ALL Dogtag PKI core packages
+Requires:         pki-base >= %{pki_core_version}
+Requires:         pki-base-java >= %{pki_core_version}
+%if 0%{?with_python3}
+Requires:         pki-base-python3 >= %{pki_core_version}
+%endif
 Requires:         pki-ca >= %{pki_core_version}
 Requires:         pki-kra >= %{pki_core_version}
 Requires:         pki-ocsp >= %{pki_core_version}
-Requires:         pki-tks >= %{pki_core_version}
-Requires:         pki-tps >= %{pki_core_version}
 Requires:         pki-server >= %{pki_core_version}
-Requires:         pki-tools >= %{pki_core_version}
 Requires:         pki-symkey >= %{pki_core_version}
-Requires:         pki-base >= %{pki_core_version}
+Requires:         pki-tks >= %{pki_core_version}
+Requires:         pki-tools >= %{pki_core_version}
+Requires:         pki-tps >= %{pki_core_version}
+%endif
 
 # Make certain that this 'meta' package requires the latest version(s)
 # of Dogtag PKI console
@@ -65,7 +100,7 @@ this machine, or remotely over the attached network connection.
 
 Finally, although they are no longer supplied by this 'meta' package,
 javadocs are available for both JSS (jss-javadoc) and portions of
-the Dogtag API (pki-javadoc).
+the Dogtag PKI API (pki-javadoc).
 
 NOTE:  As a convenience for standalone deployments, this 'dogtag-pki'
        top-level meta package supplies Dogtag themes for use by the
@@ -91,6 +126,9 @@ rm -rf %{buildroot}
 %changelog
 * Tue Jun  7 2016 Dogtag Team <pki-devel@redhat.com> 10.3.3-0.1
 - Updated version number to 10.3.3-0.1
+
+* Tue Jun  7 2016 Dogtag Team <pki-devel@redhat.com> 10.3.2-2
+- Provided cleaner runtime dependency separation
 
 * Tue Jun  7 2016 Dogtag Team <pki-devel@redhat.com> 10.3.2-1
 - Updated version number to 10.3.2-1

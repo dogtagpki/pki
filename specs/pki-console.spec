@@ -8,6 +8,13 @@ Group:            System Environment/Base
 
 %bcond_without    javadoc
 
+%if 0%{?rhel}
+%define pki_core_rhel_version      10.3.2
+%define pki_core_version           %{pki_core_rhel_version}
+%else
+%define pki_core_version           %{version}
+%endif
+
 BuildArch:        noarch
 
 BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -26,12 +33,12 @@ BuildRequires:    nss-devel
 BuildRequires:    junit
 BuildRequires:    jpackage-utils >= 1.7.5-10
 BuildRequires:    jss >= 4.2.6-40
-BuildRequires:    pki-base-java >= %{version}
+BuildRequires:    pki-base-java >= %{pki_core_version}
 
 Requires:         idm-console-framework
 Requires:         java >= 1:1.8.0
 Requires:         ldapjdk
-Requires:         pki-base-java >= %{version}
+Requires:         pki-base-java >= %{pki_core_version}
 Requires:         pki-console-theme >= %{version}
 Requires:         jpackage-utils >= 1.7.5-10
 Requires:         jss >= 4.2.6-40
@@ -98,6 +105,9 @@ cd build
 %changelog
 * Tue Jun  7 2016 Dogtag Team <pki-devel@redhat.com> 10.3.3-0.1
 - Updated version number to 10.3.3-0.1
+
+* Tue Jun  7 2016 Dogtag Team <pki-devel@redhat.com> 10.3.2-3
+- Provided cleaner runtime dependency separation
 
 * Tue Jun  7 2016 Dogtag Team <pki-devel@redhat.com> 10.3.2-2
 - Updated 'java', 'java-headless', and 'java-devel' dependencies to 1:1.8.0.
