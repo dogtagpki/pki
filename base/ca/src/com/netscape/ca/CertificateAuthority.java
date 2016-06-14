@@ -517,8 +517,9 @@ public class CertificateAuthority
             }
 
             // init signing unit & CA cert.
+            boolean initSigUnitSucceeded = false;
             try {
-                initSigUnit(/* retrieveKeys */ true);
+                initSigUnitSucceeded = initSigUnit(/* retrieveKeys */ true);
                 // init default CA attributes like cert version, validity.
                 initDefCaAttrs();
 
@@ -531,7 +532,10 @@ public class CertificateAuthority
                 }
             }
 
-            checkForNewerCert();
+            /* Don't try to update the cert unless we already have
+             * the cert and key. */
+            if (initSigUnitSucceeded)
+                checkForNewerCert();
 
             mUseNonces = mConfig.getBoolean("enableNonces", true);
             mMaxNonces = mConfig.getInteger("maxNumberOfNonces", 100);
