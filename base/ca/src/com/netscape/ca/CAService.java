@@ -31,6 +31,33 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import netscape.security.extensions.CertInfo;
+import netscape.security.util.BigInt;
+import netscape.security.util.DerValue;
+import netscape.security.x509.AlgorithmId;
+import netscape.security.x509.BasicConstraintsExtension;
+import netscape.security.x509.CRLExtensions;
+import netscape.security.x509.CRLReasonExtension;
+import netscape.security.x509.CertificateAlgorithmId;
+import netscape.security.x509.CertificateChain;
+import netscape.security.x509.CertificateExtensions;
+import netscape.security.x509.CertificateIssuerName;
+import netscape.security.x509.CertificateSerialNumber;
+import netscape.security.x509.CertificateSubjectName;
+import netscape.security.x509.CertificateValidity;
+import netscape.security.x509.Extension;
+import netscape.security.x509.LdapV3DNStrConverter;
+import netscape.security.x509.PKIXExtensions;
+import netscape.security.x509.RevocationReason;
+import netscape.security.x509.RevokedCertImpl;
+import netscape.security.x509.SerialNumber;
+import netscape.security.x509.X500Name;
+import netscape.security.x509.X500NameAttrMap;
+import netscape.security.x509.X509CRLImpl;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509CertInfo;
+import netscape.security.x509.X509ExtensionException;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.authority.ICertAuthority;
@@ -67,33 +94,6 @@ import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.dbs.RevocationInfo;
 import com.netscape.cmscore.util.Debug;
 import com.netscape.cmsutil.util.Utils;
-
-import netscape.security.extensions.CertInfo;
-import netscape.security.util.BigInt;
-import netscape.security.util.DerValue;
-import netscape.security.x509.AlgorithmId;
-import netscape.security.x509.BasicConstraintsExtension;
-import netscape.security.x509.CRLExtensions;
-import netscape.security.x509.CRLReasonExtension;
-import netscape.security.x509.CertificateAlgorithmId;
-import netscape.security.x509.CertificateChain;
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.CertificateIssuerName;
-import netscape.security.x509.CertificateSerialNumber;
-import netscape.security.x509.CertificateSubjectName;
-import netscape.security.x509.CertificateValidity;
-import netscape.security.x509.Extension;
-import netscape.security.x509.LdapV3DNStrConverter;
-import netscape.security.x509.PKIXExtensions;
-import netscape.security.x509.RevocationReason;
-import netscape.security.x509.RevokedCertImpl;
-import netscape.security.x509.SerialNumber;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X500NameAttrMap;
-import netscape.security.x509.X509CRLImpl;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
-import netscape.security.x509.X509ExtensionException;
 
 /**
  * Request Service for CertificateAuthority.
@@ -192,7 +192,7 @@ public class CAService implements ICAService, IService {
 
         if (kraConfig != null) {
             mArchivalRequired = kraConfig.getBoolean(
-                        "archivalRequired", true);
+                    "archivalRequired", true);
             mKRAConnector = getConnector(kraConfig);
             if (mKRAConnector != null) {
                 if (Debug.ON) {
@@ -293,10 +293,12 @@ public class CAService implements ICAService, IService {
 
             String clientCiphers = config.getString("clientCiphers", null);
             if (timeout == 0)
-                connector = new HttpConnector((IAuthority) mCA, nickname, clientCiphers, remauthority, resendInterval, config);
+                connector = new HttpConnector((IAuthority) mCA, nickname, clientCiphers, remauthority, resendInterval,
+                        config);
             else
                 connector =
-                        new HttpConnector((IAuthority) mCA, nickname, clientCiphers, remauthority, resendInterval, config, timeout);
+                        new HttpConnector((IAuthority) mCA, nickname, clientCiphers, remauthority, resendInterval,
+                                config, timeout);
             // Change end
 
             // log(ILogger.LL_INFO, "remote authority "+
@@ -382,15 +384,6 @@ public class CAService implements ICAService, IService {
                 serviceProfileRequest(request);
                 request.setExtData(IRequest.RESULT, IRequest.RES_SUCCESS);
                 CMS.debug("CAService: x1 requestStatus=" + request.getRequestStatus().toString());
-                // store a message in the signed audit log file
-                auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST,
-                            auditSubjectID,
-                            ILogger.SUCCESS,
-                            auditRequesterID,
-                            auditArchiveID);
-
-                audit(auditMessage);
 
                 return true;
             } catch (EBaseException e) {
@@ -399,14 +392,6 @@ public class CAService implements ICAService, IService {
                 CMS.debug("CAService: serviceRequest " + e.toString());
                 request.setExtData(IRequest.RESULT, IRequest.RES_ERROR);
                 request.setExtData(IRequest.ERROR, e.toString());
-
-                // store a message in the signed audit log file
-                auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST,
-                            auditSubjectID,
-                            ILogger.FAILURE,
-                            auditRequesterID,
-                            auditArchiveID);
 
                 audit(auditMessage);
 
@@ -422,15 +407,6 @@ public class CAService implements ICAService, IService {
             request.setExtData(IRequest.RESULT, IRequest.RES_ERROR);
             request.setExtData(IRequest.ERROR,
                     new ECAException(CMS.getUserMessage("CMS_CA_UNRECOGNIZED_REQUEST_TYPE", type)));
-            // store a message in the signed audit log file
-            auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST,
-                        auditSubjectID,
-                        ILogger.FAILURE,
-                        auditRequesterID,
-                        auditArchiveID);
-
-            audit(auditMessage);
 
             return true;
         }
@@ -443,6 +419,17 @@ public class CAService implements ICAService, IService {
                     isPKIArchiveOptionPresent(request) && mKRAConnector != null) {
 
                 CMS.debug("CAService: Sending enrollment request to KRA");
+
+                // store a message in the signed audit log file
+                auditMessage = CMS.getLogMessage(
+                        LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST,
+                        auditSubjectID,
+                        ILogger.SUCCESS,
+                        auditRequesterID,
+                        auditArchiveID);
+
+                audit(auditMessage);
+
                 boolean sendStatus = mKRAConnector.send(request);
 
                 if (mArchivalRequired == true) {
@@ -454,11 +441,11 @@ public class CAService implements ICAService, IService {
 
                         // store a message in the signed audit log file
                         auditMessage = CMS.getLogMessage(
-                                    LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST,
-                                    auditSubjectID,
-                                    ILogger.FAILURE,
-                                    auditRequesterID,
-                                    auditArchiveID);
+                                LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST,
+                                auditSubjectID,
+                                ILogger.FAILURE,
+                                auditRequesterID,
+                                auditArchiveID);
 
                         audit(auditMessage);
 
@@ -472,11 +459,11 @@ public class CAService implements ICAService, IService {
                     if (request.getExtDataInString(IRequest.ERROR) != null) {
                         // store a message in the signed audit log file
                         auditMessage = CMS.getLogMessage(
-                                    LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST,
-                                    auditSubjectID,
-                                    ILogger.FAILURE,
-                                    auditRequesterID,
-                                    auditArchiveID);
+                                LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST,
+                                auditSubjectID,
+                                ILogger.FAILURE,
+                                auditRequesterID,
+                                auditArchiveID);
 
                         audit(auditMessage);
 
@@ -496,14 +483,17 @@ public class CAService implements ICAService, IService {
             request.setExtData(IRequest.ERROR, e);
 
             // store a message in the signed audit log file
-            auditMessage = CMS.getLogMessage(
+            if (!(type.equals(IRequest.REVOCATION_REQUEST) ||
+                    type.equals(IRequest.UNREVOCATION_REQUEST) || type.equals(IRequest.CMCREVOKE_REQUEST))) {
+                auditMessage = CMS.getLogMessage(
                         LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditRequesterID,
                         auditArchiveID);
 
-            audit(auditMessage);
+                audit(auditMessage);
+            }
 
             return true;
         }
@@ -516,11 +506,11 @@ public class CAService implements ICAService, IService {
                 type.equals(IRequest.UNREVOCATION_REQUEST) || type.equals(IRequest.CMCREVOKE_REQUEST))) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST,
-                        auditSubjectID,
-                        ILogger.SUCCESS,
-                        auditRequesterID,
-                        auditArchiveID);
+                    LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST,
+                    auditSubjectID,
+                    ILogger.SUCCESS,
+                    auditRequesterID,
+                    auditArchiveID);
 
             audit(auditMessage);
         }
@@ -575,8 +565,8 @@ public class CAService implements ICAService, IService {
      * issue cert for enrollment.
      */
     public X509CertImpl issueX509Cert(
-                AuthorityID aid, X509CertInfo certi,
-                String profileId, String rid)
+            AuthorityID aid, X509CertInfo certi,
+            String profileId, String rid)
             throws EBaseException {
         CMS.debug("issueX509Cert");
         X509CertImpl certImpl = issueX509Cert(aid, "", certi, false, null);
@@ -619,15 +609,15 @@ public class CAService implements ICAService, IService {
      * field.
      */
     X509CertImpl issueX509Cert(
-                String rid, X509CertInfo certi,
-                boolean renewal, BigInteger oldSerialNo
+            String rid, X509CertInfo certi,
+            boolean renewal, BigInteger oldSerialNo
             ) throws EBaseException {
         return issueX509Cert(null, rid, certi, renewal, oldSerialNo);
     }
 
     private X509CertImpl issueX509Cert(
-                AuthorityID aid, String rid, X509CertInfo certi,
-                boolean renewal, BigInteger oldSerialNo
+            AuthorityID aid, String rid, X509CertInfo certi,
+            boolean renewal, BigInteger oldSerialNo
             ) throws EBaseException {
         ICertificateAuthority ca = mCA.getCA(aid);
         if (ca == null)
@@ -1016,10 +1006,10 @@ public class CAService implements ICAService, IService {
         String certStatus = certRec.getStatus();
 
         if ((certStatus.equals(ICertRecord.STATUS_REVOKED) &&
-            !certRec.isCertOnHold()) ||
+                !certRec.isCertOnHold()) ||
                 certStatus.equals(ICertRecord.STATUS_REVOKED_EXPIRED)) {
             CMS.debug("CAService.revokeCert: cert already revoked:" +
-                serialno.toString());
+                    serialno.toString());
             throw new ECAException(CMS.getUserMessage("CMS_CA_CERT_ALREADY_REVOKED",
                     "0x" + Long.toHexString(serialno.longValue())));
         }
@@ -1027,10 +1017,10 @@ public class CAService implements ICAService, IService {
             CMS.debug("CAService.revokeCert: about to call markAsRevoked");
             if (certRec.isCertOnHold()) {
                 mCA.getCertificateRepository().markAsRevoked(serialno,
-                    new RevocationInfo(revdate, crlentryexts), true /*isAlreadyOnHold*/);
+                        new RevocationInfo(revdate, crlentryexts), true /*isAlreadyOnHold*/);
             } else {
                 mCA.getCertificateRepository().markAsRevoked(serialno,
-                    new RevocationInfo(revdate, crlentryexts));
+                        new RevocationInfo(revdate, crlentryexts));
             }
             CMS.debug("CAService.revokeCert: cert revoked");
             mCA.log(ILogger.LL_INFO, CMS.getLogMessage("CMSCORE_CA_CERT_REVOKED",
@@ -1431,8 +1421,8 @@ class serviceRenewal implements IServant {
                 if (certRecord == null) {
                     mCA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_NOT_FROM_CA", oldSerialNo.toString()));
                     svcerrors[i] = new ECAException(
-                                CMS.getUserMessage("CMS_CA_CANT_FIND_CERT_SERIAL",
-                                        oldSerialNo.toString())).toString();
+                            CMS.getUserMessage("CMS_CA_CANT_FIND_CERT_SERIAL",
+                                    oldSerialNo.toString())).toString();
                     continue;
                 }
 
@@ -1443,8 +1433,8 @@ class serviceRenewal implements IServant {
                         certStatus.equals(ICertRecord.STATUS_REVOKED_EXPIRED)) {
                     mCA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_RENEW_REVOKED", oldSerialNo.toString()));
                     svcerrors[i] = new ECAException(
-                                CMS.getUserMessage("CMS_CA_CANNOT_RENEW_REVOKED_CERT",
-                                        "0x" + oldSerialNo.toString(16))).toString();
+                            CMS.getUserMessage("CMS_CA_CANNOT_RENEW_REVOKED_CERT",
+                                    "0x" + oldSerialNo.toString(16))).toString();
                     continue;
                 }
 
@@ -1465,8 +1455,8 @@ class serviceRenewal implements IServant {
                             mCA.log(ILogger.LL_FAILURE,
                                     CMS.getLogMessage("CMSCORE_CA_MISSING_RENEWED", serial.toString()));
                             svcerrors[i] = new ECAException(
-                                        CMS.getUserMessage("CMS_CA_ERROR_GETTING_RENEWED_CERT",
-                                                oldSerialNo.toString(), serial.toString())).toString();
+                                    CMS.getUserMessage("CMS_CA_ERROR_GETTING_RENEWED_CERT",
+                                            oldSerialNo.toString(), serial.toString())).toString();
                             continue;
                         }
                         // get cert record
@@ -1476,8 +1466,8 @@ class serviceRenewal implements IServant {
                         if (cRecord == null) {
                             mCA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_NOT_FROM_CA", serial.toString()));
                             svcerrors[i] = new ECAException(
-                                        CMS.getUserMessage("CMS_CA_CANT_FIND_CERT_SERIAL",
-                                                serial.toString())).toString();
+                                    CMS.getUserMessage("CMS_CA_CANT_FIND_CERT_SERIAL",
+                                            serial.toString())).toString();
                             continue;
                         }
                         // Check renewed certificate already REVOKED or EXPIRED
