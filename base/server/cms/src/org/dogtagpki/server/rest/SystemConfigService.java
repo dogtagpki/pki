@@ -382,150 +382,14 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                     continue;
                 }
 
-                String keytype = certData.getKeyType() != null ? certData.getKeyType() : "rsa";
-
-                String keyalgorithm = certData.getKeyAlgorithm();
-                if (keyalgorithm == null) {
-                    keyalgorithm = keytype.equals("ecc") ? "SHA256withEC" : "SHA256withRSA";
-                }
-
-                String signingalgorithm = certData.getSigningAlgorithm() != null ? certData.getSigningAlgorithm() : keyalgorithm;
-                String nickname = cs.getString("preop.cert." + tag + ".nickname");
-                String dn = cs.getString("preop.cert." + tag + ".dn");
-
-                cs.putString("preop.cert." + tag + ".keytype", keytype);
-                cs.putString("preop.cert." + tag + ".keyalgorithm", keyalgorithm);
-                cs.putString("preop.cert." + tag + ".signingalgorithm", signingalgorithm);
-
-                // support injecting SAN into server cert
-                if ( tag.equals("sslserver") && certData.getServerCertSAN() != null) {
-                    CMS.debug("updateConfiguration(): san_server_cert found");
-                    cs.putString("service.injectSAN", "true");
-                    cs.putString("service.sslserver.san", certData.getServerCertSAN());
-                } else {
-                    if ( tag.equals("sslserver"))
-                        CMS.debug("SystemConfigService:processCerts(): san_server_cert not found for tag sslserver");
-                }
-                cs.commit(false);
-
-                if (request.isExternal() && tag.equals("signing")) { // external/existing CA
-                    // load key pair for existing and externally-signed signing cert
-                    CMS.debug("SystemConfigService: loading signing cert key pair");
-                    KeyPair pair = ConfigurationUtils.loadKeyPair(certData.getNickname(), certData.getToken());
-                    ConfigurationUtils.storeKeyPair(cs, tag, pair);
-
-                } else if (!request.getStepTwo()) {
-                    if (keytype.equals("ecc")) {
-                        String curvename = certData.getKeyCurveName() != null ?
-                                certData.getKeyCurveName() : cs.getString("keys.ecc.curve.default");
-                        cs.putString("preop.cert." + tag + ".curvename.name", curvename);
-                        ConfigurationUtils.createECCKeyPair(token, curvename, cs, tag);
-
-                    } else {
-                        String keysize = certData.getKeySize() != null ? certData.getKeySize() : cs
-                                .getString("keys.rsa.keysize.default");
-                        cs.putString("preop.cert." + tag + ".keysize.size", keysize);
-                        ConfigurationUtils.createRSAKeyPair(token, Integer.parseInt(keysize), cs, tag);
-                    }
-
-                } else {
-                    CMS.debug("configure(): step two selected.  keys will not be generated for '" + tag + "'");
-                }
-
-                Cert cert = new Cert(tokenName, nickname, tag);
-                cert.setDN(dn);
-                cert.setSubsystem(cs.getString("preop.cert." + tag + ".subsystem"));
-                cert.setType(cs.getString("preop.cert." + tag + ".type"));
-
-                if (request.isExternal() && tag.equals("signing")) { // external/existing CA
-
-                    // update configuration for existing or externally-signed signing certificate
-                    String certStr = cs.getString("ca." + tag + ".cert" );
-                    cert.setCert(certStr);
-                    CMS.debug("SystemConfigService: certificate " + tag + ": " + certStr);
-                    ConfigurationUtils.updateConfig(cs, tag);
-
-                } else if (!request.getStepTwo()) {
-                    ConfigurationUtils.configCert(null, null, null, cert);
-
-                } else {
-                    String subsystem = cs.getString("preop.cert." + tag + ".subsystem");
-                    String certStr;
-
-                    if (request.getStandAlone()) {
-                        // Stand-alone PKI (Step 2)
-                        certStr = certData.getCert();
-                        certStr = CryptoUtil.stripCertBrackets(certStr.trim());
-                        certStr = CryptoUtil.normalizeCertStr(certStr);
-                        cs.putString(subsystem + "." + tag + ".cert", certStr);
-
-                    } else {
-                        certStr = cs.getString(subsystem + "." + tag + ".cert" );
-                    }
-
-                    cert.setCert(certStr);
-                    CMS.debug("Step 2:  certStr for '" + tag + "' is " + certStr);
-                }
-
-                if (request.isExternal() && tag.equals("signing")) { // external/existing CA
-
-                    CMS.debug("SystemConfigService: Loading cert request for " + tag + " cert");
-                    ConfigurationUtils.loadCertRequest(cs, tag, cert);
-
-                    CMS.debug("SystemConfigService: Loading cert " + tag);
-                    ConfigurationUtils.loadCert(cs, cert);
-
-                } else if (request.getStandAlone()) {
-                    // Handle Cert Requests for everything EXCEPT Stand-alone PKI (Step 2)
-                    if (!request.getStepTwo()) {
-                        // Stand-alone PKI (Step 1)
-                        ConfigurationUtils.generateCertRequest(cs, tag, cert);
-
-                        CMS.debug("Stand-alone " + csType + " Admin CSR");
-                        String adminSubjectDN = request.getAdminSubjectDN();
-                        String certreqStr = request.getAdminCertRequest();
-                        certreqStr = CryptoUtil.normalizeCertAndReq(certreqStr);
-
-                        cs.putString("preop.cert.admin.dn", adminSubjectDN);
-                        cs.putString(csSubsystem + ".admin.certreq", certreqStr);
-                        cs.putString(csSubsystem + ".admin.cert", "...paste certificate here...");
-                    }
-
-                } else {
-                    ConfigurationUtils.generateCertRequest(cs, tag, cert);
-                }
-
-                if (request.isClone()) {
-                    ConfigurationUtils.updateCloneConfig();
-                }
-
-                if (request.isExternal() && tag.equals("signing")) { // external/existing CA
-                    CMS.debug("SystemConfigService: External CA has signing cert");
-                    hasSigningCert.setValue(true);
-                    certs.add(cert);
-                    continue;
-                }
-
-                // to determine if we have the signing cert when using an external ca
-                // this will only execute on a ca or stand-alone pki
-                String b64 = certData.getCert();
-                if ((tag.equals("signing") || tag.equals("external_signing")) && b64 != null && b64.length() > 0 && !b64.startsWith("...")) {
-                    hasSigningCert.setValue(true);
-
-                    if (request.getIssuingCA().equals("External CA")) {
-                        b64 = CryptoUtil.stripCertBrackets(b64.trim());
-                        cert.setCert(CryptoUtil.normalizeCertStr(b64));
-
-                        if (certData.getCertChain() != null) {
-                            cert.setCertChain(certData.getCertChain());
-
-                        } else {
-                            throw new BadRequestException("CertChain not provided");
-                        }
-                    }
-                }
-
-                certs.add(cert);
+                processCert(
+                        request,
+                        token,
+                        certList,
+                        certs,
+                        hasSigningCert,
+                        certData,
+                        tokenName);
             }
 
             // make sure to commit changes here for step 1
@@ -545,6 +409,162 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             CMS.debug(e);
             throw new PKIException("Error in setting certificate names and key sizes: " + e);
         }
+    }
+
+    public void processCert(
+            ConfigurationRequest request,
+            String token,
+            Collection<String> certList,
+            Collection<Cert> certs,
+            MutableBoolean hasSigningCert,
+            SystemCertData certData,
+            String tokenName) throws Exception {
+
+        String tag = certData.getTag();
+        String keytype = certData.getKeyType() != null ? certData.getKeyType() : "rsa";
+
+        String keyalgorithm = certData.getKeyAlgorithm();
+        if (keyalgorithm == null) {
+            keyalgorithm = keytype.equals("ecc") ? "SHA256withEC" : "SHA256withRSA";
+        }
+
+        String signingalgorithm = certData.getSigningAlgorithm() != null ? certData.getSigningAlgorithm() : keyalgorithm;
+        String nickname = cs.getString("preop.cert." + tag + ".nickname");
+        String dn = cs.getString("preop.cert." + tag + ".dn");
+
+        cs.putString("preop.cert." + tag + ".keytype", keytype);
+        cs.putString("preop.cert." + tag + ".keyalgorithm", keyalgorithm);
+        cs.putString("preop.cert." + tag + ".signingalgorithm", signingalgorithm);
+
+        // support injecting SAN into server cert
+        if ( tag.equals("sslserver") && certData.getServerCertSAN() != null) {
+            CMS.debug("updateConfiguration(): san_server_cert found");
+            cs.putString("service.injectSAN", "true");
+            cs.putString("service.sslserver.san", certData.getServerCertSAN());
+        } else {
+            if ( tag.equals("sslserver"))
+                CMS.debug("SystemConfigService:processCerts(): san_server_cert not found for tag sslserver");
+        }
+        cs.commit(false);
+
+        if (request.isExternal() && tag.equals("signing")) { // external/existing CA
+            // load key pair for existing and externally-signed signing cert
+            CMS.debug("SystemConfigService: loading signing cert key pair");
+            KeyPair pair = ConfigurationUtils.loadKeyPair(certData.getNickname(), certData.getToken());
+            ConfigurationUtils.storeKeyPair(cs, tag, pair);
+
+        } else if (!request.getStepTwo()) {
+            if (keytype.equals("ecc")) {
+                String curvename = certData.getKeyCurveName() != null ?
+                        certData.getKeyCurveName() : cs.getString("keys.ecc.curve.default");
+                cs.putString("preop.cert." + tag + ".curvename.name", curvename);
+                ConfigurationUtils.createECCKeyPair(token, curvename, cs, tag);
+
+            } else {
+                String keysize = certData.getKeySize() != null ? certData.getKeySize() : cs
+                        .getString("keys.rsa.keysize.default");
+                cs.putString("preop.cert." + tag + ".keysize.size", keysize);
+                ConfigurationUtils.createRSAKeyPair(token, Integer.parseInt(keysize), cs, tag);
+            }
+
+        } else {
+            CMS.debug("configure(): step two selected.  keys will not be generated for '" + tag + "'");
+        }
+
+        Cert cert = new Cert(tokenName, nickname, tag);
+        cert.setDN(dn);
+        cert.setSubsystem(cs.getString("preop.cert." + tag + ".subsystem"));
+        cert.setType(cs.getString("preop.cert." + tag + ".type"));
+
+        if (request.isExternal() && tag.equals("signing")) { // external/existing CA
+
+            // update configuration for existing or externally-signed signing certificate
+            String certStr = cs.getString("ca." + tag + ".cert" );
+            cert.setCert(certStr);
+            CMS.debug("SystemConfigService: certificate " + tag + ": " + certStr);
+            ConfigurationUtils.updateConfig(cs, tag);
+
+        } else if (!request.getStepTwo()) {
+            ConfigurationUtils.configCert(null, null, null, cert);
+
+        } else {
+            String subsystem = cs.getString("preop.cert." + tag + ".subsystem");
+            String certStr;
+
+            if (request.getStandAlone()) {
+                // Stand-alone PKI (Step 2)
+                certStr = certData.getCert();
+                certStr = CryptoUtil.stripCertBrackets(certStr.trim());
+                certStr = CryptoUtil.normalizeCertStr(certStr);
+                cs.putString(subsystem + "." + tag + ".cert", certStr);
+
+            } else {
+                certStr = cs.getString(subsystem + "." + tag + ".cert" );
+            }
+
+            cert.setCert(certStr);
+            CMS.debug("Step 2:  certStr for '" + tag + "' is " + certStr);
+        }
+
+        if (request.isExternal() && tag.equals("signing")) { // external/existing CA
+
+            CMS.debug("SystemConfigService: Loading cert request for " + tag + " cert");
+            ConfigurationUtils.loadCertRequest(cs, tag, cert);
+
+            CMS.debug("SystemConfigService: Loading cert " + tag);
+            ConfigurationUtils.loadCert(cs, cert);
+
+        } else if (request.getStandAlone()) {
+            // Handle Cert Requests for everything EXCEPT Stand-alone PKI (Step 2)
+            if (!request.getStepTwo()) {
+                // Stand-alone PKI (Step 1)
+                ConfigurationUtils.generateCertRequest(cs, tag, cert);
+
+                CMS.debug("Stand-alone " + csType + " Admin CSR");
+                String adminSubjectDN = request.getAdminSubjectDN();
+                String certreqStr = request.getAdminCertRequest();
+                certreqStr = CryptoUtil.normalizeCertAndReq(certreqStr);
+
+                cs.putString("preop.cert.admin.dn", adminSubjectDN);
+                cs.putString(csSubsystem + ".admin.certreq", certreqStr);
+                cs.putString(csSubsystem + ".admin.cert", "...paste certificate here...");
+            }
+
+        } else {
+            ConfigurationUtils.generateCertRequest(cs, tag, cert);
+        }
+
+        if (request.isClone()) {
+            ConfigurationUtils.updateCloneConfig();
+        }
+
+        if (request.isExternal() && tag.equals("signing")) { // external/existing CA
+            CMS.debug("SystemConfigService: External CA has signing cert");
+            hasSigningCert.setValue(true);
+            certs.add(cert);
+            return;
+        }
+
+        // to determine if we have the signing cert when using an external ca
+        // this will only execute on a ca or stand-alone pki
+        String b64 = certData.getCert();
+        if ((tag.equals("signing") || tag.equals("external_signing")) && b64 != null && b64.length() > 0 && !b64.startsWith("...")) {
+            hasSigningCert.setValue(true);
+
+            if (request.getIssuingCA().equals("External CA")) {
+                b64 = CryptoUtil.stripCertBrackets(b64.trim());
+                cert.setCert(CryptoUtil.normalizeCertStr(b64));
+
+                if (certData.getCertChain() != null) {
+                    cert.setCertChain(certData.getCertChain());
+
+                } else {
+                    throw new BadRequestException("CertChain not provided");
+                }
+            }
+        }
+
+        certs.add(cert);
     }
 
     private void updateCloneConfiguration(SystemCertData cdata, String tag, String tokenName) throws NotInitializedException,
