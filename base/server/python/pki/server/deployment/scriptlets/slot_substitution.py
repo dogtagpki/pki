@@ -61,14 +61,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 deployer.mdict['pki_source_context_xml'],
                 deployer.mdict['pki_target_context_xml'],
                 overwrite_flag=True)
-            deployer.file.copy_with_slot_substitution(
-                deployer.mdict['pki_source_tomcat_conf'],
-                deployer.mdict['pki_target_tomcat_conf_instance_id'],
-                uid=0, gid=0, overwrite_flag=True)
-            deployer.file.copy_with_slot_substitution(
-                deployer.mdict['pki_source_tomcat_conf'],
-                deployer.mdict['pki_target_tomcat_conf'],
-                overwrite_flag=True)
 
         if deployer.mdict['pki_subsystem'] == "CA":
             deployer.file.copy_with_slot_substitution(

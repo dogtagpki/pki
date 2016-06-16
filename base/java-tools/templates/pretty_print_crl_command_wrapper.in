@@ -19,6 +19,12 @@
 # --- END COPYRIGHT BLOCK ---
 #
 
+# Read default PKI configuration.
+. /usr/share/pki/etc/pki.conf
+
+# Read user-defined PKI configuration.
+. /etc/pki/pki.conf
+
 # Check to insure that this script's original invocation directory
 # has not been deleted!
 CWD=`/bin/pwd > /dev/null 2>&1`
@@ -68,7 +74,7 @@ OS=`uname -s`
 
 if [ "${OS}" = "Linux" ] ; then
     ARCHITECTURE=`arch`
-    JAVA="java"
+    JAVA="${JAVA_HOME}/bin/java"
     JAVA_OPTIONS=""
 elif [ "${OS}" = "SunOS" ] ; then
     ARCHITECTURE=`uname -p`

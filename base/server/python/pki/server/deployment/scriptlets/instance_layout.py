@@ -55,6 +55,18 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 deployer.mdict['pki_instance_configuration_path'],
                 ignore_cb=file_ignore_callback_src_server)
 
+            # create /etc/sysconfig/<instance>
+            deployer.file.copy_with_slot_substitution(
+                deployer.mdict['pki_source_tomcat_conf'],
+                deployer.mdict['pki_target_tomcat_conf_instance_id'],
+                uid=0, gid=0, overwrite_flag=True)
+
+            # create /var/lib/pki/<instance>/conf/tomcat.conf
+            deployer.file.copy_with_slot_substitution(
+                deployer.mdict['pki_source_tomcat_conf'],
+                deployer.mdict['pki_target_tomcat_conf'],
+                overwrite_flag=True)
+
             # Deploy ROOT web application
             deployer.deploy_webapp(
                 "ROOT",

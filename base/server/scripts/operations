@@ -30,9 +30,11 @@
 #  200-254 reserved
 #
 
-if [ -f /etc/pki/pki.conf ] ; then
-  . /etc/pki/pki.conf
-fi
+# Read default PKI configuration.
+. /usr/share/pki/etc/pki.conf
+
+# Read user-defined PKI configuration.
+. /etc/pki/pki.conf
 
 default_error=0
 
@@ -920,7 +922,7 @@ verify_symlinks()
         jni_jar_dir="/usr/share/java"
         tomcat_dir="/usr/share/tomcat7"
     else
-        jni_jar_dir=`. /usr/share/pki/etc/pki.conf && . /etc/pki/pki.conf && echo $JNI_JAR_DIR`
+        jni_jar_dir="$JNI_JAR_DIR"
         tomcat_dir="/usr/share/tomcat"
     fi
 
@@ -1426,6 +1428,7 @@ find_openjdks()
 
 # function used by debian to set JAVA_HOME
 # taken from /etc/init.d/tomcat7
+# TODO: get JAVA_HOME for Debian from pki.conf
 set_java_home()
 {
     find_openjdks
@@ -1439,6 +1442,7 @@ set_java_home()
             JAVA_HOME="$jdir"
         fi
     done
+
     export JAVA_HOME
 }
 

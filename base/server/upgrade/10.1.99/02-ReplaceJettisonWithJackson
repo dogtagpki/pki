@@ -40,7 +40,7 @@ class ReplaceJettisonWithJackson(pki.server.upgrade.PKIServerUpgradeScriptlet):
 
         # RESTEasy library
         resteasy_lib = subprocess.check_output(
-            '. /etc/pki/pki.conf && echo $RESTEASY_LIB',
+            '. /usr/share/pki/etc/pki.conf && . /etc/pki/pki.conf && echo $RESTEASY_LIB',
             shell=True)
         resteasy_lib = resteasy_lib.decode(sys.getfilesystemencoding())
         # workaround for pylint error E1103

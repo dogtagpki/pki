@@ -170,9 +170,18 @@ class PKIConfigParser:
 
     def init_config(self):
 
+        java_home = subprocess.check_output(
+            '. /usr/share/pki/etc/pki.conf && . /etc/pki/pki.conf '
+            '&& echo $JAVA_HOME',
+            shell=True)
+        java_home = java_home.decode(sys.getfilesystemencoding())
+        # workaround for pylint error E1103
+        java_home = java_home.strip()
+
         # RESTEasy
         resteasy_lib = subprocess.check_output(
-            '. /etc/pki/pki.conf && echo $RESTEASY_LIB',
+            '. /usr/share/pki/etc/pki.conf && . /etc/pki/pki.conf '
+            '&& echo $RESTEASY_LIB',
             shell=True)
         resteasy_lib = resteasy_lib.decode(sys.getfilesystemencoding())
         # workaround for pylint error E1103
@@ -203,6 +212,7 @@ class PKIConfigParser:
             'pki_subsystem': config.pki_subsystem,
             'pki_subsystem_type': config.pki_subsystem.lower(),
             'pki_root_prefix': config.pki_root_prefix,
+            'java_home': java_home,
             'resteasy_lib': resteasy_lib,
             'jni_jar_dir': jni_jar_dir,
             'home_dir': os.path.expanduser("~"),

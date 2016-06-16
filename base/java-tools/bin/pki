@@ -70,6 +70,12 @@ class PKICLI(pki.cli.CLI):
 
     def execute_java(self, args, stdout=sys.stdout):
 
+        # read Java home
+        value = subprocess.check_output(
+            '. /usr/share/pki/etc/pki.conf && . /etc/pki/pki.conf && echo $JAVA_HOME',
+            shell=True)
+        java_home = value.decode(sys.getfilesystemencoding()).strip()
+
         # read RESTEasy library path
         value = subprocess.check_output(
             '. /usr/share/pki/etc/pki.conf && . /etc/pki/pki.conf && echo $RESTEASY_LIB',
@@ -117,7 +123,7 @@ class PKICLI(pki.cli.CLI):
         ]
 
         cmd = [
-            'java',
+            java_home + '/bin/java',
             '-cp',
             ':'.join(classpath),
             '-Djava.util.logging.config.file=' + logging_config,

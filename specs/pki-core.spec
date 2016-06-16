@@ -20,6 +20,9 @@
 %global package_fedora_packages 1
 %endif
 
+# Java
+%define java_home /usr/lib/jvm/jre-1.8.0-openjdk
+
 # Tomcat
 %if 0%{?fedora} >= 23
 %define with_tomcat7 0
@@ -65,12 +68,7 @@ BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:    cmake >= 2.8.9-1
 BuildRequires:    zip
-%if 0%{?rhel}
-# HACK:  RHEL builds currently suppress 'Provides: java-devel' . . .
 BuildRequires:    java-1.8.0-openjdk-devel
-%else
-BuildRequires:    java-devel >= 1:1.8.0
-%endif
 BuildRequires:    redhat-rpm-config
 BuildRequires:    ldapjdk
 BuildRequires:    apache-commons-cli
@@ -286,7 +284,7 @@ least one PKI Theme package:                                           \
 Summary:          Symmetric Key JNI Package
 Group:            System Environment/Libraries
 
-Requires:         java-headless >= 1:1.8.0
+Requires:         java-1.8.0-openjdk-headless
 Requires:         nss
 Requires:         jpackage-utils >= 0:1.7.5-10
 Requires:         jss >= 4.2.6-40
@@ -771,6 +769,7 @@ cd build
 %cmake -DVERSION=%{version}-%{release} \
 	-DVAR_INSTALL_DIR:PATH=/var \
 	-DBUILD_PKI_CORE:BOOL=ON \
+	-DJAVA_HOME=%{java_home} \
 	-DJAVA_LIB_INSTALL_DIR=%{_jnidir} \
 	-DSYSTEMD_LIB_INSTALL_DIR=%{_unitdir} \
 %if %{version_phase}

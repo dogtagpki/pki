@@ -1818,7 +1818,10 @@ class File:
 
             except KeyError:
                 # undefined parameter, skip
-                pass
+                config.pki_log.debug(
+                    'ignoring slot [%s]',
+                    line[begin:end + 1],
+                    extra=config.PKI_INDENTATION_LEVEL_3)
 
             # find the next parameter in the remainder of the line
             begin = line.find('[', end + 1)

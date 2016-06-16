@@ -19,6 +19,12 @@
 # --- END COPYRIGHT BLOCK ---
 #
 
+# Read default PKI configuration.
+. /usr/share/pki/etc/pki.conf
+
+# Read user-defined PKI configuration.
+. /etc/pki/pki.conf
+
 # Check to insure that this script's original invocation directory
 # has not been deleted!
 CWD=`/bin/pwd > /dev/null 2>&1`
@@ -68,7 +74,7 @@ OS=`uname -s`
 
 if [ "${OS}" = "Linux" ] ; then
     ARCHITECTURE=`arch`
-    JAVA="java"
+    JAVA="${JAVA_HOME}/bin/java"
     JAVA_OPTIONS=""
 elif [ "${OS}" = "SunOS" ] ; then
     ARCHITECTURE=`uname -p`
@@ -110,7 +116,6 @@ fi
 ##      order this command wrapper uses to find jar files.                   ##
 ###############################################################################
 
-JNI_JAR_DIR=`. /usr/share/pki/etc/pki.conf && . /etc/pki/pki.conf && echo $JNI_JAR_DIR`
 CP=${JNI_JAR_DIR}/jss4.jar
 CP=/usr/share/java/commons-cli.jar:${CP}
 CP=/usr/share/java/commons-codec.jar:${CP}
@@ -123,8 +128,6 @@ CP=/usr/share/java/${PRODUCT}/pki-nsutil.jar:${CP}
 CP=/usr/share/java/${PRODUCT}/pki-cmsutil.jar:${CP}
 CP=/usr/share/java/${PRODUCT}/pki-tools.jar:${CP}
 export CP
-
-LOGGING_CONFIG=`. /usr/share/pki/etc/pki.conf && . /etc/pki/pki.conf && echo $LOGGING_CONFIG`
 
 ###############################################################################
 ##  (6) Execute the java command specified by this java command wrapper      ##
