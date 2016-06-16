@@ -28,6 +28,7 @@ import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
+import org.apache.commons.lang.StringUtils;
 
 import com.netscape.certsrv.cert.CertClient;
 import com.netscape.certsrv.cert.CertData;
@@ -320,6 +321,10 @@ public class ClientCertImportCLI extends CLI {
     }
 
     public void run(String[] command) throws IOException, InterruptedException {
+
+        if (verbose) {
+           System.out.println("Command: " + StringUtils.join(command));
+        }
 
         Runtime rt = Runtime.getRuntime();
         Process p = rt.exec(command);
