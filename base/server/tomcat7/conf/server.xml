@@ -167,6 +167,8 @@ Tomcat Port         = [TOMCAT_SERVER_PORT] (for shutdown)
       Here are the definition to all the OCSP-related settings:
         enableOCSP - turns on/off the ocsp check
         ocspResponderURL - sets the url where the ocsp requests are sent
+          Make sure this URL uses the NON SSL or HTTP port for the OCSP interface.
+          Ex: use 8080 instead of say 8443.
         ocspResponderCertNickname - sets the nickname of the cert that is
         either CA's signing certificate or the OCSP server's signing
         certificate.
