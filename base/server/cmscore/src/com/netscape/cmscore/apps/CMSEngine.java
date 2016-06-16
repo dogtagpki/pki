@@ -31,9 +31,11 @@ import java.security.cert.X509CRL;
 import java.security.cert.X509Certificate;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.StringTokenizer;
@@ -207,6 +209,7 @@ public class CMSEngine implements ICMSEngine {
     private CryptoManager mManager = null;
 
     private IConfigStore mConfig = null;
+    private boolean mExcludedLdapAttrsEnabled = false;
     // AutoSD : AutoShutdown
     private String mAutoSD_CrumbFile = null;
     private boolean mAutoSD_Restart = false;
@@ -1246,7 +1249,61 @@ public class CMSEngine implements ICMSEngine {
                 }
             }
         }
+
+        if (id.equals("ca") || id.equals("kra")) {
+
+            /*
+              figure out if any ldap attributes need exclusion in enrollment records
+              Default config:
+                excludedLdapAttrs.enabled=false;
+                (excludedLdapAttrs.attrs unspecified to take default)
+             */
+            mExcludedLdapAttrsEnabled = mConfig.getBoolean("excludedLdapAttrs.enabled", false);
+            if (mExcludedLdapAttrsEnabled == true) {
+                CMS.debug("CMSEngine: initSubsystem: excludedLdapAttrs.enabled: true");
+                excludedLdapAttrsList = Arrays.asList(excludedLdapAttrs);
+                String unparsedExcludedLdapAttrs = "";
+                try {
+                    unparsedExcludedLdapAttrs = mConfig.getString("excludedLdapAttrs.attrs");
+                    CMS.debug("CMSEngine: initSubsystem: excludedLdapAttrs.attrs =" + unparsedExcludedLdapAttrs);
+                } catch (Exception e) {
+                    CMS.debug("CMSEngine: initSubsystem: excludedLdapAttrs.attrs unspecified, taking default");
+                }
+                if (!unparsedExcludedLdapAttrs.equals("")) {
+                    excludedLdapAttrsList = Arrays.asList(unparsedExcludedLdapAttrs.split(","));
+                    // overwrites the default
+                    //excludedLdapAttrSet = new HashSet(excludedLdapAttrsList);
+                }
+            } else {
+                CMS.debug("CMSEngine: initSubsystem: excludedLdapAttrs.enabled: false");
+            }
+        }
     }
+
+    public boolean isExcludedLdapAttrsEnabled() {
+        return mExcludedLdapAttrsEnabled;
+    }
+
+    public boolean isExcludedLdapAttr(String key) {
+        if (isExcludedLdapAttrsEnabled()) {
+            return excludedLdapAttrsList.contains(key);
+        } else {
+            return false;
+        }
+    }
+
+    // default for excludedLdapAttrs.enabled == false
+    // can be overwritten with excludedLdapAttrs.attrs
+    public List<String> excludedLdapAttrsList = new ArrayList<String>();
+
+    public static String excludedLdapAttrs[] = {
+            "req_x509info",
+            "publickey",
+            "req_extensions",
+            "cert_request",
+            "req_archive_options",
+            "req_key"
+    };
 
     /**
      * sign some known data to determine if signing key is botched;
@@ -2298,6 +2355,25 @@ public class CMSEngine implements ICMSEngine {
     @Override
     public String getServerStatus() {
         return serverStatus;
+    }
+
+    // for debug only
+    public void sleepOneMinute() {
+        boolean debugSleep = false;
+        try {
+            debugSleep = mConfig.getBoolean("debug.sleepOneMinute", false);
+        } catch (Exception e) {
+        }
+
+        /* debugSleep: sleep for one minute to check request on ldap*/
+        if (debugSleep == true) {
+            CMS.debug("debugSleep: about to sleep for one minute; check ldap");
+            try {
+                Thread.sleep(60000);
+            } catch (InterruptedException e) {
+                CMS.debug("debugSleep: sleep out:" + e.toString());
+            }
+        }
     }
 }
 

@@ -100,6 +100,10 @@ public class AuthorityKeyIdentifierExtDefault extends CAEnrollDefault {
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         }
+        if (info == null) {
+            // info is null; possibly strippedldapRecords enabled
+            return null;
+        }
 
         AuthorityKeyIdentifierExtension ext =
                 (AuthorityKeyIdentifierExtension) getExtension(

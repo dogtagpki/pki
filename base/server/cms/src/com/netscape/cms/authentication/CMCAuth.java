@@ -489,6 +489,8 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
 
                         if (type.equals(TaggedRequest.PKCS10)) {
                             CMS.debug("CMCAuth: type is PKCS10");
+                            authToken.set("cert_request_type", "cmc-pkcs10");
+
                             TaggedCertificationRequest tcr =
                                     taggedRequest.getTcr();
                             int p10Id = tcr.getBodyPartID().intValue();
@@ -581,6 +583,7 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
                         } else if (type.equals(TaggedRequest.CRMF)) {
 
                             CMS.debug("CMCAuth: type is CRMF");
+                            authToken.set("cert_request_type", "cmc-crmf");
                             try {
                                 CertReqMsg crm =
                                         taggedRequest.getCrm();

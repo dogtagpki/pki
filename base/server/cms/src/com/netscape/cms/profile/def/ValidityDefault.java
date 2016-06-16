@@ -195,7 +195,7 @@ public class ValidityDefault extends EnrollDefault {
             } catch (Exception e) {
                 CMS.debug("ValidityDefault: getValue " + e.toString());
             }
-            throw new EPropertyException("Invalid valie");
+            throw new EPropertyException("Invalid value");
         } else if (name.equals(VAL_NOT_AFTER)) {
             SimpleDateFormat formatter =
                     new SimpleDateFormat(DATE_FORMAT);

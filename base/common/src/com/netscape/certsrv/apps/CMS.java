@@ -1670,6 +1670,19 @@ public final class CMS {
         return _engine.getServerStatus();
     }
 
+    // for debug only
+    public static void sleepOneMinute() {
+        _engine.sleepOneMinute();
+    }
+
+    public static boolean isExcludedLdapAttrsEnabled() {
+        return _engine.isExcludedLdapAttrsEnabled();
+    }
+
+    public static boolean isExcludedLdapAttr(String key) {
+        return _engine.isExcludedLdapAttr(key);
+    }
+
     /**
      * Main driver to start CMS.
      */

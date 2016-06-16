@@ -30,6 +30,19 @@ import java.util.Hashtable;
 import java.util.Locale;
 import java.util.Vector;
 
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.authentication.IAuthToken;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IArgBlock;
+import com.netscape.certsrv.base.IPrettyPrintFormat;
+import com.netscape.certsrv.profile.IEnrollProfile;
+import com.netscape.certsrv.request.IRequest;
+import com.netscape.certsrv.request.RequestStatus;
+import com.netscape.cms.servlet.common.CMSTemplate;
+import com.netscape.cms.servlet.common.CMSTemplateParams;
+import com.netscape.cms.servlet.common.RawJS;
+import com.netscape.cmsutil.util.Utils;
+
 import netscape.security.extensions.NSCertTypeExtension;
 import netscape.security.x509.AlgorithmId;
 import netscape.security.x509.BasicConstraintsExtension;
@@ -44,22 +57,10 @@ import netscape.security.x509.CertificateX509Key;
 import netscape.security.x509.Extension;
 import netscape.security.x509.RevocationReason;
 import netscape.security.x509.RevokedCertImpl;
+import netscape.security.x509.X500Name;
 import netscape.security.x509.X509CertImpl;
 import netscape.security.x509.X509CertInfo;
 import netscape.security.x509.X509Key;
-
-import com.netscape.certsrv.apps.CMS;
-import com.netscape.certsrv.authentication.IAuthToken;
-import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
-import com.netscape.certsrv.base.IPrettyPrintFormat;
-import com.netscape.certsrv.profile.IEnrollProfile;
-import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.cms.servlet.common.CMSTemplate;
-import com.netscape.cms.servlet.common.CMSTemplateParams;
-import com.netscape.cms.servlet.common.RawJS;
-import com.netscape.cmsutil.util.Utils;
 
 /**
  * Output a 'pretty print' of a certificate request
@@ -102,6 +103,26 @@ public class CertReqParser extends ReqParser {
      */
     public void fillRequestIntoArg(Locale l, IRequest req, CMSTemplateParams argSet, IArgBlock arg)
             throws EBaseException {
+
+        // in case x509CertInfo is missing, at least add the subject for display
+        if (req.getExtDataInCertInfo("req_x509info"/*IRequest.CERT_INFO*/) == null
+                && req.getExtDataInCertInfo(IRequest.CERT_INFO) == null
+                && arg.getValueAsString("subject", "").equals("")) {
+            //CMS.debug("CertReqParser.fillRequestIntoArg: filling subject due to missing x509CertInfo in request");
+            try {
+                String subjectnamevalue = req.getExtDataInString("req_subject_name");
+                if (subjectnamevalue != null && !subjectnamevalue.equals("")) {
+                    X500Name name = new X500Name(Utils.base64decode(subjectnamevalue));
+                    CertificateSubjectName sbjName = new CertificateSubjectName(name);
+                    if (sbjName != null) {
+                        arg.addStringValue("subject", sbjName.toString());
+                    }
+                }
+            } catch (Exception ee) {
+                CMS.debug("CertReqParser.fillRequestIntoArg: Exception:" + ee.toString());
+            }
+        }
+
         if (req.getExtDataInCertInfoArray(IRequest.CERT_INFO) != null) {
             fillX509RequestIntoArg(l, req, argSet, arg);
         } else if (req.getExtDataInRevokedCertArray(IRequest.CERT_INFO) != null) {
@@ -609,9 +630,36 @@ public class CertReqParser extends ReqParser {
                 CMSTemplate.escapeJavaScriptStringHTML(v.toString()) + "\"";
     }
 
+    public String getCertSubjectDN(IRequest request) {
+        try {
+            String cert = request.getExtDataInString("cert");
+            if (cert == null) {
+                cert = request.getExtDataInString("req_issued_cert");
+            }
+
+            if (cert != null) {
+
+                X509CertImpl theCert = null;
+                try {
+                    theCert = new X509CertImpl(Utils.base64decode(cert));
+                } catch (CertificateException e) {
+                }
+
+                if (theCert != null) {
+                    String subject = theCert.getSubjectDN().toString();
+                    return subject;
+                }
+            }
+        } catch (Exception e) {
+            CMS.debug("CertReqParser: getCertSubjectDN " + e.toString());
+        }
+        return null;
+    }
+
     public String getRequestorDN(IRequest request) {
         try {
             X509CertInfo info = request.getExtDataInCertInfo(IEnrollProfile.REQUEST_CERTINFO);
+            if (info == null) return null;
             // retrieve the subject name
             CertificateSubjectName sn = (CertificateSubjectName)
                     info.get(X509CertInfo.SUBJECT);
@@ -661,28 +709,17 @@ public class CertReqParser extends ReqParser {
         if (profile != null) {
             arg.addStringValue("profile", profile);
             String requestorDN = getRequestorDN(req);
+            if (requestorDN == null) {
+                requestorDN = getCertSubjectDN(req);
+            }
 
             if (requestorDN != null) {
                 arg.addStringValue("subject", requestorDN);
             }
         } else if (IRequest.KEYRECOVERY_REQUEST.equals(reqType)) {
             arg.addStringValue("profile", "false");
-
-            String cert = req.getExtDataInString("cert");
-
-            if (cert != null) {
-
-                X509CertImpl theCert = null;
-                try {
-                    theCert = new X509CertImpl(Utils.base64decode(cert));
-                } catch (CertificateException e) {
-                }
-
-                if (theCert != null) {
-                    String subject = theCert.getSubjectDN().toString();
-                    arg.addStringValue("subject", subject);
-                }
-            }
+            String subjectDN = getCertSubjectDN(req);
+            arg.addStringValue("subject", subjectDN);
 
         } else { //TMS
             arg.addStringValue("profile", "false");

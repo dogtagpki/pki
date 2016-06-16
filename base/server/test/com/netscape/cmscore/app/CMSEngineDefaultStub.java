@@ -639,4 +639,18 @@ public class CMSEngineDefaultStub implements ICMSEngine {
     public String getServerStatus() {
         return null;
     }
+
+    @Override
+    public void sleepOneMinute() {
+    }
+
+    @Override
+    public boolean isExcludedLdapAttrsEnabled() {
+        return true;
+    }
+
+    @Override
+    public boolean isExcludedLdapAttr(String key) {
+        return false;
+    }
 }
