@@ -415,6 +415,12 @@ public class X509CRLImpl extends X509CRL {
                 sigAlg = "SHA1/DSA";
             } else if (sigAlg.equals("SHA1withEC")) {
                 sigAlg = "SHA1/EC";
+            } else if (sigAlg.equals("SHA256withRSA")) {
+                sigAlg = "SHA256/RSA";
+            } else if (sigAlg.equals("SHA384withRSA")) {
+                sigAlg = "SHA384/RSA";
+            } else if (sigAlg.equals("SHA512withRSA")) {
+                sigAlg = "SHA512/RSA";
             } else if (sigAlg.equals("SHA256withEC")) {
                 sigAlg = "SHA256/EC";
             } else if (sigAlg.equals("SHA384withEC")) {

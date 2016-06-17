@@ -329,6 +329,9 @@ public class AlgorithmId implements Serializable, DerEncoder {
         if (name.equals("SHA256withRSA") || name.equals("SHA256/RSA")
                 || name.equals("1.2.840.113549.1.1.11"))
             return AlgorithmId.sha256WithRSAEncryption_oid;
+        if (name.equals("SHA384withRSA") || name.equals("SHA384/RSA")
+                || name.equals("1.2.840.113549.1.1.12"))
+            return AlgorithmId.sha384WithRSAEncryption_oid;
         if (name.equals("SHA512withRSA") || name.equals("SHA512/RSA")
                 || name.equals("1.2.840.113549.1.1.13"))
             return AlgorithmId.sha512WithRSAEncryption_oid;
@@ -364,6 +367,8 @@ public class AlgorithmId implements Serializable, DerEncoder {
             return "SHA";
         if (algid.equals(AlgorithmId.SHA256_oid))
             return "SHA256";
+        if (algid.equals(AlgorithmId.SHA384_oid))
+            return "SHA384";
         if (algid.equals(AlgorithmId.SHA512_oid))
             return "SHA512";
 
@@ -399,6 +404,8 @@ public class AlgorithmId implements Serializable, DerEncoder {
             return "SHA1withRSA";
         if (algid.equals(AlgorithmId.sha256WithRSAEncryption_oid))
             return "SHA256withRSA";
+        if (algid.equals(AlgorithmId.sha384WithRSAEncryption_oid))
+            return "SHA384withRSA";
         if (algid.equals(AlgorithmId.sha512WithRSAEncryption_oid))
             return "SHA512withRSA";
         if (algid.equals(AlgorithmId.sha1WithDSA_oid)
@@ -530,6 +537,7 @@ public class AlgorithmId implements Serializable, DerEncoder {
     // sha = { 1, 3, 14, 3, 2, 18 };
     private static final int SHA1_OIW_data[] = { 1, 3, 14, 3, 2, 26 };
     private static final int SHA256_data[] = { 2, 16, 840, 1, 101, 3, 4, 2, 1 };
+    private static final int SHA384_data[] = { 2, 16, 840, 1, 101, 3, 4, 2, 2 };
     private static final int SHA512_data[] = { 2, 16, 840, 1, 101, 3, 4, 2, 3 };
 
     /**
@@ -553,6 +561,7 @@ public class AlgorithmId implements Serializable, DerEncoder {
     public static final ObjectIdentifier SHA_oid = new ObjectIdentifier(SHA1_OIW_data);
 
     public static final ObjectIdentifier SHA256_oid = new ObjectIdentifier(SHA256_data);
+    public static final ObjectIdentifier SHA384_oid = new ObjectIdentifier(SHA384_data);
 
     public static final ObjectIdentifier SHA512_oid = new ObjectIdentifier(SHA512_data);
 
@@ -651,6 +660,8 @@ public class AlgorithmId implements Serializable, DerEncoder {
                                    { 1, 2, 840, 113549, 1, 1, 5 };
     private static final int sha256WithRSAEncryption_data[] =
                                    { 1, 2, 840, 113549, 1, 1, 11 };
+    private static final int sha384WithRSAEncryption_data[] =
+                                   { 1, 2, 840, 113549, 1, 1, 12 };
     private static final int sha512WithRSAEncryption_data[] =
                                    { 1, 2, 840, 113549, 1, 1, 13 };
     private static final int sha1WithRSAEncryption_OIW_data[] =
@@ -704,6 +715,12 @@ public class AlgorithmId implements Serializable, DerEncoder {
             ObjectIdentifier(sha256WithRSAEncryption_data);
 
     /**
+     * The proper one for sha384/rsa
+     */
+    public static final ObjectIdentifier sha384WithRSAEncryption_oid = new
+            ObjectIdentifier(sha384WithRSAEncryption_data);
+
+    /**
      * The proper one for sha512/rsa
      */
     public static final ObjectIdentifier sha512WithRSAEncryption_oid = new
@@ -749,7 +766,7 @@ public class AlgorithmId implements Serializable, DerEncoder {
      * Supported signing algorithms for a RSA key.
      */
     public static final String[] RSA_SIGNING_ALGORITHMS = new String[]
-    { "SHA1withRSA", "SHA256withRSA", "SHA512withRSA", "MD5withRSA", "MD2withRSA" };
+    { "SHA1withRSA", "SHA256withRSA", "SHA384withRSA", "SHA512withRSA", "MD5withRSA", "MD2withRSA" };
 
     public static final String[] EC_SIGNING_ALGORITHMS = new String[]
     { "SHA1withEC", "SHA256withEC", "SHA384withEC", "SHA512withEC" };
@@ -759,7 +776,7 @@ public class AlgorithmId implements Serializable, DerEncoder {
      */
     public static final String[] ALL_SIGNING_ALGORITHMS = new String[]
     {
-            "SHA1withRSA", "MD5withRSA", "MD2withRSA", "SHA1withDSA", "SHA256withRSA", "SHA512withRSA", "SHA1withEC",
+            "SHA1withRSA", "MD5withRSA", "MD2withRSA", "SHA1withDSA", "SHA256withRSA", "SHA384withRSA", "SHA512withRSA", "SHA1withEC",
             "SHA256withEC", "SHA384withEC", "SHA512withEC" };
 
 }

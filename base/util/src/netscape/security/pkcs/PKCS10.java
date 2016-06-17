@@ -181,6 +181,12 @@ public class PKCS10 {
                 idName = "SHA1/RSA";
             else if (idName.equals("SHA1withDSA"))
                 idName = "SHA1/DSA";
+            else if (idName.equals("SHA256withRSA"))
+                idName = "SHA256/RSA";
+            else if (idName.equals("SHA384withRSA"))
+                idName = "SHA384/RSA";
+            else if (idName.equals("SHA512withRSA"))
+                idName = "SHA512/RSA";
             else if (idName.equals("SHA1withEC"))
                 idName = "SHA1/EC";
             else if (idName.equals("SHA256withEC"))

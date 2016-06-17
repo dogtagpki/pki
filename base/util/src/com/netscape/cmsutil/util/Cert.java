@@ -41,6 +41,8 @@ public class Cert {
             return SignatureAlgorithm.DSASignatureWithSHA1Digest;
         else if (algname.equals("SHA256withRSA"))
             return SignatureAlgorithm.RSASignatureWithSHA256Digest;
+        else if (algname.equals("SHA384withRSA"))
+            return SignatureAlgorithm.RSASignatureWithSHA384Digest;
         else if (algname.equals("SHA512withRSA"))
             return SignatureAlgorithm.RSASignatureWithSHA512Digest;
         else if (algname.equals("SHA1withEC"))
