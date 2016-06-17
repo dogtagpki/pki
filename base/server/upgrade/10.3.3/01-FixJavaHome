@@ -1,0 +1,99 @@
+#!/usr/bin/python
+# Authors:
+#     Endi S. Dewata <edewata@redhat.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+# Copyright (C) 2016 Red Hat, Inc.
+# All rights reserved.
+
+from __future__ import absolute_import
+import os.path
+import subprocess
+import sys
+import pki.server.upgrade
+
+
+class FixJavaHome(pki.server.upgrade.PKIServerUpgradeScriptlet):
+
+    def __init__(self):
+        super(FixJavaHome, self).__init__()
+        self.message = 'Fix JAVA_HOME path'
+
+        # read Java home from pki.conf
+        value = subprocess.check_output(
+            '. /usr/share/pki/etc/pki.conf && . /etc/pki/pki.conf && echo $JAVA_HOME',
+            shell=True)
+        self.java_home = value.decode(sys.getfilesystemencoding()).strip()
+
+    def upgrade_instance(self, instance):
+
+        systemd_conf = os.path.join('/etc/sysconfig', instance.name)
+        self.fix_tomcat_conf(systemd_conf)
+
+        tomcat_conf = os.path.join(instance.conf_dir, 'tomcat.conf')
+        self.fix_tomcat_conf(tomcat_conf)
+
+    def fix_tomcat_conf(self, filename):
+
+        self.backup(filename)
+
+        with open(filename, 'r') as f:
+            lines = f.readlines()
+
+        with open(filename, 'w') as f:
+
+            # find 'System-wide configuration ...' comment
+            start = self.find_blank_line(lines, 0) + 1
+
+            # if found, replace with 'This file ...' comment
+            if lines[start].startswith('# System-wide configuration'):
+
+                # find the end of old comment
+                end = self.find_blank_line(lines, start)
+
+                # replace comment
+                lines = lines[:start] + \
+                    ['# This file contains instance-specific configuration.\n'] + \
+                    lines[end:]
+
+            # set JAVA_HOME
+            for line in lines:
+
+                if line.startswith('#JAVA_HOME='):
+                    line = 'JAVA_HOME="%s"\n' % self.java_home
+
+                elif line.startswith('#CATALINA_HOME='):
+                    line = '\n'
+
+                elif line.startswith('#JASPER_HOME='):
+                    line = '# Instance tmp dir\n'
+
+                f.write(line)
+
+    def find_blank_line(self, lines, start):
+
+        i = start
+
+        # check all lines
+        while i < len(lines):
+
+            if not lines[i].strip():
+                # blank line found, return index
+                return i
+
+            i = i + 1
+
+        # blank line not found, return -1
+        return -1
