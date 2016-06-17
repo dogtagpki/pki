@@ -378,7 +378,8 @@ public abstract class EnrollProfile extends BasicProfile
             throw new EProfileException(
                     CMS.getUserMessage(locale, "CMS_PROFILE_INVALID_REQUEST"));
         }
-        CMS.debug("EnrollProfile: Start parseCMC(): " + certreq);
+        //CMS.debug("EnrollProfile: Start parseCMC(): " + certreq);
+        CMS.debug("EnrollProfile.parseCMC(): start");
 
         TaggedRequest msgs[] = null;
 
@@ -465,6 +466,7 @@ public abstract class EnrollProfile extends BasicProfile
             } else
                 return null;
 
+            CMS.debug("EnrollProfile.parseCMC: end");
             return msgs;
         } catch (Exception e) {
             CMS.debug("EnrollProfile: Unable to parse CMC request: " + e);
@@ -803,7 +805,7 @@ public abstract class EnrollProfile extends BasicProfile
             throw new EProfileException(
                     CMS.getUserMessage(locale, "CMS_PROFILE_INVALID_REQUEST"));
         }
-        CMS.debug("EnrollProfile: Start parseCRMF(): " + certreq);
+        CMS.debug("EnrollProfile: Start parseCRMF(): "/* + certreq*/);
 
         CertReqMsg msgs[] = null;
         String creq = normalizeCertReq(certreq);
@@ -1342,6 +1344,8 @@ public abstract class EnrollProfile extends BasicProfile
         String auditCertificateSubjectName = ILogger.SIGNED_AUDIT_EMPTY_VALUE;
         String subject = null;
 
+        CMS.debug("EnrollProfile.validate: start");
+
         // try {
         X509CertInfo info = request.getExtDataInCertInfo(REQUEST_CERTINFO);
 
@@ -1357,6 +1361,8 @@ public abstract class EnrollProfile extends BasicProfile
                     // NOTE:  This is ok even if the cert subject name
                     //        is "" (empty)!
                     auditCertificateSubjectName = subject.trim();
+                    CMS.debug("EnrollProfile.validate: cert subject name:" +
+                            auditCertificateSubjectName);
                 }
             }
 
@@ -1413,12 +1419,14 @@ public abstract class EnrollProfile extends BasicProfile
             throw new ERejectException(CMS.getUserMessage(
                         locale, "CMS_PROFILE_EMPTY_KEY"));
         }
-
+        /*
         try {
-            CMS.debug("EnrollProfile certInfo : " + info);
+            CMS.debug("EnrollProfile.validate: certInfo : \n" + info);
         } catch (NullPointerException e) {
             // do nothing
         }
+        */
+        CMS.debug("EnrollProfile.validate: end");
     }
 
     /**

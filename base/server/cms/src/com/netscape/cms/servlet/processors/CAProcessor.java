@@ -174,12 +174,12 @@ public class CAProcessor extends Processor {
         // authId = cs.getString(AUTH_ID, "").isEmpty() ? null : cs.getString(AUTH_ID);
 
         if (authority == null) {
-            throw new EBaseException("CertProcessor: authority is null");
+            throw new EBaseException("CAProcessor: authority is null");
         }
 
         queue = authority.getRequestQueue();
         if (queue == null) {
-            throw new EBaseException("CertProcessor: cannot get request queue");
+            throw new EBaseException("CAProcessor: cannot get request queue");
         }
 
         if (profileSubId == null || profileSubId.equals("")) {
@@ -188,12 +188,12 @@ public class CAProcessor extends Processor {
 
         ps = (IProfileSubsystem) CMS.getSubsystem(profileSubId);
         if (ps == null) {
-            throw new EBaseException("CertProcessor: Profile Subsystem not found");
+            throw new EBaseException("CAProcessor: Profile Subsystem not found");
         }
 
         certdb = authority.getCertificateRepository();
         if (certdb == null) {
-            throw new EBaseException("CertProcessor: Certificate repository not found");
+            throw new EBaseException("CAProcessor: Certificate repository not found");
         }
     }
 
@@ -289,7 +289,8 @@ public class CAProcessor extends Processor {
                     paramName.equalsIgnoreCase("pin") ||
                     paramName.equalsIgnoreCase("pwd") ||
                     paramName.equalsIgnoreCase("pwdagain") ||
-                    paramName.equalsIgnoreCase("uPasswd")) {
+                    paramName.equalsIgnoreCase("uPasswd") ||
+                    paramName.equalsIgnoreCase("cert_request")) {
                 CMS.debug("CAProcessor: - " + paramName + ": (sensitive)");
             } else {
                 CMS.debug("CAProcessor: - " + paramName + ": " + entry.getValue());
@@ -378,46 +379,46 @@ public class CAProcessor extends Processor {
                 if (sdn != null) {
                     ouid = getUidFromDN(sdn);
                     if (ouid != null)
-                        CMS.debug("CertProcessor: renewal: authToken original uid not found");
+                        CMS.debug("CAProcessor: renewal: authToken original uid not found");
                 }
             } else {
-                CMS.debug("CertProcessor: renewal: authToken original uid found in orig request auth_token");
+                CMS.debug("CAProcessor: renewal: authToken original uid found in orig request auth_token");
             }
             String auid = authToken.getInString("uid");
             if (auid != null) { // not through ssl client auth
-                CMS.debug("CertProcessor: renewal: authToken uid found:" + auid);
+                CMS.debug("CAProcessor: renewal: authToken uid found:" + auid);
                 // authenticated with uid
                 // put "orig_req.auth_token.uid" so that authz with
                 // UserOrigReqAccessEvaluator will work
                 if (ouid != null) {
                     context.put("orig_req.auth_token.uid", ouid);
-                    CMS.debug("CertProcessor: renewal: authToken original uid found:" + ouid);
+                    CMS.debug("CAProcessor: renewal: authToken original uid found:" + ouid);
                 } else {
-                    CMS.debug("CertProcessor: renewal: authToken original uid not found");
+                    CMS.debug("CAProcessor: renewal: authToken original uid not found");
                 }
             } else { // through ssl client auth?
-                CMS.debug("CertProcessor: renewal: authToken uid not found:");
+                CMS.debug("CAProcessor: renewal: authToken uid not found:");
                 // put in orig_req's uid
                 if (ouid != null) {
-                    CMS.debug("CertProcessor: renewal: origReq uid not null:" + ouid + ". Setting authtoken");
+                    CMS.debug("CAProcessor: renewal: origReq uid not null:" + ouid + ". Setting authtoken");
                     authToken.set("uid", ouid);
                     context.put(SessionContext.USER_ID, ouid);
                 } else {
-                    CMS.debug("CertProcessor: renewal: origReq uid not found");
+                    CMS.debug("CAProcessor: renewal: origReq uid not found");
                     //                      throw new EBaseException("origReq uid not found");
                 }
             }
 
             String userdn = origReq.getExtDataInString("auth_token.userdn");
             if (userdn != null) {
-                CMS.debug("CertProcessor: renewal: origReq userdn not null:" + userdn + ". Setting authtoken");
+                CMS.debug("CAProcessor: renewal: origReq userdn not null:" + userdn + ". Setting authtoken");
                 authToken.set("userdn", userdn);
             } else {
-                CMS.debug("CertProcessor: renewal: origReq userdn not found");
+                CMS.debug("CAProcessor: renewal: origReq userdn not found");
                 //                      throw new EBaseException("origReq userdn not found");
             }
         } else {
-            CMS.debug("CertProcessor: renewal: authToken null");
+            CMS.debug("CAProcessor: renewal: authToken null");
         }
         return authToken;
     }
@@ -706,7 +707,7 @@ public class CAProcessor extends Processor {
             String n = t.substring(0, i);
             if (n.equalsIgnoreCase("uid")) {
                 String v = t.substring(i + 1);
-                CMS.debug("CertProcessor:: getUidFromDN(): uid found:" + v);
+                CMS.debug("CAProcessor:: getUidFromDN(): uid found:" + v);
                 return v;
             } else {
                 continue;
@@ -932,7 +933,7 @@ public class CAProcessor extends Processor {
             CMS.debug("CertProcessor authToken not null");
 
             String acl = profile.getAuthzAcl();
-            CMS.debug("CertProcessor: authz using acl: " + acl);
+            CMS.debug("CAProcessor: authz using acl: " + acl);
             if (acl != null && acl.length() > 0) {
                 String resource = profileId + ".authz.acl";
                 authorize(aclMethod, resource, authToken, acl);

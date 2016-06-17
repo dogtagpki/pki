@@ -618,12 +618,13 @@ public class ConnectorServlet extends CMSServlet {
                 s.put(SessionContext.REQUESTER_ID, msg.getReqId());
             }
 
-            CMS.debug("ConnectorServlet: calling processRequest instance=" +
-                    thisreq);
+            //CMS.debug("ConnectorServlet: calling processRequest instance=" +
+            //        thisreq);
             if (isProfileRequest(thisreq)) {
                 normalizeProfileRequest(thisreq);
             }
 
+            CMS.debug("ConnectorServlet: calling processRequest");
             try {
                 queue.processRequest(thisreq);
 

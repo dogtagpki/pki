@@ -66,7 +66,7 @@ public class RequestTransfer {
     public static String[] getTransferAttributes(IRequest r) {
         if (isProfileRequest(r)) {
             // copy everything in the request
-            CMS.debug("RequestTransfer: profile request " +
+            CMS.debug("RequestTransfer: profile request id = " +
                     r.getRequestId().toString());
             Enumeration<String> e = r.getExtDataKeys();
             Vector<String> v = new Vector<String>();
@@ -82,7 +82,7 @@ public class RequestTransfer {
                     continue;
                 if (k.equals("AUTH_TOKEN"))
                     continue;
-                CMS.debug("RequestTransfer: attribute=" + k);
+                //CMS.debug("RequestTransfer: attribute=" + k);
                 if (k.equals("requestStatus")) {
                     CMS.debug("RequestTransfer : requestStatus=" +
                             r.getExtDataInString("requestStatus"));

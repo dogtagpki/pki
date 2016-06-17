@@ -424,7 +424,8 @@ public abstract class CMSServlet extends HttpServlet {
                     pn.equalsIgnoreCase("host_challenge") ||
                     pn.equalsIgnoreCase("card_challenge") ||
                     pn.equalsIgnoreCase("card_cryptogram") ||
-                    pn.equalsIgnoreCase("drm_trans_desKey")) {
+                    pn.equalsIgnoreCase("drm_trans_desKey") ||
+                    pn.equalsIgnoreCase("cert_request")) {
                 CMS.debug("CMSServlet::service() param name='" + pn +
                         "' value='(sensitive)'");
             } else {

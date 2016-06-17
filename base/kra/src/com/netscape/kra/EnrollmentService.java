@@ -175,7 +175,8 @@ public class EnrollmentService implements IService {
 
         String transportCert = request.getExtDataInString(IEnrollProfile.REQUEST_TRANSPORT_CERT);
         if (transportCert != null && transportCert.length() > 0) {
-            CMS.debug("EnrollmentService: serviceRequest: transportCert=" + transportCert);
+            //CMS.debug("EnrollmentService: serviceRequest: transportCert=" + transportCert);
+            CMS.debug("EnrollmentService: serviceRequest: transportCert is in request");
             request.deleteExtData(IEnrollProfile.REQUEST_TRANSPORT_CERT);
         } else {
             CMS.debug("EnrollmentService: serviceRequest: Missing transport certificate");

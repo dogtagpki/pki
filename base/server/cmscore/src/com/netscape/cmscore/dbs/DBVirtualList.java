@@ -337,7 +337,7 @@ public class DBVirtualList<E> implements IDBVirtualList<E> {
      */
     public int getSize() {
 
-        CMS.debug("DBVirtualList.getSize()");
+        //CMS.debug("DBVirtualList.getSize()");
 
         if (!mInitialized) {
 
@@ -669,7 +669,7 @@ public class DBVirtualList<E> implements IDBVirtualList<E> {
             mSize = getSize();
         }
 
-        CMS.debug("DBVirtualList: retrieving entry #" + index);
+        //CMS.debug("DBVirtualList: retrieving entry #" + index);
 
         //System.out.println( "need entry " + index );
         if ((index < 0) || (index >= mSize)) {
@@ -718,7 +718,7 @@ public class DBVirtualList<E> implements IDBVirtualList<E> {
             } else { // handle getting entry in reverse direction
                 int reverse_index = mEntries.size() - mJumpToIndex - 1;
 
-                CMS.debug("reverse direction getting index " + reverse_index);
+                //CMS.debug("reverse direction getting index " + reverse_index);
 
                 if (reverse_index < 0 || reverse_index >= mEntries.size()) {
                     CMS.debug("reverse_index out of range " + reverse_index);

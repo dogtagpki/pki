@@ -2365,9 +2365,9 @@ public class CMSEngine implements ICMSEngine {
         } catch (Exception e) {
         }
 
-        /* debugSleep: sleep for one minute to check request on ldap*/
+        /* debugSleep: sleep for one minute to check something, e.g. ldap*/
         if (debugSleep == true) {
-            CMS.debug("debugSleep: about to sleep for one minute; check ldap");
+            CMS.debug("debugSleep: about to sleep for one minute; do check now: e.g. ldap, hsm, etc.");
             try {
                 Thread.sleep(60000);
             } catch (InterruptedException e) {

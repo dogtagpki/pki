@@ -191,7 +191,11 @@ public class HttpConnection implements IHttpConnection {
             Debug.trace(pcontent);
             Debug.trace("-------");
         }
-        CMS.debug("HttpConnection.send response: " + pcontent);
+        //CMS.debug("HttpConnection.send response: " + pcontent);
+        if (pcontent != null && !pcontent.equals(""))
+            CMS.debug("HttpConnection.send response: got content");
+        else
+            CMS.debug("HttpConnection.send response: null or empty content");
 
         try {
             replymsg = (IPKIMessage) mReqEncoder.decode(pcontent);

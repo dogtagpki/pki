@@ -122,6 +122,7 @@ public class CertProcessor extends CAProcessor {
      * is retrieved from request record
      */
     private void setInputsIntoRequest(IRequest request, IProfile profile, IRequest req, Locale locale) {
+        CMS.debug("CertProcessor: setInputsIntoRequest()");
         // passing inputs into request
         Enumeration<String> inputIds = profile.getProfileInputIds();
 
@@ -134,19 +135,19 @@ public class CertProcessor extends CAProcessor {
                 while (inputNames.hasMoreElements()) {
                     String inputName = inputNames.nextElement();
                     String inputValue = "";
-                    CMS.debug("CertRequestSubmitter: setInputsIntoRequest() getting input name= " + inputName);
+                    //CMS.debug("CertProcessor: setInputsIntoRequest() getting input name= " + inputName);
                     try {
                         inputValue = profileInput.getValue(inputName, locale, request);
                     } catch (Exception e) {
-                        CMS.debug("CertRequestSubmitter: setInputsIntoRequest() getvalue() failed: " + e.toString());
+                        CMS.debug("CertProcessor: setInputsIntoRequest() getvalue() failed: " + e.toString());
                     }
 
                     if (inputValue != null) {
-                        CMS.debug("CertRequestSubmitter: setInputsIntoRequest() setting value in ctx:" + inputValue);
+                        //CMS.debug("CertProcessor: setInputsIntoRequest() setting value in ctx:" + inputValue);
                         req.setExtData(inputName, inputValue);
-                    } else {
-                        CMS.debug("CertRequestSubmitter: setInputsIntoRequest() value null");
-                    }
+                    }/* else {
+                        CMS.debug("CertProcessor: setInputsIntoRequest() value null");
+                    }*/
                 }
             }
         }
@@ -179,7 +180,7 @@ public class CertProcessor extends CAProcessor {
                 // reset the "auditRequesterID"
                 auditRequesterID = auditRequesterID(req);
 
-                // print request debug
+                /* print request debug
                 CMS.debug("CertProcessor: Request:");
                 if (req != null) {
                     Enumeration<String> reqKeys = req.getExtDataKeys();
@@ -191,7 +192,9 @@ public class CertProcessor extends CAProcessor {
                         }
                     }
                 }
+                */
 
+                CMS.debug("CertProcessor.submitRequest: calling profile submit");
                 profile.submit(authToken, req);
                 req.setRequestStatus(RequestStatus.COMPLETE);
 
