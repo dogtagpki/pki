@@ -13,7 +13,7 @@
 %global package_rhel_packages 1
 # Package RHCS-specific RPMS Only
 %global package_rhcs_packages 1
-%define pki_core_rhel_version 10.3.2
+%define pki_core_rhel_version 10.3.3
 %else
 # 0%{?fedora}
 # Fedora always packages all RPMS

@@ -9,7 +9,7 @@ Group:            System Environment/Base
 %bcond_without    javadoc
 
 %if 0%{?rhel}
-%define pki_core_rhel_version      10.3.2
+%define pki_core_rhel_version      10.3.3
 %define pki_core_version           %{pki_core_rhel_version}
 %else
 %define pki_core_version           %{version}
