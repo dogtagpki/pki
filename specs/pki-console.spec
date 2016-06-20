@@ -1,6 +1,6 @@
 Name:             pki-console
 Version:          10.3.3
-Release:          0.1%{?dist}
+Release:          1%{?dist}
 Summary:          Certificate System - PKI Console
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -21,12 +21,7 @@ BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:    cmake >= 2.8.9-1
 BuildRequires:    idm-console-framework
-%if 0%{?rhel}
-# HACK:  RHEL builds currently suppress 'Provides: java-devel' . . .
 BuildRequires:    java-1.8.0-openjdk-devel
-%else
-BuildRequires:    java-devel >= 1:1.8.0
-%endif
 BuildRequires:    ldapjdk
 BuildRequires:    nspr-devel
 BuildRequires:    nss-devel
@@ -36,7 +31,7 @@ BuildRequires:    jss >= 4.2.6-40
 BuildRequires:    pki-base-java >= %{pki_core_version}
 
 Requires:         idm-console-framework
-Requires:         java >= 1:1.8.0
+Requires:         java-1.8.0-openjdk
 Requires:         ldapjdk
 Requires:         pki-base-java >= %{pki_core_version}
 Requires:         pki-console-theme >= %{version}
@@ -103,6 +98,9 @@ cd build
 
 
 %changelog
+* Mon Jun 20 2016 Dogtag Team <pki-devel@redhat.com> 10.3.3-1
+- Updated release number to 10.3.3-1
+
 * Tue Jun  7 2016 Dogtag Team <pki-devel@redhat.com> 10.3.3-0.1
 - Updated version number to 10.3.3-0.1
 

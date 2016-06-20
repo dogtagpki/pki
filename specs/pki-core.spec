@@ -58,7 +58,7 @@
 
 Name:             pki-core
 Version:          10.3.3
-Release:          0.1%{?dist}
+Release:          1%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -338,7 +338,7 @@ Requires:         apache-commons-io
 Requires:         apache-commons-lang
 Requires:         apache-commons-logging
 Requires:         jakarta-commons-httpclient
-Requires:         java-headless >= 1:1.8.0
+Requires:         java-1.8.0-openjdk-headless
 Requires:         javassist
 Requires:         jpackage-utils >= 0:1.7.5-10
 Requires:         jss >= 4.2.6-40
@@ -420,7 +420,7 @@ Obsoletes:        pki-java-tools < %{version}-%{release}
 Requires:         openldap-clients
 Requires:         nss
 Requires:         nss-tools
-Requires:         java-headless >= 1:1.8.0
+Requires:         java-1.8.0-openjdk-headless
 Requires:         pki-base = %{version}-%{release}
 Requires:         pki-base-java = %{version}-%{release}
 Requires:         jpackage-utils >= 0:1.7.5-10
@@ -457,7 +457,7 @@ Obsoletes:        pki-deploy < %{version}-%{release}
 Obsoletes:        pki-setup < %{version}-%{release}
 Obsoletes:        pki-silent < %{version}-%{release}
 
-Requires:         java-headless >= 1:1.8.0
+Requires:         java-1.8.0-openjdk-headless
 Requires:         net-tools
 
 Requires:         python-ldap
@@ -540,7 +540,7 @@ Group:            System Environment/Daemons
 
 BuildArch:        noarch
 
-Requires:         java-headless >= 1:1.8.0
+Requires:         java-1.8.0-openjdk-headless
 Requires:         pki-server = %{version}-%{release}
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
@@ -567,7 +567,7 @@ Group:            System Environment/Daemons
 
 BuildArch:        noarch
 
-Requires:         java-headless >= 1:1.8.0
+Requires:         java-1.8.0-openjdk-headless
 Requires:         pki-server = %{version}-%{release}
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
@@ -600,7 +600,7 @@ Group:            System Environment/Daemons
 
 BuildArch:        noarch
 
-Requires:         java-headless >= 1:1.8.0
+Requires:         java-1.8.0-openjdk-headless
 %if 0%{?package_fedora_packages} || 0%{?package_rhel_packages}
 Requires:         pki-server = %{version}-%{release}
 %else
@@ -644,7 +644,7 @@ Group:            System Environment/Daemons
 
 BuildArch:        noarch
 
-Requires:         java-headless >= 1:1.8.0
+Requires:         java-1.8.0-openjdk-headless
 %if 0%{?package_fedora_packages} || 0%{?package_rhel_packages}
 Requires:         pki-server = %{version}-%{release}
 Requires:         pki-symkey = %{version}-%{release}
@@ -688,7 +688,7 @@ Provides:         pki-tps-client
 Obsoletes:        pki-tps-tomcat
 Obsoletes:        pki-tps-client
 
-Requires:         java-headless >= 1:1.8.0
+Requires:         java-1.8.0-openjdk-headless
 %if 0%{?package_fedora_packages} || 0%{?package_rhel_packages}
 Requires:         pki-server = %{version}-%{release}
 %else
@@ -1172,6 +1172,9 @@ systemctl daemon-reload
 %endif # %{with server}
 
 %changelog
+* Mon Jun 20 2016 Dogtag Team <pki-devel@redhat.com> 10.3.3-1
+- Updated release number to 10.3.3-1
+
 * Tue Jun  7 2016 Dogtag Team <pki-devel@redhat.com> 10.3.3-0.1
 - Updated version number to 10.3.3-0.1
 
