@@ -105,6 +105,13 @@ BuildRequires:    resteasy-base-jaxrs >= 3.0.6-1
 BuildRequires:    resteasy-base-jaxrs-api >= 3.0.6-1
 BuildRequires:    resteasy-base-jackson-provider >= 3.0.6-1
 %else
+%if 0%{?fedora} >= 25
+BuildRequires:    resteasy-atom-provider >= 3.0.17-1
+BuildRequires:    resteasy-client >= 3.0.17-1
+BuildRequires:    resteasy-jaxb-provider >= 3.0.17-1
+BuildRequires:    resteasy-core >= 3.0.17-1
+BuildRequires:    resteasy-jackson-provider >= 3.0.17-1
+%else
 %if 0%{?fedora} >= 22
 # Starting from Fedora 22, resteasy packages were split into
 # subpackages.
@@ -116,6 +123,7 @@ BuildRequires:    resteasy-jaxrs-api >= 3.0.6-7
 BuildRequires:    resteasy-jackson-provider >= 3.0.6-7
 %else
 BuildRequires:    resteasy >= 3.0.6-2
+%endif
 %endif
 %endif
 
@@ -356,6 +364,13 @@ Requires:    resteasy-base-jaxrs >= 3.0.6-1
 Requires:    resteasy-base-jaxrs-api >= 3.0.6-1
 Requires:    resteasy-base-jackson-provider >= 3.0.6-1
 %else
+%if 0%{?fedora} >= 25
+Requires:    resteasy-atom-provider >= 3.0.17-1
+Requires:    resteasy-client >= 3.0.17-1
+Requires:    resteasy-jaxb-provider >= 3.0.17-1
+Requires:    resteasy-core >= 3.0.17-1
+Requires:    resteasy-jackson-provider >= 3.0.17-1
+%else
 %if 0%{?fedora} >= 22
 # Starting from Fedora 22, resteasy packages were split into
 # subpackages.
@@ -367,6 +382,7 @@ Requires:    resteasy-jaxrs-api >= 3.0.6-7
 Requires:    resteasy-jackson-provider >= 3.0.6-7
 %else
 Requires:         resteasy >= 3.0.6-2
+%endif
 %endif
 %endif
 
