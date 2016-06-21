@@ -1181,7 +1181,7 @@ systemctl daemon-reload
 * Tue Jun  7 2016 Dogtag Team <pki-devel@redhat.com> 10.3.2-5
 - Provided cleaner runtime dependency separation
 
-* Sun Jun  7 2016 Dogtag Team <pki-devel@redhat.com> 10.3.2-4
+* Tue Jun  7 2016 Dogtag Team <pki-devel@redhat.com> 10.3.2-4
 - Updated tomcatjss version dependencies
 
 * Tue Jun  7 2016 Dogtag Team <pki-devel@redhat.com> 10.3.2-3
