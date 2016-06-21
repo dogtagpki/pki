@@ -90,7 +90,7 @@ class SubsystemFindCLI(pki.cli.CLI):
                 self.set_verbose(True)
 
             elif o == '--help':
-                self.print_help()
+                self.usage()
                 sys.exit()
 
             else:
@@ -138,12 +138,6 @@ class SubsystemShowCLI(pki.cli.CLI):
             self.usage()
             sys.exit(1)
 
-        if len(args) != 1:
-            print('ERROR: missing subsystem ID')
-            self.usage()
-            sys.exit(1)
-
-        subsystem_name = args[0]
         instance_name = 'pki-tomcat'
 
         for o, a in opts:
@@ -154,13 +148,20 @@ class SubsystemShowCLI(pki.cli.CLI):
                 self.set_verbose(True)
 
             elif o == '--help':
-                self.print_help()
+                self.usage()
                 sys.exit()
 
             else:
                 print('ERROR: unknown option ' + o)
                 self.usage()
                 sys.exit(1)
+
+        if len(args) != 1:
+            print('ERROR: missing subsystem ID')
+            self.usage()
+            sys.exit(1)
+
+        subsystem_name = args[0]
 
         instance = pki.server.PKIInstance(instance_name)
         instance.load()
@@ -195,12 +196,6 @@ class SubsystemEnableCLI(pki.cli.CLI):
             self.usage()
             sys.exit(1)
 
-        if len(args) != 1:
-            print('ERROR: missing subsystem ID')
-            self.usage()
-            sys.exit(1)
-
-        subsystem_name = args[0]
         instance_name = 'pki-tomcat'
 
         for o, a in opts:
@@ -211,13 +206,20 @@ class SubsystemEnableCLI(pki.cli.CLI):
                 self.set_verbose(True)
 
             elif o == '--help':
-                self.print_help()
+                self.usage()
                 sys.exit()
 
             else:
                 print('ERROR: unknown option ' + o)
                 self.usage()
                 sys.exit(1)
+
+        if len(args) != 1:
+            print('ERROR: missing subsystem ID')
+            self.usage()
+            sys.exit(1)
+
+        subsystem_name = args[0]
 
         instance = pki.server.PKIInstance(instance_name)
         instance.load()
@@ -257,12 +259,6 @@ class SubsystemDisableCLI(pki.cli.CLI):
             self.usage()
             sys.exit(1)
 
-        if len(args) != 1:
-            print('ERROR: missing subsystem ID')
-            self.usage()
-            sys.exit(1)
-
-        subsystem_name = args[0]
         instance_name = 'pki-tomcat'
 
         for o, a in opts:
@@ -273,13 +269,20 @@ class SubsystemDisableCLI(pki.cli.CLI):
                 self.set_verbose(True)
 
             elif o == '--help':
-                self.print_help()
+                self.usage()
                 sys.exit()
 
             else:
                 print('ERROR: unknown option ' + o)
                 self.usage()
                 sys.exit(1)
+
+        if len(args) != 1:
+            print('ERROR: missing subsystem ID')
+            self.usage()
+            sys.exit(1)
+
+        subsystem_name = args[0]
 
         instance = pki.server.PKIInstance(instance_name)
         instance.load()
@@ -342,12 +345,6 @@ class SubsystemCertFindCLI(pki.cli.CLI):
             self.print_help()
             sys.exit(1)
 
-        if len(args) != 1:
-            print('ERROR: missing subsystem ID')
-            self.print_help()
-            sys.exit(1)
-
-        subsystem_name = args[0]
         instance_name = 'pki-tomcat'
         show_all = False
 
@@ -369,6 +366,13 @@ class SubsystemCertFindCLI(pki.cli.CLI):
                 print('ERROR: unknown option ' + o)
                 self.print_help()
                 sys.exit(1)
+
+        if len(args) != 1:
+            print('ERROR: missing subsystem ID')
+            self.print_help()
+            sys.exit(1)
+
+        subsystem_name = args[0]
 
         instance = pki.server.PKIInstance(instance_name)
         instance.load()
@@ -414,18 +418,6 @@ class SubsystemCertShowCLI(pki.cli.CLI):
             self.usage()
             sys.exit(1)
 
-        if len(args) < 1:
-            print('ERROR: missing subsystem ID')
-            self.usage()
-            sys.exit(1)
-
-        if len(args) < 2:
-            print('ERROR: missing cert ID')
-            self.usage()
-            sys.exit(1)
-
-        subsystem_name = args[0]
-        cert_id = args[1]
         instance_name = 'pki-tomcat'
 
         for o, a in opts:
@@ -436,13 +428,27 @@ class SubsystemCertShowCLI(pki.cli.CLI):
                 self.set_verbose(True)
 
             elif o == '--help':
-                self.print_help()
+                self.usage()
                 sys.exit()
 
             else:
                 print('ERROR: unknown option ' + o)
                 self.usage()
                 sys.exit(1)
+
+        if len(args) < 1:
+            print('ERROR: missing subsystem ID')
+            self.usage()
+            sys.exit(1)
+
+
+        if len(args) < 2:
+            print('ERROR: missing cert ID')
+            self.usage()
+            sys.exit(1)
+
+        subsystem_name = args[0]
+        cert_id = args[1]
 
         instance = pki.server.PKIInstance(instance_name)
         instance.load()
@@ -490,13 +496,6 @@ class SubsystemCertExportCLI(pki.cli.CLI):
             print('ERROR: ' + str(e))
             self.print_help()
             sys.exit(1)
-
-        if len(args) < 1:
-            print('ERROR: missing subsystem ID')
-            self.print_help()
-            sys.exit(1)
-
-        subsystem_name = args[0]
 
         instance_name = 'pki-tomcat'
         cert_file = None
@@ -555,6 +554,13 @@ class SubsystemCertExportCLI(pki.cli.CLI):
                 print('ERROR: unknown option ' + o)
                 self.print_help()
                 sys.exit(1)
+
+        if len(args) < 1:
+            print('ERROR: missing subsystem ID')
+            self.print_help()
+            sys.exit(1)
+
+        subsystem_name = args[0]
 
         if not (cert_file or csr_file or pkcs12_file):
             print('ERROR: missing output file')
@@ -646,6 +652,24 @@ class SubsystemCertUpdateCLI(pki.cli.CLI):
             self.usage()
             sys.exit(1)
 
+        instance_name = 'pki-tomcat'
+
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o in ('-v', '--verbose'):
+                self.set_verbose(True)
+
+            elif o == '--help':
+                self.usage()
+                sys.exit()
+
+            else:
+                print('ERROR: unknown option ' + o)
+                self.usage()
+                sys.exit(1)
+
         if len(args) < 1:
             print('ERROR: missing subsystem ID')
             self.usage()
@@ -658,23 +682,6 @@ class SubsystemCertUpdateCLI(pki.cli.CLI):
 
         subsystem_name = args[0]
         cert_id = args[1]
-        instance_name = 'pki-tomcat'
-
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
-
-            elif o in ('-v', '--verbose'):
-                self.set_verbose(True)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                print('ERROR: unknown option ' + o)
-                self.usage()
-                sys.exit(1)
 
         instance = pki.server.PKIInstance(instance_name)
         instance.load()
@@ -745,6 +752,24 @@ class SubsystemCertValidateCLI(pki.cli.CLI):
             self.usage()
             sys.exit(1)
 
+        instance_name = 'pki-tomcat'
+
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o in ('-v', '--verbose'):
+                self.set_verbose(True)
+
+            elif o == '--help':
+                self.usage()
+                sys.exit()
+
+            else:
+                self.print_message('ERROR: unknown option ' + o)
+                self.usage()
+                sys.exit(1)
+
         if len(args) < 1:
             print('ERROR: missing subsystem ID')
             self.usage()
@@ -756,24 +781,6 @@ class SubsystemCertValidateCLI(pki.cli.CLI):
             cert_id = args[1]
         else:
             cert_id = None
-
-        instance_name = 'pki-tomcat'
-
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
-
-            elif o in ('-v', '--verbose'):
-                self.set_verbose(True)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                self.print_message('ERROR: unknown option ' + o)
-                self.usage()
-                sys.exit(1)
 
         instance = pki.server.PKIInstance(instance_name)
         instance.load()
