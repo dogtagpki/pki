@@ -55,6 +55,7 @@ class PKCS12ImportCLI(pki.cli.CLI):
         print('      --no-trust-flags               Do not include trust flags')
         print('      --no-user-certs                Do not import user certificates')
         print('      --no-ca-certs                  Do not import CA certificates')
+        print('      --overwrite                    Overwrite existing certificates')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
@@ -65,7 +66,7 @@ class PKCS12ImportCLI(pki.cli.CLI):
         try:
             opts, _ = getopt.gnu_getopt(args, 'v', [
                 'pkcs12-file=', 'pkcs12-password=', 'pkcs12-password-file=',
-                'no-trust-flags', 'no-user-certs', 'no-ca-certs',
+                'no-trust-flags', 'no-user-certs', 'no-ca-certs', 'overwrite',
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
@@ -79,6 +80,7 @@ class PKCS12ImportCLI(pki.cli.CLI):
         no_trust_flags = False
         import_user_certs = True
         import_ca_certs = True
+        overwrite = False
         debug = False
 
         for o, a in opts:
@@ -99,6 +101,9 @@ class PKCS12ImportCLI(pki.cli.CLI):
 
             elif o == '--no-ca-certs':
                 import_ca_certs = False
+
+            elif o == '--overwrite':
+                overwrite = True
 
             elif o in ('-v', '--verbose'):
                 self.set_verbose(True)
@@ -221,6 +226,15 @@ class PKCS12ImportCLI(pki.cli.CLI):
                     cert_id = cert_info['id']
                     nickname = cert_info['nickname']
 
+                    cert = nssdb.get_cert(nickname)
+
+                    if cert:
+                        if not overwrite:
+                            print('WARNING: cert %s already exists' % nickname)
+                            continue
+
+                        nssdb.remove_cert(nickname)
+
                     if 'trust_flags' in cert_info:
                         trust_flags = cert_info['trust_flags']
                     else:
@@ -291,6 +305,9 @@ class PKCS12ImportCLI(pki.cli.CLI):
 
             if no_trust_flags:
                 cmd.extend(['--no-trust-flags'])
+
+            if overwrite:
+                cmd.extend(['--overwrite'])
 
             if self.verbose:
                 cmd.extend(['--verbose'])

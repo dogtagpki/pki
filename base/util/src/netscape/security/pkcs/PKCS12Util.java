@@ -635,14 +635,23 @@ public class PKCS12Util {
         wrapper.unwrapPrivate(encpkey, getPrivateKeyType(publicKey), publicKey);
     }
 
-    public void storeCertIntoNSS(PKCS12 pkcs12, PKCS12CertInfo certInfo) throws Exception {
+    public void storeCertIntoNSS(PKCS12 pkcs12, PKCS12CertInfo certInfo, boolean overwrite) throws Exception {
 
         CryptoManager cm = CryptoManager.getInstance();
+        CryptoToken ct = cm.getInternalKeyStorageToken();
+        CryptoStore store = ct.getCryptoStore();
 
-        X509Certificate cert;
         BigInteger id = certInfo.getID();
         PKCS12KeyInfo keyInfo = pkcs12.getKeyInfoByID(id);
 
+        for (X509Certificate cert : cm.findCertsByNickname(certInfo.nickname)) {
+            if (!overwrite) {
+                return;
+            }
+            store.deleteCert(cert);
+        }
+
+        X509Certificate cert;
         if (keyInfo != null) { // cert has key
             logger.fine("Importing user key for " + certInfo.nickname);
             importKey(pkcs12, keyInfo);
@@ -660,19 +669,19 @@ public class PKCS12Util {
             setTrustFlags(cert, certInfo.trustFlags);
     }
 
-    public void storeCertIntoNSS(PKCS12 pkcs12, String nickname) throws Exception {
+    public void storeCertIntoNSS(PKCS12 pkcs12, String nickname, boolean overwrite) throws Exception {
         Collection<PKCS12CertInfo> certInfos = pkcs12.getCertInfosByNickname(nickname);
         for (PKCS12CertInfo certInfo : certInfos) {
-            storeCertIntoNSS(pkcs12, certInfo);
+            storeCertIntoNSS(pkcs12, certInfo, overwrite);
         }
     }
 
-    public void storeIntoNSS(PKCS12 pkcs12) throws Exception {
+    public void storeIntoNSS(PKCS12 pkcs12, boolean overwrite) throws Exception {
 
         logger.info("Storing data into NSS database");
 
         for (PKCS12CertInfo certInfo : pkcs12.getCertInfos()) {
-            storeCertIntoNSS(pkcs12, certInfo);
+            storeCertIntoNSS(pkcs12, certInfo, overwrite);
         }
     }
 }

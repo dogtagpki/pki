@@ -21,15 +21,15 @@ import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-import netscape.ldap.LDAPException;
-import netscape.ldap.LDAPSSLSocketFactoryExt;
-
 import org.mozilla.jss.ssl.SSLHandshakeCompletedEvent;
 import org.mozilla.jss.ssl.SSLHandshakeCompletedListener;
 import org.mozilla.jss.ssl.SSLSocket;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.logging.ILogger;
+
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPSSLSocketFactoryExt;
 
 /**
  * Uses HCL ssl socket.
@@ -65,17 +65,18 @@ public class LdapJssSSLSocketFactory implements LDAPSSLSocketFactoryExt {
 
             if (mClientAuthCertNickname != null) {
                 mClientAuth = true;
-                CMS.debug(
-                        "LdapJssSSLSocket set client auth cert nickname" +
-                                mClientAuthCertNickname);
+                CMS.debug("LdapJssSSLSocket: set client auth cert nickname " +
+                        mClientAuthCertNickname);
                 s.setClientCertNickname(mClientAuthCertNickname);
             }
             s.forceHandshake();
+
         } catch (UnknownHostException e) {
             log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSCORE_LDAPCONN_UNKNOWN_HOST"));
             throw new LDAPException(
-                    "Cannot Create JSS SSL Socket - Unknown host");
+                    "Cannot Create JSS SSL Socket - Unknown host: " + e);
+
         } catch (IOException e) {
             if (s != null) {
                 try {
@@ -85,8 +86,9 @@ public class LdapJssSSLSocketFactory implements LDAPSSLSocketFactoryExt {
                 }
             }
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_LDAPCONN_IO_ERROR", e.toString()));
-            throw new LDAPException("IO Error creating JSS SSL Socket");
+            throw new LDAPException("IO Error creating JSS SSL Socket: " + e);
         }
+
         return s;
     }
 

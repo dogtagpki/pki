@@ -423,12 +423,20 @@ class NSSDatabase(object):
             output_format_option
         ])
 
-        cert_data = subprocess.check_output(cmd)
+        try:
+            cert_data = subprocess.check_output(cmd)
 
-        if output_format == 'base64':
-            cert_data = base64.b64encode(cert_data)
+            if output_format == 'base64':
+                cert_data = base64.b64encode(cert_data)
 
-        return cert_data
+            return cert_data
+
+        except subprocess.CalledProcessError:
+            # All certutil errors return the same code (i.e. 255).
+            # For now assume it was caused by missing certificate.
+            # TODO: Check error message. If it's caused by other
+            # issue, throw exception.
+            return None
 
     def remove_cert(self, nickname):
 
@@ -576,7 +584,8 @@ class NSSDatabase(object):
                       pkcs12_password=None,
                       pkcs12_password_file=None,
                       no_user_certs=False,
-                      no_ca_certs=False):
+                      no_ca_certs=False,
+                      overwrite=False):
 
         tmpdir = tempfile.mkdtemp()
 
@@ -612,6 +621,9 @@ class NSSDatabase(object):
 
             if no_ca_certs:
                 cmd.extend(['--no-ca-certs'])
+
+            if overwrite:
+                cmd.extend(['--overwrite'])
 
             subprocess.check_call(cmd)
 

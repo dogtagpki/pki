@@ -686,6 +686,7 @@ public class ConfigurationUtils {
     public static boolean updateConfigEntries(String hostname, int port, boolean https,
             String servlet, MultivaluedMap<String, String> content, IConfigStore config)
                     throws Exception {
+
         CMS.debug("updateConfigEntries start");
         String c = post(hostname, port, https, servlet, content, null, null);
 
@@ -704,6 +705,7 @@ public class ConfigurationUtils {
 
                 cstype = config.getString("cs.type", "");
 
+                CMS.debug("Master's configuration:");
                 Document doc = parser.getDocument();
                 NodeList list = doc.getElementsByTagName("name");
                 int len = list.getLength();
@@ -711,9 +713,12 @@ public class ConfigurationUtils {
                     Node n = list.item(i);
                     NodeList nn = n.getChildNodes();
                     String name = nn.item(0).getNodeValue();
+                    CMS.debug(" - " + name);
+
                     Node parent = n.getParentNode();
                     nn = parent.getChildNodes();
                     int len1 = nn.getLength();
+
                     String v = "";
                     for (int j = 0; j < len1; j++) {
                         Node nv = nn.item(j);
@@ -729,33 +734,43 @@ public class ConfigurationUtils {
                     if (name.equals("internaldb.basedn")) {
                         config.putString(name, v);
                         config.putString("preop.internaldb.master.basedn", v);
+
                     } else if (name.startsWith("internaldb")) {
                         config.putString(name.replaceFirst("internaldb", "preop.internaldb.master"), v);
+
                     } else if (name.equals("instanceId")) {
                         config.putString("preop.master.instanceId", v);
+
                     } else if (name.equals("cloning.signing.nickname")) {
                         config.putString("preop.master.signing.nickname", v);
                         config.putString("preop.cert.signing.nickname", v);
+
                     } else if (name.equals("cloning.ocsp_signing.nickname")) {
                         config.putString("preop.master.ocsp_signing.nickname", v);
                         config.putString("preop.cert.ocsp_signing.nickname", v);
+
                     } else if (name.equals("cloning.subsystem.nickname")) {
                         config.putString("preop.master.subsystem.nickname", v);
                         config.putString("preop.cert.subsystem.nickname", v);
+
                     } else if (name.equals("cloning.transport.nickname")) {
                         config.putString("preop.master.transport.nickname", v);
                         config.putString("kra.transportUnit.nickName", v);
                         config.putString("preop.cert.transport.nickname", v);
+
                     } else if (name.equals("cloning.storage.nickname")) {
                         config.putString("preop.master.storage.nickname", v);
                         config.putString("kra.storageUnit.nickName", v);
                         config.putString("preop.cert.storage.nickname", v);
+
                     } else if (name.equals("cloning.audit_signing.nickname")) {
                         config.putString("preop.master.audit_signing.nickname", v);
                         config.putString("preop.cert.audit_signing.nickname", v);
                         config.putString(name, v);
+
                     } else if (name.startsWith("cloning.ca")) {
                         config.putString(name.replaceFirst("cloning", "preop"), v);
+
                     } else if (name.equals("cloning.signing.keyalgorithm")) {
                         config.putString(name.replaceFirst("cloning", "preop.cert"), v);
                         if (cstype.equals("CA")) {
@@ -767,13 +782,16 @@ public class ConfigurationUtils {
                     } else if (name.equals("cloning.transport.keyalgorithm")) {
                         config.putString(name.replaceFirst("cloning", "preop.cert"), v);
                         config.putString("kra.transportUnit.signingAlgorithm", v);
+
                     } else if (name.equals("cloning.ocsp_signing.keyalgorithm")) {
                         config.putString(name.replaceFirst("cloning", "preop.cert"), v);
                         if (cstype.equals("CA")) {
                             config.putString("ca.ocsp_signing.defaultSigningAlgorithm", v);
                         }
+
                     } else if (name.startsWith("cloning")) {
                         config.putString(name.replaceFirst("cloning", "preop.cert"), v);
+
                     } else {
                         config.putString(name, v);
                     }
@@ -1183,12 +1201,15 @@ public class ConfigurationUtils {
         return org.mozilla.jss.crypto.PrivateKey.Type.RSA;
     }
 
-    public static boolean isCASigningCert(String name) {
+    public static boolean isCASigningCert(String name) throws EBaseException {
         IConfigStore cs = CMS.getConfigStore();
         try {
             String nickname = cs.getString("preop.master.signing.nickname");
+            CMS.debug("Property preop.master.signing.nickname: " + nickname);
             if (nickname.equals(name)) return true;
-        } catch(Exception e) {
+
+        } catch (EPropertyNotFound e) {
+            CMS.debug("Property preop.master.signing.nickname not found -> cert " + name + " is not CA signing cert");
             // nickname may not exist if this is not cloning a CA
         };
 
@@ -1245,6 +1266,8 @@ public class ConfigurationUtils {
         IConfigStore cs = CMS.getConfigStore();
         String certList = cs.getString("preop.cert.list", "");
         StringTokenizer st = new StringTokenizer(certList, ",");
+
+        CMS.debug("Master certs:");
         while (st.hasMoreTokens()) {
             String s = st.nextToken();
             if (s.equals("sslserver"))
@@ -1256,7 +1279,9 @@ public class ConfigurationUtils {
             name = "preop.cert." + s + ".dn";
             String dn = cs.getString(name);
             list.add(dn);
+            CMS.debug(" - " + name + ": " + dn);
         }
+
         return list;
     }
 

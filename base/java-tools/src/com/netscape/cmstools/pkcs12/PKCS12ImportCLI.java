@@ -61,6 +61,7 @@ public class PKCS12ImportCLI extends CLI {
         options.addOption(option);
 
         options.addOption(null, "no-trust-flags", false, "Do not include trust flags");
+        options.addOption(null, "overwrite", false, "Overwrite existing certificates");
 
         options.addOption("v", "verbose", false, "Run in verbose mode.");
         options.addOption(null, "debug", false, "Run in debug mode.");
@@ -125,6 +126,7 @@ public class PKCS12ImportCLI extends CLI {
         Password password = new Password(passwordString.toCharArray());
 
         boolean trustFlagsEnabled = !cmd.hasOption("no-trust-flags");
+        boolean overwrite = cmd.hasOption("overwrite");
 
         try {
             PKCS12Util util = new PKCS12Util();
@@ -134,12 +136,12 @@ public class PKCS12ImportCLI extends CLI {
 
             if (nicknames.length == 0) {
                 // store all certificates
-                util.storeIntoNSS(pkcs12);
+                util.storeIntoNSS(pkcs12, overwrite);
 
             } else {
                 // load specified certificates
                 for (String nickname : nicknames) {
-                    util.storeCertIntoNSS(pkcs12, nickname);
+                    util.storeCertIntoNSS(pkcs12, nickname, overwrite);
                 }
             }
 
