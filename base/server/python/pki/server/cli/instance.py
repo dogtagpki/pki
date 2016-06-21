@@ -157,6 +157,11 @@ class InstanceCertExportCLI(pki.cli.CLI):
             sys.exit(1)
 
         instance = pki.server.PKIInstance(instance_name)
+
+        if not instance.is_valid():
+            print('ERROR: Invalid instance %s.' % instance_name)
+            sys.exit(1)
+
         instance.load()
 
         if not pkcs12_password and not pkcs12_password_file:
@@ -282,6 +287,11 @@ class InstanceShowCLI(pki.cli.CLI):
         instance_name = args[0]
 
         instance = pki.server.PKIInstance(instance_name)
+
+        if not instance.is_valid():
+            print('ERROR: Invalid instance %s.' % instance_name)
+            sys.exit(1)
+
         instance.load()
 
         InstanceCLI.print_instance(instance)
@@ -333,7 +343,7 @@ class InstanceStartCLI(pki.cli.CLI):
         instance = pki.server.PKIInstance(instance_name)
 
         if not instance.is_valid():
-            self.print_message('%s instance not found' % instance_name)
+            print('ERROR: Invalid instance %s.' % instance_name)
             sys.exit(1)
 
         if instance.is_active():
@@ -392,7 +402,7 @@ class InstanceStopCLI(pki.cli.CLI):
         instance = pki.server.PKIInstance(instance_name)
 
         if not instance.is_valid():
-            self.print_message('%s instance not found' % instance_name)
+            print('ERROR: Invalid instance %s.' % instance_name)
             sys.exit(1)
 
         if not instance.is_active():
@@ -470,6 +480,11 @@ class InstanceMigrateCLI(pki.cli.CLI):
         module.set_debug(self.debug)
 
         instance = pki.server.PKIInstance(instance_name)
+
+        if not instance.is_valid():
+            print('ERROR: Invalid instance %s.' % instance_name)
+            sys.exit(1)
+
         instance.load()
 
         module.migrate(  # pylint: disable=no-member,maybe-no-member
@@ -526,8 +541,12 @@ class InstanceNuxwdogEnableCLI(pki.cli.CLI):
         module.set_verbose(self.verbose)
 
         instance = pki.server.PKIInstance(instance_name)
-        instance.load()
 
+        if not instance.is_valid():
+            print('ERROR: Invalid instance %s.' % instance_name)
+            sys.exit(1)
+
+        instance.load()
         module.enable_nuxwdog(  # pylint: disable=no-member,maybe-no-member
             instance)
 
@@ -580,6 +599,11 @@ class InstanceNuxwdogDisableCLI(pki.cli.CLI):
         module.set_verbose(self.verbose)
 
         instance = pki.server.PKIInstance(instance_name)
+
+        if not instance.is_valid():
+            print('ERROR: Invalid instance %s.' % instance_name)
+            sys.exit(1)
+
         instance.load()
 
         module.disable_nuxwdog(
@@ -664,6 +688,11 @@ class InstanceExternalCertAddCLI(pki.cli.CLI):
             sys.exit(1)
 
         instance = pki.server.PKIInstance(instance_name)
+
+        if not instance.is_valid():
+            print('ERROR: Invalid instance %s.' % instance_name)
+            sys.exit(1)
+
         instance.load()
 
         if instance.external_cert_exists(nickname, token):
@@ -753,6 +782,11 @@ class InstanceExternalCertDeleteCLI(pki.cli.CLI):
             sys.exit(1)
 
         instance = pki.server.PKIInstance(instance_name)
+
+        if not instance.is_valid():
+            print('ERROR: Invalid instance %s.' % instance_name)
+            sys.exit(1)
+
         instance.load()
 
         self.remove_cert(instance, nickname, token)
