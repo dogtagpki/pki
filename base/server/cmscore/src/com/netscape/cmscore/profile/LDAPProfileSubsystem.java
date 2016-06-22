@@ -27,6 +27,7 @@ import java.util.TreeSet;
 import java.util.concurrent.CountDownLatch;
 
 import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPAttributeSet;
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPDN;
 import netscape.ldap.LDAPEntry;
@@ -400,6 +401,23 @@ public class LDAPProfileSubsystem
             initialLoadDone.countDown();
     }
 
+    private void ensureProfilesOU(LDAPConnection conn) throws LDAPException {
+        try {
+            conn.search(dn, LDAPConnection.SCOPE_BASE, "(objectclass=*)", null, false);
+        } catch (LDAPException e) {
+            if (e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT) {
+                CMS.debug("Adding LDAP certificate profiles container");
+                LDAPAttribute[] attrs = {
+                    new LDAPAttribute("objectClass", "organizationalUnit"),
+                    new LDAPAttribute("ou", "certificateProfiles")
+                };
+                LDAPAttributeSet attrSet = new LDAPAttributeSet(attrs);
+                LDAPEntry entry = new LDAPEntry(dn, attrSet);
+                conn.add(entry);
+            }
+        }
+    }
+
     public void run() {
         int op = LDAPPersistSearchControl.ADD
             | LDAPPersistSearchControl.MODIFY
@@ -416,6 +434,7 @@ public class LDAPProfileSubsystem
             forgetAllProfiles();
             try {
                 conn = dbFactory.getConn();
+                ensureProfilesOU(conn);
                 LDAPSearchConstraints cons = conn.getSearchConstraints();
                 cons.setServerControls(persistCtrl);
                 cons.setBatchSize(1);
