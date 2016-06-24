@@ -1181,6 +1181,11 @@ class PKIConfigParser:
             #         self.mdict['pki_clone_pkcs12_path']
             #         self.mdict['pki_clone_uri']
             #         self.mdict['pki_security_domain_https_port']
+            #
+            #     The following variables are established via the specified PKI
+            #     deployment configuration file and potentially "normalized"
+            #     below:
+            #
             #         self.mdict['pki_token_name']
             #
             #     The following variables are established via the specified PKI
@@ -1190,6 +1195,11 @@ class PKIConfigParser:
             #         self.mdict['pki_security_domain_user']
             #         self.mdict['pki_issuing_ca']
             #
+
+            # if the case insensitive softokn name is the 'default' value
+            if (self.mdict['pki_token_name'].lower() == "internal"):
+                # always normalize 'default' softokn name
+                self.mdict['pki_token_name'] = "internal"
 
             # if security domain user is not defined
             if not len(self.mdict['pki_security_domain_user']):
