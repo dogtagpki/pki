@@ -186,9 +186,11 @@ class PKISubsystem(object):
         cert = self.get_subsystem_cert(cert_id)
         nickname = cert['nickname']
         token = cert['token']
-        if token == 'Internal Key Storage Token':
-            token = 'internal'
-        nssdb_password = self.instance.get_password(token)
+
+        if token and token.lower() in ['internal', 'internal key storage token']:
+            token = None
+
+        nssdb_password = self.instance.get_token_password(token)
 
         tmpdir = tempfile.mkdtemp()
 
@@ -204,7 +206,7 @@ class PKISubsystem(object):
                 '-C', nssdb_password_file
             ]
 
-            if token and token != 'internal':
+            if token:
                 cmd.extend(['--token', token])
 
             cmd.extend([
@@ -234,9 +236,11 @@ class PKISubsystem(object):
         cert = self.get_subsystem_cert('subsystem')
         nickname = cert['nickname']
         token = cert['token']
-        if token == 'Internal Key Storage Token':
-            token = 'internal'
-        nssdb_password = self.instance.get_password(token)
+
+        if token and token.lower() in ['internal', 'internal key storage token']:
+            token = None
+
+        nssdb_password = self.instance.get_token_password(token)
 
         tmpdir = tempfile.mkdtemp()
 
@@ -252,7 +256,7 @@ class PKISubsystem(object):
                 '-C', nssdb_password_file
             ]
 
-            if token and token != 'internal':
+            if token:
                 cmd.extend(['--token', token])
 
             cmd.extend([
@@ -271,7 +275,7 @@ class PKISubsystem(object):
                 '-C', nssdb_password_file
             ]
 
-            if token and token != 'internal':
+            if token:
                 cmd.extend(['--token', token])
 
             cmd.extend([
@@ -359,7 +363,8 @@ class PKISubsystem(object):
             connection.set_credentials(
                 client_cert_nickname=self.config[
                     '%s.ldapauth.clientCertNickname' % name],
-                nssdb_password=self.instance.get_password('internal')
+                # TODO: remove hard-coded token name
+                nssdb_password=self.instance.get_token_password('internal')
             )
 
         else:
@@ -543,10 +548,32 @@ class PKIInstance(object):
         return external_certs
 
     def get_password(self, name):
+
+        # find password (e.g. internaldb, replicationdb) in password.conf
         if name in self.passwords:
             return self.passwords[name]
 
+        # prompt for password if not found
         password = getpass.getpass(prompt='Enter password for %s: ' % name)
+        self.passwords[name] = password
+
+        return password
+
+    def get_token_password(self, token='internal'):
+
+        # determine the password name for the token
+        if token.lower() in ['internal', 'internal key storage token']:
+            name = 'internal'
+
+        else:
+            name = 'hardware-%s' % token
+
+        # find password in password.conf
+        if name in self.passwords:
+            return self.passwords[name]
+
+        # prompt for password if not found
+        password = getpass.getpass(prompt='Enter password for %s: ' % token)
         self.passwords[name] = password
 
         return password
@@ -555,7 +582,7 @@ class PKIInstance(object):
         return pki.nssdb.NSSDatabase(
             directory=self.nssdb_dir,
             token=token,
-            password=self.get_password(token))
+            password=self.get_token_password(token))
 
     def external_cert_exists(self, nickname, token):
         for cert in self.external_certs:
@@ -588,9 +615,11 @@ class PKIInstance(object):
         for cert in self.external_certs:
             nickname = cert.nickname
             token = cert.token
-            if token == 'Internal Key Storage Token':
-                token = 'internal'
-            nssdb_password = self.get_password(token)
+
+            if token and token.lower() in ['internal', 'internal key storage token']:
+                token = None
+
+            nssdb_password = self.get_token_password(token)
 
             tmpdir = tempfile.mkdtemp()
 
@@ -606,7 +635,7 @@ class PKIInstance(object):
                     '-C', nssdb_password_file
                 ]
 
-                if token and token != 'internal':
+                if token:
                     cmd.extend(['--token', token])
 
                 cmd.extend([

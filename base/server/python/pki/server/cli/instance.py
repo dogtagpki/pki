@@ -679,7 +679,7 @@ class InstanceExternalCertAddCLI(pki.cli.CLI):
                            instance_name)
 
     def import_certs(self, instance, cert_file, nickname, token, trust_args):
-        password = instance.get_password(token)
+        password = instance.get_token_password(token)
         certdb = pki.nssdb.NSSDatabase(
             directory=instance.nssdb_dir,
             password=password,
@@ -762,7 +762,7 @@ class InstanceExternalCertDeleteCLI(pki.cli.CLI):
                            instance_name)
 
     def remove_cert(self, instance, nickname, token):
-        password = instance.get_password(token)
+        password = instance.get_token_password(token)
         certdb = pki.nssdb.NSSDatabase(
             directory=instance.nssdb_dir,
             password=password,
