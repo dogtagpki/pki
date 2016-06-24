@@ -91,6 +91,7 @@ public class TPSEngine {
     public static final String CFG_ERROR_PREFIX = "logging.error";
     public static final String CFG_DEBUG_PREFIX = "logging.debug";
     public static final String CFG_SELFTEST_PREFIX = "selftests.container.logger";
+    public static final String CFG_TOKENDB = "tokendb";
     public static final String CFG_TOKENDB_ALLOWED_TRANSITIONS = "tokendb.allowedTransitions";
     public static final String CFG_OPERATIONS_ALLOWED_TRANSITIONS = "tps.operations.allowedTransitions";
 
@@ -153,6 +154,7 @@ public class TPSEngine {
 
     public static final String CFG_EXTERNAL_REG = "externalReg";
     public static final String CFG_ER_DELEGATION = "delegation";
+    public static final String CFG_NON_EXTERNAL_REG = "nonExternalReg";
 
     /* misc values */
 
@@ -192,6 +194,7 @@ public class TPSEngine {
     public static final String ENROLL_MODE_ENROLLMENT = ENROLL_OP;
     public static final String ENROLL_MODE_RECOVERY = RECOVERY_OP;
     public static final String ERNOLL_MODE_RENEWAL = RENEWAL_OP;
+    public static final String CFG_ALLOW_MULTI_TOKENS_USER = "allowMultiActiveTokensUser";
 
     public void init() {
         //ToDo

@@ -14,6 +14,11 @@ import java.util.Map;
 import java.util.Random;
 import java.util.zip.DataFormatException;
 
+import netscape.security.provider.RSAPublicKey;
+//import org.mozilla.jss.pkcs11.PK11ECPublicKey;
+import netscape.security.util.BigInt;
+import netscape.security.x509.X509CertImpl;
+
 import org.dogtagpki.server.tps.TPSSession;
 import org.dogtagpki.server.tps.TPSSubsystem;
 import org.dogtagpki.server.tps.TPSTokenPolicy;
@@ -53,18 +58,14 @@ import org.mozilla.jss.pkcs11.PK11PubKey;
 import org.mozilla.jss.pkcs11.PK11RSAPublicKey;
 import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
 
+import sun.security.pkcs11.wrapper.PKCS11Constants;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.tps.token.TokenStatus;
 import com.netscape.cmsutil.util.Utils;
-
-import netscape.security.provider.RSAPublicKey;
-//import org.mozilla.jss.pkcs11.PK11ECPublicKey;
-import netscape.security.util.BigInt;
-import netscape.security.x509.X509CertImpl;
-import sun.security.pkcs11.wrapper.PKCS11Constants;
 
 public class TPSEnrollProcessor extends TPSProcessor {
 
@@ -328,6 +329,24 @@ public class TPSEnrollProcessor extends TPSProcessor {
         // isExternalReg : user already authenticated earlier
         if (!isExternalReg)
             checkAndAuthenticateUser(appletInfo, getSelectedTokenType());
+
+        //Do this here after all authentication has taken place, so we have a (userid)
+
+        boolean allowMultiTokens = checkAllowMultiActiveTokensUser(isExternalReg);
+
+        if (isTokenPresent == false && allowMultiTokens == false) {
+            boolean alreadyHasActiveToken = checkUserAlreadyHasActiveToken(userid);
+
+            if (alreadyHasActiveToken == true) {
+                //We don't allow the user to have more than one active token, nip it in the bud right now
+                //If this token is brand new and not known to the system
+
+                throw new TPSException(method
+                        + " User already has an active token when trying to enroll this new token!",
+                        TPSStatus.STATUS_ERROR_HAS_AT_LEAST_ONE_ACTIVE_TOKEN);
+            }
+
+        }
 
         if (do_force_format) {
             //We will skip the auth step inside of format
@@ -1030,22 +1049,9 @@ public class TPSEnrollProcessor extends TPSProcessor {
                     } else {
                         CMS.debug(method + ": There are multiple token entries for user "
                                 + userid);
-                        try {
-                            // this is assuming that the user can only have one single active token
-                            // TODO: for future, maybe should allow multiple active tokens
-                            tps.tdb.tdbHasActiveToken(userid);
 
-                        } catch (Exception e1) {
-                            /*
-                             * user has no active token, need to find a token to recover from
-                             * there are no other active tokens for this user
-                             */
                             isRecover = true;
                             continue; // TODO: or break?
-                        }
-                        logMsg = method + ": user already has an active token";
-                        CMS.debug(logMsg);
-                        throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_HAS_AT_LEAST_ONE_ACTIVE_TOKEN);
                     }
 
                 } else if (tokenRecord.getTokenStatus() == TokenStatus.ACTIVE) {
@@ -1070,17 +1076,10 @@ public class TPSEnrollProcessor extends TPSProcessor {
                     throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_UNUSABLE_TOKEN_KEYCOMPROMISE);
 
                 } else if (tokenRecord.getTokenStatus() == TokenStatus.SUSPENDED) {
-                    try {
-                        tps.tdb.tdbHasActiveToken(userid);
-                        logMsg = "user already has an active token";
-                        CMS.debug(method + ": " + logMsg);
-                        throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_HAS_AT_LEAST_ONE_ACTIVE_TOKEN);
 
-                    } catch (Exception e2) {
                         logMsg = "User needs to contact administrator to report lost token (it should be put on Hold).";
                         CMS.debug(method + ": " + logMsg);
                         break;
-                    }
 
                 } else if (tokenRecord.getTokenStatus() == TokenStatus.DAMAGED) {
                     logMsg = "This destroyed lost case should not be executed because the token is so damaged. It should not get here";
@@ -3557,6 +3556,55 @@ public class TPSEnrollProcessor extends TPSProcessor {
                 kraConnId,
                 info);
         audit(auditMessage);
+    }
+
+    private boolean checkUserAlreadyHasActiveToken(String userid) {
+
+        String method = "TPSEnrollProcessor.checkUserAlreadyHasActiveToken: ";
+        boolean result = false;
+
+        TPSSubsystem tps = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+        try {
+            tps.tdb.tdbHasActiveToken(userid);
+            result = true;
+
+        } catch (Exception e) {
+            result = false;
+        }
+
+        CMS.debug(method + " user: " + userid + " has a token already: " + result);
+
+        return result;
+    }
+
+    private boolean checkAllowMultiActiveTokensUser(boolean isExternalReg) {
+        boolean allow = true;
+
+        String method = "TPSEnrollProcessor.checkAllowMultiActiveTokensUser: ";
+        IConfigStore configStore = CMS.getConfigStore();
+
+        String scheme = null;
+
+        if (isExternalReg == true) {
+            scheme = TPSEngine.CFG_EXTERNAL_REG;
+        } else {
+            scheme = TPSEngine.CFG_NON_EXTERNAL_REG;
+        }
+
+        String allowMultiConfig =  TPSEngine.CFG_TOKENDB + "." + scheme + "."
+                + TPSEngine.CFG_ALLOW_MULTI_TOKENS_USER;
+
+        CMS.debug(method + " trying config: " + allowMultiConfig);
+
+        try {
+            allow = configStore.getBoolean(allowMultiConfig, false);
+        } catch (EBaseException e) {
+            allow = false;
+        }
+
+        CMS.debug(method + "returning allow: " + allow);
+
+        return allow;
     }
 
     public static void main(String[] args) {
