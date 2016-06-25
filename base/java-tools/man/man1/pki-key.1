@@ -329,7 +329,9 @@ Following is the description of the various parameters in the key retrieval temp
     -- clientKeyID - Client specified unique key identifier
     -- keyAlgorithm - Algorithm to be used to generate key (AES/DES/DES3/DESede/RC2/RC4)
     -- keySize - Value for the size of the key to be generated.
-    -- keyUsage - usages of the generated key(wrap,unwrap,sign,verify,encrypt,decrypt)
+    -- keyUsage - usages of the generated key
+        useful for Symmetric Keys (DES3,AES,etc) (wrap,unwrap,encrypt,decrypt)
+        useful for Asymmetric Keys (RSA, EC,etc) (wrap,unwrap,encrypt,decrypt,sign,verify,sign_recover,verify_recover)
 
 To create a key generation request using the template file:
 
