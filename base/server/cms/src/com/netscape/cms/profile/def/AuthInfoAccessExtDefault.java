@@ -430,9 +430,10 @@ public class AuthInfoAccessExtDefault extends EnrollExtDefault {
                         if (method.equals("1.3.6.1.5.5.7.48.1")) {
                             String hostname = CMS.getEENonSSLHost();
                             String port = CMS.getEENonSSLPort();
+                            String uri = "";
                             if (hostname != null && port != null)
-                                // location = "http://"+hostname+":"+port+"/ocsp/ee/ocsp";
-                                location = "http://" + hostname + ":" + port + "/ca/ocsp";
+                                uri = "http://" + hostname + ":" + port + "/ca/ocsp";
+                            location = CMS.getConfigStore().getString("ca.defaultOcspUri", uri);
                         }
                     }
 

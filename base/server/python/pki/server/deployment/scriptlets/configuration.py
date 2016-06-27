@@ -87,6 +87,11 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         subsystem = instance.get_subsystem(
             deployer.mdict['pki_subsystem'].lower())
 
+        ocsp_uri = deployer.mdict.get('pki_default_ocsp_uri')
+        if ocsp_uri:
+            subsystem.config['ca.defaultOcspUri'] = ocsp_uri
+            subsystem.save()
+
         token = deployer.mdict['pki_token_name']
         nssdb = instance.open_nssdb(token)
 
