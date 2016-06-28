@@ -46,13 +46,6 @@ find_file(LDAPJDK_JAR
         /usr/share/java
 )
 
-find_file(JAXRS_API_JAR
-    NAMES
-        jaxrs-api.jar
-    PATHS
-        ${RESTEASY_LIB}
-)
-
 # '${JAVA_LIB_INSTALL_DIR}' jars
 find_file(JSS_JAR
     NAMES

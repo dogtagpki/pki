@@ -2,6 +2,16 @@ project(base)
 
 # The order is important!
 if (APPLICATION_FLAVOR_PKI_CORE)
+
+    find_file(JAXRS_API_JAR
+        NAMES
+            jaxrs-api.jar
+            jboss-jaxrs-2.0-api.jar
+        PATHS
+            ${RESTEASY_LIB}
+            /usr/share/java
+    )
+
     add_subdirectory(test)
     add_subdirectory(symkey)
     add_subdirectory(util)

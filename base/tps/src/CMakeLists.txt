@@ -28,13 +28,6 @@ find_file(COMMONS_LANG_JAR
         /usr/share/java
 )
 
-find_file(JAXRS_API_JAR
-    NAMES
-        jaxrs-api.jar
-    PATHS
-        ${RESTEASY_LIB}
-)
-
 find_file(TOMCAT_CATALINA_JAR
     NAMES
         catalina.jar
@@ -75,13 +68,6 @@ find_file(PKI_NSUTIL_JAR
         pki-nsutil.jar
     PATHS
         /usr/share/java/pki
-)
-
-find_file(JAXRS_API_JAR
-    NAMES
-        jaxrs-api.jar
-    PATHS
-        ${RESTEASY_LIB}
 )
 
 find_file(RESTEASY_JAXRS_JAR

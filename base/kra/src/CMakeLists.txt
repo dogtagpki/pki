@@ -61,13 +61,6 @@ find_file(COMMONS_CODEC_JAR
         /usr/share/java
 )
 
-find_file(JAXRS_API_JAR
-    NAMES
-        jaxrs-api.jar
-    PATHS
-        ${RESTEASY_LIB}
-)
-
 find_file(RESTEASY_JAXRS_JAR
     NAMES
         resteasy-jaxrs.jar
