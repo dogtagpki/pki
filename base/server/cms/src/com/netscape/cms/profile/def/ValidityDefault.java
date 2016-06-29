@@ -26,6 +26,7 @@ import java.util.Locale;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.property.Descriptor;
@@ -34,6 +35,7 @@ import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 
 import netscape.security.x509.CertificateValidity;
+import netscape.security.x509.X509CertImpl;
 import netscape.security.x509.X509CertInfo;
 
 /**
@@ -300,6 +302,27 @@ public class ValidityDefault extends EnrollDefault {
 
         Date notAfter = date.getTime();
         CMS.debug("ValidityDefault: not after: " + notAfter);
+
+        // check and fix notAfter if needed
+        // installAdjustValidity is set during installation if needed
+        boolean adjustValidity =
+                request.getExtDataInBoolean("installAdjustValidity", false);
+        if (adjustValidity) {
+            CMS.debug("ValidityDefault: populate: adjustValidity is true");
+            ICertificateAuthority ca = (ICertificateAuthority)
+                    CMS.getSubsystem(CMS.SUBSYSTEM_CA);
+            try {
+                X509CertImpl caCert = ca.getCACert();
+                Date caNotAfter = caCert.getNotAfter();
+                if (notAfter.after(caNotAfter)) {
+                    notAfter = caNotAfter;
+                    CMS.debug("ValidityDefault: populate: resetting notAfter to caNotAfter");
+                }
+            } catch (Exception e) {
+                throw new EProfileException(
+                        "Unable to get ca certificate: " + e.getMessage(), e);
+            }
+        }
 
         CertificateValidity validity =
                 new CertificateValidity(notBefore, notAfter);

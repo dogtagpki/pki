@@ -535,6 +535,9 @@ public class CertUtil {
                 CMS.debug("Creating local request exception:" + e.toString());
             }
 
+            // installAdjustValidity tells ValidityDefault to adjust the
+            // notAfter value to that of the CA's signing cert if needed
+            req.setExtData("installAdjustValidity", "true");
             processor.populate(req, info);
 
             PrivateKey caPrik = null;
