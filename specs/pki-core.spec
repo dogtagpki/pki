@@ -67,6 +67,7 @@ Group:            System Environment/Daemons
 BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:    cmake >= 2.8.9-1
+BuildRequires:    gcc-c++
 BuildRequires:    zip
 BuildRequires:    java-1.8.0-openjdk-devel
 BuildRequires:    redhat-rpm-config
