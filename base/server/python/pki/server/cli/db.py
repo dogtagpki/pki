@@ -100,7 +100,12 @@ class DBSchemaUpgrade(pki.cli.CLI):
             sys.exit(1)
         instance.load()
 
-        self.update_schema(instance, bind_dn, bind_password)
+        try:
+            self.update_schema(instance, bind_dn, bind_password)
+
+        except subprocess.CalledProcessError as e:
+            print("ERROR: " + e.output)
+            sys.exit(e.returncode)
 
         self.print_message('Upgrade complete')
 
@@ -122,10 +127,7 @@ class DBSchemaUpgrade(pki.cli.CLI):
         if secure.lower() == "true":
             cmd.append('-Z')
 
-        try:
-            subprocess.check_output(cmd)
-        except subprocess.CalledProcessError as e:
-            print('ldapmodify returns {}: {}'.format(e.returncode, e.output))
+        subprocess.check_output(cmd, stderr=subprocess.STDOUT)
 
 
 class DBUpgrade(pki.cli.CLI):
