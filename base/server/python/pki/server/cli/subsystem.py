@@ -99,6 +99,11 @@ class SubsystemFindCLI(pki.cli.CLI):
                 sys.exit(1)
 
         instance = pki.server.PKIInstance(instance_name)
+
+        if not instance.is_valid():
+            print('ERROR: Invalid instance %s.' % instance_name)
+            sys.exit(1)
+
         instance.load()
 
         self.print_message('%s entries matched' % len(instance.subsystems))
@@ -164,6 +169,11 @@ class SubsystemShowCLI(pki.cli.CLI):
         subsystem_name = args[0]
 
         instance = pki.server.PKIInstance(instance_name)
+
+        if not instance.is_valid():
+            print('ERROR: Invalid instance %s.' % instance_name)
+            sys.exit(1)
+
         instance.load()
 
         subsystem = instance.get_subsystem(subsystem_name)
@@ -222,6 +232,11 @@ class SubsystemEnableCLI(pki.cli.CLI):
         subsystem_name = args[0]
 
         instance = pki.server.PKIInstance(instance_name)
+
+        if not instance.is_valid():
+            print('ERROR: Invalid instance %s.' % instance_name)
+            sys.exit(1)
+
         instance.load()
 
         subsystem = instance.get_subsystem(subsystem_name)
@@ -285,6 +300,11 @@ class SubsystemDisableCLI(pki.cli.CLI):
         subsystem_name = args[0]
 
         instance = pki.server.PKIInstance(instance_name)
+
+        if not instance.is_valid():
+            print('ERROR: Invalid instance %s.' % instance_name)
+            sys.exit(1)
+
         instance.load()
 
         subsystem = instance.get_subsystem(subsystem_name)
@@ -375,6 +395,11 @@ class SubsystemCertFindCLI(pki.cli.CLI):
         subsystem_name = args[0]
 
         instance = pki.server.PKIInstance(instance_name)
+
+        if not instance.is_valid():
+            print('ERROR: Invalid instance %s.' % instance_name)
+            sys.exit(1)
+
         instance.load()
 
         subsystem = instance.get_subsystem(subsystem_name)
@@ -402,6 +427,7 @@ class SubsystemCertShowCLI(pki.cli.CLI):
         print('Usage: pki-server subsystem-cert-show [OPTIONS] <subsystem ID> <cert ID>')
         print()
         print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
+        print('      --show-all                  Show all attributes.')
         print('  -v, --verbose                   Run in verbose mode.')
         print('      --help                      Show help message.')
         print()
@@ -410,7 +436,7 @@ class SubsystemCertShowCLI(pki.cli.CLI):
 
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
+                'instance=',  'show-all',
                 'verbose', 'help'])
 
         except getopt.GetoptError as e:
@@ -419,10 +445,14 @@ class SubsystemCertShowCLI(pki.cli.CLI):
             sys.exit(1)
 
         instance_name = 'pki-tomcat'
+        show_all = False
 
         for o, a in opts:
             if o in ('-i', '--instance'):
                 instance_name = a
+
+            elif o == '--show-all':
+                show_all = True
 
             elif o in ('-v', '--verbose'):
                 self.set_verbose(True)
@@ -451,12 +481,17 @@ class SubsystemCertShowCLI(pki.cli.CLI):
         cert_id = args[1]
 
         instance = pki.server.PKIInstance(instance_name)
+
+        if not instance.is_valid():
+            print('ERROR: Invalid instance %s.' % instance_name)
+            sys.exit(1)
+
         instance.load()
 
         subsystem = instance.get_subsystem(subsystem_name)
-        subsystem_cert = subsystem.get_subsystem_cert(cert_id)
+        cert = subsystem.get_subsystem_cert(cert_id)
 
-        SubsystemCertCLI.print_subsystem_cert(subsystem_cert)
+        SubsystemCertCLI.print_subsystem_cert(cert, show_all)
 
 
 class SubsystemCertExportCLI(pki.cli.CLI):
@@ -568,6 +603,11 @@ class SubsystemCertExportCLI(pki.cli.CLI):
             sys.exit(1)
 
         instance = pki.server.PKIInstance(instance_name)
+
+        if not instance.is_valid():
+            print('ERROR: Invalid instance %s.' % instance_name)
+            sys.exit(1)
+
         instance.load()
 
         subsystem = instance.get_subsystem(subsystem_name)
@@ -684,6 +724,11 @@ class SubsystemCertUpdateCLI(pki.cli.CLI):
         cert_id = args[1]
 
         instance = pki.server.PKIInstance(instance_name)
+
+        if not instance.is_valid():
+            print('ERROR: Invalid instance %s.' % instance_name)
+            sys.exit(1)
+
         instance.load()
 
         subsystem = instance.get_subsystem(subsystem_name)
@@ -722,8 +767,6 @@ class SubsystemCertUpdateCLI(pki.cli.CLI):
         subsystem.save()
 
         self.print_message('Updated "%s" subsystem certificate' % cert_id)
-
-        SubsystemCertCLI.print_subsystem_cert(subsystem_cert)
 
 
 class SubsystemCertValidateCLI(pki.cli.CLI):
@@ -783,6 +826,11 @@ class SubsystemCertValidateCLI(pki.cli.CLI):
             cert_id = None
 
         instance = pki.server.PKIInstance(instance_name)
+
+        if not instance.is_valid():
+            print('ERROR: Invalid instance %s.' % instance_name)
+            sys.exit(1)
+
         instance.load()
 
         subsystem = instance.get_subsystem(subsystem_name)
