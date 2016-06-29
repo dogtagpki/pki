@@ -95,7 +95,11 @@ class DBSchemaUpgrade(pki.cli.CLI):
                 sys.exit(1)
 
         instance = pki.server.PKIInstance(instance_name)
+        if not instance.is_valid():
+            print("ERROR: Instance name '%s' not found" % instance)
+            sys.exit(1)
         instance.load()
+
         self.update_schema(instance, bind_dn, bind_password)
 
         self.print_message('Upgrade complete')
