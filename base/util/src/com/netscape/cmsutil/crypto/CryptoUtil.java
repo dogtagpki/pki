@@ -879,12 +879,8 @@ public class CryptoUtil {
                 SSLSocket.TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256);
         cipherMap.put("TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
                 SSLSocket.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256);
-        cipherMap.put("TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256",
-                SSLSocket.TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256);
         cipherMap.put("TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
                 SSLSocket.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256);
-        cipherMap.put("TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256",
-                SSLSocket.TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256);
 
     }
 
