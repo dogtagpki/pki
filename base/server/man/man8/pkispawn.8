@@ -92,6 +92,37 @@ Displays verbose information about the installation.  This flag can be provided 
 .B pkispawn -h 
 for details.
 
+.SH SEPARATE VERSUS SHARED INSTANCES
+.IP
+.SS Separate PKI instances:
+.BR
+.PP
+As described above, this version of Certificate System continues to support separate PKI instances for all subsystems.
+.PP
+Separate PKI instances run as a single Java-based Apache Tomcat instance, contain a single PKI subsystem (CA, KRA, OCSP, TKS, or TPS), and must utilize unique ports if co-located on the same physical machine or virtual machine (VM).
+.PP
+.SS Shared PKI instances:
+.BR
+.PP
+Additionally, this version of Certificate System introduces the notion of a shared PKI instance.
+.PP
+Shared PKI instances also run as a single Java-based Apache Tomcat instance, but may contain any combination of up to one of each type of PKI subsystem:
+.IP
+.nf
+CA
+TKS
+CA, KRA
+CA, OCSP
+TKS, TPS
+CA, KRA, TKS, TPS
+CA, KRA, OCSP, TKS, TPS
+etc.
+.fi
+.PP
+Shared PKI instances allow all of their subsystems contained within that instance to share the same ports, and must utilize unique ports if more than one shared PKI instance is co-located on the same physical machine or VM.
+.PP
+Semantically, a shared PKI instance that contains a single PKI subsystem is identical to a separate PKI instance.
+
 .SH INTERACTIVE MODE
 .PP
 If no options are specified, pkispawn will provide an interactive menu to
@@ -319,17 +350,29 @@ For all PKI subsystems including the CA, ECC is not supported for the correspond
 .SS Installing a KRA, OCSP, TKS, or TPS in a shared instance
 .BR
 .PP
-To install a KRA, OCSP, TKS, or TPS in the same instance used by the CA execute
-
-the following command:
-
+For this example, assume that a new CA instance has been installed by
+executing the following command:
 .IP
-\x'-1'\fBpkispawn \-s <subsystem> \-f myconfig.txt\fR
+\x'-1'\fBpkispawn \-s CA \-f myconfig.txt\fR
+.PP
+where \fImyconfig.txt\fP contains the following text:
+.IP
+.nf
+[DEFAULT]
+pki_admin_password=\fISecret123\fP
+pki_client_pkcs12_password=\fISecret123\fP
+pki_ds_password=\fISecret123\fP
+# Optionally keep client databases
+pki_client_database_purge=False
+.if
 
 .PP
-where subsystem is KRA, OCSP, TKS, or TPS, and \fImyconfig.txt\fP contains the
-following text:
-
+To install a shared KRA in the same instance used by the CA execute
+the following command:
+.IP
+\x'-1'\fBpkispawn \-s KRA \-f myconfig.txt\fR
+.PP
+where \fImyconfig.txt\fP contains the following text:
 .IP
 .nf
 [DEFAULT]
@@ -338,21 +381,91 @@ pki_client_database_password=\fISecret123\fP
 pki_client_pkcs12_password=\fISecret123\fP
 pki_ds_password=\fISecret123\fP
 pki_security_domain_password=\fISecret123\fP
-.fi
+.if
 
 .PP
-The \fBpki_security_domain_password\fP is the admin password of the CA
-installed in the same instance. This command should be run after a CA is
-installed. This installs another subsystem within the same instance using the
-certificate generated for the CA administrator for the subsystem's
-administrator. This allows a user to access both subsystems on the browser
-with a single administrator certificate. To access the new subsystem's
-functionality, simply point the browser to https://<hostname>:8443 and click
-the relevant top-level links.
+To install a shared OCSP in the same instance used by the CA execute
+the following command:
+.IP
+\x'-1'\fBpkispawn \-s OCSP \-f myconfig.txt\fR
+.PP
+where \fImyconfig.txt\fP contains the following text:
+.IP
+.nf
+[DEFAULT]
+pki_admin_password=\fISecret123\fP
+pki_client_database_password=\fISecret123\fP
+pki_client_pkcs12_password=\fISecret123\fP
+pki_ds_password=\fISecret123\fP
+pki_security_domain_password=\fISecret123\fP
+.if
 
 .PP
-To install TPS in a shared instance the following section must be added to
-\fImyconfig.txt\fP:
+To install a shared TKS in the same instance used by the CA execute
+the following command:
+.IP
+\x'-1'\fBpkispawn \-s TKS \-f myconfig.txt\fR
+.PP
+where \fImyconfig.txt\fP contains the following text:
+.IP
+.nf
+[DEFAULT]
+pki_admin_password=\fISecret123\fP
+pki_client_database_password=\fISecret123\fP
+pki_client_pkcs12_password=\fISecret123\fP
+pki_ds_password=\fISecret123\fP
+pki_security_domain_password=\fISecret123\fP
+.if
+
+.PP
+To install a shared TPS in the same instance used by the CA execute
+the following command:
+.IP
+\x'-1'\fBpkispawn \-s TPS \-f myconfig.txt\fR
+.PP
+where \fImyconfig.txt\fP contains the following text:
+.IP
+.nf
+[DEFAULT]
+pki_admin_password=\fISecret123\fP
+pki_client_database_password=\fISecret123\fP
+pki_client_pkcs12_password=\fISecret123\fP
+pki_ds_password=\fISecret123\fP
+pki_security_domain_password=\fISecret123\fP
+[TPS]
+# Shared TPS instances optionally utilize their shared KRA
+# for server-side keygen
+pki_enable_server_side_keygen=True
+pki_authdb_basedn=\fIdc=example,dc=com\fP
+.if
+
+.TP
+\fBNote:\fP
+For this particular example, the computed default values for a
+PKI instance name including its ports, URLs, machine names, etc.
+were utilized as defined in \fI/etc/pki/default.cfg\fP.  Each
+subsystem in this example will reside under the
+\fI/var/lib/pki/pki-tomcat\fP instance housed within their own
+\fIca\fP, \fIkra\fP, \fIocsp\fP, \fItks\fP, and \fItps\fP
+subdirectories, utilizing the same default port values of
+8080 (http), 8443 (https), 8009 (ajp), 8005 (tomcat), using the
+same computed hostname and URL information, and sharing a single
+common PKI Administrator Certificate.
+
+.PP
+The \fBpki_security_domain_password\fP is the admin password of the
+CA installed in the same instance. This command should be run after
+a CA is installed. This installs another subsystem within the same
+instance using the certificate generated for the CA administrator
+for the subsystem's administrator. This allows a user to access
+both subsystems on the browser with a single administrator
+certificate. To access the new subsystem's functionality, simply
+point the browser to https://<hostname>:8443 and click the
+relevant top-level links.
+
+.PP
+To install TPS in a shared instance the following section must be
+added to \fImyconfig.txt\fP:
 
 .IP
 .nf
@@ -385,16 +498,38 @@ installed in the same instance.
 .SS Installing a KRA, OCSP, TKS, or TPS in a separate instance
 .BR
 .PP
-To install a KRA, OCSP, TKS, or TPS with a remote a CA execute the following
-command:
-
+For this example, assume that a new CA instance has been installed by executing the following command:
 .IP
-\x'-1'\fBpkispawn \-s <subsystem> \-f myconfig.txt\fR
+\x'-1'\fBpkispawn \-s CA \-f myconfig.txt\fR
+.PP
+where \fImyconfig.txt\fP contains the following text:
+.IP
+.nf
+[DEFAULT]
+pki_admin_password=\fISecret123\fP
+pki_client_pkcs12_password=\fISecret123\fP
+pki_ds_password=\fISecret123\fP
+# Optionally keep client databases
+pki_client_database_purge=False
+# Separated CA instance name and ports
+pki_instance_name=\fIpki-ca\fP
+pki_http_port=\fI18080\fP
+pki_https_port=\fI18443\fP
+# This Separated CA instance will be its own security domain
+pki_security_domain_https_port=\fI18443\fP
+[Tomcat]
+# Separated CA Tomcat ports
+pki_ajp_port=\fI18009\fP
+pki_tomcat_server_port=\fI18005\fP
+.if
 
 .PP
-where subsystem is KRA, OCSP, TKS, or TPS, and \fImyconfig.txt\fP contains the
-following text:
-
+To install a separate KRA which connects to this remote CA execute
+the following command:
+.IP
+\x'-1'\fBpkispawn \-s KRA \-f myconfig.txt\fR
+.PP
+where \fImyconfig.txt\fP contains the following text:
 .IP
 .nf
 [DEFAULT]
@@ -403,37 +538,178 @@ pki_client_database_password=\fISecret123\fP
 pki_client_pkcs12_password=\fISecret123\fP
 pki_ds_password=\fISecret123\fP
 pki_security_domain_password=\fISecret123\fP
-pki_security_domain_hostname=<ca_hostname>
-pki_security_domain_https_port=<ca_https_port>
+# Optionally keep client databases
+pki_client_database_purge=False
+# Separated KRA instance name and ports
+pki_instance_name=\fIpki-kra\fP
+pki_http_port=\fI28080\fP
+pki_https_port=\fI28443\fP
+# Separated KRA instance security domain references
+pki_issuing_ca=\fIhttps://pki.example.com:18443\fP
+pki_security_domain_hostname=\fIpki.example.com\fP
+pki_security_domain_https_port=\fI18443\fP
 pki_security_domain_user=caadmin
-pki_issuing_ca=https://<ca_hostname>:<ca_https_port>
-
-[KRA/OCSP/TKS/TPS]
+[Tomcat]
+# Separated KRA Tomcat ports
+pki_ajp_port=\fI28009\fP
+pki_tomcat_server_port=\fI28005\fP
+[KRA]
+# A Separated KRA instance requires its own
+# PKI Administrator Certificate
 pki_import_admin_cert=False
-.fi
+.if
 
 .PP
-A remote CA is one where the CA resides in another Certificate Server instance,
-either on the local machine or a remote machine.  In this case,
-\fImyconfig.txt\fP must specify the connection information for the remote CA
-and the information about the security domain (the trusted collection of
-subsystems within an instance).
+To install a separate OCSP which connects to this remote CA execute
+the following command:
+.IP
+\x'-1'\fBpkispawn \-s OCSP \-f myconfig.txt\fR
+.PP
+where \fImyconfig.txt\fP contains the following text:
+.IP
+.nf
+[DEFAULT]
+pki_admin_password=\fISecret123\fP
+pki_client_database_password=\fISecret123\fP
+pki_client_pkcs12_password=\fISecret123\fP
+pki_ds_password=\fISecret123\fP
+pki_security_domain_password=\fISecret123\fP
+# Optionally keep client databases
+pki_client_database_purge=False
+# Separated OCSP instance name and ports
+pki_instance_name=\fIpki-ocsp\fP
+pki_http_port=\fI29080\fP
+pki_https_port=\fI29443\fP
+# Separated OCSP instance security domain references
+pki_issuing_ca=\fIhttps://pki.example.com:18443\fP
+pki_security_domain_hostname=\fIpki.example.com\fP
+pki_security_domain_https_port=\fI18443\fP
+pki_security_domain_user=caadmin
+[Tomcat]
+# Separated OCSP Tomcat ports
+pki_ajp_port=\fI29009\fP
+pki_tomcat_server_port=\fI29005\fP
+[OCSP]
+# A Separated OCSP instance requires its own
+# PKI Administrator Certificate
+pki_import_admin_cert=False
+.if
 
 .PP
-The subsystem section is [KRA], [OCSP], [TKS], or [TPS].  This example assumes
-that the specified CA hosts the security domain.  The CA must be running and
-accessible.
+To install a separate TKS which connects to this remote CA execute
+the following command:
+.IP
+\x'-1'\fBpkispawn \-s TKS \-f myconfig.txt\fR
+.PP
+where \fImyconfig.txt\fP contains the following text:
+.IP
+.nf
+[DEFAULT]
+pki_admin_password=\fISecret123\fP
+pki_client_database_password=\fISecret123\fP
+pki_client_pkcs12_password=\fISecret123\fP
+pki_ds_password=\fISecret123\fP
+pki_security_domain_password=\fISecret123\fP
+# Optionally keep client databases
+pki_client_database_purge=False
+# Separated TKS instance name and ports
+pki_instance_name=\fIpki-tks\fP
+pki_http_port=\fI30080\fP
+pki_https_port=\fI30443\fP
+# Separated TKS instance security domain references
+pki_issuing_ca=\fIhttps://pki.example.com:18443\fP
+pki_security_domain_hostname=\fIpki.example.com\fP
+pki_security_domain_https_port=\fI18443\fP
+pki_security_domain_user=caadmin
+[Tomcat]
+# Separated TKS Tomcat ports
+pki_ajp_port=\fI30009\fP
+pki_tomcat_server_port=\fI30005\fP
+[TKS]
+# A Separated TKS instance requires its own
+# PKI Administrator Certificate
+pki_import_admin_cert=False
+.if
+
+.PP
+To install a separate TPS which connects to this remote CA execute
+the following command:
+.IP
+\x'-1'\fBpkispawn \-s TPS \-f myconfig.txt\fR
+.PP
+where \fImyconfig.txt\fP contains the following text:
+.IP
+.nf
+[DEFAULT]
+pki_admin_password=\fISecret123\fP
+pki_client_database_password=\fISecret123\fP
+pki_client_pkcs12_password=\fISecret123\fP
+pki_ds_password=\fISecret123\fP
+pki_security_domain_password=\fISecret123\fP
+# Optionally keep client databases
+pki_client_database_purge=False
+# Separated TPS instance name and ports
+pki_instance_name=\fIpki-tps\fP
+pki_http_port=\fI31080\fP
+pki_https_port=\fI31443\fP
+# Separated TPS instance security domain references
+pki_issuing_ca=\fIhttps://pki.example.com:18443\fP
+pki_security_domain_hostname=\fIpki.example.com\fP
+pki_security_domain_https_port=\fI18443\fP
+pki_security_domain_user=caadmin
+[Tomcat]
+# Separated TPS Tomcat ports
+pki_ajp_port=\fI31009\fP
+pki_tomcat_server_port=\fI31005\fP
+[TPS]
+# Separated TPS instances require specifying a remote CA
+pki_ca_uri=\fIhttps://pki.example.com:18443\fP
+# Separated TPS instances optionally utilize a remote KRA
+# for server-side keygen
+pki_kra_uri=\fIhttps://pki.example.com:28443\fP
+pki_enable_server_side_keygen=True
+pki_authdb_basedn=\fIdc=example,dc=com\fP
+# Separated TPS instances require specifying a remote TKS
+pki_tks_uri=\fIhttps://pki.example.com:30443\fP
+pki_import_shared_secret=True
+# A Separated TPS instance requires its own
+# PKI Administrator Certificate
+pki_import_admin_cert=False
+.if
+
+.TP
+\fBNote:\fP
+For this particular example, besides passwords, sample
+values were also utilized for PKI instance names, ports,
+URLs, machine names, etc.  Under no circumstances should
+these demonstrative values be construed to be required
+literal values.
+
+.PP
+A remote CA is one where the CA resides in another
+Certificate Server instance, either on the local machine
+or a remote machine.  In this case, \fImyconfig.txt\fP must
+specify the connection information for the remote CA and the
+information about the security domain (the trusted collection
+of subsystems within an instance).
+
+.PP
+The subsystem section is [KRA], [OCSP], [TKS], or [TPS].
+This example assumes that the specified CA hosts the security
+domain.  The CA must be running and accessible.
 
 .PP 
-A new administrator certificate is generated for the new subsystem and stored
-in a PKCS #12 file in \fI$HOME/.dogtag/pki-tomcat\fP.
+A new administrator certificate is generated for the new
+subsystem and stored in a PKCS #12 file
+in \fI$HOME/.dogtag/<pki_instance_name>\fP.
 
 .PP
-As in a shared instance, to install TPS in a separate instance the
-authentication database must be specified in the [TPS] section, and optionally
-the server-side key generation can be enabled. If the CA, KRA, or TKS
-subsystems required by TPS are running on a remote instance the following
-parameters must be added into the [TPS] section to specify their locations:
+As in a shared instance, to install TPS in a separate instance
+the authentication database must be specified in the [TPS] section,
+and optionally the server-side key generation can be enabled.
+If the CA, KRA, or TKS subsystems required by TPS are running
+on a remote instance the following parameters must be added into
+the [TPS] section to specify their locations:
 
 .IP
 .nf
