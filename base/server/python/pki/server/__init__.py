@@ -562,7 +562,7 @@ class PKIInstance(object):
     def get_token_password(self, token='internal'):
 
         # determine the password name for the token
-        if token.lower() in ['internal', 'internal key storage token']:
+        if not token or token.lower() in ['internal', 'internal key storage token']:
             name = 'internal'
 
         else:

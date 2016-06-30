@@ -132,9 +132,15 @@ class KRAClonePrepareCLI(pki.cli.CLI):
             sys.exit(1)
 
         instance = pki.server.PKIInstance(instance_name)
+        if not instance.is_valid():
+            print('ERROR: Invalid instance %s.' % instance_name)
+            sys.exit(1)
         instance.load()
 
         subsystem = instance.get_subsystem('kra')
+        if not subsystem:
+            print('ERROR: No KRA subsystem in instance %s.' % instance_name)
+            sys.exit(1)
 
         tmpdir = tempfile.mkdtemp()
 
@@ -151,6 +157,7 @@ class KRAClonePrepareCLI(pki.cli.CLI):
                 'storage', pkcs12_file, pkcs12_password_file)
             subsystem.export_system_cert(
                 'audit_signing', pkcs12_file, pkcs12_password_file)
+
             instance.export_external_certs(pkcs12_file, pkcs12_password_file)
 
         finally:
@@ -235,12 +242,15 @@ class KRADBVLVFindCLI(pki.cli.CLI):
                 sys.exit(1)
 
         instance = pki.server.PKIInstance(instance_name)
+        if not instance.is_valid():
+            print('ERROR: Invalid instance %s.' % instance_name)
+            sys.exit(1)
         instance.load()
 
         subsystem = instance.get_subsystem('kra')
-
         if not subsystem:
-            raise Exception('Subsystem not found')
+            print('ERROR: No KRA subsystem in instance %s.' % instance_name)
+            sys.exit(1)
 
         self.find_vlv(subsystem, bind_dn, bind_password)
 
@@ -347,6 +357,9 @@ class KRADBVLVAddCLI(pki.cli.CLI):
                 sys.exit(1)
 
         instance = pki.server.PKIInstance(instance_name)
+        if not instance.is_valid():
+            print('ERROR: Invalid instance %s.' % instance_name)
+            sys.exit(1)
         instance.load()
         self.add_vlv(instance, bind_dn, bind_password)
 
@@ -442,6 +455,9 @@ class KRADBVLVDeleteCLI(pki.cli.CLI):
                 sys.exit(1)
 
         instance = pki.server.PKIInstance(instance_name)
+        if not instance.is_valid():
+            print('ERROR: Invalid instance %s.' % instance_name)
+            sys.exit(1)
         instance.load()
         self.delete_vlv(instance, bind_dn, bind_password)
 
@@ -557,6 +573,9 @@ class KRADBVLVReindexCLI(pki.cli.CLI):
                 sys.exit(1)
 
         instance = pki.server.PKIInstance(instance_name)
+        if not instance.is_valid():
+            print('ERROR: Invalid instance %s.' % instance_name)
+            sys.exit(1)
         instance.load()
         self.reindex_vlv(instance, bind_dn, bind_password)
 

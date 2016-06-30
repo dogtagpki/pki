@@ -22,7 +22,9 @@
 from __future__ import absolute_import
 from __future__ import print_function
 import getopt
+import subprocess
 import sys
+import traceback
 
 import pki.cli
 import pki.server.cli.ca
@@ -103,5 +105,14 @@ class PKIServerCLI(pki.cli.CLI):
 
 
 if __name__ == '__main__':
+
     cli = PKIServerCLI()
-    cli.execute(sys.argv)
+
+    try:
+        cli.execute(sys.argv)
+
+    except subprocess.CalledProcessError as e:
+        if cli.verbose:
+            traceback.print_exc()
+        print('ERROR: %s' % e)
+        sys.exit(e.returncode)
