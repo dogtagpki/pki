@@ -455,28 +455,34 @@ class KRADBVLVDeleteCLI(pki.cli.CLI):
                 sys.exit(1)
 
         instance = pki.server.PKIInstance(instance_name)
+
         if not instance.is_valid():
             print('ERROR: Invalid instance %s.' % instance_name)
             sys.exit(1)
-        instance.load()
-        self.delete_vlv(instance, bind_dn, bind_password)
 
-    def delete_vlv(self, instance, bind_dn, bind_password):
+        instance.load()
+
         subsystem = instance.get_subsystem('kra')
+
         if not subsystem:
-            if self.verbose:
-                print('modify_kra_vlv: No KRA subsystem available.  '
-                      'Skipping ...')
-                return
+            print('ERROR: No KRA subsystem in instance %s.' % instance_name)
+            sys.exit(1)
+
+        self.delete_vlv(subsystem, bind_dn, bind_password)
+
+        print('KRA VLVs deleted from the database for ' + instance_name)
+
+    def delete_vlv(self, subsystem, bind_dn, bind_password):
+
         database = subsystem.config['internaldb.database']
 
         if self.out_file:
             with open(self.out_file, "w") as f:
                 for vlv in KRA_VLVS:
-                    dn = ("cn=" + vlv + '-' + instance.name +
+                    dn = ("cn=" + vlv + '-' + subsystem.instance.name +
                           ',cn=' + database +
                           ',cn=ldbm database, cn=plugins, cn=config')
-                    index_dn = ("cn=" + vlv + '-' + instance.name +
+                    index_dn = ("cn=" + vlv + '-' + subsystem.instance.name +
                                 "Index," + dn)
                     f.write('dn: ' + index_dn + '\n')
                     f.write('changetype: delete' + '\n')
@@ -491,9 +497,9 @@ class KRADBVLVDeleteCLI(pki.cli.CLI):
                                        bind_password=bind_password)
         try:
             for vlv in KRA_VLVS:
-                dn = ("cn=" + vlv + '-' + instance.name + ',cn=' + database +
+                dn = ("cn=" + vlv + '-' + subsystem.instance.name + ',cn=' + database +
                       ',cn=ldbm database, cn=plugins, cn=config')
-                index_dn = "cn=" + vlv + '-' + instance.name + "Index," + dn
+                index_dn = "cn=" + vlv + '-' + subsystem.instance.name + "Index," + dn
 
                 try:
                     conn.ldap.delete_s(index_dn)
@@ -507,8 +513,6 @@ class KRADBVLVDeleteCLI(pki.cli.CLI):
 
         finally:
             conn.close()
-
-        print('KRA VLVs deleted from the database for ' + instance.name)
 
 
 class KRADBVLVReindexCLI(pki.cli.CLI):
