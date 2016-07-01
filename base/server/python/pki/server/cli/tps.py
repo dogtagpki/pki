@@ -127,9 +127,15 @@ class TPSClonePrepareCLI(pki.cli.CLI):
             sys.exit(1)
 
         instance = pki.server.PKIInstance(instance_name)
+        if not instance.is_valid():
+            print('ERROR: Invalid instance %s.' % instance_name)
+            sys.exit(1)
         instance.load()
 
         subsystem = instance.get_subsystem('tps')
+        if not subsystem:
+            print("ERROR: No TPS subsystem in instance %s." % instance_name)
+            sys.exit(1)
 
         tmpdir = tempfile.mkdtemp()
 
@@ -228,12 +234,15 @@ class TPSDBVLVFindCLI(pki.cli.CLI):
                 sys.exit(1)
 
         instance = pki.server.PKIInstance(instance_name)
+        if not instance.is_valid():
+            print('ERROR: Invalid instance %s.' % instance_name)
+            sys.exit(1)
         instance.load()
 
         subsystem = instance.get_subsystem('tps')
-
         if not subsystem:
-            raise Exception('Subsystem not found')
+            print("ERROR: No TPS subsystem in instance %s." % instance_name)
+            sys.exit(1)
 
         self.find_vlv(subsystem, bind_dn, bind_password)
 
@@ -340,12 +349,15 @@ class TPSDBVLVAddCLI(pki.cli.CLI):
                 sys.exit(1)
 
         instance = pki.server.PKIInstance(instance_name)
+        if not instance.is_valid():
+            print('ERROR: Invalid instance %s.' % instance_name)
+            sys.exit(1)
         instance.load()
 
         subsystem = instance.get_subsystem('tps')
-
         if not subsystem:
-            raise Exception('Subsystem not found')
+            print("ERROR: No TPS subsystem in instance %s." % instance_name)
+            sys.exit(1)
 
         if out_file:
             self.generate_ldif(subsystem, out_file)
@@ -450,12 +462,15 @@ class TPSDBVLVDeleteCLI(pki.cli.CLI):
                 sys.exit(1)
 
         instance = pki.server.PKIInstance(instance_name)
+        if not instance.is_valid():
+            print('ERROR: Invalid instance %s.' % instance_name)
+            sys.exit(1)
         instance.load()
 
         subsystem = instance.get_subsystem('tps')
-
         if not subsystem:
-            raise Exception('Subsystem not found')
+            print("ERROR: No TPS subsystem in instance %s." % instance_name)
+            sys.exit(1)
 
         if out_file:
             self.generate_ldif(subsystem, out_file)
@@ -582,12 +597,15 @@ class TPSDBVLVReindexCLI(pki.cli.CLI):
                 sys.exit(1)
 
         instance = pki.server.PKIInstance(instance_name)
+        if not instance.is_valid():
+            print('ERROR: Invalid instance %s.' % instance_name)
+            sys.exit(1)
         instance.load()
 
         subsystem = instance.get_subsystem('tps')
-
         if not subsystem:
-            raise Exception('Subsystem not found')
+            print("ERROR: No TPS subsystem in instance %s." % instance_name)
+            sys.exit(1)
 
         if out_file:
             self.generate_ldif(subsystem, out_file)
