@@ -38,6 +38,7 @@ import javax.ws.rs.core.UriInfo;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authority.AuthorityData;
 import com.netscape.certsrv.authority.AuthorityResource;
+import com.netscape.certsrv.base.BadRequestDataException;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.ConflictingOperationException;
 import com.netscape.certsrv.base.EBaseException;
@@ -207,7 +208,7 @@ public class AuthorityService extends PKIService implements AuthorityResource {
             audit(ILogger.SUCCESS, OpDef.OP_ADD,
                     subCA.getAuthorityID().toString(), auditParams);
             return createOKResponse(readAuthorityData(subCA));
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException | BadRequestDataException e) {
             throw new BadRequestException(e.toString());
         } catch (CANotFoundException e) {
             throw new ResourceNotFoundException(e.toString());

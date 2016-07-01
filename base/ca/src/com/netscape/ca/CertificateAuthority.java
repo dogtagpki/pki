@@ -74,6 +74,7 @@ import org.mozilla.jss.pkix.primitive.Name;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authority.ICertAuthority;
+import com.netscape.certsrv.base.BadRequestDataException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
@@ -2680,8 +2681,16 @@ public class CertificateAuthority
             if (result != null && !result.equals(IRequest.RES_SUCCESS))
                 throw new EBaseException("createSubCA: certificate request submission resulted in error: " + result);
             RequestStatus requestStatus = request.getRequestStatus();
-            if (requestStatus != RequestStatus.COMPLETE)
-                throw new EBaseException("createSubCA: certificate request did not complete; status: " + requestStatus);
+            if (requestStatus != RequestStatus.COMPLETE) {
+                // The request did not complete.  Inference: something
+                // incorrect in the request (e.g. profile constraint
+                // violated).
+                String msg = "Failed to issue CA certificate. Final status: " + requestStatus + ".";
+                String errorMsg = request.getExtDataInString(IRequest.ERROR);
+                if (errorMsg != null)
+                    msg += " Additional info: " + errorMsg;
+                throw new BadRequestDataException(msg);
+            }
 
             // Add certificate to nssdb
             cert = request.getExtDataInCert(IEnrollProfile.REQUEST_ISSUED_CERT);
@@ -2697,7 +2706,10 @@ public class CertificateAuthority
                 // log this error.
                 CMS.debug("Error deleting new authority entry after failure during certificate generation: " + e2);
             }
-            throw new ECAException("Error creating lightweight CA certificate: " + e);
+            if (e instanceof BadRequestDataException)
+                throw (BadRequestDataException) e;  // re-throw
+            else
+                throw new ECAException("Error creating lightweight CA certificate: " + e, e);
         }
 
         CertificateAuthority ca = new CertificateAuthority(
