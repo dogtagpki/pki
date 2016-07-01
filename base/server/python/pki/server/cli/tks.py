@@ -118,9 +118,16 @@ class TKSClonePrepareCLI(pki.cli.CLI):
             sys.exit(1)
 
         instance = pki.server.PKIInstance(instance_name)
+        if not instance.is_valid():
+            print('ERROR: Invalid instance %s.' % instance_name)
+            sys.exit(1)
+
         instance.load()
 
         subsystem = instance.get_subsystem('tks')
+        if not subsystem:
+            print("ERROR: No TKS subsystem in instance %s." % instance_name)
+            sys.exit(1)
 
         tmpdir = tempfile.mkdtemp()
 
