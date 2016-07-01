@@ -25,6 +25,7 @@ import ldap
 import nss.nss as nss
 import subprocess
 import sys
+import getpass
 
 import pki.cli
 
@@ -96,12 +97,19 @@ class DBSchemaUpgrade(pki.cli.CLI):
 
         instance = pki.server.PKIInstance(instance_name)
         if not instance.is_valid():
-            print("ERROR: Instance name '%s' not found" % instance)
+            print("ERROR: Invalid instance %s." % instance_name)
             sys.exit(1)
         instance.load()
 
+        if not instance.subsystems:
+            print("ERROR: No subsystem in instance %s." % instance_name)
+            sys.exit(1)
+
+        if not bind_password:
+            bind_password = getpass.getpass(prompt='Enter password: ')
+
         try:
-            self.update_schema(instance, bind_dn, bind_password)
+            self.update_schema(instance.subsystems[0], bind_dn, bind_password)
 
         except subprocess.CalledProcessError as e:
             print("ERROR: " + e.output)
@@ -109,9 +117,8 @@ class DBSchemaUpgrade(pki.cli.CLI):
 
         self.print_message('Upgrade complete')
 
-    def update_schema(self, instance, bind_dn, bind_password):
+    def update_schema(self, subsystem, bind_dn, bind_password):
         # TODO(alee) re-implement this using open_database
-        subsystem = instance.subsystems[0]
         host = subsystem.config['internaldb.ldapconn.host']
         port = subsystem.config['internaldb.ldapconn.port']
         secure = subsystem.config['internaldb.ldapconn.secureConn']
@@ -174,11 +181,14 @@ class DBUpgrade(pki.cli.CLI):
         nss.nss_init_nodb()
 
         instance = pki.server.PKIInstance(instance_name)
+        if not instance.is_valid():
+            print("ERROR: Invalid instance %s." % instance_name)
+            sys.exit(1)
         instance.load()
 
         subsystem = instance.get_subsystem('ca')
         if not subsystem:
-            print('ERROR: missing subsystem ca')
+            print('ERROR: No CA subsystem in instance %s.' + instance_name)
             sys.exit(1)
 
         base_dn = subsystem.config['internaldb.basedn']
