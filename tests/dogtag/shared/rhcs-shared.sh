@@ -799,7 +799,7 @@ local DOMAIN=$(hostname)
                                 #echo -e "objectClass: account"
                                 echo -e "objectClass: posixAccount"
                                 echo -e "objectClass: inetOrgPerson"
-                                echo -e "loginShell: /bin/bash"
+                                echo -e "loginShell: /bin/sh"
                                 echo -e "homeDirectory: /home/student$(expr $COUNT)"
                                 uidNumber=$(expr $UIDVALUE + $temp)
                                 echo -e "uidNumber: $uidNumber"

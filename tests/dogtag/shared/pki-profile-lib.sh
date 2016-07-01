@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #Include below files
 . /opt/rhqa_pki/env.sh
 ##################################################################

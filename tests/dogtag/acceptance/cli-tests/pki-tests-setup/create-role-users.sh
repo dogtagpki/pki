@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #!/usr/bin/expect -f
 
 # vim: dict=/usr/share/beakerlib/dictionary.vim cpt=.,w,b,u,t,i,k

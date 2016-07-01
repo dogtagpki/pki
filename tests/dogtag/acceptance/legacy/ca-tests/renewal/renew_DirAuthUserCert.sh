@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # vim: dict=/usr/share/beakerlib/dictionary.vim cpt=.,w,b,u,t,i,k
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
@@ -127,7 +127,7 @@ uid: $ldap_uid
 cn: Posix User1
 sn: User1
 homeDirectory: /home/$ldap_uid
-loginshell: /bin/bash
+loginshell: /bin/sh
 userPassword: $ldap_user_password
 adduser1.ldif_EOF
 		
@@ -269,7 +269,7 @@ uid: $ldap_uid
 cn: Posix User1
 sn: User1
 homeDirectory: /home/$ldap_uid
-loginshell: /bin/bash
+loginshell: /bin/sh
 userPassword: $ldap_user_password
 adduser2.ldif_EOF
 		
@@ -411,7 +411,7 @@ uid: $ldap_uid
 cn: Posix User1
 sn: User1
 homeDirectory: /home/$ldap_uid
-loginshell: /bin/bash
+loginshell: /bin/sh
 userPassword: $ldap_user_password
 adduser3.ldif_EOF
 		
@@ -548,7 +548,7 @@ uid: $ldap_uid
 cn: Posix User1
 sn: User1
 homeDirectory: /home/$ldap_uid
-loginshell: /bin/bash
+loginshell: /bin/sh
 userPassword: $ldap_user_password
 adduser4.ldif_EOF
 		
@@ -684,7 +684,7 @@ uid: $ldap_uid
 cn: Posix User1
 sn: User1
 homeDirectory: /home/$ldap_uid
-loginshell: /bin/bash
+loginshell: /bin/sh
 userPassword: $ldap_user_password
 adduser5.ldif_EOF
 		
@@ -806,7 +806,7 @@ uid: $userid
 cn: Posix User1
 sn: User1
 homeDirectory: /home/$userid
-loginshell: /bin/bash
+loginshell: /bin/sh
 userPassword: $password
 adduser6.ldif_EOF
 		
@@ -987,7 +987,7 @@ uid: $ldap_uid
 cn: Posix User1
 sn: User1
 homeDirectory: /home/$ldap_uid
-loginshell: /bin/bash
+loginshell: /bin/sh
 userPassword: $ldap_user_password
 adduser1.ldif_EOF
 		
@@ -1078,7 +1078,7 @@ uid: $ldap_uid
 cn: Posix User1
 sn: User1
 homeDirectory: /home/$ldap_uid
-loginshell: /bin/bash
+loginshell: /bin/sh
 userPassword: $ldap_user_password
 adduser10.ldif_EOF
 		
@@ -1236,7 +1236,7 @@ uid: $ldap_uid
 cn: Posix User1
 sn: User1
 homeDirectory: /home/$ldap_uid
-loginshell: /bin/bash
+loginshell: /bin/sh
 userPassword: $ldap_user_password
 adduser11.ldif_EOF
 		
@@ -1394,7 +1394,7 @@ uid: $ldap_uid
 cn: Posix User1
 sn: User1
 homeDirectory: /home/$ldap_uid
-loginshell: /bin/bash
+loginshell: /bin/sh
 userPassword: $ldap_user_password
 adduser12.ldif_EOF
 		
@@ -1545,7 +1545,7 @@ uid: $ldap_uid
 cn: Posix User1
 sn: User1
 homeDirectory: /home/$ldap_uid
-loginshell: /bin/bash
+loginshell: /bin/sh
 userPassword: $ldap_user_password
 adduser13.ldif_EOF
 		
@@ -1703,7 +1703,7 @@ uid: $ldap_uid
 cn: Posix User1
 sn: User1
 homeDirectory: /home/$ldap_uid
-loginshell: /bin/bash
+loginshell: /bin/sh
 userPassword: $ldap_user_password
 adduser14.ldif_EOF
 		
@@ -1858,7 +1858,7 @@ uid: $ldap_uid
 cn: Posix User1
 sn: User1
 homeDirectory: /home/$ldap_uid
-loginshell: /bin/bash
+loginshell: /bin/sh
 userPassword: $ldap_user_password
 adduser15.ldif_EOF
 		
@@ -2021,7 +2021,7 @@ uid: $ldap_uid
 cn: Posix User1
 sn: User1
 homeDirectory: /home/$ldap_uid
-loginshell: /bin/bash
+loginshell: /bin/sh
 userPassword: $ldap_user_password
 adduser16.ldif_EOF
 		
@@ -2178,7 +2178,7 @@ uid: $ldap_uid
 cn: Posix User1
 sn: User1
 homeDirectory: /home/$ldap_uid
-loginshell: /bin/bash
+loginshell: /bin/sh
 userPassword: $ldap_user_password
 adduser17.ldif_EOF
 		
@@ -2341,7 +2341,7 @@ uid: $ldap_uid
 cn: Posix User1
 sn: User1
 homeDirectory: /home/$ldap_uid
-loginshell: /bin/bash
+loginshell: /bin/sh
 userPassword: $ldap_user_password
 adduser18.ldif_EOF
 		
@@ -2485,7 +2485,7 @@ uid: $ldap_uid
 cn: Posix User1
 sn: User1
 homeDirectory: /home/$ldap_uid
-loginshell: /bin/bash
+loginshell: /bin/sh
 userPassword: $ldap_user_password
 adduser19.ldif_EOF
 		
@@ -2639,7 +2639,7 @@ uid: $ldap_uid
 cn: Posix User1
 sn: User1
 homeDirectory: /home/$ldap_uid
-loginshell: /bin/bash
+loginshell: /bin/sh
 userPassword: $ldap_user_password
 adduser20.ldif_EOF
 		

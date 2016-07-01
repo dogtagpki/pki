@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # vim: dict=/usr/share/beakerlib/dictionary.vim cpt=.,w,b,u,t,i,k
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
@@ -1055,7 +1055,7 @@ uid: $ldap_uid
 cn: Posix User1
 sn: User1
 homeDirectory: /home/$ldap_uid
-loginshell: /bin/bash
+loginshell: /bin/sh
 userPassword: $ldap_user_password
 adduser1.ldif_EOF
 		

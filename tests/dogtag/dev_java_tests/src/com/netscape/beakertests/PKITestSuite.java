@@ -160,9 +160,9 @@ final class BeakerScript {
     private BeakerScript() {
         // TODO Auto-generated constructor stub
         // Add a check for the availability of beaker lib.
-        String bashHeader = "#!/bin/bash";
+        String shHeader = "#!/bin/sh";
         beakerLib = ". /usr/share/beakerlib/beakerlib.sh";
-        commandStore = new StringBuilder(bashHeader);
+        commandStore = new StringBuilder(shHeader);
         commandStore.append("\n");
         commandStore.append(beakerLib);
         commandStore.append("\n");

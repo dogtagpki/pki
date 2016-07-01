@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # Include rhts environment
 . /usr/bin/rhts-environment.sh
