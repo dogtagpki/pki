@@ -361,18 +361,27 @@ class KRADBVLVAddCLI(pki.cli.CLI):
             print('ERROR: Invalid instance %s.' % instance_name)
             sys.exit(1)
         instance.load()
-        self.add_vlv(instance, bind_dn, bind_password)
 
-    def add_vlv(self, instance, bind_dn, bind_password):
         subsystem = instance.get_subsystem('kra')
         if not subsystem:
-            print('No KRA subsystem available.')
-            return
+            print('ERROR: No KRA subsystem in instance %s.' % instance_name)
+            sys.exit(1)
 
         if self.out_file:
             subsystem.customize_file(KRA_VLV_PATH, self.out_file)
             print('KRA VLVs written to ' + self.out_file)
             return
+
+        try:
+            self.add_vlv(subsystem, bind_dn, bind_password)
+
+            print('KRA VLVs added to the database for ' + instance_name)
+
+        except ldap.LDAPError as e:
+            print("ERROR: " + e.message['desc'])
+            sys.exit(1)
+
+    def add_vlv(self, subsystem, bind_dn, bind_password):
 
         ldif_file = tempfile.NamedTemporaryFile(delete=False)
         subsystem.customize_file(KRA_VLV_PATH, ldif_file.name)
@@ -386,11 +395,10 @@ class KRADBVLVAddCLI(pki.cli.CLI):
             for dn, entry in parser.all_records:
                 add_modlist = ldap.modlist.addModlist(entry)
                 conn.ldap.add_s(dn, add_modlist)
+
         finally:
             os.unlink(ldif_file.name)
             conn.close()
-
-        print('KRA VLVs added to the database for ' + instance.name)
 
 
 class KRADBVLVDeleteCLI(pki.cli.CLI):
@@ -581,20 +589,22 @@ class KRADBVLVReindexCLI(pki.cli.CLI):
             print('ERROR: Invalid instance %s.' % instance_name)
             sys.exit(1)
         instance.load()
-        self.reindex_vlv(instance, bind_dn, bind_password)
 
-    def reindex_vlv(self, instance, bind_dn, bind_password):
         subsystem = instance.get_subsystem('kra')
         if not subsystem:
-            if self.verbose:
-                print('reindex_vlv: No KRA subsystem available.  '
-                      'Skipping ...')
-                return
+            print('ERROR: No KRA subsystem in instance %s.' % instance_name)
+            sys.exit(1)
 
         if self.out_file:
             subsystem.customize_file(KRA_VLV_TASKS_PATH, self.out_file)
             print('KRA VLV reindex task written to ' + self.out_file)
             return
+
+        self.reindex_vlv(subsystem, bind_dn, bind_password)
+
+        print('KRA VLV reindex completed for ' + instance_name)
+
+    def reindex_vlv(self, subsystem, bind_dn, bind_password):
 
         ldif_file = tempfile.NamedTemporaryFile(delete=False)
         subsystem.customize_file(KRA_VLV_TASKS_PATH, ldif_file.name)
@@ -602,7 +612,7 @@ class KRADBVLVReindexCLI(pki.cli.CLI):
         conn = subsystem.open_database(bind_dn=bind_dn,
                                        bind_password=bind_password)
 
-        print('Initiating KRA VLV reindex for ' + instance.name)
+        print('Initiating KRA VLV reindex for ' + subsystem.instance.name)
 
         try:
             parser = ldif.LDIFRecordList(open(ldif_file.name, "rb"))
@@ -630,5 +640,3 @@ class KRADBVLVReindexCLI(pki.cli.CLI):
         finally:
             os.unlink(ldif_file.name)
             conn.close()
-
-        print('KRA VLV reindex completed for ' + instance.name)
