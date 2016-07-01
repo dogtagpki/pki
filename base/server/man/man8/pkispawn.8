@@ -756,6 +756,179 @@ conn.tks1.tksSharedSymKeyName=sharedSecret
 .PP
 Finally, restart the TPS instance.
 
+.SS Installing a CA, KRA, OCSP, TKS, or TPS using a Hardware Security Module (HSM)
+.BR
+.PP
+This section provides sample \fBmyconfig.txt\fP files when an HSM is being utilized in a shared PKI instance.
+
+.PP
+For this example, assume that a new CA instance has been installed by
+executing the following command:
+.IP
+\x'-1'\fBpkispawn \-s CA \-f myconfig.txt\fR
+.PP
+where \fImyconfig.txt\fP contains the following text:
+.IP
+.nf
+[DEFAULT]
+pki_admin_password=\fISecret123\fP
+pki_client_pkcs12_password=\fISecret123\fP
+pki_ds_password=\fISecret123\fP
+# Optionally keep client databases
+pki_client_database_purge=False
+# Provide HSM parameters
+pki_hsm_enable=True
+pki_hsm_libfile=<hsm_libfile>
+pki_hsm_modulename=<hsm_modulename>
+pki_token_name=<hsm_token_name>
+pki_token_password=<pki_token_password>
+# Provide PKI-specific HSM token names
+pki_audit_signing_token=<hsm_token_name>
+pki_ssl_server_token=<hsm_token_name>
+pki_subsystem_token=<hsm_token_name>
+[CA]
+# Provide CA-specific HSM token names
+pki_ca_signing_token=<hsm_token_name>
+pki_ocsp_signing_token=<hsm_token_name>
+.if
+
+.PP
+To install a shared KRA in the same instance used by the CA execute
+the following command:
+.IP
+\x'-1'\fBpkispawn \-s KRA \-f myconfig.txt\fR
+.PP
+where \fImyconfig.txt\fP contains the following text:
+.IP
+.nf
+[DEFAULT]
+pki_admin_password=\fISecret123\fP
+pki_client_database_password=\fISecret123\fP
+pki_client_pkcs12_password=\fISecret123\fP
+pki_ds_password=\fISecret123\fP
+pki_security_domain_password=\fISecret123\fP
+# Provide HSM parameters
+pki_hsm_enable=True
+pki_hsm_libfile=<hsm_libfile>
+pki_hsm_modulename=<hsm_modulename>
+pki_token_name=<hsm_token_name>
+pki_token_password=<pki_token_password>
+# Provide PKI-specific HSM token names
+pki_audit_signing_token=<hsm_token_name>
+pki_ssl_server_token=<hsm_token_name>
+pki_subsystem_token=<hsm_token_name>
+[KRA]
+# Provide KRA-specific HSM token names
+pki_storage_token=<hsm_token_name>
+pki_transport_token=<hsm_token_name>
+.if
+
+.PP
+To install a shared OCSP in the same instance used by the CA execute
+the following command:
+.IP
+\x'-1'\fBpkispawn \-s OCSP \-f myconfig.txt\fR
+.PP
+where \fImyconfig.txt\fP contains the following text:
+.IP
+.nf
+[DEFAULT]
+pki_admin_password=\fISecret123\fP
+pki_client_database_password=\fISecret123\fP
+pki_client_pkcs12_password=\fISecret123\fP
+pki_ds_password=\fISecret123\fP
+pki_security_domain_password=\fISecret123\fP
+# Provide HSM parameters
+pki_hsm_enable=True
+pki_hsm_libfile=<hsm_libfile>
+pki_hsm_modulename=<hsm_modulename>
+pki_token_name=<hsm_token_name>
+pki_token_password=<pki_token_password>
+# Provide PKI-specific HSM token names
+pki_audit_signing_token=<hsm_token_name>
+pki_ssl_server_token=<hsm_token_name>
+pki_subsystem_token=<hsm_token_name>
+[OCSP]
+# Provide OCSP-specific HSM token names
+pki_ocsp_signing_token=<hsm_token_name>
+.if
+
+.PP
+To install a shared TKS in the same instance used by the CA execute
+the following command:
+.IP
+\x'-1'\fBpkispawn \-s TKS \-f myconfig.txt\fR
+.PP
+where \fImyconfig.txt\fP contains the following text:
+.IP
+.nf
+[DEFAULT]
+pki_admin_password=\fISecret123\fP
+pki_client_database_password=\fISecret123\fP
+pki_client_pkcs12_password=\fISecret123\fP
+pki_ds_password=\fISecret123\fP
+pki_security_domain_password=\fISecret123\fP
+# Provide HSM parameters
+pki_hsm_enable=True
+pki_hsm_libfile=<hsm_libfile>
+pki_hsm_modulename=<hsm_modulename>
+pki_token_name=<hsm_token_name>
+pki_token_password=<pki_token_password>
+# Provide PKI-specific HSM token names
+pki_audit_signing_token=<hsm_token_name>
+pki_ssl_server_token=<hsm_token_name>
+pki_subsystem_token=<hsm_token_name>
+.if
+
+.PP
+To install a shared TPS in the same instance used by the CA execute
+the following command:
+.IP
+\x'-1'\fBpkispawn \-s TPS \-f myconfig.txt\fR
+.PP
+where \fImyconfig.txt\fP contains the following text:
+.IP
+.nf
+[DEFAULT]
+pki_admin_password=\fISecret123\fP
+pki_client_database_password=\fISecret123\fP
+pki_client_pkcs12_password=\fISecret123\fP
+pki_ds_password=\fISecret123\fP
+pki_security_domain_password=\fISecret123\fP
+# Provide HSM parameters
+pki_hsm_enable=True
+pki_hsm_libfile=<hsm_libfile>
+pki_hsm_modulename=<hsm_modulename>
+pki_token_name=<hsm_token_name>
+pki_token_password=<pki_token_password>
+# Provide PKI-specific HSM token names
+pki_audit_signing_token=<hsm_token_name>
+pki_ssl_server_token=<hsm_token_name>
+pki_subsystem_token=<hsm_token_name>
+[TPS]
+# Shared TPS instances optionally utilize their shared KRA
+# for server-side keygen
+pki_enable_server_side_keygen=True
+pki_authdb_basedn=\fIdc=example,dc=com\fP
+.if
+
+.TP
+\fBImportant:\fP
+Since HSM keys are stored in the HSM (hardware), they cannot be
+backed up, moved, or copied to a PKCS #12 file (software).
+For example, if \fBpki_hsm_enable\fP is set to True,
+\fBpki_backup_keys\fP should be set to False and
+\fBpki_backup_password\fP should be left unset (the default
+values in \fB/etc/pki/default.cfg\fP).  Similarly, for the case
+of clones using an HSM, this means that the HSM keys must be
+shared between the master and its clones.  Therefore, if
+\fBpki_hsm_enable\fP is set to True, both
+\fBpki_clone_pkcs12_path\fP and \fBpki_clone_pkcs12_password\fP
+should be left unset (the default values in
+\fB/etc/pki/default.cfg\fP).  Failure to comply with these rules
+will result in \fBpkispawn\fP reporting an appropriate error and
+exiting.
+
 .SS Installing a CA clone
 .BR
 .PP

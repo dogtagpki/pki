@@ -184,7 +184,10 @@ Location for the PKCS #12 file containing the administrative user's certificate 
 .B pki_backup_keys, pki_backup_password
 .IP
 Set to True to back up the subsystem certificates and keys to a PKCS #12 file.  This file will be located in \fI/var/lib/pki/<instance_name>/alias\fP.  pki_backup_password is the password of the PKCS#12 file.
-  
+.TP
+\fBImportant:\fP
+Since HSM keys are stored in the HSM (hardware), they cannot be backed up to a PKCS #12 file (software).  Therefore, if \fBpki_hsm_enable\fP is set to True, \fBpki_backup_keys\fP should be set to False and \fBpki_backup_password\fP should be left unset (the default values in \fB/etc/pki/default.cfg\fP).  Failure to do so will result in \fBpkispawn\fP reporting this error and exiting.
+
 .SS CLIENT DIRECTORY PARAMETERS
 .TP
 .B pki_client_dir
@@ -294,6 +297,9 @@ Installs a clone, rather than original, subsystem.
 .B pki_clone_pkcs12_password, pki_clone_pkcs12_path
 .IP
 Location and password of the PKCS #12 file containing the system certificates for the master subsystem being cloned.  This file should be readable by the user that the Certificate Server is running as (default of pkiuser), and have the correct selinux context (pki_tomcat_cert_t).  This can be achieved by placing the file in \fI/var/lib/pki/<instance_name>/alias\fP.
+.TP
+\fBImportant:\fP
+Since HSM keys are stored in the HSM (hardware), they cannot be copied to a PKCS #12 file (software).  For the case of clones using an HSM, this means that the HSM keys must be shared between the master and its clones.  Therefore, if \fBpki_hsm_enable\fP is set to True, both \fBpki_clone_pkcs12_path\fP and \fBpki_clone_pkcs12_password\fP should be left unset (the default values in \fB/etc/pki/default.cfg\fP).  Failure to do so will result in \fBpkispawn\fP reporting this error and exiting.
 .TP
 .B pki_clone_setup_replication
 .IP
