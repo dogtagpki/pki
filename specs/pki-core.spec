@@ -38,7 +38,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.2.6
-Release:          19%{?dist}
+Release:          20%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -233,6 +233,8 @@ Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{
 #Patch59:          pki-core-Fixed-pki-pkcs12-import-backward-compatibility.patch
 ## pki-core-10.2.6-19
 #Patch60:          pki-core-Make-PKIInstance-and-PKISubsystem-hashable.patch
+## pki-core-10.2.6-20
+#Patch61:          pki-core-Add-profiles-container-to-LDAP-if-missing.patch
 
 %global saveFileContext() \
 if [ -s /etc/selinux/config ]; then \
@@ -810,6 +812,7 @@ This package is a part of the PKI Core used by the Certificate System.
 #%patch58 -p1
 #%patch59 -p1
 #%patch60 -p1
+#%patch61 -p1
 
 %clean
 %{__rm} -rf %{buildroot}
@@ -1164,6 +1167,10 @@ systemctl daemon-reload
 %endif # %{with server}
 
 %changelog
+* Thu Jun 30 2016 Dogtag Team <pki-devel@redhat.com> 10.2.6-20
+- PKI TRAC Ticket #2285 - freeipa fails to start correctly after pki-core
+  update on upgraded system (ftweedal)
+
 * Thu Apr 21 2016 Dogtag Team <pki-devel@redhat.com> 10.2.6-19
 - PKI TRAC Ticket #2022 - pkispawn ignores 3rd party CA certs in
   pki_clone_pkcs12_path (python hash fix)
