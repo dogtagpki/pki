@@ -129,9 +129,16 @@ class CACertChainExportCLI(pki.cli.CLI):
             sys.exit(1)
 
         instance = pki.server.PKIInstance(instance_name)
+        if not instance.is_valid():
+            print('ERROR: Invalid instance %s.' % instance_name)
+            sys.exit(1)
+
         instance.load()
 
         subsystem = instance.get_subsystem('ca')
+        if not subsystem:
+            print('ERROR: No CA subsystem in instance %s.' % instance_name)
+            sys.exit(1)
 
         tmpdir = tempfile.mkdtemp()
 
@@ -171,7 +178,7 @@ class CACertRequestFindCLI(pki.cli.CLI):
         super(CACertRequestFindCLI, self).__init__(
             'find', 'Find CA certificate requests')
 
-    def usage(self):
+    def print_help(self):
         print('Usage: pki-server ca-cert-request-find [OPTIONS]')
         print()
         print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
@@ -190,7 +197,7 @@ class CACertRequestFindCLI(pki.cli.CLI):
 
         except getopt.GetoptError as e:
             print('ERROR: ' + str(e))
-            self.usage()
+            self.print_help()
             sys.exit(1)
 
         instance_name = 'pki-tomcat'
@@ -216,13 +223,21 @@ class CACertRequestFindCLI(pki.cli.CLI):
 
             else:
                 print('ERROR: unknown option ' + o)
-                self.usage()
+                self.print_help()
                 sys.exit(1)
 
         instance = pki.server.PKIInstance(instance_name)
+        if not instance.is_valid():
+            print('ERROR: Invalid instance %s.' % instance_name)
+            sys.exit(1)
+
         instance.load()
 
         subsystem = instance.get_subsystem('ca')
+        if not subsystem:
+            print('ERROR: No CA subsystem in instance %s.' % instance_name)
+            sys.exit(1)
+
         results = subsystem.find_cert_requests(cert=cert)
 
         self.print_message('%s entries matched' % len(results))
@@ -243,7 +258,7 @@ class CACertRequestShowCLI(pki.cli.CLI):
         super(CACertRequestShowCLI, self).__init__(
             'show', 'Show CA certificate request')
 
-    def usage(self):
+    def print_help(self):
         print('Usage: pki-server ca-cert-request-show <request ID> [OPTIONS]')
         print()
         print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
@@ -260,12 +275,12 @@ class CACertRequestShowCLI(pki.cli.CLI):
 
         except getopt.GetoptError as e:
             print('ERROR: ' + str(e))
-            self.usage()
+            self.print_help()
             sys.exit(1)
 
         if len(args) != 1:
             print('ERROR: missing request ID')
-            self.usage()
+            self.print_help()
             sys.exit(1)
 
         request_id = args[0]
@@ -288,13 +303,21 @@ class CACertRequestShowCLI(pki.cli.CLI):
 
             else:
                 print('ERROR: unknown option ' + o)
-                self.usage()
+                self.print_help()
                 sys.exit(1)
 
         instance = pki.server.PKIInstance(instance_name)
+        if not instance.is_valid():
+            print('ERROR: Invalid instance %s.' % instance_name)
+            sys.exit(1)
+
         instance.load()
 
         subsystem = instance.get_subsystem('ca')
+        if not subsystem:
+            print('ERROR: No CA subsystem in instance %s.' % instance_name)
+            sys.exit(1)
+
         request = subsystem.get_cert_requests(request_id)
 
         if output_file:
@@ -384,9 +407,16 @@ class CAClonePrepareCLI(pki.cli.CLI):
             sys.exit(1)
 
         instance = pki.server.PKIInstance(instance_name)
+        if not instance.is_valid():
+            print('ERROR: Invalid instance %s.' % instance_name)
+            sys.exit(1)
+
         instance.load()
 
         subsystem = instance.get_subsystem('ca')
+        if not subsystem:
+            print('ERROR: No CA subsystem in instance %s.' % instance_name)
+            sys.exit(1)
 
         tmpdir = tempfile.mkdtemp()
 
