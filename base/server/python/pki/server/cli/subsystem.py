@@ -177,6 +177,10 @@ class SubsystemShowCLI(pki.cli.CLI):
         instance.load()
 
         subsystem = instance.get_subsystem(subsystem_name)
+        if not subsystem:
+            print('ERROR: No %s subsystem in instance '
+                  '%s.' % (subsystem_name, instance_name))
+            sys.exit(1)
 
         SubsystemCLI.print_subsystem(subsystem)
 
@@ -240,9 +244,17 @@ class SubsystemEnableCLI(pki.cli.CLI):
         instance.load()
 
         subsystem = instance.get_subsystem(subsystem_name)
-        subsystem.enable()
+        if not subsystem:
+            print('ERROR: No %s subsystem in instance '
+                  '%s.' % (subsystem_name, instance_name))
+            sys.exit(1)
 
-        self.print_message('Enabled "%s" subsystem' % subsystem_name)
+        if subsystem.is_enabled():
+            self.print_message('Subsystem "%s" is already '
+                               'enabled' % subsystem_name)
+        else:
+            subsystem.enable()
+            self.print_message('Enabled "%s" subsystem' % subsystem_name)
 
         SubsystemCLI.print_subsystem(subsystem)
 
@@ -308,9 +320,17 @@ class SubsystemDisableCLI(pki.cli.CLI):
         instance.load()
 
         subsystem = instance.get_subsystem(subsystem_name)
-        subsystem.disable()
+        if not subsystem:
+            print('ERROR: No %s subsystem in instance '
+                  '%s.' % (subsystem_name, instance_name))
+            sys.exit(1)
 
-        self.print_message('Disabled "%s" subsystem' % subsystem_name)
+        if not subsystem.is_enabled():
+            self.print_message('Subsystem "%s" is already '
+                               'disabled' % subsystem_name)
+        else:
+            subsystem.disable()
+            self.print_message('Disabled "%s" subsystem' % subsystem_name)
 
         SubsystemCLI.print_subsystem(subsystem)
 
@@ -403,6 +423,10 @@ class SubsystemCertFindCLI(pki.cli.CLI):
         instance.load()
 
         subsystem = instance.get_subsystem(subsystem_name)
+        if not subsystem:
+            print('ERROR: No %s subsystem in instance '
+                  '%s.' % (subsystem_name, instance_name))
+            sys.exit(1)
         results = subsystem.find_system_certs()
 
         self.print_message('%s entries matched' % len(results))
@@ -436,7 +460,7 @@ class SubsystemCertShowCLI(pki.cli.CLI):
 
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',  'show-all',
+                'instance=', 'show-all',
                 'verbose', 'help'])
 
         except getopt.GetoptError as e:
@@ -471,7 +495,6 @@ class SubsystemCertShowCLI(pki.cli.CLI):
             self.usage()
             sys.exit(1)
 
-
         if len(args) < 2:
             print('ERROR: missing cert ID')
             self.usage()
@@ -489,6 +512,10 @@ class SubsystemCertShowCLI(pki.cli.CLI):
         instance.load()
 
         subsystem = instance.get_subsystem(subsystem_name)
+        if not subsystem:
+            print('ERROR: No %s subsystem in instance '
+                  '%s.' % (subsystem_name, instance_name))
+            sys.exit(1)
         cert = subsystem.get_subsystem_cert(cert_id)
 
         SubsystemCertCLI.print_subsystem_cert(cert, show_all)
@@ -611,6 +638,10 @@ class SubsystemCertExportCLI(pki.cli.CLI):
         instance.load()
 
         subsystem = instance.get_subsystem(subsystem_name)
+        if not subsystem:
+            print('ERROR: No %s subsystem in instance '
+                  '%s.' % (subsystem_name, instance_name))
+            sys.exit(1)
         subsystem_cert = None
 
         if len(args) >= 2:
@@ -732,6 +763,10 @@ class SubsystemCertUpdateCLI(pki.cli.CLI):
         instance.load()
 
         subsystem = instance.get_subsystem(subsystem_name)
+        if not subsystem:
+            print('ERROR: No %s subsystem in instance '
+                  '%s.' % (subsystem_name, instance_name))
+            sys.exit(1)
         subsystem_cert = subsystem.get_subsystem_cert(cert_id)
 
         # get cert data from NSS database
@@ -749,6 +784,9 @@ class SubsystemCertUpdateCLI(pki.cli.CLI):
         # get cert request from local CA
         # TODO: add support for remote CA
         ca = instance.get_subsystem('ca')
+        if not ca:
+            print('ERROR: No CA subsystem in instance %s.' % instance_name)
+            sys.exit(1)
         results = ca.find_cert_requests(cert=data)
         cert_request = results[-1]
         request = cert_request['request']
@@ -820,7 +858,7 @@ class SubsystemCertValidateCLI(pki.cli.CLI):
 
         subsystem_name = args[0]
 
-        if len(args) >=2:
+        if len(args) >= 2:
             cert_id = args[1]
         else:
             cert_id = None
@@ -835,7 +873,8 @@ class SubsystemCertValidateCLI(pki.cli.CLI):
 
         subsystem = instance.get_subsystem(subsystem_name)
         if not subsystem:
-            self.print_message('ERROR: missing subsystem ' + subsystem_name)
+            print('ERROR: No %s subsystem in instance '
+                  '%s.' % (subsystem_name, instance_name))
             sys.exit(1)
 
         if cert_id is not None:
@@ -909,16 +948,17 @@ class SubsystemCertValidateCLI(pki.cli.CLI):
         os.close(pwfile_handle)
 
         try:
-            cmd = ['pki', '-d', instance.nssdb_dir,
-                   '-C', pwfile_path ]
+            cmd = ['pki',
+                   '-d', instance.nssdb_dir,
+                   '-C', pwfile_path]
 
             if token:
                 cmd.extend(['--token', token])
 
             cmd.extend(['client-cert-validate',
-                nickname,
-                '--certusage', usage]
-            )
+                        nickname,
+                        '--certusage', usage
+                       ])
 
             subprocess.check_output(cmd, stderr=subprocess.STDOUT)
             print('  Status: VALID')
