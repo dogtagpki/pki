@@ -186,6 +186,9 @@ public class ClientCertRequestCLI extends CLI {
         if (s == null) {
             sensitive = -1;
         } else {
+            if (!s.equalsIgnoreCase("true") && !s.equalsIgnoreCase("false")) {
+                throw new IllegalArgumentException("Invalid sensitive parameter: " + s);
+            }
             sensitive = Boolean.parseBoolean(s) ? 1 : 0;
         }
 
