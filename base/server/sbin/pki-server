@@ -116,3 +116,9 @@ if __name__ == '__main__':
             traceback.print_exc()
         print('ERROR: %s' % e)
         sys.exit(e.returncode)
+
+    except Exception as e:  # pylint: disable=broad-except
+        if cli.verbose:
+            traceback.print_exc()
+        print('ERROR: %s' % e)
+        sys.exit(1)
