@@ -194,6 +194,9 @@ public class ClientCertRequestCLI extends CLI {
         if (s == null) {
             extractable = -1;
         } else {
+            if (!s.equalsIgnoreCase("true") && !s.equalsIgnoreCase("false")) {
+                throw new IllegalArgumentException("Invalid extractable parameter: " + s);
+            }
             extractable = Boolean.parseBoolean(s) ? 1 : 0;
         }
 
