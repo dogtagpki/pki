@@ -31,6 +31,8 @@ import java.net.UnknownHostException;
 import java.util.Collection;
 import java.util.HashSet;
 
+import javax.ws.rs.ProcessingException;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.lang.StringUtils;
@@ -571,11 +573,20 @@ public class MainCLI extends CLI {
             MainCLI cli = new MainCLI();
             cli.execute(args);
 
+        } catch (ProcessingException e) {
+            Throwable t = e.getCause();
+            if (verbose) {
+                t.printStackTrace(System.err);
+            } else {
+                System.err.println(t.getClass().getSimpleName() + ": " + t.getMessage());
+            }
+            System.exit(-1);
+
         } catch (Throwable t) {
             if (verbose) {
                 t.printStackTrace(System.err);
             } else {
-                System.err.println(t.getClass().getSimpleName()+": "+t.getMessage());
+                System.err.println(t.getClass().getSimpleName() + ": " + t.getMessage());
             }
             System.exit(-1);
         }
