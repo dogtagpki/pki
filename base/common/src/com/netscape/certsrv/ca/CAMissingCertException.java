@@ -12,4 +12,7 @@ public class CAMissingCertException extends ECAException {
         super(msgFormat);
     }
 
+    public CAMissingCertException(String msgFormat, Exception cause) {
+        super(msgFormat, cause);
+    }
 }

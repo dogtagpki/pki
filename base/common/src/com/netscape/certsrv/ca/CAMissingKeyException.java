@@ -12,4 +12,7 @@ public class CAMissingKeyException extends ECAException {
         super(msgFormat);
     }
 
+    public CAMissingKeyException(String msgFormat, Exception cause) {
+        super(msgFormat, cause);
+    }
 }
