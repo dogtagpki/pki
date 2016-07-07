@@ -159,9 +159,6 @@ class PKCS12ImportCLI(pki.cli.CLI):
                 if password_file:
                     cmd.extend(['--pkcs12-password-file', password_file])
 
-                if no_trust_flags:
-                    cmd.extend(['--no-trust-flags'])
-
                 if self.verbose:
                     cmd.extend(['--verbose'])
 
