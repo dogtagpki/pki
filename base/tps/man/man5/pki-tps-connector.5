@@ -62,11 +62,25 @@ This property contains the maximum number of HTTP connections.
 .SS tps.connector.ca<n>.uri.<op>
 
 This property contains the URI to contact CA for the operation <op>.
-Example ops: enrollment, renewal, revoke, unrevoke.
+Example ops: enrollment, renewal, revoke, unrevoke, getcert.
 
 .SS tps.connector.ca<n>.timeout
 
 This property contains the connection timeout.
+
+.SS tps.connector.connCAList
+
+This property is used for \fIRevocation Routing\fP. It contains a list of ordered ca id's separated by ',' that the revocation attempt should be made to.
+Example:
+tps.connCAList=ca1,ca2
+
+.SS tps.connector.ca<n>.caNickname
+
+This property is used for \fIRevocation Routing\fP.  It contains the nickname of the CA signing certificate that represents this ca<n>.
+
+.SS tps.connector.ca<n>.caSKI
+
+This property is used for \fIRevocation Routing\fP . It contains the Subject Key Identifier of the CA signing certificate of this ca<n>. This value is automatically calculated by TPS once and should not need handling by the administrator.
 
 .SH KRA CONNECTOR
 
@@ -182,6 +196,13 @@ tps.connector.ca1.uri.enrollment=/ca/ee/ca/profileSubmitSSLClient
 tps.connector.ca1.uri.renewal=/ca/ee/ca/profileSubmitSSLClient
 tps.connector.ca1.uri.revoke=/ca/ee/subsystem/ca/doRevoke
 tps.connector.ca1.uri.unrevoke=/ca/ee/subsystem/ca/doUnrevoke
+# in case of Revocation Routing
+# note that caSKI is automatically calculated by TPS
+tps.connCAList=ca1,ca2
+tps.connector.ca1.caNickname=caSigningCert cert-pki-tomcat CA
+tps.connector.ca1.caSKI=hAzNarQMlzit4BymAlbduZMwVCc
+# ca2 connector in case of Revocation Routing
+tps.connector.ca2.<etc.>
 
 tps.connector.kra1.enable=true
 tps.connector.kra1.host=server.example.com
