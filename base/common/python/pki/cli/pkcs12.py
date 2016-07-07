@@ -314,4 +314,7 @@ class PKCS12ImportCLI(pki.cli.CLI):
 
             cmd.extend(nicknames)
 
-            main_cli.execute_java(cmd)
+            with open(os.devnull, 'w') as f:
+                main_cli.execute_java(cmd, stdout=f)
+
+        self.print_message('Import complete')
