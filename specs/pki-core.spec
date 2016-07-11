@@ -475,6 +475,7 @@ Obsoletes:        pki-setup < %{version}-%{release}
 Obsoletes:        pki-silent < %{version}-%{release}
 
 Requires:         java-1.8.0-openjdk-headless
+Requires:         hostname
 Requires:         net-tools
 
 Requires:         python-ldap
