@@ -535,9 +535,14 @@ public class CertUtil {
                 CMS.debug("Creating local request exception:" + e.toString());
             }
 
-            // installAdjustValidity tells ValidityDefault to adjust the
-            // notAfter value to that of the CA's signing cert if needed
-            req.setExtData("installAdjustValidity", "true");
+            if (!certTag.equals("signing")) {
+                /*
+                 * (applies to non-CA-signing cert only)
+                 * installAdjustValidity tells ValidityDefault to adjust the
+                 * notAfter value to that of the CA's signing cert if needed
+                 */
+                req.setExtData("installAdjustValidity", "true");
+            }
             processor.populate(req, info);
 
             PrivateKey caPrik = null;
@@ -554,11 +559,11 @@ public class CertUtil {
             }
 
             if (caPrik == null) {
-                CMS.debug("CertUtil::createSelfSignedCert() - "
+                CMS.debug("CertUtil::createLocalCert() - "
                          + "CA private key is null!");
                 throw new IOException("CA private key is null");
             } else {
-                CMS.debug("CertUtil createSelfSignedCert: got CA private key");
+                CMS.debug("CertUtil createLocalCert: got CA private key");
             }
 
             String keyAlgo = x509key.getAlgorithm();
@@ -586,7 +591,7 @@ public class CertUtil {
             }
 
             if (cert != null) {
-                CMS.debug("CertUtil createSelfSignedCert: got cert signed");
+                CMS.debug("CertUtil createLocalCert: got cert signed");
             }
 
         } catch (IOException e) {
