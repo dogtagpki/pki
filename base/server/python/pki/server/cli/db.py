@@ -202,7 +202,7 @@ class DBUpgrade(pki.cli.CLI):
             entries = conn.ldap.search_s(
                 repo_dn,
                 ldap.SCOPE_ONELEVEL,
-                '(&(objectclass=certificateRecord)(!(issuerName=*)))',
+                '(&(objectclass=certificaterecord)(|(!(issuername=*))(issuername=)))',
                 None)
 
             for entry in entries:
@@ -227,7 +227,7 @@ class DBUpgrade(pki.cli.CLI):
         issuer_name = str(cert.issuer)
 
         try:
-            conn.ldap.modify_s(dn, [(ldap.MOD_ADD, 'issuerName', issuer_name)])
+            conn.ldap.modify_s(dn, [(ldap.MOD_REPLACE, 'issuerName', issuer_name)])
         except ldap.LDAPError as e:
             print(
                 'Failed to add issuerName to certificate {}: {}'
