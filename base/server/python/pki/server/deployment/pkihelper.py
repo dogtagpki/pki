@@ -4663,7 +4663,7 @@ class SystemCertificateVerifier:
                 stderr=subprocess.STDOUT)
         except subprocess.CalledProcessError as e:
             config.pki_log.error(
-                "pki subsystem-cert-validate return code: " + str(e.returncode),
+                "pki-server subsystem-cert-validate return code: " + str(e.returncode),
                 extra=config.PKI_INDENTATION_LEVEL_2
             )
             config.pki_log.error(
