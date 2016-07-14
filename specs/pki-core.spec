@@ -991,6 +991,7 @@ systemctl daemon-reload
 %{_datadir}/pki/key/templates
 %dir %{_sysconfdir}/pki
 %config(noreplace) %{_sysconfdir}/pki/pki.conf
+%exclude %{python2_sitelib}/pki/server
 %{python2_sitelib}/pki
 %dir %{_localstatedir}/log/pki
 %{_sbindir}/pki-upgrade
@@ -1011,6 +1012,7 @@ systemctl daemon-reload
 %files -n pki-base-python3
 %defattr(-,root,root,-)
 %doc base/common/LICENSE
+%exclude %{python3_sitelib}/pki/server
 %{python3_sitelib}/pki
 %endif # with_python3
 %endif
