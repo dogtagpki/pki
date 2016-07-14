@@ -45,7 +45,10 @@ public class ClientCertValidateCLI extends CLI {
     }
 
     public void createOptions() {
-        Option option = new Option(null, "certusage", true, "Certificate usage.");
+        Option option = new Option(null, "certusage", true, "Certificate usage: " +
+                "CheckAllUsages, SSLServer, SSLServerWithStepUp, SSLClient, SSLCA, AnyCA, " +
+                "StatusResponder, ObjectSigner, UserCertImport, ProtectedObjectSigner, " +
+                "VerifyCA, EmailSigner, EmailRecipient.");
         option.setArgName("certusage");
         options.addOption(option);
     }
@@ -188,6 +191,8 @@ public class ClientCertValidateCLI extends CLI {
             cu = CryptoManager.CertificateUsage.VerifyCA;
         else if (certusage.equalsIgnoreCase("EmailSigner"))
             cu = CryptoManager.CertificateUsage.EmailSigner;
+        else if (certusage.equalsIgnoreCase("EmailRecipient"))
+            cu = CryptoManager.CertificateUsage.EmailRecipient;
 
         return cu;
     }

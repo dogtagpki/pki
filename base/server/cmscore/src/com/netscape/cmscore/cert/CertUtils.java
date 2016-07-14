@@ -988,6 +988,8 @@ public class CertUtils {
             cu = CryptoManager.CertificateUsage.VerifyCA;
         else if (certusage.equalsIgnoreCase("EmailSigner"))
             cu = CryptoManager.CertificateUsage.EmailSigner;
+        else if (certusage.equalsIgnoreCase("EmailRecipient"))
+            cu = CryptoManager.CertificateUsage.EmailRecipient;
 
         return cu;
     }
