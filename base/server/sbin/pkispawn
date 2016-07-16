@@ -226,9 +226,9 @@ def main(argv):
                                     'pki_import_admin_cert',
                                     'False')
 
-            parser.read_text('Export certificate to',
-                             config.pki_subsystem,
-                             'pki_client_admin_cert')
+                parser.read_text('Export certificate to',
+                                 config.pki_subsystem,
+                                 'pki_client_admin_cert')
 
             # if parser.mdict['pki_hsm_enable'] == 'True':
             #     use_hsm = 'Y'
@@ -261,7 +261,7 @@ def main(argv):
             # parser.set_property(config.pki_subsystem,
             #                     'pki_hsm_libfile',
             #                     libfile)
-            # print
+            print()
 
             print("Directory Server:")
             while True:
