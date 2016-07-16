@@ -754,16 +754,15 @@ def print_final_install_information(mdict):
         print("      Administrator's PKCS #12 file:\n            %s" %
               mdict['pki_client_admin_cert_p12'])
 
-    if not config.str2bool(mdict['pki_client_database_purge']):
+    if not config.str2bool(mdict['pki_client_database_purge']) and \
+            not config.str2bool(mdict['pki_clone']):
         print()
         print("      Administrator's certificate nickname:\n            %s"
               % mdict['pki_admin_nickname'])
-
-    if not config.str2bool(mdict['pki_clone']):
         print("      Administrator's certificate database:\n            %s"
               % mdict['pki_client_database_dir'])
 
-    else:
+    if config.str2bool(mdict['pki_clone']):
         print()
         print("      This %s subsystem of the '%s' instance\n"
               "      is a clone." %
