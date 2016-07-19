@@ -782,7 +782,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 ConfigurationUtils.populateVLVIndexes();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            CMS.debug(e);
             throw new PKIException("Error in populating database: " + e, e);
         }
     }
@@ -1029,14 +1029,14 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 String tokenpwd = data.getTokenPassword();
                 ConfigurationUtils.loginToken(ctoken, tokenpwd);
             } catch (NotInitializedException e) {
-                throw new PKIException("Token is not initialized");
+                throw new PKIException("Token is not initialized", e);
             } catch (NoSuchTokenException e) {
-                throw new BadRequestException("Invalid Token provided. No such token.");
+                throw new BadRequestException("Invalid Token provided. No such token.", e);
             } catch (TokenException e) {
-                e.printStackTrace();
-                throw new PKIException("Token Exception" + e);
+                CMS.debug(e);
+                throw new PKIException("Token Exception: " + e, e);
             } catch (IncorrectPasswordException e) {
-                throw new BadRequestException("Incorrect Password provided for token.");
+                throw new BadRequestException("Incorrect Password provided for token.", e);
             }
         }
     }
