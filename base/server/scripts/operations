@@ -909,7 +909,6 @@ verify_symlinks()
     declare -A ocsp_symlinks
     declare -A tks_symlinks
     declare -A tps_symlinks
-    declare -A common_jar_symlinks
     declare -A ca_jar_symlinks
     declare -A kra_jar_symlinks
     declare -A ocsp_jar_symlinks
@@ -984,75 +983,6 @@ verify_symlinks()
         [conf]=/etc/pki/${PKI_INSTANCE_NAME}/tps
         [logs]=/var/log/pki/${PKI_INSTANCE_NAME}/tps
         [registry]=${pki_registry_dir})
-
-    # '${pki_common_jar_dir}' symlinks
-    if ! $debian; then
-        common_jar_symlinks=(
-            [apache-commons-codec.jar]=${java_dir}/commons-codec.jar
-            [apache-commons-collections.jar]=${java_dir}/apache-commons-collections.jar
-            [apache-commons-io.jar]=${java_dir}/apache-commons-io.jar
-            [apache-commons-lang.jar]=${java_dir}/apache-commons-lang.jar
-            [apache-commons-logging.jar]=${java_dir}/apache-commons-logging.jar
-            [httpclient.jar]=${java_dir}/httpcomponents/httpclient.jar
-            [httpcore.jar]=${java_dir}/httpcomponents/httpcore.jar
-            [javassist.jar]=${java_dir}/javassist.jar
-            [jaxrs-api.jar]=${RESTEASY_LIB}/jaxrs-api.jar
-            [jackson-core-asl.jar]=${java_dir}/jackson/jackson-core-asl.jar
-            [jackson-jaxrs.jar]=${java_dir}/jackson/jackson-jaxrs.jar
-            [jackson-mapper-asl.jar]=${java_dir}/jackson/jackson-mapper-asl.jar
-            [jackson-mrbean.jar]=${java_dir}/jackson/jackson-mrbean.jar
-            [jackson-smile.jar]=${java_dir}/jackson/jackson-smile.jar
-            [jackson-xc.jar]=${java_dir}/jackson/jackson-xc.jar
-            [jss4.jar]=${jni_jar_dir}/jss4.jar
-            [ldapjdk.jar]=${java_dir}/ldapjdk.jar
-            [pki-tomcat.jar]=${java_dir}/pki/pki-tomcat.jar
-            [resteasy-atom-provider.jar]=${RESTEASY_LIB}/resteasy-atom-provider.jar
-            [resteasy-client.jar]=${RESTEASY_LIB}/resteasy-client.jar
-            [resteasy-jaxb-provider.jar]=${RESTEASY_LIB}/resteasy-jaxb-provider.jar
-            [resteasy-jaxrs.jar]=${RESTEASY_LIB}/resteasy-jaxrs.jar
-            [resteasy-jackson-provider.jar]=${RESTEASY_LIB}/resteasy-jackson-provider.jar
-            [scannotation.jar]=${java_dir}/scannotation.jar
-            [tomcatjss.jar]=${java_dir}/tomcatjss.jar
-            [velocity.jar]=${java_dir}/velocity.jar
-            [xerces-j2.jar]=${java_dir}/xerces-j2.jar
-            [xml-commons-apis.jar]=${java_dir}/xml-commons-apis.jar
-            [xml-commons-resolver.jar]=${java_dir}/xml-commons-resolver.jar)
-    else
-        common_jar_symlinks=(
-            [apache-commons-codec.jar]=${java_dir}/commons-codec.jar
-            [apache-commons-collections.jar]=${java_dir}/commons-collections3.jar
-            [apache-commons-io.jar]=${java_dir}/commons-io.jar
-            [apache-commons-lang.jar]=${java_dir}/commons-lang.jar
-            [apache-commons-logging.jar]=${java_dir}/commons-logging.jar
-            [httpclient.jar]=${java_dir}/httpclient.jar
-            [httpcore.jar]=${java_dir}/httpcore.jar
-            [javassist.jar]=${java_dir}/javassist.jar
-            [jaxrs-api.jar]=${RESTEASY_LIB}/jaxrs-api.jar
-            [jackson-core-asl.jar]=${java_dir}/jackson-core-asl.jar
-            [jackson-jaxrs.jar]=${java_dir}/jackson-jaxrs.jar
-            [jackson-mapper-asl.jar]=${java_dir}/jackson-mapper-asl.jar
-            [jackson-mrbean.jar]=${java_dir}/jackson-mrbean.jar
-            [jackson-smile.jar]=${java_dir}/jackson-smile.jar
-            [jackson-xc.jar]=${java_dir}/jackson-xc.jar
-            [jss4.jar]=${jni_jar_dir}/jss4.jar
-            [ldapjdk.jar]=${java_dir}/ldapjdk.jar
-            [pki-tomcat.jar]=${java_dir}/pki/pki-tomcat.jar
-            [resteasy-atom-provider.jar]=${RESTEASY_LIB}/resteasy-atom-provider.jar
-            [resteasy-client.jar]=${RESTEASY_LIB}/resteasy-client.jar
-            [resteasy-jaxb-provider.jar]=${RESTEASY_LIB}/resteasy-jaxb-provider.jar
-            [resteasy-jaxrs.jar]=${RESTEASY_LIB}/resteasy-jaxrs.jar
-            [resteasy-jackson-provider.jar]=${RESTEASY_LIB}/resteasy-jackson-provider.jar
-            [scannotation.jar]=${java_dir}/scannotation.jar
-            [tomcatjss.jar]=${java_dir}/tomcatjss.jar
-            [velocity.jar]=${java_dir}/velocity.jar
-            [xerces-j2.jar]=${java_dir}/xercesImpl.jar
-            [xml-commons-apis.jar]=${java_dir}/xml-apis.jar
-            [xml-commons-resolver.jar]=${java_dir}/xml-resolver.jar)
-    fi
-
-    if [ -e ${PKI_INSTANCE_PATH}/tks ]; then
-        common_jar_symlinks[symkey.jar]=${jni_jar_dir}/symkey.jar
-    fi
 
     # '${pki_systemd_dir}' symlinks
     systemd_symlinks[${pki_systemd_link}]=${systemd_dir}/${pki_systemd_service}
@@ -1130,15 +1060,6 @@ verify_symlinks()
             if [ $rv -ne 0 ]; then
                 return $rv
             fi
-        fi
-
-        # Detect and correct 'common_jar_symlinks'
-        common_jar_symlinks_string=$(declare -p common_jar_symlinks)
-        eval "declare -A symlinks=${common_jar_symlinks_string#*=}"
-        check_symlinks ${pki_common_jar_dir} ${PKI_USER} ${PKI_GROUP}
-        rv=$?
-        if [ $rv -ne 0 ]; then
-            return $rv
         fi
 
         # Detect and correct 'systemd_symlinks'

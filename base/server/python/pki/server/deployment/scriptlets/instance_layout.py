@@ -122,11 +122,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     "localhost",
                     "pki#js.xml"))
 
-            # establish Tomcat instance base
-            deployer.directory.create(deployer.mdict['pki_tomcat_common_path'])
-            deployer.directory.create(
-                deployer.mdict['pki_tomcat_common_lib_path'])
-            # establish Tomcat instance library
+            # Create Tomcat instance library
             deployer.directory.create(deployer.mdict['pki_instance_lib'])
             for name in os.listdir(deployer.mdict['pki_tomcat_lib_path']):
                 deployer.symlink.create(
@@ -139,6 +135,12 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             deployer.symlink.create(
                 deployer.mdict['pki_instance_conf_log4j_properties'],
                 deployer.mdict['pki_instance_lib_log4j_properties'])
+
+            # Link /var/lib/pki/<instance>/common to /usr/share/pki/server/common
+            deployer.symlink.create(
+                '/usr/share/pki/server/common',
+                deployer.mdict['pki_tomcat_common_path'])
+
             deployer.directory.create(deployer.mdict['pki_tomcat_tmpdir_path'])
 
             deployer.directory.create(deployer.mdict['pki_tomcat_work_path'])
@@ -160,129 +162,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 deployer.mdict['pki_tomcat_systemd'],
                 deployer.mdict['pki_instance_systemd_link'],
                 uid=0, gid=0)
-            # establish Tomcat instance common lib jar symbolic links
-            deployer.symlink.create(
-                deployer.mdict['pki_apache_commons_collections_jar'],
-                deployer.mdict['pki_apache_commons_collections_jar_link'])
-            deployer.symlink.create(
-                deployer.mdict['pki_apache_commons_io_jar'],
-                deployer.mdict['pki_apache_commons_io_jar_link'])
-            deployer.symlink.create(
-                deployer.mdict['pki_apache_commons_lang_jar'],
-                deployer.mdict['pki_apache_commons_lang_jar_link'])
-            deployer.symlink.create(
-                deployer.mdict['pki_apache_commons_logging_jar'],
-                deployer.mdict['pki_apache_commons_logging_jar_link'])
-            deployer.symlink.create(
-                deployer.mdict['pki_commons_codec_jar'],
-                deployer.mdict['pki_commons_codec_jar_link'])
-            deployer.symlink.create(
-                deployer.mdict['pki_httpclient_jar'],
-                deployer.mdict['pki_httpclient_jar_link'])
-            deployer.symlink.create(
-                deployer.mdict['pki_httpcore_jar'],
-                deployer.mdict['pki_httpcore_jar_link'])
-            deployer.symlink.create(
-                deployer.mdict['pki_javassist_jar'],
-                deployer.mdict['pki_javassist_jar_link'])
-            deployer.symlink.create(
-                deployer.mdict['pki_jss_jar'],
-                deployer.mdict['pki_jss_jar_link'])
-            deployer.symlink.create(
-                deployer.mdict['pki_ldapjdk_jar'],
-                deployer.mdict['pki_ldapjdk_jar_link'])
-            deployer.symlink.create(
-                deployer.mdict['pki_tomcat_jar'],
-                deployer.mdict['pki_tomcat_jar_link'])
-            deployer.symlink.create(
-                deployer.mdict['pki_scannotation_jar'],
-                deployer.mdict['pki_scannotation_jar_link'])
-            deployer.symlink.create(
-                deployer.mdict['pki_tomcatjss_jar'],
-                deployer.mdict['pki_tomcatjss_jar_link'])
-            deployer.symlink.create(
-                deployer.mdict['pki_velocity_jar'],
-                deployer.mdict['pki_velocity_jar_link'])
-            deployer.symlink.create(
-                deployer.mdict['pki_xerces_j2_jar'],
-                deployer.mdict['pki_xerces_j2_jar_link'])
-            deployer.symlink.create(
-                deployer.mdict['pki_xml_commons_apis_jar'],
-                deployer.mdict['pki_xml_commons_apis_jar_link'])
-            deployer.symlink.create(
-                deployer.mdict['pki_xml_commons_resolver_jar'],
-                deployer.mdict['pki_xml_commons_resolver_jar_link'])
-
-            # Jackson
-            deployer.symlink.create(
-                deployer.mdict['pki_jackson_core_asl_jar'],
-                os.path.join(
-                    deployer.mdict['pki_tomcat_common_lib_path'],
-                    'jackson-core-asl.jar'))
-            deployer.symlink.create(
-                deployer.mdict['pki_jackson_jaxrs_jar'],
-                os.path.join(
-                    deployer.mdict['pki_tomcat_common_lib_path'],
-                    'jackson-jaxrs.jar'))
-            deployer.symlink.create(
-                deployer.mdict['pki_jackson_mapper_asl_jar'],
-                os.path.join(
-                    deployer.mdict['pki_tomcat_common_lib_path'],
-                    'jackson-mapper-asl.jar'))
-            deployer.symlink.create(
-                deployer.mdict['pki_jackson_mrbean_jar'],
-                os.path.join(
-                    deployer.mdict['pki_tomcat_common_lib_path'],
-                    'jackson-mrbean.jar'))
-            deployer.symlink.create(
-                deployer.mdict['pki_jackson_smile_jar'],
-                os.path.join(
-                    deployer.mdict['pki_tomcat_common_lib_path'],
-                    'jackson-smile.jar'))
-            deployer.symlink.create(
-                deployer.mdict['pki_jackson_xc_jar'],
-                os.path.join(
-                    deployer.mdict['pki_tomcat_common_lib_path'],
-                    'jackson-xc.jar'))
-
-            # RESTEasy
-            deployer.symlink.create(
-                deployer.mdict['pki_resteasy_atom_provider_jar'],
-                os.path.join(
-                    deployer.mdict['pki_tomcat_common_lib_path'],
-                    'resteasy-atom-provider.jar'))
-            deployer.symlink.create(
-                deployer.mdict['pki_resteasy_client_jar'],
-                os.path.join(
-                    deployer.mdict['pki_tomcat_common_lib_path'],
-                    'resteasy-client.jar'))
-            deployer.symlink.create(
-                deployer.mdict['pki_resteasy_jaxb_provider_jar'],
-                os.path.join(
-                    deployer.mdict['pki_tomcat_common_lib_path'],
-                    'resteasy-jaxb-provider.jar'))
-            deployer.symlink.create(
-                deployer.mdict['pki_resteasy_jaxrs_api_jar'],
-                os.path.join(
-                    deployer.mdict['pki_tomcat_common_lib_path'],
-                    'jaxrs-api.jar'))
-            deployer.symlink.create(
-                deployer.mdict['pki_resteasy_jaxrs_jar'],
-                os.path.join(
-                    deployer.mdict['pki_tomcat_common_lib_path'],
-                    'resteasy-jaxrs.jar'))
-            deployer.symlink.create(
-                deployer.mdict['pki_resteasy_jackson_provider_jar'],
-                os.path.join(
-                    deployer.mdict['pki_tomcat_common_lib_path'],
-                    'resteasy-jackson-provider.jar'))
-
-            # nuxwdog
-            deployer.symlink.create(
-                deployer.mdict['pki_nuxwdog_client_jar'],
-                os.path.join(
-                    deployer.mdict['pki_tomcat_common_lib_path'],
-                    'nuxwdog.jar'))
 
             # establish shared NSS security databases for this instance
             deployer.directory.create(deployer.mdict['pki_database_path'])
@@ -296,14 +175,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             deployer.symlink.create(
                 deployer.mdict['pki_instance_log_path'],
                 deployer.mdict['pki_instance_logs_link'])
-
-            # create the sym link to symkey regardless of subsystem
-            # as long as pki-symkey is installed on the system
-            if os.path.exists(deployer.mdict['pki_symkey_jar']):
-                if not os.path.exists(deployer.mdict['pki_symkey_jar_link']):
-                    deployer.symlink.create(
-                        deployer.mdict['pki_symkey_jar'],
-                        deployer.mdict['pki_symkey_jar_link'])
 
             # create Tomcat instance systemd service link
             deployer.symlink.create(deployer.mdict['pki_systemd_service'],
