@@ -76,11 +76,11 @@ class PKICLI(pki.cli.CLI):
             shell=True)
         java_home = value.decode(sys.getfilesystemencoding()).strip()
 
-        # read RESTEasy library path
+        # read PKI library
         value = subprocess.check_output(
-            '. /usr/share/pki/etc/pki.conf && . /etc/pki/pki.conf && echo $RESTEASY_LIB',
+            '. /usr/share/pki/etc/pki.conf && . /etc/pki/pki.conf && echo $PKI_LIB',
             shell=True)
-        resteasy_lib = value.decode(sys.getfilesystemencoding()).strip()
+        pki_lib = value.decode(sys.getfilesystemencoding()).strip()
 
         # read logging configuration path
         value = subprocess.check_output(
@@ -88,44 +88,9 @@ class PKICLI(pki.cli.CLI):
             shell=True)
         logging_config = value.decode(sys.getfilesystemencoding()).strip()
 
-        # construct classpath
-        classpath = [
-            '/usr/share/java/commons-cli.jar',
-            '/usr/share/java/commons-codec.jar',
-            '/usr/share/java/commons-httpclient.jar',
-            '/usr/share/java/commons-io.jar',
-            '/usr/share/java/commons-lang.jar',
-            '/usr/share/java/commons-logging.jar',
-            '/usr/share/java/httpcomponents/httpclient.jar',
-            '/usr/share/java/httpcomponents/httpcore.jar',
-            '/usr/share/java/jackson/jackson-core-asl.jar',
-            '/usr/share/java/jackson/jackson-jaxrs.jar',
-            '/usr/share/java/jackson/jackson-mapper-asl.jar',
-            '/usr/share/java/jackson/jackson-mrbean.jar',
-            '/usr/share/java/jackson/jackson-smile.jar',
-            '/usr/share/java/jackson/jackson-xc.jar',
-            '/usr/share/java/jaxb-api.jar',
-            '/usr/share/java/ldapjdk.jar',
-            '/usr/share/java/servlet.jar',
-            resteasy_lib + '/jaxrs-api.jar',
-            resteasy_lib + '/resteasy-atom-provider.jar',
-            resteasy_lib + '/resteasy-client.jar',
-            resteasy_lib + '/resteasy-jaxb-provider.jar',
-            resteasy_lib + '/resteasy-jaxrs.jar',
-            resteasy_lib + '/resteasy-jaxrs-jandex.jar',
-            resteasy_lib + '/resteasy-jackson-provider.jar',
-            '/usr/share/java/pki/pki-nsutil.jar',
-            '/usr/share/java/pki/pki-cmsutil.jar',
-            '/usr/share/java/pki/pki-certsrv.jar',
-            '/usr/share/java/pki/pki-tools.jar',
-            '/usr/lib64/java/jss4.jar',
-            '/usr/lib/java/jss4.jar'
-        ]
-
         cmd = [
             java_home + '/bin/java',
-            '-cp',
-            ':'.join(classpath),
+            '-Djava.ext.dirs=' + pki_lib,
             '-Djava.util.logging.config.file=' + logging_config,
             'com.netscape.cmstools.cli.MainCLI'
         ]
