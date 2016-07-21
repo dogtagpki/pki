@@ -31,6 +31,7 @@ set(tokendb_module_SRCS
 include_directories(${TOKENDB_PRIVATE_INCLUDE_DIRS})
 
 add_library(${TOKENDB_MODULE} MODULE ${tokendb_module_SRCS})
+add_dependencies(${TOKENDB_MODULE} pki-tps-jar)
 target_link_libraries(${TOKENDB_MODULE} ${TOKENDB_LINK_LIBRARIES})
 
 set_target_properties(${TOKENDB_MODULE}

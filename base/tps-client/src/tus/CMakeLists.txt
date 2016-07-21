@@ -35,6 +35,7 @@ set(tokendb_library_SRCS
 include_directories(${TOKENDB_PRIVATE_INCLUDE_DIRS})
 
 add_library(${TOKENDB_SHARED_LIBRARY} SHARED ${tokendb_library_SRCS})
+add_dependencies(${TOKENDB_SHARED_LIBRARY} pki-tps-jar)
 target_link_libraries(${TOKENDB_SHARED_LIBRARY} ${TOKENDB_LINK_LIBRARIES})
 
 set_target_properties(${TOKENDB_SHARED_LIBRARY}

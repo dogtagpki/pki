@@ -35,6 +35,7 @@ set(tps_module_SRCS
 include_directories(${TPS_PRIVATE_INCLUDE_DIRS})
 
 add_library(${TPS_MODULE} MODULE ${tps_module_SRCS})
+add_dependencies(${TPS_MODULE} pki-tps-jar)
 target_link_libraries(${TPS_MODULE} ${TPS_LINK_LIBRARIES})
 
 set_target_properties(${TPS_MODULE}

@@ -37,6 +37,7 @@ set(ldapauth_library_SRCS
 include_directories(${LDAPAUTH_PRIVATE_INCLUDE_DIRS})
 
 add_library(${LDAPAUTH_SHARED_LIBRARY} SHARED ${ldapauth_library_SRCS})
+add_dependencies(${LDAPAUTH_SHARED_LIBRARY} pki-tps-jar)
 target_link_libraries(${LDAPAUTH_SHARED_LIBRARY} ${LDAPAUTH_LINK_LIBRARIES})
 
 set_target_properties(${LDAPAUTH_SHARED_LIBRARY}

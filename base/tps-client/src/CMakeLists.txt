@@ -129,6 +129,7 @@ set(tps_library_SRCS
 include_directories(${TPS_PRIVATE_INCLUDE_DIRS})
 
 add_library(${TPS_SHARED_LIBRARY} SHARED ${tps_library_SRCS})
+add_dependencies(${TPS_SHARED_LIBRARY} pki-tps-jar)
 target_link_libraries(${TPS_SHARED_LIBRARY} ${TPS_LINK_LIBRARIES})
 
 set_target_properties(

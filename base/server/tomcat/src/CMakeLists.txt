@@ -135,4 +135,6 @@ javac(pki-tomcat-classes
 		${NUXWDOG_JAR} ${APACHE_COMMONS_LANG_JAR} ${TOMCATJSS_JAR}
     OUTPUT_DIR
         ${CMAKE_BINARY_DIR}/../../tomcat
+    DEPENDS
+        pki-certsrv-jar
 )
