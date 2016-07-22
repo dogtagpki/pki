@@ -56,6 +56,8 @@ public class SecureChannelProtocol {
     static final int PROTOCOL_THREE = 3;
     static final int HOST_CRYPTOGRAM = 0;
     static final int CARD_CRYPTOGRAM = 1;
+    //Size of long type in bytes, since java7 has no define for this
+    static final int LONG_SIZE = 8;
 
     private SymmetricKey transportKey = null;
     CryptoManager cryptoManager = null;
@@ -762,7 +764,7 @@ public class SecureChannelProtocol {
     }
 
     public static byte[] longToBytes(long x) {
-        ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
+        ByteBuffer buffer = ByteBuffer.allocate(LONG_SIZE);
         buffer.putLong(x);
         return buffer.array();
     }
