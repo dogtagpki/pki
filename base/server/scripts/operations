@@ -1352,10 +1352,24 @@ start_instance()
         return $rv
     fi
 
+    # Copy pki.policy template
+    /bin/cp /usr/share/pki/server/conf/pki.policy /var/lib/pki/$PKI_INSTANCE_NAME/conf
+
+    # Add permissions for all JAR files in /var/lib/pki/$PKI_INSTANCE_NAME/common/lib
+    for path in /var/lib/pki/$PKI_INSTANCE_NAME/common/lib/*; do
+
+        cat >> /var/lib/pki/$PKI_INSTANCE_NAME/conf/pki.policy << EOF
+
+grant codeBase "file:$(realpath $path)" {
+    permission java.security.AllPermission;
+};
+EOF
+    done
+
     # Generate catalina.policy dynamically.
     cat /usr/share/pki/server/conf/catalina.policy \
         /usr/share/tomcat/conf/catalina.policy \
-        /usr/share/pki/server/conf/pki.policy \
+        /var/lib/pki/$PKI_INSTANCE_NAME/conf/pki.policy \
         /var/lib/pki/$PKI_INSTANCE_NAME/conf/custom.policy > \
         /var/lib/pki/$PKI_INSTANCE_NAME/conf/catalina.policy
 

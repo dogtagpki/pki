@@ -4,10 +4,10 @@
 // --- END COPYRIGHT BLOCK ---
 
 // ============================================================================
-// pki.policy - Default Security Policy Permissions for PKI on Tomcat 7
+// pki.policy - Default Security Policy Permissions for PKI on Tomcat
 //
 // This file contains a default set of security policies for PKI running inside
-// Tomcat 7.
+// Tomcat.
 // ============================================================================
 
 grant codeBase "file:${catalina.home}/bin/tomcat-juli.jar" {
@@ -22,42 +22,6 @@ grant codeBase "file:${catalina.base}/lib/-" {
         permission java.security.AllPermission;
 };
 
-grant codeBase "file:/usr/lib/java/jss4.jar" {
-        permission java.security.AllPermission;
-};
-
-grant codeBase "file:/usr/lib/java/symkey.jar" {
-        permission java.security.AllPermission;
-};
-
-grant codeBase "file:/usr/lib64/java/jss4.jar" {
-        permission java.security.AllPermission;
-};
-
-grant codeBase "file:/usr/lib64/java/symkey.jar" {
-        permission java.security.AllPermission;
-};
-
-grant codeBase "file:/usr/share/java/commons-codec.jar" {
-        permission java.security.AllPermission;
-};
-
-grant codeBase "file:/usr/share/java/apache-commons-collections.jar" {
-        permission java.security.AllPermission;
-};
-
-grant codeBase "file:/usr/share/java/apache-commons-io.jar" {
-        permission java.security.AllPermission;
-};
-
-grant codeBase "file:/usr/share/java/apache-commons-lang.jar" {
-        permission java.security.AllPermission;
-};
-
-grant codeBase "file:/usr/share/java/apache-commons-logging.jar" {
-        permission java.security.AllPermission;
-};
-
 grant codeBase "file:/usr/share/java/ecj.jar" {
         permission java.security.AllPermission;
 };
@@ -67,18 +31,6 @@ grant codeBase "file:/usr/share/java/eclipse/-" {
 };
 
 grant codeBase "file:/usr/share/java/glassfish-jsp.jar" {
-        permission java.security.AllPermission;
-};
-
-grant codeBase "file:/usr/share/java/httpcomponents/httpclient.jar" {
-        permission java.security.AllPermission;
-};
-
-grant codeBase "file:/usr/share/java/httpcomponents/httpcore.jar" {
-        permission java.security.AllPermission;
-};
-
-grant codeBase "file:/usr/share/java/javassist.jar" {
         permission java.security.AllPermission;
 };
 
@@ -98,63 +50,7 @@ grant codeBase "file:/usr/share/java/jboss-web.jar" {
         permission java.security.AllPermission;
 };
 
-grant codeBase "file:/usr/share/java/jackson/jackson-core-asl.jar" {
-        permission java.security.AllPermission;
-};
-
-grant codeBase "file:/usr/share/java/jackson/jackson-jaxrs.jar" {
-        permission java.security.AllPermission;
-};
-
-grant codeBase "file:/usr/share/java/jackson/jackson-mapper-asl.jar" {
-        permission java.security.AllPermission;
-};
-
-grant codeBase "file:/usr/share/java/jackson/jackson-mrbean.jar" {
-        permission java.security.AllPermission;
-};
-
-grant codeBase "file:/usr/share/java/jackson/jackson-smile.jar" {
-        permission java.security.AllPermission;
-};
-
-grant codeBase "file:/usr/share/java/jackson/jackson-xc.jar" {
-        permission java.security.AllPermission;
-};
-
-grant codeBase "file:/usr/share/java/ldapjdk.jar" {
-        permission java.security.AllPermission;
-};
-
 grant codeBase "file:/usr/share/java/log4j.jar" {
-        permission java.security.AllPermission;
-};
-
-grant codeBase "file:${RESTEASY_LIB}/jaxrs-api.jar" {
-        permission java.security.AllPermission;
-};
-
-grant codeBase "file:${RESTEASY_LIB}/resteasy-atom-provider.jar" {
-        permission java.security.AllPermission;
-};
-
-grant codeBase "file:${RESTEASY_LIB}/resteasy-client.jar" {
-        permission java.security.AllPermission;
-};
-
-grant codeBase "file:${RESTEASY_LIB}/resteasy-jaxb-provider.jar" {
-        permission java.security.AllPermission;
-};
-
-grant codeBase "file:${RESTEASY_LIB}/resteasy-jaxrs.jar" {
-        permission java.security.AllPermission;
-};
-
-grant codeBase "file:${RESTEASY_LIB}/resteasy-jackson-provider.jar" {
-        permission java.security.AllPermission;
-};
-
-grant codeBase "file:/usr/share/java/scannotation.jar" {
         permission java.security.AllPermission;
 };
 
@@ -166,31 +62,11 @@ grant codeBase "file:/usr/share/java/tomcat/-" {
         permission java.security.AllPermission;
 };
 
-grant codeBase "file:/usr/share/java/tomcatjss.jar" {
-        permission java.security.AllPermission;
-};
-
 grant codeBase "file:/usr/share/java/tomcat-el-api.jar" {
         permission java.security.AllPermission;
 };
 
 grant codeBase "file:/usr/share/java/tomcat-servlet-api.jar" {
-        permission java.security.AllPermission;
-};
-
-grant codeBase "file:/usr/share/java/velocity.jar" {
-        permission java.security.AllPermission;
-};
-
-grant codeBase "file:/usr/share/java/xerces-j2.jar" {
-        permission java.security.AllPermission;
-};
-
-grant codeBase "file:/usr/share/java/xml-commons-apis.jar" {
-        permission java.security.AllPermission;
-};
-
-grant codeBase "file:/usr/share/java/xml-commons-resolver.jar" {
         permission java.security.AllPermission;
 };
 
@@ -219,9 +95,5 @@ grant codeBase "file:${catalina.base}/webapps/tks/-" {
 };
 
 grant codeBase "file:${catalina.base}/webapps/ROOT/-" {
-        permission java.security.AllPermission;
-};
-
-grant codeBase "file:/usr/lib/java/nuxwdog.jar" {
         permission java.security.AllPermission;
 };
