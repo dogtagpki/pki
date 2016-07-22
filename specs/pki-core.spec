@@ -35,9 +35,16 @@
 
 # RESTEasy
 %if 0%{?rhel}
+%define jaxrs_api_jar /usr/share/java/resteasy-base/jaxrs-api.jar
 %define resteasy_lib /usr/share/java/resteasy-base
 %else
+%if 0%{?fedora} >= 25
+%define jaxrs_api_jar /usr/share/java/jboss-jaxrs-2.0-api.jar
 %define resteasy_lib /usr/share/java/resteasy
+%else
+%define jaxrs_api_jar /usr/share/java/resteasy/jaxrs-api.jar
+%define resteasy_lib /usr/share/java/resteasy
+%endif
 %endif
 
 # Dogtag
@@ -107,6 +114,9 @@ BuildRequires:    resteasy-base-jaxrs-api >= 3.0.6-1
 BuildRequires:    resteasy-base-jackson-provider >= 3.0.6-1
 %else
 %if 0%{?fedora} >= 25
+BuildRequires:    jboss-annotations-1.2-api
+BuildRequires:    jboss-jaxrs-2.0-api
+BuildRequires:    jboss-logging
 BuildRequires:    resteasy-atom-provider >= 3.0.17-1
 BuildRequires:    resteasy-client >= 3.0.17-1
 BuildRequires:    resteasy-jaxb-provider >= 3.0.17-1
@@ -799,6 +809,7 @@ cd build
 %if ! %{with_tomcat8}
 	-DWITH_TOMCAT8:BOOL=OFF \
 %endif
+	-DJAXRS_API_JAR=%{jaxrs_api_jar} \
 	-DRESTEASY_LIB=%{resteasy_lib} \
 %if ! %{with server}
 	-DWITH_SERVER:BOOL=OFF \
@@ -843,6 +854,33 @@ ln -s %{_bindir}/KRATool %{buildroot}%{_bindir}/DRMTool
 ln -s %{_datadir}/pki/java-tools/KRATool.cfg %{buildroot}%{_datadir}/pki/java-tools/DRMTool.cfg
 
 %if %{with server}
+
+# Customize symlinks for each platform
+%if 0%{?fedora} >= 25
+    # /usr/share/pki/lib
+    rm -f %{buildroot}%{_datadir}/pki/lib/scannotation.jar
+    rm -f %{buildroot}%{_datadir}/pki/lib/resteasy-jaxrs-api.jar
+    rm -f %{buildroot}%{_datadir}/pki/lib/resteasy-jaxrs-jandex.jar
+    ln -sf %{jaxrs_api_jar} %{buildroot}%{_datadir}/pki/lib/jboss-jaxrs-2.0-api.jar
+    ln -sf /usr/share/java/jboss-logging/jboss-logging.jar %{buildroot}%{_datadir}/pki/lib/jboss-logging.jar
+    ln -sf /usr/share/java/jboss-annotations-1.2-api/jboss-annotations-api_1.2_spec.jar %{buildroot}%{_datadir}/pki/lib/jboss-annotations-api_1.2_spec.jar
+
+%else
+
+if [ -f /etc/debian_version ]; then
+    # /usr/share/pki/lib
+    ln -sf /usr/share/java/httpclient.jar %{buildroot}%{_datadir}/pki/lib/httpclient.jar
+    ln -sf /usr/share/java/httpcore.jar %{buildroot}%{_datadir}/pki/lib/httpcore.jar
+    ln -sf /usr/share/java/jackson-core-asl.jar %{buildroot}%{_datadir}/pki/lib/jackson-core-asl.jar
+    ln -sf /usr/share/java/jackson-jaxrs.jar %{buildroot}%{_datadir}/pki/lib/jackson-jaxrs.jar
+    ln -sf /usr/share/java/jackson-mapper-asl.jar %{buildroot}%{_datadir}/pki/lib/jackson-mapper-asl.jar
+    ln -sf /usr/share/java/jackson-mrbean.jar %{buildroot}%{_datadir}/pki/lib/jackson-mrbean.jar
+    ln -sf /usr/share/java/jackson-smile.jar %{buildroot}%{_datadir}/pki/lib/jackson-smile.jar
+    ln -sf /usr/share/java/jackson-xc.jar %{buildroot}%{_datadir}/pki/lib/jackson-xc.jar
+    ln -sf /usr/share/java/jss4.jar %{buildroot}%{_datadir}/pki/lib/jss4.jar
+fi
+
+%endif
 
 %if ! 0%{?rhel}
 # Scanning the python code with pylint.
@@ -1001,6 +1039,7 @@ systemctl daemon-reload
 
 %if 0%{?package_fedora_packages} || 0%{?package_rhel_packages}
 %files -n pki-base-java
+%{_datadir}/pki/lib/
 %dir %{_javadir}/pki
 %{_javadir}/pki/pki-cmsutil.jar
 %{_javadir}/pki/pki-nsutil.jar
