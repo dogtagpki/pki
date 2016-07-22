@@ -1810,8 +1810,8 @@ class File:
                     line[begin:end + 1], value,
                     extra=config.PKI_INDENTATION_LEVEL_3)
 
-                # replace parameter with value
-                line = line[0:begin] + value + line[end + 1]
+                # replace parameter with value, keep the rest of the line
+                line = line[0:begin] + value + line[end + 1:]
 
                 # calculate the new end position
                 end = begin + len(value) + 1
