@@ -137,7 +137,7 @@ if [ $# -eq 1 ] ||
 then
     if [ "$1" = "-simpleinfo" ]
     then
-        file $2 | grep 'ASCII text' > /dev/null
+        file $2 | grep -E 'ASCII text|PEM certificate' > /dev/null
         if [ $? -ne 0 ] ; then
             ${JAVA} ${JAVA_OPTIONS} -cp ${CP} com.netscape.cmstools.${COMMAND}
             printf "\n"
@@ -147,7 +147,7 @@ then
             exit 255
         fi
     else
-        file $1 | grep 'ASCII text' > /dev/null
+        file $1 | grep -E 'ASCII text|PEM certificate' > /dev/null
         if [ $? -ne 0 ] ; then
             ${JAVA} ${JAVA_OPTIONS} -cp ${CP} com.netscape.cmstools.${COMMAND}
             printf "\n"
