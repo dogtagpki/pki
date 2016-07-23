@@ -852,6 +852,8 @@ done
 ln -s %{_bindir}/KRATool %{buildroot}%{_bindir}/DRMTool
 # Create compatibility symlink for DRMTool.cfg -> KRATool.cfg
 ln -s %{_datadir}/pki/java-tools/KRATool.cfg %{buildroot}%{_datadir}/pki/java-tools/DRMTool.cfg
+# Create compatibility symlink for DRMTool.1.gz -> KRATool.1.gz
+ln -s %{_mandir}/man1/KRATool.1.gz %{buildroot}%{_mandir}/man1/DRMTool.1.gz
 
 %if %{with server}
 
@@ -1115,20 +1117,27 @@ systemctl daemon-reload
 %{_bindir}/TokenInfo
 %{_javadir}/pki/pki-tools.jar
 %{_datadir}/pki/java-tools/
+%{_mandir}/man1/AtoB.1.gz
+%{_mandir}/man1/AuditVerify.1.gz
+%{_mandir}/man1/BtoA.1.gz
+%{_mandir}/man1/DRMTool.1.gz
+%{_mandir}/man1/KRATool.1.gz
+%{_mandir}/man1/PrettyPrintCert.1.gz
+%{_mandir}/man1/PrettyPrintCrl.1.gz
 %{_mandir}/man1/pki.1.gz
 %{_mandir}/man1/pki-audit.1.gz
+%{_mandir}/man1/pki-ca-kraconnector.1.gz
+%{_mandir}/man1/pki-ca-profile.1.gz
 %{_mandir}/man1/pki-cert.1.gz
 %{_mandir}/man1/pki-client.1.gz
 %{_mandir}/man1/pki-group.1.gz
 %{_mandir}/man1/pki-group-member.1.gz
 %{_mandir}/man1/pki-key.1.gz
 %{_mandir}/man1/pki-securitydomain.1.gz
+%{_mandir}/man1/pki-tps-profile.1.gz
 %{_mandir}/man1/pki-user.1.gz
 %{_mandir}/man1/pki-user-cert.1.gz
 %{_mandir}/man1/pki-user-membership.1.gz
-%{_mandir}/man1/pki-ca-profile.1.gz
-%{_mandir}/man1/pki-tps-profile.1.gz
-%{_mandir}/man1/pki-ca-kraconnector.1.gz
 %endif
 
 %if %{with server}
