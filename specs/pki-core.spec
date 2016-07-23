@@ -865,6 +865,13 @@ ln -s %{_datadir}/pki/java-tools/KRATool.cfg %{buildroot}%{_datadir}/pki/java-to
     ln -sf /usr/share/java/jboss-logging/jboss-logging.jar %{buildroot}%{_datadir}/pki/lib/jboss-logging.jar
     ln -sf /usr/share/java/jboss-annotations-1.2-api/jboss-annotations-api_1.2_spec.jar %{buildroot}%{_datadir}/pki/lib/jboss-annotations-api_1.2_spec.jar
 
+    # /usr/share/pki/server/common/lib
+    rm -f %{buildroot}%{_datadir}/pki/server/common/lib/scannotation.jar
+    rm -f %{buildroot}%{_datadir}/pki/server/common/lib/resteasy-jaxrs-api.jar
+    ln -sf %{jaxrs_api_jar} %{buildroot}%{_datadir}/pki/server/common/lib/jboss-jaxrs-2.0-api.jar
+    ln -sf /usr/share/java/jboss-logging/jboss-logging.jar %{buildroot}%{_datadir}/pki/server/common/lib/jboss-logging.jar
+    ln -sf /usr/share/java/jboss-annotations-1.2-api/jboss-annotations-api_1.2_spec.jar %{buildroot}%{_datadir}/pki/server/common/lib/jboss-annotations-api_1.2_spec.jar
+
 %else
 
 if [ -f /etc/debian_version ]; then
@@ -878,6 +885,22 @@ if [ -f /etc/debian_version ]; then
     ln -sf /usr/share/java/jackson-smile.jar %{buildroot}%{_datadir}/pki/lib/jackson-smile.jar
     ln -sf /usr/share/java/jackson-xc.jar %{buildroot}%{_datadir}/pki/lib/jackson-xc.jar
     ln -sf /usr/share/java/jss4.jar %{buildroot}%{_datadir}/pki/lib/jss4.jar
+
+    # /usr/share/pki/server/common/lib
+    ln -sf /usr/share/java/commons-collections3.jar %{buildroot}%{_datadir}/pki/server/common/lib/commons-collections.jar
+    ln -sf /usr/share/java/httpclient.jar %{buildroot}%{_datadir}/pki/server/common/lib/httpclient.jar
+    ln -sf /usr/share/java/httpcore.jar %{buildroot}%{_datadir}/pki/server/common/lib/httpcore.jar
+    ln -sf /usr/share/java/jackson-core-asl.jar %{buildroot}%{_datadir}/pki/server/common/lib/jackson-core-asl.jar
+    ln -sf /usr/share/java/jackson-jaxrs.jar %{buildroot}%{_datadir}/pki/server/common/lib/jackson-jaxrs.jar
+    ln -sf /usr/share/java/jackson-mapper-asl.jar %{buildroot}%{_datadir}/pki/server/common/lib/jackson-mapper-asl.jar
+    ln -sf /usr/share/java/jackson-mrbean.jar %{buildroot}%{_datadir}/pki/server/common/lib/jackson-mrbean.jar
+    ln -sf /usr/share/java/jackson-smile.jar %{buildroot}%{_datadir}/pki/server/common/lib/jackson-smile.jar
+    ln -sf /usr/share/java/jackson-xc.jar %{buildroot}%{_datadir}/pki/server/common/lib/jackson-xc.jar
+    ln -sf /usr/share/java/jss4.jar %{buildroot}%{_datadir}/pki/server/common/lib/jss4.jar
+    ln -sf /usr/share/java/symkey.jar %{buildroot}%{_datadir}/pki/server/common/lib/symkey.jar
+    ln -sf /usr/share/java/xercesImpl.jar %{buildroot}%{_datadir}/pki/server/common/lib/xerces-j2.jar
+    ln -sf /usr/share/java/xml-apis.jar %{buildroot}%{_datadir}/pki/server/common/lib/xml-commons-apis.jar
+    ln -sf /usr/share/java/xml-resolver.jar %{buildroot}%{_datadir}/pki/server/common/lib/xml-commons-resolver.jar
 fi
 
 %endif
