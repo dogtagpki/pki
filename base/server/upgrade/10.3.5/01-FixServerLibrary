@@ -1,0 +1,46 @@
+#!/usr/bin/python
+# Authors:
+#     Endi S. Dewata <edewata@redhat.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+# Copyright (C) 2016 Red Hat, Inc.
+# All rights reserved.
+
+from __future__ import absolute_import
+import os.path
+import shutil
+import pki.server.upgrade
+
+
+class FixServerLibrary(pki.server.upgrade.PKIServerUpgradeScriptlet):
+
+    def __init__(self):
+        super(FixServerLibrary, self).__init__()
+        self.message = 'Fix server library'
+
+    def upgrade_instance(self, instance):
+
+        common_dir = os.path.join(instance.base_dir, 'common')
+
+        # if <instance>/common is already a link, skip
+        if os.path.islink(common_dir):
+            return
+
+        # remove old <instance>/common
+        shutil.rmtree(common_dir)
+
+        # link <instance>/common to /usr/share/pki/server/common
+        os.symlink('/usr/share/pki/server/common', common_dir)
+        os.lchown(common_dir, instance.uid, instance.gid)
