@@ -2240,6 +2240,10 @@ public class CertificateAuthority
          * employ some heuristic to deal with this case. Our
          * heuristic is:
          *
+         * 0. If caMap contains no CAs, then lightweight CAs are not
+         *    enabled.  There is only one CA, and 'this' is it.  Go
+         *    straight to validation.
+         *
          * 1. Find the issuer of the cert identified by the first
          *    CertID in the request.
          *
@@ -2254,7 +2258,7 @@ public class CertificateAuthority
          *    aggregate OCSP response.
          */
         ICertificateAuthority ocspCA = this;
-        if (tbsReq.getRequestCount() > 0) {
+        if (caMap.size() > 0 && tbsReq.getRequestCount() > 0) {
             com.netscape.cmsutil.ocsp.Request req = tbsReq.getRequestAt(0);
             BigInteger serialNo = req.getCertID().getSerialNumber();
             X509CertImpl cert = mCertRepot.getX509Certificate(serialNo);
