@@ -4113,6 +4113,10 @@ class ConfigClient:
         if self.subsystem == "TPS":
             self.set_tps_parameters(data)
 
+        # Misc CA parameters
+        if self.subsystem == "CA":
+            data.startingCRLNumber = self.mdict['pki_ca_starting_crl_number']
+
         return data
 
     def save_admin_csr(self):

@@ -31,6 +31,23 @@ import java.util.StringTokenizer;
 import java.util.TimeZone;
 import java.util.Vector;
 
+import netscape.security.util.BitArray;
+import netscape.security.x509.AlgorithmId;
+import netscape.security.x509.CRLExtensions;
+import netscape.security.x509.CRLNumberExtension;
+import netscape.security.x509.CRLReasonExtension;
+import netscape.security.x509.DeltaCRLIndicatorExtension;
+import netscape.security.x509.Extension;
+import netscape.security.x509.FreshestCRLExtension;
+import netscape.security.x509.IssuingDistributionPoint;
+import netscape.security.x509.IssuingDistributionPointExtension;
+import netscape.security.x509.RevocationReason;
+import netscape.security.x509.RevokedCertImpl;
+import netscape.security.x509.RevokedCertificate;
+import netscape.security.x509.X509CRLImpl;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509ExtensionException;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -66,23 +83,6 @@ import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.util.Debug;
 
-import netscape.security.util.BitArray;
-import netscape.security.x509.AlgorithmId;
-import netscape.security.x509.CRLExtensions;
-import netscape.security.x509.CRLNumberExtension;
-import netscape.security.x509.CRLReasonExtension;
-import netscape.security.x509.DeltaCRLIndicatorExtension;
-import netscape.security.x509.Extension;
-import netscape.security.x509.FreshestCRLExtension;
-import netscape.security.x509.IssuingDistributionPoint;
-import netscape.security.x509.IssuingDistributionPointExtension;
-import netscape.security.x509.RevocationReason;
-import netscape.security.x509.RevokedCertImpl;
-import netscape.security.x509.RevokedCertificate;
-import netscape.security.x509.X509CRLImpl;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509ExtensionException;
-
 /**
  * This class encapsulates CRL issuing mechanism. CertificateAuthority
  * contains a map of CRLIssuingPoint indexed by string ids. Each issuing
@@ -111,6 +111,8 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     public static final long MINUTE = (SECOND * 60L);
 
     private static final int CRL_PAGE_SIZE = 10000;
+
+    private static final String PROP_CRL_STARTING_NUMBER = "startingCrlNumber";
 
     /* configuration file property names */
 
@@ -923,13 +925,36 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         if (crlRecord == null) {
             // no crl was ever created, or crl in db is corrupted.
             // create new one.
+
+            IConfigStore ipStore = mCA.getConfigStore().getSubStore(ICertificateAuthority.PROP_CRL_SUBSTORE).getSubStore(mId);
             try {
-                crlRecord = new CRLIssuingPointRecord(mId, BigInteger.ZERO, Long.valueOf(-1),
+
+                BigInteger startingCrlNumberBig = ipStore.getBigInteger(PROP_CRL_STARTING_NUMBER, BigInteger.ZERO);
+                CMS.debug("startingCrlNumber: " + startingCrlNumberBig);
+
+                // Check for bogus negative value
+
+                if(startingCrlNumberBig.compareTo(BigInteger.ZERO) < 0) {
+                    //Make it the default of ZERO
+                    startingCrlNumberBig = BigInteger.ZERO;
+                }
+
+                crlRecord = new CRLIssuingPointRecord(mId, startingCrlNumberBig, Long.valueOf(-1),
                                                null, null, BigInteger.ZERO, Long.valueOf(-1),
                                           mRevokedCerts, mUnrevokedCerts, mExpiredCerts);
                 mCRLRepository.addCRLIssuingPointRecord(crlRecord);
-                mCRLNumber = BigInteger.ZERO; //BIG_ZERO;
-                mNextCRLNumber = BigInteger.ONE; //BIG_ONE;
+                mCRLNumber = startingCrlNumberBig;
+
+                // The default case calls for ZERO being the starting point where
+                // it is then incremented by one to ONE
+                // If we specificy an explicit starting point,
+                // We want that exact number to be the next CRL Number.
+                if(mCRLNumber.compareTo(BigInteger.ZERO) == 0) {
+                    mNextCRLNumber = BigInteger.ONE;
+                } else {
+                    mNextCRLNumber = mCRLNumber;
+                }
+
                 mLastCRLNumber = mCRLNumber;
                 mDeltaCRLNumber = mCRLNumber;
                 mNextDeltaCRLNumber = mNextCRLNumber;

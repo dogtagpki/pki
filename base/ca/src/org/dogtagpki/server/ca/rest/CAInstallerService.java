@@ -80,6 +80,8 @@ public class CAInstallerService extends SystemConfigService {
                 disableCRLCachingAndGenerationForClone(request);
             }
 
+            configureStartingCRLNumber(request);
+
         } catch (Exception e) {
             CMS.debug(e);
             throw new PKIException("Errors in determining if security domain host is a master CA");
@@ -187,6 +189,11 @@ public class CAInstallerService extends SystemConfigService {
         configStore.commit(false /* no backup */);
     }
 
+    private void configureStartingCRLNumber(ConfigurationRequest data) {
+        CMS.debug("CAInstallerService:configureStartingCRLNumber entering.");
+        cs.putString("ca.crl.MasterCRL.startingCrlNumber",data.getStartingCRLNumber() );
+
+    }
     private void disableCRLCachingAndGenerationForClone(ConfigurationRequest data) throws MalformedURLException {
 
         CMS.debug("CAInstallerService:disableCRLCachingAndGenerationForClone entering.");

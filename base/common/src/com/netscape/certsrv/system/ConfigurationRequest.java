@@ -234,6 +234,9 @@ public class ConfigurationRequest {
     @XmlElement
     protected String sharedDBUserDN;
 
+    @XmlElement
+    protected String startingCRLNumber;
+
     public ConfigurationRequest() {
         // required for JAXB
     }
@@ -932,6 +935,14 @@ public class ConfigurationRequest {
         this.subordinateSecurityDomainName = subordinateSecurityDomainName;
     }
 
+    public String getStartingCRLNumber() {
+        return startingCRLNumber;
+    }
+
+    public void setStartingCRLNumber(String startingCRLNumber) {
+        this.startingCRLNumber = startingCRLNumber;
+    }
+
     @Override
     public String toString() {
         return "ConfigurationRequest [pin=XXXX" +
@@ -995,6 +1006,7 @@ public class ConfigurationRequest {
                ", setupReplication=" + setupReplication +
                ", subordinateSecurityDomainName=" + subordinateSecurityDomainName +
                ", reindexData=" + reindexData +
+               ", startingCrlNumber=" + startingCRLNumber +
                "]";
     }
 
