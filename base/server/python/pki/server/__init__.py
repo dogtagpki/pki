@@ -39,7 +39,10 @@ import pki.nssdb
 import pki.util
 
 INSTANCE_BASE_DIR = '/var/lib/pki'
+CONFIG_BASE_DIR = '/etc/pki'
+LOG_BASE_DIR = '/var/log/pki'
 REGISTRY_DIR = '/etc/sysconfig/pki'
+
 SUBSYSTEM_TYPES = ['ca', 'kra', 'ocsp', 'tks', 'tps']
 SUBSYSTEM_CLASSES = {}
 
@@ -476,7 +479,9 @@ class PKIInstance(object):
         else:
             self.base_dir = os.path.join(pki.BASE_DIR, name)
 
-        self.conf_dir = os.path.join(self.base_dir, 'conf')
+        self.conf_dir = os.path.join(CONFIG_BASE_DIR, name)
+        self.log_dir = os.path.join(LOG_BASE_DIR, name)
+
         self.password_conf = os.path.join(self.conf_dir, 'password.conf')
         self.external_certs_conf = os.path.join(
             self.conf_dir, 'external_certs.conf')
