@@ -1044,6 +1044,7 @@ systemctl daemon-reload
 %files -n pki-base
 %defattr(-,root,root,-)
 %doc base/common/LICENSE
+%doc base/common/LICENSE.LESSER
 %doc %{_datadir}/doc/pki-base/html
 %dir %{_datadir}/pki
 %{_datadir}/pki/VERSION
@@ -1074,6 +1075,7 @@ systemctl daemon-reload
 %files -n pki-base-python3
 %defattr(-,root,root,-)
 %doc base/common/LICENSE
+%doc base/common/LICENSE.LESSER
 %exclude %{python3_sitelib}/pki/server
 %{python3_sitelib}/pki
 %endif # with_python3

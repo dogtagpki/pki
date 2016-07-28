@@ -2,17 +2,17 @@
 #     Christian Heimes <cheimes@redhat.com>
 #
 # This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; version 2 of the License.
+# it under the terms of the Lesser GNU General Public License as published by
+# the Free Software Foundation; version 3 of the License.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# GNU Lesser General Public License for more details.
 #
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+# You should have received a copy of the GNU Lesser General Public License
+#  along with this program; if not, write to the Free Software Foundation,
+# Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 # Copyright (C) 2015 Red Hat, Inc.
 # All rights reserved.
@@ -81,7 +81,7 @@ hardened by real-world deployments. It supports all aspects of certificate
 lifecycle management, including key archival, OCSP and smartcard management,
 and much more. The Dogtag Certificate System can be downloaded for free
 and set up in less than an hour.""",
-    license='GPL',
+    license='LGPLv3+',
     keywords='pki x509 cert certificate',
     url='http://pki.fedoraproject.org/',
     packages=['pki', 'pki.cli'],
@@ -93,7 +93,7 @@ and set up in less than an hour.""",
         'Operating System :: OS Independent',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3.4',
-        'License :: OSI Approved :: GNU General Public License v2 (GPLv2)',
+        'License :: OSI Approved :: GNU Lesser General Public License v3+ (LGPLv3+)',
         'Topic :: Security :: Cryptography',
     ],
 )
