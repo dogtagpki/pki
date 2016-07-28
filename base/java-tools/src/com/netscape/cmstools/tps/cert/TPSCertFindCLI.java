@@ -84,12 +84,24 @@ public class TPSCertFindCLI extends CLI {
         String filter = cmdArgs.length > 0 ? cmdArgs[0] : null;
 
         String tokenID = cmd.getOptionValue("token");
+        String string3 = cmd.getOptionValue("start");
+        String string4 = cmd.getOptionValue("size");
+        Integer start = null;
+        Integer size = null;
 
-        String s = cmd.getOptionValue("start");
-        Integer start = s == null ? null : Integer.valueOf(s);
+        try {
+            start = string3 == null ? null : Integer.valueOf(string3);
+        } catch (NumberFormatException e) {
+            System.err.println("Error: Invalid value for --start parameter: " + string3);
+            System.exit(-1);
+        }
 
-        s = cmd.getOptionValue("size");
-        Integer size = s == null ? null : Integer.valueOf(s);
+        try {
+            size = string4 == null ? null : Integer.valueOf(string4);
+        } catch (NumberFormatException e) {
+            System.err.println("Error: Invalid value for --size parameter: " + string4);
+            System.exit(-1);
+        }
 
         TPSCertCollection result = certCLI.certClient.findCerts(filter, tokenID, start, size);
 
