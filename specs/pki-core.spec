@@ -38,7 +38,7 @@
 %define jaxrs_api_jar /usr/share/java/resteasy-base/jaxrs-api.jar
 %define resteasy_lib /usr/share/java/resteasy-base
 %else
-%if 0%{?fedora} >= 25
+%if 0%{?fedora} >= 24
 %define jaxrs_api_jar /usr/share/java/jboss-jaxrs-2.0-api.jar
 %define resteasy_lib /usr/share/java/resteasy
 %else
@@ -113,7 +113,7 @@ BuildRequires:    resteasy-base-jaxrs >= 3.0.6-1
 BuildRequires:    resteasy-base-jaxrs-api >= 3.0.6-1
 BuildRequires:    resteasy-base-jackson-provider >= 3.0.6-1
 %else
-%if 0%{?fedora} >= 25
+%if 0%{?fedora} >= 24
 BuildRequires:    jboss-annotations-1.2-api
 BuildRequires:    jboss-jaxrs-2.0-api
 BuildRequires:    jboss-logging
@@ -375,7 +375,7 @@ Requires:    resteasy-base-jaxrs >= 3.0.6-1
 Requires:    resteasy-base-jaxrs-api >= 3.0.6-1
 Requires:    resteasy-base-jackson-provider >= 3.0.6-1
 %else
-%if 0%{?fedora} >= 25
+%if 0%{?fedora} >= 24
 Requires:    resteasy-atom-provider >= 3.0.17-1
 Requires:    resteasy-client >= 3.0.17-1
 Requires:    resteasy-jaxb-provider >= 3.0.17-1
@@ -856,7 +856,7 @@ ln -s %{_datadir}/pki/java-tools/KRATool.cfg %{buildroot}%{_datadir}/pki/java-to
 %if %{with server}
 
 # Customize symlinks for each platform
-%if 0%{?fedora} >= 25
+%if 0%{?fedora} >= 24
     # /usr/share/pki/lib
     rm -f %{buildroot}%{_datadir}/pki/lib/scannotation.jar
     rm -f %{buildroot}%{_datadir}/pki/lib/resteasy-jaxrs-api.jar
