@@ -32,6 +32,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.commons.codec.binary.Base64;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.CryptoManager.NicknameConflictException;
 import org.mozilla.jss.CryptoManager.NotInitializedException;
@@ -177,7 +178,15 @@ public class PKIClient {
         Element element = (Element)list.item(0);
 
         String encodedChain = element.getTextContent();
-        return Utils.base64decode(encodedChain);
+        byte[] bytes = Utils.base64decode(encodedChain);
+
+        if (verbose) {
+            System.out.println("-----BEGIN PKCS7-----");
+            System.out.print(new Base64(64).encodeToString(bytes));
+            System.out.println("-----END PKCS7-----");
+        }
+
+        return bytes;
     }
 
     public X509Certificate importCertPackage(byte[] bytes, String nickname)
