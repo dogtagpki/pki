@@ -83,7 +83,7 @@ public class ClientCertImportCLI extends CLI {
         option.setArgName("serial number");
         options.addOption(option);
 
-        option = new Option(null, "trust", true, "Trust attributes. Default: u,u,u.");
+        option = new Option(null, "trust", true, "Trust attributes.");
         option.setArgName("trust attributes");
         options.addOption(option);
     }
@@ -140,12 +140,15 @@ public class ClientCertImportCLI extends CLI {
         String pkcs12PasswordPath = cmd.getOptionValue("pkcs12-password-file");
         boolean importFromCAServer = cmd.hasOption("ca-server");
         String serialNumber = cmd.getOptionValue("serial");
-        String trustAttributes = cmd.getOptionValue("trust", "u,u,u");
+        String trustAttributes = cmd.getOptionValue("trust");
 
         // load the certificate
         if (certPath != null) {
 
             if (verbose) System.out.println("Importing certificate from " + certPath + ".");
+
+            if (trustAttributes == null)
+                trustAttributes = "u,u,u";
 
             importCert(
                     mainCLI.certDatabase.getAbsolutePath(),
@@ -157,7 +160,8 @@ public class ClientCertImportCLI extends CLI {
 
             if (verbose) System.out.println("Importing CA certificate from " + caCertPath + ".");
 
-            trustAttributes = "CT,c,";
+            if (trustAttributes == null)
+                trustAttributes = "CT,c,";
 
             importCert(
                     mainCLI.certDatabase.getAbsolutePath(),
@@ -218,7 +222,8 @@ public class ClientCertImportCLI extends CLI {
                 out.write(bytes);
             }
 
-            trustAttributes = "CT,c,";
+            if (trustAttributes == null)
+                trustAttributes = "CT,c,";
 
             importCert(
                     mainCLI.certDatabase.getAbsolutePath(),
@@ -249,6 +254,9 @@ public class ClientCertImportCLI extends CLI {
             try (PrintWriter out = new PrintWriter(new FileWriter(certFile))) {
                 out.write(encoded);
             }
+
+            if (trustAttributes == null)
+                trustAttributes = "u,u,u";
 
             importCert(
                     mainCLI.certDatabase.getAbsolutePath(),
