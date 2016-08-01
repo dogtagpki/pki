@@ -47,33 +47,6 @@ import java.util.Random;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
-import netscape.security.pkcs.PKCS10;
-import netscape.security.pkcs.PKCS10Attribute;
-import netscape.security.pkcs.PKCS10Attributes;
-import netscape.security.pkcs.PKCS7;
-import netscape.security.pkcs.PKCS9Attribute;
-import netscape.security.util.BigInt;
-import netscape.security.util.DerInputStream;
-import netscape.security.util.DerOutputStream;
-import netscape.security.util.DerValue;
-import netscape.security.util.ObjectIdentifier;
-import netscape.security.x509.AlgorithmId;
-import netscape.security.x509.CertificateAlgorithmId;
-import netscape.security.x509.CertificateChain;
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.CertificateIssuerName;
-import netscape.security.x509.CertificateSerialNumber;
-import netscape.security.x509.CertificateSubjectName;
-import netscape.security.x509.CertificateValidity;
-import netscape.security.x509.CertificateVersion;
-import netscape.security.x509.CertificateX509Key;
-import netscape.security.x509.Extensions;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X500Signer;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
-import netscape.security.x509.X509Key;
-
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.CryptoManager.NotInitializedException;
 import org.mozilla.jss.NoSuchTokenException;
@@ -131,6 +104,33 @@ import org.mozilla.jss.util.Password;
 
 import com.netscape.cmsutil.util.Cert;
 import com.netscape.cmsutil.util.Utils;
+
+import netscape.security.pkcs.PKCS10;
+import netscape.security.pkcs.PKCS10Attribute;
+import netscape.security.pkcs.PKCS10Attributes;
+import netscape.security.pkcs.PKCS7;
+import netscape.security.pkcs.PKCS9Attribute;
+import netscape.security.util.BigInt;
+import netscape.security.util.DerInputStream;
+import netscape.security.util.DerOutputStream;
+import netscape.security.util.DerValue;
+import netscape.security.util.ObjectIdentifier;
+import netscape.security.x509.AlgorithmId;
+import netscape.security.x509.CertificateAlgorithmId;
+import netscape.security.x509.CertificateChain;
+import netscape.security.x509.CertificateExtensions;
+import netscape.security.x509.CertificateIssuerName;
+import netscape.security.x509.CertificateSerialNumber;
+import netscape.security.x509.CertificateSubjectName;
+import netscape.security.x509.CertificateValidity;
+import netscape.security.x509.CertificateVersion;
+import netscape.security.x509.CertificateX509Key;
+import netscape.security.x509.Extensions;
+import netscape.security.x509.X500Name;
+import netscape.security.x509.X500Signer;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509CertInfo;
+import netscape.security.x509.X509Key;
 
 @SuppressWarnings("serial")
 public class CryptoUtil {
@@ -1164,10 +1164,16 @@ public class CryptoUtil {
         if (certchains != null) {
             cert = certchains[certchains.length - 1];
         }
+
+        // set trust flags to CT,C,C
         InternalCertificate icert = (InternalCertificate) cert;
         icert.setSSLTrust(InternalCertificate.TRUSTED_CA
                                     | InternalCertificate.TRUSTED_CLIENT_CA
                                     | InternalCertificate.VALID_CA);
+        icert.setEmailTrust(InternalCertificate.TRUSTED_CA
+                | InternalCertificate.VALID_CA);
+        icert.setObjectSigningTrust(InternalCertificate.TRUSTED_CA
+                | InternalCertificate.VALID_CA);
     }
 
     public static SEQUENCE parseCRMFMsgs(byte cert_request[])

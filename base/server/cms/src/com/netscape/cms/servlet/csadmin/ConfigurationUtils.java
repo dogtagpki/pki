@@ -834,7 +834,8 @@ public class ConfigurationUtils {
             BadPaddingException, NotInitializedException, NicknameConflictException, UserCertConflictException,
             NoSuchItemOnTokenException, InvalidBERException, IOException {
 
-        // TODO: refactor into a PKCS #12 utility class
+        // TODO: The PKCS #12 file is already imported in security_database.py.
+        // This method should be removed.
 
         byte b[] = new byte[1000000];
         FileInputStream fis = new FileInputStream(p12File);
@@ -1109,9 +1110,13 @@ public class ConfigurationUtils {
                 InternalCertificate icert = (InternalCertificate) xcert;
 
                 if (isCASigningCert) {
-                    // we need to change the trust attribute to CT
+                    // set trust flags to CT,C,C
                     icert.setSSLTrust(InternalCertificate.TRUSTED_CA
                             | InternalCertificate.TRUSTED_CLIENT_CA
+                            | InternalCertificate.VALID_CA);
+                    icert.setEmailTrust(InternalCertificate.TRUSTED_CA
+                            | InternalCertificate.VALID_CA);
+                    icert.setObjectSigningTrust(InternalCertificate.TRUSTED_CA
                             | InternalCertificate.VALID_CA);
 
                 } else if (isAuditSigningCert(name)) {
