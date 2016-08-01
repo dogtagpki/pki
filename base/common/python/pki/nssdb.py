@@ -398,6 +398,16 @@ class NSSDatabase(object):
         if rc:
             raise Exception('Failed to generate self-signed CA certificate. RC: %d' % rc)
 
+    def show_certs(self):
+
+        cmd = [
+            'certutil',
+            '-L',
+            '-d', self.directory
+        ]
+
+        subprocess.check_call(cmd)
+
     def get_cert(self, nickname, output_format='pem'):
 
         if output_format == 'pem':

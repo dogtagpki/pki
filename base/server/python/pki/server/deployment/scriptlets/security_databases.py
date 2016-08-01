@@ -19,9 +19,11 @@
 #
 
 from __future__ import absolute_import
+from __future__ import print_function
 
 import os
 import pki.nssdb
+import pki.pkcs12
 import pki.server
 
 # PKI Deployment Imports
@@ -104,9 +106,12 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 directory=deployer.mdict['pki_database_path'],
                 password_file=deployer.mdict['pki_shared_pfile'])
 
-            nssdb.import_pkcs12(
-                pkcs12_file=pki_server_pkcs12_path,
-                pkcs12_password=pki_server_pkcs12_password)
+            try:
+                nssdb.import_pkcs12(
+                    pkcs12_file=pki_server_pkcs12_path,
+                    pkcs12_password=pki_server_pkcs12_password)
+            finally:
+                nssdb.close()
 
             # update external CA file (if needed)
             external_certs_path = deployer.mdict['pki_server_external_certs_path']
@@ -127,10 +132,33 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 directory=deployer.mdict['pki_database_path'],
                 password_file=deployer.mdict['pki_shared_pfile'])
 
-            nssdb.import_pkcs12(
-                pkcs12_file=pki_clone_pkcs12_path,
-                pkcs12_password=pki_clone_pkcs12_password,
-                no_user_certs=True)
+            try:
+                print('Importing certificates from %s:' % pki_clone_pkcs12_path)
+
+                # The PKCS12 class requires an NSS database to run. For simplicity
+                # it uses the NSS database that has just been created.
+                pkcs12 = pki.pkcs12.PKCS12(
+                    path=pki_clone_pkcs12_path,
+                    password=pki_clone_pkcs12_password,
+                    nssdb=nssdb)
+
+                try:
+                    pkcs12.show_certs()
+                finally:
+                    pkcs12.close()
+
+                # Import certificates
+                nssdb.import_pkcs12(
+                    pkcs12_file=pki_clone_pkcs12_path,
+                    pkcs12_password=pki_clone_pkcs12_password,
+                    no_user_certs=True)
+
+                print('Imported certificates in %s:' % deployer.mdict['pki_database_path'])
+
+                nssdb.show_certs()
+
+            finally:
+                nssdb.close()
 
         if len(deployer.instance.tomcat_instance_subsystems()) < 2:
 
