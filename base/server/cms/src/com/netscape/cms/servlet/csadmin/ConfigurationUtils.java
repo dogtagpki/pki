@@ -58,34 +58,6 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.xml.parsers.ParserConfigurationException;
 
-import netscape.ldap.LDAPAttribute;
-import netscape.ldap.LDAPAttributeSet;
-import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPDN;
-import netscape.ldap.LDAPEntry;
-import netscape.ldap.LDAPException;
-import netscape.ldap.LDAPModification;
-import netscape.ldap.LDAPSearchConstraints;
-import netscape.ldap.LDAPSearchResults;
-import netscape.ldap.LDAPv3;
-import netscape.security.pkcs.ContentInfo;
-import netscape.security.pkcs.PKCS10;
-import netscape.security.pkcs.PKCS12;
-import netscape.security.pkcs.PKCS12Util;
-import netscape.security.pkcs.PKCS7;
-import netscape.security.pkcs.SignerInfo;
-import netscape.security.util.DerOutputStream;
-import netscape.security.util.ObjectIdentifier;
-import netscape.security.x509.AlgorithmId;
-import netscape.security.x509.BasicConstraintsExtension;
-import netscape.security.x509.CertificateChain;
-import netscape.security.x509.Extension;
-import netscape.security.x509.Extensions;
-import netscape.security.x509.KeyUsageExtension;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509Key;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.velocity.context.Context;
 import org.mozilla.jss.CryptoManager;
@@ -131,6 +103,7 @@ import org.mozilla.jss.pkix.primitive.Attribute;
 import org.mozilla.jss.pkix.primitive.EncryptedPrivateKeyInfo;
 import org.mozilla.jss.pkix.primitive.PrivateKeyInfo;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
+import org.mozilla.jss.ssl.SSLCertificateApprovalCallback.ValidityStatus;
 import org.mozilla.jss.util.IncorrectPasswordException;
 import org.mozilla.jss.util.Password;
 import org.w3c.dom.Document;
@@ -180,6 +153,34 @@ import com.netscape.cmsutil.ldap.LDAPUtil;
 import com.netscape.cmsutil.util.Utils;
 import com.netscape.cmsutil.xml.XMLObject;
 
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPAttributeSet;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPDN;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPModification;
+import netscape.ldap.LDAPSearchConstraints;
+import netscape.ldap.LDAPSearchResults;
+import netscape.ldap.LDAPv3;
+import netscape.security.pkcs.ContentInfo;
+import netscape.security.pkcs.PKCS10;
+import netscape.security.pkcs.PKCS12;
+import netscape.security.pkcs.PKCS12Util;
+import netscape.security.pkcs.PKCS7;
+import netscape.security.pkcs.SignerInfo;
+import netscape.security.util.DerOutputStream;
+import netscape.security.util.ObjectIdentifier;
+import netscape.security.x509.AlgorithmId;
+import netscape.security.x509.BasicConstraintsExtension;
+import netscape.security.x509.CertificateChain;
+import netscape.security.x509.Extension;
+import netscape.security.x509.Extensions;
+import netscape.security.x509.KeyUsageExtension;
+import netscape.security.x509.X500Name;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509Key;
+
 /**
  * Utility class for functions to be used by the RESTful installer.
  *
@@ -195,6 +196,8 @@ public class ConfigurationUtils {
     public static final BigInteger BIG_ZERO = new BigInteger("0");
     public static final Long MINUS_ONE = Long.valueOf(-1);
     public static final String DBUSER = "pkidbuser";
+
+    public static ConfigCertApprovalCallback certApprovalCallback = new ConfigCertApprovalCallback();
 
     public static boolean loginToken(CryptoToken token, String tokPwd) throws TokenException,
             IncorrectPasswordException {
@@ -229,6 +232,7 @@ public class ConfigurationUtils {
 
         CMS.debug("ConfigurationUtils: GET " + config.getServerURI() + path);
         PKIConnection connection = new PKIConnection(config);
+        if (certApprovalCallback == null) certApprovalCallback = ConfigurationUtils.certApprovalCallback;
         connection.setCallback(certApprovalCallback);
         return connection.get(path);
     }
@@ -245,6 +249,7 @@ public class ConfigurationUtils {
 
         CMS.debug("ConfigurationUtils: POST " + config.getServerURI() + path);
         PKIConnection connection = new PKIConnection(config);
+        if (certApprovalCallback == null) certApprovalCallback = ConfigurationUtils.certApprovalCallback;
         connection.setCallback(certApprovalCallback);
         return connection.post(path, content);
     }
@@ -256,6 +261,8 @@ public class ConfigurationUtils {
 
         IConfigStore cs = CMS.getConfigStore();
         ConfigCertApprovalCallback certApprovalCallback = new ConfigCertApprovalCallback();
+        // Ignore untrusted issuer to get cert chain.
+        certApprovalCallback.ignoreError(ValidityStatus.UNTRUSTED_ISSUER);
         String c = get(host, port, true, serverPath, null, certApprovalCallback);
 
         if (c != null) {
