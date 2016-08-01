@@ -1,0 +1,56 @@
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH BtoA 1 "July 20, 2016" "version 10.3" "PKI Binary to ASCII Conversion Tool" Dogtag Team
+.\" Please adjust this date whenever revising the man page.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for man page specific macros, see man(7)
+.SH NAME
+BtoA  \- Convert binary base-64 encoded data to ASCII base-64 encoded data.
+
+.SH SYNOPSIS
+.PP
+\fBBtoA <input_file> <output_file>\fP
+
+.SH DESCRIPTION
+.PP
+The \fBBtoA\fP command provides a command-line utility used to convert binary base-64 encoded data to ASCII base-64 encoded data.
+
+.SH OPTIONS
+.PP
+The following parameters are mandatory:
+.TP
+.B <input_file>
+Specifies the path to the file which contains the base-64 encoded binary data.
+
+.TP
+.B <output_file>
+Specifies the path to the file where the utility should write the ASCII output.
+
+.SH EXAMPLES
+.PP
+This example command takes the base-64 binary data in the \fBbinary_data.der\fP file and writes the ASCII equivalent of the data to the \fBascii_data.pem\fP file:
+.IP
+.nf
+BtoA binary_data.der ascii_data.pem
+.if
+
+.SH AUTHORS
+Matthew Harmsen <mharmsen@redhat.com>.
+
+.SH COPYRIGHT
+Copyright (c) 2016 Red Hat, Inc. This is licensed under the GNU General Public
+License, version 2 (GPLv2). A copy of this license is available at
+http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
+
+.SH SEE ALSO
+.BR AtoB(1), pki(1)
