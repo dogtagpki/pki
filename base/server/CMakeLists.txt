@@ -45,7 +45,7 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/lib/java/jss4.jar common/lib/jss4.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/share/java/ldapjdk.jar common/lib/ldapjdk.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/lib/java/nuxwdog.jar common/lib/nuxwdog.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/share/java/pki/pki-tomcat.jar common/lib/pki-tomcat.jar
+    COMMAND /usr/bin/ln -sf /usr/share/java/pki/pki-tomcat.jar ${CMAKE_CURRENT_BINARY_DIR}/common/lib/pki-tomcat.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${RESTEASY_LIB}/resteasy-atom-provider.jar common/lib/resteasy-atom-provider.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${RESTEASY_LIB}/resteasy-client.jar common/lib/resteasy-client.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${RESTEASY_LIB}/resteasy-jackson-provider.jar common/lib/resteasy-jackson-provider.jar
@@ -53,7 +53,7 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${RESTEASY_LIB}/jaxrs-api.jar common/lib/resteasy-jaxrs-api.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${RESTEASY_LIB}/resteasy-jaxrs.jar common/lib/resteasy-jaxrs.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/share/java/scannotation.jar common/lib/scannotation.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/lib/java/symkey.jar common/lib/symkey.jar
+    COMMAND /usr/bin/ln -sf /usr/lib/java/symkey.jar ${CMAKE_CURRENT_BINARY_DIR}/common/lib/symkey.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/share/java/tomcatjss.jar common/lib/tomcatjss.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/share/java/velocity.jar common/lib/velocity.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/share/java/xerces-j2.jar common/lib/xerces-j2.jar

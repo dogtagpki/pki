@@ -35,10 +35,10 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/share/java/jaxb-api.jar lib/jaxb-api.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/lib/java/jss4.jar lib/jss4.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/share/java/ldapjdk.jar lib/ldapjdk.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/share/java/pki/pki-certsrv.jar lib/pki-certsrv.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/share/java/pki/pki-cmsutil.jar lib/pki-cmsutil.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/share/java/pki/pki-nsutil.jar lib/pki-nsutil.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/share/java/pki/pki-tools.jar lib/pki-tools.jar
+    COMMAND /usr/bin/ln -sf /usr/share/java/pki/pki-certsrv.jar ${CMAKE_CURRENT_BINARY_DIR}/lib/pki-certsrv.jar
+    COMMAND /usr/bin/ln -sf /usr/share/java/pki/pki-cmsutil.jar ${CMAKE_CURRENT_BINARY_DIR}/lib/pki-cmsutil.jar
+    COMMAND /usr/bin/ln -sf /usr/share/java/pki/pki-nsutil.jar ${CMAKE_CURRENT_BINARY_DIR}/lib/pki-nsutil.jar
+    COMMAND /usr/bin/ln -sf /usr/share/java/pki/pki-tools.jar ${CMAKE_CURRENT_BINARY_DIR}/lib/pki-tools.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${RESTEASY_LIB}/resteasy-atom-provider.jar lib/resteasy-atom-provider.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${RESTEASY_LIB}/resteasy-client.jar lib/resteasy-client.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${RESTEASY_LIB}/resteasy-jackson-provider.jar lib/resteasy-jackson-provider.jar
