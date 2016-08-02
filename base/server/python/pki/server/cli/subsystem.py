@@ -1,5 +1,6 @@
 # Authors:
 #     Endi S. Dewata <edewata@redhat.com>
+#     Abhijeet Kasurde <akasurde@redhat.com>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -14,7 +15,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
-# Copyright (C) 2015 Red Hat, Inc.
+# Copyright (C) 2015-2016 Red Hat, Inc.
 # All rights reserved.
 #
 
@@ -654,14 +655,22 @@ class SubsystemCertExportCLI(pki.cli.CLI):
             sys.exit(1)
 
         if cert_file:
+            cert_data = subsystem_cert.get('data', None)
+            if cert_data is None:
+                print("ERROR: Unable to find certificate data for %s" % cert_id)
+                sys.exit(1)
 
-            cert_data = pki.nssdb.convert_cert(subsystem_cert['data'], 'base64', 'pem')
+            cert_data = pki.nssdb.convert_cert(cert_data, 'base64', 'pem')
             with open(cert_file, 'w') as f:
                 f.write(cert_data)
 
         if csr_file:
+            cert_request = subsystem_cert.get('request', None)
+            if cert_request is None:
+                print("ERROR: Unable to find certificate request for %s" % cert_id)
+                sys.exit(1)
 
-            csr_data = pki.nssdb.convert_csr(subsystem_cert['request'], 'base64', 'pem')
+            csr_data = pki.nssdb.convert_csr(cert_request, 'base64', 'pem')
             with open(csr_file, 'w') as f:
                 f.write(csr_data)
 
