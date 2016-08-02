@@ -941,8 +941,11 @@ class PKIConfigParser:
                 "tomcat"
             self.mdict['PKI_WEBAPPS_NAME_SLOT'] = \
                 "webapps"
-            self.mdict['SERVER_KEYGEN_SLOT'] = \
-                self.mdict['pki_enable_server_side_keygen']
+
+            if self.mdict['pki_subsystem'] == "TPS":
+                self.mdict['SERVER_KEYGEN_SLOT'] = \
+                    self.mdict['pki_enable_server_side_keygen']
+
             self.mdict['TOMCAT_CFG_SLOT'] = \
                 self.mdict['pki_target_tomcat_conf']
             self.mdict['TOMCAT_INSTANCE_COMMON_LIB_SLOT'] = \
