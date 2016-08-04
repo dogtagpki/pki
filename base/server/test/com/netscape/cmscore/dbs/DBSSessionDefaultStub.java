@@ -1,5 +1,7 @@
 package com.netscape.cmscore.dbs;
 
+import netscape.ldap.LDAPSearchResults;
+
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.dbs.EDBException;
@@ -8,8 +10,6 @@ import com.netscape.certsrv.dbs.IDBSSession;
 import com.netscape.certsrv.dbs.IDBSearchResults;
 import com.netscape.certsrv.dbs.IDBVirtualList;
 import com.netscape.certsrv.dbs.ModificationSet;
-
-import netscape.ldap.LDAPSearchResults;
 
 /**
  * A default stub ojbect for tests to extend.
@@ -79,6 +79,17 @@ public class DBSSessionDefaultStub implements IDBSSession {
 
     public <T> IDBVirtualList<T> createVirtualList(String base, String filter, String attrs[], String startFrom,
             String sortKey, int pageSize) throws EBaseException {
+        return null;
+    }
+
+    @Override
+    public IDBSearchResults search(String base, String filter, int maxSize, int timeLimit, String sortAttribute)
+            throws EBaseException {
+        return null;
+    }
+
+    @Override
+    public IDBSearchResults search(String base, String filter, int maxSize, String sortAttribute) throws EBaseException {
         return null;
     }
 }

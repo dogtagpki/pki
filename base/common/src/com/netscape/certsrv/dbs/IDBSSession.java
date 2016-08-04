@@ -17,10 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.dbs;
 
+import netscape.ldap.LDAPSearchResults;
+
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ISubsystem;
-
-import netscape.ldap.LDAPSearchResults;
 
 /**
  * An interface represents the database session. Operations
@@ -132,12 +132,43 @@ public interface IDBSSession extends AutoCloseable {
      * @param base starting point of the search
      * @param filter search filter
      * @param maxSize max number of entries
+     * @param sortAttribute Field to sort the records on
+     * @return search results
+     * @exception EBaseException failed to search
+     */
+    public IDBSearchResults search(String base, String filter, int maxSize,String sortAttribute)
+            throws EBaseException;
+
+
+    /**
+     * Searchs for a list of objects that match the
+     * filter.
+     *
+     * @param base starting point of the search
+     * @param filter search filter
+     * @param maxSize max number of entries
      * @param timeLimit timeout limit
      * @return search results
      * @exception EBaseException failed to search
      */
     public IDBSearchResults search(String base, String filter, int maxSize,
             int timeLimit) throws EBaseException;
+
+    /**
+     * Searchs for a list of objects that match the
+     * filter.
+     *
+     * @param base starting point of the search
+     * @param filter search filter
+     * @param maxSize max number of entries
+     * @param timeLimit timeout limit
+     * @param sortAttribute Field to sort the records on
+     * @return search results
+     * @exception EBaseException failed to search
+     */
+    public IDBSearchResults search(String base, String filter, int maxSize,
+            int timeLimit, String sortAttribute) throws EBaseException;
+
 
     /**
      * Retrieves a list of object that satifies the given

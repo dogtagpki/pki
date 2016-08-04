@@ -608,7 +608,9 @@ public class SrchCerts extends CMSServlet {
             }
             CMS.debug("Start searching ... "
                     + "filter=" + filter + " maxreturns=" + maxResults + " timelimit=" + timeLimit);
-            Enumeration<ICertRecord> e = mCertDB.searchCertificates(filter, maxResults, timeLimit);
+
+            // Do the search with the optional sortAtribute field, giving an assured list of certs sorted by serialno
+            Enumeration<ICertRecord> e = mCertDB.searchCertificates(filter, maxResults, timeLimit, "serialno");
 
             int count = 0;
 

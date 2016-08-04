@@ -1124,7 +1124,7 @@ public class CertificateRepository extends Repository
         ModificationSet mods = new ModificationSet();
         if (isAlreadyOnHold) {
             mods.add(CertRecord.ATTR_REVO_INFO, Modification.MOD_REPLACE, info);
-        } else { 
+        } else {
             mods.add(CertRecord.ATTR_REVO_INFO, Modification.MOD_ADD, info);
         }
         SessionContext ctx = SessionContext.getContext();
@@ -1190,6 +1190,21 @@ public class CertificateRepository extends Repository
         modifyCertificateRecord(id, mods);
     }
 
+    public Enumeration<Object> searchCertificates(String filter, int maxSize,String sortAttribute)
+            throws EBaseException {
+        IDBSSession s = mDBService.createSession();
+        Enumeration<Object> e = null;
+
+        CMS.debug("searchCertificates filter " + filter + " maxSize " + maxSize);
+        try {
+            e = s.search(getDN(), filter, maxSize,sortAttribute);
+        } finally {
+            if (s != null)
+                s.close();
+        }
+        return e;
+    }
+
     public Enumeration<Object> searchCertificates(String filter, int maxSize)
             throws EBaseException {
         IDBSSession s = mDBService.createSession();
@@ -1222,6 +1237,26 @@ public class CertificateRepository extends Repository
         }
         return v.elements();
     }
+
+    public Enumeration<ICertRecord> searchCertificates(String filter, int maxSize,
+            int timeLimit,String sortAttribute) throws EBaseException {
+        IDBSSession s = mDBService.createSession();
+        Vector<ICertRecord> v = new Vector<ICertRecord>();
+
+        CMS.debug("searchCertificateswith time limit filter " + filter);
+        try {
+            IDBSearchResults sr = s.search(getDN(), filter, maxSize, timeLimit,sortAttribute);
+            while (sr.hasMoreElements()) {
+                v.add((ICertRecord) sr.nextElement());
+            }
+        } finally {
+            if (s != null)
+                s.close();
+        }
+        return v.elements();
+
+    }
+
 
     /**
      * Returns a list of X509CertImp that satisfies the filter.

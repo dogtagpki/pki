@@ -19,6 +19,20 @@ package com.netscape.cmscore.dbs;
 
 import java.util.Enumeration;
 
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPAttributeSet;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPModification;
+import netscape.ldap.LDAPModificationSet;
+import netscape.ldap.LDAPSearchConstraints;
+import netscape.ldap.LDAPSearchResults;
+import netscape.ldap.LDAPSortKey;
+import netscape.ldap.LDAPv2;
+import netscape.ldap.controls.LDAPPersistSearchControl;
+import netscape.ldap.controls.LDAPSortControl;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ISubsystem;
@@ -33,18 +47,6 @@ import com.netscape.certsrv.dbs.IDBVirtualList;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.logging.ILogger;
-
-import netscape.ldap.LDAPAttribute;
-import netscape.ldap.LDAPAttributeSet;
-import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPEntry;
-import netscape.ldap.LDAPException;
-import netscape.ldap.LDAPModification;
-import netscape.ldap.LDAPModificationSet;
-import netscape.ldap.LDAPSearchConstraints;
-import netscape.ldap.LDAPSearchResults;
-import netscape.ldap.LDAPv2;
-import netscape.ldap.controls.LDAPPersistSearchControl;
 
 /**
  * A class represents the database session. Operations
@@ -295,6 +297,40 @@ public class DBSSession implements IDBSSession {
     }
 
     @SuppressWarnings("unchecked")
+    public IDBSearchResults search(String base, String filter, int maxSize,String sortAttribute)
+            throws EBaseException {
+        try {
+            String ldapattrs[] = null;
+            String ldapfilter =
+                    mDBSystem.getRegistry().getFilter(filter);
+
+            LDAPSearchConstraints cons = new LDAPSearchConstraints();
+
+            cons.setMaxResults(maxSize);
+
+            if(sortAttribute != null) {
+                LDAPSortKey sortOrder = new LDAPSortKey( sortAttribute );
+                LDAPSortControl sortCtrl = new LDAPSortControl(sortOrder,true);
+                cons.setServerControls( sortCtrl );
+            }
+
+            LDAPSearchResults res = mConn.search(base,
+                    LDAPv2.SCOPE_ONE, ldapfilter, ldapattrs, false, cons);
+
+            return new DBSearchResults(mDBSystem.getRegistry(),
+                    res);
+        } catch (LDAPException e) {
+            if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE)
+                throw new EDBNotAvailException(
+                        CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_UNAVAILABLE"));
+            // XXX error handling, should not raise exception if
+            // entry not found
+            throw new EDBException(CMS.getUserMessage("CMS_DBS_LDAP_OP_FAILURE",
+                        e.toString()));
+        }
+    }
+
+    @SuppressWarnings("unchecked")
     public IDBSearchResults search(String base, String filter, int maxSize, int timeLimit)
             throws EBaseException {
         try {
@@ -321,6 +357,43 @@ public class DBSSession implements IDBSSession {
             throw new EDBException(CMS.getUserMessage("CMS_DBS_LDAP_OP_FAILURE",
                         e.toString()));
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    public IDBSearchResults search(String base, String filter, int maxSize,
+            int timeLimit, String sortAttribute) throws EBaseException {
+
+        try {
+            String ldapattrs[] = null;
+            String ldapfilter =
+                    mDBSystem.getRegistry().getFilter(filter);
+
+            LDAPSearchConstraints cons = new LDAPSearchConstraints();
+
+            cons.setMaxResults(maxSize);
+            cons.setServerTimeLimit(timeLimit);
+
+            if(sortAttribute != null) {
+                LDAPSortKey sortOrder = new LDAPSortKey( sortAttribute );
+                LDAPSortControl sortCtrl = new LDAPSortControl(sortOrder,true);
+                cons.setServerControls( sortCtrl );
+            }
+
+            LDAPSearchResults res = mConn.search(base,
+                    LDAPv2.SCOPE_ONE, ldapfilter, ldapattrs, false, cons);
+
+            return new DBSearchResults(mDBSystem.getRegistry(),
+                    res);
+        } catch (LDAPException e) {
+            if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE)
+                throw new EDBNotAvailException(
+                        CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_UNAVAILABLE"));
+            // XXX error handling, should not raise exception if
+            // entry not found
+            throw new EDBException(CMS.getUserMessage("CMS_DBS_LDAP_OP_FAILURE",
+                        e.toString()));
+        }
+
     }
 
     /**

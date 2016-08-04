@@ -239,6 +239,33 @@ public interface ICertificateRepository extends IRepository {
      * the filter.
      *
      * @param filter search filter
+     * @param maxSize max size to return
+     * @param timeLimit timeout value
+     * @param sortAttribute Attribute of ICertRecord to sort the results
+     * @return a list of certificates
+     * @exception EBaseException failed to search
+     */
+    public Enumeration<ICertRecord> searchCertificates(String filter, int maxSize,
+            int timeLimit,String sortAttribute) throws EBaseException;
+
+    /**
+     * Finds a list of certificate records that satisifies
+     * the filter.
+     *
+     * @param filter search filter
+     * @param maxSize max size to return
+     * @param sortAttribute Attribute of ICertRecord to sort the results
+     * @return a list of certificates
+     * @exception EBaseException failed to search
+     */
+    public Enumeration<Object> searchCertificates(String filter, int maxSize,
+            String sortAttribute) throws EBaseException;
+
+    /**
+     * Finds a list of certificate records that satisifies
+     * the filter.
+     *
+     * @param filter search filter
      * @param attrs selected attribute
      * @param pageSize page size
      * @return a list of certificates
