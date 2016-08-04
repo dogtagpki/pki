@@ -946,6 +946,10 @@ class PKIConfigParser:
                 self.mdict['SERVER_KEYGEN_SLOT'] = \
                     self.mdict['pki_enable_server_side_keygen']
 
+            if self.mdict['pki_subsystem'] == "CA":
+                self.mdict['MASTER_CRL_ENABLE_SLOT'] = \
+                    self.mdict['pki_master_crl_enable']
+
             self.mdict['TOMCAT_CFG_SLOT'] = \
                 self.mdict['pki_target_tomcat_conf']
             self.mdict['TOMCAT_INSTANCE_COMMON_LIB_SLOT'] = \
