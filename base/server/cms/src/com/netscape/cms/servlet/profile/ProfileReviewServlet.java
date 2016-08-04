@@ -431,7 +431,7 @@ public class ProfileReviewServlet extends ProfileServlet {
                 defset.set(ARG_DEF_SYNTAX, defSyntax);
                 defset.set(ARG_DEF_CONSTRAINT, defConstraint);
                 defset.set(ARG_DEF_NAME, defValueName);
-                defset.set(ARG_DEF_VAL, defValue);
+                defset.set(ARG_DEF_VAL, (defValue!=null)? defValue:"");
                 deflist.add(defset);
             }
         }
