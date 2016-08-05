@@ -156,6 +156,11 @@ BuildRequires:    python3-flake8
 BuildRequires:    python-nss
 BuildRequires:    python-requests
 BuildRequires:    python-six
+%if 0%{?rhel}
+BuildRequires:    python-urllib3
+%else
+BuildRequires:    python2-urllib3
+%endif
 BuildRequires:    libselinux-python
 BuildRequires:    policycoreutils-python
 %if 0%{?fedora} >= 23
@@ -182,6 +187,7 @@ BuildRequires:  python3-devel
 BuildRequires:  python3-nss
 BuildRequires:  python3-requests
 BuildRequires:  python3-six
+BuildRequires:  python3-urllib3
 %endif  # with_python3
 BuildRequires:  python-devel
 
@@ -338,6 +344,11 @@ Conflicts:        freeipa-server < 3.0.0
 Requires:         python-nss
 Requires:         python-requests >= 1.1.0-3
 Requires:         python-six
+%if 0%{?rhel}
+Requires:         python-urllib3
+%else
+Requires:         python2-urllib3
+%endif
 
 %description -n   pki-base
 The PKI Framework contains the common and client libraries and utilities
@@ -424,6 +435,7 @@ Requires:         pki-base = %{version}-%{release}
 Requires:         python3-nss
 Requires:         python3-requests
 Requires:         python3-six
+Requires:         python3-urllib3
 
 %description -n   pki-base-python3
 This package contains PKI client library for Python 3.
