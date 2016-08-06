@@ -867,29 +867,17 @@ ln -s %{_datadir}/pki/java-tools/KRATool.cfg %{buildroot}%{_datadir}/pki/java-to
 # Create compatibility symlink for DRMTool.1.gz -> KRATool.1.gz
 ln -s %{_mandir}/man1/KRATool.1.gz %{buildroot}%{_mandir}/man1/DRMTool.1.gz
 
-%if %{with server}
-
-# Customize symlinks for each platform
+# Customize client library links in /usr/share/pki/lib
 %if 0%{?fedora} >= 24
-    # /usr/share/pki/lib
     rm -f %{buildroot}%{_datadir}/pki/lib/scannotation.jar
     rm -f %{buildroot}%{_datadir}/pki/lib/resteasy-jaxrs-api.jar
     rm -f %{buildroot}%{_datadir}/pki/lib/resteasy-jaxrs-jandex.jar
     ln -sf %{jaxrs_api_jar} %{buildroot}%{_datadir}/pki/lib/jboss-jaxrs-2.0-api.jar
     ln -sf /usr/share/java/jboss-logging/jboss-logging.jar %{buildroot}%{_datadir}/pki/lib/jboss-logging.jar
     ln -sf /usr/share/java/jboss-annotations-1.2-api/jboss-annotations-api_1.2_spec.jar %{buildroot}%{_datadir}/pki/lib/jboss-annotations-api_1.2_spec.jar
-
-    # /usr/share/pki/server/common/lib
-    rm -f %{buildroot}%{_datadir}/pki/server/common/lib/scannotation.jar
-    rm -f %{buildroot}%{_datadir}/pki/server/common/lib/resteasy-jaxrs-api.jar
-    ln -sf %{jaxrs_api_jar} %{buildroot}%{_datadir}/pki/server/common/lib/jboss-jaxrs-2.0-api.jar
-    ln -sf /usr/share/java/jboss-logging/jboss-logging.jar %{buildroot}%{_datadir}/pki/server/common/lib/jboss-logging.jar
-    ln -sf /usr/share/java/jboss-annotations-1.2-api/jboss-annotations-api_1.2_spec.jar %{buildroot}%{_datadir}/pki/server/common/lib/jboss-annotations-api_1.2_spec.jar
-
 %else
 
 if [ -f /etc/debian_version ]; then
-    # /usr/share/pki/lib
     ln -sf /usr/share/java/httpclient.jar %{buildroot}%{_datadir}/pki/lib/httpclient.jar
     ln -sf /usr/share/java/httpcore.jar %{buildroot}%{_datadir}/pki/lib/httpcore.jar
     ln -sf /usr/share/java/jackson-core-asl.jar %{buildroot}%{_datadir}/pki/lib/jackson-core-asl.jar
@@ -899,8 +887,23 @@ if [ -f /etc/debian_version ]; then
     ln -sf /usr/share/java/jackson-smile.jar %{buildroot}%{_datadir}/pki/lib/jackson-smile.jar
     ln -sf /usr/share/java/jackson-xc.jar %{buildroot}%{_datadir}/pki/lib/jackson-xc.jar
     ln -sf /usr/share/java/jss4.jar %{buildroot}%{_datadir}/pki/lib/jss4.jar
+fi
 
-    # /usr/share/pki/server/common/lib
+%endif
+
+%if %{with server}
+
+# Customize server library links in /usr/share/pki/server/common/lib
+%if 0%{?fedora} >= 24
+    rm -f %{buildroot}%{_datadir}/pki/server/common/lib/scannotation.jar
+    rm -f %{buildroot}%{_datadir}/pki/server/common/lib/resteasy-jaxrs-api.jar
+    ln -sf %{jaxrs_api_jar} %{buildroot}%{_datadir}/pki/server/common/lib/jboss-jaxrs-2.0-api.jar
+    ln -sf /usr/share/java/jboss-logging/jboss-logging.jar %{buildroot}%{_datadir}/pki/server/common/lib/jboss-logging.jar
+    ln -sf /usr/share/java/jboss-annotations-1.2-api/jboss-annotations-api_1.2_spec.jar %{buildroot}%{_datadir}/pki/server/common/lib/jboss-annotations-api_1.2_spec.jar
+
+%else
+
+if [ -f /etc/debian_version ]; then
     ln -sf /usr/share/java/commons-collections3.jar %{buildroot}%{_datadir}/pki/server/common/lib/commons-collections.jar
     ln -sf /usr/share/java/httpclient.jar %{buildroot}%{_datadir}/pki/server/common/lib/httpclient.jar
     ln -sf /usr/share/java/httpcore.jar %{buildroot}%{_datadir}/pki/server/common/lib/httpcore.jar
