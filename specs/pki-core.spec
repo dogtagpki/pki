@@ -867,6 +867,12 @@ ln -s %{_datadir}/pki/java-tools/KRATool.cfg %{buildroot}%{_datadir}/pki/java-to
 # Create compatibility symlink for DRMTool.1.gz -> KRATool.1.gz
 ln -s %{_mandir}/man1/KRATool.1.gz %{buildroot}%{_mandir}/man1/DRMTool.1.gz
 
+# Customize system upgrade scripts in /usr/share/pki/upgrade
+%if 0%{?rhel}
+/bin/rm -rf %{buildroot}%{_datadir}/pki/upgrade/10.3.4
+/bin/rm -rf %{buildroot}%{_datadir}/pki/upgrade/10.3.5
+%endif
+
 # Customize client library links in /usr/share/pki/lib
 %if 0%{?fedora} >= 24
     rm -f %{buildroot}%{_datadir}/pki/lib/scannotation.jar
@@ -892,6 +898,14 @@ fi
 %endif
 
 %if %{with server}
+
+# Customize server upgrade scripts in /usr/share/pki/server/upgrade
+%if 0%{?rhel}
+mv %{buildroot}%{_datadir}/pki/server/upgrade/10.3.5/01-FixServerLibrary %{buildroot}%{_datadir}/pki/server/upgrade/10.3.3/02-FixServerLibrary
+mv %{buildroot}%{_datadir}/pki/server/upgrade/10.3.5/02-FixSELinuxContexts %{buildroot}%{_datadir}/pki/server/upgrade/10.3.3/03-FixSELinuxContexts
+/bin/rm -rf %{buildroot}%{_datadir}/pki/server/upgrade/10.3.4
+/bin/rm -rf %{buildroot}%{_datadir}/pki/server/upgrade/10.3.5
+%endif
 
 # Customize server library links in /usr/share/pki/server/common/lib
 %if 0%{?fedora} >= 24
