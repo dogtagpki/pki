@@ -981,6 +981,8 @@ if (test("/etc/sysconfig/pki/ca") or
 end
 %endif
 
+%if %{with server}
+
 %pre -n pki-server
 getent group %{pki_groupname} >/dev/null || groupadd -f -g %{pki_gid} -r %{pki_groupname}
 if ! getent passwd %{pki_username} >/dev/null ; then
@@ -991,6 +993,8 @@ if ! getent passwd %{pki_username} >/dev/null ; then
     fi
 fi
 exit 0
+
+%endif # %{with server}
 
 %post -n pki-base
 
