@@ -527,8 +527,24 @@ def main(argv):
 
             scriptlet.spawn(deployer)
 
-    # pylint: disable=W0703
-    except Exception as e:
+    except requests.HTTPError as e:
+        r = e.response
+        print()
+
+        print('Installation failed:')
+        if r.headers['content-type'] == 'application/json':
+            data = r.json()
+            print('%s: %s' % (data['ClassName'], data['Message']))
+        else:
+            print(r.text)
+
+        print()
+        print('Please check the %s logs in %s.' %
+              (config.pki_subsystem, deployer.mdict['pki_subsystem_log_path']))
+
+        sys.exit(1)
+
+    except Exception as e:  # pylint: disable=broad-except
         log_error_details()
         print()
         print("Installation failed: %s" % e)
