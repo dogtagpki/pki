@@ -65,7 +65,7 @@
 
 Name:             pki-core
 Version:          10.3.5
-Release:          0.1%{?dist}
+Release:          1%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -1298,6 +1298,9 @@ systemctl daemon-reload
 %endif # %{with server}
 
 %changelog
+* Mon Aug  8 2016 Dogtag Team <pki-devel@redhat.com> 10.3.5-1
+- Updated version number to 10.3.5-1
+
 * Tue Jul  5 2016 Dogtag Team <pki-devel@redhat.com> 10.3.5-0.1
 - Updated version number to 10.3.5-0.1
 
