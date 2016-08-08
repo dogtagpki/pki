@@ -173,7 +173,7 @@ public class AuthorityService extends PKIService implements AuthorityResource {
 
     @Override
     public Response getChainPEM(String aidString) {
-        byte[] der = (byte[]) getCert(aidString).getEntity();
+        byte[] der = (byte[]) getChain(aidString).getEntity();
         return Response.ok(toPem("PKCS7", der)).build();
     }
 
