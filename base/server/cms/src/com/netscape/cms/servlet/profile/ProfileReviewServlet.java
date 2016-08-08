@@ -423,8 +423,8 @@ public class ProfileReviewServlet extends ProfileServlet {
 
                 try {
                     defValue = def.getValue(defName, locale, req);
-                } catch (EPropertyException ee) {
-                    CMS.debug("ProfileReviewServlet: " + ee.toString());
+                } catch (Exception exp) {
+                    CMS.debug("ProfileReviewServlet: " + exp.toString());
                 }
 
                 defset.set(ARG_DEF_ID, defName);
