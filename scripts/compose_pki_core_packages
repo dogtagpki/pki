@@ -30,7 +30,7 @@ PKI_PWD=`pwd`
 ##
 
 PKI_CORE="pki-core"
-PKI_CORE_VERSION="10.3.5"
+PKI_CORE_VERSION="10.3.6"
 
 
 ##
