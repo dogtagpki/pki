@@ -1,8 +1,18 @@
 #!/bin/sh
 
+if [ "$#" -ne 1 ]; then
+    echo "ERROR: $0 requires parameter"
+    exit 1
+fi
+
 . /etc/tomcat/tomcat.conf
 NAME=$1
-. /etc/sysconfig/$NAME
+if [ -f /etc/sysconfig/$NAME ]; then
+    . /etc/sysconfig/$NAME
+else
+    echo "ERROR: Unable to find /etc/sysconfig/$NAME file"
+    exit 1
+fi
 . /usr/libexec/tomcat/preamble
 
 NUXWDOG_PID=${CATALINA_BASE}/logs/wd-$NAME.pid
