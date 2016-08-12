@@ -192,9 +192,13 @@ public class PKCS12 {
         return result;
     }
 
-    public void removeCertInfoByNickname(String nickname) {
+    public void removeCertInfoByNickname(String nickname) throws Exception {
 
         Collection<PKCS12CertInfo> result = getCertInfosByNickname(nickname);
+
+        if (result.isEmpty()) {
+            throw new Exception("Certificate not found: " + nickname);
+        }
 
         for (PKCS12CertInfo certInfo : result) {
             // remove cert and key
