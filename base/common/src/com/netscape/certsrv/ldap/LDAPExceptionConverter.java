@@ -17,12 +17,12 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.ldap;
 
-import netscape.ldap.LDAPException;
-
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.ConflictingOperationException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.ResourceNotFoundException;
+
+import netscape.ldap.LDAPException;
 
 /**
  * @author Endi S. Dewata
@@ -39,6 +39,8 @@ public class LDAPExceptionConverter {
             return new ResourceNotFoundException("No such attribute.", e);
         case LDAPException.INVALID_DN_SYNTAX:
             return new BadRequestException("Invalid DN syntax.", e);
+        case LDAPException.INVALID_ATTRIBUTE_SYNTAX:
+            return new BadRequestException("Invalid attribute syntax.", e);
         case LDAPException.ENTRY_ALREADY_EXISTS:
             return new ConflictingOperationException("Entry already exists.", e);
         default:
