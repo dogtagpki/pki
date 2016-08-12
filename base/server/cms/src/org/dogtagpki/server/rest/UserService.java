@@ -863,6 +863,8 @@ public class UserService extends PKIService implements UserResource {
             }
 
             if (cert == null) {
+                // TODO: Remove this code. Importing PKCS #7 is not supported.
+
                 // cert chain direction
                 boolean assending = true;
 
