@@ -200,7 +200,7 @@ public class SystemCertsVerification
         } catch (Exception e) {
             String logMessage = CMS.getLogMessage(
                     "SELFTESTS_COMMON_SYSTEM_CERTS_VERIFICATION_FAILURE",
-                    getSelfTestName());
+                    getSelfTestName(), e.getMessage());
             mSelfTestSubsystem.log(logger, logMessage);
             throw e;
         }
