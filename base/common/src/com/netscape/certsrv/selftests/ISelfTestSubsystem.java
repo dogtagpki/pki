@@ -20,6 +20,8 @@
 
 package com.netscape.certsrv.selftests;
 
+import java.util.Collection;
+
 ///////////////////////
 // import statements //
 ///////////////////////
@@ -67,6 +69,8 @@ public interface ISelfTestSubsystem
     ////////////////////////////////
     // ISelfTestSubsystem methods //
     ////////////////////////////////
+
+    public Collection<String> getSelfTestNames();
 
     //
     // methods associated with the list of on demand self tests

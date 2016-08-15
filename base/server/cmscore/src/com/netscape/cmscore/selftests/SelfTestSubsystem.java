@@ -243,6 +243,10 @@ public class SelfTestSubsystem
     // SelfTestSubsystem methods //
     ///////////////////////////////
 
+    public Collection<String> getSelfTestNames() {
+        return mSelfTestInstances.keySet();
+    }
+
     //
     // methods associated with the list of on demand self tests
     //
