@@ -473,12 +473,7 @@ public class SelfTestSubsystem
             }
         }
 
-        // self test plugin instance property name is not present
-        log(mLogger,
-                CMS.getLogMessage(
-                        "CMSCORE_SELFTESTS_PROPERTY_MISSING_NAME",
-                        instanceFullName));
-
+        // self test undefined in selftests.container.order.onDemand
         throw new EMissingSelfTestException(instanceFullName);
     }
 
@@ -799,12 +794,7 @@ public class SelfTestSubsystem
             }
         }
 
-        // self test plugin instance property name is not present
-        log(mLogger,
-                CMS.getLogMessage(
-                        "CMSCORE_SELFTESTS_PROPERTY_MISSING_NAME",
-                        instanceFullName));
-
+        // self test undefined in selftests.container.order.startup
         throw new EMissingSelfTestException(instanceFullName);
     }
 
