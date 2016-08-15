@@ -113,7 +113,7 @@ public class SelfTestService extends PKIService implements SelfTestResource {
 
             // filter self tests
             Collection<String> results = new ArrayList<String>();
-            for (String name : subsystem.listSelfTestsEnabledOnDemand()) {
+            for (String name : subsystem.getSelfTestNames()) {
                 if (filter != null && !name.contains(filter)) continue;
                 results.add(name);
             }
