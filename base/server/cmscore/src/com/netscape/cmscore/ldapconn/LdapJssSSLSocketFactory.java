@@ -18,18 +18,22 @@
 package com.netscape.cmscore.ldapconn;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Iterator;
+import java.util.Vector;
 
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPSSLSocketFactoryExt;
+
+import org.mozilla.jss.ssl.SSLClientCertificateSelectionCallback;
 import org.mozilla.jss.ssl.SSLHandshakeCompletedEvent;
 import org.mozilla.jss.ssl.SSLHandshakeCompletedListener;
 import org.mozilla.jss.ssl.SSLSocket;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.logging.ILogger;
-
-import netscape.ldap.LDAPException;
-import netscape.ldap.LDAPSSLSocketFactoryExt;
 
 /**
  * Uses HCL ssl socket.
@@ -54,7 +58,22 @@ public class LdapJssSSLSocketFactory implements LDAPSSLSocketFactoryExt {
             /*
              * let inherit TLS range and cipher settings
              */
-            s = new SSLSocket(host, port);
+
+            if (mClientAuthCertNickname == null) {
+                s = new SSLSocket(host, port);
+            }
+            else {
+                //Let's create a selection callback in the case the client auth
+                //No longer manually set the cert name.
+                //This two step process, used in the JSS client auth test suite,
+                //appears to be needed to get this working.
+
+                Socket js = new Socket(InetAddress.getByName(host), port);
+                s = new SSLSocket(js, host,
+                        null,
+                        new SSLClientCertificateSelectionCB(mClientAuthCertNickname));
+            }
+
             s.setUseClientMode(true);
             s.enableV2CompatibleHello(false);
 
@@ -67,7 +86,9 @@ public class LdapJssSSLSocketFactory implements LDAPSSLSocketFactoryExt {
                 mClientAuth = true;
                 CMS.debug("LdapJssSSLSocket: set client auth cert nickname " +
                         mClientAuthCertNickname);
-                s.setClientCertNickname(mClientAuthCertNickname);
+
+                //We have already established the manual cert selection callback
+                //Doing it this way will provide some debugging info on the candidate certs
             }
             s.forceHandshake();
 
@@ -114,4 +135,43 @@ public class LdapJssSSLSocketFactory implements LDAPSSLSocketFactoryExt {
             CMS.debug("SSL handshake happened");
         }
     }
+
+    static class SSLClientCertificateSelectionCB implements SSLClientCertificateSelectionCallback {
+        String desiredCertName = null;
+
+        public SSLClientCertificateSelectionCB(String clientAuthCertNickname) {
+            CMS.debug("SSLClientCertificateSelectionCB: Setting desired cert nickname to: " + clientAuthCertNickname);
+            desiredCertName = clientAuthCertNickname;
+        }
+
+        @Override
+        public String select(Vector certs) {
+
+            CMS.debug("SSLClientCertificatSelectionCB: Entering!");
+
+            if(desiredCertName == null) {
+                return null;
+            }
+
+            @SuppressWarnings("unchecked")
+            Iterator<String> itr = certs.iterator();
+            String selection = null;
+
+            while(itr.hasNext()){
+                String candidate = itr.next();
+                CMS.debug("Candidate cert: " + candidate);
+                if(desiredCertName.equalsIgnoreCase(candidate)) {
+                    selection = candidate;
+                    CMS.debug("SSLClientCertificateSelectionCB: desired cert found in list: " + desiredCertName);
+                    break;
+                }
+            }
+
+            CMS.debug("SSLClientCertificateSelectionCB: returning: " + selection);
+            return selection;
+
+        }
+
+    }
+
 }
