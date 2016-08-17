@@ -318,6 +318,23 @@ Provides:         symkey = %{version}-%{release}
 
 Obsoletes:        symkey < %{version}-%{release}
 
+%if 0%{?rhel}
+## Because RHCS 9.0 does not run on RHEL 7.3+, obsolete all
+## RHCS 9.0 packages that can be replaced by RHCS 9.1 packages:
+# pki-console
+Obsoletes:        pki-console < 10.3.0
+# pki-core
+Obsoletes:        pki-core-debug = 10.2.6
+Obsoletes:        pki-ocsp < 10.3.0
+Obsoletes:        pki-tks < 10.3.0
+Obsoletes:        pki-tps < 10.3.0
+# redhat-pki
+Obsoletes:        redhat-pki < 10.3.0
+# redhat-pki-theme
+Obsoletes:        redhat-pki-console-theme < 10.3.0
+Obsoletes:        redhat-pki-server-theme < 10.3.0
+%endif
+
 %description -n   pki-symkey
 The Symmetric Key Java Native Interface (JNI) package supplies various native
 symmetric key operations to Java programs.
@@ -558,6 +575,23 @@ Requires:         tomcatjss >= 7.1.3
 %else
 Requires:         tomcatjss >= 7.1.2-2
 %endif
+%endif
+
+%if 0%{?rhel}
+## Because RHCS 9.0 does not run on RHEL 7.3+, obsolete all
+## RHCS 9.0 packages that can be replaced by RHCS 9.1 packages:
+# pki-console
+Obsoletes:        pki-console < 10.3.0
+# pki-core
+Obsoletes:        pki-core-debug = 10.2.6
+Obsoletes:        pki-ocsp < 10.3.0
+Obsoletes:        pki-tks < 10.3.0
+Obsoletes:        pki-tps < 10.3.0
+# redhat-pki
+Obsoletes:        redhat-pki < 10.3.0
+# redhat-pki-theme
+Obsoletes:        redhat-pki-console-theme < 10.3.0
+Obsoletes:        redhat-pki-server-theme < 10.3.0
 %endif
 
 %description -n   pki-server
