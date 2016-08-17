@@ -2947,10 +2947,17 @@ public class ConfigurationUtils {
         cert.setDN(subjectDN);
 
         String subsystem = config.getString(PCERT_PREFIX + tag + ".subsystem");
-        String certreq = config.getString(subsystem + "." + tag + ".certreq");
-        String formattedCertreq = CryptoUtil.reqFormat(certreq);
 
-        cert.setRequest(formattedCertreq);
+        try {
+            String certreq = config.getString(subsystem + "." + tag + ".certreq");
+            String formattedCertreq = CryptoUtil.reqFormat(certreq);
+
+            cert.setRequest(formattedCertreq);
+
+        } catch (EPropertyNotFound e) {
+            // The CSR is optional for existing CA case.
+            CMS.debug("ConfigurationUtils.loadCertRequest: " + tag + " cert has no CSR");
+        }
     }
 
     public static void generateCertRequest(IConfigStore config, String certTag, Cert cert) throws Exception {

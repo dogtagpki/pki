@@ -917,10 +917,6 @@ class SubsystemCertValidateCLI(pki.cli.CLI):
 
         print('  Cert ID: %s' % cert['id'])
 
-        if not cert['request']:
-            print('  Status: ERROR: missing certificate request')
-            return False
-
         if not cert['data']:
             print('  Status: ERROR: missing certificate data')
             return False
