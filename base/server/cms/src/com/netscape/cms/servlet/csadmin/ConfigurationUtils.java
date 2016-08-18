@@ -3153,6 +3153,9 @@ public class ConfigurationUtils {
         String tokenname = config.getString("preop.module.token", "");
 
         if (cert.getType().equals("local") && b64.equals("...certificate be generated internally...")) {
+
+            CMS.debug("handleCerts(): processing local cert");
+
             String pubKeyType = config.getString(PCERT_PREFIX + certTag + ".keytype");
             X509Key x509key = null;
             if (pubKeyType.equals("rsa")) {
@@ -3177,24 +3180,33 @@ public class ConfigurationUtils {
                 CMS.debug("handleCerts(): nickname=" + nickname);
 
                 try {
+                    CMS.debug("handleCerts(): deleting existing cert");
                     if (certTag.equals("sslserver") && findBootstrapServerCert())
                         deleteBootstrapServerCert();
                     if (findCertificate(tokenname, nickname))
                         deleteCert(tokenname, nickname);
+
+                    CMS.debug("handleCerts(): importing new cert");
                     if (certTag.equals("signing") && subsystem.equals("ca"))
                         CryptoUtil.importUserCertificate(impl, nickname);
                     else
                         CryptoUtil.importUserCertificate(impl, nickname, false);
                     CMS.debug("handleCerts(): cert imported for certTag '" + certTag + "'");
+
                 } catch (Exception ee) {
                     CMS.debug(ee);
                     CMS.debug("handleCerts(): import certificate for certTag=" + certTag + " Exception: "
                             + ee.toString());
                 }
             }
+
         } else if (cert.getType().equals("remote")) {
+
+            CMS.debug("handleCerts(): processing remote cert");
+
             if (b64 != null && b64.length() > 0 && !b64.startsWith("...")) {
-                CMS.debug("handleCerts(): process remote...import cert");
+
+                CMS.debug("handleCerts(): deleting existing cert");
                 String b64chain = cert.getCertChain();
 
                 try {
@@ -3207,6 +3219,7 @@ public class ConfigurationUtils {
                     CMS.debug("ConfigurationUtils: update (remote): deleteCert Exception=" + e.toString());
                 }
 
+                CMS.debug("handleCerts(): importing new cert");
                 b64 = CryptoUtil.stripCertBrackets(b64.trim());
                 String certs = CryptoUtil.normalizeCertStr(b64);
                 byte[] certb = CryptoUtil.base64Decode(certs);
@@ -3256,11 +3269,16 @@ public class ConfigurationUtils {
                 CMS.debug("handleCerts(): b64 not set");
                 return 1;
             }
+
         } else {
+            CMS.debug("handleCerts(): processing " + cert.getType() + " cert");
+
             b64 = CryptoUtil.stripCertBrackets(b64.trim());
             String certs = CryptoUtil.normalizeCertStr(b64);
             byte[] certb = CryptoUtil.base64Decode(certs);
             X509CertImpl impl = new X509CertImpl(certb);
+
+            CMS.debug("handleCerts(): deleting existing cert");
             try {
                 if (certTag.equals("sslserver") && findBootstrapServerCert())
                     deleteBootstrapServerCert();
@@ -3271,6 +3289,7 @@ public class ConfigurationUtils {
                 CMS.debug("handleCerts(): deleteCert Exception=" + ee.toString());
             }
 
+            CMS.debug("handleCerts(): importing new cert");
             try {
                 if (certTag.equals("signing") && subsystem.equals("ca"))
                     CryptoUtil.importUserCertificate(impl, nickname);
