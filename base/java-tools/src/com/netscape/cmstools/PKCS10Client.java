@@ -71,6 +71,9 @@ import com.netscape.cmsutil.util.Utils;
  * @version $Revision$, $Date$
  */
 public class PKCS10Client {
+    // From https://www.rfc-editor.org/rfc/rfc7468.txt
+    public static final String RFC7468_HEADER = "-----BEGIN CERTIFICATE REQUEST-----";
+    public static final String RFC7468_TRAILER = "-----END CERTIFICATE REQUEST-----";
 
     private static void printUsage() {
         System.out.println(
@@ -323,15 +326,15 @@ public class PKCS10Client {
                 b64E = CryptoUtil.base64Encode(certReqb);
             }
 
-            System.out.println("-----BEGIN NEW CERTIFICATE REQUEST-----");
+            System.out.println(RFC7468_HEADER);
             System.out.println(b64E);
-            System.out.println("-----END NEW CERTIFICATE REQUEST-----");
+            System.out.println(RFC7468_TRAILER);
 
             PrintStream ps = null;
             ps = new PrintStream(new FileOutputStream(ofilename));
-            ps.println("-----BEGIN NEW CERTIFICATE REQUEST-----");
+            ps.println(RFC7468_HEADER);
             ps.println(b64E);
-            ps.println("-----END NEW CERTIFICATE REQUEST-----");
+            ps.println(RFC7468_TRAILER);
             ps.flush();
             ps.close();
             System.out.println("PKCS10Client: done. Request written to file: "+ ofilename);

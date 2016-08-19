@@ -97,8 +97,8 @@ public class CMCRequest {
     public static final String PR_INTERNAL_TOKEN_NAME = "internal";
 
     public static final int ARGC = 1;
-    public static final String HEADER = "-----BEGIN NEW CERTIFICATE REQUEST-----";
-    public static final String TRAILER = "-----END NEW CERTIFICATE REQUEST-----";
+    public static final String HEADER = "-----BEGIN";
+    public static final String TRAILER = "-----END";
 
     void cleanArgs(String[] s) {
 

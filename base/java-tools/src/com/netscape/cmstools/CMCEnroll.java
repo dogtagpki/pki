@@ -79,8 +79,11 @@ public class CMCEnroll {
     public static final String PR_REQUEST_PKCS10 = "PKCS10";
 
     public static final int ARGC = 4;
-    public static final String HEADER = "-----BEGIN NEW CERTIFICATE REQUEST-----";
-    public static final String TRAILER = "-----END NEW CERTIFICATE REQUEST-----";
+    public static final String HEADER = "-----BEGIN";
+    public static final String TRAILER = "-----END";
+    // From https://www.rfc-editor.org/rfc/rfc7468.txt
+    public static final String RFC7468_HEADER = "-----BEGIN CERTIFICATE REQUEST-----";
+    public static final String RFC7468_TRAILER = "-----END CERTIFICATE REQUEST-----";
 
     void cleanArgs(String[] s) {
 
@@ -434,10 +437,10 @@ public class CMCEnroll {
                     return;
                 }
 
-                System.out.println(HEADER);
-                System.out.println(asciiBASE64Blob.toString() + TRAILER);
+                System.out.println(RFC7468_HEADER);
+                System.out.println(asciiBASE64Blob.toString() + RFC7468_TRAILER);
                 try {
-                    asciiBASE64Blob_str = HEADER + "\n" + asciiBASE64Blob_str.toString() + TRAILER;
+                    asciiBASE64Blob_str = RFC7468_HEADER + "\n" + asciiBASE64Blob_str.toString() + RFC7468_TRAILER;
                     outputBlob.write(asciiBASE64Blob_str.getBytes());
                 } catch (IOException e) {
                     System.out.println("CMCEnroll:  I/O error " +

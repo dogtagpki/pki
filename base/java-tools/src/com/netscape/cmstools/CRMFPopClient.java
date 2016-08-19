@@ -101,6 +101,10 @@ public class CRMFPopClient {
 
     public boolean verbose;
 
+    // From https://www.rfc-editor.org/rfc/rfc7468.txt
+    public static final String RFC7468_HEADER = "-----BEGIN CERTIFICATE REQUEST-----";
+    public static final String RFC7468_TRAILER = "-----END CERTIFICATE REQUEST-----";
+
     public static Options createOptions() {
 
         Options options = new Options();
@@ -472,9 +476,9 @@ public class CRMFPopClient {
 
             StringWriter sw = new StringWriter();
             try (PrintWriter out = new PrintWriter(sw)) {
-                out.println("-----BEGIN NEW CERTIFICATE REQUEST-----");
+                out.println(RFC7468_HEADER);
                 out.println(request);
-                out.println("-----END NEW CERTIFICATE REQUEST-----");
+                out.println(RFC7468_TRAILER);
             }
             String csr = sw.toString();
 
