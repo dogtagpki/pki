@@ -105,7 +105,11 @@ class NSSDatabase(object):
             directory = os.path.join(os.path.expanduser("~"), '.dogtag', 'nssdb')
 
         self.directory = directory
-        self.token = token
+
+        if token == 'internal' or token == 'Internal Key Storage Token':
+            self.token = None
+        else:
+            self.token = token
 
         self.tmpdir = tempfile.mkdtemp()
 
@@ -425,12 +429,15 @@ class NSSDatabase(object):
             '-d', self.directory
         ]
 
+        fullname = nickname
+
         if self.token:
             cmd.extend(['-h', self.token])
+            fullname = self.token + ':' + fullname
 
         cmd.extend([
             '-f', self.password_file,
-            '-n', nickname,
+            '-n', fullname,
             output_format_option
         ])
 
