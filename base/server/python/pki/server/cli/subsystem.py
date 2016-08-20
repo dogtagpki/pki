@@ -21,10 +21,8 @@
 
 from __future__ import absolute_import
 from __future__ import print_function
-import base64
 import getopt
 import getpass
-import nss.nss as nss
 import os
 import string
 import subprocess
@@ -778,36 +776,47 @@ class SubsystemCertUpdateCLI(pki.cli.CLI):
             sys.exit(1)
         subsystem_cert = subsystem.get_subsystem_cert(cert_id)
 
-        # get cert data from NSS database
-        nss.nss_init(instance.nssdb_dir)
-        nss_cert = nss.find_cert_from_nickname(subsystem_cert['nickname'])
-        data = base64.b64encode(nss_cert.der_data)
-        del nss_cert
-        nss.nss_shutdown()
+        if self.verbose:
+            print('Retrieving certificate %s from %s' %
+                  (subsystem_cert['nickname'], subsystem_cert['token']))
+
+        token = subsystem_cert['token']
+        nssdb = instance.open_nssdb(token)
+        data = nssdb.get_cert(
+            nickname=subsystem_cert['nickname'],
+            output_format='base64')
         subsystem_cert['data'] = data
 
         # format cert data for LDAP database
         lines = [data[i:i + 64] for i in range(0, len(data), 64)]
         data = string.join(lines, '\r\n') + '\r\n'
 
-        # get cert request from local CA
+        if self.verbose:
+            print('Retrieving certificate request from CA database')
+
         # TODO: add support for remote CA
         ca = instance.get_subsystem('ca')
         if not ca:
             print('ERROR: No CA subsystem in instance %s.' % instance_name)
             sys.exit(1)
-        results = ca.find_cert_requests(cert=data)
-        cert_request = results[-1]
-        request = cert_request['request']
 
-        # format cert request for CS.cfg
-        lines = request.splitlines()
-        if lines[0] == '-----BEGIN CERTIFICATE REQUEST-----':
-            lines = lines[1:]
-        if lines[-1] == '-----END CERTIFICATE REQUEST-----':
-            lines = lines[:-1]
-        request = string.join(lines, '')
-        subsystem_cert['request'] = request
+        results = ca.find_cert_requests(cert=data)
+
+        if results:
+            cert_request = results[-1]
+            request = cert_request['request']
+
+            # format cert request for CS.cfg
+            lines = request.splitlines()
+            if lines[0] == '-----BEGIN CERTIFICATE REQUEST-----':
+                lines = lines[1:]
+            if lines[-1] == '-----END CERTIFICATE REQUEST-----':
+                lines = lines[:-1]
+            request = string.join(lines, '')
+            subsystem_cert['request'] = request
+
+        else:
+            print('WARNING: Certificate request not found')
 
         # store cert data and request in CS.cfg
         subsystem.update_subsystem_cert(subsystem_cert)
