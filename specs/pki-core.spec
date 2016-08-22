@@ -1187,6 +1187,7 @@ systemctl daemon-reload
 %{_mandir}/man1/AtoB.1.gz
 %{_mandir}/man1/AuditVerify.1.gz
 %{_mandir}/man1/BtoA.1.gz
+%{_mandir}/man1/CMCEnroll.1.gz
 %{_mandir}/man1/DRMTool.1.gz
 %{_mandir}/man1/KRATool.1.gz
 %{_mandir}/man1/PrettyPrintCert.1.gz
