@@ -679,6 +679,24 @@ public class CertificateAuthority
         }
     }
 
+    private boolean entryUSNPluginEnabled() {
+        try {
+            LDAPConnection conn = dbFactory.getConn();
+            try {
+                LDAPSearchResults results = conn.search(
+                    "cn=usn,cn=plugins,cn=config", LDAPConnection.SCOPE_BASE,
+                    "(nsslapd-pluginEnabled=on)", null, false);
+                return results != null && results.hasMoreElements();
+            } catch (LDAPException e) {
+                return false;
+            } finally {
+                dbFactory.returnConn(conn);
+            }
+        } catch (ELdapException e) {
+            return false;  // oh well
+        }
+    }
+
     private void initCRLPublisher() throws EBaseException {
         // instantiate CRL publisher
         if (!isHostAuthority()) {
@@ -3221,17 +3239,29 @@ public class CertificateAuthority
         AuthorityID aid = new AuthorityID((String)
             aidAttr.getStringValues().nextElement());
 
-        LDAPAttribute entryUSN = entry.getAttribute("entryUSN");
-        if (entryUSN == null) {
-            log(ILogger.LL_FAILURE, "Authority entry has no entryUSN.  " +
-                "This is likely because the USN plugin is not enabled in the database");
-            return;
+        Integer newEntryUSN = null;
+        LDAPAttribute entryUSNAttr = entry.getAttribute("entryUSN");
+        if (entryUSNAttr == null) {
+            CMS.debug("readAuthority: no entryUSN");
+            if (!entryUSNPluginEnabled()) {
+                CMS.debug("readAuthority: dirsrv USN plugin is not enabled; skipping entry");
+                log(ILogger.LL_FAILURE, "Lightweight authority entry has no"
+                        + " entryUSN attribute and USN plugin not enabled;"
+                        + " skipping.  Enable dirsrv USN plugin.");
+                return;
+            } else {
+                CMS.debug("readAuthority: dirsrv USN plugin is enabled; continuing");
+                // entryUSN plugin is enabled, but no entryUSN attribute. We
+                // can proceed because future modifications will result in the
+                // entryUSN attribute being added.
+            }
+        } else {
+            newEntryUSN = new Integer(entryUSNAttr.getStringValueArray()[0]);
+            CMS.debug("readAuthority: new entryUSN = " + newEntryUSN);
         }
 
-        Integer newEntryUSN = new Integer(entryUSN.getStringValueArray()[0]);
-        CMS.debug("readAuthority: new entryUSN = " + newEntryUSN);
         Integer knownEntryUSN = entryUSNs.get(aid);
-        if (knownEntryUSN != null) {
+        if (newEntryUSN != null && knownEntryUSN != null) {
             CMS.debug("readAuthority: known entryUSN = " + knownEntryUSN);
             if (newEntryUSN <= knownEntryUSN) {
                 CMS.debug("readAuthority: data is current");
