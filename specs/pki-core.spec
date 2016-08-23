@@ -65,7 +65,7 @@
 
 Name:             pki-core
 Version:          10.3.5
-Release:          1%{?dist}
+Release:          3%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -206,6 +206,9 @@ Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{
 %else
 Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{release}/%{name}-%{version}%{?prerel}.tar.gz
 %endif
+
+## pki-core-10.3.5-2
+#Patch1:           pki-core-snapshot-1.patch
 
 # Obtain version phase number (e. g. - used by "alpha", "beta", etc.)
 #
@@ -821,6 +824,7 @@ This package is a part of the PKI Core used by the Certificate System.
 
 %prep
 %setup -q -n %{name}-%{version}%{?prerel}
+#%patch1 -p1
 
 %clean
 %{__rm} -rf %{buildroot}
@@ -1321,14 +1325,79 @@ systemctl daemon-reload
 %endif # %{with server}
 
 %changelog
+* Mon Aug 22 2016 Dogtag Team <pki-devel@redhat.com> 10.3.5-3
+- spec file changes
+
+* Mon Aug 22 2016 Dogtag Team <pki-devel@redhat.com> 10.3.5-2
+- PKI TRAC Ticket #690 - [MAN] pki-tools man pages (mharmsen)
+  - CMCEnroll
+- PKI TRAC Ticket #833 - pki user-mod fullName="" gives an error message
+  "PKIException: LDAP error (21): error result" (edewata)
+- PKI TRAC Ticket #2431 - Errors noticed during ipa server upgrade.
+  (cheimes, edewata, mharmsen)
+- PKI TRAC Ticket #2432 - Kra-selftest behavior is not as expected (edewata)
+- PKI TRAC Ticket #2436 - Dogtag 10.3.6: Miscellaneous Enhancements
+  (edewata, mharmsen)
+- PKI TRAC Ticket #2437 - TPS UI: while adding certs for users from TPSUI pem
+  format with/without header works while pkcs7 with header is not allowed
+  (edewata)
+- PKI TRAC Ticket #2440 - Optional CA signing CSR for migration (edewata)
+
 * Mon Aug  8 2016 Dogtag Team <pki-devel@redhat.com> 10.3.5-1
 - Updated version number to 10.3.5-1
 
 * Tue Jul  5 2016 Dogtag Team <pki-devel@redhat.com> 10.3.5-0.1
 - Updated version number to 10.3.5-0.1
 
-* Tue Jun 21 2016 Dogtag Team <pki-devel@redhat.com> 10.3.4-0.1
+* Tue Jul  5 2016 Dogtag Team <pki-devel@redhat.com> 10.3.4-0.1
 - Updated version number to 10.3.4-0.1
+
+* Tue Jul  5 2016 Dogtag Team <pki-devel@redhat.com> 10.3.3-3
+- PKI TRAC Ticket #691  - [MAN] pki-server man pages (mharmsen)
+- PKI TRAC Ticket #1114 - [MAN] Generting Symmetric key fails with
+  key-generate when --usages verify is passed (jmagne)
+- PKI TRAC Ticket #1306 - [RFE] Add granularity to token termination in TPS
+  (cfu)
+- PKI TRAC Ticket #1308 - [RFE] Provide ability to perform off-card key
+  generation for non-encryption token keys (cfu)
+- PKI TRAC Ticket #1405 - [MAN] Add additional HSM details to
+  'pki_default.cfg' & 'pkispawn' man pages (mharmsen)
+- PKI TRAC Ticket #1607 - [MAN] man pkispawn has inadequate description for
+  shared vs non shared tomcat instance installation (mharmsen)
+- PKI TRAC Ticket #1664 - [BUG] Add ability to disallow TPS to enroll a single
+  user on multiple tokens. (jmagne)
+- PKI TRAC Ticket #1711 - CLI :: pki-server ca-cert-request-find throws
+  IOError (edewata, ftweedal)
+- PKI TRAC Ticket #2285 - freeipa fails to start correctly after pki-core
+  update on upgraded system (ftweedal)
+- PKI TRAC Ticket #2311 - When pki_token_name=Internal, consider normalizing
+  it to "internal" (mharmsen)
+- PKI TRAC Ticket #2349 - Separated TPS does not automatically receive shared
+  secret from remote TKS (jmagne)
+- PKI TRAC Ticket #2364 - CLI :: pki-server ca-cert-request-show throws
+  attribute error (ftweedal)
+- PKI TRAC Ticket #2368 - pki-server subsystem subcommands throws error with
+  --help option (edewata)
+- PKI TRAC Ticket #2374 - KRA cloning overwrites CA signing certificate trust
+  flags (edewata)
+- PKI TRAC Ticket #2380 - Pki-server instance commands throws exception while
+  specifying invalid parameters. (edewata)
+- PKI TRAC Ticket #2384 - CA installation with HSM prompts for HSM password
+  during silent installation (edewata)
+- PKI TRAC Ticket #2385 - Upgraded CA lacks ca.sslserver.certreq in CS.cfg
+  (ftweedal)
+- PKI TRAC Ticket #2387 - Add config for default OCSP URI if none given
+  (ftweedal)
+- PKI TRAC Ticket #2388 - CA creation responds 500 if certificate issuance
+  fails (ftweedal)
+- PKI TRAC Ticket #2389 - Installation: subsystem certs could have notAfter
+  beyond CA signing cert in case of external or existing CA (cfu)
+- PKI TRAC Ticket #2390 - Dogtag 10.3.4: Miscellaneous Enhancements
+  (akasurde, edewata)
+
+* Thu Jun 30 2016 Dogtag Team <pki-devel@redhat.com> 10.3.3-2
+- PKI TRAC Ticket #2373 - Fedora 25: RestEasy 3.0.6 ==> 3.0.17 breaks
+  pki-core (ftweedal)
 
 * Mon Jun 20 2016 Dogtag Team <pki-devel@redhat.com> 10.3.3-1
 - Updated release number to 10.3.3-1
