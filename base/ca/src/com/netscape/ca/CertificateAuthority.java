@@ -3028,6 +3028,13 @@ public class CertificateAuthority
     /** Delete keys and certs of this authority from NSSDB.
      */
     private void deleteAuthorityNSSDB() throws ECAException {
+        if (isHostAuthority()) {
+            String msg = "Attempt to delete host authority signing key; not proceeding";
+            log(ILogger.LL_WARN, msg);
+            CMS.debug(msg);
+            return;
+        }
+
         CryptoManager cryptoManager;
         try {
             cryptoManager = CryptoManager.getInstance();
