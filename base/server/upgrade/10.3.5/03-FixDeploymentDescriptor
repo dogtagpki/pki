@@ -1,0 +1,110 @@
+#!/usr/bin/python
+# Authors:
+#     Endi S. Dewata <edewata@redhat.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+# Copyright (C) 2016 Red Hat, Inc.
+# All rights reserved.
+
+from __future__ import absolute_import
+from lxml import etree
+import os
+import shutil
+
+import pki.server.upgrade
+
+
+class FixDeploymentDescriptor(pki.server.upgrade.PKIServerUpgradeScriptlet):
+
+    def __init__(self):
+        super(FixDeploymentDescriptor, self).__init__()
+        self.message = 'Fix deployment descriptor'
+        self.parser = etree.XMLParser(remove_blank_text=True)
+
+    def upgrade_instance(self, instance):
+
+        self.fix_webapp(instance, 'ROOT.xml')
+        self.fix_webapp(instance, 'pki#admin.xml')
+        self.fix_webapp(instance, 'pki#js.xml')
+
+        self.fix_theme(instance, 'pki.xml')
+
+    def fix_webapp(self, instance, context_xml):
+
+        source_xml = pki.SHARE_DIR + '/server/conf/Catalina/localhost/' + context_xml
+        target_xml = instance.conf_dir + '/Catalina/localhost/' + context_xml
+
+        # if deployment descriptor doesn't exist, install the default
+        if not os.path.exists(target_xml):
+            self.copy_file(instance, source_xml, target_xml)
+            return
+
+        # get docBase from deployment descriptor
+        document = etree.parse(target_xml, self.parser)
+        context = document.getroot()
+        docBase = context.get('docBase')
+
+        # if docBase is absolute and pointing to non-empty folder, ignore
+        if docBase.startswith('/') and \
+                os.path.exists(docBase) and \
+                os.listdir(docBase):
+            return
+
+        # if docBase is relative and pointing to non-empty folder, ignore
+        if not docBase.startswith('/') and \
+                os.path.exists(instance.base_dir + '/webapps/' + docBase) and \
+                os.listdir(instance.base_dir + '/webapps/' + docBase):
+            return
+
+        # docBase is pointing to non-existent/empty folder, replace with default
+        self.copy_file(instance, source_xml, target_xml)
+
+    def fix_theme(self, instance, context_xml):
+
+        source_xml = pki.SHARE_DIR + '/server/conf/Catalina/localhost/' + context_xml
+        target_xml = instance.conf_dir + '/Catalina/localhost/' + context_xml
+
+        # if deployment descriptor doesn't exist, ignore (no theme)
+        if not os.path.exists(target_xml):
+            return
+
+        # get docBase from deployment descriptor
+        document = etree.parse(target_xml, self.parser)
+        context = document.getroot()
+        docBase = context.get('docBase')
+
+        # if docBase is absolute and pointing to non-empty folder, ignore
+        if docBase.startswith('/') and \
+                os.path.exists(docBase) and \
+                os.listdir(docBase):
+            return
+
+        # if docBase is relative and pointing to non-empty folder, ignore
+        if not docBase.startswith('/') and \
+                os.path.exists(instance.base_dir + '/webapps/' + docBase) and \
+                os.listdir(instance.base_dir + '/webapps/' + docBase):
+            return
+
+        # docBase is pointing to non-existent/empty folder
+
+        # if theme package is installed, replace deployment descriptor
+        if os.path.exists(pki.SHARE_DIR + '/common-ui'):
+            self.copy_file(instance, source_xml, target_xml)
+
+    def copy_file(self, instance, source, target):
+
+        self.backup(target)
+        shutil.copyfile(source, target)
+        os.chown(target, instance.uid, instance.gid)
