@@ -3239,6 +3239,27 @@ public class CertificateAuthority
         AuthorityID aid = new AuthorityID((String)
             aidAttr.getStringValues().nextElement());
 
+        X500Name dn = null;
+        try {
+            dn = new X500Name((String) dnAttr.getStringValues().nextElement());
+        } catch (IOException e) {
+            CMS.debug("Malformed authority object; invalid authorityDN: " + entry.getDN());
+        }
+
+        String desc = null;
+        LDAPAttribute descAttr = entry.getAttribute("description");
+        if (descAttr != null)
+            desc = (String) descAttr.getStringValues().nextElement();
+
+        if (dn.equals(mName)) {
+            CMS.debug("Found host authority");
+            foundHostAuthority = true;
+            this.authorityID = aid;
+            this.authorityDescription = desc;
+            caMap.put(aid, this);
+            return;
+        }
+
         Integer newEntryUSN = null;
         LDAPAttribute entryUSNAttr = entry.getAttribute("entryUSN");
         if (entryUSNAttr == null) {
@@ -3267,26 +3288,6 @@ public class CertificateAuthority
                 CMS.debug("readAuthority: data is current");
                 return;
             }
-        }
-
-        X500Name dn = null;
-        try {
-            dn = new X500Name((String) dnAttr.getStringValues().nextElement());
-        } catch (IOException e) {
-            CMS.debug("Malformed authority object; invalid authorityDN: " + entry.getDN());
-        }
-
-        String desc = null;
-        LDAPAttribute descAttr = entry.getAttribute("description");
-        if (descAttr != null)
-            desc = (String) descAttr.getStringValues().nextElement();
-
-        if (dn.equals(mName)) {
-            foundHostAuthority = true;
-            this.authorityID = aid;
-            this.authorityDescription = desc;
-            caMap.put(aid, this);
-            return;
         }
 
         @SuppressWarnings("unused")
