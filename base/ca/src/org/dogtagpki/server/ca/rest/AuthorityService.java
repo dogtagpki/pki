@@ -329,7 +329,7 @@ public class AuthorityService extends PKIService implements AuthorityResource {
         Map<String, String> auditParams = new LinkedHashMap<>();
 
         try {
-            ca.deleteAuthority();
+            ca.deleteAuthority(servletRequest);
             audit(ILogger.SUCCESS, OpDef.OP_DELETE, aidString, null);
             return createNoContentResponse();
         } catch (CATypeException e) {
