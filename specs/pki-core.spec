@@ -929,6 +929,7 @@ fi
 %if 0%{?rhel}
 mv %{buildroot}%{_datadir}/pki/server/upgrade/10.3.5/01-FixServerLibrary %{buildroot}%{_datadir}/pki/server/upgrade/10.3.3/02-FixServerLibrary
 mv %{buildroot}%{_datadir}/pki/server/upgrade/10.3.5/02-FixSELinuxContexts %{buildroot}%{_datadir}/pki/server/upgrade/10.3.3/03-FixSELinuxContexts
+mv %{buildroot}%{_datadir}/pki/server/upgrade/10.3.5/03-FixDeploymentDescriptor %{buildroot}%{_datadir}/pki/server/upgrade/10.3.3/04-FixDeploymentDescriptor
 /bin/rm -rf %{buildroot}%{_datadir}/pki/server/upgrade/10.3.4
 /bin/rm -rf %{buildroot}%{_datadir}/pki/server/upgrade/10.3.5
 %endif
