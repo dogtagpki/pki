@@ -124,6 +124,7 @@ import com.netscape.certsrv.util.IStatsSubsystem;
 import com.netscape.cms.servlet.cert.CertEnrollmentRequestFactory;
 import com.netscape.cms.servlet.cert.EnrollmentProcessor;
 import com.netscape.cms.servlet.cert.RenewalProcessor;
+import com.netscape.cms.servlet.cert.RevocationProcessor;
 import com.netscape.cms.servlet.processors.CAProcessor;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.dbs.CRLRepository;
@@ -178,6 +179,7 @@ import netscape.security.x509.CertificateChain;
 import netscape.security.x509.CertificateIssuerName;
 import netscape.security.x509.CertificateSubjectName;
 import netscape.security.x509.CertificateVersion;
+import netscape.security.x509.RevocationReason;
 import netscape.security.x509.X500Name;
 import netscape.security.x509.X500Signer;
 import netscape.security.x509.X509CRLImpl;
@@ -2964,7 +2966,8 @@ public class CertificateAuthority
         authorityKeyHosts.add(thisClone);
     }
 
-    public synchronized void deleteAuthority() throws EBaseException {
+    public synchronized void deleteAuthority(HttpServletRequest httpReq)
+            throws EBaseException {
         if (isHostAuthority())
             throw new CATypeException("Cannot delete the host CA");
 
@@ -2984,8 +2987,42 @@ public class CertificateAuthority
 
         shutdown();
 
+        revokeAuthority(httpReq);
         deleteAuthorityEntry(authorityID);
         deleteAuthorityNSSDB();
+    }
+
+    /** Revoke the authority's certificate
+     *
+     * TODO: revocation reason, invalidity date parameters
+     */
+    private void revokeAuthority(HttpServletRequest httpReq)
+            throws EBaseException {
+        CMS.debug("revokeAuthority: checking serial " + authoritySerial);
+        ICertRecord certRecord = mCertRepot.readCertificateRecord(authoritySerial);
+        String curStatus = certRecord.getStatus();
+        CMS.debug("revokeAuthority: current cert status: " + curStatus);
+        if (curStatus.equals(CertRecord.STATUS_REVOKED)
+                || curStatus.equals(CertRecord.STATUS_REVOKED_EXPIRED)) {
+            return;  // already revoked
+        }
+
+        CMS.debug("revokeAuthority: revoking cert");
+        RevocationProcessor processor = new RevocationProcessor(
+                "CertificateAuthority.revokeAuthority", httpReq.getLocale());
+        processor.setSerialNumber(new CertId(authoritySerial));
+        processor.setRevocationReason(RevocationReason.UNSPECIFIED);
+        processor.setAuthority(this);
+        try {
+            processor.createCRLExtension();
+        } catch (IOException e) {
+            throw new ECAException("Unable to create CRL extensions", e);
+        }
+        processor.addCertificateToRevoke(mCaCert);
+        processor.createRevocationRequest();
+        processor.auditChangeRequest(ILogger.SUCCESS);
+        processor.processRevocationRequest();
+        processor.auditChangeRequestProcessed(ILogger.SUCCESS);
     }
 
     /** Delete keys and certs of this authority from NSSDB.

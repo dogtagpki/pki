@@ -606,6 +606,6 @@ public interface ICertificateAuthority extends ISubsystem {
     /**
      * Delete this lightweight CA.
      */
-    public void deleteAuthority()
+    public void deleteAuthority(HttpServletRequest httpReq)
         throws EBaseException;
 }
