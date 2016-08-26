@@ -178,6 +178,8 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         }
         initializeDatabase(data);
 
+        ConfigurationUtils.reInitSubsystem(csType);
+
         configureCACertChain(data, domainXML);
 
         Collection<Cert> certs = new ArrayList<Cert>();
@@ -777,7 +779,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                     ConfigurationUtils.setupReplication();
                 }
 
-                ConfigurationUtils.reInitSubsystem(csType);
                 ConfigurationUtils.populateDBManager();
                 ConfigurationUtils.populateVLVIndexes();
             }
