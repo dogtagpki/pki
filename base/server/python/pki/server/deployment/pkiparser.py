@@ -564,6 +564,24 @@ class PKIConfigParser:
         root = ET.fromstring(response)
         return root.findtext("Status")
 
+    def normalize_cert_token(self, name):
+
+        # get cert token
+        token = self.mdict.get(name)
+
+        # if not specified, get default token name
+        if not token:
+            token = self.mdict.get('pki_token_name')
+
+        # normalize internal token name
+        if not token or \
+                token.lower() == 'internal' or \
+                token.lower() == 'internal key storage token':
+            token = 'Internal Key Storage Token'
+
+        # update cert token
+        self.mdict[name] = token
+
     def compose_pki_master_dictionary(self):
         """
         Create a single master PKI dictionary from the
@@ -595,11 +613,11 @@ class PKIConfigParser:
             instance = pki.server.PKIInstance(self.mdict['pki_instance_name'])
             instance.load()
 
-            internal_password = self.mdict['pki_self_signed_token']
+            internal_token = self.mdict['pki_self_signed_token']
 
             # if instance already exists and has password, reuse the password
-            if internal_password in instance.passwords:
-                self.mdict['pki_pin'] = instance.passwords.get(internal_password)
+            if internal_token in instance.passwords:
+                self.mdict['pki_pin'] = instance.passwords.get(internal_token)
 
             # otherwise, use user-provided password if specified
             elif 'pki_pin' in self.mdict:
@@ -1206,6 +1224,15 @@ class PKIConfigParser:
             if (self.mdict['pki_token_name'].lower() == "internal"):
                 # always normalize 'default' softokn name
                 self.mdict['pki_token_name'] = "internal"
+
+            # normalize cert tokens
+            self.normalize_cert_token('pki_audit_signing_token')
+            self.normalize_cert_token('pki_ssl_server_token')
+            self.normalize_cert_token('pki_subsystem_token')
+            self.normalize_cert_token('pki_ca_signing_token')
+            self.normalize_cert_token('pki_ocsp_signing_token')
+            self.normalize_cert_token('pki_storage_token')
+            self.normalize_cert_token('pki_transport_token')
 
             # if security domain user is not defined
             if not len(self.mdict['pki_security_domain_user']):
