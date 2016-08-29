@@ -199,7 +199,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             try {
                 CMS.debug("Processing '" + cert.getCertTag() + "' certificate:");
                 ret = ConfigurationUtils.handleCerts(cert);
-                ConfigurationUtils.setCertPermissions(cert.getCertTag());
+                ConfigurationUtils.setCertPermissions(cert);
                 CMS.debug("Processed '" + cert.getCertTag() + "' certificate.");
             } catch (Exception e) {
                 CMS.debug(e);
@@ -386,7 +386,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
                 processCert(
                         request,
-                        token,
                         certList,
                         certs,
                         hasSigningCert,
@@ -415,7 +414,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
     public void processCert(
             ConfigurationRequest request,
-            String token,
             Collection<String> certList,
             Collection<Cert> certs,
             MutableBoolean hasSigningCert,
@@ -460,13 +458,13 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 String curvename = certData.getKeyCurveName() != null ?
                         certData.getKeyCurveName() : cs.getString("keys.ecc.curve.default");
                 cs.putString("preop.cert." + tag + ".curvename.name", curvename);
-                ConfigurationUtils.createECCKeyPair(token, curvename, cs, tag);
+                ConfigurationUtils.createECCKeyPair(tokenName, curvename, cs, tag);
 
             } else {
                 String keysize = certData.getKeySize() != null ? certData.getKeySize() : cs
                         .getString("keys.rsa.keysize.default");
                 cs.putString("preop.cert." + tag + ".keysize.size", keysize);
-                ConfigurationUtils.createRSAKeyPair(token, Integer.parseInt(keysize), cs, tag);
+                ConfigurationUtils.createRSAKeyPair(tokenName, Integer.parseInt(keysize), cs, tag);
             }
 
         } else {
@@ -600,7 +598,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         }
 
         cs.putString(csSubsystem + "." + tag + ".nickname", cdata.getNickname());
-        cs.putString(csSubsystem + "." + tag + ".tokenname", cdata.getToken());
         cs.putString(csSubsystem + "." + tag + ".certreq", cdata.getRequest());
         cs.putString(csSubsystem + "." + tag + ".cert", cdata.getCert());
         cs.putString(csSubsystem + "." + tag + ".dn", cdata.getSubjectDN());

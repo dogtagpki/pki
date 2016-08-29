@@ -1235,8 +1235,8 @@ public class CMSEngine implements ICMSEngine {
             // get SSL server nickname
             IConfigStore serverCertStore = mConfig.getSubStore(id + "." + "sslserver");
             if (serverCertStore != null && serverCertStore.size() > 0) {
-                String nickName = serverCertStore.getString("nickname");
-                String tokenName = serverCertStore.getString("tokenname");
+                String nickName = serverCertStore.getString("nickname", null);
+                String tokenName = serverCertStore.getString("tokenname", null);
                 if (tokenName != null && tokenName.length() > 0 &&
                         nickName != null && nickName.length() > 0) {
                     CMS.setServerCertNickname(tokenName, nickName);
