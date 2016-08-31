@@ -247,7 +247,8 @@ public class UpdateNumberRange extends CMSServlet {
             audit(auditMessage);
 
         } catch (Exception e) {
-            CMS.debug("UpdateNumberRange: Failed to update number range. Exception: " + e.toString());
+            CMS.debug("UpdateNumberRange: Failed to update number range: " + e);
+            CMS.debug(e);
 
             auditMessage = CMS.getLogMessage(
                                LOGGING_SIGNED_AUDIT_CONFIG_SERIAL_NUMBER,
