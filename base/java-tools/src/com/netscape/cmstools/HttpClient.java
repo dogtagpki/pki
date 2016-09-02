@@ -126,8 +126,6 @@ public class HttpClient {
                 Password pass = new Password(password.toCharArray());
                 token.login(pass);
 
-                int i;
-
                 SSLHandshakeCompletedListener listener = new ClientHandshakeCB(this);
                 org.mozilla.jss.ssl.SSLSocket.SSLVersionRange stream_range =
                     new org.mozilla.jss.ssl.SSLSocket.SSLVersionRange(

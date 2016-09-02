@@ -20,16 +20,11 @@ package com.netscape.ca;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.Process;
-import java.lang.ProcessBuilder;
 import java.util.Collection;
 import java.util.Stack;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.ArrayUtils;
-
-import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.map.ObjectMapper;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
