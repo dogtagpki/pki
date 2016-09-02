@@ -37,7 +37,7 @@ import netscape.security.x509.X509CertImpl;
 
 public class CertRequestInfoFactory {
 
-    public static CertRequestInfo create(IRequest request, UriInfo uriInfo) {
+    public static CertRequestInfo create(IRequest request, UriInfo uriInfo) throws SecurityException, NoSuchMethodException {
 
         CertRequestInfo info = new CertRequestInfo();
 
@@ -49,12 +49,12 @@ public class CertRequestInfoFactory {
 
         info.setCertRequestType(request.getExtDataInString("cert_request_type"));
 
-        Path certRequestPath = CertRequestResource.class.getAnnotation(Path.class);
+        Path certRequestPath = CertRequestResource.class.getMethod("getRequestInfo", RequestId.class ).getAnnotation(Path.class);
         RequestId requestId = request.getRequestId();
 
         UriBuilder reqBuilder = uriInfo.getBaseUriBuilder();
-        reqBuilder.path(certRequestPath.value() + "/" + requestId);
-        info.setRequestURL(reqBuilder.build().toString());
+        reqBuilder.path(certRequestPath.value());
+        info.setRequestURL(reqBuilder.build(requestId).toString());
 
         Integer result = request.getExtDataInInteger(IRequest.RESULT);
         if (result == null || result.equals(IRequest.RES_SUCCESS)) {
@@ -84,11 +84,12 @@ public class CertRequestInfoFactory {
         BigInteger serialNo = impl.getSerialNumber();
         info.setCertId(new CertId(serialNo));
 
-        Path certPath = CertResource.class.getAnnotation(Path.class);
-        UriBuilder certBuilder = uriInfo.getBaseUriBuilder();
-        certBuilder.path(certPath.value() + "/" + serialNo);
 
-        info.setCertURL(certBuilder.build().toString());
+        Path certPath = CertResource.class.getMethod("getCert", CertId.class).getAnnotation(Path.class);
+        UriBuilder certBuilder = uriInfo.getBaseUriBuilder();
+        certBuilder.path(certPath.value());
+
+        info.setCertURL(certBuilder.build(serialNo).toString());
 
         return info;
     }

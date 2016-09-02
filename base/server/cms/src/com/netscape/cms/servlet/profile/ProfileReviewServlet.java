@@ -43,7 +43,6 @@ import com.netscape.certsrv.profile.IProfileInput;
 import com.netscape.certsrv.profile.IProfileOutput;
 import com.netscape.certsrv.profile.IProfilePolicy;
 import com.netscape.certsrv.profile.IProfileSubsystem;
-import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;

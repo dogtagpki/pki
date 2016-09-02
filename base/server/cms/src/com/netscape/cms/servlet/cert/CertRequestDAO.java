@@ -197,8 +197,13 @@ public class CertRequestDAO extends CMSRequestDAO {
 
         IRequest reqs[] = (IRequest[]) results.get(CAProcessor.ARG_REQUESTS);
         for (IRequest req : reqs) {
-            CertRequestInfo info = CertRequestInfoFactory.create(req, uriInfo);
-            ret.addEntry(info);
+            try {
+                CertRequestInfo info = CertRequestInfoFactory.create(req, uriInfo);
+                ret.addEntry(info);
+            } catch (NoSuchMethodException e) {
+                CMS.debug("Error in creating certrequestinfo - no such method");
+                e.printStackTrace();
+            }
         }
 
         ret.setTotal(ret.getEntries().size());
@@ -221,7 +226,13 @@ public class CertRequestDAO extends CMSRequestDAO {
 
     @Override
     public CertRequestInfo createCMSRequestInfo(IRequest request, UriInfo uriInfo) {
-        return CertRequestInfoFactory.create(request, uriInfo);
+        try {
+            return CertRequestInfoFactory.create(request, uriInfo);
+        } catch (NoSuchMethodException e) {
+            CMS.debug("Error in creating certrequestinfo - no such method");
+            e.printStackTrace();
+        }
+        return null;
     }
 
 }

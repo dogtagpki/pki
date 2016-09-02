@@ -50,7 +50,7 @@ public class TPSInstallerService extends SystemConfigService  {
 
         // get token prefix, if applicable
         String tokPrefix = "";
-        if (!request.getToken().equals(request.TOKEN_DEFAULT) &&
+        if (!request.getToken().equals(ConfigurationRequest.TOKEN_DEFAULT) &&
                 !request.getToken().equals("internal")) {
             tokPrefix = request.getToken() + ":";
         }
