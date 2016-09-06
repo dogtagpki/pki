@@ -505,9 +505,6 @@ Requires:         java-1.8.0-openjdk-headless
 Requires:         hostname
 Requires:         net-tools
 
-Requires:         python-ldap
-Requires:         python-lxml
-
 %if 0%{?rhel}
 Requires:    nuxwdog-client-java >= 1.0.1-11
 %else
@@ -521,6 +518,7 @@ Requires:         pki-base-java = %{version}-%{release}
 Requires:         pki-tools = %{version}-%{release}
 Requires:         python-ldap
 Requires:         python-lxml
+Requires:         libselinux-python
 Requires:         policycoreutils-python
 %if 0%{?fedora} >= 23
 Requires:         policycoreutils-python-utils
@@ -924,8 +922,7 @@ fi
 # Customize server upgrade scripts in /usr/share/pki/server/upgrade
 %if 0%{?rhel}
 mv %{buildroot}%{_datadir}/pki/server/upgrade/10.3.5/01-FixServerLibrary %{buildroot}%{_datadir}/pki/server/upgrade/10.3.3/02-FixServerLibrary
-mv %{buildroot}%{_datadir}/pki/server/upgrade/10.3.5/02-FixSELinuxContexts %{buildroot}%{_datadir}/pki/server/upgrade/10.3.3/03-FixSELinuxContexts
-mv %{buildroot}%{_datadir}/pki/server/upgrade/10.3.5/03-FixDeploymentDescriptor %{buildroot}%{_datadir}/pki/server/upgrade/10.3.3/04-FixDeploymentDescriptor
+mv %{buildroot}%{_datadir}/pki/server/upgrade/10.3.5/02-FixDeploymentDescriptor %{buildroot}%{_datadir}/pki/server/upgrade/10.3.3/03-FixDeploymentDescriptor
 /bin/rm -rf %{buildroot}%{_datadir}/pki/server/upgrade/10.3.4
 /bin/rm -rf %{buildroot}%{_datadir}/pki/server/upgrade/10.3.5
 %endif
