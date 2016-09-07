@@ -65,7 +65,7 @@
 
 Name:             pki-core
 Version:          10.3.5
-Release:          3%{?dist}
+Release:          5%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -207,8 +207,12 @@ Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{
 Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{release}/%{name}-%{version}%{?prerel}.tar.gz
 %endif
 
-## pki-core-10.3.5-2
+## pki-core-10.3.5-3
 #Patch1:           pki-core-snapshot-1.patch
+## pki-core-10.3.5-4
+#Patch2:           pki-core-snapshot-2.patch
+## pki-core-10.3.5-5
+#Patch3:           pki-core-snapshot-3.patch
 
 # Obtain version phase number (e. g. - used by "alpha", "beta", etc.)
 #
@@ -508,9 +512,6 @@ Requires:         java-1.8.0-openjdk-headless
 Requires:         hostname
 Requires:         net-tools
 
-Requires:         python-ldap
-Requires:         python-lxml
-
 %if 0%{?rhel}
 Requires:    nuxwdog-client-java >= 1.0.1-11
 %else
@@ -524,6 +525,7 @@ Requires:         pki-base-java = %{version}-%{release}
 Requires:         pki-tools = %{version}-%{release}
 Requires:         python-ldap
 Requires:         python-lxml
+Requires:         libselinux-python
 Requires:         policycoreutils-python
 %if 0%{?fedora} >= 23
 Requires:         policycoreutils-python-utils
@@ -825,6 +827,8 @@ This package is a part of the PKI Core used by the Certificate System.
 %prep
 %setup -q -n %{name}-%{version}%{?prerel}
 #%patch1 -p1
+#%patch2 -p1
+#%patch3 -p1
 
 %clean
 %{__rm} -rf %{buildroot}
@@ -928,8 +932,7 @@ fi
 # Customize server upgrade scripts in /usr/share/pki/server/upgrade
 %if 0%{?rhel}
 mv %{buildroot}%{_datadir}/pki/server/upgrade/10.3.5/01-FixServerLibrary %{buildroot}%{_datadir}/pki/server/upgrade/10.3.3/02-FixServerLibrary
-mv %{buildroot}%{_datadir}/pki/server/upgrade/10.3.5/02-FixSELinuxContexts %{buildroot}%{_datadir}/pki/server/upgrade/10.3.3/03-FixSELinuxContexts
-mv %{buildroot}%{_datadir}/pki/server/upgrade/10.3.5/03-FixDeploymentDescriptor %{buildroot}%{_datadir}/pki/server/upgrade/10.3.3/04-FixDeploymentDescriptor
+mv %{buildroot}%{_datadir}/pki/server/upgrade/10.3.5/02-FixDeploymentDescriptor %{buildroot}%{_datadir}/pki/server/upgrade/10.3.3/03-FixDeploymentDescriptor
 /bin/rm -rf %{buildroot}%{_datadir}/pki/server/upgrade/10.3.4
 /bin/rm -rf %{buildroot}%{_datadir}/pki/server/upgrade/10.3.5
 %endif
@@ -1326,6 +1329,28 @@ systemctl daemon-reload
 %endif # %{with server}
 
 %changelog
+* Tue Sep  6 2016 Dogtag Team <pki-devel@redhat.com> 10.3.5-5
+- PKI TRAC Ticket #1638 - Lightweight CAs: revoke certificate on CA deletion
+  (ftweedal)
+- PKI TRAC Ticket #2436 - Dogtag 10.3.6: Miscellaneous Enhancements
+  (edewata)
+- PKI TRAC Ticket #2443 - Prevent deletion of host CA's keys if LWCA entry
+  deleted (ftweedal)
+- PKI TRAC Ticket #2444 - Authority entry without entryUSN is skipped even if
+  USN plugin enabled (ftweedal)
+- PKI TRAC Ticket #2446 - pkispawn: make subject_dn defaults unique per
+  instance name (for shared HSM) (cfu)
+- PKI TRAC Ticket #2447 - CertRequestInfo has incorrect URLs (vakwetu)
+- PKI TRAC Ticket #2449 - Unable to create system certificates in different
+  tokens (edewata)
+
+* Mon Aug 29 2016 Dogtag Team <pki-devel@redhat.com> 10.3.5-4
+- PKI TRAC Ticket #1578 - Authentication Instance Id PinDirEnrollment with authType value as SslclientAuth is not working (jmagne)
+- PKI TRAC TIcket #2414 - pki pkcs12-cert-del shows a successfully deleted message when a wrong nickname is provided (gkapoor)
+- PKI TRAC Ticket #2423 - pki_ca_signing_token when not specified does not fallback to pki_token_name value (edewata)
+- PKI TRAC Ticket #2436 - Dogtag 10.3.6: Miscellaneous Enhancements (akasurde) - ticket remains open
+- PKI TRAC Ticket #2439 - Outdated deployment descriptors in upgraded server(edewata)
+
 * Mon Aug 22 2016 Dogtag Team <pki-devel@redhat.com> 10.3.5-3
 - spec file changes
 
