@@ -2826,7 +2826,7 @@ public class ConfigurationUtils {
         }
 
         config.putString(subsystem + "." + certTag + ".nickname", nickname);
-
+        config.putString(subsystem + "." + certTag + ".tokenname", token);
         if (certTag.equals("audit_signing")) {
             if (!token.equals("Internal Key Storage Token") && !token.equals("")) {
                 config.putString("log.instance.SignedAudit.signedAuditCertNickname",
@@ -3325,15 +3325,14 @@ public class ConfigurationUtils {
         return 0;
     }
 
-    public static void setCertPermissions(Cert cert) throws EBaseException, NotInitializedException,
+    public static void setCertPermissions(String tag) throws EBaseException, NotInitializedException,
             ObjectNotFoundException, TokenException {
-
-        String tag = cert.getCertTag();
         if (tag.equals("signing") || tag.equals("external_signing"))
             return;
 
-        String nickname = cert.getNickname();
-        String tokenname = cert.getTokenname();
+        IConfigStore cs = CMS.getConfigStore();
+        String nickname = cs.getString("preop.cert." + tag + ".nickname", "");
+        String tokenname = cs.getString("preop.module.token", "");
         if (!tokenname.equals("Internal Key Storage Token"))
             nickname = tokenname + ":" + nickname;
 
@@ -4555,11 +4554,9 @@ public class ConfigurationUtils {
 
     public static String getSubsystemCert() throws EBaseException, NotInitializedException, ObjectNotFoundException,
             TokenException, CertificateEncodingException, IOException {
-
         IConfigStore cs = CMS.getConfigStore();
-        String subsystem = cs.getString("cs.type").toLowerCase();
-        String nickname = cs.getString(subsystem + ".subsystem.nickname", "");
-        String tokenname = cs.getString(subsystem + ".subsystem.tokenname", "");
+        String nickname = cs.getString("preop.cert.subsystem.nickname", "");
+        String tokenname = cs.getString("preop.module.token", "");
 
         if (!tokenname.equals("internal") && !tokenname.equals("Internal Key Storage Token")
                 && !tokenname.equals("")) {
@@ -4574,7 +4571,6 @@ public class ConfigurationUtils {
             CMS.debug("ConfigurationUtils: getSubsystemCert: subsystem cert is null");
             return null;
         }
-
         byte[] bytes = cert.getEncoded();
         String s = CryptoUtil.normalizeCertStr(CryptoUtil.base64Encode(bytes));
         return s;
