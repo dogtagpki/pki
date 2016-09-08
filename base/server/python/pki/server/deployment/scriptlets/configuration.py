@@ -39,31 +39,6 @@ import pki.util
 # PKI Deployment Configuration Scriptlet
 class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
-    def store_cert_tokens(self, subsystem, deployer):
-
-        subsystem.config[subsystem.name + '.audit_signing.tokenname'] = (
-            deployer.mdict['pki_audit_signing_token'])
-        subsystem.config[subsystem.name + '.sslserver.tokenname'] = (
-            deployer.mdict['pki_ssl_server_token'])
-        subsystem.config[subsystem.name + '.subsystem.tokenname'] = (
-            deployer.mdict['pki_subsystem_token'])
-
-        if subsystem.name == 'ca':
-            subsystem.config['ca.signing.tokenname'] = (
-                deployer.mdict['pki_ca_signing_token'])
-            subsystem.config['ca.ocsp_signing.tokenname'] = (
-                deployer.mdict['pki_ocsp_signing_token'])
-
-        elif subsystem.name == 'kra':
-            subsystem.config['kra.storage.tokenname'] = (
-                deployer.mdict['pki_storage_token'])
-            subsystem.config['kra.transport.tokenname'] = (
-                deployer.mdict['pki_transport_token'])
-
-        elif subsystem.name == 'ocsp':
-            subsystem.config['ocsp.signing.tokenname'] = (
-                deployer.mdict['pki_ocsp_signing_token'])
-
     def spawn(self, deployer):
 
         if config.str2bool(deployer.mdict['pki_skip_configuration']):
@@ -290,13 +265,12 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     nickname=signing_nickname,
                     output_format='base64')
                 subsystem.config['ca.signing.nickname'] = signing_nickname
+                subsystem.config['ca.signing.tokenname'] = (
+                    deployer.mdict['pki_ca_signing_token'])
                 subsystem.config['ca.signing.cert'] = signing_cert_data
                 subsystem.config['ca.signing.cacertnickname'] = signing_nickname
                 subsystem.config['ca.signing.defaultSigningAlgorithm'] = (
                     deployer.mdict['pki_ca_signing_signing_algorithm'])
-
-                # Store cert tokens in CS.cfg.
-                self.store_cert_tokens(subsystem, deployer)
 
                 subsystem.save()
 
@@ -308,7 +282,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     instance, 'ca')
                 verifier.verify_certificate('signing')
 
-            else:  # other installation types
+            else:  # self-signed CA
 
                 # To be implemented in ticket #1692.
 
@@ -316,10 +290,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 # Self sign CA cert.
                 # Import self-signed CA cert into NSS database.
 
-                # Store cert tokens in CS.cfg.
-                self.store_cert_tokens(subsystem, deployer)
-
-                subsystem.save()
+                pass
 
         finally:
             nssdb.close()
