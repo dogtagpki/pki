@@ -65,7 +65,7 @@
 
 Name:             pki-core
 Version:          10.3.5
-Release:          5%{?dist}
+Release:          6%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -213,6 +213,8 @@ Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{
 #Patch2:           pki-core-snapshot-2.patch
 ## pki-core-10.3.5-5
 #Patch3:           pki-core-snapshot-3.patch
+## pki-core-10.3.5-6
+#Patch4:           pki-core-snapshot-4.patch
 
 # Obtain version phase number (e. g. - used by "alpha", "beta", etc.)
 #
@@ -829,6 +831,7 @@ This package is a part of the PKI Core used by the Certificate System.
 #%patch1 -p1
 #%patch2 -p1
 #%patch3 -p1
+#%patch4 -p1
 
 %clean
 %{__rm} -rf %{buildroot}
@@ -1329,6 +1332,10 @@ systemctl daemon-reload
 %endif # %{with server}
 
 %changelog
+* Fri Sep  9 2016 Dogtag Team <pki-devel@redhat.com> 10.3.5-6
+- Revert Patch:  PKI TRAC Ticket #2449 - Unable to create system certificates
+  in different tokens (edewata)
+
 * Tue Sep  6 2016 Dogtag Team <pki-devel@redhat.com> 10.3.5-5
 - PKI TRAC Ticket #1638 - Lightweight CAs: revoke certificate on CA deletion
   (ftweedal)
