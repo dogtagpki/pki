@@ -20,11 +20,11 @@ package com.netscape.cmscore.profile;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.concurrent.CountDownLatch;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPAttributeSet;
@@ -49,6 +49,7 @@ import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.profile.IProfileSubsystem;
 import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.certsrv.registry.IPluginRegistry;
+import com.netscape.certsrv.util.AsyncLoader;
 import com.netscape.cmscore.base.LDAPConfigStore;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
@@ -71,10 +72,7 @@ public class LDAPProfileSubsystem
     /* Set of nsUniqueIds of deleted entries */
     private TreeSet<String> deletedNsUniqueIds;
 
-    /* Variables to track initial loading of profiles */
-    private Integer initialNumProfiles = null;
-    private int numProfilesLoaded = 0;
-    private CountDownLatch initialLoadDone = new CountDownLatch(1);
+    private AsyncLoader loader = new AsyncLoader();
 
     /**
      * Initializes this subsystem with the given configuration
@@ -118,12 +116,33 @@ public class LDAPProfileSubsystem
         monitor = new Thread(this, "profileChangeMonitor");
         monitor.start();
         try {
-            initialLoadDone.await();
+            loader.awaitLoadDone();
         } catch (InterruptedException e) {
             CMS.debug("LDAPProfileSubsystem: caught InterruptedException "
                     + "while waiting for initial load of profiles.");
         }
         CMS.debug("LDAPProfileSubsystem: finished init");
+    }
+
+    public IProfile getProfile(String id)
+            throws EProfileException {
+        try {
+            loader.awaitLoadDone();
+        } catch (InterruptedException e) {
+            CMS.debug("LDAPProfileSubsystem.getProfile: caught InterruptedException "
+                    + "while waiting for profiles to be loaded.");
+        }
+        return super.getProfile(id);
+    }
+
+    public Enumeration<String> getProfileIds() {
+        try {
+            loader.awaitLoadDone();
+        } catch (InterruptedException e) {
+            CMS.debug("LDAPProfileSubsystem.getProfile: caught InterruptedException "
+                    + "while waiting for profiles to be loaded.");
+        }
+        return super.getProfileIds();
     }
 
     /**
@@ -395,12 +414,6 @@ public class LDAPProfileSubsystem
         return "cn=" + id + "," + dn;
     }
 
-    private void checkInitialLoadDone() {
-        if (initialNumProfiles != null
-                && numProfilesLoaded >= initialNumProfiles)
-            initialLoadDone.countDown();
-    }
-
     private void ensureProfilesOU(LDAPConnection conn) throws LDAPException {
         try {
             conn.search(dn, LDAPConnection.SCOPE_BASE, "(objectclass=*)", null, false);
@@ -431,7 +444,6 @@ public class LDAPProfileSubsystem
         CMS.debug("Profile change monitor: starting.");
 
         while (!stopped) {
-            forgetAllProfiles();
             try {
                 conn = dbFactory.getConn();
                 ensureProfilesOU(conn);
@@ -443,16 +455,28 @@ public class LDAPProfileSubsystem
                 LDAPSearchResults results = conn.search(
                     dn, LDAPConnection.SCOPE_SUB, "(objectclass=*)",
                     attrs, false, cons);
+
+                /* Wait until the last possible moment before taking
+                 * the load lock and dropping all profiles, so that
+                 * we can continue to service requests while LDAP is
+                 * down.
+                 *
+                 * Once we reconnect, we need to forget all profiles
+                 * and reload in case some were removed in the
+                 * interim.
+                 */
+                loader.startLoading();
+                forgetAllProfiles();
+
                 while (!stopped && results.hasMoreElements()) {
                     LDAPEntry entry = results.next();
 
                     String[] objectClasses =
                         entry.getAttribute("objectClass").getStringValueArray();
                     if (Arrays.asList(objectClasses).contains("organizationalUnit")) {
-                        initialNumProfiles = new Integer(
+                        loader.setNumItems(new Integer(
                             entry.getAttribute("numSubordinates")
-                                .getStringValueArray()[0]);
-                        checkInitialLoadDone();
+                                .getStringValueArray()[0]));
                         continue;
                     }
 
@@ -486,8 +510,7 @@ public class LDAPProfileSubsystem
                     } else {
                         CMS.debug("Profile change monitor: immediate result");
                         readProfile(entry);
-                        numProfilesLoaded += 1;
-                        checkInitialLoadDone();
+                        loader.increment();
                     }
                 }
             } catch (ELdapException e) {
