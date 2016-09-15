@@ -257,16 +257,16 @@ public final class SigningUnit implements ISigningUnit {
         } catch (NoSuchAlgorithmException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_SIGNING_ALG_NOT_SUPPORTED", algname, e.toString()));
             throw new ECAException(
-                    CMS.getUserMessage("CMS_CA_SIGNING_ALGOR_NOT_SUPPORTED", algname));
+                    CMS.getUserMessage("CMS_CA_SIGNING_ALGOR_NOT_SUPPORTED", algname), e);
         } catch (TokenException e) {
             // from get signature context or from initSign
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_SIGNING_ALG_NOT_SUPPORTED", algname, e.toString()));
             throw new ECAException(
-                    CMS.getUserMessage("CMS_CA_SIGNING_ALGOR_NOT_SUPPORTED", algname));
+                    CMS.getUserMessage("CMS_CA_SIGNING_ALGOR_NOT_SUPPORTED", algname), e);
         } catch (InvalidKeyException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_SIGNING_ALG_NOT_SUPPORTED", algname, e.toString()));
             throw new ECAException(
-                    CMS.getUserMessage("CMS_CA_SIGNING_ALGOR_NOT_SUPPORTED_FOR_KEY", algname));
+                    CMS.getUserMessage("CMS_CA_SIGNING_ALGOR_NOT_SUPPORTED_FOR_KEY", algname), e);
         }
     }
 
@@ -311,21 +311,21 @@ public final class SigningUnit implements ISigningUnit {
         } catch (NoSuchAlgorithmException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
             throw new ECAException(
-                    CMS.getUserMessage("CMS_CA_SIGNING_ALGOR_NOT_SUPPORTED", algname));
+                    CMS.getUserMessage("CMS_CA_SIGNING_ALGOR_NOT_SUPPORTED", algname), e);
         } catch (TokenException e) {
             // from get signature context or from initSign
             log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
             // XXX fix this exception later.
-            throw new EBaseException(e.toString());
+            throw new EBaseException(e);
         } catch (InvalidKeyException e) {
             // XXX fix this exception later.
-            throw new EBaseException(e.toString());
+            throw new EBaseException(e);
         } catch (SignatureException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
             CMS.debug("SigningUnit.sign: " + e.toString());
             CMS.checkForAndAutoShutdown();
             // XXX fix this exception later.
-            throw new EBaseException(e.toString());
+            throw new EBaseException(e);
         }
     }
 
@@ -351,21 +351,21 @@ public final class SigningUnit implements ISigningUnit {
         } catch (NoSuchAlgorithmException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
             // XXX fix this exception later.
-            throw new EBaseException(e.toString());
+            throw new EBaseException(e);
         } catch (TokenException e) {
             // from get signature context or from initSign
             log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
             // XXX fix this exception later.
-            throw new EBaseException(e.toString());
+            throw new EBaseException(e);
         } catch (InvalidKeyException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
             // XXX fix this exception later.
-            throw new EBaseException(e.toString());
+            throw new EBaseException(e);
         } catch (SignatureException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
             CMS.checkForAndAutoShutdown();
             // XXX fix this exception later.
-            throw new EBaseException(e.toString());
+            throw new EBaseException(e);
         }
     }
 
@@ -410,7 +410,7 @@ public final class SigningUnit implements ISigningUnit {
             String msg = "Invalid encoding in CA signing key.";
 
             log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", msg));
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", msg));
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", msg), e);
         }
 
         if (key.getAlgorithmId().getOID().equals(AlgorithmId.DSA_oid)) {

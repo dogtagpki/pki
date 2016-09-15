@@ -22,10 +22,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.SignatureException;
 
-import netscape.security.x509.AlgorithmId;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509Key;
-
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NoSuchTokenException;
 import org.mozilla.jss.crypto.CryptoToken;
@@ -47,6 +43,10 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.security.ISigningUnit;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.util.Cert;
+
+import netscape.security.x509.AlgorithmId;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509Key;
 
 /**
  * OCSP signing unit based on JSS.
@@ -175,24 +175,24 @@ public final class SigningUnit implements ISigningUnit {
         } catch (java.security.cert.CertificateException e) {
             log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSCORE_OCSP_CONVERT_X509", e.getMessage()));
-            throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()));
+            throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()), e);
         } catch (CryptoManager.NotInitializedException e) {
             log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSCORE_OCSP_SIGNING", e.toString()));
-            throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()));
+            throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()), e);
         } catch (IncorrectPasswordException e) {
             log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSCORE_OCSP_INCORRECT_PWD", e.toString()));
-            throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()));
+            throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()), e);
         } catch (NoSuchTokenException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_OCSP_TOKEN_NOT_FOUND", tokenname, e.toString()));
-            throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()));
+            throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()), e);
         } catch (ObjectNotFoundException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_OCSP_OBJECT_NOT_FOUND", e.toString()));
-            throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()));
+            throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()), e);
         } catch (TokenException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
-            throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()));
+            throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()), e);
         }
     }
 
@@ -223,16 +223,16 @@ public final class SigningUnit implements ISigningUnit {
         } catch (NoSuchAlgorithmException e) {
             log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSCORE_OCSP_SIGN_ALG_NOT_SUPPORTED", algname));
-            throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()));
+            throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()), e);
         } catch (TokenException e) {
             // from get signature context or from initSign
             log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSCORE_OCSP_SIGN_ALG_NOT_SUPPORTED", algname));
-            throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()));
+            throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()), e);
         } catch (InvalidKeyException e) {
             log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSCORE_OCSP_SIGN_ALG_NOT_SUPPORTED", algname));
-            throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()));
+            throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()), e);
         }
     }
 
@@ -265,18 +265,18 @@ public final class SigningUnit implements ISigningUnit {
             return signer.sign();
         } catch (NoSuchAlgorithmException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
-            throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()));
+            throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()), e);
         } catch (TokenException e) {
             // from get signature context or from initSign
             log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
-            throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()));
+            throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()), e);
         } catch (InvalidKeyException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
-            throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()));
+            throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()), e);
         } catch (SignatureException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
             CMS.checkForAndAutoShutdown();
-            throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()));
+            throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()), e);
         }
     }
 
@@ -301,18 +301,18 @@ public final class SigningUnit implements ISigningUnit {
             return signer.verify(signature);
         } catch (NoSuchAlgorithmException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
-            throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()));
+            throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()), e);
         } catch (TokenException e) {
             // from get signature context or from initSign
             log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
-            throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()));
+            throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()), e);
         } catch (InvalidKeyException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
-            throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()));
+            throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()), e);
         } catch (SignatureException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
             CMS.checkForAndAutoShutdown();
-            throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()));
+            throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()), e);
         }
     }
 
@@ -357,7 +357,7 @@ public final class SigningUnit implements ISigningUnit {
             String msg = "Invalid encoding in OCSP signing key.";
 
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_OCSP_INVALID_ENCODING"));
-            throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", msg));
+            throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", msg), e);
         }
 
         if (key.getAlgorithmId().getOID().equals(AlgorithmId.DSA_oid)) {
