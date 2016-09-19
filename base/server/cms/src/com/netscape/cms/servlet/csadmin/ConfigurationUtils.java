@@ -371,10 +371,15 @@ public class ConfigurationUtils {
 
         String body = post(sdhost, sdport, true, "/ca/admin/ca/getCookie",
                 content, null, null);
+        CMS.debug("ConfigurationUtils: response: " + body);
+
         return getContentValue(body, "header.session_id");
     }
 
     public static String getContentValue(String body, String header) {
+
+        CMS.debug("ConfigurationUtils: searching for " + header);
+
         StringTokenizer st = new StringTokenizer(body, "\n");
 
         while (st.hasMoreTokens()) {
@@ -994,7 +999,7 @@ public class ConfigurationUtils {
                 cm.findCertByNickname(nickname);
 
             } catch (ObjectNotFoundException e) {
-                throw new Exception("Missing system certificate: " + nickname);
+                throw new Exception("Missing system certificate: " + nickname, e);
             }
         }
     }
@@ -1679,7 +1684,7 @@ public class ConfigurationUtils {
             CMS.debug("checkParentExists: Parent entry " + parentDN + " exists.");
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT) {
-                throw new EBaseException("Parent entry " + parentDN + "does not exist", e);
+                throw new EBaseException("Parent entry " + parentDN + " does not exist", e);
             } else {
                 CMS.debug("checkParentExists: " + e);
                 throw new EBaseException("Failed to determine if base DN exists: " + e, e);
@@ -2320,7 +2325,7 @@ public class ConfigurationUtils {
 
     public static KeyPair loadKeyPair(String nickname, String token) throws Exception {
 
-        CMS.debug("ConfigurationUtils: loadKeyPair(" + nickname + ")");
+        CMS.debug("ConfigurationUtils: loadKeyPair(" + nickname + ", " + token + ")");
 
         CryptoManager cm = CryptoManager.getInstance();
 
@@ -3376,12 +3381,12 @@ public class ConfigurationUtils {
         try {
             @SuppressWarnings("unused")
             boolean done = cs.getBoolean("preop.CertRequestPanel.done"); // check for errors
-        } catch (Exception ee) {
+        } catch (Exception e) {
             if (hardware) {
                 CMS.debug("ConfigurationUtils: findCertificate: The certificate with the same nickname: "
                         + fullnickname + " has been found on HSM. Please remove it before proceeding.");
                 throw new IOException("The certificate with the same nickname: "
-                        + fullnickname + " has been found on HSM. Please remove it before proceeding.");
+                        + fullnickname + " has been found on HSM. Please remove it before proceeding.", e);
             }
         }
         return true;
@@ -4510,7 +4515,7 @@ public class ConfigurationUtils {
 
         if (response == null || response.equals("")) {
             CMS.debug("exportTransportCert: response is empty or null.");
-            throw new IOException("The server " + targetURI + "is not available");
+            throw new IOException("The server " + targetURI + " is not available");
         } else {
             ByteArrayInputStream bis = new ByteArrayInputStream(response.getBytes());
             XMLObject parser = new XMLObject(bis);
