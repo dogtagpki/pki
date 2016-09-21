@@ -171,6 +171,7 @@ public final class SigningUnit implements ISigningUnit {
                 mCert = mManager.findCertByNickname(mNickname);
                 CMS.debug("Found cert by nickname: '" + mNickname + "' with serial number: " + mCert.getSerialNumber());
             } catch (ObjectNotFoundException e) {
+                CMS.debug("Unable to find certificate " + mNickname);
                 throw new CAMissingCertException(CMS.getUserMessage("CMS_CA_CERT_OBJECT_NOT_FOUND"), e);
             }
 
@@ -181,6 +182,7 @@ public final class SigningUnit implements ISigningUnit {
                 mPrivk = mManager.findPrivKeyByCert(mCert);
                 CMS.debug("Got private key from cert");
             } catch (ObjectNotFoundException e) {
+                CMS.debug("Unable to find private key for " + mNickname);
                 throw new CAMissingKeyException(CMS.getUserMessage("CMS_CA_CERT_OBJECT_NOT_FOUND"), e);
             }
 
