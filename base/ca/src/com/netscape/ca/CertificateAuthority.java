@@ -1569,7 +1569,12 @@ public class CertificateAuthority
                 CMS.debug("CA signing key and cert not (yet) present in NSSDB");
                 signingUnitException = e;
                 if (retrieveKeys == true) {
-                    if (!keyRetrieverThreads.containsKey(authorityID)) {
+                    if (authorityID == null) {
+                        // Only the host authority should ever see a
+                        // null authorityID, e.g. during two-step
+                        // installation of externally-signed CA.
+                        CMS.debug("null authorityID -> host authority; not starting KeyRetriever");
+                    } else if (!keyRetrieverThreads.containsKey(authorityID)) {
                         CMS.debug("Starting KeyRetrieverRunner thread");
                         Thread t = new Thread(
                             new KeyRetrieverRunner(authorityID, mNickname, authorityKeyHosts),
