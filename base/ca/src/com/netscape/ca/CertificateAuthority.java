@@ -3256,7 +3256,12 @@ public class CertificateAuthority
         if (descAttr != null)
             desc = (String) descAttr.getStringValues().nextElement();
 
-        if (dn.equals(mName)) {
+        /* Determine if it is the host authority's entry, by
+         * comparing DNs.  DNs must be serialised in case different
+         * encodings are used for AVA values, e.g. PrintableString
+         * from LDAP vs UTF8String in certificate.
+         */
+        if (dn.toString().equals(mName.toString())) {
             CMS.debug("Found host authority");
             foundHostAuthority = true;
             this.authorityID = aid;
