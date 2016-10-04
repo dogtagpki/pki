@@ -513,7 +513,21 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
             String serialno,
             RevocationReason reason)
             throws EBaseException {
+        return revokeCertificate(null, serialno, reason);
+    }
+    private CARevokeCertResponse revokeCertificate(
+            String caConn,
+            String serialno,
+            RevocationReason reason)
+            throws EBaseException {
 
+        String revCAid = connid;
+        if (caConn != null) {
+            CMS.debug("CARemoteRequestHandler: revokeCertificate(): passed in ca ID: " + caConn);
+            revCAid = caConn;
+        } else {
+            CMS.debug("CARemoteRequestHandler: revokeCertificate(): using default ca ID:" + connid);
+        }
         CMS.debug("CARemoteRequestHandler: revokeCertificate(): begins on serial#:" + serialno);
         if (serialno == null || reason == null) {
             throw new EBaseException("CARemoteRequestHandler: revokeCertificate(): input parameter null.");
@@ -524,9 +538,9 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
         TPSSubsystem subsystem =
                 (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
         HttpConnector conn =
-                (HttpConnector) subsystem.getConnectionManager().getConnector(connid);
+                (HttpConnector) subsystem.getConnectionManager().getConnector(revCAid);
         if (conn == null) {
-            throw new EBaseException("CARemoteRequestHandler: revokeCertificate() to connid: " + connid + ": HttpConnector conn null.");
+            throw new EBaseException("CARemoteRequestHandler: revokeCertificate() to connid: " + revCAid + ": HttpConnector conn null.");
         }
         CMS.debug("CARemoteRequestHandler: revokeCertificate(): sending request to CA");
         HttpResponse resp =
@@ -537,7 +551,7 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
                                 IRemoteRequest.CA_REVOKE_SERIAL + "=" + serialno + ")&" +
                                 IRemoteRequest.CA_REVOKE_COUNT + "=1");
         if (resp == null) {
-            throw new EBaseException("CARemoteRequestHandler: revokeCertificate() to connid: " + connid + ": response null.");
+            throw new EBaseException("CARemoteRequestHandler: revokeCertificate() to connid: " + revCAid + ": response null.");
         }
         String content = resp.getContent();
 
@@ -570,7 +584,7 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
             response.put(IRemoteRequest.RESPONSE_STATUS, ist);
 
             CMS.debug("CARemoteRequestHandler: revokeCertificate(): ends.");
-            return new CARevokeCertResponse(connid, response);
+            return new CARevokeCertResponse(revCAid, response);
         } else {
             CMS.debug("CARemoteRequestHandler: revokeCertificate(): no response content.");
             throw new EBaseException("CARemoteRequestHandler: revokeCertificate(): no response content.");
@@ -588,7 +602,20 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
     private CARevokeCertResponse unrevokeCertificate(
             String serialno)
             throws EBaseException {
+        return unrevokeCertificate(null, serialno);
+    }
+    private CARevokeCertResponse unrevokeCertificate(
+            String caConn,
+            String serialno)
+            throws EBaseException {
 
+        String unrevCAid = connid;
+        if (caConn != null) {
+            CMS.debug("CARemoteRequestHandler: unrevokeCertificate(): passed in ca ID: " + caConn);
+            unrevCAid = caConn;
+        } else {
+            CMS.debug("CARemoteRequestHandler: unrevokeCertificate(): using default ca ID:" + connid);
+        }
         CMS.debug("CARemoteRequestHandler: unrevokeCertificate(): begins on serial#:" + serialno);
         if (serialno == null) {
             throw new EBaseException("CARemoteRequestHandler: unrevokeCertificate(): input parameter null.");
@@ -597,16 +624,16 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
         TPSSubsystem subsystem =
                 (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
         HttpConnector conn =
-                (HttpConnector) subsystem.getConnectionManager().getConnector(connid);
+                (HttpConnector) subsystem.getConnectionManager().getConnector(unrevCAid);
         if (conn == null) {
-            throw new EBaseException("CARemoteRequestHandler: unrevokeCertificate() to connid: " + connid + ": HttpConnector conn null.");
+            throw new EBaseException("CARemoteRequestHandler: unrevokeCertificate() to connid: " + unrevCAid + ": HttpConnector conn null.");
         }
         CMS.debug("CARemoteRequestHandler: unrevokeCertificate(): sending request to CA");
         HttpResponse resp =
                 conn.send("unrevoke",
                         IRemoteRequest.CA_UNREVOKE_SERIAL + "=" + serialno);
         if (resp == null) {
-            throw new EBaseException("CARemoteRequestHandler: unrevokeCertificate() to connid: " + connid + ": response null.");
+            throw new EBaseException("CARemoteRequestHandler: unrevokeCertificate() to connid: " + unrevCAid + ": response null.");
         }
         String content = resp.getContent();
 
@@ -639,7 +666,7 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
             response.put(IRemoteRequest.RESPONSE_STATUS, ist);
 
             CMS.debug("CARemoteRequestHandler: unrevokeCertificate(): ends.");
-            return new CARevokeCertResponse(connid, response);
+            return new CARevokeCertResponse(unrevCAid, response);
         } else {
             CMS.debug("CARemoteRequestHandler: unrevokeCertificate(): no response content.");
             throw new EBaseException("CARemoteRequestHandler: unrevokeCertificate(): no response content.");
@@ -693,14 +720,15 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
         Exception exception = null;
 
         for (String ca : caList) {
+            CMS.debug("CARemoteRequestHandler: revokeFromOtherCA: processing caList: ca id:" + ca);
             try {
                 String caSkiString = getCaSki(ca);
                 if (certAkiString.equals(caSkiString)) {
                     CMS.debug("CARemoteRequestHandler: revokeFromOtherCA() cert AKI and caCert SKI matched");
                     if (revoke) {
-                        return revokeCertificate(serialno, reason);
+                        return revokeCertificate(ca, serialno, reason);
                     } else {
-                        return unrevokeCertificate(serialno);
+                        return unrevokeCertificate(ca, serialno);
                     }
                 } else { // not a match then iterate to next ca in list
                     CMS.debug("CARemoteRequestHandler: revokeFromOtherCA() cert AKI and caCert SKI not matched");
