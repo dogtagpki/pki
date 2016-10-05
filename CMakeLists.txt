@@ -54,7 +54,6 @@ macro_ensure_out_of_source_build("${PROJECT_NAME} requires an out of source buil
 include(MacroCopyFile)
 include(Java)
 
-file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/classes)
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/dist)
 
 # required for all PKI components

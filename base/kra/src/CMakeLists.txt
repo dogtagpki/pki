@@ -118,7 +118,7 @@ javac(pki-kra-classes
         ${PKI_CMSUTIL_JAR} ${PKI_NSUTIL_JAR}
         ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR} ${PKI_CMSCORE_JAR} ${TOMCAT_CATALINA_JAR}
     OUTPUT_DIR
-        ${CMAKE_BINARY_DIR}/classes
+        ${CMAKE_CURRENT_BINARY_DIR}/classes
     DEPENDS
         symkey-jar pki-nsutil-jar pki-cmsutil-jar pki-certsrv-jar pki-cms-jar pki-cmscore-jar
 )
@@ -136,7 +136,7 @@ jar(pki-kra-jar
     PARAMS
         ${CMAKE_CURRENT_BINARY_DIR}/pki-kra.mf
     INPUT_DIR
-        ${CMAKE_BINARY_DIR}/classes
+        ${CMAKE_CURRENT_BINARY_DIR}/classes
     FILES
         com/netscape/kra/*.class
         org/dogtagpki/server/kra/*.class

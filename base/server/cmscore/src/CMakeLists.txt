@@ -133,7 +133,7 @@ javac(pki-cmscore-classes
         ${HTTPCLIENT_JAR} ${HTTPCORE_JAR}
         ${NUXWDOG_JAR}
     OUTPUT_DIR
-        ${CMAKE_BINARY_DIR}/classes
+        ${CMAKE_CURRENT_BINARY_DIR}/classes
     DEPENDS
         pki-nsutil-jar pki-cmsutil-jar pki-certsrv-jar pki-cms-jar pki-tomcat-jar
 )
@@ -151,7 +151,7 @@ jar(pki-cmscore-jar
     PARAMS
         ${CMAKE_CURRENT_BINARY_DIR}/pki-cmscore.mf
     INPUT_DIR
-        ${CMAKE_BINARY_DIR}/classes
+        ${CMAKE_CURRENT_BINARY_DIR}/classes
     FILES
         com/netscape/cmscore/*.class
     DEPENDS

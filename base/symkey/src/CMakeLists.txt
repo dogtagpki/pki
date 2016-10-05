@@ -15,14 +15,14 @@ javac(symkey-classes
     CLASSPATH
         ${JSS_JAR}
     OUTPUT_DIR
-        ${CMAKE_BINARY_DIR}/classes
+        ${CMAKE_CURRENT_BINARY_DIR}/classes
 )
 
 jar(symkey-jar
     CREATE
         ${CMAKE_BINARY_DIR}/dist/symkey.jar
     INPUT_DIR
-        ${CMAKE_BINARY_DIR}/classes
+        ${CMAKE_CURRENT_BINARY_DIR}/classes
     FILES
         com/netscape/symkey/*.class
     DEPENDS

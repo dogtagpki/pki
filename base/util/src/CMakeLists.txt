@@ -76,7 +76,7 @@ javac(pki-nsutil-classes
         ${APACHE_COMMONS_LANG_JAR} ${LDAPJDK_JAR} ${XALAN_JAR} ${XERCES_JAR}
         ${JSS_JAR} ${COMMONS_CODEC_JAR}
     OUTPUT_DIR
-        ${CMAKE_BINARY_DIR}/classes
+        ${CMAKE_CURRENT_BINARY_DIR}/classes
 )
 
 configure_file(
@@ -92,7 +92,7 @@ jar(pki-nsutil-jar
     PARAMS
         ${CMAKE_CURRENT_BINARY_DIR}/pki-nsutil.mf
     INPUT_DIR
-        ${CMAKE_BINARY_DIR}/classes
+        ${CMAKE_CURRENT_BINARY_DIR}/classes
     FILES
         netscape/*.class
     DEPENDS
@@ -118,7 +118,7 @@ javac(pki-cmsutil-classes
         ${LDAPJDK_JAR} ${XALAN_JAR} ${XERCES_JAR}
         ${JSS_JAR} ${COMMONS_CODEC_JAR} ${NUXWDOG_JAR}
     OUTPUT_DIR
-        ${CMAKE_BINARY_DIR}/classes
+        ${CMAKE_CURRENT_BINARY_DIR}/classes
     DEPENDS
         pki-nsutil-jar
 )
@@ -136,7 +136,7 @@ jar(pki-cmsutil-jar
     PARAMS
         ${CMAKE_CURRENT_BINARY_DIR}/pki-cmsutil.mf
     INPUT_DIR
-        ${CMAKE_BINARY_DIR}/classes
+        ${CMAKE_CURRENT_BINARY_DIR}/classes
     FILES
         com/netscape/cmsutil/*.class
     DEPENDS

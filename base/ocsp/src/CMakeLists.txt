@@ -80,7 +80,7 @@ javac(pki-ocsp-classes
         ${LDAPJDK_JAR} ${JAXRS_API_JAR}
         ${JSS_JAR} ${COMMONS_CODEC_JAR} ${SYMKEY_JAR}
     OUTPUT_DIR
-        ${CMAKE_BINARY_DIR}/classes
+        ${CMAKE_CURRENT_BINARY_DIR}/classes
     DEPENDS
         symkey-jar pki-nsutil-jar pki-cmsutil-jar pki-certsrv-jar pki-cms-jar pki-cmscore-jar
 )
@@ -98,7 +98,7 @@ jar(pki-ocsp-jar
     PARAMS
         ${CMAKE_CURRENT_BINARY_DIR}/pki-ocsp.mf
     INPUT_DIR
-        ${CMAKE_BINARY_DIR}/classes
+        ${CMAKE_CURRENT_BINARY_DIR}/classes
     FILES
         com/netscape/ocsp/*.class
         org/dogtagpki/server/ocsp/*.class
