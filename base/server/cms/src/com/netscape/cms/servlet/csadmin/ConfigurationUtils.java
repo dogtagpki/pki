@@ -289,9 +289,20 @@ public class ConfigurationUtils {
                 // separate individual certs in chain for display
                 byte[] decoded = CryptoUtil.base64Decode(certchain);
                 java.security.cert.X509Certificate[] b_certchain = CryptoUtil.getX509CertificateFromPKCS7(decoded);
-                int size = 0;
 
-                if (b_certchain != null) {
+                int size;
+
+                if (b_certchain == null) {
+                    CMS.debug("ConfigurationUtils: no certificate chain");
+
+                    size = 0;
+
+                } else {
+                    CMS.debug("ConfigurationUtils: certificate chain:");
+                    for (java.security.cert.X509Certificate cert : b_certchain) {
+                        CMS.debug("ConfigurationUtils: - " + cert.getSubjectDN());
+                    }
+
                     size = b_certchain.length;
                 }
 

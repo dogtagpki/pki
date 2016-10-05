@@ -19,14 +19,13 @@ package com.netscape.cms.servlet.csadmin;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.security.cert.X509Certificate;
 import java.util.Locale;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import netscape.security.x509.CertificateChain;
 
 import org.w3c.dom.Node;
 
@@ -38,6 +37,8 @@ import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cmsutil.xml.XMLObject;
+
+import netscape.security.x509.CertificateChain;
 
 public class GetCertChain extends CMSServlet {
 
@@ -70,15 +71,27 @@ public class GetCertChain extends CMSServlet {
      * @param cmsReq the object holding the request and response information
      */
     protected void process(CMSRequest cmsReq) throws EBaseException {
+
         HttpServletResponse httpResp = cmsReq.getHttpResp();
 
         CertificateChain certChain = ((ICertAuthority) mAuthority).getCACertChain();
 
         if (certChain == null) {
-            CMS.debug(
-                    "GetCertChain displayChain: cannot get the certificate chain.");
+            CMS.debug("GetCertChain: cannot get the certificate chain.");
             outputError(httpResp, "Error: Failed to get certificate chain.");
             return;
+        }
+
+        X509Certificate[] certs = certChain.getChain();
+
+        if (certs == null) {
+            CMS.debug("GetCertChain: no certificate chain");
+
+        } else {
+            CMS.debug("GetCertChain: certificate chain:");
+            for (X509Certificate cert : certs) {
+                CMS.debug("GetCertChain: - " + cert.getSubjectDN());
+            }
         }
 
         byte[] bytes = null;
