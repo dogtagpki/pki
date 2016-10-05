@@ -97,13 +97,12 @@ javac(pki-console-classes
     SOURCES
         com/netscape/admin/certsrv/*.java
     CLASSPATH
-        ${CMAKE_BINARY_DIR}/classes
         ${BASE_JAR} ${LDAPJDK_JAR} ${MMC_JAR}
         ${MMC_EN_JAR} ${NMCLF_JAR} ${NMCLF_EN_JAR}
         ${PKI_CMSUTIL_JAR} ${PKI_NSUTIL_JAR} ${PKI_CERTSRV_JAR}
         ${JSS_JAR} ${COMMONS_CODEC_JAR}
     OUTPUT_DIR
-        ${CMAKE_BINARY_DIR}/classes
+        ${CMAKE_CURRENT_BINARY_DIR}/classes
 )
 
 configure_file(
@@ -120,7 +119,7 @@ jar(pki-console-jar
     PARAMS
         ${CMAKE_CURRENT_BINARY_DIR}/pki-console.mf
     INPUT_DIR
-        ${CMAKE_BINARY_DIR}/classes
+        ${CMAKE_CURRENT_BINARY_DIR}/classes
     FILES
         com/netscape/admin/certsrv/*.class
     INPUT_DIR

@@ -131,7 +131,7 @@ javac(pki-certsrv-classes
         ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR} ${RESTEASY_ATOM_PROVIDER_JAR} ${RESTEASY_CLIENT_JAR}
         ${HTTPCLIENT_JAR} ${HTTPCORE_JAR}
     OUTPUT_DIR
-        ${CMAKE_BINARY_DIR}/classes
+        ${CMAKE_CURRENT_BINARY_DIR}/classes
     DEPENDS
         pki-nsutil-jar pki-cmsutil-jar
 )
@@ -149,7 +149,7 @@ jar(pki-certsrv-jar
     PARAMS
         ${CMAKE_CURRENT_BINARY_DIR}/pki-certsrv.mf
     INPUT_DIR
-        ${CMAKE_BINARY_DIR}/classes
+        ${CMAKE_CURRENT_BINARY_DIR}/classes
     FILES
         com/netscape/certsrv/*.class
         org/dogtagpki/tps/*.class

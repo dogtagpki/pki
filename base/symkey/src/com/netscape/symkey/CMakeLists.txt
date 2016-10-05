@@ -42,7 +42,7 @@ add_custom_command(
         ${symkey_library_HDRS}
     COMMAND
         ${Java_JAVAH_EXECUTABLE}
-            -classpath ${CMAKE_BINARY_DIR}/classes:${JAVA_LIB_INSTALL_DIR}/jss4.jar
+            -classpath ${CMAKE_CURRENT_BINARY_DIR}/../../../classes:${JAVA_LIB_INSTALL_DIR}/jss4.jar
             -jni -d ${CMAKE_CURRENT_BINARY_DIR}
             com.netscape.symkey.SessionKey
 )

@@ -133,7 +133,7 @@ javac(pki-cms-classes
         ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR} ${RESTEASY_ATOM_PROVIDER_JAR}
         ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR} ${PKI_CERTSRV_JAR} ${PKI_TOMCAT_JAR}
     OUTPUT_DIR
-        ${CMAKE_BINARY_DIR}/classes
+        ${CMAKE_CURRENT_BINARY_DIR}/classes
     DEPENDS
         pki-nsutil-jar pki-cmsutil-jar pki-certsrv-jar pki-tomcat-jar
 )
@@ -151,7 +151,7 @@ jar(pki-cms-jar
     PARAMS
         ${CMAKE_CURRENT_BINARY_DIR}/pki-cms.mf
     INPUT_DIR
-        ${CMAKE_BINARY_DIR}/classes
+        ${CMAKE_CURRENT_BINARY_DIR}/classes
     FILES
         com/netscape/cms/*.class
         org/dogtagpki/server/*.class
