@@ -14,11 +14,6 @@ import java.util.Map;
 import java.util.Random;
 import java.util.zip.DataFormatException;
 
-import netscape.security.provider.RSAPublicKey;
-//import org.mozilla.jss.pkcs11.PK11ECPublicKey;
-import netscape.security.util.BigInt;
-import netscape.security.x509.X509CertImpl;
-
 import org.dogtagpki.server.tps.TPSSession;
 import org.dogtagpki.server.tps.TPSSubsystem;
 import org.dogtagpki.server.tps.TPSTokenPolicy;
@@ -58,14 +53,18 @@ import org.mozilla.jss.pkcs11.PK11PubKey;
 import org.mozilla.jss.pkcs11.PK11RSAPublicKey;
 import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
 
-import sun.security.pkcs11.wrapper.PKCS11Constants;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.tps.token.TokenStatus;
 import com.netscape.cmsutil.util.Utils;
+
+import netscape.security.provider.RSAPublicKey;
+//import org.mozilla.jss.pkcs11.PK11ECPublicKey;
+import netscape.security.util.BigInt;
+import netscape.security.x509.X509CertImpl;
+import sun.security.pkcs11.wrapper.PKCS11Constants;
 
 public class TPSEnrollProcessor extends TPSProcessor {
 
@@ -1263,18 +1262,38 @@ public class TPSEnrollProcessor extends TPSProcessor {
                 }
             }
 
-            if (keyid == null) {
-                logMsg = " no keyid; skip key recovery; continue";
-                CMS.debug(method + logMsg);
-                continue;
-            } else if (keyid.compareTo(BigInteger.valueOf(0)) == 0) {
-                logMsg = " keyid is 0; invalid; skip key recovery; continue";
-                CMS.debug(method + logMsg);
-                continue;
+            // default: externalReg.recover.byKeyID=false
+            String b64cert = null;
+            if (getExternalRegRecoverByKeyID() == false) {
+                b64cert = certResp.getCertB64();
+                //CMS.debug("TPSEnrollProcessor.processRecovery: cert blob to recover key with: " + b64cert);
             }
+
+            /*
+             * Recover either by keyID or by cert
+             * When recovering by keyid:
+             *   - keyid in record indicates actual recovery;
+             *   - missing of which means retention;
+             * When recovering by cert:
+             *   - keyid field needs to be present
+             *     but the value is not relevant (a "0" would be fine)
+             *   - missing of keyid still means retention;
+             */
+            if (keyid == null) {
+                logMsg = " no keyid; retention; skip key recovery; continue";
+                CMS.debug(method + logMsg);
+                continue;
+            } else {
+                logMsg = " keyid in user record: " + keyid.toString();
+                CMS.debug(method + logMsg);
+                if ((getExternalRegRecoverByKeyID() == false) &&
+                        keyid.compareTo(BigInteger.valueOf(0)) != 0) {
+                    logMsg = " Recovering by cert; keyid is irrelevant from user record";
+                    CMS.debug(method + logMsg);
+                }
+            }
+
             // recover keys
-            logMsg = " recovering for keyid: " + keyid.toString();
-            CMS.debug(method + logMsg);
             KRARecoverKeyResponse keyResp = null;
             if (kraConn != null) {
                 logMsg = "kraConn not null:" + kraConn;
@@ -1290,7 +1309,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
                 }
 
                 keyResp = kraRH.recoverKey(cuid, userid, Util.specialURLEncode(channel.getDRMWrappedDesKey()),
-                        null, keyid);
+                        getExternalRegRecoverByKeyID() ? null : b64cert, keyid);
                 if (keyResp == null) {
                     auditInfo = "recovering key not found";
                     auditRecovery(userid, appletInfo, "failure",
@@ -1600,6 +1619,27 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
         CMS.debug(method + ": returning " + enabled);
         return enabled;
+    }
+
+    /**
+     * getExternalRegRecoverByKeyID returns whether externalReg
+     * recovery is recovering by keyID or not; default is by cert
+     */
+    private boolean getExternalRegRecoverByKeyID() {
+        String method = "TPSEnrollProcessor.getExternalRegRecoverByKeyID";
+        IConfigStore configStore = CMS.getConfigStore();
+        boolean recoverByKeyID = false;
+
+        try {
+            String configValue = "externalReg.recover.byKeyID";
+            recoverByKeyID = configStore.getBoolean(configValue, false);
+        } catch (EBaseException e) {
+            // should never get here anyway
+            // but if it does, just take the default "false"
+            CMS.debug(method + " exception, take default: " + e);
+        }
+        CMS.debug(method + ": returning " + recoverByKeyID);
+        return recoverByKeyID;
     }
 
     private String getRenewConfigKeyType(int keyTypeIndex) throws TPSException {
