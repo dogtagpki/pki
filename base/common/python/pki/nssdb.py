@@ -237,7 +237,7 @@ class NSSDatabase(object):
 
             if basic_constraints_ext:
 
-                cmd.extend(['-2', hash_alg])
+                cmd.extend(['-2'])
 
                 # Is this a CA certificate [y/N]?
                 if basic_constraints_ext['ca']:
