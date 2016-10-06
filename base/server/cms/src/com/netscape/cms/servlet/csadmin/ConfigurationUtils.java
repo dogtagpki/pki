@@ -261,8 +261,9 @@ public class ConfigurationUtils {
 
         IConfigStore cs = CMS.getConfigStore();
         ConfigCertApprovalCallback certApprovalCallback = new ConfigCertApprovalCallback();
-        // Ignore untrusted issuer to get cert chain.
+        // Ignore untrusted/unknown issuer to get cert chain.
         certApprovalCallback.ignoreError(ValidityStatus.UNTRUSTED_ISSUER);
+        certApprovalCallback.ignoreError(ValidityStatus.UNKNOWN_ISSUER);
         String c = get(host, port, true, serverPath, null, certApprovalCallback);
 
         if (c != null) {
