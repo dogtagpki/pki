@@ -152,6 +152,10 @@ public class EnrolledCertsInfo {
         certificates.add(x509Cert);
     }
 
+    public void removeCertificate(X509CertImpl x509Cert) {
+        certificates.remove(x509Cert);
+    }
+
     public void setStartProgress(int startP) {
         startProgress = startP;
 
