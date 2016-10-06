@@ -36,6 +36,7 @@ public class TPSTokenPolicy {
             "RE_ENROLL=YES;RENEW=NO;FORCE_FORMAT=NO;PIN_RESET=NO;RESET_PIN_RESET_TO_NO=NO";
     private boolean re_enroll = true;
     private boolean renew = false;
+    private boolean renew_keep_old_enc_certs = true;
     private boolean force_format = false;
     private boolean pin_reset = true;
     private boolean reset_pin_reset_to_no = false;
@@ -85,6 +86,8 @@ public class TPSTokenPolicy {
                 pin_reset = getBool(policy[1], false);
             else if (policy[0].equalsIgnoreCase("RESET_PIN_RESET_TO_NO"))
                 reset_pin_reset_to_no = getBool(policy[1], false);
+            else if (policy[0].equalsIgnoreCase("RENEW_KEEP_OLD_ENC_CERTS"))
+                renew_keep_old_enc_certs = getBool(policy[1],true);
             //else no change, just take the default;
         }
     }
@@ -148,6 +151,11 @@ public class TPSTokenPolicy {
         getUpdatedPolicy(cuid);
 
         return re_enroll;
+    }
+
+    public boolean isAllowdRenewSaveOldEncCerts(String cuid) {
+        getUpdatedPolicy(cuid);
+        return renew_keep_old_enc_certs;
     }
 
     public boolean isAllowdTokenRenew(String cuid) {

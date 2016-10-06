@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Random;
@@ -333,7 +334,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
         boolean allowMultiTokens = checkAllowMultiActiveTokensUser(isExternalReg);
 
-        if (isTokenPresent == false && allowMultiTokens == false) {
+        if (allowMultiTokens == false) {
             boolean alreadyHasActiveToken = checkUserAlreadyHasActiveToken(userid);
 
             if (alreadyHasActiveToken == true) {
@@ -1049,8 +1050,10 @@ public class TPSEnrollProcessor extends TPSProcessor {
                         CMS.debug(method + ": There are multiple token entries for user "
                                 + userid);
 
+                        if( checkUserAlreadyHasActiveToken(userid) == false) {
                             isRecover = true;
                             continue; // TODO: or break?
+                        }
                     }
 
                 } else if (tokenRecord.getTokenStatus() == TokenStatus.ACTIVE) {
@@ -1411,9 +1414,13 @@ public class TPSEnrollProcessor extends TPSProcessor {
          */
         Collection<TPSCertRecord> allCerts = tps.tdb.tdbGetCertRecordsByCUID(tokenRecord.getId());
 
+        Collection<TPSCertRecord> oldEncCertsToRecover = new ArrayList<TPSCertRecord>();
+
         certsInfo.setNumCertsToEnroll(keyTypeNum);
 
         CMS.debug(method + ": Number of certs to renew: " + keyTypeNum);
+
+        int numActuallyRenewed = 0;
 
         for (int i = 0; i < keyTypeNum; i++) {
             /*
@@ -1515,6 +1522,23 @@ public class TPSEnrollProcessor extends TPSProcessor {
                         generateCertificate(certsInfo, channel, aInfo, keyType, TPSEngine.ENROLL_MODES.MODE_RENEWAL,
                                 -1, cEnrollInfo);
 
+                        numActuallyRenewed ++;
+
+
+
+                        if(keyType.equals(TPSEngine.CFG_ENCRYPTION)) {
+                            CMS.debug(method + ": found old encryption cert (just renewed) to attempt to recover back to token, in order to read old emails.");
+                            CMS.debug(method + " adding cert: " + cert);
+                            oldEncCertsToRecover.add(cert);
+
+                        }
+
+                        if(numActuallyRenewed == keyTypeNum) {
+                            CMS.debug(method + " We have already renewed the proper number of certs, bailing from loop.");
+                            status = TPSStatus.STATUS_ERROR_RENEWAL_IS_PROCESSED;
+                            break;
+                        }
+
                         //renewCertificate(cert, certsInfo, channel, aInfo, keyType);
                         status = TPSStatus.STATUS_ERROR_RENEWAL_IS_PROCESSED;
                     } catch (TPSException e) {
@@ -1532,6 +1556,74 @@ public class TPSEnrollProcessor extends TPSProcessor {
             CMS.debug(method + ":" + logMsg);
             throw new TPSException(logMsg + TPSStatus.STATUS_ERROR_RENEWAL_FAILED);
         }
+
+        //Handle recovery of old encryption certs
+
+        //See if policy calls for this feature
+
+        TPSTokenPolicy tokenPolicy = new TPSTokenPolicy(tps);
+
+        boolean recoverOldEncCerts = tokenPolicy.isAllowdRenewSaveOldEncCerts(tokenRecord.getId());
+        CMS.debug(method + " Recover Old Encryption Certs for Renewed Certs: " + recoverOldEncCerts);
+        if (oldEncCertsToRecover.size() > 0 && recoverOldEncCerts == true) {
+            CMS.debug("About to attempt to recover old encryption certs just renewed.");
+
+            Iterator<TPSCertRecord> iterator = oldEncCertsToRecover.iterator();
+
+            // while loop
+            while (iterator.hasNext()) {
+                TPSCertRecord toBeRecovered = iterator.next();
+                String serialToRecover = toBeRecovered.getSerialNumber();
+
+                try {
+
+                    CARetrieveCertResponse certResponse = tps.getEngine().recoverCertificate(toBeRecovered,
+                            serialToRecover, TPSEngine.CFG_ENCRYPTION, getCAConnectorID());
+
+                    String b64cert = certResponse.getCertB64();
+                    CMS.debug("TPSEnrollProcessor.processRecovery: cert blob recovered");
+
+                    KRARecoverKeyResponse keyResponse = tps.getEngine().recoverKey(toBeRecovered.getId(),
+                            toBeRecovered.getUserID(),
+                            channel.getDRMWrappedDesKey(), b64cert, getDRMConnectorID());
+
+
+                    //Try to write recovered cert to token
+
+                    CertEnrollInfo cEnrollInfo = new CertEnrollInfo();
+
+                    cEnrollInfo.setTokenToBeRecovered(tokenRecord);
+                    cEnrollInfo.setRecoveredCertData(certResponse);
+                    cEnrollInfo.setRecoveredKeyData(keyResponse);
+
+
+                    PKCS11Obj pkcs11obj = certsInfo.getPKCS11Obj();
+                    int newCertId = pkcs11obj.getNextFreeCertIdNumber();
+
+                    CMS.debug(method + " newCertId = " + newCertId);
+
+                    CMS.debug(method + "before calling generateCertificate, certsInfo.getCurrentCertIndex() ="
+                            + newCertId);
+                    generateCertificate(certsInfo, channel, aInfo,
+                            "encryption",
+                            TPSEngine.ENROLL_MODES.MODE_RECOVERY,
+                            newCertId, cEnrollInfo);
+
+                    //We don't want this quasi old encryption cert in the official list.
+                    // This cert is on the token ONLY to decrypt old emails after the real cert
+                    // has been renewed. We want to keep the official cert list to contain only the
+                    // legit certs, in order to not confuse other processes such as recovery.
+                    CMS.debug(method + " About to remove old encryption cert recovered from official token db list: ");
+                    certsInfo.removeCertificate(certResponse.getCert());
+
+
+                } catch (TPSException e) {
+                    CMS.debug(method + "Failure to recoverd old encryption certs during renewal operation.");
+
+                }
+            }
+        }
+
         return status;
     }
 

@@ -655,6 +655,7 @@ public class PKCS11Obj {
             int index = os.getObjectIndex();
 
             if (type == 'C') { //found a certificate
+                CMS.debug("PKS11Obj: getNextFreeCertIdNumber: found cert index "+ index);
                 if (index >= 0 && index < 100) {
                     certTable[index] = 1;
                 }
@@ -669,7 +670,7 @@ public class PKCS11Obj {
             }
         }
 
-        CMS.debug("TPSEnrollProcessor.getNextFreeCertIdNumber: returning free cert id: " + free_cert_id );
+        CMS.debug("PKCS11Obj.getNextFreeCertIdNumber: returning free cert id: " + free_cert_id );
 
         return free_cert_id;
     }
