@@ -303,7 +303,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
             }
 
             do_force_format = tokenPolicy.isForceTokenFormat(cuid);
-            CMS.debug(method + " Will force format first due to policy.");
+            if (do_force_format)
+                CMS.debug(method + " Will force format first due to policy.");
 
             if (!isExternalReg &&
                     !tokenPolicy.isAllowdTokenReenroll(cuid) &&
