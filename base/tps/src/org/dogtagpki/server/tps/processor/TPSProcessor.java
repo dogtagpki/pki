@@ -1442,6 +1442,7 @@ public class TPSProcessor {
         String configName = TPSEngine.OP_FORMAT_PREFIX + "." + selectedTokenType + ".revokeCert";
         boolean revokeCert = false;
         try {
+            CMS.debug(method + ": getting config:" + configName);
             revokeCert = configStore.getBoolean(configName, false);
         } catch (EBaseException e) {
             logMsg = method + ": config not found: " + configName +
