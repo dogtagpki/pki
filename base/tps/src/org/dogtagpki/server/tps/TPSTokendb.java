@@ -25,6 +25,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import netscape.security.x509.RevocationReason;
+
 import org.dogtagpki.server.tps.cms.CARemoteRequestHandler;
 import org.dogtagpki.server.tps.cms.CARevokeCertResponse;
 import org.dogtagpki.server.tps.dbs.ActivityDatabase;
@@ -40,8 +42,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
 import com.netscape.certsrv.tps.token.TokenStatus;
-
-import netscape.security.x509.RevocationReason;
 
 /*
  * TPSTokendb class offers a collection of tokendb management convenience routines
@@ -170,6 +170,26 @@ public class TPSTokendb {
             throw new Exception("TPSTokendb.tdbhasActiveToken: active token not found");
         }
     }
+
+    public void tdbHasOtherActiveToken(String userid,String cuid)
+            throws Exception {
+         if (userid == null || cuid == null)
+             throw new Exception("TPSTokendb.tdbhasOtherActiveToken: uerid null, or cuid is null");
+
+         ArrayList<TokenRecord> tokens =
+                 tdbFindTokenRecordsByUID(userid);
+         boolean foundActive = false;
+         for (TokenRecord tokenRecord:tokens) {
+             if (tokenRecord.getTokenStatus().equals(TokenStatus.ACTIVE)) {
+
+                 if(!tokenRecord.getId().equalsIgnoreCase(cuid))
+                    foundActive = true;
+             }
+         }
+         if (!foundActive) {
+             throw new Exception("TPSTokendb.tdbhasActiveToken: active token not found");
+         }
+     }
 
     public void tdbAddTokenEntry(TokenRecord tokenRecord, TokenStatus status)
             throws Exception {

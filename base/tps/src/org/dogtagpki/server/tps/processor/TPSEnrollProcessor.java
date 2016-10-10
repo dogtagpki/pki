@@ -15,6 +15,11 @@ import java.util.Map;
 import java.util.Random;
 import java.util.zip.DataFormatException;
 
+import netscape.security.provider.RSAPublicKey;
+//import org.mozilla.jss.pkcs11.PK11ECPublicKey;
+import netscape.security.util.BigInt;
+import netscape.security.x509.X509CertImpl;
+
 import org.dogtagpki.server.tps.TPSSession;
 import org.dogtagpki.server.tps.TPSSubsystem;
 import org.dogtagpki.server.tps.TPSTokenPolicy;
@@ -54,18 +59,14 @@ import org.mozilla.jss.pkcs11.PK11PubKey;
 import org.mozilla.jss.pkcs11.PK11RSAPublicKey;
 import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
 
+import sun.security.pkcs11.wrapper.PKCS11Constants;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.tps.token.TokenStatus;
 import com.netscape.cmsutil.util.Utils;
-
-import netscape.security.provider.RSAPublicKey;
-//import org.mozilla.jss.pkcs11.PK11ECPublicKey;
-import netscape.security.util.BigInt;
-import netscape.security.x509.X509CertImpl;
-import sun.security.pkcs11.wrapper.PKCS11Constants;
 
 public class TPSEnrollProcessor extends TPSProcessor {
 
@@ -335,7 +336,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
         boolean allowMultiTokens = checkAllowMultiActiveTokensUser(isExternalReg);
 
         if (allowMultiTokens == false) {
-            boolean alreadyHasActiveToken = checkUserAlreadyHasActiveToken(userid);
+            boolean alreadyHasActiveToken = checkUserAlreadyHasOtherActiveToken(userid,cuid);
 
             if (alreadyHasActiveToken == true) {
                 //We don't allow the user to have more than one active token, nip it in the bud right now
@@ -1050,6 +1051,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
                         CMS.debug(method + ": There are multiple token entries for user "
                                 + userid);
 
+                        //We already know the current token is not active
                         if( checkUserAlreadyHasActiveToken(userid) == false) {
                             isRecover = true;
                             continue; // TODO: or break?
@@ -3705,6 +3707,25 @@ public class TPSEnrollProcessor extends TPSProcessor {
         }
 
         CMS.debug(method + " user: " + userid + " has a token already: " + result);
+
+        return result;
+    }
+
+    private boolean checkUserAlreadyHasOtherActiveToken(String userid,String cuid) {
+        boolean result = false;
+        String method = "TPSEnrollProcessor.checkUserAlreadyHasOtherActiveToken: ";
+
+        TPSSubsystem tps = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+        try {
+            tps.tdb.tdbHasOtherActiveToken(userid,cuid);
+            result = true;
+
+        } catch (Exception e) {
+            result = false;
+        }
+
+        CMS.debug(method + " user: " + userid + " has an active token already: not cuid:  " + cuid + " : " + result);
+
 
         return result;
     }
