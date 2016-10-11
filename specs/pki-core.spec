@@ -65,7 +65,7 @@
 
 Name:             pki-core
 Version:          10.3.5
-Release:          6%{?dist}
+Release:          7%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -215,6 +215,8 @@ Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{
 #Patch3:           pki-core-snapshot-3.patch
 ## pki-core-10.3.5-6
 #Patch4:           pki-core-snapshot-4.patch
+## pki-core-10.3.5-7
+#Patch5:           pki-core-fedora-post-snapshot-1.patch
 
 # Obtain version phase number (e. g. - used by "alpha", "beta", etc.)
 #
@@ -833,6 +835,7 @@ This package is a part of the PKI Core used by the Certificate System.
 #%patch2 -p1
 #%patch3 -p1
 #%patch4 -p1
+#%patch5 -p1
 
 %clean
 %{__rm} -rf %{buildroot}
@@ -1333,6 +1336,27 @@ systemctl daemon-reload
 %endif # %{with server}
 
 %changelog
+* Mon Oct 10 2016 Dogtag Team <pki-devel@redhat.com> 10.3.5-7
+- PKI TRAC Ticket #1527 - TPS Enrollment always goes to "ca1" (cfu)
+- PKI TRAC Ticket #1664 - [BUG] Add ability to disallow TPS to enroll a single
+  user on multiple tokens. (jmagne)
+- PKI TRAC Ticket #2463 - Troubleshooting improvements (edewata)
+- PKI TRAC Ticket #2466 - two-step externally-signed CA installation fails due
+  to missing AuthorityID (ftweedal)
+- PKI TRAC Ticket #2475 - Multiple host authority entries created (ftweedal)
+- PKI TRAC Ticket #2476 - Dogtag 10.4.0 Miscellaneous Minor Changes
+  (edewata)
+- PKI TRAC Ticket #2478 - pkispawn fails as it is not able to find openssl as a
+  dependency package (mharmsen)
+- PKI TRAC Ticket #2483 - Unable to read an encrypted email using renewed
+  tokens (jmagne)
+- PKI TRAC Ticket #2496 - Cert/Key recovery is successful when the cert serial
+  number and key id on the ldap user mismatches (cfu)
+- PKI TRAC Ticket #2497 - KRA installation failed against externally-signed CA
+  with partial certificate chain (edewata)
+- PKI TRAC Ticket #2505 - Fix packaging duplicates of classes in multiple jar
+  files (edewata)
+
 * Fri Sep  9 2016 Dogtag Team <pki-devel@redhat.com> 10.3.5-6
 - Revert Patch:  PKI TRAC Ticket #2449 - Unable to create system certificates
   in different tokens (edewata)
