@@ -48,7 +48,7 @@ Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{
 %endif
 
 ## pki-console-10.3.3-2
-#Patch1:           pki-console-rhel-post-snapshot-1.patch
+#Patch1:           pki-console-fedora-post-snapshot-1.patch
 
 %description
 Certificate System (CS) is an enterprise software system designed
