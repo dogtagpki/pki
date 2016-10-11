@@ -1,6 +1,6 @@
 Name:             pki-console
 Version:          10.3.5
-Release:          1%{?dist}
+Release:          2%{?dist}
 Summary:          Certificate System - PKI Console
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -47,6 +47,9 @@ Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{
 Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{release}/%{name}-%{version}%{?prerel}.tar.gz
 %endif
 
+## pki-console-10.3.3-2
+#Patch1:           pki-console-rhel-post-snapshot-1.patch
+
 %description
 Certificate System (CS) is an enterprise software system designed
 to manage enterprise Public Key Infrastructure (PKI) deployments.
@@ -65,6 +68,7 @@ following "Mutually-Exclusive" PKI Theme packages:
 
 %setup -q -n %{name}-%{version}%{?prerel}
 
+#%patch1 -p1
 
 %clean
 %{__rm} -rf %{buildroot}
@@ -98,6 +102,10 @@ cd build
 
 
 %changelog
+* Mon Oct 10 2016 Dogtag Team <pki-devel@redhat.com> 10.3.5-2
+- PKI TRAC Ticket #2505 - Fix packaging duplicates of classes in multiple jar
+  files (edewata)
+
 * Mon Aug  8 2016 Dogtag Team <pki-devel@redhat.com> 10.3.5-1
 - Updated version number to 10.3.5-1
 
