@@ -77,6 +77,8 @@ javac(pki-nsutil-classes
         ${JSS_JAR} ${COMMONS_CODEC_JAR}
     OUTPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
+    DEPENDS
+        symkey-jar
 )
 
 configure_file(
