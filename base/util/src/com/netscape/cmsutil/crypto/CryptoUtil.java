@@ -135,6 +135,9 @@ import netscape.security.x509.X509Key;
 @SuppressWarnings("serial")
 public class CryptoUtil {
 
+    public final static String INTERNAL_TOKEN_NAME = "internal";
+    public final static String INTERNAL_TOKEN_FULL_NAME = "Internal Key Storage Token";
+
     public static final String CERTREQ_BEGIN_HEADING = "-----BEGIN CERTIFICATE REQUEST-----";
     public static final String CERTREQ_END_HEADING = "-----END CERTIFICATE REQUEST-----";
     public static final int LINE_COUNT = 76;
@@ -472,21 +475,23 @@ public class CryptoUtil {
         return true;
     }
 
+    public static boolean isInternalToken(String name) {
+        return name.equalsIgnoreCase(INTERNAL_TOKEN_NAME) || name.equalsIgnoreCase(INTERNAL_TOKEN_FULL_NAME);
+    }
+
     /**
      * Retrieves handle to a JSS token.
      */
-    public static CryptoToken getTokenByName(String token)
-            throws CryptoManager.NotInitializedException,
-                NoSuchTokenException {
-        CryptoManager cm = CryptoManager.getInstance();
-        CryptoToken t = null;
+    public static CryptoToken getTokenByName(String name)
+            throws NotInitializedException, NoSuchTokenException {
 
-        if (token.equals("internal")) {
-            t = cm.getInternalKeyStorageToken();
-        } else {
-            t = cm.getTokenByName(token);
+        CryptoManager cm = CryptoManager.getInstance();
+
+        if (isInternalToken(name)) {
+            return cm.getInternalKeyStorageToken();
         }
-        return t;
+
+        return cm.getTokenByName(name);
     }
 
     /**
