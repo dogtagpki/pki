@@ -1084,7 +1084,7 @@ class Instance:
                                      self.mdict['pki_instance_name'],
                                      extra=config.PKI_INDENTATION_LEVEL_2)
                 raise Exception(
-                    log.PKI_SUBSYSTEM_DOES_NOT_EXIST_2 % (
+                    log.PKI_SUBSYSTEM_ALREADY_EXISTS_2 % (
                         self.mdict['pki_subsystem'],
                         self.mdict['pki_instance_name']))
         except OSError as exc:
