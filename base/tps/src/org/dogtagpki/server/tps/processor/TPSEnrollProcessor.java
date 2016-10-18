@@ -32,7 +32,6 @@ import org.dogtagpki.server.tps.cms.CARenewCertResponse;
 import org.dogtagpki.server.tps.cms.CARetrieveCertResponse;
 import org.dogtagpki.server.tps.cms.CARevokeCertResponse;
 import org.dogtagpki.server.tps.cms.KRARecoverKeyResponse;
-import org.dogtagpki.server.tps.cms.KRARemoteRequestHandler;
 import org.dogtagpki.server.tps.cms.KRAServerSideKeyGenResponse;
 import org.dogtagpki.server.tps.dbs.ActivityDatabase;
 import org.dogtagpki.server.tps.dbs.TPSCertRecord;
@@ -337,7 +336,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
         boolean allowMultiTokens = checkAllowMultiActiveTokensUser(isExternalReg);
 
         if (allowMultiTokens == false) {
-            boolean alreadyHasActiveToken = checkUserAlreadyHasOtherActiveToken(userid,cuid);
+            boolean alreadyHasActiveToken = checkUserAlreadyHasOtherActiveToken(userid, cuid);
 
             if (alreadyHasActiveToken == true) {
                 //We don't allow the user to have more than one active token, nip it in the bud right now
@@ -1053,7 +1052,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
                                 + userid);
 
                         //We already know the current token is not active
-                        if( checkUserAlreadyHasActiveToken(userid) == false) {
+                        if (checkUserAlreadyHasActiveToken(userid) == false) {
                             isRecover = true;
                             continue; // TODO: or break?
                         }
@@ -1082,9 +1081,9 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
                 } else if (tokenRecord.getTokenStatus() == TokenStatus.SUSPENDED) {
 
-                        logMsg = "User needs to contact administrator to report lost token (it should be put on Hold).";
-                        CMS.debug(method + ": " + logMsg);
-                        break;
+                    logMsg = "User needs to contact administrator to report lost token (it should be put on Hold).";
+                    CMS.debug(method + ": " + logMsg);
+                    break;
 
                 } else if (tokenRecord.getTokenStatus() == TokenStatus.DAMAGED) {
                     logMsg = "This destroyed lost case should not be executed because the token is so damaged. It should not get here";
@@ -1199,6 +1198,9 @@ public class TPSEnrollProcessor extends TPSProcessor {
             return status;
         }
 
+        TPSSubsystem tps =
+                (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+
         ArrayList<CertEnrollInfo> preRecoveredCerts = certsInfo.getExternalRegRecoveryEnrollList();
 
         CMS.debug(method + "number of certs to recover=" +
@@ -1232,13 +1234,14 @@ public class TPSEnrollProcessor extends TPSProcessor {
             }
 
             String retCertB64 = certResp.getCertB64();
-            byte[] cert_bytes;
+
             if (retCertB64 != null) {
                 //CMS.debug(method + "recovered:  retCertB64: " + retCertB64);
                 CMS.debug(method + "recovered retCertB64");
-                cert_bytes = Utils.base64decode(retCertB64);
 
-                TPSBuffer cert_bytes_buf = new TPSBuffer(cert_bytes);
+                //byte[] cert_bytes;
+                //cert_bytes = Utils.base64decode(retCertB64);
+                //TPSBuffer cert_bytes_buf = new TPSBuffer(cert_bytes);
                 //CMS.debug(method + "recovered: retCertB64: "
                 //        + cert_bytes_buf.toHexString());
             } else {
@@ -1304,7 +1307,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
             if (kraConn != null) {
                 logMsg = "kraConn not null:" + kraConn;
                 CMS.debug(method + logMsg);
-                KRARemoteRequestHandler kraRH = new KRARemoteRequestHandler(kraConn);
+
                 if (channel.getDRMWrappedDesKey() == null) {
                     logMsg = "channel.getDRMWrappedDesKey() null";
                     CMS.debug(method + logMsg);
@@ -1314,8 +1317,11 @@ public class TPSEnrollProcessor extends TPSProcessor {
                     CMS.debug(method + logMsg);
                 }
 
-                keyResp = kraRH.recoverKey(cuid, userid, Util.specialURLEncode(channel.getDRMWrappedDesKey()),
-                        getExternalRegRecoverByKeyID() ? null : b64cert, keyid);
+                keyResp = tps.getEngine().recoverKey(cuid,
+                        userid,
+                        channel.getDRMWrappedDesKey(), getExternalRegRecoverByKeyID() ? null : b64cert,
+                        getDRMConnectorID(), keyid);
+
                 if (keyResp == null) {
                     auditInfo = "recovering key not found";
                     auditRecovery(userid, appletInfo, "failure",
@@ -1525,19 +1531,19 @@ public class TPSEnrollProcessor extends TPSProcessor {
                         generateCertificate(certsInfo, channel, aInfo, keyType, TPSEngine.ENROLL_MODES.MODE_RENEWAL,
                                 -1, cEnrollInfo);
 
-                        numActuallyRenewed ++;
+                        numActuallyRenewed++;
 
-
-
-                        if(keyType.equals(TPSEngine.CFG_ENCRYPTION)) {
-                            CMS.debug(method + ": found old encryption cert (just renewed) to attempt to recover back to token, in order to read old emails.");
+                        if (keyType.equals(TPSEngine.CFG_ENCRYPTION)) {
+                            CMS.debug(method
+                                    + ": found old encryption cert (just renewed) to attempt to recover back to token, in order to read old emails.");
                             CMS.debug(method + " adding cert: " + cert);
                             oldEncCertsToRecover.add(cert);
 
                         }
 
-                        if(numActuallyRenewed == keyTypeNum) {
-                            CMS.debug(method + " We have already renewed the proper number of certs, bailing from loop.");
+                        if (numActuallyRenewed == keyTypeNum) {
+                            CMS.debug(method
+                                    + " We have already renewed the proper number of certs, bailing from loop.");
                             status = TPSStatus.STATUS_ERROR_RENEWAL_IS_PROCESSED;
                             break;
                         }
@@ -1590,7 +1596,6 @@ public class TPSEnrollProcessor extends TPSProcessor {
                             toBeRecovered.getUserID(),
                             channel.getDRMWrappedDesKey(), b64cert, getDRMConnectorID());
 
-
                     //Try to write recovered cert to token
 
                     CertEnrollInfo cEnrollInfo = new CertEnrollInfo();
@@ -1598,7 +1603,6 @@ public class TPSEnrollProcessor extends TPSProcessor {
                     cEnrollInfo.setTokenToBeRecovered(tokenRecord);
                     cEnrollInfo.setRecoveredCertData(certResponse);
                     cEnrollInfo.setRecoveredKeyData(keyResponse);
-
 
                     PKCS11Obj pkcs11obj = certsInfo.getPKCS11Obj();
                     int newCertId = pkcs11obj.getNextFreeCertIdNumber();
@@ -1618,7 +1622,6 @@ public class TPSEnrollProcessor extends TPSProcessor {
                     // legit certs, in order to not confuse other processes such as recovery.
                     CMS.debug(method + " About to remove old encryption cert recovered from official token db list: ");
                     certsInfo.removeCertificate(certResponse.getCert());
-
 
                 } catch (TPSException e) {
                     CMS.debug(method + "Failure to recoverd old encryption certs during renewal operation.");
@@ -1951,7 +1954,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
                         try {
                             caRH = new CARemoteRequestHandler(caConnId);
 
-                            CARevokeCertResponse response = caRH.revokeCertificate(false /*unrevoke*/, serialToRecover,
+                            CARevokeCertResponse response = caRH.revokeCertificate(false /*unrevoke*/,
+                                    serialToRecover,
                                     certToRecover.getCertificate(),
                                     null);
                             CMS.debug(method + ": response status =" + response.getStatus());
@@ -2416,7 +2420,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
                 auditInfo = "TPSEnrollProcessor.enrollOneCertificate, can't create public key object from server side key generated public key blob! "
                         + e.toString();
                 if (!isRecovery) { //servrSideKeygen
-                    auditEnrollment(userid, "enrollment", aInfo, "failure", channel.getKeyInfoData().toHexStringPlain(),
+                    auditEnrollment(userid, "enrollment", aInfo, "failure",
+                            channel.getKeyInfoData().toHexStringPlain(),
                             BigInteger.ZERO, null /*caConnID*/, auditInfo);
                 } else {
                     auditRecovery(userid, aInfo, "failure",
@@ -2599,7 +2604,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
                 else {
                     auditInfo = "new cert b64 not found";
                     CMS.debug("TPSEnrollProcessor.enrollOneCertificate:: " + auditInfo);
-                    auditEnrollment(userid, "enrollment", aInfo, "failure", channel.getKeyInfoData().toHexStringPlain(),
+                    auditEnrollment(userid, "enrollment", aInfo, "failure",
+                            channel.getKeyInfoData().toHexStringPlain(),
                             BigInteger.ZERO, caConnID, auditInfo);
                     throw new TPSException("TPSEnrollProcessor.enrollOneCertificate: " + auditInfo,
                             TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
@@ -3712,13 +3718,13 @@ public class TPSEnrollProcessor extends TPSProcessor {
         return result;
     }
 
-    private boolean checkUserAlreadyHasOtherActiveToken(String userid,String cuid) {
+    private boolean checkUserAlreadyHasOtherActiveToken(String userid, String cuid) {
         boolean result = false;
         String method = "TPSEnrollProcessor.checkUserAlreadyHasOtherActiveToken: ";
 
         TPSSubsystem tps = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
         try {
-            tps.tdb.tdbHasOtherActiveToken(userid,cuid);
+            tps.tdb.tdbHasOtherActiveToken(userid, cuid);
             result = true;
 
         } catch (Exception e) {
@@ -3726,7 +3732,6 @@ public class TPSEnrollProcessor extends TPSProcessor {
         }
 
         CMS.debug(method + " user: " + userid + " has an active token already: not cuid:  " + cuid + " : " + result);
-
 
         return result;
     }
@@ -3745,7 +3750,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
             scheme = TPSEngine.CFG_NON_EXTERNAL_REG;
         }
 
-        String allowMultiConfig =  TPSEngine.CFG_TOKENDB + "." + scheme + "."
+        String allowMultiConfig = TPSEngine.CFG_TOKENDB + "." + scheme + "."
                 + TPSEngine.CFG_ALLOW_MULTI_TOKENS_USER;
 
         CMS.debug(method + " trying config: " + allowMultiConfig);
