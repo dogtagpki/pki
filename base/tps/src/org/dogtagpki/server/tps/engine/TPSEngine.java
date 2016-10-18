@@ -185,7 +185,7 @@ public class TPSEngine {
     public static final String CFG_PIN_RESET_STRING = "create_pin.string";
 
     public static final String CFG_SCHEME = "scheme";
-    public static final String RECOVERY_SCHEME_GENERATE_NEW_KEY_AND_RECOVER_LAST = "GenerateNewKeyandRecoverLast";
+    public static final String RECOVERY_SCHEME_GENERATE_NEW_KEY_AND_RECOVER_LAST = "GenerateNewKeyAndRecoverLast";
     public static final Object RECOVERY_GENERATE_NEW_KEY = "GenerateNewKey";
     public static final Object RECOVERY_RECOVER_LAST = "RecoverLast";
 
@@ -471,6 +471,15 @@ public class TPSEngine {
             String userid,
             TPSBuffer sDesKey,
             String b64cert, String drmConnId) throws TPSException {
+
+        return this.recoverKey(cuid, userid, sDesKey, b64cert, drmConnId, BigInteger.valueOf(0));
+
+    }
+
+    public KRARecoverKeyResponse recoverKey(String cuid,
+            String userid,
+            TPSBuffer sDesKey,
+            String b64cert, String drmConnId,BigInteger keyid) throws TPSException {
         String method = "TPSEngine.recoverKey";
         CMS.debug("TPSEngine.recoverKey");
         if (cuid == null)
@@ -484,7 +493,7 @@ public class TPSEngine {
         else if (drmConnId == null)
             CMS.debug(method + ": drmConnId null");
 
-        if (cuid == null || userid == null || sDesKey == null || b64cert == null || drmConnId == null) {
+        if (cuid == null || userid == null || sDesKey == null ||  drmConnId == null) {
             throw new TPSException("TPSEngine.recoverKey: invalid input data!", TPSStatus.STATUS_ERROR_RECOVERY_FAILED);
         }
 
@@ -494,7 +503,7 @@ public class TPSEngine {
         try {
             kra = new KRARemoteRequestHandler(drmConnId);
 
-            resp = kra.recoverKey(cuid, userid, Util.specialURLEncode(sDesKey), Util.uriEncode(b64cert));
+            resp = kra.recoverKey(cuid, userid, Util.specialURLEncode(sDesKey), (b64cert != null) ? Util.uriEncode(b64cert) : b64cert,keyid);
         } catch (EBaseException e) {
             throw new TPSException("TPSEngine.recoverKey: Problem creating or using KRARemoteRequestHandler! "
                     + e.toString(), TPSStatus.STATUS_ERROR_RECOVERY_FAILED);

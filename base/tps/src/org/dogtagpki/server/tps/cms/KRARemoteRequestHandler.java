@@ -23,7 +23,6 @@ import java.util.Hashtable;
 
 import org.dogtagpki.server.connector.IRemoteRequest;
 import org.dogtagpki.server.tps.TPSSubsystem;
-import org.dogtagpki.tps.main.Util;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
@@ -265,15 +264,15 @@ public class KRARemoteRequestHandler extends RemoteRequestHandler
         String sendMsg = null;
         try {
             if (b64cert != null) { // recover by cert
-                // CMS.debug("KRARemoteRequestHandler: recoverKey(): uriEncoded cert= " + Util.uriEncode(b64cert));
+                // CMS.debug("KRARemoteRequestHandler: recoverKey(): uriEncoded cert= " + b64cert);
                 sendMsg = IRemoteRequest.TOKEN_CUID + "=" +
                         cuid +
                         "&" + IRemoteRequest.KRA_UserId + "=" +
                         userid +
                         "&" + IRemoteRequest.KRA_RECOVERY_CERT + "=" +
-                        Util.uriEncode(b64cert) +
+                        b64cert  +
                         "&" + IRemoteRequest.KRA_Trans_DesKey + "=" +
-                        Util.uriEncode(sDesKey);
+                        sDesKey;
             } else if (keyid != BigInteger.valueOf(0)) { // recover by keyid ... keyid != BigInteger.valueOf(0)
                 CMS.debug("KRARemoteRequestHandler: recoverKey(): keyid = " + keyid);
                 sendMsg = IRemoteRequest.TOKEN_CUID + "=" +
@@ -283,7 +282,7 @@ public class KRARemoteRequestHandler extends RemoteRequestHandler
                         "&" + IRemoteRequest.KRA_RECOVERY_KEYID + "=" +
                         keyid.toString() +
                         "&" + IRemoteRequest.KRA_Trans_DesKey + "=" +
-                        Util.uriEncode(sDesKey);
+                        sDesKey;
             }
         } catch (Exception e) {
             CMS.debug("KRARemoteRequestHandler: recoverKey(): uriEncode failed: " + e);
