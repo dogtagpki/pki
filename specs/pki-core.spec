@@ -217,6 +217,7 @@ Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{
 #Patch4:           pki-core-snapshot-4.patch
 ## pki-core-10.3.5-7
 #Patch5:           pki-core-fedora-post-snapshot-1.patch
+#Patch6:           pki-core-f26-flake8.patch
 
 # Obtain version phase number (e. g. - used by "alpha", "beta", etc.)
 #
@@ -836,6 +837,7 @@ This package is a part of the PKI Core used by the Certificate System.
 #%patch3 -p1
 #%patch4 -p1
 #%patch5 -p1
+#%patch6 -p1
 
 %clean
 %{__rm} -rf %{buildroot}
@@ -1356,6 +1358,7 @@ systemctl daemon-reload
   with partial certificate chain (edewata)
 - PKI TRAC Ticket #2505 - Fix packaging duplicates of classes in multiple jar
   files (edewata)
+- Fix for flake8 errors on Fedora 26 (cheimes)
 
 * Fri Sep  9 2016 Dogtag Team <pki-devel@redhat.com> 10.3.5-6
 - Revert Patch:  PKI TRAC Ticket #2449 - Unable to create system certificates
