@@ -46,6 +46,40 @@
     <script>
 $(function() {
 
+    function getAttribute(attributes, name) {
+        for (var i=0; i<attributes.length; i++) {
+            var attribute = attributes[i];
+            if (name != attribute.name) continue;
+            return attribute.value;
+        }
+        return null;
+    }
+
+    function getElementName(component) {
+
+        if (component == "Generals") {
+            return "config";
+
+        } else if (component == "Authentication_Sources") {
+            return "authenticators";
+
+        } else if (component == "Subsystem_Connections") {
+            return "connectors";
+
+        } else if (component == "Profiles") {
+            return "profiles";
+
+        } else if (component == "Profile_Mappings") {
+            return "profile-mappings";
+
+        } else if (component == "Audit_Logging") {
+            return "audit";
+
+        } else {
+            return null;
+        }
+    }
+
     var account = new Account();
     account.login({
         success: function(data, textStatus, jqXHR) {
@@ -64,14 +98,24 @@ $(function() {
                 accounts_menu.hide();
             }
 
-            if (_.contains(roles, "Administrators")) {
-                system_menu.show();
-                $("li", system_menu).show();
+            var attributes = tps.user.Attributes.Attribute;
+            var values = getAttribute(attributes, "components");
 
-            } else if (_.contains(roles, "TPS Agents")) {
+            var components;
+            if (values) {
+                components = values.split(",");
+            } else {
+                components = [];
+            }
+
+            if (components.length > 0) {
+                // display menu items for accessible components
                 system_menu.show();
-                $("li", system_menu).hide();
-                $("[name=profiles]", system_menu).show();
+                for (var i=0; i<components.length; i++) {
+                    var name = getElementName(components[i]);
+                    if (!name) continue;
+                    $("[name=" + name + "]", system_menu).show();
+                }
 
             } else {
                 system_menu.hide();
