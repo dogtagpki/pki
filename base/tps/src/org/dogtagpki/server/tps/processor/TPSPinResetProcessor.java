@@ -21,6 +21,7 @@ import java.io.IOException;
 
 import org.dogtagpki.server.tps.TPSSession;
 import org.dogtagpki.server.tps.TPSSubsystem;
+import org.dogtagpki.server.tps.TPSTokenPolicy;
 import org.dogtagpki.server.tps.channel.SecureChannel;
 import org.dogtagpki.server.tps.dbs.ActivityDatabase;
 import org.dogtagpki.server.tps.dbs.TokenRecord;
@@ -98,15 +99,7 @@ public class TPSPinResetProcessor extends TPSProcessor {
                     TPSStatus.STATUS_ERROR_MAC_RESET_PIN_PDU);
         }
 
-        TokenStatus status = tokenRecord.getTokenStatus();
-
-        CMS.debug(method + ": Token status: " + status);
-
-        if (!status.equals(TokenStatus.ACTIVE)) {
-            throw new TPSException(method + " Attempt to reset pin of token not currently active!",
-                    TPSStatus.STATUS_ERROR_MAC_RESET_PIN_PDU);
-
-        }
+        TPSTokenPolicy tokenPolicy = new TPSTokenPolicy(tps);
 
         session.setTokenRecord(tokenRecord);
 
@@ -141,6 +134,29 @@ public class TPSPinResetProcessor extends TPSProcessor {
         checkProfileStateOK();
 
         checkAndAuthenticateUser(appletInfo, tokenType);
+
+        TokenStatus status = tokenRecord.getTokenStatus();
+
+        CMS.debug(method + ": Token status: " + status);
+
+        if (!status.equals(TokenStatus.ACTIVE)) {
+            logMsg = method + "Can not reset the pin of a non active token.";
+            auditPinReset(session.getIpAddress(), userid, appletInfo, "failure", null, logMsg);
+            throw new TPSException(method + " Attempt to reset pin of token not currently active!",
+                    TPSStatus.STATUS_ERROR_MAC_RESET_PIN_PDU);
+
+        }
+
+        boolean pinResetAllowed = tokenPolicy.isAllowedPinReset(tokenRecord.getId());
+
+        CMS.debug(method + ": PinResetPolicy: Pin Reset Allowed:  " + pinResetAllowed);
+        logMsg = method + " PinReset Policy forbids pin reset operation.";
+        if (pinResetAllowed == false) {
+            auditPinReset(session.getIpAddress(), userid, appletInfo, "failure", null, logMsg);
+            throw new TPSException(method + " Attempt to reset pin when token policy disallows it.!",
+                    TPSStatus.STATUS_ERROR_MAC_RESET_PIN_PDU);
+
+        }
 
         checkAndUpgradeApplet(appletInfo);
         appletInfo = getAppletInfo();
