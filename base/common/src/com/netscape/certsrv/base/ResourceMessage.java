@@ -26,6 +26,7 @@ import javax.xml.bind.annotation.XmlValue;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import com.netscape.certsrv.account.AccountInfo;
 import com.netscape.certsrv.key.AsymKeyGenerationRequest;
 import com.netscape.certsrv.key.KeyArchivalRequest;
 import com.netscape.certsrv.key.KeyRecoveryRequest;
@@ -35,8 +36,14 @@ import com.netscape.certsrv.key.SymKeyGenerationRequest;
  * @author Ade Lee
  */
 @XmlRootElement(name = "ResourceMessage")
-@XmlSeeAlso({ KeyArchivalRequest.class, KeyRecoveryRequest.class, SymKeyGenerationRequest.class,
-        PKIException.Data.class, AsymKeyGenerationRequest.class })
+@XmlSeeAlso({
+    AccountInfo.class,
+    KeyArchivalRequest.class,
+    KeyRecoveryRequest.class,
+    SymKeyGenerationRequest.class,
+    PKIException.Data.class,
+    AsymKeyGenerationRequest.class
+})
 @XmlAccessorType(XmlAccessType.NONE)
 public class ResourceMessage {
 
