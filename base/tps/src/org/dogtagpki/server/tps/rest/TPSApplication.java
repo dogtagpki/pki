@@ -23,7 +23,6 @@ import java.util.Set;
 import javax.ws.rs.core.Application;
 
 import org.dogtagpki.server.rest.ACLInterceptor;
-import org.dogtagpki.server.rest.AccountService;
 import org.dogtagpki.server.rest.AuditService;
 import org.dogtagpki.server.rest.AuthMethodInterceptor;
 import org.dogtagpki.server.rest.GroupService;
@@ -33,6 +32,7 @@ import org.dogtagpki.server.rest.SelfTestService;
 import org.dogtagpki.server.rest.SessionContextInterceptor;
 import org.dogtagpki.server.rest.SystemCertService;
 import org.dogtagpki.server.rest.UserService;
+import org.dogtagpki.server.tps.TPSAccountService;
 import org.dogtagpki.server.tps.config.ConfigService;
 
 /**
@@ -46,7 +46,7 @@ public class TPSApplication extends Application {
     public TPSApplication() {
 
         // account
-        classes.add(AccountService.class);
+        classes.add(TPSAccountService.class);
 
         // audit
         classes.add(AuditService.class);
