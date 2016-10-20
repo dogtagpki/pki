@@ -31,6 +31,7 @@ import sun.security.pkcs11.wrapper.PKCS11Constants;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 
 public class SecureChannelProtocol {
 
@@ -688,10 +689,11 @@ public class SecureChannelProtocol {
 
     public CryptoToken returnTokenByName(String name, CryptoManager manager) throws NoSuchTokenException {
 
+        CMS.debug("returnTokenByName: requested name: " + name);
         if (name == null || manager == null)
             throw new NoSuchTokenException();
 
-        if (name.equals("internal") || name.equals("Internal KeyStorage Token")) {
+        if(CryptoUtil.isInternalToken(name)) {
             return manager.getInternalKeyStorageToken();
         } else {
             return manager.getTokenByName(name);
