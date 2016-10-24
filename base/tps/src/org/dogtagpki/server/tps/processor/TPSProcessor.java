@@ -1410,12 +1410,12 @@ public class TPSProcessor {
                 enrollType + "." +
                 keyType+
                 ".ca.conn";
-            CMS.debug(method + " finding config: " + config);
+            CMS.debug(method + " getting config: " + config);
         } else {
             config = TPSEngine.OP_FORMAT_PREFIX + "." +
                 selectedTokenType +
                 ".ca.conn";
-            CMS.debug(method + " finding config: " + config);
+            CMS.debug(method + " getting config: " + config);
         }
 
         try {
@@ -2291,7 +2291,7 @@ public class TPSProcessor {
         String config = opPrefix +
                 "." + TPSEngine.CFG_MAPPING_RESOLVER;
 
-        CMS.debug("TPSProcessor.getResolverInstanceName: config: " + config);
+        CMS.debug("TPSProcessor.getResolverInstanceName: getting config: " + config);
         try {
             resolverInstName = configStore.getString(config, opDefault);
         } catch (EBaseException e) {
@@ -2317,7 +2317,7 @@ public class TPSProcessor {
         String config = "externalReg" +
                 "." + TPSEngine.CFG_MAPPING_RESOLVER;
 
-        CMS.debug(method + " config: " + config);
+        CMS.debug(method + " getting config: " + config);
         try {
             resolverInstName = configStore.getString(config, "none");
         } catch (EBaseException e) {
@@ -2385,7 +2385,7 @@ public class TPSProcessor {
 
         String config = "op." + currentTokenOperation + "." + selectedTokenType + "." + TPSEngine.CFG_ISSUER_INFO_VALUE;
 
-        CMS.debug("TPSProcessor.getIssuerInfoValue: config: " + config);
+        CMS.debug("TPSProcessor.getIssuerInfoValue: getting config: " + config);
         try {
             info = configStore.getString(config, null);
         } catch (EBaseException e) {
@@ -2454,6 +2454,7 @@ public class TPSProcessor {
 
         IConfigStore configStore = CMS.getConfigStore();
         String External_Reg_Cfg = TPSEngine.CFG_EXTERNAL_REG + "." + "enable";
+        CMS.debug("TPS_Processor.checkIsExternalReg: getting config:" + External_Reg_Cfg);
 
         try {
             //These defaults are well known, it is safe to use them.
@@ -2476,6 +2477,7 @@ public class TPSProcessor {
         IConfigStore configStore = CMS.getConfigStore();
 
         String profileConfig = "conn." + connId + "." + ".serverKeygen";
+        CMS.debug("TPSProcessor.checkServerSideKeyGen: getting config: " + profileConfig);
 
         try {
             result = configStore.getBoolean(profileConfig, false);
@@ -2491,6 +2493,7 @@ public class TPSProcessor {
         IConfigStore configStore = CMS.getConfigStore();
 
         String noAppletConfig = operation + "." + selectedTokenType + "." + TPSEngine.CFG_ALLOW_NO_APPLET;
+        CMS.debug("TPSProcessor.checkAllowNoAppletToken: getting config: " + noAppletConfig);
 
         try {
             allow = configStore.getBoolean(noAppletConfig, true);
@@ -2556,6 +2559,7 @@ public class TPSProcessor {
         IConfigStore configStore = CMS.getConfigStore();
 
         String unknownConfig = "op." + operation + "." + TPSEngine.CFG_ALLOW_UNKNOWN_TOKEN;
+        CMS.debug("TPSProcessor.checkAllowUnknownToken: getting config: " + unknownConfig);
 
         try {
             allow = configStore.getBoolean(unknownConfig, true);
@@ -2576,6 +2580,7 @@ public class TPSProcessor {
         String id = null;
 
         String config = "op." + currentTokenOperation + "." + selectedTokenType + ".tks.conn";
+        CMS.debug("TPSProcessor.getTKSConectorID: getting config: " + config);
 
         try {
             id = configStore.getString(config, "tks1");
@@ -2593,6 +2598,7 @@ public class TPSProcessor {
 
         String NetKeyAID = null;
         IConfigStore configStore = CMS.getConfigStore();
+        CMS.debug("TPSProcessor.getNetkeyAID: getting config: " + TPSEngine.CFG_DEF_NETKEY_INSTANCE_AID);
         try {
 
             NetKeyAID = configStore.getString(TPSEngine.CFG_APPLET_NETKEY_INSTANCE_AID,
@@ -2612,6 +2618,7 @@ public class TPSProcessor {
 
         String NetKeyPAID = null;
         IConfigStore configStore = CMS.getConfigStore();
+        CMS.debug("TPSProcessor.getNetkeyPAID: getting config: " + TPSEngine.CFG_DEF_NETKEY_FILE_AID);
         try {
 
             NetKeyPAID = configStore.getString(
@@ -2631,6 +2638,7 @@ public class TPSProcessor {
 
         String cardMgrAID = null;
         IConfigStore configStore = CMS.getConfigStore();
+        CMS.debug("TPSProcessor.getCardManagerAID: getting config: " + TPSEngine.CFG_APPLET_CARDMGR_INSTANCE_AID);
         try {
 
             cardMgrAID = configStore.getString(TPSEngine.CFG_APPLET_CARDMGR_INSTANCE_AID,
@@ -2669,6 +2677,7 @@ public class TPSProcessor {
         String directory = null;
 
         String directoryConfig = operation + "." + selectedTokenType + "." + TPSEngine.CFG_APPLET_DIRECTORY;
+        CMS.debug("TPSProcessor.getAppletDirectory: getting config: " + directoryConfig);
 
         //We need a directory
         try {
@@ -2780,6 +2789,7 @@ public class TPSProcessor {
         String sharedSecretName = null;
         try {
             String configName = "conn." + connId + ".tksSharedSymKeyName";
+            CMS.debug("TPSProcessor.getSharedSecretTransportKeyName: getting config:" + configName);
             sharedSecretName = configStore.getString(configName, "sharedSecret");
 
         } catch (EBaseException e) {
@@ -2981,6 +2991,7 @@ public class TPSProcessor {
         String symmConfig = "op" + "." + currentTokenOperation + "." + selectedTokenType + "."
                 + TPSEngine.CFG_SYMM_KEY_UPGRADE_ENABLED;
 
+        CMS.debug("TPSProcessor.checkSymmetricKeysEnabled: getting config:" + symmConfig);
         try {
             result = configStore.getBoolean(symmConfig, true);
         } catch (EBaseException e) {
@@ -2999,7 +3010,7 @@ public class TPSProcessor {
         String requiredVersionConfig = "op" + "." + currentTokenOperation + "." + selectedTokenType + "."
                 + "update.symmetricKeys.requiredVersion";
 
-        CMS.debug("TPSProcessor.getSymmetricKeysRequiredVersion: configValue: " + requiredVersionConfig);
+        CMS.debug("TPSProcessor.getSymmetricKeysRequiredVersion: getting config: " + requiredVersionConfig);
         try {
             version = configStore.getInteger(requiredVersionConfig, 0x0);
         } catch (EBaseException e) {

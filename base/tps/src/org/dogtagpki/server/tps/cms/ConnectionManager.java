@@ -229,6 +229,7 @@ public class ConnectionManager
      * @return IConnector the connector matching the connection id
      */
     public IConnector getConnector(String connID) {
+        CMS.debug("ConnectionManager: getConnector(): returning connID="+ connID);
         return connectors.get(connID);
     }
 
