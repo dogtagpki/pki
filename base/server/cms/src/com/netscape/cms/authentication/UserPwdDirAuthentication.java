@@ -108,7 +108,7 @@ public class UserPwdDirAuthentication extends DirBasedAuthentication
     }
 
     /**
-     * Initializes the UdnPwdDirAuthentication auth manager.
+     * Initializes the UserPwdDirAuthentication auth manager.
      * <p>
      *
      * @param name - The name for this authentication manager instance.
