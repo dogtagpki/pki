@@ -195,18 +195,14 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         }
 
         for (Cert cert : certs) {
-            int ret;
             try {
                 CMS.debug("Processing '" + cert.getCertTag() + "' certificate:");
-                ret = ConfigurationUtils.handleCerts(cert);
+                ConfigurationUtils.handleCerts(cert);
                 ConfigurationUtils.setCertPermissions(cert.getCertTag());
                 CMS.debug("Processed '" + cert.getCertTag() + "' certificate.");
             } catch (Exception e) {
                 CMS.debug(e);
-                throw new PKIException("Error in configuring system certificates" + e, e);
-            }
-            if (ret != 0) {
-                throw new PKIException("Error in configuring system certificates");
+                throw new PKIException("Error in configuring system certificates: " + e, e);
             }
         }
         response.setSystemCerts(SystemCertDataFactory.create(certs));

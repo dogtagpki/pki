@@ -3162,7 +3162,7 @@ public class ConfigurationUtils {
         cr.addCertificateRecord(record);
     }
 
-    public static int handleCerts(Cert cert) throws Exception {
+    public static void handleCerts(Cert cert) throws Exception {
         String certTag = cert.getCertTag();
         String subsystem = cert.getSubsystem();
         String nickname = cert.getNickname();
@@ -3170,7 +3170,7 @@ public class ConfigurationUtils {
 
         boolean enable = config.getBoolean(PCERT_PREFIX + certTag + ".enable", true);
         if (!enable)
-            return 0;
+            return;
 
         CMS.debug("handleCerts(): for cert tag '" + cert.getCertTag() + "' using cert type '" + cert.getType() + "'");
         String b64 = cert.getCert();
@@ -3190,7 +3190,7 @@ public class ConfigurationUtils {
 
             if (findCertificate(tokenname, nickname)) {
                 if (!certTag.equals("sslserver"))
-                    return 0;
+                    return;
             }
             X509CertImpl impl = CertUtil.createLocalCert(config, x509key,
                     PCERT_PREFIX, certTag, cert.getType(), null);
@@ -3291,7 +3291,7 @@ public class ConfigurationUtils {
 
             } else {
                 CMS.debug("handleCerts(): b64 not set");
-                return 1;
+                throw new PKIException("Missing " + certTag + " certificate to import");
             }
 
         } else {
@@ -3321,7 +3321,7 @@ public class ConfigurationUtils {
                     CryptoUtil.importUserCertificate(impl, nickname, false);
             } catch (Exception ee) {
                 CMS.debug("handleCerts(): Failed to import user certificate." + ee.toString());
-                return 1;
+                throw new Exception("Unable to import " + certTag + " certificate: " + ee, ee);
             }
         }
 
@@ -3339,7 +3339,6 @@ public class ConfigurationUtils {
             CryptoUtil.trustCertByNickname(NickName);
             CMS.reinit(ICertificateAuthority.ID);
         }
-        return 0;
     }
 
     public static void setCertPermissions(String tag) throws EBaseException, NotInitializedException,
