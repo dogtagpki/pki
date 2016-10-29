@@ -1,0 +1,76 @@
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH pki-pkcs12-key 1 "Oct 28, 2016" "version 10.3" "PKI PKCS #12 Key Management Commands" Dogtag Team
+.\" Please adjust this date whenever revising the man page.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for man page specific macros, see man(7)
+.SH NAME
+pki-pkcs12-key \- Command-Line Interface for managing individual keys in PKCS #12 file.
+
+.SH SYNOPSIS
+.nf
+\fBpki\fR [CLI options] \fBpkcs12-key\fR
+\fBpki\fR [CLI options] \fBpkcs12-key-find\fR [command options]
+\fBpki\fR [CLI options] \fBpkcs12-key-del <key ID>\fR [command options]
+.fi
+
+.SH DESCRIPTION
+.PP
+The \fBpki pkcs12-key\fR commands provide command-line interfaces to manage keys in a PKCS #12 file.
+
+.PP
+\fBpki\fR [CLI options] \fBpkcs12-key-find\fR [command options]
+.RS 4
+This command is to list keys in a PKCS #12 file.
+.RE
+.PP
+\fBpki\fR [CLI options] \fBpkcs12-key-del <key ID>\fR [command options]
+.RS 4
+This command is to delete a key from a PKCS #12 file.
+.RE
+
+.SH OPTIONS
+The CLI options are described in \fBpki\fR(1).
+
+.SH OPERATIONS
+
+To view available profile commands, type \fBpki pkcs12-key\fP. To view each command's usage, type \fB pki pkcs12-key-<command> \-\-help\fP.
+
+All \fBpkcs12-key\fP commands require a PKCS #12 file and its password.
+The PKCS #12 file can be specified with the \fB--pkcs12-file\fP parameter.
+The password can be specified either directly with the \fB--pkcs12-password\fP parameter, or in a file with the \fB--pkcs12-password-file\fP parameter.
+
+All \fBpkcs12-key\fP commands also require an NSS database and its password.
+The NSS database location can be specified with the \fB-d\fP parameter (default: ~/.dogtag/nssdb).
+The NSS database password can be specified with the \fB-c\fP or the \fB-C\fP parameter.
+
+.SS Viewing keys in a PKCS #12 file
+
+To list the keys in a PKCS #12 file:
+
+.B pki <NSS database location> <NSS database password> pkcs12-key-find <PKCS #12 file> <PKCS #12 password>
+
+.SS Deleting a key from a PKCS #12 file
+
+To delete a key from a PKCS #12 file:
+
+.B pki <NSS database location> <NSS database password> pkcs12-key-del <key ID> <PKCS #12 file> <PKCS #12 password>
+
+.SH AUTHORS
+Endi S. Dewata <edewata@redhat.com>.
+
+.SH COPYRIGHT
+Copyright (c) 2016 Red Hat, Inc. This is licensed under the GNU General Public License, version 2 (GPLv2). A copy of this license is available at http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
+
+.SH SEE ALSO
+.BR pki-pkcs12(1)
