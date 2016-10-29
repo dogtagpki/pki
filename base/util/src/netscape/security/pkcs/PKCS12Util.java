@@ -554,7 +554,7 @@ public class PKCS12Util {
         boolean valid = pfx.verifyAuthSafes(password, reason);
 
         if (!valid) {
-            throw new Exception("Invalid PKCS #12 password: " + reason);
+            throw new Exception("Unable to validate PKCS #12 file: " + reason);
         }
 
         getKeyInfos(pkcs12, pfx, password);
