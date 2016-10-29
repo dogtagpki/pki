@@ -1,0 +1,122 @@
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH pki-pkcs12-cert 1 "Oct 28, 2016" "version 10.3" "PKI PKCS #12 Certificate Management Commands" Dogtag Team
+.\" Please adjust this date whenever revising the man page.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for man page specific macros, see man(7)
+.SH NAME
+pki-pkcs12-cert \- Command-Line Interface for managing individual certificates in PKCS #12 file.
+
+.SH SYNOPSIS
+.nf
+\fBpki\fR [CLI options] \fBpkcs12-cert\fR
+\fBpki\fR [CLI options] \fBpkcs12-cert-find\fR [command options]
+\fBpki\fR [CLI options] \fBpkcs12-cert-export <nickname>\fR [command options]
+\fBpki\fR [CLI options] \fBpkcs12-cert-add <nickanme>\fR [command options]
+\fBpki\fR [CLI options] \fBpkcs12-cert-mod <nickname>\fR [command options]
+\fBpki\fR [CLI options] \fBpkcs12-cert-del <nickname>\fR [command options]
+.fi
+
+.SH DESCRIPTION
+.PP
+The \fBpki pkcs12-cert\fR commands provide command-line interfaces to manage certificates in a PKCS #12 file.
+
+.PP
+\fBpki\fR [CLI options] \fBpkcs12-cert-find\fR [command options]
+.RS 4
+This command is to list certificates in a PKCS #12 file.
+.RE
+.PP
+\fBpki\fR [CLI options] \fBpkcs12-cert-export <nickname>\fR [command options]
+.RS 4
+This command is to export a certificate from a PKCS #12 file.
+.RE
+.PP
+\fBpki\fR [CLI options] \fBpkcs12-cert-add <nickname>\fR [command options]
+.RS 4
+This command is to add a certificate into a PKCS #12 file.
+.RE
+.PP
+\fBpki\fR [CLI options] \fBpkcs12-cert-mod <nickname>\fR [command options]
+.RS 4
+This command is to modify a certificate in a PKCS #12 file.
+.RE
+.PP
+\fBpki\fR [CLI options] \fBpkcs12-cert-del <nickname>\fR [command options]
+.RS 4
+This command is to delete a certificate from a PKCS #12 file.
+.RE
+
+.SH OPTIONS
+The CLI options are described in \fBpki\fR(1).
+
+.SH OPERATIONS
+
+To view available profile commands, type \fBpki pkcs12-cert\fP. To view each command's usage, type \fB pki pkcs12-cert-<command> \-\-help\fP.
+
+All \fBpkcs12-cert\fP commands require a PKCS #12 file and its password.
+The PKCS #12 file can be specified with the \fB--pkcs12-file\fP parameter.
+The password can be specified either directly with the \fB--pkcs12-password\fP parameter, or in a file with the \fB--pkcs12-password-file\fP parameter.
+
+Some \fBpki pkcs12-cert\fP commands require an NSS database and its password.
+The NSS database location can be specified with the \fB-d\fP parameter (default: ~/.dogtag/nssdb).
+The NSS database password can be specified with the \fB-c\fP or the \fB-C\fP parameter.
+
+.SS Viewing certificates in a PKCS #12 file
+
+To list the certificates in a PKCS #12 file:
+
+.B pki pkcs12-cert-find <PKCS #12 file> <PKCS #12 password>
+
+.SS Exporting a certificate from a PKCS #12 file
+
+To export a certificate from a PKCS #12 file into a file in PEM format:
+
+.B pki pkcs12-cert-export <nickname> <PKCS #12 file> <PKCS #12 password> <cert file>
+
+The certificate file can be specified with the \fB--cert-file\fP parameter.
+
+.SS Adding a certificate from an NSS database into a PKCS #12 file
+
+To add a certificate including its key and trust flags from an NSS database into a PKCS #12 file:
+
+.B pki <NSS database location> <NSS database password> pkcs12-cert-add <nickname> <PKCS #12 file> <PKCS #12 password>
+
+If the PKCS #12 file does not exist, it will be created automatically.
+If the PKCS #12 file already exists, the certificate will be added into the file.
+
+The trust flags can be overwritten with the \fB--trust-flags\fP parameter.
+If the key is not needed, specify the \fB--no-key\fP parameter.
+
+.SS Modifying a certificate in a PKCS #12 file
+
+To modify the trust flags of a certificate in a PKCS #12 file:
+
+.B pki pkcs12-cert-mod <nickname> <PKCS #12 file> <PKCS #12 password> <trust flags>
+
+The trust flags can be specified with the \fB--trust-flags\fP parameter.
+
+.SS Deleting a certificate from a PKCS #12 file
+
+To delete a certificate and its key from a PKCS #12 file:
+
+.B pki pkcs12-cert-del <nickname> <PKCS #12 file> <PKCS #12 password>
+
+.SH AUTHORS
+Endi S. Dewata <edewata@redhat.com>.
+
+.SH COPYRIGHT
+Copyright (c) 2016 Red Hat, Inc. This is licensed under the GNU General Public License, version 2 (GPLv2). A copy of this license is available at http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
+
+.SH SEE ALSO
+.BR pki-pkcs12(1)

@@ -1,0 +1,114 @@
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH pki-pkcs12 1 "Oct 28, 2016" "version 10.3" "PKI PKCS #12 Management Commands" Dogtag Team
+.\" Please adjust this date whenever revising the man page.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for man page specific macros, see man(7)
+.SH NAME
+pki-pkcs12 \- Command-Line Interface for managing certificates and keys in PKCS #12 file.
+
+.SH SYNOPSIS
+.nf
+\fBpki\fR [CLI options] \fBpkcs12\fR
+\fBpki\fR [CLI options] \fBpkcs12-export\fR [command options]
+\fBpki\fR [CLI options] \fBpkcs12-import\fR [command options]
+\fBpki\fR [CLI options] \fBpkcs12-cert\fR [command options]
+\fBpki\fR [CLI options] \fBpkcs12-key\fR [command options]
+.fi
+
+.SH DESCRIPTION
+.PP
+The \fBpki pkcs12\fR commands provide command-line interfaces to manage certificate and keys in a PKCS #12 file.
+
+.PP
+\fBpki\fR [CLI options] \fBpkcs12-export\fR [command options]
+.RS 4
+This command is to export all certificates and keys from an NSS database into a PKCS #12 file.
+.RE
+.PP
+\fBpki\fR [CLI options] \fBpkcs12-import\fR [command options]
+.RS 4
+This command is to import all certificates and keys from a PKCS #12 file into an NSS database.
+.RE
+.PP
+\fBpki\fR [CLI options] \fBpkcs12-cert\fR [command options]
+.RS 4
+This command is to manage individual certificates in a PKCS #12 file. See \fBpki-pkcs12-cert\fR(1).
+.RE
+.PP
+\fBpki\fR [CLI options] \fBpkcs12-key\fR [command options]
+.RS 4
+This command is to import individual keys in a PKCS #12 file. See \fBpki-pkcs12-key\fR(1).
+.RE
+
+.SH OPTIONS
+The CLI options are described in \fBpki\fR(1).
+
+.SH OPERATIONS
+
+To view available PKCS #12 commands, type \fBpki pkcs12\fP. To view each command's usage, type \fB pki pkcs12-<command> \-\-help\fP.
+
+All \fBpki pkcs12\fP commands require a PKCS #12 file and its password.
+The PKCS #12 file can be specified with the \fB--pkcs12-file\fP parameter.
+The password can be specified either directly with the \fB--pkcs12-password\fP parameter, or in a file with the \fB--pkcs12-password-file\fP parameter.
+
+Some \fBpki pkcs12\fP commands require an NSS database and its password.
+The NSS database location can be specified with the \fB-d\fP parameter (default: ~/.dogtag/nssdb).
+The NSS database password can be specified with the \fB-c\fP or the \fB-C\fP parameter.
+
+.SS Exporting all certificates and keys into a PKCS #12 file
+
+To export all certificates and keys from an NSS database into a PKCS #12 file:
+
+.B pki <NSS database location> <NSS database password> pkcs12-export <PKCS #12 file> <PKCS #12 password> [nicknames...]
+
+By default the command will export all certificates in the NSS database.
+To export certain certificates only, specify the certificate nicknames as separate arguments.
+
+By default the command will always create a new PKCS #12 file.
+To export into an existing PKCS #12 file, specify the \fB--append\fP parameter.
+
+By default the command will include the certificate chain.
+To export without certificate chain, specify the \fB--no-chain\fP parameter.
+
+By default the command will include the key of each certificate.
+To export without the key, specify the \fB--no-key\fP parameter.
+
+By default the command will include the trust flags of each certificate.
+To export without the trust flags, specify the \fB--no-trust-flags\fP parameter.
+
+.SS Importing certificates and keys from a PKCS #12 file
+
+To import certificates and keys from a PKCS #12 file into an NSS database:
+
+.B pki <NSS database location> <NSS database password> pkcs12-import <PKCS #12 file> <PKCS #12 password>
+
+By default the command will include all certificates in the PKCS #12 file.
+To import without the CA certificates (certificates without keys), specify the \fB--no-ca-certs\fP parameter.
+To import without the user certificates (certificates with keys), specify the \fB--no-user-certs\fP parameter.
+
+By default the command will skip a certificate if it already exists in the NSS database.
+To overwrite the nickname, the key, and the trust flags of existing certificates, specify the \fB--overwrite\fP parameter.
+
+By default the command will include the trust flags of each certificate.
+To import without the trust flags, specify the \fB--no-trust-flags\fP parameter.
+
+.SH AUTHORS
+Endi S. Dewata <edewata@redhat.com>.
+
+.SH COPYRIGHT
+Copyright (c) 2016 Red Hat, Inc. This is licensed under the GNU General Public License, version 2 (GPLv2). A copy of this license is available at http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
+
+.SH SEE ALSO
+.BR pki-pkcs12-cert(1),
+.BR pki-pkcs12-key(1)
