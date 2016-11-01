@@ -218,7 +218,7 @@ Tomcat Port         = [TOMCAT_SERVER_PORT] (for shutdown)
            enableLookups="false" disableUploadTimeout="true"
            sslImplementationName="org.apache.tomcat.util.net.jss.JSSImplementation"
            enableOCSP="false"
-           ocspResponderURL="http://[PKI_HOSTNAME]:9080/ca/ocsp"
+           ocspResponderURL="http://[PKI_HOSTNAME]:[PKI_UNSECURE_PORT]/ca/ocsp"
            ocspResponderCertNickname="ocspSigningCert cert-pki-ca"
            ocspCacheSize="1000"
            ocspMinCacheEntryDuration="60"
