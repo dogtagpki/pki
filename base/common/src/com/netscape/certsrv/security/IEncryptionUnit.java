@@ -142,6 +142,9 @@ public interface IEncryptionUnit extends IToken {
     public SymmetricKey unwrap_sym(byte encSymmKey[],
             SymmetricKey.Usage usage);
 
+    public PrivateKey unwrap_temp(byte privateKey[], PublicKey pubKey)
+            throws EBaseException;
+
     /**
      * Unwraps data. This method rebuilds the private key by
      * unwrapping the private key data.

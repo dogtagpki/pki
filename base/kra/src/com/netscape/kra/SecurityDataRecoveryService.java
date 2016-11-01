@@ -222,7 +222,7 @@ public class SecurityDataRecoveryService implements IService {
                     byte[] privateKeyData = keyRecord.getPrivateKeyData();
 
                     PublicKey publicKey = X509Key.parsePublicKey(new DerValue(publicKeyData));
-                    privateKey = mStorageUnit.unwrap(privateKeyData, publicKey);
+                    privateKey = mStorageUnit.unwrap_temp(privateKeyData, publicKey);
                 }
 
             } catch (IOException e) {
