@@ -105,6 +105,11 @@ public abstract class ARequestQueue
             throws EBaseException;
 
     /**
+     * Create a new synchronous request ID
+     */
+    protected abstract RequestId newEphemeralRequestId();
+
+    /**
      * Read a request from the persistant store. (abstract)
      * <p>
      * This function is called to create the in-memory version of a request object.
@@ -243,18 +248,29 @@ public abstract class ARequestQueue
         return r;
     }
 
+    public IRequest newRequest(String requestType) throws EBaseException {
+        return newRequest(requestType, false);
+    }
+
     /**
      * Implements IRequestQueue.newRequest
      * <p>
      *
      * @see IRequestQueue#newRequest
      */
-    public IRequest newRequest(String requestType)
+    public IRequest newRequest(String requestType, boolean ephemeral)
             throws EBaseException {
         if (requestType == null) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_REQUEST_TYPE", "null"));
         }
-        RequestId rId = newRequestId();
+
+        RequestId rId = null;
+        if(! ephemeral) {
+            rId = newRequestId();
+        } else {
+            rId = newEphemeralRequestId();
+        }
+
         IRequest r = createRequest(rId, requestType);
 
         // Commented out the lock call because unlock is never called.

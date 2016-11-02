@@ -202,20 +202,9 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
         //If data has been provided, we need at least the wrapped session key,
         //or the command is invalid.
 
-        if (data == null) {
-            throw new BadRequestException("Invalid request.");
-        }
-        if (data.getCertificate() == null &&
-            data.getTransWrappedSessionKey() == null &&
-            data.getSessionWrappedPassphrase() != null) {
-            throw new BadRequestException("No wrapped session key.");
-        }
         KeyRequestDAO dao = new KeyRequestDAO();
         KeyRequestResponse response;
         try {
-            if (getRequestor() == null) {
-                throw new UnauthorizedException("Recovery must be initiated by an agent");
-            }
             response = (data.getCertificate() != null)?
                     dao.submitAsyncKeyRecoveryRequest(data, uriInfo, getRequestor(), getAuthToken()):
                     dao.submitRequest(data, uriInfo, getRequestor(), getAuthToken());

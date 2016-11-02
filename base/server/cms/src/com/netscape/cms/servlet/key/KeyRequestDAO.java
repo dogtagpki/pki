@@ -202,7 +202,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
             throw new BadRequestException("Can not archive already active existing key!");
         }
 
-        IRequest request = queue.newRequest(IRequest.SECURITY_DATA_ENROLLMENT_REQUEST);
+        IRequest request = queue.newRequest(IRequest.SECURITY_DATA_ENROLLMENT_REQUEST, kra.isEphemeral(realm));
 
         if (pkiArchiveOptions != null) {
             request.setExtData(REQUEST_ARCHIVE_OPTIONS, pkiArchiveOptions);
@@ -227,33 +227,35 @@ public class KeyRequestDAO extends CMSRequestDAO {
             request.setRealm(realm);
         }
 
-        queue.processRequest(request);
-
-        queue.markAsServiced(request);
+        if (!kra.isEphemeral(realm)) {
+            queue.processRequest(request);
+            queue.markAsServiced(request);
+        } else {
+            kra.processSynchronousRequest(request);
+        }
 
         return createKeyRequestResponse(request, uriInfo);
     }
 
-    /**
-     * Submits a key recovery request.
-     *
-     * @param data
-     * @param uriInfo
-     * @param requestor
-     * @param authToken
-     * @return info on the recovery request created
-     * @throws EBaseException
-     */
-    public KeyRequestResponse submitRequest(KeyRecoveryRequest data, UriInfo uriInfo, String requestor,
-            IAuthToken authToken)
-            throws EBaseException {
-        // set data using request.setExtData(field, data)
+    public IRequest createRecoveryRequest(KeyRecoveryRequest data, UriInfo uriInfo, String requestor,
+            IAuthToken authToken, boolean ephemeral) throws EBaseException{
+        if (data == null) {
+            throw new BadRequestException("Invalid request.");
+        }
+
+        /*if (data.getCertificate() == null &&
+            data.getTransWrappedSessionKey() == null &&
+            data.getSessionWrappedPassphrase() != null) {
+            throw new BadRequestException("No wrapped session key.");
+        }*/
+
+        if (requestor == null) {
+            throw new UnauthorizedException("Recovery must be initiated by an agent");
+        }
 
         String wrappedSessionKeyStr = data.getTransWrappedSessionKey();
         String wrappedPassPhraseStr = data.getSessionWrappedPassphrase();
         String nonceDataStr = data.getNonceData();
-
-        IRequest request = queue.newRequest(IRequest.SECURITY_DATA_RECOVERY_REQUEST);
 
         KeyId keyId = data.getKeyId();
         IKeyRecord rec = null;
@@ -271,12 +273,18 @@ public class KeyRequestDAO extends CMSRequestDAO {
             throw new UnauthorizedException("Agent not authorized by realm", e);
         }
 
+        IRequest request = queue.newRequest(IRequest.SECURITY_DATA_RECOVERY_REQUEST, ephemeral);
+
+        if (rec.getRealm() != null) {
+            request.setRealm(rec.getRealm());
+        }
+
         Hashtable<String, Object> requestParams;
 
         requestParams = ((IKeyRecoveryAuthority) authority).createVolatileRequest(request.getRequestId());
 
         if (requestParams == null) {
-            throw new EBaseException("Can not create Volatile params in submitRequest!");
+            throw new EBaseException("Can not create Volatile params in createRecoveryRequest!");
         }
 
         CMS.debug("Create volatile  params for recovery request. " + requestParams);
@@ -298,10 +306,25 @@ public class KeyRequestDAO extends CMSRequestDAO {
         request.setExtData(IRequest.ATTR_REQUEST_OWNER, requestor);
         request.setExtData(IRequest.ATTR_APPROVE_AGENTS, requestor);
 
-        if (rec.getRealm() != null) {
-            request.setRealm(rec.getRealm());
-        }
+        // do we need to destroy the requestParams?
 
+        return request;
+    }
+
+    /**
+     * Submits a key recovery request.
+     *
+     * @param data
+     * @param uriInfo
+     * @param requestor
+     * @param authToken
+     * @return info on the recovery request created
+     * @throws EBaseException
+     */
+    public KeyRequestResponse submitRequest(KeyRecoveryRequest data, UriInfo uriInfo, String requestor,
+            IAuthToken authToken)
+            throws EBaseException {
+        IRequest request = createRecoveryRequest(data, uriInfo, requestor, authToken, false);
         queue.processRequest(request);
 
         return createKeyRequestResponse(request, uriInfo);

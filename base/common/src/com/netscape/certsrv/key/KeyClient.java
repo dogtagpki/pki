@@ -402,12 +402,8 @@ public class KeyClient extends Client {
             throw new IllegalArgumentException("A transport cert wrapped session key cannot be null.");
         }
 
-        KeyRequestResponse keyData = recoverKey(keyId, null, null, null, null);
-        approveRequest(keyData.getRequestId());
-
         KeyRecoveryRequest recoveryRequest = new KeyRecoveryRequest();
         recoveryRequest.setKeyId(keyId);
-        recoveryRequest.setRequestId(keyData.getRequestId());
         recoveryRequest.setTransWrappedSessionKey(Utils.base64encode(transWrappedSessionKey));
 
         return retrieveKeyData(recoveryRequest);
@@ -491,6 +487,7 @@ public class KeyClient extends Client {
         KeyRecoveryRequest data = new KeyRecoveryRequest();
         data.setKeyId(keyId);
         data.setRequestId(requestId);
+
         if (transWrappedSessionKey != null) {
             data.setTransWrappedSessionKey(Utils.base64encode(transWrappedSessionKey));
         }
@@ -549,8 +546,8 @@ public class KeyClient extends Client {
      *             IOException, CertificateEncodingException, InvalidKeyException, InvalidAlgorithmParameterException,
      *             BadPaddingException, IllegalBlockSizeException
      */
-    public KeyRequestResponse archivePassphrase(String clientKeyId, String passphrase, String realm) throws Exception {
-
+    public KeyRequestResponse archivePassphrase(String clientKeyId, String passphrase, String realm)
+            throws Exception {
         // Default algorithm OID for DES_EDE3_CBC
         String algorithmOID = EncryptionAlgorithm.DES3_CBC.toOID().toString();
         byte[] nonceData = CryptoUtil.getNonceData(8);

@@ -21,8 +21,6 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import netscape.security.x509.X500Name;
-
 import org.mozilla.jss.crypto.CryptoToken;
 
 import com.netscape.certsrv.base.EBaseException;
@@ -30,12 +28,15 @@ import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.dbs.replicadb.IReplicaIDRepository;
 import com.netscape.certsrv.policy.IPolicyProcessor;
+import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.security.Credential;
 import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.certsrv.security.ITransportKeyUnit;
+
+import netscape.security.x509.X500Name;
 
 /**
  * An interface represents key recovery authority. The
@@ -318,4 +319,23 @@ public interface IKeyRecoveryAuthority extends ISubsystem {
      * Retrieves the transport certificate.
      */
     public org.mozilla.jss.crypto.X509Certificate getTransportCert();
+
+    /**
+     * Process synchronous archival and recovery requests
+     */
+    public void processSynchronousRequest(IRequest request) throws EBaseException;
+
+    /**
+     * Are ephemeral requests enabled for SECURITY_DATA recovery and archival
+     * @param realm authz realm
+     * @return
+     */
+    public boolean isEphemeral(String realm);
+
+    /**
+     * Is the SECURITY_DATA retrieval synchronous?
+     * @param realm
+     * @return
+     */
+    public boolean isRetrievalSynchronous(String realm);
 }

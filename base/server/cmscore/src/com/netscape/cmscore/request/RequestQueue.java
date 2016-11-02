@@ -18,6 +18,7 @@
 package com.netscape.cmscore.request;
 
 import java.math.BigInteger;
+import java.security.SecureRandom;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -46,6 +47,7 @@ import com.netscape.cmscore.util.Debug;
 public class RequestQueue
         extends ARequestQueue
         implements IRequestMod {
+
     // ARequestQueue.newRequestId
     protected RequestId newRequestId()
             throws EBaseException {
@@ -54,6 +56,12 @@ public class RequestQueue
 
         RequestId rid = new RequestId(next);
 
+        return rid;
+    }
+
+    protected RequestId newEphemeralRequestId() {
+        long id = System.currentTimeMillis() * 10000 + new SecureRandom().nextInt(10000);
+        RequestId rid = new RequestId(id);
         return rid;
     }
 

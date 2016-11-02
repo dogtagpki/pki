@@ -29,7 +29,6 @@ import com.netscape.certsrv.request.IService;
  *
  * @version $Revision$, $Date$
  */
-@SuppressWarnings("deprecation")
 public class SecurityDataRecoveryService implements IService {
 
     private IKeyRecoveryAuthority kra = null;

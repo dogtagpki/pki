@@ -62,7 +62,6 @@ import com.netscape.certsrv.key.KeyInfo;
 import com.netscape.certsrv.key.KeyInfoCollection;
 import com.netscape.certsrv.key.KeyNotFoundException;
 import com.netscape.certsrv.key.KeyRecoveryRequest;
-import com.netscape.certsrv.key.KeyRequestInfo;
 import com.netscape.certsrv.key.KeyResource;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.kra.IKeyService;
@@ -102,11 +101,17 @@ public class KeyService extends PKIService implements KeyResource {
 
     public static final int DEFAULT_MAXRESULTS = 100;
     public static final int DEFAULT_MAXTIME = 10;
+    public static final String ATTR_SERIALNO = "serialNumber";
 
     private IKeyRepository repo;
     private IKeyRecoveryAuthority kra;
     private IRequestQueue queue;
     private IKeyService service;
+
+    //parameters for auditing
+    private RequestId requestId;
+    private KeyId keyId;
+    private String auditInfo;
 
     public KeyService() {
         kra = ( IKeyRecoveryAuthority ) CMS.getSubsystem( "kra" );
@@ -117,119 +122,158 @@ public class KeyService extends PKIService implements KeyResource {
 
     /**
      * Used to retrieve a key
+     *
+     * There are two use cases here:
+     * 1. asynchronous requests
+     * 2. synchronous requests
      * @param data
      * @return
      */
     @Override
     public Response retrieveKey(KeyRecoveryRequest data) {
+        boolean synchronous = false;
+        boolean ephemeral = false;
+        String realm = null;
 
-        CMS.debug("KeyService.retrieveKey()");
-        String auditInfo = "KeyService.retrieveKey";
+        auditInfo = "KeyService.retrieveKey";
+        CMS.debug(auditInfo);
 
         if (data == null) {
-            String message = "Missing key recovery request";
-            CMS.debug(message);
-            auditRetrieveKey(ILogger.FAILURE, "None", "None", auditInfo + ";" + message);
-            throw new BadRequestException(message);
+            errorOut("Missing key recovery request", new BadRequestException("Missing key Recovery Request"));
         }
 
-        RequestId requestID = data.getRequestId();
-        CMS.debug("KeyService: request ID: " + requestID);
+        // get or create request
+        IRequest request = null;
+        requestId = data.getRequestId();
+        if (requestId != null) {
+            // this is an asynchronous request
+            // We assume that the request is valid and has been approved
+            CMS.debug("KeyService: request ID: " + requestId);
+            auditInfo += ";requestID=" + requestId.toString();
 
-        if (requestID != null)
-            auditInfo = auditInfo + ": requestID=" + requestID.toString();
+            try {
+                request = queue.findRequest(requestId);
+            } catch (EBaseException e) {
+                errorOut(e.getMessage(), new PKIException(e.getMessage(), e));
+            }
 
-        KeyId keyId = data.getKeyId();
-        CMS.debug("KeyService: key ID: " + keyId);
-        if (keyId != null)
-            auditInfo = auditInfo + "; keyID=" + keyId.toString();
+            if (request == null) {
+                errorOut("No request found", new BadRequestException("No request found"));
+            }
 
-        IRequest request;
-        try {
-            request = queue.findRequest(requestID);
+            keyId = new KeyId(request.getExtDataInString(ATTR_SERIALNO));
+            auditInfo += ";keyID=" + keyId.toString();
 
-        } catch (EBaseException e) {
-            CMS.debug(e);
-            auditRetrieveKey(ILogger.FAILURE, requestID, null, auditInfo + ";" + e.getMessage());
-            throw new PKIException(e.getMessage(), e);
+            data.setKeyId(keyId);
+        } else {
+            keyId = data.getKeyId();
+            if (keyId == null) {
+                errorOut("Missing key ID", new BadRequestException("Missing key Recovery Request"));
+            }
+
+            auditInfo += ";keyID=" + keyId.toString();
+
+            // TODO(alee): get the realm from the key record
+            synchronous = kra.isRetrievalSynchronous(realm);
+            ephemeral = kra.isEphemeral(realm);
+
+            auditInfo += ";synchronous=" + Boolean.toString(synchronous);
+            auditInfo += ";ephemeral=" + Boolean.toString(ephemeral);
+
+            KeyRequestDAO reqDAO = new KeyRequestDAO();
+            try {
+                request = reqDAO.createRecoveryRequest(data, uriInfo, getRequestor(), getAuthToken(), ephemeral);
+            } catch (EBaseException e) {
+                errorOut(e.getMessage(), new PKIException(e.getMessage(), e));
+            }
+
+            requestId = request.getRequestId();
+            auditInfo += ";requestID=" + requestId.toString();
         }
+
+        data.setRequestId(requestId);
 
         String type = request.getRequestType();
         CMS.debug("KeyService: request type: " + type);
-        auditInfo = auditInfo + "; request type:" + type;
+        auditInfo += ";request type:" + type;
 
-        KeyData keyData;
+        // process request
+        KeyData keyData = null;
         try {
-            if (IRequest.KEYRECOVERY_REQUEST.equals(type)) {
-                keyData = recoverKey(data);
-
-            } else {
-                keyId = validateRequest(data);
-                keyData = getKey(keyId, data);
+            switch(type) {
+                case IRequest.KEYRECOVERY_REQUEST:
+                    keyData = recoverKey(data);
+                    break;
+                case IRequest.SECURITY_DATA_RECOVERY_REQUEST:
+                    if (synchronous)  request.setRequestStatus(RequestStatus.APPROVED);
+                    validateRequest(data, request);
+                    keyData = getKey(keyId, request, data, synchronous, ephemeral);
+                    break;
+                default:
+                    errorOut("Invalid request type: " + type,
+                             new BadRequestException("Invalid request type: " + type));
             }
-
         } catch (Exception e) {
-            CMS.debug(e);
-            auditRetrieveKey(ILogger.FAILURE, requestID, keyId, auditInfo + ";" + e.getMessage());
-            throw new PKIException(e.getMessage(), e);
+            errorOut(e.getMessage(), new PKIException(e.getMessage(), e));
         }
 
         if (keyData == null) {
-            CMS.debug("KeyService: No key record");
-            auditRetrieveKey(ILogger.FAILURE, requestID, keyId, auditInfo + "; No key record");
-            throw new HTTPGoneException("No key record.");
+            errorOut("No key record", new HTTPGoneException("No key record."));
         }
 
         CMS.debug("KeyService: key retrieved");
-
-        auditRetrieveKey(ILogger.SUCCESS, requestID, keyId, auditInfo);
-
+        auditRetrieveKey(ILogger.SUCCESS);
         return createOKResponse(keyData);
     }
 
     // retrieval - used to test integration with a browser
     @Override
     public Response retrieveKey(MultivaluedMap<String, String> form) {
-        String method = "KeyService.retrieveKey with form: ";
-        CMS.debug(method + "begins.");
+        CMS.debug("KeyService.retrieveKey with form: begins.");
         KeyRecoveryRequest data = new KeyRecoveryRequest(form);
         return retrieveKey(data);
     }
 
-    public KeyData getKey(KeyId keyId, KeyRecoveryRequest data) throws EBaseException {
-        String method = "KeyService.getKey: ";
-        String auditInfo = null;
+    public KeyData getKey(KeyId keyId, IRequest request, KeyRecoveryRequest data,
+            boolean synchronous, boolean ephemeral) throws EBaseException {
+        String method = "KeyService.getKey:";
+        auditInfo = method;
         KeyData keyData;
         CMS.debug(method + "begins.");
-        RequestId rId = data.getRequestId();
 
-        String transWrappedSessionKey;
-        String sessionWrappedPassphrase;
-
-        IRequest request = queue.findRequest(rId);
+        if (data == null) {
+            CMS.debug(method + "KeyRecoveryRequest is null");
+            return null;
+        }
 
         if (request == null) {
             CMS.debug(method + "request null");
             return null;
         }
 
-     // get wrapped key
+        // get wrapped key
         IKeyRecord rec = repo.readKeyRecord(keyId.toBigInteger());
         if (rec == null) {
             CMS.debug(method + "key record null");
-
             return null;
         }
 
-        Hashtable<String, Object> requestParams = kra.getVolatileRequest(
-                request.getRequestId());
+        auditInfo += ";keyID=" + keyId.toString();
+        auditInfo += ";requestID=" + requestId.toString();
+        auditInfo += ";synchronous=" + Boolean.toString(synchronous);
+        auditInfo += ";ephemeral=" + Boolean.toString(ephemeral);
 
+
+        // get data from the KeyRecoveryRequest
+        String transWrappedSessionKey   = data.getTransWrappedSessionKey();
+        String sessionWrappedPassphrase = data.getSessionWrappedPassphrase();
+
+        // get data from IRequest
+        Hashtable<String, Object> requestParams = kra.getVolatileRequest(request.getRequestId());
         if(requestParams == null) {
-            auditInfo = method + "Can't obtain Volatile requestParams in getKey!";
-            CMS.debug(auditInfo);
-            throw new EBaseException(auditInfo);
+            errorOut("Can't obtain Volatile requestParams in getKey!",
+                     new PKIException("Can't obtain Volatile requestParams in getKey!"));
         }
-
         String sessWrappedKeyData = (String) requestParams.get(IRequest.SECURITY_DATA_SESS_WRAPPED_DATA);
         String passWrappedKeyData = (String) requestParams.get(IRequest.SECURITY_DATA_PASS_WRAPPED_DATA);
         String nonceData = (String) requestParams.get(IRequest.SECURITY_DATA_IV_STRING_OUT);
@@ -239,22 +283,11 @@ public class KeyService extends PKIService implements KeyResource {
             //package, either session key wrapped or pass wrapped, into the request.
             //Request already has been processed.
             keyData = new KeyData();
-
         } else {
             // The request has not yet been processed, let's see if the RecoveryRequestData contains
             // the info now needed to process the recovery request.
 
-            transWrappedSessionKey   = data.getTransWrappedSessionKey();
-            sessionWrappedPassphrase = data.getSessionWrappedPassphrase();
             nonceData = data.getNonceData();
-
-            if (transWrappedSessionKey == null) {
-                //There must be at least a transWrappedSessionKey input provided.
-                //The command AND the request have provided insufficient data, end of the line.
-                auditInfo = method + "Can't retrieve key, insufficient input data!";
-                CMS.debug(auditInfo);
-                throw new EBaseException(auditInfo);
-            }
 
             if (sessionWrappedPassphrase != null) {
                 requestParams.put(IRequest.SECURITY_DATA_SESS_PASS_PHRASE, sessionWrappedPassphrase);
@@ -269,22 +302,23 @@ public class KeyService extends PKIService implements KeyResource {
             }
 
             try {
-                // Has to be in this state or it won't go anywhere.
-                request.setRequestStatus(RequestStatus.BEGIN);
-                queue.processRequest(request);
+                if (!synchronous) {
+                    // Has to be in this state or it won't go anywhere.
+                    request.setRequestStatus(RequestStatus.BEGIN);
+                    queue.processRequest(request);
+                } else {
+                    kra.processSynchronousRequest(request);
+                }
             } catch (EBaseException e) {
-                auditInfo = method + e.getMessage();
                 kra.destroyVolatileRequest(request.getRequestId());
-                throw new EBaseException(auditInfo);
+                errorOut(e.getMessage(), new PKIException(e.getMessage(), e));
             }
 
-            nonceData = null;
+            // get the results of the operations
             keyData = new KeyData();
-
             sessWrappedKeyData = (String) requestParams.get(IRequest.SECURITY_DATA_SESS_WRAPPED_DATA);
             passWrappedKeyData = (String) requestParams.get(IRequest.SECURITY_DATA_PASS_WRAPPED_DATA);
             nonceData = (String) requestParams.get(IRequest.SECURITY_DATA_IV_STRING_OUT);
-
         }
 
         if (sessWrappedKeyData != null) {
@@ -310,93 +344,49 @@ public class KeyService extends PKIService implements KeyResource {
 
         kra.destroyVolatileRequest(request.getRequestId());
 
-        queue.markAsServiced(request);
+        if (!synchronous) {
+            queue.markAsServiced(request);
+        } else {
+            request.setRequestStatus(RequestStatus.COMPLETE);
+            if (! ephemeral) {
+                // stores the request in LDAP
+                queue.updateRequest(request);
+            }
+        }
 
         return keyData;
     }
 
-    private KeyId validateRequest(KeyRecoveryRequest data) {
+    private void validateRequest(KeyRecoveryRequest data, IRequest request) {
         String method = "KeyService.validateRequest: ";
         CMS.debug(method + "begins.");
-        String logMessage = null;
-
-        // confirm request exists
-        RequestId reqId = data.getRequestId();
-        if (reqId == null) {
-            // log error
-            logMessage = "Request id not found.";
-            CMS.debug(logMessage);
-            throw new BadRequestException(logMessage);
-        }
 
         // confirm that at least one wrapping method exists
         // There must be at least the wrapped session key method.
         if ((data.getTransWrappedSessionKey() == null)) {
-            // log error
-            logMessage = "No wrapping method found.";
-            CMS.debug(logMessage);
-
-            throw new BadRequestException(logMessage);
+            errorOut("No wrapping method found.", new BadRequestException("No wrapping method found."));
         }
 
-        KeyRequestDAO reqDAO = new KeyRequestDAO();
-        KeyRequestInfo reqInfo;
-        try {
-            reqInfo = reqDAO.getRequest(reqId, uriInfo, getAuthToken());
-        } catch (EBaseException e1) {
-            // failed to get request
-            logMessage = "failed to get request";
-            CMS.debug(logMessage);
-
-            e1.printStackTrace();
-            throw new PKIException(logMessage + e1.getMessage(), e1);
-        }
-        if (reqInfo == null) {
-            // request not found
-            logMessage = "No request information available.";
-            CMS.debug(logMessage);
-
-            throw new HTTPGoneException(logMessage);
-        }
-
-        //confirm request is of the right type
-        String type = reqInfo.getRequestType();
-        if (!type.equals(IRequest.SECURITY_DATA_RECOVERY_REQUEST)) {
-            // log error
-            logMessage = "Invalid request type";
-            CMS.debug(logMessage);
-            throw new BadRequestException(logMessage);
+        // confirm that the keyIDs match
+        String keyID = request.getExtDataInString(ATTR_SERIALNO);
+        if (!data.getKeyId().toString().contentEquals(keyID)) {
+            errorOut("Key IDs do not match.", new UnauthorizedException("Key IDs do not match"));
         }
 
         //confirm that retriever is originator of request, else throw 401
         String retriever = servletRequest.getUserPrincipal().getName();
-        IRequest request;
-        try {
-            request = queue.findRequest(reqId);
-        } catch (EBaseException e) {
-            e.printStackTrace();
-            logMessage = e.getMessage();
-            CMS.debug(logMessage);
-
-            throw new PKIException(logMessage, e);
-        }
         String originator = request.getExtDataInString(IRequest.ATTR_REQUEST_OWNER);
         if (! originator.equals(retriever)) {
-            logMessage = "Data for recovery requests can only be retrieved by the originators of the request";
-            CMS.debug(logMessage);
-            throw new UnauthorizedException(logMessage);
+            errorOut("Data can only be retrieved by the originators of the request",
+                     new UnauthorizedException("Data can only be retrieved by the originators of the request"));
         }
 
         // confirm request is in approved state
-        RequestStatus status = reqInfo.getRequestStatus();
+        RequestStatus status = request.getRequestStatus();
         if (!status.equals(RequestStatus.APPROVED)) {
-            // log error
-            logMessage = "Unauthorized request.  Recovery request not approved.";
-            CMS.debug(logMessage);
-            throw new UnauthorizedException(logMessage);
+            errorOut("Recovery request not approved.",
+                     new UnauthorizedException("Recovery request not approved."));
         }
-
-        return reqInfo.getKeyId();
     }
 
     /**
@@ -405,16 +395,14 @@ public class KeyService extends PKIService implements KeyResource {
     @Override
     public Response listKeys(String clientKeyID, String status, Integer maxResults, Integer maxTime,
             Integer start, Integer size, String realm) {
-        String method = "KeyService.listKeys: ";
-        CMS.debug(method + "begins.");
-
+        CMS.debug("KeyService.listKeys: begins.");
         return createOKResponse(listKeyInfos(clientKeyID, status, maxResults, maxTime, start, size, realm));
     }
 
     public KeyInfoCollection listKeyInfos(String clientKeyID, String status, Integer maxResults, Integer maxTime,
             Integer start, Integer size, String realm) {
         String method = "KeyService.listKeyInfos: ";
-        String auditInfo = "KeyService.listKeyInfos; status =" + status;
+        auditInfo = "KeyService.listKeyInfos; status =" + status;
         CMS.debug(method + "begins.");
 
         start = start == null ? 0 : start;
@@ -444,7 +432,7 @@ public class KeyService extends PKIService implements KeyResource {
         try {
             Enumeration<IKeyRecord> e = repo.searchKeys(filter, maxResults, maxTime);
             if (e == null) {
-                auditRetrieveKey(ILogger.SUCCESS, null, clientKeyID, auditInfo);
+                auditRetrieveKey(ILogger.SUCCESS);
                 return infos;
             }
 
@@ -475,12 +463,9 @@ public class KeyService extends PKIService implements KeyResource {
             }
 
         } catch (EBaseException e) {
-            auditRetrieveKey(ILogger.FAILURE, null, clientKeyID, e.getMessage() + auditInfo);
-
-            e.printStackTrace();
-            throw new PKIException(e.getMessage(), e);
+            errorOut(e.getMessage(), new PKIException(e.getMessage(), e));
         }
-        auditRetrieveKey(ILogger.SUCCESS, null, clientKeyID, auditInfo);
+        auditRetrieveKey(ILogger.SUCCESS);
 
         return infos;
     }
@@ -488,7 +473,7 @@ public class KeyService extends PKIService implements KeyResource {
     @Override
     public Response getActiveKeyInfo(String clientKeyID) {
         String method = "KeyService.getActiveKeyInfo: ";
-        String auditInfo = "KeyService.getActiveKeyInfo";
+        auditInfo = "KeyService.getActiveKeyInfo";
         CMS.debug(method + "begins.");
 
         KeyInfoCollection infos = listKeyInfos(
@@ -517,15 +502,13 @@ public class KeyService extends PKIService implements KeyResource {
                     throw new PKIException(e.toString(), e);
                 }
 
-                auditRetrieveKey(ILogger.SUCCESS, null, clientKeyID, auditInfo);
+                auditRetrieveKey(ILogger.SUCCESS);
 
                 return createOKResponse(info);
             }
         }
-        String message = "Key not found.";
-        auditRetrieveKey(ILogger.FAILURE, null, clientKeyID, message + auditInfo);
-
-        throw new ResourceNotFoundException(auditInfo + ":" + message);
+        errorOut("Key not found.", new ResourceNotFoundException("Key not found"));
+        return null;  //needed to keep compiler happy
     }
 
     public KeyInfo createKeyDataInfo(IKeyRecord rec, boolean getPublicKey) throws EBaseException {
@@ -590,23 +573,30 @@ public class KeyService extends PKIService implements KeyResource {
         return filter;
     }
 
-    public void auditRetrieveKey(String status, RequestId requestID, KeyId keyID, String reason) {
-        auditRetrieveKey(status, requestID != null ? requestID.toString(): "null",
-                keyID != null ? keyID.toString(): "null", reason);
-    }
-
-    public void auditRetrieveKey(String status, String requestID, String keyID, String reason) {
+    public void auditRetrieveKey(String status, String reason) {
         String msg = CMS.getLogMessage(
                 LOGGING_SIGNED_AUDIT_SECURITY_DATA_RETRIEVE_KEY,
                 servletRequest.getUserPrincipal().getName(),
                 status,
-                requestID,
-                keyID,
-                reason);
+                requestId != null ? requestId.toString(): "null",
+                keyId != null ? keyId.toString(): "null",
+                (reason != null) ? auditInfo + ";" + reason : auditInfo
+        );
         auditor.log(msg);
     }
 
-    public void auditKeyStatusChange(String status, String keyID, String oldKeyStatus, String newKeyStatus, String info) {
+    public void auditRetrieveKey(String status) {
+        auditRetrieveKey(status, null);
+    }
+
+    public void errorOut(String message, RuntimeException exception) {
+        CMS.debug(message);
+        auditRetrieveKey(ILogger.FAILURE, message);
+        throw exception;
+    }
+
+    public void auditKeyStatusChange(String status, String keyID, String oldKeyStatus,
+            String newKeyStatus, String info) {
         String msg = CMS.getLogMessage(
                 LOGGING_SIGNED_AUDIT_KEY_STATUS_CHANGE,
                 servletRequest.getUserPrincipal().getName(),
@@ -625,7 +615,7 @@ public class KeyService extends PKIService implements KeyResource {
      */
     private KeyData recoverKey(KeyRecoveryRequest data) throws UnauthorizedException, HTTPGoneException {
         String method = "KeyService.recoverKey: ";
-        String auditInfo = "KeyService.recoverKey";
+        auditInfo = "KeyService.recoverKey";
         CMS.debug(method + "begins.");
 
         // confirm request exists
@@ -637,15 +627,13 @@ public class KeyService extends PKIService implements KeyResource {
         } catch (EBaseException e) {
         }
         if (request == null) {
-            auditInfo = method + "No request record.";
-            throw new HTTPGoneException(auditInfo);
+            errorOut("No request record", new HTTPGoneException("No request record"));
         }
         String type = request.getRequestType();
         RequestStatus status = request.getRequestStatus();
         if (!IRequest.KEYRECOVERY_REQUEST.equals(type) ||
             !status.equals(RequestStatus.APPROVED)) {
-            auditInfo = method + "Unauthorized request.";
-            throw new UnauthorizedException(auditInfo);
+            errorOut("Request not approved", new UnauthorizedException("Request not approved"));
         }
 
         String passphrase = data.getPassphrase();
@@ -655,8 +643,8 @@ public class KeyService extends PKIService implements KeyResource {
         } catch (EBaseException e) {
         }
         if (pkcs12 == null) {
-            auditInfo = method + "pkcs12 null; Key not recovered.";
-            throw new HTTPGoneException(auditInfo);
+            errorOut("pkcs12 null; Key not recovered.",
+                     new HTTPGoneException("pkcs12 null; Key not recovered"));
         }
         String pkcs12base64encoded = Utils.base64encode(pkcs12);
 
@@ -675,7 +663,7 @@ public class KeyService extends PKIService implements KeyResource {
     @Override
     public Response getKeyInfo(KeyId keyId) {
         String method = "KeyService.getKeyInfo: ";
-        String auditInfo = "KeyService.getKeyInfo";
+        auditInfo = "KeyService.getKeyInfo";
         CMS.debug(method + "begins.");
 
         IKeyRecord rec = null;
@@ -683,24 +671,18 @@ public class KeyService extends PKIService implements KeyResource {
             rec = repo.readKeyRecord(keyId.toBigInteger());
             authz.checkRealm(rec.getRealm(), getAuthToken(), rec.getOwnerName(), "certServer.kra.key", "read");
             KeyInfo info = createKeyDataInfo(rec, true);
-            auditRetrieveKey(ILogger.SUCCESS, null, keyId, auditInfo);
+            auditRetrieveKey(ILogger.SUCCESS);
 
             return createOKResponse(info);
         } catch (EAuthzAccessDenied e) {
-            auditInfo = method + "Unauthorized access for key record";
-            auditRetrieveKey(ILogger.FAILURE, null, keyId, auditInfo);
-            throw new UnauthorizedException(auditInfo, e);
+            errorOut("Unauthorized access for key record",
+                      new UnauthorizedException("Unauthorized access for key record", e));
         } catch (EDBRecordNotFoundException e) {
-            auditInfo = method + e.getMessage();
-            auditRetrieveKey(ILogger.FAILURE, null, keyId, auditInfo);
-            throw new KeyNotFoundException(keyId, "key not found", e);
+            errorOut(e.getMessage(), new KeyNotFoundException(keyId, "key not found", e));
         } catch (Exception e) {
-            auditInfo = method + "Unable to retrieve key record: " + e.getMessage();
-            auditRetrieveKey(ILogger.FAILURE, null, keyId, auditInfo);
-            CMS.debug(auditInfo);
-            e.printStackTrace();
-            throw new PKIException(e.getMessage(), e);
+            errorOut("Unable to retrieve key record: " + e.getMessage(), new PKIException(e.getMessage(), e));
         }
+        return null; // keep compiler happy
     }
 
     private IAuthToken getAuthToken() {
@@ -714,7 +696,7 @@ public class KeyService extends PKIService implements KeyResource {
     public Response modifyKeyStatus(KeyId keyId, String status) {
         String method = "KeyService.modifyKeyStatus: ";
         //TODO: what was the original status?  find it and record that in Info as well
-        String auditInfo = "KeyService.modifyKeyStatus";
+        auditInfo = "KeyService.modifyKeyStatus";
 
         CMS.debug(method + "begins.");
         IKeyRecord rec = null;
@@ -748,5 +730,8 @@ public class KeyService extends PKIService implements KeyResource {
         }
     }
 
+    private String getRequestor() {
+        return servletRequest.getUserPrincipal().getName();
+    }
 
 }

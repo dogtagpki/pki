@@ -75,7 +75,10 @@ public class KeyRecoveryRequest extends ResourceMessage {
      * @return the keyId
      */
     public KeyId getKeyId() {
-        return new KeyId(attributes.get(KEY_ID));
+        String id = attributes.get(KEY_ID);
+        if (id != null)
+            return new KeyId(attributes.get(KEY_ID));
+        return null;
     }
 
     /**
@@ -89,7 +92,10 @@ public class KeyRecoveryRequest extends ResourceMessage {
      * @return the requestId
      */
     public RequestId getRequestId() {
-        return new RequestId(attributes.get(REQUEST_ID));
+        String id = attributes.get(REQUEST_ID);
+        if (id != null)
+            return new RequestId(attributes.get(REQUEST_ID));
+        return null;
     }
 
     /**
@@ -170,7 +176,6 @@ public class KeyRecoveryRequest extends ResourceMessage {
     public void setPassphrase(String passphrase) {
         attributes.put(PASSPHRASE, passphrase);
     }
-
 
     public static KeyRecoveryRequest valueOf(String string) throws Exception {
         try {

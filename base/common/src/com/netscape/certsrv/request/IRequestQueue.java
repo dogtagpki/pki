@@ -38,6 +38,18 @@ import com.netscape.certsrv.dbs.repository.IRepository;
 public interface IRequestQueue {
 
     /**
+     * Create a new Request object and assign a request ID.
+     * See newRequest() for details.
+     *
+     * @param requestType - request type
+     * @param ephemeral - is the request ephemeral?
+     * @return new request
+     * @exception EBaseException failed to create new request
+     */
+    public IRequest newRequest(String requestType, boolean ephemeral)
+            throws EBaseException;
+
+    /**
      * Creates a new request object. A request id is
      * assigned to it - see IRequest.getRequestId, and
      * the status is set to RequestStatus.BEGIN

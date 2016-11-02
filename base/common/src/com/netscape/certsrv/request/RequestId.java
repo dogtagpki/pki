@@ -77,6 +77,10 @@ public class RequestId implements Serializable {
         value = BigInteger.valueOf(id);
     }
 
+    public RequestId(long id) {
+        value = BigInteger.valueOf(id);
+    }
+
     /**
      * Converts the RequestId into its BigInteger representation.
      * <p>

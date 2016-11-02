@@ -1231,7 +1231,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
      * @param kid key identifier
      * @param creds list of recovery agent credentials
      * @param password password of the PKCS12 package
-     * @param cert certficate that will be put in PKCS12
+     * @param cert certificate that will be put in PKCS12
      * @param delivery file, mail or something else
      * @return executed request
      * @exception EBaseException failed to recover key
@@ -1249,6 +1249,43 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         r.setExtData(RecoveryService.ATTR_DELIVERY, delivery);
         queue.processRequest(r);
         return r;
+    }
+
+    /**
+     * Execute synchronous request
+     * (TODO(alee): should we do this in a separate thread?
+     * @throws EBaseException
+     */
+    public void processSynchronousRequest(IRequest request) throws EBaseException {
+        SecurityDataProcessor processor = new SecurityDataProcessor(this);
+        switch(request.getRequestType()){
+            case IRequest.SECURITY_DATA_ENROLLMENT_REQUEST:
+                processor.archive(request);
+                break;
+            case IRequest.SECURITY_DATA_RECOVERY_REQUEST:
+                processor.recover(request);
+                break;
+            default:
+                throw new EBaseException("Unsupported synchronous request type: " + request.getRequestType());
+        }
+    }
+
+    public boolean isEphemeral(String realm) {
+        try {
+            return mConfig.getBoolean("ephemeral", false);
+        } catch (EBaseException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean isRetrievalSynchronous(String realm) {
+        try {
+            return getNoOfRequiredSecurityDataRecoveryAgents() == 1;
+        } catch (EBaseException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     /**

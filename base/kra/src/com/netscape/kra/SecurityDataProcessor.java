@@ -81,6 +81,7 @@ public class SecurityDataProcessor {
         this.kra = kra;
         transportUnit = kra.getTransportKeyUnit();
         storageUnit = kra.getStorageKeyUnit();
+        keyRepository = kra.getKeyRepository();
     }
 
     public boolean archive(IRequest request)
@@ -247,8 +248,7 @@ public class SecurityDataProcessor {
             throw new EBaseException(CMS.getUserMessage("CMS_KRA_INVALID_STATE"));
         }
 
-        IKeyRepository storage = kra.getKeyRepository();
-        BigInteger serialNo = storage.getNextSerialNumber();
+        BigInteger serialNo = keyRepository.getNextSerialNumber();
 
         if (serialNo == null) {
             kra.log(ILogger.LL_FAILURE,
@@ -273,7 +273,7 @@ public class SecurityDataProcessor {
 
         CMS.debug("KRA adding Security Data key record " + serialNo);
 
-        storage.addKeyRecord(rec);
+        keyRepository.addKeyRecord(rec);
 
         auditArchivalRequestProcessed(auditSubjectID, ILogger.SUCCESS, requestId,
                 clientKeyId, serialNo.toString(), "None");
