@@ -19,9 +19,9 @@ package com.netscape.certsrv.policy;
 
 import java.util.Vector;
 
-import netscape.security.x509.GeneralName;
-
 import com.netscape.certsrv.base.EBaseException;
+
+import netscape.security.x509.GeneralName;
 
 /**
  * Class that can be used to form general names from configuration file.
@@ -33,7 +33,6 @@ import com.netscape.certsrv.base.EBaseException;
  * </PRE>
  * <P>
  *
- * @deprecated
  * @version $Revision$, $Date$
  */
 public interface IGeneralNameConfig {

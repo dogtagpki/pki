@@ -36,7 +36,6 @@ import com.netscape.cmscore.util.Debug;
  * is treated as (a AND b) OR e OR (c AND d)
  * 4. If this is n't adequate, roll your own.
  *
- * @deprecated
  * @author kanda
  * @version $Revision$, $Date$
  */

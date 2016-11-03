@@ -33,7 +33,6 @@ import com.netscape.cmscore.util.Debug;
  *
  * Expressions are used as predicates for policy selection.
  *
- * @deprecated
  * @author kanda
  * @version $Revision$, $Date$
  */

@@ -22,13 +22,6 @@ import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
-import netscape.security.provider.RSAPublicKey;
-import netscape.security.util.BigInt;
-import netscape.security.x509.AlgorithmId;
-import netscape.security.x509.CertificateX509Key;
-import netscape.security.x509.X509CertInfo;
-import netscape.security.x509.X509Key;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -40,6 +33,13 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cms.policy.APolicyRule;
 
+import netscape.security.provider.RSAPublicKey;
+import netscape.security.util.BigInt;
+import netscape.security.x509.AlgorithmId;
+import netscape.security.x509.CertificateX509Key;
+import netscape.security.x509.X509CertInfo;
+import netscape.security.x509.X509Key;
+
 /**
  * RSAKeyConstraints policy enforces min and max size of the key.
  * Optionally checks the exponents.
@@ -50,7 +50,6 @@ import com.netscape.cms.policy.APolicyRule;
  * </PRE>
  * <P>
  *
- * @deprecated
  * @version $Revision$, $Date$
  */
 public class RSAKeyConstraints extends APolicyRule

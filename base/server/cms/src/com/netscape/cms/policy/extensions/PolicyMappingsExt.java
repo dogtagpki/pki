@@ -22,14 +22,6 @@ import java.security.cert.CertificateException;
 import java.util.Locale;
 import java.util.Vector;
 
-import netscape.security.util.ObjectIdentifier;
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.CertificatePolicyId;
-import netscape.security.x509.CertificatePolicyMap;
-import netscape.security.x509.CertificateVersion;
-import netscape.security.x509.PolicyMappingsExtension;
-import netscape.security.x509.X509CertInfo;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -42,6 +34,14 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cms.policy.APolicyRule;
 
+import netscape.security.util.ObjectIdentifier;
+import netscape.security.x509.CertificateExtensions;
+import netscape.security.x509.CertificatePolicyId;
+import netscape.security.x509.CertificatePolicyMap;
+import netscape.security.x509.CertificateVersion;
+import netscape.security.x509.PolicyMappingsExtension;
+import netscape.security.x509.X509CertInfo;
+
 /**
  * Policy Mappings Extension Policy
  * Adds the Policy Mappings extension to a (CA) certificate.
@@ -53,7 +53,6 @@ import com.netscape.cms.policy.APolicyRule;
  * </PRE>
  * <P>
  *
- * @deprecated
  * @version $Revision$, $Date$
  */
 public class PolicyMappingsExt extends APolicyRule

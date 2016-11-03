@@ -24,11 +24,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.util.Vector;
 
-import netscape.security.x509.CertificateX509Key;
-import netscape.security.x509.KeyIdentifier;
-import netscape.security.x509.X509CertInfo;
-import netscape.security.x509.X509Key;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -41,6 +36,11 @@ import com.netscape.certsrv.request.AgentApprovals;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 
+import netscape.security.x509.CertificateX509Key;
+import netscape.security.x509.KeyIdentifier;
+import netscape.security.x509.X509CertInfo;
+import netscape.security.x509.X509Key;
+
 /**
  * The abstract policy rule that concrete implementations will
  * extend.
@@ -51,7 +51,6 @@ import com.netscape.certsrv.request.PolicyResult;
  * </PRE>
  * <P>
  *
- * @deprecated
  * @version $Revision$, $Date$
  */
 public abstract class APolicyRule implements IPolicyRule {

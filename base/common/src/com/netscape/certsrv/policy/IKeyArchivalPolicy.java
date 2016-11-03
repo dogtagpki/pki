@@ -26,7 +26,6 @@ package com.netscape.certsrv.policy;
  * </PRE>
  * <P>
  *
- * @deprecated
  * @version $Revision$, $Date$
  */
 public interface IKeyArchivalPolicy extends IPolicyRule {

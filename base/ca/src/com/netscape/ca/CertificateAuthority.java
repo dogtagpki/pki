@@ -440,9 +440,6 @@ public class CertificateAuthority
         return mCRLPublisher;
     }
 
-    /**
-     * @deprecated
-     */
     public IPolicyProcessor getPolicyProcessor() {
         return mPolicy.getPolicyProcessor();
     }

@@ -40,7 +40,6 @@ import com.netscape.certsrv.base.ISubsystem;
  * </PRE>
  * <P>
  *
- * @deprecated
  * @version $Revision$, $Date$
  */
 public interface IPolicyProcessor extends ISubsystem,

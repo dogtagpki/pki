@@ -26,7 +26,6 @@ package com.netscape.cms.policy.constraints;
  * </PRE>
  * <P>
  *
- * @deprecated
  * @version $Revision$, $Date$
  */
 public class UniqueSubjectName extends UniqueSubjectNameConstraints {

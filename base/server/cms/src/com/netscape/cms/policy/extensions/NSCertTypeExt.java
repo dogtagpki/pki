@@ -23,13 +23,6 @@ import java.security.cert.X509Certificate;
 import java.util.Locale;
 import java.util.Vector;
 
-import netscape.security.extensions.NSCertTypeExtension;
-import netscape.security.x509.CertificateChain;
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.CertificateVersion;
-import netscape.security.x509.KeyUsageExtension;
-import netscape.security.x509.X509CertInfo;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authority.ICertAuthority;
@@ -45,6 +38,13 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cms.policy.APolicyRule;
 
+import netscape.security.extensions.NSCertTypeExtension;
+import netscape.security.x509.CertificateChain;
+import netscape.security.x509.CertificateExtensions;
+import netscape.security.x509.CertificateVersion;
+import netscape.security.x509.KeyUsageExtension;
+import netscape.security.x509.X509CertInfo;
+
 /**
  * NS Cert Type policy.
  * Adds the ns cert type extension depending on cert type requested.
@@ -55,7 +55,6 @@ import com.netscape.cms.policy.APolicyRule;
  * </PRE>
  * <P>
  *
- * @deprecated
  * @version $Revision$, $Date$
  */
 public class NSCertTypeExt extends APolicyRule

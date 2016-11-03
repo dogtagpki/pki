@@ -33,7 +33,6 @@ import com.netscape.cmscore.util.Debug;
  * Implements a policy set per IPolicySet interface. This class
  * uses a vector of ordered policies to enforce priority.
  *
- * @deprecated
  * @author kanda
  * @version $Revision$, $Date$
  */

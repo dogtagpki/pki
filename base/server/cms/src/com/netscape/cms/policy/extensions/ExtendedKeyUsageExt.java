@@ -48,7 +48,6 @@ import netscape.security.x509.X509CertInfo;
  * </PRE>
  * <P>
  *
- * @deprecated
  * @version $Revision$, $Date$
  */
 public class ExtendedKeyUsageExt extends APolicyRule

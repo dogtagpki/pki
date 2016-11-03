@@ -28,7 +28,6 @@ import com.netscape.certsrv.request.IRequest;
  * </PRE>
  * <P>
  *
- * @deprecated
  * @version $Revision$, $Date$
  */
 public interface IExpression {

@@ -20,9 +20,6 @@ package com.netscape.cms.policy.constraints;
 import java.util.Locale;
 import java.util.Vector;
 
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CertInfo;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
@@ -34,6 +31,9 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cms.policy.APolicyRule;
 
+import netscape.security.x509.X500Name;
+import netscape.security.x509.X509CertInfo;
+
 /**
  * IssuerConstraints is a rule for restricting the issuers of the
  * certificates used for certificate-based enrollments.
@@ -44,7 +44,6 @@ import com.netscape.cms.policy.APolicyRule;
  * </PRE>
  * <P>
  *
- * @deprecated
  * @version $Revision$ $Date$
  */
 public class IssuerConstraints extends APolicyRule

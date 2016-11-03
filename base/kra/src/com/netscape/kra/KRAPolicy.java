@@ -32,7 +32,6 @@ import com.netscape.cmscore.util.Debug;
 /**
  * KRA Policy.
  *
- * @deprecated
  * @version $Revision$, $Date$
  */
 public class KRAPolicy implements IPolicy {

@@ -22,10 +22,6 @@ import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
-import netscape.security.x509.CertificateX509Key;
-import netscape.security.x509.X509CertInfo;
-import netscape.security.x509.X509Key;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
@@ -35,6 +31,10 @@ import com.netscape.certsrv.policy.IEnrollmentPolicy;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cms.policy.APolicyRule;
+
+import netscape.security.x509.CertificateX509Key;
+import netscape.security.x509.X509CertInfo;
+import netscape.security.x509.X509Key;
 
 /**
  * KeyAlgorithmConstraints enforces a constraint that the RA or a CA
@@ -47,7 +47,6 @@ import com.netscape.cms.policy.APolicyRule;
  * </PRE>
  * <P>
  *
- * @deprecated
  * @version $Revision$, $Date$
  */
 public class KeyAlgorithmConstraints extends APolicyRule

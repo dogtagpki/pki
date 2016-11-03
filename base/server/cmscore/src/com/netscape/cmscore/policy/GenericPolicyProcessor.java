@@ -60,7 +60,6 @@ import com.netscape.cmscore.util.Debug;
  * the processor itself presents itself as one big policy to the
  * request processor.
  *
- * @deprecated
  * @author kanda
  * @version $Revision$, $Date$
  */
@@ -1479,9 +1478,6 @@ class RegisteredPolicy {
     }
 }
 
-/**
- * @deprecated
- */
 class PolicyInstance {
     String mInstanceId;
     String mImplId;

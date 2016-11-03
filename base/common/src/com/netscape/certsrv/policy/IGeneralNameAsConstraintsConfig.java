@@ -31,7 +31,6 @@ import netscape.security.x509.GeneralName;
  * </PRE>
  * <P>
  *
- * @deprecated
  * @version $Revision$, $Date$
  */
 public interface IGeneralNameAsConstraintsConfig {

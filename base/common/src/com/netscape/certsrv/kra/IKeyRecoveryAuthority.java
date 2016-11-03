@@ -207,7 +207,6 @@ public interface IKeyRecoveryAuthority extends ISubsystem {
     /**
      * Returns policy processor of the key recovery
      * authority.
-     * @deprecated
      * @return policy processor
      */
     public IPolicyProcessor getPolicyProcessor();

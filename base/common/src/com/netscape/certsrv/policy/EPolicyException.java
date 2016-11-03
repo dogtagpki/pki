@@ -35,7 +35,6 @@ import com.netscape.certsrv.base.MessageFormatter;
  * </PRE>
  * <P>
  *
- * @deprecated
  * @version $Revision$, $Date$
  * @see java.text.MessageFormat
  */

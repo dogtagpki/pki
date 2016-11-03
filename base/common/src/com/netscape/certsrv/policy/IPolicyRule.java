@@ -34,7 +34,6 @@ import com.netscape.certsrv.request.PolicyResult;
  * </PRE>
  * <P>
  *
- * @deprecated
  * @version $Revision$, $Date$
  */
 public interface IPolicyRule

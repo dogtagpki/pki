@@ -22,13 +22,6 @@ import java.security.cert.CertificateException;
 import java.util.Locale;
 import java.util.Vector;
 
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.CertificateVersion;
-import netscape.security.x509.GeneralSubtree;
-import netscape.security.x509.GeneralSubtrees;
-import netscape.security.x509.NameConstraintsExtension;
-import netscape.security.x509.X509CertInfo;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -42,6 +35,13 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cms.policy.APolicyRule;
 
+import netscape.security.x509.CertificateExtensions;
+import netscape.security.x509.CertificateVersion;
+import netscape.security.x509.GeneralSubtree;
+import netscape.security.x509.GeneralSubtrees;
+import netscape.security.x509.NameConstraintsExtension;
+import netscape.security.x509.X509CertInfo;
+
 /**
  * Name Constraints Extension Policy
  * Adds the name constraints extension to a (CA) certificate.
@@ -53,7 +53,6 @@ import com.netscape.cms.policy.APolicyRule;
  * </PRE>
  * <P>
  *
- * @deprecated
  * @version $Revision$, $Date$
  */
 public class NameConstraintsExt extends APolicyRule

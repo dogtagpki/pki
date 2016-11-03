@@ -23,6 +23,19 @@ import java.util.Enumeration;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.EPropertyNotFound;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.policy.IGeneralNameAsConstraintsConfig;
+import com.netscape.certsrv.policy.IGeneralNameConfig;
+import com.netscape.certsrv.policy.IGeneralNameUtil;
+import com.netscape.certsrv.policy.IGeneralNamesAsConstraintsConfig;
+import com.netscape.certsrv.policy.IGeneralNamesConfig;
+import com.netscape.certsrv.policy.ISubjAltNameConfig;
+import com.netscape.cmscore.util.Debug;
+import com.netscape.cmsutil.util.Utils;
+
 import netscape.security.util.DerValue;
 import netscape.security.util.ObjectIdentifier;
 import netscape.security.x509.DNSName;
@@ -37,23 +50,9 @@ import netscape.security.x509.RFC822Name;
 import netscape.security.x509.URIName;
 import netscape.security.x509.X500Name;
 
-import com.netscape.certsrv.apps.CMS;
-import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.EPropertyNotFound;
-import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.policy.IGeneralNameAsConstraintsConfig;
-import com.netscape.certsrv.policy.IGeneralNameConfig;
-import com.netscape.certsrv.policy.IGeneralNameUtil;
-import com.netscape.certsrv.policy.IGeneralNamesAsConstraintsConfig;
-import com.netscape.certsrv.policy.IGeneralNamesConfig;
-import com.netscape.certsrv.policy.ISubjAltNameConfig;
-import com.netscape.cmscore.util.Debug;
-import com.netscape.cmsutil.util.Utils;
-
 /**
  * Class that can be used to form general names from configuration file.
  * Used by policies and extension commands.
- * @deprecated
  */
 public class GeneralNameUtil implements IGeneralNameUtil {
 

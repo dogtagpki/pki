@@ -24,6 +24,17 @@ import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.IExtendedPluginInfo;
+import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.policy.IEnrollmentPolicy;
+import com.netscape.certsrv.request.IRequest;
+import com.netscape.certsrv.request.PolicyResult;
+import com.netscape.cms.policy.APolicyRule;
+
 import netscape.security.util.BitArray;
 import netscape.security.x509.CRLDistributionPoint;
 import netscape.security.x509.CRLDistributionPointsExtension;
@@ -38,17 +49,6 @@ import netscape.security.x509.URIName;
 import netscape.security.x509.X500Name;
 import netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.apps.CMS;
-import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.IExtendedPluginInfo;
-import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.policy.IEnrollmentPolicy;
-import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.request.PolicyResult;
-import com.netscape.cms.policy.APolicyRule;
-
 /**
  * The type of the distribution point or issuer name. The name is expressed
  * as a simple string in the configuration file, so this attribute is needed
@@ -61,7 +61,6 @@ import com.netscape.cms.policy.APolicyRule;
  * </PRE>
  * <P>
  *
- * @deprecated
  * @version $Revision$, $Date$
  */
 class NameType {

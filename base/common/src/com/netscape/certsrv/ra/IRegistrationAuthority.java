@@ -19,14 +19,14 @@ package com.netscape.certsrv.ra;
 
 import java.util.Enumeration;
 
-import netscape.security.x509.X500Name;
-
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.policy.IPolicyProcessor;
 import com.netscape.certsrv.publish.IPublisherProcessor;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.IRequestQueue;
+
+import netscape.security.x509.X500Name;
 
 /**
  * An interface represents a Registration Authority that is
@@ -69,7 +69,6 @@ public interface IRegistrationAuthority extends ISubsystem {
 
     /**
      * Retrieves the policy processor of this registration authority.
-     * @deprecated
      * @return RA's policy processor
      */
     public IPolicyProcessor getPolicyProcessor();

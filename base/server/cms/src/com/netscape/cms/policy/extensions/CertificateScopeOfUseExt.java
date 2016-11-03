@@ -22,14 +22,6 @@ import java.security.cert.CertificateException;
 import java.util.Locale;
 import java.util.Vector;
 
-import netscape.security.extensions.CertificateScopeEntry;
-import netscape.security.extensions.CertificateScopeOfUseExtension;
-import netscape.security.util.BigInt;
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.CertificateVersion;
-import netscape.security.x509.GeneralName;
-import netscape.security.x509.X509CertInfo;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -42,6 +34,14 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cms.policy.APolicyRule;
 
+import netscape.security.extensions.CertificateScopeEntry;
+import netscape.security.extensions.CertificateScopeOfUseExtension;
+import netscape.security.util.BigInt;
+import netscape.security.x509.CertificateExtensions;
+import netscape.security.x509.CertificateVersion;
+import netscape.security.x509.GeneralName;
+import netscape.security.x509.X509CertInfo;
+
 /**
  * Certificate Scope Of Use extension policy. This extension
  * is defined in draft-thayes-cert-scope-00.txt
@@ -52,7 +52,6 @@ import com.netscape.cms.policy.APolicyRule;
  * </PRE>
  * <P>
  *
- * @deprecated
  * @version $Revision$, $Date$
  */
 public class CertificateScopeOfUseExt extends APolicyRule implements

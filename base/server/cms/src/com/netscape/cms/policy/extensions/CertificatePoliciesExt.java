@@ -23,6 +23,18 @@ import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.IExtendedPluginInfo;
+import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.policy.IEnrollmentPolicy;
+import com.netscape.certsrv.policy.IPolicyProcessor;
+import com.netscape.certsrv.request.IRequest;
+import com.netscape.certsrv.request.PolicyResult;
+import com.netscape.cms.policy.APolicyRule;
+
 import netscape.security.util.ObjectIdentifier;
 import netscape.security.x509.CPSuri;
 import netscape.security.x509.CertificateExtensions;
@@ -37,18 +49,6 @@ import netscape.security.x509.PolicyQualifiers;
 import netscape.security.x509.UserNotice;
 import netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.apps.CMS;
-import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.IExtendedPluginInfo;
-import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.policy.IEnrollmentPolicy;
-import com.netscape.certsrv.policy.IPolicyProcessor;
-import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.request.PolicyResult;
-import com.netscape.cms.policy.APolicyRule;
-
 /**
  * Certificate Policies.
  * Adds certificate policies extension.
@@ -59,7 +59,6 @@ import com.netscape.cms.policy.APolicyRule;
  * </PRE>
  * <P>
  *
- * @deprecated
  * @version $Revision$, $Date$
  */
 public class CertificatePoliciesExt extends APolicyRule
