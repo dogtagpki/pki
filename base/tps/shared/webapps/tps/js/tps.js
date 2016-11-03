@@ -241,134 +241,22 @@ var ConfigEntryPage = EntryPage.extend({
 
         ConfigEntryPage.__super__.renderContent.call(self);
 
-        var roles = tps.user.Roles.Role;
         var status = self.entry.status;
-
-        if (_.contains(roles, "Administrators") && _.contains(roles, "TPS Agents")) {
-
-            if (status == "Enabled") {
-                // admin-agent can disable enabled entries
-                self.editAction.hide();
-                self.enableAction.hide();
-                self.disableAction.show();
-                self.submitAction.hide();
-                self.cancelAction.hide();
-                self.approveAction.hide();
-                self.rejectAction.hide();
-
-            } else if (status == "Disabled") {
-                // admin-agent can edit/enable disabled entries
-                self.editAction.show();
-                self.enableAction.show();
-                self.disableAction.hide();
-                self.submitAction.hide();
-                self.cancelAction.hide();
-                self.approveAction.hide();
-                self.rejectAction.hide();
-
-            } else if (status == "Pending_Approval") {
-                // admin-agent can approve/reject pending entries
-                self.editAction.hide();
-                self.enableAction.hide();
-                self.disableAction.hide();
-                self.submitAction.hide();
-                self.cancelAction.hide();
-                self.approveAction.show();
-                self.rejectAction.show();
-
-            } else {
-                self.editAction.hide();
-                self.enableAction.hide();
-                self.disableAction.hide();
-                self.submitAction.hide();
-                self.cancelAction.hide();
-                self.approveAction.hide();
-                self.rejectAction.hide();
-            }
-
-        } else if (_.contains(roles, "Administrators")) {
-
-            if (status == "Disabled") {
-                // admin can edit/submit disabled entries
-                self.editAction.show();
-                self.enableAction.hide();
-                self.disableAction.hide();
-                self.submitAction.show();
-                self.cancelAction.hide();
-                self.approveAction.hide();
-                self.rejectAction.hide();
-
-            } else if (status == "Pending_Approval") {
-                // admin can cancel pending entries
-                self.editAction.hide();
-                self.enableAction.hide();
-                self.disableAction.hide();
-                self.submitAction.hide();
-                self.cancelAction.show();
-                self.approveAction.hide();
-                self.rejectAction.hide();
-
-            } else {
-                self.editAction.hide();
-                self.enableAction.hide();
-                self.disableAction.hide();
-                self.submitAction.hide();
-                self.cancelAction.hide();
-                self.approveAction.hide();
-                self.rejectAction.hide();
-            }
-
-        } else if (_.contains(roles, "TPS Agents")) {
-
-            if (status == "Enabled") {
-                // agent can disable enabled entries
-                self.editAction.hide();
-                self.enableAction.hide();
-                self.disableAction.show();
-                self.submitAction.hide();
-                self.cancelAction.hide();
-                self.approveAction.hide();
-                self.rejectAction.hide();
-
-            } else if (status == "Disabled") {
-                // agent can enable disabled entries
-                self.editAction.hide();
-                self.enableAction.show();
-                self.disableAction.hide();
-                self.submitAction.hide();
-                self.cancelAction.hide();
-                self.approveAction.hide();
-                self.rejectAction.hide();
-
-            } else if (status == "Pending_Approval") {
-                // agent can approve/reject pending entries
-                self.editAction.hide();
-                self.enableAction.hide();
-                self.disableAction.hide();
-                self.submitAction.hide();
-                self.cancelAction.hide();
-                self.approveAction.show();
-                self.rejectAction.show();
-
-            } else {
-                self.editAction.hide();
-                self.enableAction.hide();
-                self.disableAction.hide();
-                self.submitAction.hide();
-                self.cancelAction.hide();
-                self.approveAction.hide();
-                self.rejectAction.hide();
-            }
+        if (status == "Disabled") {
+            self.editAction.show();
+            self.enableAction.show();
+            self.disableAction.hide();
 
         } else {
             self.editAction.hide();
             self.enableAction.hide();
-            self.disableAction.hide();
-            self.submitAction.hide();
-            self.cancelAction.hide();
-            self.approveAction.hide();
-            self.rejectAction.hide();
+            self.disableAction.show();
         }
+
+        self.submitAction.hide();
+        self.cancelAction.hide();
+        self.approveAction.hide();
+        self.rejectAction.hide();
 
         if (self.mode == "add") {
             self.propertiesTable.mode = "edit";
