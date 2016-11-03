@@ -39,4 +39,12 @@ public class EPropertyException extends EBaseException {
     public EPropertyException(String msg) {
         super(msg);
     }
+
+    public EPropertyException(String msg, Throwable cause) {
+        super(msg, cause);
+    }
+
+    public EPropertyException(Throwable cause) {
+        super(cause.getMessage(), cause);
+    }
 }
