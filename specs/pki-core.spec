@@ -1235,6 +1235,9 @@ systemctl daemon-reload
 %{_mandir}/man1/pki-group.1.gz
 %{_mandir}/man1/pki-group-member.1.gz
 %{_mandir}/man1/pki-key.1.gz
+%{_mandir}/man1/pki-pkcs12-cert.1.gz
+%{_mandir}/man1/pki-pkcs12-key.1.gz
+%{_mandir}/man1/pki-pkcs12.1.gz
 %{_mandir}/man1/pki-securitydomain.1.gz
 %{_mandir}/man1/pki-tps-profile.1.gz
 %{_mandir}/man1/pki-user.1.gz
