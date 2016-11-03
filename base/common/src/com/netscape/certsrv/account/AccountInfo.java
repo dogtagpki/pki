@@ -33,13 +33,11 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import com.netscape.certsrv.base.ResourceMessage;
-
 /**
  * @author Endi S. Dewata
  */
 @XmlRootElement(name="Account")
-public class AccountInfo extends ResourceMessage {
+public class AccountInfo {
 
     public static Marshaller marshaller;
     public static Unmarshaller unmarshaller;
@@ -100,7 +98,7 @@ public class AccountInfo extends ResourceMessage {
     @Override
     public int hashCode() {
         final int prime = 31;
-        int result = super.hashCode();
+        int result = 1;
         result = prime * result + ((email == null) ? 0 : email.hashCode());
         result = prime * result + ((fullName == null) ? 0 : fullName.hashCode());
         result = prime * result + ((id == null) ? 0 : id.hashCode());
@@ -112,7 +110,7 @@ public class AccountInfo extends ResourceMessage {
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
-        if (!super.equals(obj))
+        if (obj == null)
             return false;
         if (getClass() != obj.getClass())
             return false;
