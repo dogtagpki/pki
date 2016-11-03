@@ -66,11 +66,11 @@ public class ExtendedKeyUsageExtension extends Extension implements CertAttrSet 
         }
     }
 
-    public ExtendedKeyUsageExtension() {
+    public ExtendedKeyUsageExtension() throws IOException {
         this(false, null);
     }
 
-    public ExtendedKeyUsageExtension(boolean crit, Vector<ObjectIdentifier> oids) {
+    public ExtendedKeyUsageExtension(boolean crit, Vector<ObjectIdentifier> oids) throws IOException {
         try {
             extensionId = ObjectIdentifier.getObjectIdentifier(OID);
         } catch (IOException e) {
@@ -200,7 +200,7 @@ public class ExtendedKeyUsageExtension extends Extension implements CertAttrSet 
         }
     }
 
-    private void encodeExtValue() {
+    private void encodeExtValue() throws IOException {
         DerOutputStream out = new DerOutputStream();
         DerOutputStream temp = new DerOutputStream();
 
@@ -219,6 +219,8 @@ public class ExtendedKeyUsageExtension extends Extension implements CertAttrSet 
         try {
             out.write(DerValue.tag_Sequence, temp);
         } catch (IOException ex) {
+        } finally {
+            out.close();
         }
 
         extensionValue = out.toByteArray();

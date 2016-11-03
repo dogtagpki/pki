@@ -22,12 +22,6 @@ import java.security.cert.CertificateException;
 import java.util.Locale;
 import java.util.Vector;
 
-import netscape.security.extensions.ExtendedKeyUsageExtension;
-import netscape.security.util.ObjectIdentifier;
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.CertificateVersion;
-import netscape.security.x509.X509CertInfo;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -38,6 +32,12 @@ import com.netscape.certsrv.policy.IEnrollmentPolicy;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cms.policy.APolicyRule;
+
+import netscape.security.extensions.ExtendedKeyUsageExtension;
+import netscape.security.util.ObjectIdentifier;
+import netscape.security.x509.CertificateExtensions;
+import netscape.security.x509.CertificateVersion;
+import netscape.security.x509.X509CertInfo;
 
 /**
  * This implements the extended key usage extension.
@@ -84,7 +84,11 @@ public class ExtendedKeyUsageExt extends APolicyRule
         mConfig = config;
         setExtendedPluginInfo();
         setupParams();
-        mExtendedKeyUsage = new ExtendedKeyUsageExtension(mCritical, mUsages);
+        try {
+            mExtendedKeyUsage = new ExtendedKeyUsageExtension(mCritical, mUsages);
+        } catch (IOException e) {
+            throw new EBaseException(e);
+        }
     }
 
     /**
