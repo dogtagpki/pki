@@ -17,12 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.def;
 
+import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Locale;
-
-import netscape.security.extensions.InhibitAnyPolicyExtension;
-import netscape.security.util.BigInt;
-import netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
@@ -32,6 +29,10 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
+
+import netscape.security.extensions.InhibitAnyPolicyExtension;
+import netscape.security.util.BigInt;
+import netscape.security.x509.X509CertInfo;
 
 /**
  * This class implements an inhibit Any-Policy extension
@@ -157,10 +158,10 @@ public class InhibitAnyPolicyExtDefault extends EnrollExtDefault {
                             locale, "CMS_INVALID_PROPERTY", name));
             }
             replaceExtension(InhibitAnyPolicyExtension.OID, ext, info);
-        } catch (EProfileException e) {
+        } catch (Exception e) {
             CMS.debug("InhibitAnyPolicyExtDefault: setValue " + e.toString());
             throw new EPropertyException(CMS.getUserMessage(
-                        locale, "CMS_INVALID_PROPERTY", name));
+                        locale, "CMS_INVALID_PROPERTY", name), e);
         }
     }
 
@@ -246,7 +247,11 @@ public class InhibitAnyPolicyExtDefault extends EnrollExtDefault {
 
         String str = getConfig(CONFIG_SKIP_CERTS);
         if (str == null || str.equals("")) {
-            ext = new InhibitAnyPolicyExtension();
+            try {
+                ext = new InhibitAnyPolicyExtension();
+            } catch (IOException e) {
+                throw new EProfileException(e);
+            }
             ext.setCritical(critical);
         } else {
             BigInt val = null;

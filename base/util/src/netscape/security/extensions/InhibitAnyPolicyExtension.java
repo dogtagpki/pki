@@ -61,11 +61,11 @@ public class InhibitAnyPolicyExtension
         }
     }
 
-    public InhibitAnyPolicyExtension() {
+    public InhibitAnyPolicyExtension() throws IOException {
         this(false, null);
     }
 
-    public InhibitAnyPolicyExtension(boolean crit, BigInt skipCerts) {
+    public InhibitAnyPolicyExtension(boolean crit, BigInt skipCerts) throws IOException {
         try {
             extensionId = ObjectIdentifier.getObjectIdentifier(OID);
         } catch (IOException e) {
@@ -170,11 +170,13 @@ public class InhibitAnyPolicyExtension
         }
     }
 
-    private void encodeExtValue() {
+    private void encodeExtValue() throws IOException {
         DerOutputStream out = new DerOutputStream();
         try {
             out.putInteger(mSkipCerts);
         } catch (IOException e) {
+        } finally {
+            out.close();
         }
         extensionValue = out.toByteArray();
     }
