@@ -60,12 +60,14 @@ public class OtherName implements GeneralNameInterface {
         decodeThis(derValue);
     }
 
-    public OtherName(ObjectIdentifier oid, byte data[]) {
+    public OtherName(ObjectIdentifier oid, byte data[]) throws IOException {
         mOID = oid;
         DerOutputStream dos = new DerOutputStream();
         try {
             dos.putDerValue(new DerValue(data));
         } catch (IOException e) {
+        } finally {
+            dos.close();
         }
         mData = dos.toByteArray();
     }
@@ -73,7 +75,7 @@ public class OtherName implements GeneralNameInterface {
     /**
      * Constructs a string-based other name.
      */
-    public OtherName(ObjectIdentifier oid, byte tag, String value) {
+    public OtherName(ObjectIdentifier oid, byte tag, String value) throws IOException {
         mOID = oid;
         DerOutputStream dos = new DerOutputStream();
         try {
@@ -87,16 +89,20 @@ public class OtherName implements GeneralNameInterface {
                 dos.putUTF8String(value);
             }
         } catch (IOException e) {
+        } finally {
+            dos.close();
         }
         mData = dos.toByteArray();
     }
 
-    public OtherName(ObjectIdentifier oid, String value) {
+    public OtherName(ObjectIdentifier oid, String value) throws IOException {
         mOID = oid;
         DerOutputStream dos = new DerOutputStream();
         try {
             dos.putPrintableString(value);
         } catch (IOException e) {
+        } finally {
+            dos.close();
         }
         mData = dos.toByteArray();
     }
