@@ -21,8 +21,13 @@ package org.dogtagpki.server.rest;
 import java.security.Principal;
 import java.util.Arrays;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
 import org.apache.catalina.realm.GenericPrincipal;
 import org.apache.commons.lang.StringUtils;
@@ -38,40 +43,47 @@ import com.netscape.cms.servlet.base.PKIService;
  */
 public class AccountService extends PKIService implements AccountResource {
 
-    protected AccountInfo createAccountInfo() {
-        Principal principal = servletRequest.getUserPrincipal();
-        System.out.println("Principal: " + principal);
+    @Context
+    private UriInfo uriInfo;
 
-        AccountInfo accountInfo = new AccountInfo();
+    @Context
+    private HttpHeaders headers;
+
+    @Context
+    private Request request;
+
+    @Context
+    private HttpServletRequest servletRequest;
+
+    @Override
+    public Response login() {
+        HttpSession session = servletRequest.getSession();
+        System.out.println("Creating session "+session.getId());
+
+        Principal principal = servletRequest.getUserPrincipal();
+        System.out.println("Principal: "+principal);
+
+        AccountInfo response = new AccountInfo();
         String name = principal.getName();
-        accountInfo.setID(name);
+        response.setID(name);
 
         if (principal instanceof PKIPrincipal) {
             PKIPrincipal pkiPrincipal = (PKIPrincipal)principal;
             IUser user = pkiPrincipal.getUser();
 
             String fullName = user.getFullName();
-            if (!StringUtils.isEmpty(fullName)) accountInfo.setFullName(fullName);
+            if (!StringUtils.isEmpty(fullName)) response.setFullName(fullName);
 
             String email = user.getEmail();
-            if (!StringUtils.isEmpty(email)) accountInfo.setEmail(email);
+            if (!StringUtils.isEmpty(email)) response.setEmail(email);
         }
 
         if (principal instanceof GenericPrincipal) {
             String[] roles = ((GenericPrincipal) principal).getRoles();
-            accountInfo.setRoles(Arrays.asList(roles));
+            response.setRoles(Arrays.asList(roles));
         }
 
-        return accountInfo;
-    }
-
-    @Override
-    public Response login() {
-        HttpSession session = servletRequest.getSession();
-        System.out.println("Creating session " + session.getId());
-
-        AccountInfo accountInfo = createAccountInfo();
-        return createOKResponse(accountInfo);
+        return createOKResponse(response);
     }
 
     @Override
