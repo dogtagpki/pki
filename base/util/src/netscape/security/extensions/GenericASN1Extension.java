@@ -87,7 +87,6 @@ public class GenericASN1Extension extends Extension
     // Encode pattern
     private byte[] encodePattern()
             throws IOException, ParseException {
-        DerOutputStream os = new DerOutputStream();
         DerOutputStream tmp = new DerOutputStream();
         String type = null;
         String value = null;
@@ -101,8 +100,10 @@ public class GenericASN1Extension extends Extension
                 tmp.putDerValue(new DerValue(buff));
                 break;
             case '}':
-                os.write(DerValue.tag_Sequence, tmp);
-                return os.toByteArray();
+                try (DerOutputStream os = new DerOutputStream()) {
+                    os.write(DerValue.tag_Sequence, tmp);
+                    return os.toByteArray();
+                }
             default:
                 type = mConfig.get(PROP_ATTRIBUTE + "." + ch + "." + PROP_TYPE);
                 if (type.equalsIgnoreCase("integer")) {
