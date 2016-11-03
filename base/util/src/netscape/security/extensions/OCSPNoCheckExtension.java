@@ -51,11 +51,11 @@ public class OCSPNoCheckExtension extends Extension implements CertAttrSet {
         }
     }
 
-    public OCSPNoCheckExtension() {
+    public OCSPNoCheckExtension() throws IOException {
         this(Boolean.FALSE);
     }
 
-    public OCSPNoCheckExtension(Boolean crit) {
+    public OCSPNoCheckExtension(Boolean crit) throws IOException {
         try {
             extensionId = ObjectIdentifier.getObjectIdentifier(OCSPNoCheckExtension.OID);
         } catch (IOException e) {
@@ -67,6 +67,8 @@ public class OCSPNoCheckExtension extends Extension implements CertAttrSet {
         try {
             tmpD.putNull();
         } catch (IOException ex) {
+        } finally {
+            tmpD.close();
         }
         extensionValue = tmpD.toByteArray();
     }
