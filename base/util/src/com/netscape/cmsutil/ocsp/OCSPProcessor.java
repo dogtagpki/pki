@@ -23,17 +23,13 @@ import java.io.InputStream;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509Key;
-
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.ContentType;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.INTEGER;
@@ -45,6 +41,10 @@ import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
 
 import com.netscape.cmsutil.util.Utils;
+
+import netscape.security.x509.X500Name;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509Key;
 
 /**
  * This class implements an OCSP utility.
@@ -126,9 +126,8 @@ public class OCSPProcessor {
 
         if (verbose) System.out.println("URL: " + url);
 
-        HttpClient httpClient = new DefaultHttpClient();
+        try (CloseableHttpClient httpClient = HttpClientBuilder.create().build()) {
 
-        try {
             ByteArrayOutputStream os = new ByteArrayOutputStream();
             request.encode(os);
             byte[] requestData = os.toByteArray();
@@ -162,9 +161,6 @@ public class OCSPProcessor {
             } finally {
                 EntityUtils.consume(responseEntity);
             }
-
-        } finally {
-            httpClient.getConnectionManager().shutdown();
         }
     }
 }

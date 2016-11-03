@@ -29,8 +29,6 @@ import java.security.KeyPair;
 import java.security.MessageDigest;
 import java.security.PublicKey;
 
-import netscape.security.x509.X500Name;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.Option;
@@ -40,7 +38,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.ASN1Util;
@@ -84,6 +83,8 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Cert;
 import com.netscape.cmsutil.util.HMACDigest;
 import com.netscape.cmsutil.util.Utils;
+
+import netscape.security.x509.X500Name;
 
 /**
  * A command-line utility used to generate a Certificate Request Message
@@ -742,9 +743,8 @@ public class CRMFPopClient {
 
         if (verbose) System.out.println("Opening " + url);
 
-        DefaultHttpClient client = new DefaultHttpClient();
         HttpGet method = new HttpGet(url);
-        try {
+        try (CloseableHttpClient client = HttpClientBuilder.create().build()) {
             HttpResponse response = client.execute(method);
 
             if (response.getStatusLine().getStatusCode() != 200) {

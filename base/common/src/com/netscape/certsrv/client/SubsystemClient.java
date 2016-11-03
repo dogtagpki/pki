@@ -22,7 +22,8 @@ import java.net.URISyntaxException;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 
 import com.netscape.certsrv.account.AccountClient;
 
@@ -63,9 +64,8 @@ public class SubsystemClient extends Client {
                 null,
                 null);
 
-        DefaultHttpClient client = new DefaultHttpClient();
         HttpGet method = new HttpGet(subsystemURI);
-        try {
+        try (CloseableHttpClient client = HttpClientBuilder.create().build()) {
             HttpResponse response = client.execute(method);
             int code = response.getStatusLine().getStatusCode();
 
