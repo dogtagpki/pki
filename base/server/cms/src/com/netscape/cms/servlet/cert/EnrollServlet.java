@@ -33,6 +33,8 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.dogtagpki.legacy.policy.IPolicyProcessor;
+
 import netscape.security.pkcs.PKCS10;
 import netscape.security.x509.AlgorithmId;
 import netscape.security.x509.CertificateAlgorithmId;
@@ -58,7 +60,6 @@ import com.netscape.certsrv.dbs.certdb.ICertRecordList;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.policy.IPolicyProcessor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.usrgrp.IGroup;

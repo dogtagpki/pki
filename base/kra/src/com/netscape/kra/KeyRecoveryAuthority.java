@@ -28,6 +28,8 @@ import java.util.Hashtable;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
+import org.dogtagpki.legacy.kra.KRAPolicy;
+import org.dogtagpki.legacy.policy.IPolicyProcessor;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NoSuchTokenException;
 import org.mozilla.jss.crypto.CryptoToken;
@@ -46,7 +48,6 @@ import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.kra.IKeyService;
 import com.netscape.certsrv.listeners.EListenersException;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.policy.IPolicyProcessor;
 import com.netscape.certsrv.request.ARequestNotifier;
 import com.netscape.certsrv.request.IPolicy;
 import com.netscape.certsrv.request.IRequest;

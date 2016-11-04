@@ -19,9 +19,10 @@ package com.netscape.certsrv.ra;
 
 import java.util.Enumeration;
 
+import org.dogtagpki.legacy.policy.IPolicyProcessor;
+
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.policy.IPolicyProcessor;
 import com.netscape.certsrv.publish.IPublisherProcessor;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.IRequestQueue;

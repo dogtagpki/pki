@@ -23,6 +23,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.dogtagpki.legacy.policy.IPolicyProcessor;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
 
 import com.netscape.certsrv.authentication.IAuthToken;
@@ -33,7 +34,6 @@ import com.netscape.certsrv.dbs.IDBSubsystem;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.dbs.crldb.ICRLRepository;
 import com.netscape.certsrv.dbs.replicadb.IReplicaIDRepository;
-import com.netscape.certsrv.policy.IPolicyProcessor;
 import com.netscape.certsrv.publish.IPublisherProcessor;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.IRequestNotifier;

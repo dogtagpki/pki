@@ -28,6 +28,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.dogtagpki.legacy.policy.IPolicyProcessor;
+import org.dogtagpki.legacy.policy.IPolicyRule;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
@@ -39,8 +42,6 @@ import com.netscape.certsrv.common.OpDef;
 import com.netscape.certsrv.common.ScopeDef;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.policy.IPolicyProcessor;
-import com.netscape.certsrv.policy.IPolicyRule;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
 
 /**

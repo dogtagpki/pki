@@ -29,6 +29,10 @@ import java.util.Hashtable;
 import java.util.Locale;
 import java.util.Vector;
 
+import org.dogtagpki.legacy.policy.IGeneralNameAsConstraintsConfig;
+import org.dogtagpki.legacy.policy.IGeneralNamesAsConstraintsConfig;
+import org.dogtagpki.legacy.policy.IGeneralNamesConfig;
+import org.dogtagpki.legacy.policy.ISubjAltNameConfig;
 import org.mozilla.jss.CryptoManager.CertificateUsage;
 import org.mozilla.jss.util.PasswordCallback;
 
@@ -73,10 +77,6 @@ import com.netscape.certsrv.notification.IEmailTemplate;
 import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.certsrv.password.IPasswordCheck;
-import com.netscape.certsrv.policy.IGeneralNameAsConstraintsConfig;
-import com.netscape.certsrv.policy.IGeneralNamesAsConstraintsConfig;
-import com.netscape.certsrv.policy.IGeneralNamesConfig;
-import com.netscape.certsrv.policy.ISubjAltNameConfig;
 import com.netscape.certsrv.profile.IProfileSubsystem;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.registry.IPluginRegistry;
