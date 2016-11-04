@@ -28,14 +28,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import netscape.security.x509.X500Name;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.commons.cli.PosixParser;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.BIT_STRING;
@@ -63,6 +61,8 @@ import com.netscape.certsrv.system.ConfigurationResponse;
 import com.netscape.certsrv.system.SystemCertData;
 import com.netscape.certsrv.system.SystemConfigClient;
 import com.netscape.cmsutil.util.Utils;
+
+import netscape.security.x509.X500Name;
 
 /**
  * @author alee
@@ -101,7 +101,7 @@ public class ConfigurationTest {
         options.addOption("x", true, "Test number");
 
         try {
-            CommandLineParser parser = new PosixParser();
+            CommandLineParser parser = new DefaultParser();
             CommandLine cmd = parser.parse(options, args);
 
             if (cmd.hasOption("t")) {
