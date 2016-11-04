@@ -122,7 +122,7 @@ find_file(NUXWDOG_JAR
 # build pki-cmscore
 javac(pki-cmscore-classes
     SOURCES
-        com/netscape/cmscore/*.java
+        *.java
     CLASSPATH
         ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR} ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR} ${PKI_TOMCAT_JAR}
         ${LDAPJDK_JAR} ${SERVLET_JAR} ${VELOCITY_JAR} ${XALAN_JAR} ${XERCES_JAR}
@@ -152,8 +152,6 @@ jar(pki-cmscore-jar
         ${CMAKE_CURRENT_BINARY_DIR}/pki-cmscore.mf
     INPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
-    FILES
-        com/netscape/cmscore/*.class
     DEPENDS
         pki-cmscore-classes
 )

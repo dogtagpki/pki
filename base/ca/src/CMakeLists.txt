@@ -84,8 +84,7 @@ find_file(TOMCAT_CATALINA_JAR
 # build pki-ca
 javac(pki-ca-classes
     SOURCES
-        com/netscape/ca/*.java
-        org/dogtagpki/server/ca/*.java
+        *.java
     CLASSPATH
         ${COMMONS_CODEC_JAR} ${COMMONS_IO_JAR} ${COMMONS_LANG_JAR}
         ${JACKSON_CORE_JAR} ${JACKSON_MAPPER_JAR}
@@ -115,9 +114,6 @@ jar(pki-ca-jar
         ${CMAKE_CURRENT_BINARY_DIR}/pki-ca.mf
     INPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
-    FILES
-        com/netscape/ca/*.class
-        org/dogtagpki/server/ca/*.class
     DEPENDS
         pki-ca-classes
 )

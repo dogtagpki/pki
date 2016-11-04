@@ -95,7 +95,7 @@ find_file(COMMONS_CODEC_JAR
 # build console classes
 javac(pki-console-classes
     SOURCES
-        com/netscape/admin/certsrv/*.java
+        *.java
     CLASSPATH
         ${BASE_JAR} ${LDAPJDK_JAR} ${MMC_JAR}
         ${MMC_EN_JAR} ${NMCLF_JAR} ${NMCLF_EN_JAR}
@@ -120,8 +120,6 @@ jar(pki-console-jar
         ${CMAKE_CURRENT_BINARY_DIR}/pki-console.mf
     INPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
-    FILES
-        com/netscape/admin/certsrv/*.class
     INPUT_DIR
         ${CMAKE_CURRENT_SOURCE_DIR}
     FILES

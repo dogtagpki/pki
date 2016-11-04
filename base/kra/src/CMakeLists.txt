@@ -107,8 +107,7 @@ find_file(TOMCAT_CATALINA_JAR
 # build pki-kra
 javac(pki-kra-classes
     SOURCES
-        com/netscape/kra/*.java
-        org/dogtagpki/server/kra/*.java
+        *.java
     CLASSPATH
         ${COMMONS_CODEC_JAR} ${COMMONS_LANG_JAR}
         ${JSS_JAR} ${SYMKEY_JAR}
@@ -137,9 +136,6 @@ jar(pki-kra-jar
         ${CMAKE_CURRENT_BINARY_DIR}/pki-kra.mf
     INPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
-    FILES
-        com/netscape/kra/*.class
-        org/dogtagpki/server/kra/*.class
     DEPENDS
         pki-kra-classes
 )

@@ -121,8 +121,7 @@ find_file(HTTPCORE_JAR
 # build pki-cms
 javac(pki-cms-classes
     SOURCES
-        com/netscape/cms/*.java
-        org/dogtagpki/server/*.java
+        *.java
     CLASSPATH
         ${COMMONS_CODEC_JAR} ${COMMONS_IO_JAR} ${COMMONS_LANG_JAR} ${COMMONS_HTTPCLIENT_JAR}
         ${HTTPCLIENT_JAR} ${HTTPCORE_JAR}
@@ -152,11 +151,6 @@ jar(pki-cms-jar
         ${CMAKE_CURRENT_BINARY_DIR}/pki-cms.mf
     INPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
-    FILES
-        com/netscape/cms/*.class
-        org/dogtagpki/server/*.class
-    EXCLUDE
-        com/netscape/cms/tomcat/*.class
     DEPENDS
         pki-cms-classes
 )

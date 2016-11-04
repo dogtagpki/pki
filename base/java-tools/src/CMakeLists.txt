@@ -91,7 +91,7 @@ find_file(HTTPCORE_JAR
 # build pki-tools
 javac(pki-tools-classes
     SOURCES
-        com/netscape/cmstools/*.java
+        *.java
     CLASSPATH
         ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR} ${PKI_CERTSRV_JAR}
         ${XALAN_JAR} ${XERCES_JAR}
@@ -119,8 +119,6 @@ jar(pki-tools-jar
         ${CMAKE_CURRENT_BINARY_DIR}/pki-tools.mf
     INPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
-    FILES
-        com/netscape/cmstools/*.class
     DEPENDS
         pki-tools-classes
 )

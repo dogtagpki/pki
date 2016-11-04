@@ -4,7 +4,7 @@ project(pki-test_java NONE)
 # TODO: build test only when the test is invoked
 javac(pki-test-classes
     SOURCES
-        com/netscape/test/*.java
+        *.java
     CLASSPATH
         ${XALAN_JAR} ${XERCES_JAR} ${JUNIT_JAR}
     OUTPUT_DIR

@@ -111,7 +111,7 @@ find_file(VELOCITY_JAR
 # build pki-tps
 javac(pki-tps-classes
     SOURCES
-        org/dogtagpki/server/tps/*.java
+        *.java
     CLASSPATH
         ${COMMONS_CODEC_JAR} ${COMMONS_LANG_JAR}
         ${LDAPJDK_JAR}
@@ -140,8 +140,6 @@ jar(pki-tps-jar
         ${CMAKE_CURRENT_BINARY_DIR}/pki-tps.mf
     INPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
-    FILES
-        org/dogtagpki/server/tps/*.class
     DEPENDS
         pki-tps-classes
 )

@@ -32,7 +32,7 @@ find_file(PKI_CMSBUNDLE_JAR
 # TODO: build test only when the test is invoked
 javac(pki-server-test-classes
     SOURCES
-        com/netscape/cmscore/*.java
+        *.java
     CLASSPATH
         ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR}
         ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR} ${PKI_CMSCORE_JAR} ${PKI_CMSBUNDLE_JAR}

@@ -121,7 +121,7 @@ find_file(HTTPCORE_JAR
 # build pki-tomcat
 javac(pki-tomcat8-classes
     SOURCES
-        com/netscape/cms/tomcat/*.java
+        *.java
     CLASSPATH
         ${SERVLET_JAR} ${TOMCAT_CATALINA_JAR} ${TOMCAT_UTIL_SCAN_JAR} ${TOMCAT_API_JAR}
         ${JAXRS_API_JAR}
@@ -146,8 +146,6 @@ jar(pki-tomcat-jar
         ${CMAKE_CURRENT_BINARY_DIR}/pki-tomcat.mf
     INPUT_DIR
         ${CMAKE_BINARY_DIR}/../../tomcat
-    FILES
-        com/netscape/cms/tomcat/*.class
     DEPENDS
         pki-tomcat-classes
         pki-tomcat8-classes

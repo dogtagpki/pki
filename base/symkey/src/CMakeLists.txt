@@ -11,7 +11,7 @@ find_file(JSS_JAR
 # build symkey
 javac(symkey-classes
     SOURCES
-        com/netscape/symkey/*.java
+        *.java
     CLASSPATH
         ${JSS_JAR}
     OUTPUT_DIR
@@ -23,8 +23,6 @@ jar(symkey-jar
         ${CMAKE_BINARY_DIR}/dist/symkey.jar
     INPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
-    FILES
-        com/netscape/symkey/*.class
     DEPENDS
         symkey-classes
 )

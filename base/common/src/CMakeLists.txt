@@ -150,10 +150,6 @@ jar(pki-certsrv-jar
         ${CMAKE_CURRENT_BINARY_DIR}/pki-certsrv.mf
     INPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
-    FILES
-        com/netscape/certsrv/*.class
-        org/dogtagpki/tps/*.class
-
     DEPENDS
         pki-certsrv-classes
 )

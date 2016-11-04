@@ -107,8 +107,7 @@ find_file(TOMCAT_CATALINA_JAR
 # build pki-tks
 javac(pki-tks-classes
     SOURCES
-        com/netscape/tks/*.java
-        org/dogtagpki/server/tks/*.java
+        *.java
     CLASSPATH
         ${COMMONS_CODEC_JAR} ${COMMONS_LANG_JAR}
         ${LDAPJDK_JAR}
@@ -137,9 +136,6 @@ jar(pki-tks-jar
         ${CMAKE_CURRENT_BINARY_DIR}/pki-tks.mf
     INPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
-    FILES
-        com/netscape/tks/*.class
-        org/dogtagpki/server/tks/*.class
     DEPENDS
         pki-tks-classes
 )
