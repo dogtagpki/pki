@@ -15,6 +15,7 @@ import org.apache.commons.cli.ParseException;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.key.Key;
 import com.netscape.certsrv.key.KeyRecoveryRequest;
+import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 import com.netscape.cmsutil.util.Utils;
@@ -37,6 +38,10 @@ public class KeyRetrieveCLI extends CLI {
     public void createOptions() {
         Option option = new Option(null, "keyID", true, "Key Identifier for the secret to be recovered.");
         option.setArgName("Key Identifier");
+        options.addOption(option);
+
+        option = new Option(null, "requestID", true, "Request Identifier for approved recovery request.");
+        option.setArgName("Recovery Request Identifier");
         options.addOption(option);
 
         option = new Option(null, "passphrase", true, "Passphrase to encrypt the key information.");
@@ -125,12 +130,27 @@ public class KeyRetrieveCLI extends CLI {
             // Using command line options.
             String keyId = cmd.getOptionValue("keyID");
             String passphrase = cmd.getOptionValue("passphrase");
+            String requestId = cmd.getOptionValue("requestID");
+
+            if ((requestId == null) && (keyId == null)) {
+                System.out.println("Either requestID or keyID must be specified");
+                System.exit(1);
+            }
 
             if (passphrase != null) {
-                keyData = keyCLI.keyClient.retrieveKeyByPassphrase(new KeyId(keyId), passphrase);
-
+                if (requestId != null) {
+                    keyData = keyCLI.keyClient.retrieveKeyByRequestWithPassphrase(
+                            new RequestId(requestId), passphrase);
+                } else {
+                    keyData = keyCLI.keyClient.retrieveKeyByPassphrase(new KeyId(keyId), passphrase);
+                }
             } else {
-                keyData = keyCLI.keyClient.retrieveKey(new KeyId(keyId));
+                if (requestId != null) {
+                    keyData = keyCLI.keyClient.retrieveKeyByRequest(new RequestId(requestId));
+                } else {
+                    keyData = keyCLI.keyClient.retrieveKey(new KeyId(keyId));
+                }
+
                 clientEncryption = false;
 
                 // No need to return the encrypted data since encryption

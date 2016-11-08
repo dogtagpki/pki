@@ -374,6 +374,23 @@ public class KeyClient extends Client {
         return data;
     }
 
+    public Key retrieveKeyByRequest(RequestId requestId) throws Exception {
+        if (requestId == null) {
+            throw new IllegalArgumentException("RequestId must be specified.");
+        }
+        SymmetricKey sessionKey = crypto.generateSessionKey();
+        byte[] transWrappedSessionKey = crypto.wrapSessionKeyWithTransportCert(sessionKey, transportCert);
+
+        KeyRecoveryRequest recoveryRequest = new KeyRecoveryRequest();
+        recoveryRequest.setRequestId(requestId);
+        recoveryRequest.setTransWrappedSessionKey(Utils.base64encode(transWrappedSessionKey));
+
+        Key data = retrieveKeyData(recoveryRequest);
+        data.setData(crypto.unwrapWithSessionKey(data.getEncryptedData(), sessionKey,
+                KeyRequestResource.DES3_ALGORITHM, data.getNonceData()));
+        return data;
+    }
+
     /**
      * Retrieve a secret (passphrase or symmetric key) from the DRM.
      *
@@ -442,6 +459,29 @@ public class KeyClient extends Client {
                 KeyRequestResource.DES3_ALGORITHM);
 
         return retrieveKeyUsingWrappedPassphrase(keyId, transWrappedSessionKey, sessionWrappedPassphrase, nonceData);
+    }
+
+    public Key retrieveKeyByRequestWithPassphrase(RequestId requestId, String passphrase) throws Exception {
+        if (requestId == null) {
+            throw new IllegalArgumentException("RequestId must be specified.");
+        }
+        if (passphrase == null) {
+            throw new IllegalArgumentException("Passphrase must be specified.");
+        }
+
+        SymmetricKey sessionKey = crypto.generateSessionKey();
+        byte[] transWrappedSessionKey = crypto.wrapSessionKeyWithTransportCert(sessionKey, this.transportCert);
+        byte[] nonceData = CryptoUtil.getNonceData(8);
+        byte[] sessionWrappedPassphrase = crypto.wrapWithSessionKey(passphrase, nonceData, sessionKey,
+                KeyRequestResource.DES3_ALGORITHM);
+
+        KeyRecoveryRequest data = new KeyRecoveryRequest();
+        data.setRequestId(requestId);
+        data.setTransWrappedSessionKey(Utils.base64encode(transWrappedSessionKey));
+        data.setSessionWrappedPassphrase(Utils.base64encode(sessionWrappedPassphrase));
+        data.setNonceData(Utils.base64encode(nonceData));
+
+        return retrieveKeyData(data);
     }
 
     /**
