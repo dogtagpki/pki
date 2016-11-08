@@ -1,0 +1,94 @@
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH pki-logging 5 "November 3, 2016" "version 10.3" "PKI Common Logging Configuration" Dogtag Team
+.\" Please adjust this date whenever revising the man page.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for man page specific macros, see man(7)
+.SH NAME
+pki-logging \- PKI Common Logging Configuration
+
+.SH LOCATION
+/usr/share/pki/etc/logging.properties, /etc/pki/logging.properties
+
+.SH DESCRIPTION
+
+PKI clients and tools use java.util.logging (JUL) as the logging framework
+(see https://docs.oracle.com/javase/8/docs/api/java/util/logging/package-summary.html).
+
+The default logging configuration is located at /usr/share/pki/etc/logging.properties.
+
+By default only log messages with level WARNING or higher will be logged on the console.
+
+.IP
+.nf
+java.util.logging.ConsoleHandler.level = ALL
+java.util.logging.ConsoleHandler.formatter = java.util.logging.SimpleFormatter
+java.util.logging.SimpleFormatter.format = %4$s: %5$s%6$s%n
+
+\[char46]level = WARNING
+\[char46]handlers = java.util.logging.ConsoleHandler
+.fi
+.PP
+
+For more information see the following documents:
+
+.nf
+- https://docs.oracle.com/javase/8/docs/api/java/util/logging/ConsoleHandler.html
+- https://docs.oracle.com/javase/8/docs/api/java/util/logging/Level.html
+- https://docs.oracle.com/javase/8/docs/api/java/util/logging/SimpleFormatter.html
+- https://docs.oracle.com/javase/8/docs/api/java/util/Formatter.html
+.fi
+
+.SH CUSTOMIZATION
+
+To customize the logging configuration, copy the default logging configuration into a new location:
+
+$ cp /usr/share/pki/etc/logging.properties /etc/pki/logging.properties
+
+Then edit the file as needed.
+For example, to troubleshoot issues with PKI library add the following lines:
+
+.IP
+.nf
+netscape.level = ALL
+com.netscape.level = ALL
+org.dogtagpki.level = ALL
+.fi
+.PP
+
+To troubleshoot issues with RESTEasy add the following line:
+
+.IP
+.nf
+org.jboss.resteasy.level = ALL
+.fi
+.PP
+
+Then specify the location of the custom logging configuration in the following parameter in /etc/pki/pki.conf:
+
+.IP
+.nf
+LOGGING_CONFIG=/etc/pki/logging.properties
+.fi
+.PP
+
+Then restart the application.
+
+.SH AUTHORS
+Dogtag Team <pki-devel@redhat.com>.
+
+.SH COPYRIGHT
+Copyright (c) 2016 Red Hat, Inc. This is licensed under the GNU General Public License, version 2 (GPLv2). A copy of this license is available at http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
+
+.SH SEE ALSO
+.BR pki-server-logging(5)
