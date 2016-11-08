@@ -1,0 +1,191 @@
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH pki-server-logging 5 "November 3, 2016" "version 10.3" "PKI Server Logging Configuration" Dogtag Team
+.\" Please adjust this date whenever revising the man page.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for man page specific macros, see man(7)
+.SH NAME
+pki-server-logging \- PKI Server Logging Configuration
+
+.SH LOCATION
+/etc/pki/<instance>/logging.properties, /var/lib/pki/<instance>/lib/log4j.properties, /etc/pki/<instance>/<subsystem>/CS.cfg
+
+.SH DESCRIPTION
+
+PKI server logging can be configured using the following logging frameworks:
+
+.nf
+- java.util.logging (JUL) (https://docs.oracle.com/javase/8/docs/api/java/util/logging/package-summary.html)
+- Log4j (http://logging.apache.org/log4j/1.2/)
+- Internal Logging
+.fi
+
+.SS  java.util.logging (JUL)
+
+Tomcat uses JUL as the default logging framework.
+The configuration is described in http://tomcat.apache.org/tomcat-7.0-doc/logging.html and http://tomcat.apache.org/tomcat-8.0-doc/logging.html.
+
+The default configuration is located at /usr/share/pki/server/conf/logging.properties.
+During server deployment a link will be created at /etc/pki/<instance>/logging.properties.
+
+By default only log messages with level WARNING or higher will be logged on the console (i.e. systemd journal).
+
+.IP
+.nf
+java.util.logging.ConsoleHandler.level = ALL
+java.util.logging.ConsoleHandler.formatter = java.util.logging.SimpleFormatter
+java.util.logging.SimpleFormatter.format = %4$s: %5$s%6$s%n
+
+\[char46]level = WARNING
+\[char46]handlers = java.util.logging.ConsoleHandler
+.fi
+.PP
+
+The systemd journal can be viewed with the following command:
+
+.nf
+$ journalctl -u pki-tomcatd@<instance>.service
+.fi
+
+For more information see the following documents:
+
+.nf
+- https://docs.oracle.com/javase/8/docs/api/java/util/logging/ConsoleHandler.html
+- https://docs.oracle.com/javase/8/docs/api/java/util/logging/Level.html
+- https://docs.oracle.com/javase/8/docs/api/java/util/logging/SimpleFormatter.html
+- https://docs.oracle.com/javase/8/docs/api/java/util/Formatter.html
+.fi
+
+.SS Log4j
+
+The default Tomcat 7 classpath does include Log4j, but the server itself is not configured to use Log4j for logging by default.
+However, since the Log4j is in the classpath the RESTEasy will use Log4j for logging automatically (see https://docs.jboss.org/resteasy/docs/3.0.6.Final/userguide/html/Installation_Configuration.html#RESTEasyLogging).
+
+The default Log4j configuration is located at /usr/share/pki/server/conf/log4j.properties.
+During server deployment a link will be created at /var/lib/pki/<instance>/lib/log4j.properties.
+
+By default only log messages with level WARN or higher will be logged on the console (i.e. systemd journal).
+
+.IP
+.nf
+log4j.appender.console = org.apache.log4j.ConsoleAppender
+log4j.appender.console.Target = System.err
+log4j.appender.console.layout = org.apache.log4j.PatternLayout
+log4j.appender.console.layout.ConversionPattern = %p: %m%n
+
+log4j.rootLogger = WARN, console
+.fi
+.PP
+
+The default Tomcat 8 classpath does not include Log4j, so RESTEasy will use JUL instead.
+
+For more information see the following documents:
+
+.nf
+- http://logging.apache.org/log4j/1.2/apidocs/org/apache/log4j/ConsoleAppender.html
+- http://logging.apache.org/log4j/1.2/apidocs/org/apache/log4j/Level.html
+- http://logging.apache.org/log4j/1.2/apidocs/org/apache/log4j/PatternLayout.html
+.fi
+
+.SS Internal  Logging
+
+Each PKI subsystem uses an internal logging framework for debugging purposes.
+
+The logging configuration is stored in /etc/pki/<instance>/<subsystem>/CS.cfg.
+
+.IP
+.nf
+debug.enabled=true
+debug.level=0
+debug.filename=/var/lib/pki/<instance>/logs/<subsystem>/debug
+debug.hashkeytypes=
+debug.showcaller=false
+.fi
+.PP
+
+The \fBdebug.enabled\fP determines whether the debug log is enabled. By default it is enabled.
+
+The \fBdebug.level\fP determines the amount of details to be logged. The value ranges from 0 (most details) to 10 (least details). The default is 0.
+
+The \fBdebug.filename\fP determines the debug log file location. By default it is located at /var/lib/pki/<instance>/logs/<subsystem>/debug.
+
+The \fBdebug.hashkeytypes\fP is a comma-separated list of additional components to log. By default it's empty.
+
+The \fBdebug.showcaller\fP determines whether to include the caller information in the log message. By default it's disabled.
+
+.SH CUSTOMIZATION
+
+.SS  java.util.logging (JUL)
+
+To customize JUL configuration, replace the link with a copy of the default configuration:
+
+.nf
+$ rm -f /etc/pki/<instance>/logging.properties
+$ cp /usr/share/pki/server/conf/logging.properties /etc/pki/<instance>
+$ chown pkiuser.pkiuser /etc/pki/<instance>/logging.properties
+.fi
+
+Then edit the file as needed.
+For example, to troubleshoot issues with PKI library add the following lines:
+
+.IP
+.nf
+netscape.level = ALL
+com.netscape.level = ALL
+org.dogtagpki.level = ALL
+.fi
+.PP
+
+To troubleshoot issues with RESTEasy add the following line (unless Log4j is installed in Tomcat classpath):
+
+.IP
+.nf
+org.jboss.resteasy.level = ALL
+.fi
+.PP
+
+Then restart the server.
+
+.SS Log4j
+
+To customize Log4j configuration, replace the link with a copy of the default configuration:
+
+.nf
+$ rm -f /var/lib/pki/<instance>/lib/log4j.properties
+$ cp /usr/share/pki/server/conf/log4j.properties /var/lib/pki/<instance>/lib
+$ chown pkiuser.pkiuser /var/lib/pki/<instance>/lib/log4j.properties
+.fi
+
+Then edit the file as needed.
+For example, to troubleshoot issues with RESTEasy add the following line (unless Log4j is not installed in Tomcat classpath):
+
+.IP
+.nf
+log4j.logger.org.jboss.resteasy = ALL
+.fi
+.PP
+
+Then restart the server.
+
+.SS Internal  Logging
+
+To customize the internal logging configuration, edit the CS.cfg as needed, then restart the server.
+
+.SH AUTHORS
+Dogtag Team <pki-devel@redhat.com>.
+
+.SH COPYRIGHT
+Copyright (c) 2016 Red Hat, Inc. This is licensed under the GNU General Public License, version 2 (GPLv2). A copy of this license is available at http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
+
+.SH SEE ALSO
+.BR pki-logging(5)
