@@ -979,7 +979,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
             if (count <= agentsRequired) { //all good, add it
                 r.setExtData(IRequest.ATTR_APPROVE_AGENTS,
                         agents + "," + agentID);
-                if (count == getNoOfRequiredAgents()) {
+                if (count == agentsRequired) {
                     r.setRequestStatus(RequestStatus.APPROVED);
                 } else {
                     r.setRequestStatus(RequestStatus.PENDING);
