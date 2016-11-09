@@ -367,8 +367,8 @@ public class KeyClient extends Client {
         byte[] transWrappedSessionKey = crypto.wrapSessionKeyWithTransportCert(sessionKey, transportCert);
 
         Key data = retrieveKey(keyId, transWrappedSessionKey);
-
-        data.setData(crypto.unwrapWithSessionKey(data.getEncryptedData(), sessionKey,
+        if (data.getEncryptedData()!= null)
+            data.setData(crypto.unwrapWithSessionKey(data.getEncryptedData(), sessionKey,
                 KeyRequestResource.DES3_ALGORITHM, data.getNonceData()));
 
         return data;
@@ -386,7 +386,8 @@ public class KeyClient extends Client {
         recoveryRequest.setTransWrappedSessionKey(Utils.base64encode(transWrappedSessionKey));
 
         Key data = retrieveKeyData(recoveryRequest);
-        data.setData(crypto.unwrapWithSessionKey(data.getEncryptedData(), sessionKey,
+        if (data.getEncryptedData() != null)
+            data.setData(crypto.unwrapWithSessionKey(data.getEncryptedData(), sessionKey,
                 KeyRequestResource.DES3_ALGORITHM, data.getNonceData()));
         return data;
     }

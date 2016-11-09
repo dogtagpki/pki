@@ -173,15 +173,21 @@ public class KeyRetrieveCLI extends CLI {
     }
 
     public void printKeyData(Key key) {
-        System.out.println("  Key Algorithm: " + key.getAlgorithm());
-        System.out.println("  Key Size: " + key.getSize());
-        System.out.println("  Nonce data: " + Utils.base64encode(key.getNonceData()));
+        if (key.getRequestId() != null)
+            System.out.println("  Recovery Request ID: " + key.getRequestId());
+        if (key.getAlgorithm() != null)
+            System.out.println("  Key Algorithm: " + key.getAlgorithm());
+        if (key.getSize() != null)
+            System.out.println("  Key Size: " + key.getSize());
+        if (key.getNonceData() != null)
+            System.out.println("  Nonce data: " + Utils.base64encode(key.getNonceData()));
 
         if (clientEncryption) {
-            System.out.println("  Encrypted Data:" + Utils.base64encode(key.getEncryptedData()));
-
+            if (key.getEncryptedData() != null)
+                System.out.println("  Encrypted Data:" + Utils.base64encode(key.getEncryptedData()));
         } else {
-            System.out.println("  Actual archived data: " + Utils.base64encode(key.getData()));
+            if (key.getData() !=  null)
+                System.out.println("  Actual archived data: " + Utils.base64encode(key.getData()));
         }
 
         if (key.getP12Data() != null) {

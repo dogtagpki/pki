@@ -25,6 +25,10 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
+import com.netscape.certsrv.request.RequestId;
+import com.netscape.certsrv.request.RequestIdAdapter;
 
 /**
  * @author alee
@@ -53,6 +57,10 @@ public class KeyData {
     // Optionally used for importing a shared secret from TKS to TPS
     // Will contain wrapped shared secret data.
     // Can be used for anything in other scenarios
+
+    @XmlElement
+    @XmlJavaTypeAdapter(RequestIdAdapter.class)
+    RequestId requestID;
 
     public KeyData() {
         // required for JAXB (defaults)
@@ -139,5 +147,19 @@ public class KeyData {
         this.size = size;
     }
 
+    /**
+     * ID for the recovery request
+     * @return recovery request id
+     */
+    public RequestId getRequestID() {
+        return requestID;
+    }
 
+    /**
+     * Set request ID
+     * @param requestID
+     */
+    public void setRequestID(RequestId requestID) {
+        this.requestID = requestID;
+    }
 }

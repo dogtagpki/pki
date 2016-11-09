@@ -5,6 +5,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmsutil.util.Utils;
 
 /**
@@ -37,16 +38,22 @@ public class Key {
     @XmlElement
     private byte[] data;
 
+    @XmlElement
+    private RequestId requestId;
+
     public Key() {
         super();
     }
 
     public Key(KeyData data) {
-        encryptedData = Utils.base64decode(data.getWrappedPrivateData());
-        nonceData = Utils.base64decode(data.getNonceData());
+        if (data.getWrappedPrivateData() != null)
+            encryptedData = Utils.base64decode(data.getWrappedPrivateData());
+        if (data.getNonceData() != null)
+            nonceData = Utils.base64decode(data.getNonceData());
         p12Data = data.getP12Data();
         algorithm = data.getAlgorithm();
         size = data.getSize();
+        requestId = data.requestID;
     }
 
     public byte[] getEncryptedData() {
@@ -97,4 +104,11 @@ public class Key {
         this.data = data;
     }
 
+    public RequestId getRequestId() {
+        return requestId;
+    }
+
+    public void setRequestId(RequestId requestId) {
+        this.requestId = requestId;
+    }
 }

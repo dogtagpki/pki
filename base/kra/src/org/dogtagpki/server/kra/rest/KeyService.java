@@ -177,6 +177,9 @@ public class KeyService extends PKIService implements KeyResource {
             synchronous = kra.isRetrievalSynchronous(realm);
             ephemeral = kra.isEphemeral(realm);
 
+            // Only synchronous requests can be ephemeral
+            if (!synchronous) ephemeral = false;
+
             auditInfo += ";synchronous=" + Boolean.toString(synchronous);
             auditInfo += ";ephemeral=" + Boolean.toString(ephemeral);
 
@@ -189,6 +192,23 @@ public class KeyService extends PKIService implements KeyResource {
 
             requestId = request.getRequestId();
             auditInfo += ";requestID=" + requestId.toString();
+
+            if (!synchronous) {
+                // store the request in LDAP
+                try {
+                    queue.updateRequest(request);
+                } catch (EBaseException e) {
+                    errorOut(e.getMessage(), new PKIException(e.getMessage(), e));
+                    e.printStackTrace();
+                }
+
+                CMS.debug("Returning created recovery request");
+                auditRetrieveKey(ILogger.SUCCESS, "Created recovery request");
+
+                KeyData keyData = new KeyData();
+                keyData.setRequestID(requestId);
+                return createOKResponse(keyData);
+            }
         }
 
         data.setRequestId(requestId);
