@@ -1272,7 +1272,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
     public boolean isEphemeral(String realm) {
         try {
-            return mConfig.getBoolean("ephemeral", false);
+            return mConfig.getBoolean("ephemeralRequests", false);
         } catch (EBaseException e) {
             e.printStackTrace();
         }
