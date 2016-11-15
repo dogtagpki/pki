@@ -654,7 +654,8 @@ class PKIInstance(object):
         return pki.nssdb.NSSDatabase(
             directory=self.nssdb_dir,
             token=token,
-            password=self.get_token_password(token))
+            password=self.get_token_password(token),
+            internal_password=self.get_token_password())
 
     def external_cert_exists(self, nickname, token):
         for cert in self.external_certs:
