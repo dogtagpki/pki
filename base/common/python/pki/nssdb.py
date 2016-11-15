@@ -99,7 +99,8 @@ def get_file_type(filename):
 
 class NSSDatabase(object):
 
-    def __init__(self, directory=None, token=None, password=None, password_file=None):
+    def __init__(self, directory=None, token=None, password=None, password_file=None,
+                 internal_password=None, internal_password_file=None):
 
         if not directory:
             directory = os.path.join(os.path.expanduser("~"), '.dogtag', 'nssdb')
@@ -124,25 +125,53 @@ class NSSDatabase(object):
         else:
             raise Exception('Missing NSS database password')
 
+        if internal_password:
+            # Store the specified internal token into password file.
+            self.internal_password_file = os.path.join(self.tmpdir, 'internal_password.txt')
+            with open(self.internal_password_file, 'w') as f:
+                f.write(internal_password)
+
+        elif internal_password_file:
+            # Use the specified internal token password file.
+            self.internal_password_file = internal_password_file
+
+        else:
+            # By default use the same password for both internal token and HSM.
+            self.internal_password_file = self.password_file
+
     def close(self):
         shutil.rmtree(self.tmpdir)
 
     def add_cert(self, nickname, cert_file, trust_attributes=',,'):
+
+        # Add cert in two steps due to bug #1393668.
+
+        # First, import cert into HSM without trust attributes.
+        if self.token:
+            cmd = [
+                'certutil',
+                '-A',
+                '-d', self.directory,
+                '-h', self.token,
+                '-f', self.password_file,
+                '-n', nickname,
+                '-i', cert_file,
+                '-t', ''
+            ]
+
+            # Ignore return code due to bug #1393668.
+            subprocess.call(cmd)
+
+        # Then, import cert into internal token with trust attributes.
         cmd = [
             'certutil',
             '-A',
-            '-d', self.directory
-        ]
-
-        if self.token:
-            cmd.extend(['-h', self.token])
-
-        cmd.extend([
-            '-f', self.password_file,
+            '-d', self.directory,
+            '-f', self.internal_password_file,
             '-n', nickname,
             '-i', cert_file,
             '-t', trust_attributes
-        ])
+        ]
 
         subprocess.check_call(cmd)
 
@@ -584,7 +613,7 @@ class NSSDatabase(object):
                 else:
                     n = '%s #%d' % (nickname, counter)
 
-                self.add_cert(n, cert_file, trust_attributes)
+                self.add_cert(n, cert_file, trust_attributes=trust_attributes)
                 nicks.append(n)
 
                 counter += 1
