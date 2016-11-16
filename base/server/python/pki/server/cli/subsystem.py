@@ -951,11 +951,8 @@ class SubsystemCertValidateCLI(pki.cli.CLI):
 
         print('  Token: %s' % token)
 
-        if token and token.lower() in ['internal', 'internal key storage token']:
-            token = None
-
-        # get token password and store in temporary file
-        passwd = instance.get_token_password(token)
+        # get internal token password and store in temporary file
+        passwd = instance.get_token_password()
 
         pwfile_handle, pwfile_path = mkstemp()
         os.write(pwfile_handle, passwd)
@@ -964,15 +961,13 @@ class SubsystemCertValidateCLI(pki.cli.CLI):
         try:
             cmd = ['pki',
                    '-d', instance.nssdb_dir,
-                   '-C', pwfile_path]
+                   '-C', pwfile_path,
+                   'client-cert-validate',
+                   nickname,
+                   '--certusage', usage]
 
-            if token:
-                cmd.extend(['--token', token])
-
-            cmd.extend(['client-cert-validate',
-                        nickname,
-                        '--certusage', usage
-                       ])
+            if self.verbose:
+                print('Command: %s' % cmd)
 
             subprocess.check_output(cmd, stderr=subprocess.STDOUT)
             print('  Status: VALID')
