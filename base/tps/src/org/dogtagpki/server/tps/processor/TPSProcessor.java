@@ -59,6 +59,7 @@ import org.dogtagpki.server.tps.mapping.FilterMappingParams;
 import org.dogtagpki.tps.apdu.APDU;
 import org.dogtagpki.tps.apdu.APDUResponse;
 import org.dogtagpki.tps.apdu.GetDataAPDU;
+import org.dogtagpki.tps.apdu.GetLifecycleAPDU;
 import org.dogtagpki.tps.apdu.GetStatusAPDU;
 import org.dogtagpki.tps.apdu.GetVersionAPDU;
 import org.dogtagpki.tps.apdu.InitializeUpdateAPDU;
@@ -387,6 +388,46 @@ public class TPSProcessor {
         return build_id;
 
     }
+
+    protected byte getLifecycleState() {
+
+        byte resultState = (byte) 0xf0;
+
+        String method = "TPSProcessor.getLifecycleState:";
+        CMS.debug(".getLifecycleState: ");
+
+        GetLifecycleAPDU getLifecycle = new GetLifecycleAPDU();
+
+        try {
+
+            selectCoolKeyApplet();
+
+            APDUResponse response = handleAPDURequest(getLifecycle);
+
+            if (!response.checkResult()) {
+                return resultState;
+            }
+
+            TPSBuffer result = response.getResultDataNoCode();
+
+            CMS.debug(method + " result size: " + result.size());
+
+            //Only one byte of data returned not including the 2 result bytes
+
+            if (result.size() == 1) {
+                resultState = result.at(0);
+
+                CMS.debug(method + " result: " + resultState);
+            }
+
+        } catch (TPSException | IOException e) {
+             CMS.debug(method + " problem getting state: " + e);
+        }
+
+        return resultState;
+
+    }
+
 
     protected TPSBuffer encryptData(AppletInfo appletInfo, TPSBuffer keyInfo, TPSBuffer plaintextChallenge,
             String connId) throws TPSException {
@@ -868,7 +909,7 @@ public class TPSProcessor {
 
     }
 
-    protected void checkAndUpgradeApplet(AppletInfo appletInfo) throws TPSException, IOException {
+    protected int checkAndUpgradeApplet(AppletInfo appletInfo) throws TPSException, IOException {
 
         CMS.debug("checkAndUpgradeApplet: entering..");
 
@@ -904,6 +945,7 @@ public class TPSProcessor {
 
         }
 
+        return upgraded;
     }
 
     protected void upgradeApplet(AppletInfo appletInfo, String operation, String new_version,
@@ -2983,6 +3025,8 @@ public class TPSProcessor {
             throw new TPSException("TPSProcessor.selectCardManager: Can't selelect the card manager applet!");
         }
     }
+
+
 
     protected boolean checkSymmetricKeysEnabled() throws TPSException {
         boolean result = true;

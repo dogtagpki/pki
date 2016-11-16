@@ -2526,7 +2526,9 @@ RA_Token::Process (APDU * apdu, NameValueSet * vars, NameValueSet * params)
   else
     {
       printf ("RA_Token: Unknown APDU (%d)\n", apdu->GetType ());
-      /* error */
+
+      Buffer data = Buffer (1, (BYTE) 0x6a) + Buffer (1, (BYTE) 0x88);
+      resp = new APDU_Response (data);
     }
   return resp;
 }
