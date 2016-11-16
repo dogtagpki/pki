@@ -55,6 +55,13 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 deployer.mdict['pki_instance_configuration_path'],
                 ignore_cb=file_ignore_callback_src_server)
 
+            # Link /etc/pki/<instance>/logging.properties
+            # to /usr/share/pki/server/conf/logging.properties.
+            deployer.symlink.create(
+                os.path.join(deployer.mdict['pki_source_server_path'], "logging.properties"),
+                os.path.join(deployer.mdict['pki_instance_configuration_path'],
+                             "logging.properties"))
+
             # create /etc/sysconfig/<instance>
             deployer.file.copy_with_slot_substitution(
                 deployer.mdict['pki_source_tomcat_conf'],
@@ -219,5 +226,10 @@ def file_ignore_callback_src_server(src, names):
     config.pki_log.info(log.FILE_EXCLUDE_CALLBACK_2, src, names,
                         extra=config.PKI_INDENTATION_LEVEL_1)
 
-    excludes = {'schema.ldif', 'database.ldif', 'manager.ldif', 'pki.xml'}
-    return excludes
+    return {
+        'schema.ldif',
+        'database.ldif',
+        'manager.ldif',
+        'pki.xml',
+        'logging.properties'
+    }
