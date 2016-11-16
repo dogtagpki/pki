@@ -100,6 +100,13 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
         AppletInfo appletInfo = null;
         TokenRecord tokenRecord = null;
+
+        byte lifecycleState = (byte) 0xf0;
+        int appletUpgraded = 0;
+
+
+        lifecycleState = getLifecycleState();
+
         try {
             appletInfo = getAppletInfo();
             auditOpRequest("enroll", appletInfo, "success", null);
@@ -353,7 +360,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
             //We will skip the auth step inside of format
             format(true);
         } else {
-            checkAndUpgradeApplet(appletInfo);
+            appletUpgraded = checkAndUpgradeApplet(appletInfo);
             //Get new applet info
             appletInfo = getAppletInfo();
         }
@@ -542,7 +549,13 @@ public class TPSEnrollProcessor extends TPSProcessor {
         writeIssuerInfoToToken(channel, appletInfo);
 
         statusUpdate(99, "PROGRESS_SET_LIFECYCLE");
-        channel.setLifeycleState((byte) 0x0f);
+
+        if( lifecycleState != 0x0f || appletUpgraded == 1) {
+            CMS.debug(method  + " Need to reset the lifecycle state. current state: " + lifecycleState + " Was applet upgraded: " + appletUpgraded );
+            channel.setLifeycleState((byte) 0x0f);
+        } else {
+            CMS.debug(method + " No need to reset lifecycle state, it is already at the proper value.");
+        }
 
         //update the tokendb with new certs
         CMS.debug(method + " updating tokendb with certs.");

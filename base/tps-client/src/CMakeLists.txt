@@ -95,6 +95,7 @@ set(tps_library_SRCS
     apdu/Import_Key_APDU.cpp
     apdu/Import_Key_Enc_APDU.cpp
     apdu/APDU_Response.cpp
+    apdu/Get_Lifecycle_APDU.cpp
     msg/RA_Begin_Op_Msg.cpp
     msg/RA_End_Op_Msg.cpp
     msg/RA_Login_Request_Msg.cpp

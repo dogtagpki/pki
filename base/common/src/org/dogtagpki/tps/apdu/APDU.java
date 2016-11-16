@@ -56,7 +56,8 @@ public abstract class APDU {
         APDU_IMPORT_KEY_ENC,
         APDU_SET_ISSUERINFO,
         APDU_GET_ISSUERINFO,
-        APDU_GENERATE_KEY_ECC
+        APDU_GENERATE_KEY_ECC,
+        APDU_GET_LIFECYCLE
     }
 
     protected byte cla;
