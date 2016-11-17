@@ -139,8 +139,12 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     os.path.join(
                         deployer.mdict['pki_instance_lib'],
                         name))
+
+            # Link /var/lib/pki/<instance>/lib/log4j.properties
+            # to /usr/share/pki/server/conf/log4j.properties.
             deployer.symlink.create(
-                deployer.mdict['pki_instance_conf_log4j_properties'],
+                os.path.join(deployer.mdict['pki_source_server_path'],
+                             "log4j.properties"),
                 deployer.mdict['pki_instance_lib_log4j_properties'])
 
             # Link /var/lib/pki/<instance>/common to /usr/share/pki/server/common
@@ -231,5 +235,6 @@ def file_ignore_callback_src_server(src, names):
         'database.ldif',
         'manager.ldif',
         'pki.xml',
+        'log4j.properties',
         'logging.properties'
     }
