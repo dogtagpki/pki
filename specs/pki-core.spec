@@ -1159,8 +1159,9 @@ systemctl daemon-reload
 %{python2_sitelib}/pki
 %dir %{_localstatedir}/log/pki
 %{_sbindir}/pki-upgrade
-%{_mandir}/man8/pki-upgrade.8.gz
 %{_mandir}/man1/pki-python-client.1.gz
+%{_mandir}/man5/pki-logging.5.gz
+%{_mandir}/man8/pki-upgrade.8.gz
 %endif
 
 %if 0%{?package_fedora_packages} || 0%{?package_rhel_packages}
@@ -1274,6 +1275,7 @@ systemctl daemon-reload
 %dir %{_sharedstatedir}/pki
 %{_mandir}/man1/pkidaemon.1.gz
 %{_mandir}/man5/pki_default.cfg.5.gz
+%{_mandir}/man5/pki-server-logging.5.gz
 %{_mandir}/man8/pki-server-upgrade.8.gz
 %{_mandir}/man8/pkidestroy.8.gz
 %{_mandir}/man8/pkispawn.8.gz
