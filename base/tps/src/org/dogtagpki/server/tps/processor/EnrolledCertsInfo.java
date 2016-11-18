@@ -21,9 +21,8 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 
-import netscape.security.x509.X509CertImpl;
-
 import org.dogtagpki.server.tps.dbs.TPSCertRecord;
+import org.dogtagpki.server.tps.dbs.TokenCertStatus;
 import org.dogtagpki.server.tps.main.PKCS11Obj;
 import org.dogtagpki.tps.main.TPSBuffer;
 import org.dogtagpki.tps.main.Util;
@@ -31,10 +30,13 @@ import org.dogtagpki.tps.main.Util;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 
+import netscape.security.x509.X509CertImpl;
+
 public class EnrolledCertsInfo {
 
     EnrolledCertsInfo() {
         certificates = new ArrayList<X509CertImpl>();
+        certStatuses = new ArrayList<TokenCertStatus>();
         ktypes = new ArrayList<String>();
         origins = new ArrayList<String>();
         tokenTypes = new ArrayList<String>();
@@ -57,6 +59,7 @@ public class EnrolledCertsInfo {
     private ArrayList<String> ktypes;
     private ArrayList<String> tokenTypes;
     private ArrayList<X509CertImpl> certificates;
+    private ArrayList<TokenCertStatus> certStatuses;
 
     private ArrayList<CertEnrollInfo> externalRegRecoveryEnrollList;
 
@@ -156,6 +159,10 @@ public class EnrolledCertsInfo {
         certificates.remove(x509Cert);
     }
 
+    public void addCertStatus(TokenCertStatus status) {
+        certStatuses.add(status);
+    }
+
     public void setStartProgress(int startP) {
         startProgress = startP;
 
@@ -220,6 +227,16 @@ public class EnrolledCertsInfo {
                 //certRecord.setType("");
             }
 
+            //cert status
+            if ((!certStatuses.isEmpty()) && index < certStatuses.size() && certStatuses.get(index) != null) {
+                CMS.debug("EnrolledCertsInfo.toTPSCertRecords: cert status=" + certStatuses.get(index));
+                certRecord.setStatus(certStatuses.get(index).toString());
+            } else {
+                CMS.debug("EnrolledCertsInfo.toTPSCertRecords: certStatus not found for index:" + index
+                        + "; set to default active");
+                certRecord.setStatus(TokenCertStatus.ACTIVE.toString());
+            }
+
             //Issuer
             String issuedBy = cert.getIssuerDN().toString();
             certRecord.setIssuedBy(issuedBy);
@@ -237,9 +254,6 @@ public class EnrolledCertsInfo {
             //NotAfter
             certRecord.setValidNotAfter(cert.getNotAfter());
             CMS.debug("EnrolledCertsInfo.toTPSCertRecords: notAfter ="+ cert.getNotAfter().toString());
-
-            //status
-            certRecord.setStatus("active");
 
             /* certificate
             byte[] certBytes = null;

@@ -9,7 +9,6 @@ public class ExternalRegCertToRecover {
     String caConn;
     String kraConn;
     boolean isRetainable;
-    CertStatus certStatus = CertStatus.UNINITIALIZED;
 
     public ExternalRegCertToRecover() {
         isRetainable = false;
@@ -53,32 +52,6 @@ public class ExternalRegCertToRecover {
 
     public boolean getIsRetainable() {
         return isRetainable;
-    }
-
-    public void setCertStatus(CertStatus status) {
-        this.certStatus = status;
-    }
-
-    public CertStatus getCertStatus() {
-        return certStatus;
-    }
-
-    public enum CertStatus {
-        UNINITIALIZED("uninitialized"),
-        ACTIVE("active"),
-        REVOKED("revoked"),
-        EXPIRED("expired")
-        ;
-
-        private final String certStatusString;
-        private CertStatus(final String status) {
-            this.certStatusString = status;
-        }
-
-        @Override
-        public String toString() {
-            return certStatusString;
-        }
     }
 }
 

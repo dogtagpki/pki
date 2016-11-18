@@ -1,11 +1,8 @@
 package org.dogtagpki.server.tps.main;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 
 import org.dogtagpki.server.tps.engine.TPSEngine;
-import org.dogtagpki.tps.main.TPSException;
-import org.dogtagpki.tps.msg.EndOpMsg.TPSStatus;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
@@ -110,36 +107,4 @@ public class ExternalRegAttrs {
         return isDelegation;
     }
 
-    /*
-     *
-     * @param serialString serial number in hex
-     */
-    public ExternalRegCertToRecover.CertStatus getCertStatus(String serialString) throws TPSException {
-        String method = "ExternalRegAttrs.getCertStatus:";
-        String logMsg = "";
-        CMS.debug(method + "begins. getCertsToRecoverCount=" + getCertsToRecoverCount());
-        if (serialString == null) {
-            logMsg = "parameter serialString cannnot be null";
-            CMS.debug(method + logMsg);
-            throw new TPSException(method + logMsg, TPSStatus.STATUS_ERROR_CONTACT_ADMIN);
-        } else
-            CMS.debug(method + "searching for serialString =" + serialString);
-        if (serialString.startsWith("0x")) {
-            serialString = serialString.substring(2);
-        }
-        BigInteger serial = new BigInteger(serialString, 16);
-        CMS.debug(method + "searching for serial=" + serial);
-        for (ExternalRegCertToRecover cert: certsToRecover) {
-            CMS.debug(method + "cert.getSerial()=" + cert.getSerial());
-            if (serial.compareTo(cert.getSerial()) == 0) {
-                CMS.debug(method + " cert found... returning status: " + cert.getCertStatus().toString());
-                return cert.getCertStatus();
-            }
-        }
-        logMsg = "cert not found in ExternalReg, status not reset";
-        CMS.debug(method + logMsg);
-        // no match means cert was not one of the ExternalReg recovered certs; so don't reset
-        // use UNINITIALIZED to mean not found, as all certs in externalReg must have been set by now
-        return ExternalRegCertToRecover.CertStatus.UNINITIALIZED;
-    }
 }

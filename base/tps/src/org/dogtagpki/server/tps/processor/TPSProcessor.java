@@ -33,8 +33,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import netscape.security.x509.RevocationReason;
-
 import org.dogtagpki.server.tps.TPSSession;
 import org.dogtagpki.server.tps.TPSSubsystem;
 import org.dogtagpki.server.tps.authentication.AuthUIParameter;
@@ -50,6 +48,7 @@ import org.dogtagpki.server.tps.cms.TKSRemoteRequestHandler;
 import org.dogtagpki.server.tps.config.ProfileDatabase;
 import org.dogtagpki.server.tps.dbs.ActivityDatabase;
 import org.dogtagpki.server.tps.dbs.TPSCertRecord;
+import org.dogtagpki.server.tps.dbs.TokenCertStatus;
 import org.dogtagpki.server.tps.dbs.TokenRecord;
 import org.dogtagpki.server.tps.engine.TPSEngine;
 import org.dogtagpki.server.tps.main.ExternalRegAttrs;
@@ -97,6 +96,8 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.tps.token.TokenStatus;
 import com.netscape.cms.servlet.tks.SecureChannelProtocol;
 import com.netscape.symkey.SessionKey;
+
+import netscape.security.x509.RevocationReason;
 
 public class TPSProcessor {
 
@@ -1563,7 +1564,7 @@ public class TPSProcessor {
              * if the certificates are revoked_on_hold, don't do anything because the certificates may
              * be referenced by more than one token.
              */
-            if (cert.getStatus().equals("revoked_on_hold")) {
+            if (cert.getStatus().equals(TokenCertStatus.ONHOLD.toString())) {
                 CMS.debug(method + ": cert " + cert.getSerialNumber()
                         + " has status revoked_on_hold; remove from tokendb and move on");
                 try {
