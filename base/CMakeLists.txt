@@ -1,5 +1,19 @@
 project(base)
 
+find_file(SLF4J_API_JAR
+    NAMES
+        slf4j-api.jar
+    PATHS
+        /usr/share/java/slf4j
+)
+
+find_file(SLF4J_JDK14_JAR
+    NAMES
+        slf4j-jdk14.jar
+    PATHS
+        /usr/share/java/slf4j
+)
+
 # The order is important!
 if (APPLICATION_FLAVOR_PKI_CORE)
 

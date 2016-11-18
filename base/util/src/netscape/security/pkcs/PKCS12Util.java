@@ -29,7 +29,6 @@ import java.security.Principal;
 import java.security.PublicKey;
 import java.security.cert.CertificateException;
 import java.util.Collection;
-import java.util.logging.Logger;
 
 import org.apache.commons.lang.StringUtils;
 import org.mozilla.jss.CryptoManager;
@@ -66,6 +65,8 @@ import org.mozilla.jss.pkix.primitive.Attribute;
 import org.mozilla.jss.pkix.primitive.EncryptedPrivateKeyInfo;
 import org.mozilla.jss.pkix.primitive.PrivateKeyInfo;
 import org.mozilla.jss.util.Password;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import netscape.ldap.LDAPDN;
 import netscape.ldap.util.DN;
@@ -73,7 +74,7 @@ import netscape.security.x509.X509CertImpl;
 
 public class PKCS12Util {
 
-    private static Logger logger = Logger.getLogger(PKCS12Util.class.getName());
+    private static Logger logger = LoggerFactory.getLogger(PKCS12Util.class);
 
     boolean trustFlagsEnabled = true;
 
@@ -134,7 +135,7 @@ public class PKCS12Util {
     public void addKeyBag(PKCS12KeyInfo keyInfo, Password password,
             SEQUENCE encSafeContents) throws Exception {
 
-        logger.fine("Creating key bag for " + keyInfo.subjectDN);
+        logger.debug("Creating key bag for " + keyInfo.subjectDN);
 
         PasswordConverter passConverter = new PasswordConverter();
         byte salt[] = { 0x01, 0x01, 0x01, 0x01 };
@@ -152,7 +153,7 @@ public class PKCS12Util {
     public void addCertBag(PKCS12CertInfo certInfo,
             SEQUENCE safeContents) throws Exception {
 
-        logger.fine("Creating cert bag for " + certInfo.nickname);
+        logger.debug("Creating cert bag for " + certInfo.nickname);
 
         ASN1Value cert = new OCTET_STRING(certInfo.cert.getEncoded());
         CertBag certBag = new CertBag(CertBag.X509_CERT_TYPE, cert);
@@ -313,7 +314,7 @@ public class PKCS12Util {
 
         try {
             PrivateKey privateKey = cm.findPrivKeyByCert(cert);
-            logger.fine("Certificate \"" + nickname + "\" has private key");
+            logger.debug("Certificate \"" + nickname + "\" has private key");
 
             PKCS12KeyInfo keyInfo = new PKCS12KeyInfo();
             keyInfo.id = id;
@@ -326,7 +327,7 @@ public class PKCS12Util {
             pkcs12.addKeyInfo(keyInfo);
 
         } catch (ObjectNotFoundException e) {
-            logger.fine("Certificate \"" + nickname + "\" has no private key");
+            logger.debug("Certificate \"" + nickname + "\" has no private key");
         }
     }
 
@@ -395,7 +396,7 @@ public class PKCS12Util {
                 BMPString subjectDN = (BMPString) new BMPString.Template().decode(bis);
 
                 keyInfo.subjectDN = subjectDN.toString();
-                logger.fine("   Subject DN: " + keyInfo.subjectDN);
+                logger.debug("   Subject DN: " + keyInfo.subjectDN);
 
             } else if (oid.equals(SafeBag.LOCAL_KEY_ID)) {
 
@@ -406,7 +407,7 @@ public class PKCS12Util {
                 OCTET_STRING keyID = (OCTET_STRING) new OCTET_STRING.Template().decode(bis);
 
                 keyInfo.id = new BigInteger(1, keyID.toByteArray());
-                logger.fine("   ID: " + keyInfo.id.toString(16));
+                logger.debug("   ID: " + keyInfo.id.toString(16));
             }
         }
 
@@ -424,7 +425,7 @@ public class PKCS12Util {
 
         certInfo.cert = new X509CertImpl(x509cert);
         Principal subjectDN = certInfo.cert.getSubjectDN();
-        logger.fine("   Subject DN: " + subjectDN);
+        logger.debug("   Subject DN: " + subjectDN);
 
         SET bagAttrs = bag.getBagAttributes();
 
@@ -442,7 +443,7 @@ public class PKCS12Util {
                 BMPString nickname = (BMPString) (new BMPString.Template()).decode(bis);
 
                 certInfo.nickname = nickname.toString();
-                logger.fine("   Nickname: " + certInfo.nickname);
+                logger.debug("   Nickname: " + certInfo.nickname);
 
 
             } else if (oid.equals(SafeBag.LOCAL_KEY_ID)) {
@@ -454,7 +455,7 @@ public class PKCS12Util {
                 OCTET_STRING keyID = (OCTET_STRING) new OCTET_STRING.Template().decode(bis);
 
                 certInfo.id = new BigInteger(1, keyID.toByteArray());
-                logger.fine("   ID: " + certInfo.id.toString(16));
+                logger.debug("   ID: " + certInfo.id.toString(16));
 
             } else if (oid.equals(PKCS12.CERT_TRUST_FLAGS_OID) && trustFlagsEnabled) {
 
@@ -465,22 +466,22 @@ public class PKCS12Util {
                 BMPString trustFlags = (BMPString) (new BMPString.Template()).decode(is);
 
                 certInfo.trustFlags = trustFlags.toString();
-                logger.fine("   Trust flags: " + certInfo.trustFlags);
+                logger.debug("   Trust flags: " + certInfo.trustFlags);
             }
         }
 
         if (certInfo.id == null) {
-            logger.fine("   ID not specified, generating new ID");
+            logger.debug("   ID not specified, generating new ID");
             certInfo.id = createLocalID(x509cert);
-            logger.fine("   ID: " + certInfo.id.toString(16));
+            logger.debug("   ID: " + certInfo.id.toString(16));
         }
 
         if (certInfo.nickname == null) {
-            logger.fine("   Nickname not specified, generating new nickname");
+            logger.debug("   Nickname not specified, generating new nickname");
             DN dn = new DN(subjectDN.getName());
             String[] values = dn.explodeDN(true);
             certInfo.nickname = StringUtils.join(values, " - ");
-            logger.fine("   Nickname: " + certInfo.nickname);
+            logger.debug("   Nickname: " + certInfo.nickname);
         }
 
         return certInfo;
@@ -488,7 +489,7 @@ public class PKCS12Util {
 
     public void getKeyInfos(PKCS12 pkcs12, PFX pfx, Password password) throws Exception {
 
-        logger.fine("Load private keys:");
+        logger.debug("Load private keys:");
 
         AuthenticatedSafes safes = pfx.getAuthSafes();
 
@@ -503,7 +504,7 @@ public class PKCS12Util {
 
                 if (!oid.equals(SafeBag.PKCS8_SHROUDED_KEY_BAG)) continue;
 
-                logger.fine(" - Private key:");
+                logger.debug(" - Private key:");
                 PKCS12KeyInfo keyInfo = getKeyInfo(bag, password);
                 pkcs12.addKeyInfo(keyInfo);
             }
@@ -512,7 +513,7 @@ public class PKCS12Util {
 
     public void getCertInfos(PKCS12 pkcs12, PFX pfx, Password password) throws Exception {
 
-        logger.fine("Loading certificates:");
+        logger.debug("Loading certificates:");
 
         AuthenticatedSafes safes = pfx.getAuthSafes();
 
@@ -527,7 +528,7 @@ public class PKCS12Util {
 
                 if (!oid.equals(SafeBag.CERT_BAG)) continue;
 
-                logger.fine(" - Certificate:");
+                logger.debug(" - Certificate:");
                 PKCS12CertInfo certInfo = getCertInfo(bag);
                 pkcs12.addCertInfo(certInfo, true);
             }
@@ -589,7 +590,7 @@ public class PKCS12Util {
             PKCS12 pkcs12,
             PKCS12KeyInfo keyInfo) throws Exception {
 
-        logger.fine("Importing private key " + keyInfo.subjectDN);
+        logger.debug("Importing private key " + keyInfo.subjectDN);
 
         PrivateKeyInfo privateKeyInfo = keyInfo.privateKeyInfo;
 
@@ -600,7 +601,7 @@ public class PKCS12Util {
 
         PKCS12CertInfo certInfo = pkcs12.getCertInfoByID(keyInfo.getID());
         if (certInfo == null) {
-            logger.fine("Private key has no certificate, ignore");
+            logger.debug("Private key has no certificate, ignore");
             return;
         }
 
@@ -653,14 +654,14 @@ public class PKCS12Util {
 
         X509Certificate cert;
         if (keyInfo != null) { // cert has key
-            logger.fine("Importing user key for " + certInfo.nickname);
+            logger.debug("Importing user key for " + certInfo.nickname);
             importKey(pkcs12, keyInfo);
 
-            logger.fine("Importing user certificate " + certInfo.nickname);
+            logger.debug("Importing user certificate " + certInfo.nickname);
             cert = cm.importUserCACertPackage(certInfo.cert.getEncoded(), certInfo.nickname);
 
         } else { // cert has no key
-            logger.fine("Importing CA certificate " + certInfo.nickname);
+            logger.debug("Importing CA certificate " + certInfo.nickname);
             // Note: JSS does not preserve CA certificate nickname
             cert = cm.importCACertPackage(certInfo.cert.getEncoded());
         }

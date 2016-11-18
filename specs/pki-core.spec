@@ -84,6 +84,7 @@ BuildRequires:    apache-commons-codec
 BuildRequires:    apache-commons-io
 BuildRequires:    apache-commons-lang
 BuildRequires:    jakarta-commons-httpclient
+BuildRequires:    slf4j
 BuildRequires:    nspr-devel
 BuildRequires:    nss-devel >= 3.14.3
 
@@ -368,13 +369,17 @@ Summary:          Certificate System - Java Framework
 Group:            System Environment/Base
 BuildArch:        noarch
 
+Requires:         java-1.8.0-openjdk-headless
 Requires:         apache-commons-cli
 Requires:         apache-commons-codec
 Requires:         apache-commons-io
 Requires:         apache-commons-lang
 Requires:         apache-commons-logging
 Requires:         jakarta-commons-httpclient
-Requires:         java-1.8.0-openjdk-headless
+Requires:         slf4j
+%if ! 0%{?rhel}
+Requires:         slf4j-jdk14
+%endif
 Requires:         javassist
 Requires:         jpackage-utils >= 0:1.7.5-10
 Requires:         jss >= 4.2.6-40

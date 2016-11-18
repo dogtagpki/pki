@@ -75,6 +75,7 @@ javac(pki-nsutil-classes
     CLASSPATH
         ${APACHE_COMMONS_LANG_JAR} ${LDAPJDK_JAR} ${XALAN_JAR} ${XERCES_JAR}
         ${JSS_JAR} ${COMMONS_CODEC_JAR}
+        ${SLF4J_API_JAR}
     OUTPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
     DEPENDS

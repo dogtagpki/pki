@@ -47,6 +47,8 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${RESTEASY_LIB}/resteasy-jaxrs-jandex.jar lib/resteasy-jaxrs-jandex.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${RESTEASY_LIB}/resteasy-jaxrs.jar lib/resteasy-jaxrs.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/share/java/servlet.jar lib/servlet.jar
+    COMMAND ${CMAKE_COMMAND} -E create_symlink ${SLF4J_API_JAR} lib/slf4j-api.jar
+    COMMAND ${CMAKE_COMMAND} -E create_symlink ${SLF4J_JDK14_JAR} lib/slf4j-jdk14.jar
 )
 
 install(
