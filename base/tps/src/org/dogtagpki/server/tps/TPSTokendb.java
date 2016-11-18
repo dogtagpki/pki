@@ -25,15 +25,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import netscape.security.x509.RevocationReason;
-
 import org.dogtagpki.server.tps.cms.CARemoteRequestHandler;
 import org.dogtagpki.server.tps.cms.CARevokeCertResponse;
 import org.dogtagpki.server.tps.dbs.ActivityDatabase;
 import org.dogtagpki.server.tps.dbs.TPSCertRecord;
+import org.dogtagpki.server.tps.dbs.TokenCertStatus;
 import org.dogtagpki.server.tps.dbs.TokenRecord;
-import org.dogtagpki.server.tps.main.ExternalRegAttrs;
-import org.dogtagpki.server.tps.main.ExternalRegCertToRecover;
 import org.dogtagpki.tps.main.TPSException;
 import org.dogtagpki.tps.msg.EndOpMsg.TPSStatus;
 
@@ -42,6 +39,8 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
 import com.netscape.certsrv.tps.token.TokenStatus;
+
+import netscape.security.x509.RevocationReason;
 
 /*
  * TPSTokendb class offers a collection of tokendb management convenience routines
@@ -217,64 +216,24 @@ public class TPSTokendb {
         tps.tokenDatabase.updateRecord(id, tokenRecord);
     }
 
-    /*
-     * tdbAddCertificatesForCUID adds certificates issued for the token CUID
-     * - this instance pre-process the cert records to update the cert statuses
-     * @param cuid the cuid of the token
-     * @param certs an ArrayList of TPSCertRecord
-     * @param erAttrs the ExternalRegAttrs collection
-     */
-    public void tdbAddCertificatesForCUID(String cuid, ArrayList<TPSCertRecord> certs, ExternalRegAttrs erAttrs)
-            throws TPSException {
-        String method = "TPSTokendb.tdbAddCertificatesForCUID (with erAttrs): ";
-        String logMsg = "";
-        CMS.debug(method + "begins");
-        if (cuid == null || certs== null || certs.isEmpty() || erAttrs == null) {
-            logMsg =  "params cuid, certs and erAttrs cannot be null or empty";
-            CMS.debug(method + logMsg);
-            throw new TPSException(method + logMsg, TPSStatus.STATUS_ERROR_CONTACT_ADMIN);
-        }
-        CMS.debug("TPSTokendb.tdbAddCertificatesForCUID: number of certs to update:"+ certs.size());
-
-        // update cert status first
-        for (TPSCertRecord cert : certs) {
-            ExternalRegCertToRecover.CertStatus status = ExternalRegCertToRecover.CertStatus.UNINITIALIZED;
-            status = erAttrs.getCertStatus(cert.getSerialNumber());
-            if (status == ExternalRegCertToRecover.CertStatus.UNINITIALIZED) {
-                //cert not found in ExternalReg; don't reset status; don't report
-                continue;
-            }
-
-            //cert is one of the ExternalReg recovered certs, update the status
-            CMS.debug(method + "found and set status for:" + cert.getSerialNumber());
-            cert.setStatus(status.toString());
-
-        }
-
-        tdbAddCertificatesForCUID(cuid, certs);
-        CMS.debug(method + "ends");
-
-
-    }
-
     public void tdbAddCertificatesForCUID(String cuid, ArrayList<TPSCertRecord> certs)
             throws TPSException {
         String method = "TPSTokendb.tdbAddCertificatesForCUID: ";
         CMS.debug(method + "begins");
         boolean tokenExist = isTokenPresent(cuid);
-        if (!tokenExist){
-            CMS.debug("TPSTokendb.tdbAddCertificatesForCUID: token not found: "+ cuid);
-            throw new TPSException("TPSTokendb:tdbUpdateCertificates: token "+ cuid + " does not exist");
+        if (!tokenExist) {
+            CMS.debug(method + " token not found: " + cuid);
+            throw new TPSException(method + " token " + cuid + " does not exist");
         }
 
-        CMS.debug("TPSTokendb.tdbAddCertificatesForCUID: found token "+ cuid);
-        CMS.debug("TPSTokendb.tdbAddCertificatesForCUID: number of certs to update:"+ certs.size());
+        CMS.debug(method + " found token " + cuid);
+        CMS.debug(method + " number of certs to update:" + certs.size());
         try {
-            for (TPSCertRecord cert: certs) {
-               // cert.setOrigin(cuid);
+            for (TPSCertRecord cert : certs) {
+                // cert.setOrigin(cuid);
 
                 try {
-                tps.certDatabase.addRecord(cert.getId(), cert);
+                    tps.certDatabase.addRecord(cert.getId(), cert);
                 } catch (Exception e) {
 
                     //If this is due to a dup, try to update the record.
@@ -282,7 +241,7 @@ public class TPSTokendb {
                 }
             }
         } catch (Exception e) {
-            CMS.debug("TPSTokendb.tdbAddCertificatesForCUID: "+ e);
+            CMS.debug(method + e);
             // TODO: what if it throws in the middle of the cert list -- some cert records already updated?
             throw new TPSException(e.getMessage());
         }
@@ -312,11 +271,12 @@ public class TPSTokendb {
 
     public ArrayList<TPSCertRecord> tdbGetCertRecordsByCert(String serial, String issuer)
             throws TPSException {
+        String method = "TPSTokendb.tdbGetCertRecordsByCert:";
         if (serial == null)
-            throw new TPSException("TPSTokendb.tdbGetCertificatesBySerial: serial null");
+            throw new TPSException(method + " serial null");
 
         if (issuer == null) {
-            throw new TPSException("TPSTokendb.tdbGetCertificatesBySerial: issuer null");
+            throw new TPSException(method + " issuer null");
         }
 
         Map<String, String> attributes = new HashMap<String, String>();
@@ -328,7 +288,7 @@ public class TPSTokendb {
         try {
             records = tps.certDatabase.findRecords(null, attributes).iterator();
         } catch (Exception e) {
-            CMS.debug("TPSTokendb.tdbGetCertificatesByCUID:" + e);
+            CMS.debug(method + e);
             throw new TPSException(e.getMessage());
         }
 
@@ -393,7 +353,7 @@ public class TPSTokendb {
             if (cert.getTokenID().equals(cuid))
                 continue;
 
-            if (cert.getStatus().equals("active"))
+            if (cert.getStatus().equals(TokenCertStatus.ACTIVE.toString()))
                 return false;
         }
 
@@ -444,9 +404,11 @@ public class TPSTokendb {
 
             // update certificate status
             if (revokeReason == RevocationReason.CERTIFICATE_HOLD) {
-                updateCertsStatus(cert.getSerialNumber(), cert.getIssuedBy(), "revoked_on_hold");
+                updateCertsStatus(cert.getSerialNumber(), cert.getIssuedBy(),
+                        TokenCertStatus.ONHOLD.toString());
             } else {
-                updateCertsStatus(cert.getSerialNumber(), cert.getIssuedBy(), "revoked");
+                updateCertsStatus(cert.getSerialNumber(), cert.getIssuedBy(),
+                        TokenCertStatus.REVOKED.toString());
             }
 
             logMsg = "certificate revoked: " + cert.getSerialNumber();
@@ -484,7 +446,7 @@ public class TPSTokendb {
             logMsg = "called to unrevoke";
             CMS.debug(method + ": " + logMsg);
 
-            if (!cert.getStatus().equalsIgnoreCase("revoked_on_hold")) {
+            if (!cert.getStatus().equalsIgnoreCase(TokenCertStatus.ONHOLD.toString())) {
                 logMsg = "certificate record current status is not revoked_on_hold; cannot unrevoke";
                 CMS.debug(method + ": " + logMsg);
                 return; // TODO: continue or bail?
@@ -501,7 +463,8 @@ public class TPSTokendb {
             CMS.debug(method + ": response status: " + response.getStatus());
 
             // update certificate status
-            updateCertsStatus(cert.getSerialNumber(), cert.getIssuedBy(), "active");
+            updateCertsStatus(cert.getSerialNumber(), cert.getIssuedBy(),
+                    TokenCertStatus.ACTIVE.toString());
 
             logMsg = "certificate unrevoked: " + cert.getSerialNumber();
             CMS.debug(method + ": " + logMsg);
@@ -523,10 +486,16 @@ public class TPSTokendb {
     private void checkShouldRevoke(TokenRecord tokenRecord, TPSCertRecord cert, String tokenReason,
             String ipAddress, String remoteUser) throws Exception {
 
+        String method = "TPSTokendb.checkShouldRevoke:";
         IConfigStore configStore = CMS.getConfigStore();
 
         if (cert == null) {
             throw new TPSException("Missing token certificate");
+        }
+        if (cert.getStatus().equalsIgnoreCase(TokenCertStatus.REVOKED.toString())) {
+            throw new TPSException(
+                    method + "certificate " + cert.getSerialNumber() +
+                            " already revoked.");
         }
 
         String tokenType = cert.getType();
@@ -605,8 +574,6 @@ public class TPSTokendb {
                 throw new Exception(method + ":" + logMsg);
             }
         }
-
-        IConfigStore configStore = CMS.getConfigStore();
 
         for (TPSCertRecord cert : certRecords) {
             if (isRevoke) {
