@@ -253,10 +253,6 @@ public class KeyRequestDAO extends CMSRequestDAO {
             throw new UnauthorizedException("Recovery must be initiated by an agent");
         }
 
-        String wrappedSessionKeyStr = data.getTransWrappedSessionKey();
-        String wrappedPassPhraseStr = data.getSessionWrappedPassphrase();
-        String nonceDataStr = data.getNonceData();
-
         KeyId keyId = data.getKeyId();
         IKeyRecord rec = null;
         try {
@@ -279,15 +275,20 @@ public class KeyRequestDAO extends CMSRequestDAO {
             request.setRealm(rec.getRealm());
         }
 
-        Hashtable<String, Object> requestParams;
+        request.setExtData(ATTR_SERIALNO, keyId.toString());
+        request.setExtData(IRequest.ATTR_REQUEST_OWNER, requestor);
+        request.setExtData(IRequest.ATTR_APPROVE_AGENTS, requestor);
 
-        requestParams = ((IKeyRecoveryAuthority) authority).createVolatileRequest(request.getRequestId());
+        return request;
+    }
 
-        if (requestParams == null) {
-            throw new EBaseException("Can not create Volatile params in createRecoveryRequest!");
-        }
+    public void setTransientData(KeyRecoveryRequest data, IRequest request) throws EBaseException {
 
-        CMS.debug("Create volatile  params for recovery request. " + requestParams);
+        Hashtable<String, Object> requestParams = getTransientData(request);
+
+        String wrappedSessionKeyStr = data.getTransWrappedSessionKey();
+        String wrappedPassPhraseStr = data.getSessionWrappedPassphrase();
+        String nonceDataStr = data.getNonceData();
 
         if (wrappedPassPhraseStr != null) {
             requestParams.put(IRequest.SECURITY_DATA_SESS_PASS_PHRASE, wrappedPassPhraseStr);
@@ -300,15 +301,18 @@ public class KeyRequestDAO extends CMSRequestDAO {
         if (nonceDataStr != null) {
             requestParams.put(IRequest.SECURITY_DATA_IV_STRING_IN, nonceDataStr);
         }
+    }
 
-        request.setExtData(ATTR_SERIALNO, keyId.toString());
-
-        request.setExtData(IRequest.ATTR_REQUEST_OWNER, requestor);
-        request.setExtData(IRequest.ATTR_APPROVE_AGENTS, requestor);
-
-        // do we need to destroy the requestParams?
-
-        return request;
+    public Hashtable<String, Object> getTransientData(IRequest request) throws EBaseException {
+        Hashtable<String, Object> requestParams;
+        requestParams = ((IKeyRecoveryAuthority) authority).getVolatileRequest(request.getRequestId());
+        if (requestParams == null) {
+            requestParams = ((IKeyRecoveryAuthority) authority).createVolatileRequest(request.getRequestId());
+            if (requestParams == null) {
+                throw new EBaseException("Can not create Volatile params in createRecoveryRequest!");
+            }
+        }
+        return requestParams;
     }
 
     /**
@@ -325,6 +329,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
             IAuthToken authToken)
             throws EBaseException {
         IRequest request = createRecoveryRequest(data, uriInfo, requestor, authToken, false);
+        setTransientData(data, request);
         queue.processRequest(request);
 
         return createKeyRequestResponse(request, uriInfo);

@@ -197,7 +197,8 @@ public class KeyService extends PKIService implements KeyResource {
 
             KeyRequestDAO reqDAO = new KeyRequestDAO();
             try {
-                request = reqDAO.createRecoveryRequest(data, uriInfo, getRequestor(), getAuthToken(), ephemeral);
+                request = reqDAO.createRecoveryRequest(data, uriInfo, getRequestor(),
+                        getAuthToken(), ephemeral);
             } catch (EBaseException e) {
                 throw new PKIException(e.getMessage(), e);
             }
@@ -270,6 +271,7 @@ public class KeyService extends PKIService implements KeyResource {
         String method = "KeyService.getKey:";
         auditInfo = method;
         KeyData keyData;
+        KeyRequestDAO dao = new KeyRequestDAO();
         CMS.debug(method + "begins.");
 
         if (data == null) {
@@ -294,16 +296,9 @@ public class KeyService extends PKIService implements KeyResource {
         auditInfo += ";synchronous=" + Boolean.toString(synchronous);
         auditInfo += ";ephemeral=" + Boolean.toString(ephemeral);
 
-
-        // get data from the KeyRecoveryRequest
-        String transWrappedSessionKey   = data.getTransWrappedSessionKey();
-        String sessionWrappedPassphrase = data.getSessionWrappedPassphrase();
-
         // get data from IRequest
-        Hashtable<String, Object> requestParams = kra.getVolatileRequest(request.getRequestId());
-        if(requestParams == null) {
-            throw new PKIException("Can't obtain Volatile requestParams in getKey!");
-        }
+        Hashtable<String, Object> requestParams = dao.getTransientData(request);
+
         String sessWrappedKeyData = (String) requestParams.get(IRequest.SECURITY_DATA_SESS_WRAPPED_DATA);
         String passWrappedKeyData = (String) requestParams.get(IRequest.SECURITY_DATA_PASS_WRAPPED_DATA);
         String nonceData = (String) requestParams.get(IRequest.SECURITY_DATA_IV_STRING_OUT);
@@ -318,18 +313,7 @@ public class KeyService extends PKIService implements KeyResource {
             // the info now needed to process the recovery request.
 
             nonceData = data.getNonceData();
-
-            if (sessionWrappedPassphrase != null) {
-                requestParams.put(IRequest.SECURITY_DATA_SESS_PASS_PHRASE, sessionWrappedPassphrase);
-            }
-
-            if (transWrappedSessionKey != null) {
-                requestParams.put(IRequest.SECURITY_DATA_TRANS_SESS_KEY, transWrappedSessionKey);
-            }
-
-            if (nonceData != null) {
-                requestParams.put(IRequest.SECURITY_DATA_IV_STRING_IN, nonceData);
-            }
+            dao.setTransientData(data, request);
 
             try {
                 if (!synchronous) {
@@ -680,6 +664,13 @@ public class KeyService extends PKIService implements KeyResource {
         if (!IRequest.KEYRECOVERY_REQUEST.equals(type) ||
             !status.equals(RequestStatus.APPROVED)) {
             throw new UnauthorizedException("Request not approved");
+        }
+
+        KeyRequestDAO dao = new KeyRequestDAO();
+        try {
+            dao.setTransientData(data, request);
+        } catch(EBaseException e) {
+            throw new PKIException("Cannot set transient data", e);
         }
 
         String passphrase = data.getPassphrase();
