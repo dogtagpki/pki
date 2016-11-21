@@ -56,7 +56,9 @@ class KeyData(object):
     """
 
     json_attribute_names = {
-        'nonceData': 'nonce_data', 'wrappedPrivateData': 'wrapped_private_data'
+        'nonceData': 'nonce_data',
+        'wrappedPrivateData': 'wrapped_private_data',
+        'requestID': 'request_id'
     }
 
     # pylint: disable=C0103
@@ -64,6 +66,7 @@ class KeyData(object):
         """ Constructor """
         self.algorithm = None
         self.nonce_data = None
+        self.request_id = None
         self.size = None
         self.wrapped_private_data = None
 
@@ -88,9 +91,14 @@ class Key(object):
 
     def __init__(self, key_data):
         """ Constructor """
-        self.encrypted_data = base64.b64decode(
-            key_data.wrapped_private_data)
-        self.nonce_data = base64.b64decode(key_data.nonce_data)
+        self.encrypted_data = None
+        if key_data.wrapped_private_data is not None:
+            self.encrypted_data = base64.b64decode(
+                key_data.wrapped_private_data)
+        if key_data.nonce_data is not None:
+            self.nonce_data = base64.b64decode(key_data.nonce_data)
+        if key_data.request_id is not None:
+            self.request_id = key_data.request_id
         self.algorithm = key_data.algorithm
         self.size = key_data.size
 
@@ -884,12 +892,28 @@ class KeyClient(object):
         return Key(key_data)
 
     @pki.handle_exceptions()
-    def retrieve_key(self, key_id, trans_wrapped_session_key=None):
+    def retrieve_key(self, key_id=None, trans_wrapped_session_key=None,
+                     request_id=None):
         """ Retrieve a secret (passphrase or symmetric key) from the DRM.
 
-        This function generates a key recovery request, approves it, and
-        retrieves the secret referred to by key_id.  This assumes that only one
-        approval is required to authorize the recovery.
+        This method will retrieve a key from the KRA given the key_id or
+        request_id (one of which must be specified).  The data is returned
+        as a KeyData object (which is recast to a Key object).
+
+        If request_id is specified, then the value of key_id is ignored.
+        Exceptions will be thrown if the caller is not the originator of the
+        request, or the request is not approved.
+
+        If key_id is specified instead, the following behavior applies:
+
+        *  If the key can be retrieved synchronously - ie. only one agent's
+           approval is required, then the KeyData will include the secret.
+
+        *  If the key cannot be retrieved synchronously - ie. if more than one
+           approval is needed, then the KeyData obect will include the request
+           ID for a recovery request that was created on the server.  When that
+           request is approved, callers can retrieve the key using
+           retrieve_key() and setting the request_id.
 
         To ensure data security in transit, the data will be returned encrypted
         by a session key (168 bit 3DES symmetric key) - which is first wrapped
@@ -897,40 +921,31 @@ class KeyClient(object):
         being sent to the DRM.  The parameter trans_wrapped_session_key refers
         to this wrapped session key.
 
-        There are two ways of using this function:
+        If the trans_wrapped_session_key is not provided by caller, the method
+        will call CryptoProvider methods to generate and wrap the session key.
+        The function will return the KeyData object with a private_data
+        attribute which stores the unwrapped key information.
 
-        1) trans_wrapped_session_key is not provided by caller.
-
-        In this case, the function will call CryptoProvider methods to generate
-        and wrap the session key.  The function will return the KeyData object
-        with a private_data attribute which stores the unwrapped key
-        information.
-
-        2)  The trans_wrapped_session_key is provided by the caller.
-
-        In this case, the function will simply pass the data to the DRM, and
-        will return the secret wrapped in the session key.  The secret will
-        still need to be unwrapped by the caller.
-
-        The function will return the KeyData object, where the KeyData structure
-        includes the wrapped secret and some nonce data to be used as a salt
-        when unwrapping.
+        If the trans_wrapped_session_key is provided by the caller, the method
+        will simply pass the data to the KRA, and will return the secret
+        wrapped in the session key.  The secret will still need to be unwrapped
+        by the caller.  The function will return the KeyData object, where the
+        KeyData structure includes the wrapped secret and some nonce data to be
+        used as a salt when unwrapping.
         """
-        if key_id is None:
-            raise TypeError("Key ID must be specified")
+        if request_id is not None:
+            # ignore the key_id if set
+            key_id = None
+        elif key_id is None:
+            raise TypeError("Either request_id or Key ID must be specified")
 
-        key_provided = True
+        key_provided = (trans_wrapped_session_key is not None)
         session_key = None
         if trans_wrapped_session_key is None:
-            key_provided = False
             session_key = self.crypto.generate_session_key()
             trans_wrapped_session_key = self.crypto.asymmetric_wrap(
                 session_key,
                 self.transport_cert)
-
-        response = self.recover_key(key_id)
-        request_id = response.get_request_id()
-        self.approve_request(request_id)
 
         request = KeyRecoveryRequest(
             key_id=key_id,
@@ -939,7 +954,7 @@ class KeyClient(object):
                 trans_wrapped_session_key))
 
         key = self.retrieve_key_data(request)
-        if not key_provided:
+        if not key_provided and key.encrypted_data is not None:
             key.data = self.crypto.symmetric_unwrap(
                 key.encrypted_data,
                 session_key,
@@ -947,7 +962,8 @@ class KeyClient(object):
         return key
 
     @pki.handle_exceptions()
-    def retrieve_key_by_passphrase(self, key_id, passphrase=None,
+    def retrieve_key_by_passphrase(self, key_id=None, request_id=None,
+                                   passphrase=None,
                                    trans_wrapped_session_key=None,
                                    session_wrapped_passphrase=None,
                                    nonce_data=None):
