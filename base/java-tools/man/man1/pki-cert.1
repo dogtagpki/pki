@@ -215,7 +215,10 @@ profile, and submit the request using the following command:
 
 .B pki ca-cert-request-submit <request file>
 
-Depending on the profile, an agent may need to review the request by running
+Depending on the profile, the command may require authentication (see the profile configuration file).
+The CLI currently supports client certificate authentication and directory-based authentication.
+
+Also depending on the profile, an agent may need to review and approve the request by running
 the following command:
 
 .B pki <agent authentication> ca-cert-request-review <request ID> --file <file to store the certificate request>
