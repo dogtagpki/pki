@@ -234,7 +234,7 @@ public class ConfigurationUtils {
         PKIConnection connection = new PKIConnection(config);
         if (certApprovalCallback == null) certApprovalCallback = ConfigurationUtils.certApprovalCallback;
         connection.setCallback(certApprovalCallback);
-        return connection.get(path);
+        return connection.get(path, String.class);
     }
 
     public static String post(String hostname, int port, boolean secure,
