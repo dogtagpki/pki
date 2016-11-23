@@ -17,13 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.client;
 
-import java.net.URI;
 import java.net.URISyntaxException;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
+import javax.ws.rs.core.Response;
 
 import com.netscape.certsrv.account.AccountClient;
 
@@ -52,22 +48,12 @@ public class SubsystemClient extends Client {
 
     public boolean exists() throws Exception {
 
-        ClientConfig config = client.getConfig();
-        URI serverURI = config.getServerURI();
 
-        URI subsystemURI = new URI(
-                serverURI.getScheme(),
-                null,
-                serverURI.getHost(),
-                serverURI.getPort(),
-                "/" + name,
-                null,
-                null);
+        PKIConnection connection = client.getConnection();
+        Response response = connection.get("/" + name);
 
-        HttpGet method = new HttpGet(subsystemURI);
-        try (CloseableHttpClient client = HttpClientBuilder.create().build()) {
-            HttpResponse response = client.execute(method);
-            int code = response.getStatusLine().getStatusCode();
+        try {
+            int code = response.getStatus();
 
             if (code == 200) {
                 return true;
@@ -76,11 +62,11 @@ public class SubsystemClient extends Client {
                 return false;
 
             } else {
-                throw new Exception("Error: " + response.getStatusLine());
+                throw new Exception("Error: " + response.getStatusInfo());
             }
 
         } finally {
-            method.releaseConnection();
+            response.close();
         }
     }
 
