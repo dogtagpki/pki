@@ -458,13 +458,17 @@ public class PKIConnection {
         }
     }
 
-    public String get(String path) throws Exception {
+    public Response get(String path) throws Exception {
+        return get(path, Response.class);
+    }
+
+    public <T> T get(String path, Class<T> responseType) throws Exception {
         String uri = config.getServerURI().toString();
         if (path != null) {
             uri += path;
         }
         ResteasyWebTarget target = resteasyClient.target(uri);
-        return target.request().get(String.class);
+        return target.request().get(responseType);
     }
 
     public String post(String path, MultivaluedMap<String, String> content) throws Exception {
