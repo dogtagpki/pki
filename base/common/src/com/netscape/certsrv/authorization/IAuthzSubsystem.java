@@ -21,6 +21,7 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 
 import com.netscape.certsrv.authentication.IAuthToken;
+import com.netscape.certsrv.authorization.EAuthzUnknownRealm;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ISubsystem;
 
@@ -181,4 +182,12 @@ public interface IAuthzSubsystem extends ISubsystem {
      * @return an authorization manager interface
      */
     public IAuthzManager get(String name);
+
+    /**
+     * Given a realm name, return the name of an authz manager for that realm.
+     *
+     * @throws EAuthzUnknownRealm if no authz manager is found.
+     */
+    public String getAuthzManagerNameByRealm(String realm)
+        throws EAuthzUnknownRealm;
 }

@@ -495,10 +495,7 @@ public class AuthzSubsystem implements IAuthzSubsystem {
         // if record owner == requester, SUCCESS
         if ((owner != null) && owner.equals(authToken.getInString(IAuthToken.USER_ID))) return;
 
-        String mgrName = getAuthzManagerByRealm(realm);
-        if (mgrName == null) {
-            throw new EAuthzUnknownRealm("Realm not found");
-        }
+        String mgrName = getAuthzManagerNameByRealm(realm);
 
         AuthzToken authzToken = authorize(mgrName, authToken, resource, operation, realm);
         if (authzToken == null) {
@@ -506,12 +503,17 @@ public class AuthzSubsystem implements IAuthzSubsystem {
         }
     }
 
-    public String getAuthzManagerByRealm(String realm) throws EBaseException {
+    public String getAuthzManagerNameByRealm(String realm) throws EAuthzUnknownRealm {
         for (AuthzManagerProxy proxy : mAuthzMgrInsts.values()) {
             IAuthzManager mgr = proxy.getAuthzManager();
             if (mgr != null) {
                 IConfigStore cfg = mgr.getConfigStore();
-                String mgrRealmString = cfg.getString(PROP_REALM, null);
+                String mgrRealmString = null;
+                try {
+                    mgrRealmString = cfg.getString(PROP_REALM, null);
+                } catch (EBaseException e) {
+                    // never mind
+                }
                 if (mgrRealmString == null) continue;
 
                 List<String> mgrRealms = Arrays.asList(mgrRealmString.split(","));
@@ -521,7 +523,7 @@ public class AuthzSubsystem implements IAuthzSubsystem {
                 }
             }
         }
-        return null;
+        throw new EAuthzUnknownRealm("Realm not found");
     }
 
 }
