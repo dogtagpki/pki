@@ -30,6 +30,9 @@ import com.netscape.certsrv.acls.IACL;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
+import com.netscape.certsrv.authorization.EAuthzAccessDenied;
+import com.netscape.certsrv.authorization.EAuthzInternalError;
+import com.netscape.certsrv.authorization.IAuthzManager;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.evaluators.IAccessEvaluator;
@@ -61,13 +64,19 @@ import com.netscape.cmsutil.util.Utils;
  * @version $Revision$, $Date$
  * @see <A HREF="http://developer.netscape.com/library/documentation/enterprise/admnunix/aclfiles.htm">ACL Files</A>
  */
-public abstract class AAclAuthz {
+public abstract class AAclAuthz implements IAuthzManager {
 
     protected static final String PROP_CLASS = "class";
     protected static final String PROP_IMPL = "impl";
     protected static final String PROP_EVAL = "accessEvaluator";
 
     protected static final String ACLS_ATTR = "aclResources";
+
+    /* name of this authorization manager instance */
+    private String mName = null;
+
+    /* name of the authorization manager plugin */
+    private String mImplName = null;
 
     private IConfigStore mConfig = null;
 
@@ -93,13 +102,13 @@ public abstract class AAclAuthz {
     /**
      * Initializes
      */
-    protected void init(IConfigStore config)
+    public void init(String name, String implName, IConfigStore config)
             throws EBaseException {
-
+        mName = name;
+        mImplName = implName;
+        mConfig = config;
         mLogger = CMS.getLogger();
         CMS.debug("AAclAuthz: init begins");
-
-        mConfig = config;
 
         // load access evaluators specified in the config file
         IConfigStore mainConfig = CMS.getConfigStore();
@@ -141,6 +150,20 @@ public abstract class AAclAuthz {
         }
 
         log(ILogger.LL_INFO, "initialization done");
+    }
+
+    /**
+     * gets the name of this authorization manager instance
+     */
+    public String getName() {
+        return mName;
+    }
+
+    /**
+     * gets the plugin name of this authorization manager.
+     */
+    public String getImplName() {
+        return mImplName;
     }
 
     /**
@@ -818,7 +841,7 @@ public abstract class AAclAuthz {
         }
     }
 
-    private void log(int level, String msg) {
+    protected void log(int level, String msg) {
         if (mLogger == null)
             return;
         mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_AUTHORIZATION,
@@ -830,24 +853,58 @@ public abstract class AAclAuthz {
      **********************************/
 
     /**
-     * update acls. called after memory upate is done to flush to permanent
-     * storage.
-     * <p>
-     */
-    protected abstract void flushResourceACLs() throws EACLsException;
-
-    /**
-     * an abstract class that enforces implementation of the
-     * authorize() method that will authorize an operation on a
-     * particular resource
+     * check the authorization permission for the user associated with
+     * authToken on operation
+     *
+     * Example:
+     *
+     * For example, if UsrGrpAdminServlet needs to authorize the
+     * caller it would do be done in the following fashion:
+     *
+     * try {
+     *     authzTok = mAuthz.authorize(
+     *         "DirAclAuthz", authToken, RES_GROUP, "read");
+     * } catch (EBaseException e) {
+     *     log(ILogger.LL_FAILURE, "authorize call: " + e.toString());
+     * }
      *
      * @param authToken the authToken associated with a user
      * @param resource - the protected resource name
      * @param operation - the protected resource operation name
-     * @exception EBaseException If an internal error occurred.
+     * @exception EAuthzAccessDenied If access was denied
+     * @exception EAuthzInternalError If an internal error occurred.
      * @return authzToken
      */
-    public abstract AuthzToken authorize(IAuthToken authToken, String resource, String operation) throws EBaseException;
+    public AuthzToken authorize(IAuthToken authToken, String resource, String operation)
+            throws EAuthzInternalError, EAuthzAccessDenied {
+        try {
+            checkPermission(authToken, resource, operation);
+            // compose AuthzToken
+            AuthzToken authzToken = new AuthzToken(this);
+            authzToken.set(AuthzToken.TOKEN_AUTHZ_RESOURCE, resource);
+            authzToken.set(AuthzToken.TOKEN_AUTHZ_OPERATION, operation);
+            authzToken.set(AuthzToken.TOKEN_AUTHZ_STATUS, AuthzToken.AUTHZ_STATUS_SUCCESS);
+            CMS.debug(mName + ": authorization passed");
+            return authzToken;
+        } catch (EACLsException e) {
+            // audit here later
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("AUTHZ_EVALUATOR_AUTHORIZATION_FAILED"));
+            String params[] = { resource, operation };
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("AUTHZ_AUTHZ_ACCESS_DENIED_2", params));
+
+            throw new EAuthzAccessDenied(CMS.getUserMessage("CMS_AUTHORIZATION_ERROR"));
+        }
+    }
+
+    public AuthzToken authorize(IAuthToken authToken, String expression)
+            throws EAuthzAccessDenied {
+        if (evaluateACLs(authToken, expression)) {
+            return (new AuthzToken(this));
+        } else {
+            String params[] = { expression };
+            throw new EAuthzAccessDenied(CMS.getUserMessage("CMS_AUTHORIZATION_AUTHZ_ACCESS_DENIED", params));
+        }
+    }
 
     public String getOrder() {
         IConfigStore mainConfig = CMS.getConfigStore();

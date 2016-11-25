@@ -24,8 +24,6 @@ import com.netscape.certsrv.acls.EACLsException;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
-import com.netscape.certsrv.authorization.EAuthzAccessDenied;
-import com.netscape.certsrv.authorization.EAuthzInternalError;
 import com.netscape.certsrv.authorization.IAuthzManager;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -53,18 +51,6 @@ public class DirAclAuthz extends AAclAuthz
         implements IAuthzManager, IExtendedPluginInfo {
 
     // members
-
-    /* name of this authentication manager instance */
-    private String mName = null;
-
-    /* name of the authentication manager plugin */
-    private String mImplName = null;
-
-    /* configuration store */
-    private IConfigStore mConfig;
-
-    /* the system logger */
-    private ILogger mLogger = null;
 
     protected static final String PROP_BASEDN = "basedn";
 
@@ -118,15 +104,10 @@ public class DirAclAuthz extends AAclAuthz
      */
     public void init(String name, String implName, IConfigStore config)
             throws EBaseException {
-        mName = name;
-        mImplName = implName;
-        mConfig = config;
-        mLogger = CMS.getLogger();
-
-        super.init(config);
+        super.init(name, implName, config);
 
         // initialize LDAP connection factory
-        IConfigStore ldapConfig = mConfig.getSubStore("ldap");
+        IConfigStore ldapConfig = config.getSubStore("ldap");
 
         if (ldapConfig == null) {
             log(ILogger.LL_MISCONF, "failed to get config ldap info");
@@ -183,75 +164,6 @@ public class DirAclAuthz extends AAclAuthz
         }
 
         log(ILogger.LL_INFO, "initialization done");
-    }
-
-    /**
-     * gets the name of this authorization manager instance
-     */
-    public String getName() {
-        return mName;
-    }
-
-    /**
-     * gets the plugin name of this authorization manager.
-     */
-    public String getImplName() {
-        return mImplName;
-    }
-
-    /**
-     * check the authorization permission for the user associated with
-     * authToken on operation
-     * <p>
-     * Example:
-     * <p>
-     * For example, if UsrGrpAdminServlet needs to authorize the caller it would do be done in the following fashion:
-     *
-     * <PRE>
-     * try {
-     *     authzTok = mAuthz.authorize(&quot;DirAclAuthz&quot;, authToken, RES_GROUP, &quot;read&quot;);
-     * } catch (EBaseException e) {
-     *     log(ILogger.LL_FAILURE, &quot;authorize call: &quot; + e.toString());
-     * }
-     * </PRE>
-     *
-     * @param authToken the authToken associated with a user
-     * @param resource - the protected resource name
-     * @param operation - the protected resource operation name
-     * @exception EBaseException If an internal error occurred.
-     * @return authzToken
-     */
-    public AuthzToken authorize(IAuthToken authToken, String resource, String operation)
-            throws EAuthzInternalError, EAuthzAccessDenied {
-        AuthzToken authzToken = new AuthzToken(this);
-
-        try {
-            checkPermission(authToken, resource, operation);
-            // compose AuthzToken
-            authzToken.set(AuthzToken.TOKEN_AUTHZ_RESOURCE, resource);
-            authzToken.set(AuthzToken.TOKEN_AUTHZ_OPERATION, operation);
-            authzToken.set(AuthzToken.TOKEN_AUTHZ_STATUS, AuthzToken.AUTHZ_STATUS_SUCCESS);
-            CMS.debug("DirAclAuthz: authorization passed");
-        } catch (EACLsException e) {
-            // audit here later
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("AUTHZ_EVALUATOR_AUTHORIZATION_FAILED"));
-            String params[] = { resource, operation };
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("AUTHZ_AUTHZ_ACCESS_DENIED_2", params));
-
-            throw new EAuthzAccessDenied(CMS.getUserMessage("CMS_AUTHORIZATION_ERROR"));
-        }
-
-        return authzToken;
-    }
-
-    public AuthzToken authorize(IAuthToken authToken, String expression)
-            throws EAuthzAccessDenied {
-        if (evaluateACLs(authToken, expression)) {
-            return (new AuthzToken(this));
-        } else {
-            String params[] = { expression };
-            throw new EAuthzAccessDenied(CMS.getUserMessage("CMS_AUTHORIZATION_AUTHZ_ACCESS_DENIED", params));
-        }
     }
 
     /**
@@ -353,17 +265,4 @@ public class DirAclAuthz extends AAclAuthz
         }
     }
 
-    /**
-     * Logs a message for this class in the system log file.
-     *
-     * @param level The log level.
-     * @param msg The message to log.
-     * @see com.netscape.certsrv.logging.ILogger
-     */
-    protected void log(int level, String msg) {
-        if (mLogger == null)
-            return;
-        mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_AUTHORIZATION,
-                level, msg);
-    }
 }
