@@ -681,8 +681,10 @@ public class CMSEngine implements ICMSEngine {
 
             acl = new ACL(resource, rights, resACLs);
 
+            // search *backwards* for final instance of ':', to handle case
+            // where acl expressions contain colon, e.g. in a group name.
             String stx = st.substring(idx2 + 1);
-            int idx3 = stx.indexOf(":");
+            int idx3 = stx.lastIndexOf(":");
             String aclStr = stx.substring(0, idx3);
 
             // getting list of acl entries
