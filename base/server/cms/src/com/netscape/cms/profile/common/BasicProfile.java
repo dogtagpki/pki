@@ -89,7 +89,6 @@ public abstract class BasicProfile implements IProfile {
     protected Vector<String> mOutputIds = new Vector<String>();
     protected Hashtable<String, IProfileUpdater> mUpdaters = new Hashtable<String, IProfileUpdater>();
     protected Vector<String> mUpdaterIds = new Vector<String>();
-    protected IProfileAuthenticator mAuthenticator = null;
     protected String mAuthInstanceId = null;
     protected String mId = null;
     protected String mAuthzAcl = "";
