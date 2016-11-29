@@ -86,7 +86,12 @@ BuildRequires:    apache-commons-lang
 BuildRequires:    jakarta-commons-httpclient
 BuildRequires:    slf4j
 BuildRequires:    nspr-devel
+
+%if 0%{?fedora}
+BuildRequires:    nss-devel >= 3.27.0
+%else
 BuildRequires:    nss-devel >= 3.14.3
+%endif
 
 %if 0%{?rhel}
 BuildRequires:    nuxwdog-client-java >= 1.0.1-11
@@ -305,7 +310,13 @@ Summary:          Symmetric Key JNI Package
 Group:            System Environment/Libraries
 
 Requires:         java-1.8.0-openjdk-headless
-Requires:         nss
+
+%if 0%{?fedora}
+Requires:         nss >= 3.27.0
+%else
+Requires:         nss >= 3.14.3
+%endif
+
 Requires:         jpackage-utils >= 0:1.7.5-10
 Requires:         jss >= 4.2.6-40
 
@@ -353,6 +364,13 @@ Obsoletes:        pki-common < %{version}-%{release}
 Obsoletes:        pki-util < %{version}-%{release}
 
 Conflicts:        freeipa-server < 3.0.0
+
+%if 0%{?fedora}
+Requires:         nss >= 3.27.0
+%else
+Requires:         nss >= 3.14.3
+%endif
+
 Requires:         python-nss
 Requires:         python-requests >= 2.6.0
 Requires:         python-six
@@ -467,8 +485,13 @@ Obsoletes:        pki-native-tools < %{version}-%{release}
 Obsoletes:        pki-java-tools < %{version}-%{release}
 
 Requires:         openldap-clients
-Requires:         nss
-Requires:         nss-tools
+
+%if 0%{?fedora}
+Requires:         nss-tools >= 3.27.0
+%else
+Requires:         nss-tools >= 3.14.3
+%endif
+
 Requires:         java-1.8.0-openjdk-headless
 Requires:         pki-base = %{version}-%{release}
 Requires:         pki-base-java = %{version}-%{release}
@@ -766,8 +789,13 @@ Requires(postun): systemd-units
 
 # additional runtime requirements needed to run native 'tpsclient'
 # REMINDER:  Revisit these once 'tpsclient' is rewritten as a Java app
-Requires:         nss >= 3.14.3
+
+%if 0%{?fedora}
+Requires:         nss-tools >= 3.27.0
+%else
 Requires:         nss-tools >= 3.14.3
+%endif
+
 Requires:         openldap-clients
 %if 0%{?package_fedora_packages} || 0%{?package_rhel_packages}
 Requires:         pki-symkey = %{version}-%{release}
