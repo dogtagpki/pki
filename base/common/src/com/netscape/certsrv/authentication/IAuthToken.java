@@ -41,6 +41,40 @@ public interface IAuthToken {
     public static final String UID = "uid";
     public static final String GROUPS = "groups";
 
+    /* Subject name of the certificate in the authenticating entry */
+    public static final String TOKEN_CERT_SUBJECT = "tokenCertSubject";
+
+    /* NotBefore value of the certificate in the authenticating entry */
+    public static final String TOKEN_CERT_NOTBEFORE = "tokenCertNotBefore";
+
+    /* NotAfter value of the certificate in the authenticating entry */
+    public static final String TOKEN_CERT_NOTAFTER = "tokenCertNotAfter";
+
+    /* Cert Extentions value of the certificate in the authenticating entry */
+    public static final String TOKEN_CERT_EXTENSIONS = "tokenCertExts";
+
+    /* Serial number of the certificate in the authenticating entry */
+    public static final String TOKEN_CERT_SERIALNUM = "certSerial";
+
+    /**
+     * Certificate to be renewed
+     */
+    public static final String TOKEN_CERT = "tokenCert";
+
+    /* Certificate to be revoked */
+    public static final String TOKEN_CERT_TO_REVOKE = "tokenCertToRevoke";
+
+    /**
+     * Name of the authentication manager that created the AuthToken
+     * as a string.
+     */
+    public static final String TOKEN_AUTHMGR_INST_NAME = "authMgrInstName";
+
+    /**
+     * Time of authentication as a java.util.Date
+     */
+    public static final String TOKEN_AUTHTIME = "authTime";
+
     /**
      * Sets an attribute value within this AttrSet.
      *
