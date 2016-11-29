@@ -27,6 +27,8 @@
     <Manager
         secureRandomProvider="Mozilla-JSS" secureRandomAlgorithm="pkcs11prng"/>
 
+    <Valve className="com.netscape.cms.tomcat.ExternalAuthenticationValve" />
+
     <Valve className="com.netscape.cms.tomcat.SSLAuthenticatorWithFallback"
         alwaysUseSession="true"
         secureRandomProvider="Mozilla-JSS"
