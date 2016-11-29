@@ -33,12 +33,14 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.ext.Provider;
 
+import org.apache.catalina.realm.GenericPrincipal;
+
 import org.jboss.resteasy.core.ResourceMethodInvoker;
 import org.jboss.resteasy.spi.Failure;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthMethodMapping;
-import com.netscape.certsrv.authentication.AuthToken;
+import com.netscape.certsrv.authentication.ExternalAuthToken;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.ForbiddenException;
 import com.netscape.cms.realm.PKIPrincipal;
@@ -139,14 +141,11 @@ public class AuthMethodInterceptor implements ContainerRequestFilter {
                 throw new ForbiddenException("Anonymous access not allowed.");
             }
 
-            // If unrecognized principal, reject request.
-            if (!(principal instanceof PKIPrincipal)) {
-                CMS.debug("AuthMethodInterceptor: unknown principal");
-                throw new ForbiddenException("Unknown user principal");
-            }
-
-            PKIPrincipal pkiPrincipal = (PKIPrincipal) principal;
-            IAuthToken authToken = pkiPrincipal.getAuthToken();
+            IAuthToken authToken = null;
+            if (principal instanceof PKIPrincipal)
+                authToken = ((PKIPrincipal) principal).getAuthToken();
+            else if (principal instanceof GenericPrincipal)
+                authToken = new ExternalAuthToken((GenericPrincipal) principal);
 
             // If missing auth token, reject request.
             if (authToken == null) {
@@ -154,7 +153,8 @@ public class AuthMethodInterceptor implements ContainerRequestFilter {
                 throw new ForbiddenException("Missing authentication token.");
             }
 
-            String authManager = (String) authToken.get(AuthToken.TOKEN_AUTHMGR_INST_NAME);
+            String authManager = authToken.getInString(IAuthToken.TOKEN_AUTHMGR_INST_NAME);
+
             CMS.debug("AuthMethodInterceptor: authentication manager: " + authManager);
 
             if (authManager == null) {
@@ -162,7 +162,12 @@ public class AuthMethodInterceptor implements ContainerRequestFilter {
                 throw new ForbiddenException("Missing authentication manager.");
             }
 
-            if (authMethods.isEmpty() || authMethods.contains(authManager) || authMethods.contains("*")) {
+            if (
+                authMethods.isEmpty()
+                || authManager.equals("external")
+                || authMethods.contains(authManager)
+                || authMethods.contains("*")
+            ) {
                 CMS.debug("AuthMethodInterceptor: access granted");
                 return;
             }
