@@ -36,6 +36,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authority.AuthorityData;
 import com.netscape.certsrv.authority.AuthorityResource;
 import com.netscape.certsrv.base.BadRequestDataException;
@@ -46,6 +47,7 @@ import com.netscape.certsrv.base.ForbiddenException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.certsrv.base.ServiceUnavailableException;
+import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.CADisabledException;
 import com.netscape.certsrv.ca.CAEnabledException;
@@ -59,7 +61,6 @@ import com.netscape.certsrv.ca.IssuerUnavailableException;
 import com.netscape.certsrv.common.OpDef;
 import com.netscape.certsrv.common.ScopeDef;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.cms.realm.PKIPrincipal;
 import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cmsutil.util.Utils;
 
@@ -191,9 +192,6 @@ public class AuthorityService extends PKIService implements AuthorityResource {
             }
         }
 
-        PKIPrincipal principal =
-            (PKIPrincipal) servletRequest.getUserPrincipal();
-
         Map<String, String> auditParams = new LinkedHashMap<>();
         auditParams.put("dn", data.getDN());
         if (parentAID != null)
@@ -201,10 +199,12 @@ public class AuthorityService extends PKIService implements AuthorityResource {
         if (data.getDescription() != null)
             auditParams.put("description", data.getDescription());
 
+        IAuthToken authToken = (IAuthToken)
+            SessionContext.getContext().get(SessionContext.AUTH_TOKEN);
+
         try {
             ICertificateAuthority subCA = hostCA.createCA(
-                principal.getAuthToken(),
-                data.getDN(), parentAID, data.getDescription());
+                authToken, data.getDN(), parentAID, data.getDescription());
             audit(ILogger.SUCCESS, OpDef.OP_ADD,
                     subCA.getAuthorityID().toString(), auditParams);
             return createOKResponse(readAuthorityData(subCA));
