@@ -25,9 +25,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
+import org.apache.commons.cli.PosixParser;
 import org.apache.commons.lang.StringUtils;
 
 import com.netscape.certsrv.client.PKIClient;
@@ -40,7 +40,7 @@ public class CLI {
 
     public static boolean verbose;
 
-    public static CommandLineParser parser = new DefaultParser();
+    public static CommandLineParser parser = new PosixParser();
     public static HelpFormatter formatter = new HelpFormatter();
 
     public String name;

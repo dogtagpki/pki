@@ -31,9 +31,9 @@ import java.security.PublicKey;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.apache.commons.cli.PosixParser;
 import org.apache.commons.io.FileUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -270,7 +270,7 @@ public class CRMFPopClient {
         CommandLine cmd = null;
 
         try {
-            CommandLineParser parser = new DefaultParser();
+            CommandLineParser parser = new PosixParser();
             cmd = parser.parse(options, args);
 
         } catch (Exception e) {

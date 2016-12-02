@@ -18,10 +18,10 @@ import java.security.cert.CertificateEncodingException;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.PosixParser;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.InvalidBERException;
 import org.mozilla.jss.crypto.AlreadyInitializedException;
@@ -123,7 +123,7 @@ public class GeneratePKIArchiveOptions {
         options.addOption("k", true, "Key file");
 
         try {
-            CommandLineParser parser = new DefaultParser();
+            CommandLineParser parser = new PosixParser();
             CommandLine cmd = parser.parse(options, args);
 
             if (cmd.hasOption("p")) {

@@ -27,9 +27,9 @@ import java.net.UnknownHostException;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.apache.commons.cli.PosixParser;
 import org.mozilla.jss.CryptoManager;
 
 import com.netscape.cmsutil.ocsp.BasicOCSPResponse;
@@ -127,7 +127,7 @@ public class OCSPClient {
         CommandLine cmd = null;
 
         try {
-            CommandLineParser parser = new DefaultParser();
+            CommandLineParser parser = new PosixParser();
             cmd = parser.parse(options, args);
 
         } catch (Exception e) {
