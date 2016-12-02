@@ -25,11 +25,11 @@ import java.security.MessageDigest;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.ContentType;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.INTEGER;
@@ -126,8 +126,9 @@ public class OCSPProcessor {
 
         if (verbose) System.out.println("URL: " + url);
 
-        try (CloseableHttpClient httpClient = HttpClientBuilder.create().build()) {
+        HttpClient httpClient = new DefaultHttpClient();
 
+        try {
             ByteArrayOutputStream os = new ByteArrayOutputStream();
             request.encode(os);
             byte[] requestData = os.toByteArray();
@@ -161,6 +162,9 @@ public class OCSPProcessor {
             } finally {
                 EntityUtils.consume(responseEntity);
             }
+
+        } finally {
+            httpClient.getConnectionManager().shutdown();
         }
     }
 }

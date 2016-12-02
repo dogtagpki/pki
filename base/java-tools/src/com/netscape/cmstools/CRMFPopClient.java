@@ -38,8 +38,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.ASN1Util;
@@ -743,8 +742,9 @@ public class CRMFPopClient {
 
         if (verbose) System.out.println("Opening " + url);
 
+        DefaultHttpClient client = new DefaultHttpClient();
         HttpGet method = new HttpGet(url);
-        try (CloseableHttpClient client = HttpClientBuilder.create().build()) {
+        try {
             HttpResponse response = client.execute(method);
 
             if (response.getStatusLine().getStatusCode() != 200) {
