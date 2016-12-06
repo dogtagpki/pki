@@ -45,6 +45,7 @@ import com.netscape.cms.profile.common.EnrollProfile;
  */
 public abstract class EnrollConstraint implements IPolicyConstraint {
     public static final String CONFIG_NAME = "name";
+    public static final String CONFIG_PARAMS = "params";
 
     protected IConfigStore mConfig = null;
     protected Vector<String> mConfigNames = new Vector<String>();
@@ -80,10 +81,10 @@ public abstract class EnrollConstraint implements IPolicyConstraint {
 
     public void setConfig(String name, String value)
             throws EPropertyException {
-        if (mConfig.getSubStore("params") == null) {
+        if (mConfig.getSubStore(CONFIG_PARAMS) == null) {
             //
         } else {
-            mConfig.getSubStore("params").putString(name, value);
+            mConfig.getSubStore(CONFIG_PARAMS).putString(name, value);
         }
     }
 
@@ -105,7 +106,7 @@ public abstract class EnrollConstraint implements IPolicyConstraint {
             return null;
         }
 
-        IConfigStore params = mConfig.getSubStore("params");
+        IConfigStore params = mConfig.getSubStore(CONFIG_PARAMS);
         if (params == null) {
             CMS.debug("Error: Missing constraint parameters");
             return null;
