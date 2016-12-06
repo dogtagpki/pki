@@ -199,6 +199,7 @@ public class LDAPProfileSubsystem
                 CMS.debug("Done Profile Creation - " + profileId);
             } catch (EProfileException e) {
                 CMS.debug("Error creating profile '" + profileId + "'; skipping.");
+                CMS.debug(e);
             }
         }
     }
