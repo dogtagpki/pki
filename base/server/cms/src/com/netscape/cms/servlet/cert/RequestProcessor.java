@@ -378,7 +378,7 @@ public class RequestProcessor extends CertProcessor {
         String auditRequesterID = auditRequesterID(req);
 
         // ensure target CA is enabled
-        String aidString = req.getExtDataInString(IEnrollProfile.REQUEST_AUTHORITY_ID);
+        String aidString = req.getExtDataInString(IRequest.AUTHORITY_ID);
         if (aidString != null)
             ensureCAEnabled(aidString);
 

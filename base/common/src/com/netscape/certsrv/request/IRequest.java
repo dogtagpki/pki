@@ -91,6 +91,11 @@ public interface IRequest extends Serializable {
 
     public static final String PROFILE_ID = "profileId";
 
+    /**
+     * ID of requested certificate authority (absense implies host authority)
+     */
+    public static final String AUTHORITY_ID = "req_authority_id";
+
     public static final String RESULT = "Result"; // service result.
     public static final Integer RES_SUCCESS = Integer.valueOf(1); // result value
     public static final Integer RES_ERROR = Integer.valueOf(2); // result value

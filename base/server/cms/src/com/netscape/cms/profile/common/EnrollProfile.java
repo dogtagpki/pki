@@ -192,7 +192,7 @@ public abstract class EnrollProfile extends BasicProfile
             }
 
             // set requested CA
-            result[i].setExtData(REQUEST_AUTHORITY_ID, ctx.get(REQUEST_AUTHORITY_ID));
+            result[i].setExtData(IRequest.AUTHORITY_ID, ctx.get(REQUEST_AUTHORITY_ID));
         }
         return result;
     }

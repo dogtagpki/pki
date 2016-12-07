@@ -192,7 +192,7 @@ public class CAEnrollProfile extends EnrollProfile {
             sc.put("profileSetId", setId);
         }
         AuthorityID aid = null;
-        String aidString = request.getExtDataInString(REQUEST_AUTHORITY_ID);
+        String aidString = request.getExtDataInString(IRequest.AUTHORITY_ID);
         if (aidString != null)
             aid = new AuthorityID(aidString);
         try {

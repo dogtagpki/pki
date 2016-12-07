@@ -26,7 +26,6 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.profile.EProfileException;
-import com.netscape.certsrv.profile.IEnrollProfile;
 import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
@@ -172,7 +171,7 @@ public class AuthorityKeyIdentifierExtDefault extends CAEnrollDefault {
         ICertificateAuthority ca = (ICertificateAuthority)
                 CMS.getSubsystem(CMS.SUBSYSTEM_CA);
         String aidString = request.getExtDataInString(
-                IEnrollProfile.REQUEST_AUTHORITY_ID);
+                IRequest.AUTHORITY_ID);
         if (aidString != null)
             ca = ca.getCA(new AuthorityID(aidString));
         if (ca == null)

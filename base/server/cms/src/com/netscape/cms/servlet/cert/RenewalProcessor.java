@@ -215,7 +215,7 @@ public class RenewalProcessor extends CertProcessor {
             CMS.debug("RenewalSubmitter: renewal original profileId=" + profileId);
 
             String aidString = origReq.getExtDataInString(
-                    IEnrollProfile.REQUEST_AUTHORITY_ID);
+                    IRequest.AUTHORITY_ID);
 
             Integer origSeqNum = origReq.getExtDataInInteger(IEnrollProfile.REQUEST_SEQ_NUM);
             IProfile profile = ps.getProfile(profileId);
