@@ -116,7 +116,6 @@ public class CAProcessor extends Processor {
     public static final String AUTHZ_MGR = "authzMgr";
     public static final String GET_CLIENT_CERT = "getClientCert";
     public static final String ACL_INFO = "ACLinfo";
-    public static final String AUTHORITY_ID = "authorityId";
     public static final String PROFILE_SUB_ID = "profileSubId";
 
     public final static String LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED =
