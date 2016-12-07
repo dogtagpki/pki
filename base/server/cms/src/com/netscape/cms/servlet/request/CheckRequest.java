@@ -335,7 +335,7 @@ public class CheckRequest extends CMSServlet {
                     argSet.addRepeatRecord(rarg);
                 }
         */
-        String profileId = r.getExtDataInString("profileId");
+        String profileId = r.getExtDataInString(IRequest.PROFILE_ID);
         if (profileId != null) {
             result = IRequest.RES_SUCCESS;
         }

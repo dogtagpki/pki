@@ -195,7 +195,7 @@ public class EnrollmentService implements IService {
         byte tmp_unwrapped[] = null;
         PKIArchiveOptionsContainer aOpts[] = null;
 
-        String profileId = request.getExtDataInString("profileId");
+        String profileId = request.getExtDataInString(IRequest.PROFILE_ID);
 
         if (profileId == null || profileId.equals("")) {
             try {
@@ -759,7 +759,7 @@ public class EnrollmentService implements IService {
      * @exception EBaseException failed to retrieve public key
      */
     private X509Key getPublicKey(IRequest request, int i) throws EBaseException {
-        String profileId = request.getExtDataInString("profileId");
+        String profileId = request.getExtDataInString(IRequest.PROFILE_ID);
 
         if (profileId != null && !profileId.equals("")) {
             byte[] certKeyData = request.getExtDataInByteArray(IEnrollProfile.REQUEST_KEY);
@@ -822,7 +822,7 @@ public class EnrollmentService implements IService {
     private String getOwnerName(IRequest request, int i)
             throws EBaseException {
 
-        String profileId = request.getExtDataInString("profileId");
+        String profileId = request.getExtDataInString(IRequest.PROFILE_ID);
 
         if (profileId != null && !profileId.equals("")) {
             CertificateSubjectName sub = request.getExtDataInCertSubjectName(

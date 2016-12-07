@@ -89,6 +89,8 @@ public interface IRequest extends Serializable {
     // extdata, with key ("auth_token." + field_name).
     public static final String AUTH_TOKEN_PREFIX = "auth_token";
 
+    public static final String PROFILE_ID = "profileId";
+
     public static final String RESULT = "Result"; // service result.
     public static final Integer RES_SUCCESS = Integer.valueOf(1); // result value
     public static final Integer RES_ERROR = Integer.valueOf(2); // result value

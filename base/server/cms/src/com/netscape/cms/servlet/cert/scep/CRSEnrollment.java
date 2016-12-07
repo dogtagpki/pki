@@ -1622,7 +1622,7 @@ public class CRSEnrollment extends HttpServlet {
             // set transaction id
             reqs[0].setSourceId(req.getTransactionID());
             reqs[0].setExtData("profile", "true");
-            reqs[0].setExtData("profileId", mProfileId);
+            reqs[0].setExtData(IRequest.PROFILE_ID, mProfileId);
             reqs[0].setExtData(IEnrollProfile.CTX_CERT_REQUEST_TYPE, IEnrollProfile.REQ_TYPE_PKCS10);
             reqs[0].setExtData(IEnrollProfile.CTX_CERT_REQUEST, pkcs10blob);
             reqs[0].setExtData("requestor_name", "");
@@ -1734,7 +1734,7 @@ public class CRSEnrollment extends HttpServlet {
 
         RequestStatus status = pkiReq.getRequestStatus();
 
-        String profileId = pkiReq.getExtDataInString("profileId");
+        String profileId = pkiReq.getExtDataInString(IRequest.PROFILE_ID);
         if (profileId != null) {
             CMS.debug("CRSEnrollment: Found profile request");
             X509CertImpl cert =

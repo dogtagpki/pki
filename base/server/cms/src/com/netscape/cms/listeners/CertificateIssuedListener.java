@@ -180,7 +180,7 @@ public class CertificateIssuedListener implements IRequestListener {
         CMS.debug("CertificateIssuedListener: accept check status ");
 
         // check if it is profile request
-        String profileId = r.getExtDataInString("profileId");
+        String profileId = r.getExtDataInString(IRequest.PROFILE_ID);
 
         // check if request failed.
         if (profileId == null) {

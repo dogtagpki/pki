@@ -307,7 +307,7 @@ public class ConnectorServlet extends CMSServlet {
     }
 
     public static boolean isProfileRequest(IRequest request) {
-        String profileId = request.getExtDataInString("profileId");
+        String profileId = request.getExtDataInString(IRequest.PROFILE_ID);
 
         if (profileId == null || profileId.equals(""))
             return false;
@@ -369,7 +369,7 @@ public class ConnectorServlet extends CMSServlet {
                     e.toString());
         }
 
-        String profileId = request.getExtDataInString("profileId");
+        String profileId = request.getExtDataInString(IRequest.PROFILE_ID);
         IProfileSubsystem ps = (IProfileSubsystem)
                 CMS.getSubsystem("profile");
         IEnrollProfile profile = null;

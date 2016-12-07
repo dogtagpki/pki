@@ -140,7 +140,7 @@ public class CertRequestDAO extends CMSRequestDAO {
         if (request == null) {
             return null;
         }
-        String profileId = request.getExtDataInString("profileId");
+        String profileId = request.getExtDataInString(IRequest.PROFILE_ID);
         IProfile profile = ps.getProfile(profileId);
         CertReviewResponse info = CertReviewResponseFactory.create(request, profile, uriInfo, locale);
 

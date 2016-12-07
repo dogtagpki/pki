@@ -206,7 +206,7 @@ public class ProfileReviewServlet extends ProfileServlet {
             return;
         }
 
-        String profileId = req.getExtDataInString("profileId");
+        String profileId = req.getExtDataInString(IRequest.PROFILE_ID);
 
         CMS.debug("ProfileReviewServlet: requestId=" +
                 requestId + " profileId=" + profileId);

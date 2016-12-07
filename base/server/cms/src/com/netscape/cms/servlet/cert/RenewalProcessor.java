@@ -211,7 +211,7 @@ public class RenewalProcessor extends CertProcessor {
                 throw new EBaseException(CMS.getUserMessage(locale, "CMS_INTERNAL_ERROR"));
             }
 
-            String profileId = origReq.getExtDataInString("profileId");
+            String profileId = origReq.getExtDataInString(IRequest.PROFILE_ID);
             CMS.debug("RenewalSubmitter: renewal original profileId=" + profileId);
 
             String aidString = origReq.getExtDataInString(

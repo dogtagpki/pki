@@ -76,7 +76,6 @@ public class CAProcessor extends Processor {
     public final static String HDR_LANG = "accept-language";
     public final static String ARG_PROFILE = "profile";
     public final static String ARG_REQUEST_NOTES = "requestNotes";
-    public final static String ARG_PROFILE_ID = "profileId";
     public final static String ARG_RENEWAL_PROFILE_ID = "rprofileId";
     public final static String ARG_PROFILE_IS_ENABLED = "profileIsEnable";
     public final static String ARG_PROFILE_IS_VISIBLE = "profileIsVisible";

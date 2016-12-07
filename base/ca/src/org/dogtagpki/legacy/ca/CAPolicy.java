@@ -82,7 +82,7 @@ public class CAPolicy implements IPolicy {
     }
 
     public boolean isProfileRequest(IRequest request) {
-        String profileId = request.getExtDataInString("profileId");
+        String profileId = request.getExtDataInString(IRequest.PROFILE_ID);
 
         if (profileId == null || profileId.equals(""))
             return false;
@@ -110,7 +110,7 @@ public class CAPolicy implements IPolicy {
             CMS.debug("CAPolicy: requestId=" +
                     r.getRequestId().toString());
 
-            String profileId = r.getExtDataInString("profileId");
+            String profileId = r.getExtDataInString(IRequest.PROFILE_ID);
 
             if (profileId == null || profileId.equals("")) {
                 return PolicyResult.REJECTED;

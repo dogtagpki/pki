@@ -198,7 +198,7 @@ public class RequestInQListener implements IRequestListener {
                 mConfig.getName());
         Object val = null;
 
-        String profileId = r.getExtDataInString("profileId");
+        String profileId = r.getExtDataInString(IRequest.PROFILE_ID);
 
         if (profileId == null) {
             val = r.getExtDataInString(IRequest.HTTP_PARAMS, "csrRequestorEmail");

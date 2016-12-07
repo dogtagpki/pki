@@ -71,7 +71,7 @@ public class RequestProcessor extends CertProcessor {
         HttpServletRequest req = cmsReq.getHttpReq();
         IRequest ireq = cmsReq.getIRequest();
 
-        String profileId = ireq.getExtDataInString("profileId");
+        String profileId = ireq.getExtDataInString(IRequest.PROFILE_ID);
         IProfile profile = ps.getProfile(profileId);
         CertReviewResponse data = CertReviewResponseFactory.create(
                 cmsReq, profile, authority.noncesEnabled(), locale);
@@ -134,7 +134,7 @@ public class RequestProcessor extends CertProcessor {
             // save auth token in request
             saveAuthToken(authToken, req);
 
-            String profileId = req.getExtDataInString("profileId");
+            String profileId = req.getExtDataInString(IRequest.PROFILE_ID);
             if (profileId == null || profileId.equals("")) {
                 CMS.debug("RequestProcessor: Profile Id not found in request");
                 throw new EBaseException(CMS.getUserMessage(locale, "CMS_PROFILE_ID_NOT_FOUND"));

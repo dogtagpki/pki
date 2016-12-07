@@ -339,7 +339,7 @@ public class CertProcessor extends CAProcessor {
 
             // put profile framework parameters into the request
             req.setExtData(ARG_PROFILE, "true");
-            req.setExtData(ARG_PROFILE_ID, profileId);
+            req.setExtData(IRequest.PROFILE_ID, profileId);
             if (isRenewal)
                 req.setExtData(ARG_RENEWAL_PROFILE_ID, data.getProfileId());
             req.setExtData(ARG_PROFILE_APPROVED_BY, profile.getApprovedBy());

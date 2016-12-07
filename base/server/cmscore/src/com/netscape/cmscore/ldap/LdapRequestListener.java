@@ -181,7 +181,7 @@ class LdapEnrollmentListener implements IRequestListener {
                 "LdapRequestListener handling publishing for enrollment request id " +
                         r.getRequestId());
 
-        String profileId = r.getExtDataInString("profileId");
+        String profileId = r.getExtDataInString(IRequest.PROFILE_ID);
 
         if (profileId == null) {
             // in case it's not meant for us

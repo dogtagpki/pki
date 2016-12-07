@@ -308,7 +308,7 @@ public class CAService implements ICAService, IService {
     }
 
     public boolean isProfileRequest(IRequest request) {
-        String profileId = request.getExtDataInString("profileId");
+        String profileId = request.getExtDataInString(IRequest.PROFILE_ID);
 
         if (profileId == null || profileId.equals(""))
             return false;
@@ -325,7 +325,7 @@ public class CAService implements ICAService, IService {
         CMS.debug("CAService: serviceProfileRequest requestId=" +
                 request.getRequestId().toString());
 
-        String profileId = request.getExtDataInString("profileId");
+        String profileId = request.getExtDataInString(IRequest.PROFILE_ID);
 
         if (profileId == null || profileId.equals("")) {
             throw new EBaseException("profileId not found");

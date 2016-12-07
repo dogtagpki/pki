@@ -94,7 +94,7 @@ public class ProfileProcessServlet extends ProfileServlet {
             return;
         }
 
-        String profileId = req.getExtDataInString("profileId");
+        String profileId = req.getExtDataInString(IRequest.PROFILE_ID);
         if (profileId == null || profileId.equals("")) {
             CMS.debug("ProfileProcessServlet: Profile Id not found");
             setError(args, CMS.getUserMessage(locale, "CMS_PROFILE_ID_NOT_FOUND",CMSTemplate.escapeJavaScriptStringHTML(profileId)), request, response);
