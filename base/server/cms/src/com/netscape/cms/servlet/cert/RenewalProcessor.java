@@ -18,8 +18,8 @@
 package com.netscape.cms.servlet.cert;
 
 import java.math.BigInteger;
-import java.security.cert.X509Certificate;
 import java.security.Principal;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Enumeration;
@@ -155,13 +155,11 @@ public class RenewalProcessor extends CertProcessor {
                     String value = attribute.getValue();
                     CMS.debug("RenewalProcessor: profile input " + SerialNumRenewInput.SERIAL_NUM + " value: " + value);
 
-                    if (StringUtils.isEmpty(value)) {
-                        throw new BadRequestException("Missing attribute value for " + SerialNumRenewInput.SERIAL_NUM + " in input " + inputId);
+                    if (!StringUtils.isEmpty(value)) {
+                        serial = new CertId(value);
+                        certSerial = serial.toBigInteger();
+                        break;
                     }
-
-                    serial = new CertId(value);
-                    certSerial = serial.toBigInteger();
-                    break;
                 }
             }
 
