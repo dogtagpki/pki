@@ -76,7 +76,6 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
      *
      */
     private static final long serialVersionUID = -8017841111435988197L;
-    private static final String ARG_AUTH_TOKEN = "auth_token";
     private static final String PROP_PROFILE_ID = "profileId";
 
     private String mProfileId = null;
@@ -545,14 +544,17 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                     String[] vals = authToken.getInStringArray(tokenName);
                     if (vals != null) {
                         for (int i = 0; i < vals.length; i++) {
-                            reqs[k].setExtData(ARG_AUTH_TOKEN + "." +
-                                    tokenName + "[" + i + "]", vals[i]);
+                            reqs[k].setExtData(
+                                IRequest.AUTH_TOKEN_PREFIX
+                                    + "." + tokenName + "[" + i + "]",
+                                vals[i]);
                         }
                     } else {
                         String val = authToken.getInString(tokenName);
                         if (val != null) {
-                            reqs[k].setExtData(ARG_AUTH_TOKEN + "." + tokenName,
-                                    val);
+                            reqs[k].setExtData(
+                                IRequest.AUTH_TOKEN_PREFIX + "." + tokenName,
+                                val);
                         }
                     }
                 }

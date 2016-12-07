@@ -310,12 +310,17 @@ public class CertProcessor extends CAProcessor {
                     String[] tokenVals = authToken.getInStringArray(tokenName);
                     if (tokenVals != null) {
                         for (int i = 0; i < tokenVals.length; i++) {
-                            req.setExtData(ARG_AUTH_TOKEN + "." + tokenName + "[" + i + "]", tokenVals[i]);
+                            req.setExtData(
+                                IRequest.AUTH_TOKEN_PREFIX
+                                    + "." + tokenName + "[" + i + "]"
+                                , tokenVals[i]);
                         }
                     } else {
                         String tokenVal = authToken.getInString(tokenName);
                         if (tokenVal != null) {
-                            req.setExtData(ARG_AUTH_TOKEN + "." + tokenName, tokenVal);
+                            req.setExtData(
+                                IRequest.AUTH_TOKEN_PREFIX + "." + tokenName,
+                                tokenVal);
                             // if RA agent, auto assign the request
                             if (tokenName.equals("uid"))
                                 uid = tokenVal;

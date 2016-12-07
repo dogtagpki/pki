@@ -72,7 +72,6 @@ import netscape.security.x509.X509CertImpl;
 
 public class CAProcessor extends Processor {
 
-    public final static String ARG_AUTH_TOKEN = "auth_token";
     public final static String ARG_REQUEST_OWNER = "requestOwner";
     public final static String HDR_LANG = "accept-language";
     public final static String ARG_PROFILE = "profile";
