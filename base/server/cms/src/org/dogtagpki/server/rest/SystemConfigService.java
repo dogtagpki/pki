@@ -34,6 +34,8 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.UriInfo;
 
+import netscape.security.x509.X509CertImpl;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.mutable.MutableBoolean;
 import org.mozilla.jss.CryptoManager;
@@ -65,8 +67,6 @@ import com.netscape.cms.servlet.csadmin.ConfigurationUtils;
 import com.netscape.cms.servlet.csadmin.SystemCertDataFactory;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Utils;
-
-import netscape.security.x509.X509CertImpl;
 
 /**
  * @author alee
@@ -453,8 +453,8 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         } else if (!request.getStepTwo()) {
             if (keytype.equals("ecc")) {
-                String curvename = certData.getKeyCurveName() != null ?
-                        certData.getKeyCurveName() : cs.getString("keys.ecc.curve.default");
+                String curvename = certData.getKeySize() != null ?
+                        certData.getKeySize() : cs.getString("keys.ecc.curve.default");
                 cs.putString("preop.cert." + tag + ".curvename.name", curvename);
                 ConfigurationUtils.createECCKeyPair(token, curvename, cs, tag);
 
