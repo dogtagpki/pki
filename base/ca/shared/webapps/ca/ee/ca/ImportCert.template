@@ -135,12 +135,6 @@ if (navigator.appName == 'Netscape' && (navMajorVersion() > 3) &&
 </SCRIPT>
 
 <!--
-<OBJECT
-	classid="clsid:127698e4-e730-4e5c-a2b1-21490a70c8a1"
-	CODEBASE="/xenroll.dll"
-	id=Enroll    >
-</OBJECT>
-
 <OBJECT id='g_objClassFactory' CLASSID='clsid:884e2049-217d-11da-b2a4-000e7bbb2b09'>
 </OBJECT>
 -->
@@ -148,11 +142,7 @@ if (navigator.appName == 'Netscape' && (navMajorVersion() > 3) &&
 <SCRIPT LANGUAGE="JavaScript">
 //<!--
 if (navigator.appName == "Microsoft Internet Explorer") {
-  if ((navigator.appVersion).indexOf("NT 6.") > -1) {
-    document.writeln("<OBJECT id='g_objClassFactory' CLASSID='clsid:884e2049-217d-11da-b2a4-000e7bbb2b09'></OBJECT>");
-  } else {
-    document.writeln("<OBJECT classid='clsid:127698e4-e730-4e5c-a2b1-21490a70c8a1' CODEBASE='/xenroll.dll' id='Enroll'></OBJECT>");
-  }
+  document.writeln("<OBJECT id='g_objClassFactory' CLASSID='clsid:884e2049-217d-11da-b2a4-000e7bbb2b09'></OBJECT>");
 }
 //-->
 </SCRIPT>
@@ -168,38 +158,12 @@ if (navigator.appName == "Microsoft Internet Explorer") {
 '
 '========================================================
 
-        'Get OS Version, works for Vista and below only
-        Function GetOSVersion
-               dim agent
-               dim res
-               dim pos
-
-               agent = Navigator.appVersion
-               pos = InStr(agent,"NT 6.")
-
-               If pos > 0 Then
-                  GetOSVersion = 6
-                  Exit Function
-               End If
-
-               pos = InStr(agent,"NT 5.")
-
-               If pos > 0 Then
-                  GetOSVersion = 5
-                  Exit Function
-               End If
-
-               GetOSVersion = 5
-        End Function
-
 	'Sub ImportCertificate
 	Sub ImportCertificate (pkcs7)
 		'Dim pkcs7
                 Dim res
-                Dim osVersion
 
 		On Error Resume Next
-                osVersion = GetOSVersion()
                  
 		'Convert the cert to PKCS7 format
 		'pkcs7 = result.header.pkcs7ChainBase64
@@ -209,42 +173,22 @@ if (navigator.appName == "Microsoft Internet Explorer") {
 			Exit Sub
 		End If
 
-                If osVersion <> 6 Then  'Not Vista
+                Dim enrollObj
 
-		  'Import the PKCS7 object
-		  Enroll.DeleteRequestCert = FALSE
-		  Enroll.WriteCertToCSP = true
-		  Enroll.acceptPKCS7(pkcs7)
-		  if err.number <> 0 then
-			Enroll.WriteCertToCSP = false
-		  end if
-		  err.clear
-		  Enroll.acceptPKCS7(pkcs7)
-		  if err.number = 0 then
-			MsgBox "Certificate has been successfully imported."
-		  else 
-			sz = "Error in acceptPKCS7. Error Number " & Hex(err.number) & "occurred."
-			MsgBox sz
-		  end if
-		  Exit Sub
-                Else  'Vista
-                  Dim enrollObj
+                Set enrollObj = g_objClassFactory.CreateObject("X509Enrollment.CX509Enrollment")
+                If IsObject(enrollObj) =  False Then
+                  res = MsgBox("Can't create Enroll Object!")
+                  Exit Sub
+                End If
 
-                  Set enrollObj = g_objClassFactory.CreateObject("X509Enrollment.CX509Enrollment")
-		  If IsObject(enrollObj) =  False Then
-                    res = MsgBox("Can't create Enroll Object!")
-                    Exit Sub
-                  End If
+                enrollObj.Initialize(1)
+                enrollObj.InstallResponse 0,pkcs7,6,""
 
-                  enrollObj.Initialize(1)
-                  enrollObj.InstallResponse 0,pkcs7,6,""
-
-                  If Err.number <> 0 Then
-                    sz = "Error in InstallResponse. Error Number " & Hex(err.number) & " occurred."
-                    res =MsgBox(sz & Err.description)
-                  else
-                    res = MsgBox("Certificate has been successfully imported.")
-                  End If
+                If Err.number <> 0 Then
+                  sz = "Error in InstallResponse. Error Number " & Hex(err.number) & " occurred."
+                  res =MsgBox(sz & Err.description)
+                else
+                  res = MsgBox("Certificate has been successfully imported.")
                 End If
 	End Sub
 

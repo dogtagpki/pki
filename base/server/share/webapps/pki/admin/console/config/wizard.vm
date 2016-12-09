@@ -106,11 +106,6 @@ function process(fop) {
   <h1><img alt="" src="/pki/images/icon-software.gif" />
   $title </h1>
 
-<OBJECT classid="clsid:127698E4-E730-4E5C-A2b1-21490A70C8A1"
-    codebase="xenroll.dll"
-    id=Enroll >
-</OBJECT>
-
 <form name=f method=post action="wizard">
 <input type=hidden name=p value="$p">
 

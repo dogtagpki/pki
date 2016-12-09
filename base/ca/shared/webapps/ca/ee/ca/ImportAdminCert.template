@@ -21,10 +21,6 @@
 <TITLE>VBScript Administrator Certificate Enrollment
 </TITLE>
 <CMS_TEMPLATE>
-<OBJECT classid="clsid:127698E4-E730-4E5C-A2b1-21490A70C8A1"
-    codebase="xenroll.dll"
-    id=Enroll >
-</OBJECT>
 <SCRIPT language="VBScript">
 <!--
                 Dim pkcs7

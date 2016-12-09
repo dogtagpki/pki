@@ -250,8 +250,7 @@ function keyTypeOptions (keyPurpose)
   if (keyFound == 0) {
     keyType = "RSA";
   }
-  if ((isIE()) &&
-      ((navigator.appVersion).indexOf("NT 6.") == -1)) {
+  if (isIE()) {
     keyType = "RSA";
   }
 
@@ -312,8 +311,7 @@ function keyLengthsCurvesOptions (keyPurpose)
       }
     }
   }
-  if ((isIE()) &&
-      ((navigator.appVersion).indexOf("NT 6.") == -1)) {
+  if (isIE()) {
     keyType = "RSA";
   }
 
@@ -524,11 +522,7 @@ function setCRMFRequest()
     }
   }
   if (isIE()) {
-    if ((navigator.appVersion).indexOf("NT 6.") > -1) {
-      document.writeln("<OBJECT id='g_objClassFactory' CLASSID='clsid:884e2049-217d-11da-b2a4-000e7bbb2b09'></OBJECT>");
-    } else {
-      document.writeln("<OBJECT classid='clsid:127698e4-e730-4e5c-a2b1-21490a70c8a1' CODEBASE='/xenroll.dll' id='Enroll'></OBJECT>");
-    }
+    document.writeln("<OBJECT id='g_objClassFactory' CLASSID='clsid:884e2049-217d-11da-b2a4-000e7bbb2b09'></OBJECT>");
     document.writeln('<form name="ReqForm" onSubmit="if (checkRequest()) {return true;} else {window.location.reload(); return false;}" method="post" action="' + uri + '">');
   } else if (typeof(crypto) != "undefined" && typeof(crypto.version) != "undefined") {
     document.writeln('<form name="ReqForm" onSubmit="return validate();" method="post" action="' + uri + '">');
@@ -539,36 +533,10 @@ function setCRMFRequest()
 
 <SCRIPT LANGUAGE=VBS>
 <!--
-'Get OS Version, works for Vista and below only
-Function GetOSVersion
-  dim agent
-  dim result
-  dim pos
-
-  agent = Navigator.appVersion
-  pos = InStr(agent,"NT 6.")
-
-  If pos > 0 Then
-    GetOSVersion = 6 ' Vista
-    Exit Function
-  End If
-
-  pos = InStr(agent,"NT 5.")
-
-  If pos > 0 Then
-    GetOSVersion = 5  ' XP etc
-    Exit Function
-  End If
-
-' Default
-  GetOSVersion = 5
-End Function
-
 Function checkRequest
   Dim TheForm
   Dim szName
   Dim options
-  Dim osVersion
   Dim result
   Dim keyLen
   Dim keyParameter
@@ -586,141 +554,89 @@ Function checkRequest
     keyParameter = TheForm.all.keyLength.options(keyIndex).value
   End If
 
-  osVersion = GetOSVersion()
+  Dim enrollment
+  Dim privateKey
+  Dim request
+  Dim csr
+  Dim objDN
 
-  If osVersion <> 6 Then 'Not Vista
-
-  ' Contruct the X500 distinguished name
-  szName = "CN=NAME"
+  'certUsage is "1.3.6.1.5.5.7.3.2"
 
   On Error Resume Next
-  Enroll.HashAlgorithm = "MD5"
-  Enroll.KeySpec = 1
+  'CreateObject("X509Enrollment.CX509EnrollmentWebClassFactory")
 
-   ' Pick the provider that is selected
-   set options = TheForm.all.cryptprovider.options
-   index = options.selectedIndex
-   Enroll.providerType = options(index).value
-   Enroll.providerName = options(index).text
-
-   ' adding 2 to "GenKeyFlags" will  enable the 'High Security'
-   ' (USER_PROTECTED) mode, which means IE will pop up a dialog
-   ' asking what level of protection you would like to give
-   ' the key - this varies from 'none' to 'confirm password
-   ' every time the key is used'
-   ' Enroll.GenKeyFlags = 1        ' key PKCS12-exportable
-  Enroll.GenKeyFlags = (65536 * (CLng(keyLen))) + 1
-  szCertReq = Enroll.createPKCS10(szName, "1.3.6.1.5.5.7.3.2")
-  theError = Err.Number
-  On Error Goto 0
-  '
-  ' If the user has cancelled things the we simply ignore whatever
-  ' they were doing ... need to think what should be done here
-  '
-  If (szCertReq = Empty AND theError = 0) Then
+  If IsObject(g_objClassFactory) = False Then
+    result = MsgBox("Can't create Factory Object "  & " Error: " & Err.number & " :" & Err.description,0,"")
     Exit Function
   End If
 
-  If (szCertReq = Empty OR theError <> 0) Then
-    '
-    ' There was an error in the key pair generation. The error value
-    ' is found in the variable 'theError' which we snarfed above before
-    ' we did the 'On Error Goto 0' which cleared it again.
-    '
-    sz = "The error '" & Hex(theError) & "' occurred." & chr(13) & chr(10) & "Your credentials could not be generated."
-    result = MsgBox(sz, 0, "Credentials Enrollment")
+  Set enrollment = g_objClassFactory.CreateObject("X509Enrollment.CX509Enrollment")
+
+  If IsObject(enrollment) = False Then
+    result = MsgBox("Can't create enroll Object! "  & " Error: " & Err.number & " :" & Err.description,"")
     Exit Function
   End If
 
-  TheForm.cert_request.Value = szCertReq
+  Set privateKey = g_objClassFactory.CreateObject("X509Enrollment.CX509PrivateKey")
 
-  ' TheForm.Submit
+  If IsObject(privateKey) = False Then
+    result = MsgBox("Can't create Key Object! " & " Error: " & Err.number & " :" & Err.description,0,"")
+    Exit Function
+  End If
 
-  Else 'Vista
-    Dim enrollment
-    Dim privateKey
-    Dim request
-    Dim csr
-    Dim objDN
+  Set request = g_objClassFactory.CreateObject("X509Enrollment.CX509CertificateRequestPkcs10")
 
-    'certUsage is "1.3.6.1.5.5.7.3.2"
+  If IsObject(request) = False Then
+    result = MsgBox("Can't create Request Object. ! " & " Error: " & Err.number & " :" & Err.description,0,"")
+    Exit Function
+  End If
 
-    On Error Resume Next
-    'CreateObject("X509Enrollment.CX509EnrollmentWebClassFactory")
-
-    If IsObject(g_objClassFactory) = False Then
-      result = MsgBox("Can't create Factory Object "  & " Error: " & Err.number & " :" & Err.description,0,"")
-      Exit Function
-    End If
-
-    Set enrollment = g_objClassFactory.CreateObject("X509Enrollment.CX509Enrollment")
-
-    If IsObject(enrollment) = False Then
-      result = MsgBox("Can't create enroll Object! "  & " Error: " & Err.number & " :" & Err.description,"")
-      Exit Function
-    End If
-
-    Set privateKey = g_objClassFactory.CreateObject("X509Enrollment.CX509PrivateKey")
-
-    If IsObject(privateKey) = False Then
-      result = MsgBox("Can't create Key Object! " & " Error: " & Err.number & " :" & Err.description,0,"")
-      Exit Function
-    End If
-
-    Set request = g_objClassFactory.CreateObject("X509Enrollment.CX509CertificateRequestPkcs10")
-
-    If IsObject(request) = False Then
-      result = MsgBox("Can't create Request Object. ! " & " Error: " & Err.number & " :" & Err.description,0,"")
-      Exit Function
-    End If
-
-    Set algobj = g_objClassFactory.CreateObject( "X509Enrollment.CObjectId" )
-    If IsObject(algobj) = False Then
-      result = MsgBox("Can't create OID Object. ! " & " Error: " & Err.number & " :" & Err.description,0,"")
-      Exit Function
-    End If
-    algobj.InitializeFromAlgorithmName XCN_CRYPT_ANY_GROUP_ID, XCN_CRYPT_OID_INFO_PUBKEY_ANY, AlgorithmFlagsNone, keyParameter
-    privateKey.Algorithm = algobj
+  Set algobj = g_objClassFactory.CreateObject( "X509Enrollment.CObjectId" )
+  If IsObject(algobj) = False Then
+    result = MsgBox("Can't create OID Object. ! " & " Error: " & Err.number & " :" & Err.description,0,"")
+    Exit Function
+  End If
+  algobj.InitializeFromAlgorithmName XCN_CRYPT_ANY_GROUP_ID, XCN_CRYPT_OID_INFO_PUBKEY_ANY, AlgorithmFlagsNone, keyParameter
+  privateKey.Algorithm = algobj
 
 
-    privateKey.KeySpec= "1" 
+  privateKey.KeySpec= "1" 
   ' Allows key to be exported.
-    privateKey.ExportPolicy = "1"
+  privateKey.ExportPolicy = "1"
 
   ' Pick the provider that is selected
-    set options = TheForm.all.cryptprovider.options
-    index = options.selectedIndex
-    privateKey.ProviderType = index
-    privateKey.ProviderName = options(index).text
-    If keyLen > 0 Then
-      privateKey.Length = keyLen
-    End If
-
-    szName = "0.9.2342.19200300.100.1.1=" & TheForm.uid.Value & ",E=" & TheForm.email.Value & ",CN=" & TheForm.cn.Value
-
-    Set objDN = g_objClassFactory.CreateObject("X509Enrollment.CX500DistinguishedName")
-
-    If IsObject(objDN) = False Then
-      result = MsgBox("Can't create DN Object. ! " & " Error: " & Err.number & " :" & Err.description,0,"")
-      Exit Function
-    End If
-
-    objDN.Encode szName,0
-
-    request.InitializeFromPrivateKey 1,privateKey,""
-    request.Subject = objDN
-
-    enrollment.InitializeFromRequest(request)
-    csr=enrollment.CreateRequest(1)
-
-    If len(csr) = 0 Then
-      result = MsgBox("Error Creating Request! "& " Error: " & Err.number & " :" & Err.description,0,"")
-      Exit Function
-    End If
-
-    TheForm.cert_request.Value = csr 
- 
+  set options = TheForm.all.cryptprovider.options
+  index = options.selectedIndex
+  privateKey.ProviderType = index
+  privateKey.ProviderName = options(index).text
+  If keyLen > 0 Then
+    privateKey.Length = keyLen
   End If
+
+  szName = "0.9.2342.19200300.100.1.1=" & TheForm.uid.Value & ",E=" & TheForm.email.Value & ",CN=" & TheForm.cn.Value
+
+  Set objDN = g_objClassFactory.CreateObject("X509Enrollment.CX500DistinguishedName")
+
+  If IsObject(objDN) = False Then
+    result = MsgBox("Can't create DN Object. ! " & " Error: " & Err.number & " :" & Err.description,0,"")
+    Exit Function
+  End If
+
+  objDN.Encode szName,0
+
+  request.InitializeFromPrivateKey 1,privateKey,""
+  request.Subject = objDN
+
+  enrollment.InitializeFromRequest(request)
+  csr=enrollment.CreateRequest(1)
+
+  If len(csr) = 0 Then
+    result = MsgBox("Error Creating Request! "& " Error: " & Err.number & " :" & Err.description,0,"")
+    Exit Function
+  End If
+
+  TheForm.cert_request.Value = csr 
+ 
   checkRequest = True
 End Function
 
@@ -988,105 +904,61 @@ Function FindProviders
 	On Error Resume Next
 	first = 0
 
-        Dim osVersion
         Dim result
-        osVersion = GetOSVersion()
+        Dim csps 
+        Set csps = g_objClassFactory.CreateObject("X509Enrollment.CCspInformations")
+        If IsObject(csps) = False Then
+           result = MsgBox("Can't create CSP List Object! " & " Error: " & Err.number & " :" & Err.description,0,"")
+           Exit Function
 
-        If osVersion <> 6 Then 'Not Vista
-	  Do While True
-	  temp = ""
-	  Enroll.providerType = j
-	  temp = Enroll.enumProviders(i,0)
-	  If Len(temp) = 0 Then
-	  If j < 1 Then 
-	    j = j + 1
-	    i = 0 
-	  Else
-	    Exit Do
-	  End If
-	  Else
-	  set el = document.createElement("OPTION")
-	  el.text = temp
-	  el.value = j 
-          If temp = "Microsoft Base Cryptographic Provider v1.0" Then
-            first = i
-          End If
-          If temp = "Microsoft Strong Cryptographic Provider" Then
-            firstS = i
-          End If
-          If temp = "Microsoft Enhanced Cryptographic Provider v1.0" Then
-            firstE = i
-          End If
-	  TheForm.cryptprovider.add(el)
-	  If firstE > 0  Then
-	    TheForm.cryptprovider.selectedIndex = firstE
-	  ElseIf firstS > 0  Then
-	    TheForm.cryptprovider.selectedIndex = firstS
-	  ElseIf first > 0  Then
-	    TheForm.cryptprovider.selectedIndex = first
-	  Else
-	    first = 1
-	    TheForm.cryptprovider.selectedIndex = 0
-	  End If
-	  i = i + 1
-	  End If
-	  Loop
-        Else 'Vista
-            Dim csps 
-            Set csps = g_objClassFactory.CreateObject("X509Enrollment.CCspInformations")
-            If IsObject(csps) = False Then
-               result = MsgBox("Can't create CSP List Object! " & " Error: " & Err.number & " :" & Err.description,0,"")
-               Exit Function
+        End If
+        csps.AddAvailableCsps()
+        'result = MsgBox(csps.Count,0,"Number of CSPS")
 
-            End If
-            csps.AddAvailableCsps()
-            'result = MsgBox(csps.Count,0,"Number of CSPS")
+        Dim curName
+        Dim csp
+        Dim selected 
+        Dim selectedS 
+        Dim selectedE 
+        Dim selectedEC 
+        selected = -1
+        selectedS = -1
+        selectedE = -1
+        selectedEC = -1
+        For i = 0 to csps.Count-1
 
-            Dim curName
-            Dim csp
-            Dim selected 
-            Dim selectedS 
-            Dim selectedE 
-            Dim selectedEC 
-            selected = -1
-            selectedS = -1
-            selectedE = -1
-            selectedEC = -1
-            For i = 0 to csps.Count-1
-               
-                curName = csps.ItemByIndex(i).Name
-                If len(curName) > 0 Then
-                  Set csp = document.createElement("OPTION")
-                  csp.text = curName
-                  csp.value = 1
-                  TheForm.cryptprovider.add(csp)
+            curName = csps.ItemByIndex(i).Name
+            If len(curName) > 0 Then
+              Set csp = document.createElement("OPTION")
+              csp.text = curName
+              csp.value = 1
+              TheForm.cryptprovider.add(csp)
 
-                  If curName = "Microsoft Base Cryptographic Provider v1.0" Then
-                    selected = i
-                  End If
-                  If curName = "Microsoft Strong Cryptographic Provider" Then
-                    selectedS = i
-                  End If
-                  If curName = "Microsoft Enhanced Cryptographic Provider v1.0" Then
-                    selectedE = i
-                  End If
-                  If curName = "Microsoft Software Key Storage Provider" Then
-                    selectedEC = i
-                  End If
-                  'result = MsgBox(curName,0,"")
-                End If 
-            Next
-            If selectedEC >= 0  Then
-              TheForm.cryptprovider.selectedIndex = selectedEC
-            ElseIf selectedE >= 0  Then
-              TheForm.cryptprovider.selectedIndex = selectedE
-            ElseIf selectedS >= 0  Then
-              TheForm.cryptprovider.selectedIndex = selectedS
-            ElseIf selected >= 0  Then
-              TheForm.cryptprovider.selectedIndex = selected
-            Else
-              TheForm.cryptprovider.selectedIndex = 0
-            End If
+              If curName = "Microsoft Base Cryptographic Provider v1.0" Then
+                selected = i
+              End If
+              If curName = "Microsoft Strong Cryptographic Provider" Then
+                selectedS = i
+              End If
+              If curName = "Microsoft Enhanced Cryptographic Provider v1.0" Then
+                selectedE = i
+              End If
+              If curName = "Microsoft Software Key Storage Provider" Then
+                selectedEC = i
+              End If
+              'result = MsgBox(curName,0,"")
+            End If 
+        Next
+        If selectedEC >= 0  Then
+          TheForm.cryptprovider.selectedIndex = selectedEC
+        ElseIf selectedE >= 0  Then
+          TheForm.cryptprovider.selectedIndex = selectedE
+        ElseIf selectedS >= 0  Then
+          TheForm.cryptprovider.selectedIndex = selectedS
+        ElseIf selected >= 0  Then
+          TheForm.cryptprovider.selectedIndex = selected
+        Else
+          TheForm.cryptprovider.selectedIndex = 0
         End If
 End Function
 
