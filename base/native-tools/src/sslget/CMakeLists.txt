@@ -19,7 +19,7 @@ set(sslget_SRCS
 include_directories(${SSLGET_PRIVATE_INCLUDE_DIRS})
 
 add_executable(sslget ${sslget_SRCS})
-
+add_dependencies(sslget setpin)
 target_link_libraries(sslget ${SSLGET_LINK_LIBRARIES})
 
 install(

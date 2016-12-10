@@ -25,7 +25,7 @@ set(setpin_SRCS
 include_directories(${SETPIN_PRIVATE_INCLUDE_DIRS})
 
 add_executable(setpin ${setpin_SRCS})
-
+add_dependencies(setpin revoker)
 target_link_libraries(setpin ${SETPIN_LINK_LIBRARIES})
 
 install(

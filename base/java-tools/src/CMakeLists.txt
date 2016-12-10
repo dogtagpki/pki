@@ -102,7 +102,7 @@ javac(pki-tools-classes
     OUTPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
     DEPENDS
-        pki-nsutil-jar pki-cmsutil-jar pki-certsrv-jar
+        pki-nsutil-jar pki-cmsutil-jar pki-certsrv-jar tkstool
 )
 
 configure_file(

@@ -34,7 +34,7 @@ set(tkstool_SRCS
 include_directories(${TKSTOOL_PRIVATE_INCLUDE_DIRS})
 
 add_executable(tkstool ${tkstool_SRCS})
-add_dependencies(tkstool pki-certsrv-jar)
+add_dependencies(tkstool sslget)
 target_link_libraries(tkstool ${TKSTOOL_LINK_LIBRARIES})
 
 install(

@@ -136,5 +136,5 @@ javac(pki-tomcat-classes
     OUTPUT_DIR
         ${CMAKE_BINARY_DIR}/../../tomcat
     DEPENDS
-        pki-certsrv-jar
+        pki-tools-jar
 )
