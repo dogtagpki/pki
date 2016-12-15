@@ -65,7 +65,7 @@
 
 Name:             pki-core
 Version:          10.3.5
-Release:          7%{?dist}
+Release:          9%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -223,6 +223,30 @@ Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{
 ## pki-core-10.3.5-7
 #Patch5:           pki-core-fedora-post-snapshot-1.patch
 #Patch6:           pki-core-f26-flake8.patch
+## pki-core-10.3.5-8
+##Patch7:           pki-core-two-step-external-CA-authorityID.patch
+##Patch8:           pki-core-compare-serial-DNs-host-authz-check.patch
+##Patch9:           pki-core-KRA-external-CA-partial-cert-chain.patch
+#Patch10:          pki-core-problems-with-FIPS-mode.patch
+##Patch11:          pki-core-eliminate-duplicate-classes-in-jars.patch
+#Patch12:          pki-core-typo-in-UserPwdDirAuthentication.patch
+#Patch13:          pki-core-token-format-external-reg.patch
+#Patch14:          pki-core-encryption-cert-auto-recovery-damaged-token.patch
+#Patch15:          pki-core-pin-reset-policy.patch
+#Patch16:          pki-core-tps-token-setupSecureChannel-fips-mode.patch
+##Patch17:          pki-core-target-agent-approve-list.patch
+#Patch18:          pki-core-KRA-key-recovery-via-CLI-in-FIPS-mode.patch
+## pki-core-10.3.5-9
+#Patch19:          pki-core-user-cert-add-authentication-failure.patch
+#Patch20:          pki-core-ca-cert-request-submit-missing-authentication.patch
+#Patch21:          pki-core-updated-account-info.patch
+#Patch22:          pki-core-subordinate-CA-in-HSM-in-FIPS-mode.patch
+#Patch23:          pki-core-pkispawn-ecc-key-size-change.patch
+#Patch24:          pki-core-log-properties-and-man-pages.patch
+#Patch25:          pki-core-TPS-UI-target-agent-approve-list.patch
+#Patch26:          pki-core-TPS-tokendb-encryption-cert-automatic-recovery.patch
+#Patch27:          pki-core-TPS-format-G-and-D-cards.patch
+
 
 # Obtain version phase number (e. g. - used by "alpha", "beta", etc.)
 #
@@ -866,6 +890,27 @@ This package is a part of the PKI Core used by the Certificate System.
 #%patch4 -p1
 #%patch5 -p1
 #%patch6 -p1
+##%patch7 -p1
+##%patch8 -p1
+##%patch9 -p1
+#%patch10 -p1
+##%patch11 -p1
+#%patch12 -p1
+#%patch13 -p1
+#%patch14 -p1
+#%patch15 -p1
+#%patch16 -p1
+##%patch17 -p1
+#%patch18 -p1
+#%patch19 -p1
+#%patch20 -p1
+#%patch21 -p1
+#%patch22 -p1
+#%patch23 -p1
+#%patch24 -p1
+#%patch25 -p1
+#%patch26 -p1
+#%patch27 -p1
 
 %clean
 %{__rm} -rf %{buildroot}
@@ -1371,6 +1416,51 @@ systemctl daemon-reload
 %endif # %{with server}
 
 %changelog
+* Tue Dec 13 2016 Dogtag Team <pki-devel@redhat.com> 10.3.5-9
+- PKI TRAC Ticket #1517 - user-cert-add --serial CLI request to secure port
+  with remote CA shows authentication failure (edewata)
+- PKI TRAC Ticket #1897 - [MAN] Man page for logging configuration. (edewata)
+- PKI TRAC Ticket #1920 - [MAN] Man page for PKCS #12 utilities (edewata)
+- PKI TRAC Ticket #2226 - KRA installation: NullPointerException in
+  ProxyRealm.findSecurityConstraints (edewata)
+- PKI TRAC Ticket #2289 -  [MAN] pki ca-cert-request-submit fails presumably
+  because of missing authentication even if it should not require any (edewata)
+- PKI TRAC Ticket #2523 - Changes to target.agent.approve.list parameter is
+  not reflected in the TPS Web UI [pki-base] (edewata)
+- PKI TRAC Ticket #2534 - Automatic recovery of encryption cert - CA and TPS
+  tokendb shows different certificate status (cfu)
+- PKI TRAC Ticket #2543 - Unable to install subordinate CA with HSM in FIPS
+  mode (edewata)
+- PKI TRAC Ticket #2544 -  TPS throws "err=6" when attempting to format and
+  enroll G&D Cards (jmagne)
+- PKI TRAC Ticket #2552 - pkispawn does not change default ecc key size from
+  nistp256 when nistp384 is specified in spawn config (jmagne)
+
+* Fri Nov  4 2016 Dogtag Team <pki-devel@redhat.com> 10.3.5-8
+- PKI TRAC Ticket #850 - JSS certificate validation function does not pass up
+  exact errors from NSS (edewata)
+  (Failed to start pki-tomcatd Service - "ipa-cacert-manage renew" failed?)
+- PKI TRAC Ticket #1247 - Better error message when try to renew a certificate
+  that expires outside renewal grace period (alee)
+- PKI TRAC Ticket #1536 - CA EE: Submit caUserCert request without uid does
+  not show proper error message (alee)
+- PKI TRAC Ticket #2460 - Typo in comment line of UserPwdDirAuthentication.java
+  (edewata)
+- PKI TRAC Ticket #2486 - Automatic recovery of encryption cert is not working
+  when a token is physically damaged and a temporary token is issued (jmagne)
+- PKI TRAC Ticket #2498 - Token format with external reg fails when
+  op.format.externalRegAddToToken.revokeCert=true (cfu)
+- PKI TRAC Ticket #2500 - Problems with FIPS mode (edewata)
+- PKI TRAC Ticket #2500 - Problems with FIPS mode (edewata)
+  (added KRA key recovery via CLI in FIPS mode)
+- PKI TRAC Ticket #2510 - PIN_RESET policy is not giving expected results when
+  set on a token (jmagne)
+- PKI TRAC Ticket #2513 - TPS token enrollment fails to setupSecureChannel
+  when TPS and TKS security db is on fips mode. (jmagne)
+- Reverted patches associated with
+  PKI TRAC Ticket #2523 - Changes to target.agent.approve.list parameter is
+  not reflected in the TPS Web UI
+
 * Mon Oct 10 2016 Dogtag Team <pki-devel@redhat.com> 10.3.5-7
 - PKI TRAC Ticket #1527 - TPS Enrollment always goes to "ca1" (cfu)
 - PKI TRAC Ticket #1664 - [BUG] Add ability to disallow TPS to enroll a single
@@ -1440,11 +1530,14 @@ systemctl daemon-reload
 * Mon Aug  8 2016 Dogtag Team <pki-devel@redhat.com> 10.3.5-1
 - Updated version number to 10.3.5-1
 
-* Tue Jul  5 2016 Dogtag Team <pki-devel@redhat.com> 10.3.5-0.1
+* Tue Jul 19 2016 Dogtag Team <pki-devel@redhat.com> 10.3.5-0.1
 - Updated version number to 10.3.5-0.1
 
-* Tue Jul  5 2016 Dogtag Team <pki-devel@redhat.com> 10.3.4-0.1
+* Tue Jul 19 2016 Dogtag Team <pki-devel@redhat.com> 10.3.4-0.1
 - Updated version number to 10.3.4-0.1
+
+* Tue Jul 19 2016 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 10.3.3-4
+- https://fedoraproject.org/wiki/Changes/Automatic_Provides_for_Python_RPM_Packages
 
 * Tue Jul  5 2016 Dogtag Team <pki-devel@redhat.com> 10.3.3-3
 - PKI TRAC Ticket #691  - [MAN] pki-server man pages (mharmsen)
