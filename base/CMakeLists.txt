@@ -1,5 +1,21 @@
 project(base)
 
+find_file(SERVLET_JAR
+    NAMES
+        servlet.jar
+    PATHS
+        /usr/share/java
+)
+
+find_file(JAXRS_API_JAR
+    NAMES
+        jaxrs-api.jar
+        jboss-jaxrs-2.0-api.jar
+    PATHS
+        ${RESTEASY_LIB}
+        /usr/share/java
+)
+
 find_file(SLF4J_API_JAR
     NAMES
         slf4j-api.jar
@@ -14,17 +30,36 @@ find_file(SLF4J_JDK14_JAR
         /usr/share/java/slf4j
 )
 
+find_file(TOMCAT_API_JAR
+    NAMES
+        tomcat-api.jar
+    PATHS
+        /usr/share/java/tomcat
+)
+
+find_file(TOMCAT_CATALINA_JAR
+    NAMES
+        catalina.jar
+    PATHS
+        /usr/share/java/tomcat
+)
+
+find_file(TOMCAT_UTIL_JAR
+    NAMES
+        tomcat-util.jar
+    PATHS
+        /usr/share/java/tomcat
+)
+
+find_file(TOMCAT_UTIL_SCAN_JAR
+    NAMES
+        tomcat-util-scan.jar
+    PATHS
+        /usr/share/java/tomcat
+)
+
 # The order is important!
 if (APPLICATION_FLAVOR_PKI_CORE)
-
-    find_file(JAXRS_API_JAR
-        NAMES
-            jaxrs-api.jar
-            jboss-jaxrs-2.0-api.jar
-        PATHS
-            ${RESTEASY_LIB}
-            /usr/share/java
-    )
 
     add_subdirectory(test)
     add_subdirectory(symkey)

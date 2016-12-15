@@ -44,28 +44,6 @@ find_file(COMMONS_LANG_JAR
         /usr/share/java
 )
 
-find_file(TOMCAT_CATALINA_JAR
-    NAMES
-        catalina.jar
-    PATHS
-        /usr/share/java/tomcat
-)
-
-find_file(TOMCAT_UTIL_JAR
-    NAMES
-        tomcat-util.jar
-    PATHS
-        /usr/share/java/tomcat
-)
-
-find_file(SERVLET_JAR
-    NAMES
-        servlet.jar
-    PATHS
-        ${JAVA_LIB_INSTALL_DIR}
-        /usr/share/java
-)
-
 find_file(VELOCITY_JAR
     NAMES
         velocity.jar

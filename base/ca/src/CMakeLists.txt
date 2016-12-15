@@ -66,21 +66,6 @@ find_file(RESTEASY_ATOM_PROVIDER_JAR
         ${RESTEASY_LIB}
 )
 
-find_file(SERVLET_JAR
-    NAMES
-        servlet.jar
-    PATHS
-        ${JAVA_LIB_INSTALL_DIR}
-        /usr/share/java
-)
-
-find_file(TOMCAT_CATALINA_JAR
-    NAMES
-        catalina.jar
-    PATHS
-        /usr/share/java/tomcat
-)
-
 # build pki-ca
 javac(pki-ca-classes
     SOURCES

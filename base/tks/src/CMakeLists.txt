@@ -89,21 +89,6 @@ find_file(SYMKEY_JAR
         ${JAVA_LIB_INSTALL_DIR}
 )
 
-find_file(SERVLET_JAR
-    NAMES
-        servlet.jar
-    PATHS
-        ${JAVA_LIB_INSTALL_DIR}
-        /usr/share/java
-)
-
-find_file(TOMCAT_CATALINA_JAR
-    NAMES
-        catalina.jar
-    PATHS
-        /usr/share/java/tomcat
-)
-
 # build pki-tks
 javac(pki-tks-classes
     SOURCES
