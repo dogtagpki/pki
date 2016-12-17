@@ -23,6 +23,7 @@ import org.dogtagpki.server.tps.engine.TPSEngine;
 import org.dogtagpki.server.tps.processor.TPSProcessor;
 import org.dogtagpki.tps.apdu.APDU;
 import org.dogtagpki.tps.apdu.APDUResponse;
+import org.dogtagpki.tps.apdu.ClearKeySlotsAPDU;
 import org.dogtagpki.tps.apdu.CreateObjectAPDU;
 import org.dogtagpki.tps.apdu.CreatePinAPDU;
 import org.dogtagpki.tps.apdu.DeleteFileAPDU;
@@ -848,6 +849,38 @@ public class SecureChannel {
 
     public TPSBuffer getKeyInfoData() {
         return keyInfoData;
+    }
+
+    //Call the applet to clear unused key slots
+    /// data is in the fomat of bytes, which is basically the payload of the apdu to be sent
+    // [privateKeyIndex] [publicKeyIndex] ... [final privateKeyIndex] [final publicKeyIndex]
+    public void clearAppletKeySlotData(TPSBuffer data) {
+        String method = "SecureChannel.clearAppletKeySlotData: ";
+
+        CMS.debug(method + " entering ...");
+
+        if(data == null) {
+            CMS.debug(method + " Invalid input data returning...");
+            return;
+        }
+
+        APDUResponse response;
+        try {
+            ClearKeySlotsAPDU  clearKey = new ClearKeySlotsAPDU(data.toBytesArray());
+            computeAPDU(clearKey);
+            response = processor.handleAPDURequest(clearKey);
+        } catch (TPSException | IOException e) {
+            CMS.debug(method + " bad apdu return!");
+            return;
+
+        }
+
+        if (!response.checkResult()) {
+            CMS.debug(method + " bad apdu return!");
+        }
+
+        CMS.debug(method + " Successful applet key data cleanup operation completed.");
+
     }
 
     public void writeObject(TPSBuffer objectID, TPSBuffer objectData) throws TPSException, IOException {

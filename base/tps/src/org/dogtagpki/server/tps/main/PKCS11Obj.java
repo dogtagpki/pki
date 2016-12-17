@@ -265,6 +265,76 @@ public class PKCS11Obj {
 
     }
 
+    //Returns a buffer of key index data written to the token in this format:
+    // [privateKeyIndex] [publicKeyIndex] ... [final privateKeyIndex] [final publicKeyIndex]
+    // ex: [2][3][4][5]
+    public TPSBuffer getKeyIndexList() {
+
+        TPSBuffer data = new TPSBuffer();
+        int objectCount = getObjectSpecCount();
+
+        CMS.debug("PKCS11Obj:getKeyIndexList: objectCount: " + objectCount);
+
+      //Add first byte for length, set to 0 for now
+
+        for (int i = 0; i < objectCount; i++) {
+            ObjectSpec spec = getObjectSpec(i);
+
+            char c = spec.getObjectType();
+            long fixedAttrs = spec.getFixedAttributes();
+            int xclass = (int) ((fixedAttrs & 0x70) >> 4);
+            long cont_id = spec.getObjectIndex();
+            long id = (int) (fixedAttrs & 0x0f);
+
+            /* locate all certificate objects */
+            if (c == 'c' && xclass == PKCS11Constants.CKO_CERTIFICATE) {
+
+                CMS.debug("PKCSObj:getKeyIndexList: found cert object: id: " + id );
+
+                //We need to use the container id, there may be more than one cert
+                //with the same CKA_ID byte
+
+                id = cont_id;
+
+                /* locate private object */
+                for (int y = 0; y < objectCount; y++) {
+                    ObjectSpec y_spec = getObjectSpec(y);
+                    long y_fixedAttrs =
+                            y_spec.getFixedAttributes();
+                    int y_xclass = (int) ((y_fixedAttrs & 0x70) >> 4);
+                    int y_id = (int) (y_fixedAttrs & 0x0f);
+                    if (y_xclass == PKCS11Constants.CKO_PRIVATE_KEY && y_id == id) {
+                        CMS.debug("PKCS11Obj::getKeyIndexList: found private key object: id: " + y_spec.getObjectIndex());
+
+                        data.add((byte) y_spec.getObjectIndex());
+
+                    }
+                }
+
+                /* locate public object */
+                for (int x = 0; x < objectCount; x++) {
+                    ObjectSpec x_spec = getObjectSpec(x);
+                    long x_fixedAttrs =
+                            x_spec.getFixedAttributes();
+                    int x_xclass = (int) ((x_fixedAttrs & 0x70) >> 4);
+                    int x_id = (int) (x_fixedAttrs & 0x0f);
+                    if (x_xclass == PKCS11Constants.CKO_PUBLIC_KEY && x_id == id) {
+                        CMS.debug("PKCSObj::getKeyIndexList: found public key object: id: " + x_spec.getObjectIndex());
+
+                        data.add((byte) x_spec.getObjectIndex());
+                    }
+                }
+
+            }
+        }
+
+        //This is ok, we have a TPSBuffer object. Even if it is empty, the toHexString will return en empty string
+        CMS.debug("PKCS11Obj::getKeyIndexList: returning: " + data.toHexString());
+
+        return data;
+
+    }
+
     private TPSBuffer getRawData() {
         TPSBuffer data = new TPSBuffer();
 
@@ -335,7 +405,7 @@ public class PKCS11Obj {
                     int x_xclass = (int) ((x_fixedAttrs & 0x70) >> 4);
                     int x_id = (int) (x_fixedAttrs & 0x0f);
                     if (x_xclass == PKCS11Constants.CKO_PUBLIC_KEY && x_id == id) {
-                        CMS.debug("PKCSObj:getRawData: found public key object: id: " + id);
+                        CMS.debug("PKCSObj:getRawData: found public key object: id: " + x_spec.getObjectIndex());
                         data.add(x_spec.getData());
                     }
                 }
@@ -348,7 +418,7 @@ public class PKCS11Obj {
                     int y_xclass = (int) ((y_fixedAttrs & 0x70) >> 4);
                     int y_id = (int) (y_fixedAttrs & 0x0f);
                     if (y_xclass == PKCS11Constants.CKO_PRIVATE_KEY && y_id == id) {
-                        CMS.debug("PKCSObj:getRawData: found private key object: id: " + id);
+                        CMS.debug("PKCSObj:getRawData: found private key object: id: " + y_spec.getObjectIndex());
                         data.add(y_spec.getData());
                     }
                 }

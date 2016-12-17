@@ -15,6 +15,12 @@ import java.util.Map;
 import java.util.Random;
 import java.util.zip.DataFormatException;
 
+import netscape.security.provider.RSAPublicKey;
+//import org.mozilla.jss.pkcs11.PK11ECPublicKey;
+import netscape.security.util.BigInt;
+import netscape.security.x509.RevocationReason;
+import netscape.security.x509.X509CertImpl;
+
 import org.dogtagpki.server.tps.TPSSession;
 import org.dogtagpki.server.tps.TPSSubsystem;
 import org.dogtagpki.server.tps.TPSTokenPolicy;
@@ -53,19 +59,14 @@ import org.mozilla.jss.pkcs11.PK11PubKey;
 import org.mozilla.jss.pkcs11.PK11RSAPublicKey;
 import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
 
+import sun.security.pkcs11.wrapper.PKCS11Constants;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.tps.token.TokenStatus;
 import com.netscape.cmsutil.util.Utils;
-
-import netscape.security.provider.RSAPublicKey;
-//import org.mozilla.jss.pkcs11.PK11ECPublicKey;
-import netscape.security.util.BigInt;
-import netscape.security.x509.RevocationReason;
-import netscape.security.x509.X509CertImpl;
-import sun.security.pkcs11.wrapper.PKCS11Constants;
 
 public class TPSEnrollProcessor extends TPSProcessor {
 
@@ -584,6 +585,13 @@ public class TPSEnrollProcessor extends TPSProcessor {
                     "failure");
             throw new TPSException(logMsg);
         }
+
+      //Now let's clear off any key slots if the enrollment left any unused but occupied with key data on the applet
+
+        TPSBuffer keyList = pkcs11objx.getKeyIndexList();
+
+        channel.clearAppletKeySlotData(keyList);
+
 
         CMS.debug(method + " leaving ...");
 

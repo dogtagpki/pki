@@ -34,5 +34,5 @@ Additional applets:
 
 330J/RSA / Key Recovery, GP201, also works with SCP02:
 
-1.4.54de790f.ijc
+1.4.58768072.ijc
 
