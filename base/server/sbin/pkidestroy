@@ -52,6 +52,9 @@ error was:
     sys.exit(1)
 
 
+deployer = util.PKIDeployer()
+
+
 # Handle the Keyboard Interrupt
 # pylint: disable=W0613
 def interrupt_handler(event, frame):
@@ -63,8 +66,6 @@ def interrupt_handler(event, frame):
 # PKI Deployment Functions
 def main(argv):
     """main entry point"""
-
-    deployer = util.PKIDeployer()
 
     config.pki_deployment_executable = os.path.basename(argv[0])
 
@@ -139,12 +140,12 @@ def main(argv):
         # -s <subsystem>
         if args.pki_subsystem is None:
             interactive = True
-            config.pki_subsystem = parser.read_text(
+            deployer.subsystem_name = parser.read_text(
                 'Subsystem (CA/KRA/OCSP/TKS/TPS)',
                 options=['CA', 'KRA', 'OCSP', 'TKS', 'TPS'],
                 default='CA', case_sensitive=False).upper()
         else:
-            config.pki_subsystem = str(args.pki_subsystem).strip('[\']')
+            deployer.subsystem_name = str(args.pki_subsystem).strip('[\']')
 
         # -i <instance name>
         if args.pki_deployed_instance_name is None:
@@ -198,10 +199,10 @@ def main(argv):
 
     # verify that previously deployed subsystem for this instance exists
     deployed_pki_subsystem_path = \
-        deployed_pki_instance_path + "/" + config.pki_subsystem.lower()
+        deployed_pki_instance_path + "/" + deployer.subsystem_name.lower()
     if not os.path.exists(deployed_pki_subsystem_path):
         print("ERROR:  " + log.PKI_SUBSYSTEM_DOES_NOT_EXIST_2 %
-              (config.pki_subsystem, deployed_pki_instance_path))
+              (deployer.subsystem_name, deployed_pki_instance_path))
         print()
         parser.arg_parser.exit(-1)
 
@@ -212,7 +213,7 @@ def main(argv):
     config.user_deployment_cfg =\
         deployed_pki_subsystem_path + "/" +\
         "registry" + "/" +\
-        config.pki_subsystem.lower() + "/" +\
+        deployer.subsystem_name.lower() + "/" +\
         config.USER_DEPLOYMENT_CONFIGURATION
 
     parser.validate()
@@ -222,7 +223,7 @@ def main(argv):
     config.pki_log_dir = \
         config.pki_root_prefix + config.PKI_DEPLOYMENT_LOG_ROOT
     config.pki_log_name = "pki" + "-" +\
-                          config.pki_subsystem.lower() +\
+                          deployer.subsystem_name.lower() +\
                           "-" + "destroy" + "." +\
                           config.pki_timestamp + "." + "log"
     print('Log file: %s/%s' % (config.pki_log_dir, config.pki_log_name))
@@ -254,7 +255,7 @@ def main(argv):
     config.pki_log.debug(pkilogging.log_format(parser.mdict),
                          extra=config.PKI_INDENTATION_LEVEL_0)
 
-    print("Uninstalling " + config.pki_subsystem + " from " +
+    print("Uninstalling " + deployer.subsystem_name + " from " +
           deployed_pki_instance_path + ".")
 
     # Process the various "scriptlets" to remove the specified PKI subsystem.

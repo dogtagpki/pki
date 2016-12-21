@@ -4585,6 +4585,9 @@ class PKIDeployer:
     """Holds the global dictionaries and the utility objects"""
 
     def __init__(self):
+        # PKI Deployment "Mandatory" Command-Line Variables
+        self.subsystem_name = None
+
         # Global dictionary variables
         self.mdict = {}
         self.slots = {}

@@ -209,8 +209,8 @@ class PKIConfigParser:
             'pki_http_port': default_http_port,
             'pki_https_port': default_https_port,
             'pki_dns_domainname': config.pki_dns_domainname,
-            'pki_subsystem': config.pki_subsystem,
-            'pki_subsystem_type': config.pki_subsystem.lower(),
+            'pki_subsystem': self.deployer.subsystem_name,
+            'pki_subsystem_type': self.deployer.subsystem_name.lower(),
             'pki_root_prefix': config.pki_root_prefix,
             'java_home': java_home,
             'resteasy_lib': resteasy_lib,
@@ -415,8 +415,8 @@ class PKIConfigParser:
             web_server_dict[0] = None
             self.mdict.update(web_server_dict)
 
-        if self.deployer.main_config.has_section(config.pki_subsystem):
-            subsystem_dict = dict(self.deployer.main_config.items(config.pki_subsystem))
+        if self.deployer.main_config.has_section(self.deployer.subsystem_name):
+            subsystem_dict = dict(self.deployer.main_config.items(self.deployer.subsystem_name))
             subsystem_dict[0] = None
             self.mdict.update(subsystem_dict)
 
@@ -1258,7 +1258,7 @@ class PKIConfigParser:
                 # Stand-alone PKI
                 self.mdict['pki_security_domain_type'] = "new"
                 self.mdict['pki_issuing_ca'] = "External CA"
-            elif (config.pki_subsystem != "CA" or
+            elif (self.deployer.subsystem_name != "CA" or
                     config.str2bool(self.mdict['pki_clone']) or
                     config.str2bool(self.mdict['pki_subordinate'])):
                 # PKI KRA, PKI OCSP, PKI TKS, PKI TPS,

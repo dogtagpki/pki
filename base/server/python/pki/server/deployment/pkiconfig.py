@@ -105,8 +105,6 @@ pki_certificate_timestamp = None
 # PKI Deployment Command-Line Variables
 pki_deployment_executable = None
 
-# PKI Deployment "Mandatory" Command-Line Variables
-pki_subsystem = None
 #     'pkispawn' ONLY
 default_deployment_cfg = None
 user_deployment_cfg = None
