@@ -69,12 +69,12 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # Archive the user deployment configuration excluding the sensitive
         # parameters
         sensitive_parameters = deployer.mdict['sensitive_parameters'].split()
-        sections = config.user_config.sections()
+        sections = deployer.user_config.sections()
         for s in sections:
             for k in sensitive_parameters:
-                config.user_config.set(s, k, 'XXXXXXXX')
+                deployer.user_config.set(s, k, 'XXXXXXXX')
         with open(deployer.mdict['pki_user_deployment_cfg_replica'], 'w') as f:
-            config.user_config.write(f)
+            deployer.user_config.write(f)
 
         # establish top-level infrastructure, instance, and subsystem
         # base directories and create the "registry" symbolic link that

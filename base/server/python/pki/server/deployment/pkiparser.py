@@ -222,8 +222,8 @@ class PKIConfigParser:
         # Make keys case-sensitive!
         self.pki_config.optionxform = str
 
-        config.user_config = configparser.SafeConfigParser()
-        config.user_config.optionxform = str
+        self.deployer.user_config = configparser.SafeConfigParser()
+        self.deployer.user_config.optionxform = str
 
         with open(config.default_deployment_cfg) as f:
             self.pki_config.readfp(f)
@@ -258,10 +258,10 @@ class PKIConfigParser:
         self.pki_config.set(section, key, value)
         self.flatten_master_dict()
 
-        if section != "DEFAULT" and not config.user_config.has_section(
+        if section != "DEFAULT" and not self.deployer.user_config.has_section(
                 section):
-            config.user_config.add_section(section)
-        config.user_config.set(section, key, value)
+            self.deployer.user_config.add_section(section)
+        self.deployer.user_config.set(section, key, value)
 
     def print_text(self, message):
         print(' ' * self.indent + message)
@@ -363,7 +363,7 @@ class PKIConfigParser:
                 print('Loading deployment configuration from ' +
                       config.user_deployment_cfg + '.')
                 self.pki_config.read([config.user_deployment_cfg])
-                config.user_config.read([config.user_deployment_cfg])
+                self.deployer.user_config.read([config.user_deployment_cfg])
 
                 # Look through each section and see if any password settings
                 # are present.  If so, escape any '%' characters.
@@ -382,17 +382,17 @@ class PKIConfigParser:
                             except configparser.NoOptionError:
                                 continue
 
-                sections = config.user_config.sections()
+                sections = self.deployer.user_config.sections()
                 if sections:
                     sections.append('DEFAULT')
                     for section in sections:
                         for key in no_interpolation:
                             try:
-                                val = config.user_config.get(
+                                val = self.deployer.user_config.get(
                                     section, key, raw=True)
                                 val = val.replace("%", "%%")  # pylint: disable=E1101
                                 if val:
-                                    config.user_config.set(
+                                    self.deployer.user_config.set(
                                         section, key, val)
                             except configparser.NoOptionError:
                                 continue

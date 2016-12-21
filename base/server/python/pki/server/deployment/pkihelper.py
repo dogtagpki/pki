@@ -4588,6 +4588,7 @@ class PKIDeployer:
         # Global dictionary variables
         self.mdict = {}
         self.slots = {}
+        self.user_config = None
         self.manifest_db = []
 
         self.identity = None
