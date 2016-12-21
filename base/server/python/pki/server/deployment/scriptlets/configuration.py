@@ -25,7 +25,6 @@ import re
 
 # PKI Deployment Imports
 from .. import pkiconfig as config
-from .. import pkihelper
 from .. import pkimessages as log
 from .. import pkiscriptlet
 
@@ -278,7 +277,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 # raises exception on  failure
                 config.pki_log.info("validating the signing certificate",
                                     extra=config.PKI_INDENTATION_LEVEL_2)
-                verifier = pkihelper.PKIDeployer.create_system_cert_verifier(
+                verifier = pki.server.deployment.PKIDeployer.create_system_cert_verifier(
                     instance, 'ca')
                 verifier.verify_certificate('signing')
 
