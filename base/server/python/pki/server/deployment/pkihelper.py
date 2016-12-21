@@ -4584,12 +4584,33 @@ class SystemCertificateVerifier:
 class PKIDeployer:
     """Holds the global dictionaries and the utility objects"""
 
-    def __init__(self, pki_mdict, slots_dict=None):
+    def __init__(self):
         # Global dictionary variables
-        self.mdict = pki_mdict
-        self.slots = slots_dict
+        self.mdict = {}
+        self.slots = {}
         self.manifest_db = []
 
+        self.identity = None
+        self.namespace = None
+        self.configuration_file = None
+        self.instance = None
+        self.directory = None
+        self.file = None
+        self.symlink = None
+        self.war = None
+        self.password = None
+        self.hsm = None
+        self.certutil = None
+        self.modutil = None
+        self.pk12util = None
+        self.kra_connector = None
+        self.security_domain = None
+        self.servercertnick_conf = None
+        self.systemd = None
+        self.tps_connector = None
+        self.config_client = None
+
+    def init(self):
         # Utility objects
         self.identity = Identity(self)
         self.namespace = Namespace(self)

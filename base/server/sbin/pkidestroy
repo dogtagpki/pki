@@ -64,6 +64,8 @@ def interrupt_handler(event, frame):
 def main(argv):
     """main entry point"""
 
+    deployer = util.PKIDeployer()
+
     config.pki_deployment_executable = os.path.basename(argv[0])
 
     # Set the umask
@@ -100,7 +102,8 @@ def main(argv):
     # Read and process command-line arguments.
     parser = PKIConfigParser(
         'PKI Instance Removal',
-        log.PKIDESTROY_EPILOG)
+        log.PKIDESTROY_EPILOG,
+        deployer=deployer)
 
     parser.optional.add_argument(
         '-i',
@@ -256,7 +259,7 @@ def main(argv):
 
     # Process the various "scriptlets" to remove the specified PKI subsystem.
     pki_subsystem_scriptlets = parser.mdict['destroy_scriplets'].split()
-    deployer = util.PKIDeployer(parser.mdict)
+    deployer.init()
 
     try:
         for scriptlet_name in pki_subsystem_scriptlets:

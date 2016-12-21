@@ -67,6 +67,8 @@ def interrupt_handler(event, frame):
 def main(argv):
     """main entry point"""
 
+    deployer = util.PKIDeployer()
+
     config.pki_deployment_executable = os.path.basename(argv[0])
 
     # Set the umask
@@ -102,7 +104,8 @@ def main(argv):
     # Read and process command-line arguments.
     parser = PKIConfigParser(
         'PKI Instance Installation and Configuration',
-        log.PKISPAWN_EPILOG)
+        log.PKISPAWN_EPILOG,
+        deployer=deployer)
 
     parser.optional.add_argument(
         '-f',
@@ -514,7 +517,7 @@ def main(argv):
 
     # Process the various "scriptlets" to create the specified PKI subsystem.
     pki_subsystem_scriptlets = parser.mdict['spawn_scriplets'].split()
-    deployer = util.PKIDeployer(parser.mdict, parser.slots_dict)
+    deployer.init()
 
     try:
         for scriptlet_name in pki_subsystem_scriptlets:

@@ -54,7 +54,8 @@ class PKIConfigParser:
     COMMENT_CHAR = '#'
     OPTION_CHAR = '='
 
-    def __init__(self, description, epilog):
+    def __init__(self, description, epilog, deployer=None):
+        self.deployer = deployer
         self.pki_config = None
 
         # Read and process command-line options
@@ -101,8 +102,8 @@ class PKIConfigParser:
         self.authdb_connection = None
 
         # Master and Slot dictionaries
-        self.mdict = dict()
-        self.slots_dict = dict()
+        self.mdict = deployer.mdict
+        self.slots_dict = deployer.slots
 
     # PKI Deployment Helper Functions
     def process_command_line_arguments(self):
@@ -1385,7 +1386,7 @@ class PKIConfigParser:
             parser.optionxform = str
             parser.read(config.PKI_DEPLOYMENT_SLOTS_CONFIGURATION_FILE)
             # Slots configuration file name/value pairs
-            self.slots_dict = dict(parser.items('Tomcat'))
+            self.slots_dict.update(dict(parser.items('Tomcat')))
         except configparser.ParsingError as err:
             rv = err
         return rv
