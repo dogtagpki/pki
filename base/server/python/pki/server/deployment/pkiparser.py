@@ -227,7 +227,7 @@ class PKIConfigParser:
         with open(config.default_deployment_cfg) as f:
             self.deployer.main_config.readfp(f)
 
-        self.flatten_master_dict()
+        self.deployer.flatten_master_dict()
 
     # The following code is based heavily upon
     # "http://www.decalage.info/en/python/configparser"
@@ -255,7 +255,7 @@ class PKIConfigParser:
         if section != "DEFAULT" and not self.deployer.main_config.has_section(section):
             self.deployer.main_config.add_section(section)
         self.deployer.main_config.set(section, key, value)
-        self.flatten_master_dict()
+        self.deployer.flatten_master_dict()
 
         if section != "DEFAULT" and not self.deployer.user_config.has_section(
                 section):
@@ -399,26 +399,6 @@ class PKIConfigParser:
             print(err)
             rv = err
         return rv
-
-    def flatten_master_dict(self):
-        self.mdict.update(__name__="PKI Master Dictionary")
-
-        default_dict = dict(self.deployer.main_config.items('DEFAULT'))
-        default_dict[0] = None
-        self.mdict.update(default_dict)
-
-        web_server_dict = None
-        if self.deployer.main_config.has_section('Tomcat'):
-            web_server_dict = dict(self.deployer.main_config.items('Tomcat'))
-
-        if web_server_dict:
-            web_server_dict[0] = None
-            self.mdict.update(web_server_dict)
-
-        if self.deployer.main_config.has_section(self.deployer.subsystem_name):
-            subsystem_dict = dict(self.deployer.main_config.items(self.deployer.subsystem_name))
-            subsystem_dict[0] = None
-            self.mdict.update(subsystem_dict)
 
     def ds_connect(self):
 
@@ -602,7 +582,7 @@ class PKIConfigParser:
             self.mdict['pki_deployed_instance_name'] = \
                 config.pki_deployed_instance_name
 
-            self.flatten_master_dict()
+            self.deployer.flatten_master_dict()
 
             # Generate random 'pin's for use as security database passwords
             # and add these to the "sensitive" key value pairs read in from

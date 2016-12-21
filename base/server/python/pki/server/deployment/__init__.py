@@ -84,6 +84,27 @@ class PKIDeployer:
         self.tps_connector = util.TPSConnector(self)
         self.config_client = util.ConfigClient(self)
 
+    def flatten_master_dict(self):
+
+        self.mdict.update(__name__="PKI Master Dictionary")
+
+        default_dict = dict(self.main_config.items('DEFAULT'))
+        default_dict[0] = None
+        self.mdict.update(default_dict)
+
+        web_server_dict = None
+        if self.main_config.has_section('Tomcat'):
+            web_server_dict = dict(self.main_config.items('Tomcat'))
+
+        if web_server_dict:
+            web_server_dict[0] = None
+            self.mdict.update(web_server_dict)
+
+        if self.main_config.has_section(self.subsystem_name):
+            subsystem_dict = dict(self.main_config.items(self.subsystem_name))
+            subsystem_dict[0] = None
+            self.mdict.update(subsystem_dict)
+
     def deploy_webapp(self, name, doc_base, descriptor):
         """
         Deploy a web application into a Tomcat instance.
