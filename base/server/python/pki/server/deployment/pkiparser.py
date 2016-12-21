@@ -56,7 +56,6 @@ class PKIConfigParser:
 
     def __init__(self, description, epilog, deployer=None):
         self.deployer = deployer
-        self.pki_config = None
 
         # Read and process command-line options
         self.arg_parser = argparse.ArgumentParser(
@@ -204,7 +203,7 @@ class PKIConfigParser:
         application_version = str(pki.upgrade.Version(
             pki.implementation_version()))
 
-        self.pki_config = configparser.SafeConfigParser({
+        self.deployer.main_config = configparser.SafeConfigParser({
             'application_version': application_version,
             'pki_instance_name': default_instance_name,
             'pki_http_port': default_http_port,
@@ -220,13 +219,13 @@ class PKIConfigParser:
             'pki_hostname': config.pki_hostname})
 
         # Make keys case-sensitive!
-        self.pki_config.optionxform = str
+        self.deployer.main_config.optionxform = str
 
         self.deployer.user_config = configparser.SafeConfigParser()
         self.deployer.user_config.optionxform = str
 
         with open(config.default_deployment_cfg) as f:
-            self.pki_config.readfp(f)
+            self.deployer.main_config.readfp(f)
 
         self.flatten_master_dict()
 
@@ -253,9 +252,9 @@ class PKIConfigParser:
         return values
 
     def set_property(self, section, key, value):
-        if section != "DEFAULT" and not self.pki_config.has_section(section):
-            self.pki_config.add_section(section)
-        self.pki_config.set(section, key, value)
+        if section != "DEFAULT" and not self.deployer.main_config.has_section(section):
+            self.deployer.main_config.add_section(section)
+        self.deployer.main_config.set(section, key, value)
         self.flatten_master_dict()
 
         if section != "DEFAULT" and not self.deployer.user_config.has_section(
@@ -362,22 +361,22 @@ class PKIConfigParser:
 
                 print('Loading deployment configuration from ' +
                       config.user_deployment_cfg + '.')
-                self.pki_config.read([config.user_deployment_cfg])
+                self.deployer.main_config.read([config.user_deployment_cfg])
                 self.deployer.user_config.read([config.user_deployment_cfg])
 
                 # Look through each section and see if any password settings
                 # are present.  If so, escape any '%' characters.
-                sections = self.pki_config.sections()
+                sections = self.deployer.main_config.sections()
                 if sections:
                     sections.append('DEFAULT')
                     for section in sections:
                         for key in no_interpolation:
                             try:
-                                val = self.pki_config.get(
+                                val = self.deployer.main_config.get(
                                     section, key, raw=True)
                                 val = val.replace("%", "%%")  # pylint: disable=E1101
                                 if val:
-                                    self.pki_config.set(
+                                    self.deployer.main_config.set(
                                         section, key, val)
                             except configparser.NoOptionError:
                                 continue
@@ -404,20 +403,20 @@ class PKIConfigParser:
     def flatten_master_dict(self):
         self.mdict.update(__name__="PKI Master Dictionary")
 
-        default_dict = dict(self.pki_config.items('DEFAULT'))
+        default_dict = dict(self.deployer.main_config.items('DEFAULT'))
         default_dict[0] = None
         self.mdict.update(default_dict)
 
         web_server_dict = None
-        if self.pki_config.has_section('Tomcat'):
-            web_server_dict = dict(self.pki_config.items('Tomcat'))
+        if self.deployer.main_config.has_section('Tomcat'):
+            web_server_dict = dict(self.deployer.main_config.items('Tomcat'))
 
         if web_server_dict:
             web_server_dict[0] = None
             self.mdict.update(web_server_dict)
 
-        if self.pki_config.has_section(config.pki_subsystem):
-            subsystem_dict = dict(self.pki_config.items(config.pki_subsystem))
+        if self.deployer.main_config.has_section(config.pki_subsystem):
+            subsystem_dict = dict(self.deployer.main_config.items(config.pki_subsystem))
             subsystem_dict[0] = None
             self.mdict.update(subsystem_dict)
 
@@ -1239,16 +1238,16 @@ class PKIConfigParser:
             if not len(self.mdict['pki_security_domain_user']):
 
                 # use the CA admin uid if it's defined
-                if self.pki_config.has_option('CA', 'pki_admin_uid') and\
-                        len(self.pki_config.get('CA', 'pki_admin_uid')) > 0:
+                if self.deployer.main_config.has_option('CA', 'pki_admin_uid') and\
+                        len(self.deployer.main_config.get('CA', 'pki_admin_uid')) > 0:
                     self.mdict['pki_security_domain_user'] = \
-                        self.pki_config.get('CA', 'pki_admin_uid')
+                        self.deployer.main_config.get('CA', 'pki_admin_uid')
 
                 # or use the Default admin uid if it's defined
-                elif self.pki_config.has_option('DEFAULT', 'pki_admin_uid') and\
-                        len(self.pki_config.get('DEFAULT', 'pki_admin_uid')) > 0:
+                elif self.deployer.main_config.has_option('DEFAULT', 'pki_admin_uid') and\
+                        len(self.deployer.main_config.get('DEFAULT', 'pki_admin_uid')) > 0:
                     self.mdict['pki_security_domain_user'] = \
-                        self.pki_config.get('DEFAULT', 'pki_admin_uid')
+                        self.deployer.main_config.get('DEFAULT', 'pki_admin_uid')
 
                 # otherwise use the default CA admin uid
                 else:
