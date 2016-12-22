@@ -36,9 +36,7 @@ try:
     import socket
     import struct
     import subprocess
-    import time
     import traceback
-    from time import strftime as date
     import pki
     from pki.server.deployment import pkiconfig as config
     from pki.server.deployment import pkimanifest as manifest
@@ -74,15 +72,6 @@ def main(argv):
 
     # Set the umask
     os.umask(config.PKI_DEPLOYMENT_DEFAULT_UMASK)
-
-    # Set installation time
-    ticks = time.time()
-    config.pki_install_time = time.asctime(time.localtime(ticks))
-
-    # Generate a timestamp
-    config.pki_timestamp = date('%Y%m%d%H%M%S', time.localtime(ticks))
-    config.pki_certificate_timestamp = \
-        date('%Y-%m-%d %H:%M:%S', time.localtime(ticks))
 
     # Obtain the architecture bit-size
     config.pki_architecture = struct.calcsize("P") * 8
@@ -613,7 +602,7 @@ def start_logging():
     config.pki_log_name = "pki" + "-" + \
                           deployer.subsystem_name.lower() + \
                           "-" + "spawn" + "." + \
-                          config.pki_timestamp + "." + "log"
+                          deployer.log_timestamp + "." + "log"
     print('Log file: %s/%s' % (config.pki_log_dir, config.pki_log_name))
     rv = pkilogging.enable_pki_logger(config.pki_log_dir,
                                       config.pki_log_name,

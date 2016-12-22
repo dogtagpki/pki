@@ -20,6 +20,8 @@
 
 from __future__ import absolute_import
 import os
+import time
+from time import strftime as date
 from lxml import etree
 
 from . import pkiconfig as config
@@ -60,6 +62,14 @@ class PKIDeployer:
         self.systemd = None
         self.tps_connector = None
         self.config_client = None
+
+        # Set installation time
+        ticks = time.time()
+        self.install_time = time.asctime(time.localtime(ticks))
+
+        # Generate a timestamp
+        self.log_timestamp = date('%Y%m%d%H%M%S', time.localtime(ticks))
+        self.certificate_timestamp = date('%Y-%m-%d %H:%M:%S', time.localtime(ticks))
 
     def init(self):
 

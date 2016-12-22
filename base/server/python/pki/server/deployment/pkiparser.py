@@ -571,10 +571,9 @@ class PKIConfigParser:
             # 'pkispawn'/'pkidestroy' name/value pairs
             self.mdict['pki_deployment_executable'] = \
                 config.pki_deployment_executable
-            self.mdict['pki_install_time'] = config.pki_install_time
-            self.mdict['pki_timestamp'] = config.pki_timestamp
-            self.mdict['pki_certificate_timestamp'] = \
-                config.pki_certificate_timestamp
+            self.mdict['pki_install_time'] = self.deployer.install_time
+            self.mdict['pki_timestamp'] = self.deployer.log_timestamp
+            self.mdict['pki_certificate_timestamp'] = self.deployer.certificate_timestamp
             self.mdict['pki_architecture'] = config.pki_architecture
             self.mdict['pki_default_deployment_cfg'] = \
                 config.default_deployment_cfg
