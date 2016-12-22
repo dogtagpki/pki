@@ -20,6 +20,9 @@
 
 from __future__ import absolute_import
 import os
+import socket
+import struct
+import subprocess
 import time
 from time import strftime as date
 from lxml import etree
@@ -70,6 +73,19 @@ class PKIDeployer:
         # Generate a timestamp
         self.log_timestamp = date('%Y%m%d%H%M%S', time.localtime(ticks))
         self.certificate_timestamp = date('%Y-%m-%d %H:%M:%S', time.localtime(ticks))
+
+        # Obtain the architecture bit-size
+        self.architecture = struct.calcsize("P") * 8
+
+        # Retrieve hostname
+        self.hostname = socket.getfqdn()
+
+        # Retrieve DNS domainname
+        self.dns_domainname = subprocess.check_output(["dnsdomainname"])
+        self.dns_domainname = self.dns_domainname.decode('ascii').rstrip('\n')
+
+        if not len(self.dns_domainname):
+            self.dns_domainname = self.hostname
 
     def init(self):
 

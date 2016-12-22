@@ -93,12 +93,6 @@ PKI_DEPLOYMENT_DEFAULT_TOMCAT_HTTPS_PORT = 8443
 PKI_DEPLOYMENT_DEFAULT_TOMCAT_SERVER_PORT = 8005
 PKI_DEPLOYMENT_DEFAULT_TOMCAT_AJP_PORT = 8009
 
-# PKI Deployment Global Variables
-pki_architecture = None
-pki_hostname = None
-pki_dns_domainname = None
-
-
 # PKI Deployment Command-Line Variables
 pki_deployment_executable = None
 

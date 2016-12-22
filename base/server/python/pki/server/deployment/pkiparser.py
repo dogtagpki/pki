@@ -208,7 +208,7 @@ class PKIConfigParser:
             'pki_instance_name': default_instance_name,
             'pki_http_port': default_http_port,
             'pki_https_port': default_https_port,
-            'pki_dns_domainname': config.pki_dns_domainname,
+            'pki_dns_domainname': self.deployer.dns_domainname,
             'pki_subsystem': self.deployer.subsystem_name,
             'pki_subsystem_type': self.deployer.subsystem_name.lower(),
             'pki_root_prefix': config.pki_root_prefix,
@@ -216,7 +216,7 @@ class PKIConfigParser:
             'resteasy_lib': resteasy_lib,
             'jni_jar_dir': jni_jar_dir,
             'home_dir': os.path.expanduser("~"),
-            'pki_hostname': config.pki_hostname})
+            'pki_hostname': self.deployer.hostname})
 
         # Make keys case-sensitive!
         self.deployer.main_config.optionxform = str
@@ -574,7 +574,7 @@ class PKIConfigParser:
             self.mdict['pki_install_time'] = self.deployer.install_time
             self.mdict['pki_timestamp'] = self.deployer.log_timestamp
             self.mdict['pki_certificate_timestamp'] = self.deployer.certificate_timestamp
-            self.mdict['pki_architecture'] = config.pki_architecture
+            self.mdict['pki_architecture'] = self.deployer.architecture
             self.mdict['pki_default_deployment_cfg'] = \
                 config.default_deployment_cfg
             self.mdict['pki_user_deployment_cfg'] = config.user_deployment_cfg
@@ -1086,7 +1086,7 @@ class PKIConfigParser:
                 "+TLS_DHE_RSA_WITH_AES_128_CBC_SHA," + \
                 "+TLS_DHE_RSA_WITH_AES_256_CBC_SHA"
 
-            if config.pki_architecture == 64:
+            if self.deployer.architecture == 64:
                 self.mdict['NUXWDOG_JNI_PATH_SLOT'] = (
                     '/usr/lib64/nuxwdog-jni')
             else:

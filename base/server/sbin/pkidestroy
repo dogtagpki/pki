@@ -31,9 +31,6 @@ if not hasattr(sys, "hexversion") or sys.hexversion < 0x020700f0:
     sys.exit(1)
 try:
     import os
-    import socket
-    import struct
-    import subprocess
     import traceback
     import pki
     from pki.server.deployment import pkiconfig as config
@@ -69,25 +66,6 @@ def main(argv):
 
     # Set the umask
     os.umask(config.PKI_DEPLOYMENT_DEFAULT_UMASK)
-
-    # Obtain the architecture bit-size
-    config.pki_architecture = struct.calcsize("P") * 8
-
-    # Retrieve hostname
-    config.pki_hostname = socket.getfqdn()
-
-    # Retrieve DNS domainname
-    config.pki_dns_domainname = None
-    try:
-        dnsdomainname = subprocess.check_output(["dnsdomainname"])
-        dnsdomainname = dnsdomainname.decode('ascii').rstrip('\n')
-        config.pki_dns_domainname = dnsdomainname
-        if not len(config.pki_dns_domainname):
-            print(log.PKI_DNS_DOMAIN_NOT_SET)
-            config.pki_dns_domainname = config.pki_hostname
-    except subprocess.CalledProcessError as exc:
-        print(log.PKI_SUBPROCESS_ERROR_1 % exc)
-        sys.exit(1)
 
     # Read and process command-line arguments.
     parser = PKIConfigParser(
