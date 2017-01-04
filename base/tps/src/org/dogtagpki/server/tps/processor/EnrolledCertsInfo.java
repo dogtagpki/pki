@@ -163,6 +163,10 @@ public class EnrolledCertsInfo {
         certStatuses.add(status);
     }
 
+    public void setCertStatus(int index, TokenCertStatus status) {
+        certStatuses.set(index, status);
+    }
+
     public void setStartProgress(int startP) {
         startProgress = startP;
 

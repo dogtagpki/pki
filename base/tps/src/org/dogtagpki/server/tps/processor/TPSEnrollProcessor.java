@@ -1960,7 +1960,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
                             auditRevoke(certToRecover.getTokenID(), false /*off-hold*/, -1 /*na*/,
                                     String.valueOf(response.getStatus()), serialToRecover, caConnId, null);
                             // successful unrevoke should mark the cert "active"
-                            certsInfo.addCertStatus(TokenCertStatus.ACTIVE);
+                            CMS.debug(method + ": unrevoke successful. Setting cert status to active for actualCertIndex:" + actualCertIndex);
+                            certsInfo.setCertStatus(actualCertIndex, TokenCertStatus.ACTIVE);
                         } catch (EBaseException e) {
                             logMsg = "failed getting CARemoteRequestHandler";
                             CMS.debug(method + ":" + logMsg);
