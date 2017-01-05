@@ -3240,7 +3240,7 @@ public class ConfigurationUtils {
                         deleteCert(tokenname, nickname);
                     }
                 } catch (Exception e) {
-                    CMS.debug("ConfigurationUtils: update (remote): deleteCert Exception=" + e.toString());
+                    CMS.debug(e);
                 }
 
                 CMS.debug("handleCerts(): importing new cert");
@@ -3309,8 +3309,8 @@ public class ConfigurationUtils {
                 if (findCertificate(tokenname, nickname)) {
                     deleteCert(tokenname, nickname);
                 }
-            } catch (Exception ee) {
-                CMS.debug("handleCerts(): deleteCert Exception=" + ee.toString());
+            } catch (Exception e) {
+                CMS.debug(e);
             }
 
             CMS.debug("handleCerts(): importing new cert");
