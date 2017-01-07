@@ -91,6 +91,7 @@ import com.netscape.cmsutil.password.IPasswordStore;
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPSSLSocketFactoryExt;
+import netscape.ldap.LDAPSocketFactory;
 import netscape.security.util.ObjectIdentifier;
 import netscape.security.x509.Extension;
 import netscape.security.x509.GeneralName;
@@ -1343,6 +1344,10 @@ public final class CMS {
      */
     public static LDAPSSLSocketFactoryExt getLdapJssSSLSocketFactory() {
         return _engine.getLdapJssSSLSocketFactory();
+    }
+
+    public static LDAPSocketFactory getLDAPSocketFactory(boolean secure) {
+        return _engine.getLDAPSocketFactory(secure);
     }
 
     /**

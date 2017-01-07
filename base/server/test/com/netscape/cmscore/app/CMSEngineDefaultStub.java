@@ -60,6 +60,7 @@ import com.netscape.cmsutil.password.IPasswordStore;
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPSSLSocketFactoryExt;
+import netscape.ldap.LDAPSocketFactory;
 import netscape.security.util.ObjectIdentifier;
 import netscape.security.x509.Extension;
 import netscape.security.x509.GeneralName;
@@ -341,6 +342,10 @@ public class CMSEngineDefaultStub implements ICMSEngine {
     }
 
     public LDAPSSLSocketFactoryExt getLdapJssSSLSocketFactory() {
+        return null;
+    }
+
+    public LDAPSocketFactory getLDAPSocketFactory(boolean secure) {
         return null;
     }
 

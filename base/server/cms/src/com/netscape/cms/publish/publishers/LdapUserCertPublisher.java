@@ -23,15 +23,6 @@ import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Vector;
 
-import netscape.ldap.LDAPAttribute;
-import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPEntry;
-import netscape.ldap.LDAPException;
-import netscape.ldap.LDAPModification;
-import netscape.ldap.LDAPSSLSocketFactoryExt;
-import netscape.ldap.LDAPSearchResults;
-import netscape.ldap.LDAPv2;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -41,6 +32,15 @@ import com.netscape.certsrv.ldap.ELdapServerDownException;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.publish.ILdapPublisher;
+
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPModification;
+import netscape.ldap.LDAPSSLSocketFactoryExt;
+import netscape.ldap.LDAPSearchResults;
+import netscape.ldap.LDAPv2;
 
 /**
  * Interface for mapping a X509 certificate to a LDAP entry
@@ -134,9 +134,11 @@ public class LdapUserCertPublisher implements ILdapPublisher, IExtendedPluginInf
                 int portVal = Integer.parseInt(port);
                 int version = Integer.parseInt(mConfig.getString("version", "2"));
                 String cert_nick = mConfig.getString("clientCertNickname", null);
-                LDAPSSLSocketFactoryExt sslSocket = null;
+                LDAPSSLSocketFactoryExt sslSocket;
                 if (cert_nick != null) {
                     sslSocket = CMS.getLdapJssSSLSocketFactory(cert_nick);
+                } else {
+                    sslSocket = CMS.getLdapJssSSLSocketFactory();
                 }
                 String mgr_dn = mConfig.getString("bindDN", null);
                 String mgr_pwd = mConfig.getString("bindPWD", null);

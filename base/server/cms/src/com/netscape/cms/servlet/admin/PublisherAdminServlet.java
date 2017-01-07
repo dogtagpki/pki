@@ -27,9 +27,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPException;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.authority.ICertAuthority;
@@ -66,6 +63,9 @@ import com.netscape.certsrv.publish.PublisherProxy;
 import com.netscape.certsrv.publish.RulePlugin;
 import com.netscape.certsrv.security.ICryptoSubsystem;
 import com.netscape.cmsutil.password.IPasswordStore;
+
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPException;
 
 /**
  * A class representing an publishing servlet for the
@@ -770,14 +770,13 @@ public class PublisherAdminServlet extends AdminServlet {
                 }
             } else {
                 try {
+                    conn = new LDAPConnection(
+                            CMS.getLDAPSocketFactory(secure));
                     if (secure) {
-                        conn = new LDAPConnection(
-                                    CMS.getLdapJssSSLSocketFactory());
                         params.put(Constants.PR_CONN_INITED,
                                 "Create ssl LDAPConnection" +
                                         dashes(70 - 25) + " Success");
                     } else {
-                        conn = new LDAPConnection();
                         params.put(Constants.PR_CONN_INITED,
                                 "Create LDAPConnection" +
                                         dashes(70 - 21) + " Success");

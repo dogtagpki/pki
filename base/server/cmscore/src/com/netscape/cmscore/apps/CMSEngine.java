@@ -144,7 +144,7 @@ import com.netscape.cmscore.ldapconn.LdapAuthInfo;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.ldapconn.LdapBoundConnection;
 import com.netscape.cmscore.ldapconn.LdapConnInfo;
-import com.netscape.cmscore.ldapconn.LdapJssSSLSocketFactory;
+import com.netscape.cmscore.ldapconn.PKISocketFactory;
 import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.logging.LogSubsystem;
 import com.netscape.cmscore.logging.Logger;
@@ -174,6 +174,7 @@ import com.netscape.cmsutil.util.Utils;
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPSSLSocketFactoryExt;
+import netscape.ldap.LDAPSocketFactory;
 import netscape.security.extensions.CertInfo;
 import netscape.security.pkcs.ContentInfo;
 import netscape.security.pkcs.PKCS7;
@@ -480,9 +481,7 @@ public class CMSEngine implements ICMSEngine {
         String host = info.getHost();
         int port = info.getPort();
 
-        LDAPConnection conn = info.getSecure() ?
-                new LDAPConnection(CMS.getLdapJssSSLSocketFactory()) :
-                new LDAPConnection();
+        LDAPConnection conn = new LDAPConnection(CMS.getLDAPSocketFactory(info.getSecure()));
 
         System.out.println("testLDAPConnection connecting to " + host + ":" + port);
 
@@ -1029,11 +1028,15 @@ public class CMSEngine implements ICMSEngine {
 
     public LDAPSSLSocketFactoryExt getLdapJssSSLSocketFactory(
             String certNickname) {
-        return new LdapJssSSLSocketFactory(certNickname);
+        return new PKISocketFactory(certNickname);
     }
 
     public LDAPSSLSocketFactoryExt getLdapJssSSLSocketFactory() {
-        return new LdapJssSSLSocketFactory();
+        return new PKISocketFactory(true);
+    }
+
+    public LDAPSocketFactory getLDAPSocketFactory(boolean secure) {
+        return new PKISocketFactory(secure);
     }
 
     public ILdapAuthInfo getLdapAuthInfo() {
