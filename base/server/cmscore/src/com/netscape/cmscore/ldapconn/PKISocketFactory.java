@@ -24,90 +24,124 @@ import java.net.UnknownHostException;
 import java.util.Iterator;
 import java.util.Vector;
 
-import netscape.ldap.LDAPException;
-import netscape.ldap.LDAPSSLSocketFactoryExt;
-
 import org.mozilla.jss.ssl.SSLClientCertificateSelectionCallback;
 import org.mozilla.jss.ssl.SSLHandshakeCompletedEvent;
 import org.mozilla.jss.ssl.SSLHandshakeCompletedListener;
 import org.mozilla.jss.ssl.SSLSocket;
 
 import com.netscape.certsrv.apps.CMS;
-import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.base.IConfigStore;
+
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPSSLSocketFactoryExt;
 
 /**
  * Uses HCL ssl socket.
  *
  * @author Lily Hsiao lhsiao@netscape.com
  */
-public class LdapJssSSLSocketFactory implements LDAPSSLSocketFactoryExt {
-    private String mClientAuthCertNickname = null;
-    private boolean mClientAuth = false;
+public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
 
-    public LdapJssSSLSocketFactory() {
+    private boolean secure;
+    private String mClientAuthCertNickname;
+    private boolean mClientAuth;
+    private boolean keepAlive;
+
+    public PKISocketFactory() {
+        init();
     }
 
-    public LdapJssSSLSocketFactory(String certNickname) {
+    public PKISocketFactory(boolean secure) {
+        this.secure = secure;
+        init();
+    }
+
+    public PKISocketFactory(String certNickname) {
+        this.secure = true;
         mClientAuthCertNickname = certNickname;
+        init();
+    }
+
+    public void init() {
+        try {
+            IConfigStore cs = CMS.getConfigStore();
+            keepAlive = cs.getBoolean("tcp.keepAlive", true);
+            CMS.debug("TCP Keep-Alive: " + keepAlive);
+
+        } catch (Exception e) {
+            CMS.debug(e);
+            throw new RuntimeException("Unable to read TCP configuration: " + e, e);
+        }
+    }
+
+    public SSLSocket makeSSLSocket(String host, int port) throws UnknownHostException, IOException {
+
+        /*
+         * let inherit TLS range and cipher settings
+         */
+
+        SSLSocket s;
+
+        if (mClientAuthCertNickname == null) {
+            s = new SSLSocket(host, port);
+
+        } else {
+            // Let's create a selection callback in the case the client auth
+            // No longer manually set the cert name.
+            // This two step process, used in the JSS client auth test suite,
+            // appears to be needed to get this working.
+
+            Socket js = new Socket(InetAddress.getByName(host), port);
+            s = new SSLSocket(js, host,
+                    null,
+                    new SSLClientCertificateSelectionCB(mClientAuthCertNickname));
+        }
+
+        s.setUseClientMode(true);
+        s.enableV2CompatibleHello(false);
+
+        SSLHandshakeCompletedListener listener = null;
+
+        listener = new ClientHandshakeCB(this);
+        s.addHandshakeCompletedListener(listener);
+
+        if (mClientAuthCertNickname != null) {
+            mClientAuth = true;
+            CMS.debug("LdapJssSSLSocket: set client auth cert nickname " +
+                    mClientAuthCertNickname);
+
+            //We have already established the manual cert selection callback
+            //Doing it this way will provide some debugging info on the candidate certs
+        }
+        s.forceHandshake();
+
+        return s;
     }
 
     public Socket makeSocket(String host, int port) throws LDAPException {
-        SSLSocket s = null;
+
+        Socket s = null;
 
         try {
-            /*
-             * let inherit TLS range and cipher settings
-             */
+            if (!secure) {
+                s = new Socket(host, port);
 
-            if (mClientAuthCertNickname == null) {
-                s = new SSLSocket(host, port);
-            }
-            else {
-                //Let's create a selection callback in the case the client auth
-                //No longer manually set the cert name.
-                //This two step process, used in the JSS client auth test suite,
-                //appears to be needed to get this working.
-
-                Socket js = new Socket(InetAddress.getByName(host), port);
-                s = new SSLSocket(js, host,
-                        null,
-                        new SSLClientCertificateSelectionCB(mClientAuthCertNickname));
+            } else {
+                s = makeSSLSocket(host, port);
             }
 
-            s.setUseClientMode(true);
-            s.enableV2CompatibleHello(false);
+            s.setKeepAlive(keepAlive);
 
-            SSLHandshakeCompletedListener listener = null;
-
-            listener = new ClientHandshakeCB(this);
-            s.addHandshakeCompletedListener(listener);
-
-            if (mClientAuthCertNickname != null) {
-                mClientAuth = true;
-                CMS.debug("LdapJssSSLSocket: set client auth cert nickname " +
-                        mClientAuthCertNickname);
-
-                //We have already established the manual cert selection callback
-                //Doing it this way will provide some debugging info on the candidate certs
-            }
-            s.forceHandshake();
-
-        } catch (UnknownHostException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_LDAPCONN_UNKNOWN_HOST"));
-            throw new LDAPException(
-                    "Cannot Create JSS SSL Socket - Unknown host: " + e);
-
-        } catch (IOException e) {
+        } catch (Exception e) {
+            CMS.debug(e);
             if (s != null) {
                 try {
                     s.close();
                 } catch (IOException e1) {
-                    e1.printStackTrace();
+                    CMS.debug(e1);
                 }
             }
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_LDAPCONN_IO_ERROR", e.toString()));
-            throw new LDAPException("IO Error creating JSS SSL Socket: " + e);
+            throw new LDAPException("Unable to create socket: " + e);
         }
 
         return s;

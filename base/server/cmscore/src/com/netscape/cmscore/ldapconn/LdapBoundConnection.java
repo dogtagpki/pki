@@ -19,14 +19,14 @@ package com.netscape.cmscore.ldapconn;
 
 import java.util.Properties;
 
+import com.netscape.certsrv.apps.CMS;
+
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPRebind;
 import netscape.ldap.LDAPRebindAuth;
 import netscape.ldap.LDAPSocketFactory;
 import netscape.ldap.LDAPv2;
-
-import com.netscape.certsrv.apps.CMS;
 
 /**
  * A LDAP connection that is bound to a server host, port, secure type.
@@ -56,8 +56,8 @@ public class LdapBoundConnection extends LDAPConnection {
         // this LONG line to satisfy super being the first call. (yuk)
         super(
                 authInfo.getAuthType() == LdapAuthInfo.LDAP_AUTHTYPE_SSLCLIENTAUTH ?
-                        new LdapJssSSLSocketFactory(authInfo.getParms()[0]) :
-                        (connInfo.getSecure() ? new LdapJssSSLSocketFactory() : null));
+                        new PKISocketFactory(authInfo.getParms()[0]) :
+                        new PKISocketFactory(connInfo.getSecure()));
 
         // Set option to automatically follow referrals.
         // Use the same credentials to follow referrals; this is the easiest

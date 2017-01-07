@@ -75,6 +75,7 @@ import com.netscape.cmsutil.password.IPasswordStore;
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPSSLSocketFactoryExt;
+import netscape.ldap.LDAPSocketFactory;
 import netscape.security.util.ObjectIdentifier;
 import netscape.security.x509.Extension;
 import netscape.security.x509.GeneralName;
@@ -646,6 +647,13 @@ public interface ICMSEngine extends ISubsystem {
      * @return LDAP SSL socket factory
      */
     public LDAPSSLSocketFactoryExt getLdapJssSSLSocketFactory();
+
+    /**
+     * Creates an LDAP socket factory.
+     *
+     * @return LDAP SSL socket factory
+     */
+    public LDAPSocketFactory getLDAPSocketFactory(boolean secure);
 
     /**
      * Creates a LDAP Auth Info object.

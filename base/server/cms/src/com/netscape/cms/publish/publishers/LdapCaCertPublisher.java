@@ -22,6 +22,15 @@ import java.security.cert.X509Certificate;
 import java.util.Locale;
 import java.util.Vector;
 
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.IExtendedPluginInfo;
+import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.ldap.ELdapServerDownException;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.publish.ILdapPublisher;
+
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPEntry;
@@ -31,15 +40,6 @@ import netscape.ldap.LDAPModificationSet;
 import netscape.ldap.LDAPSSLSocketFactoryExt;
 import netscape.ldap.LDAPSearchResults;
 import netscape.ldap.LDAPv2;
-
-import com.netscape.certsrv.apps.CMS;
-import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.IExtendedPluginInfo;
-import com.netscape.certsrv.ldap.ELdapException;
-import com.netscape.certsrv.ldap.ELdapServerDownException;
-import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.publish.ILdapPublisher;
 
 /**
  * Interface for publishing a CA certificate to
@@ -179,9 +179,11 @@ public class LdapCaCertPublisher
                 int portVal = Integer.parseInt(port);
                 int version = Integer.parseInt(mConfig.getString("version", "2"));
                 String cert_nick = mConfig.getString("clientCertNickname", null);
-                LDAPSSLSocketFactoryExt sslSocket = null;
+                LDAPSSLSocketFactoryExt sslSocket;
                 if (cert_nick != null) {
                     sslSocket = CMS.getLdapJssSSLSocketFactory(cert_nick);
+                } else {
+                    sslSocket = CMS.getLdapJssSSLSocketFactory();
                 }
                 String mgr_dn = mConfig.getString("bindDN", null);
                 String mgr_pwd = mConfig.getString("bindPWD", null);
