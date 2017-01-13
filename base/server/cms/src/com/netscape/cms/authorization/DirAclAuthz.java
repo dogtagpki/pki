@@ -53,10 +53,19 @@ public class DirAclAuthz extends AAclAuthz
     // members
 
     protected static final String PROP_BASEDN = "basedn";
+    protected static final String PROP_SEARCHBASE = "searchBase";
 
     private ILdapConnFactory mLdapConnFactory = null;
     private String mBaseDN = null;
     private static boolean needsFlush = false;
+
+    /**
+     * If configured, this is an LDAP RDN sequence to be
+     * prepended to the LDAP base DN, as the base of the
+     * search.  If non-null, the search filter also changes
+     * from (cn=aclResources) to (objectclass=CertACLS).
+     */
+    private String searchBase = null;
 
     static {
         mExtendedPluginInfo.add("ldap.ldapconn.host;string,required;" +
@@ -106,6 +115,8 @@ public class DirAclAuthz extends AAclAuthz
             throws EBaseException {
         super.init(name, implName, config);
 
+        searchBase = config.getString(PROP_SEARCHBASE, null);
+
         // initialize LDAP connection factory
         IConfigStore ldapConfig = config.getSubStore("ldap");
 
@@ -134,11 +145,20 @@ public class DirAclAuthz extends AAclAuthz
         // into memory
         LDAPConnection conn = null;
 
-        CMS.debug("DirAclAuthz: about to ldap search aclResources");
+        String basedn = mBaseDN;
+        String filter = "cn=aclResources";
+        if (searchBase != null) {
+            basedn = String.join(",", searchBase, basedn);
+            filter = "objectclass=CertACLs";
+        }
+
+        CMS.debug(
+            "DirAclAuthz: about to ldap search "
+            + basedn + " (" + filter + ")");
         try {
             conn = getConn();
-            LDAPSearchResults res = conn.search(mBaseDN, LDAPv2.SCOPE_SUB,
-                    "cn=aclResources", null, false);
+            LDAPSearchResults res = conn.search(
+                    basedn, LDAPv2.SCOPE_SUB, filter, null, false);
 
             returnConn(conn);
             if (res.hasMoreElements()) {
