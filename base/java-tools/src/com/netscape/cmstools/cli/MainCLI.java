@@ -35,6 +35,7 @@ import javax.ws.rs.ProcessingException;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
+import org.apache.commons.cli.UnrecognizedOptionException;
 import org.apache.commons.lang.StringUtils;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.CryptoManager.NotInitializedException;
@@ -206,7 +207,7 @@ public class MainCLI extends CLI {
         options.addOption(null, "version", false, "Show version number.");
     }
 
-    public String[] readPlaintextPasswordFromFile(String pwfile) throws IOException {
+    public String[] readPlaintextPasswordFromFile(String pwfile) throws Exception {
         String[] tokenPassword = { null, null };
         BufferedReader br = null;
         String delimiter = "=";
@@ -217,8 +218,8 @@ public class MainCLI extends CLI {
             String line = br.readLine();
             if (line != null) {
                 if (line.isEmpty()) {
-                    System.err.println("Error:  File '" + pwfile + "' does not define a token or a password!");
-                    System.exit(-1);
+                    throw new Exception("File '" + pwfile + "' does not define a token or a password!");
+
                 } else if (line.contains(delimiter)) {
                     // Process 'token=password' format:
                     //
@@ -238,8 +239,7 @@ public class MainCLI extends CLI {
 
                     // Check for undefined 'password'
                     if (tokenPassword[1].isEmpty()) {
-                        System.err.println("Error:  File '" + pwfile + "' does not define a password!");
-                        System.exit(-1);
+                        throw new Exception("File '" + pwfile + "' does not define a password!");
                     }
                 } else {
                     // Set default 'token'
@@ -250,12 +250,8 @@ public class MainCLI extends CLI {
                 }
             } else {
                 // Case of an empty password file
-                System.err.println("Error:  File '" + pwfile + "' is empty!");
-                System.exit(-1);
+                throw new Exception("File '" + pwfile + "' is empty!");
             }
-        } catch (Exception e) {
-            System.err.println("Error: " + e.getMessage());
-            System.exit(-1);
         } finally {
             if (br != null) {
                 br.close();
@@ -283,7 +279,7 @@ public class MainCLI extends CLI {
         CAClient caClient = new CAClient(client);
 
         while (!caClient.exists()) {
-            System.err.println("ERROR: CA subsystem not available");
+            System.err.println("Error: CA subsystem not available");
 
             URI serverURI = config.getServerURI();
             String uri = serverURI.getScheme() + "://" + serverURI.getHost() + ":" + serverURI.getPort();
@@ -342,29 +338,24 @@ public class MainCLI extends CLI {
 
         // check authentication parameters
         if (certNickname != null && username != null) {
-            System.err.println("Error: The '-n' and '-u' options are mutually exclusive.");
-            System.exit(-1);
+            throw new Exception("The '-n' and '-u' options are mutually exclusive.");
 
         } else if (certNickname != null) { // client certificate authentication
 
             if (certPasswordFile != null && certPassword != null) {
-                System.err.println("Error: The '-C' and '-c' options are mutually exclusive.");
-                System.exit(-1);
+                throw new Exception("The '-C' and '-c' options are mutually exclusive.");
 
             } else if (certPasswordFile == null && certPassword == null) {
-                System.err.println("Error: Missing security database password.");
-                System.exit(-1);
+                throw new Exception("Missing security database password.");
             }
 
         } else if (username != null) { // basic authentication
 
             if (passwordFile != null && password != null) {
-                System.err.println("Error: The '-W' and '-w' options are mutually exclusive.");
-                System.exit(-1);
+                throw new Exception("The '-W' and '-w' options are mutually exclusive.");
 
             } else if (passwordFile == null && password == null) {
-                System.err.println("Error: Missing user password.");
-                System.exit(-1);
+                throw new Exception("Missing user password.");
             }
         }
 
@@ -396,13 +387,7 @@ public class MainCLI extends CLI {
             // NOTE:  This overrides the password callback provided
             //        by JSS for NSS security database authentication.
             //
-            try {
-                certPassword = promptForPassword("Enter Client Security Database Password: ");
-
-            } catch (Exception e) {
-                System.err.println("Error: " + e.getMessage());
-                System.exit(-1);
-            }
+            certPassword = promptForPassword("Enter Client Security Database Password: ");
         }
 
         // store security database password
@@ -420,13 +405,7 @@ public class MainCLI extends CLI {
 
         } else if (username != null && password == null) {
             // prompt for user password if required for authentication
-            try {
-                password = promptForPassword();
-
-            } catch (Exception e) {
-                System.err.println("Error: " + e.getMessage());
-                System.exit(-1);
-            }
+            password = promptForPassword();
         }
 
         // store user password
@@ -458,7 +437,7 @@ public class MainCLI extends CLI {
                 statuses.add(field.getInt(null));
 
             } catch (NoSuchFieldException e) {
-                throw new Error("Invalid cert status \"" + status + "\".", e);
+                throw new Exception("Invalid cert status \"" + status + "\".", e);
             }
         }
     }
@@ -491,11 +470,11 @@ public class MainCLI extends CLI {
 
             } catch (NotInitializedException e) {
                 // The original exception doesn't contain a message.
-                throw new Error("Client security database does not exist.");
+                throw new Exception("Client security database does not exist.", e);
 
             } catch (IncorrectPasswordException e) {
                 // The original exception doesn't contain a message.
-                throw new IncorrectPasswordException("Incorrect client security database password.");
+                throw new Exception("Incorrect client security database password.", e);
             }
 
         }
@@ -517,24 +496,19 @@ public class MainCLI extends CLI {
 
     public void execute(String[] args) throws Exception {
 
-        CommandLine cmd;
-        try {
-            cmd = parser.parse(options, args, true);
-        } catch (Exception e) {
-            throw new Error(e.getMessage(), e);
-        }
+        CommandLine cmd = parser.parse(options, args, true);
 
         String[] cmdArgs = cmd.getArgs();
 
         if (cmd.hasOption("version")) {
             printVersion();
-            System.exit(0);
+            return;
         }
 
         if (cmdArgs.length == 0 || cmd.hasOption("help")) {
             // Print 'pki' usage
             printHelp();
-            System.exit(0);
+            return;
         }
 
         parseOptions(cmd);
@@ -568,26 +542,37 @@ public class MainCLI extends CLI {
         System.out.println(StringUtils.repeat("-", message.length()));
     }
 
+    public static void handleException(Throwable t) {
+
+        if (verbose) {
+            t.printStackTrace(System.err);
+
+        } else if (t.getClass() == Exception.class) {
+            // display a generic error
+            System.err.println("Error: " + t.getMessage());
+
+        } else if (t.getClass() == UnrecognizedOptionException.class) {
+            // display only the error message
+            System.err.println(t.getMessage());
+
+        } else if (t instanceof ProcessingException) {
+            // display the cause of the exception
+            t = t.getCause();
+            System.err.println(t.getClass().getSimpleName() + ": " + t.getMessage());
+
+        } else {
+            // display the actual Exception
+            System.err.println(t.getClass().getSimpleName() + ": " + t.getMessage());
+        }
+    }
+
     public static void main(String args[]) {
         try {
             MainCLI cli = new MainCLI();
             cli.execute(args);
 
-        } catch (ProcessingException e) {
-            Throwable t = e.getCause();
-            if (verbose) {
-                t.printStackTrace(System.err);
-            } else {
-                System.err.println(t.getClass().getSimpleName() + ": " + t.getMessage());
-            }
-            System.exit(-1);
-
         } catch (Throwable t) {
-            if (verbose) {
-                t.printStackTrace(System.err);
-            } else {
-                System.err.println(t.getClass().getSimpleName() + ": " + t.getMessage());
-            }
+            handleException(t);
             System.exit(-1);
         }
     }

@@ -40,16 +40,7 @@ public class HelpCLI extends CLI {
 
     public void execute(String[] args) throws Exception {
 
-        CommandLine cmd = null;
-
-        try {
-            cmd = parser.parse(options, args);
-
-        } catch (Exception e) {
-            System.err.println("Error: " + e.getMessage());
-            printHelp();
-            System.exit(-1);
-        }
+        CommandLine cmd = parser.parse(options, args);
 
         String[] cmdArgs = cmd.getArgs();
 

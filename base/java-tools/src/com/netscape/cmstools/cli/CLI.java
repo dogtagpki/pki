@@ -158,7 +158,7 @@ public class CLI {
             }
 
             if (module == null)
-                throw new Error("Invalid module \"" + moduleName + "\".");
+                throw new Exception("Invalid module \"" + moduleName + "\".");
 
             // module found
             results.add(module);
@@ -312,7 +312,7 @@ public class CLI {
         }
 
         if (module == null) {
-            throw new Error("Invalid module \"" + getFullModuleName(moduleName) + "\".");
+            throw new Exception("Invalid module \"" + getFullModuleName(moduleName) + "\".");
         }
 
         if (verbose) System.out.println("Module: " + moduleName);
