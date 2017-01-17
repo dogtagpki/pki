@@ -18,18 +18,14 @@
 
 package com.netscape.cmstools.cert;
 
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 
-import javax.xml.bind.JAXBException;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.apache.commons.cli.ParseException;
 
 import com.netscape.certsrv.cert.CertDataInfo;
 import com.netscape.certsrv.cert.CertDataInfos;
@@ -199,27 +195,16 @@ public class CertFindCLI extends CLI {
     public void execute(String[] args) throws Exception {
         // Always check for "--help" prior to parsing
         if (Arrays.asList(args).contains("--help")) {
-            // Display usage
             printHelp();
-            System.exit(0);
+            return;
         }
 
-        CommandLine cmd = null;
-
-        try {
-            cmd = parser.parse(options, args);
-        } catch (ParseException e) {
-            System.err.println("Error: " + e.getMessage());
-            printHelp();
-            System.exit(-1);
-        }
+        CommandLine cmd = parser.parse(options, args);
 
         String[] cmdArgs = cmd.getArgs();
 
         if (cmdArgs.length != 0) {
-            System.err.println("Error: Too many arguments specified.");
-            printHelp();
-            System.exit(-1);
+            throw new Exception("Too many arguments specified.");
         }
 
         CertSearchRequest searchData = null;
@@ -228,9 +213,7 @@ public class CertFindCLI extends CLI {
         if (cmd.hasOption("input")) {
             fileName = cmd.getOptionValue("input");
             if (fileName == null || fileName.length() < 1) {
-                System.err.println("Error: No file name specified.");
-                printHelp();
-                System.exit(-1);
+                throw new Exception("No file name specified.");
             }
         }
 
@@ -239,14 +222,6 @@ public class CertFindCLI extends CLI {
             try {
                 reader = new FileReader(fileName);
                 searchData = CertSearchRequest.valueOf(reader);
-
-            } catch (FileNotFoundException e) {
-                System.err.println("Error: " + e.getMessage());
-                System.exit(-1);
-
-            } catch (JAXBException e) {
-                System.err.println("Error: " + e.getMessage());
-                System.exit(-1);
 
             } finally {
                 if (reader != null)
@@ -290,7 +265,7 @@ public class CertFindCLI extends CLI {
         MainCLI.printMessage("Number of entries returned " + certs.getEntries().size());
     }
 
-    public Long convertValidityDurationUnit(String unit) {
+    public Long convertValidityDurationUnit(String unit) throws Exception {
 
         if (unit.equalsIgnoreCase("day")) {
             return 86400000l;
@@ -305,12 +280,12 @@ public class CertFindCLI extends CLI {
             return 31536000000l;
 
         } else {
-            throw new Error("Invalid validity duration unit: "+unit);
+            throw new Exception("Invalid validity duration unit: " + unit);
         }
     }
 
     public void addSearchAttribute(CommandLine cmd, CertSearchRequest csd)
-            throws java.text.ParseException {
+            throws Exception {
 
         if (cmd.hasOption("minSerialNumber")) {
             csd.setSerialNumberRangeInUse(true);
@@ -387,7 +362,7 @@ public class CertFindCLI extends CLI {
             if (reason != null) {
                 csd.setRevocationReason(Integer.toString(reason.getCode()));
             } else {
-                throw new Error("Invalid revocation reason");
+                throw new Exception("Invalid revocation reason");
             }
         }
         if (cmd.hasOption("issuedBy")) {
@@ -466,11 +441,11 @@ public class CertFindCLI extends CLI {
         if (csd.getValidityLengthInUse()) {
 
             if (csd.getValidityOperation() == null) {
-                throw new Error("Mising validity duration operation");
+                throw new Exception("Mising validity duration operation");
             }
 
             if (csd.getValidityCount() == null) {
-                throw new Error("Mising validity duration count");
+                throw new Exception("Mising validity duration count");
             }
 
             if (csd.getValidityUnit() == null) {

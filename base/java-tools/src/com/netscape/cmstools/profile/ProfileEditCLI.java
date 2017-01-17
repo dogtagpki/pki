@@ -18,14 +18,12 @@
 
 package com.netscape.cmstools.profile;
 
-import java.lang.ProcessBuilder;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Properties;
 
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.ParseException;
 
 import com.netscape.cmstools.cli.CLI;
 
@@ -45,27 +43,16 @@ public class ProfileEditCLI extends CLI {
     public void execute(String[] args) throws Exception {
         // Always check for "--help" prior to parsing
         if (Arrays.asList(args).contains("--help")) {
-            // Display usage
             printHelp();
-            System.exit(0);
+            return;
         }
 
-        CommandLine cmd = null;
-
-        try {
-            cmd = parser.parse(options, args);
-        } catch (ParseException e) {
-            System.err.println("Error: " + e.getMessage());
-            printHelp();
-            System.exit(-1);
-        }
+        CommandLine cmd = parser.parse(options, args);
 
         String[] cmdArgs = cmd.getArgs();
 
         if (cmdArgs.length < 1) {
-            System.err.println("Error: No Profile ID specified.");
-            printHelp();
-            System.exit(-1);
+            throw new Exception("No Profile ID specified.");
         }
 
         String profileId = cmdArgs[0];
@@ -74,8 +61,7 @@ public class ProfileEditCLI extends CLI {
         Properties orig = profileCLI.profileClient.retrieveProfileRaw(profileId);
         String enabled = orig.getProperty("enable");
         if (Boolean.valueOf(enabled)) {
-            System.err.println("Error: Cannot edit profile. Profile must be disabled.");
-            System.exit(-1);
+            throw new Exception("Cannot edit profile. Profile must be disabled.");
         }
         Path tempFile = Files.createTempFile("pki", ".cfg");
 
@@ -94,8 +80,7 @@ public class ProfileEditCLI extends CLI {
             pb.inheritIO();
             int exitCode = pb.start().waitFor();
             if (exitCode != 0) {
-                System.err.println("Error: editor exited abnormally.");
-                System.exit(-1);
+                throw new Exception("Exited abnormally.");
             }
 
             // read data from temporary file and modify if changed

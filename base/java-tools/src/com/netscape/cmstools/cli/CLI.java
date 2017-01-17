@@ -249,7 +249,7 @@ public class CLI {
         if ((args.length == 0) || (args[0].equals("--help"))) {
             // Print commands associated with this module
             printHelp();
-            System.exit(0);
+            return;
         }
 
         // TODO: Rewrite using findModules().

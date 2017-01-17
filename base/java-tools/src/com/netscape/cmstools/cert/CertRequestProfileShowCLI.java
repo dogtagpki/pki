@@ -4,7 +4,6 @@ import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.apache.commons.cli.ParseException;
 
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
 import com.netscape.cmstools.cli.CLI;
@@ -35,27 +34,16 @@ public class CertRequestProfileShowCLI extends CLI {
     public void execute(String[] args) throws Exception {
         // Always check for "--help" prior to parsing
         if (Arrays.asList(args).contains("--help")) {
-            // Display usage
             printHelp();
-            System.exit(0);
+            return;
         }
 
-        CommandLine cmd = null;
-
-        try {
-            cmd = parser.parse(options, args);
-        } catch (ParseException e) {
-            System.err.println("Error: " + e.getMessage());
-            printHelp();
-            System.exit(-1);
-        }
+        CommandLine cmd = parser.parse(options, args);
 
         String[] cmdArgs = cmd.getArgs();
 
         if (cmdArgs.length < 1) {
-            System.err.println("Error: Missing Profile ID.");
-            printHelp();
-            System.exit(-1);
+            throw new Exception("Missing Profile ID.");
         }
 
         String profileId = cmdArgs[0];
@@ -65,9 +53,7 @@ public class CertRequestProfileShowCLI extends CLI {
             filename = cmd.getOptionValue("output");
 
             if (filename == null || filename.trim().length() == 0) {
-                System.err.println("Error: Missing output file name.");
-                printHelp();
-                System.exit(-1);
+                throw new Exception("Missing output file name.");
             }
         }
 

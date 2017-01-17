@@ -13,10 +13,8 @@ import javax.xml.bind.Unmarshaller;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.apache.commons.cli.ParseException;
 import org.apache.commons.lang.StringUtils;
 
-import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.cert.CertRequestInfo;
 import com.netscape.certsrv.cert.CertReviewResponse;
 import com.netscape.certsrv.request.RequestId;
@@ -58,44 +56,30 @@ public class CertRequestReviewCLI extends CLI {
     public void execute(String[] args) throws Exception {
         // Always check for "--help" prior to parsing
         if (Arrays.asList(args).contains("--help")) {
-            // Display usage
             printHelp();
-            System.exit(0);
+            return;
         }
 
-        CommandLine cmd = null;
-
-        try {
-            cmd = parser.parse(options, args);
-        } catch (ParseException e) {
-            System.err.println("Error: " + e.getMessage());
-            printHelp();
-            System.exit(-1);
-        }
+        CommandLine cmd = parser.parse(options, args);
 
         String[] cmdArgs = cmd.getArgs();
 
         if (cmdArgs.length < 1) {
-            System.err.println("Error: Missing Certificate Request ID.");
-            printHelp();
-            System.exit(-1);
+            throw new Exception("Missing Certificate Request ID.");
         }
 
         RequestId requestId = null;
         try {
             requestId = new RequestId(cmdArgs[0]);
         } catch (NumberFormatException e) {
-            System.err.println("Error: Invalid certificate request ID " + cmdArgs[0] + ".");
-            System.exit(-1);
+            throw new Exception("Invalid certificate request ID " + cmdArgs[0] + ".", e);
         }
 
         // Since "--action <action>" and "--file <filename>" are mutually
         // exclusive, check to make certain that only one has been set
         if (cmd.hasOption("action") && cmd.hasOption("file")) {
-            System.err.println("Error: The '--action <action>' and '--file <filename>' " +
-                               "options are mutually exclusive!");
-            printHelp();
-            System.exit(-1);
+            throw new Exception("The '--action <action>' and '--file <filename>' " +
+                                "options are mutually exclusive!");
         }
 
         String action = cmd.getOptionValue("action");
@@ -105,26 +89,16 @@ public class CertRequestReviewCLI extends CLI {
             if (cmd.hasOption("file")) {
                 filename = cmd.getOptionValue("file");
             } else {
-                System.err.println("Error: Missing '--action <action>' or '--file <filename>' option.");
-                printHelp();
-                System.exit(-1);
+                throw new Exception("Missing '--action <action>' or '--file <filename>' option.");
             }
 
             if (filename == null || filename.trim().length() == 0) {
-                System.err.println("Error: Missing output file name.");
-                printHelp();
-                System.exit(-1);
+                throw new Exception("Missing output file name.");
             }
         }
 
         // Retrieve certificate request.
-        CertReviewResponse reviewInfo = null;
-        try {
-            reviewInfo = certCLI.certClient.reviewRequest(requestId);
-        } catch (PKIException e) {
-            System.err.println(e.getMessage());
-            System.exit(-1);
-        }
+        CertReviewResponse reviewInfo = certCLI.certClient.reviewRequest(requestId);
 
         if (action == null) {
             // Store certificate request in a file.
@@ -187,7 +161,7 @@ public class CertRequestReviewCLI extends CLI {
             MainCLI.printMessage("Unassigned certificate request " + requestId);
 
         } else {
-            throw new Error("Invalid action: " + action);
+            throw new Exception("Invalid action: " + action);
         }
 
         CertRequestInfo certRequest = certCLI.certClient.getRequest(requestId);

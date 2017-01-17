@@ -12,7 +12,6 @@ import java.util.Vector;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.apache.commons.cli.ParseException;
 
 import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
@@ -74,20 +73,11 @@ public class CertRequestSubmitCLI extends CLI {
     public void execute(String[] args) throws Exception {
         // Always check for "--help" prior to parsing
         if (Arrays.asList(args).contains("--help")) {
-            // Display usage
             printHelp();
-            System.exit(0);
+            return;
         }
 
-        CommandLine cmd = null;
-
-        try {
-            cmd = parser.parse(options, args);
-        } catch (ParseException e) {
-            System.err.println("Error: " + e.getMessage());
-            printHelp();
-            System.exit(-1);
-        }
+        CommandLine cmd = parser.parse(options, args);
 
         String[] cmdArgs = cmd.getArgs();
 
@@ -95,15 +85,11 @@ public class CertRequestSubmitCLI extends CLI {
         String profileID = cmd.getOptionValue("profile");
 
         if (requestFilename == null && profileID == null) {
-            System.err.println("Error: Missing request file or profile ID.");
-            printHelp();
-            System.exit(-1);
+            throw new Exception("Missing request file or profile ID.");
         }
 
         if (requestFilename != null && profileID != null) {
-            System.err.println("Error: Request file and profile ID are mutually exclusive.");
-            printHelp();
-            System.exit(-1);
+            throw new Exception("Request file and profile ID are mutually exclusive.");
         }
 
         AuthorityID aid = null;
@@ -112,9 +98,7 @@ public class CertRequestSubmitCLI extends CLI {
             try {
                 aid = new AuthorityID(aidString);
             } catch (IllegalArgumentException e) {
-                System.err.println("Bad AuthorityID: " + aidString);
-                printHelp();
-                System.exit(-1);
+                throw new Exception("Bad AuthorityID: " + aidString, e);
             }
         }
 
@@ -124,16 +108,12 @@ public class CertRequestSubmitCLI extends CLI {
             try {
                 adn = new X500Name(adnString);
             } catch (IOException e) {
-                System.err.println("Bad DN: " + adnString);
-                printHelp();
-                System.exit(-1);
+                throw new Exception("Bad DN: " + adnString, e);
             }
         }
 
         if (aid != null && adn != null) {
-            System.err.println("--issuer-id and --issuer-dn options are mutually exclusive");
-            printHelp();
-            System.exit(-1);
+            throw new Exception("--issuer-id and --issuer-dn options are mutually exclusive");
         }
 
         String requestType = cmd.getOptionValue("request-type");

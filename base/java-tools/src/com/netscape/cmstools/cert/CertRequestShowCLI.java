@@ -3,7 +3,6 @@ package com.netscape.cmstools.cert;
 import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.ParseException;
 
 import com.netscape.certsrv.cert.CertRequestInfo;
 import com.netscape.certsrv.request.RequestId;
@@ -29,35 +28,23 @@ public class CertRequestShowCLI extends CLI {
     public void execute(String[] args) throws Exception {
         // Always check for "--help" prior to parsing
         if (Arrays.asList(args).contains("--help")) {
-            // Display usage
             printHelp();
-            System.exit(0);
+            return;
         }
 
-        CommandLine cmd = null;
-
-        try {
-            cmd = parser.parse(options, args);
-        } catch (ParseException e) {
-            System.err.println("Error: " + e.getMessage());
-            printHelp();
-            System.exit(-1);
-        }
+        CommandLine cmd = parser.parse(options, args);
 
         String[] cmdArgs = cmd.getArgs();
 
         if (cmdArgs.length < 1) {
-            System.err.println("Error: Missing Certificate Request ID.");
-            printHelp();
-            System.exit(-1);
+            throw new Exception("Missing Certificate Request ID.");
         }
 
         RequestId requestId = null;
         try {
             requestId = new RequestId(cmdArgs[0]);
         } catch (NumberFormatException e) {
-            System.err.println("Error: Invalid certificate request ID " + cmdArgs[0] + ".");
-            System.exit(-1);
+            throw new Exception("Invalid certificate request ID " + cmdArgs[0] + ".", e);
         }
 
         CertRequestInfo certRequest = certCLI.certClient.getRequest(requestId);

@@ -22,8 +22,6 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 
-import netscape.security.x509.RevocationReason;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
@@ -34,6 +32,8 @@ import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
+
+import netscape.security.x509.RevocationReason;
 
 /**
  * @author Endi S. Dewata
@@ -81,28 +81,16 @@ public class CertRevokeCLI extends CLI {
     public void execute(String[] args) throws Exception {
         // Always check for "--help" prior to parsing
         if (Arrays.asList(args).contains("--help")) {
-            // Display usage
             printHelp();
-            System.exit(0);
+            return;
         }
 
-        CommandLine cmd = null;
-
-        try {
-            cmd = parser.parse(options, args);
-
-        } catch (Exception e) {
-            System.err.println("Error: " + e.getMessage());
-            printHelp();
-            System.exit(-1);
-        }
+        CommandLine cmd = parser.parse(options, args);
 
         String[] cmdArgs = cmd.getArgs();
 
         if (cmdArgs.length != 1) {
-            System.err.println("Error: Missing Serial Number.");
-            printHelp();
-            System.exit(-1);
+            throw new Exception("Missing Serial Number.");
         }
 
         CertId certID = new CertId(cmdArgs[0]);
@@ -111,10 +99,7 @@ public class CertRevokeCLI extends CLI {
         RevocationReason reason = RevocationReason.valueOf(string);
 
         if (reason == null) {
-            System.err.println("Error: Invalid revocation reason: "+string);
-            printHelp();
-            System.exit(-1);
-            return;
+            throw new Exception("Invalid revocation reason: " + string);
         }
 
         CertData certData = certCLI.certClient.reviewCert(certID);
@@ -138,7 +123,7 @@ public class CertRevokeCLI extends CLI {
             BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
             String line = reader.readLine();
             if (!line.equalsIgnoreCase("Y")) {
-                System.exit(-1);
+                return;
             }
         }
 

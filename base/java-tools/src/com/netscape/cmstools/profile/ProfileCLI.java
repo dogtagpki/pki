@@ -3,7 +3,6 @@ package com.netscape.cmstools.profile;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -139,12 +138,12 @@ public class ProfileCLI extends CLI {
     }
 
     public static Properties readRawProfileFromFile(String filename)
-            throws IOException, RuntimeException {
+            throws Exception {
         Properties properties = new Properties();
         properties.load(Files.newInputStream(Paths.get(filename)));
         String profileId = properties.getProperty("profileId");
         if (profileId == null)
-            throw new RuntimeException("Error: Missing profileId property in profile data.");
+            throw new Exception("Missing profileId property in profile data.");
         return properties;
     }
 
