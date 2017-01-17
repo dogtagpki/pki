@@ -26,6 +26,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.tomcat.util.net.jss.TomcatJSS;
+import org.dogtagpki.server.PKIServerSocketListener;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cms.realm.PKIRealm;
@@ -118,6 +121,10 @@ public class CMSStartServlet extends HttpServlet {
 
         // Register realm for this subsystem
         ProxyRealm.registerRealm(subsystem, new PKIRealm());
+
+        // Register TomcatJSS socket listener
+        TomcatJSS tomcatJss = TomcatJSS.getInstance();
+        tomcatJss.addSocketListener(new PKIServerSocketListener());
     }
 
     public void doGet(HttpServletRequest req, HttpServletResponse res)
