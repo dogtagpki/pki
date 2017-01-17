@@ -38,6 +38,8 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.UnrecognizedOptionException;
 import org.apache.commons.lang.StringUtils;
+import org.dogtagpki.common.Info;
+import org.dogtagpki.common.InfoClient;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.CryptoManager.NotInitializedException;
 import org.mozilla.jss.crypto.CryptoToken;
@@ -81,6 +83,7 @@ public class MainCLI extends CLI {
     public Collection<Integer> rejectedCertStatuses = new HashSet<Integer>();
     public Collection<Integer> ignoredCertStatuses = new HashSet<Integer>();
 
+    public boolean ignoreBanner;
     public File certDatabase;
 
     String output;
@@ -211,6 +214,9 @@ public class MainCLI extends CLI {
 
         option = new Option(null, "ignore-cert-status", true, "Comma-separated list of ignored certificate validity statuses");
         option.setArgName("list");
+        options.addOption(option);
+
+        option = new Option(null, "ignore-banner", false, "Ignore access banner");
         options.addOption(option);
 
         option = new Option(null, "message-format", true, "Message format: xml (default), json");
@@ -432,6 +438,8 @@ public class MainCLI extends CLI {
         list = cmd.getOptionValue("ignore-cert-status");
         convertCertStatusList(list, ignoredCertStatuses);
 
+        ignoreBanner = cmd.hasOption("ignore-banner");
+
         this.certDatabase = new File(config.getCertDatabase());
         if (verbose) System.out.println("Client security database: "+this.certDatabase.getAbsolutePath());
 
@@ -502,6 +510,28 @@ public class MainCLI extends CLI {
 
             PKIConnection connection = client.getConnection();
             connection.setOutput(file);
+        }
+
+        if (!ignoreBanner) {
+
+            InfoClient infoClient = new InfoClient(client);
+            Info info = infoClient.getInfo();
+            String banner = info.getBanner();
+
+            if (banner != null) {
+
+                System.out.println(banner.trim());
+                System.out.println();
+                System.out.print("Do you want to proceed (y/N)? ");
+                System.out.flush();
+
+                BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+                String line = reader.readLine().trim();
+
+                if (!line.equalsIgnoreCase("Y")) {
+                    throw new CLIException();
+                }
+            }
         }
     }
 
@@ -577,6 +607,13 @@ public class MainCLI extends CLI {
         try {
             MainCLI cli = new MainCLI();
             cli.execute(args);
+
+        } catch (CLIException e) {
+            String message = e.getMessage();
+            if (message != null) {
+                System.err.println(message);
+            }
+            System.exit(e.getCode());
 
         } catch (Throwable t) {
             handleException(t);
