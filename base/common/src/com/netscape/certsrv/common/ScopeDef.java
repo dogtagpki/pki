@@ -194,4 +194,7 @@ public interface ScopeDef {
     public final static String SC_TKSKEYSLIST = "tksKeysList";
     public final static String SC_ROOTCERTSLIST = "rootCertsList";
     public final static String SC_ROOTCERT_TRUSTBIT = "rootTrustBit";
+
+    // access session
+    public final static String SC_ACCESS_SESSION = "accessSession";
 }
