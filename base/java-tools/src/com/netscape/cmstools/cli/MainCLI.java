@@ -28,6 +28,7 @@ import java.lang.reflect.Field;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 
@@ -61,6 +62,19 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
  * @author Endi S. Dewata
  */
 public class MainCLI extends CLI {
+
+    /**
+     * These commands should not be executed after CryptoManager.initialize()
+     * since they may modify the NSS database or execute external commands
+     * using the same NSS database.
+     */
+    public final static Collection<String> RESTRICTED_COMMANDS = Arrays.asList(
+            "client-init",
+            "client-cert-import",
+            "client-cert-mod",
+            "client-cert-request",
+            "client-cert-show"
+    );
 
     public ClientConfig config = new ClientConfig();
 
@@ -522,11 +536,7 @@ public class MainCLI extends CLI {
         // Do not call CryptoManager.initialize() on some commands
         // because otherwise the database will be locked.
         String command = cmdArgs[0];
-        if (!command.equals("client-init") &&
-                !command.equals("client-cert-import") &&
-                !command.equals("client-cert-mod") &&
-                !command.equals("client-cert-request") &&
-                !command.equals("client-cert-show")) {
+        if (!RESTRICTED_COMMANDS.contains(command)) {
             init();
         }
 
