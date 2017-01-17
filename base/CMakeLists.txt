@@ -72,6 +72,13 @@ find_file(TOMCAT_UTIL_SCAN_JAR
         /usr/share/java/tomcat
 )
 
+find_file(TOMCATJSS_JAR
+    NAMES
+        tomcatjss.jar
+    PATHS
+        /usr/share/java
+)
+
 # The order is important!
 if (APPLICATION_FLAVOR_PKI_CORE)
 
