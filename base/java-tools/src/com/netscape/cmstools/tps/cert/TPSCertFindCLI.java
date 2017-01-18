@@ -64,21 +64,11 @@ public class TPSCertFindCLI extends CLI {
     public void execute(String[] args) throws Exception {
         // Always check for "--help" prior to parsing
         if (Arrays.asList(args).contains("--help")) {
-            // Display usage
             printHelp();
-            System.exit(0);
+            return;
         }
 
-        CommandLine cmd = null;
-
-        try {
-            cmd = parser.parse(options, args);
-
-        } catch (Exception e) {
-            System.err.println("Error: " + e.getMessage());
-            printHelp();
-            System.exit(-1);
-        }
+        CommandLine cmd = parser.parse(options, args);
 
         String[] cmdArgs = cmd.getArgs();
         String filter = cmdArgs.length > 0 ? cmdArgs[0] : null;
@@ -92,15 +82,13 @@ public class TPSCertFindCLI extends CLI {
         try {
             start = string3 == null ? null : Integer.valueOf(string3);
         } catch (NumberFormatException e) {
-            System.err.println("Error: Invalid value for --start parameter: " + string3);
-            System.exit(-1);
+            throw new Exception("Invalid value for --start parameter: " + string3, e);
         }
 
         try {
             size = string4 == null ? null : Integer.valueOf(string4);
         } catch (NumberFormatException e) {
-            System.err.println("Error: Invalid value for --size parameter: " + string4);
-            System.exit(-1);
+            throw new Exception("Invalid value for --size parameter: " + string4, e);
         }
 
         TPSCertCollection result = certCLI.certClient.findCerts(filter, tokenID, start, size);
