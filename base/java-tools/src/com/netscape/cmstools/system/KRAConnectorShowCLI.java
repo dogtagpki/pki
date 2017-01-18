@@ -21,9 +21,8 @@ public class KRAConnectorShowCLI extends CLI {
     public void execute(String[] args) {
         // Always check for "--help" prior to parsing
         if (Arrays.asList(args).contains("--help")) {
-            // Display usage
             printHelp();
-            System.exit(0);
+            return;
         }
 
         KRAConnectorInfo info = kraConnectorCLI.kraConnectorClient.getConnectorInfo();

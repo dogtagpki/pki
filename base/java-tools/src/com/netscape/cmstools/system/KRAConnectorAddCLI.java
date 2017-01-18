@@ -25,7 +25,6 @@ import javax.xml.bind.Unmarshaller;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.apache.commons.cli.ParseException;
 
 import com.netscape.certsrv.system.ConnectorNotFoundException;
 import com.netscape.certsrv.system.KRAConnectorInfo;
@@ -68,27 +67,16 @@ public class KRAConnectorAddCLI extends CLI {
     public void execute(String[] args) throws Exception {
         // Always check for "--help" prior to parsing
         if (Arrays.asList(args).contains("--help")) {
-            // Display usage
             printHelp();
-            System.exit(0);
+            return;
         }
 
-        CommandLine cmd = null;
-
-        try {
-            cmd = parser.parse(options, args);
-        } catch (ParseException e) {
-            System.err.println("Error: " + e.getMessage());
-            printHelp();
-            System.exit(-1);
-        }
+        CommandLine cmd = parser.parse(options, args);
 
         String[] cmdArgs = cmd.getArgs();
 
         if (cmdArgs.length != 0) {
-            System.err.println("Error: Too many arguments specified.");
-            printHelp();
-            System.exit(-1);
+            throw new Exception("Too many arguments specified.");
         }
 
         String kraHost = cmd.getOptionValue("host");
@@ -106,9 +94,8 @@ public class KRAConnectorAddCLI extends CLI {
 
         if (inputFile != null) {
             if (connectorExists) {
-                System.err.println("Error: Cannot add new connector from file.  " +
+                throw new Exception("Cannot add new connector from file.  " +
                         "Delete the existing connector first");
-                System.exit(-1);
             }
             FileInputStream fis = new FileInputStream(inputFile);
             JAXBContext context = JAXBContext.newInstance(KRAConnectorInfo.class);
@@ -120,9 +107,8 @@ public class KRAConnectorAddCLI extends CLI {
 
         } else {
             if (!connectorExists) {
-                System.err.println("Error: Cannot add new host to existing connector.  " +
+                throw new Exception("Cannot add new host to existing connector.  " +
                         "No connector currently exists");
-                System.exit(-1);
             }
             kraConnectorCLI.kraConnectorClient.addHost(kraHost, kraPort);
             MainCLI.printMessage("Added KRA host \"" + kraHost + ":" + kraPort + "\"");

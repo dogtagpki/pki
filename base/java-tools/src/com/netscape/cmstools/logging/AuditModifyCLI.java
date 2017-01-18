@@ -67,28 +67,16 @@ public class AuditModifyCLI extends CLI {
     public void execute(String[] args) throws Exception {
         // Always check for "--help" prior to parsing
         if (Arrays.asList(args).contains("--help")) {
-            // Display usage
             printHelp();
-            System.exit(0);
+            return;
         }
 
-        CommandLine cmd = null;
-
-        try {
-            cmd = parser.parse(options, args);
-
-        } catch (Exception e) {
-            System.err.println("Error: " + e.getMessage());
-            printHelp();
-            System.exit(-1);
-        }
+        CommandLine cmd = parser.parse(options, args);
 
         String[] cmdArgs = cmd.getArgs();
 
         if (cmdArgs.length != 0) {
-            System.err.println("Error: Too many arguments specified.");
-            printHelp();
-            System.exit(-1);
+            throw new Exception("Too many arguments specified.");
         }
 
         String action = cmd.getOptionValue("action");
@@ -100,9 +88,7 @@ public class AuditModifyCLI extends CLI {
         if (action == null) { // modify audit configuration
 
             if (input == null) {
-                System.err.println("Error: Missing action or input file.");
-                printHelp();
-                System.exit(-1);
+                throw new Exception("Missing action or input file.");
             }
 
             try (BufferedReader in = new BufferedReader(new FileReader(input));
@@ -122,9 +108,7 @@ public class AuditModifyCLI extends CLI {
         } else { // change audit status
 
             if (input != null) {
-                System.err.println("Error: Action and input file are mutually exclusive.");
-                printHelp();
-                System.exit(-1);
+                throw new Exception("Action and input file are mutually exclusive.");
             }
 
             auditConfig = auditCLI.auditClient.changeAuditStatus(action);
