@@ -4,7 +4,6 @@ import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.apache.commons.cli.ParseException;
 
 import com.netscape.certsrv.authority.AuthorityData;
 import com.netscape.certsrv.ca.AuthorityID;
@@ -34,29 +33,19 @@ public class AuthorityCreateCLI extends CLI {
     public void execute(String[] args) throws Exception {
         // Always check for "--help" prior to parsing
         if (Arrays.asList(args).contains("--help")) {
-            // Display usage
             printHelp();
-            System.exit(0);
+            return;
         }
 
-        CommandLine cmd = null;
-
-        try {
-            cmd = parser.parse(options, args);
-        } catch (ParseException e) {
-            System.err.println("Error: " + e.getMessage());
-            printHelp();
-            System.exit(-1);
-        }
+        CommandLine cmd = parser.parse(options, args);
 
         String[] cmdArgs = cmd.getArgs();
-        if (cmdArgs.length != 1) {
-            if (cmdArgs.length < 1)
-                System.err.println("No DN specified.");
-            else
-                System.err.println("Too many arguments.");
-            printHelp();
-            System.exit(-1);
+
+        if (cmdArgs.length < 1) {
+            throw new Exception("No DN specified.");
+
+        } else if (cmdArgs.length > 1) {
+            throw new Exception("Too many arguments.");
         }
 
         String parentAIDString = null;
@@ -65,14 +54,10 @@ public class AuthorityCreateCLI extends CLI {
             try {
                 new AuthorityID(parentAIDString);
             } catch (IllegalArgumentException e) {
-                System.err.println("Bad CA ID: " + parentAIDString);
-                printHelp();
-                System.exit(-1);
+                throw new Exception("Bad CA ID: " + parentAIDString, e);
             }
         } else {
-            System.err.println("Must specify parent authority");
-            printHelp();
-            System.exit(-1);
+            throw new Exception("Must specify parent authority");
         }
 
         String desc = null;

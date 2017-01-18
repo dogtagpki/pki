@@ -6,8 +6,6 @@ import java.security.PublicKey;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.apache.commons.cli.ParseException;
-
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.IVParameterSpec;
@@ -46,64 +44,44 @@ public class AuthorityKeyExportCLI extends CLI {
     }
 
     public void execute(String[] args) throws Exception {
-        CommandLine cmd = null;
 
-        try {
-            cmd = parser.parse(options, args);
-        } catch (ParseException e) {
-            System.err.println("Error: " + e.getMessage());
-            printHelp();
-            System.exit(-1);
-        }
+        CommandLine cmd = parser.parse(options, args);
 
         if (cmd.hasOption("help")) {
-            // Display usage
             printHelp();
-            System.exit(0);
+            return;
         }
 
         String filename = cmd.getOptionValue("output");
         if (filename == null) {
-            System.err.println("Error: No output file specified.");
-            printHelp();
-            System.exit(-1);
+            throw new Exception("No output file specified.");
         }
 
         String wrapNick = cmd.getOptionValue("wrap-nickname");
         if (wrapNick == null) {
-            System.err.println("Error: no wrapping key nickname specified.");
-            printHelp();
-            System.exit(-1);
+            throw new Exception("No wrapping key nickname specified.");
         }
 
         String targetNick = cmd.getOptionValue("target-nickname");
         if (targetNick == null) {
-            System.err.println("Error: no target key nickname specified.");
-            printHelp();
-            System.exit(-1);
+            throw new Exception("No target key nickname specified.");
         }
 
-        try {
-            CryptoManager cm = CryptoManager.getInstance();
-            X509Certificate wrapCert = cm.findCertByNickname(wrapNick);
-            X509Certificate targetCert = cm.findCertByNickname(targetNick);
+        CryptoManager cm = CryptoManager.getInstance();
+        X509Certificate wrapCert = cm.findCertByNickname(wrapNick);
+        X509Certificate targetCert = cm.findCertByNickname(targetNick);
 
-            PublicKey wrappingKey = wrapCert.getPublicKey();
-            PrivateKey toBeWrapped = cm.findPrivKeyByCert(targetCert);
-            CryptoToken token = cm.getInternalKeyStorageToken();
+        PublicKey wrappingKey = wrapCert.getPublicKey();
+        PrivateKey toBeWrapped = cm.findPrivKeyByCert(targetCert);
+        CryptoToken token = cm.getInternalKeyStorageToken();
 
-            byte iv[] = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
-            IVParameterSpec ivps = new IVParameterSpec(iv);
+        byte iv[] = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
+        IVParameterSpec ivps = new IVParameterSpec(iv);
 
-            byte[] data = CryptoUtil.createPKIArchiveOptions(
-                token, wrappingKey, toBeWrapped,
-                KeyGenAlgorithm.DES3, 0, ivps);
+        byte[] data = CryptoUtil.createPKIArchiveOptions(
+            token, wrappingKey, toBeWrapped,
+            KeyGenAlgorithm.DES3, 0, ivps);
 
-            Files.newOutputStream(Paths.get(filename)).write(data);
-        } catch (Throwable e) {
-            e.printStackTrace();
-            System.exit(-1);
-        }
-
+        Files.newOutputStream(Paths.get(filename)).write(data);
     }
 }

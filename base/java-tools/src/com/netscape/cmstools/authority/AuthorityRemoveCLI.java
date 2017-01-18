@@ -5,7 +5,6 @@ import java.io.InputStreamReader;
 import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.ParseException;
 
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
@@ -28,29 +27,19 @@ public class AuthorityRemoveCLI extends CLI {
     public void execute(String[] args) throws Exception {
         // Always check for "--help" prior to parsing
         if (Arrays.asList(args).contains("--help")) {
-            // Display usage
             printHelp();
-            System.exit(0);
+            return;
         }
 
-        CommandLine cmd = null;
-
-        try {
-            cmd = parser.parse(options, args);
-        } catch (ParseException e) {
-            System.err.println("Error: " + e.getMessage());
-            printHelp();
-            System.exit(-1);
-        }
+        CommandLine cmd = parser.parse(options, args);
 
         String[] cmdArgs = cmd.getArgs();
-        if (cmdArgs.length != 1) {
-            if (cmdArgs.length < 1)
-                System.err.println("No ID specified.");
-            else
-                System.err.println("Too many arguments.");
-            printHelp();
-            System.exit(-1);
+
+        if (cmdArgs.length < 1) {
+            throw new Exception("No ID specified.");
+
+        } else if (cmdArgs.length > 1) {
+            throw new Exception("Too many arguments.");
         }
 
         if (!cmd.hasOption("force")) {
@@ -60,7 +49,7 @@ public class AuthorityRemoveCLI extends CLI {
             BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
             String line = reader.readLine();
             if (!line.equalsIgnoreCase("Y")) {
-                System.exit(-1);
+                return;
             }
         }
 
