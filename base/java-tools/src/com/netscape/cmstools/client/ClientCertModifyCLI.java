@@ -52,35 +52,21 @@ public class ClientCertModifyCLI extends CLI {
 
     public void execute(String[] args) throws Exception {
 
-        CommandLine cmd = null;
-
-        try {
-            cmd = parser.parse(options, args);
-
-        } catch (Exception e) {
-            System.err.println("Error: " + e.getMessage());
-            printHelp();
-            System.exit(-1);
-        }
+        CommandLine cmd = parser.parse(options, args);
 
         if (cmd.hasOption("help")) {
-            // Display usage
             printHelp();
-            System.exit(0);
+            return;
         }
 
         String[] cmdArgs = cmd.getArgs();
 
         if (cmdArgs.length > 1) {
-            System.err.println("Error: Too many arguments specified.");
-            printHelp();
-            System.exit(-1);
+            throw new Exception("Too many arguments specified.");
         }
 
         if (cmdArgs.length == 0) {
-            System.err.println("Error: Missing certificate nickname.");
-            printHelp();
-            System.exit(-1);
+            throw new Exception("Missing certificate nickname.");
         }
 
         MainCLI mainCLI = (MainCLI)parent.getParent();

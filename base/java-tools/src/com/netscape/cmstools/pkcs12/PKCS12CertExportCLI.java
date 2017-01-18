@@ -30,7 +30,6 @@ import java.util.logging.Logger;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.apache.commons.cli.ParseException;
 import org.mozilla.jss.util.Password;
 
 import com.netscape.cmstools.cli.CLI;
@@ -84,19 +83,11 @@ public class PKCS12CertExportCLI extends CLI {
 
     public void execute(String[] args) throws Exception {
 
-        CommandLine cmd = null;
-
-        try {
-            cmd = parser.parse(options, args);
-        } catch (ParseException e) {
-            System.err.println("Error: " + e.getMessage());
-            printHelp();
-            System.exit(-1);
-        }
+        CommandLine cmd = parser.parse(options, args);
 
         if (cmd.hasOption("help")) {
             printHelp();
-            System.exit(0);
+            return;
         }
 
         if (cmd.hasOption("verbose")) {
@@ -114,15 +105,11 @@ public class PKCS12CertExportCLI extends CLI {
         String id = cmd.getOptionValue("cert-id");
 
         if (cmdArgs.length < 1 && id == null) {
-            System.err.println("Error: Missing certificate nickname or ID.");
-            printHelp();
-            System.exit(-1);
+            throw new Exception("Missing certificate nickname or ID.");
         }
 
         if (cmdArgs.length >= 1 && id != null) {
-            System.err.println("Error: Certificate nickname and ID are mutually exclusive.");
-            printHelp();
-            System.exit(-1);
+            throw new Exception("Certificate nickname and ID are mutually exclusive.");
         }
 
         String nickname = null;
@@ -137,9 +124,7 @@ public class PKCS12CertExportCLI extends CLI {
         String pkcs12File = cmd.getOptionValue("pkcs12-file");
 
         if (pkcs12File == null) {
-            System.err.println("Error: Missing PKCS #12 file.");
-            printHelp();
-            System.exit(-1);
+            throw new Exception("Missing PKCS #12 file.");
         }
 
         String passwordString = cmd.getOptionValue("pkcs12-password");
@@ -155,9 +140,7 @@ public class PKCS12CertExportCLI extends CLI {
         }
 
         if (passwordString == null) {
-            System.err.println("Error: Missing PKCS #12 password.");
-            printHelp();
-            System.exit(-1);
+            throw new Exception("Missing PKCS #12 password.");
         }
 
         Password password = new Password(passwordString.toCharArray());
@@ -165,9 +148,7 @@ public class PKCS12CertExportCLI extends CLI {
         String certFile = cmd.getOptionValue("cert-file");
 
         if (certFile == null) {
-            System.err.println("Error: Missing certificate file.");
-            printHelp();
-            System.exit(-1);
+            throw new Exception("Missing certificate file.");
         }
 
         try {
@@ -187,8 +168,7 @@ public class PKCS12CertExportCLI extends CLI {
             }
 
             if (certInfos.isEmpty()) {
-                System.err.println("Error: Certificate not found.");
-                System.exit(-1);
+                throw new Exception("Certificate not found.");
             }
 
             try (PrintStream os = new PrintStream(new FileOutputStream(certFile))) {

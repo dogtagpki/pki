@@ -91,28 +91,16 @@ public class ClientCertImportCLI extends CLI {
     public void execute(String[] args) throws Exception {
         // Always check for "--help" prior to parsing
         if (Arrays.asList(args).contains("--help")) {
-            // Display usage
             printHelp();
-            System.exit(0);
+            return;
         }
 
-        CommandLine cmd = null;
-
-        try {
-            cmd = parser.parse(options, args);
-
-        } catch (Exception e) {
-            System.err.println("Error: " + e.getMessage());
-            printHelp();
-            System.exit(-1);
-        }
+        CommandLine cmd = parser.parse(options, args);
 
         String[] cmdArgs = cmd.getArgs();
 
         if (cmdArgs.length > 1) {
-            System.err.println("Error: Too many arguments specified.");
-            printHelp();
-            System.exit(-1);
+            throw new Exception("Too many arguments specified.");
         }
 
         MainCLI mainCLI = (MainCLI)parent.getParent();
@@ -265,10 +253,7 @@ public class ClientCertImportCLI extends CLI {
                     trustAttributes);
 
         } else {
-            System.err.println("Error: Missing certificate to import");
-            printHelp();
-            System.exit(-1);
-            return;
+            throw new Exception("Missing certificate to import");
         }
 
         if (nickname == null) {
@@ -286,8 +271,7 @@ public class ClientCertImportCLI extends CLI {
             String trustAttributes) throws Exception {
 
         if (nickname == null) {
-            System.err.println("Error: Missing certificate nickname.");
-            System.exit(-1);
+            throw new Exception("Missing certificate nickname.");
         }
 
         String[] command = {

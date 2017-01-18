@@ -73,19 +73,11 @@ public class PKCS12ExportCLI extends CLI {
 
     public void execute(String[] args) throws Exception {
 
-        CommandLine cmd = null;
-
-        try {
-            cmd = parser.parse(options, args, true);
-        } catch (Exception e) {
-            System.err.println("Error: " + e.getMessage());
-            printHelp();
-            System.exit(-1);
-        }
+        CommandLine cmd = parser.parse(options, args, true);
 
         if (cmd.hasOption("help")) {
             printHelp();
-            System.exit(0);
+            return;
         }
 
         if (cmd.hasOption("verbose")) {
@@ -103,9 +95,7 @@ public class PKCS12ExportCLI extends CLI {
         String filename = cmd.getOptionValue("pkcs12-file");
 
         if (filename == null) {
-            System.err.println("Error: Missing PKCS #12 file.");
-            printHelp();
-            System.exit(-1);
+            throw new Exception("Missing PKCS #12 file.");
         }
 
         String passwordString = cmd.getOptionValue("pkcs12-password");
@@ -121,9 +111,7 @@ public class PKCS12ExportCLI extends CLI {
         }
 
         if (passwordString == null) {
-            System.err.println("Error: Missing PKCS #12 password.");
-            printHelp();
-            System.exit(-1);
+            throw new Exception("Missing PKCS #12 password.");
         }
 
         Password password = new Password(passwordString.toCharArray());

@@ -26,7 +26,6 @@ import java.util.logging.Logger;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.apache.commons.cli.ParseException;
 import org.mozilla.jss.util.Password;
 
 import com.netscape.cmstools.cli.CLI;
@@ -71,19 +70,11 @@ public class PKCS12CertFindCLI extends CLI {
 
     public void execute(String[] args) throws Exception {
 
-        CommandLine cmd = null;
-
-        try {
-            cmd = parser.parse(options, args);
-        } catch (ParseException e) {
-            System.err.println("Error: " + e.getMessage());
-            printHelp();
-            System.exit(-1);
-        }
+        CommandLine cmd = parser.parse(options, args);
 
         if (cmd.hasOption("help")) {
             printHelp();
-            System.exit(0);
+            return;
         }
 
         if (cmd.hasOption("verbose")) {
@@ -100,17 +91,13 @@ public class PKCS12CertFindCLI extends CLI {
         String[] cmdArgs = cmd.getArgs();
 
         if (cmdArgs.length != 0) {
-            System.err.println("Error: Too many arguments specified.");
-            printHelp();
-            System.exit(-1);
+            throw new Exception("Too many arguments specified.");
         }
 
         String filename = cmd.getOptionValue("pkcs12-file");
 
         if (filename == null) {
-            System.err.println("Error: Missing PKCS #12 file.");
-            printHelp();
-            System.exit(-1);
+            throw new Exception("Missing PKCS #12 file.");
         }
 
         String passwordString = cmd.getOptionValue("pkcs12-password");
@@ -126,9 +113,7 @@ public class PKCS12CertFindCLI extends CLI {
         }
 
         if (passwordString == null) {
-            System.err.println("Error: Missing PKCS #12 password.");
-            printHelp();
-            System.exit(-1);
+            throw new Exception("Missing PKCS #12 password.");
         }
 
         Password password = new Password(passwordString.toCharArray());

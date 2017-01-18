@@ -127,28 +127,17 @@ public class ClientCertRequestCLI extends CLI {
     }
 
     public void execute(String[] args) throws Exception {
-        CommandLine cmd = null;
-
-        try {
-            cmd = parser.parse(options, args);
-
-        } catch (Exception e) {
-            System.err.println("Error: " + e.getMessage());
-            printHelp();
-            System.exit(-1);
-        }
+        CommandLine cmd = parser.parse(options, args);
 
         String[] cmdArgs = cmd.getArgs();
 
         if (cmd.hasOption("help")) {
             printHelp();
-            System.exit(0);
+            return;
         }
 
         if (cmdArgs.length > 1) {
-            System.err.println("Error: Too many arguments specified.");
-            printHelp();
-            System.exit(-1);
+            throw new Exception("Too many arguments specified.");
         }
 
         String certRequestUsername = cmd.getOptionValue("username");
@@ -157,9 +146,7 @@ public class ClientCertRequestCLI extends CLI {
 
         if (cmdArgs.length == 0) {
             if (certRequestUsername == null) {
-                System.err.println("Error: Missing subject DN or request username.");
-                printHelp();
-                System.exit(-1);
+                throw new Exception("Missing subject DN or request username.");
             }
 
             subjectDN = "UID=" + certRequestUsername;
@@ -221,8 +208,7 @@ public class ClientCertRequestCLI extends CLI {
 
         String password = mainCLI.config.getCertPassword();
         if (password == null) {
-            System.err.println("Error: Missing security database password.");
-            System.exit(-1);
+            throw new Exception("Missing security database password.");
         }
 
         String csr;
