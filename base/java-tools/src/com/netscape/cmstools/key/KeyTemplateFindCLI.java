@@ -1,14 +1,10 @@
 package com.netscape.cmstools.key;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import javax.xml.bind.JAXBException;
-
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.ParseException;
 
 import com.netscape.certsrv.base.ResourceMessage;
 import com.netscape.certsrv.key.KeyTemplate;
@@ -30,41 +26,23 @@ public class KeyTemplateFindCLI extends CLI {
         formatter.printHelp(getFullName() + " [OPTIONS...]", options);
     }
 
-    public void execute(String[] args) {
+    public void execute(String[] args) throws Exception {
         // Always check for "--help" prior to parsing
         if (Arrays.asList(args).contains("--help")) {
-            // Display usage
             printHelp();
-            System.exit(0);
+            return;
         }
 
-        CommandLine cmd = null;
-
-        try {
-            cmd = parser.parse(options, args);
-
-        } catch (ParseException e) {
-            System.err.println("Error: " + e.getMessage());
-            printHelp();
-            System.exit(-1);
-        }
+        CommandLine cmd = parser.parse(options, args);
 
         String[] cmdArgs = cmd.getArgs();
 
         if (cmdArgs.length != 0) {
-            System.err.println("Error: Too many arguments specified.");
-            printHelp();
-            System.exit(-1);
+            throw new Exception("Too many arguments specified.");
         }
 
-        try {
-            createTemplateList();
-        } catch (FileNotFoundException | JAXBException e) {
-            System.err.println("Error: " + e.getMessage());
-            if (verbose)
-                e.printStackTrace();
-            System.exit(-1);
-        }
+        createTemplateList();
+
         MainCLI.printMessage(templates.size() + " entries matched");
         for (KeyTemplate template : templates) {
             template.printTemplateInfo();
@@ -73,12 +51,11 @@ public class KeyTemplateFindCLI extends CLI {
         MainCLI.printMessage("Number of entries returned " + templates.size());
     }
 
-    public void createTemplateList() throws FileNotFoundException, JAXBException {
+    public void createTemplateList() throws Exception {
         String templateDir = "/usr/share/pki/key/templates/";
         File file = new File(templateDir);
         if (!file.exists()) {
-            System.err.println("Error: Missing template files.");
-            System.exit(-1);
+            throw new Exception("Missing template files.");
         }
         KeyTemplate template = null;
         ResourceMessage data = null;

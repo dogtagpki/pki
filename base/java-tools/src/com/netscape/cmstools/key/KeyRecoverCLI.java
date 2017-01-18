@@ -10,7 +10,6 @@ import javax.xml.bind.Unmarshaller;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.apache.commons.cli.ParseException;
 
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.key.KeyRecoveryRequest;
@@ -43,31 +42,19 @@ public class KeyRecoverCLI extends CLI {
         options.addOption(option);
     }
 
-    public void execute(String[] args) {
+    public void execute(String[] args) throws Exception {
         // Always check for "--help" prior to parsing
         if (Arrays.asList(args).contains("--help")) {
-            // Display usage
             printHelp();
-            System.exit(0);
+            return;
         }
 
-        CommandLine cmd = null;
-
-        try {
-            cmd = parser.parse(options, args);
-
-        } catch (ParseException e) {
-            System.err.println("Error: " + e.getMessage());
-            printHelp();
-            System.exit(-1);
-        }
+        CommandLine cmd = parser.parse(options, args);
 
         String[] cmdArgs = cmd.getArgs();
 
         if (cmdArgs.length != 0) {
-            System.err.println("Error: Too many arguments specified.");
-            printHelp();
-            System.exit(-1);
+            throw new Exception("Too many arguments specified.");
         }
 
         String requestFile = cmd.getOptionValue("input");
@@ -86,24 +73,16 @@ public class KeyRecoverCLI extends CLI {
                         Utils.base64decode(req.getTransWrappedSessionKey()), Utils.base64decode(req.getNonceData()),
                         req.getCertificate());
             } catch (JAXBException e) {
-                System.err.println("Error: Cannot parse the request file.");
-                if (verbose)
-                    e.printStackTrace();
-                System.exit(-1);
+                throw new Exception("Cannot parse the request file.", e);
             } catch (FileNotFoundException e) {
-                System.err.println("Error: Cannot locate file at path: " + requestFile);
-                if (verbose)
-                    e.printStackTrace();
-                System.exit(-1);
+                throw new Exception("Cannot locate file at path: " + requestFile, e);
             }
 
         } else if (keyID != null) {
             String keyId = cmd.getOptionValue("keyID");
             response = keyCLI.keyClient.recoverKey(new KeyId(keyId), null, null, null, null);
         } else {
-            System.err.println("Error: Neither a key ID nor a request file's path is specified.");
-            printHelp();
-            System.exit(-1);
+            throw new Exception("Neither a key ID nor a request file's path is specified.");
         }
 
         MainCLI.printMessage("Key Recovery Request Information");
