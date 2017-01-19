@@ -88,46 +88,20 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     "localhost",
                     "ROOT.xml"))
 
-            if os.path.exists(deployer.mdict['pki_theme_server_dir']):
-                # Deploy theme web application if available
-                deployer.deploy_webapp(
-                    "pki",
-                    deployer.mdict['pki_theme_server_dir'],
-                    os.path.join(
-                        deployer.mdict['pki_source_server_path'],
-                        "Catalina",
-                        "localhost",
-                        "pki.xml"))
-
-            # Deploy admin templates
+            # Deploy pki web application which includes themes,
+            # admin templates, and JS libraries
             deployer.deploy_webapp(
-                "pki#admin",
+                "pki",
                 os.path.join(
                     config.PKI_DEPLOYMENT_SOURCE_ROOT,
                     "server",
                     "webapps",
-                    "pki",
-                    "admin"),
+                    "pki"),
                 os.path.join(
                     deployer.mdict['pki_source_server_path'],
                     "Catalina",
                     "localhost",
-                    "pki#admin.xml"))
-
-            # Deploy JS library
-            deployer.deploy_webapp(
-                "pki#js",
-                os.path.join(
-                    config.PKI_DEPLOYMENT_SOURCE_ROOT,
-                    "server",
-                    "webapps",
-                    "pki",
-                    "js"),
-                os.path.join(
-                    deployer.mdict['pki_source_server_path'],
-                    "Catalina",
-                    "localhost",
-                    "pki#js.xml"))
+                    "pki.xml"))
 
             # Create Tomcat instance library
             deployer.directory.create(deployer.mdict['pki_instance_lib'])

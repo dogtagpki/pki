@@ -1,0 +1,79 @@
+#!/usr/bin/python
+# Authors:
+#     Endi S. Dewata <edewata@redhat.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+# Copyright (C) 2017 Red Hat, Inc.
+# All rights reserved.
+#
+
+from __future__ import absolute_import
+import os
+import shutil
+
+import pki
+
+
+class MergePKIWebapps(
+        pki.server.upgrade.PKIServerUpgradeScriptlet):
+
+    def __init__(self):
+        super(MergePKIWebapps, self).__init__()
+        self.message = 'Merge PKI webapps'
+
+    def upgrade_instance(self, instance):
+
+        # undeploy /pki/admin webapp
+
+        pki_admin_xml = os.path.join(
+            instance.conf_dir,
+            'Catalina',
+            'localhost',
+            'pki#admin.xml')
+
+        self.backup(pki_admin_xml)
+        os.remove(pki_admin_xml)
+
+        # undeploy /pki/admin webapp
+
+        pki_js_xml = os.path.join(
+            instance.conf_dir,
+            'Catalina',
+            'localhost',
+            'pki#js.xml')
+
+        self.backup(pki_js_xml)
+        os.remove(pki_js_xml)
+
+        # deploy /pki webapp (which includes /pki/admin and /pki/js)
+
+        source_pki_xml = os.path.join(
+            pki.SHARE_DIR,
+            'server',
+            'conf',
+            'Catalina',
+            'localhost',
+            'pki.xml')
+
+        dest_pki_xml = os.path.join(
+            instance.conf_dir,
+            'Catalina',
+            'localhost',
+            'pki.xml')
+
+        self.backup(dest_pki_xml)
+        shutil.copyfile(source_pki_xml, dest_pki_xml)
+        os.chown(dest_pki_xml, instance.uid, instance.gid)
+        os.chmod(dest_pki_xml, 0o0660)
