@@ -4097,6 +4097,12 @@ class ConfigClient:
         # Misc CA parameters
         if self.subsystem == "CA":
             data.startingCRLNumber = self.mdict['pki_ca_starting_crl_number']
+            data.createSigningCertRecord = (
+                self.mdict['pki_ca_signing_record_create'].lower()
+            )
+            data.signingCertSerialNumber = (
+                self.mdict['pki_ca_signing_serial_number'].lower()
+            )
 
         return data
 
