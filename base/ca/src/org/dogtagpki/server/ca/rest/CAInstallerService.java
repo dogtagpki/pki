@@ -24,8 +24,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.StringTokenizer;
 
-import netscape.ldap.LDAPAttribute;
-
+import org.apache.commons.lang.StringUtils;
 import org.dogtagpki.server.rest.SystemConfigService;
 
 import com.netscape.certsrv.apps.CMS;
@@ -40,6 +39,10 @@ import com.netscape.certsrv.system.ConfigurationRequest;
 import com.netscape.cms.servlet.csadmin.ConfigurationUtils;
 import com.netscape.cmscore.base.LDAPConfigStore;
 import com.netscape.cmscore.profile.LDAPProfileSubsystem;
+
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPException;
 
 /**
  * @author alee
@@ -92,6 +95,19 @@ public class CAInstallerService extends SystemConfigService {
         } catch (Exception e) {
             CMS.debug(e);
             throw new PKIException("Error enabling profile subsystem");
+        }
+
+        if (! request.createSigningCertRecord()) {
+            // This is the migration case.  In this case, we will delete the
+            // record that was created during the install process.
+
+            try {
+                String serialNumber = request.getSigningCertSerialNumber();
+                deleteSigningRecord(serialNumber);
+            } catch (Exception e) {
+                CMS.debug(e);
+                throw new PKIException("Error deleting signing cert record:" + e, e);
+            }
         }
     }
 
@@ -189,9 +205,37 @@ public class CAInstallerService extends SystemConfigService {
         configStore.commit(false /* no backup */);
     }
 
+    private void deleteSigningRecord(String serialNumber) throws EBaseException, LDAPException {
+
+        if (StringUtils.isEmpty(serialNumber)) {
+            throw new PKIException("signing certificate serial number not specified in configuration request");
+        }
+
+        LDAPConnection conn = null;
+        try {
+            IConfigStore dbCfg = cs.getSubStore("internaldb");
+            ILdapConnFactory dbFactory = CMS.getLdapBoundConnFactory("CAInstallerService");
+            dbFactory.init(dbCfg);
+            conn = dbFactory.getConn();
+
+            String basedn = dbCfg.getString("basedn", "");
+            String dn = "cn=" + serialNumber + ",ou=certificateRepository,ou=ca," + basedn;
+
+            conn.delete(dn);
+        } finally {
+            try {
+                if (conn != null)
+                    conn.disconnect();
+            } catch (LDAPException e) {
+                CMS.debug(e);
+                CMS.debug("releaseConnection: " + e);
+            }
+        }
+    }
+
     private void configureStartingCRLNumber(ConfigurationRequest data) {
         CMS.debug("CAInstallerService:configureStartingCRLNumber entering.");
-        cs.putString("ca.crl.MasterCRL.startingCrlNumber",data.getStartingCRLNumber() );
+        cs.putString("ca.crl.MasterCRL.startingCrlNumber",data.getStartingCRLNumber());
 
     }
     private void disableCRLCachingAndGenerationForClone(ConfigurationRequest data) throws MalformedURLException {

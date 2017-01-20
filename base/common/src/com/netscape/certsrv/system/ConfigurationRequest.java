@@ -238,6 +238,12 @@ public class ConfigurationRequest {
     @XmlElement
     protected String startingCRLNumber;
 
+    @XmlElement
+    protected Boolean createSigningCertRecord;
+
+    @XmlElement
+    protected String signingCertSerialNumber;
+
     public ConfigurationRequest() {
         // required for JAXB
     }
@@ -944,6 +950,30 @@ public class ConfigurationRequest {
         this.startingCRLNumber = startingCRLNumber;
     }
 
+    public String getIsClone() {
+        return isClone;
+    }
+
+    public void setIsClone(String isClone) {
+        this.isClone = isClone;
+    }
+
+    public Boolean createSigningCertRecord() {
+        return createSigningCertRecord;
+    }
+
+    public void setCreateSigningCertRecord(Boolean createSigningCertRecord) {
+        this.createSigningCertRecord = createSigningCertRecord;
+    }
+
+    public String getSigningCertSerialNumber() {
+        return signingCertSerialNumber;
+    }
+
+    public void setSigningCertSerialNumber(String signingCertSerialNumber) {
+        this.signingCertSerialNumber = signingCertSerialNumber;
+    }
+
     @Override
     public String toString() {
         return "ConfigurationRequest [pin=XXXX" +
@@ -1008,6 +1038,8 @@ public class ConfigurationRequest {
                ", subordinateSecurityDomainName=" + subordinateSecurityDomainName +
                ", reindexData=" + reindexData +
                ", startingCrlNumber=" + startingCRLNumber +
+               ", createSigningCertRecord=" + createSigningCertRecord +
+               ", signingCertSerialNumber=" + signingCertSerialNumber +
                "]";
     }
 
