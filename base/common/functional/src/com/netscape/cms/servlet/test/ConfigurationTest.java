@@ -62,6 +62,7 @@ import com.netscape.certsrv.system.ConfigurationRequest;
 import com.netscape.certsrv.system.ConfigurationResponse;
 import com.netscape.certsrv.system.SystemCertData;
 import com.netscape.certsrv.system.SystemConfigClient;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Utils;
 
 /**
@@ -251,7 +252,7 @@ public class ConfigurationTest {
         data.setSecurityDomainName("Testca2 security domain");
         data.setClone("false");
         data.setHierarchy("root");
-        data.setToken(ConfigurationRequest.TOKEN_DEFAULT);
+        data.setToken(CryptoUtil.INTERNAL_TOKEN_FULL_NAME);
         data.setSubsystemName("test ca subsystem");
 
         data.setDsHost(host);
@@ -353,7 +354,7 @@ public class ConfigurationTest {
 
         data.setClone("false");
         data.setHierarchy("join");
-        data.setToken(ConfigurationRequest.TOKEN_DEFAULT);
+        data.setToken(CryptoUtil.INTERNAL_TOKEN_FULL_NAME);
         data.setSubsystemName("test subca subsystem");
 
         data.setDsHost(host);
@@ -455,7 +456,7 @@ public class ConfigurationTest {
 
         data.setClone("false");
         data.setHierarchy("join");
-        data.setToken(ConfigurationRequest.TOKEN_DEFAULT);
+        data.setToken(CryptoUtil.INTERNAL_TOKEN_FULL_NAME);
         data.setSubsystemName("test external ca subsystem");
 
         data.setDsHost(host);
@@ -557,7 +558,7 @@ public class ConfigurationTest {
 
         data.setClone("false");
         data.setHierarchy("join");
-        data.setToken(ConfigurationRequest.TOKEN_DEFAULT);
+        data.setToken(CryptoUtil.INTERNAL_TOKEN_FULL_NAME);
         data.setSubsystemName("test external ca subsystem");
 
         data.setDsHost(host);
@@ -681,7 +682,7 @@ public class ConfigurationTest {
         data.setP12Password("redhat123");
 
         data.setHierarchy("root");
-        data.setToken(ConfigurationRequest.TOKEN_DEFAULT);
+        data.setToken(CryptoUtil.INTERNAL_TOKEN_FULL_NAME);
         data.setSubsystemName("test clone ca subsystem");
 
         data.setDsHost(host);
@@ -724,7 +725,7 @@ public class ConfigurationTest {
         data.setSecurityDomainPassword("redhat123");
 
         data.setClone("false");
-        data.setToken(ConfigurationRequest.TOKEN_DEFAULT);
+        data.setToken(CryptoUtil.INTERNAL_TOKEN_FULL_NAME);
         data.setSubsystemName("test kra subsystem");
 
         data.setDsHost(host);
@@ -827,7 +828,7 @@ public class ConfigurationTest {
         data.setSecurityDomainPassword("redhat123");
 
         data.setClone("false");
-        data.setToken(ConfigurationRequest.TOKEN_DEFAULT);
+        data.setToken(CryptoUtil.INTERNAL_TOKEN_FULL_NAME);
         data.setSubsystemName("test ocsp subsystem");
 
         data.setDsHost(host);
@@ -919,7 +920,7 @@ public class ConfigurationTest {
         data.setSecurityDomainPassword("redhat123");
 
         data.setClone("false");
-        data.setToken(ConfigurationRequest.TOKEN_DEFAULT);
+        data.setToken(CryptoUtil.INTERNAL_TOKEN_FULL_NAME);
         data.setSubsystemName("test tks subsystem");
 
         data.setDsHost(host);

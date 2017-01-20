@@ -31,6 +31,7 @@ import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.system.ConfigurationRequest;
 import com.netscape.certsrv.system.SystemCertData;
 import com.netscape.cms.servlet.csadmin.ConfigurationUtils;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
  * @author alee
@@ -50,7 +51,7 @@ public class TPSInstallerService extends SystemConfigService  {
 
         // get token prefix, if applicable
         String tokPrefix = "";
-        if (!request.getToken().equals(ConfigurationRequest.TOKEN_DEFAULT) &&
+        if (!request.getToken().equals(CryptoUtil.INTERNAL_TOKEN_FULL_NAME) &&
                 !request.getToken().equals("internal")) {
             tokPrefix = request.getToken() + ":";
         }

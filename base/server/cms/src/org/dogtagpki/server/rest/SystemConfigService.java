@@ -151,7 +151,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         CMS.debug("=== Token Authentication ===");
         String token = data.getToken();
         if (token == null) {
-            token = ConfigurationRequest.TOKEN_DEFAULT;
+            token = CryptoUtil.INTERNAL_TOKEN_FULL_NAME;
         }
         loginToken(data, token);
 
@@ -877,7 +877,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         CMS.debug("SystemConfigService: get configuration entries from master");
         ConfigurationUtils.getConfigEntriesFromMaster();
 
-        if (token.equals(ConfigurationRequest.TOKEN_DEFAULT)) {
+        if (token.equals(CryptoUtil.INTERNAL_TOKEN_FULL_NAME)) {
             if (!data.getSystemCertsImported()) {
                 CMS.debug("SystemConfigService: restore certificates from P12 file");
                 String p12File = data.getP12File();
@@ -1019,7 +1019,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
     public void loginToken(ConfigurationRequest data, String token) {
         cs.putString("preop.module.token", token);
 
-        if (! token.equals(ConfigurationRequest.TOKEN_DEFAULT)) {
+        if (! token.equals(CryptoUtil.INTERNAL_TOKEN_FULL_NAME)) {
             try {
                 CryptoManager cryptoManager = CryptoManager.getInstance();
                 CryptoToken ctoken = cryptoManager.getTokenByName(token);
@@ -1130,7 +1130,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 throw new BadRequestException("Invalid clone URI: " + cloneUri, e);
             }
 
-            if (data.getToken().equals(ConfigurationRequest.TOKEN_DEFAULT)) {
+            if (data.getToken().equals(CryptoUtil.INTERNAL_TOKEN_FULL_NAME)) {
                 if (!data.getSystemCertsImported()) {
                     if (data.getP12File() == null) {
                         throw new BadRequestException("P12 filename not provided");
@@ -1210,7 +1210,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         }
 
         if ((data.getBackupKeys() != null) && data.getBackupKeys().equals("true")) {
-            if (! data.getToken().equals(ConfigurationRequest.TOKEN_DEFAULT)) {
+            if (! data.getToken().equals(CryptoUtil.INTERNAL_TOKEN_FULL_NAME)) {
                 throw new BadRequestException("HSMs cannot publish private keys to PKCS #12 files");
             }
 

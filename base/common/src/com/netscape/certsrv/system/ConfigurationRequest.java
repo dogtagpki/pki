@@ -28,6 +28,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import com.netscape.cmsutil.crypto.CryptoUtil;
+
 /**
  * @author alee
  *
@@ -37,7 +39,6 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 public class ConfigurationRequest {
 
     //defaults
-    public static final String TOKEN_DEFAULT = "Internal Key Storage Token";
     public static final String NEW_DOMAIN = "newdomain";
     public static final String EXISTING_DOMAIN = "existingdomain";
     public static final String NEW_SUBDOMAIN = "newsubdomain";
@@ -45,7 +46,7 @@ public class ConfigurationRequest {
     @XmlElement
     protected String pin;
 
-    @XmlElement(defaultValue=TOKEN_DEFAULT)
+    @XmlElement(defaultValue=CryptoUtil.INTERNAL_TOKEN_FULL_NAME)
     protected String token;
 
     @XmlElement
