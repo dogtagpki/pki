@@ -32,6 +32,7 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.ConfigConstants;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.security.KeyCertData;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
  * CA signing certificate.
@@ -128,7 +129,7 @@ public class CASigningCert extends CertificateInfo {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_ALG_NOT_SUPPORTED", keyType));
 
         cmsFileTmp.putString("ca.signing.defaultSigningAlgorithm", alg);
-        if (tokenname.equals(Constants.PR_INTERNAL_TOKEN_NAME))
+        if (tokenname.equals(CryptoUtil.INTERNAL_TOKEN_NAME))
             cmsFileTmp.putString("ca.signing.cacertnickname", nickname);
         else
             cmsFileTmp.putString("ca.signing.cacertnickname",

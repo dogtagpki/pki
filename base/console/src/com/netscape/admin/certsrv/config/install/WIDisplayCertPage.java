@@ -26,6 +26,7 @@ import com.netscape.admin.certsrv.connection.*;
 import com.netscape.management.client.util.*;
 import com.netscape.admin.certsrv.wizard.*;
 import com.netscape.certsrv.common.*;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.admin.certsrv.task.*;
 import com.netscape.management.client.console.*;
 
@@ -81,7 +82,7 @@ class WIDisplayCertPage extends WizardBasePanel implements IWizardPanel {
 	  }
 	}
 	if ((tokenName != null) &&
-		!(tokenName.equalsIgnoreCase(Constants.PR_INTERNAL_TOKEN_NAME))) {
+		!(tokenName.equalsIgnoreCase(CryptoUtil.INTERNAL_TOKEN_NAME))) {
 		Debug.println("tokenName="+tokenName);
         	mCertNameField.setText(tokenName+":"+wizardInfo.getNickname());
 	} else {

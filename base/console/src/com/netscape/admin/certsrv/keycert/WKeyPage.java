@@ -27,6 +27,7 @@ import com.netscape.admin.certsrv.*;
 import com.netscape.admin.certsrv.connection.*;
 import com.netscape.admin.certsrv.wizard.*;
 import com.netscape.certsrv.common.*;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.admin.certsrv.config.*;
 import javax.swing.text.*;
 
@@ -302,7 +303,7 @@ class WKeyPage extends WizardBasePanel implements IWizardPanel, ItemListener {
             if (mNewKeyBtn.isSelected()) {
                 String tokenName = (String)mTokenBox.getSelectedItem();
                 if (tokenName.equals("internal"))
-                    tokenName = Constants.PR_INTERNAL_TOKEN_NAME;
+                    tokenName = CryptoUtil.INTERNAL_TOKEN_NAME;
                 nvps.clear();
                 nvps.put(Constants.PR_TOKEN_NAME, tokenName);
                 response = connection.process(DestDef.DEST_SERVER_ADMIN,

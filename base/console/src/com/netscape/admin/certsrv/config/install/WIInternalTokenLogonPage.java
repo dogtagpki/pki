@@ -24,6 +24,7 @@ import com.netscape.admin.certsrv.*;
 import com.netscape.admin.certsrv.connection.*;
 import com.netscape.admin.certsrv.wizard.*;
 import com.netscape.certsrv.common.*;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.admin.certsrv.task.*;
 import com.netscape.management.client.console.*;
 
@@ -55,12 +56,12 @@ class WIInternalTokenLogonPage extends WITokenLogonPage implements IWizardPanel 
     public boolean initializePanel(WizardInfo info) {
         InstallWizardInfo wizardInfo = (InstallWizardInfo)info;
         String pwd =
-          (String)wizardInfo.get("TOKEN:"+Constants.PR_INTERNAL_TOKEN_NAME);
+          (String)wizardInfo.get("TOKEN:"+CryptoUtil.INTERNAL_TOKEN_NAME);
         if (pwd != null)
             return false;
 
         mTokenName = "Internal";
-        mTokenText.setText(Constants.PR_INTERNAL_TOKEN_NAME);
+        mTokenText.setText(CryptoUtil.INTERNAL_TOKEN_NAME);
         return super.initializePanel(info);
     }
 }

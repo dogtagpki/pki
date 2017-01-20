@@ -27,6 +27,7 @@ import com.netscape.admin.certsrv.*;
 import com.netscape.admin.certsrv.connection.*;
 import com.netscape.admin.certsrv.wizard.*;
 import com.netscape.certsrv.common.*;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.admin.certsrv.config.*;
 
 /**
@@ -69,7 +70,7 @@ class WIRAKeyPage extends WIKeyPage implements IWizardPanel {
             if (raTokenName == null || raTokenName.equals("")) {
                 mTokenBox.setSelectedIndex(0);
             } else {
-                if (raTokenName.equals(Constants.PR_INTERNAL_TOKEN_NAME))
+                if (raTokenName.equals(CryptoUtil.INTERNAL_TOKEN_NAME))
                     mTokenBox.setSelectedIndex(0);
                 else
                     mTokenBox.setSelectedItem(raTokenName);

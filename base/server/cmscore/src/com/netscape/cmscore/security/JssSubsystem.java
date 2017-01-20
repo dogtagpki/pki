@@ -540,7 +540,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
 
     public boolean isTokenLoggedIn(String name) throws EBaseException {
         try {
-            if (name.equals(Constants.PR_INTERNAL_TOKEN_NAME))
+            if (name.equals(CryptoUtil.INTERNAL_TOKEN_NAME))
                 name = Constants.PR_FULL_INTERNAL_TOKEN_NAME;
             CryptoToken ctoken = mCryptoManager.getTokenByName(name);
 
@@ -905,7 +905,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
     }
 
     public KeyPair getKeyPair(KeyCertData properties) throws EBaseException {
-        String tokenname = Constants.PR_INTERNAL_TOKEN_NAME;
+        String tokenname = CryptoUtil.INTERNAL_TOKEN_NAME;
         String keyType = "RSA";
         int keyLength = 512;
 
@@ -927,7 +927,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
     }
 
     public KeyPair getECCKeyPair(KeyCertData properties) throws EBaseException {
-        String token = Constants.PR_INTERNAL_TOKEN_NAME;
+        String token = CryptoUtil.INTERNAL_TOKEN_NAME;
         String keyCurve = "nistp521";
         String certType = null;
         KeyPair pair = null;
@@ -951,7 +951,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
         KeyPair pair = null;
 
         if ((token == null) || (token.equals("")))
-            token = Constants.PR_INTERNAL_TOKEN_NAME;
+            token = CryptoUtil.INTERNAL_TOKEN_NAME;
 
         if ((keyCurve == null) || (keyCurve.equals("")))
             keyCurve = "nistp521";
@@ -1078,7 +1078,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
             String issuername) throws EBaseException {
         int index = nickname.indexOf(":");
         String tokenname = nickname.substring(0, index);
-        if (tokenname.equals(Constants.PR_INTERNAL_TOKEN_NAME)) {
+        if (tokenname.equals(CryptoUtil.INTERNAL_TOKEN_NAME)) {
             nickname = nickname.substring(index + 1);
         }
         try {
@@ -1166,8 +1166,8 @@ public final class JssSubsystem implements ICryptoSubsystem {
                                 + list[i].getNickname());
                     } catch (ObjectNotFoundException e) {
                         String nickname = list[i].getNickname();
-                        if (tokenName.equals(Constants.PR_INTERNAL_TOKEN_NAME)) {
-                            nickname = Constants.PR_INTERNAL_TOKEN_NAME + ":" + nickname;
+                        if (tokenName.equals(CryptoUtil.INTERNAL_TOKEN_NAME)) {
+                            nickname = CryptoUtil.INTERNAL_TOKEN_NAME + ":" + nickname;
                         }
                         X509CertImpl impl = null;
 
@@ -1236,9 +1236,9 @@ public final class JssSubsystem implements ICryptoSubsystem {
                         PrivateKey key =
                                 CryptoManager.getInstance().findPrivKeyByCert(list[i]); // check for errors
                         String nickname = list[i].getNickname();
-                        if (tokenName.equals(Constants.PR_INTERNAL_TOKEN_NAME) ||
+                        if (tokenName.equals(CryptoUtil.INTERNAL_TOKEN_NAME) ||
                                 tokenName.equals(Constants.PR_FULL_INTERNAL_TOKEN_NAME)) {
-                            nickname = Constants.PR_INTERNAL_TOKEN_NAME + ":" + nickname;
+                            nickname = CryptoUtil.INTERNAL_TOKEN_NAME + ":" + nickname;
                         }
                         X509CertImpl impl = null;
 
@@ -1745,7 +1745,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
 
         int index = nickname.indexOf(":");
         String tokenname = nickname.substring(0, index);
-        if (tokenname.equals(Constants.PR_INTERNAL_TOKEN_NAME)) {
+        if (tokenname.equals(CryptoUtil.INTERNAL_TOKEN_NAME)) {
             nickname = nickname.substring(index + 1);
         }
         try {
@@ -1783,7 +1783,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
             String issuerName) throws EBaseException {
         int index = nickname.indexOf(":");
         String tokenname = nickname.substring(0, index);
-        if (tokenname.equals(Constants.PR_INTERNAL_TOKEN_NAME)) {
+        if (tokenname.equals(CryptoUtil.INTERNAL_TOKEN_NAME)) {
             nickname = nickname.substring(index + 1);
         }
         try {
@@ -1829,7 +1829,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
             String issuerName, Locale locale) throws EBaseException {
         int index = nickname.indexOf(":");
         String tokenname = nickname.substring(0, index);
-        if (tokenname.equals(Constants.PR_INTERNAL_TOKEN_NAME)) {
+        if (tokenname.equals(CryptoUtil.INTERNAL_TOKEN_NAME)) {
             nickname = nickname.substring(index + 1);
         }
         try {
@@ -1873,7 +1873,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
             String issuerName, Locale locale) throws EBaseException {
         int index = nickname.indexOf(":");
         String tokenname = nickname.substring(0, index);
-        if (tokenname.equals(Constants.PR_INTERNAL_TOKEN_NAME)) {
+        if (tokenname.equals(CryptoUtil.INTERNAL_TOKEN_NAME)) {
             nickname = nickname.substring(index + 1);
         }
         try {

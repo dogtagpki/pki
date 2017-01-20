@@ -1085,7 +1085,7 @@ public final class CMSAdminServlet extends AdminServlet {
         try {
             NameValuePairs params = new NameValuePairs();
             Enumeration<String> enum1 = req.getParameterNames();
-            String tokenName = Constants.PR_INTERNAL_TOKEN_NAME;
+            String tokenName = CryptoUtil.INTERNAL_TOKEN_NAME;
             String keyType = "";
             int keyLength = 512;
             String subjectName = "";
@@ -1264,7 +1264,7 @@ public final class CMSAdminServlet extends AdminServlet {
                 CMS.getSubsystem(CMS.SUBSYSTEM_CA);
         ISigningUnit signingUnit = ca.getSigningUnit();
 
-        if (tokenName.equals(Constants.PR_INTERNAL_TOKEN_NAME))
+        if (tokenName.equals(CryptoUtil.INTERNAL_TOKEN_NAME))
             signingUnit.setNewNickName(nickname);
         else {
             if (tokenName.equals("") && nickname.equals(""))
@@ -1287,7 +1287,7 @@ public final class CMSAdminServlet extends AdminServlet {
         IRegistrationAuthority ra = (IRegistrationAuthority)
                 CMS.getSubsystem(CMS.SUBSYSTEM_RA);
 
-        if (tokenName.equals(Constants.PR_INTERNAL_TOKEN_NAME))
+        if (tokenName.equals(CryptoUtil.INTERNAL_TOKEN_NAME))
             ra.setNewNickName(nickname);
         else {
             if (tokenName.equals("") && nickname.equals(""))
@@ -1311,7 +1311,7 @@ public final class CMSAdminServlet extends AdminServlet {
         if (ocsp != null) {
             ISigningUnit signingUnit = ocsp.getSigningUnit();
 
-            if (tokenName.equals(Constants.PR_INTERNAL_TOKEN_NAME))
+            if (tokenName.equals(CryptoUtil.INTERNAL_TOKEN_NAME))
                 signingUnit.setNewNickName(nickname);
             else {
                 if (tokenName.equals("") && nickname.equals(""))
@@ -1324,7 +1324,7 @@ public final class CMSAdminServlet extends AdminServlet {
                     CMS.getSubsystem(CMS.SUBSYSTEM_CA);
             ISigningUnit signingUnit = ca.getOCSPSigningUnit();
 
-            if (tokenName.equals(Constants.PR_INTERNAL_TOKEN_NAME))
+            if (tokenName.equals(CryptoUtil.INTERNAL_TOKEN_NAME))
                 signingUnit.setNewNickName(nickname);
             else {
                 if (tokenName.equals("") && nickname.equals(""))
@@ -1356,7 +1356,7 @@ public final class CMSAdminServlet extends AdminServlet {
         IKeyRecoveryAuthority kra = (IKeyRecoveryAuthority)
                 CMS.getSubsystem(CMS.SUBSYSTEM_KRA);
 
-        if (tokenName.equals(Constants.PR_INTERNAL_TOKEN_NAME))
+        if (tokenName.equals(CryptoUtil.INTERNAL_TOKEN_NAME))
             kra.setNewNickName(nickname);
         else {
             if (tokenName.equals("") && nickname.equals(""))
@@ -1455,7 +1455,7 @@ public final class CMSAdminServlet extends AdminServlet {
         // to the signed audit log and stored as failures
         try {
             Enumeration<String> enum1 = req.getParameterNames();
-            String tokenName = Constants.PR_INTERNAL_TOKEN_NAME;
+            String tokenName = CryptoUtil.INTERNAL_TOKEN_NAME;
             String keyType = "RSA";
             KeyCertData properties = new KeyCertData();
 
@@ -1493,7 +1493,7 @@ public final class CMSAdminServlet extends AdminServlet {
 
             if (index == -1) {
                 nicknameWithoutTokenName = nickname;
-                oldtokenname = Constants.PR_INTERNAL_TOKEN_NAME;
+                oldtokenname = CryptoUtil.INTERNAL_TOKEN_NAME;
             } else if (index > 0 && (index < (nickname.length() - 1))) {
                 nicknameWithoutTokenName = nickname.substring(index + 1);
                 oldtokenname = nickname.substring(0, index);
@@ -1668,7 +1668,7 @@ public final class CMSAdminServlet extends AdminServlet {
                                         certType);
                 nicknameWithoutTokenName = newNickname;
                 nicknameChanged = true;
-                if (tokenName.equals(Constants.PR_INTERNAL_TOKEN_NAME)) {
+                if (tokenName.equals(CryptoUtil.INTERNAL_TOKEN_NAME)) {
                     nickname = newNickname;
                 } else {
                     nickname = tokenName + ":" + newNickname;
@@ -1719,7 +1719,7 @@ public final class CMSAdminServlet extends AdminServlet {
             if ((newtokenname != null &&
                     !newtokenname.equals(oldtokenname)) || nicknameChanged) {
                 if (certType.equals(Constants.PR_CA_SIGNING_CERT)) {
-                    if (newtokenname.equals(Constants.PR_INTERNAL_TOKEN_NAME)) {
+                    if (newtokenname.equals(CryptoUtil.INTERNAL_TOKEN_NAME)) {
                         signingUnit.updateConfig(nicknameWithoutTokenName,
                                                  newtokenname);
                     } else {
@@ -1728,7 +1728,7 @@ public final class CMSAdminServlet extends AdminServlet {
                                                  newtokenname);
                     }
                 } else if (certType.equals(Constants.PR_SERVER_CERT)) {
-                    if (newtokenname.equals(Constants.PR_INTERNAL_TOKEN_NAME)) {
+                    if (newtokenname.equals(CryptoUtil.INTERNAL_TOKEN_NAME)) {
                         nickname = nicknameWithoutTokenName;
                     } else {
                         nickname = newtokenname + ":"
@@ -1749,7 +1749,7 @@ public final class CMSAdminServlet extends AdminServlet {
                         modifyCAGatewayCert(ca, nickname);
                     }
                 } else if (certType.equals(Constants.PR_SERVER_CERT_RADM)) {
-                    if (newtokenname.equals(Constants.PR_INTERNAL_TOKEN_NAME)) {
+                    if (newtokenname.equals(CryptoUtil.INTERNAL_TOKEN_NAME)) {
                         nickname = nicknameWithoutTokenName;
                     } else {
                         nickname = newtokenname + ":"
@@ -1761,7 +1761,7 @@ public final class CMSAdminServlet extends AdminServlet {
                     if (ca != null) {
                         ISigningUnit ocspSigningUnit = ca.getOCSPSigningUnit();
 
-                        if (newtokenname.equals(Constants.PR_INTERNAL_TOKEN_NAME)) {
+                        if (newtokenname.equals(CryptoUtil.INTERNAL_TOKEN_NAME)) {
                             ocspSigningUnit.updateConfig(
                                     nicknameWithoutTokenName, newtokenname);
                         } else {
@@ -1869,7 +1869,7 @@ public final class CMSAdminServlet extends AdminServlet {
         // ensure that any low-level exceptions are reported
         // to the signed audit log and stored as failures
         try {
-            String tokenName = Constants.PR_INTERNAL_TOKEN_NAME;
+            String tokenName = CryptoUtil.INTERNAL_TOKEN_NAME;
             String pkcs = "";
             String certType = "";
             String nickname = "";
@@ -2067,7 +2067,7 @@ public final class CMSAdminServlet extends AdminServlet {
 
                     jssSubSystem.importCert(pkcs, newNickname, certType);
                     nicknameWithoutTokenName = newNickname;
-                    if (tokenName.equals(Constants.PR_INTERNAL_TOKEN_NAME)) {
+                    if (tokenName.equals(CryptoUtil.INTERNAL_TOKEN_NAME)) {
                         nickname = newNickname;
                     } else {
                         nickname = tokenName + ":" + newNickname;
@@ -2091,9 +2091,9 @@ public final class CMSAdminServlet extends AdminServlet {
 
                     if (nickname.equals(nicknameWithoutTokenName)) {
                         signingUnit.updateConfig(nickname,
-                                Constants.PR_INTERNAL_TOKEN_NAME);
+                                CryptoUtil.INTERNAL_TOKEN_NAME);
                         extensions = jssSubSystem.getExtensions(
-                                Constants.PR_INTERNAL_TOKEN_NAME, nickname);
+                                CryptoUtil.INTERNAL_TOKEN_NAME, nickname);
                     } else {
                         String tokenname1 = nickname.substring(0, index);
 
@@ -2142,7 +2142,7 @@ public final class CMSAdminServlet extends AdminServlet {
 
                     if (nickname.equals(nicknameWithoutTokenName)) {
                         signingUnit.updateConfig(nickname,
-                                Constants.PR_INTERNAL_TOKEN_NAME);
+                                CryptoUtil.INTERNAL_TOKEN_NAME);
                     } else {
                         String tokenname1 = nickname.substring(0, index);
 
@@ -2156,7 +2156,7 @@ public final class CMSAdminServlet extends AdminServlet {
 
                     if (nickname.equals(nicknameWithoutTokenName)) {
                         signingUnit.updateConfig(nickname,
-                                Constants.PR_INTERNAL_TOKEN_NAME);
+                                CryptoUtil.INTERNAL_TOKEN_NAME);
                     } else {
                         String tokenname1 = nickname.substring(0, index);
 

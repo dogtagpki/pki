@@ -25,6 +25,7 @@ import com.netscape.admin.certsrv.*;
 import com.netscape.admin.certsrv.connection.*;
 import com.netscape.admin.certsrv.wizard.*;
 import com.netscape.certsrv.common.*;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.admin.certsrv.task.*;
 import com.netscape.management.client.console.*;
 
@@ -109,7 +110,7 @@ class WICloneOCSPKeyCertPage extends WizardBasePanel implements IWizardPanel {
 
     public boolean concludePanel(WizardInfo info) {
         String ocspnickname = (String)mOCSPNicknameBox.getSelectedItem();
-        mOCSPTokenname = Constants.PR_INTERNAL_TOKEN_NAME;
+        mOCSPTokenname = CryptoUtil.INTERNAL_TOKEN_NAME;
         int index = ocspnickname.indexOf(":");
         if (index > -1) {
             mOCSPTokenname = ocspnickname.substring(0, index);
@@ -117,7 +118,7 @@ class WICloneOCSPKeyCertPage extends WizardBasePanel implements IWizardPanel {
         mWizardInfo.put(ConfigConstants.PR_CLONE_OCSP_TOKEN_NAME, mOCSPTokenname);
 
         String sslnickname = (String)mSSLNicknameBox.getSelectedItem();
-        mSSLTokenname = Constants.PR_INTERNAL_TOKEN_NAME;
+        mSSLTokenname = CryptoUtil.INTERNAL_TOKEN_NAME;
         index = sslnickname.indexOf(":");
         if (index > -1) {
             mSSLTokenname = sslnickname.substring(0, index);

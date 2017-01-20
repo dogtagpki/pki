@@ -165,6 +165,7 @@ import com.netscape.cmscore.session.SessionTimer;
 import com.netscape.cmscore.time.SimpleTimeSource;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmscore.util.Debug;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.net.ISocketFactory;
 import com.netscape.cmsutil.password.IPasswordStore;
 import com.netscape.cmsutil.password.NuxwdogPasswordStore;
@@ -1447,7 +1448,7 @@ public class CMSEngine implements ICMSEngine {
             nickName) {
         String newName = null;
 
-        if (tokenName.equals(Constants.PR_INTERNAL_TOKEN_NAME) ||
+        if (tokenName.equals(CryptoUtil.INTERNAL_TOKEN_NAME) ||
                 tokenName.equalsIgnoreCase("Internal Key Storage Token"))
             newName = nickName;
         else {

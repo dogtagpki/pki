@@ -25,6 +25,7 @@ import com.netscape.admin.certsrv.*;
 import com.netscape.admin.certsrv.connection.*;
 import com.netscape.admin.certsrv.wizard.*;
 import com.netscape.certsrv.common.*;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.admin.certsrv.task.*;
 import com.netscape.management.client.console.*;
 
@@ -111,7 +112,7 @@ class WICloneRAKeyCertPage extends WizardBasePanel implements IWizardPanel {
 
     public boolean concludePanel(WizardInfo info) {
         String ranickname = (String)mRANicknameBox.getSelectedItem();
-        mRATokenname = Constants.PR_INTERNAL_TOKEN_NAME;
+        mRATokenname = CryptoUtil.INTERNAL_TOKEN_NAME;
         int index = ranickname.indexOf(":");
         if (index > -1) {
             mRATokenname = ranickname.substring(0, index);
@@ -119,7 +120,7 @@ class WICloneRAKeyCertPage extends WizardBasePanel implements IWizardPanel {
         mWizardInfo.put(ConfigConstants.PR_CLONE_RA_TOKEN_NAME, mRATokenname);
 
         String sslnickname = (String)mSSLNicknameBox.getSelectedItem();
-        mSSLTokenname = Constants.PR_INTERNAL_TOKEN_NAME;
+        mSSLTokenname = CryptoUtil.INTERNAL_TOKEN_NAME;
         index = sslnickname.indexOf(":");
         if (index > -1) {
             mSSLTokenname = sslnickname.substring(0, index);

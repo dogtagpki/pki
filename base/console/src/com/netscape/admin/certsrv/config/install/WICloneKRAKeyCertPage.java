@@ -25,6 +25,7 @@ import com.netscape.admin.certsrv.*;
 import com.netscape.admin.certsrv.connection.*;
 import com.netscape.admin.certsrv.wizard.*;
 import com.netscape.certsrv.common.*;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.admin.certsrv.task.*;
 import com.netscape.management.client.console.*;
 
@@ -126,7 +127,7 @@ class WICloneKRAKeyCertPage extends WizardBasePanel implements IWizardPanel {
 
     public boolean concludePanel(WizardInfo info) {
         String kranickname = (String)mKRANicknameBox.getSelectedItem();
-        mKRATokenname = Constants.PR_INTERNAL_TOKEN_NAME;
+        mKRATokenname = CryptoUtil.INTERNAL_TOKEN_NAME;
         int index = kranickname.indexOf(":");
         if (index > -1) {
             mKRATokenname = kranickname.substring(0, index);
@@ -134,7 +135,7 @@ class WICloneKRAKeyCertPage extends WizardBasePanel implements IWizardPanel {
         mWizardInfo.put(ConfigConstants.PR_CLONE_KRA_TOKEN_NAME, mKRATokenname);
 
         String storagenickname = (String)mStorageNicknameBox.getSelectedItem();
-        mStorageTokenname = Constants.PR_INTERNAL_TOKEN_NAME;
+        mStorageTokenname = CryptoUtil.INTERNAL_TOKEN_NAME;
         index = storagenickname.indexOf(":");
         if (index > -1) {
             mStorageTokenname = storagenickname.substring(0, index);
@@ -142,7 +143,7 @@ class WICloneKRAKeyCertPage extends WizardBasePanel implements IWizardPanel {
         mWizardInfo.put(ConfigConstants.PR_CLONE_STORAGE_TOKEN_NAME, mStorageTokenname);
 
         String sslnickname = (String)mSSLNicknameBox.getSelectedItem();
-        mSSLTokenname = Constants.PR_INTERNAL_TOKEN_NAME;
+        mSSLTokenname = CryptoUtil.INTERNAL_TOKEN_NAME;
         index = sslnickname.indexOf(":");
         if (index > -1) {
             mSSLTokenname = sslnickname.substring(0, index);

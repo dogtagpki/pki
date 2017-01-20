@@ -24,6 +24,7 @@ import com.netscape.admin.certsrv.*;
 import com.netscape.admin.certsrv.connection.*;
 import com.netscape.admin.certsrv.wizard.*;
 import com.netscape.certsrv.common.*;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
  * This panel asks for the user to logon to the keycert token  .
@@ -88,7 +89,7 @@ class WTokenLogonPage extends WizardBasePanel implements IWizardPanel {
         String tokenname = mTokenNameText.getText().trim();
 
         if (tokenname.equals("internal")) {
-            tokenname = Constants.PR_INTERNAL_TOKEN_NAME;
+            tokenname = CryptoUtil.INTERNAL_TOKEN_NAME;
         }
 
         String pwd = mPasswordText.getText().trim();

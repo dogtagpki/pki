@@ -27,6 +27,7 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.ConfigConstants;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.security.KeyCertData;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
  * KRA transport certificate
@@ -51,7 +52,7 @@ public class KRATransportCert extends CertificateInfo {
         String tokenname = (String) mProperties.get(Constants.PR_TOKEN_NAME);
         String nickname = getNickname();
 
-        if (tokenname.equals(Constants.PR_INTERNAL_TOKEN_NAME))
+        if (tokenname.equals(CryptoUtil.INTERNAL_TOKEN_NAME))
             cmsFileTmp.putString("kra.transportUnit.nickName", nickname);
         else
             cmsFileTmp.putString("kra.transportUnit.nickName", tokenname + ":" + nickname);

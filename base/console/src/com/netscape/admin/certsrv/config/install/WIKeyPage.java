@@ -40,7 +40,6 @@ import com.netscape.admin.certsrv.wizard.IWizardPanel;
 import com.netscape.admin.certsrv.wizard.WizardBasePanel;
 import com.netscape.admin.certsrv.wizard.WizardInfo;
 import com.netscape.certsrv.common.ConfigConstants;
-import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.OpDef;
 import com.netscape.certsrv.common.TaskId;
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -542,7 +541,7 @@ class WIKeyPage extends WizardBasePanel implements IWizardPanel, ItemListener {
         mWizardInfo = (InstallWizardInfo)info;
         String name = (String)mTokenBox.getSelectedItem();
         if (name.equalsIgnoreCase(CryptoUtil.INTERNAL_TOKEN_NAME))
-            name = Constants.PR_INTERNAL_TOKEN_NAME;
+            name = CryptoUtil.INTERNAL_TOKEN_NAME;
         mWizardInfo.put(ConfigConstants.PR_TOKEN_NAME, name);
         if (mPassword.isEditable()) {
             // this is used for single signon. The key is the token name with

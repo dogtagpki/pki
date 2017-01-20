@@ -339,7 +339,7 @@ public class KeyCertUtil {
         CryptoManager manager = CryptoManager.getInstance();
         CryptoToken token = null;
 
-        if (tokenname.equals(Constants.PR_INTERNAL_TOKEN_NAME)) {
+        if (tokenname.equals(CryptoUtil.INTERNAL_TOKEN_NAME)) {
             token = manager.getInternalKeyStorageToken();
         } else {
             token = manager.getTokenByName(tokenname);
@@ -500,7 +500,7 @@ public class KeyCertUtil {
         CryptoToken token = null;
 
         if (tokenName.equalsIgnoreCase(CryptoUtil.INTERNAL_TOKEN_NAME))
-            tokenName = Constants.PR_INTERNAL_TOKEN_NAME;
+            tokenName = CryptoUtil.INTERNAL_TOKEN_NAME;
 
         try {
             if (tokenName.equalsIgnoreCase(CryptoUtil.INTERNAL_TOKEN_NAME)) {
@@ -1124,7 +1124,7 @@ public class KeyCertUtil {
             IOException, CertificateException {
         String fullnickname = nickname;
 
-        if (!tokenname.equals(Constants.PR_INTERNAL_TOKEN_NAME))
+        if (!tokenname.equals(CryptoUtil.INTERNAL_TOKEN_NAME))
             fullnickname = tokenname + ":" + nickname;
         CryptoManager manager = CryptoManager.getInstance();
         X509Certificate cert = manager.findCertByNickname(fullnickname);

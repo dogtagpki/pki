@@ -25,6 +25,7 @@ import com.netscape.admin.certsrv.*;
 import com.netscape.admin.certsrv.connection.*;
 import com.netscape.admin.certsrv.wizard.*;
 import com.netscape.certsrv.common.*;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.admin.certsrv.task.*;
 import com.netscape.management.client.console.*;
 
@@ -95,7 +96,7 @@ class WICloneTKSKeyCertPage extends WizardBasePanel implements IWizardPanel {
 
     public boolean concludePanel(WizardInfo info) {
         String sslnickname = (String)mSSLNicknameBox.getSelectedItem();
-        mSSLTokenname = Constants.PR_INTERNAL_TOKEN_NAME;
+        mSSLTokenname = CryptoUtil.INTERNAL_TOKEN_NAME;
         int index = sslnickname.indexOf(":");
         if (index > -1) {
             mSSLTokenname = sslnickname.substring(0, index);

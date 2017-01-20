@@ -27,6 +27,7 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.ConfigConstants;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.security.KeyCertData;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
  * SSL server certificate
@@ -56,7 +57,7 @@ public class SSLSelfSignedCert extends CertificateInfo {
         String nickname = getNickname();
         String fullNickname = "";
 
-        if (tokenname.equals(Constants.PR_INTERNAL_TOKEN_NAME)) {
+        if (tokenname.equals(CryptoUtil.INTERNAL_TOKEN_NAME)) {
             fullNickname = nickname;
         } else {
             fullNickname = tokenname + ":" + nickname;

@@ -26,6 +26,7 @@ import com.netscape.admin.certsrv.*;
 import com.netscape.admin.certsrv.connection.*;
 import com.netscape.admin.certsrv.wizard.*;
 import com.netscape.certsrv.common.*;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.admin.certsrv.task.*;
 import com.netscape.management.client.console.*;
 
@@ -232,12 +233,12 @@ class WIMigrationPage extends WizardBasePanel implements IWizardPanel, ItemListe
         String caTokenName = "";
         String sslTokenName = "";
         if (mCATokenBox.getSelectedIndex() == 0) {
-            caTokenName = Constants.PR_INTERNAL_TOKEN_NAME;
+            caTokenName = CryptoUtil.INTERNAL_TOKEN_NAME;
         } else {
             caTokenName = (String)mCATokenBox.getSelectedItem();
         }
         if (mSSLTokenBox.getSelectedIndex() == 0) {
-            sslTokenName = Constants.PR_INTERNAL_TOKEN_NAME;
+            sslTokenName = CryptoUtil.INTERNAL_TOKEN_NAME;
         } else {
             sslTokenName = (String)mSSLTokenBox.getSelectedItem();
         }
