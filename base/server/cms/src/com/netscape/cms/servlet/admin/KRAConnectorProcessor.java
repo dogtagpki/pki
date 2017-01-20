@@ -194,7 +194,7 @@ public class KRAConnectorProcessor extends CAProcessor {
 
         String nickname = cs.getString("ca.subsystem.nickname", "");
         String tokenname = cs.getString("ca.subsystem.tokenname", "");
-        if (!tokenname.equals(CryptoUtil.INTERNAL_TOKEN_FULL_NAME))
+        if (!CryptoUtil.isInternalToken(tokenname))
             nickname = tokenname + ":" + nickname;
         cs.putString(PREFIX + ".nickName", nickname);
         cs.commit(true);

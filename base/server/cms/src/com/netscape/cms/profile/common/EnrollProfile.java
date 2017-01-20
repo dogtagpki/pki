@@ -702,7 +702,7 @@ public abstract class EnrollProfile extends BasicProfile
                     String tokenName =
                         CMS.getConfigStore().getString("ca.requestVerify.token", CryptoUtil.INTERNAL_TOKEN_NAME);
                     savedToken = cm.getThreadToken();
-                    if (tokenName.equals(CryptoUtil.INTERNAL_TOKEN_NAME)) {
+                    if (CryptoUtil.isInternalToken(tokenName)) {
                         signToken = cm.getInternalCryptoToken();
                     } else {
                         signToken = cm.getTokenByName(tokenName);
@@ -1509,7 +1509,7 @@ public abstract class EnrollProfile extends BasicProfile
             CryptoManager cm = CryptoManager.getInstance();
             CryptoToken verifyToken = null;
             String tokenName = CMS.getConfigStore().getString("ca.requestVerify.token", CryptoUtil.INTERNAL_TOKEN_NAME);
-            if (tokenName.equals(CryptoUtil.INTERNAL_TOKEN_NAME)) {
+            if (CryptoUtil.isInternalToken(tokenName)) {
                 CMS.debug("POP verification using internal token");
                 certReqMsg.verify();
             } else {

@@ -51,8 +51,7 @@ public class TPSInstallerService extends SystemConfigService  {
 
         // get token prefix, if applicable
         String tokPrefix = "";
-        if (!request.getToken().equals(CryptoUtil.INTERNAL_TOKEN_FULL_NAME) &&
-                !request.getToken().equals(CryptoUtil.INTERNAL_TOKEN_NAME)) {
+        if (!CryptoUtil.isInternalToken(request.getToken())) {
             tokPrefix = request.getToken() + ":";
         }
 

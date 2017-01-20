@@ -245,8 +245,7 @@ public class CRSEnrollment extends HttpServlet {
                     mTokenName = scepConfig.getString("tokenname", "");
                     mUseCA = false;
                 }
-                if (!(mTokenName.equalsIgnoreCase(CryptoUtil.INTERNAL_TOKEN_NAME) ||
-                        mTokenName.equalsIgnoreCase(CryptoUtil.INTERNAL_TOKEN_FULL_NAME) || mTokenName.length() == 0)) {
+                if (!CryptoUtil.isInternalToken(mTokenName)) {
                     int i = mNickname.indexOf(':');
                     if (!((i > -1) && (mTokenName.length() == i) && (mNickname.startsWith(mTokenName)))) {
                         mNickname = mTokenName + ":" + mNickname;
@@ -1964,9 +1963,7 @@ public class CRSEnrollment extends HttpServlet {
                 cm = CryptoManager.getInstance();
                 internalToken = cm.getInternalCryptoToken();
                 DESkg = internalToken.getKeyGenerator(kga);
-                if (mTokenName.equalsIgnoreCase(CryptoUtil.INTERNAL_TOKEN_NAME) ||
-                        mTokenName.equalsIgnoreCase(CryptoUtil.INTERNAL_TOKEN_FULL_NAME) ||
-                        mTokenName.length() == 0) {
+                if (CryptoUtil.isInternalToken(mTokenName)) {
                     keyStorageToken = cm.getInternalKeyStorageToken();
                     internalKeyStorageToken = keyStorageToken;
                     CMS.debug("CRSEnrollment: CryptoContext: internal token name: '" + mTokenName + "'");

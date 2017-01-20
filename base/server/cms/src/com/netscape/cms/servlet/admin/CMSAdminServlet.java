@@ -588,7 +588,7 @@ public final class CMSAdminServlet extends AdminServlet {
                         String tokenName = (String) tokenizer.nextElement();
                         String nickName = (String) tokenizer.nextElement();
 
-                        if (tokenName.equals(CryptoUtil.INTERNAL_TOKEN_NAME)) {
+                        if (CryptoUtil.isInternalToken(tokenName)) {
                             tokenName = jssSubSystem.getInternalTokenName();
                         } else {
                             nickName = tokenName + ":" + nickName;
@@ -693,7 +693,7 @@ public final class CMSAdminServlet extends AdminServlet {
         }
         String tokenName = (String) tokenizer.nextElement();
 
-        if (tokenName.equals(CryptoUtil.INTERNAL_TOKEN_NAME))
+        if (CryptoUtil.isInternalToken(tokenName))
             tokenName = "";
         else
             tokenName = tokenName + ":";
@@ -1100,7 +1100,7 @@ public final class CMSAdminServlet extends AdminServlet {
                 String value = req.getParameter(key);
 
                 if (key.equals(Constants.PR_TOKEN_NAME)) {
-                    if (!value.equals(CryptoUtil.INTERNAL_TOKEN_NAME))
+                    if (!CryptoUtil.isInternalToken(value))
                         tokenName = value;
                 } else if (key.equals(Constants.PR_KEY_LENGTH)) {
                     keyLength = Integer.parseInt(value);
@@ -1264,7 +1264,7 @@ public final class CMSAdminServlet extends AdminServlet {
                 CMS.getSubsystem(CMS.SUBSYSTEM_CA);
         ISigningUnit signingUnit = ca.getSigningUnit();
 
-        if (tokenName.equals(CryptoUtil.INTERNAL_TOKEN_NAME))
+        if (CryptoUtil.isInternalToken(tokenName))
             signingUnit.setNewNickName(nickname);
         else {
             if (tokenName.equals("") && nickname.equals(""))
@@ -1287,7 +1287,7 @@ public final class CMSAdminServlet extends AdminServlet {
         IRegistrationAuthority ra = (IRegistrationAuthority)
                 CMS.getSubsystem(CMS.SUBSYSTEM_RA);
 
-        if (tokenName.equals(CryptoUtil.INTERNAL_TOKEN_NAME))
+        if (CryptoUtil.isInternalToken(tokenName))
             ra.setNewNickName(nickname);
         else {
             if (tokenName.equals("") && nickname.equals(""))
@@ -1311,7 +1311,7 @@ public final class CMSAdminServlet extends AdminServlet {
         if (ocsp != null) {
             ISigningUnit signingUnit = ocsp.getSigningUnit();
 
-            if (tokenName.equals(CryptoUtil.INTERNAL_TOKEN_NAME))
+            if (CryptoUtil.isInternalToken(tokenName))
                 signingUnit.setNewNickName(nickname);
             else {
                 if (tokenName.equals("") && nickname.equals(""))
@@ -1324,7 +1324,7 @@ public final class CMSAdminServlet extends AdminServlet {
                     CMS.getSubsystem(CMS.SUBSYSTEM_CA);
             ISigningUnit signingUnit = ca.getOCSPSigningUnit();
 
-            if (tokenName.equals(CryptoUtil.INTERNAL_TOKEN_NAME))
+            if (CryptoUtil.isInternalToken(tokenName))
                 signingUnit.setNewNickName(nickname);
             else {
                 if (tokenName.equals("") && nickname.equals(""))
@@ -1356,7 +1356,7 @@ public final class CMSAdminServlet extends AdminServlet {
         IKeyRecoveryAuthority kra = (IKeyRecoveryAuthority)
                 CMS.getSubsystem(CMS.SUBSYSTEM_KRA);
 
-        if (tokenName.equals(CryptoUtil.INTERNAL_TOKEN_NAME))
+        if (CryptoUtil.isInternalToken(tokenName))
             kra.setNewNickName(nickname);
         else {
             if (tokenName.equals("") && nickname.equals(""))

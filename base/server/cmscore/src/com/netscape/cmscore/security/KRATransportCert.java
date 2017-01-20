@@ -20,14 +20,14 @@ package com.netscape.cmscore.security;
 import java.io.IOException;
 import java.security.KeyPair;
 
-import netscape.security.x509.KeyUsageExtension;
-
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.ConfigConstants;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.security.KeyCertData;
 import com.netscape.cmsutil.crypto.CryptoUtil;
+
+import netscape.security.x509.KeyUsageExtension;
 
 /**
  * KRA transport certificate
@@ -52,7 +52,7 @@ public class KRATransportCert extends CertificateInfo {
         String tokenname = (String) mProperties.get(Constants.PR_TOKEN_NAME);
         String nickname = getNickname();
 
-        if (tokenname.equals(CryptoUtil.INTERNAL_TOKEN_NAME))
+        if (CryptoUtil.isInternalToken(tokenname))
             cmsFileTmp.putString("kra.transportUnit.nickName", nickname);
         else
             cmsFileTmp.putString("kra.transportUnit.nickName", tokenname + ":" + nickname);

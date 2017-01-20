@@ -21,8 +21,6 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.security.KeyPair;
 
-import netscape.security.x509.KeyUsageExtension;
-
 import org.mozilla.jss.crypto.PQGParamGenException;
 import org.mozilla.jss.crypto.PQGParams;
 
@@ -33,6 +31,8 @@ import com.netscape.certsrv.common.ConfigConstants;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.security.KeyCertData;
 import com.netscape.cmsutil.crypto.CryptoUtil;
+
+import netscape.security.x509.KeyUsageExtension;
 
 /**
  * OCSP signing certificate.
@@ -107,7 +107,7 @@ public class OCSPSigningCert extends CertificateInfo {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_ALG_NOT_SUPPORTED", keyType));
 
         cmsFileTmp.putString("ca.signing.defaultSigningAlgorithm", alg);
-        if (tokenname.equals(CryptoUtil.INTERNAL_TOKEN_NAME))
+        if (CryptoUtil.isInternalToken(tokenname))
             cmsFileTmp.putString("ca.signing.cacertnickname", nickname);
         else
             cmsFileTmp.putString("ca.signing.cacertnickname",

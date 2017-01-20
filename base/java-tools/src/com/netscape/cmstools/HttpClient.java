@@ -114,7 +114,7 @@ public class HttpClient {
                 CryptoManager.initialize(vals);
                 CryptoManager cm = CryptoManager.getInstance();
                 CryptoToken token = null;
-                if ((tokenName == null) || (tokenName.equals(""))) {
+                if (CryptoUtil.isInternalToken(tokenName)) {
                     token = cm.getInternalKeyStorageToken();
                     tokenName = CryptoUtil.INTERNAL_TOKEN_NAME;
                 } else {

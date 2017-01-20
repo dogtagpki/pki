@@ -42,12 +42,6 @@ import java.util.Iterator;
 import java.util.Vector;
 import java.util.regex.PatternSyntaxException;
 
-import netscape.security.provider.RSAPublicKey;
-import netscape.security.util.DerInputStream;
-import netscape.security.util.DerOutputStream;
-import netscape.security.util.DerValue;
-import netscape.security.x509.X509CertImpl;
-
 import org.mozilla.jss.CertDatabaseException;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.KeyDatabaseException;
@@ -67,6 +61,12 @@ import org.mozilla.jss.util.Password;
 
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Utils;
+
+import netscape.security.provider.RSAPublicKey;
+import netscape.security.util.DerInputStream;
+import netscape.security.util.DerOutputStream;
+import netscape.security.util.DerValue;
+import netscape.security.x509.X509CertImpl;
 
 /**
  * The KRATool class is a utility program designed to operate on an LDIF file
@@ -1620,7 +1620,7 @@ public class KRATool {
                     + "'."
                     + NEWLINE, true);
 
-            if (mSourceStorageTokenName.equals(CryptoUtil.INTERNAL_TOKEN_FULL_NAME)) {
+            if (CryptoUtil.isInternalToken(mSourceStorageTokenName)) {
                 mSourceToken = cm.getInternalKeyStorageToken();
             } else {
                 mSourceToken = cm.getTokenByName(mSourceStorageTokenName);

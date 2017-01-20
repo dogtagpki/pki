@@ -63,7 +63,7 @@ public class TestCRLSigning {
 
         // Login to token
         CryptoToken token = null;
-        if (tokenname.equals(CryptoUtil.INTERNAL_TOKEN_NAME)) {
+        if (CryptoUtil.isInternalToken(tokenname)) {
             token = cm.getInternalKeyStorageToken();
         } else {
             token = cm.getTokenByName(tokenname);

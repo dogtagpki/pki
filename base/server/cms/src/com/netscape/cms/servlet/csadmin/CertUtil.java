@@ -763,8 +763,7 @@ public class CertUtil {
         }
 
         String fullnickname = nickname;
-
-        if (!tokenname.equals(CryptoUtil.INTERNAL_TOKEN_NAME) && !tokenname.equals(CryptoUtil.INTERNAL_TOKEN_FULL_NAME)) {
+        if (!CryptoUtil.isInternalToken(tokenname)) {
             fullnickname = tokenname + ":" + nickname;
         }
 

@@ -41,43 +41,6 @@ import java.security.interfaces.RSAPublicKey;
 import java.util.Enumeration;
 import java.util.Vector;
 
-import netscape.ldap.LDAPAttribute;
-import netscape.ldap.LDAPAttributeSet;
-import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPEntry;
-import netscape.ldap.LDAPException;
-import netscape.ldap.LDAPModification;
-import netscape.security.extensions.AuthInfoAccessExtension;
-import netscape.security.extensions.ExtendedKeyUsageExtension;
-import netscape.security.extensions.NSCertTypeExtension;
-import netscape.security.extensions.OCSPNoCheckExtension;
-import netscape.security.pkcs.PKCS10;
-import netscape.security.pkcs.PKCS10Attribute;
-import netscape.security.pkcs.PKCS10Attributes;
-import netscape.security.pkcs.PKCS9Attribute;
-import netscape.security.util.BigInt;
-import netscape.security.util.DerOutputStream;
-import netscape.security.util.DerValue;
-import netscape.security.util.ObjectIdentifier;
-import netscape.security.x509.AlgIdDSA;
-import netscape.security.x509.AlgorithmId;
-import netscape.security.x509.AuthorityKeyIdentifierExtension;
-import netscape.security.x509.BasicConstraintsExtension;
-import netscape.security.x509.CertificateAlgorithmId;
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.Extension;
-import netscape.security.x509.Extensions;
-import netscape.security.x509.GeneralName;
-import netscape.security.x509.KeyIdentifier;
-import netscape.security.x509.KeyUsageExtension;
-import netscape.security.x509.SubjectKeyIdentifierExtension;
-import netscape.security.x509.URIName;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X500Signer;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
-import netscape.security.x509.X509Key;
-
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.CryptoManager.NicknameConflictException;
 import org.mozilla.jss.CryptoManager.NotInitializedException;
@@ -114,6 +77,43 @@ import com.netscape.cmscore.dbs.DateMapper;
 import com.netscape.cmscore.dbs.X509CertImplMapper;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Utils;
+
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPAttributeSet;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPModification;
+import netscape.security.extensions.AuthInfoAccessExtension;
+import netscape.security.extensions.ExtendedKeyUsageExtension;
+import netscape.security.extensions.NSCertTypeExtension;
+import netscape.security.extensions.OCSPNoCheckExtension;
+import netscape.security.pkcs.PKCS10;
+import netscape.security.pkcs.PKCS10Attribute;
+import netscape.security.pkcs.PKCS10Attributes;
+import netscape.security.pkcs.PKCS9Attribute;
+import netscape.security.util.BigInt;
+import netscape.security.util.DerOutputStream;
+import netscape.security.util.DerValue;
+import netscape.security.util.ObjectIdentifier;
+import netscape.security.x509.AlgIdDSA;
+import netscape.security.x509.AlgorithmId;
+import netscape.security.x509.AuthorityKeyIdentifierExtension;
+import netscape.security.x509.BasicConstraintsExtension;
+import netscape.security.x509.CertificateAlgorithmId;
+import netscape.security.x509.CertificateExtensions;
+import netscape.security.x509.Extension;
+import netscape.security.x509.Extensions;
+import netscape.security.x509.GeneralName;
+import netscape.security.x509.KeyIdentifier;
+import netscape.security.x509.KeyUsageExtension;
+import netscape.security.x509.SubjectKeyIdentifierExtension;
+import netscape.security.x509.URIName;
+import netscape.security.x509.X500Name;
+import netscape.security.x509.X500Signer;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509CertInfo;
+import netscape.security.x509.X509Key;
 
 /**
  * This class provides all the base methods to generate the key for different
@@ -339,7 +339,7 @@ public class KeyCertUtil {
         CryptoManager manager = CryptoManager.getInstance();
         CryptoToken token = null;
 
-        if (tokenname.equals(CryptoUtil.INTERNAL_TOKEN_NAME)) {
+        if (CryptoUtil.isInternalToken(tokenname)) {
             token = manager.getInternalKeyStorageToken();
         } else {
             token = manager.getTokenByName(tokenname);
@@ -499,11 +499,11 @@ public class KeyCertUtil {
 
         CryptoToken token = null;
 
-        if (tokenName.equalsIgnoreCase(CryptoUtil.INTERNAL_TOKEN_NAME))
+        if (CryptoUtil.isInternalToken(tokenName))
             tokenName = CryptoUtil.INTERNAL_TOKEN_NAME;
 
         try {
-            if (tokenName.equalsIgnoreCase(CryptoUtil.INTERNAL_TOKEN_NAME)) {
+            if (CryptoUtil.isInternalToken(tokenName)) {
                 token = CryptoManager.getInstance().getInternalKeyStorageToken();
             } else {
                 token = CryptoManager.getInstance().getTokenByName(tokenName);
@@ -1124,7 +1124,7 @@ public class KeyCertUtil {
             IOException, CertificateException {
         String fullnickname = nickname;
 
-        if (!tokenname.equals(CryptoUtil.INTERNAL_TOKEN_NAME))
+        if (!CryptoUtil.isInternalToken(tokenname))
             fullnickname = tokenname + ":" + nickname;
         CryptoManager manager = CryptoManager.getInstance();
         X509Certificate cert = manager.findCertByNickname(fullnickname);

@@ -34,8 +34,6 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.UriInfo;
 
-import netscape.security.x509.X509CertImpl;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.mutable.MutableBoolean;
 import org.mozilla.jss.CryptoManager;
@@ -67,6 +65,8 @@ import com.netscape.cms.servlet.csadmin.ConfigurationUtils;
 import com.netscape.cms.servlet.csadmin.SystemCertDataFactory;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Utils;
+
+import netscape.security.x509.X509CertImpl;
 
 /**
  * @author alee
@@ -150,7 +150,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         // specify module and log into token
         CMS.debug("=== Token Authentication ===");
         String token = data.getToken();
-        if (token == null) {
+        if (CryptoUtil.isInternalToken(token)) {
             token = CryptoUtil.INTERNAL_TOKEN_FULL_NAME;
         }
         loginToken(data, token);
@@ -569,12 +569,16 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             ObjectNotFoundException, TokenException {
         // TODO - some of these parameters may only be valid for RSA
         CryptoManager cryptoManager = CryptoManager.getInstance();
-        if (!tokenName.isEmpty())
+        String nickname;
+        if (!CryptoUtil.isInternalToken(tokenName)) {
             CMS.debug("SystemConfigService:updateCloneConfiguration: tokenName=" + tokenName);
-        else
+            nickname = tokenName + ":" + cdata.getNickname();
+        } else {
             CMS.debug("SystemConfigService:updateCloneConfiguration: tokenName empty; using internal");
+            nickname = cdata.getNickname();
+        }
 
-        X509Certificate cert = cryptoManager.findCertByNickname(!tokenName.isEmpty()? tokenName + ":" + cdata.getNickname() :  cdata.getNickname());
+        X509Certificate cert = cryptoManager.findCertByNickname(nickname);
         PublicKey pubk = cert.getPublicKey();
         byte[] exponent = CryptoUtil.getPublicExponent(pubk);
         byte[] modulus = CryptoUtil.getModulus(pubk);
@@ -588,7 +592,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
     }
 
     private void updateConfiguration(ConfigurationRequest data, SystemCertData cdata, String tag) {
-        if (cdata.getToken().equals(CryptoUtil.INTERNAL_TOKEN_FULL_NAME)) {
+        if (CryptoUtil.isInternalToken(cdata.getToken())) {
             cs.putString(csSubsystem + ".cert." + tag + ".nickname", cdata.getNickname());
         } else {
             cs.putString(csSubsystem + ".cert." + tag + ".nickname", data.getToken() +
@@ -877,7 +881,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         CMS.debug("SystemConfigService: get configuration entries from master");
         ConfigurationUtils.getConfigEntriesFromMaster();
 
-        if (token.equals(CryptoUtil.INTERNAL_TOKEN_FULL_NAME)) {
+        if (CryptoUtil.isInternalToken(token)) {
             if (!data.getSystemCertsImported()) {
                 CMS.debug("SystemConfigService: restore certificates from P12 file");
                 String p12File = data.getP12File();
@@ -1019,7 +1023,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
     public void loginToken(ConfigurationRequest data, String token) {
         cs.putString("preop.module.token", token);
 
-        if (! token.equals(CryptoUtil.INTERNAL_TOKEN_FULL_NAME)) {
+        if (!CryptoUtil.isInternalToken(token)) {
             try {
                 CryptoManager cryptoManager = CryptoManager.getInstance();
                 CryptoToken ctoken = cryptoManager.getTokenByName(token);
@@ -1130,7 +1134,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 throw new BadRequestException("Invalid clone URI: " + cloneUri, e);
             }
 
-            if (data.getToken().equals(CryptoUtil.INTERNAL_TOKEN_FULL_NAME)) {
+            if (CryptoUtil.isInternalToken(data.getToken())) {
                 if (!data.getSystemCertsImported()) {
                     if (data.getP12File() == null) {
                         throw new BadRequestException("P12 filename not provided");

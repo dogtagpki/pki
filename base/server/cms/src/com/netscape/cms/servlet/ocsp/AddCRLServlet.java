@@ -356,7 +356,7 @@ public class AddCRLServlet extends CMSServlet {
                     String tokenName =
                         CMS.getConfigStore().getString("ocsp.crlVerify.token", CryptoUtil.INTERNAL_TOKEN_NAME);
                     savedToken = cmanager.getThreadToken();
-                    if (tokenName.equals(CryptoUtil.INTERNAL_TOKEN_NAME)) {
+                    if (CryptoUtil.isInternalToken(tokenName)) {
                         verToken = cmanager.getInternalCryptoToken();
                     } else {
                         verToken = cmanager.getTokenByName(tokenName);

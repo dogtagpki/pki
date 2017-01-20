@@ -1448,8 +1448,7 @@ public class CMSEngine implements ICMSEngine {
             nickName) {
         String newName = null;
 
-        if (tokenName.equals(CryptoUtil.INTERNAL_TOKEN_NAME) ||
-                tokenName.equalsIgnoreCase(CryptoUtil.INTERNAL_TOKEN_FULL_NAME))
+        if (CryptoUtil.isInternalToken(tokenName))
             newName = nickName;
         else {
             if (tokenName.equals("") && nickName.equals(""))

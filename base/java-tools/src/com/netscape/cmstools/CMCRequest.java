@@ -33,10 +33,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.StringTokenizer;
 
-import netscape.security.pkcs.PKCS10;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CertImpl;
-
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.ANY;
 import org.mozilla.jss.asn1.ASN1Util;
@@ -83,6 +79,10 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.HMACDigest;
 import com.netscape.cmsutil.util.Utils;
 
+import netscape.security.pkcs.PKCS10;
+import netscape.security.x509.X500Name;
+import netscape.security.x509.X509CertImpl;
+
 /**
  * Tool for creating CMC full request
  *
@@ -108,7 +108,7 @@ public class CMCRequest {
         CryptoManager manager = CryptoManager.getInstance();
         CryptoToken token = null;
 
-        if (tokenName.equals(CryptoUtil.INTERNAL_TOKEN_NAME)) {
+        if (CryptoUtil.isInternalToken(tokenName)) {
             token = manager.getInternalKeyStorageToken();
         } else {
             token = manager.getTokenByName(tokenName);
@@ -1019,7 +1019,7 @@ public class CMCRequest {
             CryptoManager cm = CryptoManager.getInstance();
             System.out.println("CryptoManger initialized");
 
-            if ((tokenName == null) || (tokenName.equals(""))) {
+            if (CryptoUtil.isInternalToken(tokenName)) {
                 token = cm.getInternalKeyStorageToken();
                 tokenName = CryptoUtil.INTERNAL_TOKEN_NAME;
             } else {

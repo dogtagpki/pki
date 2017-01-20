@@ -208,7 +208,7 @@ public abstract class EnrollInput implements IProfileInput {
 
             CryptoToken verifyToken = null;
             String tokenName = CMS.getConfigStore().getString("ca.requestVerify.token", CryptoUtil.INTERNAL_TOKEN_NAME);
-            if (tokenName.equals(CryptoUtil.INTERNAL_TOKEN_NAME)) {
+            if (CryptoUtil.isInternalToken(tokenName)) {
                 CMS.debug("POP verification using internal token");
                 certReqMsg.verify();
             } else {

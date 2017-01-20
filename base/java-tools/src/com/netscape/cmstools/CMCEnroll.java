@@ -95,7 +95,7 @@ public class CMCEnroll {
         CryptoManager manager = CryptoManager.getInstance();
         CryptoToken token = null;
 
-        if (tokenname.equals(CryptoUtil.INTERNAL_TOKEN_NAME)) {
+        if (CryptoUtil.isInternalToken(tokenname)) {
             token = manager.getInternalKeyStorageToken();
         } else {
             token = manager.getTokenByName(tokenname);

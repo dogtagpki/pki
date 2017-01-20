@@ -27,9 +27,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CertImpl;
-
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NoSuchTokenException;
 import org.mozilla.jss.asn1.ANY;
@@ -60,6 +57,9 @@ import org.mozilla.jss.util.Password;
 
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Utils;
+
+import netscape.security.x509.X500Name;
+import netscape.security.x509.X509CertImpl;
 
 /**
  * Tool for signing a CMC revocation request with an agent's certificate.
@@ -175,21 +175,21 @@ public class CMCRevoke {
                 // initialize CryptoManager
                 mPath = dValue;
                 System.out.println("cert/key prefix = " + mPrefix);
-                System.out.println("path = " + mPath); 
+                System.out.println("path = " + mPath);
                 CryptoManager.InitializationValues vals =
-                    new CryptoManager.InitializationValues(mPath, mPrefix, mPrefix, "secmod.db"); 
+                    new CryptoManager.InitializationValues(mPath, mPrefix, mPrefix, "secmod.db");
 
                 CryptoManager.initialize(vals);
-                
+
                 CryptoManager cm = CryptoManager.getInstance();
                 CryptoToken token = null;
-                if ((hValue == null) || (hValue.equals(""))) {
+                if (CryptoUtil.isInternalToken(hValue)) {
                     token = cm.getInternalKeyStorageToken();
                     hValue = CryptoUtil.INTERNAL_TOKEN_NAME;
                 } else {
                     token = cm.getTokenByName(hValue);
                 }
-    
+
                 Password pass = new Password(pValue.toCharArray());
 
                 token.login(pass);
@@ -259,7 +259,7 @@ public class CMCRevoke {
             Exception, TokenException {
         CryptoToken token = null;
 
-        if (tokenname.equals(CryptoUtil.INTERNAL_TOKEN_NAME)) {
+        if (CryptoUtil.isInternalToken(tokenname)) {
             token = manager.getInternalKeyStorageToken();
         } else {
             token = manager.getTokenByName(tokenname);
