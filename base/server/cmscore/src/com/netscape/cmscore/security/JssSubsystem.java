@@ -541,7 +541,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
     public boolean isTokenLoggedIn(String name) throws EBaseException {
         try {
             if (name.equals(CryptoUtil.INTERNAL_TOKEN_NAME))
-                name = Constants.PR_FULL_INTERNAL_TOKEN_NAME;
+                name = CryptoUtil.INTERNAL_TOKEN_FULL_NAME;
             CryptoToken ctoken = mCryptoManager.getTokenByName(name);
 
             return ctoken.isLoggedIn();
@@ -795,7 +795,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
 
         String t = tokenName;
         if (tokenName.equals(CryptoUtil.INTERNAL_TOKEN_NAME))
-            t = Constants.PR_FULL_INTERNAL_TOKEN_NAME;
+            t = CryptoUtil.INTERNAL_TOKEN_FULL_NAME;
         CryptoToken token = null;
 
         try {
@@ -1237,7 +1237,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
                                 CryptoManager.getInstance().findPrivKeyByCert(list[i]); // check for errors
                         String nickname = list[i].getNickname();
                         if (tokenName.equals(CryptoUtil.INTERNAL_TOKEN_NAME) ||
-                                tokenName.equals(Constants.PR_FULL_INTERNAL_TOKEN_NAME)) {
+                                tokenName.equals(CryptoUtil.INTERNAL_TOKEN_FULL_NAME)) {
                             nickname = CryptoUtil.INTERNAL_TOKEN_NAME + ":" + nickname;
                         }
                         X509CertImpl impl = null;

@@ -489,7 +489,6 @@ public interface Constants {
     //public final static String PR_CA_SIGNING_CERT = "cacert";
     //public final static String PR_SERVER_CERT = "servercert";
     public final static String PR_CLIENT_CERT = "clientcert";
-    public final static String PR_FULL_INTERNAL_TOKEN_NAME = "Internal Key Storage Token";
     public final static String PR_TOKEN_NAME = "tokenName";
     public final static String PR_TOKEN_PASSWD = "tokenPwd";
     public final static String PR_KEY_LENGTH = "keyLength";
