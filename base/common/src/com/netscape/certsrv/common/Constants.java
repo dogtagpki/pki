@@ -519,7 +519,6 @@ public interface Constants {
     /* Token and Certificates */
     public final static String PR_TOKEN_LIST = "tokenlist";
     public final static String PR_TOKEN_PREFIX = "token_";
-    public final static String PR_INTERNAL_TOKEN = "internal";
     public final static String PR_KEY_LIST = "keylist";
 
     /* SSL Cipher Preferences */

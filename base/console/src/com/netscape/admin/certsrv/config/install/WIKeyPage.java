@@ -17,21 +17,33 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config.install;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
-import javax.swing.*;
-import javax.swing.text.*;
-import javax.swing.border.*;
-import javax.swing.event.*;
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
-import com.netscape.admin.certsrv.wizard.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.admin.certsrv.config.*;
-import com.netscape.admin.certsrv.task.*;
-import com.netscape.management.client.console.*;
-import com.netscape.management.client.util.*;
+import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.util.StringTokenizer;
+
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.text.JTextComponent;
+
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.wizard.IWizardPanel;
+import com.netscape.admin.certsrv.wizard.WizardBasePanel;
+import com.netscape.admin.certsrv.wizard.WizardInfo;
+import com.netscape.certsrv.common.ConfigConstants;
+import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.common.OpDef;
+import com.netscape.certsrv.common.TaskId;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
  * Setup key information for certificate setup wizard.
@@ -77,7 +89,7 @@ class WIKeyPage extends WizardBasePanel implements IWizardPanel, ItemListener {
         StringTokenizer tokenizer = new StringTokenizer(tokenList, ":");
         int count = tokenizer.countTokens();
         while (tokenizer.hasMoreTokens()) {
-            mTokenBox.addItem((String)tokenizer.nextToken());
+            mTokenBox.addItem(tokenizer.nextToken());
         }
 
         String initializedList = mWizardInfo.getTokensInit();
@@ -85,7 +97,7 @@ class WIKeyPage extends WizardBasePanel implements IWizardPanel, ItemListener {
         int i=0;
         mTokenInitialized = new String[count];
         while (tokenizer.hasMoreElements()) {
-            mTokenInitialized[i] = (String)tokenizer.nextToken();
+            mTokenInitialized[i] = tokenizer.nextToken();
             i++;
         }
 
@@ -94,7 +106,7 @@ class WIKeyPage extends WizardBasePanel implements IWizardPanel, ItemListener {
         i=0;
         mTokenLogin = new String[count];
         while (tokenizer.hasMoreElements()) {
-            mTokenLogin[i] = (String)tokenizer.nextToken();
+            mTokenLogin[i] = tokenizer.nextToken();
             i++;
         }
 
@@ -131,14 +143,14 @@ class WIKeyPage extends WizardBasePanel implements IWizardPanel, ItemListener {
                     }else if (mKeyTypeBox.isVisible()) {
                         String type = (String)mKeyTypeBox.getSelectedItem();
                         if (type.equals("RSA")) {
-                            float fraction = (float)num / (float)8.0;
+                            float fraction = num / (float)8.0;
                             int wholeNumber = (int)fraction;
                             if((fraction - wholeNumber)!=0) {
                                 setErrorMessage("RSAINVALID");
                                 return false;
                             }
                         }else {
-                            float fraction = (float)num / (float)64.0;
+                            float fraction = num / (float)64.0;
                             int wholeNumber = (int)fraction;
                             if(num < 512 || num > 1024 || (fraction - wholeNumber)!=0){
                                 setErrorMessage("DSAINVALID");
@@ -529,7 +541,7 @@ class WIKeyPage extends WizardBasePanel implements IWizardPanel, ItemListener {
     public void getUpdateInfo(WizardInfo info) {
         mWizardInfo = (InstallWizardInfo)info;
         String name = (String)mTokenBox.getSelectedItem();
-        if (name.equalsIgnoreCase(Constants.PR_INTERNAL_TOKEN))
+        if (name.equalsIgnoreCase(CryptoUtil.INTERNAL_TOKEN_NAME))
             name = Constants.PR_INTERNAL_TOKEN_NAME;
         mWizardInfo.put(ConfigConstants.PR_TOKEN_NAME, name);
         if (mPassword.isEditable()) {

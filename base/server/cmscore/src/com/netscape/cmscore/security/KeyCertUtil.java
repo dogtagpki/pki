@@ -166,9 +166,9 @@ public class KeyCertUtil {
         }
 
         if (tokenList.length() == 0)
-            return Constants.PR_INTERNAL_TOKEN;
+            return CryptoUtil.INTERNAL_TOKEN_NAME;
         else
-            return (tokenList.toString() + "," + Constants.PR_INTERNAL_TOKEN);
+            return (tokenList.toString() + "," + CryptoUtil.INTERNAL_TOKEN_NAME);
     }
 
     public static String base64Encode(byte[] bytes) throws IOException {
@@ -499,11 +499,11 @@ public class KeyCertUtil {
 
         CryptoToken token = null;
 
-        if (tokenName.equalsIgnoreCase(Constants.PR_INTERNAL_TOKEN))
+        if (tokenName.equalsIgnoreCase(CryptoUtil.INTERNAL_TOKEN_NAME))
             tokenName = Constants.PR_INTERNAL_TOKEN_NAME;
 
         try {
-            if (tokenName.equalsIgnoreCase(Constants.PR_INTERNAL_TOKEN)) {
+            if (tokenName.equalsIgnoreCase(CryptoUtil.INTERNAL_TOKEN_NAME)) {
                 token = CryptoManager.getInstance().getInternalKeyStorageToken();
             } else {
                 token = CryptoManager.getInstance().getTokenByName(tokenName);

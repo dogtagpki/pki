@@ -72,7 +72,6 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.ca.ICertificateAuthority;
-import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
@@ -88,6 +87,7 @@ import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.profile.SSLClientCertProvider;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.scep.CRSPKIMessage;
 import com.netscape.cmsutil.util.Utils;
 
@@ -245,7 +245,7 @@ public class CRSEnrollment extends HttpServlet {
                     mTokenName = scepConfig.getString("tokenname", "");
                     mUseCA = false;
                 }
-                if (!(mTokenName.equalsIgnoreCase(Constants.PR_INTERNAL_TOKEN) ||
+                if (!(mTokenName.equalsIgnoreCase(CryptoUtil.INTERNAL_TOKEN_NAME) ||
                         mTokenName.equalsIgnoreCase("Internal Key Storage Token") || mTokenName.length() == 0)) {
                     int i = mNickname.indexOf(':');
                     if (!((i > -1) && (mTokenName.length() == i) && (mNickname.startsWith(mTokenName)))) {
@@ -1964,7 +1964,7 @@ public class CRSEnrollment extends HttpServlet {
                 cm = CryptoManager.getInstance();
                 internalToken = cm.getInternalCryptoToken();
                 DESkg = internalToken.getKeyGenerator(kga);
-                if (mTokenName.equalsIgnoreCase(Constants.PR_INTERNAL_TOKEN) ||
+                if (mTokenName.equalsIgnoreCase(CryptoUtil.INTERNAL_TOKEN_NAME) ||
                         mTokenName.equalsIgnoreCase("Internal Key Storage Token") ||
                         mTokenName.length() == 0) {
                     keyStorageToken = cm.getInternalKeyStorageToken();

@@ -41,10 +41,10 @@ import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.ca.CAMissingCertException;
 import com.netscape.certsrv.ca.CAMissingKeyException;
 import com.netscape.certsrv.ca.ECAException;
-import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.security.ISigningUnit;
 import com.netscape.cmscore.security.JssSubsystem;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Cert;
 
 import netscape.security.x509.AlgorithmId;
@@ -151,7 +151,7 @@ public final class SigningUnit implements ISigningUnit {
             }
 
             tokenname = config.getString(PROP_TOKEN_NAME);
-            if (tokenname.equalsIgnoreCase(Constants.PR_INTERNAL_TOKEN) ||
+            if (tokenname.equalsIgnoreCase(CryptoUtil.INTERNAL_TOKEN_NAME) ||
                     tokenname.equalsIgnoreCase("Internal Key Storage Token")) {
                 mToken = mManager.getInternalKeyStorageToken();
                 setNewNickName(mNickname);

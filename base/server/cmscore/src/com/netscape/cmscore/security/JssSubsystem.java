@@ -533,9 +533,9 @@ public final class JssSubsystem implements ICryptoSubsystem {
         }
 
         if (tokenList.length()==0)
-            return Constants.PR_INTERNAL_TOKEN;
+            return CryptoUtil.INTERNAL_TOKEN_NAME;
         else
-            return tokenList.append("," + Constants.PR_INTERNAL_TOKEN).toString();
+            return tokenList.append("," + CryptoUtil.INTERNAL_TOKEN_NAME).toString();
     }
 
     public boolean isTokenLoggedIn(String name) throws EBaseException {
@@ -631,7 +631,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
         StringBuffer certNames = new StringBuffer();
 
         try {
-            if (name.equals(Constants.PR_INTERNAL_TOKEN)) {
+            if (name.equals(CryptoUtil.INTERNAL_TOKEN_NAME)) {
                 c = mCryptoManager.getInternalKeyStorageToken();
             } else {
                 c = mCryptoManager.getTokenByName(name);
@@ -681,7 +681,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
         StringBuffer certNames = new StringBuffer();
 
         try {
-            if (name.equals(Constants.PR_INTERNAL_TOKEN)) {
+            if (name.equals(CryptoUtil.INTERNAL_TOKEN_NAME)) {
                 c = mCryptoManager.getInternalKeyStorageToken();
             } else {
                 c = mCryptoManager.getTokenByName(name);
@@ -794,7 +794,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
             int keySize, PQGParams pqg) throws EBaseException {
 
         String t = tokenName;
-        if (tokenName.equals(Constants.PR_INTERNAL_TOKEN))
+        if (tokenName.equals(CryptoUtil.INTERNAL_TOKEN_NAME))
             t = Constants.PR_FULL_INTERNAL_TOKEN_NAME;
         CryptoToken token = null;
 
@@ -912,7 +912,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
         String tmp = (String) properties.get(Constants.PR_TOKEN_NAME);
 
         if ((tmp != null) &&
-                (!tmp.equals(Constants.PR_INTERNAL_TOKEN)))
+                (!tmp.equals(CryptoUtil.INTERNAL_TOKEN_NAME)))
             tokenname = tmp;
         tmp = (String) properties.get(Constants.PR_KEY_TYPE);
         if (tmp != null)

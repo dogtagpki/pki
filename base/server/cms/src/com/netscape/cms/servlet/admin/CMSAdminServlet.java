@@ -71,6 +71,7 @@ import com.netscape.certsrv.selftests.ESelfTestException;
 import com.netscape.certsrv.selftests.ISelfTest;
 import com.netscape.certsrv.selftests.ISelfTestSubsystem;
 import com.netscape.certsrv.tks.ITKSAuthority;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Cert;
 import com.netscape.cmsutil.util.Utils;
 import com.netscape.symkey.SessionKey;
@@ -436,7 +437,7 @@ public final class CMSAdminServlet extends AdminServlet {
             caTokenName = signingUnit.getTokenName();
 
             if (caTokenName.equals(jssSubSystem.getInternalTokenName()))
-                caTokenName = Constants.PR_INTERNAL_TOKEN;
+                caTokenName = CryptoUtil.INTERNAL_TOKEN_NAME;
 
             String caNickName = signingUnit.getNickname();
 
@@ -493,7 +494,7 @@ public final class CMSAdminServlet extends AdminServlet {
             if (tokenizer.countTokens() > 1) {
                 tokenName = (String) tokenizer.nextElement();
             } else {
-                tokenName = Constants.PR_INTERNAL_TOKEN;
+                tokenName = CryptoUtil.INTERNAL_TOKEN_NAME;
             }
             return tokenName + "," + ((String) tokenizer.nextElement());
         }
@@ -587,7 +588,7 @@ public final class CMSAdminServlet extends AdminServlet {
                         String tokenName = (String) tokenizer.nextElement();
                         String nickName = (String) tokenizer.nextElement();
 
-                        if (tokenName.equals(Constants.PR_INTERNAL_TOKEN)) {
+                        if (tokenName.equals(CryptoUtil.INTERNAL_TOKEN_NAME)) {
                             tokenName = jssSubSystem.getInternalTokenName();
                         } else {
                             nickName = tokenName + ":" + nickName;
@@ -692,7 +693,7 @@ public final class CMSAdminServlet extends AdminServlet {
         }
         String tokenName = (String) tokenizer.nextElement();
 
-        if (tokenName.equals(Constants.PR_INTERNAL_TOKEN))
+        if (tokenName.equals(CryptoUtil.INTERNAL_TOKEN_NAME))
             tokenName = "";
         else
             tokenName = tokenName + ":";
@@ -1099,7 +1100,7 @@ public final class CMSAdminServlet extends AdminServlet {
                 String value = req.getParameter(key);
 
                 if (key.equals(Constants.PR_TOKEN_NAME)) {
-                    if (!value.equals(Constants.PR_INTERNAL_TOKEN))
+                    if (!value.equals(CryptoUtil.INTERNAL_TOKEN_NAME))
                         tokenName = value;
                 } else if (key.equals(Constants.PR_KEY_LENGTH)) {
                     keyLength = Integer.parseInt(value);

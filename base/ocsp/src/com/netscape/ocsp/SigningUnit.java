@@ -38,10 +38,10 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.security.ISigningUnit;
 import com.netscape.cmscore.security.JssSubsystem;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Cert;
 
 import netscape.security.x509.AlgorithmId;
@@ -138,7 +138,7 @@ public final class SigningUnit implements ISigningUnit {
             CMS.debug("OCSP nickname " + mNickname);
 
             tokenname = config.getString(PROP_TOKEN_NAME);
-            if (tokenname.equalsIgnoreCase(Constants.PR_INTERNAL_TOKEN) ||
+            if (tokenname.equalsIgnoreCase(CryptoUtil.INTERNAL_TOKEN_NAME) ||
                     tokenname.equalsIgnoreCase("Internal Key Storage Token")) {
                 mToken = mManager.getInternalKeyStorageToken();
             } else {
