@@ -65,6 +65,7 @@ import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.pkcs11.PK11PubKey;
 import org.mozilla.jss.util.Password;
 
+import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Utils;
 
 /**
@@ -517,9 +518,6 @@ public class KRATool {
     // Constants:  Calendar
     private static final String DATE_OF_MODIFY_PATTERN = "yyyyMMddHHmmss'Z'";
     private static final String LOGGING_DATE_PATTERN = "dd/MMM/yyyy:HH:mm:ss z";
-
-    // Constants:  PKCS #11 Information
-    private static final String INTERNAL_TOKEN = "Internal Key Storage Token";
 
     // Constants:  Command-line Options
     private static final int ID_OFFSET_NAME_VALUE_PAIRS = 1;
@@ -1622,7 +1620,7 @@ public class KRATool {
                     + "'."
                     + NEWLINE, true);
 
-            if (mSourceStorageTokenName.equals(INTERNAL_TOKEN)) {
+            if (mSourceStorageTokenName.equals(CryptoUtil.INTERNAL_TOKEN_FULL_NAME)) {
                 mSourceToken = cm.getInternalKeyStorageToken();
             } else {
                 mSourceToken = cm.getTokenByName(mSourceStorageTokenName);
@@ -1677,7 +1675,7 @@ public class KRATool {
 
         // Retrieve the source storage cert by its nickname
         try {
-            if (mSourceStorageTokenName.equals(INTERNAL_TOKEN)) {
+            if (mSourceStorageTokenName.equals(CryptoUtil.INTERNAL_TOKEN_FULL_NAME)) {
                 log("Retrieving source storage cert with nickname of '"
                         + mSourceStorageCertNickname
                         + "'."
@@ -1702,7 +1700,7 @@ public class KRATool {
                 return FAILURE;
             }
         } catch (ObjectNotFoundException exUnwrapObjectNotFound) {
-            if (mSourceStorageTokenName.equals(INTERNAL_TOKEN)) {
+            if (mSourceStorageTokenName.equals(CryptoUtil.INTERNAL_TOKEN_FULL_NAME)) {
                 log("ERROR:  No internal "
                         + "source storage cert named '"
                         + mSourceStorageCertNickname
@@ -1723,7 +1721,7 @@ public class KRATool {
             }
             System.exit(0);
         } catch (TokenException exUnwrapToken) {
-            if (mSourceStorageTokenName.equals(INTERNAL_TOKEN)) {
+            if (mSourceStorageTokenName.equals(CryptoUtil.INTERNAL_TOKEN_FULL_NAME)) {
                 log("ERROR:  No internal "
                         + "source storage cert named '"
                         + mSourceStorageCertNickname
