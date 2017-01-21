@@ -139,7 +139,7 @@ public final class SigningUnit implements ISigningUnit {
 
             tokenname = config.getString(PROP_TOKEN_NAME);
             if (tokenname.equalsIgnoreCase(CryptoUtil.INTERNAL_TOKEN_NAME) ||
-                    tokenname.equalsIgnoreCase("Internal Key Storage Token")) {
+                    tokenname.equalsIgnoreCase(CryptoUtil.INTERNAL_TOKEN_FULL_NAME)) {
                 mToken = mManager.getInternalKeyStorageToken();
             } else {
                 mToken = mManager.getTokenByName(tokenname);

@@ -38,6 +38,7 @@ import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.xml.XMLObject;
 
 public class UpdateOCSPConfig extends CMSServlet {
@@ -107,7 +108,7 @@ public class UpdateOCSPConfig extends CMSServlet {
         try {
             nickname = cs.getString("ca.subsystem.nickname", "");
             String tokenname = cs.getString("ca.subsystem.tokenname", "");
-            if (!tokenname.equals("internal") && !tokenname.equals("Internal Key Storage Token"))
+            if (!tokenname.equals("internal") && !tokenname.equals(CryptoUtil.INTERNAL_TOKEN_FULL_NAME))
                 nickname = tokenname + ":" + nickname;
         } catch (Exception e) {
         }

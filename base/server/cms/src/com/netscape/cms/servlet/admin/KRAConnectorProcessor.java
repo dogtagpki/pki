@@ -34,6 +34,7 @@ import com.netscape.certsrv.connector.IConnector;
 import com.netscape.certsrv.system.ConnectorNotFoundException;
 import com.netscape.certsrv.system.KRAConnectorInfo;
 import com.netscape.cms.servlet.processors.CAProcessor;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
  * @author Ade Lee
@@ -193,7 +194,7 @@ public class KRAConnectorProcessor extends CAProcessor {
 
         String nickname = cs.getString("ca.subsystem.nickname", "");
         String tokenname = cs.getString("ca.subsystem.tokenname", "");
-        if (!tokenname.equals("Internal Key Storage Token"))
+        if (!tokenname.equals(CryptoUtil.INTERNAL_TOKEN_FULL_NAME))
             nickname = tokenname + ":" + nickname;
         cs.putString(PREFIX + ".nickName", nickname);
         cs.commit(true);

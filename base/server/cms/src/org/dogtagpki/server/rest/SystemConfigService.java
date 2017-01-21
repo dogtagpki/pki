@@ -588,7 +588,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
     }
 
     private void updateConfiguration(ConfigurationRequest data, SystemCertData cdata, String tag) {
-        if (cdata.getToken().equals("Internal Key Storage Token")) {
+        if (cdata.getToken().equals(CryptoUtil.INTERNAL_TOKEN_FULL_NAME)) {
             cs.putString(csSubsystem + ".cert." + tag + ".nickname", cdata.getNickname());
         } else {
             cs.putString(csSubsystem + ".cert." + tag + ".nickname", data.getToken() +

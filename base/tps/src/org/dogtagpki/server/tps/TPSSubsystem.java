@@ -55,6 +55,7 @@ import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.tps.token.TokenStatus;
 import com.netscape.cmscore.base.FileConfigStore;
 import com.netscape.cmscore.dbs.DBSubsystem;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
  * @author Endi S. Dewata <edewata@redhat.com>
@@ -366,7 +367,7 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
         IConfigStore cs = CMS.getConfigStore();
         String nickname = cs.getString("tps.subsystem.nickname", "");
         String tokenname = cs.getString("tps.subsystem.tokenname", "");
-        if (!tokenname.equals("internal") && !tokenname.equals("Internal Key Storage Token"))
+        if (!tokenname.equals("internal") && !tokenname.equals(CryptoUtil.INTERNAL_TOKEN_FULL_NAME))
             nickname = tokenname + ":" + nickname;
 
         CryptoManager cm = CryptoManager.getInstance();

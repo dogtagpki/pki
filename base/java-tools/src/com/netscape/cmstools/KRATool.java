@@ -597,7 +597,7 @@ public class KRATool {
     private static final String SOURCE_STORAGE_TOKEN_NAME_EXAMPLE = SOURCE_STORAGE_TOKEN_NAME
                                       + " "
                                       + TIC
-                                      + "Internal Key Storage Token"
+                                      + CryptoUtil.INTERNAL_TOKEN_FULL_NAME
                                       + TIC;
 
     private static final String SOURCE_STORAGE_CERT_NICKNAME = "-source_storage_certificate_nickname";

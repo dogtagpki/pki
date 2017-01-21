@@ -997,7 +997,7 @@ public class ConfigurationUtils {
 
             String name1 = "preop.master." + tag + ".nickname";
             String nickname = cs.getString(name1, "");
-            if (!tokenname.equals("Internal Key Storage Token") &&
+            if (!tokenname.equals(CryptoUtil.INTERNAL_TOKEN_FULL_NAME) &&
                     !tokenname.equals("internal"))
                 nickname = tokenname + ":" + nickname;
 
@@ -2342,7 +2342,7 @@ public class ConfigurationUtils {
         CryptoManager cm = CryptoManager.getInstance();
 
         if (token != null) {
-            if (!token.equals("internal") && !token.equals("Internal Key Storage Token"))
+            if (!token.equals("internal") && !token.equals(CryptoUtil.INTERNAL_TOKEN_FULL_NAME))
                 nickname = token + ":" + nickname;
         }
 
@@ -2815,7 +2815,7 @@ public class ConfigurationUtils {
         String cstype = config.getString("cs.type", null);
         cstype = cstype.toLowerCase();
         if (cstype.equals("kra")) {
-            if (!token.equals("Internal Key Storage Token")) {
+            if (!token.equals(CryptoUtil.INTERNAL_TOKEN_FULL_NAME)) {
                 if (certTag.equals("storage")) {
                     config.putString(subsystem + ".storageUnit.hardware", token);
                     config.putString(subsystem + ".storageUnit.nickName", token + ":" + nickname);
@@ -2834,7 +2834,7 @@ public class ConfigurationUtils {
         String serverCertNickname = nickname;
         String path = CMS.getConfigStore().getString("instanceRoot", "");
         if (certTag.equals("sslserver")) {
-            if (!token.equals("Internal Key Storage Token")) {
+            if (!token.equals(CryptoUtil.INTERNAL_TOKEN_FULL_NAME)) {
                 serverCertNickname = token + ":" + nickname;
             }
             PrintStream ps = new PrintStream(path + "/conf/serverCertNick.conf", "UTF-8");
@@ -2845,7 +2845,7 @@ public class ConfigurationUtils {
         config.putString(subsystem + "." + certTag + ".nickname", nickname);
         config.putString(subsystem + "." + certTag + ".tokenname", token);
         if (certTag.equals("audit_signing")) {
-            if (!token.equals("Internal Key Storage Token") && !token.equals("")) {
+            if (!token.equals(CryptoUtil.INTERNAL_TOKEN_FULL_NAME) && !token.equals("")) {
                 config.putString("log.instance.SignedAudit.signedAuditCertNickname",
                         token + ":" + nickname);
             } else {
@@ -2855,7 +2855,7 @@ public class ConfigurationUtils {
         }
 
         // for system certs verification
-        if (!token.equals("Internal Key Storage Token") && !token.equals("")) {
+        if (!token.equals(CryptoUtil.INTERNAL_TOKEN_FULL_NAME) && !token.equals("")) {
             config.putString(subsystem + ".cert." + certTag + ".nickname",
                     token + ":" + nickname);
         } else {
@@ -2929,7 +2929,7 @@ public class ConfigurationUtils {
         cstype = cstype.toLowerCase();
         if (cstype.equals("kra")) {
             String token = config.getString("preop.module.token");
-            if (!token.equals("Internal Key Storage Token")) {
+            if (!token.equals(CryptoUtil.INTERNAL_TOKEN_FULL_NAME)) {
                 CMS.debug("ConfigurationUtils: updating configuration for KRA clone with hardware token");
                 String subsystem = config.getString(PCERT_PREFIX + "storage.subsystem");
                 String storageNickname = getNickname(config, "storage");
@@ -2947,7 +2947,7 @@ public class ConfigurationUtils {
         // audit signing cert
         String audit_nn = config.getString(cstype + ".audit_signing" + ".nickname", "");
         String audit_tk = config.getString(cstype + ".audit_signing" + ".tokenname", "");
-        if (!audit_tk.equals("Internal Key Storage Token") && !audit_tk.equals("")) {
+        if (!audit_tk.equals(CryptoUtil.INTERNAL_TOKEN_FULL_NAME) && !audit_tk.equals("")) {
             config.putString("log.instance.SignedAudit.signedAuditCertNickname",
                     audit_tk + ":" + audit_nn);
         } else {
@@ -3332,7 +3332,7 @@ public class ConfigurationUtils {
 
         if (certTag.equals("signing") && subsystem.equals("ca")) {
             String NickName = nickname;
-            if (!tokenname.equals("internal") && !tokenname.equals("Internal Key Storage Token"))
+            if (!tokenname.equals("internal") && !tokenname.equals(CryptoUtil.INTERNAL_TOKEN_FULL_NAME))
                 NickName = tokenname + ":" + nickname;
 
             CMS.debug("handleCerts(): set trust on CA signing cert " + NickName);
@@ -3349,7 +3349,7 @@ public class ConfigurationUtils {
         IConfigStore cs = CMS.getConfigStore();
         String nickname = cs.getString("preop.cert." + tag + ".nickname", "");
         String tokenname = cs.getString("preop.module.token", "");
-        if (!tokenname.equals("Internal Key Storage Token"))
+        if (!tokenname.equals(CryptoUtil.INTERNAL_TOKEN_FULL_NAME))
             nickname = tokenname + ":" + nickname;
 
         CryptoManager cm = CryptoManager.getInstance();
@@ -3375,7 +3375,7 @@ public class ConfigurationUtils {
 
         String fullnickname = nickname;
         boolean hardware = false;
-        if (!tokenname.equals("internal") && !tokenname.equals("Internal Key Storage Token")) {
+        if (!tokenname.equals("internal") && !tokenname.equals(CryptoUtil.INTERNAL_TOKEN_FULL_NAME)) {
             hardware = true;
             fullnickname = tokenname + ":" + nickname;
         }
@@ -3427,7 +3427,7 @@ public class ConfigurationUtils {
             NoSuchTokenException, TokenException {
         IConfigStore cs = CMS.getConfigStore();
         String nickname = cs.getString("preop.cert.sslserver.nickname");
-        deleteCert("Internal Key Storage Token", nickname);
+        deleteCert(CryptoUtil.INTERNAL_TOKEN_FULL_NAME, nickname);
     }
 
     public static void deleteCert(String tokenname, String nickname) throws NotInitializedException,
@@ -3438,7 +3438,7 @@ public class ConfigurationUtils {
         CryptoStore store = tok.getCryptoStore();
         String fullnickname = nickname;
         if (!tokenname.equals("") &&
-                !tokenname.equals("Internal Key Storage Token") &&
+                !tokenname.equals(CryptoUtil.INTERNAL_TOKEN_FULL_NAME) &&
                 !tokenname.equals("internal"))
             fullnickname = tokenname + ":" + nickname;
 
@@ -3485,7 +3485,7 @@ public class ConfigurationUtils {
             String nickname = cs.getString("preop.cert." + t + ".nickname");
             String modname = cs.getString("preop.module.token");
 
-            if (!modname.equals("Internal Key Storage Token"))
+            if (!modname.equals(CryptoUtil.INTERNAL_TOKEN_FULL_NAME))
                 nickname = modname + ":" + nickname;
 
             util.loadCertFromNSS(pkcs12, nickname, true, false);
@@ -3998,7 +3998,7 @@ public class ConfigurationUtils {
             String tokenname = cs.getString("preop.module.token", "");
 
             if (!tokenname.equals("") &&
-                    !tokenname.equals("Internal Key Storage Token") &&
+                    !tokenname.equals(CryptoUtil.INTERNAL_TOKEN_FULL_NAME) &&
                     !tokenname.equals("internal")) {
                 nickname = tokenname + ":" + nickname;
             }
@@ -4574,7 +4574,7 @@ public class ConfigurationUtils {
         String nickname = cs.getString("preop.cert.subsystem.nickname", "");
         String tokenname = cs.getString("preop.module.token", "");
 
-        if (!tokenname.equals("internal") && !tokenname.equals("Internal Key Storage Token")
+        if (!tokenname.equals("internal") && !tokenname.equals(CryptoUtil.INTERNAL_TOKEN_FULL_NAME)
                 && !tokenname.equals("")) {
             nickname = tokenname + ":" + nickname;
         }

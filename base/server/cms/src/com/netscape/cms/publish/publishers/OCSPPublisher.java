@@ -30,8 +30,6 @@ import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
-import netscape.ldap.LDAPConnection;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -39,8 +37,11 @@ import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.publish.ILdapPublisher;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.http.HttpRequest;
 import com.netscape.cmsutil.http.JssSSLSocketFactory;
+
+import netscape.ldap.LDAPConnection;
 
 /**
  * This publisher writes certificate and CRL into
@@ -144,7 +145,7 @@ public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
         try {
             nickname = config.getString("ca.subsystem.nickname", "");
             String tokenname = config.getString("ca.subsystem.tokenname", "");
-            if (!tokenname.equals("internal") && !tokenname.equals("Internal Key Storage Token"))
+            if (!tokenname.equals("internal") && !tokenname.equals(CryptoUtil.INTERNAL_TOKEN_FULL_NAME))
                 nickname = tokenname + ":" + nickname;
         } catch (Exception e) {
         }

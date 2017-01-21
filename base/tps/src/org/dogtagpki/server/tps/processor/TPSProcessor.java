@@ -96,6 +96,7 @@ import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.tps.token.TokenStatus;
 import com.netscape.cms.servlet.tks.SecureChannelProtocol;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.symkey.SessionKey;
 
 import netscape.security.x509.RevocationReason;
@@ -681,7 +682,7 @@ public class TPSProcessor {
 
         SecureChannelProtocol protocol = new SecureChannelProtocol();
 
-        String tokenName = "Internal Key Storage Token";
+        String tokenName = CryptoUtil.INTERNAL_TOKEN_FULL_NAME;
 
         CryptoManager cm = null;
         CryptoToken token = null;
@@ -2880,7 +2881,7 @@ public class TPSProcessor {
         }
 
         // We know for now that shared secret is on this token
-        String tokenName = "Internal Key Storage Token";
+        String tokenName = CryptoUtil.INTERNAL_TOKEN_FULL_NAME;
         PK11SymKey sharedSecret = SessionKey.GetSymKeyByName(tokenName, sharedSecretName);
 
         CMS.debug("TPSProcessor.getSharedSecret: SymKey returns: " + sharedSecret);

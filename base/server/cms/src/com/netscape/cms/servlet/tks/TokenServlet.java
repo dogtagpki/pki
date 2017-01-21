@@ -49,6 +49,7 @@ import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.symkey.SessionKey;
 
 /**
@@ -2471,7 +2472,7 @@ public class TokenServlet extends CMSServlet {
         }
 
         // We know for now that shared secret is on this token
-        String tokenName = "Internal Key Storage Token";
+        String tokenName = CryptoUtil.INTERNAL_TOKEN_FULL_NAME;
         PK11SymKey sharedSecret = SessionKey.GetSymKeyByName(tokenName, sharedSecretName);
 
         CMS.debug("TokenServlet.getSharedSecret: SymKey returns: " + sharedSecret);
