@@ -68,6 +68,7 @@ import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.dbs.KeyRepository;
 import com.netscape.cmscore.dbs.ReplicaIDRepository;
 import com.netscape.cmscore.request.RequestSubsystem;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 
 import netscape.security.util.DerOutputStream;
 import netscape.security.x509.CertificateChain;
@@ -92,7 +93,6 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
      * Internal Constants
      */
 
-    private static final String PR_INTERNAL_TOKEN_NAME = "internal";
     private static final String PARAM_CREDS = "creds";
     private static final String PARAM_LOCK = "lock";
     private static final String PARAM_PK12 = "pk12";
@@ -335,11 +335,11 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         if (serverKeygenTokenName == null) {
             serverKeygenTokenName = "internal";
         }
-        if (serverKeygenTokenName.equalsIgnoreCase(PR_INTERNAL_TOKEN_NAME))
-            serverKeygenTokenName = PR_INTERNAL_TOKEN_NAME;
+        if (serverKeygenTokenName.equalsIgnoreCase(CryptoUtil.INTERNAL_TOKEN_NAME))
+            serverKeygenTokenName = CryptoUtil.INTERNAL_TOKEN_NAME;
 
         try {
-            if (serverKeygenTokenName.equalsIgnoreCase(PR_INTERNAL_TOKEN_NAME)) {
+            if (serverKeygenTokenName.equalsIgnoreCase(CryptoUtil.INTERNAL_TOKEN_NAME)) {
                 CMS.debug("KeyRecoveryAuthority: getting internal crypto token for serverkeygen");
                 mKeygenToken = CryptoManager.getInstance().getInternalKeyStorageToken();
             } else {
