@@ -230,10 +230,18 @@ public class AlgorithmId implements Serializable, DerEncoder {
         try (DerOutputStream tmp = new DerOutputStream()) {
             DerOutputStream bytes = new DerOutputStream();
             bytes.putOID(algid);
-            if (params == null)
-                bytes.putNull();
-            else
-                bytes.putDerValue(params);
+
+            // omit parameter field for ECDSA
+            if (!algid.equals(sha224WithEC_oid) &&
+                    !algid.equals(sha256WithEC_oid) &&
+                    !algid.equals(sha384WithEC_oid) &&
+                    !algid.equals(sha512WithEC_oid)) {
+                if (params == null) {
+                    bytes.putNull();
+                } else
+                    bytes.putDerValue(params);
+            }
+
             tmp.write(DerValue.tag_Sequence, bytes);
             out.write(tmp.toByteArray());
         }
@@ -246,12 +254,19 @@ public class AlgorithmId implements Serializable, DerEncoder {
     public final byte[] encode() throws IOException {
         try (DerOutputStream out = new DerOutputStream()) {
             DerOutputStream bytes = new DerOutputStream();
-
             bytes.putOID(algid);
-            if (params == null)
-                bytes.putNull();
-            else
-                bytes.putDerValue(params);
+
+            // omit parameter field for ECDSA
+            if (!algid.equals(sha224WithEC_oid) &&
+                    !algid.equals(sha256WithEC_oid) &&
+                    !algid.equals(sha384WithEC_oid) &&
+                    !algid.equals(sha512WithEC_oid)) {
+                if (params == null) {
+                    bytes.putNull();
+                } else
+                    bytes.putDerValue(params);
+            }
+
             out.write(DerValue.tag_Sequence, bytes);
             return out.toByteArray();
         }
@@ -314,6 +329,9 @@ public class AlgorithmId implements Serializable, DerEncoder {
         if (name.equals("SHA1withEC") || name.equals("SHA1/EC")
                 || name.equals("1.2.840.10045.4.1"))
             return AlgorithmId.sha1WithEC_oid;
+        if (name.equals("SHA224withEC") || name.equals("SHA224/EC")
+                || name.equals("1.2.840.10045.4.3.1"))
+            return AlgorithmId.sha224WithEC_oid;
         if (name.equals("SHA256withEC") || name.equals("SHA256/EC")
                 || name.equals("1.2.840.10045.4.3.2"))
             return AlgorithmId.sha256WithEC_oid;
@@ -646,6 +664,8 @@ public class AlgorithmId implements Serializable, DerEncoder {
      */
     private static final int sha1WithEC_data[] =
                                    { 1, 2, 840, 10045, 4, 1 };
+    private static final int sha224WithEC_data[] =
+                                   { 1, 2, 840, 10045, 4, 3, 1 };
     private static final int sha256WithEC_data[] =
                                    { 1, 2, 840, 10045, 4, 3, 2 };
     private static final int sha384WithEC_data[] =
@@ -675,6 +695,9 @@ public class AlgorithmId implements Serializable, DerEncoder {
 
     public static final ObjectIdentifier sha1WithEC_oid = new
             ObjectIdentifier(sha1WithEC_data);
+
+    public static final ObjectIdentifier sha224WithEC_oid = new
+            ObjectIdentifier(sha224WithEC_data);
 
     public static final ObjectIdentifier sha256WithEC_oid = new
             ObjectIdentifier(sha256WithEC_data);
