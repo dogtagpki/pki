@@ -58,6 +58,7 @@ import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
 import org.mozilla.jss.pkix.primitive.Name;
 import org.mozilla.jss.util.Password;
 
+import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Utils;
 
 /**
@@ -76,7 +77,6 @@ public class CMCRevoke {
             pValue = null, cValue = null;
 
     public static final String CMS_BASE_CA_SIGNINGCERT_NOT_FOUND = "CA signing certificate not found";
-    public static final String PR_INTERNAL_TOKEN_NAME = "internal";
     public static final String PR_REQUEST_CMC = "CMC";
 
     static String cleanArgs(String s) {
@@ -185,7 +185,7 @@ public class CMCRevoke {
                 CryptoToken token = null;
                 if ((hValue == null) || (hValue.equals(""))) {
                     token = cm.getInternalKeyStorageToken();
-                    hValue = PR_INTERNAL_TOKEN_NAME;
+                    hValue = CryptoUtil.INTERNAL_TOKEN_NAME;
                 } else {
                     token = cm.getTokenByName(hValue);
                 }
@@ -259,7 +259,7 @@ public class CMCRevoke {
             Exception, TokenException {
         CryptoToken token = null;
 
-        if (tokenname.equals(PR_INTERNAL_TOKEN_NAME)) {
+        if (tokenname.equals(CryptoUtil.INTERNAL_TOKEN_NAME)) {
             token = manager.getInternalKeyStorageToken();
         } else {
             token = manager.getTokenByName(tokenname);
