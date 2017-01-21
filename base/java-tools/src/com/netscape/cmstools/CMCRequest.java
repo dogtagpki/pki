@@ -79,6 +79,7 @@ import org.mozilla.jss.pkix.primitive.Name;
 import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
 import org.mozilla.jss.util.Password;
 
+import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.HMACDigest;
 import com.netscape.cmsutil.util.Utils;
 
@@ -94,8 +95,6 @@ public class CMCRequest {
 
     public static final String PR_REQUEST_CMC = "CMC";
     public static final String PR_REQUEST_CRMF = "CRMF";
-    public static final String PR_INTERNAL_TOKEN_NAME = "internal";
-
     public static final int ARGC = 1;
     public static final String HEADER = "-----BEGIN";
     public static final String TRAILER = "-----END";
@@ -109,7 +108,7 @@ public class CMCRequest {
         CryptoManager manager = CryptoManager.getInstance();
         CryptoToken token = null;
 
-        if (tokenName.equals(PR_INTERNAL_TOKEN_NAME)) {
+        if (tokenName.equals(CryptoUtil.INTERNAL_TOKEN_NAME)) {
             token = manager.getInternalKeyStorageToken();
         } else {
             token = manager.getTokenByName(tokenName);
@@ -1022,7 +1021,7 @@ public class CMCRequest {
 
             if ((tokenName == null) || (tokenName.equals(""))) {
                 token = cm.getInternalKeyStorageToken();
-                tokenName = PR_INTERNAL_TOKEN_NAME;
+                tokenName = CryptoUtil.INTERNAL_TOKEN_NAME;
             } else {
                 token = cm.getTokenByName(tokenName);
             }
