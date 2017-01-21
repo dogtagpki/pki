@@ -17,19 +17,40 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.keycert;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
-import javax.swing.*;
-import javax.swing.border.*;
+import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.util.StringTokenizer;
 
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
-import com.netscape.admin.certsrv.wizard.*;
-import com.netscape.certsrv.common.*;
+import javax.swing.ButtonGroup;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.border.TitledBorder;
+import javax.swing.text.JTextComponent;
+
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.EAdminException;
+import com.netscape.admin.certsrv.config.WarningDialog;
+import com.netscape.admin.certsrv.connection.AdminConnection;
+import com.netscape.admin.certsrv.wizard.IWizardPanel;
+import com.netscape.admin.certsrv.wizard.WizardBasePanel;
+import com.netscape.admin.certsrv.wizard.WizardInfo;
+import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.common.DestDef;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.common.ScopeDef;
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import com.netscape.admin.certsrv.config.*;
-import javax.swing.text.*;
 
 /**
  * Setup key information for certificate setup wizard.
@@ -103,7 +124,7 @@ class WKeyPage extends WizardBasePanel implements IWizardPanel, ItemListener {
                 String str = wizardInfo.getNicknames();
                 StringTokenizer tokenizer1 = new StringTokenizer(str, ",");
                 while (tokenizer1.hasMoreTokens()) {
-                    mNicknameBox.addItem((String)tokenizer1.nextToken());
+                    mNicknameBox.addItem(tokenizer1.nextToken());
                 }
             }
         } else {
@@ -128,7 +149,7 @@ class WKeyPage extends WizardBasePanel implements IWizardPanel, ItemListener {
         String tokenList = wizardInfo.getTokenList();
         StringTokenizer tokenizer = new StringTokenizer(tokenList, ",");
         while (tokenizer.hasMoreTokens()) {
-            mTokenBox.addItem((String)tokenizer.nextToken());
+            mTokenBox.addItem(tokenizer.nextToken());
         }
 
         mTokenBox.addItemListener(this);
@@ -253,11 +274,11 @@ class WKeyPage extends WizardBasePanel implements IWizardPanel, ItemListener {
 
             if (mKeyTypeBox.isVisible()) {
                 wizardInfo.addEntry(Constants.PR_KEY_TYPE,
-                  (String)mKeyTypeBox.getSelectedItem());
+                  mKeyTypeBox.getSelectedItem());
                 nvps.put(Constants.PR_KEY_TYPE, (String) mKeyTypeBox.getSelectedItem());
             } else if (mDSAKeyTypeBox.isVisible()) {
                 wizardInfo.addEntry(Constants.PR_KEY_TYPE,
-                  (String)mDSAKeyTypeBox.getSelectedItem());
+                  mDSAKeyTypeBox.getSelectedItem());
                 nvps.put(Constants.PR_KEY_TYPE, (String) mDSAKeyTypeBox.getSelectedItem());
             }
         }
@@ -302,7 +323,7 @@ class WKeyPage extends WizardBasePanel implements IWizardPanel, ItemListener {
 
             if (mNewKeyBtn.isSelected()) {
                 String tokenName = (String)mTokenBox.getSelectedItem();
-                if (tokenName.equals("internal"))
+                if (tokenName.equals(CryptoUtil.INTERNAL_TOKEN_NAME))
                     tokenName = CryptoUtil.INTERNAL_TOKEN_NAME;
                 nvps.clear();
                 nvps.put(Constants.PR_TOKEN_NAME, tokenName);

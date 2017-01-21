@@ -2859,7 +2859,7 @@ public class TPSProcessor {
         boolean keyPresent = false;
 
         try {
-            symmKeys = SessionKey.ListSymmetricKeys("internal");
+            symmKeys = SessionKey.ListSymmetricKeys(CryptoUtil.INTERNAL_TOKEN_NAME);
             CMS.debug("TPSProcessor.getSharedSecretTransportKey: symmKeys List: " + symmKeys);
         } catch (Exception e) {
             // TODO Auto-generated catch block

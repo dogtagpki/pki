@@ -33,10 +33,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
 import java.util.Date;
 
-import netscape.security.pkcs.PKCS10;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CertImpl;
-
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.ANY;
 import org.mozilla.jss.asn1.INTEGER;
@@ -64,7 +60,12 @@ import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
 import org.mozilla.jss.pkix.primitive.Name;
 import org.mozilla.jss.util.Password;
 
+import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Utils;
+
+import netscape.security.pkcs.PKCS10;
+import netscape.security.x509.X500Name;
+import netscape.security.x509.X509CertImpl;
 
 /**
  * Tool for signing PKCS #10 , return CMC enrollment request
@@ -94,7 +95,7 @@ public class CMCEnroll {
         CryptoManager manager = CryptoManager.getInstance();
         CryptoToken token = null;
 
-        if (tokenname.equals("internal")) {
+        if (tokenname.equals(CryptoUtil.INTERNAL_TOKEN_NAME)) {
             token = manager.getInternalKeyStorageToken();
         } else {
             token = manager.getTokenByName(tokenname);
@@ -134,7 +135,7 @@ public class CMCEnroll {
     static String getCMCBlob(X509Certificate signerCert, CryptoManager manager, String nValue, String rValue) {
 
         String asciiBASE64Blob = rValue; // input pkcs10 blob
-        String tokenname = "internal";
+        String tokenname = CryptoUtil.INTERNAL_TOKEN_NAME;
 
         try {
 

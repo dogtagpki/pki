@@ -22,16 +22,18 @@ import java.security.KeyPair;
 import java.util.Date;
 import java.util.Hashtable;
 
-import netscape.security.x509.RevokedCertImpl;
-import netscape.security.x509.RevokedCertificate;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CRLImpl;
-
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.KeyPairAlgorithm;
 import org.mozilla.jss.crypto.KeyPairGenerator;
 import org.mozilla.jss.util.Password;
+
+import com.netscape.cmsutil.crypto.CryptoUtil;
+
+import netscape.security.x509.RevokedCertImpl;
+import netscape.security.x509.RevokedCertificate;
+import netscape.security.x509.X500Name;
+import netscape.security.x509.X509CRLImpl;
 
 /**
  * Tool used to test out signing a CRL
@@ -61,7 +63,7 @@ public class TestCRLSigning {
 
         // Login to token
         CryptoToken token = null;
-        if (tokenname.equals("internal")) {
+        if (tokenname.equals(CryptoUtil.INTERNAL_TOKEN_NAME)) {
             token = cm.getInternalKeyStorageToken();
         } else {
             token = cm.getTokenByName(tokenname);

@@ -29,12 +29,6 @@ import java.security.cert.X509Certificate;
 import java.util.Hashtable;
 import java.util.Random;
 
-import netscape.security.util.BigInt;
-import netscape.security.util.DerInputStream;
-import netscape.security.util.DerValue;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509Key;
-
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.ASN1Value;
@@ -70,6 +64,13 @@ import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.certsrv.util.IStatsSubsystem;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.util.Debug;
+import com.netscape.cmsutil.crypto.CryptoUtil;
+
+import netscape.security.util.BigInt;
+import netscape.security.util.DerInputStream;
+import netscape.security.util.DerValue;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509Key;
 
 /**
  * A class represents recovery request processor. There
@@ -137,8 +138,8 @@ public class RecoveryService implements IService {
         try {
             cm = CryptoManager.getInstance();
             config = CMS.getConfigStore();
-            tokName = config.getString("kra.storageUnit.hardware", "internal");
-            if (tokName.equals("internal")) {
+            tokName = config.getString("kra.storageUnit.hardware", CryptoUtil.INTERNAL_TOKEN_NAME);
+            if (tokName.equals(CryptoUtil.INTERNAL_TOKEN_NAME)) {
                 CMS.debug("RecoveryService: serviceRequest: use internal token ");
                 ct = cm.getInternalCryptoToken();
             } else {

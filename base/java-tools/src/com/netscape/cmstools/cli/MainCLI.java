@@ -55,6 +55,7 @@ import com.netscape.cmstools.key.KeyCLI;
 import com.netscape.cmstools.pkcs12.PKCS12CLI;
 import com.netscape.cmstools.system.SecurityDomainCLI;
 import com.netscape.cmstools.user.UserCLI;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
  * @author Endi S. Dewata
@@ -234,7 +235,7 @@ public class MainCLI extends CLI {
                     // Check for undefined 'token'
                     if (tokenPassword[0].isEmpty()) {
                         // Set default 'token'
-                        tokenPassword[0] = "internal";
+                        tokenPassword[0] = CryptoUtil.INTERNAL_TOKEN_NAME;
                     }
 
                     // Check for undefined 'password'
@@ -243,7 +244,7 @@ public class MainCLI extends CLI {
                     }
                 } else {
                     // Set default 'token'
-                    tokenPassword[0] = "internal";
+                    tokenPassword[0] = CryptoUtil.INTERNAL_TOKEN_NAME;
 
                     // Set simple 'password' (do not trim leading/trailing whitespace)
                     tokenPassword[1] = line;

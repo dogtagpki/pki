@@ -74,6 +74,7 @@ import com.netscape.certsrv.profile.IEnrollProfile;
 import com.netscape.certsrv.profile.IProfileContext;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.HMACDigest;
 
 import netscape.security.pkcs.PKCS10;
@@ -699,9 +700,9 @@ public abstract class EnrollProfile extends BasicProfile
                 cm = CryptoManager.getInstance();
                 if (sigver == true) {
                     String tokenName =
-                        CMS.getConfigStore().getString("ca.requestVerify.token", "internal");
+                        CMS.getConfigStore().getString("ca.requestVerify.token", CryptoUtil.INTERNAL_TOKEN_NAME);
                     savedToken = cm.getThreadToken();
-                    if (tokenName.equals("internal")) {
+                    if (tokenName.equals(CryptoUtil.INTERNAL_TOKEN_NAME)) {
                         signToken = cm.getInternalCryptoToken();
                     } else {
                         signToken = cm.getTokenByName(tokenName);
@@ -1054,10 +1055,10 @@ public abstract class EnrollProfile extends BasicProfile
             sigver = CMS.getConfigStore().getBoolean("ca.requestVerify.enabled", true);
             if (sigver) {
                 CMS.debug("EnrollProfile: parsePKCS10: signature verification enabled");
-                String tokenName = CMS.getConfigStore().getString("ca.requestVerify.token", "internal");
+                String tokenName = CMS.getConfigStore().getString("ca.requestVerify.token", CryptoUtil.INTERNAL_TOKEN_NAME);
                 savedToken = cm.getThreadToken();
                 CryptoToken signToken = null;
-                if (tokenName.equals("internal")) {
+                if (tokenName.equals(CryptoUtil.INTERNAL_TOKEN_NAME)) {
                     CMS.debug("EnrollProfile: parsePKCS10: use internal token");
                     signToken = cm.getInternalCryptoToken();
                 } else {
@@ -1507,8 +1508,8 @@ public abstract class EnrollProfile extends BasicProfile
         try {
             CryptoManager cm = CryptoManager.getInstance();
             CryptoToken verifyToken = null;
-            String tokenName = CMS.getConfigStore().getString("ca.requestVerify.token", "internal");
-            if (tokenName.equals("internal")) {
+            String tokenName = CMS.getConfigStore().getString("ca.requestVerify.token", CryptoUtil.INTERNAL_TOKEN_NAME);
+            if (tokenName.equals(CryptoUtil.INTERNAL_TOKEN_NAME)) {
                 CMS.debug("POP verification using internal token");
                 certReqMsg.verify();
             } else {

@@ -27,11 +27,11 @@ import org.mozilla.jss.crypto.SymmetricKey.NotExtractableException;
 import org.mozilla.jss.crypto.SymmetricKeyDeriver;
 import org.mozilla.jss.crypto.TokenException;
 
-import sun.security.pkcs11.wrapper.PKCS11Constants;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmsutil.crypto.CryptoUtil;
+
+import sun.security.pkcs11.wrapper.PKCS11Constants;
 
 public class SecureChannelProtocol {
 
@@ -218,7 +218,7 @@ public class SecureChannelProtocol {
         try {
             cm = CryptoManager.getInstance();
             token = returnTokenByName(selectedToken, cm);
-            internalToken = returnTokenByName("internal", cm);
+            internalToken = returnTokenByName(CryptoUtil.INTERNAL_TOKEN_NAME, cm);
         } catch (NotInitializedException e) {
             CMS.debug(method + " " + e);
             throw new EBaseException(e);
@@ -376,7 +376,7 @@ public class SecureChannelProtocol {
             CryptoManager cm = null;
             try {
                 cm = CryptoManager.getInstance();
-                internalToken = returnTokenByName("internal", cm);
+                internalToken = returnTokenByName(CryptoUtil.INTERNAL_TOKEN_NAME, cm);
                 finalToken = internalToken;
             } catch (NotInitializedException e) {
                 CMS.debug(method + " " + e);

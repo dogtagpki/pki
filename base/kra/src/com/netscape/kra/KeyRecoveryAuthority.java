@@ -324,7 +324,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
             if (mStorageKeyUnit.getToken() != null) {
                 try {
                     String storageToken = mStorageKeyUnit.getToken().getName();
-                    if (!storageToken.equals("internal")) {
+                    if (!storageToken.equals(CryptoUtil.INTERNAL_TOKEN_NAME)) {
                         CMS.debug("Auto set serverKeygenTokenName to " + storageToken);
                         serverKeygenTokenName = storageToken;
                     }
@@ -333,7 +333,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
             }
         }
         if (serverKeygenTokenName == null) {
-            serverKeygenTokenName = "internal";
+            serverKeygenTokenName = CryptoUtil.INTERNAL_TOKEN_NAME;
         }
         if (serverKeygenTokenName.equalsIgnoreCase(CryptoUtil.INTERNAL_TOKEN_NAME))
             serverKeygenTokenName = CryptoUtil.INTERNAL_TOKEN_NAME;

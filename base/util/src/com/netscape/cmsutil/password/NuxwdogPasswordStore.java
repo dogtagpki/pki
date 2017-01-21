@@ -11,6 +11,7 @@ import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
 
+import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.redhat.nuxwdog.WatchdogClient;
 
 public class NuxwdogPasswordStore implements IPasswordStore {
@@ -54,7 +55,7 @@ public class NuxwdogPasswordStore implements IPasswordStore {
         InputStream in = new FileInputStream(confFile);
         props.load(in);
 
-        tags.add("internal");
+        tags.add(CryptoUtil.INTERNAL_TOKEN_NAME);
 
         String tokenList = props.getProperty("cms.tokenList");
         if (StringUtils.isNotEmpty(tokenList)) {

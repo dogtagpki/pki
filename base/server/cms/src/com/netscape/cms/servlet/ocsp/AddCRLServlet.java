@@ -29,10 +29,6 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import netscape.security.x509.X509CRLImpl;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509ExtensionException;
-
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoToken;
 
@@ -54,7 +50,12 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Cert;
+
+import netscape.security.x509.X509CRLImpl;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509ExtensionException;
 
 /**
  * Update the OCSP responder with a new CRL
@@ -353,9 +354,9 @@ public class AddCRLServlet extends CMSServlet {
                     CMS.debug("AddCRLServlet: start verify");
 
                     String tokenName =
-                        CMS.getConfigStore().getString("ocsp.crlVerify.token", "internal");
+                        CMS.getConfigStore().getString("ocsp.crlVerify.token", CryptoUtil.INTERNAL_TOKEN_NAME);
                     savedToken = cmanager.getThreadToken();
-                    if (tokenName.equals("internal")) {
+                    if (tokenName.equals(CryptoUtil.INTERNAL_TOKEN_NAME)) {
                         verToken = cmanager.getInternalCryptoToken();
                     } else {
                         verToken = cmanager.getTokenByName(tokenName);

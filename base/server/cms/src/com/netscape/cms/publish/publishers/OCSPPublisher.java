@@ -145,7 +145,7 @@ public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
         try {
             nickname = config.getString("ca.subsystem.nickname", "");
             String tokenname = config.getString("ca.subsystem.tokenname", "");
-            if (!tokenname.equals("internal") && !tokenname.equals(CryptoUtil.INTERNAL_TOKEN_FULL_NAME))
+            if (!tokenname.equals(CryptoUtil.INTERNAL_TOKEN_NAME) && !tokenname.equals(CryptoUtil.INTERNAL_TOKEN_FULL_NAME))
                 nickname = tokenname + ":" + nickname;
         } catch (Exception e) {
         }

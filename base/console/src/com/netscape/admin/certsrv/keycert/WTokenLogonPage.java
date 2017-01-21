@@ -17,13 +17,26 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.keycert;
 
-import java.awt.*;
-import javax.swing.*;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
-import com.netscape.admin.certsrv.wizard.*;
-import com.netscape.certsrv.common.*;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextArea;
+
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.EAdminException;
+import com.netscape.admin.certsrv.connection.AdminConnection;
+import com.netscape.admin.certsrv.wizard.IWizardPanel;
+import com.netscape.admin.certsrv.wizard.WizardBasePanel;
+import com.netscape.admin.certsrv.wizard.WizardInfo;
+import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.common.DestDef;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.common.ScopeDef;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -88,7 +101,7 @@ class WTokenLogonPage extends WizardBasePanel implements IWizardPanel {
         AdminConnection connection = wizardInfo.getAdminConnection();
         String tokenname = mTokenNameText.getText().trim();
 
-        if (tokenname.equals("internal")) {
+        if (tokenname.equals(CryptoUtil.INTERNAL_TOKEN_NAME)) {
             tokenname = CryptoUtil.INTERNAL_TOKEN_NAME;
         }
 

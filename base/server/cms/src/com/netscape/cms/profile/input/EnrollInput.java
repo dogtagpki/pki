@@ -39,6 +39,7 @@ import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.common.EnrollProfile;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
  * This class implements the base enrollment input.
@@ -206,8 +207,8 @@ public abstract class EnrollInput implements IProfileInput {
             CryptoManager cm = CryptoManager.getInstance();
 
             CryptoToken verifyToken = null;
-            String tokenName = CMS.getConfigStore().getString("ca.requestVerify.token", "internal");
-            if (tokenName.equals("internal")) {
+            String tokenName = CMS.getConfigStore().getString("ca.requestVerify.token", CryptoUtil.INTERNAL_TOKEN_NAME);
+            if (tokenName.equals(CryptoUtil.INTERNAL_TOKEN_NAME)) {
                 CMS.debug("POP verification using internal token");
                 certReqMsg.verify();
             } else {

@@ -471,7 +471,7 @@ public class TokenServlet extends CMSServlet {
         String mappingValue = CMS.getConfigStore().getString(keyInfoMap, null);
         if (mappingValue == null) {
             selectedToken =
-                    CMS.getConfigStore().getString("tks.defaultSlot", "internal");
+                    CMS.getConfigStore().getString("tks.defaultSlot", CryptoUtil.INTERNAL_TOKEN_NAME);
             keyNickName = rKeyInfo;
         } else {
             StringTokenizer st = new StringTokenizer(mappingValue, ":");
@@ -491,7 +491,7 @@ public class TokenServlet extends CMSServlet {
         if (mappingValue == null) {
             try {
                 selectedToken =
-                        CMS.getConfigStore().getString("tks.defaultSlot", "internal");
+                        CMS.getConfigStore().getString("tks.defaultSlot", CryptoUtil.INTERNAL_TOKEN_NAME);
             } catch (EBaseException e) {
 
                 e.printStackTrace();
@@ -597,7 +597,7 @@ public class TokenServlet extends CMSServlet {
                     if (useSoftToken_s.equals("true")) {
                         CMS.debug("TokenServlet.computeSessionKeySCP02: key encryption key generated on internal");
 
-                        desKey = SessionKey.GenerateSymkey("internal");
+                        desKey = SessionKey.GenerateSymkey(CryptoUtil.INTERNAL_TOKEN_NAME);
 
                     } else {
                         CMS.debug("TokenServlet.computeSessionKeySCP02: key encryption key generated on "
@@ -1075,7 +1075,7 @@ public class TokenServlet extends CMSServlet {
             String mappingValue = CMS.getConfigStore().getString(keyInfoMap, null);
             if (mappingValue == null) {
                 selectedToken =
-                        CMS.getConfigStore().getString("tks.defaultSlot", "internal");
+                        CMS.getConfigStore().getString("tks.defaultSlot", CryptoUtil.INTERNAL_TOKEN_NAME);
                 keyNickName = rKeyInfo;
             } else {
                 StringTokenizer st = new StringTokenizer(mappingValue, ":");
@@ -1179,7 +1179,7 @@ public class TokenServlet extends CMSServlet {
                             CMS.debug("TokenServlet: key encryption key generated on internal");
                             //cfu audit here? sym key gen
 
-                            desKey = protocol.generateSymKey("internal");
+                            desKey = protocol.generateSymKey(CryptoUtil.INTERNAL_TOKEN_NAME);
                             //cfu audit here? sym key gen done
                         } else {
                             CMS.debug("TokenServlet: key encryption key generated on " + selectedToken);
@@ -1772,7 +1772,7 @@ public class TokenServlet extends CMSServlet {
             String oldMappingValue = CMS.getConfigStore().getString(oldKeyInfoMap, null);
             String oldSelectedToken = null;
             if (oldMappingValue == null) {
-                oldSelectedToken = CMS.getConfigStore().getString("tks.defaultSlot", "internal");
+                oldSelectedToken = CMS.getConfigStore().getString("tks.defaultSlot", CryptoUtil.INTERNAL_TOKEN_NAME);
                 oldKeyNickName = req.getParameter(IRemoteRequest.TOKEN_KEYINFO);
             } else {
                 StringTokenizer st = new StringTokenizer(oldMappingValue, ":");
@@ -1784,7 +1784,7 @@ public class TokenServlet extends CMSServlet {
             String newMappingValue = CMS.getConfigStore().getString(newKeyInfoMap, null);
             String newSelectedToken = null;
             if (newMappingValue == null) {
-                newSelectedToken = CMS.getConfigStore().getString("tks.defaultSlot", "internal");
+                newSelectedToken = CMS.getConfigStore().getString("tks.defaultSlot", CryptoUtil.INTERNAL_TOKEN_NAME);
                 newKeyNickName = rnewKeyInfo;
             } else {
                 StringTokenizer st = new StringTokenizer(newMappingValue, ":");
@@ -2108,7 +2108,7 @@ public class TokenServlet extends CMSServlet {
             String keyInfoMap = "tks." + keySet + ".mk_mappings." + rKeyInfo;
             String mappingValue = CMS.getConfigStore().getString(keyInfoMap, null);
             if (mappingValue == null) {
-                selectedToken = CMS.getConfigStore().getString("tks.defaultSlot", "internal");
+                selectedToken = CMS.getConfigStore().getString("tks.defaultSlot", CryptoUtil.INTERNAL_TOKEN_NAME);
                 keyNickName = rKeyInfo;
             } else {
                 StringTokenizer st = new StringTokenizer(mappingValue, ":");
@@ -2451,7 +2451,7 @@ public class TokenServlet extends CMSServlet {
         String symmKeys = null;
         boolean keyPresent = false;
         try {
-            symmKeys = SessionKey.ListSymmetricKeys("internal");
+            symmKeys = SessionKey.ListSymmetricKeys(CryptoUtil.INTERNAL_TOKEN_NAME);
             CMS.debug("TokenServlet.getSharedSecretTransportKey: symmKeys List: " + symmKeys);
         } catch (Exception e) {
             // TODO Auto-generated catch block

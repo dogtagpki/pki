@@ -36,15 +36,8 @@ import java.util.Hashtable;
 import java.util.Locale;
 import java.util.Vector;
 
-import netscape.security.pkcs.PKCS10;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
-import netscape.security.x509.X509Key;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.CryptoManager.NotInitializedException;
-import org.mozilla.jss.crypto.CryptoToken;
-import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.INTEGER;
 import org.mozilla.jss.asn1.InvalidBERException;
@@ -52,10 +45,12 @@ import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
 import org.mozilla.jss.asn1.OCTET_STRING;
 import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.asn1.SET;
+import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.DigestAlgorithm;
+import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.pkcs10.CertificationRequest;
-import org.mozilla.jss.pkcs11.PK11PubKey;
 import org.mozilla.jss.pkcs11.PK11ECPublicKey;
+import org.mozilla.jss.pkcs11.PK11PubKey;
 import org.mozilla.jss.pkix.cert.Certificate;
 import org.mozilla.jss.pkix.cert.CertificateInfo;
 import org.mozilla.jss.pkix.cmc.PKIData;
@@ -91,7 +86,14 @@ import com.netscape.certsrv.profile.IProfileAuthenticator;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Utils;
+
+import netscape.security.pkcs.PKCS10;
+import netscape.security.x509.X500Name;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509CertInfo;
+import netscape.security.x509.X509Key;
 
 //import com.netscape.cmscore.util.*;
 //////////////////////
@@ -515,9 +517,9 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
                                 cm = CryptoManager.getInstance();
                                 if (sigver == true) {
                                     String tokenName =
-                                        CMS.getConfigStore().getString("ca.requestVerify.token", "internal");
+                                        CMS.getConfigStore().getString("ca.requestVerify.token", CryptoUtil.INTERNAL_TOKEN_NAME);
                                     savedToken = cm.getThreadToken();
-                                    if (tokenName.equals("internal")) {
+                                    if (tokenName.equals(CryptoUtil.INTERNAL_TOKEN_NAME)) {
                                         signToken = cm.getInternalCryptoToken();
                                     } else {
                                         signToken = cm.getTokenByName(tokenName);
@@ -914,7 +916,7 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
                                 CMS.debug("CMCAuth: signing key alg=EC");
                                 keyType = PrivateKey.EC;
                                 byte publicKeyData[] = ((X509Key) signKey).getEncoded();
-                                pubK = (PK11PubKey) PK11ECPublicKey.fromSPKI(/*keyType,*/ publicKeyData);
+                                pubK = PK11ECPublicKey.fromSPKI(/*keyType,*/ publicKeyData);
                             } else if (alg.equals("DSA")) {
                                 CMS.debug("CMCAuth: signing key alg=DSA");
                                 keyType = PrivateKey.DSA;
@@ -922,9 +924,9 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
                             }
 
                             String tokenName =
-                                CMS.getConfigStore().getString("ca.requestVerify.token", "internal");
+                                CMS.getConfigStore().getString("ca.requestVerify.token", CryptoUtil.INTERNAL_TOKEN_NAME);
                             // by default JSS will use internal crypto token
-                            if (!tokenName.equals("internal")) {
+                            if (!tokenName.equals(CryptoUtil.INTERNAL_TOKEN_NAME)) {
                                 savedToken = cm.getThreadToken();
                                 signToken = cm.getTokenByName(tokenName);
                                 if(signToken != null) {

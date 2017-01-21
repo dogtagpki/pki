@@ -108,7 +108,7 @@ public class UpdateOCSPConfig extends CMSServlet {
         try {
             nickname = cs.getString("ca.subsystem.nickname", "");
             String tokenname = cs.getString("ca.subsystem.tokenname", "");
-            if (!tokenname.equals("internal") && !tokenname.equals(CryptoUtil.INTERNAL_TOKEN_FULL_NAME))
+            if (!tokenname.equals(CryptoUtil.INTERNAL_TOKEN_NAME) && !tokenname.equals(CryptoUtil.INTERNAL_TOKEN_FULL_NAME))
                 nickname = tokenname + ":" + nickname;
         } catch (Exception e) {
         }
