@@ -49,8 +49,6 @@ import com.netscape.cmsutil.util.Utils;
  * @version $Revision$, $Date$
  */
 public class HttpClient {
-    public static final String PR_INTERNAL_TOKEN_NAME = "internal";
-
     private String _host = null;
     private int _port = 0;
     private boolean _secure = false;
@@ -118,7 +116,7 @@ public class HttpClient {
                 CryptoToken token = null;
                 if ((tokenName == null) || (tokenName.equals(""))) {
                     token = cm.getInternalKeyStorageToken();
-                    tokenName = PR_INTERNAL_TOKEN_NAME;
+                    tokenName = CryptoUtil.INTERNAL_TOKEN_NAME;
                 } else {
                     token = cm.getTokenByName(tokenName);
                 }
