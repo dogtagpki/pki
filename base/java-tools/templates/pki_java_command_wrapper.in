@@ -112,30 +112,12 @@ fi
 
 
 ###############################################################################
-##  (5) Set the CP environment variable to determine the search              ##
-##      order this command wrapper uses to find jar files.                   ##
-###############################################################################
-
-CP=${JNI_JAR_DIR}/jss4.jar
-CP=/usr/share/java/commons-cli.jar:${CP}
-CP=/usr/share/java/commons-codec.jar:${CP}
-CP=/usr/share/java/commons-io.jar:${CP}
-CP=/usr/share/java/commons-logging.jar:${CP}
-CP=/usr/share/java/httpcomponents/httpclient.jar:${CP}
-CP=/usr/share/java/httpcomponents/httpcore.jar:${CP}
-CP=/usr/share/java/ldapjdk.jar:${CP}
-CP=/usr/share/java/${PRODUCT}/pki-nsutil.jar:${CP}
-CP=/usr/share/java/${PRODUCT}/pki-cmsutil.jar:${CP}
-CP=/usr/share/java/${PRODUCT}/pki-tools.jar:${CP}
-export CP
-
-###############################################################################
-##  (6) Execute the java command specified by this java command wrapper      ##
-##      based upon the preset LD_LIBRARY_PATH and CP environment variables.  ##
+##  (5) Execute the java command specified by this java command wrapper      ##
+##      based upon the LD_LIBRARY_PATH and PKI_LIB environment variables.    ##
 ###############################################################################
 
 ${JAVA} ${JAVA_OPTIONS} \
-  -cp ${CP} \
+  -Djava.ext.dirs=${PKI_LIB} \
   -Djava.util.logging.config.file=${LOGGING_CONFIG} \
   com.netscape.cmstools.${COMMAND} "$@"
 
