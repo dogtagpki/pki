@@ -334,7 +334,7 @@ public class CertificateAuthority
 
     /* Maps and sets of entryUSNs and nsUniqueIds for avoiding race
      * conditions and unnecessary reloads related to replication */
-    private static TreeMap<AuthorityID,Integer> entryUSNs = new TreeMap<>();
+    private static TreeMap<AuthorityID,BigInteger> entryUSNs = new TreeMap<>();
     private static TreeMap<AuthorityID,String> nsUniqueIds = new TreeMap<>();
     private static TreeSet<String> deletedNsUniqueIds = new TreeSet<>();
 
@@ -2902,7 +2902,7 @@ public class CertificateAuthority
 
         LDAPAttribute attr = entry.getAttribute("entryUSN");
         if (attr != null) {
-            Integer entryUSN = new Integer(attr.getStringValueArray()[0]);
+            BigInteger entryUSN = new BigInteger(attr.getStringValueArray()[0]);
             entryUSNs.put(aid, entryUSN);
             CMS.debug("postCommit: new entryUSN = " + entryUSN);
         }
@@ -3268,7 +3268,7 @@ public class CertificateAuthority
             return;
         }
 
-        Integer newEntryUSN = null;
+        BigInteger newEntryUSN = null;
         LDAPAttribute entryUSNAttr = entry.getAttribute("entryUSN");
         if (entryUSNAttr == null) {
             CMS.debug("readAuthority: no entryUSN");
@@ -3285,14 +3285,14 @@ public class CertificateAuthority
                 // entryUSN attribute being added.
             }
         } else {
-            newEntryUSN = new Integer(entryUSNAttr.getStringValueArray()[0]);
+            newEntryUSN = new BigInteger(entryUSNAttr.getStringValueArray()[0]);
             CMS.debug("readAuthority: new entryUSN = " + newEntryUSN);
         }
 
-        Integer knownEntryUSN = entryUSNs.get(aid);
+        BigInteger knownEntryUSN = entryUSNs.get(aid);
         if (newEntryUSN != null && knownEntryUSN != null) {
             CMS.debug("readAuthority: known entryUSN = " + knownEntryUSN);
-            if (newEntryUSN <= knownEntryUSN) {
+            if (newEntryUSN.compareTo(knownEntryUSN) <= 0) {
                 CMS.debug("readAuthority: data is current");
                 return;
             }
