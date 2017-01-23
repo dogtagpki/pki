@@ -19,6 +19,7 @@ package com.netscape.cmscore.profile;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
@@ -64,7 +65,7 @@ public class LDAPProfileSubsystem
 
     /* Map of profileId -> entryUSN for the most recent view
      * of the profile entry that this instance has seen */
-    private TreeMap<String,Integer> entryUSNs;
+    private TreeMap<String,BigInteger> entryUSNs;
 
     private TreeMap<String,String> nsUniqueIds;
 
@@ -149,14 +150,14 @@ public class LDAPProfileSubsystem
         }
         profileId = LDAPDN.explodeDN(dn, true)[0];
 
-        Integer newEntryUSN = new Integer(
+        BigInteger newEntryUSN = new BigInteger(
                 ldapProfile.getAttribute("entryUSN").getStringValueArray()[0]);
         CMS.debug("readProfile: new entryUSN = " + newEntryUSN);
 
-        Integer knownEntryUSN = entryUSNs.get(profileId);
+        BigInteger knownEntryUSN = entryUSNs.get(profileId);
         if (knownEntryUSN != null) {
             CMS.debug("readProfile: known entryUSN = " + knownEntryUSN);
-            if (newEntryUSN <= knownEntryUSN) {
+            if (newEntryUSN.compareTo(knownEntryUSN) <= 0) {
                 CMS.debug("readProfile: data is current");
                 return;
             }
@@ -327,10 +328,10 @@ public class LDAPProfileSubsystem
                 return;
             }
 
-            Integer entryUSN = null;
+            BigInteger entryUSN = null;
             LDAPAttribute attr = entry.getAttribute("entryUSN");
             if (attr != null)
-                entryUSN = new Integer(attr.getStringValueArray()[0]);
+                entryUSN = new BigInteger(attr.getStringValueArray()[0]);
             entryUSNs.put(id, entryUSN);
             CMS.debug("commitProfile: new entryUSN = " + entryUSN);
 
