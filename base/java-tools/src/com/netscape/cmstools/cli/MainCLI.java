@@ -457,13 +457,9 @@ public class MainCLI extends CLI {
             try {
                 CryptoManager manager = CryptoManager.getInstance();
 
-                CryptoToken token;
                 String tokenName = config.getTokenName();
-                if (tokenName == null) {
-                    token = manager.getInternalKeyStorageToken();
-                } else {
-                    token = manager.getTokenByName(tokenName);
-                }
+                CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
+
                 manager.setThreadToken(token);
 
                 Password password = new Password(config.getCertPassword().toCharArray());

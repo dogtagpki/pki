@@ -4,7 +4,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.CharConversionException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
@@ -13,11 +12,9 @@ import java.util.Map;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.CryptoManager.NotInitializedException;
 import org.mozilla.jss.NoSuchTokenException;
-import org.mozilla.jss.crypto.BadPaddingException;
 import org.mozilla.jss.crypto.Cipher;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.EncryptionAlgorithm;
-import org.mozilla.jss.crypto.IllegalBlockSizeException;
 import org.mozilla.jss.crypto.KeyGenAlgorithm;
 import org.mozilla.jss.crypto.KeyGenerator;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
@@ -687,18 +684,13 @@ public class SecureChannelProtocol {
         return null;
     }
 
-    public CryptoToken returnTokenByName(String name, CryptoManager manager) throws NoSuchTokenException {
+    public CryptoToken returnTokenByName(String name, CryptoManager manager) throws NoSuchTokenException, NotInitializedException {
 
         CMS.debug("returnTokenByName: requested name: " + name);
         if (name == null || manager == null)
             throw new NoSuchTokenException();
 
-        if(CryptoUtil.isInternalToken(name)) {
-            return manager.getInternalKeyStorageToken();
-        } else {
-            return manager.getTokenByName(name);
-        }
-
+        return CryptoUtil.getKeyStorageToken(name);
     }
 
     public static byte[] makeDes3FromDes2(byte[] des2) {
@@ -795,8 +787,7 @@ public class SecureChannelProtocol {
 
             symKeyFinal = this.makeDes3KeyDerivedFromDes2(symKey, selectedToken);
 
-        } catch (NoSuchAlgorithmException | TokenException | NoSuchTokenException | IllegalStateException
-                | CharConversionException e) {
+        } catch (Exception  e) {
             CMS.debug(method + " " + e);
             throw new EBaseException(e);
         }
@@ -874,7 +865,7 @@ public class SecureChannelProtocol {
 
             des3 = concat.derive();
 
-        } catch (NoSuchTokenException | IllegalStateException | TokenException | InvalidKeyException e) {
+        } catch (Exception e) {
             CMS.debug(method + " " + e);
             throw new EBaseException(e);
         }
@@ -907,7 +898,7 @@ public class SecureChannelProtocol {
 
             extracted16 = extract16.derive();
 
-        } catch (NoSuchTokenException | IllegalStateException | TokenException | InvalidKeyException e) {
+        } catch (Exception e) {
             CMS.debug(method + " " + e);
             throw new EBaseException(e);
         }
@@ -945,8 +936,7 @@ public class SecureChannelProtocol {
             keyWrap = token.getKeyWrapper(KeyWrapAlgorithm.DES3_ECB);
             keyWrap.initWrap(wrapper, null);
             wrappedSessKeyData = keyWrap.wrap(sessionKey);
-        } catch (NoSuchAlgorithmException | TokenException | InvalidKeyException | InvalidAlgorithmParameterException
-                | NoSuchTokenException e) {
+        } catch (Exception e) {
             CMS.debug(method + " " + e);
             throw new EBaseException(e);
         }
@@ -982,9 +972,7 @@ public class SecureChannelProtocol {
             CMS.debug(method + "done doFinal");
 
             // SecureChannelProtocol.debugByteArray(output, "Encrypted data:");
-        } catch (EBaseException | NoSuchTokenException | NoSuchAlgorithmException | TokenException
-                | InvalidKeyException | InvalidAlgorithmParameterException |
-                IllegalStateException | IllegalBlockSizeException | BadPaddingException e) {
+        } catch (Exception e) {
 
             CMS.debug(method + e);
             throw new EBaseException(method + e);

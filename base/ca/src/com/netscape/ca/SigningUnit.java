@@ -151,11 +151,10 @@ public final class SigningUnit implements ISigningUnit {
             }
 
             tokenname = config.getString(PROP_TOKEN_NAME);
+            mToken = CryptoUtil.getKeyStorageToken(tokenname);
             if (CryptoUtil.isInternalToken(tokenname)) {
-                mToken = mManager.getInternalKeyStorageToken();
                 setNewNickName(mNickname);
             } else {
-                mToken = mManager.getTokenByName(tokenname);
                 mNickname = tokenname + ":" + mNickname;
                 setNewNickName(mNickname);
             }

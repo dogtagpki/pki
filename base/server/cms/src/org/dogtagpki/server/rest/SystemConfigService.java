@@ -1025,8 +1025,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         if (!CryptoUtil.isInternalToken(token)) {
             try {
-                CryptoManager cryptoManager = CryptoManager.getInstance();
-                CryptoToken ctoken = cryptoManager.getTokenByName(token);
+                CryptoToken ctoken = CryptoUtil.getKeyStorageToken(token);
                 String tokenpwd = data.getTokenPassword();
                 ConfigurationUtils.loginToken(ctoken, tokenpwd);
             } catch (NotInitializedException e) {

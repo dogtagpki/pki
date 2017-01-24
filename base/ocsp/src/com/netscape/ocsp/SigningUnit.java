@@ -138,10 +138,8 @@ public final class SigningUnit implements ISigningUnit {
             CMS.debug("OCSP nickname " + mNickname);
 
             tokenname = config.getString(PROP_TOKEN_NAME);
-            if (CryptoUtil.isInternalToken(tokenname)) {
-                mToken = mManager.getInternalKeyStorageToken();
-            } else {
-                mToken = mManager.getTokenByName(tokenname);
+            mToken = CryptoUtil.getKeyStorageToken(tokenname);
+            if (!CryptoUtil.isInternalToken(tokenname)) {
                 mNickname = tokenname + ":" + mNickname;
                 setNewNickName(mNickname);
             }

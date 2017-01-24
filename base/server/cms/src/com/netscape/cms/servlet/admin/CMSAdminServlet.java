@@ -911,17 +911,12 @@ public final class CMSAdminServlet extends AdminServlet {
                 ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
 
                 CryptoToken token = null;
-                CryptoManager mCryptoManager = null;
-                try {
-                    mCryptoManager = CryptoManager.getInstance();
-                } catch (Exception e2) {
-                }
 
                 if (!jssSubSystem.isTokenLoggedIn(selectedToken)) {
                     PasswordCallback cpcb = new ConsolePasswordCallback();
                     while (true) {
                         try {
-                            token = mCryptoManager.getTokenByName(selectedToken);
+                            token = CryptoUtil.getKeyStorageToken(selectedToken);
                             token.login(cpcb);
                             break;
                         } catch (Exception e3) {

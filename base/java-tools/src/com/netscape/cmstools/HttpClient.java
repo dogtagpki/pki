@@ -113,12 +113,9 @@ public class HttpClient {
                         new CryptoManager.InitializationValues(dbdir, "", "", "secmod.db");
                 CryptoManager.initialize(vals);
                 CryptoManager cm = CryptoManager.getInstance();
-                CryptoToken token = null;
+                CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
                 if (CryptoUtil.isInternalToken(tokenName)) {
-                    token = cm.getInternalKeyStorageToken();
                     tokenName = CryptoUtil.INTERNAL_TOKEN_NAME;
-                } else {
-                    token = cm.getTokenByName(tokenName);
                 }
                 cm.setThreadToken(token);
                 Password pass = new Password(password.toCharArray());

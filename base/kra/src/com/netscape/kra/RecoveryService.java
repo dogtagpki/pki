@@ -139,13 +139,9 @@ public class RecoveryService implements IService {
             cm = CryptoManager.getInstance();
             config = CMS.getConfigStore();
             tokName = config.getString("kra.storageUnit.hardware", CryptoUtil.INTERNAL_TOKEN_NAME);
-            if (CryptoUtil.isInternalToken(tokName)) {
-                CMS.debug("RecoveryService: serviceRequest: use internal token ");
-                ct = cm.getInternalCryptoToken();
-            } else {
-                CMS.debug("RecoveryService: serviceRequest: tokenName=" + tokName);
-                ct = cm.getTokenByName(tokName);
-            }
+            CMS.debug("RecoveryService: serviceRequest: token: " + tokName);
+            ct = CryptoUtil.getCryptoToken(tokName);
+
             allowEncDecrypt_recovery = config.getBoolean("kra.allowEncDecrypt.recovery", false);
         } catch (Exception e) {
             CMS.debug("RecoveryService exception: use internal token :"

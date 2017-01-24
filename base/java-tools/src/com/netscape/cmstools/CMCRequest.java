@@ -106,13 +106,8 @@ public class CMCRequest {
     public static X509Certificate getCertificate(String tokenName,
             String nickname) throws Exception {
         CryptoManager manager = CryptoManager.getInstance();
-        CryptoToken token = null;
+        CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
 
-        if (CryptoUtil.isInternalToken(tokenName)) {
-            token = manager.getInternalKeyStorageToken();
-        } else {
-            token = manager.getTokenByName(tokenName);
-        }
         StringBuffer certname = new StringBuffer();
 
         if (!token.equals(manager.getInternalKeyStorageToken())) {
@@ -1019,11 +1014,10 @@ public class CMCRequest {
             CryptoManager cm = CryptoManager.getInstance();
             System.out.println("CryptoManger initialized");
 
+            token = CryptoUtil.getKeyStorageToken(tokenName);
+
             if (CryptoUtil.isInternalToken(tokenName)) {
-                token = cm.getInternalKeyStorageToken();
                 tokenName = CryptoUtil.INTERNAL_TOKEN_NAME;
-            } else {
-                token = cm.getTokenByName(tokenName);
             }
             cm.setThreadToken(token);
 

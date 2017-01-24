@@ -72,7 +72,6 @@ import org.mozilla.jss.pkcs7.SignedData;
 import org.mozilla.jss.pkix.cert.Certificate;
 import org.mozilla.jss.ssl.SSLServerSocket;
 import org.mozilla.jss.ssl.SSLSocket;
-import org.mozilla.jss.util.IncorrectPasswordException;
 import org.mozilla.jss.util.Password;
 import org.mozilla.jss.util.PasswordCallback;
 
@@ -540,35 +539,24 @@ public final class JssSubsystem implements ICryptoSubsystem {
 
     public boolean isTokenLoggedIn(String name) throws EBaseException {
         try {
-            if (CryptoUtil.isInternalToken(name))
-                name = CryptoUtil.INTERNAL_TOKEN_FULL_NAME;
-            CryptoToken ctoken = mCryptoManager.getTokenByName(name);
+            CryptoToken ctoken = CryptoUtil.getKeyStorageToken(name);
 
             return ctoken.isLoggedIn();
-        } catch (TokenException e) {
+        } catch (Exception e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_TOKEN_LOGGED_IN", e.toString()));
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_TOKEN_ERROR"));
-        } catch (NoSuchTokenException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_TOKEN_LOGGED_IN", e.toString()));
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_TOKEN_NOT_FOUND", ""));
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_TOKEN_ERROR"), e);
         }
     }
 
     public void loggedInToken(String tokenName, String pwd) throws EBaseException {
         try {
-            CryptoToken ctoken = mCryptoManager.getTokenByName(tokenName);
+            CryptoToken ctoken = CryptoUtil.getKeyStorageToken(tokenName);
             Password clk = new Password(pwd.toCharArray());
 
             ctoken.login(clk);
-        } catch (TokenException e) {
+        } catch (Exception e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_TOKEN_LOGGED_IN", e.toString()));
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_TOKEN_ERROR"));
-        } catch (IncorrectPasswordException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_TOKEN_LOGGED_IN", e.toString()));
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_LOGIN_FAILED"));
-        } catch (NoSuchTokenException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_TOKEN_LOGGED_IN", e.toString()));
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_TOKEN_NOT_FOUND", ""));
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_TOKEN_ERROR"), e);
         }
     }
 
@@ -631,11 +619,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
         StringBuffer certNames = new StringBuffer();
 
         try {
-            if (CryptoUtil.isInternalToken(name)) {
-                c = mCryptoManager.getInternalKeyStorageToken();
-            } else {
-                c = mCryptoManager.getTokenByName(name);
-            }
+            c = CryptoUtil.getKeyStorageToken(name);
 
             if (c != null) {
                 CryptoStore store = c.getCryptoStore();
@@ -658,14 +642,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
             } else
                 return "";
 
-        } catch (TokenException e) {
-            String[] params = { mId, e.toString() };
-            EBaseException ex = new EBaseException(
-                    CMS.getUserMessage("CMS_BASE_CREATE_SERVICE_FAILED", params));
-
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_GENERAL_ERROR", ex.toString()));
-            throw ex;
-        } catch (NoSuchTokenException e) {
+        } catch (Exception e) {
             String[] params = { mId, e.toString() };
             EBaseException ex = new EBaseException(
                     CMS.getUserMessage("CMS_BASE_CREATE_SERVICE_FAILED", params));
@@ -681,11 +658,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
         StringBuffer certNames = new StringBuffer();
 
         try {
-            if (CryptoUtil.isInternalToken(name)) {
-                c = mCryptoManager.getInternalKeyStorageToken();
-            } else {
-                c = mCryptoManager.getTokenByName(name);
-            }
+            c = CryptoUtil.getKeyStorageToken(name);
 
             if (c != null) {
                 CryptoStore store = c.getCryptoStore();
@@ -706,14 +679,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
             } else
                 return "";
 
-        } catch (TokenException e) {
-            String[] params = { mId, e.toString() };
-            EBaseException ex = new EBaseException(
-                    CMS.getUserMessage("CMS_BASE_CREATE_SERVICE_FAILED", params));
-
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_GENERAL_ERROR", ex.toString()));
-            throw ex;
-        } catch (NoSuchTokenException e) {
+        } catch (Exception e) {
             String[] params = { mId, e.toString() };
             EBaseException ex = new EBaseException(
                     CMS.getUserMessage("CMS_BASE_CREATE_SERVICE_FAILED", params));
@@ -793,16 +759,13 @@ public final class JssSubsystem implements ICryptoSubsystem {
     public KeyPair getKeyPair(String tokenName, String alg,
             int keySize, PQGParams pqg) throws EBaseException {
 
-        String t = tokenName;
-        if (CryptoUtil.isInternalToken(tokenName))
-            t = CryptoUtil.INTERNAL_TOKEN_FULL_NAME;
         CryptoToken token = null;
 
         try {
-            token = mCryptoManager.getTokenByName(t);
-        } catch (NoSuchTokenException e) {
-            log(ILogger.LL_FAILURE, "Generate Key Pair Error " + e);
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_TOKEN_NOT_FOUND", tokenName));
+            token = CryptoUtil.getKeyStorageToken(tokenName);
+        } catch (Exception e) {
+            log(ILogger.LL_FAILURE, "Unable to find token: " + tokenName);
+            throw new EBaseException(e);
         }
 
         KeyPairAlgorithm kpAlg = null;

@@ -519,11 +519,7 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
                                     String tokenName =
                                         CMS.getConfigStore().getString("ca.requestVerify.token", CryptoUtil.INTERNAL_TOKEN_NAME);
                                     savedToken = cm.getThreadToken();
-                                    if (tokenName.equals(CryptoUtil.INTERNAL_TOKEN_NAME)) {
-                                        signToken = cm.getInternalCryptoToken();
-                                    } else {
-                                        signToken = cm.getTokenByName(tokenName);
-                                    }
+                                    signToken = CryptoUtil.getCryptoToken(tokenName);
                                     if (!savedToken.getName().equals(signToken.getName())) {
                                         cm.setThreadToken(signToken);
                                         tokenSwitched = true;
@@ -928,7 +924,7 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
                             // by default JSS will use internal crypto token
                             if (!CryptoUtil.isInternalToken(tokenName)) {
                                 savedToken = cm.getThreadToken();
-                                signToken = cm.getTokenByName(tokenName);
+                                signToken = CryptoUtil.getCryptoToken(tokenName);
                                 if(signToken != null) {
                                     cm.setThreadToken(signToken);
                                     tokenSwitched = true;

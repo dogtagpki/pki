@@ -615,10 +615,9 @@ public class TokenServlet extends CMSServlet {
 
                     CryptoToken token = null;
                     if (useSoftToken_s.equals("true")) {
-                        //token = CryptoManager.getInstance().getTokenByName(selectedToken);
-                        token = CryptoManager.getInstance().getInternalCryptoToken();
+                        token = CryptoUtil.getCryptoToken(null);
                     } else {
-                        token = CryptoManager.getInstance().getTokenByName(selectedToken);
+                        token = CryptoUtil.getCryptoToken(selectedToken);
                     }
 
                     //Now we have to create a sym key object for the wrapped session_key (dekKey)
@@ -1242,10 +1241,9 @@ public class TokenServlet extends CMSServlet {
                         // wrap kek session key with DRM transport public key
                         CryptoToken token = null;
                         if (useSoftToken_s.equals("true")) {
-                            //token = CryptoManager.getInstance().getTokenByName(selectedToken);
-                            token = CryptoManager.getInstance().getInternalCryptoToken();
+                            token = CryptoUtil.getCryptoToken(null);
                         } else {
-                            token = CryptoManager.getInstance().getTokenByName(selectedToken);
+                            token = CryptoUtil.getCryptoToken(selectedToken);
                         }
                         PublicKey pubKey = drmTransCert.getPublicKey();
                         String pubKeyAlgo = pubKey.getAlgorithm();

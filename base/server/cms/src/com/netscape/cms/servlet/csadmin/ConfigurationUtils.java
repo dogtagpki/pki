@@ -993,7 +993,7 @@ public class ConfigurationUtils {
                 continue;
 
             String tokenname = cs.getString("preop.module.token", "");
-            cm.getTokenByName(tokenname); // throw exception if token doesn't exist
+            CryptoUtil.getKeyStorageToken(tokenname); // throw exception if token doesn't exist
 
             String name1 = "preop.master." + tag + ".nickname";
             String nickname = cs.getString(name1, "");

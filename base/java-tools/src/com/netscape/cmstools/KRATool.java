@@ -1620,11 +1620,7 @@ public class KRATool {
                     + "'."
                     + NEWLINE, true);
 
-            if (CryptoUtil.isInternalToken(mSourceStorageTokenName)) {
-                mSourceToken = cm.getInternalKeyStorageToken();
-            } else {
-                mSourceToken = cm.getTokenByName(mSourceStorageTokenName);
-            }
+            mSourceToken = CryptoUtil.getKeyStorageToken(mSourceStorageTokenName);
 
             if (mSourceToken == null) {
                 return FAILURE;

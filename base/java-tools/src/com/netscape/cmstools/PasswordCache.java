@@ -41,6 +41,7 @@ import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.util.Base64OutputStream;
 import org.mozilla.jss.util.Password;
 
+import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Utils;
 
 /**
@@ -246,15 +247,8 @@ public class PasswordCache {
 
             CryptoManager.initialize(vals);
 
-            CryptoManager cm = CryptoManager.getInstance();
-            CryptoToken token = null;
-            if (mTokenName == null) {
-                token = cm.getInternalKeyStorageToken();
-                System.out.println("token name = internal");
-            } else {
-                token = cm.getTokenByName(mTokenName);
-                System.out.println("token name = " + mTokenName);
-            }
+            CryptoToken token = CryptoUtil.getKeyStorageToken(mTokenName);
+            System.out.println("token: " + token.getName());
 
             token.login(pass);
         } catch (Exception e) {
@@ -377,13 +371,8 @@ class PWsdrCache {
         }
 
         cm = CryptoManager.getInstance();
-        if (mTokenName != null) {
-            mToken = cm.getTokenByName(mTokenName);
-            debug("PWsdrCache: mToken = " + mTokenName);
-        } else {
-            mToken = cm.getInternalKeyStorageToken();
-            debug("PWsdrCache: mToken = internal");
-        }
+        mToken = CryptoUtil.getKeyStorageToken(mTokenName);
+        debug("PWsdrCache: token: " + mToken.getName());
     }
 
     public byte[] getKeyId() {

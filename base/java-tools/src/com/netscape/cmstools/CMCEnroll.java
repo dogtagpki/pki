@@ -93,13 +93,7 @@ public class CMCEnroll {
     public static X509Certificate getCertificate(String tokenname,
             String nickname) throws Exception {
         CryptoManager manager = CryptoManager.getInstance();
-        CryptoToken token = null;
-
-        if (CryptoUtil.isInternalToken(tokenname)) {
-            token = manager.getInternalKeyStorageToken();
-        } else {
-            token = manager.getTokenByName(tokenname);
-        }
+        CryptoToken token = CryptoUtil.getKeyStorageToken(tokenname);
         StringBuffer certname = new StringBuffer();
 
         if (!token.equals(manager.getInternalKeyStorageToken())) {

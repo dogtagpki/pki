@@ -60,6 +60,7 @@ import com.netscape.certsrv.kra.IShare;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.security.Credential;
 import com.netscape.certsrv.security.IStorageKeyUnit;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Utils;
 
 /**
@@ -686,11 +687,9 @@ public class StorageKeyUnit extends EncryptionUnit implements
 
     public CryptoToken getToken() {
         try {
-            if (mConfig.getString(PROP_HARDWARE, null) != null) {
-                return mManager.getTokenByName(mConfig.getString(PROP_HARDWARE));
-            } else {
-                return CryptoManager.getInstance().getInternalKeyStorageToken();
-            }
+            String tokenName = mConfig.getString(PROP_HARDWARE, null);
+            return CryptoUtil.getKeyStorageToken(tokenName);
+
         } catch (Exception e) {
             return null;
         }

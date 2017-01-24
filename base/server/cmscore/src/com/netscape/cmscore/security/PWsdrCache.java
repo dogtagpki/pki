@@ -29,8 +29,6 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.StringTokenizer;
 
-import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.CryptoManager.NotInitializedException;
 import org.mozilla.jss.SecretDecoderRing.Decryptor;
 import org.mozilla.jss.SecretDecoderRing.Encryptor;
 import org.mozilla.jss.SecretDecoderRing.KeyManager;
@@ -42,6 +40,7 @@ import org.mozilla.jss.util.Password;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Utils;
 
 /*
@@ -79,18 +78,13 @@ public class PWsdrCache {
 
     private void initToken() throws EBaseException {
         if (mToken == null) {
-            CryptoManager cm = null;
             try {
-                cm = CryptoManager.getInstance();
                 mTokenName = CMS.getConfigStore().getString(PROP_PWC_TOKEN_NAME);
                 log(ILogger.LL_DEBUG, "pwcTokenname specified.  Use token for SDR key. tokenname= " + mTokenName);
-                mToken = cm.getTokenByName(mTokenName);
-            } catch (NotInitializedException e) {
-                log(ILogger.LL_FAILURE, e.toString());
-                throw new EBaseException(e.toString());
+                mToken = CryptoUtil.getKeyStorageToken(mTokenName);
             } catch (Exception e) {
-                log(ILogger.LL_DEBUG, "no pwcTokenname specified, use internal token for SDR key");
-                mToken = cm.getInternalKeyStorageToken();
+                log(ILogger.LL_FAILURE, e.toString());
+                throw new EBaseException(e);
             }
         }
     }
@@ -119,20 +113,13 @@ public class PWsdrCache {
         mPWcachedb = pwCache;
         mIsTool = isTool;
         mTokenName = pwcTokenname;
-        CryptoManager cm = null;
 
         if (keyId != null) {
             mKeyID = keyId;
         }
 
-        cm = CryptoManager.getInstance();
-        if (mTokenName != null) {
-            mToken = cm.getTokenByName(mTokenName);
-            debug("PWsdrCache: mToken = " + mTokenName);
-        } else {
-            mToken = cm.getInternalKeyStorageToken();
-            debug("PWsdrCache: mToken = internal");
-        }
+        mToken = CryptoUtil.getKeyStorageToken(mTokenName);
+        debug("PWsdrCache: token: " + mToken.getName());
     }
 
     public byte[] getKeyId() {

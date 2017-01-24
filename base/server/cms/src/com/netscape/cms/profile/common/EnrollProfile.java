@@ -702,11 +702,7 @@ public abstract class EnrollProfile extends BasicProfile
                     String tokenName =
                         CMS.getConfigStore().getString("ca.requestVerify.token", CryptoUtil.INTERNAL_TOKEN_NAME);
                     savedToken = cm.getThreadToken();
-                    if (CryptoUtil.isInternalToken(tokenName)) {
-                        signToken = cm.getInternalCryptoToken();
-                    } else {
-                        signToken = cm.getTokenByName(tokenName);
-                    }
+                    signToken = CryptoUtil.getCryptoToken(tokenName);
                     if (!savedToken.getName().equals(signToken.getName())) {
                         cm.setThreadToken(signToken);
                         tokenSwitched = true;
@@ -1057,14 +1053,7 @@ public abstract class EnrollProfile extends BasicProfile
                 CMS.debug("EnrollProfile: parsePKCS10: signature verification enabled");
                 String tokenName = CMS.getConfigStore().getString("ca.requestVerify.token", CryptoUtil.INTERNAL_TOKEN_NAME);
                 savedToken = cm.getThreadToken();
-                CryptoToken signToken = null;
-                if (tokenName.equals(CryptoUtil.INTERNAL_TOKEN_NAME)) {
-                    CMS.debug("EnrollProfile: parsePKCS10: use internal token");
-                    signToken = cm.getInternalCryptoToken();
-                } else {
-                    CMS.debug("EnrollProfile: parsePKCS10: tokenName=" + tokenName);
-                    signToken = cm.getTokenByName(tokenName);
-                }
+                CryptoToken signToken = CryptoUtil.getCryptoToken(tokenName);
                 CMS.debug("EnrollProfile: parsePKCS10 setting thread token");
                 cm.setThreadToken(signToken);
                 pkcs10 = new PKCS10(data);
@@ -1514,7 +1503,7 @@ public abstract class EnrollProfile extends BasicProfile
                 certReqMsg.verify();
             } else {
                 CMS.debug("POP verification using token:" + tokenName);
-                verifyToken = cm.getTokenByName(tokenName);
+                verifyToken = CryptoUtil.getCryptoToken(tokenName);
                 certReqMsg.verify(verifyToken);
             }
 

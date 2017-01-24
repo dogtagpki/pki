@@ -213,7 +213,7 @@ public abstract class EnrollInput implements IProfileInput {
                 certReqMsg.verify();
             } else {
                 CMS.debug("POP verification using token:" + tokenName);
-                verifyToken = cm.getTokenByName(tokenName);
+                verifyToken = CryptoUtil.getCryptoToken(tokenName);
                 certReqMsg.verify(verifyToken);
             }
 

@@ -25,10 +25,6 @@ import java.security.KeyPair;
 import java.security.MessageDigest;
 import java.security.PublicKey;
 
-import netscape.security.pkcs.PKCS10;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509Key;
-
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.BMPString;
 import org.mozilla.jss.asn1.INTEGER;
@@ -54,6 +50,10 @@ import org.mozilla.jss.util.Password;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.HMACDigest;
 import com.netscape.cmsutil.util.Utils;
+
+import netscape.security.pkcs.PKCS10;
+import netscape.security.x509.X500Name;
+import netscape.security.x509.X509Key;
 
 /**
  * Generates an ECC or RSA key pair in the security database, constructs a
@@ -199,14 +199,11 @@ public class PKCS10Client {
                         mPrefix, "secmod.db");
 
             CryptoManager.initialize(vals);
-            CryptoToken token = null;
+
             CryptoManager cm = CryptoManager.getInstance();
-            if ((tokenName == null) || (tokenName.equals(""))) {
-                token = cm.getInternalKeyStorageToken();
-                tokenName = token.getName();
-            } else {
-                token = cm.getTokenByName(tokenName);
-            }
+            CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
+            tokenName = token.getName();
+
             System.out.println("PKCS10Client: Debug: got token.");
             cm.setThreadToken(token);
             System.out.println("PKCS10Client: Debug: thread token set.");

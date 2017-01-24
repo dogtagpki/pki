@@ -337,13 +337,8 @@ public class KeyCertUtil {
             String nickname) throws NotInitializedException, NoSuchTokenException,
             EBaseException, TokenException {
         CryptoManager manager = CryptoManager.getInstance();
-        CryptoToken token = null;
+        CryptoToken token = CryptoUtil.getKeyStorageToken(tokenname);
 
-        if (CryptoUtil.isInternalToken(tokenname)) {
-            token = manager.getInternalKeyStorageToken();
-        } else {
-            token = manager.getTokenByName(tokenname);
-        }
         StringBuffer certname = new StringBuffer();
 
         if (!token.equals(manager.getInternalKeyStorageToken())) {
@@ -503,11 +498,7 @@ public class KeyCertUtil {
             tokenName = CryptoUtil.INTERNAL_TOKEN_NAME;
 
         try {
-            if (CryptoUtil.isInternalToken(tokenName)) {
-                token = CryptoManager.getInstance().getInternalKeyStorageToken();
-            } else {
-                token = CryptoManager.getInstance().getTokenByName(tokenName);
-            }
+            token = CryptoUtil.getKeyStorageToken(tokenName);
         } catch (NoSuchTokenException e) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_TOKEN_NOT_FOUND", tokenName));
         } catch (NotInitializedException e) {

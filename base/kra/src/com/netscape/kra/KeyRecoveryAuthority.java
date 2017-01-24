@@ -30,7 +30,6 @@ import java.util.Vector;
 
 import org.dogtagpki.legacy.kra.KRAPolicy;
 import org.dogtagpki.legacy.policy.IPolicyProcessor;
-import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NoSuchTokenException;
 import org.mozilla.jss.crypto.CryptoToken;
 
@@ -339,13 +338,8 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
             serverKeygenTokenName = CryptoUtil.INTERNAL_TOKEN_NAME;
 
         try {
-            if (serverKeygenTokenName.equalsIgnoreCase(CryptoUtil.INTERNAL_TOKEN_NAME)) {
-                CMS.debug("KeyRecoveryAuthority: getting internal crypto token for serverkeygen");
-                mKeygenToken = CryptoManager.getInstance().getInternalKeyStorageToken();
-            } else {
-                CMS.debug("KeyRecoveryAuthority: getting HSM token for serverkeygen");
-                mKeygenToken = CryptoManager.getInstance().getTokenByName(serverKeygenTokenName);
-            }
+            mKeygenToken = CryptoUtil.getKeyStorageToken(serverKeygenTokenName);
+            CMS.debug("KeyRecoveryAuthority: token: " + mKeygenToken.getName());
             CMS.debug("KeyRecoveryAuthority: set up keygenToken");
         } catch (NoSuchTokenException e) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_TOKEN_NOT_FOUND", serverKeygenTokenName));

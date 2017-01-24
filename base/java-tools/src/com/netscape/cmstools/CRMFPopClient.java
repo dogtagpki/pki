@@ -393,13 +393,8 @@ public class CRMFPopClient {
 
             CryptoManager manager = CryptoManager.getInstance();
 
-            CryptoToken token;
-            if (tokenName == null) {
-                token = manager.getInternalKeyStorageToken();
-                tokenName = token.getName();
-            } else {
-                token = manager.getTokenByName(tokenName);
-            }
+            CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
+            tokenName = token.getName();
             manager.setThreadToken(token);
 
             Password password = new Password(tokenPassword.toCharArray());

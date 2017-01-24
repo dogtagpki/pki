@@ -182,12 +182,9 @@ public class CMCRevoke {
                 CryptoManager.initialize(vals);
 
                 CryptoManager cm = CryptoManager.getInstance();
-                CryptoToken token = null;
+                CryptoToken token = CryptoUtil.getKeyStorageToken(hValue);
                 if (CryptoUtil.isInternalToken(hValue)) {
-                    token = cm.getInternalKeyStorageToken();
                     hValue = CryptoUtil.INTERNAL_TOKEN_NAME;
-                } else {
-                    token = cm.getTokenByName(hValue);
                 }
 
                 Password pass = new Password(pValue.toCharArray());
@@ -257,13 +254,8 @@ public class CMCRevoke {
     public static X509Certificate getCertificate(CryptoManager manager, String tokenname,
             String nickname) throws NoSuchTokenException,
             Exception, TokenException {
-        CryptoToken token = null;
+        CryptoToken token = CryptoUtil.getKeyStorageToken(tokenname);
 
-        if (CryptoUtil.isInternalToken(tokenname)) {
-            token = manager.getInternalKeyStorageToken();
-        } else {
-            token = manager.getTokenByName(tokenname);
-        }
         StringBuffer certname = new StringBuffer();
 
         if (!token.equals(manager.getInternalKeyStorageToken())) {

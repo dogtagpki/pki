@@ -1963,12 +1963,11 @@ public class CRSEnrollment extends HttpServlet {
                 cm = CryptoManager.getInstance();
                 internalToken = cm.getInternalCryptoToken();
                 DESkg = internalToken.getKeyGenerator(kga);
+                keyStorageToken = CryptoUtil.getKeyStorageToken(mTokenName);
                 if (CryptoUtil.isInternalToken(mTokenName)) {
-                    keyStorageToken = cm.getInternalKeyStorageToken();
                     internalKeyStorageToken = keyStorageToken;
                     CMS.debug("CRSEnrollment: CryptoContext: internal token name: '" + mTokenName + "'");
                 } else {
-                    keyStorageToken = cm.getTokenByName(mTokenName);
                     internalKeyStorageToken = null;
                 }
                 if (!mUseCA && internalKeyStorageToken == null) {
