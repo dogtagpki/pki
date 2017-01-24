@@ -88,6 +88,7 @@ javadoc(pki-javadoc
         com.netscape.cmsutil
         org.dogtagpki
     CLASSPATH
+        ${SLF4J_API_JAR}
         ${XALAN_JAR} ${XERCES_JAR}
         ${APACHE_COMMONS_CLI_JAR} ${APACHE_COMMONS_LANG_JAR}
         ${COMMONS_CODEC_JAR} ${COMMONS_HTTPCLIENT_JAR} ${COMMONS_IO_JAR}
