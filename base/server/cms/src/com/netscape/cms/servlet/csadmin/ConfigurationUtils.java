@@ -3434,7 +3434,7 @@ public class ConfigurationUtils {
             NoSuchTokenException, TokenException {
 
         CryptoManager cm = CryptoManager.getInstance();
-        CryptoToken tok = CryptoUtil.getTokenByName(tokenname);
+        CryptoToken tok = CryptoUtil.getKeyStorageToken(tokenname);
         CryptoStore store = tok.getCryptoStore();
         String fullnickname = nickname;
         if (!tokenname.equals("") &&

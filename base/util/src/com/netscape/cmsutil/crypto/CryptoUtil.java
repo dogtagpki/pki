@@ -47,6 +47,7 @@ import java.util.Random;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
+import org.apache.commons.lang.StringUtils;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.CryptoManager.NotInitializedException;
 import org.mozilla.jss.NoSuchTokenException;
@@ -476,13 +477,30 @@ public class CryptoUtil {
     }
 
     public static boolean isInternalToken(String name) {
-        return name.equalsIgnoreCase(INTERNAL_TOKEN_NAME) || name.equalsIgnoreCase(INTERNAL_TOKEN_FULL_NAME);
+        return StringUtils.isEmpty(name)
+                || name.equalsIgnoreCase(INTERNAL_TOKEN_NAME)
+                || name.equalsIgnoreCase(INTERNAL_TOKEN_FULL_NAME);
     }
 
     /**
-     * Retrieves handle to a JSS token.
+     * Retrieves handle to a crypto token.
      */
-    public static CryptoToken getTokenByName(String name)
+    public static CryptoToken getCryptoToken(String name)
+            throws NotInitializedException, NoSuchTokenException {
+
+        CryptoManager cm = CryptoManager.getInstance();
+
+        if (isInternalToken(name)) {
+            return cm.getInternalCryptoToken();
+        }
+
+        return cm.getTokenByName(name);
+    }
+
+    /**
+     * Retrieves handle to a key store token.
+     */
+    public static CryptoToken getKeyStorageToken(String name)
             throws NotInitializedException, NoSuchTokenException {
 
         CryptoManager cm = CryptoManager.getInstance();
@@ -502,7 +520,7 @@ public class CryptoUtil {
                 NoSuchTokenException,
                 NoSuchAlgorithmException,
                 TokenException {
-        CryptoToken t = getTokenByName(token);
+        CryptoToken t = getKeyStorageToken(token);
         KeyPairGenerator g = t.getKeyPairGenerator(KeyPairAlgorithm.RSA);
 
         g.initialize(keysize);
@@ -555,7 +573,7 @@ public class CryptoUtil {
                 NoSuchAlgorithmException,
                 TokenException {
 
-        CryptoToken t = getTokenByName(token);
+        CryptoToken t = getKeyStorageToken(token);
 
         KeyPairAlgorithm alg = KeyPairAlgorithm.EC;
         KeyPairGenerator keygen = t.getKeyPairGenerator(alg);
@@ -608,7 +626,7 @@ public class CryptoUtil {
                 NoSuchTokenException,
                 NoSuchAlgorithmException,
                 TokenException {
-        CryptoToken t = getTokenByName(token);
+        CryptoToken t = getKeyStorageToken(token);
         return generateECCKeyPair(t, curveName, usage_ops, usage_mask);
     }
 
@@ -620,7 +638,7 @@ public class CryptoUtil {
                 NoSuchTokenException,
                 NoSuchAlgorithmException,
                 TokenException {
-        CryptoToken t = getTokenByName(token);
+        CryptoToken t = getKeyStorageToken(token);
         return generateECCKeyPair(t, curveName, usage_ops, usage_mask,
             temporary, sensitive, extractable);
     }
