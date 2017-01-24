@@ -343,7 +343,7 @@ public class CMSTemplate extends CMSFile {
 
     /**
      * Escape the contents of src string in preparation to be enclosed in
-     * double quotes as a JavaScript String Literal within an <script>
+     * double quotes as a JavaScript String Literal within an &lt;script&gt;
      * portion of an HTML document.
      * stevep - performance improvements - about 4 times faster than before.
      */
