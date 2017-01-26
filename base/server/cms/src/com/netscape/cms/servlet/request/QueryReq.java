@@ -503,6 +503,12 @@ public class QueryReq extends CMSServlet {
      */
     private void trim(Vector<IRequest> v, RequestId marker) {
         int i = v.size() - 1;
+
+        if (i == 0) {
+            // do not remove the only element in the list
+            return;
+        }
+
         if (v.elementAt(i).getRequestId().toString().equals(
                 marker.toString())) {
             v.remove(i);
