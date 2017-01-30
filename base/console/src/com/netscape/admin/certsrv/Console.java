@@ -44,6 +44,11 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 
+import org.dogtagpki.common.Info;
+import org.dogtagpki.common.InfoClient;
+
+import com.netscape.certsrv.client.ClientConfig;
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.management.client.Framework;
 import com.netscape.management.client.IPage;
 import com.netscape.management.client.IResourceObject;
@@ -1572,7 +1577,8 @@ public class Console implements CommClient {
       * @param parameters list
       */
 
-    static public void main(String argv[]) {
+    static public void main(String argv[]) throws Exception {
+
 		GetOpt opt = new GetOpt("h:a:A:f:l:u:w:s:D:x:", argv);
 
         if (opt.hasOption('f')) {
@@ -1760,6 +1766,33 @@ public class Console implements CommClient {
                                "\n         Default port number is 9443.\n");
         */
         }
+
+        UtilConsoleGlobals.initJSS();
+
+        ClientConfig config = new ClientConfig();
+        config.setServerURL(protocol, hostName, portNumber);
+
+        PKIClient client = new PKIClient(config);
+
+        InfoClient infoClient = new InfoClient(client);
+        Info info = infoClient.getInfo();
+        String banner = info.getBanner();
+
+        if (banner != null) {
+
+            System.out.println(banner.trim());
+            System.out.println();
+            System.out.print("Do you want to proceed (y/N)? ");
+            System.out.flush();
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+            String line = reader.readLine().trim();
+
+            if (!line.equalsIgnoreCase("Y")) {
+                return;
+            }
+        }
+
         cinfo.put("cmsHost", url.getHost());
         cinfo.put("cmsPort", Integer.toString(portNumber));
         cinfo.put("cmsPath", path);
