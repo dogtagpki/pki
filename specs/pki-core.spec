@@ -902,18 +902,6 @@ for subsystem in ca kra ocsp tks; do
     ln -s %{_datadir}/pki/server/webapps/pki/admin/console %{buildroot}%{_datadir}/pki/$subsystem/webapps/$subsystem/admin
 done
 
-# Create symlinks for subsystem libraries
-for subsystem in ca kra ocsp tks tps; do
-    %{__mkdir_p} %{buildroot}%{_datadir}/pki/$subsystem/webapps/$subsystem/WEB-INF/lib
-    ln -s %{_javadir}/pki/pki-nsutil.jar %{buildroot}%{_datadir}/pki/$subsystem/webapps/$subsystem/WEB-INF/lib
-    ln -s %{_javadir}/pki/pki-cmsutil.jar %{buildroot}%{_datadir}/pki/$subsystem/webapps/$subsystem/WEB-INF/lib
-    ln -s %{_javadir}/pki/pki-certsrv.jar %{buildroot}%{_datadir}/pki/$subsystem/webapps/$subsystem/WEB-INF/lib
-    ln -s %{_javadir}/pki/pki-cms.jar %{buildroot}%{_datadir}/pki/$subsystem/webapps/$subsystem/WEB-INF/lib
-    ln -s %{_javadir}/pki/pki-cmscore.jar %{buildroot}%{_datadir}/pki/$subsystem/webapps/$subsystem/WEB-INF/lib
-    ln -s %{_javadir}/pki/pki-cmsbundle.jar %{buildroot}%{_datadir}/pki/$subsystem/webapps/$subsystem/WEB-INF/lib
-    ln -s %{_javadir}/pki/pki-$subsystem.jar %{buildroot}%{_datadir}/pki/$subsystem/webapps/$subsystem/WEB-INF/lib
-done
-
 # Create compatibility symlink for DRMTool -> KRATool
 ln -s %{_bindir}/KRATool %{buildroot}%{_bindir}/DRMTool
 # Create compatibility symlink for DRMTool.cfg -> KRATool.cfg
