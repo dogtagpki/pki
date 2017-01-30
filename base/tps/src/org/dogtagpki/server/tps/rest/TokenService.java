@@ -55,14 +55,14 @@ import com.netscape.certsrv.tps.token.TokenData;
 import com.netscape.certsrv.tps.token.TokenData.TokenStatusData;
 import com.netscape.certsrv.tps.token.TokenResource;
 import com.netscape.certsrv.tps.token.TokenStatus;
-import com.netscape.cms.servlet.base.PKIService;
+import com.netscape.cms.servlet.base.SubsystemService;
 
 import netscape.ldap.LDAPException;
 
 /**
  * @author Endi S. Dewata
  */
-public class TokenService extends PKIService implements TokenResource {
+public class TokenService extends SubsystemService implements TokenResource {
 
     @Context
     private UriInfo uriInfo;

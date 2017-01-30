@@ -48,12 +48,12 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.tps.connector.ConnectorCollection;
 import com.netscape.certsrv.tps.connector.ConnectorData;
 import com.netscape.certsrv.tps.connector.ConnectorResource;
-import com.netscape.cms.servlet.base.PKIService;
+import com.netscape.cms.servlet.base.SubsystemService;
 
 /**
  * @author Endi S. Dewata
  */
-public class ConnectorService extends PKIService implements ConnectorResource {
+public class ConnectorService extends SubsystemService implements ConnectorResource {
 
     @Context
     private UriInfo uriInfo;

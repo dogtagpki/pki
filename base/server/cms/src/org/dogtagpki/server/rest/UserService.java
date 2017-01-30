@@ -72,7 +72,7 @@ import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.servlet.admin.GroupMemberProcessor;
-import com.netscape.cms.servlet.base.PKIService;
+import com.netscape.cms.servlet.base.SubsystemService;
 import com.netscape.cmsutil.util.Cert;
 import com.netscape.cmsutil.util.Utils;
 
@@ -82,7 +82,7 @@ import netscape.security.x509.X509CertImpl;
 /**
  * @author Endi S. Dewata
  */
-public class UserService extends PKIService implements UserResource {
+public class UserService extends SubsystemService implements UserResource {
 
     @Context
     private UriInfo uriInfo;

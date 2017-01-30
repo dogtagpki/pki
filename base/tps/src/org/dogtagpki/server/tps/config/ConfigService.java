@@ -38,12 +38,12 @@ import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.tps.config.ConfigData;
 import com.netscape.certsrv.tps.config.ConfigResource;
-import com.netscape.cms.servlet.base.PKIService;
+import com.netscape.cms.servlet.base.SubsystemService;
 
 /**
  * @author Endi S. Dewata
  */
-public class ConfigService extends PKIService implements ConfigResource {
+public class ConfigService extends SubsystemService implements ConfigResource {
 
     @Context
     private UriInfo uriInfo;

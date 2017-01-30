@@ -48,12 +48,12 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.tps.authenticator.AuthenticatorCollection;
 import com.netscape.certsrv.tps.authenticator.AuthenticatorData;
 import com.netscape.certsrv.tps.authenticator.AuthenticatorResource;
-import com.netscape.cms.servlet.base.PKIService;
+import com.netscape.cms.servlet.base.SubsystemService;
 
 /**
  * @author Endi S. Dewata
  */
-public class AuthenticatorService extends PKIService implements AuthenticatorResource {
+public class AuthenticatorService extends SubsystemService implements AuthenticatorResource {
 
     @Context
     private UriInfo uriInfo;

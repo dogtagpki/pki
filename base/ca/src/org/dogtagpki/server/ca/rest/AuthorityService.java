@@ -61,13 +61,13 @@ import com.netscape.certsrv.ca.IssuerUnavailableException;
 import com.netscape.certsrv.common.OpDef;
 import com.netscape.certsrv.common.ScopeDef;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.cms.servlet.base.PKIService;
+import com.netscape.cms.servlet.base.SubsystemService;
 import com.netscape.cmsutil.util.Utils;
 
 /**
  * @author ftweedal
  */
-public class AuthorityService extends PKIService implements AuthorityResource {
+public class AuthorityService extends SubsystemService implements AuthorityResource {
 
     ICertificateAuthority hostCA;
 

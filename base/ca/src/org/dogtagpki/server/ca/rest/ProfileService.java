@@ -78,17 +78,17 @@ import com.netscape.certsrv.profile.ProfileResource;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.certsrv.registry.IPluginRegistry;
-import com.netscape.cms.servlet.base.PKIService;
+import com.netscape.cms.servlet.base.SubsystemService;
 import com.netscape.cms.servlet.profile.PolicyConstraintFactory;
 import com.netscape.cms.servlet.profile.PolicyDefaultFactory;
-import com.netscape.cmscore.base.SimpleProperties;
 import com.netscape.cmscore.base.PropConfigStore;
+import com.netscape.cmscore.base.SimpleProperties;
 
 /**
  * @author alee
  *
  */
-public class ProfileService extends PKIService implements ProfileResource {
+public class ProfileService extends SubsystemService implements ProfileResource {
 
     @Context
     private UriInfo uriInfo;

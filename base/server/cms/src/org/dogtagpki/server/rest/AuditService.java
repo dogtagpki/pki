@@ -44,12 +44,12 @@ import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.logging.AuditConfig;
 import com.netscape.certsrv.logging.AuditResource;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.cms.servlet.base.PKIService;
+import com.netscape.cms.servlet.base.SubsystemService;
 
 /**
  * @author Endi S. Dewata
  */
-public class AuditService extends PKIService implements AuditResource {
+public class AuditService extends SubsystemService implements AuditResource {
 
     @Context
     private UriInfo uriInfo;

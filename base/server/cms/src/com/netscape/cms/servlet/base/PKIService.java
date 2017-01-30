@@ -17,17 +17,13 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.base;
 
-import java.io.File;
 import java.lang.reflect.Method;
 import java.net.URI;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.ResourceBundle;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -42,11 +38,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.UriInfo;
 
-import com.netscape.certsrv.apps.CMS;
-import com.netscape.certsrv.authorization.IAuthzSubsystem;
 import com.netscape.certsrv.base.PKIException;
-import com.netscape.certsrv.logging.IAuditor;
-import com.netscape.certsrv.logging.ILogger;
 
 /**
  * Base class for CMS RESTful resources
@@ -86,43 +78,8 @@ public class PKIService {
     @Context
     protected ServletContext servletContext;
 
-    protected IAuthzSubsystem authz = (IAuthzSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTHZ);
-
-    public ILogger logger = CMS.getLogger();
-    public IAuditor auditor = CMS.getAuditor();
-
     public String getInstanceDir() {
         return System.getProperty("catalina.base");
-    }
-
-    public String getSubsystemName() {
-        // get web application path: /<subsystem>
-        String path = servletContext.getContextPath();
-
-        // get subsystem name by removing the / prefix from the path
-        return path.startsWith("/") ? path.substring(1) : path;
-    }
-
-    public String getSubsystemConfDir() {
-        return getInstanceDir() + File.separator + getSubsystemName() + File.separator + "conf";
-    }
-
-    public String getSharedSubsystemConfDir() {
-        return File.separator + "usr" + File.separator + "share" + File.separator + "pki" +
-                File.separator + getSubsystemName() + File.separator + "conf";
-    }
-
-    public ResourceBundle getResourceBundle(String name) throws Exception {
-
-        // Look in <instance>/<subsystem>/conf first,
-        // then fallback to /usr/share/pki/<subsystem>/conf.
-        URL[] urls = {
-                new File(getSubsystemConfDir()).toURI().toURL(),
-                new File(getSharedSubsystemConfDir()).toURI().toURL()
-        };
-
-        ClassLoader loader = new URLClassLoader(urls);
-        return ResourceBundle.getBundle(name, servletRequest.getLocale(), loader);
     }
 
     public static MediaType resolveFormat(MediaType format) {
@@ -232,49 +189,6 @@ public class PKIService {
         if (locales == null || locales.isEmpty()) return Locale.getDefault();
 
         return locales.get(0);
-    }
-
-    public String getUserMessage(String messageId, HttpHeaders headers, String... params) {
-        return CMS.getUserMessage(getLocale(headers), messageId, params);
-    }
-
-    public void log(int source, int level, String message) {
-
-        if (logger == null) return;
-
-        logger.log(ILogger.EV_SYSTEM,
-                null,
-                source,
-                level,
-                getClass().getSimpleName() + ": " + message);
-    }
-
-    public void audit(String message, String scope, String type, String id, Map<String, String> params, String status) {
-
-        if (auditor == null) return;
-
-        String auditMessage = CMS.getLogMessage(
-                message,
-                auditor.getSubjectID(),
-                status,
-                auditor.getParamString(scope, type, id, params));
-
-        auditor.log(auditMessage);
-    }
-
-    public void auditConfigTokenGeneral(String status, String service, Map<String, String> params, String info) {
-        CMS.debug("PKIService.auditConfigTokenGeneral begins");
-
-        String msg = CMS.getLogMessage(
-                "LOGGING_SIGNED_AUDIT_CONFIG_TOKEN_GENERAL_5",
-                servletRequest.getUserPrincipal().getName(),
-                status,
-                service,
-                auditor.getParamString(null, params),
-                info);
-        auditor.log(msg);
-
-        CMS.debug("PKIService.auditConfigTokenGeneral ends");
     }
 
     /**

@@ -48,12 +48,12 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.tps.profile.ProfileMappingCollection;
 import com.netscape.certsrv.tps.profile.ProfileMappingData;
 import com.netscape.certsrv.tps.profile.ProfileMappingResource;
-import com.netscape.cms.servlet.base.PKIService;
+import com.netscape.cms.servlet.base.SubsystemService;
 
 /**
  * @author Endi S. Dewata
  */
-public class ProfileMappingService extends PKIService implements ProfileMappingResource {
+public class ProfileMappingService extends SubsystemService implements ProfileMappingResource {
 
     @Context
     private UriInfo uriInfo;

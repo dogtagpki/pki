@@ -51,12 +51,12 @@ import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IGroupConstants;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.cms.servlet.admin.GroupMemberProcessor;
-import com.netscape.cms.servlet.base.PKIService;
+import com.netscape.cms.servlet.base.SubsystemService;
 
 /**
  * @author Endi S. Dewata
  */
-public class GroupService extends PKIService implements GroupResource {
+public class GroupService extends SubsystemService implements GroupResource {
 
     @Context
     private UriInfo uriInfo;

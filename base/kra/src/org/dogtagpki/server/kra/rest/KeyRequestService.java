@@ -57,7 +57,7 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestNotFoundException;
 import com.netscape.cms.realm.PKIPrincipal;
-import com.netscape.cms.servlet.base.PKIService;
+import com.netscape.cms.servlet.base.SubsystemService;
 import com.netscape.cms.servlet.key.KeyRequestDAO;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
@@ -65,7 +65,7 @@ import com.netscape.cmsutil.ldap.LDAPUtil;
  * @author alee
  *
  */
-public class KeyRequestService extends PKIService implements KeyRequestResource {
+public class KeyRequestService extends SubsystemService implements KeyRequestResource {
 
     @Context
     private UriInfo uriInfo;
