@@ -230,3 +230,7 @@ if __name__ == '__main__':
         elif cli.debug:
             traceback.print_exc()
         sys.exit(e.returncode)
+
+    except KeyboardInterrupt:
+        print()
+        sys.exit(-1)
