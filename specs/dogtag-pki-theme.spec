@@ -150,6 +150,15 @@ cd build
 %doc dogtag/common-ui/LICENSE
 %dir %{_datadir}/pki
 %{_datadir}/pki/common-ui/
+%{_datadir}/pki/server/webapps/pki/ca
+%{_datadir}/pki/server/webapps/pki/css
+%{_datadir}/pki/server/webapps/pki/esc
+%{_datadir}/pki/server/webapps/pki/fonts
+%{_datadir}/pki/server/webapps/pki/images
+%{_datadir}/pki/server/webapps/pki/kra
+%{_datadir}/pki/server/webapps/pki/ocsp
+%{_datadir}/pki/server/webapps/pki/pki.properties
+%{_datadir}/pki/server/webapps/pki/tks
 
 
 %files -n dogtag-pki-console-theme
