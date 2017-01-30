@@ -12,6 +12,22 @@ if(WITH_TOMCAT8)
     add_subdirectory(tomcat8)
 endif(WITH_TOMCAT8)
 
+# Create /usr/share/pki/ocsp/webapps/ocsp/WEB-INF/lib. This can be customized for different platforms in RPM spec.
+
+add_custom_target(pki-ocsp-lib ALL)
+
+add_custom_command(
+    TARGET pki-ocsp-lib
+    COMMAND ${CMAKE_COMMAND} -E make_directory lib
+    COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/share/java/pki/pki-nsutil.jar lib/pki-nsutil.jar
+    COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/share/java/pki/pki-cmsutil.jar lib/pki-cmsutil.jar
+    COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/share/java/pki/pki-certsrv.jar lib/pki-certsrv.jar
+    COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/share/java/pki/pki-cms.jar lib/pki-cms.jar
+    COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/share/java/pki/pki-cmscore.jar lib/pki-cmscore.jar
+    COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/share/java/pki/pki-cmsbundle.jar lib/pki-cmsbundle.jar
+    COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/share/java/pki/pki-ocsp.jar lib/pki-ocsp.jar
+)
+
 # install directories
 install(
     DIRECTORY
@@ -20,6 +36,13 @@ install(
         ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/${PROJECT_NAME}
     PATTERN
         "CMakeLists.txt" EXCLUDE
+)
+
+install(
+    DIRECTORY
+        ${CMAKE_CURRENT_BINARY_DIR}/lib/
+    DESTINATION
+        ${DATA_INSTALL_DIR}/ocsp/webapps/ocsp/WEB-INF/lib
 )
 
 # install empty directories
