@@ -65,7 +65,7 @@
 
 Name:             pki-core
 Version:          10.3.5
-Release:          9%{?dist}
+Release:          11%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -246,6 +246,18 @@ Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{
 #Patch25:          pki-core-TPS-UI-target-agent-approve-list.patch
 #Patch26:          pki-core-TPS-tokendb-encryption-cert-automatic-recovery.patch
 #Patch27:          pki-core-TPS-format-G-and-D-cards.patch
+## pki-core-10.3.5-11
+#Patch28:          pki-core-replace-default-AJP-hostname-with-localhost.patch
+#Patch29:          pki-core-added-global-TCP-Keep-Alive-option.patch
+#Patch30:          pki-core-added-upgrade-script-to-update-AJP-localhost.patch
+#Patch31:          pki-core-fixed-problem-searching-for-latest-cert-req.patch
+#Patch32:          pki-core-omit-parameter-field-from-ECDSA-certs-Alg-IDs.patch
+#Patch33:          pki-core-added-option-to-remove-signing-cert-entry.patch
+#Patch34:          pki-core-use-BigInteger-for-entryUSN.patch
+#Patch35:          pki-core-slf4j-api.patch
+#Patch36:          pki-core-javadoc-special-characters.patch
+#Patch37:          pki-core-reset-cert-status-after-successful-unrevoke.patch
+
 
 
 # Obtain version phase number (e. g. - used by "alpha", "beta", etc.)
@@ -911,6 +923,16 @@ This package is a part of the PKI Core used by the Certificate System.
 #%patch25 -p1
 #%patch26 -p1
 #%patch27 -p1
+#%patch28 -p1
+#%patch29 -p1
+#%patch30 -p1
+#%patch31 -p1
+#%patch32 -p1
+#%patch33 -p1
+#%patch34 -p1
+#%patch35 -p1
+#%patch36 -p1
+#%patch37 -p1
 
 %clean
 %{__rm} -rf %{buildroot}
@@ -1416,6 +1438,11 @@ systemctl daemon-reload
 %endif # %{with server}
 
 %changelog
+* Tue Jan 31 2017 Dogtag Team <pki-devel@redhat.com> 10.3.5-11
+
+* Thu Dec 22 2016 Miro Hrončok <mhroncok@redhat.com> - 10.3.5-10
+- Rebuild for Python 3.6 (Fedora 26)
+
 * Tue Dec 13 2016 Dogtag Team <pki-devel@redhat.com> 10.3.5-9
 - PKI TRAC Ticket #1517 - user-cert-add --serial CLI request to secure port
   with remote CA shows authentication failure (edewata)
