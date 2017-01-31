@@ -101,14 +101,17 @@ class PKIConnection:
         if username is not None and password is not None:
             self.session.auth = (username, password)
 
-    def set_authentication_cert(self, pem_cert_path):
+    def set_authentication_cert(self, pem_cert_path, pem_key_path=None):
         """
         Set the path to the PEM file containing the certificate and private key
         for the client certificate to be used for authentication to the server,
-        when client certificate authentication is required.
+        when client certificate authentication is required. The private key may
+        optionally be stored in a different path.
 
         :param pem_cert_path: path to the PEM file
         :type pem_cert_path: str
+        :param pem_key_path: path to the PEM-formatted private key file
+        :type pem_key_path: str
         :return: None
         :raises: Exception if path is empty or None.
         """
@@ -116,7 +119,10 @@ class PKIConnection:
             raise Exception("No path for the certificate specified.")
         if len(str(pem_cert_path)) == 0:
             raise Exception("No path for the certificate specified.")
-        self.session.cert = pem_cert_path
+        if pem_key_path is not None:
+            self.session.cert = (pem_cert_path, pem_key_path)
+        else:
+            self.session.cert = pem_cert_path
 
     @catch_insecure_warning
     def get(self, path, headers=None, params=None, payload=None):
