@@ -400,7 +400,7 @@ void RollingLogFile::expire() {
     if (strrchr(m_fname, '/') != NULL) {
         PR_snprintf((char *) basename, 256, "%s", strrchr(m_fname, '/') +1);
         PR_snprintf((char *) dirname, PL_strlen(m_fname) - PL_strlen(basename), "%s", m_fname);
-        PL_strcat(dirname, '\0');
+        PL_strcat(dirname, (const char *) '\0');
     } else {
         PR_snprintf((char *) basename, 256, "%s", m_fname);
         PR_snprintf((char *) dirname, 256, ".");
