@@ -199,6 +199,21 @@ public class SubjectAlternativeNameExtension extends Extension
     }
 
     /**
+     * Set the GeneralNames of this extension.
+     */
+    public void setGeneralNames(GeneralNames names) {
+        clearValue();
+        this.names = names;
+    }
+
+    /**
+     * Get the GeneralNames of this extension.
+     */
+    public GeneralNames getGeneralNames() {
+        return names;
+    }
+
+    /**
      * Get the attribute value.
      */
     public Object get(String name) throws IOException {
