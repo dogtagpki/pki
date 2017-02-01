@@ -758,7 +758,7 @@ TPS_PUBLIC int ConfigStore::Commit(const bool backup, char *error_msg, int len)
     if (strrchr(m_cfg_file_path, '/') != NULL) {
         PR_snprintf((char *) basename, 256, "%s", strrchr(m_cfg_file_path, '/') +1);
         PR_snprintf((char *) dirname, PL_strlen(m_cfg_file_path) - PL_strlen(basename), "%s", m_cfg_file_path);
-        PL_strcat(dirname, '\0');
+        PL_strcat(dirname, (const char *) '\0');
     } else {
         PR_snprintf((char *) basename, 256, "%s", m_cfg_file_path);
         PR_snprintf((char *) dirname, 256, ".");
