@@ -19,8 +19,10 @@ package netscape.security.x509;
 
 import java.io.IOException;
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Vector;
 
 import netscape.security.util.DerInputStream;
@@ -448,6 +450,25 @@ public class X500Name implements Principal, GeneralNameInterface {
         if (dn == null)
             generateDN(LdapDNStrConverter.getDefault());
         return dn;
+    }
+
+    /**
+     * Return a list of attributes of the given type.
+     *
+     * The "most specific" value comes last.
+     *
+     * If there are no name attributes of the given type, an empty
+     * list is returned.
+     */
+    public List<String> getAttributesForOid(ObjectIdentifier oid)
+            throws IOException {
+        List<String> xs = new ArrayList<>();
+        for (int i = 0; i < names.length; i++) {
+            DerValue v = names[i].findAttribute(oid);
+            if (v != null)
+                xs.add(getString(v));
+        }
+        return xs;
     }
 
     /**
