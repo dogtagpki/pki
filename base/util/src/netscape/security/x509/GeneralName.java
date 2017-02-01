@@ -196,4 +196,19 @@ public class GeneralName implements GeneralNameInterface {
                              constructedForm, (byte) nameType), tmp);
         }
     }
+
+    /**
+     * Unwrap this GeneralName until we reach something that is not
+     * a GeneralName.
+     */
+    public GeneralNameInterface unwrap() {
+        if (this == name)
+            return null;  // can't happen, but just in case...
+
+        if (name instanceof GeneralName)
+            return ((GeneralName) name).unwrap();
+        else
+            return name;
+    }
+
 }
