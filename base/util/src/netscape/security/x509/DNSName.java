@@ -79,4 +79,12 @@ public class DNSName implements GeneralNameInterface {
     public String toString() {
         return ("DNSName: " + name);
     }
+
+    /**
+     * Get the raw DNSName value.
+     */
+    public String getValue() {
+        return name;
+    }
+
 }
