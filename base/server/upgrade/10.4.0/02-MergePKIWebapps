@@ -43,10 +43,11 @@ class MergePKIWebapps(
             'localhost',
             'pki#admin.xml')
 
-        self.backup(pki_admin_xml)
-        os.remove(pki_admin_xml)
+        if os.path.exists(pki_admin_xml):
+            self.backup(pki_admin_xml)
+            os.remove(pki_admin_xml)
 
-        # undeploy /pki/admin webapp
+        # undeploy /pki/js webapp
 
         pki_js_xml = os.path.join(
             instance.conf_dir,
@@ -54,8 +55,9 @@ class MergePKIWebapps(
             'localhost',
             'pki#js.xml')
 
-        self.backup(pki_js_xml)
-        os.remove(pki_js_xml)
+        if os.path.exists(pki_js_xml):
+            self.backup(pki_js_xml)
+            os.remove(pki_js_xml)
 
         # deploy /pki webapp (which includes /pki/admin and /pki/js)
 
