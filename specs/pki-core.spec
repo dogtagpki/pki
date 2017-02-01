@@ -257,6 +257,7 @@ Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{
 #Patch35:          pki-core-slf4j-api.patch
 #Patch36:          pki-core-javadoc-special-characters.patch
 #Patch37:          pki-core-reset-cert-status-after-successful-unrevoke.patch
+#Patch38:          pki-core-cast-char-ptr-to-const-char-ptr-in-cpp-files.patch
 
 
 
@@ -933,6 +934,7 @@ This package is a part of the PKI Core used by the Certificate System.
 #%patch35 -p1
 #%patch36 -p1
 #%patch37 -p1
+#%patch38 -p1
 
 %clean
 %{__rm} -rf %{buildroot}
