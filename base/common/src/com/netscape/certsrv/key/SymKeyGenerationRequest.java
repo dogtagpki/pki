@@ -83,7 +83,7 @@ public class SymKeyGenerationRequest extends KeyGenerationRequest {
         list.add(UWRAP_USAGE);
         list.add(DECRYPT_USAGE);
         list.add(ENCRYPT_USAGE);
-        list.add(KEY_USAGE);
+        list.add(VERIFY_USAGE);
         list.add(SIGN_USAGE);
 
         return list;
