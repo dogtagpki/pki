@@ -16,6 +16,7 @@ import org.apache.commons.cli.Option;
 import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
 import com.netscape.certsrv.cert.CertRequestInfos;
+import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfileInput;
 import com.netscape.cmstools.cli.CLI;
@@ -61,6 +62,10 @@ public class CertRequestSubmitCLI extends CLI {
 
         option = new Option(null, "csr-file", true, "File containing the CSR");
         option.setArgName("path");
+        options.addOption(option);
+
+        option = new Option(null, "serial", true, "Serial number of certificate for renewal");
+        option.setArgName("number");
         options.addOption(option);
 
         option = new Option(null, "subject", true, "Subject DN");
@@ -173,6 +178,24 @@ public class CertRequestSubmitCLI extends CLI {
                 ProfileAttribute csrAttr = input.getAttribute("cert_request");
                 if (csrAttr != null) {
                     csrAttr.setValue(csr);
+                }
+            }
+        }
+
+        String serial = cmd.getOptionValue("serial");
+        if (serial != null) {
+
+            if (verbose) {
+                System.out.println("Serial: " + serial);
+            }
+
+            request.setSerialNum(new CertId(serial));
+
+            // store serial number in profile input if available
+            for (ProfileInput input : request.getInputs()) {
+                ProfileAttribute serialAttr = input.getAttribute("serial_num");
+                if (serialAttr != null) {
+                    serialAttr.setValue(serial);
                 }
             }
         }
