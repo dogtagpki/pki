@@ -56,6 +56,9 @@ public class CertRequestSubmitCLI extends CLI {
         option.setArgName("type");
         options.addOption(option);
 
+        option = new Option(null, "renewal", false, "Submit renewal request");
+        options.addOption(option);
+
         option = new Option(null, "csr-file", true, "File containing the CSR");
         option.setArgName("path");
         options.addOption(option);
@@ -154,6 +157,8 @@ public class CertRequestSubmitCLI extends CLI {
             }
         }
 
+        request.setRenewal(cmd.hasOption("renewal"));
+
         String csrFilename = cmd.getOptionValue("csr-file");
         if (csrFilename != null) {
 
@@ -224,6 +229,10 @@ public class CertRequestSubmitCLI extends CLI {
             Console console = System.console();
             String certRequestPassword = new String(console.readPassword("Password: "));
             request.setAttribute("pwd", certRequestPassword);
+        }
+
+        if (verbose) {
+            System.out.println(request);
         }
 
         CertRequestInfos cri = certCLI.certClient.enrollRequest(request, aid, adn);
