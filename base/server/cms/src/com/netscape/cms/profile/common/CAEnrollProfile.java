@@ -19,10 +19,6 @@ package com.netscape.cms.profile.common;
 
 import java.util.Enumeration;
 
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
-
 import org.mozilla.jss.pkix.crmf.PKIArchiveOptions;
 
 import com.netscape.certsrv.apps.CMS;
@@ -41,6 +37,10 @@ import com.netscape.certsrv.profile.IProfileUpdater;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestStatus;
 
+import netscape.security.x509.X500Name;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509CertInfo;
+
 /**
  * This class implements a Certificate Manager enrollment
  * profile.
@@ -53,7 +53,6 @@ public class CAEnrollProfile extends EnrollProfile {
             "LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST_4";
 
     public CAEnrollProfile() {
-        super();
     }
 
     public IAuthority getAuthority() {
@@ -93,8 +92,8 @@ public class CAEnrollProfile extends EnrollProfile {
             auditArchiveID = id.trim();
         }
 
-        CMS.debug("CAEnrollProfile: execute reqId=" +
-                request.getRequestId().toString());
+        CMS.debug("CAEnrollProfile: execute request ID " + id);
+
         ICertificateAuthority ca = (ICertificateAuthority) getAuthority();
 
         ICAService caService = (ICAService) ca.getCAService();
@@ -105,6 +104,7 @@ public class CAEnrollProfile extends EnrollProfile {
         // if PKI Archive Option present, send this request
         // to DRM
         byte optionsData[] = request.getExtDataInByteArray(REQUEST_ARCHIVE_OPTIONS);
+
         // do not archive keys for renewal requests
         if ((optionsData != null) && (!request.getRequestType().equals(IRequest.RENEWAL_REQUEST))) {
             PKIArchiveOptions options = toPKIArchiveOptions(optionsData);
@@ -166,7 +166,7 @@ public class CAEnrollProfile extends EnrollProfile {
                     if (e instanceof ERejectException) {
                         throw (ERejectException) e;
                     }
-                    CMS.debug("CAEnrollProfile: " + e.toString());
+                    CMS.debug("CAEnrollProfile: " + e);
                     CMS.debug(e);
 
                     auditMessage = CMS.getLogMessage(
@@ -177,32 +177,36 @@ public class CAEnrollProfile extends EnrollProfile {
                             auditArchiveID);
 
                     audit(auditMessage);
-                    throw new EProfileException(e.toString());
+                    throw new EProfileException(e);
                 }
             }
         }
+
         // process certificate issuance
         X509CertInfo info = request.getExtDataInCertInfo(REQUEST_CERTINFO);
-        X509CertImpl theCert = null;
         // #615460 - added audit log (transaction)
         SessionContext sc = SessionContext.getExistingContext();
         sc.put("profileId", getId());
+
         String setId = request.getExtDataInString("profileSetId");
         if (setId != null) {
             sc.put("profileSetId", setId);
         }
+
         AuthorityID aid = null;
         String aidString = request.getExtDataInString(IRequest.AUTHORITY_ID);
         if (aidString != null)
             aid = new AuthorityID(aidString);
+
+        X509CertImpl theCert;
         try {
             theCert = caService.issueX509Cert(
                 aid, info, getId() /* profileId */, id /* requestId */);
         } catch (EBaseException e) {
-            CMS.debug(e.toString());
-
-            throw new EProfileException(e.toString());
+            CMS.debug(e);
+            throw new EProfileException(e);
         }
+
         request.setExtData(REQUEST_ISSUED_CERT, theCert);
 
         long endTime = CMS.getCurrentDate().getTime();
@@ -230,6 +234,7 @@ public class CAEnrollProfile extends EnrollProfile {
         }
 
         request.setRequestStatus(RequestStatus.COMPLETE);
+
         // notifies updater plugins
         Enumeration<String> updaterIds = getProfileUpdaterIds();
         while (updaterIds.hasMoreElements()) {
