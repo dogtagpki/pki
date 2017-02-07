@@ -37,8 +37,11 @@ public interface IAuthToken {
     /**
      * Constant for userid.
      */
+    public static final String USER = "user";
+    public static final String USER_DN = "userdn";
     public static final String USER_ID = "userid";
     public static final String UID = "uid";
+    public static final String GROUP = "group";
     public static final String GROUPS = "groups";
 
     /* Subject name of the certificate in the authenticating entry */

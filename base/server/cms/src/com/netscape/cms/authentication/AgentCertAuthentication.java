@@ -57,13 +57,6 @@ import netscape.security.x509.X509CertImpl;
 public class AgentCertAuthentication implements IAuthManager,
         IProfileAuthenticator {
 
-    /* result auth token attributes */
-    public static final String TOKEN_USERDN = "user";
-    public static final String TOKEN_USER_DN = "userdn";
-    public static final String TOKEN_USERID = "userid";
-    public static final String TOKEN_UID = "uid";
-    public static final String TOKEN_GROUP = "group";
-
     /* required credentials */
     public static final String CRED_CERT = IAuthManager.CRED_SSL_CLIENT_CERT;
     protected String[] mRequiredCreds = { CRED_CERT };
@@ -225,11 +218,11 @@ public class AgentCertAuthentication implements IAuthManager,
                 throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHORIZATION_ERROR"));
             }
         }
-        authToken.set(TOKEN_USERDN, user.getUserDN());
-        authToken.set(TOKEN_USER_DN, user.getUserDN());
-        authToken.set(TOKEN_USERID, user.getUserID());
-        authToken.set(TOKEN_UID, user.getUserID());
-        authToken.set(TOKEN_GROUP, groupname);
+        authToken.set(IAuthToken.USER, user.getUserDN());
+        authToken.set(IAuthToken.USER_DN, user.getUserDN());
+        authToken.set(IAuthToken.USER_ID, user.getUserID());
+        authToken.set(IAuthToken.UID, user.getUserID());
+        authToken.set(IAuthToken.GROUP, groupname);
         authToken.set(CRED_CERT, certs);
 
         CMS.debug("AgentCertAuthentication: authenticated " + user.getUserDN());
