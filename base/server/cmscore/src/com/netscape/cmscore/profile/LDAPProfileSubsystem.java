@@ -303,43 +303,14 @@ public class LDAPProfileSubsystem
             readProfile(entry);
     }
 
+    /**
+     * Commit the configStore and track the resulting
+     * entryUSN and (in case of add) the nsUniqueId
+     */
     @Override
-    public synchronized void commitProfile(String id) throws EProfileException {
-        LDAPConfigStore cs = (LDAPConfigStore) mProfiles.get(id).getConfigStore();
-
-        // first create a *new* profile object from the configStore
-        // and initialise it with the updated configStore
-        //
-        IPluginRegistry registry = (IPluginRegistry)
-            CMS.getSubsystem(CMS.SUBSYSTEM_REGISTRY);
-        String classId = mProfileClassIds.get(id);
-        IPluginInfo info = registry.getPluginInfo("profile", classId);
-        String className = info.getClassName();
-        IProfile newProfile = null;
-        try {
-            newProfile = (IProfile) Class.forName(className).newInstance();
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-            throw new EProfileException("Could not instantiate class '"
-                    + classId + "' for profile '" + id + "': " + e);
-        }
-        newProfile.setId(id);
-        try {
-            newProfile.init(this, cs);
-        } catch (EBaseException e) {
-            throw new EProfileException(
-                    "Failed to initialise profile '" + id + "': " + e);
-        }
-
-        // next replace the existing profile with the new profile;
-        // this is to avoid any intermediate state where the profile
-        // is not fully initialised with its inputs, outputs and
-        // policy objects.
-        //
-        mProfiles.put(id, newProfile);
-
-        // finally commit the configStore and track the resulting
-        // entryUSN and (in case of add) the nsUniqueId
-        //
+    protected void commitConfigStore(String id, IConfigStore configStore)
+            throws EProfileException {
+        LDAPConfigStore cs = (LDAPConfigStore) configStore;
         try {
             String[] attrs = {"entryUSN", "nsUniqueId"};
             LDAPEntry entry = cs.commitReturn(false, attrs);
