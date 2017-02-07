@@ -63,6 +63,11 @@ public interface ISourceConfigStore extends Serializable {
     public Enumeration<String> keys();
 
     /**
+     * Clear the config store.
+     */
+    public void clear();
+
+    /**
      * Reads a config store from an input stream.
      *
      * @param in input stream where the properties are located

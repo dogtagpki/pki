@@ -223,6 +223,10 @@ public class PropConfigStore implements IConfigStore, Cloneable {
         }
     }
 
+    public synchronized void clear() {
+        mSource.clear();
+    }
+
     /**
      * Reads a config store from an input stream.
      *
