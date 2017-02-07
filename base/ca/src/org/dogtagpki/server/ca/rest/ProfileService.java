@@ -718,6 +718,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
             }
 
             // no error thrown, so commit updated profile config
+            profile.getConfigStore().clear();
             profile.getConfigStore().load(new ByteArrayInputStream(data));
             ps.disableProfile(profileId);
             ps.commitProfile(profileId);
