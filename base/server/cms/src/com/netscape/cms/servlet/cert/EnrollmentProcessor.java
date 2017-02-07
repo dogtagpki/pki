@@ -147,6 +147,11 @@ public class EnrollmentProcessor extends CertProcessor {
 
             IProfileContext ctx = profile.createContext();
 
+            // set arbitrary user data into request, if any
+            String userData = request.getParameter("user-data");
+            if (userData != null)
+                ctx.set(IEnrollProfile.REQUEST_USER_DATA, userData);
+
             if (aid != null)
                 ctx.set(IEnrollProfile.REQUEST_AUTHORITY_ID, aid.toString());
 

@@ -180,6 +180,11 @@ public interface IEnrollProfile extends IProfile {
     public static final String REQUEST_AUTHORITY_ID = "req_authority_id";
 
     /**
+     * Arbitrary user-supplied data.
+     */
+    public static final String REQUEST_USER_DATA = "req_user_data";
+
+    /**
      * Set Default X509CertInfo in the request.
      *
      * @param request profile-based certificate request.

@@ -96,6 +96,11 @@ public interface IRequest extends Serializable {
      */
     public static final String AUTHORITY_ID = "req_authority_id";
 
+    /**
+     * Arbitrary user-supplied data that will be saved in request.
+     */
+    public static final String USER_DATA = "user_data";
+
     public static final String RESULT = "Result"; // service result.
     public static final Integer RES_SUCCESS = Integer.valueOf(1); // result value
     public static final Integer RES_ERROR = Integer.valueOf(2); // result value
