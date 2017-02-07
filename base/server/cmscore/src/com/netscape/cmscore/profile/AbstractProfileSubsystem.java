@@ -121,7 +121,7 @@ public abstract class AbstractProfileSubsystem implements IProfileSubsystem {
     /**
      * Commits a profile.
      */
-    public void commitProfile(String id)
+    public synchronized void commitProfile(String id)
             throws EProfileException {
         IConfigStore cs = mProfiles.get(id).getConfigStore();
 
@@ -157,6 +157,11 @@ public abstract class AbstractProfileSubsystem implements IProfileSubsystem {
 
         // finally commit the configStore
         //
+        commitConfigStore(id, cs);
+    }
+
+    protected void commitConfigStore(String id, IConfigStore cs)
+            throws EProfileException {
         try {
             cs.commit(false);
         } catch (EBaseException e) {
