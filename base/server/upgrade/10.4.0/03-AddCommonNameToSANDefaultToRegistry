@@ -1,0 +1,67 @@
+#!/usr/bin/python
+# Authors:
+#     Fraser Tweedale <ftweedal@redhat.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+# Copyright (C) 2017 Red Hat, Inc.
+# All rights reserved.
+
+from __future__ import absolute_import
+import os.path
+
+import pki
+from pki.server.upgrade import PKIServerUpgradeScriptlet
+
+
+class AddCommonNameToSANDefaultToRegistry(PKIServerUpgradeScriptlet):
+
+    new_config = {
+        'defaultPolicy.commonNameToSANDefaultImpl.class':
+            'com.netscape.cms.profile.def.CommonNameToSANDefault',
+        'defaultPolicy.commonNameToSANDefaultImpl.desc':
+            'Copy Common Name to Subject Alternative Name',
+        'defaultPolicy.commonNameToSANDefaultImpl.name':
+            'Copy Common Name to Subject Alternative Name',
+    }
+
+    default_name = 'commonNameToSANDefaultImpl'
+
+    def __init__(self):
+        super(AddCommonNameToSANDefaultToRegistry, self).__init__()
+        self.message = 'Add CommonNameToSANDefault to registry'
+
+    def upgrade_subsystem(self, instance, subsystem):
+        if subsystem.name == 'ca':
+            self.add_new_entries(instance, subsystem)
+
+    def add_new_entries(self, instance, subsystem):  # pylint: disable=W0613
+        filename = os.path.join(subsystem.conf_dir, 'registry.cfg')
+        self.backup(filename)
+
+        properties = pki.PropertyFile(filename)
+        properties.read()
+
+        # add default to default list
+        defaults = properties.get('defaultPolicy.ids').split(',')
+        if self.default_name in defaults:
+            return  # update not required
+
+        defaults.append(self.default_name)
+        properties.set('defaultPolicy.ids', ','.join(defaults))
+
+        for k, v in self.new_config.items():
+            properties.set(k, v)
+
+        properties.write()
