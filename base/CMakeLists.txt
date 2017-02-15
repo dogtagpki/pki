@@ -30,6 +30,20 @@ find_file(SLF4J_JDK14_JAR
         /usr/share/java/slf4j
 )
 
+find_file(JACKSON_CORE_JAR
+    NAMES
+        jackson-core-asl.jar
+    PATHS
+        /usr/share/java/jackson
+)
+
+find_file(JACKSON_MAPPER_JAR
+    NAMES
+        jackson-mapper-asl.jar
+    PATHS
+        /usr/share/java/jackson
+)
+
 find_file(TOMCAT_API_JAR
     NAMES
         tomcat-api.jar
