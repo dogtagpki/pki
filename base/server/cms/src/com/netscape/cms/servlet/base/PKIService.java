@@ -17,8 +17,12 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.base;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -78,8 +82,22 @@ public class PKIService {
     @Context
     protected ServletContext servletContext;
 
-    public String getInstanceDir() {
-        return System.getProperty("catalina.base");
+    public static Path bannerFile = Paths.get(getInstanceDir(), "conf", "banner.txt");
+
+    public static String getInstanceDir() {
+        return System.getProperty("catalina.base");  // provided by Tomcat
+    }
+
+    public static String getVersion() {
+        return System.getenv("PKI_VERSION");  // defined in tomcat.conf
+    }
+
+    public static boolean isBannerEnabled() {
+        return Files.exists(bannerFile);
+    }
+
+    public static String getBanner() throws IOException {
+        return new String(Files.readAllBytes(bannerFile));
     }
 
     public static MediaType resolveFormat(MediaType format) {

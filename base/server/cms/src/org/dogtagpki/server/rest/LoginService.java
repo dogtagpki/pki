@@ -18,35 +18,31 @@
 
 package org.dogtagpki.server.rest;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
+import javax.servlet.http.HttpSession;
+import javax.ws.rs.core.Response;
 
-import javax.ws.rs.core.Application;
+import org.dogtagpki.common.LoginResource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class PKIApplication extends Application {
+import com.netscape.cms.servlet.base.PKIService;
 
-    private Set<Object> singletons = new LinkedHashSet<Object>();
-    private Set<Class<?>> classes = new LinkedHashSet<Class<?>>();
+/**
+ * @author Endi S. Dewata
+ */
+public class LoginService extends PKIService implements LoginResource {
 
-    public PKIApplication() {
+    private static Logger logger = LoggerFactory.getLogger(LoginService.class);
 
-        // services
-        classes.add(InfoService.class);
-        classes.add(LoginService.class);
+    @Override
+    public Response login() throws Exception {
 
-        // exception mappers
-        classes.add(PKIExceptionMapper.class);
+        HttpSession session = servletRequest.getSession();
+        logger.debug("LoginService.login(): session: " + session.getId());
 
-        // interceptors
-        singletons.add(new MessageFormatInterceptor());
+        // mark banner displayed in this session
+        session.setAttribute("bannerDisplayed", "true");
+
+        return createNoContentResponse();
     }
-
-    public Set<Class<?>> getClasses() {
-        return classes;
-    }
-
-    public Set<Object> getSingletons() {
-        return singletons;
-    }
-
 }

@@ -16,37 +16,21 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
-package org.dogtagpki.server.rest;
+package org.dogtagpki.common;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.core.Response;
 
-import javax.ws.rs.core.Application;
+import org.jboss.resteasy.annotations.ClientResponseType;
 
-public class PKIApplication extends Application {
+/**
+ * @author Endi S. Dewata
+ */
+@Path("login")
+public interface LoginResource {
 
-    private Set<Object> singletons = new LinkedHashSet<Object>();
-    private Set<Class<?>> classes = new LinkedHashSet<Class<?>>();
-
-    public PKIApplication() {
-
-        // services
-        classes.add(InfoService.class);
-        classes.add(LoginService.class);
-
-        // exception mappers
-        classes.add(PKIExceptionMapper.class);
-
-        // interceptors
-        singletons.add(new MessageFormatInterceptor());
-    }
-
-    public Set<Class<?>> getClasses() {
-        return classes;
-    }
-
-    public Set<Object> getSingletons() {
-        return singletons;
-    }
-
+    @POST
+    @ClientResponseType(entityType=Void.class)
+    public Response login() throws Exception;
 }

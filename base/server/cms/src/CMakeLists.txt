@@ -101,6 +101,7 @@ javac(pki-cms-classes
     SOURCES
         *.java
     CLASSPATH
+        ${SLF4J_API_JAR}
         ${COMMONS_CODEC_JAR} ${COMMONS_IO_JAR} ${COMMONS_LANG_JAR} ${COMMONS_HTTPCLIENT_JAR}
         ${HTTPCLIENT_JAR} ${HTTPCORE_JAR}
         ${XALAN_JAR} ${XERCES_JAR}
