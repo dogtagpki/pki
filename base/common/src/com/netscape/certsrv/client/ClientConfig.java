@@ -20,8 +20,10 @@ package com.netscape.certsrv.client;
 
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
@@ -48,7 +50,7 @@ public class ClientConfig {
         }
     }
 
-    URI serverURI;
+    URL serverURL;
 
     String certDatabase;
     String tokenName;
@@ -64,7 +66,7 @@ public class ClientConfig {
     }
 
     public ClientConfig(ClientConfig config) {
-        serverURI = config.serverURI;
+        serverURL = config.serverURL;
 
         certDatabase = config.certDatabase;
         tokenName = config.tokenName;
@@ -79,20 +81,49 @@ public class ClientConfig {
 
     @XmlElement(name="ServerURI")
     public URI getServerURI() {
-        return serverURI;
+        try {
+            return serverURL.toURI();
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void setServerURI(String serverUri) throws URISyntaxException {
-        this.serverURI = new URI(serverUri);
+        try {
+            this.serverURL = new URI(serverUri).toURL();
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void setServerURI(URI serverUri) {
-        this.serverURI = serverUri;
+        try {
+            this.serverURL = serverUri.toURL();
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @XmlElement(name="ServerURL")
+    public URL getServerURL() {
+        return serverURL;
+    }
+
+    public void setServerURL(String serverURL) throws MalformedURLException {
+        this.serverURL = new URL(serverURL);
+    }
+
+    public void setServerURL(String protocol, String hostname, int port) throws MalformedURLException {
+        this.serverURL = new URL(protocol, hostname, port, "");
+    }
+
+    public void setServerURL(URL serverURL) {
+        this.serverURL = serverURL;
     }
 
     public String getSubsystem() {
         // path could be an empty string, "/", or "/<subsystem>"
-        String path = serverURI.getPath();
+        String path = serverURL.getPath();
         if (path.length() <= 1) return null;
 
         // return subsystem name
@@ -171,7 +202,7 @@ public class ClientConfig {
         result = prime * result + ((certPassword == null) ? 0 : certPassword.hashCode());
         result = prime * result + ((messageFormat == null) ? 0 : messageFormat.hashCode());
         result = prime * result + ((password == null) ? 0 : password.hashCode());
-        result = prime * result + ((serverURI == null) ? 0 : serverURI.hashCode());
+        result = prime * result + ((serverURL == null) ? 0 : serverURL.hashCode());
         result = prime * result + ((tokenName == null) ? 0 : tokenName.hashCode());
         result = prime * result + ((username == null) ? 0 : username.hashCode());
         return result;
@@ -211,10 +242,10 @@ public class ClientConfig {
                 return false;
         } else if (!password.equals(other.password))
             return false;
-        if (serverURI == null) {
-            if (other.serverURI != null)
+        if (serverURL == null) {
+            if (other.serverURL != null)
                 return false;
-        } else if (!serverURI.equals(other.serverURI))
+        } else if (!serverURL.equals(other.serverURL))
             return false;
         if (tokenName == null) {
             if (other.tokenName != null)
@@ -251,7 +282,7 @@ public class ClientConfig {
     public static void main(String args[]) throws Exception {
 
         ClientConfig before = new ClientConfig();
-        before.setServerURI("http://localhost:9180/ca");
+        before.setServerURI("http://localhost:8080");
         before.setCertDatabase("certs");
         before.setCertNickname("caadmin");
         before.setPassword("12345");
