@@ -1141,6 +1141,7 @@ systemctl daemon-reload
 
 %if 0%{?package_fedora_packages} || 0%{?package_rhel_packages}
 %files -n pki-base-java
+%{_datadir}/pki/examples/java/
 %{_datadir}/pki/lib/
 %dir %{_javadir}/pki
 %{_javadir}/pki/pki-cmsutil.jar
