@@ -84,16 +84,6 @@ public interface ITransportKeyUnit extends IEncryptionUnit {
     public SymmetricKey unwrap_sym(byte encSymmKey[]);
 
     /**
-     * Unwraps symmetric key for encrypton . This method
-     * unwraps the symmetric key.
-     *
-     * @param encSymmKey wrapped symmetric key to be unwrapped
-     * @return Symmetric key object
-     */
-
-    public SymmetricKey unwrap_encrypt_sym(byte encSymmKey[]);
-
-    /**
      * Unwraps temporary private key . This method
      * unwraps the temporary private key.
      *
