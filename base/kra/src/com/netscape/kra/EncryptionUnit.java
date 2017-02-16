@@ -24,10 +24,6 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 
-import netscape.security.util.DerInputStream;
-import netscape.security.util.DerOutputStream;
-import netscape.security.util.DerValue;
-
 import org.mozilla.jss.crypto.BadPaddingException;
 import org.mozilla.jss.crypto.Cipher;
 import org.mozilla.jss.crypto.CryptoToken;
@@ -47,6 +43,10 @@ import com.netscape.certsrv.key.KeyRequestResource;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.security.IEncryptionUnit;
 import com.netscape.cmscore.util.Debug;
+
+import netscape.security.util.DerInputStream;
+import netscape.security.util.DerOutputStream;
+import netscape.security.util.DerValue;
 
 /**
  * A class represents the transport key pair. This key pair
@@ -213,10 +213,6 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
 
     public SymmetricKey unwrap_sym(byte encSymmKey[]) {
         return unwrap_sym(encSymmKey, SymmetricKey.Usage.WRAP);
-    }
-
-    public SymmetricKey unwrap_encrypt_sym(byte encSymmKey[]) {
-        return unwrap_sym(encSymmKey, SymmetricKey.Usage.ENCRYPT);
     }
 
     /**
