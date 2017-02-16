@@ -25,6 +25,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 import com.netscape.certsrv.account.AccountClient;
+import com.netscape.certsrv.account.AccountInfo;
 
 
 /**
@@ -45,8 +46,8 @@ public class SubsystemClient extends Client {
     /**
      * Log in to the subsystem.
      */
-    public void login() {
-        accountClient.login();
+    public AccountInfo login() {
+        return accountClient.login();
     }
 
     public boolean exists() throws Exception {
