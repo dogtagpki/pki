@@ -262,6 +262,8 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
             }
             String cmc = (String) returnVal;
             if (cmc == null) {
+                CMS.debug("CMCAuth: Authentication failed. Missing CMC.");
+
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
                         LOGGING_SIGNED_AUDIT_CMC_SIGNED_REQUEST_SIG_VERIFY,
