@@ -113,9 +113,8 @@ public class CertRequestService extends PKIService implements CertRequestResourc
         try {
             info = dao.getRequest(id, uriInfo);
         } catch (EBaseException e) {
-            // log error
-            e.printStackTrace();
-            throw new PKIException("Error getting Cert request info!");
+            CMS.debug(e);
+            throw new PKIException("Error getting Cert request info!", e);
         }
 
         if (info == null) {
@@ -142,7 +141,7 @@ public class CertRequestService extends PKIService implements CertRequestResourc
             try {
                 aid = new AuthorityID(aidString);
             } catch (IllegalArgumentException e) {
-                throw new BadRequestException("invalid AuthorityID: " + aidString);
+                throw new BadRequestException("invalid AuthorityID: " + aidString, e);
             }
             ca = ca.getCA(aid);
             if (ca == null)
@@ -153,7 +152,7 @@ public class CertRequestService extends PKIService implements CertRequestResourc
             try {
                 adn = new X500Name(adnString);
             } catch (IOException e) {
-                throw new BadRequestException("invalid DN: " + adnString);
+                throw new BadRequestException("invalid DN: " + adnString, e);
             }
             ca = ca.getCA(adn);
             if (ca == null)
@@ -173,13 +172,13 @@ public class CertRequestService extends PKIService implements CertRequestResourc
             infos = dao.submitRequest(aid, data, servletRequest, uriInfo, getLocale(headers));
         } catch (EAuthException e) {
             CMS.debug("enrollCert: authentication failed: " + e);
-            throw new UnauthorizedException(e.toString());
+            throw new UnauthorizedException(e.toString(), e);
         } catch (EAuthzException e) {
             CMS.debug("enrollCert: authorization failed: " + e);
-            throw new UnauthorizedException(e.toString());
+            throw new UnauthorizedException(e.toString(), e);
         } catch (BadRequestDataException e) {
             CMS.debug("enrollCert: bad request data: " + e);
-            throw new BadRequestException(e.toString());
+            throw new BadRequestException(e.toString(), e);
         } catch (EBaseException e) {
             CMS.debug(e);
             throw new PKIException(e);
@@ -246,34 +245,34 @@ public class CertRequestService extends PKIService implements CertRequestResourc
             dao.changeRequestState(id, servletRequest, data, getLocale(headers), op);
         } catch (ERejectException e) {
             CMS.debug("changeRequestState: execution rejected " + e);
-            throw new BadRequestException(CMS.getUserMessage(getLocale(headers), "CMS_PROFILE_REJECTED", e.toString()));
+            throw new BadRequestException(CMS.getUserMessage(getLocale(headers), "CMS_PROFILE_REJECTED", e.toString()), e);
         } catch (EDeferException e) {
             CMS.debug("changeRequestState: execution defered " + e);
             // TODO do we throw an exception here?
-            throw new BadRequestException(CMS.getUserMessage(getLocale(headers), "CMS_PROFILE_DEFERRED", e.toString()));
+            throw new BadRequestException(CMS.getUserMessage(getLocale(headers), "CMS_PROFILE_DEFERRED", e.toString()), e);
         } catch (BadRequestDataException e) {
             CMS.debug("changeRequestState: bad request data: " + e);
-            throw new BadRequestException(e.toString());
+            throw new BadRequestException(e.toString(), e);
         } catch (CANotFoundException e) {
             // The target CA does not exist (deleted between
             // request submission and approval).
             CMS.debug("changeRequestState: CA not found: " + e);
-            throw new HTTPGoneException(e.toString());
+            throw new HTTPGoneException(e.toString(), e);
         } catch (CADisabledException e) {
             CMS.debug("changeRequestState: CA disabled: " + e);
-            throw new ConflictingOperationException(e.toString());
+            throw new ConflictingOperationException(e.toString(), e);
         } catch (CAMissingCertException | CAMissingKeyException e) {
-            throw new ServiceUnavailableException(e.toString());
+            throw new ServiceUnavailableException(e.toString(), e);
         } catch (EPropertyException e) {
             CMS.debug("changeRequestState: execution error " + e);
             throw new PKIException(CMS.getUserMessage(getLocale(headers),
-                    "CMS_PROFILE_PROPERTY_ERROR", e.toString()));
+                    "CMS_PROFILE_PROPERTY_ERROR", e.toString()), e);
         } catch (EProfileException e) {
             CMS.debug("ProfileProcessServlet: execution error " + e);
-            throw new PKIException(CMS.getUserMessage(getLocale(headers), "CMS_INTERNAL_ERROR"));
+            throw new PKIException(CMS.getUserMessage(getLocale(headers), "CMS_INTERNAL_ERROR"), e);
         } catch (EBaseException e) {
-            e.printStackTrace();
-            throw new PKIException("Problem approving request in CertRequestResource.assignRequest! " + e);
+            CMS.debug(e);
+            throw new PKIException("Problem approving request in CertRequestResource.assignRequest! " + e, e);
         } catch (RequestNotFoundException e) {
             CMS.debug(e);
             throw e;
@@ -292,9 +291,8 @@ public class CertRequestService extends PKIService implements CertRequestResourc
         try {
             info = dao.reviewRequest(servletRequest, id, uriInfo, getLocale(headers));
         } catch (EBaseException e) {
-            // log error
-            e.printStackTrace();
-            throw new PKIException("Error getting Cert request info!");
+            CMS.debug(e);
+            throw new PKIException("Error getting Cert request info!", e);
         }
 
         if (info == null) {
@@ -326,8 +324,8 @@ public class CertRequestService extends PKIService implements CertRequestResourc
             requests =  reqDAO.listRequests(filter, start, pageSize, maxResults, maxTime, uriInfo);
         } catch (EBaseException e) {
             CMS.debug("listRequests: error in obtaining request results" + e);
-            e.printStackTrace();
-            throw new PKIException("Error listing cert requests!");
+            CMS.debug(e);
+            throw new PKIException("Error listing cert requests!", e);
         }
         return createOKResponse(requests);
     }
@@ -380,8 +378,8 @@ public class CertRequestService extends PKIService implements CertRequestResourc
             }
         } catch (EBaseException e) {
             CMS.debug("getEnrollmentTemplate(): error obtaining profile `" + profileId + "`: " + e);
-            e.printStackTrace();
-            throw new PKIException("Error generating enrollment template.  Cannot obtain profile.");
+            CMS.debug(e);
+            throw new PKIException("Error generating enrollment template.  Cannot obtain profile.", e);
         }
 
         if (! profile.isVisible()) {
@@ -407,8 +405,8 @@ public class CertRequestService extends PKIService implements CertRequestResourc
                 request.addInput(input);
             } catch (EBaseException e) {
                 CMS.debug("getEnrollmentTemplate(): Failed to add input " + id + " to request template: " + e);
-                e.printStackTrace();
-                throw new PKIException("Failed to add input" + id + "to request template");
+                CMS.debug(e);
+                throw new PKIException("Failed to add input" + id + "to request template", e);
             }
         }
 
@@ -442,6 +440,7 @@ public class CertRequestService extends PKIService implements CertRequestResourc
                 if (info == null) continue;
                 results.add(info);
             } catch (EBaseException ex) {
+                CMS.debug("CertRequestService: " + ex.getMessage());
                 continue;
             }
         }
