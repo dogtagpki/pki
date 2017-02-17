@@ -71,7 +71,7 @@ public interface ITransportKeyUnit extends IEncryptionUnit {
      * @return Symmetric key object
      */
 
-    public SymmetricKey unwrap_sym(byte encSymmKey[], SymmetricKey.Usage usage);
+    public SymmetricKey unwrap_session_key(CryptoToken token, byte encSymmKey[], SymmetricKey.Usage usage);
 
     /**
      * Unwraps symmetric key . This method

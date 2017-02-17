@@ -27,11 +27,6 @@ import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.util.Hashtable;
 
-import netscape.security.util.BigInt;
-import netscape.security.util.DerInputStream;
-import netscape.security.util.DerValue;
-import netscape.security.x509.X509Key;
-
 import org.mozilla.jss.crypto.Cipher;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.EncryptionAlgorithm;
@@ -58,6 +53,11 @@ import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.certsrv.security.ITransportKeyUnit;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmsutil.util.Cert;
+
+import netscape.security.util.BigInt;
+import netscape.security.util.DerInputStream;
+import netscape.security.util.DerValue;
+import netscape.security.x509.X509Key;
 
 /**
  * A class represents recovery request processor.
