@@ -19,6 +19,7 @@ package com.netscape.certsrv.security;
 
 import java.security.PublicKey;
 
+import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.crypto.SymmetricKey.Type;
@@ -139,7 +140,7 @@ public interface IEncryptionUnit extends IToken {
      * @return Symmetric key object
      */
 
-    public SymmetricKey unwrap_sym(byte encSymmKey[],
+    public SymmetricKey unwrap_session_key(CryptoToken token, byte encSymmKey[],
             SymmetricKey.Usage usage);
 
     public PrivateKey unwrap_temp(byte privateKey[], PublicKey pubKey)

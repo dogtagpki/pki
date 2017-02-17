@@ -30,8 +30,6 @@ import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 
-import netscape.security.provider.RSAPublicKey;
-
 import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.crypto.Cipher;
 import org.mozilla.jss.crypto.CryptoToken;
@@ -67,6 +65,8 @@ import com.netscape.cms.servlet.key.KeyRecordParser;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.util.Debug;
 import com.netscape.cmsutil.crypto.CryptoUtil;
+
+import netscape.security.provider.RSAPublicKey;
 
 /**
  * A class representing keygen/archival request procesor for requests
