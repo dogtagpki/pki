@@ -26,6 +26,7 @@
     <script src="/pki/js/backbone.js"></script>
     <script src="/pki/js/bootstrap.js"></script>
     <script src="/pki/js/patternfly.js"></script>
+    <script src="/pki/js/pki.js"></script>
     <script src="/pki/js/pki-ui.js"></script>
     <script src="/tps/js/tps.js"></script>
     <script src="/tps/js/account.js"></script>
