@@ -17,30 +17,73 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
-import java.io.*;
-import java.text.MessageFormat;
-import java.net.URL;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.Point;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.net.MalformedURLException;
+import java.net.URL;
+import java.text.MessageFormat;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Locale;
+import java.util.Properties;
+import java.util.Vector;
 
-import javax.swing.*;
-import javax.swing.event.*;
-import javax.swing.border.*;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.UIManager;
 
-import com.netscape.management.client.console.*;
-import com.netscape.management.nmclf.*;
-import com.netscape.management.client.*;
-import com.netscape.management.client.preferences.*;
-import com.netscape.management.client.components.*;
-import com.netscape.management.client.topology.*;
-import com.netscape.management.client.util.*;
-import com.netscape.management.client.cmd.*;
-import com.netscape.management.client.ug.*;
-import com.netscape.management.client.comm.*;
+import com.netscape.management.client.Framework;
+import com.netscape.management.client.IPage;
+import com.netscape.management.client.IResourceObject;
+import com.netscape.management.client.ResourceObject;
+import com.netscape.management.client.cmd.GetOpt;
+import com.netscape.management.client.comm.CommClient;
+import com.netscape.management.client.comm.CommRecord;
+import com.netscape.management.client.comm.HttpChannel;
+import com.netscape.management.client.comm.HttpException;
+import com.netscape.management.client.comm.HttpManager;
+import com.netscape.management.client.components.FontFactory;
+import com.netscape.management.client.console.ConsoleInfo;
+import com.netscape.management.client.console.LoginDialog;
+import com.netscape.management.client.console.VersionInfo;
+import com.netscape.management.client.preferences.FilePreferences;
+import com.netscape.management.client.preferences.PreferenceManager;
+import com.netscape.management.client.preferences.Preferences;
+import com.netscape.management.client.topology.IServerObject;
+import com.netscape.management.client.topology.ITopologyPlugin;
+import com.netscape.management.client.topology.ServerNode;
+import com.netscape.management.client.topology.ServiceLocator;
+import com.netscape.management.client.topology.TopologyInitializer;
+import com.netscape.management.client.ug.ResourceEditor;
+import com.netscape.management.client.util.ClassLoaderUtil;
+import com.netscape.management.client.util.Debug;
+import com.netscape.management.client.util.KingpinLDAPConnection;
+import com.netscape.management.client.util.LDAPUtil;
+import com.netscape.management.client.util.ModalDialogUtil;
+import com.netscape.management.client.util.RemoteImage;
+import com.netscape.management.client.util.ResourceSet;
+import com.netscape.management.client.util.UtilConsoleGlobals;
+import com.netscape.management.nmclf.SuiLookAndFeel;
 
-import netscape.ldap.*;
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPAttributeSet;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPSearchConstraints;
+import netscape.ldap.LDAPSearchResults;
 import netscape.ldap.util.DN;
 
 /**
@@ -839,7 +882,7 @@ public class Console implements CommClient {
                     while (result.hasMoreElements()) {
                         LDAPEntry ExtensionEntry;
                         try {
-                            ExtensionEntry = (LDAPEntry) result.next();
+                            ExtensionEntry = result.next();
                         } catch (Exception e) {
                             // ldap exception
                             continue;
@@ -980,7 +1023,7 @@ public class Console implements CommClient {
                 while (results.hasMoreElements()) {
                     LDAPEntry entry;
                     try {
-                        entry = (LDAPEntry) results.next();
+                        entry = results.next();
                     } catch (Exception e) {
                         // ldap exception
                         continue;

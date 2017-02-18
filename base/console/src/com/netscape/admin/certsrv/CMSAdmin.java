@@ -17,21 +17,55 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv;
 
-import java.util.*;
-import java.net.*;
-import java.awt.*;
-import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import com.netscape.certsrv.common.*;
-import com.netscape.management.client.*;
-import com.netscape.management.client.topology.*;
-import com.netscape.management.client.console.*;
-import com.netscape.management.client.util.*;
-import com.netscape.admin.certsrv.config.install.*;
-import com.netscape.admin.certsrv.task.*;
-import com.netscape.admin.certsrv.wizard.*;
-import netscape.ldap.*;
+import java.awt.Cursor;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.ResourceBundle;
+
+import javax.swing.Icon;
+import javax.swing.JFrame;
+
+import com.netscape.admin.certsrv.config.install.InstallWizard;
+import com.netscape.admin.certsrv.config.install.InstallWizardInfo;
+import com.netscape.admin.certsrv.task.CMSConfigCert;
+import com.netscape.admin.certsrv.task.CMSRemove;
+import com.netscape.admin.certsrv.task.CMSRestart;
+import com.netscape.admin.certsrv.task.CMSStart;
+import com.netscape.admin.certsrv.task.CMSStartDaemon;
+import com.netscape.admin.certsrv.task.CMSStatus;
+import com.netscape.admin.certsrv.task.CMSStop;
+import com.netscape.admin.certsrv.wizard.IWizardDone;
+import com.netscape.admin.certsrv.wizard.WizardWidget;
+import com.netscape.certsrv.common.ConfigConstants;
+import com.netscape.certsrv.common.OpDef;
+import com.netscape.certsrv.common.TaskId;
+import com.netscape.management.client.Framework;
+import com.netscape.management.client.IMenuInfo;
+import com.netscape.management.client.IMenuItem;
+import com.netscape.management.client.IPage;
+import com.netscape.management.client.IResourceObject;
+import com.netscape.management.client.IStatusItem;
+import com.netscape.management.client.MenuItemSeparator;
+import com.netscape.management.client.MenuItemText;
+import com.netscape.management.client.ResourcePage;
+import com.netscape.management.client.StatusItemSecureMode;
+import com.netscape.management.client.StatusItemText;
+import com.netscape.management.client.console.ConsoleInfo;
+import com.netscape.management.client.topology.AbstractServerObject;
+import com.netscape.management.client.topology.IRemovableServerObject;
+import com.netscape.management.client.util.Debug;
+import com.netscape.management.client.util.LDAPUtil;
+import com.netscape.management.client.util.RemoteImage;
+import com.netscape.management.client.util.UtilConsoleGlobals;
+
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPDN;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPModification;
+import netscape.ldap.LDAPModificationSet;
+import netscape.ldap.LDAPSearchResults;
 
 /**
  * Netscape Certificate Server 4.0 configuration entry point. The
@@ -482,6 +516,8 @@ public class CMSAdmin extends AbstractServerObject
                         mPort = portnum;
                 }
             } catch (Exception e) {
+                CMSAdminUtil.showErrorDialog(mConsoleInfo.getFrame(), mResource,
+                        e.toString(), CMSAdminUtil.ERROR_MESSAGE);
                 return false;
             }
           } catch (LDAPException ex) {
@@ -524,9 +560,9 @@ public class CMSAdmin extends AbstractServerObject
             }
             mConsoleInfo.put("serverInfo", mServerInfo);
         } catch (EAdminException ex) {
-                System.exit(0); // exit if authentication fails
                 CMSAdminUtil.showErrorDialog(mConsoleInfo.getFrame(), mResource,
                     ex.getMessage(), CMSAdminUtil.ERROR_MESSAGE);
+                System.exit(0); // exit if authentication fails
                 return false;
         }
 
@@ -838,7 +874,7 @@ public class CMSAdmin extends AbstractServerObject
       // this entry.
 
       entry = (LDAPEntry)search_results.nextElement();
-      String eDN = (String) entry.getDN();
+      String eDN = entry.getDN();
       // Now we need to modify the entry to delete the
       // reference to the serevr.
       remove_intstanceFromEntry(ldc, eDN, sieDN);
