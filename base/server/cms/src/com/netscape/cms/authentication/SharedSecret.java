@@ -28,6 +28,11 @@ public class SharedSecret implements ISharedToken {
     public SharedSecret() {
     }
 
+    // support for id_cmc_identification
+    public String getSharedToken(String identification) {
+        return "testing";
+    }
+
     public String getSharedToken(PKIData cmcdata) {
         return "testing";
     }
@@ -36,7 +41,4 @@ public class SharedSecret implements ISharedToken {
         return "testing";
     }
   
-    public String getSharedToken(String identification) {
-        return "testing";
-    }
 }

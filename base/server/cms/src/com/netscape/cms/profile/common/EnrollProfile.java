@@ -39,9 +39,13 @@ import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
 import org.mozilla.jss.asn1.OCTET_STRING;
 import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.asn1.SET;
+import org.mozilla.jss.asn1.UTF8String;
 import org.mozilla.jss.crypto.CryptoToken;
+import org.mozilla.jss.crypto.DigestAlgorithm;
+import org.mozilla.jss.crypto.HMACAlgorithm;
 import org.mozilla.jss.pkcs10.CertificationRequest;
 import org.mozilla.jss.pkcs10.CertificationRequestInfo;
+import org.mozilla.jss.pkix.cmc.IdentityProofV2;
 import org.mozilla.jss.pkix.cmc.LraPopWitness;
 import org.mozilla.jss.pkix.cmc.OtherMsg;
 import org.mozilla.jss.pkix.cmc.PKIData;
@@ -412,28 +416,80 @@ public abstract class EnrollProfile extends BasicProfile
                 if (numcontrols > 0) {
                     context.put("numOfControls", Integer.valueOf(numcontrols));
                     TaggedAttribute[] attributes = new TaggedAttribute[numcontrols];
+
+                    boolean id_cmc_identification = false;
+                    SET ident = null;
+
+                    boolean id_cmc_identityProofV2 = false;
+                    boolean id_cmc_identityProof = false;
+                    TaggedAttribute attr = null;
+
+                    boolean id_cmc_idPOPLinkRandom = false;
+                    SET vals = null;
+
                     for (int i = 0; i < numcontrols; i++) {
                         attributes[i] = (TaggedAttribute) controlSeq.elementAt(i);
                         OBJECT_IDENTIFIER oid = attributes[i].getType();
-                        if (oid.equals(OBJECT_IDENTIFIER.id_cmc_identityProof)) {
-                            boolean valid = verifyIdentityProof(attributes[i],
-                                    reqSeq);
-                            if (!valid) {
-                                SEQUENCE bpids = getRequestBpids(reqSeq);
-                                context.put("identityProof", bpids);
-                                return null;
-                            }
+                        if (oid.equals(OBJECT_IDENTIFIER.id_cmc_identification)) {
+                            id_cmc_identification = true;
+                            ident = attributes[i].getValues();
+                        } else if (oid.equals(OBJECT_IDENTIFIER.id_cmc_identityProofV2)) {
+                            id_cmc_identityProofV2 = true;
+                            attr = attributes[i];
+                        } else if (oid.equals(OBJECT_IDENTIFIER.id_cmc_identityProof)) {
+                            id_cmc_identityProof = true;
+                            attr = attributes[i];
                         } else if (oid.equals(OBJECT_IDENTIFIER.id_cmc_idPOPLinkRandom)) {
-                            SET vals = attributes[i].getValues();
-                            OCTET_STRING ostr =
-                                    (OCTET_STRING) (ASN1Util.decode(OCTET_STRING.getTemplate(),
-                                            ASN1Util.encode(vals.elementAt(0))));
-                            randomSeed = ostr.toByteArray();
+                            id_cmc_idPOPLinkRandom = true;
+                            vals = attributes[i].getValues();
                         } else {
                             context.put(attributes[i].getType(), attributes[i]);
                         }
+                    } //for
+
+                    /**
+                     * TODO: cfu: phase 2 should add enforcement for
+                     * id_cmc_identityProofV2 and id_cmc_identification control
+                     * when needed
+                     */
+
+                    /**
+                     * now do the actual control processing
+                     * (the postponed processing is so that we can capture
+                     * the identification, if included)
+                     */
+
+                    UTF8String ident_s = null;
+                    if (id_cmc_identification) {
+                        ident_s = (UTF8String) (ASN1Util.decode(UTF8String.getTemplate(),
+                                ASN1Util.encode(ident.elementAt(0))));
                     }
-                }
+
+                    // either V2 or not V2; can't be both
+                    if (id_cmc_identityProofV2 && (attr != null)) {
+                        boolean valid = verifyIdentityProofV2(attr, ident_s,
+                                reqSeq);
+                        if (!valid) {
+                            SEQUENCE bpids = getRequestBpids(reqSeq);
+                            context.put("identityProofV2", bpids);
+                            return null;
+                        }
+                    } else if (id_cmc_identityProof && (attr != null)) {
+                        boolean valid = verifyIdentityProof(attr,
+                                reqSeq);
+                        if (!valid) {
+                            SEQUENCE bpids = getRequestBpids(reqSeq);
+                            context.put("identityProof", bpids);
+                            return null;
+                        }
+                    }
+
+                    if (id_cmc_idPOPLinkRandom && vals != null) {
+                        OCTET_STRING ostr = (OCTET_STRING) (ASN1Util.decode(OCTET_STRING.getTemplate(),
+                                ASN1Util.encode(vals.elementAt(0))));
+                        randomSeed = ostr.toByteArray();
+                    }
+                } // numcontrols > 0
             }
 
             SEQUENCE otherMsgSeq = pkiData.getOtherMsgSequence();
@@ -580,39 +636,54 @@ public abstract class EnrollProfile extends BasicProfile
     }
 
     private boolean verifyDigest(byte[] sharedSecret, byte[] text, byte[] bv) {
-        byte[] key = null;
+        MessageDigest hashAlg;
         try {
-            MessageDigest SHA1Digest = MessageDigest.getInstance("SHA1");
-            key = SHA1Digest.digest(sharedSecret);
+            hashAlg = MessageDigest.getInstance("SHA1");
         } catch (NoSuchAlgorithmException ex) {
-            CMS.debug("EnrollProfile: No such algorithm for this message digest.");
+            CMS.debug("EnrollProfile:verifyDigest: " + ex.toString());
             return false;
         }
+
+        return verifyDigest(sharedSecret, text, bv, hashAlg, hashAlg);
+    }
+
+    /**
+     * verifyDigest verifies digest using the
+     * specified hashAlg and macAlg
+     *
+     * @param sharedSecret shared secret in bytes
+     * @param text data to be verified in bytes
+     * @param bv witness in bytes
+     * @param hashAlg hashing algorithm
+     * @param macAlg message authentication algorithm
+     * cfu
+     */
+    private boolean verifyDigest(byte[] sharedSecret, byte[] text, byte[] bv,
+            MessageDigest hashAlg, MessageDigest macAlg) {
+        String method = "EnrollProfile:verifyDigest: ";
+        byte[] key = null;
+        CMS.debug(method + "in verifyDigest: hashAlg=" + hashAlg.toString() +
+                "; macAlg=" + macAlg.toString());
+        key = hashAlg.digest(sharedSecret);
 
         byte[] finalDigest = null;
-        try {
-            MessageDigest SHA1Digest = MessageDigest.getInstance("SHA1");
-            HMACDigest hmacDigest = new HMACDigest(SHA1Digest, key);
-            hmacDigest.update(text);
-            finalDigest = hmacDigest.digest();
-        } catch (NoSuchAlgorithmException ex) {
-            CMS.debug("EnrollProfile: No such algorithm for this message digest.");
-            return false;
-        }
+        HMACDigest hmacDigest = new HMACDigest(macAlg, key);
+        hmacDigest.update(text);
+        finalDigest = hmacDigest.digest();
 
         if (finalDigest.length != bv.length) {
-            CMS.debug("EnrollProfile: The length of two HMAC digest are not the same.");
+            CMS.debug(method + " The length of two HMAC digest are not the same.");
             return false;
         }
 
         for (int j = 0; j < bv.length; j++) {
             if (bv[j] != finalDigest[j]) {
-                CMS.debug("EnrollProfile: The content of two HMAC digest are not the same.");
+                CMS.debug(method + " The content of two HMAC digest are not the same.");
                 return false;
             }
         }
 
-        CMS.debug("EnrollProfile: The content of two HMAC digest are the same.");
+        CMS.debug(method + " The content of two HMAC digest are the same.");
         return true;
     }
 
@@ -632,6 +703,106 @@ public abstract class EnrollProfile extends BasicProfile
 
         return bpids;
     }
+
+    /**
+     * verifyIdentityProofV2 handles IdentityProofV2 as defined by RFC5272
+     *
+     * @param attr controlSequence of the PKI request PKIData
+     * @param ident value of the id_cmc_identification control
+     * @param reqSeq requestSequence of the PKI request PKIData
+     * @return boolean true if the witness values correctly verified
+     * cfu
+     */
+    private boolean verifyIdentityProofV2(
+            TaggedAttribute attr,
+            UTF8String ident,
+            SEQUENCE reqSeq) {
+        String method = "EnrollProfile:verifyIdentityProofV2: ";
+        CMS.debug(method + " begins");
+
+        String ident_string = null;
+        if (ident != null) {
+            ident_string = ident.toString();
+            // cfu: REMOVE
+            CMS.debug(method + "received ident String: " + ident_string);
+        }
+
+        SET vals = attr.getValues(); // getting the IdentityProofV2 structure
+        if (vals.size() < 1) {
+            return false;
+        }
+
+        String name = null;
+        try {
+            String configName = "cmc.sharedSecret.class";
+            CMS.debug(method + "getting :" + configName);
+            name = CMS.getConfigStore().getString(configName);
+            CMS.debug(method + "Shared Secret plugin class name retrieved:" +
+                    name);
+        } catch (Exception e) {
+            CMS.debug(method + " Failed to retrieve shared secret plugin class name");
+            return false;
+        }
+
+        ISharedToken tokenClass = null;
+        try {
+            tokenClass = (ISharedToken) Class.forName(name).newInstance();
+            CMS.debug(method + "Shared Secret plugin class retrieved");
+        } catch (ClassNotFoundException e) {
+            CMS.debug(method + " Failed to find class name: " + name);
+            return false;
+        } catch (InstantiationException e) {
+            CMS.debug("EnrollProfile: Failed to instantiate class: " + name);
+            return false;
+        } catch (IllegalAccessException e) {
+            CMS.debug(method + " Illegal access: " + name);
+            return false;
+        }
+
+        String token = null;
+        if (ident_string != null)
+            token = tokenClass.getSharedToken(ident_string);
+        else
+            token = tokenClass.getSharedToken(mCMCData);
+
+        if (token == null) {
+            CMS.debug(method + " Failed to retrieve shared secret");
+            return false;
+        }
+        // cfu REMOVE
+        CMS.debug(method + "Shared Secret returned by tokenClass:" + token);
+        try {
+            IdentityProofV2 idV2val = (IdentityProofV2) (ASN1Util.decode(IdentityProofV2.getTemplate(),
+                    ASN1Util.encode(vals.elementAt(0))));
+            /**
+             * TODO: cfu:
+             * phase2: getting configurable allowable hashing and mac algorithms
+             */
+
+            DigestAlgorithm hashAlgID = DigestAlgorithm.fromOID(idV2val.getHashAlgID().getOID());
+            MessageDigest hashAlg = MessageDigest.getInstance(hashAlgID.toString());
+            // TODO: check against CA allowed algs later
+
+            HMACAlgorithm macAlgId = HMACAlgorithm.fromOID(idV2val.getMacAlgId().getOID());
+            MessageDigest macAlg = MessageDigest
+                    .getInstance(CryptoUtil.getHMACtoMessageDigestName(macAlgId.toString()));
+            // TODO: check against CA allowed algs later
+
+            OCTET_STRING witness = idV2val.getWitness();
+
+            byte[] witness_bytes = witness.toByteArray();
+            byte[] request_bytes = ASN1Util.encode(reqSeq); // PKIData reqSequence field
+            return verifyDigest(
+                    (ident_string != null) ? (token + ident_string).getBytes() : token.getBytes(),
+                    request_bytes,
+                    witness_bytes,
+                    hashAlg, macAlg);
+        } catch (Exception e) {
+            CMS.debug(method + " Failed with Exception: " + e.toString());
+            return false;
+        }
+
+    } // verifyIdentityProofV2
 
     private boolean verifyIdentityProof(TaggedAttribute attr, SEQUENCE reqSeq) {
         SET vals = attr.getValues();

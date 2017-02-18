@@ -21,6 +21,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.CharConversionException;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -54,6 +55,7 @@ import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.pkcs10.CertificationRequest;
 import org.mozilla.jss.pkix.cmc.CMCCertId;
 import org.mozilla.jss.pkix.cmc.GetCert;
+import org.mozilla.jss.pkix.cmc.IdentityProofV2;
 import org.mozilla.jss.pkix.cmc.LraPopWitness;
 import org.mozilla.jss.pkix.cmc.OtherMsg;
 import org.mozilla.jss.pkix.cmc.PKIData;
@@ -144,7 +146,11 @@ public class CMCRequest {
      */
     static ContentInfo getCMCBlob(X509Certificate signerCert, String tokenName, String nickname,
             String[] rValue, String format, CryptoManager manager, String transactionMgtEnable,
-            String transactionMgtId, String identityProofEnable, String identityProofSharedSecret,
+            String transactionMgtId,
+            String identificationEnable, String identification,
+            String identityProofEnable, String identityProofSharedSecret,
+            String identityProofV2Enable, String identityProofV2SharedSecret,
+            String identityProofV2hashAlg, String identityProofV2macAlg,
             SEQUENCE controlSeq, SEQUENCE otherMsgSeq, int bpid) {
 
         System.out.println("in getCMCBlob");
@@ -228,9 +234,21 @@ public class CMCRequest {
                 bpid = addTransactionAttr(bpid, controlSeq, transactionMgtId, format,
                         pkcs, certReqMsg);
 
-            if (identityProofEnable.equals("true"))
+            if (identificationEnable.equals("true")) {
+                bpid = addIdentificationAttr(bpid, controlSeq, identification);
+            }
+
+            // for identityProof, it's either V2 or not V2; can't be both
+            // if both, V2 takes precedence
+            if (identityProofV2Enable.equals("true")) {
+                bpid = addIdentityProofV2Attr(bpid, controlSeq, reqSequence,
+                        identityProofV2SharedSecret,
+                        (identificationEnable.equals("true")) ? identification : null,
+                        identityProofV2hashAlg, identityProofV2macAlg);
+            } else if (identityProofEnable.equals("true")) {
                 bpid = addIdentityProofAttr(bpid, controlSeq, reqSequence,
                         identityProofSharedSecret);
+            }
 
             PKIData pkidata = new PKIData(controlSeq, reqSequence, new SEQUENCE(), otherMsgSeq);
 
@@ -416,9 +434,29 @@ public class CMCRequest {
         System.out.println("#                                  is present.");
         System.out.println("revRequest.invalidityDatePresent=false");
         System.out.println("");
+        System.out.println("#identityProofV2.enable: if true, then the request will contain");
+        System.out.println("#this control. Otherwise, false.");
+        System.out.println("#Note that if both identityProof and identityProofV2");
+        System.out.println("#  are enabled, identityProofV2 takes precedence; Only one of them can be active at a time");
+        System.out.println("#Supported hashAlg are:");
+        System.out.println("# SHA-1, SHA-256, SHA-384, and SHA-512");
+        System.out.println("#Supported macAlg are:");
+        System.out.println("# SHA-1-HMAC, SHA-256-HMAC, SHA-384-HMAC, and SHA-512-HMAC");
+        System.out.println("identityProofV2.enable=false");
+        System.out.println("identityProofV2.hashAlg=SHA-256");
+        System.out.println("identityProofV2.macAlg=SHA-256-HMAC");
+        System.out.println("");
+        System.out.println("#identityProofV2.sharedSecret: Shared Secret");
+        System.out.println("identityProofV2.sharedSecret=testing");
+        System.out.println("");
+        System.out.println("#identification works with identityProofV2");
+        System.out.println("identification.enable=false");
+        System.out.println("identification=testuser");
+        System.out.println("");
         System.out.println("#identityProof.enable: if true, then the request will contain");
         System.out.println("#this control. Otherwise, false.");
-        System.out.println("identityProof.enable=true");
+        System.out.println("#Note that this control is updated by identityProofV2 above");
+        System.out.println("identityProof.enable=false");
         System.out.println("");
         System.out.println("#identityProof.sharedSecret: Shared Secret");
         System.out.println("identityProof.sharedSecret=testing");
@@ -501,6 +539,90 @@ public class CMCRequest {
         System.exit(1);
 
         return RevRequest.unspecified;
+    }
+
+    /**
+     * add IdentityProofV2 to the control sequence
+     *
+     * @param bpid Body part id
+     * @param seq control sequence
+     * @param reqSequence request sequence
+     * @param sharedSecret shared secret
+     * @param hashAlgString hash algorithm
+     * @param macAlgString mac algorithm
+     * cfu
+     */
+    private static int addIdentityProofV2Attr(int bpid,
+            SEQUENCE seq, SEQUENCE reqSequence,
+            String sharedSecret,
+            String ident,
+            String hashAlgString, String macAlgString) {
+        String method = "CMCRequest: addIdentityProofV2Attr: ";
+        byte[] b = ASN1Util.encode(reqSequence);
+        byte[] key = null;
+        byte[] finalDigest = null;
+
+        // default to SHA256 if not specified
+        if (hashAlgString == null) {
+            hashAlgString = "SHA-256";
+        }
+        if (macAlgString == null) {
+            macAlgString = "SHA-256-HMAC";
+        }
+        System.out.println(method + "hashAlg=" + hashAlgString +
+                "; macAlg=" + macAlgString);
+
+        String toBeDigested = sharedSecret;
+        if (ident != null) {
+            toBeDigested = sharedSecret + ident;
+        }
+        try {
+            MessageDigest hash = MessageDigest.getInstance(hashAlgString);
+            key = hash.digest(toBeDigested.getBytes());
+        } catch (NoSuchAlgorithmException ex) {
+            System.out.println(method + "No such algorithm!");
+            return -1;
+        }
+
+        MessageDigest mac;
+        try {
+            mac = MessageDigest.getInstance(CryptoUtil.getHMACtoMessageDigestName(macAlgString));
+            HMACDigest hmacDigest = new HMACDigest(mac, key);
+            hmacDigest.update(b);
+            finalDigest = hmacDigest.digest();
+        } catch (NoSuchAlgorithmException ex) {
+            System.out.println(method + "No such algorithm!");
+            return -1;
+        }
+
+        AlgorithmIdentifier hashAlg;
+        try {
+            hashAlg = new AlgorithmIdentifier(CryptoUtil.getHashAlgorithmOID(hashAlgString));
+        } catch (NoSuchAlgorithmException ex) {
+            System.out.println(method + "No such hashing algorithm:" + hashAlgString);
+            return -1;
+        }
+        AlgorithmIdentifier macAlg;
+        try {
+            macAlg = new AlgorithmIdentifier(CryptoUtil.getHMACAlgorithmOID(macAlgString));
+        } catch (NoSuchAlgorithmException ex) {
+            System.out.println(method + "No such HMAC algorithm:" + macAlgString);
+            return -1;
+        }
+        IdentityProofV2 idV2val = new IdentityProofV2(hashAlg, macAlg, new OCTET_STRING(finalDigest));
+        TaggedAttribute identityProofV2 = new TaggedAttribute(new INTEGER(bpid++),
+                OBJECT_IDENTIFIER.id_cmc_identityProofV2,
+                idV2val);
+        seq.addElement(identityProofV2);
+        System.out.println("Identity Proof V2 control: ");
+        System.out.print("   Value: ");
+        for (int i = 0; i < finalDigest.length; i++) {
+            System.out.print(finalDigest[i] + " ");
+        }
+        System.out.println("");
+        System.out.println("Successfully create identityProofV2 control. bpid = " + (bpid - 1));
+        System.out.println("");
+        return bpid;
     }
 
     private static int addIdentityProofAttr(int bpid, SEQUENCE seq, SEQUENCE reqSequence,
@@ -797,6 +919,40 @@ public class CMCRequest {
         return bpid;
     }
 
+    /**
+     * addIdentificationAttr adds the identification control
+     *
+     * @param bpid
+     * @param seq
+     * @param ident
+     * @return
+     * cfu
+     */
+    private static int addIdentificationAttr(int bpid, SEQUENCE seq, String ident) {
+        UTF8String ident_s = null;
+        if (ident == null) {
+            System.out.println("Error in creating identification control: identification null");
+            System.exit(1);
+        } else {
+            System.out.println("identification control: identification =" + ident);
+        }
+
+        try {
+            if (ident.length() > 0)
+                ident_s = new UTF8String(ident);
+        } catch (CharConversionException e) {
+            System.out.println("Error in creating identification control:" + e.toString());
+            System.exit(1);
+        }
+
+        TaggedAttribute identVal = new TaggedAttribute(new INTEGER(bpid++), OBJECT_IDENTIFIER.id_cmc_identification,
+                ident_s);
+        System.out.println("Successfully create identification control. bpid = " + (bpid - 1));
+        System.out.println("");
+        seq.addElement(identVal);
+        return bpid;
+    }
+
     private static int addPopLinkWitnessAttr(int bpid, SEQUENCE controlSeq) {
         byte[] seed =
         { 0x10, 0x53, 0x42, 0x24, 0x1a, 0x2a, 0x35, 0x3c,
@@ -831,7 +987,9 @@ public class CMCRequest {
         String revRequestEnable = "false", revRequestIssuer = null, revRequestSerial = null;
         String revRequestReason = null, revRequestSharedSecret = null, revRequestComment = null;
         String revRequestInvalidityDatePresent = "false";
+        String identificationEnable = "false", identification = null;
         String identityProofEnable = "false", identityProofSharedSecret = null;
+        String identityProofV2Enable = "false", identityProofV2SharedSecret = null, identityProofV2hashAlg = "SHA256", identityProofV2macAlg = "SHA256";
         String popLinkWitnessEnable = "false";
         String bodyPartIDs = null, lraPopWitnessEnable = "false";
 
@@ -928,6 +1086,18 @@ public class CMCRequest {
                         revRequestInvalidityDatePresent = val;
                     } else if (name.equals("revRequest.nickname")) {
                         revCertNickname = val;
+                    } else if (name.equals("identification.enable")) {
+                        identificationEnable = val;
+                    } else if (name.equals("identification")) {
+                        identification = val;
+                    } else if (name.equals("identityProofV2.enable")) {
+                        identityProofV2Enable = val;
+                    } else if (name.equals("identityProofV2.sharedSecret")) {
+                        identityProofV2SharedSecret = val;
+                    } else if (name.equals("identityProofV2.hashAlg")) {
+                        identityProofV2hashAlg = val;
+                    } else if (name.equals("identityProofV2.macAlg")) {
+                        identityProofV2macAlg = val;
                     } else if (name.equals("identityProof.enable")) {
                         identityProofEnable = val;
                     } else if (name.equals("identityProof.sharedSecret")) {
@@ -1148,8 +1318,12 @@ public class CMCRequest {
             }
 
             ContentInfo cmcblob = getCMCBlob(signerCert, tokenName, nickname, requests, format,
-                    cm, transactionMgtEnable, transactionMgtId, identityProofEnable,
-                    identityProofSharedSecret, controlSeq, otherMsgSeq, bpid);
+                    cm, transactionMgtEnable, transactionMgtId,
+                    identificationEnable, identification,
+                    identityProofEnable, identityProofSharedSecret,
+                    identityProofV2Enable, identityProofV2SharedSecret,
+                    identityProofV2hashAlg, identityProofV2macAlg,
+                    controlSeq, otherMsgSeq, bpid);
 
             // (6) Finally, print the actual CMC blob to the
             //     specified output file

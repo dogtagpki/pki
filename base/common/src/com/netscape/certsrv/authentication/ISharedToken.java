@@ -26,6 +26,9 @@ import org.mozilla.jss.pkix.cmc.PKIData;
  */
 public interface ISharedToken {
 
+    // support for id_cmc_identification
+    public String getSharedToken(String identification);
+
     public String getSharedToken(PKIData cmcData);
 
     public String getSharedToken(BigInteger serialnum);
