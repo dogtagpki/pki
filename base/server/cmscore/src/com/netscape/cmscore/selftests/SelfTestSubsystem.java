@@ -1883,7 +1883,8 @@ public class SelfTestSubsystem
             instance.shutdownSelfTest();
         }
 
-        mLogger.shutdown();
+        if (mLogger != null)
+            mLogger.shutdown();
     }
 
     /**
