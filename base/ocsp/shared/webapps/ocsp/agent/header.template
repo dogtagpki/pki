@@ -83,7 +83,7 @@ $(function() {
 		} else {
           		document.write('<a href="../' + 
 				result.recordSet[i].id + 
-				'/index.html" target="_top">' + 
+				'/" target="_top">' + 
 				type + '<\/a>');
 		}
 		document.write('<\/font><\/td>');

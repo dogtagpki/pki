@@ -110,7 +110,7 @@ if (result.header.errorDetails != null) {
           	document.write('<td>');
 		document.write('<font face="PrimaSans BT, Verdana, sans-serif">');
 		document.write('<a href="');
-		document.write(result.recordSet[i].id + '/index.html');
+		document.write(result.recordSet[i].id + '/');
 		if (result.recordSet[i].type == "RegistrationAuthority") {
 			document.write('">Registration Manager Agent Services</a></font>');
 			document.write('<font size="-1" face="PrimaSans BT, Verdana, sans-serif"><br>');
