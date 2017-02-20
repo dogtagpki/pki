@@ -42,6 +42,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.key.KeyRequestResource;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.security.IEncryptionUnit;
+import com.netscape.certsrv.security.WrappingParams;
 import com.netscape.cmscore.util.Debug;
 
 import netscape.security.util.DerInputStream;
@@ -91,14 +92,19 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
             CMS.debug("EncryptionUnit.encryptInternalPrivate");
             CryptoToken internalToken = getInternalToken();
 
+            WrappingParams params = new WrappingParams(
+                    SymmetricKey.DES3, null, KeyGenAlgorithm.DES3, 0,
+                    KeyWrapAlgorithm.RSA, EncryptionAlgorithm.DES3_CBC_PAD,
+                    KeyWrapAlgorithm.DES3_CBC_PAD);
+
             // (1) generate session key
-            SymmetricKey sk = generate_session_key(internalToken, null, false);
+            SymmetricKey sk = generate_session_key(internalToken, false, params);
 
             // (2) wrap private key with session key
-            byte[] pri = encrypt_private_key(internalToken, sk, priKey);
+            byte[] pri = encrypt_private_key(internalToken, sk, priKey, params);
 
             // (3) wrap session with transport public
-            byte[] session = wrap_session_key(internalToken, getPublicKey(), sk);
+            byte[] session = wrap_session_key(internalToken, getPublicKey(), sk, params);
 
             // use MY own structure for now:
             // SEQUENCE {
@@ -564,8 +570,13 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
             usages[0] = SymmetricKey.Usage.WRAP;
             usages[1] = SymmetricKey.Usage.UNWRAP;
 
+            WrappingParams params = new WrappingParams(
+                    SymmetricKey.DES3, usages, KeyGenAlgorithm.DES3, 0,
+                    KeyWrapAlgorithm.RSA, EncryptionAlgorithm.DES3_CBC_PAD,
+                    KeyWrapAlgorithm.DES3_CBC_PAD);
+
             // (1) generate session key
-            SymmetricKey sk = generate_session_key(token, usages, true);
+            SymmetricKey sk = generate_session_key(token, true, params);
 
             // (2) wrap private key with session key
             // KeyWrapper wrapper = internalToken.getKeyWrapper(
@@ -580,7 +591,7 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
 
             CMS.debug("EncryptionUnit:wrap() privKey wrapped");
 
-            byte[] session = wrap_session_key(token, getPublicKey(), sk);
+            byte[] session = wrap_session_key(token, getPublicKey(), sk, params);
             CMS.debug("EncryptionUnit:wrap() session key wrapped");
 
             // use MY own structure for now:
@@ -645,19 +656,25 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
     //          Crypto specific methods below here ...
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    private SymmetricKey generate_session_key(CryptoToken token, SymmetricKey.Usage[] usages, boolean temporary)
-            throws NoSuchAlgorithmException, TokenException, CharConversionException {
-        org.mozilla.jss.crypto.KeyGenerator kg = token.getKeyGenerator(KeyGenAlgorithm.DES3);
-        if (usages != null) kg.setKeyUsages(usages);
+    private SymmetricKey generate_session_key(CryptoToken token, boolean temporary, WrappingParams params)
+            throws NoSuchAlgorithmException, TokenException, CharConversionException,
+            InvalidAlgorithmParameterException {
+        org.mozilla.jss.crypto.KeyGenerator kg = token.getKeyGenerator(params.getSkKeyGenAlgorithm());
+        SymmetricKey.Usage[] usages = params.getSkUsages();
+        if (usages != null)
+            kg.setKeyUsages(usages);
         kg.temporaryKeys(temporary);
+        if (params.getSkLength() > 0)
+            kg.initialize(params.getSkLength());
         SymmetricKey sk = kg.generate();
         CMS.debug("EncryptionUnit:generate_session_key() session key generated on slot: " + token.getName());
         return sk;
     }
 
-    private byte[] wrap_session_key(CryptoToken token, PublicKey wrappingKey, SymmetricKey sessionKey)
-            throws NoSuchAlgorithmException, TokenException, InvalidKeyException, InvalidAlgorithmParameterException {
-        KeyWrapper rsaWrap = token.getKeyWrapper(KeyWrapAlgorithm.RSA);
+    private byte[] wrap_session_key(CryptoToken token, PublicKey wrappingKey, SymmetricKey sessionKey,
+            WrappingParams params) throws NoSuchAlgorithmException, TokenException, InvalidKeyException,
+            InvalidAlgorithmParameterException {
+        KeyWrapper rsaWrap = token.getKeyWrapper(params.getSkWrapAlgorithm());
         rsaWrap.initWrap(wrappingKey, null);
         byte session[] = rsaWrap.wrap(sessionKey);
         return session;
@@ -748,11 +765,10 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
         return pk;
     }
 
-    private byte[] encrypt_private_key(CryptoToken token, SymmetricKey sessionKey, byte[] data)
+    private byte[] encrypt_private_key(CryptoToken token, SymmetricKey sessionKey, byte[] data, WrappingParams params)
             throws NoSuchAlgorithmException, TokenException, InvalidKeyException, InvalidAlgorithmParameterException,
             IllegalBlockSizeException, BadPaddingException {
-        Cipher cipher = token.getCipherContext(
-                EncryptionAlgorithm.DES3_CBC_PAD);
+        Cipher cipher = token.getCipherContext(params.getPayloadEncryptionAlgorithm());
 
         cipher.initEncrypt(sessionKey, IV);
         byte pri[] = cipher.doFinal(data);
