@@ -174,13 +174,14 @@ public class SecurityDataProcessor {
             keyType = KeyRequestResource.SYMMETRIC_KEY_TYPE;
 
             if (allowEncDecrypt_archival == true) {
-                tmp_unwrapped = transportUnit.decryptExternalPrivate(
-                        wrappedSessionKey,
-                        algStr,
-                        sparams,
-                        secdata);
+                try {
+                    tmp_unwrapped = transportUnit.decryptExternalPrivate(
+                            wrappedSessionKey,
+                            algStr,
+                            sparams,
+                            secdata);
 
-                if(tmp_unwrapped == null ) {
+                } catch (Exception e) {
                     throw new EBaseException("Can't decrypt symm key using allEncDecrypt_archival : true .");
                 }
 
@@ -194,42 +195,58 @@ public class SecurityDataProcessor {
 
 
             } else {
-
-                securitySymKey = transportUnit.unwrap_symmetric(
-                        wrappedSessionKey,
-                        algStr,
-                        sparams,
-                        secdata,
-                        KeyRequestService.SYMKEY_TYPES.get(algorithm),
-                        strength);
+                try {
+                    securitySymKey = transportUnit.unwrap_symmetric(
+                            wrappedSessionKey,
+                            algStr,
+                            sparams,
+                            secdata,
+                            KeyRequestService.SYMKEY_TYPES.get(algorithm),
+                            strength);
+                } catch (Exception e) {
+                    throw new EBaseException("Can't decrypt symmetric key.", e);
+                }
             }
 
         } else if (dataType.equals(KeyRequestResource.PASS_PHRASE_TYPE)) {
             keyType = KeyRequestResource.PASS_PHRASE_TYPE;
-            securityData = transportUnit.decryptExternalPrivate(
-                    wrappedSessionKey,
-                    algStr,
-                    sparams,
-                    secdata);
+            try {
+                securityData = transportUnit.decryptExternalPrivate(
+                        wrappedSessionKey,
+                        algStr,
+                        sparams,
+                        secdata);
+            } catch (Exception e) {
+                throw new EBaseException("Can't decrypt passphrase.", e);
+            }
 
         }
 
         byte[] publicKey = null;
         byte privateSecurityData[] = null;
 
-        if (securitySymKey != null && unwrapped == null) {
-            privateSecurityData = storageUnit.wrap(securitySymKey);
-        } else if (unwrapped != null && allowEncDecrypt_archival == true) {
-            privateSecurityData = storageUnit.encryptInternalPrivate(unwrapped);
-            Arrays.fill(unwrapped, (byte)0);
-            CMS.debug("allowEncDecrypt_archival of symmetric key.");
-        }else if (securityData != null) {
-            privateSecurityData = storageUnit.encryptInternalPrivate(securityData);
-        } else { // We have no data.
+        try {
+            if (securitySymKey != null && unwrapped == null) {
+                privateSecurityData = storageUnit.wrap(securitySymKey);
+            } else if (unwrapped != null && allowEncDecrypt_archival == true) {
+                privateSecurityData = storageUnit.encryptInternalPrivate(unwrapped);
+                Arrays.fill(unwrapped, (byte)0);
+                CMS.debug("allowEncDecrypt_archival of symmetric key.");
+            } else if (securityData != null) {
+                privateSecurityData = storageUnit.encryptInternalPrivate(securityData);
+            } else { // We have no data.
+                auditArchivalRequestProcessed(auditSubjectID, ILogger.FAILURE, requestId,
+                        clientKeyId, null, "Failed to create security data to archive");
+                throw new EBaseException("Failed to create security data to archive!");
+            }
+        } catch (Exception e) {
+            CMS.debug("Failed to create security data to archive: " + e.getMessage());
             auditArchivalRequestProcessed(auditSubjectID, ILogger.FAILURE, requestId,
-                    clientKeyId, null, "Failed to create security data to archive");
-            throw new EBaseException("Failed to create security data to archive!");
+                    clientKeyId, null, CMS.getUserMessage("CMS_KRA_INVALID_PRIVATE_KEY"));
+
+            throw new EBaseException(CMS.getUserMessage("CMS_KRA_INVALID_PRIVATE_KEY"));
         }
+
         // create key record
         // Note that in this case the owner is the same as the approving agent
         // because the archival request is made by the agent.
@@ -392,7 +409,7 @@ public class SecurityDataProcessor {
                     privateKey = storageUnit.unwrap_temp(privateKeyData, publicKey);
                 }
 
-            } catch (IOException e) {
+            } catch (Exception e) {
                 throw new EBaseException("Cannot fetch the private key from the database.", e);
             }
 
@@ -590,15 +607,8 @@ public class SecurityDataProcessor {
                             keyRecord.getPrivateKeyData(),
                             KeyRequestService.SYMKEY_TYPES.get(keyRecord.getAlgorithm()),
                             keyRecord.getKeySize());
-
-            if (symKey == null) {
-                throw new EKRAException(CMS.getUserMessage("CMS_KRA_RECOVERY_FAILED_1",
-                        "symmetric key unwrapping failure"));
-            }
-
             return symKey;
         } catch (Exception e) {
-
             throw new EKRAException(CMS.getUserMessage("CMS_KRA_RECOVERY_FAILED_1",
                     "recoverSymKey() " + e.toString()));
         }
@@ -606,21 +616,10 @@ public class SecurityDataProcessor {
 
     public byte[] recoverSecurityData(KeyRecord keyRecord)
             throws EBaseException {
-
-        byte[] decodedData = null;
-
         try {
-            decodedData = storageUnit.decryptInternalPrivate(
-                    keyRecord.getPrivateKeyData());
-
-            if (decodedData == null) {
-                throw new EKRAException(CMS.getUserMessage("CMS_KRA_RECOVERY_FAILED_1",
-                        "security data unwrapping failure"));
-            }
-
-            return decodedData;
+            return storageUnit.decryptInternalPrivate(keyRecord.getPrivateKeyData());
         } catch (Exception e) {
-
+            CMS.debug("Failed to recover security data: " + e);
             throw new EKRAException(CMS.getUserMessage("CMS_KRA_RECOVERY_FAILED_1",
                     "recoverSecurityData() " + e.toString()));
         }

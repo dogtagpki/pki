@@ -91,11 +91,11 @@ public interface ITransportKeyUnit extends IEncryptionUnit {
      * @param wrappedKeyData wrapped private key to be unwrapped
      * @param pubKey public key
      * @return Private key object
-     * @exception EBaseException failed to unwrap
+     * @throws Exception
      */
 
     public PrivateKey unwrap_temp(byte wrappedKeyData[], PublicKey
-            pubKey) throws EBaseException;
+            pubKey) throws Exception;
     /**
      * Returns this Unit's crypto token object.
      * @return CryptoToken object.

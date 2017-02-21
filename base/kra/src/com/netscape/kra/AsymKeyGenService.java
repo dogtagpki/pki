@@ -153,8 +153,25 @@ public class AsymKeyGenService implements IService {
             throw new EBaseException("Errors in generating Asymmetric key: " + e);
         }
 
-        KeyRecord record = new KeyRecord(null, kp.getPublic().getEncoded(), storageUnit.wrap((PrivateKey) kp
-                .getPrivate()), owner, algorithm, owner);
+        if (kp == null) {
+            auditAsymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
+                    clientKeyId, null, "Failed to generate asymmetric key");
+            throw new EBaseException("Failed to generate asymmetric key!");
+        }
+
+        byte[] privateSecurityData = null;
+
+        try {
+            privateSecurityData = storageUnit.wrap((PrivateKey) kp.getPrivate());
+        } catch (Exception e) {
+            CMS.debug("Failed to generate security data to archive: " + e);
+            auditAsymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
+                    clientKeyId, null, CMS.getUserMessage("CMS_KRA_INVALID_PRIVATE_KEY"));
+            throw new EBaseException("Failed to generate security data to archive!", e);
+        }
+
+        KeyRecord record = new KeyRecord(null, kp.getPublic().getEncoded(), privateSecurityData,
+                owner, algorithm, owner);
 
         IKeyRepository storage = kra.getKeyRepository();
         BigInteger serialNo = storage.getNextSerialNumber();

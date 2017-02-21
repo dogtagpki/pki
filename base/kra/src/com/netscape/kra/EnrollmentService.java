@@ -229,53 +229,55 @@ public class EnrollmentService implements IService {
         for (int i = 0; i < aOpts.length; i++) {
             ArchiveOptions opts = new ArchiveOptions(aOpts[i].mAO);
 
-          if (allowEncDecrypt_archival == true) {
-            if (tCert == null) {
-                 CMS.debug("EnrollmentService: Invalid transport certificate: "+transportCert);
-                 throw new EKRAException(CMS.getUserMessage("CMS_KRA_INVALID_TRANSPORT_CERT"));
-            }
-            if (statsSub != null) {
-                statsSub.startTiming("decrypt_user_key");
-            }
-            mKRA.log(ILogger.LL_INFO, "KRA decrypts external private");
-            if (CMS.debugOn())
-                CMS.debug("EnrollmentService::about to decryptExternalPrivate");
-            tmp_unwrapped = mTransportUnit.decryptExternalPrivate(
-                        opts.getEncSymmKey(),
-                        opts.getSymmAlgOID(),
-                        opts.getSymmAlgParams(),
-                        opts.getEncValue(),
-                        tCert);
-            if (statsSub != null) {
-                statsSub.endTiming("decrypt_user_key");
-            }
-            if (CMS.debugOn())
-                CMS.debug("EnrollmentService::finished decryptExternalPrivate");
-            if (tmp_unwrapped == null) {
-                mKRA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_UNWRAP_USER_KEY"));
+            if (allowEncDecrypt_archival == true) {
+                if (tCert == null) {
+                    CMS.debug("EnrollmentService: Invalid transport certificate: " + transportCert);
+                    throw new EKRAException(CMS.getUserMessage("CMS_KRA_INVALID_TRANSPORT_CERT"));
+                }
+                if (statsSub != null) {
+                    statsSub.startTiming("decrypt_user_key");
+                }
+                mKRA.log(ILogger.LL_INFO, "KRA decrypts external private");
+                if (CMS.debugOn())
+                    CMS.debug("EnrollmentService::about to decryptExternalPrivate");
 
-                auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST,
-                        auditSubjectID,
-                        ILogger.FAILURE,
-                        auditRequesterID,
-                        auditArchiveID);
+                try {
+                    tmp_unwrapped = mTransportUnit.decryptExternalPrivate(
+                            opts.getEncSymmKey(),
+                            opts.getSymmAlgOID(),
+                            opts.getSymmAlgParams(),
+                            opts.getEncValue(),
+                            tCert);
+                } catch (Exception e) {
+                    mKRA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_UNWRAP_USER_KEY"));
 
-                audit(auditMessage);
-                throw new EKRAException(
-                        CMS.getUserMessage("CMS_KRA_INVALID_PRIVATE_KEY"));
-            }
+                    auditMessage = CMS.getLogMessage(
+                            LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST,
+                            auditSubjectID,
+                            ILogger.FAILURE,
+                            auditRequesterID,
+                            auditArchiveID);
 
-            /* making sure leading 0's are removed */
-            int first=0;
-            for (int j=0; (j< tmp_unwrapped.length) && (tmp_unwrapped[j]==0); j++) {
-                first++;
-            }
-            unwrapped = Arrays.copyOfRange(tmp_unwrapped, first, tmp_unwrapped.length);
-          } /*else {  allowEncDecrypt_archival != true
-               this is done below with unwrap()
-          }
-             */
+                    audit(auditMessage);
+                    throw new EKRAException(
+                            CMS.getUserMessage("CMS_KRA_INVALID_PRIVATE_KEY"));
+                }
+                if (statsSub != null) {
+                    statsSub.endTiming("decrypt_user_key");
+                }
+                if (CMS.debugOn())
+                    CMS.debug("EnrollmentService::finished decryptExternalPrivate");
+
+                /* making sure leading 0's are removed */
+                int first = 0;
+                for (int j = 0; (j < tmp_unwrapped.length) && (tmp_unwrapped[j] == 0); j++) {
+                    first++;
+                }
+                unwrapped = Arrays.copyOfRange(tmp_unwrapped, first, tmp_unwrapped.length);
+            } /*else {  allowEncDecrypt_archival != true
+                 this is done below with unwrap()
+                }
+              */
 
             // retrieve public key
             X509Key publicKey = getPublicKey(request, aOpts[i].mReqPos);
@@ -312,16 +314,31 @@ public class EnrollmentService implements IService {
                 } catch (Exception e) {
                     CMS.debug("EnrollmentService: parsePublicKey:"+e.toString());
                     throw new EKRAException(
-                        CMS.getUserMessage("CMS_KRA_INVALID_PUBLIC_KEY"));
+                        CMS.getUserMessage("CMS_KRA_INVALID_PUBLIC_KEY"), e);
                 }
-                entityPrivKey =
-                    mTransportUnit.unwrap(
-                        opts.getEncSymmKey(),
-                        opts.getSymmAlgOID(),
-                        opts.getSymmAlgParams(),
-                        opts.getEncValue(),
-                        pubkey,
-                        tCert);
+
+                try {
+                    entityPrivKey = mTransportUnit.unwrap(
+                            opts.getEncSymmKey(),
+                            opts.getSymmAlgOID(),
+                            opts.getSymmAlgParams(),
+                            opts.getEncValue(),
+                            pubkey,
+                            tCert);
+                } catch (Exception e) {
+                    mKRA.log(ILogger.LL_DEBUG, e.getMessage());
+                    mKRA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_WRAP_USER_KEY"));
+
+                    auditMessage = CMS.getLogMessage(
+                            LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST,
+                            auditSubjectID,
+                            ILogger.FAILURE,
+                            auditRequesterID,
+                            auditArchiveID);
+
+                    audit(auditMessage);
+                    throw new EKRAException(CMS.getUserMessage("CMS_KRA_INVALID_PRIVATE_KEY"), e);
+                }
             } // !allowEncDecrypt_archival
 
             /* Bugscape #54948 - verify public and private key before archiving key */
@@ -381,18 +398,14 @@ public class EnrollmentService implements IService {
             }
             byte privateKeyData[] = null;
 
-            if (allowEncDecrypt_archival == true) {
-                privateKeyData = mStorageUnit.encryptInternalPrivate(
-                    unwrapped);
-            } else {
-                privateKeyData = mStorageUnit.wrap(entityPrivKey);
-            }
-
-            if (statsSub != null) {
-                statsSub.endTiming("encrypt_user_key");
-            }
-
-            if (privateKeyData == null) {
+            try {
+                if (allowEncDecrypt_archival == true) {
+                    privateKeyData = mStorageUnit.encryptInternalPrivate(unwrapped);
+                } else {
+                    privateKeyData = mStorageUnit.wrap(entityPrivKey);
+                }
+            } catch (Exception e) {
+                mKRA.log(ILogger.LL_DEBUG, e.getMessage());
                 mKRA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_WRAP_USER_KEY"));
 
                 auditMessage = CMS.getLogMessage(
@@ -403,8 +416,11 @@ public class EnrollmentService implements IService {
                         auditArchiveID);
 
                 audit(auditMessage);
-                throw new EKRAException(
-                        CMS.getUserMessage("CMS_KRA_INVALID_PRIVATE_KEY"));
+                throw new EKRAException(CMS.getUserMessage("CMS_KRA_INVALID_PRIVATE_KEY"));
+            }
+
+            if (statsSub != null) {
+                statsSub.endTiming("encrypt_user_key");
             }
 
             // create key record
