@@ -22,6 +22,7 @@ import org.mozilla.jss.crypto.Cipher;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.EncryptionAlgorithm;
 import org.mozilla.jss.crypto.IVParameterSpec;
+import org.mozilla.jss.crypto.KeyGenAlgorithm;
 import org.mozilla.jss.crypto.KeyGenerator;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
 import org.mozilla.jss.crypto.KeyWrapper;
@@ -51,6 +52,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.certsrv.security.ITransportKeyUnit;
+import com.netscape.certsrv.security.WrappingParams;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmsutil.util.Utils;
 
@@ -400,6 +402,11 @@ public class SecurityDataProcessor {
 
         CryptoToken ct = transportUnit.getToken();
 
+        WrappingParams wrapParams = new WrappingParams(
+                SymmetricKey.DES3, null, KeyGenAlgorithm.DES3, 0,
+                KeyWrapAlgorithm.RSA, EncryptionAlgorithm.DES3_CBC_PAD,
+                KeyWrapAlgorithm.DES3_CBC_PAD);
+
         byte[] key_data = null;
         String pbeWrappedData = null;
 
@@ -409,7 +416,8 @@ public class SecurityDataProcessor {
             Password pass = null;
 
             try {
-                unwrappedSess = transportUnit.unwrap_session_key(ct, wrappedSessKey, SymmetricKey.Usage.DECRYPT);
+                unwrappedSess = transportUnit.unwrap_session_key(ct, wrappedSessKey,
+                        SymmetricKey.Usage.DECRYPT, wrapParams);
                 Cipher decryptor = ct.getCipherContext(EncryptionAlgorithm.DES3_CBC_PAD);
                 decryptor.initDecrypt(unwrappedSess, new IVParameterSpec(iv_in));
                 unwrappedPass = decryptor.doFinal(wrappedPassPhrase);
@@ -473,7 +481,8 @@ public class SecurityDataProcessor {
                 try {
                     if (allowEncDecrypt_recovery == true) {
                         CMS.debug("SecurityDataProcessor.recover(): encrypt symmetric key with session key as per allowEncDecrypt_recovery: true.");
-                        unwrappedSess = transportUnit.unwrap_session_key(ct, wrappedSessKey, SymmetricKey.Usage.ENCRYPT);
+                        unwrappedSess = transportUnit.unwrap_session_key(ct, wrappedSessKey,
+                                SymmetricKey.Usage.ENCRYPT, wrapParams);
                         Cipher encryptor = ct.getCipherContext(EncryptionAlgorithm.DES3_CBC_PAD);
 
                         if (encryptor != null) {
@@ -487,7 +496,8 @@ public class SecurityDataProcessor {
                         }
 
                     } else {
-                        unwrappedSess = transportUnit.unwrap_session_key(ct, wrappedSessKey, SymmetricKey.Usage.WRAP);
+                        unwrappedSess = transportUnit.unwrap_session_key(ct, wrappedSessKey,
+                                SymmetricKey.Usage.WRAP, wrapParams);
                         KeyWrapper wrapper = ct.getKeyWrapper(KeyWrapAlgorithm.DES3_CBC_PAD);
                         wrapper.initWrap(unwrappedSess, new IVParameterSpec(iv));
                         key_data = wrapper.wrap(symKey);
@@ -502,7 +512,8 @@ public class SecurityDataProcessor {
             } else if (dataType.equals(KeyRequestResource.PASS_PHRASE_TYPE)) {
                 CMS.debug("SecurityDataProcessor.recover(): encrypt stored passphrase with session key");
                 try {
-                    unwrappedSess = transportUnit.unwrap_session_key(ct, wrappedSessKey, SymmetricKey.Usage.ENCRYPT);
+                    unwrappedSess = transportUnit.unwrap_session_key(ct, wrappedSessKey,
+                            SymmetricKey.Usage.ENCRYPT, wrapParams);
                     Cipher encryptor = ct.getCipherContext(EncryptionAlgorithm.DES3_CBC_PAD);
                     if (encryptor != null) {
                         encryptor.initEncrypt(unwrappedSess, new IVParameterSpec(iv));
@@ -525,7 +536,8 @@ public class SecurityDataProcessor {
                 try {
                     if (allowEncDecrypt_recovery == true) {
                         CMS.debug("SecurityDataProcessor.recover(): encrypt symmetric key with session key as per allowEncDecrypt_recovery: true.");
-                        unwrappedSess = transportUnit.unwrap_session_key(ct, wrappedSessKey, SymmetricKey.Usage.ENCRYPT);
+                        unwrappedSess = transportUnit.unwrap_session_key(ct, wrappedSessKey,
+                                SymmetricKey.Usage.ENCRYPT, wrapParams);
                         Cipher encryptor = ct.getCipherContext(EncryptionAlgorithm.DES3_CBC_PAD);
 
                         if (encryptor != null) {
@@ -539,7 +551,8 @@ public class SecurityDataProcessor {
                         }
 
                     } else {
-                        unwrappedSess = transportUnit.unwrap_session_key(ct, wrappedSessKey, SymmetricKey.Usage.WRAP);
+                        unwrappedSess = transportUnit.unwrap_session_key(ct, wrappedSessKey,
+                                SymmetricKey.Usage.WRAP, wrapParams);
                         KeyWrapper wrapper = ct.getKeyWrapper(KeyWrapAlgorithm.DES3_CBC_PAD);
                         wrapper.initWrap(unwrappedSess, new IVParameterSpec(iv));
                         key_data = wrapper.wrap(privateKey);

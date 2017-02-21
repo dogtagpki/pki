@@ -141,7 +141,7 @@ public interface IEncryptionUnit extends IToken {
      */
 
     public SymmetricKey unwrap_session_key(CryptoToken token, byte encSymmKey[],
-            SymmetricKey.Usage usage);
+            SymmetricKey.Usage usage, WrappingParams params);
 
     public PrivateKey unwrap_temp(byte privateKey[], PublicKey pubKey)
             throws EBaseException;
