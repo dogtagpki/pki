@@ -16,7 +16,15 @@
      All rights reserved.
      --- END COPYRIGHT BLOCK --- -->
 <html>
+<head>
+<script src="/pki/js/jquery.js"></script>
+<script src="/pki/js/jquery.i18n.properties.js"></script>
+<script src="/pki/js/underscore.js"></script>
+<script src="/pki/js/backbone.js"></script>
+<script src="/pki/js/pki.js"></script>
+<script src="/pki/js/pki-banner.js"></script>
 <script lang="javascript">
     window.location = '/kra/services';
 </script>
+</head>
 </html>

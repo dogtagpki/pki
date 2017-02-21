@@ -1,9 +1,15 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <HTML>
+<HEAD>
 <CMS_TEMPLATE>
 <TITLE>Recovering Key</TITLE>
-
-<HEAD>
+<script src="/pki/js/jquery.js"></script>
+<script src="/pki/js/jquery.i18n.properties.js"></script>
+<script src="/pki/js/underscore.js"></script>
+<script src="/pki/js/backbone.js"></script>
+<script src="/pki/js/pki.js"></script>
+<script src="/pki/js/pki-banner.js"></script>
+</HEAD>
 <BODY bgcolor="white">
 
 <SCRIPT LANGUAGE="JavaScript"></SCRIPT>
