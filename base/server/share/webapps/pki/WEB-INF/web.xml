@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE web-app
+    PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN" "file:///usr/share/pki/setup/web-app_2_3.dtd">
+<web-app>
+
+    <display-name>PKI</display-name>
+
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>PKI UI</web-resource-name>
+            <url-pattern>/ui/*</url-pattern>
+        </web-resource-collection>
+        <user-data-constraint>
+            <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+        </user-data-constraint>
+    </security-constraint>
+
+    <session-config>
+        <session-timeout>30</session-timeout>
+    </session-config>
+
+</web-app>
