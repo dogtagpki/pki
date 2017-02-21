@@ -28,6 +28,7 @@
     <script src="/pki/js/patternfly.js"></script>
     <script src="/pki/js/pki.js"></script>
     <script src="/pki/js/pki-ui.js"></script>
+    <script src="/pki/js/pki-banner.js"></script>
     <script src="/tps/js/tps.js"></script>
     <script src="/tps/js/account.js"></script>
     <script src="/tps/js/activity.js"></script>
