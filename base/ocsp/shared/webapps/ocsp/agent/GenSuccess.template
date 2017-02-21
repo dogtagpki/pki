@@ -17,11 +17,18 @@
      --- END COPYRIGHT BLOCK --- -->
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <HTML>
+<head>
 <!-- This template is intended to be replaced by request specific results !  -->
 <CMS_TEMPLATE>
 
 <TITLE>OCSP Agent Generic Request Success</TITLE>
-
+<script src="/pki/js/jquery.js"></script>
+<script src="/pki/js/jquery.i18n.properties.js"></script>
+<script src="/pki/js/underscore.js"></script>
+<script src="/pki/js/backbone.js"></script>
+<script src="/pki/js/pki.js"></script>
+<script src="/pki/js/pki-banner.js"></script>
+</head>
 <BODY BGCOLOR=white>
 
 <font size="+1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
