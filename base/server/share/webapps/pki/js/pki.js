@@ -47,6 +47,28 @@ var PKI = {
 
         return newContent;
     },
+    getInfo: function(options) {
+        $.ajax({
+            type: "GET",
+            url: "/pki/rest/info",
+            dataType: "json"
+        }).done(function(data, textStatus, jqXHR) {
+            if (options.success) options.success.call(self, data, textStatus, jqXHR);
+        }).fail(function(jqXHR, textStatus, errorThrown) {
+            if (options.error) options.error.call(self, jqXHR, textStatus, errorThrown);
+        });
+    },
+    login: function(options) {
+        $.ajax({
+            type: "POST",
+            url: "/pki/rest/login",
+            dataType: "json"
+        }).done(function(data, textStatus, jqXHR) {
+            if (options.success) options.success.call(self, data, textStatus, jqXHR);
+        }).fail(function(jqXHR, textStatus, errorThrown) {
+            if (options.error) options.error.call(self, jqXHR, textStatus, errorThrown);
+        });
+    },
     logout: function(options) {
         options = options || {};
         if (window.crypto && typeof window.crypto.logout === "function") { // Firefox
