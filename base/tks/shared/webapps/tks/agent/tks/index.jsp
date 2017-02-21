@@ -22,6 +22,12 @@
  content="text/html; charset=ISO-8859-1">
   <link rel="shortcut icon" href="/pki/images/favicon.ico" />
   <title>TKS Agent</title>
+<script src="/pki/js/jquery.js"></script>
+<script src="/pki/js/jquery.i18n.properties.js"></script>
+<script src="/pki/js/underscore.js"></script>
+<script src="/pki/js/backbone.js"></script>
+<script src="/pki/js/pki.js"></script>
+<script src="/pki/js/pki-banner.js"></script>
 </head>
 <body>
 <div style="text-align: center;"><big><big><big><big><span
