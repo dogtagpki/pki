@@ -20,6 +20,12 @@
 <HEAD>
 <CMS_TEMPLATE>
 <TITLE>Certificate Service Error</TITLE>
+<script src="/pki/js/jquery.js"></script>
+<script src="/pki/js/jquery.i18n.properties.js"></script>
+<script src="/pki/js/underscore.js"></script>
+<script src="/pki/js/backbone.js"></script>
+<script src="/pki/js/pki.js"></script>
+<script src="/pki/js/pki-banner.js"></script>
 </HEAD>
 <BODY bgcolor="white">
 <center><h2><b>Problem Processing Your Request</b></h2></center>

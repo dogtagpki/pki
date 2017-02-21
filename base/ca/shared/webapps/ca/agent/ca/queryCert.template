@@ -21,6 +21,13 @@
 <title>Query Certificate</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
+<script src="/pki/js/jquery.js"></script>
+<script src="/pki/js/jquery.i18n.properties.js"></script>
+<script src="/pki/js/underscore.js"></script>
+<script src="/pki/js/backbone.js"></script>
+<script src="/pki/js/pki.js"></script>
+<script src="/pki/js/pki-banner.js"></script>
+
 <style type="text/css">
 
 .floating {

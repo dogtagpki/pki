@@ -20,6 +20,12 @@
 <title>CA End-Entity</title>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 <link rel="shortcut icon" href="/pki/images/favicon.ico" />
+<script src="/pki/js/jquery.js"></script>
+<script src="/pki/js/jquery.i18n.properties.js"></script>
+<script src="/pki/js/underscore.js"></script>
+<script src="/pki/js/backbone.js"></script>
+<script src="/pki/js/pki.js"></script>
+<script src="/pki/js/pki-banner.js"></script>
 <SCRIPT LANGUAGE="JavaScript"></SCRIPT>
 <script lang="javascript" src="/dynamicVars.js"></script>
 <script lang="javascript" src="../cms-funcs.js"></script>
