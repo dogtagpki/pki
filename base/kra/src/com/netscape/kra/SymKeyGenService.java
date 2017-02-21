@@ -174,12 +174,19 @@ public class SymKeyGenService implements IService {
         byte[] publicKey = null;
         byte privateSecurityData[] = null;
 
-        if (sk != null) {
-            privateSecurityData = mStorageUnit.wrap(sk);
-        } else { // We have no data.
+        if (sk == null) {
             auditSymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
                     clientKeyId, null, "Failed to create security data to archive");
             throw new EBaseException("Failed to create security data to archive!");
+        }
+
+        try {
+            privateSecurityData = mStorageUnit.wrap(sk);
+        } catch (Exception e) {
+            CMS.debug("Failed to generate security data to archive: " + e);
+            auditSymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
+                    clientKeyId, null, CMS.getUserMessage("CMS_KRA_INVALID_PRIVATE_KEY"));
+            throw new EBaseException("Failed to generate security data to archive!");
         }
 
         // create key record

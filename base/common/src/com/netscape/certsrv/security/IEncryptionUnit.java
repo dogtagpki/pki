@@ -48,7 +48,7 @@ public interface IEncryptionUnit extends IToken {
      * @return wrapped data
      * @exception EBaseException failed to wrap
      */
-    public byte[] wrap(PrivateKey priKey) throws EBaseException;
+    public byte[] wrap(PrivateKey priKey) throws Exception;
 
     /**
      * Wraps data. The given key will be wrapped by the
@@ -58,7 +58,7 @@ public interface IEncryptionUnit extends IToken {
      * @return wrapped data
      * @exception EBaseException failed to wrap
      */
-    public byte[] wrap(SymmetricKey symKey) throws EBaseException;
+    public byte[] wrap(SymmetricKey symKey) throws Exception;
 
     /**
      * Verifies the given key pair.
@@ -79,12 +79,12 @@ public interface IEncryptionUnit extends IToken {
      * @param privateKey private key data
      * @param pubKey public key
      * @return private key object
-     * @exception EBaseException failed to unwrap
+     * @throws Exception
      */
     public PrivateKey unwrap(byte sessionKey[], String symmAlgOID,
             byte symmAlgParams[], byte privateKey[],
             PublicKey pubKey)
-            throws EBaseException;
+            throws Exception;
 
     /**
      * Unwraps data. This method rebuilds the private key by
@@ -95,12 +95,12 @@ public interface IEncryptionUnit extends IToken {
      * @param pubKey public key
      * @param transportCert transport certificate
      * @return private key object
-     * @exception EBaseException failed to unwrap
+     * @throws Exception
      */
     public PrivateKey unwrap(byte encSymmKey[], String symmAlgOID,
             byte symmAlgParams[], byte encValue[], PublicKey pubKey,
             org.mozilla.jss.crypto.X509Certificate transportCert)
-            throws EBaseException;
+            throws Exception;
 
     /**
      * Unwraps symmetric key data. This method rebuilds the symmetric key by
@@ -108,11 +108,11 @@ public interface IEncryptionUnit extends IToken {
      *
      * @param wrappedKeyData symmetric key data wrapped up with session key
      * @return Symmetric key object
-     * @exception EBaseException failed to unwrap
+     * @exception Exception failed to unwrap
      */
 
     public SymmetricKey unwrap(byte wrappedKeyData[], SymmetricKey.Type algorithm, int keySize)
-            throws EBaseException;
+            throws Exception;
 
     /**
      * Unwraps symmetric key . This method
@@ -125,12 +125,12 @@ public interface IEncryptionUnit extends IToken {
      * @param type symmetric key algorithm
      * @param strength symmetric key strength in bytes
      * @return Symmetric key object
-     * @exception EBaseException failed to unwrap
+     * @throws Exception
      */
 
     public SymmetricKey unwrap_symmetric(byte sessionKey[], String symmAlgOID,
             byte symmAlgParams[], byte symmetricKey[], Type type, int strength)
-            throws EBaseException;
+            throws Exception;
 
     /**
      * Unwraps symmetric key . This method
@@ -144,7 +144,7 @@ public interface IEncryptionUnit extends IToken {
             SymmetricKey.Usage usage, WrappingParams params);
 
     public PrivateKey unwrap_temp(byte privateKey[], PublicKey pubKey)
-            throws EBaseException;
+            throws Exception;
 
     /**
      * Unwraps data. This method rebuilds the private key by
@@ -153,10 +153,10 @@ public interface IEncryptionUnit extends IToken {
      * @param privateKey private key data
      * @param pubKey public key object
      * @return private key object
-     * @exception EBaseException failed to unwrap
+     * @throws Exception
      */
     public PrivateKey unwrap(byte privateKey[], PublicKey pubKey)
-            throws EBaseException;
+            throws Exception;
 
     /**
      * Encrypts the internal private key (private key to the KRA's
@@ -166,8 +166,7 @@ public interface IEncryptionUnit extends IToken {
      * @return encrypted data
      * @exception EBaseException failed to encrypt
      */
-    public byte[] encryptInternalPrivate(byte rawPrivate[])
-            throws EBaseException;
+    public byte[] encryptInternalPrivate(byte rawPrivate[]) throws Exception;
 
     /**
      * Decrypts the internal private key (private key from the KRA's
@@ -175,10 +174,10 @@ public interface IEncryptionUnit extends IToken {
      *
      * @param wrappedPrivateData unwrapped private key data (key to be recovered)
      * @return raw private key
-     * @exception EBaseException failed to decrypt
+     * @throws Exception
      */
     public byte[] decryptInternalPrivate(byte wrappedPrivateData[])
-            throws EBaseException;
+            throws Exception;
 
     /**
      * Decrypts the external private key (private key from the end-user).
@@ -188,12 +187,12 @@ public interface IEncryptionUnit extends IToken {
      * @param symmAlgParams symmetric algorithm parameters
      * @param privateKey private key data
      * @return private key data
-     * @exception EBaseException failed to decrypt
+     * @throws Exception
      */
     public byte[] decryptExternalPrivate(byte sessionKey[],
             String symmAlgOID,
             byte symmAlgParams[], byte privateKey[])
-            throws EBaseException;
+            throws Exception;
 
     /**
      * Decrypts the external private key (private key from the end-user).
@@ -204,10 +203,10 @@ public interface IEncryptionUnit extends IToken {
      * @param privateKey private key data
      * @param transportCert transport certificate
      * @return private key data
-     * @exception EBaseException failed to decrypt
+     * @throws Exception
      */
     public byte[] decryptExternalPrivate(byte sessionKey[],
             String symmAlgOID, byte symmAlgParams[], byte privateKey[],
             org.mozilla.jss.crypto.X509Certificate transportCert)
-            throws EBaseException;
+            throws Exception;
 }

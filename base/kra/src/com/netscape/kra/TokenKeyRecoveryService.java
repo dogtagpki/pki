@@ -693,16 +693,19 @@ public class TokenKeyRecoveryService implements IService {
                 throw new EKRAException(CMS.getUserMessage("CMS_KRA_RECOVERY_FAILED_1", "public key parsing failure"));
             }
             byte iv[] = {0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1};
-            PrivateKey privKey =
-            mStorageUnit.unwrap(
-                session,
-                keyRecord.getAlgorithm(),
-                iv,
-                pri,
-                pubkey);
-            if (privKey == null) {
-                CMS.debug( "TokenKeyRecoveryService: recoverKey() - recovery failure");
-                throw new EKRAException(CMS.getUserMessage("CMS_KRA_RECOVERY_FAILED_1", "private key recovery/unwrapping failure"));
+            PrivateKey privKey = null;
+            try {
+                privKey = mStorageUnit.unwrap(
+                        session,
+                        keyRecord.getAlgorithm(),
+                        iv,
+                        pri,
+                        pubkey);
+            } catch (Exception e) {
+                CMS.debug("TokenKeyRecoveryService: recoverKey() - recovery failure");
+                throw new EKRAException(
+                        CMS.getUserMessage("CMS_KRA_RECOVERY_FAILED_1",
+                                "private key recovery/unwrapping failure"), e);
             }
             CMS.debug( "TokenKeyRecoveryService: recoverKey() - recovery completed, returning privKey");
             return privKey;
@@ -724,18 +727,13 @@ public class TokenKeyRecoveryService implements IService {
 
             mStorageUnit.login(creds);
         */
-        CMS.debug("KRA decrypts internal private");
-        byte privateKeyData[] =
-                mStorageUnit.decryptInternalPrivate(
-                        keyRecord.getPrivateKeyData());
-        /*
-            mStorageUnit.logout();
-        */
-        if (privateKeyData == null) {
+        try {
+             return mStorageUnit.decryptInternalPrivate(keyRecord.getPrivateKeyData());
+             /* mStorageUnit.logout();*/
+        } catch (Exception e){
             mKRA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_PRIVATE_KEY_NOT_FOUND"));
             throw new EKRAException(CMS.getUserMessage("CMS_KRA_RECOVERY_FAILED_1", "no private key"));
         }
-        return privateKeyData;
     }
 
     /**
