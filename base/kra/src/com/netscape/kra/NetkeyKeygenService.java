@@ -35,6 +35,7 @@ import org.mozilla.jss.crypto.Cipher;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.EncryptionAlgorithm;
 import org.mozilla.jss.crypto.IVParameterSpec;
+import org.mozilla.jss.crypto.KeyGenAlgorithm;
 import org.mozilla.jss.crypto.KeyPairAlgorithm;
 import org.mozilla.jss.crypto.KeyPairGenerator;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
@@ -61,6 +62,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.certsrv.security.ITransportKeyUnit;
+import com.netscape.certsrv.security.WrappingParams;
 import com.netscape.cms.servlet.key.KeyRecordParser;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.util.Debug;
@@ -453,8 +455,13 @@ public class NetkeyKeygenService implements IService {
         if ((wrapped_des_key != null) &&
                 (wrapped_des_key.length > 0)) {
 
+            WrappingParams wrapParams = new WrappingParams(
+                    SymmetricKey.DES3, null, KeyGenAlgorithm.DES3, 0,
+                    KeyWrapAlgorithm.RSA, EncryptionAlgorithm.DES3_CBC_PAD,
+                    KeyWrapAlgorithm.DES3_CBC_PAD);
+
             // unwrap the DES key
-            sk = (PK11SymKey) mTransportUnit.unwrap_sym(wrapped_des_key);
+            sk = (PK11SymKey) mTransportUnit.unwrap_sym(wrapped_des_key, wrapParams);
 
             /* XXX could be done in HSM*/
             KeyPair keypair = null;

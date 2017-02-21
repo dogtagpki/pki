@@ -31,6 +31,7 @@ import org.mozilla.jss.crypto.Cipher;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.EncryptionAlgorithm;
 import org.mozilla.jss.crypto.IVParameterSpec;
+import org.mozilla.jss.crypto.KeyGenAlgorithm;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
 import org.mozilla.jss.crypto.KeyWrapper;
 import org.mozilla.jss.crypto.PrivateKey;
@@ -51,6 +52,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.certsrv.security.ITransportKeyUnit;
+import com.netscape.certsrv.security.WrappingParams;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmsutil.util.Cert;
 
@@ -270,8 +272,13 @@ public class TokenKeyRecoveryService implements IService {
         if ((wrapped_des_key != null) &&
                 (wrapped_des_key.length > 0)) {
 
+            WrappingParams wrapParams = new WrappingParams(
+                    SymmetricKey.DES3, null, KeyGenAlgorithm.DES3, 0,
+                    KeyWrapAlgorithm.RSA, EncryptionAlgorithm.DES3_CBC_PAD,
+                    KeyWrapAlgorithm.DES3_CBC_PAD);
+
             // unwrap the des key
-            sk = (PK11SymKey) mTransportUnit.unwrap_sym(wrapped_des_key);
+            sk = (PK11SymKey) mTransportUnit.unwrap_sym(wrapped_des_key, wrapParams);
 
             if (sk == null) {
                 CMS.debug("TokenKeyRecoveryService: no des key");

@@ -175,12 +175,18 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
         return _wrap(null,symmKey);
     }
 
-    public SymmetricKey unwrap_session_key(CryptoToken token, byte encSymmKey[], SymmetricKey.Usage usage) {
-        return unwrap_session_key(token, encSymmKey, usage, getPrivateKey());
+    public SymmetricKey unwrap_session_key(CryptoToken token, byte encSymmKey[], SymmetricKey.Usage usage,
+            WrappingParams params) {
+        PrivateKey wrappingKey = getPrivateKey();
+        String priKeyAlgo = wrappingKey.getAlgorithm();
+        if (priKeyAlgo.equals("EC"))
+            params.setSkWrapAlgorithm(KeyWrapAlgorithm.AES_ECB);
+
+        return unwrap_session_key(token, encSymmKey, usage, wrappingKey, params);
     }
 
-    public SymmetricKey unwrap_sym(byte encSymmKey[]) {
-        return unwrap_session_key(getToken(), encSymmKey, SymmetricKey.Usage.WRAP);
+    public SymmetricKey unwrap_sym(byte encSymmKey[], WrappingParams params) {
+        return unwrap_session_key(getToken(), encSymmKey, SymmetricKey.Usage.WRAP, params);
     }
 
     /**
@@ -210,11 +216,17 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
                     KeyWrapAlgorithm.RSA, EncryptionAlgorithm.DES3_CBC_PAD,
                     KeyWrapAlgorithm.DES3_CBC_PAD);
 
+            PrivateKey wrappingKey = getPrivateKey(transCert);
+            String priKeyAlgo = wrappingKey.getAlgorithm();
+            if (priKeyAlgo.equals("EC"))
+                params.setSkWrapAlgorithm(KeyWrapAlgorithm.AES_ECB);
+
             SymmetricKey sk = unwrap_session_key(
                     token,
                     encSymmKey,
                     SymmetricKey.Usage.DECRYPT,
-                    getPrivateKey(transCert));
+                    wrappingKey,
+                    params);
 
             return decrypt_private_key(token, new IVParameterSpec(symmAlgParams), sk, encValue, params);
         } catch (IllegalBlockSizeException e) {
@@ -271,7 +283,7 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
 
             CryptoToken token = getToken();
             // (1) unwrap the session key
-            SymmetricKey sk = unwrap_session_key(token, encSymmKey, SymmetricKey.Usage.UNWRAP);
+            SymmetricKey sk = unwrap_session_key(token, encSymmKey, SymmetricKey.Usage.UNWRAP, params);
 
             // (2) unwrap the session-wrapped-symmetric-key
             SymmetricKey symKey = unwrap_symmetric_key(
@@ -340,12 +352,18 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
                     KeyWrapAlgorithm.RSA, EncryptionAlgorithm.DES3_CBC_PAD,
                     KeyWrapAlgorithm.DES3_CBC_PAD);
 
+            PrivateKey wrappingKey = getPrivateKey(transCert);
+            String priKeyAlgo = wrappingKey.getAlgorithm();
+            if (priKeyAlgo.equals("EC"))
+                params.setSkWrapAlgorithm(KeyWrapAlgorithm.AES_ECB);
+
             // (1) unwrap the session key
             SymmetricKey sk = unwrap_session_key(
                     token,
                     encSymmKey,
                     SymmetricKey.Usage.UNWRAP,
-                    getPrivateKey(transCert));
+                    wrappingKey,
+                    params);
 
             // (2) unwrap the session-wrapped-private key
             return unwrap_private_key(
@@ -408,7 +426,7 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
 
             // (1) unwrap the session key
             CMS.debug("decryptInternalPrivate(): getting key wrapper on slot:" + token.getName());
-            SymmetricKey sk = unwrap_session_key(token, session, SymmetricKey.Usage.DECRYPT);
+            SymmetricKey sk = unwrap_session_key(token, session, SymmetricKey.Usage.DECRYPT, params);
 
             // (2) decrypt the private key
             return decrypt_private_key(token, IV, sk, pri, params);
@@ -476,7 +494,7 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
 
             CryptoToken token = getToken();
             // (1) unwrap the session key
-            SymmetricKey sk = unwrap_session_key(token, session,  SymmetricKey.Usage.UNWRAP);
+            SymmetricKey sk = unwrap_session_key(token, session,  SymmetricKey.Usage.UNWRAP, params);
 
             // (2) unwrap the session-wrapped-symmetric key
             return unwrap_symmetric_key(token, IV, algorithm, keySize, SymmetricKey.Usage.UNWRAP, sk, pri, params);
@@ -551,7 +569,7 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
 
             CryptoToken token = getToken();
             // (1) unwrap the session key
-            SymmetricKey sk = unwrap_session_key(token, session, SymmetricKey.Usage.UNWRAP);
+            SymmetricKey sk = unwrap_session_key(token, session, SymmetricKey.Usage.UNWRAP, params);
 
             // (2) unwrap the private key
             return unwrap_private_key(token, pubKey, IV, temporary, sk, pri, params);
@@ -713,20 +731,15 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
     }
 
     public SymmetricKey unwrap_session_key(CryptoToken token, byte[] wrappedSessionKey, SymmetricKey.Usage usage,
-            PrivateKey wrappingKey) {
+            PrivateKey wrappingKey, WrappingParams params) {
         try {
-            String priKeyAlgo = wrappingKey.getAlgorithm();
-            CMS.debug("EncryptionUnit::unwrap_sym() private key algo: " + priKeyAlgo);
-            KeyWrapper keyWrapper = null;
-            if (priKeyAlgo.equals("EC")) {
-                keyWrapper = token.getKeyWrapper(KeyWrapAlgorithm.AES_ECB);
-                keyWrapper.initUnwrap(wrappingKey, null);
-            } else {
-                keyWrapper = token.getKeyWrapper(KeyWrapAlgorithm.RSA);
-                keyWrapper.initUnwrap(wrappingKey, null);
-            }
-            SymmetricKey sk = keyWrapper.unwrapSymmetric(wrappedSessionKey,
-                    SymmetricKey.DES3, usage,
+            KeyWrapper keyWrapper = token.getKeyWrapper(params.getSkWrapAlgorithm());
+            keyWrapper.initUnwrap(wrappingKey, null);
+
+            SymmetricKey sk = keyWrapper.unwrapSymmetric(
+                    wrappedSessionKey,
+                    params.getSkTyoe(),
+                    usage,
                     0);
             CMS.debug("EncryptionUnit::unwrap_sym() unwrapped on slot: "
                     + token.getName());
