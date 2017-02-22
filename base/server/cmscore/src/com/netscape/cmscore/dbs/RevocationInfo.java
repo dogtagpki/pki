@@ -21,7 +21,6 @@ import java.io.Serializable;
 import java.util.Date;
 
 import netscape.security.x509.CRLExtensions;
-import netscape.security.x509.CRLReasonExtension;
 
 import com.netscape.certsrv.dbs.certdb.IRevocationInfo;
 
