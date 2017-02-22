@@ -71,6 +71,7 @@ public class CertData {
     String status;
     Date revokedOn;
     String revokedBy;
+    Integer revocationReason;
 
     Long nonce;
 
@@ -184,6 +185,15 @@ public class CertData {
 
     public void setRevokedBy(String revokedBy) {
         this.revokedBy = revokedBy;
+    }
+
+    @XmlElement(name="RevocationReason")
+    public Integer getRevocationReason() {
+        return revocationReason;
+    }
+
+    public void setRevocationReason(Integer revocationReason) {
+        this.revocationReason = revocationReason;
     }
 
     @XmlElement(name="Link")

@@ -64,6 +64,7 @@ import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertRecordList;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
+import com.netscape.certsrv.dbs.certdb.IRevocationInfo;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
@@ -80,8 +81,11 @@ import netscape.security.pkcs.PKCS7;
 import netscape.security.pkcs.SignerInfo;
 import netscape.security.provider.RSAPublicKey;
 import netscape.security.x509.AlgorithmId;
+import netscape.security.x509.CRLExtensions;
+import netscape.security.x509.CRLReasonExtension;
 import netscape.security.x509.RevocationReason;
 import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509ExtensionException;
 import netscape.security.x509.X509Key;
 
 /**
@@ -528,6 +532,20 @@ public class CertService extends PKIService implements CertResource {
 
         certData.setRevokedOn(record.getRevokedOn());
         certData.setRevokedBy(record.getRevokedBy());
+
+        IRevocationInfo revInfo = record.getRevocationInfo();
+        if (revInfo != null) {
+            CRLExtensions revExts = revInfo.getCRLEntryExtensions();
+            if (revExts != null) {
+                try {
+                    CRLReasonExtension ext = (CRLReasonExtension)
+                        revExts.get(CRLReasonExtension.NAME);
+                    certData.setRevocationReason(ext.getReason().getCode());
+                } catch (X509ExtensionException e) {
+                    // nothing to do
+                }
+            }
+        }
 
         certData.setStatus(record.getStatus());
 
