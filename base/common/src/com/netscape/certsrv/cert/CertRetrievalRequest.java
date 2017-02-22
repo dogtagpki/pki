@@ -41,8 +41,6 @@ import com.netscape.certsrv.request.RequestIdAdapter;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class CertRetrievalRequest {
 
-    private static final String CERT_ID = "certId";
-
     @XmlElement
     @XmlJavaTypeAdapter(CertIdAdapter.class)
     protected CertId certId;
@@ -55,10 +53,8 @@ public class CertRetrievalRequest {
         // required for JAXB (defaults)
     }
 
-    public CertRetrievalRequest(MultivaluedMap<String, String> form) {
-        if (form.containsKey(CERT_ID)) {
-            certId = new CertId(form.getFirst(CERT_ID));
-        }
+    public CertRetrievalRequest(CertId certId) {
+        this.certId = certId;
     }
 
     /**
@@ -66,13 +62,6 @@ public class CertRetrievalRequest {
      */
     public CertId getCertId() {
         return certId;
-    }
-
-    /**
-     * @param CertId the CertId to set
-     */
-    public void setCertId(CertId certId) {
-        this.certId = certId;
     }
 
 }

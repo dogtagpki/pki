@@ -136,8 +136,7 @@ public class CertService extends PKIService implements CertResource {
             throw new BadRequestException("Unable to get certificate: Invalid id.");
         }
 
-        CertRetrievalRequest data = new CertRetrievalRequest();
-        data.setCertId(id);
+        CertRetrievalRequest data = new CertRetrievalRequest(id);
 
         CertData certData = null;
 
