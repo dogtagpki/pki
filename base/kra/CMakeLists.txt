@@ -18,14 +18,14 @@ add_custom_target(pki-kra-lib ALL)
 
 add_custom_command(
     TARGET pki-kra-lib
-    COMMAND ${CMAKE_COMMAND} -E make_directory lib
-    COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/share/java/pki/pki-nsutil.jar lib/pki-nsutil.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/share/java/pki/pki-cmsutil.jar lib/pki-cmsutil.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/share/java/pki/pki-certsrv.jar lib/pki-certsrv.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/share/java/pki/pki-cms.jar lib/pki-cms.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/share/java/pki/pki-cmscore.jar lib/pki-cmscore.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/share/java/pki/pki-cmsbundle.jar lib/pki-cmsbundle.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/share/java/pki/pki-kra.jar lib/pki-kra.jar
+    COMMAND ${CMAKE_COMMAND} -E make_directory webapp/lib
+    COMMAND /usr/bin/ln -sf /usr/share/java/pki/pki-nsutil.jar ${CMAKE_CURRENT_BINARY_DIR}/webapp/lib/pki-nsutil.jar
+    COMMAND /usr/bin/ln -sf /usr/share/java/pki/pki-cmsutil.jar ${CMAKE_CURRENT_BINARY_DIR}/webapp/lib/pki-cmsutil.jar
+    COMMAND /usr/bin/ln -sf /usr/share/java/pki/pki-certsrv.jar ${CMAKE_CURRENT_BINARY_DIR}/webapp/lib/pki-certsrv.jar
+    COMMAND /usr/bin/ln -sf /usr/share/java/pki/pki-cms.jar ${CMAKE_CURRENT_BINARY_DIR}/webapp/lib/pki-cms.jar
+    COMMAND /usr/bin/ln -sf /usr/share/java/pki/pki-cmscore.jar ${CMAKE_CURRENT_BINARY_DIR}/webapp/lib/pki-cmscore.jar
+    COMMAND /usr/bin/ln -sf /usr/share/java/pki/pki-cmsbundle.jar ${CMAKE_CURRENT_BINARY_DIR}/webapp/lib/pki-cmsbundle.jar
+    COMMAND /usr/bin/ln -sf /usr/share/java/pki/pki-kra.jar ${CMAKE_CURRENT_BINARY_DIR}/webapp/lib/pki-kra.jar
 )
 
 # install directories
@@ -40,7 +40,7 @@ install(
 
 install(
     DIRECTORY
-        ${CMAKE_CURRENT_BINARY_DIR}/lib/
+        ${CMAKE_CURRENT_BINARY_DIR}/webapp/lib/
     DESTINATION
         ${DATA_INSTALL_DIR}/kra/webapps/kra/WEB-INF/lib
 )
