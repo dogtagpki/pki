@@ -435,9 +435,8 @@ public class SecurityDataProcessor {
             try {
                 unwrappedSess = transportUnit.unwrap_session_key(ct, wrappedSessKey,
                         SymmetricKey.Usage.DECRYPT, wrapParams);
-                Cipher decryptor = ct.getCipherContext(EncryptionAlgorithm.DES3_CBC_PAD);
-                decryptor.initDecrypt(unwrappedSess, new IVParameterSpec(iv_in));
-                unwrappedPass = decryptor.doFinal(wrappedPassPhrase);
+                unwrappedPass = decryptWithSymmetricKey(ct, unwrappedSess, wrappedPassPhrase,
+                        new IVParameterSpec(iv_in), wrapParams);
                 String passStr = new String(unwrappedPass, "UTF-8");
                 pass = new Password(passStr.toCharArray());
                 passStr = null;
@@ -500,24 +499,13 @@ public class SecurityDataProcessor {
                         CMS.debug("SecurityDataProcessor.recover(): encrypt symmetric key with session key as per allowEncDecrypt_recovery: true.");
                         unwrappedSess = transportUnit.unwrap_session_key(ct, wrappedSessKey,
                                 SymmetricKey.Usage.ENCRYPT, wrapParams);
-                        Cipher encryptor = ct.getCipherContext(EncryptionAlgorithm.DES3_CBC_PAD);
-
-                        if (encryptor != null) {
-                            encryptor.initEncrypt(unwrappedSess, new IVParameterSpec(iv));
-                            key_data = encryptor.doFinal(unwrappedSecData);
-
-                        } else {
-                            auditRecoveryRequestProcessed(auditSubjectID, ILogger.FAILURE, requestID,
-                                    serialno.toString(), "Failed to create cipher encrypting symmetric key");
-                            throw new IOException("Failed to create cipher encryping symmetric key");
-                        }
+                        key_data = encryptWithSymmetricKey(ct, unwrappedSess, unwrappedSecData,
+                                new IVParameterSpec(iv), wrapParams);
 
                     } else {
                         unwrappedSess = transportUnit.unwrap_session_key(ct, wrappedSessKey,
                                 SymmetricKey.Usage.WRAP, wrapParams);
-                        KeyWrapper wrapper = ct.getKeyWrapper(KeyWrapAlgorithm.DES3_CBC_PAD);
-                        wrapper.initWrap(unwrappedSess, new IVParameterSpec(iv));
-                        key_data = wrapper.wrap(symKey);
+                        key_data = wrapWithSymmetricKey(ct, unwrappedSess, symKey, new IVParameterSpec(iv), wrapParams);
                     }
 
                 } catch (Exception e) {
@@ -531,17 +519,9 @@ public class SecurityDataProcessor {
                 try {
                     unwrappedSess = transportUnit.unwrap_session_key(ct, wrappedSessKey,
                             SymmetricKey.Usage.ENCRYPT, wrapParams);
-                    Cipher encryptor = ct.getCipherContext(EncryptionAlgorithm.DES3_CBC_PAD);
-                    if (encryptor != null) {
-                        encryptor.initEncrypt(unwrappedSess, new IVParameterSpec(iv));
-                        key_data = encryptor.doFinal(unwrappedSecData);
 
-                    } else {
-                        auditRecoveryRequestProcessed(auditSubjectID, ILogger.FAILURE, requestID,
-                                serialno.toString(), "Failed to create cipher");
-                        throw new IOException("Failed to create cipher");
-                    }
-
+                    key_data = encryptWithSymmetricKey(ct, unwrappedSess, unwrappedSecData,
+                            new IVParameterSpec(iv), wrapParams);
                 } catch (Exception e) {
                     auditRecoveryRequestProcessed(auditSubjectID, ILogger.FAILURE, requestID,
                             serialno.toString(), "Cannot encrypt passphrase");
@@ -552,27 +532,15 @@ public class SecurityDataProcessor {
                 CMS.debug("SecurityDataProcessor.recover(): wrap or encrypt stored private key with session key");
                 try {
                     if (allowEncDecrypt_recovery == true) {
-                        CMS.debug("SecurityDataProcessor.recover(): encrypt symmetric key with session key as per allowEncDecrypt_recovery: true.");
+                        CMS.debug("SecurityDataProcessor.recover(): encrypt symmetric key.");
                         unwrappedSess = transportUnit.unwrap_session_key(ct, wrappedSessKey,
                                 SymmetricKey.Usage.ENCRYPT, wrapParams);
-                        Cipher encryptor = ct.getCipherContext(EncryptionAlgorithm.DES3_CBC_PAD);
-
-                        if (encryptor != null) {
-                            encryptor.initEncrypt(unwrappedSess, new IVParameterSpec(iv));
-                            key_data = encryptor.doFinal(unwrappedSecData);
-
-                        } else {
-                            auditRecoveryRequestProcessed(auditSubjectID, ILogger.FAILURE, requestID,
-                                    serialno.toString(), "Failed to create cipher encrypting asymmetric key");
-                            throw new IOException("Failed to create cipher encrypting asymmetric key");
-                        }
-
+                        key_data = encryptWithSymmetricKey(ct, unwrappedSess, unwrappedSecData,
+                                new IVParameterSpec(iv), wrapParams);
                     } else {
                         unwrappedSess = transportUnit.unwrap_session_key(ct, wrappedSessKey,
                                 SymmetricKey.Usage.WRAP, wrapParams);
-                        KeyWrapper wrapper = ct.getKeyWrapper(KeyWrapAlgorithm.DES3_CBC_PAD);
-                        wrapper.initWrap(unwrappedSess, new IVParameterSpec(iv));
-                        key_data = wrapper.wrap(privateKey);
+                        key_data = wrapWithSymmetricKey(ct, unwrappedSess, privateKey, new IVParameterSpec(iv), wrapParams);
                     }
 
                 } catch (Exception e) {
@@ -596,6 +564,44 @@ public class SecurityDataProcessor {
         request.setExtData(IRequest.RESULT, IRequest.RES_SUCCESS);
 
         return false; //return true ? TODO
+    }
+
+    private byte[] decryptWithSymmetricKey(CryptoToken ct, SymmetricKey wrappingKey, byte[] data, IVParameterSpec iv,
+            WrappingParams params) throws Exception {
+        Cipher decryptor = ct.getCipherContext(params.getPayloadEncryptionAlgorithm());
+        if (decryptor == null)
+            throw new IOException("Failed to create decryptor");
+        decryptor.initDecrypt(wrappingKey, iv);
+        return decryptor.doFinal(data);
+    }
+
+    private byte[] wrapWithSymmetricKey(CryptoToken ct, SymmetricKey wrappingKey, SymmetricKey data,
+            IVParameterSpec iv, WrappingParams params) throws Exception {
+        KeyWrapper wrapper = ct.getKeyWrapper(params.getPayloadWrapAlgorithm());
+        if (wrapper == null)
+            throw new IOException("Failed to create key wrapper");
+        wrapper.initWrap(wrappingKey, iv);
+        return wrapper.wrap(data);
+    }
+
+    private byte[] wrapWithSymmetricKey(CryptoToken ct, SymmetricKey wrappingKey, PrivateKey data,
+            IVParameterSpec iv, WrappingParams params) throws Exception {
+        KeyWrapper wrapper = ct.getKeyWrapper(params.getPayloadWrapAlgorithm());
+        if (wrapper == null)
+            throw new IOException("Failed to create key wrapper");
+        wrapper.initWrap(wrappingKey, iv);
+        return wrapper.wrap(data);
+    }
+
+    private byte[] encryptWithSymmetricKey(CryptoToken ct, SymmetricKey wrappingKey, byte[] data, IVParameterSpec iv,
+            WrappingParams params) throws Exception {
+        Cipher encryptor = ct.getCipherContext(params.getPayloadEncryptionAlgorithm());
+
+        if (encryptor == null)
+            throw new IOException("Failed to create cipher");
+
+        encryptor.initEncrypt(wrappingKey, iv);
+        return encryptor.doFinal(data);
     }
 
     public SymmetricKey recoverSymKey(KeyRecord keyRecord)
