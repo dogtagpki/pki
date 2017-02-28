@@ -22,6 +22,7 @@ import java.util.Date;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.MetaInfo;
+import com.netscape.certsrv.security.WrappingParams;
 
 /**
  * An interface contains constants for key record.
@@ -167,4 +168,8 @@ public interface IKeyRecord {
      * @exception EBaseException failed to retrieve authorization realm
      */
     public String getRealm() throws EBaseException;
+
+    public void setWrappingParams(WrappingParams params) throws Exception;
+
+    public WrappingParams getWrappingParams(WrappingParams oldParams) throws Exception;
 }

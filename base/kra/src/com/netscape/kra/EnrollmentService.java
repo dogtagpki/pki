@@ -169,7 +169,7 @@ public class EnrollmentService implements IService {
         if (CMS.debugOn())
             CMS.debug("EnrollmentServlet: KRA services enrollment request");
 
-        // the request reocrd field delayLDAPCommit == "true" will cause
+        // the request record field delayLDAPCommit == "true" will cause
         // updateRequest() to delay actual write to ldap
         request.setExtData("delayLDAPCommit", "true");
 
@@ -500,6 +500,22 @@ public class EnrollmentService implements IService {
             String realm = request.getRealm();
             if (realm != null) {
                 rec.set(KeyRecord.ATTR_REALM, realm);
+            }
+
+            try {
+                rec.setWrappingParams(mStorageUnit.getWrappingParams());
+            } catch (Exception e) {
+                mKRA.log(ILogger.LL_FAILURE, "Failed to store wrapping parameters");
+                // TODO(alee) Set correct audit message here
+                auditMessage = CMS.getLogMessage(
+                        LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST,
+                        auditSubjectID,
+                        ILogger.FAILURE,
+                        auditRequesterID,
+                        auditArchiveID);
+
+                audit(auditMessage);
+                throw new EKRAException(CMS.getUserMessage("CMS_KRA_INVALID_STATE"));
             }
 
             IKeyRepository storage = mKRA.getKeyRepository();

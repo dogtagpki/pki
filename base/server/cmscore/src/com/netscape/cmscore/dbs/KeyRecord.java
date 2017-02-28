@@ -22,11 +22,16 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Vector;
 
+import org.apache.commons.codec.binary.Base64;
+import org.mozilla.jss.crypto.IVParameterSpec;
+
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.certsrv.dbs.keydb.KeyState;
+import com.netscape.certsrv.security.WrappingParams;
+import com.netscape.cms.servlet.key.KeyRecordParser;
 
 /**
  * A class represents a Key record. It maintains the key
@@ -396,5 +401,90 @@ public class KeyRecord implements IDBObj, IKeyRecord {
     @Override
     public String getRealm() throws EBaseException {
         return realm;
+    }
+
+    public void setWrappingParams(WrappingParams params) throws Exception {
+        if (mMetaInfo == null) {
+            mMetaInfo = new MetaInfo();
+        }
+        // set session key parameters
+        mMetaInfo.set(KeyRecordParser.OUT_SK_LENGTH, String.valueOf(params.getSkLength()));
+        if (params.getSkType() != null) {
+            mMetaInfo.set(KeyRecordParser.OUT_SK_TYPE, params.getSkType().toString());
+        }
+        if (params.getSkKeyGenAlgorithm() != null) {
+            // JSS doesn't have a name map or a functional OID map
+            // for now, save the "name"
+            mMetaInfo.set(KeyRecordParser.OUT_SK_KEYGEN_ALGORITHM, params.getSkKeyGenAlgorithm().toString());
+        }
+        if (params.getSkWrapAlgorithm() != null) {
+            mMetaInfo.set(KeyRecordParser.OUT_SK_WRAP_ALGORITHM, params.getSkWrapAlgorithm().toString());
+        }
+
+        // set payload parameters
+        if (params.getPayloadEncryptionAlgorithm() != null) {
+            mMetaInfo.set(KeyRecordParser.OUT_PL_ENCRYPTION_ALGORITHM, params.getPayloadEncryptionAlgorithm().getAlg().toString());
+            mMetaInfo.set(KeyRecordParser.OUT_PL_ENCRYPTION_MODE, params.getPayloadEncryptionAlgorithm().getMode().toString());
+            mMetaInfo.set(KeyRecordParser.OUT_PL_ENCRYPTION_PADDING, params.getPayloadEncryptionAlgorithm().getPadding().toString());
+        }
+        if (params.getPayloadWrapAlgorithm() != null) {
+            mMetaInfo.set(KeyRecordParser.OUT_PL_WRAP_ALGORITHM, params.getPayloadWrapAlgorithm().toString());
+        }
+        if (params.getPayloadWrappingIV() != null) {
+            // store as base64 encoded string
+            mMetaInfo.set(
+                KeyRecordParser.OUT_PL_WRAP_IV,
+                Base64.encodeBase64String(params.getPayloadWrappingIV().getIV())
+            );
+        }
+        if (params.getPayloadEncryptionIV() != null) {
+            // store as base 64 encoded string
+            mMetaInfo.set(
+                KeyRecordParser.OUT_PL_ENCRYPTION_IV,
+                Base64.encodeBase64String(params.getPayloadEncryptionIV().getIV())
+            );
+        }
+
+    }
+
+    public WrappingParams getWrappingParams(WrappingParams oldParams) throws Exception {
+        if ((mMetaInfo == null) || (mMetaInfo.get(KeyRecordParser.OUT_SK_TYPE) == null)) {
+            // This is likely a legacy record. Return the old DES3 parameters.
+            // TODO(alee) modify to pass this in - to keep bean-ness
+            return oldParams;
+        }
+
+        WrappingParams params = new WrappingParams();
+        params.setSkType(mMetaInfo.get(KeyRecordParser.OUT_SK_TYPE).toString());
+        params.setSkLength(Integer.parseInt(mMetaInfo.get(KeyRecordParser.OUT_SK_LENGTH).toString()));
+
+        Object data = mMetaInfo.get(KeyRecordParser.OUT_SK_WRAP_ALGORITHM);
+        if (data != null) params.setSkWrapAlgorithm(data.toString());
+
+        data = mMetaInfo.get(KeyRecordParser.OUT_SK_KEYGEN_ALGORITHM);
+        if (data != null) params.setSkKeyGenAlgorithm(data.toString());
+
+        data = mMetaInfo.get(KeyRecordParser.OUT_PL_WRAP_ALGORITHM);
+        if (data != null) params.setPayloadWrapAlgorithm(data.toString());
+
+        params.setPayloadEncryptionAlgorithm(
+                mMetaInfo.get(KeyRecordParser.OUT_PL_ENCRYPTION_ALGORITHM).toString(),
+                mMetaInfo.get(KeyRecordParser.OUT_PL_ENCRYPTION_MODE).toString(),
+                mMetaInfo.get(KeyRecordParser.OUT_PL_ENCRYPTION_PADDING).toString(),
+                Integer.parseInt(mMetaInfo.get(KeyRecordParser.OUT_SK_LENGTH).toString()));
+
+        data = mMetaInfo.get(KeyRecordParser.OUT_PL_ENCRYPTION_IV);
+        if (data != null) {
+            byte[] iv = Base64.decodeBase64(data.toString());
+            params.setPayloadEncryptionIV(new IVParameterSpec(iv));
+        }
+
+        data = mMetaInfo.get(KeyRecordParser.OUT_PL_WRAP_IV);
+        if (data != null) {
+            byte[] iv = Base64.decodeBase64(data.toString());
+            params.setPayloadWrappingIV(new IVParameterSpec(iv));
+        }
+
+        return params;
     }
 }

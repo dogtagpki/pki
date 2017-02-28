@@ -197,6 +197,14 @@ public class AsymKeyGenService implements IService {
             record.set(KeyRecord.ATTR_REALM, realm);
         }
 
+        try {
+            record.setWrappingParams(storageUnit.getOldWrappingParams());
+        } catch (Exception e) {
+            auditAsymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
+                    clientKeyId, null, "Failed to store wrapping params");
+            throw new EBaseException(CMS.getUserMessage("CMS_KRA_INVALID_STATE"));
+        }
+
         storage.addKeyRecord(record);
 
         auditAsymKeyGenRequestProcessed(auditSubjectID, ILogger.SUCCESS, request.getRequestId(),
