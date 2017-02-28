@@ -17,9 +17,12 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.security;
 
+import java.security.PublicKey;
 import java.util.Enumeration;
 
 import org.mozilla.jss.crypto.CryptoToken;
+import org.mozilla.jss.crypto.PrivateKey;
+import org.mozilla.jss.crypto.SymmetricKey;
 
 import com.netscape.certsrv.base.EBaseException;
 
@@ -95,5 +98,75 @@ public interface IStorageKeyUnit extends IEncryptionUnit {
     public void login(Credential ac[]) throws EBaseException;
 
     public CryptoToken getToken();
+
+    /**
+     * Encrypts the internal private key (private key to the KRA's
+     * internal storage).
+     *
+     * @param rawPrivate user's private key (key to be archived)
+     * @return encrypted data
+     * @exception EBaseException failed to encrypt
+     */
+    public byte[] encryptInternalPrivate(byte rawPrivate[]) throws Exception;
+
+    /**
+     * Wraps data. The given key will be wrapped by the
+     * private key in this unit.
+     *
+     * @param priKey private key to be wrapped
+     * @param WrappingParams - wrapping parameters
+     * @return wrapped data
+     * @exception EBaseException failed to wrap
+     */
+    public byte[] wrap(PrivateKey priKey) throws Exception;
+
+    /**
+     * Wraps data. The given key will be wrapped by the
+     * private key in this unit.
+     *
+     * @param symKey symmetric key to be wrapped
+     * @param wrappingParams - wrapping parameters
+     * @return wrapped data
+     * @exception EBaseException failed to wrap
+     */
+    public byte[] wrap(SymmetricKey symKey) throws Exception;
+
+    /**
+     * Decrypts the internal private key (private key from the KRA's
+     * internal storage).
+     *
+     * @param wrappedPrivateData unwrapped private key data (key to be recovered)
+     * @param params - wrapping params
+     * @return raw private key
+     * @throws Exception
+     */
+    public byte[] decryptInternalPrivate(byte wrappedPrivateData[], WrappingParams params)
+            throws Exception;
+
+    /**
+     * Unwraps symmetric key data. This method rebuilds the symmetric key by
+     * unwrapping the private data blob.
+     *
+     * @param wrappedKeyData symmetric key data wrapped up with session key
+     * @return Symmetric key object
+     * @exception Exception failed to unwrap
+     */
+
+    public SymmetricKey unwrap(byte wrappedKeyData[], SymmetricKey.Type algorithm, int keySize,
+            WrappingParams params) throws Exception;
+
+    /**
+     * Unwraps data. This method rebuilds the private key by
+     * unwrapping the private key data.
+     *
+     * @param privateKey private key data
+     * @param pubKey public key object
+     * @param temporary - temporary key?
+     * @param params - wrapping parameters
+     * @return private key object
+     * @throws Exception
+     */
+    public PrivateKey unwrap(byte privateKey[], PublicKey pubKey, boolean temporary,
+            WrappingParams params) throws Exception;
 
 }

@@ -224,6 +224,16 @@ public class SymKeyGenService implements IService {
             rec.set(KeyRecord.ATTR_REALM, realm);
         }
 
+        try {
+            rec.setWrappingParams(mStorageUnit.getWrappingParams());
+        } catch (Exception e) {
+            mKRA.log(ILogger.LL_FAILURE,
+                    "Failed to store wrapping parameters: " + e);
+            auditSymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
+                    clientKeyId, null, "Failed to store wraping parameters.");
+            throw new EBaseException(CMS.getUserMessage("CMS_KRA_INVALID_STATE"), e);
+        }
+
         CMS.debug("KRA adding Security Data key record " + serialNo);
         storage.addKeyRecord(rec);
 

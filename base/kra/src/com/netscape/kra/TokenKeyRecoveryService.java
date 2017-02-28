@@ -273,9 +273,9 @@ public class TokenKeyRecoveryService implements IService {
                 (wrapped_des_key.length > 0)) {
 
             WrappingParams wrapParams = new WrappingParams(
-                    SymmetricKey.DES3, null, KeyGenAlgorithm.DES3, 0,
+                    SymmetricKey.DES3, KeyGenAlgorithm.DES3, 0,
                     KeyWrapAlgorithm.RSA, EncryptionAlgorithm.DES3_CBC_PAD,
-                    KeyWrapAlgorithm.DES3_CBC_PAD);
+                    KeyWrapAlgorithm.DES3_CBC_PAD, EncryptionUnit.IV, EncryptionUnit.IV);
 
             // unwrap the des key
             sk = (PK11SymKey) mTransportUnit.unwrap_sym(wrapped_des_key, wrapParams);
@@ -676,31 +676,21 @@ public class TokenKeyRecoveryService implements IService {
         }
 
         try {
-            /* wrapped retrieve session key and private key */
-            DerValue val = new DerValue(keyRecord.getPrivateKeyData());
-            DerInputStream in = val.data;
-            DerValue dSession = in.getDerValue();
-            byte session[] = dSession.getOctetString();
-            DerValue dPri = in.getDerValue();
-            byte pri[] = dPri.getOctetString();
-
-            byte publicKeyData[] = keyRecord.getPublicKeyData();
             PublicKey pubkey = null;
             try {
-                pubkey = X509Key.parsePublicKey (new DerValue(publicKeyData));
+                pubkey = X509Key.parsePublicKey (new DerValue(keyRecord.getPublicKeyData()));
             } catch (Exception e) {
                 CMS.debug("TokenKeyRecoverService: after parsePublicKey:"+e.toString());
                 throw new EKRAException(CMS.getUserMessage("CMS_KRA_RECOVERY_FAILED_1", "public key parsing failure"));
             }
-            byte iv[] = {0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1};
+
             PrivateKey privKey = null;
             try {
                 privKey = mStorageUnit.unwrap(
-                        session,
-                        keyRecord.getAlgorithm(),
-                        iv,
-                        pri,
-                        pubkey);
+                        keyRecord.getPrivateKeyData(),
+                        pubkey,
+                        false,
+                        keyRecord.getWrappingParams(mStorageUnit.getOldWrappingParams()));
             } catch (Exception e) {
                 CMS.debug("TokenKeyRecoveryService: recoverKey() - recovery failure");
                 throw new EKRAException(
@@ -728,7 +718,9 @@ public class TokenKeyRecoveryService implements IService {
             mStorageUnit.login(creds);
         */
         try {
-             return mStorageUnit.decryptInternalPrivate(keyRecord.getPrivateKeyData());
+             return mStorageUnit.decryptInternalPrivate(
+                     keyRecord.getPrivateKeyData(),
+                     keyRecord.getWrappingParams(mStorageUnit.getOldWrappingParams()));
              /* mStorageUnit.logout();*/
         } catch (Exception e){
             mKRA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_PRIVATE_KEY_NOT_FOUND"));
