@@ -86,6 +86,11 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
                     KeyWrapAlgorithm.RSA, EncryptionAlgorithm.DES3_CBC_PAD,
                     KeyWrapAlgorithm.DES3_CBC_PAD);
 
+            params = new WrappingParams(
+                    SymmetricKey.AES.AES, null, KeyGenAlgorithm.AES, 256,
+                    KeyWrapAlgorithm.RSA, EncryptionAlgorithm.AES_256_CBC_PAD,
+                    KeyWrapAlgorithm.AES_KEY_WRAP);
+
             // (1) generate session key
             SymmetricKey sk = generate_session_key(internalToken, false, params);
 
@@ -280,6 +285,11 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
                 KeyWrapAlgorithm.RSA, EncryptionAlgorithm.DES3_CBC_PAD,
                 KeyWrapAlgorithm.DES3_CBC_PAD);
 
+        params = new WrappingParams(
+                SymmetricKey.AES.AES, null, KeyGenAlgorithm.AES, 256,
+                KeyWrapAlgorithm.RSA, EncryptionAlgorithm.AES_256_CBC_PAD,
+                KeyWrapAlgorithm.AES_KEY_WRAP);
+
         // (1) unwrap the session key
         CMS.debug("decryptInternalPrivate(): getting key wrapper on slot:" + token.getName());
         SymmetricKey sk = unwrap_session_key(token, session, SymmetricKey.Usage.DECRYPT, params);
@@ -348,6 +358,11 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
                 KeyWrapAlgorithm.RSA, EncryptionAlgorithm.DES3_CBC_PAD,
                 KeyWrapAlgorithm.DES3_CBC_PAD);
 
+        params = new WrappingParams(
+                SymmetricKey.AES.AES, null, KeyGenAlgorithm.AES, 256,
+                KeyWrapAlgorithm.RSA, EncryptionAlgorithm.AES_256_CBC_PAD,
+                KeyWrapAlgorithm.AES_KEY_WRAP);
+
         CryptoToken token = getToken();
         // (1) unwrap the session key
         SymmetricKey sk = unwrap_session_key(token, session, SymmetricKey.Usage.UNWRAP, params);
@@ -375,6 +390,11 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
                     SymmetricKey.DES3, usages, KeyGenAlgorithm.DES3, 0,
                     KeyWrapAlgorithm.RSA, EncryptionAlgorithm.DES3_CBC_PAD,
                     KeyWrapAlgorithm.DES3_CBC_PAD);
+
+            params = new WrappingParams(
+                    SymmetricKey.AES.AES, null, KeyGenAlgorithm.AES, 256,
+                    KeyWrapAlgorithm.RSA, EncryptionAlgorithm.AES_256_CBC_PAD,
+                    KeyWrapAlgorithm.AES_KEY_WRAP);
 
             // (1) generate session key
             SymmetricKey sk = generate_session_key(token, true, params);
