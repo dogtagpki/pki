@@ -179,7 +179,8 @@ public class SecurityDataProcessor {
                             wrappedSessionKey,
                             algStr,
                             sparams,
-                            secdata);
+                            secdata,
+                            null);
 
                 } catch (Exception e) {
                     throw new EBaseException("Can't decrypt symm key using allEncDecrypt_archival : true .");
@@ -215,7 +216,8 @@ public class SecurityDataProcessor {
                         wrappedSessionKey,
                         algStr,
                         sparams,
-                        secdata);
+                        secdata,
+                        null);
             } catch (Exception e) {
                 throw new EBaseException("Can't decrypt passphrase.", e);
             }
@@ -288,6 +290,16 @@ public class SecurityDataProcessor {
 
         if (realm != null) {
             rec.set(KeyRecord.ATTR_REALM,  realm);
+        }
+
+        try {
+            rec.setWrappingParams(storageUnit.getWrappingParams());
+        } catch (Exception e) {
+            kra.log(ILogger.LL_FAILURE,
+                    "Failed to store wrapping parameters: " + e);
+            auditArchivalRequestProcessed(auditSubjectID, ILogger.FAILURE, requestId,
+                    clientKeyId, null, "Failed to store wrapping parameters");
+            throw new EBaseException(CMS.getUserMessage("CMS_KRA_INVALID_STATE"), e);
         }
 
         CMS.debug("KRA adding Security Data key record " + serialNo);
@@ -406,7 +418,11 @@ public class SecurityDataProcessor {
                     byte[] privateKeyData = keyRecord.getPrivateKeyData();
 
                     PublicKey publicKey = X509Key.parsePublicKey(new DerValue(publicKeyData));
-                    privateKey = storageUnit.unwrap_temp(privateKeyData, publicKey);
+                    privateKey = storageUnit.unwrap(
+                            privateKeyData,
+                            publicKey,
+                            true,
+                            keyRecord.getWrappingParams(storageUnit.getOldWrappingParams()));
                 }
 
             } catch (Exception e) {
@@ -420,9 +436,9 @@ public class SecurityDataProcessor {
         CryptoToken ct = transportUnit.getToken();
 
         WrappingParams wrapParams = new WrappingParams(
-                SymmetricKey.DES3, null, KeyGenAlgorithm.DES3, 0,
+                SymmetricKey.DES3, KeyGenAlgorithm.DES3, 0,
                 KeyWrapAlgorithm.RSA, EncryptionAlgorithm.DES3_CBC_PAD,
-                KeyWrapAlgorithm.DES3_CBC_PAD);
+                KeyWrapAlgorithm.DES3_CBC_PAD, EncryptionUnit.IV, EncryptionUnit.IV);
 
         byte[] key_data = null;
         String pbeWrappedData = null;
@@ -612,7 +628,8 @@ public class SecurityDataProcessor {
                     storageUnit.unwrap(
                             keyRecord.getPrivateKeyData(),
                             KeyRequestService.SYMKEY_TYPES.get(keyRecord.getAlgorithm()),
-                            keyRecord.getKeySize());
+                            keyRecord.getKeySize(),
+                            keyRecord.getWrappingParams(storageUnit.getOldWrappingParams()));
             return symKey;
         } catch (Exception e) {
             throw new EKRAException(CMS.getUserMessage("CMS_KRA_RECOVERY_FAILED_1",
@@ -623,7 +640,9 @@ public class SecurityDataProcessor {
     public byte[] recoverSecurityData(KeyRecord keyRecord)
             throws EBaseException {
         try {
-            return storageUnit.decryptInternalPrivate(keyRecord.getPrivateKeyData());
+            return storageUnit.decryptInternalPrivate(
+                    keyRecord.getPrivateKeyData(),
+                    keyRecord.getWrappingParams(storageUnit.getOldWrappingParams()));
         } catch (Exception e) {
             CMS.debug("Failed to recover security data: " + e);
             throw new EKRAException(CMS.getUserMessage("CMS_KRA_RECOVERY_FAILED_1",

@@ -22,6 +22,7 @@ import java.security.PublicKey;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.SymmetricKey;
+import org.mozilla.jss.crypto.SymmetricKey.Type;
 
 import com.netscape.certsrv.base.EBaseException;
 
@@ -63,40 +64,6 @@ public interface ITransportKeyUnit extends IEncryptionUnit {
     public PrivateKey getPrivateKey(org.mozilla.jss.crypto.X509Certificate cert);
 
     /**
-     * Unwraps symmetric key . This method
-     * unwraps the symmetric key.
-     *
-     * @param encSymmKey wrapped symmetric key to be unwrapped
-     * @param usage Key usage for unwrapped key.
-     * @return Symmetric key object
-     */
-
-    public SymmetricKey unwrap_session_key(CryptoToken token, byte encSymmKey[], SymmetricKey.Usage usage,
-            WrappingParams params);
-
-    /**
-     * Unwraps symmetric key . This method
-     * unwraps the symmetric key.
-     *
-     * @param encSymmKey wrapped symmetric key to be unwrapped
-     * @return Symmetric key object
-     */
-
-    public SymmetricKey unwrap_sym(byte encSymmKey[], WrappingParams params);
-
-    /**
-     * Unwraps temporary private key . This method
-     * unwraps the temporary private key.
-     *
-     * @param wrappedKeyData wrapped private key to be unwrapped
-     * @param pubKey public key
-     * @return Private key object
-     * @throws Exception
-     */
-
-    public PrivateKey unwrap_temp(byte wrappedKeyData[], PublicKey
-            pubKey) throws Exception;
-    /**
      * Returns this Unit's crypto token object.
      * @return CryptoToken object.
      */
@@ -117,4 +84,66 @@ public interface ITransportKeyUnit extends IEncryptionUnit {
      * @throws EBaseException
      */
     public void setSigningAlgorithm(String str) throws EBaseException;
+
+    /**
+     * Decrypts the external private key (private key from the end-user).
+     *
+     * @param sessionKey session key that protects the user private
+     * @param symmAlgOID symmetric algorithm
+     * @param symmAlgParams symmetric algorithm parameters
+     * @param privateKey private key data
+     * @param transportCert transport certificate
+     * @return private key data
+     * @throws Exception
+     */
+    public byte[] decryptExternalPrivate(byte sessionKey[],
+            String symmAlgOID, byte symmAlgParams[], byte privateKey[],
+            org.mozilla.jss.crypto.X509Certificate transportCert)
+            throws Exception;
+
+    /**
+     * Unwraps symmetric key . This method
+     * unwraps the symmetric key.
+     *
+     * @param sessionKey session key that unwrap the symmetric key
+     * @param symmAlgOID symmetric algorithm
+     * @param symmAlgParams symmetric algorithm parameters
+     * @param symmetricKey  symmetric key data
+     * @param type symmetric key algorithm
+     * @param strength symmetric key strength in bytes
+     * @return Symmetric key object
+     * @throws Exception
+     */
+
+    public SymmetricKey unwrap_symmetric(byte sessionKey[], String symmAlgOID,
+            byte symmAlgParams[], byte symmetricKey[], Type type, int strength)
+            throws Exception;
+
+    /**
+     * Unwraps data. This method rebuilds the private key by
+     * unwrapping the private key data.
+     *
+     * @param symmAlgOID symmetric algorithm
+     * @param symmAlgParams symmetric algorithm parameters
+     * @param pubKey public key
+     * @param transportCert transport certificate
+     * @return private key object
+     * @throws Exception
+     */
+    public PrivateKey unwrap(byte encSymmKey[], String symmAlgOID,
+            byte symmAlgParams[], byte encValue[], PublicKey pubKey,
+            org.mozilla.jss.crypto.X509Certificate transportCert)
+            throws Exception;
+
+    /**
+     * Unwraps symmetric key . This method
+     * unwraps the symmetric key.
+     *
+     * @param encSymmKey wrapped symmetric key to be unwrapped
+     * @return Symmetric key object
+     */
+
+    public SymmetricKey unwrap_sym(byte encSymmKey[], WrappingParams params);
+
+
 }

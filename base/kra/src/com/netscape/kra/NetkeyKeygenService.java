@@ -456,9 +456,9 @@ public class NetkeyKeygenService implements IService {
                 (wrapped_des_key.length > 0)) {
 
             WrappingParams wrapParams = new WrappingParams(
-                    SymmetricKey.DES3, null, KeyGenAlgorithm.DES3, 0,
+                    SymmetricKey.DES3, KeyGenAlgorithm.DES3, 0,
                     KeyWrapAlgorithm.RSA, EncryptionAlgorithm.DES3_CBC_PAD,
-                    KeyWrapAlgorithm.DES3_CBC_PAD);
+                    KeyWrapAlgorithm.DES3_CBC_PAD, EncryptionUnit.IV, EncryptionUnit.IV);
 
             // unwrap the DES key
             sk = (PK11SymKey) mTransportUnit.unwrap_sym(wrapped_des_key, wrapParams);
@@ -686,6 +686,9 @@ public class NetkeyKeygenService implements IService {
                         CMS.debug("NetkeyKeygenService: serialNo null");
                         return false;
                     }
+
+                    rec.setWrappingParams(mStorageUnit.getWrappingParams());
+
                     CMS.debug("NetkeyKeygenService: before addKeyRecord");
                     rec.set(KeyRecord.ATTR_ID, serialNo);
                     request.setExtData(ATTR_KEY_RECORD, serialNo);
