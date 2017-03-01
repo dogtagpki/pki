@@ -143,6 +143,39 @@ def customize_file(input_file, output_file, params):
             outfile.write(line)
 
 
+def load_properties(filename, properties):
+
+    with open(filename) as f:
+
+        lines = f.read().splitlines()
+
+        for index, line in enumerate(lines):
+
+            line = line.strip()
+
+            if not line or line.startswith('#'):
+                continue
+
+            parts = line.split('=', 1)
+
+            if len(parts) < 2:
+                raise Exception('Missing delimiter in %s line %d' %
+                                (filename, index + 1))
+
+            name = parts[0].strip()
+            value = parts[1].strip()
+            properties[name] = value
+
+
+def store_properties(filename, properties):
+
+    with open(filename, 'w') as f:
+
+        for name, value in properties.items():
+            line = '%s=%s\n' % (name, value)
+            f.write(line)
+
+
 def copytree(src, dst, symlinks=False, ignore=None):
     """
     Recursively copy a directory tree using copy2().

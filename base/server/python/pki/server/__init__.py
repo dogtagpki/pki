@@ -568,19 +568,7 @@ class PKIInstance(object):
         # load passwords
         self.passwords.clear()
         if os.path.exists(self.password_conf):
-
-            lines = open(self.password_conf).read().splitlines()
-
-            for index, line in enumerate(lines):
-                if not line or line.startswith('#'):
-                    continue
-                parts = line.split('=', 1)
-                if len(parts) < 2:
-                    raise Exception('Missing delimiter in %s line %d' %
-                                    (self.password_conf, index + 1))
-                name = parts[0]
-                value = parts[1]
-                self.passwords[name] = value
+            pki.util.load_properties(self.password_conf, self.passwords)
 
         self.load_external_certs(self.external_certs_conf)
 
