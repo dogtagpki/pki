@@ -1592,7 +1592,25 @@ public class CMSEngine implements ICMSEngine {
             return msg;
         MessageFormat mf = new MessageFormat(msg);
 
-        return mf.format(params);
+        Object escapedParams[] = new Object[params.length];
+        for (int i = 0; i < params.length; i++) {
+            if (params[i] instanceof String)
+                escapedParams[i] = escapeLogMessageParam((String) params[i]);
+            else
+                escapedParams[i] = params[i];
+        }
+
+        return mf.format(escapedParams);
+    }
+
+    /** Quote a string for inclusion in a java.text.MessageFormat
+     */
+    private String escapeLogMessageParam(String s) {
+        if (s == null)
+            return null;
+        if (s.contains("{") || s.contains("}"))
+            return "'" + s.replaceAll("'", "''") + "'";
+        return s;
     }
 
     public void debug(byte data[]) {
