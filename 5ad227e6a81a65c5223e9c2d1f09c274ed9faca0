@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fabf19d9_79ec718f",
+        "filename": "base/kra/src/com/netscape/kra/EncryptionUnit.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 644,
+      "author": {
+        "id": 1010256
+      },
+      "writtenOn": "2017-03-06T19:19:05Z",
+      "side": 1,
+      "message": "Very good idea to get this organized.  I suggest you put the following methods in CryptoUtil.java so that their usage is not limited to kra, and can also be used by clients.\nAlso, for encryption ones, the \"private_key\" don\u0027t necessarily have to be private key, so renaming them as though they are for encrypting and decrypting some data would be useful for other applications as well.",
+      "revId": "5ad227e6a81a65c5223e9c2d1f09c274ed9faca0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
