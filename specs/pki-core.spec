@@ -65,7 +65,7 @@
 
 Name:             pki-core
 Version:          10.3.5
-Release:          11%{?dist}
+Release:          13%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -258,6 +258,8 @@ Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{
 #Patch36:          pki-core-javadoc-special-characters.patch
 #Patch37:          pki-core-reset-cert-status-after-successful-unrevoke.patch
 #Patch38:          pki-core-cast-char-ptr-to-const-char-ptr-in-cpp-files.patch
+## pki-core-10.3.5-13
+#Patch39:          pki-core-add-profile-component-that-copies-CN-to-SAN.patch
 
 
 
@@ -935,6 +937,7 @@ This package is a part of the PKI Core used by the Certificate System.
 #%patch36 -p1
 #%patch37 -p1
 #%patch38 -p1
+#%patch39 -p1
 
 %clean
 %{__rm} -rf %{buildroot}
@@ -1440,6 +1443,9 @@ systemctl daemon-reload
 %endif # %{with server}
 
 %changelog
+* Mon Mar  6 2017 Dogtag Team <pki-devel@redhat.com> 10.3.5-13
+- PKI TRAC Ticket #1710 - Add profile component that copies CN to SAN (ftweedal)
+
 * Tue Jan 31 2017 Dogtag Team <pki-devel@redhat.com> 10.3.5-11
 
 * Thu Dec 22 2016 Miro Hrončok <mhroncok@redhat.com> - 10.3.5-10
