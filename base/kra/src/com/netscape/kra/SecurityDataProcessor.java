@@ -22,7 +22,6 @@ import org.mozilla.jss.crypto.Cipher;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.EncryptionAlgorithm;
 import org.mozilla.jss.crypto.IVParameterSpec;
-import org.mozilla.jss.crypto.KeyGenAlgorithm;
 import org.mozilla.jss.crypto.KeyGenerator;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
 import org.mozilla.jss.crypto.KeyWrapper;
@@ -319,11 +318,7 @@ public class SecurityDataProcessor {
 
         CMS.debug("SecurityDataService.recover(): start");
 
-        //Pave the way for allowing generated IV vector
-        byte iv[]= null;
-        byte iv_default[] = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
         byte iv_in[] = null;
-
         IConfigStore config = null;
 
         try {
@@ -371,18 +366,6 @@ public class SecurityDataProcessor {
             CMS.debug("SecurityDataProcessor.recover(): No params provided.");
             return false;
         }
-
-        //Create the return IV if needed.
-        iv = new byte[8];
-
-        try {
-            Random rnd = new Random();
-            rnd.nextBytes(iv);
-        } catch (Exception e) {
-            iv = iv_default;
-        }
-
-        String ivStr = Utils.base64encode(iv);
 
         KeyRecord keyRecord = (KeyRecord) keyRepository.readKeyRecord(serialno);
 
@@ -435,10 +418,32 @@ public class SecurityDataProcessor {
 
         CryptoToken ct = transportUnit.getToken();
 
-        WrappingParams wrapParams = new WrappingParams(
-                SymmetricKey.DES3, KeyGenAlgorithm.DES3, 0,
-                KeyWrapAlgorithm.RSA, EncryptionAlgorithm.DES3_CBC_PAD,
-                KeyWrapAlgorithm.DES3_CBC_PAD, EncryptionUnit.IV, EncryptionUnit.IV);
+        String payloadEncryptOID = (String) params.get(IRequest.SECURITY_DATA_PL_ENCRYPTION_OID);
+        String payloadWrapName = (String) params.get(IRequest.SECURITY_DATA_PL_WRAPPING_NAME);
+        String transportKeyAlgo = transportUnit.getCertificate().getPublicKey().getAlgorithm();
+
+        byte[] iv = generate_iv();
+        String ivStr = Utils.base64encode(iv);
+
+        WrappingParams wrapParams = null;
+        if (payloadEncryptOID == null) {
+            wrapParams = transportUnit.getOldWrappingParams();
+            wrapParams.setPayloadEncryptionIV(new IVParameterSpec(iv));
+            wrapParams.setPayloadWrappingIV(new IVParameterSpec(iv));
+        } else {
+            try {
+                wrapParams = new WrappingParams(
+                    payloadEncryptOID,
+                    payloadWrapName,
+                    transportKeyAlgo,
+                    new IVParameterSpec(iv),
+                    null);
+            } catch (Exception e) {
+                auditRecoveryRequestProcessed(auditSubjectID, ILogger.FAILURE, requestID, serialno.toString(),
+                        "Cannot generate wrapping params");
+                throw new EBaseException("Cannot generate wrapping params: " + e, e);
+            }
+        }
 
         byte[] key_data = null;
         String pbeWrappedData = null;
@@ -515,8 +520,7 @@ public class SecurityDataProcessor {
                         CMS.debug("SecurityDataProcessor.recover(): encrypt symmetric key with session key as per allowEncDecrypt_recovery: true.");
                         unwrappedSess = transportUnit.unwrap_session_key(ct, wrappedSessKey,
                                 SymmetricKey.Usage.ENCRYPT, wrapParams);
-                        key_data = encryptWithSymmetricKey(ct, unwrappedSess, unwrappedSecData,
-                                new IVParameterSpec(iv), wrapParams);
+                        key_data = encryptWithSymmetricKey(ct, unwrappedSess, unwrappedSecData, wrapParams);
 
                     } else {
                         unwrappedSess = transportUnit.unwrap_session_key(ct, wrappedSessKey,
@@ -536,8 +540,7 @@ public class SecurityDataProcessor {
                     unwrappedSess = transportUnit.unwrap_session_key(ct, wrappedSessKey,
                             SymmetricKey.Usage.ENCRYPT, wrapParams);
 
-                    key_data = encryptWithSymmetricKey(ct, unwrappedSess, unwrappedSecData,
-                            new IVParameterSpec(iv), wrapParams);
+                    key_data = encryptWithSymmetricKey(ct, unwrappedSess, unwrappedSecData, wrapParams);
                 } catch (Exception e) {
                     auditRecoveryRequestProcessed(auditSubjectID, ILogger.FAILURE, requestID,
                             serialno.toString(), "Cannot encrypt passphrase");
@@ -551,12 +554,11 @@ public class SecurityDataProcessor {
                         CMS.debug("SecurityDataProcessor.recover(): encrypt symmetric key.");
                         unwrappedSess = transportUnit.unwrap_session_key(ct, wrappedSessKey,
                                 SymmetricKey.Usage.ENCRYPT, wrapParams);
-                        key_data = encryptWithSymmetricKey(ct, unwrappedSess, unwrappedSecData,
-                                new IVParameterSpec(iv), wrapParams);
+                        key_data = encryptWithSymmetricKey(ct, unwrappedSess, unwrappedSecData, wrapParams);
                     } else {
                         unwrappedSess = transportUnit.unwrap_session_key(ct, wrappedSessKey,
                                 SymmetricKey.Usage.WRAP, wrapParams);
-                        key_data = wrapWithSymmetricKey(ct, unwrappedSess, privateKey, new IVParameterSpec(iv), wrapParams);
+                        key_data = wrapWithSymmetricKey(ct, unwrappedSess, privateKey, wrapParams);
                     }
 
                 } catch (Exception e) {
@@ -582,6 +584,22 @@ public class SecurityDataProcessor {
         return false; //return true ? TODO
     }
 
+    private byte[] generate_iv() {
+        //TODO(alee) Fix this -- this will only work for DES3.  Needs to be based on algorithm.
+        // Is there a function in JSS for this?  Also note that the iv generated  here is actually
+        // used for both encryption and wrapping algorithms above.
+        byte[] iv = new byte[8];
+        byte iv_default[] = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
+
+        try {
+            Random rnd = new Random();
+            rnd.nextBytes(iv);
+        } catch (Exception e) {
+            iv = iv_default;
+        }
+        return iv;
+    }
+
     private byte[] decryptWithSymmetricKey(CryptoToken ct, SymmetricKey wrappingKey, byte[] data, IVParameterSpec iv,
             WrappingParams params) throws Exception {
         Cipher decryptor = ct.getCipherContext(params.getPayloadEncryptionAlgorithm());
@@ -601,22 +619,22 @@ public class SecurityDataProcessor {
     }
 
     private byte[] wrapWithSymmetricKey(CryptoToken ct, SymmetricKey wrappingKey, PrivateKey data,
-            IVParameterSpec iv, WrappingParams params) throws Exception {
+            WrappingParams params) throws Exception {
         KeyWrapper wrapper = ct.getKeyWrapper(params.getPayloadWrapAlgorithm());
         if (wrapper == null)
             throw new IOException("Failed to create key wrapper");
-        wrapper.initWrap(wrappingKey, iv);
+        wrapper.initWrap(wrappingKey, params.getPayloadWrappingIV());
         return wrapper.wrap(data);
     }
 
-    private byte[] encryptWithSymmetricKey(CryptoToken ct, SymmetricKey wrappingKey, byte[] data, IVParameterSpec iv,
-            WrappingParams params) throws Exception {
+    private byte[] encryptWithSymmetricKey(CryptoToken ct, SymmetricKey wrappingKey, byte[] data, WrappingParams params)
+            throws Exception {
         Cipher encryptor = ct.getCipherContext(params.getPayloadEncryptionAlgorithm());
 
         if (encryptor == null)
             throw new IOException("Failed to create cipher");
 
-        encryptor.initEncrypt(wrappingKey, iv);
+        encryptor.initEncrypt(wrappingKey, params.getPayloadEncryptionIV());
         return encryptor.doFinal(data);
     }
 

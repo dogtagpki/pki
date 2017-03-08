@@ -281,7 +281,12 @@ public class TransportKeyUnit extends EncryptionUnit implements
         CryptoToken token = getToken(transCert);
         PrivateKey wrappingKey = getPrivateKey(transCert);
         String priKeyAlgo = wrappingKey.getAlgorithm();
-        WrappingParams params = new WrappingParams(symmAlgOID, priKeyAlgo, new IVParameterSpec(symmAlgParams));
+        WrappingParams params = new WrappingParams(
+                symmAlgOID,
+                null,
+                priKeyAlgo,
+                new IVParameterSpec(symmAlgParams),
+                null);
 
         SymmetricKey sk = unwrap_session_key(
                 token,
@@ -305,7 +310,12 @@ public class TransportKeyUnit extends EncryptionUnit implements
         CryptoToken token = getToken();
         PrivateKey wrappingKey = getPrivateKey(mCert);
         String priKeyAlgo = wrappingKey.getAlgorithm();
-        WrappingParams params = new WrappingParams(symmAlgOID, priKeyAlgo, new IVParameterSpec(symmAlgParams));
+        WrappingParams params = new WrappingParams(
+                symmAlgOID,
+                null,
+                priKeyAlgo,
+                new IVParameterSpec(symmAlgParams),
+                null);
 
         // (1) unwrap the session key
         SymmetricKey sk = unwrap_session_key(token, encSymmKey, SymmetricKey.Usage.UNWRAP, params);
@@ -313,7 +323,6 @@ public class TransportKeyUnit extends EncryptionUnit implements
         // (2) unwrap the session-wrapped-symmetric-key
         SymmetricKey symKey = unwrap_symmetric_key(
                 token,
-                new IVParameterSpec(symmAlgParams),
                 algorithm,
                 strength,
                 SymmetricKey.Usage.DECRYPT,
@@ -336,7 +345,12 @@ public class TransportKeyUnit extends EncryptionUnit implements
         CryptoToken token = getToken(transCert);
         PrivateKey wrappingKey = getPrivateKey(transCert);
         String priKeyAlgo = wrappingKey.getAlgorithm();
-        WrappingParams params = new WrappingParams(symmAlgOID, priKeyAlgo, new IVParameterSpec(symmAlgParams));
+        WrappingParams params = new WrappingParams(
+                symmAlgOID,
+                null,
+                priKeyAlgo,
+                new IVParameterSpec(symmAlgParams),
+                null);
 
         // (1) unwrap the session key
         SymmetricKey sk = unwrap_session_key(

@@ -146,11 +146,11 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
         return wrapper.wrap(data);
     }
 
-    protected SymmetricKey unwrap_symmetric_key(CryptoToken token, IVParameterSpec iv, SymmetricKey.Type algorithm,
+    protected SymmetricKey unwrap_symmetric_key(CryptoToken token, SymmetricKey.Type algorithm,
             int strength, SymmetricKey.Usage usage, SymmetricKey sessionKey, byte[] wrappedData,
             WrappingParams params) throws Exception {
         KeyWrapper wrapper = token.getKeyWrapper(params.getPayloadWrapAlgorithm());
-        wrapper.initUnwrap(sessionKey, iv);
+        wrapper.initUnwrap(sessionKey, params.getPayloadWrappingIV());
         SymmetricKey symKey = wrapper.unwrapSymmetric(wrappedData, algorithm, usage, strength);
         return symKey;
     }
