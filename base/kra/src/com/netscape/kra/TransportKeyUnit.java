@@ -21,10 +21,7 @@ import java.security.PublicKey;
 
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoToken;
-import org.mozilla.jss.crypto.EncryptionAlgorithm;
 import org.mozilla.jss.crypto.IVParameterSpec;
-import org.mozilla.jss.crypto.KeyGenAlgorithm;
-import org.mozilla.jss.crypto.KeyWrapAlgorithm;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.Signature;
@@ -277,17 +274,14 @@ public class TransportKeyUnit extends EncryptionUnit implements
             throws Exception {
 
         CMS.debug("EncryptionUnit.decryptExternalPrivate");
+
+        if (transCert == null) {
+            transCert = mCert;
+        }
         CryptoToken token = getToken(transCert);
-
-        // TODO(alee) Strictly speaking, we should set the wrapping params from the
-        // params coming in. (symmAlgOID etc).  Will fix this in a later patch.
-        WrappingParams params = getWrappingParams();
-        params.setPayloadEncryptionIV(new IVParameterSpec(symmAlgParams));
-
         PrivateKey wrappingKey = getPrivateKey(transCert);
         String priKeyAlgo = wrappingKey.getAlgorithm();
-        if (priKeyAlgo.equals("EC"))
-            params.setSkWrapAlgorithm(KeyWrapAlgorithm.AES_ECB);
+        WrappingParams params = new WrappingParams(symmAlgOID, priKeyAlgo, new IVParameterSpec(symmAlgParams));
 
         SymmetricKey sk = unwrap_session_key(
                 token,
@@ -308,12 +302,11 @@ public class TransportKeyUnit extends EncryptionUnit implements
             byte encValue[], SymmetricKey.Type algorithm, int strength)
             throws Exception {
 
-        // TODO(alee) Strictly speaking, we should set the wrapping params from the
-        // params coming in. (symmAlgOID etc).  Will fix this in a later patch.
-        WrappingParams params = getWrappingParams();
-        params.setPayloadEncryptionIV(new IVParameterSpec(symmAlgParams));
-
         CryptoToken token = getToken();
+        PrivateKey wrappingKey = getPrivateKey(mCert);
+        String priKeyAlgo = wrappingKey.getAlgorithm();
+        WrappingParams params = new WrappingParams(symmAlgOID, priKeyAlgo, new IVParameterSpec(symmAlgParams));
+
         // (1) unwrap the session key
         SymmetricKey sk = unwrap_session_key(token, encSymmKey, SymmetricKey.Usage.UNWRAP, params);
 
@@ -341,18 +334,9 @@ public class TransportKeyUnit extends EncryptionUnit implements
             org.mozilla.jss.crypto.X509Certificate transCert)
             throws Exception {
         CryptoToken token = getToken(transCert);
-
-        WrappingParams params = new WrappingParams(
-                SymmetricKey.DES3, KeyGenAlgorithm.DES3, 0,
-                KeyWrapAlgorithm.RSA, EncryptionAlgorithm.DES3_CBC_PAD,
-                KeyWrapAlgorithm.DES3_CBC_PAD,
-                new IVParameterSpec(symmAlgParams),
-                new IVParameterSpec(symmAlgParams));
-
         PrivateKey wrappingKey = getPrivateKey(transCert);
         String priKeyAlgo = wrappingKey.getAlgorithm();
-        if (priKeyAlgo.equals("EC"))
-            params.setSkWrapAlgorithm(KeyWrapAlgorithm.AES_ECB);
+        WrappingParams params = new WrappingParams(symmAlgOID, priKeyAlgo, new IVParameterSpec(symmAlgParams));
 
         // (1) unwrap the session key
         SymmetricKey sk = unwrap_session_key(

@@ -2,6 +2,7 @@ package com.netscape.certsrv.security;
 
 import java.security.NoSuchAlgorithmException;
 
+import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
 import org.mozilla.jss.crypto.EncryptionAlgorithm;
 import org.mozilla.jss.crypto.IVParameterSpec;
 import org.mozilla.jss.crypto.KeyGenAlgorithm;
@@ -45,6 +46,44 @@ public class WrappingParams {
     }
 
     public WrappingParams() {}
+
+    public WrappingParams(String symmAlgOID, String priKeyAlgo, IVParameterSpec ivParameterSpec)
+            throws NumberFormatException, NoSuchAlgorithmException {
+        EncryptionAlgorithm encrypt = EncryptionAlgorithm.fromOID(new OBJECT_IDENTIFIER(symmAlgOID));
+
+        switch (encrypt.getAlg().toString()) {
+        case "AES":
+            this.skType = SymmetricKey.AES;
+            this.skKeyGenAlgorithm = KeyGenAlgorithm.AES;
+            this.payloadWrapAlgorithm = KeyWrapAlgorithm.AES_KEY_WRAP_PAD;
+            break;
+        case "DESede":
+            this.skType = SymmetricKey.DES3;
+            this.skKeyGenAlgorithm = KeyGenAlgorithm.DES3;
+            this.skWrapAlgorithm = KeyWrapAlgorithm.DES3_CBC_PAD;
+            this.payloadWrapAlgorithm = KeyWrapAlgorithm.DES3_CBC_PAD;
+            break;
+        case "DES":
+            this.skType = SymmetricKey.DES;
+            this.skKeyGenAlgorithm = KeyGenAlgorithm.DES;
+            this.skWrapAlgorithm = KeyWrapAlgorithm.DES3_CBC_PAD;
+            this.payloadWrapAlgorithm = KeyWrapAlgorithm.DES_CBC_PAD;
+            break;
+        default:
+            throw new NoSuchAlgorithmException("Invalid algorithm");
+        }
+
+        this.skLength = encrypt.getKeyStrength();
+        if (priKeyAlgo.equals("EC")) {
+            this.skWrapAlgorithm = KeyWrapAlgorithm.AES_ECB;
+        } else {
+            this.skWrapAlgorithm = KeyWrapAlgorithm.RSA;
+        }
+
+        this.payloadEncryptionAlgorithm = encrypt;
+        this.payloadEncryptionIV = ivParameterSpec;
+        this.payloadWrappingIV = ivParameterSpec;
+    }
 
     public SymmetricKey.Type getSkType() {
         return skType;

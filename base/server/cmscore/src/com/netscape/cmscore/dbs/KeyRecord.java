@@ -18,11 +18,14 @@
 package com.netscape.cmscore.dbs;
 
 import java.math.BigInteger;
+import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Vector;
 
 import org.apache.commons.codec.binary.Base64;
+import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
+import org.mozilla.jss.crypto.EncryptionAlgorithm;
 import org.mozilla.jss.crypto.IVParameterSpec;
 
 import com.netscape.certsrv.base.EBaseException;
@@ -423,9 +426,16 @@ public class KeyRecord implements IDBObj, IKeyRecord {
 
         // set payload parameters
         if (params.getPayloadEncryptionAlgorithm() != null) {
-            mMetaInfo.set(KeyRecordParser.OUT_PL_ENCRYPTION_ALGORITHM, params.getPayloadEncryptionAlgorithm().getAlg().toString());
-            mMetaInfo.set(KeyRecordParser.OUT_PL_ENCRYPTION_MODE, params.getPayloadEncryptionAlgorithm().getMode().toString());
-            mMetaInfo.set(KeyRecordParser.OUT_PL_ENCRYPTION_PADDING, params.getPayloadEncryptionAlgorithm().getPadding().toString());
+            EncryptionAlgorithm encrypt = params.getPayloadEncryptionAlgorithm();
+            try {
+                OBJECT_IDENTIFIER oid = encrypt.toOID();
+                mMetaInfo.set(KeyRecordParser.OUT_PL_ENCRYPTION_OID, oid.toDottedString());
+            } catch (NoSuchAlgorithmException e) {
+                // oid not defined in JSS
+                mMetaInfo.set(KeyRecordParser.OUT_PL_ENCRYPTION_ALGORITHM, encrypt.getAlg().toString());
+                mMetaInfo.set(KeyRecordParser.OUT_PL_ENCRYPTION_MODE, encrypt.getMode().toString());
+                mMetaInfo.set(KeyRecordParser.OUT_PL_ENCRYPTION_PADDING, encrypt.getPadding().toString());
+            }
         }
         if (params.getPayloadWrapAlgorithm() != null) {
             mMetaInfo.set(KeyRecordParser.OUT_PL_WRAP_ALGORITHM, params.getPayloadWrapAlgorithm().toString());
@@ -467,11 +477,16 @@ public class KeyRecord implements IDBObj, IKeyRecord {
         data = mMetaInfo.get(KeyRecordParser.OUT_PL_WRAP_ALGORITHM);
         if (data != null) params.setPayloadWrapAlgorithm(data.toString());
 
-        params.setPayloadEncryptionAlgorithm(
+        if (mMetaInfo.get(KeyRecordParser.OUT_PL_ENCRYPTION_OID) != null) {
+            String oidString = mMetaInfo.get(KeyRecordParser.OUT_PL_ENCRYPTION_OID).toString();
+            params.setPayloadEncryptionAlgorithm(EncryptionAlgorithm.fromOID(new OBJECT_IDENTIFIER(oidString)));
+        } else {
+            params.setPayloadEncryptionAlgorithm(
                 mMetaInfo.get(KeyRecordParser.OUT_PL_ENCRYPTION_ALGORITHM).toString(),
                 mMetaInfo.get(KeyRecordParser.OUT_PL_ENCRYPTION_MODE).toString(),
                 mMetaInfo.get(KeyRecordParser.OUT_PL_ENCRYPTION_PADDING).toString(),
                 Integer.parseInt(mMetaInfo.get(KeyRecordParser.OUT_SK_LENGTH).toString()));
+        }
 
         data = mMetaInfo.get(KeyRecordParser.OUT_PL_ENCRYPTION_IV);
         if (data != null) {
