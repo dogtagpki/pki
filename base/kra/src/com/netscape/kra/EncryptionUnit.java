@@ -142,7 +142,7 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
     protected byte[] wrap_symmetric_key(CryptoToken token, SymmetricKey sessionKey, SymmetricKey data,
             WrappingParams params) throws Exception {
         KeyWrapper wrapper = token.getKeyWrapper(params.getPayloadWrapAlgorithm());
-        wrapper.initWrap(sessionKey, params.getPayloadEncryptionIV());
+        wrapper.initWrap(sessionKey, params.getPayloadWrappingIV());
         return wrapper.wrap(data);
     }
 
