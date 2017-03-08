@@ -1154,7 +1154,7 @@ public class StorageKeyUnit extends EncryptionUnit implements
         SymmetricKey sk = unwrap_session_key(token, session, SymmetricKey.Usage.UNWRAP, params);
 
         // (2) unwrap the session-wrapped-symmetric key
-        return unwrap_symmetric_key(token, params.getPayloadWrappingIV(), algorithm, keySize, SymmetricKey.Usage.UNWRAP,
+        return unwrap_symmetric_key(token, algorithm, keySize, SymmetricKey.Usage.UNWRAP,
                 sk, pri, params);
     }
 

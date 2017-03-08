@@ -47,27 +47,33 @@ public class WrappingParams {
 
     public WrappingParams() {}
 
-    public WrappingParams(String symmAlgOID, String priKeyAlgo, IVParameterSpec ivParameterSpec)
+    public WrappingParams(String encryptOID, String wrapName, String priKeyAlgo, IVParameterSpec encryptIV, IVParameterSpec wrapIV)
             throws NumberFormatException, NoSuchAlgorithmException {
-        EncryptionAlgorithm encrypt = EncryptionAlgorithm.fromOID(new OBJECT_IDENTIFIER(symmAlgOID));
+        EncryptionAlgorithm encrypt = EncryptionAlgorithm.fromOID(new OBJECT_IDENTIFIER(encryptOID));
+
+        KeyWrapAlgorithm wrap = null;
+        if (wrapName != null) {
+            wrap = KeyWrapAlgorithm.fromString(wrapName);
+            this.payloadWrapAlgorithm = wrap;
+        }
 
         switch (encrypt.getAlg().toString()) {
         case "AES":
             this.skType = SymmetricKey.AES;
             this.skKeyGenAlgorithm = KeyGenAlgorithm.AES;
-            this.payloadWrapAlgorithm = KeyWrapAlgorithm.AES_KEY_WRAP_PAD;
+            if (wrap == null) this.payloadWrapAlgorithm = KeyWrapAlgorithm.AES_KEY_WRAP_PAD;
             break;
         case "DESede":
             this.skType = SymmetricKey.DES3;
             this.skKeyGenAlgorithm = KeyGenAlgorithm.DES3;
             this.skWrapAlgorithm = KeyWrapAlgorithm.DES3_CBC_PAD;
-            this.payloadWrapAlgorithm = KeyWrapAlgorithm.DES3_CBC_PAD;
+            if (wrap == null) this.payloadWrapAlgorithm = KeyWrapAlgorithm.DES3_CBC_PAD;
             break;
         case "DES":
             this.skType = SymmetricKey.DES;
             this.skKeyGenAlgorithm = KeyGenAlgorithm.DES;
             this.skWrapAlgorithm = KeyWrapAlgorithm.DES3_CBC_PAD;
-            this.payloadWrapAlgorithm = KeyWrapAlgorithm.DES_CBC_PAD;
+            if (wrap == null) this.payloadWrapAlgorithm = KeyWrapAlgorithm.DES_CBC_PAD;
             break;
         default:
             throw new NoSuchAlgorithmException("Invalid algorithm");
@@ -81,8 +87,8 @@ public class WrappingParams {
         }
 
         this.payloadEncryptionAlgorithm = encrypt;
-        this.payloadEncryptionIV = ivParameterSpec;
-        this.payloadWrappingIV = ivParameterSpec;
+        this.payloadEncryptionIV = encryptIV;
+        this.payloadWrappingIV = wrapIV;
     }
 
     public SymmetricKey.Type getSkType() {
