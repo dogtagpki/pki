@@ -57,6 +57,7 @@ public class KeyRecordParser {
     public final static String OUT_PL_ENCRYPTION_MODE = "payloadEncryptionMode";
     public final static String OUT_PL_ENCRYPTION_PADDING = "payloadEncryptionPadding";
     public final static String OUT_PL_ENCRYPTION_IV = "payloadEncryptionIV";
+    public final static String OUT_PL_ENCRYPTION_OID = "payloadEncryptionOID";
 
     /**
      * Fills key record into argument block.
