@@ -262,7 +262,7 @@ public class TransportKeyUnit extends EncryptionUnit implements
         // XXX
     }
 
-    public SymmetricKey unwrap_sym(byte encSymmKey[], WrappingParams params) {
+    public SymmetricKey unwrap_sym(byte encSymmKey[], WrappingParams params) throws Exception {
         return unwrap_session_key(getToken(), encSymmKey, SymmetricKey.Usage.WRAP, params);
     }
 
@@ -289,12 +289,14 @@ public class TransportKeyUnit extends EncryptionUnit implements
                 new IVParameterSpec(symmAlgParams),
                 null);
 
-        SymmetricKey sk = unwrap_session_key(
+        SymmetricKey sk = CryptoUtil.unwrap(
                 token,
-                encSymmKey,
+                params.getSkType(),
+                0,
                 SymmetricKey.Usage.DECRYPT,
                 wrappingKey,
-                params);
+                encSymmKey,
+                params.getSkWrapAlgorithm());
 
         return CryptoUtil.decryptUsingSymmetricKey(
                 token,
@@ -327,16 +329,15 @@ public class TransportKeyUnit extends EncryptionUnit implements
         SymmetricKey sk = unwrap_session_key(token, encSymmKey, SymmetricKey.Usage.UNWRAP, params);
 
         // (2) unwrap the session-wrapped-symmetric-key
-        SymmetricKey symKey = unwrap_symmetric_key(
+        return CryptoUtil.unwrap(
                 token,
                 algorithm,
                 strength,
                 SymmetricKey.Usage.DECRYPT,
                 sk,
                 encValue,
-                params);
-
-        return symKey;
+                params.getPayloadWrapAlgorithm(),
+                params.getPayloadEncryptionIV());
     }
 
     /**
@@ -356,23 +357,26 @@ public class TransportKeyUnit extends EncryptionUnit implements
                 null,
                 priKeyAlgo,
                 new IVParameterSpec(symmAlgParams),
-                null);
+                new IVParameterSpec(symmAlgParams));
 
         // (1) unwrap the session key
-        SymmetricKey sk = unwrap_session_key(
+        SymmetricKey sk = CryptoUtil.unwrap(
                 token,
-                encSymmKey,
+                params.getSkType(),
+                0,
                 SymmetricKey.Usage.UNWRAP,
                 wrappingKey,
-                params);
+                encSymmKey,
+                params.getSkWrapAlgorithm());
 
         // (2) unwrap the session-wrapped-private key
-        return unwrap_private_key(
+        return CryptoUtil.unwrap(
                 token,
                 pubKey,
-                true /*temporary*/,
+                true,
                 sk,
                 encValue,
-                params);
+                params.getPayloadWrapAlgorithm(),
+                params.getPayloadWrappingIV());
     }
 }

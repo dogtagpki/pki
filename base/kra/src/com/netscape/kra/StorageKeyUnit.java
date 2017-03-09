@@ -1178,8 +1178,15 @@ public class StorageKeyUnit extends EncryptionUnit implements
         SymmetricKey sk = unwrap_session_key(token, session, SymmetricKey.Usage.UNWRAP, params);
 
         // (2) unwrap the session-wrapped-symmetric key
-        return unwrap_symmetric_key(token, algorithm, keySize, SymmetricKey.Usage.UNWRAP,
-                sk, pri, params);
+        return CryptoUtil.unwrap(
+                token,
+                algorithm,
+                keySize,
+                SymmetricKey.Usage.UNWRAP,
+                sk,
+                pri,
+                params.getPayloadWrapAlgorithm(),
+                params.getPayloadWrappingIV());
     }
 
     public PrivateKey unwrap(byte wrappedKeyData[], PublicKey pubKey, boolean temporary, WrappingParams params)
@@ -1197,6 +1204,13 @@ public class StorageKeyUnit extends EncryptionUnit implements
         SymmetricKey sk = unwrap_session_key(token, session, SymmetricKey.Usage.UNWRAP, params);
 
         // (2) unwrap the private key
-        return unwrap_private_key(token, pubKey, temporary, sk, pri, params);
+        return CryptoUtil.unwrap(
+                token,
+                pubKey,
+                temporary,
+                sk,
+                pri,
+                params.getPayloadWrapAlgorithm(),
+                params.getPayloadWrappingIV());
     }
 }

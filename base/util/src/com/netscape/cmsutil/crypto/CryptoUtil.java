@@ -1991,30 +1991,22 @@ public class CryptoUtil {
             PublicKey pubkey, byte[] data)
             throws InvalidBERException, Exception {
         ByteArrayInputStream in = new ByteArrayInputStream(data);
-        PKIArchiveOptions options = (PKIArchiveOptions)
-            (new PKIArchiveOptions.Template()).decode(in);
+        PKIArchiveOptions options = (PKIArchiveOptions) (new PKIArchiveOptions.Template()).decode(in);
         EncryptedKey encKey = options.getEncryptedKey();
         EncryptedValue encVal = encKey.getEncryptedValue();
         AlgorithmIdentifier algId = encVal.getSymmAlg();
         BIT_STRING encSymKey = encVal.getEncSymmKey();
         BIT_STRING encPrivKey = encVal.getEncValue();
 
-        KeyWrapper wrapper = token.getKeyWrapper(KeyWrapAlgorithm.RSA);
-        wrapper.initUnwrap(unwrappingKey, null);
-        SymmetricKey sk = wrapper.unwrapSymmetric(
-            encSymKey.getBits(), SymmetricKey.Type.DES3, 0);
+        SymmetricKey sk = unwrap(token, SymmetricKey.Type.DES3, 0, null, unwrappingKey, encSymKey.getBits(),
+                KeyWrapAlgorithm.RSA);
 
         ASN1Value v = algId.getParameters();
         v = ((ANY) v).decodeWith(new OCTET_STRING.Template());
         byte iv[] = ((OCTET_STRING) v).toByteArray();
         IVParameterSpec ivps = new IVParameterSpec(iv);
 
-        wrapper = token.getKeyWrapper(KeyWrapAlgorithm.DES3_CBC_PAD);
-        wrapper.initUnwrap(sk, ivps);
-        PrivateKey.Type keyType = pubkey.getAlgorithm().equals("EC")
-            ? PrivateKey.Type.EC
-            : PrivateKey.Type.RSA;
-        return wrapper.unwrapPrivate(encPrivKey.getBits(), keyType, pubkey);
+        return unwrap(token, pubkey, false, sk, encPrivKey.getBits(), KeyWrapAlgorithm.DES3_CBC_PAD, ivps);
     }
 
     public static boolean sharedSecretExists(String nickname) throws NotInitializedException, TokenException {
@@ -2209,6 +2201,50 @@ public class CryptoUtil {
         KeyWrapper rsaWrap = token.getKeyWrapper(alg);
         rsaWrap.initWrap(wrappingKey, null);
         return rsaWrap.wrap(data);
+    }
+
+    public static SymmetricKey unwrap(CryptoToken token, SymmetricKey.Type keyType,
+            int strength, SymmetricKey.Usage usage, SymmetricKey wrappingKey, byte[] wrappedData,
+            KeyWrapAlgorithm wrapAlgorithm, IVParameterSpec wrappingIV) throws Exception {
+        KeyWrapper wrapper = token.getKeyWrapper(wrapAlgorithm);
+        wrapper.initUnwrap(wrappingKey, wrappingIV);
+        return wrapper.unwrapSymmetric(wrappedData, keyType, usage, strength);
+    }
+
+    public static SymmetricKey unwrap(CryptoToken token, SymmetricKey.Type keyType,
+            int strength, SymmetricKey.Usage usage, PrivateKey wrappingKey, byte[] wrappedData,
+            KeyWrapAlgorithm wrapAlgorithm) throws Exception {
+        KeyWrapper keyWrapper = token.getKeyWrapper(wrapAlgorithm);
+        keyWrapper.initUnwrap(wrappingKey, null);
+
+        return keyWrapper.unwrapSymmetric(wrappedData, keyType, usage, strength);
+    }
+
+    public static PrivateKey unwrap(CryptoToken token, PublicKey pubKey, boolean temporary,
+            SymmetricKey wrappingKey, byte[] wrappedData, KeyWrapAlgorithm wrapAlgorithm, IVParameterSpec wrapIV)
+            throws Exception {
+        KeyWrapper wrapper = token.getKeyWrapper(wrapAlgorithm);
+        wrapper.initUnwrap(wrappingKey, wrapIV);
+
+        // Get the key type for unwrapping the private key.
+        PrivateKey.Type keyType = null;
+        if (pubKey.getAlgorithm().equalsIgnoreCase("RSA")) {
+            keyType = PrivateKey.RSA;
+        } else if (pubKey.getAlgorithm().equalsIgnoreCase("DSA")) {
+            keyType = PrivateKey.DSA;
+        } else if (pubKey.getAlgorithm().equalsIgnoreCase("EC")) {
+            keyType = PrivateKey.EC;
+        }
+
+        PrivateKey pk = null;
+        if (temporary) {
+            pk = wrapper.unwrapTemporaryPrivate(wrappedData,
+                    keyType, pubKey);
+        } else {
+            pk = wrapper.unwrapPrivate(wrappedData,
+                    keyType, pubKey);
+        }
+        return pk;
     }
 }
 

@@ -260,13 +260,12 @@ public class TokenKeyRecoveryService implements IService {
                     KeyWrapAlgorithm.DES3_CBC_PAD, EncryptionUnit.IV, EncryptionUnit.IV);
 
             // unwrap the des key
-            sk = (PK11SymKey) mTransportUnit.unwrap_sym(wrapped_des_key, wrapParams);
-
-            if (sk == null) {
+            try {
+                sk = (PK11SymKey) mTransportUnit.unwrap_sym(wrapped_des_key, wrapParams);
+                CMS.debug("TokenKeyRecoveryService: received des key");
+            } catch (Exception e) {
                 CMS.debug("TokenKeyRecoveryService: no des key");
                 request.setExtData(IRequest.RESULT, Integer.valueOf(4));
-            } else {
-                CMS.debug("TokenKeyRecoveryService: received des key");
             }
         } else {
             CMS.debug("TokenKeyRecoveryService: not receive des key");

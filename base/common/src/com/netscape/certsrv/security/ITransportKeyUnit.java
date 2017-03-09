@@ -141,9 +141,10 @@ public interface ITransportKeyUnit extends IEncryptionUnit {
      *
      * @param encSymmKey wrapped symmetric key to be unwrapped
      * @return Symmetric key object
+     * @throws Exception
      */
 
-    public SymmetricKey unwrap_sym(byte encSymmKey[], WrappingParams params);
+    public SymmetricKey unwrap_sym(byte encSymmKey[], WrappingParams params) throws Exception;
 
 
 }

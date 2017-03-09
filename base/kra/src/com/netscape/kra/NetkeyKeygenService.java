@@ -352,7 +352,6 @@ public class NetkeyKeygenService implements IService {
 
         wrapped_des_key = null;
         boolean archive = true;
-        PK11SymKey sk = null;
         byte[] publicKeyData = null;
         ;
         String PubKey = "";
@@ -441,9 +440,6 @@ public class NetkeyKeygenService implements IService {
                     KeyWrapAlgorithm.RSA, EncryptionAlgorithm.DES3_CBC_PAD,
                     KeyWrapAlgorithm.DES3_CBC_PAD, EncryptionUnit.IV, EncryptionUnit.IV);
 
-            // unwrap the DES key
-            sk = (PK11SymKey) mTransportUnit.unwrap_sym(wrapped_des_key, wrapParams);
-
             /* XXX could be done in HSM*/
             KeyPair keypair = null;
 
@@ -511,12 +507,15 @@ public class NetkeyKeygenService implements IService {
                     CMS.debug("NetkeyKeygenService: got private key");
                 }
 
-                if (sk == null) {
-                    CMS.debug("NetkeyKeygenService: no DES key");
+                // unwrap the DES key
+                PK11SymKey sk = null;
+                try {
+                    sk = (PK11SymKey) mTransportUnit.unwrap_sym(wrapped_des_key, wrapParams);
+                    CMS.debug("NetkeyKeygenService: received DES key");
+                } catch (Exception e) {
+                    CMS.debug("NetkeyKeygenService: no DES key: " + e);
                     request.setExtData(IRequest.RESULT, Integer.valueOf(4));
                     return false;
-                } else {
-                    CMS.debug("NetkeyKeygenService: received DES key");
                 }
 
                 // 3 wrapping should be done in HSM
