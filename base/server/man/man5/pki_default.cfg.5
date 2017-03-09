@@ -107,7 +107,7 @@ If an optional hardware security module (HSM) is being utilized (rather than the
 .SS SYSTEM CERTIFICATE PARAMETERS
 \fBpkispawn\fP sets up a number of system certificates for each subsystem.  The system certificates which are required differ between subsystems.  Each system certificate is denoted by a tag, as noted below.  The different system certificates are:
 .IP
-* signing certificate ("signing").  Used to sign other certificates.  Required for CA.
+* signing certificate ("ca_signing").  Used to sign other certificates.  Required for CA.
 .IP
 * OCSP signing certificate ("ocsp_signing" in CA, "signing" in OCSP).  Used to sign CRLs.  Required for OCSP and CA.
 .IP
