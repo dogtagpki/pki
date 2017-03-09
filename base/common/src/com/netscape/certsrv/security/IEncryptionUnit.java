@@ -54,10 +54,11 @@ public interface IEncryptionUnit extends IToken {
      *
      * @param encSymmKey wrapped symmetric key to be unwrapped
      * @return Symmetric key object
+     * @throws Exception
      */
 
     public SymmetricKey unwrap_session_key(CryptoToken token, byte encSymmKey[],
-            SymmetricKey.Usage usage, WrappingParams params);
+            SymmetricKey.Usage usage, WrappingParams params) throws Exception;
 
 
     public WrappingParams getWrappingParams() throws EBaseException;

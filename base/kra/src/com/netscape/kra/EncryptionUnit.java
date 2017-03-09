@@ -24,15 +24,14 @@ import org.mozilla.jss.crypto.EncryptionAlgorithm;
 import org.mozilla.jss.crypto.IVParameterSpec;
 import org.mozilla.jss.crypto.KeyGenAlgorithm;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
-import org.mozilla.jss.crypto.KeyWrapper;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.SymmetricKey;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.key.KeyRequestResource;
 import com.netscape.certsrv.security.IEncryptionUnit;
 import com.netscape.certsrv.security.WrappingParams;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
  * A class represents the transport key pair. This key pair
@@ -77,13 +76,19 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
     }
 
     public SymmetricKey unwrap_session_key(CryptoToken token, byte encSymmKey[], SymmetricKey.Usage usage,
-            WrappingParams params) {
+            WrappingParams params) throws Exception {
         PrivateKey wrappingKey = getPrivateKey();
         String priKeyAlgo = wrappingKey.getAlgorithm();
         if (priKeyAlgo.equals("EC"))
             params.setSkWrapAlgorithm(KeyWrapAlgorithm.AES_ECB);
 
-        return unwrap_session_key(token, encSymmKey, usage, wrappingKey, params);
+        return CryptoUtil.unwrap(
+                token,
+                params.getSkType(),
+                0,
+                usage, wrappingKey,
+                encSymmKey,
+                params.getSkWrapAlgorithm());
     }
 
     /**
@@ -93,63 +98,4 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
             EBaseException {
     }
 
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //          Crypto specific methods below here ...
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    protected SymmetricKey unwrap_session_key(CryptoToken token, byte[] wrappedSessionKey, SymmetricKey.Usage usage,
-            PrivateKey wrappingKey, WrappingParams params) {
-        try {
-            KeyWrapper keyWrapper = token.getKeyWrapper(params.getSkWrapAlgorithm());
-            keyWrapper.initUnwrap(wrappingKey, null);
-
-            SymmetricKey sk = keyWrapper.unwrapSymmetric(
-                    wrappedSessionKey,
-                    params.getSkType(),
-                    usage,
-                    0);
-            CMS.debug("EncryptionUnit::unwrap_sym() unwrapped on slot: "
-                    + token.getName());
-            return sk;
-        } catch (Exception e) {
-            CMS.debug("EncryptionUnit::unwrap_session_key() error:" + e.toString());
-            return null;
-        }
-    }
-
-    protected SymmetricKey unwrap_symmetric_key(CryptoToken token, SymmetricKey.Type algorithm,
-            int strength, SymmetricKey.Usage usage, SymmetricKey sessionKey, byte[] wrappedData,
-            WrappingParams params) throws Exception {
-        KeyWrapper wrapper = token.getKeyWrapper(params.getPayloadWrapAlgorithm());
-        wrapper.initUnwrap(sessionKey, params.getPayloadWrappingIV());
-        SymmetricKey symKey = wrapper.unwrapSymmetric(wrappedData, algorithm, usage, strength);
-        return symKey;
-    }
-
-    protected PrivateKey unwrap_private_key(CryptoToken token, PublicKey pubKey,
-            boolean temporary, SymmetricKey sessionKey, byte[] wrappedData, WrappingParams params)
-            throws Exception {
-        KeyWrapper wrapper = token.getKeyWrapper(params.getPayloadWrapAlgorithm());
-        wrapper.initUnwrap(sessionKey, params.getPayloadWrappingIV());
-
-        // Get the key type for unwrapping the private key.
-        PrivateKey.Type keyType = null;
-        if (pubKey.getAlgorithm().equalsIgnoreCase(KeyRequestResource.RSA_ALGORITHM)) {
-            keyType = PrivateKey.RSA;
-        } else if (pubKey.getAlgorithm().equalsIgnoreCase(KeyRequestResource.DSA_ALGORITHM)) {
-            keyType = PrivateKey.DSA;
-        } else if (pubKey.getAlgorithm().equalsIgnoreCase(KeyRequestResource.EC_ALGORITHM)) {
-            keyType = PrivateKey.EC;
-        }
-
-        PrivateKey pk = null;
-        if (temporary) {
-            pk = wrapper.unwrapTemporaryPrivate(wrappedData,
-                    keyType, pubKey);
-        } else {
-            pk = wrapper.unwrapPrivate(wrappedData,
-                    keyType, pubKey);
-        }
-        return pk;
-    }
 }
