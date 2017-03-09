@@ -19,7 +19,6 @@ package com.netscape.kra;
 
 import java.security.PublicKey;
 
-import org.mozilla.jss.crypto.Cipher;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.EncryptionAlgorithm;
 import org.mozilla.jss.crypto.IVParameterSpec;
@@ -98,27 +97,6 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
     //          Crypto specific methods below here ...
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    protected SymmetricKey generate_session_key(CryptoToken token, boolean temporary, WrappingParams params,
-            SymmetricKey.Usage[] usages) throws Exception {
-        org.mozilla.jss.crypto.KeyGenerator kg = token.getKeyGenerator(params.getSkKeyGenAlgorithm());
-        if (usages != null)
-            kg.setKeyUsages(usages);
-        kg.temporaryKeys(temporary);
-        if (params.getSkLength() > 0)
-            kg.initialize(params.getSkLength());
-        SymmetricKey sk = kg.generate();
-        CMS.debug("EncryptionUnit:generate_session_key() session key generated on slot: " + token.getName());
-        return sk;
-    }
-
-    protected byte[] wrap_session_key(CryptoToken token, PublicKey wrappingKey, SymmetricKey sessionKey,
-            WrappingParams params) throws Exception {
-        KeyWrapper rsaWrap = token.getKeyWrapper(params.getSkWrapAlgorithm());
-        rsaWrap.initWrap(wrappingKey, null);
-        byte session[] = rsaWrap.wrap(sessionKey);
-        return session;
-    }
-
     protected SymmetricKey unwrap_session_key(CryptoToken token, byte[] wrappedSessionKey, SymmetricKey.Usage usage,
             PrivateKey wrappingKey, WrappingParams params) {
         try {
@@ -139,13 +117,6 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
         }
     }
 
-    protected byte[] wrap_symmetric_key(CryptoToken token, SymmetricKey sessionKey, SymmetricKey data,
-            WrappingParams params) throws Exception {
-        KeyWrapper wrapper = token.getKeyWrapper(params.getPayloadWrapAlgorithm());
-        wrapper.initWrap(sessionKey, params.getPayloadWrappingIV());
-        return wrapper.wrap(data);
-    }
-
     protected SymmetricKey unwrap_symmetric_key(CryptoToken token, SymmetricKey.Type algorithm,
             int strength, SymmetricKey.Usage usage, SymmetricKey sessionKey, byte[] wrappedData,
             WrappingParams params) throws Exception {
@@ -153,13 +124,6 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
         wrapper.initUnwrap(sessionKey, params.getPayloadWrappingIV());
         SymmetricKey symKey = wrapper.unwrapSymmetric(wrappedData, algorithm, usage, strength);
         return symKey;
-    }
-
-    protected byte[] wrap_private_key(CryptoToken token, SymmetricKey sessionKey, PrivateKey data,
-            WrappingParams params) throws Exception {
-        KeyWrapper wrapper = token.getKeyWrapper(params.getPayloadWrapAlgorithm());
-        wrapper.initWrap(sessionKey, params.getPayloadWrappingIV());
-        return wrapper.wrap(data);
     }
 
     protected PrivateKey unwrap_private_key(CryptoToken token, PublicKey pubKey,
@@ -188,20 +152,4 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
         }
         return pk;
     }
-
-    protected byte[] encrypt_private_key(CryptoToken token, SymmetricKey sessionKey, byte[] data, WrappingParams params)
-            throws Exception {
-        Cipher cipher = token.getCipherContext(params.getPayloadEncryptionAlgorithm());
-        cipher.initEncrypt(sessionKey, params.getPayloadEncryptionIV());
-        byte pri[] = cipher.doFinal(data);
-        return pri;
-    }
-
-    protected byte[] decrypt_private_key(CryptoToken token, SymmetricKey sessionKey,
-            byte[] encryptedData, WrappingParams params) throws Exception {
-        Cipher cipher = token.getCipherContext(params.getPayloadEncryptionAlgorithm());
-        cipher.initDecrypt(sessionKey, params.getPayloadEncryptionIV());
-        return cipher.doFinal(encryptedData);
-    }
-
 }

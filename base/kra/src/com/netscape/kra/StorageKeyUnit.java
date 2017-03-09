@@ -466,30 +466,16 @@ public class StorageKeyUnit extends EncryptionUnit implements
         try {
             // move public & private to config/storage.dat
             // delete private key
-            KeyWrapper wrapper = token.getKeyWrapper(
+            return CryptoUtil.wrapUsingSymmetricKey(
+                    token,
+                    sk,
+                    pri,
+                    IV,
                     KeyWrapAlgorithm.DES3_CBC_PAD);
-
-            // next to randomly generate a symmetric
-            // password
-
-            wrapper.initWrap(sk, IV);
-            return wrapper.wrap(pri);
-        } catch (TokenException e) {
+        } catch (Exception e) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_KEY_1",
                         "wrapStorageKey:" +
-                                e.toString()));
-        } catch (NoSuchAlgorithmException e) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_KEY_1",
-                        "wrapStorageKey:" +
-                                e.toString()));
-        } catch (InvalidKeyException e) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_KEY_1",
-                        "wrapStorageKey:" +
-                                e.toString()));
-        } catch (InvalidAlgorithmParameterException e) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_KEY_1",
-                        "wrapStorageKey:" +
-                                e.toString()));
+                                e.toString()), e);
         }
     }
 
@@ -1031,13 +1017,27 @@ public class StorageKeyUnit extends EncryptionUnit implements
             WrappingParams params = getWrappingParams();
 
             // (1) generate session key
-            SymmetricKey sk = generate_session_key(internalToken, false, params, null);
+            SymmetricKey sk = CryptoUtil.generateKey(
+                    internalToken,
+                    params.getSkKeyGenAlgorithm(),
+                    params.getSkLength(),
+                    null,
+                    false);
 
             // (2) wrap private key with session key
-            byte[] pri = encrypt_private_key(internalToken, sk, priKey, params);
+            byte[] pri = CryptoUtil.encryptUsingSymmetricKey(
+                    internalToken,
+                    sk,
+                    priKey,
+                    params.getPayloadEncryptionAlgorithm(),
+                    params.getPayloadEncryptionIV());
 
             // (3) wrap session with storage public
-            byte[] session = wrap_session_key(internalToken, getPublicKey(), sk, params);
+            byte[] session = CryptoUtil.wrapUsingPublicKey(
+                    internalToken,
+                    getPublicKey(),
+                    sk,
+                    params.getSkWrapAlgorithm());
 
             // use MY own structure for now:
             // SEQUENCE {
@@ -1080,7 +1080,12 @@ public class StorageKeyUnit extends EncryptionUnit implements
             usages[1] = SymmetricKey.Usage.UNWRAP;
 
             // (1) generate session key
-            SymmetricKey sk = generate_session_key(token, true, params, usages);
+            SymmetricKey sk = CryptoUtil.generateKey(
+                    token,
+                    params.getSkKeyGenAlgorithm(),
+                    params.getSkLength(),
+                    usages,
+                    true);
 
             // (2) wrap private key with session key
             // KeyWrapper wrapper = internalToken.getKeyWrapper(
@@ -1088,14 +1093,28 @@ public class StorageKeyUnit extends EncryptionUnit implements
             byte pri[] = null;
 
             if (priKey != null) {
-                pri = wrap_private_key(token, sk, priKey, params);
+                pri = CryptoUtil.wrapUsingSymmetricKey(
+                        token,
+                        sk,
+                        priKey,
+                        params.getPayloadWrappingIV(),
+                        params.getPayloadWrapAlgorithm());
             } else if (symmKey != null) {
-                pri = wrap_symmetric_key(token, sk, symmKey, params);
+                pri = CryptoUtil.wrapUsingSymmetricKey(
+                        token,
+                        sk,
+                        symmKey,
+                        params.getPayloadWrappingIV(),
+                        params.getPayloadWrapAlgorithm());
             }
 
             CMS.debug("EncryptionUnit:wrap() privKey wrapped");
 
-            byte[] session = wrap_session_key(token, getPublicKey(), sk, params);
+            byte[] session = CryptoUtil.wrapUsingPublicKey(
+                    token,
+                    getPublicKey(),
+                    sk,
+                    params.getSkWrapAlgorithm());
             CMS.debug("EncryptionUnit:wrap() session key wrapped");
 
             // use MY own structure for now:
@@ -1136,7 +1155,12 @@ public class StorageKeyUnit extends EncryptionUnit implements
         SymmetricKey sk = unwrap_session_key(token, session, SymmetricKey.Usage.DECRYPT, params);
 
         // (2) decrypt the private key
-        return decrypt_private_key(token, sk, pri, params);
+        return CryptoUtil.decryptUsingSymmetricKey(
+                token,
+                params.getPayloadEncryptionIV(),
+                pri,
+                sk,
+                params.getPayloadEncryptionAlgorithm());
     }
 
     public SymmetricKey unwrap(byte wrappedKeyData[], SymmetricKey.Type algorithm, int keySize,

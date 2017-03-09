@@ -3,7 +3,6 @@ package com.netscape.cms.servlet.test;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
-import java.io.CharConversionException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -11,10 +10,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateEncodingException;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -23,16 +18,11 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.asn1.InvalidBERException;
 import org.mozilla.jss.crypto.AlreadyInitializedException;
-import org.mozilla.jss.crypto.BadPaddingException;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.IVParameterSpec;
-import org.mozilla.jss.crypto.IllegalBlockSizeException;
 import org.mozilla.jss.crypto.KeyGenAlgorithm;
 import org.mozilla.jss.crypto.SymmetricKey;
-import org.mozilla.jss.crypto.SymmetricKey.NotExtractableException;
-import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.util.Password;
 
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -101,10 +91,7 @@ public class GeneratePKIArchiveOptions {
         out.close();
     }
 
-    public static void main(String args[]) throws InvalidKeyException, CertificateEncodingException,
-            CharConversionException, NoSuchAlgorithmException, InvalidAlgorithmParameterException,
-            IllegalStateException, TokenException, IOException, IllegalBlockSizeException, BadPaddingException,
-            InvalidBERException, NotExtractableException {
+    public static void main(String args[]) throws Exception {
         String token_pwd = null;
         String db_dir = "./";
         String out_file = "./options.out";
@@ -199,7 +186,7 @@ public class GeneratePKIArchiveOptions {
         // Data to be archived
         SymmetricKey vek = null;
         if (!passphraseMode) {
-            vek = CryptoUtil.generateKey(token, KeyGenAlgorithm.DES3, 0);
+            vek = CryptoUtil.generateKey(token, KeyGenAlgorithm.DES3, 0, null, false);
             // store vek in file
             write_file(Utils.base64encode(vek.getKeyData()), key_file);
         }

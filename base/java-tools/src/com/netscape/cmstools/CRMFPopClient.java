@@ -59,7 +59,6 @@ import org.mozilla.jss.crypto.KeyGenerator;
 import org.mozilla.jss.crypto.KeyPairAlgorithm;
 import org.mozilla.jss.crypto.KeyPairGenerator;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
-import org.mozilla.jss.crypto.KeyWrapper;
 import org.mozilla.jss.crypto.Signature;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.crypto.SymmetricKey;
@@ -551,9 +550,12 @@ public class CRMFPopClient {
     public byte[] wrapPrivateKey(CryptoToken token, SymmetricKey sessionKey, byte[] iv, KeyPair keyPair) throws Exception {
 
         // wrap private key using session
-        KeyWrapper wrapper = token.getKeyWrapper(KeyWrapAlgorithm.DES3_CBC_PAD);
-        wrapper.initWrap(sessionKey, new IVParameterSpec(iv));
-        return wrapper.wrap((org.mozilla.jss.crypto.PrivateKey) keyPair.getPrivate());
+        return CryptoUtil.wrapUsingSymmetricKey(
+                token,
+                sessionKey,
+                (org.mozilla.jss.crypto.PrivateKey) keyPair.getPrivate(),
+                new IVParameterSpec(iv),
+                KeyWrapAlgorithm.DES3_CBC_PAD);
     }
 
     public byte[] wrapSessionKey(CryptoToken token, X509Certificate transportCert, SymmetricKey sessionKey) throws Exception {
@@ -561,9 +563,7 @@ public class CRMFPopClient {
         // wrap session key using KRA transport cert
         // currently, a transport cert has to be an RSA cert,
         // regardless of the key you are wrapping
-        KeyWrapper wrapper = token.getKeyWrapper(KeyWrapAlgorithm.RSA);
-        wrapper.initWrap(transportCert.getPublicKey(), null);
-        return wrapper.wrap(sessionKey);
+        return CryptoUtil.wrapUsingPublicKey(token, transportCert.getPublicKey(), sessionKey, KeyWrapAlgorithm.RSA);
     }
 
     public CertRequest createCertRequest(

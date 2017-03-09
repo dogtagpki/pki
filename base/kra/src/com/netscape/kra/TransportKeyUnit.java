@@ -35,6 +35,7 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.security.ITransportKeyUnit;
 import com.netscape.certsrv.security.WrappingParams;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Cert;
 
 /**
@@ -295,7 +296,12 @@ public class TransportKeyUnit extends EncryptionUnit implements
                 wrappingKey,
                 params);
 
-        return decrypt_private_key(token, sk, encValue, params);
+        return CryptoUtil.decryptUsingSymmetricKey(
+                token,
+                params.getPayloadEncryptionIV(),
+                encValue,
+                sk,
+                params.getPayloadEncryptionAlgorithm());
     }
 
     /**

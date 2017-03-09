@@ -27,13 +27,11 @@ import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.util.Hashtable;
 
-import org.mozilla.jss.crypto.Cipher;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.EncryptionAlgorithm;
 import org.mozilla.jss.crypto.IVParameterSpec;
 import org.mozilla.jss.crypto.KeyGenAlgorithm;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
-import org.mozilla.jss.crypto.KeyWrapper;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.PrivateKey.Type;
 import org.mozilla.jss.crypto.SymmetricKey;
@@ -54,6 +52,7 @@ import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.certsrv.security.ITransportKeyUnit;
 import com.netscape.certsrv.security.WrappingParams;
 import com.netscape.cmscore.dbs.KeyRecord;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Cert;
 
 import netscape.security.util.BigInt;
@@ -168,23 +167,6 @@ public class TokenKeyRecoveryService implements IService {
             // contained within 8859_1
             return output.toString("8859_1");
         }
-    }
-
-    // this encrypts bytes with a symmetric key
-    public byte[] encryptIt(byte[] toBeEncrypted, SymmetricKey symKey, CryptoToken token,
-                IVParameterSpec IV) {
-        try {
-            Cipher cipher = token.getCipherContext(
-                    EncryptionAlgorithm.DES3_CBC_PAD);
-
-            cipher.initEncrypt(symKey, IV);
-            byte pri[] = cipher.doFinal(toBeEncrypted);
-            return pri;
-        } catch (Exception e) {
-            CMS.debug("initEncrypt() threw exception: " + e.toString());
-            return null;
-        }
-
     }
 
     /**
@@ -364,8 +346,6 @@ public class TokenKeyRecoveryService implements IService {
             CMS.debug("TokenKeyRecoveryService: got token slot:" + token.getName());
             IVParameterSpec algParam = new IVParameterSpec(iv);
 
-            Cipher cipher = token.getCipherContext(EncryptionAlgorithm.DES3_CBC_PAD);
-
             KeyRecord keyRecord = null;
             CMS.debug("KRA reading key record");
             try {
@@ -512,8 +492,12 @@ public class TokenKeyRecoveryService implements IService {
                 }
 
                 //encrypt and put in private key
-                cipher.initEncrypt(sk, algParam);
-                wrapped = cipher.doFinal(privateKeyData);
+                wrapped = CryptoUtil.encryptUsingSymmetricKey(
+                        token,
+                        sk,
+                        privateKeyData,
+                        EncryptionAlgorithm.DES3_CBC_PAD,
+                        algParam);
             } else { //allowEncDecrypt_recovery == false
                 PrivateKey privKey = recoverKey(params, keyRecord, allowEncDecrypt_recovery);
                 if (privKey == null) {
@@ -531,11 +515,14 @@ public class TokenKeyRecoveryService implements IService {
                 }
 
                 CMS.debug("TokenKeyRecoveryService: about to wrap...");
-                KeyWrapper wrapper = token.getKeyWrapper(
-                    KeyWrapAlgorithm.DES3_CBC_PAD);
 
-                wrapper.initWrap(sk, algParam);
-                wrapped = wrapper.wrap(privKey);
+                wrapped = CryptoUtil.wrapUsingSymmetricKey(
+                        token,
+                        sk,
+                        privKey,
+                        algParam,
+                        KeyWrapAlgorithm.DES3_CBC_PAD);
+
                 iv_s = /*base64Encode(iv);*/com.netscape.cmsutil.util.Utils.SpecialEncode(iv);
                 request.setExtData("iv_s", iv_s);
             }
