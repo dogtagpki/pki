@@ -47,7 +47,6 @@ import org.mozilla.jss.crypto.EncryptionAlgorithm;
 import org.mozilla.jss.crypto.IVParameterSpec;
 import org.mozilla.jss.crypto.InternalCertificate;
 import org.mozilla.jss.crypto.KeyGenAlgorithm;
-import org.mozilla.jss.crypto.KeyGenerator;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
 import org.mozilla.jss.crypto.KeyWrapper;
 import org.mozilla.jss.crypto.NoSuchItemOnTokenException;
@@ -67,6 +66,8 @@ import org.mozilla.jss.pkix.primitive.PrivateKeyInfo;
 import org.mozilla.jss.util.Password;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.netscape.cmsutil.crypto.CryptoUtil;
 
 import netscape.ldap.LDAPDN;
 import netscape.ldap.util.DN;
@@ -114,18 +115,19 @@ public class PKCS12Util {
     }
 
     byte[] getEncodedKey(PrivateKey privateKey) throws Exception {
-
         CryptoManager cm = CryptoManager.getInstance();
         CryptoToken token = cm.getInternalKeyStorageToken();
 
-        KeyGenerator kg = token.getKeyGenerator(KeyGenAlgorithm.DES3);
-        SymmetricKey sk = kg.generate();
-
-        KeyWrapper wrapper = token.getKeyWrapper(KeyWrapAlgorithm.DES3_CBC_PAD);
         byte[] iv = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
         IVParameterSpec param = new IVParameterSpec(iv);
-        wrapper.initWrap(sk, param);
-        byte[] enckey = wrapper.wrap(privateKey);
+
+        SymmetricKey sk = CryptoUtil.generateKey(token, KeyGenAlgorithm.DES3, 0, null, true);
+        byte[] enckey = CryptoUtil.wrapUsingSymmetricKey(
+                token,
+                sk,
+                privateKey,
+                param,
+                KeyWrapAlgorithm.DES3_CBC_PAD);
 
         Cipher c = token.getCipherContext(EncryptionAlgorithm.DES3_CBC_PAD);
         c.initDecrypt(sk, param);
@@ -592,6 +594,9 @@ public class PKCS12Util {
 
         logger.debug("Importing private key " + keyInfo.subjectDN);
 
+        byte iv[] = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
+        IVParameterSpec param = new IVParameterSpec(iv);
+
         PrivateKeyInfo privateKeyInfo = keyInfo.privateKeyInfo;
 
         // encode private key
@@ -622,13 +627,9 @@ public class PKCS12Util {
         }
 
         // encrypt private key
-        KeyGenerator kg = token.getKeyGenerator(KeyGenAlgorithm.DES3);
-        SymmetricKey sk = kg.generate();
-        byte iv[] = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
-        IVParameterSpec param = new IVParameterSpec(iv);
-        Cipher c = token.getCipherContext(EncryptionAlgorithm.DES3_CBC_PAD);
-        c.initEncrypt(sk, param);
-        byte[] encpkey = c.doFinal(privateKey);
+        SymmetricKey sk = CryptoUtil.generateKey(token, KeyGenAlgorithm.DES3, 0, null, true);
+        byte[] encpkey = CryptoUtil.encryptUsingSymmetricKey(
+                token, sk, privateKey, EncryptionAlgorithm.DES3_CBC_PAD, param);
 
         // unwrap private key to load into database
         KeyWrapper wrapper = token.getKeyWrapper(KeyWrapAlgorithm.DES3_CBC_PAD);

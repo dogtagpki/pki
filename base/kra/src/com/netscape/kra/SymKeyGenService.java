@@ -17,10 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.kra;
 
-import java.io.CharConversionException;
 import java.math.BigInteger;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -28,9 +25,7 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.KeyGenAlgorithm;
-import org.mozilla.jss.crypto.KeyGenerator;
 import org.mozilla.jss.crypto.SymmetricKey;
-import org.mozilla.jss.crypto.TokenException;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
@@ -46,6 +41,7 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.cms.servlet.key.KeyRequestDAO;
 import com.netscape.cmscore.dbs.KeyRecord;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
  * This implementation implements SecurityData archival operations.
@@ -154,21 +150,13 @@ public class SymKeyGenService implements IService {
 
         SymmetricKey sk = null;
         try {
-            KeyGenerator kg = token.getKeyGenerator(kgAlg);
-            kg.setKeyUsages(keyUsages);
-            kg.temporaryKeys(true);
-            if (kgAlg == KeyGenAlgorithm.AES || kgAlg == KeyGenAlgorithm.RC4
-                    || kgAlg == KeyGenAlgorithm.RC2) {
-                kg.initialize(keySize);
-            }
-            sk = kg.generate();
+            sk = CryptoUtil.generateKey(token, kgAlg, keySize, keyUsages, true);
             CMS.debug("SymKeyGenService:wrap() session key generated on slot: " + token.getName());
-        } catch (TokenException | IllegalStateException | CharConversionException | NoSuchAlgorithmException
-                | InvalidAlgorithmParameterException e) {
+        } catch (Exception e) {
             CMS.debugStackTrace();
             auditSymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
                     clientKeyId, null, "Failed to generate symmetric key");
-            throw new EBaseException("Errors in generating symmetric key: " + e);
+            throw new EBaseException("Errors in generating symmetric key: " + e, e);
         }
 
         byte[] publicKey = null;

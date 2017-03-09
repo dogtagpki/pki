@@ -1,11 +1,7 @@
 package com.netscape.kra;
 
 import java.io.ByteArrayOutputStream;
-import java.io.CharConversionException;
-import java.io.IOException;
 import java.math.BigInteger;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.spec.AlgorithmParameterSpec;
@@ -16,20 +12,16 @@ import java.util.Random;
 import javax.crypto.spec.RC2ParameterSpec;
 
 import org.dogtagpki.server.kra.rest.KeyRequestService;
-import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.OCTET_STRING;
-import org.mozilla.jss.crypto.Cipher;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.EncryptionAlgorithm;
 import org.mozilla.jss.crypto.IVParameterSpec;
 import org.mozilla.jss.crypto.KeyGenerator;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
-import org.mozilla.jss.crypto.KeyWrapper;
 import org.mozilla.jss.crypto.PBEAlgorithm;
 import org.mozilla.jss.crypto.PBEKeyGenParams;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.SymmetricKey;
-import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.pkcs12.PasswordConverter;
 import org.mozilla.jss.pkcs7.ContentInfo;
 import org.mozilla.jss.pkcs7.EncryptedContentInfo;
@@ -53,6 +45,7 @@ import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.certsrv.security.ITransportKeyUnit;
 import com.netscape.certsrv.security.WrappingParams;
 import com.netscape.cmscore.dbs.KeyRecord;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Utils;
 
 import netscape.security.util.DerValue;
@@ -456,8 +449,14 @@ public class SecurityDataProcessor {
             try {
                 unwrappedSess = transportUnit.unwrap_session_key(ct, wrappedSessKey,
                         SymmetricKey.Usage.DECRYPT, wrapParams);
-                unwrappedPass = decryptWithSymmetricKey(ct, unwrappedSess, wrappedPassPhrase,
-                        new IVParameterSpec(iv_in), wrapParams);
+
+                unwrappedPass = CryptoUtil.decryptUsingSymmetricKey(
+                        ct,
+                        wrapParams.getPayloadEncryptionIV(),
+                        wrappedPassPhrase,
+                        unwrappedSess,
+                        wrapParams.getPayloadEncryptionAlgorithm());
+
                 String passStr = new String(unwrappedPass, "UTF-8");
                 pass = new Password(passStr.toCharArray());
                 passStr = null;
@@ -520,12 +519,21 @@ public class SecurityDataProcessor {
                         CMS.debug("SecurityDataProcessor.recover(): encrypt symmetric key with session key as per allowEncDecrypt_recovery: true.");
                         unwrappedSess = transportUnit.unwrap_session_key(ct, wrappedSessKey,
                                 SymmetricKey.Usage.ENCRYPT, wrapParams);
-                        key_data = encryptWithSymmetricKey(ct, unwrappedSess, unwrappedSecData, wrapParams);
-
+                        key_data = CryptoUtil.encryptUsingSymmetricKey(
+                                ct,
+                                unwrappedSess,
+                                unwrappedSecData,
+                                wrapParams.getPayloadEncryptionAlgorithm(),
+                                wrapParams.getPayloadEncryptionIV());
                     } else {
                         unwrappedSess = transportUnit.unwrap_session_key(ct, wrappedSessKey,
                                 SymmetricKey.Usage.WRAP, wrapParams);
-                        key_data = wrapWithSymmetricKey(ct, unwrappedSess, symKey, new IVParameterSpec(iv), wrapParams);
+                        key_data = CryptoUtil.wrapUsingSymmetricKey(
+                                ct,
+                                unwrappedSess,
+                                symKey,
+                                wrapParams.getPayloadWrappingIV(),
+                                wrapParams.getPayloadWrapAlgorithm());
                     }
 
                 } catch (Exception e) {
@@ -540,7 +548,12 @@ public class SecurityDataProcessor {
                     unwrappedSess = transportUnit.unwrap_session_key(ct, wrappedSessKey,
                             SymmetricKey.Usage.ENCRYPT, wrapParams);
 
-                    key_data = encryptWithSymmetricKey(ct, unwrappedSess, unwrappedSecData, wrapParams);
+                    key_data = CryptoUtil.encryptUsingSymmetricKey(
+                            ct,
+                            unwrappedSess,
+                            unwrappedSecData,
+                            wrapParams.getPayloadEncryptionAlgorithm(),
+                            wrapParams.getPayloadEncryptionIV());
                 } catch (Exception e) {
                     auditRecoveryRequestProcessed(auditSubjectID, ILogger.FAILURE, requestID,
                             serialno.toString(), "Cannot encrypt passphrase");
@@ -554,11 +567,23 @@ public class SecurityDataProcessor {
                         CMS.debug("SecurityDataProcessor.recover(): encrypt symmetric key.");
                         unwrappedSess = transportUnit.unwrap_session_key(ct, wrappedSessKey,
                                 SymmetricKey.Usage.ENCRYPT, wrapParams);
-                        key_data = encryptWithSymmetricKey(ct, unwrappedSess, unwrappedSecData, wrapParams);
+
+                        key_data = CryptoUtil.encryptUsingSymmetricKey(
+                                ct,
+                                unwrappedSess,
+                                unwrappedSecData,
+                                wrapParams.getPayloadEncryptionAlgorithm(),
+                                wrapParams.getPayloadEncryptionIV());
+
                     } else {
                         unwrappedSess = transportUnit.unwrap_session_key(ct, wrappedSessKey,
                                 SymmetricKey.Usage.WRAP, wrapParams);
-                        key_data = wrapWithSymmetricKey(ct, unwrappedSess, privateKey, wrapParams);
+                        key_data = CryptoUtil.wrapUsingSymmetricKey(
+                                ct,
+                                unwrappedSess,
+                                privateKey,
+                                wrapParams.getPayloadWrappingIV(),
+                                wrapParams.getPayloadWrapAlgorithm());
                     }
 
                 } catch (Exception e) {
@@ -600,44 +625,6 @@ public class SecurityDataProcessor {
         return iv;
     }
 
-    private byte[] decryptWithSymmetricKey(CryptoToken ct, SymmetricKey wrappingKey, byte[] data, IVParameterSpec iv,
-            WrappingParams params) throws Exception {
-        Cipher decryptor = ct.getCipherContext(params.getPayloadEncryptionAlgorithm());
-        if (decryptor == null)
-            throw new IOException("Failed to create decryptor");
-        decryptor.initDecrypt(wrappingKey, iv);
-        return decryptor.doFinal(data);
-    }
-
-    private byte[] wrapWithSymmetricKey(CryptoToken ct, SymmetricKey wrappingKey, SymmetricKey data,
-            IVParameterSpec iv, WrappingParams params) throws Exception {
-        KeyWrapper wrapper = ct.getKeyWrapper(params.getPayloadWrapAlgorithm());
-        if (wrapper == null)
-            throw new IOException("Failed to create key wrapper");
-        wrapper.initWrap(wrappingKey, iv);
-        return wrapper.wrap(data);
-    }
-
-    private byte[] wrapWithSymmetricKey(CryptoToken ct, SymmetricKey wrappingKey, PrivateKey data,
-            WrappingParams params) throws Exception {
-        KeyWrapper wrapper = ct.getKeyWrapper(params.getPayloadWrapAlgorithm());
-        if (wrapper == null)
-            throw new IOException("Failed to create key wrapper");
-        wrapper.initWrap(wrappingKey, params.getPayloadWrappingIV());
-        return wrapper.wrap(data);
-    }
-
-    private byte[] encryptWithSymmetricKey(CryptoToken ct, SymmetricKey wrappingKey, byte[] data, WrappingParams params)
-            throws Exception {
-        Cipher encryptor = ct.getCipherContext(params.getPayloadEncryptionAlgorithm());
-
-        if (encryptor == null)
-            throw new IOException("Failed to create cipher");
-
-        encryptor.initEncrypt(wrappingKey, params.getPayloadEncryptionIV());
-        return encryptor.doFinal(data);
-    }
-
     public SymmetricKey recoverSymKey(KeyRecord keyRecord)
             throws EBaseException {
 
@@ -674,9 +661,7 @@ public class SecurityDataProcessor {
                     int iterationCount,
                     KeyGenerator.CharToByteConverter charToByteConverter,
                     SymmetricKey symKey, PrivateKey privateKey, CryptoToken token)
-                    throws CryptoManager.NotInitializedException, NoSuchAlgorithmException,
-                    InvalidKeyException, InvalidAlgorithmParameterException, TokenException,
-                    CharConversionException {
+                    throws Exception {
 
         if (keyGenAlg == null) {
             throw new NoSuchAlgorithmException("Key generation algorithm  is NULL");
@@ -702,14 +687,13 @@ public class SecurityDataProcessor {
                                 kg.generatePBE_IV());
         }
 
-        KeyWrapper wrapper = token.getKeyWrapper(
-                KeyWrapAlgorithm.DES3_CBC_PAD);
-        wrapper.initWrap(key, params);
         byte[] encrypted = null;
         if (symKey != null) {
-            encrypted = wrapper.wrap(symKey);
+            encrypted = CryptoUtil.wrapUsingSymmetricKey(token, key, symKey, (IVParameterSpec) params,
+                    KeyWrapAlgorithm.DES3_CBC_PAD);
         } else if (privateKey != null) {
-            encrypted = wrapper.wrap(privateKey);
+            encrypted = CryptoUtil.wrapUsingSymmetricKey(token, key, privateKey, (IVParameterSpec) params,
+                    KeyWrapAlgorithm.DES3_CBC_PAD);
         }
         if (encrypted == null) {
             //TODO - think about the exception to be thrown
