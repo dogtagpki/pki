@@ -28,8 +28,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import netscape.security.x509.X509CertImpl;
-
 import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.INTEGER;
 import org.mozilla.jss.asn1.InvalidBERException;
@@ -58,12 +56,15 @@ import com.netscape.certsrv.profile.IProfileInput;
 import com.netscape.certsrv.profile.IProfileSubsystem;
 import com.netscape.certsrv.request.INotify;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.common.AuthCredentials;
 import com.netscape.cms.servlet.common.CMCOutputTemplate;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cmsutil.util.Utils;
+
+import netscape.security.x509.X509CertImpl;
 
 /**
  * This servlet submits end-user request into the profile framework.
@@ -478,12 +479,13 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
         TaggedAttribute attr =
                 (TaggedAttribute) (context.get(OBJECT_IDENTIFIER.id_cmc_lraPOPWitness));
         if (attr != null) {
-            boolean verifyAllow = true;
+            boolean verifyAllow = false; //disable RA by default
             try {
                 verifyAllow = CMS.getConfigStore().getBoolean(
-                        "cmc.lraPopWitness.verify.allow", true);
+                        "cmc.lraPopWitness.verify.allow", false);
             } catch (EBaseException ee) {
             }
+            CMS.debug("ProfileSubmitCMCServlet: cmc.lraPopWitness.verify.allow is " + verifyAllow);
 
             if (!verifyAllow) {
                 LraPopWitness lraPop = null;
@@ -507,23 +509,34 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
             }
         }
 
-        // for CMC, requests may be zero. Then check if controls exist.
+        // For CMC, requests may be zero. Then check if controls exist.
+        // In case of decryptedPOP, request already exists, find it and
+        // put in provedReq.
+        IRequest provedReq = null;
         if (reqs == null) {
-            Integer nums = (Integer) (context.get("numOfControls"));
-            CMCOutputTemplate template = new CMCOutputTemplate();
-            // if there is only one control GetCert, then simple response
-            // must be returned.
-            if (nums != null && nums.intValue() == 1) {
-                TaggedAttribute attr1 = (TaggedAttribute) (context.get(OBJECT_IDENTIFIER.id_cmc_getCert));
-                if (attr1 != null) {
-                    template.createSimpleResponse(response, reqs);
+            // handling DecryptedPOP request here
+            Integer reqID = (Integer) context.get("decryptedPopReqId");
+            provedReq = profile.getRequestQueue().findRequest(new RequestId(reqID.toString()));
+            if (provedReq == null) {
+
+                Integer nums = (Integer) (context.get("numOfControls"));
+                CMCOutputTemplate template = new CMCOutputTemplate();
+                // if there is only one control GetCert, then simple response
+                // must be returned.
+                if (nums != null && nums.intValue() == 1) {
+                    TaggedAttribute attr1 = (TaggedAttribute) (context.get(OBJECT_IDENTIFIER.id_cmc_getCert));
+                    if (attr1 != null) {
+                        template.createSimpleResponse(response, reqs);
+                    } else
+                        template.createFullResponse(response, reqs,
+                                cert_request_type, null);
                 } else
                     template.createFullResponse(response, reqs,
                             cert_request_type, null);
-            } else
-                template.createFullResponse(response, reqs,
-                        cert_request_type, null);
-            return;
+                return;
+            } else {
+                CMS.debug("ProfileSubmitCMCServlet: provedReq not null");
+            }
         }
 
         String errorCode = null;
@@ -532,7 +545,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
         ///////////////////////////////////////////////
         // populate request
         ///////////////////////////////////////////////
-        for (int k = 0; k < reqs.length; k++) {
+        for (int k = 0; (provedReq == null) &&(k < reqs.length); k++) {
             // adding parameters to request
             setInputsIntoRequest(request, profile, reqs[k]);
 
@@ -626,7 +639,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                         OtherInfo.INTERNAL_CA_ERROR, s);
                 return;
             }
-        }
+        } //for
 
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
@@ -640,7 +653,8 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
             int error_codes[] = null;
             if (reqs != null && reqs.length > 0)
                 error_codes = new int[reqs.length];
-            for (int k = 0; k < reqs.length; k++) {
+
+            for (int k = 0; (provedReq == null) && (k < reqs.length); k++) {
                 try {
                     // reset the "auditRequesterID"
                     auditRequesterID = auditRequesterID(reqs[k]);
@@ -680,6 +694,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                     }
                 } catch (EDeferException e) {
                     // return defer message to the user
+                    CMS.debug("ProfileSubmitCMCServlet: set request to PENDING");
                     reqs[k].setRequestStatus(RequestStatus.PENDING);
                     // need to notify
                     INotify notify = profile.getRequestQueue().getPendingNotify();
@@ -750,6 +765,53 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                     error_codes[k] = Integer.parseInt(errorCode);
                 } else
                     error_codes[k] = 0;
+            }
+
+            // handle provedReq
+            if (provedReq != null) {
+                error_codes = new int[1];
+                auditRequesterID = auditRequesterID(provedReq);
+                try {
+                    profile.execute(provedReq);
+                    reqs = new IRequest[1];
+                    reqs[0] = provedReq;
+                    reqs[0].setRequestStatus(RequestStatus.COMPLETE);
+                    profile.getRequestQueue().markAsServiced(provedReq);
+                    CMS.debug("ProfileSubmitCMCServlet: provedReq set to complete");
+
+                    // reset the "auditInfoCertValue"
+                    auditInfoCertValue = auditInfoCertValue(reqs[0]);
+
+                    if (auditInfoCertValue != null) {
+                        if (!(auditInfoCertValue.equals(
+                                ILogger.SIGNED_AUDIT_EMPTY_VALUE))) {
+                            // store a message in the signed audit log file
+                            auditMessage = CMS.getLogMessage(
+                                    LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED,
+                                    auditSubjectID,
+                                    ILogger.SUCCESS,
+                                    auditRequesterID,
+                                    ILogger.SIGNED_AUDIT_ACCEPTANCE,
+                                    auditInfoCertValue);
+
+                            audit(auditMessage);
+                        }
+                    }
+                } catch (ERejectException e) {
+                    // return error to the user
+                    provedReq.setRequestStatus(RequestStatus.REJECTED);
+                    CMS.debug("ProfileSubmitCMCServlet: provedReq submit " + e.toString());
+                    errorCode = "3";
+                    errorReason = CMS.getUserMessage(locale,
+                            "CMS_PROFILE_REJECTED",
+                            e.toString());
+                } catch (Exception e) {
+                    // return error to the user
+                    CMS.debug("ProfileSubmitCMCServlet: provedReq submit " + e.toString());
+                    errorCode = "1";
+                    errorReason = CMS.getUserMessage(locale,
+                            "CMS_INTERNAL_ERROR");
+                }
             }
 
             if (errorCode != null) {

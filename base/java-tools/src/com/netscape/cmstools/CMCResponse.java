@@ -34,6 +34,7 @@ import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.asn1.SET;
 import org.mozilla.jss.pkix.cert.Certificate;
 import org.mozilla.jss.pkix.cmc.CMCStatusInfo;
+import org.mozilla.jss.pkix.cmc.EncryptedPOP;
 import org.mozilla.jss.pkix.cmc.OtherInfo;
 import org.mozilla.jss.pkix.cmc.PendInfo;
 import org.mozilla.jss.pkix.cmc.ResponseBody;
@@ -140,12 +141,27 @@ public class CMCResponse {
                             else if (t == OtherInfo.PEND) {
                                 System.out.println("   OtherInfo type: PEND");
                                 PendInfo pi = oi.getPendInfo();
+                                if (pi == null) {
+                                    System.out.println("PendInfo null...skipping");
+                                    continue;
+                                } else
+                                    System.out.println("PendInfo present...processing...");
                                 if (pi.getPendTime() != null) {
                                     String datePattern = "dd/MMM/yyyy:HH:mm:ss z";
                                     SimpleDateFormat dateFormat = new SimpleDateFormat(datePattern);
                                     Date d = pi.getPendTime().toDate();
                                     System.out.println("   Date: " + dateFormat.format(d));
                                 }
+                                OCTET_STRING pendToken = pi.getPendToken();
+                                if (pendToken != null) {
+                                    byte reqId[] = pendToken.toByteArray();
+                                    String reqIdString = new String(reqId);
+                                    System.out.println("   Pending request id: " + reqIdString);
+                                } else {
+                                    System.out.println("pendToken not in response");
+                                    System.exit(1);
+                                }
+
                             }
                         } else if (st == CMCStatusInfo.SUCCESS) {
                             System.out.println("   Status: SUCCESS");
@@ -200,6 +216,16 @@ public class CMCResponse {
                         s.append(" ");
                     }
                     System.out.println(s);
+                } else if (type.equals(OBJECT_IDENTIFIER.id_cmc_encryptedPOP)) {
+                    System.out.println("Control #" + i + ": CMC encrypted POP");
+                    System.out.println("   OID: " + type.toString());
+                    SET encryptedPOPvals = taggedAttr.getValues();
+
+                    EncryptedPOP encryptedPOP =
+                        (EncryptedPOP) (ASN1Util.decode(EncryptedPOP.getTemplate(),
+                            ASN1Util.encode(encryptedPOPvals.elementAt(0))));
+                    System.out.println("after encryptedPOP encode");
+
                 }
             }
         } catch (Exception e) {

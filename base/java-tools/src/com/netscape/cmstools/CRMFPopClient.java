@@ -433,6 +433,13 @@ public class CRMFPopClient {
                 throw new Exception("Unknown algorithm: " + algorithm);
             }
 
+            // print out keyid to be used in cmc decryptPOP
+            PrivateKey privateKey = (PrivateKey) keyPair.getPrivate();
+            @SuppressWarnings("deprecation")
+            byte id[] = privateKey.getUniqueID();
+            String kid = CryptoUtil.byte2string(id);
+            System.out.println("Keypair private key id: " + kid);
+
             if (verbose) System.out.println("Creating certificate request");
             CertRequest certRequest = client.createCertRequest(token, transportCert, algorithm, keyPair, subject);
 

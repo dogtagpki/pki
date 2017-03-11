@@ -30,16 +30,6 @@ import java.util.Hashtable;
 
 import javax.servlet.http.HttpServletResponse;
 
-import netscape.security.x509.CRLExtensions;
-import netscape.security.x509.CRLReasonExtension;
-import netscape.security.x509.CertificateChain;
-import netscape.security.x509.InvalidityDateExtension;
-import netscape.security.x509.RevocationReason;
-import netscape.security.x509.RevokedCertImpl;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509Key;
-
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.ANY;
 import org.mozilla.jss.asn1.ASN1Util;
@@ -58,15 +48,18 @@ import org.mozilla.jss.pkcs11.PK11PubKey;
 import org.mozilla.jss.pkix.cert.Certificate;
 import org.mozilla.jss.pkix.cmc.CMCCertId;
 import org.mozilla.jss.pkix.cmc.CMCStatusInfo;
+import org.mozilla.jss.pkix.cmc.EncryptedPOP;
 import org.mozilla.jss.pkix.cmc.GetCert;
 import org.mozilla.jss.pkix.cmc.OtherInfo;
 import org.mozilla.jss.pkix.cmc.OtherMsg;
 import org.mozilla.jss.pkix.cmc.PendInfo;
 import org.mozilla.jss.pkix.cmc.ResponseBody;
 import org.mozilla.jss.pkix.cmc.TaggedAttribute;
+import org.mozilla.jss.pkix.cmc.TaggedRequest;
 import org.mozilla.jss.pkix.cmmf.RevRequest;
 import org.mozilla.jss.pkix.cms.ContentInfo;
 import org.mozilla.jss.pkix.cms.EncapsulatedContentInfo;
+import org.mozilla.jss.pkix.cms.EnvelopedData;
 import org.mozilla.jss.pkix.cms.IssuerAndSerialNumber;
 import org.mozilla.jss.pkix.cms.SignedData;
 import org.mozilla.jss.pkix.cms.SignerIdentifier;
@@ -89,6 +82,17 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
+import com.netscape.cmsutil.crypto.CryptoUtil;
+
+import netscape.security.x509.CRLExtensions;
+import netscape.security.x509.CRLReasonExtension;
+import netscape.security.x509.CertificateChain;
+import netscape.security.x509.InvalidityDateExtension;
+import netscape.security.x509.RevocationReason;
+import netscape.security.x509.RevokedCertImpl;
+import netscape.security.x509.X500Name;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509Key;
 
 /**
  * Utility CMCOutputTemplate
@@ -142,6 +146,10 @@ public class CMCOutputTemplate {
 
     public void createFullResponse(HttpServletResponse resp, IRequest[] reqs,
             String cert_request_type, int[] error_codes) {
+        String method = "CMCOutputTemplate: createFullResponse: ";
+        CMS.debug(method +
+                "begins with cert_request_type=" +
+                cert_request_type);
 
         SEQUENCE controlSeq = new SEQUENCE();
         SEQUENCE cmsSeq = new SEQUENCE();
@@ -176,22 +184,33 @@ public class CMCOutputTemplate {
                     OBJECT_IDENTIFIER.id_cmc_cMCStatusInfo, cmcStatusInfo);
             controlSeq.addElement(tagattr);
         } else if (cert_request_type.equals("cmc")) {
+            CMS.debug(method + " processing cmc");
             pending_bpids = new SEQUENCE();
             success_bpids = new SEQUENCE();
             failed_bpids = new SEQUENCE();
+            EncryptedPOP encPop = null;
             if (reqs != null) {
                 for (int i = 0; i < reqs.length; i++) {
+                    CMS.debug(method + " error_codes[i]=" + error_codes[i]);
                     if (error_codes[i] == 0) {
                         success_bpids.addElement(new INTEGER(
                                 reqs[i].getExtDataInBigInteger("bodyPartId")));
                     } else if (error_codes[i] == 2) {
                         pending_bpids.addElement(new INTEGER(
                                 reqs[i].getExtDataInBigInteger("bodyPartId")));
+                        try {
+                            encPop = constructEncryptedPop(reqs[i]);
+                        } catch (Exception e) {
+                            CMS.debug(method + e);
+                            return;
+                        }
                     } else {
                         failed_bpids.addElement(new INTEGER(
                                 reqs[i].getExtDataInBigInteger("bodyPartId")));
                     }
                 }
+            } else {
+                CMS.debug(method + " reqs null.  why?");
             }
 
             TaggedAttribute tagattr = null;
@@ -221,8 +240,25 @@ public class CMCOutputTemplate {
             }
 
             if (pending_bpids.size() > 0) {
+                // handle encryptedPOP control first
+
+                if (encPop != null) {
+                    CMS.debug(method + "adding encPop");
+                    tagattr = new TaggedAttribute(
+                            new INTEGER(bpid++),
+                            OBJECT_IDENTIFIER.id_cmc_encryptedPOP,
+                            encPop);
+                    controlSeq.addElement(tagattr);
+                    CMS.debug(method + "encPop added");
+                }
+
+                String reqId = reqs[0].getRequestId().toString();
+                OtherInfo otherInfo = null;
+                PendInfo pendInfo = new PendInfo(reqId, new Date());
+                otherInfo = new OtherInfo(OtherInfo.PEND, null,
+                        pendInfo);
                 cmcStatusInfo = new CMCStatusInfo(CMCStatusInfo.PENDING,
-                        pending_bpids, (String) null, null);
+                        pending_bpids, (String) null, otherInfo);
                 tagattr = new TaggedAttribute(
                         new INTEGER(bpid++),
                         OBJECT_IDENTIFIER.id_cmc_cMCStatusInfo, cmcStatusInfo);
@@ -238,7 +274,7 @@ public class CMCOutputTemplate {
                 } catch (Exception e) {
                 }
                 if (confirmRequired) {
-                    CMS.debug("CMCOutputTemplate: confirmRequired in the request");
+                    CMS.debug(method + " confirmRequired in the request");
                     cmcStatusInfo =
                             new CMCStatusInfo(CMCStatusInfo.CONFIRM_REQUIRED,
                                     success_bpids, (String) null, null);
@@ -270,13 +306,14 @@ public class CMCOutputTemplate {
             // deal with controls
             Integer nums = (Integer) (context.get("numOfControls"));
             if (nums != null && nums.intValue() > 0) {
+                CMS.debug(method + " processing controls");
                 TaggedAttribute attr =
                         (TaggedAttribute) (context.get(OBJECT_IDENTIFIER.id_cmc_getCert));
                 if (attr != null) {
                     try {
                         processGetCertControl(attr, certs);
                     } catch (EBaseException ee) {
-                        CMS.debug("CMCOutputTemplate: " + ee.toString());
+                        CMS.debug(method + ee.toString());
                         OtherInfo otherInfo1 = new OtherInfo(OtherInfo.FAIL,
                                 new INTEGER(OtherInfo.BAD_CERT_ID), null);
                         SEQUENCE bpids1 = new SEQUENCE();
@@ -342,6 +379,10 @@ public class CMCOutputTemplate {
 
             ResponseBody respBody = new ResponseBody(controlSeq,
                     cmsSeq, otherMsgSeq);
+            if (respBody != null)
+                CMS.debug(method + " after new ResponseBody, respBody not null");
+            else
+                CMS.debug(method + " after new ResponseBody, respBody null");
 
             ContentInfo contentInfo = getContentInfo(respBody, certs);
             ByteArrayOutputStream fos = new ByteArrayOutputStream();
@@ -354,18 +395,79 @@ public class CMCOutputTemplate {
             OutputStream os = resp.getOutputStream();
             os.write(contentBytes);
             os.flush();
+            CMS.debug(method + "ends");
         } catch (java.security.cert.CertificateEncodingException e) {
-            CMS.debug("CMCOutputTemplate exception: " + e.toString());
+            CMS.debug(method + e.toString());
         } catch (InvalidBERException e) {
-            CMS.debug("CMCOutputTemplate exception: " + e.toString());
+            CMS.debug(method + e.toString());
         } catch (IOException e) {
-            CMS.debug("CMCOutputTemplate exception: " + e.toString());
+            CMS.debug(method + e.toString());
         } catch (Exception e) {
-            CMS.debug("Exception: " + e.toString());
+            CMS.debug(method + e.toString());
         }
     }
 
+    /**
+     * constructEncryptedPop pulls cmc pop challenge fields out of the request
+     * and constructs an EncryptedPOP
+     * to be included in the response later
+     *
+     * @author cfu
+     */
+    public EncryptedPOP constructEncryptedPop(IRequest req)
+            throws EBaseException {
+        String method = "CMCOutputTemplate: constructEncryptedPop: ";
+        CMS.debug(method + "begins");
+        EncryptedPOP encPop = null;
+
+        boolean popChallengeRequired = req.getExtDataInBoolean("cmc_POPchallengeRequired", false);
+        if (!popChallengeRequired) {
+            CMS.debug(method + "popChallengeRequired false");
+            return null;
+        }
+        CMS.debug(method + "popChallengeRequired true");
+        byte[] cmc_msg = req.getExtDataInByteArray(IEnrollProfile.CTX_CERT_REQUEST);
+        byte[] pop_encreyptedData = req.getExtDataInByteArray("pop_encreyptedData");
+        //don't need this for encryptedPOP, but need to check for existence anyway
+        byte[] pop_sysPubEncreyptedSession = req.getExtDataInByteArray("pop_sysPubEncreyptedSession");
+        byte[] pop_userPubEncreyptedSession = req.getExtDataInByteArray("pop_userPubEncreyptedSession");
+        if ((pop_encreyptedData != null) &&
+                (pop_sysPubEncreyptedSession != null) &&
+                (pop_userPubEncreyptedSession != null)) {
+            // generate encryptedPOP here
+            // algs are hard-coded for now
+
+            try {
+                EnvelopedData envData = CryptoUtil.createEnvelopedData(
+                        pop_encreyptedData,
+                        pop_userPubEncreyptedSession);
+                ContentInfo ci = new ContentInfo(envData);
+                CMS.debug(method + "now we can compose encryptedPOP");
+
+                TaggedRequest.Template tReqTemplate = new TaggedRequest.Template();
+                TaggedRequest tReq = (TaggedRequest) tReqTemplate.decode(
+                        new ByteArrayInputStream(cmc_msg));
+
+                encPop = new EncryptedPOP(
+                        tReq,
+                        ci,
+                        CryptoUtil.getDefaultEncAlg(),
+                        CryptoUtil.getDefaultHashAlg(),
+                        new OCTET_STRING(req.getExtDataInByteArray("pop_witness")));
+
+            } catch (Exception e) {
+                CMS.debug(method + " excepton:" + e);
+                throw new EBaseException(method + " excepton:" + e);
+            }
+
+        }
+
+        return encPop;
+    }
+
     private ContentInfo getContentInfo(ResponseBody respBody, SET certs) {
+        String method = "CMCOutputTemplate: getContentInfo: ";
+        CMS.debug(method + "begins");
         try {
             ICertificateAuthority ca = null;
             // add CA cert chain
@@ -442,10 +544,10 @@ public class CMCOutputTemplate {
                     enContentInfo, certs, null, signInfos);
 
             ContentInfo contentInfo = new ContentInfo(signedData);
-            CMS.debug("CMCOutputTemplate::getContentInfo() - done");
+            CMS.debug(method + " - done");
             return contentInfo;
         } catch (Exception e) {
-            CMS.debug("CMCOutputTemplate: Failed to create CMCContentInfo. Exception: " + e.toString());
+            CMS.debug(method + " Failed to create CMCContentInfo. Exception: " + e.toString());
         }
         return null;
     }

@@ -55,10 +55,13 @@ import org.mozilla.jss.asn1.ANY;
 import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.ASN1Value;
 import org.mozilla.jss.asn1.BIT_STRING;
+import org.mozilla.jss.asn1.INTEGER;
 import org.mozilla.jss.asn1.InvalidBERException;
+import org.mozilla.jss.asn1.NULL;
 import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
 import org.mozilla.jss.asn1.OCTET_STRING;
 import org.mozilla.jss.asn1.SEQUENCE;
+import org.mozilla.jss.asn1.SET;
 import org.mozilla.jss.crypto.Algorithm;
 import org.mozilla.jss.crypto.BadPaddingException;
 import org.mozilla.jss.crypto.Cipher;
@@ -89,7 +92,11 @@ import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.pkcs11.PK11ECPublicKey;
 import org.mozilla.jss.pkcs11.PK11PubKey;
 import org.mozilla.jss.pkcs12.PasswordConverter;
-import org.mozilla.jss.pkcs7.EncryptedContentInfo;
+import org.mozilla.jss.pkcs7.IssuerAndSerialNumber;
+import org.mozilla.jss.pkcs7.RecipientInfo;
+import org.mozilla.jss.pkix.cms.ContentInfo;
+import org.mozilla.jss.pkix.cms.EncryptedContentInfo;
+import org.mozilla.jss.pkix.cms.EnvelopedData;
 import org.mozilla.jss.pkix.crmf.CertReqMsg;
 import org.mozilla.jss.pkix.crmf.CertRequest;
 import org.mozilla.jss.pkix.crmf.CertTemplate;
@@ -2391,6 +2398,41 @@ public class CryptoUtil {
     }
 
     /**
+     * for CMC encryptedPOP
+     */
+    public static EnvelopedData createEnvelopedData(byte[] encContent, byte[] encSymKey)
+            throws Exception {
+        String method = "CryptoUtl: createEnvelopedData: ";
+        System.out.println(method + "begins");
+
+        EncryptedContentInfo encCInfo = new EncryptedContentInfo(
+                ContentInfo.DATA,
+                getDefaultEncAlg(),
+                new OCTET_STRING(encContent));
+
+        Name name = new Name();
+        name.addCommonName("unUsedIssuerName"); //unused; okay for cmc EncryptedPOP
+        RecipientInfo recipient = new RecipientInfo(
+                new INTEGER(0), //per rfc2315
+                new IssuerAndSerialNumber(name, new INTEGER(0)), //unUsed
+                new AlgorithmIdentifier(RSA_ENCRYPTION, new NULL()),
+                new OCTET_STRING(encSymKey));
+
+        SET recipients = new SET();
+        recipients.addElement(recipient);
+
+        EnvelopedData envData = new EnvelopedData(
+                new INTEGER(0),
+                recipients,
+                encCInfo);
+
+        return envData;
+    }
+
+    /* PKCS 1 - rsaEncryption */
+    public static OBJECT_IDENTIFIER RSA_ENCRYPTION = new OBJECT_IDENTIFIER(new long[] { 1, 2, 840, 113549, 1, 1, 1 });
+
+    /**
      * The following are convenience routines for quick preliminary
      * feature development or test programs that would just take
      * the defaults
@@ -2538,6 +2580,32 @@ public class CryptoUtil {
         }
         return oid;
     }
+
+    /**
+     * getNameFromHashAlgorithm returns the hashing algorithm name
+     * from input Algorithm
+     *
+     * @param ai the hashing algorithm AlgorithmIdentifier
+     * @return name of the hashing algorithm
+     *
+     */
+    public static String getNameFromHashAlgorithm(AlgorithmIdentifier ai)
+           throws NoSuchAlgorithmException {
+        OBJECT_IDENTIFIER oid = null;
+
+        System.out.println("CryptoUtil: getNameFromHashAlgorithm: " + ai.getOID().toString());
+        if (ai != null) {
+            if (ai.getOID().equals((DigestAlgorithm.SHA256).toOID())) {
+                return "SHA-256";
+            } else if (ai.getOID().equals((DigestAlgorithm.SHA384).toOID())) {
+                return "SHA-384";
+            } else if (ai.getOID().equals((DigestAlgorithm.SHA512).toOID())) {
+                return "SHA-512";
+            }
+        }
+        throw new NoSuchAlgorithmException();
+    }
+
 }
 
 // START ENABLE_ECC
