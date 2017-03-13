@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "efb8dc16_91a6b66f",
+        "filename": "base/common/src/com/netscape/certsrv/key/KeyRecoveryRequest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 1010222
+      },
+      "writtenOn": "2017-03-13T22:21:02Z",
+      "side": 1,
+      "message": "Looks like you have these defined in IRequest class as well.",
+      "revId": "fd6a291c98439cad9a6aeb6254b66d016bdba941",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c202f7b0_2f539bc9",
+        "filename": "base/kra/src/com/netscape/kra/SecurityDataProcessor.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 590,
+      "author": {
+        "id": 1010222
+      },
+      "writtenOn": "2017-03-13T22:21:02Z",
+      "side": 1,
+      "message": "Example:\n\nint ivLength \u003d EncryptionAlgorithm.AES_128_CBC.getIVLength();",
+      "revId": "fd6a291c98439cad9a6aeb6254b66d016bdba941",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
