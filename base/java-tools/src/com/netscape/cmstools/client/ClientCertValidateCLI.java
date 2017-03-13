@@ -18,6 +18,7 @@
 
 package com.netscape.cmstools.client;
 
+import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -97,11 +98,13 @@ public class ClientCertValidateCLI extends CLI {
 
         CryptoManager cm = CryptoManager.getInstance();
         if (cu.getUsage() != CryptoManager.CertificateUsage.CheckAllUsages.getUsage()) {
-            if (cm.isCertValid(nickname, true, cu)) {
+            try {
+                cm.verifyCertificate(nickname, true, cu);
                 System.out.println("Valid certificate: " + nickname);
                 return true;
-            } else {
-                System.out.println("Invalid certificate: " + nickname);
+            } catch (CertificateException e) {
+                // Invalid certificate: (<code>) <message>
+                System.out.println(e.getMessage());
                 return false;
             }
 
