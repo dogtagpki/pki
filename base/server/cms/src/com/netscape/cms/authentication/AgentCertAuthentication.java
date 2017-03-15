@@ -22,8 +22,6 @@ import java.security.cert.X509Certificate;
 import java.util.Enumeration;
 import java.util.Locale;
 
-import netscape.security.x509.X509CertImpl;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
@@ -45,6 +43,8 @@ import com.netscape.certsrv.usrgrp.EUsrGrpException;
 import com.netscape.certsrv.usrgrp.ICertUserLocator;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
+
+import netscape.security.x509.X509CertImpl;
 
 /**
  * Certificate server agent authentication.
@@ -196,7 +196,7 @@ public class AgentCertAuthentication implements IAuthManager,
         try {
             user = mCULocator.locateUser(certs);
         } catch (EUsrGrpException e) {
-            throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
+            throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"), e);
         } catch (netscape.ldap.LDAPException e) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR",
                         e.toString()));
