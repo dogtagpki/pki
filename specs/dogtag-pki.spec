@@ -19,7 +19,7 @@ BuildArch:        noarch
 %define esc_version                1.1.0
 # NOTE:  The following package versions are TLS compliant:
 %if 0%{?rhel}
-%define pki_core_rhel_version      10.3.3
+%define pki_core_rhel_version      10.4.0
 %define pki_core_rhcs_version      %{version}
 %else
 %define pki_core_version           %{version}
