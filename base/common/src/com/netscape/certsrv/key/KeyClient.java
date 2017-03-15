@@ -18,11 +18,16 @@
 package com.netscape.certsrv.key;
 
 import java.net.URISyntaxException;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 import javax.ws.rs.core.Response;
 
+import org.dogtagpki.common.Info;
+import org.dogtagpki.common.InfoResource;
+import org.dogtagpki.common.Version;
 import org.mozilla.jss.crypto.EncryptionAlgorithm;
+import org.mozilla.jss.crypto.KeyWrapAlgorithm;
 import org.mozilla.jss.crypto.SymmetricKey;
 
 import com.netscape.certsrv.base.ResourceMessage;
@@ -42,19 +47,52 @@ public class KeyClient extends Client {
 
     public KeyResource keyClient;
     public KeyRequestResource keyRequestClient;
+    public InfoResource infoClient;
 
     private CryptoProvider crypto;
     private String transportCert;
+    private EncryptionAlgorithm encryptAlgorithm;
+    private KeyWrapAlgorithm wrapAlgorithm;
+    private int wrapIVLength;
 
     public KeyClient(PKIClient client, String subsystem) throws Exception {
         super(client, subsystem, "key");
         init();
         this.crypto = client.getCrypto();
+
+        // TODO(alee) enable this when we figure out why its not working
+        // Version serverVersion = getServerVersion();
+
+        Version serverVersion= new Version("10.4.0");
+        if ((serverVersion.getMajor() >= 10) && (serverVersion.getMinor() >=4)) {
+            this.encryptAlgorithm = EncryptionAlgorithm.AES_128_CBC_PAD;
+            this.wrapAlgorithm = KeyWrapAlgorithm.AES_KEY_WRAP_PAD;
+            this.wrapIVLength = 0;
+        } else {
+            this.encryptAlgorithm = EncryptionAlgorithm.DES3_CBC;
+            this.wrapAlgorithm = KeyWrapAlgorithm.DES3_CBC_PAD;
+            this.wrapIVLength = 8;
+        }
+    }
+
+    private Version getServerVersion() {
+        Version ret = null;
+        try {
+            Response response = this.infoClient.getInfo();
+            Info info = client.getEntity(response, Info.class);
+            String version = info.getVersion();
+            ret = new Version(version);
+        } catch (Exception e) {
+            // old server - may not have the Info service
+            ret = new Version("0.0.0");
+        }
+        return ret;
     }
 
     public void init() throws URISyntaxException {
         keyClient = createProxy(KeyResource.class);
         keyRequestClient = createProxy(KeyRequestResource.class);
+        infoClient = createProxy(InfoResource.class);
     }
 
     public CryptoProvider getCrypto() {
@@ -363,13 +401,15 @@ public class KeyClient extends Client {
         if (keyId == null) {
             throw new IllegalArgumentException("KeyId must be specified.");
         }
-        SymmetricKey sessionKey = crypto.generateSessionKey();
+        SymmetricKey sessionKey = crypto.generateSymmetricKey(
+                this.encryptAlgorithm.getAlg().toString(),
+                this.encryptAlgorithm.getKeyStrength());
         byte[] transWrappedSessionKey = crypto.wrapSessionKeyWithTransportCert(sessionKey, transportCert);
 
         Key data = retrieveKey(keyId, transWrappedSessionKey);
         if (data.getEncryptedData()!= null)
             data.setData(crypto.unwrapWithSessionKey(data.getEncryptedData(), sessionKey,
-                KeyRequestResource.DES3_ALGORITHM, data.getNonceData()));
+                this.encryptAlgorithm, data.getNonceData()));
 
         return data;
     }
@@ -378,17 +418,20 @@ public class KeyClient extends Client {
         if (requestId == null) {
             throw new IllegalArgumentException("RequestId must be specified.");
         }
-        SymmetricKey sessionKey = crypto.generateSessionKey();
+        SymmetricKey sessionKey = crypto.generateSymmetricKey(
+                this.encryptAlgorithm.getAlg().toString(),
+                this.encryptAlgorithm.getKeyStrength());
         byte[] transWrappedSessionKey = crypto.wrapSessionKeyWithTransportCert(sessionKey, transportCert);
 
         KeyRecoveryRequest recoveryRequest = new KeyRecoveryRequest();
         recoveryRequest.setRequestId(requestId);
         recoveryRequest.setTransWrappedSessionKey(Utils.base64encode(transWrappedSessionKey));
+        recoveryRequest.setPayloadEncryptionOID(getEncryptAlgorithmOID());
 
         Key data = retrieveKeyData(recoveryRequest);
         if (data.getEncryptedData() != null)
             data.setData(crypto.unwrapWithSessionKey(data.getEncryptedData(), sessionKey,
-                KeyRequestResource.DES3_ALGORITHM, data.getNonceData()));
+                this.encryptAlgorithm, data.getNonceData()));
         return data;
     }
 
@@ -423,6 +466,7 @@ public class KeyClient extends Client {
         KeyRecoveryRequest recoveryRequest = new KeyRecoveryRequest();
         recoveryRequest.setKeyId(keyId);
         recoveryRequest.setTransWrappedSessionKey(Utils.base64encode(transWrappedSessionKey));
+        recoveryRequest.setPayloadEncryptionOID(getEncryptAlgorithmOID());
 
         return retrieveKeyData(recoveryRequest);
     }
@@ -453,11 +497,13 @@ public class KeyClient extends Client {
         if (passphrase == null) {
             throw new IllegalArgumentException("Passphrase must be specified.");
         }
-        SymmetricKey sessionKey = crypto.generateSessionKey();
+        SymmetricKey sessionKey = crypto.generateSymmetricKey(
+                this.encryptAlgorithm.getAlg().toString(),
+                this.encryptAlgorithm.getKeyStrength());
         byte[] transWrappedSessionKey = crypto.wrapSessionKeyWithTransportCert(sessionKey, this.transportCert);
-        byte[] nonceData = CryptoUtil.getNonceData(8);
+        byte[] nonceData = CryptoUtil.getNonceData(this.encryptAlgorithm.getIVLength());
         byte[] sessionWrappedPassphrase = crypto.wrapWithSessionKey(passphrase, nonceData, sessionKey,
-                KeyRequestResource.DES3_ALGORITHM);
+                this.encryptAlgorithm);
 
         return retrieveKeyUsingWrappedPassphrase(keyId, transWrappedSessionKey, sessionWrappedPassphrase, nonceData);
     }
@@ -470,17 +516,20 @@ public class KeyClient extends Client {
             throw new IllegalArgumentException("Passphrase must be specified.");
         }
 
-        SymmetricKey sessionKey = crypto.generateSessionKey();
+        SymmetricKey sessionKey = crypto.generateSymmetricKey(
+                this.encryptAlgorithm.getAlg().toString(),
+                this.encryptAlgorithm.getKeyStrength());
         byte[] transWrappedSessionKey = crypto.wrapSessionKeyWithTransportCert(sessionKey, this.transportCert);
-        byte[] nonceData = CryptoUtil.getNonceData(8);
+        byte[] nonceData = CryptoUtil.getNonceData(this.encryptAlgorithm.getIVLength());
         byte[] sessionWrappedPassphrase = crypto.wrapWithSessionKey(passphrase, nonceData, sessionKey,
-                KeyRequestResource.DES3_ALGORITHM);
+                this.encryptAlgorithm);
 
         KeyRecoveryRequest data = new KeyRecoveryRequest();
         data.setRequestId(requestId);
         data.setTransWrappedSessionKey(Utils.base64encode(transWrappedSessionKey));
         data.setSessionWrappedPassphrase(Utils.base64encode(sessionWrappedPassphrase));
         data.setNonceData(Utils.base64encode(nonceData));
+        data.setPayloadEncryptionOID(getEncryptAlgorithmOID());
 
         return retrieveKeyData(data);
     }
@@ -528,6 +577,7 @@ public class KeyClient extends Client {
         KeyRecoveryRequest data = new KeyRecoveryRequest();
         data.setKeyId(keyId);
         data.setRequestId(requestId);
+        data.setPayloadEncryptionOID(getEncryptAlgorithmOID());
 
         if (transWrappedSessionKey != null) {
             data.setTransWrappedSessionKey(Utils.base64encode(transWrappedSessionKey));
@@ -589,16 +639,35 @@ public class KeyClient extends Client {
      */
     public KeyRequestResponse archivePassphrase(String clientKeyId, String passphrase, String realm)
             throws Exception {
-        // Default algorithm OID for DES_EDE3_CBC
-        String algorithmOID = EncryptionAlgorithm.DES3_CBC.toOID().toString();
-        byte[] nonceData = CryptoUtil.getNonceData(8);
-        SymmetricKey sessionKey = crypto.generateSessionKey();
+        String algorithmOID = getEncryptAlgorithmOID();
+
+        byte[] nonceData = CryptoUtil.getNonceData(this.encryptAlgorithm.getIVLength());
+        SymmetricKey sessionKey = crypto.generateSymmetricKey(
+                this.encryptAlgorithm.getAlg().toString(),
+                this.encryptAlgorithm.getKeyStrength());
+
         byte[] transWrappedSessionKey = crypto.wrapSessionKeyWithTransportCert(sessionKey, this.transportCert);
-        byte[] encryptedData = crypto.wrapWithSessionKey(passphrase, nonceData,
-                sessionKey, KeyRequestResource.DES3_ALGORITHM);
+
+        byte[] encryptedData = crypto.wrapWithSessionKey(
+                passphrase,
+                nonceData,
+                sessionKey,
+                this.encryptAlgorithm);
 
         return archiveEncryptedData(clientKeyId, KeyRequestResource.PASS_PHRASE_TYPE, null, 0, algorithmOID,
                 nonceData, encryptedData, transWrappedSessionKey, realm);
+    }
+
+    private String getEncryptAlgorithmOID() throws NoSuchAlgorithmException {
+        String algorithmOID;
+        if (this.encryptAlgorithm.getAlg().toString().equalsIgnoreCase("AES")) {
+            // TODO(alee) - horrible hack until we figure out how to do GCM right
+            // We assume the client will have AES 128 CBC with padding
+            algorithmOID = EncryptionAlgorithm.AES_128_CBC.toOID().toString();
+        } else {
+            algorithmOID = this.encryptAlgorithm.toOID().toString();
+        }
+        return algorithmOID;
     }
 
     /* Old signature for backwards compatibility */
@@ -626,11 +695,18 @@ public class KeyClient extends Client {
     public KeyRequestResponse archiveSymmetricKey(String clientKeyId, SymmetricKey secret, String keyAlgorithm,
             int keySize, String realm) throws Exception {
 
-        // Default algorithm OID for DES_EDE3_CBC
-        String algorithmOID = EncryptionAlgorithm.DES3_CBC.toOID().toString();
-        SymmetricKey sessionKey = crypto.generateSessionKey();
-        byte[] nonceData = CryptoUtil.getNonceData(8);
-        byte[] encryptedData = crypto.wrapWithSessionKey(secret, sessionKey, nonceData);
+        String algorithmOID = getEncryptAlgorithmOID();
+
+        byte[] nonceData = null;
+        if (this.wrapIVLength > 0) {
+            nonceData = CryptoUtil.getNonceData(this.wrapIVLength);
+        }
+
+        SymmetricKey sessionKey = crypto.generateSymmetricKey(
+                this.encryptAlgorithm.getAlg().toString(),
+                this.encryptAlgorithm.getKeyStrength());
+
+        byte[] encryptedData = crypto.wrapWithSessionKey(secret, sessionKey, nonceData, this.wrapAlgorithm);
         byte[] transWrappedSessionKey = crypto.wrapSessionKeyWithTransportCert(sessionKey, this.transportCert);
 
         return archiveEncryptedData(clientKeyId, KeyRequestResource.SYMMETRIC_KEY_TYPE, keyAlgorithm, keySize,
