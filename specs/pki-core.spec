@@ -1452,7 +1452,7 @@ systemctl daemon-reload
   /ca/rest/certs/{id} response. (ftweedal)
 - ############################################################################
 
-* Mon Mar  6 2016 Dogtag Team <pki-devel@redhat.com> 10.4.0-0.1
+* Mon Mar  6 2017 Dogtag Team <pki-devel@redhat.com> 10.4.0-0.1
 - Updated version number to 10.4.0-0.1
 - NOTE: Original date was Mon Aug 8 2016
 
