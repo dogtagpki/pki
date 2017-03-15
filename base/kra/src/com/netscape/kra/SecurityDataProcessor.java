@@ -4,19 +4,19 @@ import java.io.ByteArrayOutputStream;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
+import java.security.SecureRandom;
 import java.security.spec.AlgorithmParameterSpec;
 import java.util.Arrays;
 import java.util.Hashtable;
-import java.util.Random;
 
 import javax.crypto.spec.RC2ParameterSpec;
 
 import org.dogtagpki.server.kra.rest.KeyRequestService;
+import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
 import org.mozilla.jss.asn1.OCTET_STRING;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.EncryptionAlgorithm;
 import org.mozilla.jss.crypto.IVParameterSpec;
-import org.mozilla.jss.crypto.KeyGenAlgorithm;
 import org.mozilla.jss.crypto.KeyGenerator;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
 import org.mozilla.jss.crypto.PBEAlgorithm;
@@ -416,7 +416,12 @@ public class SecurityDataProcessor {
         String payloadWrapName = (String) params.get(IRequest.SECURITY_DATA_PL_WRAPPING_NAME);
         String transportKeyAlgo = transportUnit.getCertificate().getPublicKey().getAlgorithm();
 
-        byte[] iv = generate_iv();
+        byte[] iv = null;
+        try {
+            iv = generate_iv(payloadEncryptOID, transportUnit.getOldWrappingParams());
+        } catch (Exception e1) {
+             throw new EBaseException("Failed to generate IV when wrapping secret", e1);
+        }
         String ivStr = Utils.base64encode(iv);
 
         WrappingParams wrapParams = null;
@@ -610,20 +615,17 @@ public class SecurityDataProcessor {
         return false; //return true ? TODO
     }
 
-    private byte[] generate_iv() {
-        //TODO(alee) Fix this -- this will only work for DES3.  Needs to be based on algorithm.
-        // Is there a function in JSS for this?  Also note that the iv generated  here is actually
-        // used for both encryption and wrapping algorithms above.
-        byte[] iv = new byte[8];
-        byte iv_default[] = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
-
-        try {
-            Random rnd = new Random();
-            rnd.nextBytes(iv);
-        } catch (Exception e) {
-            iv = iv_default;
+    private byte[] generate_iv(String oid, WrappingParams old) throws Exception {
+        int numBytes = 0;
+        if (oid != null) {
+            numBytes = EncryptionAlgorithm.fromOID(new OBJECT_IDENTIFIER(oid)).getIVLength();
+        } else {
+            // old client (OID not provided)
+            numBytes = old.getPayloadEncryptionAlgorithm().getIVLength();
         }
-        return iv;
+
+        SecureRandom rnd = new SecureRandom();
+        return rnd.generateSeed(numBytes);
     }
 
     public SymmetricKey recoverSymKey(KeyRecord keyRecord)

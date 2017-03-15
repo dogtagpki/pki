@@ -59,6 +59,11 @@ public class WrappingParams {
 
         switch (encrypt.getAlg().toString()) {
         case "AES":
+            // TODO(alee) - Terrible hack till we figure out why GCM is not working
+            // or a way to detect the padding.
+            // We are going to assume AES-128-PAD
+            encrypt = EncryptionAlgorithm.AES_128_CBC_PAD;
+
             this.skType = SymmetricKey.AES;
             this.skKeyGenAlgorithm = KeyGenAlgorithm.AES;
             if (wrap == null) this.payloadWrapAlgorithm = KeyWrapAlgorithm.AES_KEY_WRAP_PAD;
