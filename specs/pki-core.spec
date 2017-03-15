@@ -1452,17 +1452,192 @@ systemctl daemon-reload
   /ca/rest/certs/{id} response. (ftweedal)
 - ############################################################################
 
-* Mon Aug  8 2016 Dogtag Team <pki-devel@redhat.com> 10.4.0-0.1
+* Mon Mar  6 2016 Dogtag Team <pki-devel@redhat.com> 10.4.0-0.1
 - Updated version number to 10.4.0-0.1
+- NOTE: Original date was Mon Aug 8 2016
+
+* Mon Mar  6 2017 Dogtag Team <pki-devel@redhat.com> 10.3.5-13
+- PKI TRAC Ticket #1710 - Add profile component that copies CN to SAN (ftweedal)
+
+* Sat Feb 11 2017 Fedora Release Engineering <releng@fedoraproject.org> - 10.3.5-12
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_26_Mass_Rebuild
+
+* Tue Jan 31 2017 Dogtag Team <pki-devel@redhat.com> 10.3.5-11
+
+* Thu Dec 22 2016 Miro Hrončok <mhroncok@redhat.com> - 10.3.5-10
+- Rebuild for Python 3.6 (Fedora 26)
+
+* Tue Dec 13 2016 Dogtag Team <pki-devel@redhat.com> 10.3.5-9
+- PKI TRAC Ticket #1517 - user-cert-add --serial CLI request to secure port
+  with remote CA shows authentication failure (edewata)
+- PKI TRAC Ticket #1897 - [MAN] Man page for logging configuration. (edewata)
+- PKI TRAC Ticket #1920 - [MAN] Man page for PKCS #12 utilities (edewata)
+- PKI TRAC Ticket #2226 - KRA installation: NullPointerException in
+  ProxyRealm.findSecurityConstraints (edewata)
+- PKI TRAC Ticket #2289 -  [MAN] pki ca-cert-request-submit fails presumably
+  because of missing authentication even if it should not require any (edewata)
+- PKI TRAC Ticket #2523 - Changes to target.agent.approve.list parameter is
+  not reflected in the TPS Web UI [pki-base] (edewata)
+- PKI TRAC Ticket #2534 - Automatic recovery of encryption cert - CA and TPS
+  tokendb shows different certificate status (cfu)
+- PKI TRAC Ticket #2543 - Unable to install subordinate CA with HSM in FIPS
+  mode (edewata)
+- PKI TRAC Ticket #2544 -  TPS throws "err=6" when attempting to format and
+  enroll G&D Cards (jmagne)
+- PKI TRAC Ticket #2552 - pkispawn does not change default ecc key size from
+  nistp256 when nistp384 is specified in spawn config (jmagne)
+
+* Fri Nov  4 2016 Dogtag Team <pki-devel@redhat.com> 10.3.5-8
+- PKI TRAC Ticket #850 - JSS certificate validation function does not pass up
+  exact errors from NSS (edewata)
+  (Failed to start pki-tomcatd Service - "ipa-cacert-manage renew" failed?)
+- PKI TRAC Ticket #1247 - Better error message when try to renew a certificate
+  that expires outside renewal grace period (alee)
+- PKI TRAC Ticket #1536 - CA EE: Submit caUserCert request without uid does
+  not show proper error message (alee)
+- PKI TRAC Ticket #2460 - Typo in comment line of UserPwdDirAuthentication.java
+  (edewata)
+- PKI TRAC Ticket #2486 - Automatic recovery of encryption cert is not working
+  when a token is physically damaged and a temporary token is issued (jmagne)
+- PKI TRAC Ticket #2498 - Token format with external reg fails when
+  op.format.externalRegAddToToken.revokeCert=true (cfu)
+- PKI TRAC Ticket #2500 - Problems with FIPS mode (edewata)
+- PKI TRAC Ticket #2500 - Problems with FIPS mode (edewata)
+  (added KRA key recovery via CLI in FIPS mode)
+- PKI TRAC Ticket #2510 - PIN_RESET policy is not giving expected results when
+  set on a token (jmagne)
+- PKI TRAC Ticket #2513 - TPS token enrollment fails to setupSecureChannel
+  when TPS and TKS security db is on fips mode. (jmagne)
+- Reverted patches associated with
+  PKI TRAC Ticket #2523 - Changes to target.agent.approve.list parameter is
+  not reflected in the TPS Web UI
+
+* Mon Oct 10 2016 Dogtag Team <pki-devel@redhat.com> 10.3.5-7
+- PKI TRAC Ticket #1527 - TPS Enrollment always goes to "ca1" (cfu)
+- PKI TRAC Ticket #1664 - [BUG] Add ability to disallow TPS to enroll a single
+  user on multiple tokens. (jmagne)
+- PKI TRAC Ticket #2463 - Troubleshooting improvements (edewata)
+- PKI TRAC Ticket #2466 - two-step externally-signed CA installation fails due
+  to missing AuthorityID (ftweedal)
+- PKI TRAC Ticket #2475 - Multiple host authority entries created (ftweedal)
+- PKI TRAC Ticket #2476 - Dogtag 10.4.0 Miscellaneous Minor Changes
+  (edewata)
+- PKI TRAC Ticket #2478 - pkispawn fails as it is not able to find openssl as a
+  dependency package (mharmsen)
+- PKI TRAC Ticket #2483 - Unable to read an encrypted email using renewed
+  tokens (jmagne)
+- PKI TRAC Ticket #2496 - Cert/Key recovery is successful when the cert serial
+  number and key id on the ldap user mismatches (cfu)
+- PKI TRAC Ticket #2497 - KRA installation failed against externally-signed CA
+  with partial certificate chain (edewata)
+- PKI TRAC Ticket #2505 - Fix packaging duplicates of classes in multiple jar
+  files (edewata)
+- Fix for flake8 errors on Fedora 26 (cheimes)
+
+* Fri Sep  9 2016 Dogtag Team <pki-devel@redhat.com> 10.3.5-6
+- Revert Patch:  PKI TRAC Ticket #2449 - Unable to create system certificates
+  in different tokens (edewata)
+
+* Tue Sep  6 2016 Dogtag Team <pki-devel@redhat.com> 10.3.5-5
+- PKI TRAC Ticket #1638 - Lightweight CAs: revoke certificate on CA deletion
+  (ftweedal)
+- PKI TRAC Ticket #2436 - Dogtag 10.3.6: Miscellaneous Enhancements
+  (edewata)
+- PKI TRAC Ticket #2443 - Prevent deletion of host CA's keys if LWCA entry
+  deleted (ftweedal)
+- PKI TRAC Ticket #2444 - Authority entry without entryUSN is skipped even if
+  USN plugin enabled (ftweedal)
+- PKI TRAC Ticket #2446 - pkispawn: make subject_dn defaults unique per
+  instance name (for shared HSM) (cfu)
+- PKI TRAC Ticket #2447 - CertRequestInfo has incorrect URLs (vakwetu)
+- PKI TRAC Ticket #2449 - Unable to create system certificates in different
+  tokens (edewata)
+
+* Mon Aug 29 2016 Dogtag Team <pki-devel@redhat.com> 10.3.5-4
+- PKI TRAC Ticket #1578 - Authentication Instance Id PinDirEnrollment with authType value as SslclientAuth is not working (jmagne)
+- PKI TRAC TIcket #2414 - pki pkcs12-cert-del shows a successfully deleted message when a wrong nickname is provided (gkapoor)
+- PKI TRAC Ticket #2423 - pki_ca_signing_token when not specified does not fallback to pki_token_name value (edewata)
+- PKI TRAC Ticket #2436 - Dogtag 10.3.6: Miscellaneous Enhancements (akasurde) - ticket remains open
+- PKI TRAC Ticket #2439 - Outdated deployment descriptors in upgraded server(edewata)
+
+* Mon Aug 22 2016 Dogtag Team <pki-devel@redhat.com> 10.3.5-3
+- spec file changes
+
+* Mon Aug 22 2016 Dogtag Team <pki-devel@redhat.com> 10.3.5-2
+- PKI TRAC Ticket #690 - [MAN] pki-tools man pages (mharmsen)
+  - CMCEnroll
+- PKI TRAC Ticket #833 - pki user-mod fullName="" gives an error message
+  "PKIException: LDAP error (21): error result" (edewata)
+- PKI TRAC Ticket #2431 - Errors noticed during ipa server upgrade.
+  (cheimes, edewata, mharmsen)
+- PKI TRAC Ticket #2432 - Kra-selftest behavior is not as expected (edewata)
+- PKI TRAC Ticket #2436 - Dogtag 10.3.6: Miscellaneous Enhancements
+  (edewata, mharmsen)
+- PKI TRAC Ticket #2437 - TPS UI: while adding certs for users from TPSUI pem
+  format with/without header works while pkcs7 with header is not allowed
+  (edewata)
+- PKI TRAC Ticket #2440 - Optional CA signing CSR for migration (edewata)
 
 * Mon Aug  8 2016 Dogtag Team <pki-devel@redhat.com> 10.3.5-1
 - Updated version number to 10.3.5-1
 
-* Tue Jul  5 2016 Dogtag Team <pki-devel@redhat.com> 10.3.5-0.1
+* Tue Jul 19 2016 Dogtag Team <pki-devel@redhat.com> 10.3.5-0.1
 - Updated version number to 10.3.5-0.1
+- NOTE: Original date was Tue Jul  5 2016
 
-* Tue Jun 21 2016 Dogtag Team <pki-devel@redhat.com> 10.3.4-0.1
+* Tue Jul 19 2016 Dogtag Team <pki-devel@redhat.com> 10.3.4-0.1
 - Updated version number to 10.3.4-0.1
+- NOTE: Original date was Tue Jun 21 2016
+
+* Tue Jul 19 2016 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 10.3.3-4
+- https://fedoraproject.org/wiki/Changes/Automatic_Provides_for_Python_RPM_Packages
+
+* Tue Jul  5 2016 Dogtag Team <pki-devel@redhat.com> 10.3.3-3
+- PKI TRAC Ticket #691  - [MAN] pki-server man pages (mharmsen)
+- PKI TRAC Ticket #1114 - [MAN] Generting Symmetric key fails with
+  key-generate when --usages verify is passed (jmagne)
+- PKI TRAC Ticket #1306 - [RFE] Add granularity to token termination in TPS
+  (cfu)
+- PKI TRAC Ticket #1308 - [RFE] Provide ability to perform off-card key
+  generation for non-encryption token keys (cfu)
+- PKI TRAC Ticket #1405 - [MAN] Add additional HSM details to
+  'pki_default.cfg' & 'pkispawn' man pages (mharmsen)
+- PKI TRAC Ticket #1607 - [MAN] man pkispawn has inadequate description for
+  shared vs non shared tomcat instance installation (mharmsen)
+- PKI TRAC Ticket #1664 - [BUG] Add ability to disallow TPS to enroll a single
+  user on multiple tokens. (jmagne)
+- PKI TRAC Ticket #1711 - CLI :: pki-server ca-cert-request-find throws
+  IOError (edewata, ftweedal)
+- PKI TRAC Ticket #2285 - freeipa fails to start correctly after pki-core
+  update on upgraded system (ftweedal)
+- PKI TRAC Ticket #2311 - When pki_token_name=Internal, consider normalizing
+  it to "internal" (mharmsen)
+- PKI TRAC Ticket #2349 - Separated TPS does not automatically receive shared
+  secret from remote TKS (jmagne)
+- PKI TRAC Ticket #2364 - CLI :: pki-server ca-cert-request-show throws
+  attribute error (ftweedal)
+- PKI TRAC Ticket #2368 - pki-server subsystem subcommands throws error with
+  --help option (edewata)
+- PKI TRAC Ticket #2374 - KRA cloning overwrites CA signing certificate trust
+  flags (edewata)
+- PKI TRAC Ticket #2380 - Pki-server instance commands throws exception while
+  specifying invalid parameters. (edewata)
+- PKI TRAC Ticket #2384 - CA installation with HSM prompts for HSM password
+  during silent installation (edewata)
+- PKI TRAC Ticket #2385 - Upgraded CA lacks ca.sslserver.certreq in CS.cfg
+  (ftweedal)
+- PKI TRAC Ticket #2387 - Add config for default OCSP URI if none given
+  (ftweedal)
+- PKI TRAC Ticket #2388 - CA creation responds 500 if certificate issuance
+  fails (ftweedal)
+- PKI TRAC Ticket #2389 - Installation: subsystem certs could have notAfter
+  beyond CA signing cert in case of external or existing CA (cfu)
+- PKI TRAC Ticket #2390 - Dogtag 10.3.4: Miscellaneous Enhancements
+  (akasurde, edewata)
+
+* Thu Jun 30 2016 Dogtag Team <pki-devel@redhat.com> 10.3.3-2
+- PKI TRAC Ticket #2373 - Fedora 25: RestEasy 3.0.6 ==> 3.0.17 breaks
+  pki-core (ftweedal)
 
 * Mon Jun 20 2016 Dogtag Team <pki-devel@redhat.com> 10.3.3-1
 - Updated release number to 10.3.3-1
