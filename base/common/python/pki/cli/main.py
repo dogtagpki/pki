@@ -21,6 +21,7 @@
 
 from __future__ import absolute_import
 from __future__ import print_function
+import os
 import shlex
 import subprocess
 import sys
@@ -70,23 +71,9 @@ class PKICLI(pki.cli.CLI):
 
     def execute_java(self, args, stdout=sys.stdout):
 
-        # read Java home
-        value = subprocess.check_output(
-            '. /usr/share/pki/etc/pki.conf && . /etc/pki/pki.conf && echo $JAVA_HOME',
-            shell=True)
-        java_home = value.decode(sys.getfilesystemencoding()).strip()
-
-        # read PKI library
-        value = subprocess.check_output(
-            '. /usr/share/pki/etc/pki.conf && . /etc/pki/pki.conf && echo $PKI_LIB',
-            shell=True)
-        pki_lib = value.decode(sys.getfilesystemencoding()).strip()
-
-        # read logging configuration path
-        value = subprocess.check_output(
-            '. /usr/share/pki/etc/pki.conf && . /etc/pki/pki.conf && echo $LOGGING_CONFIG',
-            shell=True)
-        logging_config = value.decode(sys.getfilesystemencoding()).strip()
+        java_home = os.getenv('JAVA_HOME')
+        pki_lib = os.getenv('PKI_LIB')
+        logging_config = os.getenv('LOGGING_CONFIG')
 
         cmd = [
             java_home + '/bin/java',
@@ -122,10 +109,7 @@ class PKICLI(pki.cli.CLI):
     def execute(self, argv):
 
         # append global options
-        value = subprocess.check_output(
-            '. /usr/share/pki/etc/pki.conf && . /etc/pki/pki.conf && echo $PKI_CLI_OPTIONS',
-            shell=True)
-        value = value.decode(sys.getfilesystemencoding()).strip()
+        value = os.getenv('PKI_CLI_OPTIONS')
         args = shlex.split(value)
         args.extend(argv[1:])
 
