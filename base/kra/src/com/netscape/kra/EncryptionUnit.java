@@ -66,11 +66,11 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
 
     public abstract PrivateKey getPrivateKey(org.mozilla.jss.crypto.X509Certificate cert);
 
-    public abstract WrappingParams getWrappingParams() throws EBaseException;
+    public abstract WrappingParams getWrappingParams() throws Exception;
 
     public WrappingParams getOldWrappingParams() {
         return new WrappingParams(
-                SymmetricKey.DES3, KeyGenAlgorithm.DES3, 0,
+                SymmetricKey.DES3, KeyGenAlgorithm.DES3, 168,
                 KeyWrapAlgorithm.RSA, EncryptionAlgorithm.DES3_CBC_PAD,
                 KeyWrapAlgorithm.DES3_CBC_PAD, IV, IV);
     }

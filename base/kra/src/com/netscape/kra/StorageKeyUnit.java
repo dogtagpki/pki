@@ -30,13 +30,15 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import org.apache.commons.codec.binary.Base64;
 import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
 import org.mozilla.jss.crypto.BadPaddingException;
 import org.mozilla.jss.crypto.Cipher;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.EncryptionAlgorithm;
+import org.mozilla.jss.crypto.IVParameterSpec;
 import org.mozilla.jss.crypto.IllegalBlockSizeException;
-import org.mozilla.jss.crypto.KeyGenAlgorithm;
 import org.mozilla.jss.crypto.KeyGenerator;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
 import org.mozilla.jss.crypto.KeyWrapper;
@@ -62,6 +64,7 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.security.Credential;
 import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.certsrv.security.WrappingParams;
+import com.netscape.cms.servlet.key.KeyRecordParser;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Utils;
 
@@ -105,7 +108,7 @@ public class StorageKeyUnit extends EncryptionUnit implements
     public static final String PROP_KEYDB = "keydb";
     public static final String PROP_CERTDB = "certdb";
     public static final String PROP_MN = "mn";
-    public static final String PROP_OLD_WRAPPING = "useOldWrapping";
+    public static final String PROP_WRAPPING_CHOICE = "wrapping.choice";
 
     /**
      * Constructs this token.
@@ -130,15 +133,51 @@ public class StorageKeyUnit extends EncryptionUnit implements
         throw new EBaseException(CMS.getUserMessage("CMS_INVALID_OPERATION"));
     }
 
-    public WrappingParams getWrappingParams() throws EBaseException {
-        if (mConfig.getBoolean(PROP_OLD_WRAPPING, false)) {
+    public WrappingParams getWrappingParams() throws Exception {
+        String choice = null;
+        try {
+            choice = mConfig.getString(PROP_WRAPPING_CHOICE);
+        } catch (EBaseException e) {
+            // choice parameter does not exist
+            // this is probably an old server
+            // return the old params
             return this.getOldWrappingParams();
         }
 
-        return new WrappingParams(
-                SymmetricKey.AES, KeyGenAlgorithm.AES, 256,
-                KeyWrapAlgorithm.RSA, EncryptionAlgorithm.AES_256_CBC_PAD,
-                KeyWrapAlgorithm.AES_KEY_WRAP_PAD, IV2, null);
+        IConfigStore config = mConfig.getSubStore("wrapping." + choice);
+        if (config == null) {
+            throw new EBaseException("Invalid config: Wrapping parameters not defined");
+        }
+
+        WrappingParams params = new WrappingParams();
+        params.setSkType(config.getString(KeyRecordParser.OUT_SK_TYPE));
+        params.setSkLength(config.getInteger(KeyRecordParser.OUT_SK_LENGTH, 0));
+        params.setSkWrapAlgorithm(config.getString(KeyRecordParser.OUT_SK_WRAP_ALGORITHM));
+        params.setSkKeyGenAlgorithm(config.getString(KeyRecordParser.OUT_SK_KEYGEN_ALGORITHM));
+        params.setPayloadWrapAlgorithm(config.getString(KeyRecordParser.OUT_PL_WRAP_ALGORITHM));
+
+        if (config.getString(KeyRecordParser.OUT_PL_ENCRYPTION_OID, null) != null) {
+            String oidString = config.getString(KeyRecordParser.OUT_PL_ENCRYPTION_OID);
+            params.setPayloadEncryptionAlgorithm(EncryptionAlgorithm.fromOID(new OBJECT_IDENTIFIER(oidString)));
+        } else {
+            params.setPayloadEncryptionAlgorithm(
+                config.getString(KeyRecordParser.OUT_PL_ENCRYPTION_ALGORITHM),
+                config.getString(KeyRecordParser.OUT_PL_ENCRYPTION_MODE),
+                config.getString(KeyRecordParser.OUT_PL_ENCRYPTION_PADDING),
+                config.getInteger(KeyRecordParser.OUT_SK_LENGTH));
+        }
+
+        if (config.getString(KeyRecordParser.OUT_PL_ENCRYPTION_IV, null) != null) {
+            byte[] iv = Base64.decodeBase64(config.getString(KeyRecordParser.OUT_PL_ENCRYPTION_IV));
+            params.setPayloadEncryptionIV(new IVParameterSpec(iv));
+        }
+
+        if (config.getString(KeyRecordParser.OUT_PL_WRAP_IV, null) != null) {
+            byte[] iv = Base64.decodeBase64(config.getString(KeyRecordParser.OUT_PL_WRAP_IV));
+            params.setPayloadWrappingIV(new IVParameterSpec(iv));
+        }
+
+        return params;
     }
 
     /**
