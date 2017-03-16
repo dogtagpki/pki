@@ -171,8 +171,12 @@ cd build
 * Tue Mar 14 2017 Dogtag Team <pki-devel@redhat.com> 10.4.0-1
 - dogtagpki Pagure Issue #2541 - Re-base Dogtag pki packages to 10.4.x
 
-* Mon Aug  8 2016 Dogtag Team <pki-devel@redhat.com> 10.4.0-0.1
+* Mon Feb 13 2017 Dogtag Team <pki-devel@redhat.com> 10.4.0-0.1
 - Updated version number to 10.4.0-0.1
+- NOTE: Original date was Mon Aug  8 2016
+
+* Fri Feb 10 2017 Fedora Release Engineering <releng@fedoraproject.org> - 10.3.5-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_26_Mass_Rebuild
 
 * Mon Aug  8 2016 Dogtag Team <pki-devel@redhat.com> 10.3.5-1
 - Updated version number to 10.3.5-1
