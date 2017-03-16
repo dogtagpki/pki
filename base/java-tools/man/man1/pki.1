@@ -64,13 +64,19 @@ Specifies the port (default: 8080).
 Comma-separated list of rejected certificate validity statuses.
 PKI subsystem type - [CA, KRA, OCSP, TKS, or TPS] (non-case-sensitive).
 .TP
+.B -t <type>
+Subsystem type.
+.TP
+.B --token
+Security token name
+.TP
 .B -U <URI>
 Specifies the server URI.
 .TP
 .B -u <username>
 Specifies the username for basic authentication (mutually exclusive to the '-n' option). This authentication requires a user password.
 .TP
-.B -v
+.B -v, --verbose
 Displays verbose information.
 .TP
 .B --version
