@@ -250,6 +250,48 @@ public class TPSEngine {
 
     }
 
+    // Compute 3 session keys enc, mac, and kek / dek in one shot and return the results
+    public TKSComputeSessionKeyResponse computeSessionKeysSCP03(TPSBuffer kdd, TPSBuffer cuid,
+            TPSBuffer keyInfo,
+            TPSBuffer card_challenge,
+            TPSBuffer host_challenge,
+            TPSBuffer card_cryptogram,
+            String connId,
+            String tokenType, String inKeySet) throws TPSException {
+
+        if (cuid == null || kdd == null || keyInfo == null || card_challenge == null || host_challenge == null
+                || card_cryptogram == null || connId == null || tokenType == null) {
+
+            throw new TPSException("TPSEngine.computeSessionKeySCP03: Invalid input data!",
+                    TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
+        }
+
+        CMS.debug("TPSEngine.computeSessionKeysSCP03");
+
+        TKSRemoteRequestHandler tks = null;
+
+        TKSComputeSessionKeyResponse resp = null;
+        try {
+            tks = new TKSRemoteRequestHandler(connId, inKeySet);
+            resp = tks.computeSessionKeysSCP03(kdd, cuid, keyInfo, card_challenge, card_cryptogram, host_challenge,
+                    tokenType);
+        } catch (EBaseException e) {
+            throw new TPSException("TPSEngine.computeSessionKeysSCP03: Error computing session keys!" + e,
+                    TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
+        }
+
+        int status = resp.getStatus();
+        if (status != 0) {
+            CMS.debug("TPSEngine.computeSessionKeysSCP03: Non zero status result: " + status);
+            throw new TPSException("TPSEngine.computeSessionKeysSCP03: invalid returned status: " + status);
+
+        }
+
+        return resp;
+
+    }
+
+
     public TKSComputeSessionKeyResponse computeSessionKey(TPSBuffer kdd, TPSBuffer cuid,
             TPSBuffer keyInfo,
             TPSBuffer card_challenge,
@@ -378,10 +420,12 @@ public class TPSEngine {
 
     public TPSBuffer createKeySetData(TPSBuffer newMasterVersion, TPSBuffer oldVersion, int protocol, TPSBuffer cuid, TPSBuffer kdd, TPSBuffer wrappedDekSessionKey, String connId, String inKeyset)
             throws TPSException {
-        CMS.debug("TPSEngine.createKeySetData. entering...");
+
+        String method = "TPSEngine.createKeySetData:";
+        CMS.debug(method + " entering...");
 
         if (newMasterVersion == null || oldVersion == null || cuid == null || kdd == null || connId == null) {
-            throw new TPSException("TPSEngine.createKeySetData: Invalid input data",
+            throw new TPSException(method + " Invalid input data",
                     TPSStatus.STATUS_ERROR_KEY_CHANGE_OVER);
         }
 
@@ -394,14 +438,14 @@ public class TPSEngine {
             resp = tks.createKeySetData(newMasterVersion, oldVersion, cuid, kdd, protocol,wrappedDekSessionKey);
         } catch (EBaseException e) {
 
-            throw new TPSException("TPSEngine.createKeySetData, failure to get key set data from TKS",
+            throw new TPSException(method + " failure to get key set data from TKS",
                     TPSStatus.STATUS_ERROR_KEY_CHANGE_OVER);
         }
 
         int status = resp.getStatus();
         if (status != 0) {
-            CMS.debug("TPSEngine.createKeySetData: Non zero status result: " + status);
-            throw new TPSException("TPSEngine.computeSessionKey: invalid returned status: " + status,
+            CMS.debug(method + " Non zero status result: " + status);
+            throw new TPSException(method + " invalid returned status: " + status,
                     TPSStatus.STATUS_ERROR_KEY_CHANGE_OVER);
 
         }
@@ -409,8 +453,8 @@ public class TPSEngine {
         TPSBuffer keySetData = resp.getKeySetData();
 
         if (keySetData == null) {
-            CMS.debug("TPSEngine.createKeySetData: No valid key set data returned.");
-            throw new TPSException("TPSEngine.createKeySetData: No valid key set data returned.",
+            CMS.debug(method + " No valid key set data returned.");
+            throw new TPSException(method + " No valid key set data returned.",
                     TPSStatus.STATUS_ERROR_KEY_CHANGE_OVER);
 
         }

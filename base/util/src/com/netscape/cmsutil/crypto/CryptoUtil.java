@@ -19,7 +19,6 @@ package com.netscape.cmsutil.crypto;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.CharConversionException;
 import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -1614,25 +1613,18 @@ public class CryptoUtil {
         }
     }
 
-    /**
-     * Generates a symmetric key.
-     */
-    public static SymmetricKey generateKey(CryptoToken token,
-            KeyGenAlgorithm alg, int keySize)
-            throws TokenException, NoSuchAlgorithmException,
-                IllegalStateException, InvalidAlgorithmParameterException {
-        try {
-            KeyGenerator kg = token.getKeyGenerator(alg);
-            if (alg == KeyGenAlgorithm.AES || alg == KeyGenAlgorithm.RC4
-                    || alg == KeyGenAlgorithm.RC2) {
-                kg.initialize(keySize);
-            }
-
-            return kg.generate();
-        } catch (CharConversionException e) {
-            throw new RuntimeException(
-                    "CharConversionException while generating symmetric key");
+    public static SymmetricKey generateKey(CryptoToken token, KeyGenAlgorithm alg, int keySize,
+            SymmetricKey.Usage[] usages, boolean temporary) throws Exception {
+        KeyGenerator kg = token.getKeyGenerator(alg);
+        if (usages != null)
+            kg.setKeyUsages(usages);
+        kg.temporaryKeys(temporary);
+        if (alg == KeyGenAlgorithm.AES || alg == KeyGenAlgorithm.RC4
+                || alg == KeyGenAlgorithm.RC2) {
+            kg.initialize(keySize);
         }
+
+        return kg.generate();
     }
 
     /**
@@ -1908,18 +1900,6 @@ public class CryptoUtil {
         return decodedData;
     }
 
-    public static byte[] unwrapUsingSymmetricKey(CryptoToken token, IVParameterSpec IV, byte[] wrappedRecoveredKey,
-            SymmetricKey recoveryKey, EncryptionAlgorithm alg) throws NoSuchAlgorithmException, TokenException,
-            BadPaddingException,
-            IllegalBlockSizeException, InvalidKeyException, InvalidAlgorithmParameterException {
-
-        Cipher decryptor = token.getCipherContext(alg);
-        decryptor.initDecrypt(recoveryKey, IV);
-        byte[] unwrappedData = decryptor.doFinal(wrappedRecoveredKey);
-
-        return unwrappedData;
-    }
-
     public static byte[] wrapPassphrase(CryptoToken token, String passphrase, IVParameterSpec IV, SymmetricKey sk,
             EncryptionAlgorithm alg)
             throws NoSuchAlgorithmException, TokenException, InvalidKeyException,
@@ -1940,56 +1920,25 @@ public class CryptoUtil {
     }
 
     public static byte[] wrapSymmetricKey(CryptoManager manager, CryptoToken token, String transportCert,
-            SymmetricKey sk) throws CertificateEncodingException, TokenException, NoSuchAlgorithmException,
-            InvalidKeyException, InvalidAlgorithmParameterException {
+            SymmetricKey sk) throws Exception {
         byte transport[] = Utils.base64decode(transportCert);
         X509Certificate tcert = manager.importCACertPackage(transport);
-        KeyWrapper rsaWrap = token.getKeyWrapper(KeyWrapAlgorithm.RSA);
-        rsaWrap.initWrap(tcert.getPublicKey(), null);
-        byte session_data[] = rsaWrap.wrap(sk);
-        return session_data;
-    }
-
-    /**
-     * Wrap a symmetric Key with a SymmetricKey
-     *
-     * @param token
-     * @param secret
-     * @param wrapper
-     * @return
-     * @throws TokenException
-     * @throws NoSuchAlgorithmException
-     * @throws InvalidAlgorithmParameterException
-     * @throws InvalidKeyException
-     */
-    public static byte[] wrapSymmetricKey(CryptoToken token, SymmetricKey secret, SymmetricKey wrapper,
-            IVParameterSpec IV) throws NoSuchAlgorithmException, TokenException, InvalidKeyException,
-            InvalidAlgorithmParameterException {
-        KeyWrapper wrapper1 = token.getKeyWrapper(KeyWrapAlgorithm.DES3_CBC_PAD);
-        wrapper1.initWrap(wrapper, IV);
-        byte[] keyData = wrapper1.wrap(secret);
-
-        return keyData;
+        return wrapUsingPublicKey(token, tcert.getPublicKey(), sk, KeyWrapAlgorithm.RSA);
     }
 
     public static byte[] createPKIArchiveOptions(CryptoManager manager, CryptoToken token, String transportCert,
-            SymmetricKey vek, String passphrase, KeyGenAlgorithm keyGenAlg, int symKeySize, IVParameterSpec IV) throws TokenException,
-            CharConversionException,
-            NoSuchAlgorithmException, InvalidKeyException, InvalidAlgorithmParameterException,
-            CertificateEncodingException, IOException, IllegalStateException, IllegalBlockSizeException,
-            BadPaddingException, InvalidBERException {
+            SymmetricKey vek, String passphrase, KeyGenAlgorithm keyGenAlg, int symKeySize, IVParameterSpec IV)
+            throws Exception {
         byte[] key_data = null;
 
         //generate session key
-        SymmetricKey sk = CryptoUtil.generateKey(token, keyGenAlg, symKeySize);
+        SymmetricKey sk = CryptoUtil.generateKey(token, keyGenAlg, symKeySize, null, false);
 
         if (passphrase != null) {
             key_data = wrapPassphrase(token, passphrase, IV, sk, EncryptionAlgorithm.DES3_CBC_PAD);
         } else {
             // wrap payload using session key
-            KeyWrapper wrapper1 = token.getKeyWrapper(KeyWrapAlgorithm.DES3_CBC_PAD);
-            wrapper1.initWrap(sk, IV);
-            key_data = wrapper1.wrap(vek);
+            key_data = wrapUsingSymmetricKey(token, sk, vek, IV, KeyWrapAlgorithm.DES3_CBC_PAD);
         }
 
         // wrap session key using transport key
@@ -2001,19 +1950,11 @@ public class CryptoUtil {
     public static byte[] createPKIArchiveOptions(
             CryptoToken token, PublicKey wrappingKey, PrivateKey toBeWrapped,
             KeyGenAlgorithm keyGenAlg, int symKeySize, IVParameterSpec IV)
-            throws TokenException, NoSuchAlgorithmException,
-            InvalidAlgorithmParameterException, InvalidKeyException,
-            IOException, InvalidBERException {
-        SymmetricKey sessionKey = CryptoUtil.generateKey(token, keyGenAlg, symKeySize);
+            throws Exception {
+        SymmetricKey sessionKey = CryptoUtil.generateKey(token, keyGenAlg, symKeySize, null, false);
+        byte[] key_data = wrapUsingSymmetricKey(token, sessionKey, toBeWrapped, IV, KeyWrapAlgorithm.DES3_CBC_PAD);
 
-        KeyWrapper wrapper = token.getKeyWrapper(KeyWrapAlgorithm.DES3_CBC_PAD);
-        wrapper.initWrap(sessionKey, IV);
-        byte[] key_data = wrapper.wrap(toBeWrapped);
-
-        wrapper = token.getKeyWrapper(KeyWrapAlgorithm.RSA);
-        wrapper.initWrap(wrappingKey, null);
-        byte session_data[] = wrapper.wrap(sessionKey);
-
+        byte[] session_data = wrapUsingPublicKey(token, wrappingKey, sessionKey, KeyWrapAlgorithm.RSA);
         return createPKIArchiveOptions(IV, session_data, key_data);
     }
 
@@ -2050,30 +1991,22 @@ public class CryptoUtil {
             PublicKey pubkey, byte[] data)
             throws InvalidBERException, Exception {
         ByteArrayInputStream in = new ByteArrayInputStream(data);
-        PKIArchiveOptions options = (PKIArchiveOptions)
-            (new PKIArchiveOptions.Template()).decode(in);
+        PKIArchiveOptions options = (PKIArchiveOptions) (new PKIArchiveOptions.Template()).decode(in);
         EncryptedKey encKey = options.getEncryptedKey();
         EncryptedValue encVal = encKey.getEncryptedValue();
         AlgorithmIdentifier algId = encVal.getSymmAlg();
         BIT_STRING encSymKey = encVal.getEncSymmKey();
         BIT_STRING encPrivKey = encVal.getEncValue();
 
-        KeyWrapper wrapper = token.getKeyWrapper(KeyWrapAlgorithm.RSA);
-        wrapper.initUnwrap(unwrappingKey, null);
-        SymmetricKey sk = wrapper.unwrapSymmetric(
-            encSymKey.getBits(), SymmetricKey.Type.DES3, 0);
+        SymmetricKey sk = unwrap(token, SymmetricKey.Type.DES3, 0, null, unwrappingKey, encSymKey.getBits(),
+                KeyWrapAlgorithm.RSA);
 
         ASN1Value v = algId.getParameters();
         v = ((ANY) v).decodeWith(new OCTET_STRING.Template());
         byte iv[] = ((OCTET_STRING) v).toByteArray();
         IVParameterSpec ivps = new IVParameterSpec(iv);
 
-        wrapper = token.getKeyWrapper(KeyWrapAlgorithm.DES3_CBC_PAD);
-        wrapper.initUnwrap(sk, ivps);
-        PrivateKey.Type keyType = pubkey.getAlgorithm().equals("EC")
-            ? PrivateKey.Type.EC
-            : PrivateKey.Type.RSA;
-        return wrapper.unwrapPrivate(encPrivKey.getBits(), keyType, pubkey);
+        return unwrap(token, pubkey, false, sk, encPrivKey.getBits(), KeyWrapAlgorithm.DES3_CBC_PAD, ivps);
     }
 
     public static boolean sharedSecretExists(String nickname) throws NotInitializedException, TokenException {
@@ -2098,22 +2031,22 @@ public class CryptoUtil {
         km.deleteUniqueNamedKey(nickname);
     }
 
-    // Return a list of two wrapped keys: first element: temp DES3 key wrapped by cert , second element: shared secret wrapped by temp DES3 key
-    public static List<byte[]> exportSharedSecret(String nickname, java.security.cert.X509Certificate wrappingCert,SymmetricKey wrappingKey)
-            throws NotInitializedException, TokenException, IOException, NoSuchAlgorithmException, InvalidKeyException,
-            InvalidAlgorithmParameterException, InvalidKeyFormatException {
+    // Return a list of two wrapped keys:
+    // first element: temp DES3 key wrapped by cert ,
+    // second element: shared secret wrapped by temp DES3 key
+    public static List<byte[]> exportSharedSecret(String nickname, java.security.cert.X509Certificate wrappingCert,
+            SymmetricKey wrappingKey) throws Exception {
         CryptoManager cm = CryptoManager.getInstance();
         CryptoToken token = cm.getInternalKeyStorageToken();
 
         List<byte[]> listWrappedKeys = new ArrayList<byte[]>();
-
 
         KeyManager km = new KeyManager(token);
         if (!km.uniqueNamedKeyExists(nickname)) {
             throw new IOException("Shared secret " + nickname + " does not exist");
         }
 
-        SymmetricKey sharedSecretKey =  null;
+        SymmetricKey sharedSecretKey = null;
 
         try {
             sharedSecretKey = getSymKeyByName(token, nickname);
@@ -2125,25 +2058,18 @@ public class CryptoUtil {
             throw new IOException("Shared secret " + nickname + " does not exist");
         }
 
-        KeyWrapper keyWrap = token.getKeyWrapper(KeyWrapAlgorithm.RSA);
         PublicKey pub = wrappingCert.getPublicKey();
         PK11PubKey pubK = PK11PubKey.fromSPKI(pub.getEncoded());
-        keyWrap.initWrap(pubK, null);
 
         //Wrap the temp DES3 key with the cert
-        byte[] wrappedKey = keyWrap.wrap(wrappingKey);
-
+        byte[] wrappedKey = wrapUsingPublicKey(token, pubK, wrappingKey, KeyWrapAlgorithm.RSA);
         listWrappedKeys.add(wrappedKey);
         //Use the DES3 key to wrap the shared secret
 
-        KeyWrapper keyWrapSharedSecret = token.getKeyWrapper(KeyWrapAlgorithm.DES3_ECB);
-        keyWrapSharedSecret.initWrap(wrappingKey,null);
-
-        byte[] wrappedSharedSecret = keyWrapSharedSecret.wrap(sharedSecretKey);
-
+        byte[] wrappedSharedSecret = wrapUsingSymmetricKey(token, wrappingKey, sharedSecretKey, null, KeyWrapAlgorithm.DES3_ECB);
         listWrappedKeys.add(wrappedSharedSecret);
 
-        if(listWrappedKeys.size() != 2) {
+        if (listWrappedKeys.size() != 2) {
             throw new IOException("Can't write out shared secret data to export for nickname: " + nickname);
         }
 
@@ -2235,6 +2161,90 @@ public class CryptoUtil {
         Vector<String> vect = ecOIDs.get(params);
 
         return vect;
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////////////
+    //generic crypto operations
+    //////////////////////////////////////////////////////////////////////////////////////////////
+
+    public static byte[] decryptUsingSymmetricKey(CryptoToken token, IVParameterSpec ivspec, byte[] encryptedData,
+            SymmetricKey wrappingKey, EncryptionAlgorithm encryptionAlgorithm) throws Exception {
+        Cipher decryptor = token.getCipherContext(encryptionAlgorithm);
+        decryptor.initDecrypt(wrappingKey, ivspec);
+        return decryptor.doFinal(encryptedData);
+    }
+
+    public static byte[] encryptUsingSymmetricKey(CryptoToken token, SymmetricKey wrappingKey, byte[] data,
+            EncryptionAlgorithm alg, IVParameterSpec ivspec)
+            throws Exception {
+        Cipher cipher = token.getCipherContext(alg);
+        cipher.initEncrypt(wrappingKey, ivspec);
+        return cipher.doFinal(data);
+    }
+
+    public static byte[] wrapUsingSymmetricKey(CryptoToken token, SymmetricKey wrappingKey, SymmetricKey data,
+            IVParameterSpec ivspec, KeyWrapAlgorithm alg) throws Exception {
+        KeyWrapper wrapper = token.getKeyWrapper(alg);
+        wrapper.initWrap(wrappingKey, ivspec);
+        return wrapper.wrap(data);
+    }
+
+    public static byte[] wrapUsingSymmetricKey(CryptoToken token, SymmetricKey wrappingKey, PrivateKey data,
+            IVParameterSpec ivspec, KeyWrapAlgorithm alg) throws Exception {
+        KeyWrapper wrapper = token.getKeyWrapper(alg);
+        wrapper.initWrap(wrappingKey, ivspec);
+        return wrapper.wrap(data);
+    }
+
+    public static byte[] wrapUsingPublicKey(CryptoToken token, PublicKey wrappingKey, SymmetricKey data,
+            KeyWrapAlgorithm alg) throws Exception {
+        KeyWrapper rsaWrap = token.getKeyWrapper(alg);
+        rsaWrap.initWrap(wrappingKey, null);
+        return rsaWrap.wrap(data);
+    }
+
+    public static SymmetricKey unwrap(CryptoToken token, SymmetricKey.Type keyType,
+            int strength, SymmetricKey.Usage usage, SymmetricKey wrappingKey, byte[] wrappedData,
+            KeyWrapAlgorithm wrapAlgorithm, IVParameterSpec wrappingIV) throws Exception {
+        KeyWrapper wrapper = token.getKeyWrapper(wrapAlgorithm);
+        wrapper.initUnwrap(wrappingKey, wrappingIV);
+        return wrapper.unwrapSymmetric(wrappedData, keyType, usage, strength);
+    }
+
+    public static SymmetricKey unwrap(CryptoToken token, SymmetricKey.Type keyType,
+            int strength, SymmetricKey.Usage usage, PrivateKey wrappingKey, byte[] wrappedData,
+            KeyWrapAlgorithm wrapAlgorithm) throws Exception {
+        KeyWrapper keyWrapper = token.getKeyWrapper(wrapAlgorithm);
+        keyWrapper.initUnwrap(wrappingKey, null);
+
+        return keyWrapper.unwrapSymmetric(wrappedData, keyType, usage, strength);
+    }
+
+    public static PrivateKey unwrap(CryptoToken token, PublicKey pubKey, boolean temporary,
+            SymmetricKey wrappingKey, byte[] wrappedData, KeyWrapAlgorithm wrapAlgorithm, IVParameterSpec wrapIV)
+            throws Exception {
+        KeyWrapper wrapper = token.getKeyWrapper(wrapAlgorithm);
+        wrapper.initUnwrap(wrappingKey, wrapIV);
+
+        // Get the key type for unwrapping the private key.
+        PrivateKey.Type keyType = null;
+        if (pubKey.getAlgorithm().equalsIgnoreCase("RSA")) {
+            keyType = PrivateKey.RSA;
+        } else if (pubKey.getAlgorithm().equalsIgnoreCase("DSA")) {
+            keyType = PrivateKey.DSA;
+        } else if (pubKey.getAlgorithm().equalsIgnoreCase("EC")) {
+            keyType = PrivateKey.EC;
+        }
+
+        PrivateKey pk = null;
+        if (temporary) {
+            pk = wrapper.unwrapTemporaryPrivate(wrappedData,
+                    keyType, pubKey);
+        } else {
+            pk = wrapper.unwrapPrivate(wrappedData,
+                    keyType, pubKey);
+        }
+        return pk;
     }
 }
 

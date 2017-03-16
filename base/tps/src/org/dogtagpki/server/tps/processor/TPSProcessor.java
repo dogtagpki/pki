@@ -33,6 +33,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import netscape.security.x509.RevocationReason;
+
 import org.dogtagpki.server.tps.TPSSession;
 import org.dogtagpki.server.tps.TPSSubsystem;
 import org.dogtagpki.server.tps.authentication.AuthUIParameter;
@@ -99,8 +101,6 @@ import com.netscape.cms.servlet.tks.SecureChannelProtocol;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.symkey.SessionKey;
 
-import netscape.security.x509.RevocationReason;
-
 public class TPSProcessor {
 
     public static final int RESULT_NO_ERROR = 0;
@@ -111,10 +111,14 @@ public class TPSProcessor {
     public static final int CPLC_MSN_SIZE = 4;
 
     public static final int INIT_UPDATE_DATA_SIZE = 28;
+    public static final int INIT_UPDATE_DATA_SIZE_02 = 29;
+    public static final int INIT_UPDATE_DATA_SIZE_03 = 32;
     public static final int DIVERSIFICATION_DATA_SIZE = 10;
     public static final int CARD_CRYPTOGRAM_OFFSET = 20;
+    public static final int CARD_CRYPTOGRAM_OFFSET_GP211_SC03 = 21;
     public static final int CARD_CRYPTOGRAM_SIZE = 8;
     public static final int CARD_CHALLENGE_SIZE_GP211_SC02 = 6;
+    public static final int CARD_CHALLENGE_OFFSET_GP211_SC03 =  13  ;
     public static final int SEQUENCE_COUNTER_OFFSET_GP211_SC02 = 12;
     public static final int SEQUENCE_COUNTER_SIZE_GP211_SC02 = 2;
     public static final int CARD_CHALLENGE_OFFSET = 12;
@@ -431,7 +435,7 @@ public class TPSProcessor {
 
 
     protected TPSBuffer encryptData(AppletInfo appletInfo, TPSBuffer keyInfo, TPSBuffer plaintextChallenge,
-            String connId) throws TPSException {
+            String connId,int protocol) throws TPSException {
 
         TKSRemoteRequestHandler tks = null;
 
@@ -439,7 +443,7 @@ public class TPSProcessor {
 
         try {
             tks = new TKSRemoteRequestHandler(connId, getSelectedKeySet());
-            data = tks.encryptData(appletInfo.getKDD(),appletInfo.getCUID(), keyInfo, plaintextChallenge);
+            data = tks.encryptData(appletInfo.getKDD(),appletInfo.getCUID(), keyInfo, plaintextChallenge,protocol);
         } catch (EBaseException e) {
             throw new TPSException("TPSProcessor.encryptData: Erorr getting wrapped data from TKS!",
                     TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
@@ -482,7 +486,9 @@ public class TPSProcessor {
     protected TPSBuffer initializeUpdate(byte keyVersion, byte keyIndex, TPSBuffer randomData) throws IOException,
             TPSException {
 
-        CMS.debug("In TPS_Processor.initializeUpdate.");
+        String method = "TPSProcessor.initializeUpdate:";
+
+        CMS.debug(method + " Entering...");
         InitializeUpdateAPDU initUpdate = new InitializeUpdateAPDU(keyVersion, keyIndex, randomData);
 
         int done = 0;
@@ -500,7 +506,10 @@ public class TPSProcessor {
 
         TPSBuffer data = resp.getResultDataNoCode();
 
-        if (data.size() != INIT_UPDATE_DATA_SIZE) {
+        CMS.debug(method + " data.size() " + data.size());
+
+        if ((data.size() != INIT_UPDATE_DATA_SIZE) && (data.size() != INIT_UPDATE_DATA_SIZE_02)
+                && (data.size() != INIT_UPDATE_DATA_SIZE_03)) {
             throw new TPSException("TPSBuffer.initializeUpdate: Invalid response from token!",
                     TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
         }
@@ -550,12 +559,22 @@ public class TPSProcessor {
 
         TPSBuffer initUpdateResp = initializeUpdate(keyVersion, keyIndex, randomData);
 
+        CMS.debug("TPSProcessor.setupSecureChanne: initUpdateResponse: " + initUpdateResp.toHexString());
+
         TPSBuffer key_diversification_data = initUpdateResp.substr(0, DIVERSIFICATION_DATA_SIZE);
         appletInfo.setKDD(key_diversification_data);
 
         CMS.debug("TPSProcessor.setupSecureChannel: diversification data: " + key_diversification_data.toHexString());
 
-        TPSBuffer key_info_data = initUpdateResp.substr(DIVERSIFICATION_DATA_SIZE, 2);
+        TPSBuffer key_info_data =  null;
+
+        if (platProtInfo.isSCP03()) {
+            key_info_data = initUpdateResp.substr(DIVERSIFICATION_DATA_SIZE, 3);
+        } else {
+            key_info_data = initUpdateResp.substr(DIVERSIFICATION_DATA_SIZE, 2);
+        }
+
+
         CMS.debug("TPSProcessor.setupSecureChannel: key info data: " + key_info_data.toHexString());
 
         TokenRecord tokenRecord = getTokenRecord();
@@ -564,19 +583,13 @@ public class TPSProcessor {
         TPSBuffer card_cryptogram = null;
         TPSBuffer sequenceCounter = null;
 
-        boolean isGp211scp02 = false;
-
-        if (platProtInfo.getPlatform().equals(SecureChannel.GP211)) {
-            isGp211scp02 = true;
-        }
-
         card_cryptogram = initUpdateResp.substr(CARD_CRYPTOGRAM_OFFSET, CARD_CRYPTOGRAM_SIZE);
         //CMS.debug("TPSProcessor.setupSecureChannel: card cryptogram: " + card_cryptogram.toHexString());
         CMS.debug("TPSProcessor.setupSecureChannel: card cryptogram: extracted");
 
         TPSBuffer card_challenge = null;
 
-        if (isGp211scp02) {
+        if (platProtInfo.isSCP02()) {
             sequenceCounter = initUpdateResp.substr(SEQUENCE_COUNTER_OFFSET_GP211_SC02, 2);
 
             {
@@ -602,7 +615,15 @@ public class TPSProcessor {
 
             tokenRecord.setKeyInfo(key_info_data.toHexStringPlain());
 
+        } else if (platProtInfo.isSCP03()) {
+            card_challenge = initUpdateResp.substr(CARD_CHALLENGE_OFFSET_GP211_SC03,CARD_CHALLENGE_SIZE);
+            card_cryptogram = initUpdateResp.substr(CARD_CRYPTOGRAM_OFFSET_GP211_SC03, CARD_CRYPTOGRAM_SIZE);
+
+            CMS.debug("TPSProcessor.setupSecureChannel 03: card cryptogram: " + card_cryptogram.toHexString());
+            CMS.debug("TPSProcessor.setupSecureChannel 03: card challenge: " + card_challenge.toHexString());
+            CMS.debug("TPSProcessor.setupSecureChannel 03: host challenge: " + randomData.toHexString());
         } else {
+
             card_challenge = initUpdateResp.substr(CARD_CHALLENGE_OFFSET, CARD_CHALLENGE_SIZE);
         }
         //CMS.debug("TPSProcessor.setupSecureChannel: card challenge: " + card_challenge.toHexString());
@@ -627,6 +648,8 @@ public class TPSProcessor {
             TPSBuffer keyInfoData, TPSBuffer cardChallenge, TPSBuffer cardCryptogram, TPSBuffer hostChallenge,
             TPSBuffer sequenceCounter,AppletInfo appletInfo)
             throws EBaseException, TPSException, IOException {
+
+        String method = "TPSProcessor.generateSecureChannel:";
 
         if (connId == null || keyDiversificationData == null || keyInfoData == null || cardChallenge == null
                 || cardCryptogram == null || hostChallenge == null || appletInfo == null) {
@@ -654,6 +677,11 @@ public class TPSProcessor {
         PK11SymKey cmacSessionKeySCP02 = null;
         PK11SymKey rmacSessionKeySCP02 = null;
 
+        PK11SymKey encSessionKeySCP03 = null;
+        PK11SymKey macSessionKeySCP03 = null;
+        PK11SymKey kekSessionKeySCP03 = null;
+        PK11SymKey rmacSessionKeySCP03 = null;
+
         SymmetricKey sharedSecret = null;
 
         //Sanity checking
@@ -680,7 +708,14 @@ public class TPSProcessor {
                     TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
         }
 
-        SecureChannelProtocol protocol = new SecureChannelProtocol();
+        SecureChannelProtocol protocol =  null; //new SecureChannelProtocol();
+
+
+        if(platProtInfo.isSCP01() || platProtInfo.isSCP02() ) {
+            protocol = new SecureChannelProtocol(1);
+        } else if (platProtInfo.isSCP03()) {
+            protocol = new SecureChannelProtocol(3);
+        }
 
         String tokenName = CryptoUtil.INTERNAL_TOKEN_FULL_NAME;
 
@@ -715,7 +750,6 @@ public class TPSProcessor {
             if (hostCryptogram == null) {
                 throw new TPSException("TPSProcessor.generateSecureChannel: No host cryptogram returned from token!",
                         TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
-
             }
 
             try {
@@ -725,9 +759,7 @@ public class TPSProcessor {
              /* sessionKey = SessionKey.UnwrapSessionKeyWithSharedSecret(tokenName, (PK11SymKey) sharedSecret,
                         sessionKeyWrapped.toBytesArray()); */
 
-
-               sessionKey =  (PK11SymKey) protocol.unwrapWrappedSymKeyOnToken(token, sharedSecret, sessionKeyWrapped.toBytesArray(), false);
-
+               sessionKey =  (PK11SymKey) protocol.unwrapWrappedSymKeyOnToken(token, sharedSecret, sessionKeyWrapped.toBytesArray(), false,SymmetricKey.DES3);
 
                 if (sessionKey == null) {
                     CMS.debug("TPSProcessor.generateSecureChannel: Can't extract session key!");
@@ -740,7 +772,7 @@ public class TPSProcessor {
               /*  encSessionKey = SessionKey.UnwrapSessionKeyWithSharedSecret(tokenName,(PK11SymKey) sharedSecret,
                         encSessionKeyWrapped.toBytesArray()); */
 
-                encSessionKey = (PK11SymKey) protocol.unwrapWrappedSymKeyOnToken(token, sharedSecret,encSessionKeyWrapped.toBytesArray(),false);
+                encSessionKey = (PK11SymKey) protocol.unwrapWrappedSymKeyOnToken(token, sharedSecret,encSessionKeyWrapped.toBytesArray(),false,SymmetricKey.DES3);
 
                 if (encSessionKey == null) {
                     CMS.debug("TPSProcessor.generateSecureChannel: Can't extract enc session key!");
@@ -781,7 +813,7 @@ public class TPSProcessor {
 
         }
 
-        if (platProtInfo.isGP211() && platProtInfo.isSCP02()) {
+        if (platProtInfo.isSCP02()) {
             //Generate the 4 keys we need for SCP02, Impl 15
 
             if (sequenceCounter == null) {
@@ -805,8 +837,8 @@ public class TPSProcessor {
             }
 
             respCMac02 = engine.computeSessionKeySCP02(keyDiversificationData, appletInfo.getCUID(), keyInfoData,
-                    sequenceCounter, new TPSBuffer(SecureChannel.C_MACDerivationConstant),
-                    connId, getSelectedTokenType(), getSelectedKeySet());
+                    sequenceCounter, new TPSBuffer(SecureChannel.C_MACDerivationConstant), connId,
+                    getSelectedTokenType(), getSelectedKeySet());
 
             TPSBuffer cmacSessionKeyWrappedSCP02 = respCMac02.getSessionKey();
 
@@ -873,6 +905,43 @@ public class TPSProcessor {
 
             channel.setDekSessionKeyWrapped(dekSessionKeyWrappedSCP02);
 
+        }
+
+        if (platProtInfo.isSCP03()) {
+            CMS.debug("TPSProcessor.generateSecureChannel Trying secure channel protocol 03");
+
+            resp = engine.computeSessionKeysSCP03(keyDiversificationData, appletInfo.getCUID(), keyInfoData,
+                    cardChallenge, hostChallenge, cardCryptogram, connId, getSelectedTokenType(), getSelectedKeySet());
+
+            TPSBuffer encSessionKeyBuff = resp.getEncSessionKey();
+            TPSBuffer kekSessionKeyBuff = resp.getKekSessionKey();
+            TPSBuffer macSessionKeyBuff = resp.getMacSessionKey();
+            TPSBuffer hostCryptogramBuff = resp.getHostCryptogram();
+            TPSBuffer keyCheckBuff = resp.getKeyCheck();
+
+            TPSBuffer drmDesKeyBuff = resp.getDRM_Trans_DesKey();
+            TPSBuffer kekDesKeyBuff = resp.getKekWrappedDesKey();
+
+            CMS.debug(method + " encSessionKeyBuff: " + encSessionKeyBuff.toHexString());
+            CMS.debug(method + " kekSessionKeyBuff: " + kekSessionKeyBuff.toHexString());
+            CMS.debug(method + " macSessionKeyBuff: " + macSessionKeyBuff.toHexString());
+            CMS.debug(method + " hostCryptogramBuff: " + hostCryptogramBuff.toHexString());
+            CMS.debug(method + " keyCheckBuff: " + keyCheckBuff.toHexString());
+            CMS.debug(method + " drmDessKeyBuff: " + drmDesKeyBuff.toHexString());
+            CMS.debug(method + " kekDesKeyBuff: " + kekDesKeyBuff.toHexString());
+
+            encSessionKeySCP03 = (PK11SymKey) protocol.unwrapWrappedSymKeyOnToken(token, sharedSecret,
+                    encSessionKeyBuff.toBytesArray(), false, SymmetricKey.AES);
+            macSessionKeySCP03 = (PK11SymKey) protocol.unwrapWrappedSymKeyOnToken(token, sharedSecret,
+                    macSessionKeyBuff.toBytesArray(), false, SymmetricKey.AES);
+            kekSessionKeySCP03 = (PK11SymKey) protocol.unwrapWrappedSymKeyOnToken(token, sharedSecret,
+                    kekSessionKeyBuff.toBytesArray(), false, SymmetricKey.AES);
+
+            channel = new SecureChannel(this, encSessionKeySCP03, macSessionKeySCP03, kekSessionKeySCP03,
+                    drmDesKeyBuff, kekDesKeyBuff,
+                    keyCheckBuff, keyDiversificationData, cardChallenge,
+                    cardCryptogram, hostChallenge, hostCryptogramBuff, keyInfoData,
+                    platProtInfo);
         }
 
         if (channel == null) {
@@ -3141,9 +3210,6 @@ public class TPSProcessor {
                  The second byte is the key offset, which is always 1
                 */
 
-                byte[] nv = { (byte) requiredVersion, 0x01 };
-                TPSBuffer newVersion = new TPSBuffer(nv);
-
                 // GetKeyInfoData will return a buffer which is bytes 11,12 of
                 // the data structure on page 89 of Cyberflex Access Programmer's
                 // Guide
@@ -3157,7 +3223,20 @@ public class TPSProcessor {
                 int protocol = 1;
                 if (channel.isSCP02()) {
                     protocol = 2;
+                } if (channel.isSCP03()) {
+                    protocol = 3;
                 }
+
+                byte[] nv = null;
+
+                if(protocol == 3) {
+                    nv = new byte[] { (byte) requiredVersion,curKeyInfo.at(1),curKeyInfo.at(2) };
+
+                } else {
+                    nv = new byte[] { (byte) requiredVersion, 0x01 };
+                }
+
+                TPSBuffer newVersion = new TPSBuffer(nv);
 
                 //Sanity checking
 
@@ -3574,14 +3653,21 @@ public class TPSProcessor {
         try {
             gp211GetSecureChannelProtocolDetails();
         } catch (TPSException e) {
+
+            if(platProtInfo.getProtocol() == SecureChannel.SECURE_PROTO_03) {
+                CMS.debug("PSProcessor.acquireChannelPlatformProtocolInfo: card is reporting SCP03, bail, we don't yet support!");
+                throw e;
+            }
+
             CMS.debug("TPSProcessor.acquireChannelPlatformProtocolInfo: Error getting gp211 protocol data, assume scp01 "
                     + e);
+
             platProtInfo.setPlatform(SecureChannel.GP201);
             platProtInfo.setProtocol(SecureChannel.SECURE_PROTO_01);
 
         }
 
-        if (platProtInfo.isGP211() && platProtInfo.isSCP02()) {
+        if (platProtInfo.isSCP02()) {
             // We only support impl 15, the most common, at this point.
 
             if (platProtInfo.getImplementation() != SecureChannel.GP211_SCP02_IMPL_15) {
@@ -3690,16 +3776,17 @@ public class TPSProcessor {
         byte protocol = oidSecureChannelProtocol.at(length - 2);
         byte implementation = oidSecureChannelProtocol.at(length - 1);
 
-        if (protocol == SecureChannel.SECURE_PROTO_03) {
-            throw new TPSException("TPSProcessor.gp211GetSecureChannelProtocolDetails: No support for SCP03 as of yet, bailing.",
-                    TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
-        }
+
 
         platProtInfo.setProtocol(protocol);
         platProtInfo.setImplementation(implementation);
         platProtInfo.setKeysetInfoData(keyData);
 
-        if (protocol == SecureChannel.SECURE_PROTO_02)
+        if (protocol == SecureChannel.SECURE_PROTO_03) {
+            CMS.debug("TPSProcessor.gp211GetSecureChannelProtocolDetails: Found protocol 03!");
+        }
+
+        if ((protocol == SecureChannel.SECURE_PROTO_02) || (protocol == SecureChannel.SECURE_PROTO_03))
             platProtInfo.setPlatform(SecureChannel.GP211);
         else
             platProtInfo.setPlatform(SecureChannel.GP201);
@@ -3712,6 +3799,12 @@ public class TPSProcessor {
 
     public PlatformAndSecChannelProtoInfo getChannelPlatformAndProtocolInfo() {
         return platProtInfo;
+    }
+
+    public int getProtocol() {
+        if(platProtInfo == null)
+            return SecureChannel.SECURE_PROTO_01;
+        return platProtInfo.getProtocol();
     }
 
     boolean checkCardGPKeyVersionIsInRange(String CUID, String KDD, String keyInfoData) throws TPSException {
@@ -3772,10 +3865,13 @@ public class TPSProcessor {
 
             CMS.debug(method + " minVersion: " + minVersion + " maxVersion: " + maxVersion);
 
-            if (keyInfoData.length() != 4) {
+            if( keyInfoData.length() != 4 && keyInfoData.length() != 6) {
                 result = false;
             } else {
+
+
                 // Actually check the version range;
+
 
                 String keyInfoVer = keyInfoData.substring(0, 2);
 

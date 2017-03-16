@@ -219,6 +219,70 @@ public abstract class APDU {
         data.set(dataEncrypted);
     }
 
+    //Used for scp03, provide a padding buffer of the requested size, first byte set to 0x80
+    public void padBuffer80(TPSBuffer buffer, int blockSize) {
+        int length = buffer.size();
+
+        int padSize = 0;
+
+        if( buffer == null || blockSize <= 0)
+            return;
+
+        int rem = length % blockSize ;
+
+        padSize = blockSize - rem;
+
+        TPSBuffer padding = new TPSBuffer( padSize);
+        padding.setAt(0, (byte) 0x80);
+
+        buffer.add(padding);
+
+    }
+
+    //Assume the whole buffer is to be incremented
+    //Used for SCP03 encrypted apdu messages
+    public void incrementBuffer(TPSBuffer buffer) {
+
+        if(buffer == null)
+            return;
+
+        int len = buffer.size();
+
+        if (len < 1)
+            return;
+        int offset = 0;
+        for (short i = (short) (offset + len - 1); i >= offset; i--) {
+            byte cur = buffer.at(i);
+            if (cur != (byte) 0xFF) {
+                    cur++;
+                    buffer.setAt(i, cur);
+                    break;
+            } else
+                    buffer.setAt(i,(byte) 0x00);
+        }
+
+        System.out.println("enc buffer: " + buffer.toHexString());
+    }
+
+    //Implement SCP03 encrypted apdu scheme.
+    public void secureMessageSCP03(PK11SymKey encKey, TPSBuffer encryptionCounter) throws EBaseException {
+
+        TPSBuffer data = this.getData();
+
+        if (data != null && data.size() > 0) {
+
+            padBuffer80(data, 16);
+
+            TPSBuffer encryptedCounter = Util.encryptDataAES(encryptionCounter, encKey, null);
+
+            TPSBuffer encryptedData = Util.encryptDataAES(data, encKey, encryptedCounter);
+
+            data.set(encryptedData);
+
+        }
+
+    }
+
     public void secureMessageSCP02(PK11SymKey encKey) throws EBaseException {
 
         if (encKey == null) {

@@ -1,6 +1,6 @@
 Name:             pki-console
 Version:          10.4.0
-Release:          0.1%{?dist}
+Release:          1%{?dist}
 Summary:          Certificate System - PKI Console
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -9,7 +9,7 @@ Group:            System Environment/Base
 %bcond_without    javadoc
 
 %if 0%{?rhel}
-%define pki_core_rhel_version      10.3.3
+%define pki_core_rhel_version      10.4.0
 %define pki_core_version           %{pki_core_rhel_version}
 %else
 %define pki_core_version           %{version}
@@ -27,7 +27,7 @@ BuildRequires:    nspr-devel
 BuildRequires:    nss-devel
 BuildRequires:    junit
 BuildRequires:    jpackage-utils >= 1.7.5-10
-BuildRequires:    jss >= 4.2.6-40
+BuildRequires:    jss >= 4.4.0-1
 BuildRequires:    pki-base-java >= %{pki_core_version}
 
 Requires:         idm-console-framework
@@ -36,7 +36,7 @@ Requires:         ldapjdk
 Requires:         pki-base-java >= %{pki_core_version}
 Requires:         pki-console-theme >= %{version}
 Requires:         jpackage-utils >= 1.7.5-10
-Requires:         jss >= 4.2.6-40
+Requires:         jss >= 4.4.0-1
 
 %if 0%{?rhel}
 # NOTE:  In the future, as a part of its path, this URL will contain a release
@@ -98,6 +98,10 @@ cd build
 
 
 %changelog
+* Tue Mar 14 2017 Dogtag Team <pki-devel@redhat.com> 10.4.0-1
+- Require "jss >= 4.4.0-1" as a build and runtime requirement
+- dogtagpki Pagure Issue #2541 - Re-base Dogtag pki packages to 10.4.x
+
 * Mon Aug  8 2016 Dogtag Team <pki-devel@redhat.com> 10.4.0-0.1
 - Updated version number to 10.4.0-0.1
 

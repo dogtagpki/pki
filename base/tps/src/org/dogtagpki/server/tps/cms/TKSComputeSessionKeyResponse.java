@@ -62,4 +62,12 @@ public class TKSComputeSessionKeyResponse extends RemoteResponse
     public TPSBuffer getKekWrappedDesKey() {
         return (TPSBuffer) nameValTable.get(IRemoteRequest.TKS_RESPONSE_KEK_DesKey);
     }
+
+    public TPSBuffer getKekSessionKey() {
+        return (TPSBuffer) nameValTable.get(IRemoteRequest.TKS_RESPONSE_KekSessionKey);
+    }
+
+    public TPSBuffer getMacSessionKey() {
+        return (TPSBuffer) nameValTable.get(IRemoteRequest.TKS_RESPONSE_MacSessionKey);
+    }
 }

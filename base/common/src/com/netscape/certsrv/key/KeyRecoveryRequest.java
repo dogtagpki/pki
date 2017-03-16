@@ -45,6 +45,8 @@ public class KeyRecoveryRequest extends ResourceMessage {
     private static final String NONCE_DATA = "nonceData";
     private static final String CERTIFICATE = "certificate";
     private static final String PASSPHRASE = "passphrase";
+    private static final String PAYLOAD_ENCRYPTION_OID = "payloadEncryptionOID";
+    private static final String PAYLOAD_WRAPPING_NAME = "payloadWrappingName";
 
     public KeyRecoveryRequest() {
         // required for JAXB (defaults)
@@ -175,6 +177,34 @@ public class KeyRecoveryRequest extends ResourceMessage {
      */
     public void setPassphrase(String passphrase) {
         attributes.put(PASSPHRASE, passphrase);
+    }
+
+    /**
+     * @return the payloadEncryptionOID
+     */
+    public String getPaylodEncryptionOID() {
+        return attributes.get(PAYLOAD_ENCRYPTION_OID);
+    }
+
+    /**
+     * @param payloadEncryptionOID the payloadEncryptionOID to set
+     */
+    public void setPayloadEncryptionOID(String payloadEncryptionOID) {
+        attributes.put(PAYLOAD_ENCRYPTION_OID, payloadEncryptionOID);
+    }
+
+    /**
+     * @return the payloadWrappingName
+     */
+    public String getPayloadWrappingName() {
+        return attributes.get(PAYLOAD_WRAPPING_NAME);
+    }
+
+    /**
+     * @param payloadWrappingName the payloadWrappingName to set
+     */
+    public void setPayloadWrappingName(String payloadWrappingName) {
+        attributes.put(PAYLOAD_WRAPPING_NAME, payloadWrappingName);
     }
 
     public static KeyRecoveryRequest valueOf(String string) throws Exception {

@@ -36,6 +36,7 @@ import org.mozilla.jss.crypto.Cipher;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.EncryptionAlgorithm;
 import org.mozilla.jss.crypto.IllegalBlockSizeException;
+import org.mozilla.jss.crypto.KeyGenAlgorithm;
 import org.mozilla.jss.crypto.KeyGenerator;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
 import org.mozilla.jss.crypto.KeyWrapper;
@@ -60,8 +61,13 @@ import com.netscape.certsrv.kra.IShare;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.security.Credential;
 import com.netscape.certsrv.security.IStorageKeyUnit;
+import com.netscape.certsrv.security.WrappingParams;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Utils;
+
+import netscape.security.util.DerInputStream;
+import netscape.security.util.DerOutputStream;
+import netscape.security.util.DerValue;
 
 /**
  * A class represents a storage key unit. Currently, this
@@ -99,6 +105,7 @@ public class StorageKeyUnit extends EncryptionUnit implements
     public static final String PROP_KEYDB = "keydb";
     public static final String PROP_CERTDB = "certdb";
     public static final String PROP_MN = "mn";
+    public static final String PROP_OLD_WRAPPING = "useOldWrapping";
 
     /**
      * Constructs this token.
@@ -121,6 +128,17 @@ public class StorageKeyUnit extends EncryptionUnit implements
      */
     public void setId(String id) throws EBaseException {
         throw new EBaseException(CMS.getUserMessage("CMS_INVALID_OPERATION"));
+    }
+
+    public WrappingParams getWrappingParams() throws EBaseException {
+        if (mConfig.getBoolean(PROP_OLD_WRAPPING, false)) {
+            return this.getOldWrappingParams();
+        }
+
+        return new WrappingParams(
+                SymmetricKey.AES, KeyGenAlgorithm.AES, 256,
+                KeyWrapAlgorithm.RSA, EncryptionAlgorithm.AES_256_CBC_PAD,
+                KeyWrapAlgorithm.AES_KEY_WRAP_PAD, IV2, null);
     }
 
     /**
@@ -448,30 +466,16 @@ public class StorageKeyUnit extends EncryptionUnit implements
         try {
             // move public & private to config/storage.dat
             // delete private key
-            KeyWrapper wrapper = token.getKeyWrapper(
+            return CryptoUtil.wrapUsingSymmetricKey(
+                    token,
+                    sk,
+                    pri,
+                    IV,
                     KeyWrapAlgorithm.DES3_CBC_PAD);
-
-            // next to randomly generate a symmetric
-            // password
-
-            wrapper.initWrap(sk, IV);
-            return wrapper.wrap(pri);
-        } catch (TokenException e) {
+        } catch (Exception e) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_KEY_1",
                         "wrapStorageKey:" +
-                                e.toString()));
-        } catch (NoSuchAlgorithmException e) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_KEY_1",
-                        "wrapStorageKey:" +
-                                e.toString()));
-        } catch (InvalidKeyException e) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_KEY_1",
-                        "wrapStorageKey:" +
-                                e.toString()));
-        } catch (InvalidAlgorithmParameterException e) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_KEY_1",
-                        "wrapStorageKey:" +
-                                e.toString()));
+                                e.toString()), e);
         }
     }
 
@@ -1001,4 +1005,212 @@ public class StorageKeyUnit extends EncryptionUnit implements
         return true;
     }
 
+    /****************************************************************************************
+     * Methods to encrypt and store secrets in the database
+     ***************************************************************************************/
+
+    public byte[] encryptInternalPrivate(byte priKey[]) throws Exception {
+        try (DerOutputStream out = new DerOutputStream()) {
+            CMS.debug("EncryptionUnit.encryptInternalPrivate");
+            CryptoToken internalToken = getInternalToken();
+
+            WrappingParams params = getWrappingParams();
+
+            // (1) generate session key
+            SymmetricKey sk = CryptoUtil.generateKey(
+                    internalToken,
+                    params.getSkKeyGenAlgorithm(),
+                    params.getSkLength(),
+                    null,
+                    false);
+
+            // (2) wrap private key with session key
+            byte[] pri = CryptoUtil.encryptUsingSymmetricKey(
+                    internalToken,
+                    sk,
+                    priKey,
+                    params.getPayloadEncryptionAlgorithm(),
+                    params.getPayloadEncryptionIV());
+
+            // (3) wrap session with storage public
+            byte[] session = CryptoUtil.wrapUsingPublicKey(
+                    internalToken,
+                    getPublicKey(),
+                    sk,
+                    params.getSkWrapAlgorithm());
+
+            // use MY own structure for now:
+            // SEQUENCE {
+            //     encryptedSession OCTET STRING,
+            //     encryptedPrivate OCTET STRING
+            // }
+
+            DerOutputStream tmp = new DerOutputStream();
+
+            tmp.putOctetString(session);
+            tmp.putOctetString(pri);
+            out.write(DerValue.tag_Sequence, tmp);
+
+            return out.toByteArray();
+        }
+    }
+
+    public byte[] wrap(PrivateKey privKey) throws Exception {
+        return _wrap(privKey,null);
+    }
+
+    public byte[] wrap(SymmetricKey symmKey) throws Exception {
+        return _wrap(null,symmKey);
+    }
+
+    /***
+     * Internal wrap, accounts for either private or symmetric key
+     */
+    private byte[] _wrap(PrivateKey priKey, SymmetricKey symmKey) throws Exception {
+        try (DerOutputStream out = new DerOutputStream()) {
+            if ((priKey == null && symmKey == null) || (priKey != null && symmKey != null)) {
+                return null;
+            }
+            CMS.debug("EncryptionUnit.wrap interal.");
+            WrappingParams params = getWrappingParams();
+            CryptoToken token = getToken();
+
+            SymmetricKey.Usage usages[] = new SymmetricKey.Usage[2];
+            usages[0] = SymmetricKey.Usage.WRAP;
+            usages[1] = SymmetricKey.Usage.UNWRAP;
+
+            // (1) generate session key
+            SymmetricKey sk = CryptoUtil.generateKey(
+                    token,
+                    params.getSkKeyGenAlgorithm(),
+                    params.getSkLength(),
+                    usages,
+                    true);
+
+            // (2) wrap private key with session key
+            // KeyWrapper wrapper = internalToken.getKeyWrapper(
+
+            byte pri[] = null;
+
+            if (priKey != null) {
+                pri = CryptoUtil.wrapUsingSymmetricKey(
+                        token,
+                        sk,
+                        priKey,
+                        params.getPayloadWrappingIV(),
+                        params.getPayloadWrapAlgorithm());
+            } else if (symmKey != null) {
+                pri = CryptoUtil.wrapUsingSymmetricKey(
+                        token,
+                        sk,
+                        symmKey,
+                        params.getPayloadWrappingIV(),
+                        params.getPayloadWrapAlgorithm());
+            }
+
+            CMS.debug("EncryptionUnit:wrap() privKey wrapped");
+
+            byte[] session = CryptoUtil.wrapUsingPublicKey(
+                    token,
+                    getPublicKey(),
+                    sk,
+                    params.getSkWrapAlgorithm());
+            CMS.debug("EncryptionUnit:wrap() session key wrapped");
+
+            // use MY own structure for now:
+            // SEQUENCE {
+            //     encryptedSession OCTET STRING,
+            //     encryptedPrivate OCTET STRING
+            // }
+
+            DerOutputStream tmp = new DerOutputStream();
+
+            tmp.putOctetString(session);
+            tmp.putOctetString(pri);
+            out.write(DerValue.tag_Sequence, tmp);
+
+            return out.toByteArray();
+        }
+    }
+
+    /****************************************************************************************
+     * Methods to decrypt and retrieve secrets from the database
+     ***************************************************************************************/
+
+    public byte[] decryptInternalPrivate(byte wrappedKeyData[], WrappingParams params)
+            throws Exception {
+        CMS.debug("EncryptionUnit.decryptInternalPrivate");
+        DerValue val = new DerValue(wrappedKeyData);
+        // val.tag == DerValue.tag_Sequence
+        DerInputStream in = val.data;
+        DerValue dSession = in.getDerValue();
+        byte session[] = dSession.getOctetString();
+        DerValue dPri = in.getDerValue();
+        byte pri[] = dPri.getOctetString();
+
+        CryptoToken token = getToken();
+
+        // (1) unwrap the session key
+        CMS.debug("decryptInternalPrivate(): getting key wrapper on slot:" + token.getName());
+        SymmetricKey sk = unwrap_session_key(token, session, SymmetricKey.Usage.DECRYPT, params);
+
+        // (2) decrypt the private key
+        return CryptoUtil.decryptUsingSymmetricKey(
+                token,
+                params.getPayloadEncryptionIV(),
+                pri,
+                sk,
+                params.getPayloadEncryptionAlgorithm());
+    }
+
+    public SymmetricKey unwrap(byte wrappedKeyData[], SymmetricKey.Type algorithm, int keySize,
+            WrappingParams params) throws Exception {
+        DerValue val = new DerValue(wrappedKeyData);
+        // val.tag == DerValue.tag_Sequence
+        DerInputStream in = val.data;
+        DerValue dSession = in.getDerValue();
+        byte session[] = dSession.getOctetString();
+        DerValue dPri = in.getDerValue();
+        byte pri[] = dPri.getOctetString();
+
+        CryptoToken token = getToken();
+        // (1) unwrap the session key
+        SymmetricKey sk = unwrap_session_key(token, session, SymmetricKey.Usage.UNWRAP, params);
+
+        // (2) unwrap the session-wrapped-symmetric key
+        return CryptoUtil.unwrap(
+                token,
+                algorithm,
+                keySize,
+                SymmetricKey.Usage.UNWRAP,
+                sk,
+                pri,
+                params.getPayloadWrapAlgorithm(),
+                params.getPayloadWrappingIV());
+    }
+
+    public PrivateKey unwrap(byte wrappedKeyData[], PublicKey pubKey, boolean temporary, WrappingParams params)
+            throws Exception {
+        DerValue val = new DerValue(wrappedKeyData);
+        // val.tag == DerValue.tag_Sequence
+        DerInputStream in = val.data;
+        DerValue dSession = in.getDerValue();
+        byte session[] = dSession.getOctetString();
+        DerValue dPri = in.getDerValue();
+        byte pri[] = dPri.getOctetString();
+
+        CryptoToken token = getToken();
+        // (1) unwrap the session key
+        SymmetricKey sk = unwrap_session_key(token, session, SymmetricKey.Usage.UNWRAP, params);
+
+        // (2) unwrap the private key
+        return CryptoUtil.unwrap(
+                token,
+                pubKey,
+                temporary,
+                sk,
+                pri,
+                params.getPayloadWrapAlgorithm(),
+                params.getPayloadWrappingIV());
+    }
 }

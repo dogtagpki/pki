@@ -179,6 +179,8 @@ public interface IRequest extends Serializable {
     public static final String SECURITY_DATA_IV_STRING_OUT = "iv_out";
     public static final String SECURITY_DATA_SESS_WRAPPED_DATA = "sessWrappedSecData";
     public static final String SECURITY_DATA_PASS_WRAPPED_DATA = "passPhraseWrappedData";
+    public static final String SECURITY_DATA_PL_ENCRYPTION_OID = "payloadEncryptionOID";
+    public static final String SECURITY_DATA_PL_WRAPPING_NAME = "payloadWrappingName";
 
     // key generation request attributes
     public static final String ASYMKEY_GENERATION_REQUEST = "asymkeyGenRequest";

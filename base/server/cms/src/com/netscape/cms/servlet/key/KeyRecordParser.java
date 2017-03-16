@@ -46,6 +46,19 @@ public class KeyRecordParser {
     public final static String OUT_RECOVERED_BY = "recoveredBy";
     public final static String OUT_RECOVERED_ON = "recoveredOn";
 
+    /* parameters to populate WrappingParams */
+    public final static String OUT_SK_TYPE = "sessionKeyType";
+    public final static String OUT_SK_KEYGEN_ALGORITHM = "sessionKeyKeyGenAlgorithm";
+    public final static String OUT_SK_LENGTH = "sessionKeyLength";
+    public final static String OUT_SK_WRAP_ALGORITHM = "sessionKeyWrapAlgorithm";
+    public final static String OUT_PL_WRAP_ALGORITHM = "payloadWrapAlgorithm";
+    public final static String OUT_PL_WRAP_IV = "payloadWrapIV";
+    public final static String OUT_PL_ENCRYPTION_ALGORITHM = "payloadEncryptionAlgorithm";
+    public final static String OUT_PL_ENCRYPTION_MODE = "payloadEncryptionMode";
+    public final static String OUT_PL_ENCRYPTION_PADDING = "payloadEncryptionPadding";
+    public final static String OUT_PL_ENCRYPTION_IV = "payloadEncryptionIV";
+    public final static String OUT_PL_ENCRYPTION_OID = "payloadEncryptionOID";
+
     /**
      * Fills key record into argument block.
      */

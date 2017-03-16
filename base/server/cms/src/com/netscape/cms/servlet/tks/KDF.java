@@ -41,9 +41,64 @@ public class KDF {
             /* Even...0xf0,0xf2,0xf4,0xf6,0xf8,0xfa,0xfc,0xfe */
             /* E */0xf1, 0xf2, 0xf4, 0xf7, 0xf8, 0xfb, 0xfd, 0xfe, };
 
-    public static byte[] getDiversificationData(byte[] context, String type) throws EBaseException {
+    //Add the emv diversification method, used in SCP03 g&d card.
+    public static byte[] getDiversificationData_EMV(byte[] context, String type) throws EBaseException {
 
-        String method = "KDF.getDiversificationData:";
+        String method = "KDF.getDiversificationData_EMV:";
+
+        CMS.debug(method + " entering ...");
+
+        if (context == null || type == null) {
+            throw new EBaseException(method + "Invalid input parameters!");
+        }
+
+        byte[] KDC = new byte[SecureChannelProtocol.DES2_LENGTH];
+
+        KDC[0] = context[4 + 0];
+        KDC[1] = context[4 + 1];
+        KDC[2] = context[4 + 2];
+        KDC[3] = context[4 + 3];
+        KDC[4] = context[4 + 4];
+        KDC[5] = context[4 + 5];
+        KDC[6] = (byte) 0xF0;
+
+        KDC[7] = 0x1;
+
+        KDC[8] = context[4 + 0];
+        KDC[9] = context[4 + 1];
+        KDC[10] = context[4 + 2];
+        KDC[11] = context[4 +3];
+        KDC[12] = context[4 + 4];
+        KDC[13] = context[4 + 5];
+        KDC[14] = (byte) 0x0f;
+
+        KDC[15] = 0x1;
+
+        if (type.equals(SecureChannelProtocol.encType))
+            return KDC;
+
+        KDC[7] = 0x02;
+        KDC[15] = 0x02;
+        if (type.equals(SecureChannelProtocol.macType))
+            return KDC;
+
+        KDC[7] = 0x03;
+        KDC[15] = 0x03;
+        if (type.equals(SecureChannelProtocol.kekType))
+            return KDC;
+
+        KDC[7] = 0x04;
+        KDC[15] = 0x04;
+        if (type.equals(SecureChannelProtocol.rmacType))
+            return KDC;
+        return KDC;
+
+    }
+
+    //Standard visa2 diversification method
+    public static byte[] getDiversificationData_VISA2(byte[] context, String type) throws EBaseException {
+
+        String method = "KDF.getDiversificationData_VISA2:";
 
         CMS.debug(method + " entering ...");
 

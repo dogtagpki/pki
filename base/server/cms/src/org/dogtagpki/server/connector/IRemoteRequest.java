@@ -53,6 +53,8 @@ public interface IRemoteRequest {
     /* computeSessionKey responses */
     public static final String TKS_RESPONSE_SessionKey = "sessionKey";
     public static final String TKS_RESPONSE_EncSessionKey = "encSessionKey";
+    public static final String TKS_RESPONSE_MacSessionKey = "macSessionKey";
+    public static final String TKS_RESPONSE_KekSessionKey = "kekSessionKey";
     public static final String TKS_RESPONSE_KEK_DesKey = "kek_wrapped_desKey";
     public static final String TKS_RESPONSE_DRM_Trans_DesKey = "drm_trans_desKey";
     public static final String TKS_RESPONSE_KeyCheck = "keycheck";

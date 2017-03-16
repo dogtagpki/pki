@@ -35,4 +35,8 @@ public class SharedSecret implements ISharedToken {
     public String getSharedToken(BigInteger serial) {
         return "testing";
     }
+  
+    public String getSharedToken(String identification) {
+        return "testing";
+    }
 }

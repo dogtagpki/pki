@@ -845,11 +845,7 @@ public class ConfigurationUtils {
         return false;
     }
 
-    public static void restoreCertsFromP12(String p12File, String p12Pass) throws EPropertyNotFound, EBaseException,
-            InvalidKeyException, CertificateException, NoSuchAlgorithmException,
-            InvalidAlgorithmParameterException, IllegalStateException, TokenException, IllegalBlockSizeException,
-            BadPaddingException, NotInitializedException, NicknameConflictException, UserCertConflictException,
-            NoSuchItemOnTokenException, InvalidBERException, IOException {
+    public static void restoreCertsFromP12(String p12File, String p12Pass) throws Exception {
 
         // TODO: The PKCS #12 file is already imported in security_database.py.
         // This method should be removed.
@@ -1018,11 +1014,7 @@ public class ConfigurationUtils {
     public static void importKeyCert(
             Vector<Vector<Object>> pkeyinfo_collection,
             Vector<Vector<Object>> cert_collection
-            ) throws IOException, CertificateException, TokenException,
-                    NoSuchAlgorithmException, InvalidKeyException, InvalidAlgorithmParameterException,
-                    IllegalStateException,
-                    IllegalBlockSizeException, BadPaddingException, NotInitializedException, NicknameConflictException,
-                    UserCertConflictException, NoSuchItemOnTokenException, EPropertyNotFound, EBaseException {
+            ) throws Exception {
 
         CMS.debug("ConfigurationUtils.importKeyCert()");
         CryptoManager cm = CryptoManager.getInstance();
@@ -1072,13 +1064,10 @@ public class ConfigurationUtils {
             }
 
             // encrypt private key
-            KeyGenerator kg = token.getKeyGenerator(KeyGenAlgorithm.DES3);
-            SymmetricKey sk = kg.generate();
+            SymmetricKey sk = CryptoUtil.generateKey(token, KeyGenAlgorithm.DES3, 0, null, true);
             byte iv[] = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
             IVParameterSpec param = new IVParameterSpec(iv);
-            Cipher c = token.getCipherContext(EncryptionAlgorithm.DES3_CBC_PAD);
-            c.initEncrypt(sk, param);
-            byte[] encpkey = c.doFinal(pkey);
+            byte[] encpkey = CryptoUtil.encryptUsingSymmetricKey(token, sk, pkey, EncryptionAlgorithm.DES3_CBC_PAD, param);
 
             // unwrap private key to load into database
             KeyWrapper wrapper = token.getKeyWrapper(KeyWrapAlgorithm.DES3_CBC_PAD);

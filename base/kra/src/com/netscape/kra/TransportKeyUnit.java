@@ -21,10 +21,12 @@ import java.security.PublicKey;
 
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoToken;
+import org.mozilla.jss.crypto.IVParameterSpec;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.Signature;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
+import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.crypto.TokenException;
 
 import com.netscape.certsrv.apps.CMS;
@@ -32,6 +34,8 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.security.ITransportKeyUnit;
+import com.netscape.certsrv.security.WrappingParams;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Cert;
 
 /**
@@ -108,6 +112,10 @@ public class TransportKeyUnit extends EncryptionUnit implements
         } catch (Exception e) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()));
         }
+    }
+
+    public WrappingParams getWrappingParams() {
+        return getOldWrappingParams();
     }
 
     public CryptoToken getInternalToken() {
@@ -252,5 +260,123 @@ public class TransportKeyUnit extends EncryptionUnit implements
     public void verify(byte publicKey[], PrivateKey privateKey)
             throws EBaseException {
         // XXX
+    }
+
+    public SymmetricKey unwrap_sym(byte encSymmKey[], WrappingParams params) throws Exception {
+        return unwrap_session_key(getToken(), encSymmKey, SymmetricKey.Usage.WRAP, params);
+    }
+
+    /**
+     * Decrypts the user private key.  This is called on the transport unit.
+     */
+    public byte[] decryptExternalPrivate(byte encSymmKey[],
+            String symmAlgOID, byte symmAlgParams[], byte encValue[],
+            org.mozilla.jss.crypto.X509Certificate transCert)
+            throws Exception {
+
+        CMS.debug("EncryptionUnit.decryptExternalPrivate");
+
+        if (transCert == null) {
+            transCert = mCert;
+        }
+        CryptoToken token = getToken(transCert);
+        PrivateKey wrappingKey = getPrivateKey(transCert);
+        String priKeyAlgo = wrappingKey.getAlgorithm();
+        WrappingParams params = new WrappingParams(
+                symmAlgOID,
+                null,
+                priKeyAlgo,
+                new IVParameterSpec(symmAlgParams),
+                null);
+
+        SymmetricKey sk = CryptoUtil.unwrap(
+                token,
+                params.getSkType(),
+                0,
+                SymmetricKey.Usage.DECRYPT,
+                wrappingKey,
+                encSymmKey,
+                params.getSkWrapAlgorithm());
+
+        return CryptoUtil.decryptUsingSymmetricKey(
+                token,
+                params.getPayloadEncryptionIV(),
+                encValue,
+                sk,
+                params.getPayloadEncryptionAlgorithm());
+    }
+
+    /**
+     * External unwrapping. Unwraps the symmetric key using
+     * the transport private key.
+     */
+    public SymmetricKey unwrap_symmetric(byte encSymmKey[],
+            String symmAlgOID, byte symmAlgParams[],
+            byte encValue[], SymmetricKey.Type algorithm, int strength)
+            throws Exception {
+
+        CryptoToken token = getToken();
+        PrivateKey wrappingKey = getPrivateKey(mCert);
+        String priKeyAlgo = wrappingKey.getAlgorithm();
+        WrappingParams params = new WrappingParams(
+                symmAlgOID,
+                null,
+                priKeyAlgo,
+                new IVParameterSpec(symmAlgParams),
+                null);
+
+        // (1) unwrap the session key
+        SymmetricKey sk = unwrap_session_key(token, encSymmKey, SymmetricKey.Usage.UNWRAP, params);
+
+        // (2) unwrap the session-wrapped-symmetric-key
+        return CryptoUtil.unwrap(
+                token,
+                algorithm,
+                strength,
+                SymmetricKey.Usage.DECRYPT,
+                sk,
+                encValue,
+                params.getPayloadWrapAlgorithm(),
+                params.getPayloadEncryptionIV());
+    }
+
+    /**
+     * External unwrapping. Unwraps the data using
+     * the transport private key.
+     */
+    public PrivateKey unwrap(byte encSymmKey[],
+            String symmAlgOID, byte symmAlgParams[],
+            byte encValue[], PublicKey pubKey,
+            org.mozilla.jss.crypto.X509Certificate transCert)
+            throws Exception {
+        CryptoToken token = getToken(transCert);
+        PrivateKey wrappingKey = getPrivateKey(transCert);
+        String priKeyAlgo = wrappingKey.getAlgorithm();
+        WrappingParams params = new WrappingParams(
+                symmAlgOID,
+                null,
+                priKeyAlgo,
+                new IVParameterSpec(symmAlgParams),
+                new IVParameterSpec(symmAlgParams));
+
+        // (1) unwrap the session key
+        SymmetricKey sk = CryptoUtil.unwrap(
+                token,
+                params.getSkType(),
+                0,
+                SymmetricKey.Usage.UNWRAP,
+                wrappingKey,
+                encSymmKey,
+                params.getSkWrapAlgorithm());
+
+        // (2) unwrap the session-wrapped-private key
+        return CryptoUtil.unwrap(
+                token,
+                pubKey,
+                true,
+                sk,
+                encValue,
+                params.getPayloadWrapAlgorithm(),
+                params.getPayloadWrappingIV());
     }
 }

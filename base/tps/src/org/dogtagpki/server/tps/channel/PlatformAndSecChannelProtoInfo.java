@@ -62,6 +62,14 @@ public class PlatformAndSecChannelProtoInfo {
         }
         return false;
     }
+
+    public boolean isSCP03() {
+        if(protocol == SecureChannel.SECURE_PROTO_03) {
+            return true;
+        }
+        return false;
+    }
+
     public void setProtocol(byte protocol) {
         this.protocol = protocol;
     }

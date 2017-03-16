@@ -19,6 +19,39 @@ public class StandardKDF extends KDF {
         this.protocol = protocol;
     }
 
+    // For the scp03 g&d smart cafe, the dev keys must start out as DES3 keys
+    // but then this routine must return the AES version of the key
+
+    public SymmetricKey computeCardKey_SCP03_WithDES3(SymmetricKey masterKey, byte[] derivationData, CryptoToken token)
+            throws EBaseException {
+
+        String method = "StandardKDF.computeCardKey_SCP03_WithDES3:";
+
+        CMS.debug(method + " entering ...");
+
+        if (masterKey == null || token == null
+                || derivationData == null || ((derivationData.length != SecureChannelProtocol.AES_128_BYTES) &&
+                        (derivationData.length != SecureChannelProtocol.AES_192_BYTES) &&
+                (derivationData.length != SecureChannelProtocol.AES_256_BYTES))) {
+
+            CMS.debug(method + " Invalid input parameters!");
+
+            throw new EBaseException(method + " Invalid input parameters!");
+        }
+
+        //Now the new key data is the derivation data encrypted with DESS3
+
+        byte[] encrypted;
+        try {
+            encrypted = this.protocol.computeDes3EcbEncryption(masterKey, token.getName(), derivationData);
+        } catch (TokenException e) {
+           throw new EBaseException(method + "Can't derive key data!");
+        }
+        //SecureChannelProtocol.debugByteArray(encrypted, "calculated key: ");
+
+        return this.protocol.unwrapAESSymKeyOnToken(token, encrypted, false);
+
+    }
     public SymmetricKey computeCardKey(SymmetricKey masterKey, byte[] derivationData, CryptoToken token, int protocol)
             throws EBaseException {
 
@@ -54,12 +87,14 @@ public class StandardKDF extends KDF {
                 CMS.debug(method + "Now try this the old fashioned way");
 
                 byte[] encrypted = this.protocol.computeDes3EcbEncryption(masterKey, token.getName(), derivationData);
-                byte[] parityEncrypted = KDF.getDesParity(encrypted);
+                SecureChannelProtocol.debugByteArray(encrypted, "calculated key: ");
+              //  byte[] parityEncrypted = KDF.getDesParity(encrypted);
                 CMS.debug(method + "done computeDes3EcbEncryptiong");
-                derivedKey = this.protocol.unwrapSymKeyOnToken(token, null,
-                        parityEncrypted, false);
 
-                // The key this way is aleady des3, return
+                derivedKey = this.protocol.unwrapSymKeyOnToken(token, null,
+                        encrypted, false,SymmetricKey.DES3);
+
+                // The key this way is already final, return
 
                 return derivedKey;
             }

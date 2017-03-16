@@ -274,7 +274,10 @@ public class RecoveryService implements IService {
 
             try {
                 mKRA.getStorageKeyUnit().unwrap(
-                        keyRecord.getPrivateKeyData(), null);
+                        keyRecord.getPrivateKeyData(),
+                        null,
+                        false,
+                        keyRecord.getWrappingParams(mKRA.getStorageKeyUnit().getOldWrappingParams()));
             } catch (Exception e) {
                 throw new EBaseException("Failed to unwrap private key", e);
             }
@@ -393,33 +396,21 @@ public class RecoveryService implements IService {
                 mStorageUnit.login(creds);
             }
 
-            /* wrapped retrieve session key and private key */
-            DerValue val = new DerValue(keyRecord.getPrivateKeyData());
-            DerInputStream in = val.data;
-            DerValue dSession = in.getDerValue();
-            byte session[] = dSession.getOctetString();
-            DerValue dPri = in.getDerValue();
-            byte pri[] = dPri.getOctetString();
-
-            /* debug */
-            byte publicKeyData[] = keyRecord.getPublicKeyData();
             PublicKey pubkey = null;
             try {
-                pubkey = X509Key.parsePublicKey(new DerValue(publicKeyData));
+                pubkey = X509Key.parsePublicKey(new DerValue(keyRecord.getPublicKeyData()));
             } catch (Exception e) {
                 CMS.debug("RecoverService: after parsePublicKey:" + e.toString());
                 throw new EKRAException(CMS.getUserMessage("CMS_KRA_RECOVERY_FAILED_1", "public key parsing failure"));
             }
-            byte iv[] = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
+
             PrivateKey privKey = null;
             try {
                 privKey = mStorageUnit.unwrap(
-                        session,
-                        keyRecord.getAlgorithm(),
-                        iv,
-                        pri,
-                        pubkey);
-
+                        keyRecord.getPrivateKeyData(),
+                        pubkey,
+                        false,
+                        keyRecord.getWrappingParams(mKRA.getStorageKeyUnit().getOldWrappingParams()));
             } catch (Exception e) {
                 mKRA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_PRIVATE_KEY_NOT_FOUND"));
                 throw new EKRAException(CMS.getUserMessage("CMS_KRA_RECOVERY_FAILED_1",
@@ -564,7 +555,9 @@ public class RecoveryService implements IService {
         mKRA.log(ILogger.LL_INFO, "KRA decrypts internal private");
 
         try {
-             byte[] privateKeyData = mStorageUnit.decryptInternalPrivate(keyRecord.getPrivateKeyData());
+             byte[] privateKeyData = mStorageUnit.decryptInternalPrivate(
+                     keyRecord.getPrivateKeyData(),
+                     keyRecord.getWrappingParams(mKRA.getStorageKeyUnit().getOldWrappingParams()));
 
              if (CMS.getConfigStore().getBoolean("kra.keySplitting")) {
                  mStorageUnit.logout();

@@ -27,13 +27,11 @@ import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.util.Hashtable;
 
-import org.mozilla.jss.crypto.Cipher;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.EncryptionAlgorithm;
 import org.mozilla.jss.crypto.IVParameterSpec;
 import org.mozilla.jss.crypto.KeyGenAlgorithm;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
-import org.mozilla.jss.crypto.KeyWrapper;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.PrivateKey.Type;
 import org.mozilla.jss.crypto.SymmetricKey;
@@ -54,6 +52,7 @@ import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.certsrv.security.ITransportKeyUnit;
 import com.netscape.certsrv.security.WrappingParams;
 import com.netscape.cmscore.dbs.KeyRecord;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Cert;
 
 import netscape.security.util.BigInt;
@@ -170,23 +169,6 @@ public class TokenKeyRecoveryService implements IService {
         }
     }
 
-    // this encrypts bytes with a symmetric key
-    public byte[] encryptIt(byte[] toBeEncrypted, SymmetricKey symKey, CryptoToken token,
-                IVParameterSpec IV) {
-        try {
-            Cipher cipher = token.getCipherContext(
-                    EncryptionAlgorithm.DES3_CBC_PAD);
-
-            cipher.initEncrypt(symKey, IV);
-            byte pri[] = cipher.doFinal(toBeEncrypted);
-            return pri;
-        } catch (Exception e) {
-            CMS.debug("initEncrypt() threw exception: " + e.toString());
-            return null;
-        }
-
-    }
-
     /**
      * Processes a recovery request. The method reads
      * the key record from the database, and tries to recover the
@@ -273,18 +255,17 @@ public class TokenKeyRecoveryService implements IService {
                 (wrapped_des_key.length > 0)) {
 
             WrappingParams wrapParams = new WrappingParams(
-                    SymmetricKey.DES3, null, KeyGenAlgorithm.DES3, 0,
+                    SymmetricKey.DES3, KeyGenAlgorithm.DES3, 0,
                     KeyWrapAlgorithm.RSA, EncryptionAlgorithm.DES3_CBC_PAD,
-                    KeyWrapAlgorithm.DES3_CBC_PAD);
+                    KeyWrapAlgorithm.DES3_CBC_PAD, EncryptionUnit.IV, EncryptionUnit.IV);
 
             // unwrap the des key
-            sk = (PK11SymKey) mTransportUnit.unwrap_sym(wrapped_des_key, wrapParams);
-
-            if (sk == null) {
+            try {
+                sk = (PK11SymKey) mTransportUnit.unwrap_sym(wrapped_des_key, wrapParams);
+                CMS.debug("TokenKeyRecoveryService: received des key");
+            } catch (Exception e) {
                 CMS.debug("TokenKeyRecoveryService: no des key");
                 request.setExtData(IRequest.RESULT, Integer.valueOf(4));
-            } else {
-                CMS.debug("TokenKeyRecoveryService: received des key");
             }
         } else {
             CMS.debug("TokenKeyRecoveryService: not receive des key");
@@ -363,8 +344,6 @@ public class TokenKeyRecoveryService implements IService {
             CryptoToken token = mStorageUnit.getToken();
             CMS.debug("TokenKeyRecoveryService: got token slot:" + token.getName());
             IVParameterSpec algParam = new IVParameterSpec(iv);
-
-            Cipher cipher = token.getCipherContext(EncryptionAlgorithm.DES3_CBC_PAD);
 
             KeyRecord keyRecord = null;
             CMS.debug("KRA reading key record");
@@ -512,8 +491,12 @@ public class TokenKeyRecoveryService implements IService {
                 }
 
                 //encrypt and put in private key
-                cipher.initEncrypt(sk, algParam);
-                wrapped = cipher.doFinal(privateKeyData);
+                wrapped = CryptoUtil.encryptUsingSymmetricKey(
+                        token,
+                        sk,
+                        privateKeyData,
+                        EncryptionAlgorithm.DES3_CBC_PAD,
+                        algParam);
             } else { //allowEncDecrypt_recovery == false
                 PrivateKey privKey = recoverKey(params, keyRecord, allowEncDecrypt_recovery);
                 if (privKey == null) {
@@ -531,11 +514,14 @@ public class TokenKeyRecoveryService implements IService {
                 }
 
                 CMS.debug("TokenKeyRecoveryService: about to wrap...");
-                KeyWrapper wrapper = token.getKeyWrapper(
-                    KeyWrapAlgorithm.DES3_CBC_PAD);
 
-                wrapper.initWrap(sk, algParam);
-                wrapped = wrapper.wrap(privKey);
+                wrapped = CryptoUtil.wrapUsingSymmetricKey(
+                        token,
+                        sk,
+                        privKey,
+                        algParam,
+                        KeyWrapAlgorithm.DES3_CBC_PAD);
+
                 iv_s = /*base64Encode(iv);*/com.netscape.cmsutil.util.Utils.SpecialEncode(iv);
                 request.setExtData("iv_s", iv_s);
             }
@@ -676,31 +662,21 @@ public class TokenKeyRecoveryService implements IService {
         }
 
         try {
-            /* wrapped retrieve session key and private key */
-            DerValue val = new DerValue(keyRecord.getPrivateKeyData());
-            DerInputStream in = val.data;
-            DerValue dSession = in.getDerValue();
-            byte session[] = dSession.getOctetString();
-            DerValue dPri = in.getDerValue();
-            byte pri[] = dPri.getOctetString();
-
-            byte publicKeyData[] = keyRecord.getPublicKeyData();
             PublicKey pubkey = null;
             try {
-                pubkey = X509Key.parsePublicKey (new DerValue(publicKeyData));
+                pubkey = X509Key.parsePublicKey (new DerValue(keyRecord.getPublicKeyData()));
             } catch (Exception e) {
                 CMS.debug("TokenKeyRecoverService: after parsePublicKey:"+e.toString());
                 throw new EKRAException(CMS.getUserMessage("CMS_KRA_RECOVERY_FAILED_1", "public key parsing failure"));
             }
-            byte iv[] = {0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1};
+
             PrivateKey privKey = null;
             try {
                 privKey = mStorageUnit.unwrap(
-                        session,
-                        keyRecord.getAlgorithm(),
-                        iv,
-                        pri,
-                        pubkey);
+                        keyRecord.getPrivateKeyData(),
+                        pubkey,
+                        false,
+                        keyRecord.getWrappingParams(mStorageUnit.getOldWrappingParams()));
             } catch (Exception e) {
                 CMS.debug("TokenKeyRecoveryService: recoverKey() - recovery failure");
                 throw new EKRAException(
@@ -728,7 +704,9 @@ public class TokenKeyRecoveryService implements IService {
             mStorageUnit.login(creds);
         */
         try {
-             return mStorageUnit.decryptInternalPrivate(keyRecord.getPrivateKeyData());
+             return mStorageUnit.decryptInternalPrivate(
+                     keyRecord.getPrivateKeyData(),
+                     keyRecord.getWrappingParams(mStorageUnit.getOldWrappingParams()));
              /* mStorageUnit.logout();*/
         } catch (Exception e){
             mKRA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_PRIVATE_KEY_NOT_FOUND"));

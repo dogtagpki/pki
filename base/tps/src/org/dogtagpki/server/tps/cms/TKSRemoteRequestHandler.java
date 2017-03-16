@@ -226,6 +226,157 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
         }
     }
 
+    public TKSComputeSessionKeyResponse computeSessionKeysSCP03(
+            TPSBuffer kdd
+            ,TPSBuffer cuid,
+            TPSBuffer keyInfo,
+            TPSBuffer card_challenge,
+            TPSBuffer card_cryptogram,
+            TPSBuffer  host_challenge,
+            String tokenType) throws EBaseException {
+
+        String method = "TKSRemoteRequestHandler: computeSessionKeysSCP03()";
+
+        CMS.debug(method + " Entering: ");
+
+        if (cuid == null || kdd == null || keyInfo == null || card_challenge == null ||
+                card_cryptogram == null || host_challenge == null || tokenType == null
+
+               ) {
+            throw new EBaseException(method +  " invalid input!");
+        }
+
+        IConfigStore conf = CMS.getConfigStore();
+
+        boolean serverKeygen =
+                conf.getBoolean("op.enroll." +
+                        tokenType + ".keyGen.encryption.serverKeygen.enable",
+                        false);
+        if (keySet == null)
+            keySet = conf.getString("tps.connector." + connid + ".keySet", "defKeySet");
+
+        TPSSubsystem subsystem =
+                (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+        HttpConnector conn =
+                (HttpConnector) subsystem.getConnectionManager().getConnector(connid);
+
+        String requestString = IRemoteRequest.SERVER_SIDE_KEYGEN + "=" + serverKeygen +
+                "&" + IRemoteRequest.TOKEN_KDD + "=" + Util.specialURLEncode(kdd) +
+                "&" + IRemoteRequest.TOKEN_CUID + "=" + Util.specialURLEncode(cuid) +
+                "&" + IRemoteRequest.TOKEN_CARD_CHALLENGE + "=" + Util.specialURLEncode(card_challenge) +
+                "&" + IRemoteRequest.TOKEN_HOST_CHALLENGE + "=" + Util.specialURLEncode(host_challenge) +
+                "&" + IRemoteRequest.TOKEN_KEYINFO + "=" + Util.specialURLEncode(keyInfo) +
+                "&" + IRemoteRequest.CHANNEL_PROTOCOL + "=" + SecureChannel.SECURE_PROTO_03 +
+                "&" + IRemoteRequest.TOKEN_CARD_CRYPTOGRAM + "="
+                + Util.specialURLEncode(card_cryptogram.toBytesArray()) +
+                "&" + IRemoteRequest.TOKEN_KEYSET + "=" + keySet;
+
+        HttpResponse resp =
+                conn.send("computeSessionKey",
+                        requestString
+                        );
+
+        String content = resp.getContent();
+
+        if (content != null && !content.equals("")) {
+            Hashtable<String, Object> response =
+                    parseResponse(content);
+
+            /*
+             * When a value is not found in response, keep going so we know
+             * what else is missing
+             * Note: serverKeygen and !serverKeygen returns different set of
+             *     response values so "missing" might not be bad
+             */
+            Integer ist = new Integer(IRemoteRequest.RESPONSE_STATUS_NOT_FOUND);
+            String value = (String) response.get(IRemoteRequest.RESPONSE_STATUS);
+            if (value == null) {
+                CMS.debug(method + " status not found.");
+                //CMS.debug("TKSRemoteRequestHandler: computeSessionKeySCP02(): got content = " + content);
+            } else {
+                CMS.debug(method + " got status = " + value);
+                ist = Integer.parseInt(value);
+            }
+            response.put(IRemoteRequest.RESPONSE_STATUS, ist);
+
+            value = (String) response.get(IRemoteRequest.TKS_RESPONSE_EncSessionKey);
+            if (value == null) {
+                CMS.debug(method + " response missing name-value pair for: " +
+                        IRemoteRequest.TKS_RESPONSE_EncSessionKey);
+            } else {
+                CMS.debug(method+ "got IRemoteRequest.TKS_RESPONSE_EncSessionKey");
+                response.put(IRemoteRequest.TKS_RESPONSE_EncSessionKey, Util.specialDecode(value));
+            }
+
+            value = (String) response.get(IRemoteRequest.TKS_RESPONSE_DRM_Trans_DesKey);
+            if (value == null) {
+                CMS.debug(method + " response missing name-value pair for: " +
+                        IRemoteRequest.TKS_RESPONSE_DRM_Trans_DesKey);
+            } else {
+                CMS.debug(method + "got IRemoteRequest.TKS_RESPONSE_DRM_Trans_DesKey");
+                response.put(IRemoteRequest.TKS_RESPONSE_DRM_Trans_DesKey, Util.specialDecode(value));
+            }
+
+            value = (String) response.get(IRemoteRequest.TKS_RESPONSE_MacSessionKey);
+            if (value == null) {
+                CMS.debug(method + "response missing name-value pair for: " +
+                        IRemoteRequest.TKS_RESPONSE_MacSessionKey);
+            } else {
+                CMS.debug(method + " got IRemoteRequest.TKS_RESPONSE_MacSessionKey");
+                response.put(IRemoteRequest.TKS_RESPONSE_MacSessionKey, Util.specialDecode(value));
+
+            }
+
+
+            value = (String) response.get(IRemoteRequest.TKS_RESPONSE_KekSessionKey);
+            if (value == null) {
+                CMS.debug(method + "response missing name-value pair for: " +
+                        IRemoteRequest.TKS_RESPONSE_KekSessionKey);
+            } else {
+                CMS.debug(method + " got IRemoteRequest.TKS_RESPONSE_KekSessionKey");
+                response.put(IRemoteRequest.TKS_RESPONSE_KekSessionKey, Util.specialDecode(value));
+            }
+
+            value = (String) response.get(IRemoteRequest.TKS_RESPONSE_KEK_DesKey);
+            if (value == null) {
+                CMS.debug(method + "response missing name-value pair for: " +
+                        IRemoteRequest.TKS_RESPONSE_KEK_DesKey);
+            } else {
+                CMS.debug(method + " got IRemoteRequest.TKS_RESPONSE_KEK_DesKey");
+                response.put(IRemoteRequest.TKS_RESPONSE_KEK_DesKey, Util.specialDecode(value));
+
+            }
+
+            value = (String) response.get(IRemoteRequest.TKS_RESPONSE_KeyCheck);
+
+            if (value == null) {
+                CMS.debug(method + "response missing name-value pair for: " +
+                        IRemoteRequest.TKS_RESPONSE_KeyCheck);
+
+            } else {
+                CMS.debug(method + " got IRemoteRequest.TKS_RESPONSE_KeyCheck");
+                response.put(IRemoteRequest.TKS_RESPONSE_KeyCheck, Util.specialDecode(value));
+            }
+
+            value = (String) response.get(IRemoteRequest.TKS_RESPONSE_HostCryptogram);
+            if ( value == null ) {
+                CMS.debug(method + " response missing name-value pair for: " + IRemoteRequest.TKS_RESPONSE_HostCryptogram);
+            } else {
+                CMS.debug(method + " got " + IRemoteRequest.TKS_RESPONSE_HostCryptogram);
+                response.put(IRemoteRequest.TKS_RESPONSE_HostCryptogram, Util.specialDecode(value));
+            }
+
+            CMS.debug(method + " ends.");
+
+            return new TKSComputeSessionKeyResponse(response);
+
+        } else {
+            CMS.debug("TKSRemoteRequestHandler: computeSessionKeySCP02(): no response content.");
+            throw new EBaseException("TKSRemoteRequestHandler: computeSessionKeySCP02(): no response content.");
+        }
+
+    }
+
     /*
      * computeSessionKey
      *
@@ -559,7 +710,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
             TPSBuffer kdd,
             TPSBuffer cuid,
             TPSBuffer version,
-            TPSBuffer inData)
+            TPSBuffer inData,int protocol)
             throws EBaseException {
         CMS.debug("TKSRemoteRequestHandler: encryptData(): begins.");
         if (cuid == null || kdd == null || version == null || inData == null) {
@@ -582,7 +733,9 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
                                 "&" + IRemoteRequest.TOKEN_CUID + "=" + Util.specialURLEncode(cuid) +
                                 "&" + IRemoteRequest.TOKEN_KDD + "=" + Util.specialURLEncode(kdd) +
                                 "&" + IRemoteRequest.TOKEN_KEYINFO + "=" + Util.specialURLEncode(version) +
-                                "&" + IRemoteRequest.TOKEN_KEYSET + "=" + keySet);
+                                "&" + IRemoteRequest.TOKEN_KEYSET + "=" +  keySet +
+                                "&" + IRemoteRequest.CHANNEL_PROTOCOL + "=" + protocol
+                                );
 
         String content = resp.getContent();
 

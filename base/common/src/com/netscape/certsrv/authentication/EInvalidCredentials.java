@@ -35,4 +35,8 @@ public class EInvalidCredentials extends EAuthException {
     public EInvalidCredentials(String errorString) {
         super(errorString);
     }
+
+    public EInvalidCredentials(String errorString, Exception cause) {
+        super(errorString, cause);
+    }
 }

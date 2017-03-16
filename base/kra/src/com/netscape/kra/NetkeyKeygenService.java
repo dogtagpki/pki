@@ -31,7 +31,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 
 import org.mozilla.jss.asn1.ASN1Util;
-import org.mozilla.jss.crypto.Cipher;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.EncryptionAlgorithm;
 import org.mozilla.jss.crypto.IVParameterSpec;
@@ -39,7 +38,6 @@ import org.mozilla.jss.crypto.KeyGenAlgorithm;
 import org.mozilla.jss.crypto.KeyPairAlgorithm;
 import org.mozilla.jss.crypto.KeyPairGenerator;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
-import org.mozilla.jss.crypto.KeyWrapper;
 import org.mozilla.jss.crypto.PQGParamGenException;
 import org.mozilla.jss.crypto.PQGParams;
 import org.mozilla.jss.crypto.PrivateKey;
@@ -326,23 +324,6 @@ public class NetkeyKeygenService implements IService {
         }
     }
 
-    // this encrypts bytes with a symmetric key
-    public byte[] encryptIt(byte[] toBeEncrypted, SymmetricKey symKey, CryptoToken token,
-                IVParameterSpec IV) {
-        try {
-            Cipher cipher = token.getCipherContext(
-                    EncryptionAlgorithm.DES3_CBC_PAD);
-
-            cipher.initEncrypt(symKey, IV);
-            byte pri[] = cipher.doFinal(toBeEncrypted);
-            return pri;
-        } catch (Exception e) {
-            CMS.debug("NetkeyKeygenService:initEncrypt() threw exception: " + e.toString());
-            return null;
-        }
-
-    }
-
     /**
      * Services an archival request from netkey.
      * <P>
@@ -371,7 +352,6 @@ public class NetkeyKeygenService implements IService {
 
         wrapped_des_key = null;
         boolean archive = true;
-        PK11SymKey sk = null;
         byte[] publicKeyData = null;
         ;
         String PubKey = "";
@@ -456,12 +436,9 @@ public class NetkeyKeygenService implements IService {
                 (wrapped_des_key.length > 0)) {
 
             WrappingParams wrapParams = new WrappingParams(
-                    SymmetricKey.DES3, null, KeyGenAlgorithm.DES3, 0,
+                    SymmetricKey.DES3, KeyGenAlgorithm.DES3, 0,
                     KeyWrapAlgorithm.RSA, EncryptionAlgorithm.DES3_CBC_PAD,
-                    KeyWrapAlgorithm.DES3_CBC_PAD);
-
-            // unwrap the DES key
-            sk = (PK11SymKey) mTransportUnit.unwrap_sym(wrapped_des_key, wrapParams);
+                    KeyWrapAlgorithm.DES3_CBC_PAD, EncryptionUnit.IV, EncryptionUnit.IV);
 
             /* XXX could be done in HSM*/
             KeyPair keypair = null;
@@ -530,24 +507,29 @@ public class NetkeyKeygenService implements IService {
                     CMS.debug("NetkeyKeygenService: got private key");
                 }
 
-                if (sk == null) {
-                    CMS.debug("NetkeyKeygenService: no DES key");
+                // unwrap the DES key
+                PK11SymKey sk = null;
+                try {
+                    sk = (PK11SymKey) mTransportUnit.unwrap_sym(wrapped_des_key, wrapParams);
+                    CMS.debug("NetkeyKeygenService: received DES key");
+                } catch (Exception e) {
+                    CMS.debug("NetkeyKeygenService: no DES key: " + e);
                     request.setExtData(IRequest.RESULT, Integer.valueOf(4));
                     return false;
-                } else {
-                    CMS.debug("NetkeyKeygenService: received DES key");
                 }
 
                 // 3 wrapping should be done in HSM
                 // wrap private key with DES
-                KeyWrapper symWrap =
-                        keygenToken.getKeyWrapper(KeyWrapAlgorithm.DES3_CBC_PAD);
                 CMS.debug("NetkeyKeygenService: wrapper token=" + keygenToken.getName());
-                CMS.debug("NetkeyKeygenService: got key wrapper");
-
                 CMS.debug("NetkeyKeygenService: key transport key is on slot: " + sk.getOwningToken().getName());
-                symWrap.initWrap(sk, algParam);
-                byte wrapped[] = symWrap.wrap((PrivateKey) privKey);
+
+                byte[] wrapped = CryptoUtil.wrapUsingSymmetricKey(
+                        keygenToken,
+                        sk,
+                        (PrivateKey) privKey,
+                        algParam,
+                        KeyWrapAlgorithm.DES3_CBC_PAD);
+
                 /*
                   CMS.debug("NetkeyKeygenService: wrap called");
                   CMS.debug(wrapped);
@@ -686,6 +668,9 @@ public class NetkeyKeygenService implements IService {
                         CMS.debug("NetkeyKeygenService: serialNo null");
                         return false;
                     }
+
+                    rec.setWrappingParams(mStorageUnit.getWrappingParams());
+
                     CMS.debug("NetkeyKeygenService: before addKeyRecord");
                     rec.set(KeyRecord.ATTR_ID, serialNo);
                     request.setExtData(ATTR_KEY_RECORD, serialNo);

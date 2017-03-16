@@ -24,9 +24,6 @@ import java.util.Enumeration;
 import java.util.Locale;
 import java.util.StringTokenizer;
 
-import netscape.security.x509.BasicConstraintsExtension;
-import netscape.security.x509.X509CertImpl;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
@@ -44,6 +41,9 @@ import com.netscape.certsrv.profile.IProfileAuthenticator;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.usrgrp.Certificates;
+
+import netscape.security.x509.BasicConstraintsExtension;
+import netscape.security.x509.X509CertImpl;
 
 /**
  * Certificate server SSL client authentication.
@@ -189,7 +189,7 @@ public class SSLclientCertAuthentication implements IAuthManager,
                     } catch (Exception e) {
                         CMS.debug("SSLclientCertAuthentication: authenticate: exception:" +
                                  e.toString());
-                        throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
+                        throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"), e);
                     }
                 }
             }
@@ -199,7 +199,7 @@ public class SSLclientCertAuthentication implements IAuthManager,
             }
         } catch (CertificateException e) {
             CMS.debug(e.toString());
-            throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
+            throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"), e);
         }
 
         // check if certificate(s) is revoked

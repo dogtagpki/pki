@@ -1,9 +1,7 @@
 package org.dogtagpki.server.tks.rest;
 
 import java.io.CharConversionException;
-import java.io.IOException;
 import java.net.URI;
-import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
@@ -25,7 +23,6 @@ import org.jboss.resteasy.plugins.providers.atom.Link;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.CryptoManager.NotInitializedException;
 import org.mozilla.jss.crypto.CryptoToken;
-import org.mozilla.jss.crypto.InvalidKeyFormatException;
 import org.mozilla.jss.crypto.KeyGenAlgorithm;
 import org.mozilla.jss.crypto.KeyGenerator;
 import org.mozilla.jss.crypto.SymmetricKey;
@@ -347,12 +344,10 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
 
             return createOKResponse(keyData);
 
-        } catch (InvalidKeyException | IllegalStateException | NoSuchAlgorithmException
-                | InvalidAlgorithmParameterException | EBaseException
-                | NotInitializedException | TokenException | IOException | InvalidKeyFormatException e) {
+        } catch (Exception  e) {
             e.printStackTrace();
             CMS.debug("Error in generating and exporting shared secret: " + e);
-            throw new PKIException("Error in generating and exporting shared secret: " + e);
+            throw new PKIException("Error in generating and exporting shared secret: " + e, e);
         }
     }
 
@@ -418,12 +413,10 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
 
             return createOKResponse(keyData);
 
-        } catch (InvalidKeyException | IllegalStateException | NoSuchAlgorithmException
-                | InvalidAlgorithmParameterException | EBaseException
-                | NotInitializedException | TokenException | IOException | InvalidKeyFormatException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             CMS.debug("Error in replacing shared secret: " + e);
-            throw new PKIException("Error in replacing shared secret: " + e);
+            throw new PKIException("Error in replacing shared secret: " + e, e);
         }
     }
 
@@ -504,12 +497,10 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
 
             return createOKResponse(keyData);
 
-        } catch (InvalidKeyException | IllegalStateException | NoSuchAlgorithmException
-                | InvalidAlgorithmParameterException | EBaseException
-                | NotInitializedException | TokenException | IOException | InvalidKeyFormatException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             CMS.debug("Error in obtaining shared secret: " + e);
-            throw new PKIException("Error in obtaining shared secret: " + e);
+            throw new PKIException("Error in obtaining shared secret: " + e, e);
         }
     }
 

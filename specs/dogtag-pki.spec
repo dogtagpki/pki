@@ -7,7 +7,7 @@
 Summary:          Dogtag Public Key Infrastructure (PKI) Suite
 Name:             dogtag-pki
 Version:          10.4.0
-Release:          0.1%{?dist}
+Release:          1%{?dist}
 # The entire source code is GPLv2 except for 'pki-tps' which is LGPLv2
 License:          GPLv2 and LGPLv2
 URL:              http://pki.fedoraproject.org/
@@ -19,7 +19,7 @@ BuildArch:        noarch
 %define esc_version                1.1.0
 # NOTE:  The following package versions are TLS compliant:
 %if 0%{?rhel}
-%define pki_core_rhel_version      10.3.3
+%define pki_core_rhel_version      10.4.0
 %define pki_core_rhcs_version      %{version}
 %else
 %define pki_core_version           %{version}
@@ -124,6 +124,9 @@ rm -rf %{buildroot}
 %doc README
 
 %changelog
+* Tue Mar 14 2017 Dogtag Team <pki-devel@redhat.com> 10.4.0-1
+- dogtagpki Pagure Issue #2541 - Re-base Dogtag pki packages to 10.4.x
+
 * Mon Aug  8 2016 Dogtag Team <pki-devel@redhat.com> 10.4.0-0.1
 - Updated version number to 10.4.0-0.1
 
