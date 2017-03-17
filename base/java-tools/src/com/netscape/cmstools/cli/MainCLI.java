@@ -467,11 +467,31 @@ public class MainCLI extends CLI {
 
     public void init() throws Exception {
 
-        // Main program should initialize client security database
-        if (certDatabase.exists()) {
-            if (verbose) System.out.println("Initializing client security database");
-            CryptoManager.initialize(certDatabase.getAbsolutePath());
+        // Create security database if it doesn't exist
+        if (!certDatabase.exists()) {
+
+            if (verbose) System.out.println("Creating security database");
+
+            certDatabase.mkdirs();
+
+            String[] commands = {
+                    "/usr/bin/certutil", "-N",
+                    "-d", certDatabase.getAbsolutePath(),
+                    "--empty-password"
+            };
+
+            Runtime rt = Runtime.getRuntime();
+            Process p = rt.exec(commands);
+
+            int rc = p.waitFor();
+            if (rc != 0) {
+                throw new Exception("Unable to create security database: " + certDatabase.getAbsolutePath() + " (rc: " + rc + ")");
+            }
         }
+
+        // Main program should initialize security database
+        if (verbose) System.out.println("Initializing security database");
+        CryptoManager.initialize(certDatabase.getAbsolutePath());
 
         // If password is specified, use password to access security token
         if (config.getCertPassword() != null) {
