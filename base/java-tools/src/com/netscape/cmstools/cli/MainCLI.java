@@ -519,8 +519,24 @@ public class MainCLI extends CLI {
 
         }
 
-        CryptoUtil.setSSLStreamVersionRange(SSLVersion.TLS_1_0, SSLVersion.TLS_1_2);
-        CryptoUtil.setSSLDatagramVersionRange(SSLVersion.TLS_1_1, SSLVersion.TLS_1_2);
+        // See default SSL configuration in /usr/share/pki/etc/pki.conf.
+
+        String streamVersionMin = System.getenv("SSL_STREAM_VERSION_MIN");
+        String streamVersionMax = System.getenv("SSL_STREAM_VERSION_MAX");
+
+        CryptoUtil.setSSLStreamVersionRange(
+                SSLVersion.valueOf(streamVersionMin),
+                SSLVersion.valueOf(streamVersionMax)
+        );
+
+        String datagramVersionMin = System.getenv("SSL_DATAGRAM_VERSION_MIN");
+        String datagramVersionMax = System.getenv("SSL_DATAGRAM_VERSION_MAX");
+
+        CryptoUtil.setSSLDatagramVersionRange(
+                SSLVersion.valueOf(datagramVersionMin),
+                SSLVersion.valueOf(datagramVersionMax)
+        );
+
         CryptoUtil.setClientCiphers();
     }
 
