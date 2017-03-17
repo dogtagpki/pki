@@ -59,6 +59,7 @@ import com.netscape.cmstools.pkcs12.PKCS12CLI;
 import com.netscape.cmstools.system.SecurityDomainCLI;
 import com.netscape.cmstools.user.UserCLI;
 import com.netscape.cmsutil.crypto.CryptoUtil;
+import com.netscape.cmsutil.crypto.CryptoUtil.SSLVersion;
 
 /**
  * @author Endi S. Dewata
@@ -517,6 +518,10 @@ public class MainCLI extends CLI {
             }
 
         }
+
+        CryptoUtil.setSSLStreamVersionRange(SSLVersion.TLS_1_0, SSLVersion.TLS_1_2);
+        CryptoUtil.setSSLDatagramVersionRange(SSLVersion.TLS_1_1, SSLVersion.TLS_1_2);
+        CryptoUtil.setClientCiphers();
 
         client = new PKIClient(config, null);
         client.setVerbose(verbose);

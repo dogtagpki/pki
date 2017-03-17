@@ -83,8 +83,6 @@ import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 import org.mozilla.jss.ssl.SSLSocket;
 
 import com.netscape.certsrv.base.PKIException;
-import com.netscape.cmsutil.crypto.CryptoUtil;
-import com.netscape.cmsutil.crypto.CryptoUtil.SSLVersion;
 
 public class PKIConnection {
 
@@ -331,10 +329,6 @@ public class PKIConnection {
                 localPort = localAddress.getPort();
                 localAddr = localAddress.getAddress();
             }
-
-            CryptoUtil.setSSLStreamVersionRange(SSLVersion.TLS_1_0, SSLVersion.TLS_1_2);
-            CryptoUtil.setSSLDatagramVersionRange(SSLVersion.TLS_1_1, SSLVersion.TLS_1_2);
-            CryptoUtil.setClientCiphers();
 
             SSLSocket socket;
             if (sock == null) {
