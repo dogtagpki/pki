@@ -538,6 +538,9 @@ public class MainCLI extends CLI {
         );
 
         CryptoUtil.setDefaultSSLCiphers();
+
+        String ciphers = System.getenv("SSL_CIPHERS");
+        CryptoUtil.setSSLCiphers(ciphers);
     }
 
     public PKIClient getClient() throws Exception {

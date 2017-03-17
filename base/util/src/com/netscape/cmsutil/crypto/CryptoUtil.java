@@ -947,6 +947,18 @@ public class CryptoUtil {
         }
     }
 
+    public static void setSSLCiphers(String ciphers) throws SocketException {
+
+        if (ciphers == null) return;
+
+        StringTokenizer st = new StringTokenizer(ciphers);
+
+        while (st.hasMoreTokens()) {
+            String cipher = st.nextToken();
+            setSSLCipher(cipher, true);
+        }
+    }
+
     public static void setSSLCipher(String cipher, boolean enabled) throws SocketException {
 
         Integer cipherID = cipherMap.get(cipher);
