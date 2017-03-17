@@ -956,30 +956,34 @@ public class CryptoUtil {
         }
     }
 
-    public static void setClientCiphers()
-            throws SocketException {
+    public static void setClientCiphers() throws SocketException {
+
         int ciphers[] = SSLSocket.getImplementedCipherSuites();
-        for (int j = 0; ciphers != null && j < ciphers.length; j++) {
-            boolean enabled = SSLSocket.getCipherPreferenceDefault(ciphers[j]);
+        if (ciphers == null) return;
+
+        for (int cipher : ciphers) {
+
+            boolean enabled = SSLSocket.getCipherPreferenceDefault(cipher);
             //System.out.println("CryptoUtil: cipher '0x" +
             //    Integer.toHexString(ciphers[j]) + "'" + " enabled? " +
             //    enabled);
+
             // make sure SSLv2 ciphers are not enabled
-            if ((ciphers[j] & 0xfff0) ==0xff00) {
-                if (enabled) {
-                    //System.out.println("CryptoUtil: disabling SSL2 NSS Cipher '0x" +
-                    //    Integer.toHexString(ciphers[j]) + "'");
-                    SSLSocket.setCipherPreferenceDefault(ciphers[j], false);
-                }
-            } else {
-                /*
-                 * unlike RSA ciphers, ECC ciphers are not enabled by default
-                 */
-                if ((!enabled) && clientECCipherList.contains(ciphers[j])) {
-                  //System.out.println("CryptoUtil: enabling ECC NSS Cipher '0x" +
-                  //    Integer.toHexString(ciphers[j]) + "'");
-                  SSLSocket.setCipherPreferenceDefault(ciphers[j], true);
-                }
+            if ((cipher & 0xfff0) == 0xff00) {
+
+                if (!enabled) continue;
+
+                //System.out.println("CryptoUtil: disabling SSLv2 NSS Cipher '0x" +
+                //    Integer.toHexString(ciphers[j]) + "'");
+                SSLSocket.setCipherPreferenceDefault(cipher, false);
+                continue;
+            }
+
+            // unlike RSA ciphers, ECC ciphers are not enabled by default
+            if (!enabled && clientECCipherList.contains(cipher)) {
+                //System.out.println("CryptoUtil: enabling ECC NSS Cipher '0x" +
+                //    Integer.toHexString(ciphers[j]) + "'");
+                SSLSocket.setCipherPreferenceDefault(cipher, true);
             }
         }
     }
