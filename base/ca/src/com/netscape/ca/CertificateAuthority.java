@@ -305,6 +305,11 @@ public class CertificateAuthority
 
     protected Hashtable<String, ListenerPlugin> mListenerPlugins = null;
 
+    // for CMC shared secret operations
+    protected X509Certificate mIssuanceProtCert = null;
+    protected PublicKey mIssuanceProtPubKey = null;
+    protected PrivateKey mIssuanceProtPrivKey = null;
+
     /**
      * Internal constants
      */
@@ -606,14 +611,68 @@ public class CertificateAuthority
 
                 CMS.debug("CertificateAuthority: finished init of host authority");
             }
+
+            // set up CA Issuance Protection Cert
+            if (initSigUnitSucceeded)
+                initIssuanceProtectionCert();
         } catch (EBaseException e) {
             CMS.debug(e);
             if (CMS.isPreOpMode()) {
-                CMS.debug("CertificateAuthority.init(): Swallow exception in pre-op mode");
+                CMS.debug("CertificateAuthority: Swallow exception in pre-op mode");
                 return;
             }
             throw e;
         }
+    }
+
+    /**
+     * initIssuanceProtectionCert sets the CA Issuance Protection cert
+     */
+    private void initIssuanceProtectionCert()
+           throws EBaseException {
+        String method = "CertificateAuthority: initIssuanceProtectionCert: ";
+        CryptoManager cManager = null;
+
+        String name = null;
+        String defaultName = "cert.subsystem.nickname";
+        String certNickName = null;
+        try {
+            cManager = CryptoManager.getInstance();
+            name = "cert.issuance_protection.nickname";
+            CMS.debug(method + " about to look for CA Issuance Protection cert: "+
+                name);
+            certNickName = mConfig.getString(name);
+        } catch (EBaseException e) {
+            CMS.debug(method + name + " not found; use defaultName : " + defaultName );
+            name = defaultName ;
+            certNickName = mConfig.getString(name);
+        } catch (Exception e) {
+            throw new EBaseException(method + e);
+        }
+        CMS.debug(method + "found nickname: "+ certNickName);
+
+        try {
+                mIssuanceProtCert = cManager.findCertByNickname(certNickName);
+            if (mIssuanceProtCert != null) {
+                CMS.debug(method + " found CA Issuance Protection cert:" + certNickName);
+                mIssuanceProtPubKey = mIssuanceProtCert.getPublicKey();
+                mIssuanceProtPrivKey = cManager.getInstance().findPrivKeyByCert(mIssuanceProtCert);
+            }
+        } catch (Exception e) {
+            throw new EBaseException(method + e);
+        }
+    }
+
+    public PublicKey getIssuanceProtPubKey() {
+        return mIssuanceProtPubKey;
+    }
+
+    public PrivateKey getIssuanceProtPrivKey() {
+        return mIssuanceProtPrivKey;
+    }
+
+    public X509Certificate getIssuanceProtCert() {
+        return mIssuanceProtCert;
     }
 
     private void checkForNewerCert() throws EBaseException {

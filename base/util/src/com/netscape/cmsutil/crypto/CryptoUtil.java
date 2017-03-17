@@ -66,6 +66,7 @@ import org.mozilla.jss.crypto.CryptoStore;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.DigestAlgorithm;
 import org.mozilla.jss.crypto.EncryptionAlgorithm;
+import org.mozilla.jss.crypto.HMACAlgorithm;
 import org.mozilla.jss.crypto.IVParameterSpec;
 import org.mozilla.jss.crypto.IllegalBlockSizeException;
 import org.mozilla.jss.crypto.InternalCertificate;
@@ -2273,6 +2274,150 @@ public class CryptoUtil {
                     keyType, pubKey);
         }
         return pk;
+    }
+
+    /**
+     * The following are convenience routines for quick preliminary
+     * feature development or test programs that would just take
+     * the defaults
+     */
+
+    private static byte default_iv[] = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
+    private static IVParameterSpec default_IV = new IVParameterSpec(default_iv);
+
+    // this generates a temporary 128 bit AES symkey with defaults
+    public static SymmetricKey generateKey(CryptoToken token) throws Exception {
+        return generateKey(token,
+//TODO:                KeyGenAlgorithm.AES, 128,
+                KeyGenAlgorithm.DES3, 128 /*unused*/,
+                null, true);
+    }
+
+    // decryptUsingSymmetricKey with default algorithms
+    public static byte[] decryptUsingSymmetricKey(CryptoToken token, byte[] encryptedData, SymmetricKey wrappingKey) throws Exception {
+        return decryptUsingSymmetricKey(token, default_IV, encryptedData,
+                wrappingKey,
+                EncryptionAlgorithm.DES3_CBC_PAD);
+//TODO:                EncryptionAlgorithm.AES_128_CBC);
+    }
+
+    // encryptUsingSymmetricKey with default algorithms
+    public static byte[] encryptUsingSymmetricKey(CryptoToken token, SymmetricKey wrappingKey, byte[] data) throws Exception {
+        return encryptUsingSymmetricKey(
+                token,
+                wrappingKey,
+                data,
+                EncryptionAlgorithm.DES3_CBC_PAD,
+//TODO:                EncryptionAlgorithm.AES_128_CBC,
+                default_IV);
+    }
+
+    // unwrap sym key using default algorithms
+    public static SymmetricKey unwrap(CryptoToken token, SymmetricKey.Usage usage, PrivateKey wrappingKey, byte[] wrappedSymKey) throws Exception {
+        return unwrap(
+               token,
+//TODO:               SymmetricKey.AES,
+               SymmetricKey.DES3,
+               0,
+               usage,
+               wrappingKey,
+               wrappedSymKey,
+               getDefaultKeyWrapAlg());
+    }
+
+    public static AlgorithmIdentifier getDefaultEncAlg()
+           throws Exception {
+        OBJECT_IDENTIFIER oid =
+                EncryptionAlgorithm.DES3_CBC.toOID();
+//TODO:                EncryptionAlgorithm.AES_128_CBC.toOID();
+
+        AlgorithmIdentifier aid =
+                new AlgorithmIdentifier(oid, new OCTET_STRING(default_iv));
+        return aid;
+    }
+
+    public static String getDefaultHashAlgName() {
+        return ("SHA-256");
+    }
+
+    public static KeyWrapAlgorithm getDefaultKeyWrapAlg() {
+        return KeyWrapAlgorithm.RSA;
+    }
+
+    public static AlgorithmIdentifier getDefaultHashAlg()
+           throws Exception {
+        AlgorithmIdentifier hashAlg;
+            hashAlg = new AlgorithmIdentifier(CryptoUtil.getHashAlgorithmOID("SHA-256"));
+        return hashAlg;
+    }
+
+    // The following are useful mapping functions
+
+    /**
+     * maps from HMACAlgorithm name to FIPS 180-2 MessageDigest algorithm name
+     */
+    public static String getHMACtoMessageDigestName(String name) {
+        String mdName = name;
+        if (name != null) {
+            if (name.equals("SHA-256-HMAC")) {
+                mdName = "SHA-256";
+            } else if (name.equals("SHA-384-HMAC")) {
+                mdName = "SHA-384";
+            } else if (name.equals("SHA-512-HMAC")) {
+                mdName = "SHA-512";
+            }
+        }
+
+        return mdName;
+    }
+
+    /**
+     * getHMACAlgorithmOID returns OID of the HMAC algorithm name
+     *
+     * @param name name of the HMAC algorithm
+     * @return OID of the HMAC algorithm
+     */
+    public static OBJECT_IDENTIFIER getHMACAlgorithmOID(String name)
+           throws NoSuchAlgorithmException {
+        OBJECT_IDENTIFIER oid = null;
+        if (name != null) {
+            if (name.equals("SHA-256-HMAC")) {
+                oid = (HMACAlgorithm.SHA256).toOID();
+            } else if (name.equals("SHA-384-HMAC")) {
+                oid = (HMACAlgorithm.SHA384).toOID();
+            } else if (name.equals("SHA-512-HMAC")) {
+                oid = (HMACAlgorithm.SHA512).toOID();
+            }
+        }
+        if ( oid == null) {
+            throw new NoSuchAlgorithmException();
+        }
+        return oid;
+    }
+
+    /**
+     * getHashAlgorithmOID returns OID of the hashing algorithm name
+     *
+     * @param name name of the hashing algorithm
+     * @return OID of the hashing algorithm
+     *
+     */
+    public static OBJECT_IDENTIFIER getHashAlgorithmOID(String name)
+           throws NoSuchAlgorithmException {
+        OBJECT_IDENTIFIER oid = null;
+        if (name != null) {
+            if (name.equals("SHA-256")) {
+                oid = (DigestAlgorithm.SHA256).toOID();
+            } else if (name.equals("SHA-384")) {
+                oid = (DigestAlgorithm.SHA384).toOID();
+            } else if (name.equals("SHA-512")) {
+                oid = (DigestAlgorithm.SHA512).toOID();
+            }
+        }
+        if ( oid == null) {
+            throw new NoSuchAlgorithmException();
+        }
+        return oid;
     }
 }
 
