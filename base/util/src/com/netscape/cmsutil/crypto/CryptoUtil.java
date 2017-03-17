@@ -955,7 +955,14 @@ public class CryptoUtil {
 
         while (st.hasMoreTokens()) {
             String cipher = st.nextToken();
-            setSSLCipher(cipher, true);
+            boolean enabled = true;
+
+            if (cipher.startsWith("-")) {
+                enabled = false;
+                cipher = cipher.substring(1);
+            }
+
+            setSSLCipher(cipher, enabled);
         }
     }
 
