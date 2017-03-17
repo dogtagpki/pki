@@ -99,6 +99,8 @@ import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
 import org.mozilla.jss.pkix.primitive.Name;
 import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
 import org.mozilla.jss.ssl.SSLSocket;
+import org.mozilla.jss.ssl.SSLSocket.SSLProtocolVariant;
+import org.mozilla.jss.ssl.SSLSocket.SSLVersionRange;
 import org.mozilla.jss.util.Base64OutputStream;
 import org.mozilla.jss.util.Password;
 
@@ -134,6 +136,19 @@ import netscape.security.x509.X509Key;
 
 @SuppressWarnings("serial")
 public class CryptoUtil {
+
+    public static enum SSLVersion {
+        SSL_3_0(SSLVersionRange.ssl3),
+        TLS_1_0(SSLVersionRange.tls1_0),
+        TLS_1_1(SSLVersionRange.tls1_1),
+        TLS_1_2(SSLVersionRange.tls1_2);
+
+        public int value;
+
+        SSLVersion(int value) {
+            this.value = value;
+        }
+    }
 
     public final static String INTERNAL_TOKEN_NAME = "internal";
     public final static String INTERNAL_TOKEN_FULL_NAME = "Internal Key Storage Token";
@@ -700,6 +715,15 @@ public class CryptoUtil {
         return pair;
     }
 
+    public static void setSSLStreamVersionRange(SSLVersion min, SSLVersion max) throws SocketException {
+        SSLVersionRange range = new SSLVersionRange(min.value, max.value);
+        SSLSocket.setSSLVersionRangeDefault(SSLProtocolVariant.STREAM, range);
+    }
+
+    public static void setSSLDatagramVersionRange(SSLVersion min, SSLVersion max) throws SocketException {
+        SSLVersionRange range = new SSLVersionRange(min.value, max.value);
+        SSLSocket.setSSLVersionRangeDefault(SSLProtocolVariant.DATA_GRAM, range);
+    }
 
     private static HashMap<String, Integer> cipherMap = new HashMap<String, Integer>();
     static {

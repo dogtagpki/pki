@@ -84,7 +84,7 @@ import org.mozilla.jss.ssl.SSLSocket;
 
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.cmsutil.crypto.CryptoUtil;
-
+import com.netscape.cmsutil.crypto.CryptoUtil.SSLVersion;
 
 public class PKIConnection {
 
@@ -332,24 +332,8 @@ public class PKIConnection {
                 localAddr = localAddress.getAddress();
             }
 
-            org.mozilla.jss.ssl.SSLSocket.SSLVersionRange stream_range =
-                new org.mozilla.jss.ssl.SSLSocket.SSLVersionRange(
-                    org.mozilla.jss.ssl.SSLSocket.SSLVersionRange.tls1_0,
-                    org.mozilla.jss.ssl.SSLSocket.SSLVersionRange.tls1_2);
-
-            SSLSocket.setSSLVersionRangeDefault(
-                    org.mozilla.jss.ssl.SSLSocket.SSLProtocolVariant.STREAM,
-                    stream_range);
-
-            org.mozilla.jss.ssl.SSLSocket.SSLVersionRange datagram_range =
-                new org.mozilla.jss.ssl.SSLSocket.SSLVersionRange(
-                    org.mozilla.jss.ssl.SSLSocket.SSLVersionRange.tls1_1,
-                    org.mozilla.jss.ssl.SSLSocket.SSLVersionRange.tls1_2);
-
-            SSLSocket.setSSLVersionRangeDefault(
-                    org.mozilla.jss.ssl.SSLSocket.SSLProtocolVariant.DATA_GRAM,
-                    datagram_range);
-
+            CryptoUtil.setSSLStreamVersionRange(SSLVersion.TLS_1_0, SSLVersion.TLS_1_2);
+            CryptoUtil.setSSLDatagramVersionRange(SSLVersion.TLS_1_1, SSLVersion.TLS_1_2);
             CryptoUtil.setClientCiphers();
 
             SSLSocket socket;
@@ -364,8 +348,9 @@ public class PKIConnection {
             } else {
                 socket = new SSLSocket(sock, hostName, callback, null);
             }
-// setSSLVersionRange needs to be exposed in jss
-//            socket.setSSLVersionRange(org.mozilla.jss.ssl.SSLSocket.SSLVersionRange.tls1_0, org.mozilla.jss.ssl.SSLSocket.SSLVersionRange.tls1_2);
+
+            // SSLSocket.setSSLVersionRange() needs to be exposed in JSS
+            // socket.setSSLVersionRange(SSLVersionRange.tls1_0, SSLVersionRange.tls1_2);
 
             String certNickname = config.getCertNickname();
             if (certNickname != null) {

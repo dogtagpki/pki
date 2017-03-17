@@ -17,24 +17,45 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.connection;
 
-import java.util.*;
-import java.net.*;
-import java.io.*;
+import java.awt.Container;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import com.netscape.admin.certsrv.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.management.client.util.Debug;
-import com.netscape.management.client.util.*;
-import org.mozilla.jss.ssl.*;
-import org.mozilla.jss.*;
-import org.mozilla.jss.util.*;
-import org.mozilla.jss.crypto.*;
-import org.mozilla.jss.pkcs11.*;
-import javax.swing.*;
-import java.awt.*;
+import java.util.Enumeration;
+import java.util.ResourceBundle;
+import java.util.Vector;
 
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+
+import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.crypto.CryptoToken;
+import org.mozilla.jss.crypto.InternalCertificate;
+import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
+import org.mozilla.jss.ssl.SSLClientCertificateSelectionCallback;
+import org.mozilla.jss.ssl.SSLSocket;
+import org.mozilla.jss.util.Password;
+import org.mozilla.jss.util.PasswordCallback;
+import org.mozilla.jss.util.PasswordCallbackInfo;
+
+import com.netscape.admin.certsrv.CMSAdminResources;
 import com.netscape.cmsutil.crypto.CryptoUtil;
+import com.netscape.cmsutil.crypto.CryptoUtil.SSLVersion;
+import com.netscape.management.client.util.AbstractDialog;
+import com.netscape.management.client.util.Debug;
+import com.netscape.management.client.util.GridBagUtil;
+import com.netscape.management.client.util.MultilineLabel;
+import com.netscape.management.client.util.SingleBytePasswordField;
+import com.netscape.management.client.util.UtilConsoleGlobals;
 
 /**
  * JSSConnection deals with establishing a connection to
@@ -98,24 +119,8 @@ public class JSSConnection implements IConnection, SSLCertificateApprovalCallbac
         } catch (Exception e) {
         }
 
-        org.mozilla.jss.ssl.SSLSocket.SSLVersionRange stream_range =
-            new org.mozilla.jss.ssl.SSLSocket.SSLVersionRange(
-                org.mozilla.jss.ssl.SSLSocket.SSLVersionRange.tls1_0,
-                org.mozilla.jss.ssl.SSLSocket.SSLVersionRange.tls1_2);
-
-        SSLSocket.setSSLVersionRangeDefault(
-            org.mozilla.jss.ssl.SSLSocket.SSLProtocolVariant.STREAM,
-            stream_range);
-
-        org.mozilla.jss.ssl.SSLSocket.SSLVersionRange datagram_range =
-            new org.mozilla.jss.ssl.SSLSocket.SSLVersionRange(
-                org.mozilla.jss.ssl.SSLSocket.SSLVersionRange.tls1_1,
-                org.mozilla.jss.ssl.SSLSocket.SSLVersionRange.tls1_2);
-
-        SSLSocket.setSSLVersionRangeDefault(
-            org.mozilla.jss.ssl.SSLSocket.SSLProtocolVariant.DATA_GRAM,
-            datagram_range);
-
+        CryptoUtil.setSSLStreamVersionRange(SSLVersion.TLS_1_0, SSLVersion.TLS_1_2);
+        CryptoUtil.setSSLDatagramVersionRange(SSLVersion.TLS_1_1, SSLVersion.TLS_1_2);
         CryptoUtil.setClientCiphers();
 
         s = new SSLSocket(host, port, null, 0, this, this);
@@ -509,8 +514,8 @@ public class JSSConnection implements IConnection, SSLCertificateApprovalCallbac
 
 	private boolean endOfHeader(byte[] hdr, int available) {
 		if (available == 2) {
-			int c1 = (int)hdr[0];
-			int c2 = (int)hdr[1];
+			int c1 = hdr[0];
+			int c2 = hdr[1];
 
 			//System.out.println("C1= " + c1);
 			//System.out.println("C2= " + c2);
