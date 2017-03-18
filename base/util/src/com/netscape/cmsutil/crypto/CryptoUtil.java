@@ -2312,6 +2312,11 @@ public class CryptoUtil {
                 default_IV);
     }
 
+    // wrapUsingPublicKey using default algorithm
+    public static byte[] wrapUsingPublicKey(CryptoToken token, PublicKey wrappingKey, SymmetricKey data) throws Exception {
+        return wrapUsingPublicKey(token, wrappingKey, data, KeyWrapAlgorithm.RSA);
+    }
+
     // unwrap sym key using default algorithms
     public static SymmetricKey unwrap(CryptoToken token, SymmetricKey.Usage usage, PrivateKey wrappingKey, byte[] wrappedSymKey) throws Exception {
         return unwrap(
