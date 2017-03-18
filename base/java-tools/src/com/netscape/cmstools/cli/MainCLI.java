@@ -522,6 +522,15 @@ public class MainCLI extends CLI {
         CryptoUtil.setSSLStreamVersionRange(SSLVersion.TLS_1_0, SSLVersion.TLS_1_2);
         CryptoUtil.setSSLDatagramVersionRange(SSLVersion.TLS_1_1, SSLVersion.TLS_1_2);
         CryptoUtil.setClientCiphers();
+    }
+
+    public PKIClient getClient() throws Exception {
+
+        if (client != null) return client;
+
+        if (verbose) {
+            System.out.println("Initializing PKIClient");
+        }
 
         client = new PKIClient(config, null);
         client.setVerbose(verbose);
@@ -558,6 +567,8 @@ public class MainCLI extends CLI {
                 }
             }
         }
+
+        return client;
     }
 
     public void execute(String[] args) throws Exception {

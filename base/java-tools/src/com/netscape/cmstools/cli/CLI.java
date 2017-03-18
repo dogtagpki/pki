@@ -183,7 +183,7 @@ public class CLI {
         return null;
     }
 
-    public PKIClient getClient() {
+    public PKIClient getClient() throws Exception {
         return client;
     }
 
