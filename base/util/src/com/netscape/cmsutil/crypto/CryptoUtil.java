@@ -928,32 +928,25 @@ public class CryptoUtil {
 
     }
 
+    public static void setClientCiphers(String list) throws SocketException {
 
-    // if clientOverrideCiphers is provided in config, use it
-    public static void setClientCiphers(String clientOverrideCiphers)
-            throws SocketException {
-        if (clientOverrideCiphers != null) {
-            String strCiphers[] = clientOverrideCiphers.split(",");
-            if (strCiphers.length != 0) {
-                unsetSSLCiphers();
-                int cipherid;
-                for (int i=0; i< strCiphers.length; i++) {
-                    Object mapValue;
-
-                    mapValue = cipherMap.get(strCiphers[i]);
-                    if (mapValue == null) {
-                        cipherid = 0;
-                    } else {
-                        cipherid = (Integer) mapValue;
-                    }
-                    if (cipherid != 0) {
-                        SSLSocket.setCipherPreferenceDefault(cipherid, true);
-                    }
-                }
-            }
-            return;
-        } else { //use default
+        if (list == null) {
+            // use default
             setClientCiphers();
+            return;
+        }
+
+        String ciphers[] = list.split(",");
+        if (ciphers.length == 0) return;
+
+        unsetSSLCiphers();
+
+        for (String cipher : ciphers) {
+
+            Integer cipherID = cipherMap.get(cipher);
+            if (cipherID == null) continue;
+
+            SSLSocket.setCipherPreferenceDefault(cipherID, true);
         }
     }
 
