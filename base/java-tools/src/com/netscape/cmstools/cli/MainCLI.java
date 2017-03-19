@@ -537,7 +537,12 @@ public class MainCLI extends CLI {
                 SSLVersion.valueOf(datagramVersionMax)
         );
 
-        CryptoUtil.setDefaultSSLCiphers();
+        String defaultCiphers = System.getenv("SSL_DEFAULT_CIPHERS");
+        if (Boolean.parseBoolean(defaultCiphers)) {
+            CryptoUtil.setDefaultSSLCiphers();
+        } else {
+            CryptoUtil.unsetSSLCiphers();
+        }
 
         String ciphers = System.getenv("SSL_CIPHERS");
         CryptoUtil.setSSLCiphers(ciphers);
