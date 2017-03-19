@@ -985,13 +985,13 @@ public class CryptoUtil {
     /*
      * unset all implemented cipehrs; for enforcing strict list of ciphers
      */
-    private static void unsetSSLCiphers() throws SocketException {
-        int ciphers[] = SSLSocket.getImplementedCipherSuites();
-        try {
-            for (int i = 0; ciphers != null && i < ciphers.length; i++) {
-                SSLSocket.setCipherPreferenceDefault(ciphers[i], false);
-            }
-        } catch (Exception e) {
+    public static void unsetSSLCiphers() throws SocketException {
+
+        int cipherIDs[] = SSLSocket.getImplementedCipherSuites();
+        if (cipherIDs == null) return;
+
+        for (int cipherID : cipherIDs) {
+            SSLSocket.setCipherPreferenceDefault(cipherID, false);
         }
     }
 
