@@ -944,7 +944,9 @@ public class CryptoUtil {
         for (String cipher : ciphers) {
 
             Integer cipherID = cipherMap.get(cipher);
-            if (cipherID == null) continue;
+            if (cipherID == null) {
+                throw new SocketException("Unsupported cipher: " + cipher);
+            }
 
             SSLSocket.setCipherPreferenceDefault(cipherID, true);
         }
