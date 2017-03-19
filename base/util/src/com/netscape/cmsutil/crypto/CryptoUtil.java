@@ -961,9 +961,15 @@ public class CryptoUtil {
 
     public static void setSSLCipher(String cipher, boolean enabled) throws SocketException {
 
-        Integer cipherID = cipherMap.get(cipher);
-        if (cipherID == null) {
-            throw new SocketException("Unsupported cipher: " + cipher);
+        Integer cipherID;
+        if (cipher.toLowerCase().startsWith("0x")) {
+            cipherID = Integer.parseInt(cipher.substring(2), 16);
+
+        } else {
+            cipherID = cipherMap.get(cipher);
+            if (cipherID == null) {
+                throw new SocketException("Unsupported cipher: " + cipher);
+            }
         }
 
         SSLSocket.setCipherPreferenceDefault(cipherID, enabled);
