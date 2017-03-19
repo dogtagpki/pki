@@ -932,7 +932,7 @@ public class CryptoUtil {
 
         if (list == null) {
             // use default
-            setClientCiphers();
+            setDefaultSSLCiphers();
             return;
         }
 
@@ -950,7 +950,7 @@ public class CryptoUtil {
         }
     }
 
-    public static void setClientCiphers() throws SocketException {
+    public static void setDefaultSSLCiphers() throws SocketException {
 
         int ciphers[] = SSLSocket.getImplementedCipherSuites();
         if (ciphers == null) return;

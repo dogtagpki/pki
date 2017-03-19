@@ -537,7 +537,7 @@ public class MainCLI extends CLI {
                 SSLVersion.valueOf(datagramVersionMax)
         );
 
-        CryptoUtil.setClientCiphers();
+        CryptoUtil.setDefaultSSLCiphers();
     }
 
     public PKIClient getClient() throws Exception {

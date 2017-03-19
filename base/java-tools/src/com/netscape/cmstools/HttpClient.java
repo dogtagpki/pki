@@ -126,7 +126,7 @@ public class HttpClient {
 
                 CryptoUtil.setSSLStreamVersionRange(SSLVersion.TLS_1_0, SSLVersion.TLS_1_2);
                 CryptoUtil.setSSLDatagramVersionRange(SSLVersion.TLS_1_1, SSLVersion.TLS_1_2);
-                CryptoUtil.setClientCiphers();
+                CryptoUtil.setDefaultSSLCiphers();
 
                 sslSocket = new SSLSocket(_host, _port);
                 // SSLSocket.setSSLVersionRange() needs to be exposed in JSS

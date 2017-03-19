@@ -121,7 +121,7 @@ public class JSSConnection implements IConnection, SSLCertificateApprovalCallbac
 
         CryptoUtil.setSSLStreamVersionRange(SSLVersion.TLS_1_0, SSLVersion.TLS_1_2);
         CryptoUtil.setSSLDatagramVersionRange(SSLVersion.TLS_1_1, SSLVersion.TLS_1_2);
-        CryptoUtil.setClientCiphers();
+        CryptoUtil.setDefaultSSLCiphers();
 
         s = new SSLSocket(host, port, null, 0, this, this);
 
