@@ -48,8 +48,8 @@ import java.util.Vector;
 
 import org.apache.commons.lang.StringUtils;
 import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.CryptoManager.NotInitializedException;
 import org.mozilla.jss.NoSuchTokenException;
+import org.mozilla.jss.CryptoManager.NotInitializedException;
 import org.mozilla.jss.SecretDecoderRing.KeyManager;
 import org.mozilla.jss.asn1.ANY;
 import org.mozilla.jss.asn1.ASN1Util;
@@ -105,6 +105,7 @@ import org.mozilla.jss.ssl.SSLSocket.SSLVersionRange;
 import org.mozilla.jss.util.Base64OutputStream;
 import org.mozilla.jss.util.Password;
 
+import com.netscape.cmsutil.crypto.CryptoUtil.SSLVersion;
 import com.netscape.cmsutil.util.Cert;
 import com.netscape.cmsutil.util.Utils;
 
@@ -942,14 +943,18 @@ public class CryptoUtil {
         unsetSSLCiphers();
 
         for (String cipher : ciphers) {
-
-            Integer cipherID = cipherMap.get(cipher);
-            if (cipherID == null) {
-                throw new SocketException("Unsupported cipher: " + cipher);
-            }
-
-            SSLSocket.setCipherPreferenceDefault(cipherID, true);
+            setSSLCipher(cipher, true);
         }
+    }
+
+    public static void setSSLCipher(String cipher, boolean enabled) throws SocketException {
+
+        Integer cipherID = cipherMap.get(cipher);
+        if (cipherID == null) {
+            throw new SocketException("Unsupported cipher: " + cipher);
+        }
+
+        SSLSocket.setCipherPreferenceDefault(cipherID, enabled);
     }
 
     public static void setDefaultSSLCiphers() throws SocketException {
