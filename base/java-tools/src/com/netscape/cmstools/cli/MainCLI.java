@@ -525,20 +525,20 @@ public class MainCLI extends CLI {
         String streamVersionMax = System.getenv("SSL_STREAM_VERSION_MAX");
 
         CryptoUtil.setSSLStreamVersionRange(
-                SSLVersion.valueOf(streamVersionMin),
-                SSLVersion.valueOf(streamVersionMax)
+                streamVersionMin == null ? SSLVersion.TLS_1_0 : SSLVersion.valueOf(streamVersionMin),
+                streamVersionMax == null ? SSLVersion.TLS_1_2 : SSLVersion.valueOf(streamVersionMax)
         );
 
         String datagramVersionMin = System.getenv("SSL_DATAGRAM_VERSION_MIN");
         String datagramVersionMax = System.getenv("SSL_DATAGRAM_VERSION_MAX");
 
         CryptoUtil.setSSLDatagramVersionRange(
-                SSLVersion.valueOf(datagramVersionMin),
-                SSLVersion.valueOf(datagramVersionMax)
+                datagramVersionMin == null ? SSLVersion.TLS_1_0 : SSLVersion.valueOf(datagramVersionMin),
+                datagramVersionMax == null ? SSLVersion.TLS_1_2 : SSLVersion.valueOf(datagramVersionMax)
         );
 
         String defaultCiphers = System.getenv("SSL_DEFAULT_CIPHERS");
-        if (Boolean.parseBoolean(defaultCiphers)) {
+        if (defaultCiphers == null || Boolean.parseBoolean(defaultCiphers)) {
             CryptoUtil.setDefaultSSLCiphers();
         } else {
             CryptoUtil.unsetSSLCiphers();
