@@ -533,7 +533,7 @@ public class MainCLI extends CLI {
         String datagramVersionMax = System.getenv("SSL_DATAGRAM_VERSION_MAX");
 
         CryptoUtil.setSSLDatagramVersionRange(
-                datagramVersionMin == null ? SSLVersion.TLS_1_0 : SSLVersion.valueOf(datagramVersionMin),
+                datagramVersionMin == null ? SSLVersion.TLS_1_1 : SSLVersion.valueOf(datagramVersionMin),
                 datagramVersionMax == null ? SSLVersion.TLS_1_2 : SSLVersion.valueOf(datagramVersionMax)
         );
 
