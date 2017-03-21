@@ -33,6 +33,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.codec.binary.Base64;
+import org.dogtagpki.common.InfoClient;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.CryptoManager.NicknameConflictException;
 import org.mozilla.jss.CryptoManager.NotInitializedException;
@@ -61,6 +62,7 @@ public class PKIClient {
     public ClientConfig config;
     public PKIConnection connection;
     public CryptoProvider crypto;
+    public InfoClient infoClient;
 
     public boolean verbose;
 
@@ -70,16 +72,18 @@ public class PKIClient {
     // List to prevent displaying the same warnings/errors again.
     Collection<Integer> statuses = new HashSet<Integer>();
 
-    public PKIClient(ClientConfig config) {
+    public PKIClient(ClientConfig config) throws URISyntaxException {
         this(config, null);
     }
 
-    public PKIClient(ClientConfig config, CryptoProvider crypto) {
+    public PKIClient(ClientConfig config, CryptoProvider crypto) throws URISyntaxException {
         this.config = config;
         this.crypto = crypto;
 
         connection = new PKIConnection(config);
         connection.setCallback(new PKICertificateApprovalCallback(this));
+
+        infoClient = new InfoClient(this);
     }
 
     public <T> T createProxy(String subsystem, Class<T> clazz) throws URISyntaxException {
