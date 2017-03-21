@@ -59,6 +59,7 @@ import com.netscape.cmstools.pkcs12.PKCS12CLI;
 import com.netscape.cmstools.system.SecurityDomainCLI;
 import com.netscape.cmstools.user.UserCLI;
 import com.netscape.cmsutil.crypto.CryptoUtil;
+import com.netscape.cmsutil.crypto.CryptoUtil.SSLVersion;
 
 /**
  * @author Endi S. Dewata
@@ -365,9 +366,6 @@ public class MainCLI extends CLI {
 
             if (certPasswordFile != null && certPassword != null) {
                 throw new Exception("The '-C' and '-c' options are mutually exclusive.");
-
-            } else if (certPasswordFile == null && certPassword == null) {
-                throw new Exception("Missing security database password.");
             }
 
         } else if (username != null) { // basic authentication
@@ -401,14 +399,6 @@ public class MainCLI extends CLI {
             // XXX TBD set client security database token
 
             certPassword = tokenPasswordPair[1];
-
-        } else if (certNickname != null && certPassword == null) {
-            // prompt for security database password if required for authentication
-            //
-            // NOTE:  This overrides the password callback provided
-            //        by JSS for NSS security database authentication.
-            //
-            certPassword = promptForPassword("Enter Client Security Database Password: ");
         }
 
         // store security database password
@@ -467,11 +457,31 @@ public class MainCLI extends CLI {
 
     public void init() throws Exception {
 
-        // Main program should initialize client security database
-        if (certDatabase.exists()) {
-            if (verbose) System.out.println("Initializing client security database");
-            CryptoManager.initialize(certDatabase.getAbsolutePath());
+        // Create security database if it doesn't exist
+        if (!certDatabase.exists()) {
+
+            if (verbose) System.out.println("Creating security database");
+
+            certDatabase.mkdirs();
+
+            String[] commands = {
+                    "/usr/bin/certutil", "-N",
+                    "-d", certDatabase.getAbsolutePath(),
+                    "--empty-password"
+            };
+
+            Runtime rt = Runtime.getRuntime();
+            Process p = rt.exec(commands);
+
+            int rc = p.waitFor();
+            if (rc != 0) {
+                throw new Exception("Unable to create security database: " + certDatabase.getAbsolutePath() + " (rc: " + rc + ")");
+            }
         }
+
+        // Main program should initialize security database
+        if (verbose) System.out.println("Initializing security database");
+        CryptoManager.initialize(certDatabase.getAbsolutePath());
 
         // If password is specified, use password to access security token
         if (config.getCertPassword() != null) {
@@ -496,6 +506,43 @@ public class MainCLI extends CLI {
                 throw new Exception("Incorrect client security database password.", e);
             }
 
+        }
+
+        // See default SSL configuration in /usr/share/pki/etc/pki.conf.
+
+        String streamVersionMin = System.getenv("SSL_STREAM_VERSION_MIN");
+        String streamVersionMax = System.getenv("SSL_STREAM_VERSION_MAX");
+
+        CryptoUtil.setSSLStreamVersionRange(
+                streamVersionMin == null ? SSLVersion.TLS_1_0 : SSLVersion.valueOf(streamVersionMin),
+                streamVersionMax == null ? SSLVersion.TLS_1_2 : SSLVersion.valueOf(streamVersionMax)
+        );
+
+        String datagramVersionMin = System.getenv("SSL_DATAGRAM_VERSION_MIN");
+        String datagramVersionMax = System.getenv("SSL_DATAGRAM_VERSION_MAX");
+
+        CryptoUtil.setSSLDatagramVersionRange(
+                datagramVersionMin == null ? SSLVersion.TLS_1_1 : SSLVersion.valueOf(datagramVersionMin),
+                datagramVersionMax == null ? SSLVersion.TLS_1_2 : SSLVersion.valueOf(datagramVersionMax)
+        );
+
+        String defaultCiphers = System.getenv("SSL_DEFAULT_CIPHERS");
+        if (defaultCiphers == null || Boolean.parseBoolean(defaultCiphers)) {
+            CryptoUtil.setDefaultSSLCiphers();
+        } else {
+            CryptoUtil.unsetSSLCiphers();
+        }
+
+        String ciphers = System.getenv("SSL_CIPHERS");
+        CryptoUtil.setSSLCiphers(ciphers);
+    }
+
+    public PKIClient getClient() throws Exception {
+
+        if (client != null) return client;
+
+        if (verbose) {
+            System.out.println("Initializing PKIClient");
         }
 
         client = new PKIClient(config, null);
@@ -533,6 +580,8 @@ public class MainCLI extends CLI {
                 }
             }
         }
+
+        return client;
     }
 
     public void execute(String[] args) throws Exception {

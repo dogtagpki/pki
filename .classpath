@@ -64,5 +64,6 @@
 	<classpathentry kind="lib" path="/usr/share/java/tomcat/tomcat-api.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/tomcat/tomcat-util-scan.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/slf4j/slf4j-api.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/tomcat/tomcat-coyote.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

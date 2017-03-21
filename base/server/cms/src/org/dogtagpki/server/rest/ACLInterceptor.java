@@ -31,14 +31,17 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.ext.Provider;
 
+import org.apache.catalina.realm.GenericPrincipal;
 import org.jboss.resteasy.core.ResourceMethodInvoker;
 import org.jboss.resteasy.spi.Failure;
 
 import com.netscape.certsrv.acls.ACLMapping;
 import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.authentication.ExternalAuthToken;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
+import com.netscape.certsrv.authorization.EAuthzUnknownRealm;
 import com.netscape.certsrv.authorization.IAuthzSubsystem;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ForbiddenException;
@@ -140,18 +143,33 @@ public class ACLInterceptor implements ContainerRequestFilter {
         if (principal != null)
             CMS.debug("ACLInterceptor: principal: " + principal.getName());
 
-        // If unrecognized principal, reject request.
-        if (principal != null && !(principal instanceof PKIPrincipal)) {
-            CMS.debug("ACLInterceptor: Invalid user principal.");
-            // audit comment: no Principal, no one to blame here
-            throw new ForbiddenException("Invalid user principal.");
-        }
+        IAuthzSubsystem authzSubsystem =
+            (IAuthzSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTHZ);
 
-        PKIPrincipal pkiPrincipal = null;
         IAuthToken authToken = null;
+        String authzMgrName = null;
         if (principal != null) {
-            pkiPrincipal = (PKIPrincipal) principal;
-            authToken = pkiPrincipal.getAuthToken();
+            if (principal instanceof PKIPrincipal) {
+                authzMgrName = "DirAclAuthz";
+                authToken = ((PKIPrincipal) principal).getAuthToken();
+            }
+            else if (principal instanceof GenericPrincipal) {
+                String realm = null;
+                String[] parts = principal.getName().split("@", 2);
+                if (parts.length == 2) {
+                    realm = parts[1];
+                }
+                try {
+                    authzMgrName = authzSubsystem.getAuthzManagerNameByRealm(realm);
+                } catch (EAuthzUnknownRealm e) {
+                    throw new ForbiddenException(
+                        "Cannot find AuthzManager for external principal " + principal.getName(),
+                        e
+                    );
+                }
+                authToken = new ExternalAuthToken((GenericPrincipal) principal);
+            }
+            CMS.debug("ACLInterceptor: will use authz manager " + authzMgrName);
         }
 
         // If missing auth token, reject request.
@@ -249,9 +267,8 @@ public class ACLInterceptor implements ContainerRequestFilter {
 
         try {
             // Check authorization.
-            IAuthzSubsystem mAuthz = (IAuthzSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTHZ);
-            AuthzToken authzToken = mAuthz.authorize(
-                    "DirAclAuthz",
+            AuthzToken authzToken = authzSubsystem.authorize(
+                    authzMgrName,
                     authToken,
                     values[0], // resource
                     values[1]); // operation

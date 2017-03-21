@@ -41,6 +41,7 @@ import org.mozilla.jss.ssl.SSLSocket;
 import org.mozilla.jss.util.Password;
 
 import com.netscape.cmsutil.crypto.CryptoUtil;
+import com.netscape.cmsutil.crypto.CryptoUtil.SSLVersion;
 import com.netscape.cmsutil.util.Utils;
 
 /**
@@ -122,29 +123,14 @@ public class HttpClient {
                 token.login(pass);
 
                 SSLHandshakeCompletedListener listener = new ClientHandshakeCB(this);
-                org.mozilla.jss.ssl.SSLSocket.SSLVersionRange stream_range =
-                    new org.mozilla.jss.ssl.SSLSocket.SSLVersionRange(
-                        org.mozilla.jss.ssl.SSLSocket.SSLVersionRange.tls1_0,
-                        org.mozilla.jss.ssl.SSLSocket.SSLVersionRange.tls1_2);
 
-                SSLSocket.setSSLVersionRangeDefault(
-                    org.mozilla.jss.ssl.SSLSocket.SSLProtocolVariant.STREAM,
-                    stream_range);
-
-                org.mozilla.jss.ssl.SSLSocket.SSLVersionRange datagram_range =
-                    new org.mozilla.jss.ssl.SSLSocket.SSLVersionRange(
-                        org.mozilla.jss.ssl.SSLSocket.SSLVersionRange.tls1_1,
-                        org.mozilla.jss.ssl.SSLSocket.SSLVersionRange.tls1_2);
-
-                SSLSocket.setSSLVersionRangeDefault(
-                    org.mozilla.jss.ssl.SSLSocket.SSLProtocolVariant.DATA_GRAM,
-                    datagram_range);
-
-                CryptoUtil.setClientCiphers();
+                CryptoUtil.setSSLStreamVersionRange(SSLVersion.TLS_1_0, SSLVersion.TLS_1_2);
+                CryptoUtil.setSSLDatagramVersionRange(SSLVersion.TLS_1_1, SSLVersion.TLS_1_2);
+                CryptoUtil.setDefaultSSLCiphers();
 
                 sslSocket = new SSLSocket(_host, _port);
-                // setSSLVersionRange needs to be exposed in jss
-                // sslSocket.setSSLVersionRange(org.mozilla.jss.ssl.SSLSocket.SSLVersionRange.tls1_0, org.mozilla.jss.ssl.SSLSocket.SSLVersionRange.tls1_2);
+                // SSLSocket.setSSLVersionRange() needs to be exposed in JSS
+                // sslSocket.setSSLVersionRange(SSLVersionRange.tls1_0, SSLVersionRange.tls1_2);
                 sslSocket.addHandshakeCompletedListener(listener);
 
                 CryptoToken tt = cm.getThreadToken();

@@ -104,6 +104,13 @@ find_file(NUXWDOG_JAR
         /usr/share/java
 )
 
+find_file(TOMCAT_COYOTE_JAR
+    NAMES
+        tomcat-coyote.jar
+    PATHS
+        /usr/share/java/tomcat
+)
+
 # build pki-tomcat
 javac(pki-tomcat-classes
     SOURCES
@@ -111,6 +118,7 @@ javac(pki-tomcat-classes
     CLASSPATH
         ${SERVLET_JAR} ${TOMCAT_CATALINA_JAR} ${TOMCAT_UTIL_SCAN_JAR}
 		${NUXWDOG_JAR} ${APACHE_COMMONS_LANG_JAR} ${TOMCATJSS_JAR}
+		${TOMCAT_COYOTE_JAR}
     OUTPUT_DIR
         ${CMAKE_BINARY_DIR}/../../tomcat
     DEPENDS

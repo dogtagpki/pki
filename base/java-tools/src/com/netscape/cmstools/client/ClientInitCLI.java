@@ -23,7 +23,9 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.io.FileUtils;
@@ -67,10 +69,6 @@ public class ClientInitCLI extends CLI {
 
         MainCLI mainCLI = (MainCLI)parent.getParent();
 
-        if (mainCLI.config.getCertPassword() == null) {
-            throw new Exception("Security database password is required.");
-        }
-
         boolean force = cmd.hasOption("force");
         File certDatabase = mainCLI.certDatabase;
 
@@ -97,15 +95,27 @@ public class ClientInitCLI extends CLI {
         File passwordFile = new File(certDatabase, "password.txt");
 
         try {
-            try (PrintWriter out = new PrintWriter(new FileWriter(passwordFile))) {
-                out.println(mainCLI.config.getCertPassword());
-            }
-
             String[] commands = {
                     "/usr/bin/certutil", "-N",
                     "-d", certDatabase.getAbsolutePath(),
-                    "-f", passwordFile.getAbsolutePath()
             };
+
+            List<String> list = new ArrayList<>(Arrays.asList(commands));
+
+            if (mainCLI.config.getCertPassword() == null) {
+                list.add("--empty-password");
+
+            } else {
+                try (PrintWriter out = new PrintWriter(new FileWriter(passwordFile))) {
+                    out.println(mainCLI.config.getCertPassword());
+                }
+
+                list.add("-f");
+                list.add(passwordFile.getAbsolutePath());
+            }
+
+            commands = new String[list.size()];
+            list.toArray(commands);
 
             Runtime rt = Runtime.getRuntime();
             Process p = rt.exec(commands);
@@ -119,7 +129,7 @@ public class ClientInitCLI extends CLI {
             MainCLI.printMessage("Client initialized");
 
         } finally {
-            passwordFile.delete();
+            if (passwordFile.exists()) passwordFile.delete();
         }
     }
 }

@@ -48,8 +48,8 @@ import java.util.Vector;
 
 import org.apache.commons.lang.StringUtils;
 import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.CryptoManager.NotInitializedException;
 import org.mozilla.jss.NoSuchTokenException;
+import org.mozilla.jss.CryptoManager.NotInitializedException;
 import org.mozilla.jss.SecretDecoderRing.KeyManager;
 import org.mozilla.jss.asn1.ANY;
 import org.mozilla.jss.asn1.ASN1Util;
@@ -66,6 +66,7 @@ import org.mozilla.jss.crypto.CryptoStore;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.DigestAlgorithm;
 import org.mozilla.jss.crypto.EncryptionAlgorithm;
+import org.mozilla.jss.crypto.HMACAlgorithm;
 import org.mozilla.jss.crypto.IVParameterSpec;
 import org.mozilla.jss.crypto.IllegalBlockSizeException;
 import org.mozilla.jss.crypto.InternalCertificate;
@@ -99,9 +100,12 @@ import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
 import org.mozilla.jss.pkix.primitive.Name;
 import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
 import org.mozilla.jss.ssl.SSLSocket;
+import org.mozilla.jss.ssl.SSLSocket.SSLProtocolVariant;
+import org.mozilla.jss.ssl.SSLSocket.SSLVersionRange;
 import org.mozilla.jss.util.Base64OutputStream;
 import org.mozilla.jss.util.Password;
 
+import com.netscape.cmsutil.crypto.CryptoUtil.SSLVersion;
 import com.netscape.cmsutil.util.Cert;
 import com.netscape.cmsutil.util.Utils;
 
@@ -134,6 +138,19 @@ import netscape.security.x509.X509Key;
 
 @SuppressWarnings("serial")
 public class CryptoUtil {
+
+    public static enum SSLVersion {
+        SSL_3_0(SSLVersionRange.ssl3),
+        TLS_1_0(SSLVersionRange.tls1_0),
+        TLS_1_1(SSLVersionRange.tls1_1),
+        TLS_1_2(SSLVersionRange.tls1_2);
+
+        public int value;
+
+        SSLVersion(int value) {
+            this.value = value;
+        }
+    }
 
     public final static String INTERNAL_TOKEN_NAME = "internal";
     public final static String INTERNAL_TOKEN_FULL_NAME = "Internal Key Storage Token";
@@ -700,6 +717,15 @@ public class CryptoUtil {
         return pair;
     }
 
+    public static void setSSLStreamVersionRange(SSLVersion min, SSLVersion max) throws SocketException {
+        SSLVersionRange range = new SSLVersionRange(min.value, max.value);
+        SSLSocket.setSSLVersionRangeDefault(SSLProtocolVariant.STREAM, range);
+    }
+
+    public static void setSSLDatagramVersionRange(SSLVersion min, SSLVersion max) throws SocketException {
+        SSLVersionRange range = new SSLVersionRange(min.value, max.value);
+        SSLSocket.setSSLVersionRangeDefault(SSLProtocolVariant.DATA_GRAM, range);
+    }
 
     private static HashMap<String, Integer> cipherMap = new HashMap<String, Integer>();
     static {
@@ -903,59 +929,87 @@ public class CryptoUtil {
 
     }
 
+    public static void setClientCiphers(String list) throws SocketException {
 
-    // if clientOverrideCiphers is provided in config, use it
-    public static void setClientCiphers(String clientOverrideCiphers)
-            throws SocketException {
-        if (clientOverrideCiphers != null) {
-            String strCiphers[] = clientOverrideCiphers.split(",");
-            if (strCiphers.length != 0) {
-                unsetSSLCiphers();
-                int cipherid;
-                for (int i=0; i< strCiphers.length; i++) {
-                    Object mapValue;
-
-                    mapValue = cipherMap.get(strCiphers[i]);
-                    if (mapValue == null) {
-                        cipherid = 0;
-                    } else {
-                        cipherid = (Integer) mapValue;
-                    }
-                    if (cipherid != 0) {
-                        SSLSocket.setCipherPreferenceDefault(cipherid, true);
-                    }
-                }
-            }
+        if (list == null) {
+            // use default
+            setDefaultSSLCiphers();
             return;
-        } else { //use default
-            setClientCiphers();
+        }
+
+        String ciphers[] = list.split(",");
+        if (ciphers.length == 0) return;
+
+        unsetSSLCiphers();
+
+        for (String cipher : ciphers) {
+            setSSLCipher(cipher, true);
         }
     }
 
-    public static void setClientCiphers()
-            throws SocketException {
+    public static void setSSLCiphers(String ciphers) throws SocketException {
+
+        if (ciphers == null) return;
+
+        StringTokenizer st = new StringTokenizer(ciphers);
+
+        while (st.hasMoreTokens()) {
+            String cipher = st.nextToken();
+            boolean enabled = true;
+
+            if (cipher.startsWith("-")) {
+                enabled = false;
+                cipher = cipher.substring(1);
+            }
+
+            setSSLCipher(cipher, enabled);
+        }
+    }
+
+    public static void setSSLCipher(String cipher, boolean enabled) throws SocketException {
+
+        Integer cipherID;
+        if (cipher.toLowerCase().startsWith("0x")) {
+            cipherID = Integer.parseInt(cipher.substring(2), 16);
+
+        } else {
+            cipherID = cipherMap.get(cipher);
+            if (cipherID == null) {
+                throw new SocketException("Unsupported cipher: " + cipher);
+            }
+        }
+
+        SSLSocket.setCipherPreferenceDefault(cipherID, enabled);
+    }
+
+    public static void setDefaultSSLCiphers() throws SocketException {
+
         int ciphers[] = SSLSocket.getImplementedCipherSuites();
-        for (int j = 0; ciphers != null && j < ciphers.length; j++) {
-            boolean enabled = SSLSocket.getCipherPreferenceDefault(ciphers[j]);
+        if (ciphers == null) return;
+
+        for (int cipher : ciphers) {
+
+            boolean enabled = SSLSocket.getCipherPreferenceDefault(cipher);
             //System.out.println("CryptoUtil: cipher '0x" +
             //    Integer.toHexString(ciphers[j]) + "'" + " enabled? " +
             //    enabled);
+
             // make sure SSLv2 ciphers are not enabled
-            if ((ciphers[j] & 0xfff0) ==0xff00) {
-                if (enabled) {
-                    //System.out.println("CryptoUtil: disabling SSL2 NSS Cipher '0x" +
-                    //    Integer.toHexString(ciphers[j]) + "'");
-                    SSLSocket.setCipherPreferenceDefault(ciphers[j], false);
-                }
-            } else {
-                /*
-                 * unlike RSA ciphers, ECC ciphers are not enabled by default
-                 */
-                if ((!enabled) && clientECCipherList.contains(ciphers[j])) {
-                  //System.out.println("CryptoUtil: enabling ECC NSS Cipher '0x" +
-                  //    Integer.toHexString(ciphers[j]) + "'");
-                  SSLSocket.setCipherPreferenceDefault(ciphers[j], true);
-                }
+            if ((cipher & 0xfff0) == 0xff00) {
+
+                if (!enabled) continue;
+
+                //System.out.println("CryptoUtil: disabling SSLv2 NSS Cipher '0x" +
+                //    Integer.toHexString(ciphers[j]) + "'");
+                SSLSocket.setCipherPreferenceDefault(cipher, false);
+                continue;
+            }
+
+            // unlike RSA ciphers, ECC ciphers are not enabled by default
+            if (!enabled && clientECCipherList.contains(cipher)) {
+                //System.out.println("CryptoUtil: enabling ECC NSS Cipher '0x" +
+                //    Integer.toHexString(ciphers[j]) + "'");
+                SSLSocket.setCipherPreferenceDefault(cipher, true);
             }
         }
     }
@@ -963,13 +1017,13 @@ public class CryptoUtil {
     /*
      * unset all implemented cipehrs; for enforcing strict list of ciphers
      */
-    private static void unsetSSLCiphers() throws SocketException {
-        int ciphers[] = SSLSocket.getImplementedCipherSuites();
-        try {
-            for (int i = 0; ciphers != null && i < ciphers.length; i++) {
-                SSLSocket.setCipherPreferenceDefault(ciphers[i], false);
-            }
-        } catch (Exception e) {
+    public static void unsetSSLCiphers() throws SocketException {
+
+        int cipherIDs[] = SSLSocket.getImplementedCipherSuites();
+        if (cipherIDs == null) return;
+
+        for (int cipherID : cipherIDs) {
+            SSLSocket.setCipherPreferenceDefault(cipherID, false);
         }
     }
 
@@ -2245,6 +2299,155 @@ public class CryptoUtil {
                     keyType, pubKey);
         }
         return pk;
+    }
+
+    /**
+     * The following are convenience routines for quick preliminary
+     * feature development or test programs that would just take
+     * the defaults
+     */
+
+    private static byte default_iv[] = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
+    private static IVParameterSpec default_IV = new IVParameterSpec(default_iv);
+
+    // this generates a temporary 128 bit AES symkey with defaults
+    public static SymmetricKey generateKey(CryptoToken token) throws Exception {
+        return generateKey(token,
+//TODO:                KeyGenAlgorithm.AES, 128,
+                KeyGenAlgorithm.DES3, 128 /*unused*/,
+                null, true);
+    }
+
+    // decryptUsingSymmetricKey with default algorithms
+    public static byte[] decryptUsingSymmetricKey(CryptoToken token, byte[] encryptedData, SymmetricKey wrappingKey) throws Exception {
+        return decryptUsingSymmetricKey(token, default_IV, encryptedData,
+                wrappingKey,
+                EncryptionAlgorithm.DES3_CBC_PAD);
+//TODO:                EncryptionAlgorithm.AES_128_CBC);
+    }
+
+    // encryptUsingSymmetricKey with default algorithms
+    public static byte[] encryptUsingSymmetricKey(CryptoToken token, SymmetricKey wrappingKey, byte[] data) throws Exception {
+        return encryptUsingSymmetricKey(
+                token,
+                wrappingKey,
+                data,
+                EncryptionAlgorithm.DES3_CBC_PAD,
+//TODO:                EncryptionAlgorithm.AES_128_CBC,
+                default_IV);
+    }
+
+    // wrapUsingPublicKey using default algorithm
+    public static byte[] wrapUsingPublicKey(CryptoToken token, PublicKey wrappingKey, SymmetricKey data) throws Exception {
+        return wrapUsingPublicKey(token, wrappingKey, data, KeyWrapAlgorithm.RSA);
+    }
+
+    // unwrap sym key using default algorithms
+    public static SymmetricKey unwrap(CryptoToken token, SymmetricKey.Usage usage, PrivateKey wrappingKey, byte[] wrappedSymKey) throws Exception {
+        return unwrap(
+               token,
+//TODO:               SymmetricKey.AES,
+               SymmetricKey.DES3,
+               0,
+               usage,
+               wrappingKey,
+               wrappedSymKey,
+               getDefaultKeyWrapAlg());
+    }
+
+    public static AlgorithmIdentifier getDefaultEncAlg()
+           throws Exception {
+        OBJECT_IDENTIFIER oid =
+                EncryptionAlgorithm.DES3_CBC.toOID();
+//TODO:                EncryptionAlgorithm.AES_128_CBC.toOID();
+
+        AlgorithmIdentifier aid =
+                new AlgorithmIdentifier(oid, new OCTET_STRING(default_iv));
+        return aid;
+    }
+
+    public static String getDefaultHashAlgName() {
+        return ("SHA-256");
+    }
+
+    public static KeyWrapAlgorithm getDefaultKeyWrapAlg() {
+        return KeyWrapAlgorithm.RSA;
+    }
+
+    public static AlgorithmIdentifier getDefaultHashAlg()
+           throws Exception {
+        AlgorithmIdentifier hashAlg;
+            hashAlg = new AlgorithmIdentifier(CryptoUtil.getHashAlgorithmOID("SHA-256"));
+        return hashAlg;
+    }
+
+    // The following are useful mapping functions
+
+    /**
+     * maps from HMACAlgorithm name to FIPS 180-2 MessageDigest algorithm name
+     */
+    public static String getHMACtoMessageDigestName(String name) {
+        String mdName = name;
+        if (name != null) {
+            if (name.equals("SHA-256-HMAC")) {
+                mdName = "SHA-256";
+            } else if (name.equals("SHA-384-HMAC")) {
+                mdName = "SHA-384";
+            } else if (name.equals("SHA-512-HMAC")) {
+                mdName = "SHA-512";
+            }
+        }
+
+        return mdName;
+    }
+
+    /**
+     * getHMACAlgorithmOID returns OID of the HMAC algorithm name
+     *
+     * @param name name of the HMAC algorithm
+     * @return OID of the HMAC algorithm
+     */
+    public static OBJECT_IDENTIFIER getHMACAlgorithmOID(String name)
+           throws NoSuchAlgorithmException {
+        OBJECT_IDENTIFIER oid = null;
+        if (name != null) {
+            if (name.equals("SHA-256-HMAC")) {
+                oid = (HMACAlgorithm.SHA256).toOID();
+            } else if (name.equals("SHA-384-HMAC")) {
+                oid = (HMACAlgorithm.SHA384).toOID();
+            } else if (name.equals("SHA-512-HMAC")) {
+                oid = (HMACAlgorithm.SHA512).toOID();
+            }
+        }
+        if ( oid == null) {
+            throw new NoSuchAlgorithmException();
+        }
+        return oid;
+    }
+
+    /**
+     * getHashAlgorithmOID returns OID of the hashing algorithm name
+     *
+     * @param name name of the hashing algorithm
+     * @return OID of the hashing algorithm
+     *
+     */
+    public static OBJECT_IDENTIFIER getHashAlgorithmOID(String name)
+           throws NoSuchAlgorithmException {
+        OBJECT_IDENTIFIER oid = null;
+        if (name != null) {
+            if (name.equals("SHA-256")) {
+                oid = (DigestAlgorithm.SHA256).toOID();
+            } else if (name.equals("SHA-384")) {
+                oid = (DigestAlgorithm.SHA384).toOID();
+            } else if (name.equals("SHA-512")) {
+                oid = (DigestAlgorithm.SHA512).toOID();
+            }
+        }
+        if ( oid == null) {
+            throw new NoSuchAlgorithmException();
+        }
+        return oid;
     }
 }
 

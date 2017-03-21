@@ -116,6 +116,30 @@ public class CertProcessor extends CAProcessor {
         }
     }
 
+    private static void setAuthTokenIntoRequest(
+            IRequest req, IAuthToken authToken) {
+        Enumeration<String> tokenNames = authToken.getElements();
+        while (tokenNames.hasMoreElements()) {
+            String tokenName = tokenNames.nextElement();
+            String[] tokenVals = authToken.getInStringArray(tokenName);
+            if (tokenVals != null) {
+                for (int i = 0; i < tokenVals.length; i++) {
+                    req.setExtData(
+                        IRequest.AUTH_TOKEN_PREFIX
+                            + "." + tokenName + "[" + i + "]"
+                        , tokenVals[i]);
+                }
+            } else {
+                String tokenVal = authToken.getInString(tokenName);
+                if (tokenVal != null) {
+                    req.setExtData(
+                        IRequest.AUTH_TOKEN_PREFIX + "." + tokenName,
+                        tokenVal);
+                }
+            }
+        }
+    }
+
     /*
      * fill input info from orig request to the renew request.
      * This is expected to be used by renewal where the request
@@ -289,9 +313,6 @@ public class CertProcessor extends CAProcessor {
             IProfile profile, IProfileContext ctx, IProfileAuthenticator authenticator, IAuthToken authToken,
             IRequest[] reqs) throws EBaseException {
         for (IRequest req : reqs) {
-            boolean fromRA = false;
-            String uid = "";
-
             // adding parameters to request
             if (isRenewal) {
                 setInputsIntoRequest(origReq, profile, req, locale);
@@ -302,39 +323,18 @@ public class CertProcessor extends CAProcessor {
                 setInputsIntoRequest(data, profile, req);
             }
 
-            // serial auth token into request
             if (authToken != null) {
-                Enumeration<String> tokenNames = authToken.getElements();
-                while (tokenNames.hasMoreElements()) {
-                    String tokenName = tokenNames.nextElement();
-                    String[] tokenVals = authToken.getInStringArray(tokenName);
-                    if (tokenVals != null) {
-                        for (int i = 0; i < tokenVals.length; i++) {
-                            req.setExtData(
-                                IRequest.AUTH_TOKEN_PREFIX
-                                    + "." + tokenName + "[" + i + "]"
-                                , tokenVals[i]);
-                        }
-                    } else {
-                        String tokenVal = authToken.getInString(tokenName);
-                        if (tokenVal != null) {
-                            req.setExtData(
-                                IRequest.AUTH_TOKEN_PREFIX + "." + tokenName,
-                                tokenVal);
-                            // if RA agent, auto assign the request
-                            if (tokenName.equals("uid"))
-                                uid = tokenVal;
-                            if (tokenName.equals("group") && tokenVal.equals("Registration Manager Agents")) {
-                                fromRA = true;
-                            }
-                        }
-                    }
-                }
-            }
+                setAuthTokenIntoRequest(req, authToken);
 
-            if (fromRA) {
-                CMS.debug("CertProcessor: request from RA: " + uid);
-                req.setExtData(ARG_REQUEST_OWNER, uid);
+                // if RA agent, auto-assign the request
+                String raGroupName = "Registration Manager Agents";
+                if (raGroupName.equals(authToken.getInString(IAuthToken.GROUP))) {
+                    String uid = authToken.getInString(IAuthToken.UID);
+                    if (uid == null)
+                        uid = "";
+                    CMS.debug("CertProcessor: request from RA: " + uid);
+                    req.setExtData(ARG_REQUEST_OWNER, uid);
+                }
             }
 
             // put profile framework parameters into the request

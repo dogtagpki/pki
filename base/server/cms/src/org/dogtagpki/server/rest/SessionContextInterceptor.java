@@ -29,9 +29,11 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.ext.Provider;
 
+import org.apache.catalina.realm.GenericPrincipal;
 import org.jboss.resteasy.core.ResourceMethodInvoker;
 
 import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.authentication.ExternalAuthToken;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.ForbiddenException;
 import com.netscape.certsrv.base.SessionContext;
@@ -80,14 +82,12 @@ public class SessionContextInterceptor implements ContainerRequestFilter {
 
         CMS.debug("SessionContextInterceptor: principal: " + principal.getName());
 
-        // If unrecognized principal, reject request.
-        if (!(principal instanceof PKIPrincipal)) {
-            CMS.debug("SessionContextInterceptor: Invalid user principal.");
-            throw new ForbiddenException("Invalid user principal.");
-        }
+        IAuthToken authToken = null;
 
-        PKIPrincipal pkiPrincipal = (PKIPrincipal) principal;
-        IAuthToken authToken = pkiPrincipal.getAuthToken();
+        if (principal instanceof PKIPrincipal)
+            authToken = ((PKIPrincipal) principal).getAuthToken();
+        else if (principal instanceof GenericPrincipal)
+            authToken = new ExternalAuthToken((GenericPrincipal) principal);
 
         // If missing auth token, reject request.
         if (authToken == null) {
@@ -104,7 +104,8 @@ public class SessionContextInterceptor implements ContainerRequestFilter {
         context.put(SessionContext.LOCALE, locale);
 
         context.put(SessionContext.AUTH_TOKEN, authToken);
-        context.put(SessionContext.USER_ID, pkiPrincipal.getName());
-        context.put(SessionContext.USER, pkiPrincipal.getUser());
+        context.put(SessionContext.USER_ID, principal.getName());
+        if (principal instanceof PKIPrincipal)
+            context.put(SessionContext.USER, ((PKIPrincipal) principal).getUser());
     }
 }

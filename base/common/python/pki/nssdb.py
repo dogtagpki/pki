@@ -123,7 +123,7 @@ class NSSDatabase(object):
             self.password_file = password_file
 
         else:
-            raise Exception('Missing NSS database password')
+            self.password_file = None
 
         if internal_password:
             # Store the specified internal token into password file.

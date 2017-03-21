@@ -87,7 +87,7 @@ public class ProxyCLI extends CLI {
         return module.removeModule(name);
     }
 
-    public PKIClient getClient() {
+    public PKIClient getClient() throws Exception {
         return module.getClient();
     }
 

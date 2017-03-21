@@ -607,4 +607,19 @@ public interface ICertificateAuthority extends ISubsystem {
      */
     public void deleteAuthority(HttpServletRequest httpReq)
         throws EBaseException;
+
+    /**
+     * get Issuance Protection Public Key
+     */
+    public java.security.PublicKey getIssuanceProtPubKey();
+
+    /**
+     * get Issuance Protection Private Key
+     */
+    public org.mozilla.jss.crypto.PrivateKey getIssuanceProtPrivKey();
+
+    /**
+     * get Issuance Protection Certificate
+     */
+    public org.mozilla.jss.crypto.X509Certificate getIssuanceProtCert();
 }
