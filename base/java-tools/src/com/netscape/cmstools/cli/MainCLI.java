@@ -366,9 +366,6 @@ public class MainCLI extends CLI {
 
             if (certPasswordFile != null && certPassword != null) {
                 throw new Exception("The '-C' and '-c' options are mutually exclusive.");
-
-            } else if (certPasswordFile == null && certPassword == null) {
-                throw new Exception("Missing security database password.");
             }
 
         } else if (username != null) { // basic authentication
@@ -402,14 +399,6 @@ public class MainCLI extends CLI {
             // XXX TBD set client security database token
 
             certPassword = tokenPasswordPair[1];
-
-        } else if (certNickname != null && certPassword == null) {
-            // prompt for security database password if required for authentication
-            //
-            // NOTE:  This overrides the password callback provided
-            //        by JSS for NSS security database authentication.
-            //
-            certPassword = promptForPassword("Enter Client Security Database Password: ");
         }
 
         // store security database password
