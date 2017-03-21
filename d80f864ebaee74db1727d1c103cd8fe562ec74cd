@@ -1,0 +1,186 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "60f4ff88_eade7136",
+        "filename": "base/common/src/com/netscape/certsrv/key/KeyClient.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-03-21T17:18:58Z",
+      "side": 1,
+      "message": "\"this.\" is redundant here and in the rest of the patch.",
+      "range": {
+        "startLine": 68,
+        "startChar": 12,
+        "endLine": 68,
+        "endChar": 17
+      },
+      "revId": "d80f864ebaee74db1727d1c103cd8fe562ec74cd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2ac498e5_786d6763",
+        "filename": "base/common/src/com/netscape/certsrv/key/KeyClient.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-03-21T17:18:58Z",
+      "side": 1,
+      "message": "We should only return version 0.0.0 if the InfoService is not found (i.e. HTTP 404). If the failure is caused by something else (e.g. server is down) the exception should be passed to the caller. So the catch statement should be more specific.",
+      "revId": "d80f864ebaee74db1727d1c103cd8fe562ec74cd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cbc6d587_af878136",
+        "filename": "base/common/src/com/netscape/certsrv/key/KeyClient.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 421,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-03-21T17:18:58Z",
+      "side": 1,
+      "message": "This code seems to be repeated in multiple locations. How about replacing it with this?\n\nSymmetricKey sessionKey \u003d\n    crypto.generateSessionKey(encryptAlgorithm);",
+      "revId": "d80f864ebaee74db1727d1c103cd8fe562ec74cd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ffcb19fc_58ef8408",
+        "filename": "base/common/src/org/dogtagpki/common/Version.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-03-21T17:18:58Z",
+      "side": 1,
+      "message": "Shouldn\u0027t this be \"\\\\.\"?",
+      "revId": "d80f864ebaee74db1727d1c103cd8fe562ec74cd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f13308df_d2703d82",
+        "filename": "base/common/src/org/dogtagpki/common/Version.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-03-21T17:18:58Z",
+      "side": 1,
+      "message": "Remove this debugging statement.",
+      "revId": "d80f864ebaee74db1727d1c103cd8fe562ec74cd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ec7cd6c0_2367a7c7",
+        "filename": "base/common/src/org/dogtagpki/common/Version.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-03-21T17:18:58Z",
+      "side": 1,
+      "message": "\"this.\" is redundant.",
+      "range": {
+        "startLine": 30,
+        "startChar": 8,
+        "endLine": 30,
+        "endChar": 13
+      },
+      "revId": "d80f864ebaee74db1727d1c103cd8fe562ec74cd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "daaf14c8_b6015adf",
+        "filename": "base/common/src/org/dogtagpki/common/Version.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-03-21T17:18:58Z",
+      "side": 1,
+      "message": "Has this been tested with version number without minor/micro parts? The index 1 and 2 may not exist. Please add a simple test main() program at the bottom of this class.",
+      "revId": "d80f864ebaee74db1727d1c103cd8fe562ec74cd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "61aafe71_673e20b4",
+        "filename": "base/kra/src/com/netscape/kra/SecurityDataProcessor.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 423,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-03-21T17:18:58Z",
+      "side": 1,
+      "message": "Need to chain the original exception.",
+      "revId": "d80f864ebaee74db1727d1c103cd8fe562ec74cd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b0540045_2f329896",
+        "filename": "base/kra/src/com/netscape/kra/SecurityDataProcessor.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 627,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-03-21T17:18:58Z",
+      "side": 1,
+      "message": "Use SecureRandom?",
+      "revId": "d80f864ebaee74db1727d1c103cd8fe562ec74cd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1027298b_36dd9139",
+        "filename": "base/kra/src/com/netscape/kra/SecurityDataProcessor.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 628,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-03-21T17:18:58Z",
+      "side": 1,
+      "message": "Probably can be replaced with:\n\nreturn rnd.generateSeed(numBytes);",
+      "revId": "d80f864ebaee74db1727d1c103cd8fe562ec74cd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
