@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9864d695_860071ae",
+        "filename": "base/common/src/com/netscape/certsrv/key/KeyClient.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-03-21T23:08:54Z",
+      "side": 1,
+      "message": "It would be nice to have a Version comparator, e.g.:\n\nif (serverVersion.isNewerThanOrEqualTo(requiredVersion))",
+      "revId": "0e96aa132359b91b56221391e846b24f459f346d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
