@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cae0a5d8_0937f760",
+        "filename": "base/common/src/org/dogtagpki/common/Version.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-03-21T23:08:14Z",
+      "side": 1,
+      "message": "It may be possible to extend this class to handle any length of version number, e.g. 10.4.0-2.1.",
+      "revId": "82478227debddbe11bd9b9eeb0e1e2f3bd5282fb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2ce7d6ba_71454785",
+        "filename": "base/kra/src/com/netscape/kra/SecurityDataProcessor.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 627,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-03-21T23:08:14Z",
+      "side": 1,
+      "message": "Ideally this should be something like SecureRandom.getInstance(\"pkcs11prng\", \"Mozilla-JSS\").",
+      "revId": "82478227debddbe11bd9b9eeb0e1e2f3bd5282fb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
