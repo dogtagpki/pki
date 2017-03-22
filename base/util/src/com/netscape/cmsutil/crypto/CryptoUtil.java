@@ -1938,6 +1938,8 @@ public class CryptoUtil {
         EncryptedContentInfo cInfo = null;
 
         //We have to do this to get the decoding to work.
+        // TODO (alee) - this needs to work with AES keys.  It does not appear to be used though in the current KeyClient
+        // We may end up simply removing this.
         @SuppressWarnings("unused")
         PBEAlgorithm pbeAlg = PBEAlgorithm.PBE_SHA1_DES3_CBC;
 

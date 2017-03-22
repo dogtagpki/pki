@@ -108,7 +108,14 @@ public class NSSCryptoProvider extends CryptoProvider {
 
     @Override
     public SymmetricKey generateSessionKey() throws Exception {
-        return generateSymmetricKey(KeyRequestResource.DES3_ALGORITHM, 168);
+        return generateSymmetricKey(KeyRequestResource.AES_ALGORITHM, 128);
+    }
+
+    @Override
+    public SymmetricKey generateSessionKey(EncryptionAlgorithm algorithm) throws Exception {
+        return generateSymmetricKey(
+                algorithm.getAlg().toString(),
+                algorithm.getKeyStrength());
     }
 
     @Override
@@ -122,22 +129,37 @@ public class NSSCryptoProvider extends CryptoProvider {
     @Override
     public byte[] wrapWithSessionKey(String passphrase, byte[] iv, SymmetricKey key, String encryptionAlgorithm)
             throws Exception {
+        return  wrapWithSessionKey(passphrase, iv, key, getEncryptionAlgorithm(encryptionAlgorithm));
+    }
+
+    @Override
+    public byte[] wrapWithSessionKey(String passphrase, byte[] iv, SymmetricKey key, EncryptionAlgorithm encryptionAlgorithm)
+            throws Exception {
         if (token == null) {
             throw new NotInitializedException();
         }
-        return CryptoUtil.wrapPassphrase(token, passphrase, new IVParameterSpec(iv), key,
-                getEncryptionAlgorithm(encryptionAlgorithm));
+        return CryptoUtil.wrapPassphrase(token, passphrase, new IVParameterSpec(iv), key, encryptionAlgorithm);
     }
 
     @Override
     public byte[] unwrapWithSessionKey(byte[] wrappedRecoveredKey, SymmetricKey recoveryKey,
             String encryptionAlgorithm, byte[] nonceData) throws Exception {
+        return unwrapWithSessionKey(wrappedRecoveredKey, recoveryKey,
+                getEncryptionAlgorithm(encryptionAlgorithm), nonceData);
+    }
+
+    @Override
+    public byte[] unwrapWithSessionKey(byte[] wrappedRecoveredKey, SymmetricKey recoveryKey,
+            EncryptionAlgorithm encryptionAlgorithm, byte[] nonceData) throws Exception {
         if (token == null) {
             throw new NotInitializedException();
         }
-        return CryptoUtil.decryptUsingSymmetricKey(token, new IVParameterSpec(nonceData), wrappedRecoveredKey,
-                recoveryKey,
-                getEncryptionAlgorithm(encryptionAlgorithm));
+        IVParameterSpec ivps = null;
+        if (nonceData != null) {
+            ivps = new IVParameterSpec(nonceData);
+        }
+        return CryptoUtil.decryptUsingSymmetricKey(token, ivps, wrappedRecoveredKey,
+                recoveryKey, encryptionAlgorithm);
     }
 
     @Override
@@ -217,8 +239,22 @@ public class NSSCryptoProvider extends CryptoProvider {
                 token,
                 sessionKey,
                 secret,
-                new IVParameterSpec(iv),
-                KeyWrapAlgorithm.DES3_CBC_PAD);
+                null,
+                KeyWrapAlgorithm.AES_KEY_WRAP_PAD);
     }
 
+    @Override
+    public byte[] wrapWithSessionKey(SymmetricKey secret, SymmetricKey sessionKey, byte[] iv, KeyWrapAlgorithm wrapAlg)
+            throws Exception {
+        IVParameterSpec ivps = null;
+        if (iv != null) {
+            ivps = new IVParameterSpec(iv);
+        }
+        return CryptoUtil.wrapUsingSymmetricKey(
+                token,
+                sessionKey,
+                secret,
+                ivps,
+                wrapAlg);
+    }
 }
