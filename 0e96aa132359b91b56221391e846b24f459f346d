@@ -16,6 +16,24 @@
       "revId": "0e96aa132359b91b56221391e846b24f459f346d",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "97d30efe_5e87c0cd",
+        "filename": "base/common/src/com/netscape/certsrv/key/KeyClient.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-03-22T02:17:56Z",
+      "side": 1,
+      "message": "I\u0027ll add it to a new patch",
+      "parentUuid": "9864d695_860071ae",
+      "revId": "0e96aa132359b91b56221391e846b24f459f346d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
