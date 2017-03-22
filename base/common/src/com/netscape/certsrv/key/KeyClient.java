@@ -24,7 +24,6 @@ import java.util.List;
 import javax.ws.rs.core.Response;
 
 import org.dogtagpki.common.Info;
-import org.dogtagpki.common.InfoResource;
 import org.dogtagpki.common.Version;
 import org.mozilla.jss.crypto.EncryptionAlgorithm;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
@@ -47,7 +46,6 @@ public class KeyClient extends Client {
 
     public KeyResource keyClient;
     public KeyRequestResource keyRequestClient;
-    public InfoResource infoClient;
 
     private CryptoProvider crypto;
     private String transportCert;
@@ -60,10 +58,7 @@ public class KeyClient extends Client {
         init();
         crypto = client.getCrypto();
 
-        // TODO(alee) enable this when we figure out why its not working
-        // Version serverVersion = getServerVersion();
-
-        Version serverVersion= new Version("10.4.0");
+        Version serverVersion = getServerVersion();
         if ((serverVersion.getMajor() >= 10) && (serverVersion.getMinor() >=4)) {
             encryptAlgorithm = EncryptionAlgorithm.AES_128_CBC_PAD;
             wrapAlgorithm = KeyWrapAlgorithm.AES_KEY_WRAP_PAD;
@@ -78,8 +73,7 @@ public class KeyClient extends Client {
     private Version getServerVersion() {
         Version ret = null;
         try {
-            Response response = infoClient.getInfo();
-            Info info = client.getEntity(response, Info.class);
+            Info info = client.infoClient.getInfo();
             String version = info.getVersion();
             ret = new Version(version);
         } catch (Exception e) {
@@ -95,7 +89,6 @@ public class KeyClient extends Client {
     public void init() throws URISyntaxException {
         keyClient = createProxy(KeyResource.class);
         keyRequestClient = createProxy(KeyRequestResource.class);
-        infoClient = createProxy(InfoResource.class);
     }
 
     public CryptoProvider getCrypto() {
