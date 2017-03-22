@@ -59,7 +59,7 @@ public class KeyClient extends Client {
         crypto = client.getCrypto();
 
         Version serverVersion = getServerVersion();
-        if ((serverVersion.getMajor() >= 10) && (serverVersion.getMinor() >=4)) {
+        if (serverVersion.isNewerThanOrEquals(new Version("10.4"))) {
             encryptAlgorithm = EncryptionAlgorithm.AES_128_CBC_PAD;
             wrapAlgorithm = KeyWrapAlgorithm.AES_KEY_WRAP_PAD;
             wrapIVLength = 0;
