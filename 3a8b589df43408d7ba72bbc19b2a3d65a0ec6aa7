@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5838f8a7_6a103818",
+        "filename": "base/common/src/org/dogtagpki/common/Version.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-03-22T14:55:39Z",
+      "side": 1,
+      "message": "The outer parentheses are redundant.",
+      "revId": "3a8b589df43408d7ba72bbc19b2a3d65a0ec6aa7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
