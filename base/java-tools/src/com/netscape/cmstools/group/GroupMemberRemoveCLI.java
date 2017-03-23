@@ -22,6 +22,7 @@ import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
 
+import com.netscape.certsrv.group.GroupClient;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -59,7 +60,8 @@ public class GroupMemberRemoveCLI extends CLI {
         String groupID = cmdArgs[0];
         String memberID = cmdArgs[1];
 
-        groupMemberCLI.groupClient.removeGroupMember(groupID, memberID);
+        GroupClient groupClient = groupMemberCLI.getGroupClient();
+        groupClient.removeGroupMember(groupID, memberID);
 
         MainCLI.printMessage("Deleted group member \""+memberID+"\"");
     }

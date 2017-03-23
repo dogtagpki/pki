@@ -22,6 +22,7 @@ import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
 
+import com.netscape.certsrv.group.GroupClient;
 import com.netscape.certsrv.group.GroupData;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
@@ -59,7 +60,8 @@ public class GroupShowCLI extends CLI {
 
         String groupID = cmdArgs[0];
 
-        GroupData groupData = groupCLI.groupClient.getGroup(groupID);
+        GroupClient groupClient = groupCLI.getGroupClient();
+        GroupData groupData = groupClient.getGroup(groupID);
 
         MainCLI.printMessage("Group \""+groupID+"\"");
 
