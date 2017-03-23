@@ -22,7 +22,8 @@ import java.util.Date;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.MetaInfo;
-import com.netscape.certsrv.security.WrappingParams;
+
+import netscape.security.util.WrappingParams;
 
 /**
  * An interface contains constants for key record.

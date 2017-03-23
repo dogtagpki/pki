@@ -47,6 +47,7 @@ import com.netscape.cmstools.CRMFPopClient;
 import com.netscape.cmstools.cert.CertCLI;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Cert;
 import com.netscape.cmsutil.util.Utils;
 
@@ -396,7 +397,7 @@ public class ClientCertRequestCLI extends CLI {
 
         KeyPair keyPair;
         if (algorithm.equals("rsa")) {
-            keyPair = client.generateRSAKeyPair(token, length);
+            keyPair = CryptoUtil.generateRSAKeyPair(token, length);
 
         } else if (algorithm.equals("ec")) {
             keyPair = client.generateECCKeyPair(token, curve, sslECDH, temporary, sensitive, extractable);

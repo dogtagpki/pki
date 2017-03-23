@@ -34,9 +34,10 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.security.ITransportKeyUnit;
-import com.netscape.certsrv.security.WrappingParams;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Cert;
+
+import netscape.security.util.WrappingParams;
 
 /**
  * A class represents the transport key pair. This key pair

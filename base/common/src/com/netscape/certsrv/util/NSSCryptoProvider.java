@@ -225,14 +225,6 @@ public class NSSCryptoProvider extends CryptoProvider {
     }
 
     @Override
-    public byte[] createPKIArchiveOptions(String transportCert, SymmetricKey secret, String passphrase,
-            String keyAlgorithm, int symKeySize, byte[] nonceData) throws Exception {
-
-        return CryptoUtil.createPKIArchiveOptions(manager, token, transportCert, secret, passphrase,
-                getKeyGenAlgorithm(keyAlgorithm), symKeySize, new IVParameterSpec(nonceData));
-    }
-
-    @Override
     public byte[] wrapWithSessionKey(SymmetricKey secret, SymmetricKey sessionKey, byte[] iv)
             throws Exception {
         return CryptoUtil.wrapUsingSymmetricKey(

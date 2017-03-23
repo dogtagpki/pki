@@ -26,6 +26,8 @@ import org.mozilla.jss.crypto.SymmetricKey.Type;
 
 import com.netscape.certsrv.base.EBaseException;
 
+import netscape.security.util.WrappingParams;
+
 /**
  * An interface represents the transport key pair.
  * This key pair is used to protected EE's private
