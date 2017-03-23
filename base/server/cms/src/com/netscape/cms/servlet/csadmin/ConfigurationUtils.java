@@ -2446,8 +2446,7 @@ public class ConfigurationUtils {
     }
 
     public static void createRSAKeyPair(String token, int keysize, IConfigStore config, String ct)
-            throws NoSuchAlgorithmException, NoSuchTokenException, TokenException,
-            CryptoManager.NotInitializedException, EPropertyNotFound, EBaseException {
+            throws Exception {
         /* generate key pair */
         KeyPair pair = null;
         do {

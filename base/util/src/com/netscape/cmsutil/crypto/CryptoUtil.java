@@ -48,8 +48,8 @@ import java.util.Vector;
 
 import org.apache.commons.lang.StringUtils;
 import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.NoSuchTokenException;
 import org.mozilla.jss.CryptoManager.NotInitializedException;
+import org.mozilla.jss.NoSuchTokenException;
 import org.mozilla.jss.SecretDecoderRing.KeyManager;
 import org.mozilla.jss.asn1.ANY;
 import org.mozilla.jss.asn1.ASN1Util;
@@ -105,7 +105,6 @@ import org.mozilla.jss.ssl.SSLSocket.SSLVersionRange;
 import org.mozilla.jss.util.Base64OutputStream;
 import org.mozilla.jss.util.Password;
 
-import com.netscape.cmsutil.crypto.CryptoUtil.SSLVersion;
 import com.netscape.cmsutil.util.Cert;
 import com.netscape.cmsutil.util.Utils;
 
@@ -119,6 +118,7 @@ import netscape.security.util.DerInputStream;
 import netscape.security.util.DerOutputStream;
 import netscape.security.util.DerValue;
 import netscape.security.util.ObjectIdentifier;
+import netscape.security.util.WrappingParams;
 import netscape.security.x509.AlgorithmId;
 import netscape.security.x509.CertificateAlgorithmId;
 import netscape.security.x509.CertificateChain;
@@ -530,19 +530,18 @@ public class CryptoUtil {
 
     /**
      * Generates a RSA key pair.
+     * @throws Exception
      */
-    public static KeyPair generateRSAKeyPair(String token, int keysize)
-            throws CryptoManager.NotInitializedException,
-                NoSuchTokenException,
-                NoSuchAlgorithmException,
-                TokenException {
-        CryptoToken t = getKeyStorageToken(token);
-        KeyPairGenerator g = t.getKeyPairGenerator(KeyPairAlgorithm.RSA);
+    public static KeyPair generateRSAKeyPair(String tokenName, int keysize)
+            throws Exception {
+        CryptoToken token = getKeyStorageToken(tokenName);
+        return generateRSAKeyPair(token, keysize);
+    }
 
-        g.initialize(keysize);
-        KeyPair pair = g.genKeyPair();
-
-        return pair;
+    public static KeyPair generateRSAKeyPair(CryptoToken token, int keysize) throws Exception {
+        KeyPairGenerator kg = token.getKeyPairGenerator(KeyPairAlgorithm.RSA);
+        kg.initialize(keysize);
+        return kg.genKeyPair();
     }
 
     public static boolean isECCKey(X509Key key) {
@@ -1919,7 +1918,7 @@ public class CryptoUtil {
     }
 
     /**
-     * Generates a nonve_iv for padding.
+     * Generates a nonce_iv for padding.
      *
      * @return
      */
@@ -1982,55 +1981,143 @@ public class CryptoUtil {
         return wrapUsingPublicKey(token, tcert.getPublicKey(), sk, KeyWrapAlgorithm.RSA);
     }
 
-    public static byte[] createPKIArchiveOptions(CryptoManager manager, CryptoToken token, String transportCert,
-            SymmetricKey vek, String passphrase, KeyGenAlgorithm keyGenAlg, int symKeySize, IVParameterSpec IV)
-            throws Exception {
-        byte[] key_data = null;
+    /* Used to create PKIArchiveOptions for wrapped private key */
+    public static PKIArchiveOptions createPKIArchiveOptions(
+            CryptoToken token,
+            PublicKey wrappingKey,
+            PrivateKey data,
+            WrappingParams params,
+            AlgorithmIdentifier aid) throws Exception {
+        return createPKIArchiveOptionsInternal(
+                token, wrappingKey, null, data, null, params, aid);
+    }
 
-        //generate session key
-        SymmetricKey sk = CryptoUtil.generateKey(token, keyGenAlg, symKeySize, null, false);
+    public static byte[] createEncodedPKIArchiveOptions(
+            CryptoToken token,
+            PublicKey wrappingKey,
+            PrivateKey data,
+            WrappingParams params,
+            AlgorithmIdentifier aid) throws Exception {
+        PKIArchiveOptions opts = createPKIArchiveOptionsInternal(
+                token, wrappingKey, null, data, null, params, aid);
+        return encodePKIArchiveOptions(opts);
+    }
 
-        if (passphrase != null) {
-            key_data = wrapPassphrase(token, passphrase, IV, sk, EncryptionAlgorithm.DES3_CBC_PAD);
+    /* Used to create PKIArchiveOptions for wrapped symmetric key */
+    public static PKIArchiveOptions createPKIArchiveOptions(
+            CryptoToken token,
+            PublicKey wrappingKey,
+            SymmetricKey data,
+            WrappingParams params,
+            AlgorithmIdentifier aid) throws Exception {
+         return createPKIArchiveOptionsInternal(
+                 token, wrappingKey, null, null, data, params, aid);
+    }
+
+    public static byte[] createEncodedPKIArchiveOptions(
+            CryptoToken token,
+            PublicKey wrappingKey,
+            SymmetricKey data,
+            WrappingParams params,
+            AlgorithmIdentifier aid) throws Exception {
+        PKIArchiveOptions opts = createPKIArchiveOptionsInternal(
+                token, wrappingKey, null, null, data, params, aid);
+        return encodePKIArchiveOptions(opts);
+    }
+
+    /* Used to create PKIArchiveOptions for wrapped passphrase */
+    public static PKIArchiveOptions createPKIArchiveOptions(
+            CryptoToken token,
+            PublicKey wrappingKey,
+            String data,
+            WrappingParams params,
+            AlgorithmIdentifier aid) throws Exception {
+        return createPKIArchiveOptionsInternal(
+                token, wrappingKey, data, null, null, params, aid);
+    }
+
+    public static byte[] createEncodedPKIArchiveOptions(
+            CryptoToken token,
+            PublicKey wrappingKey,
+            String data,
+            WrappingParams params,
+            AlgorithmIdentifier aid) throws Exception {
+        PKIArchiveOptions opts = createPKIArchiveOptionsInternal(
+                token, wrappingKey, data, null, null, params, aid);
+        return encodePKIArchiveOptions(opts);
+    }
+
+    private static PKIArchiveOptions createPKIArchiveOptionsInternal(
+            CryptoToken token,
+            PublicKey wrappingKey,
+            String passphraseData,
+            PrivateKey privKeyData,
+            SymmetricKey symKeyData,
+            WrappingParams params,
+            AlgorithmIdentifier aid) throws Exception {
+        SymmetricKey sessionKey = CryptoUtil.generateKey(
+                token,
+                params.getSkKeyGenAlgorithm(),
+                params.getSkLength(),
+                null,
+                false);
+
+        byte[] key_data;
+        if (passphraseData != null) {
+            key_data = wrapPassphrase(
+                    token,
+                    passphraseData,
+                    params.getPayloadEncryptionIV(),
+                    sessionKey,
+                    params.getPayloadEncryptionAlgorithm());
+        } else if (privKeyData != null) {
+            key_data = wrapUsingSymmetricKey(
+                    token,
+                    sessionKey,
+                    privKeyData,
+                    params.getPayloadWrappingIV(),
+                    params.getPayloadWrapAlgorithm());
+        } else if (symKeyData != null) {
+            key_data = wrapUsingSymmetricKey(
+                    token,
+                    sessionKey,
+                    symKeyData,
+                    params.getPayloadWrappingIV(),
+                    params.getPayloadWrapAlgorithm());
         } else {
-            // wrap payload using session key
-            key_data = wrapUsingSymmetricKey(token, sk, vek, IV, KeyWrapAlgorithm.DES3_CBC_PAD);
+            throw new IOException("No data to package in PKIArchiveOptions!");
         }
 
-        // wrap session key using transport key
-        byte[] session_data = wrapSymmetricKey(manager, token, transportCert, sk);
+        byte[] session_data = wrapUsingPublicKey(
+                token,
+                wrappingKey,
+                sessionKey,
+                params.getSkWrapAlgorithm());
 
-        return createPKIArchiveOptions(IV, session_data, key_data);
+        return createPKIArchiveOptions(session_data, key_data, aid);
     }
 
-    public static byte[] createPKIArchiveOptions(
-            CryptoToken token, PublicKey wrappingKey, PrivateKey toBeWrapped,
-            KeyGenAlgorithm keyGenAlg, int symKeySize, IVParameterSpec IV)
-            throws Exception {
-        SymmetricKey sessionKey = CryptoUtil.generateKey(token, keyGenAlg, symKeySize, null, false);
-        byte[] key_data = wrapUsingSymmetricKey(token, sessionKey, toBeWrapped, IV, KeyWrapAlgorithm.DES3_CBC_PAD);
-
-        byte[] session_data = wrapUsingPublicKey(token, wrappingKey, sessionKey, KeyWrapAlgorithm.RSA);
-        return createPKIArchiveOptions(IV, session_data, key_data);
-    }
-
-    private static byte[] createPKIArchiveOptions(
-            IVParameterSpec IV, byte[] session_data, byte[] key_data)
-            throws IOException, InvalidBERException {
+    public static PKIArchiveOptions createPKIArchiveOptions(
+            byte[] session_data, byte[] key_data, AlgorithmIdentifier aid) {
         // create PKIArchiveOptions structure
-        AlgorithmIdentifier algS = new AlgorithmIdentifier(new OBJECT_IDENTIFIER("1.2.840.113549.3.7"),
-                new OCTET_STRING(IV.getIV()));
-        EncryptedValue encValue = new EncryptedValue(null, algS, new BIT_STRING(session_data, 0), null, null,
+        EncryptedValue encValue = new EncryptedValue(
+                null,
+                aid,
+                new BIT_STRING(session_data, 0),
+                null,
+                null,
                 new BIT_STRING(key_data, 0));
         EncryptedKey key = new EncryptedKey(encValue);
-        PKIArchiveOptions opt = new PKIArchiveOptions(key);
+        return new PKIArchiveOptions(key);
+    }
 
+    public static byte[] encodePKIArchiveOptions(PKIArchiveOptions opts) throws Exception {
         byte[] encoded = null;
 
         //Let's make sure we can decode the encoded PKIArchiveOptions..
         ByteArrayOutputStream oStream = new ByteArrayOutputStream();
 
-        opt.encode(oStream);
+        opts.encode(oStream);
 
         encoded = oStream.toByteArray();
         ByteArrayInputStream inStream = new ByteArrayInputStream(encoded);

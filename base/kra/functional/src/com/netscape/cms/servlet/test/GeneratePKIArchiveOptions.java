@@ -18,15 +18,23 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
+import org.mozilla.jss.asn1.OCTET_STRING;
 import org.mozilla.jss.crypto.AlreadyInitializedException;
 import org.mozilla.jss.crypto.CryptoToken;
+import org.mozilla.jss.crypto.EncryptionAlgorithm;
 import org.mozilla.jss.crypto.IVParameterSpec;
 import org.mozilla.jss.crypto.KeyGenAlgorithm;
+import org.mozilla.jss.crypto.KeyWrapAlgorithm;
 import org.mozilla.jss.crypto.SymmetricKey;
+import org.mozilla.jss.crypto.X509Certificate;
+import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
 import org.mozilla.jss.util.Password;
 
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Utils;
+
+import netscape.security.util.WrappingParams;
 
 public class GeneratePKIArchiveOptions {
 
@@ -154,7 +162,6 @@ public class GeneratePKIArchiveOptions {
 
         // used for wrapping to send data to DRM
         byte[] tcert = read(transport_file);
-        String transportCert = Utils.base64encode(tcert);
 
         // Initialize token
         try {
@@ -181,7 +188,10 @@ public class GeneratePKIArchiveOptions {
             }
         } catch (Exception e) {
             log("Exception in logging into token:" + e.toString());
+            System.exit(1);
         }
+
+        X509Certificate transportCert = manager.importCACertPackage(tcert);
 
         // Data to be archived
         SymmetricKey vek = null;
@@ -193,12 +203,21 @@ public class GeneratePKIArchiveOptions {
 
         byte[] encoded = null;
 
+        WrappingParams params = new WrappingParams(
+                SymmetricKey.DES3, KeyGenAlgorithm.DES3, 168,
+                KeyWrapAlgorithm.RSA, EncryptionAlgorithm.DES3_CBC_PAD,
+                KeyWrapAlgorithm.DES3_CBC_PAD, ivps, ivps);
+
+        AlgorithmIdentifier aid = new AlgorithmIdentifier(
+                new OBJECT_IDENTIFIER("1.2.840.113549.3.7"),
+                new OCTET_STRING(ivps.getIV()));
+
         if (passphraseMode) {
-            encoded = CryptoUtil.createPKIArchiveOptions(manager, token, transportCert, null, passphrase,
-                    KeyGenAlgorithm.DES3, 0, ivps);
+            encoded = CryptoUtil.createEncodedPKIArchiveOptions(
+                    token, transportCert.getPublicKey(), passphrase, params, aid);
         } else {
-            encoded = CryptoUtil.createPKIArchiveOptions(manager, token, transportCert, vek, null,
-                    KeyGenAlgorithm.DES3, 0, ivps);
+            encoded = CryptoUtil.createEncodedPKIArchiveOptions(
+                    token, transportCert.getPublicKey(), vek, params, aid);
         }
 
         // write encoded to file

@@ -63,7 +63,6 @@ import com.netscape.certsrv.kra.IShare;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.security.Credential;
 import com.netscape.certsrv.security.IStorageKeyUnit;
-import com.netscape.certsrv.security.WrappingParams;
 import com.netscape.cms.servlet.key.KeyRecordParser;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Utils;
@@ -71,6 +70,7 @@ import com.netscape.cmsutil.util.Utils;
 import netscape.security.util.DerInputStream;
 import netscape.security.util.DerOutputStream;
 import netscape.security.util.DerValue;
+import netscape.security.util.WrappingParams;
 
 /**
  * A class represents a storage key unit. Currently, this

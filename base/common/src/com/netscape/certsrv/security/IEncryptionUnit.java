@@ -25,6 +25,8 @@ import org.mozilla.jss.crypto.SymmetricKey;
 
 import com.netscape.certsrv.base.EBaseException;
 
+import netscape.security.util.WrappingParams;
+
 /**
  * An interface represents a encryption unit.
  *

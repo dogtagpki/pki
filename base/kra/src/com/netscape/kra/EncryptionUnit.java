@@ -30,8 +30,9 @@ import org.mozilla.jss.crypto.SymmetricKey;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.security.IEncryptionUnit;
-import com.netscape.certsrv.security.WrappingParams;
 import com.netscape.cmsutil.crypto.CryptoUtil;
+
+import netscape.security.util.WrappingParams;
 
 /**
  * A class represents the transport key pair. This key pair

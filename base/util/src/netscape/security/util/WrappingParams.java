@@ -1,4 +1,4 @@
-package com.netscape.certsrv.security;
+package netscape.security.util;
 
 import java.security.NoSuchAlgorithmException;
 

@@ -44,7 +44,4 @@ public abstract class CryptoProvider {
     public abstract byte[] unwrapWithPassphrase(byte[] wrappedRecoveredKey, String recoveryPassphrase)
             throws Exception;
 
-    public abstract byte[] createPKIArchiveOptions(String transportCert, SymmetricKey secret, String passphrase,
-            String keyAlgorithm, int symKeySize, byte[] nonceData) throws Exception;
-
 }

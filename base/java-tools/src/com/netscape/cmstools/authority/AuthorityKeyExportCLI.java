@@ -7,14 +7,22 @@ import java.security.PublicKey;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
+import org.mozilla.jss.asn1.OCTET_STRING;
 import org.mozilla.jss.crypto.CryptoToken;
+import org.mozilla.jss.crypto.EncryptionAlgorithm;
 import org.mozilla.jss.crypto.IVParameterSpec;
 import org.mozilla.jss.crypto.KeyGenAlgorithm;
+import org.mozilla.jss.crypto.KeyWrapAlgorithm;
 import org.mozilla.jss.crypto.PrivateKey;
+import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.crypto.X509Certificate;
+import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
 
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmsutil.crypto.CryptoUtil;
+
+import netscape.security.util.WrappingParams;
 
 public class AuthorityKeyExportCLI extends CLI {
 
@@ -78,9 +86,21 @@ public class AuthorityKeyExportCLI extends CLI {
         byte iv[] = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
         IVParameterSpec ivps = new IVParameterSpec(iv);
 
-        byte[] data = CryptoUtil.createPKIArchiveOptions(
-            token, wrappingKey, toBeWrapped,
-            KeyGenAlgorithm.DES3, 0, ivps);
+        WrappingParams params = new WrappingParams(
+                SymmetricKey.DES3, KeyGenAlgorithm.DES3, 168,
+                KeyWrapAlgorithm.RSA, EncryptionAlgorithm.DES3_CBC_PAD,
+                KeyWrapAlgorithm.DES3_CBC_PAD, ivps, ivps);
+
+        AlgorithmIdentifier aid = new AlgorithmIdentifier(
+                new OBJECT_IDENTIFIER("1.2.840.113549.3.7"),
+                new OCTET_STRING(ivps.getIV()));
+
+        byte[] data = CryptoUtil.createEncodedPKIArchiveOptions(
+                token,
+                wrappingKey,
+                toBeWrapped,
+                params,
+                aid);
 
         Files.newOutputStream(Paths.get(filename)).write(data);
     }

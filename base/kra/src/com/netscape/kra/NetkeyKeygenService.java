@@ -60,13 +60,13 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.certsrv.security.ITransportKeyUnit;
-import com.netscape.certsrv.security.WrappingParams;
 import com.netscape.cms.servlet.key.KeyRecordParser;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.util.Debug;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 import netscape.security.provider.RSAPublicKey;
+import netscape.security.util.WrappingParams;
 
 /**
  * A class representing keygen/archival request procesor for requests

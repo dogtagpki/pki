@@ -53,12 +53,11 @@ import org.mozilla.jss.asn1.TeletexString;
 import org.mozilla.jss.asn1.UTF8String;
 import org.mozilla.jss.asn1.UniversalString;
 import org.mozilla.jss.crypto.CryptoToken;
+import org.mozilla.jss.crypto.EncryptionAlgorithm;
 import org.mozilla.jss.crypto.IVParameterSpec;
 import org.mozilla.jss.crypto.KeyGenAlgorithm;
-import org.mozilla.jss.crypto.KeyGenerator;
-import org.mozilla.jss.crypto.KeyPairAlgorithm;
-import org.mozilla.jss.crypto.KeyPairGenerator;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
+import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.Signature;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.crypto.SymmetricKey;
@@ -66,8 +65,6 @@ import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.pkix.crmf.CertReqMsg;
 import org.mozilla.jss.pkix.crmf.CertRequest;
 import org.mozilla.jss.pkix.crmf.CertTemplate;
-import org.mozilla.jss.pkix.crmf.EncryptedKey;
-import org.mozilla.jss.pkix.crmf.EncryptedValue;
 import org.mozilla.jss.pkix.crmf.PKIArchiveOptions;
 import org.mozilla.jss.pkix.crmf.POPOSigningKey;
 import org.mozilla.jss.pkix.crmf.ProofOfPossession;
@@ -82,6 +79,7 @@ import com.netscape.cmsutil.util.Cert;
 import com.netscape.cmsutil.util.HMACDigest;
 import com.netscape.cmsutil.util.Utils;
 
+import netscape.security.util.WrappingParams;
 import netscape.security.x509.X500Name;
 
 /**
@@ -427,8 +425,7 @@ public class CRMFPopClient {
             if (verbose) System.out.println("Generating key pair");
             KeyPair keyPair;
             if (algorithm.equals("rsa")) {
-                keyPair = client.generateRSAKeyPair(token, keySize);
-
+                keyPair = CryptoUtil.generateRSAKeyPair(token, keySize);
             } else if (algorithm.equals("ec")) {
                 keyPair = client.generateECCKeyPair(token, curve, sslECDH, temporary, sensitive, extractable);
 
@@ -510,12 +507,6 @@ public class CRMFPopClient {
         return verbose;
     }
 
-    public KeyPair generateRSAKeyPair(CryptoToken token, int length) throws Exception {
-        KeyPairGenerator kg = token.getKeyPairGenerator(KeyPairAlgorithm.RSA);
-        kg.initialize(length);
-        return kg.genKeyPair();
-    }
-
     public KeyPair generateECCKeyPair(
             CryptoToken token,
             String curve,
@@ -547,25 +538,6 @@ public class CRMFPopClient {
                 extractable);
     }
 
-    public byte[] wrapPrivateKey(CryptoToken token, SymmetricKey sessionKey, byte[] iv, KeyPair keyPair) throws Exception {
-
-        // wrap private key using session
-        return CryptoUtil.wrapUsingSymmetricKey(
-                token,
-                sessionKey,
-                (org.mozilla.jss.crypto.PrivateKey) keyPair.getPrivate(),
-                new IVParameterSpec(iv),
-                KeyWrapAlgorithm.DES3_CBC_PAD);
-    }
-
-    public byte[] wrapSessionKey(CryptoToken token, X509Certificate transportCert, SymmetricKey sessionKey) throws Exception {
-
-        // wrap session key using KRA transport cert
-        // currently, a transport cert has to be an RSA cert,
-        // regardless of the key you are wrapping
-        return CryptoUtil.wrapUsingPublicKey(token, transportCert.getPublicKey(), sessionKey, KeyWrapAlgorithm.RSA);
-    }
-
     public CertRequest createCertRequest(
             CryptoToken token,
             X509Certificate transportCert,
@@ -573,7 +545,33 @@ public class CRMFPopClient {
             KeyPair keyPair,
             Name subject) throws Exception {
 
-        PKIArchiveOptions opts = createPKIArchiveOptions(token, transportCert, algorithm, keyPair);
+        byte[] iv = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
+        IVParameterSpec ivps = new IVParameterSpec(iv);
+
+        AlgorithmIdentifier aid;
+        if (algorithm.equals("rsa")) {
+            aid = new AlgorithmIdentifier(new OBJECT_IDENTIFIER("1.2.840.113549.3.7"), new OCTET_STRING(iv));
+
+        } else if (algorithm.equals("ec")) {
+            aid = new AlgorithmIdentifier(new OBJECT_IDENTIFIER("1.2.840.10045.2.1"), new OCTET_STRING(iv));
+
+        } else {
+            throw new Exception("Unknown algorithm: " + algorithm);
+        }
+
+        WrappingParams params = new WrappingParams(
+                SymmetricKey.DES3, KeyGenAlgorithm.DES3, 168,
+                KeyWrapAlgorithm.RSA, EncryptionAlgorithm.DES3_CBC_PAD,
+                KeyWrapAlgorithm.DES3_CBC_PAD, ivps, ivps);
+
+        // TODO(alee) check the cast on the third argument
+        PKIArchiveOptions opts = CryptoUtil.createPKIArchiveOptions(
+                token,
+                transportCert.getPublicKey(),
+                (PrivateKey) keyPair.getPrivate(),
+                params,
+                aid);
+
         CertTemplate certTemplate = createCertTemplate(subject, keyPair.getPublic());
 
         SEQUENCE seq = new SEQUENCE();
@@ -609,44 +607,6 @@ public class CRMFPopClient {
         byte[] finalDigest = hmacDigest.digest();
 
         return new OCTET_STRING(finalDigest);
-    }
-
-    public PKIArchiveOptions createPKIArchiveOptions(
-            CryptoToken token,
-            X509Certificate transportCert,
-            String algorithm,
-            KeyPair keyPair) throws Exception {
-
-        KeyGenerator keyGen = token.getKeyGenerator(KeyGenAlgorithm.DES3);
-        SymmetricKey sessionKey = keyGen.generate();
-
-        byte[] iv = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
-
-        byte[] wrappedPrivateKey = wrapPrivateKey(token, sessionKey, iv, keyPair);
-        byte[] wrappedSessionKey = wrapSessionKey(token, transportCert, sessionKey);
-
-        AlgorithmIdentifier algorithmID;
-        if (algorithm.equals("rsa")) {
-            algorithmID = new AlgorithmIdentifier(new OBJECT_IDENTIFIER("1.2.840.113549.3.7"), new OCTET_STRING(iv));
-
-        } else if (algorithm.equals("ec")) {
-            algorithmID = new AlgorithmIdentifier(new OBJECT_IDENTIFIER("1.2.840.10045.2.1"), new OCTET_STRING(iv));
-
-        } else {
-            throw new Exception("Unknown algorithm: " + algorithm);
-        }
-
-        EncryptedValue encValue = new EncryptedValue(
-                null,
-                algorithmID,
-                new BIT_STRING(wrappedSessionKey, 0),
-                null,
-                null,
-                new BIT_STRING(wrappedPrivateKey, 0));
-
-        EncryptedKey key = new EncryptedKey(encValue);
-
-        return new PKIArchiveOptions(key);
     }
 
     public CertTemplate createCertTemplate(Name subject, PublicKey publicKey) throws Exception {
