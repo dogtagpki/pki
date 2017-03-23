@@ -19,15 +19,32 @@ package netscape.security.pkcs;
 
 import java.math.BigInteger;
 
-import org.mozilla.jss.pkix.primitive.PrivateKeyInfo;
+import org.mozilla.jss.crypto.PrivateKey;
 
 public class PKCS12KeyInfo {
 
+    private PrivateKey privateKey;
+    private byte[] epkiBytes;
     BigInteger id;
-    PrivateKeyInfo privateKeyInfo;
     String subjectDN;
 
     public PKCS12KeyInfo() {
+    }
+
+    public PKCS12KeyInfo(PrivateKey k) {
+        this.privateKey = k;
+    }
+
+    public PKCS12KeyInfo(byte[] epkiBytes) {
+        this.epkiBytes = epkiBytes;
+    }
+
+    public PrivateKey getPrivateKey() {
+        return this.privateKey;
+    }
+
+    public byte[] getEncryptedPrivateKeyInfoBytes() {
+        return epkiBytes;
     }
 
     public BigInteger getID() {
@@ -36,14 +53,6 @@ public class PKCS12KeyInfo {
 
     public void setID(BigInteger id) {
         this.id = id;
-    }
-
-    public PrivateKeyInfo getPrivateKeyInfo() {
-        return privateKeyInfo;
-    }
-
-    public void setPrivateKeyInfo(PrivateKeyInfo privateKeyInfo) {
-        this.privateKeyInfo = privateKeyInfo;
     }
 
     public String getSubjectDN() {
