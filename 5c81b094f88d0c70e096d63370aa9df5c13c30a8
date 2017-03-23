@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ab615789_212a0b86",
+        "filename": "base/kra/functional/src/com/netscape/cms/servlet/test/GeneratePKIArchiveOptions.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-03-23T19:00:28Z",
+      "side": 1,
+      "message": "Does this work? The manager variable seems to be null.",
+      "revId": "5c81b094f88d0c70e096d63370aa9df5c13c30a8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c2441437_a94f4c58",
+        "filename": "base/util/src/com/netscape/cmsutil/crypto/CryptoUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2114,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-03-23T19:00:28Z",
+      "side": 1,
+      "message": "Shouldn\u0027t this be called \u0027encode\u0027 because it returns encoded data?",
+      "revId": "5c81b094f88d0c70e096d63370aa9df5c13c30a8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
