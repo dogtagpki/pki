@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "25156929_c9b1c6a6",
+        "filename": "base/java-tools/src/com/netscape/cmstools/CRMFPopClient.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 562,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-03-23T19:06:46Z",
+      "side": 1,
+      "message": "Will this be backward compatible?",
+      "revId": "7c19ffdb226549b553391e87e01fe981b4ec13cd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
