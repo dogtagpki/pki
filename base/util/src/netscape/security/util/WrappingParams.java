@@ -54,7 +54,7 @@ public class WrappingParams {
         KeyWrapAlgorithm wrap = null;
         if (wrapName != null) {
             wrap = KeyWrapAlgorithm.fromString(wrapName);
-            this.payloadWrapAlgorithm = wrap;
+            payloadWrapAlgorithm = wrap;
         }
 
         switch (encrypt.getAlg().toString()) {
@@ -64,21 +64,21 @@ public class WrappingParams {
             // We are going to assume AES-128-PAD
             encrypt = EncryptionAlgorithm.AES_128_CBC_PAD;
 
-            this.skType = SymmetricKey.AES;
-            this.skKeyGenAlgorithm = KeyGenAlgorithm.AES;
-            if (wrap == null) this.payloadWrapAlgorithm = KeyWrapAlgorithm.AES_KEY_WRAP_PAD;
+            skType = SymmetricKey.AES;
+            skKeyGenAlgorithm = KeyGenAlgorithm.AES;
+            if (wrap == null) payloadWrapAlgorithm = KeyWrapAlgorithm.AES_KEY_WRAP_PAD;
             break;
         case "DESede":
-            this.skType = SymmetricKey.DES3;
-            this.skKeyGenAlgorithm = KeyGenAlgorithm.DES3;
-            this.skWrapAlgorithm = KeyWrapAlgorithm.DES3_CBC_PAD;
-            if (wrap == null) this.payloadWrapAlgorithm = KeyWrapAlgorithm.DES3_CBC_PAD;
+            skType = SymmetricKey.DES3;
+            skKeyGenAlgorithm = KeyGenAlgorithm.DES3;
+            skWrapAlgorithm = KeyWrapAlgorithm.DES3_CBC_PAD;
+            if (wrap == null) payloadWrapAlgorithm = KeyWrapAlgorithm.DES3_CBC_PAD;
             break;
         case "DES":
-            this.skType = SymmetricKey.DES;
-            this.skKeyGenAlgorithm = KeyGenAlgorithm.DES;
-            this.skWrapAlgorithm = KeyWrapAlgorithm.DES3_CBC_PAD;
-            if (wrap == null) this.payloadWrapAlgorithm = KeyWrapAlgorithm.DES_CBC_PAD;
+            skType = SymmetricKey.DES;
+            skKeyGenAlgorithm = KeyGenAlgorithm.DES;
+            skWrapAlgorithm = KeyWrapAlgorithm.DES3_CBC_PAD;
+            if (wrap == null) payloadWrapAlgorithm = KeyWrapAlgorithm.DES_CBC_PAD;
             break;
         default:
             throw new NoSuchAlgorithmException("Invalid algorithm");
@@ -86,14 +86,23 @@ public class WrappingParams {
 
         this.skLength = encrypt.getKeyStrength();
         if (priKeyAlgo.equals("EC")) {
-            this.skWrapAlgorithm = KeyWrapAlgorithm.AES_ECB;
+            skWrapAlgorithm = KeyWrapAlgorithm.AES_ECB;
         } else {
-            this.skWrapAlgorithm = KeyWrapAlgorithm.RSA;
+            skWrapAlgorithm = KeyWrapAlgorithm.RSA;
         }
 
-        this.payloadEncryptionAlgorithm = encrypt;
-        this.payloadEncryptionIV = encryptIV;
-        this.payloadWrappingIV = wrapIV;
+        payloadEncryptionAlgorithm = encrypt;
+        payloadEncryptionIV = encryptIV;
+
+        if (payloadWrapAlgorithm == KeyWrapAlgorithm.AES_KEY_WRAP_PAD) {
+            // TODO(alee) Hack -- if we pass in null for the iv in the
+            // PKIArchiveOptions, we fail to decode correctly when parsing a
+            // CRMFPopClient request.
+
+            payloadWrappingIV = null;
+        } else {
+            payloadWrappingIV = wrapIV;
+        }
     }
 
     public SymmetricKey.Type getSkType() {
@@ -120,13 +129,13 @@ public class WrappingParams {
         // JSS mapping is not working.  Lets just do something brain-dead to
         // handle the cases we expect.
         if (algName.equalsIgnoreCase("AES")) {
-            this.skKeyGenAlgorithm = KeyGenAlgorithm.AES;
+            skKeyGenAlgorithm = KeyGenAlgorithm.AES;
         } else if (algName.equalsIgnoreCase("DES")) {
-            this.skKeyGenAlgorithm = KeyGenAlgorithm.DES;
+            skKeyGenAlgorithm = KeyGenAlgorithm.DES;
         } else if (algName.equalsIgnoreCase("DESede")) {
-            this.skKeyGenAlgorithm = KeyGenAlgorithm.DES3;
+            skKeyGenAlgorithm = KeyGenAlgorithm.DES3;
         } else if (algName.equalsIgnoreCase("DES3")) {
-            this.skKeyGenAlgorithm = KeyGenAlgorithm.DES3;
+            skKeyGenAlgorithm = KeyGenAlgorithm.DES3;
         }
     }
 
