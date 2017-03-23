@@ -124,12 +124,12 @@ public class PKCS12ImportCLI extends CLI {
 
             if (nicknames.length == 0) {
                 // store all certificates
-                util.storeIntoNSS(pkcs12, overwrite);
+                util.storeIntoNSS(pkcs12, password, overwrite);
 
             } else {
                 // load specified certificates
                 for (String nickname : nicknames) {
-                    util.storeCertIntoNSS(pkcs12, nickname, overwrite);
+                    util.storeCertIntoNSS(pkcs12, password, nickname, overwrite);
                 }
             }
 
