@@ -190,10 +190,11 @@ public class CLI {
     }
 
     public PKIClient getClient() throws Exception {
-        return client;
+        if (parent != null) return parent.getClient();
+        return null;
     }
 
-    public Object getClient(String name) {
+    public Object getClient(String name) throws Exception {
         if (parent != null) return parent.getClient(name);
         return null;
     }

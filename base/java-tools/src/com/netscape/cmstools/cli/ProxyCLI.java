@@ -91,7 +91,7 @@ public class ProxyCLI extends CLI {
         return module.getClient();
     }
 
-    public Object getClient(String name) {
+    public Object getClient(String name) throws Exception {
         return module.getClient(name);
     }
 
