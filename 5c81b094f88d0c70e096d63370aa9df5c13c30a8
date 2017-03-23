@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "e91064f3_03659dcf",
+        "filename": "base/kra/functional/src/com/netscape/cms/servlet/test/GeneratePKIArchiveOptions.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-03-23T19:57:09Z",
+      "side": 1,
+      "message": "Um .. yeah -- will fix.",
+      "parentUuid": "ab615789_212a0b86",
+      "revId": "5c81b094f88d0c70e096d63370aa9df5c13c30a8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c2441437_a94f4c58",
         "filename": "base/util/src/com/netscape/cmsutil/crypto/CryptoUtil.java",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2017-03-23T19:00:28Z",
       "side": 1,
       "message": "Shouldn\u0027t this be called \u0027encode\u0027 because it returns encoded data?",
+      "revId": "5c81b094f88d0c70e096d63370aa9df5c13c30a8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5ae95254_87f8dcd8",
+        "filename": "base/util/src/com/netscape/cmsutil/crypto/CryptoUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2114,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-03-23T19:57:09Z",
+      "side": 1,
+      "message": "will fix -- will also fix the methods above -- createDecoded... -\u003e createEncoded ...",
+      "parentUuid": "c2441437_a94f4c58",
       "revId": "5c81b094f88d0c70e096d63370aa9df5c13c30a8",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
