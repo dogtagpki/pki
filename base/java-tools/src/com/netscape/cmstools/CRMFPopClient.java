@@ -20,7 +20,9 @@ package com.netscape.cmstools;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -28,6 +30,7 @@ import java.net.URLEncoder;
 import java.security.KeyPair;
 import java.security.MessageDigest;
 import java.security.PublicKey;
+import java.util.Properties;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -279,6 +282,8 @@ public class CRMFPopClient {
             System.exit(0);
         }
 
+        Properties config = readProperties();
+
         boolean verbose = cmd.hasOption("v");
 
         String databaseDir = cmd.getOptionValue("d", ".");
@@ -434,7 +439,7 @@ public class CRMFPopClient {
             }
 
             if (verbose) System.out.println("Creating certificate request");
-            CertRequest certRequest = client.createCertRequest(token, transportCert, algorithm, keyPair, subject);
+            CertRequest certRequest = client.createCertRequest(token, transportCert, algorithm, keyPair, subject, config);
 
             ProofOfPossession pop = null;
 
@@ -499,6 +504,13 @@ public class CRMFPopClient {
         }
     }
 
+    private static Properties readProperties() throws IOException {
+        FileInputStream in = new FileInputStream("/etc/pki/pki.conf");
+        Properties props = new Properties();
+        props.load(in);
+        return props;
+    }
+
     public void setVerbose(boolean verbose) {
         this.verbose = verbose;
     }
@@ -543,28 +555,20 @@ public class CRMFPopClient {
             X509Certificate transportCert,
             String algorithm,
             KeyPair keyPair,
-            Name subject) throws Exception {
-
-        byte[] iv = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
-        IVParameterSpec ivps = new IVParameterSpec(iv);
-
-        AlgorithmIdentifier aid;
-        if (algorithm.equals("rsa")) {
-            aid = new AlgorithmIdentifier(new OBJECT_IDENTIFIER("1.2.840.113549.3.7"), new OCTET_STRING(iv));
-
-        } else if (algorithm.equals("ec")) {
-            aid = new AlgorithmIdentifier(new OBJECT_IDENTIFIER("1.2.840.10045.2.1"), new OCTET_STRING(iv));
-
+            Name subject,
+            Properties config) throws Exception {
+        EncryptionAlgorithm encryptAlg = null;
+        if (config.getProperty("WRAP_USING_DES3", "0").equals("1")) {
+            // talking to an old server
+            encryptAlg = EncryptionAlgorithm.DES3_CBC;
         } else {
-            throw new Exception("Unknown algorithm: " + algorithm);
+            encryptAlg = EncryptionAlgorithm.AES_128_CBC;
         }
 
-        WrappingParams params = new WrappingParams(
-                SymmetricKey.DES3, KeyGenAlgorithm.DES3, 168,
-                KeyWrapAlgorithm.RSA, EncryptionAlgorithm.DES3_CBC_PAD,
-                KeyWrapAlgorithm.DES3_CBC_PAD, ivps, ivps);
+        byte[] iv = CryptoUtil.getNonceData(encryptAlg.getIVLength());
+        AlgorithmIdentifier aid = getAlgorithmId(algorithm, encryptAlg, iv);
+        WrappingParams params = getWrappingParams(encryptAlg, iv);
 
-        // TODO(alee) check the cast on the third argument
         PKIArchiveOptions opts = CryptoUtil.createPKIArchiveOptions(
                 token,
                 transportCert.getPublicKey(),
@@ -581,6 +585,37 @@ public class CRMFPopClient {
         seq.addElement(new AVA(OBJECT_IDENTIFIER.id_cmc_idPOPLinkWitness, ostr));
 
         return new CertRequest(new INTEGER(1), certTemplate, seq);
+    }
+
+    private WrappingParams getWrappingParams(EncryptionAlgorithm encryptAlg, byte[] wrapIV) throws Exception {
+        if (encryptAlg.getAlg().toString().equalsIgnoreCase("AES")) {
+            return new WrappingParams(
+                SymmetricKey.AES, KeyGenAlgorithm.AES, 128,
+                KeyWrapAlgorithm.RSA, encryptAlg,
+                KeyWrapAlgorithm.AES_KEY_WRAP_PAD, null, null);
+        } else if (encryptAlg.getAlg().toString().equalsIgnoreCase("DESede")) {
+            return new WrappingParams(
+                    SymmetricKey.DES3, KeyGenAlgorithm.DES3, 168,
+                    KeyWrapAlgorithm.RSA, EncryptionAlgorithm.DES3_CBC_PAD,
+                    KeyWrapAlgorithm.DES3_CBC_PAD,
+                    new IVParameterSpec(wrapIV), new IVParameterSpec(wrapIV));
+        } else {
+            throw new Exception("Invalid encryption algorithm");
+        }
+    }
+
+    private AlgorithmIdentifier getAlgorithmId(String algorithm, EncryptionAlgorithm encryptAlg, byte[] iv)
+            throws Exception {
+        AlgorithmIdentifier aid;
+        if (algorithm.equals("rsa")) {
+            aid = new AlgorithmIdentifier(encryptAlg.toOID(), new OCTET_STRING(iv));
+        } else if (algorithm.equals("ec")) {
+            // TODO(alee) figure out what this should be for ECC
+            aid = new AlgorithmIdentifier(new OBJECT_IDENTIFIER("1.2.840.10045.2.1"), new OCTET_STRING(iv));
+        } else {
+            throw new Exception("Unknown algorithm: " + algorithm);
+        }
+        return aid;
     }
 
     public OCTET_STRING createIDPOPLinkWitness() throws Exception {

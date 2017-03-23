@@ -21,9 +21,11 @@ package com.netscape.cmstools.client;
 import java.io.ByteArrayOutputStream;
 import java.io.Console;
 import java.io.File;
+import java.io.FileInputStream;
 import java.security.KeyPair;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Vector;
 
 import org.apache.commons.cli.CommandLine;
@@ -406,7 +408,11 @@ public class ClientCertRequestCLI extends CLI {
             throw new Exception("Unknown algorithm: " + algorithm);
         }
 
-        CertRequest certRequest = client.createCertRequest(token, transportCert, algorithm, keyPair, subject);
+        FileInputStream in = new FileInputStream("/etc/pki/pki.conf");
+        Properties props = new Properties();
+        props.load(in);
+
+        CertRequest certRequest = client.createCertRequest(token, transportCert, algorithm, keyPair, subject, props);
 
         ProofOfPossession pop = null;
         if (withPop) {
