@@ -24,6 +24,7 @@ import java.util.Collection;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
+import com.netscape.certsrv.cert.CertClient;
 import com.netscape.certsrv.cert.CertRequestInfo;
 import com.netscape.certsrv.cert.CertRequestInfos;
 import com.netscape.certsrv.request.RequestId;
@@ -113,7 +114,8 @@ public class CertRequestFindCLI extends CLI {
         String requestType = cmd.getOptionValue("type");
         if (requestType != null && requestType.equals("all")) requestType = null;
 
-        CertRequestInfos response = certCLI.certClient.listRequests(requestState, requestType, start, size, maxResults, maxTime);
+        CertClient certClient = certCLI.getCertClient();
+        CertRequestInfos response = certClient.listRequests(requestState, requestType, start, size, maxResults, maxTime);
 
         MainCLI.printMessage(response.getTotal() + " entries matched");
         if (response.getTotal() == 0) return;

@@ -25,6 +25,7 @@ import java.util.Arrays;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
+import com.netscape.certsrv.cert.CertClient;
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.cert.CertRequestInfo;
 import com.netscape.certsrv.cert.CertRevokeRequest;
@@ -102,7 +103,8 @@ public class CertRevokeCLI extends CLI {
             throw new Exception("Invalid revocation reason: " + string);
         }
 
-        CertData certData = certCLI.certClient.reviewCert(certID);
+        CertClient certClient = certCLI.getCertClient();
+        CertData certData = certClient.reviewCert(certID);
 
         if (!cmd.hasOption("force")) {
 
@@ -135,9 +137,9 @@ public class CertRevokeCLI extends CLI {
         CertRequestInfo certRequestInfo;
 
         if (cmd.hasOption("ca")) {
-            certRequestInfo = certCLI.certClient.revokeCACert(certID, request);
+            certRequestInfo = certClient.revokeCACert(certID, request);
         } else {
-            certRequestInfo = certCLI.certClient.revokeCert(certID, request);
+            certRequestInfo = certClient.revokeCert(certID, request);
         }
 
         if (verbose) {
@@ -160,7 +162,7 @@ public class CertRevokeCLI extends CLI {
                     MainCLI.printMessage("Revoked certificate \"" + certID.toHexString() + "\"");
                 }
 
-                certData = certCLI.certClient.getCert(certID);
+                certData = certClient.getCert(certID);
                 CertCLI.printCertData(certData, false, false);
             }
         } else {

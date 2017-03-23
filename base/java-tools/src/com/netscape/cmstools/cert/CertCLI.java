@@ -29,6 +29,7 @@ import com.netscape.certsrv.cert.CertDataInfo;
 import com.netscape.certsrv.cert.CertRequestInfo;
 import com.netscape.certsrv.cert.CertRequestInfos;
 import com.netscape.certsrv.cert.CertReviewResponse;
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -73,22 +74,20 @@ public class CertCLI extends CLI {
         return "pki-cert";
     }
 
-    public void execute(String[] args) throws Exception {
+    public CertClient getCertClient() throws Exception {
 
-        client = parent.getClient();
-        certClient = (CertClient)parent.getClient("cert");
+        if (certClient != null) return certClient;
 
-        // if this is a top-level command
-        if (certClient == null) {
-            // determine the subsystem
-            String subsystem = client.getSubsystem();
-            if (subsystem == null) subsystem = "ca";
+        PKIClient client = getClient();
 
-            // create new cert client
-            certClient = new CertClient(client, subsystem);
-        }
+        // determine the subsystem
+        String subsystem = client.getSubsystem();
+        if (subsystem == null) subsystem = "ca";
 
-        super.execute(args);
+        // create new cert client
+        certClient = new CertClient(client, subsystem);
+
+        return certClient;
     }
 
     public static String getAlgorithmNameFromOID(String oid) {

@@ -15,6 +15,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.lang.StringUtils;
 
+import com.netscape.certsrv.cert.CertClient;
 import com.netscape.certsrv.cert.CertRequestInfo;
 import com.netscape.certsrv.cert.CertReviewResponse;
 import com.netscape.certsrv.request.RequestId;
@@ -98,7 +99,8 @@ public class CertRequestReviewCLI extends CLI {
         }
 
         // Retrieve certificate request.
-        CertReviewResponse reviewInfo = certCLI.certClient.reviewRequest(requestId);
+        CertClient certClient = certCLI.getCertClient();
+        CertReviewResponse reviewInfo = certClient.reviewRequest(requestId);
 
         if (action == null) {
             // Store certificate request in a file.
@@ -133,38 +135,38 @@ public class CertRequestReviewCLI extends CLI {
         }
 
         if (action.equalsIgnoreCase("approve")) {
-            certCLI.certClient.approveRequest(reviewInfo.getRequestId(), reviewInfo);
+            certClient.approveRequest(reviewInfo.getRequestId(), reviewInfo);
             MainCLI.printMessage("Approved certificate request " + requestId);
 
         } else if (action.equalsIgnoreCase("reject")) {
-            certCLI.certClient.rejectRequest(reviewInfo.getRequestId(), reviewInfo);
+            certClient.rejectRequest(reviewInfo.getRequestId(), reviewInfo);
             MainCLI.printMessage("Rejected certificate request " + requestId);
 
         } else if (action.equalsIgnoreCase("cancel")) {
-            certCLI.certClient.cancelRequest(reviewInfo.getRequestId(), reviewInfo);
+            certClient.cancelRequest(reviewInfo.getRequestId(), reviewInfo);
             MainCLI.printMessage("Canceled certificate request " + requestId);
 
         } else if (action.equalsIgnoreCase("update")) {
-            certCLI.certClient.updateRequest(reviewInfo.getRequestId(), reviewInfo);
+            certClient.updateRequest(reviewInfo.getRequestId(), reviewInfo);
             MainCLI.printMessage("Updated certificate request " + requestId);
 
         } else if (action.equalsIgnoreCase("validate")) {
-            certCLI.certClient.validateRequest(reviewInfo.getRequestId(), reviewInfo);
+            certClient.validateRequest(reviewInfo.getRequestId(), reviewInfo);
             MainCLI.printMessage("Validated certificate request " + requestId);
 
         } else if (action.equalsIgnoreCase("assign")) {
-            certCLI.certClient.assignRequest(reviewInfo.getRequestId(), reviewInfo);
+            certClient.assignRequest(reviewInfo.getRequestId(), reviewInfo);
             MainCLI.printMessage("Assigned certificate request " + requestId);
 
         } else if (action.equalsIgnoreCase("unassign")) {
-            certCLI.certClient.unassignRequest(reviewInfo.getRequestId(), reviewInfo);
+            certClient.unassignRequest(reviewInfo.getRequestId(), reviewInfo);
             MainCLI.printMessage("Unassigned certificate request " + requestId);
 
         } else {
             throw new Exception("Invalid action: " + action);
         }
 
-        CertRequestInfo certRequest = certCLI.certClient.getRequest(requestId);
+        CertRequestInfo certRequest = certClient.getRequest(requestId);
         CertCLI.printCertRequestInfo(certRequest);
     }
 }
