@@ -38,6 +38,5 @@ public class PKCS12KeyCLI extends CLI {
 
         System.out.println("  Key ID: " + keyInfo.getID().toString(16));
         System.out.println("  Subject DN: " + keyInfo.getSubjectDN());
-        System.out.println("  Algorithm: " + keyInfo.getPrivateKeyInfo().getAlgorithm());
     }
 }

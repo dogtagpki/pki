@@ -33,27 +33,19 @@ import java.util.Collection;
 import org.apache.commons.lang.StringUtils;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.ANY;
-import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.ASN1Value;
 import org.mozilla.jss.asn1.BMPString;
 import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
 import org.mozilla.jss.asn1.OCTET_STRING;
 import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.asn1.SET;
-import org.mozilla.jss.crypto.Cipher;
 import org.mozilla.jss.crypto.CryptoStore;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.EncryptionAlgorithm;
-import org.mozilla.jss.crypto.IVParameterSpec;
 import org.mozilla.jss.crypto.InternalCertificate;
-import org.mozilla.jss.crypto.KeyGenAlgorithm;
-import org.mozilla.jss.crypto.KeyWrapAlgorithm;
-import org.mozilla.jss.crypto.KeyWrapper;
 import org.mozilla.jss.crypto.NoSuchItemOnTokenException;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
-import org.mozilla.jss.crypto.PBEAlgorithm;
 import org.mozilla.jss.crypto.PrivateKey;
-import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.pkcs12.AuthenticatedSafes;
 import org.mozilla.jss.pkcs12.CertBag;
@@ -61,13 +53,9 @@ import org.mozilla.jss.pkcs12.PFX;
 import org.mozilla.jss.pkcs12.PasswordConverter;
 import org.mozilla.jss.pkcs12.SafeBag;
 import org.mozilla.jss.pkix.primitive.Attribute;
-import org.mozilla.jss.pkix.primitive.EncryptedPrivateKeyInfo;
-import org.mozilla.jss.pkix.primitive.PrivateKeyInfo;
 import org.mozilla.jss.util.Password;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.netscape.cmsutil.crypto.CryptoUtil;
 
 import netscape.ldap.LDAPDN;
 import netscape.ldap.util.DN;
@@ -114,41 +102,30 @@ public class PKCS12Util {
         icert.setObjectSigningTrust(PKCS12.decodeFlags(flags[2]));
     }
 
-    byte[] getEncodedKey(PrivateKey privateKey) throws Exception {
-        CryptoManager cm = CryptoManager.getInstance();
-        CryptoToken token = cm.getInternalKeyStorageToken();
-
-        byte[] iv = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
-        IVParameterSpec param = new IVParameterSpec(iv);
-
-        SymmetricKey sk = CryptoUtil.generateKey(token, KeyGenAlgorithm.DES3, 0, null, true);
-        byte[] enckey = CryptoUtil.wrapUsingSymmetricKey(
-                token,
-                sk,
-                privateKey,
-                param,
-                KeyWrapAlgorithm.DES3_CBC_PAD);
-
-        Cipher c = token.getCipherContext(EncryptionAlgorithm.DES3_CBC_PAD);
-        c.initDecrypt(sk, param);
-        return c.doFinal(enckey);
-    }
-
     public void addKeyBag(PKCS12KeyInfo keyInfo, Password password,
             SEQUENCE encSafeContents) throws Exception {
+        PrivateKey k = keyInfo.getPrivateKey();
+        if (k == null) {
+            logger.debug("NO PRIVATE KEY for " + keyInfo.subjectDN);
+            return;
+        }
 
         logger.debug("Creating key bag for " + keyInfo.subjectDN);
 
         PasswordConverter passConverter = new PasswordConverter();
-        byte salt[] = { 0x01, 0x01, 0x01, 0x01 };
-
-        EncryptedPrivateKeyInfo encPrivateKeyInfo = EncryptedPrivateKeyInfo.createPBE(
-                PBEAlgorithm.PBE_SHA1_DES3_CBC,
-                password, salt, 1, passConverter, keyInfo.privateKeyInfo);
+        byte[] epkiBytes = CryptoManager.getInstance()
+            .getInternalKeyStorageToken()
+            .getCryptoStore()
+            .getEncryptedPrivateKeyInfo(
+                /* NSS has a bug that causes any AES CBC encryption
+                 * to use AES-256, but AlgorithmID contains chosen
+                 * alg.  To avoid mismatch, use AES_256_CBC. */
+                passConverter, password, EncryptionAlgorithm.AES_256_CBC, 0, k);
 
         SET keyAttrs = createKeyBagAttrs(keyInfo);
 
-        SafeBag safeBag = new SafeBag(SafeBag.PKCS8_SHROUDED_KEY_BAG, encPrivateKeyInfo, keyAttrs);
+        SafeBag safeBag = new SafeBag(
+            SafeBag.PKCS8_SHROUDED_KEY_BAG, new ANY(epkiBytes), keyAttrs);
         encSafeContents.addElement(safeBag);
     }
 
@@ -318,13 +295,9 @@ public class PKCS12Util {
             PrivateKey privateKey = cm.findPrivKeyByCert(cert);
             logger.debug("Certificate \"" + nickname + "\" has private key");
 
-            PKCS12KeyInfo keyInfo = new PKCS12KeyInfo();
+            PKCS12KeyInfo keyInfo = new PKCS12KeyInfo(privateKey);
             keyInfo.id = id;
             keyInfo.subjectDN = cert.getSubjectDN().toString();
-
-            byte[] privateData = getEncodedKey(privateKey);
-            keyInfo.privateKeyInfo = (PrivateKeyInfo)
-                    ASN1Util.decode(PrivateKeyInfo.getTemplate(), privateData);
 
             pkcs12.addKeyInfo(keyInfo);
 
@@ -375,11 +348,7 @@ public class PKCS12Util {
 
     public PKCS12KeyInfo getKeyInfo(SafeBag bag, Password password) throws Exception {
 
-        PKCS12KeyInfo keyInfo = new PKCS12KeyInfo();
-
-        // get private key info
-        EncryptedPrivateKeyInfo encPrivateKeyInfo = (EncryptedPrivateKeyInfo) bag.getInterpretedBagContent();
-        keyInfo.privateKeyInfo = encPrivateKeyInfo.decrypt(password, new PasswordConverter());
+        PKCS12KeyInfo keyInfo = new PKCS12KeyInfo(bag.getBagContent().getEncoded());
 
         // get key attributes
         SET bagAttrs = bag.getBagAttributes();
@@ -491,7 +460,7 @@ public class PKCS12Util {
 
     public void getKeyInfos(PKCS12 pkcs12, PFX pfx, Password password) throws Exception {
 
-        logger.debug("Load private keys:");
+        logger.debug("Load encrypted private keys:");
 
         AuthenticatedSafes safes = pfx.getAuthSafes();
 
@@ -590,19 +559,11 @@ public class PKCS12Util {
 
     public void importKey(
             PKCS12 pkcs12,
+            Password password,
+            String nickname,
             PKCS12KeyInfo keyInfo) throws Exception {
 
         logger.debug("Importing private key " + keyInfo.subjectDN);
-
-        byte iv[] = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
-        IVParameterSpec param = new IVParameterSpec(iv);
-
-        PrivateKeyInfo privateKeyInfo = keyInfo.privateKeyInfo;
-
-        // encode private key
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        privateKeyInfo.encode(bos);
-        byte[] privateKey = bos.toByteArray();
 
         PKCS12CertInfo certInfo = pkcs12.getCertInfoByID(keyInfo.getID());
         if (certInfo == null) {
@@ -619,26 +580,29 @@ public class PKCS12Util {
         // get public key
         PublicKey publicKey = cert.getPublicKey();
 
-        // delete the cert again
+        byte[] epkiBytes = keyInfo.getEncryptedPrivateKeyInfoBytes();
+        if (epkiBytes == null) {
+            logger.debug(
+                "No EncryptedPrivateKeyInfo for key '"
+                + keyInfo.subjectDN + "'; skipping key");
+        }
+        store.importEncryptedPrivateKeyInfo(
+            new PasswordConverter(), password, nickname, publicKey, epkiBytes);
+
+        // delete the cert again (it will be imported again later
+        // with the correct nickname)
         try {
             store.deleteCert(cert);
         } catch (NoSuchItemOnTokenException e) {
             // this is OK
         }
-
-        // encrypt private key
-        SymmetricKey sk = CryptoUtil.generateKey(token, KeyGenAlgorithm.DES3, 0, null, true);
-        byte[] encpkey = CryptoUtil.encryptUsingSymmetricKey(
-                token, sk, privateKey, EncryptionAlgorithm.DES3_CBC_PAD, param);
-
-        // unwrap private key to load into database
-        KeyWrapper wrapper = token.getKeyWrapper(KeyWrapAlgorithm.DES3_CBC_PAD);
-        wrapper.initUnwrap(sk, param);
-        wrapper.unwrapPrivate(encpkey, getPrivateKeyType(publicKey), publicKey);
     }
 
-    public void storeCertIntoNSS(PKCS12 pkcs12, PKCS12CertInfo certInfo, boolean overwrite) throws Exception {
-
+    public void storeCertIntoNSS(
+            PKCS12 pkcs12, Password password,
+            PKCS12CertInfo certInfo, boolean overwrite)
+        throws Exception
+    {
         CryptoManager cm = CryptoManager.getInstance();
         CryptoToken ct = cm.getInternalKeyStorageToken();
         CryptoStore store = ct.getCryptoStore();
@@ -656,7 +620,7 @@ public class PKCS12Util {
         X509Certificate cert;
         if (keyInfo != null) { // cert has key
             logger.debug("Importing user key for " + certInfo.nickname);
-            importKey(pkcs12, keyInfo);
+            importKey(pkcs12, password, certInfo.nickname, keyInfo);
 
             logger.debug("Importing user certificate " + certInfo.nickname);
             cert = cm.importUserCACertPackage(certInfo.cert.getEncoded(), certInfo.nickname);
@@ -671,19 +635,21 @@ public class PKCS12Util {
             setTrustFlags(cert, certInfo.trustFlags);
     }
 
-    public void storeCertIntoNSS(PKCS12 pkcs12, String nickname, boolean overwrite) throws Exception {
+    public void storeCertIntoNSS(PKCS12 pkcs12, Password password, String nickname, boolean overwrite) throws Exception {
         Collection<PKCS12CertInfo> certInfos = pkcs12.getCertInfosByNickname(nickname);
         for (PKCS12CertInfo certInfo : certInfos) {
-            storeCertIntoNSS(pkcs12, certInfo, overwrite);
+            storeCertIntoNSS(pkcs12, password, certInfo, overwrite);
         }
     }
 
-    public void storeIntoNSS(PKCS12 pkcs12, boolean overwrite) throws Exception {
-
+    public void storeIntoNSS(
+            PKCS12 pkcs12, Password password, boolean overwrite)
+        throws Exception
+    {
         logger.info("Storing data into NSS database");
 
         for (PKCS12CertInfo certInfo : pkcs12.getCertInfos()) {
-            storeCertIntoNSS(pkcs12, certInfo, overwrite);
+            storeCertIntoNSS(pkcs12, password, certInfo, overwrite);
         }
     }
 }
