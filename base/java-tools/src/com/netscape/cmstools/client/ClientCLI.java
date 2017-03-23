@@ -56,13 +56,6 @@ public class ClientCLI extends CLI {
         return "pki-client";
     }
 
-    public void execute(String[] args) throws Exception {
-
-        client = parent.getClient();
-
-        super.execute(args);
-    }
-
     public static void printCertInfo(X509Certificate cert) {
         System.out.println("  Serial Number: "+new CertId(cert.getSerialNumber()).toHexString());
         System.out.println("  Nickname: "+cert.getNickname());

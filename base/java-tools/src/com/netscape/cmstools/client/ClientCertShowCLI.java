@@ -29,6 +29,7 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.mozilla.jss.crypto.X509Certificate;
 
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -126,7 +127,7 @@ public class ClientCertShowCLI extends CLI {
 
             mainCLI.init();
 
-            client = mainCLI.getClient();
+            PKIClient client = getClient();
             X509Certificate cert = client.getCert(nickname);
 
             ClientCLI.printCertInfo(cert);
