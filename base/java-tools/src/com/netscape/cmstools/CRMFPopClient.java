@@ -54,7 +54,6 @@ import org.mozilla.jss.asn1.UTF8String;
 import org.mozilla.jss.asn1.UniversalString;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.EncryptionAlgorithm;
-import org.mozilla.jss.crypto.IVParameterSpec;
 import org.mozilla.jss.crypto.KeyGenAlgorithm;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
 import org.mozilla.jss.crypto.PrivateKey;
@@ -544,27 +543,24 @@ public class CRMFPopClient {
             String algorithm,
             KeyPair keyPair,
             Name subject) throws Exception {
-
-        byte[] iv = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
-        IVParameterSpec ivps = new IVParameterSpec(iv);
+        EncryptionAlgorithm encryptAlg = EncryptionAlgorithm.AES_128_CBC_PAD;
+        byte[] iv = CryptoUtil.getNonceData(encryptAlg.getIVLength());
 
         AlgorithmIdentifier aid;
         if (algorithm.equals("rsa")) {
-            aid = new AlgorithmIdentifier(new OBJECT_IDENTIFIER("1.2.840.113549.3.7"), new OCTET_STRING(iv));
-
+            aid = new AlgorithmIdentifier(EncryptionAlgorithm.AES_128_CBC.toOID(), new OCTET_STRING(iv));
         } else if (algorithm.equals("ec")) {
+            // TODO(alee) figure out what this should be for ECC
             aid = new AlgorithmIdentifier(new OBJECT_IDENTIFIER("1.2.840.10045.2.1"), new OCTET_STRING(iv));
-
         } else {
             throw new Exception("Unknown algorithm: " + algorithm);
         }
 
         WrappingParams params = new WrappingParams(
-                SymmetricKey.DES3, KeyGenAlgorithm.DES3, 168,
-                KeyWrapAlgorithm.RSA, EncryptionAlgorithm.DES3_CBC_PAD,
-                KeyWrapAlgorithm.DES3_CBC_PAD, ivps, ivps);
+                SymmetricKey.AES, KeyGenAlgorithm.AES, 128,
+                KeyWrapAlgorithm.RSA, encryptAlg,
+                KeyWrapAlgorithm.AES_KEY_WRAP_PAD, null, null);
 
-        // TODO(alee) check the cast on the third argument
         PKIArchiveOptions opts = CryptoUtil.createPKIArchiveOptions(
                 token,
                 transportCert.getPublicKey(),
