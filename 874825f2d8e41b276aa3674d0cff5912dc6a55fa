@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e48a1baa_e05253d0",
+        "filename": "base/java-tools/src/com/netscape/cmstools/CRMFPopClient.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 550,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-03-24T20:50:29Z",
+      "side": 1,
+      "message": "Redundant parentheses.",
+      "revId": "874825f2d8e41b276aa3674d0cff5912dc6a55fa",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
