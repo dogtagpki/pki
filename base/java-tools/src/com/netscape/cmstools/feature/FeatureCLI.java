@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmstools.feature;
 
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.system.Feature;
 import com.netscape.certsrv.system.FeatureClient;
 import com.netscape.cmstools.cli.CLI;
@@ -42,10 +43,14 @@ public class FeatureCLI extends CLI {
         }
     }
 
-    public void execute(String[] args) throws Exception {
-        client = parent.getClient();
+    public FeatureClient getFeatureClient() throws Exception {
+
+        if (featureClient != null) return featureClient;
+
+        PKIClient client = getClient();
         featureClient = new FeatureClient(client, "ca");
-        super.execute(args);
+
+        return featureClient;
     }
 
     protected static void printFeature(Feature data) {

@@ -23,6 +23,7 @@ import java.util.List;
 import org.apache.commons.cli.CommandLine;
 
 import com.netscape.certsrv.system.Feature;
+import com.netscape.certsrv.system.FeatureClient;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -49,7 +50,8 @@ public class FeatureFindCLI extends CLI {
         @SuppressWarnings("unused")
         CommandLine cmd = parser.parse(options, args);
 
-        List<Feature> features = featureCLI.featureClient.listFeatures();
+        FeatureClient featureClient = featureCLI.getFeatureClient();
+        List<Feature> features = featureClient.listFeatures();
 
         MainCLI.printMessage(features.size() + " entries matched");
         if (features.size() == 0) return;
