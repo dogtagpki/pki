@@ -106,39 +106,42 @@ public interface IStorageKeyUnit extends IEncryptionUnit {
      * internal storage).
      *
      * @param rawPrivate user's private key (key to be archived)
+     * @param params wrapping parameters
      * @return encrypted data
      * @exception EBaseException failed to encrypt
      */
-    public byte[] encryptInternalPrivate(byte rawPrivate[]) throws Exception;
+    public byte[] encryptInternalPrivate(byte rawPrivate[], WrappingParams params) throws Exception;
 
     /**
      * Wraps data. The given key will be wrapped by the
      * private key in this unit.
      *
      * @param priKey private key to be wrapped
+     * @param params wrapping parameters
      * @param WrappingParams - wrapping parameters
      * @return wrapped data
      * @exception EBaseException failed to wrap
      */
-    public byte[] wrap(PrivateKey priKey) throws Exception;
+    public byte[] wrap(PrivateKey priKey, WrappingParams params) throws Exception;
 
     /**
      * Wraps data. The given key will be wrapped by the
      * private key in this unit.
      *
      * @param symKey symmetric key to be wrapped
+     * @param params wrapping parameters
      * @param wrappingParams - wrapping parameters
      * @return wrapped data
      * @exception EBaseException failed to wrap
      */
-    public byte[] wrap(SymmetricKey symKey) throws Exception;
+    public byte[] wrap(SymmetricKey symKey, WrappingParams params) throws Exception;
 
     /**
      * Decrypts the internal private key (private key from the KRA's
      * internal storage).
      *
      * @param wrappedPrivateData unwrapped private key data (key to be recovered)
-     * @param params - wrapping params
+     * @param params - wrapping parameters
      * @return raw private key
      * @throws Exception
      */
