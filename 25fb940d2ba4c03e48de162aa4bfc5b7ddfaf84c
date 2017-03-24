@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d04ee55c_6d7d3b74",
+        "filename": "base/common/share/etc/pki.conf",
+        "patchSetId": 3
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-03-24T19:20:46Z",
+      "side": 1,
+      "message": "I think we should make it future proof with a more generic parameter name, something like:\n\nKEY_WRAP_PARAMETER_SET\u003d1\nexport KEY_WRAP_PARAMETER_SET\n\nThe supported values can be described in the comments above it, for example:\n\n# Supported values:\n# 0: Algorithm: DES3_CBC\n#    ... \u003cother params\u003e ...\n# 1: Algorithm: AES_128_CBC\n#    ... \u003cother params\u003e ...",
+      "revId": "25fb940d2ba4c03e48de162aa4bfc5b7ddfaf84c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
