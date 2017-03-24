@@ -30,6 +30,7 @@ import com.netscape.certsrv.cert.CertClient;
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.user.UserCertData;
+import com.netscape.certsrv.user.UserClient;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -117,7 +118,8 @@ public class UserCertAddCLI extends CLI {
             System.out.println(userCertData);
         }
 
-        userCertData = userCertCLI.userClient.addUserCert(userID, userCertData);
+        UserClient userClient = userCertCLI.getUserClient();
+        userCertData = userClient.addUserCert(userID, userCertData);
 
         MainCLI.printMessage("Added certificate \"" + userCertData.getID() + "\"");
 

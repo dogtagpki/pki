@@ -24,6 +24,7 @@ import java.util.Collection;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
+import com.netscape.certsrv.user.UserClient;
 import com.netscape.certsrv.user.UserCollection;
 import com.netscape.certsrv.user.UserData;
 import com.netscape.cmstools.cli.CLI;
@@ -75,7 +76,8 @@ public class UserFindCLI extends CLI {
         s = cmd.getOptionValue("size");
         Integer size = s == null ? null : Integer.valueOf(s);
 
-        UserCollection response = userCLI.userClient.findUsers(filter, start, size);
+        UserClient userClient = userCLI.getUserClient();
+        UserCollection response = userClient.findUsers(filter, start, size);
 
         MainCLI.printMessage(response.getTotal() + " entries matched");
         if (response.getTotal() == 0) return;

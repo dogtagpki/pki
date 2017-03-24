@@ -27,6 +27,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
 import com.netscape.certsrv.user.UserCertData;
+import com.netscape.certsrv.user.UserClient;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -79,7 +80,8 @@ public class UserCertShowCLI extends CLI {
         String certID = cmdArgs[1];
         String file = cmd.getOptionValue("output");
 
-        UserCertData userCertData = userCertCLI.userClient.getUserCert(userID, URLEncoder.encode(certID, "UTF-8"));
+        UserClient userClient = userCertCLI.getUserClient();
+        UserCertData userCertData = userClient.getUserCert(userID, URLEncoder.encode(certID, "UTF-8"));
 
         String encoded = userCertData.getEncoded();
         if (encoded != null && file != null) {

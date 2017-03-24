@@ -23,6 +23,7 @@ import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
 
+import com.netscape.certsrv.user.UserClient;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -65,7 +66,8 @@ public class UserCertRemoveCLI extends CLI {
             System.out.println("Removing cert "+certID+" from user "+userID+".");
         }
 
-        userCertCLI.userClient.removeUserCert(userID, URLEncoder.encode(certID, "UTF-8"));
+        UserClient userClient = userCertCLI.getUserClient();
+        userClient.removeUserCert(userID, URLEncoder.encode(certID, "UTF-8"));
 
         MainCLI.printMessage("Deleted certificate \"" + certID + "\"");
     }

@@ -22,6 +22,7 @@ import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
 
+import com.netscape.certsrv.user.UserClient;
 import com.netscape.certsrv.user.UserMembershipData;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
@@ -60,7 +61,8 @@ public class UserMembershipAddCLI extends CLI {
         String userID = args[0];
         String groupID = args[1];
 
-        UserMembershipData userMembershipData = userMembershipCLI.userClient.addUserMembership(userID, groupID);
+        UserClient userClient = userMembershipCLI.getUserClient();
+        UserMembershipData userMembershipData = userClient.addUserMembership(userID, groupID);
 
         MainCLI.printMessage("Added membership in \""+groupID+"\"");
 

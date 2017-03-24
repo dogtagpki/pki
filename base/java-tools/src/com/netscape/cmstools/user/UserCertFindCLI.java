@@ -26,6 +26,7 @@ import org.apache.commons.cli.Option;
 
 import com.netscape.certsrv.user.UserCertCollection;
 import com.netscape.certsrv.user.UserCertData;
+import com.netscape.certsrv.user.UserClient;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -80,7 +81,8 @@ public class UserCertFindCLI extends CLI {
         s = cmd.getOptionValue("size");
         Integer size = s == null ? null : Integer.valueOf(s);
 
-        UserCertCollection response = userCertCLI.userClient.findUserCerts(userID, start, size);
+        UserClient userClient = userCertCLI.getUserClient();
+        UserCertCollection response = userClient.findUserCerts(userID, start, size);
 
         MainCLI.printMessage(response.getTotal() + " entries matched");
         if (response.getTotal() == 0) return;

@@ -21,6 +21,7 @@ package com.netscape.cmstools.user;
 import org.apache.commons.lang.StringUtils;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.user.UserClient;
 import com.netscape.certsrv.user.UserData;
 import com.netscape.certsrv.user.UserResource;
@@ -62,22 +63,20 @@ public class UserCLI extends CLI {
         return "pki-user";
     }
 
-    public void execute(String[] args) throws Exception {
+    public UserClient getUserClient() throws Exception {
 
-        client = parent.getClient();
-        userClient = (UserClient)parent.getClient("user");
+        if (userClient != null) return userClient;
 
-        // if this is a top-level command
-        if (userClient == null) {
-            // determine the subsystem
-            String subsystem = client.getSubsystem();
-            if (subsystem == null) subsystem = "ca";
+        PKIClient client = getClient();
 
-            // create new user client
-            userClient = new UserClient(client, subsystem);
-        }
+        // determine the subsystem
+        String subsystem = client.getSubsystem();
+        if (subsystem == null) subsystem = "ca";
 
-        super.execute(args);
+        // create new user client
+        userClient = new UserClient(client, subsystem);
+
+        return userClient;
     }
 
     public static void printUser(UserData userData) {
