@@ -24,6 +24,7 @@ import java.util.Collection;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
+import com.netscape.certsrv.tps.cert.TPSCertClient;
 import com.netscape.certsrv.tps.cert.TPSCertCollection;
 import com.netscape.certsrv.tps.cert.TPSCertData;
 import com.netscape.cmstools.cli.CLI;
@@ -91,7 +92,8 @@ public class TPSCertFindCLI extends CLI {
             throw new Exception("Invalid value for --size parameter: " + string4, e);
         }
 
-        TPSCertCollection result = certCLI.certClient.findCerts(filter, tokenID, start, size);
+        TPSCertClient certClient = certCLI.getTPSCertClient();
+        TPSCertCollection result = certClient.findCerts(filter, tokenID, start, size);
 
         MainCLI.printMessage(result.getTotal() + " entries matched");
         if (result.getTotal() == 0) return;

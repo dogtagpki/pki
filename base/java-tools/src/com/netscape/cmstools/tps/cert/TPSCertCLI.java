@@ -20,6 +20,7 @@ package com.netscape.cmstools.tps.cert;
 
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.tps.cert.TPSCertClient;
 import com.netscape.certsrv.tps.cert.TPSCertData;
 import com.netscape.cmstools.cli.CLI;
@@ -38,12 +39,14 @@ public class TPSCertCLI extends CLI {
         addModule(new TPSCertShowCLI(this));
     }
 
-    public void execute(String[] args) throws Exception {
+    public TPSCertClient getTPSCertClient() throws Exception {
 
-        client = parent.getClient();
+        if (certClient != null) return certClient;
+
+        PKIClient client = getClient();
         certClient = (TPSCertClient)parent.getClient("cert");
 
-        super.execute(args);
+        return certClient;
     }
 
     public static void printCert(TPSCertData cert) {

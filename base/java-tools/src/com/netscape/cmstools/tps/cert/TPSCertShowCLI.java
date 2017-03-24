@@ -22,6 +22,7 @@ import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
 
+import com.netscape.certsrv.tps.cert.TPSCertClient;
 import com.netscape.certsrv.tps.cert.TPSCertData;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
@@ -59,7 +60,8 @@ public class TPSCertShowCLI extends CLI {
 
         String certID = cmdArgs[0];
 
-        TPSCertData certData = certCLI.certClient.getCert(certID);
+        TPSCertClient certClient = certCLI.getTPSCertClient();
+        TPSCertData certData = certClient.getCert(certID);
 
         MainCLI.printMessage("Certificate \"" + certID + "\"");
 
