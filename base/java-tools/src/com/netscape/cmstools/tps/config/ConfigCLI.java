@@ -23,6 +23,7 @@ import java.util.Map;
 
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.tps.config.ConfigClient;
 import com.netscape.certsrv.tps.config.ConfigData;
 import com.netscape.cmstools.cli.CLI;
@@ -41,12 +42,14 @@ public class ConfigCLI extends CLI {
         addModule(new ConfigShowCLI(this));
     }
 
-    public void execute(String[] args) throws Exception {
+    public ConfigClient getConfigClient() throws Exception {
 
-        client = parent.getClient();
+        if (configClient != null) return configClient;
+
+        PKIClient client = getClient();
         configClient = (ConfigClient)parent.getClient("config");
 
-        super.execute(args);
+        return configClient;
     }
 
     public static void printConfigData(ConfigData configData) throws IOException {

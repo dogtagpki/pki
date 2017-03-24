@@ -28,6 +28,7 @@ import java.util.Arrays;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
+import com.netscape.certsrv.tps.config.ConfigClient;
 import com.netscape.certsrv.tps.config.ConfigData;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
@@ -93,7 +94,8 @@ public class ConfigModifyCLI extends CLI {
             configData = ConfigData.valueOf(sw.toString());
         }
 
-        configData = configCLI.configClient.updateConfig(configData);
+        ConfigClient configClient = configCLI.getConfigClient();
+        configData = configClient.updateConfig(configData);
 
         MainCLI.printMessage("Updated configuration");
 

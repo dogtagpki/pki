@@ -25,6 +25,7 @@ import java.util.Arrays;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
+import com.netscape.certsrv.tps.config.ConfigClient;
 import com.netscape.certsrv.tps.config.ConfigData;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
@@ -70,7 +71,8 @@ public class ConfigShowCLI extends CLI {
 
         String output = cmd.getOptionValue("output");
 
-        ConfigData configData = configCLI.configClient.getConfig();
+        ConfigClient configClient = configCLI.getConfigClient();
+        ConfigData configData = configClient.getConfig();
 
         if (output == null) {
             MainCLI.printMessage("Configuration");
