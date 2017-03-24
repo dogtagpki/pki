@@ -27,6 +27,7 @@ import java.util.Arrays;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
+import com.netscape.certsrv.tps.authenticator.AuthenticatorClient;
 import com.netscape.certsrv.tps.authenticator.AuthenticatorData;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
@@ -78,6 +79,7 @@ public class AuthenticatorModifyCLI extends CLI {
         String action = cmd.getOptionValue("action", "update");
         String input = cmd.getOptionValue("input");
 
+        AuthenticatorClient authenticatorClient = authenticatorCLI.getAuthenticatorClient();
         AuthenticatorData authenticatorData;
 
         if (action.equals("update")) {
@@ -98,10 +100,10 @@ public class AuthenticatorModifyCLI extends CLI {
                 authenticatorData = AuthenticatorData.valueOf(sw.toString());
             }
 
-            authenticatorData = authenticatorCLI.authenticatorClient.updateAuthenticator(authenticatorID, authenticatorData);
+            authenticatorData = authenticatorClient.updateAuthenticator(authenticatorID, authenticatorData);
 
         } else { // other actions
-            authenticatorData = authenticatorCLI.authenticatorClient.changeAuthenticatorStatus(authenticatorID, action);
+            authenticatorData = authenticatorClient.changeAuthenticatorStatus(authenticatorID, action);
         }
 
         MainCLI.printMessage("Modified authenticator \"" + authenticatorID + "\"");

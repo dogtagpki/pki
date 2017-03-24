@@ -23,6 +23,7 @@ import java.util.Map;
 
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.tps.authenticator.AuthenticatorClient;
 import com.netscape.certsrv.tps.authenticator.AuthenticatorData;
 import com.netscape.cmstools.cli.CLI;
@@ -44,12 +45,14 @@ public class AuthenticatorCLI extends CLI {
         addModule(new AuthenticatorShowCLI(this));
     }
 
-    public void execute(String[] args) throws Exception {
+    public AuthenticatorClient getAuthenticatorClient() throws Exception {
 
-        client = parent.getClient();
+        if (authenticatorClient != null) return authenticatorClient;
+
+        PKIClient client = getClient();
         authenticatorClient = (AuthenticatorClient)parent.getClient("authenticator");
 
-        super.execute(args);
+        return authenticatorClient;
     }
 
     public static void printAuthenticatorData(AuthenticatorData authenticatorData, boolean showProperties) throws IOException {

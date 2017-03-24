@@ -24,6 +24,7 @@ import java.util.Collection;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
+import com.netscape.certsrv.tps.authenticator.AuthenticatorClient;
 import com.netscape.certsrv.tps.authenticator.AuthenticatorCollection;
 import com.netscape.certsrv.tps.authenticator.AuthenticatorData;
 import com.netscape.cmstools.cli.CLI;
@@ -75,7 +76,8 @@ public class AuthenticatorFindCLI extends CLI {
         s = cmd.getOptionValue("size");
         Integer size = s == null ? null : Integer.valueOf(s);
 
-        AuthenticatorCollection result = authenticatorCLI.authenticatorClient.findAuthenticators(filter, start, size);
+        AuthenticatorClient authenticatorClient = authenticatorCLI.getAuthenticatorClient();
+        AuthenticatorCollection result = authenticatorClient.findAuthenticators(filter, start, size);
 
         MainCLI.printMessage(result.getTotal() + " entries matched");
         if (result.getTotal() == 0) return;

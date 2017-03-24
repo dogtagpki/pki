@@ -22,6 +22,7 @@ import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
 
+import com.netscape.certsrv.tps.authenticator.AuthenticatorClient;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -58,7 +59,8 @@ public class AuthenticatorRemoveCLI extends CLI {
 
         String authenticatorID = args[0];
 
-        authenticatorCLI.authenticatorClient.removeAuthenticator(authenticatorID);
+        AuthenticatorClient authenticatorClient = authenticatorCLI.getAuthenticatorClient();
+        authenticatorClient.removeAuthenticator(authenticatorID);
 
         MainCLI.printMessage("Deleted authenticator \"" + authenticatorID + "\"");
     }

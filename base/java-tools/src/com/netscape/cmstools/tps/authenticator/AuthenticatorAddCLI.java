@@ -27,6 +27,7 @@ import java.util.Arrays;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
+import com.netscape.certsrv.tps.authenticator.AuthenticatorClient;
 import com.netscape.certsrv.tps.authenticator.AuthenticatorData;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
@@ -87,7 +88,8 @@ public class AuthenticatorAddCLI extends CLI {
             authenticatorData = AuthenticatorData.valueOf(sw.toString());
         }
 
-        authenticatorData = authenticatorCLI.authenticatorClient.addAuthenticator(authenticatorData);
+        AuthenticatorClient authenticatorClient = authenticatorCLI.getAuthenticatorClient();
+        authenticatorData = authenticatorClient.addAuthenticator(authenticatorData);
 
         MainCLI.printMessage("Added authenticator \"" + authenticatorData.getID() + "\"");
 
