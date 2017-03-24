@@ -596,9 +596,11 @@ public class NetkeyKeygenService implements IService {
 
                     CMS.debug("KRA encrypts private key to put on internal ldap db");
                     byte privateKeyData[] = null;
+                    WrappingParams params = null;
 
                     try {
-                        privateKeyData = mStorageUnit.wrap((org.mozilla.jss.crypto.PrivateKey) privKey);
+                        params = mStorageUnit.getWrappingParams();
+                        privateKeyData = mStorageUnit.wrap((org.mozilla.jss.crypto.PrivateKey) privKey, params);
                     } catch (Exception e) {
                         request.setExtData(IRequest.RESULT, Integer.valueOf(4));
                         CMS.debug("NetkeyKeygenService: privatekey encryption by storage unit failed");
@@ -669,7 +671,7 @@ public class NetkeyKeygenService implements IService {
                         return false;
                     }
 
-                    rec.setWrappingParams(mStorageUnit.getWrappingParams());
+                    rec.setWrappingParams(params);
 
                     CMS.debug("NetkeyKeygenService: before addKeyRecord");
                     rec.set(KeyRecord.ATTR_ID, serialNo);

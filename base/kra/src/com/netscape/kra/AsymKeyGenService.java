@@ -43,6 +43,8 @@ import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.cms.servlet.key.KeyRequestDAO;
 import com.netscape.cmscore.dbs.KeyRecord;
 
+import netscape.security.util.WrappingParams;
+
 /**
  * Service class to handle asymmetric key generation requests.
  * A new asymmetric key is generated and archived the database as a key record.
@@ -160,9 +162,11 @@ public class AsymKeyGenService implements IService {
         }
 
         byte[] privateSecurityData = null;
+        WrappingParams params = null;
 
         try {
-            privateSecurityData = storageUnit.wrap((PrivateKey) kp.getPrivate());
+            params = storageUnit.getWrappingParams();
+            privateSecurityData = storageUnit.wrap((PrivateKey) kp.getPrivate(), params);
         } catch (Exception e) {
             CMS.debug("Failed to generate security data to archive: " + e);
             auditAsymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
@@ -198,7 +202,7 @@ public class AsymKeyGenService implements IService {
         }
 
         try {
-            record.setWrappingParams(storageUnit.getOldWrappingParams());
+            record.setWrappingParams(params);
         } catch (Exception e) {
             auditAsymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
                     clientKeyId, null, "Failed to store wrapping params");
