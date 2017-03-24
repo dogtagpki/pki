@@ -2,6 +2,7 @@ package com.netscape.cmstools.system;
 
 import java.util.Arrays;
 
+import com.netscape.certsrv.system.KRAConnectorClient;
 import com.netscape.certsrv.system.KRAConnectorInfo;
 import com.netscape.cmstools.cli.CLI;
 
@@ -18,14 +19,15 @@ public class KRAConnectorShowCLI extends CLI {
         formatter.printHelp(getFullName() + " [OPTIONS...]", options);
     }
 
-    public void execute(String[] args) {
+    public void execute(String[] args) throws Exception {
         // Always check for "--help" prior to parsing
         if (Arrays.asList(args).contains("--help")) {
             printHelp();
             return;
         }
 
-        KRAConnectorInfo info = kraConnectorCLI.kraConnectorClient.getConnectorInfo();
+        KRAConnectorClient kraConnectorClient = kraConnectorCLI.getKRAConnectorClient();
+        KRAConnectorInfo info = kraConnectorClient.getConnectorInfo();
 
         // Print the KRA Connector Information.
 

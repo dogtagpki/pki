@@ -22,6 +22,7 @@ import java.util.Arrays;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
+import com.netscape.certsrv.system.KRAConnectorClient;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -71,7 +72,8 @@ public class KRAConnectorRemoveCLI extends CLI {
         String kraHost = cmd.getOptionValue("host");
         String kraPort = cmd.getOptionValue("port");
 
-        kraConnectorCLI.kraConnectorClient.removeConnector(kraHost, kraPort);
+        KRAConnectorClient kraConnectorClient = kraConnectorCLI.getKRAConnectorClient();
+        kraConnectorClient.removeConnector(kraHost, kraPort);
 
         MainCLI.printMessage("Removed KRA host \"" + kraHost + ":" + kraPort + "\"");
     }

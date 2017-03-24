@@ -27,6 +27,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
 import com.netscape.certsrv.system.ConnectorNotFoundException;
+import com.netscape.certsrv.system.KRAConnectorClient;
 import com.netscape.certsrv.system.KRAConnectorInfo;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
@@ -83,11 +84,13 @@ public class KRAConnectorAddCLI extends CLI {
         String kraPort = cmd.getOptionValue("port");
         String inputFile = cmd.getOptionValue("input-file");
 
+        KRAConnectorClient kraConnectorClient = kraConnectorCLI.getKRAConnectorClient();
+
         //check if connector exists
         boolean connectorExists = true;
         try {
             @SuppressWarnings("unused")
-            KRAConnectorInfo info = kraConnectorCLI.kraConnectorClient.getConnectorInfo();
+            KRAConnectorInfo info = kraConnectorClient.getConnectorInfo();
         } catch (ConnectorNotFoundException e) {
             connectorExists = false;
         }
@@ -102,7 +105,7 @@ public class KRAConnectorAddCLI extends CLI {
             Unmarshaller unmarshaller = context.createUnmarshaller();
             KRAConnectorInfo info = (KRAConnectorInfo) unmarshaller.unmarshal(fis);
 
-            kraConnectorCLI.kraConnectorClient.addConnector(info);
+            kraConnectorClient.addConnector(info);
             MainCLI.printMessage("Added KRA connector");
 
         } else {
@@ -110,7 +113,7 @@ public class KRAConnectorAddCLI extends CLI {
                 throw new Exception("Cannot add new host to existing connector.  " +
                         "No connector currently exists");
             }
-            kraConnectorCLI.kraConnectorClient.addHost(kraHost, kraPort);
+            kraConnectorClient.addHost(kraHost, kraPort);
             MainCLI.printMessage("Added KRA host \"" + kraHost + ":" + kraPort + "\"");
         }
     }

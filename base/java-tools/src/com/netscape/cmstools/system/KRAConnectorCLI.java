@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmstools.system;
 
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.system.KRAConnectorClient;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
@@ -45,9 +46,11 @@ public class KRAConnectorCLI extends CLI {
         }
     }
 
-    public void execute(String[] args) throws Exception {
+    public KRAConnectorClient getKRAConnectorClient() throws Exception {
 
-        client = parent.getClient();
+        if (kraConnectorClient != null) return kraConnectorClient;
+
+        PKIClient client = getClient();
 
         // determine the subsystem
         String subsystem = client.getSubsystem();
@@ -56,6 +59,6 @@ public class KRAConnectorCLI extends CLI {
         // create new KRA connector client
         kraConnectorClient = new KRAConnectorClient(client, subsystem);
 
-        super.execute(args);
+        return kraConnectorClient;
     }
 }
