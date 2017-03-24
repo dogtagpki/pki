@@ -28,6 +28,7 @@ import java.util.Arrays;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
+import com.netscape.certsrv.logging.AuditClient;
 import com.netscape.certsrv.logging.AuditConfig;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
@@ -83,6 +84,7 @@ public class AuditModifyCLI extends CLI {
         String input = cmd.getOptionValue("input");
         String output = cmd.getOptionValue("output");
 
+        AuditClient auditClient = auditCLI.getAuditClient();
         AuditConfig auditConfig;
 
         if (action == null) { // modify audit configuration
@@ -103,7 +105,7 @@ public class AuditModifyCLI extends CLI {
                 auditConfig = AuditConfig.valueOf(sw.toString());
             }
 
-            auditConfig = auditCLI.auditClient.updateAuditConfig(auditConfig);
+            auditConfig = auditClient.updateAuditConfig(auditConfig);
 
         } else { // change audit status
 
@@ -111,7 +113,7 @@ public class AuditModifyCLI extends CLI {
                 throw new Exception("Action and input file are mutually exclusive.");
             }
 
-            auditConfig = auditCLI.auditClient.changeAuditStatus(action);
+            auditConfig = auditClient.changeAuditStatus(action);
         }
 
         MainCLI.printMessage("Modified audit configuration");

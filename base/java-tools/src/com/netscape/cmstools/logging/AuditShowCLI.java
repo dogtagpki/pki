@@ -25,6 +25,7 @@ import java.util.Arrays;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
+import com.netscape.certsrv.logging.AuditClient;
 import com.netscape.certsrv.logging.AuditConfig;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
@@ -70,7 +71,8 @@ public class AuditShowCLI extends CLI {
 
         String output = cmd.getOptionValue("output");
 
-        AuditConfig auditConfig = auditCLI.auditClient.getAuditConfig();
+        AuditClient auditClient = auditCLI.getAuditClient();
+        AuditConfig auditConfig = auditClient.getAuditConfig();
 
         if (output == null) {
             MainCLI.printMessage("Audit configuration");

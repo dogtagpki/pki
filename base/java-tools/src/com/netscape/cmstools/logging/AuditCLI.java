@@ -23,6 +23,7 @@ import java.util.Map;
 
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.logging.AuditClient;
 import com.netscape.certsrv.logging.AuditConfig;
 import com.netscape.cmstools.cli.CLI;
@@ -46,12 +47,14 @@ public class AuditCLI extends CLI {
         return "pki-audit";
     }
 
-    public void execute(String[] args) throws Exception {
+    public AuditClient getAuditClient() throws Exception {
 
-        client = parent.getClient();
+        if (auditClient != null) return auditClient;
+
+        PKIClient client = getClient();
         auditClient = (AuditClient)parent.getClient("audit");
 
-        super.execute(args);
+        return auditClient;
     }
 
     public static void printAuditConfig(AuditConfig auditConfig) throws IOException {
