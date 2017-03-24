@@ -27,6 +27,7 @@ import java.util.Arrays;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
+import com.netscape.certsrv.tps.profile.ProfileMappingClient;
 import com.netscape.certsrv.tps.profile.ProfileMappingData;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
@@ -78,6 +79,7 @@ public class ProfileMappingModifyCLI extends CLI {
         String action = cmd.getOptionValue("action", "update");
         String input = cmd.getOptionValue("input");
 
+        ProfileMappingClient profileMappingClient = profileMappingCLI.getProfileMappingClient();
         ProfileMappingData profileMappingData;
 
         if (action.equals("update")) {
@@ -98,10 +100,10 @@ public class ProfileMappingModifyCLI extends CLI {
                 profileMappingData = ProfileMappingData.valueOf(sw.toString());
             }
 
-            profileMappingData = profileMappingCLI.profileMappingClient.updateProfileMapping(profileMappingID, profileMappingData);
+            profileMappingData = profileMappingClient.updateProfileMapping(profileMappingID, profileMappingData);
 
         } else { // other actions
-            profileMappingData = profileMappingCLI.profileMappingClient.changeProfileMappingStatus(profileMappingID, action);
+            profileMappingData = profileMappingClient.changeProfileMappingStatus(profileMappingID, action);
         }
 
         MainCLI.printMessage("Modified profile mapping \"" + profileMappingID + "\"");

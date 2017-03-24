@@ -23,6 +23,7 @@ import java.util.Map;
 
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.tps.profile.ProfileMappingClient;
 import com.netscape.certsrv.tps.profile.ProfileMappingData;
 import com.netscape.cmstools.cli.CLI;
@@ -44,12 +45,14 @@ public class ProfileMappingCLI extends CLI {
         addModule(new ProfileMappingShowCLI(this));
     }
 
-    public void execute(String[] args) throws Exception {
+    public ProfileMappingClient getProfileMappingClient() throws Exception {
 
-        client = parent.getClient();
+        if (profileMappingClient != null) return profileMappingClient;
+
+        PKIClient client = getClient();
         profileMappingClient = (ProfileMappingClient)parent.getClient("profile-mapping");
 
-        super.execute(args);
+        return profileMappingClient;
     }
 
     public static void printProfileMappingData(ProfileMappingData profileMappingData, boolean showProperties) throws IOException {

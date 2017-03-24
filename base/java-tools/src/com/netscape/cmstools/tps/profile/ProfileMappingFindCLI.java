@@ -24,6 +24,7 @@ import java.util.Collection;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
+import com.netscape.certsrv.tps.profile.ProfileMappingClient;
 import com.netscape.certsrv.tps.profile.ProfileMappingCollection;
 import com.netscape.certsrv.tps.profile.ProfileMappingData;
 import com.netscape.cmstools.cli.CLI;
@@ -75,7 +76,8 @@ public class ProfileMappingFindCLI extends CLI {
         s = cmd.getOptionValue("size");
         Integer size = s == null ? null : Integer.valueOf(s);
 
-        ProfileMappingCollection result = profileMappingCLI.profileMappingClient.findProfileMappings(filter, start, size);
+        ProfileMappingClient profileMappingClient = profileMappingCLI.getProfileMappingClient();
+        ProfileMappingCollection result = profileMappingClient.findProfileMappings(filter, start, size);
 
         MainCLI.printMessage(result.getTotal() + " entries matched");
         if (result.getTotal() == 0) return;

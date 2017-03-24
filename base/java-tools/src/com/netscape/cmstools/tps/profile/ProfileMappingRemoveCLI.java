@@ -22,6 +22,7 @@ import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
 
+import com.netscape.certsrv.tps.profile.ProfileMappingClient;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -58,7 +59,8 @@ public class ProfileMappingRemoveCLI extends CLI {
 
         String profileMappingID = args[0];
 
-        profileMappingCLI.profileMappingClient.removeProfileMapping(profileMappingID);
+        ProfileMappingClient profileMappingClient = profileMappingCLI.getProfileMappingClient();
+        profileMappingClient.removeProfileMapping(profileMappingID);
 
         MainCLI.printMessage("Deleted profile mapping \"" + profileMappingID + "\"");
     }

@@ -25,6 +25,7 @@ import java.util.Arrays;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
+import com.netscape.certsrv.tps.profile.ProfileMappingClient;
 import com.netscape.certsrv.tps.profile.ProfileMappingData;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
@@ -71,7 +72,8 @@ public class ProfileMappingShowCLI extends CLI {
         String profileMappingID = cmdArgs[0];
         String output = cmd.getOptionValue("output");
 
-        ProfileMappingData profileMappingData = profileMappingCLI.profileMappingClient.getProfileMapping(profileMappingID);
+        ProfileMappingClient profileMappingClient = profileMappingCLI.getProfileMappingClient();
+        ProfileMappingData profileMappingData = profileMappingClient.getProfileMapping(profileMappingID);
 
         if (output == null) {
             MainCLI.printMessage("ProfileMapping \"" + profileMappingID + "\"");
