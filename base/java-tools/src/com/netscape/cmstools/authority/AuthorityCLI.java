@@ -4,6 +4,7 @@ import java.math.BigInteger;
 
 import com.netscape.certsrv.authority.AuthorityClient;
 import com.netscape.certsrv.authority.AuthorityData;
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -32,10 +33,14 @@ public class AuthorityCLI extends CLI {
         }
     }
 
-    public void execute(String[] args) throws Exception {
-        client = parent.getClient();
+    public AuthorityClient getAuthorityClient() throws Exception {
+
+        if (authorityClient != null) return authorityClient;
+
+        PKIClient client = getClient();
         authorityClient = new AuthorityClient(client, "ca");
-        super.execute(args);
+
+        return authorityClient;
     }
 
     protected static void printAuthorityData(AuthorityData data) {

@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
 
+import com.netscape.certsrv.authority.AuthorityClient;
 import com.netscape.certsrv.authority.AuthorityData;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
@@ -32,7 +33,8 @@ public class AuthorityFindCLI extends CLI {
         @SuppressWarnings("unused")
         CommandLine cmd = parser.parse(options, args);
 
-        List<AuthorityData> datas = authorityCLI.authorityClient.listCAs();
+        AuthorityClient authorityClient = authorityCLI.getAuthorityClient();
+        List<AuthorityData> datas = authorityClient.listCAs();
 
         MainCLI.printMessage(datas.size() + " entries matched");
         if (datas.size() == 0) return;

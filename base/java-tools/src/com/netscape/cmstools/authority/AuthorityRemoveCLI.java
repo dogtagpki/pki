@@ -6,6 +6,7 @@ import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
 
+import com.netscape.certsrv.authority.AuthorityClient;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -54,7 +55,8 @@ public class AuthorityRemoveCLI extends CLI {
         }
 
         String aidString = cmdArgs[0];
-        authorityCLI.authorityClient.deleteCA(aidString);
+        AuthorityClient authorityClient = authorityCLI.getAuthorityClient();
+        authorityClient.deleteCA(aidString);
         MainCLI.printMessage("Deleted authority \"" + aidString + "\"");
     }
 

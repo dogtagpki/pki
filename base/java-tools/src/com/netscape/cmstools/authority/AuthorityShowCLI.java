@@ -5,6 +5,7 @@ import java.util.Arrays;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
+import com.netscape.certsrv.authority.AuthorityClient;
 import com.netscape.certsrv.authority.AuthorityData;
 import com.netscape.certsrv.authority.AuthorityResource;
 import com.netscape.cmstools.cli.CLI;
@@ -57,7 +58,8 @@ public class AuthorityShowCLI extends CLI {
             throw new Exception("No ID specified.");
         }
 
-        AuthorityData data = authorityCLI.authorityClient.getCA(caIDString);
+        AuthorityClient authorityClient = authorityCLI.getAuthorityClient();
+        AuthorityData data = authorityClient.getCA(caIDString);
         AuthorityCLI.printAuthorityData(data);
     }
 

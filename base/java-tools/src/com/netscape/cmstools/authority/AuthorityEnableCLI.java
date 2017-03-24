@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
 
+import com.netscape.certsrv.authority.AuthorityClient;
 import com.netscape.certsrv.authority.AuthorityData;
 import com.netscape.cmstools.cli.CLI;
 
@@ -37,7 +38,8 @@ public class AuthorityEnableCLI extends CLI {
 
         AuthorityData data = new AuthorityData(
             null, null, cmdArgs[0], null, null, null, true, null, null);
-        data = authorityCLI.authorityClient.modifyCA(data);
+        AuthorityClient authorityClient = authorityCLI.getAuthorityClient();
+        data = authorityClient.modifyCA(data);
         AuthorityCLI.printAuthorityData(data);
     }
 
