@@ -19,6 +19,7 @@ package com.netscape.cmstools.system;
 
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.system.TPSConnectorClient;
 import com.netscape.certsrv.system.TPSConnectorData;
 import com.netscape.cmstools.cli.CLI;
@@ -43,12 +44,14 @@ public class TPSConnectorCLI extends CLI {
         return parent.getFullName() + "-" + name;
     }
 
-    public void execute(String[] args) throws Exception {
+    public TPSConnectorClient getTPSConnectorClient() throws Exception {
 
-        client = parent.getClient();
+        if (tpsConnectorClient != null) return tpsConnectorClient;
+
+        PKIClient client = getClient();
         tpsConnectorClient = (TPSConnectorClient)parent.getClient("tpsconnector");
 
-        super.execute(args);
+        return tpsConnectorClient;
     }
 
     public static void printConnectorInfo(TPSConnectorData data) {

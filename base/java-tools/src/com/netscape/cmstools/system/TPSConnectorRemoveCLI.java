@@ -22,6 +22,7 @@ import java.util.Arrays;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
+import com.netscape.certsrv.system.TPSConnectorClient;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -70,7 +71,8 @@ public class TPSConnectorRemoveCLI extends CLI {
         String tpsHost = cmd.getOptionValue("host");
         String tpsPort = cmd.getOptionValue("port");
 
-        tpsConnectorCLI.tpsConnectorClient.deleteConnector(tpsHost, tpsPort);
+        TPSConnectorClient tpsConnectorClient = tpsConnectorCLI.getTPSConnectorClient();
+        tpsConnectorClient.deleteConnector(tpsHost, tpsPort);
 
         MainCLI.printMessage("Removed TPS connector \""+tpsHost + ":" + tpsPort +"\"");
     }

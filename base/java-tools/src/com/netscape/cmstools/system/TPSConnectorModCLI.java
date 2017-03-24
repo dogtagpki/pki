@@ -5,6 +5,7 @@ import java.util.Arrays;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
+import com.netscape.certsrv.system.TPSConnectorClient;
 import com.netscape.certsrv.system.TPSConnectorData;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
@@ -57,7 +58,8 @@ public class TPSConnectorModCLI extends CLI {
         data.setHost(cmd.getOptionValue("host"));
         data.setPort(cmd.getOptionValue("port"));
 
-        data = tpsConnectorCLI.tpsConnectorClient.modifyConnector(connID, data);
+        TPSConnectorClient tpsConnectorClient = tpsConnectorCLI.getTPSConnectorClient();
+        data = tpsConnectorClient.modifyConnector(connID, data);
 
         MainCLI.printMessage("Modified TPS connector \""+connID +"\"");
 

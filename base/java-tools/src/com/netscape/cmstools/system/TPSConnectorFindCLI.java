@@ -23,6 +23,7 @@ import java.util.Collection;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
+import com.netscape.certsrv.system.TPSConnectorClient;
 import com.netscape.certsrv.system.TPSConnectorCollection;
 import com.netscape.certsrv.system.TPSConnectorData;
 import com.netscape.cmstools.cli.CLI;
@@ -77,7 +78,8 @@ public class TPSConnectorFindCLI extends CLI {
         s = cmd.getOptionValue("size");
         Integer size = s == null ? null : Integer.valueOf(s);
 
-        TPSConnectorCollection result = tpsConnectorCLI.tpsConnectorClient.findConnectors(start, size);
+        TPSConnectorClient tpsConnectorClient = tpsConnectorCLI.getTPSConnectorClient();
+        TPSConnectorCollection result = tpsConnectorClient.findConnectors(start, size);
 
         MainCLI.printMessage(result.getTotal() + " entries matched");
         if (result.getTotal() == 0) return;

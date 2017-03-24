@@ -22,6 +22,7 @@ import java.util.Arrays;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
+import com.netscape.certsrv.system.TPSConnectorClient;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -70,7 +71,8 @@ public class TPSConnectorAddCLI extends CLI {
         String tpsHost = cmd.getOptionValue("host");
         String tpsPort = cmd.getOptionValue("port");
 
-        tpsConnectorCLI.tpsConnectorClient.createConnector(tpsHost, tpsPort);
+        TPSConnectorClient tpsConnectorClient = tpsConnectorCLI.getTPSConnectorClient();
+        tpsConnectorClient.createConnector(tpsHost, tpsPort);
 
         MainCLI.printMessage("Added TPS connector \""+tpsHost + ":" + tpsPort +"\"");
     }
