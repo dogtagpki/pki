@@ -23,6 +23,7 @@ import java.util.Map;
 
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.tps.profile.ProfileClient;
 import com.netscape.certsrv.tps.profile.ProfileData;
 import com.netscape.cmstools.cli.CLI;
@@ -51,12 +52,14 @@ public class ProfileCLI extends CLI {
         return "pki-tps-profile";
     }
 
-    public void execute(String[] args) throws Exception {
+    public ProfileClient getProfileClient() throws Exception {
 
-        client = parent.getClient();
+        if (profileClient != null) return profileClient;
+
+        PKIClient client = getClient();
         profileClient = (ProfileClient)parent.getClient("profile");
 
-        super.execute(args);
+        return profileClient;
     }
 
     public static void printProfileData(ProfileData profileData, boolean showProperties) throws IOException {

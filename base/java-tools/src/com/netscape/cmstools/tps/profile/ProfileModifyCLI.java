@@ -27,6 +27,7 @@ import java.util.Arrays;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
+import com.netscape.certsrv.tps.profile.ProfileClient;
 import com.netscape.certsrv.tps.profile.ProfileData;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
@@ -78,6 +79,7 @@ public class ProfileModifyCLI extends CLI {
         String action = cmd.getOptionValue("action", "update");
         String input = cmd.getOptionValue("input");
 
+        ProfileClient profileClient = profileCLI.getProfileClient();
         ProfileData profileData;
 
         if (action.equals("update")) {
@@ -98,10 +100,10 @@ public class ProfileModifyCLI extends CLI {
                 profileData = ProfileData.valueOf(sw.toString());
             }
 
-            profileData = profileCLI.profileClient.updateProfile(profileID, profileData);
+            profileData = profileClient.updateProfile(profileID, profileData);
 
         } else { // other actions
-            profileData = profileCLI.profileClient.changeProfileStatus(profileID, action);
+            profileData = profileClient.changeProfileStatus(profileID, action);
         }
 
         MainCLI.printMessage("Modified profile \"" + profileID + "\"");

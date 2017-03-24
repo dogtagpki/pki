@@ -25,6 +25,7 @@ import java.util.Arrays;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
+import com.netscape.certsrv.tps.profile.ProfileClient;
 import com.netscape.certsrv.tps.profile.ProfileData;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
@@ -71,7 +72,8 @@ public class ProfileShowCLI extends CLI {
         String profileID = args[0];
         String output = cmd.getOptionValue("output");
 
-        ProfileData profileData = profileCLI.profileClient.getProfile(profileID);
+        ProfileClient profileClient = profileCLI.getProfileClient();
+        ProfileData profileData = profileClient.getProfile(profileID);
 
         if (output == null) {
             MainCLI.printMessage("Profile \"" + profileID + "\"");

@@ -22,6 +22,7 @@ import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
 
+import com.netscape.certsrv.tps.profile.ProfileClient;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -58,7 +59,8 @@ public class ProfileRemoveCLI extends CLI {
 
         String profileID = args[0];
 
-        profileCLI.profileClient.removeProfile(profileID);
+        ProfileClient profileClient = profileCLI.getProfileClient();
+        profileClient.removeProfile(profileID);
 
         MainCLI.printMessage("Deleted profile \"" + profileID + "\"");
     }
