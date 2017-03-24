@@ -19,7 +19,8 @@
 package com.netscape.cmstools.cli;
 
 import com.netscape.certsrv.ca.CAClient;
-import com.netscape.certsrv.client.Client;
+import com.netscape.certsrv.client.PKIClient;
+import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.cmstools.authority.AuthorityCLI;
 import com.netscape.cmstools.cert.CertCLI;
 import com.netscape.cmstools.feature.FeatureCLI;
@@ -49,20 +50,13 @@ public class CACLI extends SubsystemCLI {
         addModule(new UserCLI(this));
     }
 
-    public void init() throws Exception {
-        client = parent.getClient();
+    public SubsystemClient getSubsystemClient() throws Exception {
+
+        if (caClient != null) return caClient;
+
+        PKIClient client = getClient();
         caClient = new CAClient(client);
-    }
 
-    public void login() {
-        caClient.login();
-    }
-
-    public void logout() {
-        caClient.logout();
-    }
-
-    public Client getClient(String name) {
-        return caClient.getClient(name);
+        return caClient;
     }
 }

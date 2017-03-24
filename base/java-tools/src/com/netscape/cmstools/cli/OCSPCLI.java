@@ -18,7 +18,8 @@
 
 package com.netscape.cmstools.cli;
 
-import com.netscape.certsrv.client.Client;
+import com.netscape.certsrv.client.PKIClient;
+import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.ocsp.OCSPClient;
 import com.netscape.cmstools.group.GroupCLI;
 import com.netscape.cmstools.selftests.SelfTestCLI;
@@ -39,20 +40,13 @@ public class OCSPCLI extends SubsystemCLI {
         addModule(new UserCLI(this));
     }
 
-    public void init() throws Exception {
-        client = parent.getClient();
+    public SubsystemClient getSubsystemClient() throws Exception {
+
+        if (ocspClient != null) return ocspClient;
+
+        PKIClient client = getClient();
         ocspClient = new OCSPClient(client);
-    }
 
-    public void login() {
-        ocspClient.login();
-    }
-
-    public void logout() {
-        ocspClient.logout();
-    }
-
-    public Client getClient(String name) {
-        return ocspClient.getClient(name);
+        return ocspClient;
     }
 }

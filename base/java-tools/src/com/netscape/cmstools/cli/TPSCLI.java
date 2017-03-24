@@ -18,7 +18,8 @@
 
 package com.netscape.cmstools.cli;
 
-import com.netscape.certsrv.client.Client;
+import com.netscape.certsrv.client.PKIClient;
+import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.tps.TPSClient;
 import com.netscape.cmstools.group.GroupCLI;
 import com.netscape.cmstools.logging.ActivityCLI;
@@ -64,20 +65,13 @@ public class TPSCLI extends SubsystemCLI {
         }
     }
 
-    public void init() throws Exception {
-        client = parent.getClient();
+    public SubsystemClient getSubsystemClient() throws Exception {
+
+        if (tpsClient != null) return tpsClient;
+
+        PKIClient client = getClient();
         tpsClient = new TPSClient(client);
-    }
 
-    public void login() {
-        tpsClient.login();
-    }
-
-    public void logout() {
-        tpsClient.logout();
-    }
-
-    public Client getClient(String name) {
-        return tpsClient.getClient(name);
+        return tpsClient;
     }
 }

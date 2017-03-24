@@ -18,7 +18,9 @@
 
 package com.netscape.cmstools.cli;
 
+import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.ClientConfig;
+import com.netscape.certsrv.client.SubsystemClient;
 
 
 /**
@@ -35,21 +37,29 @@ public class SubsystemCLI extends CLI {
         return name;
     }
 
-    public void init() throws Exception {
+    public SubsystemClient getSubsystemClient() throws Exception {
+        return null;
     }
 
     public void login() throws Exception {
+        SubsystemClient subsystemClient = getSubsystemClient();
+        subsystemClient.login();
     }
 
     public void logout() throws Exception {
+        SubsystemClient subsystemClient = getSubsystemClient();
+        subsystemClient.logout();
+    }
+
+    public Client getClient(String name) throws Exception {
+        SubsystemClient subsystemClient = getSubsystemClient();
+        return subsystemClient.getClient(name);
     }
 
     public void execute(String[] args) throws Exception {
 
-        init();
-
         // login if username or nickname is specified
-        ClientConfig config = getClient().getConfig();
+        ClientConfig config = getConfig();
         if (config.getUsername() != null || config.getCertNickname() != null) {
             login();
         }
@@ -57,6 +67,8 @@ public class SubsystemCLI extends CLI {
         super.execute(args);
 
         // logout if there is no failures
-        logout();
+        if (config.getUsername() != null || config.getCertNickname() != null) {
+            logout();
+        }
     }
 }

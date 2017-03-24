@@ -18,7 +18,8 @@
 
 package com.netscape.cmstools.cli;
 
-import com.netscape.certsrv.client.Client;
+import com.netscape.certsrv.client.PKIClient;
+import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.tks.TKSClient;
 import com.netscape.cmstools.group.GroupCLI;
 import com.netscape.cmstools.selftests.SelfTestCLI;
@@ -41,20 +42,13 @@ public class TKSCLI extends SubsystemCLI {
         addModule(new UserCLI(this));
     }
 
-    public void init() throws Exception {
-        client = parent.getClient();
+    public SubsystemClient getSubsystemClient() throws Exception {
+
+        if (tksClient != null) return tksClient;
+
+        PKIClient client = getClient();
         tksClient = new TKSClient(client);
-    }
 
-    public void login() {
-        tksClient.login();
-    }
-
-    public void logout() {
-        tksClient.logout();
-    }
-
-    public Client getClient(String name) {
-        return tksClient.getClient(name);
+        return tksClient;
     }
 }
