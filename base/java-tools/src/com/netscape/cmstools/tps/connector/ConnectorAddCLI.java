@@ -27,6 +27,7 @@ import java.util.Arrays;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
+import com.netscape.certsrv.tps.connector.ConnectorClient;
 import com.netscape.certsrv.tps.connector.ConnectorData;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
@@ -87,7 +88,8 @@ public class ConnectorAddCLI extends CLI {
             connectorData = ConnectorData.valueOf(sw.toString());
         }
 
-        connectorData = connectorCLI.connectorClient.addConnector(connectorData);
+        ConnectorClient connectorClient = connectorCLI.getConnectorClient();
+        connectorData = connectorClient.addConnector(connectorData);
 
         MainCLI.printMessage("Added connector \"" + connectorData.getID() + "\"");
 

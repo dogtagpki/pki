@@ -22,6 +22,7 @@ import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
 
+import com.netscape.certsrv.tps.connector.ConnectorClient;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -58,7 +59,8 @@ public class ConnectorRemoveCLI extends CLI {
 
         String connectorID = args[0];
 
-        connectorCLI.connectorClient.removeConnector(connectorID);
+        ConnectorClient connectorClient = connectorCLI.getConnectorClient();
+        connectorClient.removeConnector(connectorID);
 
         MainCLI.printMessage("Deleted connector \"" + connectorID + "\"");
     }

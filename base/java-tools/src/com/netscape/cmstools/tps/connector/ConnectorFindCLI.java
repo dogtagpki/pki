@@ -24,6 +24,7 @@ import java.util.Collection;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
+import com.netscape.certsrv.tps.connector.ConnectorClient;
 import com.netscape.certsrv.tps.connector.ConnectorCollection;
 import com.netscape.certsrv.tps.connector.ConnectorData;
 import com.netscape.cmstools.cli.CLI;
@@ -75,7 +76,8 @@ public class ConnectorFindCLI extends CLI {
         s = cmd.getOptionValue("size");
         Integer size = s == null ? null : Integer.valueOf(s);
 
-        ConnectorCollection result = connectorCLI.connectorClient.findConnectors(filter, start, size);
+        ConnectorClient connectorClient = connectorCLI.getConnectorClient();
+        ConnectorCollection result = connectorClient.findConnectors(filter, start, size);
 
         MainCLI.printMessage(result.getTotal() + " entries matched");
         if (result.getTotal() == 0) return;
