@@ -23,6 +23,7 @@ import java.util.Arrays;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
+import com.netscape.certsrv.tps.token.TokenClient;
 import com.netscape.certsrv.tps.token.TokenData;
 import com.netscape.certsrv.tps.token.TokenStatus;
 import com.netscape.cmstools.cli.CLI;
@@ -93,13 +94,15 @@ public class TokenModifyCLI extends CLI {
             modify = true;
         }
 
+        TokenClient tokenClient = tokenCLI.getTokenClient();
+
         if (modify) {
-            tokenData = tokenCLI.tokenClient.modifyToken(tokenID, tokenData);
+            tokenData = tokenClient.modifyToken(tokenID, tokenData);
         }
 
         String status = cmd.getOptionValue("status");
         if (status != null) {
-            tokenData = tokenCLI.tokenClient.changeTokenStatus(tokenID, TokenStatus.valueOf(status));
+            tokenData = tokenClient.changeTokenStatus(tokenID, TokenStatus.valueOf(status));
         }
 
         if (!modify && status == null) {

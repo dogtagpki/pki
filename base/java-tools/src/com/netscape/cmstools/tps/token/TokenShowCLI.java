@@ -22,6 +22,7 @@ import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
 
+import com.netscape.certsrv.tps.token.TokenClient;
 import com.netscape.certsrv.tps.token.TokenData;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
@@ -59,7 +60,8 @@ public class TokenShowCLI extends CLI {
 
         String tokenID = args[0];
 
-        TokenData tokenData = tokenCLI.tokenClient.getToken(tokenID);
+        TokenClient tokenClient = tokenCLI.getTokenClient();
+        TokenData tokenData = tokenClient.getToken(tokenID);
 
         MainCLI.printMessage("Token \"" + tokenID + "\"");
 

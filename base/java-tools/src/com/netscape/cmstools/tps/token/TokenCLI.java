@@ -24,6 +24,7 @@ import java.util.Collection;
 import org.apache.commons.lang.StringUtils;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.tps.token.TokenClient;
 import com.netscape.certsrv.tps.token.TokenData;
 import com.netscape.certsrv.tps.token.TokenData.TokenStatusData;
@@ -47,12 +48,14 @@ public class TokenCLI extends CLI {
         addModule(new TokenShowCLI(this));
     }
 
-    public void execute(String[] args) throws Exception {
+    public TokenClient getTokenClient() throws Exception {
 
-        client = parent.getClient();
+        if (tokenClient != null) return tokenClient;
+
+        PKIClient client = getClient();
         tokenClient = (TokenClient)parent.getClient("token");
 
-        super.execute(args);
+        return tokenClient;
     }
 
     public static void printToken(TokenData token) {

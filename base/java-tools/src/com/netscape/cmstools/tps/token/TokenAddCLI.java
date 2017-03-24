@@ -23,6 +23,7 @@ import java.util.Arrays;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
+import com.netscape.certsrv.tps.token.TokenClient;
 import com.netscape.certsrv.tps.token.TokenData;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
@@ -81,7 +82,8 @@ public class TokenAddCLI extends CLI {
         String policy = cmd.getOptionValue("policy");
         tokenData.setPolicy(policy);
 
-        tokenData = tokenCLI.tokenClient.addToken(tokenData);
+        TokenClient tokenClient = tokenCLI.getTokenClient();
+        tokenData = tokenClient.addToken(tokenData);
 
         MainCLI.printMessage("Added token \"" + tokenID + "\"");
 

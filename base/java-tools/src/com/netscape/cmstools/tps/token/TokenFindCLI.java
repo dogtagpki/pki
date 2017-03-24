@@ -24,6 +24,7 @@ import java.util.Collection;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
+import com.netscape.certsrv.tps.token.TokenClient;
 import com.netscape.certsrv.tps.token.TokenCollection;
 import com.netscape.certsrv.tps.token.TokenData;
 import com.netscape.certsrv.tps.token.TokenStatus;
@@ -101,7 +102,8 @@ public class TokenFindCLI extends CLI {
         s = cmd.getOptionValue("size");
         Integer size = s == null ? null : Integer.valueOf(s);
 
-        TokenCollection result = tokenCLI.tokenClient.findTokens(
+        TokenClient tokenClient = tokenCLI.getTokenClient();
+        TokenCollection result = tokenClient.findTokens(
                 filter,
                 tokenID,
                 userID,
