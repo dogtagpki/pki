@@ -20,6 +20,7 @@ package com.netscape.cmstools.logging;
 
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.logging.ActivityClient;
 import com.netscape.certsrv.logging.ActivityData;
 import com.netscape.cmstools.cli.CLI;
@@ -38,12 +39,14 @@ public class ActivityCLI extends CLI {
         addModule(new ActivityShowCLI(this));
     }
 
-    public void execute(String[] args) throws Exception {
+    public ActivityClient getActivityClient() throws Exception {
 
-        client = parent.getClient();
+        if (activityClient != null) return activityClient;
+
+        PKIClient client = getClient();
         activityClient = (ActivityClient)parent.getClient("activity");
 
-        super.execute(args);
+        return activityClient;
     }
 
     public static void printActivity(ActivityData activity, boolean showAll) {

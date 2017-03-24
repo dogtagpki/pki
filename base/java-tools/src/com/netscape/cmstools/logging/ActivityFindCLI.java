@@ -24,6 +24,7 @@ import java.util.Collection;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
+import com.netscape.certsrv.logging.ActivityClient;
 import com.netscape.certsrv.logging.ActivityCollection;
 import com.netscape.certsrv.logging.ActivityData;
 import com.netscape.cmstools.cli.CLI;
@@ -75,7 +76,8 @@ public class ActivityFindCLI extends CLI {
         s = cmd.getOptionValue("size");
         Integer size = s == null ? null : Integer.valueOf(s);
 
-        ActivityCollection result = activityCLI.activityClient.findActivities(filter, start, size);
+        ActivityClient activityClient = activityCLI.getActivityClient();
+        ActivityCollection result = activityClient.findActivities(filter, start, size);
 
         MainCLI.printMessage(result.getTotal() + " entries matched");
         if (result.getTotal() == 0) return;
