@@ -30,6 +30,8 @@ public class GPParams {
     public static String DIVER_NONE = "none";
     public static String DIVER_VISA2 = "visa2";
     public static String NIST_SP800 = "nistsp_800";
+    public static String AES = "AES";
+    public static String DES3 ="DES3";
 
     public GPParams() {
     }
@@ -38,6 +40,25 @@ public class GPParams {
     private String diversificationScheme;
     //Diversification scheme for just version one or developer keys
     private String version1DiversificationScheme;
+
+    private String devKeyType;
+    private String masterKeyType;
+
+    public String getDevKeyType() {
+        return devKeyType;
+    }
+
+    public String getMasterKeyType() {
+        return masterKeyType;
+    }
+
+    public void setDevKeyType(String newType) {
+        devKeyType = newType;
+    }
+
+    public void setMasterKeyType(String newType) {
+        masterKeyType = newType;
+    }
 
     public boolean isDiversEmv() {
         if (DIVER_EMV.equalsIgnoreCase(diversificationScheme))

@@ -461,8 +461,8 @@ public class NistSP800_108KDF extends KDF {
     // Collection of informal invocations of api used to create various session keys
     // Done with test data.
     public static void main(String[] args) {
-/*
-      Options options = new Options();
+
+  /*   Options options = new Options();
 
         options.addOption("d", true, "Directory for tokendb");
 
@@ -474,14 +474,19 @@ public class NistSP800_108KDF extends KDF {
                 (byte) 0x4f };
 
         byte test_cuid[] = { (byte) 0x47,(byte) 0x90,(byte)0x50,(byte)0x37,(byte)0x72,(byte)0x71,(byte)0x97,(byte)0x00,(byte)0x74,(byte)0xA9 };
-        byte test_kdd[] = { (byte)0x00, (byte)0x00, (byte)0x50, (byte)0x24,(byte) 0x97,(byte) 0x00,(byte) 0x74, (byte) 0xA9, (byte)0x72,(byte)0x71 };
+        byte test_kdd[] = { 0x00 ,0x00, 0x04 ,(byte)0x47 ,0x00 ,(byte)0x1F ,0x00 ,(byte)0x46 ,(byte)0xA7 ,0x02 };
 
 
-        byte test_host_challenge[]  = { 0x06 ,(byte)0xA4 ,0x46 ,0x57 ,(byte) 0x8B ,0x65 ,0x48 ,0x51 };
-        byte test_card_challenge[]  = { (byte) 0xAD ,(byte) 0x2E ,(byte)0xD0 ,0x1E ,0x7C ,0x2D ,0x0C ,0x6F};
+        byte test_host_challenge[]  = { (byte)0x2F ,(byte)0xB7 ,(byte)0x9F ,(byte)0xB7 ,(byte)0x04 ,(byte)0xFA ,(byte)0x60 ,(byte)0xE8 };
+        byte test_card_challenge[]  = { (byte)0xB9,(byte) 0x69 ,(byte)0xB0 ,(byte)0xCA ,(byte)0x37 ,(byte)0x27 ,(byte)0x2F ,(byte)0x89};
 
-        byte test_key_info[] = { (byte) 0x02,(byte) 03,(byte) 00 };
+        byte test_host_challenge_1[] = { (byte)0xD9 ,(byte)0xA0 ,(byte)0x0E ,(byte)0x36 ,(byte)0x69 ,(byte)0x67 ,(byte)0xFA ,(byte)0xFB };
+        byte test_card_challenge_1[] = {(byte)0x08 ,(byte) 0xF3 ,(byte) 0xE2 ,(byte)0xC3 ,0x72 ,(byte)0xF0 ,(byte)0xBE ,0x26 };
+
+        byte test_key_info[] = { (byte) 0x01,(byte) 03,(byte) 70 };
         byte test_old_key_info[] = {0x01,0x03,0x00};
+
+        byte test_sequence_counter[] = { 0x00 ,0x00 ,0x06 };
 
         try {
             CommandLineParser parser = new DefaultParser();
@@ -500,11 +505,6 @@ public class NistSP800_108KDF extends KDF {
         SymmetricKey macKey = null;
         SymmetricKey kekKey = null;
 
-        SymmetricKey putEncKey = null;
-        SymmetricKey putMacKey = null;
-        SymmetricKey putKekKey = null;
-
-        SymmetricKey tempKey = null;
 
         try {
             CryptoManager.initialize(db_dir);
@@ -512,113 +512,55 @@ public class NistSP800_108KDF extends KDF {
 
             CryptoToken token = cm.getInternalKeyStorageToken();
 
-           KeyGenerator kg = token.getKeyGenerator(KeyGenAlgorithm.AES);
-
-            SymmetricKey.Usage usages[] = new SymmetricKey.Usage[4];
-            usages[0] = SymmetricKey.Usage.WRAP;
-            usages[1] = SymmetricKey.Usage.UNWRAP;
-            usages[2] = SymmetricKey.Usage.ENCRYPT;
-            usages[3] = SymmetricKey.Usage.DECRYPT;
-
-            kg.setKeyUsages(usages);
-            kg.temporaryKeys(true);
-            kg.initialize(128);
-            tempKey = kg.generate();
-
-
-            Cipher encryptor = token.getCipherContext(EncryptionAlgorithm.AES_128_CBC);
-
-            int ivLength = EncryptionAlgorithm.AES_128_CBC.getIVLength();
-            byte[] iv = null;
-
-            if (ivLength > 0) {
-                iv = new byte[ivLength]; // all zeroes
-            }
-
-            encryptor.initEncrypt(tempKey, new IVParameterSpec(iv));
-            byte[] wrappedKey = encryptor.doFinal(devKey);
-
-            KeyWrapper keyWrap = token.getKeyWrapper(KeyWrapAlgorithm.AES_CBC);
-            keyWrap.initUnwrap(tempKey, new IVParameterSpec(iv));
-
-            encKey = keyWrap.unwrapSymmetric(wrappedKey, SymmetricKey.DES3, 16);
-            macKey = keyWrap.unwrapSymmetric(wrappedKey, SymmetricKey.DES3, 16);
-            kekKey = keyWrap.unwrapSymmetric(wrappedKey, SymmetricKey.DES3, 16);
-
             String transportName = "TPS-dhcp-16-206.sjc.redhat.com-8443 sharedSecret";
             SecureChannelProtocol prot = new SecureChannelProtocol(SecureChannelProtocol.PROTOCOL_THREE);
 
             SymmetricKey masterKey =  SecureChannelProtocol.getSymKeyByName(token,"new_master");
 
             GPParams params = new GPParams();
-            params.setVersion1DiversificationScheme("visa2");
-            params.setDiversificationScheme("visa2");
-
-            putEncKey = prot.computeSessionKey_SCP03("internal", "new_master",test_old_key_info,
-                    SecureChannelProtocol.encType, devKey, "defKeySet", test_cuid, test_kdd, null, null,
-                    transportName,params);
-
-            putMacKey = prot.computeSessionKey_SCP03("internal", "new_master",test_old_key_info,
-                    SecureChannelProtocol.macType, devKey, "defKeySet", test_cuid, test_kdd, null, null,
-                    transportName,params);
-
-            putKekKey = prot.computeSessionKey_SCP03("internal", "new_master",test_old_key_info,
-                    SecureChannelProtocol.kekType, devKey, "defKeySet", test_cuid, test_kdd, null, null,
-                    transportName,params);
+            params.setVersion1DiversificationScheme("emv");
+            params.setDiversificationScheme("emv");
+            params.setDevKeyType(GPParams.AES);
+            params.setMasterKeyType(GPParams.AES);
 
             //create test session keys
-            encKey = prot.computeSessionKey_SCP03("internal", "new_master",test_key_info,
-                    SecureChannelProtocol.encType, devKey, "defKeySet", test_cuid, test_kdd, test_host_challenge, test_card_challenge,
+            encKey = prot.computeSessionKey_SCP03("internal", "#01#03#70",test_key_info,
+                    SecureChannelProtocol.encType, devKey, "defKeySet", test_cuid, test_kdd, test_host_challenge_1, test_card_challenge_1,
                     transportName,params);
 
-            macKey = prot.computeSessionKey_SCP03("internal", "new_master",test_key_info,
-                    SecureChannelProtocol.macType,devKey,"defKeySet", test_cuid, test_kdd, test_host_challenge, test_card_challenge,
+            macKey = prot.computeSessionKey_SCP03("internal", "#01#03#70",test_key_info,
+                    SecureChannelProtocol.macType,devKey,"defKeySet", test_cuid, test_kdd, test_host_challenge_1, test_card_challenge_1,
                     transportName,params);
 
-            kekKey = prot.computeSessionKey_SCP03("internal", "new_master",test_key_info,
-                    SecureChannelProtocol.kekType, devKey, "defKeySet", test_cuid, test_kdd, test_host_challenge, test_card_challenge,
+            kekKey = prot.computeSessionKey_SCP03("internal", "#01#03#70",test_key_info,
+                    SecureChannelProtocol.kekType, devKey, "defKeySet", test_cuid, test_kdd, test_host_challenge_1, test_card_challenge_1,
                     transportName,params);
 
             System.out.println("masterKey: " + masterKey);
 
             System.out.println("\n");
 
-            SecureChannelProtocol.debugByteArray(putEncKey.getKeyData(), " derived putEnc session key data: ");
-            SecureChannelProtocol.debugByteArray(putMacKey.getKeyData(), " derived putMac session key data: ");
-            SecureChannelProtocol.debugByteArray(putKekKey.getKeyData(), " derived putKek session key data: ");
-
-            System.out.println("\n");
 
             SecureChannelProtocol.debugByteArray(encKey.getKeyData(), " derived enc session key data: ");
             SecureChannelProtocol.debugByteArray(macKey.getKeyData(), " derived mac session key data: ");
             SecureChannelProtocol.debugByteArray(kekKey.getKeyData(), " derived kek session key data: ");
 
-            ByteArrayOutputStream contextStream = new ByteArrayOutputStream();
-            try {
-                contextStream.write(test_host_challenge);
-                contextStream.write(test_card_challenge);
-            } catch (IOException e) {
-            }
-
-            StandardKDF standard = new StandardKDF(prot);
 
             ByteArrayOutputStream testContext = new ByteArrayOutputStream();
 
-            testContext.write(test_host_challenge);
-            testContext.write(test_card_challenge);
+            testContext.write(test_host_challenge_1);
+            testContext.write(test_card_challenge_1);
+
+            SecureChannelProtocol.debugByteArray(testContext.toByteArray(), "Test context bytes: ");
+
 
             NistSP800_108KDF  nistKdf = new NistSP800_108KDF(prot);
 
-            byte[] finalEncBytes = nistKdf.kdf_AES_CMAC_SCP03(encKey, testContext.toByteArray(), (byte) 0x04, 16);
-            byte[] finalMacBytes = nistKdf.kdf_AES_CMAC_SCP03(macKey, testContext.toByteArray(), (byte) 0x06, 16);
 
-            SymmetricKey sEnc  = prot.unwrapAESSymKeyOnToken(token, finalEncBytes, false);
-            SymmetricKey sMac  = macKey = prot.unwrapAESSymKeyOnToken(token, finalMacBytes, false);
-
-            byte[] cardCryptoVerify = nistKdf.kdf_AES_CMAC_SCP03(sMac, testContext.toByteArray(), CARD_CRYPTO_KDF_CONSTANT, 8);
+            byte[] cardCryptoVerify = nistKdf.kdf_AES_CMAC_SCP03(macKey, testContext.toByteArray(), CARD_CRYPTO_KDF_CONSTANT, 8);
             SecureChannelProtocol.debugByteArray(cardCryptoVerify, " calculated card cryptogram");
 
-            byte[] hostCrypto = nistKdf.kdf_AES_CMAC_SCP03(sMac, testContext.toByteArray(), HOST_CRYPTO_KDF_CONSTANT, 8);
+            byte[] hostCrypto = nistKdf.kdf_AES_CMAC_SCP03(macKey, testContext.toByteArray(), HOST_CRYPTO_KDF_CONSTANT, 8);
             SecureChannelProtocol.debugByteArray(hostCrypto, " calculated host cryptogram");
 
         } catch (AlreadyInitializedException e) {

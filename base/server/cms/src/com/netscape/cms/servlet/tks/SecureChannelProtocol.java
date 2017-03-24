@@ -36,6 +36,7 @@ public class SecureChannelProtocol {
     static String sharedSecretKeyName = null;
     static String masterKeyPrefix = null;
 
+    static final int DEF_AES_KEYLENGTH = 16;
     static final int KEYLENGTH = 16;
     static final int PREFIXLENGHT = 128;
     static final int DES2_LENGTH = 16;
@@ -288,7 +289,9 @@ public class SecureChannelProtocol {
 
         {
             String finalKeyType = keyType;
-            SymmetricKey devSymKey = returnDeveloperSymKey(token, finalKeyType, keySet, devKeyArray);
+            String devKeyType = params.getDevKeyType();
+            CMS.debug(method + " Developer key set case: incoming dev key type: " + devKeyType);
+            SymmetricKey devSymKey = returnDeveloperSymKey(token, finalKeyType, keySet, devKeyArray,devKeyType);
 
             StandardKDF standard = new StandardKDF(this);
             SymmetricKey divKey = null;
@@ -297,22 +300,31 @@ public class SecureChannelProtocol {
 
             //Consult the config to determine with diversification method to use.
             if (params.isVer1DiversNone()) {
+                CMS.debug(method + " No diversifcation requested. ");
                 noDivers = true;
             } else if (params.isVer1DiversEmv()) {
+                CMS.debug(method + " EMV diversification requested. ");
                 keyDiversified = KDF.getDiversificationData_EMV(xKDD, keyType);
             } else if (params.isVer1DiversVisa2()) {
+                CMS.debug(method + " Visa2 diversification requested.");
                 keyDiversified = KDF.getDiversificationData_VISA2(xKDD, keyType);
             } else {
                 throw new EBaseException(method + " Invalid diversification method!");
             }
 
             //Obtain the card key,it may just be the raw developer key
-            if (noDivers == true) {
-                divKey = unwrapAESSymKeyOnToken(token, devKeyArray, false);
+            if (noDivers == true || GPParams.AES.equalsIgnoreCase(devKeyType)) {
+                divKey = devSymKey;
             } else {
 
                 // The g&d calls for computing the aes card key with DES, it will then be treated as aes
-                divKey = standard.computeCardKey_SCP03_WithDES3(devSymKey, keyDiversified, token);
+                // Right now if the dev key type is AES, we do not support any diversification
+
+                if (GPParams.DES3.equalsIgnoreCase(devKeyType)) {
+                    divKey = standard.computeCardKey_SCP03_WithDES3(devSymKey, keyDiversified, token);
+                } else {
+                    throw new EBaseException(method + " Invalid devolper key type. Does not support diversification: "+ devKeyType);
+                }
             }
 
             NistSP800_108KDF nistKdf = new NistSP800_108KDF(this);
@@ -338,22 +350,35 @@ public class SecureChannelProtocol {
 
             masterKey = getSymKeyByName(token, keyNameStr);
 
+            String masterKeyType = params.getMasterKeyType();
+
+            CMS.debug(method + " Master key case: requested master key type: " + masterKeyType);
+
             StandardKDF standard = new StandardKDF(this);
 
             byte[] keyDiversified = null;
 
             if (params.isDiversNone()) {
-                throw new EBaseException(method + " No diversification requested in master key mode. Aborting...");
+                if (GPParams.AES.equalsIgnoreCase(masterKeyType)) {
+                    CMS.debug(method + " Master key case: no diversification requested: With master key type of AES ");
+                }
+                else {
+                    throw new EBaseException(method + " No diversification requested in master key mode. With master key type of DES3: Aborting...");
+                }
             } //Allow choice of emv or standard diversification
             else if (params.isDiversEmv()) {
                 keyDiversified = KDF.getDiversificationData_EMV(xKDD, keyType);
             } else if (params.isDiversVisa2()) {
                 keyDiversified = KDF.getDiversificationData_VISA2(xKDD, keyType);
             }
-
             SymmetricKey divKey = null;
 
-            divKey = standard.computeCardKey_SCP03_WithDES3(masterKey, keyDiversified, token);
+            if(GPParams.AES.equalsIgnoreCase(masterKeyType)) {
+                CMS.debug(method + " master key case with AES type.");
+                divKey = masterKey;
+            } else {
+                divKey = standard.computeCardKey_SCP03_WithDES3(masterKey, keyDiversified, token);
+            }
 
             NistSP800_108KDF nistKdf = new NistSP800_108KDF(this);
             // The kek session key does not call for derivation
@@ -488,11 +513,11 @@ public class SecureChannelProtocol {
 
             String finalKeyType = keyType;
 
-            SymmetricKey devSymKey = returnDeveloperSymKey(token, finalKeyType, keySet, devKeyArray);
+            SymmetricKey devSymKey = returnDeveloperSymKey(token, finalKeyType, keySet, devKeyArray,"DES3");
 
             // Create the auth with is the same as enc, might need it later.
             if (keyType.equals(encType)) {
-                returnDeveloperSymKey(token, authType, keySet, devKeyArray);
+                returnDeveloperSymKey(token, authType, keySet, devKeyArray,"DES3");
             }
 
             if (noDerive == true) {
@@ -672,14 +697,25 @@ public class SecureChannelProtocol {
     From that point it is a simple matter of retrieving  the desired key from the token.
     No security advantage is implied or desired here.
     */
-    public SymmetricKey returnDeveloperSymKey(CryptoToken token, String keyType, String keySet, byte[] inputKeyArray)
+    public SymmetricKey returnDeveloperSymKey(CryptoToken token, String keyType, String keySet, byte[] inputKeyArray, String keyAlg)
             throws EBaseException {
 
         SymmetricKey devKey = null;
 
         String method = "SecureChannelProtocol.returnDeveloperSymKey:";
 
-        String devKeyName = keySet + "-" + keyType + "Key";
+        boolean isAES = false;
+        String finalAlg = null;
+        if(keyAlg == null) {
+            finalAlg = "DES3";
+        }
+
+        if(keyAlg.equalsIgnoreCase("AES")) {
+            isAES = true;
+            finalAlg = "AES";
+        }
+
+        String devKeyName = keySet + "-" + keyType + "Key"  + "-" + finalAlg;
         CMS.debug(method + " entering.. searching for key: " + devKeyName);
 
         if (token == null || keyType == null || keySet == null) {
@@ -706,22 +742,31 @@ public class SecureChannelProtocol {
 
             CMS.debug(method + " inputKeyArray.length: " + inputLen);
 
-            if (inputLen != DES3_LENGTH && inputLen != DES2_LENGTH) {
-                throw new EBaseException(method + "invalid input key length!");
-            }
+            if (!isAES) {
+                if (inputLen != DES3_LENGTH && inputLen != DES2_LENGTH) {
+                    throw new EBaseException(method + "invalid input key length!");
+                }
 
-            if (inputLen == DES2_LENGTH) {
-                des3InputKey = new byte[DES3_LENGTH];
-                System.arraycopy(inputKeyArray, 0, des3InputKey, 0, DES2_LENGTH);
-                System.arraycopy(inputKeyArray, 0, des3InputKey, DES2_LENGTH, EIGHT_BYTES);
+                if (inputLen == DES2_LENGTH) {
+                    des3InputKey = new byte[DES3_LENGTH];
+                    System.arraycopy(inputKeyArray, 0, des3InputKey, 0, DES2_LENGTH);
+                    System.arraycopy(inputKeyArray, 0, des3InputKey, DES2_LENGTH, EIGHT_BYTES);
+
+                } else {
+                    System.arraycopy(inputKeyArray, 0, des3InputKey, 0, DES3_LENGTH);
+                }
+
+                SecureChannelProtocol.debugByteArray(des3InputKey, "Developer key to import: " + keyType + ": ");
+
+                devKey = unwrapSymKeyOnToken(token, des3InputKey, true);
 
             } else {
-                System.arraycopy(inputKeyArray, 0, des3InputKey, 0, DES3_LENGTH);
+
+                if(inputLen == DEF_AES_KEYLENGTH) { // support 128 bits for now
+                    devKey = unwrapAESSymKeyOnToken(token, inputKeyArray, true);
+                }
             }
 
-            SecureChannelProtocol.debugByteArray(des3InputKey, "Developer key to import: " + keyType + ": ");
-
-            devKey = unwrapSymKeyOnToken(token, des3InputKey, true);
             devKey.setNickName(devKeyName);
         } else {
             CMS.debug(method + " Found sym key: " + devKeyName);
@@ -1823,9 +1868,9 @@ public class SecureChannelProtocol {
             //This is the case where we revert to the original developer key set or key set 1
             if (protocol == PROTOCOL_ONE) {
                 CMS.debug(method + " Special case returning to the dev key set (1) for DiversifyKey, protocol 1!");
-                encKey = returnDeveloperSymKey(newToken, SecureChannelProtocol.encType, keySet, null);
-                macKey = returnDeveloperSymKey(newToken, SecureChannelProtocol.macType, keySet, null);
-                kekKey = returnDeveloperSymKey(newToken, SecureChannelProtocol.kekType, keySet, null);
+                encKey = returnDeveloperSymKey(newToken, SecureChannelProtocol.encType, keySet, null,"DES3");
+                macKey = returnDeveloperSymKey(newToken, SecureChannelProtocol.macType, keySet, null,"DES3");
+                kekKey = returnDeveloperSymKey(newToken, SecureChannelProtocol.kekType, keySet, null,"DES3");
             } else if (protocol == PROTOCOL_THREE) {
                 CMS.debug(method + " Special case or returning to the dev key set (or ver 1) for DiversifyKey, protocol 3!");
                 encKey = this.computeSessionKey_SCP03(tokenName, newMasterKeyName, newKeyInfo,
@@ -1920,7 +1965,15 @@ public class SecureChannelProtocol {
 
             CMS.debug(method + " old kek sym key is null");
 
-            old_kek_sym_key = returnDeveloperSymKey(token, SecureChannelProtocol.kekType, keySet, kekKeyArray);
+            String devKeyType = null;
+
+            if(protocol == PROTOCOL_THREE) {
+                devKeyType = params.getDevKeyType();
+            } else {
+                devKeyType = "DES3";
+            }
+
+            old_kek_sym_key = returnDeveloperSymKey(token, SecureChannelProtocol.kekType, keySet, kekKeyArray, devKeyType);
 
             output = createKeySetDataWithSymKeys(newKeyVersion, (byte[]) null,
                     old_kek_sym_key,
@@ -2070,7 +2123,7 @@ public class SecureChannelProtocol {
             throw new EBaseException(method + " Can't compose final output byte array!");
         }
 
-        //SecureChannelProtocol.debugByteArray(output, " Final output to createKeySetData: ");
+        SecureChannelProtocol.debugByteArray(output, " Final output to createKeySetData: ");
         CMS.debug(method + " returning output");
 
         return output;

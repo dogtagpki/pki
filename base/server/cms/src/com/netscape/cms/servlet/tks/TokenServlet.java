@@ -3184,6 +3184,26 @@ public class TokenServlet extends CMSServlet {
         params.setVersion1DiversificationScheme(diversVer1Keys);
         CMS.debug(method + " Version 1 keys Divers: " + divers);
 
+        String keyType = null;
+        try {
+            keyType = CMS.getConfigStore().getString(gp3Settings + ".devKeyType","DES3");
+        } catch (EBaseException e) {
+        }
+
+        CMS.debug(method + " devKeyType: " + keyType);
+
+        params.setDevKeyType(keyType);
+
+        try {
+            keyType = CMS.getConfigStore().getString(gp3Settings + ".masterKeyType","DES3");
+        } catch (EBaseException e) {
+        }
+
+        params.setMasterKeyType(keyType);
+
+        CMS.debug(method + " masterKeyType: " + keyType);
+
+
         return params;
     }
 
