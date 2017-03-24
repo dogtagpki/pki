@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4addcd18_91a6a53a",
+        "filename": "base/kra/shared/conf/CS.cfg",
+        "patchSetId": 1
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-03-24T15:37:13Z",
+      "side": 1,
+      "message": "Eventually IV will always be generated so all we need is the length, so it might be better to use a different parameter, for example:\n\nkra.storageUnit.wrapping.1.payloadIVLength\u003d16\n\nThe static payloadEncryptionIV can eventually be deprecated/dropped.",
+      "revId": "5e26dc6918fc18c2d562b0c766c4097b503cd055",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
