@@ -53,10 +53,12 @@ public class KeyRecordParser {
     public final static String OUT_SK_WRAP_ALGORITHM = "sessionKeyWrapAlgorithm";
     public final static String OUT_PL_WRAP_ALGORITHM = "payloadWrapAlgorithm";
     public final static String OUT_PL_WRAP_IV = "payloadWrapIV";
+    public final static String OUT_PL_WRAP_IV_LEN = "payloadWrapIVLen";
     public final static String OUT_PL_ENCRYPTION_ALGORITHM = "payloadEncryptionAlgorithm";
     public final static String OUT_PL_ENCRYPTION_MODE = "payloadEncryptionMode";
     public final static String OUT_PL_ENCRYPTION_PADDING = "payloadEncryptionPadding";
     public final static String OUT_PL_ENCRYPTION_IV = "payloadEncryptionIV";
+    public final static String OUT_PL_ENCRYPTION_IV_LEN = "payloadEncryptionIVLen";
     public final static String OUT_PL_ENCRYPTION_OID = "payloadEncryptionOID";
 
     /**

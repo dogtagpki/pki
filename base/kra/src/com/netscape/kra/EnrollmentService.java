@@ -67,6 +67,7 @@ import netscape.security.util.BigInt;
 import netscape.security.util.DerInputStream;
 import netscape.security.util.DerOutputStream;
 import netscape.security.util.DerValue;
+import netscape.security.util.WrappingParams;
 import netscape.security.x509.CertificateSubjectName;
 import netscape.security.x509.CertificateX509Key;
 import netscape.security.x509.X509CertInfo;
@@ -397,12 +398,14 @@ public class EnrollmentService implements IService {
                 statsSub.startTiming("encrypt_user_key");
             }
             byte privateKeyData[] = null;
+            WrappingParams params =  null;
 
             try {
+                params = mStorageUnit.getWrappingParams();
                 if (allowEncDecrypt_archival == true) {
-                    privateKeyData = mStorageUnit.encryptInternalPrivate(unwrapped);
+                    privateKeyData = mStorageUnit.encryptInternalPrivate(unwrapped, params);
                 } else {
-                    privateKeyData = mStorageUnit.wrap(entityPrivKey);
+                    privateKeyData = mStorageUnit.wrap(entityPrivKey, params);
                 }
             } catch (Exception e) {
                 mKRA.log(ILogger.LL_DEBUG, e.getMessage());
@@ -503,7 +506,7 @@ public class EnrollmentService implements IService {
             }
 
             try {
-                rec.setWrappingParams(mStorageUnit.getWrappingParams());
+                rec.setWrappingParams(params);
             } catch (Exception e) {
                 mKRA.log(ILogger.LL_FAILURE, "Failed to store wrapping parameters");
                 // TODO(alee) Set correct audit message here

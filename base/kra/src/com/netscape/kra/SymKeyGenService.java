@@ -43,6 +43,8 @@ import com.netscape.cms.servlet.key.KeyRequestDAO;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
+import netscape.security.util.WrappingParams;
+
 /**
  * This implementation implements SecurityData archival operations.
  * <p>
@@ -161,6 +163,7 @@ public class SymKeyGenService implements IService {
 
         byte[] publicKey = null;
         byte privateSecurityData[] = null;
+        WrappingParams params = null;
 
         if (sk == null) {
             auditSymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
@@ -169,7 +172,8 @@ public class SymKeyGenService implements IService {
         }
 
         try {
-            privateSecurityData = mStorageUnit.wrap(sk);
+            params = mStorageUnit.getWrappingParams();
+            privateSecurityData = mStorageUnit.wrap(sk, params);
         } catch (Exception e) {
             CMS.debug("Failed to generate security data to archive: " + e);
             auditSymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
@@ -213,7 +217,7 @@ public class SymKeyGenService implements IService {
         }
 
         try {
-            rec.setWrappingParams(mStorageUnit.getWrappingParams());
+            rec.setWrappingParams(params);
         } catch (Exception e) {
             mKRA.log(ILogger.LL_FAILURE,
                     "Failed to store wrapping parameters: " + e);

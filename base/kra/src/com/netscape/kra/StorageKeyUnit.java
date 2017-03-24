@@ -167,17 +167,33 @@ public class StorageKeyUnit extends EncryptionUnit implements
                 config.getInteger(KeyRecordParser.OUT_SK_LENGTH));
         }
 
-        if (config.getString(KeyRecordParser.OUT_PL_ENCRYPTION_IV, null) != null) {
-            byte[] iv = Base64.decodeBase64(config.getString(KeyRecordParser.OUT_PL_ENCRYPTION_IV));
-            params.setPayloadEncryptionIV(new IVParameterSpec(iv));
-        }
+        byte [] iv = getConfigIV(
+                config, KeyRecordParser.OUT_PL_ENCRYPTION_IV,
+                KeyRecordParser.OUT_PL_ENCRYPTION_IV_LEN);
+        if (iv != null) params.setPayloadEncryptionIV(new IVParameterSpec(iv));
 
-        if (config.getString(KeyRecordParser.OUT_PL_WRAP_IV, null) != null) {
-            byte[] iv = Base64.decodeBase64(config.getString(KeyRecordParser.OUT_PL_WRAP_IV));
-            params.setPayloadWrappingIV(new IVParameterSpec(iv));
-        }
+        iv = getConfigIV(
+                config, KeyRecordParser.OUT_PL_WRAP_IV,
+                KeyRecordParser.OUT_PL_WRAP_IV_LEN);
+        if (iv != null) params.setPayloadWrappingIV(new IVParameterSpec(iv));
 
         return params;
+    }
+
+    private byte[] getConfigIV(IConfigStore config, String iv_label, String len_label)
+            throws Exception{
+        String iv_string = config.getString(iv_label, null);
+        String iv_len = config.getString(len_label, null);
+
+        if (iv_string != null) {
+            return Base64.decodeBase64(iv_string);
+        }
+
+        if (iv_len != null) {
+            return CryptoUtil.getNonceData(Integer.parseInt(iv_len));
+        }
+
+        return null;
     }
 
     /**
@@ -1048,12 +1064,10 @@ public class StorageKeyUnit extends EncryptionUnit implements
      * Methods to encrypt and store secrets in the database
      ***************************************************************************************/
 
-    public byte[] encryptInternalPrivate(byte priKey[]) throws Exception {
+    public byte[] encryptInternalPrivate(byte priKey[], WrappingParams params) throws Exception {
         try (DerOutputStream out = new DerOutputStream()) {
             CMS.debug("EncryptionUnit.encryptInternalPrivate");
             CryptoToken internalToken = getInternalToken();
-
-            WrappingParams params = getWrappingParams();
 
             // (1) generate session key
             SymmetricKey sk = CryptoUtil.generateKey(
@@ -1094,24 +1108,24 @@ public class StorageKeyUnit extends EncryptionUnit implements
         }
     }
 
-    public byte[] wrap(PrivateKey privKey) throws Exception {
-        return _wrap(privKey,null);
+    public byte[] wrap(PrivateKey privKey, WrappingParams params) throws Exception {
+        return _wrap(privKey,null, params);
     }
 
-    public byte[] wrap(SymmetricKey symmKey) throws Exception {
-        return _wrap(null,symmKey);
+    public byte[] wrap(SymmetricKey symmKey, WrappingParams params) throws Exception {
+        return _wrap(null,symmKey, params);
     }
 
     /***
      * Internal wrap, accounts for either private or symmetric key
+     * @param params TODO
      */
-    private byte[] _wrap(PrivateKey priKey, SymmetricKey symmKey) throws Exception {
+    private byte[] _wrap(PrivateKey priKey, SymmetricKey symmKey, WrappingParams params) throws Exception {
         try (DerOutputStream out = new DerOutputStream()) {
             if ((priKey == null && symmKey == null) || (priKey != null && symmKey != null)) {
                 return null;
             }
             CMS.debug("EncryptionUnit.wrap interal.");
-            WrappingParams params = getWrappingParams();
             CryptoToken token = getToken();
 
             SymmetricKey.Usage usages[] = new SymmetricKey.Usage[2];
