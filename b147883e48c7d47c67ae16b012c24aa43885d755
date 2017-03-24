@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8e8fc4ce_d0c4c551",
+        "filename": "base/java-tools/src/com/netscape/cmstools/CRMFPopClient.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 508,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-03-24T16:20:45Z",
+      "side": 1,
+      "message": "The pki.conf is actually a shell script that should be sourced by the wrapper script. See base/java-tools/bin/pki.\n\nThere are 3 possible pki.conf:\n* /usr/share/pki/etc/pki.conf (default config)\n* /etc/pki/pki.conf (custom system-wide config)\n* ~/.dogtag/pki.conf (custom user config)\n\nThey all should be sourced by the wrapper script.",
+      "revId": "b147883e48c7d47c67ae16b012c24aa43885d755",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3adefac8_1daa5b64",
+        "filename": "base/java-tools/src/com/netscape/cmstools/CRMFPopClient.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 561,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-03-24T16:20:45Z",
+      "side": 1,
+      "message": "The variables defined in pki.conf should be read using System.getenv().",
+      "revId": "b147883e48c7d47c67ae16b012c24aa43885d755",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
