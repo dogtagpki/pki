@@ -22,6 +22,7 @@ import java.io.IOException;
 
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.selftests.SelfTestClient;
 import com.netscape.certsrv.selftests.SelfTestData;
 import com.netscape.cmstools.cli.CLI;
@@ -40,12 +41,14 @@ public class SelfTestCLI extends CLI {
         addModule(new SelfTestShowCLI(this));
     }
 
-    public void execute(String[] args) throws Exception {
+    public SelfTestClient getSelfTestClient() throws Exception {
 
-        client = parent.getClient();
+        if (selfTestClient != null) return selfTestClient;
+
+        PKIClient client = getClient();
         selfTestClient = (SelfTestClient)parent.getClient("selftest");
 
-        super.execute(args);
+        return selfTestClient;
     }
 
     public static void printSelfTestData(SelfTestData selfTestData) throws IOException {

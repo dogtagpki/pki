@@ -25,6 +25,7 @@ import java.util.Arrays;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
+import com.netscape.certsrv.selftests.SelfTestClient;
 import com.netscape.certsrv.selftests.SelfTestData;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
@@ -71,7 +72,8 @@ public class SelfTestShowCLI extends CLI {
         String selfTestID = args[0];
         String output = cmd.getOptionValue("output");
 
-        SelfTestData selfTestInfo = selfTestCLI.selfTestClient.getSelfTest(selfTestID);
+        SelfTestClient selfTestClient = selfTestCLI.getSelfTestClient();
+        SelfTestData selfTestInfo = selfTestClient.getSelfTest(selfTestID);
 
         if (output == null) {
             MainCLI.printMessage("SelfTest \"" + selfTestID + "\"");

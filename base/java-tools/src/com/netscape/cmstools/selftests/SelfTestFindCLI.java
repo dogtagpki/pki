@@ -24,6 +24,7 @@ import java.util.Collection;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
+import com.netscape.certsrv.selftests.SelfTestClient;
 import com.netscape.certsrv.selftests.SelfTestCollection;
 import com.netscape.certsrv.selftests.SelfTestData;
 import com.netscape.cmstools.cli.CLI;
@@ -75,7 +76,8 @@ public class SelfTestFindCLI extends CLI {
         s = cmd.getOptionValue("size");
         Integer size = s == null ? null : Integer.valueOf(s);
 
-        SelfTestCollection result = selfTestCLI.selfTestClient.findSelfTests(filter, start, size);
+        SelfTestClient selfTestClient = selfTestCLI.getSelfTestClient();
+        SelfTestCollection result = selfTestClient.findSelfTests(filter, start, size);
 
         MainCLI.printMessage(result.getTotal() + " entries matched");
         if (result.getTotal() == 0) return;

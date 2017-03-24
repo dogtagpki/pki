@@ -23,6 +23,7 @@ import java.util.Arrays;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.lang.StringUtils;
 
+import com.netscape.certsrv.selftests.SelfTestClient;
 import com.netscape.certsrv.selftests.SelfTestResult;
 import com.netscape.certsrv.selftests.SelfTestResults;
 import com.netscape.cmstools.cli.CLI;
@@ -68,17 +69,18 @@ public class SelfTestRunCLI extends CLI {
 
         String[] cmdArgs = cmd.getArgs();
 
+        SelfTestClient selfTestClient = selfTestCLI.getSelfTestClient();
         SelfTestResults results;
 
         if (cmdArgs.length == 0) {
-            results = selfTestCLI.selfTestClient.runSelfTests();
+            results = selfTestClient.runSelfTests();
 
         } else {
 
             results = new SelfTestResults();
 
             for (String selfTestID : cmdArgs) {
-                SelfTestResult result = selfTestCLI.selfTestClient.runSelfTest(selfTestID);
+                SelfTestResult result = selfTestClient.runSelfTest(selfTestID);
                 results.addEntry(result);;
             }
         }
