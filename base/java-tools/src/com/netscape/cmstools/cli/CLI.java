@@ -30,6 +30,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
 import org.apache.commons.lang.StringUtils;
 
+import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
 
 
@@ -180,6 +181,11 @@ public class CLI {
     }
 
     public String getManPage() {
+        return null;
+    }
+
+    public ClientConfig getConfig() throws Exception {
+        if (parent != null) return parent.getConfig();
         return null;
     }
 
