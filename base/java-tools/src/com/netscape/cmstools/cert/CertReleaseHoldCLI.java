@@ -24,6 +24,7 @@ import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
 
+import com.netscape.certsrv.cert.CertClient;
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.cert.CertRequestInfo;
 import com.netscape.certsrv.dbs.certdb.CertId;
@@ -69,10 +70,11 @@ public class CertReleaseHoldCLI extends CLI {
         }
 
         CertId certID = new CertId(cmdArgs[0]);
+        CertClient certClient = certCLI.getCertClient();
 
         if (!cmd.hasOption("force")) {
 
-            CertData certData = certCLI.certClient.getCert(certID);
+            CertData certData = certClient.getCert(certID);
 
             System.out.println("Placing certificate off-hold:");
 
@@ -88,7 +90,7 @@ public class CertReleaseHoldCLI extends CLI {
             }
         }
 
-        CertRequestInfo certRequestInfo = certCLI.certClient.unrevokeCert(certID);
+        CertRequestInfo certRequestInfo = certClient.unrevokeCert(certID);
 
         if (verbose) {
             CertCLI.printCertRequestInfo(certRequestInfo);
@@ -103,7 +105,7 @@ public class CertReleaseHoldCLI extends CLI {
                 MainCLI.printMessage("Could not place certificate \"" + certID.toHexString() + "\" off-hold");
             } else {
                 MainCLI.printMessage("Placed certificate \"" + certID.toHexString() + "\" off-hold");
-                CertData certData = certCLI.certClient.getCert(certID);
+                CertData certData = certClient.getCert(certID);
                 CertCLI.printCertData(certData, false, false);
             }
         } else {

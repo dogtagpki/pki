@@ -23,6 +23,7 @@ import java.util.Arrays;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
+import com.netscape.certsrv.user.UserClient;
 import com.netscape.certsrv.user.UserData;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
@@ -99,7 +100,8 @@ public class UserModifyCLI extends CLI {
         // userData.setType(cmd.getOptionValue("type"));
         userData.setState(cmd.getOptionValue("state"));
 
-        userData = userCLI.userClient.modifyUser(userId, userData);
+        UserClient userClient = userCLI.getUserClient();
+        userData = userClient.modifyUser(userId, userData);
 
         MainCLI.printMessage("Modified user \"" + userId + "\"");
 

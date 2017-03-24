@@ -24,6 +24,7 @@ import java.util.Collection;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
+import com.netscape.certsrv.group.GroupClient;
 import com.netscape.certsrv.group.GroupMemberCollection;
 import com.netscape.certsrv.group.GroupMemberData;
 import com.netscape.cmstools.cli.CLI;
@@ -81,7 +82,8 @@ public class GroupMemberFindCLI extends CLI {
         s = cmd.getOptionValue("size");
         Integer size = s == null ? null : Integer.valueOf(s);
 
-        GroupMemberCollection response = groupMemberCLI.groupClient.findGroupMembers(groupID, filter, start, size);
+        GroupClient groupClient = groupMemberCLI.getGroupClient();
+        GroupMemberCollection response = groupClient.findGroupMembers(groupID, filter, start, size);
 
         MainCLI.printMessage(response.getTotal() + " entries matched");
         if (response.getTotal() == 0) return;

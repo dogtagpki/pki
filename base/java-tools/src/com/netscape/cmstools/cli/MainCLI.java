@@ -438,6 +438,10 @@ public class MainCLI extends CLI {
         if (verbose) System.out.println("Message format: " + messageFormat);
     }
 
+    public ClientConfig getConfig() {
+        return config;
+    }
+
     public void convertCertStatusList(String list, Collection<Integer> statuses) throws Exception {
 
         if (list == null) return;

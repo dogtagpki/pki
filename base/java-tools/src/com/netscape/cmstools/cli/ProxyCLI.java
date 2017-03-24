@@ -91,7 +91,7 @@ public class ProxyCLI extends CLI {
         return module.getClient();
     }
 
-    public Object getClient(String name) {
+    public Object getClient(String name) throws Exception {
         return module.getClient(name);
     }
 
@@ -101,17 +101,17 @@ public class ProxyCLI extends CLI {
 
     public void execute(String[] args) throws Exception {
 
-        PKIClient client = module.getParent().getClient();
         AccountClient accountClient = null;
 
         try {
             // login if username or nickname is specified
-            ClientConfig config = client.getConfig();
+            ClientConfig config = module.getConfig();
             if (config.getUsername() != null || config.getCertNickname() != null) {
 
                 String subsystem = config.getSubsystem();
                 if (subsystem == null) subsystem = defaultSubsystem;
 
+                PKIClient client = module.getClient();
                 accountClient = new AccountClient(client, subsystem);
                 accountClient.login();
             }

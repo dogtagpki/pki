@@ -29,10 +29,12 @@ import com.netscape.cmstools.cli.CLI;
  */
 public class GroupMemberCLI extends CLI {
 
-    public GroupClient groupClient;
+    GroupCLI parent;
 
     public GroupMemberCLI(GroupCLI parent) {
         super("member", "Group member management commands", parent);
+
+        this.parent = parent;
 
         addModule(new GroupMemberFindCLI(this));
         addModule(new GroupMemberShowCLI(this));
@@ -45,12 +47,8 @@ public class GroupMemberCLI extends CLI {
         return "pki-group-member";
     }
 
-    public void execute(String[] args) throws Exception {
-
-        client = parent.getClient();
-        groupClient = ((GroupCLI)parent).groupClient;
-
-        super.execute(args);
+    public GroupClient getGroupClient() throws Exception {
+        return parent.getGroupClient();
     }
 
     public static void printGroupMember(GroupMemberData groupMemberData) {

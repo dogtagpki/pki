@@ -6,6 +6,7 @@ import java.util.List;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
+import com.netscape.certsrv.key.KeyClient;
 import com.netscape.certsrv.key.KeyRequestResource;
 import com.netscape.certsrv.key.KeyRequestResponse;
 import com.netscape.cmstools.cli.CLI;
@@ -109,6 +110,8 @@ public class KeyGenerateCLI extends CLI {
             usages = Arrays.asList(givenUsages.split(","));
         }
 
+        KeyClient keyClient = keyCLI.getKeyClient();
+
         KeyRequestResponse response = null;
         switch (keyAlgorithm) {
         case KeyRequestResource.DES3_ALGORITHM:
@@ -117,12 +120,12 @@ public class KeyGenerateCLI extends CLI {
         case KeyRequestResource.RC4_ALGORITHM:
         case KeyRequestResource.AES_ALGORITHM:
         case KeyRequestResource.RC2_ALGORITHM:
-            response = keyCLI.keyClient.generateSymmetricKey(
+            response = keyClient.generateSymmetricKey(
                     clientKeyId, keyAlgorithm, size, usages, null, realm);
             break;
         case KeyRequestResource.RSA_ALGORITHM:
         case KeyRequestResource.DSA_ALGORITHM:
-            response = keyCLI.keyClient.generateAsymmetricKey(
+            response = keyClient.generateAsymmetricKey(
                     clientKeyId, keyAlgorithm, size, usages, null, realm);
             break;
         default:

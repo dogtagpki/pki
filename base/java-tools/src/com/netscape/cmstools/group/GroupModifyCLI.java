@@ -23,6 +23,7 @@ import java.util.Arrays;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
+import com.netscape.certsrv.group.GroupClient;
 import com.netscape.certsrv.group.GroupData;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
@@ -72,7 +73,8 @@ public class GroupModifyCLI extends CLI {
         groupData.setID(groupID);
         groupData.setDescription(cmd.getOptionValue("description"));
 
-        groupData = groupCLI.groupClient.modifyGroup(groupID, groupData);
+        GroupClient groupClient = groupCLI.getGroupClient();
+        groupData = groupClient.modifyGroup(groupID, groupData);
 
         MainCLI.printMessage("Modified group \""+groupID+"\"");
 

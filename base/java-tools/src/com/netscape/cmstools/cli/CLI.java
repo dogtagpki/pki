@@ -30,6 +30,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
 import org.apache.commons.lang.StringUtils;
 
+import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
 
 
@@ -183,11 +184,17 @@ public class CLI {
         return null;
     }
 
-    public PKIClient getClient() throws Exception {
-        return client;
+    public ClientConfig getConfig() throws Exception {
+        if (parent != null) return parent.getConfig();
+        return null;
     }
 
-    public Object getClient(String name) {
+    public PKIClient getClient() throws Exception {
+        if (parent != null) return parent.getClient();
+        return null;
+    }
+
+    public Object getClient(String name) throws Exception {
         if (parent != null) return parent.getClient(name);
         return null;
     }

@@ -40,6 +40,7 @@ import org.mozilla.jss.pkix.primitive.Name;
 import com.netscape.certsrv.cert.CertClient;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
 import com.netscape.certsrv.cert.CertRequestInfos;
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfileInput;
 import com.netscape.certsrv.system.SystemCertClient;
@@ -213,19 +214,20 @@ public class ClientCertRequestCLI extends CLI {
         }
 
         String csr;
+        PKIClient client;
         if ("pkcs10".equals(requestType)) {
             csr = generatePkcs10Request(certDatabase, password, algorithm, length, subjectDN);
 
             // initialize database after PKCS10Client to avoid conflict
             mainCLI.init();
-            client = mainCLI.getClient();
+            client = getClient();
 
 
         } else if ("crmf".equals(requestType)) {
 
             // initialize database before CRMFPopClient to load transport certificate
             mainCLI.init();
-            client = mainCLI.getClient();
+            client = getClient();
 
             String encoded;
             if (transportCertFilename == null) {

@@ -21,6 +21,7 @@ package com.netscape.cmstools.group;
 import org.apache.commons.lang.StringUtils;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.group.GroupClient;
 import com.netscape.certsrv.group.GroupData;
 import com.netscape.cmstools.cli.CLI;
@@ -59,22 +60,20 @@ public class GroupCLI extends CLI {
         return "pki-group";
     }
 
-    public void execute(String[] args) throws Exception {
+    public GroupClient getGroupClient() throws Exception {
 
-        client = parent.getClient();
-        groupClient = (GroupClient)parent.getClient("group");
+        if (groupClient != null) return groupClient;
 
-        // if this is a top-level command
-        if (groupClient == null) {
-            // determine the subsystem
-            String subsystem = client.getSubsystem();
-            if (subsystem == null) subsystem = "ca";
+        PKIClient client = getClient();
 
-            // create new group client
-            groupClient = new GroupClient(client, subsystem);
-        }
+        // determine the subsystem
+        String subsystem = client.getSubsystem();
+        if (subsystem == null) subsystem = "ca";
 
-        super.execute(args);
+        // create new group client
+        groupClient = new GroupClient(client, subsystem);
+
+        return groupClient;
     }
 
     public static void printGroup(GroupData groupData) {

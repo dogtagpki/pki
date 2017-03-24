@@ -18,6 +18,7 @@
 
 package com.netscape.cmstools.system;
 
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.system.DomainInfo;
 import com.netscape.certsrv.system.SecurityDomainClient;
 import com.netscape.certsrv.system.SecurityDomainHost;
@@ -52,9 +53,11 @@ public class SecurityDomainCLI extends CLI {
         return "pki-securitydomain";
     }
 
-    public void execute(String[] args) throws Exception {
+    public SecurityDomainClient getSecurityDomainClient() throws Exception {
 
-        client = parent.getClient();
+        if (securityDomainClient != null) return securityDomainClient;
+
+        PKIClient client = getClient();
 
         // determine the subsystem
         String subsystem = client.getSubsystem();
@@ -63,7 +66,7 @@ public class SecurityDomainCLI extends CLI {
         // create new security domain client
         securityDomainClient = new SecurityDomainClient(client, subsystem);
 
-        super.execute(args);
+        return securityDomainClient;
     }
 
     public static void printSecurityDomain(DomainInfo domain) {

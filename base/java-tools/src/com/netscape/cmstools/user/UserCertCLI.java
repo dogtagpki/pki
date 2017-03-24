@@ -29,10 +29,12 @@ import com.netscape.cmstools.cli.CLI;
  */
 public class UserCertCLI extends CLI {
 
-    public UserClient userClient;
+    UserCLI parent;
 
     public UserCertCLI(UserCLI parent) {
         super("cert", "User certificate management commands", parent);
+
+        this.parent = parent;
 
         addModule(new UserCertFindCLI(this));
         addModule(new UserCertShowCLI(this));
@@ -45,12 +47,8 @@ public class UserCertCLI extends CLI {
         return "pki-user-cert";
     }
 
-    public void execute(String[] args) throws Exception {
-
-        client = parent.getClient();
-        userClient = ((UserCLI)parent).userClient;
-
-        super.execute(args);
+    public UserClient getUserClient() throws Exception {
+        return parent.getUserClient();
     }
 
     public static void printCert(

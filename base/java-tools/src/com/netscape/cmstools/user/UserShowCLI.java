@@ -22,6 +22,7 @@ import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
 
+import com.netscape.certsrv.user.UserClient;
 import com.netscape.certsrv.user.UserData;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
@@ -59,7 +60,8 @@ public class UserShowCLI extends CLI {
 
         String userId = args[0];
 
-        UserData userData = userCLI.userClient.getUser(userId);
+        UserClient userClient = userCLI.getUserClient();
+        UserData userData = userClient.getUser(userId);
 
         MainCLI.printMessage("User \"" + userId + "\"");
 

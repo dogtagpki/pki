@@ -194,7 +194,7 @@ public class ClientCertImportCLI extends CLI {
             // late initialization
             mainCLI.init();
 
-            client = mainCLI.getClient();
+            PKIClient client = getClient();
             URI serverURI = mainCLI.config.getServerURI();
 
             String caServerURI = serverURI.getScheme() + "://" +
@@ -315,7 +315,7 @@ public class ClientCertImportCLI extends CLI {
     public void run(String[] command) throws IOException, InterruptedException {
 
         if (verbose) {
-           System.out.println("Command: " + StringUtils.join(command));
+           System.out.println("Command: " + StringUtils.join(command, " "));
         }
 
         Runtime rt = Runtime.getRuntime();

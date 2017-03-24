@@ -18,7 +18,8 @@
 
 package com.netscape.cmstools.cli;
 
-import com.netscape.certsrv.client.Client;
+import com.netscape.certsrv.client.PKIClient;
+import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.kra.KRAClient;
 import com.netscape.cmstools.group.GroupCLI;
 import com.netscape.cmstools.key.KeyCLI;
@@ -41,20 +42,13 @@ public class KRACLI extends SubsystemCLI {
         addModule(new UserCLI(this));
     }
 
-    public void init() throws Exception {
-        client = parent.getClient();
+    public SubsystemClient getSubsystemClient() throws Exception {
+
+        if (kraClient != null) return kraClient;
+
+        PKIClient client = getClient();
         kraClient = new KRAClient(client);
-    }
 
-    public void login() {
-        kraClient.login();
-    }
-
-    public void logout() {
-        kraClient.logout();
-    }
-
-    public Client getClient(String name) {
-        return kraClient.getClient(name);
+        return kraClient;
     }
 }

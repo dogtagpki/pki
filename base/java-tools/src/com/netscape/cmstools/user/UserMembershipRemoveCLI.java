@@ -22,6 +22,7 @@ import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
 
+import com.netscape.certsrv.user.UserClient;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -59,7 +60,8 @@ public class UserMembershipRemoveCLI extends CLI {
         String userID = args[0];
         String groupID = args[1];
 
-        userMembershipCLI.userClient.removeUserMembership(userID, groupID);
+        UserClient userClient = userMembershipCLI.getUserClient();
+        userClient.removeUserMembership(userID, groupID);
 
         MainCLI.printMessage("Deleted membership in group \""+groupID+"\"");
     }

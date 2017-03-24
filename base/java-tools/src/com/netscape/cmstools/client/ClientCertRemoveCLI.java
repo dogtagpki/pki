@@ -22,6 +22,7 @@ import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
 
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -56,7 +57,7 @@ public class ClientCertRemoveCLI extends CLI {
             throw new Exception("No nickname specified.");
         }
 
-        client = parent.getClient();
+        PKIClient client = getClient();
 
         String nickname = cmdArgs[0];
         client.removeCert(nickname);

@@ -14,6 +14,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
 import com.netscape.certsrv.ca.AuthorityID;
+import com.netscape.certsrv.cert.CertClient;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
 import com.netscape.certsrv.cert.CertRequestInfos;
 import com.netscape.certsrv.dbs.certdb.CertId;
@@ -133,7 +134,8 @@ public class CertRequestSubmitCLI extends CLI {
                 System.out.println("Retrieving " + profileID + " profile.");
             }
 
-            request = certCLI.certClient.getEnrollmentTemplate(profileID);
+            CertClient certClient = certCLI.getCertClient();
+            request = certClient.getEnrollmentTemplate(profileID);
 
             // set default request type for new request
             if (requestType == null) requestType = "pkcs10";
@@ -258,7 +260,8 @@ public class CertRequestSubmitCLI extends CLI {
             System.out.println(request);
         }
 
-        CertRequestInfos cri = certCLI.certClient.enrollRequest(request, aid, adn);
+        CertClient certClient = certCLI.getCertClient();
+        CertRequestInfos cri = certClient.enrollRequest(request, aid, adn);
         MainCLI.printMessage("Submitted certificate request");
         CertCLI.printCertRequestInfos(cri);
     }

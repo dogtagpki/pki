@@ -29,22 +29,20 @@ import com.netscape.cmstools.cli.CLI;
  */
 public class UserMembershipCLI extends CLI {
 
-    public UserClient userClient;
+    UserCLI parent;
 
     public UserMembershipCLI(UserCLI parent) {
         super("membership", "User membership management commands", parent);
+
+        this.parent = parent;
 
         addModule(new UserMembershipFindCLI(this));
         addModule(new UserMembershipAddCLI(this));
         addModule(new UserMembershipRemoveCLI(this));
     }
 
-    public void execute(String[] args) throws Exception {
-
-        client = parent.getClient();
-        userClient = ((UserCLI)parent).userClient;
-
-        super.execute(args);
+    public UserClient getUserClient() throws Exception {
+        return parent.getUserClient();
     }
 
     public static void printUserMembership(UserMembershipData userMembershipData) {

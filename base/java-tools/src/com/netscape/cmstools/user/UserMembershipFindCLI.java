@@ -24,6 +24,7 @@ import java.util.Collection;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
+import com.netscape.certsrv.user.UserClient;
 import com.netscape.certsrv.user.UserMembershipCollection;
 import com.netscape.certsrv.user.UserMembershipData;
 import com.netscape.cmstools.cli.CLI;
@@ -81,7 +82,8 @@ public class UserMembershipFindCLI extends CLI {
         s = cmd.getOptionValue("size");
         Integer size = s == null ? null : Integer.valueOf(s);
 
-        UserMembershipCollection response = userMembershipCLI.userClient.findUserMemberships(userID, filter, start, size);
+        UserClient userClient = userMembershipCLI.getUserClient();
+        UserMembershipCollection response = userClient.findUserMemberships(userID, filter, start, size);
 
         MainCLI.printMessage(response.getTotal() + " entries matched");
         if (response.getTotal() == 0) return;
