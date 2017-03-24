@@ -7,6 +7,7 @@ import java.util.Properties;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
+import com.netscape.certsrv.profile.ProfileClient;
 import com.netscape.certsrv.profile.ProfileData;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
@@ -62,8 +63,10 @@ public class ProfileShowCLI extends CLI {
             }
         }
 
+        ProfileClient profileClient = profileCLI.getProfileClient();
+
         if (cmd.hasOption("raw")) {
-            Properties profileConfig = profileCLI.profileClient.retrieveProfileRaw(profileId);
+            Properties profileConfig = profileClient.retrieveProfileRaw(profileId);
 
             if (filename != null) {
                 profileConfig.store(new FileOutputStream(filename), null);
@@ -73,12 +76,12 @@ public class ProfileShowCLI extends CLI {
             }
         } else {
             MainCLI.printMessage("Profile \"" + profileId + "\"");
-            ProfileData profileData = profileCLI.profileClient.retrieveProfile(profileId);
+            ProfileData profileData = profileClient.retrieveProfile(profileId);
 
             if (filename != null) {
                 ProfileCLI.saveProfileToFile(filename, profileData);
             } else {
-                ProfileCLI.printProfile(profileData, profileCLI.getClient().getConfig().getServerURI());
+                ProfileCLI.printProfile(profileData, profileCLI.getConfig().getServerURI());
             }
         }
     }

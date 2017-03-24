@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
 
+import com.netscape.certsrv.profile.ProfileClient;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -37,7 +38,8 @@ public class ProfileEnableCLI extends CLI {
 
         String profileId = cmdArgs[0];
 
-        profileCLI.profileClient.enableProfile(profileId);
+        ProfileClient profileClient = profileCLI.getProfileClient();
+        profileClient.enableProfile(profileId);
 
         MainCLI.printMessage("Enabled profile \"" + profileId + "\"");
     }

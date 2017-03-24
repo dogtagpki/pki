@@ -15,6 +15,7 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfileClient;
 import com.netscape.certsrv.profile.ProfileData;
@@ -55,9 +56,11 @@ public class ProfileCLI extends CLI {
         return "pki-ca-profile";
     }
 
-    public void execute(String[] args) throws Exception {
+    public ProfileClient getProfileClient() throws Exception {
 
-        client = parent.getClient();
+        if (profileClient != null) return profileClient;
+
+        PKIClient client = getClient();
 
         // determine the subsystem
         String subsystem = client.getSubsystem();
@@ -66,7 +69,7 @@ public class ProfileCLI extends CLI {
         // create new profile client
         profileClient = new ProfileClient(client, subsystem);
 
-        super.execute(args);
+        return profileClient;
     }
 
     public static void printProfileDataInfo(ProfileDataInfo info) {

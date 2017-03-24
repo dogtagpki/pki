@@ -6,6 +6,7 @@ import java.util.Properties;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
+import com.netscape.certsrv.profile.ProfileClient;
 import com.netscape.certsrv.profile.ProfileData;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
@@ -47,18 +48,20 @@ public class ProfileModifyCLI extends CLI {
             throw new Exception("Missing input file name.");
         }
 
+        ProfileClient profileClient = profileCLI.getProfileClient();
+
         if (cmd.hasOption("raw")) {
             Properties properties = ProfileCLI.readRawProfileFromFile(filename);
             String profileId = properties.getProperty("profileId");
-            profileCLI.profileClient.modifyProfileRaw(profileId, properties).store(System.out, null);
+            profileClient.modifyProfileRaw(profileId, properties).store(System.out, null);
             MainCLI.printMessage("Modified profile " + profileId);
         } else {
             ProfileData data = ProfileCLI.readProfileFromFile(filename);
-            data = profileCLI.profileClient.modifyProfile(data);
+            data = profileClient.modifyProfile(data);
 
             MainCLI.printMessage("Modified profile " + data.getId());
 
-            ProfileCLI.printProfile(data, profileCLI.getClient().getConfig().getServerURI());
+            ProfileCLI.printProfile(data, profileCLI.getConfig().getServerURI());
         }
     }
 }

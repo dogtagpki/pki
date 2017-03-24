@@ -25,6 +25,7 @@ import java.util.Properties;
 
 import org.apache.commons.cli.CommandLine;
 
+import com.netscape.certsrv.profile.ProfileClient;
 import com.netscape.cmstools.cli.CLI;
 
 public class ProfileEditCLI extends CLI {
@@ -57,8 +58,10 @@ public class ProfileEditCLI extends CLI {
 
         String profileId = cmdArgs[0];
 
+        ProfileClient profileClient = profileCLI.getProfileClient();
+
         // read profile into temporary file
-        Properties orig = profileCLI.profileClient.retrieveProfileRaw(profileId);
+        Properties orig = profileClient.retrieveProfileRaw(profileId);
         String enabled = orig.getProperty("enable");
         if (Boolean.valueOf(enabled)) {
             throw new Exception("Cannot edit profile. Profile must be disabled.");
@@ -88,7 +91,7 @@ public class ProfileEditCLI extends CLI {
             cur.load(Files.newInputStream(tempFile));
 
             if (!cur.equals(orig)) {
-                profileCLI.profileClient.modifyProfileRaw(profileId, cur);
+                profileClient.modifyProfileRaw(profileId, cur);
             }
             cur.store(System.out, null);
         } finally {
