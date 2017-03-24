@@ -22,6 +22,7 @@ import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
 
+import com.netscape.certsrv.key.KeyClient;
 import com.netscape.certsrv.key.KeyRequestInfo;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmstools.cli.CLI;
@@ -57,7 +58,8 @@ public class KeyRequestShowCLI extends CLI {
 
         RequestId requestId = new RequestId(args[0].trim());
 
-        KeyRequestInfo keyRequestInfo = keyCLI.keyClient.getRequestInfo(requestId);
+        KeyClient keyClient = keyCLI.getKeyClient();
+        KeyRequestInfo keyRequestInfo = keyClient.getRequestInfo(requestId);
 
         KeyCLI.printKeyRequestInfo(keyRequestInfo);
     }

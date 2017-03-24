@@ -13,6 +13,7 @@ import org.apache.commons.cli.Option;
 
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.key.Key;
+import com.netscape.certsrv.key.KeyClient;
 import com.netscape.certsrv.key.KeyRecoveryRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmstools.cli.CLI;
@@ -77,6 +78,7 @@ public class KeyRetrieveCLI extends CLI {
 
         String requestFile = cmd.getOptionValue("input");
 
+        KeyClient keyClient = keyCLI.getKeyClient();
         Key keyData = null;
 
         if (requestFile != null) {
@@ -90,24 +92,24 @@ public class KeyRetrieveCLI extends CLI {
             }
 
             if (req.getCertificate() != null) {
-                keyData = keyCLI.keyClient.retrieveKeyByPKCS12(req.getKeyId(), req.getCertificate(),
+                keyData = keyClient.retrieveKeyByPKCS12(req.getKeyId(), req.getCertificate(),
                         req.getPassphrase());
 
             } else if (req.getPassphrase() != null) {
-                keyData = keyCLI.keyClient.retrieveKeyByPassphrase(req.getKeyId(), req.getPassphrase());
+                keyData = keyClient.retrieveKeyByPassphrase(req.getKeyId(), req.getPassphrase());
 
             } else if (req.getSessionWrappedPassphrase() != null) {
-                keyData = keyCLI.keyClient.retrieveKeyUsingWrappedPassphrase(req.getKeyId(),
+                keyData = keyClient.retrieveKeyUsingWrappedPassphrase(req.getKeyId(),
                         Utils.base64decode(req.getTransWrappedSessionKey()),
                         Utils.base64decode(req.getSessionWrappedPassphrase()),
                         Utils.base64decode(req.getNonceData()));
 
             } else if (req.getTransWrappedSessionKey() != null) {
-                keyData = keyCLI.keyClient.retrieveKey(req.getKeyId(),
+                keyData = keyClient.retrieveKey(req.getKeyId(),
                         Utils.base64decode(req.getTransWrappedSessionKey()));
 
             } else {
-                keyData = keyCLI.keyClient.retrieveKey(req.getKeyId());
+                keyData = keyClient.retrieveKey(req.getKeyId());
             }
 
         } else {
@@ -122,16 +124,16 @@ public class KeyRetrieveCLI extends CLI {
 
             if (passphrase != null) {
                 if (requestId != null) {
-                    keyData = keyCLI.keyClient.retrieveKeyByRequestWithPassphrase(
+                    keyData = keyClient.retrieveKeyByRequestWithPassphrase(
                             new RequestId(requestId), passphrase);
                 } else {
-                    keyData = keyCLI.keyClient.retrieveKeyByPassphrase(new KeyId(keyId), passphrase);
+                    keyData = keyClient.retrieveKeyByPassphrase(new KeyId(keyId), passphrase);
                 }
             } else {
                 if (requestId != null) {
-                    keyData = keyCLI.keyClient.retrieveKeyByRequest(new RequestId(requestId));
+                    keyData = keyClient.retrieveKeyByRequest(new RequestId(requestId));
                 } else {
-                    keyData = keyCLI.keyClient.retrieveKey(new KeyId(keyId));
+                    keyData = keyClient.retrieveKey(new KeyId(keyId));
                 }
 
                 clientEncryption = false;

@@ -19,6 +19,7 @@
 package com.netscape.cmstools.key;
 
 import com.netscape.certsrv.cert.CertData;
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.key.KeyClient;
 import com.netscape.certsrv.key.KeyInfo;
 import com.netscape.certsrv.key.KeyRequestInfo;
@@ -70,9 +71,11 @@ public class KeyCLI extends CLI {
         return "pki-key";
     }
 
-    public void execute(String[] args) throws Exception {
+    public KeyClient getKeyClient() throws Exception {
 
-        client = parent.getClient();
+        if (keyClient != null) return keyClient;
+
+        PKIClient client = getClient();
 
         // determine the subsystem
         String subsystem = client.getSubsystem();
@@ -81,15 +84,16 @@ public class KeyCLI extends CLI {
 
         // create new key client
         keyClient = new KeyClient(client, subsystem);
+        systemCertClient = new SystemCertClient(client, subsystem);
 
         // if security database password is specified,
         // prepare key client for archival/retrieval
         if (client.getConfig().getCertPassword() != null) {
+
             // create crypto provider for key client
             keyClient.setCrypto(new NSSCryptoProvider(client.getConfig()));
 
             // download transport cert
-            systemCertClient = new SystemCertClient(client, subsystem);
             String transportCert = systemCertClient.getTransportCert().getEncoded();
             transportCert = transportCert.substring(CertData.HEADER.length(),
                     transportCert.indexOf(CertData.FOOTER));
@@ -98,7 +102,7 @@ public class KeyCLI extends CLI {
             keyClient.setTransportCert(transportCert);
         }
 
-        super.execute(args);
+        return keyClient;
     }
 
     public static void printKeyInfo(KeyInfo info) {

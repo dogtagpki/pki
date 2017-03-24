@@ -12,6 +12,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
 import com.netscape.certsrv.key.KeyArchivalRequest;
+import com.netscape.certsrv.key.KeyClient;
 import com.netscape.certsrv.key.KeyRequestResponse;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
@@ -68,6 +69,7 @@ public class KeyArchiveCLI extends CLI {
         String requestFile = cmd.getOptionValue("input");
 
         KeyRequestResponse response = null;
+        KeyClient keyClient = keyCLI.getKeyClient();
 
         if (requestFile != null) {
             // Case where the request template file is used. For pre-encrypted data.
@@ -78,11 +80,11 @@ public class KeyArchiveCLI extends CLI {
                 KeyArchivalRequest req = (KeyArchivalRequest) unmarshaller.unmarshal(fis);
 
                 if (req.getPKIArchiveOptions() != null) {
-                    response = keyCLI.keyClient.archivePKIOptions(req.getClientKeyId(), req.getDataType(),
+                    response = keyClient.archivePKIOptions(req.getClientKeyId(), req.getDataType(),
                             req.getKeyAlgorithm(), req.getKeySize(), Utils.base64decode(req.getPKIArchiveOptions()),
                             req.getRealm());
                 } else {
-                    response = keyCLI.keyClient.archiveEncryptedData(req.getClientKeyId(), req.getDataType(),
+                    response = keyClient.archiveEncryptedData(req.getClientKeyId(), req.getDataType(),
                             req.getKeyAlgorithm(), req.getKeySize(), req.getAlgorithmOID(),
                             Utils.base64decode(req.getSymmetricAlgorithmParams()),
                             Utils.base64decode(req.getWrappedPrivateData()),
@@ -109,7 +111,7 @@ public class KeyArchiveCLI extends CLI {
             }
             String realm = cmd.getOptionValue("realm");
 
-            response = keyCLI.keyClient.archivePassphrase(clientKeyId, passphrase, realm);
+            response = keyClient.archivePassphrase(clientKeyId, passphrase, realm);
         }
 
         MainCLI.printMessage("Archival request details");

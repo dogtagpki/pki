@@ -24,6 +24,7 @@ import java.util.Collection;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
+import com.netscape.certsrv.key.KeyClient;
 import com.netscape.certsrv.key.KeyInfo;
 import com.netscape.certsrv.key.KeyInfoCollection;
 import com.netscape.cmstools.cli.CLI;
@@ -108,7 +109,8 @@ public class KeyFindCLI extends CLI {
         s = cmd.getOptionValue("size");
         Integer size = s == null ? null : Integer.valueOf(s);
 
-        KeyInfoCollection keys = keyCLI.keyClient.listKeys(clientKeyID, status, maxResults, maxTime, start, size, realm);
+        KeyClient keyClient = keyCLI.getKeyClient();
+        KeyInfoCollection keys = keyClient.listKeys(clientKeyID, status, maxResults, maxTime, start, size, realm);
 
         Collection<KeyInfo> entries = keys.getEntries();
 

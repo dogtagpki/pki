@@ -24,6 +24,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
 import com.netscape.certsrv.dbs.keydb.KeyId;
+import com.netscape.certsrv.key.KeyClient;
 import com.netscape.certsrv.key.KeyInfo;
 import com.netscape.cmstools.cli.CLI;
 
@@ -67,9 +68,10 @@ public class KeyModifyCLI extends CLI {
 
         KeyId keyId = new KeyId(cmdArgs[0]);
 
-        keyCLI.keyClient.modifyKeyStatus(keyId, status);
+        KeyClient keyClient = keyCLI.getKeyClient();
+        keyClient.modifyKeyStatus(keyId, status);
 
-        KeyInfo keyInfo = keyCLI.keyClient.getKeyInfo(keyId);
+        KeyInfo keyInfo = keyClient.getKeyInfo(keyId);
         KeyCLI.printKeyInfo(keyInfo);
     }
 }

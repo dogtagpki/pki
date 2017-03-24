@@ -12,6 +12,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
 import com.netscape.certsrv.dbs.keydb.KeyId;
+import com.netscape.certsrv.key.KeyClient;
 import com.netscape.certsrv.key.KeyRecoveryRequest;
 import com.netscape.certsrv.key.KeyRequestResponse;
 import com.netscape.cmstools.cli.CLI;
@@ -61,6 +62,7 @@ public class KeyRecoverCLI extends CLI {
         String keyID = cmd.getOptionValue("keyID");
 
         KeyRequestResponse response = null;
+        KeyClient keyClient = keyCLI.getKeyClient();
 
         if (requestFile != null) {
             try {
@@ -68,7 +70,7 @@ public class KeyRecoverCLI extends CLI {
                 Unmarshaller unmarshaller = context.createUnmarshaller();
                 FileInputStream fis = new FileInputStream(requestFile);
                 KeyRecoveryRequest req = (KeyRecoveryRequest) unmarshaller.unmarshal(fis);
-                response = keyCLI.keyClient.recoverKey(req.getKeyId(),
+                response = keyClient.recoverKey(req.getKeyId(),
                         Utils.base64decode(req.getSessionWrappedPassphrase()),
                         Utils.base64decode(req.getTransWrappedSessionKey()), Utils.base64decode(req.getNonceData()),
                         req.getCertificate());
@@ -80,7 +82,7 @@ public class KeyRecoverCLI extends CLI {
 
         } else if (keyID != null) {
             String keyId = cmd.getOptionValue("keyID");
-            response = keyCLI.keyClient.recoverKey(new KeyId(keyId), null, null, null, null);
+            response = keyClient.recoverKey(new KeyId(keyId), null, null, null, null);
         } else {
             throw new Exception("Neither a key ID nor a request file's path is specified.");
         }

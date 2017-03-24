@@ -5,6 +5,7 @@ import java.util.Arrays;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
+import com.netscape.certsrv.key.KeyClient;
 import com.netscape.certsrv.key.KeyRequestInfo;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmstools.cli.CLI;
@@ -48,23 +49,24 @@ public class KeyRequestReviewCLI extends CLI {
         }
 
         RequestId reqId = new RequestId(cmdArgs[0]);
+        KeyClient keyClient = keyCLI.getKeyClient();
 
         String action = cmd.getOptionValue("action");
         switch (action.toLowerCase()) {
         case "approve":
-            keyCLI.keyClient.approveRequest(reqId);
+            keyClient.approveRequest(reqId);
             break;
         case "reject":
-            keyCLI.keyClient.rejectRequest(reqId);
+            keyClient.rejectRequest(reqId);
             break;
         case "cancel":
-            keyCLI.keyClient.cancelRequest(reqId);
+            keyClient.cancelRequest(reqId);
             break;
         default:
             throw new Exception("Invalid action.");
         }
 
-        KeyRequestInfo keyRequestInfo = keyCLI.keyClient.getRequestInfo(reqId);
+        KeyRequestInfo keyRequestInfo = keyClient.getRequestInfo(reqId);
 
         MainCLI.printMessage("Result");
         KeyCLI.printKeyRequestInfo(keyRequestInfo);

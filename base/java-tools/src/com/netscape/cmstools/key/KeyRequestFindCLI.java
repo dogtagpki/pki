@@ -24,6 +24,7 @@ import java.util.Collection;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
+import com.netscape.certsrv.key.KeyClient;
 import com.netscape.certsrv.key.KeyRequestInfo;
 import com.netscape.certsrv.key.KeyRequestInfoCollection;
 import com.netscape.certsrv.request.RequestId;
@@ -114,7 +115,8 @@ public class KeyRequestFindCLI extends CLI {
         s = cmd.getOptionValue("maxTime");
         Integer maxTime = s == null ? null : Integer.valueOf(s);
 
-        KeyRequestInfoCollection keys = keyCLI.keyClient.listRequests(
+        KeyClient keyClient = keyCLI.getKeyClient();
+        KeyRequestInfoCollection keys = keyClient.listRequests(
                 status, type, clientKeyID, start, pageSize, maxResults, maxTime, realm);
 
         MainCLI.printMessage(keys.getTotal() + " entries matched");

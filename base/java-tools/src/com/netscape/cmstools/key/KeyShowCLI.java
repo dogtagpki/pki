@@ -24,6 +24,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
 import com.netscape.certsrv.dbs.keydb.KeyId;
+import com.netscape.certsrv.key.KeyClient;
 import com.netscape.certsrv.key.KeyInfo;
 import com.netscape.cmstools.cli.CLI;
 
@@ -59,14 +60,15 @@ public class KeyShowCLI extends CLI {
 
         String[] cmdArgs = cmd.getArgs();
         String clientKeyId = cmd.getOptionValue("clientKeyID");
+        KeyClient keyClient = keyCLI.getKeyClient();
         KeyInfo keyInfo;
 
         if (cmdArgs.length == 1) {
             KeyId keyId = new KeyId(cmdArgs[0]);
-            keyInfo = keyCLI.keyClient.getKeyInfo(keyId);
+            keyInfo = keyClient.getKeyInfo(keyId);
 
         } else if (clientKeyId != null) {
-            keyInfo = keyCLI.keyClient.getActiveKeyInfo(clientKeyId);
+            keyInfo = keyClient.getActiveKeyInfo(clientKeyId);
 
         } else {
             throw new Exception("Missing Key ID or Client Key ID.");
