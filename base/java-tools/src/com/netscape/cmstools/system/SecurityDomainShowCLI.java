@@ -23,6 +23,7 @@ import java.util.Arrays;
 import org.apache.commons.cli.CommandLine;
 
 import com.netscape.certsrv.system.DomainInfo;
+import com.netscape.certsrv.system.SecurityDomainClient;
 import com.netscape.cmstools.cli.CLI;
 
 /**
@@ -56,7 +57,8 @@ public class SecurityDomainShowCLI extends CLI {
             throw new Exception("Too many arguments specified.");
         }
 
-        DomainInfo domain = securityDomainCLI.securityDomainClient.getDomainInfo();
+        SecurityDomainClient securityDomainClient = securityDomainCLI.getSecurityDomainClient();
+        DomainInfo domain = securityDomainClient.getDomainInfo();
 
         SecurityDomainCLI.printSecurityDomain(domain);
     }
