@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "07f7e07d_15f4445a",
+        "filename": "base/server/cms/src/org/dogtagpki/server/PKIServerSocketListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 1010256
+      },
+      "writtenOn": "2017-03-26T20:48:43Z",
+      "side": 1,
+      "message": "in what case(s) would this happen?",
+      "revId": "7c0a6fe8467225a97d0cfbbf1880d893d866ff03",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a877d72_9b0dff57",
+        "filename": "base/server/cms/src/org/dogtagpki/server/PKIServerSocketListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 1010256
+      },
+      "writtenOn": "2017-03-26T20:48:43Z",
+      "side": 1,
+      "message": "same here...when would this happen?",
+      "revId": "7c0a6fe8467225a97d0cfbbf1880d893d866ff03",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
