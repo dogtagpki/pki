@@ -191,7 +191,8 @@ public class CMCOutputTemplate {
             EncryptedPOP encPop = null;
             if (reqs != null) {
                 for (int i = 0; i < reqs.length; i++) {
-                    CMS.debug(method + " error_codes[i]=" + error_codes[i]);
+                    CMS.debug(method + " error_codes[" +i+"]="
+                            + error_codes[i]);
                     if (error_codes[i] == 0) {
                         success_bpids.addElement(new INTEGER(
                                 reqs[i].getExtDataInBigInteger("bodyPartId")));
@@ -215,6 +216,46 @@ public class CMCOutputTemplate {
 
             TaggedAttribute tagattr = null;
             CMCStatusInfo cmcStatusInfo = null;
+
+//cfu
+
+            SEQUENCE decryptedPOPBpids = (SEQUENCE) context.get("decryptedPOP");
+            if (decryptedPOPBpids != null && decryptedPOPBpids.size() > 0) {
+                OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL,
+                        new INTEGER(OtherInfo.POP_FAILED), null);
+                cmcStatusInfo = new CMCStatusInfo(CMCStatusInfo.FAILED,
+                        decryptedPOPBpids, (String) null, otherInfo);
+                tagattr = new TaggedAttribute(
+                        new INTEGER(bpid++),
+                        OBJECT_IDENTIFIER.id_cmc_cMCStatusInfo, cmcStatusInfo);
+                controlSeq.addElement(tagattr);
+            }
+
+            SEQUENCE identificationBpids = (SEQUENCE) context.get("identification");
+            if (identificationBpids != null && identificationBpids.size() > 0) {
+                OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL,
+                        new INTEGER(OtherInfo.BAD_IDENTITY), null);
+                cmcStatusInfo = new CMCStatusInfo(CMCStatusInfo.FAILED,
+                        identificationBpids, (String) null, otherInfo);
+                tagattr = new TaggedAttribute(
+                        new INTEGER(bpid++),
+                        OBJECT_IDENTIFIER.id_cmc_cMCStatusInfo, cmcStatusInfo);
+                controlSeq.addElement(tagattr);
+            }
+
+            SEQUENCE identityV2Bpids = (SEQUENCE) context.get("identityProofV2");
+            if (identityV2Bpids != null && identityV2Bpids.size() > 0) {
+                OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL,
+                        new INTEGER(OtherInfo.BAD_IDENTITY), null);
+                cmcStatusInfo = new CMCStatusInfo(CMCStatusInfo.FAILED,
+                        identityV2Bpids, (String) null, otherInfo);
+                tagattr = new TaggedAttribute(
+                        new INTEGER(bpid++),
+                        OBJECT_IDENTIFIER.id_cmc_cMCStatusInfo, cmcStatusInfo);
+                controlSeq.addElement(tagattr);
+            }
+
+
             SEQUENCE identityBpids = (SEQUENCE) context.get("identityProof");
             if (identityBpids != null && identityBpids.size() > 0) {
                 OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL,
@@ -257,6 +298,7 @@ public class CMCOutputTemplate {
                 PendInfo pendInfo = new PendInfo(reqId, new Date());
                 otherInfo = new OtherInfo(OtherInfo.PEND, null,
                         pendInfo);
+                // cfu: inject POP_REQUIRED when working on V2 status
                 cmcStatusInfo = new CMCStatusInfo(CMCStatusInfo.PENDING,
                         pending_bpids, (String) null, otherInfo);
                 tagattr = new TaggedAttribute(
@@ -417,8 +459,15 @@ public class CMCOutputTemplate {
     public EncryptedPOP constructEncryptedPop(IRequest req)
             throws EBaseException {
         String method = "CMCOutputTemplate: constructEncryptedPop: ";
+        String msg = "";
         CMS.debug(method + "begins");
         EncryptedPOP encPop = null;
+
+        if (req == null) {
+            msg = method + "method parameters cannot be null";
+            CMS.debug(msg);
+            throw new EBaseException(msg);
+        }
 
         boolean popChallengeRequired = req.getExtDataInBoolean("cmc_POPchallengeRequired", false);
         if (!popChallengeRequired) {
@@ -426,6 +475,7 @@ public class CMCOutputTemplate {
             return null;
         }
         CMS.debug(method + "popChallengeRequired true");
+
         byte[] cmc_msg = req.getExtDataInByteArray(IEnrollProfile.CTX_CERT_REQUEST);
         byte[] pop_encreyptedData = req.getExtDataInByteArray("pop_encreyptedData");
         //don't need this for encryptedPOP, but need to check for existence anyway
@@ -441,12 +491,26 @@ public class CMCOutputTemplate {
                 EnvelopedData envData = CryptoUtil.createEnvelopedData(
                         pop_encreyptedData,
                         pop_userPubEncreyptedSession);
+                if (envData == null) {
+                    msg = "envData null returned by createEnvelopedData";
+                    throw new EBaseException(method + msg);
+                }
                 ContentInfo ci = new ContentInfo(envData);
+                if (ci == null) {
+                    msg = "ci null from new ContentInfo";
+                    CMS.debug(msg);
+                    throw new EBaseException(method + msg);
+                }
                 CMS.debug(method + "now we can compose encryptedPOP");
 
                 TaggedRequest.Template tReqTemplate = new TaggedRequest.Template();
                 TaggedRequest tReq = (TaggedRequest) tReqTemplate.decode(
                         new ByteArrayInputStream(cmc_msg));
+                if (tReq == null) {
+                    msg = "tReq null from tReqTemplate.decode";
+                    CMS.debug(msg);
+                    throw new EBaseException(method + msg);
+                }
 
                 encPop = new EncryptedPOP(
                         tReq,
@@ -454,12 +518,21 @@ public class CMCOutputTemplate {
                         CryptoUtil.getDefaultEncAlg(),
                         CryptoUtil.getDefaultHashAlg(),
                         new OCTET_STRING(req.getExtDataInByteArray("pop_witness")));
+                if (encPop == null) {
+                    msg = "encPop null returned by new EncryptedPOP";
+                    CMS.debug(msg);
+                    throw new EBaseException(method + msg);
+                }
 
             } catch (Exception e) {
                 CMS.debug(method + " excepton:" + e);
                 throw new EBaseException(method + " excepton:" + e);
             }
 
+        } else {
+            msg = "popChallengeRequired required, but one more more of the pop_ data not found in request";
+            CMS.debug(method + msg);
+            throw new EBaseException(method + msg);
         }
 
         return encPop;

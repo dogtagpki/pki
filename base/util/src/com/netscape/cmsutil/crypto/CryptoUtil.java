@@ -2403,12 +2403,25 @@ public class CryptoUtil {
     public static EnvelopedData createEnvelopedData(byte[] encContent, byte[] encSymKey)
             throws Exception {
         String method = "CryptoUtl: createEnvelopedData: ";
+        String msg = "";
         System.out.println(method + "begins");
+        if ((encContent == null) ||
+                (encSymKey == null)) {
+            msg = method + "method parameters cannot be null";
+            System.out.println(msg);
+
+            throw new Exception(method + msg);
+        }
 
         EncryptedContentInfo encCInfo = new EncryptedContentInfo(
                 ContentInfo.DATA,
                 getDefaultEncAlg(),
                 new OCTET_STRING(encContent));
+        if (encCInfo == null) {
+            msg = method + "encCInfo null from new EncryptedContentInfo";
+            System.out.println(msg);
+            throw new Exception(method + msg);
+        }
 
         Name name = new Name();
         name.addCommonName("unUsedIssuerName"); //unused; okay for cmc EncryptedPOP
@@ -2417,6 +2430,11 @@ public class CryptoUtil {
                 new IssuerAndSerialNumber(name, new INTEGER(0)), //unUsed
                 new AlgorithmIdentifier(RSA_ENCRYPTION, new NULL()),
                 new OCTET_STRING(encSymKey));
+        if (recipient == null) {
+            msg = method + "recipient null from new RecipientInfo";
+            System.out.println(msg);
+            throw new Exception(method + msg);
+        }
 
         SET recipients = new SET();
         recipients.addElement(recipient);

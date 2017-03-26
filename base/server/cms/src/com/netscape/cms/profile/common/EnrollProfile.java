@@ -352,8 +352,13 @@ public abstract class EnrollProfile extends BasicProfile
      */
     public void setPOPchallenge(IRequest req) throws EBaseException {
         String method = "EnrollProfile: setPOPchallenge: ";
+        String msg = "";
 
         CMS.debug(method + " getting user public key in request");
+        if (req == null) {
+            CMS.debug(method + "method parameters cannot be null");
+            throw new EBaseException(method + msg);
+        }
         byte[] req_key_data = req.getExtDataInByteArray(IEnrollProfile.REQUEST_KEY);
         netscape.security.x509.CertificateX509Key pubKey = null;
         if (req_key_data != null) {
@@ -368,16 +373,23 @@ public abstract class EnrollProfile extends BasicProfile
             PublicKey issuanceProtPubKey = authority.getIssuanceProtPubKey();
             if (issuanceProtPubKey != null)
                 CMS.debug(method + "issuanceProtPubKey not null");
-            else
-                CMS.debug(method + "issuanceProtPubKey null");
+            else {
+                msg = method + "issuanceProtPubKey null";
+                CMS.debug(msg);
+                throw new EBaseException(method + msg);
+            }
 
-            String msg = "";
             try {
                 CryptoToken token = null;
                 String tokenName = CMS.getConfigStore().getString("cmc.token", CryptoUtil.INTERNAL_TOKEN_NAME);
                 token = CryptoUtil.getCryptoToken(tokenName);
 
                 PublicKey userPubKey = X509Key.parsePublicKey(new DerValue(req_key_data));
+                if (userPubKey == null) {
+                    msg = method + "userPubKey null after X509Key.parsePublicKey";
+                    CMS.debug(msg);
+                    throw new EBaseException(msg);
+                }
 
                 SymmetricKey symKey = CryptoUtil.generateKey(token);
                 byte[] pop_encreyptedData = CryptoUtil.encryptUsingSymmetricKey(
@@ -385,7 +397,7 @@ public abstract class EnrollProfile extends BasicProfile
                 if (pop_encreyptedData == null) {
                     msg = method + "pop_encreyptedData null";
                     CMS.debug(msg);
-                    throw new Exception(msg);
+                    throw new EBaseException(msg);
                 }
 
                 byte[] pop_sysPubEncreyptedSession = CryptoUtil.wrapUsingPublicKey(
@@ -393,7 +405,7 @@ public abstract class EnrollProfile extends BasicProfile
                 if (pop_sysPubEncreyptedSession == null) {
                     msg = method + "pop_sysPubEncreyptedSession null";
                     CMS.debug(msg);
-                    throw new Exception(msg);
+                    throw new EBaseException(msg);
                 }
 
                 byte[] pop_userPubEncreyptedSession = CryptoUtil.wrapUsingPublicKey(
@@ -401,7 +413,7 @@ public abstract class EnrollProfile extends BasicProfile
                 if (pop_userPubEncreyptedSession == null) {
                     msg = method + "pop_userPubEncreyptedSession null";
                     CMS.debug(msg);
-                    throw new Exception(msg);
+                    throw new EBaseException(msg);
                 }
                 CMS.debug(method + "POP challenge fields generated successfully...setting request extData");
 
@@ -507,11 +519,15 @@ public abstract class EnrollProfile extends BasicProfile
             throws EProfileException {
 
         String method = "EnrollProfile: parseCMC: ";
+        String msg = ""; // for capturing debug and throw info
+
         /* cert request must not be null */
         if (certreq == null) {
-            CMS.debug(method + "certreq null");
+            msg = method + "certreq null";
+            CMS.debug(msg);
             throw new EProfileException(
-                    CMS.getUserMessage(locale, "CMS_PROFILE_INVALID_REQUEST"));
+                    CMS.getUserMessage(locale, "CMS_PROFILE_INVALID_REQUEST") +
+                            msg);
         }
         //CMS.debug(method + " Start parseCMC(): " + certreq);
         CMS.debug(method + "starts");
@@ -584,38 +600,63 @@ public abstract class EnrollProfile extends BasicProfile
                     } //for
 
                     /**
-                     * TODO: cfu: phase 2 should add enforcement for
-                     * id_cmc_identityProofV2 and id_cmc_identification control
-                     * when needed
-                     */
-
-                    /**
                      * now do the actual control processing
                      * (the postponed processing is so that we can capture
                      * the identification, if included)
                      */
 
-                    UTF8String ident_s = null;
-                    if (id_cmc_decryptedPOP && (decPopVals != null)) {
+                    if (id_cmc_decryptedPOP) {
+                        if (decPopVals != null) {
 
-                        DecryptedPOP decPop = (DecryptedPOP) (ASN1Util.decode(DecryptedPOP.getTemplate(),
-                                ASN1Util.encode(decPopVals.elementAt(0))));
-                        CMS.debug(method + "DecryptedPOP encoded");
+                            DecryptedPOP decPop = (DecryptedPOP) (ASN1Util.decode(DecryptedPOP.getTemplate(),
+                                    ASN1Util.encode(decPopVals.elementAt(0))));
+                            CMS.debug(method + "DecryptedPOP encoded");
 
-                        Integer reqId = verifyDecryptedPOP(decPop);
-                        if (reqId != null) {
-                            context.put("decryptedPopReqId", reqId);
+                            Integer reqId = verifyDecryptedPOP(locale, decPop);
+                            if (reqId != null) {
+                                context.put("decryptedPopReqId", reqId);
+                            }
+                        } else { //decPopVals == null
+                            msg = "id_cmc_decryptedPOP contains invalid DecryptedPOP";
+                            CMS.debug(method + msg);
+                            SEQUENCE bpids = getRequestBpids(reqSeq);
+                            context.put("decryptedPOP", bpids);
                         }
                         return null;
                     }
 
+                    UTF8String ident_s = null;
                     if (id_cmc_identification) {
+                        if (ident == null) {
+                            msg = "id_cmc_identification contains null attribute value";
+                            CMS.debug(method + msg);
+                            SEQUENCE bpids = getRequestBpids(reqSeq);
+                            context.put("identification", bpids);
+                            return null;
+                        }
                         ident_s = (UTF8String) (ASN1Util.decode(UTF8String.getTemplate(),
                                 ASN1Util.encode(ident.elementAt(0))));
+                        if (ident_s == null) {
+                            msg = "id_cmc_identification contains invalid content";
+                            CMS.debug(method + msg);
+                            SEQUENCE bpids = getRequestBpids(reqSeq);
+                            context.put("identification", bpids);
+                            return null;
+                        }
                     }
 
                     // either V2 or not V2; can't be both
                     if (id_cmc_identityProofV2 && (attr != null)) {
+                        if (!id_cmc_identification) {
+                            SEQUENCE bpids = getRequestBpids(reqSeq);
+                            context.put("identification", bpids);
+                            msg = "id_cmc_identityProofV2 must be accompanied by id_cmc_identification in this server";
+                            CMS.debug(method + msg);
+                            throw new EProfileException(
+                                    CMS.getUserMessage(locale, "CMS_PROFILE_INVALID_REQUEST") +
+                                            msg);
+                        }
+
                         boolean valid = verifyIdentityProofV2(attr, ident_s,
                                 reqSeq);
                         if (!valid) {
@@ -687,11 +728,24 @@ public abstract class EnrollProfile extends BasicProfile
      *
      * @author cfu
      */
-    private Integer verifyDecryptedPOP(DecryptedPOP decPop) {
+    private Integer verifyDecryptedPOP(Locale locale, DecryptedPOP decPop)
+            throws EProfileException {
         String method = "EnrollProfile: verifyDecryptedPOP: ";
         CMS.debug(method + "begins");
+        String msg = "";
 
+        if (decPop == null) {
+            CMS.debug(method + "method parameters cannot be null");
+            return null;
+        }
+
+        // iBody contains the request id
         INTEGER iBody = decPop.getBodyPartID();
+        if (iBody == null) {
+            msg = method + "iBody null after decPop.getBodyPartID";
+            CMS.debug(msg);
+            return null;
+        }
         CMS.debug(method + "request id from decryptedPOP =" +
                 iBody.toString());
         Integer reqId = new Integer(iBody.toString());
@@ -703,30 +757,36 @@ public abstract class EnrollProfile extends BasicProfile
         try {
             req = reqQueue.findRequest(new RequestId(reqId));
         } catch (Exception e) {
-            CMS.debug(method + e);
+            msg = method + "after findRequest: " + e;
+            CMS.debug(msg);
             return null;
         }
 
         // now verify the POP witness
         byte[] pop_encreyptedData = req.getExtDataInByteArray("pop_encreyptedData");
         if (pop_encreyptedData == null) {
-            CMS.debug(method +
-                    "pop_encreyptedData not found in request:" + reqId.toString());
+            msg = method +
+                    "pop_encreyptedData not found in request:" +
+                    reqId.toString();
+            CMS.debug(msg);
             return null;
         }
 
         byte[] pop_sysPubEncreyptedSession = req.getExtDataInByteArray("pop_sysPubEncreyptedSession");
         if (pop_sysPubEncreyptedSession == null) {
-            CMS.debug(method +
-                    "pop_sysPubEncreyptedSession not found in request:" + reqId.toString());
+            msg = method +
+                    "pop_sysPubEncreyptedSession not found in request:" +
+                    reqId.toString();
+            CMS.debug(msg);
             return null;
         }
 
         byte[] cmc_msg = req.getExtDataInByteArray(IEnrollProfile.CTX_CERT_REQUEST);
         if (pop_sysPubEncreyptedSession == null) {
-            CMS.debug(method +
+            msg = method +
                     "pop_sysPubEncreyptedSession not found in request:" +
-                    reqId.toString());
+                    reqId.toString();
+            CMS.debug(msg);
             return null;
         }
 
@@ -734,8 +794,11 @@ public abstract class EnrollProfile extends BasicProfile
         PrivateKey issuanceProtPrivKey = authority.getIssuanceProtPrivKey();
         if (issuanceProtPrivKey != null)
             CMS.debug(method + "issuanceProtPrivKey not null");
-        else
-            CMS.debug(method + "issuanceProtPrivKey null");
+        else {
+            msg = method + "issuanceProtPrivKey null";
+            CMS.debug(msg);
+            return null;
+        }
 
         try {
             CryptoToken token = null;
@@ -747,25 +810,46 @@ public abstract class EnrollProfile extends BasicProfile
                     SymmetricKey.Usage.DECRYPT,
                     issuanceProtPrivKey,
                     pop_sysPubEncreyptedSession);
+            if (symKey == null) {
+                msg = "symKey null after CryptoUtil.unwrap returned";
+                CMS.debug(msg);
+                return null;
+            }
+
             byte[] challenge_b = CryptoUtil.decryptUsingSymmetricKey(
                     token, pop_encreyptedData, symKey);
             if (challenge_b == null) {
-                CMS.debug(method + "decryptUsingSymmetricKey returned null");
+                msg = method + "challenge_b null after decryptUsingSymmetricKey returned";
+                CMS.debug(msg);
                 return null;
             }
 
             MessageDigest digest = MessageDigest.getInstance(CryptoUtil.getDefaultHashAlgName());
+            if (digest == null) {
+                msg = method + "digest null after decryptUsingSymmetricKey returned";
+                CMS.debug(msg);
+                return null;
+            }
             HMACDigest hmacDigest = new HMACDigest(digest, challenge_b);
             hmacDigest.update(cmc_msg);
             byte[] proofValue = hmacDigest.digest();
+            if (proofValue == null) {
+                msg = method + "proofValue null after hmacDigest.digest returned";
+                CMS.debug(msg);
+                return null;
+            }
             boolean witnessChecked = Arrays.equals(proofValue, witness_os.toByteArray());
             if (!witnessChecked) {
-                CMS.debug(method + "POP challenge witness verification failure");
+                msg = method + "POP challenge witness verification failure";
+                CMS.debug(msg);
                 return null;
             }
         } catch (Exception e) {
-            CMS.debug(method + e);
-            return null;
+            msg = method + e;
+            CMS.debug(msg);
+            throw new EProfileException(
+                    CMS.getUserMessage(locale, "CMS_PROFILE_INVALID_REQUEST") +
+                            e);
         }
 
         CMS.debug(method + "POP challenge verified!");
@@ -908,11 +992,24 @@ public abstract class EnrollProfile extends BasicProfile
         byte[] key = null;
         CMS.debug(method + "in verifyDigest: hashAlg=" + hashAlg.toString() +
                 "; macAlg=" + macAlg.toString());
+
+        if ((sharedSecret == null) ||
+            (text == null) ||
+            (bv == null) ||
+            (hashAlg == null) ||
+            (macAlg == null)) {
+            CMS.debug(method + "method parameters cannot be null");
+            return false;
+        }
         key = hashAlg.digest(sharedSecret);
 
         byte[] finalDigest = null;
         HMACDigest hmacDigest = new HMACDigest(macAlg, key);
         hmacDigest.update(text);
+        if (hmacDigest == null) {
+            CMS.debug(method + " hmacDigest null after hmacDigest.update");
+            return false;
+        }
         finalDigest = hmacDigest.digest();
 
         if (finalDigest.length != bv.length) {
@@ -963,13 +1060,14 @@ public abstract class EnrollProfile extends BasicProfile
             SEQUENCE reqSeq) {
         String method = "EnrollProfile:verifyIdentityProofV2: ";
         CMS.debug(method + " begins");
-
-        String ident_string = null;
-        if (ident != null) {
-            ident_string = ident.toString();
-            // cfu: REMOVE
-            CMS.debug(method + "received ident String: " + ident_string);
+        if ((attr == null) ||
+                (ident == null) ||
+                (reqSeq == null)) {
+            CMS.debug(method + "method parameters cannot be null");
+            return false;
         }
+
+        String ident_string = ident.toString();
 
         SET vals = attr.getValues(); // getting the IdentityProofV2 structure
         if (vals.size() < 1) {
@@ -1000,6 +1098,10 @@ public abstract class EnrollProfile extends BasicProfile
             return false;
         } catch (IllegalAccessException e) {
             CMS.debug(method + " Illegal access: " + name);
+            return false;
+        }
+        if (tokenClass == null) {
+            CMS.debug(method + " Failed to retrieve shared secret plugin class");
             return false;
         }
 
@@ -1033,6 +1135,10 @@ public abstract class EnrollProfile extends BasicProfile
             // TODO: check against CA allowed algs later
 
             OCTET_STRING witness = idV2val.getWitness();
+            if (witness == null) {
+                CMS.debug(method + " witness reurned by idV2val.getWitness is null");
+                return false;
+            }
 
             byte[] witness_bytes = witness.toByteArray();
             byte[] request_bytes = ASN1Util.encode(reqSeq); // PKIData reqSequence field
