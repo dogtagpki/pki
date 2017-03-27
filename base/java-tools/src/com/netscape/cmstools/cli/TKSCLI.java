@@ -22,6 +22,7 @@ import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.tks.TKSClient;
 import com.netscape.cmstools.group.GroupCLI;
+import com.netscape.cmstools.logging.AuditCLI;
 import com.netscape.cmstools.selftests.SelfTestCLI;
 import com.netscape.cmstools.system.TPSConnectorCLI;
 import com.netscape.cmstools.user.UserCLI;
@@ -36,6 +37,7 @@ public class TKSCLI extends SubsystemCLI {
     public TKSCLI(CLI parent) {
         super("tks", "TKS management commands", parent);
 
+        addModule(new AuditCLI(this));
         addModule(new GroupCLI(this));
         addModule(new SelfTestCLI(this));
         addModule(new TPSConnectorCLI(this));
