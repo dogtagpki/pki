@@ -20,6 +20,7 @@ package com.netscape.certsrv.logging;
 import java.net.URISyntaxException;
 
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
 
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
@@ -53,5 +54,15 @@ public class AuditClient extends Client {
     public AuditConfig changeAuditStatus(String action) {
         Response response = resource.changeAuditStatus(action);
         return client.getEntity(response, AuditConfig.class);
+    }
+
+    public AuditFileCollection findAuditFiles() {
+        Response response = resource.findAuditFiles();
+        return client.getEntity(response, AuditFileCollection.class);
+    }
+
+    public StreamingOutput getAuditFile(String filename) throws Exception {
+        Response response = resource.getAuditFile(filename);
+        return client.getEntity(response, StreamingOutput.class);
     }
 }
