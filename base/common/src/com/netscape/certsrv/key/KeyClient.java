@@ -18,7 +18,10 @@
 package com.netscape.certsrv.key;
 
 import java.net.URISyntaxException;
+import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.List;
 
 import javax.ws.rs.core.Response;
@@ -401,11 +404,49 @@ public class KeyClient extends Client {
         byte[] transWrappedSessionKey = crypto.wrapSessionKeyWithTransportCert(sessionKey, transportCert);
 
         Key data = retrieveKey(keyId, transWrappedSessionKey);
-        if (data.getEncryptedData()!= null)
-            data.setData(crypto.unwrapWithSessionKey(data.getEncryptedData(), sessionKey,
-                encryptAlgorithm, data.getNonceData()));
-
+        processKeyData(data, sessionKey);
         return data;
+    }
+
+    public void processKeyData(Key data, SymmetricKey sessionKey) throws Exception {
+        if (data.getEncryptedData()!= null) {
+            if (data.getWrapAlgorithm() != null) {
+                // data was key-wrapped and is a private or symmetric key
+                byte[] bytes = null;
+
+                if (data.getType().equalsIgnoreCase(KeyRequestResource.SYMMETRIC_KEY_TYPE)) {
+                    bytes = crypto.unwrapSymmetricKeyWithSessionKey(
+                            data.getEncryptedData(),
+                            sessionKey,
+                            wrapAlgorithm,
+                            data.getNonceData(),
+                            data.getAlgorithm(),
+                            data.getSize());
+                } else {
+                    // private key in asymmetric key pair
+
+                    //get public key from key_info
+                    // TODO(alee) This assumes RSA for now
+
+                    byte[] pubKeyBytes = Utils.base64decode(data.getPubKey());
+                    PublicKey pubKey =  KeyFactory.getInstance("RSA").generatePublic(
+                            new X509EncodedKeySpec(pubKeyBytes));
+
+                    bytes = crypto.unwrapAsymmetricKeyWithSessionKey(
+                            data.getEncryptedData(),
+                            sessionKey,
+                            wrapAlgorithm,
+                            data.getNonceData(),
+                            pubKey);
+                }
+
+                data.setData(bytes);
+            } else {
+                // data was encrypted
+                data.setData(crypto.unwrapWithSessionKey(data.getEncryptedData(), sessionKey,
+                        encryptAlgorithm, data.getNonceData()));
+            }
+        }
     }
 
     public Key retrieveKeyByRequest(RequestId requestId) throws Exception {
@@ -421,9 +462,7 @@ public class KeyClient extends Client {
         recoveryRequest.setPayloadEncryptionOID(getEncryptAlgorithmOID());
 
         Key data = retrieveKeyData(recoveryRequest);
-        if (data.getEncryptedData() != null)
-            data.setData(crypto.unwrapWithSessionKey(data.getEncryptedData(), sessionKey,
-                encryptAlgorithm, data.getNonceData()));
+        processKeyData(data, sessionKey);
         return data;
     }
 

@@ -41,6 +41,18 @@ public class Key {
     @XmlElement
     private RequestId requestId;
 
+    @XmlElement
+    private String wrapAlgorithm;
+
+    @XmlElement
+    private String encryptAlgorithmOID;
+
+    @XmlElement
+    private String type;
+
+    @XmlElement
+    private String pubKey;
+
     public Key() {
         super();
     }
@@ -54,6 +66,10 @@ public class Key {
         algorithm = data.getAlgorithm();
         size = data.getSize();
         requestId = data.requestID;
+        wrapAlgorithm = data.getWrapAlgorithm();
+        encryptAlgorithmOID = data.getEncryptAlgorithmOID();
+        type = data.getType();
+        pubKey = data.getPublicKey();
     }
 
     public byte[] getEncryptedData() {
@@ -110,5 +126,37 @@ public class Key {
 
     public void setRequestId(RequestId requestId) {
         this.requestId = requestId;
+    }
+
+    public String getWrapAlgorithm() {
+        return wrapAlgorithm;
+    }
+
+    public void setWrapAlgorithm(String wrapAlgorithm) {
+        this.wrapAlgorithm = wrapAlgorithm;
+    }
+
+    public String getEncryptAlgorithmOID() {
+        return encryptAlgorithmOID;
+    }
+
+    public void setEncryptAlgorithmOID(String encryptAlgorithmOID) {
+        this.encryptAlgorithmOID = encryptAlgorithmOID;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getPubKey() {
+        return pubKey;
+    }
+
+    public void setPubKey(String pubKey) {
+        this.pubKey = pubKey;
     }
 }

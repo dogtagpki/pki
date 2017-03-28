@@ -45,6 +45,15 @@ public class WrappingParams {
         this.payloadWrappingIV = payloadWrapIV;
     }
 
+    public static EncryptionAlgorithm getEncryptionAlgorithmFromName(String name) throws Exception {
+        String fields[] = name.split("//");
+        String alg = fields[0];
+        String mode = fields[1];
+        String padding = fields[2];
+        int strength = Integer.parseInt(fields[3]);
+        return EncryptionAlgorithm.lookup(alg, mode, padding, strength);
+    }
+
     public WrappingParams() {}
 
     public WrappingParams(String encryptOID, String wrapName, String priKeyAlgo, IVParameterSpec encryptIV, IVParameterSpec wrapIV)
@@ -170,6 +179,15 @@ public class WrappingParams {
     public void setPayloadEncryptionAlgorithm(String algName, String modeName, String paddingName, int keyStrength)
             throws NoSuchAlgorithmException {
         this.payloadEncryptionAlgorithm = EncryptionAlgorithm.lookup(algName, modeName, paddingName, keyStrength);
+    }
+
+    public String getPayloadEncryptionAlgorithmName() {
+        // work around some of the issues with OIDs in JSS
+        int strength = payloadEncryptionAlgorithm.getKeyStrength();
+        String mode = payloadEncryptionAlgorithm.getMode().toString();
+        String padding = payloadEncryptionAlgorithm.getPadding().toString();
+        String alg = payloadEncryptionAlgorithm.getAlg().toString();
+        return alg + "/" + mode + "/" + padding + "/" + Integer.toString(strength);
     }
 
     public KeyWrapAlgorithm getPayloadWrapAlgorithm() {

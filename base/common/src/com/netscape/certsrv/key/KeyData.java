@@ -62,6 +62,18 @@ public class KeyData {
     @XmlJavaTypeAdapter(RequestIdAdapter.class)
     RequestId requestID;
 
+    @XmlElement
+    String encryptAlgorithmOID;
+
+    @XmlElement
+    String wrapAlgorithm;
+
+    @XmlElement
+    String type;
+
+    @XmlElement
+    String publicKey;
+
     public KeyData() {
         // required for JAXB (defaults)
     }
@@ -161,5 +173,49 @@ public class KeyData {
      */
     public void setRequestID(RequestId requestID) {
         this.requestID = requestID;
+    }
+
+    /**
+     * Symmetric and Asymmetric keys will be returned either encrypted or wrapped
+     * by the client provided symmetric key.  Which mechanism is used depends on the
+     * capabilities of the server (and the HSM behind it).  One (and only one) of
+     * encryptionAlgorithm or wrapAlgorithm will be set.
+     *
+     * @return OID of encryption algorithm used to wrap the secret.
+     */
+    public String getEncryptAlgorithmOID() {
+        return encryptAlgorithmOID;
+    }
+
+    public void setEncryptAlgorithmOID(String encryptAlgorithmOID) {
+        this.encryptAlgorithmOID = encryptAlgorithmOID;
+    }
+
+    /**
+     * @return name (as known by JSS) of algorithm used to wrap secret if key
+     *         wrapping is used
+     */
+    public String getWrapAlgorithm() {
+        return wrapAlgorithm;
+    }
+
+    public void setWrapAlgorithm(String wrapAlgorithm) {
+        this.wrapAlgorithm = wrapAlgorithm;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getPublicKey() {
+        return publicKey;
+    }
+
+    public void setPublicKey(String publicKey) {
+        this.publicKey = publicKey;
     }
 }
