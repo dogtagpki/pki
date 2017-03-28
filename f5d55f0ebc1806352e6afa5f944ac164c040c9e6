@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d0266001_8ef32299",
+        "filename": "base/common/src/com/netscape/certsrv/key/Key.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-03-28T17:51:17Z",
+      "side": 1,
+      "message": "Let\u0027s use the full name \"publicKey\" since it will be used as the actual XML element.",
+      "revId": "f5d55f0ebc1806352e6afa5f944ac164c040c9e6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f71ff638_e93869e6",
+        "filename": "base/common/src/com/netscape/certsrv/key/KeyClient.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 412,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-03-28T17:51:17Z",
+      "side": 1,
+      "message": "If there\u0027s no else-clause, the if-statement can be simplified as follows:\n\nif (data.getEncryptedData() \u003d\u003d null) return;",
+      "revId": "f5d55f0ebc1806352e6afa5f944ac164c040c9e6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "237d8d1f_d61e01c6",
+        "filename": "base/common/src/com/netscape/certsrv/key/KeyClient.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 413,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-03-28T17:51:17Z",
+      "side": 1,
+      "message": "If the else-clause is short, the if-statement can be simplified as follows:\n\nif (data.getWrapAlgorithm() \u003d\u003d null) {\n    // data was encrypted\n    data.setData(\n        crypto.unwrapWithSessionKey(\n            data.getEncryptedData(),\n            sessionKey,\n            encryptAlgorithm,\n            data.getNonceData()));\n    return;\n}\n\nThis way the remaining code does not need to be indented too deep so it\u0027s easier to read.",
+      "revId": "f5d55f0ebc1806352e6afa5f944ac164c040c9e6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dd5ffd4b_1ba89c65",
+        "filename": "base/common/src/com/netscape/certsrv/request/IRequest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-03-28T17:51:17Z",
+      "side": 1,
+      "message": "Let\u0027s not use \"is\" in parameter names. \"payloadWrapped\" should be sufficient.",
+      "revId": "f5d55f0ebc1806352e6afa5f944ac164c040c9e6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4f3f17e1_002d1de6",
+        "filename": "base/util/src/netscape/security/util/WrappingParams.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-03-28T17:51:17Z",
+      "side": 1,
+      "message": "Is the \"fields\" guaranteed to have 4 elements?",
+      "revId": "f5d55f0ebc1806352e6afa5f944ac164c040c9e6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8d9127e4_d07da108",
+        "filename": "base/util/src/netscape/security/util/WrappingParams.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-03-28T17:51:17Z",
+      "side": 1,
+      "message": "Is it guaranteed that none of these fields can be null?",
+      "revId": "f5d55f0ebc1806352e6afa5f944ac164c040c9e6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
