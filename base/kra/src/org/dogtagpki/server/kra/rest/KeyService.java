@@ -345,15 +345,32 @@ public class KeyService extends SubsystemService implements KeyResource {
             keyData.setNonceData(nonceData);
         }
 
-        String algorithm = rec.getAlgorithm();
-        Integer keySize = rec.getKeySize();
+        keyData.setType((String) requestParams.get(IRequest.SECURITY_DATA_TYPE));
 
+        String payloadWrapped = (String) requestParams.get(IRequest.SECURITY_DATA_PL_WRAPPED);
+        // either wrapAlgorithm or encryptAlgorithm will be set.  This will tell the
+        // client which mechanism was used to encrypt the secret
+        if (payloadWrapped.equalsIgnoreCase("true")) {
+            keyData.setWrapAlgorithm(
+                    (String) requestParams.get(IRequest.SECURITY_DATA_PL_WRAPPING_NAME));
+        } else {
+            keyData.setEncryptAlgorithmOID(
+                    (String) requestParams.get(IRequest.SECURITY_DATA_PL_ENCRYPTION_OID));
+        }
+
+        String algorithm = rec.getAlgorithm();
         if (algorithm != null) {
             keyData.setAlgorithm(algorithm);
         }
 
+        Integer keySize = rec.getKeySize();
         if (keySize != null) {
             keyData.setSize(keySize);
+        }
+
+        byte[] pubKeyBytes =  rec.getPublicKeyData();
+        if (pubKeyBytes != null) {
+            keyData.setPublicKey(Utils.base64encode(pubKeyBytes));
         }
 
         kra.destroyVolatileRequest(request.getRequestId());

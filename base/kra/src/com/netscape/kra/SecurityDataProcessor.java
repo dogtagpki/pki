@@ -313,8 +313,6 @@ public class SecurityDataProcessor {
             throws EBaseException {
 
         CMS.debug("SecurityDataService.recover(): start");
-
-        byte iv_in[] = null;
         IConfigStore config = null;
 
         try {
@@ -352,11 +350,6 @@ public class SecurityDataProcessor {
             wrappedPassPhrase = Utils.base64decode(sessWrappedPassPhraseStr);
         }
 
-        String ivInStr = (String) params.get(IRequest.SECURITY_DATA_IV_STRING_IN);
-        if (ivInStr != null) {
-            iv_in = Utils.base64decode(ivInStr);
-        }
-
         if (transWrappedSessKeyStr == null && sessWrappedPassPhraseStr == null) {
             //We may be in recovery case where no params were initially submitted.
             CMS.debug("SecurityDataProcessor.recover(): No params provided.");
@@ -377,22 +370,18 @@ public class SecurityDataProcessor {
             if (allowEncDecrypt_recovery == true) {
                 CMS.debug("Recover symmetric key by decrypting as per allowEncDecrypt_recovery: true.");
                 unwrappedSecData = recoverSecurityData(keyRecord);
-
             } else {
                 symKey = recoverSymKey(keyRecord);
             }
 
         } else if (dataType.equals(KeyRequestResource.PASS_PHRASE_TYPE)) {
             unwrappedSecData = recoverSecurityData(keyRecord);
-
         } else if (dataType.equals(KeyRequestResource.ASYMMETRIC_KEY_TYPE)) {
             try {
                 if (allowEncDecrypt_recovery == true) {
                     CMS.debug("Recover asymmetric key by decrypting as per allowEncDecrypt_recovery: true.");
                     unwrappedSecData = recoverSecurityData(keyRecord);
-
                 } else {
-
                     byte[] publicKeyData = keyRecord.getPublicKeyData();
                     byte[] privateKeyData = keyRecord.getPrivateKeyData();
 
@@ -475,24 +464,18 @@ public class SecurityDataProcessor {
                     if (allowEncDecrypt_recovery == true) {
                         CMS.debug("SecurityDataProcessor.recover(): allowEncDecyypt_recovery: true, symmetric key:  create blob with unwrapped key.");
                         pbeWrappedData = createEncryptedContentInfo(ct, null, unwrappedSecData, null, pass);
-
                     } else {
-                        pbeWrappedData = createEncryptedContentInfo(ct, symKey, null, null,
-                                pass);
+                        pbeWrappedData = createEncryptedContentInfo(ct, symKey, null, null, pass);
                     }
 
                 } else if (dataType.equals(KeyRequestResource.PASS_PHRASE_TYPE)) {
 
                     CMS.debug("SecurityDataProcessor.recover(): encrypt stored passphrase with transport passphrase");
-                    pbeWrappedData = createEncryptedContentInfo(ct, null, unwrappedSecData, null,
-                            pass);
-
+                    pbeWrappedData = createEncryptedContentInfo(ct, null, unwrappedSecData, null, pass);
                 } else if (dataType.equals(KeyRequestResource.ASYMMETRIC_KEY_TYPE)) {
-
                     if (allowEncDecrypt_recovery == true) {
                         CMS.debug("SecurityDataProcessor.recover(): allowEncDecyypt_recovery: true, asymmetric key:  create blob with unwrapped key.");
                         pbeWrappedData = createEncryptedContentInfo(ct, null, unwrappedSecData, null, pass);
-
                     } else {
                         CMS.debug("SecurityDataProcessor.recover(): wrap stored private key with transport passphrase");
                         pbeWrappedData = createEncryptedContentInfo(ct, null, null, privateKey,
@@ -603,12 +586,32 @@ public class SecurityDataProcessor {
 
             String wrappedKeyData = Utils.base64encode(key_data);
             params.put(IRequest.SECURITY_DATA_SESS_WRAPPED_DATA, wrappedKeyData);
-            params.put(IRequest.SECURITY_DATA_IV_STRING_OUT, ivStr);
+        }
+
+        params.put(IRequest.SECURITY_DATA_PL_ENCRYPTION_OID,
+                wrapParams.getPayloadEncryptionAlgorithmName());
+
+        params.put(IRequest.SECURITY_DATA_PL_WRAPPING_NAME,
+                wrapParams.getPayloadWrapAlgorithm().toString());
+
+        if ((allowEncDecrypt_recovery == true) || (dataType.equals(KeyRequestResource.PASS_PHRASE_TYPE))) {
+            params.put(IRequest.SECURITY_DATA_PL_WRAPPED, Boolean.toString(false));
+            if (wrapParams.getPayloadEncryptionIV() != null) {
+                params.put(IRequest.SECURITY_DATA_IV_STRING_OUT, ivStr);
+            }
+        } else {
+            //secret has wrapped using a key wrapping algorithm
+            params.put(IRequest.SECURITY_DATA_PL_WRAPPED, Boolean.toString(true));
+            if (wrapParams.getPayloadWrappingIV() != null) {
+                params.put(IRequest.SECURITY_DATA_IV_STRING_OUT, ivStr);
+            }
         }
 
         if(unwrappedSecData != null && unwrappedSecData.length > 0) {
             Arrays.fill(unwrappedSecData, (byte)0);
         }
+
+        params.put(IRequest.SECURITY_DATA_TYPE, dataType);
 
         auditRecoveryRequestProcessed(auditSubjectID, ILogger.SUCCESS, requestID, serialno.toString(),
                 "None");

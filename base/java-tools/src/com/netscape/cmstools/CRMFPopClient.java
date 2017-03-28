@@ -547,7 +547,7 @@ public class CRMFPopClient {
         EncryptionAlgorithm encryptAlg = null;
         String keyset = System.getenv("KEY_WRAP_PARAMETER_SET");
 
-        if ((keyset != null) && (keyset.equalsIgnoreCase("0"))) {
+        if (keyset != null && keyset.equalsIgnoreCase("0")) {
             // talking to an old server?
             encryptAlg = EncryptionAlgorithm.DES3_CBC;
         } else {
