@@ -18,16 +18,27 @@
 
 package org.dogtagpki.server.rest;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
@@ -36,7 +47,11 @@ import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.PKIException;
+import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.certsrv.logging.AuditConfig;
+import com.netscape.certsrv.logging.AuditFile;
+import com.netscape.certsrv.logging.AuditFileCollection;
+import com.netscape.certsrv.logging.AuditLogFindRequest;
 import com.netscape.certsrv.logging.AuditResource;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.servlet.base.SubsystemService;
@@ -297,6 +312,145 @@ public class AuditService extends SubsystemService implements AuditResource {
             e.printStackTrace();
             throw new PKIException(e.getMessage());
         }
+    }
+
+    public File getCurrentLogFile() {
+        IConfigStore cs = CMS.getConfigStore();
+        String filename = cs.get("log.instance.SignedAudit.fileName");
+        return new File(filename);
+    }
+
+    public File getLogDirectory() {
+        File file = getCurrentLogFile();
+        return file.getParentFile();
+    }
+
+    public List<File> getLogFiles() {
+
+        List<String> filenames = new ArrayList<>();
+
+        File currentFile = getCurrentLogFile();
+        String currentFilename = currentFile.getName();
+        File logDir = currentFile.getParentFile();
+
+        // add all log files except the current one
+        for (String filename : logDir.list()) {
+            if (filename.equals(currentFilename)) continue;
+            filenames.add(filename);
+        }
+
+        // sort log files in ascending order
+        Collections.sort(filenames);
+
+        // add the current log file last (i.e. newest)
+        filenames.add(currentFilename);
+
+        List<File> files = new ArrayList<>();
+        for (String filename : filenames) {
+            files.add(new File(logDir, filename));
+        }
+
+        return files;
+    }
+
+    @Override
+    public Response findAuditFiles() {
+
+        AuditFileCollection response = new AuditFileCollection();
+
+        List<File> files = getLogFiles();
+
+        CMS.debug("Audit files:");
+        for (File file : files) {
+            String name = file.getName();
+            CMS.debug(" - " + name);
+
+            AuditFile auditFile = new AuditFile();
+            auditFile.setName(name);
+            auditFile.setSize(file.length());
+
+            response.addEntry(auditFile);
+        }
+
+        response.setTotal(files.size());
+
+        return createOKResponse(response);
+    }
+
+    @Override
+    public Response getAuditFile(String filename) {
+        AuditLogFindRequest request = new AuditLogFindRequest();
+        request.setFileName(filename);
+        return findAuditLogs(request);
+    }
+
+    @Override
+    public Response removeAuditFile(String filename) {
+
+        // make sure filename does not contain path
+        if (!new File(filename).getName().equals(filename)) {
+            CMS.debug("Invalid file name: " + filename);
+            throw new BadRequestException("Invalid file name: " + filename);
+        }
+
+        File logDir = getLogDirectory();
+        File file = new File(logDir, filename);
+
+        if (!file.exists()) {
+            throw new ResourceNotFoundException("File not found: " + filename);
+        }
+
+        file.delete();
+        return createNoContentResponse();
+    }
+
+    @Override
+    public Response findAuditLogs(AuditLogFindRequest request) {
+
+        Collection<File> files;
+
+        String filename = request.getFileName();
+        if (filename == null) {
+            // retrieve logs from all files
+            files = getLogFiles();
+
+        } else {
+            // make sure filename does not contain path
+            if (!new File(filename).getName().equals(filename)) {
+                CMS.debug("Invalid file name: " + filename);
+                throw new BadRequestException("Invalid file name: " + filename);
+            }
+
+            File logDir = getLogDirectory();
+            File file = new File(logDir, filename);
+
+            if (!file.exists()) {
+                throw new ResourceNotFoundException("File not found: " + filename);
+            }
+
+            // retrieve logs from the specified file only
+            files = new ArrayList<>();
+            files.add(file);
+        }
+
+        StreamingOutput so = new StreamingOutput() {
+
+            @Override
+            public void write(OutputStream out) throws IOException, WebApplicationException {
+
+                CMS.debug("Audit files:");
+                for (File file : files) {
+                    String name = file.getName();
+                    CMS.debug(" - " + name);
+
+                    try (InputStream is = new FileInputStream(file)) {
+                        IOUtils.copy(is, out);
+                    }
+                }
+            }
+        };
+
+        return createOKResponse(so);
     }
 
     /*

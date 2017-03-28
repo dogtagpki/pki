@@ -17,11 +17,16 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.logging;
 
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
 
 import org.jboss.resteasy.annotations.ClientResponseType;
 
@@ -35,11 +40,11 @@ import com.netscape.certsrv.base.PATCH;
  */
 @Path("audit")
 @AuthMethodMapping("audit")
-@ACLMapping("audit.read")
 public interface AuditResource {
 
     @GET
     @ClientResponseType(entityType=AuditConfig.class)
+    @ACLMapping("audit.read")
     public Response getAuditConfig();
 
     @PATCH
@@ -52,4 +57,30 @@ public interface AuditResource {
     @ACLMapping("audit.modify")
     public Response changeAuditStatus(
             @QueryParam("action") String action);
+
+    @GET
+    @Path("files")
+    @ClientResponseType(entityType=AuditFileCollection.class)
+    @ACLMapping("audit-log.read")
+    public Response findAuditFiles();
+
+    @POST
+    @Path("files/{filename}")
+    @Produces(MediaType.APPLICATION_OCTET_STREAM)
+    @ClientResponseType(entityType=StreamingOutput.class)
+    @ACLMapping("audit-log.read")
+    public Response getAuditFile(@PathParam("filename") String filename);
+
+    @DELETE
+    @Path("files/{filename}")
+    @ClientResponseType(entityType=Void.class)
+    @ACLMapping("audit.modify")
+    public Response removeAuditFile(@PathParam("filename") String filename);
+
+    @POST
+    @Path("logs")
+    @Produces(MediaType.APPLICATION_OCTET_STREAM)
+    @ClientResponseType(entityType=StreamingOutput.class)
+    @ACLMapping("audit-log.read")
+    public Response findAuditLogs(AuditLogFindRequest request) throws Exception;
 }

@@ -26,6 +26,7 @@ import org.jboss.resteasy.plugins.providers.atom.Link;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.logging.AuditClient;
 import com.netscape.certsrv.logging.AuditConfig;
+import com.netscape.certsrv.logging.AuditFile;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.SubsystemCLI;
 
@@ -42,8 +43,17 @@ public class AuditCLI extends CLI {
 
         this.subsystemCLI = subsystemCLI;
 
+        // audit configuration
         addModule(new AuditModifyCLI(this));
         addModule(new AuditShowCLI(this));
+
+        // audit files
+        addModule(new AuditFileFindCLI(this));
+        addModule(new AuditFileRetrieveCLI(this));
+        addModule(new AuditFileRemoveCLI(this));
+
+        // audit logs
+        addModule(new AuditLogFindCLI(this));
     }
 
     @Override
@@ -82,5 +92,10 @@ public class AuditCLI extends CLI {
         if (verbose && link != null) {
             System.out.println("  Link: " + link.getHref());
         }
+    }
+
+    public static void printAuditFile(AuditFile auditFile) {
+        System.out.println("  File name: " + auditFile.getName());
+        System.out.println("  Size: " + auditFile.getSize());
     }
 }
