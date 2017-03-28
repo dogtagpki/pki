@@ -3,6 +3,7 @@ package com.netscape.certsrv.util;
 import java.io.File;
 import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
 
 import org.mozilla.jss.CertDatabaseException;
 import org.mozilla.jss.CryptoManager;
@@ -14,6 +15,7 @@ import org.mozilla.jss.crypto.EncryptionAlgorithm;
 import org.mozilla.jss.crypto.IVParameterSpec;
 import org.mozilla.jss.crypto.KeyGenAlgorithm;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
+import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.util.IncorrectPasswordException;
@@ -160,6 +162,39 @@ public class NSSCryptoProvider extends CryptoProvider {
         }
         return CryptoUtil.decryptUsingSymmetricKey(token, ivps, wrappedRecoveredKey,
                 recoveryKey, encryptionAlgorithm);
+    }
+
+    @Override
+    public byte[] unwrapSymmetricKeyWithSessionKey(byte[] wrappedRecoveredKey, SymmetricKey recoveryKey,
+            KeyWrapAlgorithm wrapAlgorithm, byte[] nonceData, String algorithm, int size)
+            throws Exception {
+        if (token == null) {
+            throw new NotInitializedException();
+        }
+        IVParameterSpec ivps = null;
+        if (nonceData != null) {
+            ivps = new IVParameterSpec(nonceData);
+        }
+        SymmetricKey key = CryptoUtil.unwrap(
+                token, SymmetricKey.Type.fromName(algorithm),
+                size, SymmetricKey.Usage.DECRYPT, recoveryKey,
+                wrappedRecoveredKey, wrapAlgorithm, ivps);
+        return key.getEncoded();
+    }
+
+    @Override
+    public byte[] unwrapAsymmetricKeyWithSessionKey(byte[] wrappedRecoveredKey, SymmetricKey recoveryKey,
+            KeyWrapAlgorithm wrapAlgorithm, byte[] nonceData, PublicKey pubKey)
+            throws Exception {
+        if (token == null) {
+            throw new NotInitializedException();
+        }
+        IVParameterSpec ivps = null;
+        if (nonceData != null) {
+            ivps = new IVParameterSpec(nonceData);
+        }
+        PrivateKey key = CryptoUtil.unwrap(token, pubKey, true, recoveryKey, wrappedRecoveredKey, wrapAlgorithm, ivps);
+        return key.getEncoded();
     }
 
     @Override

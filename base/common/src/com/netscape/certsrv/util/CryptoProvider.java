@@ -1,5 +1,7 @@
 package com.netscape.certsrv.util;
 
+import java.security.PublicKey;
+
 import org.mozilla.jss.crypto.EncryptionAlgorithm;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
 import org.mozilla.jss.crypto.SymmetricKey;
@@ -42,6 +44,14 @@ public abstract class CryptoProvider {
             EncryptionAlgorithm keyAlgorithm, byte[] nonceData) throws Exception;
 
     public abstract byte[] unwrapWithPassphrase(byte[] wrappedRecoveredKey, String recoveryPassphrase)
+            throws Exception;
+
+    public abstract byte[] unwrapSymmetricKeyWithSessionKey(byte[] wrappedRecoveredKey, SymmetricKey recoveryKey,
+            KeyWrapAlgorithm wrapAlgorithm, byte[] nonceData, String algorithm, int size)
+            throws Exception;
+
+    public abstract byte[] unwrapAsymmetricKeyWithSessionKey(byte[] wrappedRecoveredKey, SymmetricKey recoveryKey,
+            KeyWrapAlgorithm wrapAlgorithm, byte[] nonceData, PublicKey pubKey)
             throws Exception;
 
 }
