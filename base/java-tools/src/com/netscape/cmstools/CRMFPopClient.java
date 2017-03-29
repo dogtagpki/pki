@@ -562,7 +562,7 @@ public class CRMFPopClient {
         }
 
         byte[] iv = CryptoUtil.getNonceData(encryptAlg.getIVLength());
-        AlgorithmIdentifier aid = getAlgorithmId(algorithm, encryptAlg, iv);
+        AlgorithmIdentifier aid = new AlgorithmIdentifier(encryptAlg.toOID(), new OCTET_STRING(iv));
         WrappingParams params = getWrappingParams(encryptAlg, iv);
 
         PKIArchiveOptions opts = CryptoUtil.createPKIArchiveOptions(
@@ -598,20 +598,6 @@ public class CRMFPopClient {
         } else {
             throw new Exception("Invalid encryption algorithm");
         }
-    }
-
-    private AlgorithmIdentifier getAlgorithmId(String algorithm, EncryptionAlgorithm encryptAlg, byte[] iv)
-            throws Exception {
-        AlgorithmIdentifier aid;
-        if (algorithm.equals("rsa")) {
-            aid = new AlgorithmIdentifier(encryptAlg.toOID(), new OCTET_STRING(iv));
-        } else if (algorithm.equals("ec")) {
-            // TODO(alee) figure out what this should be for ECC
-            aid = new AlgorithmIdentifier(new OBJECT_IDENTIFIER("1.2.840.10045.2.1"), new OCTET_STRING(iv));
-        } else {
-            throw new Exception("Unknown algorithm: " + algorithm);
-        }
-        return aid;
     }
 
     public OCTET_STRING createIDPOPLinkWitness() throws Exception {

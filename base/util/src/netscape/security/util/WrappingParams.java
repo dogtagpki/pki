@@ -58,7 +58,16 @@ public class WrappingParams {
 
     public WrappingParams(String encryptOID, String wrapName, String priKeyAlgo, IVParameterSpec encryptIV, IVParameterSpec wrapIV)
             throws NumberFormatException, NoSuchAlgorithmException {
-        EncryptionAlgorithm encrypt = EncryptionAlgorithm.fromOID(new OBJECT_IDENTIFIER(encryptOID));
+        EncryptionAlgorithm encrypt = null;
+        OBJECT_IDENTIFIER eccOID = new OBJECT_IDENTIFIER("1.2.840.10045.2.1");
+        if (encryptOID.equals(eccOID.toString())) {
+            // old CRMFPopClients send this OID for ECC Keys for no apparent reason.
+            // New clients set this correctly.
+            // We'll assume the old DES3 wrapping here.
+            encrypt = EncryptionAlgorithm.DES_CBC_PAD;
+        } else {
+            encrypt = EncryptionAlgorithm.fromOID(new OBJECT_IDENTIFIER(encryptOID));
+        }
 
         KeyWrapAlgorithm wrap = null;
         if (wrapName != null) {
