@@ -32,6 +32,7 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
+import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.logging.ConsoleError;
 import com.netscape.certsrv.logging.ELogException;
@@ -49,7 +50,6 @@ import com.netscape.cmsutil.util.Utils;
  */
 public class RollingLogFile extends LogFile {
     public static final String PROP_MAX_FILE_SIZE = "maxFileSize";
-    public static final String PROP_ROLLOVER_INTERVAL = "rolloverInterval";
     public static final String PROP_EXPIRATION_TIME = "expirationTime";
 
     /**
@@ -116,7 +116,7 @@ public class RollingLogFile extends LogFile {
         super.init(config);
 
         rl_init(config.getInteger(PROP_MAX_FILE_SIZE, MAX_FILE_SIZE),
-                config.getString(PROP_ROLLOVER_INTERVAL, ROLLOVER_INTERVAL),
+                config.getString(Constants.PR_LOG_ROLLEROVER_INTERVAL, ROLLOVER_INTERVAL),
                 config.getString(PROP_EXPIRATION_TIME, EXPIRATION_TIME));
     }
 
@@ -585,7 +585,7 @@ public class RollingLogFile extends LogFile {
         Vector<String> v = super.getDefaultParams();
 
         v.addElement(PROP_MAX_FILE_SIZE + "=");
-        v.addElement(PROP_ROLLOVER_INTERVAL + "=");
+        v.addElement(Constants.PR_LOG_ROLLEROVER_INTERVAL + "=");
         //v.addElement(PROP_EXPIRATION_TIME + "=");
         return v;
     }
@@ -596,15 +596,15 @@ public class RollingLogFile extends LogFile {
         try {
             v.addElement(PROP_MAX_FILE_SIZE + "=" + mMaxFileSize / 1024);
             if (mRolloverInterval / 1000 <= 60 * 60)
-                v.addElement(PROP_ROLLOVER_INTERVAL + "=" + "Hourly");
+                v.addElement(Constants.PR_LOG_ROLLEROVER_INTERVAL + "=" + "Hourly");
             else if (mRolloverInterval / 1000 <= 60 * 60 * 24)
-                v.addElement(PROP_ROLLOVER_INTERVAL + "=" + "Daily");
+                v.addElement(Constants.PR_LOG_ROLLEROVER_INTERVAL + "=" + "Daily");
             else if (mRolloverInterval / 1000 <= 60 * 60 * 24 * 7)
-                v.addElement(PROP_ROLLOVER_INTERVAL + "=" + "Weekly");
+                v.addElement(Constants.PR_LOG_ROLLEROVER_INTERVAL + "=" + "Weekly");
             else if (mRolloverInterval / 1000 <= 60 * 60 * 24 * 30)
-                v.addElement(PROP_ROLLOVER_INTERVAL + "=" + "Monthly");
+                v.addElement(Constants.PR_LOG_ROLLEROVER_INTERVAL + "=" + "Monthly");
             else if (mRolloverInterval / 1000 <= 60 * 60 * 24 * 366)
-                v.addElement(PROP_ROLLOVER_INTERVAL + "=" + "Yearly");
+                v.addElement(Constants.PR_LOG_ROLLEROVER_INTERVAL + "=" + "Yearly");
 
             //v.addElement(PROP_EXPIRATION_TIME + "=" + mExpirationTime / 1000);
         } catch (Exception e) {
@@ -622,7 +622,7 @@ public class RollingLogFile extends LogFile {
         }
         info.addElement(PROP_MAX_FILE_SIZE
                 + ";integer;If the current log file size if bigger than this parameter in kilobytes(KB), the file will be rotated.");
-        info.addElement(PROP_ROLLOVER_INTERVAL
+        info.addElement(Constants.PR_LOG_ROLLEROVER_INTERVAL
                 + ";choice(Hourly,Daily,Weekly,Monthly,Yearly);The frequency of the log being rotated.");
         info.addElement(PROP_EXPIRATION_TIME
                 + ";integer;The amount of time before a backed up log is removed in seconds");

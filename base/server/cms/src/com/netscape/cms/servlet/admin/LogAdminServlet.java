@@ -1645,7 +1645,7 @@ public class LogAdminServlet extends AdminServlet {
 
                     }
 
-                    if (key.equals("rolloverInterval")) {
+                    if (key.equals(Constants.PR_LOG_ROLLEROVER_INTERVAL)) {
                         if (val.equals("Hourly"))
                             val = Integer.toString(60 * 60);
                         else if (val.equals("Daily"))
