@@ -37,13 +37,6 @@ find_file(COMMONS_CODEC_JAR
         /usr/share/java
 )
 
-find_file(COMMONS_IO_JAR
-    NAMES
-        commons-io.jar
-    PATHS
-        /usr/share/java
-)
-
 find_file(XALAN_JAR
     NAMES
         xalan-j2.jar
