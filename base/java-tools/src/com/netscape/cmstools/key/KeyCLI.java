@@ -27,6 +27,7 @@ import com.netscape.certsrv.system.SystemCertClient;
 import com.netscape.certsrv.util.NSSCryptoProvider;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
+import com.netscape.cmstools.cli.SubsystemCLI;
 import com.netscape.cmsutil.util.Utils;
 
 /**
@@ -78,9 +79,13 @@ public class KeyCLI extends CLI {
         PKIClient client = getClient();
 
         // determine the subsystem
-        String subsystem = client.getSubsystem();
-        if (subsystem == null)
+        String subsystem;
+        if (parent instanceof SubsystemCLI) {
+            SubsystemCLI subsystemCLI = (SubsystemCLI)parent;
+            subsystem = subsystemCLI.getName();
+        } else {
             subsystem = "kra";
+        }
 
         // create new key client
         keyClient = new KeyClient(client, subsystem);

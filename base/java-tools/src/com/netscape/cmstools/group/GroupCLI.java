@@ -26,6 +26,7 @@ import com.netscape.certsrv.group.GroupClient;
 import com.netscape.certsrv.group.GroupData;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
+import com.netscape.cmstools.cli.SubsystemCLI;
 
 /**
  * @author Endi S. Dewata
@@ -67,8 +68,13 @@ public class GroupCLI extends CLI {
         PKIClient client = getClient();
 
         // determine the subsystem
-        String subsystem = client.getSubsystem();
-        if (subsystem == null) subsystem = "ca";
+        String subsystem;
+        if (parent instanceof SubsystemCLI) {
+            SubsystemCLI subsystemCLI = (SubsystemCLI)parent;
+            subsystem = subsystemCLI.getName();
+        } else {
+            subsystem = "ca";
+        }
 
         // create new group client
         groupClient = new GroupClient(client, subsystem);

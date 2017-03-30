@@ -25,6 +25,7 @@ import com.netscape.certsrv.system.SecurityDomainHost;
 import com.netscape.certsrv.system.SecurityDomainSubsystem;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
+import com.netscape.cmstools.cli.SubsystemCLI;
 
 /**
  * @author Endi S. Dewata
@@ -60,8 +61,13 @@ public class SecurityDomainCLI extends CLI {
         PKIClient client = getClient();
 
         // determine the subsystem
-        String subsystem = client.getSubsystem();
-        if (subsystem == null) subsystem = "ca";
+        String subsystem;
+        if (parent instanceof SubsystemCLI) {
+            SubsystemCLI subsystemCLI = (SubsystemCLI)parent;
+            subsystem = subsystemCLI.getName();
+        } else {
+            subsystem = "ca";
+        }
 
         // create new security domain client
         securityDomainClient = new SecurityDomainClient(client, subsystem);
