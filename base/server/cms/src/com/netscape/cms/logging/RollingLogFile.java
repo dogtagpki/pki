@@ -49,7 +49,6 @@ import com.netscape.cmsutil.util.Utils;
  * @version $Revision$, $Date$
  */
 public class RollingLogFile extends LogFile {
-    public static final String PROP_MAX_FILE_SIZE = "maxFileSize";
     public static final String PROP_EXPIRATION_TIME = "expirationTime";
 
     /**
@@ -115,7 +114,7 @@ public class RollingLogFile extends LogFile {
             EBaseException {
         super.init(config);
 
-        rl_init(config.getInteger(PROP_MAX_FILE_SIZE, MAX_FILE_SIZE),
+        rl_init(config.getInteger(Constants.PR_LOG_MAXFILESIZE, MAX_FILE_SIZE),
                 config.getString(Constants.PR_LOG_ROLLEROVER_INTERVAL, ROLLOVER_INTERVAL),
                 config.getString(PROP_EXPIRATION_TIME, EXPIRATION_TIME));
     }
@@ -584,7 +583,7 @@ public class RollingLogFile extends LogFile {
     public Vector<String> getDefaultParams() {
         Vector<String> v = super.getDefaultParams();
 
-        v.addElement(PROP_MAX_FILE_SIZE + "=");
+        v.addElement(Constants.PR_LOG_MAXFILESIZE + "=");
         v.addElement(Constants.PR_LOG_ROLLEROVER_INTERVAL + "=");
         //v.addElement(PROP_EXPIRATION_TIME + "=");
         return v;
@@ -594,7 +593,7 @@ public class RollingLogFile extends LogFile {
         Vector<String> v = super.getInstanceParams();
 
         try {
-            v.addElement(PROP_MAX_FILE_SIZE + "=" + mMaxFileSize / 1024);
+            v.addElement(Constants.PR_LOG_MAXFILESIZE + "=" + mMaxFileSize / 1024);
             if (mRolloverInterval / 1000 <= 60 * 60)
                 v.addElement(Constants.PR_LOG_ROLLEROVER_INTERVAL + "=" + "Hourly");
             else if (mRolloverInterval / 1000 <= 60 * 60 * 24)
@@ -620,7 +619,7 @@ public class RollingLogFile extends LogFile {
             if (!p[i].startsWith(IExtendedPluginInfo.HELP_TOKEN) && !p[i].startsWith(IExtendedPluginInfo.HELP_TEXT))
                 info.addElement(p[i]);
         }
-        info.addElement(PROP_MAX_FILE_SIZE
+        info.addElement(Constants.PR_LOG_MAXFILESIZE
                 + ";integer;If the current log file size if bigger than this parameter in kilobytes(KB), the file will be rotated.");
         info.addElement(Constants.PR_LOG_ROLLEROVER_INTERVAL
                 + ";choice(Hourly,Daily,Weekly,Monthly,Yearly);The frequency of the log being rotated.");
