@@ -30,6 +30,13 @@ find_file(SLF4J_JDK14_JAR
         /usr/share/java/slf4j
 )
 
+find_file(COMMONS_IO_JAR
+    NAMES
+        commons-io.jar
+    PATHS
+        /usr/share/java
+)
+
 find_file(JACKSON_CORE_JAR
     NAMES
         jackson-core-asl.jar

@@ -24,13 +24,6 @@ find_file(COMMONS_CODEC_JAR
         /usr/share/java
 )
 
-find_file(COMMONS_IO_JAR
-    NAMES
-        commons-io.jar
-    PATHS
-        /usr/share/java
-)
-
 find_file(COMMONS_LANG_JAR
     NAMES
         commons-lang.jar
