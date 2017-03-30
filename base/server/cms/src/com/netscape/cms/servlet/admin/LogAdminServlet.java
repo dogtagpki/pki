@@ -834,7 +834,7 @@ public class LogAdminServlet extends AdminServlet {
             // files is no longer supported, it is still a required parameter
             // that must be present during the creation and modification of
             // custom log plugins.
-            substore.put("expirationTime", "0");
+            substore.put(Constants.PR_LOG_EXPIRED_TIME, "0");
 
             // Instantiate an object for this implementation
             String className = plugin.getClassPath();
@@ -1591,7 +1591,7 @@ public class LogAdminServlet extends AdminServlet {
             // files is no longer supported, it is still a required parameter
             // that must be present during the creation and modification of
             // custom log plugins.
-            substore.put("expirationTime", "0");
+            substore.put(Constants.PR_LOG_EXPIRED_TIME, "0");
 
             // IMPORTANT:  save a copy of the original log file path
             origLogPath = substore.getString(Constants.PR_LOG_FILENAME);
@@ -1702,7 +1702,7 @@ public class LogAdminServlet extends AdminServlet {
                             }
                         }
                         /*
-                                                if (key.equals("expirationTime")) {
+                                                if (key.equals(Constants.PR_LOG_EXPIRED_TIME)) {
                                                     String origVal = substore.getString(key);
 
                                                     val = val.trim();

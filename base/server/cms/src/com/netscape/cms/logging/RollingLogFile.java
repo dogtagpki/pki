@@ -49,7 +49,6 @@ import com.netscape.cmsutil.util.Utils;
  * @version $Revision$, $Date$
  */
 public class RollingLogFile extends LogFile {
-    public static final String PROP_EXPIRATION_TIME = "expirationTime";
 
     /**
      * The default max file size in bytes
@@ -116,7 +115,7 @@ public class RollingLogFile extends LogFile {
 
         rl_init(config.getInteger(Constants.PR_LOG_MAXFILESIZE, MAX_FILE_SIZE),
                 config.getString(Constants.PR_LOG_ROLLEROVER_INTERVAL, ROLLOVER_INTERVAL),
-                config.getString(PROP_EXPIRATION_TIME, EXPIRATION_TIME));
+                config.getString(Constants.PR_LOG_EXPIRED_TIME, EXPIRATION_TIME));
     }
 
     /**
@@ -585,7 +584,7 @@ public class RollingLogFile extends LogFile {
 
         v.addElement(Constants.PR_LOG_MAXFILESIZE + "=");
         v.addElement(Constants.PR_LOG_ROLLEROVER_INTERVAL + "=");
-        //v.addElement(PROP_EXPIRATION_TIME + "=");
+        //v.addElement(Constants.PR_LOG_EXPIRED_TIME + "=");
         return v;
     }
 
@@ -623,7 +622,7 @@ public class RollingLogFile extends LogFile {
                 + ";integer;If the current log file size if bigger than this parameter in kilobytes(KB), the file will be rotated.");
         info.addElement(Constants.PR_LOG_ROLLEROVER_INTERVAL
                 + ";choice(Hourly,Daily,Weekly,Monthly,Yearly);The frequency of the log being rotated.");
-        info.addElement(PROP_EXPIRATION_TIME
+        info.addElement(Constants.PR_LOG_EXPIRED_TIME
                 + ";integer;The amount of time before a backed up log is removed in seconds");
         info.addElement(IExtendedPluginInfo.HELP_TOKEN +
                 //";configuration-logrules-rollinglogfile");
