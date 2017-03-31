@@ -186,6 +186,7 @@ BuildRequires:    tomcatjss >= 7.1.3
 %if 0%{?with_python3}
 BuildRequires:  python3-devel
 BuildRequires:  python3-nss
+BuildRequires:  python3-pyldap
 BuildRequires:  python3-requests >= 2.6.0
 BuildRequires:  python3-six
 %endif  # with_python3
