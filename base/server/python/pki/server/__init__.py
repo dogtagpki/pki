@@ -858,7 +858,11 @@ class Tomcat(object):
         output = output.decode('utf-8')
 
         # find "Server version: Apache Tomcat/<major version>.<minor version>"
-        match = re.search(r'^Server version:[^/]*/(\d+).*$', output, re.MULTILINE)
+        match = re.search(
+            r'^Server version:[^/]*/(\d+).*$',
+            output,
+            re.MULTILINE  # pylint: disable=no-member
+        )
 
         if not match:
             raise Exception('Unable to determine Tomcat version')

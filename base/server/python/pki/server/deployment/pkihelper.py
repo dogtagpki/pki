@@ -2721,7 +2721,11 @@ class Modutil:
         output = output.decode('utf-8')
 
         # find modules from lines such as '1. NSS Internal PKCS #11 Module'
-        modules = re.findall(r'^ +\d+\. +(.*)$', output, re.MULTILINE)
+        modules = re.findall(
+            r'^ +\d+\. +(.*)$',
+            output,
+            re.MULTILINE  # pylint: disable=no-member
+        )
 
         if modulename not in modules:
             config.pki_log.info(
