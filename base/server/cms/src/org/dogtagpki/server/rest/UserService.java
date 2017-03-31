@@ -32,12 +32,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang.StringUtils;
 import org.jboss.resteasy.plugins.providers.atom.Link;
@@ -83,18 +78,6 @@ import netscape.security.x509.X509CertImpl;
  * @author Endi S. Dewata
  */
 public class UserService extends SubsystemService implements UserResource {
-
-    @Context
-    private UriInfo uriInfo;
-
-    @Context
-    private HttpHeaders headers;
-
-    @Context
-    private Request request;
-
-    @Context
-    private HttpServletRequest servletRequest;
 
     public final static String BACK_SLASH = "\\";
     public final static String SYSTEM_USER = "$System$";

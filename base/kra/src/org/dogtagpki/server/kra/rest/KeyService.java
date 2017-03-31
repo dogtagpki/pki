@@ -29,15 +29,10 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Path;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
-import javax.ws.rs.core.UriInfo;
 
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
@@ -81,18 +76,6 @@ import com.netscape.cmsutil.util.Utils;
  *
  */
 public class KeyService extends SubsystemService implements KeyResource {
-
-    @Context
-    private UriInfo uriInfo;
-
-    @Context
-    private HttpHeaders headers;
-
-    @Context
-    private Request request;
-
-    @Context
-    private HttpServletRequest servletRequest;
 
     private final static String LOGGING_SIGNED_AUDIT_SECURITY_DATA_RETRIEVE_KEY =
             "LOGGING_SIGNED_AUDIT_SECURITY_DATA_RETRIEVE_KEY_5";

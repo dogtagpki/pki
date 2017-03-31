@@ -17,12 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.server.ca.rest;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.BadRequestException;
@@ -37,18 +32,6 @@ import com.netscape.cms.servlet.base.PKIService;
  * @author Ade Lee
  */
 public class KRAConnectorService extends PKIService implements KRAConnectorResource {
-
-    @Context
-    private UriInfo uriInfo;
-
-    @Context
-    private HttpHeaders headers;
-
-    @Context
-    private Request request;
-
-    @Context
-    private HttpServletRequest servletRequest;
 
     @Override
     public Response addConnector(KRAConnectorInfo info) {

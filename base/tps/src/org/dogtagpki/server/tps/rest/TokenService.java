@@ -29,12 +29,7 @@ import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang.StringUtils;
 import org.dogtagpki.server.tps.TPSSubsystem;
@@ -63,18 +58,6 @@ import netscape.ldap.LDAPException;
  * @author Endi S. Dewata
  */
 public class TokenService extends SubsystemService implements TokenResource {
-
-    @Context
-    private UriInfo uriInfo;
-
-    @Context
-    private HttpHeaders headers;
-
-    @Context
-    private Request request;
-
-    @Context
-    private HttpServletRequest servletRequest;
 
     public TokenService() throws Exception {
         CMS.debug("TokenService.<init>()");

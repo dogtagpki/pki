@@ -28,12 +28,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Random;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.Request;
-import javax.ws.rs.core.UriInfo;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.mutable.MutableBoolean;
 import org.mozilla.jss.CryptoManager;
@@ -73,17 +67,6 @@ import netscape.security.x509.X509CertImpl;
  *
  */
 public class SystemConfigService extends PKIService implements SystemConfigResource {
-    @Context
-    public UriInfo uriInfo;
-
-    @Context
-    public HttpHeaders headers;
-
-    @Context
-    public Request request;
-
-    @Context
-    public HttpServletRequest servletRequest;
 
     public IConfigStore cs;
     public String csType;

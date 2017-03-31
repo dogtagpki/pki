@@ -23,12 +23,7 @@ import java.net.URI;
 import java.net.URLEncoder;
 import java.util.Iterator;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 
 import org.dogtagpki.server.tps.TPSSubsystem;
 import org.dogtagpki.server.tps.dbs.ActivityDatabase;
@@ -48,18 +43,6 @@ import com.netscape.cms.servlet.base.PKIService;
  * @author Endi S. Dewata
  */
 public class ActivityService extends PKIService implements ActivityResource {
-
-    @Context
-    private UriInfo uriInfo;
-
-    @Context
-    private HttpHeaders headers;
-
-    @Context
-    private Request request;
-
-    @Context
-    private HttpServletRequest servletRequest;
 
     public ActivityService() {
         CMS.debug("ActivityService.<init>()");

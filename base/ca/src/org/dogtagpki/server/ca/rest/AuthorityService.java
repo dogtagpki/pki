@@ -27,13 +27,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.GenericEntity;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
@@ -74,18 +69,6 @@ public class AuthorityService extends SubsystemService implements AuthorityResou
     public AuthorityService() {
         hostCA = (ICertificateAuthority) CMS.getSubsystem("ca");
     }
-
-    @Context
-    private UriInfo uriInfo;
-
-    @Context
-    private HttpHeaders headers;
-
-    @Context
-    private Request request;
-
-    @Context
-    private HttpServletRequest servletRequest;
 
     private final static String LOGGING_SIGNED_AUDIT_AUTHORITY_CONFIG =
             "LOGGING_SIGNED_AUDIT_AUTHORITY_CONFIG_3";

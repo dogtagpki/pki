@@ -23,12 +23,7 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
@@ -44,18 +39,6 @@ import com.netscape.cms.servlet.base.SubsystemService;
  * @author Endi S. Dewata
  */
 public class ConfigService extends SubsystemService implements ConfigResource {
-
-    @Context
-    private UriInfo uriInfo;
-
-    @Context
-    private HttpHeaders headers;
-
-    @Context
-    private Request request;
-
-    @Context
-    private HttpServletRequest servletRequest;
 
     public ConfigService() {
         CMS.debug("ConfigService.<init>()");

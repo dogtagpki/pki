@@ -12,10 +12,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.TreeSet;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
@@ -51,12 +48,6 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
     private static final String TPS_LIST = "tps.list";
 
     IConfigStore cs = CMS.getConfigStore();
-
-    @Context
-    private UriInfo uriInfo;
-
-    @Context
-    private HttpServletRequest servletRequest;
 
     public IUGSubsystem userGroupManager = (IUGSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_UG);
 
