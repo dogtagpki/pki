@@ -13,7 +13,7 @@
 %global package_rhel_packages 1
 # Package RHCS-specific RPMS Only
 %global package_rhcs_packages 1
-%define pki_core_rhel_version 10.4.0
+%define pki_core_rhel_version 10.4.1
 %else
 # 0%{?fedora}
 # Fedora always packages all RPMS
@@ -64,8 +64,8 @@
 %define pki_homedir /usr/share/pki
 
 Name:             pki-core
-Version:          10.4.0
-Release:          1%{?dist}
+Version:          10.4.1
+Release:          0.1%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -1347,6 +1347,9 @@ systemctl daemon-reload
 %endif # %{with server}
 
 %changelog
+* Wed Mar 29 2017 Dogtag Team <pki-devel@redhat.com> 10.4.1-0.1
+- Updated version number to 10.4.1-0.1
+
 * Tue Mar 14 2017 Dogtag Team <pki-devel@redhat.com> 10.4.0-1
 - Require "jss >= 4.4.0-1" as a build and runtime requirement
 - Require "tomcatjss >= 7.2.1-1" as a build and runtime requirement
