@@ -24,7 +24,6 @@ from __future__ import print_function
 import getopt
 import getpass
 import os
-import string
 import subprocess
 import sys
 from tempfile import mkstemp
@@ -789,7 +788,7 @@ class SubsystemCertUpdateCLI(pki.cli.CLI):
 
         # format cert data for LDAP database
         lines = [data[i:i + 64] for i in range(0, len(data), 64)]
-        data = string.join(lines, '\r\n') + '\r\n'
+        data = '\r\n'.join(lines) + '\r\n'
 
         if self.verbose:
             print('Retrieving certificate request from CA database')
@@ -812,7 +811,7 @@ class SubsystemCertUpdateCLI(pki.cli.CLI):
                 lines = lines[1:]
             if lines[-1] == '-----END CERTIFICATE REQUEST-----':
                 lines = lines[:-1]
-            request = string.join(lines, '')
+            request = ''.join(lines)
             subsystem_cert['request'] = request
 
         else:
