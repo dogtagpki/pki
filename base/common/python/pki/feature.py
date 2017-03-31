@@ -133,6 +133,7 @@ class FeatureClient(object):
             headers=self.headers)
         return FeatureCollection.from_json(response.json())
 
+
 encoder.NOTYPES['Feature'] = Feature
 
 

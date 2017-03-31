@@ -23,7 +23,6 @@ import os
 import re
 from distutils.core import setup
 
-
 UPGRADE_SCRIPT = re.compile('^[0-9]+-.*')
 
 
@@ -38,11 +37,13 @@ def find_upgrade(origroot, destroot):
                 upgrades.setdefault(dest, []).append(orig)
     return upgrades
 
+
 upgrades = {}
 upgrades.update(find_upgrade('base/common/upgrade',
                              'share/pki/upgrade'))
 upgrades.update(find_upgrade('base/server/upgrade',
                              'share/pki/server/upgrade'))
+
 
 setup(
     author='Dogtag Certificate System Team',

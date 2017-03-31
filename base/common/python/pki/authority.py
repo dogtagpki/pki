@@ -289,6 +289,7 @@ class AuthorityClient(object):
 
         self.connection.delete(url, headers)
 
+
 encoder.NOTYPES['AuthorityData'] = AuthorityData
 
 
@@ -498,6 +499,7 @@ def main():
     print("Issuing a cert using sub-subca")
     print("-----------------------------------")
     issue_cert_using_authority(cert_client, sub_subca.aid)
+
 
 if __name__ == "__main__":
     main()

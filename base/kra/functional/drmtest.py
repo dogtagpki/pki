@@ -302,7 +302,7 @@ def usage():
     print('  -P <protocol>                  KRA server protocol (default: https).')
     print('  -h <hostname>                  KRA server hostname (default: localhost).')
     print('  -p <port>                      KRA server port (default: 8443).')
-    print('  -n <path>                      KRA agent certificate and private key (default: kraagent.pem).')  # nopep8
+    print('  -n <path>                      KRA agent certificate and private key (default: kraagent.pem).')  # noqa: E501
     print()
     print('  --help                         Show this help message.')
 

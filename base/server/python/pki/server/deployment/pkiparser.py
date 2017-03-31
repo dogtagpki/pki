@@ -308,7 +308,7 @@ class PKIConfigParser:
 
         return value
 
-    def read_password(self, message, section=None, key=None,  # nopep8
+    def read_password(self, message, section=None, key=None,  # noqa: N803
                       verifyMessage=None):
         message = ' ' * self.indent + message + ': '
         if verifyMessage is not None:  # nopep8

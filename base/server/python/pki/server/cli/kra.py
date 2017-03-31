@@ -378,7 +378,7 @@ class KRADBVLVAddCLI(pki.cli.CLI):
             print('KRA VLVs added to the database for ' + instance_name)
 
         except ldap.LDAPError as e:
-            print("ERROR: " + e.message['desc'])
+            print("ERROR: {}".format(e))
             sys.exit(1)
 
     def add_vlv(self, subsystem, bind_dn, bind_password):

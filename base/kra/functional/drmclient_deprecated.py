@@ -1008,7 +1008,8 @@ class KRA:
         self.debug('%s.recover_security_data()', self.fullname)
         pass
 
-""" Sample Test execution starts here """
+
+# Sample Test execution starts here
 parser = argparse.ArgumentParser(description="Sample Test execution")
 parser.add_argument(
     '-d',

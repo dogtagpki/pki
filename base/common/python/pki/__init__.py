@@ -269,9 +269,8 @@ class RequestNotFoundException(ResourceNotFoundException):
 class UserNotFoundException(ResourceNotFoundException):
     """ User Not Found Exception: return code = 404 """
 
-"""
-Mapping from Java Server exception classes to python exception classes
-"""
+
+# Mapping from Java Server exception classes to python exception classes
 EXCEPTION_MAPPINGS = {
     "com.netscape.certsrv.base.BadRequestException": BadRequestException,
     "com.netscape.certsrv.base.ConflictingOperationException":

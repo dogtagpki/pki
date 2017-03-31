@@ -469,7 +469,7 @@ class ExternalCert(object):
 @functools.total_ordering
 class PKIInstance(object):
 
-    def __init__(self, name, instanceType=10):  # nopep8
+    def __init__(self, name, instanceType=10):  # noqa: N803
 
         self.name = name
         self.type = instanceType

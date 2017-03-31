@@ -155,8 +155,8 @@ class PKIServerUpgradeScriptlet(pki.upgrade.PKIUpgradeScriptlet):
 
 class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
 
-    def __init__(self, instanceName=None, instanceType=None,  # nopep8
-                 subsystemName=None, upgrade_dir=UPGRADE_DIR,  # nopep8
+    def __init__(self, instanceName=None, instanceType=None,  # noqa: N803
+                 subsystemName=None, upgrade_dir=UPGRADE_DIR,  # noqa: N803
                  version=None, index=None, silent=False):
         super(PKIServerUpgrader, self).__init__(
             upgrade_dir, version, index, silent)

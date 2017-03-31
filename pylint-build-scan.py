@@ -131,5 +131,6 @@ def main():
 
     return subprocess.call(pylint, cwd=env['sitepackages'])
 
+
 if __name__ == '__main__':
     sys.exit(main())
