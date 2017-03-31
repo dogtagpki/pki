@@ -362,7 +362,7 @@ def main():
     try:
         subca = ca_client.create_ca(data)
     except ValueError as e:
-        print(e.message)
+        print(e)
 
     # Get the host CA
     print("Getting the host CA")
