@@ -27,16 +27,20 @@ import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.logging.AuditClient;
 import com.netscape.certsrv.logging.AuditConfig;
 import com.netscape.cmstools.cli.CLI;
+import com.netscape.cmstools.cli.SubsystemCLI;
 
 /**
  * @author Endi S. Dewata
  */
 public class AuditCLI extends CLI {
 
+    public SubsystemCLI subsystemCLI;
     public AuditClient auditClient;
 
-    public AuditCLI(CLI parent) {
-        super("audit", "Audit management commands", parent);
+    public AuditCLI(SubsystemCLI subsystemCLI) {
+        super("audit", "Audit management commands", subsystemCLI);
+
+        this.subsystemCLI = subsystemCLI;
 
         addModule(new AuditModifyCLI(this));
         addModule(new AuditShowCLI(this));
@@ -52,7 +56,7 @@ public class AuditCLI extends CLI {
         if (auditClient != null) return auditClient;
 
         PKIClient client = getClient();
-        auditClient = (AuditClient)parent.getClient("audit");
+        auditClient = new AuditClient(client, subsystemCLI.getName());
 
         return auditClient;
     }
