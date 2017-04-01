@@ -65,7 +65,7 @@
 
 Name:             pki-core
 Version:          10.4.1
-Release:          0.1%{?dist}
+Release:          2.1%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -86,11 +86,14 @@ BuildRequires:    apache-commons-lang
 BuildRequires:    jakarta-commons-httpclient
 BuildRequires:    slf4j
 BuildRequires:    nspr-devel
-
-%if 0%{?fedora}
-BuildRequires:    nss-devel >= 3.27.0
+%if 0%{?rhel}
+BuildRequires:    nss-devel >= 3.28.3
 %else
-BuildRequires:    nss-devel >= 3.14.3
+%if 0%{?fedora} >= 25
+BuildRequires:    nss-devel >= 3.28.3
+%else
+BuildRequires:    nss-devel >= 3.27.0
+%endif
 %endif
 
 %if 0%{?rhel}
@@ -170,14 +173,21 @@ BuildRequires:    policycoreutils-python-utils
 BuildRequires:    python-ldap
 BuildRequires:    junit
 BuildRequires:    jpackage-utils >= 0:1.7.5-10
-BuildRequires:    jss >= 4.4.0-1
-BuildRequires:    systemd-units
-
 %if 0%{?rhel}
-BuildRequires:    tomcatjss >= 7.2.1-1
+BuildRequires:    jss >= 4.4.0-4
 %else
-%if 0%{?fedora} >= 23
-BuildRequires:    tomcatjss >= 7.2.1-1
+%if 0%{?fedora} >= 25
+BuildRequires:    jss >= 4.4.1
+%else
+BuildRequires:    jss >= 4.2.6-44
+%endif
+%endif
+BuildRequires:    systemd-units
+%if 0%{?rhel}
+BuildRequires:    tomcatjss >= 7.2.1-3
+%else
+%if 0%{?fedora} >= 25
+BuildRequires:    tomcatjss >= 7.2.2
 %else
 BuildRequires:    tomcatjss >= 7.1.3
 %endif
@@ -311,15 +321,25 @@ Summary:          Symmetric Key JNI Package
 Group:            System Environment/Libraries
 
 Requires:         java-1.8.0-openjdk-headless
-
-%if 0%{?fedora}
-Requires:         nss >= 3.27.0
+%if 0%{?rhel}
+Requires:         nss >= 3.28.3
 %else
-Requires:         nss >= 3.14.3
+%if 0%{?fedora} >= 25
+Requires:         nss >= 3.28.3
+%else
+Requires:         nss >= 3.27.0
 %endif
-
+%endif
 Requires:         jpackage-utils >= 0:1.7.5-10
-Requires:         jss >= 4.4.0-1
+%if 0%{?rhel}
+Requires:         jss >= 4.4.0-4
+%else
+%if 0%{?fedora} >= 25
+Requires:         jss >= 4.4.1
+%else
+Requires:         jss >= 4.2.6-44
+%endif
+%endif
 
 Provides:         symkey = %{version}-%{release}
 
@@ -366,12 +386,15 @@ Obsoletes:        pki-util < %{version}-%{release}
 
 Conflicts:        freeipa-server < 3.0.0
 
-%if 0%{?fedora}
-Requires:         nss >= 3.27.0
+%if 0%{?rhel}
+Requires:         nss >= 3.28.3
 %else
-Requires:         nss >= 3.14.3
+%if 0%{?fedora} >= 25
+Requires:         nss >= 3.28.3
+%else
+Requires:         nss >= 3.27.0
 %endif
-
+%endif
 Requires:         python-nss
 Requires:         python-requests >= 2.6.0
 Requires:         python-six
@@ -401,7 +424,15 @@ Requires:         slf4j-jdk14
 %endif
 Requires:         javassist
 Requires:         jpackage-utils >= 0:1.7.5-10
-Requires:         jss >= 4.4.0-1
+%if 0%{?rhel}
+Requires:         jss >= 4.4.0-4
+%else
+%if 0%{?fedora} >= 25
+Requires:         jss >= 4.4.1
+%else
+Requires:         jss >= 4.2.6-44
+%endif
+%endif
 Requires:         ldapjdk
 Requires:         pki-base = %{version}-%{release}
 
@@ -486,13 +517,15 @@ Obsoletes:        pki-native-tools < %{version}-%{release}
 Obsoletes:        pki-java-tools < %{version}-%{release}
 
 Requires:         openldap-clients
-
-%if 0%{?fedora}
-Requires:         nss-tools >= 3.27.0
+%if 0%{?rhel}
+Requires:         nss-tools >= 3.28.3
 %else
-Requires:         nss-tools >= 3.14.3
+%if 0%{?fedora} >= 25
+Requires:         nss-tools >= 3.28.3
+%else
+Requires:         nss-tools >= 3.27.0
 %endif
-
+%endif
 Requires:         java-1.8.0-openjdk-headless
 Requires:         pki-base = %{version}-%{release}
 Requires:         pki-base-java = %{version}-%{release}
@@ -582,12 +615,11 @@ Requires(post):   systemd-units
 Requires(preun):  systemd-units
 Requires(postun): systemd-units
 Requires(pre):    shadow-utils
-
 %if 0%{?rhel}
-Requires:         tomcatjss >= 7.2.1-1
+Requires:         tomcatjss >= 7.2.1-3
 %else
 %if 0%{?fedora} >= 23
-Requires:         tomcatjss >= 7.2.1-1
+Requires:         tomcatjss >= 7.2.2
 %else
 Requires:         tomcatjss >= 7.1.3
 %endif
@@ -791,12 +823,15 @@ Requires(postun): systemd-units
 # additional runtime requirements needed to run native 'tpsclient'
 # REMINDER:  Revisit these once 'tpsclient' is rewritten as a Java app
 
-%if 0%{?fedora}
-Requires:         nss-tools >= 3.27.0
+%if 0%{?rhel}
+Requires:         nss-tools >= 3.28.3
 %else
-Requires:         nss-tools >= 3.14.3
+%if 0%{?fedora} >= 25
+Requires:         nss-tools >= 3.28.3
+%else
+Requires:         nss-tools >= 3.27.0
 %endif
-
+%endif
 Requires:         openldap-clients
 %if 0%{?package_fedora_packages} || 0%{?package_rhel_packages}
 Requires:         pki-symkey = %{version}-%{release}
@@ -1348,8 +1383,26 @@ systemctl daemon-reload
 %endif # %{with server}
 
 %changelog
-* Wed Mar 29 2017 Dogtag Team <pki-devel@redhat.com> 10.4.1-0.1
-- Updated version number to 10.4.1-0.1
+* Fri Mar 31 2017 Dogtag Team <pki-devel@redhat.com> 10.4.1-2
+- Fixed runtime typo on jss
+
+* Mon Mar 27 2017 Dogtag Team <pki-devel@redhat.com> 10.4.1-1
+- Require "nss >= 3.28.3" as a build and runtime requirement
+- Require "jss >= 4.4.1" as a build and runtime requirement
+- Require "tomcatjss >= 7.2.2" as a build and runtime requirement
+- ############################################################################
+- dogtagpki Pagure Issue #2541 - Re-base Dogtag pki packages to 10.4.x
+- ############################################################################
+- dogtagpki Pagure Issue #2602 - Audit logs for SSL/TLS session events
+  implementation (edewata)
+- dogtagpki Pagure Issue #2605 - CMC feature support: provided issuance
+  protection cert mechanism (cfu)
+- dogtagpki Pagure Issue #2612 - Unable to clone due to pki pkcs12-cert-find
+  failure (edewata)
+- dogtagpki Pagure Issue #2613 - CMC: id-cmc-identityProofV2 feature
+  implementation (cfu)
+- dogtagpki Pagure Issue #2615 - CMC: provide Proof of Possession for
+  encryption cert requests (cfu)
 
 * Tue Mar 14 2017 Dogtag Team <pki-devel@redhat.com> 10.4.0-1
 - Require "jss >= 4.4.0-1" as a build and runtime requirement
