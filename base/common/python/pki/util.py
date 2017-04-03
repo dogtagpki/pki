@@ -34,8 +34,10 @@ except ImportError:
 
 import subprocess
 
-DEFAULT_PKI_ENV_LIST = ['/usr/share/pki/etc/pki.conf',
-                        '/etc/pki/pki.conf']
+DEFAULT_PKI_ENV_LIST = [
+    '/usr/share/pki/etc/pki.conf',
+    '/etc/pki/pki.conf',
+]
 
 
 def copy(source, dest):
