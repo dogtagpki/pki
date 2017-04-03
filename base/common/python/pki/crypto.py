@@ -23,12 +23,20 @@ Module containing crypto classes.
 """
 from __future__ import absolute_import
 import abc
-import nss.nss as nss
 import os
-import six
 import shutil
 import subprocess
 import tempfile
+
+import nss.nss as nss
+import six
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives.ciphers import (
+    Cipher, algorithms, modes
+)
+from cryptography.hazmat.primitives import padding
+from cryptography.hazmat.primitives.asymmetric.padding import PKCS1v15
+import cryptography.x509
 
 
 class CryptoProvider(six.with_metaclass(abc.ABCMeta, object)):
@@ -43,6 +51,17 @@ class CryptoProvider(six.with_metaclass(abc.ABCMeta, object)):
     @abc.abstractmethod
     def initialize(self):
         """ Initialization code """
+        pass
+
+    @staticmethod
+    @abc.abstractmethod
+    def get_supported_algorithm_keyset():
+        """ returns highest supported algorithm keyset """
+        pass
+
+    @abc.abstractmethod
+    def set_algorithm_keyset(self, level):
+        """ sets required keyset """
         pass
 
     @staticmethod
@@ -151,6 +170,20 @@ class NSSCryptoProvider(CryptoProvider):
         Initialize the nss db. Must be done before any crypto operations
         """
         nss.nss_init(self.certdb_dir)
+
+    @staticmethod
+    def get_supported_algorithm_keyset():
+        """ returns highest supported algorithm keyset """
+        return 0
+
+    def set_algorithm_keyset(self, level):
+        """ sets required keyset """
+        if level > 0:
+            raise Exception("Invalid keyset")
+
+        # basically, do what we have always done, no need to set anything
+        # special here.
+        pass
 
     def import_cert(self, cert_nick, cert, trust=',,'):
         """ Import a certificate into the nss database
@@ -288,3 +321,166 @@ class NSSCryptoProvider(CryptoProvider):
         Searches NSS database and returns SecItem object for this certificate.
         """
         return nss.find_cert_from_nickname(cert_nick)
+
+
+class CryptographyCryptoProvider(CryptoProvider):
+    """
+    Class that defines python-cryptography implementation of CryptoProvider.
+    Requires a PEM file containing the agent cert to be initialized.
+
+    Note that all inputs and outputs are unencoded.
+    """
+
+    def __init__(self, transport_cert_fname, transport_cert_nick):
+        """ Initialize python-cryptography
+        """
+        CryptoProvider.__init__(self)
+
+        # TODO(alee) We should source the environment files at pki.conf
+        # and determine the default mechanisms.  Sometimes we want to talk
+        # to an old server for instance.  This will be just like the Java
+        # client.
+
+        self.certs = {}
+
+        with open(transport_cert_fname, 'r') as f:
+            transport_pem = f.read()
+
+        self.certs[transport_cert_nick] = (
+            cryptography.x509.load_pem_x509_certificate(
+                transport_pem,
+                default_backend()
+            )
+        )
+
+        # default to AES
+        self.encrypt_alg = algorithms.AES
+        self.encrypt_mode = modes.CBC
+        self.encrypt_size = 128
+
+    def initialize(self):
+        """
+        Any operations here that need to be performed before crypto
+        operations.
+        """
+        pass
+
+    @staticmethod
+    def get_supported_algorithm_keyset():
+        """ returns highest supported algorithm keyset """
+        return 1
+
+    def set_algorithm_keyset(self, level):
+        """ sets required keyset """
+        if level > 1:
+            raise Exception("Invalid keyset")
+        elif level == 1:
+            self.encrypt_alg = algorithms.AES
+            self.encrypt_mode = modes.CBC
+            self.encrypt_size = 128
+        elif level == 0:
+            self.encrypt_alg = algorithms.TripleDES
+            self.encrypt_mode = modes.CBC
+            self.encrypt_size = 168
+
+    @staticmethod
+    def generate_nonce_iv(mechanism='AES'):
+        """ Create a random initialization vector """
+        if mechanism == 'AES':
+            return os.urandom(16)
+        elif mechanism == '3DES':
+            return os.urandom(8)
+
+    def generate_symmetric_key(self, mechanism=None, size=0):
+        """ Returns a symmetric key.
+        """
+        if mechanism is None:
+            size = self.encrypt_size / 8
+        return os.urandom(size)
+
+    def generate_session_key(self):
+        """ Returns a session key to be used when wrapping secrets for the DRM.
+        """
+        return self.generate_symmetric_key()
+
+    def symmetric_wrap(self, data, wrapping_key, mechanism=None,
+                       nonce_iv=None):
+        """
+        :param data            Data to be wrapped
+        :param wrapping_key    Symmetric key to wrap data
+        :param mechanism       Mechanism to use for wrapping key
+        :param nonce_iv        Nonce for initialization vector
+
+        Wrap (encrypt) data using the supplied symmetric key
+        """
+        # TODO(alee)  Not sure yet how to handle non-default mechanisms
+        # For now, lets just ignore them
+
+        backend = default_backend()
+        if wrapping_key is None:
+            raise Exception("Wrapping key must be provided")
+
+        if self.encrypt_mode.name == "CBC":
+            padder = padding.PKCS7(self.encrypt_alg.block_size).padder()
+            padded_data = padder.update(data) + padder.finalize()
+            data = padded_data
+
+        cipher = Cipher(self.encrypt_alg(wrapping_key),
+                        self.encrypt_mode(nonce_iv),
+                        backend=backend)
+
+        encryptor = cipher.encryptor()
+        ct = encryptor.update(data) + encryptor.finalize()
+        return ct
+
+    def symmetric_unwrap(self, data, wrapping_key,
+                         mechanism=None, nonce_iv=None):
+        """
+        :param data            Data to be unwrapped
+        :param wrapping_key    Symmetric key to unwrap data
+        :param nonce_iv        iv data
+
+        Unwrap (decrypt) data using the supplied symmetric key
+        """
+
+        # TODO(alee) As above, no idea what to do with mechanism
+        # ignoring for now.
+
+        backend = default_backend()
+        if wrapping_key is None:
+            raise Exception("Wrapping key must be provided")
+
+        cipher = Cipher(self.encrypt_alg(wrapping_key),
+                        self.encrypt_mode(nonce_iv),
+                        backend=backend)
+
+        decryptor = cipher.decryptor()
+        unwrapped = decryptor.update(data) + decryptor.finalize()
+
+        if self.encrypt_mode.name == 'CBC':
+            unpadder = padding.PKCS7(self.encrypt_alg.block_size).unpadder()
+            unpadded = unpadder.update(unwrapped) + unpadder.finalize()
+            unwrapped = unpadded
+
+        return unwrapped
+
+    def asymmetric_wrap(self, data, wrapping_cert,
+                        mechanism=nss.CKM_DES3_CBC_PAD):
+        """
+        :param data             Data to be wrapped
+        :param wrapping_cert    Public key to wrap data
+        :param mechanism        algorithm of symmetric key to be wrapped
+
+        Wrap (encrypt) data using the supplied asymmetric key
+        """
+        public_key = wrapping_cert.public_key()
+        return public_key.encrypt(
+            data,
+            PKCS1v15()
+        )
+
+    def get_cert(self, cert_nick):
+        """
+        :param cert_nick  Nickname for the certificate to be returned.
+        """
+        return self.certs[cert_nick]
