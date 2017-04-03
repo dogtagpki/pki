@@ -56,20 +56,38 @@ class Info(object):
         return info
 
 
-class Version(object):
-    """
-    This class encapsulates a version object as returned from
-    a Dogtag server and decomposes it into major, minor, etc.
-    """
+class Version(tuple):
+    __slots__ = ()
 
-    def __init__(self, version_string):
-        for idx, val in enumerate(version_string.split('.')):
-            if idx == 0:
-                self.major = val
-            if idx == 1:
-                self.minor = val
-            if idx == 2:
-                self.patch = val
+    def __new__(cls, version):
+        parts = [int(p) for p in version.split('.')]
+        if len(parts) < 3:
+            parts.extend([0] * (3 - len(parts)))
+        if len(parts) > 3:
+            raise ValueError(version)
+        return tuple.__new__(cls, tuple(parts))
+
+    def __str__(self):
+        return '{}.{}.{}'.format(*self)
+
+    def __repr__(self):
+        return "<Version('{}.{}.{}')>".format(*self)
+
+    def __getnewargs__(self):
+        # pickle support
+        return str(self)
+
+    @property
+    def major(self):
+        return self[0]
+
+    @property
+    def minor(self):
+        return self[1]
+
+    @property
+    def patchlevel(self):
+        return self[2]
 
 
 class InfoClient(object):
@@ -98,3 +116,11 @@ class InfoClient(object):
         """ return Version object from server """
         version_string = self.get_info().version
         return Version(version_string)
+
+
+if __name__ == '__main__':
+    print(Version('10'))
+    print(Version('10.1'))
+    print(Version('10.1.1'))
+    print(tuple(Version('10.1.1')))
+    print(Version('10.1.1.1'))
