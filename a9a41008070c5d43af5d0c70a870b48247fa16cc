@@ -1,0 +1,123 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2e6fab0b_2d7995b8",
+        "filename": "base/common/src/com/netscape/certsrv/logging/AuditFile.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-04-03T19:31:09Z",
+      "side": 1,
+      "message": "A useful field might be creation/modification time - which could then be used to sort.",
+      "revId": "a9a41008070c5d43af5d0c70a870b48247fa16cc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "84ef1675_7bed2fe3",
+        "filename": "base/common/src/com/netscape/certsrv/logging/AuditResource.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-04-03T19:31:09Z",
+      "side": 1,
+      "message": "From a REST point of view, why is this a  POST instead of a GET?",
+      "revId": "a9a41008070c5d43af5d0c70a870b48247fa16cc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1fe7c610_174ad386",
+        "filename": "base/common/src/com/netscape/certsrv/logging/AuditResource.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-04-03T19:31:09Z",
+      "side": 1,
+      "message": "Given my comments in the implementation of this method, I\u0027m not I see the need for this.",
+      "revId": "a9a41008070c5d43af5d0c70a870b48247fa16cc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "738e3530_46e1d75a",
+        "filename": "base/java-tools/src/com/netscape/cmstools/logging/AuditFileRemoveCLI.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-04-03T19:31:09Z",
+      "side": 1,
+      "message": "Should we be adding this if we are not exposing this fucntionality?",
+      "revId": "a9a41008070c5d43af5d0c70a870b48247fa16cc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a871a52_20ee4e90",
+        "filename": "base/server/cms/src/org/dogtagpki/server/rest/AuditService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 344,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-04-03T19:31:09Z",
+      "side": 1,
+      "message": "Are the logs sorted by modifciation / creation time?\n\nSorting by name seems a little arbitrary ..",
+      "revId": "a9a41008070c5d43af5d0c70a870b48247fa16cc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "078fedd1_d1f72bed",
+        "filename": "base/server/cms/src/org/dogtagpki/server/rest/AuditService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 415,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-04-03T19:31:09Z",
+      "side": 1,
+      "message": "This seems awfully dangerous to me.  I think its OK to require auditors to get individual files, rather than stream through every audit log file ever created in that directory.\n\nMoreover, do we know that the audit verification tool works for log files that have been concatenated like this?\n\nEven if it does, are they concatenated in the right order?",
+      "revId": "a9a41008070c5d43af5d0c70a870b48247fa16cc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dbd87ea2_4b5c083f",
+        "filename": "base/server/cms/src/org/dogtagpki/server/rest/AuditService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 442,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-04-03T19:31:09Z",
+      "side": 1,
+      "message": "see above.  I don\u0027t thinkwe should be streaming more than one file at a time.",
+      "revId": "a9a41008070c5d43af5d0c70a870b48247fa16cc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
