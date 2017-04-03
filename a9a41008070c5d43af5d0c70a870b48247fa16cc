@@ -177,6 +177,24 @@
     },
     {
       "key": {
+        "uuid": "1f03a155_bb23d885",
+        "filename": "base/server/cms/src/org/dogtagpki/server/rest/AuditService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 344,
+      "author": {
+        "id": 1010256
+      },
+      "writtenOn": "2017-04-03T21:17:41Z",
+      "side": 1,
+      "message": "yes I think sort of file names is fine because of the timestamps.",
+      "parentUuid": "082759a9_d581dee4",
+      "revId": "a9a41008070c5d43af5d0c70a870b48247fa16cc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "078fedd1_d1f72bed",
         "filename": "base/server/cms/src/org/dogtagpki/server/rest/AuditService.java",
         "patchSetId": 2
@@ -205,6 +223,24 @@
       "writtenOn": "2017-04-03T20:15:35Z",
       "side": 1,
       "message": "We can add max size/time limits or paging as in LDAP search if that is a concern. Regardless, the access is limited to Auditors only, and the problem is not unique to this method. There are other REST services that can be exploited for DOS attack simply by repeating the operations.\n\nThe findAuditLogs() is provided for convenience in case the auditor needs to search for logs matching certain criteria that could span across multiple log files (e.g. client IP). This is not really required right now since the search will be done locally after the auditor downloads \u0026 verifies the log files using getAuditFile().\n\nI\u0027m not sure if the audit verification tool will work with the output of findAuditLogs(), but that\u0027s not the primary purpose of this method as explained above. The getLogFiles() does return the files in the right order, so the findAuditLogs() will return all log lines in the correct order too.",
+      "parentUuid": "078fedd1_d1f72bed",
+      "revId": "a9a41008070c5d43af5d0c70a870b48247fa16cc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c057fd2a_b19eac3b",
+        "filename": "base/server/cms/src/org/dogtagpki/server/rest/AuditService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 415,
+      "author": {
+        "id": 1010256
+      },
+      "writtenOn": "2017-04-03T21:17:41Z",
+      "side": 1,
+      "message": "I agree with Ade that this is not thoroughly thought out.  In general, I think we should hold (comment out) anything that is not the absolute minimum until we have time to think about policies etc.",
       "parentUuid": "078fedd1_d1f72bed",
       "revId": "a9a41008070c5d43af5d0c70a870b48247fa16cc",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
@@ -241,6 +277,24 @@
       "side": 1,
       "message": "See explanation above. This method is not supposed to be used for downloading the log files. This method provides a way to search audit logs on the server without downloading (and verifying) the files to the client first.",
       "parentUuid": "dbd87ea2_4b5c083f",
+      "revId": "a9a41008070c5d43af5d0c70a870b48247fa16cc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "50af0dce_4e519354",
+        "filename": "base/server/cms/src/org/dogtagpki/server/rest/AuditService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 442,
+      "author": {
+        "id": 1010256
+      },
+      "writtenOn": "2017-04-03T21:17:41Z",
+      "side": 1,
+      "message": "btw,  we do not want to bog down (take up cycles) of the CS servers to do search work, that\u0027s the whole idea of wanting auditors to just download files and process/search offlin",
+      "parentUuid": "075c112c_39739be9",
       "revId": "a9a41008070c5d43af5d0c70a870b48247fa16cc",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
