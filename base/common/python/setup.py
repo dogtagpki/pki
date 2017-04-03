@@ -124,7 +124,7 @@ and set up in less than an hour.""",
     keywords='pki x509 cert certificate',
     url='http://pki.fedoraproject.org/',
     packages=['pki', 'pki.cli'],
-    install_requires=['python-nss', 'requests', 'six'],
+    install_requires=['python-nss', 'requests', 'six', 'cryptography'],
     cmdclass={'version_info': VersionInfo},
     classifiers=[
         'Development Status :: 5 - Production/Stable',
