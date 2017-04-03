@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a8af48c7_84b7fb77",
+        "filename": "base/common/python/pki/crypto.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-04-03T20:41:39Z",
+      "side": 1,
+      "message": "Why does it need to be a static method? Can a method be both static and abstract?",
+      "revId": "50f4d7cee0b59f46d54602a7b5a51e64b2b08423",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b955d62d_8724e304",
+        "filename": "base/common/python/pki/crypto.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-04-03T20:41:39Z",
+      "side": 1,
+      "message": "Why does it need to be a static method?",
+      "revId": "50f4d7cee0b59f46d54602a7b5a51e64b2b08423",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "67623cc7_ba89235e",
+        "filename": "base/common/python/pki/crypto.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 368,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-04-03T20:41:39Z",
+      "side": 1,
+      "message": "Why does it need to be a static method?",
+      "revId": "50f4d7cee0b59f46d54602a7b5a51e64b2b08423",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "79d7372e_febeb81a",
+        "filename": "base/common/python/pki/crypto.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 387,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-04-03T20:41:39Z",
+      "side": 1,
+      "message": "Why does it need to be a static method?",
+      "revId": "50f4d7cee0b59f46d54602a7b5a51e64b2b08423",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
