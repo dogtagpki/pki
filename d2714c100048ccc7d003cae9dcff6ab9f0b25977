@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0018fdce_f7f96d21",
+        "filename": "base/common/python/pki/key.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-04-03T22:50:00Z",
+      "side": 1,
+      "message": "Can this be simplified into self.encrypt_algorithm_oid \u003d key_data.get(\u0027encrypt_algorithm_oid\u0027, None)?",
+      "revId": "d2714c100048ccc7d003cae9dcff6ab9f0b25977",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bcf147ab_d10731ac",
+        "filename": "base/common/python/pki/key.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 517,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-04-03T22:50:00Z",
+      "side": 1,
+      "message": "Can we use the OID constants defined above?",
+      "revId": "d2714c100048ccc7d003cae9dcff6ab9f0b25977",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
