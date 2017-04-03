@@ -78,9 +78,8 @@ class PKIConnection:
         self.port = port
         self.subsystem = subsystem
 
-        self.serverURI = self.protocol + '://' + \
-            self.hostname + ':' + self.port + '/' + \
-            self.subsystem
+        self.rootURI = self.protocol + '://' + self.hostname + ':' + self.port
+        self.serverURI = self.rootURI + '/' + self.subsystem
 
         self.session = requests.Session()
         self.session.trust_env = trust_env
@@ -125,7 +124,8 @@ class PKIConnection:
             self.session.cert = pem_cert_path
 
     @catch_insecure_warning
-    def get(self, path, headers=None, params=None, payload=None):
+    def get(self, path, headers=None, params=None, payload=None,
+            use_root_uri=False):
         """
         Uses python-requests to issue a GET request to the server.
 
@@ -137,12 +137,19 @@ class PKIConnection:
         :type params: dict or bytes
         :param payload: data to be sent in the body of the request
         :type payload: dict, bytes, file-like object
+        :param use_root_uri: use root URI instead of subsystem URI as base
+        :type use_root_uri: boolean
         :returns: request.response -- response from the server
         :raises: Exception from python-requests in case the GET was not
             successful, or returns an error code.
         """
+        if use_root_uri:
+            target_path = self.rootURI + path
+        else:
+            target_path = self.serverURI + path
+
         r = self.session.get(
-            self.serverURI + path,
+            target_path,
             verify=False,
             headers=headers,
             params=params,
@@ -151,7 +158,8 @@ class PKIConnection:
         return r
 
     @catch_insecure_warning
-    def post(self, path, payload, headers=None, params=None):
+    def post(self, path, payload, headers=None, params=None,
+             use_root_uri=False):
         """
         Uses python-requests to issue a POST request to the server.
 
@@ -163,12 +171,19 @@ class PKIConnection:
         :type headers: dict
         :param params: Query parameters for the POST request
         :type params: dict or bytes
+        :param use_root_uri: use root URI instead of subsystem URI as base
+        :type use_root_uri: boolean
         :returns: request.response -- response from the server
         :raises: Exception from python-requests in case the POST was not
             successful, or returns an error code.
         """
+        if use_root_uri:
+            target_path = self.rootURI + path
+        else:
+            target_path = self.serverURI + path
+
         r = self.session.post(
-            self.serverURI + path,
+            target_path,
             verify=False,
             data=payload,
             headers=headers,
@@ -177,7 +192,7 @@ class PKIConnection:
         return r
 
     @catch_insecure_warning
-    def put(self, path, payload, headers=None):
+    def put(self, path, payload, headers=None, use_root_uri=False):
         """
         Uses python-requests to issue a PUT request to the server.
 
@@ -187,16 +202,23 @@ class PKIConnection:
         :type payload: dict, bytes, file-like object
         :param headers: headers for the PUT request
         :type headers: dict
+        :param use_root_uri: use root URI instead of subsystem URI as base
+        :type use_root_uri: boolean
         :returns: request.response -- response from the server
         :raises: Exception from python-requests in case the PUT was not
             successful, or returns an error code.
         """
-        r = self.session.put(self.serverURI + path, payload, headers=headers)
+        if use_root_uri:
+            target_path = self.rootURI + path
+        else:
+            target_path = self.serverURI + path
+
+        r = self.session.put(target_path, payload, headers=headers)
         r.raise_for_status()
         return r
 
     @catch_insecure_warning
-    def delete(self, path, headers=None):
+    def delete(self, path, headers=None, use_root_uri=False):
         """
         Uses python-requests to issue a DEL request to the server.
 
@@ -204,11 +226,18 @@ class PKIConnection:
         :type path: str
         :param headers: headers for the DEL request
         :type headers: dict
+        :param use_root_uri: use root URI instead of subsystem URI as base
+        :type use_root_uri: boolean
         :returns: request.response -- response from the server
         :raises: Exception from python-requests in case the DEL was not
             successful, or returns an error code.
         """
-        r = self.session.delete(self.serverURI + path, headers=headers)
+        if use_root_uri:
+            target_path = self.rootURI + path
+        else:
+            target_path = self.serverURI + path
+
+        r = self.session.delete(target_path, headers=headers)
         r.raise_for_status()
         return r
 
