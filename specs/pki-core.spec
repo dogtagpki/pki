@@ -65,7 +65,7 @@
 
 Name:             pki-core
 Version:          10.4.1
-Release:          2.1%{?dist}
+Release:          3.1%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -1128,7 +1128,11 @@ echo >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
 /sbin/pki-server migrate >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
 echo >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
 
-systemctl daemon-reload
+# Reload systemd daemons on upgrade only
+if [ "$1" == "2" ]
+then
+    systemctl daemon-reload
+fi
 
 ## %preun -n pki-server
 ## NOTE:  At this time, NO attempt has been made to update ANY PKI subsystem
@@ -1383,6 +1387,10 @@ systemctl daemon-reload
 %endif # %{with server}
 
 %changelog
+* Mon Apr  3 2017 Dogtag Team <pki-devel@redhat.com> 10.4.1-3
+- dogtagpki Pagure Issue #1722 -  Installing pki-server in container reports
+  scriptlet failed, exit status 1 (jpazdziora)
+
 * Fri Mar 31 2017 Dogtag Team <pki-devel@redhat.com> 10.4.1-2
 - Fixed runtime typo on jss
 
