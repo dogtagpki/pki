@@ -618,7 +618,7 @@ Requires(pre):    shadow-utils
 %if 0%{?rhel}
 Requires:         tomcatjss >= 7.2.1-3
 %else
-%if 0%{?fedora} >= 23
+%if 0%{?fedora} >= 25
 Requires:         tomcatjss >= 7.2.2
 %else
 Requires:         tomcatjss >= 7.1.3
