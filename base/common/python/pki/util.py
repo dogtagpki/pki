@@ -32,6 +32,11 @@ try:
 except ImportError:
     WindowsError = None
 
+import subprocess
+
+DEFAULT_PKI_ENV_LIST = ['/usr/share/pki/etc/pki.conf',
+                        '/etc/pki/pki.conf']
+
 
 def copy(source, dest):
     """
@@ -245,3 +250,26 @@ def copytree(src, dst, symlinks=False, ignore=None):
             errors.extend((src, dst, str(why)))
     if errors:
         raise Error(errors)
+
+
+def read_environment_files(env_file_list=None):
+    if env_file_list is None:
+        env_file_list = DEFAULT_PKI_ENV_LIST
+
+    file_command = ''
+    for env_file in env_file_list:
+        file_command += "source " + env_file + " && "
+    file_command += "env"
+
+    command = [
+        'bash',
+        '-c',
+        file_command
+    ]
+
+    env_vals = subprocess.check_output(command).split('\n')
+
+    for env_val in env_vals:
+        (key, _, value) = env_val.partition("=")
+        os.environ[key] = value
+
