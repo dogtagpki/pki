@@ -27,12 +27,15 @@ from __future__ import absolute_import
 from __future__ import print_function
 import base64
 import json
+import os
 
 from six import iteritems
 from six.moves.urllib.parse import quote  # pylint: disable=F0401,E0611
 
 import pki
 import pki.encoder as encoder
+from pki.info import Version
+import pki.util
 
 
 # should be moved to request.py
@@ -58,7 +61,10 @@ class KeyData(object):
     json_attribute_names = {
         'nonceData': 'nonce_data',
         'wrappedPrivateData': 'wrapped_private_data',
-        'requestID': 'request_id'
+        'requestID': 'request_id',
+        'encryptAlgorithmOID': 'encrypt_algorithm_oid',
+        'wrapAlgorithm': 'wrap_algorithm',
+        'publicKey': 'public_key'
     }
 
     # pylint: disable=C0103
@@ -69,6 +75,10 @@ class KeyData(object):
         self.request_id = None
         self.size = None
         self.wrapped_private_data = None
+        self.encrypt_algorithm_oid = None
+        self.wrap_algorithm = None
+        self.public_key = None
+        self.type = None
 
     @classmethod
     def from_json(cls, attr_list):
@@ -101,6 +111,21 @@ class Key(object):
             self.request_id = key_data.request_id
         self.algorithm = key_data.algorithm
         self.size = key_data.size
+
+        if hasattr(key_data, "encrypt_algorithm_oid"):
+            self.encrypt_algorithm_oid = key_data.encrypt_algorithm_oid
+        else:
+            self.encrypt_algorithm_oid = None
+
+        if hasattr(key_data, "wrap_algorithm"):
+            self.wrap_algorithm = key_data.wrap_algorithm
+        else:
+            self.wrap_algorithm = None
+
+        if hasattr(key_data, "public_key"):
+            self.public_key = key_data.public_key
+        else:
+            self.public_key = None
 
         # To store the unwrapped key information.
         # The decryption takes place on the client side.
@@ -341,7 +366,8 @@ class KeyRecoveryRequest(pki.ResourceMessage):
                  trans_wrapped_session_key=None,
                  session_wrapped_passphrase=None,
                  nonce_data=None, certificate=None,
-                 passphrase=None):
+                 passphrase=None, payload_wrapping_name=None,
+                 payload_encryption_oid=None):
         """ Constructor """
         pki.ResourceMessage.__init__(
             self,
@@ -354,6 +380,8 @@ class KeyRecoveryRequest(pki.ResourceMessage):
         self.add_attribute("certificate", certificate)
         self.add_attribute("passphrase", passphrase)
         self.add_attribute("keyId", key_id)
+        self.add_attribute("payloadWrappingName", payload_wrapping_name)
+        self.add_attribute("payloadEncryptionOID", payload_encryption_oid)
 
 
 class SymKeyGenerationRequest(pki.ResourceMessage):
@@ -443,8 +471,10 @@ class KeyClient(object):
 
     # default session key wrapping algorithm
     DES_EDE3_CBC_OID = "{1 2 840 113549 3 7}"
+    AES_128_CBC_OID = "{2 16 840 1 101 3 4 1 2}"
 
-    def __init__(self, connection, crypto, transport_cert_nick=None):
+    def __init__(self, connection, crypto, transport_cert_nick=None,
+                 info_client=None):
         """ Constructor """
         self.connection = connection
         self.headers = {'Content-type': 'application/json',
@@ -459,12 +489,56 @@ class KeyClient(object):
         else:
             self.transport_cert = None
 
+        self.info_client = info_client
+        self.encrypt_alg_oid = None
+        self.set_crypto_algorithms()
+
     def set_transport_cert(self, transport_cert_nick):
         """ Set the transport certificate for crypto operations """
         if transport_cert_nick is None:
             raise TypeError(
                 "Transport certificate nickname must be specified.")
         self.transport_cert = self.crypto.get_cert(transport_cert_nick)
+
+    @pki.handle_exceptions()
+    def set_crypto_algorithms(self):
+        server_keyset = self.get_server_keyset()
+        client_keyset = self.get_client_keyset()
+        crypto_keyset = self.crypto.get_supported_algorithm_keyset()
+        keyset_id = min([server_keyset, client_keyset, crypto_keyset])
+
+        # set keyset in crypto provider
+        self.crypto.set_algorithm_keyset(keyset_id)
+
+        # set keyset related constants needed in KeyClient
+        if keyset_id == 0:
+            self.encrypt_alg_oid = "{1 2 840 113549 3 7}"
+        else:
+            self.encrypt_alg_oid = "{2 16 840 1 101 3 4 1 2}"
+
+    def get_client_keyset(self):
+        # get client keyset
+        pki.util.read_environment_files()
+        client_keyset = os.getenv('KEY_WRAP_PARAMETER_SET')
+        if client_keyset is not None:
+            return client_keyset
+        return 0
+
+    def get_server_keyset(self):
+        # get server keyset id
+        server_version = Version("0.0.0")
+        try:
+            server_version = self.info_client.get_version()
+        except:
+            # TODO(alee) tighten up the exception here
+            pass
+
+        if server_version.major >= 10 and server_version.minor >= 4:
+            server_keyset = 1
+        else:
+            server_keyset = 0
+
+        return server_keyset
 
     @pki.handle_exceptions()
     def list_keys(self, client_key_id=None, status=None, max_results=None,
@@ -785,7 +859,8 @@ class KeyClient(object):
             raise TypeError('Missing wrapped session key')
 
         if not algorithm_oid:
-            algorithm_oid = KeyClient.DES_EDE3_CBC_OID
+            algorithm_oid = KeyClient.AES_128_CBC_OID
+            # algorithm_oid = KeyClient.DES_EDE3_CBC_OID
 
         if not nonce_iv:
             raise TypeError('Missing nonce IV')
@@ -910,7 +985,7 @@ class KeyClient(object):
            approval is required, then the KeyData will include the secret.
 
         *  If the key cannot be retrieved synchronously - ie. if more than one
-           approval is needed, then the KeyData obect will include the request
+           approval is needed, then the KeyData object will include the request
            ID for a recovery request that was created on the server.  When that
            request is approved, callers can retrieve the key using
            retrieve_key() and setting the request_id.
@@ -951,7 +1026,9 @@ class KeyClient(object):
             key_id=key_id,
             request_id=request_id,
             trans_wrapped_session_key=base64.b64encode(
-                trans_wrapped_session_key))
+                trans_wrapped_session_key),
+            payload_encryption_oid=self.encrypt_alg_oid
+        )
 
         key = self.retrieve_key_data(request)
         if not key_provided and key.encrypted_data is not None:
@@ -982,12 +1059,13 @@ class KeyClient(object):
 
         1) A passphrase is provided by the caller.
 
-           In this case, CryptoProvider methods will be called to create the data
-           to securely send the passphrase to the DRM.  Basically, three pieces of
-           data will be sent:
+           In this case, CryptoProvider methods will be called to create the
+           data to securely send the passphrase to the DRM.  Basically, three
+           pieces of data will be sent:
 
-           - the passphrase wrapped by a 168 bit 3DES symmetric key (the session
-             key).  This is referred to as the parameter session_wrapped_passphrase.
+           - the passphrase wrapped by a 168 bit 3DES symmetric key (the
+             session key).  This is referred to as the parameter
+             session_wrapped_passphrase.
 
            - the session key wrapped with the public key in the DRM transport
              certificate.  This is referred to as the trans_wrapped_session_key.
@@ -999,9 +1077,10 @@ class KeyClient(object):
         2) The caller provides the trans_wrapped_session_key,
            session_wrapped_passphrase and nonce_data.
 
-           In this case, the data will simply be passed to the DRM.  The function
-           will return the secret encrypted by the passphrase using PBE Encryption.
-           The secret will still need to be decrypted by the caller.
+           In this case, the data will simply be passed to the DRM.
+           The function will return the secret encrypted by the passphrase
+           using PBE Encryption.  The secret will still need to be decrypted
+           by the caller.
 
            The function will return the tuple (KeyData, None)
         """
@@ -1053,12 +1132,18 @@ def main():
     usages = [SymKeyGenerationRequest.DECRYPT_USAGE,
               SymKeyGenerationRequest.ENCRYPT_USAGE]
     gen_request = SymKeyGenerationRequest(client_key_id, 128, "AES", usages)
-    print(json.dumps(gen_request, cls=encoder.CustomTypeEncoder, sort_keys=True))
+    print(json.dumps(gen_request,
+                     cls=encoder.CustomTypeEncoder,
+                     sort_keys=True))
 
     print("printing key recovery request")
     key_request = KeyRecoveryRequest("25", "MX12345BBBAAA", None,
                                      "1234ABC", None, None)
-    print(json.dumps(key_request, cls=encoder.CustomTypeEncoder, sort_keys=True))
+    print(json.dumps(
+        key_request,
+        cls=encoder.CustomTypeEncoder,
+        sort_keys=True)
+    )
 
     print("printing key archival request")
     archival_request = KeyArchivalRequest(client_key_id, "symmetricKey",

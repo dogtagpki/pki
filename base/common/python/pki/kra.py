@@ -26,6 +26,7 @@ KeyRequestResource REST APIs.
 """
 
 from __future__ import absolute_import
+from pki.info import InfoClient
 import pki.key as key
 
 from pki.systemcert import SystemCertClient
@@ -41,18 +42,27 @@ class KRAClient(object):
         """ Constructor
 
         :param connection - PKIConnection object with DRM connection info.
-        :param crypto - CryptoProvider object.  NSSCryptoProvider is provided by
-                        default.  If a different crypto implementation is
+        :param crypto - CryptoProvider object.  NSSCryptoProvider is provided
+                        by default.  If a different crypto implementation is
                         desired, a different subclass of CryptoProvider must be
                         provided.
         :param transport_cert_nick - identifier for the DRM transport
                         certificate.  This will be passed to the
-                        CryptoProvider.get_cert() command to get a representation
-                        of the transport certificate usable for crypto ops.
-                        Note that for NSS databases, the database must have been
-                        initialized beforehand.
+                        CryptoProvider.get_cert() command to get a
+                        representation of the transport certificate usable for
+                        crypto ops.
+
+                        Note that for NSS databases, the database must have
+                        been initialized beforehand.
         """
         self.connection = connection
         self.crypto = crypto
-        self.keys = key.KeyClient(connection, crypto, transport_cert_nick)
+        self.info = InfoClient(connection)
+        self.keys = key.KeyClient(
+            connection,
+            crypto,
+            transport_cert_nick,
+            self.info
+        )
         self.system_certs = SystemCertClient(connection)
+
