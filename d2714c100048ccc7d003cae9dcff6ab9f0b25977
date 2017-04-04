@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ab95bd48_80fdac36",
+        "filename": "base/common/python/pki/key.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-04-04T15:46:35Z",
+      "side": 1,
+      "message": "yes - will fix",
+      "parentUuid": "0018fdce_f7f96d21",
+      "revId": "d2714c100048ccc7d003cae9dcff6ab9f0b25977",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bcf147ab_d10731ac",
         "filename": "base/common/python/pki/key.py",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2017-04-03T22:50:00Z",
       "side": 1,
       "message": "Can we use the OID constants defined above?",
+      "revId": "d2714c100048ccc7d003cae9dcff6ab9f0b25977",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dc86254d_625f8bb1",
+        "filename": "base/common/python/pki/key.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 517,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-04-04T15:46:35Z",
+      "side": 1,
+      "message": "yes -- thats why I defined them!  forgot to do this.  will fix.",
+      "parentUuid": "bcf147ab_d10731ac",
       "revId": "d2714c100048ccc7d003cae9dcff6ab9f0b25977",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
