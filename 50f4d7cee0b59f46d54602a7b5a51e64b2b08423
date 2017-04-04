@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "716a2cf8_2d220ec0",
+        "filename": "base/common/python/pki/crypto.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1010882
+      },
+      "writtenOn": "2017-04-04T17:42:17Z",
+      "side": 1,
+      "message": "You don\u0027t need \u0027pass\u0027 if you also have a doc string.",
+      "revId": "50f4d7cee0b59f46d54602a7b5a51e64b2b08423",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a8af48c7_84b7fb77",
         "filename": "base/common/python/pki/crypto.py",
         "patchSetId": 1
@@ -31,6 +48,24 @@
       "side": 1,
       "message": "actually, it can - because Python !\u003d Java.  See an explanation here: https://julien.danjou.info/blog/2013/guide-python-static-class-abstract-methods",
       "parentUuid": "a8af48c7_84b7fb77",
+      "revId": "50f4d7cee0b59f46d54602a7b5a51e64b2b08423",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0cea4f46_6d746a9f",
+        "filename": "base/common/python/pki/crypto.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 1010882
+      },
+      "writtenOn": "2017-04-04T17:42:17Z",
+      "side": 1,
+      "message": "Please don\u0027t use static functions. Python !\u003d Java *scnr*\n\nAt least use a classmethod. For cryptography the exact set of available algorithms depends on the backend. Unless you have a particular good reason for a classmethod, there is no harm to make it an actual method and ignore \u0027self\u0027.",
+      "parentUuid": "7541d072_79fc5292",
       "revId": "50f4d7cee0b59f46d54602a7b5a51e64b2b08423",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -72,6 +107,40 @@
     },
     {
       "key": {
+        "uuid": "8918af14_d0fa94f9",
+        "filename": "base/common/python/pki/crypto.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 337,
+      "author": {
+        "id": 1010882
+      },
+      "writtenOn": "2017-04-04T17:42:17Z",
+      "side": 1,
+      "message": "super(CryptographyCryptoProvider, self).__init__()",
+      "revId": "50f4d7cee0b59f46d54602a7b5a51e64b2b08423",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d5575250_d0507902",
+        "filename": "base/common/python/pki/crypto.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 346,
+      "author": {
+        "id": 1010882
+      },
+      "writtenOn": "2017-04-04T17:42:17Z",
+      "side": 1,
+      "message": "Please don\u0027t require a file name. It makes the API much harder to use. You should at least accept a x509 object here.",
+      "revId": "50f4d7cee0b59f46d54602a7b5a51e64b2b08423",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "67623cc7_ba89235e",
         "filename": "base/common/python/pki/crypto.py",
         "patchSetId": 1
@@ -107,6 +176,23 @@
     },
     {
       "key": {
+        "uuid": "629a4a1f_90e73053",
+        "filename": "base/common/python/pki/crypto.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 376,
+      "author": {
+        "id": 1010882
+      },
+      "writtenOn": "2017-04-04T17:42:17Z",
+      "side": 1,
+      "message": "Don\u0027t do ```raise Exception```. The Exception object should only be used as base class and to except, never for raise. It\u0027s an invalid value, so ```ValueError```.",
+      "revId": "50f4d7cee0b59f46d54602a7b5a51e64b2b08423",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "79d7372e_febeb81a",
         "filename": "base/common/python/pki/crypto.py",
         "patchSetId": 1
@@ -136,6 +222,125 @@
       "side": 1,
       "message": "see above",
       "parentUuid": "79d7372e_febeb81a",
+      "revId": "50f4d7cee0b59f46d54602a7b5a51e64b2b08423",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9f01b549_2e065640",
+        "filename": "base/common/python/pki/crypto.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 390,
+      "author": {
+        "id": 1010882
+      },
+      "writtenOn": "2017-04-04T17:42:17Z",
+      "side": 1,
+      "message": "IV length can be inferred from the algorithm:\n\nself.encrypt_alg.block_size // 8",
+      "revId": "50f4d7cee0b59f46d54602a7b5a51e64b2b08423",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "92f17d65_8121d7d3",
+        "filename": "base/common/python/pki/crypto.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 398,
+      "author": {
+        "id": 1010882
+      },
+      "writtenOn": "2017-04-04T17:42:17Z",
+      "side": 1,
+      "message": "```self.encrypt_size / 8``` returns a float, use ```self.encrypt_size // 8```",
+      "revId": "50f4d7cee0b59f46d54602a7b5a51e64b2b08423",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f6c0d340_fd715ba2",
+        "filename": "base/common/python/pki/crypto.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 419,
+      "author": {
+        "id": 1010882
+      },
+      "writtenOn": "2017-04-04T17:42:17Z",
+      "side": 1,
+      "message": "The caller should be able to pass in a backend, either to every method or to CryptographyCryptoProvide().",
+      "revId": "50f4d7cee0b59f46d54602a7b5a51e64b2b08423",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8edf843b_25063a0e",
+        "filename": "base/common/python/pki/crypto.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 421,
+      "author": {
+        "id": 1010882
+      },
+      "writtenOn": "2017-04-04T17:42:17Z",
+      "side": 1,
+      "message": "Do not raise Exception (see comment above)",
+      "revId": "50f4d7cee0b59f46d54602a7b5a51e64b2b08423",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "21c6f931_4b59ef01",
+        "filename": "base/common/python/pki/crypto.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 426,
+      "author": {
+        "id": 1010882
+      },
+      "writtenOn": "2017-04-04T17:42:17Z",
+      "side": 1,
+      "message": "Please raise a ValueError for unknown modes.",
+      "revId": "50f4d7cee0b59f46d54602a7b5a51e64b2b08423",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "17f71fb9_b5c68da5",
+        "filename": "base/common/python/pki/crypto.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 468,
+      "author": {
+        "id": 1010882
+      },
+      "writtenOn": "2017-04-04T17:42:17Z",
+      "side": 1,
+      "message": "nss.CKM_DES3_CBC_PA looks wrong here.",
+      "revId": "50f4d7cee0b59f46d54602a7b5a51e64b2b08423",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f40554da_81fe7e94",
+        "filename": "setup.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 1010882
+      },
+      "writtenOn": "2017-04-04T17:42:17Z",
+      "side": 1,
+      "message": "Please add a newline and align all keys with four space indention.\n\nrequires is not a valid argument. It\u0027s install_requires, but that is only supported by setuptools. setuptools does not support data_files with custom prefixes like share. :(",
       "revId": "50f4d7cee0b59f46d54602a7b5a51e64b2b08423",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
