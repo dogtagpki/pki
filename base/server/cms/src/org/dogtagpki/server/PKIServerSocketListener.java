@@ -41,6 +41,42 @@ public class PKIServerSocketListener implements SSLSocketListener {
 
     @Override
     public void alertReceived(SSLAlertEvent event) {
+        try {
+            SSLSocket socket = event.getSocket();
+
+            SocketAddress remoteSocketAddress = socket.getRemoteSocketAddress();
+            InetAddress clientAddress = remoteSocketAddress == null ? null : ((InetSocketAddress)remoteSocketAddress).getAddress();
+            InetAddress serverAddress = socket.getLocalAddress();
+            String clientIP = clientAddress == null ? "" : clientAddress.getHostAddress();
+            String serverIP = serverAddress == null ? "" : serverAddress.getHostAddress();
+
+            SSLSecurityStatus status = socket.getStatus();
+            X509Certificate peerCertificate = status.getPeerCertificate();
+            Principal subjectDN = peerCertificate == null ? null : peerCertificate.getSubjectDN();
+            String subjectID = subjectDN == null ? "" : subjectDN.toString();
+
+            int description = event.getDescription();
+            String reason = SSLAlertDescription.valueOf(description).toString();
+
+            logger.debug("SSL alert received:");
+            logger.debug(" - client: " + clientAddress);
+            logger.debug(" - server: " + serverAddress);
+            logger.debug(" - reason: " + reason);
+
+            IAuditor auditor = CMS.getAuditor();
+
+            String auditMessage = CMS.getLogMessage(
+                    "LOGGING_SIGNED_AUDIT_ACCESS_SESSION_TERMINATED",
+                    clientIP,
+                    serverIP,
+                    subjectID,
+                    reason);
+
+            auditor.log(auditMessage);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -75,7 +111,8 @@ public class PKIServerSocketListener implements SSLSocketListener {
                         "LOGGING_SIGNED_AUDIT_ACCESS_SESSION_TERMINATED",
                         clientIP,
                         serverIP,
-                        subjectID);
+                        subjectID,
+                        reason);
 
                 auditor.log(auditMessage);
 
