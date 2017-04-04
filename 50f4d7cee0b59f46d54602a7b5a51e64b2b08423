@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7541d072_79fc5292",
+        "filename": "base/common/python/pki/crypto.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-04-04T15:45:00Z",
+      "side": 1,
+      "message": "actually, it can - because Python !\u003d Java.  See an explanation here: https://julien.danjou.info/blog/2013/guide-python-static-class-abstract-methods",
+      "parentUuid": "a8af48c7_84b7fb77",
+      "revId": "50f4d7cee0b59f46d54602a7b5a51e64b2b08423",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b955d62d_8724e304",
         "filename": "base/common/python/pki/crypto.py",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2017-04-03T20:41:39Z",
       "side": 1,
       "message": "Why does it need to be a static method?",
+      "revId": "50f4d7cee0b59f46d54602a7b5a51e64b2b08423",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d8b94e88_c7abc277",
+        "filename": "base/common/python/pki/crypto.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-04-04T15:45:00Z",
+      "side": 1,
+      "message": "see above.",
+      "parentUuid": "b955d62d_8724e304",
       "revId": "50f4d7cee0b59f46d54602a7b5a51e64b2b08423",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "73fb08fb_0b6472aa",
+        "filename": "base/common/python/pki/crypto.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 368,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-04-04T15:45:00Z",
+      "side": 1,
+      "message": "see above",
+      "parentUuid": "67623cc7_ba89235e",
+      "revId": "50f4d7cee0b59f46d54602a7b5a51e64b2b08423",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "79d7372e_febeb81a",
         "filename": "base/common/python/pki/crypto.py",
         "patchSetId": 1
@@ -64,6 +118,24 @@
       "writtenOn": "2017-04-03T20:41:39Z",
       "side": 1,
       "message": "Why does it need to be a static method?",
+      "revId": "50f4d7cee0b59f46d54602a7b5a51e64b2b08423",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8a21635e_2fd7c5ae",
+        "filename": "base/common/python/pki/crypto.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 387,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-04-04T15:45:00Z",
+      "side": 1,
+      "message": "see above",
+      "parentUuid": "79d7372e_febeb81a",
       "revId": "50f4d7cee0b59f46d54602a7b5a51e64b2b08423",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
