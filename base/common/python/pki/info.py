@@ -21,6 +21,8 @@
 """
 Module containing the Python client classes for the InfoClient
 """
+from __future__ import absolute_import
+from __future__ import print_function
 from six import iteritems
 
 import pki
