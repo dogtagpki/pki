@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "04cd8171_290dab34",
+        "filename": "base/common/python/pki/util.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1010882
+      },
+      "writtenOn": "2017-04-04T17:21:18Z",
+      "side": 1,
+      "message": "Style nitpick, I prefer four space indention and trailing comma:\n\nDEFAULT_PKI_ENV_LIST \u003d [\n    \u0027/usr/share/pki/etc/pki.conf\u0027,\n    \u0027/etc/pki/pki.conf\u0027,\n]",
+      "range": {
+        "startLine": 37,
+        "startChar": 0,
+        "endLine": 38,
+        "endChar": 44
+      },
+      "revId": "a76ac1ca0472afb6931b9e3be156f1c057fcb161",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f44cf134_5106eda0",
+        "filename": "base/common/python/pki/util.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 262,
+      "author": {
+        "id": 1010882
+      },
+      "writtenOn": "2017-04-04T17:21:18Z",
+      "side": 1,
+      "message": "file_command \u003d \u0027 \u0026\u0026 \u0027.join(\u0027source {}\u0027.format(env_file) for env_file in env_file_list)\nfile_command +\u003d \u0027 \u0026\u0026 env\u0027",
+      "range": {
+        "startLine": 259,
+        "startChar": 0,
+        "endLine": 262,
+        "endChar": 25
+      },
+      "revId": "a76ac1ca0472afb6931b9e3be156f1c057fcb161",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a3669c10_3de311ce",
+        "filename": "base/common/python/pki/util.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 1010882
+      },
+      "writtenOn": "2017-04-04T17:21:18Z",
+      "side": 1,
+      "message": "This will break on Python 3. In Python 3, subprocess returns bytes. You have to convert bytes to text first, then split it on newline.",
+      "range": {
+        "startLine": 270,
+        "startChar": 54,
+        "endLine": 270,
+        "endChar": 58
+      },
+      "revId": "a76ac1ca0472afb6931b9e3be156f1c057fcb161",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5906fdeb_db576187",
+        "filename": "base/common/python/pki/util.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 1010882
+      },
+      "writtenOn": "2017-04-04T17:21:18Z",
+      "side": 1,
+      "message": "This will also return all existing env vars. You can pass in an empty environment with environ\u003d{}. But that might cause trouble if any of the files depend on some system vars.",
+      "range": {
+        "startLine": 270,
+        "startChar": 15,
+        "endLine": 270,
+        "endChar": 38
+      },
+      "revId": "a76ac1ca0472afb6931b9e3be156f1c057fcb161",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
