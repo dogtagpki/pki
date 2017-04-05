@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "2f4d1298_6febd7b3",
+        "filename": "base/common/python/pki/crypto.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-04-05T16:16:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "716a2cf8_2d220ec0",
+      "revId": "50f4d7cee0b59f46d54602a7b5a51e64b2b08423",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a8af48c7_84b7fb77",
         "filename": "base/common/python/pki/crypto.py",
         "patchSetId": 1
@@ -72,6 +90,24 @@
     },
     {
       "key": {
+        "uuid": "17da22d5_2b5cfc50",
+        "filename": "base/common/python/pki/crypto.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-04-05T16:16:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0cea4f46_6d746a9f",
+      "revId": "50f4d7cee0b59f46d54602a7b5a51e64b2b08423",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b955d62d_8724e304",
         "filename": "base/common/python/pki/crypto.py",
         "patchSetId": 1
@@ -107,6 +143,24 @@
     },
     {
       "key": {
+        "uuid": "f0943b15_24c42c32",
+        "filename": "base/common/python/pki/crypto.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-04-05T16:16:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d8b94e88_c7abc277",
+      "revId": "50f4d7cee0b59f46d54602a7b5a51e64b2b08423",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8918af14_d0fa94f9",
         "filename": "base/common/python/pki/crypto.py",
         "patchSetId": 1
@@ -118,6 +172,24 @@
       "writtenOn": "2017-04-04T17:42:17Z",
       "side": 1,
       "message": "super(CryptographyCryptoProvider, self).__init__()",
+      "revId": "50f4d7cee0b59f46d54602a7b5a51e64b2b08423",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e6a1bd6d_a5f37d66",
+        "filename": "base/common/python/pki/crypto.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 337,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-04-05T16:16:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8918af14_d0fa94f9",
       "revId": "50f4d7cee0b59f46d54602a7b5a51e64b2b08423",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -176,6 +248,24 @@
     },
     {
       "key": {
+        "uuid": "b6baf706_29185138",
+        "filename": "base/common/python/pki/crypto.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 368,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-04-05T16:16:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "73fb08fb_0b6472aa",
+      "revId": "50f4d7cee0b59f46d54602a7b5a51e64b2b08423",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "629a4a1f_90e73053",
         "filename": "base/common/python/pki/crypto.py",
         "patchSetId": 1
@@ -187,6 +277,24 @@
       "writtenOn": "2017-04-04T17:42:17Z",
       "side": 1,
       "message": "Don\u0027t do ```raise Exception```. The Exception object should only be used as base class and to except, never for raise. It\u0027s an invalid value, so ```ValueError```.",
+      "revId": "50f4d7cee0b59f46d54602a7b5a51e64b2b08423",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "969b6619_fc807c7a",
+        "filename": "base/common/python/pki/crypto.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 376,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-04-05T16:16:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "629a4a1f_90e73053",
       "revId": "50f4d7cee0b59f46d54602a7b5a51e64b2b08423",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -228,6 +336,24 @@
     },
     {
       "key": {
+        "uuid": "889f5207_3d565d3d",
+        "filename": "base/common/python/pki/crypto.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 387,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-04-05T16:16:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8a21635e_2fd7c5ae",
+      "revId": "50f4d7cee0b59f46d54602a7b5a51e64b2b08423",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9f01b549_2e065640",
         "filename": "base/common/python/pki/crypto.py",
         "patchSetId": 1
@@ -239,6 +365,24 @@
       "writtenOn": "2017-04-04T17:42:17Z",
       "side": 1,
       "message": "IV length can be inferred from the algorithm:\n\nself.encrypt_alg.block_size // 8",
+      "revId": "50f4d7cee0b59f46d54602a7b5a51e64b2b08423",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e24602eb_c47b5f31",
+        "filename": "base/common/python/pki/crypto.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 390,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-04-05T16:16:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9f01b549_2e065640",
       "revId": "50f4d7cee0b59f46d54602a7b5a51e64b2b08423",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -262,6 +406,24 @@
     },
     {
       "key": {
+        "uuid": "56ff9747_a3e87c7e",
+        "filename": "base/common/python/pki/crypto.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 398,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-04-05T16:16:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "92f17d65_8121d7d3",
+      "revId": "50f4d7cee0b59f46d54602a7b5a51e64b2b08423",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f6c0d340_fd715ba2",
         "filename": "base/common/python/pki/crypto.py",
         "patchSetId": 1
@@ -273,6 +435,24 @@
       "writtenOn": "2017-04-04T17:42:17Z",
       "side": 1,
       "message": "The caller should be able to pass in a backend, either to every method or to CryptographyCryptoProvide().",
+      "revId": "50f4d7cee0b59f46d54602a7b5a51e64b2b08423",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "62a7aff9_bc19df69",
+        "filename": "base/common/python/pki/crypto.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 419,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-04-05T16:16:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f6c0d340_fd715ba2",
       "revId": "50f4d7cee0b59f46d54602a7b5a51e64b2b08423",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -296,6 +476,24 @@
     },
     {
       "key": {
+        "uuid": "b6a528c7_389da811",
+        "filename": "base/common/python/pki/crypto.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 421,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-04-05T16:16:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8edf843b_25063a0e",
+      "revId": "50f4d7cee0b59f46d54602a7b5a51e64b2b08423",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "21c6f931_4b59ef01",
         "filename": "base/common/python/pki/crypto.py",
         "patchSetId": 1
@@ -313,6 +511,24 @@
     },
     {
       "key": {
+        "uuid": "20679d2b_6f37ec3a",
+        "filename": "base/common/python/pki/crypto.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 426,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-04-05T16:16:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "21c6f931_4b59ef01",
+      "revId": "50f4d7cee0b59f46d54602a7b5a51e64b2b08423",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "17f71fb9_b5c68da5",
         "filename": "base/common/python/pki/crypto.py",
         "patchSetId": 1
@@ -324,6 +540,24 @@
       "writtenOn": "2017-04-04T17:42:17Z",
       "side": 1,
       "message": "nss.CKM_DES3_CBC_PA looks wrong here.",
+      "revId": "50f4d7cee0b59f46d54602a7b5a51e64b2b08423",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "376814b0_788b4768",
+        "filename": "base/common/python/pki/crypto.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 468,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-04-05T16:16:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "17f71fb9_b5c68da5",
       "revId": "50f4d7cee0b59f46d54602a7b5a51e64b2b08423",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
