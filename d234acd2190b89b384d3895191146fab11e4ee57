@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "370b4cbc_73d1ea1e",
+        "filename": "base/common/python/pki/key.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-04-05T15:58:32Z",
+      "side": 1,
+      "message": "The encrypt_algorithm_oid assignment should be simplified as well using getattr().",
+      "revId": "d234acd2190b89b384d3895191146fab11e4ee57",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a43347b_87d546d0",
+        "filename": "base/common/python/pki/key.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 529,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-04-05T15:58:32Z",
+      "side": 1,
+      "message": "This version check will fail for PKI 11.0.",
+      "revId": "d234acd2190b89b384d3895191146fab11e4ee57",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
