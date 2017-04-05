@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5d7bd092_b2354e8a",
+        "filename": "base/common/python/pki/crypto.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 413,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-04-05T15:49:35Z",
+      "side": 1,
+      "message": "Missing the else clause to raise ValueError? See cheimes\u0027 comment.",
+      "revId": "97b03e5486e4adfb3be3fd917078554deca7b016",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "951fc83a_531cb9b1",
+        "filename": "base/common/python/pki/crypto.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 450,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-04-05T15:49:35Z",
+      "side": 1,
+      "message": "Missing else-clause too?",
+      "revId": "97b03e5486e4adfb3be3fd917078554deca7b016",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
