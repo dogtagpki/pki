@@ -2,6 +2,40 @@
   "comments": [
     {
       "key": {
+        "uuid": "5c039c9e_cd1dfb46",
+        "filename": "base/common/python/pki/crypto.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 329,
+      "author": {
+        "id": 1010882
+      },
+      "writtenOn": "2017-04-05T17:08:51Z",
+      "side": 1,
+      "message": "How about you use just \u0027transport_cert\u0027 and do a check:\n\nif not isinstance(transport_cert, x509.Certificate):\n    # it\u0027s a file name\n    with open(...):",
+      "revId": "97b03e5486e4adfb3be3fd917078554deca7b016",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d44f8004_70b92fdf",
+        "filename": "base/common/python/pki/crypto.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 377,
+      "author": {
+        "id": 1010882
+      },
+      "writtenOn": "2017-04-05T17:08:51Z",
+      "side": 1,
+      "message": "mechanism isn\u0027t used here.",
+      "revId": "97b03e5486e4adfb3be3fd917078554deca7b016",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5d7bd092_b2354e8a",
         "filename": "base/common/python/pki/crypto.py",
         "patchSetId": 2
