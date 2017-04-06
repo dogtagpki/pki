@@ -416,7 +416,7 @@ public class RecoveryService implements IService {
                 privKey = mStorageUnit.unwrap(
                         keyRecord.getPrivateKeyData(),
                         pubkey,
-                        false,
+                        true /* temporary */,
                         keyRecord.getWrappingParams(mKRA.getStorageKeyUnit().getOldWrappingParams()));
             } catch (Exception e) {
                 mKRA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_PRIVATE_KEY_NOT_FOUND"));
