@@ -648,18 +648,36 @@ public class RecoveryService implements IService {
             SEQUENCE safeContents = new SEQUENCE();
             PasswordConverter passConverter = new
                     PasswordConverter();
-            byte salt[] = { 0x01, 0x01, 0x01, 0x01 };
             PrivateKeyInfo pki = (PrivateKeyInfo)
                     ASN1Util.decode(PrivateKeyInfo.getTemplate(),
                             priData);
-            ASN1Value key = EncryptedPrivateKeyInfo.createPBE(
+            EncryptedPrivateKeyInfo epki = null;
+
+            boolean legacyP12 =
+                CMS.getConfigStore().getBoolean("kra.legacyPKCS12", true);
+
+            if (legacyP12) {
+                /* legacy mode may be required e.g. when token/HSM
+                 * does not support CKM_PKCS5_PBKD2 mechanism */
+                byte salt[] = { 0x01, 0x01, 0x01, 0x01 };
+                epki = EncryptedPrivateKeyInfo.createPBE(
                     PBEAlgorithm.PBE_SHA1_DES3_CBC,
                     pass, salt, 1, passConverter, pki);
+            } else {
+                epki = EncryptedPrivateKeyInfo.createPBES2(
+                    16, // saltLen
+                    2000, // kdfIterations
+                    EncryptionAlgorithm.AES_128_CBC_PAD,
+                    pass,
+                    passConverter,
+                    pki);
+            }
+
             SET keyAttrs = createBagAttrs(
                     x509cert.getSubjectDN().toString(),
                     localKeyId);
             SafeBag keyBag = new SafeBag(
-                    SafeBag.PKCS8_SHROUDED_KEY_BAG, key,
+                    SafeBag.PKCS8_SHROUDED_KEY_BAG, epki,
                     keyAttrs); // ??
 
             safeContents.addElement(keyBag);
