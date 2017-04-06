@@ -34,9 +34,20 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.ciphers import (
     Cipher, algorithms, modes
 )
+from cryptography.hazmat.primitives import keywrap
 from cryptography.hazmat.primitives import padding
 from cryptography.hazmat.primitives.asymmetric.padding import PKCS1v15
 import cryptography.x509
+
+# encryption algorithms OIDs
+DES_EDE3_CBC_OID = "{1 2 840 113549 3 7}"
+AES_128_CBC_OID = "{2 16 840 1 101 3 4 1 2}"
+
+# Wrap Algorithm names as defined by JSS.
+WRAP_AES_CBC_PAD = "AES/CBC/PKCS5Padding"
+WRAP_AES_KEY_WRAP = "AES KeyWrap"
+WRAP_AES_KEY_WRAP_PAD = "AES KeyWrap/Padding"
+WRAP_DES3_CBC_PAD = "DES3/CBC/Pad"
 
 
 class CryptoProvider(six.with_metaclass(abc.ABCMeta, object)):
@@ -96,7 +107,11 @@ class CryptoProvider(six.with_metaclass(abc.ABCMeta, object)):
         DES3 key.
         """
 
-    # abc.abstractmethod
+    @abc.abstractmethod
+    def key_unwrap(self, mechanism, data, wrapping_key, nonce_iv):
+        """ Unwrap data that has been key wrapped using AES KeyWrap """
+
+    @abc.abstractmethod
     def get_cert(self, cert_nick):
         """ Get the certificate for the specified cert_nick. """
 
@@ -302,6 +317,18 @@ class NSSCryptoProvider(CryptoProvider):
         public_key = wrapping_cert.subject_public_key_info.public_key
         return nss.pub_wrap_sym_key(mechanism, public_key, data)
 
+    def key_unwrap(self, mechanism, data, wrapping_key, nonce_iv):
+        """
+        :param mechanism        Key wrapping mechanism
+        :param data:            Data to be unwrapped
+        :param wrapping_key:    Wrapping Key
+        :param nonce_iv         Nonce data
+        :return:                Unwrapped data
+
+        Return unwrapped data for data wrapped using AES KeyWrap
+        """
+        raise NotImplementedError()
+
     def get_cert(self, cert_nick):
         """
         :param cert_nick       Nickname for the certificate to be returned
@@ -460,6 +487,28 @@ class CryptographyCryptoProvider(CryptoProvider):
             data,
             PKCS1v15()
         )
+
+    def key_unwrap(self, mechanism, data, wrapping_key, nonce_iv):
+        """
+        :param mechanism        key wrapping mechanism
+        :param data:            data to unwrap
+        :param wrapping_key:    AES key used to wrap data
+        :param nonce_iv         Nonce data
+        :return:                unwrapped data
+
+        Unwrap the encrypted data which has been wrapped using a
+        KeyWrap mechanism.
+        """
+        if mechanism == WRAP_AES_CBC_PAD or mechanism == WRAP_DES3_CBC_PAD:
+            return self.symmetric_unwrap(
+                data,
+                wrapping_key,
+                nonce_iv=nonce_iv)
+
+        if mechanism == WRAP_AES_KEY_WRAP:
+            return keywrap.aes_key_unwrap(wrapping_key, data, self.backend)
+
+        raise ValueError("Unsupported key wrap algorithm: " + mechanism)
 
     def get_cert(self, cert_nick):
         """

@@ -283,6 +283,10 @@ public class KeyRequestDAO extends CMSRequestDAO {
         if (encryptOID != null)
             request.setExtData(IRequest.SECURITY_DATA_PL_ENCRYPTION_OID, encryptOID);
 
+        String wrapName = data.getPayloadWrappingName();
+        if (wrapName != null)
+            request.setExtData(IRequest.SECURITY_DATA_PL_WRAPPING_NAME, wrapName);
+
         return request;
     }
 
@@ -294,6 +298,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
         String wrappedPassPhraseStr = data.getSessionWrappedPassphrase();
         String nonceDataStr = data.getNonceData();
         String encryptOID = data.getPaylodEncryptionOID();
+        String wrapName = data.getPayloadWrappingName();
 
         if (wrappedPassPhraseStr != null) {
             requestParams.put(IRequest.SECURITY_DATA_SESS_PASS_PHRASE, wrappedPassPhraseStr);
@@ -309,6 +314,10 @@ public class KeyRequestDAO extends CMSRequestDAO {
 
         if (encryptOID != null) {
             requestParams.put(IRequest.SECURITY_DATA_PL_ENCRYPTION_OID, encryptOID);
+        }
+
+        if (wrapName != null) {
+            requestParams.put(IRequest.SECURITY_DATA_PL_WRAPPING_NAME, wrapName);
         }
     }
 
