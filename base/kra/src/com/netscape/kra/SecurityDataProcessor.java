@@ -402,26 +402,34 @@ public class SecurityDataProcessor {
         String transportKeyAlgo = transportUnit.getCertificate().getPublicKey().getAlgorithm();
 
         byte[] iv = null;
+        byte[] iv_wrap = null;
         try {
-            iv = generate_iv(payloadEncryptOID, transportUnit.getOldWrappingParams());
+            iv = generate_iv(
+                    payloadEncryptOID,
+                    transportUnit.getOldWrappingParams().getPayloadEncryptionAlgorithm());
+            iv_wrap = generate_wrap_iv(
+                    payloadWrapName,
+                    transportUnit.getOldWrappingParams().getPayloadWrapAlgorithm());
         } catch (Exception e1) {
              throw new EBaseException("Failed to generate IV when wrapping secret", e1);
         }
-        String ivStr = Utils.base64encode(iv);
+        String ivStr = iv != null? Utils.base64encode(iv): null;
+        String ivStr_wrap = iv_wrap != null ? Utils.base64encode(iv_wrap): null;
 
         WrappingParams wrapParams = null;
         if (payloadEncryptOID == null) {
+            // talking to an old server, use 3DES
             wrapParams = transportUnit.getOldWrappingParams();
             wrapParams.setPayloadEncryptionIV(new IVParameterSpec(iv));
-            wrapParams.setPayloadWrappingIV(new IVParameterSpec(iv));
+            wrapParams.setPayloadWrappingIV(new IVParameterSpec(iv_wrap));
         } else {
             try {
                 wrapParams = new WrappingParams(
                     payloadEncryptOID,
                     payloadWrapName,
                     transportKeyAlgo,
-                    new IVParameterSpec(iv),
-                    null);
+                    iv != null? new IVParameterSpec(iv): null,
+                    iv_wrap != null? new IVParameterSpec(iv_wrap): null);
             } catch (Exception e) {
                 auditRecoveryRequestProcessed(auditSubjectID, ILogger.FAILURE, requestID, serialno.toString(),
                         "Cannot generate wrapping params");
@@ -597,7 +605,7 @@ public class SecurityDataProcessor {
             //secret has wrapped using a key wrapping algorithm
             params.put(IRequest.SECURITY_DATA_PL_WRAPPED, Boolean.toString(true));
             if (wrapParams.getPayloadWrappingIV() != null) {
-                params.put(IRequest.SECURITY_DATA_IV_STRING_OUT, ivStr);
+                params.put(IRequest.SECURITY_DATA_IV_STRING_OUT, ivStr_wrap);
             }
         }
 
@@ -614,17 +622,60 @@ public class SecurityDataProcessor {
         return false; //return true ? TODO
     }
 
-    private byte[] generate_iv(String oid, WrappingParams old) throws Exception {
+    /***
+     * This method returns an IV for the Encryption Algorithm referenced in OID.
+     * If the oid is null, we return an IV for the default encryption algorithm.
+     * The method checks to see if the encryption algorithm requires an IV by checking
+     * the parameterClasses() for the encryption algorithm.
+     *
+     * @param oid           -- OID of encryption algorithm (as a string)
+     * @param defaultAlg    -- default encryption algorithm
+     * @return              -- initialization vector
+     * @throws Exception if algorithm is not found, or if default and OID are null.
+     *                   (ie. algorithm is unknown)
+     */
+    private byte[] generate_iv(String oid, EncryptionAlgorithm defaultAlg) throws Exception {
         int numBytes = 0;
-        if (oid != null) {
-            numBytes = EncryptionAlgorithm.fromOID(new OBJECT_IDENTIFIER(oid)).getIVLength();
-        } else {
-            // old client (OID not provided)
-            numBytes = old.getPayloadEncryptionAlgorithm().getIVLength();
+        EncryptionAlgorithm alg = oid != null? EncryptionAlgorithm.fromOID(new OBJECT_IDENTIFIER(oid)):
+            defaultAlg;
+
+        if (alg == null) {
+            throw new EBaseException("Cannot determine encryption algorithm to generate IV");
+        };
+
+        if (alg.getParameterClasses() == null)
+            return null;
+
+        numBytes = alg.getIVLength();
+        return (new SecureRandom()).generateSeed(numBytes);
+    }
+
+    /***
+     * This method returns an IV for the KeyWrap algorithm referenced in wrapName.
+     * If the wrapName is null, we return an IV for the default wrap algorithm.
+     * The method checks to see if the key wrap algorithm requires an IV by checking
+     * the parameterClasses() for the key wrap algorithm.
+     *
+     * @param oid    -- name of the key wrap algorithm (as defined in JSS)
+     * @param old    -- default wrapping parameters
+     * @return       -- initialization vector
+     * @throws Exception if algorithm is not found, or if default and OID are null.
+     *                   (ie. algorithm is unknown)
+     */
+    private byte[] generate_wrap_iv(String wrapName, KeyWrapAlgorithm defaultAlg) throws Exception {
+        int numBytes = 0;
+        KeyWrapAlgorithm alg = wrapName != null ? KeyWrapAlgorithm.fromString(wrapName) :
+            defaultAlg;
+
+        if (alg == null) {
+            throw new EBaseException("Cannot determine keywrap algorithm to generate IV");
         }
 
-        SecureRandom rnd = new SecureRandom();
-        return rnd.generateSeed(numBytes);
+        if (alg.getParameterClasses() == null)
+            return null;
+
+        numBytes = alg.getBlockSize();
+        return (new SecureRandom()).generateSeed(numBytes);
     }
 
     public SymmetricKey recoverSymKey(KeyRecord keyRecord)
