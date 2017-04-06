@@ -402,26 +402,30 @@ public class SecurityDataProcessor {
         String transportKeyAlgo = transportUnit.getCertificate().getPublicKey().getAlgorithm();
 
         byte[] iv = null;
+        byte[] iv_wrap = null;
         try {
             iv = generate_iv(payloadEncryptOID, transportUnit.getOldWrappingParams());
+            iv_wrap = generate_wrap_iv(payloadWrapName, transportUnit.getOldWrappingParams());
         } catch (Exception e1) {
              throw new EBaseException("Failed to generate IV when wrapping secret", e1);
         }
-        String ivStr = Utils.base64encode(iv);
+        String ivStr = iv != null? Utils.base64encode(iv): null;
+        String ivStr_wrap = iv_wrap != null ? Utils.base64encode(iv_wrap): null;
 
         WrappingParams wrapParams = null;
         if (payloadEncryptOID == null) {
+            // talking to an old server, use 3DES
             wrapParams = transportUnit.getOldWrappingParams();
             wrapParams.setPayloadEncryptionIV(new IVParameterSpec(iv));
-            wrapParams.setPayloadWrappingIV(new IVParameterSpec(iv));
+            wrapParams.setPayloadWrappingIV(new IVParameterSpec(iv_wrap));
         } else {
             try {
                 wrapParams = new WrappingParams(
                     payloadEncryptOID,
                     payloadWrapName,
                     transportKeyAlgo,
-                    new IVParameterSpec(iv),
-                    null);
+                    iv != null? new IVParameterSpec(iv): null,
+                    iv_wrap != null? new IVParameterSpec(iv_wrap): null);
             } catch (Exception e) {
                 auditRecoveryRequestProcessed(auditSubjectID, ILogger.FAILURE, requestID, serialno.toString(),
                         "Cannot generate wrapping params");
@@ -597,7 +601,7 @@ public class SecurityDataProcessor {
             //secret has wrapped using a key wrapping algorithm
             params.put(IRequest.SECURITY_DATA_PL_WRAPPED, Boolean.toString(true));
             if (wrapParams.getPayloadWrappingIV() != null) {
-                params.put(IRequest.SECURITY_DATA_IV_STRING_OUT, ivStr);
+                params.put(IRequest.SECURITY_DATA_IV_STRING_OUT, ivStr_wrap);
             }
         }
 
@@ -616,15 +620,30 @@ public class SecurityDataProcessor {
 
     private byte[] generate_iv(String oid, WrappingParams old) throws Exception {
         int numBytes = 0;
-        if (oid != null) {
-            numBytes = EncryptionAlgorithm.fromOID(new OBJECT_IDENTIFIER(oid)).getIVLength();
-        } else {
-            // old client (OID not provided)
-            numBytes = old.getPayloadEncryptionAlgorithm().getIVLength();
-        }
+        EncryptionAlgorithm alg = oid != null? EncryptionAlgorithm.fromOID(new OBJECT_IDENTIFIER(oid)):
+            old.getPayloadEncryptionAlgorithm();
 
-        SecureRandom rnd = new SecureRandom();
-        return rnd.generateSeed(numBytes);
+        if (alg == null) return null;
+
+        if (alg.getParameterClasses() == null)
+            return null;
+
+        numBytes = alg.getIVLength();
+        return (new SecureRandom()).generateSeed(numBytes);
+    }
+
+    private byte[] generate_wrap_iv(String wrapName, WrappingParams old) throws Exception {
+        int numBytes = 0;
+        KeyWrapAlgorithm alg = wrapName != null ? KeyWrapAlgorithm.fromString(wrapName) :
+            old.getPayloadWrapAlgorithm();
+
+        if (alg == null) return null;
+
+        if (alg.getParameterClasses() == null)
+            return null;
+
+        numBytes = alg.getBlockSize();
+        return (new SecureRandom()).generateSeed(numBytes);
     }
 
     public SymmetricKey recoverSymKey(KeyRecord keyRecord)
