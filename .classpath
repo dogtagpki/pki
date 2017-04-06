@@ -42,12 +42,11 @@
 	<classpathentry kind="lib" path="/usr/share/java/jaxb-api.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/httpcomponents/httpclient.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/httpcomponents/httpcore.jar"/>
-	<classpathentry kind="lib" path="/usr/share/java/resteasy/jaxrs-api.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/jboss-jaxrs-2.0-api.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/resteasy/resteasy-client.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/resteasy/resteasy-jaxb-provider.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/resteasy/resteasy-jaxrs.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/resteasy/resteasy-jackson-provider.jar"/>
-	<classpathentry kind="lib" path="/usr/share/java/scannotation.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/servlet.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/velocity.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/xerces-j2.jar"/>
