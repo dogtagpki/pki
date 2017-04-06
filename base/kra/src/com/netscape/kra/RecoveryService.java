@@ -31,6 +31,7 @@ import java.util.Random;
 
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.ASN1Util;
+import org.mozilla.jss.asn1.ANY;
 import org.mozilla.jss.asn1.ASN1Value;
 import org.mozilla.jss.asn1.BMPString;
 import org.mozilla.jss.asn1.OCTET_STRING;
@@ -38,6 +39,7 @@ import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.asn1.SET;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.PBEAlgorithm;
+import org.mozilla.jss.crypto.EncryptionAlgorithm;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.pkcs12.AuthenticatedSafes;
 import org.mozilla.jss.pkcs12.CertBag;
@@ -484,20 +486,20 @@ public class RecoveryService implements IService {
             SEQUENCE safeContents = new SEQUENCE();
             PasswordConverter passConverter = new
                     PasswordConverter();
-            Random ran = new SecureRandom();
-            byte[] salt = new byte[20];
-            ran.nextBytes(salt);
 
-            ASN1Value key = EncryptedPrivateKeyInfo.createPBE(
-                    PBEAlgorithm.PBE_SHA1_DES3_CBC,
-                    pass, salt, 1, passConverter, priKey, ct);
-            CMS.debug("RecoverService: createPFX() EncryptedPrivateKeyInfo.createPBE() returned");
-            if (key == null) {
-                CMS.debug("RecoverService: createPFX() key null");
-                throw new EBaseException("EncryptedPrivateKeyInfo.createPBE() failed");
+            byte[] epkiBytes = ct.getCryptoStore().getEncryptedPrivateKeyInfo(
+                /* NSS has a bug that causes any AES CBC encryption
+                 * to use AES-256, but AlgorithmID contains chosen
+                 * alg.  To avoid mismatch, use AES_256_CBC. */
+                passConverter, pass, EncryptionAlgorithm.AES_256_CBC, 0, priKey);
+            CMS.debug("RecoverService: createPFX() getEncryptedPrivateKeyInfo() returned");
+            if (epkiBytes == null) {
+                CMS.debug("RecoverService: createPFX() epkiBytes null");
+                throw new EBaseException("getEncryptedPrivateKeyInfo returned null");
             } else {
-                CMS.debug("RecoverService: createPFX() key not null");
+                CMS.debug("RecoverService: createPFX() epkiBytes not null");
             }
+            ASN1Value key = new ANY(epkiBytes);
 
             SET keyAttrs = createBagAttrs(
                     x509cert.getSubjectDN().toString(),
