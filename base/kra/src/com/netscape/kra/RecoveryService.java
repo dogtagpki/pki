@@ -34,18 +34,24 @@ import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.ANY;
 import org.mozilla.jss.asn1.ASN1Value;
 import org.mozilla.jss.asn1.BMPString;
+import org.mozilla.jss.asn1.INTEGER;
 import org.mozilla.jss.asn1.OCTET_STRING;
 import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.asn1.SET;
 import org.mozilla.jss.crypto.CryptoToken;
-import org.mozilla.jss.crypto.PBEAlgorithm;
 import org.mozilla.jss.crypto.EncryptionAlgorithm;
+import org.mozilla.jss.crypto.IVParameterSpec;
+import org.mozilla.jss.crypto.KeyGenerator;
+import org.mozilla.jss.crypto.PBEAlgorithm;
+import org.mozilla.jss.crypto.PBEKeyGenParams;
 import org.mozilla.jss.crypto.PrivateKey;
+import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.pkcs12.AuthenticatedSafes;
 import org.mozilla.jss.pkcs12.CertBag;
 import org.mozilla.jss.pkcs12.PFX;
 import org.mozilla.jss.pkcs12.PasswordConverter;
 import org.mozilla.jss.pkcs12.SafeBag;
+import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
 import org.mozilla.jss.pkix.primitive.EncryptedPrivateKeyInfo;
 import org.mozilla.jss.pkix.primitive.PrivateKeyInfo;
 
@@ -625,20 +631,75 @@ public class RecoveryService implements IService {
                             pwd.toCharArray());
 
             SEQUENCE safeContents = new SEQUENCE();
-            PasswordConverter passConverter = new
-                    PasswordConverter();
-            byte salt[] = { 0x01, 0x01, 0x01, 0x01 };
-            PrivateKeyInfo pki = (PrivateKeyInfo)
-                    ASN1Util.decode(PrivateKeyInfo.getTemplate(),
-                            priData);
-            ASN1Value key = EncryptedPrivateKeyInfo.createPBE(
-                    PBEAlgorithm.PBE_SHA1_DES3_CBC,
-                    pass, salt, 1, passConverter, pki);
+
+            EncryptionAlgorithm encAlg = EncryptionAlgorithm.AES_128_CBC_PAD;
+
+            // generate random PBKDF2 salt
+            SecureRandom random = new SecureRandom();
+            byte salt[] = new byte[16];
+            random.nextBytes(salt);
+
+            // derive symmetric key from passphrase
+            //
+            // We can't use EncryptedPrivateKeyInfo.createPBE
+            // because there is no way to convey the intended
+            // encryption algorithm or the required key length.
+            // For PKCS #12 PBE algorithms the cipher is implied,
+            // but for PBES2 the KDF and cipher are configured
+            // separately; the PBE algorithm does not imply the
+            // cipher (therefore does not imply the key length).
+            //
+            // So, we have to do the key derivation directly
+            // via KeyGenerator, then encipher the private key
+            // info, and finally construct the PBES2 parameters
+            // and EncryptedPrivateKeyInfo
+            //
+            CryptoManager cm = CryptoManager.getInstance();
+            CryptoToken token = cm.getInternalCryptoToken();
+            KeyGenerator kg = token.getKeyGenerator(
+                PBEAlgorithm.PBE_PKCS5_PBKDF2);
+            int kdfIterations = 2000;
+            PBEKeyGenParams pbekgParams = new PBEKeyGenParams(
+                pwd.toCharArray(), salt, kdfIterations, encAlg);
+            kg.setCharToByteConverter(new PasswordConverter());
+            kg.initialize(pbekgParams);
+            SymmetricKey sk = kg.generate();
+
+            // encrypt PrivateKeyInfo
+            byte iv[] = new byte[encAlg.getBlockSize()];
+            random.nextBytes(iv);
+            IVParameterSpec ivps = new IVParameterSpec(iv);
+            byte[] encData = CryptoUtil.encryptUsingSymmetricKey(
+                    token, sk, priData, encAlg, ivps);
+
+            // construct KDF AlgorithmIdentifier
+            SEQUENCE paramsKdf = new SEQUENCE();
+            paramsKdf.addElement(new OCTET_STRING(salt));
+            paramsKdf.addElement(new INTEGER((long) kdfIterations));
+            paramsKdf.addElement(new INTEGER((long) sk.getLength()));
+            AlgorithmIdentifier algIdKdf = new AlgorithmIdentifier(
+                PBEAlgorithm.PBE_PKCS5_PBKDF2.toOID(), paramsKdf);
+
+            // construct encryption AlgorithmIdentifier
+            AlgorithmIdentifier algIdEnc = new AlgorithmIdentifier(
+                encAlg.toOID(), new OCTET_STRING(iv));
+
+            // construct "composite" PBES2 AlgorithmIdentifier
+            SEQUENCE paramsPBES2 = new SEQUENCE();
+            paramsPBES2.addElement(algIdKdf);
+            paramsPBES2.addElement(algIdEnc);
+            AlgorithmIdentifier algIdPBES2 = new AlgorithmIdentifier(
+                PBEAlgorithm.PBE_PKCS5_PBES2.toOID(), paramsPBES2);
+
+            // construct EncryptedPrivateKeyInfo
+            EncryptedPrivateKeyInfo epki = new EncryptedPrivateKeyInfo(
+                algIdPBES2, new OCTET_STRING(encData));
+
             SET keyAttrs = createBagAttrs(
                     x509cert.getSubjectDN().toString(),
                     localKeyId);
             SafeBag keyBag = new SafeBag(
-                    SafeBag.PKCS8_SHROUDED_KEY_BAG, key,
+                    SafeBag.PKCS8_SHROUDED_KEY_BAG, epki,
                     keyAttrs); // ??
 
             safeContents.addElement(keyBag);
