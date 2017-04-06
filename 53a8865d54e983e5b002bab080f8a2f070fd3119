@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e3f7325f_a8cdc88c",
+        "filename": "base/common/python/pki/crypto.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 329,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-04-06T21:24:19Z",
+      "side": 1,
+      "message": "Since transport_cert is required, the default None value should be removed and this check can be removed.",
+      "revId": "53a8865d54e983e5b002bab080f8a2f070fd3119",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a97d37d4_e34defe4",
+        "filename": "base/common/python/pki/crypto.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 410,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-04-06T21:24:19Z",
+      "side": 1,
+      "message": "See previous comment. Do we need an else clause here?",
+      "revId": "53a8865d54e983e5b002bab080f8a2f070fd3119",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "750f0a41_3ad086d0",
+        "filename": "base/common/python/pki/crypto.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 447,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-04-06T21:24:19Z",
+      "side": 1,
+      "message": "See previous comment. Do we need an else clause here?",
+      "revId": "53a8865d54e983e5b002bab080f8a2f070fd3119",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
