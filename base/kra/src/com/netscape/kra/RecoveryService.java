@@ -30,15 +30,14 @@ import java.util.Hashtable;
 import java.util.Random;
 
 import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.ANY;
 import org.mozilla.jss.asn1.ASN1Value;
 import org.mozilla.jss.asn1.BMPString;
 import org.mozilla.jss.asn1.OCTET_STRING;
 import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.asn1.SET;
+import org.mozilla.jss.crypto.CryptoStore;
 import org.mozilla.jss.crypto.CryptoToken;
-import org.mozilla.jss.crypto.PBEAlgorithm;
 import org.mozilla.jss.crypto.EncryptionAlgorithm;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.pkcs12.AuthenticatedSafes;
@@ -47,7 +46,6 @@ import org.mozilla.jss.pkcs12.PFX;
 import org.mozilla.jss.pkcs12.PasswordConverter;
 import org.mozilla.jss.pkcs12.SafeBag;
 import org.mozilla.jss.pkix.primitive.EncryptedPrivateKeyInfo;
-import org.mozilla.jss.pkix.primitive.PrivateKeyInfo;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthToken;
@@ -591,84 +589,14 @@ public class RecoveryService implements IService {
             byte priData[]) throws EBaseException {
         CMS.debug("RecoverService: createPFX() allowEncDecrypt_recovery=true");
         try {
-            // create p12
-            X509Certificate x509cert =
-                    request.getExtDataInCert(ATTR_USER_CERT);
-            if (x509cert == null) {
-                throw new EKRAException(CMS.getUserMessage("CMS_KRA_PKCS12_FAILED_1","Missing Certificate"));
-            }
-            String pwd = (String) params.get(ATTR_TRANSPORT_PWD);
-
-            // add certificate
-            mKRA.log(ILogger.LL_INFO, "KRA adds certificate to P12");
-            SEQUENCE encSafeContents = new SEQUENCE();
-            ASN1Value cert = new OCTET_STRING(x509cert.getEncoded());
-            String nickname = request.getExtDataInString(ATTR_NICKNAME);
-
-            if (nickname == null) {
-                nickname = x509cert.getSubjectDN().toString();
-            }
-            byte localKeyId[] = createLocalKeyId(x509cert);
-            SET certAttrs = createBagAttrs(
-                    nickname, localKeyId);
-            // attributes: user friendly name, Local Key ID
-            SafeBag certBag = new SafeBag(SafeBag.CERT_BAG,
-                    new CertBag(CertBag.X509_CERT_TYPE, cert),
-                    certAttrs);
-
-            encSafeContents.addElement(certBag);
-
-            // add key
-            mKRA.log(ILogger.LL_INFO, "KRA adds key to P12");
-            org.mozilla.jss.util.Password pass = new
-                    org.mozilla.jss.util.Password(
-                            pwd.toCharArray());
-
-            SEQUENCE safeContents = new SEQUENCE();
-            PasswordConverter passConverter = new
-                    PasswordConverter();
-            byte salt[] = { 0x01, 0x01, 0x01, 0x01 };
-            PrivateKeyInfo pki = (PrivateKeyInfo)
-                    ASN1Util.decode(PrivateKeyInfo.getTemplate(),
-                            priData);
-            ASN1Value key = EncryptedPrivateKeyInfo.createPBE(
-                    PBEAlgorithm.PBE_SHA1_DES3_CBC,
-                    pass, salt, 1, passConverter, pki);
-            SET keyAttrs = createBagAttrs(
-                    x509cert.getSubjectDN().toString(),
-                    localKeyId);
-            SafeBag keyBag = new SafeBag(
-                    SafeBag.PKCS8_SHROUDED_KEY_BAG, key,
-                    keyAttrs); // ??
-
-            safeContents.addElement(keyBag);
-
-            // build contents
-            AuthenticatedSafes authSafes = new
-                    AuthenticatedSafes();
-
-            authSafes.addSafeContents(
-                    safeContents
-                    );
-            authSafes.addSafeContents(
-                    encSafeContents
-                    );
-
-            //			authSafes.addEncryptedSafeContents(
-            //				authSafes.DEFAULT_KEY_GEN_ALG,
-            //				pass, null, 1,
-            //				encSafeContents);
-            PFX pfx = new PFX(authSafes);
-
-            pfx.computeMacData(pass, null, 5); // ??
-            ByteArrayOutputStream fos = new
-                    ByteArrayOutputStream();
-
-            pfx.encode(fos);
-            pass.clear();
-
-            // put final PKCS12 into volatile request
-            params.put(ATTR_PKCS12, fos.toByteArray());
+            CryptoToken ct =
+                CryptoManager.getInstance().getInternalKeyStorageToken();
+            CryptoStore cs = ct.getCryptoStore();
+            PrivateKey privKey = cs.importPrivateKey(
+                priData, null /*type (ignored)*/, true /*temporary*/);
+            createPFX(request, params, privKey, ct);
+        } catch (EKRAException e) {
+            throw e;    // re-raise
         } catch (Exception e) {
             mKRA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_CONSTRUCT_P12", e.toString()));
             throw new EKRAException(CMS.getUserMessage("CMS_KRA_PKCS12_FAILED_1", e.toString()));
