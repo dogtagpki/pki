@@ -10,6 +10,7 @@ import org.dogtagpki.server.rest.AccountService;
 import org.dogtagpki.server.rest.AuditService;
 import org.dogtagpki.server.rest.AuthMethodInterceptor;
 import org.dogtagpki.server.rest.GroupService;
+import org.dogtagpki.server.rest.KRAInfoService;
 import org.dogtagpki.server.rest.MessageFormatInterceptor;
 import org.dogtagpki.server.rest.PKIExceptionMapper;
 import org.dogtagpki.server.rest.SecurityDomainService;
@@ -66,6 +67,9 @@ public class KRAApplication extends Application {
 
         // exception mapper
         classes.add(PKIExceptionMapper.class);
+
+        // info service
+        classes.add(KRAInfoService.class);
 
         // interceptors
         singletons.add(new SessionContextInterceptor());
