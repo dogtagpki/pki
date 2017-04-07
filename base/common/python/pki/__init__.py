@@ -26,7 +26,9 @@ from __future__ import print_function
 
 from functools import wraps
 import os
+import random
 import re
+import string
 import sys
 
 import requests
@@ -122,6 +124,67 @@ def implementation_version():
             return value
 
     raise Exception('Missing implementation version.')
+
+
+def generate_password():
+    """
+    This function generates FIPS-compliant password.
+
+    See sftk_newPinCheck() in the following file:
+    https://dxr.mozilla.org/nss/source/nss/lib/softoken/fipstokn.c
+
+    The minimum password length is FIPS_MIN_PIN Unicode characters.
+
+    The password must contain at least three character classes:
+     * digits (string.digits)
+     * ASCII lowercase letters (string.ascii_lowercase)
+     * ASCII uppercase letters (string.ascii_uppercase)
+     * ASCII non-alphanumeric characters (string.punctuation)
+     * non-ASCII characters
+
+    If an ASCII uppercase letter is the first character of the password,
+    the uppercase letter is not counted toward its character class.
+
+    If a digit is the last character of the password, the digit is not
+    counted toward its character class.
+
+    The FIPS_MIN_PIN is defined in the following file:
+    https://dxr.mozilla.org/nss/source/nss/lib/softoken/pkcs11i.h
+
+    #define FIPS_MIN_PIN 7
+    """
+
+    rng = random.SystemRandom()
+
+    valid_chars = string.digits +\
+        string.ascii_lowercase +\
+        string.ascii_uppercase +\
+        string.punctuation
+
+    chars = []
+
+    # add 1 random char from each char class to meet
+    # the minimum number of char class requirement
+    chars.append(rng.choice(string.digits))
+    chars.append(rng.choice(string.ascii_lowercase))
+    chars.append(rng.choice(string.ascii_uppercase))
+    chars.append(rng.choice(string.punctuation))
+
+    # add 6 additional random chars
+    chars.extend(rng.choice(valid_chars) for i in range(6))
+
+    # randomize the char order
+    random.shuffle(chars)
+
+    # add 2 random chars at the beginning and the end
+    # to maintain the minimum number of char class
+    chars.insert(0, rng.choice(valid_chars))
+    chars.append(rng.choice(valid_chars))
+
+    # final password is 12 chars
+    password = ''.join(chars)
+
+    return password
 
 
 # pylint: disable=R0903
