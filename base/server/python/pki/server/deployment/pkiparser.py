@@ -583,12 +583,6 @@ class PKIConfigParser:
 
             self.deployer.flatten_master_dict()
 
-            # Generate random 'pin's for use as security database passwords
-            # and add these to the "sensitive" key value pairs read in from
-            # the configuration file
-            pin_low = 100000000000
-            pin_high = 999999999999
-
             instance = pki.server.PKIInstance(self.mdict['pki_instance_name'])
             instance.load()
 
@@ -604,11 +598,9 @@ class PKIConfigParser:
 
             # otherwise, generate a random password
             else:
-                self.mdict['pki_pin'] = \
-                    random.randint(pin_low, pin_high)
+                self.mdict['pki_pin'] = pki.generate_password()
 
-            self.mdict['pki_client_pin'] = \
-                random.randint(pin_low, pin_high)
+            self.mdict['pki_client_pin'] = pki.generate_password()
 
             pkilogging.sensitive_parameters = \
                 self.mdict['sensitive_parameters'].split()
