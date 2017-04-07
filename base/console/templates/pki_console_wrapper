@@ -19,11 +19,20 @@
 # --- END COPYRIGHT BLOCK ---
 #
 
-# Read default PKI configuration.
+# default PKI configuration
 . /usr/share/pki/etc/pki.conf
 
-# Read user-defined PKI configuration.
-. /etc/pki/pki.conf
+# system-wide PKI configuration
+if [ -f /etc/pki/pki.conf ]
+then
+    . /etc/pki/pki.conf
+fi
+
+# user-specific PKI configuration
+if [ -f $HOME/.dogtag/pki.conf ]
+then
+    . $HOME/.dogtag/pki.conf
+fi
 
 # Check to insure that this script's original invocation directory
 # has not been deleted!
@@ -151,6 +160,7 @@ ${JAVA} ${JAVA_OPTIONS} \
   -cp ${CP} \
   -Djava.util.prefs.systemRoot=/tmp/.java \
   -Djava.util.prefs.userRoot=/tmp/java \
+  -Djava.util.logging.config.file=${LOGGING_CONFIG} \
   com.netscape.admin.certsrv.Console \
   -s instanceID \
   -a $1
