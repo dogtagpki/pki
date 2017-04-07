@@ -9,6 +9,7 @@ import org.dogtagpki.server.rest.ACLInterceptor;
 import org.dogtagpki.server.rest.AccountService;
 import org.dogtagpki.server.rest.AuditService;
 import org.dogtagpki.server.rest.AuthMethodInterceptor;
+import org.dogtagpki.server.rest.CAInfoService;
 import org.dogtagpki.server.rest.FeatureService;
 import org.dogtagpki.server.rest.GroupService;
 import org.dogtagpki.server.rest.MessageFormatInterceptor;
@@ -64,6 +65,9 @@ public class CAApplication extends Application {
 
         // features
         classes.add(FeatureService.class);
+
+        // info service
+        classes.add(CAInfoService.class);
 
         // security domain
         IConfigStore cs = CMS.getConfigStore();
