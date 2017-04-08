@@ -124,12 +124,12 @@ public class MainCLI extends CLI {
 
     public void printVersion() {
         Package pkg = MainCLI.class.getPackage();
-        System.out.println("PKI Command-Line Interface "+pkg.getImplementationVersion());
+        System.out.println("PKI Command-Line Interface " + pkg.getImplementationVersion());
     }
 
     public void printHelp() {
 
-        formatter.printHelp(name+" [OPTIONS..] <command> [ARGS..]", options);
+        formatter.printHelp(name + " [OPTIONS..] <command> [ARGS..]", options);
         System.out.println();
 
         int leftPadding = 1;
@@ -169,7 +169,7 @@ public class MainCLI extends CLI {
         option.setArgName("port");
         options.addOption(option);
 
-        option = new Option("t", true, "Subsystem type");
+        option = new Option("t", true, "Subsystem type (deprecated)");
         option.setArgName("type");
         options.addOption(option);
 
@@ -340,8 +340,10 @@ public class MainCLI extends CLI {
         if (uri == null)
             uri = protocol + "://" + hostname + ":" + port;
 
-        if (subsystem != null)
+        if (subsystem != null) {
+            System.err.println("WARNING: The -t option has been deprecated. Use pki " + subsystem + " command instead.");
             uri = uri + "/" + subsystem;
+        }
 
         config.setServerURI(uri);
 
