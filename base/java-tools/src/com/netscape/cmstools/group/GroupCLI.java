@@ -73,7 +73,8 @@ public class GroupCLI extends CLI {
             SubsystemCLI subsystemCLI = (SubsystemCLI)parent;
             subsystem = subsystemCLI.getName();
         } else {
-            subsystem = "ca";
+            subsystem = client.getSubsystem();
+            if (subsystem == null) subsystem = "ca";
         }
 
         // create new group client
