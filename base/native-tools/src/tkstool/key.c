@@ -19,6 +19,11 @@
 
 #include "tkstool.h"
 
+secuPWData    pwdata = { PW_NONE,
+                              0 };
+
+
+
 /*******************************/
 /**  local private functions  **/
 /*******************************/
@@ -534,16 +539,26 @@ TKS_ComputeAndDisplayKCV( PRUint8    *newKey,
             goto done;
         }
 
-        key = PK11_ImportSymKeyWithFlags(
-              /* slot           */        slot,
-              /* mechanism type */        CKM_DES3_ECB,
-              /* origin         */        PK11_OriginGenerated,
-              /* operation      */        CKA_ENCRYPT,
-              /* key            */        &keyItem,
-              /* flags          */        CKF_ENCRYPT,
-              /* isPerm         */        PR_FALSE,
-              /* wincx          */        0 );
+        key =  TKS_ImportSymmetricKey( NULL,
+                        slot,
+                        CKM_DES3_ECB,
+                        CKA_ENCRYPT,
+                        &keyItem,
+                        &pwdata, PR_FALSE );
 
+
+
+
+     /*   key = PK11_ImportSymKeyWithFlags(
+                      slot,
+                      CKM_DES3_ECB,
+                      PK11_OriginGenerated,
+                      CKA_ENCRYPT,
+                      &keyItem,
+                      CKF_ENCRYPT,
+                      PR_FALSE,
+                      0 );
+     */
         if( ! key ) {
             PR_fprintf( PR_STDERR,
                         "ERROR:  Failed to import %s key!\n\n\n",
@@ -1062,10 +1077,18 @@ TKS_ImportSymmetricKey( char              *symmetricKeyName,
                         CK_MECHANISM_TYPE  mechanism,
                         CK_ATTRIBUTE_TYPE  operation,
                         SECItem           *sessionKeyShare,
-                        secuPWData        *pwdata )
+                        secuPWData        *pwdata, PRBool isPerm )
 {
     PK11Origin  origin = PK11_OriginGenerated;
     PK11SymKey *symKey = NULL;
+    PK11SymKey *sessKey = NULL;
+    PK11Context *context = NULL;
+    static SECItem noParams = { siBuffer, NULL, 0 };
+    SECItem wrappeditem = { siBuffer, NULL, 0 };
+
+    int len = 0;
+    unsigned char wrappedkey[DES_LENGTH * 3];
+    SECStatus s = SECSuccess;
 
     if( slot == NULL ) {
         return NULL;
@@ -1077,15 +1100,56 @@ TKS_ImportSymmetricKey( char              *symmetricKeyName,
                 "Generating %s symmetric key . . .\n\n",
                 symmetricKeyName );
 
-    symKey = PK11_ImportSymKeyWithFlags( 
-             /* slot           */        slot,
-             /* mechanism type */        mechanism,
-             /* origin         */        origin,
-             /* operation      */        operation,
-             /* key            */        sessionKeyShare,
-             /* flags          */        0,
-             /* isPerm         */        PR_FALSE,
-             /* wincx          */        pwdata );
+    sessKey =  PK11_TokenKeyGenWithFlags(slot,               // slot handle
+                   CKM_DES3_KEY_GEN,   // mechanism type
+                   NULL,               // pointer to params (SECItem structure)
+                   0,                  // keySize (per documentation in pk11skey.c, must be 0 for fixed key length algorithms)
+                   0,                  // pointer to keyid (SECItem structure)
+                   CKF_WRAP | CKF_UNWRAP | CKF_ENCRYPT | CKF_DECRYPT, // opFlags
+                   PK11_ATTR_PRIVATE | PK11_ATTR_UNEXTRACTABLE | PK11_ATTR_SENSITIVE, // attrFlags (AC: this is my "best guess" as to what flags should be set)
+                   NULL);
+
+    if( sessKey == NULL ) {
+        goto cleanup;
+    }
+
+    // Import the key onto the token using the temp session key and the key data.
+    //
+    
+    context = PK11_CreateContextBySymKey(CKM_DES3_ECB, CKA_ENCRYPT,
+        sessKey,
+        &noParams);
+
+    if (context == NULL) {
+        goto cleanup;
+    }
+
+    len = sessionKeyShare->len;
+    /* encrypt the key with the master key */
+    s = PK11_CipherOp(context, wrappedkey, &len, DES_LENGTH * 3 , sessionKeyShare->data ,DES_LENGTH * 3 );
+    if (s != SECSuccess)
+    {
+        goto cleanup;
+    }
+
+    wrappeditem.data = wrappedkey;
+    wrappeditem.len = len;
+
+    symKey = PK11_UnwrapSymKeyWithFlagsPerm(sessKey, CKM_DES3_ECB, &noParams,
+        &wrappeditem, CKM_DES3_KEY_GEN, CKA_DECRYPT, DES_LENGTH * 3,
+        (CKA_ENCRYPT | CKA_DECRYPT) & CKF_KEY_OPERATION_FLAGS, isPerm );
+
+cleanup:
+    if( sessKey != NULL) {
+        PK11_FreeSymKey( sessKey );
+        sessKey = NULL;
+    }
+
+    if( context ) {
+        PK11_DestroyContext(
+        /* context */        context,
+        /* free it */        PR_TRUE );
+    }
     return symKey;
 }
 

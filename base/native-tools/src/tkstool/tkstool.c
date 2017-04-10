@@ -1417,14 +1417,14 @@ main( int argc, char **argv )
                                                     CKM_DES3_KEY_GEN,
                                                     CKA_ENCRYPT,
                                                     &paddedFirstSessionKeyShare,
-                                                    &pwdata );
+                                                    &pwdata, PR_FALSE );
 #else
         firstSymmetricKey = TKS_ImportSymmetricKey( FIRST_SYMMETRIC_KEY,
                                                     internalSlot,
                                                     CKM_DES2_KEY_GEN,
                                                     CKA_ENCRYPT,
                                                     &firstSessionKeyShare,
-                                                    &pwdata );
+                                                    &pwdata , PR_FALSE );
 #endif
         if( firstSymmetricKey == NULL ) {
             PR_fprintf( PR_STDERR,

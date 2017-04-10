@@ -124,6 +124,7 @@
                                                "and press enter to continue " \
                                                "(or ^C to break):  "
 
+#define CKF_KEY_OPERATION_FLAGS 0x000e7b00UL
 
 /**************************************/
 /**  external function declarations  **/
@@ -222,7 +223,7 @@ TKS_ImportSymmetricKey( char              *symmetricKeyName,
                         CK_MECHANISM_TYPE  mechanism,
                         CK_ATTRIBUTE_TYPE  operation,
                         SECItem           *sessionKeyShare,
-                        secuPWData        *pwdata );
+                        secuPWData        *pwdata, PRBool isPerm );
 
 PK11SymKey *
 TKS_DeriveSymmetricKey( char              *symmetricKeyName,
