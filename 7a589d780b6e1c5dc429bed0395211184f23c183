@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cabaf659_9b2ff75d",
+        "filename": "base/common/src/org/dogtagpki/common/CAInfo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-04-11T19:32:04Z",
+      "side": 1,
+      "message": "Should be CAInfo.",
+      "range": {
+        "startLine": 38,
+        "startChar": 22,
+        "endLine": 38,
+        "endChar": 26
+      },
+      "revId": "7a589d780b6e1c5dc429bed0395211184f23c183",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f63a9c24_b195fdf7",
+        "filename": "base/server/cms/src/org/dogtagpki/server/rest/CAInfoService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-04-11T19:32:04Z",
+      "side": 1,
+      "message": "Should be CAInfoService.",
+      "range": {
+        "startLine": 45,
+        "startChar": 22,
+        "endLine": 45,
+        "endChar": 33
+      },
+      "revId": "7a589d780b6e1c5dc429bed0395211184f23c183",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "61fe7150_455e0977",
+        "filename": "base/server/cms/src/org/dogtagpki/server/rest/CAInfoService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-04-11T19:32:04Z",
+      "side": 1,
+      "message": "Is this param guaranteed to exist in CA in all cases? Who is responsible to update it? What happens if it\u0027s out of sync? Why not get it directly from KRA?",
+      "range": {
+        "startLine": 55,
+        "startChar": 50,
+        "endLine": 55,
+        "endChar": 78
+      },
+      "revId": "7a589d780b6e1c5dc429bed0395211184f23c183",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
