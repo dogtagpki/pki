@@ -104,8 +104,6 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
 
     private final static String LOGGING_SIGNED_AUDIT_AUDIT_LOG_STARTUP =
                                "LOGGING_SIGNED_AUDIT_AUDIT_LOG_STARTUP_2";
-    private final static String LOGGING_SIGNED_AUDIT_SIGNING =
-                               "LOGGING_SIGNED_AUDIT_SIGNING_3";
     private final static String LOGGING_SIGNED_AUDIT_AUDIT_LOG_SHUTDOWN =
                                "LOGGING_SIGNED_AUDIT_AUDIT_LOG_SHUTDOWN_2";
     private final static String LOG_SIGNED_AUDIT_EXCEPTION =
@@ -723,7 +721,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
         // so as to avoid infinite recursiveness of calling
         // the log() method
         String auditMessage = CMS.getLogMessage(
-                LOGGING_SIGNED_AUDIT_SIGNING,
+                AuditEvent.AUDIT_LOG_SIGNING,
                 ILogger.SYSTEM_UID,
                 ILogger.SUCCESS,
                 base64Encode(sigBytes));

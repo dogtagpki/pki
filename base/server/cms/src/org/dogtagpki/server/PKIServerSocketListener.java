@@ -33,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.IAuditor;
 
 public class PKIServerSocketListener implements SSLSocketListener {
@@ -66,7 +67,7 @@ public class PKIServerSocketListener implements SSLSocketListener {
             IAuditor auditor = CMS.getAuditor();
 
             String auditMessage = CMS.getLogMessage(
-                    "LOGGING_SIGNED_AUDIT_ACCESS_SESSION_TERMINATED",
+                    AuditEvent.ACCESS_SESSION_TERMINATED,
                     clientIP,
                     serverIP,
                     subjectID,
@@ -108,7 +109,7 @@ public class PKIServerSocketListener implements SSLSocketListener {
             if (description == SSLAlertDescription.CLOSE_NOTIFY.getID()) {
 
                 String auditMessage = CMS.getLogMessage(
-                        "LOGGING_SIGNED_AUDIT_ACCESS_SESSION_TERMINATED",
+                        AuditEvent.ACCESS_SESSION_TERMINATED,
                         clientIP,
                         serverIP,
                         subjectID,
@@ -119,7 +120,7 @@ public class PKIServerSocketListener implements SSLSocketListener {
             } else {
 
                 String auditMessage = CMS.getLogMessage(
-                        "LOGGING_SIGNED_AUDIT_ACCESS_SESSION_ESTABLISH_FAILURE",
+                        AuditEvent.ACCESS_SESSION_ESTABLISH_FAILURE,
                         clientIP,
                         serverIP,
                         subjectID,
@@ -157,7 +158,7 @@ public class PKIServerSocketListener implements SSLSocketListener {
             IAuditor auditor = CMS.getAuditor();
 
             String auditMessage = CMS.getLogMessage(
-                    "LOGGING_SIGNED_AUDIT_ACCESS_SESSION_ESTABLISH_SUCCESS",
+                    AuditEvent.ACCESS_SESSION_ESTABLISH_SUCCESS,
                     clientIP,
                     serverIP,
                     subjectID);

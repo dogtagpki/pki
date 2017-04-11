@@ -35,10 +35,17 @@ import com.netscape.certsrv.base.MessageFormatter;
  */
 public class AuditEvent implements IBundleLogEvent {
 
-    /**
-     *
-     */
+    public final static String ACCESS_SESSION_ESTABLISH_FAILURE =
+            "LOGGING_SIGNED_AUDIT_ACCESS_SESSION_ESTABLISH_FAILURE";
+    public final static String ACCESS_SESSION_ESTABLISH_SUCCESS =
+            "LOGGING_SIGNED_AUDIT_ACCESS_SESSION_ESTABLISH_SUCCESS";
+    public final static String ACCESS_SESSION_TERMINATED =
+            "LOGGING_SIGNED_AUDIT_ACCESS_SESSION_TERMINATED";
+    public final static String AUDIT_LOG_SIGNING =
+            "LOGGING_SIGNED_AUDIT_SIGNING_3";
+
     private static final long serialVersionUID = -844306657733902324L;
+    private static final String INVALID_LOG_LEVEL = "log level: {0} is invalid, should be 0-6";
 
     protected Object mParams[] = null;
 
@@ -54,7 +61,6 @@ public class AuditEvent implements IBundleLogEvent {
      * The bundle name for this event.
      */
     private String mBundleName = LogResources.class.getName();
-    private static final String INVALID_LOG_LEVEL = "log level: {0} is invalid, should be 0-6";
 
     /**
      * Constructs a message event
