@@ -1962,7 +1962,7 @@ public class CryptoUtil {
         return decodedData;
     }
 
-    public static byte[] wrapPassphrase(CryptoToken token, String passphrase, IVParameterSpec IV, SymmetricKey sk,
+    public static byte[] encryptPassphrase(CryptoToken token, String passphrase, IVParameterSpec IV, SymmetricKey sk,
             EncryptionAlgorithm alg)
             throws NoSuchAlgorithmException, TokenException, InvalidKeyException,
             InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException, IOException {
@@ -2008,17 +2008,6 @@ public class CryptoUtil {
         PKIArchiveOptions opts = createPKIArchiveOptionsInternal(
                 token, wrappingKey, null, data, null, params, aid);
         return encodePKIArchiveOptions(opts);
-    }
-
-    /* Used to create PKIArchiveOptions for wrapped symmetric key */
-    public static PKIArchiveOptions createPKIArchiveOptions(
-            CryptoToken token,
-            PublicKey wrappingKey,
-            SymmetricKey data,
-            WrappingParams params,
-            AlgorithmIdentifier aid) throws Exception {
-         return createPKIArchiveOptionsInternal(
-                 token, wrappingKey, null, null, data, params, aid);
     }
 
     public static byte[] createEncodedPKIArchiveOptions(
@@ -2068,10 +2057,9 @@ public class CryptoUtil {
                 params.getSkLength(),
                 null,
                 false);
-
         byte[] key_data;
         if (passphraseData != null) {
-            key_data = wrapPassphrase(
+            key_data = encryptPassphrase(
                     token,
                     passphraseData,
                     params.getPayloadEncryptionIV(),
