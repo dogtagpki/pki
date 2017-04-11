@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "215bf98a_1a6cd57c",
+        "filename": "base/java-tools/src/com/netscape/cmstools/CRMFPopClient.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 315,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-04-11T18:53:27Z",
+      "side": 1,
+      "message": "The \"true\" default value in this line is misleading because it\u0027s never used. If -g is not specified it will go to the else clause. It\u0027s better to remove it to avoid confusion.",
+      "range": {
+        "startLine": 315,
+        "startChar": 65,
+        "endLine": 315,
+        "endChar": 73
+      },
+      "revId": "744b8e9cd8eb993cffba958caf771d01530ad70a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
