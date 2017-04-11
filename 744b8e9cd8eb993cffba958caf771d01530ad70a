@@ -22,6 +22,30 @@
       "revId": "744b8e9cd8eb993cffba958caf771d01530ad70a",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "00365c63_ac3da9a1",
+        "filename": "base/java-tools/src/com/netscape/cmstools/CRMFPopClient.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 315,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-04-11T19:09:11Z",
+      "side": 1,
+      "message": "ok",
+      "parentUuid": "215bf98a_1a6cd57c",
+      "range": {
+        "startLine": 315,
+        "startChar": 65,
+        "endLine": 315,
+        "endChar": 73
+      },
+      "revId": "744b8e9cd8eb993cffba958caf771d01530ad70a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
