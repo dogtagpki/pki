@@ -389,6 +389,11 @@ class PKISubsystem(object):
 
         pki.util.customize_file(input_file, output_file, params)
 
+    def get_audit_log_dir(self):
+
+        current_file_path = self.config['log.instance.SignedAudit.fileName']
+        return os.path.dirname(current_file_path)
+
     def get_audit_log_files(self):
 
         current_file_path = self.config['log.instance.SignedAudit.fileName']
