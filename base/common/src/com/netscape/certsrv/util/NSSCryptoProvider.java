@@ -140,7 +140,7 @@ public class NSSCryptoProvider extends CryptoProvider {
         if (token == null) {
             throw new NotInitializedException();
         }
-        return CryptoUtil.wrapPassphrase(token, passphrase, new IVParameterSpec(iv), key, encryptionAlgorithm);
+        return CryptoUtil.encryptPassphrase(token, passphrase, new IVParameterSpec(iv), key, encryptionAlgorithm);
     }
 
     @Override
