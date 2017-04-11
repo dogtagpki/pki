@@ -29,6 +29,8 @@ import java.util.Vector;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.io.FileUtils;
+import org.dogtagpki.common.CAInfoClient;
+import org.dogtagpki.common.KRAInfoResource;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.Signature;
@@ -245,8 +247,26 @@ public class ClientCertRequestCLI extends CLI {
             CryptoManager manager = CryptoManager.getInstance();
             X509Certificate transportCert = manager.importCACertPackage(transportCertData);
 
+            // get archival mechanism
+            CAInfoClient infoClient = new CAInfoClient(client, "ca");
+            String archivalMechanism = KRAInfoResource.KEYWRAP_MECHANISM;
+            try {
+                archivalMechanism = infoClient.getInfo().getArchivalMechanism();
+            } catch (Exception e) {
+                // this could be an older server, check for environment variable.
+                String useKeyWrapping = System.getenv("KEY_ARCHIVAL_USE_KEY_WRAPPING");
+                if (useKeyWrapping != null) {
+                    if (Boolean.parseBoolean(useKeyWrapping)) {
+                        archivalMechanism = KRAInfoResource.KEYWRAP_MECHANISM;
+                    } else {
+                        archivalMechanism = KRAInfoResource.ENCRYPT_MECHANISM;
+                    }
+                }
+            }
+
             csr = generateCrmfRequest(transportCert, subjectDN, attributeEncoding,
-                    algorithm, length, curve, sslECDH, temporary, sensitive, extractable, withPop);
+                    algorithm, length, curve, sslECDH, temporary, sensitive, extractable, withPop,
+                    archivalMechanism);
 
         } else {
             throw new Exception("Unknown request type: " + requestType);
@@ -387,7 +407,8 @@ public class ClientCertRequestCLI extends CLI {
             boolean temporary,
             int sensitive,
             int extractable,
-            boolean withPop
+            boolean withPop,
+            String archivalMechanism
             ) throws Exception {
 
         CryptoManager manager = CryptoManager.getInstance();
@@ -408,7 +429,8 @@ public class ClientCertRequestCLI extends CLI {
             throw new Exception("Unknown algorithm: " + algorithm);
         }
 
-        CertRequest certRequest = client.createCertRequest(token, transportCert, algorithm, keyPair, subject);
+        CertRequest certRequest = client.createCertRequest(
+                token, transportCert, algorithm, keyPair, subject, archivalMechanism);
 
         ProofOfPossession pop = null;
         if (withPop) {
