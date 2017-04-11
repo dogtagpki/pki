@@ -1,0 +1,20 @@
+sudo: required
+language: python
+
+services:
+  - docker
+
+env:
+  - CONTAINER=dogtagpki/pki-ci-containers:f25_104
+  - CONTAINER=dogtagpki/pki-ci-containers:f26_104
+  - CONTAINER=dogtagpki/pki-ci-containers:rawhide
+
+script:
+  - docker pull $CONTAINER
+  - >
+    docker run
+    -v $(pwd):/tmp/workdir/pki
+    -e UID=$(id -u)
+    -e GID=$(id -g)
+    $CONTAINER
+    /tmp/workdir/pki/.travis.test $CONTAINER
