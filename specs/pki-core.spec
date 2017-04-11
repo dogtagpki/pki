@@ -162,6 +162,7 @@ BuildRequires:    python3-flake8
 %endif
 %endif
 
+BuildRequires:    python2-cryptography
 BuildRequires:    python-nss
 BuildRequires:    python-requests >= 2.6.0
 BuildRequires:    python-six
@@ -194,6 +195,7 @@ BuildRequires:    tomcatjss >= 7.1.3
 %endif
 
 %if 0%{?with_python3}
+BuildRequires:  python3-cryptography
 BuildRequires:  python3-devel
 BuildRequires:  python3-nss
 BuildRequires:  python3-pyldap
@@ -395,6 +397,7 @@ Requires:         nss >= 3.28.3
 Requires:         nss >= 3.27.0
 %endif
 %endif
+Requires:         python2-cryptography
 Requires:         python-nss
 Requires:         python-requests >= 2.6.0
 Requires:         python-six
@@ -493,6 +496,7 @@ BuildArch:        noarch
 
 Requires:         pki-base = %{version}-%{release}
 
+Requires:         python3-cryptography
 Requires:         python3-nss
 Requires:         python3-requests >= 2.6.0
 Requires:         python3-six
@@ -1387,6 +1391,10 @@ fi
 %endif # %{with server}
 
 %changelog
+* Tue Apr 11 2017 Dogtag Team <pki-devel@redhat.com> 10.4.1-3.1
+- dogtagpki Pagure Issue #2633 - Missing python-cryptography dependencies
+  (mharmsen)
+
 * Mon Apr  3 2017 Dogtag Team <pki-devel@redhat.com> 10.4.1-3
 - dogtagpki Pagure Issue #1722 -  Installing pki-server in container reports
   scriptlet failed, exit status 1 (jpazdziora)
