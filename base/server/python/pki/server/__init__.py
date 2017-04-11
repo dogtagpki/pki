@@ -389,6 +389,20 @@ class PKISubsystem(object):
 
         pki.util.customize_file(input_file, output_file, params)
 
+    def get_audit_log_files(self):
+
+        current_file_path = self.config['log.instance.SignedAudit.fileName']
+        (log_dir, current_file) = os.path.split(current_file_path)
+
+        # sort log files based on timestamp
+        files = [f for f in os.listdir(log_dir) if f != current_file]
+        files.sort()
+
+        # put the current log file at the end
+        files.append(current_file)
+
+        return files
+
     def __repr__(self):
         return str(self.instance) + '/' + self.name
 

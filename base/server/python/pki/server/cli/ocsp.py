@@ -28,6 +28,7 @@ import sys
 import tempfile
 
 import pki.cli
+import pki.server.cli.audit
 
 
 class OCSPCLI(pki.cli.CLI):
@@ -37,6 +38,7 @@ class OCSPCLI(pki.cli.CLI):
             'ocsp', 'OCSP management commands')
 
         self.add_module(OCSPCloneCLI())
+        self.add_module(pki.server.cli.audit.AuditCLI(self))
 
 
 class OCSPCloneCLI(pki.cli.CLI):

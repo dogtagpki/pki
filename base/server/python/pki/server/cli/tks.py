@@ -28,6 +28,7 @@ import sys
 import tempfile
 
 import pki.cli
+import pki.server.cli.audit
 
 
 class TKSCLI(pki.cli.CLI):
@@ -37,6 +38,7 @@ class TKSCLI(pki.cli.CLI):
             'tks', 'TKS management commands')
 
         self.add_module(TKSCloneCLI())
+        self.add_module(pki.server.cli.audit.AuditCLI(self))
 
 
 class TKSCloneCLI(pki.cli.CLI):
