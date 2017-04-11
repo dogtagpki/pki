@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4f74a8ad_02e70397",
+        "filename": "base/common/src/org/dogtagpki/common/CAInfoClient.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-04-11T20:27:59Z",
+      "side": 1,
+      "message": "Should be CAInfoResource.",
+      "range": {
+        "startLine": 33,
+        "startChar": 11,
+        "endLine": 33,
+        "endChar": 23
+      },
+      "revId": "bf471eedae2f48b00d973638c0c09a1b0940216a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "92075bfc_04852ed0",
+        "filename": "base/common/src/org/dogtagpki/common/CAInfoClient.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-04-11T20:27:59Z",
+      "side": 1,
+      "message": "Should be CAInfoResource.",
+      "range": {
+        "startLine": 41,
+        "startChar": 31,
+        "endLine": 41,
+        "endChar": 43
+      },
+      "revId": "bf471eedae2f48b00d973638c0c09a1b0940216a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
