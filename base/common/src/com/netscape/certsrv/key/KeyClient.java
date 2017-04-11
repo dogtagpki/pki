@@ -27,6 +27,7 @@ import java.util.List;
 import javax.ws.rs.core.Response;
 
 import org.dogtagpki.common.Info;
+import org.dogtagpki.common.KRAInfoResource;
 import org.dogtagpki.common.Version;
 import org.mozilla.jss.crypto.EncryptionAlgorithm;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
@@ -49,6 +50,7 @@ public class KeyClient extends Client {
 
     public KeyResource keyClient;
     public KeyRequestResource keyRequestClient;
+    public KRAInfoResource kraInfoClient;
 
     private CryptoProvider crypto;
     private String transportCert;
@@ -92,6 +94,7 @@ public class KeyClient extends Client {
     public void init() throws URISyntaxException {
         keyClient = createProxy(KeyResource.class);
         keyRequestClient = createProxy(KeyRequestResource.class);
+        kraInfoClient = createProxy(KRAInfoResource.class);
     }
 
     public CryptoProvider getCrypto() {
