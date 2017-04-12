@@ -35,14 +35,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.legacy.policy.IPolicyProcessor;
 
-import netscape.security.pkcs.PKCS10;
-import netscape.security.x509.AlgorithmId;
-import netscape.security.x509.CertificateAlgorithmId;
-import netscape.security.x509.CertificateX509Key;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
-import netscape.security.x509.X509Key;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.IAuthSubsystem;
@@ -61,6 +53,7 @@ import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.event.CertRequestProcessedEvent;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.usrgrp.IGroup;
@@ -77,6 +70,14 @@ import com.netscape.cms.servlet.processors.KeyGenProcessor;
 import com.netscape.cms.servlet.processors.PKCS10Processor;
 import com.netscape.cms.servlet.processors.PKIProcessor;
 import com.netscape.cmsutil.util.Utils;
+
+import netscape.security.pkcs.PKCS10;
+import netscape.security.x509.AlgorithmId;
+import netscape.security.x509.CertificateAlgorithmId;
+import netscape.security.x509.CertificateX509Key;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509CertInfo;
+import netscape.security.x509.X509Key;
 
 /**
  * Submit a Certificate Enrollment request
@@ -1369,29 +1370,23 @@ public class EnrollServlet extends CMSServlet {
                     for (int i = 0; i < issuedCerts.length; i++) {
                         // (automated "agent" cert request processed
                         //  - "accepted")
-                        auditMessage = CMS.getLogMessage(
-                                    AuditEvent.CERT_REQUEST_PROCESSED,
+                        audit(new CertRequestProcessedEvent(
                                     auditSubjectID,
                                     ILogger.SUCCESS,
                                     auditRequesterID,
                                     ILogger.SIGNED_AUDIT_ACCEPTANCE,
-                                    auditInfoCertValue(issuedCerts[i]));
-
-                        audit(auditMessage);
+                                    auditInfoCertValue(issuedCerts[i])));
                     }
                 } catch (IOException ex) {
                     cmsReq.setStatus(ICMSRequest.ERROR);
 
                     // (automated "agent" cert request processed - "rejected")
-                    auditMessage = CMS.getLogMessage(
-                                AuditEvent.CERT_REQUEST_PROCESSED,
+                    audit(new CertRequestProcessedEvent(
                                 auditSubjectID,
                                 ILogger.FAILURE,
                                 auditRequesterID,
                                 ILogger.SIGNED_AUDIT_REJECTION,
-                                SIGNED_AUDIT_AUTOMATED_REJECTION_REASON[0]);
-
-                    audit(auditMessage);
+                                SIGNED_AUDIT_AUTOMATED_REJECTION_REASON[0]));
                 }
 
                 return;
@@ -1403,15 +1398,12 @@ public class EnrollServlet extends CMSServlet {
 
             if (completed == false) {
                 // (automated "agent" cert request processed - "rejected")
-                auditMessage = CMS.getLogMessage(
-                            AuditEvent.CERT_REQUEST_PROCESSED,
+                audit(new CertRequestProcessedEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditRequesterID,
                             ILogger.SIGNED_AUDIT_REJECTION,
-                            SIGNED_AUDIT_AUTOMATED_REJECTION_REASON[1]);
-
-                audit(auditMessage);
+                            SIGNED_AUDIT_AUTOMATED_REJECTION_REASON[1]));
 
                 return;
             }
@@ -1459,15 +1451,12 @@ public class EnrollServlet extends CMSServlet {
 
                 for (int i = 0; i < issuedCerts.length; i++) {
                     // (automated "agent" cert request processed - "accepted")
-                    auditMessage = CMS.getLogMessage(
-                                AuditEvent.CERT_REQUEST_PROCESSED,
+                    audit(new CertRequestProcessedEvent(
                                 auditSubjectID,
                                 ILogger.SUCCESS,
                                 auditRequesterID,
                                 ILogger.SIGNED_AUDIT_ACCEPTANCE,
-                                auditInfoCertValue(issuedCerts[i]));
-
-                    audit(auditMessage);
+                                auditInfoCertValue(issuedCerts[i])));
                 }
 
                 return;
@@ -1482,15 +1471,12 @@ public class EnrollServlet extends CMSServlet {
 
                 for (int i = 0; i < issuedCerts.length; i++) {
                     // (automated "agent" cert request processed - "accepted")
-                    auditMessage = CMS.getLogMessage(
-                                AuditEvent.CERT_REQUEST_PROCESSED,
+                    audit(new CertRequestProcessedEvent(
                                 auditSubjectID,
                                 ILogger.SUCCESS,
                                 auditRequesterID,
                                 ILogger.SIGNED_AUDIT_ACCEPTANCE,
-                                auditInfoCertValue(issuedCerts[i]));
-
-                    audit(auditMessage);
+                                auditInfoCertValue(issuedCerts[i])));
                 }
             } catch (IOException e) {
                 log(ILogger.LL_FAILURE,
@@ -1499,15 +1485,12 @@ public class EnrollServlet extends CMSServlet {
                                 e.toString()));
 
                 // (automated "agent" cert request processed - "rejected")
-                auditMessage = CMS.getLogMessage(
-                            AuditEvent.CERT_REQUEST_PROCESSED,
+                audit(new CertRequestProcessedEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditRequesterID,
                             ILogger.SIGNED_AUDIT_REJECTION,
-                            SIGNED_AUDIT_AUTOMATED_REJECTION_REASON[2]);
-
-                audit(auditMessage);
+                            SIGNED_AUDIT_AUTOMATED_REJECTION_REASON[2]));
 
                 throw new ECMSGWException(
                         CMS.getUserMessage("CMS_GW_RETURNING_RESULT_ERROR"));
@@ -1515,15 +1498,12 @@ public class EnrollServlet extends CMSServlet {
         } catch (EBaseException eAudit1) {
             // store a message in the signed audit log file
             // (automated "agent" cert request processed - "rejected")
-            auditMessage = CMS.getLogMessage(
-                        AuditEvent.CERT_REQUEST_PROCESSED,
+            audit(new CertRequestProcessedEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditRequesterID,
                         ILogger.SIGNED_AUDIT_REJECTION,
-                        SIGNED_AUDIT_AUTOMATED_REJECTION_REASON[3]);
-
-            audit(auditMessage);
+                        SIGNED_AUDIT_AUTOMATED_REJECTION_REASON[3]));
 
             throw eAudit1;
         }
