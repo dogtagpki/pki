@@ -55,6 +55,7 @@ import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IService;
@@ -91,22 +92,6 @@ public class NetkeyKeygenService implements IService {
     public final static String ATTR_PROOF_OF_ARCHIVAL =
             "proofOfArchival";
 
-    // private
-    private final static String LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST =
-            "LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST_4";
-    private final static String LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST_PROCESSED =
-            "LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST_PROCESSED_3";
-    // these need to be defined in LogMessages_en.properties later when we do this
-    private final static String LOGGING_SIGNED_AUDIT_SERVER_SIDE_KEYGEN_REQUEST =
-            "LOGGING_SIGNED_AUDIT_SERVER_SIDE_KEYGEN_REQUEST_3";
-    private final static String LOGGING_SIGNED_AUDIT_SERVER_SIDE_KEYGEN_REQUEST_PROCESSED_SUCCESS =
-            "LOGGING_SIGNED_AUDIT_SERVER_SIDE_KEYGEN_REQUEST_PROCESSED_SUCCESS_4";
-    private final static String LOGGING_SIGNED_AUDIT_SERVER_SIDE_KEYGEN_REQUEST_PROCESSED_FAILURE =
-            "LOGGING_SIGNED_AUDIT_SERVER_SIDE_KEYGEN_REQUEST_PROCESSED_FAILURE_3";
-    private final static String LOGGING_SIGNED_AUDIT_PRIVATE_KEY_EXPORT_REQUEST_PROCESSED_SUCCESS =
-            "LOGGING_SIGNED_AUDIT_PRIVATE_KEY_EXPORT_REQUEST_PROCESSED_SUCCESS_4";
-    private final static String LOGGING_SIGNED_AUDIT_PRIVATE_KEY_EXPORT_REQUEST_PROCESSED_FAILURE =
-            "LOGGING_SIGNED_AUDIT_PRIVATE_KEY_EXPORT_REQUEST_PROCESSED_FAILURE_4";
     private IKeyRecoveryAuthority mKRA = null;
     private ITransportKeyUnit mTransportUnit = null;
     private IStorageKeyUnit mStorageUnit = null;
@@ -384,7 +369,7 @@ public class NetkeyKeygenService implements IService {
         }
 
         auditMessage = CMS.getLogMessage(
-                LOGGING_SIGNED_AUDIT_SERVER_SIDE_KEYGEN_REQUEST,
+                AuditEvent.SERVER_SIDE_KEYGEN_REQUEST,
                 agentId,
                 ILogger.SUCCESS,
                 auditSubjectID);
@@ -455,7 +440,7 @@ public class NetkeyKeygenService implements IService {
                 request.setExtData(IRequest.RESULT, Integer.valueOf(4));
 
                 auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_SERVER_SIDE_KEYGEN_REQUEST_PROCESSED_FAILURE,
+                        AuditEvent.SERVER_SIDE_KEYGEN_REQUEST_PROCESSED_FAILURE,
                         agentId,
                         ILogger.FAILURE,
                         auditSubjectID);
@@ -487,7 +472,7 @@ public class NetkeyKeygenService implements IService {
                 }
 
                 auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_SERVER_SIDE_KEYGEN_REQUEST_PROCESSED_SUCCESS,
+                        AuditEvent.SERVER_SIDE_KEYGEN_REQUEST_PROCESSED_SUCCESS,
                         agentId,
                         ILogger.SUCCESS,
                         auditSubjectID,
@@ -550,7 +535,7 @@ public class NetkeyKeygenService implements IService {
                     request.setExtData(IRequest.RESULT, Integer.valueOf(4));
                     CMS.debug("NetkeyKeygenService: failed generating wrapped private key");
                     auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_PRIVATE_KEY_EXPORT_REQUEST_PROCESSED_FAILURE,
+                            AuditEvent.PRIVATE_KEY_EXPORT_REQUEST_PROCESSED_FAILURE,
                             agentId,
                             ILogger.FAILURE,
                             auditSubjectID,
@@ -561,7 +546,7 @@ public class NetkeyKeygenService implements IService {
                 } else {
                     request.setExtData("wrappedUserPrivate", wrappedPrivKeyString);
                     auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_PRIVATE_KEY_EXPORT_REQUEST_PROCESSED_SUCCESS,
+                            AuditEvent.PRIVATE_KEY_EXPORT_REQUEST_PROCESSED_SUCCESS,
                             agentId,
                             ILogger.SUCCESS,
                             auditSubjectID,
@@ -586,7 +571,7 @@ public class NetkeyKeygenService implements IService {
                     //            mKRA.log(ILogger.LL_INFO, "KRA encrypts internal private");
 
                     auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST,
+                            AuditEvent.PRIVATE_KEY_ARCHIVE_REQUEST,
                             agentId,
                             ILogger.SUCCESS,
                             auditSubjectID,
@@ -680,7 +665,7 @@ public class NetkeyKeygenService implements IService {
                     CMS.debug("NetkeyKeygenService: key archived for " + rCUID + ":" + rUserid);
 
                     auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST_PROCESSED,
+                            AuditEvent.PRIVATE_KEY_ARCHIVE_REQUEST_PROCESSED,
                             agentId,
                             ILogger.SUCCESS,
                             PubKey);

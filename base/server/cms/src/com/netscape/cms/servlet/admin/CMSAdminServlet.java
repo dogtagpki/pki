@@ -60,6 +60,7 @@ import com.netscape.certsrv.common.ScopeDef;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
@@ -109,8 +110,6 @@ public final class CMSAdminServlet extends AdminServlet {
             "LOGGING_SIGNED_AUDIT_CONFIG_ENCRYPTION_3";
     private final static String LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY =
             "LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY_3";
-    private final static String LOGGING_SIGNED_AUDIT_KEY_GEN_ASYMMETRIC =
-            "LOGGING_SIGNED_AUDIT_KEY_GEN_ASYMMETRIC_3";
     private final static String LOGGING_SIGNED_AUDIT_SELFTESTS_EXECUTION =
             "LOGGING_SIGNED_AUDIT_SELFTESTS_EXECUTION_2";
     private final static String LOGGING_SIGNED_AUDIT_CIMC_CERT_VERIFICATION =
@@ -1142,7 +1141,7 @@ public final class CMSAdminServlet extends AdminServlet {
                 if (nickname.equals("")) {
                     // store a message in the signed audit log file
                     auditMessage = CMS.getLogMessage(
-                                LOGGING_SIGNED_AUDIT_KEY_GEN_ASYMMETRIC,
+                                AuditEvent.KEY_GEN_ASYMMETRIC,
                                 auditSubjectID,
                                 ILogger.FAILURE,
                                 auditPublicKey);
@@ -1205,7 +1204,7 @@ public final class CMSAdminServlet extends AdminServlet {
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_KEY_GEN_ASYMMETRIC,
+                        AuditEvent.KEY_GEN_ASYMMETRIC,
                         auditSubjectID,
                         ILogger.SUCCESS,
                         auditPublicKey);
@@ -1217,7 +1216,7 @@ public final class CMSAdminServlet extends AdminServlet {
         } catch (EBaseException eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_KEY_GEN_ASYMMETRIC,
+                        AuditEvent.KEY_GEN_ASYMMETRIC,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditPublicKey);
@@ -1229,7 +1228,7 @@ public final class CMSAdminServlet extends AdminServlet {
         } catch (IOException eAudit2) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_KEY_GEN_ASYMMETRIC,
+                        AuditEvent.KEY_GEN_ASYMMETRIC,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditPublicKey);

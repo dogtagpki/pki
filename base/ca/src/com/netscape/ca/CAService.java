@@ -31,6 +31,44 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.authority.IAuthority;
+import com.netscape.certsrv.authority.ICertAuthority;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.MetaInfo;
+import com.netscape.certsrv.base.SessionContext;
+import com.netscape.certsrv.ca.AuthorityID;
+import com.netscape.certsrv.ca.CANotFoundException;
+import com.netscape.certsrv.ca.ECAException;
+import com.netscape.certsrv.ca.ICAService;
+import com.netscape.certsrv.ca.ICRLIssuingPoint;
+import com.netscape.certsrv.ca.ICertificateAuthority;
+import com.netscape.certsrv.connector.IConnector;
+import com.netscape.certsrv.dbs.Modification;
+import com.netscape.certsrv.dbs.ModificationSet;
+import com.netscape.certsrv.dbs.certdb.ICertRecord;
+import com.netscape.certsrv.dbs.certdb.ICertRecordList;
+import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
+import com.netscape.certsrv.logging.AuditEvent;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.profile.EProfileException;
+import com.netscape.certsrv.profile.IProfile;
+import com.netscape.certsrv.profile.IProfileSubsystem;
+import com.netscape.certsrv.request.IRequest;
+import com.netscape.certsrv.request.IService;
+import com.netscape.cmscore.base.SubsystemRegistry;
+import com.netscape.cmscore.connector.HttpConnector;
+import com.netscape.cmscore.connector.LocalConnector;
+import com.netscape.cmscore.connector.RemoteAuthority;
+import com.netscape.cmscore.crmf.CRMFParser;
+import com.netscape.cmscore.crmf.PKIArchiveOptionsContainer;
+import com.netscape.cmscore.dbs.CertRecord;
+import com.netscape.cmscore.dbs.CertificateRepository;
+import com.netscape.cmscore.dbs.RevocationInfo;
+import com.netscape.cmscore.util.Debug;
+import com.netscape.cmsutil.util.Utils;
+
 import netscape.security.extensions.CertInfo;
 import netscape.security.util.BigInt;
 import netscape.security.util.DerValue;
@@ -58,43 +96,6 @@ import netscape.security.x509.X509CertImpl;
 import netscape.security.x509.X509CertInfo;
 import netscape.security.x509.X509ExtensionException;
 
-import com.netscape.certsrv.apps.CMS;
-import com.netscape.certsrv.authority.IAuthority;
-import com.netscape.certsrv.authority.ICertAuthority;
-import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.MetaInfo;
-import com.netscape.certsrv.base.SessionContext;
-import com.netscape.certsrv.ca.AuthorityID;
-import com.netscape.certsrv.ca.CANotFoundException;
-import com.netscape.certsrv.ca.ECAException;
-import com.netscape.certsrv.ca.ICAService;
-import com.netscape.certsrv.ca.ICRLIssuingPoint;
-import com.netscape.certsrv.ca.ICertificateAuthority;
-import com.netscape.certsrv.connector.IConnector;
-import com.netscape.certsrv.dbs.Modification;
-import com.netscape.certsrv.dbs.ModificationSet;
-import com.netscape.certsrv.dbs.certdb.ICertRecord;
-import com.netscape.certsrv.dbs.certdb.ICertRecordList;
-import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
-import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.profile.EProfileException;
-import com.netscape.certsrv.profile.IProfile;
-import com.netscape.certsrv.profile.IProfileSubsystem;
-import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.request.IService;
-import com.netscape.cmscore.base.SubsystemRegistry;
-import com.netscape.cmscore.connector.HttpConnector;
-import com.netscape.cmscore.connector.LocalConnector;
-import com.netscape.cmscore.connector.RemoteAuthority;
-import com.netscape.cmscore.crmf.CRMFParser;
-import com.netscape.cmscore.crmf.PKIArchiveOptionsContainer;
-import com.netscape.cmscore.dbs.CertRecord;
-import com.netscape.cmscore.dbs.CertificateRepository;
-import com.netscape.cmscore.dbs.RevocationInfo;
-import com.netscape.cmscore.util.Debug;
-import com.netscape.cmsutil.util.Utils;
-
 /**
  * Request Service for CertificateAuthority.
  */
@@ -115,8 +116,6 @@ public class CAService implements ICAService, IService {
     private Hashtable<String, ICRLIssuingPoint> mCRLIssuingPoints = new Hashtable<String, ICRLIssuingPoint>();
 
     private ILogger mSignedAuditLogger = CMS.getSignedAuditLogger();
-    private final static String LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST =
-            "LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST_4";
 
     public CAService(ICertificateAuthority ca) {
         mCA = ca;
@@ -422,7 +421,7 @@ public class CAService implements ICAService, IService {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST,
+                        AuditEvent.PRIVATE_KEY_ARCHIVE_REQUEST,
                         auditSubjectID,
                         ILogger.SUCCESS,
                         auditRequesterID,
@@ -441,7 +440,7 @@ public class CAService implements ICAService, IService {
 
                         // store a message in the signed audit log file
                         auditMessage = CMS.getLogMessage(
-                                LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST,
+                                AuditEvent.PRIVATE_KEY_ARCHIVE_REQUEST,
                                 auditSubjectID,
                                 ILogger.FAILURE,
                                 auditRequesterID,
@@ -459,7 +458,7 @@ public class CAService implements ICAService, IService {
                     if (request.getExtDataInString(IRequest.ERROR) != null) {
                         // store a message in the signed audit log file
                         auditMessage = CMS.getLogMessage(
-                                LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST,
+                                AuditEvent.PRIVATE_KEY_ARCHIVE_REQUEST,
                                 auditSubjectID,
                                 ILogger.FAILURE,
                                 auditRequesterID,
@@ -486,7 +485,7 @@ public class CAService implements ICAService, IService {
             if (!(type.equals(IRequest.REVOCATION_REQUEST) ||
                     type.equals(IRequest.UNREVOCATION_REQUEST) || type.equals(IRequest.CMCREVOKE_REQUEST))) {
                 auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST,
+                        AuditEvent.PRIVATE_KEY_ARCHIVE_REQUEST,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditRequesterID,
@@ -506,7 +505,7 @@ public class CAService implements ICAService, IService {
                 type.equals(IRequest.UNREVOCATION_REQUEST) || type.equals(IRequest.CMCREVOKE_REQUEST))) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                    LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST,
+                    AuditEvent.PRIVATE_KEY_ARCHIVE_REQUEST,
                     auditSubjectID,
                     ILogger.SUCCESS,
                     auditRequesterID,

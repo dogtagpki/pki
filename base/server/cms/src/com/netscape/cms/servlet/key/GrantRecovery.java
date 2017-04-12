@@ -36,6 +36,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.kra.IKeyService;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -63,9 +64,6 @@ public class GrantRecovery extends CMSServlet {
 
     private IKeyService mService = null;
     private String mFormPath = null;
-
-    private final static String LOGGING_SIGNED_AUDIT_KEY_RECOVERY_AGENT_LOGIN =
-            "LOGGING_SIGNED_AUDIT_KEY_RECOVERY_AGENT_LOGIN_4";
 
     /**
      * Constructs EA servlet.
@@ -243,7 +241,7 @@ public class GrantRecovery extends CMSServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_KEY_RECOVERY_AGENT_LOGIN,
+                            AuditEvent.KEY_RECOVERY_AGENT_LOGIN,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditRecoveryID,
@@ -266,7 +264,7 @@ public class GrantRecovery extends CMSServlet {
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_KEY_RECOVERY_AGENT_LOGIN,
+                        AuditEvent.KEY_RECOVERY_AGENT_LOGIN,
                         auditSubjectID,
                         ILogger.SUCCESS,
                         auditRecoveryID,
@@ -279,7 +277,7 @@ public class GrantRecovery extends CMSServlet {
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_KEY_RECOVERY_AGENT_LOGIN,
+                        AuditEvent.KEY_RECOVERY_AGENT_LOGIN,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditRecoveryID,
@@ -291,7 +289,7 @@ public class GrantRecovery extends CMSServlet {
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_KEY_RECOVERY_AGENT_LOGIN,
+                        AuditEvent.KEY_RECOVERY_AGENT_LOGIN,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditRecoveryID,

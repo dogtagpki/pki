@@ -45,6 +45,7 @@ import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.kra.EKRAException;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IService;
@@ -89,11 +90,6 @@ public class TokenKeyRecoveryService implements IService {
     private IStorageKeyUnit mStorageUnit = null;
     private ITransportKeyUnit mTransportUnit = null;
 
-    private final static String LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST =
-            "LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_4";
-
-    private final static String LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED =
-            "LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED_4";
     private ILogger mSignedAuditLogger = CMS.getSignedAuditLogger();
 
     /**
@@ -271,7 +267,7 @@ public class TokenKeyRecoveryService implements IService {
             CMS.debug("TokenKeyRecoveryService: not receive des key");
             request.setExtData(IRequest.RESULT, Integer.valueOf(4));
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED,
+                        AuditEvent.KEY_RECOVERY_REQUEST_PROCESSED,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditRecoveryID,
@@ -289,7 +285,7 @@ public class TokenKeyRecoveryService implements IService {
             CMS.debug("TokenKeyRecoveryService: not receive cert or keyid");
             request.setExtData(IRequest.RESULT, Integer.valueOf(3));
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED,
+                        AuditEvent.KEY_RECOVERY_REQUEST_PROCESSED,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditRecoveryID,
@@ -310,7 +306,7 @@ public class TokenKeyRecoveryService implements IService {
                     CMS.debug("cert mapping failed");
                     request.setExtData(IRequest.RESULT, Integer.valueOf(5));
                     auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED,
+                            AuditEvent.KEY_RECOVERY_REQUEST_PROCESSED,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditRecoveryID,
@@ -323,7 +319,7 @@ public class TokenKeyRecoveryService implements IService {
                 CMS.debug("TokenKeyRecoveryService: mapCert failed");
                 request.setExtData(IRequest.RESULT, Integer.valueOf(6));
                 auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED,
+                        AuditEvent.KEY_RECOVERY_REQUEST_PROCESSED,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditRecoveryID,
@@ -362,7 +358,7 @@ public class TokenKeyRecoveryService implements IService {
                     CMS.debug("key record not found");
                     request.setExtData(IRequest.RESULT, Integer.valueOf(8));
                     auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED,
+                            AuditEvent.KEY_RECOVERY_REQUEST_PROCESSED,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditRecoveryID,
@@ -375,7 +371,7 @@ public class TokenKeyRecoveryService implements IService {
                 com.netscape.cmscore.util.Debug.printStackTrace(e);
                 request.setExtData(IRequest.RESULT, Integer.valueOf(9));
                 auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED,
+                        AuditEvent.KEY_RECOVERY_REQUEST_PROCESSED,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditRecoveryID,
@@ -409,7 +405,7 @@ public class TokenKeyRecoveryService implements IService {
                 if (inputPubData.length != pubData.length) {
                     mKRA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_PUBLIC_KEY_LEN"));
                     auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED,
+                            AuditEvent.KEY_RECOVERY_REQUEST_PROCESSED,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditRecoveryID,
@@ -424,7 +420,7 @@ public class TokenKeyRecoveryService implements IService {
                     if (pubData[i] != inputPubData[i]) {
                         mKRA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_PUBLIC_KEY_LEN"));
                         auditMessage = CMS.getLogMessage(
-                                LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED,
+                                AuditEvent.KEY_RECOVERY_REQUEST_PROCESSED,
                                 auditSubjectID,
                                 ILogger.FAILURE,
                                 auditRecoveryID,
@@ -447,7 +443,7 @@ public class TokenKeyRecoveryService implements IService {
                     request.setExtData(IRequest.RESULT, Integer.valueOf(4));
                     CMS.debug("TokenKeyRecoveryService: failed getting private key");
                     auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED,
+                        AuditEvent.KEY_RECOVERY_REQUEST_PROCESSED,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditRecoveryID,
@@ -477,7 +473,7 @@ public class TokenKeyRecoveryService implements IService {
                     mKRA.log(ILogger.LL_FAILURE,
                         CMS.getLogMessage("CMSCORE_KRA_PUBLIC_NOT_FOUND"));
                     auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED,
+                        AuditEvent.KEY_RECOVERY_REQUEST_PROCESSED,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditRecoveryID,
@@ -503,7 +499,7 @@ public class TokenKeyRecoveryService implements IService {
                     request.setExtData(IRequest.RESULT, Integer.valueOf(4));
                     CMS.debug("TokenKeyRecoveryService: failed getting private key");
                     auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED,
+                        AuditEvent.KEY_RECOVERY_REQUEST_PROCESSED,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditRecoveryID,
@@ -533,7 +529,7 @@ public class TokenKeyRecoveryService implements IService {
                 request.setExtData(IRequest.RESULT, Integer.valueOf(4));
                 CMS.debug("TokenKeyRecoveryService: failed generating wrapped private key");
                 auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED,
+                        AuditEvent.KEY_RECOVERY_REQUEST_PROCESSED,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditRecoveryID,
@@ -561,7 +557,7 @@ public class TokenKeyRecoveryService implements IService {
             }
 
             auditMessage = CMS.getLogMessage(
-                    LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST,
+                    AuditEvent.KEY_RECOVERY_REQUEST,
                     auditSubjectID,
                         ILogger.SUCCESS,
                     auditRecoveryID,
@@ -573,7 +569,7 @@ public class TokenKeyRecoveryService implements IService {
                 request.setExtData(IRequest.RESULT, Integer.valueOf(4));
                 CMS.debug("TokenKeyRecoveryService: failed getting publickey encoded");
                 auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED,
+                        AuditEvent.KEY_RECOVERY_REQUEST_PROCESSED,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditRecoveryID,
@@ -588,7 +584,7 @@ public class TokenKeyRecoveryService implements IService {
             }
             request.setExtData("public_key", PubKey);
             auditMessage = CMS.getLogMessage(
-                    LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED,
+                    AuditEvent.KEY_RECOVERY_REQUEST_PROCESSED,
                     auditSubjectID,
                     ILogger.SUCCESS,
                     auditRecoveryID,

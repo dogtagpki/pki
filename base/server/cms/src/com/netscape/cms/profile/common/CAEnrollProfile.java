@@ -29,6 +29,7 @@ import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.ICAService;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.connector.IConnector;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.profile.EProfileException;
@@ -48,9 +49,6 @@ import netscape.security.x509.X509CertInfo;
  * @version $Revision$, $Date$
  */
 public class CAEnrollProfile extends EnrollProfile {
-
-    private final static String LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST =
-            "LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST_4";
 
     public CAEnrollProfile() {
     }
@@ -120,7 +118,7 @@ public class CAEnrollProfile extends EnrollProfile {
                                 "not configured");
 
                         auditMessage = CMS.getLogMessage(
-                                LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST,
+                                AuditEvent.PRIVATE_KEY_ARCHIVE_REQUEST,
                                 auditSubjectID,
                                 ILogger.FAILURE,
                                 auditRequesterID,
@@ -135,7 +133,7 @@ public class CAEnrollProfile extends EnrollProfile {
                         // check response
                         if (!request.isSuccess()) {
                             auditMessage = CMS.getLogMessage(
-                                    LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST,
+                                    AuditEvent.PRIVATE_KEY_ARCHIVE_REQUEST,
                                     auditSubjectID,
                                     ILogger.FAILURE,
                                     auditRequesterID,
@@ -153,7 +151,7 @@ public class CAEnrollProfile extends EnrollProfile {
                         }
 
                         auditMessage = CMS.getLogMessage(
-                                LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST,
+                                AuditEvent.PRIVATE_KEY_ARCHIVE_REQUEST,
                                 auditSubjectID,
                                 ILogger.SUCCESS,
                                 auditRequesterID,
@@ -170,7 +168,7 @@ public class CAEnrollProfile extends EnrollProfile {
                     CMS.debug(e);
 
                     auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST,
+                            AuditEvent.PRIVATE_KEY_ARCHIVE_REQUEST,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditRequesterID,

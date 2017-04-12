@@ -35,6 +35,7 @@ import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -63,12 +64,6 @@ public class GetAsyncPk12 extends CMSServlet {
     private final static String OUT_ERROR = "errorDetails";
 
     private com.netscape.certsrv.kra.IKeyService mService = null;
-
-    private final static String LOGGING_SIGNED_AUDIT_PRIVATE_KEY_EXPORT_REQUEST_PROCESSED_SUCCESS =
-            "LOGGING_SIGNED_AUDIT_PRIVATE_KEY_EXPORT_REQUEST_PROCESSED_SUCCESS_4";
-
-    private final static String LOGGING_SIGNED_AUDIT_PRIVATE_KEY_EXPORT_REQUEST_PROCESSED_FAILURE =
-            "LOGGING_SIGNED_AUDIT_PRIVATE_KEY_EXPORT_REQUEST_PROCESSED_FAILURE_4";
 
     private String mFormPath = null;
 
@@ -213,7 +208,7 @@ public class GetAsyncPk12 extends CMSServlet {
                     mRenderResult = false;
 
                     auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_PRIVATE_KEY_EXPORT_REQUEST_PROCESSED_SUCCESS,
+                            AuditEvent.PRIVATE_KEY_EXPORT_REQUEST_PROCESSED_SUCCESS,
                             agent,
                             ILogger.SUCCESS,
                             reqID,
@@ -239,7 +234,7 @@ public class GetAsyncPk12 extends CMSServlet {
 
         if ((agent != null) && (reqID != null)) {
             auditMessage = CMS.getLogMessage(
-                    LOGGING_SIGNED_AUDIT_PRIVATE_KEY_EXPORT_REQUEST_PROCESSED_FAILURE,
+                    AuditEvent.PRIVATE_KEY_EXPORT_REQUEST_PROCESSED_FAILURE,
                     agent,
                     ILogger.FAILURE,
                     reqID,
