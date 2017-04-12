@@ -930,6 +930,17 @@ public class CAProcessor extends Processor {
     /******************************************
      * AUDIT FUNCTIONS (to be moved to Auditor?)
      ******************************************/
+
+    protected void audit(AuditEvent event) {
+
+        String template = event.getMessage();
+        Object[] params = event.getParameters();
+
+        String message = CMS.getLogMessage(template, params);
+
+        audit(message);
+    }
+
     protected void audit(String msg) {
         // in this case, do NOT strip preceding/trailing whitespace
         // from passed-in String parameters
