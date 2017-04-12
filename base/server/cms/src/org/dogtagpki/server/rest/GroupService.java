@@ -40,7 +40,7 @@ import com.netscape.certsrv.group.GroupData;
 import com.netscape.certsrv.group.GroupMemberData;
 import com.netscape.certsrv.group.GroupNotFoundException;
 import com.netscape.certsrv.group.GroupResource;
-import com.netscape.certsrv.logging.IAuditor;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IGroupConstants;
@@ -432,6 +432,6 @@ public class GroupService extends SubsystemService implements GroupResource {
     }
 
     public void audit(String type, String id, Map<String, String> params, String status) {
-        audit(IAuditor.LOGGING_SIGNED_AUDIT_CONFIG_ROLE, ScopeDef.SC_GROUPS, type, id, params, status);
+        audit(AuditEvent.CONFIG_ROLE, ScopeDef.SC_GROUPS, type, id, params, status);
     }
 }

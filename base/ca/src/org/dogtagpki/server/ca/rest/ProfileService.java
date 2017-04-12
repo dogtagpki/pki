@@ -90,9 +90,6 @@ public class ProfileService extends SubsystemService implements ProfileResource 
     private IProfileSubsystem ps = (IProfileSubsystem) CMS.getSubsystem(IProfileSubsystem.ID);
     private IPluginRegistry registry = (IPluginRegistry) CMS.getSubsystem(CMS.SUBSYSTEM_REGISTRY);
 
-    private final static String LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE =
-            "LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE_3";
-
     @Override
     public Response listProfiles(Integer start, Integer size) {
 
@@ -1198,7 +1195,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
 
     public void auditProfileChange(String scope, String type, String id, String status, Map<String, String> params) {
         String msg = CMS.getLogMessage(
-                LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
+                AuditEvent.CONFIG_CERT_PROFILE,
                 auditor.getSubjectID(),
                 status,
                 auditor.getParamString(scope, type, id, params));

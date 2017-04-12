@@ -39,6 +39,7 @@ import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.common.OpDef;
 import com.netscape.certsrv.common.ScopeDef;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.cmsutil.util.Utils;
@@ -61,9 +62,6 @@ public class CAAdminServlet extends AdminServlet {
     public final static String PROP_EMAIL_TEMPLATE = "emailTemplate";
 
     private final static String INFO = "CAAdminServlet";
-
-    private final static String LOGGING_SIGNED_AUDIT_CONFIG_CRL_PROFILE =
-            "LOGGING_SIGNED_AUDIT_CONFIG_CRL_PROFILE_3";
 
     private ICertificateAuthority mCA = null;
     protected static final String PROP_ENABLED = "enabled";
@@ -537,7 +535,7 @@ public class CAAdminServlet extends AdminServlet {
             if (ipId == null || ipId.length() == 0) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_CRL_PROFILE,
+                            AuditEvent.CONFIG_CRL_PROFILE,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -554,7 +552,7 @@ public class CAAdminServlet extends AdminServlet {
             if (desc == null) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_CRL_PROFILE,
+                            AuditEvent.CONFIG_CRL_PROFILE,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -587,7 +585,7 @@ public class CAAdminServlet extends AdminServlet {
                 if (ipId.equals(name)) {
                     // store a message in the signed audit log file
                     auditMessage = CMS.getLogMessage(
-                                LOGGING_SIGNED_AUDIT_CONFIG_CRL_PROFILE,
+                                AuditEvent.CONFIG_CRL_PROFILE,
                                 auditSubjectID,
                                 ILogger.FAILURE,
                                 auditParams(req));
@@ -601,7 +599,7 @@ public class CAAdminServlet extends AdminServlet {
             if (!mCA.addCRLIssuingPoint(crlSubStore, ipId, enable, desc)) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_CRL_PROFILE,
+                            AuditEvent.CONFIG_CRL_PROFILE,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -615,7 +613,7 @@ public class CAAdminServlet extends AdminServlet {
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_CRL_PROFILE,
+                        AuditEvent.CONFIG_CRL_PROFILE,
                         auditSubjectID,
                         ILogger.SUCCESS,
                         auditParams(req));
@@ -626,7 +624,7 @@ public class CAAdminServlet extends AdminServlet {
         } catch (EBaseException eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_CRL_PROFILE,
+                        AuditEvent.CONFIG_CRL_PROFILE,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));
@@ -638,7 +636,7 @@ public class CAAdminServlet extends AdminServlet {
         } catch (IOException eAudit2) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_CRL_PROFILE,
+                        AuditEvent.CONFIG_CRL_PROFILE,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));
@@ -693,7 +691,7 @@ public class CAAdminServlet extends AdminServlet {
             if (ipId == null || ipId.length() == 0) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_CRL_PROFILE,
+                            AuditEvent.CONFIG_CRL_PROFILE,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -710,7 +708,7 @@ public class CAAdminServlet extends AdminServlet {
             if (desc == null) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_CRL_PROFILE,
+                            AuditEvent.CONFIG_CRL_PROFILE,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -762,7 +760,7 @@ public class CAAdminServlet extends AdminServlet {
             if (!done) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_CRL_PROFILE,
+                            AuditEvent.CONFIG_CRL_PROFILE,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -776,7 +774,7 @@ public class CAAdminServlet extends AdminServlet {
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_CRL_PROFILE,
+                        AuditEvent.CONFIG_CRL_PROFILE,
                         auditSubjectID,
                         ILogger.SUCCESS,
                         auditParams(req));
@@ -787,7 +785,7 @@ public class CAAdminServlet extends AdminServlet {
         } catch (EBaseException eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_CRL_PROFILE,
+                        AuditEvent.CONFIG_CRL_PROFILE,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));
@@ -799,7 +797,7 @@ public class CAAdminServlet extends AdminServlet {
         } catch (IOException eAudit2) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_CRL_PROFILE,
+                        AuditEvent.CONFIG_CRL_PROFILE,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));
@@ -869,7 +867,7 @@ public class CAAdminServlet extends AdminServlet {
                 if (!done) {
                     // store a message in the signed audit log file
                     auditMessage = CMS.getLogMessage(
-                                LOGGING_SIGNED_AUDIT_CONFIG_CRL_PROFILE,
+                                AuditEvent.CONFIG_CRL_PROFILE,
                                 auditSubjectID,
                                 ILogger.FAILURE,
                                 auditParams(req));
@@ -884,7 +882,7 @@ public class CAAdminServlet extends AdminServlet {
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_CRL_PROFILE,
+                        AuditEvent.CONFIG_CRL_PROFILE,
                         auditSubjectID,
                         ILogger.SUCCESS,
                         auditParams(req));
@@ -895,7 +893,7 @@ public class CAAdminServlet extends AdminServlet {
         } catch (EBaseException eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_CRL_PROFILE,
+                        AuditEvent.CONFIG_CRL_PROFILE,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));
@@ -907,7 +905,7 @@ public class CAAdminServlet extends AdminServlet {
         } catch (IOException eAudit2) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_CRL_PROFILE,
+                        AuditEvent.CONFIG_CRL_PROFILE,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));
@@ -1039,7 +1037,7 @@ public class CAAdminServlet extends AdminServlet {
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_CRL_PROFILE,
+                        AuditEvent.CONFIG_CRL_PROFILE,
                         auditSubjectID,
                         ILogger.SUCCESS,
                         auditParams(req));
@@ -1050,7 +1048,7 @@ public class CAAdminServlet extends AdminServlet {
         } catch (EBaseException eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_CRL_PROFILE,
+                        AuditEvent.CONFIG_CRL_PROFILE,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));
@@ -1062,7 +1060,7 @@ public class CAAdminServlet extends AdminServlet {
         } catch (IOException eAudit2) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_CRL_PROFILE,
+                        AuditEvent.CONFIG_CRL_PROFILE,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));
@@ -1246,7 +1244,7 @@ public class CAAdminServlet extends AdminServlet {
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_CRL_PROFILE,
+                        AuditEvent.CONFIG_CRL_PROFILE,
                         auditSubjectID,
                         ILogger.SUCCESS,
                         auditParams(req));
@@ -1260,7 +1258,7 @@ public class CAAdminServlet extends AdminServlet {
         } catch (EBaseException eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_CRL_PROFILE,
+                        AuditEvent.CONFIG_CRL_PROFILE,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));
@@ -1272,7 +1270,7 @@ public class CAAdminServlet extends AdminServlet {
         } catch (IOException eAudit2) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_CRL_PROFILE,
+                        AuditEvent.CONFIG_CRL_PROFILE,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));

@@ -90,7 +90,7 @@ public class SecurityDomainProcessor extends CAProcessor {
 
         if (!ugSubsystem.isMemberOf(user, group)) {
             String message = CMS.getLogMessage(
-                    LOGGING_SIGNED_AUDIT_ROLE_ASSUME,
+                    AuditEvent.ROLE_ASSUME,
                     user,
                     ILogger.FAILURE,
                     group);
@@ -100,7 +100,7 @@ public class SecurityDomainProcessor extends CAProcessor {
         }
 
         String message = CMS.getLogMessage(
-                LOGGING_SIGNED_AUDIT_ROLE_ASSUME,
+                AuditEvent.ROLE_ASSUME,
                 user,
                 ILogger.SUCCESS,
                 group);

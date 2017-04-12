@@ -28,6 +28,7 @@ import com.netscape.certsrv.base.ConflictingOperationException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.SessionContext;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IEnrollProfile;
@@ -54,9 +55,6 @@ public class SubsystemGroupUpdater implements IProfileUpdater {
     private IConfigStore mConfig = null;
     private ILogger mSignedAuditLogger = CMS.getSignedAuditLogger();
     private Vector<String> mConfigNames = new Vector<String>();
-
-    private final static String LOGGING_SIGNED_AUDIT_CONFIG_ROLE =
-            "LOGGING_SIGNED_AUDIT_CONFIG_ROLE_3";
 
     public SubsystemGroupUpdater() {
     }
@@ -166,7 +164,7 @@ public class SubsystemGroupUpdater implements IProfileUpdater {
             system.addUser(user);
             CMS.debug("SubsystemGroupUpdater update: successfully add the user");
             auditMessage = CMS.getLogMessage(
-                               LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                               AuditEvent.CONFIG_ROLE,
                                auditSubjectID,
                                ILogger.SUCCESS,
                                auditParams);
@@ -196,7 +194,7 @@ public class SubsystemGroupUpdater implements IProfileUpdater {
             system.addUserCert(user);
             CMS.debug("SubsystemGroupUpdater update: successfully add the user certificate");
             auditMessage = CMS.getLogMessage(
-                               LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                               AuditEvent.CONFIG_ROLE,
                                auditSubjectID,
                                ILogger.SUCCESS,
                                auditParams);
@@ -209,7 +207,7 @@ public class SubsystemGroupUpdater implements IProfileUpdater {
         } catch (Exception e) {
             CMS.debug("UpdateSubsystemGroup: update addUser " + e.toString());
             auditMessage = CMS.getLogMessage(
-                               LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                               AuditEvent.CONFIG_ROLE,
                                auditSubjectID,
                                ILogger.FAILURE,
                                auditParams);
@@ -240,7 +238,7 @@ public class SubsystemGroupUpdater implements IProfileUpdater {
                 system.modifyGroup(group);
 
                 auditMessage = CMS.getLogMessage(
-                               LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                               AuditEvent.CONFIG_ROLE,
                                auditSubjectID,
                                ILogger.SUCCESS,
                                auditParams);
@@ -253,7 +251,7 @@ public class SubsystemGroupUpdater implements IProfileUpdater {
         } catch (Exception e) {
             CMS.debug("UpdateSubsystemGroup update: modifyGroup " + e.toString());
             auditMessage = CMS.getLogMessage(
-                               LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                               AuditEvent.CONFIG_ROLE,
                                auditSubjectID,
                                ILogger.FAILURE,
                                auditParams);

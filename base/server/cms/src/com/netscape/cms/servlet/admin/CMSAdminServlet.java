@@ -106,14 +106,6 @@ public final class CMSAdminServlet extends AdminServlet {
 
     private ILogger mSignedAuditLogger = CMS.getSignedAuditLogger();
     private final static byte EOL[] = { Character.LINE_SEPARATOR };
-    private final static String LOGGING_SIGNED_AUDIT_CONFIG_ENCRYPTION =
-            "LOGGING_SIGNED_AUDIT_CONFIG_ENCRYPTION_3";
-    private final static String LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY =
-            "LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY_3";
-    private final static String LOGGING_SIGNED_AUDIT_SELFTESTS_EXECUTION =
-            "LOGGING_SIGNED_AUDIT_SELFTESTS_EXECUTION_2";
-    private final static String LOGGING_SIGNED_AUDIT_CIMC_CERT_VERIFICATION =
-            "LOGGING_SIGNED_AUDIT_CIMC_CERT_VERIFICATION_3";
 
     // CMS must be instantiated before this admin servlet.
 
@@ -574,7 +566,7 @@ public final class CMSAdminServlet extends AdminServlet {
                         if (tokenizer.countTokens() != 2) {
                             // store a message in the signed audit log file
                             auditMessage = CMS.getLogMessage(
-                                        LOGGING_SIGNED_AUDIT_CONFIG_ENCRYPTION,
+                                        AuditEvent.CONFIG_ENCRYPTION,
                                         auditSubjectID,
                                         ILogger.FAILURE,
                                         auditParams(req));
@@ -599,7 +591,7 @@ public final class CMSAdminServlet extends AdminServlet {
                         } else
                             // store a message in the signed audit log file
                             auditMessage = CMS.getLogMessage(
-                                        LOGGING_SIGNED_AUDIT_CONFIG_ENCRYPTION,
+                                        AuditEvent.CONFIG_ENCRYPTION,
                                         auditSubjectID,
                                         ILogger.FAILURE,
                                         auditParams(req));
@@ -636,7 +628,7 @@ public final class CMSAdminServlet extends AdminServlet {
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_ENCRYPTION,
+                        AuditEvent.CONFIG_ENCRYPTION,
                         auditSubjectID,
                         ILogger.SUCCESS,
                         auditParams(req));
@@ -648,7 +640,7 @@ public final class CMSAdminServlet extends AdminServlet {
         } catch (EBaseException eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_ENCRYPTION,
+                        AuditEvent.CONFIG_ENCRYPTION,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));
@@ -660,7 +652,7 @@ public final class CMSAdminServlet extends AdminServlet {
         } catch (IOException eAudit2) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_ENCRYPTION,
+                        AuditEvent.CONFIG_ENCRYPTION,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));
@@ -1494,7 +1486,7 @@ public final class CMSAdminServlet extends AdminServlet {
             } else {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY,
+                            AuditEvent.CONFIG_TRUSTED_PUBLIC_KEY,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -1514,7 +1506,7 @@ public final class CMSAdminServlet extends AdminServlet {
             } else {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY,
+                            AuditEvent.CONFIG_TRUSTED_PUBLIC_KEY,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -1534,7 +1526,7 @@ public final class CMSAdminServlet extends AdminServlet {
             if (nickname.equals("")) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY,
+                            AuditEvent.CONFIG_TRUSTED_PUBLIC_KEY,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -1781,7 +1773,7 @@ public final class CMSAdminServlet extends AdminServlet {
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY,
+                        AuditEvent.CONFIG_TRUSTED_PUBLIC_KEY,
                         auditSubjectID,
                         ILogger.SUCCESS,
                         auditParams(req));
@@ -1794,7 +1786,7 @@ public final class CMSAdminServlet extends AdminServlet {
             CMS.debug("CMSAdminServlet: issueImportCert: EBaseException thrown: " + eAudit1.toString());
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY,
+                        AuditEvent.CONFIG_TRUSTED_PUBLIC_KEY,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));
@@ -1807,7 +1799,7 @@ public final class CMSAdminServlet extends AdminServlet {
             CMS.debug("CMSAdminServlet: issueImportCert: IOException thrown: " + eAudit2.toString());
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY,
+                        AuditEvent.CONFIG_TRUSTED_PUBLIC_KEY,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));
@@ -1900,7 +1892,7 @@ public final class CMSAdminServlet extends AdminServlet {
                     if (certpath == null || certpath.equals("")) {
                         // store a message in the signed audit log file
                         auditMessage = CMS.getLogMessage(
-                                LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY,
+                                AuditEvent.CONFIG_TRUSTED_PUBLIC_KEY,
                                 auditSubjectID,
                                 ILogger.FAILURE,
                                 auditParams(req));
@@ -1934,7 +1926,7 @@ public final class CMSAdminServlet extends AdminServlet {
             } catch (IOException ee) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY,
+                            AuditEvent.CONFIG_TRUSTED_PUBLIC_KEY,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -1964,7 +1956,7 @@ public final class CMSAdminServlet extends AdminServlet {
             } else {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY,
+                            AuditEvent.CONFIG_TRUSTED_PUBLIC_KEY,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -2193,7 +2185,7 @@ public final class CMSAdminServlet extends AdminServlet {
                 verified = true;
 
                 auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CIMC_CERT_VERIFICATION,
+                        AuditEvent.CIMC_CERT_VERIFICATION,
                         auditSubjectID,
                         ILogger.SUCCESS,
                                 nickname);
@@ -2203,7 +2195,7 @@ public final class CMSAdminServlet extends AdminServlet {
             } catch (Exception e) {
                 CMS.debug(e);
                 auditMessage = CMS.getLogMessage(
-                                LOGGING_SIGNED_AUDIT_CIMC_CERT_VERIFICATION,
+                                AuditEvent.CIMC_CERT_VERIFICATION,
                                 auditSubjectID,
                                 ILogger.FAILURE,
                                 nickname);
@@ -2213,7 +2205,7 @@ public final class CMSAdminServlet extends AdminServlet {
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY,
+                        AuditEvent.CONFIG_TRUSTED_PUBLIC_KEY,
                         auditSubjectID,
                         ILogger.SUCCESS,
                         auditParams(req));
@@ -2230,7 +2222,7 @@ public final class CMSAdminServlet extends AdminServlet {
         } catch (EBaseException eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY,
+                        AuditEvent.CONFIG_TRUSTED_PUBLIC_KEY,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));
@@ -2242,7 +2234,7 @@ public final class CMSAdminServlet extends AdminServlet {
         } catch (IOException eAudit2) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY,
+                        AuditEvent.CONFIG_TRUSTED_PUBLIC_KEY,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));
@@ -2319,7 +2311,7 @@ public final class CMSAdminServlet extends AdminServlet {
                     if (certpath == null || certpath.equals("")) {
                         // store a message in the signed audit log file
                         auditMessage = CMS.getLogMessage(
-                                LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY,
+                                AuditEvent.CONFIG_TRUSTED_PUBLIC_KEY,
                                 auditSubjectID,
                                 ILogger.FAILURE,
                                 auditParams(req));
@@ -2352,7 +2344,7 @@ public final class CMSAdminServlet extends AdminServlet {
             } catch (IOException ee) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY,
+                            AuditEvent.CONFIG_TRUSTED_PUBLIC_KEY,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -2386,7 +2378,7 @@ public final class CMSAdminServlet extends AdminServlet {
             } catch (Exception e) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY,
+                            AuditEvent.CONFIG_TRUSTED_PUBLIC_KEY,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -2405,7 +2397,7 @@ public final class CMSAdminServlet extends AdminServlet {
             } catch (EBaseException e) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY,
+                            AuditEvent.CONFIG_TRUSTED_PUBLIC_KEY,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -2426,7 +2418,7 @@ public final class CMSAdminServlet extends AdminServlet {
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY,
+                        AuditEvent.CONFIG_TRUSTED_PUBLIC_KEY,
                         auditSubjectID,
                         ILogger.SUCCESS,
                         auditParams(req));
@@ -2437,7 +2429,7 @@ public final class CMSAdminServlet extends AdminServlet {
         } catch (EBaseException eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY,
+                        AuditEvent.CONFIG_TRUSTED_PUBLIC_KEY,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));
@@ -2449,7 +2441,7 @@ public final class CMSAdminServlet extends AdminServlet {
         } catch (IOException eAudit2) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY,
+                        AuditEvent.CONFIG_TRUSTED_PUBLIC_KEY,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));
@@ -2952,7 +2944,7 @@ public final class CMSAdminServlet extends AdminServlet {
             jssSubSystem.setRootCertTrust(nickname, serialno, issuername, trust);
         } catch (EBaseException e) {
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY,
+                        AuditEvent.CONFIG_TRUSTED_PUBLIC_KEY,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));
@@ -2964,7 +2956,7 @@ public final class CMSAdminServlet extends AdminServlet {
 
         // store a message in the signed audit log file
         auditMessage = CMS.getLogMessage(
-                    LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY,
+                    AuditEvent.CONFIG_TRUSTED_PUBLIC_KEY,
                     auditSubjectID,
                     ILogger.SUCCESS,
                     auditParams(req));
@@ -3020,7 +3012,7 @@ public final class CMSAdminServlet extends AdminServlet {
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY,
+                        AuditEvent.CONFIG_TRUSTED_PUBLIC_KEY,
                         auditSubjectID,
                         ILogger.SUCCESS,
                         auditParams(req));
@@ -3032,7 +3024,7 @@ public final class CMSAdminServlet extends AdminServlet {
         } catch (EBaseException eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY,
+                        AuditEvent.CONFIG_TRUSTED_PUBLIC_KEY,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));
@@ -3044,7 +3036,7 @@ public final class CMSAdminServlet extends AdminServlet {
         } catch (IOException eAudit2) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY,
+                        AuditEvent.CONFIG_TRUSTED_PUBLIC_KEY,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));
@@ -3132,7 +3124,7 @@ public final class CMSAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_SELFTESTS_EXECUTION,
+                            AuditEvent.SELFTESTS_EXECUTION,
                             auditSubjectID,
                             ILogger.FAILURE);
 
@@ -3185,7 +3177,7 @@ public final class CMSAdminServlet extends AdminServlet {
 
                         // store a message in the signed audit log file
                         auditMessage = CMS.getLogMessage(
-                                    LOGGING_SIGNED_AUDIT_SELFTESTS_EXECUTION,
+                                    AuditEvent.SELFTESTS_EXECUTION,
                                     auditSubjectID,
                                     ILogger.FAILURE);
 
@@ -3215,7 +3207,7 @@ public final class CMSAdminServlet extends AdminServlet {
 
                         // store a message in the signed audit log file
                         auditMessage = CMS.getLogMessage(
-                                    LOGGING_SIGNED_AUDIT_SELFTESTS_EXECUTION,
+                                    AuditEvent.SELFTESTS_EXECUTION,
                                     auditSubjectID,
                                     ILogger.FAILURE);
 
@@ -3268,7 +3260,7 @@ public final class CMSAdminServlet extends AdminServlet {
 
                             // store a message in the signed audit log file
                             auditMessage = CMS.getLogMessage(
-                                        LOGGING_SIGNED_AUDIT_SELFTESTS_EXECUTION,
+                                        AuditEvent.SELFTESTS_EXECUTION,
                                         auditSubjectID,
                                         ILogger.FAILURE);
 
@@ -3316,7 +3308,7 @@ public final class CMSAdminServlet extends AdminServlet {
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_SELFTESTS_EXECUTION,
+                        AuditEvent.SELFTESTS_EXECUTION,
                         auditSubjectID,
                         ILogger.SUCCESS);
 
@@ -3336,7 +3328,7 @@ public final class CMSAdminServlet extends AdminServlet {
         } catch (EMissingSelfTestException eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_SELFTESTS_EXECUTION,
+                        AuditEvent.SELFTESTS_EXECUTION,
                         auditSubjectID,
                         ILogger.FAILURE);
 
@@ -3347,7 +3339,7 @@ public final class CMSAdminServlet extends AdminServlet {
         } catch (ESelfTestException eAudit2) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_SELFTESTS_EXECUTION,
+                        AuditEvent.SELFTESTS_EXECUTION,
                         auditSubjectID,
                         ILogger.FAILURE);
 
@@ -3358,7 +3350,7 @@ public final class CMSAdminServlet extends AdminServlet {
         } catch (IOException eAudit3) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_SELFTESTS_EXECUTION,
+                        AuditEvent.SELFTESTS_EXECUTION,
                         auditSubjectID,
                         ILogger.FAILURE);
 

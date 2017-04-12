@@ -32,6 +32,7 @@ import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.common.OpDef;
 import com.netscape.certsrv.common.ScopeDef;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 
 /**
@@ -53,9 +54,6 @@ public class KRAAdminServlet extends AdminServlet {
     private final static String INFO = "KRAAdminServlet";
 
     private IKeyRecoveryAuthority mKRA = null;
-
-    private final static String LOGGING_SIGNED_AUDIT_CONFIG_DRM =
-            "LOGGING_SIGNED_AUDIT_CONFIG_DRM_3";
 
     /**
      * Constructs KRA servlet.
@@ -204,7 +202,7 @@ public class KRAAdminServlet extends AdminServlet {
                     mKRA.setNoOfRequiredAgents(number);
                 } catch (NumberFormatException e) {
                     auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_DRM,
+                            AuditEvent.CONFIG_DRM,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -218,7 +216,7 @@ public class KRAAdminServlet extends AdminServlet {
         commit(true);
 
         auditMessage = CMS.getLogMessage(
-                LOGGING_SIGNED_AUDIT_CONFIG_DRM,
+                AuditEvent.CONFIG_DRM,
                 auditSubjectID,
                 ILogger.SUCCESS,
                 auditParams(req));

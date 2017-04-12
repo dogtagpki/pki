@@ -34,6 +34,7 @@ import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.common.OpDef;
 import com.netscape.certsrv.common.ScopeDef;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IPolicyConstraint;
@@ -87,9 +88,6 @@ public class ProfileAdminServlet extends AdminServlet {
     public static String COMMA = ",";
     public static String MISSING_POLICY_ORDERING = "Missing policy ordering";
     public static String BAD_CONFIGURATION_VAL = "Invalid configuration value.";
-
-    private final static String LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE =
-            "LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE_3";
 
     /**
      * Constructs administration servlet.
@@ -425,7 +423,7 @@ public class ProfileAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
+                            AuditEvent.CONFIG_CERT_PROFILE,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -475,7 +473,7 @@ public class ProfileAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
+                            AuditEvent.CONFIG_CERT_PROFILE,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -492,7 +490,7 @@ public class ProfileAdminServlet extends AdminServlet {
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
+                        AuditEvent.CONFIG_CERT_PROFILE,
                         auditSubjectID,
                         ILogger.SUCCESS,
                         auditParams(req));
@@ -503,7 +501,7 @@ public class ProfileAdminServlet extends AdminServlet {
         } catch (IOException eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
+                        AuditEvent.CONFIG_CERT_PROFILE,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));
@@ -566,7 +564,7 @@ public class ProfileAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
+                            AuditEvent.CONFIG_CERT_PROFILE,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -599,7 +597,7 @@ public class ProfileAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
+                            AuditEvent.CONFIG_CERT_PROFILE,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -617,7 +615,7 @@ public class ProfileAdminServlet extends AdminServlet {
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
+                        AuditEvent.CONFIG_CERT_PROFILE,
                         auditSubjectID,
                         ILogger.SUCCESS,
                         auditParams(req));
@@ -628,7 +626,7 @@ public class ProfileAdminServlet extends AdminServlet {
         } catch (IOException eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
+                        AuditEvent.CONFIG_CERT_PROFILE,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));
@@ -691,7 +689,7 @@ public class ProfileAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
+                            AuditEvent.CONFIG_CERT_PROFILE,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -725,7 +723,7 @@ public class ProfileAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
+                            AuditEvent.CONFIG_CERT_PROFILE,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -743,7 +741,7 @@ public class ProfileAdminServlet extends AdminServlet {
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
+                        AuditEvent.CONFIG_CERT_PROFILE,
                         auditSubjectID,
                         ILogger.SUCCESS,
                         auditParams(req));
@@ -754,7 +752,7 @@ public class ProfileAdminServlet extends AdminServlet {
         } catch (IOException eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
+                        AuditEvent.CONFIG_CERT_PROFILE,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));
@@ -826,7 +824,7 @@ public class ProfileAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
+                            AuditEvent.CONFIG_CERT_PROFILE,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -848,7 +846,7 @@ public class ProfileAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
+                            AuditEvent.CONFIG_CERT_PROFILE,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -863,7 +861,7 @@ public class ProfileAdminServlet extends AdminServlet {
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
+                        AuditEvent.CONFIG_CERT_PROFILE,
                         auditSubjectID,
                         ILogger.SUCCESS,
                         auditParams(req));
@@ -874,7 +872,7 @@ public class ProfileAdminServlet extends AdminServlet {
         } catch (IOException eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
+                        AuditEvent.CONFIG_CERT_PROFILE,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));
@@ -948,7 +946,7 @@ public class ProfileAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
+                            AuditEvent.CONFIG_CERT_PROFILE,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -965,7 +963,7 @@ public class ProfileAdminServlet extends AdminServlet {
             } catch (EBaseException e1) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
+                            AuditEvent.CONFIG_CERT_PROFILE,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -980,7 +978,7 @@ public class ProfileAdminServlet extends AdminServlet {
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
+                        AuditEvent.CONFIG_CERT_PROFILE,
                         auditSubjectID,
                         ILogger.SUCCESS,
                         auditParams(req));
@@ -991,7 +989,7 @@ public class ProfileAdminServlet extends AdminServlet {
         } catch (IOException eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
+                        AuditEvent.CONFIG_CERT_PROFILE,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));
@@ -1065,7 +1063,7 @@ public class ProfileAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
+                            AuditEvent.CONFIG_CERT_PROFILE,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -1082,7 +1080,7 @@ public class ProfileAdminServlet extends AdminServlet {
             } catch (EBaseException e1) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
+                            AuditEvent.CONFIG_CERT_PROFILE,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -1097,7 +1095,7 @@ public class ProfileAdminServlet extends AdminServlet {
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
+                        AuditEvent.CONFIG_CERT_PROFILE,
                         auditSubjectID,
                         ILogger.SUCCESS,
                         auditParams(req));
@@ -1108,7 +1106,7 @@ public class ProfileAdminServlet extends AdminServlet {
         } catch (IOException eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
+                        AuditEvent.CONFIG_CERT_PROFILE,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));
@@ -1170,7 +1168,7 @@ public class ProfileAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
+                            AuditEvent.CONFIG_CERT_PROFILE,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -1219,7 +1217,7 @@ public class ProfileAdminServlet extends AdminServlet {
             } catch (Exception e) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
+                            AuditEvent.CONFIG_CERT_PROFILE,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -1233,7 +1231,7 @@ public class ProfileAdminServlet extends AdminServlet {
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
+                        AuditEvent.CONFIG_CERT_PROFILE,
                         auditSubjectID,
                         ILogger.SUCCESS,
                         auditParams(req));
@@ -1244,7 +1242,7 @@ public class ProfileAdminServlet extends AdminServlet {
         } catch (IOException eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
+                        AuditEvent.CONFIG_CERT_PROFILE,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));
@@ -1306,7 +1304,7 @@ public class ProfileAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
+                            AuditEvent.CONFIG_CERT_PROFILE,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -1356,7 +1354,7 @@ public class ProfileAdminServlet extends AdminServlet {
             } catch (Exception e) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
+                            AuditEvent.CONFIG_CERT_PROFILE,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -1371,7 +1369,7 @@ public class ProfileAdminServlet extends AdminServlet {
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
+                        AuditEvent.CONFIG_CERT_PROFILE,
                         auditSubjectID,
                         ILogger.SUCCESS,
                         auditParams(req));
@@ -1382,7 +1380,7 @@ public class ProfileAdminServlet extends AdminServlet {
         } catch (IOException eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
+                        AuditEvent.CONFIG_CERT_PROFILE,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));
@@ -1444,7 +1442,7 @@ public class ProfileAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
+                            AuditEvent.CONFIG_CERT_PROFILE,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -1488,7 +1486,7 @@ public class ProfileAdminServlet extends AdminServlet {
             } catch (Exception e) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
+                            AuditEvent.CONFIG_CERT_PROFILE,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -1502,7 +1500,7 @@ public class ProfileAdminServlet extends AdminServlet {
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
+                        AuditEvent.CONFIG_CERT_PROFILE,
                         auditSubjectID,
                         ILogger.SUCCESS,
                         auditParams(req));
@@ -1513,7 +1511,7 @@ public class ProfileAdminServlet extends AdminServlet {
         } catch (IOException eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
+                        AuditEvent.CONFIG_CERT_PROFILE,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));
@@ -1575,7 +1573,7 @@ public class ProfileAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
+                            AuditEvent.CONFIG_CERT_PROFILE,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -1607,7 +1605,7 @@ public class ProfileAdminServlet extends AdminServlet {
             } catch (Exception e) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
+                            AuditEvent.CONFIG_CERT_PROFILE,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -1621,7 +1619,7 @@ public class ProfileAdminServlet extends AdminServlet {
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
+                        AuditEvent.CONFIG_CERT_PROFILE,
                         auditSubjectID,
                         ILogger.SUCCESS,
                         auditParams(req));
@@ -1632,7 +1630,7 @@ public class ProfileAdminServlet extends AdminServlet {
         } catch (IOException eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
+                        AuditEvent.CONFIG_CERT_PROFILE,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));
@@ -1694,7 +1692,7 @@ public class ProfileAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
+                            AuditEvent.CONFIG_CERT_PROFILE,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -1727,7 +1725,7 @@ public class ProfileAdminServlet extends AdminServlet {
             } catch (Exception e) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
+                            AuditEvent.CONFIG_CERT_PROFILE,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -1741,7 +1739,7 @@ public class ProfileAdminServlet extends AdminServlet {
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
+                        AuditEvent.CONFIG_CERT_PROFILE,
                         auditSubjectID,
                         ILogger.SUCCESS,
                         auditParams(req));
@@ -1752,7 +1750,7 @@ public class ProfileAdminServlet extends AdminServlet {
         } catch (IOException eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
+                        AuditEvent.CONFIG_CERT_PROFILE,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));
@@ -1814,7 +1812,7 @@ public class ProfileAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
+                            AuditEvent.CONFIG_CERT_PROFILE,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -1861,7 +1859,7 @@ public class ProfileAdminServlet extends AdminServlet {
             } catch (Exception e) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
+                            AuditEvent.CONFIG_CERT_PROFILE,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -1876,7 +1874,7 @@ public class ProfileAdminServlet extends AdminServlet {
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
+                        AuditEvent.CONFIG_CERT_PROFILE,
                         auditSubjectID,
                         ILogger.SUCCESS,
                         auditParams(req));
@@ -1887,7 +1885,7 @@ public class ProfileAdminServlet extends AdminServlet {
         } catch (IOException eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
+                        AuditEvent.CONFIG_CERT_PROFILE,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));
@@ -2278,7 +2276,7 @@ public class ProfileAdminServlet extends AdminServlet {
             if (id == null) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
+                            AuditEvent.CONFIG_CERT_PROFILE,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -2294,7 +2292,7 @@ public class ProfileAdminServlet extends AdminServlet {
             } catch (EProfileException e) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
+                            AuditEvent.CONFIG_CERT_PROFILE,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -2307,7 +2305,7 @@ public class ProfileAdminServlet extends AdminServlet {
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
+                        AuditEvent.CONFIG_CERT_PROFILE,
                         auditSubjectID,
                         ILogger.SUCCESS,
                         auditParams(req));
@@ -2318,7 +2316,7 @@ public class ProfileAdminServlet extends AdminServlet {
         } catch (IOException eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
+                        AuditEvent.CONFIG_CERT_PROFILE,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));
@@ -2391,7 +2389,7 @@ public class ProfileAdminServlet extends AdminServlet {
             if (id == null || id.trim().equals("") || !isValidId(id)) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
+                            AuditEvent.CONFIG_CERT_PROFILE,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -2441,7 +2439,7 @@ public class ProfileAdminServlet extends AdminServlet {
             } catch (EBaseException e) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
+                        AuditEvent.CONFIG_CERT_PROFILE,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));
@@ -2480,7 +2478,7 @@ public class ProfileAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
+                            AuditEvent.CONFIG_CERT_PROFILE,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -2493,7 +2491,7 @@ public class ProfileAdminServlet extends AdminServlet {
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
+                        AuditEvent.CONFIG_CERT_PROFILE,
                         auditSubjectID,
                         ILogger.SUCCESS,
                         auditParams(req));
@@ -2504,7 +2502,7 @@ public class ProfileAdminServlet extends AdminServlet {
         } catch (IOException eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
+                        AuditEvent.CONFIG_CERT_PROFILE,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));
@@ -2563,7 +2561,7 @@ public class ProfileAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
+                            AuditEvent.CONFIG_CERT_PROFILE,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -2591,7 +2589,7 @@ public class ProfileAdminServlet extends AdminServlet {
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
+                        AuditEvent.CONFIG_CERT_PROFILE,
                         auditSubjectID,
                         ILogger.SUCCESS,
                         auditParams(req));
@@ -2607,7 +2605,7 @@ public class ProfileAdminServlet extends AdminServlet {
         } catch (IOException eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
+                        AuditEvent.CONFIG_CERT_PROFILE,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));

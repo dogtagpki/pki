@@ -63,9 +63,6 @@ public class UpdateDomainXML extends CMSServlet {
     private static final long serialVersionUID = 4059169588555717548L;
     private final static String SUCCESS = "0";
     private final static String FAILED = "1";
-    private final static String LOGGING_SIGNED_AUDIT_CONFIG_ROLE =
-            "LOGGING_SIGNED_AUDIT_CONFIG_ROLE_3";
-
     public UpdateDomainXML() {
         super();
     }
@@ -372,7 +369,7 @@ public class UpdateDomainXML extends CMSServlet {
                     status2 = remove_from_ldap(adminUserDN);
                     if (status2.equals(SUCCESS)) {
                         auditMessage = CMS.getLogMessage(
-                                               LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                                               AuditEvent.CONFIG_ROLE,
                                                auditSubjectID,
                                                ILogger.SUCCESS,
                                                userAuditParams);
@@ -388,13 +385,13 @@ public class UpdateDomainXML extends CMSServlet {
                         status2 = modify_ldap(dn, mod);
                         if (status2.equals(SUCCESS)) {
                             auditMessage = CMS.getLogMessage(
-                                                   LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                                                   AuditEvent.CONFIG_ROLE,
                                                    auditSubjectID,
                                                    ILogger.SUCCESS,
                                                    userAuditParams);
                         } else {
                             auditMessage = CMS.getLogMessage(
-                                                   LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                                                   AuditEvent.CONFIG_ROLE,
                                                    auditSubjectID,
                                                    ILogger.FAILURE,
                                                    userAuditParams);
@@ -402,7 +399,7 @@ public class UpdateDomainXML extends CMSServlet {
                         audit(auditMessage);
                     } else { // error deleting user
                         auditMessage = CMS.getLogMessage(
-                                               LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                                               AuditEvent.CONFIG_ROLE,
                                                auditSubjectID,
                                                ILogger.FAILURE,
                                                userAuditParams);

@@ -34,6 +34,7 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ConsoleError;
 import com.netscape.certsrv.logging.ELogException;
 import com.netscape.certsrv.logging.ILogEvent;
@@ -94,9 +95,6 @@ public class RollingLogFile extends LogFile {
      * The object used as a lock for expiration thread synchronization
      */
     private Object mExpLock = new Object();
-
-    private final static String LOGGING_SIGNED_AUDIT_LOG_DELETE =
-            "LOGGING_SIGNED_AUDIT_LOG_DELETE_3";
 
     /**
      * Construct a RollingLogFile
@@ -351,14 +349,14 @@ public class RollingLogFile extends LogFile {
                 if (file.exists()) {
                     // log failure in deleting an expired signed audit log file
                     auditMessage = CMS.getLogMessage(
-                                LOGGING_SIGNED_AUDIT_LOG_DELETE,
+                                AuditEvent.AUDIT_LOG_DELETE,
                                 ILogger.SYSTEM_UID,
                                 ILogger.FAILURE,
                                 fullname);
                 } else {
                     // log success in deleting an expired signed audit log file
                     auditMessage = CMS.getLogMessage(
-                                LOGGING_SIGNED_AUDIT_LOG_DELETE,
+                                AuditEvent.AUDIT_LOG_DELETE,
                                 ILogger.SYSTEM_UID,
                                 ILogger.SUCCESS,
                                 fullname);

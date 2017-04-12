@@ -102,10 +102,6 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
     static final String PROP_BUFFER_SIZE = "bufferSize";
     static final String PROP_FLUSH_INTERVAL = "flushInterval";
 
-    private final static String LOGGING_SIGNED_AUDIT_AUDIT_LOG_STARTUP =
-                               "LOGGING_SIGNED_AUDIT_AUDIT_LOG_STARTUP_2";
-    private final static String LOGGING_SIGNED_AUDIT_AUDIT_LOG_SHUTDOWN =
-                               "LOGGING_SIGNED_AUDIT_AUDIT_LOG_SHUTDOWN_2";
     private final static String LOG_SIGNED_AUDIT_EXCEPTION =
                                "LOG_SIGNED_AUDIT_EXCEPTION_1";
 
@@ -647,12 +643,12 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
             try {
                 setupSigning();
                 audit(CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_AUDIT_LOG_STARTUP,
+                        AuditEvent.AUDIT_LOG_STARTUP,
                         ILogger.SYSTEM_UID,
                         ILogger.SUCCESS));
             } catch (EBaseException e) {
                 audit(CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_AUDIT_LOG_STARTUP,
+                        AuditEvent.AUDIT_LOG_STARTUP,
                         ILogger.SYSTEM_UID,
                         ILogger.FAILURE));
                 throw e;
@@ -872,7 +868,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
 
         // log signed audit shutdown success
         auditMessage = CMS.getLogMessage(
-                           LOGGING_SIGNED_AUDIT_AUDIT_LOG_SHUTDOWN,
+                           AuditEvent.AUDIT_LOG_SHUTDOWN,
                            ILogger.SYSTEM_UID,
                            ILogger.SUCCESS);
 

@@ -43,8 +43,8 @@ import com.netscape.certsrv.group.GroupMemberCollection;
 import com.netscape.certsrv.group.GroupMemberData;
 import com.netscape.certsrv.group.GroupNotFoundException;
 import com.netscape.certsrv.group.GroupResource;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.AuditFormat;
-import com.netscape.certsrv.logging.IAuditor;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
@@ -388,6 +388,6 @@ public class GroupMemberProcessor extends Processor {
     }
 
     public void audit(String type, String id, Map<String, String> params, String status) {
-        audit(IAuditor.LOGGING_SIGNED_AUDIT_CONFIG_ROLE, ScopeDef.SC_GROUP_MEMBERS, type, id, params, status);
+        audit(AuditEvent.CONFIG_ROLE, ScopeDef.SC_GROUP_MEMBERS, type, id, params, status);
     }
 }

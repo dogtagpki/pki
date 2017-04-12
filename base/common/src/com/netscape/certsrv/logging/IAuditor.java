@@ -25,9 +25,6 @@ import java.util.Map;
  */
 public interface IAuditor {
 
-    public final static String LOGGING_SIGNED_AUDIT_CONFIG_ROLE =
-            "LOGGING_SIGNED_AUDIT_CONFIG_ROLE_3";
-
     public final static String SIGNED_AUDIT_SCOPE = "Scope";
     public final static String SIGNED_AUDIT_OPERATION = "Operation";
     public final static String SIGNED_AUDIT_RESOURCE = "Resource";

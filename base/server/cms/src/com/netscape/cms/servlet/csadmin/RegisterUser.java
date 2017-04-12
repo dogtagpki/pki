@@ -36,6 +36,7 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.usrgrp.ICertUserLocator;
 import com.netscape.certsrv.usrgrp.IGroup;
@@ -65,9 +66,6 @@ public class RegisterUser extends CMSServlet {
     private final static String SUCCESS = "0";
     private final static String AUTH_FAILURE = "2";
     private String mGroupName = null;
-    private final static String LOGGING_SIGNED_AUDIT_CONFIG_ROLE =
-            "LOGGING_SIGNED_AUDIT_CONFIG_ROLE_3";
-
     public RegisterUser() {
         super();
     }
@@ -202,7 +200,7 @@ public class RegisterUser extends CMSServlet {
                 ugsys.addUser(user);
                 CMS.debug("RegisterUser created user " + uid);
                 auditMessage = CMS.getLogMessage(
-                              LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                              AuditEvent.CONFIG_ROLE,
                               auditSubjectID,
                               ILogger.SUCCESS,
                               auditParams);
@@ -227,7 +225,7 @@ public class RegisterUser extends CMSServlet {
                 ugsys.addUserCert(user);
                 CMS.debug("RegisterUser added user certificate");
                 auditMessage = CMS.getLogMessage(
-                              LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                              AuditEvent.CONFIG_ROLE,
                               auditSubjectID,
                               ILogger.SUCCESS,
                               auditParams);
@@ -237,7 +235,7 @@ public class RegisterUser extends CMSServlet {
         } catch (Exception eee) {
             CMS.debug("RegisterUser error " + eee.toString());
             auditMessage = CMS.getLogMessage(
-                                LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                                AuditEvent.CONFIG_ROLE,
                                 auditSubjectID,
                                 ILogger.FAILURE,
                                 auditParams);
@@ -270,7 +268,7 @@ public class RegisterUser extends CMSServlet {
                 CMS.debug("RegisterUser modified group");
 
                 auditMessage = CMS.getLogMessage(
-                               LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                               AuditEvent.CONFIG_ROLE,
                                auditSubjectID,
                                ILogger.SUCCESS,
                                auditParams);
@@ -279,7 +277,7 @@ public class RegisterUser extends CMSServlet {
             }
         } catch (Exception e) {
             auditMessage = CMS.getLogMessage(
-                               LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                               AuditEvent.CONFIG_ROLE,
                                auditSubjectID,
                                ILogger.FAILURE,
                                auditParams);

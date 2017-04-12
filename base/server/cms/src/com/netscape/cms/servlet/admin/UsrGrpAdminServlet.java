@@ -48,6 +48,7 @@ import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.common.OpDef;
 import com.netscape.certsrv.common.ScopeDef;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.password.IPasswordCheck;
@@ -86,9 +87,6 @@ public class UsrGrpAdminServlet extends AdminServlet {
     //	private final static String RES_GROUP = "root.common.goldfish";
 
     private final static String BACK_SLASH = "\\";
-
-    private final static String LOGGING_SIGNED_AUDIT_CONFIG_ROLE =
-            "LOGGING_SIGNED_AUDIT_CONFIG_ROLE_3";
 
     private IUGSubsystem mMgr = null;
 
@@ -682,7 +680,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                            AuditEvent.CONFIG_ROLE,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -701,7 +699,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                            AuditEvent.CONFIG_ROLE,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -720,7 +718,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                            AuditEvent.CONFIG_ROLE,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -743,7 +741,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                            AuditEvent.CONFIG_ROLE,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -770,7 +768,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                 if (!passwdCheck.isGoodPassword(pword)) {
                     // store a message in the signed audit log file
                     auditMessage = CMS.getLogMessage(
-                                LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                                AuditEvent.CONFIG_ROLE,
                                 auditSubjectID,
                                 ILogger.FAILURE,
                                 auditParams(req));
@@ -823,7 +821,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
                         // store a message in the signed audit log file
                         auditMessage = CMS.getLogMessage(
-                                    LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                                    AuditEvent.CONFIG_ROLE,
                                     auditSubjectID,
                                     ILogger.FAILURE,
                                     auditParams(req));
@@ -846,7 +844,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
                             // store a message in the signed audit log file
                             auditMessage = CMS.getLogMessage(
-                                        LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                                        AuditEvent.CONFIG_ROLE,
                                         auditSubjectID,
                                         ILogger.FAILURE,
                                         auditParams(req));
@@ -872,7 +870,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                            AuditEvent.CONFIG_ROLE,
                             auditSubjectID,
                             ILogger.SUCCESS,
                             auditParams(req));
@@ -886,7 +884,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                            AuditEvent.CONFIG_ROLE,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -907,7 +905,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                            AuditEvent.CONFIG_ROLE,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -921,7 +919,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
         } catch (EBaseException eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                        AuditEvent.CONFIG_ROLE,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));
@@ -933,7 +931,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
         } catch (IOException eAudit2) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                        AuditEvent.CONFIG_ROLE,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));
@@ -993,7 +991,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                            AuditEvent.CONFIG_ROLE,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -1016,7 +1014,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                            AuditEvent.CONFIG_ROLE,
                             auditSubjectID,
                             ILogger.SUCCESS,
                             auditParams(req));
@@ -1056,7 +1054,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                     if (p7certs.length == 0) {
                         // store a message in the signed audit log file
                         auditMessage = CMS.getLogMessage(
-                                    LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                                    AuditEvent.CONFIG_ROLE,
                                     auditSubjectID,
                                     ILogger.FAILURE,
                                     auditParams(req));
@@ -1091,7 +1089,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
                         // store a message in the signed audit log file
                         auditMessage = CMS.getLogMessage(
-                                    LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                                    AuditEvent.CONFIG_ROLE,
                                     auditSubjectID,
                                     ILogger.FAILURE,
                                     auditParams(req));
@@ -1157,7 +1155,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
                     // store a message in the signed audit log file
                     auditMessage = CMS.getLogMessage(
-                                LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                                AuditEvent.CONFIG_ROLE,
                                 auditSubjectID,
                                 ILogger.FAILURE,
                                 auditParams(req));
@@ -1173,7 +1171,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                            AuditEvent.CONFIG_ROLE,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -1195,7 +1193,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                            AuditEvent.CONFIG_ROLE,
                             auditSubjectID,
                             ILogger.SUCCESS,
                             auditParams(req));
@@ -1211,7 +1209,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                            AuditEvent.CONFIG_ROLE,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -1227,7 +1225,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                            AuditEvent.CONFIG_ROLE,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -1241,7 +1239,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             } catch (ConflictingOperationException e) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                            AuditEvent.CONFIG_ROLE,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -1257,7 +1255,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                            AuditEvent.CONFIG_ROLE,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -1283,7 +1281,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
         } catch (IOException eAudit2) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                        AuditEvent.CONFIG_ROLE,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));
@@ -1346,7 +1344,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                            AuditEvent.CONFIG_ROLE,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -1368,7 +1366,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                            AuditEvent.CONFIG_ROLE,
                             auditSubjectID,
                             ILogger.SUCCESS,
                             auditParams(req));
@@ -1386,7 +1384,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                            AuditEvent.CONFIG_ROLE,
                             auditSubjectID,
                             ILogger.SUCCESS,
                             auditParams(req));
@@ -1400,7 +1398,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                            AuditEvent.CONFIG_ROLE,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -1426,7 +1424,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
         } catch (IOException eAudit2) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                        AuditEvent.CONFIG_ROLE,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));
@@ -1497,7 +1495,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                            AuditEvent.CONFIG_ROLE,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -1519,7 +1517,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                            AuditEvent.CONFIG_ROLE,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -1539,7 +1537,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                     } else {
                         // store a message in the signed audit log file
                         auditMessage = CMS.getLogMessage(
-                                    LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                                    AuditEvent.CONFIG_ROLE,
                                     auditSubjectID,
                                     ILogger.FAILURE,
                                     auditParams(req));
@@ -1561,7 +1559,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                            AuditEvent.CONFIG_ROLE,
                             auditSubjectID,
                             ILogger.SUCCESS,
                             auditParams(req));
@@ -1573,7 +1571,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             } catch (Exception ex) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                            AuditEvent.CONFIG_ROLE,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -1587,7 +1585,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
         } catch (EBaseException eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                        AuditEvent.CONFIG_ROLE,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));
@@ -1599,7 +1597,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
         } catch (IOException eAudit2) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                        AuditEvent.CONFIG_ROLE,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));
@@ -1660,7 +1658,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                            AuditEvent.CONFIG_ROLE,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -1698,7 +1696,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                            AuditEvent.CONFIG_ROLE,
                             auditSubjectID,
                             ILogger.SUCCESS,
                             auditParams(req));
@@ -1710,7 +1708,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             } catch (Exception e) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                            AuditEvent.CONFIG_ROLE,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -1725,7 +1723,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
         } catch (EBaseException eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                        AuditEvent.CONFIG_ROLE,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));
@@ -1737,7 +1735,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
         } catch (IOException eAudit2) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                        AuditEvent.CONFIG_ROLE,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));
@@ -1798,7 +1796,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                            AuditEvent.CONFIG_ROLE,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -1817,7 +1815,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                        AuditEvent.CONFIG_ROLE,
                         auditSubjectID,
                         ILogger.SUCCESS,
                         auditParams(req));
@@ -1828,7 +1826,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
         } catch (EBaseException eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                        AuditEvent.CONFIG_ROLE,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));
@@ -1840,7 +1838,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
         } catch (IOException eAudit2) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                        AuditEvent.CONFIG_ROLE,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));
@@ -1903,7 +1901,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                            AuditEvent.CONFIG_ROLE,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -1956,7 +1954,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                             } else {
                                 // store a message in the signed audit log file
                                 auditMessage = CMS.getLogMessage(
-                                            LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                                            AuditEvent.CONFIG_ROLE,
                                             auditSubjectID,
                                             ILogger.FAILURE,
                                             auditParams(req));
@@ -1980,7 +1978,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                            AuditEvent.CONFIG_ROLE,
                             auditSubjectID,
                             ILogger.SUCCESS,
                             auditParams(req));
@@ -1993,7 +1991,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                            AuditEvent.CONFIG_ROLE,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -2008,7 +2006,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
         } catch (EBaseException eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                        AuditEvent.CONFIG_ROLE,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));
@@ -2020,7 +2018,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
         } catch (IOException eAudit2) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                        AuditEvent.CONFIG_ROLE,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));
@@ -2152,7 +2150,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                            AuditEvent.CONFIG_ROLE,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -2176,7 +2174,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                            AuditEvent.CONFIG_ROLE,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -2201,7 +2199,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                 if (!passwdCheck.isGoodPassword(pword)) {
                     // store a message in the signed audit log file
                     auditMessage = CMS.getLogMessage(
-                                LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                                AuditEvent.CONFIG_ROLE,
                                 auditSubjectID,
                                 ILogger.FAILURE,
                                 auditParams(req));
@@ -2232,7 +2230,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                            AuditEvent.CONFIG_ROLE,
                             auditSubjectID,
                             ILogger.SUCCESS,
                             auditParams(req));
@@ -2246,7 +2244,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                            AuditEvent.CONFIG_ROLE,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -2260,7 +2258,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
         } catch (EBaseException eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                        AuditEvent.CONFIG_ROLE,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));
@@ -2272,7 +2270,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
         } catch (IOException eAudit2) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                        AuditEvent.CONFIG_ROLE,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));

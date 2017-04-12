@@ -43,6 +43,7 @@ import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.common.OpDef;
 import com.netscape.certsrv.common.ScopeDef;
 import com.netscape.certsrv.ldap.ILdapAuthInfo;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 
 /**
@@ -65,9 +66,6 @@ public class AuthAdminServlet extends AdminServlet {
     private final static String PW_PASSWORD_CACHE_ADD =
             "PASSWORD_CACHE_ADD";
     private final static String EDIT = ";" + Constants.EDIT;
-
-    private final static String LOGGING_SIGNED_AUDIT_CONFIG_AUTH =
-            "LOGGING_SIGNED_AUDIT_CONFIG_AUTH_3";
 
     public AuthAdminServlet() {
         super();
@@ -382,7 +380,7 @@ public class AuthAdminServlet extends AdminServlet {
             if (id == null) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_AUTH,
+                            AuditEvent.CONFIG_AUTH,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -399,7 +397,7 @@ public class AuthAdminServlet extends AdminServlet {
             if (mAuths.getPlugins().containsKey(id)) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_AUTH,
+                            AuditEvent.CONFIG_AUTH,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -419,7 +417,7 @@ public class AuthAdminServlet extends AdminServlet {
             if (classPath == null) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_AUTH,
+                            AuditEvent.CONFIG_AUTH,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -436,7 +434,7 @@ public class AuthAdminServlet extends AdminServlet {
                     classPath.equals("com.netscape.cmscore.authentication.CertUserDBAuthentication")) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_AUTH,
+                            AuditEvent.CONFIG_AUTH,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -464,7 +462,7 @@ public class AuthAdminServlet extends AdminServlet {
             } catch (ClassNotFoundException e) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_AUTH,
+                            AuditEvent.CONFIG_AUTH,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -478,7 +476,7 @@ public class AuthAdminServlet extends AdminServlet {
             } catch (IllegalArgumentException e) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_AUTH,
+                            AuditEvent.CONFIG_AUTH,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -496,7 +494,7 @@ public class AuthAdminServlet extends AdminServlet {
                 if (IAuthManager.class.isAssignableFrom(newImpl) == false) {
                     // store a message in the signed audit log file
                     auditMessage = CMS.getLogMessage(
-                                LOGGING_SIGNED_AUDIT_CONFIG_AUTH,
+                                AuditEvent.CONFIG_AUTH,
                                 auditSubjectID,
                                 ILogger.FAILURE,
                                 auditParams(req));
@@ -511,7 +509,7 @@ public class AuthAdminServlet extends AdminServlet {
             } catch (NullPointerException e) { // unlikely, only if newImpl null.
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_AUTH,
+                            AuditEvent.CONFIG_AUTH,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -534,7 +532,7 @@ public class AuthAdminServlet extends AdminServlet {
             } catch (EBaseException e) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_AUTH,
+                            AuditEvent.CONFIG_AUTH,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -559,7 +557,7 @@ public class AuthAdminServlet extends AdminServlet {
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_AUTH,
+                        AuditEvent.CONFIG_AUTH,
                         auditSubjectID,
                         ILogger.SUCCESS,
                         auditParams(req));
@@ -583,7 +581,7 @@ public class AuthAdminServlet extends AdminServlet {
         } catch (IOException eAudit2) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_AUTH,
+                        AuditEvent.CONFIG_AUTH,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));
@@ -638,7 +636,7 @@ public class AuthAdminServlet extends AdminServlet {
             if (id == null) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_AUTH,
+                            AuditEvent.CONFIG_AUTH,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -655,7 +653,7 @@ public class AuthAdminServlet extends AdminServlet {
             if (mAuths.getInstances().containsKey(id)) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_AUTH,
+                            AuditEvent.CONFIG_AUTH,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -676,7 +674,7 @@ public class AuthAdminServlet extends AdminServlet {
             if (implname == null) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_AUTH,
+                            AuditEvent.CONFIG_AUTH,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -703,7 +701,7 @@ public class AuthAdminServlet extends AdminServlet {
             if (plugin == null) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_AUTH,
+                            AuditEvent.CONFIG_AUTH,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -756,7 +754,7 @@ public class AuthAdminServlet extends AdminServlet {
             } catch (ClassNotFoundException e) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_AUTH,
+                            AuditEvent.CONFIG_AUTH,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -774,7 +772,7 @@ public class AuthAdminServlet extends AdminServlet {
             } catch (InstantiationException e) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_AUTH,
+                            AuditEvent.CONFIG_AUTH,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -791,7 +789,7 @@ public class AuthAdminServlet extends AdminServlet {
             } catch (IllegalAccessException e) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_AUTH,
+                            AuditEvent.CONFIG_AUTH,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -813,7 +811,7 @@ public class AuthAdminServlet extends AdminServlet {
             } catch (EBaseException e) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_AUTH,
+                            AuditEvent.CONFIG_AUTH,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -832,7 +830,7 @@ public class AuthAdminServlet extends AdminServlet {
             } catch (EBaseException e) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_AUTH,
+                            AuditEvent.CONFIG_AUTH,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -859,7 +857,7 @@ public class AuthAdminServlet extends AdminServlet {
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_AUTH,
+                        AuditEvent.CONFIG_AUTH,
                         auditSubjectID,
                         ILogger.SUCCESS,
                         auditParams(req));
@@ -871,7 +869,7 @@ public class AuthAdminServlet extends AdminServlet {
         } catch (EBaseException eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_AUTH,
+                        AuditEvent.CONFIG_AUTH,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));
@@ -883,7 +881,7 @@ public class AuthAdminServlet extends AdminServlet {
         } catch (IOException eAudit2) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_AUTH,
+                        AuditEvent.CONFIG_AUTH,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));
@@ -986,7 +984,7 @@ public class AuthAdminServlet extends AdminServlet {
             if (id == null) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_AUTH,
+                            AuditEvent.CONFIG_AUTH,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -1011,7 +1009,7 @@ public class AuthAdminServlet extends AdminServlet {
             if (mAuths.getPlugins().containsKey(id) == false) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_AUTH,
+                            AuditEvent.CONFIG_AUTH,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -1034,7 +1032,7 @@ public class AuthAdminServlet extends AdminServlet {
                 if (authMgr.getImplName() == id) {
                     // store a message in the signed audit log file
                     auditMessage = CMS.getLogMessage(
-                                LOGGING_SIGNED_AUDIT_CONFIG_AUTH,
+                                AuditEvent.CONFIG_AUTH,
                                 auditSubjectID,
                                 ILogger.FAILURE,
                                 auditParams(req));
@@ -1063,7 +1061,7 @@ public class AuthAdminServlet extends AdminServlet {
             } catch (EBaseException e) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_AUTH,
+                            AuditEvent.CONFIG_AUTH,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -1078,7 +1076,7 @@ public class AuthAdminServlet extends AdminServlet {
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_AUTH,
+                        AuditEvent.CONFIG_AUTH,
                         auditSubjectID,
                         ILogger.SUCCESS,
                         auditParams(req));
@@ -1102,7 +1100,7 @@ public class AuthAdminServlet extends AdminServlet {
         } catch (IOException eAudit2) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_AUTH,
+                        AuditEvent.CONFIG_AUTH,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));
@@ -1158,7 +1156,7 @@ public class AuthAdminServlet extends AdminServlet {
             if (id == null) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_AUTH,
+                            AuditEvent.CONFIG_AUTH,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -1183,7 +1181,7 @@ public class AuthAdminServlet extends AdminServlet {
             if (mAuths.getInstances().containsKey(id) == false) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_AUTH,
+                            AuditEvent.CONFIG_AUTH,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -1216,7 +1214,7 @@ public class AuthAdminServlet extends AdminServlet {
             } catch (EBaseException e) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_AUTH,
+                            AuditEvent.CONFIG_AUTH,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -1238,7 +1236,7 @@ public class AuthAdminServlet extends AdminServlet {
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_AUTH,
+                        AuditEvent.CONFIG_AUTH,
                         auditSubjectID,
                         ILogger.SUCCESS,
                         auditParams(req));
@@ -1262,7 +1260,7 @@ public class AuthAdminServlet extends AdminServlet {
         } catch (IOException eAudit2) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_AUTH,
+                        AuditEvent.CONFIG_AUTH,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));
@@ -1409,7 +1407,7 @@ public class AuthAdminServlet extends AdminServlet {
             if (id == null) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_AUTH,
+                            AuditEvent.CONFIG_AUTH,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -1434,7 +1432,7 @@ public class AuthAdminServlet extends AdminServlet {
             if (!mAuths.getInstances().containsKey(id)) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_AUTH,
+                            AuditEvent.CONFIG_AUTH,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -1453,7 +1451,7 @@ public class AuthAdminServlet extends AdminServlet {
             if (implname == null) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_AUTH,
+                            AuditEvent.CONFIG_AUTH,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -1472,7 +1470,7 @@ public class AuthAdminServlet extends AdminServlet {
             if (plugin == null) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_AUTH,
+                            AuditEvent.CONFIG_AUTH,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -1548,7 +1546,7 @@ public class AuthAdminServlet extends AdminServlet {
             } catch (ClassNotFoundException e) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_AUTH,
+                            AuditEvent.CONFIG_AUTH,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -1566,7 +1564,7 @@ public class AuthAdminServlet extends AdminServlet {
             } catch (InstantiationException e) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_AUTH,
+                            AuditEvent.CONFIG_AUTH,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -1583,7 +1581,7 @@ public class AuthAdminServlet extends AdminServlet {
             } catch (IllegalAccessException e) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_AUTH,
+                            AuditEvent.CONFIG_AUTH,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -1606,7 +1604,7 @@ public class AuthAdminServlet extends AdminServlet {
             } catch (EBaseException e) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_AUTH,
+                            AuditEvent.CONFIG_AUTH,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -1625,7 +1623,7 @@ public class AuthAdminServlet extends AdminServlet {
             } catch (EBaseException e) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_AUTH,
+                            AuditEvent.CONFIG_AUTH,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -1652,7 +1650,7 @@ public class AuthAdminServlet extends AdminServlet {
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_AUTH,
+                        AuditEvent.CONFIG_AUTH,
                         auditSubjectID,
                         ILogger.SUCCESS,
                         auditParams(req));
@@ -1664,7 +1662,7 @@ public class AuthAdminServlet extends AdminServlet {
         } catch (EBaseException eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_AUTH,
+                        AuditEvent.CONFIG_AUTH,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));
@@ -1676,7 +1674,7 @@ public class AuthAdminServlet extends AdminServlet {
         } catch (IOException eAudit2) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_AUTH,
+                        AuditEvent.CONFIG_AUTH,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));

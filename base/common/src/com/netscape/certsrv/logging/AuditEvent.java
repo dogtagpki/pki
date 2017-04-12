@@ -35,6 +35,43 @@ import com.netscape.certsrv.base.MessageFormatter;
  */
 public class AuditEvent implements IBundleLogEvent {
 
+    public final static String AUDIT_LOG_STARTUP =
+            "LOGGING_SIGNED_AUDIT_AUDIT_LOG_STARTUP_2";
+    public final static String AUDIT_LOG_SHUTDOWN =
+            "LOGGING_SIGNED_AUDIT_AUDIT_LOG_SHUTDOWN_2";
+    public final static String CIMC_CERT_VERIFICATION =
+            "LOGGING_SIGNED_AUDIT_CIMC_CERT_VERIFICATION_3";
+    public final static String ROLE_ASSUME =
+            "LOGGING_SIGNED_AUDIT_ROLE_ASSUME_3";
+    public final static String CONFIG_CERT_POLICY =
+            "LOGGING_SIGNED_AUDIT_CONFIG_CERT_POLICY_3";
+    public final static String CONFIG_CERT_PROFILE =
+            "LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE_3";
+    public final static String CONFIG_CRL_PROFILE =
+            "LOGGING_SIGNED_AUDIT_CONFIG_CRL_PROFILE_3";
+    public final static String CONFIG_OCSP_PROFILE =
+            "LOGGING_SIGNED_AUDIT_CONFIG_OCSP_PROFILE_3";
+    public final static String CONFIG_AUTH =
+            "LOGGING_SIGNED_AUDIT_CONFIG_AUTH_3";
+    public final static String CONFIG_ROLE =
+            "LOGGING_SIGNED_AUDIT_CONFIG_ROLE_3";
+    public final static String CONFIG_ACL =
+            "LOGGING_SIGNED_AUDIT_CONFIG_ACL_3";
+    public final static String CONFIG_SIGNED_AUDIT =
+            "LOGGING_SIGNED_AUDIT_CONFIG_SIGNED_AUDIT_3";
+    public final static String CONFIG_ENCRYPTION =
+            "LOGGING_SIGNED_AUDIT_CONFIG_ENCRYPTION_3";
+    public final static String CONFIG_TRUSTED_PUBLIC_KEY =
+            "LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY_3";
+    public final static String CONFIG_DRM =
+            "LOGGING_SIGNED_AUDIT_CONFIG_DRM_3";
+    public final static String SELFTESTS_EXECUTION =
+            "LOGGING_SIGNED_AUDIT_SELFTESTS_EXECUTION_2";
+    public final static String AUDIT_LOG_DELETE =
+            "LOGGING_SIGNED_AUDIT_LOG_DELETE_3";
+    public final static String LOG_PATH_CHANGE =
+            "LOGGING_SIGNED_AUDIT_LOG_PATH_CHANGE_4";
+
     public final static String PRIVATE_KEY_ARCHIVE_REQUEST =
             "LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST_4";
     public final static String PRIVATE_KEY_ARCHIVE_REQUEST_PROCESSED =

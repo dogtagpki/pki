@@ -49,6 +49,7 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.certsrv.logging.AuditConfig;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.AuditFile;
 import com.netscape.certsrv.logging.AuditFileCollection;
 import com.netscape.certsrv.logging.AuditResource;
@@ -412,7 +413,7 @@ public class AuditService extends SubsystemService implements AuditResource {
     public void auditTPSConfigSignedAudit(String status, Map<String, String> params) {
 
         String msg = CMS.getLogMessage(
-                "LOGGING_SIGNED_AUDIT_CONFIG_SIGNED_AUDIT_3",
+                AuditEvent.CONFIG_SIGNED_AUDIT,
                 servletRequest.getUserPrincipal().getName(),
                 status,
                 auditor.getParamString(null, params));

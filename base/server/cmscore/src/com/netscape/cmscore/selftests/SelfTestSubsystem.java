@@ -96,9 +96,6 @@ public class SelfTestSubsystem
     private static final String ELEMENT_DELIMITER = ":";
     private static final String CRITICAL = "critical";
 
-    private static final String LOGGING_SIGNED_AUDIT_SELFTESTS_EXECUTION =
-            "LOGGING_SIGNED_AUDIT_SELFTESTS_EXECUTION_2";
-
     /////////////////////
     // default methods //
     /////////////////////
@@ -1809,7 +1806,7 @@ public class SelfTestSubsystem
 
             // store a message in the signed audit log file
             String auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_SELFTESTS_EXECUTION,
+                        AuditEvent.SELFTESTS_EXECUTION,
                         ILogger.SYSTEM_UID,
                         ILogger.SUCCESS);
 
@@ -1819,7 +1816,7 @@ public class SelfTestSubsystem
 
             // store a message in the signed audit log file
             String auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_SELFTESTS_EXECUTION,
+                        AuditEvent.SELFTESTS_EXECUTION,
                         ILogger.SYSTEM_UID,
                         ILogger.FAILURE);
 
@@ -1832,7 +1829,7 @@ public class SelfTestSubsystem
 
             // store a message in the signed audit log file
             String auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_SELFTESTS_EXECUTION,
+                        AuditEvent.SELFTESTS_EXECUTION,
                         ILogger.SYSTEM_UID,
                         ILogger.FAILURE);
 

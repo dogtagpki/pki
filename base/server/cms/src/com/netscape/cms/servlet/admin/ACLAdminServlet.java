@@ -38,6 +38,7 @@ import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.common.OpDef;
 import com.netscape.certsrv.common.ScopeDef;
 import com.netscape.certsrv.evaluators.IAccessEvaluator;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 
 /**
@@ -54,9 +55,6 @@ public class ACLAdminServlet extends AdminServlet {
     private static final String PROP_EVAL = "accessEvaluator";
     private final static String INFO = "ACLAdminServlet";
     private IAuthzManager mAuthzMgr = null;
-
-    private final static String LOGGING_SIGNED_AUDIT_CONFIG_ACL =
-            "LOGGING_SIGNED_AUDIT_CONFIG_ACL_3";
 
     /**
      * initialize the servlet.
@@ -338,7 +336,7 @@ public class ACLAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_ACL,
+                            AuditEvent.CONFIG_ACL,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -363,7 +361,7 @@ public class ACLAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_ACL,
+                            AuditEvent.CONFIG_ACL,
                             auditSubjectID,
                             ILogger.SUCCESS,
                             auditParams(req));
@@ -377,7 +375,7 @@ public class ACLAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_ACL,
+                            AuditEvent.CONFIG_ACL,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -404,7 +402,7 @@ public class ACLAdminServlet extends AdminServlet {
         } catch (IOException eAudit2) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_ACL,
+                        AuditEvent.CONFIG_ACL,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));
@@ -502,7 +500,7 @@ public class ACLAdminServlet extends AdminServlet {
             if (type == null) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_ACL,
+                            AuditEvent.CONFIG_ACL,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -544,7 +542,7 @@ public class ACLAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_ACL,
+                            AuditEvent.CONFIG_ACL,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -567,7 +565,7 @@ public class ACLAdminServlet extends AdminServlet {
 
                     // store a message in the signed audit log file
                     auditMessage = CMS.getLogMessage(
-                                LOGGING_SIGNED_AUDIT_CONFIG_ACL,
+                                AuditEvent.CONFIG_ACL,
                                 auditSubjectID,
                                 ILogger.FAILURE,
                                 auditParams(req));
@@ -587,7 +585,7 @@ public class ACLAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_ACL,
+                            AuditEvent.CONFIG_ACL,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -612,7 +610,7 @@ public class ACLAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_ACL,
+                            AuditEvent.CONFIG_ACL,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -635,7 +633,7 @@ public class ACLAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_ACL,
+                            AuditEvent.CONFIG_ACL,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -660,7 +658,7 @@ public class ACLAdminServlet extends AdminServlet {
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_ACL,
+                        AuditEvent.CONFIG_ACL,
                         auditSubjectID,
                         ILogger.SUCCESS,
                         auditParams(req));
@@ -683,7 +681,7 @@ public class ACLAdminServlet extends AdminServlet {
         } catch (IOException eAudit2) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_ACL,
+                        AuditEvent.CONFIG_ACL,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));
@@ -741,7 +739,7 @@ public class ACLAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_ACL,
+                            AuditEvent.CONFIG_ACL,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -762,7 +760,7 @@ public class ACLAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_ACL,
+                            AuditEvent.CONFIG_ACL,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -797,7 +795,7 @@ public class ACLAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_ACL,
+                            AuditEvent.CONFIG_ACL,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -812,7 +810,7 @@ public class ACLAdminServlet extends AdminServlet {
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_ACL,
+                        AuditEvent.CONFIG_ACL,
                         auditSubjectID,
                         ILogger.SUCCESS,
                         auditParams(req));
@@ -836,7 +834,7 @@ public class ACLAdminServlet extends AdminServlet {
         } catch (IOException eAudit2) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_ACL,
+                        AuditEvent.CONFIG_ACL,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));

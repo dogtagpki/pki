@@ -122,8 +122,6 @@ public class AdminServlet extends HttpServlet {
     public static final String CERT_ATTR =
             "javax.servlet.request.X509Certificate";
 
-    private final static String LOGGING_SIGNED_AUDIT_ROLE_ASSUME =
-            "LOGGING_SIGNED_AUDIT_ROLE_ASSUME_3";
     private final static String CERTUSERDB =
             IAuthSubsystem.CERTUSERDB_AUTHMGR_ID;
     private final static String PASSWDUSERDB =
@@ -657,7 +655,7 @@ public class AdminServlet extends HttpServlet {
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_ROLE_ASSUME,
+                        AuditEvent.ROLE_ASSUME,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditGroups(auditSubjectID));
@@ -680,7 +678,7 @@ public class AdminServlet extends HttpServlet {
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_ROLE_ASSUME,
+                        AuditEvent.ROLE_ASSUME,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditGroups(auditSubjectID));
@@ -701,7 +699,7 @@ public class AdminServlet extends HttpServlet {
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_ROLE_ASSUME,
+                        AuditEvent.ROLE_ASSUME,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditGroups(auditSubjectID));
@@ -723,7 +721,7 @@ public class AdminServlet extends HttpServlet {
 
         // store a message in the signed audit log file
         auditMessage = CMS.getLogMessage(
-                    LOGGING_SIGNED_AUDIT_ROLE_ASSUME,
+                    AuditEvent.ROLE_ASSUME,
                     auditSubjectID,
                     ILogger.SUCCESS,
                     auditGroups(auditSubjectID));

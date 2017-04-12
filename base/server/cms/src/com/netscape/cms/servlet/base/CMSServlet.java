@@ -245,9 +245,6 @@ public abstract class CMSServlet extends HttpServlet {
     private IUGSubsystem mUG = (IUGSubsystem)
             CMS.getSubsystem(CMS.SUBSYSTEM_UG);
 
-    private final static String LOGGING_SIGNED_AUDIT_ROLE_ASSUME =
-            "LOGGING_SIGNED_AUDIT_ROLE_ASSUME_3";
-
     public CMSServlet() {
     }
 
@@ -1840,7 +1837,7 @@ public abstract class CMSServlet extends HttpServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_ROLE_ASSUME,
+                            AuditEvent.ROLE_ASSUME,
                             auditSubjectID,
                             ILogger.SUCCESS,
                             auditGroupID);
@@ -1857,7 +1854,7 @@ public abstract class CMSServlet extends HttpServlet {
                 audit(auditMessage);
 
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_ROLE_ASSUME,
+                            AuditEvent.ROLE_ASSUME,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditGroupID);
@@ -1876,7 +1873,7 @@ public abstract class CMSServlet extends HttpServlet {
             audit(auditMessage);
 
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_ROLE_ASSUME,
+                        AuditEvent.ROLE_ASSUME,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditGroupID);
@@ -1974,7 +1971,7 @@ public abstract class CMSServlet extends HttpServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_ROLE_ASSUME,
+                            AuditEvent.ROLE_ASSUME,
                             auditID,
                             ILogger.SUCCESS,
                             auditGroups(auditSubjectID));
@@ -1993,7 +1990,7 @@ public abstract class CMSServlet extends HttpServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_ROLE_ASSUME,
+                            AuditEvent.ROLE_ASSUME,
                             auditID,
                             ILogger.FAILURE,
                             auditGroups(auditSubjectID));
@@ -2015,7 +2012,7 @@ public abstract class CMSServlet extends HttpServlet {
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_ROLE_ASSUME,
+                        AuditEvent.ROLE_ASSUME,
                         auditID,
                         ILogger.FAILURE,
                         auditGroups(auditSubjectID));
@@ -2036,7 +2033,7 @@ public abstract class CMSServlet extends HttpServlet {
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_ROLE_ASSUME,
+                        AuditEvent.ROLE_ASSUME,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditGroups(auditSubjectID));

@@ -34,6 +34,7 @@ import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.common.OpDef;
 import com.netscape.certsrv.common.ScopeDef;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.certsrv.ocsp.IOCSPStore;
@@ -56,9 +57,6 @@ public class OCSPAdminServlet extends AdminServlet {
     protected static final String PROP_ENABLED = "enabled";
 
     private final static String INFO = "OCSPAdminServlet";
-
-    private final static String LOGGING_SIGNED_AUDIT_CONFIG_OCSP_PROFILE =
-            "LOGGING_SIGNED_AUDIT_CONFIG_OCSP_PROFILE_3";
 
     private IOCSPAuthority mOCSP = null;
 
@@ -256,7 +254,7 @@ public class OCSPAdminServlet extends AdminServlet {
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_OCSP_PROFILE,
+                        AuditEvent.CONFIG_OCSP_PROFILE,
                         auditSubjectID,
                         ILogger.SUCCESS,
                         auditParams(req));
@@ -267,7 +265,7 @@ public class OCSPAdminServlet extends AdminServlet {
         } catch (EBaseException eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_OCSP_PROFILE,
+                        AuditEvent.CONFIG_OCSP_PROFILE,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));
@@ -279,7 +277,7 @@ public class OCSPAdminServlet extends AdminServlet {
         } catch (IOException eAudit2) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_OCSP_PROFILE,
+                        AuditEvent.CONFIG_OCSP_PROFILE,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));
@@ -368,7 +366,7 @@ public class OCSPAdminServlet extends AdminServlet {
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_OCSP_PROFILE,
+                        AuditEvent.CONFIG_OCSP_PROFILE,
                         auditSubjectID,
                         ILogger.SUCCESS,
                         auditParams(req));
@@ -379,7 +377,7 @@ public class OCSPAdminServlet extends AdminServlet {
         } catch (EBaseException eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_OCSP_PROFILE,
+                        AuditEvent.CONFIG_OCSP_PROFILE,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));
@@ -391,7 +389,7 @@ public class OCSPAdminServlet extends AdminServlet {
         } catch (IOException eAudit2) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_OCSP_PROFILE,
+                        AuditEvent.CONFIG_OCSP_PROFILE,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));
@@ -503,7 +501,7 @@ public class OCSPAdminServlet extends AdminServlet {
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_OCSP_PROFILE,
+                        AuditEvent.CONFIG_OCSP_PROFILE,
                         auditSubjectID,
                         ILogger.SUCCESS,
                         auditParams(req));
@@ -514,7 +512,7 @@ public class OCSPAdminServlet extends AdminServlet {
         } catch (EBaseException eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_OCSP_PROFILE,
+                        AuditEvent.CONFIG_OCSP_PROFILE,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));
@@ -526,7 +524,7 @@ public class OCSPAdminServlet extends AdminServlet {
         } catch (IOException eAudit2) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_OCSP_PROFILE,
+                        AuditEvent.CONFIG_OCSP_PROFILE,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));

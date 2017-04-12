@@ -117,8 +117,6 @@ public class CAProcessor extends Processor {
     public static final String ACL_INFO = "ACLinfo";
     public static final String PROFILE_SUB_ID = "profileSubId";
 
-    public final static String LOGGING_SIGNED_AUDIT_ROLE_ASSUME =
-            "LOGGING_SIGNED_AUDIT_ROLE_ASSUME_3";
     public final static String SIGNED_AUDIT_CERT_REQUEST_REASON =
             "requestNotes";
 
@@ -731,7 +729,7 @@ public class CAProcessor extends Processor {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_ROLE_ASSUME,
+                        AuditEvent.ROLE_ASSUME,
                         auditSubjectID,
                         ILogger.SUCCESS,
                         auditGroupID);
@@ -748,7 +746,7 @@ public class CAProcessor extends Processor {
                 audit(auditMessage);
 
                 auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_ROLE_ASSUME,
+                        AuditEvent.ROLE_ASSUME,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditGroupID);
@@ -767,7 +765,7 @@ public class CAProcessor extends Processor {
             audit(auditMessage);
 
             auditMessage = CMS.getLogMessage(
-                    LOGGING_SIGNED_AUDIT_ROLE_ASSUME,
+                    AuditEvent.ROLE_ASSUME,
                     auditSubjectID,
                     ILogger.FAILURE,
                     auditGroupID);
@@ -864,7 +862,7 @@ public class CAProcessor extends Processor {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_ROLE_ASSUME,
+                        AuditEvent.ROLE_ASSUME,
                         auditID,
                         ILogger.SUCCESS,
                         auditGroups(auditSubjectID));
@@ -883,7 +881,7 @@ public class CAProcessor extends Processor {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_ROLE_ASSUME,
+                        AuditEvent.ROLE_ASSUME,
                         auditID,
                         ILogger.FAILURE,
                         auditGroups(auditSubjectID));
@@ -905,7 +903,7 @@ public class CAProcessor extends Processor {
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                    LOGGING_SIGNED_AUDIT_ROLE_ASSUME,
+                    AuditEvent.ROLE_ASSUME,
                     auditID,
                     ILogger.FAILURE,
                     auditGroups(auditSubjectID));

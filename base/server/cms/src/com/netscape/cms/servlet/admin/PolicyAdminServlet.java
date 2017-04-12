@@ -41,6 +41,7 @@ import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.common.OpDef;
 import com.netscape.certsrv.common.ScopeDef;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
 
@@ -82,9 +83,6 @@ public class PolicyAdminServlet extends AdminServlet {
     public static String INVALID_POLICY_INST_ID = "Invalid policy impl id in request";
     public static String COMMA = ",";
     public static String MISSING_POLICY_ORDERING = "Missing policy ordering";
-
-    private final static String LOGGING_SIGNED_AUDIT_CONFIG_CERT_POLICY =
-            "LOGGING_SIGNED_AUDIT_CONFIG_CERT_POLICY_3";
 
     /**
      * Constructs administration servlet.
@@ -506,7 +504,7 @@ public class PolicyAdminServlet extends AdminServlet {
             if (id == null) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_CERT_POLICY,
+                            AuditEvent.CONFIG_CERT_POLICY,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -522,7 +520,7 @@ public class PolicyAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_CERT_POLICY,
+                            AuditEvent.CONFIG_CERT_POLICY,
                             auditSubjectID,
                             ILogger.SUCCESS,
                             auditParams(req));
@@ -535,7 +533,7 @@ public class PolicyAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_CERT_POLICY,
+                            AuditEvent.CONFIG_CERT_POLICY,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -547,7 +545,7 @@ public class PolicyAdminServlet extends AdminServlet {
         } catch (IOException eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_CERT_POLICY,
+                        AuditEvent.CONFIG_CERT_POLICY,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));
@@ -628,7 +626,7 @@ public class PolicyAdminServlet extends AdminServlet {
             if (id == null) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_CERT_POLICY,
+                            AuditEvent.CONFIG_CERT_POLICY,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -644,7 +642,7 @@ public class PolicyAdminServlet extends AdminServlet {
             if (classPath == null) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_CERT_POLICY,
+                            AuditEvent.CONFIG_CERT_POLICY,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -659,7 +657,7 @@ public class PolicyAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_CERT_POLICY,
+                            AuditEvent.CONFIG_CERT_POLICY,
                             auditSubjectID,
                             ILogger.SUCCESS,
                             auditParams(req));
@@ -670,7 +668,7 @@ public class PolicyAdminServlet extends AdminServlet {
             } catch (Exception e) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_CERT_POLICY,
+                            AuditEvent.CONFIG_CERT_POLICY,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -682,7 +680,7 @@ public class PolicyAdminServlet extends AdminServlet {
         } catch (IOException eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_CERT_POLICY,
+                        AuditEvent.CONFIG_CERT_POLICY,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));
@@ -735,7 +733,7 @@ public class PolicyAdminServlet extends AdminServlet {
             if (id == null) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_CERT_POLICY,
+                            AuditEvent.CONFIG_CERT_POLICY,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -751,7 +749,7 @@ public class PolicyAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_CERT_POLICY,
+                            AuditEvent.CONFIG_CERT_POLICY,
                             auditSubjectID,
                             ILogger.SUCCESS,
                             auditParams(req));
@@ -764,7 +762,7 @@ public class PolicyAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_CERT_POLICY,
+                            AuditEvent.CONFIG_CERT_POLICY,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -776,7 +774,7 @@ public class PolicyAdminServlet extends AdminServlet {
         } catch (IOException eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_CERT_POLICY,
+                        AuditEvent.CONFIG_CERT_POLICY,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));
@@ -875,7 +873,7 @@ public class PolicyAdminServlet extends AdminServlet {
             if (id == null) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_CERT_POLICY,
+                            AuditEvent.CONFIG_CERT_POLICY,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -892,7 +890,7 @@ public class PolicyAdminServlet extends AdminServlet {
             if (implName == null) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_CERT_POLICY,
+                            AuditEvent.CONFIG_CERT_POLICY,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -925,7 +923,7 @@ public class PolicyAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_CERT_POLICY,
+                            AuditEvent.CONFIG_CERT_POLICY,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -956,7 +954,7 @@ public class PolicyAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_CERT_POLICY,
+                            AuditEvent.CONFIG_CERT_POLICY,
                             auditSubjectID,
                             ILogger.SUCCESS,
                             auditParams(req));
@@ -967,7 +965,7 @@ public class PolicyAdminServlet extends AdminServlet {
             } catch (Exception e) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_CERT_POLICY,
+                            AuditEvent.CONFIG_CERT_POLICY,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -979,7 +977,7 @@ public class PolicyAdminServlet extends AdminServlet {
         } catch (IOException eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_CERT_POLICY,
+                        AuditEvent.CONFIG_CERT_POLICY,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));
@@ -1032,7 +1030,7 @@ public class PolicyAdminServlet extends AdminServlet {
             if (policyOrder == null) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_CERT_POLICY,
+                            AuditEvent.CONFIG_CERT_POLICY,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -1047,7 +1045,7 @@ public class PolicyAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_CERT_POLICY,
+                            AuditEvent.CONFIG_CERT_POLICY,
                             auditSubjectID,
                             ILogger.SUCCESS,
                             auditParams(req));
@@ -1058,7 +1056,7 @@ public class PolicyAdminServlet extends AdminServlet {
             } catch (Exception e) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_CERT_POLICY,
+                            AuditEvent.CONFIG_CERT_POLICY,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -1070,7 +1068,7 @@ public class PolicyAdminServlet extends AdminServlet {
         } catch (IOException eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_CERT_POLICY,
+                        AuditEvent.CONFIG_CERT_POLICY,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));
@@ -1123,7 +1121,7 @@ public class PolicyAdminServlet extends AdminServlet {
             if (id == null) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_CERT_POLICY,
+                            AuditEvent.CONFIG_CERT_POLICY,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -1140,7 +1138,7 @@ public class PolicyAdminServlet extends AdminServlet {
             if (implName == null) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_CERT_POLICY,
+                            AuditEvent.CONFIG_CERT_POLICY,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -1172,7 +1170,7 @@ public class PolicyAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_CERT_POLICY,
+                            AuditEvent.CONFIG_CERT_POLICY,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -1208,7 +1206,7 @@ public class PolicyAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_CERT_POLICY,
+                            AuditEvent.CONFIG_CERT_POLICY,
                             auditSubjectID,
                             ILogger.SUCCESS,
                             auditParams(req));
@@ -1219,7 +1217,7 @@ public class PolicyAdminServlet extends AdminServlet {
             } catch (Exception e) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_CERT_POLICY,
+                            AuditEvent.CONFIG_CERT_POLICY,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req));
@@ -1231,7 +1229,7 @@ public class PolicyAdminServlet extends AdminServlet {
         } catch (IOException eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_CERT_POLICY,
+                        AuditEvent.CONFIG_CERT_POLICY,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req));

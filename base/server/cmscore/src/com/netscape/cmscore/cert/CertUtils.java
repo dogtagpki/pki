@@ -41,6 +41,7 @@ import org.mozilla.jss.CryptoManager.CertificateUsage;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cmsutil.util.Utils;
 
@@ -84,9 +85,6 @@ public class CertUtils {
             "-----END CERTIFICATE REVOCATION LIST-----";
 
     protected static ILogger mSignedAuditLogger = CMS.getSignedAuditLogger();
-    private final static String LOGGING_SIGNED_AUDIT_CIMC_CERT_VERIFICATION =
-            "LOGGING_SIGNED_AUDIT_CIMC_CERT_VERIFICATION_3";
-
     /**
      * Remove the header and footer in the PKCS10 request.
      */
@@ -911,7 +909,7 @@ public class CertUtils {
             if (subsysType == null) {
                 CMS.debug("CertUtils: verifySystemCerts() invalid cs.type in CS.cfg. System certificates verification not done");
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CIMC_CERT_VERIFICATION,
+                            AuditEvent.CIMC_CERT_VERIFICATION,
                             ILogger.SYSTEM_UID,
                             ILogger.FAILURE,
                             "");
@@ -936,7 +934,7 @@ public class CertUtils {
             verifySystemCertByNickname(nickname, certusage);
 
             auditMessage = CMS.getLogMessage(
-                    LOGGING_SIGNED_AUDIT_CIMC_CERT_VERIFICATION,
+                    AuditEvent.CIMC_CERT_VERIFICATION,
                     ILogger.SYSTEM_UID,
                     ILogger.SUCCESS,
                         nickname);
@@ -947,7 +945,7 @@ public class CertUtils {
             CMS.debug("CertUtils: verifySystemCertsByTag() failed: " +
                     e.toString());
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CIMC_CERT_VERIFICATION,
+                        AuditEvent.CIMC_CERT_VERIFICATION,
                         ILogger.SYSTEM_UID,
                         ILogger.FAILURE,
                         "");
@@ -1009,7 +1007,7 @@ public class CertUtils {
             if (subsysType.equals("")) {
                 CMS.debug("CertUtils: verifySystemCerts() cs.type not defined in CS.cfg. System certificates verification not done");
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CIMC_CERT_VERIFICATION,
+                            AuditEvent.CIMC_CERT_VERIFICATION,
                             ILogger.SYSTEM_UID,
                             ILogger.FAILURE,
                             "");
@@ -1022,7 +1020,7 @@ public class CertUtils {
             if (subsysType == null) {
                 CMS.debug("CertUtils: verifySystemCerts() invalid cs.type in CS.cfg. System certificates verification not done");
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CIMC_CERT_VERIFICATION,
+                            AuditEvent.CIMC_CERT_VERIFICATION,
                             ILogger.SYSTEM_UID,
                             ILogger.FAILURE,
                             "");
@@ -1036,7 +1034,7 @@ public class CertUtils {
                 CMS.debug("CertUtils: verifySystemCerts() "
                         + subsysType + ".cert.list not defined in CS.cfg. System certificates verification not done");
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CIMC_CERT_VERIFICATION,
+                            AuditEvent.CIMC_CERT_VERIFICATION,
                             ILogger.SYSTEM_UID,
                             ILogger.FAILURE,
                             "");
@@ -1056,7 +1054,7 @@ public class CertUtils {
         } catch (Exception e) {
             // audit here
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CIMC_CERT_VERIFICATION,
+                        AuditEvent.CIMC_CERT_VERIFICATION,
                         ILogger.SYSTEM_UID,
                         ILogger.FAILURE,
                         "");
