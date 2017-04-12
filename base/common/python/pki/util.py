@@ -258,10 +258,9 @@ def read_environment_files(env_file_list=None):
     if env_file_list is None:
         env_file_list = DEFAULT_PKI_ENV_LIST
 
-    file_command = ''
-    for env_file in env_file_list:
-        file_command += "source " + env_file + " && "
-    file_command += "env"
+    file_command = ' && '.join(
+        'source {}'.format(env_file) for env_file in env_file_list)
+    file_command += ' && env'
 
     command = [
         'bash',
@@ -269,7 +268,7 @@ def read_environment_files(env_file_list=None):
         file_command
     ]
 
-    env_vals = subprocess.check_output(command).split('\n')
+    env_vals = subprocess.check_output(command).decode('utf-8').split('\n')
 
     for env_val in env_vals:
         (key, _, value) = env_val.partition("=")
