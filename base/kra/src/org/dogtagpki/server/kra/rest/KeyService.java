@@ -60,6 +60,7 @@ import com.netscape.certsrv.key.KeyRecoveryRequest;
 import com.netscape.certsrv.key.KeyResource;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.kra.IKeyService;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
@@ -76,11 +77,6 @@ import com.netscape.cmsutil.util.Utils;
  *
  */
 public class KeyService extends SubsystemService implements KeyResource {
-
-    private final static String LOGGING_SIGNED_AUDIT_SECURITY_DATA_RETRIEVE_KEY =
-            "LOGGING_SIGNED_AUDIT_SECURITY_DATA_RETRIEVE_KEY_5";
-    private final static String LOGGING_SIGNED_AUDIT_KEY_STATUS_CHANGE =
-            "LOGGING_SIGNED_AUDIT_KEY_STATUS_CHANGE_6";
 
     public static final int DEFAULT_MAXRESULTS = 100;
     public static final int DEFAULT_MAXTIME = 10;
@@ -606,7 +602,7 @@ public class KeyService extends SubsystemService implements KeyResource {
 
     public void auditRetrieveKey(String status, String reason) {
         String msg = CMS.getLogMessage(
-                LOGGING_SIGNED_AUDIT_SECURITY_DATA_RETRIEVE_KEY,
+                AuditEvent.SECURITY_DATA_RETRIEVE_KEY,
                 servletRequest.getUserPrincipal().getName(),
                 status,
                 requestId != null ? requestId.toString(): "null",
@@ -628,7 +624,7 @@ public class KeyService extends SubsystemService implements KeyResource {
     public void auditKeyStatusChange(String status, String keyID, String oldKeyStatus,
             String newKeyStatus, String info) {
         String msg = CMS.getLogMessage(
-                LOGGING_SIGNED_AUDIT_KEY_STATUS_CHANGE,
+                AuditEvent.KEY_STATUS_CHANGE,
                 servletRequest.getUserPrincipal().getName(),
                 status,
                 keyID,

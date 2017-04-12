@@ -37,6 +37,7 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.dbs.repository.IRepository;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.base.UserInfo;
@@ -52,8 +53,6 @@ public class UpdateNumberRange extends CMSServlet {
     private static final long serialVersionUID = -1584171713024263331L;
     private final static String SUCCESS = "0";
     private final static String AUTH_FAILURE = "2";
-    private final static String LOGGING_SIGNED_AUDIT_CONFIG_SERIAL_NUMBER =
-            "LOGGING_SIGNED_AUDIT_CONFIG_SERIAL_NUMBER_1";
 
     public UpdateNumberRange() {
         super();
@@ -208,7 +207,7 @@ public class UpdateNumberRange extends CMSServlet {
                 CMS.debug("UpdateNumberRange::process() - " +
                            "beginNum is null!");
                 auditMessage = CMS.getLogMessage(
-                                   LOGGING_SIGNED_AUDIT_CONFIG_SERIAL_NUMBER,
+                                   AuditEvent.CONFIG_SERIAL_NUMBER,
                                    auditSubjectID,
                                    ILogger.FAILURE,
                                    auditParams);
@@ -240,7 +239,7 @@ public class UpdateNumberRange extends CMSServlet {
                           "+endNumber;;" + endNum.toString(radix);
 
             auditMessage = CMS.getLogMessage(
-                               LOGGING_SIGNED_AUDIT_CONFIG_SERIAL_NUMBER,
+                               AuditEvent.CONFIG_SERIAL_NUMBER,
                                auditSubjectID,
                                ILogger.SUCCESS,
                                auditParams);
@@ -251,7 +250,7 @@ public class UpdateNumberRange extends CMSServlet {
             CMS.debug(e);
 
             auditMessage = CMS.getLogMessage(
-                               LOGGING_SIGNED_AUDIT_CONFIG_SERIAL_NUMBER,
+                               AuditEvent.CONFIG_SERIAL_NUMBER,
                                auditSubjectID,
                                ILogger.FAILURE,
                                auditParams);

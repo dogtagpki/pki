@@ -38,6 +38,7 @@ import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.key.KeyRequestResource;
 import com.netscape.certsrv.kra.EKRAException;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.profile.IEnrollProfile;
 import com.netscape.certsrv.request.IRequest;
@@ -64,13 +65,6 @@ public class SecurityDataProcessor {
     private ILogger signedAuditLogger = CMS.getSignedAuditLogger();
     private static boolean allowEncDecrypt_archival = false;
     private static boolean allowEncDecrypt_recovery = false;
-
-    private final static String LOGGING_SIGNED_AUDIT_SECURITY_DATA_ARCHIVAL_REQUEST_PROCESSED =
-            "LOGGING_SIGNED_AUDIT_SECURITY_DATA_ARCHIVAL_REQUEST_PROCESSED_6";
-
-    private final static String LOGGING_SIGNED_AUDIT_SECURITY_DATA_RECOVERY_REQUEST_PROCESSED =
-            "LOGGING_SIGNED_AUDIT_SECURITY_DATA_RECOVERY_REQUEST_PROCESSED_5";
-
 
     public SecurityDataProcessor(IKeyRecoveryAuthority kra) {
         this.kra = kra;
@@ -779,7 +773,7 @@ public class SecurityDataProcessor {
     private void auditRecoveryRequestProcessed(String subjectID, String status, RequestId requestID,
             String keyID, String reason) {
         String auditMessage = CMS.getLogMessage(
-                LOGGING_SIGNED_AUDIT_SECURITY_DATA_RECOVERY_REQUEST_PROCESSED,
+                AuditEvent.SECURITY_DATA_RECOVERY_REQUEST_PROCESSED,
                 subjectID,
                 status,
                 requestID.toString(),
@@ -791,7 +785,7 @@ public class SecurityDataProcessor {
     private void auditArchivalRequestProcessed(String subjectID, String status, RequestId requestID, String clientKeyID,
             String keyID, String reason) {
         String auditMessage = CMS.getLogMessage(
-                LOGGING_SIGNED_AUDIT_SECURITY_DATA_ARCHIVAL_REQUEST_PROCESSED,
+                AuditEvent.SECURITY_DATA_ARCHIVAL_REQUEST_PROCESSED,
                 subjectID,
                 status,
                 requestID.toString(),

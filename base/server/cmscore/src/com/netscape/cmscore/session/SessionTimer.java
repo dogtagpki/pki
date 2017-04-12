@@ -23,14 +23,12 @@ import java.util.TimerTask;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.ISecurityDomainSessionTable;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 
 public class SessionTimer extends TimerTask {
     private ISecurityDomainSessionTable m_sessiontable = null;
     private ILogger mSignedAuditLogger = CMS.getSignedAuditLogger();
-    private final static String LOGGING_SIGNED_AUDIT_SECURITY_DOMAIN_UPDATE =
-            "LOGGING_SIGNED_AUDIT_SECURITY_DOMAIN_UPDATE_1";
-
     public SessionTimer(ISecurityDomainSessionTable table) {
         super();
         m_sessiontable = table;
@@ -61,7 +59,7 @@ public class SessionTimer extends TimerTask {
                 // audit message
                 String auditParams = "operation;;expire_token+token;;" + sessionId;
                 String auditMessage = CMS.getLogMessage(
-                                         LOGGING_SIGNED_AUDIT_SECURITY_DOMAIN_UPDATE,
+                                         AuditEvent.SECURITY_DOMAIN_UPDATE,
                                          "system",
                                          ILogger.SUCCESS,
                                          auditParams);

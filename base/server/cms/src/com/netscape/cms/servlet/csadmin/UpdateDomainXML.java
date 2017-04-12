@@ -47,6 +47,7 @@ import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.base.UserInfo;
@@ -62,8 +63,6 @@ public class UpdateDomainXML extends CMSServlet {
     private static final long serialVersionUID = 4059169588555717548L;
     private final static String SUCCESS = "0";
     private final static String FAILED = "1";
-    private final static String LOGGING_SIGNED_AUDIT_SECURITY_DOMAIN_UPDATE =
-            "LOGGING_SIGNED_AUDIT_SECURITY_DOMAIN_UPDATE_1";
     private final static String LOGGING_SIGNED_AUDIT_CONFIG_ROLE =
             "LOGGING_SIGNED_AUDIT_CONFIG_ROLE_3";
 
@@ -501,14 +500,14 @@ public class UpdateDomainXML extends CMSServlet {
 
         if (status.equals(SUCCESS)) {
             auditMessage = CMS.getLogMessage(
-                               LOGGING_SIGNED_AUDIT_SECURITY_DOMAIN_UPDATE,
+                               AuditEvent.SECURITY_DOMAIN_UPDATE,
                                auditSubjectID,
                                ILogger.SUCCESS,
                                auditParams);
         } else {
             // what if already exists or already deleted
             auditMessage = CMS.getLogMessage(
-                               LOGGING_SIGNED_AUDIT_SECURITY_DOMAIN_UPDATE,
+                               AuditEvent.SECURITY_DOMAIN_UPDATE,
                                auditSubjectID,
                                ILogger.FAILURE,
                                auditParams);

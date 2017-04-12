@@ -35,6 +35,7 @@ import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.key.AsymKeyGenerationRequest;
 import com.netscape.certsrv.key.KeyRequestResource;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IService;
@@ -63,8 +64,6 @@ public class AsymKeyGenService implements IService {
     private IKeyRecoveryAuthority kra = null;
     private IStorageKeyUnit storageUnit = null;
     private ILogger signedAuditLogger = CMS.getSignedAuditLogger();
-    private final static String LOGGING_SIGNED_AUDIT_ASYMKEY_GEN_REQUEST_PROCESSED =
-            "LOGGING_SIGNED_AUDIT_ASYMKEY_GEN_REQUEST_PROCESSED_6";
 
     public AsymKeyGenService(IKeyRecoveryAuthority kra) {
         this.kra = kra;
@@ -233,7 +232,7 @@ public class AsymKeyGenService implements IService {
             String clientKeyID,
             String keyID, String reason) {
         String auditMessage = CMS.getLogMessage(
-                LOGGING_SIGNED_AUDIT_ASYMKEY_GEN_REQUEST_PROCESSED,
+                AuditEvent.ASYMKEY_GENERATION_REQUEST_PROCESSED,
                 subjectID,
                 status,
                 requestID.toString(),

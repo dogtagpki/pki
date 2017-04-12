@@ -43,6 +43,7 @@ import com.netscape.certsrv.base.ISecurityDomainSessionTable;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.UnauthorizedException;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.system.DomainInfo;
 import com.netscape.certsrv.system.InstallToken;
@@ -63,9 +64,6 @@ import netscape.ldap.LDAPSearchResults;
  * @author Endi S. Dewata
  */
 public class SecurityDomainProcessor extends CAProcessor {
-
-    public final static String LOGGING_SIGNED_AUDIT_SECURITY_DOMAIN_UPDATE =
-            "LOGGING_SIGNED_AUDIT_SECURITY_DOMAIN_UPDATE_1";
 
     public final static String[] TYPES = { "CA", "KRA", "OCSP", "TKS", "RA", "TPS" };
 
@@ -128,7 +126,7 @@ public class SecurityDomainProcessor extends CAProcessor {
 
         if (status == ISecurityDomainSessionTable.SUCCESS) {
             message = CMS.getLogMessage(
-                               LOGGING_SIGNED_AUDIT_SECURITY_DOMAIN_UPDATE,
+                               AuditEvent.SECURITY_DOMAIN_UPDATE,
                                user,
                                ILogger.SUCCESS,
                                auditParams);
@@ -136,7 +134,7 @@ public class SecurityDomainProcessor extends CAProcessor {
 
         } else {
             message = CMS.getLogMessage(
-                               LOGGING_SIGNED_AUDIT_SECURITY_DOMAIN_UPDATE,
+                               AuditEvent.SECURITY_DOMAIN_UPDATE,
                                user,
                                ILogger.FAILURE,
                                auditParams);

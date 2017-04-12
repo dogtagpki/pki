@@ -48,6 +48,7 @@ import com.netscape.certsrv.key.KeyRequestInfoCollection;
 import com.netscape.certsrv.key.KeyRequestResource;
 import com.netscape.certsrv.key.KeyRequestResponse;
 import com.netscape.certsrv.key.SymKeyGenerationRequest;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestNotFoundException;
@@ -61,21 +62,6 @@ import com.netscape.cmsutil.ldap.LDAPUtil;
  *
  */
 public class KeyRequestService extends SubsystemService implements KeyRequestResource {
-
-    private static final String LOGGING_SIGNED_AUDIT_SECURITY_DATA_ARCHIVAL_REQUEST =
-            "LOGGING_SIGNED_AUDIT_SECURITY_DATA_ARCHIVAL_REQUEST_4";
-
-    private static final String LOGGING_SIGNED_AUDIT_SYMKEY_GENERATION_REQUEST =
-            "LOGGING_SIGNED_AUDIT_SYMKEY_GENERATION_REQUEST_4";
-
-    private static final String LOGGING_SIGNED_AUDIT_ASYMKEY_GENERATION_REQUEST =
-            "LOGGING_SIGNED_AUDIT_ASYMKEY_GENERATION_REQUEST_4";
-
-    private static final String LOGGING_SIGNED_AUDIT_SECURITY_DATA_RECOVERY_REQUEST =
-            "LOGGING_SIGNED_AUDIT_SECURITY_DATA_RECOVERY_REQUEST_4";
-
-    private static final String LOGGING_SIGNED_AUDIT_SECURITY_DATA_RECOVERY_REQUEST_STATE_CHANGE =
-            "LOGGING_SIGNED_AUDIT_SECURITY_DATA_RECOVERY_REQUEST_STATE_CHANGE_4";
 
     public static final int DEFAULT_START = 0;
     public static final int DEFAULT_PAGESIZE = 20;
@@ -349,7 +335,7 @@ public class KeyRequestService extends SubsystemService implements KeyRequestRes
 
     public void auditRecoveryRequestChange(RequestId requestId, String status, String operation) {
         String msg = CMS.getLogMessage(
-                LOGGING_SIGNED_AUDIT_SECURITY_DATA_RECOVERY_REQUEST_STATE_CHANGE,
+                AuditEvent.SECURITY_DATA_RECOVERY_REQUEST_STATE_CHANGE,
                 getRequestor(),
                 status,
                 requestId.toString(),
@@ -359,7 +345,7 @@ public class KeyRequestService extends SubsystemService implements KeyRequestRes
 
     public void auditRecoveryRequestMade(RequestId requestId, String status, KeyId dataId) {
         String msg = CMS.getLogMessage(
-                LOGGING_SIGNED_AUDIT_SECURITY_DATA_RECOVERY_REQUEST,
+                AuditEvent.SECURITY_DATA_RECOVERY_REQUEST,
                 getRequestor(),
                 status,
                 requestId != null? requestId.toString(): "null",
@@ -369,7 +355,7 @@ public class KeyRequestService extends SubsystemService implements KeyRequestRes
 
     public void auditArchivalRequestMade(RequestId requestId, String status, String clientKeyID) {
         String msg = CMS.getLogMessage(
-                LOGGING_SIGNED_AUDIT_SECURITY_DATA_ARCHIVAL_REQUEST,
+                AuditEvent.SECURITY_DATA_ARCHIVAL_REQUEST,
                 getRequestor(),
                 status,
                 requestId != null? requestId.toString(): "null",
@@ -379,7 +365,7 @@ public class KeyRequestService extends SubsystemService implements KeyRequestRes
 
     public void auditSymKeyGenRequestMade(RequestId requestId, String status, String clientKeyID) {
         String msg = CMS.getLogMessage(
-                LOGGING_SIGNED_AUDIT_SYMKEY_GENERATION_REQUEST,
+                AuditEvent.SYMKEY_GENERATION_REQUEST,
                 getRequestor(),
                 status,
                 requestId != null ? requestId.toString() : "null",
@@ -389,7 +375,7 @@ public class KeyRequestService extends SubsystemService implements KeyRequestRes
 
     public void auditAsymKeyGenRequestMade(RequestId requestId, String status, String clientKeyID) {
         String msg = CMS.getLogMessage(
-                LOGGING_SIGNED_AUDIT_ASYMKEY_GENERATION_REQUEST,
+                AuditEvent.ASYMKEY_GENERATION_REQUEST,
                 getRequestor(),
                 status,
                 requestId != null ? requestId.toString() : "null",
