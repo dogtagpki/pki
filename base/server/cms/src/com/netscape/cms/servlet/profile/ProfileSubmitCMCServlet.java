@@ -44,8 +44,8 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
-import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.event.CertRequestProcessedEvent;
 import com.netscape.certsrv.profile.EDeferException;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
@@ -639,7 +639,6 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
             }
         } //for
 
-        String auditMessage = null;
         String auditSubjectID = auditSubjectID();
         String auditRequesterID = ILogger.UNIDENTIFIED;
 
@@ -677,16 +676,13 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                     if (auditInfoCertValue != null) {
                         if (!(auditInfoCertValue.equals(
                                     ILogger.SIGNED_AUDIT_EMPTY_VALUE))) {
-                            // store a message in the signed audit log file
-                            auditMessage = CMS.getLogMessage(
-                                        AuditEvent.CERT_REQUEST_PROCESSED,
+
+                            audit(new CertRequestProcessedEvent(
                                         auditSubjectID,
                                         ILogger.SUCCESS,
                                         auditRequesterID,
                                         ILogger.SIGNED_AUDIT_ACCEPTANCE,
-                                        auditInfoCertValue);
-
-                            audit(auditMessage);
+                                        auditInfoCertValue));
                         }
                     }
                 } catch (EDeferException e) {
@@ -733,31 +729,26 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
 
                 if (errorCode != null) {
                     if (errorCode.equals("1")) {
-                        // store a message in the signed audit log file
-                        auditMessage = CMS.getLogMessage(
-                                    AuditEvent.CERT_REQUEST_PROCESSED,
+
+                        audit(new CertRequestProcessedEvent(
                                     auditSubjectID,
                                     ILogger.FAILURE,
                                     auditRequesterID,
                                     ILogger.SIGNED_AUDIT_REJECTION,
-                                    errorReason);
+                                    errorReason));
 
-                        audit(auditMessage);
                     } else if (errorCode.equals("2")) {
                         // do NOT store a message in the signed audit log file
                         // as this errorCode indicates that a process has been
                         // deferred for manual acceptance/cancellation/rejection
                     } else if (errorCode.equals("3")) {
-                        // store a message in the signed audit log file
-                        auditMessage = CMS.getLogMessage(
-                                    AuditEvent.CERT_REQUEST_PROCESSED,
+
+                        audit(new CertRequestProcessedEvent(
                                     auditSubjectID,
                                     ILogger.FAILURE,
                                     auditRequesterID,
                                     ILogger.SIGNED_AUDIT_REJECTION,
-                                    errorReason);
-
-                        audit(auditMessage);
+                                    errorReason));
                     }
                     error_codes[k] = Integer.parseInt(errorCode);
                 } else
@@ -782,16 +773,13 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                     if (auditInfoCertValue != null) {
                         if (!(auditInfoCertValue.equals(
                                 ILogger.SIGNED_AUDIT_EMPTY_VALUE))) {
-                            // store a message in the signed audit log file
-                            auditMessage = CMS.getLogMessage(
-                                    AuditEvent.CERT_REQUEST_PROCESSED,
+
+                            audit(new CertRequestProcessedEvent(
                                     auditSubjectID,
                                     ILogger.SUCCESS,
                                     auditRequesterID,
                                     ILogger.SIGNED_AUDIT_ACCEPTANCE,
-                                    auditInfoCertValue);
-
-                            audit(auditMessage);
+                                    auditInfoCertValue));
                         }
                     }
                 } catch (ERejectException e) {

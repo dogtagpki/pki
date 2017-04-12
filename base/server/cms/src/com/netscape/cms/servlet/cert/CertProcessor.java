@@ -32,8 +32,8 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
-import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.event.CertRequestProcessedEvent;
 import com.netscape.certsrv.profile.EDeferException;
 import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.profile.IEnrollProfile;
@@ -217,7 +217,6 @@ public class CertProcessor extends CAProcessor {
     }
 
     protected String submitRequests(Locale locale, IProfile profile, IAuthToken authToken, IRequest[] reqs) {
-        String auditMessage = null;
         String auditSubjectID = auditSubjectID();
         String auditRequesterID = ILogger.UNIDENTIFIED;
         String errorCode = null;
@@ -252,16 +251,13 @@ public class CertProcessor extends CAProcessor {
                 if (auditInfoCertValue != null) {
                     if (!(auditInfoCertValue.equals(
                             ILogger.SIGNED_AUDIT_EMPTY_VALUE))) {
-                        // store a message in the signed audit log file
-                        auditMessage = CMS.getLogMessage(
-                                AuditEvent.CERT_REQUEST_PROCESSED,
+
+                        audit(new CertRequestProcessedEvent(
                                 auditSubjectID,
                                 ILogger.SUCCESS,
                                 auditRequesterID,
                                 ILogger.SIGNED_AUDIT_ACCEPTANCE,
-                                auditInfoCertValue);
-
-                        audit(auditMessage);
+                                auditInfoCertValue));
                     }
                 }
             } catch (EDeferException e) {
@@ -288,16 +284,13 @@ public class CertProcessor extends CAProcessor {
                 req.setExtData(IRequest.ERROR, e.toString());
                 req.setExtData(IRequest.ERROR_CODE, errorCode);
 
-                // store a message in the signed audit log file
-                auditMessage = CMS.getLogMessage(
-                        AuditEvent.CERT_REQUEST_PROCESSED,
+                audit(new CertRequestProcessedEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditRequesterID,
                         ILogger.SIGNED_AUDIT_REJECTION,
-                        codeToReason(locale, errorCode, e.toString(), req.getRequestId()));
+                        codeToReason(locale, errorCode, e.toString(), req.getRequestId())));
 
-                audit(auditMessage);
             } catch (Throwable e) {
                 // return error to the user
                 CMS.debug(e);
@@ -307,15 +300,12 @@ public class CertProcessor extends CAProcessor {
                 req.setExtData(IRequest.ERROR, errorReason);
                 req.setExtData(IRequest.ERROR_CODE, errorCode);
 
-                auditMessage = CMS.getLogMessage(
-                        AuditEvent.CERT_REQUEST_PROCESSED,
+                audit(new CertRequestProcessedEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditRequesterID,
                         ILogger.SIGNED_AUDIT_REJECTION,
-                        errorReason);
-
-                audit(auditMessage);
+                        errorReason));
             }
 
             try {

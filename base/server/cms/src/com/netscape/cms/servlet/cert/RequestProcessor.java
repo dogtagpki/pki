@@ -25,8 +25,6 @@ import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
 
-import netscape.security.x509.X509CertImpl;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
@@ -40,8 +38,8 @@ import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.CANotFoundException;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.cert.CertReviewResponse;
-import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.event.CertRequestProcessedEvent;
 import com.netscape.certsrv.profile.EDeferException;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
@@ -61,6 +59,8 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.profile.ProfileOutputFactory;
+
+import netscape.security.x509.X509CertImpl;
 
 public class RequestProcessor extends CertProcessor {
 
@@ -275,23 +275,18 @@ public class RequestProcessor extends CertProcessor {
      *                occurred
      */
     private void cancelRequest(IRequest req) throws EProfileException {
-        String auditMessage = null;
         String auditSubjectID = auditSubjectID();
         String auditRequesterID = auditRequesterID(req);
         String auditInfoValue = auditInfoValue(req);
 
         req.setRequestStatus(RequestStatus.CANCELED);
 
-        // store a message in the signed audit log file
-        auditMessage = CMS.getLogMessage(
-                AuditEvent.CERT_REQUEST_PROCESSED,
+        audit(new CertRequestProcessedEvent(
                 auditSubjectID,
                 ILogger.SUCCESS,
                 auditRequesterID,
                 ILogger.SIGNED_AUDIT_CANCELLATION,
-                auditInfoValue);
-
-        audit(auditMessage);
+                auditInfoValue));
     }
 
     /**
@@ -311,23 +306,18 @@ public class RequestProcessor extends CertProcessor {
      *                occurred
      */
     private void rejectRequest(IRequest req) throws EProfileException {
-        String auditMessage = null;
         String auditSubjectID = auditSubjectID();
         String auditRequesterID = auditRequesterID(req);
         String auditInfoValue = auditInfoValue(req);
 
         req.setRequestStatus(RequestStatus.REJECTED);
 
-        // store a message in the signed audit log file
-        auditMessage = CMS.getLogMessage(
-                AuditEvent.CERT_REQUEST_PROCESSED,
+        audit(new CertRequestProcessedEvent(
                 auditSubjectID,
                 ILogger.SUCCESS,
                 auditRequesterID,
                 ILogger.SIGNED_AUDIT_REJECTION,
-                auditInfoValue);
-
-        audit(auditMessage);
+                auditInfoValue));
     }
 
     /**
@@ -374,7 +364,6 @@ public class RequestProcessor extends CertProcessor {
      */
     private void approveRequest(IRequest req, CertReviewResponse data, IProfile profile, Locale locale)
             throws EBaseException {
-        String auditMessage = null;
         String auditSubjectID = auditSubjectID();
         String auditRequesterID = auditRequesterID(req);
 
@@ -398,28 +387,21 @@ public class RequestProcessor extends CertProcessor {
             X509CertImpl theCert = req.getExtDataInCert(
                     IEnrollProfile.REQUEST_ISSUED_CERT);
 
-            // store a message in the signed audit log file
-            auditMessage = CMS.getLogMessage(
-                    AuditEvent.CERT_REQUEST_PROCESSED,
+            audit(new CertRequestProcessedEvent(
                     auditSubjectID,
                     ILogger.SUCCESS,
                     auditRequesterID,
                     ILogger.SIGNED_AUDIT_ACCEPTANCE,
-                    auditInfoCertValue(theCert));
-
-            audit(auditMessage);
+                    auditInfoCertValue(theCert)));
 
         } catch (EProfileException eAudit1) {
-            // store a message in the signed audit log file
-            auditMessage = CMS.getLogMessage(
-                    AuditEvent.CERT_REQUEST_PROCESSED,
+
+            audit(new CertRequestProcessedEvent(
                     auditSubjectID,
                     ILogger.FAILURE,
                     auditRequesterID,
                     ILogger.SIGNED_AUDIT_ACCEPTANCE,
-                    ILogger.SIGNED_AUDIT_EMPTY_VALUE);
-
-            audit(auditMessage);
+                    ILogger.SIGNED_AUDIT_EMPTY_VALUE));
 
             CMS.debug("CertRequestExecutor: about to throw EProfileException because of bad profile execute.");
             throw eAudit1;
