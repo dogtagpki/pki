@@ -55,6 +55,7 @@ import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.ca.IssuerUnavailableException;
 import com.netscape.certsrv.common.OpDef;
 import com.netscape.certsrv.common.ScopeDef;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.servlet.base.SubsystemService;
 import com.netscape.cmsutil.util.Utils;
@@ -69,10 +70,6 @@ public class AuthorityService extends SubsystemService implements AuthorityResou
     public AuthorityService() {
         hostCA = (ICertificateAuthority) CMS.getSubsystem("ca");
     }
-
-    private final static String LOGGING_SIGNED_AUDIT_AUTHORITY_CONFIG =
-            "LOGGING_SIGNED_AUDIT_AUTHORITY_CONFIG_3";
-
 
     @Override
     public Response listCAs() {
@@ -373,7 +370,7 @@ public class AuthorityService extends SubsystemService implements AuthorityResou
             String status, String op, String id,
             Map<String, String> params) {
         String msg = CMS.getLogMessage(
-                LOGGING_SIGNED_AUDIT_AUTHORITY_CONFIG,
+                AuditEvent.AUTHORITY_CONFIG,
                 auditor.getSubjectID(),
                 status,
                 auditor.getParamString(ScopeDef.SC_AUTHORITY, op, id, params));

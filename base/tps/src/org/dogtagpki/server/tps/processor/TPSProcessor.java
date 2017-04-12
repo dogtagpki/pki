@@ -33,8 +33,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import netscape.security.x509.RevocationReason;
-
 import org.dogtagpki.server.tps.TPSSession;
 import org.dogtagpki.server.tps.TPSSubsystem;
 import org.dogtagpki.server.tps.authentication.AuthUIParameter;
@@ -95,11 +93,14 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.tps.token.TokenStatus;
 import com.netscape.cms.servlet.tks.SecureChannelProtocol;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.symkey.SessionKey;
+
+import netscape.security.x509.RevocationReason;
 
 public class TPSProcessor {
 
@@ -4054,9 +4055,9 @@ public class TPSProcessor {
             String status,
             String authMgrId) {
 
-        String auditType = "LOGGING_SIGNED_AUDIT_TOKEN_AUTH_FAILURE_9";
+        String auditType = AuditEvent.TOKEN_AUTH_FAILURE;
         if (status.equals("success"))
-            auditType = "LOGGING_SIGNED_AUDIT_TOKEN_AUTH_SUCCESS_9";
+            auditType = AuditEvent.TOKEN_AUTH_SUCCESS;
 
         String auditMessage = CMS.getLogMessage(
                 auditType,
@@ -4078,7 +4079,7 @@ public class TPSProcessor {
     protected void auditOpRequest(String op, AppletInfo aInfo,
             String status,
             String info) {
-        String auditType = "LOGGING_SIGNED_AUDIT_TOKEN_OP_REQUEST_6";
+        String auditType = AuditEvent.TOKEN_OP_REQUEST;
 
         String auditMessage = CMS.getLogMessage(
                 auditType,
@@ -4100,10 +4101,10 @@ public class TPSProcessor {
         String auditType = "";
         switch (status) {
         case "success":
-            auditType = "LOGGING_SIGNED_AUDIT_TOKEN_FORMAT_SUCCESS_9";
+            auditType = AuditEvent.TOKEN_FORMAT_SUCCESS;
             break;
         default:
-            auditType = "LOGGING_SIGNED_AUDIT_TOKEN_FORMAT_FAILURE_9";
+            auditType = AuditEvent.TOKEN_FORMAT_FAILURE;
         }
 
         String auditMessage = CMS.getLogMessage(
@@ -4129,10 +4130,10 @@ public class TPSProcessor {
         String auditType = "";
         switch (status) {
         case "success":
-            auditType = "LOGGING_SIGNED_AUDIT_TOKEN_APPLET_UPGRADE_SUCCESS_9";
+            auditType = AuditEvent.TOKEN_APPLET_UPGRADE_SUCCESS;
             break;
         default:
-            auditType = "LOGGING_SIGNED_AUDIT_TOKEN_APPLET_UPGRADE_FAILURE_9";
+            auditType = AuditEvent.TOKEN_APPLET_UPGRADE_FAILURE;
         }
 
         String auditMessage = CMS.getLogMessage(
@@ -4154,7 +4155,7 @@ public class TPSProcessor {
             String newKeyVersion,
             String info) {
 
-        String auditType = "LOGGING_SIGNED_AUDIT_TOKEN_KEY_CHANGEOVER_REQUIRED_10";
+        String auditType = AuditEvent.TOKEN_KEY_CHANGEOVER_REQUIRED;
 
         String auditMessage = CMS.getLogMessage(
                 auditType,
@@ -4180,10 +4181,10 @@ public class TPSProcessor {
         String auditType = "";
         switch (status) {
         case "success":
-            auditType = "LOGGING_SIGNED_AUDIT_TOKEN_KEY_CHANGEOVER_SUCCESS_10";
+            auditType = AuditEvent.TOKEN_KEY_CHANGEOVER_SUCCESS;
             break;
         default:
-            auditType = "LOGGING_SIGNED_AUDIT_TOKEN_KEY_CHANGEOVER_FAILURE_10";
+            auditType = AuditEvent.TOKEN_KEY_CHANGEOVER_FAILURE;
         }
 
         String auditMessage = CMS.getLogMessage(
@@ -4212,7 +4213,7 @@ public class TPSProcessor {
             String caConnId,
             String info) {
 
-        String auditType = "LOGGING_SIGNED_AUDIT_TOKEN_CERT_STATUS_CHANGE_REQUEST_10";
+        String auditType = AuditEvent.TOKEN_CERT_STATUS_CHANGE_REQUEST;
         /*
          * requestType is "revoke", "on-hold", or "off-hold"
          */

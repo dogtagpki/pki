@@ -44,6 +44,7 @@ import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBVirtualList;
 import com.netscape.certsrv.ldap.LDAPExceptionConverter;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.tps.token.TokenCollection;
 import com.netscape.certsrv.tps.token.TokenData;
@@ -814,7 +815,7 @@ public class TokenService extends SubsystemService implements TokenResource {
             String info) {
 
         String msg = CMS.getLogMessage(
-                "LOGGING_SIGNED_AUDIT_CONFIG_TOKEN_RECORD_6",
+                AuditEvent.CONFIG_TOKEN_RECORD,
                 servletRequest.getUserPrincipal().getName(),
                 status,
                 service,
@@ -832,7 +833,7 @@ public class TokenService extends SubsystemService implements TokenResource {
             String newReason, Map<String, String> params, String info) {
 
         String msg = CMS.getLogMessage(
-                "LOGGING_SIGNED_AUDIT_TOKEN_STATE_CHANGE_8",
+                AuditEvent.TOKEN_STATE_CHANGE,
                 servletRequest.getUserPrincipal().getName(),
                 status,
                 oldState.toString(),

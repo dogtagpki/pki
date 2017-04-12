@@ -39,6 +39,7 @@ import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.ForbiddenException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.tps.connector.ConnectorCollection;
 import com.netscape.certsrv.tps.connector.ConnectorData;
@@ -471,7 +472,7 @@ public class ConnectorService extends SubsystemService implements ConnectorResou
             String info) {
 
         String msg = CMS.getLogMessage(
-                "LOGGING_SIGNED_AUDIT_CONFIG_TOKEN_CONNECTOR_6",
+                AuditEvent.CONFIG_TOKEN_CONNECTOR,
                 servletRequest.getUserPrincipal().getName(),
                 status,
                 service,

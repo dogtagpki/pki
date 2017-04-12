@@ -33,6 +33,7 @@ import org.dogtagpki.tps.msg.BeginOpMsg;
 import org.dogtagpki.tps.msg.EndOpMsg.TPSStatus;
 
 import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.tps.token.TokenStatus;
 
 public class TPSPinResetProcessor extends TPSProcessor {
@@ -197,10 +198,10 @@ public class TPSPinResetProcessor extends TPSProcessor {
         String auditType = "";
         switch (status) {
         case "success":
-            auditType = "LOGGING_SIGNED_AUDIT_TOKEN_PIN_RESET_SUCCESS_6";
+            auditType = AuditEvent.TOKEN_PIN_RESET_SUCCESS;
             break;
         default:
-            auditType = "LOGGING_SIGNED_AUDIT_TOKEN_PIN_RESET_FAILURE_6";
+            auditType = AuditEvent.TOKEN_PIN_RESET_FAILURE;
         }
 
         String auditMessage = CMS.getLogMessage(

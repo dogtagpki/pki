@@ -39,6 +39,7 @@ import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.ForbiddenException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.tps.profile.ProfileMappingCollection;
 import com.netscape.certsrv.tps.profile.ProfileMappingData;
@@ -448,7 +449,7 @@ public class ProfileMappingService extends SubsystemService implements ProfileMa
     public void auditMappingResolverChange(String status, String service, String resolverID, Map<String, String> params,
             String info) {
         String msg = CMS.getLogMessage(
-                "LOGGING_SIGNED_AUDIT_CONFIG_TOKEN_MAPPING_RESOLVER_6",
+                AuditEvent.CONFIG_TOKEN_MAPPING_RESOLVER,
                 servletRequest.getUserPrincipal().getName(),
                 status,
                 service,

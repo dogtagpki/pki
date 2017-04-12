@@ -35,6 +35,57 @@ import com.netscape.certsrv.base.MessageFormatter;
  */
 public class AuditEvent implements IBundleLogEvent {
 
+    public final static String TOKEN_CERT_ENROLLMENT =
+            "LOGGING_SIGNED_AUDIT_TOKEN_CERT_ENROLLMENT_9";
+    public final static String TOKEN_CERT_RENEWAL =
+            "LOGGING_SIGNED_AUDIT_TOKEN_CERT_RENEWAL_9";
+    public final static String TOKEN_CERT_RETRIEVAL =
+            "LOGGING_SIGNED_AUDIT_TOKEN_CERT_RETRIEVAL_9";
+    public final static String TOKEN_KEY_RECOVERY =
+            "LOGGING_SIGNED_AUDIT_TOKEN_KEY_RECOVERY_10";
+    public final static String TOKEN_CERT_STATUS_CHANGE_REQUEST =
+            "LOGGING_SIGNED_AUDIT_TOKEN_CERT_STATUS_CHANGE_REQUEST_10";
+    public final static String TOKEN_PIN_RESET_SUCCESS =
+            "LOGGING_SIGNED_AUDIT_TOKEN_PIN_RESET_SUCCESS_6";
+    public final static String TOKEN_PIN_RESET_FAILURE =
+            "LOGGING_SIGNED_AUDIT_TOKEN_PIN_RESET_FAILURE_6";
+    public final static String TOKEN_OP_REQUEST =
+            "LOGGING_SIGNED_AUDIT_TOKEN_OP_REQUEST_6";
+    public final static String TOKEN_FORMAT_SUCCESS =
+            "LOGGING_SIGNED_AUDIT_TOKEN_FORMAT_SUCCESS_9";
+    public final static String TOKEN_FORMAT_FAILURE =
+            "LOGGING_SIGNED_AUDIT_TOKEN_FORMAT_FAILURE_9";
+    public final static String TOKEN_APPLET_UPGRADE_SUCCESS =
+            "LOGGING_SIGNED_AUDIT_TOKEN_APPLET_UPGRADE_SUCCESS_9";
+    public final static String TOKEN_APPLET_UPGRADE_FAILURE =
+            "LOGGING_SIGNED_AUDIT_TOKEN_APPLET_UPGRADE_FAILURE_9";
+    public final static String TOKEN_KEY_CHANGEOVER_REQUIRED =
+            "LOGGING_SIGNED_AUDIT_TOKEN_KEY_CHANGEOVER_REQUIRED_10";
+    public final static String TOKEN_KEY_CHANGEOVER_SUCCESS =
+            "LOGGING_SIGNED_AUDIT_TOKEN_KEY_CHANGEOVER_SUCCESS_10";
+    public final static String TOKEN_KEY_CHANGEOVER_FAILURE =
+            "LOGGING_SIGNED_AUDIT_TOKEN_KEY_CHANGEOVER_FAILURE_10";
+    public final static String TOKEN_AUTH_FAILURE =
+            "LOGGING_SIGNED_AUDIT_TOKEN_AUTH_FAILURE_9";
+    public final static String TOKEN_AUTH_SUCCESS =
+            "LOGGING_SIGNED_AUDIT_TOKEN_AUTH_SUCCESS_9";
+    public final static String CONFIG_TOKEN_GENERAL =
+            "LOGGING_SIGNED_AUDIT_CONFIG_TOKEN_GENERAL_5";
+    public final static String CONFIG_TOKEN_PROFILE =
+            "LOGGING_SIGNED_AUDIT_CONFIG_TOKEN_PROFILE_6";
+    public final static String CONFIG_TOKEN_MAPPING_RESOLVER =
+            "LOGGING_SIGNED_AUDIT_CONFIG_TOKEN_MAPPING_RESOLVER_6";
+    public final static String CONFIG_TOKEN_AUTHENTICATOR =
+            "LOGGING_SIGNED_AUDIT_CONFIG_TOKEN_AUTHENTICATOR_6";
+    public final static String CONFIG_TOKEN_CONNECTOR =
+            "LOGGING_SIGNED_AUDIT_CONFIG_TOKEN_CONNECTOR_6";
+    public final static String CONFIG_TOKEN_RECORD =
+            "LOGGING_SIGNED_AUDIT_CONFIG_TOKEN_RECORD_6";
+    public final static String TOKEN_STATE_CHANGE =
+            "LOGGING_SIGNED_AUDIT_TOKEN_STATE_CHANGE_8";
+    public final static String AUTHORITY_CONFIG =
+            "LOGGING_SIGNED_AUDIT_AUTHORITY_CONFIG_3";
+
     public final static String ACCESS_SESSION_ESTABLISH_FAILURE =
             "LOGGING_SIGNED_AUDIT_ACCESS_SESSION_ESTABLISH_FAILURE";
     public final static String ACCESS_SESSION_ESTABLISH_SUCCESS =

@@ -28,6 +28,7 @@ import javax.ws.rs.core.HttpHeaders;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authorization.IAuthzSubsystem;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.IAuditor;
 import com.netscape.certsrv.logging.ILogger;
 
@@ -94,7 +95,7 @@ public class SubsystemService extends PKIService {
     public void auditConfigTokenGeneral(String status, String service, Map<String, String> params, String info) {
 
         String msg = CMS.getLogMessage(
-                "LOGGING_SIGNED_AUDIT_CONFIG_TOKEN_GENERAL_5",
+                AuditEvent.CONFIG_TOKEN_GENERAL,
                 servletRequest.getUserPrincipal().getName(),
                 status,
                 service,

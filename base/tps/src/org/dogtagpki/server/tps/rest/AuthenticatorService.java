@@ -39,6 +39,7 @@ import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.ForbiddenException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.tps.authenticator.AuthenticatorCollection;
 import com.netscape.certsrv.tps.authenticator.AuthenticatorData;
@@ -474,7 +475,7 @@ public class AuthenticatorService extends SubsystemService implements Authentica
             Map<String, String> params, String info) {
 
         String msg = CMS.getLogMessage(
-                "LOGGING_SIGNED_AUDIT_CONFIG_TOKEN_AUTHENTICATOR_6",
+                AuditEvent.CONFIG_TOKEN_AUTHENTICATOR,
                 servletRequest.getUserPrincipal().getName(),
                 status,
                 service,
