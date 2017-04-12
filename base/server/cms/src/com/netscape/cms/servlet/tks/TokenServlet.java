@@ -47,6 +47,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IPrettyPrintFormat;
 import com.netscape.certsrv.base.SessionContext;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -74,42 +75,6 @@ public class TokenServlet extends CMSServlet {
     String mNewKeyNickName = null;
     String mCurrentUID = null;
     IPrettyPrintFormat pp = CMS.getPrettyPrintFormat(":");
-
-    private final static String LOGGING_SIGNED_AUDIT_COMPUTE_SESSION_KEY_REQUEST =
-            "LOGGING_SIGNED_AUDIT_COMPUTE_SESSION_KEY_REQUEST_4"; // AC: KDF SPEC CHANGE:  Need to log both KDD and CUID.
-
-    private final static String LOGGING_SIGNED_AUDIT_COMPUTE_SESSION_KEY_REQUEST_PROCESSED_SUCCESS =
-            "LOGGING_SIGNED_AUDIT_COMPUTE_SESSION_KEY_REQUEST_PROCESSED_SUCCESS_13"; // AC: KDF SPEC CHANGE:  Need to log both KDD and CUID.  Also added TKSKeyset, KeyInfo_KeyVersion, NistSP800_108KdfOnKeyVersion, NistSP800_108KdfUseCuidAsKdd.
-
-    private final static String LOGGING_SIGNED_AUDIT_COMPUTE_SESSION_KEY_REQUEST_PROCESSED_FAILURE =
-            "LOGGING_SIGNED_AUDIT_COMPUTE_SESSION_KEY_REQUEST_PROCESSED_FAILURE_14"; // AC: KDF SPEC CHANGE:  Need to log both KDD and CUID.  Also added TKSKeyset, KeyInfo_KeyVersion, NistSP800_108KdfOnKeyVersion, NistSP800_108KdfUseCuidAsKdd.
-
-    private final static String LOGGING_SIGNED_AUDIT_DIVERSIFY_KEY_REQUEST =
-            "LOGGING_SIGNED_AUDIT_DIVERSIFY_KEY_REQUEST_6"; // AC: KDF SPEC CHANGE:  Need to log both KDD and CUID.
-
-    private final static String LOGGING_SIGNED_AUDIT_DIVERSIFY_KEY_REQUEST_PROCESSED_SUCCESS =
-            "LOGGING_SIGNED_AUDIT_DIVERSIFY_KEY_REQUEST_PROCESSED_SUCCESS_12"; // AC: KDF SPEC CHANGE:  Need to log both KDD and CUID.  Also added TKSKeyset, OldKeyInfo_KeyVersion, NewKeyInfo_KeyVersion, NistSP800_108KdfOnKeyVersion, NistSP800_108KdfUseCuidAsKdd.
-
-    private final static String LOGGING_SIGNED_AUDIT_DIVERSIFY_KEY_REQUEST_PROCESSED_FAILURE =
-            "LOGGING_SIGNED_AUDIT_DIVERSIFY_KEY_REQUEST_PROCESSED_FAILURE_13"; // AC: KDF SPEC CHANGE:  Need to log both KDD and CUID.  Also added TKSKeyset, OldKeyInfo_KeyVersion, NewKeyInfo_KeyVersion, NistSP800_108KdfOnKeyVersion, NistSP800_108KdfUseCuidAsKdd.
-
-    private final static String LOGGING_SIGNED_AUDIT_ENCRYPT_DATA_REQUEST =
-            "LOGGING_SIGNED_AUDIT_ENCRYPT_DATA_REQUEST_5"; // AC: KDF SPEC CHANGE:  Need to log both KDD and CUID.
-
-    private final static String LOGGING_SIGNED_AUDIT_ENCRYPT_DATA_REQUEST_PROCESSED_SUCCESS =
-            "LOGGING_SIGNED_AUDIT_ENCRYPT_DATA_REQUEST_PROCESSED_SUCCESS_12";
-
-    private final static String LOGGING_SIGNED_AUDIT_ENCRYPT_DATA_REQUEST_PROCESSED_FAILURE =
-            "LOGGING_SIGNED_AUDIT_ENCRYPT_DATA_REQUEST_PROCESSED_FAILURE_13";
-
-    private final static String LOGGING_SIGNED_AUDIT_COMPUTE_RANDOM_DATA_REQUEST =
-            "LOGGING_SIGNED_AUDIT_COMPUTE_RANDOM_DATA_REQUEST_2";
-
-    private final static String LOGGING_SIGNED_AUDIT_COMPUTE_RANDOM_DATA_REQUEST_PROCESSED_SUCCESS =
-            "LOGGING_SIGNED_AUDIT_COMPUTE_RANDOM_DATA_REQUEST_PROCESSED_SUCCESS_3";
-
-    private final static String LOGGING_SIGNED_AUDIT_COMPUTE_RANDOM_DATA_REQUEST_PROCESSED_FAILURE =
-            "LOGGING_SIGNED_AUDIT_COMPUTE_RANDOM_DATA_REQUEST_PROCESSED_FAILURE_4";
 
     // Derivation Constants for SCP02
     public final static byte[] C_MACDerivationConstant = { (byte) 0x01, (byte) 0x01 };
@@ -404,7 +369,7 @@ public class TokenServlet extends CMSServlet {
         }
 
         auditMessage = CMS.getLogMessage(
-                LOGGING_SIGNED_AUDIT_COMPUTE_SESSION_KEY_REQUEST,
+                AuditEvent.COMPUTE_SESSION_KEY_REQUEST,
                 rCUID,
                 rKDD, // AC: KDF SPEC CHANGE - Log both CUID and KDD.
                 ILogger.SUCCESS,
@@ -834,7 +799,7 @@ public class TokenServlet extends CMSServlet {
                     "0x" + Integer.toHexString(nistSP800_108KdfOnKeyVersion & 0x000000FF), // NistSP800_108KdfOnKeyVersion
                     Boolean.toString(nistSP800_108KdfUseCuidAsKdd) // NistSP800_108KdfUseCuidAsKdd
             };
-            auditMessage = CMS.getLogMessage(LOGGING_SIGNED_AUDIT_COMPUTE_SESSION_KEY_REQUEST_PROCESSED_SUCCESS,
+            auditMessage = CMS.getLogMessage(AuditEvent.COMPUTE_SESSION_KEY_REQUEST_PROCESSED_SUCCESS,
                     logParams);
 
         } else {
@@ -854,7 +819,7 @@ public class TokenServlet extends CMSServlet {
                     Boolean.toString(nistSP800_108KdfUseCuidAsKdd), // NistSP800_108KdfUseCuidAsKdd
                     errorMsg // Error
             };
-            auditMessage = CMS.getLogMessage(LOGGING_SIGNED_AUDIT_COMPUTE_SESSION_KEY_REQUEST_PROCESSED_FAILURE,
+            auditMessage = CMS.getLogMessage(AuditEvent.COMPUTE_SESSION_KEY_REQUEST_PROCESSED_FAILURE,
                     logParams);
         }
 
@@ -922,7 +887,7 @@ public class TokenServlet extends CMSServlet {
 
         // AC: KDF SPEC CHANGE:  Need to log both KDD and CUID
         auditMessage = CMS.getLogMessage(
-                LOGGING_SIGNED_AUDIT_COMPUTE_SESSION_KEY_REQUEST,
+                AuditEvent.COMPUTE_SESSION_KEY_REQUEST,
                 rCUID,
                 rKDD, // AC: KDF SPEC CHANGE - Log both CUID and KDD.
                 ILogger.SUCCESS,
@@ -1492,7 +1457,7 @@ public class TokenServlet extends CMSServlet {
                     "0x" + Integer.toHexString(nistSP800_108KdfOnKeyVersion & 0x000000FF), // NistSP800_108KdfOnKeyVersion
                     Boolean.toString(nistSP800_108KdfUseCuidAsKdd) // NistSP800_108KdfUseCuidAsKdd
             };
-            auditMessage = CMS.getLogMessage(LOGGING_SIGNED_AUDIT_COMPUTE_SESSION_KEY_REQUEST_PROCESSED_SUCCESS,
+            auditMessage = CMS.getLogMessage(AuditEvent.COMPUTE_SESSION_KEY_REQUEST_PROCESSED_SUCCESS,
                     logParams);
 
         } else {
@@ -1514,7 +1479,7 @@ public class TokenServlet extends CMSServlet {
                     Boolean.toString(nistSP800_108KdfUseCuidAsKdd), // NistSP800_108KdfUseCuidAsKdd
                     errorMsg // Error
             };
-            auditMessage = CMS.getLogMessage(LOGGING_SIGNED_AUDIT_COMPUTE_SESSION_KEY_REQUEST_PROCESSED_FAILURE,
+            auditMessage = CMS.getLogMessage(AuditEvent.COMPUTE_SESSION_KEY_REQUEST_PROCESSED_FAILURE,
                     logParams);
 
         }
@@ -1635,7 +1600,7 @@ public class TokenServlet extends CMSServlet {
 
         // AC: KDF SPEC CHANGE:  Need to log both KDD and CUID
         auditMessage = CMS.getLogMessage(
-                LOGGING_SIGNED_AUDIT_DIVERSIFY_KEY_REQUEST,
+                AuditEvent.DIVERSIFY_KEY_REQUEST,
                 rCUID,
                 rKDD, // AC: KDF SPEC CHANGE - Log both CUID and KDD.
                 ILogger.SUCCESS,
@@ -1924,7 +1889,7 @@ public class TokenServlet extends CMSServlet {
                     "0x" + Integer.toHexString(nistSP800_108KdfOnKeyVersion & 0x000000FF), // NistSP800_108KdfOnKeyVersion
                     Boolean.toString(nistSP800_108KdfUseCuidAsKdd) // NistSP800_108KdfUseCuidAsKdd
             };
-            auditMessage = CMS.getLogMessage(LOGGING_SIGNED_AUDIT_DIVERSIFY_KEY_REQUEST_PROCESSED_SUCCESS, logParams);
+            auditMessage = CMS.getLogMessage(AuditEvent.DIVERSIFY_KEY_REQUEST_PROCESSED_SUCCESS, logParams);
         } else {
             // AC: KDF SPEC CHANGE - Log both CUID and KDD
             //                       Also added TKSKeyset, OldKeyInfo_KeyVersion, NewKeyInfo_KeyVersion, NistSP800_108KdfOnKeyVersion, NistSP800_108KdfUseCuidAsKdd
@@ -1946,7 +1911,7 @@ public class TokenServlet extends CMSServlet {
                     Boolean.toString(nistSP800_108KdfUseCuidAsKdd), // NistSP800_108KdfUseCuidAsKdd
                     errorMsg // Error
             };
-            auditMessage = CMS.getLogMessage(LOGGING_SIGNED_AUDIT_DIVERSIFY_KEY_REQUEST_PROCESSED_FAILURE, logParams);
+            auditMessage = CMS.getLogMessage(AuditEvent.DIVERSIFY_KEY_REQUEST_PROCESSED_FAILURE, logParams);
         }
 
         audit(auditMessage);
@@ -2011,7 +1976,7 @@ public class TokenServlet extends CMSServlet {
 
         // AC: KDF SPEC CHANGE:  Need to log both KDD and CUID
         String auditMessage = CMS.getLogMessage(
-                LOGGING_SIGNED_AUDIT_ENCRYPT_DATA_REQUEST,
+                AuditEvent.ENCRYPT_DATA_REQUEST,
                 rCUID,
                 rKDD, // AC: KDF SPEC CHANGE - Log both CUID and KDD.
                 ILogger.SUCCESS,
@@ -2262,7 +2227,7 @@ public class TokenServlet extends CMSServlet {
                     "0x" + Integer.toHexString(nistSP800_108KdfOnKeyVersion & 0x000000FF), // NistSP800_108KdfOnKeyVersion
                     Boolean.toString(nistSP800_108KdfUseCuidAsKdd) // NistSP800_108KdfUseCuidAsKdd
             };
-            auditMessage = CMS.getLogMessage(LOGGING_SIGNED_AUDIT_ENCRYPT_DATA_REQUEST_PROCESSED_SUCCESS, logParams);
+            auditMessage = CMS.getLogMessage(AuditEvent.ENCRYPT_DATA_REQUEST_PROCESSED_SUCCESS, logParams);
         } else {
             // AC: KDF SPEC CHANGE - Log both CUID and KDD
             //                       Also added TKSKeyset, KeyInfo_KeyVersion, NistSP800_108KdfOnKeyVersion, NistSP800_108KdfUseCuidAsKdd
@@ -2281,7 +2246,7 @@ public class TokenServlet extends CMSServlet {
                     Boolean.toString(nistSP800_108KdfUseCuidAsKdd), // NistSP800_108KdfUseCuidAsKdd
                     errorMsg // Error
             };
-            auditMessage = CMS.getLogMessage(LOGGING_SIGNED_AUDIT_ENCRYPT_DATA_REQUEST_PROCESSED_FAILURE, logParams);
+            auditMessage = CMS.getLogMessage(AuditEvent.ENCRYPT_DATA_REQUEST_PROCESSED_FAILURE, logParams);
         }
 
         audit(auditMessage);
@@ -2344,7 +2309,7 @@ public class TokenServlet extends CMSServlet {
         CMS.debug("TokenServlet::processComputeRandomData data size requested: " + dataSize);
 
         String auditMessage = CMS.getLogMessage(
-                LOGGING_SIGNED_AUDIT_COMPUTE_RANDOM_DATA_REQUEST,
+                AuditEvent.COMPUTE_RANDOM_DATA_REQUEST,
                 ILogger.SUCCESS,
                 agentId);
 
@@ -2403,13 +2368,13 @@ public class TokenServlet extends CMSServlet {
 
         if (status.equals("0")) {
             auditMessage = CMS.getLogMessage(
-                    LOGGING_SIGNED_AUDIT_COMPUTE_RANDOM_DATA_REQUEST_PROCESSED_SUCCESS,
+                    AuditEvent.COMPUTE_RANDOM_DATA_REQUEST_PROCESSED_SUCCESS,
                     ILogger.SUCCESS,
                     status,
                     agentId);
         } else {
             auditMessage = CMS.getLogMessage(
-                    LOGGING_SIGNED_AUDIT_COMPUTE_RANDOM_DATA_REQUEST_PROCESSED_FAILURE,
+                    AuditEvent.COMPUTE_RANDOM_DATA_REQUEST_PROCESSED_FAILURE,
                     ILogger.FAILURE,
                     status,
                     agentId,
@@ -2533,7 +2498,7 @@ public class TokenServlet extends CMSServlet {
         }
 
         auditMessage = CMS.getLogMessage(
-                LOGGING_SIGNED_AUDIT_COMPUTE_SESSION_KEY_REQUEST,
+                AuditEvent.COMPUTE_SESSION_KEY_REQUEST,
                 rCUID,
                 rKDD,
                 ILogger.SUCCESS,
@@ -2956,7 +2921,7 @@ public class TokenServlet extends CMSServlet {
                     keySet, // TKSKeyset
                     log_string_from_keyInfo(xkeyInfo), // KeyInfo_KeyVersion
             };
-            auditMessage = CMS.getLogMessage(LOGGING_SIGNED_AUDIT_COMPUTE_SESSION_KEY_REQUEST_PROCESSED_SUCCESS,
+            auditMessage = CMS.getLogMessage(AuditEvent.COMPUTE_SESSION_KEY_REQUEST_PROCESSED_SUCCESS,
                     logParams);
 
         } else {
@@ -2973,7 +2938,7 @@ public class TokenServlet extends CMSServlet {
                     log_string_from_keyInfo(xkeyInfo), // KeyInfo_KeyVersion
                     errorMsg // Error
             };
-            auditMessage = CMS.getLogMessage(LOGGING_SIGNED_AUDIT_COMPUTE_SESSION_KEY_REQUEST_PROCESSED_FAILURE,
+            auditMessage = CMS.getLogMessage(AuditEvent.COMPUTE_SESSION_KEY_REQUEST_PROCESSED_FAILURE,
                     logParams);
 
         }

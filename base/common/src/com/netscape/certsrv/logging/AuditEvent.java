@@ -35,6 +35,31 @@ import com.netscape.certsrv.base.MessageFormatter;
  */
 public class AuditEvent implements IBundleLogEvent {
 
+    public final static String COMPUTE_RANDOM_DATA_REQUEST =
+            "LOGGING_SIGNED_AUDIT_COMPUTE_RANDOM_DATA_REQUEST_2";
+    public final static String COMPUTE_RANDOM_DATA_REQUEST_PROCESSED_SUCCESS =
+            "LOGGING_SIGNED_AUDIT_COMPUTE_RANDOM_DATA_REQUEST_PROCESSED_SUCCESS_3";
+    public final static String COMPUTE_RANDOM_DATA_REQUEST_PROCESSED_FAILURE =
+            "LOGGING_SIGNED_AUDIT_COMPUTE_RANDOM_DATA_REQUEST_PROCESSED_FAILURE_4";
+    public final static String COMPUTE_SESSION_KEY_REQUEST =
+            "LOGGING_SIGNED_AUDIT_COMPUTE_SESSION_KEY_REQUEST_4"; // AC: KDF SPEC CHANGE:  Need to log both KDD and CUID.
+    public final static String COMPUTE_SESSION_KEY_REQUEST_PROCESSED_SUCCESS =
+            "LOGGING_SIGNED_AUDIT_COMPUTE_SESSION_KEY_REQUEST_PROCESSED_SUCCESS_13"; // AC: KDF SPEC CHANGE:  Need to log both KDD and CUID.  Also added TKSKeyset, KeyInfo_KeyVersion, NistSP800_108KdfOnKeyVersion, NistSP800_108KdfUseCuidAsKdd.
+    public final static String COMPUTE_SESSION_KEY_REQUEST_PROCESSED_FAILURE =
+            "LOGGING_SIGNED_AUDIT_COMPUTE_SESSION_KEY_REQUEST_PROCESSED_FAILURE_14"; // AC: KDF SPEC CHANGE:  Need to log both KDD and CUID.  Also added TKSKeyset, KeyInfo_KeyVersion, NistSP800_108KdfOnKeyVersion, NistSP800_108KdfUseCuidAsKdd.
+    public final static String DIVERSIFY_KEY_REQUEST =
+            "LOGGING_SIGNED_AUDIT_DIVERSIFY_KEY_REQUEST_6"; // AC: KDF SPEC CHANGE:  Need to log both KDD and CUID.
+    public final static String DIVERSIFY_KEY_REQUEST_PROCESSED_SUCCESS =
+            "LOGGING_SIGNED_AUDIT_DIVERSIFY_KEY_REQUEST_PROCESSED_SUCCESS_12"; // AC: KDF SPEC CHANGE:  Need to log both KDD and CUID.  Also added TKSKeyset, OldKeyInfo_KeyVersion, NewKeyInfo_KeyVersion, NistSP800_108KdfOnKeyVersion, NistSP800_108KdfUseCuidAsKdd.
+    public final static String DIVERSIFY_KEY_REQUEST_PROCESSED_FAILURE =
+            "LOGGING_SIGNED_AUDIT_DIVERSIFY_KEY_REQUEST_PROCESSED_FAILURE_13"; // AC: KDF SPEC CHANGE:  Need to log both KDD and CUID.  Also added TKSKeyset, OldKeyInfo_KeyVersion, NewKeyInfo_KeyVersion, NistSP800_108KdfOnKeyVersion, NistSP800_108KdfUseCuidAsKdd.
+    public final static String ENCRYPT_DATA_REQUEST =
+            "LOGGING_SIGNED_AUDIT_ENCRYPT_DATA_REQUEST_5"; // AC: KDF SPEC CHANGE:  Need to log both KDD and CUID.
+    public final static String ENCRYPT_DATA_REQUEST_PROCESSED_SUCCESS =
+            "LOGGING_SIGNED_AUDIT_ENCRYPT_DATA_REQUEST_PROCESSED_SUCCESS_12";
+    public final static String ENCRYPT_DATA_REQUEST_PROCESSED_FAILURE =
+            "LOGGING_SIGNED_AUDIT_ENCRYPT_DATA_REQUEST_PROCESSED_FAILURE_13";
+
     public final static String SECURITY_DOMAIN_UPDATE =
             "LOGGING_SIGNED_AUDIT_SECURITY_DOMAIN_UPDATE_1";
     public final static String CONFIG_SERIAL_NUMBER =
