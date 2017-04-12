@@ -51,16 +51,33 @@ public class SubjectKeyIdentifierExtDefault extends EnrollExtDefault {
 
     public static final String VAL_CRITICAL = "critical";
     public static final String VAL_KEY_ID = "keyid";
+    public static final String CONFIG_MD = "messageDigest";
+    public static final String VAL_MD = "messageDigest";
+    public static final String DEF_CONFIG_MDS = "SHA-1,SHA-256,SHA-512";
 
     public SubjectKeyIdentifierExtDefault() {
         super();
         addValueName(VAL_CRITICAL);
         addValueName(VAL_KEY_ID);
+	addConfigName(CONFIG_MD);
+	addValueName(VAL_MD);
+
     }
 
     public void init(IProfile profile, IConfigStore config)
             throws EProfileException {
         super.init(profile, config);
+    }
+
+    public IDescriptor getConfigDescriptor(Locale locale, String name) {
+        if (name.equals(CONFIG_MD)) {
+            return new Descriptor(IDescriptor.CHOICE, DEF_CONFIG_MDS,
+                    "SHA-1",
+                    CMS.getUserMessage(locale, "message digest"));
+//                    CMS.getUserMessage(locale, "CMS_PROFILE_SIGNING_ALGORITHM"));
+        } else {
+            return null;
+        }
     }
 
     public IDescriptor getValueDescriptor(Locale locale, String name) {
@@ -89,6 +106,8 @@ public class SubjectKeyIdentifierExtDefault extends EnrollExtDefault {
         if (name.equals(VAL_CRITICAL)) {
             // read-only; do nothing
         } else if (name.equals(VAL_KEY_ID)) {
+            // read-only; do nothing
+        } else if (name.equals(VAL_MD)) {
             // read-only; do nothing
         } else {
             throw new EPropertyException(CMS.getUserMessage(
@@ -153,6 +172,15 @@ public class SubjectKeyIdentifierExtDefault extends EnrollExtDefault {
                                                                   name));
             }
             return toHexString(kid.getIdentifier());
+        } else if (name.equals(VAL_MD)) {
+            ext =
+                (SubjectKeyIdentifierExtension) getExtension(
+                    PKIXExtensions.SubjectKey_Id.toString(), info);
+
+            if (ext == null) {
+                return null;
+            }
+            return VAL_MD;
         } else {
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
@@ -199,7 +227,8 @@ public class SubjectKeyIdentifierExtDefault extends EnrollExtDefault {
             CertificateX509Key infokey = (CertificateX509Key)
                     info.get(X509CertInfo.KEY);
             X509Key key = (X509Key) infokey.get(CertificateX509Key.KEY);
-            MessageDigest md = MessageDigest.getInstance("SHA-1");
+            String configmd = getConfig(CONFIG_MD);
+            MessageDigest md = MessageDigest.getInstance(configmd);
 
             md.update(key.getKey());
             byte[] hash = md.digest();
