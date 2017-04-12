@@ -30,6 +30,7 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.SessionContext;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IProfile;
@@ -47,9 +48,6 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
  * @version $Revision$, $Date$
  */
 public abstract class EnrollInput implements IProfileInput {
-
-    private final static String LOGGING_SIGNED_AUDIT_PROOF_OF_POSSESSION =
-            "LOGGING_SIGNED_AUDIT_PROOF_OF_POSSESSION_2";
 
     protected IConfigStore mConfig = null;
     protected Vector<String> mValueNames = new Vector<String>();
@@ -219,7 +217,7 @@ public abstract class EnrollInput implements IProfileInput {
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                    LOGGING_SIGNED_AUDIT_PROOF_OF_POSSESSION,
+                    AuditEvent.PROOF_OF_POSSESSION,
                     auditSubjectID,
                     ILogger.SUCCESS);
             audit(auditMessage);
@@ -230,7 +228,7 @@ public abstract class EnrollInput implements IProfileInput {
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                    LOGGING_SIGNED_AUDIT_PROOF_OF_POSSESSION,
+                    AuditEvent.PROOF_OF_POSSESSION,
                     auditSubjectID,
                     ILogger.FAILURE);
 

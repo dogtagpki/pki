@@ -45,6 +45,7 @@ import com.netscape.certsrv.authorization.EAuthzUnknownRealm;
 import com.netscape.certsrv.authorization.IAuthzSubsystem;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ForbiddenException;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.realm.PKIPrincipal;
 
@@ -54,11 +55,6 @@ import com.netscape.cms.realm.PKIPrincipal;
 @Provider
 public class ACLInterceptor implements ContainerRequestFilter {
     protected ILogger signedAuditLogger = CMS.getSignedAuditLogger();
-    private final static String LOGGING_SIGNED_AUDIT_AUTHZ_FAIL =
-            "LOGGING_SIGNED_AUDIT_AUTHZ_FAIL_5";
-    private final static String LOGGING_SIGNED_AUDIT_AUTHZ_SUCCESS =
-            "LOGGING_SIGNED_AUDIT_AUTHZ_SUCCESS_5";
-
     private final static String LOGGING_ACL_PARSING_ERROR = "internal error: ACL parsing error";
     private final static String LOGGING_NO_ACL_ACCESS_ALLOWED = "no ACL configured; OK";
     private final static String LOGGING_MISSING_AUTH_TOKEN = "auth token not found";
@@ -178,7 +174,7 @@ public class ACLInterceptor implements ContainerRequestFilter {
             // store a message in the signed audit log file
             // although if it didn't pass authentication, it should not have gotten here
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_AUTHZ_FAIL,
+                        AuditEvent.AUTHZ_FAIL_INFO,
                         auditSubjectID,
                         ILogger.FAILURE,
                         null, // resource
@@ -195,7 +191,7 @@ public class ACLInterceptor implements ContainerRequestFilter {
             CMS.debug("ACLInterceptor: No ACL mapping; authz not required.");
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_AUTHZ_SUCCESS,
+                        AuditEvent.AUTHZ_SUCCESS_INFO,
                         auditSubjectID,
                         ILogger.SUCCESS,
                         null, //resource
@@ -219,7 +215,7 @@ public class ACLInterceptor implements ContainerRequestFilter {
         } catch (IOException e) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_AUTHZ_FAIL,
+                        AuditEvent.AUTHZ_FAIL_INFO,
                         auditSubjectID,
                         ILogger.FAILURE,
                         null, //resource
@@ -236,7 +232,7 @@ public class ACLInterceptor implements ContainerRequestFilter {
             CMS.debug("ACLInterceptor: No ACL configuration.");
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                    LOGGING_SIGNED_AUDIT_AUTHZ_SUCCESS,
+                    AuditEvent.AUTHZ_SUCCESS_INFO,
                     auditSubjectID,
                     ILogger.SUCCESS,
                     null, //resource
@@ -252,7 +248,7 @@ public class ACLInterceptor implements ContainerRequestFilter {
             CMS.debug("ACLInterceptor: Invalid ACL mapping.");
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                    LOGGING_SIGNED_AUDIT_AUTHZ_FAIL,
+                    AuditEvent.AUTHZ_FAIL_INFO,
                     auditSubjectID,
                     ILogger.FAILURE,
                     null, //resource
@@ -279,7 +275,7 @@ public class ACLInterceptor implements ContainerRequestFilter {
                 CMS.debug("ACLInterceptor: " + info);
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_AUTHZ_FAIL,
+                            AuditEvent.AUTHZ_FAIL_INFO,
                             auditSubjectID,
                             ILogger.FAILURE,
                             values[0], // resource
@@ -296,7 +292,7 @@ public class ACLInterceptor implements ContainerRequestFilter {
             CMS.debug("ACLInterceptor: " + info);
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_AUTHZ_FAIL,
+                        AuditEvent.AUTHZ_FAIL_INFO,
                         auditSubjectID,
                         ILogger.FAILURE,
                         values[0], // resource
@@ -309,7 +305,7 @@ public class ACLInterceptor implements ContainerRequestFilter {
             String info = e.getMessage();
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_AUTHZ_FAIL,
+                        AuditEvent.AUTHZ_FAIL_INFO,
                         auditSubjectID,
                         ILogger.FAILURE,
                         values[0], // resource
@@ -323,7 +319,7 @@ public class ACLInterceptor implements ContainerRequestFilter {
         // Allow request.
         // store a message in the signed audit log file
         auditMessage = CMS.getLogMessage(
-                    LOGGING_SIGNED_AUDIT_AUTHZ_SUCCESS,
+                    AuditEvent.AUTHZ_SUCCESS_INFO,
                     auditSubjectID,
                     ILogger.SUCCESS,
                     values[0], // resource

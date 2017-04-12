@@ -76,6 +76,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.ca.ICertificateAuthority;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.profile.EDeferException;
 import com.netscape.certsrv.profile.EProfileException;
@@ -121,9 +122,6 @@ public abstract class EnrollProfile extends BasicProfile
 
     private final static String LOGGING_SIGNED_AUDIT_PROFILE_CERT_REQUEST =
             "LOGGING_SIGNED_AUDIT_PROFILE_CERT_REQUEST_5";
-    private final static String LOGGING_SIGNED_AUDIT_PROOF_OF_POSSESSION =
-            "LOGGING_SIGNED_AUDIT_PROOF_OF_POSSESSION_2";
-
     private PKIData mCMCData;
 
     public EnrollProfile() {
@@ -2073,7 +2071,7 @@ public abstract class EnrollProfile extends BasicProfile
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                    LOGGING_SIGNED_AUDIT_PROOF_OF_POSSESSION,
+                    AuditEvent.PROOF_OF_POSSESSION,
                     auditSubjectID,
                     ILogger.SUCCESS);
             audit(auditMessage);
@@ -2093,7 +2091,7 @@ public abstract class EnrollProfile extends BasicProfile
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                    LOGGING_SIGNED_AUDIT_PROOF_OF_POSSESSION,
+                    AuditEvent.PROOF_OF_POSSESSION,
                     auditSubjectID,
                     ILogger.FAILURE);
 

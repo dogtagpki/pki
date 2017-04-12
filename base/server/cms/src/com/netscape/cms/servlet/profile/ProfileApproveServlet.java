@@ -32,6 +32,7 @@ import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IPolicyConstraint;
@@ -60,8 +61,6 @@ public class ProfileApproveServlet extends ProfileServlet {
     private static final String PROP_AUTHORITY_ID = "authorityId";
     private String mAuthorityId = null;
 
-    private final static String LOGGING_SIGNED_AUDIT_CERT_PROFILE_APPROVAL =
-            "LOGGING_SIGNED_AUDIT_CERT_PROFILE_APPROVAL_4";
     private final static String OP_APPROVE = "approve";
     private final static String OP_DISAPPROVE = "disapprove";
 
@@ -134,7 +133,7 @@ public class ProfileApproveServlet extends ProfileServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CERT_PROFILE_APPROVAL,
+                            AuditEvent.CERT_PROFILE_APPROVAL,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditProfileID,
@@ -168,7 +167,7 @@ public class ProfileApproveServlet extends ProfileServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CERT_PROFILE_APPROVAL,
+                            AuditEvent.CERT_PROFILE_APPROVAL,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditProfileID,
@@ -198,7 +197,7 @@ public class ProfileApproveServlet extends ProfileServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CERT_PROFILE_APPROVAL,
+                            AuditEvent.CERT_PROFILE_APPROVAL,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditProfileID,
@@ -222,7 +221,7 @@ public class ProfileApproveServlet extends ProfileServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CERT_PROFILE_APPROVAL,
+                            AuditEvent.CERT_PROFILE_APPROVAL,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditProfileID,
@@ -244,7 +243,7 @@ public class ProfileApproveServlet extends ProfileServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CERT_PROFILE_APPROVAL,
+                            AuditEvent.CERT_PROFILE_APPROVAL,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditProfileID,
@@ -277,7 +276,7 @@ public class ProfileApproveServlet extends ProfileServlet {
 
                             // store a message in the signed audit log file
                             auditMessage = CMS.getLogMessage(
-                                    LOGGING_SIGNED_AUDIT_CERT_PROFILE_APPROVAL,
+                                    AuditEvent.CERT_PROFILE_APPROVAL,
                                     auditSubjectID,
                                     ILogger.FAILURE,
                                     auditProfileID,
@@ -298,7 +297,7 @@ public class ProfileApproveServlet extends ProfileServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CERT_PROFILE_APPROVAL,
+                            AuditEvent.CERT_PROFILE_APPROVAL,
                             auditSubjectID,
                             ILogger.SUCCESS,
                             auditProfileID,
@@ -316,7 +315,7 @@ public class ProfileApproveServlet extends ProfileServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CERT_PROFILE_APPROVAL,
+                            AuditEvent.CERT_PROFILE_APPROVAL,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditProfileID,
@@ -329,7 +328,7 @@ public class ProfileApproveServlet extends ProfileServlet {
         } catch (EBaseException eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CERT_PROFILE_APPROVAL,
+                        AuditEvent.CERT_PROFILE_APPROVAL,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditProfileID,

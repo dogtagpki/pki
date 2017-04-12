@@ -64,6 +64,7 @@ import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
@@ -244,14 +245,6 @@ public abstract class CMSServlet extends HttpServlet {
     private IUGSubsystem mUG = (IUGSubsystem)
             CMS.getSubsystem(CMS.SUBSYSTEM_UG);
 
-    private final static String LOGGING_SIGNED_AUDIT_AUTH_FAIL =
-            "LOGGING_SIGNED_AUDIT_AUTH_FAIL_4";
-    private final static String LOGGING_SIGNED_AUDIT_AUTH_SUCCESS =
-            "LOGGING_SIGNED_AUDIT_AUTH_SUCCESS_3";
-    private final static String LOGGING_SIGNED_AUDIT_AUTHZ_FAIL =
-            "LOGGING_SIGNED_AUDIT_AUTHZ_FAIL_4";
-    private final static String LOGGING_SIGNED_AUDIT_AUTHZ_SUCCESS =
-            "LOGGING_SIGNED_AUDIT_AUTHZ_SUCCESS_4";
     private final static String LOGGING_SIGNED_AUDIT_ROLE_ASSUME =
             "LOGGING_SIGNED_AUDIT_ROLE_ASSUME_3";
 
@@ -1801,7 +1794,7 @@ public abstract class CMSServlet extends HttpServlet {
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_AUTH_SUCCESS,
+                        AuditEvent.AUTH_SUCCESS,
                         auditSubjectID,
                         ILogger.SUCCESS,
                         auditAuthMgrID);
@@ -1812,7 +1805,7 @@ public abstract class CMSServlet extends HttpServlet {
         } catch (EBaseException eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_AUTH_FAIL,
+                        AuditEvent.AUTH_FAIL,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditAuthMgrID,
@@ -1837,7 +1830,7 @@ public abstract class CMSServlet extends HttpServlet {
             authzToken = mAuthz.authorize(authzMgrName, authToken, exp);
             if (authzToken != null) {
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_AUTHZ_SUCCESS,
+                            AuditEvent.AUTHZ_SUCCESS,
                             auditSubjectID,
                             ILogger.SUCCESS,
                             auditACLResource,
@@ -1855,7 +1848,7 @@ public abstract class CMSServlet extends HttpServlet {
                 audit(auditMessage);
             } else {
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_AUTHZ_FAIL,
+                            AuditEvent.AUTHZ_FAIL,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditACLResource,
@@ -1874,7 +1867,7 @@ public abstract class CMSServlet extends HttpServlet {
             return authzToken;
         } catch (Exception e) {
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_AUTHZ_FAIL,
+                        AuditEvent.AUTHZ_FAIL,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditACLResource,
@@ -1971,7 +1964,7 @@ public abstract class CMSServlet extends HttpServlet {
             if (authzTok != null) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_AUTHZ_SUCCESS,
+                            AuditEvent.AUTHZ_SUCCESS,
                             auditSubjectID,
                             ILogger.SUCCESS,
                             auditACLResource,
@@ -1990,7 +1983,7 @@ public abstract class CMSServlet extends HttpServlet {
             } else {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_AUTHZ_FAIL,
+                            AuditEvent.AUTHZ_FAIL,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditACLResource,
@@ -2012,7 +2005,7 @@ public abstract class CMSServlet extends HttpServlet {
         } catch (EBaseException eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_AUTHZ_FAIL,
+                        AuditEvent.AUTHZ_FAIL,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditACLResource,
@@ -2033,7 +2026,7 @@ public abstract class CMSServlet extends HttpServlet {
         } catch (Exception eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_AUTHZ_FAIL,
+                        AuditEvent.AUTHZ_FAIL,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditACLResource,

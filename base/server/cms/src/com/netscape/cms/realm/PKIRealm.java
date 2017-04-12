@@ -16,6 +16,7 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authentication.ICertUserDBAuthentication;
 import com.netscape.certsrv.authentication.IPasswdUserDBAuthentication;
 import com.netscape.certsrv.base.SessionContext;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
 import com.netscape.certsrv.usrgrp.IGroup;
@@ -35,11 +36,6 @@ import netscape.security.x509.X509CertImpl;
 
 public class PKIRealm extends RealmBase {
     protected ILogger signedAuditLogger = CMS.getSignedAuditLogger();
-    private final static String LOGGING_SIGNED_AUDIT_AUTH_FAIL =
-            "LOGGING_SIGNED_AUDIT_AUTH_FAIL_4";
-    private final static String LOGGING_SIGNED_AUDIT_AUTH_SUCCESS =
-            "LOGGING_SIGNED_AUDIT_AUTH_SUCCESS_3";
-
     @Override
     protected String getName() {
         return "PKIRealm";
@@ -66,7 +62,7 @@ public class PKIRealm extends RealmBase {
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_AUTH_SUCCESS,
+                        AuditEvent.AUTH_SUCCESS,
                         auditSubjectID,
                         ILogger.SUCCESS,
                         IAuthSubsystem.PASSWDUSERDB_AUTHMGR_ID);
@@ -77,7 +73,7 @@ public class PKIRealm extends RealmBase {
         } catch (Throwable e) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_AUTH_FAIL,
+                        AuditEvent.AUTH_FAIL,
                         auditSubjectID,
                         ILogger.FAILURE,
                         IAuthSubsystem.PASSWDUSERDB_AUTHMGR_ID,
@@ -126,7 +122,7 @@ public class PKIRealm extends RealmBase {
             CMS.debug("PKIRealm: User ID: " + username);
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_AUTH_SUCCESS,
+                        AuditEvent.AUTH_SUCCESS,
                         auditSubjectID,
                         ILogger.SUCCESS,
                         IAuthSubsystem.CERTUSERDB_AUTHMGR_ID);
@@ -137,7 +133,7 @@ public class PKIRealm extends RealmBase {
         } catch (Throwable e) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_AUTH_FAIL,
+                        AuditEvent.AUTH_FAIL,
                         auditSubjectID,
                         ILogger.FAILURE,
                         IAuthSubsystem.CERTUSERDB_AUTHMGR_ID,

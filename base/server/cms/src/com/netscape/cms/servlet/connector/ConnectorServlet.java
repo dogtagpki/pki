@@ -49,6 +49,7 @@ import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.connector.IPKIMessage;
 import com.netscape.certsrv.connector.IRequestEncoder;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.profile.EProfileException;
@@ -97,8 +98,6 @@ public class ConnectorServlet extends CMSServlet {
 
     protected ILogger mSignedAuditLogger = CMS.getSignedAuditLogger();
     private final static String SIGNED_AUDIT_PROTECTION_METHOD_SSL = "ssl";
-    private final static String LOGGING_SIGNED_AUDIT_INTER_BOUNDARY_SUCCESS =
-            "LOGGING_SIGNED_AUDIT_INTER_BOUNDARY_SUCCESS_5";
     private final static String LOGGING_SIGNED_AUDIT_PROFILE_CERT_REQUEST =
             "LOGGING_SIGNED_AUDIT_PROFILE_CERT_REQUEST_5";
     private final static String LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED =
@@ -479,7 +478,7 @@ public class ConnectorServlet extends CMSServlet {
 
                     // store a message in the signed audit log file
                     auditMessage = CMS.getLogMessage(
-                                LOGGING_SIGNED_AUDIT_INTER_BOUNDARY_SUCCESS,
+                                AuditEvent.INTER_BOUNDARY,
                                 auditSubjectID,
                                 ILogger.FAILURE,
                                 auditProtectionMethod,
@@ -501,7 +500,7 @@ public class ConnectorServlet extends CMSServlet {
 
                     // store a message in the signed audit log file
                     auditMessage = CMS.getLogMessage(
-                                LOGGING_SIGNED_AUDIT_INTER_BOUNDARY_SUCCESS,
+                                AuditEvent.INTER_BOUNDARY,
                                 auditSubjectID,
                                 ILogger.SUCCESS,
                                 auditProtectionMethod,
@@ -699,7 +698,7 @@ public class ConnectorServlet extends CMSServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_INTER_BOUNDARY_SUCCESS,
+                            AuditEvent.INTER_BOUNDARY,
                             auditSubjectID,
                             ILogger.SUCCESS,
                             auditProtectionMethod,
@@ -921,7 +920,7 @@ public class ConnectorServlet extends CMSServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_INTER_BOUNDARY_SUCCESS,
+                            AuditEvent.INTER_BOUNDARY,
                             auditSubjectID,
                             ILogger.SUCCESS,
                             auditProtectionMethod,
@@ -934,7 +933,7 @@ public class ConnectorServlet extends CMSServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_INTER_BOUNDARY_SUCCESS,
+                            AuditEvent.INTER_BOUNDARY,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditProtectionMethod,
@@ -947,7 +946,7 @@ public class ConnectorServlet extends CMSServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_INTER_BOUNDARY_SUCCESS,
+                            AuditEvent.INTER_BOUNDARY,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditProtectionMethod,
@@ -960,7 +959,7 @@ public class ConnectorServlet extends CMSServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_INTER_BOUNDARY_SUCCESS,
+                            AuditEvent.INTER_BOUNDARY,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditProtectionMethod,
@@ -980,7 +979,7 @@ public class ConnectorServlet extends CMSServlet {
         } catch (EBaseException e) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_INTER_BOUNDARY_SUCCESS,
+                        AuditEvent.INTER_BOUNDARY,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditProtectionMethod,

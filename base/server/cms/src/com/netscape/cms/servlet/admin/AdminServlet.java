@@ -51,6 +51,7 @@ import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.IAuditor;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
@@ -121,14 +122,6 @@ public class AdminServlet extends HttpServlet {
     public static final String CERT_ATTR =
             "javax.servlet.request.X509Certificate";
 
-    private final static String LOGGING_SIGNED_AUDIT_AUTH_FAIL =
-            "LOGGING_SIGNED_AUDIT_AUTH_FAIL_4";
-    private final static String LOGGING_SIGNED_AUDIT_AUTH_SUCCESS =
-            "LOGGING_SIGNED_AUDIT_AUTH_SUCCESS_3";
-    private final static String LOGGING_SIGNED_AUDIT_AUTHZ_FAIL =
-            "LOGGING_SIGNED_AUDIT_AUTHZ_FAIL_4";
-    private final static String LOGGING_SIGNED_AUDIT_AUTHZ_SUCCESS =
-            "LOGGING_SIGNED_AUDIT_AUTHZ_SUCCESS_4";
     private final static String LOGGING_SIGNED_AUDIT_ROLE_ASSUME =
             "LOGGING_SIGNED_AUDIT_ROLE_ASSUME_3";
     private final static String CERTUSERDB =
@@ -307,7 +300,7 @@ public class AdminServlet extends HttpServlet {
                 if (allCerts == null || allCerts.length == 0) {
                     // store a message in the signed audit log file
                     auditMessage = CMS.getLogMessage(
-                                LOGGING_SIGNED_AUDIT_AUTH_FAIL,
+                                AuditEvent.AUTH_FAIL,
                                 ILogger.UNIDENTIFIED,
                                 ILogger.FAILURE,
                                 CERTUSERDB,
@@ -399,7 +392,7 @@ public class AdminServlet extends HttpServlet {
                 if (authType.equals("sslclientauth")) {
                     // store a message in the signed audit log file
                     auditMessage = CMS.getLogMessage(
-                                LOGGING_SIGNED_AUDIT_AUTH_FAIL,
+                                AuditEvent.AUTH_FAIL,
                                 ILogger.UNIDENTIFIED,
                                 ILogger.FAILURE,
                                 CERTUSERDB,
@@ -409,7 +402,7 @@ public class AdminServlet extends HttpServlet {
                 } else {
                     // store a message in the signed audit log file
                     auditMessage = CMS.getLogMessage(
-                                LOGGING_SIGNED_AUDIT_AUTH_FAIL,
+                                AuditEvent.AUTH_FAIL,
                                 ILogger.UNIDENTIFIED,
                                 ILogger.FAILURE,
                                 PASSWDUSERDB,
@@ -433,7 +426,7 @@ public class AdminServlet extends HttpServlet {
                     if (authType.equals("sslclientauth")) {
                         // store a message in the signed audit log file
                         auditMessage = CMS.getLogMessage(
-                                    LOGGING_SIGNED_AUDIT_AUTH_FAIL,
+                                    AuditEvent.AUTH_FAIL,
                                     ILogger.UNIDENTIFIED,
                                     ILogger.FAILURE,
                                     CERTUSERDB,
@@ -443,7 +436,7 @@ public class AdminServlet extends HttpServlet {
                     } else {
                         // store a message in the signed audit log file
                         auditMessage = CMS.getLogMessage(
-                                    LOGGING_SIGNED_AUDIT_AUTH_FAIL,
+                                    AuditEvent.AUTH_FAIL,
                                     ILogger.UNIDENTIFIED,
                                     ILogger.FAILURE,
                                     PASSWDUSERDB,
@@ -469,7 +462,7 @@ public class AdminServlet extends HttpServlet {
                     if (authType.equals("sslclientauth")) {
                         // store a message in the signed audit log file
                         auditMessage = CMS.getLogMessage(
-                                    LOGGING_SIGNED_AUDIT_AUTH_FAIL,
+                                    AuditEvent.AUTH_FAIL,
                                     ILogger.UNIDENTIFIED,
                                     ILogger.FAILURE,
                                     CERTUSERDB,
@@ -479,7 +472,7 @@ public class AdminServlet extends HttpServlet {
                     } else {
                         // store a message in the signed audit log file
                         auditMessage = CMS.getLogMessage(
-                                    LOGGING_SIGNED_AUDIT_AUTH_FAIL,
+                                    AuditEvent.AUTH_FAIL,
                                     ILogger.UNIDENTIFIED,
                                     ILogger.FAILURE,
                                     PASSWDUSERDB,
@@ -505,7 +498,7 @@ public class AdminServlet extends HttpServlet {
                 if (authType.equals("sslclientauth")) {
                     // store a message in the signed audit log file
                     auditMessage = CMS.getLogMessage(
-                                LOGGING_SIGNED_AUDIT_AUTH_FAIL,
+                                AuditEvent.AUTH_FAIL,
                                 ILogger.UNIDENTIFIED,
                                 ILogger.FAILURE,
                                 CERTUSERDB,
@@ -515,7 +508,7 @@ public class AdminServlet extends HttpServlet {
                 } else {
                     // store a message in the signed audit log file
                     auditMessage = CMS.getLogMessage(
-                                LOGGING_SIGNED_AUDIT_AUTH_FAIL,
+                                AuditEvent.AUTH_FAIL,
                                 ILogger.UNIDENTIFIED,
                                 ILogger.FAILURE,
                                 PASSWDUSERDB,
@@ -535,7 +528,7 @@ public class AdminServlet extends HttpServlet {
             if (authType.equals("sslclientauth")) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_AUTH_SUCCESS,
+                            AuditEvent.AUTH_SUCCESS,
                             auditSubjectID(),
                             ILogger.SUCCESS,
                             CERTUSERDB);
@@ -544,7 +537,7 @@ public class AdminServlet extends HttpServlet {
             } else {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_AUTH_SUCCESS,
+                            AuditEvent.AUTH_SUCCESS,
                             auditSubjectID(),
                             ILogger.SUCCESS,
                             PASSWDUSERDB);
@@ -555,7 +548,7 @@ public class AdminServlet extends HttpServlet {
             if (authType.equals("sslclientauth")) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_AUTH_FAIL,
+                            AuditEvent.AUTH_FAIL,
                             ILogger.UNIDENTIFIED,
                             ILogger.FAILURE,
                             CERTUSERDB,
@@ -565,7 +558,7 @@ public class AdminServlet extends HttpServlet {
             } else {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_AUTH_FAIL,
+                            AuditEvent.AUTH_FAIL,
                             ILogger.UNIDENTIFIED,
                             ILogger.FAILURE,
                             PASSWDUSERDB,
@@ -654,7 +647,7 @@ public class AdminServlet extends HttpServlet {
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_AUTHZ_FAIL,
+                        AuditEvent.AUTHZ_FAIL,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditACLResource,
@@ -677,7 +670,7 @@ public class AdminServlet extends HttpServlet {
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_AUTHZ_FAIL,
+                        AuditEvent.AUTHZ_FAIL,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditACLResource,
@@ -698,7 +691,7 @@ public class AdminServlet extends HttpServlet {
         } catch (Exception e) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_AUTHZ_FAIL,
+                        AuditEvent.AUTHZ_FAIL,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditACLResource,
@@ -720,7 +713,7 @@ public class AdminServlet extends HttpServlet {
 
         // store a message in the signed audit log file
         auditMessage = CMS.getLogMessage(
-                    LOGGING_SIGNED_AUDIT_AUTHZ_SUCCESS,
+                    AuditEvent.AUTHZ_SUCCESS,
                     auditSubjectID,
                     ILogger.SUCCESS,
                     auditACLResource,

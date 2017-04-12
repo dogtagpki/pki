@@ -51,6 +51,7 @@ import com.netscape.certsrv.base.UnauthorizedException;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.common.OpDef;
 import com.netscape.certsrv.common.ScopeDef;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IProfile;
@@ -89,8 +90,6 @@ public class ProfileService extends SubsystemService implements ProfileResource 
     private IProfileSubsystem ps = (IProfileSubsystem) CMS.getSubsystem(IProfileSubsystem.ID);
     private IPluginRegistry registry = (IPluginRegistry) CMS.getSubsystem(CMS.SUBSYSTEM_REGISTRY);
 
-    private final static String LOGGING_SIGNED_AUDIT_CERT_PROFILE_APPROVAL =
-            "LOGGING_SIGNED_AUDIT_CERT_PROFILE_APPROVAL_4";
     private final static String LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE =
             "LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE_3";
 
@@ -1189,7 +1188,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
 
     public void auditProfileChangeState(String profileId, String op, String status) {
         String msg = CMS.getLogMessage(
-                LOGGING_SIGNED_AUDIT_CERT_PROFILE_APPROVAL,
+                AuditEvent.CERT_PROFILE_APPROVAL,
                 auditor.getSubjectID(),
                 status,
                 profileId,

@@ -35,6 +35,25 @@ import com.netscape.certsrv.base.MessageFormatter;
  */
 public class AuditEvent implements IBundleLogEvent {
 
+    public final static String AUTHZ_SUCCESS =
+            "LOGGING_SIGNED_AUDIT_AUTHZ_SUCCESS_4";
+    public final static String AUTHZ_SUCCESS_INFO =
+            "LOGGING_SIGNED_AUDIT_AUTHZ_SUCCESS_5";
+    public final static String AUTHZ_FAIL =
+            "LOGGING_SIGNED_AUDIT_AUTHZ_FAIL_4";
+    public final static String AUTHZ_FAIL_INFO =
+            "LOGGING_SIGNED_AUDIT_AUTHZ_FAIL_5";
+    public final static String INTER_BOUNDARY =
+            "LOGGING_SIGNED_AUDIT_INTER_BOUNDARY_SUCCESS_5";
+    public final static String AUTH_FAIL =
+            "LOGGING_SIGNED_AUDIT_AUTH_FAIL_4";
+    public final static String AUTH_SUCCESS =
+            "LOGGING_SIGNED_AUDIT_AUTH_SUCCESS_3";
+    public final static String CERT_PROFILE_APPROVAL =
+            "LOGGING_SIGNED_AUDIT_CERT_PROFILE_APPROVAL_4";
+    public final static String PROOF_OF_POSSESSION =
+            "LOGGING_SIGNED_AUDIT_PROOF_OF_POSSESSION_2";
+
     public final static String CRL_RETRIEVAL =
             "LOGGING_SIGNED_AUDIT_CRL_RETRIEVAL_3";
     public final static String CRL_VALIDATION =

@@ -50,6 +50,7 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.common.ICMSRequest;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.servlet.base.CMSServlet;
@@ -67,9 +68,6 @@ public class CRMFProcessor extends PKIProcessor {
     private ICMSRequest mRequest;
 
     private boolean enforcePop = false;
-
-    private final static String LOGGING_SIGNED_AUDIT_PROOF_OF_POSSESSION =
-            "LOGGING_SIGNED_AUDIT_PROOF_OF_POSSESSION_2";
 
     public CRMFProcessor() {
         super();
@@ -118,7 +116,7 @@ public class CRMFProcessor extends PKIProcessor {
 
                         // store a message in the signed audit log file
                         auditMessage = CMS.getLogMessage(
-                                LOGGING_SIGNED_AUDIT_PROOF_OF_POSSESSION,
+                                AuditEvent.PROOF_OF_POSSESSION,
                                 auditSubjectID,
                                 ILogger.SUCCESS);
 
@@ -131,7 +129,7 @@ public class CRMFProcessor extends PKIProcessor {
 
                         // store a message in the signed audit log file
                         auditMessage = CMS.getLogMessage(
-                                LOGGING_SIGNED_AUDIT_PROOF_OF_POSSESSION,
+                                AuditEvent.PROOF_OF_POSSESSION,
                                 auditSubjectID,
                                 ILogger.FAILURE);
 
@@ -148,7 +146,7 @@ public class CRMFProcessor extends PKIProcessor {
 
                     // store a message in the signed audit log file
                     auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_PROOF_OF_POSSESSION,
+                            AuditEvent.PROOF_OF_POSSESSION,
                             auditSubjectID,
                             ILogger.FAILURE);
 
@@ -161,7 +159,7 @@ public class CRMFProcessor extends PKIProcessor {
         } catch (EBaseException eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                    LOGGING_SIGNED_AUDIT_PROOF_OF_POSSESSION,
+                    AuditEvent.PROOF_OF_POSSESSION,
                     auditSubjectID,
                     ILogger.FAILURE);
 

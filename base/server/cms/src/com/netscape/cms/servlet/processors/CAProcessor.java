@@ -51,6 +51,7 @@ import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.profile.IEnrollProfile;
 import com.netscape.certsrv.profile.IProfile;
@@ -118,14 +119,6 @@ public class CAProcessor extends Processor {
 
     public final static String LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED =
             "LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED_5";
-    public final static String LOGGING_SIGNED_AUDIT_AUTH_FAIL =
-            "LOGGING_SIGNED_AUDIT_AUTH_FAIL_4";
-    public final static String LOGGING_SIGNED_AUDIT_AUTH_SUCCESS =
-            "LOGGING_SIGNED_AUDIT_AUTH_SUCCESS_3";
-    public final static String LOGGING_SIGNED_AUDIT_AUTHZ_FAIL =
-            "LOGGING_SIGNED_AUDIT_AUTHZ_FAIL_4";
-    public final static String LOGGING_SIGNED_AUDIT_AUTHZ_SUCCESS =
-            "LOGGING_SIGNED_AUDIT_AUTHZ_SUCCESS_4";
     public final static String LOGGING_SIGNED_AUDIT_ROLE_ASSUME =
             "LOGGING_SIGNED_AUDIT_ROLE_ASSUME_3";
     public final static String SIGNED_AUDIT_CERT_REQUEST_REASON =
@@ -498,7 +491,7 @@ public class CAProcessor extends Processor {
 
                 authSubjectID += " : " + uid_cred;
                 auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_AUTH_FAIL,
+                        AuditEvent.AUTH_FAIL,
                         authSubjectID,
                         ILogger.FAILURE,
                         authMgrID,
@@ -512,7 +505,7 @@ public class CAProcessor extends Processor {
 
                 authSubjectID += " : " + uid_cred;
                 auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_AUTH_FAIL,
+                        AuditEvent.AUTH_FAIL,
                         authSubjectID,
                         ILogger.FAILURE,
                         authMgrID,
@@ -534,7 +527,7 @@ public class CAProcessor extends Processor {
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                    LOGGING_SIGNED_AUDIT_AUTH_SUCCESS,
+                    AuditEvent.AUTH_SUCCESS,
                     authSubjectID,
                     ILogger.SUCCESS,
                     authMgrID);
@@ -669,7 +662,7 @@ public class CAProcessor extends Processor {
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                    LOGGING_SIGNED_AUDIT_AUTH_SUCCESS,
+                    AuditEvent.AUTH_SUCCESS,
                     auditSubjectID,
                     ILogger.SUCCESS,
                     auditAuthMgrID);
@@ -680,7 +673,7 @@ public class CAProcessor extends Processor {
         } catch (EBaseException eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                    LOGGING_SIGNED_AUDIT_AUTH_FAIL,
+                    AuditEvent.AUTH_FAIL,
                     auditSubjectID,
                     ILogger.FAILURE,
                     auditAuthMgrID,
@@ -730,7 +723,7 @@ public class CAProcessor extends Processor {
             authzToken = authz.authorize(authzMgrName, authToken, exp);
             if (authzToken != null) {
                 auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_AUTHZ_SUCCESS,
+                        AuditEvent.AUTHZ_SUCCESS,
                         auditSubjectID,
                         ILogger.SUCCESS,
                         auditACLResource,
@@ -748,7 +741,7 @@ public class CAProcessor extends Processor {
                 audit(auditMessage);
             } else {
                 auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_AUTHZ_FAIL,
+                        AuditEvent.AUTHZ_FAIL,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditACLResource,
@@ -767,7 +760,7 @@ public class CAProcessor extends Processor {
             return authzToken;
         } catch (EBaseException e) {
             auditMessage = CMS.getLogMessage(
-                    LOGGING_SIGNED_AUDIT_AUTHZ_FAIL,
+                    AuditEvent.AUTHZ_FAIL,
                     auditSubjectID,
                     ILogger.FAILURE,
                     auditACLResource,
@@ -863,7 +856,7 @@ public class CAProcessor extends Processor {
             if (authzTok != null) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_AUTHZ_SUCCESS,
+                        AuditEvent.AUTHZ_SUCCESS,
                         auditSubjectID,
                         ILogger.SUCCESS,
                         auditACLResource,
@@ -882,7 +875,7 @@ public class CAProcessor extends Processor {
             } else {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_AUTHZ_FAIL,
+                        AuditEvent.AUTHZ_FAIL,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditACLResource,
@@ -904,7 +897,7 @@ public class CAProcessor extends Processor {
         } catch (Exception eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                    LOGGING_SIGNED_AUDIT_AUTHZ_FAIL,
+                    AuditEvent.AUTHZ_FAIL,
                     auditSubjectID,
                     ILogger.FAILURE,
                     auditACLResource,
