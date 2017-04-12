@@ -73,6 +73,7 @@ import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.profile.EProfileException;
@@ -1495,7 +1496,7 @@ public class CRSEnrollment extends HttpServlet {
 
                 // perform audit log
                 String auditMessage = CMS.getLogMessage(
-                            "LOGGING_SIGNED_AUDIT_NON_PROFILE_CERT_REQUEST_5",
+                            AuditEvent.NON_PROFILE_CERT_REQUEST,
                             httpReq.getRemoteAddr(),
                             ILogger.FAILURE,
                             req.getTransactionID(),

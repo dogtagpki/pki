@@ -58,6 +58,7 @@ import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertRecordList;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
@@ -153,11 +154,6 @@ public class EnrollServlet extends CMSServlet {
             + "indeterminate reason for inability to process "
             + "cert request due to an EBaseException"
         };
-    private final static String LOGGING_SIGNED_AUDIT_NON_PROFILE_CERT_REQUEST =
-            "LOGGING_SIGNED_AUDIT_NON_PROFILE_CERT_REQUEST_5";
-    private final static String LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED =
-            "LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED_5";
-
     private static final String HEADER = "-----BEGIN NEW CERTIFICATE REQUEST-----";
     private static final String TRAILER = "-----END NEW CERTIFICATE REQUEST-----";
 
@@ -766,7 +762,7 @@ public class EnrollServlet extends CMSServlet {
                 //  an "agent" cert request for "bulk enrollment", or
                 //  an "EE" standard cert request)
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_NON_PROFILE_CERT_REQUEST,
+                            AuditEvent.NON_PROFILE_CERT_REQUEST,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditRequesterID,
@@ -829,7 +825,7 @@ public class EnrollServlet extends CMSServlet {
                 //  an "agent" cert request for "bulk enrollment", or
                 //  an "EE" standard cert request)
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_NON_PROFILE_CERT_REQUEST,
+                            AuditEvent.NON_PROFILE_CERT_REQUEST,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditRequesterID,
@@ -872,7 +868,7 @@ public class EnrollServlet extends CMSServlet {
                     //  an "agent" cert request for "bulk enrollment", or
                     //  an "EE" standard cert request)
                     auditMessage = CMS.getLogMessage(
-                                LOGGING_SIGNED_AUDIT_NON_PROFILE_CERT_REQUEST,
+                                AuditEvent.NON_PROFILE_CERT_REQUEST,
                                 auditSubjectID,
                                 ILogger.FAILURE,
                                 auditRequesterID,
@@ -912,7 +908,7 @@ public class EnrollServlet extends CMSServlet {
                     //  an "agent" cert request for "bulk enrollment", or
                     //  an "EE" standard cert request)
                     auditMessage = CMS.getLogMessage(
-                                LOGGING_SIGNED_AUDIT_NON_PROFILE_CERT_REQUEST,
+                                AuditEvent.NON_PROFILE_CERT_REQUEST,
                                 auditSubjectID,
                                 ILogger.FAILURE,
                                 auditRequesterID,
@@ -969,7 +965,7 @@ public class EnrollServlet extends CMSServlet {
                     //  an "agent" cert request for "bulk enrollment", or
                     //  an "EE" standard cert request)
                     auditMessage = CMS.getLogMessage(
-                                LOGGING_SIGNED_AUDIT_NON_PROFILE_CERT_REQUEST,
+                                AuditEvent.NON_PROFILE_CERT_REQUEST,
                                 auditSubjectID,
                                 ILogger.FAILURE,
                                 auditRequesterID,
@@ -1072,7 +1068,7 @@ public class EnrollServlet extends CMSServlet {
                         //  certificate, an "agent" cert request for
                         //  "bulk enrollment", or an "EE" standard cert request)
                         auditMessage = CMS.getLogMessage(
-                                    LOGGING_SIGNED_AUDIT_NON_PROFILE_CERT_REQUEST,
+                                    AuditEvent.NON_PROFILE_CERT_REQUEST,
                                     auditSubjectID,
                                     ILogger.FAILURE,
                                     auditRequesterID,
@@ -1102,7 +1098,7 @@ public class EnrollServlet extends CMSServlet {
                         //  certificate, an "agent" cert request for
                         //  "bulk enrollment", or an "EE" standard cert request)
                         auditMessage = CMS.getLogMessage(
-                                    LOGGING_SIGNED_AUDIT_NON_PROFILE_CERT_REQUEST,
+                                    AuditEvent.NON_PROFILE_CERT_REQUEST,
                                     auditSubjectID,
                                     ILogger.FAILURE,
                                     auditRequesterID,
@@ -1129,7 +1125,7 @@ public class EnrollServlet extends CMSServlet {
                         //  certificate, an "agent" cert request for
                         //  "bulk enrollment", or an "EE" standard cert request)
                         auditMessage = CMS.getLogMessage(
-                                    LOGGING_SIGNED_AUDIT_NON_PROFILE_CERT_REQUEST,
+                                    AuditEvent.NON_PROFILE_CERT_REQUEST,
                                     auditSubjectID,
                                     ILogger.FAILURE,
                                     auditRequesterID,
@@ -1177,7 +1173,7 @@ public class EnrollServlet extends CMSServlet {
                         //  certificate, an "agent" cert request for
                         //  "bulk enrollment", or an "EE" standard cert request)
                         auditMessage = CMS.getLogMessage(
-                                    LOGGING_SIGNED_AUDIT_NON_PROFILE_CERT_REQUEST,
+                                    AuditEvent.NON_PROFILE_CERT_REQUEST,
                                     auditSubjectID,
                                     ILogger.FAILURE,
                                     auditRequesterID,
@@ -1230,7 +1226,7 @@ public class EnrollServlet extends CMSServlet {
                         //  certificate, an "agent" cert request for
                         //  "bulk enrollment", or an "EE" standard cert request)
                         auditMessage = CMS.getLogMessage(
-                                    LOGGING_SIGNED_AUDIT_NON_PROFILE_CERT_REQUEST,
+                                    AuditEvent.NON_PROFILE_CERT_REQUEST,
                                     auditSubjectID,
                                     ILogger.FAILURE,
                                     auditRequesterID,
@@ -1279,7 +1275,7 @@ public class EnrollServlet extends CMSServlet {
                 //  an "agent" cert request for "bulk enrollment", or
                 //  an "EE" standard cert request)
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_NON_PROFILE_CERT_REQUEST,
+                            AuditEvent.NON_PROFILE_CERT_REQUEST,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditRequesterID,
@@ -1322,7 +1318,7 @@ public class EnrollServlet extends CMSServlet {
             //  an "agent" cert request for "bulk enrollment", or
             //  an "EE" standard cert request)
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_NON_PROFILE_CERT_REQUEST,
+                        AuditEvent.NON_PROFILE_CERT_REQUEST,
                         auditSubjectID,
                         ILogger.SUCCESS,
                         auditRequesterID,
@@ -1337,7 +1333,7 @@ public class EnrollServlet extends CMSServlet {
             //  an "agent" cert request for "bulk enrollment", or
             //  an "EE" standard cert request)
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_NON_PROFILE_CERT_REQUEST,
+                        AuditEvent.NON_PROFILE_CERT_REQUEST,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditRequesterID,
@@ -1374,7 +1370,7 @@ public class EnrollServlet extends CMSServlet {
                         // (automated "agent" cert request processed
                         //  - "accepted")
                         auditMessage = CMS.getLogMessage(
-                                    LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED,
+                                    AuditEvent.CERT_REQUEST_PROCESSED,
                                     auditSubjectID,
                                     ILogger.SUCCESS,
                                     auditRequesterID,
@@ -1388,7 +1384,7 @@ public class EnrollServlet extends CMSServlet {
 
                     // (automated "agent" cert request processed - "rejected")
                     auditMessage = CMS.getLogMessage(
-                                LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED,
+                                AuditEvent.CERT_REQUEST_PROCESSED,
                                 auditSubjectID,
                                 ILogger.FAILURE,
                                 auditRequesterID,
@@ -1408,7 +1404,7 @@ public class EnrollServlet extends CMSServlet {
             if (completed == false) {
                 // (automated "agent" cert request processed - "rejected")
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED,
+                            AuditEvent.CERT_REQUEST_PROCESSED,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditRequesterID,
@@ -1464,7 +1460,7 @@ public class EnrollServlet extends CMSServlet {
                 for (int i = 0; i < issuedCerts.length; i++) {
                     // (automated "agent" cert request processed - "accepted")
                     auditMessage = CMS.getLogMessage(
-                                LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED,
+                                AuditEvent.CERT_REQUEST_PROCESSED,
                                 auditSubjectID,
                                 ILogger.SUCCESS,
                                 auditRequesterID,
@@ -1487,7 +1483,7 @@ public class EnrollServlet extends CMSServlet {
                 for (int i = 0; i < issuedCerts.length; i++) {
                     // (automated "agent" cert request processed - "accepted")
                     auditMessage = CMS.getLogMessage(
-                                LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED,
+                                AuditEvent.CERT_REQUEST_PROCESSED,
                                 auditSubjectID,
                                 ILogger.SUCCESS,
                                 auditRequesterID,
@@ -1504,7 +1500,7 @@ public class EnrollServlet extends CMSServlet {
 
                 // (automated "agent" cert request processed - "rejected")
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED,
+                            AuditEvent.CERT_REQUEST_PROCESSED,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditRequesterID,
@@ -1520,7 +1516,7 @@ public class EnrollServlet extends CMSServlet {
             // store a message in the signed audit log file
             // (automated "agent" cert request processed - "rejected")
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED,
+                        AuditEvent.CERT_REQUEST_PROCESSED,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditRequesterID,

@@ -35,21 +35,6 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import netscape.security.extensions.NSCertTypeExtension;
-import netscape.security.extensions.PresenceServerExtension;
-import netscape.security.util.DerValue;
-import netscape.security.x509.AlgorithmId;
-import netscape.security.x509.BasicConstraintsExtension;
-import netscape.security.x509.CertificateAlgorithmId;
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.CertificateSubjectName;
-import netscape.security.x509.CertificateValidity;
-import netscape.security.x509.CertificateVersion;
-import netscape.security.x509.Extension;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.IAuthToken;
@@ -62,6 +47,7 @@ import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.ICMSRequest;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.publish.IPublisherProcessor;
@@ -79,6 +65,21 @@ import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmsutil.util.Utils;
+
+import netscape.security.extensions.NSCertTypeExtension;
+import netscape.security.extensions.PresenceServerExtension;
+import netscape.security.util.DerValue;
+import netscape.security.x509.AlgorithmId;
+import netscape.security.x509.BasicConstraintsExtension;
+import netscape.security.x509.CertificateAlgorithmId;
+import netscape.security.x509.CertificateExtensions;
+import netscape.security.x509.CertificateSubjectName;
+import netscape.security.x509.CertificateValidity;
+import netscape.security.x509.CertificateVersion;
+import netscape.security.x509.Extension;
+import netscape.security.x509.X500Name;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509CertInfo;
 
 /**
  * Agent operations on Certificate requests. This servlet is used
@@ -170,10 +171,6 @@ public class ProcessCertReq extends CMSServlet {
             + "indeterminate reason for inability to process "
             + "cert request due to a NoSuchAlgorithmException"
         };
-    private final static String LOGGING_SIGNED_AUDIT_NON_PROFILE_CERT_REQUEST =
-            "LOGGING_SIGNED_AUDIT_NON_PROFILE_CERT_REQUEST_5";
-    private final static String LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED =
-            "LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED_5";
 
     /**
      * Process request.
@@ -457,7 +454,7 @@ public class ProcessCertReq extends CMSServlet {
                     if (toDo.equals(SIGNED_AUDIT_CLONING)) {
                         // ("agent" cert request for "cloning")
                         auditMessage = CMS.getLogMessage(
-                                    LOGGING_SIGNED_AUDIT_NON_PROFILE_CERT_REQUEST,
+                                    AuditEvent.NON_PROFILE_CERT_REQUEST,
                                     auditSubjectID,
                                     ILogger.FAILURE,
                                     auditRequesterID,
@@ -468,7 +465,7 @@ public class ProcessCertReq extends CMSServlet {
                     } else if (toDo.equals(SIGNED_AUDIT_ACCEPTANCE)) {
                         // (manual "agent" cert request processed - "accepted")
                         auditMessage = CMS.getLogMessage(
-                                    LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED,
+                                    AuditEvent.CERT_REQUEST_PROCESSED,
                                     auditSubjectID,
                                     ILogger.FAILURE,
                                     auditRequesterID,
@@ -479,7 +476,7 @@ public class ProcessCertReq extends CMSServlet {
                     } else if (toDo.equals(SIGNED_AUDIT_CANCELLATION)) {
                         // (manual "agent" cert request processed - "cancelled")
                         auditMessage = CMS.getLogMessage(
-                                    LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED,
+                                    AuditEvent.CERT_REQUEST_PROCESSED,
                                     auditSubjectID,
                                     ILogger.FAILURE,
                                     auditRequesterID,
@@ -490,7 +487,7 @@ public class ProcessCertReq extends CMSServlet {
                     } else if (toDo.equals(SIGNED_AUDIT_REJECTION)) {
                         // (manual "agent" cert request processed - "rejected")
                         auditMessage = CMS.getLogMessage(
-                                    LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED,
+                                    AuditEvent.CERT_REQUEST_PROCESSED,
                                     auditSubjectID,
                                     ILogger.FAILURE,
                                     auditRequesterID,
@@ -940,7 +937,7 @@ public class ProcessCertReq extends CMSServlet {
                                 // (one for each manual "agent"
                                 //  cert request processed - "accepted")
                                 auditMessage = CMS.getLogMessage(
-                                            LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED,
+                                            AuditEvent.CERT_REQUEST_PROCESSED,
                                             auditSubjectID,
                                             ILogger.SUCCESS,
                                             auditRequesterID,
@@ -984,7 +981,7 @@ public class ProcessCertReq extends CMSServlet {
                             // (manual "agent" cert request processed
                             //  - "accepted")
                             auditMessage = CMS.getLogMessage(
-                                        LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED,
+                                        AuditEvent.CERT_REQUEST_PROCESSED,
                                         auditSubjectID,
                                         ILogger.SUCCESS,
                                         auditRequesterID,
@@ -1109,7 +1106,7 @@ public class ProcessCertReq extends CMSServlet {
                     // store a message in the signed audit log file
                     // (manual "agent" cert request processed - "rejected")
                     auditMessage = CMS.getLogMessage(
-                                LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED,
+                                AuditEvent.CERT_REQUEST_PROCESSED,
                                 auditSubjectID,
                                 ILogger.SUCCESS,
                                 auditRequesterID,
@@ -1171,7 +1168,7 @@ public class ProcessCertReq extends CMSServlet {
                     // store a message in the signed audit log file
                     // (manual "agent" cert request processed - "cancelled")
                     auditMessage = CMS.getLogMessage(
-                                LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED,
+                                AuditEvent.CERT_REQUEST_PROCESSED,
                                 auditSubjectID,
                                 ILogger.SUCCESS,
                                 auditRequesterID,
@@ -1238,7 +1235,7 @@ public class ProcessCertReq extends CMSServlet {
                     // store a message in the signed audit log file
                     // ("agent" cert request for "cloning")
                     auditMessage = CMS.getLogMessage(
-                                LOGGING_SIGNED_AUDIT_NON_PROFILE_CERT_REQUEST,
+                                AuditEvent.NON_PROFILE_CERT_REQUEST,
                                 auditSubjectID,
                                 ILogger.SUCCESS,
                                 auditRequesterID,
@@ -1271,7 +1268,7 @@ public class ProcessCertReq extends CMSServlet {
                 if (toDo.equals(SIGNED_AUDIT_CLONING)) {
                     // ("agent" cert request for "cloning")
                     auditMessage = CMS.getLogMessage(
-                                LOGGING_SIGNED_AUDIT_NON_PROFILE_CERT_REQUEST,
+                                AuditEvent.NON_PROFILE_CERT_REQUEST,
                                 auditSubjectID,
                                 ILogger.FAILURE,
                                 auditRequesterID,
@@ -1282,7 +1279,7 @@ public class ProcessCertReq extends CMSServlet {
                 } else if (toDo.equals(SIGNED_AUDIT_ACCEPTANCE)) {
                     // (manual "agent" cert request processed - "accepted")
                     auditMessage = CMS.getLogMessage(
-                                LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED,
+                                AuditEvent.CERT_REQUEST_PROCESSED,
                                 auditSubjectID,
                                 ILogger.FAILURE,
                                 auditRequesterID,
@@ -1293,7 +1290,7 @@ public class ProcessCertReq extends CMSServlet {
                 } else if (toDo.equals(SIGNED_AUDIT_CANCELLATION)) {
                     // (manual "agent" cert request processed - "cancelled")
                     auditMessage = CMS.getLogMessage(
-                                LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED,
+                                AuditEvent.CERT_REQUEST_PROCESSED,
                                 auditSubjectID,
                                 ILogger.FAILURE,
                                 auditRequesterID,
@@ -1304,7 +1301,7 @@ public class ProcessCertReq extends CMSServlet {
                 } else if (toDo.equals(SIGNED_AUDIT_REJECTION)) {
                     // (manual "agent" cert request processed - "rejected")
                     auditMessage = CMS.getLogMessage(
-                                LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED,
+                                AuditEvent.CERT_REQUEST_PROCESSED,
                                 auditSubjectID,
                                 ILogger.FAILURE,
                                 auditRequesterID,
@@ -1324,7 +1321,7 @@ public class ProcessCertReq extends CMSServlet {
                 if (toDo.equals(SIGNED_AUDIT_CLONING)) {
                     // ("agent" cert request for "cloning")
                     auditMessage = CMS.getLogMessage(
-                                LOGGING_SIGNED_AUDIT_NON_PROFILE_CERT_REQUEST,
+                                AuditEvent.NON_PROFILE_CERT_REQUEST,
                                 auditSubjectID,
                                 ILogger.FAILURE,
                                 auditRequesterID,
@@ -1335,7 +1332,7 @@ public class ProcessCertReq extends CMSServlet {
                 } else if (toDo.equals(SIGNED_AUDIT_ACCEPTANCE)) {
                     // (manual "agent" cert request processed - "accepted")
                     auditMessage = CMS.getLogMessage(
-                                LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED,
+                                AuditEvent.CERT_REQUEST_PROCESSED,
                                 auditSubjectID,
                                 ILogger.FAILURE,
                                 auditRequesterID,
@@ -1346,7 +1343,7 @@ public class ProcessCertReq extends CMSServlet {
                 } else if (toDo.equals(SIGNED_AUDIT_CANCELLATION)) {
                     // (manual "agent" cert request processed - "cancelled")
                     auditMessage = CMS.getLogMessage(
-                                LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED,
+                                AuditEvent.CERT_REQUEST_PROCESSED,
                                 auditSubjectID,
                                 ILogger.FAILURE,
                                 auditRequesterID,
@@ -1357,7 +1354,7 @@ public class ProcessCertReq extends CMSServlet {
                 } else if (toDo.equals(SIGNED_AUDIT_REJECTION)) {
                     // (manual "agent" cert request processed - "rejected")
                     auditMessage = CMS.getLogMessage(
-                                LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED,
+                                AuditEvent.CERT_REQUEST_PROCESSED,
                                 auditSubjectID,
                                 ILogger.FAILURE,
                                 auditRequesterID,
@@ -1378,7 +1375,7 @@ public class ProcessCertReq extends CMSServlet {
                 if (toDo.equals(SIGNED_AUDIT_CLONING)) {
                     // ("agent" cert request for "cloning")
                     auditMessage = CMS.getLogMessage(
-                                LOGGING_SIGNED_AUDIT_NON_PROFILE_CERT_REQUEST,
+                                AuditEvent.NON_PROFILE_CERT_REQUEST,
                                 auditSubjectID,
                                 ILogger.FAILURE,
                                 auditRequesterID,
@@ -1389,7 +1386,7 @@ public class ProcessCertReq extends CMSServlet {
                 } else if (toDo.equals(SIGNED_AUDIT_ACCEPTANCE)) {
                     // (manual "agent" cert request processed - "accepted")
                     auditMessage = CMS.getLogMessage(
-                                LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED,
+                                AuditEvent.CERT_REQUEST_PROCESSED,
                                 auditSubjectID,
                                 ILogger.FAILURE,
                                 auditRequesterID,
@@ -1400,7 +1397,7 @@ public class ProcessCertReq extends CMSServlet {
                 } else if (toDo.equals(SIGNED_AUDIT_CANCELLATION)) {
                     // (manual "agent" cert request processed - "cancelled")
                     auditMessage = CMS.getLogMessage(
-                                LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED,
+                                AuditEvent.CERT_REQUEST_PROCESSED,
                                 auditSubjectID,
                                 ILogger.FAILURE,
                                 auditRequesterID,
@@ -1411,7 +1408,7 @@ public class ProcessCertReq extends CMSServlet {
                 } else if (toDo.equals(SIGNED_AUDIT_REJECTION)) {
                     // (manual "agent" cert request processed - "rejected")
                     auditMessage = CMS.getLogMessage(
-                                LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED,
+                                AuditEvent.CERT_REQUEST_PROCESSED,
                                 auditSubjectID,
                                 ILogger.FAILURE,
                                 auditRequesterID,
@@ -1432,7 +1429,7 @@ public class ProcessCertReq extends CMSServlet {
                 if (toDo.equals(SIGNED_AUDIT_CLONING)) {
                     // ("agent" cert request for "cloning")
                     auditMessage = CMS.getLogMessage(
-                                LOGGING_SIGNED_AUDIT_NON_PROFILE_CERT_REQUEST,
+                                AuditEvent.NON_PROFILE_CERT_REQUEST,
                                 auditSubjectID,
                                 ILogger.FAILURE,
                                 auditRequesterID,
@@ -1443,7 +1440,7 @@ public class ProcessCertReq extends CMSServlet {
                 } else if (toDo.equals(SIGNED_AUDIT_ACCEPTANCE)) {
                     // (manual "agent" cert request processed - "accepted")
                     auditMessage = CMS.getLogMessage(
-                                LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED,
+                                AuditEvent.CERT_REQUEST_PROCESSED,
                                 auditSubjectID,
                                 ILogger.FAILURE,
                                 auditRequesterID,
@@ -1454,7 +1451,7 @@ public class ProcessCertReq extends CMSServlet {
                 } else if (toDo.equals(SIGNED_AUDIT_CANCELLATION)) {
                     // (manual "agent" cert request processed - "cancelled")
                     auditMessage = CMS.getLogMessage(
-                                LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED,
+                                AuditEvent.CERT_REQUEST_PROCESSED,
                                 auditSubjectID,
                                 ILogger.FAILURE,
                                 auditRequesterID,
@@ -1465,7 +1462,7 @@ public class ProcessCertReq extends CMSServlet {
                 } else if (toDo.equals(SIGNED_AUDIT_REJECTION)) {
                     // (manual "agent" cert request processed - "rejected")
                     auditMessage = CMS.getLogMessage(
-                                LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED,
+                                AuditEvent.CERT_REQUEST_PROCESSED,
                                 auditSubjectID,
                                 ILogger.FAILURE,
                                 auditRequesterID,

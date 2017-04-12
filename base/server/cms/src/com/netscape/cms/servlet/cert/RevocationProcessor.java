@@ -36,6 +36,7 @@ import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.publish.IPublisherProcessor;
@@ -61,11 +62,6 @@ public class RevocationProcessor extends CertProcessor {
     public final static String REVOKE = "revoke";
     public final static String ON_HOLD = "on-hold";
     public final static String OFF_HOLD = "off-hold";
-
-    public final static String LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST =
-            "LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST_5";
-    public final static String LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST_PROCESSED =
-            "LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST_PROCESSED_7";
 
     long startTime;
 
@@ -486,7 +482,7 @@ public class RevocationProcessor extends CertProcessor {
             return;
 
         String auditMessage = CMS.getLogMessage(
-                LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST,
+                AuditEvent.CERT_STATUS_CHANGE_REQUEST,
                 auditor.getSubjectID(),
                 status,
                 requestID == null ? ILogger.UNIDENTIFIED : requestID.toString(),
@@ -510,7 +506,7 @@ public class RevocationProcessor extends CertProcessor {
                 || requestStatus == RequestStatus.CANCELED)) return;
 
         String auditMessage = CMS.getLogMessage(
-                LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST_PROCESSED,
+                AuditEvent.CERT_STATUS_CHANGE_REQUEST_PROCESSED,
                 auditor.getSubjectID(),
                 status,
                 requestID == null ? ILogger.UNIDENTIFIED : requestID.toString(),

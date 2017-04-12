@@ -44,6 +44,7 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.profile.EDeferException;
 import com.netscape.certsrv.profile.EProfileException;
@@ -82,9 +83,6 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
     private String mProfileId = null;
     private String mProfileSubId = null;
     private String requestB64 = null;
-
-    private final static String LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED =
-            "LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED_5";
 
     public ProfileSubmitCMCServlet() {
     }
@@ -682,7 +680,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                                     ILogger.SIGNED_AUDIT_EMPTY_VALUE))) {
                             // store a message in the signed audit log file
                             auditMessage = CMS.getLogMessage(
-                                        LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED,
+                                        AuditEvent.CERT_REQUEST_PROCESSED,
                                         auditSubjectID,
                                         ILogger.SUCCESS,
                                         auditRequesterID,
@@ -738,7 +736,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                     if (errorCode.equals("1")) {
                         // store a message in the signed audit log file
                         auditMessage = CMS.getLogMessage(
-                                    LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED,
+                                    AuditEvent.CERT_REQUEST_PROCESSED,
                                     auditSubjectID,
                                     ILogger.FAILURE,
                                     auditRequesterID,
@@ -753,7 +751,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                     } else if (errorCode.equals("3")) {
                         // store a message in the signed audit log file
                         auditMessage = CMS.getLogMessage(
-                                    LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED,
+                                    AuditEvent.CERT_REQUEST_PROCESSED,
                                     auditSubjectID,
                                     ILogger.FAILURE,
                                     auditRequesterID,
@@ -787,7 +785,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                                 ILogger.SIGNED_AUDIT_EMPTY_VALUE))) {
                             // store a message in the signed audit log file
                             auditMessage = CMS.getLogMessage(
-                                    LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED,
+                                    AuditEvent.CERT_REQUEST_PROCESSED,
                                     auditSubjectID,
                                     ILogger.SUCCESS,
                                     auditRequesterID,

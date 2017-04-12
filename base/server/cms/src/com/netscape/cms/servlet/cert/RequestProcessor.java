@@ -40,6 +40,7 @@ import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.CANotFoundException;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.cert.CertReviewResponse;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.profile.EDeferException;
 import com.netscape.certsrv.profile.EProfileException;
@@ -283,7 +284,7 @@ public class RequestProcessor extends CertProcessor {
 
         // store a message in the signed audit log file
         auditMessage = CMS.getLogMessage(
-                LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED,
+                AuditEvent.CERT_REQUEST_PROCESSED,
                 auditSubjectID,
                 ILogger.SUCCESS,
                 auditRequesterID,
@@ -319,7 +320,7 @@ public class RequestProcessor extends CertProcessor {
 
         // store a message in the signed audit log file
         auditMessage = CMS.getLogMessage(
-                LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED,
+                AuditEvent.CERT_REQUEST_PROCESSED,
                 auditSubjectID,
                 ILogger.SUCCESS,
                 auditRequesterID,
@@ -399,7 +400,7 @@ public class RequestProcessor extends CertProcessor {
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                    LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED,
+                    AuditEvent.CERT_REQUEST_PROCESSED,
                     auditSubjectID,
                     ILogger.SUCCESS,
                     auditRequesterID,
@@ -411,7 +412,7 @@ public class RequestProcessor extends CertProcessor {
         } catch (EProfileException eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                    LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED,
+                    AuditEvent.CERT_REQUEST_PROCESSED,
                     auditSubjectID,
                     ILogger.FAILURE,
                     auditRequesterID,

@@ -30,7 +30,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import netscape.security.x509.X509CertImpl;
+import org.dogtagpki.server.connector.IRemoteRequest;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthToken;
@@ -43,6 +43,7 @@ import com.netscape.certsrv.ca.ICRLIssuingPoint;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.publish.IPublisherProcessor;
@@ -53,7 +54,7 @@ import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ECMSGWException;
 
-import org.dogtagpki.server.connector.IRemoteRequest;
+import netscape.security.x509.X509CertImpl;
 
 /**
  * 'Unrevoke' a certificate. (For certificates that are on-hold only,
@@ -78,10 +79,6 @@ public class DoUnrevokeTPS extends CMSServlet {
 
     private final static String OFF_HOLD = "off-hold";
     private final static int OFF_HOLD_REASON = 6;
-    private final static String LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST =
-            "LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST_5";
-    private final static String LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST_PROCESSED =
-            "LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST_PROCESSED_7";
 
     public DoUnrevokeTPS() {
         super();
@@ -268,7 +265,7 @@ public class DoUnrevokeTPS extends CMSServlet {
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST,
+                        AuditEvent.CERT_STATUS_CHANGE_REQUEST,
                         auditSubjectID,
                         ILogger.SUCCESS,
                         auditRequesterID,
@@ -465,7 +462,7 @@ public class DoUnrevokeTPS extends CMSServlet {
                     auditApprovalStatus == RequestStatus.REJECTED ||
                     auditApprovalStatus == RequestStatus.CANCELED) {
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST_PROCESSED,
+                            AuditEvent.CERT_STATUS_CHANGE_REQUEST_PROCESSED,
                             auditSubjectID,
                             ILogger.SUCCESS,
                             auditRequesterID,
@@ -482,7 +479,7 @@ public class DoUnrevokeTPS extends CMSServlet {
                 // store a "CERT_STATUS_CHANGE_REQUEST" failure
                 // message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST,
+                            AuditEvent.CERT_STATUS_CHANGE_REQUEST,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditRequesterID,
@@ -499,7 +496,7 @@ public class DoUnrevokeTPS extends CMSServlet {
                         auditApprovalStatus == RequestStatus.REJECTED ||
                         auditApprovalStatus == RequestStatus.CANCELED) {
                     auditMessage = CMS.getLogMessage(
-                                LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST_PROCESSED,
+                                AuditEvent.CERT_STATUS_CHANGE_REQUEST_PROCESSED,
                                 auditSubjectID,
                                 ILogger.FAILURE,
                                 auditRequesterID,

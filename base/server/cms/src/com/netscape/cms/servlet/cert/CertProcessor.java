@@ -30,6 +30,7 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.profile.EDeferException;
 import com.netscape.certsrv.profile.ERejectException;
@@ -230,7 +231,7 @@ public class CertProcessor extends CAProcessor {
                             ILogger.SIGNED_AUDIT_EMPTY_VALUE))) {
                         // store a message in the signed audit log file
                         auditMessage = CMS.getLogMessage(
-                                LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED,
+                                AuditEvent.CERT_REQUEST_PROCESSED,
                                 auditSubjectID,
                                 ILogger.SUCCESS,
                                 auditRequesterID,
@@ -266,7 +267,7 @@ public class CertProcessor extends CAProcessor {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED,
+                        AuditEvent.CERT_REQUEST_PROCESSED,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditRequesterID,
@@ -284,7 +285,7 @@ public class CertProcessor extends CAProcessor {
                 req.setExtData(IRequest.ERROR_CODE, errorCode);
 
                 auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED,
+                        AuditEvent.CERT_REQUEST_PROCESSED,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditRequesterID,

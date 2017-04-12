@@ -117,8 +117,6 @@ public class CAProcessor extends Processor {
     public static final String ACL_INFO = "ACLinfo";
     public static final String PROFILE_SUB_ID = "profileSubId";
 
-    public final static String LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED =
-            "LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED_5";
     public final static String LOGGING_SIGNED_AUDIT_ROLE_ASSUME =
             "LOGGING_SIGNED_AUDIT_ROLE_ASSUME_3";
     public final static String SIGNED_AUDIT_CERT_REQUEST_REASON =

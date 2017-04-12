@@ -98,11 +98,6 @@ public class ConnectorServlet extends CMSServlet {
 
     protected ILogger mSignedAuditLogger = CMS.getSignedAuditLogger();
     private final static String SIGNED_AUDIT_PROTECTION_METHOD_SSL = "ssl";
-    private final static String LOGGING_SIGNED_AUDIT_PROFILE_CERT_REQUEST =
-            "LOGGING_SIGNED_AUDIT_PROFILE_CERT_REQUEST_5";
-    private final static String LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED =
-            "LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED_5";
-
     private final static byte EOL[] = { Character.LINE_SEPARATOR };
 
     public ConnectorServlet() {
@@ -554,7 +549,7 @@ public class ConnectorServlet extends CMSServlet {
 
                     // store a message in the signed audit log file
                     auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_PROFILE_CERT_REQUEST,
+                            AuditEvent.PROFILE_CERT_REQUEST,
                             auditSubjectID,
                             ILogger.SUCCESS,
                             auditRequesterID,
@@ -568,7 +563,7 @@ public class ConnectorServlet extends CMSServlet {
 
                     // store a message in the signed audit log file
                     auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_PROFILE_CERT_REQUEST,
+                            AuditEvent.PROFILE_CERT_REQUEST,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditRequesterID,
@@ -582,7 +577,7 @@ public class ConnectorServlet extends CMSServlet {
 
                     // store a message in the signed audit log file
                     auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_PROFILE_CERT_REQUEST,
+                            AuditEvent.PROFILE_CERT_REQUEST,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditRequesterID,
@@ -636,7 +631,7 @@ public class ConnectorServlet extends CMSServlet {
                                    ILogger.SIGNED_AUDIT_EMPTY_VALUE))) {
                             // store a message in the signed audit log file
                             auditMessage = CMS.getLogMessage(
-                                    LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED,
+                                    AuditEvent.CERT_REQUEST_PROCESSED,
                                     auditSubjectID,
                                     ILogger.SUCCESS,
                                     auditRequesterID,
@@ -657,7 +652,7 @@ public class ConnectorServlet extends CMSServlet {
                                    ILogger.SIGNED_AUDIT_EMPTY_VALUE))) {
                             // store a message in the signed audit log file
                             auditMessage = CMS.getLogMessage(
-                                    LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED,
+                                    AuditEvent.CERT_REQUEST_PROCESSED,
                                     auditSubjectID,
                                     ILogger.FAILURE,
                                     auditRequesterID,
