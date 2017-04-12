@@ -24,6 +24,7 @@ import java.util.Map;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.IAuditor;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.usrgrp.IGroup;
@@ -217,5 +218,15 @@ public class Auditor implements IAuditor {
                 ILogger.S_SIGNED_AUDIT,
                 ILogger.LL_SECURITY,
                 message);
+    }
+
+    protected void audit(AuditEvent event) {
+
+        String template = event.getMessage();
+        Object[] params = event.getParameters();
+
+        String message = CMS.getLogMessage(template, params);
+
+        log(message);
     }
 }

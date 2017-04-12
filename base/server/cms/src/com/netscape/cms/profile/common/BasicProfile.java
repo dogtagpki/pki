@@ -30,6 +30,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
@@ -1171,6 +1172,16 @@ public abstract class BasicProfile implements IProfile {
                 ILogger.S_SIGNED_AUDIT,
                 ILogger.LL_SECURITY,
                 msg);
+    }
+
+    protected void audit(AuditEvent event) {
+
+        String template = event.getMessage();
+        Object[] params = event.getParameters();
+
+        String message = CMS.getLogMessage(template, params);
+
+        audit(message);
     }
 
     /**

@@ -127,6 +127,16 @@ public class SelfTestSubsystem
                 msg);
     }
 
+    protected void audit(AuditEvent event) {
+
+        String template = event.getMessage();
+        Object[] params = event.getParameters();
+
+        String message = CMS.getLogMessage(template, params);
+
+        audit(message);
+    }
+
     /**
      * This helper method returns the "full" property name (the corresponding
      * substore name prepended in front of the plugin/parameter name). This

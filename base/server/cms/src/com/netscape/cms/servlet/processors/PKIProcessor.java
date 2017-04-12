@@ -23,12 +23,6 @@ import java.util.Date;
 
 import javax.servlet.http.HttpServletRequest;
 
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.CertificateSubjectName;
-import netscape.security.x509.CertificateValidity;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CertInfo;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.IAuthToken;
@@ -36,10 +30,17 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.common.ICMSRequest;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.ECMSGWException;
+
+import netscape.security.x509.CertificateExtensions;
+import netscape.security.x509.CertificateSubjectName;
+import netscape.security.x509.CertificateValidity;
+import netscape.security.x509.X500Name;
+import netscape.security.x509.X509CertInfo;
 
 /**
  * Process Certificate Requests
@@ -314,6 +315,16 @@ public class PKIProcessor implements IPKIProcessor {
                 ILogger.S_SIGNED_AUDIT,
                 ILogger.LL_SECURITY,
                 msg);
+    }
+
+    protected void audit(AuditEvent event) {
+
+        String template = event.getMessage();
+        Object[] params = event.getParameters();
+
+        String message = CMS.getLogMessage(template, params);
+
+        audit(message);
     }
 
     /**

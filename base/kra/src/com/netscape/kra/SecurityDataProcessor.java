@@ -770,6 +770,16 @@ public class SecurityDataProcessor {
                 msg);
     }
 
+    protected void audit(AuditEvent event) {
+
+        String template = event.getMessage();
+        Object[] params = event.getParameters();
+
+        String message = CMS.getLogMessage(template, params);
+
+        audit(message);
+    }
+
     private void auditRecoveryRequestProcessed(String subjectID, String status, RequestId requestID,
             String keyID, String reason) {
         String auditMessage = CMS.getLogMessage(

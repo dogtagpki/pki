@@ -4264,6 +4264,16 @@ public class TPSProcessor {
                 msg);
     }
 
+    protected void audit(AuditEvent event) {
+
+        String template = event.getMessage();
+        Object[] params = event.getParameters();
+
+        String message = CMS.getLogMessage(template, params);
+
+        audit(message);
+    }
+
     public static void main(String[] args) {
     }
 

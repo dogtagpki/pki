@@ -1025,6 +1025,16 @@ public class ConnectorServlet extends CMSServlet {
                 msg);
     }
 
+    protected void audit(AuditEvent event) {
+
+        String template = event.getMessage();
+        Object[] params = event.getParameters();
+
+        String message = CMS.getLogMessage(template, params);
+
+        audit(message);
+    }
+
     /**
      * Signed Audit Log Profile ID
      *

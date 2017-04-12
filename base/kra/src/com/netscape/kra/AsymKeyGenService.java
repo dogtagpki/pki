@@ -228,6 +228,16 @@ public class AsymKeyGenService implements IService {
                 msg);
     }
 
+    protected void audit(AuditEvent event) {
+
+        String template = event.getMessage();
+        Object[] params = event.getParameters();
+
+        String message = CMS.getLogMessage(template, params);
+
+        audit(message);
+    }
+
     private void auditAsymKeyGenRequestProcessed(String subjectID, String status, RequestId requestID,
             String clientKeyID,
             String keyID, String reason) {

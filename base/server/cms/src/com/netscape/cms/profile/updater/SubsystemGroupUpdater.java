@@ -21,8 +21,6 @@ import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Vector;
 
-import netscape.security.x509.X509CertImpl;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.ConflictingOperationException;
 import com.netscape.certsrv.base.EBaseException;
@@ -41,6 +39,8 @@ import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
+
+import netscape.security.x509.X509CertImpl;
 
 /**
  * This updater class will create the new user to the subsystem group and
@@ -277,6 +277,16 @@ public class SubsystemGroupUpdater implements IProfileUpdater {
                 ILogger.S_SIGNED_AUDIT,
                 ILogger.LL_SECURITY,
                 msg);
+    }
+
+    protected void audit(AuditEvent event) {
+
+        String template = event.getMessage();
+        Object[] params = event.getParameters();
+
+        String message = CMS.getLogMessage(template, params);
+
+        audit(message);
     }
 
     private String auditSubjectID() {
