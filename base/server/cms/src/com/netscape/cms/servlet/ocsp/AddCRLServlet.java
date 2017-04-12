@@ -40,6 +40,7 @@ import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.ocsp.IDefStore;
@@ -76,11 +77,6 @@ public class AddCRLServlet extends CMSServlet {
     private final static String TPL_FILE = "addCRL.template";
     private String mFormPath = null;
     private IOCSPAuthority mOCSPAuthority = null;
-
-    private final static String LOGGING_SIGNED_AUDIT_CRL_RETRIEVAL =
-            "LOGGING_SIGNED_AUDIT_CRL_RETRIEVAL_3";
-    private final static String LOGGING_SIGNED_AUDIT_CRL_VALIDATION =
-            "LOGGING_SIGNED_AUDIT_CRL_VALIDATION_2";
 
     public AddCRLServlet() {
         super();
@@ -153,7 +149,7 @@ public class AddCRLServlet extends CMSServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CRL_RETRIEVAL,
+                        AuditEvent.CRL_RETRIEVAL,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditCRLNum);
@@ -181,7 +177,7 @@ public class AddCRLServlet extends CMSServlet {
             if (b64 == null) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CRL_RETRIEVAL,
+                        AuditEvent.CRL_RETRIEVAL,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditCRLNum);
@@ -216,7 +212,7 @@ public class AddCRLServlet extends CMSServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CRL_RETRIEVAL,
+                        AuditEvent.CRL_RETRIEVAL,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditCRLNum);
@@ -237,7 +233,7 @@ public class AddCRLServlet extends CMSServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CRL_RETRIEVAL,
+                        AuditEvent.CRL_RETRIEVAL,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditCRLNum);
@@ -253,7 +249,7 @@ public class AddCRLServlet extends CMSServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CRL_RETRIEVAL,
+                        AuditEvent.CRL_RETRIEVAL,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditCRLNum);
@@ -290,7 +286,7 @@ public class AddCRLServlet extends CMSServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CRL_RETRIEVAL,
+                        AuditEvent.CRL_RETRIEVAL,
                         auditSubjectID,
                         ILogger.SUCCESS,
                         auditCRLNum);
@@ -304,7 +300,7 @@ public class AddCRLServlet extends CMSServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CRL_RETRIEVAL,
+                        AuditEvent.CRL_RETRIEVAL,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditCRLNum);
@@ -329,7 +325,7 @@ public class AddCRLServlet extends CMSServlet {
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CRL_VALIDATION,
+                        AuditEvent.CRL_VALIDATION,
                         auditSubjectID,
                         ILogger.FAILURE);
 
@@ -383,7 +379,7 @@ public class AddCRLServlet extends CMSServlet {
 
                     // store a message in the signed audit log file
                     auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CRL_VALIDATION,
+                            AuditEvent.CRL_VALIDATION,
                             auditSubjectID,
                             ILogger.SUCCESS);
 
@@ -400,7 +396,7 @@ public class AddCRLServlet extends CMSServlet {
 
                     // store a message in the signed audit log file
                     auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CRL_VALIDATION,
+                            AuditEvent.CRL_VALIDATION,
                             auditSubjectID,
                             ILogger.FAILURE);
 
@@ -547,7 +543,7 @@ public class AddCRLServlet extends CMSServlet {
             if (!CRLFetched) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CRL_RETRIEVAL,
+                        AuditEvent.CRL_RETRIEVAL,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditCRLNum);
@@ -557,7 +553,7 @@ public class AddCRLServlet extends CMSServlet {
                 if (!CRLValidated) {
                     // store a message in the signed audit log file
                     auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CRL_VALIDATION,
+                            AuditEvent.CRL_VALIDATION,
                             auditSubjectID,
                             ILogger.FAILURE);
 

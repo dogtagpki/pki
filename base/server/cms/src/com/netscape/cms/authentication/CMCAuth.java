@@ -79,6 +79,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.SessionContext;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IProfile;
@@ -181,8 +182,6 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
             "enrollment";
     private final static String SIGNED_AUDIT_REVOCATION_REQUEST_TYPE =
             "revocation";
-    private final static String LOGGING_SIGNED_AUDIT_CMC_SIGNED_REQUEST_SIG_VERIFY =
-            "LOGGING_SIGNED_AUDIT_CMC_SIGNED_REQUEST_SIG_VERIFY_5";
 
     /////////////////////
     // default methods //
@@ -266,7 +265,7 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CMC_SIGNED_REQUEST_SIG_VERIFY,
+                        AuditEvent.CMC_SIGNED_REQUEST_SIG_VERIFY,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditReqType,
@@ -285,7 +284,7 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CMC_SIGNED_REQUEST_SIG_VERIFY,
+                        AuditEvent.CMC_SIGNED_REQUEST_SIG_VERIFY,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditReqType,
@@ -334,7 +333,7 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
                         !cmcReq.hasContent()) {
                     // store a message in the signed audit log file
                     auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CMC_SIGNED_REQUEST_SIG_VERIFY,
+                            AuditEvent.CMC_SIGNED_REQUEST_SIG_VERIFY,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditReqType,
@@ -380,7 +379,7 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
                         !ci.hasContent()) {
                     // store a message in the signed audit log file
                     auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CMC_SIGNED_REQUEST_SIG_VERIFY,
+                            AuditEvent.CMC_SIGNED_REQUEST_SIG_VERIFY,
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditReqType,
@@ -561,7 +560,7 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
                             } catch (Exception e) {
                                 // store a message in the signed audit log file
                                 auditMessage = CMS.getLogMessage(
-                                        LOGGING_SIGNED_AUDIT_CMC_SIGNED_REQUEST_SIG_VERIFY,
+                                        AuditEvent.CMC_SIGNED_REQUEST_SIG_VERIFY,
                                         auditSubjectID,
                                         ILogger.FAILURE,
                                         auditReqType,
@@ -615,7 +614,7 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
                             } catch (Exception e) {
                                 // store a message in the signed audit log file
                                 auditMessage = CMS.getLogMessage(
-                                        LOGGING_SIGNED_AUDIT_CMC_SIGNED_REQUEST_SIG_VERIFY,
+                                        AuditEvent.CMC_SIGNED_REQUEST_SIG_VERIFY,
                                         auditSubjectID,
                                         ILogger.FAILURE,
                                         auditReqType,
@@ -640,7 +639,7 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
             } catch (Exception e) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CMC_SIGNED_REQUEST_SIG_VERIFY,
+                        AuditEvent.CMC_SIGNED_REQUEST_SIG_VERIFY,
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditReqType,
@@ -656,7 +655,7 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                    LOGGING_SIGNED_AUDIT_CMC_SIGNED_REQUEST_SIG_VERIFY,
+                    AuditEvent.CMC_SIGNED_REQUEST_SIG_VERIFY,
                     auditSubjectID,
                     ILogger.SUCCESS,
                     auditReqType,
@@ -669,7 +668,7 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
         } catch (EMissingCredential eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                    LOGGING_SIGNED_AUDIT_CMC_SIGNED_REQUEST_SIG_VERIFY,
+                    AuditEvent.CMC_SIGNED_REQUEST_SIG_VERIFY,
                     auditSubjectID,
                     ILogger.FAILURE,
                     auditReqType,
@@ -683,7 +682,7 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
         } catch (EInvalidCredentials eAudit2) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                    LOGGING_SIGNED_AUDIT_CMC_SIGNED_REQUEST_SIG_VERIFY,
+                    AuditEvent.CMC_SIGNED_REQUEST_SIG_VERIFY,
                     auditSubjectID,
                     ILogger.FAILURE,
                     auditReqType,
@@ -697,7 +696,7 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
         } catch (EBaseException eAudit3) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                    LOGGING_SIGNED_AUDIT_CMC_SIGNED_REQUEST_SIG_VERIFY,
+                    AuditEvent.CMC_SIGNED_REQUEST_SIG_VERIFY,
                     auditSubjectID,
                     ILogger.FAILURE,
                     auditReqType,

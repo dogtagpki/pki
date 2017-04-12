@@ -32,6 +32,7 @@ import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.common.ICMSRequest;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.ocsp.IDefStore;
 import com.netscape.certsrv.ocsp.IOCSPAuthority;
@@ -55,14 +56,6 @@ public class RemoveCAServlet extends CMSServlet {
     private final static String TPL_FILE = "removeCA.template";
     private String mFormPath = null;
     private IOCSPAuthority mOCSPAuthority = null;
-
-    private final static String LOGGING_SIGNED_AUDIT_OCSP_REMOVE_CA_REQUEST =
-            "LOGGING_SIGNED_AUDIT_OCSP_REMOVE_CA_REQUEST_3";
-    private final static String LOGGING_SIGNED_AUDIT_OCSP_REMOVE_CA_REQUEST_PROCESSED_SUCCESS =
-            "LOGGING_SIGNED_AUDIT_OCSP_REMOVE_CA_REQUEST_PROCESSED_SUCCESS_3";
-
-    private final static String LOGGING_SIGNED_AUDIT_OCSP_REMOVE_CA_REQUEST_PROCESSED_FAILURE =
-            "LOGGING_SIGNED_AUDIT_OCSP_REMOVE_CA_REQUEST_PROCESSED_FAILURE_3";
 
     public RemoveCAServlet() {
         super();
@@ -151,7 +144,7 @@ public class RemoveCAServlet extends CMSServlet {
 
         if (caID == null) {
             auditMessage = CMS.getLogMessage(
-                    LOGGING_SIGNED_AUDIT_OCSP_REMOVE_CA_REQUEST_PROCESSED_FAILURE,
+                    AuditEvent.OCSP_REMOVE_CA_REQUEST_PROCESSED_FAILURE,
                     auditSubjectID,
                     ILogger.FAILURE,
                     ILogger.SIGNED_AUDIT_EMPTY_VALUE);
@@ -160,7 +153,7 @@ public class RemoveCAServlet extends CMSServlet {
         }
 
         auditMessage = CMS.getLogMessage(
-                LOGGING_SIGNED_AUDIT_OCSP_REMOVE_CA_REQUEST,
+                AuditEvent.OCSP_REMOVE_CA_REQUEST,
                 auditSubjectID,
                 ILogger.SUCCESS,
                 caID);
@@ -175,7 +168,7 @@ public class RemoveCAServlet extends CMSServlet {
         } catch (EBaseException e) {
 
             auditMessage = CMS.getLogMessage(
-                    LOGGING_SIGNED_AUDIT_OCSP_REMOVE_CA_REQUEST_PROCESSED_FAILURE,
+                    AuditEvent.OCSP_REMOVE_CA_REQUEST_PROCESSED_FAILURE,
                     auditSubjectID,
                     ILogger.FAILURE,
                     caID);
@@ -188,7 +181,7 @@ public class RemoveCAServlet extends CMSServlet {
         CMS.debug("RemoveCAServlet::process: CRL IssuingPoint for CA successfully removed: " + caID);
 
         auditMessage = CMS.getLogMessage(
-                LOGGING_SIGNED_AUDIT_OCSP_REMOVE_CA_REQUEST_PROCESSED_SUCCESS,
+                AuditEvent.OCSP_REMOVE_CA_REQUEST_PROCESSED_SUCCESS,
                 auditSubjectID,
                 ILogger.SUCCESS,
                 caID);
