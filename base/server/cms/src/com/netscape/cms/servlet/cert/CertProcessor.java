@@ -32,6 +32,7 @@ import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.event.CertRequestProcessedEvent;
 import com.netscape.certsrv.profile.EDeferException;
 import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.profile.IProfile;
@@ -229,16 +230,14 @@ public class CertProcessor extends CAProcessor {
                 if (auditInfoCertValue != null) {
                     if (!(auditInfoCertValue.equals(
                             ILogger.SIGNED_AUDIT_EMPTY_VALUE))) {
-                        // store a message in the signed audit log file
-                        auditMessage = CMS.getLogMessage(
-                                AuditEvent.CERT_REQUEST_PROCESSED,
+
+                        audit(new CertRequestProcessedEvent(
                                 auditSubjectID,
                                 ILogger.SUCCESS,
                                 auditRequesterID,
                                 ILogger.SIGNED_AUDIT_ACCEPTANCE,
-                                auditInfoCertValue);
-
-                        audit(auditMessage);
+                                auditInfoCertValue
+                        ));
                     }
                 }
             } catch (EDeferException e) {
