@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a6c26c70_e424db87",
+        "filename": "base/java-tools/src/com/netscape/cmstools/CRMFPopClient.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 312,
+      "author": {
+        "id": 1010222
+      },
+      "writtenOn": "2017-04-12T18:12:35Z",
+      "side": 1,
+      "message": "As discussed with alee, we want to make this env variable true/false only and name it: KEY_ARCHIVAL_USE_KEY_WRAPPING. Note: It was jmagne and ONLY jmagne that came up with this ponderous naming scheme. All complaints should be directed to jmagne@redhat.com :)",
+      "revId": "536c75df4973a345425bffff65e7f514da969fe5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9295ade1_5fc9c863",
+        "filename": "base/java-tools/src/com/netscape/cmstools/client/ClientCertRequestCLI.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 1010222
+      },
+      "writtenOn": "2017-04-12T18:12:35Z",
+      "side": 1,
+      "message": "When we change the name of the env. I guess we need to fix it here.",
+      "revId": "536c75df4973a345425bffff65e7f514da969fe5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
