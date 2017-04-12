@@ -1583,7 +1583,7 @@ public class CMSEngine implements ICMSEngine {
         return getUserMessage(locale, msgID, params);
     }
 
-    public String getLogMessage(String msgID, String params[]) {
+    public String getLogMessage(String msgID, Object params[]) {
         ResourceBundle rb = ResourceBundle.getBundle(
                 "LogMessages");
         String msg = rb.getString(msgID);

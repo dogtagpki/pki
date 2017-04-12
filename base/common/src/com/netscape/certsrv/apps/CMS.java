@@ -701,7 +701,7 @@ public final class CMS {
      * @param p an array of parameters
      * @return localized log message
      */
-    public static String getLogMessage(String msgID, String p[]) {
+    public static String getLogMessage(String msgID, Object p[]) {
         return _engine.getLogMessage(msgID, p);
     }
 

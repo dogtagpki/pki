@@ -334,7 +334,7 @@ public interface ICMSEngine extends ISubsystem {
      * @param p an array of parameters
      * @return localized log message
      */
-    public String getLogMessage(String msgID, String p[]);
+    public String getLogMessage(String msgID, Object p[]);
 
     /**
      * Retrieves the centralized log message from LogMessages.properties.
