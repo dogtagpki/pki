@@ -268,6 +268,18 @@ public class CMCOutputTemplate {
                 controlSeq.addElement(tagattr);
             }
 
+            SEQUENCE POPLinkWitnessV2Bpids = (SEQUENCE) context.get("POPLinkWitnessV2");
+            if (POPLinkWitnessV2Bpids != null && POPLinkWitnessV2Bpids.size() > 0) {
+                OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL,
+                        new INTEGER(OtherInfo.BAD_REQUEST), null);
+                cmcStatusInfo = new CMCStatusInfo(CMCStatusInfo.FAILED,
+                        POPLinkWitnessV2Bpids, (String) null, otherInfo);
+                tagattr = new TaggedAttribute(
+                        new INTEGER(bpid++),
+                        OBJECT_IDENTIFIER.id_cmc_cMCStatusInfo, cmcStatusInfo);
+                controlSeq.addElement(tagattr);
+            }
+
             SEQUENCE POPLinkWitnessBpids = (SEQUENCE) context.get("POPLinkWitness");
             if (POPLinkWitnessBpids != null && POPLinkWitnessBpids.size() > 0) {
                 OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL,

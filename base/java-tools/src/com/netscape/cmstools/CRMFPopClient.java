@@ -599,8 +599,10 @@ public class CRMFPopClient {
         SEQUENCE seq = new SEQUENCE();
         seq.addElement(new AVA(new OBJECT_IDENTIFIER("1.3.6.1.5.5.7.5.1.4"), opts));
 
+        /*
         OCTET_STRING ostr = createIDPOPLinkWitness();
         seq.addElement(new AVA(OBJECT_IDENTIFIER.id_cmc_idPOPLinkWitness, ostr));
+        */
 
         return new CertRequest(new INTEGER(1), certTemplate, seq);
     }
@@ -676,10 +678,10 @@ public class CRMFPopClient {
 
         Signature signer;
         if (algorithm.equals("rsa")) {
-            signer =  token.getSignatureContext(SignatureAlgorithm.RSASignatureWithMD5Digest);
+            signer =  token.getSignatureContext(SignatureAlgorithm.RSASignatureWithSHA256Digest);
 
         } else if (algorithm.equals("ec")) {
-            signer =  token.getSignatureContext(SignatureAlgorithm.ECSignatureWithSHA1Digest);
+            signer =  token.getSignatureContext(SignatureAlgorithm.ECSignatureWithSHA256Digest);
 
         } else {
             throw new Exception("Unknown algorithm: " + algorithm);
@@ -694,10 +696,10 @@ public class CRMFPopClient {
 
         AlgorithmIdentifier algorithmID;
         if (algorithm.equals("rsa")) {
-            algorithmID = new AlgorithmIdentifier(SignatureAlgorithm.RSASignatureWithMD5Digest.toOID(), null);
+            algorithmID = new AlgorithmIdentifier(SignatureAlgorithm.RSASignatureWithSHA256Digest.toOID(), null);
 
         } else if (algorithm.equals("ec")) {
-            algorithmID = new AlgorithmIdentifier(SignatureAlgorithm.ECSignatureWithSHA1Digest.toOID(), null);
+            algorithmID = new AlgorithmIdentifier(SignatureAlgorithm.ECSignatureWithSHA256Digest.toOID(), null);
 
         } else {
             throw new Exception("Unknown algorithm: " + algorithm);

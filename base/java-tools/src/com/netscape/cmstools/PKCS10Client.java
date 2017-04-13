@@ -22,14 +22,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.security.KeyPair;
-import java.security.MessageDigest;
 import java.security.PublicKey;
 
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.BMPString;
 import org.mozilla.jss.asn1.INTEGER;
 import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
-import org.mozilla.jss.asn1.OCTET_STRING;
 import org.mozilla.jss.asn1.PrintableString;
 import org.mozilla.jss.asn1.SET;
 import org.mozilla.jss.asn1.TeletexString;
@@ -38,17 +36,16 @@ import org.mozilla.jss.asn1.UniversalString;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.KeyPairAlgorithm;
 import org.mozilla.jss.crypto.KeyPairGenerator;
+import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.pkcs10.CertificationRequest;
 import org.mozilla.jss.pkcs10.CertificationRequestInfo;
 import org.mozilla.jss.pkix.primitive.AVA;
-import org.mozilla.jss.pkix.primitive.Attribute;
 import org.mozilla.jss.pkix.primitive.Name;
 import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
 import org.mozilla.jss.util.Password;
 
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import com.netscape.cmsutil.util.HMACDigest;
 import com.netscape.cmsutil.util.Utils;
 
 import netscape.security.pkcs.PKCS10;
@@ -248,6 +245,8 @@ public class PKCS10Client {
 
             System.out.println("PKCS10Client: key pair generated."); //key pair generated");
 
+            /*** leave out this test code; cmc can add popLinkwitnessV2;
+
             // Add idPOPLinkWitness control
             String secretValue = "testing";
             byte[] key1 = null;
@@ -255,7 +254,7 @@ public class PKCS10Client {
             MessageDigest SHA1Digest = MessageDigest.getInstance("SHA1");
             key1 = SHA1Digest.digest(secretValue.getBytes());
 
-            /* seed */
+            // seed
             byte[] b =
             { 0x10, 0x53, 0x42, 0x24, 0x1a, 0x2a, 0x35, 0x3c,
                 0x7a, 0x52, 0x54, 0x56, 0x71, 0x65, 0x66, 0x4c,
@@ -272,9 +271,10 @@ public class PKCS10Client {
 
             OCTET_STRING ostr = new OCTET_STRING(finalDigest);
             Attribute attr = new Attribute(OBJECT_IDENTIFIER.id_cmc_idPOPLinkWitness, ostr);
+            ***/
 
             SET attributes = new SET();
-            attributes.addElement(attr);
+            //attributes.addElement(attr);
             Name n = getJssName(enable_encoding, subjectName);
             SubjectPublicKeyInfo subjectPub = new SubjectPublicKeyInfo(pair.getPublic());
             System.out.println("PKCS10Client: pair.getPublic() called.");
@@ -286,7 +286,7 @@ public class PKCS10Client {
             if (alg.equals("rsa")) {
                 CertificationRequest certRequest = null;
                 certRequest = new CertificationRequest(certReqInfo,
-                pair.getPrivate(), SignatureAlgorithm.RSASignatureWithMD5Digest);
+                pair.getPrivate(), SignatureAlgorithm.RSASignatureWithSHA256Digest);
                 System.out.println("PKCS10Client: CertificationRequest created.");
 
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -322,6 +322,14 @@ public class PKCS10Client {
                 byte[] certReqb = certReq.toByteArray();
                 b64E = CryptoUtil.base64Encode(certReqb);
             }
+
+            // print out keyid to be used in cmc popLinkWitnessV2
+            PrivateKey privateKey = (PrivateKey) pair.getPrivate();
+            @SuppressWarnings("deprecation")
+            byte id[] = privateKey.getUniqueID();
+            String kid = CryptoUtil.byte2string(id);
+            System.out.println("Keypair private key id: " + kid);
+            System.out.println("");
 
             System.out.println(RFC7468_HEADER);
             System.out.println(b64E);

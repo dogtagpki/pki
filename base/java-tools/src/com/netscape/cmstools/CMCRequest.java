@@ -34,6 +34,7 @@ import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Random;
 import java.util.StringTokenizer;
 
 import org.mozilla.jss.CryptoManager;
@@ -53,10 +54,12 @@ import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.DigestAlgorithm;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.PrivateKey;
+import org.mozilla.jss.crypto.Signature;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.pkcs10.CertificationRequest;
+import org.mozilla.jss.pkcs10.CertificationRequestInfo;
 import org.mozilla.jss.pkix.cmc.CMCCertId;
 import org.mozilla.jss.pkix.cmc.CMCStatusInfo;
 import org.mozilla.jss.pkix.cmc.DecryptedPOP;
@@ -68,6 +71,7 @@ import org.mozilla.jss.pkix.cmc.OtherInfo;
 import org.mozilla.jss.pkix.cmc.OtherMsg;
 import org.mozilla.jss.pkix.cmc.PKIData;
 import org.mozilla.jss.pkix.cmc.PendInfo;
+import org.mozilla.jss.pkix.cmc.PopLinkWitnessV2;
 import org.mozilla.jss.pkix.cmc.ResponseBody;
 import org.mozilla.jss.pkix.cmc.TaggedAttribute;
 import org.mozilla.jss.pkix.cmc.TaggedCertificationRequest;
@@ -85,7 +89,11 @@ import org.mozilla.jss.pkix.cms.SignerInfo;
 import org.mozilla.jss.pkix.crmf.CertReqMsg;
 import org.mozilla.jss.pkix.crmf.CertRequest;
 import org.mozilla.jss.pkix.crmf.CertTemplate;
+import org.mozilla.jss.pkix.crmf.POPOSigningKey;
+import org.mozilla.jss.pkix.crmf.ProofOfPossession;
+import org.mozilla.jss.pkix.primitive.AVA;
 import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
+import org.mozilla.jss.pkix.primitive.Attribute;
 import org.mozilla.jss.pkix.primitive.Name;
 import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
 import org.mozilla.jss.util.Password;
@@ -148,6 +156,43 @@ public class CMCRequest {
     }
 
     /**
+     * getSigningAlgFromPrivate
+     *
+     */
+    static SignatureAlgorithm getSigningAlgFromPrivate (java.security.PrivateKey privKey) {
+        String method = "getSigningAlgFromPrivate: ";
+        System.out.println(method + "begins.");
+
+        if (privKey == null) {
+            System.out.println(method + "method param privKey cannot be null");
+            System.exit(1);
+        }
+
+        SignatureAlgorithm signAlg = null;
+        /*
+            org.mozilla.jss.crypto.PrivateKey.Type signingKeyType =
+                    ((org.mozilla.jss.crypto.PrivateKey) privKey)
+                    .getType();
+        */
+        // TODO: allow more options later
+        String signingKeyType = privKey.getAlgorithm();
+        System.out.println(method + "found signingKeyType=" + signingKeyType);
+        if (signingKeyType.equalsIgnoreCase("RSA")) {
+            signAlg = SignatureAlgorithm.RSASignatureWithSHA256Digest;
+        } else if (signingKeyType.equalsIgnoreCase("EC")) {
+            signAlg = SignatureAlgorithm.ECSignatureWithSHA256Digest;
+        } else {
+            System.out.println(method + "Algorithm not supported:" +
+                    signingKeyType);
+            return null;
+        }
+        System.out.println(method + "using SignatureAlgorithm: " +
+                signAlg.toString());
+
+        return signAlg;
+    }
+
+    /**
      * signData signs the request PKIData
      *
      * @param signerCert the certificate of the authorized signer of the CMC revocation request.
@@ -190,17 +235,9 @@ public class CMCRequest {
 
             EncapsulatedContentInfo ci = new EncapsulatedContentInfo(OBJECT_IDENTIFIER.id_cct_PKIData, pkidata);
             DigestAlgorithm digestAlg = null;
-            SignatureAlgorithm signAlg = null;
-            org.mozilla.jss.crypto.PrivateKey.Type signingKeyType = ((org.mozilla.jss.crypto.PrivateKey) privKey)
-                    .getType();
-            if (signingKeyType.equals(org.mozilla.jss.crypto.PrivateKey.Type.RSA)) {
-                signAlg = SignatureAlgorithm.RSASignatureWithSHA256Digest;
-            } else if (signingKeyType.equals(org.mozilla.jss.crypto.PrivateKey.Type.EC)) {
-                signAlg = SignatureAlgorithm.ECSignatureWithSHA256Digest;
-            } else {
-                System.out.println("Algorithm not supported");
+            SignatureAlgorithm signAlg = getSigningAlgFromPrivate(privKey);
+            if (signAlg == null)
                 return null;
-            }
 
             MessageDigest SHADigest = null;
 
@@ -292,9 +329,13 @@ public class CMCRequest {
             String transactionMgtId,
             String identificationEnable, String identification,
             String identityProofEnable, String identityProofSharedSecret,
-            String identityProofV2Enable, String witnessSharedSecret,
+            String witnessSharedSecret,
+            String identityProofV2Enable,
             String identityProofV2hashAlg, String identityProofV2macAlg,
-            SEQUENCE controlSeq, SEQUENCE otherMsgSeq, int bpid) {
+            String popLinkWitnessV2Enable,
+            String popLinkWitnessV2keyGenAlg, String popLinkWitnessV2macAlg,
+            SEQUENCE controlSeq, SEQUENCE otherMsgSeq, int bpid,
+            CryptoToken token, PrivateKey privk) {
 
         String method = "createPKIData: ";
 
@@ -305,6 +346,26 @@ public class CMCRequest {
             TaggedRequest trq = null;
             PKCS10 pkcs = null;
             CertReqMsg certReqMsg = null;
+            CertReqMsg new_certReqMsg = null;
+            CertRequest new_certreq = null;
+
+            PopLinkWitnessV2 popLinkWitnessV2Control = null;
+            if (popLinkWitnessV2Enable.equals("true")) {
+                popLinkWitnessV2Control =
+                        createPopLinkWitnessV2Attr(
+                                bpid,
+                                controlSeq,
+                                witnessSharedSecret,
+                                popLinkWitnessV2keyGenAlg,
+                                popLinkWitnessV2macAlg,
+                                (identificationEnable.equals("true")) ?
+                                        identification : null);
+                if (popLinkWitnessV2Control == null) {
+                    System.out.println(method +
+                            "createPopLinkWitnessV2Attr returned null...exit");
+                    System.exit(1);
+                }
+            }
 
             // create CMC req
             SEQUENCE reqSequence = new SEQUENCE();
@@ -325,9 +386,63 @@ public class CMCRequest {
                             System.exit(1);
                         }
                         certReqMsg = (CertReqMsg) crmfMsgs.elementAt(0);
-                        trq = new TaggedRequest(TaggedRequest.CRMF, null,
-                                certReqMsg);
+
+                        if (popLinkWitnessV2Enable.equals("true")) {
+                            System.out.println(method +
+                                    "popLinkWitnessV2 enabled. reconstructing crmf");
+                            //crmf reconstruction to include PopLinkWitnessV2 control
+                            CertRequest certReq = certReqMsg.getCertReq();
+                            INTEGER certReqId = certReq.getCertReqId();
+                            CertTemplate certTemplate = certReq.getCertTemplate();
+                            SEQUENCE controls = certReq.getControls();
+                            controls.addElement(new AVA(OBJECT_IDENTIFIER.id_cmc_popLinkWitnessV2,
+                                    popLinkWitnessV2Control));
+                            new_certreq = new CertRequest(certReqId, certTemplate, controls);
+
+                            // recalculate signing POP, if it had one
+                            ProofOfPossession new_pop = null;
+                            if (certReqMsg.hasPop()) {
+                                if (privk == null) {
+                                    System.out.println(method +
+                                            "privateKey not found; can't regenerate new POP");
+                                    System.exit(1);
+                                }
+                                if (token == null) {
+                                    System.out.println(method +
+                                            "token not found; can't regenerate new POP");
+                                    System.exit(1);
+                                }
+                                new_pop = createNewPOP(
+                                        certReqMsg,
+                                        new_certreq,
+                                        token,
+                                        privk);
+                            } else { // !hasPop
+                                System.out.println(method +
+                                        "old certReqMsg has no pop, so will the new certReqMsg");
+                            }
+
+                            new_certReqMsg = new CertReqMsg(new_certreq, new_pop, null);
+                            SEQUENCE seq = new SEQUENCE();
+                            seq.addElement(new_certReqMsg);
+
+                            byte[] encodedNewCrmfMessage = ASN1Util.encode(seq);
+                            String b64String = Utils.base64encode(encodedNewCrmfMessage);
+                            System.out.println(method + "new CRMF b64encode completes.");
+                            System.out.println(CryptoUtil.CERTREQ_BEGIN_HEADING);
+                            System.out.println(b64String);
+                            System.out.println(CryptoUtil.CERTREQ_END_HEADING);
+                            System.out.println("");
+
+                            trq = new TaggedRequest(TaggedRequest.CRMF, null,
+                                    new_certReqMsg);
+
+                        } else { // !popLinkWitnessV2Enable
+                            trq = new TaggedRequest(TaggedRequest.CRMF, null,
+                                    certReqMsg);
+                        }
                     } else if (format.equals("pkcs10")) {
+                        System.out.println(method + " format: pkcs10");
                         try {
                             pkcs = new PKCS10(decodedBytes, true);
                         } catch (Exception e2) {
@@ -338,9 +453,82 @@ public class CMCRequest {
                                 pkcs.toByteArray());
                         CertificationRequest cr = (CertificationRequest) CertificationRequest.getTemplate()
                                 .decode(crInputStream);
-                        TaggedCertificationRequest tcr = new TaggedCertificationRequest(
-                                new INTEGER(bpid++), cr);
-                        trq = new TaggedRequest(TaggedRequest.PKCS10, tcr, null);
+                        if (popLinkWitnessV2Enable.equals("true")) {
+                            System.out.println(method +
+                                    "popLinkWitnessV2 enabled. reconstructing pkcs#10");
+                            //pkcs#10 reconstruction to include PopLinkWitnessV2 control
+
+                            CertificationRequestInfo certReqInfo = cr.getInfo();
+
+                            INTEGER version = certReqInfo.getVersion();
+                            Name subject = certReqInfo.getSubject();
+                            SubjectPublicKeyInfo spkInfo = certReqInfo.getSubjectPublicKeyInfo();
+                            /*
+                            AlgorithmIdentifier alg = spkInfo.getAlgorithmIdentifier();
+                            SignatureAlgorithm signAlg = SignatureAlgorithm.fromOID(alg.getOID());
+                            if (signAlg == SignatureAlgorithm.RSASignatureWithSHA256Digest) {
+                                System.out.println(method +
+                                        "signAlg == SignatureAlgorithm.RSASignatureWithSHA256Digest");
+                            } else {
+                                System.out.println(method +
+                                        "signAlg == " + signAlg.toString());
+                            }
+                            */
+
+                            Attribute attr = new Attribute(
+                                    OBJECT_IDENTIFIER.id_cmc_popLinkWitnessV2,
+                                    popLinkWitnessV2Control);
+                            SET attrs = certReqInfo.getAttributes();
+                            if (attrs == null) {
+                                attrs = new SET();
+                            }
+                            attrs.addElement(attr);
+                            System.out.println(method +
+                                    " new pkcs#10 Attribute created for id_cmc_popLinkWitnessV2.");
+
+                            SignatureAlgorithm signAlg = getSigningAlgFromPrivate(privk);
+                            if (signAlg == null) {
+                                System.out.println(method +
+                                        "signAlg not found");
+                                System.exit(1);
+                            }
+                            CertificationRequestInfo new_certReqInfo = new CertificationRequestInfo(
+                                    version,
+                                    subject,
+                                    spkInfo,
+                                    attrs);
+                            System.out.println(method +
+                                    " new pkcs#10 CertificationRequestInfo created.");
+
+                            CertificationRequest new_certRequest = new CertificationRequest(
+                                    new_certReqInfo,
+                                    privk,
+                                    signAlg);
+                            System.out.println(method +
+                                    "new pkcs#10 CertificationRequest created.");
+
+                            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                            new_certRequest.encode(bos);
+                            byte[] bb = bos.toByteArray();
+
+                            System.out.println(method + "calling Utils.b64encode.");
+                            String b64String = Utils.base64encode(bb);
+                            System.out.println(method + "new PKCS#10 b64encode completes.");
+                            System.out.println(CryptoUtil.CERTREQ_BEGIN_HEADING);
+                            System.out.println(b64String);
+                            System.out.println(CryptoUtil.CERTREQ_END_HEADING);
+                            System.out.println("");
+
+                            TaggedCertificationRequest tcr = new TaggedCertificationRequest(
+                                    new INTEGER(bpid++), new_certRequest);
+                            trq = new TaggedRequest(TaggedRequest.PKCS10, tcr, null);
+
+                        } else { // !popLinkWitnessV2Enable
+
+                            TaggedCertificationRequest tcr = new TaggedCertificationRequest(
+                                    new INTEGER(bpid++), cr);
+                            trq = new TaggedRequest(TaggedRequest.PKCS10, tcr, null);
+                        }
                     } else {
                         System.out.println(method + " Unrecognized request format: " + format);
                         System.exit(1);
@@ -348,7 +536,7 @@ public class CMCRequest {
                     reqSequence.addElement(trq);
                 }
             } catch (Exception e) {
-                System.out.println(method + " Exception:" + e.toString());
+                System.out.println(method + " Exception:" + e);
                 System.exit(1);
             }
 
@@ -378,6 +566,63 @@ public class CMCRequest {
             System.exit(1);
         }
         return pkidata;
+    }
+
+    /**
+     * createNewPOP
+     * called in case of PopLinkwitnessV2 when pop exists, thus
+     * requiring recalculation due to changes in CertRequest controls
+     *
+     * @param old_certReqMsg,
+     * @param new_certReqMsg,
+     * @param token,
+     * @param privKey
+     *
+     * @author cfu
+     */
+    static ProofOfPossession createNewPOP(
+            CertReqMsg old_certReqMsg,
+            CertRequest new_certReq,
+            CryptoToken token,
+            PrivateKey privKey) {
+        String method = "createNewPOP: ";
+
+        System.out.println(method + "begins");
+        if (old_certReqMsg == null ||
+                new_certReq == null ||
+                token == null ||
+                privKey == null) {
+            System.out.println(method + "method params cannot be null.");
+            System.exit(1);
+        }
+        ProofOfPossession old_pop = old_certReqMsg.getPop();
+        if (old_pop == null) {
+            System.out.println(method + "no pop in old_certReqMsg.");
+            System.exit(1);
+        }
+
+        POPOSigningKey PopOfsignKey = old_pop.getSignature();
+        AlgorithmIdentifier algId = PopOfsignKey.getAlgorithmIdentifier();
+
+        byte[] signature = null;
+        try {
+            SignatureAlgorithm signAlg = SignatureAlgorithm.fromOID(algId.getOID());
+            Signature signer = token.getSignatureContext(signAlg);
+            signer.initSign(privKey);
+            ByteArrayOutputStream bo = new ByteArrayOutputStream();
+            new_certReq.encode(bo);
+            signer.update(bo.toByteArray());
+            signature = signer.sign();
+        } catch (Exception e) {
+            System.out.println(method + e);
+            System.exit(1);
+        }
+
+        System.out.println(method + "about to create POPOSigningKey");
+        POPOSigningKey newPopOfSigningKey = new POPOSigningKey(null, algId, new BIT_STRING(signature, 0));
+
+        System.out.println(method + "creating and returning newPopOfSigningKey");
+        return ProofOfPossession.createSignature(newPopOfSigningKey);
     }
 
     static void printUsage() {
@@ -516,13 +761,29 @@ public class CMCRequest {
         System.out.println("identityProofV2.hashAlg=SHA-256");
         System.out.println("identityProofV2.macAlg=SHA-256-HMAC");
         System.out.println("");
+        System.out.println("#witness.sharedSecret works with identityProofV2 and popLinkWitnessV2");
         System.out.println("#witness.sharedSecret: Shared Secret");
         System.out.println("witness.sharedSecret=testing");
         System.out.println("");
-        System.out.println("#identification works with identityProofV2");
+        System.out.println("#identification works with identityProofV2 and popLinkWitnessV2");
         System.out.println("identification.enable=false");
         System.out.println("identification=testuser");
         System.out.println("");
+        System.out.println("#popLinkWitnessV2.enable:  if true, then the underlying request will contain");
+        System.out.println("#this control or attribute. Otherwise, false.");
+        System.out.println("#Supported keyGenAlg are:");
+        System.out.println("# SHA-256, SHA-384, and SHA-512");
+        System.out.println("#Supported macAlg are:");
+        System.out.println("# SHA-256-HMAC, SHA-384-HMAC, and SHA-512-HMAC");
+        System.out.println("popLinkWitnessV2.enable=false");
+        System.out.println("popLinkWitnessV2.keyGenAlg=SHA-256");
+        System.out.println("popLinkWitnessV2.macAlg=SHA-256-HMAC");
+        System.out.println("");
+        System.out.println("");
+        System.out.println("###############################");
+        System.out.println("Note: The following controls are outdated and replaced by newer");
+        System.out.println("      controls above.  They remain untouched, but also untested.");
+        System.out.println("###############################");
         System.out.println("#identityProof.enable: if true, then the request will contain");
         System.out.println("#this control. Otherwise, false.");
         System.out.println("#Note that this control is updated by identityProofV2 above");
@@ -879,7 +1140,7 @@ public class CMCRequest {
             System.out.println("");
             seq.addElement(getCertControl);
         } catch (Exception e) {
-            System.out.println("Error in creating get certificate control. Check the parameters.");
+            System.out.println("Error in creating get certificate control. Check the parameters." + e);
             System.exit(1);
         }
 
@@ -1021,6 +1282,118 @@ public class CMCRequest {
         System.out.println("");
         seq.addElement(identVal);
         return bpid;
+    }
+
+    /**
+     * createPopLinkWitnessV2Attr generates witness v2
+     *
+     * @param
+     * @return PopLinkWitnessV2
+     *
+     * @author cfu
+     */
+    private static PopLinkWitnessV2 createPopLinkWitnessV2Attr(
+            int bpid, SEQUENCE controlSeq,
+            String sharedSecret,
+            String keyGenAlgString,
+            String macAlgString,
+            String ident) {
+
+        String method = "createPopLinkWitnessV2Attr: ";
+        System.out.println(method + "begins");
+
+        if (sharedSecret == null) {
+            System.out.println(method + "method param sharedSecret cannot be null");
+            System.exit(1);
+        }
+
+        byte[] key = null;
+        byte[] finalDigest = null;
+
+        // (1) generate a random byte-string R of 512 bits
+        Random random = new Random();
+        byte[] random_R = new byte[64];
+        random.nextBytes(random_R);
+
+        // default to SHA256 if not specified
+        if (keyGenAlgString == null) {
+            keyGenAlgString = "SHA-256";
+        }
+        if (macAlgString == null) {
+            macAlgString = "SHA-256-HMAC";
+        }
+        System.out.println(method + "keyGenAlg=" + keyGenAlgString +
+                "; macAlg=" + macAlgString);
+
+        String toBeDigested = sharedSecret;
+        if (ident != null) {
+            toBeDigested = sharedSecret + ident;
+        }
+
+        // (2) compute key from sharedSecret + identity
+        try {
+            MessageDigest hash = MessageDigest.getInstance(keyGenAlgString);
+            key = hash.digest(toBeDigested.getBytes());
+        } catch (NoSuchAlgorithmException ex) {
+            System.out.println(method + "No such algorithm!");
+            return null;
+        }
+
+        MessageDigest mac;
+        // (3) compute MAC over R from (1) using key from (2)
+        try {
+            mac = MessageDigest.getInstance(
+                    CryptoUtil.getHMACtoMessageDigestName(macAlgString));
+            HMACDigest hmacDigest = new HMACDigest(mac, key);
+            hmacDigest.update(random_R);
+            finalDigest = hmacDigest.digest();
+        } catch (NoSuchAlgorithmException ex) {
+            System.out.println(method + "No such algorithm!");
+            return null;
+        }
+
+        // (4) encode R as the value of a POP Link Random control
+        TaggedAttribute idPOPLinkRandom =
+                new TaggedAttribute(new INTEGER(bpid++),
+                OBJECT_IDENTIFIER.id_cmc_idPOPLinkRandom,
+                new OCTET_STRING(random_R));
+        controlSeq.addElement(idPOPLinkRandom);
+        System.out.println(method +
+                "Successfully created id_cmc_idPOPLinkRandom control. bpid = "
+                + (bpid - 1));
+
+        AlgorithmIdentifier keyGenAlg;
+        try {
+            keyGenAlg = new AlgorithmIdentifier(
+                    CryptoUtil.getHashAlgorithmOID(keyGenAlgString));
+        } catch (NoSuchAlgorithmException ex) {
+            System.out.println(method + "No such hashing algorithm:" + keyGenAlgString);
+            return null;
+        }
+        AlgorithmIdentifier macAlg;
+        try {
+            macAlg = new AlgorithmIdentifier(
+                    CryptoUtil.getHMACAlgorithmOID(macAlgString));
+        } catch (NoSuchAlgorithmException ex) {
+            System.out.println(method + "No such HMAC algorithm:" + macAlgString);
+            return null;
+        }
+
+        // (5) put MAC value from (3) in PopLinkWitnessV2
+        PopLinkWitnessV2 popLinkWitnessV2 =
+                new PopLinkWitnessV2(keyGenAlg, macAlg,
+                        new OCTET_STRING(finalDigest));
+        /*
+         * for CRMF, needs to go into CRMF controls field of the CertRequest structure.
+         * for PKCS#10, needs to go into the aributes field of CertificationRequestInfo structure
+         *   - return the PopLinkWitnessV2 for such surgical procedure
+         */
+        System.out.println(method + "Successfully created PopLinkWitnessV2 control.");
+
+        System.out.println(method + "returning...");
+        System.out.println("");
+
+        return popLinkWitnessV2;
     }
 
     private static int addPopLinkWitnessAttr(int bpid, SEQUENCE controlSeq) {
@@ -1309,7 +1682,8 @@ public class CMCRequest {
         String dbdir = null, nickname = null;
         String tokenName = null;
         String ifilename = null, ofilename = null, password = null, format = null;
-        String decryptedPopEnable = "false", encryptedPopResponseFile=null, privKeyId = null, decryptedPopRequestFile= null;
+        String privKeyId = null;
+        String decryptedPopEnable = "false", encryptedPopResponseFile=null, decryptedPopRequestFile= null;
         String confirmCertEnable = "false", confirmCertIssuer = null, confirmCertSerial = null;
         String getCertEnable = "false", getCertIssuer = null, getCertSerial = null;
         String dataReturnEnable = "false", dataReturnData = null;
@@ -1321,7 +1695,9 @@ public class CMCRequest {
         String revRequestInvalidityDatePresent = "false";
         String identificationEnable = "false", identification = null;
         String identityProofEnable = "false", identityProofSharedSecret = null;
-        String identityProofV2Enable = "false", witnessSharedSecret = null, identityProofV2hashAlg = "SHA256", identityProofV2macAlg = "SHA256";
+        String identityProofV2Enable = "false", identityProofV2hashAlg = "SHA256", identityProofV2macAlg = "SHA256";
+        String witnessSharedSecret = null; //shared by identityProofV2 and popLinkWitnessV2
+        String popLinkWitnessV2Enable = "false", popLinkWitnessV2keyGenAlg = "SHA256", popLinkWitnessV2macAlg = "SHA256";
         String popLinkWitnessEnable = "false";
         String bodyPartIDs = null, lraPopWitnessEnable = "false";
 
@@ -1378,6 +1754,8 @@ public class CMCRequest {
                         ofilename = val;
                     } else if (name.equals("input")) {
                         ifilename = val;
+                    } else if (name.equals("numRequests")) {
+                        numRequests = val;
                     } else if (name.equals("decryptedPop.enable")) {
                         decryptedPopEnable = val;
                     } else if (name.equals("encryptedPopResponseFile")) {
@@ -1430,14 +1808,21 @@ public class CMCRequest {
                         identificationEnable = val;
                     } else if (name.equals("identification")) {
                         identification = val;
-                    } else if (name.equals("identityProofV2.enable")) {
-                        identityProofV2Enable = val;
                     } else if (name.equals("witness.sharedSecret")) {
                         witnessSharedSecret = val;
+                    } else if (name.equals("identityProofV2.enable")) {
+                        identityProofV2Enable = val;
                     } else if (name.equals("identityProofV2.hashAlg")) {
                         identityProofV2hashAlg = val;
                     } else if (name.equals("identityProofV2.macAlg")) {
                         identityProofV2macAlg = val;
+                    } else if (name.equals("popLinkWitnessV2.enable")) {
+                        popLinkWitnessV2Enable = val;
+                    } else if (name.equals("popLinkWitnessV2.keyGenAlg")) {
+                        popLinkWitnessV2keyGenAlg = val;
+                    } else if (name.equals("popLinkWitnessV2.macAlg")) {
+                        popLinkWitnessV2macAlg = val;
+                    /* the following are outdated */
                     } else if (name.equals("identityProof.enable")) {
                         identityProofEnable = val;
                     } else if (name.equals("identityProof.sharedSecret")) {
@@ -1448,8 +1833,6 @@ public class CMCRequest {
                         lraPopWitnessEnable = val;
                     } else if (name.equals("LraPopWitness.bodyPartIDs")) {
                         bodyPartIDs = val;
-                    } else if (name.equals("numRequests")) {
-                        numRequests = val;
                     }
                 }
             }
@@ -1518,13 +1901,14 @@ public class CMCRequest {
             //cfu
             ContentInfo cmcblob = null;
             PKIData pkidata = null;
-            if (decryptedPopEnable.equalsIgnoreCase("true")) {
-                PrivateKey privk = null;
+            PrivateKey privk = null;
+            if (decryptedPopEnable.equalsIgnoreCase("true") ||
+                    popLinkWitnessV2Enable.equalsIgnoreCase("true")) {
                 if (privKeyId == null) {
-                    System.out.println("ecryptedPop.enable = true, but privKeyId not specified.");
+                    System.out.println("ecryptedPop.enable or popLinkWitnessV2 true, but privKeyId not specified.");
                     printUsage();
                 } else {
-                    System.out.println("got privKeyId: " + privKeyId);
+                    System.out.println("got request privKeyId: " + privKeyId);
 
                     byte[] keyIDb = CryptoUtil.string2byte(privKeyId);
 
@@ -1538,7 +1922,9 @@ public class CMCRequest {
                         System.exit(1);
                     }
                 }
+            }
 
+            if (decryptedPopEnable.equalsIgnoreCase("true")) {
                 if (encryptedPopResponseFile == null) {
                     System.out.println("ecryptedPop.enable = true, but encryptedPopResponseFile is not specified.");
                     printUsage();
@@ -1688,7 +2074,9 @@ public class CMCRequest {
                 if (senderNonceEnable.equalsIgnoreCase("true"))
                     bpid = addSenderNonceAttr(bpid, controlSeq, senderNonce);
 
-                if (popLinkWitnessEnable.equalsIgnoreCase("true"))
+                //popLinkWitnessV2 takes precedence
+                if (!popLinkWitnessV2Enable.equalsIgnoreCase("true") &
+                        popLinkWitnessEnable.equalsIgnoreCase("true"))
                     bpid = addPopLinkWitnessAttr(bpid, controlSeq);
 
                 SEQUENCE otherMsgSeq = new SEQUENCE();
@@ -1711,9 +2099,13 @@ public class CMCRequest {
                         format, transactionMgtEnable, transactionMgtId,
                         identificationEnable, identification,
                         identityProofEnable, identityProofSharedSecret,
-                        identityProofV2Enable, witnessSharedSecret,
+                        witnessSharedSecret,
+                        identityProofV2Enable,
                         identityProofV2hashAlg, identityProofV2macAlg,
-                        controlSeq, otherMsgSeq, bpid);
+                        popLinkWitnessV2Enable,
+                        popLinkWitnessV2keyGenAlg, popLinkWitnessV2macAlg,
+                        controlSeq, otherMsgSeq, bpid,
+                        token, privk);
 
                 if (pkidata == null) {
                     System.out.println("pkidata null after createPKIData(). Exiting with error");
