@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "376c5d04_0534e9cc",
+        "filename": "base/kra/src/com/netscape/kra/SecurityDataProcessor.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 633,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-04-13T19:44:19Z",
+      "side": 1,
+      "message": "Should mention something like: \"initialization vector if required by the algorithm, otherwise null.\"",
+      "revId": "11adfaf638b38456f6ecc99d9a04c0ffbcd8b4b9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b258fbb1_123a2186",
+        "filename": "base/kra/src/com/netscape/kra/SecurityDataProcessor.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 659,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-04-13T19:44:19Z",
+      "side": 1,
+      "message": "Should be wrapName.",
+      "range": {
+        "startLine": 659,
+        "startChar": 14,
+        "endLine": 659,
+        "endChar": 17
+      },
+      "revId": "11adfaf638b38456f6ecc99d9a04c0ffbcd8b4b9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5c335d5b_051d8791",
+        "filename": "base/kra/src/com/netscape/kra/SecurityDataProcessor.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 660,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-04-13T19:44:19Z",
+      "side": 1,
+      "message": "Should be defaultAlg.",
+      "range": {
+        "startLine": 660,
+        "startChar": 14,
+        "endLine": 660,
+        "endChar": 17
+      },
+      "revId": "11adfaf638b38456f6ecc99d9a04c0ffbcd8b4b9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "33f26821_5d109cc7",
+        "filename": "base/kra/src/com/netscape/kra/SecurityDataProcessor.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 661,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-04-13T19:44:19Z",
+      "side": 1,
+      "message": "Should mention something like: \"initialization vector if required by the algorithm, otherwise null.\"",
+      "revId": "11adfaf638b38456f6ecc99d9a04c0ffbcd8b4b9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
