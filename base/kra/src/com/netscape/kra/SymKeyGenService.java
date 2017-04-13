@@ -170,6 +170,7 @@ public class SymKeyGenService implements IService {
         }
 
         try {
+            // TODO(alee) what happens if key wrap algorithm is not supported?
             params = mStorageUnit.getWrappingParams();
             privateSecurityData = mStorageUnit.wrap(sk, params);
         } catch (Exception e) {
@@ -215,7 +216,7 @@ public class SymKeyGenService implements IService {
         }
 
         try {
-            rec.setWrappingParams(params);
+            rec.setWrappingParams(params, false);
         } catch (Exception e) {
             mKRA.log(ILogger.LL_FAILURE,
                     "Failed to store wrapping parameters: " + e);

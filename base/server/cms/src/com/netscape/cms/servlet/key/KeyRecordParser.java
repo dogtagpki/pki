@@ -60,6 +60,7 @@ public class KeyRecordParser {
     public final static String OUT_PL_ENCRYPTION_IV = "payloadEncryptionIV";
     public final static String OUT_PL_ENCRYPTION_IV_LEN = "payloadEncryptionIVLen";
     public final static String OUT_PL_ENCRYPTION_OID = "payloadEncryptionOID";
+    public static final String OUT_PL_ENCRYPTED = "payloadEncrypted";
 
     /**
      * Fills key record into argument block.

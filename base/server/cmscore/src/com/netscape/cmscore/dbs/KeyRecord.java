@@ -407,7 +407,7 @@ public class KeyRecord implements IDBObj, IKeyRecord {
         return realm;
     }
 
-    public void setWrappingParams(WrappingParams params) throws Exception {
+    public void setWrappingParams(WrappingParams params, boolean doEncrypt) throws Exception {
         if (mMetaInfo == null) {
             mMetaInfo = new MetaInfo();
         }
@@ -456,6 +456,7 @@ public class KeyRecord implements IDBObj, IKeyRecord {
             );
         }
 
+        mMetaInfo.set(KeyRecordParser.OUT_PL_ENCRYPTED, Boolean.toString(doEncrypt));
     }
 
     public WrappingParams getWrappingParams(WrappingParams oldParams) throws Exception {
