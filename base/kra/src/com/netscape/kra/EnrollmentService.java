@@ -502,7 +502,7 @@ public class EnrollmentService implements IService {
             }
 
             try {
-                rec.setWrappingParams(params);
+                rec.setWrappingParams(params, allowEncDecrypt_archival);
             } catch (Exception e) {
                 mKRA.log(ILogger.LL_FAILURE, "Failed to store wrapping parameters");
                 // TODO(alee) Set correct audit message here

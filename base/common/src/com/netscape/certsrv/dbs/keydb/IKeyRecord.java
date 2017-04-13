@@ -170,7 +170,7 @@ public interface IKeyRecord {
      */
     public String getRealm() throws EBaseException;
 
-    public void setWrappingParams(WrappingParams params) throws Exception;
+    public void setWrappingParams(WrappingParams params, boolean encrypted) throws Exception;
 
     public WrappingParams getWrappingParams(WrappingParams oldParams) throws Exception;
 }

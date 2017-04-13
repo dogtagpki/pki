@@ -30,6 +30,7 @@ import org.mozilla.jss.crypto.TokenException;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.key.AsymKeyGenerationRequest;
@@ -72,7 +73,7 @@ public class AsymKeyGenService implements IService {
 
     @Override
     public boolean serviceRequest(IRequest request) throws EBaseException {
-
+        IConfigStore cs = CMS.getConfigStore();
         String clientKeyId = request.getExtDataInString(IRequest.SECURITY_DATA_CLIENT_KEY_ID);
         String algorithm = request.getExtDataInString(IRequest.KEY_GEN_ALGORITHM);
 
@@ -80,6 +81,8 @@ public class AsymKeyGenService implements IService {
         int keySize = Integer.valueOf(keySizeStr);
 
         String realm = request.getRealm();
+
+        boolean allowEncDecrypt_archival = cs.getBoolean("kra.allowEncDecrypt.archival", false);
 
         KeyPairGeneratorSpi.Usage[] usageList = null;
         String usageStr = request.getExtDataInString(IRequest.KEY_GEN_USAGES);
@@ -164,6 +167,7 @@ public class AsymKeyGenService implements IService {
         WrappingParams params = null;
 
         try {
+            // TODO(alee) What happens if key wrap algorithm is not supported?
             params = storageUnit.getWrappingParams();
             privateSecurityData = storageUnit.wrap((PrivateKey) kp.getPrivate(), params);
         } catch (Exception e) {
@@ -201,7 +205,7 @@ public class AsymKeyGenService implements IService {
         }
 
         try {
-            record.setWrappingParams(params);
+            record.setWrappingParams(params, false);
         } catch (Exception e) {
             auditAsymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
                     clientKeyId, null, "Failed to store wrapping params");

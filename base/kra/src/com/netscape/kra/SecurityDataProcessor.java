@@ -214,6 +214,7 @@ public class SecurityDataProcessor {
 
         byte[] publicKey = null;
         byte privateSecurityData[] = null;
+        boolean doEncrypt = false;
 
         try {
             params = storageUnit.getWrappingParams();
@@ -222,9 +223,11 @@ public class SecurityDataProcessor {
             } else if (unwrapped != null && allowEncDecrypt_archival == true) {
                 privateSecurityData = storageUnit.encryptInternalPrivate(unwrapped, params);
                 Arrays.fill(unwrapped, (byte)0);
+                doEncrypt = true;
                 CMS.debug("allowEncDecrypt_archival of symmetric key.");
             } else if (securityData != null) {
                 privateSecurityData = storageUnit.encryptInternalPrivate(securityData, params);
+                doEncrypt = true;
             } else { // We have no data.
                 auditArchivalRequestProcessed(auditSubjectID, ILogger.FAILURE, requestId,
                         clientKeyId, null, "Failed to create security data to archive");
@@ -282,7 +285,7 @@ public class SecurityDataProcessor {
         }
 
         try {
-            rec.setWrappingParams(params);
+            rec.setWrappingParams(params, doEncrypt);
         } catch (Exception e) {
             kra.log(ILogger.LL_FAILURE,
                     "Failed to store wrapping parameters: " + e);
