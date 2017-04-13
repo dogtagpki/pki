@@ -387,6 +387,13 @@ public class AuditEvent implements IBundleLogEvent {
     }
 
     /**
+     * Sets a list of parameters.
+     */
+    public void setParameters(Object[] params) {
+        mParams = params;
+    }
+
+    /**
      * Returns localized message string. This method should
      * only be called if a localized string is necessary.
      * <P>

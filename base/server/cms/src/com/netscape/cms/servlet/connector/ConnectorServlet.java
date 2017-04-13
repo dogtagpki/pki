@@ -636,7 +636,7 @@ public class ConnectorServlet extends CMSServlet {
                                     auditSubjectID,
                                     auditRequesterID,
                                     ILogger.SIGNED_AUDIT_ACCEPTANCE,
-                                    auditInfoCertValue));
+                                    thisreq));
                         }
                     }
                 }

@@ -684,7 +684,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                                         auditSubjectID,
                                         auditRequesterID,
                                         ILogger.SIGNED_AUDIT_ACCEPTANCE,
-                                        auditInfoCertValue));
+                                        reqs[k]));
                         }
                     }
                 } catch (EDeferException e) {
@@ -778,7 +778,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                                     auditSubjectID,
                                     auditRequesterID,
                                     ILogger.SIGNED_AUDIT_ACCEPTANCE,
-                                    auditInfoCertValue));
+                                    reqs[0]));
                         }
                     }
                 } catch (ERejectException e) {

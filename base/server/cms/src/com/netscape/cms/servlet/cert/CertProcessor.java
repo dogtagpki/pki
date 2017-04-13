@@ -235,7 +235,7 @@ public class CertProcessor extends CAProcessor {
                                 auditSubjectID,
                                 auditRequesterID,
                                 ILogger.SIGNED_AUDIT_ACCEPTANCE,
-                                auditInfoCertValue));
+                                req));
                     }
                 }
             } catch (EDeferException e) {
