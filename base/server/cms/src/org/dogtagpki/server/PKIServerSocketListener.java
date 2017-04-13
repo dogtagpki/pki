@@ -18,8 +18,6 @@
 package org.dogtagpki.server;
 
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.security.Principal;
 
 import org.mozilla.jss.crypto.X509Certificate;
@@ -45,8 +43,7 @@ public class PKIServerSocketListener implements SSLSocketListener {
         try {
             SSLSocket socket = event.getSocket();
 
-            SocketAddress remoteSocketAddress = socket.getRemoteSocketAddress();
-            InetAddress clientAddress = remoteSocketAddress == null ? null : ((InetSocketAddress)remoteSocketAddress).getAddress();
+            InetAddress clientAddress = socket.getInetAddress();
             InetAddress serverAddress = socket.getLocalAddress();
             String clientIP = clientAddress == null ? "" : clientAddress.getHostAddress();
             String serverIP = serverAddress == null ? "" : serverAddress.getHostAddress();
@@ -85,8 +82,7 @@ public class PKIServerSocketListener implements SSLSocketListener {
         try {
             SSLSocket socket = event.getSocket();
 
-            SocketAddress remoteSocketAddress = socket.getRemoteSocketAddress();
-            InetAddress clientAddress = remoteSocketAddress == null ? null : ((InetSocketAddress)remoteSocketAddress).getAddress();
+            InetAddress clientAddress = socket.getInetAddress();
             InetAddress serverAddress = socket.getLocalAddress();
             String clientIP = clientAddress == null ? "" : clientAddress.getHostAddress();
             String serverIP = serverAddress == null ? "" : serverAddress.getHostAddress();
@@ -139,8 +135,7 @@ public class PKIServerSocketListener implements SSLSocketListener {
         try {
             SSLSocket socket = event.getSocket();
 
-            SocketAddress remoteSocketAddress = socket.getRemoteSocketAddress();
-            InetAddress clientAddress = remoteSocketAddress == null ? null : ((InetSocketAddress)remoteSocketAddress).getAddress();
+            InetAddress clientAddress = socket.getInetAddress();
             InetAddress serverAddress = socket.getLocalAddress();
             String clientIP = clientAddress == null ? "" : clientAddress.getHostAddress();
             String serverIP = serverAddress == null ? "" : serverAddress.getHostAddress();
