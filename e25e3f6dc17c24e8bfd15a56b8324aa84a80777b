@@ -1,0 +1,112 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a84cce0_268a99c5",
+        "filename": "base/common/python/pki/crypto.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 320,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-04-13T15:28:38Z",
+      "side": 1,
+      "message": "This probably can be defined in the base class.",
+      "revId": "e25e3f6dc17c24e8bfd15a56b8324aa84a80777b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e1953e14_c11ebd5a",
+        "filename": "base/common/python/pki/key.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1046,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-04-13T15:28:38Z",
+      "side": 1,
+      "message": "The dot shouldn\u0027t be here.",
+      "range": {
+        "startLine": 1046,
+        "startChar": 68,
+        "endLine": 1046,
+        "endChar": 69
+      },
+      "revId": "e25e3f6dc17c24e8bfd15a56b8324aa84a80777b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e4291448_c751b5d5",
+        "filename": "base/kra/src/com/netscape/kra/SecurityDataProcessor.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 621,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-04-13T15:28:38Z",
+      "side": 1,
+      "message": "Could you add a method description explaining the return value? Previously the method never returns a null. Does null return value now mean the IV is not required for the specified algorithm or it is an error? If it\u0027s an error we should throw an exception instead.",
+      "revId": "e25e3f6dc17c24e8bfd15a56b8324aa84a80777b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f6cf006c_73c551b7",
+        "filename": "base/kra/src/com/netscape/kra/SecurityDataProcessor.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 626,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-04-13T15:28:38Z",
+      "side": 1,
+      "message": "If alg cannot be determined should it be an error (i.e. throw an exception) or fallback to the default algorithm which does not require an IV?",
+      "revId": "e25e3f6dc17c24e8bfd15a56b8324aa84a80777b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a32179dc_0e028ca7",
+        "filename": "base/kra/src/com/netscape/kra/SecurityDataProcessor.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 628,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-04-13T15:28:38Z",
+      "side": 1,
+      "message": "The alg.getParameterClasses() doesn\u0027t seem to be used but you\u0027re checking its value. If it\u0027s null is it an error (i.e. throw an exception) or do we fallback to the default algorithm which doesn\u0027t require an IV? If we return null is it going to be consistent with the non-null alg that was determined above this code?",
+      "revId": "e25e3f6dc17c24e8bfd15a56b8324aa84a80777b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3041cd4d_3403b364",
+        "filename": "base/kra/src/com/netscape/kra/SecurityDataProcessor.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 635,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-04-13T15:28:38Z",
+      "side": 1,
+      "message": "Same questions as in generate_iv().",
+      "revId": "e25e3f6dc17c24e8bfd15a56b8324aa84a80777b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
