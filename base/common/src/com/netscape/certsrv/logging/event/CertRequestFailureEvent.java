@@ -25,6 +25,14 @@ public class CertRequestFailureEvent extends AuditEvent {
     public CertRequestFailureEvent(
             String subjectID,
             String requesterID,
+            String infoName) {
+
+        this(subjectID, requesterID, infoName, ILogger.SIGNED_AUDIT_EMPTY_VALUE);
+    }
+
+    public CertRequestFailureEvent(
+            String subjectID,
+            String requesterID,
             String infoName,
             String infoValue) {
 

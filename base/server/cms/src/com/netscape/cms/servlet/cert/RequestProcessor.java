@@ -398,8 +398,7 @@ public class RequestProcessor extends CertProcessor {
             audit(new CertRequestFailureEvent(
                     auditSubjectID,
                     auditRequesterID,
-                    ILogger.SIGNED_AUDIT_ACCEPTANCE,
-                    ILogger.SIGNED_AUDIT_EMPTY_VALUE));
+                    ILogger.SIGNED_AUDIT_ACCEPTANCE));
 
             CMS.debug("CertRequestExecutor: about to throw EProfileException because of bad profile execute.");
             throw eAudit1;

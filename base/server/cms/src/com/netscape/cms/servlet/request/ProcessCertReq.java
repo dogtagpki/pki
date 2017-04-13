@@ -470,8 +470,7 @@ public class ProcessCertReq extends CMSServlet {
                         audit(new CertRequestFailureEvent(
                                     auditSubjectID,
                                     auditRequesterID,
-                                    auditInfoName,
-                                    ILogger.SIGNED_AUDIT_EMPTY_VALUE));
+                                    auditInfoName));
 
                     } else if (toDo.equals(SIGNED_AUDIT_CANCELLATION)) {
                         // (manual "agent" cert request processed - "cancelled")
@@ -972,8 +971,7 @@ public class ProcessCertReq extends CMSServlet {
                             audit(new CertRequestSuccessEvent(
                                         auditSubjectID,
                                         auditRequesterID,
-                                        auditInfoName,
-                                        ILogger.SIGNED_AUDIT_EMPTY_VALUE));
+                                        auditInfoName));
                         }
 
                         // grant trusted manager or agent privileges
