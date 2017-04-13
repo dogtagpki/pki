@@ -277,8 +277,6 @@ public class RequestProcessor extends CertProcessor {
     private void cancelRequest(IRequest req) throws EProfileException {
         String auditSubjectID = auditSubjectID();
         String auditRequesterID = auditRequesterID(req);
-        String auditInfoValue = auditInfoValue(req);
-
         req.setRequestStatus(RequestStatus.CANCELED);
 
         audit(new CertRequestProcessedEvent(
@@ -286,7 +284,7 @@ public class RequestProcessor extends CertProcessor {
                 ILogger.SUCCESS,
                 auditRequesterID,
                 ILogger.SIGNED_AUDIT_CANCELLATION,
-                auditInfoValue));
+                req));
     }
 
     /**
@@ -308,7 +306,6 @@ public class RequestProcessor extends CertProcessor {
     private void rejectRequest(IRequest req) throws EProfileException {
         String auditSubjectID = auditSubjectID();
         String auditRequesterID = auditRequesterID(req);
-        String auditInfoValue = auditInfoValue(req);
 
         req.setRequestStatus(RequestStatus.REJECTED);
 
@@ -317,7 +314,7 @@ public class RequestProcessor extends CertProcessor {
                 ILogger.SUCCESS,
                 auditRequesterID,
                 ILogger.SIGNED_AUDIT_REJECTION,
-                auditInfoValue));
+                req));
     }
 
     /**

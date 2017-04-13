@@ -120,9 +120,6 @@ public class CAProcessor extends Processor {
     public static final String ACL_INFO = "ACLinfo";
     public static final String PROFILE_SUB_ID = "profileSubId";
 
-    public final static String SIGNED_AUDIT_CERT_REQUEST_REASON =
-            "requestNotes";
-
     protected String profileID;
     protected String profileSubId;
     protected String aclMethod;
@@ -1000,42 +997,6 @@ public class CAProcessor extends Processor {
         }
 
         return groupID;
-    }
-
-    /**
-     * Signed Audit Log Info Value
-     *
-     * This method is called to obtain the "reason" for
-     * a signed audit log message.
-     * <P>
-     *
-     * @param request the actual request
-     * @return reason string containing the signed audit log message reason
-     */
-    protected String auditInfoValue(IRequest request) {
-        // if no signed audit object exists, bail
-        if (signedAuditLogger == null) {
-            return null;
-        }
-
-        String reason = ILogger.SIGNED_AUDIT_EMPTY_VALUE;
-
-        if (request != null) {
-            // overwrite "reason" if and only if "info" != null
-            String info =
-                    request.getExtDataInString(SIGNED_AUDIT_CERT_REQUEST_REASON);
-
-            if (info != null) {
-                reason = info.trim();
-
-                // overwrite "reason" if and only if "reason" is empty
-                if (reason.equals("")) {
-                    reason = ILogger.SIGNED_AUDIT_EMPTY_VALUE;
-                }
-            }
-        }
-
-        return reason;
     }
 
     /**

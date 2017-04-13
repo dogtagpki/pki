@@ -21,6 +21,7 @@ import java.security.cert.CertificateEncodingException;
 
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.request.IRequest;
 import com.netscape.cmsutil.util.Utils;
 
 import netscape.security.x509.X509CertImpl;
@@ -28,6 +29,8 @@ import netscape.security.x509.X509CertImpl;
 public class CertRequestProcessedEvent extends AuditEvent {
 
     private static final long serialVersionUID = 1L;
+
+    public final static String SIGNED_AUDIT_CERT_REQUEST_REASON = "requestNotes";
 
     public CertRequestProcessedEvent(
             String subjectID,
@@ -62,6 +65,24 @@ public class CertRequestProcessedEvent extends AuditEvent {
                 requesterID,
                 infoName,
                 auditInfoCertValue(x509cert)
+        });
+    }
+
+    public CertRequestProcessedEvent(
+            String subjectID,
+            String outcome,
+            String requesterID,
+            String infoName,
+            IRequest request) {
+
+        super(CERT_REQUEST_PROCESSED);
+
+        setParameters(new Object[] {
+                subjectID,
+                outcome,
+                requesterID,
+                infoName,
+                auditInfoValue(request)
         });
     }
 
@@ -110,5 +131,37 @@ public class CertRequestProcessedEvent extends AuditEvent {
         } else {
             return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
         }
+    }
+
+    /**
+     * Signed Audit Log Info Value
+     *
+     * This method is called to obtain the "reason" for
+     * a signed audit log message.
+     * <P>
+     *
+     * @param request the actual request
+     * @return reason string containing the signed audit log message reason
+     */
+    String auditInfoValue(IRequest request) {
+
+        String reason = ILogger.SIGNED_AUDIT_EMPTY_VALUE;
+
+        if (request != null) {
+            // overwrite "reason" if and only if "info" != null
+            String info =
+                    request.getExtDataInString(SIGNED_AUDIT_CERT_REQUEST_REASON);
+
+            if (info != null) {
+                reason = info.trim();
+
+                // overwrite "reason" if and only if "reason" is empty
+                if (reason.equals("")) {
+                    reason = ILogger.SIGNED_AUDIT_EMPTY_VALUE;
+                }
+            }
+        }
+
+        return reason;
     }
 }
