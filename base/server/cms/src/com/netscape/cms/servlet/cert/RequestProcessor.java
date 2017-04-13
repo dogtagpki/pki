@@ -39,7 +39,8 @@ import com.netscape.certsrv.ca.CANotFoundException;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.cert.CertReviewResponse;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.logging.event.CertRequestProcessedEvent;
+import com.netscape.certsrv.logging.event.CertRequestFailureEvent;
+import com.netscape.certsrv.logging.event.CertRequestSuccessEvent;
 import com.netscape.certsrv.profile.EDeferException;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
@@ -275,16 +276,14 @@ public class RequestProcessor extends CertProcessor {
      *                occurred
      */
     private void cancelRequest(IRequest req) throws EProfileException {
-        String auditMessage = null;
         String auditSubjectID = auditSubjectID();
         String auditRequesterID = auditRequesterID(req);
         String auditInfoValue = auditInfoValue(req);
 
         req.setRequestStatus(RequestStatus.CANCELED);
 
-        audit(new CertRequestProcessedEvent(
+        audit(new CertRequestSuccessEvent(
                 auditSubjectID,
-                ILogger.SUCCESS,
                 auditRequesterID,
                 ILogger.SIGNED_AUDIT_CANCELLATION,
                 auditInfoValue));
@@ -313,9 +312,8 @@ public class RequestProcessor extends CertProcessor {
 
         req.setRequestStatus(RequestStatus.REJECTED);
 
-        audit(new CertRequestProcessedEvent(
+        audit(new CertRequestSuccessEvent(
                 auditSubjectID,
-                ILogger.SUCCESS,
                 auditRequesterID,
                 ILogger.SIGNED_AUDIT_REJECTION,
                 auditInfoValue));
@@ -389,18 +387,16 @@ public class RequestProcessor extends CertProcessor {
             X509CertImpl theCert = req.getExtDataInCert(
                     IEnrollProfile.REQUEST_ISSUED_CERT);
 
-            audit(new CertRequestProcessedEvent(
+            audit(new CertRequestSuccessEvent(
                     auditSubjectID,
-                    ILogger.SUCCESS,
                     auditRequesterID,
                     ILogger.SIGNED_AUDIT_ACCEPTANCE,
                     auditInfoCertValue(theCert)));
 
         } catch (EProfileException eAudit1) {
 
-            audit(new CertRequestProcessedEvent(
+            audit(new CertRequestFailureEvent(
                     auditSubjectID,
-                    ILogger.FAILURE,
                     auditRequesterID,
                     ILogger.SIGNED_AUDIT_ACCEPTANCE,
                     ILogger.SIGNED_AUDIT_EMPTY_VALUE));

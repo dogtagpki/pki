@@ -18,19 +18,19 @@
 package com.netscape.certsrv.logging.event;
 
 import com.netscape.certsrv.logging.AuditEvent;
+import com.netscape.certsrv.logging.ILogger;
 
-public class CertRequestProcessedEvent extends AuditEvent {
+public class CertRequestSuccessEvent extends AuditEvent {
 
-    public CertRequestProcessedEvent(
+    public CertRequestSuccessEvent(
             String subjectID,
-            String outcome,
             String requesterID,
             String infoName,
             String infoValue) {
 
         super(CERT_REQUEST_PROCESSED, new Object[]  {
                 subjectID,
-                outcome,
+                ILogger.SUCCESS,
                 requesterID,
                 infoName,
                 infoValue

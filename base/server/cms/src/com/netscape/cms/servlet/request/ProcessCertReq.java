@@ -50,7 +50,8 @@ import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.logging.event.CertRequestProcessedEvent;
+import com.netscape.certsrv.logging.event.CertRequestFailureEvent;
+import com.netscape.certsrv.logging.event.CertRequestSuccessEvent;
 import com.netscape.certsrv.publish.IPublisherProcessor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
@@ -466,27 +467,24 @@ public class ProcessCertReq extends CMSServlet {
                     } else if (toDo.equals(SIGNED_AUDIT_ACCEPTANCE)) {
                         // (manual "agent" cert request processed - "accepted")
 
-                        audit(new CertRequestProcessedEvent(
+                        audit(new CertRequestFailureEvent(
                                     auditSubjectID,
-                                    ILogger.FAILURE,
                                     auditRequesterID,
                                     auditInfoName,
                                     ILogger.SIGNED_AUDIT_EMPTY_VALUE));
 
                     } else if (toDo.equals(SIGNED_AUDIT_CANCELLATION)) {
                         // (manual "agent" cert request processed - "cancelled")
-                        audit(new CertRequestProcessedEvent(
+                        audit(new CertRequestFailureEvent(
                                     auditSubjectID,
-                                    ILogger.FAILURE,
                                     auditRequesterID,
                                     auditInfoName,
                                     SIGNED_AUDIT_MANUAL_CANCELLATION_REASON[0]));
 
                     } else if (toDo.equals(SIGNED_AUDIT_REJECTION)) {
                         // (manual "agent" cert request processed - "rejected")
-                        audit(new CertRequestProcessedEvent(
+                        audit(new CertRequestFailureEvent(
                                     auditSubjectID,
-                                    ILogger.FAILURE,
                                     auditRequesterID,
                                     auditInfoName,
                                     SIGNED_AUDIT_MANUAL_REJECTION_REASON[0]));
@@ -931,9 +929,8 @@ public class ProcessCertReq extends CMSServlet {
                                 // store a message in the signed audit log file
                                 // (one for each manual "agent"
                                 //  cert request processed - "accepted")
-                                audit(new CertRequestProcessedEvent(
+                                audit(new CertRequestSuccessEvent(
                                             auditSubjectID,
-                                            ILogger.SUCCESS,
                                             auditRequesterID,
                                             auditInfoName,
                                             auditInfoCertValue(issuedCerts[i])));
@@ -972,9 +969,8 @@ public class ProcessCertReq extends CMSServlet {
                             // store a message in the signed audit log file
                             // (manual "agent" cert request processed
                             //  - "accepted")
-                            audit(new CertRequestProcessedEvent(
+                            audit(new CertRequestSuccessEvent(
                                         auditSubjectID,
-                                        ILogger.SUCCESS,
                                         auditRequesterID,
                                         auditInfoName,
                                         ILogger.SIGNED_AUDIT_EMPTY_VALUE));
@@ -1094,9 +1090,8 @@ public class ProcessCertReq extends CMSServlet {
 
                     // store a message in the signed audit log file
                     // (manual "agent" cert request processed - "rejected")
-                    audit(new CertRequestProcessedEvent(
+                    audit(new CertRequestSuccessEvent(
                                 auditSubjectID,
-                                ILogger.SUCCESS,
                                 auditRequesterID,
                                 auditInfoName,
                                 SIGNED_AUDIT_MANUAL_REJECTION_REASON[1]));
@@ -1153,9 +1148,8 @@ public class ProcessCertReq extends CMSServlet {
 
                     // store a message in the signed audit log file
                     // (manual "agent" cert request processed - "cancelled")
-                    audit(new CertRequestProcessedEvent(
+                    audit(new CertRequestSuccessEvent(
                                 auditSubjectID,
-                                ILogger.SUCCESS,
                                 auditRequesterID,
                                 auditInfoName,
                                 SIGNED_AUDIT_MANUAL_CANCELLATION_REASON[1]));
@@ -1261,27 +1255,24 @@ public class ProcessCertReq extends CMSServlet {
                     audit(auditMessage);
                 } else if (toDo.equals(SIGNED_AUDIT_ACCEPTANCE)) {
                     // (manual "agent" cert request processed - "accepted")
-                    audit(new CertRequestProcessedEvent(
+                    audit(new CertRequestFailureEvent(
                                 auditSubjectID,
-                                ILogger.FAILURE,
                                 auditRequesterID,
                                 auditInfoName,
                                 ILogger.SIGNED_AUDIT_EMPTY_VALUE));
 
                 } else if (toDo.equals(SIGNED_AUDIT_CANCELLATION)) {
                     // (manual "agent" cert request processed - "cancelled")
-                    audit(new CertRequestProcessedEvent(
+                    audit(new CertRequestFailureEvent(
                                 auditSubjectID,
-                                ILogger.FAILURE,
                                 auditRequesterID,
                                 auditInfoName,
                                 SIGNED_AUDIT_MANUAL_CANCELLATION_REASON[2]));
 
                 } else if (toDo.equals(SIGNED_AUDIT_REJECTION)) {
                     // (manual "agent" cert request processed - "rejected")
-                    audit(new CertRequestProcessedEvent(
+                    audit(new CertRequestFailureEvent(
                                 auditSubjectID,
-                                ILogger.FAILURE,
                                 auditRequesterID,
                                 auditInfoName,
                                 SIGNED_AUDIT_MANUAL_REJECTION_REASON[2]));
@@ -1307,27 +1298,24 @@ public class ProcessCertReq extends CMSServlet {
                     audit(auditMessage);
                 } else if (toDo.equals(SIGNED_AUDIT_ACCEPTANCE)) {
                     // (manual "agent" cert request processed - "accepted")
-                    audit(new CertRequestProcessedEvent(
+                    audit(new CertRequestFailureEvent(
                                 auditSubjectID,
-                                ILogger.FAILURE,
                                 auditRequesterID,
                                 auditInfoName,
                                 ILogger.SIGNED_AUDIT_EMPTY_VALUE));
 
                 } else if (toDo.equals(SIGNED_AUDIT_CANCELLATION)) {
                     // (manual "agent" cert request processed - "cancelled")
-                    audit(new CertRequestProcessedEvent(
+                    audit(new CertRequestFailureEvent(
                                 auditSubjectID,
-                                ILogger.FAILURE,
                                 auditRequesterID,
                                 auditInfoName,
                                 SIGNED_AUDIT_MANUAL_CANCELLATION_REASON[3]));
 
                 } else if (toDo.equals(SIGNED_AUDIT_REJECTION)) {
                     // (manual "agent" cert request processed - "rejected")
-                    audit(new CertRequestProcessedEvent(
+                    audit(new CertRequestFailureEvent(
                                 auditSubjectID,
-                                ILogger.FAILURE,
                                 auditRequesterID,
                                 auditInfoName,
                                 SIGNED_AUDIT_MANUAL_REJECTION_REASON[3]));
@@ -1354,27 +1342,24 @@ public class ProcessCertReq extends CMSServlet {
                     audit(auditMessage);
                 } else if (toDo.equals(SIGNED_AUDIT_ACCEPTANCE)) {
                     // (manual "agent" cert request processed - "accepted")
-                    audit(new CertRequestProcessedEvent(
+                    audit(new CertRequestFailureEvent(
                                 auditSubjectID,
-                                ILogger.FAILURE,
                                 auditRequesterID,
                                 auditInfoName,
                                 ILogger.SIGNED_AUDIT_EMPTY_VALUE));
 
                 } else if (toDo.equals(SIGNED_AUDIT_CANCELLATION)) {
                     // (manual "agent" cert request processed - "cancelled")
-                    audit(new CertRequestProcessedEvent(
+                    audit(new CertRequestFailureEvent(
                                 auditSubjectID,
-                                ILogger.FAILURE,
                                 auditRequesterID,
                                 auditInfoName,
                                 SIGNED_AUDIT_MANUAL_CANCELLATION_REASON[4]));
 
                 } else if (toDo.equals(SIGNED_AUDIT_REJECTION)) {
                     // (manual "agent" cert request processed - "rejected")
-                    audit(new CertRequestProcessedEvent(
+                    audit(new CertRequestFailureEvent(
                                 auditSubjectID,
-                                ILogger.FAILURE,
                                 auditRequesterID,
                                 auditInfoName,
                                 SIGNED_AUDIT_MANUAL_REJECTION_REASON[4]));
@@ -1401,27 +1386,24 @@ public class ProcessCertReq extends CMSServlet {
                     audit(auditMessage);
                 } else if (toDo.equals(SIGNED_AUDIT_ACCEPTANCE)) {
                     // (manual "agent" cert request processed - "accepted")
-                    audit(new CertRequestProcessedEvent(
+                    audit(new CertRequestFailureEvent(
                                 auditSubjectID,
-                                ILogger.FAILURE,
                                 auditRequesterID,
                                 auditInfoName,
                                 ILogger.SIGNED_AUDIT_EMPTY_VALUE));
 
                 } else if (toDo.equals(SIGNED_AUDIT_CANCELLATION)) {
                     // (manual "agent" cert request processed - "cancelled")
-                    audit(new CertRequestProcessedEvent(
+                    audit(new CertRequestFailureEvent(
                                 auditSubjectID,
-                                ILogger.FAILURE,
                                 auditRequesterID,
                                 auditInfoName,
                                 SIGNED_AUDIT_MANUAL_CANCELLATION_REASON[5]));
 
                 } else if (toDo.equals(SIGNED_AUDIT_REJECTION)) {
                     // (manual "agent" cert request processed - "rejected")
-                    audit(new CertRequestProcessedEvent(
+                    audit(new CertRequestFailureEvent(
                                 auditSubjectID,
-                                ILogger.FAILURE,
                                 auditRequesterID,
                                 auditInfoName,
                                 SIGNED_AUDIT_MANUAL_REJECTION_REASON[5]));

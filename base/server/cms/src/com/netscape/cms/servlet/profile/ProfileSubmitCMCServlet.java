@@ -45,7 +45,8 @@ import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.logging.event.CertRequestProcessedEvent;
+import com.netscape.certsrv.logging.event.CertRequestFailureEvent;
+import com.netscape.certsrv.logging.event.CertRequestSuccessEvent;
 import com.netscape.certsrv.profile.EDeferException;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
@@ -679,9 +680,8 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                         if (!(auditInfoCertValue.equals(
                                     ILogger.SIGNED_AUDIT_EMPTY_VALUE))) {
 
-                            audit(new CertRequestProcessedEvent(
+                            audit(new CertRequestSuccessEvent(
                                         auditSubjectID,
-                                        ILogger.SUCCESS,
                                         auditRequesterID,
                                         ILogger.SIGNED_AUDIT_ACCEPTANCE,
                                         auditInfoCertValue));
@@ -732,9 +732,8 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                 if (errorCode != null) {
                     if (errorCode.equals("1")) {
 
-                        audit(new CertRequestProcessedEvent(
+                        audit(new CertRequestFailureEvent(
                                     auditSubjectID,
-                                    ILogger.FAILURE,
                                     auditRequesterID,
                                     ILogger.SIGNED_AUDIT_REJECTION,
                                     errorReason));
@@ -745,9 +744,8 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                         // deferred for manual acceptance/cancellation/rejection
                     } else if (errorCode.equals("3")) {
 
-                        audit(new CertRequestProcessedEvent(
+                        audit(new CertRequestFailureEvent(
                                     auditSubjectID,
-                                    ILogger.FAILURE,
                                     auditRequesterID,
                                     ILogger.SIGNED_AUDIT_REJECTION,
                                     errorReason));
@@ -776,9 +774,8 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                         if (!(auditInfoCertValue.equals(
                                 ILogger.SIGNED_AUDIT_EMPTY_VALUE))) {
 
-                            audit(new CertRequestProcessedEvent(
+                            audit(new CertRequestSuccessEvent(
                                     auditSubjectID,
-                                    ILogger.SUCCESS,
                                     auditRequesterID,
                                     ILogger.SIGNED_AUDIT_ACCEPTANCE,
                                     auditInfoCertValue));
