@@ -224,8 +224,15 @@ public class RecoveryService implements IService {
                 statsSub.startTiming("recover_key");
             }
 
+            Boolean encrypted = keyRecord.isEncrypted();
+            if (encrypted == null) {
+                // must be an old key record
+                // assume the value of allowEncDecrypt
+                encrypted = allowEncDecrypt_recovery;
+            }
+
             PrivateKey privKey = null;
-            if (allowEncDecrypt_recovery == true) {
+            if (encrypted) {
                 privateKeyData = recoverKey(params, keyRecord);
             } else {
                 privKey = recoverKey(params, keyRecord, isRSA);
@@ -234,7 +241,7 @@ public class RecoveryService implements IService {
                 statsSub.endTiming("recover_key");
             }
 
-            if ((isRSA == true) && (allowEncDecrypt_recovery == true)) {
+            if ((isRSA == true) && encrypted) {
                 if (statsSub != null) {
                     statsSub.startTiming("verify_key");
                 }
@@ -253,7 +260,7 @@ public class RecoveryService implements IService {
             if (statsSub != null) {
                 statsSub.startTiming("create_p12");
             }
-            if (allowEncDecrypt_recovery == true) {
+            if (encrypted) {
                 createPFX(request, params, privateKeyData);
             } else {
                 createPFX(request, params, privKey, ct);
