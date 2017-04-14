@@ -433,9 +433,19 @@ public class TokenKeyRecoveryService implements IService {
                 }
             } // else, searched by keyid, can't check
 
+            Boolean isEncrypted = keyRecord.isEncrypted();
+            boolean doDecrypt = false;
+            if (isEncrypted != null) {
+                doDecrypt = isEncrypted.booleanValue();
+            } else {
+                // must be an old key record
+                // assume the value of allowEncDecrypt
+                doDecrypt = allowEncDecrypt_recovery;
+            }
+
             Type keyType = PrivateKey.RSA;
             byte wrapped[];
-            if (allowEncDecrypt_recovery == true) {
+            if (doDecrypt) {
                 // Unwrap the archived private key
                 byte privateKeyData[] = null;
                 privateKeyData = recoverKey(params, keyRecord);
@@ -493,7 +503,7 @@ public class TokenKeyRecoveryService implements IService {
                         privateKeyData,
                         EncryptionAlgorithm.DES3_CBC_PAD,
                         algParam);
-            } else { //allowEncDecrypt_recovery == false
+            } else { //doDecrypt == false
                 PrivateKey privKey = recoverKey(params, keyRecord, allowEncDecrypt_recovery);
                 if (privKey == null) {
                     request.setExtData(IRequest.RESULT, Integer.valueOf(4));

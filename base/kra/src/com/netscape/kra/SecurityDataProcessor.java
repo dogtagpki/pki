@@ -363,8 +363,18 @@ public class SecurityDataProcessor {
         byte[] unwrappedSecData = null;
         PrivateKey privateKey = null;
 
+        Boolean isEncrypted = keyRecord.isEncrypted();
+        boolean doDecrypt = false;
+        if (isEncrypted != null) {
+            doDecrypt = isEncrypted.booleanValue();
+        } else {
+            // must be an old key record
+            // assume the value of allowEncDecrypt
+            doDecrypt = allowEncDecrypt_recovery;
+        }
+
         if (dataType.equals(KeyRequestResource.SYMMETRIC_KEY_TYPE)) {
-            if (allowEncDecrypt_recovery == true) {
+            if (doDecrypt) {
                 CMS.debug("Recover symmetric key by decrypting as per allowEncDecrypt_recovery: true.");
                 unwrappedSecData = recoverSecurityData(keyRecord);
             } else {
@@ -375,7 +385,7 @@ public class SecurityDataProcessor {
             unwrappedSecData = recoverSecurityData(keyRecord);
         } else if (dataType.equals(KeyRequestResource.ASYMMETRIC_KEY_TYPE)) {
             try {
-                if (allowEncDecrypt_recovery == true) {
+                if (doDecrypt) {
                     CMS.debug("Recover asymmetric key by decrypting as per allowEncDecrypt_recovery: true.");
                     unwrappedSecData = recoverSecurityData(keyRecord);
                 } else {
@@ -466,7 +476,7 @@ public class SecurityDataProcessor {
                 if (dataType.equals(KeyRequestResource.SYMMETRIC_KEY_TYPE)) {
 
                     CMS.debug("SecurityDataProcessor.recover(): wrap or encrypt stored symmetric key with transport passphrase");
-                    if (allowEncDecrypt_recovery == true) {
+                    if (doDecrypt) {
                         CMS.debug("SecurityDataProcessor.recover(): allowEncDecyypt_recovery: true, symmetric key:  create blob with unwrapped key.");
                         pbeWrappedData = createEncryptedContentInfo(ct, null, unwrappedSecData, null, pass);
                     } else {
@@ -478,7 +488,7 @@ public class SecurityDataProcessor {
                     CMS.debug("SecurityDataProcessor.recover(): encrypt stored passphrase with transport passphrase");
                     pbeWrappedData = createEncryptedContentInfo(ct, null, unwrappedSecData, null, pass);
                 } else if (dataType.equals(KeyRequestResource.ASYMMETRIC_KEY_TYPE)) {
-                    if (allowEncDecrypt_recovery == true) {
+                    if (doDecrypt) {
                         CMS.debug("SecurityDataProcessor.recover(): allowEncDecyypt_recovery: true, asymmetric key:  create blob with unwrapped key.");
                         pbeWrappedData = createEncryptedContentInfo(ct, null, unwrappedSecData, null, pass);
                     } else {
@@ -511,7 +521,7 @@ public class SecurityDataProcessor {
             if (dataType.equals(KeyRequestResource.SYMMETRIC_KEY_TYPE)) {
                 CMS.debug("SecurityDataProcessor.recover(): wrap or encrypt stored symmetric key with session key");
                 try {
-                    if (allowEncDecrypt_recovery == true) {
+                    if (doDecrypt) {
                         CMS.debug("SecurityDataProcessor.recover(): encrypt symmetric key with session key as per allowEncDecrypt_recovery: true.");
                         unwrappedSess = transportUnit.unwrap_session_key(ct, wrappedSessKey,
                                 SymmetricKey.Usage.ENCRYPT, wrapParams);
@@ -559,7 +569,7 @@ public class SecurityDataProcessor {
             } else if (dataType.equals(KeyRequestResource.ASYMMETRIC_KEY_TYPE)) {
                 CMS.debug("SecurityDataProcessor.recover(): wrap or encrypt stored private key with session key");
                 try {
-                    if (allowEncDecrypt_recovery == true) {
+                    if (doDecrypt) {
                         CMS.debug("SecurityDataProcessor.recover(): encrypt symmetric key.");
                         unwrappedSess = transportUnit.unwrap_session_key(ct, wrappedSessKey,
                                 SymmetricKey.Usage.ENCRYPT, wrapParams);
@@ -599,7 +609,7 @@ public class SecurityDataProcessor {
         params.put(IRequest.SECURITY_DATA_PL_WRAPPING_NAME,
                 wrapParams.getPayloadWrapAlgorithm().toString());
 
-        if ((allowEncDecrypt_recovery == true) || (dataType.equals(KeyRequestResource.PASS_PHRASE_TYPE))) {
+        if ((doDecrypt) || (dataType.equals(KeyRequestResource.PASS_PHRASE_TYPE))) {
             params.put(IRequest.SECURITY_DATA_PL_WRAPPED, Boolean.toString(false));
             if (wrapParams.getPayloadEncryptionIV() != null) {
                 params.put(IRequest.SECURITY_DATA_IV_STRING_OUT, ivStr);

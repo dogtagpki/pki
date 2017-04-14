@@ -504,4 +504,13 @@ public class KeyRecord implements IDBObj, IKeyRecord {
 
         return params;
     }
+
+    public Boolean isEncrypted() throws EBaseException {
+        String encrypted = (String) mMetaInfo.get(KeyRecordParser.OUT_PL_ENCRYPTED);
+        if (encrypted == null)
+            return null;
+        return Boolean.valueOf(encrypted);
+    }
+
+
 }
