@@ -173,4 +173,6 @@ public interface IKeyRecord {
     public void setWrappingParams(WrappingParams params, boolean encrypted) throws Exception;
 
     public WrappingParams getWrappingParams(WrappingParams oldParams) throws Exception;
+
+    public Boolean isEncrypted() throws EBaseException;
 }
