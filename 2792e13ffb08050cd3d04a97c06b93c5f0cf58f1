@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3cdd5d84_26a459ea",
+        "filename": "base/kra/src/com/netscape/kra/RecoveryService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-04-14T01:14:49Z",
+      "side": 1,
+      "message": "Probably can be simplified as follows:\n\nBoolean encrypted \u003d keyRecord.isEncrypted();\n\nif (encrypted \u003d\u003d null) {\n    // must be an old key record\n    // assume the value of allowEncDecrypt\n    encrypted \u003d allowEncDecrypt_recovery;\n}\n\nif (encrypted) {\n    ... decrypt key ...\n}",
+      "range": {
+        "startLine": 227,
+        "startChar": 0,
+        "endLine": 235,
+        "endChar": 13
+      },
+      "revId": "2792e13ffb08050cd3d04a97c06b93c5f0cf58f1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c6a04495_5af5b041",
+        "filename": "base/kra/src/com/netscape/kra/SecurityDataProcessor.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 374,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-04-14T01:14:49Z",
+      "side": 1,
+      "message": "Can be simplified too. See prev file.",
+      "range": {
+        "startLine": 366,
+        "startChar": 0,
+        "endLine": 374,
+        "endChar": 9
+      },
+      "revId": "2792e13ffb08050cd3d04a97c06b93c5f0cf58f1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8abc7f8c_084a82e1",
+        "filename": "base/kra/src/com/netscape/kra/SecurityDataProcessor.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 612,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-04-14T01:14:49Z",
+      "side": 1,
+      "message": "The inner parentheses are redundant.",
+      "revId": "2792e13ffb08050cd3d04a97c06b93c5f0cf58f1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c5949755_4b4a7c27",
+        "filename": "base/kra/src/com/netscape/kra/TokenKeyRecoveryService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 444,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-04-14T01:14:49Z",
+      "side": 1,
+      "message": "Can be simplified too. See prev file.",
+      "range": {
+        "startLine": 436,
+        "startChar": 0,
+        "endLine": 444,
+        "endChar": 13
+      },
+      "revId": "2792e13ffb08050cd3d04a97c06b93c5f0cf58f1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
