@@ -29,6 +29,7 @@ import java.util.Vector;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.io.FileUtils;
+import org.dogtagpki.common.CAInfo;
 import org.dogtagpki.common.CAInfoClient;
 import org.dogtagpki.common.KRAInfoResource;
 import org.mozilla.jss.CryptoManager;
@@ -39,6 +40,7 @@ import org.mozilla.jss.pkix.crmf.CertRequest;
 import org.mozilla.jss.pkix.crmf.ProofOfPossession;
 import org.mozilla.jss.pkix.primitive.Name;
 
+import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.cert.CertClient;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
 import com.netscape.certsrv.cert.CertRequestInfos;
@@ -250,23 +252,26 @@ public class ClientCertRequestCLI extends CLI {
             // get archival mechanism
             CAInfoClient infoClient = new CAInfoClient(client, "ca");
             String archivalMechanism = KRAInfoResource.KEYWRAP_MECHANISM;
+            String wrappingKeySet = "1";
             try {
-                archivalMechanism = infoClient.getInfo().getArchivalMechanism();
-            } catch (Exception e) {
-                // this could be an older server, check for environment variable.
-                String useKeyWrapping = System.getenv("KEY_ARCHIVAL_USE_KEY_WRAPPING");
-                if (useKeyWrapping != null) {
-                    if (Boolean.parseBoolean(useKeyWrapping)) {
-                        archivalMechanism = KRAInfoResource.KEYWRAP_MECHANISM;
-                    } else {
-                        archivalMechanism = KRAInfoResource.ENCRYPT_MECHANISM;
-                    }
+                CAInfo info = infoClient.getInfo();
+                archivalMechanism = info.getArchivalMechanism();
+                wrappingKeySet = info.getWrappingKeySet();
+            } catch (PKIException e) {
+                if (e.getCode() == 404) {
+                    // assume this is an older server,
+                    archivalMechanism = KRAInfoResource.KEYWRAP_MECHANISM;
+                    wrappingKeySet = "0";
+                } else {
+                    throw new Exception("Failed to retrieve archive wrapping information from the CA: " + e);
                 }
+            } catch (Exception e) {
+                throw new Exception("Failed to retrieve archive wrapping information from the CA: " + e);
             }
 
             csr = generateCrmfRequest(transportCert, subjectDN, attributeEncoding,
                     algorithm, length, curve, sslECDH, temporary, sensitive, extractable, withPop,
-                    archivalMechanism);
+                    archivalMechanism, wrappingKeySet);
 
         } else {
             throw new Exception("Unknown request type: " + requestType);
@@ -408,7 +413,8 @@ public class ClientCertRequestCLI extends CLI {
             int sensitive,
             int extractable,
             boolean withPop,
-            String archivalMechanism
+            String archivalMechanism,
+            String wrappingKeySet
             ) throws Exception {
 
         CryptoManager manager = CryptoManager.getInstance();
@@ -430,7 +436,7 @@ public class ClientCertRequestCLI extends CLI {
         }
 
         CertRequest certRequest = client.createCertRequest(
-                token, transportCert, algorithm, keyPair, subject, archivalMechanism);
+                token, transportCert, algorithm, keyPair, subject, archivalMechanism, wrappingKeySet);
 
         ProofOfPossession pop = null;
         if (withPop) {
