@@ -50,6 +50,10 @@ public class CAInfoService extends PKIService implements CAInfoResource {
         if (archivalMechanism != null)
             info.setArchivalMechanism(getArchivalMechanism());
 
+        String keySet = getWrappingKeySet();
+        if (keySet != null)
+            info.setWrappingKeySet(keySet);
+
         return createOKResponse(info);
     }
 
@@ -60,5 +64,13 @@ public class CAInfoService extends PKIService implements CAInfoResource {
 
         boolean encrypt_archival = cs.getBoolean("kra.allowEncDecrypt.archival", false);
         return encrypt_archival ? KRAInfoService.ENCRYPT_MECHANISM : KRAInfoService.KEYWRAP_MECHANISM;
+    }
+
+    String getWrappingKeySet() throws EBaseException {
+        IConfigStore cs = CMS.getConfigStore();
+        boolean kra_present = cs.getBoolean("ca.connector.KRA.enable", false);
+        if (!kra_present) return null;
+
+        return cs.getString("kra.wrappingKeySet", "1");
     }
 }

@@ -54,6 +54,7 @@ public class CAInfo extends ResourceMessage {
     }
 
     String archivalMechanism;
+    String wrappingKeySet;
 
     @XmlElement(name="ArchivalMechanism")
     public String getArchivalMechanism() {
@@ -64,11 +65,21 @@ public class CAInfo extends ResourceMessage {
         this.archivalMechanism = archivalMechanism;
     }
 
+    @XmlElement(name="WrappingKeySet")
+    public String getWrappingKeySet() {
+        return wrappingKeySet;
+    }
+
+    public void setWrappingKeySet(String wrappingKeySet) {
+        this.wrappingKeySet = wrappingKeySet;
+    }
+
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = super.hashCode();
         result = prime * result + ((archivalMechanism == null) ? 0 : archivalMechanism.hashCode());
+        result = prime * result + ((wrappingKeySet == null) ? 0 : wrappingKeySet.hashCode());
         return result;
     }
 
@@ -85,6 +96,11 @@ public class CAInfo extends ResourceMessage {
             if (other.archivalMechanism != null)
                 return false;
         } else if (!archivalMechanism.equals(other.archivalMechanism))
+            return false;
+        if (wrappingKeySet == null) {
+            if (other.wrappingKeySet != null)
+                return false;
+        } else if (!wrappingKeySet.equals(other.wrappingKeySet))
             return false;
         return true;
     }
