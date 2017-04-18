@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f25c1f81_57229d34",
+        "filename": "base/java-tools/src/com/netscape/cmstools/CRMFPopClient.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 478,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-04-18T21:42:05Z",
+      "side": 1,
+      "message": "Should we throw exception if archivalMechanism or wrappingKeySet is specified in CLI options? Otherwise the user might get confused if the tool ends up using a different mechanism.",
+      "revId": "d691a96d3ffb988dd3b3562d19db93dbcadb1c29",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7d942c55_3f58caa9",
+        "filename": "base/java-tools/src/com/netscape/cmstools/CRMFPopClient.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 493,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-04-18T21:42:05Z",
+      "side": 1,
+      "message": "Is there a more specific exception that can be caught (i.e. 404 Not Found) or should we check server version number?",
+      "revId": "d691a96d3ffb988dd3b3562d19db93dbcadb1c29",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5b05d4dc_c21e21e0",
+        "filename": "base/java-tools/src/com/netscape/cmstools/client/ClientCertRequestCLI.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-04-18T21:42:05Z",
+      "side": 1,
+      "message": "Same thing, is there a more specific exception?",
+      "revId": "d691a96d3ffb988dd3b3562d19db93dbcadb1c29",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "de815fe9_dbda1db3",
+        "filename": "base/server/cms/src/org/dogtagpki/server/rest/CAInfoService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-04-18T21:42:05Z",
+      "side": 1,
+      "message": "The null check is redundant. If keySet is null the CAInfo.wrappingKeySet will be null too.",
+      "revId": "d691a96d3ffb988dd3b3562d19db93dbcadb1c29",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
