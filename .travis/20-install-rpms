@@ -1,0 +1,6 @@
+#!/bin/bash
+set -e
+
+find ${BUILDDIR}/packages/RPMS/ -name '*.rpm' -and -not -name '*debuginfo*' \
+    | xargs dnf install -y --best --allowerasing
+

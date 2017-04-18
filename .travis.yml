@@ -5,16 +5,49 @@ services:
   - docker
 
 env:
-  - CONTAINER=dogtagpki/pki-ci-containers:f25_104
-  - CONTAINER=dogtagpki/pki-ci-containers:f26_104
-  - CONTAINER=dogtagpki/pki-ci-containers:rawhide
+  global:
+    - CONTAINER=pkitest
+    - SCRIPTDIR=/tmp/workdir/pki/.travis
+  matrix:
+    - IMAGE=dogtagpki/pki-ci-containers:f25_104
+    # F26 repo is unstable
+    # - IMAGE=dogtagpki/pki-ci-containers:f26_104
+    # rawhide repo is unstable
+    # - IMAGE=dogtagpki/pki-ci-containers:rawhide
 
-script:
-  - docker pull $CONTAINER
+before_install:
+  - docker pull ${IMAGE}
   - >
     docker run
+    --detach
+    --name=${CONTAINER}
+    --hostname='pki.test'
+    --privileged
+    --tmpfs /tmp
+    --tmpfs /run
+    -v /sys/fs/cgroup:/sys/fs/cgroup:ro
     -v $(pwd):/tmp/workdir/pki
-    -e UID=$(id -u)
-    -e GID=$(id -g)
-    $CONTAINER
-    /tmp/workdir/pki/.travis.test $CONTAINER
+    -e BUILDUSER_UID=$(id -u)
+    -e BUILDUSER_GID=$(id -g)
+    -e TRAVIS=${TRAVIS}
+    -e TRAVIS_JOB_NUMBER=${TRAVIS_JOB_NUMBER}
+    -ti
+    ${IMAGE}
+  - docker ps -a
+
+install:
+  - docker exec -ti ${CONTAINER} ${SCRIPTDIR}/00-init
+  - docker exec -ti ${CONTAINER} ${SCRIPTDIR}/10-compose-rpms
+  - docker exec -ti ${CONTAINER} ${SCRIPTDIR}/20-install-rpms
+  - docker exec -ti ${CONTAINER} ${SCRIPTDIR}/30-setup-389ds
+
+script:
+  - docker exec -ti ${CONTAINER} ${SCRIPTDIR}/40-spawn-ca
+  - docker exec -ti ${CONTAINER} ${SCRIPTDIR}/50-spawn-kra
+
+after_script:
+  - docker kill ${CONTAINER}
+  - docker rm ${CONTAINER}
+
+after_failure:
+  - journalctl -l
