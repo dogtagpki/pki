@@ -1,0 +1,31 @@
+#!/bin/bash
+set -e
+
+BUILDLOG=/tmp/compose.log
+
+function compose {
+    pushd ${BUILDDIR}/pki
+    # run make with --quiet to reduce log verbosity.
+    sudo -u ${BUILDUSER} MAKEFLAGS="-j2 --quiet" -- \
+        ./scripts/compose_pki_core_packages rpms
+    popd
+}
+
+function upload {
+    if test -f $BUILDLOG; then
+        echo "Uploading build log to transfer"
+        curl --upload-file $BUILDLOG https://transfer.sh/pkitravis.txt
+    fi
+}
+
+if test "${TRAVIS}" != "true"; then
+    compose
+else
+    trap upload EXIT
+    echo "Runing compose_pki_core_packages rpms."
+    echo "Build log will be posted to transfer.sh"
+    echo $(date) > $BUILDLOG
+    echo "Travis job ${TRAVIS_JOB_NUMBER}" >> $BUILDLOG
+    compose >>$BUILDLOG 2>&1
+fi
+

@@ -1,0 +1,36 @@
+#!/bin/bash
+set -e
+
+. /etc/os-release
+
+echo "$NAME $VERSION"
+
+if test -z "${BUILDDIR}" || ! test -d "${BUILDDIR}"; then
+    echo "BUILDDIR not set or ${BUILDDIR} is not a directory."
+    exit 1
+fi
+
+if test -z "${BUILDUSER}" -o -z "${BUILDUSER_UID}" -o -z "${BUILDUSER_GID}"; then
+    echo "BUILDUSER, BUILDUSER_UID, BUILDUSER_GID not set"
+    exit 2
+fi
+
+## compose_pki_core_packages doesn't run as root, create a build user
+groupadd --non-unique -g ${BUILDUSER_GID} ${BUILDUSER}
+useradd --non-unique -u ${BUILDUSER_UID} -g ${BUILDUSER_GID} ${BUILDUSER}
+
+## chown workdir and enter pki dir
+chown ${BUILDUSER}:${BUILDUSER} ${BUILDDIR}
+
+# workaround for
+# [Errno 2] No such file or directory: '/var/cache/dnf/metadata_lock.pid'
+rm -f /var/cache/dnf/metadata_lock.pid
+dnf clean all
+dnf makecache || true
+dnf makecache
+
+# update, container might be outdated
+dnf update -y
+
+## prepare additional build dependencies
+dnf builddep -y ${BUILDDIR}/pki/specs/pki-core.spec
