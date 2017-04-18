@@ -40,6 +40,8 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
+import org.dogtagpki.common.CAInfo;
+import org.dogtagpki.common.CAInfoClient;
 import org.dogtagpki.common.KRAInfoResource;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.ASN1Util;
@@ -75,6 +77,9 @@ import org.mozilla.jss.pkix.primitive.Name;
 import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
 import org.mozilla.jss.util.Password;
 
+import com.netscape.certsrv.base.PKIException;
+import com.netscape.certsrv.client.ClientConfig;
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Cert;
 import com.netscape.cmsutil.util.HMACDigest;
@@ -187,6 +192,10 @@ public class CRMFPopClient {
         option.setArgName("keyWrap");
         options.addOption(option);
 
+        option = new Option("w", true, "Wrapping Keyset");
+        option.setArgName("keySet");
+        options.addOption(option);
+
         options.addOption("v", "verbose", false, "Run in verbose mode.");
         options.addOption(null, "help", false, "Show help message.");
 
@@ -218,6 +227,7 @@ public class CRMFPopClient {
         System.out.println("  -g <true|false>              Use KeyWrapping to wrap private key (default: true)");
         System.out.println("                               - true: use a key wrapping algorithm");
         System.out.println("                               - false: use an encryption algorithm");
+        System.out.println("  -w <keyset_id>               Key set ID to use when wrapping the private key");
         System.out.println("  -b <transport cert>          PEM transport certificate (default: transport.txt)");
         System.out.println("  -v, --verbose                Run in verbose mode.");
         System.out.println("      --help                   Show help message.");
@@ -310,6 +320,7 @@ public class CRMFPopClient {
         int sensitive = Integer.parseInt(cmd.getOptionValue("s", "-1"));
         int extractable = Integer.parseInt(cmd.getOptionValue("e", "-1"));
 
+        // get the key wrapping mechanism
         boolean keyWrap = true;
         if (cmd.hasOption("g")) {
             keyWrap = Boolean.parseBoolean(cmd.getOptionValue("g"));
@@ -319,12 +330,26 @@ public class CRMFPopClient {
                 keyWrap = Boolean.parseBoolean(useKeyWrap);
             }
         }
+        String archivalMechanism = keyWrap ? KRAInfoResource.KEYWRAP_MECHANISM :
+            KRAInfoResource.ENCRYPT_MECHANISM;
+
+        String wrappingKeySet = cmd.getOptionValue("w");
 
         String output = cmd.getOptionValue("o");
 
         String hostPort = cmd.getOptionValue("m");
         String username = cmd.getOptionValue("u");
         String requestor = cmd.getOptionValue("r");
+
+        if (hostPort != null) {
+            if (cmd.hasOption("g") || cmd.hasOption("w")) {
+                printError("Wrapping Key Set (-g) and keywrap (-w) options should " +
+                        "not be specified when hostport is specified.  " +
+                        "CRMFPopClient will contact the server to " +
+                        "determine the correct values for these parameters");
+                System.exit(1);
+            }
+        }
 
         if (subjectDN == null) {
             printError("Missing subject DN");
@@ -458,11 +483,41 @@ public class CRMFPopClient {
             String kid = CryptoUtil.byte2string(id);
             System.out.println("Keypair private key id: " + kid);
 
-            String archivalMechanism = keyWrap ? KRAInfoResource.KEYWRAP_MECHANISM :
-                KRAInfoResource.ENCRYPT_MECHANISM;
+            if (hostPort != null) {
+                // check the CA for the required keyset and archival mechanism
+                // if found, override whatever has been set by the command line
+                // options or environment for archivalMechanism and wrappingKeySet
+
+                ClientConfig config = new ClientConfig();
+                String host = hostPort.substring(0, hostPort.indexOf(':'));
+                int port = Integer.parseInt(hostPort.substring(hostPort.indexOf(':')+1));
+                config.setServerURL("http", host, port);
+
+                PKIClient pkiclient = new PKIClient(config);
+
+                // get archival mechanism
+                CAInfoClient infoClient = new CAInfoClient(pkiclient, "ca");
+                try {
+                    CAInfo info = infoClient.getInfo();
+                    archivalMechanism = info.getArchivalMechanism();
+                    wrappingKeySet = info.getWrappingKeySet();
+                } catch (PKIException e) {
+                    if (e.getCode() == 404) {
+                        // assume this is an older server,
+                        archivalMechanism = KRAInfoResource.KEYWRAP_MECHANISM;
+                        wrappingKeySet = "0";
+                    } else {
+                        throw new Exception("Failed to retrieve archive wrapping information from the CA: " + e, e);
+                    }
+                } catch (Exception e) {
+                    throw new Exception("Failed to retrieve archive wrapping information from the CA: " + e, e);
+                }
+            }
+
             if (verbose) System.out.println("Creating certificate request");
             CertRequest certRequest = client.createCertRequest(
-                    token, transportCert, algorithm, keyPair, subject, archivalMechanism);
+                    token, transportCert, algorithm, keyPair,
+                    subject, archivalMechanism, wrappingKeySet);
 
             ProofOfPossession pop = null;
 
@@ -572,11 +627,15 @@ public class CRMFPopClient {
             String algorithm,
             KeyPair keyPair,
             Name subject,
-            String archivalMechanism) throws Exception {
+            String archivalMechanism,
+            String wrappingKeySet) throws Exception {
         EncryptionAlgorithm encryptAlg = null;
-        String keyset = System.getenv("KEY_WRAP_PARAMETER_SET");
 
-        if (keyset != null && keyset.equalsIgnoreCase("0")) {
+        if (wrappingKeySet == null) {
+            wrappingKeySet = System.getenv("KEY_WRAP_PARAMETER_SET");
+        }
+
+        if (wrappingKeySet != null && wrappingKeySet.equalsIgnoreCase("0")) {
             // talking to an old server?
             encryptAlg = EncryptionAlgorithm.DES3_CBC;
         } else {
