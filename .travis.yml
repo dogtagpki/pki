@@ -50,4 +50,4 @@ after_script:
   - docker rm ${CONTAINER}
 
 after_failure:
-  - journalctl -l
+  - docker exec -ti ${CONTAINER} journalctl -l
