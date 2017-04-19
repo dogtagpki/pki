@@ -175,14 +175,9 @@ public class SubsystemGroupUpdater implements IProfileUpdater {
                 byte[] certEncoded = cert.getEncoded();
                 b64 = CMS.BtoA(certEncoded).trim();
 
-                // extract all line separators
-                StringBuffer sb = new StringBuffer();
-                for (int i = 0; i < b64.length(); i++) {
-                    if (!Character.isWhitespace(b64.charAt(i))) {
-                        sb.append(b64.charAt(i));
-                    }
-                }
-                b64 = sb.toString();
+                // concatenate lines
+                b64 = b64.replace("\r", "").replace("\n", "");
+
             } catch (Exception ence) {
                 CMS.debug("SubsystemGroupUpdater update: user cert encoding failed: " + ence);
             }

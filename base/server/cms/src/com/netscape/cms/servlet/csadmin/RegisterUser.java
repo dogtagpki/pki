@@ -27,8 +27,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import netscape.security.x509.X509CertImpl;
-
 import org.w3c.dom.Node;
 
 import com.netscape.certsrv.apps.CMS;
@@ -48,6 +46,8 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
 import com.netscape.cmsutil.util.Utils;
 import com.netscape.cmsutil.xml.XMLObject;
+
+import netscape.security.x509.X509CertImpl;
 
 /**
  * This servlet creates a TPS user in the CA,
@@ -207,14 +207,8 @@ public class RegisterUser extends CMSServlet {
                 audit(auditMessage);
             }
 
-            // extract all line separators
-            StringBuffer sb = new StringBuffer();
-            for (int i = 0; i < certsString.length(); i++) {
-                if (!Character.isWhitespace(certsString.charAt(i))) {
-                    sb.append(certsString.charAt(i));
-                }
-            }
-            certsString = sb.toString();
+            // concatenate lines
+            certsString = certsString.replace("\r", "").replace("\n", "");
 
             auditParams = "Scope;;certs+Operation;;OP_ADD+source;;RegisterUser" +
                         "+Resource;;" + uid +

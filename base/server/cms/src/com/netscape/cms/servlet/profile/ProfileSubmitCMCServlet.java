@@ -928,14 +928,8 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
 
             base64Data = Utils.base64encode(rawData).trim();
 
-            // extract all line separators from the "base64Data"
-            StringBuffer sb = new StringBuffer();
-            for (int i = 0; i < base64Data.length(); i++) {
-                if (!Character.isWhitespace(base64Data.charAt(i))) {
-                    sb.append(base64Data.charAt(i));
-                }
-            }
-            cert = sb.toString();
+            // concatenate lines
+            cert = base64Data.replace("\r", "").replace("\n", "");
         }
 
         if (cert != null) {
