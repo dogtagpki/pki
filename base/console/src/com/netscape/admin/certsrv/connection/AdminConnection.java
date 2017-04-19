@@ -17,15 +17,22 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.connection;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
+import java.io.IOException;
+import java.io.InterruptedIOException;
+import java.net.SocketException;
+import java.net.UnknownHostException;
+import java.util.Enumeration;
 
-import com.netscape.certsrv.common.*;
-import com.netscape.admin.certsrv.*;
-import com.netscape.management.client.util.*;
-import com.netscape.management.client.*;
-import com.netscape.management.client.preferences.*;
+import com.netscape.admin.certsrv.CMSAdminResources;
+import com.netscape.admin.certsrv.EAdminException;
+import com.netscape.admin.certsrv.IConnectionListener;
+import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.common.OpDef;
+import com.netscape.management.client.Framework;
+import com.netscape.management.client.preferences.FilePreferenceManager;
+import com.netscape.management.client.preferences.Preferences;
+import com.netscape.management.client.util.Debug;
 
 /**
  * This class represents an administration connection shell
@@ -152,18 +159,18 @@ public class AdminConnection {
             byte d1 = (i+1<len)? data[i+1]: (byte)0;
             byte d2 = (i+2<len)? data[i+2]: (byte)0;
             b = (byte)((d0 & (byte)0xFC) >>> 2);
-            b64.append(base64.charAt((int)b));
+            b64.append(base64.charAt(b));
             b = (byte)(((d0 & 0x03) << 4) | ((d1 & 0xF0) >>> 4));
-            b64.append(base64.charAt((int)b));
+            b64.append(base64.charAt(b));
             b = (byte)(((d1 & 0x0F) << 2) | ((d2 & 0xC0) >>> 6));
             if (i+1 < len) {
-                b64.append(base64.charAt((int)b));
+                b64.append(base64.charAt(b));
             } else {
                 b64.append('=');
             }
             b = (byte)(d2 & 0x3F);
             if (i+2 < len) {
-                b64.append(base64.charAt((int)b));
+                b64.append(base64.charAt(b));
             } else {
                 b64.append('=');
             }
