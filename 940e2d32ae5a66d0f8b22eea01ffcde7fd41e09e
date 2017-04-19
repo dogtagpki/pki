@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "14363ad3_eebe534c",
+        "filename": "base/java-tools/src/com/netscape/cmstools/CRMFPopClient.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 510,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-04-19T17:29:00Z",
+      "side": 1,
+      "message": "Need to chain the original exception.",
+      "revId": "940e2d32ae5a66d0f8b22eea01ffcde7fd41e09e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ccc5f4eb_4b7eba10",
+        "filename": "base/java-tools/src/com/netscape/cmstools/CRMFPopClient.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 513,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-04-19T17:29:00Z",
+      "side": 1,
+      "message": "Need to chain the original exception.",
+      "revId": "940e2d32ae5a66d0f8b22eea01ffcde7fd41e09e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "18459e47_050ffb68",
+        "filename": "base/java-tools/src/com/netscape/cmstools/client/ClientCertRequestCLI.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 266,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-04-19T17:29:00Z",
+      "side": 1,
+      "message": "Need to chain the original exception.",
+      "revId": "940e2d32ae5a66d0f8b22eea01ffcde7fd41e09e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a86569b_024feb41",
+        "filename": "base/java-tools/src/com/netscape/cmstools/client/ClientCertRequestCLI.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 269,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-04-19T17:29:00Z",
+      "side": 1,
+      "message": "Need to chain the original exception.",
+      "revId": "940e2d32ae5a66d0f8b22eea01ffcde7fd41e09e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
