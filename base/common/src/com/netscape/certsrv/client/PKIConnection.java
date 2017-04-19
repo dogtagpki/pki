@@ -429,23 +429,33 @@ public class PKIConnection {
     }
 
     public <T> T getEntity(Response response, Class<T> clazz) {
-        Family family = response.getStatusInfo().getFamily();
-        if (!family.equals(Family.CLIENT_ERROR) && !family.equals(Family.SERVER_ERROR)) {
-            if (response.hasEntity()) return response.readEntity(clazz);
+        try {
+            Family family = response.getStatusInfo().getFamily();
+            if (!family.equals(Family.CLIENT_ERROR) && !family.equals(Family.SERVER_ERROR)) {
+                if (response.hasEntity())
+                    return response.readEntity(clazz);
+                return null;
+            }
+            handleErrorResponse(response);
             return null;
+        } finally {
+            response.close();
         }
-        handleErrorResponse(response);
-        return null;
     }
 
     public <T> T getEntity(Response response, GenericType<T> clazz) {
-        Family family = response.getStatusInfo().getFamily();
-        if (!family.equals(Family.CLIENT_ERROR) && !family.equals(Family.SERVER_ERROR)) {
-            if (response.hasEntity()) return response.readEntity(clazz);
+        try {
+            Family family = response.getStatusInfo().getFamily();
+            if (!family.equals(Family.CLIENT_ERROR) && !family.equals(Family.SERVER_ERROR)) {
+                if (response.hasEntity())
+                    return response.readEntity(clazz);
+                return null;
+            }
+            handleErrorResponse(response);
             return null;
+        } finally {
+            response.close();
         }
-        handleErrorResponse(response);
-        return null;
     }
 
     private void handleErrorResponse(Response response) {
