@@ -44,6 +44,13 @@ install:
 script:
   - docker exec -ti ${CONTAINER} ${SCRIPTDIR}/40-spawn-ca
   - docker exec -ti ${CONTAINER} ${SCRIPTDIR}/50-spawn-kra
+  - docker exec -ti ${CONTAINER} ${SCRIPTDIR}/99-destroy
+  # copy pki.server for Python 3 and rewrite pkispawn/pkidestroy shebang
+  - docker exec -ti ${CONTAINER} ${SCRIPTDIR}/py3rewrite
+  - docker exec -ti ${CONTAINER} ${SCRIPTDIR}/30-setup-389ds
+  - docker exec -ti ${CONTAINER} ${SCRIPTDIR}/40-spawn-ca
+  - docker exec -ti ${CONTAINER} ${SCRIPTDIR}/50-spawn-kra
+  - docker exec -ti ${CONTAINER} ${SCRIPTDIR}/99-destroy
 
 after_script:
   - docker kill ${CONTAINER}

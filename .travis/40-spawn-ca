@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-pkispawn -v -f ${BUILDDIR}/pki/.travis/pki.cfg -s CA
+pkispawn -vv -f ${BUILDDIR}/pki/.travis/pki.cfg -s CA
 
 echo "Waiting for port 8080"
 for i in {1..20}; do

@@ -296,9 +296,9 @@ class PKISubsystem(object):
 
     def save(self):
         sorted_config = sorted(self.config.items(), key=operator.itemgetter(0))
-        with io.open(self.cs_conf, 'wb') as f:
+        with io.open(self.cs_conf, 'w') as f:
             for (key, value) in sorted_config:
-                f.write('%s=%s\n' % (key, value))
+                f.write(u'%s=%s\n' % (key, value))
 
     def is_valid(self):
         return os.path.exists(self.conf_dir)
