@@ -1,0 +1,46 @@
+#!/usr/bin/python3
+import os
+import shutil
+
+from distutils.sysconfig import get_python_lib
+
+
+BUILDDIR = os.environ['BUILDDIR']
+PKIBASE = os.path.join(BUILDDIR, 'pki', 'base')
+PKICLIENT = os.path.join(PKIBASE, 'common', 'python', 'pki')
+PKISERVER = os.path.join(PKIBASE, 'server', 'python', 'pki', 'server')
+PKISBIN = os.path.join(PKIBASE, 'server', 'sbin')
+
+SITEPACKAGES = get_python_lib()
+
+
+def copyscript(src, dst):
+    with open(src) as f:
+        lines = f.readlines()
+    lines[0] = '#!/usr/bin/python3\n'
+    with open(dst, 'w') as f:
+        os.fchmod(f.fileno(), 0o755)
+        f.writelines(lines)
+
+
+def copyfiles():
+    shutil.rmtree(os.path.join(SITEPACKAGES, 'pki'))
+    shutil.copytree(
+        PKICLIENT,
+        os.path.join(SITEPACKAGES, 'pki')
+    )
+    shutil.copytree(
+        PKISERVER,
+        os.path.join(SITEPACKAGES, 'pki', 'server')
+    )
+    copyscript(
+        os.path.join(PKISBIN, 'pkispawn'),
+        '/usr/sbin/pkispawn'
+    )
+    copyscript(
+        os.path.join(PKISBIN, 'pkidestroy'),
+        '/usr/sbin/pkidestroy'
+    )
+
+if __name__ == '__main__':
+    copyfiles()
