@@ -25,7 +25,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.security.cert.Certificate;
-import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Enumeration;
@@ -62,7 +61,6 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
-import com.netscape.cmsutil.util.Utils;
 
 import netscape.security.x509.CRLExtensions;
 import netscape.security.x509.CRLReasonExtension;
@@ -622,8 +620,9 @@ public class ConnectorServlet extends CMSServlet {
                 if (isProfileRequest(thisreq)) {
 
                     X509CertImpl x509cert = thisreq.getExtDataInCert(IEnrollProfile.REQUEST_ISSUED_CERT);
-                    String auditInfoCertValue = auditInfoCertValue(x509cert);
+                    String auditInfoCertValue = CertRequestProcessedEvent.auditInfoCertValue(x509cert);
 
+                    // TODO: simplify this condition
                     if (auditInfoCertValue != null) {
                         if (!(auditInfoCertValue.equals(
                                    ILogger.SIGNED_AUDIT_EMPTY_VALUE))) {
@@ -633,7 +632,7 @@ public class ConnectorServlet extends CMSServlet {
                                     ILogger.SUCCESS,
                                     auditRequesterID,
                                     ILogger.SIGNED_AUDIT_ACCEPTANCE,
-                                    auditInfoCertValue));
+                                    x509cert));
                         }
                     }
                 }
@@ -641,8 +640,9 @@ public class ConnectorServlet extends CMSServlet {
                 if (isProfileRequest(thisreq)) {
 
                     X509CertImpl x509cert = thisreq.getExtDataInCert(IEnrollProfile.REQUEST_ISSUED_CERT);
-                    String auditInfoCertValue = auditInfoCertValue(x509cert);
+                    String auditInfoCertValue = CertRequestProcessedEvent.auditInfoCertValue(x509cert);
 
+                    // TODO: simplify this condition
                     if (auditInfoCertValue != null) {
                         if (!(auditInfoCertValue.equals(
                                    ILogger.SIGNED_AUDIT_EMPTY_VALUE))) {
@@ -652,7 +652,7 @@ public class ConnectorServlet extends CMSServlet {
                                     ILogger.FAILURE,
                                     auditRequesterID,
                                     ILogger.SIGNED_AUDIT_ACCEPTANCE,
-                                    auditInfoCertValue));
+                                    x509cert));
                         }
                     }
                 }
@@ -1053,58 +1053,5 @@ public class ConnectorServlet extends CMSServlet {
         }
 
         return profileID;
-    }
-
-    /**
-     * Signed Audit Log Info Certificate Value
-     *
-     * This method is called to obtain the certificate from the passed in
-     * "X509CertImpl" for a signed audit log message.
-     * <P>
-     *
-     * @param x509cert an X509CertImpl
-     * @return cert string containing the certificate
-     */
-    private String auditInfoCertValue(X509CertImpl x509cert) {
-        // if no signed audit object exists, bail
-        if (mSignedAuditLogger == null) {
-            return null;
-        }
-
-        if (x509cert == null) {
-            return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
-        }
-
-        byte rawData[] = null;
-
-        try {
-            rawData = x509cert.getEncoded();
-        } catch (CertificateEncodingException e) {
-            return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
-        }
-
-        String cert = null;
-
-        // convert "rawData" into "base64Data"
-        if (rawData != null) {
-            String base64Data = null;
-
-            base64Data = Utils.base64encode(rawData).trim();
-
-            // concatenate lines
-            cert = base64Data.replace("\r", "").replace("\n", "");
-        }
-
-        if (cert != null) {
-            cert = cert.trim();
-
-            if (cert.equals("")) {
-                return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
-            } else {
-                return cert;
-            }
-        } else {
-            return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
-        }
     }
 }

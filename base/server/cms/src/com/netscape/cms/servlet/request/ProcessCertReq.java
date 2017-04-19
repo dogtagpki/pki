@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
-import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.util.Date;
 import java.util.Enumeration;
@@ -935,7 +934,7 @@ public class ProcessCertReq extends CMSServlet {
                                             ILogger.SUCCESS,
                                             auditRequesterID,
                                             auditInfoName,
-                                            auditInfoCertValue(issuedCerts[i])));
+                                            issuedCerts[i]));
                             }
                             header.addStringValue(
                                     "serialNumber", sbuf.toString());
@@ -1756,59 +1755,6 @@ public class ProcessCertReq extends CMSServlet {
         }
 
         return infoName;
-    }
-
-    /**
-     * Signed Audit Log Info Certificate Value
-     *
-     * This method is called to obtain the certificate from the passed in
-     * "X509CertImpl" for a signed audit log message.
-     * <P>
-     *
-     * @param x509cert an X509CertImpl
-     * @return cert string containing the certificate
-     */
-    private String auditInfoCertValue(X509CertImpl x509cert) {
-        // if no signed audit object exists, bail
-        if (mSignedAuditLogger == null) {
-            return null;
-        }
-
-        if (x509cert == null) {
-            return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
-        }
-
-        byte rawData[] = null;
-
-        try {
-            rawData = x509cert.getEncoded();
-        } catch (CertificateEncodingException e) {
-            return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
-        }
-
-        String cert = null;
-
-        // convert "rawData" into "base64Data"
-        if (rawData != null) {
-            String base64Data = null;
-
-            base64Data = Utils.base64encode(rawData).trim();
-
-            // concatenate lines
-            cert = base64Data.replace("\r", "").replace("\n", "");
-        }
-
-        if (cert != null) {
-            cert = cert.trim();
-
-            if (cert.equals("")) {
-                return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
-            } else {
-                return cert;
-            }
-        } else {
-            return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
-        }
     }
 }
 

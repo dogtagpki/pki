@@ -246,8 +246,9 @@ public class CertProcessor extends CAProcessor {
                 req.setRequestStatus(RequestStatus.COMPLETE);
 
                 X509CertImpl x509cert = req.getExtDataInCert(IEnrollProfile.REQUEST_ISSUED_CERT);
-                String auditInfoCertValue = auditInfoCertValue(x509cert);
+                String auditInfoCertValue = CertRequestProcessedEvent.auditInfoCertValue(x509cert);
 
+                // TODO: simplify this condition
                 if (auditInfoCertValue != null) {
                     if (!(auditInfoCertValue.equals(
                             ILogger.SIGNED_AUDIT_EMPTY_VALUE))) {
@@ -257,7 +258,7 @@ public class CertProcessor extends CAProcessor {
                                 ILogger.SUCCESS,
                                 auditRequesterID,
                                 ILogger.SIGNED_AUDIT_ACCEPTANCE,
-                                auditInfoCertValue));
+                                x509cert));
                     }
                 }
             } catch (EDeferException e) {

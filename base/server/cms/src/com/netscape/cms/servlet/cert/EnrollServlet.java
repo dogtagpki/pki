@@ -19,7 +19,6 @@ package com.netscape.cms.servlet.cert;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
@@ -69,7 +68,6 @@ import com.netscape.cms.servlet.processors.CRMFProcessor;
 import com.netscape.cms.servlet.processors.KeyGenProcessor;
 import com.netscape.cms.servlet.processors.PKCS10Processor;
 import com.netscape.cms.servlet.processors.PKIProcessor;
-import com.netscape.cmsutil.util.Utils;
 
 import netscape.security.pkcs.PKCS10;
 import netscape.security.x509.AlgorithmId;
@@ -1374,7 +1372,7 @@ public class EnrollServlet extends CMSServlet {
                                     ILogger.SUCCESS,
                                     auditRequesterID,
                                     ILogger.SIGNED_AUDIT_ACCEPTANCE,
-                                    auditInfoCertValue(issuedCerts[i])));
+                                    issuedCerts[i]));
                     }
                 } catch (IOException ex) {
                     cmsReq.setStatus(ICMSRequest.ERROR);
@@ -1455,7 +1453,7 @@ public class EnrollServlet extends CMSServlet {
                                 ILogger.SUCCESS,
                                 auditRequesterID,
                                 ILogger.SIGNED_AUDIT_ACCEPTANCE,
-                                auditInfoCertValue(issuedCerts[i])));
+                                issuedCerts[i]));
                 }
 
                 return;
@@ -1475,7 +1473,7 @@ public class EnrollServlet extends CMSServlet {
                                 ILogger.SUCCESS,
                                 auditRequesterID,
                                 ILogger.SIGNED_AUDIT_ACCEPTANCE,
-                                auditInfoCertValue(issuedCerts[i])));
+                                issuedCerts[i]));
                 }
             } catch (IOException e) {
                 log(ILogger.LL_FAILURE,
@@ -1673,58 +1671,5 @@ public class EnrollServlet extends CMSServlet {
     private void init_testbed_hack(IConfigStore config)
             throws EBaseException {
         mIsTestBed = config.getBoolean("isTestBed", true);
-    }
-
-    /**
-     * Signed Audit Log Info Certificate Value
-     *
-     * This method is called to obtain the certificate from the passed in
-     * "X509CertImpl" for a signed audit log message.
-     * <P>
-     *
-     * @param x509cert an X509CertImpl
-     * @return cert string containing the certificate
-     */
-    private String auditInfoCertValue(X509CertImpl x509cert) {
-        // if no signed audit object exists, bail
-        if (mSignedAuditLogger == null) {
-            return null;
-        }
-
-        if (x509cert == null) {
-            return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
-        }
-
-        byte rawData[] = null;
-
-        try {
-            rawData = x509cert.getEncoded();
-        } catch (CertificateEncodingException e) {
-            return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
-        }
-
-        String cert = null;
-
-        // convert "rawData" into "base64Data"
-        if (rawData != null) {
-            String base64Data = null;
-
-            base64Data = Utils.base64encode(rawData).trim();
-
-            // concatenate lines
-            cert = base64Data.replace("\r", "").replace("\n", "");
-        }
-
-        if (cert != null) {
-            cert = cert.trim();
-
-            if (cert.equals("")) {
-                return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
-            } else {
-                return cert;
-            }
-        } else {
-            return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
-        }
     }
 }

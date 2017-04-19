@@ -392,7 +392,7 @@ public class RequestProcessor extends CertProcessor {
                     ILogger.SUCCESS,
                     auditRequesterID,
                     ILogger.SIGNED_AUDIT_ACCEPTANCE,
-                    auditInfoCertValue(theCert)));
+                    theCert));
 
         } catch (EProfileException eAudit1) {
 

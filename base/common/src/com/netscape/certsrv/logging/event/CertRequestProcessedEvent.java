@@ -17,7 +17,13 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.logging.event;
 
+import java.security.cert.CertificateEncodingException;
+
 import com.netscape.certsrv.logging.AuditEvent;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cmsutil.util.Utils;
+
+import netscape.security.x509.X509CertImpl;
 
 public class CertRequestProcessedEvent extends AuditEvent {
 
@@ -39,5 +45,70 @@ public class CertRequestProcessedEvent extends AuditEvent {
                 infoName,
                 infoValue
         });
+    }
+
+    public CertRequestProcessedEvent(
+            String subjectID,
+            String outcome,
+            String requesterID,
+            String infoName,
+            X509CertImpl x509cert) {
+
+        super(CERT_REQUEST_PROCESSED);
+
+        setParameters(new Object[] {
+                subjectID,
+                outcome,
+                requesterID,
+                infoName,
+                auditInfoCertValue(x509cert)
+        });
+    }
+
+    /**
+     * Signed Audit Log Info Certificate Value
+     *
+     * This method is called to obtain the certificate from the passed in
+     * "X509CertImpl" for a signed audit log message.
+     * <P>
+     *
+     * @param x509cert an X509CertImpl
+     * @return cert string containing the certificate
+     */
+    public static String auditInfoCertValue(X509CertImpl x509cert) {
+
+        if (x509cert == null) {
+            return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
+        }
+
+        byte rawData[] = null;
+
+        try {
+            rawData = x509cert.getEncoded();
+        } catch (CertificateEncodingException e) {
+            return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
+        }
+
+        String cert = null;
+
+        // convert "rawData" into "base64Data"
+        if (rawData != null) {
+            String base64Data = Utils.base64encode(rawData).trim();
+
+            // concatenate lines
+            cert = base64Data.replace("\r", "").replace("\n", "");
+        }
+
+        if (cert != null) {
+            cert = cert.trim();
+
+            if (cert.equals("")) {
+                return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
+            } else {
+                return cert;
+            }
+        } else {
+            return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
+        }
     }
 }
