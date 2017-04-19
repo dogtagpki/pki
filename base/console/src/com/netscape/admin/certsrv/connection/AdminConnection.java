@@ -18,8 +18,6 @@
 package com.netscape.admin.certsrv.connection;
 
 import java.io.IOException;
-import java.io.InterruptedIOException;
-import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Enumeration;
 
@@ -673,36 +671,11 @@ public class AdminConnection {
     	//to force re-connection and avoid null ptr exception
 
     	} catch (Exception e) {
-            retryConnection();
 
-            try {
-                return processRequest(request, useGET);
-            } catch (InterruptedIOException ex) {
+            System.err.println("Session expired. Please restart PKI console to continue.");
+            System.exit(0);
 
-    	        //timeout occurred
-    	        mConn = null;
-
-    	        //set time out back to original
-                mCurrentTimeout = mDefaultTimeout;
-    	        throw new EAdminException(CMSAdminResources.SERVER_NORESPONSE, false);
-    	    } catch (SocketException ex) {
-    	        mConn = null;
-    	        throw new EAdminException(CMSAdminResources.SERVER_UNREACHABLE, false);
-	    } catch (IOException ex) {
- 			    if (Debug.isEnabled()) {
-				    ex.printStackTrace();
-			}
-    	        mConn = null;
-    	        throw new EAdminException(CMSAdminResources.SERVER_UNREACHABLE, false);
-            } catch (EAdminException ex) {
-                throw ex;
-    	    } catch (Exception ex) {
-    	        mConn = null;
- 			    if (Debug.isEnabled()) {
-				    ex.printStackTrace();
-			    }
-    	        throw new EAdminException(CMSAdminResources.UNKNOWNEXCEPTION, false);
-            }
+            return null;
     	}
     }
 
