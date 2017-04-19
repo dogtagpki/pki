@@ -71,7 +71,6 @@ import com.netscape.certsrv.util.IStatsSubsystem;
 import com.netscape.cms.servlet.common.AuthCredentials;
 import com.netscape.cms.servlet.common.CMSGateway;
 import com.netscape.cms.servlet.common.ServletUtils;
-import com.netscape.cmsutil.util.Utils;
 
 import netscape.security.x509.X509CertImpl;
 
@@ -1037,59 +1036,6 @@ public class CAProcessor extends Processor {
         }
 
         return reason;
-    }
-
-    /**
-     * Signed Audit Log Info Certificate Value
-     *
-     * This method is called to obtain the certificate from the passed in
-     * "X509CertImpl" for a signed audit log message.
-     * <P>
-     *
-     * @param x509cert an X509CertImpl
-     * @return cert string containing the certificate
-     */
-    protected String auditInfoCertValue(X509CertImpl x509cert) {
-        // if no signed audit object exists, bail
-        if (signedAuditLogger == null) {
-            return null;
-        }
-
-        if (x509cert == null) {
-            return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
-        }
-
-        byte rawData[] = null;
-
-        try {
-            rawData = x509cert.getEncoded();
-        } catch (CertificateEncodingException e) {
-            return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
-        }
-
-        String cert = null;
-
-        // convert "rawData" into "base64Data"
-        if (rawData != null) {
-            String base64Data = null;
-
-            base64Data = Utils.base64encode(rawData).trim();
-
-            // concatenate lines
-            cert = base64Data.replace("\r", "").replace("\n", "");
-        }
-
-        if (cert != null) {
-            cert = cert.trim();
-
-            if (cert.equals("")) {
-                return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
-            } else {
-                return cert;
-            }
-        } else {
-            return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
-        }
     }
 
     /**
