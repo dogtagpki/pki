@@ -187,7 +187,7 @@ Tomcat Port         = [TOMCAT_SERVER_PORT] (for shutdown)
     -->
     <Connector name="[PKI_SECURE_PORT_CONNECTOR_NAME]" port="[PKI_SECURE_PORT]" protocol="HTTP/1.1" SSLEnabled="true" sslProtocol="SSL" scheme="https" secure="true"
            maxHttpHeaderSize="8192"
-           connectionTimeout="80000"
+           connectionTimeout="300000"
            acceptCount="100" maxThreads="150" minSpareThreads="25"
            enableLookups="false" disableUploadTimeout="true"
            sslImplementationName="org.apache.tomcat.util.net.jss.JSSImplementation"
