@@ -36,6 +36,7 @@ import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.profile.EDeferException;
 import com.netscape.certsrv.profile.ERejectException;
+import com.netscape.certsrv.profile.IEnrollProfile;
 import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.profile.IProfileAuthenticator;
 import com.netscape.certsrv.profile.IProfileContext;
@@ -50,6 +51,8 @@ import com.netscape.cms.servlet.common.AuthCredentials;
 import com.netscape.cms.servlet.processors.CAProcessor;
 import com.netscape.cms.tomcat.ExternalPrincipal;
 import com.netscape.cmsutil.ldap.LDAPUtil;
+
+import netscape.security.x509.X509CertImpl;
 
 public class CertProcessor extends CAProcessor {
 
@@ -217,7 +220,6 @@ public class CertProcessor extends CAProcessor {
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
         String auditRequesterID = ILogger.UNIDENTIFIED;
-        String auditInfoCertValue = ILogger.SIGNED_AUDIT_EMPTY_VALUE;
         String errorCode = null;
         String errorReason = null;
 
@@ -244,8 +246,8 @@ public class CertProcessor extends CAProcessor {
                 profile.submit(authToken, req);
                 req.setRequestStatus(RequestStatus.COMPLETE);
 
-                // reset the "auditInfoCertValue"
-                auditInfoCertValue = auditInfoCertValue(req);
+                X509CertImpl x509cert = req.getExtDataInCert(IEnrollProfile.REQUEST_ISSUED_CERT);
+                String auditInfoCertValue = auditInfoCertValue(x509cert);
 
                 if (auditInfoCertValue != null) {
                     if (!(auditInfoCertValue.equals(

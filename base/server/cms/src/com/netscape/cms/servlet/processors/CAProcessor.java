@@ -53,7 +53,6 @@ import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.profile.IEnrollProfile;
 import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.profile.IProfileAuthenticator;
 import com.netscape.certsrv.profile.IProfileSubsystem;
@@ -983,62 +982,6 @@ public class CAProcessor extends Processor {
         }
 
         return requesterID;
-    }
-
-    /**
-     * Signed Audit Log Info Certificate Value
-     *
-     * This method is called to obtain the certificate from the passed in
-     * "X509CertImpl" for a signed audit log message.
-     * <P>
-     *
-     * @param request request containing an X509CertImpl
-     * @return cert string containing the certificate
-     */
-    protected String auditInfoCertValue(IRequest request) {
-        // if no signed audit object exists, bail
-        if (signedAuditLogger == null) {
-            return null;
-        }
-
-        X509CertImpl x509cert = request.getExtDataInCert(
-                IEnrollProfile.REQUEST_ISSUED_CERT);
-
-        if (x509cert == null) {
-            return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
-        }
-
-        byte rawData[] = null;
-
-        try {
-            rawData = x509cert.getEncoded();
-        } catch (CertificateEncodingException e) {
-            return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
-        }
-
-        String cert = null;
-
-        // convert "rawData" into "base64Data"
-        if (rawData != null) {
-            String base64Data = null;
-
-            base64Data = Utils.base64encode(rawData).trim();
-
-            // concatenate lines
-            cert = base64Data.replace("\r", "").replace("\n", "");
-        }
-
-        if (cert != null) {
-            cert = cert.trim();
-
-            if (cert.equals("")) {
-                return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
-            } else {
-                return cert;
-            }
-        } else {
-            return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
-        }
     }
 
     protected String auditSubjectID() {
