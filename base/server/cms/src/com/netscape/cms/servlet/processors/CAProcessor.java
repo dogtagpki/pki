@@ -57,6 +57,7 @@ import com.netscape.certsrv.logging.event.AuthFailEvent;
 import com.netscape.certsrv.logging.event.AuthSuccessEvent;
 import com.netscape.certsrv.logging.event.AuthzFailEvent;
 import com.netscape.certsrv.logging.event.AuthzSuccessEvent;
+import com.netscape.certsrv.logging.event.RoleAssumeEvent;
 import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.profile.IProfileAuthenticator;
 import com.netscape.certsrv.profile.IProfileSubsystem;
@@ -700,7 +701,7 @@ public class CAProcessor extends Processor {
     public AuthzToken authorize(String authzMgrName, String resource, IAuthToken authToken,
             String exp) throws EBaseException {
         AuthzToken authzToken = null;
-        String auditMessage = null;
+
         String auditSubjectID = auditSubjectID();
         String auditGroupID = auditGroupID();
         String auditACLResource = resource;
@@ -716,14 +717,11 @@ public class CAProcessor extends Processor {
                         auditACLResource,
                         auditOperation));
 
-                // store a message in the signed audit log file
-                auditMessage = CMS.getLogMessage(
-                        AuditEvent.ROLE_ASSUME,
+                audit(new RoleAssumeEvent(
                         auditSubjectID,
                         ILogger.SUCCESS,
-                        auditGroupID);
+                        auditGroupID));
 
-                audit(auditMessage);
             } else {
 
                 audit(new AuthzFailEvent(
@@ -732,13 +730,10 @@ public class CAProcessor extends Processor {
                         auditACLResource,
                         auditOperation));
 
-                auditMessage = CMS.getLogMessage(
-                        AuditEvent.ROLE_ASSUME,
+                audit(new RoleAssumeEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
-                        auditGroupID);
-
-                audit(auditMessage);
+                        auditGroupID));
             }
             return authzToken;
         } catch (EBaseException e) {
@@ -749,13 +744,11 @@ public class CAProcessor extends Processor {
                     auditACLResource,
                     auditOperation));
 
-            auditMessage = CMS.getLogMessage(
-                    AuditEvent.ROLE_ASSUME,
+            audit(new RoleAssumeEvent(
                     auditSubjectID,
                     ILogger.FAILURE,
-                    auditGroupID);
+                    auditGroupID));
 
-            audit(auditMessage);
             throw e;
         }
     }
@@ -784,7 +777,7 @@ public class CAProcessor extends Processor {
      */
     public AuthzToken authorize(String authzMgrName, IAuthToken authToken,
             String resource, String operation) {
-        String auditMessage = null;
+
         String auditSubjectID = auditSubjectID();
         String auditGroupID = auditGroupID();
         String auditID = auditSubjectID;
@@ -842,14 +835,11 @@ public class CAProcessor extends Processor {
                         auditACLResource,
                         auditOperation));
 
-                // store a message in the signed audit log file
-                auditMessage = CMS.getLogMessage(
-                        AuditEvent.ROLE_ASSUME,
+                audit(new RoleAssumeEvent(
                         auditID,
                         ILogger.SUCCESS,
-                        auditGroups(auditSubjectID));
+                        auditGroups(auditSubjectID)));
 
-                audit(auditMessage);
             } else {
 
                 audit(new AuthzFailEvent(
@@ -858,14 +848,10 @@ public class CAProcessor extends Processor {
                         auditACLResource,
                         auditOperation));
 
-                // store a message in the signed audit log file
-                auditMessage = CMS.getLogMessage(
-                        AuditEvent.ROLE_ASSUME,
+                audit(new RoleAssumeEvent(
                         auditID,
                         ILogger.FAILURE,
-                        auditGroups(auditSubjectID));
-
-                audit(auditMessage);
+                        auditGroups(auditSubjectID)));
             }
 
             return authzTok;
@@ -877,14 +863,10 @@ public class CAProcessor extends Processor {
                     auditACLResource,
                     auditOperation));
 
-            // store a message in the signed audit log file
-            auditMessage = CMS.getLogMessage(
-                    AuditEvent.ROLE_ASSUME,
+            audit(new RoleAssumeEvent(
                     auditID,
                     ILogger.FAILURE,
-                    auditGroups(auditSubjectID));
-
-            audit(auditMessage);
+                    auditGroups(auditSubjectID)));
 
             return null;
         }
