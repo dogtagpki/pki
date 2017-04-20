@@ -47,6 +47,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ForbiddenException;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.event.AuthzSuccessEvent;
 import com.netscape.cms.realm.PKIPrincipal;
 
 /**
@@ -189,15 +190,14 @@ public class ACLInterceptor implements ContainerRequestFilter {
         // If still not available, it's unprotected, allow request.
         if (!authzRequired) {
             CMS.debug("ACLInterceptor: No ACL mapping; authz not required.");
-            // store a message in the signed audit log file
-            auditMessage = CMS.getLogMessage(
-                        AuditEvent.AUTHZ_SUCCESS_INFO,
+
+            audit(new AuthzSuccessEvent(
                         auditSubjectID,
                         ILogger.SUCCESS,
                         null, //resource
                         null, //operation
-                        LOGGING_MISSING_ACL_MAPPING + ":" + auditInfo); //info
-            audit(auditMessage);
+                        LOGGING_MISSING_ACL_MAPPING + ":" + auditInfo)); //info
+
             return;
         }
 
@@ -230,14 +230,14 @@ public class ACLInterceptor implements ContainerRequestFilter {
         // If no property defined, allow request.
         if (value == null) {
             CMS.debug("ACLInterceptor: No ACL configuration.");
-            // store a message in the signed audit log file
-            auditMessage = CMS.getLogMessage(
-                    AuditEvent.AUTHZ_SUCCESS_INFO,
+
+            audit(new AuthzSuccessEvent(
                     auditSubjectID,
                     ILogger.SUCCESS,
                     null, //resource
                     null, //operation
-                    LOGGING_NO_ACL_ACCESS_ALLOWED + ":" + auditInfo);
+                    LOGGING_NO_ACL_ACCESS_ALLOWED + ":" + auditInfo));
+
             return;
         }
 
@@ -317,15 +317,14 @@ public class ACLInterceptor implements ContainerRequestFilter {
         }
 
         // Allow request.
-        // store a message in the signed audit log file
-        auditMessage = CMS.getLogMessage(
-                    AuditEvent.AUTHZ_SUCCESS_INFO,
+
+        audit(new AuthzSuccessEvent(
                     auditSubjectID,
                     ILogger.SUCCESS,
                     values[0], // resource
                     values[1], // operation
-                    auditInfo);
-        audit(auditMessage);
+                    auditInfo));
+
         return;
     }
 
