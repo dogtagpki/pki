@@ -424,9 +424,6 @@ public class ConnectorServlet extends CMSServlet {
         String auditCertificateSubjectName = ILogger.SIGNED_AUDIT_EMPTY_VALUE;
         String subject = null;
 
-        // additional parms for LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED
-        String auditInfoCertValue = ILogger.SIGNED_AUDIT_EMPTY_VALUE;
-
         // "normalize" the "auditSubjectID"
         if (auditSubjectID != null) {
             auditSubjectID = auditSubjectID.trim();
@@ -622,8 +619,9 @@ public class ConnectorServlet extends CMSServlet {
                 queue.processRequest(thisreq);
 
                 if (isProfileRequest(thisreq)) {
-                    // reset the "auditInfoCertValue"
-                    auditInfoCertValue = auditInfoCertValue(thisreq);
+
+                    X509CertImpl x509cert = thisreq.getExtDataInCert(IEnrollProfile.REQUEST_ISSUED_CERT);
+                    String auditInfoCertValue = auditInfoCertValue(x509cert);
 
                     if (auditInfoCertValue != null) {
                         if (!(auditInfoCertValue.equals(
@@ -643,8 +641,9 @@ public class ConnectorServlet extends CMSServlet {
                 }
             } catch (EBaseException eAudit1) {
                 if (isProfileRequest(thisreq)) {
-                    // reset the "auditInfoCertValue"
-                    auditInfoCertValue = auditInfoCertValue(thisreq);
+
+                    X509CertImpl x509cert = thisreq.getExtDataInCert(IEnrollProfile.REQUEST_ISSUED_CERT);
+                    String auditInfoCertValue = auditInfoCertValue(x509cert);
 
                     if (auditInfoCertValue != null) {
                         if (!(auditInfoCertValue.equals(
@@ -1068,17 +1067,14 @@ public class ConnectorServlet extends CMSServlet {
      * "X509CertImpl" for a signed audit log message.
      * <P>
      *
-     * @param request a Request containing an X509CertImpl
+     * @param x509cert an X509CertImpl
      * @return cert string containing the certificate
      */
-    private String auditInfoCertValue(IRequest request) {
+    private String auditInfoCertValue(X509CertImpl x509cert) {
         // if no signed audit object exists, bail
         if (mSignedAuditLogger == null) {
             return null;
         }
-
-        X509CertImpl x509cert = request.getExtDataInCert(
-                IEnrollProfile.REQUEST_ISSUED_CERT);
 
         if (x509cert == null) {
             return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
