@@ -136,7 +136,6 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     public IRequestListener mReqInQListener = null;
 
     private ILogger mSignedAuditLogger = CMS.getSignedAuditLogger();
-    private final static byte EOL[] = { Character.LINE_SEPARATOR };
     private final static String SIGNED_AUDIT_AGENT_DELIMITER = ", ";
     /**
      * Constructs an escrow authority.
@@ -1713,16 +1712,9 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         // convert "rawData" into "base64Data"
         if (rawData != null) {
             String base64Data = CMS.BtoA(rawData).trim();
-            StringBuffer key = new StringBuffer();
 
-            // extract all line separators from the "base64Data"
-            for (int i = 0; i < base64Data.length(); i++) {
-                if (base64Data.substring(i, i).getBytes() != EOL) {
-                    key.append(base64Data.substring(i, i));
-                }
-            }
-
-            return key.toString();
+            // concatenate lines
+            return base64Data.replace("\r", "").replace("\n", "");
         }
 
         return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
@@ -1757,23 +1749,15 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         }
 
         String key = null;
-        StringBuffer tempBuffer = new StringBuffer();
+
         // convert "rawData" into "base64Data"
         if (rawData != null) {
             String base64Data = null;
 
             base64Data = CMS.BtoA(rawData).trim();
 
-            // extract all line separators from the "base64Data"
-            for (int i = 0; i < base64Data.length(); i++) {
-                if (base64Data.substring(i, i).getBytes() != EOL) {
-                    tempBuffer.append(base64Data.substring(i, i));
-                }
-            }
-        }
-
-        if (tempBuffer.length() > 0) {
-            key = tempBuffer.toString();
+            // concatenate lines
+            key = base64Data.replace("\r", "").replace("\n", "");
         }
 
         if (key != null) {

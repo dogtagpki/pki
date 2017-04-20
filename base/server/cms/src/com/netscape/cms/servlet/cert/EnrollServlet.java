@@ -35,14 +35,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.legacy.policy.IPolicyProcessor;
 
-import netscape.security.pkcs.PKCS10;
-import netscape.security.x509.AlgorithmId;
-import netscape.security.x509.CertificateAlgorithmId;
-import netscape.security.x509.CertificateX509Key;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
-import netscape.security.x509.X509Key;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.IAuthSubsystem;
@@ -77,6 +69,14 @@ import com.netscape.cms.servlet.processors.KeyGenProcessor;
 import com.netscape.cms.servlet.processors.PKCS10Processor;
 import com.netscape.cms.servlet.processors.PKIProcessor;
 import com.netscape.cmsutil.util.Utils;
+
+import netscape.security.pkcs.PKCS10;
+import netscape.security.x509.AlgorithmId;
+import netscape.security.x509.CertificateAlgorithmId;
+import netscape.security.x509.CertificateX509Key;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509CertInfo;
+import netscape.security.x509.X509Key;
 
 /**
  * Submit a Certificate Enrollment request
@@ -138,7 +138,6 @@ public class EnrollServlet extends CMSServlet {
             "racertbasedenrollment";
     private final static String EE_RA_ENROLLMENT_SERVLET =
             "raenrollment";
-    private final static byte EOL[] = { Character.LINE_SEPARATOR };
     private final static String[] SIGNED_AUDIT_AUTOMATED_REJECTION_REASON = new String[] {
 
     /* 0 */"automated non-profile cert request rejection:  "
@@ -1732,14 +1731,8 @@ public class EnrollServlet extends CMSServlet {
 
             base64Data = Utils.base64encode(rawData).trim();
 
-            StringBuffer sb = new StringBuffer();
-            // extract all line separators from the "base64Data"
-            for (int i = 0; i < base64Data.length(); i++) {
-                if (base64Data.substring(i, i).getBytes() != EOL) {
-                    sb.append(base64Data.substring(i, i));
-                }
-            }
-            cert = sb.toString();
+            // concatenate lines
+            cert = base64Data.replace("\r", "").replace("\n", "");
         }
 
         if (cert != null) {

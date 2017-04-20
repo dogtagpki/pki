@@ -98,7 +98,6 @@ public class ConnectorServlet extends CMSServlet {
 
     protected ILogger mSignedAuditLogger = CMS.getSignedAuditLogger();
     private final static String SIGNED_AUDIT_PROTECTION_METHOD_SSL = "ssl";
-    private final static byte EOL[] = { Character.LINE_SEPARATOR };
 
     public ConnectorServlet() {
     }
@@ -1101,14 +1100,8 @@ public class ConnectorServlet extends CMSServlet {
 
             base64Data = Utils.base64encode(rawData).trim();
 
-            StringBuffer sb = new StringBuffer();
-            // extract all line separators from the "base64Data"
-            for (int i = 0; i < base64Data.length(); i++) {
-                if (base64Data.substring(i, i).getBytes() != EOL) {
-                    sb.append(base64Data.substring(i, i));
-                }
-            }
-            cert = sb.toString();
+            // concatenate lines
+            cert = base64Data.replace("\r", "").replace("\n", "");
         }
 
         if (cert != null) {

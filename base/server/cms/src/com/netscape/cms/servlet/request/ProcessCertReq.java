@@ -118,7 +118,6 @@ public class ProcessCertReq extends CMSServlet {
     private final static String SIGNED_AUDIT_CANCELLATION = "cancel";
     private final static String SIGNED_AUDIT_CLONING = "clone";
     private final static String SIGNED_AUDIT_REJECTION = "reject";
-    private final static byte EOL[] = { Character.LINE_SEPARATOR };
     private final static String[] SIGNED_AUDIT_MANUAL_CANCELLATION_REASON = new String[] {
 
     /* 0 */"manual non-profile cert request cancellation:  "
@@ -1840,14 +1839,8 @@ public class ProcessCertReq extends CMSServlet {
 
             base64Data = Utils.base64encode(rawData).trim();
 
-            // extract all line separators from the "base64Data"
-            StringBuffer sb = new StringBuffer();
-            for (int i = 0; i < base64Data.length(); i++) {
-                if (base64Data.substring(i, i).getBytes() != EOL) {
-                    sb.append(base64Data.substring(i, i));
-                }
-            }
-            cert = sb.toString();
+            // concatenate lines
+            cert = base64Data.replace("\r", "").replace("\n", "");
         }
 
         if (cert != null) {

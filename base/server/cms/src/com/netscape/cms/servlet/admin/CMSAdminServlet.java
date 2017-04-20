@@ -105,7 +105,6 @@ public final class CMSAdminServlet extends AdminServlet {
     private final static String PROP_INTERNAL_DB = "internaldb";
 
     private ILogger mSignedAuditLogger = CMS.getSignedAuditLogger();
-    private final static byte EOL[] = { Character.LINE_SEPARATOR };
 
     // CMS must be instantiated before this admin servlet.
 
@@ -3390,7 +3389,6 @@ public final class CMSAdminServlet extends AdminServlet {
         rawData = object.getPublic().getEncoded();
 
         String key = null;
-        StringBuffer sb = new StringBuffer();
 
         // convert "rawData" into "base64Data"
         if (rawData != null) {
@@ -3398,14 +3396,9 @@ public final class CMSAdminServlet extends AdminServlet {
 
             base64Data = Utils.base64encode(rawData).trim();
 
-            // extract all line separators from the "base64Data"
-            for (int i = 0; i < base64Data.length(); i++) {
-                if (base64Data.substring(i, i).getBytes() != EOL) {
-                    sb.append(base64Data.substring(i, i));
-                }
-            }
+            // concatenate lines
+            key = base64Data.replace("\r", "").replace("\n", "");
         }
-        key = sb.toString();
 
         if (key != null) {
             key = key.trim();

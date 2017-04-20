@@ -24,7 +24,6 @@ import java.security.InvalidKeyException;
 import java.security.PublicKey;
 import java.security.cert.CertificateException;
 import java.util.Arrays;
-import java.util.StringTokenizer;
 import java.util.Vector;
 
 import org.mozilla.jss.asn1.ASN1Util;
@@ -917,7 +916,7 @@ public class EnrollmentService implements IService {
             return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
         }
 
-        StringBuffer key = new StringBuffer();
+        String key = "";
 
         // convert "rawData" into "base64Data"
         if (rawData != null) {
@@ -925,13 +924,10 @@ public class EnrollmentService implements IService {
 
             base64Data = CMS.BtoA(rawData).trim();
 
-            // extract all line separators from the "base64Data"
-            StringTokenizer st = new StringTokenizer(base64Data, "\r\n");
-            while (st.hasMoreTokens()) {
-                key.append(st.nextToken());
-            }
+            // concatenate lines
+            key = base64Data.replace("\r", "").replace("\n", "");
         }
-        String checkKey = key.toString().trim();
+        String checkKey = key.trim();
         if (checkKey.equals("")) {
             return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
         } else {
