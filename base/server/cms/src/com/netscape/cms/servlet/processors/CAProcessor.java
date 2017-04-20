@@ -53,6 +53,7 @@ import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.event.AuthFailEvent;
 import com.netscape.certsrv.logging.event.AuthSuccessEvent;
 import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.profile.IProfileAuthenticator;
@@ -474,7 +475,7 @@ public class CAProcessor extends Processor {
 
             String authSubjectID = auditSubjectID();
             String authMgrID = authenticator.getName();
-            String auditMessage = null;
+
             try {
                 if (isRenewal) {
                     authToken = authenticate(authenticator, request, origReq, context, credentials);
@@ -486,13 +487,12 @@ public class CAProcessor extends Processor {
                 CMS.debug("CAProcessor: authentication error: " + e);
 
                 authSubjectID += " : " + uid_cred;
-                auditMessage = CMS.getLogMessage(
-                        AuditEvent.AUTH_FAIL,
+
+                audit(new AuthFailEvent(
                         authSubjectID,
                         ILogger.FAILURE,
                         authMgrID,
-                        uid_attempted_cred);
-                audit(auditMessage);
+                        uid_attempted_cred));
 
                 throw e;
 
@@ -500,13 +500,12 @@ public class CAProcessor extends Processor {
                 CMS.debug(e);
 
                 authSubjectID += " : " + uid_cred;
-                auditMessage = CMS.getLogMessage(
-                        AuditEvent.AUTH_FAIL,
+
+                audit(new AuthFailEvent(
                         authSubjectID,
                         ILogger.FAILURE,
                         authMgrID,
-                        uid_attempted_cred);
-                audit(auditMessage);
+                        uid_attempted_cred));
 
                 throw e;
             }
@@ -565,7 +564,7 @@ public class CAProcessor extends Processor {
 
     public IAuthToken authenticate(HttpServletRequest httpReq, String authMgrName)
             throws EBaseException {
-        String auditMessage = null;
+
         String auditSubjectID = ILogger.UNIDENTIFIED;
         String auditAuthMgrID = ILogger.UNIDENTIFIED;
         String auditUID = ILogger.UNIDENTIFIED;
@@ -659,14 +658,12 @@ public class CAProcessor extends Processor {
 
             return authToken;
         } catch (EBaseException eAudit1) {
-            // store a message in the signed audit log file
-            auditMessage = CMS.getLogMessage(
-                    AuditEvent.AUTH_FAIL,
+
+            audit(new AuthFailEvent(
                     auditSubjectID,
                     ILogger.FAILURE,
                     auditAuthMgrID,
-                    auditUID);
-            audit(auditMessage);
+                    auditUID));
 
             // rethrow the specific exception to be handled later
             throw eAudit1;

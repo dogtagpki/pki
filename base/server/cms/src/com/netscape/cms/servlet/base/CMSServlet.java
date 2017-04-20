@@ -66,6 +66,7 @@ import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.event.AuthFailEvent;
 import com.netscape.certsrv.logging.event.AuthSuccessEvent;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
@@ -1701,7 +1702,7 @@ public abstract class CMSServlet extends HttpServlet {
      */
     public IAuthToken authenticate(HttpServletRequest httpReq, String authMgrName)
             throws EBaseException {
-        String auditMessage = null;
+
         String auditSubjectID = ILogger.UNIDENTIFIED;
         String auditAuthMgrID = ILogger.UNIDENTIFIED;
         String auditUID = ILogger.UNIDENTIFIED;
@@ -1797,14 +1798,12 @@ public abstract class CMSServlet extends HttpServlet {
 
             return authToken;
         } catch (EBaseException eAudit1) {
-            // store a message in the signed audit log file
-            auditMessage = CMS.getLogMessage(
-                        AuditEvent.AUTH_FAIL,
+
+            audit(new AuthFailEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditAuthMgrID,
-                        auditUID);
-            audit(auditMessage);
+                        auditUID));
 
             // rethrow the specific exception to be handled later
             throw eAudit1;

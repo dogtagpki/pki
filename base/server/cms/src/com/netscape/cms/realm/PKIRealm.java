@@ -18,6 +18,7 @@ import com.netscape.certsrv.authentication.IPasswdUserDBAuthentication;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.event.AuthFailEvent;
 import com.netscape.certsrv.logging.event.AuthSuccessEvent;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
 import com.netscape.certsrv.usrgrp.IGroup;
@@ -45,7 +46,7 @@ public class PKIRealm extends RealmBase {
     @Override
     public Principal authenticate(String username, String password) {
         CMS.debug("PKIRealm: Authenticating user " + username + " with password.");
-        String auditMessage = null;
+
         String auditSubjectID = ILogger.UNIDENTIFIED;
         String attemptedAuditUID = username;
 
@@ -69,14 +70,13 @@ public class PKIRealm extends RealmBase {
             return getPrincipal(username, authToken);
 
         } catch (Throwable e) {
-            // store a message in the signed audit log file
-            auditMessage = CMS.getLogMessage(
-                        AuditEvent.AUTH_FAIL,
+
+            audit(new AuthFailEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
                         IAuthSubsystem.PASSWDUSERDB_AUTHMGR_ID,
-                        attemptedAuditUID);
-            audit(auditMessage);
+                        attemptedAuditUID));
+
             e.printStackTrace();
         }
 
@@ -87,7 +87,6 @@ public class PKIRealm extends RealmBase {
     public Principal authenticate(final X509Certificate certs[]) {
         CMS.debug("PKIRealm: Authenticating certificate chain:");
 
-        String auditMessage = null;
         // get the cert from the ssl client auth
         // in cert based auth, subject id from cert has already passed SSL authentication
         // what remains is to see if the user exists in the internal user db
@@ -127,14 +126,13 @@ public class PKIRealm extends RealmBase {
             return getPrincipal(username, authToken);
 
         } catch (Throwable e) {
-            // store a message in the signed audit log file
-            auditMessage = CMS.getLogMessage(
-                        AuditEvent.AUTH_FAIL,
+
+            audit(new AuthFailEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
                         IAuthSubsystem.CERTUSERDB_AUTHMGR_ID,
-                        attemptedAuditUID);
-            audit(auditMessage);
+                        attemptedAuditUID));
+
             e.printStackTrace();
         }
 
