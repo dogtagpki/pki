@@ -53,6 +53,7 @@ import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.event.AuthSuccessEvent;
 import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.profile.IProfileAuthenticator;
 import com.netscape.certsrv.profile.IProfileSubsystem;
@@ -520,14 +521,10 @@ public class CAProcessor extends Processor {
 
             authSubjectID = authSubjectID + " : " + uid_cred;
 
-            // store a message in the signed audit log file
-            auditMessage = CMS.getLogMessage(
-                    AuditEvent.AUTH_SUCCESS,
+            audit(new AuthSuccessEvent(
                     authSubjectID,
                     ILogger.SUCCESS,
-                    authMgrID);
-
-            audit(auditMessage);
+                    authMgrID));
         }
         endTiming("profile_authentication");
         return authToken;
@@ -655,14 +652,10 @@ public class CAProcessor extends Processor {
             // reset the "auditSubjectID"
             auditSubjectID = auditSubjectID();
 
-            // store a message in the signed audit log file
-            auditMessage = CMS.getLogMessage(
-                    AuditEvent.AUTH_SUCCESS,
+            audit(new AuthSuccessEvent(
                     auditSubjectID,
                     ILogger.SUCCESS,
-                    auditAuthMgrID);
-
-            audit(auditMessage);
+                    auditAuthMgrID));
 
             return authToken;
         } catch (EBaseException eAudit1) {
