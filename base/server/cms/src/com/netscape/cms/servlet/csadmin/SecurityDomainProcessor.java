@@ -45,6 +45,7 @@ import com.netscape.certsrv.base.UnauthorizedException;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.event.RoleAssumeEvent;
 import com.netscape.certsrv.system.DomainInfo;
 import com.netscape.certsrv.system.InstallToken;
 import com.netscape.certsrv.system.SecurityDomainHost;
@@ -89,22 +90,19 @@ public class SecurityDomainProcessor extends CAProcessor {
         CMS.debug("SecurityDomainProcessor: group: " + group);
 
         if (!ugSubsystem.isMemberOf(user, group)) {
-            String message = CMS.getLogMessage(
-                    AuditEvent.ROLE_ASSUME,
+
+            audit(new RoleAssumeEvent(
                     user,
                     ILogger.FAILURE,
-                    group);
-            audit(message);
+                    group));
 
             throw new UnauthorizedException("User " + user + " is not a member of " + group + " group.");
         }
 
-        String message = CMS.getLogMessage(
-                AuditEvent.ROLE_ASSUME,
+        audit(new RoleAssumeEvent(
                 user,
                 ILogger.SUCCESS,
-                group);
-        audit(message);
+                group));
 
         String ip = "";
         try {
@@ -123,6 +121,7 @@ public class SecurityDomainProcessor extends CAProcessor {
 
         ISecurityDomainSessionTable ctable = CMS.getSecurityDomainSessionTable();
         int status = ctable.addEntry(sessionID, ip, user, group);
+        String message;
 
         if (status == ISecurityDomainSessionTable.SUCCESS) {
             message = CMS.getLogMessage(

@@ -56,6 +56,7 @@ import com.netscape.certsrv.logging.event.AuthFailEvent;
 import com.netscape.certsrv.logging.event.AuthSuccessEvent;
 import com.netscape.certsrv.logging.event.AuthzFailEvent;
 import com.netscape.certsrv.logging.event.AuthzSuccessEvent;
+import com.netscape.certsrv.logging.event.RoleAssumeEvent;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
@@ -573,7 +574,7 @@ public class AdminServlet extends HttpServlet {
      * @return the authorization token
      */
     protected AuthzToken authorize(HttpServletRequest req) {
-        String auditMessage = null;
+
         String auditSubjectID = auditSubjectID();
         String auditACLResource = ILogger.SIGNED_AUDIT_EMPTY_VALUE;
         String auditOperation = ILogger.SIGNED_AUDIT_EMPTY_VALUE;
@@ -618,14 +619,10 @@ public class AdminServlet extends HttpServlet {
                         auditACLResource,
                         auditOperation));
 
-            // store a message in the signed audit log file
-            auditMessage = CMS.getLogMessage(
-                        AuditEvent.ROLE_ASSUME,
+            audit(new RoleAssumeEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
-                        auditGroups(auditSubjectID));
-
-            audit(auditMessage);
+                        auditGroups(auditSubjectID)));
 
             return null;
         } catch (EBaseException e) {
@@ -637,14 +634,10 @@ public class AdminServlet extends HttpServlet {
                         auditACLResource,
                         auditOperation));
 
-            // store a message in the signed audit log file
-            auditMessage = CMS.getLogMessage(
-                        AuditEvent.ROLE_ASSUME,
+            audit(new RoleAssumeEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
-                        auditGroups(auditSubjectID));
-
-            audit(auditMessage);
+                        auditGroups(auditSubjectID)));
 
             return null;
         } catch (Exception e) {
@@ -655,14 +648,10 @@ public class AdminServlet extends HttpServlet {
                         auditACLResource,
                         auditOperation));
 
-            // store a message in the signed audit log file
-            auditMessage = CMS.getLogMessage(
-                        AuditEvent.ROLE_ASSUME,
+            audit(new RoleAssumeEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
-                        auditGroups(auditSubjectID));
-
-            audit(auditMessage);
+                        auditGroups(auditSubjectID)));
 
             return null;
         }
@@ -673,14 +662,10 @@ public class AdminServlet extends HttpServlet {
                     auditACLResource,
                     auditOperation));
 
-        // store a message in the signed audit log file
-        auditMessage = CMS.getLogMessage(
-                    AuditEvent.ROLE_ASSUME,
+        audit(new RoleAssumeEvent(
                     auditSubjectID,
                     ILogger.SUCCESS,
-                    auditGroups(auditSubjectID));
-
-        audit(auditMessage);
+                    auditGroups(auditSubjectID)));
 
         return authzTok;
     }
