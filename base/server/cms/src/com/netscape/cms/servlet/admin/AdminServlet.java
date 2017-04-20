@@ -35,8 +35,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import netscape.security.x509.X509CertImpl;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthCredentials;
 import com.netscape.certsrv.authentication.IAuthManager;
@@ -54,11 +52,14 @@ import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.IAuditor;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.event.AuthSuccessEvent;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cmsutil.util.Utils;
+
+import netscape.security.x509.X509CertImpl;
 
 /**
  * A class represents an administration servlet that
@@ -524,23 +525,17 @@ public class AdminServlet extends HttpServlet {
             sc.put(SessionContext.LOCALE, locale);
 
             if (authType.equals("sslclientauth")) {
-                // store a message in the signed audit log file
-                auditMessage = CMS.getLogMessage(
-                            AuditEvent.AUTH_SUCCESS,
+
+                audit(new AuthSuccessEvent(
                             auditSubjectID(),
                             ILogger.SUCCESS,
-                            CERTUSERDB);
+                            CERTUSERDB));
 
-                audit(auditMessage);
             } else {
-                // store a message in the signed audit log file
-                auditMessage = CMS.getLogMessage(
-                            AuditEvent.AUTH_SUCCESS,
+                audit(new AuthSuccessEvent(
                             auditSubjectID(),
                             ILogger.SUCCESS,
-                            PASSWDUSERDB);
-
-                audit(auditMessage);
+                            PASSWDUSERDB));
             }
         } catch (IOException eAudit1) {
             if (authType.equals("sslclientauth")) {
