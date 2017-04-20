@@ -55,6 +55,7 @@ import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.AuthFailEvent;
 import com.netscape.certsrv.logging.event.AuthSuccessEvent;
+import com.netscape.certsrv.logging.event.AuthzSuccessEvent;
 import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.profile.IProfileAuthenticator;
 import com.netscape.certsrv.profile.IProfileSubsystem;
@@ -707,14 +708,12 @@ public class CAProcessor extends Processor {
         try {
             authzToken = authz.authorize(authzMgrName, authToken, exp);
             if (authzToken != null) {
-                auditMessage = CMS.getLogMessage(
-                        AuditEvent.AUTHZ_SUCCESS,
+
+                audit(new AuthzSuccessEvent(
                         auditSubjectID,
                         ILogger.SUCCESS,
                         auditACLResource,
-                        auditOperation);
-
-                audit(auditMessage);
+                        auditOperation));
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
@@ -839,15 +838,12 @@ public class CAProcessor extends Processor {
                     operation);
 
             if (authzTok != null) {
-                // store a message in the signed audit log file
-                auditMessage = CMS.getLogMessage(
-                        AuditEvent.AUTHZ_SUCCESS,
+
+                audit(new AuthzSuccessEvent(
                         auditSubjectID,
                         ILogger.SUCCESS,
                         auditACLResource,
-                        auditOperation);
-
-                audit(auditMessage);
+                        auditOperation));
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(

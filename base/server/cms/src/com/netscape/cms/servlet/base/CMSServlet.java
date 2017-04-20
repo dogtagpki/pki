@@ -68,6 +68,7 @@ import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.AuthFailEvent;
 import com.netscape.certsrv.logging.event.AuthSuccessEvent;
+import com.netscape.certsrv.logging.event.AuthzSuccessEvent;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
@@ -1822,14 +1823,12 @@ public abstract class CMSServlet extends HttpServlet {
         try {
             authzToken = mAuthz.authorize(authzMgrName, authToken, exp);
             if (authzToken != null) {
-                auditMessage = CMS.getLogMessage(
-                            AuditEvent.AUTHZ_SUCCESS,
+
+                audit(new AuthzSuccessEvent(
                             auditSubjectID,
                             ILogger.SUCCESS,
                             auditACLResource,
-                            auditOperation);
-
-                audit(auditMessage);
+                            auditOperation));
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
@@ -1955,15 +1954,12 @@ public abstract class CMSServlet extends HttpServlet {
                     operation);
 
             if (authzTok != null) {
-                // store a message in the signed audit log file
-                auditMessage = CMS.getLogMessage(
-                            AuditEvent.AUTHZ_SUCCESS,
+
+                audit(new AuthzSuccessEvent(
                             auditSubjectID,
                             ILogger.SUCCESS,
                             auditACLResource,
-                            auditOperation);
-
-                audit(auditMessage);
+                            auditOperation));
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(

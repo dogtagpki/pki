@@ -54,6 +54,7 @@ import com.netscape.certsrv.logging.IAuditor;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.AuthFailEvent;
 import com.netscape.certsrv.logging.event.AuthSuccessEvent;
+import com.netscape.certsrv.logging.event.AuthzSuccessEvent;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
@@ -676,15 +677,11 @@ public class AdminServlet extends HttpServlet {
             return null;
         }
 
-        // store a message in the signed audit log file
-        auditMessage = CMS.getLogMessage(
-                    AuditEvent.AUTHZ_SUCCESS,
+        audit(new AuthzSuccessEvent(
                     auditSubjectID,
                     ILogger.SUCCESS,
                     auditACLResource,
-                    auditOperation);
-
-        audit(auditMessage);
+                    auditOperation));
 
         // store a message in the signed audit log file
         auditMessage = CMS.getLogMessage(
