@@ -54,6 +54,7 @@ import com.netscape.certsrv.logging.IAuditor;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.AuthFailEvent;
 import com.netscape.certsrv.logging.event.AuthSuccessEvent;
+import com.netscape.certsrv.logging.event.AuthzFailEvent;
 import com.netscape.certsrv.logging.event.AuthzSuccessEvent;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
@@ -611,15 +612,11 @@ public class AdminServlet extends HttpServlet {
         } catch (EAuthzAccessDenied e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
 
-            // store a message in the signed audit log file
-            auditMessage = CMS.getLogMessage(
-                        AuditEvent.AUTHZ_FAIL,
+            audit(new AuthzFailEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditACLResource,
-                        auditOperation);
-
-            audit(auditMessage);
+                        auditOperation));
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
@@ -634,15 +631,11 @@ public class AdminServlet extends HttpServlet {
         } catch (EBaseException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
 
-            // store a message in the signed audit log file
-            auditMessage = CMS.getLogMessage(
-                        AuditEvent.AUTHZ_FAIL,
+            audit(new AuthzFailEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditACLResource,
-                        auditOperation);
-
-            audit(auditMessage);
+                        auditOperation));
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
@@ -655,15 +648,12 @@ public class AdminServlet extends HttpServlet {
 
             return null;
         } catch (Exception e) {
-            // store a message in the signed audit log file
-            auditMessage = CMS.getLogMessage(
-                        AuditEvent.AUTHZ_FAIL,
+
+            audit(new AuthzFailEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditACLResource,
-                        auditOperation);
-
-            audit(auditMessage);
+                        auditOperation));
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
