@@ -1024,6 +1024,16 @@ public class AdminServlet extends HttpServlet {
         auditor.log(msg);
     }
 
+    protected void audit(AuditEvent event) {
+
+        String template = event.getMessage();
+        Object[] params = event.getParameters();
+
+        String message = CMS.getLogMessage(template, params);
+
+        audit(message);
+    }
+
     /**
      * Signed Audit Log Subject ID
      *
