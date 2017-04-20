@@ -52,6 +52,7 @@ import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.IAuditor;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.event.AuthFailEvent;
 import com.netscape.certsrv.logging.event.AuthSuccessEvent;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
@@ -274,7 +275,6 @@ public class AdminServlet extends HttpServlet {
     protected void authenticate(HttpServletRequest req) throws
             IOException {
 
-        String auditMessage = null;
         String auditUID = ILogger.UNIDENTIFIED;
         String authType = "";
 
@@ -297,15 +297,12 @@ public class AdminServlet extends HttpServlet {
                         (X509Certificate[]) req.getAttribute(CERT_ATTR);
 
                 if (allCerts == null || allCerts.length == 0) {
-                    // store a message in the signed audit log file
-                    auditMessage = CMS.getLogMessage(
-                                AuditEvent.AUTH_FAIL,
+
+                    audit(new AuthFailEvent(
                                 ILogger.UNIDENTIFIED,
                                 ILogger.FAILURE,
                                 CERTUSERDB,
-                                auditUID);
-
-                    audit(auditMessage);
+                                auditUID));
 
                     throw new IOException("No certificate");
                 }
@@ -389,25 +386,20 @@ public class AdminServlet extends HttpServlet {
                  */
 
                 if (authType.equals("sslclientauth")) {
-                    // store a message in the signed audit log file
-                    auditMessage = CMS.getLogMessage(
-                                AuditEvent.AUTH_FAIL,
+
+                    audit(new AuthFailEvent(
                                 ILogger.UNIDENTIFIED,
                                 ILogger.FAILURE,
                                 CERTUSERDB,
-                                auditUID);
+                                auditUID));
 
-                    audit(auditMessage);
                 } else {
-                    // store a message in the signed audit log file
-                    auditMessage = CMS.getLogMessage(
-                                AuditEvent.AUTH_FAIL,
+
+                    audit(new AuthFailEvent(
                                 ILogger.UNIDENTIFIED,
                                 ILogger.FAILURE,
                                 PASSWDUSERDB,
-                                auditUID);
-
-                    audit(auditMessage);
+                                auditUID));
                 }
 
                 throw new IOException("authentication failed");
@@ -423,25 +415,20 @@ public class AdminServlet extends HttpServlet {
                                     tuserid));
 
                     if (authType.equals("sslclientauth")) {
-                        // store a message in the signed audit log file
-                        auditMessage = CMS.getLogMessage(
-                                    AuditEvent.AUTH_FAIL,
+
+                        audit(new AuthFailEvent(
                                     ILogger.UNIDENTIFIED,
                                     ILogger.FAILURE,
                                     CERTUSERDB,
-                                    auditUID);
+                                    auditUID));
 
-                        audit(auditMessage);
                     } else {
-                        // store a message in the signed audit log file
-                        auditMessage = CMS.getLogMessage(
-                                    AuditEvent.AUTH_FAIL,
+
+                        audit(new AuthFailEvent(
                                     ILogger.UNIDENTIFIED,
                                     ILogger.FAILURE,
                                     PASSWDUSERDB,
-                                    auditUID);
-
-                        audit(auditMessage);
+                                    auditUID));
                     }
 
                     throw new IOException("authentication failed");
@@ -459,25 +446,20 @@ public class AdminServlet extends HttpServlet {
                                     tuserid));
 
                     if (authType.equals("sslclientauth")) {
-                        // store a message in the signed audit log file
-                        auditMessage = CMS.getLogMessage(
-                                    AuditEvent.AUTH_FAIL,
+
+                        audit(new AuthFailEvent(
                                     ILogger.UNIDENTIFIED,
                                     ILogger.FAILURE,
                                     CERTUSERDB,
-                                    auditUID);
+                                    auditUID));
 
-                        audit(auditMessage);
                     } else {
-                        // store a message in the signed audit log file
-                        auditMessage = CMS.getLogMessage(
-                                    AuditEvent.AUTH_FAIL,
+
+                        audit(new AuthFailEvent(
                                     ILogger.UNIDENTIFIED,
                                     ILogger.FAILURE,
                                     PASSWDUSERDB,
-                                    auditUID);
-
-                        audit(auditMessage);
+                                    auditUID));
                     }
 
                     throw new IOException("authentication failed");
@@ -495,25 +477,20 @@ public class AdminServlet extends HttpServlet {
                         CMS.getLogMessage("ADMIN_SRVLT_USR_GRP_ERR", e.toString()));
 
                 if (authType.equals("sslclientauth")) {
-                    // store a message in the signed audit log file
-                    auditMessage = CMS.getLogMessage(
-                                AuditEvent.AUTH_FAIL,
+
+                    audit(new AuthFailEvent(
                                 ILogger.UNIDENTIFIED,
                                 ILogger.FAILURE,
                                 CERTUSERDB,
-                                auditUID);
+                                auditUID));
 
-                    audit(auditMessage);
                 } else {
-                    // store a message in the signed audit log file
-                    auditMessage = CMS.getLogMessage(
-                                AuditEvent.AUTH_FAIL,
+
+                    audit(new AuthFailEvent(
                                 ILogger.UNIDENTIFIED,
                                 ILogger.FAILURE,
                                 PASSWDUSERDB,
-                                auditUID);
-
-                    audit(auditMessage);
+                                auditUID));
                 }
 
                 throw new IOException("authentication failed");
@@ -539,25 +516,20 @@ public class AdminServlet extends HttpServlet {
             }
         } catch (IOException eAudit1) {
             if (authType.equals("sslclientauth")) {
-                // store a message in the signed audit log file
-                auditMessage = CMS.getLogMessage(
-                            AuditEvent.AUTH_FAIL,
+
+                audit(new AuthFailEvent(
                             ILogger.UNIDENTIFIED,
                             ILogger.FAILURE,
                             CERTUSERDB,
-                            auditUID);
+                            auditUID));
 
-                audit(auditMessage);
             } else {
-                // store a message in the signed audit log file
-                auditMessage = CMS.getLogMessage(
-                            AuditEvent.AUTH_FAIL,
+
+                audit(new AuthFailEvent(
                             ILogger.UNIDENTIFIED,
                             ILogger.FAILURE,
                             PASSWDUSERDB,
-                            auditUID);
-
-                audit(auditMessage);
+                            auditUID));
             }
 
             // rethrow the specific exception to be handled later
