@@ -73,4 +73,6 @@ public interface IAuditor {
      * Log audit message.
      */
     public void log(String message);
+
+    public void log(AuditEvent event);
 }

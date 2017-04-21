@@ -220,7 +220,8 @@ public class Auditor implements IAuditor {
                 message);
     }
 
-    protected void audit(AuditEvent event) {
+    @Override
+    public void log(AuditEvent event) {
 
         String template = event.getMessage();
         Object[] params = event.getParameters();
