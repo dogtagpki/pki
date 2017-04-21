@@ -52,8 +52,8 @@ import com.netscape.certsrv.common.OpDef;
 import com.netscape.certsrv.common.ScopeDef;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.group.GroupMemberData;
-import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.event.ConfigRoleEvent;
 import com.netscape.certsrv.password.IPasswordCheck;
 import com.netscape.certsrv.user.UserCertCollection;
 import com.netscape.certsrv.user.UserCertData;
@@ -1227,10 +1227,22 @@ public class UserService extends SubsystemService implements UserResource {
     }
 
     public void auditUser(String type, String id, Map<String, String> params, String status) {
-        audit(AuditEvent.CONFIG_ROLE, ScopeDef.SC_USERS, type, id, params, status);
+
+        if (auditor == null) return;
+
+        auditor.log(new ConfigRoleEvent(
+                auditor.getSubjectID(),
+                status,
+                auditor.getParamString(ScopeDef.SC_USERS, type, id, params)));
     }
 
     public void auditUserCert(String type, String id, Map<String, String> params, String status) {
-        audit(AuditEvent.CONFIG_ROLE, ScopeDef.SC_USER_CERTS, type, id, params, status);
+
+        if (auditor == null) return;
+
+        auditor.log(new ConfigRoleEvent(
+                auditor.getSubjectID(),
+                status,
+                auditor.getParamString(ScopeDef.SC_USER_CERTS, type, id, params)));
     }
 }
