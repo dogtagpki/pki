@@ -28,13 +28,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import netscape.ldap.LDAPAttribute;
-import netscape.ldap.LDAPAttributeSet;
-import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPEntry;
-import netscape.ldap.LDAPException;
-import netscape.ldap.LDAPModification;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -49,11 +42,19 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.event.ConfigRoleEvent;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
 import com.netscape.cmsutil.xml.XMLObject;
+
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPAttributeSet;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPModification;
 
 public class UpdateDomainXML extends CMSServlet {
 
@@ -368,12 +369,11 @@ public class UpdateDomainXML extends CMSServlet {
                     // remove the user for this subsystem's admin
                     status2 = remove_from_ldap(adminUserDN);
                     if (status2.equals(SUCCESS)) {
-                        auditMessage = CMS.getLogMessage(
-                                               AuditEvent.CONFIG_ROLE,
+
+                        audit(new ConfigRoleEvent(
                                                auditSubjectID,
                                                ILogger.SUCCESS,
-                                               userAuditParams);
-                        audit(auditMessage);
+                                               userAuditParams));
 
                         // remove this user from the subsystem group
                         userAuditParams = "Scope;;groups+Operation;;OP_DELETE_USER" +
@@ -384,26 +384,26 @@ public class UpdateDomainXML extends CMSServlet {
                                 new LDAPAttribute("uniqueMember", adminUserDN));
                         status2 = modify_ldap(dn, mod);
                         if (status2.equals(SUCCESS)) {
-                            auditMessage = CMS.getLogMessage(
-                                                   AuditEvent.CONFIG_ROLE,
+
+                            audit(new ConfigRoleEvent(
                                                    auditSubjectID,
                                                    ILogger.SUCCESS,
-                                                   userAuditParams);
+                                                   userAuditParams));
+
                         } else {
-                            auditMessage = CMS.getLogMessage(
-                                                   AuditEvent.CONFIG_ROLE,
+
+                            audit(new ConfigRoleEvent(
                                                    auditSubjectID,
                                                    ILogger.FAILURE,
-                                                   userAuditParams);
+                                                   userAuditParams));
                         }
-                        audit(auditMessage);
+
                     } else { // error deleting user
-                        auditMessage = CMS.getLogMessage(
-                                               AuditEvent.CONFIG_ROLE,
+
+                        audit(new ConfigRoleEvent(
                                                auditSubjectID,
                                                ILogger.FAILURE,
-                                               userAuditParams);
-                        audit(auditMessage);
+                                               userAuditParams));
                     }
                 }
             } else {
