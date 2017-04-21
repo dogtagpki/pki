@@ -44,6 +44,7 @@ import com.netscape.certsrv.logging.ILogEventListener;
 import com.netscape.certsrv.logging.ILogSubsystem;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogPlugin;
+import com.netscape.certsrv.logging.event.ConfigSignedAuditEvent;
 
 /**
  * A class representings an administration servlet for logging
@@ -414,7 +415,7 @@ public class LogAdminServlet extends AdminServlet {
     private synchronized void addLogPlugin(HttpServletRequest req,
             HttpServletResponse resp, String scope)
             throws ServletException, IOException, EBaseException {
-        String auditMessage = null;
+
         String auditSubjectID = auditSubjectID();
 
         // ensure that any low-level exceptions are reported
@@ -435,13 +436,11 @@ public class LogAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 if (logType.equals(SIGNED_AUDIT_LOG_TYPE)) {
-                    auditMessage = CMS.getLogMessage(
-                                AuditEvent.CONFIG_SIGNED_AUDIT,
+
+                    audit(new ConfigSignedAuditEvent(
                                 auditSubjectID,
                                 ILogger.FAILURE,
-                                auditParams(req));
-
-                    audit(auditMessage);
+                                auditParams(req)));
                 }
 
                 sendResponse(ERROR,
@@ -454,13 +453,11 @@ public class LogAdminServlet extends AdminServlet {
             if (mSys.getLogPlugins().containsKey(id)) {
                 // store a message in the signed audit log file
                 if (logType.equals(SIGNED_AUDIT_LOG_TYPE)) {
-                    auditMessage = CMS.getLogMessage(
-                                AuditEvent.CONFIG_SIGNED_AUDIT,
+
+                    audit(new ConfigSignedAuditEvent(
                                 auditSubjectID,
                                 ILogger.FAILURE,
-                                auditParams(req));
-
-                    audit(auditMessage);
+                                auditParams(req)));
                 }
 
                 sendResponse(ERROR,
@@ -475,13 +472,11 @@ public class LogAdminServlet extends AdminServlet {
             if (classPath == null) {
                 // store a message in the signed audit log file
                 if (logType.equals(SIGNED_AUDIT_LOG_TYPE)) {
-                    auditMessage = CMS.getLogMessage(
-                                AuditEvent.CONFIG_SIGNED_AUDIT,
+
+                    audit(new ConfigSignedAuditEvent(
                                 auditSubjectID,
                                 ILogger.FAILURE,
-                                auditParams(req));
-
-                    audit(auditMessage);
+                                auditParams(req)));
                 }
 
                 sendResponse(ERROR,
@@ -504,13 +499,11 @@ public class LogAdminServlet extends AdminServlet {
             } catch (ClassNotFoundException e) {
                 // store a message in the signed audit log file
                 if (logType.equals(SIGNED_AUDIT_LOG_TYPE)) {
-                    auditMessage = CMS.getLogMessage(
-                                AuditEvent.CONFIG_SIGNED_AUDIT,
+
+                    audit(new ConfigSignedAuditEvent(
                                 auditSubjectID,
                                 ILogger.FAILURE,
-                                auditParams(req));
-
-                    audit(auditMessage);
+                                auditParams(req)));
                 }
 
                 sendResponse(ERROR,
@@ -520,13 +513,11 @@ public class LogAdminServlet extends AdminServlet {
             } catch (IllegalArgumentException e) {
                 // store a message in the signed audit log file
                 if (logType.equals(SIGNED_AUDIT_LOG_TYPE)) {
-                    auditMessage = CMS.getLogMessage(
-                                AuditEvent.CONFIG_SIGNED_AUDIT,
+
+                    audit(new ConfigSignedAuditEvent(
                                 auditSubjectID,
                                 ILogger.FAILURE,
-                                auditParams(req));
-
-                    audit(auditMessage);
+                                auditParams(req)));
                 }
 
                 sendResponse(ERROR,
@@ -540,13 +531,11 @@ public class LogAdminServlet extends AdminServlet {
                 if (ILogEventListener.class.isAssignableFrom(newImpl) == false) {
                     // store a message in the signed audit log file
                     if (logType.equals(SIGNED_AUDIT_LOG_TYPE)) {
-                        auditMessage = CMS.getLogMessage(
-                                    AuditEvent.CONFIG_SIGNED_AUDIT,
+
+                        audit(new ConfigSignedAuditEvent(
                                     auditSubjectID,
                                     ILogger.FAILURE,
-                                    auditParams(req));
-
-                        audit(auditMessage);
+                                    auditParams(req)));
                     }
 
                     sendResponse(ERROR,
@@ -557,13 +546,11 @@ public class LogAdminServlet extends AdminServlet {
             } catch (NullPointerException e) { // unlikely, only if newImpl null.
                 // store a message in the signed audit log file
                 if (logType.equals(SIGNED_AUDIT_LOG_TYPE)) {
-                    auditMessage = CMS.getLogMessage(
-                                AuditEvent.CONFIG_SIGNED_AUDIT,
+
+                    audit(new ConfigSignedAuditEvent(
                                 auditSubjectID,
                                 ILogger.FAILURE,
-                                auditParams(req));
-
-                    audit(auditMessage);
+                                auditParams(req)));
                 }
 
                 sendResponse(ERROR,
@@ -584,13 +571,11 @@ public class LogAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 if (logType.equals(SIGNED_AUDIT_LOG_TYPE)) {
-                    auditMessage = CMS.getLogMessage(
-                                AuditEvent.CONFIG_SIGNED_AUDIT,
+
+                    audit(new ConfigSignedAuditEvent(
                                 auditSubjectID,
                                 ILogger.FAILURE,
-                                auditParams(req));
-
-                    audit(auditMessage);
+                                auditParams(req)));
                 }
 
                 sendResponse(ERROR,
@@ -608,13 +593,11 @@ public class LogAdminServlet extends AdminServlet {
 
             // store a message in the signed audit log file
             if (logType.equals(SIGNED_AUDIT_LOG_TYPE)) {
-                auditMessage = CMS.getLogMessage(
-                            AuditEvent.CONFIG_SIGNED_AUDIT,
+
+                audit(new ConfigSignedAuditEvent(
                             auditSubjectID,
                             ILogger.SUCCESS,
-                            auditParams(req));
-
-                audit(auditMessage);
+                            auditParams(req)));
             }
 
             sendResponse(SUCCESS, null, params, resp);
@@ -632,14 +615,11 @@ public class LogAdminServlet extends AdminServlet {
             //     // rethrow the specific exception to be handled later
             //     throw eAudit1;
         } catch (IOException eAudit2) {
-            // store a message in the signed audit log file
-            auditMessage = CMS.getLogMessage(
-                        AuditEvent.CONFIG_SIGNED_AUDIT,
+
+            audit(new ConfigSignedAuditEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
-                        auditParams(req));
-
-            audit(auditMessage);
+                        auditParams(req)));
 
             // rethrow the specific exception to be handled later
             throw eAudit2;
@@ -686,7 +666,7 @@ public class LogAdminServlet extends AdminServlet {
     private synchronized void addLogInst(HttpServletRequest req,
             HttpServletResponse resp, String scope)
             throws ServletException, IOException, EBaseException {
-        String auditMessage = null;
+
         String auditSubjectID = auditSubjectID();
 
         // ensure that any low-level exceptions are reported
@@ -705,13 +685,11 @@ public class LogAdminServlet extends AdminServlet {
             if (id == null) {
                 // store a message in the signed audit log file
                 if (logType.equals(SIGNED_AUDIT_LOG_TYPE)) {
-                    auditMessage = CMS.getLogMessage(
-                                AuditEvent.CONFIG_SIGNED_AUDIT,
+
+                    audit(new ConfigSignedAuditEvent(
                                 auditSubjectID,
                                 ILogger.FAILURE,
-                                auditParams(req));
-
-                    audit(auditMessage);
+                                auditParams(req)));
                 }
 
                 sendResponse(ERROR,
@@ -723,13 +701,11 @@ public class LogAdminServlet extends AdminServlet {
             if (!isValidID(id)) {
                 // store a message in the signed audit log file
                 if (logType.equals(SIGNED_AUDIT_LOG_TYPE)) {
-                    auditMessage = CMS.getLogMessage(
-                                AuditEvent.CONFIG_SIGNED_AUDIT,
+
+                    audit(new ConfigSignedAuditEvent(
                                 auditSubjectID,
                                 ILogger.FAILURE,
-                                auditParams(req));
-
-                    audit(auditMessage);
+                                auditParams(req)));
                 }
 
                 sendResponse(ERROR, "Invalid ID '" + id + "'",
@@ -740,13 +716,11 @@ public class LogAdminServlet extends AdminServlet {
             if (mSys.getLogInsts().containsKey(id)) {
                 // store a message in the signed audit log file
                 if (logType.equals(SIGNED_AUDIT_LOG_TYPE)) {
-                    auditMessage = CMS.getLogMessage(
-                                AuditEvent.CONFIG_SIGNED_AUDIT,
+
+                    audit(new ConfigSignedAuditEvent(
                                 auditSubjectID,
                                 ILogger.FAILURE,
-                                auditParams(req));
-
-                    audit(auditMessage);
+                                auditParams(req)));
                 }
 
                 sendResponse(ERROR,
@@ -762,13 +736,11 @@ public class LogAdminServlet extends AdminServlet {
             if (implname == null) {
                 // store a message in the signed audit log file
                 if (logType.equals(SIGNED_AUDIT_LOG_TYPE)) {
-                    auditMessage = CMS.getLogMessage(
-                                AuditEvent.CONFIG_SIGNED_AUDIT,
+
+                    audit(new ConfigSignedAuditEvent(
                                 auditSubjectID,
                                 ILogger.FAILURE,
-                                auditParams(req));
-
-                    audit(auditMessage);
+                                auditParams(req)));
                 }
 
                 sendResponse(ERROR,
@@ -785,13 +757,11 @@ public class LogAdminServlet extends AdminServlet {
             if (plugin == null) {
                 // store a message in the signed audit log file
                 if (logType.equals(SIGNED_AUDIT_LOG_TYPE)) {
-                    auditMessage = CMS.getLogMessage(
-                                AuditEvent.CONFIG_SIGNED_AUDIT,
+
+                    audit(new ConfigSignedAuditEvent(
                                 auditSubjectID,
                                 ILogger.FAILURE,
-                                auditParams(req));
-
-                    audit(auditMessage);
+                                auditParams(req)));
                 }
 
                 sendResponse(
@@ -845,13 +815,11 @@ public class LogAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 if (logType.equals(SIGNED_AUDIT_LOG_TYPE)) {
-                    auditMessage = CMS.getLogMessage(
-                                AuditEvent.CONFIG_SIGNED_AUDIT,
+
+                    audit(new ConfigSignedAuditEvent(
                                 auditSubjectID,
                                 ILogger.FAILURE,
-                                auditParams(req));
-
-                    audit(auditMessage);
+                                auditParams(req)));
                 }
 
                 sendResponse(ERROR,
@@ -864,13 +832,11 @@ public class LogAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 if (logType.equals(SIGNED_AUDIT_LOG_TYPE)) {
-                    auditMessage = CMS.getLogMessage(
-                                AuditEvent.CONFIG_SIGNED_AUDIT,
+
+                    audit(new ConfigSignedAuditEvent(
                                 auditSubjectID,
                                 ILogger.FAILURE,
-                                auditParams(req));
-
-                    audit(auditMessage);
+                                auditParams(req)));
                 }
 
                 sendResponse(ERROR,
@@ -883,13 +849,11 @@ public class LogAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 if (logType.equals(SIGNED_AUDIT_LOG_TYPE)) {
-                    auditMessage = CMS.getLogMessage(
-                                AuditEvent.CONFIG_SIGNED_AUDIT,
+
+                    audit(new ConfigSignedAuditEvent(
                                 auditSubjectID,
                                 ILogger.FAILURE,
-                                auditParams(req));
-
-                    audit(auditMessage);
+                                auditParams(req)));
                 }
 
                 sendResponse(ERROR,
@@ -908,13 +872,11 @@ public class LogAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 if (logType.equals(SIGNED_AUDIT_LOG_TYPE)) {
-                    auditMessage = CMS.getLogMessage(
-                                AuditEvent.CONFIG_SIGNED_AUDIT,
+
+                    audit(new ConfigSignedAuditEvent(
                                 auditSubjectID,
                                 ILogger.FAILURE,
-                                auditParams(req));
-
-                    audit(auditMessage);
+                                auditParams(req)));
                 }
 
                 sendResponse(ERROR, e.toString(getLocale(req)), null, resp);
@@ -924,13 +886,11 @@ public class LogAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 if (logType.equals(SIGNED_AUDIT_LOG_TYPE)) {
-                    auditMessage = CMS.getLogMessage(
-                                AuditEvent.CONFIG_SIGNED_AUDIT,
+
+                    audit(new ConfigSignedAuditEvent(
                                 auditSubjectID,
                                 ILogger.FAILURE,
-                                auditParams(req));
-
-                    audit(auditMessage);
+                                auditParams(req)));
                 }
 
                 sendResponse(ERROR, e.toString(), null, resp);
@@ -946,13 +906,11 @@ public class LogAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 if (logType.equals(SIGNED_AUDIT_LOG_TYPE)) {
-                    auditMessage = CMS.getLogMessage(
-                                AuditEvent.CONFIG_SIGNED_AUDIT,
+
+                    audit(new ConfigSignedAuditEvent(
                                 auditSubjectID,
                                 ILogger.FAILURE,
-                                auditParams(req));
-
-                    audit(auditMessage);
+                                auditParams(req)));
                 }
 
                 sendResponse(ERROR,
@@ -970,13 +928,11 @@ public class LogAdminServlet extends AdminServlet {
 
             // store a message in the signed audit log file
             if (logType.equals(SIGNED_AUDIT_LOG_TYPE)) {
-                auditMessage = CMS.getLogMessage(
-                            AuditEvent.CONFIG_SIGNED_AUDIT,
+
+                audit(new ConfigSignedAuditEvent(
                             auditSubjectID,
                             ILogger.SUCCESS,
-                            auditParams(req));
-
-                audit(auditMessage);
+                            auditParams(req)));
             }
 
             sendResponse(SUCCESS, null, params, resp);
@@ -994,14 +950,11 @@ public class LogAdminServlet extends AdminServlet {
             //     // rethrow the specific exception to be handled later
             //     throw eAudit1;
         } catch (IOException eAudit2) {
-            // store a message in the signed audit log file
-            auditMessage = CMS.getLogMessage(
-                        AuditEvent.CONFIG_SIGNED_AUDIT,
+
+            audit(new ConfigSignedAuditEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
-                        auditParams(req));
-
-            audit(auditMessage);
+                        auditParams(req)));
 
             // rethrow the specific exception to be handled later
             throw eAudit2;
@@ -1077,7 +1030,7 @@ public class LogAdminServlet extends AdminServlet {
     private synchronized void delLogInst(HttpServletRequest req,
             HttpServletResponse resp, String scope)
             throws ServletException, IOException, EBaseException {
-        String auditMessage = null;
+
         String auditSubjectID = auditSubjectID();
 
         // ensure that any low-level exceptions are reported
@@ -1099,13 +1052,11 @@ public class LogAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 if (logType.equals(SIGNED_AUDIT_LOG_TYPE)) {
-                    auditMessage = CMS.getLogMessage(
-                                AuditEvent.CONFIG_SIGNED_AUDIT,
+
+                    audit(new ConfigSignedAuditEvent(
                                 auditSubjectID,
                                 ILogger.FAILURE,
-                                auditParams(req));
-
-                    audit(auditMessage);
+                                auditParams(req)));
                 }
 
                 sendResponse(ERROR,
@@ -1118,13 +1069,11 @@ public class LogAdminServlet extends AdminServlet {
             if (mSys.getLogInsts().containsKey(id) == false) {
                 // store a message in the signed audit log file
                 if (logType.equals(SIGNED_AUDIT_LOG_TYPE)) {
-                    auditMessage = CMS.getLogMessage(
-                                AuditEvent.CONFIG_SIGNED_AUDIT,
+
+                    audit(new ConfigSignedAuditEvent(
                                 auditSubjectID,
                                 ILogger.FAILURE,
-                                auditParams(req));
-
-                    audit(auditMessage);
+                                auditParams(req)));
                 }
 
                 sendResponse(ERROR,
@@ -1154,13 +1103,11 @@ public class LogAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 if (logType.equals(SIGNED_AUDIT_LOG_TYPE)) {
-                    auditMessage = CMS.getLogMessage(
-                                AuditEvent.CONFIG_SIGNED_AUDIT,
+
+                    audit(new ConfigSignedAuditEvent(
                                 auditSubjectID,
                                 ILogger.FAILURE,
-                                auditParams(req));
-
-                    audit(auditMessage);
+                                auditParams(req)));
                 }
 
                 sendResponse(ERROR,
@@ -1171,13 +1118,11 @@ public class LogAdminServlet extends AdminServlet {
 
             // store a message in the signed audit log file
             if (logType.equals(SIGNED_AUDIT_LOG_TYPE)) {
-                auditMessage = CMS.getLogMessage(
-                            AuditEvent.CONFIG_SIGNED_AUDIT,
+
+                audit(new ConfigSignedAuditEvent(
                             auditSubjectID,
                             ILogger.SUCCESS,
-                            auditParams(req));
-
-                audit(auditMessage);
+                            auditParams(req)));
             }
 
             sendResponse(SUCCESS, null, params, resp);
@@ -1195,14 +1140,11 @@ public class LogAdminServlet extends AdminServlet {
             //     // rethrow the specific exception to be handled later
             //     throw eAudit1;
         } catch (IOException eAudit2) {
-            // store a message in the signed audit log file
-            auditMessage = CMS.getLogMessage(
-                        AuditEvent.CONFIG_SIGNED_AUDIT,
+
+            audit(new ConfigSignedAuditEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
-                        auditParams(req));
-
-            audit(auditMessage);
+                        auditParams(req)));
 
             // rethrow the specific exception to be handled later
             throw eAudit2;
@@ -1239,7 +1181,7 @@ public class LogAdminServlet extends AdminServlet {
     private synchronized void delLogPlugin(HttpServletRequest req,
             HttpServletResponse resp, String scope)
             throws ServletException, IOException, EBaseException {
-        String auditMessage = null;
+
         String auditSubjectID = auditSubjectID();
 
         // ensure that any low-level exceptions are reported
@@ -1261,13 +1203,11 @@ public class LogAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 if (logType.equals(SIGNED_AUDIT_LOG_TYPE)) {
-                    auditMessage = CMS.getLogMessage(
-                                AuditEvent.CONFIG_SIGNED_AUDIT,
+
+                    audit(new ConfigSignedAuditEvent(
                                 auditSubjectID,
                                 ILogger.FAILURE,
-                                auditParams(req));
-
-                    audit(auditMessage);
+                                auditParams(req)));
                 }
 
                 sendResponse(ERROR,
@@ -1279,13 +1219,11 @@ public class LogAdminServlet extends AdminServlet {
             if (mSys.getLogPlugins().containsKey(id) == false) {
                 // store a message in the signed audit log file
                 if (logType.equals(SIGNED_AUDIT_LOG_TYPE)) {
-                    auditMessage = CMS.getLogMessage(
-                                AuditEvent.CONFIG_SIGNED_AUDIT,
+
+                    audit(new ConfigSignedAuditEvent(
                                 auditSubjectID,
                                 ILogger.FAILURE,
-                                auditParams(req));
-
-                    audit(auditMessage);
+                                auditParams(req)));
                 }
 
                 sendResponse(ERROR,
@@ -1304,13 +1242,11 @@ public class LogAdminServlet extends AdminServlet {
                 if (getLogPluginName(log) == id) {
                     // store a message in the signed audit log file
                     if (logType.equals(SIGNED_AUDIT_LOG_TYPE)) {
-                        auditMessage = CMS.getLogMessage(
-                                    AuditEvent.CONFIG_SIGNED_AUDIT,
+
+                        audit(new ConfigSignedAuditEvent(
                                     auditSubjectID,
                                     ILogger.FAILURE,
-                                    auditParams(req));
-
-                        audit(auditMessage);
+                                    auditParams(req)));
                     }
 
                     sendResponse(ERROR,
@@ -1335,13 +1271,11 @@ public class LogAdminServlet extends AdminServlet {
             } catch (EBaseException e) {
                 // store a message in the signed audit log file
                 if (logType.equals(SIGNED_AUDIT_LOG_TYPE)) {
-                    auditMessage = CMS.getLogMessage(
-                                AuditEvent.CONFIG_SIGNED_AUDIT,
+
+                    audit(new ConfigSignedAuditEvent(
                                 auditSubjectID,
                                 ILogger.FAILURE,
-                                auditParams(req));
-
-                    audit(auditMessage);
+                                auditParams(req)));
                 }
 
                 sendResponse(ERROR,
@@ -1352,13 +1286,11 @@ public class LogAdminServlet extends AdminServlet {
 
             // store a message in the signed audit log file
             if (logType.equals(SIGNED_AUDIT_LOG_TYPE)) {
-                auditMessage = CMS.getLogMessage(
-                            AuditEvent.CONFIG_SIGNED_AUDIT,
+
+                audit(new ConfigSignedAuditEvent(
                             auditSubjectID,
                             ILogger.SUCCESS,
-                            auditParams(req));
-
-                audit(auditMessage);
+                            auditParams(req)));
             }
 
             sendResponse(SUCCESS, null, params, resp);
@@ -1376,14 +1308,11 @@ public class LogAdminServlet extends AdminServlet {
             //     // rethrow the specific exception to be handled later
             //     throw eAudit1;
         } catch (IOException eAudit2) {
-            // store a message in the signed audit log file
-            auditMessage = CMS.getLogMessage(
-                        AuditEvent.CONFIG_SIGNED_AUDIT,
+
+            audit(new ConfigSignedAuditEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
-                        auditParams(req));
-
-            audit(auditMessage);
+                        auditParams(req)));
 
             // rethrow the specific exception to be handled later
             throw eAudit2;
@@ -1468,13 +1397,11 @@ public class LogAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 if (logType.equals(SIGNED_AUDIT_LOG_TYPE)) {
-                    auditMessage = CMS.getLogMessage(
-                                AuditEvent.CONFIG_SIGNED_AUDIT,
+
+                    audit(new ConfigSignedAuditEvent(
                                 auditSubjectID,
                                 ILogger.FAILURE,
-                                auditParams(req));
-
-                    audit(auditMessage);
+                                auditParams(req)));
                 }
 
                 sendResponse(ERROR,
@@ -1487,13 +1414,11 @@ public class LogAdminServlet extends AdminServlet {
             if (!mSys.getLogInsts().containsKey(id)) {
                 // store a message in the signed audit log file
                 if (logType.equals(SIGNED_AUDIT_LOG_TYPE)) {
-                    auditMessage = CMS.getLogMessage(
-                                AuditEvent.CONFIG_SIGNED_AUDIT,
+
+                    audit(new ConfigSignedAuditEvent(
                                 auditSubjectID,
                                 ILogger.FAILURE,
-                                auditParams(req));
-
-                    audit(auditMessage);
+                                auditParams(req)));
                 }
 
                 sendResponse(ERROR,
@@ -1508,13 +1433,11 @@ public class LogAdminServlet extends AdminServlet {
             if (implname == null) {
                 // store a message in the signed audit log file
                 if (logType.equals(SIGNED_AUDIT_LOG_TYPE)) {
-                    auditMessage = CMS.getLogMessage(
-                                AuditEvent.CONFIG_SIGNED_AUDIT,
+
+                    audit(new ConfigSignedAuditEvent(
                                 auditSubjectID,
                                 ILogger.FAILURE,
-                                auditParams(req));
-
-                    audit(auditMessage);
+                                auditParams(req)));
                 }
 
                 sendResponse(ERROR,
@@ -1530,13 +1453,11 @@ public class LogAdminServlet extends AdminServlet {
             if (plugin == null) {
                 // store a message in the signed audit log file
                 if (logType.equals(SIGNED_AUDIT_LOG_TYPE)) {
-                    auditMessage = CMS.getLogMessage(
-                                AuditEvent.CONFIG_SIGNED_AUDIT,
+
+                    audit(new ConfigSignedAuditEvent(
                                 auditSubjectID,
                                 ILogger.FAILURE,
-                                auditParams(req));
-
-                    audit(auditMessage);
+                                auditParams(req)));
                 }
 
                 sendResponse(
@@ -1682,13 +1603,11 @@ public class LogAdminServlet extends AdminServlet {
                                     // store a message in the signed audit log
                                     // file
                                     if (logType.equals(SIGNED_AUDIT_LOG_TYPE)) {
-                                        auditMessage = CMS.getLogMessage(
-                                                    AuditEvent.CONFIG_SIGNED_AUDIT,
+
+                                        audit(new ConfigSignedAuditEvent(
                                                     auditSubjectID,
                                                     ILogger.FAILURE,
-                                                    auditParams(req));
-
-                                        audit(auditMessage);
+                                                    auditParams(req)));
                                     }
 
                                     sendResponse(ERROR,
@@ -1797,13 +1716,11 @@ public class LogAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 if (logType.equals(SIGNED_AUDIT_LOG_TYPE)) {
-                    auditMessage = CMS.getLogMessage(
-                                AuditEvent.CONFIG_SIGNED_AUDIT,
+
+                    audit(new ConfigSignedAuditEvent(
                                 auditSubjectID,
                                 ILogger.FAILURE,
-                                auditParams(req));
-
-                    audit(auditMessage);
+                                auditParams(req)));
                 }
 
                 sendResponse(ERROR,
@@ -1848,13 +1765,11 @@ public class LogAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 if (logType.equals(SIGNED_AUDIT_LOG_TYPE)) {
-                    auditMessage = CMS.getLogMessage(
-                                AuditEvent.CONFIG_SIGNED_AUDIT,
+
+                    audit(new ConfigSignedAuditEvent(
                                 auditSubjectID,
                                 ILogger.FAILURE,
-                                auditParams(req));
-
-                    audit(auditMessage);
+                                auditParams(req)));
                 }
 
                 sendResponse(ERROR,
@@ -1899,13 +1814,11 @@ public class LogAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 if (logType.equals(SIGNED_AUDIT_LOG_TYPE)) {
-                    auditMessage = CMS.getLogMessage(
-                                AuditEvent.CONFIG_SIGNED_AUDIT,
+
+                    audit(new ConfigSignedAuditEvent(
                                 auditSubjectID,
                                 ILogger.FAILURE,
-                                auditParams(req));
-
-                    audit(auditMessage);
+                                auditParams(req)));
                 }
 
                 sendResponse(ERROR,
@@ -1958,13 +1871,11 @@ public class LogAdminServlet extends AdminServlet {
 
                 // store a message in the signed audit log file
                 if (logType.equals(SIGNED_AUDIT_LOG_TYPE)) {
-                    auditMessage = CMS.getLogMessage(
-                                AuditEvent.CONFIG_SIGNED_AUDIT,
+
+                    audit(new ConfigSignedAuditEvent(
                                 auditSubjectID,
                                 ILogger.FAILURE,
-                                auditParams(req));
-
-                    audit(auditMessage);
+                                auditParams(req)));
                 }
 
                 sendResponse(ERROR,
@@ -2017,13 +1928,11 @@ public class LogAdminServlet extends AdminServlet {
 
             // store a message in the signed audit log file
             if (logType.equals(SIGNED_AUDIT_LOG_TYPE)) {
-                auditMessage = CMS.getLogMessage(
-                            AuditEvent.CONFIG_SIGNED_AUDIT,
+
+                audit(new ConfigSignedAuditEvent(
                             auditSubjectID,
                             ILogger.SUCCESS,
-                            auditParams(req));
-
-                audit(auditMessage);
+                            auditParams(req)));
             }
 
             sendResponse(RESTART, null, params, resp);
@@ -2063,13 +1972,11 @@ public class LogAdminServlet extends AdminServlet {
 
             // store a message in the signed audit log file
             if (logType.equals(SIGNED_AUDIT_LOG_TYPE)) {
-                auditMessage = CMS.getLogMessage(
-                            AuditEvent.CONFIG_SIGNED_AUDIT,
+
+                audit(new ConfigSignedAuditEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
-                            auditParams(req));
-
-                audit(auditMessage);
+                            auditParams(req)));
             }
 
             // rethrow the specific exception to be handled later
@@ -2109,13 +2016,11 @@ public class LogAdminServlet extends AdminServlet {
 
             // store a message in the signed audit log file
             if (logType.equals(SIGNED_AUDIT_LOG_TYPE)) {
-                auditMessage = CMS.getLogMessage(
-                            AuditEvent.CONFIG_SIGNED_AUDIT,
+
+                audit(new ConfigSignedAuditEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
-                            auditParams(req));
-
-                audit(auditMessage);
+                            auditParams(req)));
             }
 
             // rethrow the specific exception to be handled later
