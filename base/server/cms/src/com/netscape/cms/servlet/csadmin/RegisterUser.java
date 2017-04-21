@@ -34,8 +34,8 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.event.ConfigRoleEvent;
 import com.netscape.certsrv.usrgrp.ICertUserLocator;
 import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
@@ -144,7 +144,6 @@ public class RegisterUser extends CMSServlet {
         CMS.debug("RegisterUser got name=" + name);
         CMS.debug("RegisterUser got certsString=" + certsString);
 
-        String auditMessage = null;
         String auditSubjectID = auditSubjectID();
         String auditParams = "Scope;;users+Operation;;OP_ADD+source;;RegisterUser" +
                              "+Resource;;" + uid +
@@ -199,12 +198,11 @@ public class RegisterUser extends CMSServlet {
 
                 ugsys.addUser(user);
                 CMS.debug("RegisterUser created user " + uid);
-                auditMessage = CMS.getLogMessage(
-                              AuditEvent.CONFIG_ROLE,
+
+                audit(new ConfigRoleEvent(
                               auditSubjectID,
                               ILogger.SUCCESS,
-                              auditParams);
-                audit(auditMessage);
+                              auditParams));
             }
 
             // concatenate lines
@@ -218,23 +216,22 @@ public class RegisterUser extends CMSServlet {
             if (!foundByCert) {
                 ugsys.addUserCert(user);
                 CMS.debug("RegisterUser added user certificate");
-                auditMessage = CMS.getLogMessage(
-                              AuditEvent.CONFIG_ROLE,
+
+                audit(new ConfigRoleEvent(
                               auditSubjectID,
                               ILogger.SUCCESS,
-                              auditParams);
-                audit(auditMessage);
+                              auditParams));
+
             } else
                 CMS.debug("RegisterUser no need to add user certificate");
         } catch (Exception eee) {
             CMS.debug("RegisterUser error " + eee.toString());
-            auditMessage = CMS.getLogMessage(
-                                AuditEvent.CONFIG_ROLE,
+
+            audit(new ConfigRoleEvent(
                                 auditSubjectID,
                                 ILogger.FAILURE,
-                                auditParams);
+                                auditParams));
 
-            audit(auditMessage);
             outputError(httpResp, "Error: Certificate malformed");
             return;
         }
@@ -261,22 +258,17 @@ public class RegisterUser extends CMSServlet {
                 ugsys.modifyGroup(group);
                 CMS.debug("RegisterUser modified group");
 
-                auditMessage = CMS.getLogMessage(
-                               AuditEvent.CONFIG_ROLE,
+                audit(new ConfigRoleEvent(
                                auditSubjectID,
                                ILogger.SUCCESS,
-                               auditParams);
-
-                audit(auditMessage);
+                               auditParams));
             }
         } catch (Exception e) {
-            auditMessage = CMS.getLogMessage(
-                               AuditEvent.CONFIG_ROLE,
+
+            audit(new ConfigRoleEvent(
                                auditSubjectID,
                                ILogger.FAILURE,
-                               auditParams);
-
-            audit(auditMessage);
+                               auditParams));
         }
 
         // send success status back to the requestor

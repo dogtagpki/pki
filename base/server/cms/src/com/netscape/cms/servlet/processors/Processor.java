@@ -60,19 +60,6 @@ public class Processor {
         return map;
     }
 
-    public void audit(String message, String scope, String type, String id, Map<String, String> params, String status) {
-
-        if (auditor == null) return;
-
-        String auditMessage = CMS.getLogMessage(
-                message,
-                auditor.getSubjectID(),
-                status,
-                auditor.getParamString(scope, type, id, params));
-
-        auditor.log(auditMessage);
-    }
-
     public void log(int source, int level, String message) {
 
         if (logger == null) return;
