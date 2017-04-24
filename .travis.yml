@@ -1,5 +1,7 @@
+notifications:
+        email:
+                - rhcs-dev-list@redhat.com
 sudo: required
-language: python
 
 services:
   - docker
