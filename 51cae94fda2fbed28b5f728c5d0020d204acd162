@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "63441352_4ba0600c",
+        "filename": "base/server/cms/src/com/netscape/cms/servlet/cert/CertProcessor.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 260,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-04-24T16:21:57Z",
+      "side": 1,
+      "message": "In the old code the output of auditInfoCertValue(x509cert) was used in 2 ways:\na) as a condition to generate an audit log\nb) to be included as part of the audit log itself (by passing it into the CertRequestProcessedEvent constructor)\n\nIn the new code the auditInfoCertValue() method has been moved into the CertRequestProcessedEvent class, so for (b) we only need to pass the x509cert object.\n\nHowever, for (a) we still need the output of auditInfoCertValue(), so for now in line 249 we\u0027re calling it as a static method of CertRequestProcessedEvent.\n\nI think the condition in line 252 can be simplified into something like this:\n\n  if (x509cert !\u003d null) {\n      ... generate audit log ...\n  }\n\nIn that case we will no longer need to call auditInfoCertValue() in line 249. I will post this as a separate patch.",
+      "parentUuid": "9cb20470_9e87379b",
+      "revId": "51cae94fda2fbed28b5f728c5d0020d204acd162",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "04d7cad8_8a0504a6",
         "filename": "base/server/cms/src/com/netscape/cms/servlet/connector/ConnectorServlet.java",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2017-04-21T21:23:00Z",
       "side": 1,
       "message": "Same question here and on line 643 and others. Why is this method called here?",
+      "revId": "51cae94fda2fbed28b5f728c5d0020d204acd162",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9b7621f1_4c08c9c5",
+        "filename": "base/server/cms/src/com/netscape/cms/servlet/connector/ConnectorServlet.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 623,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-04-24T16:21:57Z",
+      "side": 1,
+      "message": "This is explained in CertProcessor.java.",
+      "parentUuid": "04d7cad8_8a0504a6",
       "revId": "51cae94fda2fbed28b5f728c5d0020d204acd162",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
