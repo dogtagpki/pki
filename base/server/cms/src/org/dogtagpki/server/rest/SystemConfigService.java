@@ -1008,18 +1008,25 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         if (!CryptoUtil.isInternalToken(token)) {
             try {
+                CMS.debug("Logging into token " + token);
                 CryptoToken ctoken = CryptoUtil.getKeyStorageToken(token);
                 String tokenpwd = data.getTokenPassword();
                 ConfigurationUtils.loginToken(ctoken, tokenpwd);
+
             } catch (NotInitializedException e) {
+                CMS.debug(e);
                 throw new PKIException("Token is not initialized", e);
+
             } catch (NoSuchTokenException e) {
-                throw new BadRequestException("Invalid Token provided. No such token.", e);
+                CMS.debug(e);
+                throw new BadRequestException("No such key storage token: " + token, e);
+
             } catch (TokenException e) {
                 CMS.debug(e);
                 throw new PKIException("Token Exception: " + e, e);
+
             } catch (IncorrectPasswordException e) {
-                throw new BadRequestException("Incorrect Password provided for token.", e);
+                throw new BadRequestException("Incorrect password for token " + token, e);
             }
         }
     }
