@@ -96,7 +96,7 @@ public class CertRequestProcessedEvent extends AuditEvent {
      * @param x509cert an X509CertImpl
      * @return cert string containing the certificate
      */
-    public static String auditInfoCertValue(X509CertImpl x509cert) {
+    String auditInfoCertValue(X509CertImpl x509cert) {
 
         if (x509cert == null) {
             return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
