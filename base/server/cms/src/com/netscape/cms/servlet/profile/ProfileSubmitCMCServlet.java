@@ -696,21 +696,17 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                     reqs[k].setRequestStatus(RequestStatus.COMPLETE);
 
                     X509CertImpl x509cert = reqs[k].getExtDataInCert(IEnrollProfile.REQUEST_ISSUED_CERT);
-                    String auditInfoCertValue = CertRequestProcessedEvent.auditInfoCertValue(x509cert);
 
-                    // TODO: simplify this condition
-                    if (auditInfoCertValue != null) {
-                        if (!(auditInfoCertValue.equals(
-                                    ILogger.SIGNED_AUDIT_EMPTY_VALUE))) {
+                    if (x509cert != null) {
 
-                            audit(new CertRequestProcessedEvent(
-                                        auditSubjectID,
-                                        ILogger.SUCCESS,
-                                        auditRequesterID,
-                                        ILogger.SIGNED_AUDIT_ACCEPTANCE,
-                                        x509cert));
-                        }
+                        audit(new CertRequestProcessedEvent(
+                                    auditSubjectID,
+                                    ILogger.SUCCESS,
+                                    auditRequesterID,
+                                    ILogger.SIGNED_AUDIT_ACCEPTANCE,
+                                    x509cert));
                     }
+
                 } catch (EDeferException e) {
                     // return defer message to the user
                     CMS.debug("ProfileSubmitCMCServlet: set request to PENDING");
@@ -794,21 +790,17 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                     CMS.debug("ProfileSubmitCMCServlet: provedReq set to complete");
 
                     X509CertImpl x509cert = reqs[0].getExtDataInCert(IEnrollProfile.REQUEST_ISSUED_CERT);
-                    String auditInfoCertValue = CertRequestProcessedEvent.auditInfoCertValue(x509cert);
 
-                    // TODO: simplify this condition
-                    if (auditInfoCertValue != null) {
-                        if (!(auditInfoCertValue.equals(
-                                ILogger.SIGNED_AUDIT_EMPTY_VALUE))) {
+                    if (x509cert != null) {
 
-                            audit(new CertRequestProcessedEvent(
-                                    auditSubjectID,
-                                    ILogger.SUCCESS,
-                                    auditRequesterID,
-                                    ILogger.SIGNED_AUDIT_ACCEPTANCE,
-                                    x509cert));
-                        }
+                        audit(new CertRequestProcessedEvent(
+                                auditSubjectID,
+                                ILogger.SUCCESS,
+                                auditRequesterID,
+                                ILogger.SIGNED_AUDIT_ACCEPTANCE,
+                                x509cert));
                     }
+
                 } catch (ERejectException e) {
                     // return error to the user
                     provedReq.setRequestStatus(RequestStatus.REJECTED);
