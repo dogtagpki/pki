@@ -18,7 +18,9 @@
 package com.netscape.certsrv.logging;
 
 import java.text.MessageFormat;
+import java.util.LinkedHashMap;
 import java.util.Locale;
+import java.util.Map;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.MessageFormatter;
@@ -265,6 +267,7 @@ public class AuditEvent implements IBundleLogEvent {
     private static final String INVALID_LOG_LEVEL = "log level: {0} is invalid, should be 0-6";
 
     protected Object mParams[] = null;
+    protected Map<String, Object> attributes = new LinkedHashMap<>();
 
     private String mEventType = null;
     private String mMessage = null;
@@ -573,5 +576,26 @@ public class AuditEvent implements IBundleLogEvent {
             //return getMessage();
         } else
             return toContent();
+    }
+
+    public void setAttribute(String name, Object value) {
+        attributes.put(name, value);
+    }
+
+    public String getAttributeList() {
+
+        StringBuilder sb = new StringBuilder();
+
+        for (String name : attributes.keySet()) {
+            Object value = attributes.get(name);
+
+            sb.append("[");
+            sb.append(name);
+            sb.append("=");
+            sb.append(value);
+            sb.append("]");
+        }
+
+        return sb.toString();
     }
 }
