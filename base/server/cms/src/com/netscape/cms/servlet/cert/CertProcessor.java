@@ -33,7 +33,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.logging.event.CertRequestProcessedEvent;
+import com.netscape.certsrv.logging.event.CertRequestFailureEvent;
 import com.netscape.certsrv.logging.event.CertRequestSuccessEvent;
 import com.netscape.certsrv.profile.EDeferException;
 import com.netscape.certsrv.profile.ERejectException;
@@ -281,9 +281,8 @@ public class CertProcessor extends CAProcessor {
                 req.setExtData(IRequest.ERROR, e.toString());
                 req.setExtData(IRequest.ERROR_CODE, errorCode);
 
-                audit(new CertRequestProcessedEvent(
+                audit(new CertRequestFailureEvent(
                         auditSubjectID,
-                        ILogger.FAILURE,
                         auditRequesterID,
                         ILogger.SIGNED_AUDIT_REJECTION,
                         codeToReason(locale, errorCode, e.toString(), req.getRequestId())));
@@ -297,9 +296,8 @@ public class CertProcessor extends CAProcessor {
                 req.setExtData(IRequest.ERROR, errorReason);
                 req.setExtData(IRequest.ERROR_CODE, errorCode);
 
-                audit(new CertRequestProcessedEvent(
+                audit(new CertRequestFailureEvent(
                         auditSubjectID,
-                        ILogger.FAILURE,
                         auditRequesterID,
                         ILogger.SIGNED_AUDIT_REJECTION,
                         errorReason));

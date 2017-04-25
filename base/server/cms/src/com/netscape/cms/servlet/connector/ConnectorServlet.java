@@ -51,7 +51,7 @@ import com.netscape.certsrv.connector.IRequestEncoder;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.logging.event.CertRequestProcessedEvent;
+import com.netscape.certsrv.logging.event.CertRequestFailureEvent;
 import com.netscape.certsrv.logging.event.CertRequestSuccessEvent;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IEnrollProfile;
@@ -639,9 +639,8 @@ public class ConnectorServlet extends CMSServlet {
 
                     if (x509cert != null) {
 
-                        audit(new CertRequestProcessedEvent(
+                        audit(new CertRequestFailureEvent(
                                 auditSubjectID,
-                                ILogger.FAILURE,
                                 auditRequesterID,
                                 ILogger.SIGNED_AUDIT_ACCEPTANCE,
                                 x509cert));

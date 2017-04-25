@@ -39,7 +39,7 @@ import com.netscape.certsrv.ca.CANotFoundException;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.cert.CertReviewResponse;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.logging.event.CertRequestProcessedEvent;
+import com.netscape.certsrv.logging.event.CertRequestFailureEvent;
 import com.netscape.certsrv.logging.event.CertRequestSuccessEvent;
 import com.netscape.certsrv.profile.EDeferException;
 import com.netscape.certsrv.profile.EProfileException;
@@ -391,9 +391,8 @@ public class RequestProcessor extends CertProcessor {
 
         } catch (EProfileException eAudit1) {
 
-            audit(new CertRequestProcessedEvent(
+            audit(new CertRequestFailureEvent(
                     auditSubjectID,
-                    ILogger.FAILURE,
                     auditRequesterID,
                     ILogger.SIGNED_AUDIT_ACCEPTANCE,
                     ILogger.SIGNED_AUDIT_EMPTY_VALUE));
