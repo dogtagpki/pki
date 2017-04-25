@@ -620,22 +620,18 @@ public class ConnectorServlet extends CMSServlet {
                 if (isProfileRequest(thisreq)) {
 
                     X509CertImpl x509cert = thisreq.getExtDataInCert(IEnrollProfile.REQUEST_ISSUED_CERT);
-                    String auditInfoCertValue = CertRequestProcessedEvent.auditInfoCertValue(x509cert);
 
-                    // TODO: simplify this condition
-                    if (auditInfoCertValue != null) {
-                        if (!(auditInfoCertValue.equals(
-                                   ILogger.SIGNED_AUDIT_EMPTY_VALUE))) {
+                    if (x509cert != null) {
 
-                            audit(new CertRequestProcessedEvent(
-                                    auditSubjectID,
-                                    ILogger.SUCCESS,
-                                    auditRequesterID,
-                                    ILogger.SIGNED_AUDIT_ACCEPTANCE,
-                                    x509cert));
-                        }
+                        audit(new CertRequestProcessedEvent(
+                                auditSubjectID,
+                                ILogger.SUCCESS,
+                                auditRequesterID,
+                                ILogger.SIGNED_AUDIT_ACCEPTANCE,
+                                x509cert));
                     }
                 }
+
             } catch (EBaseException eAudit1) {
                 if (isProfileRequest(thisreq)) {
 
