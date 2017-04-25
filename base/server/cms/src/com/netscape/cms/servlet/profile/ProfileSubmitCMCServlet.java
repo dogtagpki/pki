@@ -46,6 +46,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.CertRequestProcessedEvent;
+import com.netscape.certsrv.logging.event.CertRequestProcessedSuccessEvent;
 import com.netscape.certsrv.profile.EDeferException;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
@@ -699,9 +700,8 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
 
                     if (x509cert != null) {
 
-                        audit(new CertRequestProcessedEvent(
+                        audit(new CertRequestProcessedSuccessEvent(
                                     auditSubjectID,
-                                    ILogger.SUCCESS,
                                     auditRequesterID,
                                     ILogger.SIGNED_AUDIT_ACCEPTANCE,
                                     x509cert));
@@ -793,9 +793,8 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
 
                     if (x509cert != null) {
 
-                        audit(new CertRequestProcessedEvent(
+                        audit(new CertRequestProcessedSuccessEvent(
                                 auditSubjectID,
-                                ILogger.SUCCESS,
                                 auditRequesterID,
                                 ILogger.SIGNED_AUDIT_ACCEPTANCE,
                                 x509cert));

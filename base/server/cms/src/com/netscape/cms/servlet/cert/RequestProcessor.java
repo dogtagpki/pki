@@ -40,6 +40,7 @@ import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.cert.CertReviewResponse;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.CertRequestProcessedEvent;
+import com.netscape.certsrv.logging.event.CertRequestProcessedSuccessEvent;
 import com.netscape.certsrv.profile.EDeferException;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
@@ -279,9 +280,8 @@ public class RequestProcessor extends CertProcessor {
         String auditRequesterID = auditRequesterID(req);
         req.setRequestStatus(RequestStatus.CANCELED);
 
-        audit(new CertRequestProcessedEvent(
+        audit(new CertRequestProcessedSuccessEvent(
                 auditSubjectID,
-                ILogger.SUCCESS,
                 auditRequesterID,
                 ILogger.SIGNED_AUDIT_CANCELLATION,
                 req));
@@ -309,9 +309,8 @@ public class RequestProcessor extends CertProcessor {
 
         req.setRequestStatus(RequestStatus.REJECTED);
 
-        audit(new CertRequestProcessedEvent(
+        audit(new CertRequestProcessedSuccessEvent(
                 auditSubjectID,
-                ILogger.SUCCESS,
                 auditRequesterID,
                 ILogger.SIGNED_AUDIT_REJECTION,
                 req));
@@ -384,9 +383,8 @@ public class RequestProcessor extends CertProcessor {
             X509CertImpl theCert = req.getExtDataInCert(
                     IEnrollProfile.REQUEST_ISSUED_CERT);
 
-            audit(new CertRequestProcessedEvent(
+            audit(new CertRequestProcessedSuccessEvent(
                     auditSubjectID,
-                    ILogger.SUCCESS,
                     auditRequesterID,
                     ILogger.SIGNED_AUDIT_ACCEPTANCE,
                     theCert));
