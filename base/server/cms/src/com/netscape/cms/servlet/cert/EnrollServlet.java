@@ -53,6 +53,7 @@ import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.CertRequestProcessedEvent;
+import com.netscape.certsrv.logging.event.CertRequestSuccessEvent;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.usrgrp.IGroup;
@@ -1367,9 +1368,8 @@ public class EnrollServlet extends CMSServlet {
                     for (int i = 0; i < issuedCerts.length; i++) {
                         // (automated "agent" cert request processed
                         //  - "accepted")
-                        audit(new CertRequestProcessedEvent(
+                        audit(new CertRequestSuccessEvent(
                                     auditSubjectID,
-                                    ILogger.SUCCESS,
                                     auditRequesterID,
                                     ILogger.SIGNED_AUDIT_ACCEPTANCE,
                                     issuedCerts[i]));
@@ -1448,9 +1448,8 @@ public class EnrollServlet extends CMSServlet {
 
                 for (int i = 0; i < issuedCerts.length; i++) {
                     // (automated "agent" cert request processed - "accepted")
-                    audit(new CertRequestProcessedEvent(
+                    audit(new CertRequestSuccessEvent(
                                 auditSubjectID,
-                                ILogger.SUCCESS,
                                 auditRequesterID,
                                 ILogger.SIGNED_AUDIT_ACCEPTANCE,
                                 issuedCerts[i]));
@@ -1468,9 +1467,8 @@ public class EnrollServlet extends CMSServlet {
 
                 for (int i = 0; i < issuedCerts.length; i++) {
                     // (automated "agent" cert request processed - "accepted")
-                    audit(new CertRequestProcessedEvent(
+                    audit(new CertRequestSuccessEvent(
                                 auditSubjectID,
-                                ILogger.SUCCESS,
                                 auditRequesterID,
                                 ILogger.SIGNED_AUDIT_ACCEPTANCE,
                                 issuedCerts[i]));

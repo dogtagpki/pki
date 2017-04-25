@@ -50,6 +50,7 @@ import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.CertRequestProcessedEvent;
+import com.netscape.certsrv.logging.event.CertRequestSuccessEvent;
 import com.netscape.certsrv.publish.IPublisherProcessor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
@@ -929,9 +930,8 @@ public class ProcessCertReq extends CMSServlet {
                                 // store a message in the signed audit log file
                                 // (one for each manual "agent"
                                 //  cert request processed - "accepted")
-                                audit(new CertRequestProcessedEvent(
+                                audit(new CertRequestSuccessEvent(
                                             auditSubjectID,
-                                            ILogger.SUCCESS,
                                             auditRequesterID,
                                             auditInfoName,
                                             issuedCerts[i]));

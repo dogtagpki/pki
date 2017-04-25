@@ -34,6 +34,7 @@ import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.CertRequestProcessedEvent;
+import com.netscape.certsrv.logging.event.CertRequestSuccessEvent;
 import com.netscape.certsrv.profile.EDeferException;
 import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.profile.IEnrollProfile;
@@ -249,9 +250,8 @@ public class CertProcessor extends CAProcessor {
 
                 if (x509cert != null) {
 
-                    audit(new CertRequestProcessedEvent(
+                    audit(new CertRequestSuccessEvent(
                             auditSubjectID,
-                            ILogger.SUCCESS,
                             auditRequesterID,
                             ILogger.SIGNED_AUDIT_ACCEPTANCE,
                             x509cert));
