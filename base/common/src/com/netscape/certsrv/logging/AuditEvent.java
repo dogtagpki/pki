@@ -63,8 +63,6 @@ public class AuditEvent implements IBundleLogEvent {
             "LOGGING_SIGNED_AUDIT_CONFIG_SIGNED_AUDIT_3";
     public final static String CONFIG_ENCRYPTION =
             "LOGGING_SIGNED_AUDIT_CONFIG_ENCRYPTION_3";
-    public final static String CONFIG_TRUSTED_PUBLIC_KEY =
-            "LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY_3";
     public final static String CONFIG_DRM =
             "LOGGING_SIGNED_AUDIT_CONFIG_DRM_3";
     public final static String SELFTESTS_EXECUTION =
