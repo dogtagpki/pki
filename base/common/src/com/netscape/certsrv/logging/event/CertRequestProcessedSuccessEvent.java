@@ -26,13 +26,17 @@ public class CertRequestProcessedSuccessEvent extends CertRequestProcessedEvent 
 
     private static final long serialVersionUID = 1L;
 
+    private final static String LOGGING_PROPERTY =
+            "LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED_SUCCESS";
+
     public CertRequestProcessedSuccessEvent(
             String subjectID,
             String requesterID,
             String infoName,
             X509CertImpl x509cert) {
 
-        super(subjectID,
+        super(LOGGING_PROPERTY,
+                subjectID,
                 ILogger.SUCCESS,
                 requesterID,
                 infoName,
@@ -46,7 +50,8 @@ public class CertRequestProcessedSuccessEvent extends CertRequestProcessedEvent 
             String infoName,
             IRequest request) {
 
-        super(subjectID,
+        super(LOGGING_PROPERTY,
+                subjectID,
                 ILogger.SUCCESS,
                 requesterID,
                 infoName,
