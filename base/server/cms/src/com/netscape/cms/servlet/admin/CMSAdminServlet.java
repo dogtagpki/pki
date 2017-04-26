@@ -62,6 +62,7 @@ import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.event.ConfigTrustedPublicKeyEvent;
 import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.security.ICryptoSubsystem;
@@ -1434,7 +1435,7 @@ public final class CMSAdminServlet extends AdminServlet {
     private void issueImportCert(HttpServletRequest req,
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
-        String auditMessage = null;
+
         String auditSubjectID = auditSubjectID();
 
         // ensure that any low-level exceptions are reported
@@ -1484,14 +1485,11 @@ public final class CMSAdminServlet extends AdminServlet {
                 nicknameWithoutTokenName = nickname.substring(index + 1);
                 oldtokenname = nickname.substring(0, index);
             } else {
-                // store a message in the signed audit log file
-                auditMessage = CMS.getLogMessage(
-                            AuditEvent.CONFIG_TRUSTED_PUBLIC_KEY,
+
+                audit(new ConfigTrustedPublicKeyEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
-                            auditParams(req));
-
-                audit(auditMessage);
+                            auditParams(req)));
 
                 throw new EBaseException(CMS.getLogMessage("BASE_CERT_NOT_FOUND"));
             }
@@ -1504,14 +1502,11 @@ public final class CMSAdminServlet extends AdminServlet {
             } else if (index > 0 && (index < (canickname.length() - 1))) {
                 canicknameWithoutTokenName = canickname.substring(index + 1);
             } else {
-                // store a message in the signed audit log file
-                auditMessage = CMS.getLogMessage(
-                            AuditEvent.CONFIG_TRUSTED_PUBLIC_KEY,
+
+                audit(new ConfigTrustedPublicKeyEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
-                            auditParams(req));
-
-                audit(auditMessage);
+                            auditParams(req)));
 
                 throw new EBaseException(CMS.getLogMessage("BASE_CERT_NOT_FOUND"));
             }
@@ -1524,14 +1519,11 @@ public final class CMSAdminServlet extends AdminServlet {
             KeyPair pair = null;
 
             if (nickname.equals("")) {
-                // store a message in the signed audit log file
-                auditMessage = CMS.getLogMessage(
-                            AuditEvent.CONFIG_TRUSTED_PUBLIC_KEY,
+
+                audit(new ConfigTrustedPublicKeyEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
-                            auditParams(req));
-
-                audit(auditMessage);
+                            auditParams(req)));
 
                 throw new EBaseException(CMS.getLogMessage("BASE_CERT_NOT_FOUND"));
             }
@@ -1771,40 +1763,30 @@ public final class CMSAdminServlet extends AdminServlet {
             properties.clear();
             properties = null;
 
-            // store a message in the signed audit log file
-            auditMessage = CMS.getLogMessage(
-                        AuditEvent.CONFIG_TRUSTED_PUBLIC_KEY,
+            audit(new ConfigTrustedPublicKeyEvent(
                         auditSubjectID,
                         ILogger.SUCCESS,
-                        auditParams(req));
-
-            audit(auditMessage);
+                        auditParams(req)));
 
             mConfig.commit(true);
             sendResponse(SUCCESS, null, null, resp);
         } catch (EBaseException eAudit1) {
             CMS.debug("CMSAdminServlet: issueImportCert: EBaseException thrown: " + eAudit1.toString());
-            // store a message in the signed audit log file
-            auditMessage = CMS.getLogMessage(
-                        AuditEvent.CONFIG_TRUSTED_PUBLIC_KEY,
+
+            audit(new ConfigTrustedPublicKeyEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
-                        auditParams(req));
-
-            audit(auditMessage);
+                        auditParams(req)));
 
             // rethrow the specific exception to be handled later
             throw eAudit1;
         } catch (IOException eAudit2) {
             CMS.debug("CMSAdminServlet: issueImportCert: IOException thrown: " + eAudit2.toString());
-            // store a message in the signed audit log file
-            auditMessage = CMS.getLogMessage(
-                        AuditEvent.CONFIG_TRUSTED_PUBLIC_KEY,
+
+            audit(new ConfigTrustedPublicKeyEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
-                        auditParams(req));
-
-            audit(auditMessage);
+                        auditParams(req)));
 
             // rethrow the specific exception to be handled later
             throw eAudit2;
@@ -1890,14 +1872,11 @@ public final class CMSAdminServlet extends AdminServlet {
             try {
                 if (pkcs == null || pkcs.equals("")) {
                     if (certpath == null || certpath.equals("")) {
-                        // store a message in the signed audit log file
-                        auditMessage = CMS.getLogMessage(
-                                AuditEvent.CONFIG_TRUSTED_PUBLIC_KEY,
+
+                        audit(new ConfigTrustedPublicKeyEvent(
                                 auditSubjectID,
                                 ILogger.FAILURE,
-                                auditParams(req));
-
-                        audit(auditMessage);
+                                auditParams(req)));
 
                         EBaseException ex = new EBaseException(
                                 CMS.getLogMessage("BASE_INVALID_FILE_PATH"));
@@ -1924,14 +1903,11 @@ public final class CMSAdminServlet extends AdminServlet {
                     }
                 }
             } catch (IOException ee) {
-                // store a message in the signed audit log file
-                auditMessage = CMS.getLogMessage(
-                            AuditEvent.CONFIG_TRUSTED_PUBLIC_KEY,
+
+                audit(new ConfigTrustedPublicKeyEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
-                            auditParams(req));
-
-                audit(auditMessage);
+                            auditParams(req)));
 
                 throw new EBaseException(
                         CMS.getLogMessage("BASE_OPEN_FILE_FAILED"));
@@ -1954,14 +1930,11 @@ public final class CMSAdminServlet extends AdminServlet {
                 tokenName = nickname.substring(0, index);
                 nicknameWithoutTokenName = nickname.substring(index + 1);
             } else {
-                // store a message in the signed audit log file
-                auditMessage = CMS.getLogMessage(
-                            AuditEvent.CONFIG_TRUSTED_PUBLIC_KEY,
+
+                audit(new ConfigTrustedPublicKeyEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
-                            auditParams(req));
-
-                audit(auditMessage);
+                            auditParams(req)));
 
                 throw new EBaseException(
                         CMS.getLogMessage("BASE_CERT_NOT_FOUND"));
@@ -2203,14 +2176,10 @@ public final class CMSAdminServlet extends AdminServlet {
                 audit(auditMessage);
             }
 
-            // store a message in the signed audit log file
-            auditMessage = CMS.getLogMessage(
-                        AuditEvent.CONFIG_TRUSTED_PUBLIC_KEY,
+            audit(new ConfigTrustedPublicKeyEvent(
                         auditSubjectID,
                         ILogger.SUCCESS,
-                        auditParams(req));
-
-            audit(auditMessage);
+                        auditParams(req)));
 
             mConfig.commit(true);
             if (verified == true) {
@@ -2220,26 +2189,20 @@ public final class CMSAdminServlet extends AdminServlet {
                         null, resp);
             }
         } catch (EBaseException eAudit1) {
-            // store a message in the signed audit log file
-            auditMessage = CMS.getLogMessage(
-                        AuditEvent.CONFIG_TRUSTED_PUBLIC_KEY,
+
+            audit(new ConfigTrustedPublicKeyEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
-                        auditParams(req));
-
-            audit(auditMessage);
+                        auditParams(req)));
 
             // rethrow the specific exception to be handled later
             throw eAudit1;
         } catch (IOException eAudit2) {
-            // store a message in the signed audit log file
-            auditMessage = CMS.getLogMessage(
-                        AuditEvent.CONFIG_TRUSTED_PUBLIC_KEY,
+
+            audit(new ConfigTrustedPublicKeyEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
-                        auditParams(req));
-
-            audit(auditMessage);
+                        auditParams(req)));
 
             // rethrow the specific exception to be handled later
             throw eAudit2;
@@ -2275,7 +2238,7 @@ public final class CMSAdminServlet extends AdminServlet {
     private void importXCert(HttpServletRequest req,
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
-        String auditMessage = null;
+
         String auditSubjectID = auditSubjectID();
 
         // ensure that any low-level exceptions are reported
@@ -2309,14 +2272,11 @@ public final class CMSAdminServlet extends AdminServlet {
             try {
                 if (b64Cert == null || b64Cert.equals("")) {
                     if (certpath == null || certpath.equals("")) {
-                        // store a message in the signed audit log file
-                        auditMessage = CMS.getLogMessage(
-                                AuditEvent.CONFIG_TRUSTED_PUBLIC_KEY,
+
+                        audit(new ConfigTrustedPublicKeyEvent(
                                 auditSubjectID,
                                 ILogger.FAILURE,
-                                auditParams(req));
-
-                        audit(auditMessage);
+                                auditParams(req)));
 
                         EBaseException ex = new EBaseException(
                                 CMS.getLogMessage("BASE_INVALID_FILE_PATH"));
@@ -2342,14 +2302,11 @@ public final class CMSAdminServlet extends AdminServlet {
                     }
                 }
             } catch (IOException ee) {
-                // store a message in the signed audit log file
-                auditMessage = CMS.getLogMessage(
-                            AuditEvent.CONFIG_TRUSTED_PUBLIC_KEY,
+
+                audit(new ConfigTrustedPublicKeyEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
-                            auditParams(req));
-
-                audit(auditMessage);
+                            auditParams(req)));
 
                 throw new EBaseException(
                         CMS.getLogMessage("BASE_OPEN_FILE_FAILED"));
@@ -2376,14 +2333,11 @@ public final class CMSAdminServlet extends AdminServlet {
                 //this will import into internal ldap crossCerts entry
                 ccps.importCert(bCert);
             } catch (Exception e) {
-                // store a message in the signed audit log file
-                auditMessage = CMS.getLogMessage(
-                            AuditEvent.CONFIG_TRUSTED_PUBLIC_KEY,
+
+                audit(new ConfigTrustedPublicKeyEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
-                            auditParams(req));
-
-                audit(auditMessage);
+                            auditParams(req)));
 
                 sendResponse(1, "xcert importing failure:" + e.toString(),
                              null, resp);
@@ -2395,14 +2349,11 @@ public final class CMSAdminServlet extends AdminServlet {
                 // db to publishing directory, if turned on
                 ccps.publishCertPairs();
             } catch (EBaseException e) {
-                // store a message in the signed audit log file
-                auditMessage = CMS.getLogMessage(
-                            AuditEvent.CONFIG_TRUSTED_PUBLIC_KEY,
+
+                audit(new ConfigTrustedPublicKeyEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
-                            auditParams(req));
-
-                audit(auditMessage);
+                            auditParams(req)));
 
                 sendResponse(1, "xcerts publishing failure:" + e.toString(), null, resp);
                 return;
@@ -2416,37 +2367,27 @@ public final class CMSAdminServlet extends AdminServlet {
             results.put(Constants.PR_NICKNAME, "FBCA cross-signed cert");
             results.put(Constants.PR_CERT_CONTENT, content);
 
-            // store a message in the signed audit log file
-            auditMessage = CMS.getLogMessage(
-                        AuditEvent.CONFIG_TRUSTED_PUBLIC_KEY,
+            audit(new ConfigTrustedPublicKeyEvent(
                         auditSubjectID,
                         ILogger.SUCCESS,
-                        auditParams(req));
-
-            audit(auditMessage);
+                        auditParams(req)));
 
             sendResponse(SUCCESS, null, results, resp);
         } catch (EBaseException eAudit1) {
-            // store a message in the signed audit log file
-            auditMessage = CMS.getLogMessage(
-                        AuditEvent.CONFIG_TRUSTED_PUBLIC_KEY,
+
+            audit(new ConfigTrustedPublicKeyEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
-                        auditParams(req));
-
-            audit(auditMessage);
+                        auditParams(req)));
 
             // rethrow the specific exception to be handled later
             throw eAudit1;
         } catch (IOException eAudit2) {
-            // store a message in the signed audit log file
-            auditMessage = CMS.getLogMessage(
-                        AuditEvent.CONFIG_TRUSTED_PUBLIC_KEY,
+
+            audit(new ConfigTrustedPublicKeyEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
-                        auditParams(req));
-
-            audit(auditMessage);
+                        auditParams(req)));
 
             // rethrow the specific exception to be handled later
             throw eAudit2;
@@ -2929,7 +2870,7 @@ public final class CMSAdminServlet extends AdminServlet {
     public void setRootCertTrust(HttpServletRequest req,
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
-        String auditMessage = null;
+
         String auditSubjectID = auditSubjectID();
         String nickname = req.getParameter(Constants.PR_NICK_NAME);
         String serialno = req.getParameter(Constants.PR_SERIAL_NUMBER);
@@ -2943,25 +2884,20 @@ public final class CMSAdminServlet extends AdminServlet {
         try {
             jssSubSystem.setRootCertTrust(nickname, serialno, issuername, trust);
         } catch (EBaseException e) {
-            auditMessage = CMS.getLogMessage(
-                        AuditEvent.CONFIG_TRUSTED_PUBLIC_KEY,
+
+            audit(new ConfigTrustedPublicKeyEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
-                        auditParams(req));
+                        auditParams(req)));
 
-            audit(auditMessage);
             // rethrow the specific exception to be handled later
             throw e;
         }
 
-        // store a message in the signed audit log file
-        auditMessage = CMS.getLogMessage(
-                    AuditEvent.CONFIG_TRUSTED_PUBLIC_KEY,
+        audit(new ConfigTrustedPublicKeyEvent(
                     auditSubjectID,
                     ILogger.SUCCESS,
-                    auditParams(req));
-
-        audit(auditMessage);
+                    auditParams(req)));
 
         sendResponse(SUCCESS, null, null, resp);
     }
@@ -2982,7 +2918,7 @@ public final class CMSAdminServlet extends AdminServlet {
     private void trustCACert(HttpServletRequest req,
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
-        String auditMessage = null;
+
         String auditSubjectID = auditSubjectID();
 
         CMS.debug("CMSAdminServlet: trustCACert()");
@@ -3010,38 +2946,28 @@ public final class CMSAdminServlet extends AdminServlet {
                 }
             }
 
-            // store a message in the signed audit log file
-            auditMessage = CMS.getLogMessage(
-                        AuditEvent.CONFIG_TRUSTED_PUBLIC_KEY,
+            audit(new ConfigTrustedPublicKeyEvent(
                         auditSubjectID,
                         ILogger.SUCCESS,
-                        auditParams(req));
-
-            audit(auditMessage);
+                        auditParams(req)));
 
             //sendResponse(SUCCESS, null, null, resp);
             sendResponse(RESTART, null, null, resp);
         } catch (EBaseException eAudit1) {
-            // store a message in the signed audit log file
-            auditMessage = CMS.getLogMessage(
-                        AuditEvent.CONFIG_TRUSTED_PUBLIC_KEY,
+
+            audit(new ConfigTrustedPublicKeyEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
-                        auditParams(req));
-
-            audit(auditMessage);
+                        auditParams(req)));
 
             // rethrow the specific exception to be handled later
             throw eAudit1;
         } catch (IOException eAudit2) {
-            // store a message in the signed audit log file
-            auditMessage = CMS.getLogMessage(
-                        AuditEvent.CONFIG_TRUSTED_PUBLIC_KEY,
+
+            audit(new ConfigTrustedPublicKeyEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
-                        auditParams(req));
-
-            audit(auditMessage);
+                        auditParams(req)));
 
             // rethrow the specific exception to be handled later
             throw eAudit2;
