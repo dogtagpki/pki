@@ -24,6 +24,11 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
+import netscape.security.x509.BasicConstraintsExtension;
+import netscape.security.x509.CertificateValidity;
+import netscape.security.x509.PKIXExtensions;
+import netscape.security.x509.X509CertInfo;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.ca.ICertificateAuthority;
@@ -33,11 +38,6 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
-
-import netscape.security.x509.BasicConstraintsExtension;
-import netscape.security.x509.CertificateValidity;
-import netscape.security.x509.PKIXExtensions;
-import netscape.security.x509.X509CertInfo;
 
 /**
  * This class implements a CA signing cert enrollment default policy
@@ -348,7 +348,7 @@ public class CAValidityDefault extends EnrollDefault {
         if (startTimeStr == null || startTimeStr.equals("")) {
             startTimeStr = "60";
         }
-        int startTime = Integer.parseInt(startTimeStr);
+        long startTime = Long.parseLong(startTimeStr);
 
         Date notBefore = new Date(CMS.getCurrentDate().getTime() + (1000 * startTime));
         CMS.debug("CAValidityDefault: not before: " + notBefore);
