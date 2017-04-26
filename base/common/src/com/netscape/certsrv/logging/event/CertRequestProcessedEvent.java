@@ -64,8 +64,7 @@ public class CertRequestProcessedEvent extends AuditEvent {
 
         super(LOGGING_PROPERTY);
 
-        setAttribute("InfoName", infoName);
-        setAttribute("InfoValue", auditInfoCertValue(x509cert));
+        setAttribute("CertSerialNum", x509cert.getSerialNumber());
 
         setParameters(new Object[] {
                 subjectID,
