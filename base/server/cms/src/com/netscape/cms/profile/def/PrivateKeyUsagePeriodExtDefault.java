@@ -296,13 +296,13 @@ public class PrivateKeyUsagePeriodExtDefault extends EnrollExtDefault {
             if (startTimeStr == null || startTimeStr.equals("")) {
                 startTimeStr = "60";
             }
-            int startTime = Integer.parseInt(startTimeStr);
+            long startTime = Long.parseLong(startTimeStr);
             Date notBefore = new Date(CMS.getCurrentDate().getTime() +
                     (1000 * startTime));
             long notAfterVal = 0;
 
             notAfterVal = notBefore.getTime() +
-                    (mDefault * Integer.parseInt(getConfig(CONFIG_DURATION)));
+                    (mDefault * Long.parseLong(getConfig(CONFIG_DURATION)));
             Date notAfter = new Date(notAfterVal);
 
             ext = new PrivateKeyUsageExtension(notBefore, notAfter);

@@ -290,7 +290,7 @@ public class RandomizedValidityDefault extends EnrollDefault {
         if (startTimeStr == null || startTimeStr.equals("")) {
             startTimeStr = "60";
         }
-        int startTime = Integer.parseInt(startTimeStr);
+        long startTime = Long.parseLong(startTimeStr);
 
         String notBeforeRandomBitsStr = getConfig(CONFIG_NOT_BEFORE_RANDOM_BITS);
         if (notBeforeRandomBitsStr == null || notBeforeRandomBitsStr.length() == 0) {
