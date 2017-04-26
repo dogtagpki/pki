@@ -30,19 +30,17 @@ public class CertRequestProcessedEvent extends AuditEvent {
 
     private static final long serialVersionUID = 1L;
 
-    private final static String LOGGING_PROPERTY =
-            "LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED";
-
     public final static String SIGNED_AUDIT_CERT_REQUEST_REASON = "requestNotes";
 
     public CertRequestProcessedEvent(
+            String messageID,
             String subjectID,
             String outcome,
             String requesterID,
             String infoName,
             String infoValue) {
 
-        super(LOGGING_PROPERTY);
+        super(messageID);
 
         setAttribute("InfoName", infoName);
         setAttribute("InfoValue", infoValue);
@@ -56,13 +54,14 @@ public class CertRequestProcessedEvent extends AuditEvent {
     }
 
     public CertRequestProcessedEvent(
+            String messageID,
             String subjectID,
             String outcome,
             String requesterID,
             String infoName,
             X509CertImpl x509cert) {
 
-        super(LOGGING_PROPERTY);
+        super(messageID);
 
         setAttribute("CertSerialNum", x509cert.getSerialNumber());
 
@@ -75,13 +74,14 @@ public class CertRequestProcessedEvent extends AuditEvent {
     }
 
     public CertRequestProcessedEvent(
+            String messageID,
             String subjectID,
             String outcome,
             String requesterID,
             String infoName,
             IRequest request) {
 
-        super(LOGGING_PROPERTY);
+        super(messageID);
 
         setAttribute("InfoName", infoName);
         setAttribute("InfoValue", auditInfoValue(request));
