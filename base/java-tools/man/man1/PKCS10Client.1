@@ -1,0 +1,95 @@
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH PKCS10Client 1 "April 28, 2017" "version 10.4" "PKI PKCS10Client certificate request tool" Dogtag Team
+.\" Please adjust this date whenever revising the man page.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for man page specific macros, see man(7)
+.SH NAME
+PKCS10Client \- Used to generate 1024-bit RSA key pair in the security database.
+
+.SH SYNOPSIS
+.PP
+\fBUsage: PKCS10Client -d <location of certdb> -h <token name> -p <token password> -a <algorithm: 'rsa' or 'ec'> -l <rsa key length> -c <ec curve name> -o <output file which saves the base64 PKCS10> -n <subjectDN>\fP
+
+Available ECC curve names (if provided by the crypto module): nistp256 (secp256r1), nistp384 (secp384r1), nistp521 (secp521r1), nistk163 (sect163k1), sect163r1,nistb163 (sect163r2), sect193r1, sect193r2, nistk233 (sect233k1), nistb233 (sect233r1), sect239k1, nistk283 (sect283k1), nistb283 (sect283r1), nistk409 (sect409k1), nistb409 (sect409r1), nistk571 (sect571k1), nistb571 (sect571r1), secp160k1, secp160r1, secp160r2, secp192k1, nistp192 (secp192r1, prime192v1), secp224k1, nistp224 (secp224r1), secp256k1, prime192v2, prime192v3, prime239v1, prime239v2, prime239v3, c2pnb163v1, c2pnb163v2, c2pnb163v3, c2pnb176v1, c2tnb191v1, c2tnb191v2, c2tnb191v3, c2pnb208w1, c2tnb239v1, c2tnb239v2, c2tnb239v3, c2pnb272w1, c2pnb304w1, c2tnb359w1, c2pnb368w1, c2tnb431r1, secp112r1, secp112r2, secp128r1, secp128r2, sect113r1, sect113r2, sect131r1, sect131r2
+
+To get a certificate from the CA, the certificate request needs to be submitted to and approved by a CA agent. Once approved, a certificate is created for the request, and certificate attributes, such as extensions, are populated according to certificate profiles.
+
+Optionally, for ECC key generation per definition in JSS pkcs11.PK11KeyPairGenerator.
+
+.SH DESCRIPTION
+.PP
+The PKCS #10 utility, \fBPKCS10Client\fP, generates a 1024-bit RSA key pair in the security database, constructs a PKCS#10 certificate request with the public key, and outputs the request to a file.
+.PP
+\fBPKCS #10\fP is a certification request syntax standard defined by RSA. A CA may support multiple types of certificate requests. The Certificate System CA supports KEYGEN, PKCS#10, CRMF, and CMC.
+.PP
+
+.SH OPTIONS
+.PP
+\fBPKCS10Client\fP parameters:
+.PP
+.TP
+.B -d <directory_of_NSS_security_database>
+The directory containing the \fBcert8.db\fP, \fBkey3.db\fP, and \fBsecmod.db\fP files. This is usually the client's personal directory.
+
+.TP
+.B -h <token_name>
+Name of the token. By default it takes 'internal'.
+
+.TP
+.B -p <token_passwd>
+The password to the token.
+
+.TP
+.B -l <algorithm: 'rsa' or 'ec'>
+The algorithm type either 'rsa' or 'ec'. By default it takes 'rsa'.
+
+.TP
+.B -c <curve_name>
+Eleptic Curve cryptography curve name.
+.TP
+.B -o <output_file>
+Sets the path and filename to output the new PKCS #10 certificate in base64 format.
+
+.TP
+.B -n <subject_DN>
+Gives the subject DN of the certificate.
+
+.TP
+.B -k <true for enabling encoding of attribute values; false for default encoding of attribute values; default is false>
+
+.TP
+.B -t <true for temporary(session); false for permanent(token); default is false>
+
+.TP
+.B -s <1 for sensitive; 0 for non-sensitive; -1 temporaryPairMode dependent; default is -1>
+
+.TP
+.B -e <1 for extractable; 0 for non-extractable; -1 token dependent; default is -1>
+
+
+.TP   Also optional for ECC key generation:
+
+.TP
+.B -x <true for SSL cert that does ECDH ECDSA; false otherwise; default false>
+
+.TP
+.B -y <true for adding SubjectKeyIdentifier extensionfor self-signed cmc requests; false otherwise; default false>
+
+.SH AUTHORS
+Amol Kahat <akahat@redhat.com>.
+
+.SH COPYRIGHT
+Copyright (c) 2017 Red Hat, Inc. This is licensed under the GNU General Public
+License, version 2 (GPLv2). A copy of this license is available at
+http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
