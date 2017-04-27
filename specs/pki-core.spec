@@ -13,7 +13,7 @@
 %global package_rhel_packages 1
 # Package RHCS-specific RPMS Only
 %global package_rhcs_packages 1
-%define pki_core_rhel_version 10.4.1
+%define pki_core_rhel_version 10.4.2
 %else
 # 0%{?fedora}
 # Fedora always packages all RPMS
@@ -64,8 +64,8 @@
 %define pki_homedir /usr/share/pki
 
 Name:             pki-core
-Version:          10.4.1
-Release:          3.1%{?dist}
+Version:          10.4.2
+Release:          1%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -1391,6 +1391,9 @@ fi
 %endif # %{with server}
 
 %changelog
+* Thu Apr 27 2017 Dogtag Team <pki-devel@redhat.com> 10.4.2-1
+- Updated version number to 10.4.2-1
+
 * Tue Apr 11 2017 Dogtag Team <pki-devel@redhat.com> 10.4.1-3.1
 - dogtagpki Pagure Issue #2633 - Missing python-cryptography dependencies
   (mharmsen)

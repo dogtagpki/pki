@@ -1,6 +1,6 @@
 Name:             pki-console
-Version:          10.4.1
-Release:          1.1%{?dist}
+Version:          10.4.2
+Release:          1%{?dist}
 Summary:          Certificate System - PKI Console
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -9,7 +9,7 @@ Group:            System Environment/Base
 %bcond_without    javadoc
 
 %if 0%{?rhel}
-%define pki_core_rhel_version      10.4.1
+%define pki_core_rhel_version      10.4.2
 %define pki_core_version           %{pki_core_rhel_version}
 %else
 %define pki_core_version           %{version}
@@ -122,6 +122,9 @@ cd build
 
 
 %changelog
+* Thu Apr 27 2017 Dogtag Team <pki-devel@redhat.com> 10.4.2-1
+- Updated version number to 10.4.2-1
+
 * Wed Mar 29 2017 Dogtag Team <pki-devel@redhat.com> 10.4.1-1
 - dogtagpki Pagure Issue #2541 - Re-base Dogtag pki packages to 10.4.x
 
