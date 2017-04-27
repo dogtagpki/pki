@@ -64,8 +64,8 @@
 %define pki_homedir /usr/share/pki
 
 Name:             pki-core
-Version:          10.4.1
-Release:          3.1%{?dist}
+Version:          10.4.2
+Release:          1%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -175,10 +175,10 @@ BuildRequires:    python-ldap
 BuildRequires:    junit
 BuildRequires:    jpackage-utils >= 0:1.7.5-10
 %if 0%{?rhel}
-BuildRequires:    jss >= 4.4.0-4
+BuildRequires:    jss >= 4.4.0-5
 %else
 %if 0%{?fedora} >= 25
-BuildRequires:    jss >= 4.4.1
+BuildRequires:    jss >= 4.4.1-2
 %else
 BuildRequires:    jss >= 4.2.6-44
 %endif
@@ -334,10 +334,10 @@ Requires:         nss >= 3.27.0
 %endif
 Requires:         jpackage-utils >= 0:1.7.5-10
 %if 0%{?rhel}
-Requires:         jss >= 4.4.0-4
+Requires:         jss >= 4.4.0-5
 %else
 %if 0%{?fedora} >= 25
-Requires:         jss >= 4.4.1
+Requires:         jss >= 4.4.1-2
 %else
 Requires:         jss >= 4.2.6-44
 %endif
@@ -428,10 +428,10 @@ Requires:         slf4j-jdk14
 Requires:         javassist
 Requires:         jpackage-utils >= 0:1.7.5-10
 %if 0%{?rhel}
-Requires:         jss >= 4.4.0-4
+Requires:         jss >= 4.4.0-5
 %else
 %if 0%{?fedora} >= 25
-Requires:         jss >= 4.4.1
+Requires:         jss >= 4.4.1-2
 %else
 Requires:         jss >= 4.2.6-44
 %endif
@@ -1391,13 +1391,24 @@ fi
 %endif # %{with server}
 
 %changelog
-* Tue Apr 11 2017 Dogtag Team <pki-devel@redhat.com> 10.4.1-3.1
-- dogtagpki Pagure Issue #2633 - Missing python-cryptography dependencies
-  (mharmsen)
-
-* Mon Apr  3 2017 Dogtag Team <pki-devel@redhat.com> 10.4.1-3
-- dogtagpki Pagure Issue #1722 -  Installing pki-server in container reports
-  scriptlet failed, exit status 1 (jpazdziora)
+* Mon Apr 17 2017 Dogtag Team <pki-devel@redhat.com> 10.4.2-1
+- dogtagpki Pagure Issue #1663 - Add SCP03 support for g&d sc 7 cards
+  (jmagne)
+- dogtagpki Pagure Issue #1722 - Installing pki-server in container reports
+  scriptlet failed, exit status 1 (mharmsen)
+- dogtagpki Pagure Issue #2556 - pkispawn fails to create PKI subsystem
+  on FIPS enabled system (edewata)
+- dogtagpki Pagure Issue #2602 -Audit logs for SSL/TLS session events
+  (edewata)
+- dogtagpki Pagure Issue #2614 - CMC: id-cmc-popLinkWitnessV2 feature
+  implementation (cfu)
+- dogtagpki Pagure Issue #2622 - Audit log search/review (edewata)
+- dogtagpki Pagure Issue #2625 - cli authentication using expired cert
+  throws an exception (edewata)
+- dogtagpki Pagure Issue #2626 - non-CA cli looks for CA in the instance
+  during a request (edewata)
+- dogtagpki Pagure Issue #2633 - Missing python2-cryptography
+  dependency (mharmsen)
 
 * Fri Mar 31 2017 Dogtag Team <pki-devel@redhat.com> 10.4.1-2
 - Fixed runtime typo on jss

@@ -1,6 +1,6 @@
 Name:             pki-console
-Version:          10.4.1
-Release:          1.1%{?dist}
+Version:          10.4.2
+Release:          1%{?dist}
 Summary:          Certificate System - PKI Console
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -20,9 +20,9 @@ BuildArch:        noarch
 BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:    cmake >= 2.8.9-1
-BuildRequires:    idm-console-framework
+BuildRequires:    idm-console-framework >= 1.1.17-4
 BuildRequires:    java-1.8.0-openjdk-devel
-BuildRequires:    ldapjdk
+BuildRequires:    ldapjdk >= 4.19-1
 BuildRequires:    nspr-devel
 %if 0%{?rhel}
 BuildRequires:    nss-devel >= 3.28.3
@@ -36,27 +36,27 @@ BuildRequires:    nss-devel >= 3.27.0
 BuildRequires:    junit
 BuildRequires:    jpackage-utils >= 1.7.5-10
 %if 0%{?rhel}
-BuildRequires:    jss >= 4.4.0-4
+BuildRequires:    jss >= 4.4.0-5
 %else
 %if 0%{?fedora} >= 25
-BuildRequires:    jss >= 4.4.1
+BuildRequires:    jss >= 4.4.1-2
 %else
 BuildRequires:    jss >= 4.2.6-44
 %endif
 %endif
 BuildRequires:    pki-base-java >= %{pki_core_version}
 
-Requires:         idm-console-framework
+Requires:         idm-console-framework >= 1.1.17-4
 Requires:         java-1.8.0-openjdk
-Requires:         ldapjdk
+Requires:         ldapjdk >= 4.19-1
 Requires:         pki-base-java >= %{pki_core_version}
 Requires:         pki-console-theme >= %{version}
 Requires:         jpackage-utils >= 1.7.5-10
 %if 0%{?rhel}
-Requires:         jss >= 4.4.0-4
+Requires:         jss >= 4.4.0-5
 %else
 %if 0%{?fedora} >= 25
-Requires:         jss >= 4.4.1
+Requires:         jss >= 4.4.1-2
 %else
 Requires:         jss >= 4.2.6-44
 %endif
@@ -122,6 +122,9 @@ cd build
 
 
 %changelog
+* Mon Apr 17 2017 Dogtag Team <pki-devel@redhat.com> 10.4.2-1
+- Fixed pki_console_wrapper
+
 * Wed Mar 29 2017 Dogtag Team <pki-devel@redhat.com> 10.4.1-1
 - dogtagpki Pagure Issue #2541 - Re-base Dogtag pki packages to 10.4.x
 
