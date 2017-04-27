@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8310e0c9_c714db25",
+        "filename": "base/common/python/pki/key.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 852,
+      "author": {
+        "id": 1010882
+      },
+      "writtenOn": "2017-04-27T17:39:35Z",
+      "side": 1,
+      "message": "May I suggest that Dogtag deprecates algorithm_oid\u003dNone and forces the caller to pass an OID?\n\nimport warnings\n\nif algorithm_oid is None:\n    warnings.warn(\"algorithm_oid\u003dNone is deprecated\", DeprecationWarning)\n    algorithm_oid \u003d pki.crypto.DES_EDE3_CBC_OID",
+      "revId": "3cc50b49e2a18344937702bd1b170b9faf738845",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
