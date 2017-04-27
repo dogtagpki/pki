@@ -1,0 +1,78 @@
+#!/usr/bin/python
+# Authors:
+#     Fraser Tweedale <ftweedal@redhat.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+# Copyright (C) 2017 Red Hat, Inc.
+# All rights reserved.
+
+from __future__ import absolute_import
+import os.path
+
+import pki
+from pki.server.upgrade import PKIServerUpgradeScriptlet
+
+proplist = [
+    ('kra.storageUnit.wrapping.0.sessionKeyLength', '168'),
+    ('kra.storageUnit.wrapping.0.sessionKeyWrapAlgorithm', 'RSA'),
+    ('kra.storageUnit.wrapping.0.payloadEncryptionPadding', 'PKCS5Padding'),
+    ('kra.storageUnit.wrapping.0.sessionKeyKeyGenAlgorithm', 'DESede'),
+    ('kra.storageUnit.wrapping.0.payloadEncryptionAlgorithm', 'DESede'),
+    ('kra.storageUnit.wrapping.0.payloadEncryptionMode', 'CBC'),
+    ('kra.storageUnit.wrapping.0.payloadEncryptionIV', 'AQEBAQEBAQE='),
+    ('kra.storageUnit.wrapping.0.payloadWrapAlgorithm', 'DES3/CBC/Pad'),
+    ('kra.storageUnit.wrapping.0.payloadWrapIV', 'AQEBAQEBAQE='),
+    ('kra.storageUnit.wrapping.0.sessionKeyType', 'DESede'),
+    ('kra.storageUnit.wrapping.1.sessionKeyLength', '128'),
+    ('kra.storageUnit.wrapping.1.sessionKeyWrapAlgorithm', 'RSA'),
+    ('kra.storageUnit.wrapping.1.payloadEncryptionPadding', 'PKCS5Padding'),
+    ('kra.storageUnit.wrapping.1.sessionKeyKeyGenAlgorithm', 'AES'),
+    ('kra.storageUnit.wrapping.1.payloadEncryptionAlgorithm', 'AES'),
+    ('kra.storageUnit.wrapping.1.payloadEncryptionMode', 'CBC'),
+    ('kra.storageUnit.wrapping.1.payloadEncryptionIVLen', '16'),
+    ('kra.storageUnit.wrapping.1.payloadWrapAlgorithm', 'AES KeyWrap/Padding'),
+    ('kra.storageUnit.wrapping.1.sessionKeyType', 'AES'),
+
+    # this upgrade script adds the config, but uses the legacy
+    # configuration so that behaviour of deployed instance does
+    # not change
+    ('kra.storageUnit.wrapping.choice', '0'),
+]
+
+
+class AddKRAWrappingParams(PKIServerUpgradeScriptlet):
+    def __init__(self):
+        super(AddKRAWrappingParams, self).__init__()
+        self.message = 'Add wrapping params to KRA CS.cfg'
+
+    def upgrade_subsystem(self, instance, subsystem):
+        if subsystem.name == 'kra':
+            self.upgrade_config(instance, subsystem)
+
+    def upgrade_config(self, instance, subsystem):  # pylint: disable=W0613
+        filename = os.path.join(subsystem.conf_dir, 'CS.cfg')
+        self.backup(filename)
+
+        properties = pki.PropertyFile(filename)
+        properties.read()
+
+        # if the property exists, leave it alone, otherwise set
+        # it to the value defined above
+        for k, v in proplist:
+            cur = properties.get(k)
+            if cur is None:
+                properties.set(k, v)
+
+        properties.write()
