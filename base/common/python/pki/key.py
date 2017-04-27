@@ -514,7 +514,7 @@ class KeyClient(object):
         pki.util.read_environment_files()
         client_keyset = os.getenv('KEY_WRAP_PARAMETER_SET')
         if client_keyset is not None:
-            return client_keyset
+            return int(client_keyset)
         return 0
 
     def get_server_keyset(self):
@@ -795,7 +795,7 @@ class KeyClient(object):
             data_type,
             encrypted_data,
             wrapped_session_key,
-            algorithm_oid=None,
+            algorithm_oid=self.encrypt_alg_oid,
             nonce_iv=nonce_iv,
             key_algorithm=key_algorithm,
             key_size=key_size,
@@ -850,8 +850,10 @@ class KeyClient(object):
             raise TypeError('Missing wrapped session key')
 
         if not algorithm_oid:
-            algorithm_oid = pki.crypto.AES_128_CBC_OID
-            # algorithm_oid = KeyClient.DES_EDE3_CBC_OID
+            # legacy apps like IPA call this directly without
+            # setting the algorithm_oid.  We need to keep DES
+            # for backward compatibility
+            algorithm_oid = pki.crypto.DES_EDE3_CBC_OID
 
         if not nonce_iv:
             raise TypeError('Missing nonce IV')
