@@ -391,7 +391,7 @@ class CryptographyCryptoProvider(CryptoProvider):
         elif level == 0:
             self.encrypt_alg = algorithms.TripleDES
             self.encrypt_mode = modes.CBC
-            self.encrypt_size = 168
+            self.encrypt_size = 192
 
     def generate_nonce_iv(self, mechanism='AES'):
         """ Create a random initialization vector """
