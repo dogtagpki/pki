@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3ce91bb8_ae7d6da8",
+        "filename": "base/common/python/pki/crypto.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 394,
+      "author": {
+        "id": 1011000
+      },
+      "writtenOn": "2017-04-28T04:38:37Z",
+      "side": 1,
+      "message": "please add a comment about the 168-bit vs 192-bit discrepancy :)",
+      "range": {
+        "startLine": 394,
+        "startChar": 12,
+        "endLine": 394,
+        "endChar": 16
+      },
+      "revId": "0291ac77ce735354363792f94edc1becff7ae6e3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
