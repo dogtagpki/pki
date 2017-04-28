@@ -325,9 +325,17 @@ class NSSCryptoProvider(CryptoProvider):
         :param nonce_iv         Nonce data
         :return:                Unwrapped data
 
-        Return unwrapped data for data wrapped using AES KeyWrap
+        Return unwrapped data for data that has been keywrapped.
+        For NSS, we only support 3DES - so something that has been
+        keywrapped can be decrypted.  This is precisely what we used
+        to do before.
         """
-        raise NotImplementedError()
+        return self.symmetric_unwrap(
+            data,
+            wrapping_key,
+            mechanism=nss.CKM_DES3_CBC_PAD,
+            nonce_iv=nonce_iv
+        )
 
     def get_cert(self, cert_nick):
         """
