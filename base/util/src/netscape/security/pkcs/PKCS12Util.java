@@ -102,6 +102,14 @@ public class PKCS12Util {
         icert.setObjectSigningTrust(PKCS12.decodeFlags(flags[2]));
     }
 
+    /**
+     * Used during EXPORT to add a private key to the PKCS12.
+     *
+     * The private key is exported directly from the token, into
+     * an EncryptedPrivateKeyInfo value, then added as a
+     * "Shrouded Key Bag" to the PKCS #12 object.  Unencrypted
+     * key material is never seen.
+     */
     public void addKeyBag(PKCS12KeyInfo keyInfo, Password password,
             SEQUENCE encSafeContents) throws Exception {
         PrivateKey k = keyInfo.getPrivateKey();
@@ -346,6 +354,12 @@ public class PKCS12Util {
         }
     }
 
+    /**
+     * Loads key bags (for IMPORT and other operations on existing
+     * PKCS #12 files).  Does not decrypt EncryptedPrivateKeyInfo
+     * values, but stores them in PKCS12KeyInfo objects for possible
+     * later use.
+     */
     public PKCS12KeyInfo getKeyInfo(SafeBag bag, Password password) throws Exception {
 
         PKCS12KeyInfo keyInfo = new PKCS12KeyInfo(bag.getBagContent().getEncoded());
@@ -598,6 +612,9 @@ public class PKCS12Util {
         }
     }
 
+    /**
+     * Store a certificate (and key, if present) in NSSDB.
+     */
     public void storeCertIntoNSS(
             PKCS12 pkcs12, Password password,
             PKCS12CertInfo certInfo, boolean overwrite)
