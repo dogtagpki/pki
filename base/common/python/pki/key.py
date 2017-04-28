@@ -28,6 +28,7 @@ from __future__ import print_function
 import base64
 import json
 import os
+import warnings
 
 from six import iteritems
 from six.moves.urllib.parse import quote  # pylint: disable=F0401,E0611
@@ -853,6 +854,8 @@ class KeyClient(object):
             # legacy apps like IPA call this directly without
             # setting the algorithm_oid.  We need to keep DES
             # for backward compatibility
+            warnings.warn("algorithm_oid=None is deprecated",
+                          DeprecationWarning)
             algorithm_oid = pki.crypto.DES_EDE3_CBC_OID
 
         if not nonce_iv:

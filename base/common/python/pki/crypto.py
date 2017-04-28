@@ -389,9 +389,14 @@ class CryptographyCryptoProvider(CryptoProvider):
             self.encrypt_mode = modes.CBC
             self.encrypt_size = 128
         elif level == 0:
+            # note that 3DES keys are actually 192 bits long, even
+            # though only 168 bits are used internally.  See
+            # https://tools.ietf.org/html/rfc4949
+            # Using 168 here will cause python-cryptography key verification
+            # checks to fail.
             self.encrypt_alg = algorithms.TripleDES
             self.encrypt_mode = modes.CBC
-            self.encrypt_size = 168
+            self.encrypt_size = 192
 
     def generate_nonce_iv(self, mechanism='AES'):
         """ Create a random initialization vector """
