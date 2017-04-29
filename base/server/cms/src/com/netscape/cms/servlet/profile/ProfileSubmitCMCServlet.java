@@ -39,6 +39,7 @@ import org.mozilla.jss.pkix.cmc.OtherInfo;
 import org.mozilla.jss.pkix.cmc.TaggedAttribute;
 
 import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.authentication.IAuthManager;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.base.EBaseException;
@@ -443,6 +444,18 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
         ///////////////////////////////////////////////
         // create request
         ///////////////////////////////////////////////
+        String tmpCertSerialS = ctx.get(IAuthManager.CRED_CMC_SIGNING_CERT);
+        if (tmpCertSerialS != null) {
+            // unlikely to happenm, but do this just in case
+            CMS.debug("ProfileSubmitCMCServlet: found existing CRED_CMC_SIGNING_CERT in ctx for CMCUserSignedAuth:" + tmpCertSerialS);
+            CMS.debug("ProfileSubmitCMCServlet: null it out");
+            ctx.set(IAuthManager.CRED_CMC_SIGNING_CERT, "");
+        }
+        String signingCertSerialS = (String) authToken.get(IAuthManager.CRED_CMC_SIGNING_CERT);
+        if (signingCertSerialS != null) {
+            CMS.debug("ProfileSubmitCMCServlet: setting CRED_CMC_SIGNING_CERT in ctx for CMCUserSignedAuth");
+            ctx.set(IAuthManager.CRED_CMC_SIGNING_CERT, signingCertSerialS);
+        }
         try {
             reqs = profile.createRequests(ctx, locale);
         } catch (EProfileException e) {
@@ -512,7 +525,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
         IRequest provedReq = null;
         if (reqs == null) {
             // handling DecryptedPOP request here
-            Integer reqID = (Integer) context.get("decryptedPopReqId");
+            Integer reqID = (Integer) context.get("cmcDecryptedPopReqId");
             provedReq = profile.getRequestQueue().findRequest(new RequestId(reqID.toString()));
             if (provedReq == null) {
 
@@ -567,6 +580,19 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                                 val);
                         }
                     }
+                }
+
+                tmpCertSerialS = reqs[k].getExtDataInString(IAuthManager.CRED_CMC_SIGNING_CERT);
+                if (tmpCertSerialS != null) {
+                    // unlikely to happenm, but do this just in case
+                    CMS.debug("ProfileSubmitCMCServlet: found existing CRED_CMC_SIGNING_CERT in request for CMCUserSignedAuth:" + tmpCertSerialS);
+                    CMS.debug("ProfileSubmitCMCServlet: null it out");
+                    reqs[k].setExtData(IAuthManager.CRED_CMC_SIGNING_CERT, "");
+                }
+                // put CMCUserSignedAuth authToken in request
+                if (signingCertSerialS != null) {
+                    CMS.debug("ProfileSubmitCMCServlet: setting CRED_CMC_SIGNING_CERT in request for CMCUserSignedAuth");
+                    reqs[k].setExtData(IAuthManager.CRED_CMC_SIGNING_CERT, signingCertSerialS);
                 }
             }
 

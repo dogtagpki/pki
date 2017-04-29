@@ -783,6 +783,8 @@ public abstract class BasicProfile implements IProfile {
             boolean createConfig)
             throws EProfileException {
 
+        String method = "BasicProfile: createProfilePolicy: ";
+        CMS.debug(method + "begins");
         // String setId ex: policyset.set1
         // String id    Id of policy : examples: p1,p2,p3
         // String defaultClassId : id of the default plugin ex: validityDefaultImpl
@@ -911,19 +913,18 @@ public abstract class BasicProfile implements IProfile {
                 }
             }
         }
-
         String defaultRoot = id + "." + PROP_DEFAULT;
         String constraintRoot = id + "." + PROP_CONSTRAINT;
         IPluginInfo defInfo = mRegistry.getPluginInfo("defaultPolicy",
                 defaultClassId);
 
         if (defInfo == null) {
-            CMS.debug("BasicProfile: Cannot find " + defaultClassId);
+            CMS.debug(method + " Cannot find " + defaultClassId);
             throw new EProfileException("Cannot find " + defaultClassId);
         }
         String defaultClass = defInfo.getClassName();
 
-        CMS.debug("BasicProfile: loading default class " + defaultClass);
+        CMS.debug(method + " loading default class " + defaultClass);
         IPolicyDefault def = null;
 
         try {
@@ -931,7 +932,7 @@ public abstract class BasicProfile implements IProfile {
                     Class.forName(defaultClass).newInstance();
         } catch (Exception e) {
             // throw Exception
-            CMS.debug("BasicProfile: default policy " +
+            CMS.debug(method + " default policy " +
                     defaultClass + " " + e.toString());
         }
         if (def == null) {
@@ -941,24 +942,30 @@ public abstract class BasicProfile implements IProfile {
 
             defStore = policyStore.getSubStore(defaultRoot);
             def.init(this, defStore);
+            CMS.debug(method + " default class initialized.");
         }
 
         IPluginInfo conInfo = mRegistry.getPluginInfo("constraintPolicy",
                 constraintClassId);
+        if (conInfo == null) {
+            CMS.debug(method + " Cannot find " + constraintClassId);
+            throw new EProfileException("Cannot find " + constraintClassId);
+        }
         String constraintClass = conInfo.getClassName();
-        IPolicyConstraint constraint = null;
 
+        CMS.debug(method + " loading constraint class " + constraintClass);
+        IPolicyConstraint constraint = null;
         try {
             constraint = (IPolicyConstraint)
                     Class.forName(constraintClass).newInstance();
         } catch (Exception e) {
             // throw Exception
-            CMS.debug("BasicProfile: constraint policy " +
+            CMS.debug(method + " constraint policy " +
                     constraintClass + " " + e.toString());
         }
         ProfilePolicy policy = null;
         if (constraint == null) {
-            CMS.debug("BasicProfile: failed to create " + constraintClass);
+            CMS.debug(method + " failed to create " + constraintClass);
         } else {
             IConfigStore conStore = null;
 
@@ -966,9 +973,11 @@ public abstract class BasicProfile implements IProfile {
             constraint.init(this, conStore);
             policy = new ProfilePolicy(id, def, constraint);
             policies.addElement(policy);
+            CMS.debug(method + " constraint class initialized.");
         }
 
         if (createConfig) {
+            CMS.debug(method + " createConfig true; creating...");
             String list = null;
 
             try {
@@ -996,8 +1005,10 @@ public abstract class BasicProfile implements IProfile {
                 CMS.debug("BasicProfile: commiting config store " +
                         e.toString());
             }
+            CMS.debug(method + " config created.");
         }
 
+        CMS.debug(method + "ends");
         return policy;
     }
 
@@ -1091,9 +1102,10 @@ public abstract class BasicProfile implements IProfile {
      */
     public void populate(IRequest request)
             throws EProfileException {
+        String method = "BasicProfile: populate: ";
         String setId = getPolicySetId(request);
         Vector<IProfilePolicy> policies = getPolicies(setId);
-        CMS.debug("BasicProfile: populate() policy setid =" + setId);
+        CMS.debug(method + "policy setid =" + setId);
 
         for (int i = 0; i < policies.size(); i++) {
             IProfilePolicy policy = policies.elementAt(i);

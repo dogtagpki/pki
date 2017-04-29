@@ -31,6 +31,9 @@ public interface IAuthManager {
     /* standard credential for client cert from ssl client auth */
     public static final String CRED_SSL_CLIENT_CERT = "sslClientCert";
 
+    /* standard credential for CMC request signing cert */
+    public static final String CRED_CMC_SIGNING_CERT = "cmcSigningCert";
+
     /**
      * Standard credential for client cert's serial number from revocation.
      */

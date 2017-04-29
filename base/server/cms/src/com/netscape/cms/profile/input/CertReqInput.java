@@ -19,10 +19,8 @@ package com.netscape.cms.profile.input;
 
 import java.util.Locale;
 
-import netscape.security.pkcs.PKCS10;
-import netscape.security.util.DerInputStream;
-import netscape.security.x509.X509CertInfo;
-
+import org.mozilla.jss.asn1.SEQUENCE;
+import org.mozilla.jss.pkix.cmc.PKIData;
 import org.mozilla.jss.pkix.cmc.TaggedRequest;
 import org.mozilla.jss.pkix.crmf.CertReqMsg;
 
@@ -36,6 +34,10 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.common.EnrollProfile;
+
+import netscape.security.pkcs.PKCS10;
+import netscape.security.util.DerInputStream;
+import netscape.security.x509.X509CertInfo;
 
 /**
  * This class implements the certificate request input.
@@ -89,13 +91,16 @@ public class CertReqInput extends EnrollInput implements IProfileInput {
      */
     public void populate(IProfileContext ctx, IRequest request)
             throws EProfileException {
+        String method = "CertReqInput: populate: ";
+        CMS.debug(method + "begins");
+
         String cert_request_type = ctx.get(VAL_CERT_REQUEST_TYPE);
         String cert_request = ctx.get(VAL_CERT_REQUEST);
         X509CertInfo info =
                 request.getExtDataInCertInfo(EnrollProfile.REQUEST_CERTINFO);
 
         if (cert_request_type == null) {
-            CMS.debug("CertReqInput: populate - invalid cert request type " +
+            CMS.debug(method + "invalid cert request type " +
                     "");
             throw new EProfileException(
                     CMS.getUserMessage(getLocale(request),
@@ -103,12 +108,14 @@ public class CertReqInput extends EnrollInput implements IProfileInput {
                             ""));
         }
         if (cert_request == null) {
-            CMS.debug("CertReqInput: populate - invalid certificate request");
+            CMS.debug(method + "invalid certificate request");
             throw new EProfileException(CMS.getUserMessage(
                         getLocale(request), "CMS_PROFILE_NO_CERT_REQ"));
         }
 
         if (cert_request_type.equals(EnrollProfile.REQ_TYPE_PKCS10)) {
+            CMS.debug(method + "cert_request_type= REQ_TYPE_PKCS10");
+
             PKCS10 pkcs10 = mEnrollProfile.parsePKCS10(getLocale(request), cert_request);
 
             if (pkcs10 == null) {
@@ -118,6 +125,7 @@ public class CertReqInput extends EnrollInput implements IProfileInput {
 
             mEnrollProfile.fillPKCS10(getLocale(request), pkcs10, info, request);
         } else if (cert_request_type.startsWith(EnrollProfile.REQ_TYPE_KEYGEN)) {
+            CMS.debug(method + "cert_request_type= REQ_TYPE_KEYGEN");
             DerInputStream keygen = mEnrollProfile.parseKeyGen(getLocale(request), cert_request);
 
             if (keygen == null) {
@@ -127,6 +135,7 @@ public class CertReqInput extends EnrollInput implements IProfileInput {
 
             mEnrollProfile.fillKeyGen(getLocale(request), keygen, info, request);
         } else if (cert_request_type.startsWith(EnrollProfile.REQ_TYPE_CRMF)) {
+            CMS.debug(method + "cert_request_type= REQ_TYPE_CRMF");
             CertReqMsg msgs[] = mEnrollProfile.parseCRMF(getLocale(request), cert_request);
 
             if (msgs == null) {
@@ -142,7 +151,18 @@ public class CertReqInput extends EnrollInput implements IProfileInput {
             mEnrollProfile.fillCertReqMsg(getLocale(request), msgs[seqNum.intValue()], info, request
                     );
         } else if (cert_request_type.startsWith(EnrollProfile.REQ_TYPE_CMC)) {
-            TaggedRequest msgs[] = mEnrollProfile.parseCMC(getLocale(request), cert_request);
+            CMS.debug(method + "cert_request_type= REQ_TYPE_CMC");
+            // cfu: getPKIDataFromCMCblob() is extracted from parseCMC
+            // so it's less confusing
+            //TaggedRequest msgs[] = mEnrollProfile.parseCMC(getLocale(request), cert_request);
+            PKIData pkiData = mEnrollProfile.getPKIDataFromCMCblob(getLocale(request), cert_request);
+            SEQUENCE reqSeq = pkiData.getReqSequence();
+            int nummsgs = reqSeq.size(); // for now we only handle one anyways
+            CMS.debug(method + "pkiData.getReqSequence() called; nummsgs =" + nummsgs);
+            TaggedRequest[] msgs = new TaggedRequest[reqSeq.size()];
+            for (int i = 0; i < nummsgs; i++) {
+                msgs[i] = (TaggedRequest) reqSeq.elementAt(i);
+            }
 
             if (msgs == null) {
                 throw new EProfileException(CMS.getUserMessage(
@@ -159,7 +179,7 @@ public class CertReqInput extends EnrollInput implements IProfileInput {
             mEnrollProfile.fillTaggedRequest(getLocale(request), msgs[seqNum.intValue()], info, request);
         } else {
             // error
-            CMS.debug("CertReqInput: populate - invalid cert request type " +
+            CMS.debug(method + "invalid cert request type " +
                     cert_request_type);
             throw new EProfileException(
                     CMS.getUserMessage(getLocale(request),

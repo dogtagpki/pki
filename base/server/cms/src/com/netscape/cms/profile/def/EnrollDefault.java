@@ -214,17 +214,18 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
      */
     public void populate(IRequest request)
             throws EProfileException {
+        String method = "EnrollDefault: populate: ";
         String name = getClass().getName();
 
         name = name.substring(name.lastIndexOf('.') + 1);
-        CMS.debug(name + ": populate start");
+        CMS.debug(method + name + ": start");
         X509CertInfo info =
                 request.getExtDataInCertInfo(IEnrollProfile.REQUEST_CERTINFO);
 
         populate(request, info);
 
         request.setExtData(IEnrollProfile.REQUEST_CERTINFO, info);
-        CMS.debug(name + ": populate end");
+        CMS.debug(method + name + ": end");
     }
 
     public void addValueName(String name) {

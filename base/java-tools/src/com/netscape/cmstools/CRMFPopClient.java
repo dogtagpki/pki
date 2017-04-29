@@ -545,7 +545,7 @@ public class CRMFPopClient {
                 pop = client.createPop(algorithm, signature);
             }
 
-            if (verbose) System.out.println("Creating CRMF requrest");
+            if (verbose) System.out.println("Creating CRMF request");
             String request = client.createCRMFRequest(certRequest, pop);
 
             StringWriter sw = new StringWriter();

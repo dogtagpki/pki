@@ -1553,6 +1553,29 @@
    </servlet>
 
    <servlet>
+      <servlet-name>  caProfileSubmitUserSignedCMCFull  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.profile.ProfileSubmitCMCServlet  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  cert_request_type  </param-name>
+                         <param-value> cmc         </param-value> </init-param>
+             <init-param><param-name>  profileId   </param-name>
+                         <param-value> caFullCMCUserSignedCert </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authorityId  </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caProfileSubmitUserSignedCMCFull </param-value> </init-param>
+             <init-param><param-name>  templatePath  </param-name>
+                         <param-value> /ee/ca/ProfileSubmit.template </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ee.profile </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> ee          </param-value> </init-param>
+   </servlet>
+
+   <servlet>
       <servlet-name>  caProfileList  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.profile.ProfileListServlet  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -2254,6 +2277,11 @@
    <servlet-mapping>  
       <servlet-name>  caProfileSubmitCMCFull  </servlet-name>
       <url-pattern>   /ee/ca/profileSubmitCMCFull  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>  
+      <servlet-name>  caProfileSubmitUserSignedCMCFull  </servlet-name>
+      <url-pattern>   /ee/ca/profileSubmitUserSignedCMCFull  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>  

@@ -71,6 +71,7 @@ import org.mozilla.jss.pkix.primitive.Name;
 import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
 
 import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.authentication.IAuthManager;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authentication.ISharedToken;
 import com.netscape.certsrv.authority.IAuthority;
@@ -110,6 +111,7 @@ import netscape.security.x509.CertificateX509Key;
 import netscape.security.x509.Extension;
 import netscape.security.x509.Extensions;
 import netscape.security.x509.X500Name;
+import netscape.security.x509.X509CertImpl;
 import netscape.security.x509.X509CertInfo;
 import netscape.security.x509.X509Key;
 
@@ -144,7 +146,8 @@ public abstract class EnrollProfile extends BasicProfile
      */
     public IRequest[] createRequests(IProfileContext ctx, Locale locale)
             throws EProfileException {
-        String method = "EnrollProfile: createRequests";
+
+        String method = "EnrollProfile: createRequests: ";
         CMS.debug(method + "begins");
 
         // determine how many requests should be created
@@ -171,13 +174,20 @@ public abstract class EnrollProfile extends BasicProfile
         }
         TaggedRequest[] cmc_msgs = null;
         if (cert_request_type != null && cert_request_type.startsWith("cmc")) {
-            /*
-             * TODO: cfu: Phase 2: check if CMCAuth pre-signed request passed.
-             *     if not, identityProofV2 and/or identification controls
-             *     are required;
-             */
+
+            // donePOI true means Proof-Of-Identity is already done.
+            // if the auth manager is the CMCUserSignedAuth, then
+            // the new cert will eventually have the same subject as the
+            // user signing cert
+            // if the auth manager is the CMCAuth (agent pre-approved),
+            // then no changes
+            boolean donePOI = false;
+            String signingUserSerial = ctx.get(IAuthManager.CRED_CMC_SIGNING_CERT);
+            if (signingUserSerial != null) {
+                donePOI = true;
+            }
             // catch for invalid request
-            cmc_msgs = parseCMC(locale, cert_request);
+            cmc_msgs = parseCMC(locale, cert_request, donePOI);
             if (cmc_msgs == null) {
                 CMS.debug(method + "parseCMC returns cmc_msgs null");
                 return null;
@@ -209,7 +219,7 @@ public abstract class EnrollProfile extends BasicProfile
             } else {
                 result[i].setExtData(REQUEST_SEQ_NUM, Integer.valueOf(i));
                 if ((cmc_msgs != null) && (cmc_msgs[i] != null)) {
-                    CMS.debug("EnrollProfile: createRequests: setting cmc TaggedRequest in request");
+                    CMS.debug(method + "setting cmc TaggedRequest in request");
                     result[i].setExtData(
                             CTX_CERT_REQUEST,
                             ASN1Util.encode(cmc_msgs[i]));
@@ -221,9 +231,6 @@ public abstract class EnrollProfile extends BasicProfile
 
             // set requested CA
             result[i].setExtData(IRequest.AUTHORITY_ID, ctx.get(REQUEST_AUTHORITY_ID));
-
-            // set user data
-            result[i].setExtData(IRequest.USER_DATA, ctx.get(REQUEST_USER_DATA));
         }
         return result;
     }
@@ -300,7 +307,7 @@ public abstract class EnrollProfile extends BasicProfile
             req.setExtData(REQUEST_EXTENSIONS,
                     new CertificateExtensions());
 
-            CMS.debug("EnrollProfile: createRequest " +
+            CMS.debug("EnrollProfile: createEnrollmentRequest " +
                     req.getRequestId());
         } catch (EBaseException e) {
             // raise exception?
@@ -469,6 +476,7 @@ public abstract class EnrollProfile extends BasicProfile
 
         IRequestQueue queue = getRequestQueue();
         String msg = "";
+        CMS.debug(method + "begins");
 
         boolean popChallengeRequired =
                 request.getExtDataInBoolean("cmc_POPchallengeRequired", false);
@@ -485,7 +493,7 @@ public abstract class EnrollProfile extends BasicProfile
         }
 
         if (token == null){
-            CMS.debug(method + " auth token is null");
+            CMS.debug(method + " auth token is null; agent manual approval required;");
             CMS.debug(method + " validating request");
             validate(request);
             try {
@@ -500,6 +508,7 @@ public abstract class EnrollProfile extends BasicProfile
             // this is encryptedPOP case; defer to require decryptedPOP
             CMS.debug(method + " popChallengeRequired, defer to enforce decryptedPOP");
             validate(request);
+
             CMS.debug(method + " about to call setPOPchallenge");
             try {
                 setPOPchallenge(request);
@@ -521,40 +530,38 @@ public abstract class EnrollProfile extends BasicProfile
         }
     }
 
-    /*
-     * parseCMC
-     * @throws EProfileException in case of error
-     *   note: returing "null" doesn't mean failure
+    /**
+     * getPKIDataFromCMCblob
+     *
+     * @param certReqBlob cmc b64 encoded blob
+     * @return PKIData
      */
-    public TaggedRequest[] parseCMC(Locale locale, String certreq)
+    public PKIData getPKIDataFromCMCblob(Locale locale, String certReqBlob)
             throws EProfileException {
 
-        String method = "EnrollProfile: parseCMC: ";
+        String method = "EnrollProfile: getPKIDataFromCMCblob: ";
         String msg = ""; // for capturing debug and throw info
 
         /* cert request must not be null */
-        if (certreq == null) {
-            msg = method + "certreq null";
+        if (certReqBlob == null) {
+            msg = method + "certReqBlob null";
             CMS.debug(msg);
             throw new EProfileException(
                     CMS.getUserMessage(locale, "CMS_PROFILE_INVALID_REQUEST") +
                             msg);
         }
-        //CMS.debug(method + " Start parseCMC(): " + certreq);
+        //CMS.debug(method + " Start: " + certReqBlob);
         CMS.debug(method + "starts");
 
-        TaggedRequest msgs[] = null;
-
-        String creq = normalizeCertReq(certreq);
+        String creq = normalizeCertReq(certReqBlob);
         try {
             byte data[] = CMS.AtoB(creq);
-            ByteArrayInputStream cmcBlobIn =
-                    new ByteArrayInputStream(data);
+            ByteArrayInputStream cmcBlobIn = new ByteArrayInputStream(data);
 
-            org.mozilla.jss.pkix.cms.ContentInfo cmcReq = (org.mozilla.jss.pkix.cms.ContentInfo)
-                    org.mozilla.jss.pkix.cms.ContentInfo.getTemplate().decode(cmcBlobIn);
-            org.mozilla.jss.pkix.cms.SignedData cmcFullReq =
-                (org.mozilla.jss.pkix.cms.SignedData) cmcReq.getInterpretedContent();
+            org.mozilla.jss.pkix.cms.ContentInfo cmcReq = (org.mozilla.jss.pkix.cms.ContentInfo) org.mozilla.jss.pkix.cms.ContentInfo
+                    .getTemplate().decode(cmcBlobIn);
+            org.mozilla.jss.pkix.cms.SignedData cmcFullReq = (org.mozilla.jss.pkix.cms.SignedData) cmcReq
+                    .getInterpretedContent();
             org.mozilla.jss.pkix.cms.EncapsulatedContentInfo ci = cmcFullReq.getContentInfo();
             OCTET_STRING content = ci.getContent();
 
@@ -564,6 +571,104 @@ public abstract class EnrollProfile extends BasicProfile
             mCMCData = pkiData;
             //PKIData pkiData = (PKIData)
             //    (new PKIData.Template()).decode(cmcBlobIn);
+
+            return pkiData;
+        } catch (Exception e) {
+            CMS.debug(method + e);
+            throw new EProfileException(
+                    CMS.getUserMessage(locale, "CMS_PROFILE_INVALID_REQUEST"), e);
+        }
+    }
+
+    public static CertificateSubjectName getCMCSigningCertSNfromCertSerial(
+            String certSerial) throws Exception {
+        X509CertImpl userCert = getCMCSigningCertFromCertSerial(certSerial);
+
+        if (userCert != null) {
+            return userCert.getSubjectObj();
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * getCMCSigningCertFromCertSerial is to be used when authentication
+     * was done with CMCUserSignedAuth where the resulting
+     * authToken contains
+     * IAuthManager.CRED_CMC_SIGNING_CERT, serial number
+     * This method takes the serial number
+     * and finds the cert from the CA's certdb
+     */
+    public static X509CertImpl getCMCSigningCertFromCertSerial(
+            String certSerial) throws Exception {
+        String method = "EnrollProfile: getCMCSigningCertFromCertSerial: ";
+        String msg = "";
+
+        X509CertImpl userCert = null;
+
+        if (certSerial == null || certSerial.equals("")) {
+            msg = method + "certSerial empty";
+            CMS.debug(msg);
+            throw new Exception(msg);
+        }
+
+        // for CMCUserSignedAuth, the signing user is the subject of
+        // the new cert
+        ICertificateAuthority authority = (ICertificateAuthority) CMS.getSubsystem(CMS.SUBSYSTEM_CA);
+        try {
+            BigInteger serialNo = new BigInteger(certSerial);
+            userCert = authority.getCertificateRepository().getX509Certificate(serialNo);
+        } catch (NumberFormatException e) {
+            msg = method + e;
+            CMS.debug(msg);
+            throw new Exception(msg);
+        } catch (EBaseException e) {
+            msg = method + e + "; signing user cert not found: serial=" + certSerial;
+            CMS.debug(msg);
+            throw new Exception(msg);
+        }
+
+        if (userCert != null) {
+            msg = method + "signing user cert found; serial=" + certSerial;
+            CMS.debug(msg);
+        } else {
+            msg = method + "signing user cert not found: serial=" + certSerial;
+            CMS.debug(msg);
+            throw new Exception(msg);
+        }
+
+        return userCert;
+    }
+
+    /*
+     * parseCMC
+     * @throws EProfileException in case of error
+     *   note: returing "null" doesn't mean failure
+     */
+    public TaggedRequest[] parseCMC(Locale locale, String certreq)
+            throws EProfileException {
+        return parseCMC(locale, certreq, false);
+    }
+    public TaggedRequest[] parseCMC(Locale locale, String certreq, boolean donePOI)
+            throws EProfileException {
+
+        String method = "EnrollProfile: parseCMC: ";
+        String msg = ""; // for capturing debug and throw info
+        //CMS.debug(method + " Start parseCMC(): " + certreq);
+        CMS.debug(method + "starts");
+
+        /* cert request must not be null */
+        if (certreq == null) {
+            msg = method + "certreq null";
+            CMS.debug(msg);
+            throw new EProfileException(
+                    CMS.getUserMessage(locale, "CMS_PROFILE_INVALID_REQUEST") +
+                            msg);
+        }
+
+        TaggedRequest msgs[] = null;
+        try {
+            PKIData pkiData = getPKIDataFromCMCblob(locale, certreq);
             SEQUENCE controlSeq = pkiData.getControlSequence();
             int numcontrols = controlSeq.size();
             SEQUENCE reqSeq = pkiData.getReqSequence();
@@ -571,6 +676,7 @@ public abstract class EnrollProfile extends BasicProfile
             UTF8String ident_s = null;
             SessionContext context = SessionContext.getContext();
             if (!context.containsKey("numOfControls")) {
+                CMS.debug(method + "numcontrols="+ numcontrols);
                 if (numcontrols > 0) {
                     context.put("numOfControls", Integer.valueOf(numcontrols));
                     TaggedAttribute[] attributes = new TaggedAttribute[numcontrols];
@@ -587,56 +693,45 @@ public abstract class EnrollProfile extends BasicProfile
                     boolean id_cmc_idPOPLinkRandom = false;
                     SET vals = null;
 
+                    /**
+                     * pre-process all controls --
+                     * the postponed processing is so that we can capture
+                     * the identification, if included
+                     */
+                    CMS.debug(method + "about to pre-process controls");
                     for (int i = 0; i < numcontrols; i++) {
                         attributes[i] = (TaggedAttribute) controlSeq.elementAt(i);
                         OBJECT_IDENTIFIER oid = attributes[i].getType();
                         if (oid.equals(OBJECT_IDENTIFIER.id_cmc_decryptedPOP)) {
-                            CMS.debug(method + " decryptedPOP found");
+                            CMS.debug(method + " id_cmc_decryptedPOP found");
                             id_cmc_decryptedPOP = true;
                             decPopVals = attributes[i].getValues();
                         } else if (oid.equals(OBJECT_IDENTIFIER.id_cmc_identification)) {
+                            CMS.debug(method + " id_cmc_identification found");
                             id_cmc_identification = true;
                             ident = attributes[i].getValues();
                         } else if (oid.equals(OBJECT_IDENTIFIER.id_cmc_identityProofV2)) {
+                            CMS.debug(method + " id_cmc_identityProofV2 found");
                             id_cmc_identityProofV2 = true;
                             attr = attributes[i];
                         } else if (oid.equals(OBJECT_IDENTIFIER.id_cmc_identityProof)) {
+                            CMS.debug(method + " id_cmc_identityProof found");
                             id_cmc_identityProof = true;
                             attr = attributes[i];
                         } else if (oid.equals(OBJECT_IDENTIFIER.id_cmc_idPOPLinkRandom)) {
-                            CMS.debug(method + "id_cmc_idPOPLinkRandom true");
+                            CMS.debug(method + "id_cmc_idPOPLinkRandom found");
                             id_cmc_idPOPLinkRandom = true;
                             vals = attributes[i].getValues();
                         } else {
+                            CMS.debug(method + "unknown control found");
                             context.put(attributes[i].getType(), attributes[i]);
                         }
                     } //for
 
                     /**
                      * now do the actual control processing
-                     * (the postponed processing is so that we can capture
-                     * the identification, if included)
                      */
-
-                    if (id_cmc_decryptedPOP) {
-                        if (decPopVals != null) {
-
-                            DecryptedPOP decPop = (DecryptedPOP) (ASN1Util.decode(DecryptedPOP.getTemplate(),
-                                    ASN1Util.encode(decPopVals.elementAt(0))));
-                            CMS.debug(method + "DecryptedPOP encoded");
-
-                            Integer reqId = verifyDecryptedPOP(locale, decPop);
-                            if (reqId != null) {
-                                context.put("decryptedPopReqId", reqId);
-                            }
-                        } else { //decPopVals == null
-                            msg = "id_cmc_decryptedPOP contains invalid DecryptedPOP";
-                            CMS.debug(method + msg);
-                            SEQUENCE bpids = getRequestBpids(reqSeq);
-                            context.put("decryptedPOP", bpids);
-                        }
-                        return null;
-                    }
+                    CMS.debug(method + "processing controls...");
 
                     if (id_cmc_identification) {
                         if (ident == null) {
@@ -666,8 +761,22 @@ public abstract class EnrollProfile extends BasicProfile
                         }
                     }
 
-                    // either V2 or not V2; can't be both
-                    if (id_cmc_identityProofV2 && (attr != null)) {
+                    // checking Proof Of Identity, if not pre-signed
+
+                    if (donePOI) {
+                        // for logging purposes
+                        if (id_cmc_identityProofV2) {
+                            CMS.debug(method
+                                    + "pre-signed CMC request, but id_cmc_identityProofV2 found...ignore; no further proof of identification check");
+                        } else if (id_cmc_identityProof) {
+                            CMS.debug(method
+                                    + "pre-signed CMC request, but id_cmc_identityProof found...ignore; no further proof of identification check");
+                        } else {
+                            CMS.debug(method + "pre-signed CMC request; no further proof of identification check");
+                        }
+                    } else if (id_cmc_identityProofV2 && (attr != null)) {
+                        // either V2 or not V2; can't be both
+                        CMS.debug(method + "not pre-signed CMC request; calling verifyIdentityProofV2;");
                         if (!id_cmc_identification) {
                             SEQUENCE bpids = getRequestBpids(reqSeq);
                             context.put("identification", bpids);
@@ -685,23 +794,57 @@ public abstract class EnrollProfile extends BasicProfile
                             SEQUENCE bpids = getRequestBpids(reqSeq);
                             context.put("identityProofV2", bpids);
 
-                            msg = " in verifyIdentityProofV2";
+                            msg = " after verifyIdentityProofV2";
                             CMS.debug(method + msg);
                             throw new EProfileException(CMS.getUserMessage(locale,
-                                    "CMS_POI_VERIFICATION_ERROR")+ msg);
+                                    "CMS_POI_VERIFICATION_ERROR") + msg);
+                        } else {
+                            CMS.debug(method + "passed verifyIdentityProofV2; Proof of Identity successful;");
                         }
                     } else if (id_cmc_identityProof && (attr != null)) {
+                        CMS.debug(method + "not pre-signed CMC request; calling verifyIdentityProof;");
                         boolean valid = verifyIdentityProof(attr,
                                 reqSeq);
                         if (!valid) {
                             SEQUENCE bpids = getRequestBpids(reqSeq);
                             context.put("identityProof", bpids);
 
-                            msg = " in verifyIdentityProof";
+                            msg = " after verifyIdentityProof";
                             CMS.debug(method + msg);
                             throw new EProfileException(CMS.getUserMessage(locale,
-                                    "CMS_POI_VERIFICATION_ERROR")+ msg);
+                                    "CMS_POI_VERIFICATION_ERROR") + msg);
+                        } else {
+                            CMS.debug(method + "passed verifyIdentityProof; Proof of Identity successful;");
                         }
+                    } else {
+                        msg = "not pre-signed CMC request; missing Proof of Identification control";
+                        CMS.debug(method + msg);
+                        throw new EProfileException(CMS.getUserMessage(locale,
+                                "CMS_POI_VERIFICATION_ERROR") + ":" + method + msg);
+                    }
+
+                    if (id_cmc_decryptedPOP) {
+                        if (decPopVals != null) {
+
+                            DecryptedPOP decPop = (DecryptedPOP) (ASN1Util.decode(DecryptedPOP.getTemplate(),
+                                    ASN1Util.encode(decPopVals.elementAt(0))));
+                            CMS.debug(method + "DecryptedPOP encoded");
+
+                            Integer reqId = verifyDecryptedPOP(locale, decPop);
+                            if (reqId != null) {
+                                context.put("cmcDecryptedPopReqId", reqId);
+                            }
+                        } else { //decPopVals == null
+                            msg = "id_cmc_decryptedPOP contains invalid DecryptedPOP";
+                            CMS.debug(method + msg);
+                            SEQUENCE bpids = getRequestBpids(reqSeq);
+                            context.put("decryptedPOP", bpids);
+                        }
+
+                        // decryptedPOP is expected to return null;
+                        // POPLinkWitnessV2 would have to be checked in
+                        // round one, if required
+                        return null;
                     }
 
                     if (id_cmc_idPOPLinkRandom && vals != null) {
@@ -725,61 +868,65 @@ public abstract class EnrollProfile extends BasicProfile
                 }
             }
 
-            int nummsgs = reqSeq.size();
-            if (nummsgs > 0) {
+            /**
+             * in CS.cfg, cmc.popLinkWitnessRequired=true
+             * will enforce popLinkWitness (or V2);
+             */
+            boolean popLinkWitnessRequired = false;
+            try {
+                String configName = "cmc.popLinkWitnessRequired";
+                CMS.debug(method + "getting :" + configName);
+                popLinkWitnessRequired = CMS.getConfigStore().getBoolean(configName, false);
+            } catch (Exception e) {
+                // unlikely to get here
+                msg = method + " Failed to retrieve cmc.popLinkWitnessRequired";
+                CMS.debug(msg);
+                throw new EProfileException(method + msg);
+            }
 
+            int nummsgs = reqSeq.size();
+            if (!popLinkWitnessRequired) {
+                CMS.debug(method + "popLinkWitnessRequired false, skip check");
+            } else if (nummsgs > 0) {
+                CMS.debug(method + "cmc.popLinkWitnessRequired is true");
+                CMS.debug(method + "nummsgs =" + nummsgs);
                 msgs = new TaggedRequest[reqSeq.size()];
                 SEQUENCE bpids = new SEQUENCE();
-
-                /* TODO: add this in CS.cfg later: cmc.popLinkWitnessRequired=true
-                // enforce popLinkWitness (or V2)
-                boolean popLinkWitnessRequired = true;
-                try {
-                    String configName = "cmc.popLinkWitnessRequired";
-                    CMS.debug(method + "getting :" + configName);
-                    popLinkWitnessRequired = CMS.getConfigStore().getBoolean(configName, true);
-                    CMS.debug(method + "cmc.popLinkWitnessRequired is " + popLinkWitnessRequired);
-                } catch (Exception e) {
-                    // unlikely to get here
-                    msg = method + " Failed to retrieve cmc.popLinkWitnessRequired";
-                    CMS.debug(msg);
-                    throw new EProfileException(method + msg);
-                }
-*/
 
                 boolean valid = true;
                 for (int i = 0; i < nummsgs; i++) {
                     msgs[i] = (TaggedRequest) reqSeq.elementAt(i);
                     if (!context.containsKey("POPLinkWitnessV2") &&
                             !context.containsKey("POPLinkWitness")) {
-                        if (randomSeed != null) {
-                            // verifyPOPLinkWitness() will determine if this is
-                            // POPLinkWitnessV2 or POPLinkWitness
-                            // If failure, context is set in verifyPOPLinkWitness
-                            valid = verifyPOPLinkWitness(ident_s, randomSeed, msgs[i], bpids, context);
-                            if (valid == false) {
-                                if (context.containsKey("POPLinkWitnessV2"))
-                                    msg = " in POPLinkWitnessV2";
-                                else if (context.containsKey("POPLinkWitness"))
-                                    msg = " in POPLinkWitness";
-                                else
-                                    msg = " unspecified failure from verifyPOPLinkWitness";
-
-                                CMS.debug(method + msg);
-                                throw new EProfileException(CMS.getUserMessage(locale,
-                                        "MS_POP_LINK_WITNESS_VERIFICATION_ERROR")+ msg);
-                            }
-                        /* TODO: for next cmc ticket, eliminate the extra trip of parseCMC if possible, or figure a way out to bypass this on 2nd trip
-                        } else if (popLinkWitnessRequired == true) {
-                            //popLinkWitnessRequired == true, must have randomSeed
-                            CMS.debug(method + "popLinkWitness(V2) required; no randomSeed found");
+                        CMS.debug(method + "popLinkWitness(V2) required");
+                        if (randomSeed == null) {
+                            CMS.debug(method + "no randomSeed found");
                             context.put("POPLinkWitnessV2", bpids);
-                            return null;*/
-                        } //randomSeed != null
+                            return null;
+                        }
+
+                        // verifyPOPLinkWitness() will determine if this is
+                        // POPLinkWitnessV2 or POPLinkWitness
+                        // If failure, context is set in verifyPOPLinkWitness
+                        valid = verifyPOPLinkWitness(ident_s, randomSeed, msgs[i], bpids, context);
+                        if (valid == false) {
+                            if (context.containsKey("POPLinkWitnessV2"))
+                                msg = " in POPLinkWitnessV2";
+                            else if (context.containsKey("POPLinkWitness"))
+                                msg = " in POPLinkWitness";
+                            else
+                                msg = " unspecified failure from verifyPOPLinkWitness";
+
+                            CMS.debug(method + msg);
+                            throw new EProfileException(CMS.getUserMessage(locale,
+                                    "CMS_POP_LINK_WITNESS_VERIFICATION_ERROR") + msg);
+                        }
                     }
-                }
-            } else
+                } //for
+            } else {
+                CMS.debug(method + "nummsgs 0; returning...");
                 return null;
+            }
 
             CMS.debug(method + "ends");
             return msgs;
@@ -1398,6 +1545,9 @@ public abstract class EnrollProfile extends BasicProfile
     public void fillTaggedRequest(Locale locale, TaggedRequest tagreq, X509CertInfo info,
             IRequest req)
             throws EProfileException {
+        String auditMessage = null;
+        String auditSubjectID = auditSubjectID();
+
         String method = "EnrollProfile: fillTaggedRequest: ";
         CMS.debug(method + "begins");
         TaggedRequest.Type type = tagreq.getType();
@@ -1409,16 +1559,19 @@ public abstract class EnrollProfile extends BasicProfile
         }
 
         if (type.equals(TaggedRequest.PKCS10)) {
-            CMS.debug(method + " TaggedRequest type == pkcs10");
+            String methodPos = method + "PKCS10: ";
+            CMS.debug(methodPos + " TaggedRequest type == pkcs10");
             boolean sigver = true;
             boolean tokenSwitched = false;
             CryptoManager cm = null;
             CryptoToken signToken = null;
             CryptoToken savedToken = null;
             try {
+                // for PKCS10, "sigver" would provide the POP
                 sigver = CMS.getConfigStore().getBoolean("ca.requestVerify.enabled", true);
                 cm = CryptoManager.getInstance();
                 if (sigver == true) {
+                    CMS.debug(methodPos + "sigver true, POP is to be verified");
                     String tokenName =
                         CMS.getConfigStore().getString("ca.requestVerify.token", CryptoUtil.INTERNAL_TOKEN_NAME);
                     savedToken = cm.getThreadToken();
@@ -1427,6 +1580,12 @@ public abstract class EnrollProfile extends BasicProfile
                         cm.setThreadToken(signToken);
                         tokenSwitched = true;
                     }
+                } else {
+                    // normally, you would not get here, as you almost always
+                    // would want to verify the PKCS10 signature when it's
+                    // already there instead of taking a 2nd trip
+                    CMS.debug(methodPos + "sigver false, POP is not to be verified now, but instead will be challenged");
+                    req.setExtData("cmc_POPchallengeRequired", "true");
                 }
 
                 TaggedCertificationRequest tcr = tagreq.getTcr();
@@ -1440,13 +1599,17 @@ public abstract class EnrollProfile extends BasicProfile
                 fillPKCS10(locale, pkcs10, info, req);
             } catch (Exception e) {
                 CMS.debug(method + e);
+                // this will throw
+                popFailed(locale, auditSubjectID, auditMessage, e);
             }  finally {
                 if ((sigver == true) && (tokenSwitched == true)){
                     cm.setThreadToken(savedToken);
                 }
             }
+            CMS.debug(methodPos + "done");
         } else if (type.equals(TaggedRequest.CRMF)) {
-            CMS.debug(method + " TaggedRequest type == crmf");
+            String methodPos = method + "CRMF: ";
+            CMS.debug(methodPos + " TaggedRequest type == crmf");
             CertReqMsg crm = tagreq.getCrm();
             SessionContext context = SessionContext.getContext();
             Integer nums = (Integer) (context.get("numOfControls"));
@@ -1454,12 +1617,12 @@ public abstract class EnrollProfile extends BasicProfile
             boolean verifyAllow = false; //disable RA by default
             try {
                 String configName = "cmc.lraPopWitness.verify.allow";
-                CMS.debug(method + "getting :" + configName);
+                CMS.debug(methodPos + "getting :" + configName);
                 verifyAllow = CMS.getConfigStore().getBoolean(configName, false);
-                CMS.debug(method + "cmc.lraPopWitness.verify.allow is " + verifyAllow);
+                CMS.debug(methodPos + "cmc.lraPopWitness.verify.allow is " + verifyAllow);
             } catch (Exception e) {
                 // unlikely to get here
-                String msg = method + " Failed to retrieve cmc.lraPopWitness.verify.allow";
+                String msg = methodPos + " Failed to retrieve cmc.lraPopWitness.verify.allow";
                 CMS.debug(msg);
                 throw new EProfileException(method + msg);
             }
@@ -1471,23 +1634,23 @@ public abstract class EnrollProfile extends BasicProfile
                         parseLRAPopWitness(locale, crm, attr);
                     } else {
                         CMS.debug(
-                                method + " verify POP in CMC because LRA POP Witness control attribute doesnt exist in the CMC request.");
+                                methodPos + " verify POP in CMC because LRA POP Witness control attribute doesnt exist in the CMC request.");
                         if (crm.hasPop()) {
-                            CMS.debug(method + " hasPop true");
+                            CMS.debug(methodPos + " hasPop true");
                             verifyPOP(locale, crm);
                         } else { // no signing POP, then do it the hard way
-                            CMS.debug(method + "hasPop false, need to challenge");
+                            CMS.debug(methodPos + "hasPop false, need to challenge");
                             req.setExtData("cmc_POPchallengeRequired", "true");
                         }
                     }
                 } else {
                     CMS.debug(
-                            method + " verify POP in CMC because LRA POP Witness control attribute doesnt exist in the CMC request.");
+                            methodPos + " verify POP in CMC because LRA POP Witness control attribute doesnt exist in the CMC request.");
                     if (crm.hasPop()) {
-                        CMS.debug(method + " hasPop true");
+                        CMS.debug(methodPos + " hasPop true");
                         verifyPOP(locale, crm);
                     } else { // no signing POP, then do it the hard way
-                        CMS.debug(method + "hasPop false, need to challenge");
+                        CMS.debug(methodPos + "hasPop false, need to challenge");
                         req.setExtData("cmc_POPchallengeRequired", "true");
                     }
                 }
@@ -1495,10 +1658,10 @@ public abstract class EnrollProfile extends BasicProfile
             } else { //!verifyAllow
 
                 if (crm.hasPop()) {
-                    CMS.debug(method + " hasPop true");
+                    CMS.debug(methodPos + " hasPop true");
                     verifyPOP(locale, crm);
                 } else { // no signing POP, then do it the hard way
-                    CMS.debug(method + "hasPop false, need to challenge");
+                    CMS.debug(methodPos + "hasPop false, need to challenge");
                     req.setExtData("cmc_POPchallengeRequired", "true");
                 }
             }
@@ -1835,6 +1998,8 @@ public abstract class EnrollProfile extends BasicProfile
 
     public void fillPKCS10(Locale locale, PKCS10 pkcs10, X509CertInfo info, IRequest req)
             throws EProfileException {
+        String method = "EnrollProfile: fillPKCS10: ";
+        CMS.debug(method + "begins");
         X509Key key = pkcs10.getSubjectPublicKeyInfo();
 
         try {
@@ -1869,7 +2034,7 @@ public abstract class EnrollProfile extends BasicProfile
                 PKCS10Attribute p10Attr = p10Attrs.getAttribute(CertificateExtensions.NAME);
                 if (p10Attr != null && p10Attr.getAttributeId().equals(
                         PKCS9Attribute.EXTENSION_REQUEST_OID)) {
-                    CMS.debug("Found PKCS10 extension");
+                    CMS.debug(method + "Found PKCS10 extension");
                     Extensions exts0 = (Extensions)
                             (p10Attr.getAttributeValue());
                     DerOutputStream extOut = new DerOutputStream();
@@ -1879,24 +2044,22 @@ public abstract class EnrollProfile extends BasicProfile
                     DerInputStream extIn = new DerInputStream(extB);
                     CertificateExtensions exts = new CertificateExtensions(extIn);
                     if (exts != null) {
-                        CMS.debug("Set extensions " + exts);
+                        CMS.debug(method + "Set extensions " + exts);
                         // info.set(X509CertInfo.EXTENSIONS, exts);
                         req.setExtData(REQUEST_EXTENSIONS, exts);
                     }
                 } else {
-                    CMS.debug("PKCS10 extension Not Found");
+                    CMS.debug(method + "PKCS10 extension Not Found");
                 }
             }
 
-            CMS.debug("Finish parsePKCS10 - " + pkcs10.getSubjectName());
+            CMS.debug(method + "Finish parsePKCS10 - " + pkcs10.getSubjectName());
         } catch (IOException e) {
-            CMS.debug("EnrollProfile: Unable to fill PKCS #10: " + e);
-            CMS.debug(e);
+            CMS.debug(method + "Unable to fill PKCS #10: " + e);
             throw new EProfileException(
                     CMS.getUserMessage(locale, "CMS_PROFILE_INVALID_REQUEST"), e);
         } catch (CertificateException e) {
-            CMS.debug("EnrollProfile: Unable to fill PKCS #10: " + e);
-            CMS.debug(e);
+            CMS.debug(method + "Unable to fill PKCS #10: " + e);
             throw new EProfileException(
                     CMS.getUserMessage(locale, "CMS_PROFILE_INVALID_REQUEST"), e);
         }
@@ -2074,8 +2237,11 @@ public abstract class EnrollProfile extends BasicProfile
 
     public void populate(IRequest request)
             throws EProfileException {
-        super.populate(request);
 
+        String method = "EnrollProfile: populate: ";
+        CMS.debug(method + "begins");
+
+        super.populate(request);
     }
 
     /**
@@ -2240,7 +2406,7 @@ public abstract class EnrollProfile extends BasicProfile
     public void verifyPOP(Locale locale, CertReqMsg certReqMsg)
             throws EProfileException {
         String method = "EnrollProfile: verifyPOP: ";
-        CMS.debug(method + "for signing keys");
+        CMS.debug(method + "for signing keys begins.");
 
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
@@ -2261,10 +2427,10 @@ public abstract class EnrollProfile extends BasicProfile
             CryptoToken verifyToken = null;
             String tokenName = CMS.getConfigStore().getString("ca.requestVerify.token", CryptoUtil.INTERNAL_TOKEN_NAME);
             if (CryptoUtil.isInternalToken(tokenName)) {
-                CMS.debug("POP verification using internal token");
+                CMS.debug(method + "POP verification using internal token");
                 certReqMsg.verify();
             } else {
-                CMS.debug("POP verification using token:" + tokenName);
+                CMS.debug(method + "POP verification using token:" + tokenName);
                 verifyToken = CryptoUtil.getCryptoToken(tokenName);
                 certReqMsg.verify(verifyToken);
             }
@@ -2279,7 +2445,7 @@ public abstract class EnrollProfile extends BasicProfile
             CMS.debug(method + "Unable to verify POP: " + e);
             popFailed(locale, auditSubjectID, auditMessage, e);
         }
-        CMS.debug(method + "ends.");
+        CMS.debug(method + "done.");
     }
 
     private void popFailed(Locale locale, String auditSubjectID, String auditMessage)

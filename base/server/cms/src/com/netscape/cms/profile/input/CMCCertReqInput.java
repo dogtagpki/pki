@@ -21,6 +21,8 @@ import java.util.Locale;
 
 import netscape.security.x509.X509CertInfo;
 
+import org.mozilla.jss.asn1.SEQUENCE;
+import org.mozilla.jss.pkix.cmc.PKIData;
 import org.mozilla.jss.pkix.cmc.TaggedRequest;
 
 import com.netscape.certsrv.apps.CMS;
@@ -85,19 +87,32 @@ public class CMCCertReqInput extends EnrollInput implements IProfileInput {
      */
     public void populate(IProfileContext ctx, IRequest request)
             throws EProfileException {
+        String method = "CMCCertReqInput: populate: ";
+        CMS.debug(method + "begins");
+
         String cert_request = ctx.get(VAL_CERT_REQUEST);
         X509CertInfo info =
                 request.getExtDataInCertInfo(EnrollProfile.REQUEST_CERTINFO);
 
         if (cert_request == null) {
-            CMS.debug("CMCCertReqInput: populate - invalid certificate request");
+            CMS.debug(method + "invalid certificate request");
             throw new EProfileException(CMS.getUserMessage(
                         getLocale(request), "CMS_PROFILE_NO_CERT_REQ"));
         }
-        TaggedRequest msgs[] = mEnrollProfile.parseCMC(getLocale(request), cert_request);
+        // cfu: getPKIDataFromCMCblob() is extracted from parseCMC
+        // so it's less confusing
+        //TaggedRequest msgs[] = mEnrollProfile.parseCMC(getLocale(request), cert_request);
+        PKIData pkiData = mEnrollProfile.getPKIDataFromCMCblob(getLocale(request), cert_request);
+        SEQUENCE reqSeq = pkiData.getReqSequence();
+        int nummsgs = reqSeq.size(); // for now we only handle one anyways
+        CMS.debug(method + "pkiData.getReqSequence() called; nummsgs =" + nummsgs);
+        TaggedRequest[] msgs = new TaggedRequest[reqSeq.size()];
+        for (int i = 0; i < nummsgs; i++) {
+            msgs[i] = (TaggedRequest) reqSeq.elementAt(i);
+        }
 
         if (msgs == null) {
-            CMS.debug("CMCCertReqInput: populate - parseCMC returns null TaggedRequest msgs");
+            CMS.debug(method + "TaggedRequest msgs null after getPKIDataFromCMCblob");
             return;
         }
         // This profile only handle the first request in CRMF
