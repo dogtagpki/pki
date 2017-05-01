@@ -20,7 +20,6 @@ package com.netscape.kra;
 import java.math.BigInteger;
 import java.security.KeyPair;
 
-import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.KeyPairGeneratorSpi;
 import org.mozilla.jss.crypto.PrivateKey;
 
@@ -68,7 +67,7 @@ public class AsymKeyGenService implements IService {
 
     @Override
     public boolean serviceRequest(IRequest request) throws EBaseException {
-        IConfigStore cs = CMS.getConfigStore();
+        IConfigStore configStore = CMS.getConfigStore();
         String clientKeyId = request.getExtDataInString(IRequest.SECURITY_DATA_CLIENT_KEY_ID);
         String algorithm = request.getExtDataInString(IRequest.KEY_GEN_ALGORITHM);
 
@@ -77,7 +76,7 @@ public class AsymKeyGenService implements IService {
 
         String realm = request.getRealm();
 
-        boolean allowEncDecrypt_archival = cs.getBoolean("kra.allowEncDecrypt.archival", false);
+        boolean allowEncDecrypt_archival = configStore.getBoolean("kra.allowEncDecrypt.archival", false);
 
         KeyPairGeneratorSpi.Usage[] usageList = null;
         String usageStr = request.getExtDataInString(IRequest.KEY_GEN_USAGES);
@@ -130,9 +129,6 @@ public class AsymKeyGenService implements IService {
         String owner = request.getExtDataInString(IRequest.ATTR_REQUEST_OWNER);
         String auditSubjectID = owner;
 
-        // Get the token
-        CryptoToken token = kra.getKeygenToken();
-
         // Generating the asymmetric keys
         KeyPair kp = null;
 
@@ -162,8 +158,7 @@ public class AsymKeyGenService implements IService {
         WrappingParams params = null;
 
         try {
-            // TODO(alee) What happens if key wrap algorithm is not supported?
-            params = storageUnit.getWrappingParams();
+            params = storageUnit.getWrappingParams(allowEncDecrypt_archival);
             privateSecurityData = storageUnit.wrap((PrivateKey) kp.getPrivate(), params);
         } catch (Exception e) {
             CMS.debug("Failed to generate security data to archive: " + e);
@@ -200,7 +195,7 @@ public class AsymKeyGenService implements IService {
         }
 
         try {
-            record.setWrappingParams(params, false);
+            record.setWrappingParams(params, allowEncDecrypt_archival);
         } catch (Exception e) {
             auditAsymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
                     clientKeyId, null, "Failed to store wrapping params");

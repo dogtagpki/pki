@@ -29,6 +29,7 @@ import org.mozilla.jss.crypto.SymmetricKey;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.key.KeyRequestResource;
@@ -107,6 +108,9 @@ public class SymKeyGenService implements IService {
             throw new EBaseException("Bad data in SymKeyGenService.serviceRequest");
         }
 
+        IConfigStore configStore = CMS.getConfigStore();
+        boolean allowEncDecrypt_archival = configStore.getBoolean("kra.allowEncDecrypt.archival", false);
+
         CryptoToken token = mStorageUnit.getToken();
         KeyGenAlgorithm kgAlg = KeyRequestDAO.SYMKEY_GEN_ALGORITHMS.get(algorithm);
         if (kgAlg == null) {
@@ -170,8 +174,7 @@ public class SymKeyGenService implements IService {
         }
 
         try {
-            // TODO(alee) what happens if key wrap algorithm is not supported?
-            params = mStorageUnit.getWrappingParams();
+            params = mStorageUnit.getWrappingParams(allowEncDecrypt_archival);
             privateSecurityData = mStorageUnit.wrap(sk, params);
         } catch (Exception e) {
             CMS.debug("Failed to generate security data to archive: " + e);
@@ -216,7 +219,7 @@ public class SymKeyGenService implements IService {
         }
 
         try {
-            rec.setWrappingParams(params, false);
+            rec.setWrappingParams(params, allowEncDecrypt_archival);
         } catch (Exception e) {
             mKRA.log(ILogger.LL_FAILURE,
                     "Failed to store wrapping parameters: " + e);

@@ -41,6 +41,7 @@ import org.mozilla.jss.util.Base64OutputStream;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
@@ -154,6 +155,9 @@ public class NetkeyKeygenService implements IService {
         }
 
         IVParameterSpec algParam = new IVParameterSpec(iv);
+
+        IConfigStore configStore = CMS.getConfigStore();
+        boolean allowEncDecrypt_archival = configStore.getBoolean("kra.allowEncDecrypt.archival", false);
 
         wrapped_des_key = null;
         boolean archive = true;
@@ -405,8 +409,7 @@ public class NetkeyKeygenService implements IService {
                     WrappingParams params = null;
 
                     try {
-                        // TODO(alee)  What happens if key wrap algorithm is not supported?
-                        params = mStorageUnit.getWrappingParams();
+                        params = mStorageUnit.getWrappingParams(allowEncDecrypt_archival);
                         privateKeyData = mStorageUnit.wrap((org.mozilla.jss.crypto.PrivateKey) privKey, params);
                     } catch (Exception e) {
                         request.setExtData(IRequest.RESULT, Integer.valueOf(4));
@@ -478,7 +481,7 @@ public class NetkeyKeygenService implements IService {
                         return false;
                     }
 
-                    rec.setWrappingParams(params, false);
+                    rec.setWrappingParams(params, allowEncDecrypt_archival);
 
                     CMS.debug("NetkeyKeygenService: before addKeyRecord");
                     rec.set(KeyRecord.ATTR_ID, serialNo);
