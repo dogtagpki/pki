@@ -174,4 +174,10 @@ public interface IStorageKeyUnit extends IEncryptionUnit {
     public PrivateKey unwrap(byte privateKey[], PublicKey pubKey, boolean temporary,
             WrappingParams params) throws Exception;
 
+    /**
+     * Get the wrapping parameters for this storage unit
+     *
+     */
+    public WrappingParams getWrappingParams(boolean encrypt) throws Exception;
+
 }
