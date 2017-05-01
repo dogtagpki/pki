@@ -217,7 +217,7 @@ public class SecurityDataProcessor {
         boolean doEncrypt = false;
 
         try {
-            params = storageUnit.getWrappingParams();
+            params = storageUnit.getWrappingParams(allowEncDecrypt_archival);
             if (securitySymKey != null && unwrapped == null) {
                 privateSecurityData = storageUnit.wrap(securitySymKey, params);
             } else if (unwrapped != null && allowEncDecrypt_archival == true) {

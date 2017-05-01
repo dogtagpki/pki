@@ -115,10 +115,6 @@ public class TransportKeyUnit extends EncryptionUnit implements
         }
     }
 
-    public WrappingParams getWrappingParams() {
-        return getOldWrappingParams();
-    }
-
     public CryptoToken getInternalToken() {
         try {
             return CryptoManager.getInstance().getInternalKeyStorageToken();
