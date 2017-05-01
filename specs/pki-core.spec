@@ -65,7 +65,7 @@
 
 Name:             pki-core
 Version:          10.4.3
-Release:          1%{?dist}
+Release:          1.1%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -1391,6 +1391,9 @@ fi
 %endif # %{with server}
 
 %changelog
+* Mon May  1 2017 Dogtag Team <pki-devel@redhat.com> 10.4.3-1.1
+- Updated source version number to 10.4.3-1.1
+
 * Mon May  1 2017 Dogtag Team <pki-devel@redhat.com> 10.4.3-1
 - dogtagpki Pagure Issue #1359 - dogtag should support GSSAPI based auth in
   conjuction with FreeIPA (ftweedal)

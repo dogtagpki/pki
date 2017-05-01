@@ -1,6 +1,6 @@
 Name:             pki-console
 Version:          10.4.3
-Release:          1%{?dist}
+Release:          1.1%{?dist}
 Summary:          Certificate System - PKI Console
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -122,6 +122,9 @@ cd build
 
 
 %changelog
+* Mon May  1 2017 Dogtag Team <pki-devel@redhat.com> 10.4.3-1.1
+- Updated source version number to 10.4.3-1.1
+
 * Mon May  1 2017 Dogtag Team <pki-devel@redhat.com> 10.4.3-1
 - dogtagpki Pagure Issue #2643 - Session timeout for PKI console (edewata)
 - updated JSS dependencies
