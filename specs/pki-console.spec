@@ -1,5 +1,5 @@
 Name:             pki-console
-Version:          10.4.2
+Version:          10.4.3
 Release:          1%{?dist}
 Summary:          Certificate System - PKI Console
 URL:              http://pki.fedoraproject.org/
@@ -36,10 +36,10 @@ BuildRequires:    nss-devel >= 3.27.0
 BuildRequires:    junit
 BuildRequires:    jpackage-utils >= 1.7.5-10
 %if 0%{?rhel}
-BuildRequires:    jss >= 4.4.0-5
+BuildRequires:    jss >= 4.4.0-6
 %else
 %if 0%{?fedora} >= 25
-BuildRequires:    jss >= 4.4.1-2
+BuildRequires:    jss >= 4.4.2-1
 %else
 BuildRequires:    jss >= 4.2.6-44
 %endif
@@ -53,10 +53,10 @@ Requires:         pki-base-java >= %{pki_core_version}
 Requires:         pki-console-theme >= %{version}
 Requires:         jpackage-utils >= 1.7.5-10
 %if 0%{?rhel}
-Requires:         jss >= 4.4.0-5
+Requires:         jss >= 4.4.0-6
 %else
 %if 0%{?fedora} >= 25
-Requires:         jss >= 4.4.1-2
+Requires:         jss >= 4.4.2-1
 %else
 Requires:         jss >= 4.2.6-44
 %endif
@@ -122,6 +122,10 @@ cd build
 
 
 %changelog
+* Mon May  1 2017 Dogtag Team <pki-devel@redhat.com> 10.4.3-1
+- dogtagpki Pagure Issue #2643 - Session timeout for PKI console (edewata)
+- updated JSS dependencies
+
 * Mon Apr 17 2017 Dogtag Team <pki-devel@redhat.com> 10.4.2-1
 - Fixed pki_console_wrapper
 

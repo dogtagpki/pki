@@ -64,7 +64,7 @@
 %define pki_homedir /usr/share/pki
 
 Name:             pki-core
-Version:          10.4.2
+Version:          10.4.3
 Release:          1%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
@@ -175,10 +175,10 @@ BuildRequires:    python-ldap
 BuildRequires:    junit
 BuildRequires:    jpackage-utils >= 0:1.7.5-10
 %if 0%{?rhel}
-BuildRequires:    jss >= 4.4.0-5
+BuildRequires:    jss >= 4.4.0-6
 %else
 %if 0%{?fedora} >= 25
-BuildRequires:    jss >= 4.4.1-2
+BuildRequires:    jss >= 4.4.2-1
 %else
 BuildRequires:    jss >= 4.2.6-44
 %endif
@@ -334,10 +334,10 @@ Requires:         nss >= 3.27.0
 %endif
 Requires:         jpackage-utils >= 0:1.7.5-10
 %if 0%{?rhel}
-Requires:         jss >= 4.4.0-5
+Requires:         jss >= 4.4.0-6
 %else
 %if 0%{?fedora} >= 25
-Requires:         jss >= 4.4.1-2
+Requires:         jss >= 4.4.2-1
 %else
 Requires:         jss >= 4.2.6-44
 %endif
@@ -428,10 +428,10 @@ Requires:         slf4j-jdk14
 Requires:         javassist
 Requires:         jpackage-utils >= 0:1.7.5-10
 %if 0%{?rhel}
-Requires:         jss >= 4.4.0-5
+Requires:         jss >= 4.4.0-6
 %else
 %if 0%{?fedora} >= 25
-Requires:         jss >= 4.4.1-2
+Requires:         jss >= 4.4.2-1
 %else
 Requires:         jss >= 4.2.6-44
 %endif
@@ -1391,6 +1391,23 @@ fi
 %endif # %{with server}
 
 %changelog
+* Mon May  1 2017 Dogtag Team <pki-devel@redhat.com> 10.4.3-1
+- dogtagpki Pagure Issue #1359 - dogtag should support GSSAPI based auth in
+  conjuction with FreeIPA (ftweedal)
+- dogtagpki Pagure Issue #1408 - Key archival using AES (alee)
+- dogtagpki Pagure Issue #2520 - CA certificate profiles: the startTime
+  parameter is not working as expected. (jmagne)
+- dogtagpki Pagure Issue #2588 - profile modification cannot remove existing
+  config parameters (ftweedal)
+- dogtagpki Pagure Issue #2610 - PKCS12: upgrade to at least AES and SHA2
+  (ftweedal)
+- dogtagpki Pagure Issue #2617 - Allow CA to process pre-signed CMC
+  non-signing certificate requests (cfu)
+- dogtagpki Pagure Issue #2642 - Missing ClientIP and ServerIP in audit log
+  when pki CLI terminates SSL connection (edewata)
+- dogtagpki Pagure Issue #2643 - Session timeout for PKI console (edewata)
+- updated JSS dependencies
+
 * Mon Apr 17 2017 Dogtag Team <pki-devel@redhat.com> 10.4.2-1
 - dogtagpki Pagure Issue #1663 - Add SCP03 support for g&d sc 7 cards
   (jmagne)
