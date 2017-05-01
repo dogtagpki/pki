@@ -19,14 +19,10 @@ package com.netscape.kra;
 
 import java.math.BigInteger;
 import java.security.KeyPair;
-import java.security.NoSuchAlgorithmException;
 
 import org.mozilla.jss.crypto.CryptoToken;
-import org.mozilla.jss.crypto.KeyPairAlgorithm;
-import org.mozilla.jss.crypto.KeyPairGenerator;
 import org.mozilla.jss.crypto.KeyPairGeneratorSpi;
 import org.mozilla.jss.crypto.PrivateKey;
-import org.mozilla.jss.crypto.TokenException;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
@@ -42,7 +38,6 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.security.IStorageKeyUnit;
-import com.netscape.cms.servlet.key.KeyRequestDAO;
 import com.netscape.cmscore.dbs.KeyRecord;
 
 import netscape.security.util.WrappingParams;
@@ -132,8 +127,6 @@ public class AsymKeyGenService implements IService {
         CMS.debug("AsymKeyGenService.serviceRequest. Request id: " + request.getRequestId());
         CMS.debug("AsymKeyGenService.serviceRequest algorithm: " + algorithm);
 
-        KeyPairAlgorithm keyPairAlgorithm = KeyRequestDAO.ASYMKEY_GEN_ALGORITHMS.get(algorithm.toUpperCase());
-
         String owner = request.getExtDataInString(IRequest.ATTR_REQUEST_OWNER);
         String auditSubjectID = owner;
 
@@ -141,16 +134,18 @@ public class AsymKeyGenService implements IService {
         CryptoToken token = kra.getKeygenToken();
 
         // Generating the asymmetric keys
-        KeyPairGenerator keyPairGen = null;
         KeyPair kp = null;
 
         try {
-            keyPairGen = token.getKeyPairGenerator(keyPairAlgorithm);
-            keyPairGen.initialize(keySize);
-            if (usageList != null)
-                keyPairGen.setKeyPairUsages(usageList, usageList);
-            kp = keyPairGen.genKeyPair();
-        } catch (NoSuchAlgorithmException | TokenException e) {
+            kp = kra.generateKeyPair(
+                    algorithm.toUpperCase(),
+                    keySize,
+                    null, // keyCurve for ECC, not yet supported
+                    null, // PGP not yet supported
+                    usageList
+                 );
+
+        } catch (EBaseException e) {
             CMS.debugStackTrace();
             auditAsymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
                     clientKeyId, null, "Failed to generate Asymmetric key");
