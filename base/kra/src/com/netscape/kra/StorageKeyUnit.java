@@ -133,7 +133,7 @@ public class StorageKeyUnit extends EncryptionUnit implements
         throw new EBaseException(CMS.getUserMessage("CMS_INVALID_OPERATION"));
     }
 
-    public WrappingParams getWrappingParams() throws Exception {
+    public WrappingParams getWrappingParams(boolean encrypt) throws Exception {
         String choice = null;
         try {
             choice = mConfig.getString(PROP_WRAPPING_CHOICE);
@@ -176,6 +176,16 @@ public class StorageKeyUnit extends EncryptionUnit implements
                 config, KeyRecordParser.OUT_PL_WRAP_IV,
                 KeyRecordParser.OUT_PL_WRAP_IV_LEN);
         if (iv != null) params.setPayloadWrappingIV(new IVParameterSpec(iv));
+
+        if (encrypt) {
+            // Some HSMs have not yet implemented AES-KW.  Use AES-CBC-PAD instead
+            if (params.getPayloadWrapAlgorithm().equals(KeyWrapAlgorithm.AES_KEY_WRAP) ||
+                params.getPayloadWrapAlgorithm().equals(KeyWrapAlgorithm.AES_KEY_WRAP_PAD)) {
+                params.setPayloadWrapAlgorithm(KeyWrapAlgorithm.AES_CBC_PAD);
+                iv = CryptoUtil.getNonceData(16);
+                params.setPayloadWrappingIV(new IVParameterSpec(iv));
+            }
+        }
 
         return params;
     }
