@@ -177,6 +177,16 @@ public class StorageKeyUnit extends EncryptionUnit implements
                 KeyRecordParser.OUT_PL_WRAP_IV_LEN);
         if (iv != null) params.setPayloadWrappingIV(new IVParameterSpec(iv));
 
+        boolean allowEncDecrypt_archival = mStorageConfig.getBoolean(
+                "kra.allowEncDecrypt.archival", false);
+        if (allowEncDecrypt_archival) {
+            // Some HSMs have not yet implemented AES-KW.  Use AES-CBC-PAD instead
+            if (params.getPayloadWrapAlgorithm().equals(KeyWrapAlgorithm.AES_KEY_WRAP) ||
+                params.getPayloadWrapAlgorithm().equals(KeyWrapAlgorithm.AES_KEY_WRAP_PAD)) {
+                params.setPayloadWrapAlgorithm(KeyWrapAlgorithm.AES_CBC_PAD);
+            }
+        }
+
         return params;
     }
 

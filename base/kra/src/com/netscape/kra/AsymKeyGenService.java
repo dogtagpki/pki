@@ -20,7 +20,6 @@ package com.netscape.kra;
 import java.math.BigInteger;
 import java.security.KeyPair;
 
-import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.KeyPairGeneratorSpi;
 import org.mozilla.jss.crypto.PrivateKey;
 
@@ -77,8 +76,6 @@ public class AsymKeyGenService implements IService {
 
         String realm = request.getRealm();
 
-        boolean allowEncDecrypt_archival = cs.getBoolean("kra.allowEncDecrypt.archival", false);
-
         KeyPairGeneratorSpi.Usage[] usageList = null;
         String usageStr = request.getExtDataInString(IRequest.KEY_GEN_USAGES);
         if (usageStr != null) {
@@ -130,9 +127,6 @@ public class AsymKeyGenService implements IService {
         String owner = request.getExtDataInString(IRequest.ATTR_REQUEST_OWNER);
         String auditSubjectID = owner;
 
-        // Get the token
-        CryptoToken token = kra.getKeygenToken();
-
         // Generating the asymmetric keys
         KeyPair kp = null;
 
@@ -162,7 +156,6 @@ public class AsymKeyGenService implements IService {
         WrappingParams params = null;
 
         try {
-            // TODO(alee) What happens if key wrap algorithm is not supported?
             params = storageUnit.getWrappingParams();
             privateSecurityData = storageUnit.wrap((PrivateKey) kp.getPrivate(), params);
         } catch (Exception e) {

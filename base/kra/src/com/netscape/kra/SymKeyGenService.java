@@ -170,7 +170,6 @@ public class SymKeyGenService implements IService {
         }
 
         try {
-            // TODO(alee) what happens if key wrap algorithm is not supported?
             params = mStorageUnit.getWrappingParams();
             privateSecurityData = mStorageUnit.wrap(sk, params);
         } catch (Exception e) {

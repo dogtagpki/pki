@@ -405,7 +405,6 @@ public class NetkeyKeygenService implements IService {
                     WrappingParams params = null;
 
                     try {
-                        // TODO(alee)  What happens if key wrap algorithm is not supported?
                         params = mStorageUnit.getWrappingParams();
                         privateKeyData = mStorageUnit.wrap((org.mozilla.jss.crypto.PrivateKey) privKey, params);
                     } catch (Exception e) {
