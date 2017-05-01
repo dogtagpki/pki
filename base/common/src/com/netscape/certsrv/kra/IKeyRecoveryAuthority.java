@@ -17,12 +17,15 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.kra;
 
+import java.security.KeyPair;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
 import org.dogtagpki.legacy.policy.IPolicyProcessor;
 import org.mozilla.jss.crypto.CryptoToken;
+import org.mozilla.jss.crypto.KeyPairGeneratorSpi;
+import org.mozilla.jss.crypto.PQGParams;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ISubsystem;
@@ -337,4 +340,18 @@ public interface IKeyRecoveryAuthority extends ISubsystem {
      * @return
      */
     public boolean isRetrievalSynchronous(String realm);
+
+    /**
+     * Generate an asymmetric key pair.
+     *
+     * @param alg
+     * @param keySize
+     * @param keyCurve
+     * @param pqg
+     * @param usageList - RSA only for now
+     * @return key pair
+     * @throws EBaseException
+     */
+    public KeyPair generateKeyPair(String alg, int keySize, String keyCurve,
+            PQGParams pqg, KeyPairGeneratorSpi.Usage[] usageList) throws EBaseException;
 }

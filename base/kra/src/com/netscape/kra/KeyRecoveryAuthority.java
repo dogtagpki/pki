@@ -20,6 +20,10 @@ package com.netscape.kra;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidParameterException;
+import java.security.KeyPair;
+import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -32,6 +36,12 @@ import org.dogtagpki.legacy.kra.KRAPolicy;
 import org.dogtagpki.legacy.policy.IPolicyProcessor;
 import org.mozilla.jss.NoSuchTokenException;
 import org.mozilla.jss.crypto.CryptoToken;
+import org.mozilla.jss.crypto.KeyPairAlgorithm;
+import org.mozilla.jss.crypto.KeyPairGenerator;
+import org.mozilla.jss.crypto.KeyPairGeneratorSpi;
+import org.mozilla.jss.crypto.PQGParamGenException;
+import org.mozilla.jss.crypto.PQGParams;
+import org.mozilla.jss.crypto.TokenException;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authority.IAuthority;
@@ -1815,5 +1825,179 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         }
 
         return agents;
+    }
+
+    public KeyPair generateKeyPair(String alg, int keySize, String keyCurve,
+            PQGParams pqg, KeyPairGeneratorSpi.Usage[] usageList) throws EBaseException {
+        KeyPairAlgorithm kpAlg = null;
+
+        if (alg.equals("RSA"))
+            kpAlg = KeyPairAlgorithm.RSA;
+        else if (alg.equals("EC"))
+            kpAlg = KeyPairAlgorithm.EC;
+        else
+            kpAlg = KeyPairAlgorithm.DSA;
+
+        try {
+            KeyPair kp = generateKeyPair(kpAlg, keySize, keyCurve, pqg, usageList);
+
+            return kp;
+        } catch (InvalidParameterException e) {
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_KEYSIZE_PARAMS",
+                        "" + keySize));
+        } catch (PQGParamGenException e) {
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_PQG_GEN_FAILED"));
+        } catch (NoSuchAlgorithmException e) {
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_ALG_NOT_SUPPORTED",
+                        kpAlg.toString()));
+        } catch (TokenException e) {
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_TOKEN_ERROR_1", e.toString()));
+        } catch (InvalidAlgorithmParameterException e) {
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_ALG_NOT_SUPPORTED", "DSA"));
+        }
+    }
+
+    public KeyPair generateKeyPair(
+            KeyPairAlgorithm kpAlg, int keySize, String keyCurve, PQGParams pqg,
+            KeyPairGeneratorSpi.Usage[] usageList )
+            throws NoSuchAlgorithmException, TokenException, InvalidAlgorithmParameterException,
+            InvalidParameterException, PQGParamGenException {
+
+        CryptoToken token = getKeygenToken();
+
+        CMS.debug("NetkeyKeygenService: key pair is to be generated on slot: " + token.getName());
+
+        /*
+           make it temporary so can work with HSM
+           netHSM works with
+              temporary == true
+              sensitive == <do not specify>
+              extractable == <do not specify>
+           LunaSA2 works with
+              temporary == true
+              sensitive == true
+              extractable == true
+        */
+        KeyPairGenerator kpGen = token.getKeyPairGenerator(kpAlg);
+        IConfigStore config = CMS.getConfigStore();
+        IConfigStore kgConfig = config.getSubStore("kra.keygen");
+        boolean tp = false;
+        boolean sp = false;
+        boolean ep = false;
+        if ((kgConfig != null) && (!kgConfig.equals(""))) {
+            try {
+                tp = kgConfig.getBoolean("temporaryPairs", false);
+                sp = kgConfig.getBoolean("sensitivePairs", false);
+                ep = kgConfig.getBoolean("extractablePairs", false);
+                CMS.debug("NetkeyKeygenService: found config store: kra.keygen");
+                // by default, let nethsm work
+                if ((tp == false) && (sp == false) && (ep == false)) {
+                    if (kpAlg == KeyPairAlgorithm.EC) {
+                        // set to what works for nethsm
+                        tp = true;
+                        sp = false;
+                        ep = true;
+                    } else
+                        tp = true;
+                    }
+            } catch (Exception e) {
+                CMS.debug("NetkeyKeygenService: kgConfig.getBoolean failed");
+                // by default, let nethsm work
+                tp = true;
+            }
+        } else {
+            // by default, let nethsm work
+            CMS.debug("NetkeyKeygenService: cannot find config store: kra.keygen, assume temporaryPairs==true");
+            if (kpAlg == KeyPairAlgorithm.EC) {
+                // set to what works for nethsm
+                tp = true;
+                sp = false;
+                ep = true;
+            } else {
+                tp = true;
+            }
+        }
+
+        if (kpAlg == KeyPairAlgorithm.EC) {
+
+            boolean isECDHE = false;
+            KeyPair pair = null;
+
+            // used with isECDHE == true
+            org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage usages_mask_ECDSA[] = {
+                org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.DERIVE
+            };
+
+            // used with isECDHE == false
+            org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage usages_mask_ECDH[] = {
+                org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.SIGN,
+                org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.SIGN_RECOVER
+            };
+
+            try {
+                pair = CryptoUtil.generateECCKeyPair(token.getName(),
+                    keyCurve /*ECC_curve default*/,
+                    null,
+                    (isECDHE==true) ? usages_mask_ECDSA: usages_mask_ECDH,
+                    tp /*temporary*/, sp? 1:0 /*sensitive*/, ep? 1:0 /*extractable*/);
+                CMS.debug("NetkeyKeygenService: after key pair generation" );
+            } catch (Exception e) {
+                CMS.debug("NetkeyKeygenService: key pair generation with exception:"+e.toString());
+            }
+            return pair;
+
+        } else { // !EC
+            //only specified to "true" will it be set
+            if (tp == true) {
+                CMS.debug("NetkeyKeygenService: setting temporaryPairs to true");
+                kpGen.temporaryPairs(true);
+            }
+
+            if (sp == true) {
+                CMS.debug("NetkeyKeygenService: setting sensitivePairs to true");
+                kpGen.sensitivePairs(true);
+            }
+
+            if (ep == true) {
+                CMS.debug("NetkeyKeygenService: setting extractablePairs to true");
+                kpGen.extractablePairs(true);
+            }
+
+            if (kpAlg == KeyPairAlgorithm.DSA) {
+                if (pqg == null) {
+                    kpGen.initialize(keySize);
+                } else {
+                    kpGen.initialize(pqg);
+                }
+            } else {
+                kpGen.initialize(keySize);
+            }
+
+            if (usageList != null)
+                kpGen.setKeyPairUsages(usageList, usageList);
+
+            if (pqg == null) {
+                KeyPair kp = null;
+                synchronized (new Object()) {
+                    CMS.debug("NetkeyKeygenService: key pair generation begins");
+                    kp = kpGen.genKeyPair();
+                    CMS.debug("NetkeyKeygenService: key pair generation done");
+                    addEntropy(true);
+                }
+                return kp;
+            } else {
+                // DSA
+                KeyPair kp = null;
+
+                /* no DSA for now... netkey prototype
+                do {
+                    // 602548 NSS bug - to overcome it, we use isBadDSAKeyPair
+                    kp = kpGen.genKeyPair();
+                }
+                while (isBadDSAKeyPair(kp));
+                */
+                return kp;
+            }
+        }
     }
 }
