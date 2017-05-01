@@ -63,7 +63,5 @@ public interface IEncryptionUnit extends IToken {
             SymmetricKey.Usage usage, WrappingParams params) throws Exception;
 
 
-    public WrappingParams getWrappingParams() throws Exception;
-
     public WrappingParams getOldWrappingParams();
 }

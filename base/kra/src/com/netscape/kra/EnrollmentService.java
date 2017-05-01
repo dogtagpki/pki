@@ -396,7 +396,7 @@ public class EnrollmentService implements IService {
             WrappingParams params =  null;
 
             try {
-                params = mStorageUnit.getWrappingParams();
+                params = mStorageUnit.getWrappingParams(allowEncDecrypt_archival);
                 if (allowEncDecrypt_archival == true) {
                     privateKeyData = mStorageUnit.encryptInternalPrivate(unwrapped, params);
                 } else {
