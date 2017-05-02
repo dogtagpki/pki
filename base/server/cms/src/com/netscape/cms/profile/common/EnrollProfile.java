@@ -885,10 +885,7 @@ public abstract class EnrollProfile extends BasicProfile
             }
 
             int nummsgs = reqSeq.size();
-            if (!popLinkWitnessRequired) {
-                CMS.debug(method + "popLinkWitnessRequired false, skip check");
-            } else if (nummsgs > 0) {
-                CMS.debug(method + "cmc.popLinkWitnessRequired is true");
+            if (nummsgs > 0) {
                 CMS.debug(method + "nummsgs =" + nummsgs);
                 msgs = new TaggedRequest[reqSeq.size()];
                 SEQUENCE bpids = new SEQUENCE();
@@ -896,7 +893,8 @@ public abstract class EnrollProfile extends BasicProfile
                 boolean valid = true;
                 for (int i = 0; i < nummsgs; i++) {
                     msgs[i] = (TaggedRequest) reqSeq.elementAt(i);
-                    if (!context.containsKey("POPLinkWitnessV2") &&
+                    if (popLinkWitnessRequired &&
+                            !context.containsKey("POPLinkWitnessV2") &&
                             !context.containsKey("POPLinkWitness")) {
                         CMS.debug(method + "popLinkWitness(V2) required");
                         if (randomSeed == null) {
