@@ -18,25 +18,62 @@
 
 package org.dogtagpki.server.rest;
 
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+
 import javax.servlet.http.HttpSession;
 import javax.ws.rs.core.Response;
 
 import org.dogtagpki.common.CAInfo;
 import org.dogtagpki.common.CAInfoResource;
+import org.dogtagpki.common.KRAInfo;
+import org.dogtagpki.common.KRAInfoClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.PKIException;
+import com.netscape.certsrv.client.ClientConfig;
+import com.netscape.certsrv.client.PKIClient;
+import com.netscape.certsrv.system.KRAConnectorInfo;
+import com.netscape.cms.servlet.admin.KRAConnectorProcessor;
 import com.netscape.cms.servlet.base.PKIService;
 
 /**
  * @author Ade Lee
+ *
+ * This class returns CA info, including KRA-related values the CA
+ * clients may need to know (e.g. for generating a CRMF cert request
+ * that will cause keys to be archived in KRA).
+ *
+ * The KRA-related info is read from the KRAInfoService, which is
+ * queried according to the KRA Connector configuration.  After
+ * the KRAInfoService has been successfully contacted, the recorded
+ * KRA-related settings are regarded as authoritative.
+ *
+ * The KRA is contacted ONLY if the current info is NOT
+ * authoritative, otherwise the currently recorded values are used.
+ * This means that any change to relevant KRA configuration (which
+ * should occur seldom if ever) necessitates restart of the CA
+ * subsystem.
+ *
+ * If this is unsuccessful (e.g. if the KRA is down or the
+ * connector is misconfigured) we use the default values, which
+ * may be incorrect.
  */
 public class CAInfoService extends PKIService implements CAInfoResource {
 
     private static Logger logger = LoggerFactory.getLogger(InfoService.class);
+
+    // is the current KRA-related info authoritative?
+    private static boolean kraInfoAuthoritative = false;
+
+    // KRA-related fields (the initial values are only used if we
+    // did not yet receive authoritative info from KRA)
+    private static String archivalMechanism = KRAInfoService.KEYWRAP_MECHANISM;
+    private static String wrappingKeySet = "0";
 
     @Override
     public Response getInfo() throws Exception {
@@ -45,30 +82,102 @@ public class CAInfoService extends PKIService implements CAInfoResource {
         logger.debug("CAInfoService.getInfo(): session: " + session.getId());
 
         CAInfo info = new CAInfo();
-        String archivalMechanism = getArchivalMechanism();
 
-        if (archivalMechanism != null)
-            info.setArchivalMechanism(getArchivalMechanism());
-
-        info.setWrappingKeySet(getWrappingKeySet());
+        addKRAInfo(info);
 
         return createOKResponse(info);
     }
 
-    String getArchivalMechanism() throws EBaseException {
-        IConfigStore cs = CMS.getConfigStore();
-        boolean kra_present = cs.getBoolean("ca.connector.KRA.enable", false);
-        if (!kra_present) return null;
+    /**
+     * Add KRA fields if KRA is configured, querying the KRA
+     * if necessary.
+     *
+     * Apart from reading 'headers', this method doesn't access
+     * any instance data.
+     */
+    private void addKRAInfo(CAInfo info) {
+        KRAConnectorInfo connInfo = null;
+        try {
+            KRAConnectorProcessor processor =
+                new KRAConnectorProcessor(getLocale(headers));
+            connInfo = processor.getConnectorInfo();
+        } catch (Throwable e) {
+            // connInfo remains as null
+        }
+        boolean kraEnabled =
+            connInfo != null
+            && "true".equalsIgnoreCase(connInfo.getEnable());
 
-        boolean encrypt_archival = cs.getBoolean("kra.allowEncDecrypt.archival", false);
-        return encrypt_archival ? KRAInfoService.ENCRYPT_MECHANISM : KRAInfoService.KEYWRAP_MECHANISM;
+        if (kraEnabled) {
+            if (!kraInfoAuthoritative) {
+                // KRA is enabled but we are yet to successfully
+                // query the KRA-related info.  Do it now.
+                queryKRAInfo(connInfo);
+            }
+
+            info.setArchivalMechanism(archivalMechanism);
+            info.setWrappingKeySet(wrappingKeySet);
+        }
     }
 
-    String getWrappingKeySet() throws EBaseException {
-        IConfigStore cs = CMS.getConfigStore();
-        boolean kra_present = cs.getBoolean("ca.connector.KRA.enable", false);
-        if (!kra_present) return null;
+    private static void queryKRAInfo(KRAConnectorInfo connInfo) {
+        try {
+            KRAInfo kraInfo = getKRAInfoClient(connInfo).getInfo();
 
-        return cs.getString("kra.wrappingKeySet", "1");
+            archivalMechanism = kraInfo.getArchivalMechanism();
+
+            // request succeeded; the KRA is 10.4 or higher,
+            // therefore supports key set v1
+            wrappingKeySet = "1";
+
+            // mark info as authoritative
+            kraInfoAuthoritative = true;
+        } catch (PKIException e) {
+            if (e.getCode() == 404) {
+                // The KRAInfoResource was added in 10.4,
+                // so we are talking to a pre-10.4 KRA
+
+                // pre-10.4 only supports key set v0
+                wrappingKeySet = "0";
+
+                // pre-10.4 KRA does not advertise the archival
+                // mechanism; look for the old knob in CA's config
+                // or fall back to the default
+                IConfigStore cs = CMS.getConfigStore();
+                boolean encrypt_archival;
+                try {
+                    encrypt_archival = cs.getBoolean(
+                        "kra.allowEncDecrypt.archival", false);
+                } catch (EBaseException e1) {
+                    encrypt_archival = false;
+                }
+                archivalMechanism = encrypt_archival
+                    ? KRAInfoService.ENCRYPT_MECHANISM
+                    : KRAInfoService.KEYWRAP_MECHANISM;
+
+                // mark info as authoritative
+                kraInfoAuthoritative = true;
+            } else {
+                CMS.debug("Failed to retrieve archive wrapping information from the CA: " + e);
+                CMS.debug(e);
+            }
+        } catch (Throwable e) {
+            CMS.debug("Failed to retrieve archive wrapping information from the CA: " + e);
+            CMS.debug(e);
+        }
     }
+
+    /**
+     * Construct KRAInfoClient given KRAConnectorInfo
+     */
+    private static KRAInfoClient getKRAInfoClient(KRAConnectorInfo connInfo)
+            throws MalformedURLException, URISyntaxException, EBaseException {
+        ClientConfig config = new ClientConfig();
+        int port = Integer.parseInt(connInfo.getPort());
+        config.setServerURL("https", connInfo.getHost(), port);
+        config.setCertDatabase(
+            CMS.getConfigStore().getString("instanceRoot") + "/alias");
+        return new KRAInfoClient(new PKIClient(config), "kra");
+    }
+
 }
