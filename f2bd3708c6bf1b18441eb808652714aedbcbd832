@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "23ef46e8_b8573ad7",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1011000
+      },
+      "writtenOn": "2017-05-02T15:30:00Z",
+      "side": 1,
+      "message": "1408 was already closed; I\u0027m not sure if there was a\nseparate issue filed to deal with the CAInfoService\nbits... if not, should I file one and update the\ncommit msg?",
+      "range": {
+        "startLine": 28,
+        "startChar": 43,
+        "endLine": 28,
+        "endChar": 47
+      },
+      "revId": "f2bd3708c6bf1b18441eb808652714aedbcbd832",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1ed38182_979e009a",
+        "filename": "base/server/cms/src/org/dogtagpki/server/rest/CAInfoService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 1011000
+      },
+      "writtenOn": "2017-05-02T15:30:00Z",
+      "side": 1,
+      "message": "Are these defaults correct?\n\nIs it even correct to return them if we have not\nsuccessfully contacted the KRA, or would we be better off\nresponding 500, 502, 503 or something along those lines?",
+      "revId": "f2bd3708c6bf1b18441eb808652714aedbcbd832",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
