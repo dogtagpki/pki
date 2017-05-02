@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "1399611c_ac92ad44",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-05-02T17:01:57Z",
+      "side": 1,
+      "message": "Yes, open a separate issue.",
+      "parentUuid": "23ef46e8_b8573ad7",
+      "range": {
+        "startLine": 28,
+        "startChar": 43,
+        "endLine": 28,
+        "endChar": 47
+      },
+      "revId": "f2bd3708c6bf1b18441eb808652714aedbcbd832",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1ed38182_979e009a",
         "filename": "base/server/cms/src/org/dogtagpki/server/rest/CAInfoService.java",
         "patchSetId": 1
@@ -36,6 +60,24 @@
       "writtenOn": "2017-05-02T15:30:00Z",
       "side": 1,
       "message": "Are these defaults correct?\n\nIs it even correct to return them if we have not\nsuccessfully contacted the KRA, or would we be better off\nresponding 500, 502, 503 or something along those lines?",
+      "revId": "f2bd3708c6bf1b18441eb808652714aedbcbd832",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9c9f3a6d_49e4e1fb",
+        "filename": "base/server/cms/src/org/dogtagpki/server/rest/CAInfoService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-05-02T17:01:57Z",
+      "side": 1,
+      "message": "If you have a new CA still connected to an old KRA (remember that the CA and KRA can be in different instances and different machines), then we will fail to retrieve InfoResource or KRAInfoResource because they do not exist.\n\nIn that case, we should return the above defaults.\n\nIf we cannot contact the KRA at all, then potentially we should return 50X -- but that means testing and being much more careful about the exception handling for the http return.",
+      "parentUuid": "1ed38182_979e009a",
       "revId": "f2bd3708c6bf1b18441eb808652714aedbcbd832",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
