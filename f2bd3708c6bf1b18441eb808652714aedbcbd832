@@ -81,6 +81,70 @@
       "revId": "f2bd3708c6bf1b18441eb808652714aedbcbd832",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "003bcfd8_1cd7160d",
+        "filename": "base/server/cms/src/org/dogtagpki/server/rest/CAInfoService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-05-02T19:44:05Z",
+      "side": 1,
+      "message": "Actually,  I\u0027m going to amend what I said earlier a bit.\nIf we cannot contact the KRA at all, then we should return the above defaults rather than 5XX.  Why?  Because the defaults are what used to -- and continues to work.  The 3DES key set should work no matter what version of KRA you have.\n\nBecause it is possible to generate cert requests that can be acted on later by an agent, we should not return 500 when the KRA is not available.",
+      "parentUuid": "9c9f3a6d_49e4e1fb",
+      "revId": "f2bd3708c6bf1b18441eb808652714aedbcbd832",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "06215364_23c28fff",
+        "filename": "base/server/cms/src/org/dogtagpki/server/rest/CAInfoService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-05-02T19:44:05Z",
+      "side": 1,
+      "message": "Its more than likely that CAInfo will be extended later to provide other information as well.  Therefore, it would be better to encapsulate this logic outside of the main method here -- most likely in the queryKRAInfo() class.",
+      "range": {
+        "startLine": 84,
+        "startChar": 8,
+        "endLine": 91,
+        "endChar": 9
+      },
+      "revId": "f2bd3708c6bf1b18441eb808652714aedbcbd832",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4fdc40ad_1fda50f3",
+        "filename": "base/server/cms/src/org/dogtagpki/server/rest/CAInfoService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-05-02T19:44:05Z",
+      "side": 1,
+      "message": "Again, its likely this method will be extended to provide other non-KRA data later.  Its easier to simply create the response at the end of the method - rather than cutting out before.",
+      "range": {
+        "startLine": 98,
+        "startChar": 8,
+        "endLine": 99,
+        "endChar": 42
+      },
+      "revId": "f2bd3708c6bf1b18441eb808652714aedbcbd832",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
