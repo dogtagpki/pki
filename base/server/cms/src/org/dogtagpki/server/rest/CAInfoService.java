@@ -103,6 +103,7 @@ public class CAInfoService extends PKIService implements CAInfoResource {
 
         info.setArchivalMechanism(archivalMechanism);
         info.setWrappingKeySet(wrappingKeySet);
+        info.setKRAInfoAuthoritative(kraInfoAuthoritative);
 
         return createOKResponse(info);
     }
