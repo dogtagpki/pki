@@ -55,6 +55,7 @@ public class CAInfo extends ResourceMessage {
 
     String archivalMechanism;
     String wrappingKeySet;
+    Boolean kraInfoAuthoritative;
 
     @XmlElement(name="ArchivalMechanism")
     public String getArchivalMechanism() {
@@ -72,6 +73,15 @@ public class CAInfo extends ResourceMessage {
 
     public void setWrappingKeySet(String wrappingKeySet) {
         this.wrappingKeySet = wrappingKeySet;
+    }
+
+    @XmlElement(name="KRAInfoAuthoritative")
+    public Boolean getKRAInfoAuthoritative() {
+        return kraInfoAuthoritative;
+    }
+
+    public void setKRAInfoAuthoritative(Boolean b) {
+        kraInfoAuthoritative = b;
     }
 
     @Override

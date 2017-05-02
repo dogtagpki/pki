@@ -121,6 +121,7 @@ public class CAInfoService extends PKIService implements CAInfoResource {
 
         info.setArchivalMechanism(archivalMechanism);
         info.setWrappingKeySet(wrappingKeySet);
+        info.setKRAInfoAuthoritative(kraInfoAuthoritative);
     }
 
     private static void queryKRAInfo(KRAConnectorInfo connInfo) {
