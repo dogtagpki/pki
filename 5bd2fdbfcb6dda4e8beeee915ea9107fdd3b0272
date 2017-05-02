@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a13d61c_a1ee5d25",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 1011000
+      },
+      "writtenOn": "2017-05-02T03:19:35Z",
+      "side": 1,
+      "message": "s/KeyRecoveryService/KeyRecoveryAuthority/",
+      "range": {
+        "startLine": 15,
+        "startChar": 20,
+        "endLine": 15,
+        "endChar": 38
+      },
+      "revId": "5bd2fdbfcb6dda4e8beeee915ea9107fdd3b0272",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "17ab7ffd_d1cc0d01",
+        "filename": "base/kra/src/com/netscape/kra/AsymKeyGenService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 1011000
+      },
+      "writtenOn": "2017-05-02T03:19:35Z",
+      "side": 1,
+      "message": "s/PGP/PQG/",
+      "range": {
+        "startLine": 144,
+        "startChar": 29,
+        "endLine": 144,
+        "endChar": 32
+      },
+      "revId": "5bd2fdbfcb6dda4e8beeee915ea9107fdd3b0272",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
