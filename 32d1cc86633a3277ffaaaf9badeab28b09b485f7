@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e013b4b7_c7613837",
+        "filename": "base/server/cms/src/org/dogtagpki/server/rest/CAInfoService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-05-03T13:59:45Z",
+      "side": 1,
+      "message": "We should move these two lines to the if (kraEnabled) clause above.  That way, if no KRA is enabled, then no data about a KRA is returned.",
+      "range": {
+        "startLine": 122,
+        "startChar": 8,
+        "endLine": 123,
+        "endChar": 47
+      },
+      "revId": "32d1cc86633a3277ffaaaf9badeab28b09b485f7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
