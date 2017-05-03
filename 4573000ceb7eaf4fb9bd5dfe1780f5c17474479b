@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "48737d5a_e04c9d8e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-05-03T14:11:29Z",
+      "side": 1,
+      "message": "Note that for AES, a random IV is required!",
+      "revId": "4573000ceb7eaf4fb9bd5dfe1780f5c17474479b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "41e8d6f1_bb1976ae",
+        "filename": "base/util/src/com/netscape/cmsutil/crypto/CryptoUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2130,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-05-03T14:11:29Z",
+      "side": 1,
+      "message": "This should probably just throw Exception",
+      "revId": "4573000ceb7eaf4fb9bd5dfe1780f5c17474479b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
