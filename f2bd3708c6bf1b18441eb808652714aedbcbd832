@@ -144,6 +144,24 @@
     },
     {
       "key": {
+        "uuid": "bc10758e_dbab36d1",
+        "filename": "base/server/cms/src/org/dogtagpki/server/rest/CAInfoService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-05-03T13:53:35Z",
+      "side": 1,
+      "message": "for 3DES. you can always unwrap that which hasbeen encrypted and visa versa.  In the default case, it doesn\u0027t make a difference.  The same is true for AES CBC.\n\nThe only place where it does make a difference is if you key wrap with AES KeyWrap.  In that case, you cannot decrypt - you must unwrap using AES KeyWrap. \n\nSo with the default, it should always work.",
+      "parentUuid": "3e4ea5fc_380ff2ed",
+      "revId": "f2bd3708c6bf1b18441eb808652714aedbcbd832",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "06215364_23c28fff",
         "filename": "base/server/cms/src/org/dogtagpki/server/rest/CAInfoService.java",
         "patchSetId": 1
