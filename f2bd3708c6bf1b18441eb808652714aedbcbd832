@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "df764e99_6a0de501",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1011000
+      },
+      "writtenOn": "2017-05-03T06:07:51Z",
+      "side": 1,
+      "message": "https://pagure.io/dogtagpki/issue/2665",
+      "parentUuid": "1399611c_ac92ad44",
+      "range": {
+        "startLine": 28,
+        "startChar": 43,
+        "endLine": 28,
+        "endChar": 47
+      },
+      "revId": "f2bd3708c6bf1b18441eb808652714aedbcbd832",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1ed38182_979e009a",
         "filename": "base/server/cms/src/org/dogtagpki/server/rest/CAInfoService.java",
         "patchSetId": 1
@@ -102,6 +126,24 @@
     },
     {
       "key": {
+        "uuid": "3e4ea5fc_380ff2ed",
+        "filename": "base/server/cms/src/org/dogtagpki/server/rest/CAInfoService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 1011000
+      },
+      "writtenOn": "2017-05-03T06:07:51Z",
+      "side": 1,
+      "message": "What about keywrap vs encrypt?  Should we default to\nENCRYPT to handle the case where token does not support WRAP?\nWill it always work or is this default just a \"most likely value\" effort?",
+      "parentUuid": "003bcfd8_1cd7160d",
+      "revId": "f2bd3708c6bf1b18441eb808652714aedbcbd832",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "06215364_23c28fff",
         "filename": "base/server/cms/src/org/dogtagpki/server/rest/CAInfoService.java",
         "patchSetId": 1
@@ -125,6 +167,30 @@
     },
     {
       "key": {
+        "uuid": "ca316785_e3aa08ef",
+        "filename": "base/server/cms/src/org/dogtagpki/server/rest/CAInfoService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 1011000
+      },
+      "writtenOn": "2017-05-03T06:07:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "06215364_23c28fff",
+      "range": {
+        "startLine": 84,
+        "startChar": 8,
+        "endLine": 91,
+        "endChar": 9
+      },
+      "revId": "f2bd3708c6bf1b18441eb808652714aedbcbd832",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4fdc40ad_1fda50f3",
         "filename": "base/server/cms/src/org/dogtagpki/server/rest/CAInfoService.java",
         "patchSetId": 1
@@ -136,6 +202,30 @@
       "writtenOn": "2017-05-02T19:44:05Z",
       "side": 1,
       "message": "Again, its likely this method will be extended to provide other non-KRA data later.  Its easier to simply create the response at the end of the method - rather than cutting out before.",
+      "range": {
+        "startLine": 98,
+        "startChar": 8,
+        "endLine": 99,
+        "endChar": 42
+      },
+      "revId": "f2bd3708c6bf1b18441eb808652714aedbcbd832",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ef09e6c3_ebe5b764",
+        "filename": "base/server/cms/src/org/dogtagpki/server/rest/CAInfoService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 1011000
+      },
+      "writtenOn": "2017-05-03T06:07:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4fdc40ad_1fda50f3",
       "range": {
         "startLine": 98,
         "startChar": 8,
