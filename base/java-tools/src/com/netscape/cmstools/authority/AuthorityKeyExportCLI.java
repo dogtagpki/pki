@@ -3,11 +3,11 @@ package com.netscape.cmstools.authority;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.PublicKey;
+import java.security.SecureRandom;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
 import org.mozilla.jss.asn1.OCTET_STRING;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.EncryptionAlgorithm;
@@ -83,16 +83,19 @@ public class AuthorityKeyExportCLI extends CLI {
         PrivateKey toBeWrapped = cm.findPrivKeyByCert(targetCert);
         CryptoToken token = cm.getInternalKeyStorageToken();
 
-        byte iv[] = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
+        EncryptionAlgorithm encAlg = EncryptionAlgorithm.AES_256_CBC;
+
+        byte iv[] = new byte[encAlg.getBlockSize()];
+        (new SecureRandom()).nextBytes(iv);
         IVParameterSpec ivps = new IVParameterSpec(iv);
 
         WrappingParams params = new WrappingParams(
-                SymmetricKey.DES3, KeyGenAlgorithm.DES3, 168,
-                KeyWrapAlgorithm.RSA, EncryptionAlgorithm.DES3_CBC_PAD,
-                KeyWrapAlgorithm.DES3_CBC_PAD, ivps, ivps);
+                SymmetricKey.AES, KeyGenAlgorithm.AES, encAlg.getKeyStrength(),
+                KeyWrapAlgorithm.RSA, encAlg,
+                KeyWrapAlgorithm.AES_CBC_PAD, ivps, ivps);
 
         AlgorithmIdentifier aid = new AlgorithmIdentifier(
-                new OBJECT_IDENTIFIER("1.2.840.113549.3.7"),
+                encAlg.toOID(),
                 new OCTET_STRING(ivps.getIV()));
 
         byte[] data = CryptoUtil.createEncodedPKIArchiveOptions(
