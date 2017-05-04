@@ -162,6 +162,24 @@
     },
     {
       "key": {
+        "uuid": "040b7f82_1b85f68f",
+        "filename": "base/server/cms/src/org/dogtagpki/server/rest/CAInfoService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 1011000
+      },
+      "writtenOn": "2017-05-04T00:06:20Z",
+      "side": 1,
+      "message": "OK, thanks for clarifying :)",
+      "parentUuid": "bc10758e_dbab36d1",
+      "revId": "f2bd3708c6bf1b18441eb808652714aedbcbd832",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "06215364_23c28fff",
         "filename": "base/server/cms/src/org/dogtagpki/server/rest/CAInfoService.java",
         "patchSetId": 1
