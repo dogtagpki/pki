@@ -140,7 +140,7 @@ class AuthorityClient(object):
         url = self.ca_url + '/' + str(aid)
         headers = {'Content-type': 'application/json',
                    'Accept': 'application/json'}
-        r = self.connection.get(url, headers)
+        r = self.connection.get(url, headers=headers)
         return AuthorityData.from_json(r.json())
 
     @pki.handle_exceptions()
@@ -167,7 +167,7 @@ class AuthorityClient(object):
             raise ValueError(
                 "Invalid format passed in - PEM or DER expected.")
 
-        r = self.connection.get(url, headers)
+        r = self.connection.get(url, headers=headers)
         return r.text
 
     @pki.handle_exceptions()
@@ -189,7 +189,7 @@ class AuthorityClient(object):
         elif output_format == "PKCS7":
             headers['Accept'] = "application/pkcs7-mime"
 
-        r = self.connection.get(url, headers)
+        r = self.connection.get(url, headers=headers)
         return r.text
 
     @pki.handle_exceptions()
@@ -238,7 +238,7 @@ class AuthorityClient(object):
         response = self.connection.post(
             self.ca_url,
             create_request,
-            headers)
+            headers=headers)
 
         new_ca = AuthorityData.from_json(response.json())
         return new_ca
@@ -257,7 +257,7 @@ class AuthorityClient(object):
         headers = {'Content-type': 'application/json',
                    'Accept': 'application/json'}
 
-        self.connection.post(url, headers)
+        self.connection.post(url, None, headers=headers)
 
     @pki.handle_exceptions()
     def disable_ca(self, aid):
@@ -272,7 +272,7 @@ class AuthorityClient(object):
         headers = {'Content-type': 'application/json',
                    'Accept': 'application/json'}
 
-        self.connection.post(url, headers)
+        self.connection.post(url, None, headers=headers)
 
     @pki.handle_exceptions()
     def delete_ca(self, aid):
@@ -287,7 +287,7 @@ class AuthorityClient(object):
         headers = {'Content-type': 'application/json',
                    'Accept': 'application/json'}
 
-        self.connection.delete(url, headers)
+        self.connection.delete(url, headers=headers)
 
 
 encoder.NOTYPES['AuthorityData'] = AuthorityData
