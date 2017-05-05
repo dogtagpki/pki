@@ -33,6 +33,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import netscape.security.x509.RevocationReason;
+
 import org.dogtagpki.server.tps.TPSSession;
 import org.dogtagpki.server.tps.TPSSubsystem;
 import org.dogtagpki.server.tps.authentication.AuthUIParameter;
@@ -99,8 +101,6 @@ import com.netscape.certsrv.tps.token.TokenStatus;
 import com.netscape.cms.servlet.tks.SecureChannelProtocol;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.symkey.SessionKey;
-
-import netscape.security.x509.RevocationReason;
 
 public class TPSProcessor {
 
@@ -923,20 +923,39 @@ public class TPSProcessor {
             TPSBuffer drmDesKeyBuff = resp.getDRM_Trans_DesKey();
             TPSBuffer kekDesKeyBuff = resp.getKekWrappedDesKey();
 
-            CMS.debug(method + " encSessionKeyBuff: " + encSessionKeyBuff.toHexString());
-            CMS.debug(method + " kekSessionKeyBuff: " + kekSessionKeyBuff.toHexString());
-            CMS.debug(method + " macSessionKeyBuff: " + macSessionKeyBuff.toHexString());
-            CMS.debug(method + " hostCryptogramBuff: " + hostCryptogramBuff.toHexString());
-            CMS.debug(method + " keyCheckBuff: " + keyCheckBuff.toHexString());
-            CMS.debug(method + " drmDessKeyBuff: " + drmDesKeyBuff.toHexString());
-            CMS.debug(method + " kekDesKeyBuff: " + kekDesKeyBuff.toHexString());
+            if (encSessionKeyBuff != null)
+                CMS.debug(method + " encSessionKeyBuff: " + encSessionKeyBuff.toHexString());
 
-            encSessionKeySCP03 = (PK11SymKey) protocol.unwrapWrappedSymKeyOnToken(token, sharedSecret,
-                    encSessionKeyBuff.toBytesArray(), false, SymmetricKey.AES);
-            macSessionKeySCP03 = (PK11SymKey) protocol.unwrapWrappedSymKeyOnToken(token, sharedSecret,
-                    macSessionKeyBuff.toBytesArray(), false, SymmetricKey.AES);
-            kekSessionKeySCP03 = (PK11SymKey) protocol.unwrapWrappedSymKeyOnToken(token, sharedSecret,
-                    kekSessionKeyBuff.toBytesArray(), false, SymmetricKey.AES);
+            if (kekSessionKeyBuff != null)
+                CMS.debug(method + " kekSessionKeyBuff: " + kekSessionKeyBuff.toHexString());
+
+            if (macSessionKeyBuff != null)
+                CMS.debug(method + " macSessionKeyBuff: " + macSessionKeyBuff.toHexString());
+
+            if (hostCryptogramBuff != null)
+                CMS.debug(method + " hostCryptogramBuff: " + hostCryptogramBuff.toHexString());
+
+            if (keyCheckBuff != null)
+                CMS.debug(method + " keyCheckBuff: " + keyCheckBuff.toHexString());
+
+            if (drmDesKeyBuff != null)
+                CMS.debug(method + " drmDessKeyBuff: " + drmDesKeyBuff.toHexString());
+
+            if (kekDesKeyBuff != null)
+                CMS.debug(method + " kekDesKeyBuff: " + kekDesKeyBuff.toHexString());
+
+
+            if (encSessionKeyBuff != null)
+                encSessionKeySCP03 = (PK11SymKey) protocol.unwrapWrappedSymKeyOnToken(token, sharedSecret,
+                        encSessionKeyBuff.toBytesArray(), false, SymmetricKey.AES);
+
+            if (macSessionKeyBuff != null)
+                macSessionKeySCP03 = (PK11SymKey) protocol.unwrapWrappedSymKeyOnToken(token, sharedSecret,
+                        macSessionKeyBuff.toBytesArray(), false, SymmetricKey.AES);
+
+            if (kekSessionKeyBuff != null)
+                kekSessionKeySCP03 = (PK11SymKey) protocol.unwrapWrappedSymKeyOnToken(token, sharedSecret,
+                        kekSessionKeyBuff.toBytesArray(), false, SymmetricKey.AES);
 
             channel = new SecureChannel(this, encSessionKeySCP03, macSessionKeySCP03, kekSessionKeySCP03,
                     drmDesKeyBuff, kekDesKeyBuff,

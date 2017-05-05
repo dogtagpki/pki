@@ -148,8 +148,8 @@ public class SecureChannel {
 
         CMS.debug("SecureChannel.SecureChannel: For SCP03. :  ");
 
-        CMS.debug("kekDesKey: " + kekDesKey.toHexString());
-        CMS.debug("keyCheck: " + keyCheck.toHexString());
+        if (keyCheck != null)
+            CMS.debug("keyCheck: " + keyCheck.toHexString());
 
         this.platProtInfo = platformInfo;
         this.processor = processor;
