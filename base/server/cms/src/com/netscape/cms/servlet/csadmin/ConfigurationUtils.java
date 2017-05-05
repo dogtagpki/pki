@@ -886,9 +886,7 @@ public class ConfigurationUtils {
                 if (oid.equals(SafeBag.PKCS8_SHROUDED_KEY_BAG)) {
 
                     CMS.debug("  - Bag #" + j + ": key");
-                    EncryptedPrivateKeyInfo privkeyinfo =
-                            (EncryptedPrivateKeyInfo) bag.getInterpretedBagContent();
-                    PrivateKeyInfo pkeyinfo = privkeyinfo.decrypt(password, new PasswordConverter());
+                    byte[] epki = bag.getBagContent().getEncoded();
 
                     SET bagAttrs = bag.getBagAttributes();
                     String subjectDN = null;
@@ -910,9 +908,10 @@ public class ConfigurationUtils {
                         }
                     }
 
-                    // pkeyinfo_v stores private key (PrivateKeyInfo) and subject DN (String)
+                    // pkeyinfo_v stores EncryptedPrivateKeyInfo
+                    // (byte[]) and subject DN (String)
                     Vector<Object> pkeyinfo_v = new Vector<Object>();
-                    pkeyinfo_v.addElement(pkeyinfo);
+                    pkeyinfo_v.addElement(epki);
                     if (subjectDN != null)
                         pkeyinfo_v.addElement(subjectDN);
 
@@ -971,7 +970,7 @@ public class ConfigurationUtils {
             }
         }
 
-        importKeyCert(pkeyinfo_collection, cert_collection);
+        importKeyCert(password, pkeyinfo_collection, cert_collection);
     }
 
     public static void verifySystemCertificates() throws Exception {
@@ -1012,6 +1011,7 @@ public class ConfigurationUtils {
     }
 
     public static void importKeyCert(
+            Password password,
             Vector<Vector<Object>> pkeyinfo_collection,
             Vector<Vector<Object>> cert_collection
             ) throws Exception {
@@ -1028,7 +1028,7 @@ public class ConfigurationUtils {
         CMS.debug("Importing new keys:");
         for (int i = 0; i < pkeyinfo_collection.size(); i++) {
             Vector<Object> pkeyinfo_v = pkeyinfo_collection.elementAt(i);
-            PrivateKeyInfo pkeyinfo = (PrivateKeyInfo) pkeyinfo_v.elementAt(0);
+            byte[] epki = (byte[]) pkeyinfo_v.elementAt(0);
             String nickname = (String) pkeyinfo_v.elementAt(1);
             CMS.debug("- Key: " + nickname);
 
@@ -1036,11 +1036,6 @@ public class ConfigurationUtils {
                 CMS.debug("  Key not in master list, ignore key");
                 continue;
             }
-
-            // encode private key
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            pkeyinfo.encode(bos);
-            byte[] pkey = bos.toByteArray();
 
             CMS.debug("  Find cert with subject DN " + nickname);
             // TODO: use better mechanism to find the cert
@@ -1063,16 +1058,9 @@ public class ConfigurationUtils {
                 // this is OK
             }
 
-            // encrypt private key
-            SymmetricKey sk = CryptoUtil.generateKey(token, KeyGenAlgorithm.DES3, 0, null, true);
-            byte iv[] = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
-            IVParameterSpec param = new IVParameterSpec(iv);
-            byte[] encpkey = CryptoUtil.encryptUsingSymmetricKey(token, sk, pkey, EncryptionAlgorithm.DES3_CBC_PAD, param);
-
-            // unwrap private key to load into database
-            KeyWrapper wrapper = token.getKeyWrapper(KeyWrapAlgorithm.DES3_CBC_PAD);
-            wrapper.initUnwrap(sk, param);
-            wrapper.unwrapPrivate(encpkey, getPrivateKeyType(publicKey), publicKey);
+            // import private key into database
+            store.importEncryptedPrivateKeyInfo(
+                new PasswordConverter(), password, nickname, publicKey, epki);
         }
 
         CMS.debug("Importing new certificates:");
