@@ -1203,13 +1203,6 @@ public class ConfigurationUtils {
         return null;
     }
 
-    public static org.mozilla.jss.crypto.PrivateKey.Type getPrivateKeyType(PublicKey pubkey) {
-        if (pubkey.getAlgorithm().equals("EC")) {
-            return org.mozilla.jss.crypto.PrivateKey.Type.EC;
-        }
-        return org.mozilla.jss.crypto.PrivateKey.Type.RSA;
-    }
-
     public static boolean isCASigningCert(String name) throws EBaseException {
         IConfigStore cs = CMS.getConfigStore();
         try {
@@ -3493,102 +3486,6 @@ public class ConfigurationUtils {
                 }
             }
         }
-    }
-
-    public static void addKeyBag(PrivateKey pkey, X509Certificate x509cert,
-            Password pass, byte[] localKeyId, SEQUENCE safeContents)
-            throws NoSuchAlgorithmException, InvalidBERException, InvalidKeyException,
-            InvalidAlgorithmParameterException, NotInitializedException, TokenException, IllegalStateException,
-            IllegalBlockSizeException, BadPaddingException, CharConversionException {
-
-        PasswordConverter passConverter = new PasswordConverter();
-
-        SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
-        byte salt[] = random.generateSeed(4); // 4 bytes salt
-        byte[] priData = getEncodedKey(pkey);
-
-        PrivateKeyInfo pki = (PrivateKeyInfo)
-                ASN1Util.decode(PrivateKeyInfo.getTemplate(), priData);
-        ASN1Value key = EncryptedPrivateKeyInfo.createPBE(
-                PBEAlgorithm.PBE_SHA1_DES3_CBC,
-                pass, salt, 1, passConverter, pki);
-        SET keyAttrs = createBagAttrs(
-                x509cert.getSubjectDN().toString(), localKeyId);
-        SafeBag keyBag = new SafeBag(SafeBag.PKCS8_SHROUDED_KEY_BAG,
-                key, keyAttrs);
-        safeContents.addElement(keyBag);
-
-    }
-
-    public static byte[] addCertBag(X509Certificate x509cert, String nickname,
-            SEQUENCE safeContents) throws CertificateEncodingException, NoSuchAlgorithmException,
-            CharConversionException {
-        byte[] localKeyId = null;
-
-        ASN1Value cert = new OCTET_STRING(x509cert.getEncoded());
-        localKeyId = createLocalKeyId(x509cert);
-        SET certAttrs = null;
-        if (nickname != null)
-            certAttrs = createBagAttrs(nickname, localKeyId);
-        SafeBag certBag = new SafeBag(SafeBag.CERT_BAG,
-                new CertBag(CertBag.X509_CERT_TYPE, cert), certAttrs);
-        safeContents.addElement(certBag);
-
-        return localKeyId;
-    }
-
-    public static byte[] getEncodedKey(PrivateKey pkey) throws NotInitializedException, NoSuchAlgorithmException,
-            TokenException, IllegalStateException, CharConversionException, InvalidKeyException,
-            InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
-        CryptoManager cm = CryptoManager.getInstance();
-        CryptoToken token = cm.getInternalKeyStorageToken();
-        KeyGenerator kg = token.getKeyGenerator(KeyGenAlgorithm.DES3);
-        SymmetricKey sk = kg.generate();
-        KeyWrapper wrapper = token.getKeyWrapper(KeyWrapAlgorithm.DES3_CBC_PAD);
-        byte iv[] = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
-        IVParameterSpec param = new IVParameterSpec(iv);
-        wrapper.initWrap(sk, param);
-        byte[] enckey = wrapper.wrap(pkey);
-        Cipher c = token.getCipherContext(EncryptionAlgorithm.DES3_CBC_PAD);
-        c.initDecrypt(sk, param);
-        byte[] recovered = c.doFinal(enckey);
-        return recovered;
-    }
-
-    public static byte[] createLocalKeyId(X509Certificate cert)
-            throws NoSuchAlgorithmException, CertificateEncodingException {
-
-        // SHA1 hash of the X509Cert der encoding
-        byte certDer[] = cert.getEncoded();
-
-        MessageDigest md = MessageDigest.getInstance("SHA");
-
-        md.update(certDer);
-        return md.digest();
-
-    }
-
-    public static SET createBagAttrs(String nickName, byte localKeyId[]) throws CharConversionException {
-
-        SET attrs = new SET();
-        SEQUENCE nickNameAttr = new SEQUENCE();
-
-        nickNameAttr.addElement(SafeBag.FRIENDLY_NAME);
-        SET nickNameSet = new SET();
-
-        nickNameSet.addElement(new BMPString(nickName));
-        nickNameAttr.addElement(nickNameSet);
-        attrs.addElement(nickNameAttr);
-        SEQUENCE localKeyAttr = new SEQUENCE();
-
-        localKeyAttr.addElement(SafeBag.LOCAL_KEY_ID);
-        SET localKeySet = new SET();
-
-        localKeySet.addElement(new OCTET_STRING(localKeyId));
-        localKeyAttr.addElement(localKeySet);
-        attrs.addElement(localKeyAttr);
-        return attrs;
-
     }
 
     public static void createAdminCertificate(String certRequest, String certRequestType, String subject)
