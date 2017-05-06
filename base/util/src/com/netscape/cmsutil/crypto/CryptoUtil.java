@@ -2346,7 +2346,7 @@ public class CryptoUtil {
             KeyWrapAlgorithm wrapAlgorithm, IVParameterSpec wrappingIV) throws Exception {
         KeyWrapper wrapper = token.getKeyWrapper(wrapAlgorithm);
         wrapper.initUnwrap(wrappingKey, wrappingIV);
-        return wrapper.unwrapSymmetric(wrappedData, keyType, usage, strength);
+        return wrapper.unwrapSymmetric(wrappedData, keyType, usage, strength/8);
     }
 
     public static SymmetricKey unwrap(CryptoToken token, SymmetricKey.Type keyType,
@@ -2355,7 +2355,7 @@ public class CryptoUtil {
         KeyWrapper keyWrapper = token.getKeyWrapper(wrapAlgorithm);
         keyWrapper.initUnwrap(wrappingKey, null);
 
-        return keyWrapper.unwrapSymmetric(wrappedData, keyType, usage, strength);
+        return keyWrapper.unwrapSymmetric(wrappedData, keyType, usage, strength/8);
     }
 
     public static PrivateKey unwrap(CryptoToken token, PublicKey pubKey, boolean temporary,

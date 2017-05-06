@@ -411,6 +411,18 @@ public class SecurityDataProcessor {
         String payloadWrapName = (String) params.get(IRequest.SECURITY_DATA_PL_WRAPPING_NAME);
         String transportKeyAlgo = transportUnit.getCertificate().getPublicKey().getAlgorithm();
 
+        if (allowEncDecrypt_recovery) {
+            if (payloadWrapName == null) {
+                // assume old client
+                payloadWrapName = "DES3/CBC/Pad";
+            } else if (payloadWrapName.equals("AES KeyWrap/Padding") ||
+                    payloadWrapName.equals("AES KeyWrap")) {
+                // Some HSMs have not implemented AES-KW yet
+                // Make sure we select an algorithm that is supported.
+                payloadWrapName = "AES/CBC/PKCS5Padding";
+            }
+        }
+
         byte[] iv = null;
         byte[] iv_wrap = null;
         try {
