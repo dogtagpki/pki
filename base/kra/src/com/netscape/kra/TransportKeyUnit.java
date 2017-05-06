@@ -289,7 +289,7 @@ public class TransportKeyUnit extends EncryptionUnit implements
         SymmetricKey sk = CryptoUtil.unwrap(
                 token,
                 params.getSkType(),
-                0,
+                params.getSkType().equals(SymmetricKey.DES3)? 0: params.getSkLength(),
                 SymmetricKey.Usage.DECRYPT,
                 wrappingKey,
                 encSymmKey,
@@ -360,7 +360,7 @@ public class TransportKeyUnit extends EncryptionUnit implements
         SymmetricKey sk = CryptoUtil.unwrap(
                 token,
                 params.getSkType(),
-                0,
+                params.getSkType().equals(SymmetricKey.DES3)? 0: params.getSkLength(),
                 SymmetricKey.Usage.UNWRAP,
                 wrappingKey,
                 encSymmKey,

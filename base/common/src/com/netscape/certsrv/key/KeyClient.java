@@ -429,7 +429,7 @@ public class KeyClient extends Client {
             bytes = crypto.unwrapSymmetricKeyWithSessionKey(
                     data.getEncryptedData(),
                     sessionKey,
-                    wrapAlgorithm,
+                    KeyWrapAlgorithm.fromString(data.getWrapAlgorithm()),
                     data.getNonceData(),
                     data.getAlgorithm(),
                     data.getSize());
@@ -446,7 +446,7 @@ public class KeyClient extends Client {
             bytes = crypto.unwrapAsymmetricKeyWithSessionKey(
                     data.getEncryptedData(),
                     sessionKey,
-                    wrapAlgorithm,
+                    KeyWrapAlgorithm.fromString(data.getWrapAlgorithm()),
                     data.getNonceData(),
                     pubKey);
         }

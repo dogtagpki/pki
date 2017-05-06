@@ -84,7 +84,7 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
         return CryptoUtil.unwrap(
                 token,
                 params.getSkType(),
-                0,
+                params.getSkType().equals(SymmetricKey.DES3)? 0: params.getSkLength(),
                 usage, wrappingKey,
                 encSymmKey,
                 params.getSkWrapAlgorithm());
