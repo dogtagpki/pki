@@ -2,8 +2,3 @@
 set -e
 
 pkispawn -vv -f ${BUILDDIR}/pki/.travis/pki.cfg -s KRA
-
-echo "Waiting for port 8080"
-for i in {1..20}; do
-    curl http://localhost:8080 && break || sleep 1
-done
