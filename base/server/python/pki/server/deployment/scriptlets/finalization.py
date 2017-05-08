@@ -57,6 +57,13 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # Optionally, programmatically 'restart' the configured PKI instance
         if config.str2bool(deployer.mdict['pki_restart_configured_instance']):
             deployer.systemd.restart()
+            # wait for startup
+            status = deployer.instance.wait_for_startup(60)
+            if status is None:
+                config.pki_log.error(
+                    "server failed to restart",
+                    extra=config.PKI_INDENTATION_LEVEL_1)
+                raise RuntimeError("server failed to restart")
 
         # Optionally, 'purge' the entire temporary client infrastructure
         # including the client NSS security databases and password files
