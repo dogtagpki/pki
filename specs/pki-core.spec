@@ -65,7 +65,7 @@
 
 Name:             pki-core
 Version:          10.4.4
-Release:          1%{?dist}
+Release:          1.1%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -1391,6 +1391,9 @@ fi
 %endif # %{with server}
 
 %changelog
+* Tue May  9 2017 Dogtag Team <pki-devel@redhat.com> 10.4.4-1.1
+- Updated source version number to 10.4.4-1.1
+
 * Tue May  9 2017 Dogtag Team <pki-devel@redhat.com> 10.4.4-1
 - dogtagpki Pagure Issue #1663 - Add SCP03 support (jmagne)
 - dogtagpki Pagure Issue #2522 - cannot extract generated private key from
