@@ -64,8 +64,8 @@
 %define pki_homedir /usr/share/pki
 
 Name:             pki-core
-Version:          10.4.3
-Release:          1.1%{?dist}
+Version:          10.4.4
+Release:          1%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -175,10 +175,10 @@ BuildRequires:    python-ldap
 BuildRequires:    junit
 BuildRequires:    jpackage-utils >= 0:1.7.5-10
 %if 0%{?rhel}
-BuildRequires:    jss >= 4.4.0-6
+BuildRequires:    jss >= 4.4.0-7
 %else
 %if 0%{?fedora} >= 25
-BuildRequires:    jss >= 4.4.2-1
+BuildRequires:    jss >= 4.4.2-2
 %else
 BuildRequires:    jss >= 4.2.6-44
 %endif
@@ -334,10 +334,10 @@ Requires:         nss >= 3.27.0
 %endif
 Requires:         jpackage-utils >= 0:1.7.5-10
 %if 0%{?rhel}
-Requires:         jss >= 4.4.0-6
+Requires:         jss >= 4.4.0-7
 %else
 %if 0%{?fedora} >= 25
-Requires:         jss >= 4.4.2-1
+Requires:         jss >= 4.4.2-2
 %else
 Requires:         jss >= 4.2.6-44
 %endif
@@ -428,10 +428,10 @@ Requires:         slf4j-jdk14
 Requires:         javassist
 Requires:         jpackage-utils >= 0:1.7.5-10
 %if 0%{?rhel}
-Requires:         jss >= 4.4.0-6
+Requires:         jss >= 4.4.0-7
 %else
 %if 0%{?fedora} >= 25
-Requires:         jss >= 4.4.2-1
+Requires:         jss >= 4.4.2-2
 %else
 Requires:         jss >= 4.2.6-44
 %endif
@@ -1391,6 +1391,22 @@ fi
 %endif # %{with server}
 
 %changelog
+* Tue May  9 2017 Dogtag Team <pki-devel@redhat.com> 10.4.4-1
+- dogtagpki Pagure Issue #1663 - Add SCP03 support (jmagne)
+- dogtagpki Pagure Issue #2522 - cannot extract generated private key from
+  KRA when HSM is used. (vakwetu)
+- dogtagpki Pagure Issue #2644 - pkispawn returns before tomcat is ready
+  (cheimes)
+- dogtagpki Pagure Issue #2665 - CAInfoService: retrieve KRA-related values
+  from the KRA (ftweedal)
+- dogtagpki Pagure Issue #2675 - CMC: cmc.popLinkWitnessRequired=false would
+  cause error (cfu)
+- dogtagpki Pagure Issue #2777 - pkispawn of clone install fails with
+  InvalidBERException (ftweedal)
+- dogtagpki Pagure Issue #2680 - kra unable to extract symmetric keys
+  generated on thales hsm (vakwetu)
+- Updated "jss" build and runtime requirements
+
 * Mon May  1 2017 Dogtag Team <pki-devel@redhat.com> 10.4.3-1.1
 - Updated source version number to 10.4.3-1.1
 

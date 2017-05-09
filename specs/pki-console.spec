@@ -1,6 +1,6 @@
 Name:             pki-console
-Version:          10.4.3
-Release:          1.1%{?dist}
+Version:          10.4.4
+Release:          1%{?dist}
 Summary:          Certificate System - PKI Console
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -36,10 +36,10 @@ BuildRequires:    nss-devel >= 3.27.0
 BuildRequires:    junit
 BuildRequires:    jpackage-utils >= 1.7.5-10
 %if 0%{?rhel}
-BuildRequires:    jss >= 4.4.0-6
+BuildRequires:    jss >= 4.4.0-7
 %else
 %if 0%{?fedora} >= 25
-BuildRequires:    jss >= 4.4.2-1
+BuildRequires:    jss >= 4.4.2-2
 %else
 BuildRequires:    jss >= 4.2.6-44
 %endif
@@ -53,10 +53,10 @@ Requires:         pki-base-java >= %{pki_core_version}
 Requires:         pki-console-theme >= %{version}
 Requires:         jpackage-utils >= 1.7.5-10
 %if 0%{?rhel}
-Requires:         jss >= 4.4.0-6
+Requires:         jss >= 4.4.0-7
 %else
 %if 0%{?fedora} >= 25
-Requires:         jss >= 4.4.2-1
+Requires:         jss >= 4.4.2-2
 %else
 Requires:         jss >= 4.2.6-44
 %endif
@@ -122,6 +122,10 @@ cd build
 
 
 %changelog
+* Tue May  9 2017 Dogtag Team <pki-devel@redhat.com> 10.4.4-1
+- Updated "jss" build and runtime requirements
+- Updated source version number to 10.4.4-1
+
 * Mon May  1 2017 Dogtag Team <pki-devel@redhat.com> 10.4.3-1.1
 - Updated source version number to 10.4.3-1.1
 
