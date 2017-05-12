@@ -58,7 +58,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if config.str2bool(deployer.mdict['pki_restart_configured_instance']):
             deployer.systemd.restart()
             # wait for startup
-            status = deployer.instance.wait_for_startup(60)
+            # (must use 'http' protocol due to potential FIPS configuration)
+            status = deployer.instance.wait_for_startup(60, False)
             if status is None:
                 config.pki_log.error(
                     "server failed to restart",

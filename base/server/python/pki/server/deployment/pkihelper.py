@@ -1017,11 +1017,20 @@ class Instance:
                                  extra=config.PKI_INDENTATION_LEVEL_2)
             raise
 
-    def get_instance_status(self):
+    def get_instance_status(self, secure_connection=True):
+        pki_protocol = None
+        pki_port = None
+        if secure_connection:
+            pki_protocol = "https"
+            pki_port = self.mdict['pki_https_port']
+        else:
+            pki_protocol = "http"
+            pki_port = self.mdict['pki_http_port']
+
         connection = pki.client.PKIConnection(
-            protocol='https',
+            protocol=pki_protocol,
             hostname=self.mdict['pki_hostname'],
-            port=self.mdict['pki_https_port'],
+            port=pki_port,
             subsystem=self.mdict['pki_subsystem_type'],
             accept='application/xml',
             trust_env=False)
@@ -1049,11 +1058,11 @@ class Instance:
                 extra=config.PKI_INDENTATION_LEVEL_3)
             return None
 
-    def wait_for_startup(self, timeout):
+    def wait_for_startup(self, timeout, secure_connection=True):
         start_time = datetime.today()
         status = None
         while status != "running":
-            status = self.get_instance_status()
+            status = self.get_instance_status(secure_connection)
             time.sleep(1)
             stop_time = datetime.today()
             if (stop_time - start_time).total_seconds() >= timeout:
