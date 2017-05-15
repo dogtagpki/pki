@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "21c8065c_b0726f02",
+        "filename": "base/server/cmsbundle/src/LogMessages.properties",
+        "patchSetId": 4
+      },
+      "lineNbr": 2089,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-05-15T20:28:49Z",
+      "side": 1,
+      "message": "Do the comments above also need to be adjusted?",
+      "revId": "594c0e624b60aa28e96cadee30b134ce36073edc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
