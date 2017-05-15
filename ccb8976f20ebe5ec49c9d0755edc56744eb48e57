@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "abc0391c_ffc812e6",
+        "filename": "base/common/src/com/netscape/certsrv/logging/event/CertRequestProcessedSuccessEvent.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-05-15T20:47:08Z",
+      "side": 1,
+      "message": "What on earth is an infoName?\n\nPart of the refactoring is rewriting to make fields clearer and easier to use.",
+      "revId": "ccb8976f20ebe5ec49c9d0755edc56744eb48e57",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
