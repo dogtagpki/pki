@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "35034eff_c5422503",
+        "filename": "base/ca/shared/conf/CS.cfg",
+        "patchSetId": 2
+      },
+      "lineNbr": 911,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-05-15T23:07:30Z",
+      "side": 1,
+      "message": "This will be handled in a separate ticket:\nhttps://pagure.io/dogtagpki/issue/2686",
+      "parentUuid": "1393a0a4_318b05fe",
+      "revId": "b221537bce81e92abceaf3e142f53061df1ed3ad",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a69142c6_c0532014",
         "filename": "base/server/cmsbundle/src/LogMessages.properties",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2017-05-15T20:57:49Z",
       "side": 1,
       "message": "There is a lot of overlap for the two comments.  I think we\u0027ve got some cut / paste issues here.  Are these all correct for failure and success?",
+      "revId": "b221537bce81e92abceaf3e142f53061df1ed3ad",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7805456e_9133ad58",
+        "filename": "base/server/cmsbundle/src/LogMessages.properties",
+        "patchSetId": 2
+      },
+      "lineNbr": 2102,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-05-15T23:07:30Z",
+      "side": 1,
+      "message": "The patch was only trying to refactor the code as required (i.e. splitting the event). It\u0027s not trying to inject any interpretation. Probably someone else more familiar with this audit event should answer the question.\n\nNote that there\u0027s a discussion about implementing an event filter in the future. So instead of splitting an event based on the outcome, the admin could define a filter to log only the events that match certain criteria, for example:\n\n  (\u0026(AuditEvent\u003dCERT_REQUEST_FAILURE)(Outcome\u003dSuccess))",
+      "parentUuid": "a69142c6_c0532014",
       "revId": "b221537bce81e92abceaf3e142f53061df1ed3ad",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
