@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1393a0a4_318b05fe",
+        "filename": "base/ca/shared/conf/CS.cfg",
+        "patchSetId": 2
+      },
+      "lineNbr": 911,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-05-15T20:57:49Z",
+      "side": 1,
+      "message": "migration implications?",
+      "revId": "b221537bce81e92abceaf3e142f53061df1ed3ad",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a69142c6_c0532014",
+        "filename": "base/server/cmsbundle/src/LogMessages.properties",
+        "patchSetId": 2
+      },
+      "lineNbr": 2102,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-05-15T20:57:49Z",
+      "side": 1,
+      "message": "There is a lot of overlap for the two comments.  I think we\u0027ve got some cut / paste issues here.  Are these all correct for failure and success?",
+      "revId": "b221537bce81e92abceaf3e142f53061df1ed3ad",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
