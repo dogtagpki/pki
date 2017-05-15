@@ -16,6 +16,41 @@
       "revId": "ccb8976f20ebe5ec49c9d0755edc56744eb48e57",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "73841bf3_1be2eb67",
+        "filename": "base/common/src/com/netscape/certsrv/logging/event/CertRequestProcessedSuccessEvent.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-05-15T22:25:14Z",
+      "side": 1,
+      "message": "This constructor was copied from CertRequestProcessedEvent which was already using infoName parameter. I think we can replace it with hard-coded ILogger.SIGNED_AUDIT_ACCEPTANCE.",
+      "parentUuid": "abc0391c_ffc812e6",
+      "revId": "ccb8976f20ebe5ec49c9d0755edc56744eb48e57",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ec2340e7_db263769",
+        "filename": "base/common/src/com/netscape/certsrv/logging/event/CertRequestProcessedSuccessEvent.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-05-15T22:25:14Z",
+      "side": 1,
+      "message": "This constructor was copied from CertRequestProcessedEvent which was already using infoName parameter. I think we can replace it with hard-coded ILogger.SIGNED_AUDIT_CANCELLATION.",
+      "revId": "ccb8976f20ebe5ec49c9d0755edc56744eb48e57",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
