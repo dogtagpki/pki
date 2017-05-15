@@ -16,6 +16,24 @@
       "revId": "594c0e624b60aa28e96cadee30b134ce36073edc",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e4367b52_27c319bb",
+        "filename": "base/server/cmsbundle/src/LogMessages.properties",
+        "patchSetId": 4
+      },
+      "lineNbr": 2089,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-05-15T22:08:17Z",
+      "side": 1,
+      "message": "I don\u0027t think so. As of this patch the CertRequestProcessedEvent.java will still add the InfoName and the InvoValue fields, and the final log will still contain those fields, so the comments are still valid.",
+      "parentUuid": "21c8065c_b0726f02",
+      "revId": "594c0e624b60aa28e96cadee30b134ce36073edc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
