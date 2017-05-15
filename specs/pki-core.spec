@@ -578,6 +578,7 @@ Requires:    nuxwdog-client-java >= 1.0.3
 %endif
 
 Requires:         policycoreutils
+Requires:         procps-ng
 Requires:         openldap-clients
 Requires:         openssl
 Requires:         pki-base = %{version}-%{release}
