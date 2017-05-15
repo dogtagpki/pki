@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6e6daf_67151156",
+        "filename": "base/common/src/com/netscape/certsrv/logging/event/CertRequestProcessedFailureEvent.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-05-15T20:50:12Z",
+      "side": 1,
+      "message": "what on earth is an infoname, and info value?\n\nBased purely on the constructor, I would have no idea what to provide here.",
+      "revId": "a66bee25a705c560598d5c90aec22ecd56d409f5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
