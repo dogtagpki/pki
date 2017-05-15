@@ -148,6 +148,7 @@ public class CMSStartServlet extends HttpServlet {
      * This method will be called when Tomcat is shutdown.
      */
     public void destroy() {
+        CMS.debug("CMSStartServlet.destroy(): shutdown server");
         CMS.shutdown();
     }
 }

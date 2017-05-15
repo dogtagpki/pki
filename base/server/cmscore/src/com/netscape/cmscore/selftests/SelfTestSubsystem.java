@@ -547,6 +547,8 @@ public class SelfTestSubsystem
                                     "CMSCORE_SELFTESTS_RUN_ON_DEMAND_FAILED",
                                     instanceFullName));
 
+                    CMS.debug("SelfTestSubsystem.runSelfTestsOnDemand(): shutdown server");
+
                     // shutdown the system gracefully
                     CMS.shutdown();
 
@@ -1844,6 +1846,8 @@ public class SelfTestSubsystem
                         ILogger.FAILURE);
 
             audit(auditMessage);
+
+            CMS.debug("SelfTestSubsystem.startup(): shutdown server");
 
             // shutdown the system gracefully
             CMS.shutdown();

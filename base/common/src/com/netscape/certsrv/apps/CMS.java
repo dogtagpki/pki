@@ -1627,6 +1627,8 @@ public final class CMS {
             // Raidzilla Bug #57592:  Always print error message to stdout.
             System.out.println(e);
 
+            CMS.debug("CMS.start(): shutdown server");
+
             shutdown();
             throw e;
 
@@ -1721,6 +1723,8 @@ public final class CMS {
                         ILogger.S_OTHER,
                         ILogger.LL_INFO,
                         "CMSEngine: Received shutdown signal");
+
+                CMS.debug("CMS.main(): shutdown server");
 
                 CMS.shutdown();
             };

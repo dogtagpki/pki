@@ -750,6 +750,7 @@ public final class CMSAdminServlet extends AdminServlet {
         if (stop != null) {
             //XXX Send response first then shutdown
             sendResponse(SUCCESS, null, params, resp);
+            CMS.debug("CMSAdminServlet.performTasks(): shutdown server");
             CMS.shutdown();
             return;
         }
@@ -3270,6 +3271,8 @@ public final class CMSAdminServlet extends AdminServlet {
                             content += logMessage
                                     + "\n";
                             sendResponse(ERROR, content, null, resp);
+
+                            CMS.debug("CMSAdminServlet.runSelfTestsOnDemand(): shutdown server");
 
                             // shutdown the system gracefully
                             CMS.shutdown();
