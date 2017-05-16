@@ -29,9 +29,9 @@ import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.ICAService;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.connector.IConnector;
-import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.event.SecurityDataArchivalEvent;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.profile.IProfileUpdater;
@@ -80,15 +80,10 @@ public class CAEnrollProfile extends EnrollProfile {
             throw new EProfileException("Profile Not Enabled");
         }
 
-        String auditMessage = null;
         String auditSubjectID = auditSubjectID();
         String auditRequesterID = auditRequesterID(request);
-        String auditArchiveID = ILogger.UNIDENTIFIED;
-
         String id = request.getRequestId().toString();
-        if (id != null) {
-            auditArchiveID = id.trim();
-        }
+
 
         CMS.debug("CAEnrollProfile: execute request ID " + id);
 
@@ -117,29 +112,21 @@ public class CAEnrollProfile extends EnrollProfile {
                         CMS.debug("CAEnrollProfile: KRA connector " +
                                 "not configured");
 
-                        auditMessage = CMS.getLogMessage(
-                                AuditEvent.PRIVATE_KEY_ARCHIVE_REQUEST,
+                        audit(new SecurityDataArchivalEvent(
                                 auditSubjectID,
                                 ILogger.FAILURE,
-                                auditRequesterID,
-                                auditArchiveID);
-
-                        audit(auditMessage);
-
+                                auditRequesterID));
                     } else {
                         CMS.debug("CAEnrollProfile: execute send request");
                         kraConnector.send(request);
 
                         // check response
                         if (!request.isSuccess()) {
-                            auditMessage = CMS.getLogMessage(
-                                    AuditEvent.PRIVATE_KEY_ARCHIVE_REQUEST,
+                            audit(new SecurityDataArchivalEvent(
                                     auditSubjectID,
                                     ILogger.FAILURE,
-                                    auditRequesterID,
-                                    auditArchiveID);
+                                    auditRequesterID));
 
-                            audit(auditMessage);
                             if (request.getError(getLocale(request)) != null &&
                                 (request.getError(getLocale(request))).equals(CMS.getUserMessage("CMS_KRA_INVALID_TRANSPORT_CERT"))) {
                                 CMS.debug("CAEnrollProfile: execute set request status: REJECTED");
@@ -150,14 +137,10 @@ public class CAEnrollProfile extends EnrollProfile {
                                     request.getError(getLocale(request)));
                         }
 
-                        auditMessage = CMS.getLogMessage(
-                                AuditEvent.PRIVATE_KEY_ARCHIVE_REQUEST,
+                        audit(new SecurityDataArchivalEvent(
                                 auditSubjectID,
                                 ILogger.SUCCESS,
-                                auditRequesterID,
-                                auditArchiveID);
-
-                        audit(auditMessage);
+                                auditRequesterID));
                     }
                 } catch (Exception e) {
 
@@ -167,14 +150,11 @@ public class CAEnrollProfile extends EnrollProfile {
                     CMS.debug("CAEnrollProfile: " + e);
                     CMS.debug(e);
 
-                    auditMessage = CMS.getLogMessage(
-                            AuditEvent.PRIVATE_KEY_ARCHIVE_REQUEST,
+                    audit(new SecurityDataArchivalEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
-                            auditRequesterID,
-                            auditArchiveID);
+                            auditRequesterID));
 
-                    audit(auditMessage);
                     throw new EProfileException(e);
                 }
             }

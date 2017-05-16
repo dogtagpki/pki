@@ -50,6 +50,7 @@ import com.netscape.certsrv.key.KeyRequestResponse;
 import com.netscape.certsrv.key.SymKeyGenerationRequest;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.event.SecurityDataArchivalEvent;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestNotFoundException;
 import com.netscape.cms.realm.PKIPrincipal;
@@ -354,13 +355,11 @@ public class KeyRequestService extends SubsystemService implements KeyRequestRes
     }
 
     public void auditArchivalRequestMade(RequestId requestId, String status, String clientKeyID) {
-        String msg = CMS.getLogMessage(
-                AuditEvent.SECURITY_DATA_ARCHIVAL_REQUEST,
+        audit(new SecurityDataArchivalEvent(
                 getRequestor(),
                 status,
-                requestId != null? requestId.toString(): "null",
-                clientKeyID);
-        auditor.log(msg);
+                requestId,
+                clientKeyID));
     }
 
     public void auditSymKeyGenRequestMade(RequestId requestId, String status, String clientKeyID) {

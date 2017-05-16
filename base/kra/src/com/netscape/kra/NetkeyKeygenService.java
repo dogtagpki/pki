@@ -49,6 +49,7 @@ import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.event.SecurityDataArchivalEvent;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.security.IStorageKeyUnit;
@@ -142,7 +143,6 @@ public class NetkeyKeygenService implements IService {
             throws EBaseException {
         String auditMessage = null;
         String auditSubjectID = null;
-        String auditArchiveID = ILogger.UNIDENTIFIED;
         byte[] wrapped_des_key;
 
         byte iv[] = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
@@ -164,11 +164,6 @@ public class NetkeyKeygenService implements IService {
         byte[] publicKeyData = null;
         ;
         String PubKey = "";
-
-        String id = request.getRequestId().toString();
-        if (id != null) {
-            auditArchiveID = id.trim();
-        }
 
         String rArchive = request.getExtDataInString(IRequest.NETKEY_ATTR_ARCHIVE_FLAG);
         if (rArchive.equals("true")) {
@@ -395,14 +390,10 @@ public class NetkeyKeygenService implements IService {
                     //
                     //            mKRA.log(ILogger.LL_INFO, "KRA encrypts internal private");
 
-                    auditMessage = CMS.getLogMessage(
-                            AuditEvent.PRIVATE_KEY_ARCHIVE_REQUEST,
+                    audit( new SecurityDataArchivalEvent(
                             agentId,
                             ILogger.SUCCESS,
-                            auditSubjectID,
-                            auditArchiveID);
-
-                    audit(auditMessage);
+                            auditSubjectID));
 
                     CMS.debug("KRA encrypts private key to put on internal ldap db");
                     byte privateKeyData[] = null;

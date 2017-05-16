@@ -81,6 +81,16 @@ public class SubsystemService extends PKIService {
                 getClass().getSimpleName() + ": " + message);
     }
 
+    protected void audit(AuditEvent event) {
+
+        String template = event.getMessage();
+        Object[] params = event.getParameters();
+
+        String message = CMS.getLogMessage(template, params);
+
+        auditor.log(message);
+    }
+
     public void audit(String message, String scope, String type, String id, Map<String, String> params, String status) {
 
         String auditMessage = CMS.getLogMessage(

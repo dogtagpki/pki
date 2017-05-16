@@ -52,6 +52,7 @@ import com.netscape.certsrv.dbs.certdb.ICertRecordList;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.event.SecurityDataArchivalEvent;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.profile.IProfileSubsystem;
@@ -368,10 +369,8 @@ public class CAService implements ICAService, IService {
      * @return true or false
      */
     public boolean serviceRequest(IRequest request) {
-        String auditMessage = null;
         String auditSubjectID = auditSubjectID();
         String auditRequesterID = auditRequesterID();
-        String auditArchiveID = ILogger.SIGNED_AUDIT_NON_APPLICABLE;
 
         boolean completed = false;
 
@@ -392,7 +391,7 @@ public class CAService implements ICAService, IService {
                 request.setExtData(IRequest.RESULT, IRequest.RES_ERROR);
                 request.setExtData(IRequest.ERROR, e.toString());
 
-                audit(auditMessage);
+                // TODO(alee) New audit message needed here
 
                 return false;
             }
@@ -420,14 +419,10 @@ public class CAService implements ICAService, IService {
                 CMS.debug("CAService: Sending enrollment request to KRA");
 
                 // store a message in the signed audit log file
-                auditMessage = CMS.getLogMessage(
-                        AuditEvent.PRIVATE_KEY_ARCHIVE_REQUEST,
+                audit(new SecurityDataArchivalEvent(
                         auditSubjectID,
                         ILogger.SUCCESS,
-                        auditRequesterID,
-                        auditArchiveID);
-
-                audit(auditMessage);
+                        auditRequesterID));
 
                 boolean sendStatus = mKRAConnector.send(request);
 
@@ -439,14 +434,10 @@ public class CAService implements ICAService, IService {
                                 new ECAException(CMS.getUserMessage("CMS_CA_SEND_KRA_REQUEST")));
 
                         // store a message in the signed audit log file
-                        auditMessage = CMS.getLogMessage(
-                                AuditEvent.PRIVATE_KEY_ARCHIVE_REQUEST,
+                        audit(new SecurityDataArchivalEvent(
                                 auditSubjectID,
                                 ILogger.FAILURE,
-                                auditRequesterID,
-                                auditArchiveID);
-
-                        audit(auditMessage);
+                                auditRequesterID));
 
                         return true;
                     } else {
@@ -457,14 +448,10 @@ public class CAService implements ICAService, IService {
                     }
                     if (request.getExtDataInString(IRequest.ERROR) != null) {
                         // store a message in the signed audit log file
-                        auditMessage = CMS.getLogMessage(
-                                AuditEvent.PRIVATE_KEY_ARCHIVE_REQUEST,
+                        audit(new SecurityDataArchivalEvent(
                                 auditSubjectID,
                                 ILogger.FAILURE,
-                                auditRequesterID,
-                                auditArchiveID);
-
-                        audit(auditMessage);
+                                auditRequesterID));
 
                         return true;
                     }
@@ -484,14 +471,10 @@ public class CAService implements ICAService, IService {
             // store a message in the signed audit log file
             if (!(type.equals(IRequest.REVOCATION_REQUEST) ||
                     type.equals(IRequest.UNREVOCATION_REQUEST) || type.equals(IRequest.CMCREVOKE_REQUEST))) {
-                auditMessage = CMS.getLogMessage(
-                        AuditEvent.PRIVATE_KEY_ARCHIVE_REQUEST,
+                audit(new SecurityDataArchivalEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
-                        auditRequesterID,
-                        auditArchiveID);
-
-                audit(auditMessage);
+                        auditRequesterID));
             }
 
             return true;
@@ -504,14 +487,10 @@ public class CAService implements ICAService, IService {
         if (!(type.equals(IRequest.REVOCATION_REQUEST) ||
                 type.equals(IRequest.UNREVOCATION_REQUEST) || type.equals(IRequest.CMCREVOKE_REQUEST))) {
             // store a message in the signed audit log file
-            auditMessage = CMS.getLogMessage(
-                    AuditEvent.PRIVATE_KEY_ARCHIVE_REQUEST,
+            audit(new SecurityDataArchivalEvent(
                     auditSubjectID,
                     ILogger.SUCCESS,
-                    auditRequesterID,
-                    auditArchiveID);
-
-            audit(auditMessage);
+                    auditRequesterID));
         }
 
         return completed;
