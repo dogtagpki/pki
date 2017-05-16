@@ -34,6 +34,24 @@
       "revId": "594c0e624b60aa28e96cadee30b134ce36073edc",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "33df2fb4_a512eccd",
+        "filename": "base/server/cmsbundle/src/LogMessages.properties",
+        "patchSetId": 4
+      },
+      "lineNbr": 2089,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-05-16T14:28:32Z",
+      "side": 1,
+      "message": "ok",
+      "parentUuid": "e4367b52_27c319bb",
+      "revId": "594c0e624b60aa28e96cadee30b134ce36073edc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
