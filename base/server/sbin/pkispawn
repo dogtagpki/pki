@@ -756,6 +756,16 @@ def print_final_install_information(mdict):
               "      is a clone." %
               (deployer.subsystem_name, mdict['pki_instance_name']))
 
+    if mdict['pki_fips_mode_enabled']:
+        print()
+        print("      This %s subsystem of the '%s' instance\n"
+              "      has FIPS mode enabled on this operating system." %
+              (deployer.subsystem_name, mdict['pki_instance_name']))
+        print()
+        print("      REMINDER:  Don't forget to update the appropriate FIPS\n"
+              "                 algorithms in server.xml in the '%s' instance."
+              % mdict['pki_instance_name'])
+
     print(log.PKI_CHECK_STATUS_MESSAGE % mdict['pki_instance_name'])
     print(log.PKI_INSTANCE_RESTART_MESSAGE % mdict['pki_instance_name'])
 

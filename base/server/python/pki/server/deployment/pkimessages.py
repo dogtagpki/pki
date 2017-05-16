@@ -222,6 +222,10 @@ PKIHELPER_GROUP_ADD_2 = "adding GID '%s' for group '%s' . . ."
 PKIHELPER_GROUP_ADD_DEFAULT_2 = "adding default GID '%s' for group '%s' . . ."
 PKIHELPER_GROUP_ADD_GID_KEYERROR_1 = "KeyError:  pki_gid %s"
 PKIHELPER_GROUP_ADD_KEYERROR_1 = "KeyError:  pki_group %s"
+PKIHELPER_FIPS_MODE_IS_ENABLED = "FIPS mode is enabled on this operating "\
+    "system."
+PKIHELPER_FIPS_MODE_IS_NOT_ENABLED = "FIPS mode is NOT enabled on this "\
+    "operating system."
 PKIHELPER_HSM_CLONES_MUST_SHARE_HSM_MASTER_PRIVATE_KEYS = \
     "Since clones using Hardware Security Modules (HSMs) must share their "\
     "master's private keys, the 'pki_clone_pkcs12_path' and "\
