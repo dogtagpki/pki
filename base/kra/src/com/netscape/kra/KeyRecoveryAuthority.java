@@ -58,6 +58,7 @@ import com.netscape.certsrv.kra.IKeyService;
 import com.netscape.certsrv.listeners.EListenersException;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.event.SecurityDataArchivalEvent;
 import com.netscape.certsrv.request.ARequestNotifier;
 import com.netscape.certsrv.request.IPolicy;
 import com.netscape.certsrv.request.IRequest;
@@ -751,11 +752,9 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         String auditSubjectID = auditSubjectID();
         String auditRequesterID = auditRequesterID();
         String auditPublicKey = auditPublicKey(rec);
-        String auditArchiveID = ILogger.UNIDENTIFIED;
 
         IRequestQueue queue = null;
         IRequest r = null;
-        String id = null;
 
         // ensure that any low-level exceptions are reported
         // to the signed audit log and stored as failures
@@ -764,34 +763,18 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
             r = queue.newRequest(KRAService.ENROLLMENT);
 
-            if (r != null) {
-                // overwrite "auditArchiveID" if and only if "id" != null
-                id = r.getRequestId().toString();
-                if (id != null) {
-                    auditArchiveID = id.trim();
-                }
-            }
-
             // store a message in the signed audit log file
-            auditMessage = CMS.getLogMessage(
-                        AuditEvent.PRIVATE_KEY_ARCHIVE_REQUEST,
+            audit(new SecurityDataArchivalEvent(
                         auditSubjectID,
                         ILogger.SUCCESS,
-                        auditRequesterID,
-                        auditArchiveID);
+                        auditRequesterID));
 
-            audit(auditMessage);
         } catch (EBaseException eAudit1) {
             // store a message in the signed audit log file
-            auditMessage = CMS.getLogMessage(
-                        AuditEvent.PRIVATE_KEY_ARCHIVE_REQUEST,
+            audit(new SecurityDataArchivalEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
-                        auditRequesterID,
-                        auditArchiveID);
-
-            audit(auditMessage);
-
+                        auditRequesterID));
             throw eAudit1;
         }
 
