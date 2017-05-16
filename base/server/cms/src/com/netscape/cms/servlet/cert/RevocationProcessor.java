@@ -39,6 +39,7 @@ import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.event.CertStatusChangeRequestProcessedEvent;
 import com.netscape.certsrv.publish.IPublisherProcessor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
@@ -505,17 +506,14 @@ public class RevocationProcessor extends CertProcessor {
                 || requestStatus == RequestStatus.REJECTED
                 || requestStatus == RequestStatus.CANCELED)) return;
 
-        String auditMessage = CMS.getLogMessage(
-                AuditEvent.CERT_STATUS_CHANGE_REQUEST_PROCESSED,
+        auditor.log(new CertStatusChangeRequestProcessedEvent(
                 auditor.getSubjectID(),
                 status,
                 requestID == null ? ILogger.UNIDENTIFIED : requestID.toString(),
                 serialNumber == null ? ILogger.SIGNED_AUDIT_EMPTY_VALUE : serialNumber.toHexString(),
                 requestType,
                 String.valueOf(revocationReason.toInt()),
-                requestStatus == null ? ILogger.SIGNED_AUDIT_EMPTY_VALUE : requestStatus.toString());
-
-        auditor.log(auditMessage);
+                requestStatus));
     }
 
     public void log(int level, String message) {

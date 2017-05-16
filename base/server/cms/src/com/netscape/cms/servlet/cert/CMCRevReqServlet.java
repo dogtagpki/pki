@@ -31,13 +31,6 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import netscape.security.x509.CRLExtensions;
-import netscape.security.x509.CRLReasonExtension;
-import netscape.security.x509.InvalidityDateExtension;
-import netscape.security.x509.RevocationReason;
-import netscape.security.x509.RevokedCertImpl;
-import netscape.security.x509.X509CertImpl;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.EMissingCredential;
@@ -56,6 +49,7 @@ import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.event.CertStatusChangeRequestProcessedEvent;
 import com.netscape.certsrv.publish.IPublisherProcessor;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
@@ -68,6 +62,13 @@ import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmsutil.util.Utils;
+
+import netscape.security.x509.CRLExtensions;
+import netscape.security.x509.CRLReasonExtension;
+import netscape.security.x509.InvalidityDateExtension;
+import netscape.security.x509.RevocationReason;
+import netscape.security.x509.RevokedCertImpl;
+import netscape.security.x509.X509CertImpl;
 
 /**
  * Revoke a certificate with a CMC-formatted revocation request
@@ -810,17 +811,15 @@ public class CMCRevReqServlet extends CMSServlet {
             if (auditApprovalStatus == RequestStatus.COMPLETE ||
                     auditApprovalStatus == RequestStatus.REJECTED ||
                     auditApprovalStatus == RequestStatus.CANCELED) {
-                auditMessage = CMS.getLogMessage(
-                        AuditEvent.CERT_STATUS_CHANGE_REQUEST_PROCESSED,
+
+                audit(new CertStatusChangeRequestProcessedEvent(
                         auditSubjectID,
                         ILogger.SUCCESS,
                         auditRequesterID,
                         auditSerialNumber,
                         auditRequestType,
                         auditReasonNum,
-                        auditApprovalStatus == null ? ILogger.SIGNED_AUDIT_EMPTY_VALUE : auditApprovalStatus.toString());
-
-                audit(auditMessage);
+                        auditApprovalStatus));
             }
 
         } catch (CertificateException e) {
@@ -844,17 +843,15 @@ public class CMCRevReqServlet extends CMSServlet {
                 if (auditApprovalStatus == RequestStatus.COMPLETE ||
                         auditApprovalStatus == RequestStatus.REJECTED ||
                         auditApprovalStatus == RequestStatus.CANCELED) {
-                    auditMessage = CMS.getLogMessage(
-                            AuditEvent.CERT_STATUS_CHANGE_REQUEST_PROCESSED,
+
+                    audit(new CertStatusChangeRequestProcessedEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditRequesterID,
                             auditSerialNumber,
                             auditRequestType,
                             auditReasonNum,
-                            auditApprovalStatus == null ? ILogger.SIGNED_AUDIT_EMPTY_VALUE : auditApprovalStatus.toString());
-
-                    audit(auditMessage);
+                            auditApprovalStatus));
                 }
             }
 
@@ -882,17 +879,15 @@ public class CMCRevReqServlet extends CMSServlet {
                 if (auditApprovalStatus == RequestStatus.COMPLETE ||
                         auditApprovalStatus == RequestStatus.REJECTED ||
                         auditApprovalStatus == RequestStatus.CANCELED) {
-                    auditMessage = CMS.getLogMessage(
-                            AuditEvent.CERT_STATUS_CHANGE_REQUEST_PROCESSED,
+
+                    audit(new CertStatusChangeRequestProcessedEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditRequesterID,
                             auditSerialNumber,
                             auditRequestType,
                             auditReasonNum,
-                            auditApprovalStatus == null ? ILogger.SIGNED_AUDIT_EMPTY_VALUE : auditApprovalStatus.toString());
-
-                    audit(auditMessage);
+                            auditApprovalStatus));
                 }
             }
 
@@ -921,17 +916,15 @@ public class CMCRevReqServlet extends CMSServlet {
                 if (auditApprovalStatus == RequestStatus.COMPLETE ||
                         auditApprovalStatus == RequestStatus.REJECTED ||
                         auditApprovalStatus == RequestStatus.CANCELED) {
-                    auditMessage = CMS.getLogMessage(
-                            AuditEvent.CERT_STATUS_CHANGE_REQUEST_PROCESSED,
+
+                    audit(new CertStatusChangeRequestProcessedEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditRequesterID,
                             auditSerialNumber,
                             auditRequestType,
                             auditReasonNum,
-                            auditApprovalStatus == null ? ILogger.SIGNED_AUDIT_EMPTY_VALUE : auditApprovalStatus.toString());
-
-                    audit(auditMessage);
+                            auditApprovalStatus));
                 }
             }
 
@@ -957,17 +950,15 @@ public class CMCRevReqServlet extends CMSServlet {
                 if (auditApprovalStatus == RequestStatus.COMPLETE ||
                         auditApprovalStatus == RequestStatus.REJECTED ||
                         auditApprovalStatus == RequestStatus.CANCELED) {
-                    auditMessage = CMS.getLogMessage(
-                            AuditEvent.CERT_STATUS_CHANGE_REQUEST_PROCESSED,
+
+                    audit(new CertStatusChangeRequestProcessedEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditRequesterID,
                             auditSerialNumber,
                             auditRequestType,
                             auditReasonNum,
-                            auditApprovalStatus == null ? ILogger.SIGNED_AUDIT_EMPTY_VALUE : auditApprovalStatus.toString());
-
-                    audit(auditMessage);
+                            auditApprovalStatus));
                 }
             }
 
