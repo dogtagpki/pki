@@ -66,6 +66,8 @@ public class PKCS10Attributes extends Vector<PKCS10Attribute> implements DerEnco
             for (int i = 0; i < attrs.length; i++) {
                 PKCS10Attribute attr = new PKCS10Attribute(attrs[i]);
                 addElement(attr);
+                System.out.println("PKCS10Attributes: adding attribute: " +
+                        attr.getAttributeValue().getName());
                 map.put(attr.getAttributeValue().getName(), attr);
             }
         }

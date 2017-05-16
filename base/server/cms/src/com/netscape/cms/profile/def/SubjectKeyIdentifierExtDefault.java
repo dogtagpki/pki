@@ -37,6 +37,7 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
  * This class implements an enrollment default policy
@@ -195,22 +196,26 @@ public class SubjectKeyIdentifierExtDefault extends EnrollExtDefault {
     }
 
     public KeyIdentifier getKeyIdentifier(X509CertInfo info) {
+        String method = "SubjectKeyIdentifierExtDefault: getKeyIdentifier: ";
         try {
             CertificateX509Key infokey = (CertificateX509Key)
                     info.get(X509CertInfo.KEY);
             X509Key key = (X509Key) infokey.get(CertificateX509Key.KEY);
-            MessageDigest md = MessageDigest.getInstance("SHA-1");
 
-            md.update(key.getKey());
-            byte[] hash = md.digest();
+            // "SHA-1" is default for CryptoUtil.generateKeyIdentifier.
+            // you could specify different algorithm with the alg parameter
+            // like this:
+            //byte[] hash = CryptoUtil.generateKeyIdentifier(key.getKey(), "SHA-256");
+            byte[] hash = CryptoUtil.generateKeyIdentifier(key.getKey());
 
+            if (hash == null) {
+                CMS.debug(method +
+                    "CryptoUtil.generateKeyIdentifier returns null");
+                return null;
+            }
             return new KeyIdentifier(hash);
-        } catch (NoSuchAlgorithmException e) {
-            CMS.debug("SubjectKeyIdentifierExtDefault: getKeyIdentifier " +
-                    e.toString());
         } catch (Exception e) {
-            CMS.debug("SubjectKeyIdentifierExtDefault: getKeyIdentifier " +
-                    e.toString());
+            CMS.debug(method + e.toString());
         }
         return null;
     }

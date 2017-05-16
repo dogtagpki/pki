@@ -17,19 +17,15 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmstools;
 
-import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.security.KeyPair;
-import java.security.PublicKey;
 
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.BMPString;
-import org.mozilla.jss.asn1.INTEGER;
 import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
 import org.mozilla.jss.asn1.PrintableString;
-import org.mozilla.jss.asn1.SET;
 import org.mozilla.jss.asn1.TeletexString;
 import org.mozilla.jss.asn1.UTF8String;
 import org.mozilla.jss.asn1.UniversalString;
@@ -37,20 +33,17 @@ import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.KeyPairAlgorithm;
 import org.mozilla.jss.crypto.KeyPairGenerator;
 import org.mozilla.jss.crypto.PrivateKey;
-import org.mozilla.jss.crypto.SignatureAlgorithm;
-import org.mozilla.jss.pkcs10.CertificationRequest;
-import org.mozilla.jss.pkcs10.CertificationRequestInfo;
 import org.mozilla.jss.pkix.primitive.AVA;
 import org.mozilla.jss.pkix.primitive.Name;
-import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
 import org.mozilla.jss.util.Password;
 
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import com.netscape.cmsutil.util.Utils;
 
 import netscape.security.pkcs.PKCS10;
+import netscape.security.x509.Extensions;
+import netscape.security.x509.KeyIdentifier;
+import netscape.security.x509.SubjectKeyIdentifierExtension;
 import netscape.security.x509.X500Name;
-import netscape.security.x509.X509Key;
 
 /**
  * Generates an ECC or RSA key pair in the security database, constructs a
@@ -91,6 +84,8 @@ public class PKCS10Client {
                 "    -x <true for SSL cert that does ECDH ECDSA; false otherwise; default false>\n");
         System.out.println(
                 "   available ECC curve names (if provided by the crypto module): nistp256 (secp256r1),nistp384 (secp384r1),nistp521 (secp521r1),nistk163 (sect163k1),sect163r1,nistb163 (sect163r2),sect193r1,sect193r2,nistk233 (sect233k1),nistb233 (sect233r1),sect239k1,nistk283 (sect283k1),nistb283 (sect283r1),nistk409 (sect409k1),nistb409 (sect409r1),nistk571 (sect571k1),nistb571 (sect571r1),secp160k1,secp160r1,secp160r2,secp192k1,nistp192 (secp192r1, prime192v1),secp224k1,nistp224 (secp224r1),secp256k1,prime192v2,prime192v3,prime239v1,prime239v2,prime239v3,c2pnb163v1,c2pnb163v2,c2pnb163v3,c2pnb176v1,c2tnb191v1,c2tnb191v2,c2tnb191v3,c2pnb208w1,c2tnb239v1,c2tnb239v2,c2tnb239v3,c2pnb272w1,c2pnb304w1,c2tnb359w1,c2pnb368w1,c2tnb431r1,secp112r1,secp112r2,secp128r1,secp128r2,sect113r1,sect113r2,sect131r1,sect131r2\n");
+        System.out.println(
+                "In addition: -y <true for adding SubjectKeyIdentifier extensionfor self-signed cmc requests; false otherwise; default false>\n");
     }
 
     public static void main(String args[]) throws Exception {
@@ -104,6 +99,8 @@ public class PKCS10Client {
         int ec_extractable = -1; /* -1, 0, or 1 */
         boolean ec_ssl_ecdh = false;
         int rsa_keylen = 2048;
+
+        boolean self_sign = false;
 
         if (args.length < 4) {
             printUsage();
@@ -171,6 +168,12 @@ public class PKCS10Client {
                 subjectName = args[i+1];
             } else if (name.equals("-h")) {
                 tokenName = args[i+1];
+            } else if (name.equals("-y")) {
+                String temp = args[i+1];
+                if (temp.equals("true"))
+                    self_sign = true;
+                else
+                    self_sign = false;
             } else {
                 System.out.println("Unrecognized argument(" + i + "): "
                     + name);
@@ -273,55 +276,29 @@ public class PKCS10Client {
             Attribute attr = new Attribute(OBJECT_IDENTIFIER.id_cmc_idPOPLinkWitness, ostr);
             ***/
 
-            SET attributes = new SET();
-            //attributes.addElement(attr);
-            Name n = getJssName(enable_encoding, subjectName);
-            SubjectPublicKeyInfo subjectPub = new SubjectPublicKeyInfo(pair.getPublic());
-            System.out.println("PKCS10Client: pair.getPublic() called.");
-            CertificationRequestInfo certReqInfo =
-                new CertificationRequestInfo(new INTEGER(0), n, subjectPub, attributes);
-            System.out.println("PKCS10Client: CertificationRequestInfo() created.");
+
+            Extensions extns = new Extensions();
+            if (self_sign) { // per rfc 5272
+                System.out.println("PKCS10Client: self_sign true. Generating SubjectKeyIdentifier extension.");
+                KeyIdentifier subjKeyId = CryptoUtil.createKeyIdentifier(pair);
+                SubjectKeyIdentifierExtension extn = new SubjectKeyIdentifierExtension(false,
+                        subjKeyId.getIdentifier());
+                extns.add(extn);
+            }
 
             String b64E = "";
-            if (alg.equals("rsa")) {
-                CertificationRequest certRequest = null;
-                certRequest = new CertificationRequest(certReqInfo,
-                pair.getPrivate(), SignatureAlgorithm.RSASignatureWithSHA256Digest);
+            PKCS10 certReq = CryptoUtil.createCertificationRequest(
+                    subjectName, pair, extns);
+
+            if (certReq == null) {
+                System.out.println("PKCS10Client: cert request null");
+                System.exit(1);
+            } else
                 System.out.println("PKCS10Client: CertificationRequest created.");
+            byte[] certReqb = certReq.toByteArray();
+            b64E = CryptoUtil.base64Encode(certReqb);
 
-                ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                certRequest.encode(bos);
-                byte[] bb = bos.toByteArray();
-
-                System.out.println("PKCS10Client: calling Utils.b64encode.");
-                b64E = Utils.base64encode(bb);
-                System.out.println("PKCS10Client: b64encode completes.");
-            } else { // "ec"
-
-                CryptoToken t = cm.getThreadToken();
-                System.out.println("PKCS10Client: token is: "+ t.getName());
-                PublicKey pubk =  pair.getPublic();
-                if (pubk == null) {
-                    System.out.println("PKCS10Client: pubk null.");
-                    System.exit(1);
-                }
-                X509Key xKey = null;
-                byte pubk_encoded[] =  pubk.getEncoded();
-                xKey = CryptoUtil.getPublicX509ECCKey(pubk_encoded);
-                System.out.println("PKCS10Client: calling CryptoUtil.createCertificationRequest");
-                PKCS10 certReq = CryptoUtil.createCertificationRequest(
-                    subjectName, xKey, (org.mozilla.jss.crypto.PrivateKey) pair.getPrivate(),
-                    "SHA256withEC");
-
-                System.out.println("PKCS10Client: created cert request");
-                if (certReq == null) {
-                    System.out.println("PKCS10Client: cert request null");
-                    System.exit(1);
-                } else
-                    System.out.println("PKCS10Client: cert request not null");
-                byte[] certReqb = certReq.toByteArray();
-                b64E = CryptoUtil.base64Encode(certReqb);
-            }
+            System.out.println("PKCS10Client: b64encode completes.");
 
             // print out keyid to be used in cmc popLinkWitnessV2
             PrivateKey privateKey = (PrivateKey) pair.getPrivate();

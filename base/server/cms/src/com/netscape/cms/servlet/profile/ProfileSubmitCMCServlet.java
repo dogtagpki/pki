@@ -39,12 +39,16 @@ import org.mozilla.jss.pkix.cmc.OtherInfo;
 import org.mozilla.jss.pkix.cmc.TaggedAttribute;
 
 import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.authentication.EInvalidCredentials;
+import com.netscape.certsrv.authentication.EMissingCredential;
 import com.netscape.certsrv.authentication.IAuthManager;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.event.AuthFailEvent;
+import com.netscape.certsrv.logging.event.AuthSuccessEvent;
 import com.netscape.certsrv.logging.event.CertRequestProcessedEvent;
 import com.netscape.certsrv.profile.EDeferException;
 import com.netscape.certsrv.profile.EProfileException;
@@ -143,6 +147,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
 
     public IAuthToken authenticate(IProfileAuthenticator authenticator,
             HttpServletRequest request) throws EBaseException {
+        String method = "ProfileSubmitCMCServlet: authenticate: ";
         AuthCredentials credentials = new AuthCredentials();
 
         // build credential
@@ -158,15 +163,47 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                     credentials.set(authName, request.getParameter(authName));
             }
         }
-        IAuthToken authToken = authenticator.authenticate(credentials);
 
+        IAuthToken authToken = null;
+        String auditSubjectID = null;
+        String authMgrID = authenticator.getName();
         SessionContext sc = SessionContext.getContext();
-        if (sc != null) {
-            sc.put(SessionContext.AUTH_MANAGER_ID, authenticator.getName());
-            String userid = authToken.getInString(IAuthToken.USER_ID);
-            if (userid != null) {
-                sc.put(SessionContext.USER_ID, userid);
+
+        try {
+            authToken = authenticator.authenticate(credentials);
+            if (sc != null) {
+                sc.put(SessionContext.AUTH_MANAGER_ID, authMgrID);
+                auditSubjectID = authToken.getInString(IAuthToken.USER_ID);
+                if (auditSubjectID != null) {
+                    CMS.debug(method + "setting auditSubjectID in SessionContext:" +
+                            auditSubjectID);
+                    sc.put(SessionContext.USER_ID, auditSubjectID);
+                } else {
+                    CMS.debug(method + "no auditSubjectID found in authToken");
+                }
             }
+
+            if (!auditSubjectID.equals(ILogger.UNIDENTIFIED) &&
+                    !auditSubjectID.equals(ILogger.NONROLEUSER)) {
+                audit(new AuthSuccessEvent(
+                        auditSubjectID,
+                        ILogger.SUCCESS,
+                        authMgrID));
+            }
+
+        } catch (EBaseException e) {
+            CMS.debug(method + e);
+            String attempted_auditSubjectID = null;
+            if (sc != null) {
+                attempted_auditSubjectID =
+                        (String) sc.get(SessionContext.USER_ID);
+            }
+            audit(new AuthFailEvent(
+                    auditSubjectID,
+                    ILogger.FAILURE,
+                    authMgrID,
+                    attempted_auditSubjectID));
+            throw(e);
         }
 
         return authToken;

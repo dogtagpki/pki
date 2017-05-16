@@ -1032,13 +1032,17 @@ public class KeyCertUtil {
 
     public static KeyIdentifier createKeyIdentifier(KeyPair keypair)
             throws NoSuchAlgorithmException, InvalidKeyException {
-        MessageDigest md = MessageDigest.getInstance("SHA-1");
         X509Key subjectKeyInfo = convertPublicKeyToX509Key(
                 keypair.getPublic());
 
-        //md.update(subjectKeyInfo.getEncoded());
-        md.update(subjectKeyInfo.getKey());
-        return new KeyIdentifier(md.digest());
+        byte[] hash = CryptoUtil.generateKeyIdentifier(subjectKeyInfo.getKey());
+
+        if (hash == null) {
+            CMS.debug("KeyCertUtil: createKeyIdentifier " +
+                "CryptoUtil.generateKeyIdentifier returns null");
+            return null;
+        }
+        return new KeyIdentifier(hash);
     }
 
     public static BigInteger getSerialNumber(LDAPConnection conn, String baseDN)

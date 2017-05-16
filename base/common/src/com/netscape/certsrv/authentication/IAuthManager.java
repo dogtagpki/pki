@@ -33,6 +33,7 @@ public interface IAuthManager {
 
     /* standard credential for CMC request signing cert */
     public static final String CRED_CMC_SIGNING_CERT = "cmcSigningCert";
+    public static final String CRED_CMC_SELF_SIGNED = "cmcSelfSigned";
 
     /**
      * Standard credential for client cert's serial number from revocation.

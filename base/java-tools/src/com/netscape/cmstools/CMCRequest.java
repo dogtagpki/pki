@@ -103,6 +103,9 @@ import com.netscape.cmsutil.util.HMACDigest;
 import com.netscape.cmsutil.util.Utils;
 
 import netscape.security.pkcs.PKCS10;
+import netscape.security.x509.KeyIdentifier;
+import netscape.security.x509.PKIXExtensions;
+import netscape.security.x509.SubjectKeyIdentifierExtension;
 import netscape.security.x509.X500Name;
 import netscape.security.x509.X509CertImpl;
 
@@ -121,6 +124,7 @@ public class CMCRequest {
     public static final int ARGC = 1;
     public static final String HEADER = "-----BEGIN";
     public static final String TRAILER = "-----END";
+    public static SubjectKeyIdentifierExtension skiExtn = null;
 
     void cleanArgs(String[] s) {
 
@@ -193,7 +197,7 @@ public class CMCRequest {
     }
 
     /**
-     * signData signs the request PKIData
+     * signData signs the request PKIData using existing cert
      *
      * @param signerCert the certificate of the authorized signer of the CMC revocation request.
      * @param nickname the nickname of the certificate inside the token.
@@ -211,6 +215,15 @@ public class CMCRequest {
         String method = "signData: ";
         SignedData req = null;
         System.out.println(method + "begins: ");
+
+        if (signerCert == null ||
+                tokenName == null ||
+                nickname == null ||
+                manager == null ||
+                pkidata == null) {
+            System.out.println(method + "method parameters cannot be null");
+            System.exit(1);
+        }
 
         try {
             java.security.PrivateKey privKey = null;
@@ -232,7 +245,72 @@ public class CMCRequest {
             privKey = getPrivateKey(tokenName, nickname);
             if (privKey != null)
                 System.out.println(method + " got signer privKey");
+            else {
+                System.out.println(method + " signer privKey not foudn on token");
+                System.exit(1);
+            }
 
+            org.mozilla.jss.crypto.X509Certificate[] certChain = manager.buildCertificateChain(signerCert);
+            req = createSignedData(privKey, si, certChain, pkidata);
+
+            System.out.println(method + "signed request generated.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+
+        return req;
+    }
+
+    /*
+     * signData self-signs the PKIData using the private key that matches
+     * the public key in the request
+     */
+    static SignedData signData(
+            java.security.PrivateKey privKey,
+            PKIData pkidata) {
+        String method = "signData for selfSign: ";
+        System.out.println(method + "begins: ");
+        SignedData req = null;
+
+        if (privKey == null ||
+                pkidata == null) {
+            System.out.println(method + "method parameters cannot be null");
+            System.exit(1);
+        }
+
+        KeyIdentifier keyIdObj = null;
+        try {
+            keyIdObj = (KeyIdentifier) skiExtn.get(SubjectKeyIdentifierExtension.KEY_ID);
+            SignerIdentifier si = new SignerIdentifier(
+                    SignerIdentifier.SUBJECT_KEY_IDENTIFIER,
+                    null, new OCTET_STRING(keyIdObj.getIdentifier()));
+            req = createSignedData(privKey, si, null /*certChain*/, pkidata);
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+        return req;
+    }
+
+    static SignedData createSignedData(
+            java.security.PrivateKey privKey,
+            SignerIdentifier signerId,
+            org.mozilla.jss.crypto.X509Certificate[] certChain,
+            PKIData pkidata) {
+
+        String method = "createSignedData: ";
+        System.out.println(method + "begins");
+        if (privKey == null ||
+                signerId == null ||
+                pkidata == null) {
+            // certChain could be null
+            System.out.println(method + "method parameters cannot be null");
+            System.exit(1);
+        }
+
+        SignedData req = null;
+        try {
             EncapsulatedContentInfo ci = new EncapsulatedContentInfo(OBJECT_IDENTIFIER.id_cct_PKIData, pkidata);
             DigestAlgorithm digestAlg = null;
             SignatureAlgorithm signAlg = getSigningAlgFromPrivate(privKey);
@@ -251,11 +329,18 @@ public class CMCRequest {
                 pkidata.encode(ostream);
                 digest = SHADigest.digest(ostream.toByteArray());
             } catch (NoSuchAlgorithmException e) {
-                System.out.println(e); System.exit(1);}
+                System.out.println(e);
+                System.exit(1);
+            }
             System.out.println(method + "digest created for pkidata");
 
-            SignerInfo signInfo = new SignerInfo(si, null, null, OBJECT_IDENTIFIER.id_cct_PKIData, digest, signAlg,
+            SignerInfo signInfo = new SignerInfo(signerId, null, null,
+                    OBJECT_IDENTIFIER.id_cct_PKIData, digest, signAlg,
                     (org.mozilla.jss.crypto.PrivateKey) privKey);
+
+            String digestAlgName = signInfo.getDigestEncryptionAlgorithm().toString();
+            System.out.println(method + "digest algorithm =" + digestAlgName);
+
             SET signInfos = new SET();
             signInfos.addElement(signInfo);
 
@@ -266,21 +351,20 @@ public class CMCRequest {
                 digestAlgs.addElement(ai);
             }
 
-            org.mozilla.jss.crypto.X509Certificate[] agentChain = manager.buildCertificateChain(signerCert);
             SET certs = new SET();
-
-            for (int i = 0; i < agentChain.length; i++) {
-                ANY cert = new ANY(agentChain[i].getEncoded());
-                certs.addElement(cert);
+            if (certChain != null) {
+                System.out.println(method + "building cert chain");
+                for (int i = 0; i < certChain.length; i++) {
+                    ANY cert = new ANY(certChain[i].getEncoded());
+                    certs.addElement(cert);
+                }
             }
 
             req = new SignedData(digestAlgs, ci, certs, null, signInfos);
-            System.out.println(method + "signed request generated.");
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(1);
         }
-
         return req;
     }
 
@@ -325,6 +409,7 @@ public class CMCRequest {
      * @return request in PKIData
      */
     static PKIData createPKIData(
+            String selfSign,
             String[] rValue, String format, String transactionMgtEnable,
             String transactionMgtId,
             String identificationEnable, String identification,
@@ -387,13 +472,26 @@ public class CMCRequest {
                         }
                         certReqMsg = (CertReqMsg) crmfMsgs.elementAt(0);
 
+                        CertRequest certReq = certReqMsg.getCertReq();
+                        CertTemplate certTemplate = certReq.getCertTemplate();
+                        if (selfSign.equals("true")) {
+                            skiExtn = (SubjectKeyIdentifierExtension) CryptoUtil.getExtensionFromCertTemplate(
+                                    certTemplate,
+                                    PKIXExtensions.SubjectKey_Id);
+                            if (skiExtn != null) {
+                                System.out.println(method +
+                                        " SubjectKeyIdentifier extension found in self-signed request");
+                            } else {
+                                System.out.println(method +
+                                        " SubjectKeyIdentifier extension missing in self-signed request");
+                                System.exit(1);
+                            }
+                        }
                         if (popLinkWitnessV2Enable.equals("true")) {
                             System.out.println(method +
                                     "popLinkWitnessV2 enabled. reconstructing crmf");
                             //crmf reconstruction to include PopLinkWitnessV2 control
-                            CertRequest certReq = certReqMsg.getCertReq();
                             INTEGER certReqId = certReq.getCertReqId();
-                            CertTemplate certTemplate = certReq.getCertTemplate();
                             SEQUENCE controls = certReq.getControls();
                             controls.addElement(new AVA(OBJECT_IDENTIFIER.id_cmc_popLinkWitnessV2,
                                     popLinkWitnessV2Control));
@@ -448,6 +546,22 @@ public class CMCRequest {
                         } catch (Exception e2) {
                             System.out.println(method + " Excception:" + e2.toString());
                             System.exit(1);
+                        }
+
+                        if (selfSign.equals("true")) {
+                            try {
+                                skiExtn = (SubjectKeyIdentifierExtension) CryptoUtil.getExtensionFromPKCS10(
+                                        pkcs, "SubjectKeyIdentifier");
+                            } catch (IOException e) {
+                                System.out.println(method + "getting SubjectKeyIdentifiere..." + e);
+                            }
+
+                            if (skiExtn != null) {
+                                System.out.println(method + " SubjectKeyIdentifier extension found");
+                            } else {
+                                System.out.println(method + " SubjectKeyIdentifier extension missing");
+                                System.exit(1);
+                            }
                         }
                         ByteArrayInputStream crInputStream = new ByteArrayInputStream(
                                 pkcs.toByteArray());
@@ -661,7 +775,12 @@ public class CMCRequest {
         System.out.println("");
         System.out.println("#nickname: nickname for agent certificate which will be used");
         System.out.println("#to sign the CMC full request.");
+        System.out.println("#selfSign: if selfSign is true, the CMC request will be");
+        System.out.println("#signed with the pairing private key of the request;");
+        System.out.println("#and in which case the nickname will be ignored");
         System.out.println("nickname=CMS Agent Certificate");
+        System.out.println("");
+        System.out.println("selfSign=false");
         System.out.println("");
         System.out.println("#dbdir: directory for cert8.db, key3.db and secmod.db");
         System.out.println("dbdir=./");
@@ -1700,6 +1819,7 @@ public class CMCRequest {
         String popLinkWitnessV2Enable = "false", popLinkWitnessV2keyGenAlg = "SHA256", popLinkWitnessV2macAlg = "SHA256";
         String popLinkWitnessEnable = "false";
         String bodyPartIDs = null, lraPopWitnessEnable = "false";
+        String selfSign = "false";
 
         System.out.println("");
 
@@ -1760,6 +1880,8 @@ public class CMCRequest {
                         decryptedPopEnable = val;
                     } else if (name.equals("encryptedPopResponseFile")) {
                         encryptedPopResponseFile = val;
+                    } else if (name.equals("request.selfSign")) {
+                        selfSign = val;
                     } else if (name.equals("request.privKeyId")) {
                         privKeyId = val;
                     } else if (name.equals("decryptedPopRequestFile")) {
@@ -1846,7 +1968,7 @@ public class CMCRequest {
             printUsage();
         }
 
-        if (nickname == null) {
+        if (!selfSign.equals("true") && nickname == null) {
             System.out.println("Missing nickname.");
             printUsage();
         }
@@ -1898,14 +2020,14 @@ public class CMCRequest {
                 System.out.println("got signerCert: "+ certname.toString());
             }
 
-            //cfu
             ContentInfo cmcblob = null;
             PKIData pkidata = null;
             PrivateKey privk = null;
-            if (decryptedPopEnable.equalsIgnoreCase("true") ||
+            if (selfSign.equalsIgnoreCase("true") ||
+                    decryptedPopEnable.equalsIgnoreCase("true") ||
                     popLinkWitnessV2Enable.equalsIgnoreCase("true")) {
                 if (privKeyId == null) {
-                    System.out.println("ecryptedPop.enable or popLinkWitnessV2 true, but privKeyId not specified.");
+                    System.out.println("selfSign or ecryptedPop.enable or popLinkWitnessV2 true, but privKeyId not specified.");
                     printUsage();
                 } else {
                     System.out.println("got request privKeyId: " + privKeyId);
@@ -2095,6 +2217,7 @@ public class CMCRequest {
 
                 // create the request PKIData
                 pkidata = createPKIData(
+                        selfSign,
                         requests,
                         format, transactionMgtEnable, transactionMgtId,
                         identificationEnable, identification,
@@ -2114,7 +2237,16 @@ public class CMCRequest {
             }
 
             // sign the request
-            SignedData signedData = signData(signerCert, tokenName, nickname, cm, pkidata);
+            SignedData signedData = null;
+            if (selfSign.equalsIgnoreCase("true")) {
+                // selfSign signes with private key
+                System.out.println("selfSign is true...");
+                signedData = signData(privk, pkidata);
+            } else {
+                // none selfSign signes with  existing cert
+                System.out.println("selfSign is false...");
+                signedData = signData(signerCert, tokenName, nickname, cm, pkidata);
+            }
             if (signedData == null) {
                 System.out.println("signData() returns null. Exiting with error");
                 System.exit(1);

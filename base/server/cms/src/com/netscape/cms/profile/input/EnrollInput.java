@@ -179,26 +179,27 @@ public abstract class EnrollInput implements IProfileInput {
 
     public void verifyPOP(Locale locale, CertReqMsg certReqMsg)
             throws EProfileException {
+        String method = "EnrollInput: verifyPOP: ";
         CMS.debug("EnrollInput ::in verifyPOP");
 
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
         if (!certReqMsg.hasPop()) {
-            CMS.debug("CertReqMsg has not POP, return");
+            CMS.debug(method + "CertReqMsg has not POP, return");
             return;
         }
         ProofOfPossession pop = certReqMsg.getPop();
         ProofOfPossession.Type popType = pop.getType();
 
         if (popType != ProofOfPossession.SIGNATURE) {
-            CMS.debug("not POP SIGNATURE, return");
+            CMS.debug(method + "not POP SIGNATURE, return");
             return;
         }
 
         try {
             if (CMS.getConfigStore().getBoolean("cms.skipPOPVerify", false)) {
-                CMS.debug("skipPOPVerify on, return");
+                CMS.debug(method + "skipPOPVerify on, return");
                 return;
             }
             CMS.debug("POP verification begins:");
@@ -207,10 +208,10 @@ public abstract class EnrollInput implements IProfileInput {
             CryptoToken verifyToken = null;
             String tokenName = CMS.getConfigStore().getString("ca.requestVerify.token", CryptoUtil.INTERNAL_TOKEN_NAME);
             if (CryptoUtil.isInternalToken(tokenName)) {
-                CMS.debug("POP verification using internal token");
+                CMS.debug(method + "POP verification using internal token");
                 certReqMsg.verify();
             } else {
-                CMS.debug("POP verification using token:" + tokenName);
+                CMS.debug(method + "POP verification using token:" + tokenName);
                 verifyToken = CryptoUtil.getCryptoToken(tokenName);
                 certReqMsg.verify(verifyToken);
             }
@@ -219,18 +220,20 @@ public abstract class EnrollInput implements IProfileInput {
             auditMessage = CMS.getLogMessage(
                     AuditEvent.PROOF_OF_POSSESSION,
                     auditSubjectID,
-                    ILogger.SUCCESS);
+                    ILogger.SUCCESS,
+                    "method="+method);
             audit(auditMessage);
         } catch (Exception e) {
 
-            CMS.debug("Failed POP verify! " + e.toString());
+            CMS.debug(method + "Failed POP verify! " + e.toString());
             CMS.debug(e);
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
                     AuditEvent.PROOF_OF_POSSESSION,
                     auditSubjectID,
-                    ILogger.FAILURE);
+                    ILogger.FAILURE,
+                    method + e.toString());
 
             audit(auditMessage);
 

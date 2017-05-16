@@ -25,6 +25,7 @@ import java.security.cert.CertificateException;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.ca.ICertificateAuthority;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 
 import netscape.security.x509.CertificateX509Key;
 import netscape.security.x509.KeyIdentifier;
@@ -46,30 +47,29 @@ public abstract class CAEnrollDefault extends EnrollDefault {
     }
 
     public KeyIdentifier getKeyIdentifier(X509CertInfo info) {
+        String method = "CAEnrollDefault: getKeyIdentifier: ";
         try {
             CertificateX509Key ckey = (CertificateX509Key)
                     info.get(X509CertInfo.KEY);
             X509Key key = (X509Key) ckey.get(CertificateX509Key.KEY);
-            MessageDigest md = MessageDigest.getInstance("SHA-1");
-
-            md.update(key.getKey());
-            byte[] hash = md.digest();
+            byte[] hash = CryptoUtil.generateKeyIdentifier(key.getKey());
+            if (hash == null) {
+                CMS.debug(method +
+                    "CryptoUtil.generateKeyIdentifier returns null");
+                return null;
+            }
 
             return new KeyIdentifier(hash);
         } catch (IOException e) {
-            CMS.debug("AuthorityKeyIdentifierExtDefault: getKeyId " +
-                    e.toString());
+            CMS.debug(method + e.toString());
         } catch (CertificateException e) {
-            CMS.debug("AuthorityKeyIdentifierExtDefault: getKeyId " +
-                    e.toString());
-        } catch (NoSuchAlgorithmException e) {
-            CMS.debug("AuthorityKeyIdentifierExtDefault: getKeyId " +
-                    e.toString());
+            CMS.debug(method + e.toString());
         }
         return null;
     }
 
     public KeyIdentifier getCAKeyIdentifier(ICertificateAuthority ca) throws EBaseException {
+        String method = "CAEnrollDefault: getCAKeyIdentifier: ";
         X509CertImpl caCert = ca.getCACert();
         if (caCert == null) {
             // during configuration, we dont have the CA certificate
@@ -89,16 +89,11 @@ public abstract class CAEnrollDefault extends EnrollDefault {
             }
         }
 
-        try {
-            MessageDigest md = MessageDigest.getInstance("SHA-1");
-
-            md.update(key.getKey());
-            byte[] hash = md.digest();
-
-            return new KeyIdentifier(hash);
-        } catch (NoSuchAlgorithmException e) {
-            CMS.debug("AuthorityKeyIdentifierExtDefault: getKeyId " +
-                    e.toString());
+        byte[] hash = CryptoUtil.generateKeyIdentifier(key.getKey());
+        if (hash == null) {
+            CMS.debug(method +
+                "CryptoUtil.generateKeyIdentifier returns null");
+            return null;
         }
         return null;
     }

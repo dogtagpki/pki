@@ -23,17 +23,6 @@ import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.cert.CertificateException;
 
-import netscape.security.util.ObjectIdentifier;
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.CertificateSubjectName;
-import netscape.security.x509.CertificateValidity;
-import netscape.security.x509.CertificateVersion;
-import netscape.security.x509.CertificateX509Key;
-import netscape.security.x509.Extension;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CertInfo;
-import netscape.security.x509.X509Key;
-
 import org.mozilla.jss.asn1.INTEGER;
 import org.mozilla.jss.asn1.InvalidBERException;
 import org.mozilla.jss.asn1.SEQUENCE;
@@ -55,6 +44,17 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.ECMSGWException;
+
+import netscape.security.util.ObjectIdentifier;
+import netscape.security.x509.CertificateExtensions;
+import netscape.security.x509.CertificateSubjectName;
+import netscape.security.x509.CertificateValidity;
+import netscape.security.x509.CertificateVersion;
+import netscape.security.x509.CertificateX509Key;
+import netscape.security.x509.Extension;
+import netscape.security.x509.X500Name;
+import netscape.security.x509.X509CertInfo;
+import netscape.security.x509.X509Key;
 
 /**
  * Process CRMF requests, according to RFC 2511
@@ -98,6 +98,7 @@ public class CRMFProcessor extends PKIProcessor {
      */
     private void verifyPOP(CertReqMsg certReqMsg)
             throws EBaseException {
+        String method = "CRMFProcessor: verifyPOP: ";
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -118,7 +119,8 @@ public class CRMFProcessor extends PKIProcessor {
                         auditMessage = CMS.getLogMessage(
                                 AuditEvent.PROOF_OF_POSSESSION,
                                 auditSubjectID,
-                                ILogger.SUCCESS);
+                                ILogger.SUCCESS,
+                                "method=" + method);
 
                         audit(auditMessage);
                     } catch (Exception e) {
@@ -131,7 +133,8 @@ public class CRMFProcessor extends PKIProcessor {
                         auditMessage = CMS.getLogMessage(
                                 AuditEvent.PROOF_OF_POSSESSION,
                                 auditSubjectID,
-                                ILogger.FAILURE);
+                                ILogger.FAILURE,
+                                method + e.toString());
 
                         audit(auditMessage);
 
@@ -148,7 +151,8 @@ public class CRMFProcessor extends PKIProcessor {
                     auditMessage = CMS.getLogMessage(
                             AuditEvent.PROOF_OF_POSSESSION,
                             auditSubjectID,
-                            ILogger.FAILURE);
+                            ILogger.FAILURE,
+                            method + "required POP missing");
 
                     audit(auditMessage);
 
@@ -161,7 +165,8 @@ public class CRMFProcessor extends PKIProcessor {
             auditMessage = CMS.getLogMessage(
                     AuditEvent.PROOF_OF_POSSESSION,
                     auditSubjectID,
-                    ILogger.FAILURE);
+                    ILogger.FAILURE,
+                    method + eAudit1.toString());
 
             audit(auditMessage);
         }

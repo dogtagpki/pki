@@ -119,6 +119,11 @@ public interface IAuthSubsystem extends ISubsystem {
     public static final String CMCAUTH_AUTHMGR_ID = "CMCAuth";
 
     /**
+     * Constant for CMC user-signed authentication manager ID.
+     */
+    public static final String CMC_USER_SIGNED_AUTH_AUTHMGR_ID = "CMCUserSignedAuth";
+
+    /**
      * Authenticate the given credentials using the given manager name.
      *
      * @param authCred The authentication credentials

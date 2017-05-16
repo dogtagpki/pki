@@ -27,6 +27,7 @@ import java.net.SocketException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.PublicKey;
@@ -127,6 +128,7 @@ import netscape.security.util.DerValue;
 import netscape.security.util.ObjectIdentifier;
 import netscape.security.util.WrappingParams;
 import netscape.security.x509.AlgorithmId;
+import netscape.security.x509.CertAttrSet;
 import netscape.security.x509.CertificateAlgorithmId;
 import netscape.security.x509.CertificateChain;
 import netscape.security.x509.CertificateExtensions;
@@ -136,7 +138,11 @@ import netscape.security.x509.CertificateSubjectName;
 import netscape.security.x509.CertificateValidity;
 import netscape.security.x509.CertificateVersion;
 import netscape.security.x509.CertificateX509Key;
+import netscape.security.x509.Extension;
 import netscape.security.x509.Extensions;
+import netscape.security.x509.KeyIdentifier;
+import netscape.security.x509.PKIXExtensions;
+import netscape.security.x509.SubjectKeyIdentifierExtension;
 import netscape.security.x509.X500Name;
 import netscape.security.x509.X500Signer;
 import netscape.security.x509.X509CertImpl;
@@ -1536,10 +1542,33 @@ public class CryptoUtil {
      * This createCertificationRequest() allows extensions to be added to the CSR
      */
     public static PKCS10 createCertificationRequest(String subjectName,
+            KeyPair keyPair, Extensions exts)
+            throws NoSuchAlgorithmException, NoSuchProviderException,
+            InvalidKeyException, IOException, CertificateException,
+            SignatureException {
+        String method = "CryptoUtil: createCertificationRequest: ";
+
+        String alg = "SHA256withRSA";
+        PublicKey pubk = keyPair.getPublic();
+        X509Key key = convertPublicKeyToX509Key(pubk);
+        if (pubk instanceof RSAPublicKey) {
+            alg = "SHA256withRSA";
+        } else if (isECCKey(key)) {
+            alg = "SHA256withEC";
+        } else {
+            throw new NoSuchAlgorithmException(method + alg);
+        }
+
+        return createCertificationRequest(
+                subjectName, key, (org.mozilla.jss.crypto.PrivateKey) keyPair.getPrivate(),
+                alg, exts);
+    }
+
+    public static PKCS10 createCertificationRequest(String subjectName,
             X509Key pubk, PrivateKey prik, String alg, Extensions exts)
             throws NoSuchAlgorithmException, NoSuchProviderException,
-                InvalidKeyException, IOException, CertificateException,
-                SignatureException {
+            InvalidKeyException, IOException, CertificateException,
+            SignatureException {
         X509Key key = pubk;
         java.security.Signature sig = java.security.Signature.getInstance(alg,
                 "Mozilla-JSS");
@@ -1548,11 +1577,12 @@ public class CryptoUtil {
         PKCS10 pkcs10 = null;
 
         if (exts != null && !exts.isEmpty()) {
-            PKCS10Attribute attr = new
-                    PKCS10Attribute(PKCS9Attribute.EXTENSION_REQUEST_OID,
-                            exts);
+            PKCS10Attribute attr = new PKCS10Attribute(PKCS9Attribute.EXTENSION_REQUEST_OID,
+                    exts);
             PKCS10Attributes attrs = new PKCS10Attributes();
 
+            System.out.println("PKCS10: createCertificationRequest: adding attribute name =" +
+                    attr.getAttributeValue().getName());
             attrs.setAttribute(attr.getAttributeValue().getName(), attr);
 
             pkcs10 = new PKCS10(key, attrs);
@@ -1564,6 +1594,51 @@ public class CryptoUtil {
 
         pkcs10.encodeAndSign(signer);
         return pkcs10;
+    }
+
+    public static KeyIdentifier createKeyIdentifier(KeyPair keypair)
+            throws NoSuchAlgorithmException, InvalidKeyException {
+        String method = "CryptoUtil: createKeyIdentifier: ";
+        System.out.println(method + "begins");
+
+        X509Key subjectKeyInfo = convertPublicKeyToX509Key(
+                keypair.getPublic());
+
+        byte[] hash = generateKeyIdentifier(subjectKeyInfo.getKey());
+
+        if (hash == null) {
+            System.out.println(method +
+                    "generateKeyIdentifier returns null");
+            return null;
+        }
+        return new KeyIdentifier(hash);
+    }
+
+    public static byte[] generateKeyIdentifier(byte[] rawKey) {
+        return generateKeyIdentifier(rawKey, null);
+    }
+
+    public static byte[] generateKeyIdentifier(byte[] rawKey, String alg) {
+        String method = "CryptoUtil: generateKeyIdentifier: ";
+        String msg = "";
+        if (alg == null) {
+            alg = "SHA-1";
+        }
+        try {
+            MessageDigest md = MessageDigest.getInstance(alg);
+
+            md.update(rawKey);
+            byte[] hash = md.digest();
+
+            return hash;
+        } catch (NoSuchAlgorithmException e) {
+            msg = method + e;
+            System.out.println(msg);
+        } catch (Exception e) {
+            msg = method + e;
+            System.out.println(msg);
+        }
+        return null;
     }
 
     /**
@@ -1609,6 +1684,102 @@ public class CryptoUtil {
         pkcs10.encodeAndSign(signer);
 
         return pkcs10;
+    }
+
+    /*
+     * get extention from  PKCS10 request
+     */
+    public static netscape.security.x509.Extension getExtensionFromPKCS10(PKCS10 pkcs10, String extnName)
+            throws IOException, CertificateException {
+        Extension extn = null;
+
+        String method = "CryptoUtiil: getExtensionFromPKCS10: ";
+        System.out.println(method + "begins");
+
+        PKCS10Attributes attributeSet = pkcs10.getAttributes();
+        if (attributeSet == null) {
+            System.out.println(method + "attributeSet not found");
+            return null;
+        }
+        PKCS10Attribute attr = attributeSet.getAttribute("extensions");
+        if (attr == null) {
+            System.out.println(method + "extensions attribute not found");
+            return null;
+        }
+        System.out.println(method + attr.toString());
+
+        CertAttrSet cas = attr.getAttributeValue();
+        if (cas == null) {
+            System.out.println(method + "CertAttrSet not found in PKCS10Attribute");
+            return null;
+        }
+
+        Enumeration<String> en = cas.getAttributeNames();
+        while (en.hasMoreElements()) {
+            String name = en.nextElement();
+            System.out.println(method + " checking extension in request:" + name);
+            if (name.equals(extnName)) {
+                System.out.println(method + "extension matches");
+                extn = (Extension)cas.get(name);
+            }
+        }
+
+        System.out.println(method + "ends");
+        return extn;
+    }
+
+    /*
+     * get extension from CRMF cert request (CertTemplate)
+     */
+    public static netscape.security.x509.Extension getExtensionFromCertTemplate(CertTemplate certTemplate, ObjectIdentifier csOID) {
+        //ObjectIdentifier csOID = PKIXExtensions.SubjectKey_Id;
+        OBJECT_IDENTIFIER jssOID =
+                new OBJECT_IDENTIFIER(csOID.toString());
+/*
+        return getExtensionFromCertTemplate(certTemplate, jssOID);
+    }
+    public static netscape.security.x509.Extension getExtensionFromCertTemplate(CertTemplate certTemplate, org.mozilla.jss.asn1.OBJECT_IDENTIFIER jssOID) {
+*/
+
+        String method = "CryptoUtil: getSKIExtensionFromCertTemplate: ";
+        Extension extn = null;
+
+       /*
+        * there seems to be an issue with constructor in Extension
+        * when feeding SubjectKeyIdentifierExtension;
+        * Special-case it
+        */
+        OBJECT_IDENTIFIER SKIoid =
+                new OBJECT_IDENTIFIER(PKIXExtensions.SubjectKey_Id.toString());
+
+        if (certTemplate.hasExtensions()) {
+            int numexts = certTemplate.numExtensions();
+            for (int j = 0; j < numexts; j++) {
+                 org.mozilla.jss.pkix.cert.Extension jssext =
+                         certTemplate.extensionAt(j);
+                 org.mozilla.jss.asn1.OBJECT_IDENTIFIER extnoid =
+                         jssext.getExtnId();
+                 System.out.println(method + "checking extension in request:" + extnoid.toString());
+                 if (extnoid.equals(jssOID)) {
+                     System.out.println(method + "extension found");
+                     try {
+                       if (jssOID.equals(SKIoid)) {
+                         extn =
+                             new SubjectKeyIdentifierExtension(false, jssext.getExtnValue().toByteArray());
+                       } else {
+                         extn =
+                             new netscape.security.x509.Extension(csOID, false, jssext.getExtnValue().toByteArray());
+                       }
+                     } catch (IOException e) {
+                       System.out.println(method + e);
+                     }
+                 }
+            }
+        } else {
+            System.out.println(method + "no extension found");
+        }
+
+        return extn;
     }
 
     public static void unTrustCert(InternalCertificate cert) {

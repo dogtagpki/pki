@@ -86,6 +86,8 @@ import com.netscape.cmsutil.util.HMACDigest;
 import com.netscape.cmsutil.util.Utils;
 
 import netscape.security.util.WrappingParams;
+import netscape.security.x509.KeyIdentifier;
+import netscape.security.x509.PKIXExtensions;
 import netscape.security.x509.X500Name;
 
 /**
@@ -196,6 +198,8 @@ public class CRMFPopClient {
         option.setArgName("keySet");
         options.addOption(option);
 
+        options.addOption("y", false, "for Self-signed cmc.");
+
         options.addOption("v", "verbose", false, "Run in verbose mode.");
         options.addOption(null, "help", false, "Show help message.");
 
@@ -212,6 +216,9 @@ public class CRMFPopClient {
         System.out.println("  -p <password>                Security token password");
         System.out.println("  -n <subject DN>              Certificate subject DN");
         System.out.println("  -k <true|false>              Attribute value encoding in subject DN (default: false)");
+        System.out.println("                               - true: enabled");
+        System.out.println("                               - false: disabled");
+        System.out.println("  -y <true|false>              Add SubjectKeyIdentifier extension in case of self-signed CMC requests (default: false)");
         System.out.println("                               - true: enabled");
         System.out.println("                               - false: disabled");
         System.out.println("  -a <rsa|ec>                  Key algorithm (default: rsa)");
@@ -319,6 +326,8 @@ public class CRMFPopClient {
         boolean temporary = Boolean.parseBoolean(cmd.getOptionValue("t", "true"));
         int sensitive = Integer.parseInt(cmd.getOptionValue("s", "-1"));
         int extractable = Integer.parseInt(cmd.getOptionValue("e", "-1"));
+
+        boolean self_sign = cmd.hasOption("y");
 
         // get the key wrapping mechanism
         boolean keyWrap = true;
@@ -516,6 +525,7 @@ public class CRMFPopClient {
 
             if (verbose) System.out.println("Creating certificate request");
             CertRequest certRequest = client.createCertRequest(
+                    self_sign,
                     token, transportCert, algorithm, keyPair,
                     subject, archivalMechanism, wrappingKeySet);
 
@@ -629,6 +639,19 @@ public class CRMFPopClient {
             Name subject,
             String archivalMechanism,
             String wrappingKeySet) throws Exception {
+        return createCertRequest(false, token, transportCert, algorithm, keyPair,
+            subject, archivalMechanism, wrappingKeySet);
+    }
+
+    public CertRequest createCertRequest(
+            boolean self_sign,
+            CryptoToken token,
+            X509Certificate transportCert,
+            String algorithm,
+            KeyPair keyPair,
+            Name subject,
+            String archivalMechanism,
+            String wrappingKeySet) throws Exception {
         EncryptionAlgorithm encryptAlg = null;
 
         if (wrappingKeySet == null) {
@@ -662,6 +685,15 @@ public class CRMFPopClient {
         OCTET_STRING ostr = createIDPOPLinkWitness();
         seq.addElement(new AVA(OBJECT_IDENTIFIER.id_cmc_idPOPLinkWitness, ostr));
         */
+
+        if (self_sign) { // per rfc 5272
+            System.out.println("CRMFPopClient: self_sign true. Generating SubjectKeyIdentifier extension.");
+            KeyIdentifier subjKeyId = CryptoUtil.createKeyIdentifier(keyPair);
+            OBJECT_IDENTIFIER oid = new OBJECT_IDENTIFIER(PKIXExtensions.SubjectKey_Id.toString());
+            SEQUENCE extns = new SEQUENCE();
+            extns.addElement(new AVA(oid, new OCTET_STRING(subjKeyId.getIdentifier())));
+            certTemplate.setExtensions(extns);
+        }
 
         return new CertRequest(new INTEGER(1), certTemplate, seq);
     }
