@@ -50,6 +50,7 @@ import com.netscape.certsrv.kra.ProofOfArchival;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.event.SecurityDataArchivalEvent;
 import com.netscape.certsrv.profile.IEnrollProfile;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IService;
@@ -155,13 +156,10 @@ public class EnrollmentService implements IService {
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
         String auditRequesterID = auditRequesterID();
-        String auditArchiveID = ILogger.UNIDENTIFIED;
         String auditPublicKey = ILogger.UNIDENTIFIED;
 
         String id = request.getRequestId().toString();
-        if (id != null) {
-            auditArchiveID = id.trim();
-        }
+
         if (CMS.debugOn())
             CMS.debug("EnrollmentServlet: KRA services enrollment request");
 
@@ -198,15 +196,11 @@ public class EnrollmentService implements IService {
                 aOpts = CRMFParser.getPKIArchiveOptions(
                             request.getExtDataInString(IRequest.HTTP_PARAMS, CRMF_REQUEST));
             } catch (IOException e) {
-
-                auditMessage = CMS.getLogMessage(
-                        AuditEvent.PRIVATE_KEY_ARCHIVE_REQUEST,
+                audit(new SecurityDataArchivalEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
-                        auditRequesterID,
-                        auditArchiveID);
+                        auditRequesterID));
 
-                audit(auditMessage);
                 throw new EKRAException(
                         CMS.getUserMessage("CMS_KRA_INVALID_PRIVATE_KEY"));
             }
@@ -247,14 +241,11 @@ public class EnrollmentService implements IService {
                 } catch (Exception e) {
                     mKRA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_UNWRAP_USER_KEY"));
 
-                    auditMessage = CMS.getLogMessage(
-                            AuditEvent.PRIVATE_KEY_ARCHIVE_REQUEST,
+                    audit(new SecurityDataArchivalEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
-                            auditRequesterID,
-                            auditArchiveID);
+                            auditRequesterID));
 
-                    audit(auditMessage);
                     throw new EKRAException(
                             CMS.getUserMessage("CMS_KRA_INVALID_PRIVATE_KEY"));
                 }
@@ -283,14 +274,11 @@ public class EnrollmentService implements IService {
                 mKRA.log(ILogger.LL_FAILURE,
                         CMS.getLogMessage("CMSCORE_KRA_PUBLIC_NOT_FOUND"));
 
-                auditMessage = CMS.getLogMessage(
-                        AuditEvent.PRIVATE_KEY_ARCHIVE_REQUEST,
+                audit(new SecurityDataArchivalEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
-                        auditRequesterID,
-                        auditArchiveID);
+                        auditRequesterID));
 
-                audit(auditMessage);
                 throw new EKRAException(
                         CMS.getUserMessage("CMS_KRA_INVALID_PUBLIC_KEY"));
             }
@@ -325,14 +313,11 @@ public class EnrollmentService implements IService {
                     mKRA.log(ILogger.LL_DEBUG, e.getMessage());
                     mKRA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_WRAP_USER_KEY"));
 
-                    auditMessage = CMS.getLogMessage(
-                            AuditEvent.PRIVATE_KEY_ARCHIVE_REQUEST,
+                    audit(new SecurityDataArchivalEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
-                            auditRequesterID,
-                            auditArchiveID);
+                            auditRequesterID));
 
-                    audit(auditMessage);
                     throw new EKRAException(CMS.getUserMessage("CMS_KRA_INVALID_PRIVATE_KEY"), e);
                 }
             } // !allowEncDecrypt_archival
@@ -346,14 +331,11 @@ public class EnrollmentService implements IService {
                     mKRA.log(ILogger.LL_FAILURE,
                         CMS.getLogMessage("CMSCORE_KRA_PUBLIC_NOT_FOUND"));
 
-                    auditMessage = CMS.getLogMessage(
-                        AuditEvent.PRIVATE_KEY_ARCHIVE_REQUEST,
+                    audit(new SecurityDataArchivalEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
-                        auditRequesterID,
-                        auditArchiveID);
+                        auditRequesterID));
 
-                    audit(auditMessage);
                     throw new EKRAException(
                         CMS.getUserMessage("CMS_KRA_INVALID_PUBLIC_KEY"));
                 }
@@ -371,14 +353,11 @@ public class EnrollmentService implements IService {
             if (owner == null) {
                 mKRA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_OWNER_NAME_NOT_FOUND"));
 
-                auditMessage = CMS.getLogMessage(
-                        AuditEvent.PRIVATE_KEY_ARCHIVE_REQUEST,
+                audit(new SecurityDataArchivalEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
-                        auditRequesterID,
-                        auditArchiveID);
+                        auditRequesterID));
 
-                audit(auditMessage);
                 throw new EKRAException(CMS.getUserMessage("CMS_KRA_INVALID_KEYRECORD"));
             }
 
@@ -406,14 +385,11 @@ public class EnrollmentService implements IService {
                 mKRA.log(ILogger.LL_DEBUG, e.getMessage());
                 mKRA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_WRAP_USER_KEY"));
 
-                auditMessage = CMS.getLogMessage(
-                        AuditEvent.PRIVATE_KEY_ARCHIVE_REQUEST,
+                audit(new SecurityDataArchivalEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
-                        auditRequesterID,
-                        auditArchiveID);
+                        auditRequesterID));
 
-                audit(auditMessage);
                 throw new EKRAException(CMS.getUserMessage("CMS_KRA_INVALID_PRIVATE_KEY"));
             }
 
@@ -433,14 +409,11 @@ public class EnrollmentService implements IService {
                     rec.setKeySize(Integer.valueOf(rsaPublicKey.getKeySize()));
                 } catch (InvalidKeyException e) {
 
-                    auditMessage = CMS.getLogMessage(
-                        AuditEvent.PRIVATE_KEY_ARCHIVE_REQUEST,
+                    audit(new SecurityDataArchivalEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
-                        auditRequesterID,
-                        auditArchiveID);
+                        auditRequesterID));
 
-                    audit(auditMessage);
                     throw new EKRAException(CMS.getUserMessage("CMS_KRA_INVALID_KEYRECORD"));
                 }
             } else if (keyAlg.equals("EC")) {
@@ -483,14 +456,11 @@ public class EnrollmentService implements IService {
                         CMS.getLogMessage("CMSCORE_KRA_INVALID_SERIAL_NUMBER",
                                 rec.getSerialNumber().toString()));
 
-                auditMessage = CMS.getLogMessage(
-                        AuditEvent.PRIVATE_KEY_ARCHIVE_REQUEST,
+                audit(new SecurityDataArchivalEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
-                        auditRequesterID,
-                        auditArchiveID);
+                        auditRequesterID));
 
-                audit(auditMessage);
                 throw new EKRAException(CMS.getUserMessage("CMS_KRA_INVALID_STATE"));
             }
 
@@ -505,14 +475,11 @@ public class EnrollmentService implements IService {
             } catch (Exception e) {
                 mKRA.log(ILogger.LL_FAILURE, "Failed to store wrapping parameters");
                 // TODO(alee) Set correct audit message here
-                auditMessage = CMS.getLogMessage(
-                        AuditEvent.PRIVATE_KEY_ARCHIVE_REQUEST,
+                audit(new SecurityDataArchivalEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
-                        auditRequesterID,
-                        auditArchiveID);
+                        auditRequesterID));
 
-                audit(auditMessage);
                 throw new EKRAException(CMS.getUserMessage("CMS_KRA_INVALID_STATE"));
             }
 
@@ -523,14 +490,11 @@ public class EnrollmentService implements IService {
                 mKRA.log(ILogger.LL_FAILURE,
                         CMS.getLogMessage("CMSCORE_KRA_GET_NEXT_SERIAL"));
 
-                auditMessage = CMS.getLogMessage(
-                        AuditEvent.PRIVATE_KEY_ARCHIVE_REQUEST,
+                audit(new SecurityDataArchivalEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
-                        auditRequesterID,
-                        auditArchiveID);
+                        auditRequesterID));
 
-                audit(auditMessage);
                 throw new EKRAException(CMS.getUserMessage("CMS_KRA_INVALID_STATE"));
             }
             if (i == 0) {
@@ -580,14 +544,10 @@ public class EnrollmentService implements IService {
                     );
 
             // store a message in the signed audit log file
-            auditMessage = CMS.getLogMessage(
-                        AuditEvent.PRIVATE_KEY_ARCHIVE_REQUEST,
+            audit(new SecurityDataArchivalEvent(
                         auditSubjectID,
                         ILogger.SUCCESS,
-                        auditRequesterID,
-                        auditArchiveID);
-
-            audit(auditMessage);
+                        auditRequesterID));
 
             // store a message in the signed audit log file
             auditPublicKey = auditPublicKey(rec);
