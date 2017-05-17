@@ -86,8 +86,6 @@ public class AuditEvent implements IBundleLogEvent {
             "LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_ASYNC_4";
     public final static String KEY_RECOVERY_AGENT_LOGIN =
             "LOGGING_SIGNED_AUDIT_KEY_RECOVERY_AGENT_LOGIN_4";
-    public final static String KEY_RECOVERY_REQUEST_PROCESSED =
-            "LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED_4";
     public final static String KEY_RECOVERY_REQUEST_PROCESSED_ASYNC =
             "LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED_ASYNC_4";
     public final static String KEY_GEN_ASYMMETRIC =
@@ -174,8 +172,6 @@ public class AuditEvent implements IBundleLogEvent {
     public final static String CONFIG_SERIAL_NUMBER =
             "LOGGING_SIGNED_AUDIT_CONFIG_SERIAL_NUMBER_1";
 
-    public final static String SECURITY_DATA_RECOVERY_REQUEST_PROCESSED =
-            "LOGGING_SIGNED_AUDIT_SECURITY_DATA_RECOVERY_REQUEST_PROCESSED_5";
     public static final String SECURITY_DATA_RECOVERY_REQUEST_STATE_CHANGE =
             "LOGGING_SIGNED_AUDIT_SECURITY_DATA_RECOVERY_REQUEST_STATE_CHANGE_4";
     public final static String SECURITY_DATA_RETRIEVE_KEY =
