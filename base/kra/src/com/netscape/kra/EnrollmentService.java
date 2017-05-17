@@ -51,6 +51,7 @@ import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.SecurityDataArchivalEvent;
+import com.netscape.certsrv.logging.event.SecurityDataArchivalProcessedEvent;
 import com.netscape.certsrv.profile.IEnrollProfile;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IService;
@@ -153,12 +154,9 @@ public class EnrollmentService implements IService {
             statsSub.startTiming("archival", true /* main action */);
         }
 
-        String auditMessage = null;
         String auditSubjectID = auditSubjectID();
         String auditRequesterID = auditRequesterID();
         String auditPublicKey = ILogger.UNIDENTIFIED;
-
-        String id = request.getRequestId().toString();
 
         if (CMS.debugOn())
             CMS.debug("EnrollmentServlet: KRA services enrollment request");
@@ -551,13 +549,14 @@ public class EnrollmentService implements IService {
 
             // store a message in the signed audit log file
             auditPublicKey = auditPublicKey(rec);
-            auditMessage = CMS.getLogMessage(
-                        AuditEvent.PRIVATE_KEY_ARCHIVE_REQUEST_PROCESSED,
+            audit(new SecurityDataArchivalProcessedEvent(
                         auditSubjectID,
                         ILogger.SUCCESS,
-                        auditPublicKey);
-
-            audit(auditMessage);
+                        request.getRequestId().toString(),
+                        null,
+                        rec.getSerialNumber().toString(),
+                        null,
+                        auditPublicKey));
 
             // Xxx - should sign this proof of archival
             ProofOfArchival mProof = new ProofOfArchival(serialNo,
