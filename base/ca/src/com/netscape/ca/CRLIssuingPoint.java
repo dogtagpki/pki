@@ -31,23 +31,6 @@ import java.util.StringTokenizer;
 import java.util.TimeZone;
 import java.util.Vector;
 
-import netscape.security.util.BitArray;
-import netscape.security.x509.AlgorithmId;
-import netscape.security.x509.CRLExtensions;
-import netscape.security.x509.CRLNumberExtension;
-import netscape.security.x509.CRLReasonExtension;
-import netscape.security.x509.DeltaCRLIndicatorExtension;
-import netscape.security.x509.Extension;
-import netscape.security.x509.FreshestCRLExtension;
-import netscape.security.x509.IssuingDistributionPoint;
-import netscape.security.x509.IssuingDistributionPointExtension;
-import netscape.security.x509.RevocationReason;
-import netscape.security.x509.RevokedCertImpl;
-import netscape.security.x509.RevokedCertificate;
-import netscape.security.x509.X509CRLImpl;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509ExtensionException;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -82,6 +65,23 @@ import com.netscape.cmscore.dbs.CRLIssuingPointRecord;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.util.Debug;
+
+import netscape.security.util.BitArray;
+import netscape.security.x509.AlgorithmId;
+import netscape.security.x509.CRLExtensions;
+import netscape.security.x509.CRLNumberExtension;
+import netscape.security.x509.CRLReasonExtension;
+import netscape.security.x509.DeltaCRLIndicatorExtension;
+import netscape.security.x509.Extension;
+import netscape.security.x509.FreshestCRLExtension;
+import netscape.security.x509.IssuingDistributionPoint;
+import netscape.security.x509.IssuingDistributionPointExtension;
+import netscape.security.x509.RevocationReason;
+import netscape.security.x509.RevokedCertImpl;
+import netscape.security.x509.RevokedCertificate;
+import netscape.security.x509.X509CRLImpl;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509ExtensionException;
 
 /**
  * This class encapsulates CRL issuing mechanism. CertificateAuthority
@@ -3068,73 +3068,75 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         public void accept(IRequest r) {
             String requestType = r.getRequestType();
 
-            if (requestType.equals(IRequest.REVOCATION_REQUEST) ||
+            if (!(requestType.equals(IRequest.REVOCATION_REQUEST) ||
                     requestType.equals(IRequest.UNREVOCATION_REQUEST) ||
                     requestType.equals(IRequest.CLA_CERT4CRL_REQUEST) ||
-                    requestType.equals(IRequest.CLA_UNCERT4CRL_REQUEST)) {
-                CMS.debug("Revocation listener called.");
-                // check if serial number is in begin/end range if set.
-                if (mBeginSerial != null || mEndSerial != null) {
-                    CMS.debug(
-                            "Checking if serial number is between " +
-                                    mBeginSerial + " and " + mEndSerial);
-                    BigInteger[] serialNos =
-                            r.getExtDataInBigIntegerArray(IRequest.OLD_SERIALS);
+                    requestType.equals(IRequest.CLA_UNCERT4CRL_REQUEST))) {
+                return;
+            }
 
-                    if (serialNos == null || serialNos.length == 0) {
-                        X509CertImpl oldCerts[] =
-                                r.getExtDataInCertArray(IRequest.OLD_CERTS);
+            CMS.debug("Revocation listener called.");
+            // check if serial number is in begin/end range if set.
+            if (mBeginSerial != null || mEndSerial != null) {
+                CMS.debug(
+                        "Checking if serial number is between " +
+                                mBeginSerial + " and " + mEndSerial);
+                BigInteger[] serialNos =
+                        r.getExtDataInBigIntegerArray(IRequest.OLD_SERIALS);
 
-                        if (oldCerts == null || oldCerts.length == 0)
-                            return;
-                        serialNos = new BigInteger[oldCerts.length];
-                        for (int i = 0; i < oldCerts.length; i++) {
-                            serialNos[i] = oldCerts[i].getSerialNumber();
-                        }
-                    }
+                if (serialNos == null || serialNos.length == 0) {
+                    X509CertImpl oldCerts[] =
+                            r.getExtDataInCertArray(IRequest.OLD_CERTS);
 
-                    boolean inRange = false;
-
-                    for (int i = 0; i < serialNos.length; i++) {
-                        if ((mBeginSerial == null ||
-                                serialNos[i].compareTo(mBeginSerial) >= 0) &&
-                                (mEndSerial == null ||
-                                serialNos[i].compareTo(mEndSerial) <= 0)) {
-                            inRange = true;
-                        }
-                    }
-                    if (!inRange) {
+                    if (oldCerts == null || oldCerts.length == 0)
                         return;
+                    serialNos = new BigInteger[oldCerts.length];
+                    for (int i = 0; i < oldCerts.length; i++) {
+                        serialNos[i] = oldCerts[i].getSerialNumber();
                     }
                 }
 
-                if (mAlwaysUpdate) {
-                    try {
-                        updateCRLNow();
-                        r.setExtData(mCrlUpdateStatus, IRequest.RES_SUCCESS);
-                        if (mPublisherProcessor != null) {
-                            r.setExtData(mCrlPublishStatus, IRequest.RES_SUCCESS);
-                        }
-                    } catch (EErrorPublishCRL e) {
-                        // error already logged in updateCRLNow();
-                        r.setExtData(mCrlUpdateStatus, IRequest.RES_SUCCESS);
-                        if (mPublisherProcessor != null) {
-                            r.setExtData(mCrlPublishStatus, IRequest.RES_ERROR);
-                            r.setExtData(mCrlPublishError, e);
-                        }
-                    } catch (EBaseException e) {
-                        log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_UPDATE_CRL", e.toString()));
-                        r.setExtData(mCrlUpdateStatus, IRequest.RES_ERROR);
-                        r.setExtData(mCrlUpdateError, e);
-                    } catch (Exception e) {
-                        log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_UPDATE_CRL", e.toString()));
-                        if (Debug.on())
-                            Debug.printStackTrace(e);
-                        r.setExtData(mCrlUpdateStatus, IRequest.RES_ERROR);
-                        r.setExtData(mCrlUpdateError,
-                                new EBaseException(
-                                        CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString())));
+                boolean inRange = false;
+
+                for (int i = 0; i < serialNos.length; i++) {
+                    if ((mBeginSerial == null ||
+                            serialNos[i].compareTo(mBeginSerial) >= 0) &&
+                            (mEndSerial == null ||
+                            serialNos[i].compareTo(mEndSerial) <= 0)) {
+                        inRange = true;
                     }
+                }
+                if (!inRange) {
+                    return;
+                }
+            }
+
+            if (mAlwaysUpdate) {
+                try {
+                    updateCRLNow();
+                    r.setExtData(mCrlUpdateStatus, IRequest.RES_SUCCESS);
+                    if (mPublisherProcessor != null) {
+                        r.setExtData(mCrlPublishStatus, IRequest.RES_SUCCESS);
+                    }
+                } catch (EErrorPublishCRL e) {
+                    // error already logged in updateCRLNow();
+                    r.setExtData(mCrlUpdateStatus, IRequest.RES_SUCCESS);
+                    if (mPublisherProcessor != null) {
+                        r.setExtData(mCrlPublishStatus, IRequest.RES_ERROR);
+                        r.setExtData(mCrlPublishError, e);
+                    }
+                } catch (EBaseException e) {
+                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_UPDATE_CRL", e.toString()));
+                    r.setExtData(mCrlUpdateStatus, IRequest.RES_ERROR);
+                    r.setExtData(mCrlUpdateError, e);
+                } catch (Exception e) {
+                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_UPDATE_CRL", e.toString()));
+                    if (Debug.on())
+                        Debug.printStackTrace(e);
+                    r.setExtData(mCrlUpdateStatus, IRequest.RES_ERROR);
+                    r.setExtData(mCrlUpdateError,
+                            new EBaseException(
+                                    CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString())));
                 }
             }
         }
