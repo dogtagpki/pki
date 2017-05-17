@@ -436,14 +436,17 @@ public class UpdateCRL extends CMSServlet {
 
                     mTesting.remove(crlIssuingPointId);
                     CMS.debug("CRL test finished.");
+                    return;
                 } else if (test != null && test.equals("true") &&
                            crlIssuingPoint.isCRLCacheTestingEnabled() &&
                            mTesting.contains(crlIssuingPointId)) {
                     header.addStringValue("crlUpdate", "testingInProgress");
+                    return;
                 } else if (test != null && test.equals("true") &&
                            (!crlIssuingPoint.isCRLCacheTestingEnabled())) {
                     header.addStringValue("crlUpdate", "testingNotEnabled");
-                } else {
+                    return;
+                }
                     try {
                         EBaseException publishError = null;
 
@@ -526,6 +529,5 @@ public class UpdateCRL extends CMSServlet {
                             throw e;
                         }
                     }
-                }
     }
 }
