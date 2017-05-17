@@ -61,6 +61,7 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.SecurityDataArchivalEvent;
 import com.netscape.certsrv.logging.event.SecurityDataArchivalProcessedEvent;
 import com.netscape.certsrv.logging.event.SecurityDataRecoveryEvent;
+import com.netscape.certsrv.logging.event.SecurityDataRecoveryProcessedEvent;
 import com.netscape.certsrv.request.ARequestNotifier;
 import com.netscape.certsrv.request.IPolicy;
 import com.netscape.certsrv.request.IRequest;
@@ -992,7 +993,6 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
             String delivery, String nickname,
             String agent)
             throws EBaseException {
-        String auditMessage = null;
         String auditSubjectID = auditSubjectID();
         String auditRecoveryID = auditRecoveryID();
         String auditPublicKey = auditPublicKey(cert);
@@ -1033,7 +1033,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
                         auditSubjectID,
                         ILogger.SUCCESS,
                         auditRecoveryID,
-                        null,
+                        kid.toString(),
                         auditPublicKey));
         } catch (EBaseException eAudit1) {
             // store a message in the signed audit log file
@@ -1041,7 +1041,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditRecoveryID,
-                        null,
+                        kid.toString(),
                         auditPublicKey));
 
             throw eAudit1;
@@ -1058,43 +1058,36 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
                 auditAgents = auditAgents(creds);
 
-                // store a message in the signed audit log file
-                auditMessage = CMS.getLogMessage(
-                            AuditEvent.KEY_RECOVERY_REQUEST_PROCESSED,
+                audit(new SecurityDataRecoveryProcessedEvent(
                             auditSubjectID,
                             ILogger.SUCCESS,
                             auditRecoveryID,
-                            auditAgents);
-
-                audit(auditMessage);
+                            kid.toString(),
+                            null,
+                            auditAgents));
 
                 destroyVolatileRequest(r.getRequestId());
 
                 return pkcs12;
             } else {
-                // store a message in the signed audit log file
-                auditMessage = CMS.getLogMessage(
-                            AuditEvent.KEY_RECOVERY_REQUEST_PROCESSED,
+                audit(new SecurityDataRecoveryProcessedEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditRecoveryID,
-                            auditAgents);
-
-                audit(auditMessage);
+                            kid.toString(),
+                            r.getExtDataInString(IRequest.ERROR),
+                            auditAgents));
 
                 throw new EBaseException(r.getExtDataInString(IRequest.ERROR));
             }
         } catch (EBaseException eAudit1) {
-            // store a message in the signed audit log file
-            auditMessage = CMS.getLogMessage(
-                        AuditEvent.KEY_RECOVERY_REQUEST_PROCESSED,
-                        auditSubjectID,
-                        ILogger.FAILURE,
-                        auditRecoveryID,
-                        auditAgents);
-
-            audit(auditMessage);
-
+            audit(new SecurityDataRecoveryProcessedEvent(
+                    auditSubjectID,
+                    ILogger.FAILURE,
+                    auditRecoveryID,
+                    kid.toString(),
+                    eAudit1.getMessage(),
+                    auditAgents));
             throw eAudit1;
         }
     }
