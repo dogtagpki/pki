@@ -281,7 +281,7 @@ public class RequestProcessor extends CertProcessor {
 
         audit(new CertRequestProcessedEvent(
                 auditSubjectID,
-                ILogger.SUCCESS,
+                ILogger.FAILURE,
                 auditRequesterID,
                 ILogger.SIGNED_AUDIT_CANCELLATION,
                 req));
