@@ -459,103 +459,106 @@ public class UpdateCRL extends CMSServlet {
             mTesting.remove(crlIssuingPointId);
             CMS.debug("CRL test finished.");
 
+            return;
+
         } else if (test != null && test.equals("true") &&
                    crlIssuingPoint.isCRLCacheTestingEnabled() &&
                    mTesting.contains(crlIssuingPointId)) {
             header.addStringValue("crlUpdate", "testingInProgress");
+            return;
 
         } else if (test != null && test.equals("true") &&
                    (!crlIssuingPoint.isCRLCacheTestingEnabled())) {
             header.addStringValue("crlUpdate", "testingNotEnabled");
+            return;
+        }
 
-        } else {
+        try {
+            EBaseException publishError = null;
+
             try {
-                EBaseException publishError = null;
+                long now1 = System.currentTimeMillis();
 
-                try {
-                    long now1 = System.currentTimeMillis();
+                if (signatureAlgorithm != null) {
+                    crlIssuingPoint.updateCRLNow(signatureAlgorithm);
+                } else {
+                    crlIssuingPoint.updateCRLNow();
+                }
 
-                    if (signatureAlgorithm != null) {
-                        crlIssuingPoint.updateCRLNow(signatureAlgorithm);
+                long now2 = System.currentTimeMillis();
+
+                header.addStringValue("time", "" + (now2 - now1));
+
+            } catch (EErrorPublishCRL e) {
+                publishError = e;
+            }
+
+            if (lpm != null && lpm.isCRLPublishingEnabled()) {
+                Enumeration<ILdapRule> rules = lpm.getRules(IPublisherProcessor.PROP_LOCAL_CRL);
+                if (rules != null && rules.hasMoreElements()) {
+                    if (publishError != null) {
+                        header.addStringValue("crlPublished", "Failure");
+                        header.addStringValue("error", publishError.toString(locale));
                     } else {
-                        crlIssuingPoint.updateCRLNow();
-                    }
-
-                    long now2 = System.currentTimeMillis();
-
-                    header.addStringValue("time", "" + (now2 - now1));
-
-                } catch (EErrorPublishCRL e) {
-                    publishError = e;
-                }
-
-                if (lpm != null && lpm.isCRLPublishingEnabled()) {
-                    Enumeration<ILdapRule> rules = lpm.getRules(IPublisherProcessor.PROP_LOCAL_CRL);
-                    if (rules != null && rules.hasMoreElements()) {
-                        if (publishError != null) {
-                            header.addStringValue("crlPublished", "Failure");
-                            header.addStringValue("error", publishError.toString(locale));
-                        } else {
-                            header.addStringValue("crlPublished", "Success");
-                        }
+                        header.addStringValue("crlPublished", "Success");
                     }
                 }
+            }
 
-                // for audit log
-                SessionContext sContext = SessionContext.getContext();
-                String agentId = (String) sContext.get(SessionContext.USER_ID);
-                IAuthToken authToken = (IAuthToken) sContext.get(SessionContext.AUTH_TOKEN);
-                String authMgr = AuditFormat.NOAUTH;
+            // for audit log
+            SessionContext sContext = SessionContext.getContext();
+            String agentId = (String) sContext.get(SessionContext.USER_ID);
+            IAuthToken authToken = (IAuthToken) sContext.get(SessionContext.AUTH_TOKEN);
+            String authMgr = AuditFormat.NOAUTH;
 
-                if (authToken != null) {
-                    authMgr = authToken.getInString(AuthToken.TOKEN_AUTHMGR_INST_NAME);
-                }
+            if (authToken != null) {
+                authMgr = authToken.getInString(AuthToken.TOKEN_AUTHMGR_INST_NAME);
+            }
 
-                long endTime = CMS.getCurrentDate().getTime();
+            long endTime = CMS.getCurrentDate().getTime();
 
-                if (crlIssuingPoint.getNextUpdate() != null) {
-                    mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
-                            AuditFormat.LEVEL,
-                            AuditFormat.CRLUPDATEFORMAT,
-                            new Object[] {
-                                    AuditFormat.FROMAGENT + " agentID: " + agentId,
-                                    authMgr,
-                                    "completed",
-                                    crlIssuingPoint.getId(),
-                                    crlIssuingPoint.getCRLNumber(),
-                                    crlIssuingPoint.getLastUpdate(),
-                                    crlIssuingPoint.getNextUpdate(),
-                                    Long.toString(crlIssuingPoint.getCRLSize())
-                                            + " time: " + (endTime - startTime) }
-                            );
-                } else {
-                    mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
-                            AuditFormat.LEVEL,
-                            AuditFormat.CRLUPDATEFORMAT,
-                            new Object[] {
-                                    AuditFormat.FROMAGENT + " agentID: " + agentId,
-                                    authMgr,
-                                    "completed",
-                                    crlIssuingPoint.getId(),
-                                    crlIssuingPoint.getCRLNumber(),
-                                    crlIssuingPoint.getLastUpdate(),
-                                    "not set",
-                                    Long.toString(crlIssuingPoint.getCRLSize())
-                                            + " time: " + (endTime - startTime) }
-                            );
-                }
+            if (crlIssuingPoint.getNextUpdate() != null) {
+                mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
+                        AuditFormat.LEVEL,
+                        AuditFormat.CRLUPDATEFORMAT,
+                        new Object[] {
+                                AuditFormat.FROMAGENT + " agentID: " + agentId,
+                                authMgr,
+                                "completed",
+                                crlIssuingPoint.getId(),
+                                crlIssuingPoint.getCRLNumber(),
+                                crlIssuingPoint.getLastUpdate(),
+                                crlIssuingPoint.getNextUpdate(),
+                                Long.toString(crlIssuingPoint.getCRLSize())
+                                        + " time: " + (endTime - startTime) }
+                        );
+            } else {
+                mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
+                        AuditFormat.LEVEL,
+                        AuditFormat.CRLUPDATEFORMAT,
+                        new Object[] {
+                                AuditFormat.FROMAGENT + " agentID: " + agentId,
+                                authMgr,
+                                "completed",
+                                crlIssuingPoint.getId(),
+                                crlIssuingPoint.getCRLNumber(),
+                                crlIssuingPoint.getLastUpdate(),
+                                "not set",
+                                Long.toString(crlIssuingPoint.getCRLSize())
+                                        + " time: " + (endTime - startTime) }
+                        );
+            }
 
-            } catch (EBaseException e) {
+        } catch (EBaseException e) {
 
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_ERR_UPDATE_CRL", e.toString()));
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_ERR_UPDATE_CRL", e.toString()));
 
-                if ((lpm != null) && lpm.isCRLPublishingEnabled() && (e instanceof ELdapException)) {
-                    header.addStringValue("crlPublished", "Failure");
-                    header.addStringValue("error", e.toString(locale));
+            if ((lpm != null) && lpm.isCRLPublishingEnabled() && (e instanceof ELdapException)) {
+                header.addStringValue("crlPublished", "Failure");
+                header.addStringValue("error", e.toString(locale));
 
-                } else {
-                    throw e;
-                }
+            } else {
+                throw e;
             }
         }
     }
