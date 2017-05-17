@@ -60,6 +60,7 @@ import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.SecurityDataArchivalEvent;
 import com.netscape.certsrv.logging.event.SecurityDataArchivalProcessedEvent;
+import com.netscape.certsrv.logging.event.SecurityDataRecoveryEvent;
 import com.netscape.certsrv.request.ARequestNotifier;
 import com.netscape.certsrv.request.IPolicy;
 import com.netscape.certsrv.request.IRequest;
@@ -749,7 +750,6 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
      */
     public IRequest archiveKey(KeyRecord rec)
             throws EBaseException {
-        String auditMessage = null;
         String auditSubjectID = auditSubjectID();
         String auditRequesterID = auditRequesterID();
         String auditPublicKey = auditPublicKey(rec);
@@ -1029,24 +1029,20 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
             r.setExtData(IRequest.ATTR_APPROVE_AGENTS, agent);
 
             // store a message in the signed audit log file
-            auditMessage = CMS.getLogMessage(
-                        AuditEvent.KEY_RECOVERY_REQUEST,
+            audit(new SecurityDataRecoveryEvent(
                         auditSubjectID,
                         ILogger.SUCCESS,
                         auditRecoveryID,
-                        auditPublicKey);
-
-            audit(auditMessage);
+                        null,
+                        auditPublicKey));
         } catch (EBaseException eAudit1) {
             // store a message in the signed audit log file
-            auditMessage = CMS.getLogMessage(
-                        AuditEvent.KEY_RECOVERY_REQUEST,
+            audit(new SecurityDataRecoveryEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditRecoveryID,
-                        auditPublicKey);
-
-            audit(auditMessage);
+                        null,
+                        auditPublicKey));
 
             throw eAudit1;
         }
