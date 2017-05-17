@@ -331,7 +331,11 @@ public class UpdateCRL extends CMSServlet {
         header.addStringValue("crlIssuingPoint", crlIssuingPointId);
         IPublisherProcessor lpm = mCA.getPublisherProcessor();
 
-        if (crlIssuingPoint != null) {
+        if (crlIssuingPoint == null) {
+            CMS.debug("UpdateCRL: no CRL issuing point");
+            return;
+        }
+
             if (clearCache != null && clearCache.equals("true") &&
                     crlIssuingPoint.isCRLGenerationEnabled() &&
                     crlIssuingPoint.isCRLUpdateInProgress() == ICRLIssuingPoint.CRL_UPDATE_DONE &&
@@ -523,7 +527,5 @@ public class UpdateCRL extends CMSServlet {
                     header.addStringValue("crlUpdate", "Scheduled");
                 }
             }
-        }
-        return;
     }
 }
