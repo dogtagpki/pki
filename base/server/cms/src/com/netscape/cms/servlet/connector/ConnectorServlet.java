@@ -617,6 +617,8 @@ public class ConnectorServlet extends CMSServlet {
             try {
                 queue.processRequest(thisreq);
 
+            } finally {
+
                 if (isProfileRequest(thisreq)) {
 
                     X509CertImpl x509cert = thisreq.getExtDataInCert(IEnrollProfile.REQUEST_ISSUED_CERT);
@@ -629,28 +631,17 @@ public class ConnectorServlet extends CMSServlet {
                                 auditRequesterID,
                                 ILogger.SIGNED_AUDIT_ACCEPTANCE,
                                 x509cert));
-                    }
-                }
 
-            } catch (EBaseException eAudit1) {
-                if (isProfileRequest(thisreq)) {
-
-                    X509CertImpl x509cert = thisreq.getExtDataInCert(IEnrollProfile.REQUEST_ISSUED_CERT);
-
-                    if (x509cert != null) {
+                    } else {
 
                         audit(new CertRequestProcessedEvent(
                                 auditSubjectID,
                                 ILogger.FAILURE,
                                 auditRequesterID,
-                                ILogger.SIGNED_AUDIT_ACCEPTANCE,
-                                x509cert));
+                                ILogger.SIGNED_AUDIT_REJECTION,
+                                ILogger.SIGNED_AUDIT_EMPTY_VALUE));
                     }
                 }
-
-                // rethrow EBaseException to primary catch clause
-                // within this method
-                throw eAudit1;
             }
 
             replymsg = CMS.getHttpPKIMessage();
