@@ -3068,10 +3068,13 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         public void accept(IRequest r) {
             String requestType = r.getRequestType();
 
-            if (requestType.equals(IRequest.REVOCATION_REQUEST) ||
+            if (!(requestType.equals(IRequest.REVOCATION_REQUEST) ||
                     requestType.equals(IRequest.UNREVOCATION_REQUEST) ||
                     requestType.equals(IRequest.CLA_CERT4CRL_REQUEST) ||
-                    requestType.equals(IRequest.CLA_UNCERT4CRL_REQUEST)) {
+                    requestType.equals(IRequest.CLA_UNCERT4CRL_REQUEST))) {
+                return;
+            }
+
                 CMS.debug("Revocation listener called.");
                 // check if serial number is in begin/end range if set.
                 if (mBeginSerial != null || mEndSerial != null) {
@@ -3136,7 +3139,6 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                                         CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString())));
                     }
                 }
-            }
         }
     }
 }
