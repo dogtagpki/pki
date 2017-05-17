@@ -47,8 +47,10 @@ import com.netscape.certsrv.kra.EKRAException;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.event.SecurityDataRecoveryEvent;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IService;
+import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.certsrv.security.ITransportKeyUnit;
 import com.netscape.cmscore.dbs.KeyRecord;
@@ -211,6 +213,10 @@ public class TokenKeyRecoveryService implements IService {
         if (id != null) {
             auditRecoveryID = id.trim();
         }
+
+        // temporary variable till other audit messages have been replaced
+        RequestId auditRequestID = request.getRequestId();
+
         SessionContext sContext = SessionContext.getContext();
         String agentId = "";
         if (sContext != null) {
@@ -563,14 +569,12 @@ public class TokenKeyRecoveryService implements IService {
                 CMS.debug("TokenKeyRecoveryService: RSA PubKey base64 encoded");
             }
 
-            auditMessage = CMS.getLogMessage(
-                    AuditEvent.KEY_RECOVERY_REQUEST,
+            audit(new SecurityDataRecoveryEvent(
                     auditSubjectID,
-                        ILogger.SUCCESS,
-                    auditRecoveryID,
-                    PubKey);
-
-            audit(auditMessage);
+                    ILogger.SUCCESS,
+                    auditRequestID,
+                    null,
+                    PubKey));
 
             if (PubKey == null) {
                 request.setExtData(IRequest.RESULT, Integer.valueOf(4));

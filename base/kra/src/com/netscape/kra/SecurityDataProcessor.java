@@ -35,6 +35,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.certsrv.dbs.keydb.IKeyRepository;
+import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.key.KeyRequestResource;
 import com.netscape.certsrv.kra.EKRAException;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
@@ -300,7 +301,7 @@ public class SecurityDataProcessor {
         keyRepository.addKeyRecord(rec);
 
         auditArchivalRequestProcessed(auditSubjectID, ILogger.SUCCESS, requestId,
-                clientKeyId, serialNo.toString(), "None");
+                clientKeyId, new KeyId(serialNo), "None");
 
         request.setExtData(ATTR_KEY_RECORD, serialNo);
         request.setExtData(IRequest.RESULT, IRequest.RES_SUCCESS);
@@ -867,13 +868,13 @@ public class SecurityDataProcessor {
     }
 
     private void auditArchivalRequestProcessed(String subjectID, String status, RequestId requestID, String clientKeyID,
-            String keyID, String reason) {
+            KeyId keyID, String reason) {
         audit(new SecurityDataArchivalProcessedEvent(
                 subjectID,
                 status,
-                requestID.toString(),
+                requestID,
                 clientKeyID,
-                keyID != null ? keyID : "None",
+                keyID,
                 reason,
                 null));
     }

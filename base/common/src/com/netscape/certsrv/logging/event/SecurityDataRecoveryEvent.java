@@ -21,19 +21,18 @@ import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.request.RequestId;
 
-public class SecurityDataArchivalProcessedEvent extends AuditEvent {
+public class SecurityDataRecoveryEvent extends AuditEvent {
 
     private static final long serialVersionUID = 1L;
 
-    private static final String LOGGING_PROPERTY = "LOGGING_SIGNED_AUDIT_SECURITY_DATA_ARCHIVAL_REQUEST_PROCESSED";
+    private static final String LOGGING_PROPERTY =
+            "LOGGING_SIGNED_AUDIT_SECURITY_DATA_RECOVERY_REQUEST";
 
-    public SecurityDataArchivalProcessedEvent(
+    public SecurityDataRecoveryEvent(
             String subjectID,
             String outcome,
-            RequestId requestID,
-            String clientKeyID,
+            RequestId recoveryID,
             KeyId keyID,
-            String failureReason,
             String pubkey) {
 
         super(LOGGING_PROPERTY);
@@ -41,10 +40,8 @@ public class SecurityDataArchivalProcessedEvent extends AuditEvent {
         setParameters(new Object[] {
                 subjectID,
                 outcome,
-                requestID,
-                clientKeyID,
+                recoveryID,
                 keyID,
-                failureReason,
                 pubkey
         });
     }
