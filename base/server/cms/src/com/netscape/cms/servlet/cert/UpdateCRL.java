@@ -343,11 +343,25 @@ public class UpdateCRL extends CMSServlet {
                                 == ICRLIssuingPoint.CRL_IP_INITIALIZED) {
                 crlIssuingPoint.clearCRLCache();
             }
-            if (waitForUpdate != null && waitForUpdate.equals("true") &&
+            if (!(waitForUpdate != null && waitForUpdate.equals("true") &&
                     crlIssuingPoint.isCRLGenerationEnabled() &&
                     crlIssuingPoint.isCRLUpdateInProgress() == ICRLIssuingPoint.CRL_UPDATE_DONE &&
                     crlIssuingPoint.isCRLIssuingPointInitialized()
-                                == ICRLIssuingPoint.CRL_IP_INITIALIZED) {
+                                == ICRLIssuingPoint.CRL_IP_INITIALIZED)) {
+                if (crlIssuingPoint.isCRLIssuingPointInitialized() != ICRLIssuingPoint.CRL_IP_INITIALIZED) {
+                    header.addStringValue("crlUpdate", "notInitialized");
+                } else if (crlIssuingPoint.isCRLUpdateInProgress()
+                           != ICRLIssuingPoint.CRL_UPDATE_DONE ||
+                           crlIssuingPoint.isManualUpdateSet()) {
+                    header.addStringValue("crlUpdate", "inProgress");
+                } else if (!crlIssuingPoint.isCRLGenerationEnabled()) {
+                    header.addStringValue("crlUpdate", "Disabled");
+                } else {
+                    crlIssuingPoint.setManualUpdate(signatureAlgorithm);
+                    header.addStringValue("crlUpdate", "Scheduled");
+                }
+                return;
+            }
                 if (test != null && test.equals("true") &&
                         crlIssuingPoint.isCRLCacheTestingEnabled() &&
                         (!mTesting.contains(crlIssuingPointId))) {
@@ -513,19 +527,5 @@ public class UpdateCRL extends CMSServlet {
                         }
                     }
                 }
-            } else {
-                if (crlIssuingPoint.isCRLIssuingPointInitialized() != ICRLIssuingPoint.CRL_IP_INITIALIZED) {
-                    header.addStringValue("crlUpdate", "notInitialized");
-                } else if (crlIssuingPoint.isCRLUpdateInProgress()
-                           != ICRLIssuingPoint.CRL_UPDATE_DONE ||
-                           crlIssuingPoint.isManualUpdateSet()) {
-                    header.addStringValue("crlUpdate", "inProgress");
-                } else if (!crlIssuingPoint.isCRLGenerationEnabled()) {
-                    header.addStringValue("crlUpdate", "Disabled");
-                } else {
-                    crlIssuingPoint.setManualUpdate(signatureAlgorithm);
-                    header.addStringValue("crlUpdate", "Scheduled");
-                }
-            }
     }
 }
