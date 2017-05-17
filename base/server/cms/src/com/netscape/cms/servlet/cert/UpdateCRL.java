@@ -346,201 +346,11 @@ public class UpdateCRL extends CMSServlet {
             crlIssuingPoint.clearCRLCache();
         }
 
-        if (waitForUpdate != null && waitForUpdate.equals("true") &&
+        if (!(waitForUpdate != null && waitForUpdate.equals("true") &&
                 crlIssuingPoint.isCRLGenerationEnabled() &&
                 crlIssuingPoint.isCRLUpdateInProgress() == ICRLIssuingPoint.CRL_UPDATE_DONE &&
                 crlIssuingPoint.isCRLIssuingPointInitialized()
-                            == ICRLIssuingPoint.CRL_IP_INITIALIZED) {
-
-            if (test != null && test.equals("true") &&
-                    crlIssuingPoint.isCRLCacheTestingEnabled() &&
-                    (!mTesting.contains(crlIssuingPointId))) {
-
-                CMS.debug("CRL test started.");
-
-                mTesting.add(crlIssuingPointId);
-
-                BigInteger addLen = null;
-                BigInteger startFrom = null;
-
-                if (add != null && add.length() > 0 &&
-                        from != null && from.length() > 0) {
-                    try {
-                        addLen = new BigInteger(add);
-                        startFrom = new BigInteger(from);
-                    } catch (Exception e) {
-                    }
-                }
-
-                if (addLen != null && startFrom != null) {
-                    Date revocationDate = CMS.getCurrentDate();
-                    String err = null;
-
-                    CRLExtensions entryExts = crlEntryExtensions(reason, invalidity);
-
-                    BigInteger serialNumber = startFrom;
-                    BigInteger counter = addLen;
-                    BigInteger stepBy = null;
-
-                    if (by != null && by.length() > 0) {
-                        try {
-                            stepBy = new BigInteger(by);
-                        } catch (Exception e) {
-                        }
-                    }
-
-                    long t1 = System.currentTimeMillis();
-                    long t2 = 0;
-
-                    while (counter.compareTo(BigInteger.ZERO) > 0) {
-
-                        RevokedCertImpl revokedCert =
-                                new RevokedCertImpl(serialNumber, revocationDate, entryExts);
-                        crlIssuingPoint.addRevokedCert(serialNumber, revokedCert);
-                        serialNumber = serialNumber.add(BigInteger.ONE);
-                        counter = counter.subtract(BigInteger.ONE);
-
-                        if ((counter.compareTo(BigInteger.ZERO) == 0) ||
-                                (stepBy != null && ((counter.mod(stepBy)).compareTo(BigInteger.ZERO) == 0))) {
-
-                            t2 = System.currentTimeMillis();
-                            long t0 = t2 - t1;
-                            t1 = t2;
-
-                            try {
-                                if (signatureAlgorithm != null) {
-                                    crlIssuingPoint.updateCRLNow(signatureAlgorithm);
-                                } else {
-                                    crlIssuingPoint.updateCRLNow();
-                                }
-
-                            } catch (Throwable e) {
-                                counter = BigInteger.ZERO;
-                                err = e.toString();
-                            }
-
-                            if (results != null && results.equals("1")) {
-                                addInfo(argSet, crlIssuingPoint, t0);
-                            }
-                        }
-                    }
-
-                    if (err != null) {
-                        header.addStringValue("crlUpdate", "Failure");
-                        header.addStringValue("error", err);
-                    } else {
-                        header.addStringValue("crlUpdate", "Success");
-                    }
-
-                } else {
-                    CMS.debug("CRL test error: missing parameters.");
-                    header.addStringValue("crlUpdate", "missingParameters");
-                }
-
-                mTesting.remove(crlIssuingPointId);
-                CMS.debug("CRL test finished.");
-
-            } else if (test != null && test.equals("true") &&
-                       crlIssuingPoint.isCRLCacheTestingEnabled() &&
-                       mTesting.contains(crlIssuingPointId)) {
-                header.addStringValue("crlUpdate", "testingInProgress");
-
-            } else if (test != null && test.equals("true") &&
-                       (!crlIssuingPoint.isCRLCacheTestingEnabled())) {
-                header.addStringValue("crlUpdate", "testingNotEnabled");
-
-            } else {
-                try {
-                    EBaseException publishError = null;
-
-                    try {
-                        long now1 = System.currentTimeMillis();
-
-                        if (signatureAlgorithm != null) {
-                            crlIssuingPoint.updateCRLNow(signatureAlgorithm);
-                        } else {
-                            crlIssuingPoint.updateCRLNow();
-                        }
-
-                        long now2 = System.currentTimeMillis();
-
-                        header.addStringValue("time", "" + (now2 - now1));
-
-                    } catch (EErrorPublishCRL e) {
-                        publishError = e;
-                    }
-
-                    if (lpm != null && lpm.isCRLPublishingEnabled()) {
-                        Enumeration<ILdapRule> rules = lpm.getRules(IPublisherProcessor.PROP_LOCAL_CRL);
-                        if (rules != null && rules.hasMoreElements()) {
-                            if (publishError != null) {
-                                header.addStringValue("crlPublished", "Failure");
-                                header.addStringValue("error", publishError.toString(locale));
-                            } else {
-                                header.addStringValue("crlPublished", "Success");
-                            }
-                        }
-                    }
-
-                    // for audit log
-                    SessionContext sContext = SessionContext.getContext();
-                    String agentId = (String) sContext.get(SessionContext.USER_ID);
-                    IAuthToken authToken = (IAuthToken) sContext.get(SessionContext.AUTH_TOKEN);
-                    String authMgr = AuditFormat.NOAUTH;
-
-                    if (authToken != null) {
-                        authMgr = authToken.getInString(AuthToken.TOKEN_AUTHMGR_INST_NAME);
-                    }
-
-                    long endTime = CMS.getCurrentDate().getTime();
-
-                    if (crlIssuingPoint.getNextUpdate() != null) {
-                        mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
-                                AuditFormat.LEVEL,
-                                AuditFormat.CRLUPDATEFORMAT,
-                                new Object[] {
-                                        AuditFormat.FROMAGENT + " agentID: " + agentId,
-                                        authMgr,
-                                        "completed",
-                                        crlIssuingPoint.getId(),
-                                        crlIssuingPoint.getCRLNumber(),
-                                        crlIssuingPoint.getLastUpdate(),
-                                        crlIssuingPoint.getNextUpdate(),
-                                        Long.toString(crlIssuingPoint.getCRLSize())
-                                                + " time: " + (endTime - startTime) }
-                                );
-                    } else {
-                        mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
-                                AuditFormat.LEVEL,
-                                AuditFormat.CRLUPDATEFORMAT,
-                                new Object[] {
-                                        AuditFormat.FROMAGENT + " agentID: " + agentId,
-                                        authMgr,
-                                        "completed",
-                                        crlIssuingPoint.getId(),
-                                        crlIssuingPoint.getCRLNumber(),
-                                        crlIssuingPoint.getLastUpdate(),
-                                        "not set",
-                                        Long.toString(crlIssuingPoint.getCRLSize())
-                                                + " time: " + (endTime - startTime) }
-                                );
-                    }
-
-                } catch (EBaseException e) {
-
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_ERR_UPDATE_CRL", e.toString()));
-
-                    if ((lpm != null) && lpm.isCRLPublishingEnabled() && (e instanceof ELdapException)) {
-                        header.addStringValue("crlPublished", "Failure");
-                        header.addStringValue("error", e.toString(locale));
-
-                    } else {
-                        throw e;
-                    }
-                }
-            }
-
-        } else {
+                            == ICRLIssuingPoint.CRL_IP_INITIALIZED)) {
 
             if (crlIssuingPoint.isCRLIssuingPointInitialized() != ICRLIssuingPoint.CRL_IP_INITIALIZED) {
                 header.addStringValue("crlUpdate", "notInitialized");
@@ -556,6 +366,196 @@ public class UpdateCRL extends CMSServlet {
             } else {
                 crlIssuingPoint.setManualUpdate(signatureAlgorithm);
                 header.addStringValue("crlUpdate", "Scheduled");
+            }
+
+            return;
+        }
+
+        if (test != null && test.equals("true") &&
+                crlIssuingPoint.isCRLCacheTestingEnabled() &&
+                (!mTesting.contains(crlIssuingPointId))) {
+
+            CMS.debug("CRL test started.");
+
+            mTesting.add(crlIssuingPointId);
+
+            BigInteger addLen = null;
+            BigInteger startFrom = null;
+
+            if (add != null && add.length() > 0 &&
+                    from != null && from.length() > 0) {
+                try {
+                    addLen = new BigInteger(add);
+                    startFrom = new BigInteger(from);
+                } catch (Exception e) {
+                }
+            }
+
+            if (addLen != null && startFrom != null) {
+                Date revocationDate = CMS.getCurrentDate();
+                String err = null;
+
+                CRLExtensions entryExts = crlEntryExtensions(reason, invalidity);
+
+                BigInteger serialNumber = startFrom;
+                BigInteger counter = addLen;
+                BigInteger stepBy = null;
+
+                if (by != null && by.length() > 0) {
+                    try {
+                        stepBy = new BigInteger(by);
+                    } catch (Exception e) {
+                    }
+                }
+
+                long t1 = System.currentTimeMillis();
+                long t2 = 0;
+
+                while (counter.compareTo(BigInteger.ZERO) > 0) {
+
+                    RevokedCertImpl revokedCert =
+                            new RevokedCertImpl(serialNumber, revocationDate, entryExts);
+                    crlIssuingPoint.addRevokedCert(serialNumber, revokedCert);
+                    serialNumber = serialNumber.add(BigInteger.ONE);
+                    counter = counter.subtract(BigInteger.ONE);
+
+                    if ((counter.compareTo(BigInteger.ZERO) == 0) ||
+                            (stepBy != null && ((counter.mod(stepBy)).compareTo(BigInteger.ZERO) == 0))) {
+
+                        t2 = System.currentTimeMillis();
+                        long t0 = t2 - t1;
+                        t1 = t2;
+
+                        try {
+                            if (signatureAlgorithm != null) {
+                                crlIssuingPoint.updateCRLNow(signatureAlgorithm);
+                            } else {
+                                crlIssuingPoint.updateCRLNow();
+                            }
+
+                        } catch (Throwable e) {
+                            counter = BigInteger.ZERO;
+                            err = e.toString();
+                        }
+
+                        if (results != null && results.equals("1")) {
+                            addInfo(argSet, crlIssuingPoint, t0);
+                        }
+                    }
+                }
+
+                if (err != null) {
+                    header.addStringValue("crlUpdate", "Failure");
+                    header.addStringValue("error", err);
+                } else {
+                    header.addStringValue("crlUpdate", "Success");
+                }
+
+            } else {
+                CMS.debug("CRL test error: missing parameters.");
+                header.addStringValue("crlUpdate", "missingParameters");
+            }
+
+            mTesting.remove(crlIssuingPointId);
+            CMS.debug("CRL test finished.");
+
+        } else if (test != null && test.equals("true") &&
+                   crlIssuingPoint.isCRLCacheTestingEnabled() &&
+                   mTesting.contains(crlIssuingPointId)) {
+            header.addStringValue("crlUpdate", "testingInProgress");
+
+        } else if (test != null && test.equals("true") &&
+                   (!crlIssuingPoint.isCRLCacheTestingEnabled())) {
+            header.addStringValue("crlUpdate", "testingNotEnabled");
+
+        } else {
+            try {
+                EBaseException publishError = null;
+
+                try {
+                    long now1 = System.currentTimeMillis();
+
+                    if (signatureAlgorithm != null) {
+                        crlIssuingPoint.updateCRLNow(signatureAlgorithm);
+                    } else {
+                        crlIssuingPoint.updateCRLNow();
+                    }
+
+                    long now2 = System.currentTimeMillis();
+
+                    header.addStringValue("time", "" + (now2 - now1));
+
+                } catch (EErrorPublishCRL e) {
+                    publishError = e;
+                }
+
+                if (lpm != null && lpm.isCRLPublishingEnabled()) {
+                    Enumeration<ILdapRule> rules = lpm.getRules(IPublisherProcessor.PROP_LOCAL_CRL);
+                    if (rules != null && rules.hasMoreElements()) {
+                        if (publishError != null) {
+                            header.addStringValue("crlPublished", "Failure");
+                            header.addStringValue("error", publishError.toString(locale));
+                        } else {
+                            header.addStringValue("crlPublished", "Success");
+                        }
+                    }
+                }
+
+                // for audit log
+                SessionContext sContext = SessionContext.getContext();
+                String agentId = (String) sContext.get(SessionContext.USER_ID);
+                IAuthToken authToken = (IAuthToken) sContext.get(SessionContext.AUTH_TOKEN);
+                String authMgr = AuditFormat.NOAUTH;
+
+                if (authToken != null) {
+                    authMgr = authToken.getInString(AuthToken.TOKEN_AUTHMGR_INST_NAME);
+                }
+
+                long endTime = CMS.getCurrentDate().getTime();
+
+                if (crlIssuingPoint.getNextUpdate() != null) {
+                    mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
+                            AuditFormat.LEVEL,
+                            AuditFormat.CRLUPDATEFORMAT,
+                            new Object[] {
+                                    AuditFormat.FROMAGENT + " agentID: " + agentId,
+                                    authMgr,
+                                    "completed",
+                                    crlIssuingPoint.getId(),
+                                    crlIssuingPoint.getCRLNumber(),
+                                    crlIssuingPoint.getLastUpdate(),
+                                    crlIssuingPoint.getNextUpdate(),
+                                    Long.toString(crlIssuingPoint.getCRLSize())
+                                            + " time: " + (endTime - startTime) }
+                            );
+                } else {
+                    mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
+                            AuditFormat.LEVEL,
+                            AuditFormat.CRLUPDATEFORMAT,
+                            new Object[] {
+                                    AuditFormat.FROMAGENT + " agentID: " + agentId,
+                                    authMgr,
+                                    "completed",
+                                    crlIssuingPoint.getId(),
+                                    crlIssuingPoint.getCRLNumber(),
+                                    crlIssuingPoint.getLastUpdate(),
+                                    "not set",
+                                    Long.toString(crlIssuingPoint.getCRLSize())
+                                            + " time: " + (endTime - startTime) }
+                            );
+                }
+
+            } catch (EBaseException e) {
+
+                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_ERR_UPDATE_CRL", e.toString()));
+
+                if ((lpm != null) && lpm.isCRLPublishingEnabled() && (e instanceof ELdapException)) {
+                    header.addStringValue("crlPublished", "Failure");
+                    header.addStringValue("error", e.toString(locale));
+
+                } else {
+                    throw e;
+                }
             }
         }
     }
