@@ -46,6 +46,7 @@ import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.certsrv.dbs.keydb.IKeyRepository;
+import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
@@ -484,9 +485,9 @@ public class NetkeyKeygenService implements IService {
                     audit(new SecurityDataArchivalProcessedEvent(
                             agentId,
                             ILogger.SUCCESS,
-                            request.getRequestId().toString(),
+                            request.getRequestId(),
                             null,
-                            serialNo.toString(),
+                            new KeyId(serialNo),
                             null,
                             PubKey));
                 } //if archive

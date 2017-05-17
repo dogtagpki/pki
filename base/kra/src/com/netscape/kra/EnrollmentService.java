@@ -44,6 +44,7 @@ import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.certsrv.dbs.keydb.IKeyRepository;
+import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.kra.EKRAException;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.kra.ProofOfArchival;
@@ -552,9 +553,9 @@ public class EnrollmentService implements IService {
             audit(new SecurityDataArchivalProcessedEvent(
                         auditSubjectID,
                         ILogger.SUCCESS,
-                        request.getRequestId().toString(),
+                        request.getRequestId(),
                         null,
-                        rec.getSerialNumber().toString(),
+                        new KeyId(rec.getSerialNumber()),
                         null,
                         auditPublicKey));
 

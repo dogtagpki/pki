@@ -52,6 +52,7 @@ import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.dbs.IDBSubsystem;
 import com.netscape.certsrv.dbs.keydb.IKeyRepository;
+import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.dbs.replicadb.IReplicaIDRepository;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.kra.IKeyService;
@@ -60,6 +61,7 @@ import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.SecurityDataArchivalEvent;
 import com.netscape.certsrv.logging.event.SecurityDataArchivalProcessedEvent;
+import com.netscape.certsrv.logging.event.SecurityDataRecoveryEvent;
 import com.netscape.certsrv.request.ARequestNotifier;
 import com.netscape.certsrv.request.IPolicy;
 import com.netscape.certsrv.request.IRequest;
@@ -749,7 +751,6 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
      */
     public IRequest archiveKey(KeyRecord rec)
             throws EBaseException {
-        String auditMessage = null;
         String auditSubjectID = auditSubjectID();
         String auditRequesterID = auditRequesterID();
         String auditPublicKey = auditPublicKey(rec);
@@ -790,18 +791,18 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
             audit(new SecurityDataArchivalProcessedEvent(
                     auditSubjectID,
                     ILogger.SUCCESS,
-                    r.getRequestId().toString(),
+                    r.getRequestId(),
                     null,
-                    rec.getSerialNumber().toString(),
+                    new KeyId(rec.getSerialNumber()),
                     null,
                     auditPublicKey));
         } catch (EBaseException eAudit1) {
             audit(new SecurityDataArchivalProcessedEvent(
                     auditSubjectID,
                     ILogger.FAILURE,
-                    r.getRequestId().toString(),
+                    r.getRequestId(),
                     null,
-                    rec.getSerialNumber().toString(),
+                    new KeyId(rec.getSerialNumber()),
                     eAudit1.getMessage(),
                     auditPublicKey));
 
@@ -994,7 +995,11 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
             throws EBaseException {
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
+
+        // temporary variable till other audit events are converted
         String auditRecoveryID = auditRecoveryID();
+
+        RequestId auditRequestID = auditRequestID();
         String auditPublicKey = auditPublicKey(cert);
         String auditAgents = ILogger.SIGNED_AUDIT_EMPTY_VALUE;
 
@@ -1029,24 +1034,20 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
             r.setExtData(IRequest.ATTR_APPROVE_AGENTS, agent);
 
             // store a message in the signed audit log file
-            auditMessage = CMS.getLogMessage(
-                        AuditEvent.KEY_RECOVERY_REQUEST,
+            audit(new SecurityDataRecoveryEvent(
                         auditSubjectID,
                         ILogger.SUCCESS,
-                        auditRecoveryID,
-                        auditPublicKey);
-
-            audit(auditMessage);
+                        auditRequestID,
+                        null,
+                        auditPublicKey));
         } catch (EBaseException eAudit1) {
             // store a message in the signed audit log file
-            auditMessage = CMS.getLogMessage(
-                        AuditEvent.KEY_RECOVERY_REQUEST,
+            audit(new SecurityDataRecoveryEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
-                        auditRecoveryID,
-                        auditPublicKey);
-
-            audit(auditMessage);
+                        auditRequestID,
+                        null,
+                        auditPublicKey));
 
             throw eAudit1;
         }
@@ -1679,6 +1680,20 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         }
 
         return recoveryID;
+    }
+    /*
+     * temporary function till other audit messages are converted
+     */
+    private RequestId auditRequestID() {
+        SessionContext auditContext = SessionContext.getExistingContext();
+        if (auditContext != null) {
+            String recoveryID = (String) auditContext.get(SessionContext.RECOVERY_ID);
+            if (recoveryID != null) {
+                return new RequestId(recoveryID.trim());
+            }
+        }
+
+        return null;
     }
 
     /**
