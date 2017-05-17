@@ -840,25 +840,20 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
             auditRecoveryID = r.getRequestId().toString();
 
             // store a message in the signed audit log file
-            auditMessage = CMS.getLogMessage(
-                        AuditEvent.KEY_RECOVERY_REQUEST_ASYNC,
+            audit(new SecurityDataRecoveryEvent(
                         auditSubjectID,
                         ILogger.SUCCESS,
                         auditRecoveryID,
-                        auditPublicKey);
-
-            audit(auditMessage);
+                        null,
+                        auditPublicKey));
         } catch (EBaseException eAudit1) {
             // store a message in the signed audit log file
-            auditMessage = CMS.getLogMessage(
-                        AuditEvent.KEY_RECOVERY_REQUEST_ASYNC,
-                        auditSubjectID,
-                        ILogger.FAILURE,
-                        auditRecoveryID,
-                        auditPublicKey);
-
-            audit(auditMessage);
-
+            audit(new SecurityDataRecoveryEvent(
+                    auditSubjectID,
+                    ILogger.FAILURE,
+                    auditRecoveryID,
+                    null,
+                    auditPublicKey));
             throw eAudit1;
         }
 
@@ -980,7 +975,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
      * @param kid key identifier
      * @param creds list of recovery agent credentials
      * @param password password of the PKCS12 package
-     * @param cert certficate that will be put in PKCS12
+     * @param cert certificate that will be put in PKCS12
      * @param delivery file, mail or something else
      * @param nickname string containing the nickname of the id cert for this
      *            subsystem
@@ -1118,6 +1113,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         String auditSubjectID = auditSubjectID();
         String auditRecoveryID = reqID;
         String auditAgents = ILogger.SIGNED_AUDIT_EMPTY_VALUE;
+        BigInteger keyID = null;
 
         IRequestQueue queue = null;
         IRequest r = null;
@@ -1128,6 +1124,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         r = queue.findRequest(new RequestId(reqID));
 
         auditAgents = r.getExtDataInString(IRequest.ATTR_APPROVE_AGENTS);
+        keyID = r.getExtDataInBigInteger("serialNumber");
 
         // set transient parameters
         params = createVolatileRequest(r.getRequestId());
@@ -1146,42 +1143,36 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
                 byte pkcs12[] = (byte[]) params.get(
                         RecoveryService.ATTR_PKCS12);
 
-                // store a message in the signed audit log file
-                auditMessage = CMS.getLogMessage(
-                            AuditEvent.KEY_RECOVERY_REQUEST_PROCESSED_ASYNC,
+                audit(new SecurityDataRecoveryProcessedEvent(
                             auditSubjectID,
                             ILogger.SUCCESS,
                             auditRecoveryID,
-                            auditAgents);
-
-                audit(auditMessage);
+                            keyID.toString(),
+                            null,
+                            auditAgents));
 
                 destroyVolatileRequest(r.getRequestId());
 
                 return pkcs12;
             } else {
-                // store a message in the signed audit log file
-                auditMessage = CMS.getLogMessage(
-                            AuditEvent.KEY_RECOVERY_REQUEST_PROCESSED_ASYNC,
-                            auditSubjectID,
-                            ILogger.FAILURE,
-                            auditRecoveryID,
-                            auditAgents);
-
-                audit(auditMessage);
+                audit(new SecurityDataRecoveryProcessedEvent(
+                        auditSubjectID,
+                        ILogger.FAILURE,
+                        auditRecoveryID,
+                        keyID.toString(),
+                        r.getExtDataInString(IRequest.ERROR),
+                        auditAgents));
 
                 throw new EBaseException(r.getExtDataInString(IRequest.ERROR));
             }
         } catch (EBaseException eAudit1) {
-            // store a message in the signed audit log file
-            auditMessage = CMS.getLogMessage(
-                        AuditEvent.KEY_RECOVERY_REQUEST_PROCESSED_ASYNC,
-                        auditSubjectID,
-                        ILogger.FAILURE,
-                        auditRecoveryID,
-                        auditAgents);
-
-            audit(auditMessage);
+            audit(new SecurityDataRecoveryProcessedEvent(
+                    auditSubjectID,
+                    ILogger.FAILURE,
+                    auditRecoveryID,
+                    keyID.toString(),
+                    eAudit1.getMessage(),
+                    auditAgents));
             throw eAudit1;
         }
     }
