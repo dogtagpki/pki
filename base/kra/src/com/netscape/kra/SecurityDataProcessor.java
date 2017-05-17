@@ -40,6 +40,7 @@ import com.netscape.certsrv.kra.EKRAException;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.event.SecurityDataArchivalProcessedEvent;
 import com.netscape.certsrv.profile.IEnrollProfile;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
@@ -867,14 +868,13 @@ public class SecurityDataProcessor {
 
     private void auditArchivalRequestProcessed(String subjectID, String status, RequestId requestID, String clientKeyID,
             String keyID, String reason) {
-        String auditMessage = CMS.getLogMessage(
-                AuditEvent.SECURITY_DATA_ARCHIVAL_REQUEST_PROCESSED,
+        audit(new SecurityDataArchivalProcessedEvent(
                 subjectID,
                 status,
                 requestID.toString(),
                 clientKeyID,
                 keyID != null ? keyID : "None",
-                reason);
-        audit(auditMessage);
+                reason,
+                null));
     }
 }

@@ -72,8 +72,6 @@ public class AuditEvent implements IBundleLogEvent {
     public final static String LOG_PATH_CHANGE =
             "LOGGING_SIGNED_AUDIT_LOG_PATH_CHANGE_4";
 
-    public final static String PRIVATE_KEY_ARCHIVE_REQUEST_PROCESSED =
-            "LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST_PROCESSED_3";
     public final static String PRIVATE_KEY_EXPORT_REQUEST_PROCESSED_SUCCESS =
             "LOGGING_SIGNED_AUDIT_PRIVATE_KEY_EXPORT_REQUEST_PROCESSED_SUCCESS_4";
     public final static String PRIVATE_KEY_EXPORT_REQUEST_PROCESSED_FAILURE =
@@ -178,8 +176,6 @@ public class AuditEvent implements IBundleLogEvent {
     public final static String CONFIG_SERIAL_NUMBER =
             "LOGGING_SIGNED_AUDIT_CONFIG_SERIAL_NUMBER_1";
 
-    public final static String SECURITY_DATA_ARCHIVAL_REQUEST_PROCESSED =
-            "LOGGING_SIGNED_AUDIT_SECURITY_DATA_ARCHIVAL_REQUEST_PROCESSED_6";
     public final static String SECURITY_DATA_RECOVERY_REQUEST_PROCESSED =
             "LOGGING_SIGNED_AUDIT_SECURITY_DATA_RECOVERY_REQUEST_PROCESSED_5";
     public static final String SECURITY_DATA_RECOVERY_REQUEST =

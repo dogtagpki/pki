@@ -59,6 +59,7 @@ import com.netscape.certsrv.listeners.EListenersException;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.SecurityDataArchivalEvent;
+import com.netscape.certsrv.logging.event.SecurityDataArchivalProcessedEvent;
 import com.netscape.certsrv.request.ARequestNotifier;
 import com.netscape.certsrv.request.IPolicy;
 import com.netscape.certsrv.request.IRequest;
@@ -786,23 +787,23 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
                 queue.processRequest(r);
             }
 
-            // store a message in the signed audit log file
-            auditMessage = CMS.getLogMessage(
-                        AuditEvent.PRIVATE_KEY_ARCHIVE_REQUEST_PROCESSED,
-                        auditSubjectID,
-                        ILogger.SUCCESS,
-                        auditPublicKey);
-
-            audit(auditMessage);
+            audit(new SecurityDataArchivalProcessedEvent(
+                    auditSubjectID,
+                    ILogger.SUCCESS,
+                    r.getRequestId().toString(),
+                    null,
+                    rec.getSerialNumber().toString(),
+                    null,
+                    auditPublicKey));
         } catch (EBaseException eAudit1) {
-            // store a message in the signed audit log file
-            auditMessage = CMS.getLogMessage(
-                        AuditEvent.PRIVATE_KEY_ARCHIVE_REQUEST_PROCESSED,
-                        auditSubjectID,
-                        ILogger.FAILURE,
-                        auditPublicKey);
-
-            audit(auditMessage);
+            audit(new SecurityDataArchivalProcessedEvent(
+                    auditSubjectID,
+                    ILogger.FAILURE,
+                    r.getRequestId().toString(),
+                    null,
+                    rec.getSerialNumber().toString(),
+                    eAudit1.getMessage(),
+                    auditPublicKey));
 
             throw eAudit1;
         }
