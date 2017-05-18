@@ -51,8 +51,11 @@ import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.dbs.certdb.IRevocationInfo;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.dbs.crldb.ICRLRepository;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.event.DeltaCRLGenerationFailureEvent;
+import com.netscape.certsrv.logging.event.DeltaCRLGenerationSuccessEvent;
 import com.netscape.certsrv.publish.ILdapRule;
 import com.netscape.certsrv.publish.IPublisherProcessor;
 import com.netscape.certsrv.request.IRequest;
@@ -2758,8 +2761,8 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             if (mConfigStore.getBoolean("noCRLIfNoRevokedCert", false)) {
                 if (deltaCRLCerts.size() == 0) {
                     CMS.debug("CRLIssuingPoint: No Revoked Certificates Found And noCRLIfNoRevokedCert is set to true - No Delta CRL Generated");
-                    throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR",
-                            "No Revoked Certificates"));
+                    audit(new DeltaCRLGenerationSuccessEvent(getAuditSubjectID(), "No Revoked Certificates"));
+                    return;
                 }
             }
 
@@ -2804,30 +2807,21 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                     }
             );
 
+            audit(new DeltaCRLGenerationSuccessEvent(getAuditSubjectID(), mCRLNumber));
+
         } catch (EBaseException e) {
             CMS.debug(e);
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_OR_STORE_DELTA", e.toString()));
             mDeltaCRLSize = -1;
+            audit(new DeltaCRLGenerationFailureEvent(getAuditSubjectID(), e.getMessage()));
+            return;
 
-        } catch (NoSuchAlgorithmException e) {
+        } catch (Throwable e) {
             CMS.debug(e);
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_DELTA", e.toString()));
             mDeltaCRLSize = -1;
-
-        } catch (CRLException e) {
-            CMS.debug(e);
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_DELTA", e.toString()));
-            mDeltaCRLSize = -1;
-
-        } catch (X509ExtensionException e) {
-            CMS.debug(e);
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_DELTA", e.toString()));
-            mDeltaCRLSize = -1;
-
-        } catch (OutOfMemoryError e) {
-            CMS.debug(e);
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_DELTA", e.toString()));
-            mDeltaCRLSize = -1;
+            audit(new DeltaCRLGenerationFailureEvent(getAuditSubjectID(), e.getMessage()));
+            return;
         }
 
         try {
@@ -3185,6 +3179,45 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                 }
             }
         }
+    }
+
+    String getAuditSubjectID() {
+
+        SessionContext context = SessionContext.getExistingContext();
+
+        if (context == null) {
+            return ILogger.UNIDENTIFIED;
+        }
+
+        String subjectID = (String)context.get(SessionContext.USER_ID);
+
+        if (subjectID == null) {
+            if (Thread.currentThread() == mUpdateThread) {
+                return ILogger.SYSTEM_UID;
+
+            } else {
+                return ILogger.NONROLEUSER;
+            }
+        }
+
+        return subjectID.trim();
+    }
+
+    void audit(AuditEvent event) {
+
+        ILogger logger = CMS.getSignedAuditLogger();
+        if (logger == null) return;
+
+        String messageID = event.getMessage();
+        Object[] params = event.getParameters();
+
+        String message = CMS.getLogMessage(messageID, params);
+
+        logger.log(ILogger.EV_SIGNED_AUDIT,
+                null,
+                ILogger.S_SIGNED_AUDIT,
+                ILogger.LL_SECURITY,
+                message);
     }
 }
 
