@@ -62,6 +62,7 @@ import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.kra.IKeyService;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.event.SecurityDataExportEvent;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
@@ -601,15 +602,14 @@ public class KeyService extends SubsystemService implements KeyResource {
     }
 
     public void auditRetrieveKey(String status, String reason) {
-        String msg = CMS.getLogMessage(
-                AuditEvent.SECURITY_DATA_RETRIEVE_KEY,
+        audit(new SecurityDataExportEvent(
                 servletRequest.getUserPrincipal().getName(),
                 status,
-                requestId != null ? requestId.toString(): "null",
-                keyId != null ? keyId.toString(): "null",
-                (reason != null) ? auditInfo + ";" + reason : auditInfo
-        );
-        auditor.log(msg);
+                requestId,
+                keyId,
+                (reason != null) ? auditInfo + ";" + reason : auditInfo,
+                null
+        ));
     }
 
     public void auditRetrieveKey(String status) {

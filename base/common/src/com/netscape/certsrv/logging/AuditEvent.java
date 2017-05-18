@@ -72,10 +72,6 @@ public class AuditEvent implements IBundleLogEvent {
     public final static String LOG_PATH_CHANGE =
             "LOGGING_SIGNED_AUDIT_LOG_PATH_CHANGE_4";
 
-    public final static String PRIVATE_KEY_EXPORT_REQUEST_PROCESSED_SUCCESS =
-            "LOGGING_SIGNED_AUDIT_PRIVATE_KEY_EXPORT_REQUEST_PROCESSED_SUCCESS_4";
-    public final static String PRIVATE_KEY_EXPORT_REQUEST_PROCESSED_FAILURE =
-            "LOGGING_SIGNED_AUDIT_PRIVATE_KEY_EXPORT_REQUEST_PROCESSED_FAILURE_4";
     public final static String SERVER_SIDE_KEYGEN_REQUEST =
             "LOGGING_SIGNED_AUDIT_SERVER_SIDE_KEYGEN_REQUEST_3";
     public final static String SERVER_SIDE_KEYGEN_REQUEST_PROCESSED_SUCCESS =
@@ -170,8 +166,6 @@ public class AuditEvent implements IBundleLogEvent {
 
     public static final String SECURITY_DATA_RECOVERY_REQUEST_STATE_CHANGE =
             "LOGGING_SIGNED_AUDIT_SECURITY_DATA_RECOVERY_REQUEST_STATE_CHANGE_4";
-    public final static String SECURITY_DATA_RETRIEVE_KEY =
-            "LOGGING_SIGNED_AUDIT_SECURITY_DATA_RETRIEVE_KEY_5";
     public final static String KEY_STATUS_CHANGE =
             "LOGGING_SIGNED_AUDIT_KEY_STATUS_CHANGE_6";
     public final static String SYMKEY_GENERATION_REQUEST_PROCESSED =
