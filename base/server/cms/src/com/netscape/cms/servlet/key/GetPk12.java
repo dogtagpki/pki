@@ -36,8 +36,9 @@ import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
-import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.event.SecurityDataExportEvent;
+import com.netscape.certsrv.request.RequestId;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
@@ -201,15 +202,13 @@ public class GetPk12 extends CMSServlet {
                     resp.getOutputStream().write(pkcs12);
                     mRenderResult = false;
 
-                    auditMessage = CMS.getLogMessage(
-                            AuditEvent.PRIVATE_KEY_EXPORT_REQUEST_PROCESSED_SUCCESS,
+                    audit(new SecurityDataExportEvent(
                             agent,
                             ILogger.SUCCESS,
-                            recoveryID,
-                            "");
-
-                    audit(auditMessage);
-
+                            new RequestId(recoveryID),
+                            null,
+                            null,
+                            null));
                     return;
                 } catch (IOException e) {
                     header.addStringValue(OUT_ERROR,
@@ -227,14 +226,13 @@ public class GetPk12 extends CMSServlet {
         }
 
         if ((agent != null) && (recoveryID != null)) {
-            auditMessage = CMS.getLogMessage(
-                    AuditEvent.PRIVATE_KEY_EXPORT_REQUEST_PROCESSED_FAILURE,
+            audit(new SecurityDataExportEvent(
                     agent,
                     ILogger.FAILURE,
-                    recoveryID,
-                    "");
-
-            audit(auditMessage);
+                    new RequestId(recoveryID),
+                    null,
+                    null,
+                    null));
         }
 
         try {

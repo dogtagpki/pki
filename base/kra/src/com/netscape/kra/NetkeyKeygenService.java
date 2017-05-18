@@ -52,6 +52,7 @@ import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.SecurityDataArchivalEvent;
 import com.netscape.certsrv.logging.event.SecurityDataArchivalProcessedEvent;
+import com.netscape.certsrv.logging.event.SecurityDataExportEvent;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.security.IStorageKeyUnit;
@@ -356,25 +357,26 @@ public class NetkeyKeygenService implements IService {
                 if (wrappedPrivKeyString == null) {
                     request.setExtData(IRequest.RESULT, Integer.valueOf(4));
                     CMS.debug("NetkeyKeygenService: failed generating wrapped private key");
-                    auditMessage = CMS.getLogMessage(
-                            AuditEvent.PRIVATE_KEY_EXPORT_REQUEST_PROCESSED_FAILURE,
+                    audit(new SecurityDataExportEvent(
                             agentId,
                             ILogger.FAILURE,
                             auditSubjectID,
-                            PubKey);
+                            null,
+                            "NetkeyKeygenService: failed generating wrapped private key",
+                            PubKey));
 
                     audit(auditMessage);
                     return false;
                 } else {
                     request.setExtData("wrappedUserPrivate", wrappedPrivKeyString);
-                    auditMessage = CMS.getLogMessage(
-                            AuditEvent.PRIVATE_KEY_EXPORT_REQUEST_PROCESSED_SUCCESS,
+
+                    audit(new SecurityDataExportEvent(
                             agentId,
                             ILogger.SUCCESS,
                             auditSubjectID,
-                            PubKey);
-
-                    audit(auditMessage);
+                            null,
+                            null,
+                            PubKey));
                 }
 
                 iv_s = /*base64Encode(iv);*/com.netscape.cmsutil.util.Utils.SpecialEncode(iv);
