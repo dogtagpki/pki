@@ -51,8 +51,10 @@ import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.dbs.certdb.IRevocationInfo;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.dbs.crldb.ICRLRepository;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.event.CRLGenerationEvent;
 import com.netscape.certsrv.publish.ILdapRule;
 import com.netscape.certsrv.publish.IPublisherProcessor;
 import com.netscape.certsrv.request.IRequest;
@@ -2479,7 +2481,19 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         updateCRLNow(null);
     }
 
-    public synchronized void updateCRLNow(String signingAlgorithm)
+    public void updateCRLNow(String signingAlgorithm) throws EBaseException {
+
+        try {
+            updateCRLNowInternal(signingAlgorithm);
+            audit(new CRLGenerationEvent(getSubjectID(), ILogger.SUCCESS));
+
+        } catch (EBaseException e) {
+            audit(new CRLGenerationEvent(getSubjectID(), ILogger.FAILURE));
+            throw e;
+        }
+    }
+
+    public synchronized void updateCRLNowInternal(String signingAlgorithm)
             throws EBaseException {
 
         CMS.debug("updateCRLNow: mEnable =" + mEnable);
@@ -3140,6 +3154,40 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                 }
             }
         }
+    }
+
+    String getSubjectID() {
+
+        SessionContext context = SessionContext.getExistingContext();
+
+        if (context == null) {
+            return ILogger.UNIDENTIFIED;
+        }
+
+        String subjectID = (String)context.get(SessionContext.USER_ID);
+
+        if (subjectID == null) {
+            return ILogger.NONROLEUSER;
+        }
+
+        return subjectID.trim();
+    }
+
+    void audit(AuditEvent event) {
+
+        ILogger logger = CMS.getSignedAuditLogger();
+        if (logger == null) return;
+
+        String messageID = event.getMessage();
+        Object[] params = event.getParameters();
+
+        String message = CMS.getLogMessage(messageID, params);
+
+        logger.log(ILogger.EV_SIGNED_AUDIT,
+                null,
+                ILogger.S_SIGNED_AUDIT,
+                ILogger.LL_SECURITY,
+                message);
     }
 }
 
