@@ -63,6 +63,9 @@ import com.netscape.certsrv.kra.IKeyService;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.SecurityDataExportEvent;
+import com.netscape.certsrv.logging.event.SecurityDataInfoEvent;
+import com.netscape.certsrv.logging.event.SecurityDataRecoveryEvent;
+import com.netscape.certsrv.logging.event.SecurityDataRecoveryProcessedEvent;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
@@ -92,6 +95,7 @@ public class KeyService extends SubsystemService implements KeyResource {
     private RequestId requestId;
     private KeyId keyId;
     private String auditInfo;
+    private String approvers;
 
     public KeyService() {
         kra = ( IKeyRecoveryAuthority ) CMS.getSubsystem( "kra" );
@@ -112,12 +116,14 @@ public class KeyService extends SubsystemService implements KeyResource {
     @Override
     public Response retrieveKey(KeyRecoveryRequest data) {
         try {
-            return retrieveKeyImpl(data);
+            Response response = retrieveKeyImpl(data);
+            auditRetrieveKey(ILogger.SUCCESS);
+            return response;
         } catch(RuntimeException e) {
-            auditError(e.getMessage());
+            auditRetrieveKeyError(e.getMessage());
             throw e;
         } catch (Exception e) {
-            auditError(e.getMessage());
+            auditRetrieveKeyError(e.getMessage());
             throw new PKIException(e.getMessage(), e);
         }
     }
@@ -191,17 +197,20 @@ public class KeyService extends SubsystemService implements KeyResource {
                 try {
                     queue.updateRequest(request);
                 } catch (EBaseException e) {
+                    auditRecoveryRequest(ILogger.FAILURE);
                     e.printStackTrace();
                     throw new PKIException(e.getMessage(), e);
                 }
 
                 CMS.debug("Returning created recovery request");
-                auditRetrieveKey(ILogger.SUCCESS, "Created recovery request");
+                auditRecoveryRequest(ILogger.SUCCESS);
 
                 KeyData keyData = new KeyData();
                 keyData.setRequestID(requestId);
                 return createOKResponse(keyData);
             }
+
+            auditRecoveryRequest(ILogger.SUCCESS);
         }
 
         data.setRequestId(requestId);
@@ -226,15 +235,19 @@ public class KeyService extends SubsystemService implements KeyResource {
                     throw new BadRequestException("Invalid request type: " + type);
             }
         } catch (Exception e) {
+            auditRecoveryRequestProcessed(ILogger.FAILURE, e.getMessage());
             throw new PKIException(e.getMessage(), e);
         }
 
         if (keyData == null) {
+            auditRecoveryRequestProcessed(ILogger.FAILURE, "No key record");
             throw new HTTPGoneException("No key record.");
         }
 
+        approvers = request.getExtDataInString(IRequest.ATTR_APPROVE_AGENTS);
+        auditRecoveryRequestProcessed(ILogger.SUCCESS, null);
+
         CMS.debug("KeyService: key retrieved");
-        auditRetrieveKey(ILogger.SUCCESS);
         return createOKResponse(keyData);
     }
 
@@ -408,10 +421,8 @@ public class KeyService extends SubsystemService implements KeyResource {
         try {
             return createOKResponse(listKeyInfos(clientKeyID, status, maxResults, maxTime, start, size, realm));
         } catch (RuntimeException e) {
-            auditError(e.getMessage());
             throw e;
         } catch (Exception e) {
-            auditError(e.getMessage());
             throw new PKIException(e.getMessage(), e);
         }
     }
@@ -449,7 +460,6 @@ public class KeyService extends SubsystemService implements KeyResource {
         try {
             Enumeration<IKeyRecord> e = repo.searchKeys(filter, maxResults, maxTime);
             if (e == null) {
-                auditRetrieveKey(ILogger.SUCCESS);
                 return infos;
             }
 
@@ -458,7 +468,11 @@ public class KeyService extends SubsystemService implements KeyResource {
             while (e.hasMoreElements()) {
                 IKeyRecord rec = e.nextElement();
                 if (rec == null) continue;
-                results.add(createKeyDataInfo(rec, false));
+
+                KeyInfo info = createKeyDataInfo(rec, false);
+                results.add(info);
+
+                auditKeyInfoSuccess(info.getKeyId(), null);
             }
 
             int total = results.size();
@@ -482,7 +496,6 @@ public class KeyService extends SubsystemService implements KeyResource {
         } catch (EBaseException e) {
             throw new PKIException(e.getMessage(), e);
         }
-        auditRetrieveKey(ILogger.SUCCESS);
 
         return infos;
     }
@@ -492,10 +505,10 @@ public class KeyService extends SubsystemService implements KeyResource {
         try {
             return getActiveKeyInfoImpl(clientKeyID);
         } catch (RuntimeException e) {
-            auditError(e.getMessage());
+            auditKeyInfoError(null, clientKeyID, e.getMessage());
             throw e;
         } catch (Exception e) {
-            auditError(e.getMessage());
+            auditKeyInfoError(null, clientKeyID, e.getMessage());
             throw new PKIException(e.getMessage(), e);
         }
     }
@@ -531,7 +544,7 @@ public class KeyService extends SubsystemService implements KeyResource {
                     throw new PKIException(e.toString(), e);
                 }
 
-                auditRetrieveKey(ILogger.SUCCESS);
+                auditKeyInfoSuccess(info.getKeyId(), clientKeyID);
 
                 return createOKResponse(info);
             }
@@ -616,9 +629,29 @@ public class KeyService extends SubsystemService implements KeyResource {
         auditRetrieveKey(status, null);
     }
 
-    public void auditError(String message) {
+    public void auditRetrieveKeyError(String message) {
         CMS.debug(message);
         auditRetrieveKey(ILogger.FAILURE, message);
+    }
+
+    public void auditKeyInfo(KeyId keyId, String clientKeyId, String status, String reason) {
+        audit(new SecurityDataInfoEvent(
+                servletRequest.getUserPrincipal().getName(),
+                status,
+                keyId != null ? keyId.toString(): null,
+                clientKeyId,
+                (reason != null) ? auditInfo + ";" + reason : auditInfo,
+                null
+        ));
+    }
+
+    public void auditKeyInfoSuccess(KeyId keyid, String clientKeyId) {
+        auditKeyInfo(keyId, clientKeyId, ILogger.SUCCESS, null);
+    }
+
+    public void auditKeyInfoError(KeyId keyId, String clientKeyId, String message) {
+        CMS.debug(message);
+        auditKeyInfo(keyId, clientKeyId, ILogger.FAILURE, message);
     }
 
     public void auditKeyStatusChange(String status, String keyID, String oldKeyStatus,
@@ -632,6 +665,27 @@ public class KeyService extends SubsystemService implements KeyResource {
                 newKeyStatus,
                 info);
         auditor.log(msg);
+    }
+
+    public void auditRecoveryRequest(String status) {
+        audit(new SecurityDataRecoveryEvent(
+                servletRequest.getUserPrincipal().getName(),
+                status,
+                requestId != null ? requestId.toString(): null,
+                keyId != null ? keyId.toString(): null,
+                null
+        ));
+    }
+
+    public void auditRecoveryRequestProcessed(String status, String reason) {
+        audit(new SecurityDataRecoveryProcessedEvent(
+                servletRequest.getUserPrincipal().getName(),
+                status,
+                requestId != null ? requestId.toString(): null,
+                keyId != null ? keyId.toString(): null,
+                (reason != null) ? auditInfo + ";" + reason : auditInfo,
+                approvers
+        ));
     }
 
     /**
@@ -697,10 +751,10 @@ public class KeyService extends SubsystemService implements KeyResource {
         try {
             return getKeyInfoImpl(keyId);
         } catch (RuntimeException e) {
-            auditError(e.getMessage());
+            auditKeyInfoError(keyId, null, e.getMessage());
             throw e;
         } catch (Exception e) {
-            auditError(e.getMessage());
+            auditKeyInfoError(keyId, null, e.getMessage());
             throw new PKIException(e.getMessage(), e);
         }
     }
@@ -715,7 +769,7 @@ public class KeyService extends SubsystemService implements KeyResource {
             rec = repo.readKeyRecord(keyId.toBigInteger());
             authz.checkRealm(rec.getRealm(), getAuthToken(), rec.getOwnerName(), "certServer.kra.key", "read");
             KeyInfo info = createKeyDataInfo(rec, true);
-            auditRetrieveKey(ILogger.SUCCESS);
+            auditKeyInfoSuccess(keyId, null);
 
             return createOKResponse(info);
         } catch (EAuthzAccessDenied e) {
