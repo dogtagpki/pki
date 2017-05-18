@@ -45,6 +45,7 @@ import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.event.TriggerCRLGenerationEvent;
 import com.netscape.certsrv.publish.ILdapRule;
 import com.netscape.certsrv.publish.IPublisherProcessor;
 import com.netscape.certsrv.util.IStatsSubsystem;
@@ -378,6 +379,8 @@ public class UpdateCRL extends CMSServlet {
                 CMS.debug("UpdateCRL: scheduling CRL update");
                 crlIssuingPoint.setManualUpdate(signatureAlgorithm);
                 header.addStringValue("crlUpdate", "Scheduled");
+
+                audit(new TriggerCRLGenerationEvent(auditSubjectID(), ILogger.SUCCESS));
             }
 
             return;
