@@ -294,6 +294,7 @@ public class UpdateCRL extends CMSServlet {
             String signatureAlgorithm,
             Locale locale)
             throws EBaseException {
+
         long startTime = CMS.getCurrentDate().getTime();
         String waitForUpdate =
                 req.getParameter("waitForUpdate");
@@ -322,6 +323,7 @@ public class UpdateCRL extends CMSServlet {
                     crlIssuingPointId = null;
             }
         }
+
         if (crlIssuingPointId == null) {
             crlIssuingPointId = ICertificateAuthority.PROP_MASTER_CRL;
         }
@@ -336,39 +338,61 @@ public class UpdateCRL extends CMSServlet {
             return;
         }
 
+        CMS.debug("UpdateCRL: CRL issuing point: " + crlIssuingPoint.getId());
+
         if (clearCache != null && clearCache.equals("true") &&
                 crlIssuingPoint.isCRLGenerationEnabled() &&
                 crlIssuingPoint.isCRLUpdateInProgress() == ICRLIssuingPoint.CRL_UPDATE_DONE &&
                 crlIssuingPoint.isCRLIssuingPointInitialized()
                             == ICRLIssuingPoint.CRL_IP_INITIALIZED) {
+
+            CMS.debug("UpdateCRL: clearing CRL cache");
             crlIssuingPoint.clearCRLCache();
         }
+
         if (!(waitForUpdate != null && waitForUpdate.equals("true") &&
                 crlIssuingPoint.isCRLGenerationEnabled() &&
                 crlIssuingPoint.isCRLUpdateInProgress() == ICRLIssuingPoint.CRL_UPDATE_DONE &&
                 crlIssuingPoint.isCRLIssuingPointInitialized()
                             == ICRLIssuingPoint.CRL_IP_INITIALIZED)) {
+
             if (crlIssuingPoint.isCRLIssuingPointInitialized() != ICRLIssuingPoint.CRL_IP_INITIALIZED) {
+
+                CMS.debug("UpdateCRL: CRL issuing point not initialized");
                 header.addStringValue("crlUpdate", "notInitialized");
+
             } else if (crlIssuingPoint.isCRLUpdateInProgress()
                        != ICRLIssuingPoint.CRL_UPDATE_DONE ||
                        crlIssuingPoint.isManualUpdateSet()) {
+
+                CMS.debug("UpdateCRL: CRL update in progress");
                 header.addStringValue("crlUpdate", "inProgress");
+
             } else if (!crlIssuingPoint.isCRLGenerationEnabled()) {
+
+                CMS.debug("UpdateCRL: CRL update disabled");
                 header.addStringValue("crlUpdate", "Disabled");
+
             } else {
+
+                CMS.debug("UpdateCRL: scheduling CRL update");
                 crlIssuingPoint.setManualUpdate(signatureAlgorithm);
                 header.addStringValue("crlUpdate", "Scheduled");
             }
+
             return;
         }
+
         if (test != null && test.equals("true") &&
                 crlIssuingPoint.isCRLCacheTestingEnabled() &&
                 (!mTesting.contains(crlIssuingPointId))) {
-            CMS.debug("CRL test started.");
+
+            CMS.debug("UpdateCRL: CRL test started");
+
             mTesting.add(crlIssuingPointId);
             BigInteger addLen = null;
             BigInteger startFrom = null;
+
             if (add != null && add.length() > 0 &&
                     from != null && from.length() > 0) {
                 try {
@@ -377,6 +401,7 @@ public class UpdateCRL extends CMSServlet {
                 } catch (Exception e) {
                 }
             }
+
             if (addLen != null && startFrom != null) {
                 Date revocationDate = CMS.getCurrentDate();
                 String err = null;
@@ -386,6 +411,7 @@ public class UpdateCRL extends CMSServlet {
                 BigInteger serialNumber = startFrom;
                 BigInteger counter = addLen;
                 BigInteger stepBy = null;
+
                 if (by != null && by.length() > 0) {
                     try {
                         stepBy = new BigInteger(by);
@@ -397,6 +423,7 @@ public class UpdateCRL extends CMSServlet {
                 long t2 = 0;
 
                 while (counter.compareTo(BigInteger.ZERO) > 0) {
+
                     RevokedCertImpl revokedCert =
                             new RevokedCertImpl(serialNumber, revocationDate, entryExts);
                     crlIssuingPoint.addRevokedCert(serialNumber, revokedCert);
@@ -405,9 +432,11 @@ public class UpdateCRL extends CMSServlet {
 
                     if ((counter.compareTo(BigInteger.ZERO) == 0) ||
                             (stepBy != null && ((counter.mod(stepBy)).compareTo(BigInteger.ZERO) == 0))) {
+
                         t2 = System.currentTimeMillis();
                         long t0 = t2 - t1;
                         t1 = t2;
+
                         try {
                             if (signatureAlgorithm != null) {
                                 crlIssuingPoint.updateCRLNow(signatureAlgorithm);
@@ -418,35 +447,43 @@ public class UpdateCRL extends CMSServlet {
                             counter = BigInteger.ZERO;
                             err = e.toString();
                         }
+
                         if (results != null && results.equals("1")) {
                             addInfo(argSet, crlIssuingPoint, t0);
                         }
                     }
                 }
+
                 if (err != null) {
                     header.addStringValue("crlUpdate", "Failure");
                     header.addStringValue("error", err);
                 } else {
                     header.addStringValue("crlUpdate", "Success");
                 }
+
             } else {
-                CMS.debug("CRL test error: missing parameters.");
+                CMS.debug("UpdateCRL: CRL test error: missing parameters");
                 header.addStringValue("crlUpdate", "missingParameters");
             }
 
             mTesting.remove(crlIssuingPointId);
-            CMS.debug("CRL test finished.");
+            CMS.debug("UpdateCRL: CRL test finished");
             return;
+
         } else if (test != null && test.equals("true") &&
                    crlIssuingPoint.isCRLCacheTestingEnabled() &&
                    mTesting.contains(crlIssuingPointId)) {
             header.addStringValue("crlUpdate", "testingInProgress");
             return;
+
         } else if (test != null && test.equals("true") &&
                    (!crlIssuingPoint.isCRLCacheTestingEnabled())) {
             header.addStringValue("crlUpdate", "testingNotEnabled");
             return;
         }
+
+        CMS.debug("UpdateCRL: updating CRL");
+
         try {
             EBaseException publishError = null;
 
@@ -462,6 +499,7 @@ public class UpdateCRL extends CMSServlet {
                 long now2 = System.currentTimeMillis();
 
                 header.addStringValue("time", "" + (now2 - now1));
+
             } catch (EErrorPublishCRL e) {
                 publishError = e;
             }
@@ -487,6 +525,7 @@ public class UpdateCRL extends CMSServlet {
             if (authToken != null) {
                 authMgr = authToken.getInString(AuthToken.TOKEN_AUTHMGR_INST_NAME);
             }
+
             long endTime = CMS.getCurrentDate().getTime();
 
             if (crlIssuingPoint.getNextUpdate() != null) {
@@ -520,6 +559,7 @@ public class UpdateCRL extends CMSServlet {
                                         + " time: " + (endTime - startTime) }
                         );
             }
+
         } catch (EBaseException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_ERR_UPDATE_CRL", e.toString()));
             if ((lpm != null) && lpm.isCRLPublishingEnabled() && (e instanceof ELdapException)) {
