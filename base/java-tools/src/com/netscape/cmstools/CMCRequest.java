@@ -2014,10 +2014,12 @@ public class CMCRequest {
                 certname.append(tokenName);
                 certname.append(":");
             }
-            certname.append(nickname);
-            signerCert = cm.findCertByNickname(certname.toString());
-            if (signerCert != null) {
-                System.out.println("got signerCert: "+ certname.toString());
+            if (!selfSign.equals("true") && nickname != null) {
+                certname.append(nickname);
+                signerCert = cm.findCertByNickname(certname.toString());
+                if (signerCert != null) {
+                    System.out.println("got signerCert: "+ certname.toString());
+                }
             }
 
             ContentInfo cmcblob = null;
@@ -2239,11 +2241,11 @@ public class CMCRequest {
             // sign the request
             SignedData signedData = null;
             if (selfSign.equalsIgnoreCase("true")) {
-                // selfSign signes with private key
+                // selfSign signs with private key
                 System.out.println("selfSign is true...");
                 signedData = signData(privk, pkidata);
             } else {
-                // none selfSign signes with  existing cert
+                // none selfSign signs with  existing cert
                 System.out.println("selfSign is false...");
                 signedData = signData(signerCert, tokenName, nickname, cm, pkidata);
             }

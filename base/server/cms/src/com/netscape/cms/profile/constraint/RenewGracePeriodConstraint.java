@@ -87,14 +87,16 @@ public class RenewGracePeriodConstraint extends EnrollConstraint {
 
     public void validate(IRequest req, X509CertInfo info)
             throws ERejectException {
+        String method = "RenewGracePeriodConstraint: validate: ";
+        String msg = "";
+
         String origExpDate_s = req.getExtDataInString("origNotAfter");
-        // probably not for renewal
-        if (origExpDate_s == null) {
+        if (origExpDate_s == null) { // probably not for renewal
+            CMS.debug(method + " original cert expiration date not found...return without validation");
             return;
-        } else {
-            CMS.debug("validate RenewGracePeriod: original cert expiration date found... renewing");
+        } else { //should occur when it's renewal
+            CMS.debug(method + " original cert expiration date found... validating");
         }
-        CMS.debug("ValidilityConstraint: validateRenewGraceperiod begins");
         BigInteger origExpDate_BI = new BigInteger(origExpDate_s);
         Date origExpDate = new Date(origExpDate_BI.longValue());
         String renew_grace_before_s = getConfig(CONFIG_RENEW_GRACE_BEFORE);
@@ -122,7 +124,7 @@ public class RenewGracePeriodConstraint extends EnrollConstraint {
 
         Date current = CMS.getCurrentDate();
         long millisDiff = origExpDate.getTime() - current.getTime();
-        CMS.debug("validateRenewGracePeriod: millisDiff="
+        CMS.debug(method + " millisDiff="
                 + millisDiff + " origExpDate=" + origExpDate.getTime() + " current=" + current.getTime());
 
         /*
@@ -134,17 +136,17 @@ public class RenewGracePeriodConstraint extends EnrollConstraint {
          */
         if (millisDiff >= 0) {
             if ((renew_grace_before > 0) && (millisDiff > renew_grace_before_BI.longValue())) {
+                msg = renew_grace_before + " days before and " +
+                        renew_grace_after + " days after original cert expiration date";
                 throw new ERejectException(CMS.getUserMessage(getLocale(req),
-                        "CMS_PROFILE_RENEW_OUTSIDE_GRACE_PERIOD",
-                        renew_grace_before + " days before and " +
-                                renew_grace_after + " days after original cert expiration date"));
+                        "CMS_PROFILE_RENEW_OUTSIDE_GRACE_PERIOD", msg));
             }
         } else {
             if ((renew_grace_after > 0) && ((0 - millisDiff) > renew_grace_after_BI.longValue())) {
+                msg = renew_grace_before + " days before and " +
+                        renew_grace_after + " days after original cert expiration date";
                 throw new ERejectException(CMS.getUserMessage(getLocale(req),
-                        "CMS_PROFILE_RENEW_OUTSIDE_GRACE_PERIOD",
-                        renew_grace_before + " days before and " +
-                                renew_grace_after + " days after original cert expiration date"));
+                        "CMS_PROFILE_RENEW_OUTSIDE_GRACE_PERIOD", msg));
             }
         }
     }

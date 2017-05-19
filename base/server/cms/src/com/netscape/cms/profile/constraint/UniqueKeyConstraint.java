@@ -17,15 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.constraint;
 
+import java.math.BigInteger;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.Locale;
-
-import netscape.security.x509.CertificateSubjectName;
-import netscape.security.x509.CertificateX509Key;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
-import netscape.security.x509.X509Key;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
@@ -40,6 +35,13 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.def.NoDefault;
+
+import netscape.security.x509.CertificateSubjectName;
+import netscape.security.x509.CertificateX509Key;
+import netscape.security.x509.X500Name;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509CertInfo;
+import netscape.security.x509.X509Key;
 
 /**
  * This constraint is to check for publickey uniqueness.
@@ -102,9 +104,29 @@ public class UniqueKeyConstraint extends EnrollConstraint {
     /**
      * Validates the request. The request is not modified
      * during the validation.
+     *
+     * It will try to capture orig cert expiration info for renewal later.
+     * Renewal can be either renewal with same key or new key.
+     *
+     * In case of renewing with same key, the old cert record
+     * can be retrieved and used to fill original info such as
+     * original expiration date for use with RenewGracePeriodConstraint.
+     *
+     * In case of renewing with new key, it would be no different from
+     * regular enrollment
+     *
+     * Search by ICertRecord.ATTR_X509CERT_PUBLIC_KEY_DATA
+     * would tell us if its reusing the same key or not.
+     * If any cert with the same key in the repository is found
+     * to be revoked, then the request is rejected
+     *
+     * This contraint has to go before the RenewGracePeriodConstraint,
+     * but after any of the SubjectName Default and Constraint
      */
     public void validate(IRequest request, X509CertInfo info)
             throws ERejectException {
+        String method = "UniqueKeyConstraint: validate: ";
+        String msg = "";
         boolean rejected = false;
         int size = 0;
         ICertRecordList list;
@@ -114,6 +136,8 @@ public class UniqueKeyConstraint extends EnrollConstraint {
         getConfigBoolean(CONFIG_REVOKE_DUPKEY_CERT);
         */
         mAllowSameKeyRenewal = getConfigBoolean(CONFIG_ALLOW_SAME_KEY_RENEWAL);
+        msg = msg + ": allowSameKeyRenewal=" + mAllowSameKeyRenewal + ";";
+        CMS.debug(method + msg);
 
         try {
             CertificateX509Key infokey = (CertificateX509Key)
@@ -131,18 +155,18 @@ public class UniqueKeyConstraint extends EnrollConstraint {
 
         } catch (Exception e) {
             throw new ERejectException(
-                        CMS.getUserMessage(
-                                getLocale(request),
-                                "CMS_PROFILE_INTERNAL_ERROR", e.toString()));
+                    CMS.getUserMessage(
+                            getLocale(request),
+                            "CMS_PROFILE_INTERNAL_ERROR", method + e.toString()));
         }
 
         /*
          * It does not matter if the corresponding cert's status
-         * is valid or not, we don't want a key that was once
-         * generated before
+         * is valid or not, if mAllowSameKeyRenewal is false,
+         * we don't want a key that was once generated before
          */
         if (size > 0) {
-            CMS.debug("UniqueKeyConstraint: found existing cert with duplicate key.");
+            CMS.debug(method + "found existing cert with same key");
 
             /*
                 The following code revokes the existing certs that have
@@ -189,45 +213,94 @@ public class UniqueKeyConstraint extends EnrollConstraint {
 
                         sjname_in_req =
                                 (X500Name) subName.get(CertificateSubjectName.DN_NAME);
-                        CMS.debug("UniqueKeyConstraint: cert request subject DN =" + sjname_in_req.toString());
+                        CMS.debug(method +" cert request subject DN =" + sjname_in_req.toString());
                         Enumeration<ICertRecord> e = list.getCertRecords(0, size - 1);
+                        Date latestOrigNotAfter = null;
+                        Date origNotAfter = null;
+                        boolean first = true;
                         while (e != null && e.hasMoreElements()) {
                             ICertRecord rec = e.nextElement();
-                            X509CertImpl cert = rec.getCertificate();
+                            BigInteger serial = rec.getSerialNumber();
+
+                            if (rec.getStatus().equals(ICertRecord.STATUS_REVOKED)
+                                    || rec.getStatus().equals(ICertRecord.STATUS_REVOKED_EXPIRED)) {
+                                msg = msg + "revoked cert cannot be renewed: serial=" + serial.toString() + ";";
+                                CMS.debug(method + msg);
+                                rejected = true;
+                                // this has to break
+                                break;
+                            }
+                            if (!rec.getStatus().equals(ICertRecord.STATUS_VALID)
+                                    && !rec.getStatus().equals(ICertRecord.STATUS_EXPIRED)) {
+                                CMS.debug(method + "invalid cert cannot be renewed; continue:" + serial.toString());
+                                // can still find another one to renew
+                                continue;
+                            }
+                            // only VALID or EXPIRED certs could have reached here
+                            X509CertImpl origCert = rec.getCertificate();
                             String certDN =
-                                    cert.getSubjectDN().toString();
-                            CMS.debug("UniqueKeyConstraint: cert retrieved from ldap has subject DN =" + certDN);
+                                    origCert.getSubjectDN().toString();
+                            CMS.debug(method + " cert retrieved from ldap has subject DN =" + certDN);
 
                             sjname_in_db = new X500Name(certDN);
 
                             if (sjname_in_db.equals(sjname_in_req) == false) {
+                                msg = msg + "subject name not match in same key renewal;";
                                 rejected = true;
                                 break;
                             } else {
-                                rejected = false;
+                                CMS.debug("subject name match in same key renewal");
                             }
+
+                            // find the latest expiration date to keep for
+                            // Renewal Grace Period Constraint later
+                            origNotAfter = origCert.getNotAfter();
+                            CMS.debug(method + "origNotAfter =" + origNotAfter.toString());
+                            if (first) {
+                                latestOrigNotAfter = origNotAfter;
+                                first = false;
+                            } else if (latestOrigNotAfter.before(origNotAfter)) {
+                                CMS.debug(method + "newer cert found");
+                                latestOrigNotAfter = origNotAfter;
+                            }
+
+                            // yes, this could be overwritten by later
+                            // found cert(s) that has violations
+                            rejected = false;
                         } // while
+
+                        if (latestOrigNotAfter != null) {
+                            String existingOrigExpDate_s = request.getExtDataInString("origNotAfter");
+                            if (existingOrigExpDate_s != null) {
+                                // make sure not to interfere with renewal by serial
+                                CMS.debug(method +
+                                        " original cert expiration date already exists. Not overriding.");
+                            } else {
+                                // set origNotAfter for RenewGracePeriodConstraint
+                                CMS.debug(method + "setting latest original cert expiration in request");
+                                request.setExtData("origNotAfter", BigInteger.valueOf(latestOrigNotAfter.getTime()));
+                            }
+                        }
                     } else { //subName is null
+                        msg =  msg +"subject name not found in cert request info;";
                         rejected = true;
                     }
                 } catch (Exception ex1) {
-                    CMS.debug("UniqueKeyConstraint: error in allowSameKeyRenewal: " + ex1.toString());
+                    CMS.debug(method +  msg + ex1.toString());
                     rejected = true;
                 } // try
 
             } else {
+                msg = msg + "found existing cert with same key;";
                 rejected = true;
             }// allowSameKeyRenewal
         } // (size > 0)
 
         if (rejected == true) {
-            CMS.debug("UniqueKeyConstraint: rejected");
-            throw new ERejectException(
-                           CMS.getUserMessage(
-                                   getLocale(request),
-                                   "CMS_PROFILE_DUPLICATE_KEY"));
+            CMS.debug(method + " rejected");
+            throw new ERejectException(msg);
         } else {
-            CMS.debug("UniqueKeyConstraint: approved");
+            CMS.debug(method + " approved");
         }
     }
 
