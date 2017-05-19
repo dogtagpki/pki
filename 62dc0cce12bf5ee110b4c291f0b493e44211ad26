@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "00417c88_c9d968ad",
+        "filename": "base/kra/shared/conf/CS.cfg",
+        "patchSetId": 1
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-05-19T01:09:12Z",
+      "side": 0,
+      "message": "Remove event from this attribute too?",
+      "range": {
+        "startLine": 307,
+        "startChar": 0,
+        "endLine": 307,
+        "endChar": 31
+      },
+      "revId": "62dc0cce12bf5ee110b4c291f0b493e44211ad26",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
