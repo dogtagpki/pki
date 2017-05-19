@@ -62,6 +62,7 @@ import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.certsrv.security.ITransportKeyUnit;
 import com.netscape.cms.servlet.key.KeyRecordParser;
 import com.netscape.cmscore.dbs.KeyRecord;
+import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmscore.util.Debug;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
@@ -153,10 +154,12 @@ public class NetkeyKeygenService implements IService {
         byte iv[] = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
         String iv_s = "";
         try {
-            SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
+            JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+            SecureRandom random = jssSubsystem.getRandomNumberGenerator();
             random.nextBytes(iv);
         } catch (Exception e) {
             CMS.debug("NetkeyKeygenService.serviceRequest:  " + e.toString());
+            throw new EBaseException(e);
         }
 
         IVParameterSpec algParam = new IVParameterSpec(iv);

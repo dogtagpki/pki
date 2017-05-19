@@ -54,6 +54,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.tks.GPParams;
 import com.netscape.cms.servlet.tks.NistSP800_108KDF;
 import com.netscape.cms.servlet.tks.SecureChannelProtocol;
+import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.symkey.SessionKey;
 
@@ -1996,7 +1997,8 @@ public class TokenServlet extends CMSServlet {
                 CMS.debug("TokenServlet: processEncryptData(): contain data in request, however, random generation on TKS is required. Generating...");
             }
             try {
-                SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
+                JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+                SecureRandom random = jssSubsystem.getRandomNumberGenerator();
                 data = new byte[16];
                 random.nextBytes(data);
             } catch (Exception e) {
@@ -2320,7 +2322,8 @@ public class TokenServlet extends CMSServlet {
 
         if (!missingParam) {
             try {
-                SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
+                JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+                SecureRandom random = jssSubsystem.getRandomNumberGenerator();
                 randomData = new byte[dataSize];
                 random.nextBytes(randomData);
             } catch (Exception e) {
