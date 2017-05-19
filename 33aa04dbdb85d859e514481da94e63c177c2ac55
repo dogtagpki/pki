@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "12bb3974_c3d52cd3",
+        "filename": "base/common/src/com/netscape/certsrv/logging/event/SecurityDataRecoveryEvent.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-05-19T01:30:01Z",
+      "side": 1,
+      "message": "RequestId?",
+      "range": {
+        "startLine": 32,
+        "startChar": 12,
+        "endLine": 32,
+        "endChar": 18
+      },
+      "revId": "33aa04dbdb85d859e514481da94e63c177c2ac55",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
