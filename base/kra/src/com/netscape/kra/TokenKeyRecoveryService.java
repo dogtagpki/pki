@@ -52,6 +52,7 @@ import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.certsrv.security.ITransportKeyUnit;
 import com.netscape.cmscore.dbs.KeyRecord;
+import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Cert;
 
@@ -201,10 +202,12 @@ public class TokenKeyRecoveryService implements IService {
 
         byte iv[] = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
         try {
-            SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
+            JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+            SecureRandom random = jssSubsystem.getRandomNumberGenerator();
             random.nextBytes(iv);
         } catch (Exception e) {
             CMS.debug("TokenKeyRecoveryService.serviceRequest: " + e.toString());
+            throw new EBaseException(e);
         }
 
         String id = request.getRequestId().toString();
