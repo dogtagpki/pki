@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a0970801_6a76206e",
+        "filename": "base/kra/shared/conf/CS.cfg",
+        "patchSetId": 1
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-05-19T00:59:25Z",
+      "side": 0,
+      "message": "Should be removed too?",
+      "range": {
+        "startLine": 307,
+        "startChar": 362,
+        "endLine": 307,
+        "endChar": 400
+      },
+      "revId": "c10ecb1a9109d120da7af3b743aa6cd53b0adc86",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
