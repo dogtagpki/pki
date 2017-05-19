@@ -2,6 +2,52 @@
   "comments": [
     {
       "key": {
+        "uuid": "f1ea96e1_c03d2d89",
+        "filename": "base/common/src/com/netscape/certsrv/logging/event/SecurityDataArchivalEvent.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-05-19T01:25:24Z",
+      "side": 1,
+      "message": "This can be changed to RequestId. The requestID object will be converted to String automatically by the string formatter when the log message is generated.",
+      "range": {
+        "startLine": 32,
+        "startChar": 12,
+        "endLine": 32,
+        "endChar": 18
+      },
+      "revId": "c10ecb1a9109d120da7af3b743aa6cd53b0adc86",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "04de948b_b0701843",
+        "filename": "base/kra/src/org/dogtagpki/server/kra/rest/KeyRequestService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 361,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-05-19T01:25:24Z",
+      "side": 1,
+      "message": "This string conversion is no longer necessary if the constructor is changed to take a RequestId (see comment in SecurityDataArchivalEvent.java).",
+      "range": {
+        "startLine": 361,
+        "startChar": 25,
+        "endLine": 361,
+        "endChar": 63
+      },
+      "revId": "c10ecb1a9109d120da7af3b743aa6cd53b0adc86",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "51a92e8c_cbc24007",
         "filename": "base/server/cmsbundle/src/LogMessages.properties",
         "patchSetId": 1
