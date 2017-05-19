@@ -264,12 +264,15 @@ public final class JssSubsystem implements ICryptoSubsystem {
      */
     public void init(ISubsystem owner, IConfigStore config)
             throws EBaseException {
+
+        CMS.debug("JssSubsystem: initializing JSS subsystem");
+
         mLogger = CMS.getLogger();
 
         if (mInited) {
             // This used to throw an exeception (e.g. - on Solaris).
             // If JSS is already initialized simply return.
-            CMS.debug("JssSubsystem already inited.. returning.");
+            CMS.debug("JssSubsystem: already initialized");
             return;
         }
 
@@ -277,9 +280,11 @@ public final class JssSubsystem implements ICryptoSubsystem {
 
         // If disabled, just return
         boolean enabled = config.getBoolean(PROP_ENABLE, true);
+        CMS.debug("JssSubsystem: enabled: " + enabled);
 
-        if (!enabled)
+        if (!enabled) {
             return;
+        }
 
         try {
             devRandomInputStream = new FileInputStream("/dev/urandom");
@@ -287,28 +292,28 @@ public final class JssSubsystem implements ICryptoSubsystem {
             // XXX - add new exception
         }
 
-        // get hardcoded password (for debugging.
-        String pw;
+        // get debugging password from config file
+        String pw = config.getString(PASSWORD_ALIAS, null);
 
-        if ((pw = config.getString(PASSWORD_ALIAS, null)) != null) {
-            // hardcoded password in config file
+        if (pw != null) {
+            CMS.debug("JssSubsystem: use debug password");
             mPWCB = new Password(pw.toCharArray());
-            CMS.debug("JssSubsystem init() got password from hardcoded in config");
         }
 
-        String certDir;
-
-        certDir = config.getString(CONFIG_DIR, null);
+        String certDir = config.getString(CONFIG_DIR, null);
+        CMS.debug("JssSubsystem: NSS database: " + certDir);
 
         CryptoManager.InitializationValues vals = new CryptoManager.InitializationValues(certDir, "", "", "secmod.db");
-
         vals.removeSunProvider = false;
         vals.installJSSProvider = true;
+
         try {
+            CMS.debug("JssSubsystem: initializing CryptoManager");
             CryptoManager.initialize(vals);
         } catch (AlreadyInitializedException e) {
             // do nothing
         } catch (Exception e) {
+            CMS.debug(e);
             String[] params = { mId, e.toString() };
             EBaseException ex = new EBaseException(CMS.getUserMessage("CMS_BASE_CREATE_SERVICE_FAILED", params));
 
@@ -317,9 +322,11 @@ public final class JssSubsystem implements ICryptoSubsystem {
         }
 
         try {
+            CMS.debug("JssSubsystem: initializing SSL");
             mCryptoManager = CryptoManager.getInstance();
             initSSL();
         } catch (CryptoManager.NotInitializedException e) {
+            CMS.debug(e);
             String[] params = { mId, e.toString() };
             EBaseException ex = new EBaseException(CMS.getUserMessage("CMS_BASE_CREATE_SERVICE_FAILED", params));
 
@@ -328,6 +335,8 @@ public final class JssSubsystem implements ICryptoSubsystem {
         }
 
         mInited = true;
+
+        CMS.debug("JssSubsystem: initialization complete");
     }
 
     public String getCipherVersion() throws EBaseException {
