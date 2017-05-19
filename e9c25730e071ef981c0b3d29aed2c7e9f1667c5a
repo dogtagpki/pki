@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "db95967f_83b98ae6",
+        "filename": "base/common/src/com/netscape/certsrv/logging/event/SecurityDataArchivalProcessedEvent.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-05-19T01:28:52Z",
+      "side": 1,
+      "message": "This can be changed to RequestId to avoid manual string conversion.",
+      "range": {
+        "startLine": 31,
+        "startChar": 12,
+        "endLine": 31,
+        "endChar": 18
+      },
+      "revId": "e9c25730e071ef981c0b3d29aed2c7e9f1667c5a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9acb4c5d_8e900a0d",
+        "filename": "base/common/src/com/netscape/certsrv/logging/event/SecurityDataArchivalProcessedEvent.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-05-19T01:28:52Z",
+      "side": 1,
+      "message": "BigInteger?",
+      "range": {
+        "startLine": 33,
+        "startChar": 12,
+        "endLine": 33,
+        "endChar": 18
+      },
+      "revId": "e9c25730e071ef981c0b3d29aed2c7e9f1667c5a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
