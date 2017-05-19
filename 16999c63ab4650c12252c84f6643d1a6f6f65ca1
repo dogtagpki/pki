@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "824dc80b_1a5aef5b",
+        "filename": "base/common/src/com/netscape/certsrv/logging/event/SecurityDataExportEvent.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-05-19T01:33:38Z",
+      "side": 1,
+      "message": "RequestId?",
+      "range": {
+        "startLine": 32,
+        "startChar": 12,
+        "endLine": 32,
+        "endChar": 18
+      },
+      "revId": "16999c63ab4650c12252c84f6643d1a6f6f65ca1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "307d3c15_faed7b16",
+        "filename": "base/common/src/com/netscape/certsrv/logging/event/SecurityDataExportEvent.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-05-19T01:33:38Z",
+      "side": 1,
+      "message": "BigInteger?",
+      "range": {
+        "startLine": 33,
+        "startChar": 12,
+        "endLine": 33,
+        "endChar": 18
+      },
+      "revId": "16999c63ab4650c12252c84f6643d1a6f6f65ca1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e0eec9d9_7b6abf6f",
+        "filename": "base/kra/src/org/dogtagpki/server/kra/rest/KeyService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 608,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-05-19T01:33:38Z",
+      "side": 1,
+      "message": "No longer necessary with RequestId in constructor.",
+      "range": {
+        "startLine": 608,
+        "startChar": 25,
+        "endLine": 608,
+        "endChar": 62
+      },
+      "revId": "16999c63ab4650c12252c84f6643d1a6f6f65ca1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f5e579fb_13d8c305",
+        "filename": "base/kra/src/org/dogtagpki/server/kra/rest/KeyService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 609,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-05-19T01:33:38Z",
+      "side": 1,
+      "message": "No longer necessary with BigInteger in constructor.",
+      "range": {
+        "startLine": 609,
+        "startChar": 21,
+        "endLine": 609,
+        "endChar": 54
+      },
+      "revId": "16999c63ab4650c12252c84f6643d1a6f6f65ca1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
