@@ -46,6 +46,7 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.certsrv.security.ITransportKeyUnit;
 import com.netscape.cmscore.dbs.KeyRecord;
+import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Utils;
 
@@ -657,7 +658,7 @@ public class SecurityDataProcessor {
      *                   (ie. algorithm is unknown)
      */
     private byte[] generate_iv(String oid, EncryptionAlgorithm defaultAlg) throws Exception {
-        int numBytes = 0;
+
         EncryptionAlgorithm alg = oid != null? EncryptionAlgorithm.fromOID(new OBJECT_IDENTIFIER(oid)):
             defaultAlg;
 
@@ -668,8 +669,14 @@ public class SecurityDataProcessor {
         if (alg.getParameterClasses() == null)
             return null;
 
-        numBytes = alg.getIVLength();
-        return (new SecureRandom()).generateSeed(numBytes);
+        int numBytes = alg.getIVLength();
+        byte[] bytes = new byte[numBytes];
+
+        JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+        SecureRandom random = jssSubsystem.getRandomNumberGenerator();
+        random.nextBytes(bytes);
+
+        return bytes;
     }
 
     /***
@@ -685,7 +692,7 @@ public class SecurityDataProcessor {
      *                   (ie. algorithm is unknown)
      */
     private byte[] generate_wrap_iv(String wrapName, KeyWrapAlgorithm defaultAlg) throws Exception {
-        int numBytes = 0;
+
         KeyWrapAlgorithm alg = wrapName != null ? KeyWrapAlgorithm.fromString(wrapName) :
             defaultAlg;
 
@@ -696,8 +703,14 @@ public class SecurityDataProcessor {
         if (alg.getParameterClasses() == null)
             return null;
 
-        numBytes = alg.getBlockSize();
-        return (new SecureRandom()).generateSeed(numBytes);
+        int numBytes = alg.getBlockSize();
+        byte[] bytes = new byte[numBytes];
+
+        JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+        SecureRandom random = jssSubsystem.getRandomNumberGenerator();
+        random.nextBytes(bytes);
+
+        return bytes;
     }
 
     public SymmetricKey recoverSymKey(KeyRecord keyRecord)
