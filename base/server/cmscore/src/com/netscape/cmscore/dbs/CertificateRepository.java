@@ -19,26 +19,17 @@ package com.netscape.cmscore.dbs;
 
 import java.io.Serializable;
 import java.math.BigInteger;
+import java.security.SecureRandom;
 import java.security.cert.Certificate;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.Random;
 import java.util.Vector;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
-
-import netscape.ldap.LDAPAttributeSet;
-import netscape.ldap.LDAPEntry;
-import netscape.ldap.LDAPSearchResults;
-import netscape.security.x509.CertificateValidity;
-import netscape.security.x509.RevokedCertImpl;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
@@ -62,6 +53,16 @@ import com.netscape.certsrv.dbs.certdb.RenewableCertificateCollection;
 import com.netscape.certsrv.dbs.repository.IRepository;
 import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cmscore.security.JssSubsystem;
+
+import netscape.ldap.LDAPAttributeSet;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPSearchResults;
+import netscape.security.x509.CertificateValidity;
+import netscape.security.x509.RevokedCertImpl;
+import netscape.security.x509.X500Name;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509CertInfo;
 
 /**
  * A class represents a certificate repository. It
@@ -99,7 +100,6 @@ public class CertificateRepository extends Repository
     private int mTransitMaxRecords = 1000000;
     private int mTransitRecordPageSize = 200;
 
-    private Random mRandom = null;
     private int mBitLength = 0;
     private BigInteger mRangeSize = null;
     private int mMinRandomBitLength = 4;
@@ -169,11 +169,7 @@ public class CertificateRepository extends Repository
     }
 
     private BigInteger getRandomNumber() throws EBaseException {
-        BigInteger randomNumber = null;
 
-        if (mRandom == null) {
-            mRandom = new Random();
-        }
         super.initCacheIfNeeded();
 
         if (mRangeSize == null) {
@@ -189,7 +185,11 @@ public class CertificateRepository extends Repository
             CMS.debug("CertificateRepository: getRandomNumber:  Range size is too small to support random certificate serial numbers.");
             throw new EBaseException ("Range size is too small to support random certificate serial numbers.");
         }
-        randomNumber = new BigInteger((mBitLength), mRandom);
+
+        JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+        SecureRandom random = jssSubsystem.getRandomNumberGenerator();
+
+        BigInteger randomNumber = new BigInteger(mBitLength, random);
         randomNumber = (randomNumber.multiply(mRangeSize)).shiftRight(mBitLength);
         CMS.debug("CertificateRepository: getRandomNumber  randomNumber="+randomNumber);
 
