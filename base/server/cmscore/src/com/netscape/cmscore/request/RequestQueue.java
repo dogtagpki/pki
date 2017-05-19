@@ -42,6 +42,7 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.request.ldap.IRequestMod;
 import com.netscape.cmscore.dbs.DBSubsystem;
+import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmscore.util.Debug;
 
 public class RequestQueue
@@ -60,9 +61,11 @@ public class RequestQueue
     }
 
     protected RequestId newEphemeralRequestId() {
-        long id = System.currentTimeMillis() * 10000 + new SecureRandom().nextInt(10000);
-        RequestId rid = new RequestId(id);
-        return rid;
+        JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+        SecureRandom random = jssSubsystem.getRandomNumberGenerator();
+
+        long id = System.currentTimeMillis() * 10000 + random.nextInt(10000);
+        return new RequestId(id);
     }
 
     protected IRequest readRequest(RequestId id) {
