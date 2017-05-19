@@ -32,6 +32,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.Principal;
 import java.security.PublicKey;
+import java.security.SecureRandom;
 import java.security.SignatureException;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
@@ -116,6 +117,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
     private boolean mInited = false;
     private ILogger mLogger = null;
     private CryptoManager mCryptoManager = null;
+    private SecureRandom random;
 
     protected PasswordCallback mPWCB = null;
 
@@ -334,9 +336,30 @@ public final class JssSubsystem implements ICryptoSubsystem {
             throw ex;
         }
 
+        IConfigStore randomConfig = config.getSubStore("random");
+        CMS.debug("JssSubsystem: random:");
+
+        String algorithm = randomConfig.getString("algorithm", "pkcs11prng");
+        CMS.debug("JssSubsystem: - algorithm: " + algorithm);
+
+        String provider = randomConfig.getString("provider", "Mozilla-JSS");
+        CMS.debug("JssSubsystem: - provider: " + provider);
+
+        try {
+            random = SecureRandom.getInstance(algorithm, provider);
+
+        } catch (NoSuchAlgorithmException | NoSuchProviderException e) {
+            CMS.debug(e);
+            throw new EBaseException(e);
+        }
+
         mInited = true;
 
         CMS.debug("JssSubsystem: initialization complete");
+    }
+
+    public SecureRandom getRandomNumberGenerator() {
+        return random;
     }
 
     public String getCipherVersion() throws EBaseException {
