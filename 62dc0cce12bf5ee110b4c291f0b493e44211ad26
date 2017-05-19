@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0255e697_a2ecd5b1",
+        "filename": "base/common/src/com/netscape/certsrv/logging/event/SecurityDataRecoveryProcessedEvent.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-05-19T01:31:28Z",
+      "side": 1,
+      "message": "RequestId?",
+      "range": {
+        "startLine": 32,
+        "startChar": 12,
+        "endLine": 32,
+        "endChar": 18
+      },
+      "revId": "62dc0cce12bf5ee110b4c291f0b493e44211ad26",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6cf72106_efb8d2e2",
+        "filename": "base/common/src/com/netscape/certsrv/logging/event/SecurityDataRecoveryProcessedEvent.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-05-19T01:31:28Z",
+      "side": 1,
+      "message": "BigInteger?",
+      "range": {
+        "startLine": 33,
+        "startChar": 12,
+        "endLine": 33,
+        "endChar": 18
+      },
+      "revId": "62dc0cce12bf5ee110b4c291f0b493e44211ad26",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
