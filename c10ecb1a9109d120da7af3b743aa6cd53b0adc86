@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "51a92e8c_cbc24007",
+        "filename": "base/server/cmsbundle/src/LogMessages.properties",
+        "patchSetId": 1
+      },
+      "lineNbr": 1956,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-05-19T00:55:39Z",
+      "side": 1,
+      "message": "Should be removed?",
+      "range": {
+        "startLine": 1945,
+        "startChar": 0,
+        "endLine": 1956,
+        "endChar": 208
+      },
+      "revId": "c10ecb1a9109d120da7af3b743aa6cd53b0adc86",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
