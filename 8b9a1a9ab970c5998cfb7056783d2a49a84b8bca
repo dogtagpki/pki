@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "20c76684_a295ee84",
+        "filename": "base/common/src/com/netscape/certsrv/logging/event/SecurityDataInfoEvent.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-05-19T01:35:11Z",
+      "side": 1,
+      "message": "Wrong message ID?",
+      "range": {
+        "startLine": 27,
+        "startChar": 48,
+        "endLine": 27,
+        "endChar": 58
+      },
+      "revId": "8b9a1a9ab970c5998cfb7056783d2a49a84b8bca",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "95fac335_b149deaa",
+        "filename": "base/common/src/com/netscape/certsrv/logging/event/SecurityDataInfoEvent.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-05-19T01:35:11Z",
+      "side": 1,
+      "message": "BigInteger?",
+      "range": {
+        "startLine": 32,
+        "startChar": 12,
+        "endLine": 32,
+        "endChar": 18
+      },
+      "revId": "8b9a1a9ab970c5998cfb7056783d2a49a84b8bca",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
