@@ -108,7 +108,7 @@
 
    <servlet>
       <servlet-name>  tksEncryptData  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.tks.TokenServlet  </servlet-class>
+      <servlet-class> org.dogtagpki.server.tks.servlet.TokenServlet  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
                          <param-value> true        </param-value> </init-param>
              <init-param><param-name>  AuthzMgr    </param-name>
@@ -125,7 +125,7 @@
                                                                                 
    <servlet>
       <servlet-name>  tksCreateKeySetData  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.tks.TokenServlet  </servlet-class>
+      <servlet-class> org.dogtagpki.server.tks.servlet.TokenServlet  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
                          <param-value> true        </param-value> </init-param>
              <init-param><param-name>  AuthzMgr    </param-name>
@@ -142,7 +142,7 @@
 
    <servlet>
       <servlet-name>  tksSessionKey  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.tks.TokenServlet  </servlet-class>
+      <servlet-class> org.dogtagpki.server.tks.servlet.TokenServlet  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
                          <param-value> true        </param-value> </init-param>
              <init-param><param-name>  AuthzMgr    </param-name>
@@ -159,7 +159,7 @@
 
    <servlet>
       <servlet-name>  tksRandomData  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.tks.TokenServlet  </servlet-class>
+      <servlet-class> org.dogtagpki.server.tks.servlet.TokenServlet  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
                          <param-value> true        </param-value> </init-param>
              <init-param><param-name>  AuthzMgr    </param-name>
