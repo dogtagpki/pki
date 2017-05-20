@@ -44,6 +44,7 @@ class PKICLI(pki.cli.CLI):
         self.password = None
         self.password_file = None
         self.token = None
+        self.ignore_banner = None
 
         self.add_module(pki.cli.pkcs12.PKCS12CLI())
 
@@ -95,6 +96,9 @@ class PKICLI(pki.cli.CLI):
 
         if self.token and self.token != 'internal':
             cmd.extend(['--token', self.token])
+
+        if self.ignore_banner:
+            cmd.extend(['--ignore-banner'])
 
         if self.verbose:
             cmd.extend(['--verbose'])
@@ -176,6 +180,12 @@ class PKICLI(pki.cli.CLI):
                 pki_options.append(args[i])
                 pki_options.append(args[i + 1])
                 i = i + 2
+
+            # check ignore banner option
+            elif args[i] == '--ignore-banner':
+                self.ignore_banner = True
+                pki_options.append(args[i])
+                i = i + 1
 
             else:  # otherwise, save the arg for the next module
                 cmd_args.append(args[i])
