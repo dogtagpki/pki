@@ -15,7 +15,7 @@
 // (C) 2007 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
-package com.netscape.cms.servlet.tks;
+package org.dogtagpki.server.tks.servlet;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -51,6 +51,9 @@ import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
+import com.netscape.cms.servlet.tks.GPParams;
+import com.netscape.cms.servlet.tks.NistSP800_108KDF;
+import com.netscape.cms.servlet.tks.SecureChannelProtocol;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.symkey.SessionKey;
 
