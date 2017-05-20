@@ -25,11 +25,11 @@ import org.mozilla.jss.crypto.SymmetricKey.NotExtractableException;
 import org.mozilla.jss.crypto.SymmetricKeyDeriver;
 import org.mozilla.jss.crypto.TokenException;
 
-import sun.security.pkcs11.wrapper.PKCS11Constants;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmsutil.crypto.CryptoUtil;
+
+import sun.security.pkcs11.wrapper.PKCS11Constants;
 
 public class SecureChannelProtocol {
 
@@ -47,17 +47,18 @@ public class SecureChannelProtocol {
     static final String DEFKEYSET_NAME = "defKeySet";
     static int protocol = 1;
 
-    static final String encType = "enc";
-    static final String macType = "mac";
-    static final String kekType = "kek";
-    static final String authType = "auth";
-    static final String dekType = "dek";
-    static final String rmacType = "rmac";
-    static final int PROTOCOL_ONE = 1;
-    static final int PROTOCOL_TWO = 2;
-    static final int PROTOCOL_THREE = 3;
-    static final int HOST_CRYPTOGRAM = 0;
-    static final int CARD_CRYPTOGRAM = 1;
+    public static final String encType = "enc";
+    public static final String macType = "mac";
+    public static final String kekType = "kek";
+    public static final String authType = "auth";
+    public static final String dekType = "dek";
+    public static final String rmacType = "rmac";
+    public static final int PROTOCOL_ONE = 1;
+    public static final int PROTOCOL_TWO = 2;
+    public static final int PROTOCOL_THREE = 3;
+    public static final int HOST_CRYPTOGRAM = 0;
+    public static final int CARD_CRYPTOGRAM = 1;
+
     //Size of long type in bytes, since java7 has no define for this
     static final int LONG_SIZE = 8;
 
