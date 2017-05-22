@@ -16,6 +16,24 @@
       "revId": "3b4eaee930aa4e731e5e0f69b367ad8eefc3dbcc",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bcf91fda_96d774a1",
+        "filename": "base/server/cmscore/src/com/netscape/cmscore/security/JssSubsystem.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 342,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-05-22T22:26:36Z",
+      "side": 1,
+      "message": "I added a comment in the final patch pointing to this wiki page:\nhttp://pki.fedoraproject.org/wiki/Random_Number_Generator",
+      "parentUuid": "8482c2d5_691326e0",
+      "revId": "3b4eaee930aa4e731e5e0f69b367ad8eefc3dbcc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
