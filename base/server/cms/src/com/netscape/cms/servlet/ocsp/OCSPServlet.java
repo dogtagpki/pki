@@ -36,6 +36,7 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.common.ICMSRequest;
+import com.netscape.certsrv.logging.event.OCSPGenerationEvent;
 import com.netscape.certsrv.ocsp.IOCSPService;
 import com.netscape.certsrv.util.IStatsSubsystem;
 import com.netscape.cms.servlet.base.CMSServlet;
@@ -220,8 +221,16 @@ public class OCSPServlet extends CMSServlet {
                 CMS.debug("OCSPServlet: validating request");
                 response = ((IOCSPService) mAuthority).validate(ocspReq);
 
+                if (response == null) {
+                    audit(OCSPGenerationEvent.createFailureEvent(auditSubjectID(), "Missing OCSP response"));
+
+                } else {
+                    audit(OCSPGenerationEvent.createSuccessEvent(auditSubjectID()));
+                }
+
             } catch (Exception e) {
                 CMS.debug(e);
+                audit(OCSPGenerationEvent.createFailureEvent(auditSubjectID(), e.getMessage()));
             }
 
             if (response != null) {
