@@ -64,8 +64,8 @@
 %define pki_homedir /usr/share/pki
 
 Name:             pki-core
-Version:          10.4.4
-Release:          1.1%{?dist}
+Version:          10.4.5
+Release:          1%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -1392,6 +1392,32 @@ fi
 %endif # %{with server}
 
 %changelog
+* Mon May 22 2017 Dogtag Team <pki-devel@redhat.com> 10.4.5.1
+- dogtagpki Pagure Issue #2618 - Allow CA to process pre-signed CMC renewal
+  non-signing cert requests (cfu)
+- dogtagpki Pagure Issue #2641 - Ensuring common audit log correctness
+  (edewata)
+- dogtagpki Pagure Issue #2655 - Adding serial number into
+  CERT_REQUEST_PROCESSED audit event. (edewata)
+- dogtagpki Pagure Issue #2673 - allow enrollment key signed CMC with identity
+  proof (cfu)
+- dogtagpki Pagure Issue #2674 - CA brought down during separate KRA instance
+  creation (mharmsen)
+- dogtagpki Pagure Issue #2683 - exception Invalid module "--ignore-banner"
+  when defined in ~/.dogtag/pki.conf and run pki pkcs12-import --help
+  (edewata)
+- dogtagpki Pagure Issue #2684 - CA installation with HSM in FIPS mode fails
+  (jmagne)
+- dogtagpki Pagure Issue #2685 - Add "is_fips_enabled()" method to Python
+  pkispawn logic (mharmsen)
+- dogtagpki Pagure Issue #2690 - Inconsistent CERT_REQUEST_PROCESSED event in
+  ConnectorServlet. (edewata)
+- dogtagpki Pagure Issue #2693 - Incorrect audit event outcome for
+  agent-rejected cert request. (edewata)
+- dogtagpki Pagure Issue #2694 -Incorrect audit event outcome for
+  agent-canceled cert request. (edewata)
+- dogtagpki Pagure Issue #2696 - CA CS.cfg shows default port (mharmsen)
+
 * Tue May  9 2017 Dogtag Team <pki-devel@redhat.com> 10.4.4-1.1
 - Updated source version number to 10.4.4-1.1
 
