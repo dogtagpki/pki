@@ -200,7 +200,7 @@ class SubsystemEnableCLI(pki.cli.CLI):
 
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
+                'instance=', 'all',
                 'verbose', 'help'])
 
         except getopt.GetoptError as e:
@@ -209,10 +209,14 @@ class SubsystemEnableCLI(pki.cli.CLI):
             sys.exit(1)
 
         instance_name = 'pki-tomcat'
+        all_subsystems = False
 
         for o, a in opts:
             if o in ('-i', '--instance'):
                 instance_name = a
+
+            elif o == '--all':
+                all_subsystems = True
 
             elif o in ('-v', '--verbose'):
                 self.set_verbose(True)
@@ -226,13 +230,6 @@ class SubsystemEnableCLI(pki.cli.CLI):
                 self.usage()
                 sys.exit(1)
 
-        if len(args) != 1:
-            print('ERROR: missing subsystem ID')
-            self.usage()
-            sys.exit(1)
-
-        subsystem_name = args[0]
-
         instance = pki.server.PKIInstance(instance_name)
 
         if not instance.is_valid():
@@ -240,6 +237,22 @@ class SubsystemEnableCLI(pki.cli.CLI):
             sys.exit(1)
 
         instance.load()
+
+        if all_subsystems:
+            for subsystem in instance.subsystems:
+                if not subsystem.is_enabled():
+                    subsystem.enable()
+
+            self.print_message('Enabled all subsystems')
+
+            return
+
+        if len(args) != 1:
+            print('ERROR: missing subsystem ID')
+            self.usage()
+            sys.exit(1)
+
+        subsystem_name = args[0]
 
         subsystem = instance.get_subsystem(subsystem_name)
         if not subsystem:
@@ -276,7 +289,7 @@ class SubsystemDisableCLI(pki.cli.CLI):
 
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
+                'instance=', 'all',
                 'verbose', 'help'])
 
         except getopt.GetoptError as e:
@@ -285,10 +298,14 @@ class SubsystemDisableCLI(pki.cli.CLI):
             sys.exit(1)
 
         instance_name = 'pki-tomcat'
+        all_subsystems = False
 
         for o, a in opts:
             if o in ('-i', '--instance'):
                 instance_name = a
+
+            elif o == '--all':
+                all_subsystems = True
 
             elif o in ('-v', '--verbose'):
                 self.set_verbose(True)
@@ -302,13 +319,6 @@ class SubsystemDisableCLI(pki.cli.CLI):
                 self.usage()
                 sys.exit(1)
 
-        if len(args) != 1:
-            print('ERROR: missing subsystem ID')
-            self.usage()
-            sys.exit(1)
-
-        subsystem_name = args[0]
-
         instance = pki.server.PKIInstance(instance_name)
 
         if not instance.is_valid():
@@ -316,6 +326,22 @@ class SubsystemDisableCLI(pki.cli.CLI):
             sys.exit(1)
 
         instance.load()
+
+        if all_subsystems:
+            for subsystem in instance.subsystems:
+                if subsystem.is_enabled():
+                    subsystem.disable()
+
+            self.print_message('Disabled all subsystems')
+
+            return
+
+        if len(args) != 1:
+            print('ERROR: missing subsystem ID')
+            self.usage()
+            sys.exit(1)
+
+        subsystem_name = args[0]
 
         subsystem = instance.get_subsystem(subsystem_name)
         if not subsystem:
