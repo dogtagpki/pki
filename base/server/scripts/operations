@@ -30,11 +30,14 @@
 #  200-254 reserved
 #
 
-# Read default PKI configuration.
+# default PKI configuration
 . /usr/share/pki/etc/pki.conf
 
-# Read user-defined PKI configuration.
-. /etc/pki/pki.conf
+# system-wide PKI configuration
+if [ -f /etc/pki/pki.conf ]
+then
+    . /etc/pki/pki.conf
+fi
 
 default_error=0
 
@@ -1293,6 +1296,11 @@ EOF
         /var/lib/pki/$PKI_INSTANCE_NAME/conf/pki.policy \
         /var/lib/pki/$PKI_INSTANCE_NAME/conf/custom.policy > \
         /var/lib/pki/$PKI_INSTANCE_NAME/conf/catalina.policy
+
+    if [ "${PKI_SERVER_AUTO_ENABLE_SUBSYSTEMS}" = "true" ] ; then
+        # enable all subsystems
+        pki-server subsystem-enable -i "$PKI_INSTANCE_NAME" --all
+    fi
 
     # We no longer start tomcat instances here.
     # instead we rely on the tomcat unit scripts
