@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8482c2d5_691326e0",
+        "filename": "base/server/cmscore/src/com/netscape/cmscore/security/JssSubsystem.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 342,
+      "author": {
+        "id": 1010256
+      },
+      "writtenOn": "2017-05-22T21:35:55Z",
+      "side": 1,
+      "message": "a comment on where this pkcs11prng come from (where is it registered in jss?) would help the reader later.",
+      "revId": "3b4eaee930aa4e731e5e0f69b367ad8eefc3dbcc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
