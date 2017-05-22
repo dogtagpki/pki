@@ -65,7 +65,7 @@
 
 Name:             pki-core
 Version:          10.4.5
-Release:          1%{?dist}
+Release:          1.1%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -1392,7 +1392,10 @@ fi
 %endif # %{with server}
 
 %changelog
-* Mon May 22 2017 Dogtag Team <pki-devel@redhat.com> 10.4.5.1
+* Mon May 22 2017 Dogtag Team <pki-devel@redhat.com> 10.4.5-1.1
+- Updated source version number to 10.4.5-1.1
+
+* Mon May 22 2017 Dogtag Team <pki-devel@redhat.com> 10.4.5-1
 - dogtagpki Pagure Issue #2618 - Allow CA to process pre-signed CMC renewal
   non-signing cert requests (cfu)
 - dogtagpki Pagure Issue #2641 - Ensuring common audit log correctness
