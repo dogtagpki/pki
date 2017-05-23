@@ -620,27 +620,12 @@ public class ConnectorServlet extends CMSServlet {
             } finally {
 
                 if (isProfileRequest(thisreq)) {
-
-                    X509CertImpl x509cert = thisreq.getExtDataInCert(IEnrollProfile.REQUEST_ISSUED_CERT);
-
-                    if (x509cert != null) {
-
-                        audit(new CertRequestProcessedEvent(
-                                auditSubjectID,
-                                ILogger.SUCCESS,
-                                auditRequesterID,
-                                ILogger.SIGNED_AUDIT_ACCEPTANCE,
-                                x509cert));
-
-                    } else {
-
-                        audit(new CertRequestProcessedEvent(
-                                auditSubjectID,
-                                ILogger.FAILURE,
-                                auditRequesterID,
-                                ILogger.SIGNED_AUDIT_REJECTION,
-                                ILogger.SIGNED_AUDIT_EMPTY_VALUE));
-                    }
+                    audit(new CertRequestProcessedEvent(
+                            auditSubjectID,
+                            ILogger.SUCCESS,
+                            auditRequesterID,
+                            ILogger.SIGNED_AUDIT_ACCEPTANCE,
+                            ILogger.SIGNED_AUDIT_EMPTY_VALUE));
                 }
             }
 
