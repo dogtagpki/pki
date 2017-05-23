@@ -52,6 +52,7 @@ import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.SecurityDataArchivalEvent;
 import com.netscape.certsrv.logging.event.SecurityDataRecoveryEvent;
+import com.netscape.certsrv.logging.event.SecurityDataRecoveryStateChangeEvent;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestNotFoundException;
 import com.netscape.cms.realm.PKIPrincipal;
@@ -336,13 +337,11 @@ public class KeyRequestService extends SubsystemService implements KeyRequestRes
     }
 
     public void auditRecoveryRequestChange(RequestId requestId, String status, String operation) {
-        String msg = CMS.getLogMessage(
-                AuditEvent.SECURITY_DATA_RECOVERY_REQUEST_STATE_CHANGE,
+        audit(new SecurityDataRecoveryStateChangeEvent(
                 getRequestor(),
                 status,
-                requestId.toString(),
-                operation);
-        auditor.log(msg);
+                requestId,
+                operation));
     }
 
     public void auditRecoveryRequestMade(RequestId requestId, String status, KeyId dataId) {
