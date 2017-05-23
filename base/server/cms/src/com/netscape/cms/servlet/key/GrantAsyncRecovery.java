@@ -34,8 +34,9 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.kra.IKeyService;
-import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.event.SecurityDataRecoveryStateChangeEvent;
+import com.netscape.certsrv.request.RequestId;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
@@ -194,32 +195,7 @@ public class GrantAsyncRecovery extends CMSServlet {
             String agentID,
             HttpServletRequest req, HttpServletResponse resp,
             Locale locale) {
-        String auditMessage = null;
         String auditSubjectID = auditSubjectID();
-        String auditRequestID = reqID;
-        String auditAgentID = agentID;
-
-        // "normalize" the "reqID"
-        if (auditRequestID != null) {
-            auditRequestID = auditRequestID.trim();
-
-            if (auditRequestID.equals("")) {
-                auditRequestID = ILogger.UNIDENTIFIED;
-            }
-        } else {
-            auditRequestID = ILogger.UNIDENTIFIED;
-        }
-
-        // "normalize" the "auditAgentID"
-        if (auditAgentID != null) {
-            auditAgentID = auditAgentID.trim();
-
-            if (auditAgentID.equals("")) {
-                auditAgentID = ILogger.UNIDENTIFIED;
-            }
-        } else {
-            auditAgentID = ILogger.UNIDENTIFIED;
-        }
 
         try {
             header.addStringValue(OUT_OP,
@@ -233,40 +209,21 @@ public class GrantAsyncRecovery extends CMSServlet {
             header.addStringValue("requestID", reqID);
             header.addStringValue("agentID", agentID);
 
-            // store a message in the signed audit log file
-            auditMessage = CMS.getLogMessage(
-                        AuditEvent.KEY_RECOVERY_AGENT_LOGIN,
+
+            audit(new SecurityDataRecoveryStateChangeEvent(
                         auditSubjectID,
                         ILogger.SUCCESS,
-                        auditRequestID,
-                        auditAgentID);
+                        new RequestId(reqID),
+                        "approve"));
 
-            audit(auditMessage);
-
-        } catch (EBaseException e) {
-            header.addStringValue(OUT_ERROR, e.toString(locale));
-
-            // store a message in the signed audit log file
-            auditMessage = CMS.getLogMessage(
-                        AuditEvent.KEY_RECOVERY_AGENT_LOGIN,
-                        auditSubjectID,
-                        ILogger.FAILURE,
-                        auditRequestID,
-                        auditAgentID);
-
-            audit(auditMessage);
         } catch (Exception e) {
             header.addStringValue(OUT_ERROR, e.toString());
 
-            // store a message in the signed audit log file
-            auditMessage = CMS.getLogMessage(
-                        AuditEvent.KEY_RECOVERY_AGENT_LOGIN,
-                        auditSubjectID,
-                        ILogger.FAILURE,
-                        auditRequestID,
-                        auditAgentID);
-
-            audit(auditMessage);
+            audit(new SecurityDataRecoveryStateChangeEvent(
+                    auditSubjectID,
+                    ILogger.FAILURE,
+                    new RequestId(reqID),
+                    "approve"));
         }
     }
 }

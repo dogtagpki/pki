@@ -164,8 +164,6 @@ public class AuditEvent implements IBundleLogEvent {
     public final static String CONFIG_SERIAL_NUMBER =
             "LOGGING_SIGNED_AUDIT_CONFIG_SERIAL_NUMBER_1";
 
-    public static final String SECURITY_DATA_RECOVERY_REQUEST_STATE_CHANGE =
-            "LOGGING_SIGNED_AUDIT_SECURITY_DATA_RECOVERY_REQUEST_STATE_CHANGE_4";
     public final static String KEY_STATUS_CHANGE =
             "LOGGING_SIGNED_AUDIT_KEY_STATUS_CHANGE_6";
     public final static String SYMKEY_GENERATION_REQUEST_PROCESSED =
