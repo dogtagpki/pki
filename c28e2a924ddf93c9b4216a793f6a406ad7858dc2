@@ -22,6 +22,30 @@
       "revId": "c28e2a924ddf93c9b4216a793f6a406ad7858dc2",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c603ed96_56965195",
+        "filename": "base/common/src/com/netscape/certsrv/logging/event/SecurityDataExportEvent.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-05-23T18:27:58Z",
+      "side": 1,
+      "message": "Tes -- in NetKeyGenService, we do export a key that was generated.  So there is no recovery request.  In this case, we actually create a label which is a string to keep track of the audit log.  The same string is used for the archivalID.",
+      "parentUuid": "b3af61e3_8cf6f044",
+      "range": {
+        "startLine": 51,
+        "startChar": 0,
+        "endLine": 69,
+        "endChar": 5
+      },
+      "revId": "c28e2a924ddf93c9b4216a793f6a406ad7858dc2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
