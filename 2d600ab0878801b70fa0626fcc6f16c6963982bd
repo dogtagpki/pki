@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e7f01327_3ebe2206",
+        "filename": "base/kra/src/com/netscape/kra/KeyRecoveryAuthority.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1915,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-05-23T16:45:18Z",
+      "side": 1,
+      "message": "Accidental paste?",
+      "range": {
+        "startLine": 1915,
+        "startChar": 64,
+        "endLine": 1915,
+        "endChar": 79
+      },
+      "revId": "2d600ab0878801b70fa0626fcc6f16c6963982bd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
