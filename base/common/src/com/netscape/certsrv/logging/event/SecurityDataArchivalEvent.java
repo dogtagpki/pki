@@ -30,6 +30,7 @@ public class SecurityDataArchivalEvent extends AuditEvent {
     public SecurityDataArchivalEvent(
             String subjectID,
             String outcome,
+            String archivalID,
             RequestId requestID,
             String clientKeyID) {
 
@@ -38,22 +39,9 @@ public class SecurityDataArchivalEvent extends AuditEvent {
         setParameters(new Object[] {
                 subjectID,
                 outcome,
+                archivalID,
                 requestID,
                 clientKeyID
-        });
-    }
-
-    public SecurityDataArchivalEvent(
-            String subjectID,
-            String outcome,
-            String requestID) {
-        super(LOGGING_PROPERTY);
-
-        setParameters(new Object[] {
-                subjectID,
-                outcome,
-                requestID,
-                null
         });
     }
 }

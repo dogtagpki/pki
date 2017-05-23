@@ -766,18 +766,21 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
             r = queue.newRequest(KRAService.ENROLLMENT);
 
-            // store a message in the signed audit log file
             audit(new SecurityDataArchivalEvent(
                         auditSubjectID,
                         ILogger.SUCCESS,
-                        auditRequesterID));
+                        auditRequesterID,
+                        r.getRequestId(),
+                        null));
 
         } catch (EBaseException eAudit1) {
             // store a message in the signed audit log file
             audit(new SecurityDataArchivalEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
-                        auditRequesterID));
+                        auditRequesterID,
+                        null /* requestId */,
+                        null /*clientKeyId */));
             throw eAudit1;
         }
 
@@ -792,6 +795,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
             audit(new SecurityDataArchivalProcessedEvent(
                     auditSubjectID,
                     ILogger.SUCCESS,
+                    auditRequesterID,
                     r.getRequestId(),
                     null,
                     new KeyId(rec.getSerialNumber()),
@@ -801,6 +805,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
             audit(new SecurityDataArchivalProcessedEvent(
                     auditSubjectID,
                     ILogger.FAILURE,
+                    auditRequesterID,
                     r.getRequestId(),
                     null,
                     new KeyId(rec.getSerialNumber()),
