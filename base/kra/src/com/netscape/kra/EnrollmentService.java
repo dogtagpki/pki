@@ -56,6 +56,7 @@ import com.netscape.certsrv.logging.event.SecurityDataArchivalProcessedEvent;
 import com.netscape.certsrv.profile.IEnrollProfile;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IService;
+import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.certsrv.security.ITransportKeyUnit;
 import com.netscape.certsrv.util.IStatsSubsystem;
@@ -158,6 +159,7 @@ public class EnrollmentService implements IService {
         String auditSubjectID = auditSubjectID();
         String auditRequesterID = auditRequesterID();
         String auditPublicKey = ILogger.UNIDENTIFIED;
+        RequestId requestId = request.getRequestId();
 
         if (CMS.debugOn())
             CMS.debug("EnrollmentServlet: KRA services enrollment request");
@@ -198,7 +200,9 @@ public class EnrollmentService implements IService {
                 audit(new SecurityDataArchivalEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
-                        auditRequesterID));
+                        auditRequesterID,
+                        requestId,
+                        null));
 
                 throw new EKRAException(
                         CMS.getUserMessage("CMS_KRA_INVALID_PRIVATE_KEY"));
@@ -243,7 +247,9 @@ public class EnrollmentService implements IService {
                     audit(new SecurityDataArchivalEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
-                            auditRequesterID));
+                            auditRequesterID,
+                            requestId,
+                            null));
 
                     throw new EKRAException(
                             CMS.getUserMessage("CMS_KRA_INVALID_PRIVATE_KEY"));
@@ -276,7 +282,9 @@ public class EnrollmentService implements IService {
                 audit(new SecurityDataArchivalEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
-                        auditRequesterID));
+                        auditRequesterID,
+                        requestId,
+                        null));
 
                 throw new EKRAException(
                         CMS.getUserMessage("CMS_KRA_INVALID_PUBLIC_KEY"));
@@ -315,7 +323,9 @@ public class EnrollmentService implements IService {
                     audit(new SecurityDataArchivalEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
-                            auditRequesterID));
+                            auditRequesterID,
+                            requestId,
+                            null));
 
                     throw new EKRAException(CMS.getUserMessage("CMS_KRA_INVALID_PRIVATE_KEY"), e);
                 }
@@ -333,7 +343,9 @@ public class EnrollmentService implements IService {
                     audit(new SecurityDataArchivalEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
-                        auditRequesterID));
+                        auditRequesterID,
+                        requestId,
+                        null));
 
                     throw new EKRAException(
                         CMS.getUserMessage("CMS_KRA_INVALID_PUBLIC_KEY"));
@@ -355,7 +367,9 @@ public class EnrollmentService implements IService {
                 audit(new SecurityDataArchivalEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
-                        auditRequesterID));
+                        auditRequesterID,
+                        requestId,
+                        null));
 
                 throw new EKRAException(CMS.getUserMessage("CMS_KRA_INVALID_KEYRECORD"));
             }
@@ -387,7 +401,9 @@ public class EnrollmentService implements IService {
                 audit(new SecurityDataArchivalEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
-                        auditRequesterID));
+                        auditRequesterID,
+                        requestId,
+                        null));
 
                 throw new EKRAException(CMS.getUserMessage("CMS_KRA_INVALID_PRIVATE_KEY"));
             }
@@ -411,7 +427,9 @@ public class EnrollmentService implements IService {
                     audit(new SecurityDataArchivalEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
-                        auditRequesterID));
+                        auditRequesterID,
+                        requestId,
+                        null));
 
                     throw new EKRAException(CMS.getUserMessage("CMS_KRA_INVALID_KEYRECORD"));
                 }
@@ -458,7 +476,9 @@ public class EnrollmentService implements IService {
                 audit(new SecurityDataArchivalEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
-                        auditRequesterID));
+                        auditRequesterID,
+                        requestId,
+                        null));
 
                 throw new EKRAException(CMS.getUserMessage("CMS_KRA_INVALID_STATE"));
             }
@@ -477,7 +497,9 @@ public class EnrollmentService implements IService {
                 audit(new SecurityDataArchivalEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
-                        auditRequesterID));
+                        auditRequesterID,
+                        requestId,
+                        null));
 
                 throw new EKRAException(CMS.getUserMessage("CMS_KRA_INVALID_STATE"));
             }
@@ -492,7 +514,9 @@ public class EnrollmentService implements IService {
                 audit(new SecurityDataArchivalEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
-                        auditRequesterID));
+                        auditRequesterID,
+                        requestId,
+                        null));
 
                 throw new EKRAException(CMS.getUserMessage("CMS_KRA_INVALID_STATE"));
             }
@@ -546,14 +570,17 @@ public class EnrollmentService implements IService {
             audit(new SecurityDataArchivalEvent(
                         auditSubjectID,
                         ILogger.SUCCESS,
-                        auditRequesterID));
+                        auditRequesterID,
+                        requestId,
+                        null));
 
             // store a message in the signed audit log file
             auditPublicKey = auditPublicKey(rec);
             audit(new SecurityDataArchivalProcessedEvent(
                         auditSubjectID,
                         ILogger.SUCCESS,
-                        request.getRequestId(),
+                        auditRequesterID,
+                        requestId,
                         null,
                         new KeyId(rec.getSerialNumber()),
                         null,

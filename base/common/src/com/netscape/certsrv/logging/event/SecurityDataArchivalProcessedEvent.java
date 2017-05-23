@@ -30,6 +30,7 @@ public class SecurityDataArchivalProcessedEvent extends AuditEvent {
     public SecurityDataArchivalProcessedEvent(
             String subjectID,
             String outcome,
+            String archivalRequestId,
             RequestId requestID,
             String clientKeyID,
             KeyId keyID,
@@ -41,6 +42,7 @@ public class SecurityDataArchivalProcessedEvent extends AuditEvent {
         setParameters(new Object[] {
                 subjectID,
                 outcome,
+                archivalRequestId,
                 requestID,
                 clientKeyID,
                 keyID,
