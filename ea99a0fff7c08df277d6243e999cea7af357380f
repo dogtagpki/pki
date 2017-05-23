@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "43a2b4e4_0f8bae7d",
+        "filename": "base/kra/shared/conf/CS.cfg",
+        "patchSetId": 2
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-05-23T16:35:20Z",
+      "side": 0,
+      "message": "PRIVATE_KEY_ARCHIVE_REQUEST_PROCESSED should be removed from this property too.",
+      "range": {
+        "startLine": 307,
+        "startChar": 322,
+        "endLine": 307,
+        "endChar": 359
+      },
+      "revId": "ea99a0fff7c08df277d6243e999cea7af357380f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
