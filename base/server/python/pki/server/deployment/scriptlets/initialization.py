@@ -42,6 +42,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # ALWAYS establish 'uid' and 'gid'
         deployer.identity.set_uid(deployer.mdict['pki_user'])
         deployer.identity.set_gid(deployer.mdict['pki_group'])
+        # ALWAYS check FIPS mode
+        deployer.fips.is_fips_enabled()
         # ALWAYS initialize HSMs (when and if present)
         deployer.hsm.initialize()
         if config.str2bool(deployer.mdict['pki_skip_installation']):
