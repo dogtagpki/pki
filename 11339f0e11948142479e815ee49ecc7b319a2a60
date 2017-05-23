@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7c95ff76_5177d487",
+        "filename": "base/kra/shared/conf/CS.cfg",
+        "patchSetId": 2
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-05-23T17:07:11Z",
+      "side": 1,
+      "message": "SECURITY_DATA_INFO should be added to this property too?",
+      "revId": "11339f0e11948142479e815ee49ecc7b319a2a60",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6b4e47c5_8377fea0",
+        "filename": "base/kra/src/org/dogtagpki/server/kra/rest/KeyService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-05-23T17:07:11Z",
+      "side": 1,
+      "message": "Should we trigger audit event for each exception in this method?",
+      "revId": "11339f0e11948142479e815ee49ecc7b319a2a60",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e84038d9_32b744b7",
+        "filename": "base/kra/src/org/dogtagpki/server/kra/rest/KeyService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-05-23T17:07:11Z",
+      "side": 1,
+      "message": "The retrieveKeyImpl() can be called by retrieveKey() which also generates audit log. Will this be a duplicate?",
+      "revId": "11339f0e11948142479e815ee49ecc7b319a2a60",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
