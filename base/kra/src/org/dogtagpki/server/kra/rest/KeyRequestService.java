@@ -357,6 +357,7 @@ public class KeyRequestService extends SubsystemService implements KeyRequestRes
         audit(new SecurityDataArchivalEvent(
                 getRequestor(),
                 status,
+                null,
                 requestId,
                 clientKeyID));
     }
