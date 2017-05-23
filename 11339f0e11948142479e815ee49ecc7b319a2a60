@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "c3d51ab1_4f38012d",
+        "filename": "base/kra/shared/conf/CS.cfg",
+        "patchSetId": 2
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-05-23T18:49:50Z",
+      "side": 1,
+      "message": "I think no.  Reason being - I\u0027m not sure we want to enable this by default.  See commit message.",
+      "parentUuid": "7c95ff76_5177d487",
+      "revId": "11339f0e11948142479e815ee49ecc7b319a2a60",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6b4e47c5_8377fea0",
         "filename": "base/kra/src/org/dogtagpki/server/kra/rest/KeyService.java",
         "patchSetId": 2
