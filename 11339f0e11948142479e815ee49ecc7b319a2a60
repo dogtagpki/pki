@@ -54,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "9543e0b4_22f6aba4",
+        "filename": "base/kra/src/org/dogtagpki/server/kra/rest/KeyService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-05-23T19:05:46Z",
+      "side": 1,
+      "message": "It will be caught by the export failure log in retrieveKey()",
+      "parentUuid": "6b4e47c5_8377fea0",
+      "revId": "11339f0e11948142479e815ee49ecc7b319a2a60",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e84038d9_32b744b7",
         "filename": "base/kra/src/org/dogtagpki/server/kra/rest/KeyService.java",
         "patchSetId": 2
@@ -65,6 +83,24 @@
       "writtenOn": "2017-05-23T17:07:11Z",
       "side": 1,
       "message": "The retrieveKeyImpl() can be called by retrieveKey() which also generates audit log. Will this be a duplicate?",
+      "revId": "11339f0e11948142479e815ee49ecc7b319a2a60",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9ed30d21_063a0672",
+        "filename": "base/kra/src/org/dogtagpki/server/kra/rest/KeyService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-05-23T19:05:46Z",
+      "side": 1,
+      "message": "This is a different log. In retreiveKey, we have an export event failure.",
+      "parentUuid": "e84038d9_32b744b7",
       "revId": "11339f0e11948142479e815ee49ecc7b319a2a60",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
