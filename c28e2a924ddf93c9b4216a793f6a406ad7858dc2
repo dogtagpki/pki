@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b3af61e3_8cf6f044",
+        "filename": "base/common/src/com/netscape/certsrv/logging/event/SecurityDataExportEvent.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-05-23T17:06:10Z",
+      "side": 1,
+      "message": "Is this constructor needed?",
+      "range": {
+        "startLine": 51,
+        "startChar": 0,
+        "endLine": 69,
+        "endChar": 5
+      },
+      "revId": "c28e2a924ddf93c9b4216a793f6a406ad7858dc2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
