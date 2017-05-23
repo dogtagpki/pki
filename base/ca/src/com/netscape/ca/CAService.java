@@ -58,6 +58,7 @@ import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.profile.IProfileSubsystem;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IService;
+import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.base.SubsystemRegistry;
 import com.netscape.cmscore.connector.HttpConnector;
 import com.netscape.cmscore.connector.LocalConnector;
@@ -371,6 +372,7 @@ public class CAService implements ICAService, IService {
     public boolean serviceRequest(IRequest request) {
         String auditSubjectID = auditSubjectID();
         String auditRequesterID = auditRequesterID();
+        RequestId requestId = request.getRequestId();
 
         boolean completed = false;
 
@@ -422,7 +424,9 @@ public class CAService implements ICAService, IService {
                 audit(new SecurityDataArchivalEvent(
                         auditSubjectID,
                         ILogger.SUCCESS,
-                        auditRequesterID));
+                        auditRequesterID,
+                        requestId,
+                        null));
 
                 boolean sendStatus = mKRAConnector.send(request);
 
@@ -437,7 +441,9 @@ public class CAService implements ICAService, IService {
                         audit(new SecurityDataArchivalEvent(
                                 auditSubjectID,
                                 ILogger.FAILURE,
-                                auditRequesterID));
+                                auditRequesterID,
+                                requestId,
+                                null));
 
                         return true;
                     } else {
@@ -451,7 +457,9 @@ public class CAService implements ICAService, IService {
                         audit(new SecurityDataArchivalEvent(
                                 auditSubjectID,
                                 ILogger.FAILURE,
-                                auditRequesterID));
+                                auditRequesterID,
+                                requestId,
+                                null));
 
                         return true;
                     }
@@ -474,7 +482,9 @@ public class CAService implements ICAService, IService {
                 audit(new SecurityDataArchivalEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
-                        auditRequesterID));
+                        auditRequesterID,
+                        requestId,
+                        null));
             }
 
             return true;
@@ -490,7 +500,9 @@ public class CAService implements ICAService, IService {
             audit(new SecurityDataArchivalEvent(
                     auditSubjectID,
                     ILogger.SUCCESS,
-                    auditRequesterID));
+                    auditRequesterID,
+                    requestId,
+                    null));
         }
 
         return completed;

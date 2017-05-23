@@ -397,7 +397,9 @@ public class NetkeyKeygenService implements IService {
                     audit( new SecurityDataArchivalEvent(
                             agentId,
                             ILogger.SUCCESS,
-                            auditSubjectID));
+                            auditSubjectID,
+                            request.getRequestId(),
+                            null));
 
                     CMS.debug("KRA encrypts private key to put on internal ldap db");
                     byte privateKeyData[] = null;
@@ -487,6 +489,7 @@ public class NetkeyKeygenService implements IService {
                     audit(new SecurityDataArchivalProcessedEvent(
                             agentId,
                             ILogger.SUCCESS,
+                            auditSubjectID,
                             request.getRequestId(),
                             null,
                             new KeyId(serialNo),

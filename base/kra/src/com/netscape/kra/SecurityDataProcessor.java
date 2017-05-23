@@ -873,6 +873,7 @@ public class SecurityDataProcessor {
         audit(new SecurityDataArchivalProcessedEvent(
                 subjectID,
                 status,
+                null,
                 requestID,
                 clientKeyID,
                 keyID,

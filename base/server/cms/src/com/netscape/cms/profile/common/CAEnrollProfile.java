@@ -36,6 +36,7 @@ import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.profile.IProfileUpdater;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 
 import netscape.security.x509.X500Name;
@@ -82,10 +83,10 @@ public class CAEnrollProfile extends EnrollProfile {
 
         String auditSubjectID = auditSubjectID();
         String auditRequesterID = auditRequesterID(request);
-        String id = request.getRequestId().toString();
+        RequestId requestId = request.getRequestId();
 
 
-        CMS.debug("CAEnrollProfile: execute request ID " + id);
+        CMS.debug("CAEnrollProfile: execute request ID " + requestId.toString());
 
         ICertificateAuthority ca = (ICertificateAuthority) getAuthority();
 
@@ -115,7 +116,9 @@ public class CAEnrollProfile extends EnrollProfile {
                         audit(new SecurityDataArchivalEvent(
                                 auditSubjectID,
                                 ILogger.FAILURE,
-                                auditRequesterID));
+                                auditRequesterID,
+                                requestId,
+                                null));
                     } else {
                         CMS.debug("CAEnrollProfile: execute send request");
                         kraConnector.send(request);
@@ -125,7 +128,9 @@ public class CAEnrollProfile extends EnrollProfile {
                             audit(new SecurityDataArchivalEvent(
                                     auditSubjectID,
                                     ILogger.FAILURE,
-                                    auditRequesterID));
+                                    auditRequesterID,
+                                    requestId,
+                                    null));
 
                             if (request.getError(getLocale(request)) != null &&
                                 (request.getError(getLocale(request))).equals(CMS.getUserMessage("CMS_KRA_INVALID_TRANSPORT_CERT"))) {
@@ -140,7 +145,9 @@ public class CAEnrollProfile extends EnrollProfile {
                         audit(new SecurityDataArchivalEvent(
                                 auditSubjectID,
                                 ILogger.SUCCESS,
-                                auditRequesterID));
+                                auditRequesterID,
+                                requestId,
+                                null));
                     }
                 } catch (Exception e) {
 
@@ -153,7 +160,9 @@ public class CAEnrollProfile extends EnrollProfile {
                     audit(new SecurityDataArchivalEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
-                            auditRequesterID));
+                            auditRequesterID,
+                            requestId,
+                            null));
 
                     throw new EProfileException(e);
                 }
@@ -179,7 +188,7 @@ public class CAEnrollProfile extends EnrollProfile {
         X509CertImpl theCert;
         try {
             theCert = caService.issueX509Cert(
-                aid, info, getId() /* profileId */, id /* requestId */);
+                aid, info, getId() /* profileId */, requestId.toString());
         } catch (EBaseException e) {
             CMS.debug(e);
             throw new EProfileException(e);
