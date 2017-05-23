@@ -134,8 +134,8 @@ public class OCSPProcessor {
             byte[] requestData = os.toByteArray();
 
             if (verbose) {
-                System.out.println("Data Length: " + requestData.length);
-                System.out.println("Data: " + Utils.base64encode(requestData));
+                System.out.println("Request Length: " + requestData.length);
+                System.out.println("Request: " + Utils.base64encode(requestData));
             }
 
             ByteArrayEntity requestEntity = new ByteArrayEntity(requestData);
@@ -156,8 +156,16 @@ public class OCSPProcessor {
                 }
 
                 // construct OCSP response
+
+                byte[] responseData = buffer.toByteArray();
+
+                if (verbose) {
+                    System.out.println("Response Length: " + responseData.length);
+                    System.out.println("Response: " + Utils.base64encode(responseData));
+                }
+
                 return (OCSPResponse)OCSPResponse.getTemplate().decode(
-                        new ByteArrayInputStream(buffer.toByteArray()));
+                        new ByteArrayInputStream(responseData));
 
             } finally {
                 EntityUtils.consume(responseEntity);
