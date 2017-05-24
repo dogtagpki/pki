@@ -415,6 +415,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
      */
     public BasicOCSPResponse sign(ResponseData rd)
             throws EBaseException {
+
         try (DerOutputStream out = new DerOutputStream()) {
             DerOutputStream tmp = new DerOutputStream();
 
@@ -424,9 +425,11 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
             if (rd_data != null) {
                 mTotalData += rd_data.length;
             }
+
             rd.encode(tmp);
             AlgorithmId.get(algname).encode(tmp);
-            CMS.debug("adding signature");
+
+            CMS.debug("OCSPAuthority: adding signature");
             byte[] signature = mSigningUnit.sign(rd_data, algname);
 
             tmp.putBitString(signature);
@@ -440,6 +443,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
             for (int i = 0; i < chains.length; i++) {
                 tmpChain.putDerValue(new DerValue(chains[i].getEncoded()));
             }
+
             tmp1.write(DerValue.tag_Sequence, tmpChain);
             tmp.write(DerValue.createTag(DerValue.TAG_CONTEXT, true, (byte) 0),
                     tmp1);
@@ -449,9 +453,9 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
             BasicOCSPResponse response = new BasicOCSPResponse(out.toByteArray());
 
             return response;
+
         } catch (Exception e) {
-            e.printStackTrace();
-            // error e
+            CMS.debug(e);
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_OCSP_SIGN_RESPONSE", e.toString()));
             return null;
         }
