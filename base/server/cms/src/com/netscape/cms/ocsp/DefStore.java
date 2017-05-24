@@ -27,11 +27,6 @@ import java.util.Hashtable;
 import java.util.Locale;
 import java.util.Vector;
 
-import netscape.security.x509.RevokedCertificate;
-import netscape.security.x509.X509CRLImpl;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509Key;
-
 import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.GeneralizedTime;
 import org.mozilla.jss.asn1.INTEGER;
@@ -72,6 +67,11 @@ import com.netscape.cmsutil.ocsp.RevokedInfo;
 import com.netscape.cmsutil.ocsp.SingleResponse;
 import com.netscape.cmsutil.ocsp.TBSRequest;
 import com.netscape.cmsutil.ocsp.UnknownInfo;
+
+import netscape.security.x509.RevokedCertificate;
+import netscape.security.x509.X509CRLImpl;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509Key;
 
 /**
  * This is the default OCSP store that stores revocation information
@@ -481,77 +481,80 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
                 incReqCount(theRec.getId());
             }
 
-            // check the serial number
-            if (theCert != null) {
-                INTEGER serialNo = cid.getSerialNumber();
-
-                log(ILogger.EV_AUDIT, AuditFormat.LEVEL, "Checked Status of certificate 0x" + serialNo.toString(16));
-                CMS.debug("DefStore: process request 0x" + serialNo.toString(16));
-                CertStatus certStatus = null;
-                GeneralizedTime thisUpdate = null;
-
-                if (theRec == null) {
-                    thisUpdate = new GeneralizedTime(CMS.getCurrentDate());
-                } else {
-                    thisUpdate = new GeneralizedTime(
-                                theRec.getThisUpdate());
-                }
-                GeneralizedTime nextUpdate = null;
-
-                if (includeNextUpdate()) {
-                    // this is an optional field
-                    if (theRec == null) {
-                        nextUpdate = new GeneralizedTime(CMS.getCurrentDate());
-                    } else {
-                        nextUpdate = new GeneralizedTime(
-                                    theRec.getNextUpdate());
-                    }
-                }
-
-                if (theCRL == null) {
-                    certStatus = new UnknownInfo();
-
-                    // if crl is not available, we can try crl cache
-                    if (theRec != null) {
-                        CMS.debug("DefStore: evaluating crl cache");
-                        Hashtable<BigInteger, RevokedCertificate> cache = theRec.getCRLCacheNoClone();
-                        if (cache != null) {
-                            RevokedCertificate rc = cache.get(new BigInteger(serialNo.toString()));
-                            if (rc == null) {
-                                if (isNotFoundGood()) {
-                                    certStatus = new GoodInfo();
-                                } else {
-                                    certStatus = new UnknownInfo();
-                                }
-                            } else {
-
-                                certStatus = new RevokedInfo(
-                                        new GeneralizedTime(
-                                                rc.getRevocationDate()));
-                            }
-                        }
-                    }
-
-                } else {
-                    CMS.debug("DefStore: evaluating x509 crl impl");
-                    X509CRLEntry crlentry = theCRL.getRevokedCertificate(new BigInteger(serialNo.toString()));
-
-                    if (crlentry == null) {
-                        // good or unknown
-                        if (isNotFoundGood()) {
-                            certStatus = new GoodInfo();
-                        } else {
-                            certStatus = new UnknownInfo();
-                        }
-                    } else {
-                        certStatus = new RevokedInfo(new GeneralizedTime(
-                                        crlentry.getRevocationDate()));
-
-                    }
-                }
-                return new SingleResponse(cid, certStatus, thisUpdate,
-                        nextUpdate);
+            if (theCert == null) {
+                return null;
             }
+
+            // check the serial number
+            INTEGER serialNo = cid.getSerialNumber();
+
+            log(ILogger.EV_AUDIT, AuditFormat.LEVEL, "Checked Status of certificate 0x" + serialNo.toString(16));
+            CMS.debug("DefStore: process request 0x" + serialNo.toString(16));
+            CertStatus certStatus = null;
+            GeneralizedTime thisUpdate = null;
+
+            if (theRec == null) {
+                thisUpdate = new GeneralizedTime(CMS.getCurrentDate());
+            } else {
+                thisUpdate = new GeneralizedTime(
+                            theRec.getThisUpdate());
+            }
+            GeneralizedTime nextUpdate = null;
+
+            if (includeNextUpdate()) {
+                // this is an optional field
+                if (theRec == null) {
+                    nextUpdate = new GeneralizedTime(CMS.getCurrentDate());
+                } else {
+                    nextUpdate = new GeneralizedTime(
+                                theRec.getNextUpdate());
+                }
+            }
+
+            if (theCRL == null) {
+                certStatus = new UnknownInfo();
+
+                // if crl is not available, we can try crl cache
+                if (theRec != null) {
+                    CMS.debug("DefStore: evaluating crl cache");
+                    Hashtable<BigInteger, RevokedCertificate> cache = theRec.getCRLCacheNoClone();
+                    if (cache != null) {
+                        RevokedCertificate rc = cache.get(new BigInteger(serialNo.toString()));
+                        if (rc == null) {
+                            if (isNotFoundGood()) {
+                                certStatus = new GoodInfo();
+                            } else {
+                                certStatus = new UnknownInfo();
+                            }
+                        } else {
+
+                            certStatus = new RevokedInfo(
+                                    new GeneralizedTime(
+                                            rc.getRevocationDate()));
+                        }
+                    }
+                }
+
+            } else {
+                CMS.debug("DefStore: evaluating x509 crl impl");
+                X509CRLEntry crlentry = theCRL.getRevokedCertificate(new BigInteger(serialNo.toString()));
+
+                if (crlentry == null) {
+                    // good or unknown
+                    if (isNotFoundGood()) {
+                        certStatus = new GoodInfo();
+                    } else {
+                        certStatus = new UnknownInfo();
+                    }
+                } else {
+                    certStatus = new RevokedInfo(new GeneralizedTime(
+                                    crlentry.getRevocationDate()));
+
+                }
+            }
+            return new SingleResponse(cid, certStatus, thisUpdate,
+                    nextUpdate);
+
         } catch (Exception e) {
             // error log
             CMS.debug("DefStore: failed processing request e=" + e);
