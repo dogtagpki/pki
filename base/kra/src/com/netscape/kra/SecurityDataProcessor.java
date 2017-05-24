@@ -42,7 +42,6 @@ import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.SecurityDataArchivalProcessedEvent;
-import com.netscape.certsrv.logging.event.SecurityDataRecoveryProcessedEvent;
 import com.netscape.certsrv.profile.IEnrollProfile;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
@@ -322,20 +321,13 @@ public class SecurityDataProcessor {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", e.toString()));
         }
 
-        String requestor = request.getExtDataInString(IRequest.ATTR_REQUEST_OWNER);
-        String auditSubjectID = requestor;
-
         Hashtable<String, Object> params = kra.getVolatileRequest(
                 request.getRequestId());
         KeyId keyId = new KeyId(request.getExtDataInBigInteger(ATTR_SERIALNO));
         request.setExtData(ATTR_KEY_RECORD, keyId.toBigInteger());
-        RequestId requestID = request.getRequestId();
-        String approvers = request.getExtDataInString(IRequest.ATTR_APPROVE_AGENTS);
 
         if (params == null) {
             CMS.debug("SecurityDataProcessor.recover(): Can't get volatile params.");
-            auditRecoveryRequestProcessed(auditSubjectID, ILogger.FAILURE, requestID, keyId,
-                    "cannot get volatile params", approvers);
             throw new EBaseException("Can't obtain volatile params!");
         }
 
@@ -457,8 +449,6 @@ public class SecurityDataProcessor {
                     iv != null? new IVParameterSpec(iv): null,
                     iv_wrap != null? new IVParameterSpec(iv_wrap): null);
             } catch (Exception e) {
-                auditRecoveryRequestProcessed(auditSubjectID, ILogger.FAILURE, requestID, keyId,
-                        "Cannot generate wrapping params", approvers);
                 throw new EBaseException("Cannot generate wrapping params: " + e, e);
             }
         }
@@ -514,8 +504,6 @@ public class SecurityDataProcessor {
                 params.put(IRequest.SECURITY_DATA_PASS_WRAPPED_DATA, pbeWrappedData);
 
             } catch (Exception e) {
-                auditRecoveryRequestProcessed(auditSubjectID, ILogger.FAILURE, requestID, keyId,
-                        "Cannot unwrap passphrase", approvers);
                 throw new EBaseException("Cannot unwrap passphrase: " + e, e);
 
             } finally {
@@ -556,8 +544,6 @@ public class SecurityDataProcessor {
                     }
 
                 } catch (Exception e) {
-                    auditRecoveryRequestProcessed(auditSubjectID, ILogger.FAILURE, requestID, keyId,
-                            "Cannot wrap symmetric key", approvers);
                     throw new EBaseException("Cannot wrap symmetric key: " + e, e);
                 }
 
@@ -574,8 +560,6 @@ public class SecurityDataProcessor {
                             wrapParams.getPayloadEncryptionAlgorithm(),
                             wrapParams.getPayloadEncryptionIV());
                 } catch (Exception e) {
-                    auditRecoveryRequestProcessed(auditSubjectID, ILogger.FAILURE, requestID,
-                            keyId, "Cannot encrypt passphrase", approvers);
                     throw new EBaseException("Cannot encrypt passphrase: " + e, e);
                 }
 
@@ -606,8 +590,6 @@ public class SecurityDataProcessor {
                     }
 
                 } catch (Exception e) {
-                    auditRecoveryRequestProcessed(auditSubjectID, ILogger.FAILURE, requestID, keyId,
-                            "Cannot wrap private key", approvers);
                     throw new EBaseException("Cannot wrap private key: " + e, e);
                 }
             }
@@ -640,9 +622,6 @@ public class SecurityDataProcessor {
         }
 
         params.put(IRequest.SECURITY_DATA_TYPE, dataType);
-
-        auditRecoveryRequestProcessed(auditSubjectID, ILogger.SUCCESS, requestID, keyId,
-                null, approvers);
         request.setExtData(IRequest.RESULT, IRequest.RES_SUCCESS);
 
         return false; //return true ? TODO
@@ -855,17 +834,6 @@ public class SecurityDataProcessor {
         String message = CMS.getLogMessage(template, params);
 
         audit(message);
-    }
-
-    private void auditRecoveryRequestProcessed(String subjectID, String status, RequestId requestID,
-            KeyId keyID, String reason, String recoveryAgents) {
-        audit(new SecurityDataRecoveryProcessedEvent(
-                subjectID,
-                status,
-                requestID,
-                keyID,
-                reason,
-                recoveryAgents));
     }
 
     private void auditArchivalRequestProcessed(String subjectID, String status, RequestId requestID, String clientKeyID,
