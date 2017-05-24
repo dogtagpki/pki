@@ -117,13 +117,10 @@ public class KeyService extends SubsystemService implements KeyResource {
     public Response retrieveKey(KeyRecoveryRequest data) {
         try {
             Response response = retrieveKeyImpl(data);
-            auditRetrieveKey(ILogger.SUCCESS);
             return response;
         } catch(RuntimeException e) {
-            auditRetrieveKeyError(e.getMessage());
             throw e;
         } catch (Exception e) {
-            auditRetrieveKeyError(e.getMessage());
             throw new PKIException(e.getMessage(), e);
         }
     }
@@ -137,6 +134,7 @@ public class KeyService extends SubsystemService implements KeyResource {
         CMS.debug(auditInfo);
 
         if (data == null) {
+            auditRetrieveKeyError("Bad Request: Missing key Recovery Request");
             throw new BadRequestException("Missing key Recovery Request");
         }
 
@@ -152,10 +150,12 @@ public class KeyService extends SubsystemService implements KeyResource {
             try {
                 request = queue.findRequest(requestId);
             } catch (EBaseException e) {
+                auditRetrieveKeyError(e.getMessage());
                 throw new PKIException(e.getMessage(), e);
             }
 
             if (request == null) {
+                auditRetrieveKeyError("Bad Request: No request found");
                 throw new BadRequestException("No request found");
             }
 
@@ -166,7 +166,8 @@ public class KeyService extends SubsystemService implements KeyResource {
         } else {
             keyId = data.getKeyId();
             if (keyId == null) {
-                throw new BadRequestException("Missing key Recovery Request");
+                auditRetrieveKeyError("Bad Request: Missing key recovery request and key_id");
+                throw new BadRequestException("Missing recovery request and key id");
             }
 
             auditInfo += ";keyID=" + keyId.toString();
@@ -186,6 +187,7 @@ public class KeyService extends SubsystemService implements KeyResource {
                 request = reqDAO.createRecoveryRequest(data, uriInfo, getRequestor(),
                         getAuthToken(), ephemeral);
             } catch (EBaseException e) {
+                auditRetrieveKeyError("Unable to create recovery request: " + e.getMessage());
                 throw new PKIException(e.getMessage(), e);
             }
 
@@ -248,6 +250,7 @@ public class KeyService extends SubsystemService implements KeyResource {
         auditRecoveryRequestProcessed(ILogger.SUCCESS, null);
 
         CMS.debug("KeyService: key retrieved");
+        auditRetrieveKey(ILogger.SUCCESS);
         return createOKResponse(keyData);
     }
 

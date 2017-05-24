@@ -19,9 +19,14 @@ package com.netscape.kra;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
+import com.netscape.certsrv.logging.AuditEvent;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.event.SecurityDataRecoveryProcessedEvent;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IService;
+import com.netscape.certsrv.request.RequestId;
 
 /**
  * This implementation services SecurityData Recovery requests.
@@ -33,6 +38,7 @@ public class SecurityDataRecoveryService implements IService {
 
     private IKeyRecoveryAuthority kra = null;
     private SecurityDataProcessor processor = null;
+    private ILogger signedAuditLogger = CMS.getSignedAuditLogger();
 
     public SecurityDataRecoveryService(IKeyRecoveryAuthority kra) {
         this.kra = kra;
@@ -57,8 +63,65 @@ public class SecurityDataRecoveryService implements IService {
             throws EBaseException {
 
         CMS.debug("SecurityDataRecoveryService.serviceRequest()");
-        processor.recover(request);
-        kra.getRequestQueue().updateRequest(request);
+
+        // parameters for auditing
+        String auditSubjectID = request.getExtDataInString(IRequest.ATTR_REQUEST_OWNER);
+        KeyId keyId = new KeyId(request.getExtDataInBigInteger("serialNumber"));
+        RequestId requestID = request.getRequestId();
+        String approvers = request.getExtDataInString(IRequest.ATTR_APPROVE_AGENTS);
+
+        try {
+            processor.recover(request);
+            kra.getRequestQueue().updateRequest(request);
+            auditRecoveryRequestProcessed(
+                    auditSubjectID,
+                    ILogger.SUCCESS,
+                    requestID,
+                    keyId,
+                    null,
+                    approvers);
+        } catch (EBaseException e) {
+            auditRecoveryRequestProcessed(
+                    auditSubjectID,
+                    ILogger.FAILURE,
+                    requestID,
+                    keyId,
+                    e.getMessage(),
+                    approvers);
+            throw e;
+        }
         return false;  //TODO: return true?
+    }
+
+    private void audit(AuditEvent event) {
+
+        String template = event.getMessage();
+        Object[] params = event.getParameters();
+
+        String message = CMS.getLogMessage(template, params);
+
+        audit(message);
+    }
+
+    private void audit(String msg) {
+        if (signedAuditLogger == null)
+            return;
+
+        signedAuditLogger.log(ILogger.EV_SIGNED_AUDIT,
+                null,
+                ILogger.S_SIGNED_AUDIT,
+                ILogger.LL_SECURITY,
+                msg);
+    }
+
+    private void auditRecoveryRequestProcessed(String subjectID, String status, RequestId requestID,
+            KeyId keyID, String reason, String recoveryAgents) {
+        audit(new SecurityDataRecoveryProcessedEvent(
+                subjectID,
+                status,
+                requestID,
+                keyID,
+                reason,
+                recoveryAgents));
     }
 }
