@@ -2634,73 +2634,10 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
                 mSplits[1] += System.currentTimeMillis();
 
-                X509CRLImpl newX509DeltaCRL = null;
+                CMS.debug("CRLIssuingPoing: generating delta CRL");
 
-                try {
-                    mSplits[2] -= System.currentTimeMillis();
-                    byte[] newDeltaCRL;
-
-                    // #56123 - dont generate CRL if no revoked certificates
-                    if (mConfigStore.getBoolean("noCRLIfNoRevokedCert", false)) {
-                        if (deltaCRLCerts.size() == 0) {
-                            CMS.debug("CRLIssuingPoint: No Revoked Certificates Found And noCRLIfNoRevokedCert is set to true - No Delta CRL Generated");
-                            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR",
-                                    "No Revoked Certificates"));
-                        }
-                    }
-                    X509CRLImpl crl = new X509CRLImpl(mCA.getCRLX500Name(),
-                            AlgorithmId.get(signingAlgorithm),
-                            thisUpdate, nextDeltaUpdate, deltaCRLCerts, ext);
-
-                    newX509DeltaCRL = mCA.sign(crl, signingAlgorithm);
-                    newDeltaCRL = newX509DeltaCRL.getEncoded();
-                    mSplits[2] += System.currentTimeMillis();
-
-                    mSplits[3] -= System.currentTimeMillis();
-                    mCRLRepository.updateDeltaCRL(mId, mNextDeltaCRLNumber,
-                              Long.valueOf(deltaCRLCerts.size()), mNextDeltaUpdate, newDeltaCRL);
-                    mSplits[3] += System.currentTimeMillis();
-
-                    mDeltaCRLSize = deltaCRLCerts.size();
-
-                    long totalTime = 0;
-                    StringBuffer splitTimes = new StringBuffer("  (");
-                    for (int i = 1; i < mSplits.length && i < 5; i++) {
-                        totalTime += mSplits[i];
-                        if (i > 1)
-                            splitTimes.append(",");
-                        splitTimes.append(String.valueOf(mSplits[i]));
-                    }
-                    splitTimes.append(")");
-                    mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
-                            AuditFormat.LEVEL,
-                            CMS.getLogMessage("CMSCORE_CA_CA_DELTA_CRL_UPDATED"),
-                            new Object[] {
-                                    getId(),
-                                    getNextCRLNumber(),
-                                    getCRLNumber(),
-                                    getLastUpdate(),
-                                    getNextDeltaUpdate(),
-                                    Long.toString(mDeltaCRLSize),
-                                    Long.toString(totalTime) + splitTimes.toString()
-                            }
-                            );
-                } catch (EBaseException e) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_OR_STORE_DELTA", e.toString()));
-                    mDeltaCRLSize = -1;
-                } catch (NoSuchAlgorithmException e) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_DELTA", e.toString()));
-                    mDeltaCRLSize = -1;
-                } catch (CRLException e) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_DELTA", e.toString()));
-                    mDeltaCRLSize = -1;
-                } catch (X509ExtensionException e) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_DELTA", e.toString()));
-                    mDeltaCRLSize = -1;
-                } catch (OutOfMemoryError e) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_DELTA", e.toString()));
-                    mDeltaCRLSize = -1;
-                }
+                X509CRLImpl newX509DeltaCRL = generateDeltaCRL(
+                        deltaCRLCerts, signingAlgorithm, thisUpdate, nextDeltaUpdate, ext);
 
                 try {
                     mSplits[4] -= System.currentTimeMillis();
@@ -2962,6 +2899,92 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         }
 
         return ext;
+    }
+
+    X509CRLImpl generateDeltaCRL(
+            Hashtable<BigInteger, RevokedCertificate> deltaCRLCerts,
+            String signingAlgorithm,
+            Date thisUpdate,
+            Date nextDeltaUpdate,
+            CRLExtensions ext) {
+
+        X509CRLImpl newX509DeltaCRL = null;
+
+        try {
+            mSplits[2] -= System.currentTimeMillis();
+
+            // #56123 - dont generate CRL if no revoked certificates
+            if (mConfigStore.getBoolean("noCRLIfNoRevokedCert", false)) {
+                if (deltaCRLCerts.size() == 0) {
+                    CMS.debug("CRLIssuingPoint: No Revoked Certificates Found And noCRLIfNoRevokedCert is set to true - No Delta CRL Generated");
+                    throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR",
+                            "No Revoked Certificates"));
+                }
+            }
+
+            X509CRLImpl crl = new X509CRLImpl(mCA.getCRLX500Name(),
+                    AlgorithmId.get(signingAlgorithm),
+                    thisUpdate, nextDeltaUpdate, deltaCRLCerts, ext);
+
+            newX509DeltaCRL = mCA.sign(crl, signingAlgorithm);
+
+            byte[] newDeltaCRL = newX509DeltaCRL.getEncoded();
+
+            mSplits[2] += System.currentTimeMillis();
+
+            mSplits[3] -= System.currentTimeMillis();
+            mCRLRepository.updateDeltaCRL(mId, mNextDeltaCRLNumber,
+                      Long.valueOf(deltaCRLCerts.size()), mNextDeltaUpdate, newDeltaCRL);
+            mSplits[3] += System.currentTimeMillis();
+
+            mDeltaCRLSize = deltaCRLCerts.size();
+
+            long totalTime = 0;
+            StringBuffer splitTimes = new StringBuffer("  (");
+            for (int i = 1; i < mSplits.length && i < 5; i++) {
+                totalTime += mSplits[i];
+                if (i > 1)
+                    splitTimes.append(",");
+                splitTimes.append(String.valueOf(mSplits[i]));
+            }
+            splitTimes.append(")");
+
+            mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
+                    AuditFormat.LEVEL,
+                    CMS.getLogMessage("CMSCORE_CA_CA_DELTA_CRL_UPDATED"),
+                    new Object[] {
+                            getId(),
+                            getNextCRLNumber(),
+                            getCRLNumber(),
+                            getLastUpdate(),
+                            getNextDeltaUpdate(),
+                            Long.toString(mDeltaCRLSize),
+                            Long.toString(totalTime) + splitTimes.toString()
+                    }
+            );
+
+        } catch (EBaseException e) {
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_OR_STORE_DELTA", e.toString()));
+            mDeltaCRLSize = -1;
+
+        } catch (NoSuchAlgorithmException e) {
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_DELTA", e.toString()));
+            mDeltaCRLSize = -1;
+
+        } catch (CRLException e) {
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_DELTA", e.toString()));
+            mDeltaCRLSize = -1;
+
+        } catch (X509ExtensionException e) {
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_DELTA", e.toString()));
+            mDeltaCRLSize = -1;
+
+        } catch (OutOfMemoryError e) {
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_DELTA", e.toString()));
+            mDeltaCRLSize = -1;
+        }
+
+        return newX509DeltaCRL;
     }
 
     /**
