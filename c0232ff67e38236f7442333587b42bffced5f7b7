@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "af44bd12_c9cebd9d",
+        "filename": "base/server/cms/src/com/netscape/cms/profile/common/CAEnrollProfile.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-05-24T14:29:30Z",
+      "side": 1,
+      "message": "toString() is redundant. It will be invoked automatically in string concatenation.",
+      "range": {
+        "startLine": 89,
+        "startChar": 68,
+        "endLine": 89,
+        "endChar": 79
+      },
+      "revId": "c0232ff67e38236f7442333587b42bffced5f7b7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
