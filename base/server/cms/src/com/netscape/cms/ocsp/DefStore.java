@@ -535,23 +535,26 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
                     }
                 }
 
-            } else {
-                CMS.debug("DefStore: evaluating x509 crl impl");
-                X509CRLEntry crlentry = theCRL.getRevokedCertificate(new BigInteger(serialNo.toString()));
-
-                if (crlentry == null) {
-                    // good or unknown
-                    if (isNotFoundGood()) {
-                        certStatus = new GoodInfo();
-                    } else {
-                        certStatus = new UnknownInfo();
-                    }
-                } else {
-                    certStatus = new RevokedInfo(new GeneralizedTime(
-                                    crlentry.getRevocationDate()));
-
-                }
+                return new SingleResponse(cid, certStatus, thisUpdate,
+                        nextUpdate);
             }
+
+            CMS.debug("DefStore: evaluating x509 crl impl");
+            X509CRLEntry crlentry = theCRL.getRevokedCertificate(new BigInteger(serialNo.toString()));
+
+            if (crlentry == null) {
+                // good or unknown
+                if (isNotFoundGood()) {
+                    certStatus = new GoodInfo();
+                } else {
+                    certStatus = new UnknownInfo();
+                }
+            } else {
+                certStatus = new RevokedInfo(new GeneralizedTime(
+                                crlentry.getRevocationDate()));
+
+            }
+
             return new SingleResponse(cid, certStatus, thisUpdate,
                     nextUpdate);
 
