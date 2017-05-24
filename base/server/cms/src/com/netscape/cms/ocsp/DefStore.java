@@ -499,16 +499,18 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
                 thisUpdate = new GeneralizedTime(
                             theRec.getThisUpdate());
             }
-            GeneralizedTime nextUpdate = null;
 
-            if (includeNextUpdate()) {
-                // this is an optional field
-                if (theRec == null) {
-                    nextUpdate = new GeneralizedTime(CMS.getCurrentDate());
-                } else {
-                    nextUpdate = new GeneralizedTime(
-                                theRec.getNextUpdate());
-                }
+            // this is an optional field
+            GeneralizedTime nextUpdate;
+
+            if (!includeNextUpdate()) {
+                nextUpdate = null;
+
+            } else if (theRec == null) {
+                nextUpdate = new GeneralizedTime(CMS.getCurrentDate());
+
+            } else {
+                nextUpdate = new GeneralizedTime(theRec.getNextUpdate());
             }
 
             if (theCRL == null) {
