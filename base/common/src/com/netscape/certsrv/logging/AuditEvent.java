@@ -166,14 +166,6 @@ public class AuditEvent implements IBundleLogEvent {
 
     public final static String KEY_STATUS_CHANGE =
             "LOGGING_SIGNED_AUDIT_KEY_STATUS_CHANGE_6";
-    public final static String SYMKEY_GENERATION_REQUEST_PROCESSED =
-            "LOGGING_SIGNED_AUDIT_SYMKEY_GEN_REQUEST_PROCESSED_6";
-    public static final String SYMKEY_GENERATION_REQUEST =
-            "LOGGING_SIGNED_AUDIT_SYMKEY_GENERATION_REQUEST_4";
-    public static final String ASYMKEY_GENERATION_REQUEST =
-            "LOGGING_SIGNED_AUDIT_ASYMKEY_GENERATION_REQUEST_4";
-    public final static String ASYMKEY_GENERATION_REQUEST_PROCESSED =
-            "LOGGING_SIGNED_AUDIT_ASYMKEY_GEN_REQUEST_PROCESSED_6";
 
     public final static String TOKEN_CERT_ENROLLMENT =
             "LOGGING_SIGNED_AUDIT_TOKEN_CERT_ENROLLMENT_9";

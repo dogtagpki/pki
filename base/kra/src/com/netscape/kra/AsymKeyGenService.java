@@ -28,11 +28,13 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.certsrv.dbs.keydb.IKeyRepository;
+import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.key.AsymKeyGenerationRequest;
 import com.netscape.certsrv.key.KeyRequestResource;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.event.AsymKeyGenerationProcessedEvent;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.RequestId;
@@ -144,8 +146,8 @@ public class AsymKeyGenService implements IService {
         } catch (EBaseException e) {
             CMS.debugStackTrace();
             auditAsymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
-                    clientKeyId, null, "Failed to generate Asymmetric key");
-            throw new EBaseException("Errors in generating Asymmetric key: " + e);
+                    clientKeyId, null, "Failed to generate asymmetric key: " + e.getMessage());
+            throw new EBaseException("Errors in generating Asymmetric key: " + e, e);
         }
 
         if (kp == null) {
@@ -205,7 +207,7 @@ public class AsymKeyGenService implements IService {
         storage.addKeyRecord(record);
 
         auditAsymKeyGenRequestProcessed(auditSubjectID, ILogger.SUCCESS, request.getRequestId(),
-                clientKeyId, serialNo.toString(), "None");
+                clientKeyId, new KeyId(serialNo), "None");
         request.setExtData(IRequest.RESULT, IRequest.RES_SUCCESS);
         kra.getRequestQueue().updateRequest(request);
         return true;
@@ -234,15 +236,13 @@ public class AsymKeyGenService implements IService {
 
     private void auditAsymKeyGenRequestProcessed(String subjectID, String status, RequestId requestID,
             String clientKeyID,
-            String keyID, String reason) {
-        String auditMessage = CMS.getLogMessage(
-                AuditEvent.ASYMKEY_GENERATION_REQUEST_PROCESSED,
+            KeyId keyID, String reason) {
+        audit(new AsymKeyGenerationProcessedEvent(
                 subjectID,
                 status,
-                requestID.toString(),
+                requestID,
                 clientKeyID,
-                keyID != null ? keyID : "None",
-                reason);
-        audit(auditMessage);
+                keyID,
+                reason));
     }
 }

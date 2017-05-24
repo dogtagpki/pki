@@ -48,11 +48,12 @@ import com.netscape.certsrv.key.KeyRequestInfoCollection;
 import com.netscape.certsrv.key.KeyRequestResource;
 import com.netscape.certsrv.key.KeyRequestResponse;
 import com.netscape.certsrv.key.SymKeyGenerationRequest;
-import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.event.AsymKeyGenerationEvent;
 import com.netscape.certsrv.logging.event.SecurityDataArchivalEvent;
 import com.netscape.certsrv.logging.event.SecurityDataRecoveryEvent;
 import com.netscape.certsrv.logging.event.SecurityDataRecoveryStateChangeEvent;
+import com.netscape.certsrv.logging.event.SymKeyGenerationEvent;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestNotFoundException;
 import com.netscape.cms.realm.PKIPrincipal;
@@ -363,23 +364,19 @@ public class KeyRequestService extends SubsystemService implements KeyRequestRes
     }
 
     public void auditSymKeyGenRequestMade(RequestId requestId, String status, String clientKeyID) {
-        String msg = CMS.getLogMessage(
-                AuditEvent.SYMKEY_GENERATION_REQUEST,
+        audit(new SymKeyGenerationEvent(
                 getRequestor(),
                 status,
-                requestId != null ? requestId.toString() : "null",
-                clientKeyID);
-        auditor.log(msg);
+                requestId,
+                clientKeyID));
     }
 
     public void auditAsymKeyGenRequestMade(RequestId requestId, String status, String clientKeyID) {
-        String msg = CMS.getLogMessage(
-                AuditEvent.ASYMKEY_GENERATION_REQUEST,
+        audit(new AsymKeyGenerationEvent(
                 getRequestor(),
                 status,
-                requestId != null ? requestId.toString() : "null",
-                clientKeyID);
-        auditor.log(msg);
+                requestId,
+                clientKeyID));
     }
 
     @Override

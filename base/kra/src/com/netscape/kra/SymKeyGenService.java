@@ -32,11 +32,13 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.certsrv.dbs.keydb.IKeyRepository;
+import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.key.KeyRequestResource;
 import com.netscape.certsrv.key.SymKeyGenerationRequest;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.event.SymKeyGenerationProcessedEvent;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.RequestId;
@@ -232,7 +234,7 @@ public class SymKeyGenService implements IService {
         storage.addKeyRecord(rec);
 
         auditSymKeyGenRequestProcessed(auditSubjectID, ILogger.SUCCESS, request.getRequestId(),
-                clientKeyId, serialNo.toString(), "None");
+                clientKeyId, new KeyId(serialNo), "None");
 
         request.setExtData(IRequest.RESULT, IRequest.RES_SUCCESS);
         mKRA.getRequestQueue().updateRequest(request);
@@ -262,15 +264,13 @@ public class SymKeyGenService implements IService {
     }
 
     private void auditSymKeyGenRequestProcessed(String subjectID, String status, RequestId requestID, String clientKeyID,
-            String keyID, String reason) {
-        String auditMessage = CMS.getLogMessage(
-                AuditEvent.SYMKEY_GENERATION_REQUEST_PROCESSED,
+            KeyId keyID, String reason) {
+        audit(new SymKeyGenerationProcessedEvent(
                 subjectID,
                 status,
-                requestID.toString(),
+                requestID,
                 clientKeyID,
-                keyID != null ? keyID : "None",
-                reason);
-        audit(auditMessage);
+                keyID,
+                reason));
     }
 }
