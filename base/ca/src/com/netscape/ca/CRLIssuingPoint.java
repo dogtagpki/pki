@@ -2728,140 +2728,20 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             mSplits[6] += System.currentTimeMillis();
             // for audit log
 
-            X509CRLImpl newX509CRL;
+            CMS.debug("CRLIssuingPoint: generating full CRL");
 
-            try {
-                byte[] newCRL;
-
-                CMS.debug("Making CRL with algorithm " +
-                        signingAlgorithm + " " + AlgorithmId.get(signingAlgorithm));
-
-                mSplits[7] -= System.currentTimeMillis();
-
-                // #56123 - dont generate CRL if no revoked certificates
-                if (mConfigStore.getBoolean("noCRLIfNoRevokedCert", false)) {
-                    if (mCRLCerts.size() == 0) {
-                        CMS.debug("CRLIssuingPoint: No Revoked Certificates Found And noCRLIfNoRevokedCert is set to true - No CRL Generated");
-                        throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR",
-                                "No Revoked Certificates"));
-                    }
-                }
-                CMS.debug("before new X509CRLImpl");
-                X509CRLImpl crl = new X509CRLImpl(mCA.getCRLX500Name(),
-                        AlgorithmId.get(signingAlgorithm),
-                        thisUpdate, nextUpdate, mCRLCerts, ext);
-
-                CMS.debug("before sign");
-                newX509CRL = mCA.sign(crl, signingAlgorithm);
-
-                CMS.debug("before getEncoded()");
-                newCRL = newX509CRL.getEncoded();
-                CMS.debug("after getEncoded()");
-                mSplits[7] += System.currentTimeMillis();
-
-                mSplits[8] -= System.currentTimeMillis();
-
-                Date nextUpdateDate = mNextUpdate;
-                if (isDeltaCRLEnabled() && (mUpdateSchema > 1 ||
-                        (mEnableDailyUpdates && mExtendedTimeList)) && mNextDeltaUpdate != null) {
-                    nextUpdateDate = mNextDeltaUpdate;
-                }
-                if (mSaveMemory) {
-                    mCRLRepository.updateCRLIssuingPointRecord(
-                            mId, newCRL, thisUpdate, nextUpdateDate,
-                            mNextCRLNumber, Long.valueOf(mCRLCerts.size()));
-                    updateCRLCacheRepository();
-                } else {
-                    mCRLRepository.updateCRLIssuingPointRecord(
-                            mId, newCRL, thisUpdate, nextUpdateDate,
-                            mNextCRLNumber, Long.valueOf(mCRLCerts.size()),
-                            mRevokedCerts, mUnrevokedCerts, mExpiredCerts);
-                    mFirstUnsaved = ICRLIssuingPointRecord.CLEAN_CACHE;
-                }
-
-                mSplits[8] += System.currentTimeMillis();
-
-                mCRLSize = mCRLCerts.size();
-                mCRLNumber = mNextCRLNumber;
-                mDeltaCRLNumber = mCRLNumber;
-                mNextCRLNumber = mCRLNumber.add(BigInteger.ONE);
-                mNextDeltaCRLNumber = mNextCRLNumber;
-
-                CMS.debug("Logging CRL Update to transaction log");
-                long totalTime = 0;
-                long crlTime = 0;
-                long deltaTime = 0;
-                StringBuilder splitTimes = new StringBuilder("  (");
-                for (int i = 0; i < mSplits.length; i++) {
-                    totalTime += mSplits[i];
-                    if (i > 0 && i < 5) {
-                        deltaTime += mSplits[i];
-                    } else {
-                        crlTime += mSplits[i];
-                    }
-                    if (i > 0)
-                        splitTimes.append(",");
-                    splitTimes.append(mSplits[i]);
-                }
-                splitTimes.append(String.format(",%d,%d,%d)",deltaTime,crlTime,totalTime));
-                mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
-                            AuditFormat.LEVEL,
-                            CMS.getLogMessage("CMSCORE_CA_CA_CRL_UPDATED"),
-                            new Object[] {
-                                    getId(),
-                                    getCRLNumber(),
-                                    getLastUpdate(),
-                                    getNextUpdate(),
-                                    Long.toString(mCRLSize),
-                                    Long.toString(totalTime),
-                                    Long.toString(crlTime),
-                                    Long.toString(deltaTime) + splitTimes
-                            }
-                           );
-                CMS.debug("Finished Logging CRL Update to transaction log");
-
-            } catch (EBaseException e) {
-                newX509CRL = null;
-                mUpdatingCRL = CRL_UPDATE_DONE;
-                if (Debug.on())
-                    Debug.printStackTrace(e);
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_OR_STORE_CRL", e.toString()));
-                throw new ECAException(CMS.getUserMessage("CMS_CA_FAILED_CONSTRUCTING_CRL", e.toString()));
-            } catch (NoSuchAlgorithmException e) {
-                newX509CRL = null;
-                mUpdatingCRL = CRL_UPDATE_DONE;
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_CRL", e.toString()));
-                throw new ECAException(CMS.getUserMessage("CMS_CA_FAILED_CONSTRUCTING_CRL", e.toString()));
-            } catch (CRLException e) {
-                newX509CRL = null;
-                mUpdatingCRL = CRL_UPDATE_DONE;
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_CRL", e.toString()));
-                throw new ECAException(CMS.getUserMessage("CMS_CA_FAILED_CONSTRUCTING_CRL", e.toString()));
-            } catch (X509ExtensionException e) {
-                newX509CRL = null;
-                mUpdatingCRL = CRL_UPDATE_DONE;
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_CRL", e.toString()));
-                throw new ECAException(CMS.getUserMessage("CMS_CA_FAILED_CONSTRUCTING_CRL", e.toString()));
-            } catch (OutOfMemoryError e) {
-                newX509CRL = null;
-                mUpdatingCRL = CRL_UPDATE_DONE;
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_CRL", e.toString()));
-                throw new ECAException(CMS.getUserMessage("CMS_CA_FAILED_CONSTRUCTING_CRL", e.toString()));
-            }
+            X509CRLImpl newX509CRL = generateFullCRL(signingAlgorithm, thisUpdate, nextUpdate, ext);
 
             try {
                 mSplits[9] -= System.currentTimeMillis();
                 mUpdatingCRL = CRL_PUBLISHING_STARTED;
                 publishCRL(newX509CRL);
-                newX509CRL = null;
                 mSplits[9] += System.currentTimeMillis();
             } catch (EBaseException e) {
-                newX509CRL = null;
                 mUpdatingCRL = CRL_UPDATE_DONE;
                 log(ILogger.LL_FAILURE,
                         CMS.getLogMessage("CMSCORE_CA_ISSUING_PUBLISH_CRL", mCRLNumber.toString(), e.toString()));
             } catch (OutOfMemoryError e) {
-                newX509CRL = null;
                 mUpdatingCRL = CRL_UPDATE_DONE;
                 log(ILogger.LL_FAILURE,
                         CMS.getLogMessage("CMSCORE_CA_ISSUING_PUBLISH_CRL", mCRLNumber.toString(), e.toString()));
@@ -2985,6 +2865,136 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         }
 
         return newX509DeltaCRL;
+    }
+
+    X509CRLImpl generateFullCRL(
+            String signingAlgorithm,
+            Date thisUpdate,
+            Date nextUpdate,
+            CRLExtensions ext) throws EBaseException {
+
+        try {
+            CMS.debug("Making CRL with algorithm " +
+                    signingAlgorithm + " " + AlgorithmId.get(signingAlgorithm));
+
+            mSplits[7] -= System.currentTimeMillis();
+
+            // #56123 - dont generate CRL if no revoked certificates
+            if (mConfigStore.getBoolean("noCRLIfNoRevokedCert", false)) {
+                if (mCRLCerts.size() == 0) {
+                    CMS.debug("CRLIssuingPoint: No Revoked Certificates Found And noCRLIfNoRevokedCert is set to true - No CRL Generated");
+                    throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR",
+                            "No Revoked Certificates"));
+                }
+            }
+
+            CMS.debug("CRLIssuingPoint: creating CRL object");
+            X509CRLImpl crl = new X509CRLImpl(mCA.getCRLX500Name(),
+                    AlgorithmId.get(signingAlgorithm),
+                    thisUpdate, nextUpdate, mCRLCerts, ext);
+
+            CMS.debug("CRLIssuingPoint: signing CRL");
+            X509CRLImpl newX509CRL = mCA.sign(crl, signingAlgorithm);
+
+            CMS.debug("CRLIssuingPoint: encoding CRL");
+            byte[] newCRL = newX509CRL.getEncoded();
+
+            mSplits[7] += System.currentTimeMillis();
+
+            mSplits[8] -= System.currentTimeMillis();
+
+            Date nextUpdateDate = mNextUpdate;
+            if (isDeltaCRLEnabled() && (mUpdateSchema > 1 ||
+                    (mEnableDailyUpdates && mExtendedTimeList)) && mNextDeltaUpdate != null) {
+                nextUpdateDate = mNextDeltaUpdate;
+            }
+
+            if (mSaveMemory) {
+                mCRLRepository.updateCRLIssuingPointRecord(
+                        mId, newCRL, thisUpdate, nextUpdateDate,
+                        mNextCRLNumber, Long.valueOf(mCRLCerts.size()));
+                updateCRLCacheRepository();
+
+            } else {
+                mCRLRepository.updateCRLIssuingPointRecord(
+                        mId, newCRL, thisUpdate, nextUpdateDate,
+                        mNextCRLNumber, Long.valueOf(mCRLCerts.size()),
+                        mRevokedCerts, mUnrevokedCerts, mExpiredCerts);
+                mFirstUnsaved = ICRLIssuingPointRecord.CLEAN_CACHE;
+            }
+
+            mSplits[8] += System.currentTimeMillis();
+
+            mCRLSize = mCRLCerts.size();
+            mCRLNumber = mNextCRLNumber;
+            mDeltaCRLNumber = mCRLNumber;
+            mNextCRLNumber = mCRLNumber.add(BigInteger.ONE);
+            mNextDeltaCRLNumber = mNextCRLNumber;
+
+            CMS.debug("CRLIssuingPoint: Logging CRL Update to transaction log");
+            long totalTime = 0;
+            long crlTime = 0;
+            long deltaTime = 0;
+            StringBuilder splitTimes = new StringBuilder("  (");
+            for (int i = 0; i < mSplits.length; i++) {
+                totalTime += mSplits[i];
+                if (i > 0 && i < 5) {
+                    deltaTime += mSplits[i];
+                } else {
+                    crlTime += mSplits[i];
+                }
+                if (i > 0)
+                    splitTimes.append(",");
+                splitTimes.append(mSplits[i]);
+            }
+            splitTimes.append(String.format(",%d,%d,%d)",deltaTime,crlTime,totalTime));
+
+            mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
+                        AuditFormat.LEVEL,
+                        CMS.getLogMessage("CMSCORE_CA_CA_CRL_UPDATED"),
+                        new Object[] {
+                                getId(),
+                                getCRLNumber(),
+                                getLastUpdate(),
+                                getNextUpdate(),
+                                Long.toString(mCRLSize),
+                                Long.toString(totalTime),
+                                Long.toString(crlTime),
+                                Long.toString(deltaTime) + splitTimes
+                        }
+            );
+
+            CMS.debug("CRLIssuingPoint: Finished Logging CRL Update to transaction log");
+
+            return newX509CRL;
+
+        } catch (EBaseException e) {
+            mUpdatingCRL = CRL_UPDATE_DONE;
+            if (Debug.on())
+                Debug.printStackTrace(e);
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_OR_STORE_CRL", e.toString()));
+            throw new ECAException(CMS.getUserMessage("CMS_CA_FAILED_CONSTRUCTING_CRL", e.toString()));
+
+        } catch (NoSuchAlgorithmException e) {
+            mUpdatingCRL = CRL_UPDATE_DONE;
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_CRL", e.toString()));
+            throw new ECAException(CMS.getUserMessage("CMS_CA_FAILED_CONSTRUCTING_CRL", e.toString()));
+
+        } catch (CRLException e) {
+            mUpdatingCRL = CRL_UPDATE_DONE;
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_CRL", e.toString()));
+            throw new ECAException(CMS.getUserMessage("CMS_CA_FAILED_CONSTRUCTING_CRL", e.toString()));
+
+        } catch (X509ExtensionException e) {
+            mUpdatingCRL = CRL_UPDATE_DONE;
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_CRL", e.toString()));
+            throw new ECAException(CMS.getUserMessage("CMS_CA_FAILED_CONSTRUCTING_CRL", e.toString()));
+
+        } catch (OutOfMemoryError e) {
+            mUpdatingCRL = CRL_UPDATE_DONE;
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_CRL", e.toString()));
+            throw new ECAException(CMS.getUserMessage("CMS_CA_FAILED_CONSTRUCTING_CRL", e.toString()));
+        }
     }
 
     /**
