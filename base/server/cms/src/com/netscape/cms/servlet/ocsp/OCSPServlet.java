@@ -198,16 +198,19 @@ public class OCSPServlet extends CMSServlet {
                     throw new Exception("OCSPServlet: OCSP request is "
                                        + "empty or malformed");
                 }
+
                 ocspReq = (OCSPRequest) reqTemplate.decode(is);
+
                 if ((ocspReq == null) ||
                         (ocspReq.toString().equals(""))) {
                     throw new Exception("OCSPServlet: Decoded OCSP request "
                                        + "is empty or malformed");
                 }
+
                 response = ((IOCSPService) mAuthority).validate(ocspReq);
+
             } catch (Exception e) {
-                ;
-                CMS.debug("OCSPServlet: " + e.toString());
+                CMS.debug(e);
             }
 
             if (response != null) {

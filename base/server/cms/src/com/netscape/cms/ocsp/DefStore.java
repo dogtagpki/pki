@@ -409,8 +409,9 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
             long endTime = CMS.getCurrentDate().getTime();
             mOCSPAuthority.incTotalTime(endTime - startTime);
             return response;
+
         } catch (Exception e) {
-            CMS.debug("DefStore: validation failed " + e.toString());
+            CMS.debug(e);
             log(ILogger.LL_FAILURE, CMS.getLogMessage("OCSP_REQUEST_FAILURE", e.toString()));
             return null;
         }
@@ -449,6 +450,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
                         log(ILogger.LL_FAILURE, CMS.getLogMessage("OCSP_DECODE_CERT", e.toString()));
                         return null;
                     }
+
                     MessageDigest md = MessageDigest.getInstance(cid.getDigestName());
                     X509Key key = (X509Key) cert.getPublicKey();
                     byte digest[] = md.digest(key.getKey());
@@ -474,6 +476,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
                         break;
                     }
                 }
+
             } else {
                 theCert = matched.getX509CertImpl();
                 theRec = matched.getCRLIssuingPointRecord();
@@ -490,15 +493,18 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
 
             log(ILogger.EV_AUDIT, AuditFormat.LEVEL, "Checked Status of certificate 0x" + serialNo.toString(16));
             CMS.debug("DefStore: process request 0x" + serialNo.toString(16));
-            CertStatus certStatus = null;
-            GeneralizedTime thisUpdate = null;
+
+            GeneralizedTime thisUpdate;
 
             if (theRec == null) {
                 thisUpdate = new GeneralizedTime(CMS.getCurrentDate());
             } else {
-                thisUpdate = new GeneralizedTime(
-                            theRec.getThisUpdate());
+                Date d = theRec.getThisUpdate();
+                CMS.debug("DefStore: CRL record this update: " + d);
+                thisUpdate = new GeneralizedTime(d);
             }
+
+            CMS.debug("DefStore: this update: " + thisUpdate.toDate());
 
             // this is an optional field
             GeneralizedTime nextUpdate;
@@ -510,8 +516,14 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
                 nextUpdate = new GeneralizedTime(CMS.getCurrentDate());
 
             } else {
-                nextUpdate = new GeneralizedTime(theRec.getNextUpdate());
+                Date d = theRec.getNextUpdate();
+                CMS.debug("DefStore: CRL record next update: " + d);
+                nextUpdate = new GeneralizedTime(d);
             }
+
+            CMS.debug("DefStore: next update: " + (nextUpdate == null ? null : nextUpdate.toDate()));
+
+            CertStatus certStatus;
 
             if (theCRL == null) {
                 certStatus = new UnknownInfo();
@@ -551,10 +563,10 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
                 } else {
                     certStatus = new UnknownInfo();
                 }
+
             } else {
                 certStatus = new RevokedInfo(new GeneralizedTime(
                                 crlentry.getRevocationDate()));
-
             }
 
             return new SingleResponse(cid, certStatus, thisUpdate,
@@ -564,6 +576,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
             // error log
             CMS.debug("DefStore: failed processing request e=" + e);
         }
+
         return null;
     }
 
