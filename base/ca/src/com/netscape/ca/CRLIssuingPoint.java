@@ -2630,17 +2630,8 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
                 mLastCRLNumber = mCRLNumber;
 
-                CRLExtensions ext = new CRLExtensions();
-                Vector<String> extNames = mCMSCRLExtensions.getCRLExtensionNames();
+                CRLExtensions ext = generateCRLExtensions(FreshestCRLExtension.NAME);
 
-                for (int i = 0; i < extNames.size(); i++) {
-                    String extName = extNames.elementAt(i);
-
-                    if (mCMSCRLExtensions.isCRLExtensionEnabled(extName) &&
-                            (!extName.equals(FreshestCRLExtension.NAME))) {
-                        mCMSCRLExtensions.addToCRLExtensions(ext, extName, null);
-                    }
-                }
                 mSplits[1] += System.currentTimeMillis();
 
                 X509CRLImpl newX509DeltaCRL = null;
@@ -2791,20 +2782,11 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                 mNextCRLNumber = mNextDeltaCRLNumber;
             }
 
-            CRLExtensions ext = null;
-
+            CRLExtensions ext;
             if (mAllowExtensions) {
-                ext = new CRLExtensions();
-                Vector<String> extNames = mCMSCRLExtensions.getCRLExtensionNames();
-
-                for (int i = 0; i < extNames.size(); i++) {
-                    String extName = extNames.elementAt(i);
-
-                    if (mCMSCRLExtensions.isCRLExtensionEnabled(extName) &&
-                            (!extName.equals(DeltaCRLIndicatorExtension.NAME))) {
-                        mCMSCRLExtensions.addToCRLExtensions(ext, extName, null);
-                    }
-                }
+                ext = generateCRLExtensions(DeltaCRLIndicatorExtension.NAME);
+            } else {
+                ext = null;
             }
             mSplits[6] += System.currentTimeMillis();
             // for audit log
@@ -2963,6 +2945,23 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
         mUpdatingCRL = CRL_UPDATE_DONE;
         notifyAll();
+    }
+
+    CRLExtensions generateCRLExtensions(String excludedExtension) {
+
+        CRLExtensions ext = new CRLExtensions();
+        Vector<String> extNames = mCMSCRLExtensions.getCRLExtensionNames();
+
+        for (int i = 0; i < extNames.size(); i++) {
+            String extName = extNames.elementAt(i);
+
+            if (extName.equals(excludedExtension)) continue;
+            if (!mCMSCRLExtensions.isCRLExtensionEnabled(extName)) continue;
+
+            mCMSCRLExtensions.addToCRLExtensions(ext, extName, null);
+        }
+
+        return ext;
     }
 
     /**
