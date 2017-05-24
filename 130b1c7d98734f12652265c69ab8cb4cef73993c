@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9533e02d_bfb8e097",
+        "filename": "base/ca/src/com/netscape/ca/CRLIssuingPoint.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 2504,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-05-24T15:00:15Z",
+      "side": 1,
+      "message": "In this case, if CRL generation is not enabled, then this method will return success and a audit log indicating that a CRL had been generated will be written.  That can\u0027t be right ..",
+      "revId": "130b1c7d98734f12652265c69ab8cb4cef73993c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
