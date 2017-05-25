@@ -197,7 +197,7 @@ public class AsymKeyGenService implements IService {
         }
 
         try {
-            record.setWrappingParams(params, false);
+            record.setWrappingParams(params, allowEncDecrypt_archival);
         } catch (Exception e) {
             auditAsymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
                     clientKeyId, null, "Failed to store wrapping params");

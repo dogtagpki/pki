@@ -477,7 +477,7 @@ public class NetkeyKeygenService implements IService {
                         return false;
                     }
 
-                    rec.setWrappingParams(params, false);
+                    rec.setWrappingParams(params, allowEncDecrypt_archival);
 
                     CMS.debug("NetkeyKeygenService: before addKeyRecord");
                     rec.set(KeyRecord.ATTR_ID, serialNo);
