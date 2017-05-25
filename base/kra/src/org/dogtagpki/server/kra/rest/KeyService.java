@@ -60,12 +60,12 @@ import com.netscape.certsrv.key.KeyRecoveryRequest;
 import com.netscape.certsrv.key.KeyResource;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.kra.IKeyService;
-import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.SecurityDataExportEvent;
 import com.netscape.certsrv.logging.event.SecurityDataInfoEvent;
 import com.netscape.certsrv.logging.event.SecurityDataRecoveryEvent;
 import com.netscape.certsrv.logging.event.SecurityDataRecoveryProcessedEvent;
+import com.netscape.certsrv.logging.event.SecurityDataStatusChangeEvent;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
@@ -657,17 +657,15 @@ public class KeyService extends SubsystemService implements KeyResource {
         auditKeyInfo(keyId, clientKeyId, ILogger.FAILURE, message);
     }
 
-    public void auditKeyStatusChange(String status, String keyID, String oldKeyStatus,
+    public void auditKeyStatusChange(String status, KeyId keyID, String oldKeyStatus,
             String newKeyStatus, String info) {
-        String msg = CMS.getLogMessage(
-                AuditEvent.KEY_STATUS_CHANGE,
+        audit(new SecurityDataStatusChangeEvent(
                 servletRequest.getUserPrincipal().getName(),
                 status,
                 keyID,
                 oldKeyStatus,
                 newKeyStatus,
-                info);
-        auditor.log(msg);
+                info));
     }
 
     public void auditRecoveryRequest(String status) {
@@ -809,20 +807,20 @@ public class KeyService extends SubsystemService implements KeyResource {
             mods.add(IKeyRecord.ATTR_STATUS, Modification.MOD_REPLACE,
                     status);
             repo.modifyKeyRecord(keyId.toBigInteger(), mods);
-            auditKeyStatusChange(ILogger.SUCCESS, keyId.toString(),
+            auditKeyStatusChange(ILogger.SUCCESS, keyId,
                     (info!=null)?info.getStatus():null, status, auditInfo);
 
             return createNoContentResponse();
         } catch (EDBRecordNotFoundException e) {
             auditInfo = auditInfo + ":" + e.getMessage();
             CMS.debug(auditInfo);
-            auditKeyStatusChange(ILogger.FAILURE, keyId.toString(),
+            auditKeyStatusChange(ILogger.FAILURE, keyId,
                     (info!=null)?info.getStatus():null, status, auditInfo);
             throw new KeyNotFoundException(keyId, "key not found to modify", e);
         } catch (Exception e) {
             auditInfo = auditInfo + ":" + e.getMessage();
             CMS.debug(auditInfo);
-            auditKeyStatusChange(ILogger.FAILURE, keyId.toString(),
+            auditKeyStatusChange(ILogger.FAILURE, keyId,
                     (info!=null)?info.getStatus():null, status, auditInfo);
             e.printStackTrace();
             throw new PKIException(e.getMessage(), e);
