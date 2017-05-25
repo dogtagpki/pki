@@ -56,6 +56,7 @@ import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.DeltaCRLGenerationFailureEvent;
 import com.netscape.certsrv.logging.event.DeltaCRLGenerationSuccessEvent;
+import com.netscape.certsrv.logging.event.DeltaCRLPublishingEvent;
 import com.netscape.certsrv.publish.ILdapRule;
 import com.netscape.certsrv.publish.IPublisherProcessor;
 import com.netscape.certsrv.request.IRequest;
@@ -2829,14 +2830,13 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             publishCRL(newX509DeltaCRL, true);
             mSplits[4] += System.currentTimeMillis();
 
-        } catch (EBaseException e) {
+            audit(new DeltaCRLPublishingEvent(getAuditSubjectID(), mCRLNumber));
+
+        } catch (Throwable e) {
             CMS.debug(e);
             log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSCORE_CA_ISSUING_PUBLISH_DELTA", mCRLNumber.toString(), e.toString()));
-        } catch (OutOfMemoryError e) {
-            CMS.debug(e);
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_CA_ISSUING_PUBLISH_DELTA", mCRLNumber.toString(), e.toString()));
+            audit(new DeltaCRLPublishingEvent(getAuditSubjectID(), mCRLNumber, e.getMessage()));
         }
     }
 
