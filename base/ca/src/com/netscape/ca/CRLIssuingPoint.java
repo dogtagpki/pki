@@ -57,6 +57,7 @@ import com.netscape.certsrv.logging.event.DeltaCRLGenerationSuccessEvent;
 import com.netscape.certsrv.logging.event.DeltaCRLPublishingEvent;
 import com.netscape.certsrv.logging.event.FullCRLGenerationFailureEvent;
 import com.netscape.certsrv.logging.event.FullCRLGenerationSuccessEvent;
+import com.netscape.certsrv.logging.event.FullCRLPublishingEvent;
 import com.netscape.certsrv.publish.ILdapRule;
 import com.netscape.certsrv.publish.IPublisherProcessor;
 import com.netscape.certsrv.request.IRequest;
@@ -2976,16 +2977,15 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             publishCRL(newX509CRL);
             mSplits[9] += System.currentTimeMillis();
 
-        } catch (EBaseException e) {
+            audit(new FullCRLPublishingEvent(getAuditSubjectID(), mCRLNumber));
+
+        } catch (Throwable e) {
             CMS.debug(e);
             mUpdatingCRL = CRL_UPDATE_DONE;
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_CA_ISSUING_PUBLISH_CRL", mCRLNumber.toString(), e.toString()));
-        } catch (OutOfMemoryError e) {
-            CMS.debug(e);
-            mUpdatingCRL = CRL_UPDATE_DONE;
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_CA_ISSUING_PUBLISH_CRL", mCRLNumber.toString(), e.toString()));
+            String message = CMS.getLogMessage("CMSCORE_CA_ISSUING_PUBLISH_CRL", mCRLNumber.toString(), e.toString());
+            log(ILogger.LL_FAILURE, message);
+            audit(new FullCRLPublishingEvent(getAuditSubjectID(), mCRLNumber, e.getMessage()));
+            throw new ECAException(message, e);
         }
     }
 
