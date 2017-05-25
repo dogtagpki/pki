@@ -72,12 +72,6 @@ public class AuditEvent implements IBundleLogEvent {
     public final static String LOG_PATH_CHANGE =
             "LOGGING_SIGNED_AUDIT_LOG_PATH_CHANGE_4";
 
-    public final static String SERVER_SIDE_KEYGEN_REQUEST =
-            "LOGGING_SIGNED_AUDIT_SERVER_SIDE_KEYGEN_REQUEST_3";
-    public final static String SERVER_SIDE_KEYGEN_REQUEST_PROCESSED_SUCCESS =
-            "LOGGING_SIGNED_AUDIT_SERVER_SIDE_KEYGEN_REQUEST_PROCESSED_SUCCESS_4";
-    public final static String SERVER_SIDE_KEYGEN_REQUEST_PROCESSED_FAILURE =
-            "LOGGING_SIGNED_AUDIT_SERVER_SIDE_KEYGEN_REQUEST_PROCESSED_FAILURE_3";
     public final static String KEY_RECOVERY_AGENT_LOGIN =
             "LOGGING_SIGNED_AUDIT_KEY_RECOVERY_AGENT_LOGIN_4";
     public final static String KEY_GEN_ASYMMETRIC =
