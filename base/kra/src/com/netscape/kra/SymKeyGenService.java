@@ -221,7 +221,7 @@ public class SymKeyGenService implements IService {
         }
 
         try {
-            rec.setWrappingParams(params, false);
+            rec.setWrappingParams(params, allowEncDecrypt_archival);
         } catch (Exception e) {
             mKRA.log(ILogger.LL_FAILURE,
                     "Failed to store wrapping parameters: " + e);
