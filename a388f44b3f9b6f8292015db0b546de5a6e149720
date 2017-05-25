@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c863791b_3bc8a107",
+        "filename": "base/server/cmsbundle/src/LogMessages.properties",
+        "patchSetId": 1
+      },
+      "lineNbr": 1952,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-05-25T14:25:31Z",
+      "side": 0,
+      "message": "_SUCCESS should be removed.",
+      "range": {
+        "startLine": 1952,
+        "startChar": 59,
+        "endLine": 1952,
+        "endChar": 67
+      },
+      "revId": "a388f44b3f9b6f8292015db0b546de5a6e149720",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6eb15400_ef0c18ad",
+        "filename": "base/server/cmsbundle/src/LogMessages.properties",
+        "patchSetId": 1
+      },
+      "lineNbr": 1953,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-05-25T14:25:31Z",
+      "side": 0,
+      "message": "\" with success\" should be removed.",
+      "range": {
+        "startLine": 1953,
+        "startChar": 67,
+        "endLine": 1953,
+        "endChar": 80
+      },
+      "revId": "a388f44b3f9b6f8292015db0b546de5a6e149720",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
