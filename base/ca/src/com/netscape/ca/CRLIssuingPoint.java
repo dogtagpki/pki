@@ -2607,51 +2607,15 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             mSplits[5] += System.currentTimeMillis();
         } else {
             if (isDeltaCRLEnabled()) {
-                mSplits[1] -= System.currentTimeMillis();
-                @SuppressWarnings("unchecked")
-                Hashtable<BigInteger, RevokedCertificate> deltaCRLCerts =
-                        (Hashtable<BigInteger, RevokedCertificate>) clonedRevokedCerts.clone();
 
-                deltaCRLCerts.putAll(clonedUnrevokedCerts);
-                if (mIncludeExpiredCertsOneExtraTime) {
-                    if (!clonedExpiredCerts.isEmpty()) {
-                        for (Enumeration<BigInteger> e = clonedExpiredCerts.keys(); e.hasMoreElements();) {
-                            BigInteger serialNumber = e.nextElement();
-                            if ((mLastFullUpdate != null &&
-                                    mLastFullUpdate.after((mExpiredCerts.get(serialNumber)).getRevocationDate())) ||
-                                    mLastFullUpdate == null) {
-                                deltaCRLCerts.put(serialNumber, clonedExpiredCerts.get(serialNumber));
-                            }
-                        }
-                    }
-                } else {
-                    deltaCRLCerts.putAll(clonedExpiredCerts);
-                }
+                generateDeltaCRL(
+                        clonedRevokedCerts,
+                        clonedUnrevokedCerts,
+                        clonedExpiredCerts,
+                        signingAlgorithm,
+                        thisUpdate,
+                        nextDeltaUpdate);
 
-                mLastCRLNumber = mCRLNumber;
-
-                CRLExtensions ext = generateCRLExtensions(FreshestCRLExtension.NAME);
-
-                mSplits[1] += System.currentTimeMillis();
-
-                X509CRLImpl newX509DeltaCRL = generateDeltaCRL(
-                        deltaCRLCerts, signingAlgorithm, thisUpdate, nextDeltaUpdate, ext);
-
-                try {
-                    mSplits[4] -= System.currentTimeMillis();
-                    publishCRL(newX509DeltaCRL, true);
-                    mSplits[4] += System.currentTimeMillis();
-                } catch (EBaseException e) {
-                    newX509DeltaCRL = null;
-                    if (Debug.on())
-                        Debug.printStackTrace(e);
-                    log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("CMSCORE_CA_ISSUING_PUBLISH_DELTA", mCRLNumber.toString(), e.toString()));
-                } catch (OutOfMemoryError e) {
-                    newX509DeltaCRL = null;
-                    log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("CMSCORE_CA_ISSUING_PUBLISH_DELTA", mCRLNumber.toString(), e.toString()));
-                }
             } else {
                 mDeltaCRLSize = -1;
             }
@@ -2780,12 +2744,41 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         return ext;
     }
 
-    X509CRLImpl generateDeltaCRL(
-            Hashtable<BigInteger, RevokedCertificate> deltaCRLCerts,
+    void generateDeltaCRL(
+            Hashtable<BigInteger, RevokedCertificate> clonedRevokedCerts,
+            Hashtable<BigInteger, RevokedCertificate> clonedUnrevokedCerts,
+            Hashtable<BigInteger, RevokedCertificate> clonedExpiredCerts,
             String signingAlgorithm,
             Date thisUpdate,
-            Date nextDeltaUpdate,
-            CRLExtensions ext) {
+            Date nextDeltaUpdate) {
+
+        mSplits[1] -= System.currentTimeMillis();
+
+        @SuppressWarnings("unchecked")
+        Hashtable<BigInteger, RevokedCertificate> deltaCRLCerts =
+                (Hashtable<BigInteger, RevokedCertificate>) clonedRevokedCerts.clone();
+
+        deltaCRLCerts.putAll(clonedUnrevokedCerts);
+
+        if (mIncludeExpiredCertsOneExtraTime) {
+
+            for (Enumeration<BigInteger> e = clonedExpiredCerts.keys(); e.hasMoreElements();) {
+                BigInteger serialNumber = e.nextElement();
+                if (mLastFullUpdate == null ||
+                    mLastFullUpdate.after(mExpiredCerts.get(serialNumber).getRevocationDate())) {
+                    deltaCRLCerts.put(serialNumber, clonedExpiredCerts.get(serialNumber));
+                }
+            }
+
+        } else {
+            deltaCRLCerts.putAll(clonedExpiredCerts);
+        }
+
+        mLastCRLNumber = mCRLNumber;
+
+        CRLExtensions ext = generateCRLExtensions(FreshestCRLExtension.NAME);
+
+        mSplits[1] += System.currentTimeMillis();
 
         X509CRLImpl newX509DeltaCRL = null;
 
@@ -2868,7 +2861,20 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             mDeltaCRLSize = -1;
         }
 
-        return newX509DeltaCRL;
+        try {
+            mSplits[4] -= System.currentTimeMillis();
+            publishCRL(newX509DeltaCRL, true);
+            mSplits[4] += System.currentTimeMillis();
+
+        } catch (EBaseException e) {
+            CMS.debug(e);
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_CA_ISSUING_PUBLISH_DELTA", mCRLNumber.toString(), e.toString()));
+        } catch (OutOfMemoryError e) {
+            CMS.debug(e);
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_CA_ISSUING_PUBLISH_DELTA", mCRLNumber.toString(), e.toString()));
+        }
     }
 
     X509CRLImpl generateFullCRL(
