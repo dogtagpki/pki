@@ -183,6 +183,10 @@ public class AuthorityKeyIdentifierExtDefault extends CAEnrollDefault {
         } catch (EBaseException e) {
             throw new EProfileException(e);
         }
+        if (ext == null) {
+            throw new EProfileException(
+                "Could not instantiate AuthorityKeyIdentifier extension.");
+        }
         addExtension(PKIXExtensions.AuthorityKey_Id.toString(), ext, info);
     }
 
