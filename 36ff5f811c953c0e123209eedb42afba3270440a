@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "53c93d41_9ab58195",
+        "filename": "base/common/src/com/netscape/certsrv/logging/event/TriggerCRLGenerationEvent.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-05-25T03:56:56Z",
+      "side": 1,
+      "message": "Is this supposed to have the _2  suffix?",
+      "revId": "36ff5f811c953c0e123209eedb42afba3270440a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "799b30dd_0cedec66",
+        "filename": "base/server/cms/src/com/netscape/cms/servlet/cert/UpdateCRL.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 383,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-05-25T03:56:56Z",
+      "side": 1,
+      "message": "cfu suggested in a previous patch using Schedule... instead of Trigger..  Personally, I don\u0027t have a preference.",
+      "revId": "36ff5f811c953c0e123209eedb42afba3270440a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "74cfb462_14ee0220",
+        "filename": "base/server/cmsbundle/src/LogMessages.properties",
+        "patchSetId": 1
+      },
+      "lineNbr": 2202,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-05-25T03:56:56Z",
+      "side": 1,
+      "message": "I thought we  were getting rid of the  _N suffix?",
+      "revId": "36ff5f811c953c0e123209eedb42afba3270440a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
