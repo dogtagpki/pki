@@ -164,9 +164,6 @@ public class AuditEvent implements IBundleLogEvent {
     public final static String CONFIG_SERIAL_NUMBER =
             "LOGGING_SIGNED_AUDIT_CONFIG_SERIAL_NUMBER_1";
 
-    public final static String KEY_STATUS_CHANGE =
-            "LOGGING_SIGNED_AUDIT_KEY_STATUS_CHANGE_6";
-
     public final static String TOKEN_CERT_ENROLLMENT =
             "LOGGING_SIGNED_AUDIT_TOKEN_CERT_ENROLLMENT_9";
     public final static String TOKEN_CERT_RENEWAL =
