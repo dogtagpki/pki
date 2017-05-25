@@ -51,10 +51,10 @@ public class ECAException extends EBaseException {
      * <P>
      *
      * @param msgFormat constant from CAResources.
-     * @param e embedded exception.
+     * @param cause cause of this exception.
      */
-    public ECAException(String msgFormat, Exception e) {
-        super(msgFormat, e);
+    public ECAException(String msgFormat, Throwable cause) {
+        super(msgFormat, cause);
     }
 
     /**
