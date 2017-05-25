@@ -53,8 +53,11 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.SecurityDataArchivalEvent;
 import com.netscape.certsrv.logging.event.SecurityDataArchivalProcessedEvent;
 import com.netscape.certsrv.logging.event.SecurityDataExportEvent;
+import com.netscape.certsrv.logging.event.ServerSideKeyGenEvent;
+import com.netscape.certsrv.logging.event.ServerSideKeyGenProcessedEvent;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IService;
+import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.certsrv.security.ITransportKeyUnit;
 import com.netscape.cms.servlet.key.KeyRecordParser;
@@ -144,7 +147,6 @@ public class NetkeyKeygenService implements IService {
      */
     public boolean serviceRequest(IRequest request)
             throws EBaseException {
-        String auditMessage = null;
         String auditSubjectID = null;
         byte[] wrapped_des_key;
 
@@ -180,23 +182,21 @@ public class NetkeyKeygenService implements IService {
         String rCUID = request.getExtDataInString(IRequest.NETKEY_ATTR_CUID);
         String rUserid = request.getExtDataInString(IRequest.NETKEY_ATTR_USERID);
         String rKeytype = request.getExtDataInString(IRequest.NETKEY_ATTR_KEY_TYPE);
+        RequestId requestId = request.getRequestId();
 
         auditSubjectID = rCUID + ":" + rUserid;
 
         SessionContext sContext = SessionContext.getContext();
         String agentId = "";
         if (sContext != null) {
-            agentId =
-                    (String) sContext.get(SessionContext.USER_ID);
+            agentId = (String) sContext.get(SessionContext.USER_ID);
         }
 
-        auditMessage = CMS.getLogMessage(
-                AuditEvent.SERVER_SIDE_KEYGEN_REQUEST,
+        audit(new ServerSideKeyGenEvent(
                 agentId,
                 ILogger.SUCCESS,
-                auditSubjectID);
-
-        audit(auditMessage);
+                auditSubjectID,
+                requestId));
 
         String rWrappedDesKeyString = request.getExtDataInString(IRequest.NETKEY_ATTR_DRMTRANS_DES_KEY);
         // the request reocrd field delayLDAPCommit == "true" will cause
@@ -262,13 +262,12 @@ public class NetkeyKeygenService implements IService {
                 CMS.debug("NetkeyKeygenService: failed generating key pair for " + rCUID + ":" + rUserid);
                 request.setExtData(IRequest.RESULT, Integer.valueOf(4));
 
-                auditMessage = CMS.getLogMessage(
-                        AuditEvent.SERVER_SIDE_KEYGEN_REQUEST_PROCESSED_FAILURE,
+                audit(new ServerSideKeyGenProcessedEvent(
                         agentId,
                         ILogger.FAILURE,
-                        auditSubjectID);
-
-                audit(auditMessage);
+                        auditSubjectID,
+                        requestId,
+                        null));
 
                 return false;
             }
@@ -294,14 +293,12 @@ public class NetkeyKeygenService implements IService {
                     request.setExtData("public_key", PubKey);
                 }
 
-                auditMessage = CMS.getLogMessage(
-                        AuditEvent.SERVER_SIDE_KEYGEN_REQUEST_PROCESSED_SUCCESS,
+                audit(new ServerSideKeyGenProcessedEvent(
                         agentId,
                         ILogger.SUCCESS,
                         auditSubjectID,
-                        PubKey);
-
-                audit(auditMessage);
+                        requestId,
+                        PubKey));
 
                 //...extract the private key handle (not privatekeydata)
                 java.security.PrivateKey privKey =
@@ -365,7 +362,6 @@ public class NetkeyKeygenService implements IService {
                             "NetkeyKeygenService: failed generating wrapped private key",
                             PubKey));
 
-                    audit(auditMessage);
                     return false;
                 } else {
                     request.setExtData("wrappedUserPrivate", wrappedPrivKeyString);
