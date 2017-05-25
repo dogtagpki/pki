@@ -19,8 +19,6 @@ package com.netscape.ca;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CRLException;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -56,6 +54,7 @@ import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.DeltaCRLGenerationEvent;
 import com.netscape.certsrv.logging.event.DeltaCRLPublishingEvent;
+import com.netscape.certsrv.logging.event.FullCRLGenerationEvent;
 import com.netscape.certsrv.publish.ILdapRule;
 import com.netscape.certsrv.publish.IPublisherProcessor;
 import com.netscape.certsrv.request.IRequest;
@@ -84,7 +83,6 @@ import netscape.security.x509.RevokedCertImpl;
 import netscape.security.x509.RevokedCertificate;
 import netscape.security.x509.X509CRLImpl;
 import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509ExtensionException;
 
 /**
  * This class encapsulates CRL issuing mechanism. CertificateAuthority
@@ -2870,8 +2868,8 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             if (mConfigStore.getBoolean("noCRLIfNoRevokedCert", false)) {
                 if (mCRLCerts.size() == 0) {
                     CMS.debug("CRLIssuingPoint: No Revoked Certificates Found And noCRLIfNoRevokedCert is set to true - No CRL Generated");
-                    throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR",
-                            "No Revoked Certificates"));
+                    audit(FullCRLGenerationEvent.createSuccessEvent(getAuditSubjectID(), "No Revoked Certificates"));
+                    return;
                 }
             }
 
@@ -2954,35 +2952,21 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
             CMS.debug("CRLIssuingPoint: Finished Logging CRL Update to transaction log");
 
+            audit(FullCRLGenerationEvent.createSuccessEvent(getAuditSubjectID(), mCRLNumber));
+
         } catch (EBaseException e) {
             CMS.debug(e);
             mUpdatingCRL = CRL_UPDATE_DONE;
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_OR_STORE_CRL", e.toString()));
-            throw new ECAException(CMS.getUserMessage("CMS_CA_FAILED_CONSTRUCTING_CRL", e.toString()));
+            audit(FullCRLGenerationEvent.createFailureEvent(getAuditSubjectID(), e.getMessage()));
+            throw new ECAException(CMS.getUserMessage("CMS_CA_FAILED_CONSTRUCTING_CRL", e.toString()), e);
 
-        } catch (NoSuchAlgorithmException e) {
+        } catch (Throwable e) {
             CMS.debug(e);
             mUpdatingCRL = CRL_UPDATE_DONE;
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_CRL", e.toString()));
-            throw new ECAException(CMS.getUserMessage("CMS_CA_FAILED_CONSTRUCTING_CRL", e.toString()));
-
-        } catch (CRLException e) {
-            CMS.debug(e);
-            mUpdatingCRL = CRL_UPDATE_DONE;
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_CRL", e.toString()));
-            throw new ECAException(CMS.getUserMessage("CMS_CA_FAILED_CONSTRUCTING_CRL", e.toString()));
-
-        } catch (X509ExtensionException e) {
-            CMS.debug(e);
-            mUpdatingCRL = CRL_UPDATE_DONE;
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_CRL", e.toString()));
-            throw new ECAException(CMS.getUserMessage("CMS_CA_FAILED_CONSTRUCTING_CRL", e.toString()));
-
-        } catch (OutOfMemoryError e) {
-            CMS.debug(e);
-            mUpdatingCRL = CRL_UPDATE_DONE;
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_CRL", e.toString()));
-            throw new ECAException(CMS.getUserMessage("CMS_CA_FAILED_CONSTRUCTING_CRL", e.toString()));
+            audit(FullCRLGenerationEvent.createFailureEvent(getAuditSubjectID(), e.getMessage()));
+            throw new ECAException(CMS.getUserMessage("CMS_CA_FAILED_CONSTRUCTING_CRL", e.toString()), e);
         }
 
         try {
