@@ -2676,39 +2676,8 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         clonedExpiredCerts = null;
 
         if ((!isDeltaCRLEnabled()) || mSchemaCounter == 0) {
-            mSplits[6] -= System.currentTimeMillis();
-            if (mNextDeltaCRLNumber.compareTo(mNextCRLNumber) > 0) {
-                mNextCRLNumber = mNextDeltaCRLNumber;
-            }
 
-            CRLExtensions ext;
-            if (mAllowExtensions) {
-                ext = generateCRLExtensions(DeltaCRLIndicatorExtension.NAME);
-            } else {
-                ext = null;
-            }
-            mSplits[6] += System.currentTimeMillis();
-            // for audit log
-
-            X509CRLImpl newX509CRL = generateFullCRL(signingAlgorithm, thisUpdate, nextUpdate, ext);
-
-            try {
-                mSplits[9] -= System.currentTimeMillis();
-                mUpdatingCRL = CRL_PUBLISHING_STARTED;
-                publishCRL(newX509CRL);
-                newX509CRL = null;
-                mSplits[9] += System.currentTimeMillis();
-            } catch (EBaseException e) {
-                newX509CRL = null;
-                mUpdatingCRL = CRL_UPDATE_DONE;
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSCORE_CA_ISSUING_PUBLISH_CRL", mCRLNumber.toString(), e.toString()));
-            } catch (OutOfMemoryError e) {
-                newX509CRL = null;
-                mUpdatingCRL = CRL_UPDATE_DONE;
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSCORE_CA_ISSUING_PUBLISH_CRL", mCRLNumber.toString(), e.toString()));
-            }
+            generateFullCRL(signingAlgorithm, thisUpdate, nextUpdate);
         }
 
         if (isDeltaCRLEnabled() && mDeltaCRLSize > -1 && mSchemaCounter > 0) {
@@ -2877,11 +2846,25 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         }
     }
 
-    X509CRLImpl generateFullCRL(
+    void generateFullCRL(
             String signingAlgorithm,
             Date thisUpdate,
-            Date nextUpdate,
-            CRLExtensions ext) throws EBaseException {
+            Date nextUpdate) throws EBaseException {
+
+        mSplits[6] -= System.currentTimeMillis();
+        if (mNextDeltaCRLNumber.compareTo(mNextCRLNumber) > 0) {
+            mNextCRLNumber = mNextDeltaCRLNumber;
+        }
+
+        CRLExtensions ext;
+        if (mAllowExtensions) {
+            ext = generateCRLExtensions(DeltaCRLIndicatorExtension.NAME);
+        } else {
+            ext = null;
+        }
+        mSplits[6] += System.currentTimeMillis();
+
+        X509CRLImpl newX509CRL = null;
 
         try {
             CMS.debug("Making CRL with algorithm " +
@@ -2904,7 +2887,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                     thisUpdate, nextUpdate, mCRLCerts, ext);
 
             CMS.debug("CRLIssuingPoint: signing CRL");
-            X509CRLImpl newX509CRL = mCA.sign(crl, signingAlgorithm);
+            newX509CRL = mCA.sign(crl, signingAlgorithm);
 
             CMS.debug("CRLIssuingPoint: encoding CRL");
             byte[] newCRL = newX509CRL.getEncoded();
@@ -2914,8 +2897,9 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             mSplits[8] -= System.currentTimeMillis();
 
             Date nextUpdateDate = mNextUpdate;
-            if (isDeltaCRLEnabled() && (mUpdateSchema > 1 ||
-                    (mEnableDailyUpdates && mExtendedTimeList)) && mNextDeltaUpdate != null) {
+            if (isDeltaCRLEnabled()
+                    && (mUpdateSchema > 1 || mEnableDailyUpdates && mExtendedTimeList)
+                    && mNextDeltaUpdate != null) {
                 nextUpdateDate = mNextDeltaUpdate;
             }
 
@@ -2976,8 +2960,6 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
             CMS.debug("CRLIssuingPoint: Finished Logging CRL Update to transaction log");
 
-            return newX509CRL;
-
         } catch (EBaseException e) {
             CMS.debug(e);
             mUpdatingCRL = CRL_UPDATE_DONE;
@@ -3007,6 +2989,24 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             mUpdatingCRL = CRL_UPDATE_DONE;
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_CRL", e.toString()));
             throw new ECAException(CMS.getUserMessage("CMS_CA_FAILED_CONSTRUCTING_CRL", e.toString()));
+        }
+
+        try {
+            mSplits[9] -= System.currentTimeMillis();
+            mUpdatingCRL = CRL_PUBLISHING_STARTED;
+            publishCRL(newX509CRL);
+            mSplits[9] += System.currentTimeMillis();
+
+        } catch (EBaseException e) {
+            CMS.debug(e);
+            mUpdatingCRL = CRL_UPDATE_DONE;
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_CA_ISSUING_PUBLISH_CRL", mCRLNumber.toString(), e.toString()));
+        } catch (OutOfMemoryError e) {
+            CMS.debug(e);
+            mUpdatingCRL = CRL_UPDATE_DONE;
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_CA_ISSUING_PUBLISH_CRL", mCRLNumber.toString(), e.toString()));
         }
     }
 
