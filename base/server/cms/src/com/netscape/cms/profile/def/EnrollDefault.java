@@ -367,7 +367,7 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
     protected void addExtension(String name, Extension ext, X509CertInfo info)
             throws EProfileException {
         if (ext == null) {
-            throw new EProfileException("extension not found");
+            throw new EProfileException("addExtension: extension '" + name + "' is null");
         }
         CertificateExtensions exts = null;
 
