@@ -73,6 +73,24 @@
     },
     {
       "key": {
+        "uuid": "6385f442_db2ea1c8",
+        "filename": "base/ca/src/com/netscape/ca/CRLIssuingPoint.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-05-26T18:10:10Z",
+      "side": 1,
+      "message": "I\u0027ve combined the classes and added factory methods in the new patch.",
+      "parentUuid": "74c72556_f8c54438",
+      "revId": "b9c13319fab53431420aad64bda947b37fd312f3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0aa3311d_d34d45fe",
         "filename": "base/ca/src/com/netscape/ca/CRLIssuingPoint.java",
         "patchSetId": 1

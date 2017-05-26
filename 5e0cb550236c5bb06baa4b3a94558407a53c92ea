@@ -34,6 +34,24 @@
       "revId": "5e0cb550236c5bb06baa4b3a94558407a53c92ea",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "585c4040_eae9584f",
+        "filename": "base/ca/src/com/netscape/ca/CRLIssuingPoint.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2807,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-05-26T18:10:10Z",
+      "side": 0,
+      "message": "The publishCRL() doesn\u0027t seem to be using mDeltaCRLSize, but in the new patch the mDeltaCRLSize will be set to -1 in \"No Revoked Certificates\" case for consistency.",
+      "parentUuid": "085c55ec_c044fcf2",
+      "revId": "5e0cb550236c5bb06baa4b3a94558407a53c92ea",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
