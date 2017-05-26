@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6ce3541c_a27c519a",
+        "filename": "base/ca/src/com/netscape/ca/CRLIssuingPoint.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-05-26T15:31:20Z",
+      "side": 1,
+      "message": "Is there a reason we are creating Success and Failure events?\n\nIn the KRA, we went the other direction and created single events with Outcome\u003dSuccess/Failure\n\nI thought that this is what we decided to do?\n\n\nOh, I see -- one event, but two classes here for success and failure.  I guess that works.",
+      "revId": "b9c13319fab53431420aad64bda947b37fd312f3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f92bae24_160829b1",
+        "filename": "base/ca/src/com/netscape/ca/CRLIssuingPoint.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 3223,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-05-26T15:31:20Z",
+      "side": 1,
+      "message": "We really should try to get these centralized somewhere.  OK for this patch , but we\u0027e starting to proliferate these.",
+      "revId": "b9c13319fab53431420aad64bda947b37fd312f3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
