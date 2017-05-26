@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "74c72556_f8c54438",
+        "filename": "base/ca/src/com/netscape/ca/CRLIssuingPoint.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-05-26T16:34:42Z",
+      "side": 1,
+      "message": "I think my preference here would be factory methods.  Six months from now someone will have no idea why we selected one mechanism over the other.  Using factory methods makes that explicit.\n\nOver time, as method signatures change, we could end up with success and failure classes for all the events.\n\nAlso, by using one class, there will be a strict 1-1 relationship between audit event types and Event classes.",
+      "parentUuid": "de497210_bd29b8b1",
+      "revId": "b9c13319fab53431420aad64bda947b37fd312f3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0aa3311d_d34d45fe",
         "filename": "base/ca/src/com/netscape/ca/CRLIssuingPoint.java",
         "patchSetId": 1

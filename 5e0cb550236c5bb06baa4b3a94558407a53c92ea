@@ -16,6 +16,24 @@
       "revId": "5e0cb550236c5bb06baa4b3a94558407a53c92ea",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "085c55ec_c044fcf2",
+        "filename": "base/ca/src/com/netscape/ca/CRLIssuingPoint.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2807,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-05-26T16:34:42Z",
+      "side": 0,
+      "message": "the original code setx mDeltaCRLSize to -1.  Does that make a difference later in the publishCRL() code?  That parameter does seem to be referenced a lot.",
+      "parentUuid": "997a921e_85cdc2d8",
+      "revId": "5e0cb550236c5bb06baa4b3a94558407a53c92ea",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
