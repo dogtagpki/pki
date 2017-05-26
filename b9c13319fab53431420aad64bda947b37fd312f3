@@ -37,6 +37,23 @@
     },
     {
       "key": {
+        "uuid": "a4822650_ea312bad",
+        "filename": "base/ca/src/com/netscape/ca/CRLIssuingPoint.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2766,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-05-26T15:34:43Z",
+      "side": 1,
+      "message": "Is this correct?  In the past, we would have thrown an exception here which would have short circuited any additional processing in the caller function.  Are we still doing the same thing?",
+      "revId": "b9c13319fab53431420aad64bda947b37fd312f3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f92bae24_160829b1",
         "filename": "base/ca/src/com/netscape/ca/CRLIssuingPoint.java",
         "patchSetId": 1
