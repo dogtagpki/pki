@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ecdcba17_278d24f9",
+        "filename": "base/ca/src/com/netscape/ca/CRLIssuingPoint.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-05-26T15:32:50Z",
+      "side": 1,
+      "message": "Though from a code consistency perspective -- why a success/ failure class in the one case, and one case in another?",
+      "parentUuid": "6ce3541c_a27c519a",
+      "revId": "b9c13319fab53431420aad64bda947b37fd312f3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f92bae24_160829b1",
         "filename": "base/ca/src/com/netscape/ca/CRLIssuingPoint.java",
         "patchSetId": 1
