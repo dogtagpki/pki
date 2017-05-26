@@ -55,6 +55,8 @@ public class KRAInfo extends ResourceMessage {
 
     String archivalMechanism;
     String recoveryMechanism;
+    String encryptAlgorithm;
+    String wrapAlgorithm;
 
     @XmlElement(name="ArchivalMechanism")
     public String getArchivalMechanism() {
@@ -74,12 +76,32 @@ public class KRAInfo extends ResourceMessage {
         this.recoveryMechanism = recoveryMechanism;
     }
 
+    @XmlElement(name="EncryptAlgorithm")
+    public String getEncryptAlgorithm() {
+        return encryptAlgorithm;
+    }
+
+    public void setEncryptAlgorithm(String encryptAlgorithm) {
+        this.encryptAlgorithm = encryptAlgorithm;
+    }
+
+    @XmlElement(name="WrapAlgorithm")
+    public String getWrapAlgorithm() {
+        return wrapAlgorithm;
+    }
+
+    public void setWrapAlgorithm(String wrapAlgorithm) {
+        this.wrapAlgorithm = wrapAlgorithm;
+    }
+
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = super.hashCode();
         result = prime * result + ((archivalMechanism == null) ? 0 : archivalMechanism.hashCode());
+        result = prime * result + ((encryptAlgorithm == null) ? 0 : encryptAlgorithm.hashCode());
         result = prime * result + ((recoveryMechanism == null) ? 0 : recoveryMechanism.hashCode());
+        result = prime * result + ((wrapAlgorithm == null) ? 0 : wrapAlgorithm.hashCode());
         return result;
     }
 
@@ -97,10 +119,20 @@ public class KRAInfo extends ResourceMessage {
                 return false;
         } else if (!archivalMechanism.equals(other.archivalMechanism))
             return false;
+        if (encryptAlgorithm == null) {
+            if (other.encryptAlgorithm != null)
+                return false;
+        } else if (!encryptAlgorithm.equals(other.encryptAlgorithm))
+            return false;
         if (recoveryMechanism == null) {
             if (other.recoveryMechanism != null)
                 return false;
         } else if (!recoveryMechanism.equals(other.recoveryMechanism))
+            return false;
+        if (wrapAlgorithm == null) {
+            if (other.wrapAlgorithm != null)
+                return false;
+        } else if (!wrapAlgorithm.equals(other.wrapAlgorithm))
             return false;
         return true;
     }
@@ -125,6 +157,8 @@ public class KRAInfo extends ResourceMessage {
         KRAInfo before = new KRAInfo();
         before.setArchivalMechanism("encrypt");
         before.setRecoveryMechanism("keywrap");
+        before.setEncryptAlgorithm("AES/CBC/Pad");
+        before.setWrapAlgorithm("AES KeyWrap/Padding");
 
         String string = before.toString();
         System.out.println(string);

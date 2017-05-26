@@ -54,7 +54,8 @@ public class CAInfo extends ResourceMessage {
     }
 
     String archivalMechanism;
-    String wrappingKeySet;
+    String encryptAlgorithm;
+    String keyWrapAlgorithm;
 
     @XmlElement(name="ArchivalMechanism")
     public String getArchivalMechanism() {
@@ -65,13 +66,20 @@ public class CAInfo extends ResourceMessage {
         this.archivalMechanism = archivalMechanism;
     }
 
-    @XmlElement(name="WrappingKeySet")
-    public String getWrappingKeySet() {
-        return wrappingKeySet;
+    public String getEncryptAlgorithm() {
+        return encryptAlgorithm;
     }
 
-    public void setWrappingKeySet(String wrappingKeySet) {
-        this.wrappingKeySet = wrappingKeySet;
+    public void setEncryptAlgorithm(String encryptAlgorithm) {
+        this.encryptAlgorithm = encryptAlgorithm;
+    }
+
+    public String getKeyWrapAlgorithm() {
+        return keyWrapAlgorithm;
+    }
+
+    public void setKeyWrapAlgorithm(String keyWrapAlgorithm) {
+        this.keyWrapAlgorithm = keyWrapAlgorithm;
     }
 
     @Override
@@ -79,7 +87,8 @@ public class CAInfo extends ResourceMessage {
         final int prime = 31;
         int result = super.hashCode();
         result = prime * result + ((archivalMechanism == null) ? 0 : archivalMechanism.hashCode());
-        result = prime * result + ((wrappingKeySet == null) ? 0 : wrappingKeySet.hashCode());
+        result = prime * result + ((encryptAlgorithm == null) ? 0 : encryptAlgorithm.hashCode());
+        result = prime * result + ((keyWrapAlgorithm == null) ? 0 : keyWrapAlgorithm.hashCode());
         return result;
     }
 
@@ -97,10 +106,15 @@ public class CAInfo extends ResourceMessage {
                 return false;
         } else if (!archivalMechanism.equals(other.archivalMechanism))
             return false;
-        if (wrappingKeySet == null) {
-            if (other.wrappingKeySet != null)
+        if (encryptAlgorithm == null) {
+            if (other.encryptAlgorithm != null)
                 return false;
-        } else if (!wrappingKeySet.equals(other.wrappingKeySet))
+        } else if (!encryptAlgorithm.equals(other.encryptAlgorithm))
+            return false;
+        if (keyWrapAlgorithm == null) {
+            if (other.keyWrapAlgorithm != null)
+                return false;
+        } else if (!keyWrapAlgorithm.equals(other.keyWrapAlgorithm))
             return false;
         return true;
     }

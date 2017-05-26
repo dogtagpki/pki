@@ -2713,6 +2713,28 @@ public class CryptoUtil {
         throw new NoSuchAlgorithmException();
     }
 
+    /*
+     * Useful method to map KeyWrap algorithms to an OID.
+     * This is not yet defined within JSS, although it will be valuable to do
+     * so.  The hard thing though is that the KeyWrapAlgorithms in JSS do not take
+     * KEK key size into account for algorithms like AES.  We assume 128 bits in
+     * this case.
+     *
+     * This is used in the generation of CRMF requests, and will be correlated to
+     * the subsequent reverse mapping method below.
+     */
+    public static OBJECT_IDENTIFIER getOID(KeyWrapAlgorithm kwAlg) throws NoSuchAlgorithmException {
+        if (kwAlg == KeyWrapAlgorithm.AES_KEY_WRAP_PAD)
+            return new OBJECT_IDENTIFIER("2.16.840.1.101.3.4.1.8");
+        if (kwAlg == KeyWrapAlgorithm.AES_CBC_PAD)
+            return new OBJECT_IDENTIFIER("2.16.840.1.101.3.4.1.2");
+        if ((kwAlg == KeyWrapAlgorithm.DES3_CBC_PAD) ||
+            (kwAlg == KeyWrapAlgorithm.DES_CBC_PAD))
+            return new OBJECT_IDENTIFIER("1.2.840.113549.3.7");
+
+        throw new NoSuchAlgorithmException();
+    }
+
 }
 
 // START ENABLE_ECC

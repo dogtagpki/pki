@@ -29,7 +29,11 @@ import org.slf4j.LoggerFactory;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
+import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.cms.servlet.base.PKIService;
+
+import netscape.security.util.WrappingParams;
 
 /**
  * @author Ade Lee
@@ -37,6 +41,13 @@ import com.netscape.cms.servlet.base.PKIService;
 public class KRAInfoService extends PKIService implements KRAInfoResource {
 
     private static Logger logger = LoggerFactory.getLogger(InfoService.class);
+    private IKeyRecoveryAuthority kra;
+    private IStorageKeyUnit storageUnit;
+
+    public KRAInfoService() {
+        kra = (IKeyRecoveryAuthority) CMS.getSubsystem("kra");
+        storageUnit = kra.getStorageKeyUnit();
+    }
 
     @Override
     public Response getInfo() throws Exception {
@@ -47,7 +58,8 @@ public class KRAInfoService extends PKIService implements KRAInfoResource {
         KRAInfo info = new KRAInfo();
         info.setArchivalMechanism(getArchivalMechanism());
         info.setRecoveryMechanism(getRecoveryMechanism());
-
+        info.setEncryptAlgorithm(getEncryptAlgorithm());
+        info.setArchivalMechanism(getWrapAlgorithm());
 
         return createOKResponse(info);
     }
@@ -62,6 +74,32 @@ public class KRAInfoService extends PKIService implements KRAInfoResource {
         IConfigStore cs = CMS.getConfigStore();
         boolean encrypt_recovery = cs.getBoolean("kra.allowEncDecrypt.recovery", false);
         return encrypt_recovery ? KRAInfoResource.ENCRYPT_MECHANISM : KRAInfoResource.KEYWRAP_MECHANISM;
+    }
+
+    String getWrapAlgorithm() throws EBaseException {
+        IConfigStore cs = CMS.getConfigStore();
+        boolean encrypt_archival = cs.getBoolean("kra.allowEncDecrypt.archival", false);
+        WrappingParams params = null;
+        try {
+            params = storageUnit.getWrappingParams(encrypt_archival);
+        } catch (Exception e) {
+            // return something that should always work
+            return "AES/CBC/Padding";
+        }
+        return params.getPayloadWrapAlgorithm().toString();
+    }
+
+    String getEncryptAlgorithm() throws EBaseException {
+        IConfigStore cs = CMS.getConfigStore();
+        boolean encrypt_archival = cs.getBoolean("kra.allowEncDecrypt.archival", false);
+        WrappingParams params = null;
+        try {
+            params = storageUnit.getWrappingParams(encrypt_archival);
+        } catch (Exception e) {
+            // return something that should always work
+            return "AES/CBC/Padding";
+        }
+        return params.getPayloadEncryptionAlgorithm().toString();
     }
 }
 

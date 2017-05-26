@@ -28,6 +28,8 @@ import org.dogtagpki.common.CAInfo;
 import org.dogtagpki.common.CAInfoResource;
 import org.dogtagpki.common.KRAInfo;
 import org.dogtagpki.common.KRAInfoClient;
+import org.mozilla.jss.crypto.EncryptionAlgorithm;
+import org.mozilla.jss.crypto.KeyWrapAlgorithm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,7 +75,8 @@ public class CAInfoService extends PKIService implements CAInfoResource {
     // KRA-related fields (the initial values are only used if we
     // did not yet receive authoritative info from KRA)
     private static String archivalMechanism = KRAInfoService.KEYWRAP_MECHANISM;
-    private static String wrappingKeySet = "0";
+    private static String encryptAlgorithm;
+    private static String keyWrapAlgorithm;
 
     @Override
     public Response getInfo() throws Exception {
@@ -116,7 +119,8 @@ public class CAInfoService extends PKIService implements CAInfoResource {
             }
 
             info.setArchivalMechanism(archivalMechanism);
-            info.setWrappingKeySet(wrappingKeySet);
+            info.setEncryptAlgorithm(encryptAlgorithm);
+            info.setKeyWrapAlgorithm(keyWrapAlgorithm);
         }
     }
 
@@ -125,10 +129,8 @@ public class CAInfoService extends PKIService implements CAInfoResource {
             KRAInfo kraInfo = getKRAInfoClient(connInfo).getInfo();
 
             archivalMechanism = kraInfo.getArchivalMechanism();
-
-            // request succeeded; the KRA is 10.4 or higher,
-            // therefore supports key set v1
-            wrappingKeySet = "1";
+            encryptAlgorithm = kraInfo.getEncryptAlgorithm();
+            keyWrapAlgorithm = kraInfo.getWrapAlgorithm();
 
             // mark info as authoritative
             kraInfoAuthoritative = true;
@@ -137,8 +139,8 @@ public class CAInfoService extends PKIService implements CAInfoResource {
                 // The KRAInfoResource was added in 10.4,
                 // so we are talking to a pre-10.4 KRA
 
-                // pre-10.4 only supports key set v0
-                wrappingKeySet = "0";
+                encryptAlgorithm = EncryptionAlgorithm.DES3_CBC_PAD.toString();
+                keyWrapAlgorithm = KeyWrapAlgorithm.DES3_CBC_PAD.toString();
 
                 // pre-10.4 KRA does not advertise the archival
                 // mechanism; look for the old knob in CA's config
