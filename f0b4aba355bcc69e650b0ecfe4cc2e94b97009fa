@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8ed6e7cc_5ec0a24c",
+        "filename": "base/ca/src/com/netscape/ca/CRLIssuingPoint.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 2763,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-05-26T18:10:10Z",
+      "side": 1,
+      "message": "The mDeltaCRLSize is set to -1 to match the behavior of the old code.",
+      "revId": "f0b4aba355bcc69e650b0ecfe4cc2e94b97009fa",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
