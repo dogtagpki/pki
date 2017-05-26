@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "997a921e_85cdc2d8",
+        "filename": "base/ca/src/com/netscape/ca/CRLIssuingPoint.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2807,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-05-26T16:03:59Z",
+      "side": 0,
+      "message": "The \"No Revoked Certificates\" case was originally logged here as an error. Note that the catch-clause does not rethrow the exception or return from the method.",
+      "revId": "5e0cb550236c5bb06baa4b3a94558407a53c92ea",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}

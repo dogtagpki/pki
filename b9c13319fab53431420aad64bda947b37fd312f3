@@ -37,6 +37,41 @@
     },
     {
       "key": {
+        "uuid": "de497210_bd29b8b1",
+        "filename": "base/ca/src/com/netscape/ca/CRLIssuingPoint.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-05-26T16:03:59Z",
+      "side": 1,
+      "message": "It\u0027s because we have conflicting method signatures. For a Success with Info the signature is (String, BigInteger, String). For a Failure with FailureReason the signature is exactly the same.\n\nA possible alternative is to use a properly named factory methods, for example:\n\n  DeltaCRLGenerationEvent successEvent \u003d\n      DeltaCRLGenerationEvent.createSuccessEvent(\n          subjectId, crlNumber, info\n      );\n\n  DeltaCRLGenerationEvent failureEvent \u003d\n      DeltaCRLGenerationEvent.createFailureEvent(\n          subjectId, crlNumber, reason\n      );",
+      "parentUuid": "ecdcba17_278d24f9",
+      "revId": "b9c13319fab53431420aad64bda947b37fd312f3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0aa3311d_d34d45fe",
+        "filename": "base/ca/src/com/netscape/ca/CRLIssuingPoint.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2614,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-05-26T16:03:59Z",
+      "side": 1,
+      "message": "The \"No Revoked Certificates\" case will resume after this line.",
+      "revId": "b9c13319fab53431420aad64bda947b37fd312f3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a4822650_ea312bad",
         "filename": "base/ca/src/com/netscape/ca/CRLIssuingPoint.java",
         "patchSetId": 1
@@ -48,6 +83,24 @@
       "writtenOn": "2017-05-26T15:34:43Z",
       "side": 1,
       "message": "Is this correct?  In the past, we would have thrown an exception here which would have short circuited any additional processing in the caller function.  Are we still doing the same thing?",
+      "revId": "b9c13319fab53431420aad64bda947b37fd312f3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9d5bf408_13423823",
+        "filename": "base/ca/src/com/netscape/ca/CRLIssuingPoint.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2766,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-05-26T16:03:59Z",
+      "side": 1,
+      "message": "In the old code the EBaseException was originally caught by line 2807 which logs a failure and then continue with delta CRL publishing (which is unnecessary) and the rest of updateCRLNow().\n\nIn the new code it will return from generateDeltaCRL(), so it will skip delta CRL publishing, but continue with the rest of updateCRLNow().",
+      "parentUuid": "a4822650_ea312bad",
       "revId": "b9c13319fab53431420aad64bda947b37fd312f3",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
