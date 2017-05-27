@@ -45,7 +45,11 @@ import org.mozilla.jss.asn1.SET;
 import org.mozilla.jss.asn1.UTF8String;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.DigestAlgorithm;
+import org.mozilla.jss.crypto.EncryptionAlgorithm;
 import org.mozilla.jss.crypto.HMACAlgorithm;
+import org.mozilla.jss.crypto.IVParameterSpec;
+import org.mozilla.jss.crypto.KeyGenAlgorithm;
+import org.mozilla.jss.crypto.KeyWrapAlgorithm;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.pkcs10.CertificationRequest;
@@ -399,6 +403,10 @@ public abstract class EnrollProfile extends BasicProfile
                 String tokenName = CMS.getConfigStore().getString("cmc.token", CryptoUtil.INTERNAL_TOKEN_NAME);
                 token = CryptoUtil.getCryptoToken(tokenName);
 
+                // TODO(alee) Replace the IV definition with a call that generates a random IV of  the correct length
+                byte[] iv = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
+                IVParameterSpec ivps = new IVParameterSpec(iv);
+
                 PublicKey userPubKey = X509Key.parsePublicKey(new DerValue(req_key_data));
                 if (userPubKey == null) {
                     msg = method + "userPubKey null after X509Key.parsePublicKey";
@@ -406,37 +414,57 @@ public abstract class EnrollProfile extends BasicProfile
                     throw new EBaseException(msg);
                 }
 
-                SymmetricKey symKey = CryptoUtil.generateKey(token);
-                byte[] pop_encreyptedData = CryptoUtil.encryptUsingSymmetricKey(
-                        token, symKey, challenge);
-                if (pop_encreyptedData == null) {
-                    msg = method + "pop_encreyptedData null";
+                SymmetricKey symKey = CryptoUtil.generateKey(
+                        token,
+                        KeyGenAlgorithm.AES,
+                        128,
+                        null,
+                        true);
+
+                byte[] pop_encryptedData = CryptoUtil.encryptUsingSymmetricKey(
+                        token,
+                        symKey,
+                        challenge,
+                        EncryptionAlgorithm.AES_128_CBC,
+                        ivps);
+
+                if (pop_encryptedData == null) {
+                    msg = method + "pop_encryptedData null";
                     CMS.debug(msg);
                     throw new EBaseException(msg);
                 }
 
-                byte[] pop_sysPubEncreyptedSession = CryptoUtil.wrapUsingPublicKey(
-                        token, issuanceProtPubKey, symKey);
-                if (pop_sysPubEncreyptedSession == null) {
-                    msg = method + "pop_sysPubEncreyptedSession null";
+                byte[] pop_sysPubEncryptedSession =  CryptoUtil.wrapUsingPublicKey(
+                        token,
+                        issuanceProtPubKey,
+                        symKey,
+                        KeyWrapAlgorithm.RSA);
+
+                if (pop_sysPubEncryptedSession == null) {
+                    msg = method + "pop_sysPubEncryptedSession null";
                     CMS.debug(msg);
                     throw new EBaseException(msg);
                 }
 
-                byte[] pop_userPubEncreyptedSession = CryptoUtil.wrapUsingPublicKey(
-                        token, userPubKey, symKey);
-                if (pop_userPubEncreyptedSession == null) {
-                    msg = method + "pop_userPubEncreyptedSession null";
+
+                byte[] pop_userPubEncryptedSession = CryptoUtil.wrapUsingPublicKey(
+                        token,
+                        userPubKey,
+                        symKey,
+                        KeyWrapAlgorithm.RSA);
+
+                if (pop_userPubEncryptedSession == null) {
+                    msg = method + "pop_userPubEncryptedSession null";
                     CMS.debug(msg);
                     throw new EBaseException(msg);
                 }
                 CMS.debug(method + "POP challenge fields generated successfully...setting request extData");
 
-                req.setExtData("pop_encreyptedData", pop_encreyptedData);
+                req.setExtData("pop_encryptedData", pop_encryptedData);
 
-                req.setExtData("pop_sysPubEncreyptedSession", pop_sysPubEncreyptedSession);
+                req.setExtData("pop_sysPubEncryptedSession", pop_sysPubEncryptedSession);
 
-                req.setExtData("pop_userPubEncreyptedSession", pop_userPubEncreyptedSession);
+                req.setExtData("pop_userPubEncryptedSession", pop_userPubEncryptedSession);
 
                 // now compute and set witness
                 CMS.debug(method + "now compute and set witness");
@@ -1038,19 +1066,19 @@ public abstract class EnrollProfile extends BasicProfile
         }
 
         // now verify the POP witness
-        byte[] pop_encreyptedData = req.getExtDataInByteArray("pop_encreyptedData");
-        if (pop_encreyptedData == null) {
+        byte[] pop_encryptedData = req.getExtDataInByteArray("pop_encryptedData");
+        if (pop_encryptedData == null) {
             msg = method +
-                    "pop_encreyptedData not found in request:" +
+                    "pop_encryptedData not found in request:" +
                     reqId.toString();
             CMS.debug(msg);
             return null;
         }
 
-        byte[] pop_sysPubEncreyptedSession = req.getExtDataInByteArray("pop_sysPubEncreyptedSession");
-        if (pop_sysPubEncreyptedSession == null) {
+        byte[] pop_sysPubEncryptedSession = req.getExtDataInByteArray("pop_sysPubEncryptedSession");
+        if (pop_sysPubEncryptedSession == null) {
             msg = method +
-                    "pop_sysPubEncreyptedSession not found in request:" +
+                    "pop_sysPubEncryptedSession not found in request:" +
                     reqId.toString();
             CMS.debug(msg);
             return null;
@@ -1082,17 +1110,31 @@ public abstract class EnrollProfile extends BasicProfile
 
             SymmetricKey symKey = CryptoUtil.unwrap(
                     token,
+                    SymmetricKey.AES,
+                    128,
                     SymmetricKey.Usage.DECRYPT,
                     issuanceProtPrivKey,
-                    pop_sysPubEncreyptedSession);
+                    pop_sysPubEncryptedSession,
+                    KeyWrapAlgorithm.RSA);
+
             if (symKey == null) {
                 msg = "symKey null after CryptoUtil.unwrap returned";
                 CMS.debug(msg);
                 return null;
             }
 
+            // TODO(alee) The code below should be replaced by code that gets the IV from the Pop request
+            // This IV is supposed to be random
+            byte[] iv = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
+            IVParameterSpec default_iv = new IVParameterSpec(iv);
+
             byte[] challenge_b = CryptoUtil.decryptUsingSymmetricKey(
-                    token, pop_encreyptedData, symKey);
+                    token,
+                    default_iv,
+                    pop_encryptedData,
+                    symKey,
+                    EncryptionAlgorithm.AES_128_CBC);
+
             if (challenge_b == null) {
                 msg = method + "challenge_b null after decryptUsingSymmetricKey returned";
                 CMS.debug(msg);
@@ -1596,23 +1638,16 @@ public abstract class EnrollProfile extends BasicProfile
                     witness_bytes,
                     hashAlg, macAlg);
 
-            String authMgrID =
-                    (String) sessionContext.get(SessionContext.AUTH_MANAGER_ID);
             String auditSubjectID = null;
 
             if (verified) {
-                // update auditSubjectID
-                if (sessionContext != null) {
-                    auditSubjectID = (String)
-                            sessionContext.get(SessionContext.USER_ID);
-                    CMS.debug(method + "current auditSubjectID was:"+ auditSubjectID);
-                    CMS.debug(method + "identity verified. Updating auditSubjectID");
-                    CMS.debug(method + "updated auditSubjectID is:"+ ident_string);
-                    auditSubjectID = ident_string;
-                    sessionContext.put(SessionContext.USER_ID, auditSubjectID);
-                } else { //very unlikely
-                    CMS.debug(method + "sessionContext null; cannot update auditSubjectID");
-                }
+                auditSubjectID = (String)
+                        sessionContext.get(SessionContext.USER_ID);
+                CMS.debug(method + "current auditSubjectID was:"+ auditSubjectID);
+                CMS.debug(method + "identity verified. Updating auditSubjectID");
+                CMS.debug(method + "updated auditSubjectID is:"+ ident_string);
+                auditSubjectID = ident_string;
+                sessionContext.put(SessionContext.USER_ID, auditSubjectID);
 
                 auditMessage = CMS.getLogMessage(
                         AuditEvent.CMC_PROOF_OF_IDENTIFICATION,

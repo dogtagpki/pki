@@ -2572,15 +2572,15 @@ public class CryptoUtil {
             throw new Exception(method + msg);
         }
 
+        // TODO(alee) Replace the below with a random IV that is likely passed in
+        byte[] default_iv = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
+        OBJECT_IDENTIFIER oid = EncryptionAlgorithm.AES_128_CBC.toOID();
+        AlgorithmIdentifier aid = new AlgorithmIdentifier(oid, new OCTET_STRING(default_iv));
+
         EncryptedContentInfo encCInfo = new EncryptedContentInfo(
                 ContentInfo.DATA,
-                getDefaultEncAlg(),
+                aid,
                 new OCTET_STRING(encContent));
-        if (encCInfo == null) {
-            msg = method + "encCInfo null from new EncryptedContentInfo";
-            System.out.println(msg);
-            throw new Exception(method + msg);
-        }
 
         Name name = new Name();
         name.addCommonName("unUsedIssuerName"); //unused; okay for cmc EncryptedPOP
@@ -2589,11 +2589,6 @@ public class CryptoUtil {
                 new IssuerAndSerialNumber(name, new INTEGER(0)), //unUsed
                 new AlgorithmIdentifier(RSA_ENCRYPTION, new NULL()),
                 new OCTET_STRING(encSymKey));
-        if (recipient == null) {
-            msg = method + "recipient null from new RecipientInfo";
-            System.out.println(msg);
-            throw new Exception(method + msg);
-        }
 
         SET recipients = new SET();
         recipients.addElement(recipient);
@@ -2615,77 +2610,14 @@ public class CryptoUtil {
      * the defaults
      */
 
-    private static byte default_iv[] = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
-    private static IVParameterSpec default_IV = new IVParameterSpec(default_iv);
-
-    // this generates a temporary 128 bit AES symkey with defaults
-    public static SymmetricKey generateKey(CryptoToken token) throws Exception {
-        return generateKey(token,
-//TODO:                KeyGenAlgorithm.AES, 128,
-                KeyGenAlgorithm.DES3, 128 /*unused*/,
-                null, true);
-    }
-
-    // decryptUsingSymmetricKey with default algorithms
-    public static byte[] decryptUsingSymmetricKey(CryptoToken token, byte[] encryptedData, SymmetricKey wrappingKey) throws Exception {
-        return decryptUsingSymmetricKey(token, default_IV, encryptedData,
-                wrappingKey,
-                EncryptionAlgorithm.DES3_CBC_PAD);
-//TODO:                EncryptionAlgorithm.AES_128_CBC);
-    }
-
-    // encryptUsingSymmetricKey with default algorithms
-    public static byte[] encryptUsingSymmetricKey(CryptoToken token, SymmetricKey wrappingKey, byte[] data) throws Exception {
-        return encryptUsingSymmetricKey(
-                token,
-                wrappingKey,
-                data,
-                EncryptionAlgorithm.DES3_CBC_PAD,
-//TODO:                EncryptionAlgorithm.AES_128_CBC,
-                default_IV);
-    }
-
-    // wrapUsingPublicKey using default algorithm
-    public static byte[] wrapUsingPublicKey(CryptoToken token, PublicKey wrappingKey, SymmetricKey data) throws Exception {
-        return wrapUsingPublicKey(token, wrappingKey, data, KeyWrapAlgorithm.RSA);
-    }
-
-    // unwrap sym key using default algorithms
-    public static SymmetricKey unwrap(CryptoToken token, SymmetricKey.Usage usage, PrivateKey wrappingKey, byte[] wrappedSymKey) throws Exception {
-        return unwrap(
-               token,
-//TODO:               SymmetricKey.AES,
-               SymmetricKey.DES3,
-               0,
-               usage,
-               wrappingKey,
-               wrappedSymKey,
-               getDefaultKeyWrapAlg());
-    }
-
-    public static AlgorithmIdentifier getDefaultEncAlg()
-           throws Exception {
-        OBJECT_IDENTIFIER oid =
-                EncryptionAlgorithm.DES3_CBC.toOID();
-//TODO:                EncryptionAlgorithm.AES_128_CBC.toOID();
-
-        AlgorithmIdentifier aid =
-                new AlgorithmIdentifier(oid, new OCTET_STRING(default_iv));
-        return aid;
-    }
-
     public static String getDefaultHashAlgName() {
         return ("SHA-256");
-    }
-
-    public static KeyWrapAlgorithm getDefaultKeyWrapAlg() {
-        return KeyWrapAlgorithm.RSA;
     }
 
     public static AlgorithmIdentifier getDefaultHashAlg()
            throws Exception {
         AlgorithmIdentifier hashAlg;
-            hashAlg = new AlgorithmIdentifier(CryptoUtil.getHashAlgorithmOID("SHA-256"));
+            hashAlg = new AlgorithmIdentifier(CryptoUtil.getHashAlgorithmOID(getDefaultHashAlgName()));
         return hashAlg;
     }
 
@@ -2768,8 +2700,6 @@ public class CryptoUtil {
      */
     public static String getNameFromHashAlgorithm(AlgorithmIdentifier ai)
            throws NoSuchAlgorithmException {
-        OBJECT_IDENTIFIER oid = null;
-
         System.out.println("CryptoUtil: getNameFromHashAlgorithm: " + ai.getOID().toString());
         if (ai != null) {
             if (ai.getOID().equals((DigestAlgorithm.SHA256).toOID())) {
