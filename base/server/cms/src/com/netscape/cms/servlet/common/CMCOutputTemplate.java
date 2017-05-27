@@ -43,6 +43,7 @@ import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.asn1.SET;
 import org.mozilla.jss.asn1.UTF8String;
 import org.mozilla.jss.crypto.DigestAlgorithm;
+import org.mozilla.jss.crypto.EncryptionAlgorithm;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.pkcs11.PK11PubKey;
 import org.mozilla.jss.pkix.cert.Certificate;
@@ -433,10 +434,7 @@ public class CMCOutputTemplate {
 
             ResponseBody respBody = new ResponseBody(controlSeq,
                     cmsSeq, otherMsgSeq);
-            if (respBody != null)
-                CMS.debug(method + " after new ResponseBody, respBody not null");
-            else
-                CMS.debug(method + " after new ResponseBody, respBody null");
+            CMS.debug(method + " after new ResponseBody, respBody not null");
 
             ContentInfo contentInfo = getContentInfo(respBody, certs);
             ByteArrayOutputStream fos = new ByteArrayOutputStream();
@@ -489,30 +487,25 @@ public class CMCOutputTemplate {
         CMS.debug(method + "popChallengeRequired true");
 
         byte[] cmc_msg = req.getExtDataInByteArray(IEnrollProfile.CTX_CERT_REQUEST);
-        byte[] pop_encreyptedData = req.getExtDataInByteArray("pop_encreyptedData");
+        byte[] pop_encryptedData = req.getExtDataInByteArray("pop_encryptedData");
         //don't need this for encryptedPOP, but need to check for existence anyway
-        byte[] pop_sysPubEncreyptedSession = req.getExtDataInByteArray("pop_sysPubEncreyptedSession");
-        byte[] pop_userPubEncreyptedSession = req.getExtDataInByteArray("pop_userPubEncreyptedSession");
-        if ((pop_encreyptedData != null) &&
-                (pop_sysPubEncreyptedSession != null) &&
-                (pop_userPubEncreyptedSession != null)) {
+        byte[] pop_sysPubEncryptedSession = req.getExtDataInByteArray("pop_sysPubEncryptedSession");
+        byte[] pop_userPubEncryptedSession = req.getExtDataInByteArray("pop_userPubEncryptedSession");
+        if ((pop_encryptedData != null) &&
+                (pop_sysPubEncryptedSession != null) &&
+                (pop_userPubEncryptedSession != null)) {
             // generate encryptedPOP here
             // algs are hard-coded for now
 
             try {
                 EnvelopedData envData = CryptoUtil.createEnvelopedData(
-                        pop_encreyptedData,
-                        pop_userPubEncreyptedSession);
+                        pop_encryptedData,
+                        pop_userPubEncryptedSession);
                 if (envData == null) {
                     msg = "envData null returned by createEnvelopedData";
                     throw new EBaseException(method + msg);
                 }
                 ContentInfo ci = new ContentInfo(envData);
-                if (ci == null) {
-                    msg = "ci null from new ContentInfo";
-                    CMS.debug(msg);
-                    throw new EBaseException(method + msg);
-                }
                 CMS.debug(method + "now we can compose encryptedPOP");
 
                 TaggedRequest.Template tReqTemplate = new TaggedRequest.Template();
@@ -524,17 +517,18 @@ public class CMCOutputTemplate {
                     throw new EBaseException(method + msg);
                 }
 
+                // TODO(alee) The code below should be replaced by code that generates a random IV
+                byte[] default_iv = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
+
+                OBJECT_IDENTIFIER oid = EncryptionAlgorithm.AES_128_CBC.toOID();
+                AlgorithmIdentifier aid = new AlgorithmIdentifier(oid, new OCTET_STRING(default_iv));
+
                 encPop = new EncryptedPOP(
                         tReq,
                         ci,
-                        CryptoUtil.getDefaultEncAlg(),
+                        aid,
                         CryptoUtil.getDefaultHashAlg(),
                         new OCTET_STRING(req.getExtDataInByteArray("pop_witness")));
-                if (encPop == null) {
-                    msg = "encPop null returned by new EncryptedPOP";
-                    CMS.debug(msg);
-                    throw new EBaseException(method + msg);
-                }
 
             } catch (Exception e) {
                 CMS.debug(method + " excepton:" + e);

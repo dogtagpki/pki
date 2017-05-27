@@ -52,6 +52,9 @@ import org.mozilla.jss.asn1.SET;
 import org.mozilla.jss.asn1.UTF8String;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.DigestAlgorithm;
+import org.mozilla.jss.crypto.EncryptionAlgorithm;
+import org.mozilla.jss.crypto.IVParameterSpec;
+import org.mozilla.jss.crypto.KeyWrapAlgorithm;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.Signature;
@@ -1718,19 +1721,30 @@ public class CMCRequest {
             CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
             SymmetricKey symKey = CryptoUtil.unwrap(
                     token,
+                    SymmetricKey.AES,
+                    128,
                     SymmetricKey.Usage.DECRYPT,
                     privKey,
-                    recipient.getEncryptedKey().toByteArray());
+                    recipient.getEncryptedKey().toByteArray(),
+                    KeyWrapAlgorithm.RSA);
+
             if (symKey == null) {
                 System.out.println(method + "symKey returned null from CryptoUtil.unwrap(). Abort!");
                 System.exit(1);
             }
             System.out.println(method + "symKey unwrapped.");
 
+            // TODO(alee) The code below should be replaced by code that generates a random IV
+            byte[] iv = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
+            IVParameterSpec default_iv = new IVParameterSpec(iv);
+
             byte challenge[] = CryptoUtil.decryptUsingSymmetricKey(
                     token,
+                    default_iv,
                     encCI.getEncryptedContent().toByteArray(),
-                    symKey);
+                    symKey,
+                    EncryptionAlgorithm.AES_128_CBC);
+
             if (challenge == null) {
                 System.out
                         .println(method + "challenge returned null from CryptoUtil.decryptUsingSymmetricKey(). Abort!");
