@@ -91,6 +91,18 @@ def main(argv):
         dest='precheck', action='store_true',
         help='Execute pre-checks and exit')
 
+    parser.optional.add_argument(
+        '--skip-configuration',
+        dest='skip_configuration',
+        action='store_true',
+        help='skip configuration step')
+
+    parser.optional.add_argument(
+        '--skip-installation',
+        dest='skip_installation',
+        action='store_true',
+        help='skip installation step')
+
     args = parser.process_command_line_arguments()
 
     config.default_deployment_cfg = \
@@ -475,6 +487,24 @@ def main(argv):
         sys.exit(1)
 
     start_logging()
+
+    # Read the specified PKI configuration file.
+    rv = parser.read_pki_configuration_file()
+    if rv != 0:
+        config.pki_log.error(log.PKI_UNABLE_TO_PARSE_1, rv,
+                             extra=config.PKI_INDENTATION_LEVEL_0)
+        sys.exit(1)
+
+    # --skip-configuration
+    if args.skip_configuration:
+        parser.set_property(deployer.subsystem_name,
+                            'pki_skip_configuration', 'True')
+
+    # --skip-installation
+    if args.skip_installation:
+        parser.set_property(deployer.subsystem_name,
+                            'pki_skip_installation', 'True')
+
     create_master_dictionary(parser)
 
     if not interactive and \
@@ -635,23 +665,21 @@ def start_logging():
 
 
 def create_master_dictionary(parser):
-    # Read the specified PKI configuration file.
-    rv = parser.read_pki_configuration_file()
-    if rv != 0:
-        config.pki_log.error(log.PKI_UNABLE_TO_PARSE_1, rv,
-                             extra=config.PKI_INDENTATION_LEVEL_0)
-        sys.exit(1)
 
     # Read in the PKI slots configuration file.
     parser.compose_pki_slots_dictionary()
+
     config.pki_log.debug(log.PKI_DICTIONARY_SLOTS,
                          extra=config.PKI_INDENTATION_LEVEL_0)
     config.pki_log.debug(pkilogging.log_format(parser.slots_dict),
                          extra=config.PKI_INDENTATION_LEVEL_0)
+
     # Combine the various sectional dictionaries into a PKI master dictionary
     parser.compose_pki_master_dictionary()
+
     parser.mdict['pki_spawn_log'] = \
         config.pki_log_dir + "/" + config.pki_log_name
+
     config.pki_log.debug(log.PKI_DICTIONARY_MASTER,
                          extra=config.PKI_INDENTATION_LEVEL_0)
     config.pki_log.debug(pkilogging.log_format(parser.mdict),
