@@ -588,16 +588,25 @@ public abstract class EnrollProfile extends BasicProfile
         try {
             byte data[] = CMS.AtoB(creq);
             ByteArrayInputStream cmcBlobIn = new ByteArrayInputStream(data);
+            PKIData pkiData = null;
 
             org.mozilla.jss.pkix.cms.ContentInfo cmcReq = (org.mozilla.jss.pkix.cms.ContentInfo) org.mozilla.jss.pkix.cms.ContentInfo
                     .getTemplate().decode(cmcBlobIn);
-            org.mozilla.jss.pkix.cms.SignedData cmcFullReq = (org.mozilla.jss.pkix.cms.SignedData) cmcReq
-                    .getInterpretedContent();
-            org.mozilla.jss.pkix.cms.EncapsulatedContentInfo ci = cmcFullReq.getContentInfo();
-            OCTET_STRING content = ci.getContent();
+            OCTET_STRING content = null;
+            if (cmcReq.getContentType().equals(
+                    org.mozilla.jss.pkix.cms.ContentInfo.SIGNED_DATA)) {
+                CMS.debug(method + "cmc request content is signed data");
+                org.mozilla.jss.pkix.cms.SignedData cmcFullReq = (org.mozilla.jss.pkix.cms.SignedData) cmcReq
+                        .getInterpretedContent();
+                org.mozilla.jss.pkix.cms.EncapsulatedContentInfo ci = cmcFullReq.getContentInfo();
+                content = ci.getContent();
 
+            } else { // for unsigned revocation requests (using shared secret)
+                CMS.debug(method + "cmc request content is unsigned data");
+                content = (OCTET_STRING) cmcReq.getInterpretedContent();
+            }
             ByteArrayInputStream s = new ByteArrayInputStream(content.toByteArray());
-            PKIData pkiData = (PKIData) (new PKIData.Template()).decode(s);
+            pkiData = (PKIData) (new PKIData.Template()).decode(s);
 
             mCMCData = pkiData;
             //PKIData pkiData = (PKIData)
@@ -708,6 +717,8 @@ public abstract class EnrollProfile extends BasicProfile
             byte randomSeed[] = null;
             UTF8String ident_s = null;
             SessionContext context = SessionContext.getContext();
+
+            boolean id_cmc_revokeRequest = false;
             if (!context.containsKey("numOfControls")) {
                 CMS.debug(method + "numcontrols="+ numcontrols);
                 if (numcontrols > 0) {
@@ -735,7 +746,13 @@ public abstract class EnrollProfile extends BasicProfile
                     for (int i = 0; i < numcontrols; i++) {
                         attributes[i] = (TaggedAttribute) controlSeq.elementAt(i);
                         OBJECT_IDENTIFIER oid = attributes[i].getType();
-                        if (oid.equals(OBJECT_IDENTIFIER.id_cmc_decryptedPOP)) {
+                        if (oid.equals(OBJECT_IDENTIFIER.id_cmc_revokeRequest)) {
+                            id_cmc_revokeRequest = true;
+                            // put in context for processing in 
+                            // CMCOutputTemplate.java later
+                            context.put(OBJECT_IDENTIFIER.id_cmc_revokeRequest,
+                                    attributes[i]);
+                        } else if (oid.equals(OBJECT_IDENTIFIER.id_cmc_decryptedPOP)) {
                             CMS.debug(method + " id_cmc_decryptedPOP found");
                             id_cmc_decryptedPOP = true;
                             decPopVals = attributes[i].getValues();
@@ -765,6 +782,10 @@ public abstract class EnrollProfile extends BasicProfile
                      * now do the actual control processing
                      */
                     CMS.debug(method + "processing controls...");
+
+                    if (id_cmc_revokeRequest) {
+                        CMS.debug(method + "revocation control");
+                    }
 
                     if (id_cmc_identification) {
                         if (ident == null) {
@@ -801,7 +822,7 @@ public abstract class EnrollProfile extends BasicProfile
 
                     // checking Proof Of Identity, if not pre-signed
 
-                    if (donePOI) {
+                    if (donePOI || id_cmc_revokeRequest) {
                         // for logging purposes
                         if (id_cmc_identityProofV2) {
                             CMS.debug(method
@@ -921,6 +942,7 @@ public abstract class EnrollProfile extends BasicProfile
             SEQUENCE otherMsgSeq = pkiData.getOtherMsgSequence();
             int numOtherMsgs = otherMsgSeq.size();
             if (!context.containsKey("numOfOtherMsgs")) {
+                CMS.debug(method + "found numOfOtherMsgs: " + numOtherMsgs);
                 context.put("numOfOtherMsgs", Integer.valueOf(numOtherMsgs));
                 for (int i = 0; i < numOtherMsgs; i++) {
                     OtherMsg omsg = (OtherMsg) (ASN1Util.decode(OtherMsg.getTemplate(),
@@ -959,6 +981,8 @@ public abstract class EnrollProfile extends BasicProfile
                 boolean valid = true;
                 for (int i = 0; i < nummsgs; i++) {
                     msgs[i] = (TaggedRequest) reqSeq.elementAt(i);
+                    if (id_cmc_revokeRequest)
+                        continue;
                     if (popLinkWitnessRequired &&
                             !context.containsKey("POPLinkWitnessV2") &&
                             !context.containsKey("POPLinkWitness")) {
@@ -1271,7 +1295,7 @@ public abstract class EnrollProfile extends BasicProfile
         boolean sharedSecretFound = true;
         String configName = "cmc.sharedSecret.class";
         String sharedSecret = null;
-        ISharedToken tokenClass = getSharedTokenClass(configName);
+        ISharedToken tokenClass = CMS.getSharedTokenClass(configName);
         if (tokenClass == null) {
             CMS.debug(method + " Failed to retrieve shared secret plugin class");
             sharedSecretFound = false;
@@ -1498,40 +1522,6 @@ public abstract class EnrollProfile extends BasicProfile
         return bpids;
     }
 
-
-    ISharedToken getSharedTokenClass(String configName) {
-        String method = "EnrollProfile: getSharedTokenClass: ";
-        ISharedToken tokenClass = null;
-
-        String name = null;
-        try {
-            CMS.debug(method + "getting :" + configName);
-            name = CMS.getConfigStore().getString(configName);
-            CMS.debug(method + "Shared Secret plugin class name retrieved:" +
-                    name);
-        } catch (Exception e) {
-            CMS.debug(method + " Failed to retrieve shared secret plugin class name");
-            return null;
-        }
-
-        try {
-            tokenClass = (ISharedToken) Class.forName(name).newInstance();
-            CMS.debug(method + "Shared Secret plugin class retrieved");
-        } catch (ClassNotFoundException e) {
-            CMS.debug(method + " Failed to find class name: " + name);
-            return null;
-        } catch (InstantiationException e) {
-            CMS.debug("EnrollProfile: Failed to instantiate class: " + name);
-            return null;
-        } catch (IllegalAccessException e) {
-            CMS.debug(method + " Illegal access: " + name);
-            return null;
-        }
-
-        return tokenClass;
-    }
-
-
     /**
      * verifyIdentityProofV2 handles IdentityProofV2 as defined by RFC5272
      *
@@ -1577,7 +1567,7 @@ public abstract class EnrollProfile extends BasicProfile
         }
 
         String configName = "cmc.sharedSecret.class";
-        ISharedToken tokenClass = getSharedTokenClass(configName);
+        ISharedToken tokenClass = CMS.getSharedTokenClass(configName);
 
         if (tokenClass == null) {
             msg = " Failed to retrieve shared secret plugin class";
@@ -1681,7 +1671,7 @@ public abstract class EnrollProfile extends BasicProfile
             return false;
 
         String configName = "cmc.sharedSecret.class";
-            ISharedToken tokenClass = getSharedTokenClass(configName);
+            ISharedToken tokenClass = CMS.getSharedTokenClass(configName);
         if (tokenClass == null) {
             CMS.debug(method + " Failed to retrieve shared secret plugin class");
             return false;

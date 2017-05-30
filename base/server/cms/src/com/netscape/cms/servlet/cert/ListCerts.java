@@ -461,11 +461,11 @@ public class ListCerts extends CMSServlet {
                 ICertRecord rec = e.nextElement();
 
                 if (rec == null) {
-                    CMS.debug("ListCerts: * record " + count + " is null");
+                    //CMS.debug("ListCerts: * record " + count + " is null");
                     break;
                 }
                 curSerial = rec.getSerialNumber();
-                CMS.debug("ListCerts: * record " + count + ": " + curSerial);
+                //CMS.debug("ListCerts: * record " + count + ": " + curSerial);
 
                 if (count == 0) {
                     firstSerial = curSerial;
@@ -493,11 +493,11 @@ public class ListCerts extends CMSServlet {
                 }
 
                 if (mReverse) {
-                    CMS.debug("ListCerts: returning with rcount: " + rcount);
+                    //CMS.debug("ListCerts: returning with rcount: " + rcount);
                     recs[rcount++] = rec;
 
                 } else {
-                    CMS.debug("ListCerts: returning with arg block");
+                    //CMS.debug("ListCerts: returning with arg block");
                     IArgBlock rarg = CMS.createArgBlock();
                     fillRecordIntoArg(rec, rarg);
                     argSet.addRepeatRecord(rarg);
@@ -514,7 +514,7 @@ public class ListCerts extends CMSServlet {
             CMS.debug("ListCerts: fill records into arg block and argSet");
             for (int ii = rcount - 1; ii >= 0; ii--) {
                 if (recs[ii] != null) {
-                    CMS.debug("ListCerts: processing recs[" + ii + "]");
+                    //CMS.debug("ListCerts: processing recs[" + ii + "]");
                     IArgBlock rarg = CMS.createArgBlock();
                     // CMS.debug("item " + ii + " is serial #" + recs[ii].getSerialNumber());
                     fillRecordIntoArg(recs[ii], rarg);

@@ -72,15 +72,14 @@ import org.mozilla.jss.pkix.cmc.GetCert;
 import org.mozilla.jss.pkix.cmc.IdentityProofV2;
 import org.mozilla.jss.pkix.cmc.LraPopWitness;
 import org.mozilla.jss.pkix.cmc.OtherInfo;
-import org.mozilla.jss.pkix.cmc.OtherMsg;
 import org.mozilla.jss.pkix.cmc.PKIData;
 import org.mozilla.jss.pkix.cmc.PendInfo;
 import org.mozilla.jss.pkix.cmc.PopLinkWitnessV2;
 import org.mozilla.jss.pkix.cmc.ResponseBody;
+import org.mozilla.jss.pkix.cmc.RevokeRequest;
 import org.mozilla.jss.pkix.cmc.TaggedAttribute;
 import org.mozilla.jss.pkix.cmc.TaggedCertificationRequest;
 import org.mozilla.jss.pkix.cmc.TaggedRequest;
-import org.mozilla.jss.pkix.cmmf.RevRequest;
 import org.mozilla.jss.pkix.cms.ContentInfo;
 import org.mozilla.jss.pkix.cms.EncapsulatedContentInfo;
 import org.mozilla.jss.pkix.cms.EncryptedContentInfo;
@@ -374,14 +373,30 @@ public class CMCRequest {
 
     /**
      * getCMCBlob create and return the enrollment request.
-     *
+     * It now handles two types of data input:
+     *  - SignedData (which is for signed data)
+     *  - data (which is for unsigned data)
      * @return the CMC enrollment request encoded in base64
      *
      */
-    static ContentInfo getCMCBlob(SignedData req) {
+    static ContentInfo getCMCBlob(SignedData signedData, byte[] data) {
         String method = "getCMCBlob: ";
         System.out.println(method + "begins");
-        ContentInfo fullEnrollmentReq = new ContentInfo(req);
+        ContentInfo fullEnrollmentReq = null;
+        if (signedData != null && data == null) {
+            System.out.println("getCMCBlob: generating signed data");
+            fullEnrollmentReq = new ContentInfo(signedData);
+        } else if (data != null && signedData == null) {
+            System.out.println("getCMCBlob: generating unsigned data");
+            fullEnrollmentReq = new ContentInfo(data);
+        } else if (signedData == null && data == null) {
+             System.out.println("getCMCBlob: both params are null");
+             System.exit(1);
+        } else {
+             System.out.println("getCMCBlob: both params are not null; only one of them can be used, the other must be null");
+             System.exit(1);
+        }
+
         try {
             ByteArrayOutputStream bs = new ByteArrayOutputStream();
             PrintStream ps = new PrintStream(bs);
@@ -768,29 +783,32 @@ public class CMCRequest {
         System.out.println("");
         System.out.println("#input: full path for the PKCS10 request or CRMF request,");
         System.out.println("#the content must be in Base-64 encoded format");
-        System.out.println("#Multiple files are supported. They must be separated by space.");
+//        System.out.println("#Multiple files are supported. They must be separated by space.");
+        System.out.println("# in case of revocation, input will be ignored");
         System.out.println("input=crmf.req");
         System.out.println("");
         System.out.println("#output: full path for the CMC request in binary format");
         System.out.println("output=cmc.req");
         System.out.println("");
-        System.out.println("#tokenname: name of token where agent signing cert can be found (default is internal)");
+        System.out.println("#tokenname: name of token where user signing cert can be found (default is internal)");
         System.out.println("tokenname=internal");
         System.out.println("");
-        System.out.println("#nickname: nickname for agent certificate which will be used");
-        System.out.println("#to sign the CMC full request.");
+        System.out.println("#nickname: nickname for user certificate which will be used");
+        System.out.println("#to sign the CMC full request (enrollment or revocation).");
+        System.out.println("");
         System.out.println("#selfSign: if selfSign is true, the CMC request will be");
-        System.out.println("#signed with the pairing private key of the request;");
+        System.out.println("#signed with the pairing private key of the enrollment request;");
         System.out.println("#and in which case the nickname will be ignored");
-        System.out.println("nickname=CMS Agent Certificate");
+        System.out.println("#If revRequest.sharedSecret is specified, then nickname will also be ignored.");
+        System.out.println("nickname=CMS User Signing Certificate");
         System.out.println("");
         System.out.println("selfSign=false");
         System.out.println("");
         System.out.println("#dbdir: directory for cert8.db, key3.db and secmod.db");
         System.out.println("dbdir=./");
         System.out.println("");
-        System.out.println("#password: password for cert8.db which stores the agent");
-        System.out.println("#certificate");
+        System.out.println("#password: password for cert8.db which stores the user signing");
+        System.out.println("#certificate and keys");
         System.out.println("password=pass");
         System.out.println("");
         System.out.println("#format: request format, either pkcs10 or crmf");
@@ -844,12 +862,18 @@ public class CMCRequest {
         System.out.println("#control. Otherwise, false.");
         System.out.println("revRequest.enable=false");
         System.out.println("");
+/*
         System.out.println("#revRequest.nickname: The nickname for the revoke certificate");
         System.out.println("revRequest.nickname=newuser's 102504a ID");
         System.out.println("");
+*/
         System.out.println("#revRequest.issuer: The issuer name for the certificate being");
-        System.out.println("#revoked.");
+        System.out.println("#revoked. It only needs to be specified when the request is unsigned,;");
+        System.out.println("#as in the case when sharedSecret is used;");
         System.out.println("revRequest.issuer=cn=Certificate Manager,c=us");
+        System.out.println("");
+        System.out.println("#revRequest.sharedSecret: The sharedSecret");
+        System.out.println("revRequest.sharedSecret=");
         System.out.println("");
         System.out.println("#revRequest.serial: The serial number for the certificate being");
         System.out.println("#revoked.");
@@ -860,9 +884,6 @@ public class CMCRequest {
         System.out.println("#                   affiliationChanged, superseded, cessationOfOperation,");
         System.out.println("#                   certificateHold, removeFromCRL");
         System.out.println("revRequest.reason=unspecified");
-        System.out.println("");
-        System.out.println("#revRequest.sharedSecret: The sharedSecret");
-        System.out.println("revRequest.sharedSecret=");
         System.out.println("");
         System.out.println("#revRequest.comment: The human readable comment");
         System.out.println("revRequest.comment=");
@@ -972,27 +993,27 @@ public class CMCRequest {
 
     private static ENUMERATED toCRLReason(String str) {
         if (str.equalsIgnoreCase("unspecified")) {
-            return RevRequest.unspecified;
+            return RevokeRequest.unspecified;
         } else if (str.equalsIgnoreCase("keyCompromise")) {
-            return RevRequest.keyCompromise;
+            return RevokeRequest.keyCompromise;
         } else if (str.equalsIgnoreCase("caCompromise")) {
-            return RevRequest.cACompromise;
+            return RevokeRequest.cACompromise;
         } else if (str.equalsIgnoreCase("affiliationChanged")) {
-            return RevRequest.affiliationChanged;
+            return RevokeRequest.affiliationChanged;
         } else if (str.equalsIgnoreCase("superseded")) {
-            return RevRequest.superseded;
+            return RevokeRequest.superseded;
         } else if (str.equalsIgnoreCase("cessationOfOperation")) {
-            return RevRequest.cessationOfOperation;
+            return RevokeRequest.cessationOfOperation;
         } else if (str.equalsIgnoreCase("certificateHold")) {
-            return RevRequest.certificateHold;
+            return RevokeRequest.certificateHold;
         } else if (str.equalsIgnoreCase("removeFromCRL")) {
-            return RevRequest.removeFromCRL;
+            return RevokeRequest.removeFromCRL;
         }
 
         System.out.println("Unrecognized CRL reason");
         System.exit(1);
 
-        return RevRequest.unspecified;
+        return RevokeRequest.unspecified;
     }
 
     /**
@@ -1119,42 +1140,84 @@ public class CMCRequest {
         return bpid;
     }
 
-    private static int addRevRequestAttr(int bpid, SEQUENCE seq, SEQUENCE otherMsgSeq, CryptoToken token, String tokenName, String nickname,
+    /*
+    * addRevRequestAttr adds the RevokeRequest control
+    * If sharedSecret exist, issuer name needs to be supplied;
+    * else signing cert is needed to extract issuerName
+    */
+    private static int addRevRequestAttr(int bpid, SEQUENCE seq,
+            CryptoToken token, X509Certificate revokeSignCert,
             String revRequestIssuer, String revRequestSerial, String revRequestReason,
             String revRequestSharedSecret, String revRequestComment, String invalidityDatePresent,
             CryptoManager manager) {
+
+        String method = "addRevRequestAttr: ";
         try {
-            if (nickname.length() <= 0) {
-                System.out.println("The nickname for the certificate being revoked is null");
-                System.exit(1);
-            }
-            String nickname1 = nickname;
             UTF8String comment = null;
             OCTET_STRING sharedSecret = null;
             GeneralizedTime d = null;
-            X500Name subjectname = new X500Name(revRequestIssuer);
+            X500Name issuerName = null;
+
+            if ((revRequestSerial == null) || (revRequestSerial.length() <= 0)) {
+                System.out.println(method + "revocation serial number must be supplied");
+                System.exit(1);
+            }
+            if ((revRequestReason == null) || (revRequestReason.length() <= 0)) {
+                System.out.println(method + "revocation reason must be supplied");
+                System.exit(1);
+            }
             INTEGER snumber = new INTEGER(revRequestSerial);
             ENUMERATED reason = toCRLReason(revRequestReason);
-            if (revRequestSharedSecret.length() > 0)
+
+            if ((revRequestSharedSecret != null) && (revRequestSharedSecret.length() > 0)) {
                 sharedSecret = new OCTET_STRING(revRequestSharedSecret.getBytes());
-            if (revRequestComment.length() > 0)
+                // in case of sharedSecret,
+                // issuer name will have to be provided;
+                // revokeSignCert is ignored;
+                if (revRequestIssuer == null) {
+                    System.out.println(method + "issuer name must be supplied when shared secret is used");
+                    System.exit(1);
+                }
+                issuerName = new X500Name(revRequestIssuer);
+            } else { // signing case; revokeSignCert is required
+                if (revokeSignCert == null) {
+                    System.out.println(method + "revokeSignCert must be supplied in the signing case");
+                    System.exit(1);
+                }
+            }
+
+            if (revRequestComment != null && revRequestComment.length() > 0)
                 comment = new UTF8String(revRequestComment);
             if (invalidityDatePresent.equals("true"))
                 d = new GeneralizedTime(new Date());
-            RevRequest revRequest =
-                    new RevRequest(new ANY(subjectname.getEncoded()), snumber,
-                            reason, d, sharedSecret, comment);
-            int revokeBpid = bpid;
+
+            if (sharedSecret == null) {
+                System.out.println(method + "no sharedSecret found; request will be signed;");
+
+                // getting issuerName from revokeSignCert
+                byte[] certB = revokeSignCert.getEncoded();
+                X509CertImpl impl = new X509CertImpl(certB);
+                issuerName = (X500Name) impl.getIssuerDN();
+            } else {
+                System.out.println(method + "sharedSecret found; request will be unsigned;");
+            }
+
+            RevokeRequest revRequest = new RevokeRequest(new ANY(issuerName.getEncoded()), snumber,
+                    reason, d, sharedSecret, comment);
+
             TaggedAttribute revRequestControl = new TaggedAttribute(
                     new INTEGER(bpid++),
                     OBJECT_IDENTIFIER.id_cmc_revokeRequest, revRequest);
             seq.addElement(revRequestControl);
+            System.out.println(method + "RevokeRequest control created.");
 
-            if (sharedSecret != null) {
-                System.out.println("Successfully create revRequest control. bpid = " + (bpid - 1));
-                System.out.println("");
-                return bpid;
-            }
+            return bpid;
+/*
+ * Constructing OtherMsg to include the SignerInfo makes no sense here
+ * as the outer layer SignedData would have SignerInfo.
+ * It is possibly done because the original code assumed a self-signed
+ * revocation request that is subsequently signed by an agent...
+ * which is not conforming to the RFC.
 
             EncapsulatedContentInfo revokeContent = new EncapsulatedContentInfo(
                     OBJECT_IDENTIFIER.id_cct_PKIData, revRequestControl);
@@ -1241,6 +1304,7 @@ public class CMCRequest {
             otherMsgSeq.addElement(otherMsg);
             System.out.println("Successfully create revRequest control. bpid = " + (bpid - 1));
             System.out.println("");
+*/
         } catch (Exception e) {
             System.out.println("Error in creating revRequest control. Check the parameters. Exception="+ e.toString());
             System.exit(1);
@@ -1346,9 +1410,9 @@ public class CMCRequest {
             String salt = "lala123" + date.toString();
 
             try {
-                MessageDigest SHA1Digest = MessageDigest.getInstance("SHA1");
+                MessageDigest SHA256Digest = MessageDigest.getInstance("SHA256");
 
-                dig = SHA1Digest.digest(salt.getBytes());
+                dig = SHA256Digest.digest(salt.getBytes());
             } catch (NoSuchAlgorithmException ex) {
                 dig = salt.getBytes();
             }
@@ -1825,7 +1889,6 @@ public class CMCRequest {
         String dataReturnEnable = "false", dataReturnData = null;
         String transactionMgtEnable = "false", transactionMgtId = null;
         String senderNonceEnable = "false", senderNonce = null;
-        String revCertNickname = "";
         String revRequestEnable = "false", revRequestIssuer = null, revRequestSerial = null;
         String revRequestReason = null, revRequestSharedSecret = null, revRequestComment = null;
         String revRequestInvalidityDatePresent = "false";
@@ -1941,8 +2004,6 @@ public class CMCRequest {
                         revRequestComment = val;
                     } else if (name.equals("revRequest.invalidityDatePresent")) {
                         revRequestInvalidityDatePresent = val;
-                    } else if (name.equals("revRequest.nickname")) {
-                        revCertNickname = val;
                     } else if (name.equals("identification.enable")) {
                         identificationEnable = val;
                     } else if (name.equals("identification")) {
@@ -1985,7 +2046,8 @@ public class CMCRequest {
             printUsage();
         }
 
-        if (!selfSign.equals("true") && nickname == null) {
+        if ((!selfSign.equals("true") && (revRequestSharedSecret == null))
+                && nickname == null) {
             System.out.println("Missing nickname.");
             printUsage();
         }
@@ -2031,11 +2093,12 @@ public class CMCRequest {
                 certname.append(tokenName);
                 certname.append(":");
             }
-            if (!selfSign.equals("true") && nickname != null) {
+            if ((!selfSign.equals("true") || (revRequestSharedSecret == null))
+                    && nickname != null) {
                 certname.append(nickname);
                 signerCert = cm.findCertByNickname(certname.toString());
                 if (signerCert != null) {
-                    System.out.println("got signerCert: "+ certname.toString());
+                    System.out.println("got signerCert: " + certname.toString());
                 }
             }
 
@@ -2065,6 +2128,7 @@ public class CMCRequest {
                 }
             }
 
+            boolean isSharedSecretRevoke = false;
             if (decryptedPopEnable.equalsIgnoreCase("true")) {
                 if (encryptedPopResponseFile == null) {
                     System.out.println("ecryptedPop.enable = true, but encryptedPopResponseFile is not specified.");
@@ -2091,7 +2155,7 @@ public class CMCRequest {
                 }
             } else { // !decryptedPopEnable
 
-                if (ifilename == null) {
+                if (!revRequestEnable.equalsIgnoreCase("true") && ifilename == null) {
                     System.out.println("Missing input filename for PKCS10 or CRMF.");
                     printUsage();
                 }
@@ -2109,14 +2173,17 @@ public class CMCRequest {
                     }
                 }
 
-                StringTokenizer tokenizer = new StringTokenizer(ifilename, " ");
-                String[] ifiles = new String[num];
-                for (int i = 0; i < num; i++) {
-                    String ss = tokenizer.nextToken();
-                    ifiles[i] = ss;
-                    if (ss == null) {
-                        System.out.println("Missing input file for the request.");
-                        System.exit(1);
+                String[] ifiles = null;
+                if (revRequestEnable.equalsIgnoreCase("false")) {
+                    StringTokenizer tokenizer = new StringTokenizer(ifilename, " ");
+                    ifiles = new String[num];
+                    for (int i = 0; i < num; i++) {
+                        String ss = tokenizer.nextToken();
+                        ifiles[i] = ss;
+                        if (ss == null) {
+                            System.out.println("Missing input file for the request.");
+                            System.exit(1);
+                        }
                     }
                 }
 
@@ -2126,11 +2193,12 @@ public class CMCRequest {
                 }
 
                 if (format == null) {
-                    System.out.println("Missing format.");
-                    printUsage();
+                    System.out.println("Missing format..assume revocation");
+                    //printUsage();
                 }
+
                 String[] requests = new String[num];
-                for (int i = 0; i < num; i++) {
+                for (int i = 0; i < num && revRequestEnable.equalsIgnoreCase("false") ; i++) {
                     BufferedReader inputBlob = null;
                     try {
                         inputBlob = new BufferedReader(new InputStreamReader(
@@ -2222,20 +2290,20 @@ public class CMCRequest {
 
                 SEQUENCE otherMsgSeq = new SEQUENCE();
                 if (revRequestEnable.equalsIgnoreCase("true")) {
-                    if (revRequestIssuer.length() == 0 || revRequestSerial.length() == 0 ||
-                            revRequestReason.length() == 0) {
-                        System.out.println("Illegal parameters for revRequest control");
-                        printUsage();
-                        System.exit(1);
+                    if ((revRequestSharedSecret!= null)
+                             && (revRequestSharedSecret.length() > 0)) {
+                        isSharedSecretRevoke = true;
+                        //this will result in unsigned data
                     }
 
-                    bpid = addRevRequestAttr(bpid, controlSeq, otherMsgSeq, token, tokenName, revCertNickname,
+                    bpid = addRevRequestAttr(bpid, controlSeq, token, signerCert,
                             revRequestIssuer, revRequestSerial, revRequestReason, revRequestSharedSecret,
                             revRequestComment, revRequestInvalidityDatePresent, cm);
-                }
+                    pkidata = new PKIData(controlSeq, new SEQUENCE(), new SEQUENCE(), new SEQUENCE());
+                } else {
 
-                // create the request PKIData
-                pkidata = createPKIData(
+                    // create the request PKIData
+                    pkidata = createPKIData(
                         selfSign,
                         requests,
                         format, transactionMgtEnable, transactionMgtId,
@@ -2248,6 +2316,7 @@ public class CMCRequest {
                         popLinkWitnessV2keyGenAlg, popLinkWitnessV2macAlg,
                         controlSeq, otherMsgSeq, bpid,
                         token, privk);
+                }
 
                 if (pkidata == null) {
                     System.out.println("pkidata null after createPKIData(). Exiting with error");
@@ -2255,22 +2324,30 @@ public class CMCRequest {
                 }
             }
 
-            // sign the request
-            SignedData signedData = null;
-            if (selfSign.equalsIgnoreCase("true")) {
-                // selfSign signs with private key
-                System.out.println("selfSign is true...");
-                signedData = signData(privk, pkidata);
+            if (isSharedSecretRevoke) {
+                cmcblob = getCMCBlob(null,
+                        ASN1Util.encode(pkidata));
             } else {
-                // none selfSign signs with  existing cert
-                System.out.println("selfSign is false...");
-                signedData = signData(signerCert, tokenName, nickname, cm, pkidata);
+
+                SignedData signedData = null;
+
+                // sign the request
+                if (selfSign.equalsIgnoreCase("true")) {
+                    // selfSign signs with private key
+                    System.out.println("selfSign is true...");
+                    signedData = signData(privk, pkidata);
+                } else {
+                    // none selfSign signs with  existing cert
+                    System.out.println("selfSign is false...");
+                    signedData = signData(signerCert, tokenName, nickname, cm, pkidata);
+                }
+                if (signedData == null) {
+                    System.out.println("signData() returns null. Exiting with error");
+                    System.exit(1);
+                }
+                cmcblob = getCMCBlob(signedData, null);
             }
-            if (signedData == null) {
-                System.out.println("signData() returns null. Exiting with error");
-                System.exit(1);
-            }
-            cmcblob = getCMCBlob(signedData);
+
             if (cmcblob == null) {
                 System.out.println("getCMCBlob() returns null. Exiting with error");
                 System.exit(1);

@@ -29,9 +29,9 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
-import java.security.cert.CertificateExpiredException;
 import java.security.MessageDigest;
 import java.security.PublicKey;
+import java.security.cert.CertificateExpiredException;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Locale;
@@ -323,84 +323,89 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
                 byte[] cmcBlob = CMS.AtoB(asciiBASE64Blob);
                 ByteArrayInputStream cmcBlobIn = new ByteArrayInputStream(cmcBlob);
 
-                org.mozilla.jss.pkix.cms.ContentInfo cmcReq =
-                        (org.mozilla.jss.pkix.cms.ContentInfo) org.mozilla.jss.pkix.cms.ContentInfo
+                org.mozilla.jss.pkix.cms.ContentInfo cmcReq = (org.mozilla.jss.pkix.cms.ContentInfo) org.mozilla.jss.pkix.cms.ContentInfo
                         .getTemplate().decode(
                                 cmcBlobIn);
-
-                if (!cmcReq.getContentType().equals(
-                        org.mozilla.jss.pkix.cms.ContentInfo.SIGNED_DATA) ||
-                        !cmcReq.hasContent()) {
-
-                    cmcBlobIn.close();
-                    msg = "cmc rquest content type is not ContentInfo.SIGNED_DATA";
-                    CMS.debug(msg);
-                    throw new EBaseException(msg);
-                }
-
-                SignedData cmcFullReq = (SignedData) cmcReq.getInterpretedContent();
 
                 String userid = ILogger.UNIDENTIFIED;
                 String uid = ILogger.UNIDENTIFIED;
 
-                IConfigStore cmc_config = CMS.getConfigStore();
-                boolean checkSignerInfo = cmc_config.getBoolean("cmc.signerInfo.verify", true);
-                if (checkSignerInfo) {
-                    // selfSigned will be set in verifySignerInfo if applicable
-                    IAuthToken userToken = verifySignerInfo(auditContext, authToken, cmcFullReq);
-                    if (userToken == null) {
-                        msg = "userToken null; verifySignerInfo failure";
-                        CMS.debug(method + msg);
-                        throw new EBaseException(msg);
-                    } else {
-                        if (selfSigned) {
-                            CMS.debug(method
-                                    + " self-signed cmc request will not have user identification info at this point.");
-                            auditSignerInfo = "selfSigned";
+                SignedData cmcFullReq = null;
+                OCTET_STRING content = null;
+                OBJECT_IDENTIFIER id = null;
+                org.mozilla.jss.pkix.cms.SignerInfo selfsign_signerInfo = null;
+                if (cmcReq.getContentType().equals(
+                        org.mozilla.jss.pkix.cms.ContentInfo.SIGNED_DATA)) {
+                    CMS.debug(method + "cmc request content is signed data");
+                    cmcFullReq = (SignedData) cmcReq.getInterpretedContent();
+
+                    IConfigStore cmc_config = CMS.getConfigStore();
+                    boolean checkSignerInfo = cmc_config.getBoolean("cmc.signerInfo.verify", true);
+                    if (checkSignerInfo) {
+                        // selfSigned will be set in verifySignerInfo if applicable
+                        IAuthToken userToken = verifySignerInfo(auditContext, authToken, cmcFullReq);
+                        if (userToken == null) {
+                            msg = "userToken null; verifySignerInfo failure";
+                            CMS.debug(method + msg);
+                            throw new EBaseException(msg);
                         } else {
-                            CMS.debug(method + "signed with user cert");
-                            userid = userToken.getInString("userid");
-                            uid = userToken.getInString("cn");
-                            if (userid == null && uid == null) {
-                                msg = " verifySignerInfo failure... missing userid and cn";
-                                CMS.debug(method + msg);
-                                throw new EBaseException(msg);
-                            }
-                            // reset value of auditSignerInfo
-                            if (uid != null && !uid.equals(ILogger.UNIDENTIFIED)) {
-                                CMS.debug(method + "setting auditSignerInfo to uid:" + uid.trim());
-                                auditSignerInfo = uid.trim();
-                                auditSubjectID = uid.trim();
-                                authToken.set(IAuthToken.USER_ID, auditSubjectID);
-                            } else if (userid != null && !userid.equals(ILogger.UNIDENTIFIED)) {
-                                CMS.debug(method + "setting auditSignerInfo to userid:" + userid);
-                                auditSignerInfo = userid.trim();
-                                auditSubjectID = userid.trim();
-                                authToken.set(IAuthToken.USER_ID, auditSubjectID);
+                            if (selfSigned) {
+                                CMS.debug(method
+                                        + " self-signed cmc request will not have user identification info at this point.");
+                                auditSignerInfo = "selfSigned";
+                            } else {
+                                CMS.debug(method + "signed with user cert");
+                                userid = userToken.getInString("userid");
+                                uid = userToken.getInString("cn");
+                                if (userid == null && uid == null) {
+                                    msg = " verifySignerInfo failure... missing userid and cn";
+                                    CMS.debug(method + msg);
+                                    throw new EBaseException(msg);
+                                }
+                                // reset value of auditSignerInfo
+                                if (uid != null && !uid.equals(ILogger.UNIDENTIFIED)) {
+                                    CMS.debug(method + "setting auditSignerInfo to uid:" + uid.trim());
+                                    auditSignerInfo = uid.trim();
+                                    auditSubjectID = uid.trim();
+                                    authToken.set(IAuthToken.USER_ID, auditSubjectID);
+                                } else if (userid != null && !userid.equals(ILogger.UNIDENTIFIED)) {
+                                    CMS.debug(method + "setting auditSignerInfo to userid:" + userid);
+                                    auditSignerInfo = userid.trim();
+                                    auditSubjectID = userid.trim();
+                                    authToken.set(IAuthToken.USER_ID, auditSubjectID);
+                                }
                             }
                         }
+                    } else {
+                        CMS.debug(method + " signerInfo verification bypassed");
                     }
+
+                    EncapsulatedContentInfo ci = cmcFullReq.getContentInfo();
+                    SET sis = cmcFullReq.getSignerInfos();
+                    // only one SignerInfo for selfSigned
+                    selfsign_signerInfo = (org.mozilla.jss.pkix.cms.SignerInfo) sis.elementAt(0);
+
+                    id = ci.getContentType();
+
+                    if (!id.equals(OBJECT_IDENTIFIER.id_cct_PKIData) ||
+                            !ci.hasContent()) {
+                        msg = "request EncapsulatedContentInfo content type not OBJECT_IDENTIFIER.id_cct_PKIData";
+                        CMS.debug(method + msg);
+
+                        throw new EBaseException(msg);
+                    }
+
+                    content = ci.getContent();
+                } else if (cmcReq.getContentType().equals( //unsigned
+                        org.mozilla.jss.pkix.cms.ContentInfo.DATA)) {
+                    CMS.debug(method + "cmc request content is unsigned data...verifySignerInfo will not be called;");
+                    content = (OCTET_STRING) cmcReq.getInterpretedContent();
                 } else {
-                    CMS.debug(method + " signerInfo verification bypassed");
-                }
-
-                EncapsulatedContentInfo ci = cmcFullReq.getContentInfo();
-                SET sis = cmcFullReq.getSignerInfos();
-                // only one SignerInfo for selfSigned
-                org.mozilla.jss.pkix.cms.SignerInfo selfsign_signerInfo =
-                        (org.mozilla.jss.pkix.cms.SignerInfo) sis.elementAt(0);
-
-                OBJECT_IDENTIFIER id = ci.getContentType();
-
-                if (!id.equals(OBJECT_IDENTIFIER.id_cct_PKIData) ||
-                        !ci.hasContent()) {
-                    msg = "request EncapsulatedContentInfo content type not OBJECT_IDENTIFIER.id_cct_PKIData";
-                    CMS.debug(method + msg);
-
+                    cmcBlobIn.close();
+                    msg = "unsupported cmc rquest content type; must be either ContentInfo.SIGNED_DATA or ContentInfo.DATA;";
+                    CMS.debug(msg);
                     throw new EBaseException(msg);
                 }
-
-                OCTET_STRING content = ci.getContent();
 
                 ByteArrayInputStream s = new ByteArrayInputStream(content.toByteArray());
                 PKIData pkiData = (PKIData) (new PKIData.Template()).decode(s);
@@ -426,7 +431,8 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
 
                             if (type.equals(
                                     OBJECT_IDENTIFIER.id_cmc_revokeRequest)) {
-                                /* TODO: user-signed revocation to be handled in next ticket
+                                //further checks and actual revocation happen in CMCOutputTemplate
+
                                 // if( i ==1 ) {
                                 //     taggedAttribute.getType() ==
                                 //       OBJECT_IDENTIFIER.id_cmc_revokeRequest
@@ -440,25 +446,23 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
                                 for (int j = 0; j < numVals; j++) {
                                     // serialNumber    INTEGER
 
-                                    // SEQUENCE RevRequest = (SEQUENCE)
+                                    // SEQUENCE RevokeRequest = (SEQUENCE)
                                     //     values.elementAt(j);
                                     byte[] encoded = ASN1Util.encode(
                                             values.elementAt(j));
-                                    org.mozilla.jss.asn1.ASN1Template template = new
-                                            org.mozilla.jss.pkix.cmmf.RevRequest.Template();
-                                    org.mozilla.jss.pkix.cmmf.RevRequest revRequest =
-                                            (org.mozilla.jss.pkix.cmmf.RevRequest)
-                                            ASN1Util.decode(template, encoded);
+                                    org.mozilla.jss.asn1.ASN1Template template = new org.mozilla.jss.pkix.cmc.RevokeRequest.Template();
+                                    org.mozilla.jss.pkix.cmc.RevokeRequest revRequest = (org.mozilla.jss.pkix.cmc.RevokeRequest) ASN1Util
+                                            .decode(template, encoded);
 
-                                    // SEQUENCE RevRequest = (SEQUENCE)
+                                    // SEQUENCE RevokeRequest = (SEQUENCE)
                                     //     ASN1Util.decode(
                                     //         SEQUENCE.getTemplate(),
                                     //         ASN1Util.encode(
                                     //         values.elementAt(j)));
 
-                                    // SEQUENCE RevRequest =
+                                    // SEQUENCE RevokeRequest =
                                     //     values.elementAt(j);
-                                    // int revReqSize = RevRequest.size();
+                                    // int revReqSize = RevokeRequest.size();
                                     // if( revReqSize > 3 ) {
                                     //     INTEGER serialNumber =
                                     //         new INTEGER((long)0);
@@ -473,13 +477,10 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
                                     Integer IntObject = Integer.valueOf((int) reasonCode);
                                     authToken.set(REASON_CODE, IntObject);
 
-
                                     //authToken.set("uid", uid);
                                     //authToken.set("userid", userid);
 
                                 }
-                                */
-
                             }
                         }
 
@@ -648,8 +649,7 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
                                 certInfoArray[i] = certInfo;
 
                                 if (selfSigned) {
-                                    selfsign_skiExtn =
-                                            (SubjectKeyIdentifierExtension) CryptoUtil
+                                    selfsign_skiExtn = (SubjectKeyIdentifierExtension) CryptoUtil
                                             .getExtensionFromCertTemplate(template, PKIXExtensions.SubjectKey_Id);
                                     if (selfsign_skiExtn != null) {
                                         CMS.debug(method +
@@ -702,16 +702,24 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
                 throw new EInvalidCredentials(e.toString());
             }
 
-            // store a message in the signed audit log file
-            auditMessage = CMS.getLogMessage(
-                    AuditEvent.CMC_USER_SIGNED_REQUEST_SIG_VERIFY_SUCCESS,
-                    auditSubjectID,
-                    ILogger.SUCCESS,
-                    auditReqType,
-                    auditCertSubject,
-                    auditSignerInfo);
+            // For accuracy, make sure revocation by shared secret doesn't
+            // log CMC_USER_SIGNED_REQUEST_SIG_VERIFY_SUCCESS
+            if (authToken.get(IAuthManager.CRED_CMC_SIGNING_CERT) != null ||
+                    authToken.get(IAuthManager.CRED_CMC_SELF_SIGNED) != null) {
+                // store a message in the signed audit log file
+                auditMessage = CMS.getLogMessage(
+                        AuditEvent.CMC_USER_SIGNED_REQUEST_SIG_VERIFY_SUCCESS,
+                        auditSubjectID,
+                        ILogger.SUCCESS,
+                        auditReqType,
+                        auditCertSubject,
+                        auditSignerInfo);
 
-            audit(auditMessage);
+                audit(auditMessage);
+            } else {
+                CMS.debug(method
+                        + "audit event CMC_USER_SIGNED_REQUEST_SIG_VERIFY_SUCCESS not logged due to unsigned data for revocation with shared secret.");
+            }
 
             CMS.debug(method + "ends successfully; returning authToken");
             return authToken;
@@ -1029,10 +1037,15 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
                         } else {
                             CMS.debug(method + "found signing cert... verifying");
 
-                            //capture auditSubjectID first in case of failure
-                            netscape.security.x509.X500Name tempPrincipal =
+                            // capture auditSubjectID first in case of failure
+                            netscape.security.x509.X500Name principal =
                                     (X500Name) x509Certs[0].getSubjectDN();
-                            CN = tempPrincipal.getCommonName(); //tempToken.get("userid");
+
+                            // capture signer principal to be checked against
+                            // cert subject principal later in CMCOutputTemplate
+                            // in case of user signed revocation
+                            auditContext.put(SessionContext.CMC_SIGNER_PRINCIPAL, principal);
+                            CN = principal.getCommonName(); //tempToken.get("userid");
                             CMS.debug(method + " Principal name = " + CN);
                             auditContext.put(SessionContext.USER_ID, CN);
 
@@ -1093,15 +1106,18 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
                         // now check revocation status of the cert
                         if (CMS.isRevoked(x509Certs)) {
                             CMS.debug(method + "CMC signing cert is a revoked certificate");
+                            s.close();
                             throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
                         }
                         try { //do this again anyways
                             cert.checkValidity();
                         } catch (CertificateExpiredException e) {
                             CMS.debug(method + "CMC signing cert is an expired certificate");
+                            s.close();
                             throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
                         } catch (Exception e) {
                             CMS.debug(method + e.toString());
+                            s.close();
                             throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
                         }
 

@@ -36,6 +36,7 @@ import org.dogtagpki.legacy.policy.ISubjAltNameConfig;
 import org.mozilla.jss.CryptoManager.CertificateUsage;
 import org.mozilla.jss.util.PasswordCallback;
 
+import com.netscape.certsrv.authentication.ISharedToken;
 import com.netscape.certsrv.acls.EACLsException;
 import com.netscape.certsrv.acls.IACL;
 import com.netscape.certsrv.authentication.IAuthSubsystem;
@@ -1572,6 +1573,15 @@ public final class CMS {
      */
     public static IPasswordCheck getPasswordChecker() {
         return _engine.getPasswordChecker();
+    }
+
+    /**
+     * Retrieves the SharedToken class.
+     *
+     * @return named SharedToken class
+     */
+    public static ISharedToken getSharedTokenClass(String configName) {
+        return _engine.getSharedTokenClass(configName);
     }
 
     /**

@@ -53,6 +53,11 @@ public class SessionContext extends Hashtable<Object, Object> {
     public static final String AUTH_MANAGER_ID = "authManagerId"; // String
 
     /**
+     * Principal name object of the signed CMC request
+     */
+    public static final String CMC_SIGNER_PRINCIPAL = "cmcSignerPrincipal";
+
+    /**
      * User object of the authenticated user in the current thread.
      */
     public static final String USER = "user"; // IUser

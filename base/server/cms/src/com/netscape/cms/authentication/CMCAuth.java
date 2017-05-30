@@ -237,6 +237,9 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
      */
     public IAuthToken authenticate(IAuthCredentials authCred) throws EMissingCredential, EInvalidCredentials,
             EBaseException {
+        String method = "CMCAuth: authenticate: ";
+        String msg = "";
+
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
         String auditReqType = ILogger.UNIDENTIFIED;
@@ -261,7 +264,7 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
             }
             String cmc = (String) returnVal;
             if (cmc == null) {
-                CMS.debug("CMCAuth: Authentication failed. Missing CMC.");
+                CMS.debug(method + "Authentication failed. Missing CMC.");
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
@@ -279,8 +282,9 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
             }
 
             if (cmc.equals("")) {
-                log(ILogger.LL_FAILURE,
-                        "cmc : attempted login with empty CMC.");
+                msg = "attempted login with empty CMC";
+                CMS.debug(method + msg);
+                log(ILogger.LL_FAILURE, method + msg);
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
@@ -331,6 +335,7 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
                 if (!cmcReq.getContentType().equals(
                         org.mozilla.jss.pkix.cms.ContentInfo.SIGNED_DATA) ||
                         !cmcReq.hasContent()) {
+                    CMS.debug(method + "malformed cmc: either not ContentInfo.SIGNED_DATA or cmcReq has no content");
                     // store a message in the signed audit log file
                     auditMessage = CMS.getLogMessage(
                             AuditEvent.CMC_SIGNED_REQUEST_SIG_VERIFY,
@@ -358,13 +363,13 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
                 if (checkSignerInfo) {
                     IAuthToken agentToken = verifySignerInfo(authToken, cmcFullReq);
                     if (agentToken == null) {
-                        CMS.debug("CMCAuth: authenticate() agentToken null");
+                        CMS.debug(method + "agentToken null");
                         throw new EBaseException("CMCAuth: agent verifySignerInfo failure");
                     }
                     userid = agentToken.getInString("userid");
                     uid = agentToken.getInString("cn");
                 } else {
-                    CMS.debug("CMCAuth: authenticate() signerInfo verification bypassed");
+                    CMS.debug(method + "signerInfo verification bypassed");
                 }
                 // reset value of auditSignerInfo
                 if (uid != null) {
@@ -377,6 +382,8 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
 
                 if (!id.equals(OBJECT_IDENTIFIER.id_cct_PKIData) ||
                         !ci.hasContent()) {
+                    msg = "request EncapsulatedContentInfo content type not OBJECT_IDENTIFIER.id_cct_PKIData";
+                    CMS.debug( method + msg);
                     // store a message in the signed audit log file
                     auditMessage = CMS.getLogMessage(
                             AuditEvent.CMC_SIGNED_REQUEST_SIG_VERIFY,
@@ -406,6 +413,7 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
 
                 if (numReqs == 0) {
                     // revocation request
+                    CMS.debug(method + "numReqs 0, assume revocation request");
 
                     // reset value of auditReqType
                     auditReqType = SIGNED_AUDIT_REVOCATION_REQUEST_TYPE;
@@ -476,6 +484,7 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
                     }
                 } else {
                     // enrollment request
+                    CMS.debug(method + "numReqs not 0, assume enrollment request");
 
                     // reset value of auditReqType
                     auditReqType = SIGNED_AUDIT_ENROLLMENT_REQUEST_TYPE;

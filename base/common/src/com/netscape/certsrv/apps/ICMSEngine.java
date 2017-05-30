@@ -38,6 +38,7 @@ import org.mozilla.jss.util.PasswordCallback;
 
 import com.netscape.certsrv.acls.EACLsException;
 import com.netscape.certsrv.acls.IACL;
+import com.netscape.certsrv.authentication.ISharedToken;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
@@ -679,6 +680,13 @@ public interface ICMSEngine extends ISubsystem {
      * @return anonymous LDAP connection pool
      */
     public ILdapConnFactory getLdapAnonConnFactory(String id) throws ELdapException;
+
+    /**
+     * Retrieves the named SharedToken class
+     *
+     * @return named shared token class
+     */
+    public ISharedToken getSharedTokenClass(String configName);
 
     /**
      * Retrieves the password check.

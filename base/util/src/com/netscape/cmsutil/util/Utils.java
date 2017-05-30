@@ -285,6 +285,11 @@ public class Utils {
         return string;
     }
 
+    public static String base64encodeSingleLine(byte[] bytes) {
+        String string = new Base64().encodeToString(bytes);
+        return string;
+    }
+ 
     public static byte[] base64decode(String string) {
         byte[] bytes = Base64.decodeBase64(string);
         return bytes;

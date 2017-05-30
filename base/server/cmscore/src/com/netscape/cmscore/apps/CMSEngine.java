@@ -62,6 +62,7 @@ import org.mozilla.jss.util.PasswordCallback;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import com.netscape.certsrv.authentication.ISharedToken;
 import com.netscape.certsrv.acls.ACL;
 import com.netscape.certsrv.acls.ACLEntry;
 import com.netscape.certsrv.acls.EACLsException;
@@ -1910,6 +1911,38 @@ public class CMSEngine implements ICMSEngine {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    public ISharedToken getSharedTokenClass(String configName) {
+        String method = "CMSEngine: getSharedTokenClass: ";
+        ISharedToken tokenClass = null;
+
+        String name = null;
+        try {
+            CMS.debug(method + "getting :" + configName);
+            name = CMS.getConfigStore().getString(configName);
+            CMS.debug(method + "Shared Secret plugin class name retrieved:" +
+                    name);
+        } catch (Exception e) {
+            CMS.debug(method + " Failed to retrieve shared secret plugin class name");
+            return null;
+        }
+
+        try {
+            tokenClass = (ISharedToken) Class.forName(name).newInstance();
+            CMS.debug(method + "Shared Secret plugin class retrieved");
+        } catch (ClassNotFoundException e) {
+            CMS.debug(method + " Failed to find class name: " + name);
+            return null;
+        } catch (InstantiationException e) {
+            CMS.debug("EnrollProfile: Failed to instantiate class: " + name);
+            return null;
+        } catch (IllegalAccessException e) {
+            CMS.debug(method + " Illegal access: " + name);
+            return null;
+        }
+
+        return tokenClass;
     }
 
     public ILogger getLogger() {

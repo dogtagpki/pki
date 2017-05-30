@@ -23,6 +23,7 @@ import com.netscape.certsrv.acls.EACLsException;
 import com.netscape.certsrv.acls.IACL;
 import com.netscape.certsrv.apps.ICMSEngine;
 import com.netscape.certsrv.apps.ICommandQueue;
+import com.netscape.certsrv.authentication.ISharedToken;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
@@ -367,6 +368,10 @@ public class CMSEngineDefaultStub implements ICMSEngine {
     }
 
     public IPasswordCheck getPasswordChecker() {
+        return null;
+    }
+
+    public ISharedToken getSharedTokenClass(String configName) {
         return null;
     }
 

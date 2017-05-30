@@ -158,9 +158,9 @@ public class GenPendingTemplateFiller implements ICMSTemplateFiller {
                 byte[] dig;
 
                 try {
-                    MessageDigest SHA1Digest = MessageDigest.getInstance("SHA1");
+                    MessageDigest SHA2Digest = MessageDigest.getInstance("SHA256");
 
-                    dig = SHA1Digest.digest(salt.getBytes());
+                    dig = SHA2Digest.digest(salt.getBytes());
                 } catch (NoSuchAlgorithmException ex) {
                     dig = salt.getBytes();
                 }
@@ -199,16 +199,15 @@ public class GenPendingTemplateFiller implements ICMSTemplateFiller {
                     SignerIdentifier si = new
                             SignerIdentifier(SignerIdentifier.ISSUER_AND_SERIALNUMBER, ias, null);
 
-                    // SHA1 is the default digest Alg for now.
                     DigestAlgorithm digestAlg = null;
                     SignatureAlgorithm signAlg = null;
                     org.mozilla.jss.crypto.PrivateKey privKey = CryptoManager.getInstance().findPrivKeyByCert(x509cert);
                     org.mozilla.jss.crypto.PrivateKey.Type keyType = privKey.getType();
 
                     if (keyType.equals(org.mozilla.jss.crypto.PrivateKey.RSA)) {
-                        signAlg = SignatureAlgorithm.RSASignatureWithSHA1Digest;
-                    } else if (keyType.equals(org.mozilla.jss.crypto.PrivateKey.DSA)) {
-                        signAlg = SignatureAlgorithm.DSASignatureWithSHA1Digest;
+                        signAlg = SignatureAlgorithm.RSASignatureWithSHA256Digest;
+                    } else if (keyType.equals(org.mozilla.jss.crypto.PrivateKey.EC)) {
+                        signAlg = SignatureAlgorithm.ECSignatureWithSHA256Digest;
                     } else {
                         CMS.debug("GenPendingTemplateFiller::getTemplateParams() - "
                                  + "keyType " + keyType.toString()
@@ -220,8 +219,8 @@ public class GenPendingTemplateFiller implements ICMSTemplateFiller {
                     byte[] digest = null;
 
                     try {
-                        SHADigest = MessageDigest.getInstance("SHA1");
-                        digestAlg = DigestAlgorithm.SHA1;
+                        SHADigest = MessageDigest.getInstance("SHA256");
+                        digestAlg = DigestAlgorithm.SHA256;
 
                         ByteArrayOutputStream ostream = new ByteArrayOutputStream();
 

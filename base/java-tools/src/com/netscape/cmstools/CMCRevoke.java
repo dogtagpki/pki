@@ -75,6 +75,7 @@ public class CMCRevoke {
     public static final String RFC7468_TRAILER = "-----END CERTIFICATE REQUEST-----";
     static String dValue = null, nValue = null, iValue = null, sValue = null, mValue = null, hValue = null,
             pValue = null, cValue = null;
+    static String tValue = null;
 
     public static final String CMS_BASE_CA_SIGNINGCERT_NOT_FOUND = "CA signing certificate not found";
     public static final String PR_REQUEST_CMC = "CMC";
@@ -109,8 +110,9 @@ public class CMCRevoke {
                     "-d<dir to cert8.db, key3.db> " +
                     "-n<nickname> " +
                     "-i<issuerName> " +
-                    "-s<serialName> " +
+                    "-s<serialNumber> " +
                     "-m<reason to revoke> " +
+                    "-t<shared secret> " +
                     "-p<password to db> " +
                     "-h<tokenname> " +
                     "-c<comment> ");
@@ -135,6 +137,8 @@ public class CMCRevoke {
                     mValue = cleanArgs(s[i].substring(2));
                 } else if (s[i].startsWith("-p")) {
                     pValue = cleanArgs(s[i].substring(2));
+                } else if (s[i].startsWith("-t")) {
+                    tValue = cleanArgs(s[i].substring(2));
                 } else if (s[i].startsWith("-h")) {
                     hValue = cleanArgs(s[i].substring(2));
                 } else if (s[i].startsWith("-c")) {
@@ -143,8 +147,6 @@ public class CMCRevoke {
 
             }
             // optional parameters
-            if (cValue == null)
-                cValue = "";
             if (hValue == null)
                 hValue = "";
 
@@ -160,7 +162,7 @@ public class CMCRevoke {
                         "-d<dir to cert8.db, key3.db> " +
                         "-n<nickname> " +
                         "-i<issuerName> " +
-                        "-s<serialName> " +
+                        "-s<serialNumber> " +
                         "-m<reason to revoke> " +
                         "-p<password to db> " +
                         "-h<tokenname> " +
@@ -191,9 +193,9 @@ public class CMCRevoke {
 
                 token.login(pass);
                 X509Certificate signerCert = getCertificate(cm, hValue, nValue);
-                String outBlob = createRevokeReq(hValue, signerCert, cm);
+                ContentInfo fullEnrollmentRequest = createRevokeReq(hValue, signerCert, cm);
 
-                printCMCRevokeRequest(outBlob);
+                printCMCRevokeRequest(fullEnrollmentRequest);
             } catch (Exception e) {
                 e.printStackTrace();
                 System.exit(1);
@@ -209,29 +211,48 @@ public class CMCRevoke {
      *
      * @param asciiBASE64Blob the ascii string of the request
      */
-    static void printCMCRevokeRequest(String asciiBASE64Blob) {
+    static void printCMCRevokeRequest(ContentInfo fullEnrollmentReq) {
+        String method = "printCMCRevokeRequest: ";
 
-        // (6) Finally, print the actual CMCSigning blob to the
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        ByteArrayOutputStream bs = new ByteArrayOutputStream();
+        PrintStream ps = new PrintStream(bs);
+
+        if (fullEnrollmentReq == null) {
+            System.out.println(method + "param fullEnrollmentRequest is null");
+            System.exit(1);
+        }
+        // format is PR_REQUEST_CMC
+        try {
+            fullEnrollmentReq.encode(os);
+        } catch (IOException e) {
+            System.out.println("CMCSigning:  I/O error " +
+                    "encountered during write():\n" +
+                    e);
+            System.exit(1);
+        }
+        //ps.print(Utils.base64encode(os.toByteArray()));
+        // no line breaks for ease of copy/paste for CA acceptance
+        System.out.println(RFC7468_HEADER);
+        ps.print(Utils.base64encodeSingleLine(os.toByteArray()));
+        ////fullEnrollmentReq.print(ps); // no header/trailer
+
+        String asciiBASE64Blob = bs.toString();
+        System.out.println(asciiBASE64Blob + "\n" + RFC7468_TRAILER);
+
+        // (6) Finally, print the actual CMCSigning binary blob to the
         //     specified output file
         FileOutputStream outputBlob = null;
 
         try {
             outputBlob = new FileOutputStream("CMCRevoke.out");
+            fullEnrollmentReq.encode(outputBlob);
         } catch (IOException e) {
             System.out.println("CMCSigning:  unable to open file CMCRevoke.out for writing:\n" + e);
             return;
         }
 
-        System.out.println(RFC7468_HEADER);
-        System.out.println(asciiBASE64Blob + RFC7468_TRAILER);
-        try {
-            asciiBASE64Blob = RFC7468_HEADER + "\n" + asciiBASE64Blob + RFC7468_TRAILER;
-            outputBlob.write(asciiBASE64Blob.getBytes());
-        } catch (IOException e) {
-            System.out.println("CMCSigning:  I/O error " +
-                    "encountered during write():\n" +
-                    e);
-        }
+        System.out.println("\nCMC revocation binary blob written to CMCRevoke.out\n");
 
         try {
             outputBlob.close();
@@ -280,12 +301,11 @@ public class CMCRevoke {
      * @param manager the crypto manger.
      * @return the CMC revocation request encoded in base64
      */
-    static String createRevokeReq(String tokenname, X509Certificate signerCert, CryptoManager manager) {
+    static ContentInfo createRevokeReq(String tokenname, X509Certificate signerCert, CryptoManager manager) {
 
         java.security.PrivateKey privKey = null;
         SignerIdentifier si = null;
         ContentInfo fullEnrollmentReq = null;
-        String asciiBASE64Blob = null;
 
         try {
 
@@ -305,8 +325,8 @@ public class CMCRevoke {
 
             if (privKey == null) {
                 System.out.println("CMCRevoke::createRevokeReq() - " +
-                                    "privKey is null!");
-                return "";
+                        "privKey is null!");
+                return null;
             }
 
             int bpid = 1;
@@ -319,65 +339,64 @@ public class CMCRevoke {
             byte[] dig;
 
             try {
-                MessageDigest SHA1Digest = MessageDigest.getInstance("SHA1");
+                MessageDigest SHA2Digest = MessageDigest.getInstance("SHA256");
 
-                dig = SHA1Digest.digest(salt.getBytes());
+                dig = SHA2Digest.digest(salt.getBytes());
             } catch (NoSuchAlgorithmException ex) {
                 dig = salt.getBytes();
             }
             String sn = Utils.base64encode(dig);
 
-            TaggedAttribute senderNonce =
-                    new TaggedAttribute(new INTEGER(bpid++), OBJECT_IDENTIFIER.id_cmc_senderNonce,
-                            new OCTET_STRING(sn.getBytes()));
+            TaggedAttribute senderNonce = new TaggedAttribute(new INTEGER(bpid++), OBJECT_IDENTIFIER.id_cmc_senderNonce,
+                    new OCTET_STRING(sn.getBytes()));
 
             controlSeq.addElement(senderNonce);
 
             Name subjectName = new Name();
 
             subjectName.addCommonName(iValue);
-            org.mozilla.jss.pkix.cmmf.RevRequest lRevokeRequest =
-                    new org.mozilla.jss.pkix.cmmf.RevRequest(new ANY((new X500Name(iValue)).getEncoded()),
-                            new INTEGER(sValue),
-                            //org.mozilla.jss.pkix.cmmf.RevRequest.unspecified,
-                            new ENUMERATED((new Integer(mValue)).longValue()),
-                            null,
-                            new OCTET_STRING(pValue.getBytes()),
-                            new UTF8String(cValue.toCharArray()));
+            org.mozilla.jss.pkix.cmc.RevokeRequest lRevokeRequest = new org.mozilla.jss.pkix.cmc.RevokeRequest(
+                    new ANY((new X500Name(iValue)).getEncoded()),
+                    new INTEGER(sValue),
+                    //org.mozilla.jss.pkix.cmc.RevokeRequest.unspecified,
+                    new ENUMERATED((new Integer(mValue)).longValue()),
+                    null,
+                    (tValue != null) ? new OCTET_STRING(tValue.getBytes()) : null,
+                    (cValue != null) ? new UTF8String(cValue.toCharArray()) : null);
             //byte[] encoded = ASN1Util.encode(lRevokeRequest);
-            //org.mozilla.jss.asn1.ASN1Template template = new  org.mozilla.jss.pkix.cmmf.RevRequest.Template();
-            //org.mozilla.jss.pkix.cmmf.RevRequest revRequest = (org.mozilla.jss.pkix.cmmf.RevRequest)
+            //org.mozilla.jss.asn1.ASN1Template template = new  org.mozilla.jss.pkix.cmc.RevokeRequest.Template();
+            //org.mozilla.jss.pkix.cmc.RevokeRequest revRequest = (org.mozilla.jss.pkix.cmc.RevokeRequest)
             //                                                               template.decode(new java.io.ByteArrayInputStream(
             //                                                               encoded));
 
-            ByteArrayOutputStream os = new ByteArrayOutputStream();
-            //lRevokeRequest.encode(os); // khai
-            TaggedAttribute revokeRequestTag =
-                    new TaggedAttribute(new INTEGER(bpid++), OBJECT_IDENTIFIER.id_cmc_revokeRequest,
-                            lRevokeRequest);
+            TaggedAttribute revokeRequestTag = new TaggedAttribute(new INTEGER(bpid++),
+                    OBJECT_IDENTIFIER.id_cmc_revokeRequest,
+                    lRevokeRequest);
 
             controlSeq.addElement(revokeRequestTag);
             PKIData pkidata = new PKIData(controlSeq, new SEQUENCE(), new SEQUENCE(), new SEQUENCE());
 
             EncapsulatedContentInfo ci = new EncapsulatedContentInfo(OBJECT_IDENTIFIER.id_cct_PKIData, pkidata);
-            // SHA1 is the default digest Alg for now.
             DigestAlgorithm digestAlg = null;
             SignatureAlgorithm signAlg = null;
-            org.mozilla.jss.crypto.PrivateKey.Type signingKeyType = ((org.mozilla.jss.crypto.PrivateKey) privKey).getType();
+            org.mozilla.jss.crypto.PrivateKey.Type signingKeyType = ((org.mozilla.jss.crypto.PrivateKey) privKey)
+                    .getType();
             if (signingKeyType.equals(org.mozilla.jss.crypto.PrivateKey.Type.RSA)) {
-                signAlg = SignatureAlgorithm.RSASignatureWithSHA1Digest;
+                signAlg = SignatureAlgorithm.RSASignatureWithSHA256Digest;
             } else if (signingKeyType.equals(org.mozilla.jss.crypto.PrivateKey.Type.EC)) {
-                signAlg = SignatureAlgorithm.ECSignatureWithSHA1Digest;
-            } else if (signingKeyType.equals(org.mozilla.jss.crypto.PrivateKey.Type.DSA)) {
-                signAlg = SignatureAlgorithm.DSASignatureWithSHA1Digest;
+                signAlg = SignatureAlgorithm.ECSignatureWithSHA256Digest;
+            } else {
+                System.out.println("Algorithm not supported:" +
+                        signingKeyType);
+                return null;
             }
 
             MessageDigest SHADigest = null;
             byte[] digest = null;
 
             try {
-                SHADigest = MessageDigest.getInstance("SHA1");
-                digestAlg = DigestAlgorithm.SHA1;
+                SHADigest = MessageDigest.getInstance("SHA256");
+                digestAlg = DigestAlgorithm.SHA256;
 
                 ByteArrayOutputStream ostream = new ByteArrayOutputStream();
 
@@ -411,21 +430,11 @@ public class CMCRevoke {
 
             fullEnrollmentReq = new ContentInfo(req);
 
-            ByteArrayOutputStream bs = new ByteArrayOutputStream();
-            PrintStream ps = new PrintStream(bs);
-
-            if (fullEnrollmentReq != null) {
-                // format is PR_REQUEST_CMC
-                fullEnrollmentReq.encode(os);
-                ps.print(Utils.base64encode(os.toByteArray()));
-                ////fullEnrollmentReq.print(ps); // no header/trailer
-            }
-
-            asciiBASE64Blob = bs.toString();
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(1);
         }
-        return asciiBASE64Blob;
+
+        return fullEnrollmentReq;
     }
 }

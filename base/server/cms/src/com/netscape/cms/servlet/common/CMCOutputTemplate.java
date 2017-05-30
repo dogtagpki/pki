@@ -25,6 +25,7 @@ import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
+import java.security.cert.CertificateExpiredException;
 import java.util.Date;
 import java.util.Hashtable;
 
@@ -55,9 +56,9 @@ import org.mozilla.jss.pkix.cmc.OtherInfo;
 import org.mozilla.jss.pkix.cmc.OtherMsg;
 import org.mozilla.jss.pkix.cmc.PendInfo;
 import org.mozilla.jss.pkix.cmc.ResponseBody;
+import org.mozilla.jss.pkix.cmc.RevokeRequest;
 import org.mozilla.jss.pkix.cmc.TaggedAttribute;
 import org.mozilla.jss.pkix.cmc.TaggedRequest;
-import org.mozilla.jss.pkix.cmmf.RevRequest;
 import org.mozilla.jss.pkix.cms.ContentInfo;
 import org.mozilla.jss.pkix.cms.EncapsulatedContentInfo;
 import org.mozilla.jss.pkix.cms.EnvelopedData;
@@ -76,8 +77,10 @@ import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.event.CertStatusChangeRequestProcessedEvent;
 import com.netscape.certsrv.profile.IEnrollProfile;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
@@ -101,6 +104,8 @@ import netscape.security.x509.X509Key;
  * @version $ $, $Date$
  */
 public class CMCOutputTemplate {
+    protected ILogger mSignedAuditLogger = CMS.getSignedAuditLogger();
+
     public CMCOutputTemplate() {
     }
 
@@ -212,13 +217,11 @@ public class CMCOutputTemplate {
                     }
                 }
             } else {
-                CMS.debug(method + " reqs null.  why?");
+                CMS.debug(method + " reqs null. could be revocation");
             }
 
             TaggedAttribute tagattr = null;
             CMCStatusInfo cmcStatusInfo = null;
-
-//cfu
 
             SEQUENCE decryptedPOPBpids = (SEQUENCE) context.get("decryptedPOP");
             if (decryptedPOPBpids != null && decryptedPOPBpids.size() > 0) {
@@ -880,8 +883,8 @@ public class CMCOutputTemplate {
                 String salt = "lala123" + date.toString();
                 byte[] dig;
                 try {
-                    MessageDigest SHA1Digest = MessageDigest.getInstance("SHA1");
-                    dig = SHA1Digest.digest(salt.getBytes());
+                    MessageDigest SHA2Digest = MessageDigest.getInstance("SHA256");
+                    dig = SHA2Digest.digest(salt.getBytes());
                 } catch (NoSuchAlgorithmException ex) {
                     dig = salt.getBytes();
                 }
@@ -920,22 +923,59 @@ public class CMCOutputTemplate {
     private int processRevokeRequestControl(TaggedAttribute attr,
             SEQUENCE controlSeq, int bpid) throws InvalidBERException, EBaseException,
             IOException {
+        String method = "CMCOutputTemplate: processRevokeRequestControl: ";
+        String msg = "";
+        CMS.debug(method + "begins");
         boolean revoke = false;
         SessionContext context = SessionContext.getContext();
+        String authManagerId = (String) context.get(SessionContext.AUTH_MANAGER_ID);
+        if (authManagerId == null) {
+            CMS.debug(method + "authManagerId null.????");
+            //unlikely, but...
+            authManagerId = "none";
+        } else {
+            CMS.debug(method + "authManagerId =" + authManagerId);
+        }
+
+        // in case of CMCUserSignedAuth,
+        // for matching signer and revoked cert principal
+        X500Name signerPrincipal = null;
+
+        // for auditing
+        String auditRequesterID = null;
+        auditRequesterID = (String) context.get(SessionContext.USER_ID);
+
+        if (auditRequesterID != null) {
+            auditRequesterID = auditRequesterID.trim();
+        } else {
+            auditRequesterID = ILogger.NONROLEUSER;
+        }
+        signerPrincipal = (X500Name) context.get(SessionContext.CMC_SIGNER_PRINCIPAL);
+        String auditSubjectID = null;
+        String auditRequestType = "revoke";
+        String auditSerialNumber = null;
+        String auditReasonNum = null;
+        RequestStatus auditApprovalStatus = RequestStatus.REJECTED;
+
         if (attr != null) {
             INTEGER attrbpid = attr.getBodyPartID();
             CMCStatusInfo cmcStatusInfo = null;
             SET vals = attr.getValues();
             if (vals.size() > 0) {
-                RevRequest revRequest =
-                        (RevRequest) (ASN1Util.decode(new RevRequest.Template(),
-                                ASN1Util.encode(vals.elementAt(0))));
-                OCTET_STRING str = revRequest.getSharedSecret();
+                RevokeRequest revRequest = (RevokeRequest) (ASN1Util.decode(new RevokeRequest.Template(),
+                        ASN1Util.encode(vals.elementAt(0))));
+                OCTET_STRING reqSecret = revRequest.getSharedSecret();
                 INTEGER pid = attr.getBodyPartID();
                 TaggedAttribute tagattr = null;
                 INTEGER revokeCertSerial = revRequest.getSerialNumber();
+                ENUMERATED n = revRequest.getReason();
+                RevocationReason reason = toRevocationReason(n);
+                auditReasonNum = reason.toString();
                 BigInteger revokeSerial = new BigInteger(revokeCertSerial.toByteArray());
-                if (str == null) {
+                auditSerialNumber = revokeSerial.toString();
+
+                if (reqSecret == null) {
+                    CMS.debug(method + "no shared secret in request; Checking signature;");
                     boolean needVerify = true;
                     try {
                         needVerify = CMS.getConfigStore().getBoolean("cmc.revokeCert.verify", true);
@@ -943,67 +983,75 @@ public class CMCOutputTemplate {
                     }
 
                     if (needVerify) {
-                        Integer num1 = (Integer) context.get("numOfOtherMsgs");
-                        int num = num1.intValue();
-                        for (int i = 0; i < num; i++) {
-                            OtherMsg data = (OtherMsg) context.get("otherMsg" + i);
-                            INTEGER dpid = data.getBodyPartID();
-                            if (pid.longValue() == dpid.longValue()) {
-                                ANY msgValue = data.getOtherMsgValue();
-                                SignedData msgData =
-                                        (SignedData) msgValue.decodeWith(SignedData.getTemplate());
-                                if (!verifyRevRequestSignature(msgData)) {
-                                    OtherInfo otherInfo =
-                                            new OtherInfo(OtherInfo.FAIL, new INTEGER(OtherInfo.BAD_MESSAGE_CHECK),
-                                                    null);
-                                    SEQUENCE failed_bpids = new SEQUENCE();
-                                    failed_bpids.addElement(attrbpid);
-                                    cmcStatusInfo =
-                                            new CMCStatusInfo(CMCStatusInfo.FAILED, failed_bpids, (String) null,
-                                                    otherInfo);
-                                    tagattr = new TaggedAttribute(
-                                            new INTEGER(bpid++),
-                                            OBJECT_IDENTIFIER.id_cmc_cMCStatusInfo, cmcStatusInfo);
-                                    controlSeq.addElement(tagattr);
-                                    return bpid;
+                        if (authManagerId.equals("CMCUserSignedAuth")) {
+                            if (signerPrincipal == null) {
+                                CMS.debug(method + "missing CMC signer principal");
+                                OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL,
+                                        new INTEGER(OtherInfo.BAD_MESSAGE_CHECK),
+                                        null);
+                                SEQUENCE failed_bpids = new SEQUENCE();
+                                failed_bpids.addElement(attrbpid);
+                                cmcStatusInfo = new CMCStatusInfo(CMCStatusInfo.FAILED, failed_bpids, (String) null,
+                                        otherInfo);
+                                tagattr = new TaggedAttribute(
+                                        new INTEGER(bpid++),
+                                        OBJECT_IDENTIFIER.id_cmc_cMCStatusInfo, cmcStatusInfo);
+                                controlSeq.addElement(tagattr);
+                                return bpid;
+                            }
+                        } else { // !CMCUserSignedAuth
+
+                            // this code is making the assumption that OtherMsg
+                            // is used for signer info in signed cmc revocation,
+                            // when in fact the signer info is
+                            // in the outer layer and should have already been
+                            // verified in the auth manager;
+                            // Left here for possible legacy client(s)
+
+                            Integer num1 = (Integer) context.get("numOfOtherMsgs");
+                            CMS.debug(method + "found numOfOtherMsgs =" + num1.toString());
+                            int num = num1.intValue();
+                            for (int i = 0; i < num; i++) {
+                                OtherMsg data = (OtherMsg) context.get("otherMsg" + i);
+                                INTEGER dpid = data.getBodyPartID();
+                                if (pid.longValue() == dpid.longValue()) {
+                                    CMS.debug(method + "body part id match;");
+                                    ANY msgValue = data.getOtherMsgValue();
+                                    SignedData msgData = (SignedData) msgValue.decodeWith(SignedData.getTemplate());
+                                    if (!verifyRevRequestSignature(msgData)) {
+                                        OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL,
+                                                new INTEGER(OtherInfo.BAD_MESSAGE_CHECK),
+                                                null);
+                                        SEQUENCE failed_bpids = new SEQUENCE();
+                                        failed_bpids.addElement(attrbpid);
+                                        cmcStatusInfo = new CMCStatusInfo(CMCStatusInfo.FAILED, failed_bpids,
+                                                (String) null,
+                                                otherInfo);
+                                        tagattr = new TaggedAttribute(
+                                                new INTEGER(bpid++),
+                                                OBJECT_IDENTIFIER.id_cmc_cMCStatusInfo, cmcStatusInfo);
+                                        controlSeq.addElement(tagattr);
+                                        return bpid;
+                                    }
+                                } else {
+                                    CMS.debug(method + "body part id do not match;");
                                 }
                             }
                         }
                     }
 
                     revoke = true;
+                } else { //use shared secret; request unsigned
+                    CMS.debug(method + "checking shared secret");
                     // check shared secret
-                } else {
-                    ISharedToken tokenClass = null;
-                    boolean sharedSecretFound = true;
-                    String name = null;
-                    try {
-                        name = CMS.getConfigStore().getString("cmc.revokeCert.sharedSecret.class");
-                    } catch (EPropertyNotFound e) {
-                        CMS.debug("EnrollProfile: Failed to find the token class in the configuration file.");
-                        sharedSecretFound = false;
-                    } catch (EBaseException e) {
-                        CMS.debug("EnrollProfile: Failed to find the token class in the configuration file.");
-                        sharedSecretFound = false;
-                    }
-
-                    try {
-                        tokenClass = (ISharedToken) Class.forName(name).newInstance();
-                    } catch (ClassNotFoundException e) {
-                        CMS.debug("EnrollProfile: Failed to find class name: " + name);
-                        sharedSecretFound = false;
-                    } catch (InstantiationException e) {
-                        CMS.debug("EnrollProfile: Failed to instantiate class: " + name);
-                        sharedSecretFound = false;
-                    } catch (IllegalAccessException e) {
-                        CMS.debug("EnrollProfile: Illegal access: " + name);
-                        sharedSecretFound = false;
-                    }
-
-                    if (!sharedSecretFound) {
-                        CMS.debug("CMCOutputTemplate: class for shared secret was not found.");
-                        OtherInfo otherInfo =
-                                new OtherInfo(OtherInfo.FAIL, new INTEGER(OtherInfo.INTERNAL_CA_ERROR), null);
+                    //TODO: remember to provide one-time-use when working
+                    //      on shared token
+                    ISharedToken tokenClass =
+                            CMS.getSharedTokenClass("cmc.revokeCert.sharedSecret.class");
+                    if (tokenClass == null) {
+                        CMS.debug(method + " Failed to retrieve shared secret plugin class");
+                        OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL, new INTEGER(OtherInfo.INTERNAL_CA_ERROR),
+                                null);
                         SEQUENCE failed_bpids = new SEQUENCE();
                         failed_bpids.addElement(attrbpid);
                         cmcStatusInfo = new CMCStatusInfo(CMCStatusInfo.FAILED, failed_bpids, (String) null, otherInfo);
@@ -1014,15 +1062,13 @@ public class CMCOutputTemplate {
                         return bpid;
                     }
 
-                    String sharedSecret = null;
-                    if (tokenClass != null) {
-                        sharedSecret = tokenClass.getSharedToken(revokeSerial);
-                    }
+                    String sharedSecret = 
+                            sharedSecret = tokenClass.getSharedToken(revokeSerial);
 
                     if (sharedSecret == null) {
-                        CMS.debug("CMCOutputTemplate: class for shared secret was not found.");
-                        OtherInfo otherInfo =
-                                new OtherInfo(OtherInfo.FAIL, new INTEGER(OtherInfo.INTERNAL_CA_ERROR), null);
+                        CMS.debug("CMCOutputTemplate: shared secret not found.");
+                        OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL, new INTEGER(OtherInfo.INTERNAL_CA_ERROR),
+                                null);
                         SEQUENCE failed_bpids = new SEQUENCE();
                         failed_bpids.addElement(attrbpid);
                         cmcStatusInfo = new CMCStatusInfo(CMCStatusInfo.FAILED, failed_bpids, (String) null, otherInfo);
@@ -1033,15 +1079,17 @@ public class CMCOutputTemplate {
                         return bpid;
                     }
 
-                    byte[] strb = str.toByteArray();
-                    String clientSC = new String(strb);
+                    byte[] reqSecretb = reqSecret.toByteArray();
+                    String clientSC = new String(reqSecretb);
                     if (clientSC.equals(sharedSecret)) {
-                        CMS.debug("CMCOutputTemplate: Both client and server shared secret are the same, can go ahead to revoke certificate.");
+                        CMS.debug(method
+                                + " Client and server shared secret are the same, can go ahead and revoke certificate.");
                         revoke = true;
                     } else {
-                        CMS.debug("CMCOutputTemplate: Both client and server shared secret are not the same, cant revoke certificate.");
-                        OtherInfo otherInfo =
-                                new OtherInfo(OtherInfo.FAIL, new INTEGER(OtherInfo.BAD_MESSAGE_CHECK), null);
+                        CMS.debug(method
+                                + " Client and server shared secret are not the same, cannot revoke certificate.");
+                        OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL, new INTEGER(OtherInfo.BAD_MESSAGE_CHECK),
+                                null);
                         SEQUENCE failed_bpids = new SEQUENCE();
                         failed_bpids.addElement(attrbpid);
                         cmcStatusInfo = new CMCStatusInfo(CMCStatusInfo.FAILED, failed_bpids, (String) null, otherInfo);
@@ -1049,6 +1097,16 @@ public class CMCOutputTemplate {
                                 new INTEGER(bpid++),
                                 OBJECT_IDENTIFIER.id_cmc_cMCStatusInfo, cmcStatusInfo);
                         controlSeq.addElement(tagattr);
+
+                        audit(new CertStatusChangeRequestProcessedEvent(
+                                auditSubjectID,
+                                ILogger.FAILURE,
+                                auditRequesterID,
+                                auditSerialNumber,
+                                auditRequestType,
+                                auditReasonNum,
+                                auditApprovalStatus));
+
                         return bpid;
                     }
                 }
@@ -1060,11 +1118,11 @@ public class CMCOutputTemplate {
                     try {
                         record = repository.readCertificateRecord(revokeSerial);
                     } catch (EBaseException ee) {
-                        CMS.debug("CMCOutputTemplate: Exception: " + ee.toString());
+                        CMS.debug(method + "Exception: " + ee.toString());
                     }
 
                     if (record == null) {
-                        CMS.debug("CMCOutputTemplate: The certificate is not found");
+                        CMS.debug(method + " The certificate is not found");
                         OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL, new INTEGER(OtherInfo.BAD_CERT_ID), null);
                         SEQUENCE failed_bpids = new SEQUENCE();
                         failed_bpids.addElement(attrbpid);
@@ -1088,11 +1146,46 @@ public class CMCOutputTemplate {
                         controlSeq.addElement(tagattr);
                         return bpid;
                     }
+
                     X509CertImpl impl = record.getCertificate();
+
+                    X500Name certPrincipal = (X500Name) impl.getSubjectDN();
+                    auditSubjectID = certPrincipal.getCommonName();
+
+                    // in case of user-signed request, check if signer
+                    // principal matches that of the revoking cert
+                    if ((reqSecret == null) && authManagerId.equals("CMCUserSignedAuth")) {
+                        if (!certPrincipal.equals(signerPrincipal)) {
+                            msg = "certificate principal and signer do not match";
+                            CMS.debug(method + msg);
+                            OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL, new INTEGER(OtherInfo.BAD_IDENTITY),
+                                    null);
+                            SEQUENCE failed_bpids = new SEQUENCE();
+                            failed_bpids.addElement(attrbpid);
+                            cmcStatusInfo = new CMCStatusInfo(CMCStatusInfo.FAILED, failed_bpids, msg,
+                                    otherInfo);
+                            tagattr = new TaggedAttribute(
+                                    new INTEGER(bpid++),
+                                    OBJECT_IDENTIFIER.id_cmc_cMCStatusInfo, cmcStatusInfo);
+                            controlSeq.addElement(tagattr);
+
+                            audit(new CertStatusChangeRequestProcessedEvent(
+                                    auditSubjectID,
+                                    ILogger.FAILURE,
+                                    auditRequesterID,
+                                    auditSerialNumber,
+                                    auditRequestType,
+                                    auditReasonNum,
+                                    auditApprovalStatus));
+
+                            return bpid;
+                        } else {
+                            CMS.debug(method + "certificate principal and signer match");
+                        }
+                    }
+
                     X509CertImpl[] impls = new X509CertImpl[1];
                     impls[0] = impl;
-                    ENUMERATED n = revRequest.getReason();
-                    RevocationReason reason = toRevocationReason(n);
                     CRLReasonExtension crlReasonExtn = new CRLReasonExtension(reason);
                     CRLExtensions entryExtn = new CRLExtensions();
                     GeneralizedTime t = revRequest.getInvalidityDate();
@@ -1105,8 +1198,8 @@ public class CMCOutputTemplate {
                         entryExtn.set(crlReasonExtn.getName(), crlReasonExtn);
                     }
 
-                    RevokedCertImpl revCertImpl =
-                            new RevokedCertImpl(impl.getSerialNumber(), CMS.getCurrentDate(), entryExtn);
+                    RevokedCertImpl revCertImpl = new RevokedCertImpl(impl.getSerialNumber(), CMS.getCurrentDate(),
+                            entryExtn);
                     RevokedCertImpl[] revCertImpls = new RevokedCertImpl[1];
                     revCertImpls[0] = revCertImpl;
                     IRequestQueue queue = ca.getRequestQueue();
@@ -1122,20 +1215,30 @@ public class CMCOutputTemplate {
                     RequestStatus stat = revReq.getRequestStatus();
                     if (stat == RequestStatus.COMPLETE) {
                         Integer result = revReq.getExtDataInInteger(IRequest.RESULT);
-                        CMS.debug("CMCOutputTemplate: revReq result = " + result);
+                        CMS.debug(method + " revReq result = " + result);
                         if (result.equals(IRequest.RES_ERROR)) {
                             CMS.debug("CMCOutputTemplate: revReq exception: " +
                                     revReq.getExtDataInString(IRequest.ERROR));
-                            OtherInfo otherInfo =
-                                    new OtherInfo(OtherInfo.FAIL, new INTEGER(OtherInfo.BAD_REQUEST), null);
+                            OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL, new INTEGER(OtherInfo.BAD_REQUEST),
+                                    null);
                             SEQUENCE failed_bpids = new SEQUENCE();
                             failed_bpids.addElement(attrbpid);
-                            cmcStatusInfo =
-                                    new CMCStatusInfo(CMCStatusInfo.FAILED, failed_bpids, (String) null, otherInfo);
+                            cmcStatusInfo = new CMCStatusInfo(CMCStatusInfo.FAILED, failed_bpids, (String) null,
+                                    otherInfo);
                             tagattr = new TaggedAttribute(
                                     new INTEGER(bpid++),
                                     OBJECT_IDENTIFIER.id_cmc_cMCStatusInfo, cmcStatusInfo);
                             controlSeq.addElement(tagattr);
+
+                            audit(new CertStatusChangeRequestProcessedEvent(
+                                    auditSubjectID,
+                                    ILogger.FAILURE,
+                                    auditRequesterID,
+                                    auditSerialNumber,
+                                    auditRequestType,
+                                    auditReasonNum,
+                                    auditApprovalStatus));
+
                             return bpid;
                         }
                     }
@@ -1148,7 +1251,7 @@ public class CMCOutputTemplate {
                                     impl.getSubjectDN(),
                                     impl.getSerialNumber().toString(16),
                                     reason.toString() });
-                    CMS.debug("CMCOutputTemplate: Certificate get revoked.");
+                    CMS.debug(method + " Certificate revoked.");
                     SEQUENCE success_bpids = new SEQUENCE();
                     success_bpids.addElement(attrbpid);
                     cmcStatusInfo = new CMCStatusInfo(CMCStatusInfo.SUCCESS,
@@ -1157,6 +1260,16 @@ public class CMCOutputTemplate {
                             new INTEGER(bpid++),
                             OBJECT_IDENTIFIER.id_cmc_cMCStatusInfo, cmcStatusInfo);
                     controlSeq.addElement(tagattr);
+
+                    auditApprovalStatus = RequestStatus.COMPLETE;
+                    audit(new CertStatusChangeRequestProcessedEvent(
+                            auditSubjectID,
+                            ILogger.SUCCESS,
+                            auditRequesterID,
+                            auditSerialNumber,
+                            auditRequestType,
+                            auditReasonNum,
+                            auditApprovalStatus));
                     return bpid;
                 } else {
                     OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL, new INTEGER(OtherInfo.BAD_MESSAGE_CHECK), null);
@@ -1167,6 +1280,16 @@ public class CMCOutputTemplate {
                             new INTEGER(bpid++),
                             OBJECT_IDENTIFIER.id_cmc_cMCStatusInfo, cmcStatusInfo);
                     controlSeq.addElement(tagattr);
+
+                    audit(new CertStatusChangeRequestProcessedEvent(
+                            auditSubjectID,
+                            ILogger.FAILURE,
+                            auditRequesterID,
+                            auditSerialNumber,
+                            auditRequestType,
+                            auditReasonNum,
+                            auditApprovalStatus));
+
                     return bpid;
                 }
             }
@@ -1175,54 +1298,81 @@ public class CMCOutputTemplate {
         return bpid;
     }
 
+    protected void audit(AuditEvent event) {
+
+        String template = event.getMessage();
+        Object[] params = event.getParameters();
+
+        String message = CMS.getLogMessage(template, params);
+
+        audit(message);
+    }
+
+    protected void audit(String msg) {
+        // in this case, do NOT strip preceding/trailing whitespace
+        // from passed-in String parameters
+
+        if (mSignedAuditLogger == null) {
+            return;
+        }
+
+        mSignedAuditLogger.log(ILogger.EV_SIGNED_AUDIT,
+                null,
+                ILogger.S_SIGNED_AUDIT,
+                ILogger.LL_SECURITY,
+                msg);
+    }
+
     private RevocationReason toRevocationReason(ENUMERATED n) {
         long code = n.getValue();
-        if (code == RevRequest.aACompromise.getValue())
+        if (code == RevokeRequest.aACompromise.getValue())
             return RevocationReason.UNSPECIFIED;
-        else if (code == RevRequest.affiliationChanged.getValue())
+        else if (code == RevokeRequest.affiliationChanged.getValue())
             return RevocationReason.AFFILIATION_CHANGED;
-        else if (code == RevRequest.cACompromise.getValue())
+        else if (code == RevokeRequest.cACompromise.getValue())
             return RevocationReason.CA_COMPROMISE;
-        else if (code == RevRequest.certificateHold.getValue())
+        else if (code == RevokeRequest.certificateHold.getValue())
             return RevocationReason.CERTIFICATE_HOLD;
-        else if (code == RevRequest.cessationOfOperation.getValue())
+        else if (code == RevokeRequest.cessationOfOperation.getValue())
             return RevocationReason.CESSATION_OF_OPERATION;
-        else if (code == RevRequest.keyCompromise.getValue())
+        else if (code == RevokeRequest.keyCompromise.getValue())
             return RevocationReason.KEY_COMPROMISE;
-        else if (code == RevRequest.privilegeWithdrawn.getValue())
+        else if (code == RevokeRequest.privilegeWithdrawn.getValue())
             return RevocationReason.UNSPECIFIED;
-        else if (code == RevRequest.removeFromCRL.getValue())
+        else if (code == RevokeRequest.removeFromCRL.getValue())
             return RevocationReason.REMOVE_FROM_CRL;
-        else if (code == RevRequest.superseded.getValue())
+        else if (code == RevokeRequest.superseded.getValue())
             return RevocationReason.SUPERSEDED;
-        else if (code == RevRequest.unspecified.getValue())
+        else if (code == RevokeRequest.unspecified.getValue())
             return RevocationReason.UNSPECIFIED;
         return RevocationReason.UNSPECIFIED;
     }
 
     private boolean verifyRevRequestSignature(SignedData msgData) {
+        String method = "CMCOutputTemplate: verifyRevRequestSignature: ";
+        CMS.debug(method + "begins");
         try {
             EncapsulatedContentInfo ci = msgData.getContentInfo();
             OCTET_STRING content = ci.getContent();
             ByteArrayInputStream s = new ByteArrayInputStream(content.toByteArray());
             TaggedAttribute tattr = (TaggedAttribute) (new TaggedAttribute.Template()).decode(s);
             SET values = tattr.getValues();
-            RevRequest revRequest = null;
-            if (values != null && values.size() > 0)
-                revRequest =
-                        (RevRequest) (ASN1Util.decode(new RevRequest.Template(),
-                                ASN1Util.encode(values.elementAt(0))));
+            RevokeRequest revRequest = null;
+            if (values != null && values.size() > 0) {
+                revRequest = (RevokeRequest) (ASN1Util.decode(new RevokeRequest.Template(),
+                        ASN1Util.encode(values.elementAt(0))));
+            } else {
+                CMS.debug(method + "attribute null");
+                return false;
+            }
 
             SET dias = msgData.getDigestAlgorithmIdentifiers();
             int numDig = dias.size();
             Hashtable<String, byte[]> digs = new Hashtable<String, byte[]>();
             for (int i = 0; i < numDig; i++) {
-                AlgorithmIdentifier dai =
-                        (AlgorithmIdentifier) dias.elementAt(i);
-                String name =
-                        DigestAlgorithm.fromOID(dai.getOID()).toString();
-                MessageDigest md =
-                        MessageDigest.getInstance(name);
+                AlgorithmIdentifier dai = (AlgorithmIdentifier) dias.elementAt(i);
+                String name = DigestAlgorithm.fromOID(dai.getOID()).toString();
+                MessageDigest md = MessageDigest.getInstance(name);
                 byte[] digest = md.digest(content.toByteArray());
                 digs.put(name, digest);
             }
@@ -1230,8 +1380,7 @@ public class CMCOutputTemplate {
             SET sis = msgData.getSignerInfos();
             int numSis = sis.size();
             for (int i = 0; i < numSis; i++) {
-                org.mozilla.jss.pkix.cms.SignerInfo si =
-                        (org.mozilla.jss.pkix.cms.SignerInfo) sis.elementAt(i);
+                org.mozilla.jss.pkix.cms.SignerInfo si = (org.mozilla.jss.pkix.cms.SignerInfo) sis.elementAt(i);
                 String name = si.getDigestAlgorithm().toString();
                 byte[] digest = digs.get(name);
                 if (digest == null) {
@@ -1242,17 +1391,15 @@ public class CMCOutputTemplate {
                 }
                 SignerIdentifier sid = si.getSignerIdentifier();
                 if (sid.getType().equals(SignerIdentifier.ISSUER_AND_SERIALNUMBER)) {
-                    org.mozilla.jss.pkix.cms.IssuerAndSerialNumber issuerAndSerialNumber =
-                            sid.getIssuerAndSerialNumber();
+                    org.mozilla.jss.pkix.cms.IssuerAndSerialNumber issuerAndSerialNumber = sid
+                            .getIssuerAndSerialNumber();
                     java.security.cert.X509Certificate cert = null;
                     if (msgData.hasCertificates()) {
                         SET certs = msgData.getCertificates();
                         int numCerts = certs.size();
                         for (int j = 0; j < numCerts; j++) {
-                            org.mozilla.jss.pkix.cert.Certificate certJss =
-                                    (Certificate) certs.elementAt(j);
-                            org.mozilla.jss.pkix.cert.CertificateInfo certI =
-                                    certJss.getInfo();
+                            org.mozilla.jss.pkix.cert.Certificate certJss = (Certificate) certs.elementAt(j);
+                            org.mozilla.jss.pkix.cert.CertificateInfo certI = certJss.getInfo();
                             Name issuer = certI.getIssuer();
                             byte[] issuerB = ASN1Util.encode(issuer);
                             INTEGER sn = certI.getSerialNumber();
@@ -1268,11 +1415,33 @@ public class CMCOutputTemplate {
                     }
 
                     if (cert != null) {
+                        CMS.debug(method + "found cert");
                         PublicKey pbKey = cert.getPublicKey();
                         PK11PubKey pubK = PK11PubKey.fromSPKI(((X509Key) pbKey).getKey());
                         si.verify(digest, ci.getContentType(), pubK);
+
+                        // now check validity of the cert
+                        java.security.cert.X509Certificate[] x509Certs = new java.security.cert.X509Certificate[1];
+                        x509Certs[0] = cert;
+                        if (CMS.isRevoked(x509Certs)) {
+                            CMS.debug(method + "CMC signing cert is a revoked certificate");
+                            return false;
+                        }
+                        try {
+                            cert.checkValidity();
+                        } catch (CertificateExpiredException e) {
+                            CMS.debug(method + "CMC signing cert is an expired certificate");
+                            return false;
+                        } catch (Exception e) {
+                            return false;
+                        }
+
                         return true;
+                    } else {
+                        CMS.debug(method + "cert not found");
                     }
+                } else {
+                    CMS.debug(method + "unsupported SignerIdentifier for CMC revocation");
                 }
             }
 

@@ -142,6 +142,8 @@ public class CMCRevReqServlet extends CMSServlet {
      * @param cmsReq the object holding the request and response information
      */
     protected void process(CMSRequest cmsReq) throws EBaseException {
+        String method = "CMCRevReqServlet: process: ";
+        CMS.debug(method + "begins");
 
         String cmcAgentSerialNumber = null;
         IArgBlock httpParams = cmsReq.getHttpParams();
@@ -151,7 +153,7 @@ public class CMCRevReqServlet extends CMSServlet {
         CMSTemplate form = null;
         Locale[] locale = new Locale[1];
 
-        CMS.debug("**** mFormPath = " + mFormPath);
+        CMS.debug(method + "**** mFormPath = " + mFormPath);
         try {
             form = getTemplate(mFormPath, req, locale);
         } catch (IOException e) {

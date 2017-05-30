@@ -413,7 +413,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
         }
 
         setInputsIntoContext(request, profile, ctx);
-        CMS.debug("ProfileSubmistServlet: set Inputs into Context");
+        CMS.debug("ProfileSubmitCMCServlet: set Inputs into Context");
 
         // before creating the request, authenticate the request
 
@@ -560,9 +560,14 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
         // In case of decryptedPOP, request already exists, find it and
         // put in provedReq.
         IRequest provedReq = null;
+        boolean isRevoke = false;
         if (reqs == null) {
             // handling DecryptedPOP request here
             Integer reqID = (Integer) context.get("cmcDecryptedPopReqId");
+            if (reqID == null) {
+                CMS.debug("ProfileSubmitCMCServlet: revocation request");
+                isRevoke = true;
+            } else {
             provedReq = profile.getRequestQueue().findRequest(new RequestId(reqID.toString()));
             if (provedReq == null) {
 
@@ -584,6 +589,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
             } else {
                 CMS.debug("ProfileSubmitCMCServlet: provedReq not null");
             }
+            }
         }
 
         String errorCode = null;
@@ -592,7 +598,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
         ///////////////////////////////////////////////
         // populate request
         ///////////////////////////////////////////////
-        for (int k = 0; (provedReq == null) &&(k < reqs.length); k++) {
+        for (int k = 0; (!isRevoke) && (provedReq == null) &&(k < reqs.length); k++) {
             // adding parameters to request
             setInputsIntoRequest(request, profile, reqs[k]);
 
@@ -712,7 +718,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
             if (reqs != null && reqs.length > 0)
                 error_codes = new int[reqs.length];
 
-            for (int k = 0; (provedReq == null) && (k < reqs.length); k++) {
+            for (int k = 0; (!isRevoke) && (provedReq == null) && (k < reqs.length); k++) {
                 try {
                     // reset the "auditRequesterID"
                     auditRequesterID = auditRequesterID(reqs[k]);
