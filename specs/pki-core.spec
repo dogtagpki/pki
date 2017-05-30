@@ -592,12 +592,7 @@ Requires:         policycoreutils-python
 Requires:         policycoreutils-python-utils
 %endif
 
-%if 0%{?fedora} >= 21
-Requires:         selinux-policy-targeted >= 3.13.1-9
-%else
-# 0%{?rhel} || 0%{?fedora} < 21
-Requires:         selinux-policy-targeted >= 3.12.1-153
-%endif
+Requires:         selinux-policy-targeted >= 3.13.1-152
 Obsoletes:        pki-selinux
 
 %if 0%{?rhel}
