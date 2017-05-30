@@ -64,8 +64,8 @@
 %define pki_homedir /usr/share/pki
 
 Name:             pki-core
-Version:          10.4.5
-Release:          1.1%{?dist}
+Version:          10.4.6
+Release:          1%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -1387,6 +1387,19 @@ fi
 %endif # %{with server}
 
 %changelog
+* Tue May 30 2017 Dogtag Team <pki-devel@redhat.com> 10.4.6-1
+- dogtagpki Pagure Issue #2540 - Creating symmetric key (sharedSecret)
+   using tkstool is failing when operating system is in FIPS mode. (jmagne)
+- dogtagpki Pagure Issue #2651 - Adding CRL_GENERATION audit event.
+  (edewata)
+- dogtagpki Pagure Issue #2660 - CA Server installation with HSM fails
+  (jmagne)
+- dogtagpki Pagure Issue #2699 - Enabling all subsystems on startup
+  (edewata)
+- dogtagpki Pagure Issue #2710 - Key recovery on token fails because
+  key record is not marked encrypted (vakwetu)
+- dogtagpki Pagure Issue #2711 - LWCA creation fails (ftweedal)
+
 * Mon May 22 2017 Dogtag Team <pki-devel@redhat.com> 10.4.5-1.1
 - Updated source version number to 10.4.5-1.1
 
