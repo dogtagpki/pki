@@ -54,13 +54,19 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         else:
             config.pki_log.info(log.INITIALIZATION_SPAWN_1, __name__,
                                 extra=config.PKI_INDENTATION_LEVEL_1)
+
+            # Verify that the subsystem already exists for the following cases:
+            # - External CA (Step 2)
+            # - Stand-alone PKI (Step 2)
+            # - Two-step installation (Step 2)
+
             if (deployer.mdict['pki_subsystem'] == "CA" or
                 config.str2bool(deployer.mdict['pki_standalone'])) and \
-                    config.str2bool(deployer.mdict['pki_external_step_two']):
-                # verify that this External CA (Step 2), or Stand-alone PKI
-                # (Step 2) currently EXISTS for this "instance"
+                    config.str2bool(deployer.mdict['pki_external_step_two']) or \
+               config.str2bool(deployer.mdict['pki_skip_installation']):
                 deployer.instance.verify_subsystem_exists()
                 deployer.mdict['pki_skip_installation'] = "True"
+
             else:
                 # verify that this type of "subsystem" does NOT yet
                 # exist for this "instance"
