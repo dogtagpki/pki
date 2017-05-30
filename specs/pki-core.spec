@@ -85,6 +85,9 @@ BuildRequires:    apache-commons-io
 BuildRequires:    apache-commons-lang
 BuildRequires:    jakarta-commons-httpclient
 BuildRequires:    slf4j
+%if ! 0%{?rhel}
+BuildRequires:    slf4j-jdk14
+%endif
 BuildRequires:    nspr-devel
 %if 0%{?rhel}
 BuildRequires:    nss-devel >= 3.28.3
