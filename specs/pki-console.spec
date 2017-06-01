@@ -1,6 +1,11 @@
 Name:             pki-console
+%if 0%{?rhel}
+Version:          10.4.1
+Release:          5%{?dist}
+%else
 Version:          10.4.6
 Release:          1%{?dist}
+%endif
 Summary:          Certificate System - PKI Console
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2

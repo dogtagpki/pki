@@ -64,8 +64,13 @@
 %define pki_homedir /usr/share/pki
 
 Name:             pki-core
+%if 0%{?rhel}
+Version:          10.4.1
+Release:          8%{?dist}
+%else
 Version:          10.4.6
 Release:          1%{?dist}
+%endif
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
