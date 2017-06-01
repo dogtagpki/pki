@@ -283,7 +283,7 @@ public class TokenKeyRecoveryService implements IService {
         // retrieve based on Certificate
         String cert_s = request.getExtDataInString(ATTR_USER_CERT);
         String keyid_s = request.getExtDataInString(IRequest.NETKEY_ATTR_KEYID);
-        KeyId keyId = new KeyId(request.getExtDataInString(IRequest.NETKEY_ATTR_KEYID));
+        KeyId keyId = keyid_s != null ? new KeyId(keyid_s): null;
         /* have to have at least one */
         if ((cert_s == null) && (keyid_s == null)) {
             CMS.debug("TokenKeyRecoveryService: not receive cert or keyid");
@@ -594,6 +594,7 @@ public class TokenKeyRecoveryService implements IService {
 
         } catch (Exception e) {
             CMS.debug("TokenKeyRecoveryService: " + e.toString());
+            e.printStackTrace();
             request.setExtData(IRequest.RESULT, Integer.valueOf(4));
         }
 
