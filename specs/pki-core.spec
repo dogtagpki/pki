@@ -950,8 +950,17 @@ ln -s %{_mandir}/man1/KRATool.1.gz %{buildroot}%{_mandir}/man1/DRMTool.1.gz
 
 # Customize system upgrade scripts in /usr/share/pki/upgrade
 %if 0%{?rhel}
+
+# merge newer upgrade scripts into 10.3.3 for RHEL
 /bin/rm -rf %{buildroot}%{_datadir}/pki/upgrade/10.3.4
 /bin/rm -rf %{buildroot}%{_datadir}/pki/upgrade/10.3.5
+
+# merge newer upgrade scripts into 10.4.1 for RHEL
+/bin/rm -rf %{buildroot}%{_datadir}/pki/upgrade/10.4.2
+/bin/rm -rf %{buildroot}%{_datadir}/pki/upgrade/10.4.3
+/bin/rm -rf %{buildroot}%{_datadir}/pki/upgrade/10.4.4
+/bin/rm -rf %{buildroot}%{_datadir}/pki/upgrade/10.4.5
+/bin/rm -rf %{buildroot}%{_datadir}/pki/upgrade/10.4.6
 %endif
 
 # Customize client library links in /usr/share/pki/lib
@@ -982,10 +991,28 @@ fi
 
 # Customize server upgrade scripts in /usr/share/pki/server/upgrade
 %if 0%{?rhel}
-mv %{buildroot}%{_datadir}/pki/server/upgrade/10.3.5/01-FixServerLibrary %{buildroot}%{_datadir}/pki/server/upgrade/10.3.3/02-FixServerLibrary
-mv %{buildroot}%{_datadir}/pki/server/upgrade/10.3.5/02-FixDeploymentDescriptor %{buildroot}%{_datadir}/pki/server/upgrade/10.3.3/03-FixDeploymentDescriptor
+
+# merge newer upgrade scripts into 10.3.3 for RHEL
+mv %{buildroot}%{_datadir}/pki/server/upgrade/10.3.5/01-FixServerLibrary \
+   %{buildroot}%{_datadir}/pki/server/upgrade/10.3.3/02-FixServerLibrary
+mv %{buildroot}%{_datadir}/pki/server/upgrade/10.3.5/02-FixDeploymentDescriptor \
+   %{buildroot}%{_datadir}/pki/server/upgrade/10.3.3/03-FixDeploymentDescriptor
 /bin/rm -rf %{buildroot}%{_datadir}/pki/server/upgrade/10.3.4
 /bin/rm -rf %{buildroot}%{_datadir}/pki/server/upgrade/10.3.5
+
+# merge newer upgrade scripts into 10.4.1 for RHEL
+mv %{buildroot}%{_datadir}/pki/server/upgrade/10.4.2/01-AddSessionAuthenticationPlugin \
+   %{buildroot}%{_datadir}/pki/server/upgrade/10.4.1/01-AddSessionAuthenticationPlugin
+mv %{buildroot}%{_datadir}/pki/server/upgrade/10.4.2/02-AddKRAWrappingParams \
+   %{buildroot}%{_datadir}/pki/server/upgrade/10.4.1/02-AddKRAWrappingParams
+mv %{buildroot}%{_datadir}/pki/server/upgrade/10.4.6/01-UpdateKeepAliveTimeout \
+   %{buildroot}%{_datadir}/pki/server/upgrade/10.4.1/03-UpdateKeepAliveTimeout
+/bin/rm -rf %{buildroot}%{_datadir}/pki/server/upgrade/10.4.2
+/bin/rm -rf %{buildroot}%{_datadir}/pki/server/upgrade/10.4.3
+/bin/rm -rf %{buildroot}%{_datadir}/pki/server/upgrade/10.4.4
+/bin/rm -rf %{buildroot}%{_datadir}/pki/server/upgrade/10.4.5
+/bin/rm -rf %{buildroot}%{_datadir}/pki/server/upgrade/10.4.6
+
 %endif
 
 # Customize server library links in /usr/share/pki/server/common/lib
