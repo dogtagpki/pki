@@ -17,6 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.kra;
 
+import java.math.BigInteger;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.keydb.KeyId;
@@ -66,7 +68,8 @@ public class SecurityDataRecoveryService implements IService {
 
         // parameters for auditing
         String auditSubjectID = request.getExtDataInString(IRequest.ATTR_REQUEST_OWNER);
-        KeyId keyId = new KeyId(request.getExtDataInBigInteger("serialNumber"));
+        BigInteger serialNumber = request.getExtDataInBigInteger("serialNumber");
+        KeyId keyId = serialNumber != null ? new KeyId(serialNumber): null;
         RequestId requestID = request.getRequestId();
         String approvers = request.getExtDataInString(IRequest.ATTR_APPROVE_AGENTS);
 
