@@ -1128,7 +1128,8 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         r = queue.findRequest(new RequestId(reqID));
 
         auditAgents = r.getExtDataInString(IRequest.ATTR_APPROVE_AGENTS);
-        keyID = new KeyId(r.getExtDataInBigInteger("serialNumber"));
+        BigInteger serialNumber = r.getExtDataInBigInteger("serialNumber");
+        keyID = serialNumber != null? new KeyId(serialNumber) : null;
 
         // set transient parameters
         params = createVolatileRequest(r.getRequestId());
