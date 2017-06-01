@@ -30,14 +30,14 @@ PKI_PWD=`pwd`
 ##
 
 PKI_CORE="pki-core"
-PKI_CORE_VERSION="10.4.6"
+PKI_SPECS_FILE="${PKI_DIR}/specs/${PKI_CORE}.spec"
+PKI_CORE_VERSION="`rpmspec -P "${PKI_SPECS_FILE}" | grep '^Version:' | awk '{print $2;}'`"
 
 
 ##
 ## Establish the SOURCE files/directories of the 'pki-core' source directory
 ##
 
-PKI_SPECS_FILE="${PKI_DIR}/specs/${PKI_CORE}.spec"
 PKI_COMPONENT_LIST="test symkey util common native-tools java-tools"
 
 if [ "$WITHOUT_JAVADOC" = "" ]; then
