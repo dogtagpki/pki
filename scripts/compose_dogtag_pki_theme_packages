@@ -31,14 +31,14 @@ PKI_PWD=`pwd`
 ##
 
 DOGTAG_PKI_THEME="dogtag-pki-theme"
-DOGTAG_PKI_THEME_VERSION="10.4.6"
+PKI_SPECS_FILE="${PKI_DIR}/specs/${DOGTAG_PKI_THEME}.spec"
+DOGTAG_PKI_THEME_VERSION="`rpmspec -P "${PKI_SPECS_FILE}" | grep '^Version:' | awk '{print $2;}'`"
 
 
 ##
 ## Establish the SOURCE files/directories of the 'dogtag-pki' source directory
 ##
 
-PKI_SPECS_FILE="${PKI_DIR}/specs/${DOGTAG_PKI_THEME}.spec"
 PKI_COMPONENT_LIST="common-ui console-ui"
 
 
