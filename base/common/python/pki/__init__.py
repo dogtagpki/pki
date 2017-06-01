@@ -45,6 +45,11 @@ PACKAGE_VERSION = SHARE_DIR + '/VERSION'
 CERT_HEADER = "-----BEGIN CERTIFICATE-----"
 CERT_FOOTER = "-----END CERTIFICATE-----"
 
+# Valid punctuation characters for random password.
+# This is identical to string.punctuation minus the equal
+# sign since it's used as delimiter in password.conf.
+PUNCTUATIONS = '!"#$%&\'()*+,-./:;<>?@[\\]^_`{|}~'
+
 
 def read_text(message,
               options=None, default=None, delimiter=':',
@@ -139,7 +144,7 @@ def generate_password():
      * digits (string.digits)
      * ASCII lowercase letters (string.ascii_lowercase)
      * ASCII uppercase letters (string.ascii_uppercase)
-     * ASCII non-alphanumeric characters (string.punctuation)
+     * ASCII non-alphanumeric characters (PUNCTUATIONS)
      * non-ASCII characters
 
     If an ASCII uppercase letter is the first character of the password,
@@ -159,7 +164,7 @@ def generate_password():
     valid_chars = string.digits +\
         string.ascii_lowercase +\
         string.ascii_uppercase +\
-        string.punctuation
+        PUNCTUATIONS
 
     chars = []
 
@@ -168,7 +173,7 @@ def generate_password():
     chars.append(rnd.choice(string.digits))
     chars.append(rnd.choice(string.ascii_lowercase))
     chars.append(rnd.choice(string.ascii_uppercase))
-    chars.append(rnd.choice(string.punctuation))
+    chars.append(rnd.choice(PUNCTUATIONS))
 
     # add 6 additional random chars
     chars.extend(rnd.choice(valid_chars) for i in range(6))
