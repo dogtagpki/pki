@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "469b7a8f_7067f033",
+        "filename": "base/kra/src/com/netscape/kra/TokenKeyRecoveryService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 596,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-06-01T22:34:03Z",
+      "side": 1,
+      "message": "This line is no longer necessary since CMS.debug(e) will provide more complete information.",
+      "revId": "492d98b15f2e55bc53f80ae9a9afaea59967d4b8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "01eb71fa_15bb4129",
+        "filename": "base/kra/src/com/netscape/kra/TokenKeyRecoveryService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 597,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-06-01T22:34:03Z",
+      "side": 1,
+      "message": "To be consistent the exception should be logged as follows:\n\n  CMS.debug(e);",
+      "revId": "492d98b15f2e55bc53f80ae9a9afaea59967d4b8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
