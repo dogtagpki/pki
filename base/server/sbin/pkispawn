@@ -34,8 +34,6 @@ try:
     import ldap
     import os
     import requests
-    import time
-    from time import strftime as date
     import traceback
     import pki
     from pki.server.deployment import pkiconfig as config
@@ -610,12 +608,9 @@ def main(argv):
 
 
 def sanitize_user_deployment_cfg(cfg):
-    # Generate a timestamp
-    ticks = time.time()
-    timestamp = date('%Y%m%d%H%M%S', time.localtime(ticks))
 
     # Correct any section headings in the user's configuration file
-    for line in fileinput.FileInput(cfg, inplace=1, backup='.' + timestamp):
+    for line in fileinput.FileInput(cfg, inplace=1):
         # Remove extraneous leading and trailing whitespace from all lines
         line = line.strip()
         # Normalize section headings to match '/etc/pki/default.cfg'
