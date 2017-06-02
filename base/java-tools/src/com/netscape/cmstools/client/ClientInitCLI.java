@@ -95,12 +95,11 @@ public class ClientInitCLI extends CLI {
         File passwordFile = new File(certDatabase, "password.txt");
 
         try {
-            String[] commands = {
-                    "/usr/bin/certutil", "-N",
-                    "-d", certDatabase.getAbsolutePath(),
-            };
-
-            List<String> list = new ArrayList<>(Arrays.asList(commands));
+            List<String> list = new ArrayList<>();
+            list.add("/usr/bin/certutil");
+            list.add("-N");
+            list.add("-d");
+            list.add(certDatabase.getAbsolutePath());
 
             if (mainCLI.config.getCertPassword() == null) {
                 list.add("--empty-password");
@@ -114,16 +113,10 @@ public class ClientInitCLI extends CLI {
                 list.add(passwordFile.getAbsolutePath());
             }
 
-            commands = new String[list.size()];
-            list.toArray(commands);
-
-            Runtime rt = Runtime.getRuntime();
-            Process p = rt.exec(commands);
-
-            int rc = p.waitFor();
-            if (rc != 0) {
-                MainCLI.printMessage("Client initialization failed");
-                return;
+            try {
+                runExternal(list);
+            } catch (Exception e) {
+                throw new Exception("Client initialization failed", e);
             }
 
             MainCLI.printMessage("Client initialized");

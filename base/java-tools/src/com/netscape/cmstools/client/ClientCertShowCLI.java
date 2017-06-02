@@ -20,13 +20,11 @@ package com.netscape.cmstools.client;
 
 import java.io.File;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.io.PrintWriter;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.lang.RandomStringUtils;
-import org.apache.commons.lang.StringUtils;
 import org.mozilla.jss.crypto.X509Certificate;
 
 import com.netscape.certsrv.client.PKIClient;
@@ -192,8 +190,7 @@ public class ClientCertShowCLI extends CLI {
         };
 
         try {
-            run(command);
-
+            runExternal(command);
         } catch (Exception e) {
             throw new Exception("Unable to export PKCS #12 file", e);
         }
@@ -215,8 +212,7 @@ public class ClientCertShowCLI extends CLI {
         };
 
         try {
-            run(command);
-
+            runExternal(command);
         } catch (Exception e) {
             throw new Exception("Unable to export certificate", e);
         }
@@ -238,8 +234,7 @@ public class ClientCertShowCLI extends CLI {
         };
 
         try {
-            run(command);
-
+            runExternal(command);
         } catch (Exception e) {
             throw new Exception("Unable to export private key", e);
         }
@@ -261,23 +256,9 @@ public class ClientCertShowCLI extends CLI {
         };
 
         try {
-            run(command);
-
+            runExternal(command);
         } catch (Exception e) {
             throw new Exception("Unable to export client certificate and private key", e);
-        }
-    }
-
-    public void run(String[] command) throws IOException, InterruptedException {
-
-        if (verbose) System.out.println("Command: " + StringUtils.join(command, " "));
-
-        Runtime rt = Runtime.getRuntime();
-        Process p = rt.exec(command);
-        int rc = p.waitFor();
-
-        if (rc != 0) {
-            throw new IOException("Command failed. RC: " + rc);
         }
     }
 }

@@ -386,12 +386,10 @@ public class ClientCertRequestCLI extends CLI {
                 "-n", subjectDN
         };
 
-        Runtime rt = Runtime.getRuntime();
-        Process p = rt.exec(commands);
-
-        int rc = p.waitFor();
-        if (rc != 0) {
-            throw new Exception("CSR generation failed");
+        try {
+            runExternal(commands);
+        } catch (Exception e) {
+            throw new Exception("CSR generation failed", e);
         }
 
         if (verbose) {

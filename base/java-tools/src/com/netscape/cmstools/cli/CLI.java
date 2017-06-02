@@ -18,6 +18,7 @@
 
 package com.netscape.cmstools.cli;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -350,5 +351,39 @@ public class CLI {
 
     public static void setVerbose(boolean verbose) {
         CLI.verbose = verbose;
+    }
+
+    public void runExternal(List<String> command) throws CLIException, IOException, InterruptedException {
+        String[] array = command.toArray(new String[command.size()]);
+        runExternal(array);
+    }
+
+    public void runExternal(String[] command) throws CLIException, IOException, InterruptedException {
+
+        if (verbose) {
+
+            System.out.print("External command:");
+
+           for (String c : command) {
+
+               boolean quote = c.contains(" ");
+
+               System.out.print(" ");
+
+               if (quote) System.out.print("\"");
+               System.out.print(c);
+               if (quote) System.out.print("\"");
+           }
+
+           System.out.println();
+        }
+
+        Runtime rt = Runtime.getRuntime();
+        Process p = rt.exec(command);
+        int rc = p.waitFor();
+
+        if (rc != 0) {
+            throw new CLIException("External command failed. RC: " + rc, rc);
+        }
     }
 }
