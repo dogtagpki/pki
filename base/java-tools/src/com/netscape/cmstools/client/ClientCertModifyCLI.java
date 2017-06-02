@@ -18,8 +18,6 @@
 
 package com.netscape.cmstools.client;
 
-import java.io.IOException;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
@@ -75,38 +73,19 @@ public class ClientCertModifyCLI extends CLI {
 
         String trustAttributes = cmd.getOptionValue("trust", "u,u,u");
 
-        int rc = modifyCert(
-                mainCLI.certDatabase.getAbsolutePath(),
-                nickname,
-                trustAttributes);
-
-        if (rc != 0) {
-            MainCLI.printMessage("Modified failed");
-            return;
-        }
-
-        MainCLI.printMessage("Modified certificate \"" + nickname + "\"");
-    }
-
-    public int modifyCert(
-            String dbPath,
-            String nickname,
-            String trustAttributes) throws IOException, InterruptedException {
-
         String[] command = {
                 "/usr/bin/certutil", "-M",
-                "-d", dbPath,
+                "-d", mainCLI.certDatabase.getAbsolutePath(),
                 "-n", nickname,
                 "-t", trustAttributes
         };
 
-        return run(command);
-    }
+        try {
+            runExternal(command);
+        } catch (Exception e) {
+            throw new Exception("Unable to modify certificate", e);
+        }
 
-    public int run(String[] command) throws IOException, InterruptedException {
-
-        Runtime rt = Runtime.getRuntime();
-        Process p = rt.exec(command);
-        return p.waitFor();
+        MainCLI.printMessage("Modified certificate \"" + nickname + "\"");
     }
 }

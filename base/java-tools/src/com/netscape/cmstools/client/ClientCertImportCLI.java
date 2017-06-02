@@ -21,14 +21,12 @@ package com.netscape.cmstools.client;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URI;
 import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.apache.commons.lang.StringUtils;
 
 import com.netscape.certsrv.cert.CertClient;
 import com.netscape.certsrv.cert.CertData;
@@ -283,8 +281,7 @@ public class ClientCertImportCLI extends CLI {
         };
 
         try {
-            run(command);
-
+            runExternal(command);
         } catch (Exception e) {
             throw new Exception("Unable to import certificate file", e);
         }
@@ -305,25 +302,9 @@ public class ClientCertImportCLI extends CLI {
         };
 
         try {
-            run(command);
-
+            runExternal(command);
         } catch (Exception e) {
             throw new Exception("Unable to import PKCS #12 file", e);
-        }
-    }
-
-    public void run(String[] command) throws IOException, InterruptedException {
-
-        if (verbose) {
-           System.out.println("Command: " + StringUtils.join(command, " "));
-        }
-
-        Runtime rt = Runtime.getRuntime();
-        Process p = rt.exec(command);
-        int rc = p.waitFor();
-
-        if (rc != 0) {
-            throw new IOException("Command failed. RC: " + rc);
         }
     }
 }

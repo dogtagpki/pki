@@ -473,12 +473,10 @@ public class MainCLI extends CLI {
                     "--empty-password"
             };
 
-            Runtime rt = Runtime.getRuntime();
-            Process p = rt.exec(commands);
-
-            int rc = p.waitFor();
-            if (rc != 0) {
-                throw new Exception("Unable to create security database: " + certDatabase.getAbsolutePath() + " (rc: " + rc + ")");
+            try {
+                runExternal(commands);
+            } catch (Exception e) {
+                throw new Exception("Unable to create security database", e);
             }
         }
 
