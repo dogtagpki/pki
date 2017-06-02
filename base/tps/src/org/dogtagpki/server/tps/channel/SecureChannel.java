@@ -421,10 +421,11 @@ public class SecureChannel {
                 throw new TPSException(method + "Failed to calculate card cryptogram!", TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
             }
 
-            CMS.debug(method + " dumped macSessionKey: " + new TPSBuffer(macSessionKey.getEncoded()).toHexString() );
+            if(cardCryptogram != null)
+                CMS.debug(method + " actual card cryptogram " + cardCryptogram.toHexString());
 
-            CMS.debug(method + " actual card cryptogram " + cardCryptogram.toHexString());
-            CMS.debug(method + " calculated card cryptogram " + calculatedCardCryptogram.toHexString());
+            if(calculatedCardCryptogram != null)
+                CMS.debug(method + " calculated card cryptogram " + calculatedCardCryptogram.toHexString());
 
             ExternalAuthenticateAPDUGP211 externalAuth = new ExternalAuthenticateAPDUGP211(hostCryptogram,
                     /* secLevel */secLevelGP211);

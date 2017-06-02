@@ -957,6 +957,10 @@ public class TPSProcessor {
                 kekSessionKeySCP03 = (PK11SymKey) protocol.unwrapWrappedSymKeyOnToken(token, sharedSecret,
                         kekSessionKeyBuff.toBytesArray(), false, SymmetricKey.AES);
 
+            CMS.debug(" encSessionKeySCP03 " + encSessionKeySCP03);
+            CMS.debug(" macSessionKeySCP03 " + macSessionKeySCP03);
+            CMS.debug(" kekSessionKeySCP03 " + kekSessionKeySCP03);
+
             channel = new SecureChannel(this, encSessionKeySCP03, macSessionKeySCP03, kekSessionKeySCP03,
                     drmDesKeyBuff, kekDesKeyBuff,
                     keyCheckBuff, keyDiversificationData, cardChallenge,
