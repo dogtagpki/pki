@@ -66,10 +66,10 @@ class SubsystemFindCLI(pki.cli.CLI):
         print('      --help                      Show help message.')
         print()
 
-    def execute(self, args):
+    def execute(self, argv):
 
         try:
-            opts, _ = getopt.gnu_getopt(args, 'i:v', [
+            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=',
                 'verbose', 'help'])
 

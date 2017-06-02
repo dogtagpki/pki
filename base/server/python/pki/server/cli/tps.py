@@ -76,10 +76,10 @@ class TPSClonePrepareCLI(pki.cli.CLI):
         print('      --help                         Show help message.')
         print()
 
-    def execute(self, args):
+    def execute(self, argv):
 
         try:
-            opts, _ = getopt.gnu_getopt(args, 'i:v', [
+            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=', 'pkcs12-file=', 'pkcs12-password=', 'pkcs12-password-file=',
                 'verbose', 'help'])
 
@@ -195,10 +195,10 @@ class TPSDBVLVFindCLI(pki.cli.CLI):
         print('      --help                         Show help message.')
         print()
 
-    def execute(self, args):
+    def execute(self, argv):
         try:
             opts, _ = getopt.gnu_getopt(
-                args,
+                argv,
                 'i:D:w:x:g:v',
                 ['instance=', 'bind-dn=', 'bind-password=', 'generate-ldif=',
                  'verbose', 'help']
@@ -306,10 +306,10 @@ class TPSDBVLVAddCLI(pki.cli.CLI):
         print('      --help                         Show help message.')
         print()
 
-    def execute(self, args):
+    def execute(self, argv):
         try:
             opts, _ = getopt.gnu_getopt(
-                args,
+                argv,
                 'i:D:w:x:g:v',
                 ['instance=', 'bind-dn=', 'bind-password=', 'generate-ldif=',
                  'verbose', 'help']
@@ -419,10 +419,10 @@ class TPSDBVLVDeleteCLI(pki.cli.CLI):
         print('      --help                         Show help message.')
         print()
 
-    def execute(self, args):
+    def execute(self, argv):
         try:
             opts, _ = getopt.gnu_getopt(
-                args,
+                argv,
                 'i:D:w:x:g:v',
                 ['instance=', 'bind-dn=', 'bind-password=', 'generate-ldif=',
                  'verbose', 'help']
@@ -554,10 +554,10 @@ class TPSDBVLVReindexCLI(pki.cli.CLI):
         print('      --help                         Show help message.')
         print()
 
-    def execute(self, args):
+    def execute(self, argv):
         try:
             opts, _ = getopt.gnu_getopt(
-                args,
+                argv,
                 'i:D:w:x:g:v',
                 ['instance=', 'bind-dn=', 'bind-password=', 'generate-ldif=',
                  'verbose', 'help']

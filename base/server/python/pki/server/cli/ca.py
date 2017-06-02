@@ -78,10 +78,10 @@ class CACertChainExportCLI(pki.cli.CLI):
         print('      --help                         Show help message.')
         print()
 
-    def execute(self, args):
+    def execute(self, argv):
 
         try:
-            opts, _ = getopt.gnu_getopt(args, 'i:v', [
+            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=', 'pkcs12-file=', 'pkcs12-password=', 'pkcs12-password-file=',
                 'verbose', 'help'])
 
@@ -190,10 +190,10 @@ class CACertRequestFindCLI(pki.cli.CLI):
         print('      --help                      Show help message.')
         print()
 
-    def execute(self, args):
+    def execute(self, argv):
 
         try:
-            opts, _ = getopt.gnu_getopt(args, 'i:v', [
+            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=', 'cert=', 'cert-file=',
                 'verbose', 'help'])
 
@@ -268,10 +268,10 @@ class CACertRequestShowCLI(pki.cli.CLI):
         print('      --help                      Show help message.')
         print()
 
-    def execute(self, args):
+    def execute(self, argv):
 
         try:
-            opts, args = getopt.gnu_getopt(args, 'i:v', [
+            opts, args = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=', 'output-file=',
                 'verbose', 'help'])
 
@@ -356,10 +356,10 @@ class CAClonePrepareCLI(pki.cli.CLI):
         print('      --help                         Show help message.')
         print()
 
-    def execute(self, args):
+    def execute(self, argv):
 
         try:
-            opts, _ = getopt.gnu_getopt(args, 'i:v', [
+            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=', 'pkcs12-file=', 'pkcs12-password=', 'pkcs12-password-file=',
                 'verbose', 'help'])
 

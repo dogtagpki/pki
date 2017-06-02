@@ -62,10 +62,10 @@ class PKCS12ImportCLI(pki.cli.CLI):
         print('      --help                         Show help message.')
         print()
 
-    def execute(self, args):
+    def execute(self, argv):
 
         try:
-            opts, _ = getopt.gnu_getopt(args, 'v', [
+            opts, _ = getopt.gnu_getopt(argv, 'v', [
                 'pkcs12-file=', 'pkcs12-password=', 'pkcs12-password-file=',
                 'no-trust-flags', 'no-user-certs', 'no-ca-certs', 'overwrite',
                 'verbose', 'debug', 'help'])

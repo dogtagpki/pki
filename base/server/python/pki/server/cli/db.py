@@ -58,10 +58,10 @@ class DBSchemaUpgrade(pki.cli.CLI):
         print('      --help                         Show help message.')
         print()
 
-    def execute(self, args):
+    def execute(self, argv):
         try:
             opts, _ = getopt.gnu_getopt(
-                args, 'i:D:w:v', ['instance=', 'bind-dn=', 'bind-password=',
+                argv, 'i:D:w:v', ['instance=', 'bind-dn=', 'bind-password=',
                                   'verbose', 'help'])
 
         except getopt.GetoptError as e:
@@ -150,10 +150,10 @@ class DBUpgrade(pki.cli.CLI):
         print('      --help                         Show help message.')
         print()
 
-    def execute(self, args):
+    def execute(self, argv):
         try:
             opts, _ = getopt.gnu_getopt(
-                args, 'i:v', ['instance=', 'verbose', 'help'])
+                argv, 'i:v', ['instance=', 'verbose', 'help'])
 
         except getopt.GetoptError as e:
             print('ERROR: ' + str(e))

@@ -38,9 +38,6 @@ SUBSYSTEM_TRACKER = '%s/CS.cfg'
 
 class PKIServerUpgradeScriptlet(pki.upgrade.PKIUpgradeScriptlet):
 
-    def __init__(self):
-        super(PKIServerUpgradeScriptlet, self).__init__()
-
     def get_backup_dir(self):
         return BACKUP_DIR + '/' + str(self.version) + '/' + str(self.index)
 

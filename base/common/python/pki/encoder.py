@@ -82,14 +82,14 @@ class CustomTypeEncoder(json.JSONEncoder):
     """
     # pylint: disable=E0202
 
-    def default(self, obj):
+    def default(self, o):
         for k, v in iteritems(TYPES):
-            if isinstance(obj, v):
-                return {k: obj.__dict__}
+            if isinstance(o, v):
+                return {k: o.__dict__}
         for t in itervalues(NOTYPES):
-            if isinstance(obj, t):
-                return self.attr_name_conversion(obj.__dict__, type(obj))
-        return json.JSONEncoder.default(self, obj)
+            if isinstance(o, t):
+                return self.attr_name_conversion(o.__dict__, type(o))
+        return json.JSONEncoder.default(self, o)
 
     @staticmethod
     def attr_name_conversion(attr_dict, object_class):
