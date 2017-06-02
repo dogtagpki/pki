@@ -23,7 +23,9 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -128,6 +130,20 @@ public class ClientCertImportCLI extends CLI {
         String serialNumber = cmd.getOptionValue("serial");
         String trustAttributes = cmd.getOptionValue("trust");
 
+        File nssdbPasswordFile = null;
+
+        if (mainCLI.config.getCertPassword() != null) {
+
+            // store NSS database password in a temporary file
+
+            nssdbPasswordFile = File.createTempFile("pki-client-cert-import-", ".nssdb-pwd");
+            nssdbPasswordFile.deleteOnExit();
+
+            try (PrintWriter out = new PrintWriter(new FileWriter(nssdbPasswordFile))) {
+                out.print(mainCLI.config.getCertPassword());
+            }
+        }
+
         // load the certificate
         if (certPath != null) {
 
@@ -137,7 +153,8 @@ public class ClientCertImportCLI extends CLI {
                 trustAttributes = "u,u,u";
 
             importCert(
-                    mainCLI.certDatabase.getAbsolutePath(),
+                    mainCLI.certDatabase,
+                    nssdbPasswordFile,
                     certPath,
                     nickname,
                     trustAttributes);
@@ -150,7 +167,8 @@ public class ClientCertImportCLI extends CLI {
                 trustAttributes = "CT,c,";
 
             importCert(
-                    mainCLI.certDatabase.getAbsolutePath(),
+                    mainCLI.certDatabase,
+                    nssdbPasswordFile,
                     caCertPath,
                     nickname,
                     trustAttributes);
@@ -164,7 +182,7 @@ public class ClientCertImportCLI extends CLI {
 
             } else if (pkcs12Password != null) {
                 // store password into a temporary file
-                File pkcs12PasswordFile = File.createTempFile("pki-client-cert-import-", ".pwd");
+                File pkcs12PasswordFile = File.createTempFile("pki-client-cert-import-", ".pkcs12-pwd");
                 pkcs12PasswordFile.deleteOnExit();
 
                 try (PrintWriter out = new PrintWriter(new FileWriter(pkcs12PasswordFile))) {
@@ -182,8 +200,8 @@ public class ClientCertImportCLI extends CLI {
 
             // import certificates and private key into PKCS #12 file
             importPKCS12(
-                    mainCLI.certDatabase.getAbsolutePath(),
-                    mainCLI.config.getCertPassword(),
+                    mainCLI.certDatabase,
+                    nssdbPasswordFile,
                     pkcs12Path,
                     pkcs12PasswordPath);
 
@@ -212,7 +230,8 @@ public class ClientCertImportCLI extends CLI {
                 trustAttributes = "CT,c,";
 
             importCert(
-                    mainCLI.certDatabase.getAbsolutePath(),
+                    mainCLI.certDatabase,
+                    nssdbPasswordFile,
                     certFile.getAbsolutePath(),
                     nickname,
                     trustAttributes);
@@ -245,7 +264,8 @@ public class ClientCertImportCLI extends CLI {
                 trustAttributes = "u,u,u";
 
             importCert(
-                    mainCLI.certDatabase.getAbsolutePath(),
+                    mainCLI.certDatabase,
+                    nssdbPasswordFile,
                     certFile.getAbsolutePath(),
                     nickname,
                     trustAttributes);
@@ -263,8 +283,9 @@ public class ClientCertImportCLI extends CLI {
     }
 
     public void importCert(
-            String dbPath,
-            String certPath,
+            File dbPath,
+            File dbPasswordFile,
+            String certFile,
             String nickname,
             String trustAttributes) throws Exception {
 
@@ -272,13 +293,23 @@ public class ClientCertImportCLI extends CLI {
             throw new Exception("Missing certificate nickname.");
         }
 
-        String[] command = {
-                "/bin/certutil", "-A",
-                "-d", dbPath,
-                "-i", certPath,
-                "-n", nickname,
-                "-t", trustAttributes
-        };
+        List<String> command = new ArrayList<>();
+        command.add("/bin/certutil");
+        command.add("-A");
+        command.add("-d");
+        command.add(dbPath.getAbsolutePath());
+
+        if (dbPasswordFile != null) {
+            command.add("-f");
+            command.add(dbPasswordFile.getAbsolutePath());
+        }
+
+        command.add("-i");
+        command.add(certFile);
+        command.add("-n");
+        command.add(nickname);
+        command.add("-t");
+        command.add(trustAttributes);
 
         try {
             runExternal(command);
@@ -288,18 +319,25 @@ public class ClientCertImportCLI extends CLI {
     }
 
     public void importPKCS12(
-            String dbPath,
-            String dbPassword,
-            String pkcs12Path,
-            String pkcs12PasswordPath) throws Exception {
+            File dbPath,
+            File dbPasswordFile,
+            String pkcs12File,
+            String pkcs12PasswordFile) throws Exception {
 
-        String[] command = {
-                "/bin/pk12util",
-                "-d", dbPath,
-                "-K", dbPassword,
-                "-i", pkcs12Path,
-                "-w", pkcs12PasswordPath
-        };
+        List<String> command = new ArrayList<>();
+        command.add("/bin/pk12util");
+        command.add("-d");
+        command.add(dbPath.getAbsolutePath());
+
+        if (dbPasswordFile != null) {
+            command.add("-k");
+            command.add(dbPasswordFile.getAbsolutePath());
+        }
+
+        command.add("-i");
+        command.add(pkcs12File);
+        command.add("-w");
+        command.add(pkcs12PasswordFile);
 
         try {
             runExternal(command);
