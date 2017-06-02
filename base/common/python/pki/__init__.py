@@ -46,9 +46,10 @@ CERT_HEADER = "-----BEGIN CERTIFICATE-----"
 CERT_FOOTER = "-----END CERTIFICATE-----"
 
 # Valid punctuation characters for random password.
-# This is identical to string.punctuation minus the equal
-# sign since it's used as delimiter in password.conf.
-PUNCTUATIONS = '!"#$%&\'()*+,-./:;<>?@[\\]^_`{|}~'
+# This is based on string.punctuation except:
+#  - equal sign since it's used as delimiter in password.conf
+#  - backslash since it's causing SSL handshake failure
+PUNCTUATIONS = '!"#$%&\'()*+,-./:;<>?@[]^_`{|}~'
 
 
 def read_text(message,
