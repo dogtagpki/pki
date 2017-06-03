@@ -229,7 +229,7 @@ public class MainCLI extends CLI {
         options.addOption(null, "version", false, "Show version number.");
     }
 
-    public String[] readPlaintextPasswordFromFile(String pwfile) throws Exception {
+    public String[] loadPassword(String pwfile) throws Exception {
         String[] tokenPassword = { null, null };
         BufferedReader br = null;
         String delimiter = "=";
@@ -238,11 +238,16 @@ public class MainCLI extends CLI {
             br = new BufferedReader(new FileReader(pwfile));
 
             String line = br.readLine();
-            if (line != null) {
-                if (line.isEmpty()) {
-                    throw new Exception("File '" + pwfile + "' does not define a token or a password!");
 
-                } else if (line.contains(delimiter)) {
+            if (line == null) {
+                throw new Exception("File '" + pwfile + "' is empty!");
+            }
+
+            if (line.isEmpty()) {
+                throw new Exception("File '" + pwfile + "' does not define a token or a password!");
+            }
+
+                if (line.contains(delimiter)) {
                     // Process 'token=password' format:
                     //
                     //     Token:     tokenPassword[0]
@@ -270,10 +275,7 @@ public class MainCLI extends CLI {
                     // Set simple 'password' (do not trim leading/trailing whitespace)
                     tokenPassword[1] = line;
                 }
-            } else {
-                // Case of an empty password file
-                throw new Exception("File '" + pwfile + "' is empty!");
-            }
+
         } finally {
             if (br != null) {
                 br.close();
@@ -397,7 +399,7 @@ public class MainCLI extends CLI {
 
         if (certPasswordFile != null) {
             // read client security database password from specified file
-            tokenPasswordPair = readPlaintextPasswordFromFile(certPasswordFile);
+            tokenPasswordPair = loadPassword(certPasswordFile);
             // XXX TBD set client security database token
 
             certPassword = tokenPasswordPair[1];
@@ -411,7 +413,7 @@ public class MainCLI extends CLI {
 
         if (passwordFile != null) {
             // read user password from specified file
-            tokenPasswordPair = readPlaintextPasswordFromFile(passwordFile);
+            tokenPasswordPair = loadPassword(passwordFile);
             // XXX TBD set user token
 
             password = tokenPasswordPair[1];
