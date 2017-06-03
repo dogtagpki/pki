@@ -164,7 +164,7 @@ public class ClientCertImportCLI extends CLI {
             if (verbose) System.out.println("Importing CA certificate from " + caCertPath + ".");
 
             if (trustAttributes == null)
-                trustAttributes = "CT,c,";
+                trustAttributes = "CT,C,C";
 
             importCert(
                     mainCLI.certDatabase,
@@ -227,7 +227,7 @@ public class ClientCertImportCLI extends CLI {
             }
 
             if (trustAttributes == null)
-                trustAttributes = "CT,c,";
+                trustAttributes = "CT,C,C";
 
             importCert(
                     mainCLI.certDatabase,
