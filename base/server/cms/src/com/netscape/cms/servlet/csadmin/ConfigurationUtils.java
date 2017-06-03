@@ -1113,6 +1113,7 @@ public class ConfigurationUtils {
                             | InternalCertificate.VALID_CA);
 
                 } else if (isAuditSigningCert(name)) {
+                    // set trust flags to u,u,Pu
                     icert.setObjectSigningTrust(InternalCertificate.USER
                             | InternalCertificate.VALID_PEER
                             | InternalCertificate.TRUSTED_PEER);
