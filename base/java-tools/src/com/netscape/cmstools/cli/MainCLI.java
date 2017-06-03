@@ -230,12 +230,11 @@ public class MainCLI extends CLI {
     }
 
     public String[] loadPassword(String pwfile) throws Exception {
+
         String[] tokenPassword = { null, null };
-        BufferedReader br = null;
         String delimiter = "=";
 
-        try {
-            br = new BufferedReader(new FileReader(pwfile));
+        try (BufferedReader br = new BufferedReader(new FileReader(pwfile))) {
 
             String line = br.readLine();
 
@@ -275,11 +274,6 @@ public class MainCLI extends CLI {
 
                 // Set simple 'password' (do not trim leading/trailing whitespace)
                 tokenPassword[1] = line;
-            }
-
-        } finally {
-            if (br != null) {
-                br.close();
             }
         }
 
@@ -399,7 +393,7 @@ public class MainCLI extends CLI {
         config.setCertNickname(certNickname);
 
         if (certPasswordFile != null) {
-            // read client security database password from specified file
+            if (verbose) System.out.println("Loading NSS password from " + certPasswordFile);
             tokenPasswordPair = loadPassword(certPasswordFile);
             // XXX TBD set client security database token
 
@@ -413,7 +407,7 @@ public class MainCLI extends CLI {
         config.setUsername(username);
 
         if (passwordFile != null) {
-            // read user password from specified file
+            if (verbose) System.out.println("Loading user password from " + passwordFile);
             tokenPasswordPair = loadPassword(passwordFile);
             // XXX TBD set user token
 
@@ -494,14 +488,17 @@ public class MainCLI extends CLI {
 
         // If password is specified, use password to access security token
         if (config.getCertPassword() != null) {
-            if (verbose) System.out.println("Logging into security token");
+
             try {
                 CryptoManager manager = CryptoManager.getInstance();
 
                 String tokenName = config.getTokenName();
-                CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
+                if (verbose) System.out.println("Getting security token " + tokenName);
 
+                CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
                 manager.setThreadToken(token);
+
+                if (verbose) System.out.println("Logging into security token " + token.getName());
 
                 Password password = new Password(config.getCertPassword().toCharArray());
                 token.login(password);
