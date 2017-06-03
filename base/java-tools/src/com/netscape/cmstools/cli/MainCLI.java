@@ -247,34 +247,35 @@ public class MainCLI extends CLI {
                 throw new Exception("File '" + pwfile + "' does not define a token or a password!");
             }
 
-                if (line.contains(delimiter)) {
-                    // Process 'token=password' format:
-                    //
-                    //     Token:     tokenPassword[0]
-                    //     Password:  tokenPassword[1]
-                    //
-                    tokenPassword = line.split(delimiter, 2);
+            if (line.contains(delimiter)) {
+                // Process 'token=password' format:
+                //
+                //     Token:     tokenPassword[0]
+                //     Password:  tokenPassword[1]
+                //
+                tokenPassword = line.split(delimiter, 2);
 
-                    // Always trim leading/trailing whitespace from 'token'
-                    tokenPassword[0] = tokenPassword[0].trim();
+                // Always trim leading/trailing whitespace from 'token'
+                tokenPassword[0] = tokenPassword[0].trim();
 
-                    // Check for undefined 'token'
-                    if (tokenPassword[0].isEmpty()) {
-                        // Set default 'token'
-                        tokenPassword[0] = CryptoUtil.INTERNAL_TOKEN_NAME;
-                    }
-
-                    // Check for undefined 'password'
-                    if (tokenPassword[1].isEmpty()) {
-                        throw new Exception("File '" + pwfile + "' does not define a password!");
-                    }
-                } else {
+                // Check for undefined 'token'
+                if (tokenPassword[0].isEmpty()) {
                     // Set default 'token'
                     tokenPassword[0] = CryptoUtil.INTERNAL_TOKEN_NAME;
-
-                    // Set simple 'password' (do not trim leading/trailing whitespace)
-                    tokenPassword[1] = line;
                 }
+
+                // Check for undefined 'password'
+                if (tokenPassword[1].isEmpty()) {
+                    throw new Exception("File '" + pwfile + "' does not define a password!");
+                }
+
+            } else {
+                // Set default 'token'
+                tokenPassword[0] = CryptoUtil.INTERNAL_TOKEN_NAME;
+
+                // Set simple 'password' (do not trim leading/trailing whitespace)
+                tokenPassword[1] = line;
+            }
 
         } finally {
             if (br != null) {
