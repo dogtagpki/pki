@@ -37,7 +37,7 @@ if (location.protocol == "https:" && !sessionStorage.bannerLock) {
             }
 
             // display the banner and ask for confirmation
-            var message = $.trim(data.Banner) + "\n\nDo you want to proceed?";
+            var message = banner + "\n\nDo you want to proceed?";
 
             // if banner accepted
             if (confirm(message)) {
