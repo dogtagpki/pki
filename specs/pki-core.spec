@@ -68,7 +68,7 @@ Name:             pki-core
 Version:          10.4.1
 Release:          8%{?dist}
 %else
-Version:          10.4.6
+Version:          10.4.7
 Release:          1%{?dist}
 %endif
 Summary:          Certificate System - PKI Core Components
@@ -1422,6 +1422,28 @@ fi
 %endif # %{with server}
 
 %changelog
+* Mon Jun  5 2017 Dogtag Team <pki-devel@redhat.com> 10.4.7-1
+- dogtagpki Pagure Issue #1663 - Add SCP03 support (jmagne)
+- dogtagpki Pagure Issue #2556 - pkispawn fails to create PKI subsystem
+  on FIPS enabled system (edewata)
+- dogtagpki Pagure Issue #2674 - CA brought down during separate KRA
+  instance creation (edewata)
+- dogtagpki Pagure Issue #2676 - pkispawn fails occasionally with this
+  failure ACCESS_SESSION_ESTABLISH_FAILURE (edewata)
+- dogtagpki Pagure Issue #2687 - Upgrade script for keepAliveTimeout
+  parameter (edewata)
+- dogtagpki Pagure Issue #2707 - SubCA installation failure with 2 step
+  installation in fips enabled mode (edewata)
+- dogtagpki Pagure Issue #2713 - Build failure due to Pylint issues (cheimes)
+- dogtagpki Pagure Issue #2714 - Classpath problem while trying to run pki
+  CLI (edewata)
+- dogtagpki Pagure Issue #2717 - Certificate import using pki
+  client-cert-import is asking for password when already provided (edewata)
+- dogtagpki Pagure Issue #2721 - Key recovery using externalReg fails with
+  java null pointer exception on KRA (vakwetu)
+- dogtagpki Pagure Issue #2726 - client-cert-import --ca-cert should import
+  CA cert with trust bits "CT,C,C" (edewata)
+
 * Tue May 30 2017 Dogtag Team <pki-devel@redhat.com> 10.4.6-1
 - dogtagpki Pagure Issue #2540 - Creating symmetric key (sharedSecret)
    using tkstool is failing when operating system is in FIPS mode. (jmagne)

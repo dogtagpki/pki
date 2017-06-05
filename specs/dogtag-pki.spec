@@ -10,7 +10,7 @@ Name:             dogtag-pki
 Version:          10.4.1
 Release:          2%{?dist}
 %else
-Version:          10.4.6
+Version:          10.4.7
 Release:          1%{?dist}
 %endif
 # The entire source code is GPLv2 except for 'pki-tps' which is LGPLv2
@@ -129,6 +129,9 @@ rm -rf %{buildroot}
 %doc README
 
 %changelog
+* Mon Jun  5 2017 Dogtag Team <pki-devel@redhat.com> 10.4.7-1
+- Updated source version number to 10.4.7-1
+
 * Tue May 30 2017 Dogtag Team <pki-devel@redhat.com> 10.4.6-1
 - Updated source version number to 10.4.6-1
 
