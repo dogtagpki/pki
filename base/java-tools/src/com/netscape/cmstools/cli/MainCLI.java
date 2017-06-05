@@ -571,7 +571,7 @@ public class MainCLI extends CLI {
 
             if (banner != null) {
 
-                System.out.println(banner.trim());
+                System.out.println(banner);
                 System.out.println();
                 System.out.print("Do you want to proceed (y/N)? ");
                 System.out.flush();
