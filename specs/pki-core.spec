@@ -193,10 +193,10 @@ BuildRequires:    jss >= 4.2.6-44
 %endif
 BuildRequires:    systemd-units
 %if 0%{?rhel}
-BuildRequires:    tomcatjss >= 7.2.1-3
+BuildRequires:    tomcatjss >= 7.2.1-4
 %else
 %if 0%{?fedora} >= 25
-BuildRequires:    tomcatjss >= 7.2.2
+BuildRequires:    tomcatjss >= 7.2.3
 %else
 BuildRequires:    tomcatjss >= 7.1.3
 %endif
@@ -600,7 +600,7 @@ Requires:         policycoreutils-python
 Requires:         policycoreutils-python-utils
 %endif
 
-Requires:         selinux-policy-targeted >= 3.13.1-152
+Requires:         selinux-policy-targeted >= 3.13.1-159
 Obsoletes:        pki-selinux
 
 %if 0%{?rhel}
@@ -624,10 +624,10 @@ Requires(preun):  systemd-units
 Requires(postun): systemd-units
 Requires(pre):    shadow-utils
 %if 0%{?rhel}
-Requires:         tomcatjss >= 7.2.1-3
+Requires:         tomcatjss >= 7.2.1-4
 %else
 %if 0%{?fedora} >= 25
-Requires:         tomcatjss >= 7.2.2
+Requires:         tomcatjss >= 7.2.3
 %else
 Requires:         tomcatjss >= 7.1.3
 %endif
@@ -1423,6 +1423,8 @@ fi
 
 %changelog
 * Mon Jun  5 2017 Dogtag Team <pki-devel@redhat.com> 10.4.7-1
+- Require "selinux-policy-targeted >= 3.13.1-159" as a runtime requirement
+- Require "tomcatjss >= 7.2.3" as a build and runtime requirement
 - dogtagpki Pagure Issue #1663 - Add SCP03 support (jmagne)
 - dogtagpki Pagure Issue #2556 - pkispawn fails to create PKI subsystem
   on FIPS enabled system (edewata)
