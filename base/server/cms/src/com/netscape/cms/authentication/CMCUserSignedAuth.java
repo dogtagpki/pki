@@ -29,6 +29,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.security.cert.CertificateExpiredException;
 import java.security.MessageDigest;
 import java.security.PublicKey;
 import java.util.Enumeration;
@@ -1076,7 +1077,10 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
                             si.verify(digest, id, pubK);
                         }
                         CMS.debug(method + "finished checking signature");
+
                         // verify signer's certificate using the revocator
+                        // ...or not;  I think it just checks usage and
+                        // validity, but not revocation status
                         if (!cm.isCertValid(certByteArray, true, CryptoManager.CertUsage.SSLClient)) {
                             CMS.debug(method + "CMC signature failed to be verified");
                             s.close();
@@ -1085,6 +1089,21 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
                             CMS.debug(method + "CMC signature verified; but signer not yet;");
                         }
                         // At this point, the signature has been verified;
+
+                        // now check revocation status of the cert
+                        if (CMS.isRevoked(x509Certs)) {
+                            CMS.debug(method + "CMC signing cert is a revoked certificate");
+                            throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
+                        }
+                        try { //do this again anyways
+                            cert.checkValidity();
+                        } catch (CertificateExpiredException e) {
+                            CMS.debug(method + "CMC signing cert is an expired certificate");
+                            throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
+                        } catch (Exception e) {
+                            CMS.debug(method + e.toString());
+                            throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
+                        }
 
                         IAuthToken tempToken = new AuthToken(null);
 /*

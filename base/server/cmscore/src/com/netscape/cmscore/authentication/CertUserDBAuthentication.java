@@ -168,7 +168,7 @@ public class CertUserDBAuthentication implements IAuthManager, ICertUserDBAuthen
         try {
             user = (User) mCULocator.locateUser(certs);
         } catch (EUsrGrpException e) {
-            CMS.debug("CertUserDBAuthentication: cannot map certificate to any user");
+            CMS.debug("CertUserDBAuthentication: cannot map certificate to any user" + e);
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTH_AGENT_AUTH_FAILED", x509Certs[0].getSerialNumber()
                     .toString(16), x509Certs[0].getSubjectDN().toString(), e.toString()));
             throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
