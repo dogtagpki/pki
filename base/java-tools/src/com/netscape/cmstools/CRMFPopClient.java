@@ -655,13 +655,23 @@ public class CRMFPopClient {
             KeyPair keyPair,
             Name subject,
             KeyWrapAlgorithm keyWrapAlgorithm) throws Exception {
-        byte[] iv = null;
-        if (keyWrapAlgorithm.getParameterClasses() != null) {
-            iv = CryptoUtil.getNonceData(keyWrapAlgorithm.getBlockSize());
-        }
+        byte[] iv = CryptoUtil.getNonceData(keyWrapAlgorithm.getBlockSize());
         OBJECT_IDENTIFIER kwOID = CryptoUtil.getOID(keyWrapAlgorithm);
 
+        /* TODO(alee)
+         *
+         * HACK HACK!
+         * algorithms like AES KeyWrap do not require an IV, but we need to include one
+         * in the AlgorithmIdentifier above, or the creation and parsing of the
+         * PKIArchiveOptions options will fail.  So we include an IV in aid, but null it
+         * later to correctly encrypt the data
+         */
         AlgorithmIdentifier aid = new AlgorithmIdentifier(kwOID, new OCTET_STRING(iv));
+
+        Class[] iv_classes = keyWrapAlgorithm.getParameterClasses();
+        if (iv_classes == null || iv_classes.length == 0)
+            iv = null;
+
         WrappingParams params = getWrappingParams(keyWrapAlgorithm, iv);
 
         PKIArchiveOptions opts = CryptoUtil.createPKIArchiveOptions(

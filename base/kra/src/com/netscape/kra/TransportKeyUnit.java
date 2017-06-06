@@ -267,7 +267,7 @@ public class TransportKeyUnit extends EncryptionUnit implements
      * Decrypts the user private key.  This is called on the transport unit.
      */
     public byte[] decryptExternalPrivate(byte encSymmKey[],
-            String symmAlgOID, byte symmAlgParams[], byte encValue[],
+            String wrapOID, byte wrapIV[], byte encValue[],
             org.mozilla.jss.crypto.X509Certificate transCert)
             throws Exception {
 
@@ -279,12 +279,10 @@ public class TransportKeyUnit extends EncryptionUnit implements
         CryptoToken token = getToken(transCert);
         PrivateKey wrappingKey = getPrivateKey(transCert);
         String priKeyAlgo = wrappingKey.getAlgorithm();
-        WrappingParams params = new WrappingParams(
-                symmAlgOID,
-                null,
+        WrappingParams params = WrappingParams.getWrappingParamsFromArchiveOptions(
+                wrapOID,
                 priKeyAlgo,
-                new IVParameterSpec(symmAlgParams),
-                null);
+                new IVParameterSpec(wrapIV));
 
         SymmetricKey sk = CryptoUtil.unwrap(
                 token,
@@ -302,6 +300,7 @@ public class TransportKeyUnit extends EncryptionUnit implements
                 sk,
                 params.getPayloadEncryptionAlgorithm());
     }
+
 
     /**
      * External unwrapping. Unwraps the symmetric key using
@@ -342,19 +341,17 @@ public class TransportKeyUnit extends EncryptionUnit implements
      * the transport private key.
      */
     public PrivateKey unwrap(byte encSymmKey[],
-            String symmAlgOID, byte symmAlgParams[],
+            String wrapOID, byte wrapIV[],
             byte encValue[], PublicKey pubKey,
             org.mozilla.jss.crypto.X509Certificate transCert)
             throws Exception {
         CryptoToken token = getToken(transCert);
         PrivateKey wrappingKey = getPrivateKey(transCert);
         String priKeyAlgo = wrappingKey.getAlgorithm();
-        WrappingParams params = new WrappingParams(
-                symmAlgOID,
-                null,
+        WrappingParams params = WrappingParams.getWrappingParamsFromArchiveOptions(
+                wrapOID,
                 priKeyAlgo,
-                new IVParameterSpec(symmAlgParams),
-                new IVParameterSpec(symmAlgParams));
+                new IVParameterSpec(wrapIV));
 
         // (1) unwrap the session key
         SymmetricKey sk = CryptoUtil.unwrap(

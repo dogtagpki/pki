@@ -59,7 +59,7 @@ public class KRAInfoService extends PKIService implements KRAInfoResource {
         info.setArchivalMechanism(getArchivalMechanism());
         info.setRecoveryMechanism(getRecoveryMechanism());
         info.setEncryptAlgorithm(getEncryptAlgorithm());
-        info.setArchivalMechanism(getWrapAlgorithm());
+        info.setWrapAlgorithm(getWrapAlgorithm());
 
         return createOKResponse(info);
     }
