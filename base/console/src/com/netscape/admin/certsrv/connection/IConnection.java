@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.connection;
 
-import java.io.IOException;
 import java.net.SocketException;
 
 /**
@@ -34,7 +33,7 @@ public interface IConnection {
     /**
      *  Send request to the server using this connection
      */
-    public int sendRequest(String req) throws IOException;
+    public int sendRequest(String req) throws Exception;
 
     /**
      * Returns the response in byte array format
