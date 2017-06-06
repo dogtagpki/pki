@@ -1219,13 +1219,14 @@ TKS_StoreSymmetricKeyAndNameIt( char              *symmetricKeyName,
     rvExtractSymmetricKey = PK11_ExtractKeyValue( /* symmetric key */ symKey );
     if( rvExtractSymmetricKey != SECSuccess ) {
         PR_fprintf( PR_STDERR,
-                    "ERROR:  Failed to extract the %s key!\n\n",
+                    "ERROR:  Failed to extract the %s key for final display, OK if in FIPs mode!\n\n",
                     symmetricKeyName );
-        goto destroyHexSymmetricKey;
-    }
+        symmetricKey = NULL;
+    } else {
 
-    /* If present, retrieve the raw key data */
-    symmetricKey = PK11_GetKeyData( /* symmetric key */  symKey );
+        /* If present, retrieve the raw key data */
+        symmetricKey = PK11_GetKeyData( /* symmetric key */  symKey );
+    }
 
 #if defined(DEBUG)
     /* For convenience, display the final symmetric key and */
