@@ -66,6 +66,7 @@ public class CAInfo extends ResourceMessage {
         this.archivalMechanism = archivalMechanism;
     }
 
+    @XmlElement(name="EncryptAlgorithm")
     public String getEncryptAlgorithm() {
         return encryptAlgorithm;
     }
@@ -74,6 +75,7 @@ public class CAInfo extends ResourceMessage {
         this.encryptAlgorithm = encryptAlgorithm;
     }
 
+    @XmlElement(name="WrapAlgorithm")
     public String getKeyWrapAlgorithm() {
         return keyWrapAlgorithm;
     }

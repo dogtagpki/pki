@@ -10,6 +10,8 @@ import org.mozilla.jss.crypto.KeyWrapAlgorithm;
 import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.crypto.SymmetricKey.Type;
 
+import com.netscape.cmsutil.crypto.CryptoUtil;
+
 public class WrappingParams {
     // session key attributes
     SymmetricKey.Type skType;
@@ -121,6 +123,59 @@ public class WrappingParams {
         } else {
             payloadWrappingIV = wrapIV;
         }
+    }
+
+    private WrappingParams(String wrapOID, String priKeyAlgo, IVParameterSpec wrapIV)
+            throws NumberFormatException, NoSuchAlgorithmException {
+        KeyWrapAlgorithm kwAlg = CryptoUtil.getKeyWrapAlgorithmFromOID(wrapOID);
+
+        if (kwAlg == KeyWrapAlgorithm.AES_KEY_WRAP_PAD) {
+            skType = SymmetricKey.AES;
+            skKeyGenAlgorithm = KeyGenAlgorithm.AES;
+            payloadWrapAlgorithm = KeyWrapAlgorithm.AES_KEY_WRAP_PAD;
+            payloadEncryptionAlgorithm = EncryptionAlgorithm.AES_128_CBC_PAD;
+            skLength = 128;
+        }
+
+        if (kwAlg == KeyWrapAlgorithm.AES_CBC_PAD) {
+            skType = SymmetricKey.AES;
+            skKeyGenAlgorithm = KeyGenAlgorithm.AES;
+            payloadWrapAlgorithm = KeyWrapAlgorithm.AES_CBC_PAD;
+            payloadEncryptionAlgorithm = EncryptionAlgorithm.AES_128_CBC_PAD;
+            skLength = 128;
+        }
+
+        if (kwAlg == KeyWrapAlgorithm.DES3_CBC_PAD || kwAlg == KeyWrapAlgorithm.DES_CBC_PAD) {
+            skType = SymmetricKey.DES;
+            skKeyGenAlgorithm = KeyGenAlgorithm.DES;
+            skWrapAlgorithm = KeyWrapAlgorithm.DES3_CBC_PAD;
+            payloadWrapAlgorithm = KeyWrapAlgorithm.DES3_CBC_PAD;
+            payloadEncryptionAlgorithm = EncryptionAlgorithm.DES3_CBC_PAD;
+            skLength = 0;
+        }
+
+        if (priKeyAlgo.equals("EC")) {
+            skWrapAlgorithm = KeyWrapAlgorithm.AES_ECB;
+        } else {
+            skWrapAlgorithm = KeyWrapAlgorithm.RSA;
+        }
+
+        // set the IVs
+        payloadEncryptionIV = wrapIV;
+
+        if (payloadWrapAlgorithm == KeyWrapAlgorithm.AES_KEY_WRAP_PAD) {
+            // TODO(alee) Hack -- if we pass in null for the iv in the
+            // PKIArchiveOptions, we fail to decode correctly when parsing a
+            // CRMFPopClient request.
+            payloadWrappingIV = null;
+        } else {
+            payloadWrappingIV = wrapIV;
+        }
+    }
+
+    public static WrappingParams getWrappingParamsFromArchiveOptions(String wrapOID, String priKeyAlgo, IVParameterSpec wrapIV)
+            throws NumberFormatException, NoSuchAlgorithmException {
+        return new WrappingParams(wrapOID, priKeyAlgo, wrapIV);
     }
 
     public SymmetricKey.Type getSkType() {
