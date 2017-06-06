@@ -339,7 +339,7 @@ public class JSSConnection implements IConnection, SSLCertificateApprovalCallbac
      * @excpetion IOExcpetion
      */
 	public int sendRequest(String req)
-	    throws IOException {
+	    throws Exception {
 
 		int stat = 1;
 		if (req == null)
@@ -450,7 +450,7 @@ public class JSSConnection implements IConnection, SSLCertificateApprovalCallbac
     }
 
 	private void initReadResponse()
-	    throws IOException {
+	    throws Exception {
 
 		readHeader();
 		readBody();
@@ -475,7 +475,7 @@ public class JSSConnection implements IConnection, SSLCertificateApprovalCallbac
         return count > 0 ? count : -1;
     }
 
-	private void readHeader() throws IOException
+	private void readHeader() throws Exception
 	{
 		// Read the status line of response and parse for
 		// Errors.
@@ -484,10 +484,16 @@ public class JSSConnection implements IConnection, SSLCertificateApprovalCallbac
 
         //System.out.println("XXX read " + nRead);
 
-		if (requestFailed(new String(headerLine))) {
-            Debug.println("JSSConnection Debug: in readHeader requestFailed");
-			throw new IOException(getReasonPhrase(new String (headerLine)));
-        }
+                String line = new String(headerLine).trim();
+
+                if ("".equals(line)) {
+                    throw new Exception("Session expired. Please restart PKI console to continue.");
+                }
+
+                if (requestFailed(line)) {
+                    Debug.println("JSSConnection Debug: in readHeader requestFailed");
+                    throw new IOException(getReasonPhrase(line));
+                }
 
 		while (true) {
 			nRead = readLineFromStream(httpIn, headerLine, 0, 1096);

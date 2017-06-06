@@ -18,6 +18,8 @@
 package com.netscape.admin.certsrv.connection;
 
 import java.io.IOException;
+import java.io.InterruptedIOException;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Enumeration;
 
@@ -670,9 +672,45 @@ public class AdminConnection {
     	//all errors will set the connection to null
     	//to force re-connection and avoid null ptr exception
 
-    	} catch (Exception e) {
+        } catch (IOException e) {
 
-            System.err.println("Session expired. Please restart PKI console to continue.");
+            // retry the connection to trigger client cert selection
+            retryConnection();
+
+            try {
+                return processRequest(request, useGET);
+
+            } catch (InterruptedIOException ex) {
+                ex.printStackTrace();
+                // timeout occurred
+                mConn = null;
+
+                // set time out back to original
+                mCurrentTimeout = mDefaultTimeout;
+                throw new EAdminException(CMSAdminResources.SERVER_NORESPONSE, false);
+
+            } catch (SocketException ex) {
+                ex.printStackTrace();
+                mConn = null;
+                throw new EAdminException(CMSAdminResources.SERVER_UNREACHABLE, false);
+
+            } catch (IOException ex) {
+                ex.printStackTrace();
+                mConn = null;
+                throw new EAdminException(CMSAdminResources.SERVER_UNREACHABLE, false);
+
+            } catch (EAdminException ex) {
+                 ex.printStackTrace();
+                 throw ex;
+
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                mConn = null;
+                throw new EAdminException(CMSAdminResources.UNKNOWNEXCEPTION, false);
+            }
+
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
             System.exit(0);
 
             return null;
