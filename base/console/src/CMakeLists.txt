@@ -1,5 +1,12 @@
 project(pki-console_java NONE)
 
+find_file(APACHE_COMMONS_CLI_JAR
+    NAMES
+        apache-commons-cli.jar
+    PATHS
+        /usr/share/java
+)
+
 # '/usr/share/java/pki' jars
 find_file(PKI_NSUTIL_JAR
     NAMES
@@ -97,6 +104,7 @@ javac(pki-console-classes
     SOURCES
         *.java
     CLASSPATH
+        ${APACHE_COMMONS_CLI_JAR}
         ${BASE_JAR} ${LDAPJDK_JAR} ${MMC_JAR}
         ${MMC_EN_JAR} ${NMCLF_JAR} ${NMCLF_EN_JAR}
         ${PKI_CMSUTIL_JAR} ${PKI_NSUTIL_JAR} ${PKI_CERTSRV_JAR}
