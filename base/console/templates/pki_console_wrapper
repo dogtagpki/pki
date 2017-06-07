@@ -51,26 +51,6 @@ PRODUCT="pki"
 
 
 ###############################################################################
-##  (2) Check for valid usage of this command wrapper.                       ##
-###############################################################################
-
-usage() {
-    echo "Usage: $0 <url>"
-    echo
-    echo "     where <url> is the url to the administration port of your"
-    echo "                 Certificate Subsystem.  For example:"
-    echo
-    echo "                     https://<hostname>:9445/ca"
-    echo
-}
-                                                                                
-if [ $# -ne 1 ] ; then
-    usage
-    exit 255
-fi
-
-
-###############################################################################
 ##  (3) Define helper functions.                                             ##
 ###############################################################################
 
@@ -162,7 +142,6 @@ ${JAVA} ${JAVA_OPTIONS} \
   -Djava.util.prefs.userRoot=/tmp/java \
   -Djava.util.logging.config.file=${LOGGING_CONFIG} \
   com.netscape.admin.certsrv.Console \
-  -s instanceID \
-  -a $1
+  "$@"
 
 exit $?

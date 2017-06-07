@@ -91,12 +91,6 @@ import netscape.ldap.LDAPSearchConstraints;
 import netscape.ldap.LDAPSearchResults;
 import netscape.ldap.util.DN;
 
-/**
- * To start standard CS console, issue the following command
- *
- * /export/nkwan/s71/bin/base/jre/bin/java -ms8m -mx64m  -cp .:./ldapjdk.jar:./base.jar:./jss3.jar:./mcc70_en.jar:./mcc70.jar:./nmclf70_en.jar:./nmclf70.jar:./jars/cms71.jar:./jars/cms71_en.jar -Djava.library.path=/export/nkwan/s71/lib/jss  -Djava.util.prefs.systemRoot=/export/nkwan/s71/java/.java -Djava.util.prefs.userRoot=/export/nkwan/s71/java com.netscape.admin.certsrv.Console -D -s instanceID -a http://water:8200
- *
- */
 public class Console implements CommClient {
     // Capture the time before any class is loaded so that we can measure JVM load time
     static long _t0 = System.currentTimeMillis();
@@ -1579,7 +1573,7 @@ public class Console implements CommClient {
 
     static public void main(String argv[]) throws Exception {
 
-		GetOpt opt = new GetOpt("h:a:A:f:l:u:w:s:D:x:", argv);
+        GetOpt opt = new GetOpt("h:f:D:x:", argv);
 
         if (opt.hasOption('f')) {
             String outFile = opt.getOptionParam('f');
@@ -1650,59 +1644,17 @@ public class Console implements CommClient {
             }
         }
 
-        if (opt.hasOption('h'))// help
+        if (opt.getParameters().size() != 1 || opt.hasOption('h'))// help
         {
-            System.err.println("Syntax:  Console [-a <URL>] [-l <Language Code>] [-s <SIE DN>] [-x <options>]");
-            System.err.println("         -a admin server base URL");
-            System.err.println("         -l language code (en fr gr)");
+            System.err.println("Usage:  pkiconsole <URL> [OPTIONS..]");
             System.err.println("         -f <file> capture stderr and stdout to <file> (like Unix tee command)");
-            System.err.println("         -s server DN (cn=...) or instance ID (e.g. slapd-host)");
             System.err.println("         -x extra options (javalaf,nowinpos,nologo)");
-            System.err.println("\nExample: Console -a https://hostname:10021 -l en");
+            System.err.println("\nExample: pkiconsole https://hostname:8443/ca");
             waitForKeyPress(); // allow the user to read the msg on Win NT
             System.exit(0);
         }
 
-		// bug 353403: -a option intended for end-user to
-		// specify default admin url.  This option overrides
-		// -A option.
-        String sAdminURL = null;
-        if (opt.hasOption('a')) {
-            sAdminURL = opt.getOptionParam('a');
-        }
-
-		// bug 353403, -A option intended for startconsole to
-		// specify local admin server url, if one exists.
-        String localAdminURL = null;
-        if (opt.hasOption('A')) {
-            localAdminURL = opt.getOptionParam('A');
-        }
-
-        String instanceID = null;
-        if (opt.hasOption('s')) {
-            instanceID = opt.getOptionParam('s');
-        }
-
-        String sLang = "en";
-        if (opt.hasOption('l')) {
-            sLang = opt.getOptionParam('l');
-        }
-
-        String host = null;
-        if (opt.hasOption('s')) {
-            host = opt.getOptionParam('s');
-        }
-
-        String uid = null;
-        if (opt.hasOption('u')) {
-            uid = opt.getOptionParam('u');
-        }
-
-        String password = null;
-        if (opt.hasOption('w')) {
-            password = opt.getOptionParam('w');
-        }
-
+        String sAdminURL = (String)opt.getParameters().get(0);
 
         ConsoleInfo cinfo = new ConsoleInfo();
         CMSAdmin admin = new CMSAdmin();
@@ -1724,7 +1676,7 @@ public class Console implements CommClient {
             waitForKeyPress(); // allow the user to read the msg on Win NT
             System.exit(1);
         }
-        cinfo.put("cmsServerInstance", instanceID);
+        cinfo.put("cmsServerInstance", "instanceID");
 
         String protocol = url.getProtocol();
         String hostName = url.getHost();
