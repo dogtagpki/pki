@@ -44,6 +44,11 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
 import org.dogtagpki.common.Info;
 import org.dogtagpki.common.InfoClient;
 
@@ -53,7 +58,6 @@ import com.netscape.management.client.Framework;
 import com.netscape.management.client.IPage;
 import com.netscape.management.client.IResourceObject;
 import com.netscape.management.client.ResourceObject;
-import com.netscape.management.client.cmd.GetOpt;
 import com.netscape.management.client.comm.CommClient;
 import com.netscape.management.client.comm.CommRecord;
 import com.netscape.management.client.comm.HttpChannel;
@@ -1564,6 +1568,18 @@ public class Console implements CommClient {
         }
     }
 
+    public static void printHelp() {
+
+        System.out.println("Usage: pkiconsole <URL> [OPTIONS..]");
+        System.out.println();
+        System.out.println(" -f <file>      Capture stderr and stdout to file.");
+        System.out.println(" -D <options>   Debug options.");
+        System.out.println(" -x <options>   Extra options (javalaf, nowinpos, nologo).");
+        System.out.println(" -h,--help      Show help message.");
+        System.out.println();
+        System.out.println("Example: pkiconsole https://hostname:8443/ca");
+    }
+
     /**
       * main routine. It will pass the command line parameters then call the Console constructor
       * to create a console instance.
@@ -1573,10 +1589,29 @@ public class Console implements CommClient {
 
     static public void main(String argv[]) throws Exception {
 
-        GetOpt opt = new GetOpt("h:f:D:x:", argv);
+        Options options = new Options();
 
-        if (opt.hasOption('f')) {
-            String outFile = opt.getOptionParam('f');
+        Option option = new Option("f", true, "Capture stderr and stdout to file.");
+        option.setArgName("file");
+        options.addOption(option);
+
+        option = new Option("D", true, "Debug options.");
+        option.setArgName("options");
+        options.addOption(option);
+
+        option = new Option("x", true, "Extra options (javalaf, nowinpos, nologo).");
+        option.setArgName("options");
+        options.addOption(option);
+
+        options.addOption("h", "help", false, "Show help message.");
+
+        CommandLineParser parser = new DefaultParser();
+        CommandLine cmd = parser.parse(options, argv);
+
+        String[] cmdArgs = cmd.getArgs();
+
+        String outFile = cmd.getOptionValue("f");
+        if (outFile != null) {
             try {
                 TeeStream.tee(outFile);
            }
@@ -1586,10 +1621,10 @@ public class Console implements CommClient {
            }
         }
 
-        if (opt.hasOption('D')) {
+        if (cmd.hasOption("D")) {
             Debug.setApplicationStartTime(_t0);
-            String extraParam = opt.getOptionParam('D');
-            if (extraParam != null) {
+            String extraParam = cmd.getOptionValue("D");
+            if (!extraParam.isEmpty()) {
                 if (extraParam.equals("?") ||
                         !Debug.setTraceMode(extraParam)) {
                     System.out.println(Debug.getUsage());
@@ -1614,17 +1649,20 @@ public class Console implements CommClient {
             }
         }
 
+        if (cmdArgs.length != 1 || cmd.hasOption("help")) {
+            printHelp();
+            waitForKeyPress(); // allow the user to read the msg on Win NT
+            return;
+        }
+
         Debug.println(0,
                 "Management-Console/" +
                 _resource.getString("console","displayVersion") +
                 " B" + VersionInfo.getBuildNumber());
 
-        if (opt.hasOption('x')) {
-            String extraParam = opt.getOptionParam('x');
+        if (cmd.hasOption("x")) {
+            String extraParam = cmd.getOptionValue("x");
             boolean supportedOption = false;
-
-            if (extraParam == null)
-                extraParam = "";
 
             if (extraParam.indexOf(OPTION_NOLOGO) != -1) {
                 _showSplashScreen = false;
@@ -1640,21 +1678,13 @@ public class Console implements CommClient {
             }
 
             if (supportedOption == false) {
-                opt = new GetOpt("h:", new String[]{ "-h"});
+                printHelp();
+                waitForKeyPress(); // allow the user to read the msg on Win NT
+                System.exit(0);
             }
         }
 
-        if (opt.getParameters().size() != 1 || opt.hasOption('h'))// help
-        {
-            System.err.println("Usage:  pkiconsole <URL> [OPTIONS..]");
-            System.err.println("         -f <file> capture stderr and stdout to <file> (like Unix tee command)");
-            System.err.println("         -x extra options (javalaf,nowinpos,nologo)");
-            System.err.println("\nExample: pkiconsole https://hostname:8443/ca");
-            waitForKeyPress(); // allow the user to read the msg on Win NT
-            System.exit(0);
-        }
-
-        String sAdminURL = (String)opt.getParameters().get(0);
+        String sAdminURL = cmdArgs[0];
 
         ConsoleInfo cinfo = new ConsoleInfo();
         CMSAdmin admin = new CMSAdmin();
