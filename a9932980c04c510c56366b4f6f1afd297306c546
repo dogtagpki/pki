@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e1c30b78_b64e01d9",
+        "filename": "base/java-tools/src/com/netscape/cmstools/CRMFPopClient.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-06-07T16:26:04Z",
+      "side": 1,
+      "message": "Should be keywrap algorithm.",
+      "range": {
+        "startLine": 194,
+        "startChar": 27,
+        "endLine": 194,
+        "endChar": 33
+      },
+      "revId": "a9932980c04c510c56366b4f6f1afd297306c546",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
