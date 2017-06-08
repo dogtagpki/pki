@@ -403,8 +403,7 @@ public abstract class EnrollProfile extends BasicProfile
                 String tokenName = CMS.getConfigStore().getString("cmc.token", CryptoUtil.INTERNAL_TOKEN_NAME);
                 token = CryptoUtil.getCryptoToken(tokenName);
 
-                // TODO(alee) Replace the IV definition with a call that generates a random IV of  the correct length
-                byte[] iv = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
+                byte[] iv = CryptoUtil.getNonceData(EncryptionAlgorithm.AES_128_CBC.getIVLength());
                 IVParameterSpec ivps = new IVParameterSpec(iv);
 
                 PublicKey userPubKey = X509Key.parsePublicKey(new DerValue(req_key_data));
@@ -465,6 +464,8 @@ public abstract class EnrollProfile extends BasicProfile
                 req.setExtData("pop_sysPubEncryptedSession", pop_sysPubEncryptedSession);
 
                 req.setExtData("pop_userPubEncryptedSession", pop_userPubEncryptedSession);
+
+                req.setExtData("pop_encryptedDataIV", iv);
 
                 // now compute and set witness
                 CMS.debug(method + "now compute and set witness");
