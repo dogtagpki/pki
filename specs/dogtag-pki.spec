@@ -11,7 +11,7 @@ Version:          10.4.1
 Release:          2%{?dist}
 %else
 Version:          10.4.7
-Release:          1%{?dist}
+Release:          1.1%{?dist}
 %endif
 # The entire source code is GPLv2 except for 'pki-tps' which is LGPLv2
 License:          GPLv2 and LGPLv2
@@ -129,6 +129,9 @@ rm -rf %{buildroot}
 %doc README
 
 %changelog
+* Thu Jun  8 2017 Dogtag Team <pki-devel@redhat.com> 10.4.7-1.1
+- Updated source version number to 10.4.7-1.1
+
 * Mon Jun  5 2017 Dogtag Team <pki-devel@redhat.com> 10.4.7-1
 - Updated source version number to 10.4.7-1
 

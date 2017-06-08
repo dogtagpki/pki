@@ -4,7 +4,7 @@ Version:          10.4.1
 Release:          5%{?dist}
 %else
 Version:          10.4.7
-Release:          1%{?dist}
+Release:          1.1%{?dist}
 %endif
 Summary:          Certificate System - PKI Console
 URL:              http://pki.fedoraproject.org/
@@ -127,6 +127,9 @@ cd build
 
 
 %changelog
+* Thu Jun  8 2017 Dogtag Team <pki-devel@redhat.com> 10.4.7-1.1
+- Updated source version number to 10.4.7-1.1
+
 * Mon Jun  5 2017 Dogtag Team <pki-devel@redhat.com> 10.4.7-1
 - Updated source version number to 10.4.7-1
 

@@ -69,7 +69,7 @@ Version:          10.4.1
 Release:          8%{?dist}
 %else
 Version:          10.4.7
-Release:          1%{?dist}
+Release:          1.1%{?dist}
 %endif
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
@@ -1422,6 +1422,9 @@ fi
 %endif # %{with server}
 
 %changelog
+* Thu Jun  8 2017 Dogtag Team <pki-devel@redhat.com> 10.4.7-1.1
+- Updated source version number to 10.4.7-1.1
+
 * Mon Jun  5 2017 Dogtag Team <pki-devel@redhat.com> 10.4.7-1
 - Require "selinux-policy-targeted >= 3.13.1-159" as a runtime requirement
 - Require "tomcatjss >= 7.2.3" as a build and runtime requirement
