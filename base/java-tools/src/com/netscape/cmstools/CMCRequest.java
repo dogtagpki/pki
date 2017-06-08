@@ -40,6 +40,7 @@ import java.util.StringTokenizer;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.ANY;
 import org.mozilla.jss.asn1.ASN1Util;
+import org.mozilla.jss.asn1.ASN1Value;
 import org.mozilla.jss.asn1.BIT_STRING;
 import org.mozilla.jss.asn1.ENUMERATED;
 import org.mozilla.jss.asn1.GeneralizedTime;
@@ -1708,6 +1709,12 @@ public class CMCRequest {
         try {
             TaggedRequest request = encryptedPop.getRequest();
             AlgorithmIdentifier thePOPAlgID = encryptedPop.getThePOPAlgID();
+
+            ASN1Value v = thePOPAlgID.getParameters();
+            v = ((ANY) v).decodeWith(new OCTET_STRING.Template());
+            byte iv[] = ((OCTET_STRING) v).toByteArray();
+            IVParameterSpec ivps = new IVParameterSpec(iv);
+
             AlgorithmIdentifier witnessAlgID = encryptedPop.getWitnessAlgID();
             OCTET_STRING witness = encryptedPop.getWitness();
             ContentInfo cms = encryptedPop.getContentInfo();
@@ -1734,13 +1741,9 @@ public class CMCRequest {
             }
             System.out.println(method + "symKey unwrapped.");
 
-            // TODO(alee) The code below should be replaced by code that generates a random IV
-            byte[] iv = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
-            IVParameterSpec default_iv = new IVParameterSpec(iv);
-
             byte challenge[] = CryptoUtil.decryptUsingSymmetricKey(
                     token,
-                    default_iv,
+                    ivps,
                     encCI.getEncryptedContent().toByteArray(),
                     symKey,
                     EncryptionAlgorithm.AES_128_CBC);
