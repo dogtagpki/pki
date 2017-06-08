@@ -491,6 +491,7 @@ public class CMCOutputTemplate {
         //don't need this for encryptedPOP, but need to check for existence anyway
         byte[] pop_sysPubEncryptedSession = req.getExtDataInByteArray("pop_sysPubEncryptedSession");
         byte[] pop_userPubEncryptedSession = req.getExtDataInByteArray("pop_userPubEncryptedSession");
+        byte[] iv = req.getExtDataInByteArray("pop_encryptedDataIV");
         if ((pop_encryptedData != null) &&
                 (pop_sysPubEncryptedSession != null) &&
                 (pop_userPubEncryptedSession != null)) {
@@ -517,11 +518,8 @@ public class CMCOutputTemplate {
                     throw new EBaseException(method + msg);
                 }
 
-                // TODO(alee) The code below should be replaced by code that generates a random IV
-                byte[] default_iv = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
-
                 OBJECT_IDENTIFIER oid = EncryptionAlgorithm.AES_128_CBC.toOID();
-                AlgorithmIdentifier aid = new AlgorithmIdentifier(oid, new OCTET_STRING(default_iv));
+                AlgorithmIdentifier aid = new AlgorithmIdentifier(oid, new OCTET_STRING(iv));
 
                 encPop = new EncryptedPOP(
                         tReq,
@@ -532,7 +530,7 @@ public class CMCOutputTemplate {
 
             } catch (Exception e) {
                 CMS.debug(method + " excepton:" + e);
-                throw new EBaseException(method + " excepton:" + e);
+                throw new EBaseException(method + " exception:" + e);
             }
 
         } else {
