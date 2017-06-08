@@ -487,19 +487,40 @@ public class RecoveryService implements IService {
             PasswordConverter passConverter = new
                     PasswordConverter();
 
-            byte[] epkiBytes = ct.getCryptoStore().getEncryptedPrivateKeyInfo(
-                /* NSS has a bug that causes any AES CBC encryption
-                 * to use AES-256, but AlgorithmID contains chosen
-                 * alg.  To avoid mismatch, use AES_256_CBC. */
-                passConverter, pass, EncryptionAlgorithm.AES_256_CBC, 0, priKey);
-            CMS.debug("RecoverService: createPFX() getEncryptedPrivateKeyInfo() returned");
-            if (epkiBytes == null) {
-                CMS.debug("RecoverService: createPFX() epkiBytes null");
-                throw new EBaseException("getEncryptedPrivateKeyInfo returned null");
+            boolean legacyP12 =
+                CMS.getConfigStore().getBoolean("kra.legacyPKCS12", true);
+
+            ASN1Value key;
+            if (legacyP12) {
+                Random ran = new SecureRandom();
+                byte[] salt = new byte[20];
+                ran.nextBytes(salt);
+
+                key = EncryptedPrivateKeyInfo.createPBE(
+                        PBEAlgorithm.PBE_SHA1_DES3_CBC,
+                        pass, salt, 1, passConverter, priKey, ct);
+                CMS.debug("RecoverService: createPFX() EncryptedPrivateKeyInfo.createPBE() returned");
+                if (key == null) {
+                    CMS.debug("RecoverService: createPFX() key null");
+                    throw new EBaseException("EncryptedPrivateKeyInfo.createPBE() failed");
+                } else {
+                    CMS.debug("RecoverService: createPFX() key not null");
+                }
             } else {
-                CMS.debug("RecoverService: createPFX() epkiBytes not null");
+                byte[] epkiBytes = ct.getCryptoStore().getEncryptedPrivateKeyInfo(
+                    /* NSS has a bug that causes any AES CBC encryption
+                     * to use AES-256, but AlgorithmID contains chosen
+                     * alg.  To avoid mismatch, use AES_256_CBC. */
+                    passConverter, pass, EncryptionAlgorithm.AES_256_CBC, 0, priKey);
+                CMS.debug("RecoverService: createPFX() getEncryptedPrivateKeyInfo() returned");
+                if (epkiBytes == null) {
+                    CMS.debug("RecoverService: createPFX() epkiBytes null");
+                    throw new EBaseException("getEncryptedPrivateKeyInfo returned null");
+                } else {
+                    CMS.debug("RecoverService: createPFX() epkiBytes not null");
+                }
+                key = new ANY(epkiBytes);
             }
-            ASN1Value key = new ANY(epkiBytes);
 
             SET keyAttrs = createBagAttrs(
                     x509cert.getSubjectDN().toString(),
