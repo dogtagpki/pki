@@ -1,7 +1,5 @@
-# BEGIN COPYRIGHT BLOCK
-# (C) 2008 Red Hat, Inc.
-# All rights reserved.
-# END COPYRIGHT BLOCK
+# BEGIN COPYRIGHT BLOCK (C) 2008 Red Hat, Inc. All rights reserved. END COPYRIGHT BLOCK
+[![Build Status](https://travis-ci.org/SilleBille/pki.svg?branch=master)](https://travis-ci.org/SilleBille/pki)
 
 This Certificate System is open-source software.
 
