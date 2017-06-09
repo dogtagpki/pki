@@ -230,6 +230,7 @@ public class CRMFPopClient {
         System.out.println("  -w <keywrap algorithm>       Algorithm to use for key wrapping");
         System.out.println("                               - default: \"AES KeyWrap/Padding\"");
         System.out.println("                               - \"AES/CBC/PKCS5Padding\"");
+        System.out.println("                               - \"DES3/CBC/Pad\"");
         System.out.println("  -b <transport cert>          PEM transport certificate (default: transport.txt)");
         System.out.println("  -v, --verbose                Run in verbose mode.");
         System.out.println("      --help                   Show help message.");
