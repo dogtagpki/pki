@@ -30,13 +30,13 @@ import java.security.interfaces.RSAPublicKey;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
-import netscape.security.x509.X509CertImpl;
-
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.X509Certificate;
 
 import com.netscape.cmsutil.util.Utils;
+
+import netscape.security.x509.X509CertImpl;
 
 /**
  * Tool for verifying signed audit logs
@@ -45,22 +45,59 @@ import com.netscape.cmsutil.util.Utils;
  */
 public class AuditVerify {
 
+    public static final String CRYPTO_PROVIDER = "Mozilla-JSS";
+
+    // We always sign 0x0a as the line separator, regardless of what
+    // line separator characters are used in the log file. This helps
+    // signature verification be platform-independent.
+    private static final byte LINE_SEP_BYTE = 0x0a;
+
+    boolean verbose;
+    X509Certificate signingCert;
+
+    public AuditVerify() {
+    }
+
+    public void setVerbose(boolean verbose) {
+        this.verbose = verbose;
+    }
+
+    public void setSigningCert(X509Certificate signingCert) throws Exception {
+
+        // verify audit signing certificate
+        // not checking validity because we want to allow verifying old logs
+
+        if (signingCert == null) {
+            throw new Exception("Missing signing certificate");
+        }
+
+        byte[] bytes = signingCert.getEncoded();
+        X509CertImpl cert = new X509CertImpl(bytes);
+
+        boolean[] keyUsage = cert.getKeyUsage();
+
+        if (keyUsage == null || keyUsage.length < 1) {
+            throw new Exception("Missing signing certificate key usage");
+        }
+
+        boolean valid = keyUsage[0];
+
+        if (!valid) {
+            throw new Exception("Invalid signing certificate key usage");
+        }
+
+        this.signingCert = signingCert;
+    }
+
     private static void usage() {
         System.out
                 .println("Usage: AuditVerify -d <dbdir> -n <signing certificate nickname> -a <log list file> [-P <cert/key db prefix>] [-v]");
         System.exit(1);
     }
 
-    public static final String CRYPTO_PROVIDER = "Mozilla-JSS";
-
     public static byte[] base64decode(String input) throws Exception {
         return Utils.base64decode(input);
     }
-
-    // We always sign 0x0a as the line separator, regardless of what
-    // line separator characters are used in the log file. This helps
-    // signature verification be platform-independent.
-    private static final byte LINE_SEP_BYTE = 0x0a;
 
     private static void output(int linenum, String mesg) throws IOException {
         System.out.println("Line " + linenum + ": " + mesg);
@@ -102,17 +139,6 @@ public class AuditVerify {
 
         // prefix may be valid if at least one file matched the pattern
         return (matchingFiles.length > 0);
-    }
-
-    public static boolean isSigningCert(X509CertImpl cert) {
-        boolean[] keyUsage = null;
-
-        try {
-            keyUsage = cert.getKeyUsage();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return (keyUsage == null) ? false : keyUsage[0];
     }
 
     public static void main(String args[]) {
@@ -192,22 +218,9 @@ public class AuditVerify {
             CryptoManager cm = CryptoManager.getInstance();
             X509Certificate signerCert = cm.findCertByNickname(signerNick);
 
-            X509CertImpl cert_i = null;
-            if (signerCert != null) {
-                byte[] signerCert_b = signerCert.getEncoded();
-                cert_i = new X509CertImpl(signerCert_b);
-            } else {
-                System.out.println("ERROR: signing certificate not found");
-                System.exit(1);
-            }
-
-            // verify signer's certificate
-            //  not checking validity because we want to allow verifying old logs
-            //
-            if (!isSigningCert(cert_i)) {
-                System.out.println("info: signing certificate is not a signing certificate");
-                System.exit(1);
-            }
+            AuditVerify verifier = new AuditVerify();
+            verifier.setVerbose(verbose);
+            verifier.setSigningCert(signerCert);
 
             PublicKey pubk = signerCert.getPublicKey();
             String sigAlgorithm = null;
