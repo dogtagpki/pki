@@ -27,6 +27,7 @@ import java.security.PublicKey;
 import java.security.Signature;
 import java.security.interfaces.DSAPublicKey;
 import java.security.interfaces.RSAPublicKey;
+import java.util.List;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
@@ -141,6 +142,137 @@ public class AuditVerify {
         return (matchingFiles.length > 0);
     }
 
+    public class Result {
+        public int goodSigCount;
+        public int badSigCount;
+        public int sigStartLine;
+        public int sigStopLine;
+        public String sigStartFile;
+        public String sigStopFile;
+        public int signedLines;
+    }
+
+    public Result verify(List<String> logFiles) throws Exception {
+
+        PublicKey pubk = signingCert.getPublicKey();
+
+        String sigAlgorithm = null;
+        if (pubk instanceof RSAPublicKey) {
+            sigAlgorithm = "SHA-256/RSA";
+        } else if (pubk instanceof DSAPublicKey) {
+            sigAlgorithm = "SHA-256/DSA";
+        } else {
+            throw new Exception("Unknown signing certificate key type: " + pubk.getAlgorithm());
+        }
+
+        Signature sig = Signature.getInstance(sigAlgorithm, CRYPTO_PROVIDER);
+        sig.initVerify(pubk);
+
+        int goodSigCount = 0;
+        int badSigCount = 0;
+
+        int lastFileWritten = -1;
+
+        int sigStartLine = 1;
+        int sigStopLine = 1;
+        String sigStartFile = logFiles.get(0);
+        String sigStopFile = null;
+        int signedLines = 1;
+
+        for (int curfile = 0; curfile < logFiles.size(); ++curfile) {
+
+            String curfileName = logFiles.get(curfile);
+            BufferedReader br = new BufferedReader(new FileReader(curfileName));
+
+            if (verbose) {
+                writeFile(curfileName);
+                lastFileWritten = curfile;
+            }
+
+            String curLine;
+            int linenum = 0;
+
+            while ((curLine = br.readLine()) != null) {
+
+                ++linenum;
+
+                if (curLine.indexOf("AUDIT_LOG_SIGNING") != -1) {
+                    if (curfile == 0 && linenum == 1) {
+                        // Ignore the first signature of the first file,
+                        // since it signs data we don't have access to.
+                        if (verbose) {
+                            output(linenum, "Ignoring first signature of log series");
+                        }
+
+                    } else {
+
+                        int sigStart = curLine.indexOf("sig: ") + 5;
+
+                        if (sigStart < 5) {
+                            output(linenum, "INVALID SIGNATURE");
+                            ++badSigCount;
+
+                        } else {
+
+                            byte[] logSig = base64decode(curLine.substring(sigStart));
+
+                            // verify the signature
+                            if (sig.verify(logSig)) {
+
+                                // signature verifies correctly
+                                if (verbose) {
+                                    writeSigStatus(linenum, sigStartFile,
+                                            sigStartLine, sigStopFile, sigStopLine,
+                                            "verification succeeded");
+                                }
+
+                                ++goodSigCount;
+
+                            } else {
+
+                                if (lastFileWritten < curfile) {
+                                    writeFile(curfileName);
+                                    lastFileWritten = curfile;
+                                }
+
+                                writeSigStatus(linenum, sigStartFile,
+                                        sigStartLine, sigStopFile, sigStopLine,
+                                        "VERIFICATION FAILED");
+
+                                ++badSigCount;
+                            }
+                        }
+
+                        sig.initVerify(pubk);
+                        signedLines = 0;
+                        sigStartLine = linenum;
+                        sigStartFile = curfileName;
+                    }
+                }
+
+                byte[] lineBytes = curLine.getBytes("UTF-8");
+                sig.update(lineBytes);
+                sig.update(LINE_SEP_BYTE);
+                ++signedLines;
+                sigStopLine = linenum;
+                sigStopFile = curfileName;
+            }
+
+            br.close();
+        }
+
+        Result result = new Result();
+        result.goodSigCount = goodSigCount;
+        result.badSigCount = badSigCount;
+        result.sigStartLine = sigStartLine;
+        result.sigStopLine = sigStopLine;
+        result.sigStartFile = sigStartFile;
+        result.sigStopFile = sigStopFile;
+        result.signedLines = signedLines;
+
+        return result;
+    }
+
     public static void main(String args[]) {
         try {
 
@@ -222,113 +354,23 @@ public class AuditVerify {
             verifier.setVerbose(verbose);
             verifier.setSigningCert(signerCert);
 
-            PublicKey pubk = signerCert.getPublicKey();
-            String sigAlgorithm = null;
-            if (pubk instanceof RSAPublicKey) {
-                sigAlgorithm = "SHA-256/RSA";
-            } else if (pubk instanceof DSAPublicKey) {
-                sigAlgorithm = "SHA-256/DSA";
-            } else {
-                System.out.println("Error: unknown key type: " +
-                        pubk.getAlgorithm());
-                System.exit(1);
-            }
-            Signature sig = Signature.getInstance(sigAlgorithm, CRYPTO_PROVIDER);
-            sig.initVerify(pubk);
-
-            int goodSigCount = 0;
-            int badSigCount = 0;
-
-            int lastFileWritten = -1;
-
-            int sigStartLine = 1;
-            int sigStopLine = 1;
-            String sigStartFile = logFiles.elementAt(0);
-            String sigStopFile = null;
-            int signedLines = 1;
-
-            for (int curfile = 0; curfile < logFiles.size(); ++curfile) {
-                String curfileName = logFiles.elementAt(curfile);
-                BufferedReader br = new BufferedReader(new FileReader(curfileName));
-
-                if (verbose) {
-                    writeFile(curfileName);
-                    lastFileWritten = curfile;
-                }
-
-                String curLine;
-                int linenum = 0;
-                while ((curLine = br.readLine()) != null) {
-                    ++linenum;
-                    if (curLine.indexOf("AUDIT_LOG_SIGNING") != -1) {
-                        if (curfile == 0 && linenum == 1) {
-                            // Ignore the first signature of the first file,
-                            // since it signs data we don't have access to.
-                            if (verbose) {
-                                output(linenum,
-                                        "Ignoring first signature of log series");
-                            }
-                        } else {
-                            int sigStart = curLine.indexOf("sig: ") + 5;
-                            if (sigStart < 5) {
-                                output(linenum, "INVALID SIGNATURE");
-                                ++badSigCount;
-                            } else {
-                                byte[] logSig =
-                                        base64decode(curLine.substring(sigStart));
-
-                                // verify the signature
-                                if (sig.verify(logSig)) {
-                                    // signature verifies correctly
-                                    if (verbose) {
-                                        writeSigStatus(linenum, sigStartFile,
-                                                sigStartLine, sigStopFile, sigStopLine,
-                                                "verification succeeded");
-                                    }
-                                    ++goodSigCount;
-                                } else {
-                                    if (lastFileWritten < curfile) {
-                                        writeFile(curfileName);
-                                        lastFileWritten = curfile;
-                                    }
-                                    writeSigStatus(linenum, sigStartFile,
-                                            sigStartLine, sigStopFile, sigStopLine,
-                                            "VERIFICATION FAILED");
-                                    ++badSigCount;
-                                }
-                            }
-                            sig.initVerify(pubk);
-                            signedLines = 0;
-                            sigStartLine = linenum;
-                            sigStartFile = curfileName;
-                        }
-                    }
-
-                    byte[] lineBytes = curLine.getBytes("UTF-8");
-                    sig.update(lineBytes);
-                    sig.update(LINE_SEP_BYTE);
-                    ++signedLines;
-                    sigStopLine = linenum;
-                    sigStopFile = curfileName;
-                }
-                br.close();
-            }
+            Result result = verifier.verify(logFiles);
 
             // Make sure there were no unsigned log entries at the end.
             // The first signed line is the previous signature, but anything
             // more than that is data.
-            if (signedLines > 1) {
+            if (result.signedLines > 1) {
                 System.out.println(
-                        "ERROR: log entries after " + sigStartFile
-                                + ":" + sigStartLine + " are UNSIGNED");
-                badSigCount++;
+                        "ERROR: log entries after " + result.sigStartFile
+                                + ":" + result.sigStartLine + " are UNSIGNED");
+                result.badSigCount++;
             }
 
             System.out.println("\nVerification process complete.");
-            System.out.println("Valid signatures: " + goodSigCount);
-            System.out.println("Invalid signatures: " + badSigCount);
+            System.out.println("Valid signatures: " + result.goodSigCount);
+            System.out.println("Invalid signatures: " + result.badSigCount);
 
-            if (badSigCount > 0) {
+            if (result.badSigCount > 0) {
                 System.exit(2);
             } else {
                 System.exit(0);
