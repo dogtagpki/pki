@@ -302,6 +302,30 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
         } catch (IOException e) {
             throw new ELogException(CMS.getUserMessage("CMS_LOG_UNEXPECTED_EXCEPTION", e.toString()));
         }
+
+        // set up signing here to ensure audit logs generated during
+        // subsequent component initialization are signed properly
+        if (mOn && mLogSigning) {
+
+            try {
+                CMS.debug("LogFile: setting up log signing");
+                setupSigning();
+
+                audit(CMS.getLogMessage(
+                        AuditEvent.AUDIT_LOG_STARTUP,
+                        ILogger.SYSTEM_UID,
+                        ILogger.SUCCESS));
+
+            } catch (EBaseException e) {
+
+                audit(CMS.getLogMessage(
+                        AuditEvent.AUDIT_LOG_STARTUP,
+                        ILogger.SYSTEM_UID,
+                        ILogger.FAILURE));
+
+                throw e;
+            }
+        }
     }
 
     /**
@@ -636,25 +660,6 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
      * @exception EBaseException if an internal error occurred
      */
     public void startup() throws EBaseException {
-        // ensure that any low-level exceptions are reported
-        // to the signed audit log and stored as failures
-        CMS.debug("LogFile: entering LogFile.startup()");
-        if (mOn && mLogSigning) {
-            try {
-                setupSigning();
-                audit(CMS.getLogMessage(
-                        AuditEvent.AUDIT_LOG_STARTUP,
-                        ILogger.SYSTEM_UID,
-                        ILogger.SUCCESS));
-            } catch (EBaseException e) {
-                audit(CMS.getLogMessage(
-                        AuditEvent.AUDIT_LOG_STARTUP,
-                        ILogger.SYSTEM_UID,
-                        ILogger.FAILURE));
-                throw e;
-            }
-        }
-
     }
 
     /**
