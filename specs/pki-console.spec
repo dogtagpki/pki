@@ -11,6 +11,20 @@ URL:              http://pki.fedoraproject.org/
 License:          GPLv2
 Group:            System Environment/Base
 
+# RESTEasy
+%if 0%{?rhel}
+%define jaxrs_api_jar /usr/share/java/resteasy-base/jaxrs-api.jar
+%define resteasy_lib /usr/share/java/resteasy-base
+%else
+%if 0%{?fedora} >= 24
+%define jaxrs_api_jar /usr/share/java/jboss-jaxrs-2.0-api.jar
+%define resteasy_lib /usr/share/java/resteasy
+%else
+%define jaxrs_api_jar /usr/share/java/resteasy/jaxrs-api.jar
+%define resteasy_lib /usr/share/java/resteasy
+%endif
+%endif
+
 %bcond_without    javadoc
 
 %if 0%{?rhel}
@@ -103,9 +117,11 @@ following "Mutually-Exclusive" PKI Theme packages:
 %{__mkdir_p} build
 cd build
 %cmake -DVERSION=%{version}-%{release} \
-	-DVAR_INSTALL_DIR:PATH=/var \
+    -DVAR_INSTALL_DIR:PATH=/var \
     -DBUILD_PKI_CONSOLE:BOOL=ON \
     -DJAVA_LIB_INSTALL_DIR=%{_jnidir} \
+    -DJAXRS_API_JAR=%{jaxrs_api_jar} \
+    -DRESTEASY_LIB=%{resteasy_lib} \
 %if ! %{with javadoc}
     -DWITH_JAVADOC:BOOL=OFF \
 %endif
