@@ -53,6 +53,7 @@ class AuditFileFindCLI(pki.cli.CLI):
         print('Usage: pki-server %s-audit-file-find [OPTIONS]' % self.parent.parent.name)
         print()
         print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -v, --verbose                      Run in verbose mode.')
         print('      --help                         Show help message.')
         print()
 
@@ -126,6 +127,7 @@ class AuditFileVerifyCLI(pki.cli.CLI):
         print('Usage: pki-server %s-audit-file-verify [OPTIONS]' % self.parent.parent.name)
         print()
         print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -v, --verbose                      Run in verbose mode.')
         print('      --help                         Show help message.')
         print()
 
@@ -186,10 +188,15 @@ class AuditFileVerifyCLI(pki.cli.CLI):
                 for filename in log_files:
                     f.write(os.path.join(log_dir, filename) + '\n')
 
-            cmd = ['AuditVerify',
-                   '-d', instance.nssdb_dir,
-                   '-n', signing_cert['nickname'],
-                   '-a', file_list]
+            cmd = ['AuditVerify']
+
+            if self.verbose:
+                cmd.append('-v')
+
+            cmd.extend([
+                '-d', instance.nssdb_dir,
+                '-n', signing_cert['nickname'],
+                '-a', file_list])
 
             if self.verbose:
                 print('Command: %s' % ' '.join(cmd))
