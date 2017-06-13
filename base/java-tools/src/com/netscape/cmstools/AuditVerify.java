@@ -170,7 +170,6 @@ public class AuditVerify {
         }
 
         Signature sig = Signature.getInstance(sigAlgorithm, CRYPTO_PROVIDER);
-        sig.initVerify(pubk);
 
         int goodSigCount = 0;
         int badSigCount = 0;
@@ -182,6 +181,9 @@ public class AuditVerify {
         String sigStartFile = logFiles.get(0);
         String sigStopFile = null;
         int signedLines = 1;
+
+        // don't start verification before the first signature
+        boolean verifySignature = false;
 
         for (int curfile = 0; curfile < logFiles.size(); ++curfile) {
 
@@ -200,9 +202,9 @@ public class AuditVerify {
 
                 ++linenum;
 
-                if (curLine.indexOf("AUDIT_LOG_SIGNING") != -1) {
+                if (curLine.indexOf("AUDIT_LOG_SIGNING") != -1) { // found signature
 
-                    if (curfile == 0 && linenum == 1) {
+                    if (!verifySignature) { // found first signature
 
                         // Ignore the first signature of the first file,
                         // since it signs data we don't have access to.
@@ -210,7 +212,10 @@ public class AuditVerify {
                             output(linenum, "Ignoring first signature of log series");
                         }
 
-                    } else {
+                        // start verification after the first signature
+                        verifySignature = true;
+
+                    } else { // found another signature
 
                         int sigStart = curLine.indexOf("sig: ");
 
@@ -254,20 +259,24 @@ public class AuditVerify {
                                 ++badSigCount;
                             }
                         }
-
-                        sig.initVerify(pubk);
-                        signedLines = 0;
-                        sigStartLine = linenum;
-                        sigStartFile = curfileName;
                     }
+
+                    // initialize verifier for the next signature
+                    sig.initVerify(pubk);
+                    signedLines = 0;
+                    sigStartLine = linenum;
+                    sigStartFile = curfileName;
                 }
 
-                byte[] lineBytes = curLine.getBytes("UTF-8");
-                sig.update(lineBytes);
-                sig.update(LINE_SEP_BYTE);
-                ++signedLines;
-                sigStopLine = linenum;
-                sigStopFile = curfileName;
+                if (verifySignature) { // update verifier only after the first signature
+
+                    byte[] lineBytes = curLine.getBytes("UTF-8");
+                    sig.update(lineBytes);
+                    sig.update(LINE_SEP_BYTE);
+                    ++signedLines;
+                    sigStopLine = linenum;
+                    sigStopFile = curfileName;
+                }
             }
 
             br.close();
