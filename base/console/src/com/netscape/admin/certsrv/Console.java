@@ -43,12 +43,14 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
+import javax.ws.rs.ProcessingException;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.apache.commons.cli.UnrecognizedOptionException;
 import org.dogtagpki.common.Info;
 import org.dogtagpki.common.InfoClient;
 
@@ -126,6 +128,7 @@ public class Console implements CommClient {
     //
     // global values
     //
+    public static boolean verbose;
     public static Preferences _preferences;
     public static ConsoleInfo _info;
     public static String _consoleAdminURL;
@@ -1575,6 +1578,7 @@ public class Console implements CommClient {
         System.out.println(" -f <file>      Capture stderr and stdout to file.");
         System.out.println(" -D <options>   Debug options.");
         System.out.println(" -x <options>   Extra options (javalaf, nowinpos, nologo).");
+        System.out.println(" -v,--verbose   Run in verbose mode.");
         System.out.println(" -h,--help      Show help message.");
         System.out.println();
         System.out.println("Example: pkiconsole https://hostname:8443/ca");
@@ -1587,7 +1591,7 @@ public class Console implements CommClient {
       * @param parameters list
       */
 
-    static public void main(String argv[]) throws Exception {
+    public static void mainImpl(String argv[]) throws Exception {
 
         Options options = new Options();
 
@@ -1603,12 +1607,15 @@ public class Console implements CommClient {
         option.setArgName("options");
         options.addOption(option);
 
+        options.addOption("v", "verbose", false, "Run in verbose mode.");
         options.addOption("h", "help", false, "Show help message.");
 
         CommandLineParser parser = new DefaultParser();
         CommandLine cmd = parser.parse(options, argv);
 
         String[] cmdArgs = cmd.getArgs();
+
+        verbose = cmd.hasOption("verbose");
 
         String outFile = cmd.getOptionValue("f");
         if (outFile != null) {
@@ -1783,7 +1790,41 @@ public class Console implements CommClient {
 /*
         _console = new Console(sAdminURL, localAdminURL, sLang, host, uid, password);
 */
-        return;
+    }
+
+    public static void handleException(Throwable t) {
+
+        if (verbose) {
+            t.printStackTrace(System.err);
+
+        } else if (t.getClass() == Exception.class) {
+            // display a generic error
+            System.err.println("Error: " + t.getMessage());
+
+        } else if (t.getClass() == UnrecognizedOptionException.class) {
+            // display only the error message
+            System.err.println(t.getMessage());
+
+        } else if (t instanceof ProcessingException) {
+            // display the cause of the exception
+            t = t.getCause();
+            System.err.println(t.getClass().getSimpleName() + ": " + t.getMessage());
+
+        } else {
+            // display the actual Exception
+            System.err.println(t.getClass().getSimpleName() + ": " + t.getMessage());
+        }
+    }
+
+    public static void main(String args[]) {
+
+        try {
+            mainImpl(args);
+
+        } catch (Throwable t) {
+            handleException(t);
+            System.exit(-1);
+        }
     }
 }
 

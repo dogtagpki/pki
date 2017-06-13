@@ -105,6 +105,7 @@ javac(pki-console-classes
         *.java
     CLASSPATH
         ${APACHE_COMMONS_CLI_JAR}
+        ${JAXRS_API_JAR}
         ${BASE_JAR} ${LDAPJDK_JAR} ${MMC_JAR}
         ${MMC_EN_JAR} ${NMCLF_JAR} ${NMCLF_EN_JAR}
         ${PKI_CMSUTIL_JAR} ${PKI_NSUTIL_JAR} ${PKI_CERTSRV_JAR}
