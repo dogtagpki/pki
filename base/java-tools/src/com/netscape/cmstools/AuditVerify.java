@@ -165,6 +165,10 @@ public class AuditVerify {
             throw new Exception("Unknown signing certificate key type: " + pubk.getAlgorithm());
         }
 
+        if (verbose) {
+            System.out.println("AuditVerify: Signing algorithm: " + sigAlgorithm);
+        }
+
         Signature sig = Signature.getInstance(sigAlgorithm, CRYPTO_PROVIDER);
         sig.initVerify(pubk);
 
@@ -208,15 +212,21 @@ public class AuditVerify {
 
                     } else {
 
-                        int sigStart = curLine.indexOf("sig: ") + 5;
+                        int sigStart = curLine.indexOf("sig: ");
 
-                        if (sigStart < 5) {
+                        if (sigStart < 0) {
                             output(linenum, "INVALID SIGNATURE");
                             ++badSigCount;
 
                         } else {
 
-                            byte[] logSig = base64decode(curLine.substring(sigStart));
+                            String signature = curLine.substring(sigStart + 5);
+
+                            if (verbose) {
+                                System.out.println("AuditVerify: Signature: " + signature);
+                            }
+
+                            byte[] logSig = base64decode(signature);
 
                             // verify the signature
                             if (sig.verify(logSig)) {
@@ -255,6 +265,7 @@ public class AuditVerify {
                 byte[] lineBytes = curLine.getBytes("UTF-8");
                 sig.update(lineBytes);
                 sig.update(LINE_SEP_BYTE);
+
                 ++signedLines;
                 sigStopLine = linenum;
                 sigStopFile = curfileName;
@@ -349,6 +360,11 @@ public class AuditVerify {
                                 "secmod.db")
                         );
             }
+
+            if (verbose) {
+                System.out.println("AuditVerify: Audit signing certificate: " + signerNick);
+            }
+
             CryptoManager cm = CryptoManager.getInstance();
             X509Certificate signerCert = cm.findCertByNickname(signerNick);
 
