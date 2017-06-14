@@ -1297,6 +1297,12 @@ EOF
         /var/lib/pki/$PKI_INSTANCE_NAME/conf/custom.policy > \
         /var/lib/pki/$PKI_INSTANCE_NAME/conf/catalina.policy
 
+    pki-server banner-validate -i "$PKI_INSTANCE_NAME"
+    rv=$?
+    if [ $rv -ne 0 ]; then
+        return $rv
+    fi
+
     if [ "${PKI_SERVER_AUTO_ENABLE_SUBSYSTEMS}" = "true" ] ; then
         # enable all subsystems
         pki-server subsystem-enable -i "$PKI_INSTANCE_NAME" --all

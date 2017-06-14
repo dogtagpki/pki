@@ -19,6 +19,7 @@
 #
 
 from __future__ import absolute_import
+import codecs
 from lxml import etree
 import functools
 import getpass
@@ -501,6 +502,7 @@ class PKIInstance(object):
         self.conf_dir = os.path.join(CONFIG_BASE_DIR, name)
         self.log_dir = os.path.join(LOG_BASE_DIR, name)
 
+        self.banner_file = os.path.join(self.conf_dir, 'banner.txt')
         self.password_conf = os.path.join(self.conf_dir, 'password.conf')
         self.external_certs_conf = os.path.join(
             self.conf_dir, 'external_certs.conf')
@@ -791,6 +793,12 @@ class PKIInstance(object):
         context_xml = os.path.join(
             self.conf_dir, 'Catalina', 'localhost', webapp_name + '.xml')
         os.remove(context_xml)
+
+    def banner_installed(self):
+        return os.path.exists(self.banner_file)
+
+    def get_banner(self):
+        return codecs.open(self.banner_file, "UTF-8").read().strip()
 
     def __repr__(self):
         if self.type == 9:
