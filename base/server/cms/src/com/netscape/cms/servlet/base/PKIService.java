@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.base;
 
-import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.nio.file.Files;
@@ -41,6 +40,8 @@ import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.UriInfo;
+
+import org.apache.xerces.util.XMLChar;
 
 import com.netscape.certsrv.base.PKIException;
 
@@ -97,8 +98,20 @@ public class PKIService {
         return Files.exists(bannerFile);
     }
 
-    public static String getBanner() throws IOException {
-        return new String(Files.readAllBytes(bannerFile), "UTF-8").trim();
+    public static String getBanner() throws Exception {
+
+        String banner = new String(Files.readAllBytes(bannerFile), "UTF-8").trim();
+
+        // verify banner contains only valid XML characters
+        for (char c : banner.toCharArray()) {
+
+            if (XMLChar.isInvalid(c)) {
+                String hex = Integer.toHexString(c);
+                throw new Exception("Invalid character (Unicode: 0x" + hex + ") in access banner");
+            }
+        }
+
+        return banner;
     }
 
     public static MediaType resolveFormat(MediaType format) {
