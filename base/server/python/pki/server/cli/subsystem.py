@@ -239,6 +239,9 @@ class SubsystemEnableCLI(pki.cli.CLI):
         instance.load()
 
         if all_subsystems:
+
+            # TODO: enable /pki webapp
+
             for subsystem in instance.subsystems:
                 if not subsystem.is_enabled():
                     subsystem.enable()
@@ -328,6 +331,9 @@ class SubsystemDisableCLI(pki.cli.CLI):
         instance.load()
 
         if all_subsystems:
+
+            # TODO: disable /pki webapp
+
             for subsystem in instance.subsystems:
                 if subsystem.is_enabled():
                     subsystem.disable()

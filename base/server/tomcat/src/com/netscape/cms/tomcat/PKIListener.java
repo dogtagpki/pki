@@ -30,6 +30,7 @@ import org.apache.catalina.Server;
 import org.apache.catalina.Service;
 import org.apache.commons.lang.StringUtils;
 
+import com.netscape.cms.servlet.base.PKIService;
 import com.redhat.nuxwdog.WatchdogClient;
 
 public class PKIListener implements LifecycleListener {
@@ -38,6 +39,15 @@ public class PKIListener implements LifecycleListener {
 
     @Override
     public void lifecycleEvent(LifecycleEvent event) {
+        try {
+            lifecycleEventImpl(event);
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void lifecycleEventImpl(LifecycleEvent event) throws Exception {
 
         String type = event.getType();
         System.out.println("PKIListener: " + event.getLifecycle().getClass().getName() + "[" + type + "]");
@@ -58,7 +68,40 @@ public class PKIListener implements LifecycleListener {
                 WatchdogClient.sendEndInit(0);
             }
 
-            verifySubsystems((Server)event.getLifecycle());
+            Server server = (Server)event.getLifecycle();
+            verifyBanner(server);
+            verifySubsystems(server);
+        }
+    }
+
+    public void verifyBanner(Server server) throws Exception {
+
+        Service service = server.findService("Catalina");
+        Engine engine = (Engine)service.getContainer();
+        String defaultHost = engine.getDefaultHost();
+
+        File instanceDir = new File(System.getProperty("catalina.base"));
+        String instanceName = instanceDir.getName();
+
+        try {
+            boolean bannerEnabled = PKIService.isBannerEnabled();
+
+            if (!bannerEnabled) {
+                System.out.println("PKIListener: Banner disabled");
+                return;
+            }
+
+            PKIService.getBanner();
+
+            System.out.println("PKIListener: Banner valid");
+
+        } catch (Exception e) {
+
+            System.out.println("PKIListener: " + e);
+
+            disableSubsystems(instanceName);
+
+            throw e;
         }
     }
 
@@ -114,6 +157,17 @@ public class PKIListener implements LifecycleListener {
             }
 
             System.out.println("PKIListener: Subsystem " + subsystemName.toUpperCase() + " is running.");
+        }
+    }
+
+    public void disableSubsystems(String instanceName) throws Exception {
+
+        ProcessBuilder pb = new ProcessBuilder("pki-server", "subsystem-disable", "-i", instanceName, "--all");
+        Process process = pb.inheritIO().start();
+        int rc = process.waitFor();
+
+        if (rc != 0) {
+            throw new Exception("Unable to disable subsystems in \" + instanceName + \" instance. RC: " + rc);
         }
     }
 }
