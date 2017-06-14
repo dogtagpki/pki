@@ -36,11 +36,8 @@ if (location.protocol == "https:" && !sessionStorage.bannerLock) {
                 return;
             }
 
-            // decode Base64-encoded UTF-8 banner
-            var banner = decodeURIComponent(escape(atob(data.Banner)));
-
             // display the banner and ask for confirmation
-            var message = banner + "\n\nDo you want to proceed?";
+            var message = data.Banner + "\n\nDo you want to proceed?";
 
             // if banner accepted
             if (confirm(message)) {
