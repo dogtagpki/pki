@@ -26,7 +26,6 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,7 +66,6 @@ public class Info extends ResourceMessage {
     }
 
     @XmlElement(name="Banner")
-    @XmlJavaTypeAdapter(Base64Adapter.class)
     public String getBanner() {
         return banner;
     }
