@@ -19,6 +19,7 @@ package com.netscape.cms.servlet.profile;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.security.cert.X509Certificate;
 import java.util.Enumeration;
 import java.util.Locale;
 
@@ -168,6 +169,12 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
         String auditSubjectID = null;
         String authMgrID = authenticator.getName();
         SessionContext sc = SessionContext.getContext();
+
+        X509Certificate clientCert =
+                getSSLClientCertificate(request, false /*cert may not be required*/);
+        if (clientCert != null) {
+           sc.put(SessionContext.SSL_CLIENT_CERT, clientCert);
+        }
 
         try {
             authToken = authenticator.authenticate(credentials);

@@ -843,6 +843,10 @@ public abstract class CMSServlet extends HttpServlet {
      * get ssl client authenticated certificate
      */
     protected X509Certificate getSSLClientCertificate(HttpServletRequest httpReq) throws EBaseException {
+        return getSSLClientCertificate(httpReq, true);
+    }
+
+    protected X509Certificate getSSLClientCertificate(HttpServletRequest httpReq, boolean clientCertRequired) throws EBaseException {
 
         X509Certificate cert = null;
 
@@ -855,7 +859,11 @@ public abstract class CMSServlet extends HttpServlet {
         X509Certificate[] allCerts = (X509Certificate[]) httpReq.getAttribute(CERT_ATTR);
 
         if (allCerts == null || allCerts.length == 0) {
-            throw new EBaseException("You did not provide a valid certificate for this operation");
+            if (!clientCertRequired) {
+                return null;
+            } else {
+                throw new EBaseException("You did not provide a valid certificate for this operation");
+            }
         }
 
         cert = allCerts[0];

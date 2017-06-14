@@ -28,6 +28,7 @@ package com.netscape.cms.authentication;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.security.cert.X509Certificate;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.PublicKey;
@@ -260,10 +261,26 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
         CMS.debug(method + "begins");
 
         String auditMessage = null;
-        String auditSubjectID = auditSubjectID();
+        String auditSubjectID = getAuditSubjectID();
         String auditReqType = ILogger.UNIDENTIFIED;
-        String auditCertSubject = ILogger.UNIDENTIFIED;
+        String requestCertSubject = ILogger.UNIDENTIFIED;
         String auditSignerInfo = ILogger.UNIDENTIFIED;
+
+        SessionContext auditContext = SessionContext.getExistingContext();
+
+        // create audit context if clientCert exists
+        X509Certificate clientCert =
+               (X509Certificate) auditContext.get(SessionContext.SSL_CLIENT_CERT);
+        // null is okay, as it is not required in case of self-sign;
+        // will be checked later
+        if (clientCert != null) {
+            try {
+                createAuditSubjectFromCert(auditContext, clientCert);
+            } catch (IOException e) { 
+               //unlikely, and not necessarily required at this point
+               CMS.debug("CMSUserSignedAuth: authenticate: after createAuditSubjectFromCert call; " + e);
+            }
+        }
 
         // ensure that any low-level exceptions are reported
         // to the signed audit log and stored as failures
@@ -295,8 +312,6 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
 
                 throw new EInvalidCredentials(msg);
             }
-
-            SessionContext auditContext = SessionContext.getExistingContext();
 
             // authenticate by checking CMC.
 
@@ -364,13 +379,13 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
                                 }
                                 // reset value of auditSignerInfo
                                 if (uid != null && !uid.equals(ILogger.UNIDENTIFIED)) {
-                                    CMS.debug(method + "setting auditSignerInfo to uid:" + uid.trim());
-                                    auditSignerInfo = uid.trim();
+                                    //CMS.debug(method + "setting auditSignerInfo to uid:" + uid.trim());
+                                    //auditSignerInfo = uid.trim();
                                     auditSubjectID = uid.trim();
                                     authToken.set(IAuthToken.USER_ID, auditSubjectID);
                                 } else if (userid != null && !userid.equals(ILogger.UNIDENTIFIED)) {
-                                    CMS.debug(method + "setting auditSignerInfo to userid:" + userid);
-                                    auditSignerInfo = userid.trim();
+                                    //CMS.debug(method + "setting auditSignerInfo to userid:" + userid);
+                                    //auditSignerInfo = userid.trim();
                                     auditSubjectID = userid.trim();
                                     authToken.set(IAuthToken.USER_ID, auditSubjectID);
                                 }
@@ -538,16 +553,17 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
                                 }
 
                                 PKCS10 pkcs10 = new PKCS10(ostream.toByteArray(), sigver);
-                                // reset value of auditCertSubject
+                                // reset value of requestCertSubject
                                 X500Name tempName = pkcs10.getSubjectName();
                                 CMS.debug(method + "request subject name=" + tempName.toString());
                                 if (tempName != null) {
-                                    auditCertSubject = tempName.toString().trim();
-                                    if (auditCertSubject.equals("")) {
-                                        auditCertSubject = ILogger.SIGNED_AUDIT_EMPTY_VALUE;
+                                    requestCertSubject = tempName.toString().trim();
+                                    if (requestCertSubject.equals("")) {
+                                        requestCertSubject = ILogger.SIGNED_AUDIT_EMPTY_VALUE;
                                     }
                                     authToken.set(AuthToken.TOKEN_CERT_SUBJECT,
-                                            auditCertSubject/*tempName.toString()*/);
+                                            requestCertSubject/*tempName.toString()*/);
+                                    auditContext.put(SessionContext.CMC_REQUEST_CERT_SUBJECT, requestCertSubject);
                                 }
 
                                 if (selfSigned) {
@@ -632,17 +648,18 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
                                 // xxx do we need to do anything else?
                                 X509CertInfo certInfo = CMS.getDefaultX509CertInfo();
 
-                                // reset value of auditCertSubject
+                                // reset value of requestCertSubject
                                 if (name != null) {
                                     String ss = name.getRFC1485();
 
-                                    CMS.debug(method + "setting auditCertSubject to: " + ss);
-                                    auditCertSubject = ss;
-                                    if (auditCertSubject.equals("")) {
-                                        auditCertSubject = ILogger.SIGNED_AUDIT_EMPTY_VALUE;
+                                    CMS.debug(method + "setting requestCertSubject to: " + ss);
+                                    requestCertSubject = ss;
+                                    if (requestCertSubject.equals("")) {
+                                        requestCertSubject = ILogger.SIGNED_AUDIT_EMPTY_VALUE;
                                     }
 
                                     authToken.set(AuthToken.TOKEN_CERT_SUBJECT, ss);
+                                    auditContext.put(SessionContext.CMC_REQUEST_CERT_SUBJECT, requestCertSubject);
                                     //authToken.set("uid", uid);
                                     //authToken.set("userid", userid);
                                 }
@@ -696,10 +713,15 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
 
                 authToken.set("uid", uid);
                 authToken.set("userid", userid);
+            } catch (EMissingCredential e) {
+                throw e;
+            } catch (EInvalidCredentials e) {
+                throw e;
             } catch (Exception e) {
-                CMS.debug(method + e);
+                //CMS.debug(method + e);
                 //Debug.printStackTrace(e);
-                throw new EInvalidCredentials(e.toString());
+                //throw new EInvalidCredentials(e.toString());
+                throw e;
             }
 
             // For accuracy, make sure revocation by shared secret doesn't
@@ -709,11 +731,11 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
                         AuditEvent.CMC_USER_SIGNED_REQUEST_SIG_VERIFY_SUCCESS,
-                        auditSubjectID,
+                        getAuditSubjectID(),
                         ILogger.SUCCESS,
                         auditReqType,
-                        auditCertSubject,
-                        auditSignerInfo);
+                        getRequestCertSubject(auditContext),
+                        getAuditSignerInfo(auditContext));
 
                 audit(auditMessage);
             } else {
@@ -725,17 +747,6 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
             return authToken;
         } catch (EMissingCredential eAudit1) {
             CMS.debug(method + eAudit1);
-            // store a message in the signed audit log file
-            auditMessage = CMS.getLogMessage(
-                    AuditEvent.CMC_USER_SIGNED_REQUEST_SIG_VERIFY_FAILURE,
-                    auditSubjectID,
-                    ILogger.FAILURE,
-                    auditReqType,
-                    auditCertSubject,
-                    auditSignerInfo,
-                    eAudit1.toString());
-
-            audit(auditMessage);
 
             // rethrow the specific exception to be handled later
             throw eAudit1;
@@ -744,11 +755,11 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
                     AuditEvent.CMC_USER_SIGNED_REQUEST_SIG_VERIFY_FAILURE,
-                    auditSubjectID,
+                    getAuditSubjectID(),
                     ILogger.FAILURE,
                     auditReqType,
-                    auditCertSubject,
-                    auditSignerInfo,
+                    getRequestCertSubject(auditContext),
+                    getAuditSignerInfo(auditContext),
                     eAudit2.toString());
 
             audit(auditMessage);
@@ -760,11 +771,11 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
                     AuditEvent.CMC_USER_SIGNED_REQUEST_SIG_VERIFY_FAILURE,
-                    auditSubjectID,
+                    getAuditSubjectID(),
                     ILogger.FAILURE,
                     auditReqType,
-                    auditCertSubject,
-                    auditSignerInfo,
+                    getRequestCertSubject(auditContext),
+                    getAuditSignerInfo(auditContext),
                     eAudit3.toString());
 
             audit(auditMessage);
@@ -776,17 +787,17 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
                     AuditEvent.CMC_USER_SIGNED_REQUEST_SIG_VERIFY_FAILURE,
-                    auditSubjectID,
+                    getAuditSubjectID(),
                     ILogger.FAILURE,
                     auditReqType,
-                    auditCertSubject,
-                    auditSignerInfo,
+                    getRequestCertSubject(auditContext),
+                    getAuditSignerInfo(auditContext),
                     eAudit4.toString());
 
             audit(auditMessage);
 
-            // rethrow the specific exception to be handled later
-            throw eAudit4;
+            // rethrow the exception to be handled later
+            throw new EBaseException(eAudit4);
         }
     }
 
@@ -935,8 +946,9 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
             SessionContext auditContext, // to capture info in case of failure
             AuthToken authToken,
             SignedData cmcFullReq)
-            throws EBaseException {
+            throws EBaseException, EInvalidCredentials, EMissingCredential {
         String method = "CMCUserSignedAuth: verifySignerInfo: ";
+        String msg = "";
         CMS.debug(method + "begins");
         EncapsulatedContentInfo ci = cmcFullReq.getContentInfo();
         OBJECT_IDENTIFIER id = ci.getContentType();
@@ -1001,7 +1013,7 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
                     if (cmcFullReq.hasCertificates()) {
                         SET certs = cmcFullReq.getCertificates();
                         int numCerts = certs.size();
-                        java.security.cert.X509Certificate[] x509Certs = new java.security.cert.X509Certificate[1];
+                        X509Certificate[] x509Certs = new X509Certificate[1];
                         byte[] certByteArray = new byte[0];
                         for (int j = 0; j < numCerts; j++) {
                             Certificate certJss = (Certificate) certs.elementAt(j);
@@ -1029,25 +1041,44 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
                         }
 
                         CMS.debug(method + "start checking signature");
-                        String CN = null;
                         if (cert == null) {
                             // find from certDB
                             CMS.debug(method + "verifying signature");
                             si.verify(digest, id);
                         } else {
-                            CMS.debug(method + "found signing cert... verifying");
+                            CMS.debug(method + "found CMC signing cert... verifying");
 
-                            // capture auditSubjectID first in case of failure
-                            netscape.security.x509.X500Name principal =
+                            X509Certificate clientCert =
+                                    (X509Certificate) auditContext.get(SessionContext.SSL_CLIENT_CERT);
+                            // user-signed case requires ssl client authentication
+                            if (clientCert == null) {
+                                createAuditSubjectFromCert(auditContext, x509Certs[0]);
+                                msg = "missing SSL client authentication certificate;";
+                                CMS.debug(method + msg);
+                                s.close();
+                                throw new EMissingCredential(
+                                        CMS.getUserMessage("CMS_AUTHENTICATION_NO_CERT"));
+                            }
+                            netscape.security.x509.X500Name clientPrincipal =
+                                    (X500Name) clientCert.getSubjectDN();
+
+                            netscape.security.x509.X500Name cmcPrincipal =
                                     (X500Name) x509Certs[0].getSubjectDN();
 
                             // capture signer principal to be checked against
                             // cert subject principal later in CMCOutputTemplate
                             // in case of user signed revocation
-                            auditContext.put(SessionContext.CMC_SIGNER_PRINCIPAL, principal);
-                            CN = principal.getCommonName(); //tempToken.get("userid");
-                            CMS.debug(method + " Principal name = " + CN);
-                            auditContext.put(SessionContext.USER_ID, CN);
+                            auditContext.put(SessionContext.CMC_SIGNER_PRINCIPAL, cmcPrincipal);
+                            auditContext.put(SessionContext.CMC_SIGNER_INFO, cmcPrincipal.getCommonName());
+
+                            // check ssl client cert against cmc signer
+                            if (!clientPrincipal.equals(cmcPrincipal)) {
+                                msg = "SSL client authentication certificate and CMC signer do not match";
+                                CMS.debug(method + msg);
+                                s.close();
+                                throw new EInvalidCredentials(
+                                        CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL") + ":" + msg);
+                            }
 
                             PublicKey signKey = cert.getPublicKey();
                             PrivateKey.Type keyType = null;
@@ -1064,10 +1095,11 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
                                 byte publicKeyData[] = ((X509Key) signKey).getEncoded();
                                 pubK = PK11ECPublicKey.fromSPKI(/*keyType,*/ publicKeyData);
                             } else {
-                                CMS.debug(method + "unsupported signature algorithm: " + alg);
+                                msg = "unsupported signature algorithm: " + alg;
+                                CMS.debug(method +  msg);
                                 s.close();
                                 throw new EInvalidCredentials(
-                                        CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
+                                        CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL") + ":" + msg);
                             }
 
                             String tokenName = CMS.getConfigStore().getString("ca.requestVerify.token",
@@ -1095,9 +1127,10 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
                         // ...or not;  I think it just checks usage and
                         // validity, but not revocation status
                         if (!cm.isCertValid(certByteArray, true, CryptoManager.CertUsage.SSLClient)) {
-                            CMS.debug(method + "CMC signature failed to be verified");
+                            msg = "CMC signing cert is invalid";
+                            CMS.debug(method + msg);
                             s.close();
-                            throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
+                            throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL") + ":" + msg);
                         } else {
                             CMS.debug(method + "CMC signature verified; but signer not yet;");
                         }
@@ -1105,28 +1138,28 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
 
                         // now check revocation status of the cert
                         if (CMS.isRevoked(x509Certs)) {
-                            CMS.debug(method + "CMC signing cert is a revoked certificate");
+                            msg = "CMC signing cert is a revoked certificate";
+                            CMS.debug(method + msg);
                             s.close();
-                            throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
+                            throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL") + ":" + msg);
                         }
                         try { //do this again anyways
                             cert.checkValidity();
                         } catch (CertificateExpiredException e) {
-                            CMS.debug(method + "CMC signing cert is an expired certificate");
+                            msg = "CMC signing cert is an expired certificate";
+                            CMS.debug(method + msg);
                             s.close();
-                            throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
+                            throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL") + ":" + msg);
                         } catch (Exception e) {
                             CMS.debug(method + e.toString());
                             s.close();
-                            throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
+                            throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL") + ":" + e.toString());
                         }
 
                         IAuthToken tempToken = new AuthToken(null);
-/*
                         netscape.security.x509.X500Name tempPrincipal = (X500Name) x509Certs[0].getSubjectDN();
                         String CN = tempPrincipal.getCommonName(); //tempToken.get("userid");
                         CMS.debug(method + " Principal name = " + CN);
-*/
 
                         BigInteger certSerial = x509Certs[0].getSerialNumber();
                         CMS.debug(method + " verified cert serial=" + certSerial.toString());
@@ -1137,7 +1170,9 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
                         return tempToken;
 
                     } else {
-                        CMS.debug(method + "no certificate found in cmcFullReq");
+                        msg = "no certificate found in cmcFullReq";
+                        CMS.debug(method + msg);
+                        throw new EMissingCredential(msg);
                     }
                 } else if (sid.getType().equals(SignerIdentifier.SUBJECT_KEY_IDENTIFIER)) {
                     CMS.debug(method + "SignerIdentifier type: SUBJECT_KEY_IDENTIFIER");
@@ -1150,19 +1185,20 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
                     s.close();
                     return tempToken;
                 } else {
-                    CMS.debug(method + "unsupported SignerIdentifier type");
+                    msg = "unsupported SignerIdentifier type";
+                    CMS.debug(method + msg);
+                    throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL") + ":" + msg);
                 }
             } //for
 
+        } catch (EMissingCredential e) {
+            throw e;
+        } catch (EInvalidCredentials e) {
+            throw e;
         } catch (InvalidBERException e) {
-            CMS.debug(method + e.toString());
-        } catch (IOException e) {
-            CMS.debug(method + e.toString());
-        } catch (NotInitializedException e) {
-            CMS.debug(method + e.toString());
+            CMS.debug(method + e);
         } catch (Exception e) {
-            CMS.debug(method + e.toString());
-            throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
+            CMS.debug(method + e);
         } finally {
             if ((tokenSwitched == true) && (savedToken != null)) {
                 cm.setThreadToken(savedToken);
@@ -1171,6 +1207,21 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
         }
         return null;
 
+    }
+
+    private void createAuditSubjectFromCert (
+            SessionContext auditContext,
+            X509Certificate cert)
+            throws IOException {
+        String method = "CMCUserSignedAuth:createAuditSubjectFromCert: ";
+
+        // capture auditSubjectID first in case of failure
+        netscape.security.x509.X500Name principal =
+                (X500Name) cert.getSubjectDN();
+
+        String CN = principal.getCommonName();
+        CMS.debug(method + " Principal name = " + CN);
+        auditContext.put(SessionContext.USER_ID, CN);
     }
 
     public String[] getExtendedPluginInfo(Locale locale) {
@@ -1274,7 +1325,7 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
      *
      * @return id string containing the signed audit log message SubjectID
      */
-    private String auditSubjectID() {
+    private String getAuditSubjectID() {
         // if no signed audit object exists, bail
         if (mSignedAuditLogger == null) {
             return null;
@@ -1299,4 +1350,21 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
 
         return subjectID;
     }
+
+    private String getAuditSignerInfo(SessionContext auditContext) {
+        String signerSubject = (String)auditContext.get(SessionContext.CMC_SIGNER_INFO);
+        if (signerSubject == null)
+            signerSubject = "$Unidentified$";
+
+        return signerSubject;
+    }
+
+    private String getRequestCertSubject(SessionContext auditContext) {
+        String certSubject = (String)auditContext.get(SessionContext.CMC_REQUEST_CERT_SUBJECT);
+        if (certSubject == null)
+            certSubject = "$Unidentified$";
+
+        return certSubject;
+    }
+
 }

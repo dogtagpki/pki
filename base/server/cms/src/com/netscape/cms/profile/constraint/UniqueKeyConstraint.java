@@ -219,12 +219,14 @@ public class UniqueKeyConstraint extends EnrollConstraint {
                         Date origNotAfter = null;
                         boolean first = true;
                         while (e != null && e.hasMoreElements()) {
+                            CMS.debug(method +  msg);
                             ICertRecord rec = e.nextElement();
                             BigInteger serial = rec.getSerialNumber();
+                            msg = msg + "existing cert with same key found: " + serial.toString() + ";";
 
                             if (rec.getStatus().equals(ICertRecord.STATUS_REVOKED)
                                     || rec.getStatus().equals(ICertRecord.STATUS_REVOKED_EXPIRED)) {
-                                msg = msg + "revoked cert cannot be renewed: serial=" + serial.toString() + ";";
+                                msg = msg + "revoked cert cannot be renewed;";
                                 CMS.debug(method + msg);
                                 rejected = true;
                                 // this has to break
@@ -232,7 +234,7 @@ public class UniqueKeyConstraint extends EnrollConstraint {
                             }
                             if (!rec.getStatus().equals(ICertRecord.STATUS_VALID)
                                     && !rec.getStatus().equals(ICertRecord.STATUS_EXPIRED)) {
-                                CMS.debug(method + "invalid cert cannot be renewed; continue:" + serial.toString());
+                                CMS.debug(method + "invalid cert cannot be renewed; continue;" + serial.toString());
                                 // can still find another one to renew
                                 continue;
                             }
@@ -297,7 +299,7 @@ public class UniqueKeyConstraint extends EnrollConstraint {
         } // (size > 0)
 
         if (rejected == true) {
-            CMS.debug(method + " rejected");
+            CMS.debug(method + " rejected: " + msg);
             throw new ERejectException(msg);
         } else {
             CMS.debug(method + " approved");

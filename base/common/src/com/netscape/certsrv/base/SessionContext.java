@@ -56,6 +56,13 @@ public class SessionContext extends Hashtable<Object, Object> {
      * Principal name object of the signed CMC request
      */
     public static final String CMC_SIGNER_PRINCIPAL = "cmcSignerPrincipal";
+    public static final String CMC_SIGNER_INFO = "cmcSignerInfo";
+    public static final String CMC_REQUEST_CERT_SUBJECT = "cmcRequestCertSubject";
+
+   /**
+    * authenticated SSL client certificate
+    */
+    public static final String SSL_CLIENT_CERT = "sslClientCert";
 
     /**
      * User object of the authenticated user in the current thread.
