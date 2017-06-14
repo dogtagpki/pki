@@ -47,9 +47,9 @@ import javax.ws.rs.ProcessingException;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.apache.commons.cli.PosixParser;
 import org.apache.commons.cli.UnrecognizedOptionException;
 import org.dogtagpki.common.Info;
 import org.dogtagpki.common.InfoClient;
@@ -1610,7 +1610,7 @@ public class Console implements CommClient {
         options.addOption("v", "verbose", false, "Run in verbose mode.");
         options.addOption("h", "help", false, "Show help message.");
 
-        CommandLineParser parser = new DefaultParser();
+        CommandLineParser parser = new PosixParser();
         CommandLine cmd = parser.parse(options, argv);
 
         String[] cmdArgs = cmd.getArgs();
