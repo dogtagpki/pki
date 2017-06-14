@@ -98,7 +98,7 @@ public class PKIService {
     }
 
     public static String getBanner() throws IOException {
-        return new String(Files.readAllBytes(bannerFile)).trim();
+        return new String(Files.readAllBytes(bannerFile), "UTF-8").trim();
     }
 
     public static MediaType resolveFormat(MediaType format) {
