@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "f270f11b_44f0c812",
+        "filename": "base/ca/src/org/dogtagpki/server/ca/rest/AuthorityService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-06-15T22:48:32Z",
+      "side": 1,
+      "message": "Fixed. The comparison is done using String.equalsIgnoreCase().",
+      "parentUuid": "41b114eb_a079618b",
+      "revId": "4096f1a752a2d453f2c03e9e35380e1839b87d71",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "97ef5b2c_22b74957",
         "filename": "base/common/src/com/netscape/certsrv/authority/AuthorityClient.java",
         "patchSetId": 1
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "a36efacf_5b386dc6",
+        "filename": "base/common/src/com/netscape/certsrv/authority/AuthorityClient.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-06-15T22:48:32Z",
+      "side": 1,
+      "message": "Fixed. The AuthoritySearchRequest was intended to avoid changing the method signature if we add more filters later. The AuthoritySearchResponse was intended to provide paged result (it returns the total number of entries and the entries in the current page only). We can add that later if we need to support paging.",
+      "parentUuid": "97ef5b2c_22b74957",
+      "revId": "4096f1a752a2d453f2c03e9e35380e1839b87d71",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3c955040_dabd50bf",
         "filename": "base/common/src/com/netscape/certsrv/authority/AuthorityResource.java",
         "patchSetId": 1
@@ -47,6 +83,24 @@
       "writtenOn": "2017-06-15T06:24:37Z",
       "side": 1,
       "message": "This collides with the @POST createCA below.  When I try to create a CA it routes to findCAs, attempts to parse the\nbody as an AuthoritySearchRequest, and fails 400.\n\nWe could either do \"POST /ca/rest/authorities/search\",\nor enhance the existing @GET listCAs() to take an optional\nbody with type AuthoritySearchRequest, or even devolve\nto plain old query params.  (I favour the latter approaches,\nafter all the search is just a \"listCAs\" with optional\nfilters.",
+      "revId": "4096f1a752a2d453f2c03e9e35380e1839b87d71",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "df09dcab_f51c3fb9",
+        "filename": "base/common/src/com/netscape/certsrv/authority/AuthorityResource.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-06-15T22:48:32Z",
+      "side": 1,
+      "message": "Good catch. The listCAs() has been replaced with findCAs() that takes query parameters. Not sure if a GET operation can take an AuthoritySearchRequest parameter.",
+      "parentUuid": "3c955040_dabd50bf",
       "revId": "4096f1a752a2d453f2c03e9e35380e1839b87d71",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
