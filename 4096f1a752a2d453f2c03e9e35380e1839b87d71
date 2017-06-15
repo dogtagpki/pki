@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "41b114eb_a079618b",
+        "filename": "base/ca/src/org/dogtagpki/server/ca/rest/AuthorityService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 1011000
+      },
+      "writtenOn": "2017-06-15T06:24:37Z",
+      "side": 1,
+      "message": "This is a UUID, so we should probably compare case insensitively.  Same for parent ID below.",
+      "revId": "4096f1a752a2d453f2c03e9e35380e1839b87d71",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "97ef5b2c_22b74957",
+        "filename": "base/common/src/com/netscape/certsrv/authority/AuthorityClient.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 1011000
+      },
+      "writtenOn": "2017-06-15T06:24:37Z",
+      "side": 1,
+      "message": "We can instead do:\n\nGenericType\u003cList\u003cAuthorityData\u003e\u003e type \u003d\n  new GenericType\u003cList\u003cAuthorityData\u003e\u003e() {};\nreturn client.getEntity(response, type);\n\nAnd get rid of the whole AuthoritySearchRespones wrapping type.\n\nThis would mean we cannot use the @ClientResponseType annotation in AuthorityResource.java, but that is\ndeprecated anyway, and in this case redundant (because\nyou already explicitly specify the response type as the\nsecond argument of `client.getEntity`",
+      "revId": "4096f1a752a2d453f2c03e9e35380e1839b87d71",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3c955040_dabd50bf",
+        "filename": "base/common/src/com/netscape/certsrv/authority/AuthorityResource.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 1011000
+      },
+      "writtenOn": "2017-06-15T06:24:37Z",
+      "side": 1,
+      "message": "This collides with the @POST createCA below.  When I try to create a CA it routes to findCAs, attempts to parse the\nbody as an AuthoritySearchRequest, and fails 400.\n\nWe could either do \"POST /ca/rest/authorities/search\",\nor enhance the existing @GET listCAs() to take an optional\nbody with type AuthoritySearchRequest, or even devolve\nto plain old query params.  (I favour the latter approaches,\nafter all the search is just a \"listCAs\" with optional\nfilters.",
+      "revId": "4096f1a752a2d453f2c03e9e35380e1839b87d71",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
