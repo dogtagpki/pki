@@ -26,6 +26,10 @@ public interface AuthorityResource {
             @QueryParam("size") Integer size);
             */
 
+    @POST
+    @ClientResponseType(entityType=AuthoritySearchResponse.class)
+    public Response findCAs(AuthoritySearchRequest request);
+
     @GET
     @Path("{id}")
     @ClientResponseType(entityType=AuthorityData.class)

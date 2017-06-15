@@ -1,12 +1,15 @@
 package com.netscape.cmstools.authority;
 
 import java.util.Arrays;
-import java.util.List;
+import java.util.Collection;
 
 import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Option;
 
 import com.netscape.certsrv.authority.AuthorityClient;
 import com.netscape.certsrv.authority.AuthorityData;
+import com.netscape.certsrv.authority.AuthoritySearchRequest;
+import com.netscape.certsrv.authority.AuthoritySearchResponse;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -17,10 +20,30 @@ public class AuthorityFindCLI extends CLI {
     public AuthorityFindCLI(AuthorityCLI authorityCLI) {
         super("find", "Find CAs", authorityCLI);
         this.authorityCLI = authorityCLI;
+
+        createOptions();
     }
 
     public void printHelp() {
         formatter.printHelp(getFullName(), options);
+    }
+
+    public void createOptions() {
+        Option option = new Option(null, "id", true, "Authority ID");
+        option.setArgName("ID");
+        options.addOption(option);
+
+        option = new Option(null, "parent-id", true, "Authority parent ID");
+        option.setArgName("ID");
+        options.addOption(option);
+
+        option = new Option(null, "dn", true, "Authority DN");
+        option.setArgName("DN");
+        options.addOption(option);
+
+        option = new Option(null, "issuer-dn", true, "Authority issuer DN");
+        option.setArgName("DN");
+        options.addOption(option);
     }
 
     public void execute(String[] args) throws Exception {
@@ -30,17 +53,32 @@ public class AuthorityFindCLI extends CLI {
             return;
         }
 
-        @SuppressWarnings("unused")
         CommandLine cmd = parser.parse(options, args);
 
+        AuthoritySearchRequest request = new AuthoritySearchRequest();
+
+        String id = cmd.getOptionValue("id");
+        request.setID(id);
+
+        String parentID = cmd.getOptionValue("parent-id");
+        request.setParentID(parentID);
+
+        String dn = cmd.getOptionValue("dn");
+        request.setDN(dn);
+
+        String issuerDN = cmd.getOptionValue("issuer-dn");
+        request.setIssuerDN(issuerDN);
+
         AuthorityClient authorityClient = authorityCLI.getAuthorityClient();
-        List<AuthorityData> datas = authorityClient.listCAs();
+        AuthoritySearchResponse response = authorityClient.findCAs(request);
 
-        MainCLI.printMessage(datas.size() + " entries matched");
-        if (datas.size() == 0) return;
+        MainCLI.printMessage(response.getTotal() + " entries matched");
+        if (response.getTotal() == 0) return;
 
+        Collection<AuthorityData> entries = response.getEntries();
         boolean first = true;
-        for (AuthorityData data : datas) {
+
+        for (AuthorityData data : entries) {
             if (first)
                 first = false;
             else
@@ -48,7 +86,7 @@ public class AuthorityFindCLI extends CLI {
             AuthorityCLI.printAuthorityData(data);
         }
 
-        MainCLI.printMessage("Number of entries returned " + datas.size());
+        MainCLI.printMessage("Number of entries returned " + entries.size());
     }
 
 }

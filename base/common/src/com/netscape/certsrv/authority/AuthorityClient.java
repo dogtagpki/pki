@@ -44,6 +44,11 @@ public class AuthorityClient extends Client {
         return client.getEntity(response, type);
     }
 
+    public AuthoritySearchResponse findCAs(AuthoritySearchRequest request) {
+        Response response = proxy.findCAs(request);
+        return client.getEntity(response, AuthoritySearchResponse.class);
+    }
+
     public AuthorityData getCA(String caIDString) {
         Response response = proxy.getCA(caIDString);
         return client.getEntity(response, AuthorityData.class);

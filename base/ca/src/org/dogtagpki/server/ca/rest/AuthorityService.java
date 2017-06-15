@@ -32,8 +32,10 @@ import javax.ws.rs.core.Response;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
+import com.netscape.certsrv.authority.AuthoritySearchResponse;
 import com.netscape.certsrv.authority.AuthorityData;
 import com.netscape.certsrv.authority.AuthorityResource;
+import com.netscape.certsrv.authority.AuthoritySearchRequest;
 import com.netscape.certsrv.base.BadRequestDataException;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.ConflictingOperationException;
@@ -80,6 +82,35 @@ public class AuthorityService extends SubsystemService implements AuthorityResou
         GenericEntity<List<AuthorityData>> entity =
             new GenericEntity<List<AuthorityData>>(results) {};
         return createOKResponse(entity);
+    }
+
+    @Override
+    public Response findCAs(AuthoritySearchRequest request) {
+
+        AuthoritySearchResponse response = new AuthoritySearchResponse();
+
+        for (ICertificateAuthority ca : hostCA.getCAs()) {
+
+            AuthorityData authority = readAuthorityData(ca);
+
+            String id = request.getID();
+            if (id != null && !id.equals(authority.getID())) continue;
+
+            String parentID = request.getParentID();
+            if (parentID != null && !parentID.equals(authority.getParentID())) continue;
+
+            String dn = request.getDN();
+            if (dn != null && !dn.equals(authority.getDN())) continue;
+
+            String issuerDN = request.getIssuerDN();
+            if (issuerDN != null && !issuerDN.equals(authority.getIssuerDN())) continue;
+
+            response.addEntry(authority);
+        }
+
+        response.setTotal(response.getEntries().size());
+
+        return createOKResponse(response);
     }
 
     @Override
