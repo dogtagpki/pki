@@ -110,9 +110,10 @@ public class CertCLI extends CLI {
     }
 
     public static void printCertInfo(CertDataInfo info) {
-        System.out.println("  Serial Number: "+info.getID().toHexString());
-        System.out.println("  Subject DN: "+info.getSubjectDN());
-        System.out.println("  Status: "+info.getStatus());
+        System.out.println("  Serial Number: " + info.getID().toHexString());
+        System.out.println("  Subject DN: " + info.getSubjectDN());
+        System.out.println("  Issuer DN: " + info.getIssuerDN());
+        System.out.println("  Status: " + info.getStatus());
 
         String type = info.getType();
         Integer version = info.getVersion();
@@ -156,11 +157,11 @@ public class CertCLI extends CLI {
             boolean showEncoded) {
 
         System.out.println("  Serial Number: " + certData.getSerialNumber().toHexString());
-        System.out.println("  Issuer: " + certData.getIssuerDN());
-        System.out.println("  Subject: " + certData.getSubjectDN());
+        System.out.println("  Subject DN: " + certData.getSubjectDN());
+        System.out.println("  Issuer DN: " + certData.getIssuerDN());
         System.out.println("  Status: " + certData.getStatus());
-        System.out.println("  Not Before: " + certData.getNotBefore());
-        System.out.println("  Not After: " + certData.getNotAfter());
+        System.out.println("  Not Valid Before: " + certData.getNotBefore());
+        System.out.println("  Not Valid After: " + certData.getNotAfter());
 
         Date revokedOn = certData.getRevokedOn();
         if (revokedOn != null) {
