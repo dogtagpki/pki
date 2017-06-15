@@ -72,13 +72,25 @@ public class AuthorityService extends SubsystemService implements AuthorityResou
     }
 
     @Override
-    public Response listCAs() {
+    public Response findCAs(String id, String parentID, String dn, String issuerDN) {
+
         List<AuthorityData> results = new ArrayList<>();
-        for (ICertificateAuthority ca : hostCA.getCAs())
-            results.add(readAuthorityData(ca));
+
+        for (ICertificateAuthority ca : hostCA.getCAs()) {
+
+            AuthorityData authority = readAuthorityData(ca);
+
+            if (id != null && !id.equalsIgnoreCase(authority.getID())) continue;
+            if (parentID != null && !parentID.equalsIgnoreCase(authority.getParentID())) continue;
+            if (dn != null && !dn.equals(authority.getDN())) continue;
+            if (issuerDN != null && !issuerDN.equals(authority.getIssuerDN())) continue;
+
+            results.add(authority);
+        }
 
         GenericEntity<List<AuthorityData>> entity =
             new GenericEntity<List<AuthorityData>>(results) {};
+
         return createOKResponse(entity);
     }
 
