@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "28cc90c0_e0d02333",
+        "filename": "base/server/python/pki/server/cli/banner.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-06-15T21:38:22Z",
+      "side": 1,
+      "message": "OK. Banner file that has not been installed can be validated with the new --file option.",
+      "parentUuid": "cbff84f9_7bd120d2",
+      "revId": "81b55ed83c633f2d3005f6cdbf0fe56a3978ae93",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ae0dc000_440af804",
         "filename": "base/server/python/pki/server/cli/banner.py",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2017-06-15T18:47:16Z",
       "side": 1,
       "message": "Do we consider a banner that is enabled but empty to be valid?  Should we?",
+      "revId": "81b55ed83c633f2d3005f6cdbf0fe56a3978ae93",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "090a49c6_27f3632c",
+        "filename": "base/server/python/pki/server/cli/banner.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-06-15T21:38:22Z",
+      "side": 1,
+      "message": "No, empty banner should be rejected to avoid confusions. This is now checked in line 170.",
+      "parentUuid": "ae0dc000_440af804",
       "revId": "81b55ed83c633f2d3005f6cdbf0fe56a3978ae93",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
