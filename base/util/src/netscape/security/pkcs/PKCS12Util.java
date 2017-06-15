@@ -102,33 +102,49 @@ public class PKCS12Util {
         icert.setObjectSigningTrust(PKCS12.decodeFlags(flags[2]));
     }
 
-    /**
-     * Used during EXPORT to add a private key to the PKCS12.
+    /** Add a private key to the PKCS #12 object.
      *
-     * The private key is exported directly from the token, into
-     * an EncryptedPrivateKeyInfo value, then added as a
-     * "Shrouded Key Bag" to the PKCS #12 object.  Unencrypted
-     * key material is never seen.
+     * The PKCS12KeyInfo object received comes about in two
+     * different scenarios:
+     *
+     * - The private key could be in encrypted byte[] form (e.g.
+     *   when we have merely loaded a PKCS #12 file for inspection
+     *   or e.g. to delete a certificate and its associated key).
+     *   In this case we simply re-use this encrypted private key
+     *   info byte[].
+     *
+     * - The private key could be a be an NSS PrivateKey handle.  In
+     *   this case we must export the PrivateKey from the token to
+     *   obtain the EncryptedPrivateKeyInfo.
+     *
+     * The common final step is to add the encrypted private key
+     * data to a "Shrouded Key Bag" to the PKCS #12 object.
+     * Unencrypted key material is never seen.
      */
     public void addKeyBag(PKCS12KeyInfo keyInfo, Password password,
             SEQUENCE encSafeContents) throws Exception {
-        PrivateKey k = keyInfo.getPrivateKey();
-        if (k == null) {
-            logger.debug("NO PRIVATE KEY for " + keyInfo.subjectDN);
-            return;
-        }
-
         logger.debug("Creating key bag for " + keyInfo.subjectDN);
 
-        PasswordConverter passConverter = new PasswordConverter();
-        byte[] epkiBytes = CryptoManager.getInstance()
-            .getInternalKeyStorageToken()
-            .getCryptoStore()
-            .getEncryptedPrivateKeyInfo(
-                /* NSS has a bug that causes any AES CBC encryption
-                 * to use AES-256, but AlgorithmID contains chosen
-                 * alg.  To avoid mismatch, use AES_256_CBC. */
-                passConverter, password, EncryptionAlgorithm.AES_256_CBC, 0, k);
+        byte[] epkiBytes = keyInfo.getEncryptedPrivateKeyInfoBytes();
+        if (epkiBytes == null) {
+            PrivateKey k = keyInfo.getPrivateKey();
+            if (k == null) {
+                logger.debug("NO PRIVATE KEY for " + keyInfo.subjectDN);
+                return;
+            }
+            logger.debug("Encrypting private key for " + keyInfo.subjectDN);
+
+            PasswordConverter passConverter = new PasswordConverter();
+            epkiBytes = CryptoManager.getInstance()
+                .getInternalKeyStorageToken()
+                .getCryptoStore()
+                .getEncryptedPrivateKeyInfo(
+                    /* NSS has a bug that causes any AES CBC encryption
+                     * to use AES-256, but AlgorithmID contains chosen
+                     * alg.  To avoid mismatch, use AES_256_CBC. */
+                    passConverter, password,
+                    EncryptionAlgorithm.AES_256_CBC, 0, k);
+        }
 
         SET keyAttrs = createKeyBagAttrs(keyInfo);
 
