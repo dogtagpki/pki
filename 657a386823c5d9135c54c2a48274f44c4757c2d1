@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bbe06b7a_5c4a7706",
+        "filename": "base/server/python/pki/server/cli/banner.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-06-15T21:38:22Z",
+      "side": 1,
+      "message": "If banner is not installed, pki-server banner-show will return an RC\u003d1 to distinguish the error message from the real content of the banner file.",
+      "revId": "657a386823c5d9135c54c2a48274f44c4757c2d1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
