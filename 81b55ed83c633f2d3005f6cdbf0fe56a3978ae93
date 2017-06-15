@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cbff84f9_7bd120d2",
+        "filename": "base/server/python/pki/server/cli/banner.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-06-15T18:47:16Z",
+      "side": 1,
+      "message": "Do we want to allow folks to validate a banner before enabling it?",
+      "revId": "81b55ed83c633f2d3005f6cdbf0fe56a3978ae93",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ae0dc000_440af804",
+        "filename": "base/server/python/pki/server/cli/banner.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-06-15T18:47:16Z",
+      "side": 1,
+      "message": "Do we consider a banner that is enabled but empty to be valid?  Should we?",
+      "revId": "81b55ed83c633f2d3005f6cdbf0fe56a3978ae93",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
