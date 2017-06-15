@@ -54,6 +54,7 @@ import netscape.security.x509.X509Key;
 public class OCSPProcessor {
 
     public boolean verbose;
+    public String url;
 
     public OCSPProcessor() {
     }
@@ -64,6 +65,14 @@ public class OCSPProcessor {
 
     public boolean isVerbose() {
         return verbose;
+    }
+
+    public String getURL() {
+        return url;
+    }
+
+    public void setURL(String url) {
+        this.url = url;
     }
 
     /**
@@ -120,6 +129,10 @@ public class OCSPProcessor {
         TBSRequest tbsRequest = new TBSRequest(null, null, requestList, null);
 
         return new OCSPRequest(tbsRequest, null);
+    }
+
+    public OCSPResponse submitRequest(OCSPRequest request) throws Exception {
+        return submitRequest(url, request);
     }
 
     public OCSPResponse submitRequest(String url, OCSPRequest request) throws Exception {
