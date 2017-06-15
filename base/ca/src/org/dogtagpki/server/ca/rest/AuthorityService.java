@@ -60,6 +60,8 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.servlet.base.SubsystemService;
 import com.netscape.cmsutil.util.Utils;
 
+import netscape.security.x509.X500Name;
+
 /**
  * @author ftweedal
  */
@@ -72,13 +74,36 @@ public class AuthorityService extends SubsystemService implements AuthorityResou
     }
 
     @Override
-    public Response listCAs() {
+    public Response findCAs(String id, String parentID, String dn, String issuerDN) throws Exception {
+
+        X500Name x500dn = dn == null ? null : new X500Name(dn);
+        X500Name x500issuerDN = issuerDN == null ? null : new X500Name(issuerDN);
+
         List<AuthorityData> results = new ArrayList<>();
-        for (ICertificateAuthority ca : hostCA.getCAs())
-            results.add(readAuthorityData(ca));
+
+        for (ICertificateAuthority ca : hostCA.getCAs()) {
+
+            AuthorityData authority = readAuthorityData(ca);
+
+            if (id != null && !id.equalsIgnoreCase(authority.getID())) continue;
+            if (parentID != null && !parentID.equalsIgnoreCase(authority.getParentID())) continue;
+
+            if (x500dn != null) {
+                X500Name caDN = new X500Name(authority.getDN());
+                if (!x500dn.equals(caDN)) continue;
+            }
+
+            if (x500issuerDN != null) {
+                X500Name caIssuerDN = new X500Name(authority.getIssuerDN());
+                if (!x500issuerDN.equals(caIssuerDN)) continue;
+            }
+
+            results.add(authority);
+        }
 
         GenericEntity<List<AuthorityData>> entity =
             new GenericEntity<List<AuthorityData>>(results) {};
+
         return createOKResponse(entity);
     }
 

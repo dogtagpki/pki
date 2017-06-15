@@ -38,8 +38,12 @@ public class AuthorityClient extends Client {
         proxy = createProxy(AuthorityResource.class);
     }
 
-    public List<AuthorityData> listCAs() {
-        Response response = proxy.listCAs();
+    public List<AuthorityData> listCAs() throws Exception {
+        return findCAs(null, null, null, null);
+    }
+
+    public List<AuthorityData> findCAs(String id, String parentID, String dn, String issuerDN) throws Exception {
+        Response response = proxy.findCAs(id, parentID, dn, issuerDN);
         GenericType<List<AuthorityData>> type = new GenericType<List<AuthorityData>>() {};
         return client.getEntity(response, type);
     }
