@@ -67,6 +67,10 @@ public class WrappingParams {
             // New clients set this correctly.
             // We'll assume the old DES3 wrapping here.
             encrypt = EncryptionAlgorithm.DES_CBC_PAD;
+        } else if (encryptOID.equals(CryptoUtil.KW_DES_CBC_PAD.toString())) {
+            encrypt = EncryptionAlgorithm.DES3_CBC_PAD;
+        } else if (encryptOID.equals(CryptoUtil.KW_AES_CBC_PAD.toString())) {
+            encrypt = EncryptionAlgorithm.AES_128_CBC_PAD;
         } else {
             encrypt = EncryptionAlgorithm.fromOID(new OBJECT_IDENTIFIER(encryptOID));
         }
@@ -135,23 +139,26 @@ public class WrappingParams {
             payloadWrapAlgorithm = KeyWrapAlgorithm.AES_KEY_WRAP_PAD;
             payloadEncryptionAlgorithm = EncryptionAlgorithm.AES_128_CBC_PAD;
             skLength = 128;
-        }
-
-        if (kwAlg == KeyWrapAlgorithm.AES_CBC_PAD) {
+        } else if (kwAlg == KeyWrapAlgorithm.AES_CBC_PAD) {
             skType = SymmetricKey.AES;
             skKeyGenAlgorithm = KeyGenAlgorithm.AES;
             payloadWrapAlgorithm = KeyWrapAlgorithm.AES_CBC_PAD;
             payloadEncryptionAlgorithm = EncryptionAlgorithm.AES_128_CBC_PAD;
             skLength = 128;
-        }
-
-        if (kwAlg == KeyWrapAlgorithm.DES3_CBC_PAD || kwAlg == KeyWrapAlgorithm.DES_CBC_PAD) {
+        } else if (kwAlg == KeyWrapAlgorithm.DES3_CBC_PAD) {
+            skType = SymmetricKey.DES3;
+            skKeyGenAlgorithm = KeyGenAlgorithm.DES3;
+            skWrapAlgorithm = KeyWrapAlgorithm.DES3_CBC_PAD;
+            payloadWrapAlgorithm = KeyWrapAlgorithm.DES3_CBC_PAD;
+            payloadEncryptionAlgorithm = EncryptionAlgorithm.DES3_CBC_PAD;
+            skLength = payloadEncryptionAlgorithm.getKeyStrength();
+        } else if (kwAlg == KeyWrapAlgorithm.DES_CBC_PAD) {
             skType = SymmetricKey.DES;
             skKeyGenAlgorithm = KeyGenAlgorithm.DES;
             skWrapAlgorithm = KeyWrapAlgorithm.DES3_CBC_PAD;
             payloadWrapAlgorithm = KeyWrapAlgorithm.DES3_CBC_PAD;
-            payloadEncryptionAlgorithm = EncryptionAlgorithm.DES3_CBC_PAD;
-            skLength = 0;
+            payloadEncryptionAlgorithm = EncryptionAlgorithm.DES_CBC_PAD;
+            skLength = payloadEncryptionAlgorithm.getKeyStrength();
         }
 
         if (priKeyAlgo.equals("EC")) {
