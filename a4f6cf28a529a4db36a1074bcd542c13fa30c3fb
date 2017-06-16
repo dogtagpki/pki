@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8f536ed3_bf961995",
+        "filename": "base/ca/src/org/dogtagpki/server/ca/rest/AuthorityService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1011000
+      },
+      "writtenOn": "2017-06-16T03:02:34Z",
+      "side": 1,
+      "message": "I think we should compare DNs as X500Name, not String.\nIf there are e.g. case differences in attribute name,\nspaces between RDNs, they will compare unequal even if\nthey are equal DNs.\n\nApart from that this routine works as expected.",
+      "revId": "a4f6cf28a529a4db36a1074bcd542c13fa30c3fb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
