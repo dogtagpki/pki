@@ -16,6 +16,24 @@
       "revId": "a4f6cf28a529a4db36a1074bcd542c13fa30c3fb",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c5faad23_1ef0f2fa",
+        "filename": "base/ca/src/org/dogtagpki/server/ca/rest/AuthorityService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-06-16T22:45:12Z",
+      "side": 1,
+      "message": "This is fixed.",
+      "parentUuid": "8f536ed3_bf961995",
+      "revId": "a4f6cf28a529a4db36a1074bcd542c13fa30c3fb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
