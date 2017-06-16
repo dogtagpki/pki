@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ef9a03ea_60f844d4",
+        "filename": "base/java-tools/src/com/netscape/cmstools/cert/CertStatusCLI.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 1011000
+      },
+      "writtenOn": "2017-06-16T03:18:28Z",
+      "side": 1,
+      "message": "This needs to be\n\n  findCAs(null, null, issuerDN, null)\n\nbecause the issuerDN of the certificate in question is\nthe subject DN of the CA certificate to look up.",
+      "revId": "1a99497f9d0abf264de8682139ad976faa2f5556",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
