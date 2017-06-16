@@ -3,11 +3,74 @@ language: python
 
 services:
   - docker
-
+cache: pip
 env:
   global:
     - CONTAINER=pkitest
     - SCRIPTDIR=/tmp/workdir/pki/.travis
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+    - DOGTAG_PKI_RPMS=${TRAVIS_BUILD_DIR}/dogtag_rpms
+    - RPMS_LOCATION=/tmp/workdir/packages/RPMS
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+    - PKI_LOG=pki_log.log
+    - CI_RESULTS_LOG="ci_results_${TRAVIS_BRANCH}.log"
+=======
+
+
+    # IPA Related variables
+    - TEST_RUNNER_IMAGE="martbab/freeipa-fedora-test-runner:master-latest"
+      TEST_RUNNER_CONFIG=".test_runner_config.yaml"
+      PEP8_ERROR_LOG="pep8_errors.log"
+      CI_RESULTS_LOG="ci_results_${TRAVIS_BRANCH}.log"
+      CI_BACKLOG_SIZE=5000
+      CI_RUNNER_LOGS_DIR="/tmp/test-runner-logs"
+      CI_RUNNER_LOG_ARCHIVE="freeipa-dogtag-integration-ci-pr-${TRAVIS_PULL_REQUEST}-job-${TRAVIS_JOB_NUMBER}.tar.gz"
+
+>>>>>>> 39b62dc... Moved dogtag stuff to before_script
+=======
+    - DOGTAG_PKI_RPMS="/tmp/dogtag_rpms"
+>>>>>>> 6e130a2... Configured to run IPA cert tests
+=======
+    - DOGTAG_PKI_RPMS=/tmp/dogtag_rpms
+<<<<<<< HEAD
+    - RPMS_LOCATION=../packages/
+>>>>>>> a4eff14... Corrected the path to copy files to host machine
+=======
+    - RPMS_LOCATION=/tmp/workdir/packages/RPMS
+>>>>>>> 1c675f7... Corrected the path to copy files to host machine
+=======
+    - DOGTAG_PKI_RPMS=/dogtag_rpms
+=======
+    - DOGTAG_PKI_RPMS=/tmp/dogtag_rpms
+>>>>>>> 9589311... Creating temp repo for dogtag
+    - RPMS_LOCATION=/tmp/workdir/packages/RPMS
+    - DOGTAG_REPO_FILE_LOCATION=/etc/yum.repos.d/dogtag_packages.repo
+    - REPO_NAME=dogtag_repo
+>>>>>>> b0d7655... Creating temp repo for dogtag files
+=======
+    - DOGTAG_PKI_RPMS=${TRAVIS_BUILD_DIR}dogtag_rpms
+=======
+    - DOGTAG_PKI_RPMS=${TRAVIS_BUILD_DIR}/dogtag_rpms
+>>>>>>> 79c293a... Fixed the damn / in TRAVIS_BUILD_DIR
+    - RPMS_LOCATION=/tmp/workdir/packages/RPMS
+>>>>>>> d5460f9... Removed repo and added rpms to build dir
+=======
+    - CI_RESULTS_LOG="ci_results_${TRAVIS_BRANCH}.log"
+>>>>>>> 3c27187... transferring logs to transfer.sh
+=======
+>>>>>>> 4ef1f9c... transferring logs to transfer.sh
+=======
+    - PKI_LOG=pki_log.log
+    - CI_RESULTS_LOG="ci_results_${TRAVIS_BRANCH}.log"
+>>>>>>> 919fb90... Cleaned the code
   matrix:
     - IMAGE=dogtagpki/pki-ci-containers:f25_104
     # F26 repo is unstable
@@ -15,6 +78,27 @@ env:
     # rawhide repo is unstable
     # - IMAGE=dogtagpki/pki-ci-containers:rawhide
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+    
+=======
+    # IPA Related tasks
+    #- TASK_TO_RUN="lint"
+    #- TASK_TO_RUN="run-tests"
+    #  TESTS_TO_RUN="test_caacl_plugin.py
+    #  test_caacl_profile_enforcement.py
+    #  test_cert_plugin.py
+    #  test_certprofile_plugin.py
+    #  test_vault_plugin.py"
+
+
+>>>>>>> 39b62dc... Moved dogtag stuff to before_script
+=======
+    
+>>>>>>> 6e130a2... Configured to run IPA cert tests
+=======
+>>>>>>> ee53f14... Uses official repo for Docker image
 before_install:
   - docker pull ${IMAGE}
   - >
@@ -33,28 +117,230 @@ before_install:
     -e TRAVIS_JOB_NUMBER=${TRAVIS_JOB_NUMBER}
     -ti
     ${IMAGE}
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+  - echo ${pwd}
+=======
+  - echo $(pwd)
+>>>>>>> fbd6fe7... Checking the pwd
   - docker ps -a
+>>>>>>> 2da7c00... Checking the pwd
+=======
+>>>>>>> 6e130a2... Configured to run IPA cert tests
 
 install:
+  - docker exec -ti ${CONTAINER} /bin/ls -la /tmp/workdir
+
   - docker exec -ti ${CONTAINER} ${SCRIPTDIR}/00-init
   - docker exec -ti ${CONTAINER} ${SCRIPTDIR}/10-compose-rpms
+
+  # Copy the built RPMS to host machine
+  - mkdir -p ${DOGTAG_PKI_RPMS}
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+  - docker cp ${CONTAINER}:${RPMS_LOCATION}/. ${DOGTAG_PKI_RPMS}
+  - ls ${DOGTAG_PKI_RPMS}
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+  - echo ${BUILDDIR}
+  - docker cp ${CONTAINER}:${BUILDDIR}/packages/RPMS/. ${DOGTAG_PKI_RPMS}
+=======
+  - ls -la /tmp/workdir
+  - ls -la /tmp/workdir/packages
+  - ls -la ${RPMS_LOCATION}
+=======
+  - docker exec -ti ${CONTAINER} /bin/ls -la /tmp/workdir
+  - docker exec -ti ${CONTAINER} /bin/ls -la /tmp/workdir/packages
+  - docker exec -ti ${CONTAINER} /bin/ls -la ${RPMS_LOCATION}
+>>>>>>> 609fbbe... Corrected the path to copy files to host machine
+  - echo ${RPMS_LOCATION}
+=======
+>>>>>>> b0d7655... Creating temp repo for dogtag files
+  - docker cp ${CONTAINER}:${RPMS_LOCATION}/. ${DOGTAG_PKI_RPMS}
+>>>>>>> 1c675f7... Corrected the path to copy files to host machine
+  - ls ${DOGTAG_PKI_RPMS}
+
+  #- ls ${DOGTAG_PKI_RPMS}/noarch
+=======
+>>>>>>> 41b3785... Checking the execution of basic commands
+  - ls ${DOGTAG_PKI_RPMS}/x86_64
+>>>>>>> 6130f5a... Corrected the path to copy files to host machine
+=======
+>>>>>>> a18a797... Added correct configuration to setup ipa-server and ipa-kra using separate commands
+
   - docker exec -ti ${CONTAINER} ${SCRIPTDIR}/20-install-rpms
   - docker exec -ti ${CONTAINER} ${SCRIPTDIR}/30-setup-389ds
 
+  # IPA related installs
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 72a50a6... Moved dogtag stuff to before_script
+  - pip install --upgrade pip
+  - pip3 install --upgrade pip
+  - pip install pep8
+  - >
+    pip3 install
+    git+https://github.com/freeipa/ipa-docker-test-runner@release-0-2-1
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+  
 script:
+=======
+   - pip install --upgrade pip
+   - pip3 install --upgrade pip
+   - pip install pep8
+   - >
+     pip3 install
+     git+https://github.com/freeipa/ipa-docker-test-runner@release-0-2-1
+=======
+>>>>>>> 72a50a6... Moved dogtag stuff to before_script
+
+<<<<<<< HEAD
+before_script:
+>>>>>>> 39b62dc... Moved dogtag stuff to before_script
+=======
+=======
+  
+<<<<<<< HEAD
+  # To Create my own repo for dogtag Packages
+  - dnf install createrepo
+=======
+  - dnf install svn
+>>>>>>> 4faa50d... Everything works fine except the vault_test. Requires code cleaning
+=======
+>>>>>>> 4bf5c21... Removed the unnecessary SVN package installation
+  
+>>>>>>> b0d7655... Creating temp repo for dogtag files
+=======
+>>>>>>> d5460f9... Removed repo and added rpms to build dir
+script:
+>>>>>>> 6e130a2... Configured to run IPA cert tests
+  # Test whether pki subsystem works correctly
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
   - docker exec -ti ${CONTAINER} ${SCRIPTDIR}/40-spawn-ca
   - docker exec -ti ${CONTAINER} ${SCRIPTDIR}/50-spawn-kra
   - docker exec -ti ${CONTAINER} ${SCRIPTDIR}/99-destroy
+  
   # copy pki.server for Python 3 and rewrite pkispawn/pkidestroy shebang
   - docker exec -ti ${CONTAINER} ${SCRIPTDIR}/py3rewrite
   - docker exec -ti ${CONTAINER} ${SCRIPTDIR}/30-setup-389ds
   - docker exec -ti ${CONTAINER} ${SCRIPTDIR}/40-spawn-ca
   - docker exec -ti ${CONTAINER} ${SCRIPTDIR}/50-spawn-kra
   - docker exec -ti ${CONTAINER} ${SCRIPTDIR}/99-destroy
+<<<<<<< HEAD
+<<<<<<< HEAD
+  - 
+=======
+>>>>>>> ee53f14... Uses official repo for Docker image
+  # It is time to run FreeIPA tests with new Dogtag RPMS built
+  - travis_wait 20 ./.travis_run_ipa_task.sh
+=======
+=======
+  #- docker exec -ti ${CONTAINER} ${SCRIPTDIR}/40-spawn-ca
+=======
+  - docker exec -ti ${CONTAINER} ${SCRIPTDIR}/40-spawn-ca
+>>>>>>> 2530f47... Corrected the repo path to copy dogtag rpms to the mounted dir
+=======
+  #- docker exec -ti ${CONTAINER} ${SCRIPTDIR}/40-spawn-ca
+>>>>>>> c75c4af... Added logs to spew on the log
+  #- docker exec -ti ${CONTAINER} ${SCRIPTDIR}/50-spawn-kra
+  #- docker exec -ti ${CONTAINER} ${SCRIPTDIR}/99-destroy
+  
+  # copy pki.server for Python 3 and rewrite pkispawn/pkidestroy shebang
+  #- docker exec -ti ${CONTAINER} ${SCRIPTDIR}/py3rewrite
+  #- docker exec -ti ${CONTAINER} ${SCRIPTDIR}/30-setup-389ds
+  #- docker exec -ti ${CONTAINER} ${SCRIPTDIR}/40-spawn-ca
+  #- docker exec -ti ${CONTAINER} ${SCRIPTDIR}/50-spawn-kra
+  #- docker exec -ti ${CONTAINER} ${SCRIPTDIR}/99-destroy
+<<<<<<< HEAD
+  - echo "test Script"
 
+
+>>>>>>> b0d7655... Creating temp repo for dogtag files
+=======
+  - echo "Skipping scirpt"
+>>>>>>> a18a797... Added correct configuration to setup ipa-server and ipa-kra using separate commands
+
+=======
+  - docker exec -ti ${CONTAINER} ${SCRIPTDIR}/40-spawn-ca
+  - docker exec -ti ${CONTAINER} ${SCRIPTDIR}/50-spawn-kra
+  - docker exec -ti ${CONTAINER} ${SCRIPTDIR}/99-destroy
+  
+  # copy pki.server for Python 3 and rewrite pkispawn/pkidestroy shebang
+  - docker exec -ti ${CONTAINER} ${SCRIPTDIR}/py3rewrite
+  - docker exec -ti ${CONTAINER} ${SCRIPTDIR}/30-setup-389ds
+  - docker exec -ti ${CONTAINER} ${SCRIPTDIR}/40-spawn-ca
+  - docker exec -ti ${CONTAINER} ${SCRIPTDIR}/50-spawn-kra
+  - docker exec -ti ${CONTAINER} ${SCRIPTDIR}/99-destroy
+  - 
+>>>>>>> 919fb90... Cleaned the code
+  # It is time to run FreeIPA tests with new Dogtag RPMS built
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+  - travis_wait 10 ./.travis_run_ipa_task.sh
+
+>>>>>>> 39b62dc... Moved dogtag stuff to before_script
+=======
+  - ./.travis_run_ipa_task.sh
+>>>>>>> 61b3d1c... Updated to get all the logs instead of travis_wait
+=======
+  -  travis_wait 50 ./.travis_run_ipa_task.sh
+>>>>>>> cad84c5... transferring logs to transfer.sh
 after_script:
   - docker kill ${CONTAINER}
   - docker rm ${CONTAINER}
+<<<<<<< HEAD
 
+<<<<<<< HEAD
+# The errors can be in either dogtag container or freeipa container
+after_failure: 
+  - docker exec ${CONTAINER} journalctl  -l > ${PKI_LOG}
+  - echo "Uploading CI Logs to transfer.sh ..."
+  - curl --upload-file ./${PKI_LOG} https://transfer.sh/dogtag_build_logs.txt
+  - curl --upload-file ./${CI_RESULTS_LOG} https://transfer.sh/freeipa-integration.txt 
+=======
+=======
+ 
+>>>>>>> 9590f44... transferring logs to transfer.sh
+=======
+  - travis_wait 20 ./.travis_run_ipa_task.sh
+after_script:
+  - docker kill ${CONTAINER}
+  - docker rm ${CONTAINER}
+<<<<<<< HEAD
+
+<<<<<<< HEAD
+>>>>>>> 4ef1f9c... transferring logs to transfer.sh
 after_failure:
   - docker exec -ti ${CONTAINER} journalctl -l
+>>>>>>> cad84c5... transferring logs to transfer.sh
+=======
+=======
+>>>>>>> ee53f14... Uses official repo for Docker image
+# The errors can be in either dogtag container or freeipa container
+after_failure:
+  - docker exec ${CONTAINER} journalctl  -l > ${PKI_LOG}
+  - echo "Uploading CI Logs to transfer.sh ..."
+  - curl --upload-file ./${PKI_LOG} https://transfer.sh/dogtag_build_logs.txt
+<<<<<<< HEAD
+<<<<<<< HEAD
+  - curl --upload-file ./${CI_RESULTS_LOG} https://transfer.sh/freeipa-integration.txt 
+>>>>>>> 919fb90... Cleaned the code
+=======
+  - curl --upload-file ./${CI_RESULTS_LOG} https://transfer.sh/freeipa-integration.txt 
+>>>>>>> ee53f14... Uses official repo for Docker image
+=======
+  - curl --upload-file ./${CI_RESULTS_LOG} https://transfer.sh/freeipa-integration.txt
+>>>>>>> 13a849a... Removed trailing spaces

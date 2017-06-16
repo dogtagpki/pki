@@ -1,0 +1,189 @@
+# Authors:
+#     Dinesh Prasanth M K <dmoluguw@redhat.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+# Copyright (C) 2015 Red Hat, Inc.
+# All rights reserved.
+#
+
+container:
+  detach: true
+  hostname: master.ipa.test
+  working_dir: /freeipa
+host:
+  binds:
+  - /sys/fs/cgroup:/sys/fs/cgroup:ro
+  - /dev/urandom:/dev/random:ro
+  privileged: true
+  security_opt:
+  - label:disable
+  tmpfs:
+  - /tmp
+  - /run
+server:
+  domain: ipa.test
+  password: Secret.123
+  realm: IPA.TEST
+steps:
+  build:
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+  - echo "Skipping Build. Nothing to do..."
+  builddep:
+  - rm -rf /var/cache/dnf/*
+  - "dnf makecache fast || :"
+=======
+  - make V=0 ${make_target}
+  builddep:
+  - rm -rf /var/cache/dnf/*
+  - "dnf makecache fast || :"
+  - dnf builddep -y ${builddep_opts} --spec freeipa.spec.in --best --allowerasing
+>>>>>>> 6e130a2... Configured to run IPA cert tests
+=======
+  - rm -rf /var/cache/dnf/*  #need to change
+  builddep:
+  - rm -rf /var/cache/dnf/*
+>>>>>>> ae2e30c... Corrected script to run the test
+=======
+  - echo "Build"
+  builddep:
+  - rm -rf /var/cache/dnf/*
+  - "dnf makecache fast || :"
+  #- dnf builddep -y ${builddep_opts} --spec freeipa.spec.in --best --allowerasing
+>>>>>>> 2649e0d... Corrected the repo path to copy dogtag rpms to the mounted dir
+=======
+  - echo "Skipping Build. Nothing to do..."
+  builddep:
+  - rm -rf /var/cache/dnf/*
+  - "dnf makecache fast || :"
+>>>>>>> a18a797... Added correct configuration to setup ipa-server and ipa-kra using separate commands
+  cleanup:
+  - chown -R ${uid}:${gid} ${container_working_dir}
+  - journalctl -b --no-pager > systemd_journal.log
+  - >
+      tar --ignore-failed-read -cvf ${container_working_dir}/var_log.tar
+      /var/log/dirsrv
+      /var/log/httpd
+      /var/log/ipa*
+      /var/log/krb5kdc.log
+      /var/log/pki
+      systemd_journal.log
+  - chown ${uid}:${gid} ${container_working_dir}/var_log.tar
+  configure:
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+  - echo "Configuring COPR pacakages..."
+  - dnf copr enable -y @pki/10.4
+  - dnf copr enable -y @freeipa/freeipa-4-5
+  - dnf repolist
+<<<<<<< HEAD
+  install_packages:
+  - echo "Installing required packages for freeipa from official repo" 
+  - dnf install -y freeipa-server freeipa-server-dns freeipa-server-trust-ad python-ipatests --best --allowerasing 
+  - echo "Installing recently built dogtag RPMs..."
+  - find /freeipa/dogtag_rpms/ -name '*.rpm' -and -not -name '*debuginfo*'   | xargs dnf install -y --best --allowerasing
+  install_server:
+  - echo "Installing ipa-server..."
+  - ipa-server-install -U --domain ${server_domain} --realm ${server_realm} -p ${server_password}
+    -a ${server_password} --setup-dns --setup-kra --auto-forwarders
+  - echo "Installing ipa-kra..."
+  - sed -ri "s/mode = production/mode = development/" /etc/ipa/default.conf
+  - systemctl restart httpd.service
+  lint:
+  #- make PYTHON=/usr/bin/python2 V=0 lint
+  #- make PYTHON=/usr/bin/python3 V=0 pylint
+  - echo "Skipping lint. Nothing to do here..."
+=======
+  - ./autogen.sh
+=======
+  - dnf copr enable @freeipa/freeipa-4-5 -y
+>>>>>>> ae2e30c... Corrected script to run the test
+=======
+  - echo "Configuring COPR pacakages"
+=======
+  - echo "Configuring COPR pacakages..."
+>>>>>>> a18a797... Added correct configuration to setup ipa-server and ipa-kra using separate commands
+  - dnf copr disable -y @freeipa/freeipa-*
+  - dnf copr enable -y @pki/10.4 
+<<<<<<< HEAD
+
+>>>>>>> 2649e0d... Corrected the repo path to copy dogtag rpms to the mounted dir
+=======
+>>>>>>> a18a797... Added correct configuration to setup ipa-server and ipa-kra using separate commands
+=======
+>>>>>>> 4faa50d... Everything works fine except the vault_test. Requires code cleaning
+  install_packages:
+  - echo "Installing recently built dogtag RPMs..."
+  - find /freeipa/dogtag_rpms/ -name '*.rpm' -and -not -name '*debuginfo*'   | xargs dnf install -y --best --allowerasing
+  - echo "Installing required packages for freeipa from official repo"
+  - dnf install -y freeipa-server freeipa-server-dns freeipa-server-trust-ad python-ipatests --best --allowerasing
+  install_server:
+  - echo "Installing ipa-server..."
+  - ipa-server-install -U --domain ${server_domain} --realm ${server_realm} -p ${server_password}
+    -a ${server_password} --setup-dns --setup-kra --auto-forwarders
+  - echo "Installing ipa-kra..."
+  - sed -ri "s/mode = production/mode = development/" /etc/ipa/default.conf
+  - systemctl restart httpd.service
+  lint:
+<<<<<<< HEAD
+<<<<<<< HEAD
+  - make PYTHON=/usr/bin/python2 V=0 lint
+  - make PYTHON=/usr/bin/python3 V=0 pylint
+>>>>>>> 6e130a2... Configured to run IPA cert tests
+=======
+  #- make PYTHON=/usr/bin/python2 V=0 lint
+  #- make PYTHON=/usr/bin/python3 V=0 pylint
+<<<<<<< HEAD
+  - echo "Lint"
+>>>>>>> 41b3785... Checking the execution of basic commands
+=======
+=======
+>>>>>>> ee53f14... Uses official repo for Docker image
+  - echo "Skipping lint. Nothing to do here..."
+>>>>>>> a18a797... Added correct configuration to setup ipa-server and ipa-kra using separate commands
+  prepare_tests:
+  - echo ${server_password} | kinit admin && ipa ping
+  - cp -r /etc/ipa/* ~/.ipa/
+  - echo ${server_password} > ~/.ipa/.dmpw
+  - echo 'wait_for_dns=5' >> ~/.ipa/default.conf
+  run_tests:
+  - ipa-test-config --help
+  - ipa-test-task --help
+  - ipa-run-tests ${tests_ignore} -k-test_dns_soa ${tests_verbose} ${path}
+  - ipa-server-install --uninstall -U
+tests:
+  ignore:
+  - test_integration
+  - test_webui
+  - test_ipapython/test_keyring.py
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+  verbose: true
+
+=======
+verbose: true
+>>>>>>> 6e130a2... Configured to run IPA cert tests
+=======
+  verbose: true
+
+>>>>>>> ae2e30c... Corrected script to run the test
+=======
+  verbose: true
+>>>>>>> ee53f14... Uses official repo for Docker image

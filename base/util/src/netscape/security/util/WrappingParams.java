@@ -145,14 +145,35 @@ public class WrappingParams {
             payloadWrapAlgorithm = KeyWrapAlgorithm.AES_CBC_PAD;
             payloadEncryptionAlgorithm = EncryptionAlgorithm.AES_128_CBC_PAD;
             skLength = 128;
+<<<<<<< ec4b26add93e42f231569f2698ab967e70def354
         } else if (kwAlg == KeyWrapAlgorithm.DES3_CBC_PAD) {
+=======
+        }
+
+        if (kwAlg == KeyWrapAlgorithm.DES3_CBC_PAD) {
+<<<<<<< HEAD
+>>>>>>> WIP patch to fix 3DES archival
+=======
+>>>>>>> 65dfe24... WIP patch to fix 3DES archival
             skType = SymmetricKey.DES3;
             skKeyGenAlgorithm = KeyGenAlgorithm.DES3;
             skWrapAlgorithm = KeyWrapAlgorithm.DES3_CBC_PAD;
             payloadWrapAlgorithm = KeyWrapAlgorithm.DES3_CBC_PAD;
             payloadEncryptionAlgorithm = EncryptionAlgorithm.DES3_CBC_PAD;
             skLength = payloadEncryptionAlgorithm.getKeyStrength();
+<<<<<<< HEAD
+<<<<<<< ec4b26add93e42f231569f2698ab967e70def354
         } else if (kwAlg == KeyWrapAlgorithm.DES_CBC_PAD) {
+=======
+        }
+
+        if (kwAlg == KeyWrapAlgorithm.DES_CBC_PAD) {
+>>>>>>> WIP patch to fix 3DES archival
+=======
+        }
+
+        if (kwAlg == KeyWrapAlgorithm.DES_CBC_PAD) {
+>>>>>>> 65dfe24... WIP patch to fix 3DES archival
             skType = SymmetricKey.DES;
             skKeyGenAlgorithm = KeyGenAlgorithm.DES;
             skWrapAlgorithm = KeyWrapAlgorithm.DES3_CBC_PAD;
