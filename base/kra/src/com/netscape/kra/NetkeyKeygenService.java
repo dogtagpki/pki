@@ -406,6 +406,12 @@ public class NetkeyKeygenService implements IService {
 
                     try {
                         params = mStorageUnit.getWrappingParams(allowEncDecrypt_archival);
+
+                        // In encrypt mode, the recovery side is doing a decrypt() using the
+                        // encryption IV.  To be sure this is successful, we will make sure'
+                        // the IVs are the same.
+                        params.setPayloadEncryptionIV(params.getPayloadWrappingIV());
+
                         privateKeyData = mStorageUnit.wrap((org.mozilla.jss.crypto.PrivateKey) privKey, params);
                     } catch (Exception e) {
                         request.setExtData(IRequest.RESULT, Integer.valueOf(4));
