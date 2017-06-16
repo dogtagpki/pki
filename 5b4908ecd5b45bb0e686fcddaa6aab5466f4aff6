@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "20cff016_55fd15a8",
+        "filename": "base/util/src/netscape/security/util/WrappingParams.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-06-16T20:11:43Z",
+      "side": 1,
+      "message": "Can we combine the if-statements with else-ifs since these cases do not overlap?",
+      "revId": "5b4908ecd5b45bb0e686fcddaa6aab5466f4aff6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
