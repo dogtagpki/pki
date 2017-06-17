@@ -49,7 +49,7 @@ import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.pkcs11.PK11PubKey;
 import org.mozilla.jss.pkix.cert.Certificate;
 import org.mozilla.jss.pkix.cmc.CMCCertId;
-import org.mozilla.jss.pkix.cmc.CMCStatusInfo;
+import org.mozilla.jss.pkix.cmc.CMCStatusInfoV2;
 import org.mozilla.jss.pkix.cmc.EncryptedPOP;
 import org.mozilla.jss.pkix.cmc.GetCert;
 import org.mozilla.jss.pkix.cmc.OtherInfo;
@@ -117,13 +117,13 @@ public class CMCOutputTemplate {
 
         int bpid = 1;
         OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL,
-                new INTEGER(code), null);
-        CMCStatusInfo cmcStatusInfo = new CMCStatusInfo(
-                new INTEGER(CMCStatusInfo.FAILED),
+                new INTEGER(code), null, null);
+        CMCStatusInfoV2 cmcStatusInfoV2 = new CMCStatusInfoV2(
+                new INTEGER(CMCStatusInfoV2.FAILED),
                 bpids, s, otherInfo);
         TaggedAttribute tagattr = new TaggedAttribute(
                 new INTEGER(bpid++),
-                OBJECT_IDENTIFIER.id_cmc_cMCStatusInfo, cmcStatusInfo);
+                OBJECT_IDENTIFIER.id_cmc_statusInfoV2, cmcStatusInfoV2);
         controlSeq.addElement(tagattr);
 
         try {
@@ -166,6 +166,7 @@ public class CMCOutputTemplate {
         // in rfc 2797: body list value is 1
         int bpid = 1;
         SEQUENCE pending_bpids = null;
+        SEQUENCE popRequired_bpids = null;
         SEQUENCE success_bpids = null;
         SEQUENCE failed_bpids = null;
         if (cert_request_type.equals("crmf") ||
@@ -175,23 +176,24 @@ public class CMCOutputTemplate {
             if (error_codes[0] == 2) {
                 PendInfo pendInfo = new PendInfo(reqId, new Date());
                 otherInfo = new OtherInfo(OtherInfo.PEND, null,
-                        pendInfo);
+                        pendInfo, null);
             } else {
                 otherInfo = new OtherInfo(OtherInfo.FAIL,
-                        new INTEGER(OtherInfo.BAD_REQUEST), null);
+                        new INTEGER(OtherInfo.BAD_REQUEST), null, null);
             }
 
             SEQUENCE bpids = new SEQUENCE();
             bpids.addElement(new INTEGER(1));
-            CMCStatusInfo cmcStatusInfo = new CMCStatusInfo(CMCStatusInfo.PENDING,
+            CMCStatusInfoV2 cmcStatusInfoV2 = new CMCStatusInfoV2(CMCStatusInfoV2.PENDING,
                     bpids, (String) null, otherInfo);
             TaggedAttribute tagattr = new TaggedAttribute(
                     new INTEGER(bpid++),
-                    OBJECT_IDENTIFIER.id_cmc_cMCStatusInfo, cmcStatusInfo);
+                    OBJECT_IDENTIFIER.id_cmc_statusInfoV2, cmcStatusInfoV2);
             controlSeq.addElement(tagattr);
         } else if (cert_request_type.equals("cmc")) {
             CMS.debug(method + " processing cmc");
             pending_bpids = new SEQUENCE();
+            popRequired_bpids = new SEQUENCE();
             success_bpids = new SEQUENCE();
             failed_bpids = new SEQUENCE();
             EncryptedPOP encPop = null;
@@ -205,11 +207,15 @@ public class CMCOutputTemplate {
                     } else if (error_codes[i] == 2) {
                         pending_bpids.addElement(new INTEGER(
                                 reqs[i].getExtDataInBigInteger("bodyPartId")));
+                    } else if (error_codes[i] == 4) {
+                        popRequired_bpids.addElement(new INTEGER(
+                                reqs[i].getExtDataInBigInteger("bodyPartId")));
                         try {
                             encPop = constructEncryptedPop(reqs[i]);
                         } catch (Exception e) {
                             CMS.debug(method + e);
-                            return;
+                            failed_bpids.addElement(new INTEGER(
+                                    reqs[i].getExtDataInBigInteger("bodyPartId")));
                         }
                     } else {
                         failed_bpids.addElement(new INTEGER(
@@ -221,41 +227,41 @@ public class CMCOutputTemplate {
             }
 
             TaggedAttribute tagattr = null;
-            CMCStatusInfo cmcStatusInfo = null;
+            CMCStatusInfoV2 cmcStatusInfoV2 = null;
 
             SEQUENCE decryptedPOPBpids = (SEQUENCE) context.get("decryptedPOP");
             if (decryptedPOPBpids != null && decryptedPOPBpids.size() > 0) {
                 OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL,
-                        new INTEGER(OtherInfo.POP_FAILED), null);
-                cmcStatusInfo = new CMCStatusInfo(CMCStatusInfo.FAILED,
+                        new INTEGER(OtherInfo.POP_FAILED), null, null);
+                cmcStatusInfoV2 = new CMCStatusInfoV2(CMCStatusInfoV2.FAILED,
                         decryptedPOPBpids, (String) null, otherInfo);
                 tagattr = new TaggedAttribute(
                         new INTEGER(bpid++),
-                        OBJECT_IDENTIFIER.id_cmc_cMCStatusInfo, cmcStatusInfo);
+                        OBJECT_IDENTIFIER.id_cmc_statusInfoV2, cmcStatusInfoV2);
                 controlSeq.addElement(tagattr);
             }
 
             SEQUENCE identificationBpids = (SEQUENCE) context.get("identification");
             if (identificationBpids != null && identificationBpids.size() > 0) {
                 OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL,
-                        new INTEGER(OtherInfo.BAD_IDENTITY), null);
-                cmcStatusInfo = new CMCStatusInfo(CMCStatusInfo.FAILED,
+                        new INTEGER(OtherInfo.BAD_IDENTITY), null, null);
+                cmcStatusInfoV2 = new CMCStatusInfoV2(CMCStatusInfoV2.FAILED,
                         identificationBpids, (String) null, otherInfo);
                 tagattr = new TaggedAttribute(
                         new INTEGER(bpid++),
-                        OBJECT_IDENTIFIER.id_cmc_cMCStatusInfo, cmcStatusInfo);
+                        OBJECT_IDENTIFIER.id_cmc_statusInfoV2, cmcStatusInfoV2);
                 controlSeq.addElement(tagattr);
             }
 
             SEQUENCE identityV2Bpids = (SEQUENCE) context.get("identityProofV2");
             if (identityV2Bpids != null && identityV2Bpids.size() > 0) {
                 OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL,
-                        new INTEGER(OtherInfo.BAD_IDENTITY), null);
-                cmcStatusInfo = new CMCStatusInfo(CMCStatusInfo.FAILED,
+                        new INTEGER(OtherInfo.BAD_IDENTITY), null, null);
+                cmcStatusInfoV2 = new CMCStatusInfoV2(CMCStatusInfoV2.FAILED,
                         identityV2Bpids, (String) null, otherInfo);
                 tagattr = new TaggedAttribute(
                         new INTEGER(bpid++),
-                        OBJECT_IDENTIFIER.id_cmc_cMCStatusInfo, cmcStatusInfo);
+                        OBJECT_IDENTIFIER.id_cmc_statusInfoV2, cmcStatusInfoV2);
                 controlSeq.addElement(tagattr);
             }
 
@@ -263,41 +269,41 @@ public class CMCOutputTemplate {
             SEQUENCE identityBpids = (SEQUENCE) context.get("identityProof");
             if (identityBpids != null && identityBpids.size() > 0) {
                 OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL,
-                        new INTEGER(OtherInfo.BAD_IDENTITY), null);
-                cmcStatusInfo = new CMCStatusInfo(CMCStatusInfo.FAILED,
+                        new INTEGER(OtherInfo.BAD_IDENTITY), null, null);
+                cmcStatusInfoV2 = new CMCStatusInfoV2(CMCStatusInfoV2.FAILED,
                         identityBpids, (String) null, otherInfo);
                 tagattr = new TaggedAttribute(
                         new INTEGER(bpid++),
-                        OBJECT_IDENTIFIER.id_cmc_cMCStatusInfo, cmcStatusInfo);
+                        OBJECT_IDENTIFIER.id_cmc_statusInfoV2, cmcStatusInfoV2);
                 controlSeq.addElement(tagattr);
             }
 
             SEQUENCE POPLinkWitnessV2Bpids = (SEQUENCE) context.get("POPLinkWitnessV2");
             if (POPLinkWitnessV2Bpids != null && POPLinkWitnessV2Bpids.size() > 0) {
                 OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL,
-                        new INTEGER(OtherInfo.BAD_REQUEST), null);
-                cmcStatusInfo = new CMCStatusInfo(CMCStatusInfo.FAILED,
+                        new INTEGER(OtherInfo.BAD_REQUEST), null, null);
+                cmcStatusInfoV2 = new CMCStatusInfoV2(CMCStatusInfoV2.FAILED,
                         POPLinkWitnessV2Bpids, (String) null, otherInfo);
                 tagattr = new TaggedAttribute(
                         new INTEGER(bpid++),
-                        OBJECT_IDENTIFIER.id_cmc_cMCStatusInfo, cmcStatusInfo);
+                        OBJECT_IDENTIFIER.id_cmc_statusInfoV2, cmcStatusInfoV2);
                 controlSeq.addElement(tagattr);
             }
 
             SEQUENCE POPLinkWitnessBpids = (SEQUENCE) context.get("POPLinkWitness");
             if (POPLinkWitnessBpids != null && POPLinkWitnessBpids.size() > 0) {
                 OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL,
-                        new INTEGER(OtherInfo.BAD_REQUEST), null);
-                cmcStatusInfo = new CMCStatusInfo(CMCStatusInfo.FAILED,
+                        new INTEGER(OtherInfo.BAD_REQUEST), null, null);
+                cmcStatusInfoV2 = new CMCStatusInfoV2(CMCStatusInfoV2.FAILED,
                         POPLinkWitnessBpids, (String) null, otherInfo);
                 tagattr = new TaggedAttribute(
                         new INTEGER(bpid++),
-                        OBJECT_IDENTIFIER.id_cmc_cMCStatusInfo, cmcStatusInfo);
+                        OBJECT_IDENTIFIER.id_cmc_statusInfoV2, cmcStatusInfoV2);
                 controlSeq.addElement(tagattr);
             }
 
-            if (pending_bpids.size() > 0) {
-                // handle encryptedPOP control first
+            if (popRequired_bpids.size() > 0) {
+                // handle encryptedPOP control
 
                 if (encPop != null) {
                     CMS.debug(method + "adding encPop");
@@ -309,17 +315,35 @@ public class CMCOutputTemplate {
                     CMS.debug(method + "encPop added");
                 }
 
+                OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL,
+                       new INTEGER(OtherInfo.POP_REQUIRED), null, null);
+                cmcStatusInfoV2 =
+                        new CMCStatusInfoV2(CMCStatusInfoV2.POP_REQUIRED,
+                        popRequired_bpids, (String) null, otherInfo);
+                tagattr = new TaggedAttribute(
+                        new INTEGER(bpid++),
+                        OBJECT_IDENTIFIER.id_cmc_statusInfoV2, cmcStatusInfoV2);
+                controlSeq.addElement(tagattr);
+
+                // add request id
+                byte[] reqId = reqs[0].getRequestId().toBigInteger().toByteArray();
+                TaggedAttribute reqIdTA =
+                        new TaggedAttribute(new INTEGER(bpid++),
+                        OBJECT_IDENTIFIER.id_cmc_responseInfo,
+                        new OCTET_STRING(reqId));
+                controlSeq.addElement(reqIdTA);
+            }
+
+            if (pending_bpids.size() > 0) {
                 String reqId = reqs[0].getRequestId().toString();
-                OtherInfo otherInfo = null;
                 PendInfo pendInfo = new PendInfo(reqId, new Date());
-                otherInfo = new OtherInfo(OtherInfo.PEND, null,
-                        pendInfo);
-                // cfu: inject POP_REQUIRED when working on V2 status
-                cmcStatusInfo = new CMCStatusInfo(CMCStatusInfo.PENDING,
+                OtherInfo otherInfo = new OtherInfo(OtherInfo.PEND, null,
+                        pendInfo, null);
+                cmcStatusInfoV2 = new CMCStatusInfoV2(CMCStatusInfoV2.PENDING,
                         pending_bpids, (String) null, otherInfo);
                 tagattr = new TaggedAttribute(
                         new INTEGER(bpid++),
-                        OBJECT_IDENTIFIER.id_cmc_cMCStatusInfo, cmcStatusInfo);
+                        OBJECT_IDENTIFIER.id_cmc_statusInfoV2, cmcStatusInfoV2);
                 controlSeq.addElement(tagattr);
             }
 
@@ -333,27 +357,27 @@ public class CMCOutputTemplate {
                 }
                 if (confirmRequired) {
                     CMS.debug(method + " confirmRequired in the request");
-                    cmcStatusInfo =
-                            new CMCStatusInfo(CMCStatusInfo.CONFIRM_REQUIRED,
+                    cmcStatusInfoV2 =
+                            new CMCStatusInfoV2(CMCStatusInfoV2.CONFIRM_REQUIRED,
                                     success_bpids, (String) null, null);
                 } else {
-                    cmcStatusInfo = new CMCStatusInfo(CMCStatusInfo.SUCCESS,
+                    cmcStatusInfoV2 = new CMCStatusInfoV2(CMCStatusInfoV2.SUCCESS,
                             success_bpids, (String) null, null);
                 }
                 tagattr = new TaggedAttribute(
                         new INTEGER(bpid++),
-                        OBJECT_IDENTIFIER.id_cmc_cMCStatusInfo, cmcStatusInfo);
+                        OBJECT_IDENTIFIER.id_cmc_statusInfoV2, cmcStatusInfoV2);
                 controlSeq.addElement(tagattr);
             }
 
             if (failed_bpids.size() > 0) {
                 OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL,
-                        new INTEGER(OtherInfo.BAD_REQUEST), null);
-                cmcStatusInfo = new CMCStatusInfo(CMCStatusInfo.FAILED,
+                        new INTEGER(OtherInfo.BAD_REQUEST), null, null);
+                cmcStatusInfoV2 = new CMCStatusInfoV2(CMCStatusInfoV2.FAILED,
                         failed_bpids, (String) null, otherInfo);
                 tagattr = new TaggedAttribute(
                         new INTEGER(bpid++),
-                        OBJECT_IDENTIFIER.id_cmc_cMCStatusInfo, cmcStatusInfo);
+                        OBJECT_IDENTIFIER.id_cmc_statusInfoV2, cmcStatusInfoV2);
                 controlSeq.addElement(tagattr);
             }
         }
@@ -373,15 +397,15 @@ public class CMCOutputTemplate {
                     } catch (EBaseException ee) {
                         CMS.debug(method + ee.toString());
                         OtherInfo otherInfo1 = new OtherInfo(OtherInfo.FAIL,
-                                new INTEGER(OtherInfo.BAD_CERT_ID), null);
+                                new INTEGER(OtherInfo.BAD_CERT_ID), null, null);
                         SEQUENCE bpids1 = new SEQUENCE();
                         bpids1.addElement(attr.getBodyPartID());
-                        CMCStatusInfo cmcStatusInfo1 = new CMCStatusInfo(
-                                new INTEGER(CMCStatusInfo.FAILED),
+                        CMCStatusInfoV2 cmcStatusInfoV2 = new CMCStatusInfoV2(
+                                new INTEGER(CMCStatusInfoV2.FAILED),
                                 bpids1, null, otherInfo1);
                         TaggedAttribute tagattr1 = new TaggedAttribute(
                                 new INTEGER(bpid++),
-                                OBJECT_IDENTIFIER.id_cmc_cMCStatusInfo, cmcStatusInfo1);
+                                OBJECT_IDENTIFIER.id_cmc_statusInfoV2, cmcStatusInfoV2);
                         controlSeq.addElement(tagattr1);
                     }
                 }
@@ -537,7 +561,7 @@ public class CMCOutputTemplate {
             }
 
         } else {
-            msg = "popChallengeRequired required, but one more more of the pop_ data not found in request";
+            msg = "popChallengeRequired, but one or more of the pop_ data not found in request";
             CMS.debug(method + msg);
             throw new EBaseException(method + msg);
         }
@@ -734,23 +758,23 @@ public class CMCOutputTemplate {
                             CMS.debug("CMCOutputTemplate: Certificate in the confirm acceptance control was not found");
                         }
                     }
-                    CMCStatusInfo cmcStatusInfo = null;
+                    CMCStatusInfoV2 cmcStatusInfoV2 = null;
                     if (confirmAccepted) {
                         CMS.debug("CMCOutputTemplate: Confirm Acceptance received. The certificate exists in the certificate repository.");
-                        cmcStatusInfo =
-                                new CMCStatusInfo(CMCStatusInfo.SUCCESS, seq,
+                        cmcStatusInfoV2 =
+                                new CMCStatusInfoV2(CMCStatusInfoV2.SUCCESS, seq,
                                         (String) null, null);
                     } else {
                         CMS.debug("CMCOutputTemplate: Confirm Acceptance received. The certificate does not exist in the certificate repository.");
                         OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL,
-                                new INTEGER(OtherInfo.BAD_CERT_ID), null);
-                        cmcStatusInfo =
-                                new CMCStatusInfo(CMCStatusInfo.FAILED, seq,
+                                new INTEGER(OtherInfo.BAD_CERT_ID), null, null);
+                        cmcStatusInfoV2 =
+                                new CMCStatusInfoV2(CMCStatusInfoV2.FAILED, seq,
                                         (String) null, otherInfo);
                     }
                     TaggedAttribute statustagattr = new TaggedAttribute(
                             new INTEGER(bpid++),
-                            OBJECT_IDENTIFIER.id_cmc_cMCStatusInfo, cmcStatusInfo);
+                            OBJECT_IDENTIFIER.id_cmc_statusInfoV2, cmcStatusInfoV2);
                     controlSeq.addElement(statustagattr);
                 } catch (Exception e) {
                     CMS.debug("CMCOutputTemplate exception: " + e.toString());
@@ -825,28 +849,28 @@ public class CMCOutputTemplate {
                 }
 
                 if (pending_bpids.size() > 0) {
-                    CMCStatusInfo cmcStatusInfo = new CMCStatusInfo(CMCStatusInfo.PENDING,
+                    CMCStatusInfoV2 cmcStatusInfoV2 = new CMCStatusInfoV2(CMCStatusInfoV2.PENDING,
                             pending_bpids, (String) null, null);
                     TaggedAttribute tagattr = new TaggedAttribute(
                             new INTEGER(bpid++),
-                            OBJECT_IDENTIFIER.id_cmc_cMCStatusInfo, cmcStatusInfo);
+                            OBJECT_IDENTIFIER.id_cmc_statusInfoV2, cmcStatusInfoV2);
                     controlSeq.addElement(tagattr);
                 }
                 if (success_bpids.size() > 0) {
-                    CMCStatusInfo cmcStatusInfo = new CMCStatusInfo(CMCStatusInfo.SUCCESS,
+                    CMCStatusInfoV2 cmcStatusInfoV2 = new CMCStatusInfoV2(CMCStatusInfoV2.SUCCESS,
                             pending_bpids, (String) null, null);
                     TaggedAttribute tagattr = new TaggedAttribute(
                             new INTEGER(bpid++),
-                            OBJECT_IDENTIFIER.id_cmc_cMCStatusInfo, cmcStatusInfo);
+                            OBJECT_IDENTIFIER.id_cmc_statusInfoV2, cmcStatusInfoV2);
                     controlSeq.addElement(tagattr);
                 }
 
                 if (failed_bpids.size() > 0) {
-                    CMCStatusInfo cmcStatusInfo = new CMCStatusInfo(CMCStatusInfo.FAILED,
+                    CMCStatusInfoV2 cmcStatusInfoV2 = new CMCStatusInfoV2(CMCStatusInfoV2.FAILED,
                             pending_bpids, (String) null, null);
                     TaggedAttribute tagattr = new TaggedAttribute(
                             new INTEGER(bpid++),
-                            OBJECT_IDENTIFIER.id_cmc_cMCStatusInfo, cmcStatusInfo);
+                            OBJECT_IDENTIFIER.id_cmc_statusInfoV2, cmcStatusInfoV2);
                     controlSeq.addElement(tagattr);
                 }
 
@@ -959,7 +983,7 @@ public class CMCOutputTemplate {
 
         if (attr != null) {
             INTEGER attrbpid = attr.getBodyPartID();
-            CMCStatusInfo cmcStatusInfo = null;
+            CMCStatusInfoV2 cmcStatusInfoV2 = null;
             SET vals = attr.getValues();
             if (vals.size() > 0) {
                 RevokeRequest revRequest = (RevokeRequest) (ASN1Util.decode(new RevokeRequest.Template(),
@@ -988,14 +1012,14 @@ public class CMCOutputTemplate {
                                 CMS.debug(method + "missing CMC signer principal");
                                 OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL,
                                         new INTEGER(OtherInfo.BAD_MESSAGE_CHECK),
-                                        null);
+                                        null, null);
                                 SEQUENCE failed_bpids = new SEQUENCE();
                                 failed_bpids.addElement(attrbpid);
-                                cmcStatusInfo = new CMCStatusInfo(CMCStatusInfo.FAILED, failed_bpids, (String) null,
+                                cmcStatusInfoV2 = new CMCStatusInfoV2(CMCStatusInfoV2.FAILED, failed_bpids, (String) null,
                                         otherInfo);
                                 tagattr = new TaggedAttribute(
                                         new INTEGER(bpid++),
-                                        OBJECT_IDENTIFIER.id_cmc_cMCStatusInfo, cmcStatusInfo);
+                                        OBJECT_IDENTIFIER.id_cmc_statusInfoV2, cmcStatusInfoV2);
                                 controlSeq.addElement(tagattr);
                                 return bpid;
                             }
@@ -1021,15 +1045,15 @@ public class CMCOutputTemplate {
                                     if (!verifyRevRequestSignature(msgData)) {
                                         OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL,
                                                 new INTEGER(OtherInfo.BAD_MESSAGE_CHECK),
-                                                null);
+                                                null, null);
                                         SEQUENCE failed_bpids = new SEQUENCE();
                                         failed_bpids.addElement(attrbpid);
-                                        cmcStatusInfo = new CMCStatusInfo(CMCStatusInfo.FAILED, failed_bpids,
+                                        cmcStatusInfoV2 = new CMCStatusInfoV2(CMCStatusInfoV2.FAILED, failed_bpids,
                                                 (String) null,
                                                 otherInfo);
                                         tagattr = new TaggedAttribute(
                                                 new INTEGER(bpid++),
-                                                OBJECT_IDENTIFIER.id_cmc_cMCStatusInfo, cmcStatusInfo);
+                                                OBJECT_IDENTIFIER.id_cmc_statusInfoV2, cmcStatusInfoV2);
                                         controlSeq.addElement(tagattr);
                                         return bpid;
                                     }
@@ -1051,13 +1075,13 @@ public class CMCOutputTemplate {
                     if (tokenClass == null) {
                         CMS.debug(method + " Failed to retrieve shared secret plugin class");
                         OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL, new INTEGER(OtherInfo.INTERNAL_CA_ERROR),
-                                null);
+                                null, null);
                         SEQUENCE failed_bpids = new SEQUENCE();
                         failed_bpids.addElement(attrbpid);
-                        cmcStatusInfo = new CMCStatusInfo(CMCStatusInfo.FAILED, failed_bpids, (String) null, otherInfo);
+                        cmcStatusInfoV2 = new CMCStatusInfoV2(CMCStatusInfoV2.FAILED, failed_bpids, (String) null, otherInfo);
                         tagattr = new TaggedAttribute(
                                 new INTEGER(bpid++),
-                                OBJECT_IDENTIFIER.id_cmc_cMCStatusInfo, cmcStatusInfo);
+                                OBJECT_IDENTIFIER.id_cmc_statusInfoV2, cmcStatusInfoV2);
                         controlSeq.addElement(tagattr);
                         return bpid;
                     }
@@ -1067,14 +1091,14 @@ public class CMCOutputTemplate {
 
                     if (sharedSecret == null) {
                         CMS.debug("CMCOutputTemplate: shared secret not found.");
-                        OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL, new INTEGER(OtherInfo.INTERNAL_CA_ERROR),
-                                null);
+                        OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL, new INTEGER(OtherInfo.BAD_IDENTITY),
+                                null, null);
                         SEQUENCE failed_bpids = new SEQUENCE();
                         failed_bpids.addElement(attrbpid);
-                        cmcStatusInfo = new CMCStatusInfo(CMCStatusInfo.FAILED, failed_bpids, (String) null, otherInfo);
+                        cmcStatusInfoV2 = new CMCStatusInfoV2(CMCStatusInfoV2.FAILED, failed_bpids, (String) null, otherInfo);
                         tagattr = new TaggedAttribute(
                                 new INTEGER(bpid++),
-                                OBJECT_IDENTIFIER.id_cmc_cMCStatusInfo, cmcStatusInfo);
+                                OBJECT_IDENTIFIER.id_cmc_statusInfoV2, cmcStatusInfoV2);
                         controlSeq.addElement(tagattr);
                         return bpid;
                     }
@@ -1088,14 +1112,14 @@ public class CMCOutputTemplate {
                     } else {
                         CMS.debug(method
                                 + " Client and server shared secret are not the same, cannot revoke certificate.");
-                        OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL, new INTEGER(OtherInfo.BAD_MESSAGE_CHECK),
-                                null);
+                        OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL, new INTEGER(OtherInfo.BAD_IDENTITY),
+                                null, null);
                         SEQUENCE failed_bpids = new SEQUENCE();
                         failed_bpids.addElement(attrbpid);
-                        cmcStatusInfo = new CMCStatusInfo(CMCStatusInfo.FAILED, failed_bpids, (String) null, otherInfo);
+                        cmcStatusInfoV2 = new CMCStatusInfoV2(CMCStatusInfoV2.FAILED, failed_bpids, (String) null, otherInfo);
                         tagattr = new TaggedAttribute(
                                 new INTEGER(bpid++),
-                                OBJECT_IDENTIFIER.id_cmc_cMCStatusInfo, cmcStatusInfo);
+                                OBJECT_IDENTIFIER.id_cmc_statusInfoV2, cmcStatusInfoV2);
                         controlSeq.addElement(tagattr);
 
                         audit(new CertStatusChangeRequestProcessedEvent(
@@ -1123,13 +1147,13 @@ public class CMCOutputTemplate {
 
                     if (record == null) {
                         CMS.debug(method + " The certificate is not found");
-                        OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL, new INTEGER(OtherInfo.BAD_CERT_ID), null);
+                        OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL, new INTEGER(OtherInfo.BAD_CERT_ID), null, null);
                         SEQUENCE failed_bpids = new SEQUENCE();
                         failed_bpids.addElement(attrbpid);
-                        cmcStatusInfo = new CMCStatusInfo(CMCStatusInfo.FAILED, failed_bpids, (String) null, otherInfo);
+                        cmcStatusInfoV2 = new CMCStatusInfoV2(CMCStatusInfoV2.FAILED, failed_bpids, (String) null, otherInfo);
                         tagattr = new TaggedAttribute(
                                 new INTEGER(bpid++),
-                                OBJECT_IDENTIFIER.id_cmc_cMCStatusInfo, cmcStatusInfo);
+                                OBJECT_IDENTIFIER.id_cmc_statusInfoV2, cmcStatusInfoV2);
                         controlSeq.addElement(tagattr);
                         return bpid;
                     }
@@ -1138,11 +1162,11 @@ public class CMCOutputTemplate {
                         CMS.debug("CMCOutputTemplate: The certificate is already revoked.");
                         SEQUENCE success_bpids = new SEQUENCE();
                         success_bpids.addElement(attrbpid);
-                        cmcStatusInfo = new CMCStatusInfo(CMCStatusInfo.SUCCESS,
+                        cmcStatusInfoV2 = new CMCStatusInfoV2(CMCStatusInfoV2.SUCCESS,
                                 success_bpids, (String) null, null);
                         tagattr = new TaggedAttribute(
                                 new INTEGER(bpid++),
-                                OBJECT_IDENTIFIER.id_cmc_cMCStatusInfo, cmcStatusInfo);
+                                OBJECT_IDENTIFIER.id_cmc_statusInfoV2, cmcStatusInfoV2);
                         controlSeq.addElement(tagattr);
                         return bpid;
                     }
@@ -1159,14 +1183,14 @@ public class CMCOutputTemplate {
                             msg = "certificate principal and signer do not match";
                             CMS.debug(method + msg);
                             OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL, new INTEGER(OtherInfo.BAD_IDENTITY),
-                                    null);
+                                    null, null);
                             SEQUENCE failed_bpids = new SEQUENCE();
                             failed_bpids.addElement(attrbpid);
-                            cmcStatusInfo = new CMCStatusInfo(CMCStatusInfo.FAILED, failed_bpids, msg,
+                            cmcStatusInfoV2 = new CMCStatusInfoV2(CMCStatusInfoV2.FAILED, failed_bpids, msg,
                                     otherInfo);
                             tagattr = new TaggedAttribute(
                                     new INTEGER(bpid++),
-                                    OBJECT_IDENTIFIER.id_cmc_cMCStatusInfo, cmcStatusInfo);
+                                    OBJECT_IDENTIFIER.id_cmc_statusInfoV2, cmcStatusInfoV2);
                             controlSeq.addElement(tagattr);
 
                             audit(new CertStatusChangeRequestProcessedEvent(
@@ -1220,14 +1244,14 @@ public class CMCOutputTemplate {
                             CMS.debug("CMCOutputTemplate: revReq exception: " +
                                     revReq.getExtDataInString(IRequest.ERROR));
                             OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL, new INTEGER(OtherInfo.BAD_REQUEST),
-                                    null);
+                                    null, null);
                             SEQUENCE failed_bpids = new SEQUENCE();
                             failed_bpids.addElement(attrbpid);
-                            cmcStatusInfo = new CMCStatusInfo(CMCStatusInfo.FAILED, failed_bpids, (String) null,
+                            cmcStatusInfoV2 = new CMCStatusInfoV2(CMCStatusInfoV2.FAILED, failed_bpids, (String) null,
                                     otherInfo);
                             tagattr = new TaggedAttribute(
                                     new INTEGER(bpid++),
-                                    OBJECT_IDENTIFIER.id_cmc_cMCStatusInfo, cmcStatusInfo);
+                                    OBJECT_IDENTIFIER.id_cmc_statusInfoV2, cmcStatusInfoV2);
                             controlSeq.addElement(tagattr);
 
                             audit(new CertStatusChangeRequestProcessedEvent(
@@ -1254,11 +1278,11 @@ public class CMCOutputTemplate {
                     CMS.debug(method + " Certificate revoked.");
                     SEQUENCE success_bpids = new SEQUENCE();
                     success_bpids.addElement(attrbpid);
-                    cmcStatusInfo = new CMCStatusInfo(CMCStatusInfo.SUCCESS,
+                    cmcStatusInfoV2 = new CMCStatusInfoV2(CMCStatusInfoV2.SUCCESS,
                             success_bpids, (String) null, null);
                     tagattr = new TaggedAttribute(
                             new INTEGER(bpid++),
-                            OBJECT_IDENTIFIER.id_cmc_cMCStatusInfo, cmcStatusInfo);
+                            OBJECT_IDENTIFIER.id_cmc_statusInfoV2, cmcStatusInfoV2);
                     controlSeq.addElement(tagattr);
 
                     auditApprovalStatus = RequestStatus.COMPLETE;
@@ -1272,13 +1296,13 @@ public class CMCOutputTemplate {
                             auditApprovalStatus));
                     return bpid;
                 } else {
-                    OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL, new INTEGER(OtherInfo.BAD_MESSAGE_CHECK), null);
+                    OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL, new INTEGER(OtherInfo.INTERNAL_CA_ERROR), null, null);
                     SEQUENCE failed_bpids = new SEQUENCE();
                     failed_bpids.addElement(attrbpid);
-                    cmcStatusInfo = new CMCStatusInfo(CMCStatusInfo.FAILED, failed_bpids, (String) null, otherInfo);
+                    cmcStatusInfoV2 = new CMCStatusInfoV2(CMCStatusInfoV2.FAILED, failed_bpids, (String) null, otherInfo);
                     tagattr = new TaggedAttribute(
                             new INTEGER(bpid++),
-                            OBJECT_IDENTIFIER.id_cmc_cMCStatusInfo, cmcStatusInfo);
+                            OBJECT_IDENTIFIER.id_cmc_statusInfoV2, cmcStatusInfoV2);
                     controlSeq.addElement(tagattr);
 
                     audit(new CertStatusChangeRequestProcessedEvent(

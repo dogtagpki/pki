@@ -19,6 +19,7 @@ package com.netscape.cms.servlet.profile;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.math.BigInteger;
 import java.security.cert.X509Certificate;
 import java.util.Enumeration;
 import java.util.Locale;
@@ -51,6 +52,11 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.AuthFailEvent;
 import com.netscape.certsrv.logging.event.AuthSuccessEvent;
 import com.netscape.certsrv.logging.event.CertRequestProcessedEvent;
+import com.netscape.certsrv.profile.ECMCBadIdentityException;
+import com.netscape.certsrv.profile.ECMCBadMessageCheckException;
+import com.netscape.certsrv.profile.ECMCBadRequestException;
+import com.netscape.certsrv.profile.ECMCPopFailedException;
+import com.netscape.certsrv.profile.ECMCPopRequiredException;
 import com.netscape.certsrv.profile.EDeferException;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
@@ -502,8 +508,60 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
         }
         try {
             reqs = profile.createRequests(ctx, locale);
+        } catch (ECMCBadMessageCheckException e) {
+            CMS.debug("ProfileSubmitCMCServlet: after createRequests - " + e.toString());
+            CMCOutputTemplate template = new CMCOutputTemplate();
+            SEQUENCE seq = new SEQUENCE();
+            seq.addElement(new INTEGER(0));
+            UTF8String s = null;
+            try {
+                s = new UTF8String(e.toString());
+            } catch (Exception ee) {
+            }
+            template.createFullResponseWithFailedStatus(response, seq,
+                    OtherInfo.BAD_MESSAGE_CHECK, s);
+            return;
+        } catch (ECMCBadIdentityException e) {
+            CMS.debug("ProfileSubmitCMCServlet: after createRequests - " + e.toString());
+            CMCOutputTemplate template = new CMCOutputTemplate();
+            SEQUENCE seq = new SEQUENCE();
+            seq.addElement(new INTEGER(0));
+            UTF8String s = null;
+            try {
+                s = new UTF8String(e.toString());
+            } catch (Exception ee) {
+            }
+            template.createFullResponseWithFailedStatus(response, seq,
+                    OtherInfo.BAD_IDENTITY, s);
+            return;
+        } catch (ECMCPopFailedException e) {
+            CMS.debug("ProfileSubmitCMCServlet: after createRequests - " + e.toString());
+            CMCOutputTemplate template = new CMCOutputTemplate();
+            SEQUENCE seq = new SEQUENCE();
+            seq.addElement(new INTEGER(0));
+            UTF8String s = null;
+            try {
+                s = new UTF8String(e.toString());
+            } catch (Exception ee) {
+            }
+            template.createFullResponseWithFailedStatus(response, seq,
+                    OtherInfo.POP_FAILED, s);
+            return;
+        } catch (ECMCBadRequestException e) {
+            CMS.debug("ProfileSubmitCMCServlet: after createRequests - " + e.toString());
+            CMCOutputTemplate template = new CMCOutputTemplate();
+            SEQUENCE seq = new SEQUENCE();
+            seq.addElement(new INTEGER(0));
+            UTF8String s = null;
+            try {
+                s = new UTF8String(e.toString());
+            } catch (Exception ee) {
+            }
+            template.createFullResponseWithFailedStatus(response, seq,
+                    OtherInfo.BAD_REQUEST, s);
+            return;
         } catch (EProfileException e) {
-            CMS.debug("ProfileSubmitCMCServlet: createRequests " + e.toString());
+            CMS.debug("ProfileSubmitCMCServlet: after createRequests - " + e.toString());
             CMCOutputTemplate template = new CMCOutputTemplate();
             SEQUENCE seq = new SEQUENCE();
             seq.addElement(new INTEGER(0));
@@ -516,7 +574,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                     OtherInfo.INTERNAL_CA_ERROR, s);
             return;
         } catch (Throwable e) {
-            CMS.debug("ProfileSubmitCMCServlet: createRequests " + e.toString());
+            CMS.debug("ProfileSubmitCMCServlet: createRequests - " + e.toString());
             CMCOutputTemplate template = new CMCOutputTemplate();
             SEQUENCE seq = new SEQUENCE();
             seq.addElement(new INTEGER(0));
@@ -570,7 +628,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
         boolean isRevoke = false;
         if (reqs == null) {
             // handling DecryptedPOP request here
-            Integer reqID = (Integer) context.get("cmcDecryptedPopReqId");
+            BigInteger reqID = (BigInteger) context.get("cmcDecryptedPopReqId");
             if (reqID == null) {
                 CMS.debug("ProfileSubmitCMCServlet: revocation request");
                 isRevoke = true;
@@ -683,8 +741,21 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                 }
                 profile.populateInput(ctx, reqs[k]);
                 profile.populate(reqs[k]);
+            } catch (ECMCPopFailedException e) {
+                CMS.debug("ProfileSubmitCMCServlet: after populate - " + e.toString());
+                CMCOutputTemplate template = new CMCOutputTemplate();
+                SEQUENCE seq = new SEQUENCE();
+                seq.addElement(new INTEGER(0));
+                UTF8String s = null;
+                try {
+                    s = new UTF8String(e.toString());
+                } catch (Exception ee) {
+                }
+                template.createFullResponseWithFailedStatus(response, seq,
+                        OtherInfo.POP_FAILED, s);
+                return;
             } catch (EProfileException e) {
-                CMS.debug("ProfileSubmitCMCServlet: populate " + e.toString());
+                CMS.debug("ProfileSubmitCMCServlet: after populate - " + e.toString());
                 CMCOutputTemplate template = new CMCOutputTemplate();
                 SEQUENCE seq = new SEQUENCE();
                 seq.addElement(new INTEGER(0));
@@ -697,7 +768,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                         OtherInfo.BAD_REQUEST, s);
                 return;
             } catch (Throwable e) {
-                CMS.debug("ProfileSubmitCMCServlet: populate " + e.toString());
+                CMS.debug("ProfileSubmitCMCServlet: after populate - " + e.toString());
                 //  throw new IOException("Profile " + profileId +
                 //          " cannot populate");
                 CMCOutputTemplate template = new CMCOutputTemplate();
@@ -779,6 +850,21 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                     errorCode = "3";
                     errorReason = CMS.getUserMessage(locale,
                                 "CMS_PROFILE_REJECTED",
+                                e.toString());
+                } catch (ECMCPopRequiredException e) {
+                    // return popRequired message to the user
+                    CMS.debug("ProfileSubmitCMCServlet: popRequired; set request to PENDING");
+                    reqs[k].setRequestStatus(RequestStatus.PENDING);
+                    // need to notify
+                    INotify notify = profile.getRequestQueue().getPendingNotify();
+                    if (notify != null) {
+                        notify.notify(reqs[k]);
+                    }
+
+                    CMS.debug("ProfileSubmitCMCServlet: submit " + e.toString());
+                    errorCode = "4";
+                    errorReason = CMS.getUserMessage(locale,
+                                "CMS_PROFILE_CMC_POP_REQUIRED",
                                 e.toString());
                 } catch (Throwable e) {
                     // return error to the user

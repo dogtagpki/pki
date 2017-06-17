@@ -65,7 +65,7 @@ import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.pkcs10.CertificationRequest;
 import org.mozilla.jss.pkcs10.CertificationRequestInfo;
 import org.mozilla.jss.pkix.cmc.CMCCertId;
-import org.mozilla.jss.pkix.cmc.CMCStatusInfo;
+import org.mozilla.jss.pkix.cmc.CMCStatusInfoV2;
 import org.mozilla.jss.pkix.cmc.DecryptedPOP;
 import org.mozilla.jss.pkix.cmc.EncryptedPOP;
 import org.mozilla.jss.pkix.cmc.GetCert;
@@ -1609,14 +1609,15 @@ public class CMCRequest {
      *
      * @param prevResponse file
      * @param privKey
-     * @return encryptedPop and reqIdString in Object[]
+     * @return encryptedPop and reqIdOS (requestID in Octet String in Object[]
      * @author cfu
      */
     private static Object[] processEncryptedPopResponse(
             String prevResponse) {
         // the values to be returned
         EncryptedPOP encryptedPop = null;
-        String reqIdString = null; // capture the requestId;
+        String reqIdString = null;
+        OCTET_STRING reqIdOS = null; // capture the requestId;
 
         String method = "processEncryptedPopResponse: ";
         System.out.println(method + " begins.");
@@ -1661,13 +1662,13 @@ public class CMCRequest {
                 TaggedAttribute taggedAttr = (TaggedAttribute) controlSequence.elementAt(i);
                 OBJECT_IDENTIFIER type = taggedAttr.getType();
 
-                if (type.equals(OBJECT_IDENTIFIER.id_cmc_cMCStatusInfo)) {
-                    System.out.println(method + "Control #" + i + ": CMCStatusInfo");
+                if (type.equals(OBJECT_IDENTIFIER.id_cmc_statusInfoV2)) {
+                    System.out.println(method + "Control #" + i + ": CMCStatusInfoV2");
                     System.out.println(method + "   OID: " + type.toString());
                     SET sts = taggedAttr.getValues();
                     int numSts = sts.size();
                     for (int j = 0; j < numSts; j++) {
-                        CMCStatusInfo cst = (CMCStatusInfo) ASN1Util.decode(CMCStatusInfo.getTemplate(),
+                        CMCStatusInfoV2 cst = (CMCStatusInfoV2) ASN1Util.decode(CMCStatusInfoV2.getTemplate(),
                                 ASN1Util.encode(sts.elementAt(j)));
                         SEQUENCE seq = cst.getBodyList();
                         StringBuilder s = new StringBuilder("   BodyList: ");
@@ -1677,7 +1678,7 @@ public class CMCRequest {
                         }
                         System.out.println(method + s);
                         int st = cst.getStatus();
-                        if (st != CMCStatusInfo.SUCCESS && st != CMCStatusInfo.CONFIRM_REQUIRED) {
+                        if (st != CMCStatusInfoV2.SUCCESS && st != CMCStatusInfoV2.CONFIRM_REQUIRED) {
                             String stString = cst.getStatusString();
                             if (stString != null)
                                 System.out.println(method + "   Status String: " + stString);
@@ -1685,9 +1686,22 @@ public class CMCRequest {
                             OtherInfo.Type t = oi.getType();
                             if (t == OtherInfo.FAIL) {
                                 System.out.println(method + "   OtherInfo type: FAIL");
-                                System.out.println(method
-                                        + " not what we expected, because encryptedPOP.enable is true!!!! exit now");
-                                System.exit(1);
+                                INTEGER failInfo = oi.getFailInfo();
+                                if (failInfo == null) {
+                                    System.out.println(method + "failInfo null...skipping");
+                                    continue;
+                                }
+
+                                if (failInfo.intValue() == OtherInfo.POP_REQUIRED) {
+                                    System.out.println(method + "     failInfo=" +
+                                            OtherInfo.FAIL_INFO[failInfo.intValue()]);
+                                    System.out.println(method + "   what we expected, as decryptedPOP.enable is true;");
+                                } else {
+                                    System.out.println(method + "failInfo=" +
+                                            OtherInfo.FAIL_INFO[failInfo.intValue()]);
+                                    System.out.println(method + " not what we expected when encryptedPOP.enable is true;");
+                                    System.exit(1);
+                                }
                             } else if (t == OtherInfo.PEND) {
                                 System.out.println(method + "   OtherInfo type: PEND");
                                 PendInfo pi = oi.getPendInfo();
@@ -1711,9 +1725,8 @@ public class CMCRequest {
                                     System.out.println(method + "missing pendToken in response");
                                     System.exit(1);
                                 }
-                                System.out.println(method + " what we expected, as encryptedPOP.enable is true;");
                             }
-                        } else if (st == CMCStatusInfo.SUCCESS) {
+                        } else if (st == CMCStatusInfoV2.SUCCESS) {
                             System.out.println(method + "   Status: SUCCESS");
                             System.out.println(
                                     method + " not what we expected, because encryptedPOP.enable is true!!!! exit now");
@@ -1728,8 +1741,18 @@ public class CMCRequest {
 
                     encryptedPop = (EncryptedPOP) (ASN1Util.decode(EncryptedPOP.getTemplate(),
                             ASN1Util.encode(encryptedPOPvals.elementAt(0))));
-                    System.out.println(method + "encryptedPOP decoded successfully");
+                    System.out.println(method + "     encryptedPOP decoded successfully");
 
+                } else if (type.equals(OBJECT_IDENTIFIER.id_cmc_responseInfo)) {
+                    System.out.println(method + "Control #" + i + ": CMC ResponseInfo");
+                    SET riVals = taggedAttr.getValues();
+                    reqIdOS = (OCTET_STRING) (ASN1Util.decode(OCTET_STRING.getTemplate(),
+                           ASN1Util.encode(riVals.elementAt(0))));
+                    byte[] reqIdBA = reqIdOS.toByteArray();
+                    BigInteger reqIdBI = new BigInteger(reqIdBA);
+
+                    System.out.println(method + "   requestID: " + reqIdBI.toString());
+                            
                 } // we don't expect any other controls
             } //for
         } catch (Exception e) {
@@ -1738,13 +1761,13 @@ public class CMCRequest {
         }
 
         System.out.println(method + "ends");
-        return new Object[] { encryptedPop, reqIdString };
+        return new Object[] { encryptedPop, reqIdOS };
     }
 
     /**
      * constructDecryptedPopRequest constructs request PKIData for DecryptedPOP
      *
-     * @param encryptedPopInfo {EncryptedPOP, reqIdString}
+     * @param encryptedPopInfo {EncryptedPOP, reqIdOS}
      * @param privKey
      * @return request PKIData
      * @author cfu
@@ -1764,8 +1787,8 @@ public class CMCRequest {
         }
 
         EncryptedPOP encryptedPop = (EncryptedPOP) encryptedPopInfo[0];
-        String reqIdString = (String) encryptedPopInfo[1];
-        if ((encryptedPop == null) || (reqIdString == null)) {
+        OCTET_STRING reqIdOS = (OCTET_STRING) encryptedPopInfo[1];
+        if ((encryptedPop == null) || (reqIdOS == null)) {
             System.out.println(method + "encryptedPopInfo content encryptedPop and reqIdString cannot be null");
             System.exit(1);
         }
@@ -1851,7 +1874,8 @@ public class CMCRequest {
             int bpid = 1;
             // now construct DecryptedPOP
             System.out.println(method + "constructing DecryptedPOP...");
-            decryptedPop = new DecryptedPOP(new INTEGER(reqIdString), thePOPAlgID, new OCTET_STRING(popProofValue));
+
+            decryptedPop = new DecryptedPOP(new INTEGER(bpid++), thePOPAlgID, new OCTET_STRING(popProofValue));
             System.out.println(method + "DecryptedPOP constructed successfully");
             System.out.println(method + "adding decryptedPop control");
             TaggedAttribute decPop = new TaggedAttribute(new INTEGER(bpid++),
@@ -1864,6 +1888,13 @@ public class CMCRequest {
             SEQUENCE controlSeq = new SEQUENCE();
             controlSeq.addElement(decPop);
             System.out.println(method + "decryptedPop control added");
+
+            TaggedAttribute reqIdTA = 
+                        new TaggedAttribute(new INTEGER(bpid++),
+                        OBJECT_IDENTIFIER.id_cmc_regInfo,
+                        reqIdOS);
+            controlSeq.addElement(reqIdTA);
+            System.out.println(method + "regInfo control added");
 
             SEQUENCE otherMsgSeq = new SEQUENCE();
 
