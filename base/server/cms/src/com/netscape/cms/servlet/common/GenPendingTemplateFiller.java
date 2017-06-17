@@ -35,7 +35,7 @@ import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.asn1.SET;
 import org.mozilla.jss.crypto.DigestAlgorithm;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
-import org.mozilla.jss.pkix.cmc.CMCStatusInfo;
+import org.mozilla.jss.pkix.cmc.CMCStatusInfoV2;
 import org.mozilla.jss.pkix.cmc.OtherInfo;
 import org.mozilla.jss.pkix.cmc.PendInfo;
 import org.mozilla.jss.pkix.cmc.ResponseBody;
@@ -98,7 +98,7 @@ public class GenPendingTemplateFiller implements ICMSTemplateFiller {
             RequestId reqId = req.getRequestId();
 
             fixed.set(ICMSTemplateFiller.REQUEST_ID, reqId);
-            // set pendInfo, CMCStatusInfo
+            // set pendInfo, CMCStatusInfoV2
             IArgBlock httpParams = cmsReq.getHttpParams();
 
             if (doFullResponse(httpParams)) {
@@ -115,12 +115,12 @@ public class GenPendingTemplateFiller implements ICMSTemplateFiller {
                 for (int i = 0; i < reqIdArray.length; i++) {
                     bpids.addElement(new INTEGER(reqIdArray[i]));
                 }
-                CMCStatusInfo cmcStatusInfo = new
-                        CMCStatusInfo(CMCStatusInfo.PENDING, bpids,
+                CMCStatusInfoV2 cmcStatusInfo = new
+                        CMCStatusInfoV2(CMCStatusInfoV2.PENDING, bpids,
                                 (String) null, otherInfo);
                 TaggedAttribute ta = new TaggedAttribute(new
                         INTEGER(bpid++),
-                        OBJECT_IDENTIFIER.id_cmc_cMCStatusInfo,
+                        OBJECT_IDENTIFIER.id_cmc_statusInfoV2,
                         cmcStatusInfo);
 
                 controlSeq.addElement(ta);

@@ -48,7 +48,7 @@ import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.asn1.SET;
 import org.mozilla.jss.crypto.DigestAlgorithm;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
-import org.mozilla.jss.pkix.cmc.CMCStatusInfo;
+import org.mozilla.jss.pkix.cmc.CMCStatusInfoV2;
 import org.mozilla.jss.pkix.cmc.PKIData;
 import org.mozilla.jss.pkix.cmc.ResponseBody;
 import org.mozilla.jss.pkix.cmc.TaggedAttribute;
@@ -431,11 +431,11 @@ public class CheckRequest extends CMSServlet {
 
                                         if (bodyPartId != null)
                                             bpids.addElement(bodyPartId);
-                                        CMCStatusInfo cmcStatusInfo = new
-                                                CMCStatusInfo(CMCStatusInfo.SUCCESS, bpids);
+                                        CMCStatusInfoV2 cmcStatusInfo = new
+                                                CMCStatusInfoV2(CMCStatusInfoV2.SUCCESS, bpids);
                                         TaggedAttribute ta = new TaggedAttribute(new
                                                 INTEGER(bpid++),
-                                                OBJECT_IDENTIFIER.id_cmc_cMCStatusInfo,
+                                                OBJECT_IDENTIFIER.id_cmc_statusInfoV2,
                                                 cmcStatusInfo);
 
                                         controlSeq.addElement(ta);

@@ -19,6 +19,7 @@ package com.netscape.cmstools;
 
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
+import java.math.BigInteger;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -33,7 +34,7 @@ import org.mozilla.jss.asn1.OCTET_STRING;
 import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.asn1.SET;
 import org.mozilla.jss.pkix.cert.Certificate;
-import org.mozilla.jss.pkix.cmc.CMCStatusInfo;
+import org.mozilla.jss.pkix.cmc.CMCStatusInfoV2;
 import org.mozilla.jss.pkix.cmc.EncryptedPOP;
 import org.mozilla.jss.pkix.cmc.OtherInfo;
 import org.mozilla.jss.pkix.cmc.PendInfo;
@@ -113,13 +114,13 @@ public class CMCResponse {
                 TaggedAttribute taggedAttr = (TaggedAttribute) controlSequence.elementAt(i);
                 OBJECT_IDENTIFIER type = taggedAttr.getType();
 
-                if (type.equals(OBJECT_IDENTIFIER.id_cmc_cMCStatusInfo)) {
-                    System.out.println("Control #" + i + ": CMCStatusInfo");
+                if (type.equals(OBJECT_IDENTIFIER.id_cmc_statusInfoV2)) {
+                    System.out.println("Control #" + i + ": CMCStatusInfoV2");
                     System.out.println("   OID: " + type.toString());
                     SET sts = taggedAttr.getValues();
                     int numSts = sts.size();
                     for (int j = 0; j < numSts; j++) {
-                        CMCStatusInfo cst = (CMCStatusInfo) ASN1Util.decode(CMCStatusInfo.getTemplate(),
+                        CMCStatusInfoV2 cst = (CMCStatusInfoV2) ASN1Util.decode(CMCStatusInfoV2.getTemplate(),
                                 ASN1Util.encode(sts.elementAt(j)));
                         SEQUENCE seq = cst.getBodyList();
 
@@ -130,15 +131,23 @@ public class CMCResponse {
                         }
                         System.out.println(s);
                         int st = cst.getStatus();
-                        if (st != CMCStatusInfo.SUCCESS && st != CMCStatusInfo.CONFIRM_REQUIRED) {
+                        if (st != CMCStatusInfoV2.SUCCESS && st != CMCStatusInfoV2.CONFIRM_REQUIRED) {
                             String stString = cst.getStatusString();
                             if (stString != null)
                                 System.out.println("   Status String: " + stString);
                             OtherInfo oi = cst.getOtherInfo();
                             OtherInfo.Type t = oi.getType();
-                            if (t == OtherInfo.FAIL)
+                            if (t == OtherInfo.FAIL) {
                                 System.out.println("   OtherInfo type: FAIL");
-                            else if (t == OtherInfo.PEND) {
+                                INTEGER failInfo = oi.getFailInfo();
+                                if (failInfo == null) {
+                                    System.out.println("failInfo null...skipping");
+                                    continue;
+                                }
+
+                                System.out.println("     failInfo=" +
+                                        OtherInfo.FAIL_INFO[failInfo.intValue()]);
+                            } else if (t == OtherInfo.PEND) {
                                 System.out.println("   OtherInfo type: PEND");
                                 PendInfo pi = oi.getPendInfo();
                                 if (pi == null) {
@@ -163,7 +172,7 @@ public class CMCResponse {
                                 }
 
                             }
-                        } else if (st == CMCStatusInfo.SUCCESS) {
+                        } else if (st == CMCStatusInfoV2.SUCCESS) {
                             System.out.println("   Status: SUCCESS");
                         }
                     }
@@ -224,8 +233,17 @@ public class CMCResponse {
                     EncryptedPOP encryptedPOP =
                         (EncryptedPOP) (ASN1Util.decode(EncryptedPOP.getTemplate(),
                             ASN1Util.encode(encryptedPOPvals.elementAt(0))));
-                    System.out.println("after encryptedPOP encode");
+                    System.out.println("     encryptedPOP decoded");
 
+                } else if (type.equals(OBJECT_IDENTIFIER.id_cmc_responseInfo)) {
+                    System.out.println("Control #" + i + ": CMC ResponseInfo");
+                    SET riVals = taggedAttr.getValues();
+                    OCTET_STRING reqIdOS = (OCTET_STRING) (ASN1Util.decode(OCTET_STRING.getTemplate(),
+                           ASN1Util.encode(riVals.elementAt(0))));
+                    byte[] reqIdBA = reqIdOS.toByteArray();
+                    BigInteger reqIdBI = new BigInteger(reqIdBA);
+
+                    System.out.println("   requestID: " + reqIdBI.toString());
                 }
             }
         } catch (Exception e) {
