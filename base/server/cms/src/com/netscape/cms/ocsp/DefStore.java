@@ -60,6 +60,7 @@ import com.netscape.cmsutil.ocsp.GoodInfo;
 import com.netscape.cmsutil.ocsp.OCSPRequest;
 import com.netscape.cmsutil.ocsp.OCSPResponse;
 import com.netscape.cmsutil.ocsp.OCSPResponseStatus;
+import com.netscape.cmsutil.ocsp.Request;
 import com.netscape.cmsutil.ocsp.ResponderID;
 import com.netscape.cmsutil.ocsp.ResponseBytes;
 import com.netscape.cmsutil.ocsp.ResponseData;
@@ -322,35 +323,40 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
     public OCSPResponse validate(OCSPRequest request)
             throws EBaseException {
 
+        CMS.debug("DefStore: validating OCSP request");
+
+        TBSRequest tbsReq = request.getTBSRequest();
+
         IStatsSubsystem statsSub = (IStatsSubsystem) CMS.getSubsystem("stats");
 
         mOCSPAuthority.incNumOCSPRequest(1);
         long startTime = CMS.getCurrentDate().getTime();
+
         try {
             mOCSPAuthority.log(ILogger.LL_INFO, "start OCSP request");
-            TBSRequest tbsReq = request.getTBSRequest();
 
             // (3) look into database to check the
             //     certificate's status
             Vector<SingleResponse> singleResponses = new Vector<SingleResponse>();
+
             if (statsSub != null) {
                 statsSub.startTiming("lookup");
             }
 
             long lookupStartTime = CMS.getCurrentDate().getTime();
-            for (int i = 0; i < tbsReq.getRequestCount(); i++) {
-                com.netscape.cmsutil.ocsp.Request req =
-                        tbsReq.getRequestAt(i);
-                CertID cid = req.getCertID();
-                SingleResponse sr = processRequest(cid);
 
+            for (int i = 0; i < tbsReq.getRequestCount(); i++) {
+                Request req = tbsReq.getRequestAt(i);
+                SingleResponse sr = processRequest(req);
                 singleResponses.addElement(sr);
             }
+
             long lookupEndTime = CMS.getCurrentDate().getTime();
+            mOCSPAuthority.incLookupTime(lookupEndTime - lookupStartTime);
+
             if (statsSub != null) {
                 statsSub.endTiming("lookup");
             }
-            mOCSPAuthority.incLookupTime(lookupEndTime - lookupStartTime);
 
             if (singleResponses.size() <= 0) {
                 CMS.debug("DefStore: No Request Found");
@@ -360,8 +366,8 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
             if (statsSub != null) {
                 statsSub.startTiming("build_response");
             }
-            SingleResponse res[] = new SingleResponse[singleResponses.size()];
 
+            SingleResponse res[] = new SingleResponse[singleResponses.size()];
             singleResponses.copyInto(res);
 
             ResponderID rid = null;
@@ -385,6 +391,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
 
             ResponseData rd = new ResponseData(rid,
                     new GeneralizedTime(CMS.getCurrentDate()), res, nonce);
+
             if (statsSub != null) {
                 statsSub.endTiming("build_response");
             }
@@ -392,13 +399,17 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
             if (statsSub != null) {
                 statsSub.startTiming("signing");
             }
+
             long signStartTime = CMS.getCurrentDate().getTime();
+
             BasicOCSPResponse basicRes = mOCSPAuthority.sign(rd);
+
             long signEndTime = CMS.getCurrentDate().getTime();
+            mOCSPAuthority.incSignTime(signEndTime - signStartTime);
+
             if (statsSub != null) {
                 statsSub.endTiming("signing");
             }
-            mOCSPAuthority.incSignTime(signEndTime - signStartTime);
 
             OCSPResponse response = new OCSPResponse(
                     OCSPResponseStatus.SUCCESSFUL,
@@ -406,8 +417,10 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
                             new OCTET_STRING(ASN1Util.encode(basicRes))));
 
             log(ILogger.LL_INFO, "done OCSP request");
+
             long endTime = CMS.getCurrentDate().getTime();
             mOCSPAuthority.incTotalTime(endTime - startTime);
+
             return response;
 
         } catch (Exception e) {
@@ -420,10 +433,13 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
     /**
      * Check against the database for status.
      */
-    private SingleResponse processRequest(CertID cid) {
+    private SingleResponse processRequest(Request req) {
         // need to find the right CA
 
-        CMS.debug("DefStore: process request");
+        CertID cid = req.getCertID();
+        INTEGER serialNo = cid.getSerialNumber();
+        CMS.debug("DefStore: processing request for cert 0x" + serialNo.toString(16));
+
         try {
             // cache result to speed up the performance
             X509CertImpl theCert = null;
@@ -489,10 +505,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
             }
 
             // check the serial number
-            INTEGER serialNo = cid.getSerialNumber();
-
             log(ILogger.EV_AUDIT, AuditFormat.LEVEL, "Checked Status of certificate 0x" + serialNo.toString(16));
-            CMS.debug("DefStore: process request 0x" + serialNo.toString(16));
 
             GeneralizedTime thisUpdate;
 

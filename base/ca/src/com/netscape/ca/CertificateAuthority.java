@@ -150,6 +150,7 @@ import com.netscape.cmsutil.ocsp.NameID;
 import com.netscape.cmsutil.ocsp.OCSPRequest;
 import com.netscape.cmsutil.ocsp.OCSPResponse;
 import com.netscape.cmsutil.ocsp.OCSPResponseStatus;
+import com.netscape.cmsutil.ocsp.Request;
 import com.netscape.cmsutil.ocsp.ResponderID;
 import com.netscape.cmsutil.ocsp.ResponseBytes;
 import com.netscape.cmsutil.ocsp.ResponseData;
@@ -2306,7 +2307,7 @@ public class CertificateAuthority
             throws EBaseException {
 
         if (!mEnableOCSP) {
-            CMS.debug("Local ocsp service is disable.");
+            CMS.debug("CertificateAuthority: OCSP service disabled");
             return null;
         }
 
@@ -2341,53 +2342,60 @@ public class CertificateAuthority
          */
         ICertificateAuthority ocspCA = this;
         if (caMap.size() > 0 && tbsReq.getRequestCount() > 0) {
-            com.netscape.cmsutil.ocsp.Request req = tbsReq.getRequestAt(0);
+            Request req = tbsReq.getRequestAt(0);
             BigInteger serialNo = req.getCertID().getSerialNumber();
             X509CertImpl cert = mCertRepot.getX509Certificate(serialNo);
             X500Name certIssuerDN = (X500Name) cert.getIssuerDN();
             ocspCA = getCA(certIssuerDN);
         }
+
         if (ocspCA == null)
             throw new CANotFoundException("Could not locate issuing CA");
+
         if (ocspCA != this)
             return ((IOCSPService) ocspCA).validate(request);
+
+        CMS.debug("CertificateAuthority: validating OCSP request");
 
         mNumOCSPRequest++;
         IStatsSubsystem statsSub = (IStatsSubsystem) CMS.getSubsystem("stats");
         long startTime = CMS.getCurrentDate().getTime();
+
         try {
             //log(ILogger.LL_INFO, "start OCSP request");
 
             // (3) look into database to check the
             //     certificate's status
             Vector<SingleResponse> singleResponses = new Vector<SingleResponse>();
+
             if (statsSub != null) {
                 statsSub.startTiming("lookup");
             }
 
             long lookupStartTime = CMS.getCurrentDate().getTime();
-            for (int i = 0; i < tbsReq.getRequestCount(); i++) {
-                com.netscape.cmsutil.ocsp.Request req =
-                        tbsReq.getRequestAt(i);
-                CertID cid = req.getCertID();
-                SingleResponse sr = processRequest(cid);
 
+            for (int i = 0; i < tbsReq.getRequestCount(); i++) {
+                Request req = tbsReq.getRequestAt(i);
+                SingleResponse sr = processRequest(req);
                 singleResponses.addElement(sr);
             }
+
             long lookupEndTime = CMS.getCurrentDate().getTime();
+            mLookupTime += lookupEndTime - lookupStartTime;
+
             if (statsSub != null) {
                 statsSub.endTiming("lookup");
             }
-            mLookupTime += lookupEndTime - lookupStartTime;
 
             if (statsSub != null) {
                 statsSub.startTiming("build_response");
             }
-            SingleResponse res[] = new SingleResponse[singleResponses.size()];
 
+            SingleResponse res[] = new SingleResponse[singleResponses.size()];
             singleResponses.copyInto(res);
 
             ResponderID rid = null;
+
             if (mByName) {
                 if (mResponderIDByName == null) {
                     mResponderIDByName = getResponderIDByName();
@@ -2410,8 +2418,10 @@ public class CertificateAuthority
                     nonce[0] = thisExt;
                 }
             }
+
             ResponseData rd = new ResponseData(rid,
                     new GeneralizedTime(CMS.getCurrentDate()), res, nonce);
+
             if (statsSub != null) {
                 statsSub.endTiming("build_response");
             }
@@ -2419,10 +2429,14 @@ public class CertificateAuthority
             if (statsSub != null) {
                 statsSub.startTiming("signing");
             }
+
             long signStartTime = CMS.getCurrentDate().getTime();
+
             BasicOCSPResponse basicRes = sign(rd);
+
             long signEndTime = CMS.getCurrentDate().getTime();
             mSignTime += signEndTime - signStartTime;
+
             if (statsSub != null) {
                 statsSub.endTiming("signing");
             }
@@ -2435,8 +2449,10 @@ public class CertificateAuthority
             //log(ILogger.LL_INFO, "done OCSP request");
             long endTime = CMS.getCurrentDate().getTime();
             mTotalTime += endTime - startTime;
+
             return response;
         } catch (Exception e) {
+
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_OCSP_REQUEST", e.toString()));
             throw new EBaseException(e.toString(), e);
         }
@@ -2486,10 +2502,12 @@ public class CertificateAuthority
         }
     }
 
-    private SingleResponse processRequest(CertID cid) {
-        INTEGER serialNo = cid.getSerialNumber();
+    private SingleResponse processRequest(Request req) {
 
-        CMS.debug("process request " + serialNo);
+        CertID cid = req.getCertID();
+        INTEGER serialNo = cid.getSerialNumber();
+        CMS.debug("CertificateAuthority: processing request for cert 0x" + serialNo.toString(16));
+
         CertStatus certStatus = null;
         GeneralizedTime thisUpdate = new GeneralizedTime(CMS.getCurrentDate());
         GeneralizedTime nextUpdate = null;
