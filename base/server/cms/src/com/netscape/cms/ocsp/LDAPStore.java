@@ -27,19 +27,9 @@ import java.util.Hashtable;
 import java.util.Locale;
 import java.util.Vector;
 
-import netscape.ldap.LDAPAttribute;
-import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPEntry;
-import netscape.ldap.LDAPException;
-import netscape.ldap.LDAPSearchResults;
-import netscape.ldap.LDAPv2;
-import netscape.security.x509.RevokedCertificate;
-import netscape.security.x509.X509CRLImpl;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509Key;
-
 import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.GeneralizedTime;
+import org.mozilla.jss.asn1.INTEGER;
 import org.mozilla.jss.asn1.OCTET_STRING;
 import org.mozilla.jss.pkix.cert.Extension;
 
@@ -63,6 +53,7 @@ import com.netscape.cmsutil.ocsp.GoodInfo;
 import com.netscape.cmsutil.ocsp.OCSPRequest;
 import com.netscape.cmsutil.ocsp.OCSPResponse;
 import com.netscape.cmsutil.ocsp.OCSPResponseStatus;
+import com.netscape.cmsutil.ocsp.Request;
 import com.netscape.cmsutil.ocsp.ResponderID;
 import com.netscape.cmsutil.ocsp.ResponseBytes;
 import com.netscape.cmsutil.ocsp.ResponseData;
@@ -70,6 +61,17 @@ import com.netscape.cmsutil.ocsp.RevokedInfo;
 import com.netscape.cmsutil.ocsp.SingleResponse;
 import com.netscape.cmsutil.ocsp.TBSRequest;
 import com.netscape.cmsutil.ocsp.UnknownInfo;
+
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPSearchResults;
+import netscape.ldap.LDAPv2;
+import netscape.security.x509.RevokedCertificate;
+import netscape.security.x509.X509CRLImpl;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509Key;
 
 /**
  * This is the LDAP OCSP store. It reads CA certificate and
@@ -270,13 +272,17 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
     public OCSPResponse validate(OCSPRequest request)
             throws EBaseException {
 
+        CMS.debug("LDAPStore: validating OCSP request");
+
+        TBSRequest tbsReq = request.getTBSRequest();
+
         IStatsSubsystem statsSub = (IStatsSubsystem) CMS.getSubsystem("stats");
 
         mOCSPAuthority.incNumOCSPRequest(1);
         long startTime = CMS.getCurrentDate().getTime();
+
         try {
             mOCSPAuthority.log(ILogger.LL_INFO, "start OCSP request");
-            TBSRequest tbsReq = request.getTBSRequest();
 
             Vector<SingleResponse> singleResponses = new Vector<SingleResponse>();
 
@@ -285,25 +291,25 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
             }
 
             long lookupStartTime = CMS.getCurrentDate().getTime();
-            for (int i = 0; i < tbsReq.getRequestCount(); i++) {
-                com.netscape.cmsutil.ocsp.Request req =
-                        tbsReq.getRequestAt(i);
-                CertID cid = req.getCertID();
-                SingleResponse sr = processRequest(cid);
 
+            for (int i = 0; i < tbsReq.getRequestCount(); i++) {
+                Request req = tbsReq.getRequestAt(i);
+                SingleResponse sr = processRequest(req);
                 singleResponses.addElement(sr);
             }
+
             long lookupEndTime = CMS.getCurrentDate().getTime();
+            mOCSPAuthority.incLookupTime(lookupEndTime - lookupStartTime);
+
             if (statsSub != null) {
                 statsSub.endTiming("lookup");
             }
-            mOCSPAuthority.incLookupTime(lookupEndTime - lookupStartTime);
 
             if (statsSub != null) {
                 statsSub.startTiming("build_response");
             }
-            SingleResponse res[] = new SingleResponse[singleResponses.size()];
 
+            SingleResponse res[] = new SingleResponse[singleResponses.size()];
             singleResponses.copyInto(res);
 
             ResponderID rid = null;
@@ -327,6 +333,7 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
 
             ResponseData rd = new ResponseData(rid,
                     new GeneralizedTime(CMS.getCurrentDate()), res, nonce);
+
             if (statsSub != null) {
                 statsSub.endTiming("build_response");
             }
@@ -336,9 +343,12 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
             }
 
             long signStartTime = CMS.getCurrentDate().getTime();
+
             BasicOCSPResponse basicRes = mOCSPAuthority.sign(rd);
+
             long signEndTime = CMS.getCurrentDate().getTime();
             mOCSPAuthority.incSignTime(signEndTime - signStartTime);
+
             if (statsSub != null) {
                 statsSub.endTiming("signing");
             }
@@ -349,8 +359,10 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
                             new OCTET_STRING(ASN1Util.encode(basicRes))));
 
             log(ILogger.LL_INFO, "done OCSP request");
+
             long endTime = CMS.getCurrentDate().getTime();
             mOCSPAuthority.incTotalTime(endTime - startTime);
+
             return response;
         } catch (Exception e) {
             CMS.debug("LDAPStore: validation " + e.toString());
@@ -454,7 +466,12 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
     /**
      * Check against the database for status.
      */
-    private SingleResponse processRequest(CertID cid) throws EBaseException {
+    private SingleResponse processRequest(Request req) throws EBaseException {
+
+        CertID cid = req.getCertID();
+        INTEGER serialNo = cid.getSerialNumber();
+        CMS.debug("LDAPStore: processing request for cert 0x" + serialNo.toString(16));
+
         // locate the right CRL
         X509CertImpl theCert = null;
         X509CRLImpl theCRL = null;
