@@ -275,6 +275,11 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
         CMS.debug("LDAPStore: validating OCSP request");
 
         TBSRequest tbsReq = request.getTBSRequest();
+        if (tbsReq.getRequestCount() == 0) {
+            CMS.debug("LDAPStore: No request found");
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("OCSP_REQUEST_FAILURE", "No Request Found"));
+            throw new EBaseException("OCSP request is empty");
+        }
 
         IStatsSubsystem statsSub = (IStatsSubsystem) CMS.getSubsystem("stats");
 
@@ -364,10 +369,10 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
             mOCSPAuthority.incTotalTime(endTime - startTime);
 
             return response;
-        } catch (Exception e) {
-            CMS.debug("LDAPStore: validation " + e.toString());
+
+        } catch (EBaseException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("OCSP_REQUEST_FAILURE", e.toString()));
-            return null;
+            throw e;
         }
     }
 

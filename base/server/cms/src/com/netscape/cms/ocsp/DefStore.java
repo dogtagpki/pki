@@ -326,6 +326,11 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
         CMS.debug("DefStore: validating OCSP request");
 
         TBSRequest tbsReq = request.getTBSRequest();
+        if (tbsReq.getRequestCount() == 0) {
+            CMS.debug("DefStore: No request found");
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("OCSP_REQUEST_FAILURE", "No Request Found"));
+            throw new EBaseException("OCSP request is empty");
+        }
 
         IStatsSubsystem statsSub = (IStatsSubsystem) CMS.getSubsystem("stats");
 
@@ -358,11 +363,6 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
                 statsSub.endTiming("lookup");
             }
 
-            if (singleResponses.size() <= 0) {
-                CMS.debug("DefStore: No Request Found");
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("OCSP_REQUEST_FAILURE", "No Request Found"));
-                return null;
-            }
             if (statsSub != null) {
                 statsSub.startTiming("build_response");
             }
@@ -423,10 +423,9 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
 
             return response;
 
-        } catch (Exception e) {
-            CMS.debug(e);
+        } catch (EBaseException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("OCSP_REQUEST_FAILURE", e.toString()));
-            return null;
+            throw e;
         }
     }
 
