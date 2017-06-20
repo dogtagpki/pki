@@ -33,8 +33,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import netscape.security.x509.RevocationReason;
-
 import org.dogtagpki.server.tps.TPSSession;
 import org.dogtagpki.server.tps.TPSSubsystem;
 import org.dogtagpki.server.tps.authentication.AuthUIParameter;
@@ -96,13 +94,18 @@ import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.logging.AuditEvent;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.tps.token.TokenStatus;
+import com.netscape.cms.logging.Logger;
+import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.servlet.tks.SecureChannelProtocol;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.symkey.SessionKey;
 
+import netscape.security.x509.RevocationReason;
+
 public class TPSProcessor {
+
+    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     public static final int RESULT_NO_ERROR = 0;
     public static final int RESULT_ERROR = -1;
@@ -142,8 +145,6 @@ public class TPSProcessor {
     private PlatformAndSecChannelProtoInfo platProtInfo;
 
     ProfileDatabase profileDatabase = new ProfileDatabase();
-
-    protected ILogger mSignedAuditLogger = CMS.getSignedAuditLogger();
 
     public TPSProcessor(TPSSession session) {
         setSession(session);
@@ -4273,18 +4274,7 @@ public class TPSProcessor {
      * @param msg signed audit log message
      */
     protected void audit(String msg) {
-        // in this case, do NOT strip preceding/trailing whitespace
-        // from passed-in String parameters
-
-        if (mSignedAuditLogger == null) {
-            return;
-        }
-
-        mSignedAuditLogger.log(ILogger.EV_SIGNED_AUDIT,
-                null,
-                ILogger.S_SIGNED_AUDIT,
-                ILogger.LL_SECURITY,
-                msg);
+        signedAuditLogger.log(msg);
     }
 
     protected void audit(AuditEvent event) {

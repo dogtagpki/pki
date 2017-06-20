@@ -55,6 +55,8 @@ import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.certsrv.security.ITransportKeyUnit;
+import com.netscape.cms.logging.Logger;
+import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -73,6 +75,8 @@ import netscape.security.x509.X509Key;
  * @version $Revision$, $Date$
  */
 public class TokenKeyRecoveryService implements IService {
+
+    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     public static final String ATTR_NICKNAME = "nickname";
     public static final String ATTR_OWNER_NAME = "ownerName";
@@ -94,8 +98,6 @@ public class TokenKeyRecoveryService implements IService {
     private IKeyRepository mStorage = null;
     private IStorageKeyUnit mStorageUnit = null;
     private ITransportKeyUnit mTransportUnit = null;
-
-    private ILogger mSignedAuditLogger = CMS.getSignedAuditLogger();
 
     /**
      * Constructs request processor.
@@ -717,18 +719,7 @@ public class TokenKeyRecoveryService implements IService {
      * @param msg signed audit log message
      */
     private void audit(String msg) {
-        // in this case, do NOT strip preceding/trailing whitespace
-        // from passed-in String parameters
-
-        if (mSignedAuditLogger == null) {
-            return;
-        }
-
-        mSignedAuditLogger.log(ILogger.EV_SIGNED_AUDIT,
-                null,
-                ILogger.S_SIGNED_AUDIT,
-                ILogger.LL_SECURITY,
-                msg);
+        signedAuditLogger.log(msg);
     }
 
     protected void audit(AuditEvent event) {

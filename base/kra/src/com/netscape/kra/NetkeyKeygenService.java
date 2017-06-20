@@ -60,6 +60,8 @@ import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.certsrv.security.ITransportKeyUnit;
+import com.netscape.cms.logging.Logger;
+import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.servlet.key.KeyRecordParser;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.security.JssSubsystem;
@@ -88,6 +90,9 @@ import netscape.security.util.WrappingParams;
  */
 
 public class NetkeyKeygenService implements IService {
+
+    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
+
     public final static String ATTR_KEY_RECORD = "keyRecord";
     public final static String ATTR_PROOF_OF_ARCHIVAL =
             "proofOfArchival";
@@ -95,7 +100,6 @@ public class NetkeyKeygenService implements IService {
     private IKeyRecoveryAuthority mKRA = null;
     private ITransportKeyUnit mTransportUnit = null;
     private IStorageKeyUnit mStorageUnit = null;
-    private ILogger mSignedAuditLogger = CMS.getSignedAuditLogger();
 
     /**
      * Constructs request processor.
@@ -523,18 +527,7 @@ public class NetkeyKeygenService implements IService {
      * @param msg signed audit log message
      */
     private void audit(String msg) {
-        // in this case, do NOT strip preceding/trailing whitespace
-        // from passed-in String parameters
-
-        if (mSignedAuditLogger == null) {
-            return;
-        }
-
-        mSignedAuditLogger.log(ILogger.EV_SIGNED_AUDIT,
-                null,
-                ILogger.S_SIGNED_AUDIT,
-                ILogger.LL_SECURITY,
-                msg);
+        signedAuditLogger.log(msg);
     }
 
     protected void audit(AuditEvent event) {

@@ -49,6 +49,8 @@ import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.AuthzFailEvent;
 import com.netscape.certsrv.logging.event.AuthzSuccessEvent;
+import com.netscape.cms.logging.Logger;
+import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.realm.PKIPrincipal;
 
 /**
@@ -56,7 +58,9 @@ import com.netscape.cms.realm.PKIPrincipal;
  */
 @Provider
 public class ACLInterceptor implements ContainerRequestFilter {
-    protected ILogger signedAuditLogger = CMS.getSignedAuditLogger();
+
+    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
+
     private final static String LOGGING_ACL_PARSING_ERROR = "internal error: ACL parsing error";
     private final static String LOGGING_NO_ACL_ACCESS_ALLOWED = "no ACL configured; OK";
     private final static String LOGGING_MISSING_AUTH_TOKEN = "auth token not found";
@@ -329,18 +333,7 @@ public class ACLInterceptor implements ContainerRequestFilter {
      * @param msg signed audit log message
      */
     protected void audit(String msg) {
-        // in this case, do NOT strip preceding/trailing whitespace
-        // from passed-in String parameters
-
-        if (signedAuditLogger == null) {
-            return;
-        }
-
-        signedAuditLogger.log(ILogger.EV_SIGNED_AUDIT,
-                null,
-                ILogger.S_SIGNED_AUDIT,
-                ILogger.LL_SECURITY,
-                msg);
+        signedAuditLogger.log(msg);
     }
 
     protected void audit(AuditEvent event) {

@@ -49,6 +49,8 @@ import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.certsrv.registry.IPluginRegistry;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestStatus;
+import com.netscape.cms.logging.Logger;
+import com.netscape.cms.logging.SignedAuditLogger;
 
 /**
  * This class implements a basic profile.
@@ -56,6 +58,8 @@ import com.netscape.certsrv.request.RequestStatus;
  * @version $Revision$, $Date$
  */
 public abstract class BasicProfile implements IProfile {
+
+    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     public static final String PROP_ENABLE = "enable";
     public static final String PROP_ENABLE_BY = "enableBy";
@@ -95,8 +99,6 @@ public abstract class BasicProfile implements IProfile {
     protected String mAuthzAcl = "";
 
     protected Hashtable<String, Vector<IProfilePolicy>> mPolicySet = new Hashtable<String, Vector<IProfilePolicy>>();
-
-    protected ILogger mSignedAuditLogger = CMS.getSignedAuditLogger();
 
     public BasicProfile() {
     }
@@ -1172,18 +1174,7 @@ public abstract class BasicProfile implements IProfile {
      * @param msg signed audit log message
      */
     protected void audit(String msg) {
-        // in this case, do NOT strip preceding/trailing whitespace
-        // from passed-in String parameters
-
-        if (mSignedAuditLogger == null) {
-            return;
-        }
-
-        mSignedAuditLogger.log(ILogger.EV_SIGNED_AUDIT,
-                null,
-                ILogger.S_SIGNED_AUDIT,
-                ILogger.LL_SECURITY,
-                msg);
+        signedAuditLogger.log(msg);
     }
 
     protected void audit(AuditEvent event) {
@@ -1207,10 +1198,6 @@ public abstract class BasicProfile implements IProfile {
      * @return id string containing the signed audit log message SubjectID
      */
     protected String auditSubjectID() {
-        // if no signed audit object exists, bail
-        if (mSignedAuditLogger == null) {
-            return null;
-        }
 
         String subjectID = null;
 

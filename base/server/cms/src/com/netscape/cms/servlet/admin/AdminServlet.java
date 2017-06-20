@@ -953,8 +953,6 @@ public class AdminServlet extends HttpServlet {
      * @param msg signed audit log message
      */
     protected void audit(String msg) {
-        // in this case, do NOT strip preceding/trailing whitespace
-        // from passed-in String parameters
 
         if (auditor == null) {
             return;

@@ -756,7 +756,7 @@ public abstract class EnrollProfile extends BasicProfile
                         OBJECT_IDENTIFIER oid = attributes[i].getType();
                         if (oid.equals(OBJECT_IDENTIFIER.id_cmc_revokeRequest)) {
                             id_cmc_revokeRequest = true;
-                            // put in context for processing in 
+                            // put in context for processing in
                             // CMCOutputTemplate.java later
                             context.put(OBJECT_IDENTIFIER.id_cmc_revokeRequest,
                                     attributes[i]);
@@ -2583,10 +2583,6 @@ public abstract class EnrollProfile extends BasicProfile
      * @return id string containing the signed audit log message RequesterID
      */
     protected String auditRequesterID(IRequest request) {
-        // if no signed audit object exists, bail
-        if (mSignedAuditLogger == null) {
-            return null;
-        }
 
         String requesterID = ILogger.UNIDENTIFIED;
 
@@ -2613,10 +2609,6 @@ public abstract class EnrollProfile extends BasicProfile
      * @return id string containing the signed audit log message ProfileID
      */
     protected String auditProfileID() {
-        // if no signed audit object exists, bail
-        if (mSignedAuditLogger == null) {
-            return null;
-        }
 
         String profileID = getId();
 

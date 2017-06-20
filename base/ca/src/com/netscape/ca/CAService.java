@@ -59,6 +59,8 @@ import com.netscape.certsrv.profile.IProfileSubsystem;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.RequestId;
+import com.netscape.cms.logging.Logger;
+import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.base.SubsystemRegistry;
 import com.netscape.cmscore.connector.HttpConnector;
 import com.netscape.cmscore.connector.LocalConnector;
@@ -103,6 +105,8 @@ import netscape.security.x509.X509ExtensionException;
  */
 public class CAService implements ICAService, IService {
 
+    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
+
     public static final String CRMF_REQUEST = "CRMFRequest";
     public static final String CHALLENGE_PHRASE = "challengePhrase";
     public static final String SERIALNO_ARRAY = "serialNoArray";
@@ -116,8 +120,6 @@ public class CAService implements ICAService, IService {
     private IConfigStore mConfig = null;
     private boolean mArchivalRequired = true;
     private Hashtable<String, ICRLIssuingPoint> mCRLIssuingPoints = new Hashtable<String, ICRLIssuingPoint>();
-
-    private ILogger mSignedAuditLogger = CMS.getSignedAuditLogger();
 
     public CAService(ICertificateAuthority ca) {
         mCA = ca;
@@ -1154,18 +1156,7 @@ public class CAService implements ICAService, IService {
      * @param msg signed audit log message
      */
     private void audit(String msg) {
-        // in this case, do NOT strip preceding/trailing whitespace
-        // from passed-in String parameters
-
-        if (mSignedAuditLogger == null) {
-            return;
-        }
-
-        mSignedAuditLogger.log(ILogger.EV_SIGNED_AUDIT,
-                null,
-                ILogger.S_SIGNED_AUDIT,
-                ILogger.LL_SECURITY,
-                msg);
+        signedAuditLogger.log(msg);
     }
 
     protected void audit(AuditEvent event) {
@@ -1188,10 +1179,6 @@ public class CAService implements ICAService, IService {
      * @return id string containing the signed audit log message SubjectID
      */
     private String auditSubjectID() {
-        // if no signed audit object exists, bail
-        if (mSignedAuditLogger == null) {
-            return null;
-        }
 
         String subjectID = null;
 
@@ -1224,10 +1211,6 @@ public class CAService implements ICAService, IService {
      * @return id string containing the signed audit log message RequesterID
      */
     private String auditRequesterID() {
-        // if no signed audit object exists, bail
-        if (mSignedAuditLogger == null) {
-            return null;
-        }
 
         String requesterID = null;
 

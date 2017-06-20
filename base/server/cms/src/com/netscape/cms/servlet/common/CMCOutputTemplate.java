@@ -72,7 +72,6 @@ import org.mozilla.jss.pkix.primitive.Name;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.ISharedToken;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
@@ -86,6 +85,8 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
+import com.netscape.cms.logging.Logger;
+import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 import netscape.security.x509.CRLExtensions;
@@ -104,7 +105,8 @@ import netscape.security.x509.X509Key;
  * @version $ $, $Date$
  */
 public class CMCOutputTemplate {
-    protected ILogger mSignedAuditLogger = CMS.getSignedAuditLogger();
+
+    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     public CMCOutputTemplate() {
     }
@@ -1086,7 +1088,7 @@ public class CMCOutputTemplate {
                         return bpid;
                     }
 
-                    String sharedSecret = 
+                    String sharedSecret =
                             sharedSecret = tokenClass.getSharedToken(revokeSerial);
 
                     if (sharedSecret == null) {
@@ -1333,18 +1335,7 @@ public class CMCOutputTemplate {
     }
 
     protected void audit(String msg) {
-        // in this case, do NOT strip preceding/trailing whitespace
-        // from passed-in String parameters
-
-        if (mSignedAuditLogger == null) {
-            return;
-        }
-
-        mSignedAuditLogger.log(ILogger.EV_SIGNED_AUDIT,
-                null,
-                ILogger.S_SIGNED_AUDIT,
-                ILogger.LL_SECURITY,
-                msg);
+        signedAuditLogger.log(msg);
     }
 
     private RevocationReason toRevocationReason(ENUMERATED n) {

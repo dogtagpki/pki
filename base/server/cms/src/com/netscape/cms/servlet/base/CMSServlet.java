@@ -78,6 +78,8 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
+import com.netscape.cms.logging.Logger;
+import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.servlet.common.AuthCredentials;
 import com.netscape.cms.servlet.common.CMSFileLoader;
 import com.netscape.cms.servlet.common.CMSGateway;
@@ -114,9 +116,9 @@ import netscape.security.x509.X509CertImpl;
  * @version $Revision$, $Date$
  */
 public abstract class CMSServlet extends HttpServlet {
-    /**
-     *
-     */
+
+    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
+
     private static final long serialVersionUID = -3886300199374147160L;
     // servlet init params
     // xxxx todo:Should enforce init param value checking!
@@ -247,7 +249,6 @@ public abstract class CMSServlet extends HttpServlet {
     protected String mAclMethod = null;
     protected String mAuthzResourceName = null;
 
-    protected ILogger mSignedAuditLogger = CMS.getSignedAuditLogger();
     protected String mOutputTemplatePath = null;
     private IUGSubsystem mUG = (IUGSubsystem)
             CMS.getSubsystem(CMS.SUBSYSTEM_UG);
@@ -2022,18 +2023,7 @@ public abstract class CMSServlet extends HttpServlet {
      * @param msg signed audit log message
      */
     protected void audit(String msg) {
-        // in this case, do NOT strip preceding/trailing whitespace
-        // from passed-in String parameters
-
-        if (mSignedAuditLogger == null) {
-            return;
-        }
-
-        mSignedAuditLogger.log(ILogger.EV_SIGNED_AUDIT,
-                null,
-                ILogger.S_SIGNED_AUDIT,
-                ILogger.LL_SECURITY,
-                msg);
+        signedAuditLogger.log(msg);
     }
 
     protected void audit(AuditEvent event) {
@@ -2057,10 +2047,6 @@ public abstract class CMSServlet extends HttpServlet {
      * @return id string containing the signed audit log message SubjectID
      */
     protected String auditSubjectID() {
-        // if no signed audit object exists, bail
-        if (mSignedAuditLogger == null) {
-            return null;
-        }
 
         CMS.debug("CMSServlet: in auditSubjectID");
         String subjectID = null;
@@ -2097,10 +2083,6 @@ public abstract class CMSServlet extends HttpServlet {
      * @return id string containing the signed audit log message SubjectID
      */
     protected String auditGroupID() {
-        // if no signed audit object exists, bail
-        if (mSignedAuditLogger == null) {
-            return null;
-        }
 
         CMS.debug("CMSServlet: in auditGroupID");
         String groupID = null;
@@ -2138,10 +2120,6 @@ public abstract class CMSServlet extends HttpServlet {
      *         with the "auditSubjectID()"
      */
     private String auditGroups(String SubjectID) {
-        // if no signed audit object exists, bail
-        if (mSignedAuditLogger == null) {
-            return null;
-        }
 
         if ((SubjectID == null) ||
                 (SubjectID.equals(ILogger.UNIDENTIFIED))) {

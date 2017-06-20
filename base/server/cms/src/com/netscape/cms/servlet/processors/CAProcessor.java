@@ -68,6 +68,8 @@ import com.netscape.certsrv.usrgrp.ICertUserLocator;
 import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.util.IStatsSubsystem;
+import com.netscape.cms.logging.Logger;
+import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.servlet.common.AuthCredentials;
 import com.netscape.cms.servlet.common.CMSGateway;
 import com.netscape.cms.servlet.common.ServletUtils;
@@ -75,6 +77,8 @@ import com.netscape.cms.servlet.common.ServletUtils;
 import netscape.security.x509.X509CertImpl;
 
 public class CAProcessor extends Processor {
+
+    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     public final static String ARG_REQUEST_OWNER = "requestOwner";
     public final static String HDR_LANG = "accept-language";
@@ -137,7 +141,6 @@ public class CAProcessor extends Processor {
 
     //logging and stats
 
-    protected ILogger signedAuditLogger = CMS.getSignedAuditLogger();
     protected LinkedHashSet<String> statEvents = new LinkedHashSet<String>();
 
     public CAProcessor(String id, Locale locale) throws EPropertyNotFound, EBaseException {
@@ -885,18 +888,7 @@ public class CAProcessor extends Processor {
      * AUDIT FUNCTIONS (to be moved to Auditor?)
      ******************************************/
     protected void audit(String msg) {
-        // in this case, do NOT strip preceding/trailing whitespace
-        // from passed-in String parameters
-
-        if (signedAuditLogger == null) {
-            return;
-        }
-
-        signedAuditLogger.log(ILogger.EV_SIGNED_AUDIT,
-                null,
-                ILogger.S_SIGNED_AUDIT,
-                ILogger.LL_SECURITY,
-                msg);
+        signedAuditLogger.log(msg);
     }
 
     protected void audit(AuditEvent event) {
@@ -920,10 +912,6 @@ public class CAProcessor extends Processor {
      * @return id string containing the signed audit log message RequesterID
      */
     protected String auditRequesterID(IRequest request) {
-        // if no signed audit object exists, bail
-        if (signedAuditLogger == null) {
-            return null;
-        }
 
         String requesterID = ILogger.UNIDENTIFIED;
 
@@ -940,10 +928,6 @@ public class CAProcessor extends Processor {
     }
 
     protected String auditSubjectID() {
-        // if no signed audit object exists, bail
-        if (signedAuditLogger == null) {
-            return null;
-        }
 
         CMS.debug("CMSServlet: in auditSubjectID");
         String subjectID = null;
@@ -970,10 +954,6 @@ public class CAProcessor extends Processor {
     }
 
     protected String auditGroupID() {
-        // if no signed audit object exists, bail
-        if (signedAuditLogger == null) {
-            return null;
-        }
 
         CMS.debug("CMSServlet: in auditGroupID");
         String groupID = null;
@@ -1011,10 +991,6 @@ public class CAProcessor extends Processor {
      *         with the "auditSubjectID()"
      */
     protected String auditGroups(String SubjectID) {
-        // if no signed audit object exists, bail
-        if (signedAuditLogger == null) {
-            return null;
-        }
 
         if ((SubjectID == null) ||
                 (SubjectID.equals(ILogger.UNIDENTIFIED))) {

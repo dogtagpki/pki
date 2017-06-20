@@ -39,6 +39,8 @@ import com.netscape.certsrv.profile.IProfileInput;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cms.logging.Logger;
+import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
@@ -49,12 +51,12 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
  */
 public abstract class EnrollInput implements IProfileInput {
 
+    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
+
     protected IConfigStore mConfig = null;
     protected Vector<String> mValueNames = new Vector<String>();
     protected Vector<String> mConfigNames = new Vector<String>();
     protected IProfile mProfile = null;
-
-    protected ILogger mSignedAuditLogger = CMS.getSignedAuditLogger();
 
     /**
      * Initializes this default policy.
@@ -252,18 +254,7 @@ public abstract class EnrollInput implements IProfileInput {
      * @param msg signed audit log message
      */
     protected void audit(String msg) {
-        // in this case, do NOT strip preceding/trailing whitespace
-        // from passed-in String parameters
-
-        if (mSignedAuditLogger == null) {
-            return;
-        }
-
-        mSignedAuditLogger.log(ILogger.EV_SIGNED_AUDIT,
-                null,
-                ILogger.S_SIGNED_AUDIT,
-                ILogger.LL_SECURITY,
-                msg);
+        signedAuditLogger.log(msg);
     }
 
     protected void audit(AuditEvent event) {
@@ -287,10 +278,6 @@ public abstract class EnrollInput implements IProfileInput {
      * @return id string containing the signed audit log message SubjectID
      */
     protected String auditSubjectID() {
-        // if no signed audit object exists, bail
-        if (mSignedAuditLogger == null) {
-            return null;
-        }
 
         String subjectID = null;
 

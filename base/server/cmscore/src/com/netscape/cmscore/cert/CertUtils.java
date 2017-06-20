@@ -43,6 +43,8 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cms.logging.Logger;
+import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmsutil.util.Utils;
 
 import netscape.security.extensions.NSCertTypeExtension;
@@ -73,6 +75,9 @@ import netscape.security.x509.X509Key;
  * @version $Revision$, $Date$
  */
 public class CertUtils {
+
+    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
+
     public static final String CERT_NEW_REQUEST_HEADER = "-----BEGIN NEW CERTIFICATE REQUEST-----";
     public static final String CERT_NEW_REQUEST_TRAILER = "-----END NEW CERTIFICATE REQUEST-----";
     public static final String CERT_REQUEST_HEADER = "-----BEGIN CERTIFICATE REQUEST-----";
@@ -83,8 +88,6 @@ public class CertUtils {
             "-----BEGIN CERTIFICATE REVOCATION LIST-----";
     public static final String END_CRL_HEADER =
             "-----END CERTIFICATE REVOCATION LIST-----";
-
-    protected static ILogger mSignedAuditLogger = CMS.getSignedAuditLogger();
     /**
      * Remove the header and footer in the PKCS10 request.
      */
@@ -1089,17 +1092,7 @@ public class CertUtils {
      * @param msg signed audit log message
      */
     private static void audit(String msg) {
-        // in this case, do NOT strip preceding/trailing whitespace
-        // from passed-in String parameters
-        if (mSignedAuditLogger == null) {
-            return;
-        }
-
-        mSignedAuditLogger.log(ILogger.EV_SIGNED_AUDIT,
-                null,
-                ILogger.S_SIGNED_AUDIT,
-                ILogger.LL_SECURITY,
-                msg);
+        signedAuditLogger.log(msg);
     }
 
     protected void audit(AuditEvent event) {

@@ -87,6 +87,8 @@ import com.netscape.certsrv.profile.IProfileAuthenticator;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cms.logging.Logger;
+import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Utils;
 
@@ -109,6 +111,9 @@ import netscape.security.x509.X509Key;
  */
 public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
         IProfileAuthenticator {
+
+    private static ILogger mLogger = CMS.getLogger();
+    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     ////////////////////////
     // default parameters //
@@ -173,11 +178,6 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
     // Logger parameters //
     ///////////////////////
 
-    /* the system's logger */
-    private ILogger mLogger = CMS.getLogger();
-
-    /* signed audit parameters */
-    private ILogger mSignedAuditLogger = CMS.getSignedAuditLogger();
     private final static String SIGNED_AUDIT_ENROLLMENT_REQUEST_TYPE =
             "enrollment";
     private final static String SIGNED_AUDIT_REVOCATION_REQUEST_TYPE =
@@ -1068,18 +1068,7 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
      * @param msg signed audit log message
      */
     private void audit(String msg) {
-        // in this case, do NOT strip preceding/trailing whitespace
-        // from passed-in String parameters
-
-        if (mSignedAuditLogger == null) {
-            return;
-        }
-
-        mSignedAuditLogger.log(ILogger.EV_SIGNED_AUDIT,
-                null,
-                ILogger.S_SIGNED_AUDIT,
-                ILogger.LL_SECURITY,
-                msg);
+        signedAuditLogger.log(msg);
     }
 
     protected void audit(AuditEvent event) {
@@ -1102,10 +1091,6 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
      * @return id string containing the signed audit log message SubjectID
      */
     private String auditSubjectID() {
-        // if no signed audit object exists, bail
-        if (mSignedAuditLogger == null) {
-            return null;
-        }
 
         String subjectID = null;
 

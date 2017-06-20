@@ -40,6 +40,8 @@ import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
+import com.netscape.cms.logging.Logger;
+import com.netscape.cms.logging.SignedAuditLogger;
 
 import netscape.security.x509.X509CertImpl;
 
@@ -51,10 +53,12 @@ import netscape.security.x509.X509CertImpl;
  */
 public class SubsystemGroupUpdater implements IProfileUpdater {
 
+    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
+
     @SuppressWarnings("unused")
     private IProfile mProfile;
     private IConfigStore mConfig = null;
-    private ILogger mSignedAuditLogger = CMS.getSignedAuditLogger();
+
     private Vector<String> mConfigNames = new Vector<String>();
 
     public SubsystemGroupUpdater() {
@@ -258,15 +262,7 @@ public class SubsystemGroupUpdater implements IProfileUpdater {
     }
 
     private void audit(String msg) {
-        if (mSignedAuditLogger == null) {
-            return;
-        }
-
-        mSignedAuditLogger.log(ILogger.EV_SIGNED_AUDIT,
-                null,
-                ILogger.S_SIGNED_AUDIT,
-                ILogger.LL_SECURITY,
-                msg);
+        signedAuditLogger.log(msg);
     }
 
     protected void audit(AuditEvent event) {
@@ -280,9 +276,6 @@ public class SubsystemGroupUpdater implements IProfileUpdater {
     }
 
     private String auditSubjectID() {
-        if (mSignedAuditLogger == null) {
-            return null;
-        }
 
         String subjectID = null;
 

@@ -160,8 +160,6 @@ public class ProfileServlet extends CMSServlet {
     protected LogSource mLogCategory = ILogger.S_OTHER;
     protected String mProfileSubId = null;
 
-    protected ILogger mSignedAuditLogger = CMS.getSignedAuditLogger();
-
     // stats
     protected LinkedHashSet<String> statEvents = new LinkedHashSet<String>();
 

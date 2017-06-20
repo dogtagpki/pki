@@ -41,8 +41,6 @@ import org.mozilla.jss.pkix.cmc.OtherInfo;
 import org.mozilla.jss.pkix.cmc.TaggedAttribute;
 
 import com.netscape.certsrv.apps.CMS;
-import com.netscape.certsrv.authentication.EInvalidCredentials;
-import com.netscape.certsrv.authentication.EMissingCredential;
 import com.netscape.certsrv.authentication.IAuthManager;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
@@ -1012,10 +1010,6 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
      * @return id string containing the signed audit log message RequesterID
      */
     private String auditRequesterID(IRequest request) {
-        // if no signed audit object exists, bail
-        if (mSignedAuditLogger == null) {
-            return null;
-        }
 
         String requesterID = ILogger.UNIDENTIFIED;
 
