@@ -25,6 +25,57 @@
     },
     {
       "key": {
+        "uuid": "a4f70190_861588a1",
+        "filename": ".test_runner_config.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 1010882
+      },
+      "writtenOn": "2017-06-20T15:40:53Z",
+      "side": 1,
+      "message": "We need to make sure that dnf install does not replace our custom builds of Dogtag. At least you should print out a list of installed versions:\n\nrpm -qa freeipa-server pki-base ...",
+      "revId": "52915a46802fd8d0eef3cedc603d2029bd4e6e4a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a0be117b_94d5ed87",
+        "filename": ".test_runner_config.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 1010882
+      },
+      "writtenOn": "2017-06-20T15:40:53Z",
+      "side": 1,
+      "message": "Are these two lines necessary?",
+      "revId": "52915a46802fd8d0eef3cedc603d2029bd4e6e4a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "81ab9b42_282a59b9",
+        "filename": ".test_runner_config.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 1010882
+      },
+      "writtenOn": "2017-06-20T15:40:53Z",
+      "side": 1,
+      "message": "You can skip the two --help steps. You only need to run IPA\u0027s tests.",
+      "revId": "52915a46802fd8d0eef3cedc603d2029bd4e6e4a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "63b09bd5_db43330c",
         "filename": ".travis.yml",
         "patchSetId": 1
@@ -42,6 +93,57 @@
         "endLine": 62,
         "endChar": 2
       },
+      "revId": "52915a46802fd8d0eef3cedc603d2029bd4e6e4a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "06a5ab57_5e3ba5a5",
+        "filename": ".travis.yml",
+        "patchSetId": 1
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 1010882
+      },
+      "writtenOn": "2017-06-20T15:40:53Z",
+      "side": 1,
+      "message": "I\u0027m not sure it is a good idea to run the FreeIPA tests in the same context as the other Dogtag tests. You are running two big containers the same time.\n\nWe should use two separate Travis jobs, one for Dogtag testing and one for IPA integration testing. This is going to require some changes to travis.yml and helper scripts.",
+      "revId": "52915a46802fd8d0eef3cedc603d2029bd4e6e4a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7f0b509b_ffb9f4dd",
+        "filename": ".travis_run_ipa_task.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 1010882
+      },
+      "writtenOn": "2017-06-20T15:40:53Z",
+      "side": 1,
+      "message": "It\u0027s 2017",
+      "revId": "52915a46802fd8d0eef3cedc603d2029bd4e6e4a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6a25c09c_87d569c0",
+        "filename": ".travis_run_ipa_task.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1010882
+      },
+      "writtenOn": "2017-06-20T15:40:53Z",
+      "side": 1,
+      "message": "Please pre-pull the image in the install step. Since we now have two large docker images, we should consider to cache the images.",
       "revId": "52915a46802fd8d0eef3cedc603d2029bd4e6e4a",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
