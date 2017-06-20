@@ -50,6 +50,7 @@ public class Logger implements ILogger {
     LogFactory factory;
     LogCategory category;
     LogSource source;
+    int level = ILogger.LL_INFO;
 
     public Logger() {
     }
@@ -58,6 +59,13 @@ public class Logger implements ILogger {
         this.factory = factory;
         this.category = category;
         this.source = source;
+    }
+
+    public Logger(LogFactory factory, LogCategory category, LogSource source, int level) {
+        this.factory = factory;
+        this.category = category;
+        this.source = source;
+        this.level = level;
     }
 
     /**
@@ -96,19 +104,24 @@ public class Logger implements ILogger {
     }
 
     //************** default level ****************
+
+    public void log(String msg) {
+        log(category, null, source, level, msg, null);
+    }
+
     /**
-     * Logs an event using default log level: ILogger.LL_INFO
+     * Logs an event using default log level.
      *
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM.
      * @param source the source of the log event
      * @param msg the one line detail message to be logged
      */
     public void log(LogCategory evtClass, LogSource source, String msg) {
-        log(evtClass, null, source, ILogger.LL_INFO, msg, null);
+        log(evtClass, null, source, level, msg, null);
     }
 
     /**
-     * Logs an event using default log level: ILogger.LL_INFO
+     * Logs an event using default log level.
      *
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM.
      * @param props the resource bundle used for the detailed message
@@ -116,7 +129,7 @@ public class Logger implements ILogger {
      * @param msg the one line detail message to be logged
      */
     public void log(LogCategory evtClass, Properties props, LogSource source, String msg) {
-        log(evtClass, props, source, ILogger.LL_INFO, msg, null);
+        log(evtClass, props, source, level, msg, null);
     }
 
     //************** no param ****************
@@ -166,7 +179,7 @@ public class Logger implements ILogger {
     }
 
     /**
-     * Logs an event using default log level: ILogger.LL_INFO
+     * Logs an event using default log level.
      *
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM.
      * @param props the resource bundle used for the detailed message
@@ -175,7 +188,7 @@ public class Logger implements ILogger {
      * @param param the parameter in the detail message
      */
     public void log(LogCategory evtClass, Properties props, LogSource source, String msg, Object param) {
-        log(evtClass, props, source, ILogger.LL_INFO, msg, param);
+        log(evtClass, props, source, level, msg, param);
     }
 
     /**
@@ -197,6 +210,10 @@ public class Logger implements ILogger {
     }
 
     //******************* multiple param **************************
+
+    public void log(int level, String msg, Object params[]) {
+        log(category, null, source, level, msg, params);
+    }
 
     /**
      * Logs an event to the log queue.
@@ -233,7 +250,7 @@ public class Logger implements ILogger {
     //******************** multiline log *************************
     //************** default level ****************
     /**
-     * Logs an event using default log level: ILogger.LL_INFO
+     * Logs an event using default log level.
      *
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM.
      * @param source the source of the log event
@@ -241,11 +258,11 @@ public class Logger implements ILogger {
      * @param multiline true if the message has more than one line, otherwise false
      */
     public void log(LogCategory evtClass, LogSource source, String msg, boolean multiline) {
-        log(evtClass, null, source, ILogger.LL_INFO, msg, null, multiline);
+        log(evtClass, null, source, level, msg, null, multiline);
     }
 
     /**
-     * Logs an event using default log level: ILogger.LL_INFO
+     * Logs an event using default log level.
      *
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM.
      * @param props the resource bundle used for the detailed message
@@ -254,10 +271,14 @@ public class Logger implements ILogger {
      * @param multiline true if the message has more than one line, otherwise false
      */
     public void log(LogCategory evtClass, Properties props, LogSource source, String msg, boolean multiline) {
-        log(evtClass, props, source, ILogger.LL_INFO, msg, null, multiline);
+        log(evtClass, props, source, level, msg, null, multiline);
     }
 
     //************** no param ****************
+
+    public void log(int level, String msg, boolean multiline) {
+        log(category, null, source, level, msg, multiline);
+    }
 
     /**
      * Logs an event to the log queue.
@@ -303,7 +324,7 @@ public class Logger implements ILogger {
     }
 
     /**
-     * Logs an event using default log level: ILogger.LL_INFO
+     * Logs an event using default log level.
      *
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM.
      * @param props the resource bundle used for the detailed message
@@ -313,7 +334,7 @@ public class Logger implements ILogger {
      * @param multiline true if the message has more than one line, otherwise false
      */
     public void log(LogCategory evtClass, Properties props, LogSource source, String msg, Object param, boolean multiline) {
-        log(evtClass, props, source, ILogger.LL_INFO, msg, param, multiline);
+        log(evtClass, props, source, level, msg, param, multiline);
     }
 
     /**
@@ -336,6 +357,10 @@ public class Logger implements ILogger {
     }
 
     //******************* multiple param **************************
+
+    public void log(int level, String msg, Object params[], boolean multiline) {
+        log(category, null, source, level, msg, params, multiline);
+    }
 
     /**
      * Logs an event to the log queue.
