@@ -455,9 +455,8 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
             return response;
 
         } catch (Exception e) {
-            CMS.debug(e);
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_OCSP_SIGN_RESPONSE", e.toString()));
-            return null;
+            throw new EBaseException(e);
         }
 
     }

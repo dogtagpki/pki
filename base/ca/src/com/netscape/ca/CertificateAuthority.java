@@ -2312,6 +2312,11 @@ public class CertificateAuthority
         }
 
         TBSRequest tbsReq = request.getTBSRequest();
+        if (tbsReq.getRequestCount() == 0) {
+            CMS.debug("CertificateAuthority: No request found");
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("OCSP_REQUEST_FAILURE", "No Request Found"));
+            throw new EBaseException("OCSP request is empty");
+        }
 
         /* An OCSP request can contain CertIDs for certificates
          * issued by different CAs, but each SingleResponse is valid
@@ -2451,10 +2456,10 @@ public class CertificateAuthority
             mTotalTime += endTime - startTime;
 
             return response;
-        } catch (Exception e) {
 
+        } catch (EBaseException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_OCSP_REQUEST", e.toString()));
-            throw new EBaseException(e.toString(), e);
+            throw e;
         }
     }
 
