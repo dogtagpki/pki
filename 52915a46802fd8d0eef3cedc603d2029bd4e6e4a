@@ -45,6 +45,23 @@
       "revId": "52915a46802fd8d0eef3cedc603d2029bd4e6e4a",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1614e9_7a0c5b6c",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-06-20T15:16:22Z",
+      "side": 1,
+      "message": "Please add a patch summary before this line.",
+      "revId": "52915a46802fd8d0eef3cedc603d2029bd4e6e4a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
