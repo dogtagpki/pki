@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0b839973_21ccf8e9",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-06-20T15:36:40Z",
+      "side": 1,
+      "message": "This line is quite long which makes it harder to read. Could you wrap the line before the red dotted line?",
+      "revId": "b76798709d342c36151b9580be511dbcafe917b0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
