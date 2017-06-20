@@ -47,6 +47,8 @@ import com.netscape.certsrv.selftests.EMissingSelfTestException;
 import com.netscape.certsrv.selftests.ESelfTestException;
 import com.netscape.certsrv.selftests.ISelfTest;
 import com.netscape.certsrv.selftests.ISelfTestSubsystem;
+import com.netscape.cms.logging.Logger;
+import com.netscape.cms.logging.SignedAuditLogger;
 
 //////////////////////
 // class definition //
@@ -62,6 +64,11 @@ import com.netscape.certsrv.selftests.ISelfTestSubsystem;
  */
 public class SelfTestSubsystem
         implements ISelfTestSubsystem {
+
+    private static ILogEventListener mLogger;
+    private static ILogger mErrorLogger = CMS.getLogger();
+    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
+
     ////////////////////////
     // default parameters //
     ////////////////////////
@@ -77,9 +84,7 @@ public class SelfTestSubsystem
     @SuppressWarnings("unused")
     private ISubsystem mOwner;
     private IConfigStore mConfig = null;
-    private ILogEventListener mLogger = null;
-    private ILogger mErrorLogger = CMS.getLogger();
-    private ILogger mSignedAuditLogger = CMS.getSignedAuditLogger();
+
     private String mRootPrefix = null;
     private String mPrefix = null;
 
@@ -113,18 +118,7 @@ public class SelfTestSubsystem
      * @param msg signed audit log message
      */
     private void audit(String msg) {
-        // in this case, do NOT strip preceding/trailing whitespace
-        // from passed-in String parameters
-
-        if (mSignedAuditLogger == null) {
-            return;
-        }
-
-        mSignedAuditLogger.log(ILogger.EV_SIGNED_AUDIT,
-                null,
-                ILogger.S_SIGNED_AUDIT,
-                ILogger.LL_SECURITY,
-                msg);
+        signedAuditLogger.log(msg);
     }
 
     protected void audit(AuditEvent event) {
@@ -953,8 +947,6 @@ public class SelfTestSubsystem
      * @param msg self test log message
      */
     public void log(ILogEventListener logger, String msg) {
-        // in this case, do NOT strip preceding/trailing whitespace
-        // from passed-in String parameters
 
         if (logger != null) {
             // log the message to the "selftests.log" log

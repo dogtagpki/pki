@@ -47,6 +47,8 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.certsrv.security.ITransportKeyUnit;
+import com.netscape.cms.logging.Logger;
+import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -57,6 +59,9 @@ import netscape.security.util.WrappingParams;
 import netscape.security.x509.X509Key;
 
 public class SecurityDataProcessor {
+
+    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
+
     public final static String ATTR_KEY_RECORD = "keyRecord";
     public static final String ATTR_SERIALNO = "serialNumber";
     private final static String STATUS_ACTIVE = "active";
@@ -65,7 +70,7 @@ public class SecurityDataProcessor {
     private ITransportKeyUnit transportUnit = null;
     private IStorageKeyUnit storageUnit = null;
     private IKeyRepository keyRepository = null;
-    private ILogger signedAuditLogger = CMS.getSignedAuditLogger();
+
     private static boolean allowEncDecrypt_archival = false;
     private static boolean allowEncDecrypt_recovery = false;
 
@@ -829,14 +834,7 @@ public class SecurityDataProcessor {
     }
 
     private void audit(String msg) {
-        if (signedAuditLogger == null)
-            return;
-
-        signedAuditLogger.log(ILogger.EV_SIGNED_AUDIT,
-                null,
-                ILogger.S_SIGNED_AUDIT,
-                ILogger.LL_SECURITY,
-                msg);
+        signedAuditLogger.log(msg);
     }
 
     protected void audit(AuditEvent event) {

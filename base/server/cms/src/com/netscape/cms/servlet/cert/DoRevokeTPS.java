@@ -847,10 +847,6 @@ public class DoRevokeTPS extends CMSServlet {
      * @return id string containing the signed audit log message RequesterID
      */
     private String auditRequesterID(HttpServletRequest req) {
-        // if no signed audit object exists, bail
-        if (mSignedAuditLogger == null) {
-            return null;
-        }
 
         String requesterID = null;
 
@@ -878,10 +874,6 @@ public class DoRevokeTPS extends CMSServlet {
      * @return id string containing the signed audit log message RequesterID
      */
     private String auditSerialNumber(String eeSerialNumber) {
-        // if no signed audit object exists, bail
-        if (mSignedAuditLogger == null) {
-            return null;
-        }
 
         String serialNumber = null;
 
@@ -909,10 +901,6 @@ public class DoRevokeTPS extends CMSServlet {
      * @return string containing REVOKE or ON_HOLD
      */
     private String auditRequestType(int reason) {
-        // if no signed audit object exists, bail
-        if (mSignedAuditLogger == null) {
-            return null;
-        }
 
         String requestType = null;
 

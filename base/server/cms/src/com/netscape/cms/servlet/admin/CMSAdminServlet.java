@@ -105,8 +105,6 @@ public final class CMSAdminServlet extends AdminServlet {
     private final static String PROP_SMTP = "smtp";
     private final static String PROP_INTERNAL_DB = "internaldb";
 
-    private ILogger mSignedAuditLogger = CMS.getSignedAuditLogger();
-
     // CMS must be instantiated before this admin servlet.
 
     /**
@@ -3304,10 +3302,6 @@ public final class CMSAdminServlet extends AdminServlet {
      * @return key string containing the public key
      */
     private String auditPublicKey(KeyPair object) {
-        // if no signed audit object exists, bail
-        if (mSignedAuditLogger == null) {
-            return null;
-        }
 
         if (object == null) {
             return ILogger.SIGNED_AUDIT_EMPTY_VALUE;

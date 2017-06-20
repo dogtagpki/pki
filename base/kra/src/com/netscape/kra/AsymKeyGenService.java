@@ -39,6 +39,8 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.security.IStorageKeyUnit;
+import com.netscape.cms.logging.Logger;
+import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.dbs.KeyRecord;
 
 import netscape.security.util.WrappingParams;
@@ -55,12 +57,13 @@ import netscape.security.util.WrappingParams;
  */
 public class AsymKeyGenService implements IService {
 
+    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
+
     private static final String ATTR_KEY_RECORD = "keyRecord";
     private static final String STATUS_ACTIVE = "active";
 
     private IKeyRecoveryAuthority kra = null;
     private IStorageKeyUnit storageUnit = null;
-    private ILogger signedAuditLogger = CMS.getSignedAuditLogger();
 
     public AsymKeyGenService(IKeyRecoveryAuthority kra) {
         this.kra = kra;
@@ -214,14 +217,7 @@ public class AsymKeyGenService implements IService {
     }
 
     private void audit(String msg) {
-        if (signedAuditLogger == null)
-            return;
-
-        signedAuditLogger.log(ILogger.EV_SIGNED_AUDIT,
-                null,
-                ILogger.S_SIGNED_AUDIT,
-                ILogger.LL_SECURITY,
-                msg);
+        signedAuditLogger.log(msg);
     }
 
     protected void audit(AuditEvent event) {

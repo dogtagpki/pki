@@ -28,18 +28,17 @@ package com.netscape.cms.authentication;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.security.cert.X509Certificate;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.PublicKey;
 import java.security.cert.CertificateExpiredException;
+import java.security.cert.X509Certificate;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Locale;
 import java.util.Vector;
 
 import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.CryptoManager.NotInitializedException;
 import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.BIT_STRING;
 import org.mozilla.jss.asn1.INTEGER;
@@ -90,6 +89,8 @@ import com.netscape.certsrv.profile.IProfileAuthenticator;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cms.logging.Logger;
+import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Utils;
 
@@ -124,6 +125,9 @@ import netscape.security.x509.X509Key;
  */
 public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
         IProfileAuthenticator {
+
+    private static ILogger mLogger = CMS.getLogger();
+    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     ////////////////////////
     // default parameters //
@@ -193,11 +197,6 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
     // Logger parameters //
     ///////////////////////
 
-    /* the system's logger */
-    private ILogger mLogger = CMS.getLogger();
-
-    /* signed audit parameters */
-    private ILogger mSignedAuditLogger = CMS.getSignedAuditLogger();
     private final static String SIGNED_AUDIT_ENROLLMENT_REQUEST_TYPE = "enrollment";
     private final static String SIGNED_AUDIT_REVOCATION_REQUEST_TYPE = "revocation";
 
@@ -276,7 +275,7 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
         if (clientCert != null) {
             try {
                 createAuditSubjectFromCert(auditContext, clientCert);
-            } catch (IOException e) { 
+            } catch (IOException e) {
                //unlikely, and not necessarily required at this point
                CMS.debug("CMSUserSignedAuth: authenticate: after createAuditSubjectFromCert call; " + e);
             }
@@ -1292,18 +1291,7 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
      * @param msg signed audit log message
      */
     private void audit(String msg) {
-        // in this case, do NOT strip preceding/trailing whitespace
-        // from passed-in String parameters
-
-        if (mSignedAuditLogger == null) {
-            return;
-        }
-
-        mSignedAuditLogger.log(ILogger.EV_SIGNED_AUDIT,
-                null,
-                ILogger.S_SIGNED_AUDIT,
-                ILogger.LL_SECURITY,
-                msg);
+        signedAuditLogger.log(msg);
     }
 
     protected void audit(AuditEvent event) {
@@ -1326,10 +1314,6 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
      * @return id string containing the signed audit log message SubjectID
      */
     private String getAuditSubjectID() {
-        // if no signed audit object exists, bail
-        if (mSignedAuditLogger == null) {
-            return null;
-        }
 
         String subjectID = null;
 

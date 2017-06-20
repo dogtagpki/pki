@@ -29,6 +29,8 @@ import com.netscape.certsrv.logging.event.SecurityDataRecoveryProcessedEvent;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.RequestId;
+import com.netscape.cms.logging.Logger;
+import com.netscape.cms.logging.SignedAuditLogger;
 
 /**
  * This implementation services SecurityData Recovery requests.
@@ -38,9 +40,10 @@ import com.netscape.certsrv.request.RequestId;
  */
 public class SecurityDataRecoveryService implements IService {
 
+    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
+
     private IKeyRecoveryAuthority kra = null;
     private SecurityDataProcessor processor = null;
-    private ILogger signedAuditLogger = CMS.getSignedAuditLogger();
 
     public SecurityDataRecoveryService(IKeyRecoveryAuthority kra) {
         this.kra = kra;
@@ -107,14 +110,7 @@ public class SecurityDataRecoveryService implements IService {
     }
 
     private void audit(String msg) {
-        if (signedAuditLogger == null)
-            return;
-
-        signedAuditLogger.log(ILogger.EV_SIGNED_AUDIT,
-                null,
-                ILogger.S_SIGNED_AUDIT,
-                ILogger.LL_SECURITY,
-                msg);
+        signedAuditLogger.log(msg);
     }
 
     private void auditRecoveryRequestProcessed(String subjectID, String status, RequestId requestID,

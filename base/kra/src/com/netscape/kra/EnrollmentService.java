@@ -60,6 +60,8 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.certsrv.security.ITransportKeyUnit;
 import com.netscape.certsrv.util.IStatsSubsystem;
+import com.netscape.cms.logging.Logger;
+import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.servlet.key.KeyRecordParser;
 import com.netscape.cmscore.crmf.CRMFParser;
 import com.netscape.cmscore.crmf.PKIArchiveOptionsContainer;
@@ -94,6 +96,8 @@ import netscape.security.x509.X509Key;
  */
 public class EnrollmentService implements IService {
 
+    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
+
     // constants
     public static final String CRMF_REQUEST = "CRMFRequest";
     public final static String ATTR_KEY_RECORD = "keyRecord";
@@ -104,7 +108,6 @@ public class EnrollmentService implements IService {
     private IKeyRecoveryAuthority mKRA = null;
     private ITransportKeyUnit mTransportUnit = null;
     private IStorageKeyUnit mStorageUnit = null;
-    private ILogger mSignedAuditLogger = CMS.getSignedAuditLogger();
 
     /**
      * Constructs request processor.
@@ -886,10 +889,6 @@ public class EnrollmentService implements IService {
      * @return key string containing the certificate's public key
      */
     private String auditPublicKey(KeyRecord rec) {
-        // if no signed audit object exists, bail
-        if (mSignedAuditLogger == null) {
-            return null;
-        }
 
         if (rec == null) {
             return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
@@ -933,10 +932,6 @@ public class EnrollmentService implements IService {
      */
 
     private String auditSubjectID() {
-        // if no signed audit object exists, bail
-        if (mSignedAuditLogger == null) {
-            return null;
-        }
 
         String subjectID = null;
 
@@ -969,10 +964,6 @@ public class EnrollmentService implements IService {
      * @return id string containing the signed audit log message RequesterID
      */
     private String auditRequesterID() {
-        // if no signed audit object exists, bail
-        if (mSignedAuditLogger == null) {
-            return null;
-        }
 
         String requesterID = null;
 
@@ -1004,18 +995,7 @@ public class EnrollmentService implements IService {
      * @param msg signed audit log message
      */
     private void audit(String msg) {
-        // in this case, do NOT strip preceding/trailing whitespace
-        // from passed-in String parameters
-
-        if (mSignedAuditLogger == null) {
-            return;
-        }
-
-        mSignedAuditLogger.log(ILogger.EV_SIGNED_AUDIT,
-                null,
-                ILogger.S_SIGNED_AUDIT,
-                ILogger.LL_SECURITY,
-                msg);
+        signedAuditLogger.log(msg);
     }
 
     protected void audit(AuditEvent event) {

@@ -78,6 +78,8 @@ import com.netscape.certsrv.security.Credential;
 import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.certsrv.security.ITransportKeyUnit;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
+import com.netscape.cms.logging.Logger;
+import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.dbs.KeyRepository;
@@ -101,6 +103,8 @@ import netscape.security.x509.X509CertImpl;
  * @version $Revision$, $Date$
  */
 public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecoveryAuthority {
+
+    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     public final static String OFFICIAL_NAME = "Data Recovery Manager";
 
@@ -150,7 +154,6 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     // for the notification listener
     public IRequestListener mReqInQListener = null;
 
-    private ILogger mSignedAuditLogger = CMS.getSignedAuditLogger();
     private final static String SIGNED_AUDIT_AGENT_DELIMITER = ", ";
     /**
      * Constructs an escrow authority.
@@ -1534,18 +1537,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
      * @param msg signed audit log message
      */
     private void audit(String msg) {
-        // in this case, do NOT strip preceding/trailing whitespace
-        // from passed-in String parameters
-
-        if (mSignedAuditLogger == null) {
-            return;
-        }
-
-        mSignedAuditLogger.log(ILogger.EV_SIGNED_AUDIT,
-                null,
-                ILogger.S_SIGNED_AUDIT,
-                ILogger.LL_SECURITY,
-                msg);
+        signedAuditLogger.log(msg);
     }
 
     protected void audit(AuditEvent event) {
@@ -1568,10 +1560,6 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
      * @return id string containing the signed audit log message SubjectID
      */
     private String auditSubjectID() {
-        // if no signed audit object exists, bail
-        if (mSignedAuditLogger == null) {
-            return null;
-        }
 
         String subjectID = null;
 
@@ -1604,10 +1592,6 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
      * @return id string containing the signed audit log message RequesterID
      */
     private String auditRequesterID() {
-        // if no signed audit object exists, bail
-        if (mSignedAuditLogger == null) {
-            return null;
-        }
 
         String requesterID = null;
 
@@ -1656,10 +1640,6 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
      * @return key string containing the certificate's public key
      */
     private String auditPublicKey(X509Certificate cert) {
-        // if no signed audit object exists, bail
-        if (mSignedAuditLogger == null) {
-            return null;
-        }
 
         if (cert == null) {
             return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
@@ -1689,10 +1669,6 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
      * @return key string containing the certificate's public key
      */
     private String auditPublicKey(KeyRecord rec) {
-        // if no signed audit object exists, bail
-        if (mSignedAuditLogger == null) {
-            return null;
-        }
 
         if (rec == null) {
             return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
@@ -1744,11 +1720,6 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     private String auditAgents(Credential creds[]) {
         if (creds == null)
             return null;
-
-        // if no signed audit object exists, bail
-        if (mSignedAuditLogger == null) {
-            return null;
-        }
 
         String agents = ILogger.SIGNED_AUDIT_EMPTY_VALUE;
 

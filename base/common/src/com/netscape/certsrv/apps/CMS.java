@@ -36,10 +36,10 @@ import org.dogtagpki.legacy.policy.ISubjAltNameConfig;
 import org.mozilla.jss.CryptoManager.CertificateUsage;
 import org.mozilla.jss.util.PasswordCallback;
 
-import com.netscape.certsrv.authentication.ISharedToken;
 import com.netscape.certsrv.acls.EACLsException;
 import com.netscape.certsrv.acls.IACL;
 import com.netscape.certsrv.authentication.IAuthSubsystem;
+import com.netscape.certsrv.authentication.ISharedToken;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.authorization.IAuthzSubsystem;
 import com.netscape.certsrv.base.EBaseException;
@@ -304,17 +304,6 @@ public final class CMS {
      */
     public static IAuditor getAuditor() {
         return _engine.getAuditor();
-    }
-
-    /**
-     * Returns the signed audit logger of the current server. This logger can
-     * be used to log critical informational or critical error
-     * messages.
-     *
-     * @return signed audit logger
-     */
-    public static ILogger getSignedAuditLogger() {
-        return _engine.getSignedAuditLogger();
     }
 
     /**

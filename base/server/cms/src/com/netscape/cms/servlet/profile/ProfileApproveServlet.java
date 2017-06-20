@@ -472,10 +472,6 @@ public class ProfileApproveServlet extends ProfileServlet {
      * @return id string containing the signed audit log message ProfileID
      */
     private String auditProfileID(HttpServletRequest req) {
-        // if no signed audit object exists, bail
-        if (mSignedAuditLogger == null) {
-            return null;
-        }
 
         String profileID = null;
 
@@ -503,10 +499,6 @@ public class ProfileApproveServlet extends ProfileServlet {
      *         or SIGNED_AUDIT_EMPTY_VALUE
      */
     private String auditProfileOp(HttpServletRequest req) {
-        // if no signed audit object exists, bail
-        if (mSignedAuditLogger == null) {
-            return null;
-        }
 
         if (mProfileSubId == null ||
                 mProfileSubId.equals("")) {

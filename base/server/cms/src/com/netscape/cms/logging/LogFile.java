@@ -49,7 +49,6 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.LinkedHashSet;
 import java.util.Locale;
-import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
 
@@ -87,6 +86,9 @@ import com.netscape.cmsutil.util.Utils;
  * @version $Revision$, $Date$
  **/
 public class LogFile implements ILogEventListener, IExtendedPluginInfo {
+
+    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
+
     public static final String PROP_TYPE = "type";
     public static final String PROP_REGISTER = "register";
     public static final String PROP_ON = "enable";
@@ -106,7 +108,6 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
     private final static String LOG_SIGNED_AUDIT_EXCEPTION =
                                "LOG_SIGNED_AUDIT_EXCEPTION_1";
 
-    protected ILogger mSignedAuditLogger = CMS.getSignedAuditLogger();
     protected IConfigStore mConfig = null;
 
     /**
@@ -728,14 +729,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
                 ILogger.SUCCESS,
                 base64Encode(sigBytes));
 
-        if (mSignedAuditLogger == null) {
-            return;
-        }
-
-        ILogEvent ev = mSignedAuditLogger.create(
-                ILogger.EV_SIGNED_AUDIT,
-                (Properties) null,
-                ILogger.S_SIGNED_AUDIT,
+        ILogEvent ev = signedAuditLogger.create(
                 ILogger.LL_SECURITY,
                 auditMessage,
                 o,
@@ -1535,18 +1529,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
      * @param msg signed audit log message
      */
     protected void audit(String msg) {
-        // in this case, do NOT strip preceding/trailing whitespace
-        // from passed-in String parameters
-
-        if (mSignedAuditLogger == null) {
-            return;
-        }
-
-        mSignedAuditLogger.log(ILogger.EV_SIGNED_AUDIT,
-                                null,
-                                ILogger.S_SIGNED_AUDIT,
-                                ILogger.LL_SECURITY,
-                                msg);
+        signedAuditLogger.log(msg);
     }
 
     protected void audit(AuditEvent event) {

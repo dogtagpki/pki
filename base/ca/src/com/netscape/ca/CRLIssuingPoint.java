@@ -64,6 +64,8 @@ import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.IRequestVirtualList;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.util.IStatsSubsystem;
+import com.netscape.cms.logging.Logger;
+import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.dbs.CRLIssuingPointRecord;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
@@ -106,6 +108,9 @@ import netscape.security.x509.X509CertImpl;
 
 public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
+    private static ILogger mLogger = CMS.getLogger();
+    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
+
     /* Foreign config param for IssuingDistributionPointExtension. */
     public static final String PROP_CACERTS = "onlyContainsCACerts";
 
@@ -119,8 +124,6 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     /* configuration file property names */
 
     public IPublisherProcessor mPublisherProcessor = null;
-
-    private ILogger mLogger = CMS.getLogger();
 
     private IConfigStore mConfigStore;
 
@@ -3189,19 +3192,12 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
     void audit(AuditEvent event) {
 
-        ILogger logger = CMS.getSignedAuditLogger();
-        if (logger == null) return;
-
         String messageID = event.getMessage();
         Object[] params = event.getParameters();
 
         String message = CMS.getLogMessage(messageID, params);
 
-        logger.log(ILogger.EV_SIGNED_AUDIT,
-                null,
-                ILogger.S_SIGNED_AUDIT,
-                ILogger.LL_SECURITY,
-                message);
+        signedAuditLogger.log(message);
     }
 }
 

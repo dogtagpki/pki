@@ -59,6 +59,8 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
+import com.netscape.cms.logging.Logger;
+import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 
@@ -83,9 +85,10 @@ import netscape.security.x509.X509CertInfo;
  * @version $Revision$, $Date$
  */
 public class ConnectorServlet extends CMSServlet {
-    /**
-     *
-     */
+
+    private static ILogger mLogger = CMS.getLogger();
+    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
+
     private static final long serialVersionUID = 1221916495803185863L;
     public static final String INFO = "Connector Servlet";
     public final static String PROP_AUTHORITY = "authority";
@@ -93,9 +96,7 @@ public class ConnectorServlet extends CMSServlet {
     protected IAuthority mAuthority = null;
     protected IRequestEncoder mReqEncoder = null;
     protected IAuthSubsystem mAuthSubsystem = null;
-    protected ILogger mLogger = CMS.getLogger();
 
-    protected ILogger mSignedAuditLogger = CMS.getSignedAuditLogger();
     private final static String SIGNED_AUDIT_PROTECTION_METHOD_SSL = "ssl";
 
     public ConnectorServlet() {
@@ -986,18 +987,7 @@ public class ConnectorServlet extends CMSServlet {
      * @param msg signed audit log message
      */
     protected void audit(String msg) {
-        // in this case, do NOT strip preceding/trailing whitespace
-        // from passed-in String parameters
-
-        if (mSignedAuditLogger == null) {
-            return;
-        }
-
-        mSignedAuditLogger.log(ILogger.EV_SIGNED_AUDIT,
-                null,
-                ILogger.S_SIGNED_AUDIT,
-                ILogger.LL_SECURITY,
-                msg);
+        signedAuditLogger.log(msg);
     }
 
     protected void audit(AuditEvent event) {
@@ -1021,10 +1011,6 @@ public class ConnectorServlet extends CMSServlet {
      * @return id string containing the signed audit log message ProfileID
      */
     protected String auditProfileID() {
-        // if no signed audit object exists, bail
-        if (mSignedAuditLogger == null) {
-            return null;
-        }
 
         String profileID = getId();
 

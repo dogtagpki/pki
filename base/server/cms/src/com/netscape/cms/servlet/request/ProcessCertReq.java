@@ -1733,14 +1733,8 @@ public class ProcessCertReq extends CMSServlet {
      * @return id string containing the signed audit log message InfoName
      */
     private String auditInfoName(String type) {
-        // in this case, do NOT strip preceding/trailing whitespace
-        // from passed-in String parameters (this is done below)
 
         String infoName = ILogger.UNIDENTIFIED;
-
-        if (mSignedAuditLogger == null) {
-            return infoName;
-        }
 
         if (type != null) {
             type = type.trim();

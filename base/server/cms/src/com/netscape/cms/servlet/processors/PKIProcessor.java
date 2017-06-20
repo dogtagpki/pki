@@ -34,6 +34,8 @@ import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogCategory;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cms.logging.Logger;
+import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.ECMSGWException;
 
@@ -50,6 +52,8 @@ import netscape.security.x509.X509CertInfo;
  */
 public class PKIProcessor implements IPKIProcessor {
 
+    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
+
     public final static String ADMIN_ENROLL_SERVLET_ID = "caadminEnroll";
     public static final String SUBJECT_NAME = "subject";
     public static final String OLD_CERT_TYPE = "csrCertType";
@@ -62,8 +66,6 @@ public class PKIProcessor implements IPKIProcessor {
     protected HttpServletRequest httpReq = null;
     protected String mServletId = null;
     protected CMSServlet mServlet = null;
-
-    protected ILogger mSignedAuditLogger = CMS.getSignedAuditLogger();
 
     public PKIProcessor() {
     }
@@ -304,18 +306,7 @@ public class PKIProcessor implements IPKIProcessor {
      * @param msg signed audit log message
      */
     protected void audit(String msg) {
-        // in this case, do NOT strip preceding/trailing whitespace
-        // from passed-in String parameters
-
-        if (mSignedAuditLogger == null) {
-            return;
-        }
-
-        mSignedAuditLogger.log(ILogger.EV_SIGNED_AUDIT,
-                null,
-                ILogger.S_SIGNED_AUDIT,
-                ILogger.LL_SECURITY,
-                msg);
+        signedAuditLogger.log(msg);
     }
 
     protected void audit(AuditEvent event) {
@@ -339,10 +330,6 @@ public class PKIProcessor implements IPKIProcessor {
      * @return id string containing the signed audit log message SubjectID
      */
     protected String auditSubjectID() {
-        // if no signed audit object exists, bail
-        if (mSignedAuditLogger == null) {
-            return null;
-        }
 
         String subjectID = null;
 

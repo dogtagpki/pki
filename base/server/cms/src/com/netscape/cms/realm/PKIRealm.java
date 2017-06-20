@@ -24,6 +24,8 @@ import com.netscape.certsrv.usrgrp.EUsrGrpException;
 import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
+import com.netscape.cms.logging.Logger;
+import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.servlet.common.AuthCredentials;
 
 import netscape.security.x509.X509CertImpl;
@@ -37,7 +39,9 @@ import netscape.security.x509.X509CertImpl;
  */
 
 public class PKIRealm extends RealmBase {
-    protected ILogger signedAuditLogger = CMS.getSignedAuditLogger();
+
+    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
+
     @Override
     protected String getName() {
         return "PKIRealm";
@@ -208,18 +212,7 @@ public class PKIRealm extends RealmBase {
      * @param msg signed audit log message
      */
     protected void audit(String msg) {
-        // in this case, do NOT strip preceding/trailing whitespace
-        // from passed-in String parameters
-
-        if (signedAuditLogger == null) {
-            return;
-        }
-
-        signedAuditLogger.log(ILogger.EV_SIGNED_AUDIT,
-                null,
-                ILogger.S_SIGNED_AUDIT,
-                ILogger.LL_SECURITY,
-                msg);
+        signedAuditLogger.log(msg);
     }
 
     protected void audit(AuditEvent event) {

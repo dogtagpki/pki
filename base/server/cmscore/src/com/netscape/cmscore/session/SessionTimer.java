@@ -25,10 +25,15 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.ISecurityDomainSessionTable;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cms.logging.Logger;
+import com.netscape.cms.logging.SignedAuditLogger;
 
 public class SessionTimer extends TimerTask {
+
+    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
+
     private ISecurityDomainSessionTable m_sessiontable = null;
-    private ILogger mSignedAuditLogger = CMS.getSignedAuditLogger();
+
     public SessionTimer(ISecurityDomainSessionTable table) {
         super();
         m_sessiontable = table;
@@ -64,11 +69,7 @@ public class SessionTimer extends TimerTask {
                                          ILogger.SUCCESS,
                                          auditParams);
 
-                mSignedAuditLogger.log(ILogger.EV_SIGNED_AUDIT,
-                                       null,
-                                       ILogger.S_SIGNED_AUDIT,
-                                       ILogger.LL_SECURITY,
-                                       auditMessage);
+                signedAuditLogger.log(auditMessage);
 
             }
         }

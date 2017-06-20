@@ -29,6 +29,8 @@ import com.netscape.certsrv.logging.IAuditor;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
+import com.netscape.cms.logging.Logger;
+import com.netscape.cms.logging.SignedAuditLogger;
 
 /**
  * @author Endi S. Dewata
@@ -37,7 +39,7 @@ public class Auditor implements IAuditor {
 
     public final static Auditor auditor = new Auditor();
 
-    public ILogger signedAuditLogger = CMS.getSignedAuditLogger();
+    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     public static IAuditor getAuditor() {
         return auditor;
@@ -45,8 +47,6 @@ public class Auditor implements IAuditor {
 
     @Override
     public String getSubjectID() {
-        // if no signed audit object exists, bail
-        if (signedAuditLogger == null) return null;
 
         SessionContext context = SessionContext.getExistingContext();
         if (context == null) return ILogger.UNIDENTIFIED;
@@ -60,8 +60,6 @@ public class Auditor implements IAuditor {
 
     @Override
     public String getGroups(String subjectID) {
-        // if no signed audit object exists, bail
-        if (signedAuditLogger == null) return null;
 
         if (subjectID == null || subjectID.equals(ILogger.UNIDENTIFIED))
             return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
@@ -95,9 +93,6 @@ public class Auditor implements IAuditor {
     @Override
     public String getParamString(String scope, String type, String id, Map<String, String> params) {
 
-        // if no signed audit object exists, bail
-        if (signedAuditLogger == null)
-            return null;
         StringBuilder parameters = new StringBuilder();
 
         // always identify the scope of the request
@@ -209,15 +204,7 @@ public class Auditor implements IAuditor {
 
     @Override
     public void log(String message) {
-
-        if (signedAuditLogger == null) return;
-
-        signedAuditLogger.log(
-                ILogger.EV_SIGNED_AUDIT,
-                null,
-                ILogger.S_SIGNED_AUDIT,
-                ILogger.LL_SECURITY,
-                message);
+        signedAuditLogger.log(message);
     }
 
     @Override

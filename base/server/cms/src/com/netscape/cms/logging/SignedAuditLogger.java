@@ -17,6 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.logging;
 
+import com.netscape.certsrv.logging.ILogger;
+
 /**
  * A class represents certificate server logger
  * implementation.
@@ -28,12 +30,17 @@ package com.netscape.cms.logging;
  */
 public class SignedAuditLogger extends Logger {
 
-    /**
-     * Constructs a generic logger, and registers a list
-     * of resident event factories.
-     */
+    private final static SignedAuditLogger logger =
+            new SignedAuditLogger();
+
     public SignedAuditLogger() {
-        super();
-        register(EV_SIGNED_AUDIT, new SignedAuditEventFactory());
+        super(new SignedAuditEventFactory(),
+                ILogger.EV_SIGNED_AUDIT,
+                ILogger.S_SIGNED_AUDIT,
+                ILogger.LL_SECURITY);
+    }
+
+    public static SignedAuditLogger getLogger() {
+        return logger;
     }
 }

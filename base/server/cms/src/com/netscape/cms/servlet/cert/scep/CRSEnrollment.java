@@ -87,6 +87,8 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
+import com.netscape.cms.logging.Logger;
+import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.servlet.profile.SSLClientCertProvider;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.scep.CRSPKIMessage;
@@ -136,10 +138,11 @@ import netscape.security.x509.X509Key;
  * @version $Revision$, $Date$
  */
 public class CRSEnrollment extends HttpServlet {
-    /**
-     *
-     */
+
+    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
+
     private static final long serialVersionUID = 8483002540957382369L;
+
     protected IProfileSubsystem mProfileSubsystem = null;
     protected String mProfileId = null;
     protected ICertAuthority mAuthority;
@@ -1502,12 +1505,7 @@ public class CRSEnrollment extends HttpServlet {
                             req.getTransactionID(),
                             "CRSEnrollment",
                             ILogger.SIGNED_AUDIT_EMPTY_VALUE);
-                ILogger signedAuditLogger = CMS.getSignedAuditLogger();
-                if (signedAuditLogger != null) {
-                    signedAuditLogger.log(ILogger.EV_SIGNED_AUDIT,
-                            null, ILogger.S_SIGNED_AUDIT,
-                            ILogger.LL_SECURITY, auditMessage);
-                }
+                signedAuditLogger.log(auditMessage);
 
                 return null;
             } else {

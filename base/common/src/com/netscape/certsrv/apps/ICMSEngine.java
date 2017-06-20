@@ -208,15 +208,6 @@ public interface ICMSEngine extends ISubsystem {
     public IAuditor getAuditor();
 
     /**
-     * Returns the signed audit logger of the current server. This logger can
-     * be used to log critical informational or critical error
-     * messages.
-     *
-     * @return signed audit logger
-     */
-    public ILogger getSignedAuditLogger();
-
-    /**
      * Puts data of an byte array into the debug file.
      *
      * @param data byte array to be recorded in the debug file
