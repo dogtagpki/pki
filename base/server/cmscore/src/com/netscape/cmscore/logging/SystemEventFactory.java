@@ -19,6 +19,7 @@ package com.netscape.cmscore.logging;
 
 import java.util.Properties;
 
+import com.netscape.certsrv.logging.LogCategory;
 import com.netscape.certsrv.logging.IBundleLogEvent;
 import com.netscape.certsrv.logging.ILogEvent;
 import com.netscape.certsrv.logging.ILogEventFactory;
@@ -57,7 +58,7 @@ public class SystemEventFactory implements ILogEventFactory {
      * @param msg the detail message of the log
      * @param params the parameters in the detail log message
      */
-    public ILogEvent create(int evtClass, Properties prop, int source,
+    public ILogEvent create(LogCategory evtClass, Properties prop, int source,
             int level, boolean multiline, String msg, Object params[]) {
         if (evtClass != ILogger.EV_SYSTEM)
             return null;

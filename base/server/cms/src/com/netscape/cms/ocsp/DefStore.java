@@ -50,6 +50,7 @@ import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.LogCategory;
 import com.netscape.certsrv.ocsp.IDefStore;
 import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.certsrv.util.IStatsSubsystem;
@@ -284,7 +285,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
         }
     }
 
-    public void log(int event, int level, String msg) {
+    public void log(LogCategory event, int level, String msg) {
         mOCSPAuthority.log(event, level, msg);
     }
 
