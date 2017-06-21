@@ -62,7 +62,6 @@ import org.mozilla.jss.util.PasswordCallback;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import com.netscape.certsrv.authentication.ISharedToken;
 import com.netscape.certsrv.acls.ACL;
 import com.netscape.certsrv.acls.ACLEntry;
 import com.netscape.certsrv.acls.EACLsException;
@@ -70,6 +69,7 @@ import com.netscape.certsrv.acls.IACL;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.apps.ICMSEngine;
 import com.netscape.certsrv.apps.ICommandQueue;
+import com.netscape.certsrv.authentication.ISharedToken;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
@@ -149,7 +149,6 @@ import com.netscape.cmscore.ldapconn.PKISocketFactory;
 import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.logging.LogSubsystem;
 import com.netscape.cmscore.logging.Logger;
-import com.netscape.cmscore.logging.SignedAuditLogger;
 import com.netscape.cmscore.notification.EmailFormProcessor;
 import com.netscape.cmscore.notification.EmailResolverKeys;
 import com.netscape.cmscore.notification.EmailTemplate;
@@ -1954,7 +1953,7 @@ public class CMSEngine implements ICMSEngine {
     }
 
     public ILogger getSignedAuditLogger() {
-        return SignedAuditLogger.getLogger();
+        return Logger.getLogger();
     }
 
     /**
