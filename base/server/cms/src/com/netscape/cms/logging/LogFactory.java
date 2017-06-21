@@ -15,7 +15,7 @@
 // (C) 2007 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
-package com.netscape.cmscore.logging;
+package com.netscape.cms.logging;
 
 import java.util.Properties;
 
