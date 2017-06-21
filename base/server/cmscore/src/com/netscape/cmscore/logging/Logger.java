@@ -21,7 +21,6 @@ import java.util.Hashtable;
 import java.util.Properties;
 
 import com.netscape.certsrv.logging.ILogEvent;
-import com.netscape.certsrv.logging.ILogEventFactory;
 import com.netscape.certsrv.logging.ILogQueue;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogCategory;
@@ -40,17 +39,25 @@ public class Logger implements ILogger {
 
     protected static Logger mLogger = new Logger();
     protected ILogQueue mLogQueue = LogQueue.getLogQueue();
-    protected Hashtable<LogCategory, ILogEventFactory> mFactories = new Hashtable<LogCategory, ILogEventFactory>();
+    protected static Hashtable<LogCategory, LogFactory> mFactories = new Hashtable<LogCategory, LogFactory>();
 
-    /**
-     * Constructs a generic logger, and registers a list
-     * of resident event factories.
-     */
-    public Logger() {
-        // register standard event factories
+    static {
         register(EV_AUDIT, new AuditEventFactory());
         register(EV_SYSTEM, new SystemEventFactory());
         register(EV_SIGNED_AUDIT, new SignedAuditEventFactory());
+    }
+
+    LogFactory factory;
+    LogCategory category;
+    LogSource source;
+
+    public Logger() {
+    }
+
+    public Logger(LogFactory factory, LogCategory category, LogSource source) {
+        this.factory = factory;
+        this.category = category;
+        this.source = source;
     }
 
     /**
@@ -58,6 +65,17 @@ public class Logger implements ILogger {
      */
     static public Logger getLogger() {
         return mLogger;
+    }
+
+    public static Logger getLogger(LogCategory category, LogSource source) {
+
+        LogFactory factory = mFactories.get(category);
+
+        if (factory == null) {
+            throw new RuntimeException("Unknown logger category: " + category);
+        }
+
+        return factory.createLogger(category, source);
     }
 
     /**
@@ -73,7 +91,7 @@ public class Logger implements ILogger {
      * @param evtClass the event class name: ILogger.EV_SYSTEM or ILogger.EV_AUDIT
      * @param f the event factory name
      */
-    public void register(LogCategory evtClass, ILogEventFactory f) {
+    public static void register(LogCategory evtClass, LogFactory f) {
         mFactories.put(evtClass, f);
     }
 
@@ -102,6 +120,10 @@ public class Logger implements ILogger {
     }
 
     //************** no param ****************
+
+    public void log(int level, String msg) {
+        log(category, null, source, level, msg);
+    }
 
     /**
      * Logs an event to the log queue.
@@ -351,6 +373,10 @@ public class Logger implements ILogger {
 
     //******************** end  multiline log *************************
 
+    public ILogEvent create(int level, String msg, Object params[], boolean multiline) {
+        return create(category, null, source, level, msg, params, multiline);
+    }
+
     /**
      * Creates generic log event. If required, we can recycle
      * events here.
@@ -358,10 +384,13 @@ public class Logger implements ILogger {
     //XXXXXXXXXXX prop is out dated!!!! XXXXXXXXXXXXXXX
     public ILogEvent create(LogCategory evtClass, Properties prop, LogSource source, int level,
             String msg, Object params[], boolean multiline) {
-        ILogEventFactory f = mFactories.get(evtClass);
 
-        if (f == null)
-            return null;
+        LogFactory f = factory == null ? mFactories.get(evtClass) : factory;
+
+        if (f == null) {
+            throw new RuntimeException("Unknown logger category: " + evtClass);
+        }
+
         return f.create(evtClass, prop, source, level, multiline, msg, params);
     }
 

@@ -69,9 +69,6 @@ public class LoggerDefaultStub implements ILogger {
         return null;
     }
 
-    public void register(LogCategory evtClass, ILogEventFactory f) {
-    }
-
     public ILogQueue getLogQueue() {
         return null;
     }
