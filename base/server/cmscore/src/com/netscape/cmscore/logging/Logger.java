@@ -22,8 +22,8 @@ import java.util.Properties;
 
 import com.netscape.certsrv.logging.ILogEvent;
 import com.netscape.certsrv.logging.ILogEventFactory;
-import com.netscape.certsrv.logging.ILogQueue;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cms.logging.LogQueue;
 
 /**
  * A class represents certificate server logger
@@ -37,7 +37,7 @@ import com.netscape.certsrv.logging.ILogger;
 public class Logger implements ILogger {
 
     protected static Logger mLogger = new Logger();
-    protected ILogQueue mLogQueue = null;
+    protected LogQueue mLogQueue = LogQueue.getInstance();
     protected Hashtable<Integer, ILogEventFactory> mFactories = new Hashtable<Integer, ILogEventFactory>();
 
     /**
@@ -45,8 +45,6 @@ public class Logger implements ILogger {
      * of resident event factories.
      */
     public Logger() {
-        mLogQueue = LogSubsystem.getLogQueue();
-
         // register standard event factories
         register(EV_AUDIT, new AuditEventFactory());
         register(EV_SYSTEM, new SystemEventFactory());
@@ -58,13 +56,6 @@ public class Logger implements ILogger {
      */
     static public Logger getLogger() {
         return mLogger;
-    }
-
-    /**
-     * Retrieves the associated log queue.
-     */
-    public ILogQueue getLogQueue() {
-        return mLogQueue;
     }
 
     /**

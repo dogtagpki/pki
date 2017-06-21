@@ -442,12 +442,12 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
 
         if (mOn) {
             if (mRegister) {
-                CMS.getLogger().getLogQueue().addLogEventListener(this);
+                LogQueue.getInstance().addLogEventListener(this);
             }
         } else {
             // shutdown the listener, remove the listener
             if (mRegister) {
-                CMS.getLogger().getLogQueue().removeLogEventListener(this);
+                LogQueue.getInstance().removeLogEventListener(this);
                 shutdown();
             }
         }

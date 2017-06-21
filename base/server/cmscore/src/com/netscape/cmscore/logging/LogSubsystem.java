@@ -27,7 +27,6 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.logging.ELogException;
 import com.netscape.certsrv.logging.ILogEventListener;
-import com.netscape.certsrv.logging.ILogQueue;
 import com.netscape.certsrv.logging.ILogSubsystem;
 import com.netscape.certsrv.logging.LogPlugin;
 import com.netscape.cms.logging.LogQueue;
@@ -44,7 +43,7 @@ import com.netscape.cmscore.util.Debug;
 public class LogSubsystem implements ILogSubsystem {
 
     private static LogSubsystem mInstance = new LogSubsystem();
-    private static ILogQueue mLogQueue = LogQueue.getLogQueue();
+    private static LogQueue mLogQueue = LogQueue.getInstance();
     private IConfigStore mConfig = null;
 
     public static final String PROP_LOGGING = "log";
@@ -190,13 +189,6 @@ public class LogSubsystem implements ILogSubsystem {
      */
     public static LogSubsystem getInstance() {
         return mInstance;
-    }
-
-    /**
-     * Retrieves LogQueue.
-     */
-    public static ILogQueue getLogQueue() {
-        return mLogQueue;
     }
 
     public String getLogPluginName(ILogEventListener log) {

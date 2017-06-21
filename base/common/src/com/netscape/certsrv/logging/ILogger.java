@@ -483,11 +483,4 @@ public interface ILogger {
      * Register a log event factory. Which will create the desired ILogEvents.
      */
     public void register(int evtClass, ILogEventFactory f);
-
-    /**
-     * Retrieves the associated log queue. The log queue is where issued log events
-     * are collected for later processing.
-     */
-    public ILogQueue getLogQueue();
-
 }

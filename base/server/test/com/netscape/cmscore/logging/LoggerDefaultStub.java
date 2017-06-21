@@ -4,7 +4,6 @@ import java.util.Properties;
 
 import com.netscape.certsrv.logging.ILogEvent;
 import com.netscape.certsrv.logging.ILogEventFactory;
-import com.netscape.certsrv.logging.ILogQueue;
 import com.netscape.certsrv.logging.ILogger;
 
 /**
@@ -68,9 +67,5 @@ public class LoggerDefaultStub implements ILogger {
     }
 
     public void register(int evtClass, ILogEventFactory f) {
-    }
-
-    public ILogQueue getLogQueue() {
-        return null;
     }
 }

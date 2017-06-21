@@ -104,7 +104,6 @@ import com.netscape.certsrv.logging.ELogException;
 import com.netscape.certsrv.logging.IAuditor;
 import com.netscape.certsrv.logging.ILogEvent;
 import com.netscape.certsrv.logging.ILogEventListener;
-import com.netscape.certsrv.logging.ILogQueue;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.notification.IEmailFormProcessor;
 import com.netscape.certsrv.notification.IEmailResolver;
@@ -117,6 +116,7 @@ import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestStatus;
+import com.netscape.cms.logging.LogQueue;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.authentication.VerifiedCert;
 import com.netscape.cmscore.authentication.VerifiedCerts;
@@ -228,7 +228,7 @@ public class CMSEngine implements ICMSEngine {
     private ITimeSource mTimeSource = null;
     private IPasswordStore mPasswordStore = null;
     private WarningListener mWarningListener = null;
-    private ILogQueue mQueue = null;
+    private LogQueue mQueue = LogQueue.getInstance();
     private ISecurityDomainSessionTable mSecurityDomainSessionTable = null;
     private String mConfigSDSessionId = null;
     private Timer mSDTimer = null;
@@ -574,7 +574,6 @@ public class CMSEngine implements ICMSEngine {
         // want to register a listener to catch
         // all the warning message so that we can
         // display them in the console.
-        mQueue = Logger.getLogger().getLogQueue();
         mWarningListener = new WarningListener(mWarning);
         mQueue.addLogEventListener(mWarningListener);
 
