@@ -480,14 +480,8 @@ public interface ILogger {
             String msg, Object params[], boolean multiline);
 
     /**
-     * Register a log event factory. Which will create the desired ILogEvents.
-     */
-    public void register(LogCategory evtClass, ILogEventFactory f);
-
-    /**
      * Retrieves the associated log queue. The log queue is where issued log events
      * are collected for later processing.
      */
     public ILogQueue getLogQueue();
-
 }

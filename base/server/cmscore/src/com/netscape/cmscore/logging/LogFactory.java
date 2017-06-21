@@ -22,12 +22,18 @@ import java.util.Properties;
 import com.netscape.certsrv.logging.IBundleLogEvent;
 import com.netscape.certsrv.logging.ILogEvent;
 import com.netscape.certsrv.logging.ILogEventFactory;
+import com.netscape.certsrv.logging.LogCategory;
+import com.netscape.certsrv.logging.LogSource;
 
 public abstract class LogFactory implements ILogEventFactory {
 
     public static final String PROP_BUNDLE = "bundleName";
 
     public LogFactory() {
+    }
+
+    public Logger createLogger(LogCategory category, LogSource source) {
+        return new Logger(this, category, source);
     }
 
     /**
