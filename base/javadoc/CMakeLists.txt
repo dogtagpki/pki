@@ -107,7 +107,8 @@ javadoc(pki-javadoc
         -version
         ${doclintstr}
     DEPENDS
-        pki-cmsutil-jar pki-certsrv-jar pki-tomcat-jar pki-cms-jar pki-tools-jar
+        pki-cmsutil-jar pki-certsrv-jar pki-tools-jar pki-tomcat-jar
+        pki-cms-jar pki-cmscore-jar pki-ca-jar pki-kra-jar pki-ocsp-jar pki-tks-jar pki-tps-jar
 )
 
 install(
