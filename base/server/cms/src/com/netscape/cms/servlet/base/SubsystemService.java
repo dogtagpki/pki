@@ -31,6 +31,7 @@ import com.netscape.certsrv.authorization.IAuthzSubsystem;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.IAuditor;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.LogSource;
 
 public class SubsystemService extends PKIService {
 
@@ -72,7 +73,7 @@ public class SubsystemService extends PKIService {
         return CMS.getUserMessage(getLocale(headers), messageId, params);
     }
 
-    public void log(int source, int level, String message) {
+    public void log(LogSource source, int level, String message) {
 
         logger.log(ILogger.EV_SYSTEM,
                 null,

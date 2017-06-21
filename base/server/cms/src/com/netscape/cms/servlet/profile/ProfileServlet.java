@@ -37,6 +37,7 @@ import com.netscape.certsrv.authorization.IAuthzSubsystem;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogCategory;
+import com.netscape.certsrv.logging.LogSource;
 import com.netscape.certsrv.template.ArgList;
 import com.netscape.certsrv.template.ArgSet;
 import com.netscape.certsrv.template.ArgString;
@@ -156,7 +157,7 @@ public class ProfileServlet extends CMSServlet {
     protected String mAclMethod = null;
     protected String mAuthzResourceName = null;
     protected ILogger mLogger = CMS.getLogger();
-    protected int mLogCategory = ILogger.S_OTHER;
+    protected LogSource mLogCategory = ILogger.S_OTHER;
     protected String mProfileSubId = null;
 
     protected ILogger mSignedAuditLogger = CMS.getSignedAuditLogger();

@@ -25,6 +25,7 @@ import com.netscape.certsrv.logging.ILogEventFactory;
 import com.netscape.certsrv.logging.ILogQueue;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogCategory;
+import com.netscape.certsrv.logging.LogSource;
 
 /**
  * A class represents certificate server logger
@@ -84,7 +85,7 @@ public class Logger implements ILogger {
      * @param source the source of the log event
      * @param msg the one line detail message to be logged
      */
-    public void log(LogCategory evtClass, int source, String msg) {
+    public void log(LogCategory evtClass, LogSource source, String msg) {
         log(evtClass, null, source, ILogger.LL_INFO, msg, null);
     }
 
@@ -96,7 +97,7 @@ public class Logger implements ILogger {
      * @param source the source of the log event
      * @param msg the one line detail message to be logged
      */
-    public void log(LogCategory evtClass, Properties props, int source, String msg) {
+    public void log(LogCategory evtClass, Properties props, LogSource source, String msg) {
         log(evtClass, props, source, ILogger.LL_INFO, msg, null);
     }
 
@@ -110,7 +111,7 @@ public class Logger implements ILogger {
      * @param level the level of the log event
      * @param msg the one line detail message to be logged
      */
-    public void log(LogCategory evtClass, int source, int level, String msg) {
+    public void log(LogCategory evtClass, LogSource source, int level, String msg) {
         log(evtClass, null, source, level, msg, null);
     }
 
@@ -123,7 +124,7 @@ public class Logger implements ILogger {
      * @param level the level of the log event
      * @param msg the one line detail message to be logged
      */
-    public void log(LogCategory evtClass, Properties props, int source, int level, String msg) {
+    public void log(LogCategory evtClass, Properties props, LogSource source, int level, String msg) {
         log(evtClass, props, source, level, msg, null);
     }
 
@@ -138,7 +139,7 @@ public class Logger implements ILogger {
      * @param msg the one line detail message to be logged
      * @param param the parameter in the detail message
      */
-    public void log(LogCategory evtClass, int source, int level, String msg, Object param) {
+    public void log(LogCategory evtClass, LogSource source, int level, String msg, Object param) {
         log(evtClass, null, source, level, msg, param);
     }
 
@@ -151,7 +152,7 @@ public class Logger implements ILogger {
      * @param msg the one line detail message to be logged
      * @param param the parameter in the detail message
      */
-    public void log(LogCategory evtClass, Properties props, int source, String msg, Object param) {
+    public void log(LogCategory evtClass, Properties props, LogSource source, String msg, Object param) {
         log(evtClass, props, source, ILogger.LL_INFO, msg, param);
     }
 
@@ -165,7 +166,7 @@ public class Logger implements ILogger {
      * @param msg the one line detail message to be logged
      * @param param the parameter in the detail message
      */
-    public void log(LogCategory evtClass, Properties props, int source, int level, String msg,
+    public void log(LogCategory evtClass, Properties props, LogSource source, int level, String msg,
             Object param) {
         Object o[] = new Object[1];
 
@@ -184,7 +185,7 @@ public class Logger implements ILogger {
      * @param msg the one line detail message to be logged
      * @param params the parameters in the detail message
      */
-    public void log(LogCategory evtClass, int source, int level, String msg,
+    public void log(LogCategory evtClass, LogSource source, int level, String msg,
             Object params[]) {
         log(evtClass, null, source, level, msg, params);
     }
@@ -200,7 +201,7 @@ public class Logger implements ILogger {
      * @param msg the one line detail message to be logged
      * @param params the parameters in the detail message
      */
-    public void log(LogCategory evtClass, Properties prop, int source, int level, String msg,
+    public void log(LogCategory evtClass, Properties prop, LogSource source, int level, String msg,
             Object params[]) {
         ILogEvent iLEvent = create(evtClass, prop, source, level, msg, params, ILogger.L_SINGLELINE);
         if (iLEvent != null)
@@ -217,7 +218,7 @@ public class Logger implements ILogger {
      * @param msg the one line detail message to be logged
      * @param multiline true if the message has more than one line, otherwise false
      */
-    public void log(LogCategory evtClass, int source, String msg, boolean multiline) {
+    public void log(LogCategory evtClass, LogSource source, String msg, boolean multiline) {
         log(evtClass, null, source, ILogger.LL_INFO, msg, null, multiline);
     }
 
@@ -230,7 +231,7 @@ public class Logger implements ILogger {
      * @param msg the one line detail message to be logged
      * @param multiline true if the message has more than one line, otherwise false
      */
-    public void log(LogCategory evtClass, Properties props, int source, String msg, boolean multiline) {
+    public void log(LogCategory evtClass, Properties props, LogSource source, String msg, boolean multiline) {
         log(evtClass, props, source, ILogger.LL_INFO, msg, null, multiline);
     }
 
@@ -245,7 +246,7 @@ public class Logger implements ILogger {
      * @param msg the one line detail message to be logged
      * @param multiline true if the message has more than one line, otherwise false
      */
-    public void log(LogCategory evtClass, int source, int level, String msg, boolean multiline) {
+    public void log(LogCategory evtClass, LogSource source, int level, String msg, boolean multiline) {
         log(evtClass, null, source, level, msg, null, multiline);
     }
 
@@ -259,7 +260,7 @@ public class Logger implements ILogger {
      * @param msg the one line detail message to be logged
      * @param multiline true if the message has more than one line, otherwise false
      */
-    public void log(LogCategory evtClass, Properties props, int source, int level, String msg, boolean multiline) {
+    public void log(LogCategory evtClass, Properties props, LogSource source, int level, String msg, boolean multiline) {
         log(evtClass, props, source, level, msg, null, multiline);
     }
 
@@ -275,7 +276,7 @@ public class Logger implements ILogger {
      * @param param the parameter in the detail message
      * @param multiline true if the message has more than one line, otherwise false
      */
-    public void log(LogCategory evtClass, int source, int level, String msg, Object param, boolean multiline) {
+    public void log(LogCategory evtClass, LogSource source, int level, String msg, Object param, boolean multiline) {
         log(evtClass, null, source, level, msg, param, multiline);
     }
 
@@ -289,7 +290,7 @@ public class Logger implements ILogger {
      * @param param the parameter in the detail message
      * @param multiline true if the message has more than one line, otherwise false
      */
-    public void log(LogCategory evtClass, Properties props, int source, String msg, Object param, boolean multiline) {
+    public void log(LogCategory evtClass, Properties props, LogSource source, String msg, Object param, boolean multiline) {
         log(evtClass, props, source, ILogger.LL_INFO, msg, param, multiline);
     }
 
@@ -304,7 +305,7 @@ public class Logger implements ILogger {
      * @param param the parameter in the detail message
      * @param multiline true if the message has more than one line, otherwise false
      */
-    public void log(LogCategory evtClass, Properties props, int source, int level, String msg,
+    public void log(LogCategory evtClass, Properties props, LogSource source, int level, String msg,
             Object param, boolean multiline) {
         Object o[] = new Object[1];
 
@@ -324,7 +325,7 @@ public class Logger implements ILogger {
      * @param params the parameters in the detail message
      * @param multiline true if the message has more than one line, otherwise false
      */
-    public void log(LogCategory evtClass, int source, int level, String msg,
+    public void log(LogCategory evtClass, LogSource source, int level, String msg,
             Object params[], boolean multiline) {
         log(evtClass, null, source, level, msg, params, multiline);
     }
@@ -341,7 +342,7 @@ public class Logger implements ILogger {
      * @param params the parameters in the detail message
      * @param multiline true if the message has more than one line, otherwise false
      */
-    public void log(LogCategory evtClass, Properties prop, int source, int level, String msg,
+    public void log(LogCategory evtClass, Properties prop, LogSource source, int level, String msg,
             Object params[], boolean multiline) {
         ILogEvent iLEvent = create(evtClass, prop, source, level, msg, params, multiline);
         if (iLEvent != null)
@@ -355,7 +356,7 @@ public class Logger implements ILogger {
      * events here.
      */
     //XXXXXXXXXXX prop is out dated!!!! XXXXXXXXXXXXXXX
-    public ILogEvent create(LogCategory evtClass, Properties prop, int source, int level,
+    public ILogEvent create(LogCategory evtClass, Properties prop, LogSource source, int level,
             String msg, Object params[], boolean multiline) {
         ILogEventFactory f = mFactories.get(evtClass);
 

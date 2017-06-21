@@ -46,7 +46,7 @@ public class SignedAuditEvent implements IBundleLogEvent {
     private String mMessage = null;
     private int mLevel = -1;
     private int mNTEventType = -1;
-    private int mSource = -1;
+    private LogSource mSource;
     private boolean mMultiline = false;
     private long mTimeStamp = System.currentTimeMillis();
 
@@ -216,18 +216,18 @@ public class SignedAuditEvent implements IBundleLogEvent {
      * This is an id of the subsystem responsible
      * for creating the log event.
      *
-     * @return Integer source id.
+     * @return LogSource log source.
      */
-    public int getSource() {
+    public LogSource getSource() {
         return mSource;
     }
 
     /**
      * Sets log source.
      *
-     * @param source Integer id of log source.
+     * @param source log source.
      */
-    public void setSource(int source) {
+    public void setSource(LogSource source) {
         mSource = source;
     }
 
