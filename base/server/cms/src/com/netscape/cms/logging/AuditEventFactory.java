@@ -15,30 +15,30 @@
 // (C) 2007 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
-package com.netscape.cmscore.logging;
+package com.netscape.cms.logging;
 
 import java.util.Properties;
 
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogCategory;
 import com.netscape.certsrv.logging.LogSource;
-import com.netscape.certsrv.logging.SystemEvent;
 
 /**
- * A log event object for handling system messages
+ * A log event object for handling audit messages
  * <P>
  *
  * @author mikep
  * @author mzhao
  * @version $Revision$, $Date$
  */
-public class SystemEventFactory extends LogFactory {
+public class AuditEventFactory extends LogFactory {
 
     /**
-     * Constructs a system event factory.
+     * Constructs a audit event factory.
      */
-    public SystemEventFactory() {
+    public AuditEventFactory() {
     }
 
     /**
@@ -54,9 +54,9 @@ public class SystemEventFactory extends LogFactory {
      */
     public ILogEvent create(LogCategory evtClass, Properties prop, LogSource source,
             int level, boolean multiline, String msg, Object params[]) {
-        if (evtClass != ILogger.EV_SYSTEM)
+        if (evtClass != ILogger.EV_AUDIT)
             return null;
-        SystemEvent event = new SystemEvent(msg, params);
+        AuditEvent event = new AuditEvent(msg, params);
 
         event.setLevel(level);
         event.setSource(source);

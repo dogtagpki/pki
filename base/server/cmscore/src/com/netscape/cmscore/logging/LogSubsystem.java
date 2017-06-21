@@ -30,6 +30,7 @@ import com.netscape.certsrv.logging.ILogEventListener;
 import com.netscape.certsrv.logging.ILogQueue;
 import com.netscape.certsrv.logging.ILogSubsystem;
 import com.netscape.certsrv.logging.LogPlugin;
+import com.netscape.cms.logging.LogQueue;
 import com.netscape.cmscore.util.Debug;
 
 /**

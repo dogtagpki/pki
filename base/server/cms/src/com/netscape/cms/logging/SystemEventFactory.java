@@ -15,16 +15,15 @@
 // (C) 2007 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
-package com.netscape.cmscore.logging;
+package com.netscape.cms.logging;
 
 import java.util.Properties;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.logging.ILogEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogCategory;
 import com.netscape.certsrv.logging.LogSource;
-import com.netscape.certsrv.logging.SignedAuditEvent;
+import com.netscape.certsrv.logging.SystemEvent;
 
 /**
  * A log event object for handling system messages
@@ -32,15 +31,14 @@ import com.netscape.certsrv.logging.SignedAuditEvent;
  *
  * @author mikep
  * @author mzhao
- * @author cfu
  * @version $Revision$, $Date$
  */
-public class SignedAuditEventFactory extends LogFactory {
+public class SystemEventFactory extends LogFactory {
 
     /**
      * Constructs a system event factory.
      */
-    public SignedAuditEventFactory() {
+    public SystemEventFactory() {
     }
 
     /**
@@ -56,39 +54,14 @@ public class SignedAuditEventFactory extends LogFactory {
      */
     public ILogEvent create(LogCategory evtClass, Properties prop, LogSource source,
             int level, boolean multiline, String msg, Object params[]) {
-        if (evtClass != ILogger.EV_SIGNED_AUDIT)
+        if (evtClass != ILogger.EV_SYSTEM)
             return null;
-
-        String message = null;
-        // assume msg format <type=...>:message
-        String typeMessage = msg.trim();
-        String eventType = null;
-        int typeBegin = typeMessage.indexOf("<type=");
-
-        if (typeBegin != -1) {
-            // type is specified
-            int colon = typeMessage.indexOf(">:");
-
-            eventType = typeMessage.substring(typeBegin + 6, colon);
-            message = typeMessage.substring(colon + 2);
-            //CMS.debug("SignedAuditEventFactory: create() message=" + message + "\n");
-            CMS.debug("SignedAuditEventFactory: create() message created for eventType=" + eventType + "\n");
-
-        } else {
-            // no type specified
-            message = msg;
-        }
-
-        SignedAuditEvent event = new SignedAuditEvent(message.trim(), params);
-
-        if (eventType != null)
-            event.setEventType(eventType.trim());
+        SystemEvent event = new SystemEvent(msg, params);
 
         event.setLevel(level);
         event.setSource(source);
         event.setMultiline(multiline);
         setProperties(prop, event);
-
         return event;
     }
 }
