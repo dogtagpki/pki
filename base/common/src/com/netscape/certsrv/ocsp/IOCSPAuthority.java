@@ -17,16 +17,17 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.ocsp;
 
-import netscape.security.x509.X500Name;
-
 import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.logging.LogCategory;
 import com.netscape.certsrv.security.ISigningUnit;
 import com.netscape.cmsutil.ocsp.BasicOCSPResponse;
 import com.netscape.cmsutil.ocsp.ResponderID;
 import com.netscape.cmsutil.ocsp.ResponseData;
+
+import netscape.security.x509.X500Name;
 
 /**
  * This class represents the primary interface for the Online Certificate
@@ -132,7 +133,7 @@ public interface IOCSPAuthority extends ISubsystem {
      * @param level the log message
      * @param msg the log message
      */
-    public void log(int event, int level, String msg);
+    public void log(LogCategory event, int level, String msg);
 
     /**
      * This method retrieves the X500Name of an OCSP server instance.

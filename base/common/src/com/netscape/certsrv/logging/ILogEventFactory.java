@@ -40,7 +40,7 @@ public interface ILogEventFactory {
      * @param params The parameters in the detail log message.
      * @return The created ILogEvent object.
      */
-    public ILogEvent create(int evtClass, Properties prop, int source,
+    public ILogEvent create(LogCategory evtClass, Properties prop, int source,
             int level, boolean multiline, String msg, Object params[]);
 
     /**

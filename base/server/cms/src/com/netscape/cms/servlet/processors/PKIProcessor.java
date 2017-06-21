@@ -32,6 +32,7 @@ import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.LogCategory;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.ECMSGWException;
@@ -283,7 +284,7 @@ public class PKIProcessor implements IPKIProcessor {
     /**
      * log according to authority category.
      */
-    public static void log(int event, int level, String msg) {
+    public static void log(LogCategory event, int level, String msg) {
         CMS.getLogger().log(event, ILogger.S_OTHER, level,
                 "PKIProcessor " + ": " + msg);
     }

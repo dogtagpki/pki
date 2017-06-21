@@ -35,20 +35,20 @@ public interface ILogger {
     /**
      * log class: audit event.
      */
-    public static final int EV_AUDIT = 0;
+    public static final LogCategory EV_AUDIT = LogCategory.TRANSACTION;
     public static final String PROP_AUDIT = "transaction";
 
     /**
      * log class: system event.
      * System event with log level >= LL_FAILURE will also be logged in error log
      */
-    public static final int EV_SYSTEM = 1;
+    public static final LogCategory EV_SYSTEM = LogCategory.SYSTEM;
     public static final String PROP_SYSTEM = "system";
 
     /**
      * log class: SignedAudit event.
      */
-    public static final int EV_SIGNED_AUDIT = 2;
+    public static final LogCategory EV_SIGNED_AUDIT = LogCategory.SIGNED_AUDIT;
     public static final String PROP_SIGNED_AUDIT = "signedAudit";
 
     //List of defined log sources.
@@ -275,7 +275,7 @@ public interface ILogger {
      * @param source The source of the log event.
      * @param msg The detail message to be logged.
      */
-    public void log(int evtClass, int source, String msg);
+    public void log(LogCategory evtClass, int source, String msg);
 
     /**
      * Logs an event to the log queue.
@@ -285,7 +285,7 @@ public interface ILogger {
      * @param source The source of the log event.
      * @param msg The detail message to be logged.
      */
-    public void log(int evtClass, Properties props, int source, String msg);
+    public void log(LogCategory evtClass, Properties props, int source, String msg);
 
     /**
      * Logs an event to the log queue.
@@ -295,7 +295,7 @@ public interface ILogger {
      * @param level The level of the log event.
      * @param msg The detail message to be logged.
      */
-    public void log(int evtClass, int source, int level, String msg);
+    public void log(LogCategory evtClass, int source, int level, String msg);
 
     /**
      * Logs an event to the log queue.
@@ -306,7 +306,7 @@ public interface ILogger {
      * @param level The level of the log event.
      * @param msg The detail message to be logged.
      */
-    public void log(int evtClass, Properties props, int source, int level, String msg);
+    public void log(LogCategory evtClass, Properties props, int source, int level, String msg);
 
     /**
      * Logs an event to the log queue.
@@ -317,7 +317,7 @@ public interface ILogger {
      * @param msg The detail message to be logged.
      * @param param The parameter in the detail message.
      */
-    public void log(int evtClass, int source, int level, String msg, Object param);
+    public void log(LogCategory evtClass, int source, int level, String msg, Object param);
 
     /**
      * Logs an event to the log queue.
@@ -328,7 +328,7 @@ public interface ILogger {
      * @param msg The detail message to be logged.
      * @param params The parameters in the detail message.
      */
-    public void log(int evtClass, int source, int level, String msg, Object params[]);
+    public void log(LogCategory evtClass, int source, int level, String msg, Object params[]);
 
     /**
      * Logs an event to the log queue.
@@ -339,7 +339,7 @@ public interface ILogger {
      * @param msg The detail message to be logged.
      * @param param The parameters in the detail message.
      */
-    public void log(int evtClass, Properties props, int source, String msg, Object param);
+    public void log(LogCategory evtClass, Properties props, int source, String msg, Object param);
 
     /**
      * Logs an event to the log queue.
@@ -351,7 +351,7 @@ public interface ILogger {
      * @param msg The detail message to be logged.
      * @param param The parameter in the detail message.
      */
-    public void log(int evtClass, Properties props, int source, int level, String msg,
+    public void log(LogCategory evtClass, Properties props, int source, int level, String msg,
             Object param);
 
     /**
@@ -364,7 +364,7 @@ public interface ILogger {
      * @param msg The detail message to be logged.
      * @param params The parameters in the detail message.
      */
-    public void log(int evtClass, Properties prop, int source, int level, String msg,
+    public void log(LogCategory evtClass, Properties prop, int source, int level, String msg,
             Object params[]);
 
     //multiline log
@@ -377,7 +377,7 @@ public interface ILogger {
      * @param msg The detail message to be logged.
      * @param multiline true If the message has more than one line, otherwise false.
      */
-    public void log(int evtClass, int source, String msg, boolean multiline);
+    public void log(LogCategory evtClass, int source, String msg, boolean multiline);
 
     /**
      * Logs an event to the log queue.
@@ -388,7 +388,7 @@ public interface ILogger {
      * @param msg The detail message to be logged.
      * @param multiline True if the message has more than one line, otherwise false.
      */
-    public void log(int evtClass, Properties props, int source, String msg, boolean multiline);
+    public void log(LogCategory evtClass, Properties props, int source, String msg, boolean multiline);
 
     /**
      * Logs an event to the log queue.
@@ -399,7 +399,7 @@ public interface ILogger {
      * @param msg The detail message to be logged.
      * @param multiline True if the message has more than one line, otherwise false.
      */
-    public void log(int evtClass, int source, int level, String msg, boolean multiline);
+    public void log(LogCategory evtClass, int source, int level, String msg, boolean multiline);
 
     /**
      * Logs an event to the log queue.
@@ -411,7 +411,7 @@ public interface ILogger {
      * @param msg The detail message to be logged.
      * @param multiline True if the message has more than one line, otherwise false.
      */
-    public void log(int evtClass, Properties props, int source, int level, String msg, boolean multiline);
+    public void log(LogCategory evtClass, Properties props, int source, int level, String msg, boolean multiline);
 
     /**
      * Logs an event to the log queue.
@@ -423,7 +423,7 @@ public interface ILogger {
      * @param param The parameter in the detail message.
      * @param multiline True if the message has more than one line, otherwise false.
      */
-    public void log(int evtClass, int source, int level, String msg, Object param, boolean multiline);
+    public void log(LogCategory evtClass, int source, int level, String msg, Object param, boolean multiline);
 
     /**
      * Logs an event to the log queue.
@@ -435,7 +435,7 @@ public interface ILogger {
      * @param param The parameter in the detail message.
      * @param multiline True if the message has more than one line, otherwise false.
      */
-    public void log(int evtClass, Properties props, int source, String msg, Object param, boolean multiline);
+    public void log(LogCategory evtClass, Properties props, int source, String msg, Object param, boolean multiline);
 
     /**
      * Logs an event to the log queue.
@@ -448,7 +448,7 @@ public interface ILogger {
      * @param param The parameter in the detail message.
      * @param multiline True if the message has more than one line, otherwise false.
      */
-    public void log(int evtClass, Properties props, int source, int level, String msg,
+    public void log(LogCategory evtClass, Properties props, int source, int level, String msg,
             Object param, boolean multiline);
 
     /**
@@ -462,7 +462,7 @@ public interface ILogger {
      * @param params The parameters in the detail message.
      * @param multiline True if the message has more than one line, otherwise false.
      */
-    public void log(int evtClass, Properties prop, int source, int level, String msg,
+    public void log(LogCategory evtClass, Properties prop, int source, int level, String msg,
             Object params[], boolean multiline);
 
     /*
@@ -476,13 +476,13 @@ public interface ILogger {
      * @param multiline True if the message has more than one line, otherwise false.
      * @return ILogEvent, a log event.
      */
-    public ILogEvent create(int evtClass, Properties prop, int source, int level,
+    public ILogEvent create(LogCategory evtClass, Properties prop, int source, int level,
             String msg, Object params[], boolean multiline);
 
     /**
      * Register a log event factory. Which will create the desired ILogEvents.
      */
-    public void register(int evtClass, ILogEventFactory f);
+    public void register(LogCategory evtClass, ILogEventFactory f);
 
     /**
      * Retrieves the associated log queue. The log queue is where issued log events

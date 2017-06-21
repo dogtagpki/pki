@@ -41,6 +41,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.LogCategory;
 import com.netscape.certsrv.ocsp.IDefStore;
 import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.certsrv.ocsp.IOCSPService;
@@ -395,7 +396,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
      * @param level the debug level.
      * @param msg the message to debug.
      */
-    public void log(int event, int level, String msg) {
+    public void log(LogCategory event, int level, String msg) {
         mLogger.log(event, ILogger.S_OCSP,
                 level, msg);
     }

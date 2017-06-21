@@ -36,6 +36,7 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authorization.IAuthzSubsystem;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.LogCategory;
 import com.netscape.certsrv.template.ArgList;
 import com.netscape.certsrv.template.ArgSet;
 import com.netscape.certsrv.template.ArgString;
@@ -455,7 +456,7 @@ public class ProfileServlet extends CMSServlet {
     /**
      * log according to authority category.
      */
-    protected void log(int event, int level, String msg) {
+    protected void log(LogCategory event, int level, String msg) {
         mLogger.log(event, mLogCategory, level,
                 "Servlet " + mId + ": " + msg);
     }

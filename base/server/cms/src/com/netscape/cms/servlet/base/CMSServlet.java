@@ -66,6 +66,7 @@ import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.LogCategory;
 import com.netscape.certsrv.logging.event.AuthFailEvent;
 import com.netscape.certsrv.logging.event.AuthSuccessEvent;
 import com.netscape.certsrv.logging.event.AuthzFailEvent;
@@ -936,7 +937,7 @@ public abstract class CMSServlet extends HttpServlet {
     /**
      * log according to authority category.
      */
-    protected void log(int event, int level, String msg) {
+    protected void log(LogCategory event, int level, String msg) {
         mLogger.log(event, mLogCategory, level,
                 "Servlet " + mId + ": " + msg);
     }
