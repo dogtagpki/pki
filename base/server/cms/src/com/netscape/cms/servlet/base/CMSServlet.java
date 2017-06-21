@@ -67,6 +67,7 @@ import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogCategory;
+import com.netscape.certsrv.logging.LogSource;
 import com.netscape.certsrv.logging.event.AuthFailEvent;
 import com.netscape.certsrv.logging.event.AuthSuccessEvent;
 import com.netscape.certsrv.logging.event.AuthzFailEvent;
@@ -236,7 +237,7 @@ public abstract class CMSServlet extends HttpServlet {
 
     // system logger.
     protected ILogger mLogger = CMS.getLogger();
-    protected int mLogCategory = ILogger.S_OTHER;
+    protected LogSource mLogCategory = ILogger.S_OTHER;
     private MessageDigest mSHADigest = null;
 
     protected String mGetClientCert = "false";

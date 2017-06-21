@@ -228,7 +228,7 @@ public class AuditEvent implements IBundleLogEvent {
     private String mMessage = null;
     private int mLevel = -1;
     private int mNTEventType = -1;
-    private int mSource = -1;
+    private LogSource mSource;
     private boolean mMultiline = false;
     private long mTimeStamp = System.currentTimeMillis();
 
@@ -399,20 +399,20 @@ public class AuditEvent implements IBundleLogEvent {
     /**
      * Retrieves log source.
      *
-     * @return an integer that indicates the component source
+     * @return the component source
      *         where this message event was triggered
      */
-    public int getSource() {
+    public LogSource getSource() {
         return mSource;
     }
 
     /**
      * Sets log source.
      *
-     * @param source an integer that represents the component source
+     * @param source the component source
      *            where this message event was triggered
      */
-    public void setSource(int source) {
+    public void setSource(LogSource source) {
         mSource = source;
     }
 

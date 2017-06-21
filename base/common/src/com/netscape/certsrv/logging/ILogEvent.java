@@ -41,12 +41,12 @@ public interface ILogEvent extends Serializable {
 
     /**
      * Retrieves log source.
-     * This is an id of the subsystem responsible
+     * This is the subsystem responsible
      * for creating the log event.
      *
-     * @return Integer source id.
+     * @return log source.
      */
-    public int getSource();
+    public LogSource getSource();
 
     /**
      * Retrieves log level.

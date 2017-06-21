@@ -76,6 +76,7 @@ import com.netscape.certsrv.logging.ELogException;
 import com.netscape.certsrv.logging.ILogEvent;
 import com.netscape.certsrv.logging.ILogEventListener;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.LogSource;
 import com.netscape.certsrv.logging.SignedAuditEvent;
 import com.netscape.certsrv.logging.SystemEvent;
 import com.netscape.cmsutil.util.Utils;
@@ -1114,12 +1115,12 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
         if (ev.getMultiline() == ILogger.L_MULTILINE) {
             entry = CMS.getPID() + "." + Thread.currentThread().getName() + " - ["
                     + mLogDateFormat.format(mDate) + "] [" +
-                    Integer.toString(ev.getSource()) + "] [" + Integer.toString(ev.getLevel())
+                    ev.getSource().value() + "] [" + Integer.toString(ev.getLevel())
                     + "] " + prepareMultiline(ev.toString());
         } else {
             entry = CMS.getPID() + "." + Thread.currentThread().getName() + " - ["
                     + mLogDateFormat.format(mDate) + "] [" +
-                    Integer.toString(ev.getSource()) + "] [" + Integer.toString(ev.getLevel())
+                    ev.getSource().value() + "] [" + Integer.toString(ev.getLevel())
                     + "] " + ev.toString();
         }
 
@@ -1153,7 +1154,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
      * @param fName The log file name to be read. If it's null, read the current
      *            log file
      */
-    public Vector<LogEntry> readEntry(int maxLine, int lowLevel, int source, String fName) {
+    public Vector<LogEntry> readEntry(int maxLine, int lowLevel, LogSource source, String fName) {
         Vector<LogEntry> mEntries = new Vector<LogEntry>();
         String fileName = mFileName;
         BufferedReader fBuffer;
@@ -1202,7 +1203,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
                                 // if parse succeed, write out previous entry
                                 if (preLogEntry != null) {
                                     if ((Integer.parseInt(preLogEntry.getLevel()) >= lowLevel) &&
-                                            ((Integer.parseInt(preLogEntry.getSource()) == source) ||
+                                            ((Integer.parseInt(preLogEntry.getSource()) == source.value()) ||
                                             (source == ILogger.S_ALL)
                                             )) {
                                         mEntries.addElement(preLogEntry);
@@ -1255,7 +1256,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
                      */
                     if (preLogEntry != null) {
                         if ((Integer.parseInt(preLogEntry.getLevel()) >= lowLevel) &&
-                                ((Integer.parseInt(preLogEntry.getSource()) == source) ||
+                                ((Integer.parseInt(preLogEntry.getSource()) == source.value()) ||
                                 (source == ILogger.S_ALL)
                                 )) {
                             mEntries.addElement(preLogEntry);
@@ -1276,7 +1277,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
                 if (preLogEntry != null) {
                     if ((Integer.parseInt(preLogEntry.getLevel()) >= lowLevel)
                             &&
-                            ((Integer.parseInt(preLogEntry.getSource()) == source)
+                            ((Integer.parseInt(preLogEntry.getSource()) == source.value())
                             ||
                             (source == ILogger.S_ALL)
                             )) {
@@ -1330,7 +1331,8 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
             IOException, EBaseException {
         NameValuePairs params = new NameValuePairs();
         String tmp, fName = null;
-        int maxLine = -1, level = -1, source = -1;
+        int maxLine = -1, level = -1;
+        LogSource source = null;
         Vector<LogEntry> entries = null;
 
         if ((tmp = req.get(Constants.PR_LOG_ENTRY)) != null) {
@@ -1340,7 +1342,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
             level = Integer.parseInt(tmp);
         }
         if ((tmp = req.get(Constants.PR_LOG_SOURCE)) != null) {
-            source = Integer.parseInt(tmp);
+            source = LogSource.valueOf(Integer.parseInt(tmp));
         }
         tmp = req.get(Constants.PR_LOG_NAME);
         if (!(tmp.equals(Constants.PR_CURRENT_LOG))) {

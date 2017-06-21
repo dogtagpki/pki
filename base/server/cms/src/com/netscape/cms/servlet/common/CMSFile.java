@@ -85,7 +85,7 @@ public class CMSFile {
     }
 
     protected void log(int level, String msg) {
-        mLogger.log(ILogger.EV_SYSTEM, level, ILogger.S_OTHER, "CMSgateway:" + msg);
+        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER, level, "CMSgateway:" + msg);
     }
 
     public String toString() {
