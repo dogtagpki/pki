@@ -191,13 +191,6 @@ public class LogSubsystem implements ILogSubsystem {
         return mInstance;
     }
 
-    /**
-     * Retrieves LogQueue.
-     */
-    public static ILogQueue getLogQueue() {
-        return mLogQueue;
-    }
-
     public String getLogPluginName(ILogEventListener log) {
         IConfigStore cs = log.getConfigStore();
         if (cs == null) {
