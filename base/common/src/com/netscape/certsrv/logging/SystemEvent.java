@@ -45,7 +45,7 @@ public class SystemEvent implements IBundleLogEvent {
     private String mMessage = null;
     private int mLevel = -1;
     private int mNTEventType = -1;
-    private int mSource = -1;
+    private LogSource mSource;
     private boolean mMultiline = false;
     private long mTimeStamp = System.currentTimeMillis();
 
@@ -211,12 +211,12 @@ public class SystemEvent implements IBundleLogEvent {
 
     /**
      * Retrieves log source.
-     * This is an id of the subsystem responsible
+     * This is the subsystem responsible
      * for creating the log event.
      *
-     * @return Integer source id.
+     * @return log source.
      */
-    public int getSource() {
+    public LogSource getSource() {
         return mSource;
     }
 
@@ -224,9 +224,9 @@ public class SystemEvent implements IBundleLogEvent {
      * Sets log source.
      * Sets the id of the subsystem issuing the event.
      *
-     * @param source Integer source id.
+     * @param source log source.
      */
-    public void setSource(int source) {
+    public void setSource(LogSource source) {
         mSource = source;
     }
 

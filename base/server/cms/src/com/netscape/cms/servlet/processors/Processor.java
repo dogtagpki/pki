@@ -12,6 +12,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.logging.IAuditor;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.LogSource;
 
 public class Processor {
 
@@ -60,7 +61,7 @@ public class Processor {
         return map;
     }
 
-    public void log(int source, int level, String message) {
+    public void log(LogSource source, int level, String message) {
 
         if (logger == null) return;
 

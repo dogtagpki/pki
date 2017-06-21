@@ -33,14 +33,14 @@ public interface ILogEventFactory {
      *
      * @param evtClass The event type.
      * @param prop The resource bundle.
-     * @param source The subsystem ID who creates the log event.
+     * @param source The subsystem who creates the log event.
      * @param level The severity of the log event.
      * @param multiline The log message has more than one line or not.
      * @param msg The detail message of the log.
      * @param params The parameters in the detail log message.
      * @return The created ILogEvent object.
      */
-    public ILogEvent create(LogCategory evtClass, Properties prop, int source,
+    public ILogEvent create(LogCategory evtClass, Properties prop, LogSource source,
             int level, boolean multiline, String msg, Object params[]);
 
     /**
