@@ -37,7 +37,7 @@ import com.netscape.certsrv.logging.ILogger;
 public class Logger implements ILogger {
 
     protected static Logger mLogger = new Logger();
-    protected ILogQueue mLogQueue = null;
+    protected ILogQueue mLogQueue = LogQueue.getLogQueue();
     protected Hashtable<Integer, ILogEventFactory> mFactories = new Hashtable<Integer, ILogEventFactory>();
 
     /**
@@ -45,8 +45,6 @@ public class Logger implements ILogger {
      * of resident event factories.
      */
     public Logger() {
-        mLogQueue = LogSubsystem.getLogQueue();
-
         // register standard event factories
         register(EV_AUDIT, new AuditEventFactory());
         register(EV_SYSTEM, new SystemEventFactory());
