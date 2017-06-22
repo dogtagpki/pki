@@ -107,7 +107,7 @@ javac(pki-cms-classes
     OUTPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
     DEPENDS
-        pki-nsutil-jar pki-cmsutil-jar pki-certsrv-jar pki-tomcat-jar
+        pki-nsutil-jar pki-cmsutil-jar pki-certsrv-jar pki-tools-jar pki-tomcat-jar
 )
 
 configure_file(
