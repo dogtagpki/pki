@@ -25,7 +25,10 @@ import functools
 import warnings
 
 import requests
-from requests.packages.urllib3.exceptions import InsecureRequestWarning
+try:
+    from requests.packages.urllib3.exceptions import InsecureRequestWarning
+except ImportError:
+    from urllib3.exceptions import InsecureRequestWarning
 
 
 def catch_insecure_warning(func):
