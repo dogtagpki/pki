@@ -19,9 +19,7 @@ package com.netscape.cmscore.logging;
 
 import java.util.Properties;
 
-import com.netscape.certsrv.logging.IBundleLogEvent;
 import com.netscape.certsrv.logging.ILogEvent;
-import com.netscape.certsrv.logging.ILogEventFactory;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogCategory;
 import com.netscape.certsrv.logging.LogSource;
@@ -35,12 +33,7 @@ import com.netscape.certsrv.logging.SystemEvent;
  * @author mzhao
  * @version $Revision$, $Date$
  */
-public class SystemEventFactory implements ILogEventFactory {
-
-    /**
-     * List of supported properties.
-     */
-    public static final String PROP_BUNDLE = "bundleName";
+public class SystemEventFactory extends LogFactory {
 
     /**
      * Constructs a system event factory.
@@ -70,32 +63,5 @@ public class SystemEventFactory implements ILogEventFactory {
         event.setMultiline(multiline);
         setProperties(prop, event);
         return event;
-    }
-
-    /**
-     * Set the resource bundle of the log event.
-     *
-     * @param prop the properties
-     * @param event the log event
-     */
-    protected void setProperties(Properties prop, IBundleLogEvent event) {
-        if (prop == null) {
-            event.setBundleName(null);
-        } else {
-            String bundleName = (String) prop.get(PROP_BUNDLE);
-
-            if (bundleName != null) {
-                event.setBundleName(bundleName);
-            }
-        }
-    }
-
-    /**
-     * Releases an log event.
-     *
-     * @param e the log event
-     */
-    public void release(ILogEvent e) {
-        // do nothing
     }
 }
