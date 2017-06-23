@@ -741,6 +741,8 @@ class SubsystemCertUpdateCLI(pki.cli.CLI):
         print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
         print('  -v, --verbose                   Run in verbose mode.')
         print('      --help                      Show help message.')
+        print('      --cert <Certificate>        New Certificate to be added')
+        print('      --overwrite                 Overwrite existing certificate')
         print()
 
     def execute(self, argv):
@@ -748,7 +750,8 @@ class SubsystemCertUpdateCLI(pki.cli.CLI):
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=',
-                'verbose', 'help'])
+                'verbose', 'help',
+                'cert=', 'overwrite'])
 
         except getopt.GetoptError as e:
             print('ERROR: ' + str(e))
@@ -756,6 +759,8 @@ class SubsystemCertUpdateCLI(pki.cli.CLI):
             sys.exit(1)
 
         instance_name = 'pki-tomcat'
+        overwrite = False
+        cert_file = ''
 
         for o, a in opts:
             if o in ('-i', '--instance'):
@@ -767,6 +772,12 @@ class SubsystemCertUpdateCLI(pki.cli.CLI):
             elif o == '--help':
                 self.usage()
                 sys.exit()
+
+            elif o == '--cert':
+                cert_file = a
+
+            elif o == '--overwrite':
+                overwrite = True
 
             else:
                 print('ERROR: unknown option ' + o)
@@ -800,6 +811,36 @@ class SubsystemCertUpdateCLI(pki.cli.CLI):
                   '%s.' % (subsystem_name, instance_name))
             sys.exit(1)
         subsystem_cert = subsystem.get_subsystem_cert(cert_id)
+
+
+        if (cert_file != '' and not os.path.isfile(cert_file)):
+            print('ERROR: %s certificate does not exist.' % cert_file)
+            self.usage()
+            sys.exit(1)
+        elif cert_file != '':
+            print('Adding %s certificate to the NSS Database.' % cert_file)
+            nssdb = instance.open_nssdb(subsystem_cert['token'])
+            if overwrite:
+                print('Removing old %s certificate from Database.' % subsystem_cert['nickname'])
+                nssdb.remove_cert(
+                    nickname=subsystem_cert['nickname'])
+            print('Adding new %s certificate into Database.' % (subsystem_cert['nickname']))
+            nssdb.add_cert(
+                nickname=subsystem_cert['nickname'],
+                cert_file=cert_file)
+
+            data = nssdb.get_cert(
+            nickname=subsystem_cert['nickname'],
+            output_format='base64')
+            subsystem_cert['data'] = data
+
+            # store cert data and request in CS.cfg
+            subsystem.update_subsystem_cert(subsystem_cert)
+            subsystem.save()
+
+            self.print_message('Updated "%s" subsystem certificate' % cert_id)
+            sys.exit(0)
+
 
         if self.verbose:
             print('Retrieving certificate %s from %s' %
