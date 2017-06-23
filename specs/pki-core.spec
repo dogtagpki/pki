@@ -68,8 +68,8 @@ Name:             pki-core
 Version:          10.4.1
 Release:          8%{?dist}
 %else
-Version:          10.4.7
-Release:          1.1%{?dist}
+Version:          10.4.8
+Release:          2.1%{?dist}
 %endif
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
@@ -205,6 +205,7 @@ BuildRequires:    tomcatjss >= 7.1.3
 %if 0%{?with_python3}
 BuildRequires:  python3-cryptography
 BuildRequires:  python3-devel
+BuildRequires:  python3-lxml
 BuildRequires:  python3-nss
 BuildRequires:  python3-pyldap
 BuildRequires:  python3-requests >= 2.6.0
@@ -505,6 +506,7 @@ BuildArch:        noarch
 Requires:         pki-base = %{version}-%{release}
 
 Requires:         python3-cryptography
+Requires:         python3-lxml
 Requires:         python3-nss
 Requires:         python3-requests >= 2.6.0
 Requires:         python3-six
@@ -1422,6 +1424,34 @@ fi
 %endif # %{with server}
 
 %changelog
+* Thu Jun 22 2017 Dogtag Team <pki-devel@redhat.com> 10.4.8-2.1
+- Updated source version number to 10.4.8-2.1
+
+* Mon Jun 19 2017 Dogtag Team <pki-devel@redhat.com> 10.4.8-2
+- dogtagpki Pagure Issue #2721 - Key recovery using externalReg fails
+  with java null pointer exception on KRA (vakwetu)
+- dogtagpki Pagure Issue #2737 - CMC: check HTTPS client
+  authentication cert against CMC signer (cfu)
+- dogtagpki Pagure Issue #2741 - Unable to find keys in the p12 file
+  after deleting the any of the subsystem certs from it (ftweedal)
+- dogtagpki Pagure Issue #2745 - Platform Dependent Python Import (cheimes)
+
+* Mon Jun 12 2017 Dogtag Team <pki-devel@redhat.com> 10.4.8-1
+- dogtagpki Pagure Issue #2540 - Creating symmetric key (sharedSecret)
+  using tkstool is failing when operating system is in FIPS mode. (jmagne)
+- dogtagpki Pagure Issue #2617 - Allow CA to process pre-signed CMC
+  non-signing certificate requests (cfu)
+- dogtagpki Pagure Issue #2619 - Allow CA to process pre-signed CMC
+  revocation non-signing cert requests (cfu)
+- dogtagpki Pagure Issue #2643 - Session timeout for PKI console
+  (edewata)
+- dogtagpki Pagure Issue #2719 - change the way aes clients refer to
+  aes keysets (vakwetu)
+- dogtagpki Pagure Issue #2722 - dont reuse IVs in the CMC code
+  (vakwetu)
+- dogtagpki Pagure Issue #2728 - In keywrap mode, key recovery on
+  KRA with HSM causes KRA to crash (ftweedal)
+
 * Thu Jun  8 2017 Dogtag Team <pki-devel@redhat.com> 10.4.7-1.1
 - Updated source version number to 10.4.7-1.1
 

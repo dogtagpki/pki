@@ -3,7 +3,7 @@ Name:             dogtag-pki-theme
 Version:          10.4.1
 Release:          2%{?dist}
 %else
-Version:          10.4.7
+Version:          10.4.8
 Release:          1.1%{?dist}
 %endif
 Summary:          Certificate System - Dogtag PKI Theme Components
@@ -173,6 +173,12 @@ cd build
 
 
 %changelog
+* Thu Jun 22 2017 Dogtag Team <pki-devel@redhat.com> 10.4.8-1.1
+- Updated source version number to 10.4.8-1.1
+
+* Mon Jun 19 2017 Dogtag Team <pki-devel@redhat.com> 10.4.8-1
+- Updated source version number to 10.4.8-1
+
 * Thu Jun  8 2017 Dogtag Team <pki-devel@redhat.com> 10.4.7-1.1
 - Updated source version number to 10.4.7-1.1
 
