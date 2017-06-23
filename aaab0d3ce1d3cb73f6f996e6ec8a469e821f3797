@@ -1,0 +1,239 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c3b25d16_97ffad77",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-06-23T20:53:13Z",
+      "side": 1,
+      "message": "This is a sub command of pki-server, so we should say \"pki-server subsystem-cert-update\" to avoid confusion.",
+      "range": {
+        "startLine": 7,
+        "startChar": 10,
+        "endLine": 7,
+        "endChar": 31
+      },
+      "revId": "aaab0d3ce1d3cb73f6f996e6ec8a469e821f3797",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "edee5890_42dd89ec",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-06-23T20:53:13Z",
+      "side": 1,
+      "message": "We probably don\u0027t need the --overwrite. See comment in the other file.",
+      "range": {
+        "startLine": 9,
+        "startChar": 26,
+        "endLine": 9,
+        "endChar": 37
+      },
+      "revId": "aaab0d3ce1d3cb73f6f996e6ec8a469e821f3797",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c9eb21ed_b7c9a1d4",
+        "filename": "base/server/python/pki/server/cli/subsystem.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 744,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-06-23T20:53:13Z",
+      "side": 1,
+      "message": "No need to capitalize the C.",
+      "range": {
+        "startLine": 744,
+        "startChar": 29,
+        "endLine": 744,
+        "endChar": 30
+      },
+      "revId": "aaab0d3ce1d3cb73f6f996e6ec8a469e821f3797",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "62ef778d_fa04fdef",
+        "filename": "base/server/python/pki/server/cli/subsystem.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 744,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-06-23T20:53:13Z",
+      "side": 1,
+      "message": "No need to capitalize the C.",
+      "range": {
+        "startLine": 744,
+        "startChar": 53,
+        "endLine": 744,
+        "endChar": 54
+      },
+      "revId": "aaab0d3ce1d3cb73f6f996e6ec8a469e821f3797",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bdea104f_1ac4be4a",
+        "filename": "base/server/python/pki/server/cli/subsystem.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 745,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-06-23T20:53:13Z",
+      "side": 1,
+      "message": "Maybe we don\u0027t really need the --overwrite option. If the --cert is specified, that means we do want to overwrite nssdb. See comment below.",
+      "range": {
+        "startLine": 745,
+        "startChar": 27,
+        "endLine": 745,
+        "endChar": 29
+      },
+      "revId": "aaab0d3ce1d3cb73f6f996e6ec8a469e821f3797",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2691be68_1b598251",
+        "filename": "base/server/python/pki/server/cli/subsystem.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 763,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-06-23T20:53:13Z",
+      "side": 1,
+      "message": "Let\u0027s use \"None\" instead.",
+      "range": {
+        "startLine": 763,
+        "startChar": 20,
+        "endLine": 763,
+        "endChar": 22
+      },
+      "revId": "aaab0d3ce1d3cb73f6f996e6ec8a469e821f3797",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "386cb549_e060042f",
+        "filename": "base/server/python/pki/server/cli/subsystem.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 815,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-06-23T20:53:13Z",
+      "side": 1,
+      "message": "Possibly pylint will complain about the extra blank line.",
+      "revId": "aaab0d3ce1d3cb73f6f996e6ec8a469e821f3797",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "371682a6_4d41c18d",
+        "filename": "base/server/python/pki/server/cli/subsystem.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 816,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-06-23T20:53:13Z",
+      "side": 1,
+      "message": "Let\u0027s merge this if clause. See comment below.",
+      "revId": "aaab0d3ce1d3cb73f6f996e6ec8a469e821f3797",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a357234d_f2a76cd7",
+        "filename": "base/server/python/pki/server/cli/subsystem.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 820,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-06-23T20:53:13Z",
+      "side": 1,
+      "message": "It should be something like this:\n\n  if cert_file:\n\n     if not is_file(cert_file):\n         # exit -\u003e certificate doesn\u0027t exist\n\n     # remove old cert (if exists)\n     # import new cert",
+      "range": {
+        "startLine": 820,
+        "startChar": 13,
+        "endLine": 820,
+        "endChar": 28
+      },
+      "revId": "aaab0d3ce1d3cb73f6f996e6ec8a469e821f3797",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a6816bb7_548ae73c",
+        "filename": "base/server/python/pki/server/cli/subsystem.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 827,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-06-23T20:53:13Z",
+      "side": 1,
+      "message": "The parenthesis is redundant.",
+      "range": {
+        "startLine": 827,
+        "startChar": 63,
+        "endLine": 827,
+        "endChar": 64
+      },
+      "revId": "aaab0d3ce1d3cb73f6f996e6ec8a469e821f3797",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "df4a188e_d97f4157",
+        "filename": "base/server/python/pki/server/cli/subsystem.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 832,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-06-23T20:53:13Z",
+      "side": 1,
+      "message": "Lines 832-843 is not needed. After importing the cert we can resume the original code.",
+      "revId": "aaab0d3ce1d3cb73f6f996e6ec8a469e821f3797",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
