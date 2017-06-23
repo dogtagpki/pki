@@ -741,6 +741,7 @@ class SubsystemCertUpdateCLI(pki.cli.CLI):
         print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
         print('  -v, --verbose                   Run in verbose mode.')
         print('      --help                      Show help message.')
+        print('      --cert <certificate>        New certificate to be added')
         print()
 
     def execute(self, argv):
@@ -748,7 +749,8 @@ class SubsystemCertUpdateCLI(pki.cli.CLI):
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=',
-                'verbose', 'help'])
+                'verbose', 'help',
+                'cert='])
 
         except getopt.GetoptError as e:
             print('ERROR: ' + str(e))
@@ -756,6 +758,7 @@ class SubsystemCertUpdateCLI(pki.cli.CLI):
             sys.exit(1)
 
         instance_name = 'pki-tomcat'
+        cert_file = None
 
         for o, a in opts:
             if o in ('-i', '--instance'):
@@ -767,6 +770,9 @@ class SubsystemCertUpdateCLI(pki.cli.CLI):
             elif o == '--help':
                 self.usage()
                 sys.exit()
+
+            elif o == '--cert':
+                cert_file = a
 
             else:
                 print('ERROR: unknown option ' + o)
@@ -807,6 +813,25 @@ class SubsystemCertUpdateCLI(pki.cli.CLI):
 
         token = subsystem_cert['token']
         nssdb = instance.open_nssdb(token)
+
+        if cert_file:
+            if not os.path.isfile(cert_file):
+                print('ERROR: %s certificate does not exist.' % cert_file)
+                self.usage()
+                sys.exit(1)
+
+            data = nssdb.get_cert(
+                nickname=subsystem_cert['nickname'],
+                output_format='base64')
+
+            if data:
+                print('Removing old %s certificate from Database.' % subsystem_cert['nickname'])
+                nssdb.remove_cert(nickname=subsystem_cert['nickname'])
+            print('Adding new %s certificate into Database.' % subsystem_cert['nickname'])
+            nssdb.add_cert(
+                nickname=subsystem_cert['nickname'],
+                cert_file=cert_file)
+
         data = nssdb.get_cert(
             nickname=subsystem_cert['nickname'],
             output_format='base64')
