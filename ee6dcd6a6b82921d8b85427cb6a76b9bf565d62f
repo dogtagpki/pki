@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6b353bb3_00223ad7",
+        "filename": "base/server/python/pki/server/cli/subsystem.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 828,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-06-23T22:46:59Z",
+      "side": 1,
+      "message": "Could you add if self.verbose: like in line 844?",
+      "revId": "ee6dcd6a6b82921d8b85427cb6a76b9bf565d62f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4f3222ec_75053f28",
+        "filename": "base/server/python/pki/server/cli/subsystem.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 828,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-06-23T22:46:59Z",
+      "side": 1,
+      "message": "No need to capitalize the D.",
+      "range": {
+        "startLine": 828,
+        "startChar": 56,
+        "endLine": 828,
+        "endChar": 57
+      },
+      "revId": "ee6dcd6a6b82921d8b85427cb6a76b9bf565d62f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c7b465e3_2049c789",
+        "filename": "base/server/python/pki/server/cli/subsystem.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 830,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-06-23T22:46:59Z",
+      "side": 1,
+      "message": "No need to capitalize the D.",
+      "range": {
+        "startLine": 830,
+        "startChar": 50,
+        "endLine": 830,
+        "endChar": 51
+      },
+      "revId": "ee6dcd6a6b82921d8b85427cb6a76b9bf565d62f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "12fd28a3_e756a6d7",
+        "filename": "base/server/python/pki/server/cli/subsystem.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 830,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-06-23T22:46:59Z",
+      "side": 1,
+      "message": "Could you add if self.verbose: like in line 844?",
+      "revId": "ee6dcd6a6b82921d8b85427cb6a76b9bf565d62f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
