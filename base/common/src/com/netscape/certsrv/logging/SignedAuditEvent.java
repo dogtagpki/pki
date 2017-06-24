@@ -17,6 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.logging;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 /**
  * The log event object that carries message detail of a log event
  * that goes into the Signed Audit Event log. This log has the
@@ -30,6 +33,8 @@ package com.netscape.certsrv.logging;
 public class SignedAuditEvent extends LogEvent {
 
     private static final long serialVersionUID = 4287822756516673931L;
+
+    protected Map<String, Object> attributes = new LinkedHashMap<>();
 
     /**
      * Constructs a SignedAuditEvent message event.
@@ -106,5 +111,34 @@ public class SignedAuditEvent extends LogEvent {
      */
     public SignedAuditEvent(String msgFormat, Object params[]) {
         super(msgFormat, params);
+    }
+
+    public void setAttribute(String name, Object value) {
+        attributes.put(name, value);
+    }
+
+    public Object getAttribute(String name) {
+        return attributes.get(name);
+    }
+
+    public Map<String, Object> getAttributes() {
+        return attributes;
+    }
+
+    public String getAttributeList() {
+
+        StringBuilder sb = new StringBuilder();
+
+        for (String name : attributes.keySet()) {
+            Object value = attributes.get(name);
+
+            sb.append("[");
+            sb.append(name);
+            sb.append("=");
+            sb.append(value == null ? ILogger.SIGNED_AUDIT_EMPTY_VALUE : value);
+            sb.append("]");
+        }
+
+        return sb.toString();
     }
 }

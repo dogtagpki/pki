@@ -18,10 +18,10 @@
 package com.netscape.certsrv.logging.event;
 
 import com.netscape.certsrv.dbs.keydb.KeyId;
-import com.netscape.certsrv.logging.AuditEvent;
+import com.netscape.certsrv.logging.SignedAuditEvent;
 import com.netscape.certsrv.request.RequestId;
 
-public class SymKeyGenerationProcessedEvent extends AuditEvent {
+public class SymKeyGenerationProcessedEvent extends SignedAuditEvent {
 
     private static final long serialVersionUID = 1L;
 

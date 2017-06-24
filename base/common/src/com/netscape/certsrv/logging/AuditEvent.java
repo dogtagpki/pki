@@ -17,9 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.logging;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 /**
  * The log event object that carries message detail of a log event
  * that goes into the Transaction log. Note that the name of this
@@ -38,8 +35,6 @@ public class AuditEvent extends LogEvent {
             "LOGGING_SIGNED_AUDIT_AUDIT_LOG_SHUTDOWN_2";
     public final static String CIMC_CERT_VERIFICATION =
             "LOGGING_SIGNED_AUDIT_CIMC_CERT_VERIFICATION_3";
-    public final static String ROLE_ASSUME =
-            "LOGGING_SIGNED_AUDIT_ROLE_ASSUME_3";
     public final static String CONFIG_CERT_POLICY =
             "LOGGING_SIGNED_AUDIT_CONFIG_CERT_POLICY_3";
     public final static String CONFIG_CERT_PROFILE =
@@ -50,12 +45,8 @@ public class AuditEvent extends LogEvent {
             "LOGGING_SIGNED_AUDIT_CONFIG_OCSP_PROFILE_3";
     public final static String CONFIG_AUTH =
             "LOGGING_SIGNED_AUDIT_CONFIG_AUTH_3";
-    public final static String CONFIG_ROLE =
-            "LOGGING_SIGNED_AUDIT_CONFIG_ROLE_3";
     public final static String CONFIG_ACL =
             "LOGGING_SIGNED_AUDIT_CONFIG_ACL_3";
-    public final static String CONFIG_SIGNED_AUDIT =
-            "LOGGING_SIGNED_AUDIT_CONFIG_SIGNED_AUDIT_3";
     public final static String CONFIG_ENCRYPTION =
             "LOGGING_SIGNED_AUDIT_CONFIG_ENCRYPTION_3";
     public final static String CONFIG_DRM =
@@ -79,20 +70,8 @@ public class AuditEvent extends LogEvent {
     public final static String CERT_STATUS_CHANGE_REQUEST =
             "LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST_5";
 
-    public final static String AUTHZ_SUCCESS =
-            "LOGGING_SIGNED_AUDIT_AUTHZ_SUCCESS_4";
-    public final static String AUTHZ_SUCCESS_INFO =
-            "LOGGING_SIGNED_AUDIT_AUTHZ_SUCCESS_5";
-    public final static String AUTHZ_FAIL =
-            "LOGGING_SIGNED_AUDIT_AUTHZ_FAIL_4";
-    public final static String AUTHZ_FAIL_INFO =
-            "LOGGING_SIGNED_AUDIT_AUTHZ_FAIL_5";
     public final static String INTER_BOUNDARY =
             "LOGGING_SIGNED_AUDIT_INTER_BOUNDARY_SUCCESS_5";
-    public final static String AUTH_FAIL =
-            "LOGGING_SIGNED_AUDIT_AUTH_FAIL_4";
-    public final static String AUTH_SUCCESS =
-            "LOGGING_SIGNED_AUDIT_AUTH_SUCCESS_3";
     public final static String CERT_PROFILE_APPROVAL =
             "LOGGING_SIGNED_AUDIT_CERT_PROFILE_APPROVAL_4";
     public final static String PROOF_OF_POSSESSION =
@@ -215,8 +194,6 @@ public class AuditEvent extends LogEvent {
 
     private static final long serialVersionUID = -844306657733902324L;
 
-    protected Map<String, Object> attributes = new LinkedHashMap<>();
-
     /**
      * Constructs a message event
      * <P>
@@ -292,26 +269,5 @@ public class AuditEvent extends LogEvent {
      */
     public AuditEvent(String msgFormat, Object params[]) {
         super(msgFormat, params);
-    }
-
-    public void setAttribute(String name, Object value) {
-        attributes.put(name, value);
-    }
-
-    public String getAttributeList() {
-
-        StringBuilder sb = new StringBuilder();
-
-        for (String name : attributes.keySet()) {
-            Object value = attributes.get(name);
-
-            sb.append("[");
-            sb.append(name);
-            sb.append("=");
-            sb.append(value);
-            sb.append("]");
-        }
-
-        return sb.toString();
     }
 }

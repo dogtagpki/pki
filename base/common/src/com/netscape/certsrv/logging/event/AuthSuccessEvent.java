@@ -17,18 +17,21 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.logging.event;
 
-import com.netscape.certsrv.logging.AuditEvent;
+import com.netscape.certsrv.logging.SignedAuditEvent;
 
-public class AuthSuccessEvent extends AuditEvent {
+public class AuthSuccessEvent extends SignedAuditEvent {
 
     private static final long serialVersionUID = 1L;
+
+    public final static String LOGGING_PROPERTY =
+            "LOGGING_SIGNED_AUDIT_AUTH_SUCCESS_3";
 
     public AuthSuccessEvent(
             String subjectID,
             String outcome,
             String authManagerID) {
 
-        super(AUTH_SUCCESS);
+        super(LOGGING_PROPERTY);
 
         setParameters(new Object[] {
                 subjectID,
