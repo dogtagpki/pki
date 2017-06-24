@@ -490,7 +490,7 @@ public class RevocationProcessor extends CertProcessor {
                 serialNumber == null ? ILogger.SIGNED_AUDIT_EMPTY_VALUE : serialNumber.toHexString(),
                 requestType);
 
-        auditor.log(auditMessage);
+        signedAuditLogger.log(auditMessage);
     }
 
     public void auditChangeRequestProcessed(String status) {
@@ -506,7 +506,7 @@ public class RevocationProcessor extends CertProcessor {
                 || requestStatus == RequestStatus.REJECTED
                 || requestStatus == RequestStatus.CANCELED)) return;
 
-        auditor.log(new CertStatusChangeRequestProcessedEvent(
+        signedAuditLogger.log(new CertStatusChangeRequestProcessedEvent(
                 auditor.getSubjectID(),
                 status,
                 requestID == null ? ILogger.UNIDENTIFIED : requestID.toString(),

@@ -479,7 +479,7 @@ public class ConnectorService extends SubsystemService implements ConnectorResou
                 connectorID,
                 auditor.getParamString(null, params),
                 info);
-        auditor.log(msg);
+        signedAuditLogger.log(msg);
 
     }
 }

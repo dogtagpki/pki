@@ -68,11 +68,4 @@ public interface IAuditor {
      */
     public String getParamString(String scope, String type, String id, Map<String, String> params);
     public String getParamString(StringBuilder parameters, Map<String, String> params);
-
-    /**
-     * Log audit message.
-     */
-    public void log(String message);
-
-    public void log(AuditEvent event);
 }

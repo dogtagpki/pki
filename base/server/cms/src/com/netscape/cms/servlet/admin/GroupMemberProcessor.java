@@ -391,7 +391,7 @@ public class GroupMemberProcessor extends Processor {
 
         if (auditor == null) return;
 
-        auditor.log(new ConfigRoleEvent(
+        signedAuditLogger.log(new ConfigRoleEvent(
                 auditor.getSubjectID(),
                 status,
                 auditor.getParamString(ScopeDef.SC_GROUP_MEMBERS, type, id, params)));

@@ -1230,7 +1230,7 @@ public class UserService extends SubsystemService implements UserResource {
 
         if (auditor == null) return;
 
-        auditor.log(new ConfigRoleEvent(
+        signedAuditLogger.log(new ConfigRoleEvent(
                 auditor.getSubjectID(),
                 status,
                 auditor.getParamString(ScopeDef.SC_USERS, type, id, params)));
@@ -1240,7 +1240,7 @@ public class UserService extends SubsystemService implements UserResource {
 
         if (auditor == null) return;
 
-        auditor.log(new ConfigRoleEvent(
+        signedAuditLogger.log(new ConfigRoleEvent(
                 auditor.getSubjectID(),
                 status,
                 auditor.getParamString(ScopeDef.SC_USER_CERTS, type, id, params)));

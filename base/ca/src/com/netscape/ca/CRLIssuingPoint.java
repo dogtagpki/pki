@@ -49,9 +49,9 @@ import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.dbs.certdb.IRevocationInfo;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.dbs.crldb.ICRLRepository;
-import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.logging.event.DeltaCRLGenerationEvent;
 import com.netscape.certsrv.logging.event.DeltaCRLPublishingEvent;
 import com.netscape.certsrv.logging.event.FullCRLGenerationEvent;
@@ -3190,14 +3190,8 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         return subjectID.trim();
     }
 
-    void audit(AuditEvent event) {
-
-        String messageID = event.getMessage();
-        Object[] params = event.getParameters();
-
-        String message = CMS.getLogMessage(messageID, params);
-
-        signedAuditLogger.log(message);
+    void audit(LogEvent event) {
+        signedAuditLogger.log(event);
     }
 }
 

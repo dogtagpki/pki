@@ -435,7 +435,7 @@ public class GroupService extends SubsystemService implements GroupResource {
 
         if (auditor == null) return;
 
-        auditor.log(new ConfigRoleEvent(
+        signedAuditLogger.log(new ConfigRoleEvent(
                 auditor.getSubjectID(),
                 status,
                 auditor.getParamString(ScopeDef.SC_GROUPS, type, id, params)));

@@ -482,7 +482,6 @@ public class AuthenticatorService extends SubsystemService implements Authentica
                 authenticatorID,
                 auditor.getParamString(null, params),
                 info);
-        auditor.log(msg);
-
+        signedAuditLogger.log(msg);
     }
 }

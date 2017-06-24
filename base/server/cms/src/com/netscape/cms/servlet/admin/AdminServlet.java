@@ -49,9 +49,9 @@ import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
-import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.IAuditor;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.logging.event.AuthFailEvent;
 import com.netscape.certsrv.logging.event.AuthSuccessEvent;
 import com.netscape.certsrv.logging.event.AuthzFailEvent;
@@ -60,6 +60,8 @@ import com.netscape.certsrv.logging.event.RoleAssumeEvent;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
+import com.netscape.cms.logging.Logger;
+import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cmsutil.util.Utils;
 
@@ -94,9 +96,8 @@ import netscape.security.x509.X509CertImpl;
  */
 public class AdminServlet extends HttpServlet {
 
-    /**
-     *
-     */
+    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
+
     private static final long serialVersionUID = 7740464244137421542L;
     private final static String HDR_AUTHORIZATION = "Authorization";
     private final static String HDR_LANG = "accept-language";
@@ -953,22 +954,11 @@ public class AdminServlet extends HttpServlet {
      * @param msg signed audit log message
      */
     protected void audit(String msg) {
-
-        if (auditor == null) {
-            return;
-        }
-
-        auditor.log(msg);
+        signedAuditLogger.log(msg);
     }
 
-    protected void audit(AuditEvent event) {
-
-        String template = event.getMessage();
-        Object[] params = event.getParameters();
-
-        String message = CMS.getLogMessage(template, params);
-
-        audit(message);
+    protected void audit(LogEvent event) {
+        signedAuditLogger.log(event);
     }
 
     /**

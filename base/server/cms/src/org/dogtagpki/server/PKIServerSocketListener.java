@@ -35,11 +35,12 @@ import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.logging.AuditEvent;
-import com.netscape.certsrv.logging.IAuditor;
+import com.netscape.cms.logging.SignedAuditLogger;
 
 public class PKIServerSocketListener implements SSLSocketListener {
 
     private static Logger logger = LoggerFactory.getLogger(PKIServerSocketListener.class);
+    private static SignedAuditLogger signedAuditLogger = SignedAuditLogger.getLogger();
 
     /**
      * The socketInfos map is a storage for socket information that may not be available
@@ -74,8 +75,6 @@ public class PKIServerSocketListener implements SSLSocketListener {
             logger.debug(" - server: " + serverIP);
             logger.debug(" - subject: " + subjectID);
 
-            IAuditor auditor = CMS.getAuditor();
-
             String auditMessage = CMS.getLogMessage(
                     AuditEvent.ACCESS_SESSION_TERMINATED,
                     clientIP,
@@ -83,7 +82,7 @@ public class PKIServerSocketListener implements SSLSocketListener {
                     subjectID,
                     reason);
 
-            auditor.log(auditMessage);
+            signedAuditLogger.log(auditMessage);
 
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
@@ -135,8 +134,6 @@ public class PKIServerSocketListener implements SSLSocketListener {
             logger.debug(" - server: " + serverIP);
             logger.debug(" - subject: " + subjectID);
 
-            IAuditor auditor = CMS.getAuditor();
-
             String auditMessage = CMS.getLogMessage(
                     eventType,
                     clientIP,
@@ -144,7 +141,7 @@ public class PKIServerSocketListener implements SSLSocketListener {
                     subjectID,
                     reason);
 
-            auditor.log(auditMessage);
+            signedAuditLogger.log(auditMessage);
 
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
@@ -178,15 +175,13 @@ public class PKIServerSocketListener implements SSLSocketListener {
             info.put("subjectID", subjectID);
             socketInfos.put(socket, info);
 
-            IAuditor auditor = CMS.getAuditor();
-
             String auditMessage = CMS.getLogMessage(
                     AuditEvent.ACCESS_SESSION_ESTABLISH_SUCCESS,
                     clientIP,
                     serverIP,
                     subjectID);
 
-            auditor.log(auditMessage);
+            signedAuditLogger.log(auditMessage);
 
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
