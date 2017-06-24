@@ -76,9 +76,9 @@ import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
-import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.logging.event.CertStatusChangeRequestProcessedEvent;
 import com.netscape.certsrv.profile.IEnrollProfile;
 import com.netscape.certsrv.request.IRequest;
@@ -1324,14 +1324,8 @@ public class CMCOutputTemplate {
         return bpid;
     }
 
-    protected void audit(AuditEvent event) {
-
-        String template = event.getMessage();
-        Object[] params = event.getParameters();
-
-        String message = CMS.getLogMessage(template, params);
-
-        audit(message);
+    protected void audit(LogEvent event) {
+        signedAuditLogger.log(event);
     }
 
     protected void audit(String msg) {

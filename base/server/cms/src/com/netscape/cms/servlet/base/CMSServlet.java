@@ -64,9 +64,9 @@ import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
-import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogCategory;
+import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.logging.LogSource;
 import com.netscape.certsrv.logging.event.AuthFailEvent;
 import com.netscape.certsrv.logging.event.AuthSuccessEvent;
@@ -117,7 +117,7 @@ import netscape.security.x509.X509CertImpl;
  */
 public abstract class CMSServlet extends HttpServlet {
 
-    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
+    protected static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     private static final long serialVersionUID = -3886300199374147160L;
     // servlet init params
@@ -2026,14 +2026,8 @@ public abstract class CMSServlet extends HttpServlet {
         signedAuditLogger.log(msg);
     }
 
-    protected void audit(AuditEvent event) {
-
-        String template = event.getMessage();
-        Object[] params = event.getParameters();
-
-        String message = CMS.getLogMessage(template, params);
-
-        audit(message);
+    protected void audit(LogEvent event) {
+        signedAuditLogger.log(event);
     }
 
     /**

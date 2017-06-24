@@ -32,6 +32,7 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.profile.IProfileContext;
@@ -257,14 +258,8 @@ public abstract class EnrollInput implements IProfileInput {
         signedAuditLogger.log(msg);
     }
 
-    protected void audit(AuditEvent event) {
-
-        String template = event.getMessage();
-        Object[] params = event.getParameters();
-
-        String message = CMS.getLogMessage(template, params);
-
-        audit(message);
+    protected void audit(LogEvent event) {
+        signedAuditLogger.log(event);
     }
 
     /**

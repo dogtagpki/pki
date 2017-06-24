@@ -94,6 +94,7 @@ import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.logging.AuditEvent;
+import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.tps.token.TokenStatus;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
@@ -4277,14 +4278,8 @@ public class TPSProcessor {
         signedAuditLogger.log(msg);
     }
 
-    protected void audit(AuditEvent event) {
-
-        String template = event.getMessage();
-        Object[] params = event.getParameters();
-
-        String message = CMS.getLogMessage(template, params);
-
-        audit(message);
+    protected void audit(LogEvent event) {
+        signedAuditLogger.log(event);
     }
 
     public static void main(String[] args) {

@@ -13,8 +13,12 @@ import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.logging.IAuditor;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogSource;
+import com.netscape.cms.logging.Logger;
+import com.netscape.cms.logging.SignedAuditLogger;
 
 public class Processor {
+
+    protected static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     protected ILogger logger = CMS.getLogger();
     protected IAuditor auditor = CMS.getAuditor();

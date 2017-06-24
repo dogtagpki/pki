@@ -51,6 +51,7 @@ import com.netscape.certsrv.connector.IRequestEncoder;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.logging.event.CertRequestProcessedEvent;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IEnrollProfile;
@@ -59,8 +60,6 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.cms.logging.Logger;
-import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 
@@ -87,7 +86,6 @@ import netscape.security.x509.X509CertInfo;
 public class ConnectorServlet extends CMSServlet {
 
     private static ILogger mLogger = CMS.getLogger();
-    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     private static final long serialVersionUID = 1221916495803185863L;
     public static final String INFO = "Connector Servlet";
@@ -990,14 +988,8 @@ public class ConnectorServlet extends CMSServlet {
         signedAuditLogger.log(msg);
     }
 
-    protected void audit(AuditEvent event) {
-
-        String template = event.getMessage();
-        Object[] params = event.getParameters();
-
-        String message = CMS.getLogMessage(template, params);
-
-        audit(message);
+    protected void audit(LogEvent event) {
+        signedAuditLogger.log(event);
     }
 
     /**

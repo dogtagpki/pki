@@ -456,7 +456,7 @@ public class ProfileMappingService extends SubsystemService implements ProfileMa
                 resolverID,
                 auditor.getParamString(null, params),
                 info);
-        auditor.log(msg);
+        signedAuditLogger.log(msg);
 
     }
 

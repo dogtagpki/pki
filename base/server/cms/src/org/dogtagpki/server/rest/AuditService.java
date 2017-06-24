@@ -412,7 +412,7 @@ public class AuditService extends SubsystemService implements AuditResource {
      */
     public void auditTPSConfigSignedAudit(String status, Map<String, String> params) {
 
-        auditor.log(new ConfigSignedAuditEvent(
+        signedAuditLogger.log(new ConfigSignedAuditEvent(
                 servletRequest.getUserPrincipal().getName(),
                 status,
                 auditor.getParamString(null, params)));

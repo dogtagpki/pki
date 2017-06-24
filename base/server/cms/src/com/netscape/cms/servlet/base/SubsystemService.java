@@ -31,9 +31,14 @@ import com.netscape.certsrv.authorization.IAuthzSubsystem;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.IAuditor;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.logging.LogSource;
+import com.netscape.cms.logging.Logger;
+import com.netscape.cms.logging.SignedAuditLogger;
 
 public class SubsystemService extends PKIService {
+
+    protected static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     protected IAuthzSubsystem authz = (IAuthzSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTHZ);
     protected IAuditor auditor = CMS.getAuditor();
@@ -82,14 +87,8 @@ public class SubsystemService extends PKIService {
                 getClass().getSimpleName() + ": " + message);
     }
 
-    protected void audit(AuditEvent event) {
-
-        String template = event.getMessage();
-        Object[] params = event.getParameters();
-
-        String message = CMS.getLogMessage(template, params);
-
-        auditor.log(message);
+    protected void audit(LogEvent event) {
+        signedAuditLogger.log(event);
     }
 
     public void audit(String message, String scope, String type, String id, Map<String, String> params, String status) {
@@ -100,7 +99,7 @@ public class SubsystemService extends PKIService {
                 status,
                 auditor.getParamString(scope, type, id, params));
 
-        auditor.log(auditMessage);
+        signedAuditLogger.log(auditMessage);
     }
 
     public void auditConfigTokenGeneral(String status, String service, Map<String, String> params, String info) {
@@ -112,6 +111,6 @@ public class SubsystemService extends PKIService {
                 service,
                 auditor.getParamString(null, params),
                 info);
-        auditor.log(msg);
+        signedAuditLogger.log(msg);
     }
 }

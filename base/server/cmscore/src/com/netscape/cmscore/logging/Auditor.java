@@ -24,13 +24,10 @@ import java.util.Map;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.common.Constants;
-import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.IAuditor;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
-import com.netscape.cms.logging.Logger;
-import com.netscape.cms.logging.SignedAuditLogger;
 
 /**
  * @author Endi S. Dewata
@@ -38,8 +35,6 @@ import com.netscape.cms.logging.SignedAuditLogger;
 public class Auditor implements IAuditor {
 
     public final static Auditor auditor = new Auditor();
-
-    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     public static IAuditor getAuditor() {
         return auditor;
@@ -200,21 +195,5 @@ public class Auditor implements IAuditor {
         }
 
         return parameters.toString();
-    }
-
-    @Override
-    public void log(String message) {
-        signedAuditLogger.log(message);
-    }
-
-    @Override
-    public void log(AuditEvent event) {
-
-        String template = event.getMessage();
-        Object[] params = event.getParameters();
-
-        String message = CMS.getLogMessage(template, params);
-
-        log(message);
     }
 }
