@@ -17,11 +17,14 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.logging.event;
 
-import com.netscape.certsrv.logging.AuditEvent;
+import com.netscape.certsrv.logging.SignedAuditEvent;
 
-public class AuthFailEvent extends AuditEvent {
+public class AuthFailEvent extends SignedAuditEvent {
 
     private static final long serialVersionUID = 1L;
+
+    public final static String LOGGING_PROPERTY =
+            "LOGGING_SIGNED_AUDIT_AUTH_FAIL_4";
 
     public AuthFailEvent(
             String subjectID,
@@ -29,7 +32,7 @@ public class AuthFailEvent extends AuditEvent {
             String authManagerID,
             String attemptedUID) {
 
-        super(AUTH_FAIL);
+        super(LOGGING_PROPERTY);
 
         setParameters(new Object[] {
                 subjectID,

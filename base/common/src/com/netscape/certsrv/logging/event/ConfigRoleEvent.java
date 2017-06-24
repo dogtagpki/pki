@@ -17,18 +17,21 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.logging.event;
 
-import com.netscape.certsrv.logging.AuditEvent;
+import com.netscape.certsrv.logging.SignedAuditEvent;
 
-public class ConfigRoleEvent extends AuditEvent {
+public class ConfigRoleEvent extends SignedAuditEvent {
 
     private static final long serialVersionUID = 1L;
+
+    public final static String LOGGING_PROPERTY =
+            "LOGGING_SIGNED_AUDIT_CONFIG_ROLE_3";
 
     public ConfigRoleEvent(
             String subjectID,
             String outcome,
             String params) {
 
-        super(CONFIG_ROLE);
+        super(LOGGING_PROPERTY);
 
         setParameters(new Object[] {
                 subjectID,

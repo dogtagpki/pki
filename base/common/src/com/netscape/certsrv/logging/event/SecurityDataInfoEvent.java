@@ -18,9 +18,9 @@
 package com.netscape.certsrv.logging.event;
 
 import com.netscape.certsrv.dbs.keydb.KeyId;
-import com.netscape.certsrv.logging.AuditEvent;
+import com.netscape.certsrv.logging.SignedAuditEvent;
 
-public class SecurityDataInfoEvent extends AuditEvent {
+public class SecurityDataInfoEvent extends SignedAuditEvent {
 
     private static final long serialVersionUID = 1L;
 

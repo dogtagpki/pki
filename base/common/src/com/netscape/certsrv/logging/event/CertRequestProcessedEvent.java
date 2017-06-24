@@ -19,14 +19,14 @@ package com.netscape.certsrv.logging.event;
 
 import java.security.cert.CertificateEncodingException;
 
-import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.SignedAuditEvent;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cmsutil.util.Utils;
 
 import netscape.security.x509.X509CertImpl;
 
-public class CertRequestProcessedEvent extends AuditEvent {
+public class CertRequestProcessedEvent extends SignedAuditEvent {
 
     private static final long serialVersionUID = 1L;
 

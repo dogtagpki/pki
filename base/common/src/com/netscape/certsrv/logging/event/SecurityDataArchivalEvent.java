@@ -17,10 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.logging.event;
 
-import com.netscape.certsrv.logging.AuditEvent;
+import com.netscape.certsrv.logging.SignedAuditEvent;
 import com.netscape.certsrv.request.RequestId;
 
-public class SecurityDataArchivalEvent extends AuditEvent {
+public class SecurityDataArchivalEvent extends SignedAuditEvent {
 
     private static final long serialVersionUID = 1L;
 
