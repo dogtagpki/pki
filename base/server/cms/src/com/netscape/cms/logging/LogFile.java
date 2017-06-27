@@ -511,9 +511,8 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
         } else if (mType.equals(ILogger.PROP_AUDIT)) {
             defaultFileName = "logs/transactions";
         } else {
-            //wont get here
             throw new ELogException(CMS.getUserMessage("CMS_LOG_INVALID_LOG_TYPE",
-                    config.getName()));
+                    config.getName(), mType));
         }
 
         try {
