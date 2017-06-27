@@ -1078,6 +1078,8 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
                                 s.close();
                                 throw new EInvalidCredentials(
                                         CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL") + ":" + msg);
+                            } else {
+                                CMS.debug(method + "ssl client cert principal and cmc signer principal match");
                             }
 
                             PublicKey signKey = cert.getPublicKey();

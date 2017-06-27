@@ -29,6 +29,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.security.cert.X509Certificate;
 import java.security.MessageDigest;
 import java.security.PublicKey;
 import java.util.Enumeration;
@@ -247,6 +248,10 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
         String auditCertSubject = ILogger.UNIDENTIFIED;
         String auditSignerInfo = ILogger.UNIDENTIFIED;
 
+        SessionContext auditContext = SessionContext.getExistingContext();
+        X509Certificate clientCert =
+               (X509Certificate) auditContext.get(SessionContext.SSL_CLIENT_CERT);
+
         // ensure that any low-level exceptions are reported
         // to the signed audit log and stored as failures
         try {
@@ -362,7 +367,7 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
                 String userid = "defUser";
                 String uid = "defUser";
                 if (checkSignerInfo) {
-                    IAuthToken agentToken = verifySignerInfo(authToken, cmcFullReq);
+                    IAuthToken agentToken = verifySignerInfo(auditContext, authToken, cmcFullReq);
                     if (agentToken == null) {
                         CMS.debug(method + "agentToken null");
                         throw new EBaseException("CMCAuth: agent verifySignerInfo failure");
@@ -813,8 +818,12 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
                 level, "CMC Authentication: " + msg);
     }
 
-    protected IAuthToken verifySignerInfo(AuthToken authToken, SignedData cmcFullReq) throws EBaseException {
-
+    protected IAuthToken verifySignerInfo(
+            SessionContext auditContext,
+            AuthToken authToken,
+            SignedData cmcFullReq) throws EBaseException {
+        String method = "CMCAuth: verifySignerInfo: ";
+        String msg = "";
         EncapsulatedContentInfo ci = cmcFullReq.getContentInfo();
         OBJECT_IDENTIFIER id = ci.getContentType();
         OCTET_STRING content = ci.getContent();
@@ -823,6 +832,11 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
         CryptoToken signToken = null;
         CryptoToken savedToken = null;
         CryptoManager cm = null;
+
+        if (auditContext == null) {
+            CMS.debug(method + " auditConext can't be null");
+            return null;
+        }
         try {
             cm = CryptoManager.getInstance();
             ByteArrayInputStream s = new ByteArrayInputStream(content.toByteArray());
@@ -910,6 +924,34 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
                             si.verify(digest, id);
                         } else {
                             CMS.debug("CMCAuth: found signing cert... verifying");
+
+                            X509Certificate clientCert =
+                                    (X509Certificate) auditContext.get(SessionContext.SSL_CLIENT_CERT);
+                            if (clientCert == null) {
+                            //    createAuditSubjectFromCert(auditContext, x509Certs[0]);
+                                msg = "missing SSL client authentication certificate;";
+                                CMS.debug(method + msg);
+                                s.close();
+                                throw new EMissingCredential(
+                                        CMS.getUserMessage("CMS_AUTHENTICATION_NO_CERT"));
+                            }
+                            netscape.security.x509.X500Name clientPrincipal =
+                                    (X500Name) clientCert.getSubjectDN();
+
+                            netscape.security.x509.X500Name cmcPrincipal =
+                                    (X500Name) x509Certs[0].getSubjectDN();
+
+                            // check ssl client cert against cmc signer
+                            if (!clientPrincipal.equals(cmcPrincipal)) {
+                                msg = "SSL client authentication certificate and CMC signer do not match";
+                                CMS.debug(method + msg);
+                                s.close();
+                                throw new EInvalidCredentials(
+                                        CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL") + ":" + msg);
+                            } else {
+                                CMS.debug(method + "ssl client cert principal and cmc signer principal match");
+                            }
+
                             PublicKey signKey = cert.getPublicKey();
                             PrivateKey.Type keyType = null;
                             String alg = signKey.getAlgorithm();

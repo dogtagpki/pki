@@ -198,6 +198,7 @@ public abstract class EnrollProfile extends BasicProfile
             if (signingUserSerial != null) {
                 donePOI = true;
             }
+
             // catch for invalid request
             cmc_msgs = parseCMC(locale, cert_request, donePOI);
             if (cmc_msgs == null) {
@@ -723,6 +724,17 @@ public abstract class EnrollProfile extends BasicProfile
             byte randomSeed[] = null;
             UTF8String ident_s = null;
             SessionContext context = SessionContext.getContext();
+            String authManagerId = (String) context.get(SessionContext.AUTH_MANAGER_ID);
+            if (authManagerId == null) {
+                CMS.debug(method + "authManagerId null.????");
+                //unlikely, but...
+                authManagerId = "none";
+            } else {
+                CMS.debug(method + "authManagerId =" + authManagerId);
+            }
+            if(authManagerId.equals("CMCAuth")) {
+                donePOI = true;
+            }
 
             boolean id_cmc_revokeRequest = false;
             if (!context.containsKey("numOfControls")) {

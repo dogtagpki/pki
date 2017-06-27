@@ -494,7 +494,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
         ///////////////////////////////////////////////
         String tmpCertSerialS = ctx.get(IAuthManager.CRED_CMC_SIGNING_CERT);
         if (tmpCertSerialS != null) {
-            // unlikely to happenm, but do this just in case
+            // unlikely to happen, but do this just in case
             CMS.debug("ProfileSubmitCMCServlet: found existing CRED_CMC_SIGNING_CERT in ctx for CMCUserSignedAuth:" + tmpCertSerialS);
             CMS.debug("ProfileSubmitCMCServlet: null it out");
             ctx.set(IAuthManager.CRED_CMC_SIGNING_CERT, "");
