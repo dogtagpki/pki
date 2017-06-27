@@ -2393,7 +2393,7 @@ public class CMCRequest {
                 System.out.println("");
                 System.out.println("");
                 System.out.println("The CMC enrollment request in binary format is stored in " +
-                        ofilename + ".");
+                        ofilename);
             } catch (IOException e) {
                 System.out.println("CMCRequest:  unable to open file " + ofilename +
                         " for writing:\n" + e);

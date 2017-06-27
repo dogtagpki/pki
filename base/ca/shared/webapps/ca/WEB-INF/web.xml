@@ -1553,6 +1553,167 @@
    </servlet>
 
    <servlet>
+      <servlet-name>  caProfileSubmitCMCFullCACert  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.profile.ProfileSubmitCMCServlet  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  cert_request_type  </param-name>
+                         <param-value> cmc         </param-value> </init-param>
+             <init-param><param-name>  profileId   </param-name>
+                         <param-value> caCMCcaCert </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authorityId  </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caProfileSubmitCMCFull </param-value> </init-param>
+             <init-param><param-name>  templatePath  </param-name>
+                         <param-value> /ee/ca/ProfileSubmit.template </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ee.profile </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> ee          </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caProfileSubmitCMCFullServerCert  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.profile.ProfileSubmitCMCServlet  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  cert_request_type  </param-name>
+                         <param-value> cmc         </param-value> </init-param>
+             <init-param><param-name>  profileId   </param-name>
+                         <param-value> caCMCserverCert </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authorityId  </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caProfileSubmitCMCFull </param-value> </init-param>
+             <init-param><param-name>  templatePath  </param-name>
+                         <param-value> /ee/ca/ProfileSubmit.template </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ee.profile </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> ee          </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caProfileSubmitCMCFullOCSPCert  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.profile.ProfileSubmitCMCServlet  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  cert_request_type  </param-name>
+                         <param-value> cmc         </param-value> </init-param>
+             <init-param><param-name>  profileId   </param-name>
+                         <param-value> caCMCocspCert </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authorityId  </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caProfileSubmitCMCFull </param-value> </init-param>
+             <init-param><param-name>  templatePath  </param-name>
+                         <param-value> /ee/ca/ProfileSubmit.template </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ee.profile </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> ee          </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caProfileSubmitCMCFullSubsystemCert  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.profile.ProfileSubmitCMCServlet  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  cert_request_type  </param-name>
+                         <param-value> cmc         </param-value> </init-param>
+             <init-param><param-name>  profileId   </param-name>
+                         <param-value> caCMCsubsystemCert </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authorityId  </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caProfileSubmitCMCFull </param-value> </init-param>
+             <init-param><param-name>  templatePath  </param-name>
+                         <param-value> /ee/ca/ProfileSubmit.template </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ee.profile </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> ee          </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caProfileSubmitCMCFullAuditSigningCert  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.profile.ProfileSubmitCMCServlet  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  cert_request_type  </param-name>
+                         <param-value> cmc         </param-value> </init-param>
+             <init-param><param-name>  profileId   </param-name>
+                         <param-value> caCMCauditSigningCert </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authorityId  </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caProfileSubmitCMCFull </param-value> </init-param>
+             <init-param><param-name>  templatePath  </param-name>
+                         <param-value> /ee/ca/ProfileSubmit.template </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ee.profile </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> ee          </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caProfileSubmitCMCFullKRATransportCert  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.profile.ProfileSubmitCMCServlet  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  cert_request_type  </param-name>
+                         <param-value> cmc         </param-value> </init-param>
+             <init-param><param-name>  profileId   </param-name>
+                         <param-value> caCMCkraTransportCert </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authorityId  </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caProfileSubmitCMCFull </param-value> </init-param>
+             <init-param><param-name>  templatePath  </param-name>
+                         <param-value> /ee/ca/ProfileSubmit.template </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ee.profile </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> ee          </param-value> </init-param>
+   </servlet>
+
+   <servlet>
+      <servlet-name>  caProfileSubmitCMCFullKRAstorageCert  </servlet-name>
+      <servlet-class> com.netscape.cms.servlet.profile.ProfileSubmitCMCServlet  </servlet-class>
+             <init-param><param-name>  GetClientCert  </param-name>
+                         <param-value> false       </param-value> </init-param>
+             <init-param><param-name>  cert_request_type  </param-name>
+                         <param-value> cmc         </param-value> </init-param>
+             <init-param><param-name>  profileId   </param-name>
+                         <param-value> caCMCkraStorageCert </param-value> </init-param>
+             <init-param><param-name>  AuthzMgr    </param-name>
+                         <param-value> BasicAclAuthz </param-value> </init-param>
+             <init-param><param-name>  authorityId  </param-name>
+                         <param-value> ca          </param-value> </init-param>
+             <init-param><param-name>  ID          </param-name>
+                         <param-value> caProfileSubmitCMCFull </param-value> </init-param>
+             <init-param><param-name>  templatePath  </param-name>
+                         <param-value> /ee/ca/ProfileSubmit.template </param-value> </init-param>
+             <init-param><param-name>  resourceID  </param-name>
+                         <param-value> certServer.ee.profile </param-value> </init-param>
+             <init-param><param-name>  interface   </param-name>
+                         <param-value> ee          </param-value> </init-param>
+   </servlet>
+
+   <servlet>
       <servlet-name>  caProfileSubmitUserSignedCMCFull  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.profile.ProfileSubmitCMCServlet  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -2300,6 +2461,41 @@
    <servlet-mapping>  
       <servlet-name>  caProfileSubmitCMCFull  </servlet-name>
       <url-pattern>   /ee/ca/profileSubmitCMCFull  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>  
+      <servlet-name>  caProfileSubmitCMCFullCACert  </servlet-name>
+      <url-pattern>   /ee/ca/profileSubmitCMCFullCACert  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>  
+      <servlet-name>  caProfileSubmitCMCFullServerCert  </servlet-name>
+      <url-pattern>   /ee/ca/profileSubmitCMCFullServerCert  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>  
+      <servlet-name>  caProfileSubmitCMCFullOCSPCert  </servlet-name>
+      <url-pattern>   /ee/ca/profileSubmitCMCFullOCSPCert  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>  
+      <servlet-name>  caProfileSubmitCMCFullSubsystemCert  </servlet-name>
+      <url-pattern>   /ee/ca/profileSubmitCMCFullSubsystemCert  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>  
+      <servlet-name>  caProfileSubmitCMCFullAuditSigningCert  </servlet-name>
+      <url-pattern>   /ee/ca/profileSubmitCMCFullAuditSigningCert  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>  
+      <servlet-name>  caProfileSubmitCMCFullKRATransportCert  </servlet-name>
+      <url-pattern>   /ee/ca/profileSubmitCMCFullKRAtransportCert  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>  
+      <servlet-name>  caProfileSubmitCMCFullKRAstorageCert  </servlet-name>
+      <url-pattern>   /ee/ca/profileSubmitCMCFullKRAstorageCert  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>  
