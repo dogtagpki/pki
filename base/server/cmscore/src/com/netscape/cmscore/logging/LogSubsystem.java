@@ -127,18 +127,17 @@ public class LogSubsystem implements ILogSubsystem {
                 // for view from console
 
             } catch (ClassNotFoundException e) {
-                throw new EBaseException(insName + ":Failed to instantiate class " + className);
+                throw new EBaseException(insName + ": Failed to instantiate class " + className + ": " + e.getMessage(), e);
 
             } catch (IllegalAccessException e) {
-                throw new EBaseException(insName + ":Failed to instantiate class " + className);
+                throw new EBaseException(insName + ": Failed to instantiate class " + className + ": " + e.getMessage(), e);
 
             } catch (InstantiationException e) {
-                throw new EBaseException(insName + ":Failed to instantiate class " + className);
+                throw new EBaseException(insName + ": Failed to instantiate class " + className + ": " + e.getMessage(), e);
 
             } catch (Throwable e) {
-                e.printStackTrace();
                 throw new EBaseException(insName
-                        + ":Failed to instantiate class " + className + " error: " + e.getMessage());
+                        + ": Failed to instantiate class " + className + " error: " + e.getMessage(), e);
             }
 
             if (insName == null) {
