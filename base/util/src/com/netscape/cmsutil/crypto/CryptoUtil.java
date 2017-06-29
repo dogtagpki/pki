@@ -2064,25 +2064,24 @@ public class CryptoUtil {
                 TokenException,
                 CryptoManager.NicknameConflictException,
                 CryptoManager.UserCertConflictException {
-        CryptoManager cm = CryptoManager.getInstance();
 
-        cm.importUserCACertPackage(cert.getEncoded(), nickname);
-        trustCertByNickname(nickname);
+        importUserCertificate(cert, nickname, true);
     }
 
-    public static void importUserCertificate(X509CertImpl cert, String nickname,
-            boolean trust)
+    public static void importUserCertificate(X509CertImpl cert, String nickname, boolean trust)
             throws CryptoManager.NotInitializedException,
                 CertificateEncodingException,
                 NoSuchItemOnTokenException,
                 TokenException,
                 CryptoManager.NicknameConflictException,
                 CryptoManager.UserCertConflictException {
-        CryptoManager cm = CryptoManager.getInstance();
 
+        CryptoManager cm = CryptoManager.getInstance();
         cm.importUserCACertPackage(cert.getEncoded(), nickname);
-        if (trust)
+
+        if (trust) {
             trustCertByNickname(nickname);
+        }
     }
 
     public static java.security.cert.X509Certificate[] getX509CertificateFromPKCS7(byte[] b) throws IOException {
