@@ -25,11 +25,11 @@ import org.mozilla.jss.crypto.SymmetricKey.NotExtractableException;
 import org.mozilla.jss.crypto.SymmetricKeyDeriver;
 import org.mozilla.jss.crypto.TokenException;
 
+import sun.security.pkcs11.wrapper.PKCS11Constants;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmsutil.crypto.CryptoUtil;
-
-import sun.security.pkcs11.wrapper.PKCS11Constants;
 
 public class SecureChannelProtocol {
 
@@ -1874,13 +1874,13 @@ public class SecureChannelProtocol {
                 kekKey = returnDeveloperSymKey(newToken, SecureChannelProtocol.kekType, keySet, null,"DES3");
             } else if (protocol == PROTOCOL_THREE) {
                 CMS.debug(method + " Special case or returning to the dev key set (or ver 1) for DiversifyKey, protocol 3!");
-                encKey = this.computeSessionKey_SCP03(tokenName, newMasterKeyName, newKeyInfo,
+                encKey = this.computeSessionKey_SCP03(newTokenName, newMasterKeyName, newKeyInfo,
                         SecureChannelProtocol.encType, kekKeyArray,
                         keySet, CUIDValue, KDD, null, null, transportKeyName, params);
-                macKey = this.computeSessionKey_SCP03(tokenName, newMasterKeyName, newKeyInfo,
+                macKey = this.computeSessionKey_SCP03(newTokenName, newMasterKeyName, newKeyInfo,
                         SecureChannelProtocol.macType, kekKeyArray,
                         keySet, CUIDValue, KDD, null, null, transportKeyName, params);
-                kekKey = this.computeSessionKey_SCP03(tokenName, newMasterKeyName, newKeyInfo,
+                kekKey = this.computeSessionKey_SCP03(newTokenName, newMasterKeyName, newKeyInfo,
                         SecureChannelProtocol.kekType, kekKeyArray,
                         keySet, CUIDValue, KDD, null, null, transportKeyName, params);
             }
@@ -1916,13 +1916,14 @@ public class SecureChannelProtocol {
             } else { // protocol 3
 
                 CMS.debug(method + " Generating new card keys to upgrade to, protocol 3.");
-                encKey = this.computeSessionKey_SCP03(tokenName, newMasterKeyName, oldKeyInfo,
+                CMS.debug("tokenName: " + tokenName + " newTokenName: " + newTokenName);
+                encKey = this.computeSessionKey_SCP03(newTokenName, newMasterKeyName, oldKeyInfo,
                         SecureChannelProtocol.encType, kekKeyArray,
                         keySet, CUIDValue, KDD, null, null, transportKeyName, params);
-                macKey = this.computeSessionKey_SCP03(tokenName, newMasterKeyName, oldKeyInfo,
+                macKey = this.computeSessionKey_SCP03(newTokenName, newMasterKeyName, oldKeyInfo,
                         SecureChannelProtocol.macType, kekKeyArray,
                         keySet, CUIDValue, KDD, null, null, transportKeyName, params);
-                kekKey = this.computeSessionKey_SCP03(tokenName, newMasterKeyName, oldKeyInfo,
+                kekKey = this.computeSessionKey_SCP03(newTokenName, newMasterKeyName, oldKeyInfo,
                         SecureChannelProtocol.kekType, kekKeyArray,
                         keySet, CUIDValue, KDD, null, null, transportKeyName, params);
 
@@ -1931,6 +1932,7 @@ public class SecureChannelProtocol {
                 old_kek_sym_key = this.computeSessionKey_SCP03(tokenName, oldMasterKeyName, oldKeyInfo,
                         SecureChannelProtocol.kekType, kekKeyArray,
                         keySet, CUIDValue, KDD, null, null, transportKeyName, params);
+
             }
 
             if (encKey == null || macKey == null || kekKey == null) {
@@ -2076,9 +2078,14 @@ public class SecureChannelProtocol {
             encrypted_mac_key = this.wrapSessionKey(tokenName, macKey, wrappingKey);
             encrypted_kek_key = this.wrapSessionKey(tokenName, kekKey, wrappingKey);
 
-            keycheck_enc_key = this.computeKeyCheck_SCP03(encKey, tokenName);
-            keycheck_mac_key = this.computeKeyCheck_SCP03(macKey, tokenName);
-            keycheck_kek_key = this.computeKeyCheck_SCP03(kekKey, tokenName);
+            try {
+                keycheck_enc_key = this.computeKeyCheck_SCP03(encKey, encKey.getOwningToken().getName());
+                keycheck_mac_key = this.computeKeyCheck_SCP03(macKey, macKey.getOwningToken().getName());
+                keycheck_kek_key = this.computeKeyCheck_SCP03(kekKey, kekKey.getOwningToken().getName());
+            } catch (TokenException e) {
+                throw new EBaseException(method + e);
+            }
+
 
         } else {
             throw new EBaseException(method + " Invalid SCP version requested!");
