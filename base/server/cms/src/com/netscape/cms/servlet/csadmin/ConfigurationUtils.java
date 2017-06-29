@@ -296,7 +296,9 @@ public class ConfigurationUtils {
                 }
 
                 cs.commit(false);
-                CryptoUtil.importCertificateChain(certchain);
+
+                byte[] bytes = CryptoUtil.base64Decode(certchain);
+                CryptoUtil.importCertificateChain(bytes);
 
             } else {
                 throw new IOException("importCertChain: Security Domain response does not contain certificate chain");
@@ -3241,73 +3243,25 @@ public class ConfigurationUtils {
 
         } else if (cert.getType().equals("remote")) {
 
-            CMS.debug("handleCerts(): processing remote cert");
-
-            if (b64 != null && b64.length() > 0 && !b64.startsWith("...")) {
-
-                CMS.debug("handleCerts(): deleting existing cert");
-                String b64chain = cert.getCertChain();
-
-                try {
-                    if (certTag.equals("sslserver") && CertUtil.findBootstrapServerCert())
-                        CertUtil.deleteBootstrapServerCert();
-                    if (CertUtil.findCertificate(tokenname, nickname)) {
-                        CertUtil.deleteCert(tokenname, nickname);
-                    }
-                } catch (Exception e) {
-                    CMS.debug(e);
-                }
-
-                CMS.debug("handleCerts(): importing new cert");
-                b64 = CryptoUtil.stripCertBrackets(b64.trim());
-                String certs = CryptoUtil.normalizeCertStr(b64);
-                byte[] certb = CryptoUtil.base64Decode(certs);
-
-                config.putString(subsystem + "." + certTag + ".cert", certs);
-                try {
-                    CryptoManager cm = CryptoManager.getInstance();
-                    X509Certificate x509cert = cm.importCertPackage(certb, nickname);
-                    CryptoUtil.trustCertByNickname(nickname);
-
-                    X509Certificate[] certchains = cm.buildCertificateChain(x509cert);
-                    X509Certificate leaf = null;
-
-                    if (certchains != null) {
-                        CMS.debug("handleCerts(): certchains length=" + certchains.length);
-                        leaf = certchains[certchains.length - 1];
-                    }
-
-                    if (leaf == null) {
-                        CMS.debug("handleCerts(): leaf is null!");
-                        throw new IOException("leaf is null");
-                    }
-
-                    if (b64chain != null && b64chain.length() != 0) {
-                        CMS.debug("handlecerts: cert might not have contained chain...calling importCertificateChain: "
-                                + b64chain);
-                        try {
-                            CryptoUtil.importCertificateChain(CryptoUtil.normalizeCertAndReq(b64chain));
-                        } catch (Exception e) {
-                            CMS.debug("handleCerts(): importCertChain: Exception: " + e.toString());
-                        }
-                    }
-
-                    InternalCertificate icert = (InternalCertificate) leaf;
-
-                    icert.setSSLTrust(
-                            InternalCertificate.TRUSTED_CA
-                                    | InternalCertificate.TRUSTED_CLIENT_CA
-                                    | InternalCertificate.VALID_CA);
-                    CMS.debug("handleCerts(): import certificate successfully, certTag=" + certTag);
-                } catch (Exception ee) {
-                    ee.printStackTrace();
-                    CMS.debug("handleCerts: import certificate for certTag=" + certTag + " Exception: " + ee.toString());
-                }
-
-            } else {
-                CMS.debug("handleCerts(): b64 not set");
-                throw new PKIException("Missing " + certTag + " certificate to import");
+            if (b64 == null || b64.length() == 0 || b64.startsWith("...")) {
+                throw new PKIException("Missing certificate data for " + certTag + " cert");
             }
+
+            b64 = CryptoUtil.stripCertBrackets(b64.trim());
+            String strCert = CryptoUtil.normalizeCertStr(b64);
+            byte[] binCert = CryptoUtil.base64Decode(strCert);
+
+            config.putString(subsystem + "." + certTag + ".cert", strCert);
+
+            String strStrChain = cert.getCertChain();
+            byte[] binCertChain = null;
+
+            if (strStrChain != null && strStrChain.length() != 0) {
+                strStrChain = CryptoUtil.normalizeCertAndReq(strStrChain);
+                binCertChain = CryptoUtil.base64Decode(strStrChain);
+            }
+
+            CertUtil.importExternalCert(certTag, tokenname, nickname, binCert, binCertChain);
 
         } else {
 

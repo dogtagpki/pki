@@ -121,6 +121,7 @@ import netscape.security.pkcs.PKCS10Attribute;
 import netscape.security.pkcs.PKCS10Attributes;
 import netscape.security.pkcs.PKCS7;
 import netscape.security.pkcs.PKCS9Attribute;
+import netscape.security.pkcs.ParsingException;
 import netscape.security.util.BigInt;
 import netscape.security.util.DerInputStream;
 import netscape.security.util.DerOutputStream;
@@ -1217,51 +1218,42 @@ public class CryptoUtil {
         return val.toString();
     }
 
-    public static void importCertificateChain(String certchain)
+    public static void importCertificateChain(byte[] bytes)
              throws IOException,
                     CryptoManager.NotInitializedException,
                     TokenException,
                     CertificateEncodingException,
                     CertificateException {
-        byte[] blah = base64Decode(certchain);
+
         CryptoManager manager = CryptoManager.getInstance();
-        PKCS7 pkcs7 = null;
+
+        X509Certificate cert = null;
+
         try {
             // try PKCS7 first
-            pkcs7 = new PKCS7(blah);
-        } catch (Exception e) {
-        }
-        X509Certificate cert = null;
-        if (pkcs7 == null) {
-            cert = manager.importCACertPackage(blah);
-        } else {
-            java.security.cert.X509Certificate certsInP7[] =
-                    pkcs7.getCertificates();
-            if (certsInP7 == null) {
-                cert = manager.importCACertPackage(blah);
-            } else {
-                for (int i = 0; i < certsInP7.length; i++) {
-                    // import P7 one by one
-                    cert = manager.importCACertPackage(certsInP7[i].getEncoded());
+            PKCS7 pkcs7 = new PKCS7(bytes);
+
+            java.security.cert.X509Certificate[] certs = pkcs7.getCertificates();
+
+            if (certs != null) {
+                // import PKCS7 certs one by one
+                for (int i = 0; i < certs.length; i++) {
+                    cert = manager.importCACertPackage(certs[i].getEncoded());
                 }
             }
-        }
-        X509Certificate[] certchains =
-                CryptoManager.getInstance().buildCertificateChain(cert);
 
-        if (certchains != null) {
-            cert = certchains[certchains.length - 1];
+        } catch (ParsingException e) {
+            // not PKCS7
         }
 
-        // set trust flags to CT,C,C
-        InternalCertificate icert = (InternalCertificate) cert;
-        icert.setSSLTrust(InternalCertificate.TRUSTED_CA
-                                    | InternalCertificate.TRUSTED_CLIENT_CA
-                                    | InternalCertificate.VALID_CA);
-        icert.setEmailTrust(InternalCertificate.TRUSTED_CA
-                | InternalCertificate.VALID_CA);
-        icert.setObjectSigningTrust(InternalCertificate.TRUSTED_CA
-                | InternalCertificate.VALID_CA);
+        if (cert == null) {
+            cert = manager.importCACertPackage(bytes);
+        }
+
+        X509Certificate[] certs = manager.buildCertificateChain(cert);
+        X509Certificate rootCert = certs[certs.length - 1];
+
+        trustRootCert(rootCert);
     }
 
     public static SEQUENCE parseCRMFMsgs(byte cert_request[])
@@ -1818,6 +1810,22 @@ public class CryptoUtil {
         cert.setSSLTrust(flag);
         cert.setObjectSigningTrust(flag);
         cert.setEmailTrust(flag);
+    }
+
+    public static void trustRootCert(X509Certificate rootCert) {
+
+        // set trust flags to CT,C,C
+        InternalCertificate cert = (InternalCertificate) rootCert;
+
+        cert.setSSLTrust(InternalCertificate.TRUSTED_CA
+                | InternalCertificate.TRUSTED_CLIENT_CA
+                | InternalCertificate.VALID_CA);
+
+        cert.setEmailTrust(InternalCertificate.TRUSTED_CA
+                | InternalCertificate.VALID_CA);
+
+        cert.setObjectSigningTrust(InternalCertificate.TRUSTED_CA
+                | InternalCertificate.VALID_CA);
     }
 
     /**

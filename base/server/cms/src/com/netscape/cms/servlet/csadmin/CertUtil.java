@@ -856,4 +856,49 @@ public class CertUtil {
             CryptoUtil.importUserCertificate(impl, nickname, false);
         }
     }
+
+    public static void importExternalCert(
+            String tag,
+            String tokenname,
+            String nickname,
+            byte[] cert,
+            byte[] certChain
+            ) throws Exception {
+
+        CMS.debug("CertUtil.importExternalCert(" + tag + ")");
+
+        if (tag.equals("sslserver") && findBootstrapServerCert()) {
+            CMS.debug("CertUtil: deleting temporary SSL server cert");
+            deleteBootstrapServerCert();
+        }
+
+        if (findCertificate(tokenname, nickname)) {
+            CMS.debug("CertUtil: deleting existing " + tag + " cert");
+            deleteCert(tokenname, nickname);
+        }
+
+        if (certChain != null) {
+            CMS.debug("CertUtil: importing cert chain for " + tag + " cert");
+            CryptoUtil.importCertificateChain(certChain);
+        }
+
+        CMS.debug("CertUtil: importing " + tag + " cert");
+
+        CryptoManager cm = CryptoManager.getInstance();
+        X509Certificate x509cert = cm.importCertPackage(cert, nickname);
+
+        CMS.debug("CertUtil: trusting cert: " + x509cert.getSubjectDN());
+        CryptoUtil.trustCertByNickname(nickname);
+
+        X509Certificate[] certs = cm.buildCertificateChain(x509cert);
+        CMS.debug("CertUtil: cert chain:");
+        for (X509Certificate c : certs) {
+            CMS.debug("ConfigurationUtils: - " + c.getSubjectDN());
+        }
+
+        X509Certificate rootCert = certs[certs.length - 1];
+        CMS.debug("CertUtil: trusting root cert: " + rootCert.getSubjectDN());
+
+        CryptoUtil.trustRootCert(rootCert);
+    }
 }
