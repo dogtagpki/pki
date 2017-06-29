@@ -426,177 +426,174 @@ public class CertUtil {
             ICertificateAuthority ca,
             Context context) throws Exception {
 
-        CMS.debug("Creating local certificate... certTag=" + certTag);
-        String profile;
-            profile = config.getString(prefix + certTag + ".profile");
+        CMS.debug("CertUtil.createLocalCert(" + certTag + ")");
+
+        String profile = config.getString(prefix + certTag + ".profile");
 
         boolean caProvided = ca != null;
 
-            Boolean injectSAN = config.getBoolean(
-                                      "service.injectSAN", false);
-            CMS.debug("createLocalCert: injectSAN=" + injectSAN);
-            String dn = config.getString(prefix + certTag + ".dn");
-            String keyAlgorithm = null;
-            Date date = new Date();
+        Boolean injectSAN = config.getBoolean("service.injectSAN", false);
+        CMS.debug("createLocalCert: injectSAN: " + injectSAN);
 
-            if (certTag.equals("admin")) {
-                keyAlgorithm = getAdminProfileAlgorithm(config);
+        String dn = config.getString(prefix + certTag + ".dn");
+        String keyAlgorithm = null;
+        Date date = new Date();
+
+        if (certTag.equals("admin")) {
+            keyAlgorithm = getAdminProfileAlgorithm(config);
+        } else {
+            keyAlgorithm = config.getString(prefix + certTag + ".keyalgorithm");
+        }
+
+        if (!caProvided) {
+            ca = (ICertificateAuthority) CMS.getSubsystem(ICertificateAuthority.ID);
+        }
+
+        ICertificateRepository cr = ca.getCertificateRepository();
+        if (cr == null) {
+            if (context != null) {
+                context.put("errorString", "Ceritifcate Authority is not ready to serve.");
+            }
+            throw new IOException("Ceritifcate Authority is not ready to serve.");
+        }
+
+        X509CertInfo info;
+        BigInteger serialNo = cr.getNextSerialNumber();
+
+        if (type.equals("selfsign")) {
+
+            CMS.debug("Creating local certificate... selfsign cert");
+            CMS.debug("Creating local certificate... issuer DN: " + dn);
+            CMS.debug("Creating local certificate... DN: " + dn);
+            info = CryptoUtil.createX509CertInfo(x509key, serialNo, dn, dn, date, date, keyAlgorithm);
+
+        } else {
+
+            String issuerdn = config.getString("preop.cert.signing.dn", "");
+            CMS.debug("Creating local certificate... issuer DN: " + issuerdn);
+            CMS.debug("Creating local certificate... DN: " + dn);
+
+            if (ca.getIssuerObj() != null) {
+                // this ensures the isserDN has the same encoding as the
+                // subjectDN of the CA signing cert
+                CMS.debug("Creating local certificate...  setting issuerDN using exact CA signing cert subjectDN encoding");
+                CertificateIssuerName issuerdnObj = ca.getIssuerObj();
+
+                info = CryptoUtil.createX509CertInfo(x509key, serialNo, issuerdnObj, dn, date, date, keyAlgorithm);
+
             } else {
-                keyAlgorithm = config.getString(prefix + certTag + ".keyalgorithm");
+                CMS.debug("Creating local certificate... ca.getIssuerObj() is null, creating new CertificateIssuerName");
+                info = CryptoUtil.createX509CertInfo(x509key, serialNo, issuerdn, dn, date, date, keyAlgorithm);
             }
+        }
 
-            if (!caProvided)
-                ca = (ICertificateAuthority) CMS.getSubsystem(
-                    ICertificateAuthority.ID);
+        CMS.debug("Cert Template: " + info);
 
-            ICertificateRepository cr;
-            cr = ca.getCertificateRepository();
-            if (cr == null) {
-                if (context != null) {
-                    context.put("errorString", "Ceritifcate Authority is not ready to serve.");
-                }
-                throw new IOException("Ceritifcate Authority is not ready to serve.");
-            }
+        String instanceRoot = CMS.getConfigStore().getString("instanceRoot");
+        String configurationRoot = CMS.getConfigStore().getString("configurationRoot");
 
-            X509CertInfo info;
-            BigInteger serialNo = cr.getNextSerialNumber();
-            if (type.equals("selfsign")) {
-                CMS.debug("Creating local certificate... selfsign cert");
-                CMS.debug("Creating local certificate... issuerdn=" + dn);
-                CMS.debug("Creating local certificate... dn=" + dn);
-                info = CryptoUtil.createX509CertInfo(x509key, serialNo, dn, dn, date, date, keyAlgorithm);
-            } else {
-                String issuerdn = config.getString("preop.cert.signing.dn", "");
-                CMS.debug("Creating local certificate... issuerdn=" + issuerdn);
-                CMS.debug("Creating local certificate... dn=" + dn);
-                if (ca.getIssuerObj() != null) {
-                    // this ensures the isserDN has the same encoding as the
-                    // subjectDN of the CA signing cert
-                    CMS.debug("Creating local certificate...  setting issuerDN using exact CA signing cert subjectDN encoding");
-                    CertificateIssuerName issuerdnObj =
-                        ca.getIssuerObj();
+        CertInfoProfile processor = new CertInfoProfile(instanceRoot + configurationRoot + profile);
 
-                    info = CryptoUtil.createX509CertInfo(x509key, serialNo, issuerdnObj, dn, date, date, keyAlgorithm);
-                } else {
-                    CMS.debug("Creating local certificate... ca.getIssuerObj() is null, creating new CertificateIssuerName");
-                    info = CryptoUtil.createX509CertInfo(x509key, serialNo, issuerdn, dn, date, date, keyAlgorithm);
-                }
-            }
+        // cfu - create request to enable renewal
+        IRequestQueue queue = ca.getRequestQueue();
+        if (queue == null) {
+            throw new Exception("Request queue not available");
+        }
 
-            CMS.debug("Cert Template: " + info.toString());
+        IRequest req = createLocalRequest(queue, serialNo.toString(), info);
+        if (certTag.equals("sslserver") && injectSAN) {
+            injectSANextensionIntoRequest(config, req);
+        }
 
-            String instanceRoot = CMS.getConfigStore().getString("instanceRoot");
-            String configurationRoot = CMS.getConfigStore().getString("configurationRoot");
+        CMS.debug("CertUtil profile: " + profile);
+        req.setExtData("req_key", x509key.toString());
 
-            CertInfoProfile processor = new CertInfoProfile(
-                    instanceRoot + configurationRoot + profile);
+        // store original profile id in cert request
+        int idx = profile.lastIndexOf('.');
+        if (idx == -1) {
+            CMS.debug("CertUtil profileName contains no .");
+            req.setExtData("origprofileid", profile);
+        } else {
+            String name = profile.substring(0, idx);
+            req.setExtData("origprofileid", name);
+        }
 
-            // cfu - create request to enable renewal
-                IRequestQueue queue;
-                queue = ca.getRequestQueue();
+        // store mapped profile ID for use in renewal
+        String profileId = processor.getProfileIDMapping();
+        req.setExtData("profileid", profileId);
+        req.setExtData("profilesetid", processor.getProfileSetIDMapping());
 
-                    IRequest req;
-                    req = createLocalRequest(queue, serialNo.toString(), info);
-                    if (certTag.equals("sslserver") &&
-                        injectSAN == true) {
-                          injectSANextensionIntoRequest(config, req);
-                    }
-                    CMS.debug("CertUtil profile name= " + profile);
-                    req.setExtData("req_key", x509key.toString());
+        RequestId reqId = req.getRequestId();
+        config.putString("preop.cert." + certTag + ".reqId", reqId.toString());
 
-                    // store original profile id in cert request
-                    int idx = profile.lastIndexOf('.');
-                    if (idx == -1) {
-                        CMS.debug("CertUtil profileName contains no .");
-                        req.setExtData("origprofileid", profile);
-                    } else {
-                        String name = profile.substring(0, idx);
-                        req.setExtData("origprofileid", name);
-                    }
+        if (!certTag.equals("signing")) {
+            /*
+             * (applies to non-CA-signing cert only)
+             * installAdjustValidity tells ValidityDefault to adjust the
+             * notAfter value to that of the CA's signing cert if needed
+             */
+            req.setExtData("installAdjustValidity", "true");
+        }
 
-                    // store mapped profile ID for use in renewal
-                    String profileId;
-                    profileId = processor.getProfileIDMapping();
-                    req.setExtData("profileid", profileId);
-                    req.setExtData("profilesetid", processor.getProfileSetIDMapping());
+        processor.populate(req, info);
 
-                    RequestId reqId;
-                    reqId = req.getRequestId();
-                    config.putString("preop.cert." + certTag + ".reqId", reqId.toString());
+        PrivateKey caPrik;
+        if (caProvided) {
+            java.security.PrivateKey pk = ca.getSigningUnit().getPrivateKey();
+            if (!(pk instanceof PrivateKey))
+                throw new IOException("CA Private key must be a JSS PrivateKey");
+            caPrik = (PrivateKey) pk;
 
-            if (!certTag.equals("signing")) {
-                /*
-                 * (applies to non-CA-signing cert only)
-                 * installAdjustValidity tells ValidityDefault to adjust the
-                 * notAfter value to that of the CA's signing cert if needed
-                 */
-                req.setExtData("installAdjustValidity", "true");
-            }
-            processor.populate(req, info);
+        } else {
+            String caPriKeyID = config.getString(prefix + "signing" + ".privkey.id");
+            byte[] keyIDb = CryptoUtil.string2byte(caPriKeyID);
+            caPrik = CryptoUtil.findPrivateKeyFromID(keyIDb);
+        }
 
-            PrivateKey caPrik = null;
-            if (caProvided) {
-                java.security.PrivateKey pk = ca.getSigningUnit().getPrivateKey();
-                if (!(pk instanceof PrivateKey))
-                    throw new IOException("CA Private key must be a JSS PrivateKey");
-                caPrik = (PrivateKey) pk;
-            } else {
-                String caPriKeyID = config.getString(
-                        prefix + "signing" + ".privkey.id");
-                byte[] keyIDb = CryptoUtil.string2byte(caPriKeyID);
-                caPrik = CryptoUtil.findPrivateKeyFromID(keyIDb);
-            }
+        if (caPrik == null) {
+            CMS.debug("CertUtil::createLocalCert() - CA private key is null!");
+            throw new IOException("CA private key is null");
+        }
 
-            if (caPrik == null) {
-                CMS.debug("CertUtil::createLocalCert() - "
-                         + "CA private key is null!");
-                throw new IOException("CA private key is null");
-            } else {
-                CMS.debug("CertUtil createLocalCert: got CA private key");
-            }
+        CMS.debug("CertUtil createLocalCert: got CA private key");
 
-            String keyAlgo = x509key.getAlgorithm();
-            CMS.debug("key algorithm is " + keyAlgo);
-            String caSigningKeyType =
-                    config.getString("preop.cert.signing.keytype", "rsa");
-            String caSigningKeyAlgo = "";
-            if (type.equals("selfsign")) {
-                caSigningKeyAlgo = config.getString("preop.cert.signing.keyalgorithm", "SHA256withRSA");
-            } else {
-                caSigningKeyAlgo = config.getString("preop.cert.signing.signingalgorithm", "SHA256withRSA");
-            }
+        String keyAlgo = x509key.getAlgorithm();
+        CMS.debug("key algorithm is " + keyAlgo);
 
-            CMS.debug("CA Signing Key type " + caSigningKeyType);
-            CMS.debug("CA Signing Key algorithm " + caSigningKeyAlgo);
+        String caSigningKeyType = config.getString("preop.cert.signing.keytype", "rsa");
+        CMS.debug("CA Signing Key type " + caSigningKeyType);
 
-            X509CertImpl cert;
-            if (caSigningKeyType.equals("ecc")) {
-                CMS.debug("CA signing cert is ECC");
-                cert = CryptoUtil.signECCCert(caPrik, info,
-                        caSigningKeyAlgo);
-            } else {
-                CMS.debug("CA signing cert is not ecc");
-                cert = CryptoUtil.signCert(caPrik, info,
-                        caSigningKeyAlgo);
-            }
+        String caSigningKeyAlgo;
+        if (type.equals("selfsign")) {
+            caSigningKeyAlgo = config.getString("preop.cert.signing.keyalgorithm", "SHA256withRSA");
+        } else {
+            caSigningKeyAlgo = config.getString("preop.cert.signing.signingalgorithm", "SHA256withRSA");
+        }
+        CMS.debug("CA Signing Key algorithm " + caSigningKeyAlgo);
 
-                CMS.debug("CertUtil createLocalCert: got cert signed");
+        X509CertImpl cert;
+        if (caSigningKeyType.equals("ecc")) {
+            CMS.debug("CA signing cert is ECC");
+            cert = CryptoUtil.signECCCert(caPrik, info, caSigningKeyAlgo);
+        } else {
+            CMS.debug("CA signing cert is not ecc");
+            cert = CryptoUtil.signCert(caPrik, info, caSigningKeyAlgo);
+        }
 
-            MetaInfo meta = new MetaInfo();
-                meta.set(ICertRecord.META_REQUEST_ID, reqId.toString());
+        CMS.debug("CertUtil createLocalCert: got cert signed");
 
-            meta.set(ICertRecord.META_PROFILE_ID, profileId);
-            ICertRecord record;
-            record = cr.createCertRecord(
-                    cert.getSerialNumber(), cert, meta);
+        MetaInfo meta = new MetaInfo();
+        meta.set(ICertRecord.META_REQUEST_ID, reqId.toString());
+        meta.set(ICertRecord.META_PROFILE_ID, profileId);
 
-            cr.addCertificateRecord(record);
+        ICertRecord record = cr.createCertRecord(cert.getSerialNumber(), cert, meta);
+        cr.addCertificateRecord(record);
 
-            // update request with cert
-            req.setExtData(IEnrollProfile.REQUEST_ISSUED_CERT, cert);
+        // update request with cert
+        req.setExtData(IEnrollProfile.REQUEST_ISSUED_CERT, cert);
 
-            // store request in db
-                    queue.updateRequest(req);
+        // store request in db
+        queue.updateRequest(req);
 
         return cert;
     }
