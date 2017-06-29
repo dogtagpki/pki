@@ -826,4 +826,34 @@ public class CertUtil {
 
         deleteCert(CryptoUtil.INTERNAL_TOKEN_FULL_NAME, nickname);
     }
+
+    public static void importCert(
+            String subsystem,
+            String tag,
+            String tokenname,
+            String nickname,
+            X509CertImpl impl
+            ) throws Exception {
+
+        CMS.debug("CertUtil.importCert(" + tag + ")");
+
+        if (tag.equals("sslserver") && findBootstrapServerCert()) {
+            CMS.debug("CertUtil: deleting temporary SSL server cert");
+            deleteBootstrapServerCert();
+        }
+
+        if (findCertificate(tokenname, nickname)) {
+            CMS.debug("CertUtil: deleting existing " + tag + " cert");
+            deleteCert(tokenname, nickname);
+        }
+
+        CMS.debug("CertUtil: importing " + tag + " cert");
+
+        if (subsystem.equals("ca") && tag.equals("signing") ) {
+            CryptoUtil.importUserCertificate(impl, nickname);
+
+        } else {
+            CryptoUtil.importUserCertificate(impl, nickname, false);
+        }
+    }
 }

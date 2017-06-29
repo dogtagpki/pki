@@ -3310,34 +3310,13 @@ public class ConfigurationUtils {
             }
 
         } else {
-            CMS.debug("handleCerts(): processing " + cert.getType() + " cert");
 
             b64 = CryptoUtil.stripCertBrackets(b64.trim());
             String certs = CryptoUtil.normalizeCertStr(b64);
             byte[] certb = CryptoUtil.base64Decode(certs);
             X509CertImpl impl = new X509CertImpl(certb);
 
-            CMS.debug("handleCerts(): deleting existing cert");
-            try {
-                if (certTag.equals("sslserver") && CertUtil.findBootstrapServerCert())
-                    CertUtil.deleteBootstrapServerCert();
-                if (CertUtil.findCertificate(tokenname, nickname)) {
-                    CertUtil.deleteCert(tokenname, nickname);
-                }
-            } catch (Exception e) {
-                CMS.debug(e);
-            }
-
-            CMS.debug("handleCerts(): importing new cert");
-            try {
-                if (certTag.equals("signing") && subsystem.equals("ca"))
-                    CryptoUtil.importUserCertificate(impl, nickname);
-                else
-                    CryptoUtil.importUserCertificate(impl, nickname, false);
-            } catch (Exception ee) {
-                CMS.debug("handleCerts(): Failed to import user certificate." + ee.toString());
-                throw new Exception("Unable to import " + certTag + " certificate: " + ee, ee);
-            }
+            CertUtil.importCert(subsystem, certTag, tokenname, nickname, impl);
         }
 
         //update requests in request queue for local certs to allow renewal
