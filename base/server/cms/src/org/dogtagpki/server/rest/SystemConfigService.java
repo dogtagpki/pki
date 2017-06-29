@@ -179,10 +179,10 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         for (Cert cert : certs) {
             try {
-                CMS.debug("Processing '" + cert.getCertTag() + "' certificate:");
-                ConfigurationUtils.handleCerts(cert);
+                CMS.debug("=== Handling " + cert.getCertTag() + " cert ===");
+                ConfigurationUtils.handleCert(cert);
                 ConfigurationUtils.setCertPermissions(cert.getCertTag());
-                CMS.debug("Processed '" + cert.getCertTag() + "' certificate.");
+
             } catch (Exception e) {
                 CMS.debug(e);
                 throw new PKIException("Error in configuring system certificates: " + e, e);
@@ -300,6 +300,9 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             hasSigningCert.setValue(false);
 
             for (String tag : certList) {
+
+                CMS.debug("=== Processing " + tag + " cert ===");
+
                 boolean enable = cs.getBoolean("preop.cert." + tag + ".enable", true);
                 if (!enable) continue;
 
