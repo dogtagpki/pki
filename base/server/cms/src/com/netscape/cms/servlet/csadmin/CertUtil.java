@@ -408,26 +408,27 @@ public class CertUtil {
     }
 
     public static X509CertImpl createLocalCertWithCA(IConfigStore config, X509Key x509key,
-            String prefix, String certTag, String type, ICertificateAuthority ca) throws IOException {
+            String prefix, String certTag, String type, ICertificateAuthority ca) throws Exception {
         return createLocalCert(config, x509key, prefix, certTag, type, ca, null);
     }
 
     public static X509CertImpl createLocalCert(IConfigStore config, X509Key x509key,
-            String prefix, String certTag, String type, Context context) throws IOException {
+            String prefix, String certTag, String type, Context context) throws Exception {
         return createLocalCert(config, x509key, prefix, certTag, type, null, context);
     }
 
-    public static X509CertImpl createLocalCert(IConfigStore config, X509Key x509key,
-            String prefix, String certTag, String type,
-            ICertificateAuthority ca, Context context) throws IOException {
+    public static X509CertImpl createLocalCert(
+            IConfigStore config,
+            X509Key x509key,
+            String prefix,
+            String certTag,
+            String type,
+            ICertificateAuthority ca,
+            Context context) throws Exception {
 
         CMS.debug("Creating local certificate... certTag=" + certTag);
         String profile = null;
-
-        try {
             profile = config.getString(prefix + certTag + ".profile");
-        } catch (Exception e) {
-        }
 
         X509CertImpl cert = null;
         ICertificateRepository cr = null;
@@ -438,7 +439,6 @@ public class CertUtil {
 
         boolean caProvided = ca != null;
 
-        try {
             Boolean injectSAN = config.getBoolean(
                                       "service.injectSAN", false);
             CMS.debug("createLocalCert: injectSAN=" + injectSAN);
@@ -459,7 +459,6 @@ public class CertUtil {
                     ICertificateAuthority.ID);
 
             cr = ca.getCertificateRepository();
-
             if (cr == null) {
                 if (context != null) {
                     context.put("errorString", "Ceritifcate Authority is not ready to serve.");
@@ -490,19 +489,18 @@ public class CertUtil {
                     info = CryptoUtil.createX509CertInfo(x509key, serialNo, issuerdn, dn, date, date, keyAlgorithm);
                 }
             }
+
             CMS.debug("Cert Template: " + info.toString());
 
             String instanceRoot = CMS.getConfigStore().getString("instanceRoot");
-
             String configurationRoot = CMS.getConfigStore().getString("configurationRoot");
 
             CertInfoProfile processor = new CertInfoProfile(
                     instanceRoot + configurationRoot + profile);
 
             // cfu - create request to enable renewal
-            try {
                 queue = ca.getRequestQueue();
-                if (queue != null) {
+
                     req = createLocalRequest(queue, serialNo.toString(), info);
                     if (certTag.equals("sslserver") &&
                         injectSAN == true) {
@@ -528,12 +526,6 @@ public class CertUtil {
 
                     reqId = req.getRequestId();
                     config.putString("preop.cert." + certTag + ".reqId", reqId.toString());
-                } else {
-                    CMS.debug("certUtil: requestQueue null");
-                }
-            } catch (Exception e) {
-                CMS.debug("Creating local request exception:" + e.toString());
-            }
 
             if (!certTag.equals("signing")) {
                 /*
@@ -590,63 +582,23 @@ public class CertUtil {
                         caSigningKeyAlgo);
             }
 
-            if (cert != null) {
                 CMS.debug("CertUtil createLocalCert: got cert signed");
-            }
-
-        } catch (IOException e) {
-            throw e;
-
-        } catch (Exception e) {
-            CMS.debug("Unable to create local certificate: " + e);
-            throw new IOException("Unable to create local certificate: " + e, e);
-        }
 
         ICertRecord record = null;
-        try {
             MetaInfo meta = new MetaInfo();
-            if (reqId != null) {
                 meta.set(ICertRecord.META_REQUEST_ID, reqId.toString());
-            }
 
             meta.set(ICertRecord.META_PROFILE_ID, profileId);
             record = cr.createCertRecord(
                     cert.getSerialNumber(), cert, meta);
-        } catch (Exception e) {
-            CMS.debug(
-                    "CertUtil createLocalCert: failed to add metainfo. Exception: " + e.toString());
-        }
 
-        try {
             cr.addCertificateRecord(record);
-            CMS.debug(
-                    "CertUtil createLocalCert: finished adding certificate record.");
-        } catch (Exception e) {
-            CMS.debug(
-                    "CertUtil createLocalCert: failed to add certificate record. Exception: "
-                            + e.toString());
-            try {
-                cr.deleteCertificateRecord(record.getSerialNumber());
-                cr.addCertificateRecord(record);
-            } catch (Exception ee) {
-                CMS.debug("CertUtil createLocalCert: Exception: " + ee.toString());
-            }
-        }
 
-        if (req != null) {
             // update request with cert
             req.setExtData(IEnrollProfile.REQUEST_ISSUED_CERT, cert);
 
             // store request in db
-            try {
-                CMS.debug("certUtil: before updateRequest");
-                if (queue != null) {
                     queue.updateRequest(req);
-                }
-            } catch (Exception e) {
-                CMS.debug("Exception in updateRequest" + e);
-            }
-        }
 
         return cert;
     }
