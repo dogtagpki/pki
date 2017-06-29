@@ -20,7 +20,6 @@ package com.netscape.cms.servlet.csadmin;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.CharConversionException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -33,11 +32,9 @@ import java.net.URISyntaxException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 import java.security.PublicKey;
-import java.security.SecureRandom;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateExpiredException;
@@ -66,31 +63,17 @@ import org.mozilla.jss.CryptoManager.NotInitializedException;
 import org.mozilla.jss.CryptoManager.UserCertConflictException;
 import org.mozilla.jss.NoSuchTokenException;
 import org.mozilla.jss.asn1.ANY;
-import org.mozilla.jss.asn1.ASN1Util;
-import org.mozilla.jss.asn1.ASN1Value;
 import org.mozilla.jss.asn1.BMPString;
-import org.mozilla.jss.asn1.InvalidBERException;
 import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
 import org.mozilla.jss.asn1.OCTET_STRING;
 import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.asn1.SET;
-import org.mozilla.jss.crypto.BadPaddingException;
-import org.mozilla.jss.crypto.Cipher;
 import org.mozilla.jss.crypto.CryptoStore;
 import org.mozilla.jss.crypto.CryptoToken;
-import org.mozilla.jss.crypto.EncryptionAlgorithm;
-import org.mozilla.jss.crypto.IVParameterSpec;
-import org.mozilla.jss.crypto.IllegalBlockSizeException;
 import org.mozilla.jss.crypto.InternalCertificate;
-import org.mozilla.jss.crypto.KeyGenAlgorithm;
-import org.mozilla.jss.crypto.KeyGenerator;
-import org.mozilla.jss.crypto.KeyWrapAlgorithm;
-import org.mozilla.jss.crypto.KeyWrapper;
 import org.mozilla.jss.crypto.NoSuchItemOnTokenException;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
-import org.mozilla.jss.crypto.PBEAlgorithm;
 import org.mozilla.jss.crypto.PrivateKey;
-import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.pkcs11.PK11Store;
@@ -100,8 +83,6 @@ import org.mozilla.jss.pkcs12.PFX;
 import org.mozilla.jss.pkcs12.PasswordConverter;
 import org.mozilla.jss.pkcs12.SafeBag;
 import org.mozilla.jss.pkix.primitive.Attribute;
-import org.mozilla.jss.pkix.primitive.EncryptedPrivateKeyInfo;
-import org.mozilla.jss.pkix.primitive.PrivateKeyInfo;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback.ValidityStatus;
 import org.mozilla.jss.util.IncorrectPasswordException;
@@ -2666,88 +2647,9 @@ public class ConfigurationUtils {
                     CMS.debug("ConfigurationUtils: no preop.ca.type is provided");
                 }
             } else { // not remote CA, ie, self-signed or local
-                ISubsystem ca = CMS.getSubsystem(ICertificateAuthority.ID);
 
-                if (ca == null) {
-                    String s = PCERT_PREFIX + certTag + ".type";
+                cert = configLocalCert(context, certObj, config, caType, cert, certTag);
 
-                    CMS.debug(
-                            "The value for " + s
-                                    + " should be remote, nothing else.");
-                    throw new IOException(
-                            "The value for " + s + " should be remote");
-                }
-
-                String pubKeyType = config.getString(
-                        PCERT_PREFIX + certTag + ".keytype");
-                if (pubKeyType.equals("rsa")) {
-
-                    String pubKeyModulus = config.getString(
-                            PCERT_PREFIX + certTag + ".pubkey.modulus");
-                    String pubKeyPublicExponent = config.getString(
-                            PCERT_PREFIX + certTag + ".pubkey.exponent");
-                    String subsystem = config.getString(
-                            PCERT_PREFIX + certTag + ".subsystem");
-
-                    if (certTag.equals("signing")) {
-                        X509Key x509key = CryptoUtil.getPublicX509Key(
-                                CryptoUtil.string2byte(pubKeyModulus),
-                                CryptoUtil.string2byte(pubKeyPublicExponent));
-
-                        cert = CertUtil.createLocalCert(config, x509key,
-                                PCERT_PREFIX, certTag, caType, context);
-                    } else {
-                        String cacert = config.getString("ca.signing.cert", "");
-
-                        if (cacert.equals("") || cacert.startsWith("...")) {
-                            certObj.setCert(
-                                    "...certificate be generated internally...");
-                            config.putString(subsystem + "." + certTag + ".cert",
-                                    "...certificate be generated internally...");
-                        } else {
-                            X509Key x509key = CryptoUtil.getPublicX509Key(
-                                    CryptoUtil.string2byte(pubKeyModulus),
-                                    CryptoUtil.string2byte(pubKeyPublicExponent));
-
-                            cert = CertUtil.createLocalCert(config, x509key,
-                                    PCERT_PREFIX, certTag, caType, context);
-                        }
-                    }
-                } else if (pubKeyType.equals("ecc")) {
-                    String pubKeyEncoded = config.getString(
-                            PCERT_PREFIX + certTag + ".pubkey.encoded");
-                    String subsystem = config.getString(
-                            PCERT_PREFIX + certTag + ".subsystem");
-
-                    if (certTag.equals("signing")) {
-
-                        X509Key x509key = CryptoUtil.getPublicX509ECCKey(CryptoUtil.string2byte(pubKeyEncoded));
-                        cert = CertUtil.createLocalCert(config, x509key,
-                                PCERT_PREFIX, certTag, caType, context);
-                    } else {
-                        String cacert = config.getString("ca.signing.cert", "");
-
-                        if (cacert.equals("") || cacert.startsWith("...")) {
-                            certObj.setCert(
-                                    "...certificate be generated internally...");
-                            config.putString(subsystem + "." + certTag + ".cert",
-                                    "...certificate be generated internally...");
-                        } else {
-                            X509Key x509key = CryptoUtil.getPublicX509ECCKey(
-                                    CryptoUtil.string2byte(pubKeyEncoded));
-
-                            cert = CertUtil.createLocalCert(config, x509key,
-                                    PCERT_PREFIX, certTag, caType, context);
-                        }
-                    }
-                } else {
-                    // invalid key type
-                    CMS.debug("Invalid key type " + pubKeyType);
-                }
-                if (cert != null) {
-                    if (certTag.equals("subsystem"))
-                        CertUtil.addUserCertificate(cert);
-                }
             } // done self-signed or local
 
             if (cert != null) {
@@ -2764,6 +2666,105 @@ public class ConfigurationUtils {
             CMS.debug("configCert() exception caught:" + e.toString());
             throw e;
         }
+    }
+
+    private static X509CertImpl configLocalCert(
+            Context context,
+            Cert certObj,
+            IConfigStore config,
+            String caType,
+            X509CertImpl cert,
+            String certTag)
+            throws Exception {
+
+        ISubsystem ca = CMS.getSubsystem(ICertificateAuthority.ID);
+
+        if (ca == null) {
+            String s = PCERT_PREFIX + certTag + ".type";
+            CMS.debug("The value for " + s + " should be remote, nothing else.");
+            throw new IOException("The value for " + s + " should be remote");
+        }
+
+        String pubKeyType = config.getString(PCERT_PREFIX + certTag + ".keytype");
+
+        if (pubKeyType.equals("rsa")) {
+
+            String pubKeyModulus = config.getString(PCERT_PREFIX + certTag + ".pubkey.modulus");
+            String pubKeyPublicExponent = config.getString(PCERT_PREFIX + certTag + ".pubkey.exponent");
+            String subsystem = config.getString(PCERT_PREFIX + certTag + ".subsystem");
+
+            if (certTag.equals("signing")) {
+
+                X509Key x509key = CryptoUtil.getPublicX509Key(
+                        CryptoUtil.string2byte(pubKeyModulus),
+                        CryptoUtil.string2byte(pubKeyPublicExponent));
+
+                cert = CertUtil.createLocalCert(config, x509key,
+                        PCERT_PREFIX, certTag, caType, context);
+
+            } else {
+
+                String cacert = config.getString("ca.signing.cert", "");
+
+                if (cacert.equals("") || cacert.startsWith("...")) {
+
+                    certObj.setCert("...certificate be generated internally...");
+                    config.putString(subsystem + "." + certTag + ".cert",
+                            "...certificate be generated internally...");
+
+                } else {
+
+                    X509Key x509key = CryptoUtil.getPublicX509Key(
+                            CryptoUtil.string2byte(pubKeyModulus),
+                            CryptoUtil.string2byte(pubKeyPublicExponent));
+
+                    cert = CertUtil.createLocalCert(config, x509key,
+                            PCERT_PREFIX, certTag, caType, context);
+                }
+            }
+
+        } else if (pubKeyType.equals("ecc")) {
+
+            String pubKeyEncoded = config.getString(PCERT_PREFIX + certTag + ".pubkey.encoded");
+            String subsystem = config.getString(PCERT_PREFIX + certTag + ".subsystem");
+
+            if (certTag.equals("signing")) {
+
+                X509Key x509key = CryptoUtil.getPublicX509ECCKey(CryptoUtil.string2byte(pubKeyEncoded));
+                cert = CertUtil.createLocalCert(config, x509key,
+                        PCERT_PREFIX, certTag, caType, context);
+
+            } else {
+
+                String cacert = config.getString("ca.signing.cert", "");
+
+                if (cacert.equals("") || cacert.startsWith("...")) {
+
+                    certObj.setCert("...certificate be generated internally...");
+                    config.putString(subsystem + "." + certTag + ".cert",
+                            "...certificate be generated internally...");
+
+                } else {
+
+                    X509Key x509key = CryptoUtil.getPublicX509ECCKey(
+                            CryptoUtil.string2byte(pubKeyEncoded));
+
+                    cert = CertUtil.createLocalCert(config, x509key,
+                            PCERT_PREFIX, certTag, caType, context);
+                }
+            }
+
+        } else {
+            // invalid key type
+            CMS.debug("Invalid key type " + pubKeyType);
+        }
+
+        if (cert != null) {
+            if (certTag.equals("subsystem"))
+                CertUtil.addUserCertificate(cert);
+        }
+
+        return cert;
     }
 
     public static void updateConfig(IConfigStore config, String certTag)
