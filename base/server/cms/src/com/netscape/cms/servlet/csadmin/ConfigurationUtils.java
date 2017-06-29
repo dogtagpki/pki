@@ -2545,107 +2545,24 @@ public class ConfigurationUtils {
             }
 
             updateConfig(config, certTag);
+
             if (caType.equals("remote")) {
-                String v = config.getString("preop.ca.type", "");
 
-                CMS.debug("configCert: remote CA");
-                String pkcs10 = CertUtil.getPKCS10(config, PCERT_PREFIX, certObj, context);
-                certObj.setRequest(pkcs10);
-                String subsystem = config.getString(PCERT_PREFIX + certTag + ".subsystem");
-                config.putString(subsystem + "." + certTag + ".certreq", pkcs10);
-                String profileId = config.getString(PCERT_PREFIX + certTag + ".profile");
-                String session_id = CMS.getConfigSDSessionId();
-                String sysType = config.getString("cs.type", "");
-                String machineName = config.getString("machineName", "");
-                String securePort = config.getString("service.securePort", "");
+                cert = configRemoteCert(
+                        response,
+                        context,
+                        certObj,
+                        config,
+                        cert,
+                        certTag,
+                        preop_ca_type,
+                        preop_cert_signing_type,
+                        preop_cert_signing_profile,
+                        preop_cert_sslserver_type,
+                        preop_cert_sslserver_profile,
+                        original_caType,
+                        sign_clone_sslserver_cert_using_master);
 
-                if (certTag.equals("subsystem")) {
-                    boolean standalone = config.getBoolean(sysType.toLowerCase() + ".standalone", false);
-                    if (standalone) {
-                        // Treat standalone subsystem the same as "otherca"
-                        config.putString(subsystem + "." + certTag + ".cert",
-                                "...paste certificate here...");
-
-                    } else {
-                        String sd_hostname = config.getString("securitydomain.host", "");
-                        int sd_ee_port = config.getInteger("securitydomain.httpseeport", -1);
-
-                        MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
-                        content.putSingle("requestor_name", sysType + "-" + machineName + "-" + securePort);
-                        content.putSingle("profileId", profileId);
-                        content.putSingle("cert_request_type", "pkcs10");
-                        content.putSingle("cert_request", pkcs10);
-                        content.putSingle("xmlOutput", "true");
-                        content.putSingle("sessionID", session_id);
-
-                        cert = CertUtil.createRemoteCert(sd_hostname, sd_ee_port,
-                                content, response);
-                        if (cert == null) {
-                            throw new IOException("Error: remote certificate is null");
-                        }
-                    }
-                } else if (v.equals("sdca")) {
-                    String ca_hostname = "";
-                    int ca_port = -1;
-                    try {
-                        if (sign_clone_sslserver_cert_using_master) {
-                            CMS.debug("ConfigurationUtils: For this Cloned CA, always use its Master CA to generate " +
-                                    "the 'sslserver' certificate to avoid any changes which may have been " +
-                                    "made to the X500Name directory string encoding order.");
-                            ca_hostname = config.getString("preop.master.hostname", "");
-                            ca_port = config.getInteger("preop.master.httpsport", -1);
-                        } else {
-                            ca_hostname = config.getString("preop.ca.hostname", "");
-                            ca_port = config.getInteger("preop.ca.httpsport", -1);
-                        }
-                    } catch (Exception ee) {
-                    }
-
-                    String sslserver_extension = "";
-                    Boolean injectSAN = config.getBoolean(
-                            "service.injectSAN", false);
-                    CMS.debug("ConfigurationUtils: injectSAN=" + injectSAN);
-                    if (certTag.equals("sslserver") &&
-                            injectSAN == true) {
-                        sslserver_extension =
-                                CertUtil.buildSANSSLserverURLExtension(config);
-                    }
-
-                    MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
-                    content.putSingle("requestor_name", sysType + "-" + machineName + "-" + securePort);
-                    content.putSingle("profileId", profileId);
-                    content.putSingle("cert_request_type", "pkcs10");
-                    content.putSingle("cert_request", pkcs10);
-                    content.putSingle("xmlOutput", "true");
-                    content.putSingle("sessionID", session_id);
-
-                    cert = CertUtil.createRemoteCert(ca_hostname, ca_port,
-                            content, response);
-
-                    if (cert == null) {
-                        throw new IOException("Error: remote certificate is null");
-                    }
-
-                    if (sign_clone_sslserver_cert_using_master) {
-                        // restore original 'CS.cfg' entries
-                        config.putString("preop.ca.type", preop_ca_type);
-                        config.putString("preop.cert.signing.type", preop_cert_signing_type);
-                        config.putString("preop.cert.signing.profile", preop_cert_signing_profile);
-                        config.putString("preop.cert.sslserver.type", preop_cert_sslserver_type);
-                        config.putString("preop.cert.sslserver.profile", preop_cert_sslserver_profile);
-
-                        // restore original 'caType'
-                        caType = original_caType;
-
-                        // reset master/clone signature flag
-                        sign_clone_sslserver_cert_using_master = false;
-                    }
-                } else if (v.equals("otherca")) {
-                    config.putString(subsystem + "." + certTag + ".cert",
-                            "...paste certificate here...");
-                } else {
-                    CMS.debug("ConfigurationUtils: no preop.ca.type is provided");
-                }
             } else { // not remote CA, ie, self-signed or local
 
                 cert = configLocalCert(context, certObj, config, caType, cert, certTag);
@@ -2666,6 +2583,140 @@ public class ConfigurationUtils {
             CMS.debug("configCert() exception caught:" + e.toString());
             throw e;
         }
+    }
+
+    private static X509CertImpl configRemoteCert(
+            HttpServletResponse response,
+            Context context,
+            Cert certObj,
+            IConfigStore config,
+            X509CertImpl cert,
+            String certTag,
+            String preop_ca_type,
+            String preop_cert_signing_type,
+            String preop_cert_signing_profile,
+            String preop_cert_sslserver_type,
+            String preop_cert_sslserver_profile,
+            String original_caType,
+            boolean sign_clone_sslserver_cert_using_master)
+            throws Exception {
+
+        String caType;
+        String v = config.getString("preop.ca.type", "");
+
+        CMS.debug("configCert: remote CA");
+        String pkcs10 = CertUtil.getPKCS10(config, PCERT_PREFIX, certObj, context);
+        certObj.setRequest(pkcs10);
+
+        String subsystem = config.getString(PCERT_PREFIX + certTag + ".subsystem");
+        config.putString(subsystem + "." + certTag + ".certreq", pkcs10);
+
+        String profileId = config.getString(PCERT_PREFIX + certTag + ".profile");
+        String session_id = CMS.getConfigSDSessionId();
+        String sysType = config.getString("cs.type", "");
+        String machineName = config.getString("machineName", "");
+        String securePort = config.getString("service.securePort", "");
+
+        if (certTag.equals("subsystem")) {
+
+            boolean standalone = config.getBoolean(sysType.toLowerCase() + ".standalone", false);
+
+            if (standalone) {
+
+                // Treat standalone subsystem the same as "otherca"
+                config.putString(subsystem + "." + certTag + ".cert",
+                        "...paste certificate here...");
+
+            } else {
+
+                String sd_hostname = config.getString("securitydomain.host", "");
+                int sd_ee_port = config.getInteger("securitydomain.httpseeport", -1);
+
+                MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
+                content.putSingle("requestor_name", sysType + "-" + machineName + "-" + securePort);
+                content.putSingle("profileId", profileId);
+                content.putSingle("cert_request_type", "pkcs10");
+                content.putSingle("cert_request", pkcs10);
+                content.putSingle("xmlOutput", "true");
+                content.putSingle("sessionID", session_id);
+
+                cert = CertUtil.createRemoteCert(sd_hostname, sd_ee_port, content, response);
+
+                if (cert == null) {
+                    throw new IOException("Error: remote certificate is null");
+                }
+            }
+
+        } else if (v.equals("sdca")) {
+
+            String ca_hostname = "";
+            int ca_port = -1;
+
+            try {
+                if (sign_clone_sslserver_cert_using_master) {
+
+                    CMS.debug("ConfigurationUtils: For this Cloned CA, always use its Master CA to generate " +
+                            "the 'sslserver' certificate to avoid any changes which may have been " +
+                            "made to the X500Name directory string encoding order.");
+                    ca_hostname = config.getString("preop.master.hostname", "");
+                    ca_port = config.getInteger("preop.master.httpsport", -1);
+
+                } else {
+
+                    ca_hostname = config.getString("preop.ca.hostname", "");
+                    ca_port = config.getInteger("preop.ca.httpsport", -1);
+                }
+
+            } catch (Exception ee) {
+            }
+
+            String sslserver_extension = "";
+            Boolean injectSAN = config.getBoolean("service.injectSAN", false);
+            CMS.debug("ConfigurationUtils: injectSAN: " + injectSAN);
+
+            if (certTag.equals("sslserver") && injectSAN == true) {
+                sslserver_extension = CertUtil.buildSANSSLserverURLExtension(config);
+            }
+
+            MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
+            content.putSingle("requestor_name", sysType + "-" + machineName + "-" + securePort);
+            content.putSingle("profileId", profileId);
+            content.putSingle("cert_request_type", "pkcs10");
+            content.putSingle("cert_request", pkcs10);
+            content.putSingle("xmlOutput", "true");
+            content.putSingle("sessionID", session_id);
+
+            cert = CertUtil.createRemoteCert(ca_hostname, ca_port, content, response);
+
+            if (cert == null) {
+                throw new IOException("Error: remote certificate is null");
+            }
+
+            if (sign_clone_sslserver_cert_using_master) {
+                // restore original 'CS.cfg' entries
+                config.putString("preop.ca.type", preop_ca_type);
+                config.putString("preop.cert.signing.type", preop_cert_signing_type);
+                config.putString("preop.cert.signing.profile", preop_cert_signing_profile);
+                config.putString("preop.cert.sslserver.type", preop_cert_sslserver_type);
+                config.putString("preop.cert.sslserver.profile", preop_cert_sslserver_profile);
+
+                // restore original 'caType'
+                caType = original_caType;
+
+                // reset master/clone signature flag
+                sign_clone_sslserver_cert_using_master = false;
+            }
+
+        } else if (v.equals("otherca")) {
+
+            config.putString(subsystem + "." + certTag + ".cert",
+                    "...paste certificate here...");
+
+        } else {
+            CMS.debug("ConfigurationUtils: no preop.ca.type is provided");
+        }
+
+        return cert;
     }
 
     private static X509CertImpl configLocalCert(
