@@ -2750,8 +2750,7 @@ public class ConfigurationUtils {
                         CryptoUtil.string2byte(pubKeyModulus),
                         CryptoUtil.string2byte(pubKeyPublicExponent));
 
-                cert = CertUtil.createLocalCert(config, x509key,
-                        PCERT_PREFIX, certTag, caType, context);
+                cert = CertUtil.createLocalCert(config, x509key, PCERT_PREFIX, certTag, caType);
 
             } else {
 
@@ -2769,8 +2768,7 @@ public class ConfigurationUtils {
                             CryptoUtil.string2byte(pubKeyModulus),
                             CryptoUtil.string2byte(pubKeyPublicExponent));
 
-                    cert = CertUtil.createLocalCert(config, x509key,
-                            PCERT_PREFIX, certTag, caType, context);
+                    cert = CertUtil.createLocalCert(config, x509key, PCERT_PREFIX, certTag, caType);
                 }
             }
 
@@ -2782,8 +2780,7 @@ public class ConfigurationUtils {
             if (certTag.equals("signing")) {
 
                 X509Key x509key = CryptoUtil.getPublicX509ECCKey(CryptoUtil.string2byte(pubKeyEncoded));
-                cert = CertUtil.createLocalCert(config, x509key,
-                        PCERT_PREFIX, certTag, caType, context);
+                cert = CertUtil.createLocalCert(config, x509key, PCERT_PREFIX, certTag, caType);
 
             } else {
 
@@ -2800,8 +2797,7 @@ public class ConfigurationUtils {
                     X509Key x509key = CryptoUtil.getPublicX509ECCKey(
                             CryptoUtil.string2byte(pubKeyEncoded));
 
-                    cert = CertUtil.createLocalCert(config, x509key,
-                            PCERT_PREFIX, certTag, caType, context);
+                    cert = CertUtil.createLocalCert(config, x509key, PCERT_PREFIX, certTag, caType);
                 }
             }
 
@@ -3212,8 +3208,7 @@ public class ConfigurationUtils {
                 if (!certTag.equals("sslserver"))
                     return;
             }
-            X509CertImpl impl = CertUtil.createLocalCert(config, x509key,
-                    PCERT_PREFIX, certTag, cert.getType(), null);
+            X509CertImpl impl = CertUtil.createLocalCert(config, x509key, PCERT_PREFIX, certTag, cert.getType());
 
             if (impl != null) {
                 byte[] certb = impl.getEncoded();
@@ -3563,7 +3558,7 @@ public class ConfigurationUtils {
 
         cs.putString(PCERT_PREFIX + "admin.dn", subject);
         String caType = cs.getString(PCERT_PREFIX + "admin.type", "local");
-        X509CertImpl impl = CertUtil.createLocalCert(cs, x509key, PCERT_PREFIX, "admin", caType, null);
+        X509CertImpl impl = CertUtil.createLocalCert(cs, x509key, PCERT_PREFIX, "admin", caType);
 
         // update the locally created request for renewal
         CertUtil.updateLocalRequest(cs, "admin", certRequest, certRequestType, subject);
