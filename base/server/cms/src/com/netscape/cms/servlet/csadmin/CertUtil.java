@@ -407,30 +407,16 @@ public class CertUtil {
                (signingKeyType.equals("dsa") && algorithm.contains("DSA")));
     }
 
-    public static X509CertImpl createLocalCertWithCA(IConfigStore config, X509Key x509key,
-            String prefix, String certTag, String type, ICertificateAuthority ca) throws Exception {
-        return createLocalCert(config, x509key, prefix, certTag, type, ca, null);
-    }
-
-    public static X509CertImpl createLocalCert(IConfigStore config, X509Key x509key,
-            String prefix, String certTag, String type, Context context) throws Exception {
-        return createLocalCert(config, x509key, prefix, certTag, type, null, context);
-    }
-
     public static X509CertImpl createLocalCert(
             IConfigStore config,
             X509Key x509key,
             String prefix,
             String certTag,
-            String type,
-            ICertificateAuthority ca,
-            Context context) throws Exception {
+            String type) throws Exception {
 
         CMS.debug("CertUtil.createLocalCert(" + certTag + ")");
 
         String profile = config.getString(prefix + certTag + ".profile");
-
-        boolean caProvided = ca != null;
 
         Boolean injectSAN = config.getBoolean("service.injectSAN", false);
         CMS.debug("createLocalCert: injectSAN: " + injectSAN);
@@ -445,16 +431,11 @@ public class CertUtil {
             keyAlgorithm = config.getString(prefix + certTag + ".keyalgorithm");
         }
 
-        if (!caProvided) {
-            ca = (ICertificateAuthority) CMS.getSubsystem(ICertificateAuthority.ID);
-        }
-
+        ICertificateAuthority ca = (ICertificateAuthority) CMS.getSubsystem(ICertificateAuthority.ID);
         ICertificateRepository cr = ca.getCertificateRepository();
+
         if (cr == null) {
-            if (context != null) {
-                context.put("errorString", "Ceritifcate Authority is not ready to serve.");
-            }
-            throw new IOException("Ceritifcate Authority is not ready to serve.");
+            throw new Exception("Ceritifcate Authority not available");
         }
 
         X509CertInfo info;
@@ -537,22 +518,19 @@ public class CertUtil {
 
         processor.populate(req, info);
 
-        PrivateKey caPrik;
-        if (caProvided) {
-            java.security.PrivateKey pk = ca.getSigningUnit().getPrivateKey();
-            if (!(pk instanceof PrivateKey))
-                throw new IOException("CA Private key must be a JSS PrivateKey");
-            caPrik = (PrivateKey) pk;
-
-        } else {
-            String caPriKeyID = config.getString(prefix + "signing" + ".privkey.id");
-            byte[] keyIDb = CryptoUtil.string2byte(caPriKeyID);
-            caPrik = CryptoUtil.findPrivateKeyFromID(keyIDb);
+        String caPriKeyID = config.getString(prefix + "signing" + ".privkey.id");
+        byte[] keyIDb = CryptoUtil.string2byte(caPriKeyID);
+        PrivateKey caPrik = CryptoUtil.findPrivateKeyFromID(keyIDb);
+        /*
+        java.security.PrivateKey pk = ca.getSigningUnit().getPrivateKey();
+        if (!(pk instanceof PrivateKey)) {
+            throw new Exception("CA Private key must be a JSS PrivateKey");
         }
+        caPrik = (PrivateKey) pk;
+        */
 
         if (caPrik == null) {
-            CMS.debug("CertUtil::createLocalCert() - CA private key is null!");
-            throw new IOException("CA private key is null");
+            throw new Exception("Unable to find CA private key");
         }
 
         CMS.debug("CertUtil createLocalCert: got CA private key");
