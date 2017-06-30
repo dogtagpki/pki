@@ -1,7 +1,7 @@
 #
 # Server Certificate
 #
-id=serverCert.profile
+id=subsystemCert.profile
 name=All Purpose SSL server cert Profile
 description=This profile creates an SSL server certificate that is valid for SSL servers
 profileIDMapping=caServerCert

@@ -266,20 +266,30 @@ public class CertUtil {
     /*
      * create requests so renewal can work on these initial certs
      */
-    public static IRequest createLocalRequest(IRequestQueue queue, String serialNum, X509CertInfo info)
-            throws EBaseException {
+    public static IRequest createLocalRequest(
+            IConfigStore cs,
+            IRequestQueue queue,
+            String tag,
+            CertInfoProfile profile,
+            X509CertInfo info,
+            X509Key x509key)
+            throws Exception {
+
         //        RequestId rid = new RequestId(serialNum);
         // just need a request, no need to get into a queue
         //        IRequest r = new EnrollmentRequest(rid);
-        CMS.debug("CertUtil: createLocalRequest for serial: " + serialNum);
+
+        CMS.debug("CertUtil.createLocalRequest(" + tag + ")");
+
         IRequest req = queue.newRequest("enrollment");
-        CMS.debug("certUtil: newRequest called");
+
         req.setExtData("profile", "true");
         req.setExtData("requestversion", "1.0.0");
         req.setExtData("req_seq_num", "0");
+
         req.setExtData(IEnrollProfile.REQUEST_CERTINFO, info);
-        req.setExtData(IEnrollProfile.REQUEST_EXTENSIONS,
-                    new CertificateExtensions());
+        req.setExtData(IEnrollProfile.REQUEST_EXTENSIONS, new CertificateExtensions());
+
         req.setExtData("requesttype", "enrollment");
         req.setExtData("requestor_name", "");
         req.setExtData("requestor_email", "");
@@ -289,6 +299,37 @@ public class CertUtil {
         req.setExtData("requestnotes", "");
         req.setExtData("isencryptioncert", "false");
         req.setExtData("profileapprovedby", "system");
+
+        Boolean injectSAN = cs.getBoolean("service.injectSAN", false);
+        CMS.debug("createLocalCert: inject SAN: " + injectSAN);
+
+        if (tag.equals("sslserver") && injectSAN) {
+            injectSANextensionIntoRequest(cs, req);
+        }
+
+        req.setExtData("req_key", x509key.toString());
+
+        String origProfileID = profile.getID();
+        int idx = origProfileID.lastIndexOf('.');
+        if (idx > 0) {
+            origProfileID = origProfileID.substring(0, idx);
+        }
+
+        // store original profile id in cert request
+        req.setExtData("origprofileid", origProfileID);
+
+        // store mapped profile ID for use in renewal
+        req.setExtData("profileid", profile.getProfileIDMapping());
+        req.setExtData("profilesetid", profile.getProfileSetIDMapping());
+
+        if (!tag.equals("signing")) {
+            /*
+             * (applies to non-CA-signing cert only)
+             * installAdjustValidity tells ValidityDefault to adjust the
+             * notAfter value to that of the CA's signing cert if needed
+             */
+            req.setExtData("installAdjustValidity", "true");
+        }
 
         // mark request as complete
         CMS.debug("certUtil: calling setRequestStatus");
@@ -421,11 +462,6 @@ public class CertUtil {
 
         CMS.debug("CertUtil.createLocalCert(" + certTag + ")");
 
-        String profile = config.getString(prefix + certTag + ".profile");
-
-        Boolean injectSAN = config.getBoolean("service.injectSAN", false);
-        CMS.debug("createLocalCert: injectSAN: " + injectSAN);
-
         String dn = config.getString(prefix + certTag + ".dn");
         String keyAlgorithm = null;
         Date date = new Date();
@@ -471,50 +507,29 @@ public class CertUtil {
 
         CMS.debug("Cert Template: " + info);
 
-        String instanceRoot = CMS.getConfigStore().getString("instanceRoot");
-        String configurationRoot = CMS.getConfigStore().getString("configurationRoot");
+        String instanceRoot = config.getString("instanceRoot");
+        String configurationRoot = config.getString("configurationRoot");
 
-        CertInfoProfile processor = new CertInfoProfile(instanceRoot + configurationRoot + profile);
+        String profileName = config.getString(prefix + certTag + ".profile");
+        CMS.debug("CertUtil: profile: " + profileName);
+
+        CertInfoProfile profile = new CertInfoProfile(instanceRoot + configurationRoot + profileName);
 
         // cfu - create request to enable renewal
         IRequestQueue queue = ca.getRequestQueue();
 
-        IRequest req = createLocalRequest(queue, serialNo.toString(), info);
-        if (certTag.equals("sslserver") && injectSAN) {
-            injectSANextensionIntoRequest(config, req);
-        }
-
-        CMS.debug("CertUtil profile: " + profile);
-        req.setExtData("req_key", x509key.toString());
-
-        // store original profile id in cert request
-        int idx = profile.lastIndexOf('.');
-        if (idx == -1) {
-            CMS.debug("CertUtil profileName contains no .");
-            req.setExtData("origprofileid", profile);
-        } else {
-            String name = profile.substring(0, idx);
-            req.setExtData("origprofileid", name);
-        }
-
-        // store mapped profile ID for use in renewal
-        String profileId = processor.getProfileIDMapping();
-        req.setExtData("profileid", profileId);
-        req.setExtData("profilesetid", processor.getProfileSetIDMapping());
+        IRequest req = createLocalRequest(
+                config,
+                queue,
+                certTag,
+                profile,
+                info,
+                x509key);
 
         RequestId reqId = req.getRequestId();
         config.putString("preop.cert." + certTag + ".reqId", reqId.toString());
 
-        if (!certTag.equals("signing")) {
-            /*
-             * (applies to non-CA-signing cert only)
-             * installAdjustValidity tells ValidityDefault to adjust the
-             * notAfter value to that of the CA's signing cert if needed
-             */
-            req.setExtData("installAdjustValidity", "true");
-        }
-
-        processor.populate(req, info);
+        profile.populate(req, info);
 
         /*
         java.security.PrivateKey pk = ca.getSigningUnit().getPrivateKey();
@@ -560,7 +575,7 @@ public class CertUtil {
 
         MetaInfo meta = new MetaInfo();
         meta.set(ICertRecord.META_REQUEST_ID, reqId.toString());
-        meta.set(ICertRecord.META_PROFILE_ID, profileId);
+        meta.set(ICertRecord.META_PROFILE_ID, profile.getProfileIDMapping());
 
         ICertRecord record = cr.createCertRecord(cert.getSerialNumber(), cert, meta);
         cr.addCertificateRecord(record);
