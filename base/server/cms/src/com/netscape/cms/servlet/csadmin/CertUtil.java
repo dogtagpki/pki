@@ -46,6 +46,7 @@ import org.xml.sax.SAXException;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.ConflictingOperationException;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.ca.ICertificateAuthority;
@@ -341,35 +342,39 @@ public class CertUtil {
     /**
      * update local cert request with the actual request
      * called from CertRequestPanel.java
+     * @throws EBaseException
+     * @throws EPropertyNotFound
      */
-    public static void updateLocalRequest(IConfigStore config, String certTag, String certReq, String reqType,
-            String subjectName) {
-        try {
-            CMS.debug("Updating local request... certTag=" + certTag);
-            RequestId rid = new RequestId(config.getString("preop.cert." + certTag + ".reqId"));
+    public static void updateLocalRequest(
+            IConfigStore config,
+            String certTag,
+            String certReq,
+            String reqType,
+            String subjectName
+            ) throws Exception {
 
-            ICertificateAuthority ca = (ICertificateAuthority) CMS.getSubsystem(
-                    ICertificateAuthority.ID);
+        CMS.debug("CertUtil.updateLocalRequest(" + certTag + ")");
 
-            IRequestQueue queue = ca.getRequestQueue();
-            if (queue != null) {
-                IRequest req = queue.findRequest(rid);
-                if (req != null) {
-                    if (!certReq.equals(""))
-                        req.setExtData("cert_request", certReq);
-                    req.setExtData("cert_request_type", reqType);
-                    if (subjectName != null) {
-                        req.setExtData("subject", subjectName);
-                        new X500Name(subjectName); // check for errors
-                    }
-                }
-                queue.updateRequest(req);
-            } else {
-                CMS.debug("CertUtil:updateLocalRequest - request queue = null");
-            }
-        } catch (Exception e) {
-            CMS.debug("CertUtil:updateLocalRequest - Exception:" + e.toString());
+        ICertificateAuthority ca = (ICertificateAuthority) CMS.getSubsystem(ICertificateAuthority.ID);
+        IRequestQueue queue = ca.getRequestQueue();
+
+        RequestId rid = new RequestId(config.getString("preop.cert." + certTag + ".reqId"));
+        IRequest req = queue.findRequest(rid);
+
+        if (!certReq.equals("")) {
+            CMS.debug("CertUtil: updating cert request");
+            req.setExtData("cert_request", certReq);
         }
+
+        req.setExtData("cert_request_type", reqType);
+
+        if (subjectName != null) {
+            CMS.debug("CertUtil: updating request subject: " + subjectName);
+            req.setExtData("subject", subjectName);
+            new X500Name(subjectName); // check for errors
+        }
+
+        queue.updateRequest(req);
     }
 
     /**
