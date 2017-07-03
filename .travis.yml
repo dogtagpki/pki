@@ -8,13 +8,17 @@ env:
   global:
     - CONTAINER=pkitest
     - SCRIPTDIR=/tmp/workdir/pki/.travis
-    - DOGTAG_PKI_RPMS=${TRAVIS_BUILD_DIR}/dogtag_rpms
-    - RPMS_LOCATION=/tmp/workdir/packages/RPMS
     - PKI_LOG=pki_log.log
     - CI_RESULTS_LOG="ci_results_${TRAVIS_BRANCH}.log"
-    - IPA_TEST_RUNNER_IMAGE="dogtagpki/dogtag-freeipa-ci-containers:f25_ipa_4-5"
-  matrix:
+    - CI_RUNNER_LOG_ARCHIVE="dogtag-ci-job-${TRAVIS_JOB_NUMBER}.tar.gz"
     - IMAGE=dogtagpki/pki-ci-containers:f25_104
+  matrix:
+    - TASK_TO_RUN="run-dogtag-build"
+
+    - TASK_TO_RUN="run-ipa-test"
+      IPA_TEST_RUNNER_IMAGE="dogtagpki/dogtag-freeipa-ci-containers:f25_ipa_4-5"
+      RPMS_LOCATION=/tmp/workdir/packages/RPMS
+      DOGTAG_PKI_RPMS=${TRAVIS_BUILD_DIR}/dogtag_rpms
     # F26 repo is unstable
     # - IMAGE=dogtagpki/pki-ci-containers:f26_104
     # rawhide repo is unstable
@@ -22,7 +26,6 @@ env:
 
 before_install:
   - docker pull ${IMAGE}
-  - docker pull ${IPA_TEST_RUNNER_IMAGE}
   - >
     docker run
     --detach
@@ -46,40 +49,21 @@ install:
   - docker exec -ti ${CONTAINER} ${SCRIPTDIR}/00-init
   - docker exec -ti ${CONTAINER} ${SCRIPTDIR}/10-compose-rpms
 
-  # Copy the built RPMS to host machine
-  - mkdir -p ${DOGTAG_PKI_RPMS}
-  - docker cp ${CONTAINER}:${RPMS_LOCATION}/. ${DOGTAG_PKI_RPMS}
-  - ls ${DOGTAG_PKI_RPMS}
-
-  - docker exec -ti ${CONTAINER} ${SCRIPTDIR}/20-install-rpms
-  - docker exec -ti ${CONTAINER} ${SCRIPTDIR}/30-setup-389ds
-
   # IPA related installs
   - pip install --upgrade pip
   - pip3 install --upgrade pip
   - pip install pep8
   - >
-    pip3 install
-    git+https://github.com/freeipa/ipa-docker-test-runner@release-0-2-1
+
 script:
-  # Test whether pki subsystem works correctly
-  - docker exec -ti ${CONTAINER} ${SCRIPTDIR}/40-spawn-ca
-  - docker exec -ti ${CONTAINER} ${SCRIPTDIR}/50-spawn-kra
-  - docker exec -ti ${CONTAINER} ${SCRIPTDIR}/99-destroy
-  # copy pki.server for Python 3 and rewrite pkispawn/pkidestroy shebang
-  - docker exec -ti ${CONTAINER} ${SCRIPTDIR}/py3rewrite
-  - docker exec -ti ${CONTAINER} ${SCRIPTDIR}/30-setup-389ds
-  - docker exec -ti ${CONTAINER} ${SCRIPTDIR}/40-spawn-ca
-  - docker exec -ti ${CONTAINER} ${SCRIPTDIR}/50-spawn-kra
-  - docker exec -ti ${CONTAINER} ${SCRIPTDIR}/99-destroy
   # It is time to run FreeIPA tests with new Dogtag RPMS built
-  - travis_wait 20 ./.travis_run_ipa_task.sh
+  - travis_wait 20 ./.travis_run_task.sh
 after_script:
   - docker kill ${CONTAINER}
   - docker rm ${CONTAINER}
+
 # The errors can be in either dogtag container or freeipa container
 after_failure:
   - docker exec ${CONTAINER} journalctl  -l > ${PKI_LOG}
-  - echo "Uploading CI Logs to transfer.sh ..."
   - curl --upload-file ./${PKI_LOG} https://transfer.sh/dogtag_build_logs.txt
   - curl --upload-file ./${CI_RESULTS_LOG} https://transfer.sh/freeipa-integration.txt
