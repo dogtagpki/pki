@@ -22,6 +22,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.security.Principal;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Properties;
@@ -34,8 +35,12 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.velocity.context.Context;
 import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.crypto.CryptoStore;
+import org.mozilla.jss.crypto.CryptoToken;
+import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.X509Certificate;
+import org.mozilla.jss.pkcs11.PK11Store;
 import org.xml.sax.SAXException;
 
 import com.netscape.certsrv.apps.CMS;
@@ -722,5 +727,103 @@ public class CertUtil {
         }
 
         return false;
+    }
+
+    public static boolean findCertificate(String tokenname, String nickname)
+            throws Exception {
+
+        CryptoManager cm = CryptoManager.getInstance();
+
+        String fullnickname = nickname;
+        if (!CryptoUtil.isInternalToken(tokenname)) {
+            fullnickname = tokenname + ":" + nickname;
+        }
+
+        CMS.debug("CertUtil: searching for cert " + fullnickname);
+
+        X509Certificate cert;
+        try {
+            cert = cm.findCertByNickname(fullnickname);
+        } catch (ObjectNotFoundException e) {
+            CMS.debug("CertUtil: cert not found: " + e);
+            return false;
+        }
+
+        if (cert == null) {
+            CMS.debug("CertUtil: cert not found");
+            return false;
+        }
+
+        return true;
+    }
+
+    public static boolean findBootstrapServerCert()
+            throws Exception {
+
+        CryptoManager cm = CryptoManager.getInstance();
+
+        IConfigStore cs = CMS.getConfigStore();
+        String nickname = cs.getString("preop.cert.sslserver.nickname");
+
+        CMS.debug("CertUtil: searching for cert " + nickname);
+
+        X509Certificate cert;
+        try {
+            cert = cm.findCertByNickname(nickname);
+        } catch (ObjectNotFoundException e) {
+            CMS.debug("CertUtil: cert not found: " + e);
+            return false;
+        }
+
+        Principal issuerDN = cert.getIssuerDN();
+        Principal subjectDN = cert.getSubjectDN();
+
+        if (!issuerDN.equals(subjectDN)) {
+            CMS.debug("CertUtil: cert is not self-signed");
+            return false;
+        }
+
+        return true;
+    }
+
+    public static void deleteCert(String tokenname, String nickname)
+            throws Exception {
+
+        CryptoManager cm = CryptoManager.getInstance();
+
+        String fullnickname = nickname;
+        if (!CryptoUtil.isInternalToken(tokenname))
+            fullnickname = tokenname + ":" + nickname;
+
+        CMS.debug("CertUtil: deleting cert " + fullnickname);
+
+        X509Certificate cert;
+        try {
+            cert = cm.findCertByNickname(fullnickname);
+        } catch (ObjectNotFoundException e) {
+            CMS.debug("CertUtil: cert not found: " + e);
+            return;
+        }
+
+        CryptoToken tok = CryptoUtil.getKeyStorageToken(tokenname);
+        CryptoStore store = tok.getCryptoStore();
+
+        if (store instanceof PK11Store) {
+            PK11Store pk11store = (PK11Store) store;
+            pk11store.deleteCertOnly(cert);
+            CMS.debug("CertUtil: cert deleted successfully");
+
+        } else {
+            CMS.debug("CertUtil: unsupported crypto store: " + store.getClass().getName());
+        }
+    }
+
+    public static void deleteBootstrapServerCert()
+            throws Exception {
+
+        IConfigStore cs = CMS.getConfigStore();
+        String nickname = cs.getString("preop.cert.sslserver.nickname");
+
+        deleteCert(CryptoUtil.INTERNAL_TOKEN_FULL_NAME, nickname);
     }
 }

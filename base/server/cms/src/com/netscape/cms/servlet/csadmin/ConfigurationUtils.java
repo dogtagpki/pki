@@ -3204,7 +3204,7 @@ public class ConfigurationUtils {
                 x509key = getECCX509Key(config, certTag);
             }
 
-            if (findCertificate(tokenname, nickname)) {
+            if (CertUtil.findCertificate(tokenname, nickname)) {
                 if (!certTag.equals("sslserver"))
                     return;
             }
@@ -3220,10 +3220,10 @@ public class ConfigurationUtils {
 
                 try {
                     CMS.debug("handleCerts(): deleting existing cert");
-                    if (certTag.equals("sslserver") && findBootstrapServerCert())
-                        deleteBootstrapServerCert();
-                    if (findCertificate(tokenname, nickname))
-                        deleteCert(tokenname, nickname);
+                    if (certTag.equals("sslserver") && CertUtil.findBootstrapServerCert())
+                        CertUtil.deleteBootstrapServerCert();
+                    if (CertUtil.findCertificate(tokenname, nickname))
+                        CertUtil.deleteCert(tokenname, nickname);
 
                     CMS.debug("handleCerts(): importing new cert");
                     if (certTag.equals("signing") && subsystem.equals("ca"))
@@ -3249,10 +3249,10 @@ public class ConfigurationUtils {
                 String b64chain = cert.getCertChain();
 
                 try {
-                    if (certTag.equals("sslserver") && findBootstrapServerCert())
-                        deleteBootstrapServerCert();
-                    if (findCertificate(tokenname, nickname)) {
-                        deleteCert(tokenname, nickname);
+                    if (certTag.equals("sslserver") && CertUtil.findBootstrapServerCert())
+                        CertUtil.deleteBootstrapServerCert();
+                    if (CertUtil.findCertificate(tokenname, nickname)) {
+                        CertUtil.deleteCert(tokenname, nickname);
                     }
                 } catch (Exception e) {
                     CMS.debug(e);
@@ -3319,10 +3319,10 @@ public class ConfigurationUtils {
 
             CMS.debug("handleCerts(): deleting existing cert");
             try {
-                if (certTag.equals("sslserver") && findBootstrapServerCert())
-                    deleteBootstrapServerCert();
-                if (findCertificate(tokenname, nickname)) {
-                    deleteCert(tokenname, nickname);
+                if (certTag.equals("sslserver") && CertUtil.findBootstrapServerCert())
+                    CertUtil.deleteBootstrapServerCert();
+                if (CertUtil.findCertificate(tokenname, nickname)) {
+                    CertUtil.deleteCert(tokenname, nickname);
                 }
             } catch (Exception e) {
                 CMS.debug(e);
@@ -3380,97 +3380,6 @@ public class ConfigurationUtils {
             } else {
                 ic.setObjectSigningTrust(InternalCertificate.USER);
             }
-        }
-    }
-
-    public static boolean findCertificate(String tokenname, String nickname) throws NotInitializedException,
-            TokenException, IOException {
-        IConfigStore cs = CMS.getConfigStore();
-        CryptoManager cm = CryptoManager.getInstance();
-
-        String fullnickname = nickname;
-        boolean hardware = false;
-        if (!CryptoUtil.isInternalToken(tokenname)) {
-            hardware = true;
-            fullnickname = tokenname + ":" + nickname;
-        }
-
-        X509Certificate cert = null;
-        try {
-            cert = cm.findCertByNickname(fullnickname);
-        } catch (ObjectNotFoundException e) {
-            return false;
-        }
-
-        if (cert == null)
-            return false;
-        try {
-            @SuppressWarnings("unused")
-            boolean done = cs.getBoolean("preop.CertRequestPanel.done"); // check for errors
-        } catch (Exception e) {
-            if (hardware) {
-                CMS.debug("ConfigurationUtils: findCertificate: The certificate with the same nickname: "
-                        + fullnickname + " has been found on HSM. Please remove it before proceeding.");
-                throw new IOException("The certificate with the same nickname: "
-                        + fullnickname + " has been found on HSM. Please remove it before proceeding.", e);
-            }
-        }
-        return true;
-    }
-
-    public static boolean findBootstrapServerCert() throws EBaseException, NotInitializedException, TokenException {
-        IConfigStore cs = CMS.getConfigStore();
-
-        String nickname = cs.getString("preop.cert.sslserver.nickname");
-
-        CryptoManager cm = CryptoManager.getInstance();
-        X509Certificate cert;
-        try {
-            cert = cm.findCertByNickname(nickname);
-        } catch (ObjectNotFoundException e) {
-            return false;
-        }
-        Principal issuerDN = cert.getIssuerDN();
-        Principal subjectDN = cert.getSubjectDN();
-        if (issuerDN.equals(subjectDN))
-            return true;
-
-        return false;
-    }
-
-    public static void deleteBootstrapServerCert() throws EBaseException, NotInitializedException,
-            NoSuchTokenException, TokenException {
-        IConfigStore cs = CMS.getConfigStore();
-        String nickname = cs.getString("preop.cert.sslserver.nickname");
-        deleteCert(CryptoUtil.INTERNAL_TOKEN_FULL_NAME, nickname);
-    }
-
-    public static void deleteCert(String tokenname, String nickname) throws NotInitializedException,
-            NoSuchTokenException, TokenException {
-
-        CryptoManager cm = CryptoManager.getInstance();
-        CryptoToken tok = CryptoUtil.getKeyStorageToken(tokenname);
-        CryptoStore store = tok.getCryptoStore();
-        String fullnickname = nickname;
-        if (!CryptoUtil.isInternalToken(tokenname))
-            fullnickname = tokenname + ":" + nickname;
-
-        CMS.debug("deleteCert: nickname=" + fullnickname);
-        X509Certificate cert;
-        try {
-            cert = cm.findCertByNickname(fullnickname);
-        } catch (ObjectNotFoundException e) {
-            CMS.debug("deleteCert: cert not found");
-            return;
-        }
-
-        if (store instanceof PK11Store) {
-            PK11Store pk11store = (PK11Store) store;
-            try {
-                pk11store.deleteCertOnly(cert);
-            } catch (NoSuchItemOnTokenException e) {
-            }
-            CMS.debug("deleteCert: cert deleted successfully");
         }
     }
 
