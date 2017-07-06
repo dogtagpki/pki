@@ -96,8 +96,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         existing = deployer.configuration_file.existing
         external = deployer.configuration_file.external
+        standalone = deployer.configuration_file.standalone
         step_one = deployer.configuration_file.external_step_one
         step_two = deployer.configuration_file.external_step_two
+        clone = deployer.configuration_file.clone
 
         try:
             if external and step_one:  # external CA step 1 only
@@ -384,8 +386,109 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             data = deployer.config_client.construct_pki_configuration_data()
 
         # Configure the subsystem
-        deployer.config_client.configure_pki_data(
+        response = deployer.config_client.configure_pki_data(
             json.dumps(data, cls=pki.encoder.CustomTypeEncoder))
+
+        config.pki_log.debug(
+            log.PKI_CONFIG_RESPONSE_STATUS + " " + str(response['status']),
+            extra=config.PKI_INDENTATION_LEVEL_2)
+
+        try:
+            certs = response['systemCerts']
+        except KeyError:
+            # no system certs created
+            config.pki_log.debug(
+                "No new system certificates generated.",
+                extra=config.PKI_INDENTATION_LEVEL_2)
+            certs = []
+
+        if not isinstance(certs, list):
+            certs = [certs]
+
+        for cdata in certs:
+
+            if standalone and not step_two:
+
+                # Stand-alone PKI (Step 1)
+
+                if cdata['tag'].lower() == "audit_signing":
+                    # Save Stand-alone PKI 'Audit Signing Certificate' CSR
+                    # (Step 1)
+                    deployer.config_client.save_system_csr(
+                        cdata['request'],
+                        log.PKI_CONFIG_EXTERNAL_CSR_SAVE_PKI_AUDIT_SIGNING_1,
+                        deployer.mdict['pki_external_audit_signing_csr_path'],
+                        subsystem.name)
+
+                elif cdata['tag'].lower() == "signing":
+                    # Save Stand-alone PKI OCSP 'OCSP Signing Certificate'
+                    # CSR (Step 1)
+                    deployer.config_client.save_system_csr(
+                        cdata['request'],
+                        log.PKI_CONFIG_EXTERNAL_CSR_SAVE_OCSP_SIGNING,
+                        deployer.mdict['pki_external_signing_csr_path'])
+
+                elif cdata['tag'].lower() == "sslserver":
+                    # Save Stand-alone PKI 'SSL Server Certificate' CSR
+                    # (Step 1)
+                    deployer.config_client.save_system_csr(
+                        cdata['request'],
+                        log.PKI_CONFIG_EXTERNAL_CSR_SAVE_PKI_SSLSERVER_1,
+                        deployer.mdict['pki_external_sslserver_csr_path'],
+                        subsystem.name)
+
+                elif cdata['tag'].lower() == "storage":
+                    # Save Stand-alone PKI KRA 'Storage Certificate' CSR
+                    # (Step 1)
+                    deployer.config_client.save_system_csr(
+                        cdata['request'],
+                        log.PKI_CONFIG_EXTERNAL_CSR_SAVE_KRA_STORAGE,
+                        deployer.mdict['pki_external_storage_csr_path'])
+
+                elif cdata['tag'].lower() == "subsystem":
+                    # Save Stand-alone PKI 'Subsystem Certificate' CSR
+                    # (Step 1)
+                    deployer.config_client.save_system_csr(
+                        cdata['request'],
+                        log.PKI_CONFIG_EXTERNAL_CSR_SAVE_PKI_SUBSYSTEM_1,
+                        deployer.mdict['pki_external_subsystem_csr_path'],
+                        subsystem.name)
+
+                elif cdata['tag'].lower() == "transport":
+                    # Save Stand-alone PKI KRA 'Transport Certificate' CSR
+                    # (Step 1)
+                    deployer.config_client.save_system_csr(
+                        cdata['request'],
+                        log.PKI_CONFIG_EXTERNAL_CSR_SAVE_KRA_TRANSPORT,
+                        deployer.mdict['pki_external_transport_csr_path'])
+
+            else:
+                config.pki_log.debug(
+                    log.PKI_CONFIG_CDATA_TAG + " " + cdata['tag'],
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+                config.pki_log.debug(
+                    log.PKI_CONFIG_CDATA_CERT + "\n" + cdata['cert'],
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+                config.pki_log.debug(
+                    log.PKI_CONFIG_CDATA_REQUEST + "\n" + cdata['request'],
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+
+        # Cloned PKI subsystems do not return an Admin Certificate
+        if not clone:
+
+            if standalone:
+                if not step_two:
+                    # NOTE:  Do nothing for Stand-alone PKI (Step 1)
+                    #        as this has already been addressed
+                    #        in 'set_admin_parameters()'
+                    pass
+                else:
+                    admin_cert = response['adminCert']['cert']
+                    deployer.config_client.process_admin_cert(admin_cert)
+
+            elif not config.str2bool(deployer.mdict['pki_import_admin_cert']):
+                admin_cert = response['adminCert']['cert']
+                deployer.config_client.process_admin_cert(admin_cert)
 
     def destroy(self, deployer):
 
