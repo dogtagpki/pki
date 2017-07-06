@@ -188,6 +188,73 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
             self.import_ca_signing_csr(deployer, subsystem)
 
+    def import_ca_signing_cert(self, deployer, nssdb):
+
+        cert_file = deployer.mdict.get('pki_external_ca_cert_path')
+        if not cert_file or not os.path.exists(cert_file):
+            return
+
+        nickname = deployer.mdict['pki_ca_signing_nickname']
+
+        config.pki_log.info(
+            "importing ca_signing certificate from %s" % cert_file,
+            extra=config.PKI_INDENTATION_LEVEL_2)
+
+        nssdb.add_cert(
+            nickname=nickname,
+            cert_file=cert_file,
+            trust_attributes='CT,C,C')
+
+    def import_certs_and_keys(self, deployer, nssdb):
+
+        pkcs12_file = deployer.mdict.get('pki_external_pkcs12_path')
+        if not pkcs12_file or not os.path.exists(pkcs12_file):
+            return
+
+        config.pki_log.info(
+            "importing certificates and keys from %s" % pkcs12_file,
+            extra=config.PKI_INDENTATION_LEVEL_2)
+
+        pkcs12_password = deployer.mdict['pki_external_pkcs12_password']
+        nssdb.import_pkcs12(pkcs12_file, pkcs12_password)
+
+    def import_cert_chain(self, deployer, nssdb, subsystem):
+
+        chain_file = deployer.mdict.get('pki_external_ca_cert_chain_path')
+        if not chain_file or not os.path.exists(chain_file):
+            return
+
+        nickname = deployer.mdict['pki_external_ca_cert_chain_nickname']
+
+        config.pki_log.info(
+            "importing certificate chain from %s" % chain_file,
+            extra=config.PKI_INDENTATION_LEVEL_2)
+
+        cert_chain, _nicks = nssdb.import_cert_chain(
+            nickname=nickname,
+            cert_chain_file=chain_file,
+            trust_attributes='CT,C,C')
+
+        subsystem.config['ca.external_ca_chain.cert'] = cert_chain
+
+    def import_system_certs(self, deployer, nssdb, subsystem):
+
+        if subsystem.name == 'ca':
+
+            self.import_ca_signing_cert(deployer, nssdb)
+
+        # If provided, import certs and keys from PKCS #12 file
+        # into NSS database.
+
+        self.import_certs_and_keys(deployer, nssdb)
+
+        # If provided, import cert chain into NSS database.
+        # Note: Cert chain must be imported after the system certs
+        # to ensure that the system certs are imported with
+        # the correct nicknames.
+
+        self.import_cert_chain(deployer, nssdb, subsystem)
+
     def create_temp_sslserver_cert(self, deployer, instance, token):
 
         if len(deployer.instance.tomcat_instance_subsystems()) > 1:
@@ -399,53 +466,11 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 # existing CA or external CA step 2
 
                 self.import_system_cert_requests(deployer, subsystem)
-
-                # If specified, import CA signing cert into NSS database.
-                signing_nickname = deployer.mdict['pki_ca_signing_nickname']
-                signing_cert_file = deployer.mdict['pki_external_ca_cert_path']
-                if signing_cert_file:
-                    config.pki_log.info(
-                        "importing %s from %s",
-                        signing_nickname, signing_cert_file,
-                        extra=config.PKI_INDENTATION_LEVEL_2)
-                    nssdb.add_cert(
-                        nickname=signing_nickname,
-                        cert_file=signing_cert_file,
-                        trust_attributes='CT,C,C')
-
-                # If specified, import certs and keys from PKCS #12 file
-                # into NSS database.
-                pkcs12_file = deployer.mdict['pki_external_pkcs12_path']
-                if pkcs12_file:
-                    config.pki_log.info(
-                        "importing certificates and keys from %s", pkcs12_file,
-                        extra=config.PKI_INDENTATION_LEVEL_2)
-                    pkcs12_password = deployer.mdict[
-                        'pki_external_pkcs12_password']
-                    nssdb.import_pkcs12(pkcs12_file, pkcs12_password)
-
-                # If specified, import cert chain into NSS database.
-                # Note: Cert chain must be imported after the system certs
-                # to ensure that the system certs are imported with
-                # the correct nicknames.
-                external_ca_cert_chain_nickname = \
-                    deployer.mdict['pki_external_ca_cert_chain_nickname']
-                external_ca_cert_chain_file = deployer.mdict[
-                    'pki_external_ca_cert_chain_path']
-                if external_ca_cert_chain_file:
-                    config.pki_log.info(
-                        "importing certificate chain %s from %s",
-                        external_ca_cert_chain_nickname,
-                        external_ca_cert_chain_file,
-                        extra=config.PKI_INDENTATION_LEVEL_2)
-                    cert_chain, _nicks = nssdb.import_cert_chain(
-                        nickname=external_ca_cert_chain_nickname,
-                        cert_chain_file=external_ca_cert_chain_file,
-                        trust_attributes='CT,C,C')
-                    subsystem.config['ca.external_ca_chain.cert'] = cert_chain
+                self.import_system_certs(deployer, nssdb, subsystem)
 
                 # Export CA signing cert from NSS database and import
                 # it into CS.cfg.
+                signing_nickname = deployer.mdict['pki_ca_signing_nickname']
                 signing_cert_data = nssdb.get_cert(
                     nickname=signing_nickname,
                     output_format='base64')
