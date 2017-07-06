@@ -3835,6 +3835,7 @@ class ConfigClient:
         self.san_inject = config.str2bool(self.mdict['pki_san_inject'])
 
     def configure_pki_data(self, data):
+
         config.pki_log.info(
             log.PKI_CONFIG_CONFIGURING_PKI_DATA,
             extra=config.PKI_INDENTATION_LEVEL_2)
@@ -3846,101 +3847,8 @@ class ConfigClient:
             subsystem=self.mdict['pki_subsystem_type'],
             trust_env=False)
 
-        try:
-            client = pki.system.SystemConfigClient(connection)
-            response = client.configure(data)
-
-            config.pki_log.debug(
-                log.PKI_CONFIG_RESPONSE_STATUS + " " + str(response['status']),
-                extra=config.PKI_INDENTATION_LEVEL_2)
-            try:
-                certs = response['systemCerts']
-            except KeyError:
-                # no system certs created
-                config.pki_log.debug(
-                    "No new system certificates generated.",
-                    extra=config.PKI_INDENTATION_LEVEL_2)
-                certs = []
-
-            if not isinstance(certs, list):
-                certs = [certs]
-            for cdata in certs:
-                if self.standalone and not self.external_step_two:
-                    # Stand-alone PKI (Step 1)
-                    if cdata['tag'].lower() == "audit_signing":
-                        # Save Stand-alone PKI 'Audit Signing Certificate' CSR
-                        # (Step 1)
-                        self.save_system_csr(
-                            cdata['request'],
-                            log.PKI_CONFIG_EXTERNAL_CSR_SAVE_PKI_AUDIT_SIGNING_1,
-                            self.mdict['pki_external_audit_signing_csr_path'],
-                            self.subsystem)
-                    elif cdata['tag'].lower() == "signing":
-                        # Save Stand-alone PKI OCSP 'OCSP Signing Certificate'
-                        # CSR (Step 1)
-                        self.save_system_csr(
-                            cdata['request'],
-                            log.PKI_CONFIG_EXTERNAL_CSR_SAVE_OCSP_SIGNING,
-                            self.mdict['pki_external_signing_csr_path'])
-                    elif cdata['tag'].lower() == "sslserver":
-                        # Save Stand-alone PKI 'SSL Server Certificate' CSR
-                        # (Step 1)
-                        self.save_system_csr(
-                            cdata['request'],
-                            log.PKI_CONFIG_EXTERNAL_CSR_SAVE_PKI_SSLSERVER_1,
-                            self.mdict['pki_external_sslserver_csr_path'],
-                            self.subsystem)
-                    elif cdata['tag'].lower() == "storage":
-                        # Save Stand-alone PKI KRA 'Storage Certificate' CSR
-                        # (Step 1)
-                        self.save_system_csr(
-                            cdata['request'],
-                            log.PKI_CONFIG_EXTERNAL_CSR_SAVE_KRA_STORAGE,
-                            self.mdict['pki_external_storage_csr_path'])
-                    elif cdata['tag'].lower() == "subsystem":
-                        # Save Stand-alone PKI 'Subsystem Certificate' CSR
-                        # (Step 1)
-                        self.save_system_csr(
-                            cdata['request'],
-                            log.PKI_CONFIG_EXTERNAL_CSR_SAVE_PKI_SUBSYSTEM_1,
-                            self.mdict['pki_external_subsystem_csr_path'],
-                            self.subsystem)
-                    elif cdata['tag'].lower() == "transport":
-                        # Save Stand-alone PKI KRA 'Transport Certificate' CSR
-                        # (Step 1)
-                        self.save_system_csr(
-                            cdata['request'],
-                            log.PKI_CONFIG_EXTERNAL_CSR_SAVE_KRA_TRANSPORT,
-                            self.mdict['pki_external_transport_csr_path'])
-                else:
-                    config.pki_log.debug(
-                        log.PKI_CONFIG_CDATA_TAG + " " + cdata['tag'],
-                        extra=config.PKI_INDENTATION_LEVEL_2)
-                    config.pki_log.debug(
-                        log.PKI_CONFIG_CDATA_CERT + "\n" + cdata['cert'],
-                        extra=config.PKI_INDENTATION_LEVEL_2)
-                    config.pki_log.debug(
-                        log.PKI_CONFIG_CDATA_REQUEST + "\n" + cdata['request'],
-                        extra=config.PKI_INDENTATION_LEVEL_2)
-
-            # Cloned PKI subsystems do not return an Admin Certificate
-            if not self.clone:
-                if self.standalone:
-                    if not self.external_step_two:
-                        # NOTE:  Do nothing for Stand-alone PKI (Step 1)
-                        #        as this has already been addressed
-                        #        in 'set_admin_parameters()'
-                        pass
-                    else:
-                        admin_cert = response['adminCert']['cert']
-                        self.process_admin_cert(admin_cert)
-                elif not config.str2bool(self.mdict['pki_import_admin_cert']):
-                    admin_cert = response['adminCert']['cert']
-                    self.process_admin_cert(admin_cert)
-
-        except:
-
-            raise
+        client = pki.system.SystemConfigClient(connection)
+        return client.configure(data)
 
     def process_admin_cert(self, admin_cert):
         config.pki_log.debug(
