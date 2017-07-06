@@ -118,6 +118,44 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         b64_csr = pki.nssdb.convert_csr(csr, 'pem', 'base64')
         subsystem.config['%s.%s.certreq' % (subsystem.name, tag)] = b64_csr
 
+    def generate_ca_signing_csr(self, deployer, nssdb, subsystem, tag, csr_path):
+
+        basic_constraints_ext = {
+            'ca': True,
+            'path_length': None,
+            'critical': True
+        }
+
+        key_usage_ext = {
+            'digitalSignature': True,
+            'nonRepudiation': True,
+            'certSigning': True,
+            'crlSigning': True,
+            'critical': True
+        }
+
+        # if specified, add generic CSR extension
+        generic_exts = None
+
+        if 'preop.cert.signing.ext.oid' in subsystem.config and \
+           'preop.cert.signing.ext.data' in subsystem.config:
+
+            data = subsystem.config['preop.cert.signing.ext.data']
+            critical = subsystem.config['preop.cert.signing.ext.critical']
+
+            generic_ext = {
+                'oid': subsystem.config['preop.cert.signing.ext.oid'],
+                'data': binascii.unhexlify(data),
+                'critical': config.str2bool(critical)
+            }
+
+            generic_exts = [generic_ext]
+
+        self.generate_csr(
+            deployer, nssdb, subsystem, tag, csr_path,
+            basic_constraints_ext, key_usage_ext, generic_exts
+        )
+
     def create_temp_sslserver_cert(self, deployer, instance, token):
 
         if len(deployer.instance.tomcat_instance_subsystems()) > 1:
@@ -327,46 +365,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                         external_csr_path,
                         extra=config.PKI_INDENTATION_LEVEL_2)
 
-                    basic_constraints_ext = {
-                        'ca': True,
-                        'path_length': None,
-                        'critical': True
-                    }
-
-                    key_usage_ext = {
-                        'digitalSignature': True,
-                        'nonRepudiation': True,
-                        'certSigning': True,
-                        'crlSigning': True,
-                        'critical': True
-                    }
-
-                    # if specified, add generic CSR extension
-                    generic_exts = None
-
-                    if 'preop.cert.signing.ext.oid' in subsystem.config and \
-                       'preop.cert.signing.ext.data' in subsystem.config:
-
-                        data = subsystem.config['preop.cert.signing.ext.data']
-                        critical = subsystem.config['preop.cert.signing.ext.critical']
-
-                        generic_ext = {
-                            'oid': subsystem.config['preop.cert.signing.ext.oid'],
-                            'data': binascii.unhexlify(data),
-                            'critical': config.str2bool(critical)
-                        }
-
-                        generic_exts = [generic_ext]
-
-                    self.generate_csr(
-                        deployer,
-                        nssdb,
-                        subsystem,
-                        'signing',
-                        csr_path=external_csr_path,
-                        basic_constraints_ext=basic_constraints_ext,
-                        key_usage_ext=key_usage_ext,
-                        generic_exts=generic_exts)
+                    self.generate_ca_signing_csr(
+                        deployer, nssdb, subsystem, 'signing', external_csr_path)
 
                 # This is needed by IPA to detect step 1 completion.
                 # See is_step_one_done() in ipaserver/install/cainstance.py.
