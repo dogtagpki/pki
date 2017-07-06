@@ -44,6 +44,40 @@ import pki.util
 # PKI Deployment Configuration Scriptlet
 class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
+    def get_key_params(self, deployer, cert_id):
+
+        key_type = deployer.mdict['pki_%s_key_type' % cert_id]
+        key_alg = deployer.mdict['pki_%s_key_algorithm' % cert_id]
+        key_size = deployer.mdict['pki_%s_key_size' % cert_id]
+
+        if key_type == 'rsa':
+
+            key_size = int(key_size)
+            curve = None
+
+            m = re.match(r'(.*)withRSA', key_alg)
+            if not m:
+                raise Exception('Invalid key algorithm: %s' % key_alg)
+
+            hash_alg = m.group(1)
+
+        elif key_type == 'ec' or key_type == 'ecc':
+
+            key_type = 'ec'
+            curve = key_size
+            key_size = None
+
+            m = re.match(r'(.*)withEC', key_alg)
+            if not m:
+                raise Exception('Invalid key algorithm: %s' % key_alg)
+
+            hash_alg = m.group(1)
+
+        else:
+            raise Exception('Invalid key type: %s' % key_type)
+
+        return (key_type, key_size, curve, hash_alg)
+
     def create_temp_sslserver_cert(self, deployer, instance, token):
 
         if len(deployer.instance.tomcat_instance_subsystems()) > 1:
@@ -245,31 +279,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 subject_dn = subsystem.config['preop.cert.signing.dn']
 
                 # Determine CA signing key type and algorithm
-
-                key_type = deployer.mdict['pki_ca_signing_key_type']
-                key_alg = deployer.mdict['pki_ca_signing_key_algorithm']
-
-                if key_type == 'rsa':
-                    key_size = int(deployer.mdict['pki_ca_signing_key_size'])
-                    curve = None
-
-                    m = re.match(r'(.*)withRSA', key_alg)
-                    if not m:
-                        raise Exception('Invalid key algorithm: %s' % key_alg)
-                    hash_alg = m.group(1)
-
-                elif key_type == 'ec' or key_type == 'ecc':
-                    key_type = 'ec'
-                    key_size = None
-                    curve = deployer.mdict['pki_ca_signing_key_size']
-
-                    m = re.match(r'(.*)withEC', key_alg)
-                    if not m:
-                        raise Exception('Invalid key algorithm: %s' % key_alg)
-                    hash_alg = m.group(1)
-
-                else:
-                    raise Exception('Invalid key type: %s' % key_type)
+                (key_type, key_size, curve, hash_alg) = \
+                    self.get_key_params(deployer, 'ca_signing')
 
                 # If filename specified, generate CA cert request and
                 # import it into CS.cfg.
