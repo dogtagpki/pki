@@ -44,6 +44,13 @@ import pki.util
 # PKI Deployment Configuration Scriptlet
 class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
+    def get_cert_id(self, subsystem, tag):
+
+        if tag == 'signing':
+            return '%s_%s' % (subsystem.name, tag)
+        else:
+            return tag
+
     def get_key_params(self, deployer, cert_id):
 
         key_type = deployer.mdict['pki_%s_key_type' % cert_id]
@@ -83,17 +90,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                      key_usage_ext=None,
                      generic_exts=None):
 
-        if tag in ['sslserver', 'subsystem', 'audit_signing', 'transport', 'storage', 'admin']:
-            cert_id = tag
-
-        elif tag == 'signing':
-            cert_id = '%s_%s' % (subsystem.name, tag)
-
-        else:
-            raise Exception('Unsupported certificate tag: %s' % tag)
+        cert_id = self.get_cert_id(subsystem, tag)
 
         config.pki_log.info(
-            "generating CSR for %s", cert_id,
+            "generating %s CSR in %s" % (cert_id, csr_path),
             extra=config.PKI_INDENTATION_LEVEL_2)
 
         subject_dn = deployer.mdict['pki_%s_subject_dn' % cert_id]
@@ -118,7 +118,11 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         b64_csr = pki.nssdb.convert_csr(csr, 'pem', 'base64')
         subsystem.config['%s.%s.certreq' % (subsystem.name, tag)] = b64_csr
 
-    def generate_ca_signing_csr(self, deployer, nssdb, subsystem, tag, csr_path):
+    def generate_ca_signing_csr(self, deployer, nssdb, subsystem):
+
+        csr_path = deployer.mdict.get('pki_external_csr_path')
+        if not csr_path:
+            return
 
         basic_constraints_ext = {
             'ca': True,
@@ -152,9 +156,15 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             generic_exts = [generic_ext]
 
         self.generate_csr(
-            deployer, nssdb, subsystem, tag, csr_path,
+            deployer, nssdb, subsystem, 'signing', csr_path,
             basic_constraints_ext, key_usage_ext, generic_exts
         )
+
+    def generate_system_cert_requests(self, deployer, nssdb, subsystem):
+
+        if subsystem.name == 'ca':
+
+            self.generate_ca_signing_csr(deployer, nssdb, subsystem)
 
     def create_temp_sslserver_cert(self, deployer, instance, token):
 
@@ -354,19 +364,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         try:
             if external and step_one:  # external CA step 1 only
 
-                # If filename specified, generate CA cert request and
-                # import it into CS.cfg.
-
-                external_csr_path = deployer.mdict['pki_external_csr_path']
-                if external_csr_path:
-
-                    config.pki_log.info(
-                        "generating CA signing certificate request in %s",
-                        external_csr_path,
-                        extra=config.PKI_INDENTATION_LEVEL_2)
-
-                    self.generate_ca_signing_csr(
-                        deployer, nssdb, subsystem, 'signing', external_csr_path)
+                self.generate_system_cert_requests(deployer, nssdb, subsystem)
 
                 # This is needed by IPA to detect step 1 completion.
                 # See is_step_one_done() in ipaserver/install/cainstance.py.
