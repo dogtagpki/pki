@@ -78,6 +78,46 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         return (key_type, key_size, curve, hash_alg)
 
+    def generate_csr(self, deployer, nssdb, subsystem, tag, csr_path,
+                     basic_constraints_ext=None,
+                     key_usage_ext=None,
+                     generic_exts=None):
+
+        if tag in ['sslserver', 'subsystem', 'audit_signing', 'transport', 'storage', 'admin']:
+            cert_id = tag
+
+        elif tag == 'signing':
+            cert_id = '%s_%s' % (subsystem.name, tag)
+
+        else:
+            raise Exception('Unsupported certificate tag: %s' % tag)
+
+        config.pki_log.info(
+            "generating CSR for %s", cert_id,
+            extra=config.PKI_INDENTATION_LEVEL_2)
+
+        subject_dn = deployer.mdict['pki_%s_subject_dn' % cert_id]
+
+        (key_type, key_size, curve, hash_alg) = self.get_key_params(
+            deployer, cert_id)
+
+        nssdb.create_request(
+            subject_dn=subject_dn,
+            request_file=csr_path,
+            key_type=key_type,
+            key_size=key_size,
+            curve=curve,
+            hash_alg=hash_alg,
+            basic_constraints_ext=basic_constraints_ext,
+            key_usage_ext=key_usage_ext,
+            generic_exts=generic_exts)
+
+        with open(csr_path) as f:
+            csr = f.read()
+
+        b64_csr = pki.nssdb.convert_csr(csr, 'pem', 'base64')
+        subsystem.config['%s.%s.certreq' % (subsystem.name, tag)] = b64_csr
+
     def create_temp_sslserver_cert(self, deployer, instance, token):
 
         if len(deployer.instance.tomcat_instance_subsystems()) > 1:
@@ -276,12 +316,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         try:
             if external and step_one:  # external CA step 1 only
 
-                subject_dn = subsystem.config['preop.cert.signing.dn']
-
-                # Determine CA signing key type and algorithm
-                (key_type, key_size, curve, hash_alg) = \
-                    self.get_key_params(deployer, 'ca_signing')
-
                 # If filename specified, generate CA cert request and
                 # import it into CS.cfg.
 
@@ -324,23 +358,15 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
                         generic_exts = [generic_ext]
 
-                    nssdb.create_request(
-                        subject_dn=subject_dn,
-                        request_file=external_csr_path,
-                        key_type=key_type,
-                        key_size=key_size,
-                        curve=curve,
-                        hash_alg=hash_alg,
+                    self.generate_csr(
+                        deployer,
+                        nssdb,
+                        subsystem,
+                        'signing',
+                        csr_path=external_csr_path,
                         basic_constraints_ext=basic_constraints_ext,
                         key_usage_ext=key_usage_ext,
                         generic_exts=generic_exts)
-
-                    with open(external_csr_path) as f:
-                        signing_csr = f.read()
-
-                    signing_csr = pki.nssdb.convert_csr(
-                        signing_csr, 'pem', 'base64')
-                    subsystem.config['ca.signing.certreq'] = signing_csr
 
                 # This is needed by IPA to detect step 1 completion.
                 # See is_step_one_done() in ipaserver/install/cainstance.py.
