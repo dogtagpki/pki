@@ -2946,15 +2946,20 @@ public class ConfigurationUtils {
         return 0;
     }
 
-    public static void updateCloneConfig()
-            throws EBaseException, IOException {
+    public static void updateCloneConfig() throws EBaseException, IOException {
+
         IConfigStore config = CMS.getConfigStore();
         String cstype = config.getString("cs.type", null);
         cstype = cstype.toLowerCase();
+
         if (cstype.equals("kra")) {
+
             String token = config.getString("preop.module.token");
+
             if (!CryptoUtil.isInternalToken(token)) {
+
                 CMS.debug("ConfigurationUtils: updating configuration for KRA clone with hardware token");
+
                 String subsystem = config.getString(PCERT_PREFIX + "storage.subsystem");
                 String storageNickname = getNickname(config, "storage");
                 String transportNickname = getNickname(config, "transport");
@@ -2962,22 +2967,23 @@ public class ConfigurationUtils {
                 config.putString(subsystem + ".storageUnit.hardware", token);
                 config.putString(subsystem + ".storageUnit.nickName", token + ":" + storageNickname);
                 config.putString(subsystem + ".transportUnit.nickName", token + ":" + transportNickname);
+
                 config.commit(false);
+
             } else { // software token
                 // parameters already set
             }
         }
 
         // audit signing cert
-        String audit_nn = config.getString(cstype + ".audit_signing" + ".nickname", "");
-        String audit_tk = config.getString(cstype + ".audit_signing" + ".tokenname", "");
-        if (!CryptoUtil.isInternalToken(audit_tk)) {
-            config.putString("log.instance.SignedAudit.signedAuditCertNickname",
-                    audit_tk + ":" + audit_nn);
-        } else {
-            config.putString("log.instance.SignedAudit.signedAuditCertNickname",
-                    audit_nn);
+        String nickname = config.getString(cstype + ".audit_signing.nickname", "");
+        String token = config.getString(cstype + ".audit_signing.tokenname", "");
+
+        if (!CryptoUtil.isInternalToken(token)) {
+            nickname = token + ":" + nickname;
         }
+
+        config.putString("log.instance.SignedAudit.signedAuditCertNickname", nickname);
     }
 
     public static void loadCertRequest(IConfigStore config, String tag, Cert cert) throws Exception {

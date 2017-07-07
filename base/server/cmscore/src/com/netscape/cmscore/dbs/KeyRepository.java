@@ -194,7 +194,7 @@ public class KeyRepository extends Repository implements IKeyRepository {
             CMS.debug("request checkRanges done");
 
         } catch (Exception e) {
-            CMS.debug("key checkRanges done: " + e.toString());
+            CMS.debug(e);
         }
     }
 

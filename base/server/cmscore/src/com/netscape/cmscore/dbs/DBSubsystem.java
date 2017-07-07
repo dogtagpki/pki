@@ -405,7 +405,9 @@ public class DBSubsystem implements IDBSubsystem {
             String dn = h.get(PROP_BASEDN) + "," + mBaseDN;
             String rangeDN = h.get(PROP_RANGE_DN) + "," + mBaseDN;
 
+            CMS.debug("DBSubsystem: retrieving " + dn);
             LDAPEntry entry = conn.read(dn);
+
             LDAPAttribute attr = entry.getAttribute(PROP_NEXT_RANGE);
             if (attr == null) {
                 throw new Exception("Missing Attribute" + PROP_NEXT_RANGE + "in Entry " + dn);
@@ -414,12 +416,17 @@ public class DBSubsystem implements IDBSubsystem {
 
             BigInteger nextRangeNo = new BigInteger(nextRange);
             BigInteger incrementNo = new BigInteger(h.get(PROP_INCREMENT));
+            String newNextRange = nextRangeNo.add(incrementNo).toString();
+
             // To make sure attrNextRange always increments, first delete the current value and then
             // increment.  Two operations in the same transaction
-            LDAPAttribute attrNextRange = new LDAPAttribute(PROP_NEXT_RANGE, nextRangeNo.add(incrementNo).toString());
+            LDAPAttribute attrNextRange = new LDAPAttribute(PROP_NEXT_RANGE, newNextRange);
             LDAPModification[] mods = {
                     new LDAPModification(LDAPModification.DELETE, attr),
                     new LDAPModification(LDAPModification.ADD, attrNextRange) };
+
+            CMS.debug("DBSubsystem: updating " + PROP_NEXT_RANGE + " from " + nextRange + " to " + newNextRange);
+
             conn.modify(dn, mods);
 
             // Add new range object
@@ -434,13 +441,18 @@ public class DBSubsystem implements IDBSubsystem {
             attrs.add(new LDAPAttribute("securePort", CMS.getEESSLPort()));
             String dn2 = "cn=" + nextRange + "," + rangeDN;
             LDAPEntry rangeEntry = new LDAPEntry(dn2, attrs);
+
+            CMS.debug("DBSubsystem: adding new range object: " + dn2);
+
             conn.add(rangeEntry);
+
             CMS.debug("DBSubsystem: getNextRange  Next range has been added: " +
                       nextRange + " - " + endRange);
+
         } catch (Exception e) {
-            CMS.debug("DBSubsystem: getNextRange. Unable to provide next range :" + e);
-            e.printStackTrace();
+            CMS.debug(e);
             nextRange = null;
+
         } finally {
             try {
                 if ((conn != null) && (mLdapConnFactory != null)) {
@@ -451,6 +463,7 @@ public class DBSubsystem implements IDBSubsystem {
                 CMS.debug("Error releasing the ldap connection" + e.toString());
             }
         }
+
         return nextRange;
     }
 
