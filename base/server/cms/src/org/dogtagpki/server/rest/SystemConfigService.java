@@ -368,14 +368,18 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 continue;
             }
 
-            processCert(
+            processKeyPair(
                     request,
                     token,
-                    certList,
-                    certs,
+                    certData);
+
+            Cert cert = processCert(
+                    request,
                     hasSigningCert,
                     certData,
                     tokenName);
+
+            certs.add(cert);
         }
 
         // make sure to commit changes here for step 1
@@ -388,16 +392,15 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         }
     }
 
-    public void processCert(
+    public void processKeyPair(
             ConfigurationRequest request,
             String token,
-            Collection<String> certList,
-            Collection<Cert> certs,
-            MutableBoolean hasSigningCert,
-            SystemCertData certData,
-            String tokenName) throws Exception {
+            SystemCertData certData
+            ) throws Exception {
 
         String tag = certData.getTag();
+        CMS.debug("SystemConfigService.processKeyPair(" + tag + ")");
+
         String keytype = certData.getKeyType() != null ? certData.getKeyType() : "rsa";
 
         String keyalgorithm = certData.getKeyAlgorithm();
@@ -406,47 +409,69 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         }
 
         String signingalgorithm = certData.getSigningAlgorithm() != null ? certData.getSigningAlgorithm() : keyalgorithm;
-        String nickname = cs.getString("preop.cert." + tag + ".nickname");
-        String dn = cs.getString("preop.cert." + tag + ".dn");
 
         cs.putString("preop.cert." + tag + ".keytype", keytype);
         cs.putString("preop.cert." + tag + ".keyalgorithm", keyalgorithm);
         cs.putString("preop.cert." + tag + ".signingalgorithm", signingalgorithm);
 
         // support injecting SAN into server cert
-        if ( tag.equals("sslserver") && certData.getServerCertSAN() != null) {
-            CMS.debug("updateConfiguration(): san_server_cert found");
+        if (tag.equals("sslserver") && certData.getServerCertSAN() != null) {
+            CMS.debug("SystemConfigService: san_server_cert found");
             cs.putString("service.injectSAN", "true");
             cs.putString("service.sslserver.san", certData.getServerCertSAN());
+
         } else {
-            if ( tag.equals("sslserver"))
-                CMS.debug("SystemConfigService:processCerts(): san_server_cert not found for tag sslserver");
+            if (tag.equals("sslserver")) {
+                CMS.debug("SystemConfigService: san_server_cert not found");
+            }
         }
         cs.commit(false);
 
         if (request.isExternal() && tag.equals("signing")) { // external/existing CA
-            // load key pair for existing and externally-signed signing cert
-            CMS.debug("SystemConfigService: loading signing cert key pair");
+
+            CMS.debug("SystemConfigService: loading existing key pair from NSS database");
             KeyPair pair = ConfigurationUtils.loadKeyPair(certData.getNickname(), certData.getToken());
+
+            CMS.debug("SystemConfigService: storing key pair into CS.cfg");
             ConfigurationUtils.storeKeyPair(cs, tag, pair);
 
         } else if (!request.getStepTwo()) {
+
+            CMS.debug("SystemConfigService: generating key pair");
+
+            KeyPair pair;
             if (keytype.equals("ecc")) {
                 String curvename = certData.getKeySize() != null ?
                         certData.getKeySize() : cs.getString("keys.ecc.curve.default");
                 cs.putString("preop.cert." + tag + ".curvename.name", curvename);
-                ConfigurationUtils.createECCKeyPair(token, curvename, cs, tag);
+                pair = ConfigurationUtils.createECCKeyPair(token, curvename, cs, tag);
 
             } else {
                 String keysize = certData.getKeySize() != null ? certData.getKeySize() : cs
                         .getString("keys.rsa.keysize.default");
                 cs.putString("preop.cert." + tag + ".keysize.size", keysize);
-                ConfigurationUtils.createRSAKeyPair(token, Integer.parseInt(keysize), cs, tag);
+                pair = ConfigurationUtils.createRSAKeyPair(token, Integer.parseInt(keysize), cs, tag);
             }
 
+            CMS.debug("SystemConfigService: storing key pair into CS.cfg");
+            ConfigurationUtils.storeKeyPair(cs, tag, pair);
+
         } else {
-            CMS.debug("configure(): step two selected.  keys will not be generated for '" + tag + "'");
+            CMS.debug("SystemConfigService: key pair already generated in step one");
         }
+    }
+
+    public Cert processCert(
+            ConfigurationRequest request,
+            MutableBoolean hasSigningCert,
+            SystemCertData certData,
+            String tokenName) throws Exception {
+
+        String tag = certData.getTag();
+        CMS.debug("SystemConfigService.processCert(" + tag + ")");
+
+        String nickname = cs.getString("preop.cert." + tag + ".nickname");
+        String dn = cs.getString("preop.cert." + tag + ".dn");
 
         Cert cert = new Cert(tokenName, nickname, tag);
         cert.setDN(dn);
@@ -514,8 +539,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         if (request.isExternal() && tag.equals("signing")) { // external/existing CA
             CMS.debug("SystemConfigService: External CA has signing cert");
             hasSigningCert.setValue(true);
-            certs.add(cert);
-            return;
+            return cert;
         }
 
         // to determine if we have the signing cert when using an external ca
@@ -537,7 +561,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             }
         }
 
-        certs.add(cert);
+        return cert;
     }
 
     private void updateCloneConfiguration(SystemCertData cdata, String tag, String tokenName) throws NotInitializedException,
