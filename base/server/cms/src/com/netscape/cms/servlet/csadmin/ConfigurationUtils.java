@@ -2849,17 +2849,6 @@ public class ConfigurationUtils {
             }
         }
 
-        String serverCertNickname = nickname;
-        String path = CMS.getConfigStore().getString("instanceRoot", "");
-        if (certTag.equals("sslserver")) {
-            if (!CryptoUtil.isInternalToken(token)) {
-                serverCertNickname = token + ":" + nickname;
-            }
-            PrintStream ps = new PrintStream(path + "/conf/serverCertNick.conf", "UTF-8");
-            ps.println(serverCertNickname);
-            ps.close();
-        }
-
         config.putString(subsystem + "." + certTag + ".nickname", nickname);
         config.putString(subsystem + "." + certTag + ".tokenname", token);
         if (certTag.equals("audit_signing")) {
@@ -2882,6 +2871,23 @@ public class ConfigurationUtils {
 
         config.commit(false);
         CMS.debug("updateConfig() done");
+    }
+
+    public static void updateServerCertNickConf() throws Exception {
+
+        IConfigStore cs = CMS.getConfigStore();
+        String token = cs.getString("preop.module.token");
+        String nickname = getNickname(cs, "sslserver");
+
+        String serverCertNickname = nickname;
+        if (!CryptoUtil.isInternalToken(token)) {
+            serverCertNickname = token + ":" + nickname;
+        }
+
+        String path = cs.getString("instanceRoot", "");
+        PrintStream ps = new PrintStream(path + "/conf/serverCertNick.conf", "UTF-8");
+        ps.println(serverCertNickname);
+        ps.close();
     }
 
     public static String getNickname(IConfigStore config, String certTag) throws EBaseException {

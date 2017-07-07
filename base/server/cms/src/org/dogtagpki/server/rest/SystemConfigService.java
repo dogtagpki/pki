@@ -290,8 +290,12 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         return certList;
     }
 
-    public void processCerts(ConfigurationRequest request, String token, Collection<String> certList,
-            Collection<Cert> certs, MutableBoolean hasSigningCert) {
+    public void processCerts(
+            ConfigurationRequest request,
+            String token,
+            Collection<String> certList,
+            Collection<Cert> certs,
+            MutableBoolean hasSigningCert) throws Exception {
 
         try {
             boolean generateServerCert = !request.getGenerateServerCert().equalsIgnoreCase("false");
@@ -393,6 +397,8 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             CMS.debug(e);
             throw new PKIException("Error in setting certificate names and key sizes: " + e);
         }
+
+        ConfigurationUtils.updateServerCertNickConf();
     }
 
     public void processCert(
