@@ -448,11 +448,11 @@ public abstract class Repository implements IRepository {
      */
     public void checkRanges() throws EBaseException {
         if (!mDB.getEnableSerialMgmt()) {
-            CMS.debug("Serial Management not enabled. Returning .. ");
+            CMS.debug("Repository: Serial Management not enabled. Returning .. ");
             return;
         }
         if (CMS.getEESSLPort() == null) {
-            CMS.debug("Server not completely started.  Returning ..");
+            CMS.debug("Repository: Server not completely started.  Returning ..");
             return;
         }
 
@@ -466,27 +466,34 @@ public abstract class Repository implements IRepository {
         } else {
             numsInRange = mMaxSerialNo.subtract(mLastSerialNo);
         }
+
+        CMS.debug("Repository: Serial numbers left in range: " + numsInRange);
+        CMS.debug("Repository: Last serial number: " + mLastSerialNo);
+
         BigInteger numsInNextRange = null;
         BigInteger numsAvail = null;
-        CMS.debug("Serial numbers left in range: " + numsInRange.toString());
-        CMS.debug("Last Serial Number: " + mLastSerialNo.toString());
+
         if ((mNextMaxSerialNo != null) && (mNextMinSerialNo != null)) {
             numsInNextRange = mNextMaxSerialNo.subtract(mNextMinSerialNo).add(BigInteger.ONE);
             numsAvail = numsInRange.add(numsInNextRange);
-            CMS.debug("Serial Numbers in next range: " + numsInNextRange.toString());
-            CMS.debug("Serial Numbers available: " + numsAvail.toString());
+            CMS.debug("Repository: Serial numbers in next range: " + numsInNextRange.toString());
         } else {
             numsAvail = numsInRange;
-            CMS.debug("Serial Numbers available: " + numsAvail.toString());
         }
 
+        CMS.debug("Repository: Serial numbers available: " + numsAvail);
+        CMS.debug("Repository: Low water mark: " + mLowWaterMarkNo);
+
         if ((numsAvail.compareTo(mLowWaterMarkNo) < 0) && (!CMS.isPreOpMode())) {
-            CMS.debug("Low water mark reached. Requesting next range");
-            mNextMinSerialNo = new BigInteger(mDB.getNextRange(mRepo), mRadix);
+            CMS.debug("Repository: Requesting next range");
+            String nextRange = mDB.getNextRange(mRepo);
+            CMS.debug("Repository: next range: " + nextRange);
+
+            mNextMinSerialNo = new BigInteger(nextRange, mRadix);
             if (mNextMinSerialNo == null) {
-                CMS.debug("Next Range not available");
+                CMS.debug("Repository: Next range not available");
             } else {
-                CMS.debug("nNextMinSerialNo has been set to " + mNextMinSerialNo.toString(mRadix));
+                CMS.debug("Repository: Next min serial number: " + mNextMinSerialNo.toString(mRadix));
                 mNextMaxSerialNo = mNextMinSerialNo.add(mIncrementNo).subtract(BigInteger.ONE);
                 numsAvail = numsAvail.add(mIncrementNo);
                 mDB.setNextMinSerialConfig(mRepo, mNextMinSerialNo.toString(mRadix));

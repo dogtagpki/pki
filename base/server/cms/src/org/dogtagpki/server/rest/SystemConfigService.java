@@ -399,6 +399,10 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         }
 
         ConfigurationUtils.updateServerCertNickConf();
+
+        if (request.isClone()) {
+            ConfigurationUtils.updateCloneConfig();
+        }
     }
 
     public void processCert(
@@ -522,10 +526,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         } else {
             ConfigurationUtils.generateCertRequest(cs, tag, cert);
-        }
-
-        if (request.isClone()) {
-            ConfigurationUtils.updateCloneConfig();
         }
 
         if (request.isExternal() && tag.equals("signing")) { // external/existing CA
