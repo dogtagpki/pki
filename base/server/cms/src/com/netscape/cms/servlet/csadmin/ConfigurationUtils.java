@@ -2340,10 +2340,12 @@ public class ConfigurationUtils {
         setSigningAlgorithm(tag, keyAlgo, config);
     }
 
-    public static void createECCKeyPair(String token, String curveName, IConfigStore config, String ct)
+    public static KeyPair createECCKeyPair(String token, String curveName, IConfigStore config, String ct)
             throws NoSuchAlgorithmException, NoSuchTokenException, TokenException,
             CryptoManager.NotInitializedException, EPropertyNotFound, EBaseException {
-        CMS.debug("createECCKeyPair: Generating ECC key pair with curvename=" + curveName + ", token=" + token);
+
+        CMS.debug("ConfigurationUtils.createECCKeyPair(" + token + ", " + curveName + ")");
+
         KeyPair pair = null;
         /*
          * default ssl server cert to ECDHE unless stated otherwise
@@ -2392,7 +2394,6 @@ public class ConfigurationUtils {
             // XXX - store curve , w
             byte id[] = ((org.mozilla.jss.crypto.PrivateKey) pair.getPrivate()).getUniqueID();
             String kid = CryptoUtil.byte2string(id);
-            config.putString(PCERT_PREFIX + ct + ".privkey.id", kid);
 
             // try to locate the private key
             org.mozilla.jss.crypto.PrivateKey privk = CryptoUtil.findPrivateKeyFromID(CryptoUtil.string2byte(kid));
@@ -2402,42 +2403,31 @@ public class ConfigurationUtils {
             }
         } while (pair == null);
 
-        CMS.debug("Public key class " + pair.getPublic().getClass().getName());
-        byte encoded[] = pair.getPublic().getEncoded();
-        config.putString(PCERT_PREFIX + ct + ".pubkey.encoded", CryptoUtil.byte2string(encoded));
-
-        String keyAlgo = config.getString(PCERT_PREFIX + ct + ".signingalgorithm");
-        setSigningAlgorithm(ct, keyAlgo, config);
+        return pair;
     }
 
-    public static void createRSAKeyPair(String token, int keysize, IConfigStore config, String ct)
+    public static KeyPair createRSAKeyPair(String token, int keysize, IConfigStore config, String ct)
             throws Exception {
-        /* generate key pair */
+
+        CMS.debug("ConfigurationUtils.createRSAKeyPair(" + token + ")");
+
         KeyPair pair = null;
         do {
             pair = CryptoUtil.generateRSAKeyPair(token, keysize);
             byte id[] = ((org.mozilla.jss.crypto.PrivateKey) pair.getPrivate()).getUniqueID();
             String kid = CryptoUtil.byte2string(id);
-            config.putString(PCERT_PREFIX + ct + ".privkey.id", kid);
+
             // try to locate the private key
             org.mozilla.jss.crypto.PrivateKey privk =
                     CryptoUtil.findPrivateKeyFromID(CryptoUtil.string2byte(kid));
+
             if (privk == null) {
                 CMS.debug("Found bad RSA key id " + kid);
                 pair = null;
             }
         } while (pair == null);
 
-        byte modulus[] = ((RSAPublicKey) pair.getPublic()).getModulus().toByteArray();
-        byte exponent[] = ((RSAPublicKey) pair.getPublic()).getPublicExponent().toByteArray();
-
-        config.putString(PCERT_PREFIX + ct + ".pubkey.modulus",
-                CryptoUtil.byte2string(modulus));
-        config.putString(PCERT_PREFIX + ct + ".pubkey.exponent",
-                CryptoUtil.byte2string(exponent));
-
-        String keyAlgo = config.getString(PCERT_PREFIX + ct + ".signingalgorithm");
-        setSigningAlgorithm(ct, keyAlgo, config);
+        return pair;
     }
 
     public static void setSigningAlgorithm(String ct, String keyAlgo, IConfigStore config) throws EPropertyNotFound,
