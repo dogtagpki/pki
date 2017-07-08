@@ -21,7 +21,6 @@ import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.KeyPair;
-import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -297,106 +296,90 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             Collection<Cert> certs,
             MutableBoolean hasSigningCert) throws Exception {
 
-        try {
-            boolean generateServerCert = !request.getGenerateServerCert().equalsIgnoreCase("false");
-            boolean generateSubsystemCert = request.getGenerateSubsystemCert();
+        boolean generateServerCert = !request.getGenerateServerCert().equalsIgnoreCase("false");
+        boolean generateSubsystemCert = request.getGenerateSubsystemCert();
 
-            hasSigningCert.setValue(false);
+        hasSigningCert.setValue(false);
 
-            for (String tag : certList) {
+        for (String tag : certList) {
 
-                CMS.debug("=== Processing " + tag + " cert ===");
+            CMS.debug("=== Processing " + tag + " cert ===");
 
-                boolean enable = cs.getBoolean("preop.cert." + tag + ".enable", true);
-                if (!enable) continue;
+            boolean enable = cs.getBoolean("preop.cert." + tag + ".enable", true);
+            if (!enable) continue;
 
-                SystemCertData certData = null;
+            SystemCertData certData = null;
 
-                for (SystemCertData systemCert : request.getSystemCerts()) {
-                    if (systemCert.getTag().equals(tag)) {
-                        certData = systemCert;
-                        break;
-                    }
+            for (SystemCertData systemCert : request.getSystemCerts()) {
+                if (systemCert.getTag().equals(tag)) {
+                    certData = systemCert;
+                    break;
                 }
-
-                if (certData == null) {
-                    CMS.debug("No data for '" + tag + "' was found!");
-                    throw new BadRequestException("No data for '" + tag + "' was found!");
-                }
-
-                String tokenName = certData.getToken() != null ? certData.getToken() : token;
-                if (request.getStandAlone() && request.getStepTwo()) {
-                    // Stand-alone PKI (Step 2)
-                    if (tag.equals("external_signing")) {
-
-                        String b64 = certData.getCert();
-                        if (b64 != null && b64.length() > 0 && !b64.startsWith("...")) {
-                            hasSigningCert.setValue(true);
-
-                            if (request.getIssuingCA().equals("External CA")) {
-                                String nickname = certData.getNickname() != null ? certData.getNickname() : "caSigningCert External CA";
-                                Cert cert = new Cert(tokenName, nickname, tag);
-                                ConfigurationUtils.setExternalCACert(b64, csSubsystem, cs, cert);
-
-                                CMS.debug("Step 2:  certStr for '" + tag + "' is " + b64);
-                                String certChainStr = certData.getCertChain();
-
-                                if (certChainStr != null) {
-                                    ConfigurationUtils.setExternalCACertChain(certChainStr, csSubsystem, cs, cert);
-                                    CMS.debug("Step 2:  certChainStr for '" + tag + "' is " + certChainStr);
-                                    certs.add(cert);
-
-                                } else {
-                                    throw new BadRequestException("CertChain not provided");
-                                }
-                            }
-
-                            continue;
-                        }
-                    }
-                }
-
-                if (!generateServerCert && tag.equals("sslserver")) {
-                    updateConfiguration(request, certData, "sslserver");
-                    continue;
-                }
-
-                if (!generateSubsystemCert && tag.equals("subsystem")) {
-                    // update the details for the shared subsystem cert here.
-                    updateConfiguration(request, certData, "subsystem");
-
-                    // get parameters needed for cloning
-                    updateCloneConfiguration(certData, "subsystem", tokenName);
-                    continue;
-                }
-
-                processCert(
-                        request,
-                        token,
-                        certList,
-                        certs,
-                        hasSigningCert,
-                        certData,
-                        tokenName);
             }
 
-            // make sure to commit changes here for step 1
-            cs.commit(false);
+            if (certData == null) {
+                CMS.debug("No data for '" + tag + "' was found!");
+                throw new BadRequestException("No data for '" + tag + "' was found!");
+            }
 
-        } catch (NumberFormatException e) {
-            // move these validations to validate()?
-            throw new BadRequestException("Non-integer value for key size");
+            String tokenName = certData.getToken() != null ? certData.getToken() : token;
+            if (request.getStandAlone() && request.getStepTwo()) {
+                // Stand-alone PKI (Step 2)
+                if (tag.equals("external_signing")) {
 
-        } catch (NoSuchAlgorithmException e) {
-            throw new BadRequestException("Invalid algorithm " + e);
+                    String b64 = certData.getCert();
+                    if (b64 != null && b64.length() > 0 && !b64.startsWith("...")) {
+                        hasSigningCert.setValue(true);
 
-        } catch (PKIException e) {
-            throw e;
+                        if (request.getIssuingCA().equals("External CA")) {
+                            String nickname = certData.getNickname() != null ? certData.getNickname() : "caSigningCert External CA";
+                            Cert cert = new Cert(tokenName, nickname, tag);
+                            ConfigurationUtils.setExternalCACert(b64, csSubsystem, cs, cert);
 
-        } catch (Exception e) {
-            CMS.debug(e);
-            throw new PKIException("Error in setting certificate names and key sizes: " + e);
+                            CMS.debug("Step 2:  certStr for '" + tag + "' is " + b64);
+                            String certChainStr = certData.getCertChain();
+
+                            if (certChainStr != null) {
+                                ConfigurationUtils.setExternalCACertChain(certChainStr, csSubsystem, cs, cert);
+                                CMS.debug("Step 2:  certChainStr for '" + tag + "' is " + certChainStr);
+                                certs.add(cert);
+
+                            } else {
+                                throw new BadRequestException("CertChain not provided");
+                            }
+                        }
+
+                        continue;
+                    }
+                }
+            }
+
+            if (!generateServerCert && tag.equals("sslserver")) {
+                updateConfiguration(request, certData, "sslserver");
+                continue;
+            }
+
+            if (!generateSubsystemCert && tag.equals("subsystem")) {
+                // update the details for the shared subsystem cert here.
+                updateConfiguration(request, certData, "subsystem");
+
+                // get parameters needed for cloning
+                updateCloneConfiguration(certData, "subsystem", tokenName);
+                continue;
+            }
+
+            processCert(
+                    request,
+                    token,
+                    certList,
+                    certs,
+                    hasSigningCert,
+                    certData,
+                    tokenName);
         }
+
+        // make sure to commit changes here for step 1
+        cs.commit(false);
 
         ConfigurationUtils.updateServerCertNickConf();
 
