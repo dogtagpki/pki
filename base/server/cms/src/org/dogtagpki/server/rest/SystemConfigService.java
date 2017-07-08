@@ -483,13 +483,26 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             // update configuration for existing or externally-signed signing certificate
             String certStr = cs.getString("ca." + tag + ".cert" );
             cert.setCert(certStr);
-            CMS.debug("SystemConfigService: certificate " + tag + ": " + certStr);
+
+            CMS.debug("SystemConfigService: cert: " + certStr);
             ConfigurationUtils.updateConfig(cs, tag);
 
-        } else if (!request.getStepTwo()) {
+            CMS.debug("SystemConfigService: Loading cert request from CS.cfg");
+            ConfigurationUtils.loadCertRequest(cs, tag, cert);
+
+            CMS.debug("SystemConfigService: Loading cert " + tag);
+            ConfigurationUtils.loadCert(cs, cert);
+
+            CMS.debug("SystemConfigService: External CA has signing cert");
+            hasSigningCert.setValue(true);
+            return cert;
+        }
+
+        if (!request.getStepTwo()) {
             ConfigurationUtils.configCert(null, null, null, cert);
 
         } else {
+
             String subsystem = cs.getString("preop.cert." + tag + ".subsystem");
             String certStr;
 
@@ -505,24 +518,16 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             }
 
             cert.setCert(certStr);
-            CMS.debug("Step 2:  certStr for '" + tag + "' is " + certStr);
+            CMS.debug("SystemConfigService: cert: " + certStr);
         }
 
-        if (request.isExternal() && tag.equals("signing")) { // external/existing CA
-
-            CMS.debug("SystemConfigService: Loading cert request for " + tag + " cert");
-            ConfigurationUtils.loadCertRequest(cs, tag, cert);
-
-            CMS.debug("SystemConfigService: Loading cert " + tag);
-            ConfigurationUtils.loadCert(cs, cert);
-
-        } else if (request.getStandAlone()) {
+        if (request.getStandAlone()) {
             // Handle Cert Requests for everything EXCEPT Stand-alone PKI (Step 2)
             if (!request.getStepTwo()) {
                 // Stand-alone PKI (Step 1)
                 ConfigurationUtils.generateCertRequest(cs, tag, cert);
 
-                CMS.debug("Stand-alone " + csType + " Admin CSR");
+                CMS.debug("SystemConfigService: Standalone " + csType + " Admin CSR");
                 String adminSubjectDN = request.getAdminSubjectDN();
                 String certreqStr = request.getAdminCertRequest();
                 certreqStr = CryptoUtil.normalizeCertAndReq(certreqStr);
@@ -534,12 +539,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         } else {
             ConfigurationUtils.generateCertRequest(cs, tag, cert);
-        }
-
-        if (request.isExternal() && tag.equals("signing")) { // external/existing CA
-            CMS.debug("SystemConfigService: External CA has signing cert");
-            hasSigningCert.setValue(true);
-            return cert;
         }
 
         // to determine if we have the signing cert when using an external ca
