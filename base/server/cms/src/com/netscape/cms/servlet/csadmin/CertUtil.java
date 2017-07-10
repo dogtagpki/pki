@@ -22,7 +22,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.math.BigInteger;
-import java.security.Principal;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Properties;
@@ -782,35 +781,6 @@ public class CertUtil {
         return true;
     }
 
-    public static boolean findBootstrapServerCert()
-            throws Exception {
-
-        CryptoManager cm = CryptoManager.getInstance();
-
-        IConfigStore cs = CMS.getConfigStore();
-        String nickname = cs.getString("preop.cert.sslserver.nickname");
-
-        CMS.debug("CertUtil: searching for cert " + nickname);
-
-        X509Certificate cert;
-        try {
-            cert = cm.findCertByNickname(nickname);
-        } catch (ObjectNotFoundException e) {
-            CMS.debug("CertUtil: cert not found: " + e);
-            return false;
-        }
-
-        Principal issuerDN = cert.getIssuerDN();
-        Principal subjectDN = cert.getSubjectDN();
-
-        if (!issuerDN.equals(subjectDN)) {
-            CMS.debug("CertUtil: cert is not self-signed");
-            return false;
-        }
-
-        return true;
-    }
-
     public static void deleteCert(String tokenname, String nickname)
             throws Exception {
 
@@ -843,15 +813,6 @@ public class CertUtil {
         }
     }
 
-    public static void deleteBootstrapServerCert()
-            throws Exception {
-
-        IConfigStore cs = CMS.getConfigStore();
-        String nickname = cs.getString("preop.cert.sslserver.nickname");
-
-        deleteCert(CryptoUtil.INTERNAL_TOKEN_FULL_NAME, nickname);
-    }
-
     public static void importCert(
             String subsystem,
             String tag,
@@ -862,9 +823,9 @@ public class CertUtil {
 
         CMS.debug("CertUtil.importCert(" + tag + ")");
 
-        if (tag.equals("sslserver") && findBootstrapServerCert()) {
-            CMS.debug("CertUtil: deleting temporary SSL server cert");
-            deleteBootstrapServerCert();
+        if (tag.equals("sslserver")) {
+            CMS.debug("CertUtil: temporary SSL server cert will be replaced on restart");
+            return;
         }
 
         if (findCertificate(tokenname, nickname)) {
@@ -892,9 +853,9 @@ public class CertUtil {
 
         CMS.debug("CertUtil.importExternalCert(" + tag + ")");
 
-        if (tag.equals("sslserver") && findBootstrapServerCert()) {
-            CMS.debug("CertUtil: deleting temporary SSL server cert");
-            deleteBootstrapServerCert();
+        if (tag.equals("sslserver")) {
+            CMS.debug("CertUtil: temporary SSL server cert will be replaced on restart");
+            return;
         }
 
         if (findCertificate(tokenname, nickname)) {
