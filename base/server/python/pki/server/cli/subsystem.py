@@ -1,6 +1,7 @@
 # Authors:
 #     Endi S. Dewata <edewata@redhat.com>
 #     Abhijeet Kasurde <akasurde@redhat.com>
+#     Dinesh Prasanth M K <dmoluguw@redhat.com>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -26,7 +27,9 @@ import getpass
 import os
 import subprocess
 import sys
-from tempfile import mkstemp
+import random
+import tempfile
+import shutil
 
 import pki.cli
 import pki.nssdb
@@ -370,6 +373,7 @@ class SubsystemCertCLI(pki.cli.CLI):
         self.add_module(SubsystemCertExportCLI())
         self.add_module(SubsystemCertUpdateCLI())
         self.add_module(SubsystemCertValidateCLI())
+        self.add_module(SubsystemCertRenewCLI())
 
     @staticmethod
     def print_subsystem_cert(cert, show_all=False):
@@ -1006,7 +1010,7 @@ class SubsystemCertValidateCLI(pki.cli.CLI):
         # get internal token password and store in temporary file
         passwd = instance.get_token_password()
 
-        pwfile_handle, pwfile_path = mkstemp()
+        pwfile_handle, pwfile_path = tempfile.mkstemp()
         os.write(pwfile_handle, passwd)
         os.close(pwfile_handle)
 
@@ -1035,3 +1039,199 @@ class SubsystemCertValidateCLI(pki.cli.CLI):
 
         finally:
             os.unlink(pwfile_path)
+
+
+class SubsystemCertRenewCLI(pki.cli.CLI):
+
+    def __init__(self):
+        super(SubsystemCertRenewCLI, self).__init__(
+            'renew', 'Renew subsystem certificate')
+
+    def usage(self):
+        print('Usage: pki-server subsystem-cert-renew [OPTIONS] <subsystem ID> <cert ID>')
+        print()
+        print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
+        print('  -v, --verbose                   Run in verbose mode.')
+        print('      --help                      Show help message.')
+        print('      --temp                      Create temporary certificate.')
+        print()
+
+    def execute(self, argv):
+        try:
+            opts, args = getopt.gnu_getopt(argv, 'i:v', [
+                'instance=',
+                'verbose',
+                'help', 'temp'])
+
+        except getopt.GetoptError as e:
+            print('ERROR: ' + str(e))
+            self.usage()
+            sys.exit(1)
+
+        instance_name = 'pki-tomcat'
+        permanent_cert = True
+
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o in ('-v', '--verbose'):
+                self.set_verbose(True)
+
+            elif o == '--help':
+                self.usage()
+                sys.exit()
+
+            elif o == '--temp':
+                permanent_cert = False
+
+            else:
+                self.print_message('ERROR: unknown option ' + o)
+                self.usage()
+                sys.exit(1)
+
+        if len(args) < 1:
+            print('ERROR: missing subsystem ID')
+            self.usage()
+            sys.exit(1)
+
+        if len(args) < 2:
+            print('ERROR: missing cert ID')
+            self.usage()
+            sys.exit(1)
+
+        subsystem_name = args[0]
+        cert_id = args[1]
+
+        tmpdir = tempfile.mkdtemp()
+        try:
+            csr_file = os.path.join(tmpdir, cert_id + '.csr')
+            ca_cert_file = os.path.join(tmpdir,'ca_certificate.crt')
+
+            ssl_cert_file = 'ssl_server.crt'
+
+            instance = pki.server.PKIInstance(instance_name)
+
+            if not instance.is_valid():
+                print('ERROR: Invalid instance %s.' % instance_name)
+                sys.exit(1)
+
+            # Load the instance. Default: pki-tomcat
+            instance.load()
+
+            # Get the subsystem - Eg: ca, kra, tps, tks
+            subsystem = instance.get_subsystem(subsystem_name)
+            if not subsystem:
+                print('ERROR: No %s subsystem in instance '
+                      '%s.' % (subsystem_name, instance_name))
+                sys.exit(1)
+
+            # Export the CSR for the cert
+            cert = subsystem.get_subsystem_cert(cert_id)
+            cert_request = cert.get('request', None)
+            if cert_request is None:
+                print("ERROR: Unable to find certificate request for %s" % cert_id)
+                sys.exit(1)
+
+            csr_data = pki.nssdb.convert_csr(cert_request, 'base64', 'pem')
+            with open(csr_file, 'w') as f:
+                f.write(csr_data)
+
+            # Extract SKI
+            # 1. Get the CA certificate
+            # 2. Then get the SKI from it
+            ca_signing_cert = subsystem.get_subsystem_cert('signing')
+            cert_data = ca_signing_cert.get('data', None)
+            if cert_data is None:
+                print("ERROR: Unable to find certificate data for CA signing certificate.")
+                sys.exit(1)
+
+            cert_data = pki.nssdb.convert_cert(cert_data, 'base64', 'pem')
+            with open(ca_cert_file, 'w') as f:
+                f.write(cert_data)
+
+            ca_cert_retrieve_cmd = [
+                'openssl',
+                'x509',
+                '-in', ca_cert_file,
+                '-noout',
+                '-text'
+            ]
+
+            ca_cert = subprocess.check_output(ca_cert_retrieve_cmd)
+            iterable = iter(ca_cert.split('\n'))
+            for line in iterable:
+                if 'Subject Key Identifier' in line:
+                    break
+            aki = iterable.next()
+
+            # Add 0x to represent this is a Hex
+            aki = '0x' + aki.strip().replace(':', '')
+
+            serial=None
+            if cert_id == 'sslserver':
+                # Generate SSL Certificate signed by CA
+                if not permanent_cert:
+                    # Generate a random serial number (based on range specified in CS.cfg)
+                    serial = str(random.randint(
+                        int(subsystem.config.get('dbs.beginSerialNumber', '1')),
+                        int(subsystem.config.get('dbs.endSerialNumber', '10000000'))))
+                    ssl_cert_file = os.path.join(tmpdir, 'ssl_temp_server.crt')
+
+                # TODO: Get next serial number from LDAP db
+
+                # --keyUsage
+                key_usage_ext = {
+                    'digitalSignature': True,
+                    'nonRepudiation': True,
+                    'keyEncipherment': True,
+                    'dataEncipherment': True,
+                    'critical': True
+                }
+
+                # -3
+                aki_ext = {
+                    'auth_key_id': aki,
+                    'auth_cert_serial': None
+                }
+
+                # --extKeyUsage
+                ext_key_usage_ext = {
+                    'serverAuth': True
+                }
+
+                nssdb = instance.open_nssdb()
+                if self.verbose:
+                    print('Creating %s SSL Certificate.' % ('' if permanent_cert else 'temp'))
+                rc = nssdb.create_cert(
+                    issuer=ca_signing_cert['nickname'],
+                    request_file=csr_file,
+                    cert_file=ssl_cert_file,
+                    serial=serial,
+                    key_usage_ext=key_usage_ext,
+                    aki_ext=aki_ext,
+                    ext_key_usage_ext=ext_key_usage_ext)
+                if rc:
+                    raise Exception('Failed to generate CA-signed temp SSL certificate. RC: %d' % rc)
+
+                # Import SSL cert into NSS db
+                if self.verbose:
+                    print('Removing old %s certificate from NSS database.' % cert_id)
+                nssdb.remove_cert(cert['nickname'])
+
+                if self.verbose:
+                    print('Adding new %s %s certificate into NSS database.' % ('' if permanent_cert else 'temp', cert_id))
+                nssdb.add_cert(
+                    nickname=cert['nickname'],
+                    cert_file=ssl_temp_cert_file)
+
+                if self.verbose:
+                    print('Updating CS.cfg')
+                data = nssdb.get_cert(
+                    nickname=cert['nickname'],
+                    output_format='base64')
+                cert['data'] = data
+                subsystem.update_subsystem_cert(cert)
+                subsystem.save()
+        finally:
+            shutil.rmtree(tmpdir)
