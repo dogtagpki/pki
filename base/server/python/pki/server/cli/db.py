@@ -188,7 +188,7 @@ class DBUpgrade(pki.cli.CLI):
 
         subsystem = instance.get_subsystem('ca')
         if not subsystem:
-            print('ERROR: No CA subsystem in instance %s.' + instance_name)
+            print('ERROR: No CA subsystem in instance %s.' % instance_name)
             sys.exit(1)
 
         base_dn = subsystem.config['internaldb.basedn']
