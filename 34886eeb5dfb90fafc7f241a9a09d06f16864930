@@ -1,0 +1,203 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cc4cc46c_07983762",
+        "filename": "base/common/python/pki/nssdb.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 341,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-10T23:35:13Z",
+      "side": 1,
+      "message": "No need for self_signed parameter. See comment below.",
+      "range": {
+        "startLine": 341,
+        "startChar": 67,
+        "endLine": 341,
+        "endChar": 83
+      },
+      "revId": "34886eeb5dfb90fafc7f241a9a09d06f16864930",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "108675b8_a75d1243",
+        "filename": "base/common/python/pki/nssdb.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 351,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-10T23:35:13Z",
+      "side": 1,
+      "message": "Instead of adding a self_sign parameter, we probably can use the issuer parameter. If the issuer parameter is None, it\u0027s a self-signed cert. Otherwise, the issuer parameter should contain the issuer cert nickname.",
+      "revId": "34886eeb5dfb90fafc7f241a9a09d06f16864930",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fe0c7e10_933a6c9c",
+        "filename": "base/common/python/pki/nssdb.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 359,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-10T23:35:13Z",
+      "side": 1,
+      "message": "The -c option should not be specified for self-signed cert (i.e. the issuer is None).",
+      "revId": "34886eeb5dfb90fafc7f241a9a09d06f16864930",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b6d56774_6d822aaf",
+        "filename": "base/common/python/pki/nssdb.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 377,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-10T23:35:13Z",
+      "side": 1,
+      "message": "The AKI needs to be specified in this format:\n\n  0x\u003cXXXX...XX\u003e\n\ninstead of\n\n  \u003cXX\u003e:\u003cXX\u003e:...:\u003cXX\u003e\n\nwhere X is a hex digit, so the input needs to be converted.",
+      "revId": "34886eeb5dfb90fafc7f241a9a09d06f16864930",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7ac88976_e9ac24f1",
+        "filename": "base/common/python/pki/nssdb.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 443,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-10T23:35:13Z",
+      "side": 1,
+      "message": "Let\u0027s remove this line.",
+      "revId": "34886eeb5dfb90fafc7f241a9a09d06f16864930",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e2b8c0b1_95568f64",
+        "filename": "base/common/python/pki/nssdb.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 448,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-10T23:35:13Z",
+      "side": 1,
+      "message": "The SKI also uses the same format as in AKI, so the input needs to be converted.",
+      "revId": "34886eeb5dfb90fafc7f241a9a09d06f16864930",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d199f38c_992b7644",
+        "filename": "base/common/python/pki/nssdb.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 507,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-10T23:35:13Z",
+      "side": 1,
+      "message": "I think subject DN is already included in the request_file, so no need to have this parameter.",
+      "range": {
+        "startLine": 507,
+        "startChar": 41,
+        "endLine": 507,
+        "endChar": 51
+      },
+      "revId": "34886eeb5dfb90fafc7f241a9a09d06f16864930",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dd6ba04c_2c799d6d",
+        "filename": "base/common/python/pki/nssdb.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 524,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-10T23:35:13Z",
+      "side": 1,
+      "message": "Please add this comment:\n# FIXME: do not hard-code AKI extension",
+      "revId": "34886eeb5dfb90fafc7f241a9a09d06f16864930",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "33ba51f3_75c8cb0b",
+        "filename": "base/common/python/pki/nssdb.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 529,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-10T23:35:13Z",
+      "side": 1,
+      "message": "Please add this comment:\n# FIXME: do not hard-code SKI extension",
+      "revId": "34886eeb5dfb90fafc7f241a9a09d06f16864930",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3ad3b03b_a11254d1",
+        "filename": "base/common/python/pki/nssdb.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 534,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-10T23:35:13Z",
+      "side": 1,
+      "message": "Please add this comment:\n# FIXME: do not hard-code AIA extension",
+      "revId": "34886eeb5dfb90fafc7f241a9a09d06f16864930",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c13ffdff_98cfe65e",
+        "filename": "base/common/python/pki/nssdb.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 544,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-10T23:35:13Z",
+      "side": 1,
+      "message": "I think the issuer should be None for self-signed CA cert.",
+      "revId": "34886eeb5dfb90fafc7f241a9a09d06f16864930",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}

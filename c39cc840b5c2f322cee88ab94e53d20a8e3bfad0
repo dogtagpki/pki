@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e817c93a_393b73d7",
+        "filename": "base/common/python/pki/nssdb.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-10T23:35:13Z",
+      "side": 0,
+      "message": "This blank line might be required by pylint. Please run the compose script to confirm.",
+      "revId": "c39cc840b5c2f322cee88ab94e53d20a8e3bfad0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
