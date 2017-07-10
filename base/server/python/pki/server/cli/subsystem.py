@@ -1,6 +1,7 @@
 # Authors:
 #     Endi S. Dewata <edewata@redhat.com>
 #     Abhijeet Kasurde <akasurde@redhat.com>
+#     Dinesh Prasanth M K <dmoluguw@redhat.com>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -26,6 +27,7 @@ import getpass
 import os
 import subprocess
 import sys
+import random
 from tempfile import mkstemp
 
 import pki.cli
@@ -370,6 +372,7 @@ class SubsystemCertCLI(pki.cli.CLI):
         self.add_module(SubsystemCertExportCLI())
         self.add_module(SubsystemCertUpdateCLI())
         self.add_module(SubsystemCertValidateCLI())
+        self.add_module(SubsystemCertRenewCLI())
 
     @staticmethod
     def print_subsystem_cert(cert, show_all=False):
@@ -1035,3 +1038,224 @@ class SubsystemCertValidateCLI(pki.cli.CLI):
 
         finally:
             os.unlink(pwfile_path)
+
+
+class SubsystemCertRenewCLI(pki.cli.CLI):
+
+    def __init__(self):
+        super(SubsystemCertRenewCLI, self).__init__(
+            'renew', 'Renew subsystem system certificates')
+
+    def usage(self):
+        print('Usage: pki-server subsystem-cert-renew [OPTIONS] <subsystem ID> <cert ID>')
+        print()
+        print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
+        print('  -v, --verbose                   Run in verbose mode.')
+        print('      --help                      Show help message.')
+        print('      --temp                      Create temporary certificate.')
+        print()
+
+    def execute(self, argv):
+        try:
+            opts, args = getopt.gnu_getopt(argv, 'i:v', [
+                'instance=',
+                'verbose',
+                'help', 'temp'])
+
+        except getopt.GetoptError as e:
+            print('ERROR: ' + str(e))
+            self.usage()
+            sys.exit(1)
+
+        instance_name = 'pki-tomcat'
+        permanent_cert = True
+        ssl_csr_file = 'ssl_server.csr'
+        ca_cert_file = 'ca_certificate.crt'
+        ssl_temp_cert_file = 'ssl_temp_signed.crt'
+
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o in ('-v', '--verbose'):
+                self.set_verbose(True)
+
+            elif o == '--help':
+                self.usage()
+                sys.exit()
+
+            elif o == '--temp':
+                permanent_cert = False;
+
+            else:
+                self.print_message('ERROR: unknown option ' + o)
+                self.usage()
+                sys.exit(1)
+
+        if len(args) < 1:
+            print('ERROR: missing subsystem ID')
+            self.usage()
+            sys.exit(1)
+
+        if len(args) < 2:
+            print('ERROR: missing cert ID')
+            self.usage()
+            sys.exit(1)
+
+        subsystem_name = args[0]
+        cert_id = args[1]
+
+        instance = pki.server.PKIInstance(instance_name)
+
+        if not instance.is_valid():
+            print('ERROR: Invalid instance %s.' % instance_name)
+            sys.exit(1)
+
+        # Load the instance. Default: pki-tomcat
+        instance.load()
+
+        if self.verbose:
+            print('Stoping PKI server instance %s' % instance_name)
+        instance.stop()
+
+        # Get the subsystem - Eg: ca, kra, TPS, TKS
+        subsystem = instance.get_subsystem(subsystem_name)
+        if not subsystem:
+            print('ERROR: No %s subsystem in instance '
+                  '%s.' % (subsystem_name, instance_name))
+            sys.exit(1)
+
+        if not permanent_cert:
+            # Export the CSR for SSL cert
+            ssl_cert = subsystem.get_subsystem_cert(cert_id)  # cert_id supposed to sslserver
+            cert_request = ssl_cert.get('request', None)
+            if cert_request is None:
+                print("ERROR: Unable to find certificate request for %s" % cert_id)
+                sys.exit(1)
+
+            csr_data = pki.nssdb.convert_csr(cert_request, 'base64', 'pem')
+            with open(ssl_csr_file, 'w') as f:
+                f.write(csr_data)
+
+            # Extract SKI
+            # 1. Get the CA certificate
+            # 2. Then get the SKI from it
+            ca_signing_cert = subsystem.get_subsystem_cert('signing')
+            cert_data = ca_signing_cert.get('data', None)
+            if cert_data is None:
+                print("ERROR: Unable to find certificate data for CA signing certificate.")
+                sys.exit(1)
+
+            cert_data = pki.nssdb.convert_cert(cert_data, 'base64', 'pem')
+            with open(ca_cert_file, 'w') as f:
+                f.write(cert_data)
+
+            cert_retrieve_cmd = [
+                'openssl',
+                'x509',
+                '-in', ca_cert_file,
+                '-noout',
+                '-text'
+            ]
+
+            aki_w_colon_cmd = [
+                'sed',
+                '-n', '/Subject Key Identifier/{n;p;}'
+            ]
+            aki_wo_colon_cmd = [
+                'sed', 's/://g'
+            ]
+
+            cert = subprocess.Popen(cert_retrieve_cmd, stdout=subprocess.PIPE)
+            aki_w_colon = subprocess.Popen(aki_w_colon_cmd, stdin=cert.stdout, stdout=subprocess.PIPE)
+            cert.stdout.close()
+            aki = subprocess.check_output(aki_wo_colon_cmd, stdin=aki_w_colon.stdout)
+            aki_w_colon.stdout.close()
+
+            # Strip unnecessary blank spaces. Add 0x to represent this is a Hex
+            aki = '0x' + aki.strip()
+
+            ## Generate Temp SSL Certificate signed by CA
+            # Get the host name
+            host_name = subprocess.check_output('hostname').strip()
+
+            # Generate a random serial number (based on range specified in CS.cfg)
+            serial = str(random.randint(1, 10000000))
+
+            # --keyUsage
+            key_usage_ext = {
+                'digitalSignature': True,
+                'nonRepudiation': True,
+                'keyEncipherment': True,
+                'dataEncipherment': True,
+                'critical': True
+            }
+
+            # -3
+            aki_ext = {
+                'auth_key_id': aki,
+                'auth_cert_serial': None
+            }
+
+            # --extAIA
+            aia_ext = {
+                'subsystem': {
+                    'ocsp': {
+                        'uri': ['http://server.example.com:8080/ca/ocsp']
+                    }
+                }
+            }
+
+            # --extKeyUsage
+            ext_key_usage_ext = {
+                'serverAuth': True
+            }
+            nssdb = instance.open_nssdb()
+            if self.verbose:
+                print('Creating a temp SSL Certificate.')
+            rc = nssdb.create_cert(
+                issuer='ca_signing',
+                request_file=ssl_csr_file,
+                cert_file=ssl_temp_cert_file,
+                serial=serial,
+                key_usage_ext=key_usage_ext,
+                aki_ext=aki_ext,
+                aia_ext=aia_ext,
+                ext_key_usage_ext=ext_key_usage_ext)
+
+            if rc:
+                raise Exception('Failed to generate CA-signed temp SSL certificate. RC: %d' % rc)
+
+            # Import SSL cert into NSS db
+            if self.verbose:
+                print('Removing old SSL certificate from NSS database.')
+            nssdb.remove_cert(ssl_cert['nickname'])
+
+            if self.verbose:
+                print('Adding new temp SSL certificate into NSS database.')
+            nssdb.add_cert(
+                nickname=ssl_cert['nickname'],
+                cert_file=ssl_temp_cert_file)
+
+            if self.verbose:
+                print('Updating CS.cfg')
+            data = nssdb.get_cert(
+                nickname=ssl_cert['nickname'],
+                output_format='base64')
+            ssl_cert['data'] = data
+            subsystem.update_subsystem_cert(ssl_cert)
+            subsystem.save()
+
+            # Disable self tests
+            if subsystem.config.has_key('selftests.container.order.startup'):
+                if self.verbose:
+                    print('Disabling self tests')
+                subsystem.config.pop('selftests.container.order.startup')
+                subsystem.save()
+
+            # Start server
+            if self.verbose:
+                print('Starting PKI server instance %s' % instance_name)
+            instance.start()
+
+

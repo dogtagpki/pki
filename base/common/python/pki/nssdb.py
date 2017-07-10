@@ -1,5 +1,6 @@
 # Authors:
 #     Endi S. Dewata <edewata@redhat.com>
+#     Dinesh Prasnath M K <dmoluguw@redhat.com>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the Lesser GNU General Public License as published by
@@ -25,7 +26,6 @@ import os
 import shutil
 import subprocess
 import tempfile
-
 
 CSR_HEADER = '-----BEGIN NEW CERTIFICATE REQUEST-----'
 CSR_FOOTER = '-----END NEW CERTIFICATE REQUEST-----'
@@ -294,7 +294,6 @@ class NSSDatabase(object):
                 exts = []
 
                 for generic_ext in generic_exts:
-
                     data_file = os.path.join(tmpdir, 'csr-ext-%d' % counter)
                     with open(data_file, 'w') as f:
                         f.write(generic_ext['data'])
@@ -339,94 +338,220 @@ class NSSDatabase(object):
         finally:
             shutil.rmtree(tmpdir)
 
-    def create_self_signed_ca_cert(self, subject_dn, request_file, cert_file,
-                                   serial='1', validity=240):
-
+    def create_cert(self, issuer, request_file, cert_file, serial, self_sign=False,
+                    key_usage_ext=None, basic_constraints_ext=None,
+                    aki_ext=None, ski_ext=None, aia_ext=None, ext_key_usage_ext=None,
+                    validity=1):
         cmd = [
             'certutil',
             '-C',
-            '-x',
             '-d', self.directory
         ]
+
+        if self_sign:
+            cmd.extend('-x')
 
         if self.token:
             cmd.extend(['-h', self.token])
 
         cmd.extend([
             '-f', self.password_file,
-            '-c', subject_dn,
+            '-c', issuer,
             '-a',
             '-i', request_file,
             '-o', cert_file,
             '-m', serial,
             '-v', str(validity),
-            '--keyUsage', 'digitalSignature,nonRepudiation,certSigning,crlSigning,critical',
-            '-2',
-            '-3',
-            '--extSKID',
-            '--extAIA'
         ])
+
+        keystroke = ''
+
+        if aki_ext:
+            cmd.extend(['-3'])
+
+            # Enter value for the authKeyID extension [y/N]
+            if aki_ext.has_key('auth_key_id') and aki_ext['auth_key_id']:
+                keystroke += 'y\n'
+
+                # Enter value for the key identifier fields,enter to omit:
+                keystroke += aki_ext['auth_key_id']
+
+            keystroke += '\n'
+
+            # Select one of the following general name type:
+            # TODO: General Name type isn't used as of now for AKI
+            keystroke += '0\n'
+
+            if aki_ext.has_key('auth_cert_serial') and aki_ext['auth_cert_serial']:
+                keystroke += aki_ext['auth_cert_serial']
+
+            keystroke += '\n'
+
+            # Is this a critical extension [y/N]?
+            if aki_ext.has_key('critical') and aki_ext['critical']:
+                keystroke += 'y'
+
+            keystroke += '\n'
+
+        # Key Usage Constraints
+        if key_usage_ext:
+
+            cmd.extend(['--keyUsage'])
+
+            usages = []
+            for usage in key_usage_ext:
+                if key_usage_ext[usage]:
+                    usages.append(usage)
+
+            cmd.extend([','.join(usages)])
+
+        # Extended key usage
+        if ext_key_usage_ext:
+            cmd.extend(['--extKeyUsage'])
+            usages = []
+            for usage in ext_key_usage_ext:
+                if ext_key_usage_ext[usage]:
+                    usages.append(usage)
+
+            cmd.extend([','.join(usages)])
+
+        # Basic constraints
+        if basic_constraints_ext:
+
+            cmd.extend(['-2'])
+
+            # Is this a CA certificate [y/N]?
+            if basic_constraints_ext['ca']:
+                keystroke += 'y'
+
+            keystroke += '\n'
+
+            # Enter the path length constraint, enter to skip [<0 for unlimited path]:
+            if basic_constraints_ext['path_length'] is not None:
+                keystroke += basic_constraints_ext['path_length']
+
+            keystroke += '\n'
+
+            # Is this a critical extension [y/N]?
+            if basic_constraints_ext['critical']:
+                keystroke += 'y'
+
+            keystroke += '\n'
+
+        if ski_ext:
+            cmd.extend(['--extSKID'])
+            print('YOU SHOULDN"T COLMEFDS')
+
+            # Adding Subject Key ID extension.
+            # Enter value for the key identifier fields,enter to omit:
+            if ski_ext.has_key('sk_id') and ski_ext['sk_id']:
+                keystroke += ski_ext['sk_id']
+
+            keystroke += '\n'
+
+            # Is this a critical extension [y/N]?
+            if ski_ext.has_key('critical') and ski_ext['critical']:
+                keystroke += 'y'
+
+            keystroke += '\n'
+
+        if aia_ext:
+            cmd.extend(['--extAIA'])
+
+            # To ensure whether this is the first AIA being added
+            firstentry = True
+
+            # Enter access method type for Authority Information Access extension:
+            for s in aia_ext['subsystem']:
+                if not firstentry:
+                    keystroke += 'y\n'
+
+                # 1. CA
+                if s == 'ca':
+                    keystroke += '1'
+
+                # 2. OCSP
+                if s == 'ocsp':
+                    keystroke += '2'
+                keystroke += '\n'
+                for gn in aia_ext['subsystem'][s]['uri']:
+                    # 7. URI
+                    keystroke += '7\n'
+                    # Enter data
+                    keystroke += gn + '\n'
+
+                # Any other number to finish
+                keystroke += '0\n'
+
+                # One entry is done.
+                firstentry = False
+
+            # Add another location to the Authority Information Access extension [y/N]
+            keystroke += '\n'
+
+            # Is this a critical extension [y/N]?
+            if aia_ext.has_key('critical') and aia_ext['critical']:
+                keystroke += 'y'
+
+            keystroke += '\n'
 
         p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                              stderr=subprocess.STDOUT)
 
-        keystroke = ''
-
-        # Is this a CA certificate [y/N]?
-        keystroke += 'y\n'
-
-        # Enter the path length constraint, enter to skip [<0 for unlimited path]:
-        keystroke += '\n'
-
-        # Is this a critical extension [y/N]?
-        keystroke += 'y\n'
-
-        # Enter value for the authKeyID extension [y/N]?
-        keystroke += 'y\n'
-
-        # TODO: generate SHA1 ID (see APolicyRule.formSHA1KeyId())
-        # Enter value for the key identifier fields,enter to omit:
-        keystroke += '2d:7e:83:37:75:5a:fd:0e:8d:52:a3:70:16:93:36:b8:4a:d6:84:9f\n'
-
-        # Select one of the following general name type:
-        keystroke += '0\n'
-
-        # Enter value for the authCertSerial field, enter to omit:
-        keystroke += '\n'
-
-        # Is this a critical extension [y/N]?
-        keystroke += '\n'
-
-        # TODO: generate SHA1 ID (see APolicyRule.formSHA1KeyId())
-        # Adding Subject Key ID extension.
-        # Enter value for the key identifier fields,enter to omit:
-        keystroke += '2d:7e:83:37:75:5a:fd:0e:8d:52:a3:70:16:93:36:b8:4a:d6:84:9f\n'
-
-        # Is this a critical extension [y/N]?
-        keystroke += '\n'
-
-        # Enter access method type for Authority Information Access extension:
-        keystroke += '2\n'
-
-        # Select one of the following general name type:
-        keystroke += '7\n'
-
-        # TODO: replace with actual hostname name and port number
-        # Enter data:
-        keystroke += 'http://server.example.com:8080/ca/ocsp\n'
-
-        # Select one of the following general name type:
-        keystroke += '0\n'
-
-        # Add another location to the Authority Information Access extension [y/N]
-        keystroke += '\n'
-
-        # Is this a critical extension [y/N]?
-        keystroke += '\n'
-
         p.communicate(keystroke)
 
         rc = p.wait()
+
+        return rc
+
+    def create_self_signed_ca_cert(self, subject_dn, request_file, cert_file,
+                                   serial='1', validity=240):
+
+        # --keyUsage
+        key_usage_ext = {
+            'digitalSignature': True,
+            'nonRepudiation': True,
+            'certSigning': True,
+            'crlSigning': True,
+            'critical': True
+        }
+
+        # -2
+        basic_constraints_ext = {
+            'path_length': None
+        }
+
+        # -3
+        aki_ext = {
+            'auth_key_id': '2d:7e:83:37:75:5a:fd:0e:8d:52:a3:70:16:93:36:b8:4a:d6:84:9f'
+        }
+
+        # --extSKID
+        ski_ext = {
+            'sk_id': '2d:7e:83:37:75:5a:fd:0e:8d:52:a3:70:16:93:36:b8:4a:d6:84:9f'
+        }
+
+        # --extAIA
+        aia_ext = {
+            'subsystem': {
+                'ocsp': {
+                    'uri': ['http://server.example.com:8080/ca/ocsp']
+                }
+            }
+        }
+
+        rc = self.create_cert(
+            issuer=subject_dn,
+            request_file=request_file,
+            cert_file=cert_file,
+            serial=serial,
+            self_sign=True,
+            validity=validity,
+            key_usage_ext=key_usage_ext,
+            basic_constraints_ext=basic_constraints_ext,
+            aki_ext=aki_ext,
+            ski_ext=ski_ext,
+            aia_ext=aia_ext)
 
         if rc:
             raise Exception('Failed to generate self-signed CA certificate. RC: %d' % rc)
