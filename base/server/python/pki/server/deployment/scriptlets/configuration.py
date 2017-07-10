@@ -490,6 +490,34 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 admin_cert = response['adminCert']['cert']
                 deployer.config_client.process_admin_cert(admin_cert)
 
+        if len(deployer.instance.tomcat_instance_subsystems()) == 1:
+            # Modify contents of 'serverCertNick.conf' (if necessary)
+            deployer.servercertnick_conf.modify()
+
+        # Optionally, programmatically 'restart' the configured PKI instance
+        if not config.str2bool(deployer.mdict['pki_restart_configured_instance']):
+            return
+
+        deployer.systemd.restart()
+
+        # wait for startup
+        status = None
+
+        if deployer.fips.is_fips_enabled():
+            # must use 'http' protocol when FIPS mode is enabled
+            status = deployer.instance.wait_for_startup(
+                60, secure_connection=False)
+
+        else:
+            status = deployer.instance.wait_for_startup(
+                60, secure_connection=True)
+
+        if not status:
+            config.pki_log.error(
+                "server failed to restart",
+                extra=config.PKI_INDENTATION_LEVEL_1)
+            raise RuntimeError("server failed to restart")
+
     def destroy(self, deployer):
 
         config.pki_log.info(log.CONFIGURATION_DESTROY_1, __name__,
