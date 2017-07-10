@@ -31,6 +31,7 @@ public class SystemCertDataFactory {
 
     public static SystemCertData create(Cert cert) {
         SystemCertData data = new SystemCertData();
+        data.setNickname(cert.getNickname());
         data.setCert(cert.getCert());
         data.setRequest(cert.getRequest());
         data.setTag(cert.getCertTag());

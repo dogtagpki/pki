@@ -626,7 +626,10 @@ public class ConfigurationUtils {
 
     public static void updateNumberRange(String hostname, int eePort, int adminPort, boolean https,
             MultivaluedMap<String, String> content, String type) throws Exception {
+
         CMS.debug("updateNumberRange start host=" + hostname + " adminPort=" + adminPort + " eePort=" + eePort);
+        CMS.debug("updateNumberRange content: " + content);
+
         IConfigStore cs = CMS.getConfigStore();
 
         String cstype = cs.getString("cs.type", "");
@@ -3293,16 +3296,24 @@ public class ConfigurationUtils {
 
     public static void setCertPermissions(String tag) throws EBaseException, NotInitializedException,
             ObjectNotFoundException, TokenException {
-        if (tag.equals("signing") || tag.equals("external_signing"))
+
+        CMS.debug("ConfigurationUtils.setCertPermissions(" + tag + ")");
+
+        if (tag.equals("signing")
+                || tag.equals("external_signing")
+                || tag.equals("sslserver")) {
             return;
+        }
 
         IConfigStore cs = CMS.getConfigStore();
         String nickname = cs.getString("preop.cert." + tag + ".nickname", "");
         String tokenname = cs.getString("preop.module.token", "");
+
         if (!CryptoUtil.isInternalToken(tokenname))
             nickname = tokenname + ":" + nickname;
 
         CryptoManager cm = CryptoManager.getInstance();
+        CMS.debug("ConfigurationUtils: nickname: " + nickname);
         X509Certificate c = cm.findCertByNickname(nickname);
 
         if (c instanceof InternalCertificate) {

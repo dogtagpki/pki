@@ -24,7 +24,10 @@ from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 from cryptography.x509.oid import NameOID
 import json
+import os
 import re
+import shutil
+import tempfile
 
 # PKI Deployment Imports
 from .. import pkiconfig as config
@@ -128,6 +131,50 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         finally:
             nssdb.close()
+
+    def replace_sslserver_cert(self, deployer, instance, sslserver):
+
+        if len(deployer.instance.tomcat_instance_subsystems()) == 1:
+            # Modify contents of 'serverCertNick.conf' (if necessary)
+            deployer.servercertnick_conf.modify()
+
+        # TODO: replace with pki-server cert-import sslserver
+
+        nickname = sslserver['nickname']
+
+        config.pki_log.info(
+            "removing temp SSL server cert from internal token: %s" % nickname,
+            extra=config.PKI_INDENTATION_LEVEL_2)
+
+        nssdb = instance.open_nssdb()
+
+        try:
+            nssdb.remove_cert(nickname, remove_key=True)
+
+        finally:
+            nssdb.close()
+
+        token = deployer.mdict['pki_token_name']
+
+        config.pki_log.info(
+            "importing permanent SSL server cert into %s token: %s" % (token, nickname),
+            extra=config.PKI_INDENTATION_LEVEL_2)
+
+        tmpdir = tempfile.mkdtemp()
+        nssdb = instance.open_nssdb(token)
+
+        try:
+            pem_cert = pki.nssdb.convert_cert(sslserver['cert'], 'base64', 'pem').encode('utf8')
+
+            cert_file = os.path.join(tmpdir, 'sslserver.crt')
+            with open(cert_file, 'w') as f:
+                f.write(pem_cert)
+
+            nssdb.add_cert(nickname, cert_file)
+
+        finally:
+            nssdb.close()
+            shutil.rmtree(tmpdir)
 
     def spawn(self, deployer):
 
@@ -443,7 +490,12 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if not isinstance(certs, list):
             certs = [certs]
 
+        sslserver = None
+
         for cdata in certs:
+
+            if cdata['tag'] == 'sslserver':
+                sslserver = cdata
 
             if standalone and not step_two:
 
@@ -528,15 +580,14 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 admin_cert = response['adminCert']['cert']
                 deployer.config_client.process_admin_cert(admin_cert)
 
-        if len(deployer.instance.tomcat_instance_subsystems()) == 1:
-            # Modify contents of 'serverCertNick.conf' (if necessary)
-            deployer.servercertnick_conf.modify()
+        if sslserver and sslserver['cert']:
+            deployer.systemd.stop()
+            self.replace_sslserver_cert(deployer, instance, sslserver)
+            deployer.systemd.start()
 
-        # Optionally, programmatically 'restart' the configured PKI instance
-        if not config.str2bool(deployer.mdict['pki_restart_configured_instance']):
-            return
-
-        deployer.systemd.restart()
+        elif config.str2bool(deployer.mdict['pki_restart_configured_instance']):
+            # Optionally, programmatically 'restart' the configured PKI instance
+            deployer.systemd.restart()
 
         # wait for startup
         status = None
