@@ -355,11 +355,16 @@ public class CertUtil {
 
         CMS.debug("CertUtil.updateLocalRequest(" + certTag + ")");
 
+        String reqId = config.getString("preop.cert." + certTag + ".reqId", null);
+        if (reqId == null) {
+            CMS.debug("CertUtil: cert has no request record");
+            return;
+        }
+
         ICertificateAuthority ca = (ICertificateAuthority) CMS.getSubsystem(ICertificateAuthority.ID);
         IRequestQueue queue = ca.getRequestQueue();
 
-        RequestId rid = new RequestId(config.getString("preop.cert." + certTag + ".reqId"));
-        IRequest req = queue.findRequest(rid);
+        IRequest req = queue.findRequest(new RequestId(reqId));
 
         if (!certReq.equals("")) {
             CMS.debug("CertUtil: updating cert request");
