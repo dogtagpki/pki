@@ -150,6 +150,23 @@
     },
     {
       "key": {
+        "uuid": "cc27e57f_82471533",
+        "filename": "base/common/python/pki/nssdb.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 526,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-11T18:55:35Z",
+      "side": 1,
+      "message": "Since the caller is responsible to use the correct AKI format, this should be written as \u00270x237e...9f\u0027.",
+      "revId": "34886eeb5dfb90fafc7f241a9a09d06f16864930",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "33ba51f3_75c8cb0b",
         "filename": "base/common/python/pki/nssdb.py",
         "patchSetId": 1
@@ -161,6 +178,23 @@
       "writtenOn": "2017-07-10T23:35:13Z",
       "side": 1,
       "message": "Please add this comment:\n# FIXME: do not hard-code SKI extension",
+      "revId": "34886eeb5dfb90fafc7f241a9a09d06f16864930",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d2dfc402_d54575a1",
+        "filename": "base/common/python/pki/nssdb.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 531,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-11T18:55:35Z",
+      "side": 1,
+      "message": "Since the caller is responsible to use the correct SKI format, this should be written as \u00270x237e...9f\u0027.",
       "revId": "34886eeb5dfb90fafc7f241a9a09d06f16864930",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -195,6 +229,394 @@
       "writtenOn": "2017-07-10T23:35:13Z",
       "side": 1,
       "message": "I think the issuer should be None for self-signed CA cert.",
+      "revId": "34886eeb5dfb90fafc7f241a9a09d06f16864930",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7ad8e24_c3b0b287",
+        "filename": "base/server/python/pki/server/cli/subsystem.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1047,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-11T18:55:35Z",
+      "side": 1,
+      "message": "There\u0027s an ambiguity between \"subsystem\" and \"system\" cert. A PKI subsystem has several certs needed to run the system (e.g. CA signing, SSL server, audit signing). However, one of the system certs is actually called subsystem cert.\n\nTo reduce confusion I think we probably should rename this CLI to pki-server system-cert-renew later. For now let\u0027s use this description \"Renew subsystem certificate\" for consistency with other pki-server subsystem-cert-* commands. Note that we should use singular \"certificate\" since the CLI works on one certificate at a time.",
+      "revId": "34886eeb5dfb90fafc7f241a9a09d06f16864930",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "855f52c1_6ac81d7a",
+        "filename": "base/server/python/pki/server/cli/subsystem.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1074,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-11T18:55:35Z",
+      "side": 1,
+      "message": "Let\u0027s use temp files/directory for these files. We don\u0027t want to accidentally overwrite the same file in the current directory. See NSSDatabase.create_request() for example.",
+      "revId": "34886eeb5dfb90fafc7f241a9a09d06f16864930",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ac45b539_061ebdd2",
+        "filename": "base/server/python/pki/server/cli/subsystem.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1119,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-11T18:55:35Z",
+      "side": 1,
+      "message": "Let\u0027s move this into a separate top-level CLI. To make pki-server subsystem-cert-renew more usable it should avoid trying to control the environment (i.e. shutting down the server).",
+      "revId": "34886eeb5dfb90fafc7f241a9a09d06f16864930",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "624c6d73_5a2bbbfc",
+        "filename": "base/server/python/pki/server/cli/subsystem.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1121,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-11T18:55:35Z",
+      "side": 1,
+      "message": "The PKIInstance.get_subsystem() only works with lower case subsystem name.",
+      "range": {
+        "startLine": 1121,
+        "startChar": 43,
+        "endLine": 1121,
+        "endChar": 51
+      },
+      "revId": "34886eeb5dfb90fafc7f241a9a09d06f16864930",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "783cd2e0_8e254c5a",
+        "filename": "base/server/python/pki/server/cli/subsystem.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1128,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-11T18:55:35Z",
+      "side": 1,
+      "message": "Lines 1128-1176 are probably applicable for all certs, so they don\u0027t need to be guarded with \"if not permanent_cert\".",
+      "revId": "34886eeb5dfb90fafc7f241a9a09d06f16864930",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9dcfa196_e9f8844f",
+        "filename": "base/server/python/pki/server/cli/subsystem.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1129,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-11T18:55:35Z",
+      "side": 1,
+      "message": "This CLI probably can be generalized later to renew all system certs, so the code/comment should not be written specifically for SSL server cert.",
+      "range": {
+        "startLine": 1129,
+        "startChar": 28,
+        "endLine": 1129,
+        "endChar": 41
+      },
+      "revId": "34886eeb5dfb90fafc7f241a9a09d06f16864930",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4cfb931c_fbaa8f6b",
+        "filename": "base/server/python/pki/server/cli/subsystem.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1130,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-11T18:55:35Z",
+      "side": 1,
+      "message": "Variable too specific for SSL server cert.",
+      "range": {
+        "startLine": 1130,
+        "startChar": 12,
+        "endLine": 1130,
+        "endChar": 20
+      },
+      "revId": "34886eeb5dfb90fafc7f241a9a09d06f16864930",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e769ef21_095336e5",
+        "filename": "base/server/python/pki/server/cli/subsystem.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1130,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-11T18:55:35Z",
+      "side": 1,
+      "message": "Comment too specific for SSL server cert.",
+      "range": {
+        "startLine": 1130,
+        "startChar": 60,
+        "endLine": 1130,
+        "endChar": 93
+      },
+      "revId": "34886eeb5dfb90fafc7f241a9a09d06f16864930",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ce0c4df6_3b0c7e69",
+        "filename": "base/server/python/pki/server/cli/subsystem.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1162,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-11T18:55:35Z",
+      "side": 1,
+      "message": "The external sed command probably will work just fine, but why not use internal Python methods?",
+      "revId": "34886eeb5dfb90fafc7f241a9a09d06f16864930",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "72e5fbd0_f930b2b1",
+        "filename": "base/server/python/pki/server/cli/subsystem.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1166,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-11T18:55:35Z",
+      "side": 1,
+      "message": "The external sed command probably will work just fine, but why not use internal Python methods?",
+      "revId": "34886eeb5dfb90fafc7f241a9a09d06f16864930",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9b091f9f_b4c5f550",
+        "filename": "base/server/python/pki/server/cli/subsystem.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1178,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-11T18:55:35Z",
+      "side": 1,
+      "message": "Lines 1178-1227 is specific to SSL server cert, so it should be guarded with this condition:\n\nif cert_id \u003d\u003d \u0027sslserver\u0027:",
+      "revId": "34886eeb5dfb90fafc7f241a9a09d06f16864930",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7329cebc_390e4edd",
+        "filename": "base/server/python/pki/server/cli/subsystem.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1180,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-11T18:55:35Z",
+      "side": 1,
+      "message": "The host_name var doesn\u0027t seem to be used anywhere. Note that the cert subject DN is already included in the cert request.",
+      "revId": "34886eeb5dfb90fafc7f241a9a09d06f16864930",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9038d3b1_55211589",
+        "filename": "base/server/python/pki/server/cli/subsystem.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1183,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-11T18:55:35Z",
+      "side": 1,
+      "message": "The random serial is only used for temp cert. Please add \"if not permanent_cert\". We need to check the current available range in CS.cfg.\n\nFor perm cert, we need to reserve a number in the LDAP database. No need to implement that for now.",
+      "revId": "34886eeb5dfb90fafc7f241a9a09d06f16864930",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "427a8639_0390d515",
+        "filename": "base/server/python/pki/server/cli/subsystem.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1200,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-11T18:55:35Z",
+      "side": 1,
+      "message": "This extension is not needed for temp SSL server cert.\n\nFor perm cert, the URL should not be hardcoded. No need to implement that for now.",
+      "revId": "34886eeb5dfb90fafc7f241a9a09d06f16864930",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cdd6ec35_ae029fcf",
+        "filename": "base/server/python/pki/server/cli/subsystem.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1215,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-11T18:55:35Z",
+      "side": 1,
+      "message": "The message should match the permanent_cert variable.",
+      "range": {
+        "startLine": 1215,
+        "startChar": 34,
+        "endLine": 1215,
+        "endChar": 38
+      },
+      "revId": "34886eeb5dfb90fafc7f241a9a09d06f16864930",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1d840631_4e414a9e",
+        "filename": "base/server/python/pki/server/cli/subsystem.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1217,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-11T18:55:35Z",
+      "side": 1,
+      "message": "The issuer nickname should not be hardcoded. I think we can get it from ca_signing_cert[\u0027nickname\u0027].",
+      "range": {
+        "startLine": 1217,
+        "startChar": 23,
+        "endLine": 1217,
+        "endChar": 35
+      },
+      "revId": "34886eeb5dfb90fafc7f241a9a09d06f16864930",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "76d0468a_632ce198",
+        "filename": "base/server/python/pki/server/cli/subsystem.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1231,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-11T18:55:35Z",
+      "side": 1,
+      "message": "Message too specific to SSL server certificate.",
+      "range": {
+        "startLine": 1231,
+        "startChar": 36,
+        "endLine": 1231,
+        "endChar": 51
+      },
+      "revId": "34886eeb5dfb90fafc7f241a9a09d06f16864930",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dd5d9392_04b5dd4e",
+        "filename": "base/server/python/pki/server/cli/subsystem.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1235,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-11T18:55:35Z",
+      "side": 1,
+      "message": "Message too specific to temp SSL server certificate.",
+      "range": {
+        "startLine": 1235,
+        "startChar": 34,
+        "endLine": 1235,
+        "endChar": 54
+      },
+      "revId": "34886eeb5dfb90fafc7f241a9a09d06f16864930",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f9694547_736a1683",
+        "filename": "base/server/python/pki/server/cli/subsystem.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1254,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-11T18:55:35Z",
+      "side": 1,
+      "message": "Let\u0027s move disabling selftest into a separate top-level CLI too. We will need to restore the original selftest property after the permanent certs are installed.",
+      "revId": "34886eeb5dfb90fafc7f241a9a09d06f16864930",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "940a11b8_db626e65",
+        "filename": "base/server/python/pki/server/cli/subsystem.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1259,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-11T18:55:35Z",
+      "side": 1,
+      "message": "Let\u0027s move this into a separate top-level CLI too.",
       "revId": "34886eeb5dfb90fafc7f241a9a09d06f16864930",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
