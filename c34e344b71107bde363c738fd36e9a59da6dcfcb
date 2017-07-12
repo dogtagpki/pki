@@ -1,0 +1,95 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f07cd875_290d00f3",
+        "filename": "base/common/python/pki/nssdb.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 345,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-12T17:35:42Z",
+      "side": 1,
+      "message": "Let\u0027s avoid introducing a new default value if not necessary. So here the default validity should be None. If the caller doesn\u0027t specify validity we should use certutil\u0027s default validity (i.e. 3 months). See comment below.",
+      "range": {
+        "startLine": 345,
+        "startChar": 29,
+        "endLine": 345,
+        "endChar": 30
+      },
+      "revId": "c34e344b71107bde363c738fd36e9a59da6dcfcb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "629ce942_89be7f56",
+        "filename": "base/common/python/pki/nssdb.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 367,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-12T17:35:42Z",
+      "side": 1,
+      "message": "The -v should only be added if the validity is specified:\n\nif validity:\n   # add -v \u003cvalidity\u003e",
+      "revId": "c34e344b71107bde363c738fd36e9a59da6dcfcb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "620b5219_b2eee0a6",
+        "filename": "base/server/python/pki/server/cli/subsystem.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 1054,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-12T17:35:42Z",
+      "side": 1,
+      "message": "Let\u0027s add an optional --serial parameter.",
+      "revId": "c34e344b71107bde363c738fd36e9a59da6dcfcb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f200f5f9_ac24d39c",
+        "filename": "base/server/python/pki/server/cli/subsystem.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 1170,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-12T17:35:42Z",
+      "side": 1,
+      "message": "Instead of this, if the --serial is not specified we can generate a new serial. Otherwise, we\u0027ll use the specified serial.\n\nFor now the new serial can be randomly generated as in 1174-1177. Later we can enhance this code to check the latest serial in LDAP database. I\u0027m still investigating how the code works: http://pki.fedoraproject.org/wiki/CA_Database",
+      "revId": "c34e344b71107bde363c738fd36e9a59da6dcfcb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cc8fa43a_01b45dc5",
+        "filename": "base/server/python/pki/server/cli/subsystem.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 1213,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-12T17:35:42Z",
+      "side": 1,
+      "message": "Just for completeness, we should add an else-clause:\n\n if cert_id \u003d\u003d \u0027sslserver\u0027:\n     ...\n else:\n     # renewal not yet supported\n     raise Exception(...)",
+      "revId": "c34e344b71107bde363c738fd36e9a59da6dcfcb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
