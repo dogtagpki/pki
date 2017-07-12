@@ -1,0 +1,496 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3cfccd36_700c17d6",
+        "filename": "base/common/python/pki/nssdb.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 353,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-12T01:17:43Z",
+      "side": 1,
+      "message": "This can be simplified as follows:\n\nif issuer:\n  # add -c issuer\nelse:\n  # add -x",
+      "revId": "01463b7c1cb1f45a2bdab1406dfe0e16fbc42157",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c6a38884_ec9284f3",
+        "filename": "base/common/python/pki/nssdb.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 376,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-12T01:17:43Z",
+      "side": 1,
+      "message": "This can be simplified into:\n\n if \u0027auth_key_id\u0027 in aki_ext:\n\nIf the caller specifies \u0027auth_key_id\u0027 property, it should be passed to certutil regardless of the value.",
+      "revId": "01463b7c1cb1f45a2bdab1406dfe0e16fbc42157",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b403c7fe_ac37f6c9",
+        "filename": "base/common/python/pki/nssdb.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 388,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-12T01:17:43Z",
+      "side": 1,
+      "message": "This can be simplified into:\n\n if \u0027auth_cert_serial\u0027 in aki_ext:\n\nIf the caller specifies \u0027auth_cert_serial\u0027 property, it should be passed to certutil regardless of the value.",
+      "revId": "01463b7c1cb1f45a2bdab1406dfe0e16fbc42157",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2057aea4_78a06ffe",
+        "filename": "base/common/python/pki/nssdb.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 394,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-12T01:17:43Z",
+      "side": 1,
+      "message": "The has_key() can be replaced with in operator:\n\n if \u0027critical\u0027 in aki_ext and aki_ext[\u0027critical\u0027]:",
+      "range": {
+        "startLine": 394,
+        "startChar": 15,
+        "endLine": 394,
+        "endChar": 42
+      },
+      "revId": "01463b7c1cb1f45a2bdab1406dfe0e16fbc42157",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "092b13aa_f3929b17",
+        "filename": "base/common/python/pki/nssdb.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 433,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-12T01:17:43Z",
+      "side": 1,
+      "message": "This is redundant.",
+      "range": {
+        "startLine": 433,
+        "startChar": 51,
+        "endLine": 433,
+        "endChar": 63
+      },
+      "revId": "01463b7c1cb1f45a2bdab1406dfe0e16fbc42157",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f1086f2f_08c0ad6e",
+        "filename": "base/common/python/pki/nssdb.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 449,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-12T01:17:43Z",
+      "side": 1,
+      "message": "No need to check the value of ski_ext[\u0027sk_id\u0027]. If it\u0027s specified we pass it to certutil.",
+      "range": {
+        "startLine": 449,
+        "startChar": 44,
+        "endLine": 449,
+        "endChar": 60
+      },
+      "revId": "01463b7c1cb1f45a2bdab1406dfe0e16fbc42157",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6b044807_b630308a",
+        "filename": "base/common/python/pki/nssdb.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 449,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-12T01:17:43Z",
+      "side": 1,
+      "message": "The has_key() can be replaced with in operator.",
+      "range": {
+        "startLine": 449,
+        "startChar": 15,
+        "endLine": 449,
+        "endChar": 39
+      },
+      "revId": "01463b7c1cb1f45a2bdab1406dfe0e16fbc42157",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1215abaa_a5b43f47",
+        "filename": "base/common/python/pki/nssdb.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 455,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-12T01:17:43Z",
+      "side": 1,
+      "message": "The has_key() can be replaced with in operator.",
+      "range": {
+        "startLine": 455,
+        "startChar": 15,
+        "endLine": 455,
+        "endChar": 42
+      },
+      "revId": "01463b7c1cb1f45a2bdab1406dfe0e16fbc42157",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a93b2b0_863ceb45",
+        "filename": "base/common/python/pki/nssdb.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 467,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-12T01:17:43Z",
+      "side": 1,
+      "message": "Let\u0027s remove the \u0027subsystem\u0027 property. The aia_ext itself can contain \u0027ca_issuers\u0027 or \u0027ocsp\u0027 properties directly.",
+      "range": {
+        "startLine": 467,
+        "startChar": 28,
+        "endLine": 467,
+        "endChar": 41
+      },
+      "revId": "01463b7c1cb1f45a2bdab1406dfe0e16fbc42157",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "16cecb10_c7daeec3",
+        "filename": "base/common/python/pki/nssdb.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 471,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-12T01:17:43Z",
+      "side": 1,
+      "message": "This should be CA Issuers as in certutil output.",
+      "range": {
+        "startLine": 471,
+        "startChar": 21,
+        "endLine": 471,
+        "endChar": 23
+      },
+      "revId": "01463b7c1cb1f45a2bdab1406dfe0e16fbc42157",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "81b3a82d_ac0bf3a2",
+        "filename": "base/common/python/pki/nssdb.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 472,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-12T01:17:43Z",
+      "side": 1,
+      "message": "This should be \u0027ca_issuers\u0027 to match the certutil output.",
+      "range": {
+        "startLine": 472,
+        "startChar": 24,
+        "endLine": 472,
+        "endChar": 28
+      },
+      "revId": "01463b7c1cb1f45a2bdab1406dfe0e16fbc42157",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c684c9ef_c0f0a57a",
+        "filename": "base/common/python/pki/nssdb.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 479,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-12T01:17:43Z",
+      "side": 1,
+      "message": "Let\u0027s remove \u0027subsystem\u0027 property. See comment above.",
+      "range": {
+        "startLine": 479,
+        "startChar": 33,
+        "endLine": 479,
+        "endChar": 46
+      },
+      "revId": "01463b7c1cb1f45a2bdab1406dfe0e16fbc42157",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b3a8b1d1_aada2011",
+        "filename": "base/common/python/pki/nssdb.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 495,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-12T01:17:43Z",
+      "side": 1,
+      "message": "This can be replaced with \u0027critical\u0027 in aia_ext.",
+      "range": {
+        "startLine": 495,
+        "startChar": 15,
+        "endLine": 495,
+        "endChar": 42
+      },
+      "revId": "01463b7c1cb1f45a2bdab1406dfe0e16fbc42157",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26e34e7e_1ffa9454",
+        "filename": "base/common/python/pki/nssdb.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 541,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-12T01:17:43Z",
+      "side": 1,
+      "message": "No need for \u0027subsystem\u0027 property. The aia_ext can have \u0027ca_issuers\u0027 or \u0027ocsp\u0027 properties directly.",
+      "range": {
+        "startLine": 541,
+        "startChar": 12,
+        "endLine": 541,
+        "endChar": 23
+      },
+      "revId": "01463b7c1cb1f45a2bdab1406dfe0e16fbc42157",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "79d7f070_64343b7c",
+        "filename": "base/server/python/pki/server/cli/subsystem.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 1111,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-12T01:17:43Z",
+      "side": 1,
+      "message": "The variable name \u0026 file name is too specific to SSL server cert. We\u0027re going to use the same var \u0026 file for other system certs too.",
+      "revId": "01463b7c1cb1f45a2bdab1406dfe0e16fbc42157",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9c8488ca_54bf9693",
+        "filename": "base/server/python/pki/server/cli/subsystem.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 1113,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-12T01:17:43Z",
+      "side": 1,
+      "message": "Lines 1113-1127 can be moved outside the try-clause before line 1106.",
+      "revId": "01463b7c1cb1f45a2bdab1406dfe0e16fbc42157",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "51950f5f_46bfaef6",
+        "filename": "base/server/python/pki/server/cli/subsystem.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 1174,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-12T01:17:43Z",
+      "side": 1,
+      "message": "Lines 1174-1178 should be moved into 1171 since the serial will be needed by all certs.",
+      "revId": "01463b7c1cb1f45a2bdab1406dfe0e16fbc42157",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "55e2f347_4f6b2acd",
+        "filename": "base/server/python/pki/server/cli/subsystem.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 1179,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-12T01:17:43Z",
+      "side": 1,
+      "message": "This should be merged into line 1111.",
+      "revId": "01463b7c1cb1f45a2bdab1406dfe0e16fbc42157",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "43ecddea_dea29a06",
+        "filename": "base/server/python/pki/server/cli/subsystem.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 1203,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-12T01:17:43Z",
+      "side": 1,
+      "message": "The NSS database should be closed to make sure all temp files are removed, so it should be done like this:\n\n instance \u003d ...\n\n nssdb \u003d instance.open_nssdb()  # move before line 1106\n try:\n     # do NSS db operations\n finally:\n     nssdb.close() # move after line 1237",
+      "revId": "01463b7c1cb1f45a2bdab1406dfe0e16fbc42157",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "730ad3a2_65e4ea6b",
+        "filename": "base/server/python/pki/server/cli/subsystem.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 1205,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-12T01:17:43Z",
+      "side": 1,
+      "message": "It\u0027s probably easier to just generate the same message for temp/perm cert: Creating SSL server certificate.",
+      "range": {
+        "startLine": 1205,
+        "startChar": 26,
+        "endLine": 1205,
+        "endChar": 56
+      },
+      "revId": "01463b7c1cb1f45a2bdab1406dfe0e16fbc42157",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ef496cb5_b80e91e1",
+        "filename": "base/server/python/pki/server/cli/subsystem.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 1215,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-12T01:17:43Z",
+      "side": 1,
+      "message": "No more \u0027temp\u0027 in message.",
+      "range": {
+        "startLine": 1215,
+        "startChar": 66,
+        "endLine": 1215,
+        "endChar": 71
+      },
+      "revId": "01463b7c1cb1f45a2bdab1406dfe0e16fbc42157",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "63844f10_2c8365fa",
+        "filename": "base/server/python/pki/server/cli/subsystem.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 1217,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-12T01:17:43Z",
+      "side": 1,
+      "message": "Lines 1217-1245 should be moved outside the if cert_id \u003d\u003d \u0027sslserver\u0027 clause since it can be used by all certs. The comment in line 1217 should be more generic.",
+      "revId": "01463b7c1cb1f45a2bdab1406dfe0e16fbc42157",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "541512f3_b8feb43a",
+        "filename": "base/server/python/pki/server/cli/subsystem.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 1223,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-12T01:17:43Z",
+      "side": 1,
+      "message": "No more \u0027temp\u0027 in message.",
+      "range": {
+        "startLine": 1223,
+        "startChar": 38,
+        "endLine": 1223,
+        "endChar": 41
+      },
+      "revId": "01463b7c1cb1f45a2bdab1406dfe0e16fbc42157",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6bc6b428_bf86b75c",
+        "filename": "base/server/python/pki/server/cli/subsystem.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 1237,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-12T01:17:43Z",
+      "side": 1,
+      "message": "Call nssdb.close() here.",
+      "revId": "01463b7c1cb1f45a2bdab1406dfe0e16fbc42157",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
