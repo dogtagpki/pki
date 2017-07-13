@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6f82f771_784ade18",
+        "filename": "base/server/python/pki/server/cli/subsystem.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 1057,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-13T20:20:37Z",
+      "side": 1,
+      "message": "Missing \u003cnumber\u003e parameter.",
+      "range": {
+        "startLine": 1057,
+        "startChar": 30,
+        "endLine": 1057,
+        "endChar": 39
+      },
+      "revId": "fcae1c0d226ae6ee7c6f575eefb11861e9c6c751",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
