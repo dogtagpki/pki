@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9f651548_a30be48d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-20T21:23:02Z",
+      "side": 1,
+      "message": "Let\u0027s remove the link anchor because it\u0027s likely to change.",
+      "range": {
+        "startLine": 12,
+        "startChar": 74,
+        "endLine": 12,
+        "endChar": 95
+      },
+      "revId": "e08ea55c02588ec815c0e697beb74c5ea71a2383",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
