@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3bc6159d_00556f8f",
+        "filename": "base/server/python/pki/server/cli/cert.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-20T20:30:47Z",
+      "side": 1,
+      "message": "The instance.subsystems is a list of subsystem objects, so no need to call get_subsystem() again to get the subsystem object.",
+      "revId": "1c4e142809c665fd53b09c33e2d259f608e2c860",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2b1f4ff4_e69131d0",
+        "filename": "base/server/python/pki/server/cli/cert.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-20T20:30:47Z",
+      "side": 1,
+      "message": "An instance may not necessarily have a CA. We should get the sslserver/subsystem cert from the first available subsystems. So the code should be:\n\n subsystem_name \u003d None\n\nThen see comment below.",
+      "revId": "1c4e142809c665fd53b09c33e2d259f608e2c860",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a1054295_8fffa7a6",
+        "filename": "base/server/python/pki/server/cli/cert.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-20T20:30:47Z",
+      "side": 1,
+      "message": "Something like this:\n\nif not subsystem_name:\n    subsystem_name \u003d \u003cfirst subsystem\u0027s name\u003e",
+      "revId": "1c4e142809c665fd53b09c33e2d259f608e2c860",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ad3a71eb_66a4e88c",
+        "filename": "base/server/python/pki/server/cli/cert.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-20T20:30:47Z",
+      "side": 1,
+      "message": "We will need to fix this before the cert-update can work without local CA. This can be added later.",
+      "revId": "1c4e142809c665fd53b09c33e2d259f608e2c860",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
