@@ -556,6 +556,8 @@ public class TPSTokendb {
         String method = "TPSTokendb.revokeCert";
         String logMsg;
 
+        CMS.debug(method + "begins: tokenReason=" + tokenReason);
+
         try {
 
             IConfigStore configStore = CMS.getConfigStore();
@@ -566,9 +568,6 @@ public class TPSTokendb {
             String connID = configStore.getString(config);
 
             RevocationReason revokeReason = RevocationReason.UNSPECIFIED;
-
-            logMsg = "called to revoke";
-            CMS.debug(method + ": " + logMsg);
 
             checkShouldRevoke(tokenRecord, cert, tokenReason, ipAddress, remoteUser);
 
@@ -677,6 +676,7 @@ public class TPSTokendb {
             String ipAddress, String remoteUser) throws Exception {
 
         String method = "TPSTokendb.checkShouldRevoke:";
+        String msg = "";
         IConfigStore configStore = CMS.getConfigStore();
 
         if (cert == null) {
@@ -687,6 +687,7 @@ public class TPSTokendb {
                     method + "certificate " + cert.getSerialNumber() +
                             " already revoked.");
         }
+        CMS.debug(method + "begins: ");
 
         String tokenType = cert.getType();
         String keyType = cert.getKeyType();
@@ -694,7 +695,9 @@ public class TPSTokendb {
         // check if certificate revocation is enabled
         String config = "op.enroll." + tokenType + ".keyGen." + keyType +
                 ".recovery." + tokenReason + ".revokeCert";
+        CMS.debug(method + "getting config:" + config);
         boolean revokeCerts = configStore.getBoolean(config, true);
+
         if (!revokeCerts) {
             throw new TPSException(
                     "certificate revocation (serial " + cert.getSerialNumber() +
@@ -706,6 +709,7 @@ public class TPSTokendb {
         // check if expired certificates should be revoked.
         config = "op.enroll." + tokenType + ".keyGen." + keyType + ".recovery." +
                 tokenReason + ".revokeExpiredCerts";
+        CMS.debug(method + "getting config:" + config);
         boolean revokeExpiredCerts = configStore.getBoolean(config, true);
         if (!revokeExpiredCerts) {
             Date notBefore = cert.getValidNotBefore();
@@ -724,12 +728,14 @@ public class TPSTokendb {
         // check if certs on multiple tokens should be revoked
         config = "op.enroll." + tokenType + ".keyGen." + keyType + ".recovery." +
                 tokenReason + ".holdRevocationUntilLastCredential";
+        CMS.debug(method + "getting config:" + config);
         boolean holdRevocation = configStore.getBoolean(config, false);
         if (holdRevocation) {
             if (!isLastActiveSharedCert(cert.getSerialNumber(), cert.getIssuedBy(), tokenRecord.getId())) {
-                throw new TPSException(
-                        "revocation not permitted as certificate " + cert.getSerialNumber() +
-                        " is shared by another active token");
+                msg = "revocation not permitted as certificate " + cert.getSerialNumber() +
+                        " is shared by another active token";
+                CMS.debug(method + " holdRevocation true; " + msg);
+                throw new TPSException(msg);
             }
         }
         CMS.debug(method + "revocation allowed.");
@@ -751,6 +757,8 @@ public class TPSTokendb {
             CMS.debug(method + ": " + logMsg);
             throw new TPSException(logMsg);
         }
+
+        CMS.debug(method + "begins: with tokenReason=" + tokenReason);
 
         TokenRecord tokenRecord = tdbGetTokenEntry(cuid);
 

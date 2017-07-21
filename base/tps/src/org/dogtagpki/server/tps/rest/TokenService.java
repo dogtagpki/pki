@@ -132,10 +132,6 @@ public class TokenService extends SubsystemService implements TokenResource {
 
         case TokenStatus.TOKEN_TERMINATED:
             String reason = "terminated";
-            // keep original reason for suspension
-            if (oldStatus == TokenStatus.SUSPENDED) {
-                reason = oldReason;
-            }
             tokenRecord.setTokenStatus(tokenState);
             tokenRecord.setReason(reason);
             newReason = reason;
@@ -637,6 +633,7 @@ public class TokenService extends SubsystemService implements TokenResource {
     @Override
     public Response changeTokenStatus(String tokenID, TokenStatus tokenStatus) {
         String method = "TokenService.changeTokenStatus";
+        CMS.debug(method + "begins: with tokenStatus=" + tokenStatus.getName());
         Map<String, String> auditModParams = new HashMap<String, String>();
 
         if (tokenID == null) {
