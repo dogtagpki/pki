@@ -1,4 +1,4 @@
-// --- BEGIN COPYRIGHT BLOCK ---
+
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; version 2 of the License.
@@ -330,8 +330,10 @@ public class DoRevokeTPS extends CMSServlet {
         String auditRequestType = auditRequestType(reason);
         RequestStatus auditApprovalStatus = null;
         String auditReasonNum = String.valueOf(reason);
-        String method = "DoRevokeTPS.process";
+        String method = "DoRevokeTPS.process:";
+        String msg = "";
 
+        CMS.debug(method + "begins");
         if (revokeAll != null) {
             CMS.debug("DoRevokeTPS.process revokeAll" + revokeAll);
 
@@ -357,6 +359,8 @@ public class DoRevokeTPS extends CMSServlet {
             Vector<RevokedCertImpl> revCertImplsV = new Vector<RevokedCertImpl>();
 
             // Construct a CRL reason code extension.
+
+            CMS.debug(method + "reason code = " + reason);
             RevocationReason revReason = RevocationReason.fromInt(reason);
             CRLReasonExtension crlReasonExtn = new CRLReasonExtension(revReason);
 
@@ -401,22 +405,47 @@ public class DoRevokeTPS extends CMSServlet {
                 }
 
                 if (xcert != null) {
+                    RevocationReason recRevReason = null;
+                    if (rec.getStatus().equals(ICertRecord.STATUS_REVOKED)) {
+                        try {
+                            recRevReason = rec.getRevReason();
+                        } catch (Exception ex) {
+                            CMS.debug(method + ex.toString());
+                            throw new EBaseException(ex);
+                        }
+                        if (recRevReason == null) {
+                            msg = "existing revoked cert missing revocation reason";
+                            CMS.debug(method + msg);
+                            throw new EBaseException(msg);
+                        }
+                    }
+
                     rarg.addStringValue("serialNumber",
                             xcert.getSerialNumber().toString(16));
 
-                    if (rec.getStatus().equals(ICertRecord.STATUS_REVOKED)
-                          && !rec.isCertOnHold()) {
-                        alreadyRevokedCertFound = true;
-                        CMS.debug(method + "Certificate 0x" + xcert.getSerialNumber().toString(16) + " has already been revoked.");
-                    } else {
+                    boolean updateRevocation = true;
+                    if ((rec.getStatus().equals(ICertRecord.STATUS_REVOKED) &&
+                            revReason == RevocationReason.KEY_COMPROMISE)) {
+                        updateRevocation = false;
+                        if ((recRevReason == RevocationReason.SUPERSEDED) ||
+                                (rec.isCertOnHold())) {
+                            updateRevocation = true;
+                            CMS.debug(method + "Certificate 0x" + xcert.getSerialNumber().toString(16)
+                                    + " has been revoked, but reason is changed");
+                        } else {
+                            alreadyRevokedCertFound = true;
+                            CMS.debug("Certificate 0x" + xcert.getSerialNumber().toString(16) + " has been revoked.");
+                        }
+                    }
+                    if (updateRevocation) {
                         oldCertsV.addElement(xcert);
 
-                        RevokedCertImpl revCertImpl =
-                                new RevokedCertImpl(xcert.getSerialNumber(),
-                                        CMS.getCurrentDate(), entryExtn);
+                        RevokedCertImpl revCertImpl = new RevokedCertImpl(xcert.getSerialNumber(),
+                                CMS.getCurrentDate(), entryExtn);
 
                         revCertImplsV.addElement(revCertImpl);
-                        CMS.debug(method + "Certificate 0x" + xcert.getSerialNumber().toString(16) + " is going to be revoked.");
+                        CMS.debug(method + "Certificate 0x" + xcert.getSerialNumber().toString(16)
+                                + " is going to be revoked.");
                         count++;
                     }
                 } else {
