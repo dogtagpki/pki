@@ -470,7 +470,7 @@ class ConfigurationFile:
             # AND to the 'private void validateData(ConfigurationRequest data)'
             # Java method located in the file called 'SystemConfigService.java'
             #
-            if self.subsystem != "KRA":
+            if self.subsystem != "KRA" and self.subsystem != "OCSP":
                 config.pki_log.error(log.PKI_STANDALONE_UNSUPPORTED_1,
                                      self.subsystem,
                                      extra=config.PKI_INDENTATION_LEVEL_2)

@@ -1059,7 +1059,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             // AND to the 'checkStandalonePKI()' Python method of
             // the 'ConfigurationFile' Python class in the Python file called
             // 'pkihelper.py'
-            if (!csType.equals("KRA")) {
+            if (!csType.equals("KRA") && !csType.equals("OCSP")) {
                 throw new BadRequestException("Stand-alone PKI " + csType + " subsystems are currently NOT supported!");
             }
             if (data.isClone()) {
