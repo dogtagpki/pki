@@ -20,6 +20,9 @@
 
 from __future__ import absolute_import
 import binascii
+from cryptography import x509
+from cryptography.hazmat.backends import default_backend
+from cryptography.x509.oid import NameOID
 import json
 import re
 
@@ -38,9 +41,44 @@ import pki.util
 # PKI Deployment Configuration Scriptlet
 class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
-    def create_temp_sslserver_cert(self, deployer):
+    def create_temp_sslserver_cert(self, deployer, instance, token):
 
-        if len(deployer.instance.tomcat_instance_subsystems()) < 2:
+        if len(deployer.instance.tomcat_instance_subsystems()) >= 2:
+            return False
+
+        nssdb = instance.open_nssdb(token)
+
+        try:
+            nickname = deployer.mdict['pki_ssl_server_nickname']
+
+            config.pki_log.info(
+                "checking existing SSL server cert: %s" % nickname,
+                extra=config.PKI_INDENTATION_LEVEL_2)
+
+            pem_cert = nssdb.get_cert(nickname)
+
+            if pem_cert:
+                cert = x509.load_pem_x509_certificate(pem_cert, default_backend())
+                cn = cert.subject.get_attributes_for_oid(NameOID.COMMON_NAME)[0]
+                hostname = cn.value
+
+                config.pki_log.info(
+                    "existing SSL server cert is for %s" % hostname,
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+
+                # if hostname is correct, don't create temp cert
+                if hostname == deployer.mdict['pki_hostname']:
+                    return False
+
+                config.pki_log.info(
+                    "removing SSL server cert for %s" % hostname,
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+
+                nssdb.remove_cert(nickname, remove_key=True)
+
+            config.pki_log.info(
+                "creating temp SSL server cert for %s" % deployer.mdict['pki_hostname'],
+                extra=config.PKI_INDENTATION_LEVEL_2)
 
             deployer.password.create_password_conf(
                 deployer.mdict['pki_shared_pfile'],
@@ -52,48 +90,43 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             #        in the software DB regardless of whether the
             #        instance will utilize 'softokn' or an HSM
             #
-            rv = deployer.certutil.verify_certificate_exists(
+            # note: in the function below, certutil is used to generate
+            # the request for the self signed cert.  The keys are generated
+            # by NSS, which does not actually use the data in the noise
+            # file, so it does not matter what is in this file.  Certutil
+            # still requires it though, otherwise it waits for keyboard
+            # input
+
+            with open(deployer.mdict['pki_self_signed_noise_file'], 'w') as f:
+                f.write("not_so_random_data")
+
+            # TODO: replace with pki-server create-cert sslserver --temp
+            deployer.certutil.generate_self_signed_certificate(
                 deployer.mdict['pki_database_path'],
                 deployer.mdict['pki_cert_database'],
                 deployer.mdict['pki_key_database'],
                 deployer.mdict['pki_secmod_database'],
                 deployer.mdict['pki_self_signed_token'],
-                deployer.mdict['pki_self_signed_nickname'],
+                nickname,
+                deployer.mdict['pki_self_signed_subject'],
+                deployer.mdict['pki_self_signed_serial_number'],
+                deployer.mdict['pki_self_signed_validity_period'],
+                deployer.mdict['pki_self_signed_issuer_name'],
+                deployer.mdict['pki_self_signed_trustargs'],
+                deployer.mdict['pki_self_signed_noise_file'],
                 password_file=deployer.mdict['pki_shared_pfile'])
 
-            if not rv:
-
-                # note: in the function below, certutil is used to generate
-                # the request for the self signed cert.  The keys are generated
-                # by NSS, which does not actually use the data in the noise
-                # file, so it does not matter what is in this file.  Certutil
-                # still requires it though, otherwise it waits for keyboard
-                # input
-                with open(
-                        deployer.mdict['pki_self_signed_noise_file'], 'w') as f:
-                    f.write("not_so_random_data")
-
-                deployer.certutil.generate_self_signed_certificate(
-                    deployer.mdict['pki_database_path'],
-                    deployer.mdict['pki_cert_database'],
-                    deployer.mdict['pki_key_database'],
-                    deployer.mdict['pki_secmod_database'],
-                    deployer.mdict['pki_self_signed_token'],
-                    deployer.mdict['pki_self_signed_nickname'],
-                    deployer.mdict['pki_self_signed_subject'],
-                    deployer.mdict['pki_self_signed_serial_number'],
-                    deployer.mdict['pki_self_signed_validity_period'],
-                    deployer.mdict['pki_self_signed_issuer_name'],
-                    deployer.mdict['pki_self_signed_trustargs'],
-                    deployer.mdict['pki_self_signed_noise_file'],
-                    password_file=deployer.mdict['pki_shared_pfile'])
-
-                # Delete the temporary 'noise' file
-                deployer.file.delete(
-                    deployer.mdict['pki_self_signed_noise_file'])
+            # Delete the temporary 'noise' file
+            deployer.file.delete(
+                deployer.mdict['pki_self_signed_noise_file'])
 
             # Always delete the temporary 'pfile'
             deployer.file.delete(deployer.mdict['pki_shared_pfile'])
+
+            return True
+
+        finally:
+            nssdb.close()
 
     def spawn(self, deployer):
 
@@ -356,7 +389,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if external and step_one:
             return
 
-        self.create_temp_sslserver_cert(deployer)
+        self.create_temp_sslserver_cert(deployer, instance, token)
 
         # Start/Restart this Tomcat PKI Process
         # Optionally prepare to enable a java debugger

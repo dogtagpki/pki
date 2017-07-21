@@ -2914,7 +2914,7 @@ class ServerCertNickConf:
         self.mdict = deployer.mdict
         self.hsm_enable = config.str2bool(self.mdict['pki_hsm_enable'])
         self.external = config.str2bool(self.mdict['pki_external'])
-        self.nickname = self.mdict['pki_self_signed_nickname']
+        self.nickname = self.mdict['pki_ssl_server_nickname']
         self.servercertnick_conf = self.mdict['pki_target_servercertnick_conf']
         self.standalone = config.str2bool(self.mdict['pki_standalone'])
         self.step_two = config.str2bool(self.mdict['pki_external_step_two'])

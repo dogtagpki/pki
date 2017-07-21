@@ -1105,8 +1105,6 @@ class PKIConfigParser:
             self.mdict['pki_secmod_database'] = \
                 os.path.join(self.mdict['pki_database_path'],
                              "secmod.db")
-            self.mdict['pki_self_signed_nickname'] = \
-                self.mdict['pki_ssl_server_nickname']
             self.mdict['pki_self_signed_subject'] = \
                 "cn=" + self.mdict['pki_hostname'] + "," + \
                 "o=" + self.mdict['pki_certificate_timestamp']
