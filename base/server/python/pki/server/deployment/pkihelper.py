@@ -746,9 +746,6 @@ class ConfigurationFile:
                     self.confirm_missing_file(
                         "pki_external_signing_csr_path")
             else:
-                # Stand-alone PKI External CA Certificate Chain (Step 2)
-                self.confirm_data_exists("pki_external_ca_cert_chain_path")
-                self.confirm_file_exists("pki_external_ca_cert_chain_path")
                 # Stand-alone PKI External CA Certificate (Step 2)
                 self.confirm_data_exists("pki_external_ca_cert_path")
                 self.confirm_file_exists("pki_external_ca_cert_path")
@@ -4106,12 +4103,14 @@ class ConfigClient:
                         log.PKI_CONFIG_EXTERNAL_CA_LOAD,
                         self.mdict['pki_external_ca_cert_path'])
 
-                    # Load the stand-alone PKI
-                    # 'External CA Signing Certificate Chain' (Step 2)
-                    self.load_system_cert_chain(
-                        cert1,
-                        log.PKI_CONFIG_EXTERNAL_CA_CHAIN_LOAD,
-                        self.mdict['pki_external_ca_cert_chain_path'])
+                    if os.path.exists(self.mdict['pki_external_ca_cert_chain_path']):
+
+                        # Load the stand-alone PKI
+                        # 'External CA Signing Certificate Chain' (Step 2)
+                        self.load_system_cert_chain(
+                            cert1,
+                            log.PKI_CONFIG_EXTERNAL_CA_CHAIN_LOAD,
+                            self.mdict['pki_external_ca_cert_chain_path'])
 
                     systemCerts.append(cert1)
 

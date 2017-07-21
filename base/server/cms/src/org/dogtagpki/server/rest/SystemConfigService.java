@@ -343,9 +343,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                                 ConfigurationUtils.setExternalCACertChain(certChainStr, csSubsystem, cs, cert);
                                 CMS.debug("Step 2:  certChainStr for '" + tag + "' is " + certChainStr);
                                 certs.add(cert);
-
-                            } else {
-                                throw new BadRequestException("CertChain not provided");
                             }
                         }
 
@@ -553,9 +550,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
                 if (certData.getCertChain() != null) {
                     cert.setCertChain(certData.getCertChain());
-
-                } else {
-                    throw new BadRequestException("CertChain not provided");
                 }
             }
         }
