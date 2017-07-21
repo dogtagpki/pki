@@ -23,12 +23,6 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Vector;
 
-import netscape.security.x509.CRLExtensions;
-import netscape.security.x509.CRLReasonExtension;
-import netscape.security.x509.RevocationReason;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509ExtensionException;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.MetaInfo;
@@ -36,6 +30,12 @@ import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.IRevocationInfo;
+
+import netscape.security.x509.CRLExtensions;
+import netscape.security.x509.CRLReasonExtension;
+import netscape.security.x509.RevocationReason;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509ExtensionException;
 
 /**
  * A class represents a serializable certificate record.
@@ -274,27 +274,45 @@ public class CertRecord implements IDBObj, ICertRecord {
         return mModifyTime;
     }
 
+    public RevocationReason getRevReason()
+            throws EBaseException, X509ExtensionException {
+        String method = "CertRecord.getRevReason:";
+        String msg = "";
+        //CMS.debug(method + " checking for cert serial: "
+        //        + getSerialNumber().toString());
+        IRevocationInfo revInfo = getRevocationInfo();
+        if (revInfo == null) {
+            msg = "revInfo null for" + getSerialNumber().toString();
+            CMS.debug(method + msg);
+            return null;
+        }
+
+        CRLExtensions crlExts = revInfo.getCRLEntryExtensions();
+        if (crlExts == null)
+            throw new X509ExtensionException("crlExts null");
+
+        CRLReasonExtension reasonExt = null;
+        reasonExt = (CRLReasonExtension) crlExts.get(CRLReasonExtension.NAME);
+        if (reasonExt == null)
+            throw new EBaseException("reasonExt null");
+
+        return reasonExt.getReason();
+    }
+
     public boolean isCertOnHold() {
         String method = "CertRecord.isCertOnHold:";
         CMS.debug(method + " checking for cert serial: "
-             + getSerialNumber().toString());
-        IRevocationInfo revInfo = getRevocationInfo();
-        if (revInfo != null) {
-            CRLExtensions crlExts = revInfo.getCRLEntryExtensions();
-            if (crlExts == null) return false;
-            CRLReasonExtension reasonExt = null;
-            try {
-                reasonExt = (CRLReasonExtension) crlExts.get(CRLReasonExtension.NAME);
-            } catch (X509ExtensionException e) {
-                CMS.debug(method + " returning false:" + e.toString());
-                return false;
-            }
-            if (reasonExt.getReason() == RevocationReason.CERTIFICATE_HOLD) {
-                CMS.debug(method + " returning true");
+                + getSerialNumber().toString());
+        try {
+            RevocationReason revReason = getRevReason();
+            if (revReason == RevocationReason.CERTIFICATE_HOLD) {
+                CMS.debug(method + "for " + getSerialNumber().toString() + " returning true");
                 return true;
             }
+        } catch (Exception e) {
+            CMS.debug(method + e);
         }
-        CMS.debug(method + " returning false");
+        CMS.debug(method + "for " + getSerialNumber().toString() + " returning false");
         return false;
     }
 

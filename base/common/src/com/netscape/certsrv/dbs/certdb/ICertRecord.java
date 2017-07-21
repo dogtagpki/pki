@@ -20,6 +20,9 @@ package com.netscape.certsrv.dbs.certdb;
 import java.math.BigInteger;
 import java.util.Date;
 
+import com.netscape.certsrv.base.EBaseException;
+import netscape.security.x509.RevocationReason;
+import netscape.security.x509.X509ExtensionException;
 import netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.base.MetaInfo;
@@ -181,4 +184,10 @@ public interface ICertRecord extends IDBObj {
      * is this cert on hold?
      */
     public boolean isCertOnHold();
+
+    /**
+     * returns the revocation reason
+     */
+    public RevocationReason getRevReason()
+           throws EBaseException, X509ExtensionException;
 }

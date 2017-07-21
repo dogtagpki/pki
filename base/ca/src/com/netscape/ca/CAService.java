@@ -984,6 +984,18 @@ public class CAService implements ICAService, IService {
         CRLExtensions crlentryexts = crlentry.getExtensions();
 
         CMS.debug("CAService.revokeCert: revokeCert begins");
+
+        // Get the revocation reason
+        Enumeration enum1 = crlentryexts.getElements();
+        RevocationReason revReason = null;
+        while (enum1.hasMoreElements()) {
+            Extension ext = (Extension) enum1.nextElement();
+            if (ext instanceof CRLReasonExtension) {
+                revReason = ((CRLReasonExtension) ext).getReason();
+                break;
+            }
+        }
+
         CertRecord certRec = (CertRecord) mCA.getCertificateRepository().readCertificateRecord(serialno);
 
         if (certRec == null) {
@@ -994,55 +1006,77 @@ public class CAService implements ICAService, IService {
                             "0x" + serialno.toString(16)));
         }
 
+        RevocationReason recRevReason = null;
+        try {
+            recRevReason = certRec.getRevReason();
+        } catch (Exception e) {
+            throw new EBaseException(e);
+        }
+
         // allow revoking certs that are on hold.
         String certStatus = certRec.getStatus();
 
-        if ((certStatus.equals(ICertRecord.STATUS_REVOKED) &&
-                !certRec.isCertOnHold()) ||
+        // for cert already revoked, also check whether revocation reason is changed from SUPERSEDED to KEY_COMPROMISE
+        if (((certStatus.equals(ICertRecord.STATUS_REVOKED) &&
+                !certRec.isCertOnHold()) &&
+                ((recRevReason != RevocationReason.SUPERSEDED) ||
+                        revReason != RevocationReason.KEY_COMPROMISE))
+                ||
                 certStatus.equals(ICertRecord.STATUS_REVOKED_EXPIRED)) {
             CMS.debug("CAService.revokeCert: cert already revoked:" +
                     serialno.toString());
             throw new ECAException(CMS.getUserMessage("CMS_CA_CERT_ALREADY_REVOKED",
                     "0x" + Long.toHexString(serialno.longValue())));
         }
+
         try {
+            // if cert has already revoked, update the revocation info only
             CMS.debug("CAService.revokeCert: about to call markAsRevoked");
-            if (certRec.isCertOnHold()) {
+            // if (certRec.isCertOnHold()) {
+            if (certStatus.equals(ICertRecord.STATUS_REVOKED) && certRec.isCertOnHold()) {
                 mCA.getCertificateRepository().markAsRevoked(serialno,
-                        new RevocationInfo(revdate, crlentryexts), true /*isAlreadyOnHold*/);
+                        new RevocationInfo(revdate, crlentryexts),
+                        true /*isAlreadyRevoked*/);
+                CMS.debug("CAService.revokeCert: on_hold cert marked revoked");
+                mCA.log(ILogger.LL_INFO,
+                        CMS.getLogMessage("CMSCORE_CA_CERT_REVO_INFO_UPDATE",
+                                recRevReason.toString(),
+                                revReason.toString(),
+                                serialno.toString(16)));
             } else {
                 mCA.getCertificateRepository().markAsRevoked(serialno,
                         new RevocationInfo(revdate, crlentryexts));
-            }
-            CMS.debug("CAService.revokeCert: cert revoked");
-            mCA.log(ILogger.LL_INFO, CMS.getLogMessage("CMSCORE_CA_CERT_REVOKED",
-                    serialno.toString(16)));
-            // inform all CRLIssuingPoints about revoked certificate
-            Enumeration<ICRLIssuingPoint> eIPs = mCRLIssuingPoints.elements();
 
-            while (eIPs.hasMoreElements()) {
-                ICRLIssuingPoint ip = eIPs.nextElement();
+                CMS.debug("CAService.revokeCert: cert now revoked");
+                mCA.log(ILogger.LL_INFO, CMS.getLogMessage("CMSCORE_CA_CERT_REVOKED",
+                        serialno.toString(16)));
+                // inform all CRLIssuingPoints about revoked certificate
+                Enumeration<ICRLIssuingPoint> eIPs = mCRLIssuingPoints.elements();
 
-                if (ip != null) {
-                    boolean b = true;
+                while (eIPs.hasMoreElements()) {
+                    ICRLIssuingPoint ip = eIPs.nextElement();
 
-                    if (ip.isCACertsOnly()) {
-                        X509CertImpl cert = certRec.getCertificate();
+                    if (ip != null) {
+                        boolean b = true;
 
-                        if (cert != null)
-                            b = cert.getBasicConstraintsIsCA();
-                    }
-                    if (ip.isProfileCertsOnly()) {
-                        MetaInfo metaInfo = certRec.getMetaInfo();
-                        if (metaInfo != null) {
-                            String profileId = (String) metaInfo.get("profileId");
-                            if (profileId != null) {
-                                b = ip.checkCurrentProfile(profileId);
+                        if (ip.isCACertsOnly()) {
+                            X509CertImpl cert = certRec.getCertificate();
+
+                            if (cert != null)
+                                b = cert.getBasicConstraintsIsCA();
+                        }
+                        if (ip.isProfileCertsOnly()) {
+                            MetaInfo metaInfo = certRec.getMetaInfo();
+                            if (metaInfo != null) {
+                                String profileId = (String) metaInfo.get("profileId");
+                                if (profileId != null) {
+                                    b = ip.checkCurrentProfile(profileId);
+                                }
                             }
                         }
+                        if (b)
+                            ip.addRevokedCert(serialno, crlentry, requestId);
                     }
-                    if (b)
-                        ip.addRevokedCert(serialno, crlentry, requestId);
                 }
             }
         } catch (EBaseException e) {
