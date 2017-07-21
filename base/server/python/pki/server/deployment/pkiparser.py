@@ -748,24 +748,6 @@ class PKIConfigParser:
                 else:
                     self.mdict['PKI_PROFILE_SUBSYSTEM_SLOT'] = \
                         'ProfileSubsystem'
-            elif self.mdict['pki_subsystem'] == "KRA":
-                # '*.profile'
-                self.mdict['pki_target_servercert_profile'] = \
-                    os.path.join(
-                        self.mdict['pki_subsystem_configuration_path'],
-                        "serverCert.profile")
-                self.mdict['pki_target_storagecert_profile'] = \
-                    os.path.join(
-                        self.mdict['pki_subsystem_configuration_path'],
-                        "storageCert.profile")
-                self.mdict['pki_target_subsystemcert_profile'] = \
-                    os.path.join(
-                        self.mdict['pki_subsystem_configuration_path'],
-                        "subsystemCert.profile")
-                self.mdict['pki_target_transportcert_profile'] = \
-                    os.path.join(
-                        self.mdict['pki_subsystem_configuration_path'],
-                        "transportCert.profile")
             elif self.mdict['pki_subsystem'] == "TPS":
                 self.mdict['pki_target_registry_cfg'] = \
                     os.path.join(

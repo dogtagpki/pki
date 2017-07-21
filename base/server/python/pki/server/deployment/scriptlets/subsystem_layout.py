@@ -98,20 +98,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             deployer.file.copy(
                 deployer.mdict['pki_source_subsystemcert_profile'],
                 deployer.mdict['pki_target_subsystemcert_profile'])
-        elif deployer.mdict['pki_subsystem'] == "KRA":
-            # '*.profile'
-            deployer.file.copy(
-                deployer.mdict['pki_source_servercert_profile'],
-                deployer.mdict['pki_target_servercert_profile'])
-            deployer.file.copy(
-                deployer.mdict['pki_source_storagecert_profile'],
-                deployer.mdict['pki_target_storagecert_profile'])
-            deployer.file.copy(
-                deployer.mdict['pki_source_subsystemcert_profile'],
-                deployer.mdict['pki_target_subsystemcert_profile'])
-            deployer.file.copy(
-                deployer.mdict['pki_source_transportcert_profile'],
-                deployer.mdict['pki_target_transportcert_profile'])
 
         # establish instance-based subsystem convenience symbolic links
         deployer.symlink.create(
