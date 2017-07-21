@@ -1,0 +1,175 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bb94eb4d_29519afb",
+        "filename": "base/server/python/pki/server/cli/cert.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-21T20:36:29Z",
+      "side": 1,
+      "message": "For clarity this should be cert_tag.",
+      "range": {
+        "startLine": 204,
+        "startChar": 12,
+        "endLine": 204,
+        "endChar": 19
+      },
+      "revId": "918ee4042a3076e1068ec8b104ffc3950368081f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "911f87da_a66e6bcd",
+        "filename": "base/server/python/pki/server/cli/cert.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-21T20:36:29Z",
+      "side": 1,
+      "message": "Should be cert_tag too.",
+      "range": {
+        "startLine": 215,
+        "startChar": 54,
+        "endLine": 215,
+        "endChar": 61
+      },
+      "revId": "918ee4042a3076e1068ec8b104ffc3950368081f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "63ba1832_b5dd9eb5",
+        "filename": "base/server/python/pki/server/cli/cert.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-21T20:36:29Z",
+      "side": 1,
+      "message": "Does pylint complain about this? Usually comments have to be indented as well.",
+      "revId": "918ee4042a3076e1068ec8b104ffc3950368081f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ef95723e_42cc6cfb",
+        "filename": "base/server/python/pki/server/cli/cert.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 377,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-21T20:36:29Z",
+      "side": 1,
+      "message": "For clarity this should be cert_tag. The cert ID itself should not be changed because it\u0027s used to create unique file name. See line 396.",
+      "revId": "918ee4042a3076e1068ec8b104ffc3950368081f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0a612b45_16b9a334",
+        "filename": "base/server/python/pki/server/cli/cert.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 396,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-21T20:36:29Z",
+      "side": 1,
+      "message": "The cert file name needs to be unique for the whole instance, so the cert ID needs to be the original.",
+      "revId": "918ee4042a3076e1068ec8b104ffc3950368081f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e2a13f1c_7037567e",
+        "filename": "base/server/python/pki/server/cli/cert.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 420,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-21T20:36:29Z",
+      "side": 1,
+      "message": "The cert IDs are correct since they are not shortened.",
+      "revId": "918ee4042a3076e1068ec8b104ffc3950368081f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b99600e0_86a5a684",
+        "filename": "base/server/python/pki/server/cli/cert.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 457,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-21T20:36:29Z",
+      "side": 1,
+      "message": "This may not work for non-CA subsystem. I think it should be like this:\n\n ca_subsystem \u003d instance.get_subsystem(\u0027ca\u0027)\n ca_signing_cert \u003d ca_subsystem.get_subsystem_cert(\u0027signing\u0027)",
+      "revId": "918ee4042a3076e1068ec8b104ffc3950368081f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0ba72a3a_56f78faf",
+        "filename": "base/server/python/pki/server/cli/cert.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 627,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-21T20:36:29Z",
+      "side": 1,
+      "message": "Should be cert_tag.",
+      "revId": "918ee4042a3076e1068ec8b104ffc3950368081f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7749e538_96dbaede",
+        "filename": "base/server/python/pki/server/cli/cert.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 652,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-21T20:36:29Z",
+      "side": 1,
+      "message": "This should be cert_tag.",
+      "range": {
+        "startLine": 652,
+        "startChar": 48,
+        "endLine": 652,
+        "endChar": 55
+      },
+      "revId": "918ee4042a3076e1068ec8b104ffc3950368081f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
