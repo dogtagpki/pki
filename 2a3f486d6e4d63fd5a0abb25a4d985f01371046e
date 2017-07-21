@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "edc90d80_92f5c1e8",
+        "filename": "base/server/python/pki/server/cli/cert.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 425,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-21T21:23:58Z",
+      "side": 1,
+      "message": "The ID for OCSP certs are \"ca_ocsp_signing\" and \"ocsp_signing\", so the tag will be \"ocsp_signing\" and \"signing\". To avoid confusion I think the comparison should be done against cert ID:\n\n elif cert_id in [\u0027ca_ocsp_signing\u0027, \u0027ocsp_signing\u0027]:",
+      "revId": "2a3f486d6e4d63fd5a0abb25a4d985f01371046e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3303a942_3ddb4fa4",
+        "filename": "base/server/python/pki/server/cli/cert.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 458,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-21T21:23:58Z",
+      "side": 1,
+      "message": "See previous comment.",
+      "revId": "2a3f486d6e4d63fd5a0abb25a4d985f01371046e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cc4b85b7_fd6fcd38",
+        "filename": "base/server/python/pki/server/cli/cert.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 628,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-21T21:23:58Z",
+      "side": 1,
+      "message": "See previous comment.",
+      "revId": "2a3f486d6e4d63fd5a0abb25a4d985f01371046e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a0b4a084_8ca158a0",
+        "filename": "base/server/python/pki/server/cli/cert.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 653,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-21T21:23:58Z",
+      "side": 1,
+      "message": "See previous comment.",
+      "revId": "2a3f486d6e4d63fd5a0abb25a4d985f01371046e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
