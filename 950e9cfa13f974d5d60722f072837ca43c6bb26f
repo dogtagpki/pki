@@ -1,0 +1,140 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f65017f2_2ba23684",
+        "filename": "base/server/python/pki/server/cli/cert.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 292,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-25T16:55:34Z",
+      "side": 1,
+      "message": "We should also provide -C \u003cpassword file\u003e option. The -c can be used for convenience/testing, but -C would be more secure. See comments below.",
+      "revId": "950e9cfa13f974d5d60722f072837ca43c6bb26f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "29449ed5_00f332f7",
+        "filename": "base/server/python/pki/server/cli/cert.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 313,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-25T16:55:34Z",
+      "side": 1,
+      "message": "I think it would be nicer to have a variable that is set to False by default to represent a CLI option, so in this case it\u0027s something like:\n\n  create_temp_cert \u003d False\n\n  # if --temp specified\n      create_temp_cert \u003d True",
+      "revId": "950e9cfa13f974d5d60722f072837ca43c6bb26f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "76dff465_30d5ea3a",
+        "filename": "base/server/python/pki/server/cli/cert.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 404,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-25T16:55:34Z",
+      "side": 1,
+      "message": "I think the else is not needed. Serial number should be auto-generated for temp cert if it\u0027s not provided regardless of output file.",
+      "revId": "950e9cfa13f974d5d60722f072837ca43c6bb26f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b0863ee3_cdb2a792",
+        "filename": "base/server/python/pki/server/cli/cert.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 413,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-25T16:55:34Z",
+      "side": 1,
+      "message": "Should it be like this?\n\n  if not renew and is_permanent_cert:",
+      "revId": "950e9cfa13f974d5d60722f072837ca43c6bb26f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a368c17a_3de95d7c",
+        "filename": "base/server/python/pki/server/cli/cert.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 523,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-25T16:55:34Z",
+      "side": 1,
+      "message": "For security we should pass password file (instead of plain text password) using a different CLI option.",
+      "revId": "950e9cfa13f974d5d60722f072837ca43c6bb26f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "69590d38_da4f5b19",
+        "filename": "base/server/python/pki/server/cli/cert.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 537,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-25T16:55:34Z",
+      "side": 1,
+      "message": "Same thing about using password file.",
+      "revId": "950e9cfa13f974d5d60722f072837ca43c6bb26f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e287c08c_872158a9",
+        "filename": "base/server/python/pki/server/cli/cert.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 557,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-25T16:55:34Z",
+      "side": 1,
+      "message": "This is OK for now, but later we probably can do this:\n\n  system_cert \u003d subsystem.get_subsystem_cert(cert_tag)\n  serial \u003d system_cert[\u0027serial_number\u0027]",
+      "revId": "950e9cfa13f974d5d60722f072837ca43c6bb26f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4be23da9_289729a3",
+        "filename": "base/server/python/pki/server/cli/cert.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 590,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-25T16:55:34Z",
+      "side": 1,
+      "message": "Error checking should be done as early as possible to avoid running unnecessary code which could cause a secondary error. So in line 573 we probably can do something like:\n\n  if not cert_data:\n      raise Exception(...)\n\nThen after 578 we can do:\n\n  if not cert_id:\n      raise Exception(...)\n\nThe if statements in 576 and 585 are no longer needed.",
+      "revId": "950e9cfa13f974d5d60722f072837ca43c6bb26f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
