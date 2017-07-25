@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f86c9f63_e359fe5e",
+        "filename": "base/server/python/pki/server/cli/cert.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 503,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-07-25T15:41:43Z",
+      "side": 1,
+      "message": "The logic here looks right, but is a little hard to follow because its all in one method.\n\nIt would be better to refactor so that this method is much smaller.\n\nFor instance, you could easily extract a methods for - \n    setup_authentication() \n    extract_serial_number()\n    renew_system_certificate()\n\nThe name of this method (setup_perm_renewal) is a little misleading, because you are actually doing the renewal.\n\nNote that refactoring out extract_serial_number() will help you to solve the sslserver cert problem, because you could call that before switching out the subsystem cert for a temp cert, and pass it into this CLI call.  That way you are getting the serial number of the cert that is in the LDAP DB.",
+      "revId": "d60ad67cac9369201c7e58122e35df346543adef",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
