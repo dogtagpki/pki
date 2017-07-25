@@ -16,6 +16,24 @@
       "revId": "d60ad67cac9369201c7e58122e35df346543adef",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "835cd101_4859a438",
+        "filename": "base/server/python/pki/server/cli/cert.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 503,
+      "author": {
+        "id": 1011351
+      },
+      "writtenOn": "2017-07-25T19:40:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f86c9f63_e359fe5e",
+      "revId": "d60ad67cac9369201c7e58122e35df346543adef",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
