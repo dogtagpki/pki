@@ -614,13 +614,16 @@ class NSSDatabase(object):
             # issue, throw exception.
             return None
 
-    def remove_cert(self, nickname):
+    def remove_cert(self, nickname, remove_key=False):
 
-        cmd = [
-            'certutil',
-            '-D',
-            '-d', self.directory
-        ]
+        cmd = ['certutil']
+
+        if remove_key:
+            cmd.extend(['-F'])
+        else:
+            cmd.extend(['-D'])
+
+        cmd.extend(['-d', self.directory])
 
         if self.token:
             cmd.extend(['-h', self.token])
