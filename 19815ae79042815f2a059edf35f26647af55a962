@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "a5983913_aa1288fe",
+        "filename": "base/server/python/pki/server/cli/cert.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 418,
+      "author": {
+        "id": 1011351
+      },
+      "writtenOn": "2017-07-26T15:31:25Z",
+      "side": 1,
+      "message": "But, rekey isn\u0027t supported for temp cert too!",
+      "parentUuid": "48bc5c2c_73f55d31",
+      "revId": "19815ae79042815f2a059edf35f26647af55a962",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d73f3c8d_49060f5b",
         "filename": "base/server/python/pki/server/cli/cert.py",
         "patchSetId": 3
@@ -30,6 +48,30 @@
       "writtenOn": "2017-07-26T01:32:00Z",
       "side": 1,
       "message": "We should use the hostname so the SSL cert can be validated properly.",
+      "range": {
+        "startLine": 515,
+        "startChar": 51,
+        "endLine": 515,
+        "endChar": 62
+      },
+      "revId": "19815ae79042815f2a059edf35f26647af55a962",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "42092524_0caf653a",
+        "filename": "base/server/python/pki/server/cli/cert.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 515,
+      "author": {
+        "id": 1011351
+      },
+      "writtenOn": "2017-07-26T15:31:25Z",
+      "side": 1,
+      "message": "You mean get the $HOSTNAME value?",
+      "parentUuid": "d73f3c8d_49060f5b",
       "range": {
         "startLine": 515,
         "startChar": 51,
