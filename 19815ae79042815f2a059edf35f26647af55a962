@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "48bc5c2c_73f55d31",
+        "filename": "base/server/python/pki/server/cli/cert.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 418,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-26T01:32:00Z",
+      "side": 1,
+      "message": "The \"renew\" variable is by default False unless we specify --renew, so that means --temp will trigger an exception.\n\nIt might be more clear if written this way:\n\n if create_temp_cert:\n\n     if not serial:\n         serial \u003d ... generate serial ...\n\n else:  # create perm cert\n\n     if not renew:  # rekey\n         throw Exception(... not supported yet ...)",
+      "revId": "19815ae79042815f2a059edf35f26647af55a962",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d73f3c8d_49060f5b",
+        "filename": "base/server/python/pki/server/cli/cert.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 515,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-26T01:32:00Z",
+      "side": 1,
+      "message": "We should use the hostname so the SSL cert can be validated properly.",
+      "range": {
+        "startLine": 515,
+        "startChar": 51,
+        "endLine": 515,
+        "endChar": 62
+      },
+      "revId": "19815ae79042815f2a059edf35f26647af55a962",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a06f0edc_bdef3e12",
+        "filename": "base/server/python/pki/server/cli/cert.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 539,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-26T01:32:00Z",
+      "side": 1,
+      "message": "CLI option validation should be done as early as possible (e.g. in line 369).",
+      "revId": "19815ae79042815f2a059edf35f26647af55a962",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
