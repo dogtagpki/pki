@@ -265,6 +265,24 @@
     },
     {
       "key": {
+        "uuid": "3dccdade_d49c270d",
+        "filename": "base/server/python/pki/server/cli/cert.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 557,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-26T17:40:11Z",
+      "side": 1,
+      "message": "The serial number is not available yet in the current code. It\u0027s meant for future enhancement. We\u0027ll need to get the serial number from the NSS database like in the above code, but that step should be done in get_subsystem_cert().",
+      "parentUuid": "bb794669_f6f701b6",
+      "revId": "950e9cfa13f974d5d60722f072837ca43c6bb26f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4be23da9_289729a3",
         "filename": "base/server/python/pki/server/cli/cert.py",
         "patchSetId": 2
