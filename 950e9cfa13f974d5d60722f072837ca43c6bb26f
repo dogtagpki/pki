@@ -247,6 +247,24 @@
     },
     {
       "key": {
+        "uuid": "bb794669_f6f701b6",
+        "filename": "base/server/python/pki/server/cli/cert.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 557,
+      "author": {
+        "id": 1011351
+      },
+      "writtenOn": "2017-07-26T15:31:25Z",
+      "side": 1,
+      "message": "This isn\u0027t available I guess. These are the things packed together:\ncert[id]\ncert[nickname]\ncert[token]\ncert[data]\ncert[request]\ncert[certusage]",
+      "parentUuid": "e287c08c_872158a9",
+      "revId": "950e9cfa13f974d5d60722f072837ca43c6bb26f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4be23da9_289729a3",
         "filename": "base/server/python/pki/server/cli/cert.py",
         "patchSetId": 2
