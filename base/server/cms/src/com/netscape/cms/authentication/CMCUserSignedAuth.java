@@ -371,9 +371,9 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
                             } else {
                                 CMS.debug(method + "signed with user cert");
                                 userid = userToken.getInString("userid");
-                                uid = userToken.getInString("cn");
+                                uid = userToken.getInString("id");
                                 if (userid == null && uid == null) {
-                                    msg = " verifySignerInfo failure... missing userid and cn";
+                                    msg = " verifySignerInfo failure... missing id";
                                     CMS.debug(method + msg);
                                     throw new EBaseException(msg);
                                 }
@@ -1069,7 +1069,8 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
                             // cert subject principal later in CMCOutputTemplate
                             // in case of user signed revocation
                             auditContext.put(SessionContext.CMC_SIGNER_PRINCIPAL, cmcPrincipal);
-                            auditContext.put(SessionContext.CMC_SIGNER_INFO, cmcPrincipal.getCommonName());
+                            auditContext.put(SessionContext.CMC_SIGNER_INFO,
+                                cmcPrincipal.toString());
 
                             // check ssl client cert against cmc signer
                             if (!clientPrincipal.equals(cmcPrincipal)) {
@@ -1160,13 +1161,13 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
 
                         IAuthToken tempToken = new AuthToken(null);
                         netscape.security.x509.X500Name tempPrincipal = (X500Name) x509Certs[0].getSubjectDN();
-                        String CN = tempPrincipal.getCommonName(); //tempToken.get("userid");
-                        CMS.debug(method + " Principal name = " + CN);
+                        String ID = tempPrincipal.toString(); //tempToken.get("userid");
+                        CMS.debug(method + " Principal name = " + ID);
 
                         BigInteger certSerial = x509Certs[0].getSerialNumber();
                         CMS.debug(method + " verified cert serial=" + certSerial.toString());
                         authToken.set(IAuthManager.CRED_CMC_SIGNING_CERT, certSerial.toString());
-                        tempToken.set("cn", CN);
+                        tempToken.set("id", ID);
 
                         s.close();
                         return tempToken;
@@ -1221,9 +1222,8 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
         netscape.security.x509.X500Name principal =
                 (X500Name) cert.getSubjectDN();
 
-        String CN = principal.getCommonName();
-        CMS.debug(method + " Principal name = " + CN);
-        auditContext.put(SessionContext.USER_ID, CN);
+        CMS.debug(method + " Principal name = " + principal.toString());
+        auditContext.put(SessionContext.USER_ID, principal.toString());
     }
 
     public String[] getExtendedPluginInfo(Locale locale) {
