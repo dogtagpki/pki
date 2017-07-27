@@ -209,6 +209,7 @@ class NSSDatabase(object):
                        hash_alg=None,
                        basic_constraints_ext=None,
                        key_usage_ext=None,
+                       extended_key_usage_ext=None,
                        generic_exts=None):
 
         tmpdir = tempfile.mkdtemp()
@@ -288,6 +289,17 @@ class NSSDatabase(object):
                     keystroke += 'y'
 
                 keystroke += '\n'
+
+            if extended_key_usage_ext:
+
+                cmd.extend(['--extKeyUsage'])
+
+                usages = []
+                for usage in extended_key_usage_ext:
+                    if extended_key_usage_ext[usage]:
+                        usages.append(usage)
+
+                cmd.extend([','.join(usages)])
 
             if generic_exts:
 
