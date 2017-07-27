@@ -25,10 +25,10 @@ import getopt
 import sys
 import tempfile
 import os
-import random
 import shutil
 import re
 import subprocess
+import datetime
 
 import pki.cli
 import pki.server as server
@@ -48,13 +48,23 @@ class CertCLI(pki.cli.CLI):
 
     @staticmethod
     def print_system_cert(cert, show_all=False):
-        print('  Cert ID: %s' % cert['id'])
+        print('  Cert ID:  %s' % cert['id'])
         print('  Nickname: %s' % cert['nickname'])
-        print('  Token: %s' % cert['token'])
+        print('  Serial number: %s' % cert['serial_number'])
+        print('  Issuer:  %s' % cert['issuer'])
+        print('  Validity:')
+        print('        Not Before: %s' % CertCLI.convert_millis_to_date(cert['not_before']))
+        print('        Not After:  %s' % CertCLI.convert_millis_to_date(cert['not_after']))
+        print('  Subject: %s' % cert['subject'])
+        print('  Token:   %s' % cert['token'])
 
         if show_all:
             print('  Certificate: %s' % cert['data'])
             print('  Request: %s' % cert['request'])
+
+    @staticmethod
+    def convert_millis_to_date(millis):
+        return datetime.datetime.fromtimestamp(millis / 1000.0).strftime("%a %b %d %H:%M:%S %Y")
 
 
 class CertFindCLI(pki.cli.CLI):
@@ -319,6 +329,7 @@ class CertCreateCLI(pki.cli.CLI):
         client_cert = None
         output = None
         renew = False
+        connection = None
 
         for o, a in opts:
             if o in ('-i', '--instance'):
@@ -416,45 +427,49 @@ class CertCreateCLI(pki.cli.CLI):
 
             if create_temp_cert:
                 if not serial:
-                    # Fixme: Get the highest serial number from NSS DB and add 1 (Method 2b)
-                    # If admin doesn't provide a serial number, generate one
-                    serial = str(random.randint(
-                        int(subsystem.config.get('dbs.beginSerialNumber', '1')),
-                        int(subsystem.config.get('dbs.endSerialNumber', '10000000'))))
+                    # If admin doesn't provide a serial number, find the highest in NSS db
+                    # and add 1 to it
+                    serial = 0
+                    for sub in instance.subsystems:
+                        for n_cert in sub.find_system_certs():
+                            if int(n_cert['serial_number']) > serial:
+                                serial = int(n_cert['serial_number'])
+
+                    # Add 1 and then rewrap it as a string
+                    serial = str(serial + 1)
             else:
                 # Create permanent certificate
                 if not renew:
                     # Fixme: Support rekey
                     raise Exception('Rekey is not supported yet.')
 
+                connection = self.setup_authentication(subsystem=subsystem,
+                                                       c_nssdb_pass=client_nssdb_password,
+                                                       c_cert=client_cert,
+                                                       c_nssdb_pass_file=client_nssdb_pass_file,
+                                                       c_nssdb=client_nssdb_location,
+                                                       tmpdir=tmpdir)
+
             if cert_tag == 'sslserver':
                 self.create_ssl_cert(instance=instance, subsystem=subsystem,
                                      is_temp_cert=create_temp_cert,
                                      new_cert_file=new_cert_file, nssdb=nssdb, serial=serial,
-                                     c_nssdb=client_nssdb_location,
-                                     c_nssdb_pass=client_nssdb_password, c_cert=client_cert,
-                                     tmpdir=tmpdir, c_nssdb_pass_file=client_nssdb_pass_file)
+                                     tmpdir=tmpdir, connection=connection)
 
             elif cert_tag == 'subsystem':
                 self.create_subsystem_cert(is_temp_cert=create_temp_cert, serial=serial,
-                                           subsystem=subsystem, c_nssdb=client_nssdb_location,
-                                           c_nssdb_pass=client_nssdb_password, c_cert=client_cert,
-                                           new_cert_file=new_cert_file, tmpdir=tmpdir,
-                                           c_nssdb_pass_file=client_nssdb_pass_file)
+                                           subsystem=subsystem, new_cert_file=new_cert_file,
+                                           connection=connection)
 
             elif cert_id in ['ca_ocsp_signing', 'ocsp_signing']:
                 self.create_ocsp_cert(is_temp_cert=create_temp_cert, serial=serial,
-                                      subsystem=subsystem, c_nssdb=client_nssdb_location,
-                                      c_nssdb_pass=client_nssdb_password, c_cert=client_cert,
-                                      new_cert_file=new_cert_file, tmpdir=tmpdir,
-                                      c_nssdb_pass_file=client_nssdb_pass_file)
+                                      subsystem=subsystem, new_cert_file=new_cert_file,
+                                      connection=connection)
 
             elif cert_tag == 'audit_signing':
                 self.create_audit_cert(is_temp_cert=create_temp_cert, serial=serial,
-                                       subsystem=subsystem, c_nssdb=client_nssdb_location,
-                                       c_nssdb_pass=client_nssdb_password, c_cert=client_cert,
-                                       new_cert_file=new_cert_file, tmpdir=tmpdir,
-                                       c_nssdb_pass_file=client_nssdb_pass_file)
+                                       subsystem=subsystem, new_cert_file=new_cert_file,
+                                       connection=connection)
 
             else:
                 # renewal not yet supported
@@ -569,23 +584,6 @@ class CertCreateCLI(pki.cli.CLI):
 
         return connection
 
-    @staticmethod
-    def extract_serial_number(subsystem, cert_tag):
-
-        # If serial number is not provided, get Serial Number from NSS db
-        cmd_extract_serial = [
-            'certutil',
-            '-L',
-            '-d', '/var/lib/pki/pki-tomcat/alias/',
-            '-n', subsystem.get_subsystem_cert(cert_tag)['nickname']
-        ]
-
-        cert_data = subprocess.check_output(cmd_extract_serial, stderr=subprocess.STDOUT)
-
-        serial = re.search(r'Serial Number.*?(\d+)', cert_data).group(1)
-
-        return serial
-
     def renew_system_certificate(self, connection,
                                  output, serial):
 
@@ -625,7 +623,7 @@ class CertCreateCLI(pki.cli.CLI):
             f.write(new_cert_data.encoded)
 
     def create_ssl_cert(self, instance, subsystem, serial, is_temp_cert, tmpdir,
-                        new_cert_file, nssdb, c_nssdb_pass, c_nssdb_pass_file, c_nssdb, c_cert):
+                        new_cert_file, nssdb, connection):
         if self.verbose:
             print('Creating SSL server certificate.')
 
@@ -668,16 +666,10 @@ class CertCreateCLI(pki.cli.CLI):
                                 'RC: %d' % rc)
 
         else:
-            connection = self.setup_authentication(subsystem=subsystem,
-                                                   c_nssdb_pass=c_nssdb_pass,
-                                                   c_cert=c_cert,
-                                                   c_nssdb_pass_file=c_nssdb_pass_file,
-                                                   c_nssdb=c_nssdb, tmpdir=tmpdir)
 
-            # TODO: Serial number needs to be retrieved from expired cert
             if not serial:
-                # If serial number is not provided, get it from expired cert
-                raise Exception('You need to manually provide serial number for SSL cert')
+                # If serial number is not provided, get Serial Number from NSS db
+                serial = subsystem.get_subsystem_cert('sslserver')["serial_number"]
 
             if self.verbose:
                 print('Renewing for certificate with serial number: %s' % serial)
@@ -685,8 +677,7 @@ class CertCreateCLI(pki.cli.CLI):
             self.renew_system_certificate(connection=connection,
                                           output=new_cert_file, serial=serial)
 
-    def create_ocsp_cert(self, subsystem, c_nssdb, c_nssdb_pass, tmpdir,
-                         c_cert, is_temp_cert, new_cert_file, serial, c_nssdb_pass_file):
+    def create_ocsp_cert(self, subsystem, is_temp_cert, new_cert_file, serial, connection):
 
         if is_temp_cert:
             raise Exception('Temp certificate for OCSP is not supported.')
@@ -696,14 +687,9 @@ class CertCreateCLI(pki.cli.CLI):
             if subsystem.name is 'ocsp':
                 cert_tag = 'signing'
 
-            connection = self.setup_authentication(subsystem=subsystem,
-                                                   c_nssdb_pass=c_nssdb_pass,
-                                                   c_cert=c_cert,
-                                                   c_nssdb_pass_file=c_nssdb_pass_file,
-                                                   c_nssdb=c_nssdb, tmpdir=tmpdir)
             if not serial:
                 # If serial number is not provided, get Serial Number from NSS db
-                serial = self.extract_serial_number(subsystem=subsystem, cert_tag=cert_tag)
+                serial = subsystem.get_subsystem_cert(cert_tag)["serial_number"]
 
             if self.verbose:
                 print('Renewing for certificate with serial number: %s' % serial)
@@ -711,21 +697,16 @@ class CertCreateCLI(pki.cli.CLI):
             self.renew_system_certificate(connection=connection,
                                           output=new_cert_file, serial=serial)
 
-    def create_subsystem_cert(self, subsystem, c_nssdb, c_nssdb_pass, tmpdir,
-                              c_cert, is_temp_cert, new_cert_file, serial, c_nssdb_pass_file):
+    def create_subsystem_cert(self, subsystem, is_temp_cert, new_cert_file, serial,
+                              connection):
 
         if is_temp_cert:
             raise Exception('Temp certificate for subsystem is not supported.')
 
         else:
-            connection = self.setup_authentication(subsystem=subsystem,
-                                                   c_nssdb_pass=c_nssdb_pass,
-                                                   c_cert=c_cert,
-                                                   c_nssdb_pass_file=c_nssdb_pass_file,
-                                                   c_nssdb=c_nssdb, tmpdir=tmpdir)
             if not serial:
                 # If serial number is not provided, get Serial Number from NSS db
-                serial = self.extract_serial_number(subsystem=subsystem, cert_tag='subsystem')
+                serial = subsystem.get_subsystem_cert('subsystem')["serial_number"]
 
             if self.verbose:
                 print('Renewing for certificate with serial number: %s' % serial)
@@ -733,21 +714,14 @@ class CertCreateCLI(pki.cli.CLI):
             self.renew_system_certificate(connection=connection,
                                           output=new_cert_file, serial=serial)
 
-    def create_audit_cert(self, subsystem, c_nssdb, c_nssdb_pass, tmpdir,
-                          c_cert, is_temp_cert, new_cert_file, serial, c_nssdb_pass_file):
+    def create_audit_cert(self, subsystem, is_temp_cert, new_cert_file, serial, connection):
 
         if is_temp_cert:
             raise Exception('Temp certificate for audit signing is not supported.')
         else:
-            connection = self.setup_authentication(subsystem=subsystem,
-                                                   c_nssdb_pass=c_nssdb_pass,
-                                                   c_cert=c_cert,
-                                                   c_nssdb_pass_file=c_nssdb_pass_file,
-                                                   c_nssdb=c_nssdb, tmpdir=tmpdir)
             if not serial:
                 # If serial number is not provided, get Serial Number from NSS db
-                serial = self.extract_serial_number(subsystem=subsystem,
-                                                    cert_tag='audit_signing')
+                serial = subsystem.get_subsystem_cert('audit_signing')["serial_number"]
 
             if self.verbose:
                 print('Renewing for certificate with serial number: %s' % serial)
@@ -844,8 +818,9 @@ class CertImportCLI(pki.cli.CLI):
         nssdb = instance.open_nssdb()
 
         try:
+            cert_folder = os.path.join(pki.CONF_DIR, instance_name, 'certs')
             if not cert_file:
-                cert_file = os.path.join(pki.CONF_DIR, instance_name, 'certs', cert_id + '.crt')
+                cert_file = os.path.join(cert_folder, cert_id + '.crt')
 
             if not os.path.isfile(cert_file):
                 print('ERROR: No %s such file.' % cert_file)
