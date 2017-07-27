@@ -26,6 +26,8 @@ import os
 import shutil
 import subprocess
 import tempfile
+import re
+import datetime
 
 
 CSR_HEADER = '-----BEGIN NEW CERTIFICATE REQUEST-----'
@@ -613,6 +615,38 @@ class NSSDatabase(object):
             # TODO: Check error message. If it's caused by other
             # issue, throw exception.
             return None
+
+    def get_cert_info(self, nickname):
+
+        cert = dict()
+        cmd_extract_serial = [
+            'certutil',
+            '-L',
+            '-d', self.directory,
+            '-n', nickname
+        ]
+
+        cert_details = subprocess.check_output(cmd_extract_serial, stderr=subprocess.STDOUT)
+
+        cert["serial_number"] = re.search(r'Serial Number.*?(\d+)', cert_details).group(1).strip()
+        cert["issuer"] = re.search(r'Issuer:(.*)', cert_details).group(1).strip()\
+            .replace('"', '')
+        cert["subject"] = re.search(r'Subject:(.*)', cert_details).group(1).strip()\
+            .replace('"', '')
+
+        str_not_before = re.search(r'Not Before.?:(.*)', cert_details).group(1).strip()
+        cert["not_before"] = self.convert_time_to_millis(str_not_before)
+
+        str_not_after = re.search(r'Not After.?:(.*)', cert_details).group(1).strip()
+        cert["not_after"] = self.convert_time_to_millis(str_not_after)
+
+        return cert
+
+    @staticmethod
+    def convert_time_to_millis(date):
+        epoch = datetime.datetime.utcfromtimestamp(0)
+        stripped_date = datetime.datetime.strptime(date, "%a %b %d %H:%M:%S %Y")
+        return (stripped_date - epoch).total_seconds() * 1000
 
     def remove_cert(self, nickname):
 
