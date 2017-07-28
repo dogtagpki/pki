@@ -894,7 +894,7 @@ class PKIConfigParser:
             self.mdict['PKI_SERVER_XML_CONF_SLOT'] = \
                 self.mdict['pki_target_server_xml']
             self.mdict['PKI_SSL_SERVER_NICKNAME_SLOT'] = \
-                self.mdict['pki_ssl_server_nickname']
+                self.mdict['pki_sslserver_nickname']
             self.mdict['PKI_SUBSYSTEM_TYPE_SLOT'] = \
                 self.mdict['pki_subsystem'].lower()
             self.mdict['PKI_SYSTEMD_SERVICENAME_SLOT'] = \
@@ -943,7 +943,7 @@ class PKIConfigParser:
             # to remember to update pki/base/server/share/conf/ciphers.info
             # accordingly
             #
-            if self.mdict['pki_ssl_server_key_type'] == "ecc":
+            if self.mdict['pki_sslserver_key_type'] == "ecc":
                 self.mdict['TOMCAT_SSL_RANGE_CIPHERS_SLOT'] = \
                     "-TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA," + \
                     "-TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA," + \
@@ -1106,7 +1106,7 @@ class PKIConfigParser:
                 os.path.join(self.mdict['pki_database_path'],
                              "secmod.db")
             self.mdict['pki_self_signed_nickname'] = \
-                self.mdict['pki_ssl_server_nickname']
+                self.mdict['pki_sslserver_nickname']
             self.mdict['pki_self_signed_subject'] = \
                 "cn=" + self.mdict['pki_hostname'] + "," + \
                 "o=" + self.mdict['pki_certificate_timestamp']
@@ -1180,7 +1180,7 @@ class PKIConfigParser:
 
             # normalize cert tokens
             self.normalize_cert_token('pki_audit_signing_token')
-            self.normalize_cert_token('pki_ssl_server_token')
+            self.normalize_cert_token('pki_sslserver_token')
             self.normalize_cert_token('pki_subsystem_token')
             self.normalize_cert_token('pki_ca_signing_token')
             self.normalize_cert_token('pki_ocsp_signing_token')
@@ -1280,7 +1280,7 @@ class PKIConfigParser:
                 self.mdict['pki_ocsp_signing_tag'] = "ocsp_signing"
             elif self.mdict['pki_subsystem'] == "OCSP":
                 self.mdict['pki_ocsp_signing_tag'] = "signing"
-            self.mdict['pki_ssl_server_tag'] = "sslserver"
+            self.mdict['pki_sslserver_tag'] = "sslserver"
             self.mdict['pki_subsystem_tag'] = "subsystem"
             self.mdict['pki_audit_signing_tag'] = "audit_signing"
             self.mdict['pki_transport_tag'] = "transport"
