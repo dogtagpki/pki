@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fda503c3_76c0354c",
+        "filename": "base/server/python/pki/server/cli/cert.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-28T15:32:00Z",
+      "side": 1,
+      "message": "Let\u0027s show the new cert info here.",
+      "revId": "43c8b0a2e8e75da4462cc8bb51c5195206637af5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9fa49f73_ede3a0c6",
+        "filename": "base/server/python/pki/server/cli/cert.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 423,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-28T15:32:00Z",
+      "side": 1,
+      "message": "The random serial number should be replaced with the new code like this:\n\n  # find the largest serial in NSS db\n  serial \u003d 0\n  for cert in system_certs:\n      if cert\u0027s serial \u003e serial:\n          serial \u003d cert\u0027s serial\n\n  # serial for temp cert\n  serial \u003d serial + 1",
+      "revId": "43c8b0a2e8e75da4462cc8bb51c5195206637af5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "30bb87e5_aa3dd7b9",
+        "filename": "base/server/python/pki/server/cli/cert.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 433,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-28T15:32:00Z",
+      "side": 1,
+      "message": "This is not necessary.\n\nIf the SSL cert has already expired, the admin will need to create a temp cert. But before that, the admin is expected to run pki-server cert-find to get the cert info including the original serial number.\n\nTo renew the perm cert the original serial number must be provided. To rekey the perm cert the original serial number is not needed.\n\nIf the admin wants to use this tool to renew the SSL cert before it expires (i.e. without creating temp cert), the serial number can be obtained automatically from NSS db just like for other certs.",
+      "revId": "43c8b0a2e8e75da4462cc8bb51c5195206637af5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "74a82539_0fc17b5b",
+        "filename": "base/server/python/pki/server/cli/cert.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 456,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-28T15:32:00Z",
+      "side": 1,
+      "message": "No need for cleanup either.",
+      "revId": "43c8b0a2e8e75da4462cc8bb51c5195206637af5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "899b91ea_ba4fd512",
+        "filename": "base/server/python/pki/server/cli/cert.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 677,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-28T15:32:00Z",
+      "side": 1,
+      "message": "I think calls to setup_authentication() actually can be done in the main program, so we only need to provide the connection object to create_*_cert(). This will reduce the number of parameters required for each method.\n\nThis can be done later in a separate patch.",
+      "revId": "43c8b0a2e8e75da4462cc8bb51c5195206637af5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7c4ca74_eca6d6f6",
+        "filename": "base/server/python/pki/server/cli/cert.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 859,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-28T15:32:00Z",
+      "side": 1,
+      "message": "No need to store serial in file. The admin might not necessarily use this tool to import the cert.",
+      "revId": "43c8b0a2e8e75da4462cc8bb51c5195206637af5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
