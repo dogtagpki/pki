@@ -53,6 +53,24 @@
     },
     {
       "key": {
+        "uuid": "cd95c714_6dea6f3b",
+        "filename": "base/server/python/pki/server/cli/cert.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 433,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-07-28T21:11:27Z",
+      "side": 1,
+      "message": "agreed - we should have good manpages and/or cli to manage this state and pass it in accordingly.",
+      "parentUuid": "30bb87e5_aa3dd7b9",
+      "revId": "43c8b0a2e8e75da4462cc8bb51c5195206637af5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "74a82539_0fc17b5b",
         "filename": "base/server/python/pki/server/cli/cert.py",
         "patchSetId": 1
