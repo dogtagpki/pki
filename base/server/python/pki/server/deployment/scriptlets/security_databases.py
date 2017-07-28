@@ -214,9 +214,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             if config_tag == 'signing':  # for CA and OCSP
                 deploy_tag = subsystem.name + '_signing'
 
-            elif config_tag == 'sslserver':
-                deploy_tag = 'ssl_server'
-
             # store nickname
             nickname = deployer.mdict['pki_%s_nickname' % deploy_tag]
             subsystem.config['preop.cert.%s.nickname' % config_tag] = nickname

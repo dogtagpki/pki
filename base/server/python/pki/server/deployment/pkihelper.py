@@ -2926,19 +2926,19 @@ class ServerCertNickConf:
             try:
                 # overwrite value inside 'serverCertNick.conf'
                 with open(self.servercertnick_conf, "w") as fd:
-                    ssl_server_nickname = None
+                    sslserver_nickname = None
                     if self.step_two:
                         # use final HSM name
-                        ssl_server_nickname = (self.token_name + ":" +
-                                               self.nickname)
+                        sslserver_nickname = (self.token_name + ":" +
+                                              self.nickname)
                     else:
                         # use softokn name
-                        ssl_server_nickname = self.nickname
-                    fd.write(ssl_server_nickname)
+                        sslserver_nickname = self.nickname
+                    fd.write(sslserver_nickname)
                     config.pki_log.info(
                         log.PKIHELPER_SERVERCERTNICK_CONF_2,
                         self.servercertnick_conf,
-                        ssl_server_nickname,
+                        sslserver_nickname,
                         extra=config.PKI_INDENTATION_LEVEL_2)
             except OSError as exc:
                 config.pki_log.error(log.PKI_OSERROR_1, exc,
@@ -4149,7 +4149,7 @@ class ConfigClient:
         system_list = self.deployer.instance.tomcat_instance_subsystems()
         if self.standalone and self.external_step_two:
             # Stand-alone PKI (Step 2)
-            cert3 = self.create_system_cert("ssl_server")
+            cert3 = self.create_system_cert("sslserver")
             # Load the Stand-alone PKI 'SSL Server Certificate' (Step 2)
             self.load_system_cert(
                 cert3,
@@ -4171,7 +4171,7 @@ class ConfigClient:
             # PKI CA, PKI KRA, PKI OCSP, PKI RA, PKI TKS, PKI TPS,
             # CA Clone, KRA Clone, OCSP Clone, TKS Clone, TPS Clone,
             # Subordinate CA, or External CA
-            cert3 = self.create_system_cert("ssl_server")
+            cert3 = self.create_system_cert("sslserver")
             systemCerts.append(cert3)
 
         # Create 'Subsystem Certificate'
@@ -4484,7 +4484,7 @@ class ConfigClient:
         cert.nickname = self.mdict["pki_%s_nickname" % tag]
         cert.subjectDN = self.mdict["pki_%s_subject_dn" % tag]
         cert.token = self.mdict["pki_%s_token" % tag]
-        if tag == 'ssl_server' and self.san_inject:
+        if tag == 'sslserver' and self.san_inject:
             cert.san_for_server_cert = \
                 self.mdict['pki_san_for_server_cert']
         return cert
@@ -4493,14 +4493,14 @@ class ConfigClient:
         cs_cfg = PKIConfigParser.read_simple_configuration_file(cfg_file)
         cstype = cs_cfg.get('cs.type').lower()
         cert = pki.system.SystemCertData()
-        cert.tag = self.mdict["pki_ssl_server_tag"]
-        cert.keyAlgorithm = self.mdict["pki_ssl_server_key_algorithm"]
-        cert.keySize = self.mdict["pki_ssl_server_key_size"]
-        cert.keyType = self.mdict["pki_ssl_server_key_type"]
+        cert.tag = self.mdict["pki_sslserver_tag"]
+        cert.keyAlgorithm = self.mdict["pki_sslserver_key_algorithm"]
+        cert.keySize = self.mdict["pki_sslserver_key_size"]
+        cert.keyType = self.mdict["pki_sslserver_key_type"]
         cert.nickname = cs_cfg.get(cstype + ".sslserver.nickname")
         cert.cert = cs_cfg.get(cstype + ".sslserver.cert")
         cert.request = cs_cfg.get(cstype + ".sslserver.certreq")
-        cert.subjectDN = self.mdict["pki_ssl_server_subject_dn"]
+        cert.subjectDN = self.mdict["pki_sslserver_subject_dn"]
         cert.token = cs_cfg.get(cstype + ".sslserver.tokenname")
         return cert
 
