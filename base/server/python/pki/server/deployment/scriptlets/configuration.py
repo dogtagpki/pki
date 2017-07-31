@@ -164,7 +164,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         nssdb = instance.open_nssdb(token)
 
         try:
-            pem_cert = pki.nssdb.convert_cert(sslserver['cert'], 'base64', 'pem').encode('utf8')
+            pem_cert = pki.nssdb.convert_cert(sslserver['cert'], 'base64', 'pem')
 
             cert_file = os.path.join(tmpdir, 'sslserver.crt')
             with open(cert_file, 'w') as f:
