@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "98a8e612_04ab3869",
+        "filename": "base/server/python/pki/server/cli/cert.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-07-31T14:41:47Z",
+      "side": 1,
+      "message": "Let\u0027s break this down into separate print() for each line. In general avoid using \\n as EOL since it\u0027s platform dependent and harder to read.",
+      "revId": "41c8fd1e79423ed9ca0c619bd896895882bd115a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
