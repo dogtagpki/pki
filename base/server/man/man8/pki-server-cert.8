@@ -1,0 +1,86 @@
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH pki-server-cert 8 "Aug 1, 2017" "version 10.4" "PKI Cert Commands" Dogtag Team
+.\" Please adjust this date whenever revising the man page.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for man page specific macros, see man(7)
+.SH NAME
+pki-server-cert \- Command-Line Interface for managing System Certificates.
+
+.SH SYNOPSIS
+.nf
+\fBpki-server [CLI options] cert\fR
+\fBpki-server [CLI options] cert-find\fR -i <instance ID>
+\fBpki-server [CLI options] cert-update <cert ID>\fR -i <instance ID>
+\fBpki-server [CLI options] cert-create <cert ID>\fR -i <instance ID>
+\fBpki-server [CLI options] cert-import <cert ID>\fR -i <instance ID> <subsystem ID>
+.fi
+
+.SH DESCRIPTION
+.PP
+The \fBpki-server cert\fR commands provide command-line interfaces to manage
+System Certificates. A Certificate Server (CS) instance consists of a single
+Apache Tomcat instance that contains one or more CS subsystems.  Valid subsystem
+identifiers are '\fBca\fR', '\fBkra\fR', '\fBtks\fR', '\fBocsp\fR' and '\fBtps\fR'.
+No instance may have more than one of each type of subsystem.
+.PP
+\fBpki-server cert\fR commands perform System Certificate related operations on a specific
+CS instance.  Consequently, all \fBpki-server cert\fR commands require specification
+of the cert ID to completely identify the target subsystem(s) that use the certificate.
+.PP
+\fBpki-server cert\fR command is used as a part of offline system certificate renewal process.
+.PP
+Operations that are available include: listing system certificates in an instance;
+updating and importing certificates in an instance; and creating system certificates
+based on the subsystem that uses it.
+.PP
+\fBpki-server [CLI options] cert\fR
+.RS 4
+This command is to list available cert commands.
+.RE
+.PP
+\fBpki-server [CLI options] cert-find\fR -i <instance ID>
+.RS 4
+This command is to list all system certificates used within a specific instance.
+.RE
+.PP
+\fBpki-server [CLI options] cert-update <cert ID>\fR -i <instance ID>
+.RS 4
+This command is to synchronize CS.cfg and NSS database.
+.RE
+.PP
+\fBpki-server [CLI options] cert-create <cert ID>\fR -i <instance ID>
+.RS 4
+This command is to create a system certificate based on the subsystem(s) that use it.
+.RE
+.PP
+\fBpki-server [CLI options] cert-import <cert ID>\fR -i <instance ID>
+.RS 4
+This command is to imports certificate into NSS database and updates the corresponding
+subsystem's CS.cfg.
+.RE
+
+.SH OPTIONS
+The other CLI options are described in \fBpki-server\fR(8).
+
+.SH OPERATIONS
+To view available cert management commands, type \fBpki-server cert\fP.
+To view each command's usage, type \fB pki-server cert-<command> \-\-help\fP.
+
+All pki-server commands must be executed as the system administrator.
+
+.SH AUTHORS
+Dinesh Prasanth M K <dmoluguw@redhat.com>
+
+.SH COPYRIGHT
+Copyright (c) 2017 Red Hat, Inc. This is licensed under the GNU General Public License, version 2 (GPLv2). A copy of this license is available at http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
