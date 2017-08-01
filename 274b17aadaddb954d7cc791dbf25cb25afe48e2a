@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d323e76e_70d70d6b",
+        "filename": "base/server/etc/default.cfg",
+        "patchSetId": 1
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-08-01T15:33:48Z",
+      "side": 1,
+      "message": "Lets do the deprecation.  Which basically means:\n1.  Adding a comment here to indicate that the options are deprecated.\n2.  Fixing any references in man pages\n\nYou can do this in a separate review if you like, but lets be sure to do this while its fresh in mind.",
+      "revId": "274b17aadaddb954d7cc791dbf25cb25afe48e2a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
