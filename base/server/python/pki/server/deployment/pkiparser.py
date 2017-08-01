@@ -54,6 +54,31 @@ class PKIConfigParser:
     COMMENT_CHAR = '#'
     OPTION_CHAR = '='
 
+    # Deprecated param can be defined with the following tuple:
+    #
+    #   (sections, param, new_section, new_param)
+    #
+    # The 'sections' is a list of sections to check for the deprecated param. None
+    # means the following sections will be checked: DEFAULT, Tomcat, and <subsystem>.
+    # The 'param' is the deprecated param name.
+    # The 'new_section' is the proper section of the new param. None means unchanged.
+    # The 'new_param' is the new param name.
+
+    DEPRECATED_PARAMS = [
+        (None, 'pki_ssl_server_key_algorithm',
+         None, 'pki_sslserver_key_algorithm'),
+        (None, 'pki_ssl_server_key_size',
+         None, 'pki_sslserver_key_size'),
+        (None, 'pki_ssl_server_key_type',
+         None, 'pki_sslserver_key_type'),
+        (None, 'pki_ssl_server_nickname',
+         None, 'pki_sslserver_nickname'),
+        (None, 'pki_ssl_server_subject_dn',
+         None, 'pki_sslserver_subject_dn'),
+        (None, 'pki_ssl_server_token',
+         None, 'pki_sslserver_token')
+    ]
+
     def __init__(self, description, epilog, deployer=None):
         self.deployer = deployer
 
@@ -361,6 +386,9 @@ class PKIConfigParser:
 
                 print('Loading deployment configuration from ' +
                       config.user_deployment_cfg + '.')
+
+                self.validate_user_config(config.user_deployment_cfg)
+
                 self.deployer.main_config.read([config.user_deployment_cfg])
                 self.deployer.user_config.read([config.user_deployment_cfg])
 
@@ -399,6 +427,49 @@ class PKIConfigParser:
             print(err)
             rv = err
         return rv
+
+    def validate_user_config(self, filename):
+
+        # Read user configuration without default values and interpolations.
+
+        user_config = configparser.RawConfigParser()
+        user_config.read(filename)
+
+        # Check all deprecated params.
+
+        for (sections, param, new_section, new_param) in PKIConfigParser.DEPRECATED_PARAMS:
+
+            # If list of sections is not defined, check DEFAULT, Tomcat, and <subsystem> sections.
+            # Check DEFAULT first because params in DEFAULT will appear in all other sections.
+
+            if not sections:
+                sections = ['DEFAULT', 'Tomcat', self.deployer.subsystem_name]
+
+            # Find param in the listed sections.
+
+            section = None
+            for s in sections:
+
+                if user_config.has_option(s, param):
+                    section = s
+                    break
+
+            # If param not found, skip.
+            if not section:
+                continue
+
+            # Param found, display deprecation warning.
+
+            message = 'The \'%s\' in [%s] has been deprecated.' % (param, section)
+
+            # If new param is defined in a different section, include it in message.
+
+            if new_section and new_section != section:
+                message = '%s Use \'%s\' in [%s] instead.' % (message, new_param, new_section)
+            else:
+                message = '%s Use \'%s\' instead.' % (message, new_param)
+
+            print('WARNING: %s' % message)
 
     def ds_connect(self):
 
