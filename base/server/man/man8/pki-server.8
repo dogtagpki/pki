@@ -1,7 +1,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH pki-server 8 "July 15, 2015" "version 10.2" "PKI Administrative Command-Line Interface (CLI)" Dogtag Team
+.TH pki-server 8 "July 31, 2017" "version 10.4" "PKI Administrative Command-Line Interface (CLI)" Dogtag Team
 .\" Please adjust this date whenever revising the man page.
 .\"
 .\" Some roff macros, for reference:
@@ -54,19 +54,19 @@ To view each command's usage, type \fB pki-server <command> \-\-help\fP.
 .PP
 \fBpki-server-instance\fR(1)
 .RS 4
-Certificate Server instance management commands
+Certificate Server instance management commands.
 .RE
 
 .PP
 \fBpki-server-subsystem\fR(1)
 .RS 4
-Certificate Server subsystem management commands
+Certificate Server subsystem management commands.
 .RE
 
 .PP
 \fBpki-server-migrate\fR(1)
 .RS 4
-Certificate server migration script management commands
+Certificate server migration script management commands.
 .RE
 
 .PP
@@ -75,8 +75,16 @@ Certificate server migration script management commands
 Commands to enable/disable startup using \fBnuxwdog\fP.
 .RE
 
+.PP
+\fBpki-server-cert\fR(1)
+.RS 4
+Server Certificate management commands.
+.RE
+
 .SH AUTHORS
-Ade Lee <alee@redhat.com>.
+Ade Lee <alee@redhat.com>
+
+Dinesh Prasanth M K <dmoluguw@redhat.com>
 
 .SH COPYRIGHT
-Copyright (c) 2015 Red Hat, Inc. This is licensed under the GNU General Public License, version 2 (GPLv2). A copy of this license is available at http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
+Copyright (c) 2017 Red Hat, Inc. This is licensed under the GNU General Public License, version 2 (GPLv2). A copy of this license is available at http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
