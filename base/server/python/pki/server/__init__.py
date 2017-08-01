@@ -19,6 +19,7 @@
 #
 
 from __future__ import absolute_import
+
 import codecs
 from lxml import etree
 import functools
@@ -156,10 +157,12 @@ class PKISubsystem(object):
         return self.create_subsystem_cert_object(cert_id)
 
     def create_subsystem_cert_object(self, cert_id):
+
+        nickname = self.config.get('%s.%s.nickname' % (self.name, cert_id))
+
         cert = {}
         cert['id'] = cert_id
-        cert['nickname'] = self.config.get(
-            '%s.%s.nickname' % (self.name, cert_id), None)
+        cert['nickname'] = nickname
         cert['token'] = self.config.get(
             '%s.%s.tokenname' % (self.name, cert_id), None)
         cert['data'] = self.config.get(
@@ -169,7 +172,16 @@ class PKISubsystem(object):
         cert['certusage'] = self.config.get(
             '%s.cert.%s.certusage' % (self.name, cert_id), None)
 
-        cert.update(self.instance.open_nssdb().get_cert_info(cert['nickname']))
+        if not nickname:
+            return cert
+
+        nssdb = self.instance.open_nssdb()
+        try:
+            cert_info = nssdb.get_cert_info(nickname)
+            cert.update(cert_info)
+        finally:
+            nssdb.close()
+
         return cert
 
     def update_subsystem_cert(self, cert):
