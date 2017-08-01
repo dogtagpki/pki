@@ -319,9 +319,9 @@ pki_admin_keysize=nistp256
 pki_admin_key_type=ecc
 pki_client_pkcs12_password=\fISecret123\fP
 pki_ds_password=\fISecret123\fP
-pki_ssl_server_key_algorithm=SHA256withEC
-pki_ssl_server_key_size=nistp256
-pki_ssl_server_key_type=ecc
+pki_sslserver_key_algorithm=SHA256withEC
+pki_sslserver_key_size=nistp256
+pki_sslserver_key_type=ecc
 pki_subsystem_key_algorithm=SHA256withEC
 pki_subsystem_key_size=nistp256
 pki_subsystem_key_type=ecc
@@ -789,7 +789,7 @@ pki_token_name=<hsm_token_name>
 pki_token_password=<pki_token_password>
 # Provide PKI-specific HSM token names
 pki_audit_signing_token=<hsm_token_name>
-pki_ssl_server_token=<hsm_token_name>
+pki_sslserver_token=<hsm_token_name>
 pki_subsystem_token=<hsm_token_name>
 [CA]
 # Provide CA-specific HSM token names
@@ -820,7 +820,7 @@ pki_token_name=<hsm_token_name>
 pki_token_password=<pki_token_password>
 # Provide PKI-specific HSM token names
 pki_audit_signing_token=<hsm_token_name>
-pki_ssl_server_token=<hsm_token_name>
+pki_sslserver_token=<hsm_token_name>
 pki_subsystem_token=<hsm_token_name>
 [KRA]
 # Provide KRA-specific HSM token names
@@ -881,7 +881,7 @@ pki_token_name=<hsm_token_name>
 pki_token_password=<pki_token_password>
 # Provide PKI-specific HSM token names
 pki_audit_signing_token=<hsm_token_name>
-pki_ssl_server_token=<hsm_token_name>
+pki_sslserver_token=<hsm_token_name>
 pki_subsystem_token=<hsm_token_name>
 .if
 
@@ -908,7 +908,7 @@ pki_token_name=<hsm_token_name>
 pki_token_password=<pki_token_password>
 # Provide PKI-specific HSM token names
 pki_audit_signing_token=<hsm_token_name>
-pki_ssl_server_token=<hsm_token_name>
+pki_sslserver_token=<hsm_token_name>
 pki_subsystem_token=<hsm_token_name>
 [TPS]
 # Shared TPS instances optionally utilize their shared KRA
