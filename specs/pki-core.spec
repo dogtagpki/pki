@@ -1340,6 +1340,7 @@ fi
 %{_mandir}/man8/pki-server-subsystem.8.gz
 %{_mandir}/man8/pki-server-nuxwdog.8.gz
 %{_mandir}/man8/pki-server-migrate.8.gz
+%{_mandir}/man8/pki-server-cert.8.gz
 
 %{_datadir}/pki/setup/
 %{_datadir}/pki/server/
