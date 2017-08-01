@@ -1,0 +1,169 @@
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH pki-server-cert 8 "Aug 1, 2017" "version 10.4" "PKI Cert Commands" Dogtag Team
+.\" Please adjust this date whenever revising the man page.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for man page specific macros, see man(7)
+.SH NAME
+pki-server-cert \- Command-Line Interface for managing System Certificates.
+
+.SH SYNOPSIS
+.nf
+\fBpki-server [CLI options] cert\fR
+\fBpki-server [CLI options] cert-find\fR
+\fBpki-server [CLI options] cert-update <cert ID>\fR
+\fBpki-server [CLI options] cert-create <cert ID>\fR
+\fBpki-server [CLI options] cert-import <cert ID>\fR
+.fi
+
+.SH DESCRIPTION
+.PP
+The \fBpki-server cert\fR commands provide command-line interfaces to manage
+system certificates.
+.PP
+\fBpki-server cert\fR commands perform system certificate related operations on a specific
+CS instance.  Consequently, all \fBpki-server cert\fR commands require specification
+of the cert ID to completely identify the target certificate.
+.PP
+\fBpki-server [CLI options] cert\fR
+.RS 4
+This command is to list available cert commands.
+.RE
+.PP
+\fBpki-server [CLI options] cert-find\fR
+.RS 4
+This command is to list all system certificates.
+.RE
+.PP
+\fBpki-server [CLI options] cert-update <cert ID>\fR
+.RS 4
+This command is to update the system certificate data and CSR in the corresponding
+subsystem's CS.cfg.
+.RE
+.PP
+\fBpki-server [CLI options] cert-create <cert ID>\fR
+.RS 4
+This command is to create a system certificate.
+.RE
+.PP
+\fBpki-server [CLI options] cert-import <cert ID>\fR
+.RS 4
+This command is to imports certificate into NSS database and updates the corresponding
+subsystem's CS.cfg.
+.RE
+.PP
+To view each command's usage, type \fB pki-server cert-<command> \-\-help\fP.
+
+All pki-server commands must be executed as the system administrator.
+.RE
+
+.SH OPTIONS
+The other CLI options are described in \fBpki-server\fR(8).
+
+.SH OFFLINE SYSTEM CERTIFICATE RENEWAL
+\fBpki-server cert\fR command is used as a part of offline system certificate renewal process.
+.PP
+Operations that are available include: listing system certificates in an instance;
+updating and importing certificates in an instance; and creating system certificates
+based on the subsystem that uses it.
+.PP
+\fBAssumptions:\fR
+.PP
+.RS 4
+1. Valid CA signing cert
+.PP
+2. Valid admin cert
+.PP
+3. PKI server is currently down
+.RE
+.PP
+\fBSteps for offline system certificate renewal:\fR
+.PP
+.RS 4
+A. Run these commands to \fIverify our assumptions\fP:
+.PP
+.RS 4
+1. List details of all system certificates
+.RS 4
+\fBpki-server cert-find\fR
+.RE
+.PP
+2. Check status of PKI server
+.RS 4
+\fBsystemctl status pki-tomcatd@pki-tomcat\fR
+.RE
+.RE
+.PP
+\fBNote:\fR Get the \fIsslserver\fP cert serial number from step #1 above to create permanent
+cert later.
+.PP
+B. To bring up a PKI server that has \fIexpired SSL certificate\fP:
+.PP
+.RS 4
+1. Create temp SSL certificate
+.RS 4
+\fBpki-server cert-create sslserver --temp\fR
+.RE
+.PP
+2. Import the temp SSL certificate into NSS database and update corresponding subsystem's CS.cfg
+.RS 4
+\fBpki-server cert-import sslserver\fR
+.RE
+.PP
+3. Start PKI server using the new temp SSL cert created
+.RS 4
+\fBsystemctl restart pki-tomcatd@pki-tomcat
+.RE
+.PP
+.RE
+
+C. To \fIrenew system certificates\fP:
+.PP
+.RS 4
+1. Create the required system certificate
+.RS 4
+\fBpki-server cert-create <cert ID> --renew\fR
+.RE
+.PP
+For SSL server certificate:
+.PP
+.RS 4
+\fBpki-server cert-create sslserver --renew --serial <old serial>\fR
+.RE
+.PP
+2. Stop the server to prevent NSS database corruption while importing:
+.RS 4
+\fBsystemctl stop pki-tomcatd@pki-tomcat\fR
+.RE
+.PP
+3. Import the renewed system certificate into NSS database and update corresponding
+subsystem's CS.cfg
+.RS 4
+\fBpki-server cert-import <cert ID>\fR
+.RE
+.PP
+4. Start the server with renewed permanent system certificates
+.RS 4
+\fBsystemctl start pki-tomcatd@pki-tomcat\fP
+.RE
+.RE
+.RE
+
+\fBNote:\fP A PKI server loaded with expired SSL certificate cannot be used for renewal of system
+certificates.
+
+.SH AUTHORS
+Dinesh Prasanth M K <dmoluguw@redhat.com>
+
+.SH COPYRIGHT
+Copyright (c) 2017 Red Hat, Inc. This is licensed under the GNU General Public License, version 2 (GPLv2). A copy of this license is available at http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
