@@ -284,6 +284,19 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
             self.configure_ca_signing_cert(deployer, nssdb, subsystem)
 
+    def verify_system_certs(self, subsystem):
+
+        config.pki_log.info(
+            "verifying certificates",
+            extra=config.PKI_INDENTATION_LEVEL_2)
+
+        verifier = pki.server.deployment.PKIDeployer.create_system_cert_verifier(
+            subsystem.instance, subsystem.name)
+
+        if subsystem.name == 'ca':
+
+            verifier.verify_certificate('signing')
+
     def create_temp_sslserver_cert(self, deployer, instance, token):
 
         if len(deployer.instance.tomcat_instance_subsystems()) > 1:
@@ -500,13 +513,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 self.configure_system_certs(deployer, nssdb, subsystem)
                 subsystem.save()
 
-                # verify the signing certificate
-                # raises exception on  failure
-                config.pki_log.info("validating the signing certificate",
-                                    extra=config.PKI_INDENTATION_LEVEL_2)
-                verifier = pki.server.deployment.PKIDeployer.create_system_cert_verifier(
-                    instance, 'ca')
-                verifier.verify_certificate('signing')
+                self.verify_system_certs(subsystem)
 
             else:  # self-signed CA
 
