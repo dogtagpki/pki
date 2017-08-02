@@ -514,13 +514,6 @@ class ConfigurationFile:
                 log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2 %
                 (param, self.mdict['pki_user_deployment_cfg']))
 
-    def confirm_missing_file(self, param):
-        if os.path.exists(self.mdict[param]):
-            config.pki_log.error(log.PKI_FILE_ALREADY_EXISTS_1,
-                                 self.mdict[param],
-                                 extra=config.PKI_INDENTATION_LEVEL_2)
-            raise Exception(log.PKI_FILE_ALREADY_EXISTS_1 % param)
-
     def confirm_file_exists(self, param):
         if not os.path.exists(self.mdict[param]) or\
            not os.path.isfile(self.mdict[param]):
