@@ -1,0 +1,446 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "62920818_f21fde0a",
+        "filename": "base/server/man/man8/pki-server-cert.8",
+        "patchSetId": 2
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-08-02T01:09:52Z",
+      "side": 1,
+      "message": "No need to mention optional param.",
+      "range": {
+        "startLine": 23,
+        "startChar": 41,
+        "endLine": 23,
+        "endChar": 57
+      },
+      "revId": "06ffa369696ac2cbc0151498ce5fb6e9680f6fad",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ef22f5af_b4e980a3",
+        "filename": "base/server/man/man8/pki-server-cert.8",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-08-02T01:09:52Z",
+      "side": 1,
+      "message": "No need to mention optional param.",
+      "range": {
+        "startLine": 24,
+        "startChar": 53,
+        "endLine": 24,
+        "endChar": 69
+      },
+      "revId": "06ffa369696ac2cbc0151498ce5fb6e9680f6fad",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "88f77029_14efb7b4",
+        "filename": "base/server/man/man8/pki-server-cert.8",
+        "patchSetId": 2
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-08-02T01:09:52Z",
+      "side": 1,
+      "message": "No need to mention optional param.",
+      "range": {
+        "startLine": 25,
+        "startChar": 53,
+        "endLine": 25,
+        "endChar": 69
+      },
+      "revId": "06ffa369696ac2cbc0151498ce5fb6e9680f6fad",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b2c14f85_f3120a5b",
+        "filename": "base/server/man/man8/pki-server-cert.8",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-08-02T01:09:52Z",
+      "side": 1,
+      "message": "No need to mention optional param. The command doesn\u0027t take subsystem ID.",
+      "range": {
+        "startLine": 26,
+        "startChar": 53,
+        "endLine": 26,
+        "endChar": 84
+      },
+      "revId": "06ffa369696ac2cbc0151498ce5fb6e9680f6fad",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d0003966_8e1a1365",
+        "filename": "base/server/man/man8/pki-server-cert.8",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-08-02T01:09:52Z",
+      "side": 1,
+      "message": "\"system certificates\" should be lower case since it\u0027s not a name.",
+      "range": {
+        "startLine": 32,
+        "startChar": 0,
+        "endLine": 32,
+        "endChar": 19
+      },
+      "revId": "06ffa369696ac2cbc0151498ce5fb6e9680f6fad",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d40a980c_c8318335",
+        "filename": "base/server/man/man8/pki-server-cert.8",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-08-02T01:09:52Z",
+      "side": 1,
+      "message": "No need to explain the subsystems since this command does not deal with any particular subsystem.",
+      "range": {
+        "startLine": 32,
+        "startChar": 21,
+        "endLine": 35,
+        "endChar": 61
+      },
+      "revId": "06ffa369696ac2cbc0151498ce5fb6e9680f6fad",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "838fbf7d_02aee2e7",
+        "filename": "base/server/man/man8/pki-server-cert.8",
+        "patchSetId": 2
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-08-02T01:09:52Z",
+      "side": 1,
+      "message": "Lower case.",
+      "range": {
+        "startLine": 37,
+        "startChar": 39,
+        "endLine": 37,
+        "endChar": 57
+      },
+      "revId": "06ffa369696ac2cbc0151498ce5fb6e9680f6fad",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4cf9829a_1dac3f92",
+        "filename": "base/server/man/man8/pki-server-cert.8",
+        "patchSetId": 2
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-08-02T01:09:52Z",
+      "side": 1,
+      "message": "... the target certificate.",
+      "range": {
+        "startLine": 39,
+        "startChar": 38,
+        "endLine": 39,
+        "endChar": 86
+      },
+      "revId": "06ffa369696ac2cbc0151498ce5fb6e9680f6fad",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3e30ada2_1fcab24f",
+        "filename": "base/server/man/man8/pki-server-cert.8",
+        "patchSetId": 2
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-08-02T01:09:52Z",
+      "side": 1,
+      "message": "This is replaced by the OFFLINE SYSTEM CERTIFICATE RENEWAL section below.",
+      "range": {
+        "startLine": 41,
+        "startChar": 0,
+        "endLine": 46,
+        "endChar": 3
+      },
+      "revId": "06ffa369696ac2cbc0151498ce5fb6e9680f6fad",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "98ea2736_039730bb",
+        "filename": "base/server/man/man8/pki-server-cert.8",
+        "patchSetId": 2
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-08-02T01:09:52Z",
+      "side": 1,
+      "message": "No need to mention optional param.",
+      "range": {
+        "startLine": 52,
+        "startChar": 41,
+        "endLine": 52,
+        "endChar": 57
+      },
+      "revId": "06ffa369696ac2cbc0151498ce5fb6e9680f6fad",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8319d358_bd02a966",
+        "filename": "base/server/man/man8/pki-server-cert.8",
+        "patchSetId": 2
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-08-02T01:09:52Z",
+      "side": 1,
+      "message": "This phrase is not necessary.",
+      "range": {
+        "startLine": 54,
+        "startChar": 47,
+        "endLine": 54,
+        "endChar": 79
+      },
+      "revId": "06ffa369696ac2cbc0151498ce5fb6e9680f6fad",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "263bac29_269cb59c",
+        "filename": "base/server/man/man8/pki-server-cert.8",
+        "patchSetId": 2
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-08-02T01:09:52Z",
+      "side": 1,
+      "message": "No need to mention optional param.",
+      "range": {
+        "startLine": 57,
+        "startChar": 53,
+        "endLine": 57,
+        "endChar": 69
+      },
+      "revId": "06ffa369696ac2cbc0151498ce5fb6e9680f6fad",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "50fe5136_325a1d8e",
+        "filename": "base/server/man/man8/pki-server-cert.8",
+        "patchSetId": 2
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-08-02T01:09:52Z",
+      "side": 1,
+      "message": "... to update the system certificate data and CSR in the corresponding subsystem\u0027s CS.cfg.",
+      "range": {
+        "startLine": 59,
+        "startChar": 16,
+        "endLine": 59,
+        "endChar": 54
+      },
+      "revId": "06ffa369696ac2cbc0151498ce5fb6e9680f6fad",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "08a5ee7a_372adebf",
+        "filename": "base/server/man/man8/pki-server-cert.8",
+        "patchSetId": 2
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-08-02T01:09:52Z",
+      "side": 1,
+      "message": "No need to mention optional param.",
+      "range": {
+        "startLine": 62,
+        "startChar": 53,
+        "endLine": 62,
+        "endChar": 69
+      },
+      "revId": "06ffa369696ac2cbc0151498ce5fb6e9680f6fad",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa4ef9bd_1d998f63",
+        "filename": "base/server/man/man8/pki-server-cert.8",
+        "patchSetId": 2
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-08-02T01:09:52Z",
+      "side": 1,
+      "message": "This phrase is not needed.",
+      "range": {
+        "startLine": 64,
+        "startChar": 46,
+        "endLine": 64,
+        "endChar": 84
+      },
+      "revId": "06ffa369696ac2cbc0151498ce5fb6e9680f6fad",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "465f9889_0c5a6844",
+        "filename": "base/server/man/man8/pki-server-cert.8",
+        "patchSetId": 2
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-08-02T01:09:52Z",
+      "side": 1,
+      "message": "No need to mention optional param.",
+      "range": {
+        "startLine": 67,
+        "startChar": 53,
+        "endLine": 67,
+        "endChar": 69
+      },
+      "revId": "06ffa369696ac2cbc0151498ce5fb6e9680f6fad",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "98fa51bc_ade86eba",
+        "filename": "base/server/man/man8/pki-server-cert.8",
+        "patchSetId": 2
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-08-02T01:09:52Z",
+      "side": 1,
+      "message": "Let\u0027s change this into \"OFFLINE SYSTEM CERTIFICATE RENEWAL\".\n\nIn this section we should provide a simplified instruction for the offline renewal based on the wiki page (http://pki.fedoraproject.org/wiki/Offline_System_Certificate_Renewal).\n\nThis is needed because the wiki page may not always be accessible or may change in the future, but the man page will always be available locally and match the installed version.",
+      "revId": "06ffa369696ac2cbc0151498ce5fb6e9680f6fad",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5c949362_9419043a",
+        "filename": "base/server/man/man8/pki-server-cert.8",
+        "patchSetId": 2
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-08-02T01:09:52Z",
+      "side": 1,
+      "message": "This line can be removed. It\u0027s a duplicate of line 49.",
+      "revId": "06ffa369696ac2cbc0151498ce5fb6e9680f6fad",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "57ed5d32_23b002cc",
+        "filename": "base/server/man/man8/pki-server-cert.8",
+        "patchSetId": 2
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-08-02T01:09:52Z",
+      "side": 1,
+      "message": "These lines can be moved into line 72.",
+      "range": {
+        "startLine": 78,
+        "startChar": 0,
+        "endLine": 80,
+        "endChar": 69
+      },
+      "revId": "06ffa369696ac2cbc0151498ce5fb6e9680f6fad",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "664b055c_e6316569",
+        "filename": "base/server/man/man8/pki-server.8",
+        "patchSetId": 2
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-08-02T01:09:52Z",
+      "side": 1,
+      "message": "Let\u0027s call this \"System certificate management commands.\"",
+      "revId": "06ffa369696ac2cbc0151498ce5fb6e9680f6fad",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
