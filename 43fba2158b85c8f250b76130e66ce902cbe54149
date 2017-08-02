@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a4ef52ad_d509ae33",
+        "filename": "base/server/man/man8/pki-server-cert.8",
+        "patchSetId": 4
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-08-02T18:52:47Z",
+      "side": 1,
+      "message": "We need to mention the assumptions, e.g.:\n* CA signing and admin certs are still valid\n* PKI server is currently down",
+      "revId": "43fba2158b85c8f250b76130e66ce902cbe54149",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "68257298_16a47571",
+        "filename": "base/server/man/man8/pki-server-cert.8",
+        "patchSetId": 4
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-08-02T18:52:47Z",
+      "side": 1,
+      "message": "Before this, run this command to verify that the assumptions are correct:\n\n $ pki-server cert-find\n $ systemctl status pki-tomcatd@pki-tomcat\n\nAlso, get the old sslserver cert serial number to create the perm cert later.",
+      "revId": "43fba2158b85c8f250b76130e66ce902cbe54149",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1f313c2a_769d94d7",
+        "filename": "base/server/man/man8/pki-server-cert.8",
+        "patchSetId": 4
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-08-02T18:52:47Z",
+      "side": 1,
+      "message": "We should provide the instruction that people can use based on the current implementation. So I think in Section B 1 we need to show how to create the permanent SSL server cert, i.e.:\n\n $ pki-server cert-create sslserver --renew --serial \u003cold serial\u003e",
+      "revId": "43fba2158b85c8f250b76130e66ce902cbe54149",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
