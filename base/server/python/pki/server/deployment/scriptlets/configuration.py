@@ -165,6 +165,27 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if subsystem.name == 'ca':
             self.generate_ca_signing_csr(deployer, nssdb, subsystem)
 
+    def import_ca_signing_csr(self, deployer, subsystem):
+
+        csr_path = deployer.mdict.get('pki_external_csr_path')
+        if not csr_path or not os.path.exists(csr_path):
+            return
+
+        config.pki_log.info(
+            "importing ca_signing CSR from %s" % csr_path,
+            extra=config.PKI_INDENTATION_LEVEL_2)
+
+        with open(csr_path) as f:
+            csr_data = f.read()
+
+        b64_csr = pki.nssdb.convert_csr(csr_data, 'pem', 'base64')
+        subsystem.config['ca.signing.certreq'] = b64_csr
+
+    def import_system_cert_requests(self, deployer, subsystem):
+
+        if subsystem.name == 'ca':
+            self.import_ca_signing_csr(deployer, subsystem)
+
     def create_temp_sslserver_cert(self, deployer, instance, token):
 
         if len(deployer.instance.tomcat_instance_subsystems()) > 1:
@@ -375,18 +396,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             if existing or external and step_two:
                 # existing CA or external CA step 2
 
-                # If specified, import CA signing CSR into CS.cfg.
-                signing_csr_path = deployer.mdict['pki_external_csr_path']
-                if signing_csr_path:
-                    config.pki_log.info(
-                        "importing CA signing CSR from %s",
-                        signing_csr_path,
-                        extra=config.PKI_INDENTATION_LEVEL_2)
-                    with open(signing_csr_path) as f:
-                        signing_csr = f.read()
-                    signing_csr = pki.nssdb.convert_csr(
-                        signing_csr, 'pem', 'base64')
-                    subsystem.config['ca.signing.certreq'] = signing_csr
+                self.import_system_cert_requests(deployer, subsystem)
 
                 # If specified, import CA signing cert into NSS database.
                 signing_nickname = deployer.mdict['pki_ca_signing_nickname']
