@@ -252,6 +252,34 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         self.import_cert_chain(deployer, nssdb, subsystem)
 
+    def configure_system_cert(self, deployer, nssdb, subsystem, tag):
+
+        cert_id = self.get_cert_id(subsystem, tag)
+
+        nickname = deployer.mdict['pki_%s_nickname' % cert_id]
+        cert_data = nssdb.get_cert(
+            nickname=nickname,
+            output_format='base64')
+
+        subsystem.config['%s.%s.nickname' % (subsystem.name, tag)] = nickname
+        subsystem.config['%s.%s.tokenname' % (subsystem.name, tag)] = \
+            deployer.mdict['pki_%s_token' % cert_id]
+        subsystem.config['%s.%s.cert' % (subsystem.name, tag)] = cert_data
+        subsystem.config['%s.%s.defaultSigningAlgorithm' % (subsystem.name, tag)] = \
+            deployer.mdict['pki_%s_key_algorithm' % cert_id]
+
+    def configure_ca_signing_cert(self, deployer, nssdb, subsystem):
+
+        self.configure_system_cert(deployer, nssdb, subsystem, 'signing')
+
+        nickname = deployer.mdict['pki_ca_signing_nickname']
+        subsystem.config['ca.signing.cacertnickname'] = nickname
+
+    def configure_system_certs(self, deployer, nssdb, subsystem):
+
+        if subsystem.name == 'ca':
+            self.configure_ca_signing_cert(deployer, nssdb, subsystem)
+
     def create_temp_sslserver_cert(self, deployer, instance, token):
 
         if len(deployer.instance.tomcat_instance_subsystems()) > 1:
@@ -465,20 +493,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 self.import_system_cert_requests(deployer, subsystem)
                 self.import_system_certs(deployer, nssdb, subsystem)
 
-                # Export CA signing cert from NSS database and import
-                # it into CS.cfg.
-                signing_nickname = deployer.mdict['pki_ca_signing_nickname']
-                signing_cert_data = nssdb.get_cert(
-                    nickname=signing_nickname,
-                    output_format='base64')
-                subsystem.config['ca.signing.nickname'] = signing_nickname
-                subsystem.config['ca.signing.tokenname'] = (
-                    deployer.mdict['pki_ca_signing_token'])
-                subsystem.config['ca.signing.cert'] = signing_cert_data
-                subsystem.config['ca.signing.cacertnickname'] = signing_nickname
-                subsystem.config['ca.signing.defaultSigningAlgorithm'] = (
-                    deployer.mdict['pki_ca_signing_signing_algorithm'])
-
+                self.configure_system_certs(deployer, nssdb, subsystem)
                 subsystem.save()
 
                 # verify the signing certificate
