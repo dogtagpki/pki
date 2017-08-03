@@ -48,15 +48,29 @@ class CertCLI(pki.cli.CLI):
 
     @staticmethod
     def print_system_cert(cert, show_all=False):
-        print('  Cert ID:  %s' % cert['id'])
+        print('  Cert ID: %s' % cert['id'])
         print('  Nickname: %s' % cert['nickname'])
-        print('  Serial number: %s' % cert['serial_number'])
-        print('  Issuer:  %s' % cert['issuer'])
-        print('  Validity:')
-        print('        Not Before: %s' % CertCLI.convert_millis_to_date(cert['not_before']))
-        print('        Not After:  %s' % CertCLI.convert_millis_to_date(cert['not_after']))
-        print('  Subject: %s' % cert['subject'])
-        print('  Token:   %s' % cert['token'])
+        print('  Token: %s' % cert['token'])
+
+        serial_number = cert.get('serial_number')
+        if serial_number:
+            print('  Serial Number: %s' % hex(serial_number))
+
+        subject = cert.get('subject')
+        if subject:
+            print('  Subject DN: %s' % subject)
+
+        issuer = cert.get('issuer')
+        if issuer:
+            print('  Issuer DN: %s' % issuer)
+
+        not_before = cert.get('not_before')
+        if not_before:
+            print('  Not Valid Before: %s' % CertCLI.convert_millis_to_date(not_before))
+
+        not_after = cert.get('not_after')
+        if not_after:
+            print('  Not Valid After: %s' % CertCLI.convert_millis_to_date(not_after))
 
         if show_all:
             print('  Certificate: %s' % cert['data'])
