@@ -628,7 +628,8 @@ class NSSDatabase(object):
 
         cert_details = subprocess.check_output(cmd_extract_serial, stderr=subprocess.STDOUT)
 
-        cert["serial_number"] = re.search(r'Serial Number.*?(\d+)', cert_details).group(1).strip()
+        serial = re.search(r'Serial Number.*?(\d+)', cert_details).group(1).strip()
+        cert["serial_number"] = int(serial)
         cert["issuer"] = re.search(r'Issuer:(.*)', cert_details).group(1).strip()\
             .replace('"', '')
         cert["subject"] = re.search(r'Subject:(.*)', cert_details).group(1).strip()\
