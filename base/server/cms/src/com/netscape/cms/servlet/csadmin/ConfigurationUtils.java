@@ -3224,15 +3224,7 @@ public class ConfigurationUtils {
 
             config.putString(subsystem + "." + certTag + ".cert", strCert);
 
-            String strStrChain = cert.getCertChain();
-            byte[] binCertChain = null;
-
-            if (strStrChain != null && strStrChain.length() != 0) {
-                strStrChain = CryptoUtil.normalizeCertAndReq(strStrChain);
-                binCertChain = CryptoUtil.base64Decode(strStrChain);
-            }
-
-            CertUtil.importExternalCert(certTag, tokenname, nickname, binCert, binCertChain);
+            CertUtil.importExternalCert(certTag, tokenname, nickname, binCert);
 
         } else {
 

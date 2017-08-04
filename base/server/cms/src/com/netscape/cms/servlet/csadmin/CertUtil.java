@@ -847,8 +847,7 @@ public class CertUtil {
             String tag,
             String tokenname,
             String nickname,
-            byte[] cert,
-            byte[] certChain
+            byte[] cert
             ) throws Exception {
 
         CMS.debug("CertUtil.importExternalCert(" + tag + ")");
@@ -863,11 +862,6 @@ public class CertUtil {
             deleteCert(tokenname, nickname);
         }
 
-        if (certChain != null) {
-            CMS.debug("CertUtil: importing cert chain for " + tag + " cert");
-            CryptoUtil.importCertificateChain(certChain);
-        }
-
         CMS.debug("CertUtil: importing " + tag + " cert");
 
         CryptoManager cm = CryptoManager.getInstance();
@@ -875,16 +869,5 @@ public class CertUtil {
 
         CMS.debug("CertUtil: trusting cert: " + x509cert.getSubjectDN());
         CryptoUtil.trustCertByNickname(nickname);
-
-        X509Certificate[] certs = cm.buildCertificateChain(x509cert);
-        CMS.debug("CertUtil: cert chain:");
-        for (X509Certificate c : certs) {
-            CMS.debug("ConfigurationUtils: - " + c.getSubjectDN());
-        }
-
-        X509Certificate rootCert = certs[certs.length - 1];
-        CMS.debug("CertUtil: trusting root cert: " + rootCert.getSubjectDN());
-
-        CryptoUtil.trustRootCert(rootCert);
     }
 }
