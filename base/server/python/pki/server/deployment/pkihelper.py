@@ -3896,7 +3896,7 @@ class ConfigClient:
             self.mdict['pki_client_admin_cert_p12'],
             config.PKI_DEPLOYMENT_DEFAULT_SECURITY_DATABASE_PERMISSIONS)
 
-    def construct_pki_configuration_data(self):
+    def construct_pki_configuration_data(self, nssdb):
         config.pki_log.info(log.PKI_CONFIG_CONSTRUCTING_PKI_DATA,
                             extra=config.PKI_INDENTATION_LEVEL_2)
 
@@ -3961,7 +3961,7 @@ class ConfigClient:
         data.systemCertsImported = self.mdict['pki_server_pkcs12_path'] != ''
 
         # Create system certs
-        self.set_system_certs(data)
+        self.set_system_certs(nssdb, data)
 
         # TPS parameters
         if self.subsystem == "TPS":
@@ -4025,28 +4025,31 @@ class ConfigClient:
         config.pki_log.info(log.PKI_CONFIG_CDATA_REQUEST + "\n" + csr,
                             extra=config.PKI_INDENTATION_LEVEL_2)
 
-    def load_system_cert(self, cert, message, path, subsystem=None):
-        if subsystem is not None:
-            config.pki_log.info(message + " '" + path + "'", subsystem,
-                                extra=config.PKI_INDENTATION_LEVEL_2)
-        else:
-            config.pki_log.info(message + " '" + path + "'",
-                                extra=config.PKI_INDENTATION_LEVEL_2)
-        with open(path, "r") as f:
-            cert.cert = f.read()
+    def load_system_cert(self, nssdb, cert, nickname=None):
 
-    def set_system_certs(self, data):
+        if not nickname:
+            nickname = cert.nickname
+
+        config.pki_log.info("loading %s certificate" % nickname,
+                            extra=config.PKI_INDENTATION_LEVEL_2)
+
+        cert.cert = nssdb.get_cert(nickname)
+
+    def set_system_certs(self, nssdb, data):
         systemCerts = []  # nopep8
 
         # Create 'CA Signing Certificate'
         if not self.clone:
             if self.subsystem == "CA" or self.standalone:
                 cert1 = None
+
                 if self.subsystem == "CA":
                     # PKI CA, Subordinate CA, or External CA
                     cert1 = self.create_system_cert("ca_signing")
+
                     cert1.signingAlgorithm = \
                         self.mdict['pki_ca_signing_signing_algorithm']
+
                     # generic extension support in CSR - for external CA
                     if self.add_req_ext:
                         cert1.req_ext_oid = \
@@ -4060,11 +4063,9 @@ class ConfigClient:
                     # external/existing CA step 2
 
                     # If specified, load the externally-signed CA cert
-                    if self.mdict['pki_external_ca_cert_path']:
+                    if self.mdict['pki_cert_chain_nickname']:
                         self.load_system_cert(
-                            cert1,
-                            log.PKI_CONFIG_EXTERNAL_CA_LOAD,
-                            self.mdict['pki_external_ca_cert_path'])
+                            nssdb, cert1, self.mdict['pki_cert_chain_nickname'])
 
                     systemCerts.append(cert1)
 
@@ -4077,9 +4078,7 @@ class ConfigClient:
                     # Load the stand-alone PKI
                     # 'External CA Signing Certificate' (Step 2)
                     self.load_system_cert(
-                        cert1,
-                        log.PKI_CONFIG_EXTERNAL_CA_LOAD,
-                        self.mdict['pki_external_ca_cert_path'])
+                        nssdb, cert1, self.mdict['pki_cert_chain_nickname'])
 
                     systemCerts.append(cert1)
 
@@ -4096,10 +4095,7 @@ class ConfigClient:
                 cert2 = self.create_system_cert("ocsp_signing")
                 # Load the Stand-alone PKI OCSP 'OCSP Signing Certificate'
                 # (Step 2)
-                self.load_system_cert(
-                    cert2,
-                    log.PKI_CONFIG_EXTERNAL_CERT_LOAD_OCSP_SIGNING,
-                    self.mdict['pki_external_signing_cert_path'])
+                self.load_system_cert(nssdb, cert2)
                 cert2.signingAlgorithm = \
                     self.mdict['pki_ocsp_signing_signing_algorithm']
                 systemCerts.append(cert2)
@@ -4119,11 +4115,7 @@ class ConfigClient:
             # Stand-alone PKI (Step 2)
             cert3 = self.create_system_cert("sslserver")
             # Load the Stand-alone PKI 'SSL Server Certificate' (Step 2)
-            self.load_system_cert(
-                cert3,
-                log.PKI_CONFIG_EXTERNAL_CERT_LOAD_PKI_SSLSERVER_1,
-                self.mdict['pki_external_sslserver_cert_path'],
-                self.subsystem)
+            self.load_system_cert(nssdb, cert3)
             systemCerts.append(cert3)
         elif len(system_list) >= 2:
             # Existing PKI Instance
@@ -4149,11 +4141,7 @@ class ConfigClient:
                 # Stand-alone PKI (Step 2)
                 cert4 = self.create_system_cert("subsystem")
                 # Load the Stand-alone PKI 'Subsystem Certificate' (Step 2)
-                self.load_system_cert(
-                    cert4,
-                    log.PKI_CONFIG_EXTERNAL_CERT_LOAD_PKI_SUBSYSTEM_1,
-                    self.mdict['pki_external_subsystem_cert_path'],
-                    self.subsystem)
+                self.load_system_cert(nssdb, cert4)
                 systemCerts.append(cert4)
             elif len(system_list) >= 2:
                 # Existing PKI Instance
@@ -4178,11 +4166,7 @@ class ConfigClient:
                 # Stand-alone PKI (Step 2)
                 cert5 = self.create_system_cert("audit_signing")
                 # Load the Stand-alone PKI 'Audit Signing Certificate' (Step 2)
-                self.load_system_cert(
-                    cert5,
-                    log.PKI_CONFIG_EXTERNAL_CERT_LOAD_PKI_AUDIT_SIGNING_1,
-                    self.mdict['pki_external_audit_signing_cert_path'],
-                    self.subsystem)
+                self.load_system_cert(nssdb, cert5)
                 cert5.signingAlgorithm = \
                     self.mdict['pki_audit_signing_signing_algorithm']
                 systemCerts.append(cert5)
@@ -4200,18 +4184,12 @@ class ConfigClient:
                 # Stand-alone PKI KRA Transport Certificate (Step 2)
                 cert6 = self.create_system_cert("transport")
                 # Load the Stand-alone PKI KRA 'Transport Certificate' (Step 2)
-                self.load_system_cert(
-                    cert6,
-                    log.PKI_CONFIG_EXTERNAL_CERT_LOAD_KRA_TRANSPORT,
-                    self.mdict['pki_external_transport_cert_path'])
+                self.load_system_cert(nssdb, cert6)
                 systemCerts.append(cert6)
                 # Stand-alone PKI KRA Storage Certificate (Step 2)
                 cert7 = self.create_system_cert("storage")
                 # Load the Stand-alone PKI KRA 'Storage Certificate' (Step 2)
-                self.load_system_cert(
-                    cert7,
-                    log.PKI_CONFIG_EXTERNAL_CERT_LOAD_KRA_STORAGE,
-                    self.mdict['pki_external_storage_cert_path'])
+                self.load_system_cert(nssdb, cert7)
                 systemCerts.append(cert7)
             elif self.subsystem == "KRA":
                 # PKI KRA Transport Certificate
@@ -4324,6 +4302,7 @@ class ConfigClient:
         data.adminProfileID = self.mdict['pki_admin_profile_id']
         data.adminUID = self.mdict['pki_admin_uid']
         data.adminSubjectDN = self.mdict['pki_admin_subject_dn']
+
         if self.standalone:
             if not self.external_step_two:
                 # IMPORTANT:  ALWAYS set 'pki_import_admin_cert' FALSE for
@@ -4333,8 +4312,22 @@ class ConfigClient:
                 # IMPORTANT:  ALWAYS set 'pki_import_admin_cert' TRUE for
                 #             Stand-alone PKI (Step 2)
                 self.mdict['pki_import_admin_cert'] = "True"
+
         if config.str2bool(self.mdict['pki_import_admin_cert']):
             data.importAdminCert = "true"
+
+            client_nssdb = pki.nssdb.NSSDatabase(
+                directory=self.mdict['pki_client_database_dir'],
+                password=self.mdict['pki_client_database_password'])
+
+            try:
+                data.adminCert = client_nssdb.get_cert(self.mdict['pki_admin_nickname'])
+                if data.adminCert:  # already imported, return
+                    return
+
+            finally:
+                client_nssdb.close()
+
             if self.standalone:
                 # Stand-alone PKI (Step 2)
                 #
@@ -4353,10 +4346,13 @@ class ConfigClient:
                             imported_admin_cert += line
                 with open(self.mdict['pki_admin_cert_file'], "w") as f:
                     f.write(imported_admin_cert)
+
             # read config from file
             with open(self.mdict['pki_admin_cert_file'], "r") as f:
                 b64 = f.read().replace('\n', '')
+
             data.adminCert = b64
+
         else:
             data.importAdminCert = "false"
             data.adminSubjectDN = self.mdict['pki_admin_subject_dn']
