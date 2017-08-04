@@ -19,6 +19,7 @@ package org.dogtagpki.server.ocsp.rest;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.security.cert.CertificateEncodingException;
 
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
@@ -30,6 +31,8 @@ import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.PKIException;
+import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
+import com.netscape.certsrv.ocsp.IDefStore;
 import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.certsrv.system.ConfigurationRequest;
 import com.netscape.cms.servlet.csadmin.ConfigurationUtils;
@@ -59,7 +62,7 @@ public class OCSPInstallerService extends SystemConfigService {
             if (!ca_host.equals("")) {
                 CMS.reinit(IOCSPAuthority.ID);
                 if (!request.isClone())
-                    ConfigurationUtils.importCACertToOCSP();
+                    importCACert();
                 else
                     CMS.debug("OCSPInstallerService: Skipping importCACertToOCSP for clone.");
 
@@ -93,6 +96,46 @@ public class OCSPInstallerService extends SystemConfigService {
         //Set well know default value for OCSP clone
         cs.putInteger("ocsp.store.defStore.refreshInSec", DEF_REFRESH_IN_SECS_FOR_CLONE);
 
+    }
+
+    public void importCACert() throws IOException, EBaseException, CertificateEncodingException {
+
+        IConfigStore config = CMS.getConfigStore();
+
+        // get certificate chain from CA
+        String b64 = config.getString("preop.ca.pkcs7", "");
+        if (b64.equals("")) {
+            throw new IOException("Failed to get certificate chain");
+        }
+
+        // this could be a chain
+        java.security.cert.X509Certificate[] certs = com.netscape.cmsutil.util.Cert.mapCertFromPKCS7(b64);
+        if (certs == null || certs.length == 0) {
+            return;
+        }
+
+        java.security.cert.X509Certificate leafCert;
+        if (certs[0].getSubjectDN().getName().equals(certs[0].getIssuerDN().getName())) {
+            leafCert = certs[certs.length - 1];
+        } else {
+            leafCert = certs[0];
+        }
+
+        IOCSPAuthority ocsp = (IOCSPAuthority) CMS.getSubsystem(IOCSPAuthority.ID);
+        IDefStore defStore = ocsp.getDefaultStore();
+
+        // (1) need to normalize (sort) the chain
+        // (2) store certificate (and certificate chain) into
+        // database
+        ICRLIssuingPointRecord rec = defStore.createCRLIssuingPointRecord(
+                leafCert.getSubjectDN().getName(),
+                ConfigurationUtils.BIG_ZERO,
+                ConfigurationUtils.MINUS_ONE, null, null);
+
+        rec.set(ICRLIssuingPointRecord.ATTR_CA_CERT, leafCert.getEncoded());
+        defStore.addCRLIssuingPoint(leafCert.getSubjectDN().getName(), rec);
+
+        CMS.debug("OCSPInstallerService: Added CA certificate.");
     }
 
     public void updateOCSPConfiguration() throws Exception {
