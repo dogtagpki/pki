@@ -4035,12 +4035,6 @@ class ConfigClient:
         with open(path, "r") as f:
             cert.cert = f.read()
 
-    def load_system_cert_chain(self, cert, message, path):
-        config.pki_log.info(message + " '" + path + "'",
-                            extra=config.PKI_INDENTATION_LEVEL_2)
-        with open(path, "r") as f:
-            cert.certChain = f.read()
-
     def set_system_certs(self, data):
         systemCerts = []  # nopep8
 
@@ -4072,13 +4066,6 @@ class ConfigClient:
                             log.PKI_CONFIG_EXTERNAL_CA_LOAD,
                             self.mdict['pki_external_ca_cert_path'])
 
-                    # If specified, load the external CA cert chain
-                    if self.mdict['pki_external_ca_cert_chain_path']:
-                        self.load_system_cert_chain(
-                            cert1,
-                            log.PKI_CONFIG_EXTERNAL_CA_CHAIN_LOAD,
-                            self.mdict['pki_external_ca_cert_chain_path'])
-
                     systemCerts.append(cert1)
 
                 elif self.standalone and self.external_step_two:
@@ -4093,16 +4080,6 @@ class ConfigClient:
                         cert1,
                         log.PKI_CONFIG_EXTERNAL_CA_LOAD,
                         self.mdict['pki_external_ca_cert_path'])
-
-                    cert_chain_path = self.mdict['pki_external_ca_cert_chain_path']
-                    if cert_chain_path and os.path.exists(cert_chain_path):
-
-                        # Load the stand-alone PKI
-                        # 'External CA Signing Certificate Chain' (Step 2)
-                        self.load_system_cert_chain(
-                            cert1,
-                            log.PKI_CONFIG_EXTERNAL_CA_CHAIN_LOAD,
-                            cert_chain_path)
 
                     systemCerts.append(cert1)
 

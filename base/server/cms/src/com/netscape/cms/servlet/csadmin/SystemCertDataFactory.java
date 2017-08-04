@@ -35,7 +35,6 @@ public class SystemCertDataFactory {
         data.setCert(cert.getCert());
         data.setRequest(cert.getRequest());
         data.setTag(cert.getCertTag());
-        data.setCertChain(cert.getCertChain());
         return data;
     }
 

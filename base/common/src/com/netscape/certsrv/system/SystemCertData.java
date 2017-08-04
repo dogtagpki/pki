@@ -42,7 +42,6 @@ public class SystemCertData {
     public static final String REQUEST = "request";
     public static final String SUBJECT_DN = "subjectDN";
     public static final String CERT = "cert";
-    public static final String CERT_CHAIN = "certChain";
     public static final String REQUEST_EXT_OID = "req_ext_oid";
     public static final String REQUEST_EXT_CRITICAL = "req_ext_critial";
     public static final String REQUEST_EXT_DATA = "req_ext_data";
@@ -82,9 +81,6 @@ public class SystemCertData {
     protected String cert;
 
     @XmlElement
-    protected String certChain;
-
-    @XmlElement
     protected String req_ext_oid;
 
     @XmlElement
@@ -112,7 +108,6 @@ public class SystemCertData {
         request = form.getFirst(REQUEST);
         subjectDN = form.getFirst(SUBJECT_DN);
         cert = form.getFirst(CERT);
-        certChain = form.getFirst(CERT_CHAIN);
         //support extension in CSR
         req_ext_oid = form.getFirst(REQUEST_EXT_OID);
         req_ext_critical = form.getFirst(REQUEST_EXT_CRITICAL);
@@ -273,20 +268,6 @@ public class SystemCertData {
      */
     public void setCert(String cert) {
         this.cert = cert;
-    }
-
-    /**
-     * @return the certChain
-     */
-    public String getCertChain() {
-        return certChain;
-    }
-
-    /**
-     * @param certChain the certChain to set
-     */
-    public void setCertChain(String certChain) {
-        this.certChain = certChain;
     }
 
     /**
