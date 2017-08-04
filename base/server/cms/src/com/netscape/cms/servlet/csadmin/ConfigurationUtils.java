@@ -2279,7 +2279,6 @@ public class ConfigurationUtils {
             throws Exception {
         certStr = CryptoUtil.stripCertBrackets(certStr.trim());
         certStr = CryptoUtil.normalizeCertStr(certStr);
-        config.putString(subsystem + ".external_ca.cert", certStr);
         certObj.setSubsystem(subsystem);
         certObj.setType(config.getString("preop.ca.type", "otherca"));
         certObj.setCert(certStr);
