@@ -3192,21 +3192,7 @@ public class ConfigurationUtils {
 
             handleLocalCert(config, cert, tokenname);
 
-        } else if (cert.getType().equals("remote")) {
-
-            if (b64 == null || b64.length() == 0 || b64.startsWith("...")) {
-                throw new PKIException("Missing certificate data for " + certTag + " cert");
-            }
-
-            b64 = CryptoUtil.stripCertBrackets(b64.trim());
-            String strCert = CryptoUtil.normalizeCertStr(b64);
-            byte[] binCert = CryptoUtil.base64Decode(strCert);
-
-            config.putString(subsystem + "." + certTag + ".cert", strCert);
-
-            CertUtil.importExternalCert(certTag, tokenname, nickname, binCert);
-
-        } else {
+        } else { // local and remote
 
             b64 = CryptoUtil.stripCertBrackets(b64.trim());
             String certs = CryptoUtil.normalizeCertStr(b64);
