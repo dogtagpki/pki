@@ -3884,43 +3884,6 @@ public class ConfigurationUtils {
         }
     }
 
-    public static void updateOCSPConfig() throws Exception {
-
-        IConfigStore config = CMS.getConfigStore();
-        String cahost = config.getString("preop.ca.hostname", "");
-        int caport = config.getInteger("preop.ca.httpsport", -1);
-        String ocsphost = CMS.getAgentHost();
-        int ocspport = Integer.parseInt(CMS.getAgentPort());
-        String session_id = CMS.getConfigSDSessionId();
-
-        MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
-        content.putSingle("xmlOutput", "true");
-        content.putSingle("sessionID", session_id);
-        content.putSingle("ocsp_host", ocsphost);
-        content.putSingle("ocsp_port", ocspport + "");
-
-        String c = post(cahost, caport, true, "/ca/ee/ca/updateOCSPConfig", content, null, null);
-        if (c == null || c.equals("")) {
-            CMS.debug("ConfigurationUtils: updateOCSPConfig: content is null.");
-            throw new IOException("The server you want to contact is not available");
-        } else {
-            ByteArrayInputStream bis = new ByteArrayInputStream(c.getBytes());
-            XMLObject parser = new XMLObject(bis);
-
-            String status = parser.getValue("Status");
-            CMS.debug("ConfigurationUtils: updateOCSPConfig: status=" + status);
-
-            if (status.equals(SUCCESS)) {
-                CMS.debug("ConfigurationUtils: updateOCSPConfig: Successfully update the OCSP configuration in the CA.");
-            } else if (status.equals(AUTH_FAILURE)) {
-                throw new EAuthException(AUTH_FAILURE);
-            } else {
-                String error = parser.getValue("Error");
-                throw new IOException(error);
-            }
-        }
-    }
-
     public static void setupDBUser() throws CertificateException, LDAPException, EBaseException,
             NotInitializedException, ObjectNotFoundException, TokenException, IOException {
 
