@@ -842,32 +842,4 @@ public class CertUtil {
             CryptoUtil.importUserCertificate(impl, nickname, false);
         }
     }
-
-    public static void importExternalCert(
-            String tag,
-            String tokenname,
-            String nickname,
-            byte[] cert
-            ) throws Exception {
-
-        CMS.debug("CertUtil.importExternalCert(" + tag + ")");
-
-        if (tag.equals("sslserver")) {
-            CMS.debug("CertUtil: temporary SSL server cert will be replaced on restart");
-            return;
-        }
-
-        if (findCertificate(tokenname, nickname)) {
-            CMS.debug("CertUtil: deleting existing " + tag + " cert");
-            deleteCert(tokenname, nickname);
-        }
-
-        CMS.debug("CertUtil: importing " + tag + " cert");
-
-        CryptoManager cm = CryptoManager.getInstance();
-        X509Certificate x509cert = cm.importCertPackage(cert, nickname);
-
-        CMS.debug("CertUtil: trusting cert: " + x509cert.getSubjectDN());
-        CryptoUtil.trustCertByNickname(nickname);
-    }
 }
