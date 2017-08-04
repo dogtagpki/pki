@@ -26,6 +26,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import org.dogtagpki.server.rest.SystemConfigService;
 
 import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.PKIException;
@@ -52,7 +53,7 @@ public class KRAInstallerService extends SystemConfigService {
 
             // need to push connector information to the CA
             if (!request.getStandAlone() && !ca_host.equals("")) {
-                configureKRAConnector(CMS.getAgentHost(), CMS.getAgentPort());
+                configureKRAConnector();
                 ConfigurationUtils.setupClientAuthUser();
             }
 
@@ -72,30 +73,25 @@ public class KRAInstallerService extends SystemConfigService {
         }
     }
 
-    public void configureKRAConnector(String kraHost, String kraPort)
-            throws Exception {
+    public void configureKRAConnector() throws Exception {
 
         IConfigStore cs = CMS.getConfigStore();
 
-        String caHost = null;
-        int caPort = -1;
-        String transportCert = "";
-
         String url = cs.getString("preop.ca.url", "");
-        if (!url.equals("")) {
-            caHost = cs.getString("preop.ca.hostname", "");
-            caPort = cs.getInteger("preop.ca.httpsadminport", -1);
-            transportCert = cs.getString("kra.transport.cert", "");
-        }
-
-        if (caHost == null) {
+        if (url.equals("")) {
             CMS.debug("KRAInstallerService: preop.ca.url is not defined. External CA selected. No transport certificate setup is required");
             return;
         }
 
+        String caHost = cs.getString("preop.ca.hostname", "");
+        int caPort = cs.getInteger("preop.ca.httpsadminport", -1);
+
         CMS.debug("KRAInstallerService: "
                 + "Configuring KRA connector in CA at https://" + caHost + ":" + caPort);
 
+        String kraHost = CMS.getAgentHost();
+        String kraPort = CMS.getAgentPort();
+        String transportCert = cs.getString("kra.transport.cert", "");
         String sessionId = CMS.getConfigSDSessionId();
 
         MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
@@ -108,15 +104,10 @@ public class KRAInstallerService extends SystemConfigService {
         content.putSingle("ca.connector.KRA.transportCert", transportCert);
         content.putSingle("sessionID", sessionId);
 
-        configureKRAConnector(caHost, caPort, true, content);
-    }
-
-    public void configureKRAConnector(String caHost, int caPort, boolean https,
-            MultivaluedMap<String, String> content) throws Exception {
-
-        String c = ConfigurationUtils.post(caHost, caPort, https, "/ca/admin/ca/updateConnector", content, null, null);
-        if (c == null) {
-            return;
+        String c = ConfigurationUtils.post(caHost, caPort, true, "/ca/admin/ca/updateConnector", content, null, null);
+        if (c == null || c.equals("")) {
+            CMS.debug("KRAInstallerService: Unable to configure KRA connector: No response from CA");
+            throw new IOException("Unable to configure KRA connector: No response from CA");
         }
 
         ByteArrayInputStream bis = new ByteArrayInputStream(c.getBytes());
@@ -125,8 +116,16 @@ public class KRAInstallerService extends SystemConfigService {
         String status = parser.getValue("Status");
         CMS.debug("KRAInstallerService: status: " + status);
 
-        if (!status.equals(ConfigurationUtils.SUCCESS)) {
+        if (status.equals(ConfigurationUtils.SUCCESS)) {
+            CMS.debug("KRAInstallerService: Successfully configured KRA connector in CA");
+
+        } else if (status.equals(ConfigurationUtils.AUTH_FAILURE)) {
+            CMS.debug("KRAInstallerService: Unable to configure KRA connector: Authentication failure");
+            throw new EAuthException(ConfigurationUtils.AUTH_FAILURE);
+
+        } else {
             String error = parser.getValue("Error");
+            CMS.debug("KRAInstallerService: Unable to configure KRA connector: " + error);
             throw new IOException(error);
         }
     }
