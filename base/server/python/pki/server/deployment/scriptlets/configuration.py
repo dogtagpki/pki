@@ -545,7 +545,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         pkcs12_password = deployer.mdict['pki_external_pkcs12_password']
         nssdb.import_pkcs12(pkcs12_file, pkcs12_password)
 
-    def import_cert_chain(self, deployer, nssdb, subsystem):
+    def import_cert_chain(self, deployer, nssdb):
 
         chain_file = deployer.mdict.get('pki_external_ca_cert_chain_path')
         if not chain_file or not os.path.exists(chain_file):
@@ -557,12 +557,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             "importing certificate chain from %s" % chain_file,
             extra=config.PKI_INDENTATION_LEVEL_2)
 
-        cert_chain, _nicks = nssdb.import_cert_chain(
+        nssdb.import_cert_chain(
             nickname=nickname,
             cert_chain_file=chain_file,
             trust_attributes='CT,C,C')
-
-        subsystem.config['ca.external_ca_chain.cert'] = cert_chain
 
     def import_system_certs(self, deployer, nssdb, subsystem):
 
@@ -593,7 +591,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # to ensure that the system certs are imported with
         # the correct nicknames.
 
-        self.import_cert_chain(deployer, nssdb, subsystem)
+        self.import_cert_chain(deployer, nssdb)
 
     def configure_system_cert(self, deployer, nssdb, subsystem, tag):
 
