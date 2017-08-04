@@ -989,10 +989,12 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             config.wait_to_attach_an_external_java_debugger()
 
         # Construct PKI Subsystem Configuration Data
-        data = None
-        if deployer.mdict['pki_instance_type'] == "Tomcat":
-            # CA, KRA, OCSP, TKS, or TPS
-            data = deployer.config_client.construct_pki_configuration_data()
+        nssdb = instance.open_nssdb(token)
+        try:
+            data = deployer.config_client.construct_pki_configuration_data(nssdb)
+
+        finally:
+            nssdb.close()
 
         # Configure the subsystem
         response = deployer.config_client.configure_pki_data(
