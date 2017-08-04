@@ -114,11 +114,8 @@ import com.netscape.certsrv.client.PKIConnection;
 import com.netscape.certsrv.dbs.IDBSubsystem;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
-import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.key.KeyData;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
-import com.netscape.certsrv.ocsp.IDefStore;
-import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.certsrv.system.ConfigurationRequest;
 import com.netscape.certsrv.system.InstallToken;
 import com.netscape.certsrv.system.SecurityDomainClient;
@@ -3845,43 +3842,6 @@ public class ConfigurationUtils {
 
         cs.putString("conn.tks1.tksSharedSymKeyName", nick);
         cs.commit(false);
-    }
-
-    public static void importCACertToOCSP() throws IOException, EBaseException, CertificateEncodingException {
-        IConfigStore config = CMS.getConfigStore();
-
-        // get certificate chain from CA
-        String b64 = config.getString("preop.ca.pkcs7", "");
-        if (b64.equals("")) {
-            throw new IOException("Failed to get certificate chain.");
-        }
-
-        // this could be a chain
-        java.security.cert.X509Certificate[] certs = com.netscape.cmsutil.util.Cert.mapCertFromPKCS7(b64);
-        java.security.cert.X509Certificate leafCert = null;
-        if (certs != null && certs.length > 0) {
-            if (certs[0].getSubjectDN().getName().equals(certs[0].getIssuerDN().getName())) {
-                leafCert = certs[certs.length - 1];
-            } else {
-                leafCert = certs[0];
-            }
-
-            IOCSPAuthority ocsp = (IOCSPAuthority) CMS.getSubsystem(IOCSPAuthority.ID);
-            IDefStore defStore = ocsp.getDefaultStore();
-
-            // (1) need to normalize (sort) the chain
-            // (2) store certificate (and certificate chain) into
-            // database
-            ICRLIssuingPointRecord rec = defStore.createCRLIssuingPointRecord(
-                    leafCert.getSubjectDN().getName(),
-                    BIG_ZERO,
-                    MINUS_ONE, null, null);
-
-            rec.set(ICRLIssuingPointRecord.ATTR_CA_CERT, leafCert.getEncoded());
-            defStore.addCRLIssuingPoint(leafCert.getSubjectDN().getName(), rec);
-
-            CMS.debug("importCACertToOCSP(): Added CA certificate.");
-        }
     }
 
     public static void setupDBUser() throws CertificateException, LDAPException, EBaseException,
