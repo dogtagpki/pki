@@ -334,15 +334,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                             String nickname = certData.getNickname() != null ? certData.getNickname() : "caSigningCert External CA";
                             Cert cert = new Cert(tokenName, nickname, tag);
                             ConfigurationUtils.setExternalCACert(b64, csSubsystem, cs, cert);
-
-                            CMS.debug("Step 2:  certStr for '" + tag + "' is " + b64);
-                            String certChainStr = certData.getCertChain();
-
-                            if (certChainStr != null) {
-                                ConfigurationUtils.setExternalCACertChain(certChainStr, csSubsystem, cs, cert);
-                                CMS.debug("Step 2:  certChainStr for '" + tag + "' is " + certChainStr);
-                                certs.add(cert);
-                            }
                         }
 
                         continue;
@@ -535,10 +526,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             if (request.getIssuingCA().equals("External CA")) {
                 b64 = CryptoUtil.stripCertBrackets(b64.trim());
                 cert.setCert(CryptoUtil.normalizeCertStr(b64));
-
-                if (certData.getCertChain() != null) {
-                    cert.setCertChain(certData.getCertChain());
-                }
             }
         }
 

@@ -2285,12 +2285,6 @@ public class ConfigurationUtils {
         certObj.setCert(certStr);
     }
 
-    public static void setExternalCACertChain(String certChainStr, String subsystem, IConfigStore config, Cert certObj) {
-        certChainStr = CryptoUtil.normalizeCertAndReq(certChainStr);
-        config.putString(subsystem + ".external_ca_chain.cert", certChainStr);
-        certObj.setCertChain(certChainStr);
-    }
-
     public static KeyPair loadKeyPair(String nickname, String token) throws Exception {
 
         CMS.debug("ConfigurationUtils: loadKeyPair(" + nickname + ", " + token + ")");
@@ -3159,10 +3153,6 @@ public class ConfigurationUtils {
 
         if (!x509Cert.getSubjectDN().equals(x509Cert.getIssuerDN())) {
             CMS.debug("ConfigurationUtils: " + tag + " cert is not self-signed");
-
-            String subsystem = config.getString(PCERT_PREFIX + tag + ".subsystem");
-            String certChain = config.getString(subsystem + ".external_ca_chain.cert");
-            cert.setCertChain(certChain);
 
             return;
         }
