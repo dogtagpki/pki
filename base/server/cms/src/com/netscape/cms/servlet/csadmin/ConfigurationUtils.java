@@ -2275,15 +2275,6 @@ public class ConfigurationUtils {
         CMS.reinit(IUGSubsystem.ID);
     }
 
-    public static void setExternalCACert(String certStr, String subsystem, IConfigStore config, Cert certObj)
-            throws Exception {
-        certStr = CryptoUtil.stripCertBrackets(certStr.trim());
-        certStr = CryptoUtil.normalizeCertStr(certStr);
-        certObj.setSubsystem(subsystem);
-        certObj.setType(config.getString("preop.ca.type", "otherca"));
-        certObj.setCert(certStr);
-    }
-
     public static KeyPair loadKeyPair(String nickname, String token) throws Exception {
 
         CMS.debug("ConfigurationUtils: loadKeyPair(" + nickname + ", " + token + ")");
