@@ -28,7 +28,6 @@ import java.util.Collection;
 import java.util.Random;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.mutable.MutableBoolean;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.CryptoManager.NotInitializedException;
 import org.mozilla.jss.NoSuchTokenException;
@@ -165,16 +164,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         configureCACertChain(data, domainXML);
 
         Collection<Cert> certs = new ArrayList<Cert>();
-        MutableBoolean hasSigningCert = new MutableBoolean();
-        processCerts(data, token, certList, certs, hasSigningCert);
-
-        // non-Stand-alone PKI submitting CSRs to external ca
-        if (data.getIssuingCA() != null && data.getIssuingCA().equals("External CA") && !hasSigningCert.booleanValue()) {
-            CMS.debug("Submit CSRs to external ca . . .");
-            response.setSystemCerts(SystemCertDataFactory.create(certs));
-            response.setStatus(SUCCESS);
-            return;
-        }
+        processCerts(data, token, certList, certs);
 
         for (Cert cert : certs) {
             try {
@@ -292,13 +282,10 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             ConfigurationRequest request,
             String token,
             Collection<String> certList,
-            Collection<Cert> certs,
-            MutableBoolean hasSigningCert) throws Exception {
+            Collection<Cert> certs) throws Exception {
 
         boolean generateServerCert = !request.getGenerateServerCert().equalsIgnoreCase("false");
         boolean generateSubsystemCert = request.getGenerateSubsystemCert();
-
-        hasSigningCert.setValue(false);
 
         for (String tag : certList) {
 
@@ -328,7 +315,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
                     String b64 = certData.getCert();
                     if (b64 != null && b64.length() > 0 && !b64.startsWith("...")) {
-                        hasSigningCert.setValue(true);
                         continue;
                     }
                 }
@@ -355,7 +341,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
             Cert cert = processCert(
                     request,
-                    hasSigningCert,
                     certData,
                     tokenName);
 
@@ -450,7 +435,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
     public Cert processCert(
             ConfigurationRequest request,
-            MutableBoolean hasSigningCert,
             SystemCertData certData,
             String tokenName) throws Exception {
 
@@ -479,9 +463,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
             CMS.debug("SystemConfigService: Loading cert " + tag);
             ConfigurationUtils.loadCert(cs, cert);
-
-            CMS.debug("SystemConfigService: External CA has signing cert");
-            hasSigningCert.setValue(true);
             return cert;
         }
 
@@ -514,7 +495,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         // this will only execute on a ca or stand-alone pki
         String b64 = certData.getCert();
         if ((tag.equals("signing") || tag.equals("external_signing")) && b64 != null && b64.length() > 0 && !b64.startsWith("...")) {
-            hasSigningCert.setValue(true);
 
             if (request.getIssuingCA().equals("External CA")) {
                 b64 = CryptoUtil.stripCertBrackets(b64.trim());
