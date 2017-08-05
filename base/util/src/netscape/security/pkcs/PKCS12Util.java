@@ -94,7 +94,7 @@ public class PKCS12Util {
 
         InternalCertificate icert = (InternalCertificate) cert;
 
-        String[] flags = trustFlags.split(",");
+        String[] flags = trustFlags.split(",", -1); // don't remove empty string
         if (flags.length < 3) throw new Exception("Invalid trust flags: " + trustFlags);
 
         icert.setSSLTrust(PKCS12.decodeFlags(flags[0]));
