@@ -23,12 +23,17 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
+import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.crypto.InternalCertificate;
+import org.mozilla.jss.crypto.X509Certificate;
 
 import com.netscape.certsrv.cert.CertClient;
 import com.netscape.certsrv.cert.CertData;
@@ -37,6 +42,9 @@ import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
+
+import netscape.security.pkcs.PKCS12;
+import netscape.security.pkcs.PKCS7;
 
 /**
  * @author Endi S. Dewata
@@ -62,6 +70,10 @@ public class ClientCertImportCLI extends CLI {
         options.addOption(option);
 
         option = new Option(null, "ca-cert", true, "CA certificate file to import.");
+        option.setArgName("path");
+        options.addOption(option);
+
+        option = new Option(null, "pkcs7", true, "PKCS #7 file to import.");
         option.setArgName("path");
         options.addOption(option);
 
@@ -123,6 +135,7 @@ public class ClientCertImportCLI extends CLI {
 
         String certPath = cmd.getOptionValue("cert");
         String caCertPath = cmd.getOptionValue("ca-cert");
+        String pkcs7Path = cmd.getOptionValue("pkcs7");
         String pkcs12Path = cmd.getOptionValue("pkcs12");
         String pkcs12Password = cmd.getOptionValue("pkcs12-password");
         String pkcs12PasswordPath = cmd.getOptionValue("pkcs12-password-file");
@@ -172,6 +185,15 @@ public class ClientCertImportCLI extends CLI {
                     caCertPath,
                     nickname,
                     trustAttributes);
+
+        } else if (pkcs7Path != null) {
+
+            if (verbose) System.out.println("Importing certificates from " + pkcs7Path + ".");
+
+            // late initialization
+            mainCLI.init();
+
+            importPKCS7(pkcs7Path, nickname, trustAttributes);
 
         } else if (pkcs12Path != null) {
 
@@ -282,6 +304,18 @@ public class ClientCertImportCLI extends CLI {
         }
     }
 
+    public void setTrustAttributes(X509Certificate cert, String trustAttributes)
+            throws Exception {
+
+        String[] flags = trustAttributes.split(",", -1); // don't remove empty string
+        if (flags.length < 3) throw new Exception("Invalid trust attributes: " + trustAttributes);
+
+        InternalCertificate internalCert = (InternalCertificate) cert;
+        internalCert.setSSLTrust(PKCS12.decodeFlags(flags[0]));
+        internalCert.setEmailTrust(PKCS12.decodeFlags(flags[1]));
+        internalCert.setObjectSigningTrust(PKCS12.decodeFlags(flags[2]));
+    }
+
     public void importCert(
             File dbPath,
             File dbPasswordFile,
@@ -316,6 +350,69 @@ public class ClientCertImportCLI extends CLI {
         } catch (Exception e) {
             throw new Exception("Unable to import certificate file", e);
         }
+    }
+
+    public void importPKCS7(
+            String pkcs7Path,
+            String nickname,
+            String trustAttributes) throws Exception {
+
+        if (verbose) System.out.println("Loading PKCS #7 data from " + pkcs7Path);
+        String str = new String(Files.readAllBytes(Paths.get(pkcs7Path))).trim();
+        PKCS7 pkcs7 = new PKCS7(str);
+
+        java.security.cert.X509Certificate[] certs = pkcs7.getCertificates();
+        if (certs == null) {
+            if (verbose) System.out.println("No certificates to import");
+            return;
+        }
+
+        CryptoManager manager = CryptoManager.getInstance();
+
+        // Import certs with preferred nicknames.
+        // NOTE: JSS/NSS may assign different nickname.
+        int i = 0;
+        for (java.security.cert.X509Certificate cert : certs) {
+
+            String preferredNickname = nickname + (i == 0 ? "" : " #" + (i + 1));
+            if (verbose) System.out.println("Importing certificate " + preferredNickname + ": " +cert.getSubjectDN());
+
+            X509Certificate importedCert = manager.importUserCACertPackage(cert.getEncoded(), preferredNickname);
+
+            String importedNickname = importedCert.getNickname();
+            if (verbose) System.out.println("Certificate imported as " + importedNickname);
+
+            if (importedNickname.equals(preferredNickname)) {
+                // Cert was imported with preferred nickname, increment counter.
+                i++;
+            }
+        }
+
+        X509Certificate cert = manager.findCertByNickname(nickname);
+
+        if (trustAttributes != null) {
+            if (verbose) {
+                System.out.println(
+                        "Setting trust attributes for " + cert.getNickname() +
+                        " to " + trustAttributes);
+            }
+            setTrustAttributes(cert, trustAttributes);
+        }
+
+        X509Certificate[] chain = manager.buildCertificateChain(cert);
+        if (chain.length == 1 && trustAttributes != null) {
+            // Cert has no parent cert and is already trusted.
+            return;
+        }
+
+        // Trust root cert.
+        X509Certificate root = chain[chain.length - 1];
+        if (verbose) {
+            System.out.println(
+                    "Setting trust attributes for " + root.getNickname() +
+                    " to CT,C,C");
+        }
+        setTrustAttributes(root, "CT,C,C");
     }
 
     public void importPKCS12(
