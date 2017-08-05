@@ -738,8 +738,8 @@ class ConfigurationFile:
 
             else:
                 # Stand-alone PKI External CA Certificate (Step 2)
-                self.confirm_data_exists("pki_external_ca_cert_path")
-                self.confirm_file_exists("pki_external_ca_cert_path")
+                # The pki_external_ca_cert_path is optional.
+
                 # Stand-alone PKI Admin Certificate (Step 2)
                 self.confirm_data_exists("pki_external_admin_cert_path")
                 self.confirm_file_exists("pki_external_admin_cert_path")
