@@ -737,74 +737,21 @@ class NSSDatabase(object):
     def import_pkcs7(self, pkcs7_file, nickname, trust_attributes=None,
                      output_format='pem'):
 
-        tmpdir = tempfile.mkdtemp()
+        subprocess.check_call([
+            'pki',
+            '-d', self.directory,
+            '-C', self.password_file,
+            'client-cert-import',
+            '--pkcs7', pkcs7_file,
+            '--trust', trust_attributes,
+            nickname
+        ])
 
-        try:
-            # export certs from PKCS #7 into PEM output
-            output = subprocess.check_output([
-                'openssl',
-                'pkcs7',
-                '-print_certs',
-                '-in', pkcs7_file
-            ])
+        # convert PKCS #7 data to the requested format
+        with open(pkcs7_file, 'r') as f:
+            data = f.read()
 
-            # parse PEM output into separate PEM certificates
-            certs = []
-            lines = []
-            nicks = []
-            state = 'header'
-
-            for line in output.splitlines():
-
-                if state == 'header':
-                    if line != CERT_HEADER:
-                        # ignore header lines
-                        pass
-                    else:
-                        # save cert header
-                        lines.append(line)
-                        state = 'body'
-
-                elif state == 'body':
-                    if line != CERT_FOOTER:
-                        # save cert body
-                        lines.append(line)
-                    else:
-                        # save cert footer
-                        lines.append(line)
-
-                        # construct PEM cert
-                        cert = '\n'.join(lines)
-                        certs.append(cert)
-                        lines = []
-                        state = 'header'
-
-            # import PEM certs into NSS database
-            counter = 1
-            for cert in certs:
-
-                cert_file = os.path.join(tmpdir, 'cert%d.pem' % counter)
-                with open(cert_file, 'w') as f:
-                    f.write(cert)
-
-                if counter == 1:
-                    n = nickname
-                else:
-                    n = '%s #%d' % (nickname, counter)
-
-                self.add_cert(n, cert_file, trust_attributes=trust_attributes)
-                nicks.append(n)
-
-                counter += 1
-
-            # convert PKCS #7 data to the requested format
-            with open(pkcs7_file, 'r') as f:
-                data = f.read()
-
-            return convert_pkcs7(data, 'pem', output_format), nicks
-
-        finally:
-            shutil.rmtree(tmpdir)
+        return convert_pkcs7(data, 'pem', output_format), [nickname]
 
     def import_pkcs12(self, pkcs12_file,
                       pkcs12_password=None,
