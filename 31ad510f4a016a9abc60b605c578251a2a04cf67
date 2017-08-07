@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ebd7ec0c_d9d7629b",
+        "filename": "base/server/python/pki/server/deployment/scriptlets/configuration.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 284,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-08-07T15:20:59Z",
+      "side": 1,
+      "message": "NIT - blank line",
+      "revId": "31ad510f4a016a9abc60b605c578251a2a04cf67",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
