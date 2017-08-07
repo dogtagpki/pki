@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "75e7c60f_86bea86a",
+        "filename": "base/server/python/pki/server/deployment/scriptlets/configuration.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-08-07T15:14:52Z",
+      "side": 1,
+      "message": "Nit: remove blank line in line 188",
+      "revId": "85992bf76c58d8bbe6632412fbb1a033db62939f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
