@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e23a5e78_ee1d4dd5",
+        "filename": "base/java-tools/src/com/netscape/cmstools/client/ClientCertImportCLI.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 379,
+      "author": {
+        "id": 1010256
+      },
+      "writtenOn": "2017-08-07T22:17:48Z",
+      "side": 1,
+      "message": "here you are traversing certs one by one through the PKCS#7 and call importUserCACertPackage() for each cert.  I don\u0027t think that\u0027s the intended usage of the method, despite that it might give you the result you want.\n\nYou might want to instead try calling importCertPackage() and passing in the PKCS#7 byte array.\n\nIf you prefer importing/handling each cert individually, you would want to try one of the other single-cert methods such as importCertToPerm.\n\nExperiments are expected, as I don\u0027t know if any of these JSS methods set the trust or nickname(s) as expected.",
+      "revId": "261db9791428edc642410231e4a5a088cb37509f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
