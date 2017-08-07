@@ -379,6 +379,19 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             certs.add(cert);
         }
 
+        if (request.getStandAlone() && !request.getStepTwo()) { // Stand-alone PKI (Step 1)
+
+            CMS.debug("SystemConfigService: Standalone " + csType + " Admin CSR");
+
+            String adminSubjectDN = request.getAdminSubjectDN();
+            String certreqStr = request.getAdminCertRequest();
+            certreqStr = CryptoUtil.normalizeCertAndReq(certreqStr);
+
+            cs.putString("preop.cert.admin.dn", adminSubjectDN);
+            cs.putString(csSubsystem + ".admin.certreq", certreqStr);
+            cs.putString(csSubsystem + ".admin.cert", "...paste certificate here...");
+        }
+
         // make sure to commit changes here for step 1
         cs.commit(false);
 
@@ -523,15 +536,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             if (!request.getStepTwo()) {
                 // Stand-alone PKI (Step 1)
                 ConfigurationUtils.generateCertRequest(cs, tag, cert);
-
-                CMS.debug("SystemConfigService: Standalone " + csType + " Admin CSR");
-                String adminSubjectDN = request.getAdminSubjectDN();
-                String certreqStr = request.getAdminCertRequest();
-                certreqStr = CryptoUtil.normalizeCertAndReq(certreqStr);
-
-                cs.putString("preop.cert.admin.dn", adminSubjectDN);
-                cs.putString(csSubsystem + ".admin.certreq", certreqStr);
-                cs.putString(csSubsystem + ".admin.cert", "...paste certificate here...");
             }
 
         } else {
