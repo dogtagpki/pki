@@ -397,7 +397,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         nssdb = instance.open_nssdb()
 
         try:
-            nssdb.remove_cert(nickname, remove_key=True)
+            # remove temp SSL server cert but keep the key
+            nssdb.remove_cert(nickname)
 
         finally:
             nssdb.close()
@@ -526,7 +527,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if external and step_one:
             return
 
-        self.create_temp_sslserver_cert(deployer, instance, token)
+        create_temp_sslserver_cert = self.create_temp_sslserver_cert(deployer, instance, token)
 
         # Start/Restart this Tomcat PKI Process
         # Optionally prepare to enable a java debugger
@@ -669,7 +670,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 admin_cert = response['adminCert']['cert']
                 deployer.config_client.process_admin_cert(admin_cert)
 
-        if sslserver and sslserver['cert']:
+        # If temp SSL server cert was created and there's a new perm cert,
+        # replace it with the perm cert.
+        if create_temp_sslserver_cert and sslserver and sslserver['cert']:
             deployer.systemd.stop()
             self.replace_sslserver_cert(deployer, instance, sslserver)
             deployer.systemd.start()
