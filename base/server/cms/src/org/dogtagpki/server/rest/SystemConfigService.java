@@ -437,7 +437,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         }
         cs.commit(false);
 
-        if (request.isExternal() && tag.equals("signing")) { // external/existing CA
+        try {
 
             CMS.debug("SystemConfigService: loading existing key pair from NSS database");
             KeyPair pair = ConfigurationUtils.loadKeyPair(certData.getNickname(), certData.getToken());
@@ -445,9 +445,9 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             CMS.debug("SystemConfigService: storing key pair into CS.cfg");
             ConfigurationUtils.storeKeyPair(cs, tag, pair);
 
-        } else if (!request.getStepTwo()) {
+        } catch (ObjectNotFoundException e) {
 
-            CMS.debug("SystemConfigService: generating key pair");
+            CMS.debug("SystemConfigService: key pair not found, generating new key pair");
 
             KeyPair pair;
             if (keytype.equals("ecc")) {
@@ -465,9 +465,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
             CMS.debug("SystemConfigService: storing key pair into CS.cfg");
             ConfigurationUtils.storeKeyPair(cs, tag, pair);
-
-        } else {
-            CMS.debug("SystemConfigService: key pair already generated in step one");
         }
     }
 
