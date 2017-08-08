@@ -18,15 +18,20 @@
 package com.netscape.cmstools;
 
 import java.io.ByteArrayInputStream;
-import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.math.BigInteger;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import netscape.security.util.CertPrettyPrint;
-import netscape.security.x509.X509CertImpl;
-
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.PosixParser;
 import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.INTEGER;
 import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
@@ -42,6 +47,10 @@ import org.mozilla.jss.pkix.cmc.ResponseBody;
 import org.mozilla.jss.pkix.cmc.TaggedAttribute;
 import org.mozilla.jss.pkix.cms.EncapsulatedContentInfo;
 
+import netscape.security.pkcs.PKCS7;
+import netscape.security.util.CertPrettyPrint;
+import netscape.security.x509.X509CertImpl;
+
 /**
  * Tool for parsing a CMC response
  *
@@ -52,21 +61,14 @@ import org.mozilla.jss.pkix.cms.EncapsulatedContentInfo;
  */
 public class CMCResponse {
 
+    static CommandLineParser parser = new PosixParser();
+    static Options options = new Options();
+    static HelpFormatter formatter = new HelpFormatter();
+
     public CMCResponse() {
     }
 
-    public static void printOutput(String path, String filename) {
-        byte[] bb = new byte[10000];
-        FileInputStream fis = null;
-        try {
-            fis = new FileInputStream(filename);
-            while (fis.available() > 0)
-                fis.read(bb, 0, 10000);
-        } catch (Exception e) {
-            System.out.println("Error reading the response. Exception: " + e.toString());
-            System.exit(1);
-        }
-
+    public static void printOutput(byte[] bb) {
         try {
             ByteArrayInputStream bis = new ByteArrayInputStream(bb);
             org.mozilla.jss.pkix.cms.ContentInfo cii = (org.mozilla.jss.pkix.cms.ContentInfo)
@@ -254,29 +256,56 @@ public class CMCResponse {
     }
 
     private static void printUsage() {
-        System.out.println("");
-        System.out.println(
-                "Usage: CMCResponse -d <pathname for cert8.db> -i <pathname for CMC response in binary format> ");
+        formatter.printHelp("CMCResponse [OPTIONS..]", options);
     }
 
-    public static void main(String args[]) {
-        String filename = null, path = null;
-        if (args.length != 4) {
+    public static void main(String args[]) throws Exception {
+
+        Option option = new Option("d", true, "NSS database location");
+        option.setArgName("path");
+        options.addOption(option);
+
+        option = new Option("i", true, "Input file containing CMC response in binary format");
+        option.setArgName("path");
+        options.addOption(option);
+
+        option = new Option("o", true, "Output file to store certificate chain in PKCS #7 PEM format");
+        option.setArgName("path");
+        options.addOption(option);
+
+        options.addOption(null, "help", false, "Show help message.");
+
+        CommandLine cmd = parser.parse(options, args, true);
+
+        @SuppressWarnings("unused")
+        String database = cmd.getOptionValue("d");
+
+        String input = cmd.getOptionValue("i");
+        String output = cmd.getOptionValue("o");
+
+        if (cmd.hasOption("help")) {
             printUsage();
             System.exit(1);
         }
 
-        for (int i = 0; i < args.length; i++) {
-            if (args[i].equals("-d"))
-                path = args[i + 1];
-            else if (args[i].equals("-i"))
-                filename = args[i + 1];
-        }
-
-        if (filename == null || path == null) {
-            printUsage();
+        if (input == null) {
+            System.err.println("ERROR: Missing input CMC response");
             System.exit(1);
         }
-        printOutput(path, filename);
+
+        // load CMC response
+        byte[] data = Files.readAllBytes(Paths.get(input));
+
+        // display CMC response
+        printOutput(data);
+
+        // export PKCS #7 if requested
+        if (output != null) {
+            PKCS7 pkcs7 = new PKCS7(data);
+
+            try (FileWriter fw = new FileWriter(output)) {
+                fw.write(pkcs7.toPEMString());
+            }
+        }
     }
 }
