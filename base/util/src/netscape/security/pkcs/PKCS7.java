@@ -18,11 +18,14 @@
 package netscape.security.pkcs;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
@@ -31,6 +34,8 @@ import java.security.cert.X509Certificate;
 import java.util.Vector;
 
 import org.apache.commons.codec.binary.Base64;
+
+import com.netscape.cmsutil.util.Utils;
 
 import netscape.security.util.BigInt;
 import netscape.security.util.DerInputStream;
@@ -473,6 +478,21 @@ public class PKCS7 {
             }
         }
         return null;
+    }
+
+    public byte[] getBytes() throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        encodeSignedData(out);
+        return out.toByteArray();
+    }
+
+    public String toPEMString() throws IOException {
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw, true);
+        pw.println(HEADER);
+        pw.print(Utils.base64encode(getBytes()));
+        pw.println(FOOTER);
+        return sw.toString();
     }
 
     /**
