@@ -19,10 +19,13 @@ package com.netscape.cmstools;
 
 import java.io.ByteArrayInputStream;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Locale;
 
@@ -34,6 +37,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
 import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.INTEGER;
+import org.mozilla.jss.asn1.InvalidBERException;
 import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
 import org.mozilla.jss.asn1.OCTET_STRING;
 import org.mozilla.jss.asn1.SEQUENCE;
@@ -45,7 +49,9 @@ import org.mozilla.jss.pkix.cmc.OtherInfo;
 import org.mozilla.jss.pkix.cmc.PendInfo;
 import org.mozilla.jss.pkix.cmc.ResponseBody;
 import org.mozilla.jss.pkix.cmc.TaggedAttribute;
+import org.mozilla.jss.pkix.cms.ContentInfo;
 import org.mozilla.jss.pkix.cms.EncapsulatedContentInfo;
+import org.mozilla.jss.pkix.cms.SignedData;
 
 import netscape.security.pkcs.PKCS7;
 import netscape.security.util.CertPrettyPrint;
@@ -65,17 +71,62 @@ public class CMCResponse {
     static Options options = new Options();
     static HelpFormatter formatter = new HelpFormatter();
 
-    public CMCResponse() {
+    ContentInfo contentInfo;
+
+    public CMCResponse(byte[] bytes) throws IOException, InvalidBERException {
+        ByteArrayInputStream is = new ByteArrayInputStream(bytes);
+        contentInfo = (ContentInfo) ContentInfo.getTemplate().decode(is);
     }
 
-    public static void printOutput(byte[] bb) {
-        try {
-            ByteArrayInputStream bis = new ByteArrayInputStream(bb);
-            org.mozilla.jss.pkix.cms.ContentInfo cii = (org.mozilla.jss.pkix.cms.ContentInfo)
-                    org.mozilla.jss.pkix.cms.ContentInfo.getTemplate().decode(bis);
+    public Collection<CMCStatusInfoV2> getStatuInfos() throws IOException, InvalidBERException {
 
-            org.mozilla.jss.pkix.cms.SignedData cmcFullResp =
-                    (org.mozilla.jss.pkix.cms.SignedData) cii.getInterpretedContent();
+        Collection<CMCStatusInfoV2> list = new ArrayList<>();
+
+        // assume full CMC response
+
+        SignedData signedData = (SignedData) contentInfo.getInterpretedContent();
+        EncapsulatedContentInfo eci = signedData.getContentInfo();
+
+        OCTET_STRING content = eci.getContent();
+        ByteArrayInputStream is = new ByteArrayInputStream(content.toByteArray());
+        ResponseBody responseBody = (ResponseBody) (new ResponseBody.Template()).decode(is);
+
+        // iterate through all controls
+
+        SEQUENCE controlSequence = responseBody.getControlSequence();
+        int numControls = controlSequence.size();
+
+        for (int i = 0; i < numControls; i++) {
+
+            TaggedAttribute taggedAttr = (TaggedAttribute) controlSequence.elementAt(i);
+            OBJECT_IDENTIFIER type = taggedAttr.getType();
+
+            if (!type.equals(OBJECT_IDENTIFIER.id_cmc_statusInfoV2)) {
+                continue;
+            }
+
+            // found CMCStatusInfoV2 controls
+
+            SET values = taggedAttr.getValues();
+            int numValues = values.size();
+
+            for (int j = 0; j < numValues; j++) {
+
+                CMCStatusInfoV2 statusInfo = (CMCStatusInfoV2) ASN1Util.decode(
+                        CMCStatusInfoV2.getTemplate(),
+                        ASN1Util.encode(values.elementAt(j)));
+
+                // collect CMCStatusInfoV2 controls
+                list.add(statusInfo);
+            }
+        }
+
+        return list;
+    }
+
+    public void printContent() {
+        try {
+            SignedData cmcFullResp = (SignedData) contentInfo.getInterpretedContent();
 
             StringBuffer content = new StringBuffer();
 
@@ -297,7 +348,29 @@ public class CMCResponse {
         byte[] data = Files.readAllBytes(Paths.get(input));
 
         // display CMC response
-        printOutput(data);
+        CMCResponse response = new CMCResponse(data);
+        response.printContent();
+
+        // terminate if any of the statuses is not a SUCCESS
+        Collection<CMCStatusInfoV2> statusInfos = response.getStatuInfos();
+        for (CMCStatusInfoV2 statusInfo : statusInfos) {
+
+            int status = statusInfo.getStatus();
+            if (status == CMCStatusInfoV2.SUCCESS) {
+                continue;
+            }
+
+            SEQUENCE bodyList = statusInfo.getBodyList();
+
+            Collection<INTEGER> list = new ArrayList<>();
+            for (int i = 0; i < bodyList.size(); i++) {
+                INTEGER n = (INTEGER) bodyList.elementAt(i);
+                list.add(n);
+            }
+
+            System.err.println("ERROR: CMC status for " + list + ": " + CMCStatusInfoV2.STATUS[status]);
+            System.exit(1);
+        }
 
         // export PKCS #7 if requested
         if (output != null) {
