@@ -34,6 +34,24 @@
       "revId": "d2894d199cc4e7da505a43d6d40a4081bfe956e9",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0e66cae0_1163d9c7",
+        "filename": "base/java-tools/src/com/netscape/cmstools/CMCResponse.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 1010256
+      },
+      "writtenOn": "2017-08-10T16:31:02Z",
+      "side": 1,
+      "message": "how about if statusInfos has no items in it?  Wouldn\u0027t that not exit with rc\u003d1?",
+      "parentUuid": "1105f30a_3bb787c5",
+      "revId": "d2894d199cc4e7da505a43d6d40a4081bfe956e9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
