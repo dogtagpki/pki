@@ -2605,9 +2605,7 @@ public class ConfigurationUtils {
 
             if (request.getStandAlone()) {
 
-                // Treat standalone subsystem the same as "otherca"
-                config.putString(subsystem + "." + certTag + ".cert",
-                        "...paste certificate here...");
+                // standalone certs already imported in configuration.py
 
             } else {
 
@@ -2691,8 +2689,7 @@ public class ConfigurationUtils {
 
         } else if (v.equals("otherca")) {
 
-            config.putString(subsystem + "." + certTag + ".cert",
-                    "...paste certificate here...");
+            // external certs already imported in configuration.py
 
         } else {
             CMS.debug("ConfigurationUtils: no preop.ca.type is provided");
@@ -2724,64 +2721,20 @@ public class ConfigurationUtils {
 
             String pubKeyModulus = config.getString(PCERT_PREFIX + certTag + ".pubkey.modulus");
             String pubKeyPublicExponent = config.getString(PCERT_PREFIX + certTag + ".pubkey.exponent");
-            String subsystem = config.getString(PCERT_PREFIX + certTag + ".subsystem");
 
-            if (certTag.equals("signing")) {
+            X509Key x509key = CryptoUtil.getPublicX509Key(
+                    CryptoUtil.string2byte(pubKeyModulus),
+                    CryptoUtil.string2byte(pubKeyPublicExponent));
 
-                X509Key x509key = CryptoUtil.getPublicX509Key(
-                        CryptoUtil.string2byte(pubKeyModulus),
-                        CryptoUtil.string2byte(pubKeyPublicExponent));
-
-                cert = CertUtil.createLocalCert(config, x509key, PCERT_PREFIX, certTag, caType);
-
-            } else {
-
-                String cacert = config.getString("ca.signing.cert", "");
-
-                if (cacert.equals("") || cacert.startsWith("...")) {
-
-                    certObj.setCert("...certificate be generated internally...");
-                    config.putString(subsystem + "." + certTag + ".cert",
-                            "...certificate be generated internally...");
-
-                } else {
-
-                    X509Key x509key = CryptoUtil.getPublicX509Key(
-                            CryptoUtil.string2byte(pubKeyModulus),
-                            CryptoUtil.string2byte(pubKeyPublicExponent));
-
-                    cert = CertUtil.createLocalCert(config, x509key, PCERT_PREFIX, certTag, caType);
-                }
-            }
+            cert = CertUtil.createLocalCert(config, x509key, PCERT_PREFIX, certTag, caType);
 
         } else if (pubKeyType.equals("ecc")) {
 
             String pubKeyEncoded = config.getString(PCERT_PREFIX + certTag + ".pubkey.encoded");
-            String subsystem = config.getString(PCERT_PREFIX + certTag + ".subsystem");
 
-            if (certTag.equals("signing")) {
-
-                X509Key x509key = CryptoUtil.getPublicX509ECCKey(CryptoUtil.string2byte(pubKeyEncoded));
-                cert = CertUtil.createLocalCert(config, x509key, PCERT_PREFIX, certTag, caType);
-
-            } else {
-
-                String cacert = config.getString("ca.signing.cert", "");
-
-                if (cacert.equals("") || cacert.startsWith("...")) {
-
-                    certObj.setCert("...certificate be generated internally...");
-                    config.putString(subsystem + "." + certTag + ".cert",
-                            "...certificate be generated internally...");
-
-                } else {
-
-                    X509Key x509key = CryptoUtil.getPublicX509ECCKey(
-                            CryptoUtil.string2byte(pubKeyEncoded));
-
-                    cert = CertUtil.createLocalCert(config, x509key, PCERT_PREFIX, certTag, caType);
-                }
-            }
+            X509Key x509key = CryptoUtil.getPublicX509ECCKey(
+                    CryptoUtil.string2byte(pubKeyEncoded));
+            cert = CertUtil.createLocalCert(config, x509key, PCERT_PREFIX, certTag, caType);
 
         } else {
             // invalid key type
