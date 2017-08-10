@@ -81,6 +81,16 @@ file is no longer needed.  It can be removed from the filesystem.  Be sure, of c
 to note all passwords contained therein - some of which may be randomly generated
 during the install.
 .PP
+\fBNote: \fR If a subsystem stores any of its system certificates in a cryptographic token other
+than the internal NSS database, it will have entries in \fBpassword.conf\fR that look
+like \fBhardware-TOKEN_NAME=password\fR.  In this case, an additional parameter
+must be added to CS.cfg.
+.PP
+\fBcms.tokenList=TOKEN_NAME\fR
+.PP
+When this parameter is added, nuxwdog will prompt the password for
+\fBhardware-TOKEN_NAME\fR in addition to the other passwords.
+.PP
 An instance that is started by \fBnuxwdog\fR is started by a different systemd unit
 file (\fBpki-tomcatd-nuxwdog\fR).  Therefore, to start/stop/restart an instance using
 the following:
