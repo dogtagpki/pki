@@ -4069,19 +4069,6 @@ class ConfigClient:
 
                     systemCerts.append(cert1)
 
-                elif self.standalone and self.external_step_two:
-                    # standalone KRA/OCSP step 2
-
-                    cert1 = pki.system.SystemCertData()
-                    cert1.tag = self.mdict['pki_ca_signing_tag']
-
-                    # Load the stand-alone PKI
-                    # 'External CA Signing Certificate' (Step 2)
-                    self.load_system_cert(
-                        nssdb, cert1, self.mdict['pki_cert_chain_nickname'])
-
-                    systemCerts.append(cert1)
-
                 elif self.subsystem == "CA":
                     # PKI CA or Subordinate CA
                     systemCerts.append(cert1)

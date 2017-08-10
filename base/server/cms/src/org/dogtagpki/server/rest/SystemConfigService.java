@@ -261,11 +261,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         Collection<String> certList = new ArrayList<String>();
 
-        if (request.getStandAlone()) {
-            // Special case to import the external CA and its Chain
-            certList.add("external_signing");
-        }
-
         try {
             String value = cs.getString("preop.cert.list");
             certList.addAll(Arrays.asList(value.split(",")));
@@ -309,16 +304,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             }
 
             String tokenName = certData.getToken() != null ? certData.getToken() : token;
-
-            if (request.getStandAlone()) {
-                if (tag.equals("external_signing")) {
-
-                    String b64 = certData.getCert();
-                    if (b64 != null && b64.length() > 0 && !b64.startsWith("...")) {
-                        continue;
-                    }
-                }
-            }
 
             if (!generateServerCert && tag.equals("sslserver")) {
                 updateConfiguration(request, certData, "sslserver");
@@ -492,9 +477,9 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         }
 
         // to determine if we have the signing cert when using an external ca
-        // this will only execute on a ca or stand-alone pki
+        // this will only execute on a ca
         String b64 = certData.getCert();
-        if ((tag.equals("signing") || tag.equals("external_signing")) && b64 != null && b64.length() > 0 && !b64.startsWith("...")) {
+        if (tag.equals("signing") && b64 != null && b64.length() > 0 && !b64.startsWith("...")) {
 
             if (request.getIssuingCA().equals("External CA")) {
                 b64 = CryptoUtil.stripCertBrackets(b64.trim());

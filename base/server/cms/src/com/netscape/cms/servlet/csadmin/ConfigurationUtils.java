@@ -3257,9 +3257,7 @@ public class ConfigurationUtils {
 
         CMS.debug("ConfigurationUtils.setCertPermissions(" + tag + ")");
 
-        if (tag.equals("signing")
-                || tag.equals("external_signing")
-                || tag.equals("sslserver")) {
+        if (tag.equals("signing") || tag.equals("sslserver")) {
             return;
         }
 
