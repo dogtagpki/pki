@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2c898f4f_dd90c658",
+        "filename": "base/java-tools/src/com/netscape/cmstools/CMCResponse.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 1010256
+      },
+      "writtenOn": "2017-08-10T02:29:36Z",
+      "side": 1,
+      "message": "if getStatusInfos() throws an exception would that give you the error exit code?",
+      "revId": "d2894d199cc4e7da505a43d6d40a4081bfe956e9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
