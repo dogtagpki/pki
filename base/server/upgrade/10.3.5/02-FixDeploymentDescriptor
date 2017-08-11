@@ -46,6 +46,9 @@ class FixDeploymentDescriptor(pki.server.upgrade.PKIServerUpgradeScriptlet):
         source_xml = pki.SHARE_DIR + '/server/conf/Catalina/localhost/' + context_xml
         target_xml = instance.conf_dir + '/Catalina/localhost/' + context_xml
 
+        if not os.path.exists(source_xml):
+            return
+
         # if deployment descriptor doesn't exist, install the default
         if not os.path.exists(target_xml):
             self.copy_file(instance, source_xml, target_xml)
