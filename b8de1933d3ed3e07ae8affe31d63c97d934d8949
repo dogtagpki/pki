@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "562958d9_16da5c84",
+        "filename": "base/ca/src/com/netscape/ca/CAService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 987,
+      "author": {
+        "id": 1010222
+      },
+      "writtenOn": "2017-08-11T22:53:58Z",
+      "side": 1,
+      "message": "Should we call out if revReason turns out to be null?",
+      "revId": "b8de1933d3ed3e07ae8affe31d63c97d934d8949",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a169c7a_3c38e8a3",
+        "filename": "base/ca/src/com/netscape/ca/CAService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1049,
+      "author": {
+        "id": 1010222
+      },
+      "writtenOn": "2017-08-11T22:53:58Z",
+      "side": 1,
+      "message": "Notice in the old code, there is a closed brace after the mca.getCertificateRepository().markAsRevoked statement, and then all of the stuff at the bottom is executed anyway. IN the new version, all that stuff is within the else clause and doesn\u0027t get executed anyway. Is this intentional?",
+      "revId": "b8de1933d3ed3e07ae8affe31d63c97d934d8949",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "440bc720_4198f51b",
+        "filename": "base/server/cmscore/src/com/netscape/cmscore/dbs/CertRecord.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 284,
+      "author": {
+        "id": 1010222
+      },
+      "writtenOn": "2017-08-11T22:53:58Z",
+      "side": 1,
+      "message": "Should we throw exception here instead of returning null?",
+      "revId": "b8de1933d3ed3e07ae8affe31d63c97d934d8949",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
