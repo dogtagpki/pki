@@ -72,7 +72,7 @@ public class CAEnrollProfile extends EnrollProfile {
     }
 
     public void execute(IRequest request)
-            throws EProfileException {
+            throws EProfileException, ERejectException {
 
         long startTime = CMS.getCurrentDate().getTime();
 
@@ -119,12 +119,14 @@ public class CAEnrollProfile extends EnrollProfile {
                                 auditRequesterID,
                                 requestId,
                                 null));
+                        throw new EProfileException("Internal error: missing kraConnector");
                     } else {
                         CMS.debug("CAEnrollProfile: execute send request");
                         kraConnector.send(request);
 
                         // check response
                         if (!request.isSuccess()) {
+                            CMS.debug("CAEnrollProfile: archival request failed");
                             audit(new SecurityDataArchivalEvent(
                                     auditSubjectID,
                                     ILogger.FAILURE,
@@ -132,14 +134,19 @@ public class CAEnrollProfile extends EnrollProfile {
                                     requestId,
                                     null));
 
-                            if (request.getError(getLocale(request)) != null &&
-                                (request.getError(getLocale(request))).equals(CMS.getUserMessage("CMS_KRA_INVALID_TRANSPORT_CERT"))) {
-                                CMS.debug("CAEnrollProfile: execute set request status: REJECTED");
-                                request.setRequestStatus(RequestStatus.REJECTED);
-                                ca.getRequestQueue().updateRequest(request);
-                            }
-                            throw new ERejectException(
+                            if (getLocale(request) != null &&
+                                request.getError(getLocale(request)) != null) {
+
+                                if ((request.getError(getLocale(request))).equals(CMS.getUserMessage("CMS_KRA_INVALID_TRANSPORT_CERT"))) {
+                                    CMS.debug("CAEnrollProfile: execute set request status: REJECTED");
+                                    request.setRequestStatus(RequestStatus.REJECTED);
+                                    ca.getRequestQueue().updateRequest(request);
+                                }
+                                throw new ERejectException(
                                     request.getError(getLocale(request)));
+                            } else {
+                                throw new ERejectException(CMS.getUserMessage("CMS_CA_SEND_KRA_REQUEST")+ " check KRA log for detail");
+                            }
                         }
 
                         audit(new SecurityDataArchivalEvent(
@@ -151,11 +158,7 @@ public class CAEnrollProfile extends EnrollProfile {
                     }
                 } catch (Exception e) {
 
-                    if (e instanceof ERejectException) {
-                        throw (ERejectException) e;
-                    }
                     CMS.debug("CAEnrollProfile: " + e);
-                    CMS.debug(e);
 
                     audit(new SecurityDataArchivalEvent(
                             auditSubjectID,
@@ -164,6 +167,9 @@ public class CAEnrollProfile extends EnrollProfile {
                             requestId,
                             null));
 
+                    if (e instanceof ERejectException) {
+                        throw (ERejectException) e;
+                    }
                     throw new EProfileException(e);
                 }
             }

@@ -912,16 +912,17 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
             }
 
             // handle provedReq
+            int otherInfoCode = OtherInfo.INTERNAL_CA_ERROR;
             if (provedReq != null) {
                 error_codes = new int[1];
+
                 auditRequesterID = auditRequesterID(provedReq);
                 try {
                     profile.execute(provedReq);
                     reqs = new IRequest[1];
                     reqs[0] = provedReq;
                     reqs[0].setRequestStatus(RequestStatus.COMPLETE);
-                    profile.getRequestQueue().markAsServiced(provedReq);
-                    CMS.debug("ProfileSubmitCMCServlet: provedReq set to complete");
+                    //profile.getRequestQueue().markAsServiced(provedReq);
 
                     X509CertImpl x509cert = reqs[0].getExtDataInCert(IEnrollProfile.REQUEST_ISSUED_CERT);
 
@@ -938,24 +939,49 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                 } catch (ERejectException e) {
                     // return error to the user
                     provedReq.setRequestStatus(RequestStatus.REJECTED);
-                    CMS.debug("ProfileSubmitCMCServlet: provedReq submit " + e.toString());
+                    CMS.debug("ProfileSubmitCMCServlet: provedReq submit- " + e.toString());
                     errorCode = "3";
                     errorReason = CMS.getUserMessage(locale,
                             "CMS_PROFILE_REJECTED",
                             e.toString());
+                    otherInfoCode = OtherInfo.BAD_REQUEST;
                 } catch (Exception e) {
                     // return error to the user
-                    CMS.debug("ProfileSubmitCMCServlet: provedReq submit " + e.toString());
+                    CMS.debug("ProfileSubmitCMCServlet: provedReq submit- " + e.toString());
                     errorCode = "1";
                     errorReason = CMS.getUserMessage(locale,
                             "CMS_INTERNAL_ERROR");
                 }
+
+                if (errorCode == null) {
+                    profile.getRequestQueue().markAsServiced(provedReq);
+                    CMS.debug("ProfileSubmitCMCServlet: provedReq set to complete");
+                } else {
+                    error_codes[0] = Integer.parseInt(errorCode);
+                    profile.getRequestQueue().updateRequest(provedReq);
+                    CMS.debug("ProfileSubmitCMCServlet: provedReq updateRequest");
+                }
             }
 
             if (errorCode != null) {
-                // create the CMC full enrollment response
+                if (errorCode.equals("4") /*POP required*/) {
+                    // create the CMC full enrollment response for EncryptedPOP
+                    CMCOutputTemplate template = new CMCOutputTemplate();
+                    template.createFullResponse(response, reqs, cert_request_type, error_codes);
+                    return;
+                }
+
+                // create the CMC full enrollment response for real error conditions
                 CMCOutputTemplate template = new CMCOutputTemplate();
-                template.createFullResponse(response, reqs, cert_request_type, error_codes);
+                SEQUENCE seq = new SEQUENCE();
+                seq.addElement(new INTEGER(0));
+                UTF8String s = null;
+                try {
+                    s = new UTF8String(errorReason);
+                } catch (Exception ee) {
+                }
+                template.createFullResponseWithFailedStatus(response, seq,
+                        otherInfoCode, s);
 
                 return;
             }
