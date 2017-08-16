@@ -1,0 +1,140 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "15521253_2079eb1a",
+        "filename": "base/server/python/pki/server/cli/selftest.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-08-16T19:33:36Z",
+      "side": 1,
+      "message": "The sys.exit() should generally be called from the main program (i.e. execute()). Inside a reusable method we should raise an exception instead.\n\nIt might be better to move lines 41-48 back into execute().",
+      "revId": "dbbb20a079904096f2938ff2a5a9e42301cebcb2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a31d078_f5acc20d",
+        "filename": "base/server/python/pki/server/cli/selftest.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-08-16T19:33:36Z",
+      "side": 1,
+      "message": "We can use None instead of \u0027all\u0027. Avoid introducing new constants unless necessary.",
+      "revId": "dbbb20a079904096f2938ff2a5a9e42301cebcb2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8ff4beb6_b8681087",
+        "filename": "base/server/python/pki/server/cli/selftest.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-08-16T19:33:36Z",
+      "side": 1,
+      "message": "The \u0027:\u0027 is only used in \u0027:critical\u0027. Non-critical test will not have a colon. See: https://github.com/edewata/pki/blob/master/base/server/cmscore/src/com/netscape/cmscore/selftests/SelfTestOrderedInstance.java#L62\n\nSo the target_tests object should only store boolean flags indicating whether a test is critical.\n\nLines 60-65 can be encapsulated into PKISubsystem.get_startup_tests() which returns target_tests object.",
+      "revId": "dbbb20a079904096f2938ff2a5a9e42301cebcb2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a074ecee_a9f0c789",
+        "filename": "base/server/python/pki/server/cli/selftest.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-08-16T19:33:36Z",
+      "side": 1,
+      "message": "We can use None instead of \u0027all\u0027. Avoid introducing new constants unless necessary.",
+      "revId": "dbbb20a079904096f2938ff2a5a9e42301cebcb2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "57736b62_e5765c94",
+        "filename": "base/server/python/pki/server/cli/selftest.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-08-16T19:33:36Z",
+      "side": 1,
+      "message": "This approach probably works, but not recommended since it introduces new limitation to test names (i.e. cannot contain those characters). It\u0027s better to use normal string join operation.\n\nThis code can be encapsulated into PKISubsystem.set_startup_tests() which takes target_tests object.",
+      "revId": "dbbb20a079904096f2938ff2a5a9e42301cebcb2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "658abe40_0012f46f",
+        "filename": "base/server/python/pki/server/cli/selftest.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-08-16T19:33:36Z",
+      "side": 1,
+      "message": "It\u0027s missing the \u0027instance\u003d\u0027 option.",
+      "revId": "dbbb20a079904096f2938ff2a5a9e42301cebcb2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1fba31af_513efc25",
+        "filename": "base/server/python/pki/server/cli/selftest.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-08-16T19:33:36Z",
+      "side": 1,
+      "message": "It\u0027s missing the \u0027instance\u003d\u0027 option.",
+      "revId": "dbbb20a079904096f2938ff2a5a9e42301cebcb2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8a589b02_36a62c0e",
+        "filename": "base/server/python/pki/server/cli/selftest.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-08-16T19:33:36Z",
+      "side": 1,
+      "message": "\u0027non-critical\u0027 level is not supported. See https://github.com/edewata/pki/blob/master/base/server/cmscore/src/com/netscape/cmscore/selftests/SelfTestOrderedInstance.java#L62",
+      "revId": "dbbb20a079904096f2938ff2a5a9e42301cebcb2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
