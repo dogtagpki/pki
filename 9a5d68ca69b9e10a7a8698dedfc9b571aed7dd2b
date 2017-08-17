@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "90bbb47f_ad2fa4dd",
+        "filename": "base/server/python/pki/server/deployment/pkihelper.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 4043,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-08-17T03:53:41Z",
+      "side": 1,
+      "message": "nit; extra line",
+      "revId": "9a5d68ca69b9e10a7a8698dedfc9b571aed7dd2b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "82133279_e239dbbc",
+        "filename": "base/server/python/pki/server/deployment/pkihelper.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 4045,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-08-17T03:53:41Z",
+      "side": 1,
+      "message": "nit: extra line",
+      "revId": "9a5d68ca69b9e10a7a8698dedfc9b571aed7dd2b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a0c78ef0_f98f848b",
+        "filename": "base/server/python/pki/server/deployment/pkihelper.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 4049,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-08-17T03:53:41Z",
+      "side": 1,
+      "message": "nit: extra line",
+      "revId": "9a5d68ca69b9e10a7a8698dedfc9b571aed7dd2b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa3947e2_bc9a815b",
+        "filename": "base/server/python/pki/server/deployment/pkihelper.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 4302,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-08-17T03:53:41Z",
+      "side": 1,
+      "message": "nit: extra line",
+      "revId": "9a5d68ca69b9e10a7a8698dedfc9b571aed7dd2b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
