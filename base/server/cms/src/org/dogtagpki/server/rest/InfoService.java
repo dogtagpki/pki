@@ -20,12 +20,15 @@ package org.dogtagpki.server.rest;
 
 import javax.servlet.http.HttpSession;
 import javax.ws.rs.core.Response;
+import javax.xml.bind.UnmarshalException;
 
 import org.dogtagpki.common.Info;
 import org.dogtagpki.common.InfoResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXParseException;
 
+import com.netscape.certsrv.base.PKIException;
 import com.netscape.cms.servlet.base.PKIService;
 
 /**
@@ -42,16 +45,38 @@ public class InfoService extends PKIService implements InfoResource {
         logger.debug("InfoService.getInfo(): session: " + session.getId());
 
         Info info = new Info();
-        info.setVersion(getVersion());
 
         boolean bannerDisplayed = session.getAttribute("bannerDisplayed") != null;
         boolean bannerEnabled = isBannerEnabled();
 
         // if banner not yet displayed in this session and it's enabled, return banner
         if (!bannerDisplayed && bannerEnabled) {
+
             String banner = getBanner();
             info.setBanner(banner);
+
+            // validate banner
+            try {
+                // converting Info object into XML
+                String xmlInfo = info.toString();
+
+                // and parse it back into Info object
+                info = Info.valueOf(xmlInfo);
+
+            } catch (UnmarshalException e) {
+                Throwable cause = e.getCause();
+                logger.error("InfoService: Invalid access banner: " + cause, e);
+
+                if (cause instanceof SAXParseException) {
+                    throw new PKIException("Banner contains invalid character(s)", e);
+                } else {
+                    throw new PKIException("Invalid access banner: " + cause, e);
+                }
+            }
         }
+
+        // add other info attributes after banner validation
+        info.setVersion(getVersion());
 
         return createOKResponse(info);
     }
