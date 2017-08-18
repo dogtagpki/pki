@@ -28,8 +28,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import netscape.security.x509.X500Name;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -65,6 +63,8 @@ import com.netscape.certsrv.system.SystemConfigClient;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Utils;
 
+import netscape.security.x509.X500Name;
+
 /**
  * @author alee
  *
@@ -86,7 +86,6 @@ public class ConfigurationTest {
         String protocol = "https";
         String pin = null;
         String extCertFile = null;
-        String extChainFile = null;
         int testnum=1;
 
         // parse command line arguments
@@ -98,7 +97,6 @@ public class ConfigurationTest {
         options.addOption("d", true, "Directory for tokendb");
         options.addOption("s", true, "preop pin");
         options.addOption("e", true, "File for externally signed signing cert");
-        options.addOption("g", true, "File for external CA cert chain");
         options.addOption("x", true, "Test number");
 
         try {
@@ -143,10 +141,6 @@ public class ConfigurationTest {
 
             if (cmd.hasOption("e")) {
                 extCertFile = cmd.getOptionValue("e");
-            }
-
-            if (cmd.hasOption("g")) {
-                extChainFile = cmd.getOptionValue("g");
             }
 
             if (cmd.hasOption("x")) {
@@ -221,7 +215,7 @@ public class ConfigurationTest {
             data = constructExternalCADataPart1(host, port, pin, db_dir, token_pwd, token);
             break;
         case 8:
-            data = constructExternalCADataPart2(host, port, pin, db_dir, token_pwd, token, extCertFile, extChainFile);
+            data = constructExternalCADataPart2(host, port, pin, db_dir, token_pwd, token, extCertFile);
             break;
         default:
             System.out.println("Invalid test");
@@ -548,7 +542,7 @@ public class ConfigurationTest {
     }
 
     private static ConfigurationRequest constructExternalCADataPart2(String host, String port, String pin, String db_dir,
-            String token_pwd, CryptoToken token, String extCertFile, String extChainFile)
+            String token_pwd, CryptoToken token, String extCertFile)
             throws NoSuchAlgorithmException, TokenException, IOException, InvalidBERException {
         ConfigurationRequest data = new ConfigurationRequest();
         data.setPin(pin);
@@ -608,14 +602,6 @@ public class ConfigurationTest {
         }
         in.close();
         cert1.setCert(extCert);
-
-        String extCertChain = "";
-        in = new BufferedReader(new FileReader(extChainFile));
-        while (in.ready()) {
-            extCertChain += in.readLine();
-        }
-        in.close();
-        cert1.setCertChain(extCertChain);
 
         systemCerts.add(cert1);
 
