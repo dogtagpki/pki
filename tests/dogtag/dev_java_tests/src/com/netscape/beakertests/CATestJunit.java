@@ -26,11 +26,10 @@ public class CATestJunit extends PKIJUnitTest {
     CertClient certClient;
 
     public CATestJunit() {
-        super();
     }
 
     @Before
-    public void initializeDB() {
+    public void initializeDB() throws Exception {
 
         String host = getParameter("host");
         String port = getParameter("CA_SECURE_PORT");
@@ -48,48 +47,34 @@ public class CATestJunit extends PKIJUnitTest {
             CryptoManager.initialize(db_dir);
         } catch (AlreadyInitializedException e) {
             // it is ok if it is already initialized
-        } catch (Exception e) {
-            log(("INITIALIZATION ERROR: " + e.toString()));
-            System.exit(1);
         }
+
         // log into token
+        manager = CryptoManager.getInstance();
+        token = manager.getInternalKeyStorageToken();
+        Password password = new Password(token_pwd.toCharArray());
         try {
-            manager = CryptoManager.getInstance();
-            token = manager.getInternalKeyStorageToken();
-            Password password = new Password(token_pwd.toCharArray());
-            try {
-                token.login(password);
-            } catch (Exception e) {
-                log("login Exception: " + e.toString());
-                if (!token.isLoggedIn()) {
-                    token.initPassword(password, password);
-                }
+            token.login(password);
+        } catch (Exception e) {
+            log("login Exception: " + e.toString());
+            if (!token.isLoggedIn()) {
+                token.initPassword(password, password);
             }
-        } catch (Exception e) {
-            log("Exception in logging into token:" + e.toString());
         }
-        try {
-            ClientConfig config = new ClientConfig();
-            config.setServerURI(protocol + "://" + host + ":" + port + "/ca");
-            config.setCertNickname(clientCertNickname);
-            log("URI::: " + config.getServerURI().toString());
-            client = new CAClient(new PKIClient(config, null));
-            certClient = (CertClient)client.getClient("cert");
-        } catch (Exception e) {
-            e.printStackTrace();
-            return;
-        }
+
+        ClientConfig config = new ClientConfig();
+        config.setServerURI(protocol + "://" + host + ":" + port + "/ca");
+        config.setCertNickname(clientCertNickname);
+        log("URI::: " + config.getServerURI().toString());
+        client = new CAClient(new PKIClient(config, null));
+        certClient = (CertClient)client.getClient("cert");
     }
 
     @Test
     public void listCompleteCertRequests() {
 
-        Collection<CertRequestInfo> list = null;
-        try {
-            list = certClient.listRequests("complete", null, null, null, null, null).getEntries();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        Collection<CertRequestInfo> list =
+                certClient.listRequests("complete", null, null, null, null, null).getEntries();
 
         printRequests(list);
     }
@@ -99,13 +84,7 @@ public class CATestJunit extends PKIJUnitTest {
         // Get a CertInfo
         int certIdToPrint = 1;
         CertId id = new CertId(certIdToPrint);
-        CertData certData = null;
-        try {
-            certData = certClient.getCert(id);
-        } catch (CertNotFoundException e) {
-            e.printStackTrace();
-            log("Cert: " + certIdToPrint + " not found. \n" + e.toString());
-        }
+        CertData certData = certClient.getCert(id);
         printCertificate(certData);
     }
 
@@ -115,15 +94,7 @@ public class CATestJunit extends PKIJUnitTest {
         // Get a CertInfo
         int certIdBadToPrint = 9999999;
         CertId certIdBad = new CertId(certIdBadToPrint);
-        CertData certDataBad = null;
-        try {
-            certDataBad = certClient.getCert(certIdBad);
-        } catch (Exception e) {
-            e.printStackTrace();
-            log("Cert: " + certIdBadToPrint + " not found. \n" + e.toString());
-            throw e;
-        }
-
+        CertData certDataBad = certClient.getCert(certIdBad);
         printCertificate(certDataBad);
     }
 
