@@ -862,6 +862,14 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
     def spawn(self, deployer):
 
+        try:
+            PKISPAWN_STARTUP_TIMEOUT_SECONDS = \
+                int(os.environ['PKISPAWN_STARTUP_TIMEOUT_SECONDS'])
+        except (KeyError, ValueError):
+            PKISPAWN_STARTUP_TIMEOUT_SECONDS = 60
+        if PKISPAWN_STARTUP_TIMEOUT_SECONDS <= 0:
+            PKISPAWN_STARTUP_TIMEOUT_SECONDS = 60
+
         if config.str2bool(deployer.mdict['pki_skip_configuration']):
             config.pki_log.info(log.SKIP_CONFIGURATION_SPAWN_1, __name__,
                                 extra=config.PKI_INDENTATION_LEVEL_1)
@@ -977,7 +985,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             deployer.systemd.restart()
 
         # wait for startup
-        status = deployer.instance.wait_for_startup(60)
+        status = deployer.instance.wait_for_startup(PKISPAWN_STARTUP_TIMEOUT_SECONDS)
         if status is None:
             config.pki_log.error(
                 "server failed to restart",
@@ -1123,11 +1131,11 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if deployer.fips.is_fips_enabled():
             # must use 'http' protocol when FIPS mode is enabled
             status = deployer.instance.wait_for_startup(
-                60, secure_connection=False)
+                PKISPAWN_STARTUP_TIMEOUT_SECONDS, secure_connection=False)
 
         else:
             status = deployer.instance.wait_for_startup(
-                60, secure_connection=True)
+                PKISPAWN_STARTUP_TIMEOUT_SECONDS, secure_connection=True)
 
         if not status:
             config.pki_log.error(
