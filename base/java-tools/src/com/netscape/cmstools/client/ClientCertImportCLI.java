@@ -357,6 +357,10 @@ public class ClientCertImportCLI extends CLI {
             String nickname,
             String trustAttributes) throws Exception {
 
+        if (nickname == null) {
+            throw new Exception("Missing certificate nickname.");
+        }
+
         if (verbose) System.out.println("Loading PKCS #7 data from " + pkcs7Path);
         String str = new String(Files.readAllBytes(Paths.get(pkcs7Path))).trim();
         PKCS7 pkcs7 = new PKCS7(str);
