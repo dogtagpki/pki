@@ -2314,8 +2314,9 @@ public class CryptoUtil {
         BIT_STRING encSymKey = encVal.getEncSymmKey();
         BIT_STRING encPrivKey = encVal.getEncValue();
 
-        SymmetricKey sk = unwrap(token, SymmetricKey.Type.DES3, 0, null, unwrappingKey, encSymKey.getBits(),
-                KeyWrapAlgorithm.RSA);
+        SymmetricKey sk = unwrap(
+                token, SymmetricKey.Type.DES3, 0, SymmetricKey.Usage.UNWRAP,
+                unwrappingKey, encSymKey.getBits(), KeyWrapAlgorithm.RSA);
 
         ASN1Value v = algId.getParameters();
         v = ((ANY) v).decodeWith(new OCTET_STRING.Template());
