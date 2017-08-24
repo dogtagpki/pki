@@ -289,14 +289,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             boolean enable = cs.getBoolean("preop.cert." + tag + ".enable", true);
             if (!enable) continue;
 
-            SystemCertData certData = null;
-
-            for (SystemCertData systemCert : request.getSystemCerts()) {
-                if (systemCert.getTag().equals(tag)) {
-                    certData = systemCert;
-                    break;
-                }
-            }
+            SystemCertData certData = request.getSystemCert(tag);
 
             if (certData == null) {
                 CMS.debug("No data for '" + tag + "' was found!");
