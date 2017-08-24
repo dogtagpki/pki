@@ -594,6 +594,15 @@ public class ConfigurationRequest {
        return systemCerts;
    }
 
+   public SystemCertData getSystemCert(String tag) {
+       for (SystemCertData systemCert : systemCerts) {
+           if (systemCert.getTag().equals(tag)) {
+               return systemCert;
+           }
+       }
+       return null;
+   }
+
    /**
     *
     * @param systemCerts
