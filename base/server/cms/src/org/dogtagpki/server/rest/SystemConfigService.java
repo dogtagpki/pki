@@ -421,7 +421,14 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             x509Cert = null;
         }
 
-        if (request.isExternal() && tag.equals("signing") || request.getStandAlone()) {
+        // For external/existing CA case, some/all system certs may be provided.
+        // The SSL server cert will always be generated for the current host.
+
+        // For standalone KRA/OCSP case, all system certs will be provided.
+        // No system certs will be generated including the SSL server cert.
+
+        if (request.isExternal() && !tag.equals("sslserver") && x509Cert != null
+                || request.getStandAlone()) {
 
             CMS.debug("SystemConfigService: loading existing " + tag + " cert");
             byte[] bytes = x509Cert.getEncoded();
