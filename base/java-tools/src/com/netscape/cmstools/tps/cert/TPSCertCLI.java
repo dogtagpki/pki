@@ -53,10 +53,12 @@ public class TPSCertCLI extends CLI {
         System.out.println("  Cert ID: " + cert.getID());
         if (cert.getSerialNumber() != null) System.out.println("  Serial Number: " + cert.getSerialNumber());
         if (cert.getSubject() != null) System.out.println("  Subject: " + cert.getSubject());
+        if (cert.getUserID() != null) System.out.println("  User ID: " + cert.getUserID());
         if (cert.getTokenID() != null) System.out.println("  Token ID: " + cert.getTokenID());
+        if (cert.getOrigin() != null) System.out.println("  Origin: " + cert.getOrigin());
+        if (cert.getType() != null) System.out.println("  Type: " + cert.getType());
         if (cert.getKeyType() != null) System.out.println("  Key Type: " + cert.getKeyType());
         if (cert.getStatus() != null) System.out.println("  Status: " + cert.getStatus());
-        if (cert.getUserID() != null) System.out.println("  User ID: " + cert.getUserID());
         if (cert.getCreateTime() != null) System.out.println("  Create Time: " + cert.getCreateTime());
         if (cert.getModifyTime() != null) System.out.println("  Modify Time: " + cert.getModifyTime());
 
