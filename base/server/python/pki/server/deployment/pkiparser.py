@@ -64,7 +64,7 @@ class PKIConfigParser:
     # The 'new_section' is the proper section of the new param. None means unchanged.
     # The 'new_param' is the new param name.
 
-    DEPRECATED_PARAMS = [
+    DEPRECATED_DEFAULT_PARAMS = [
         (None, 'pki_ssl_server_key_algorithm',
          None, 'pki_sslserver_key_algorithm'),
         (None, 'pki_ssl_server_key_size',
@@ -78,6 +78,60 @@ class PKIConfigParser:
         (None, 'pki_ssl_server_token',
          None, 'pki_sslserver_token')
     ]
+
+    DEPRECATED_KRA_PARAMS = [
+        (['KRA'], 'pki_external_admin_csr_path',
+         None, 'pki_admin_csr_path'),
+        (['KRA'], 'pki_external_audit_signing_csr_path',
+         None, 'pki_audit_signing_csr_path'),
+        (['KRA'], 'pki_external_sslserver_csr_path',
+         None, 'pki_sslserver_csr_path'),
+        (['KRA'], 'pki_external_storage_csr_path',
+         None, 'pki_storage_csr_path'),
+        (['KRA'], 'pki_external_subsystem_csr_path',
+         None, 'pki_subsystem_csr_path'),
+        (['KRA'], 'pki_external_transport_csr_path',
+         None, 'pki_transport_csr_path'),
+        (['KRA'], 'pki_external_admin_cert_path',
+         None, 'pki_admin_cert_path'),
+        (['KRA'], 'pki_external_audit_signing_cert_path',
+         None, 'pki_audit_signing_cert_path'),
+        (['KRA'], 'pki_external_sslserver_cert_path',
+         None, 'pki_sslserver_cert_path'),
+        (['KRA'], 'pki_external_storage_cert_path',
+         None, 'pki_storage_cert_path'),
+        (['KRA'], 'pki_external_subsystem_cert_path',
+         None, 'pki_subsystem_cert_path'),
+        (['KRA'], 'pki_external_transport_cert_path',
+         None, 'pki_transport_cert_path'),
+    ]
+
+    DEPRECATED_OCSP_PARAMS = [
+        (['OCSP'], 'pki_external_admin_csr_path',
+         None, 'pki_admin_csr_path'),
+        (['OCSP'], 'pki_external_audit_signing_csr_path',
+         None, 'pki_audit_signing_csr_path'),
+        (['OCSP'], 'pki_external_signing_csr_path',
+         None, 'pki_ocsp_signing_csr_path'),
+        (['OCSP'], 'pki_external_sslserver_csr_path',
+         None, 'pki_sslserver_csr_path'),
+        (['OCSP'], 'pki_external_subsystem_csr_path',
+         None, 'pki_subsystem_csr_path'),
+        (['OCSP'], 'pki_external_admin_cert_path',
+         None, 'pki_admin_cert_path'),
+        (['OCSP'], 'pki_external_audit_signing_cert_path',
+         None, 'pki_audit_signing_cert_path'),
+        (['OCSP'], 'pki_external_signing_cert_path',
+         None, 'pki_ocsp_signing_cert_path'),
+        (['OCSP'], 'pki_external_sslserver_cert_path',
+         None, 'pki_sslserver_cert_path'),
+        (['OCSP'], 'pki_external_subsystem_cert_path',
+         None, 'pki_subsystem_cert_path')
+    ]
+
+    DEPRECATED_PARAMS = DEPRECATED_DEFAULT_PARAMS + \
+        DEPRECATED_KRA_PARAMS + \
+        DEPRECATED_OCSP_PARAMS
 
     def __init__(self, description, epilog, deployer=None):
         self.deployer = deployer
