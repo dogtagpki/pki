@@ -707,72 +707,72 @@ class ConfigurationFile:
             if not self.external_step_two:
 
                 # Stand-alone PKI Admin CSR (Step 1)
-                self.confirm_data_exists("pki_external_admin_csr_path")
+                self.confirm_data_exists("pki_admin_csr_path")
 
                 # Stand-alone PKI Audit Signing CSR (Step 1)
                 self.confirm_data_exists(
-                    "pki_external_audit_signing_csr_path")
+                    "pki_audit_signing_csr_path")
 
                 # Stand-alone PKI SSL Server CSR (Step 1)
-                self.confirm_data_exists("pki_external_sslserver_csr_path")
+                self.confirm_data_exists("pki_sslserver_csr_path")
 
                 # Stand-alone PKI Subsystem CSR (Step 1)
-                self.confirm_data_exists("pki_external_subsystem_csr_path")
+                self.confirm_data_exists("pki_subsystem_csr_path")
 
                 # Stand-alone PKI KRA CSRs
                 if self.subsystem == "KRA":
 
                     # Stand-alone PKI KRA Storage CSR (Step 1)
                     self.confirm_data_exists(
-                        "pki_external_storage_csr_path")
+                        "pki_storage_csr_path")
 
                     # Stand-alone PKI KRA Transport CSR (Step 1)
                     self.confirm_data_exists(
-                        "pki_external_transport_csr_path")
+                        "pki_transport_csr_path")
 
                 # Stand-alone PKI OCSP CSRs
                 if self.subsystem == "OCSP":
                     # Stand-alone PKI OCSP OCSP Signing CSR (Step 1)
                     self.confirm_data_exists(
-                        "pki_external_signing_csr_path")
+                        "pki_ocsp_signing_csr_path")
 
             else:
                 # Stand-alone PKI External CA Certificate (Step 2)
                 # The pki_external_ca_cert_path is optional.
 
                 # Stand-alone PKI Admin Certificate (Step 2)
-                self.confirm_data_exists("pki_external_admin_cert_path")
-                self.confirm_file_exists("pki_external_admin_cert_path")
+                self.confirm_data_exists("pki_admin_cert_path")
+                self.confirm_file_exists("pki_admin_cert_path")
                 # Stand-alone PKI Audit Signing Certificate (Step 2)
                 self.confirm_data_exists(
-                    "pki_external_audit_signing_cert_path")
+                    "pki_audit_signing_cert_path")
                 self.confirm_file_exists(
-                    "pki_external_audit_signing_cert_path")
+                    "pki_audit_signing_cert_path")
                 # Stand-alone PKI SSL Server Certificate (Step 2)
-                self.confirm_data_exists("pki_external_sslserver_cert_path")
-                self.confirm_file_exists("pki_external_sslserver_cert_path")
+                self.confirm_data_exists("pki_sslserver_cert_path")
+                self.confirm_file_exists("pki_sslserver_cert_path")
                 # Stand-alone PKI Subsystem Certificate (Step 2)
-                self.confirm_data_exists("pki_external_subsystem_cert_path")
-                self.confirm_file_exists("pki_external_subsystem_cert_path")
+                self.confirm_data_exists("pki_subsystem_cert_path")
+                self.confirm_file_exists("pki_subsystem_cert_path")
                 # Stand-alone PKI KRA Certificates
                 if self.subsystem == "KRA":
                     # Stand-alone PKI KRA Storage Certificate (Step 2)
                     self.confirm_data_exists(
-                        "pki_external_storage_cert_path")
+                        "pki_storage_cert_path")
                     self.confirm_file_exists(
-                        "pki_external_storage_cert_path")
+                        "pki_storage_cert_path")
                     # Stand-alone PKI KRA Transport Certificate (Step 2)
                     self.confirm_data_exists(
-                        "pki_external_transport_cert_path")
+                        "pki_transport_cert_path")
                     self.confirm_file_exists(
-                        "pki_external_transport_cert_path")
+                        "pki_transport_cert_path")
                 # Stand-alone PKI OCSP Certificates
                 if self.subsystem == "OCSP":
                     # Stand-alone PKI OCSP OCSP Signing Certificate (Step 2)
                     self.confirm_data_exists(
-                        "pki_external_signing_cert_path")
+                        "pki_ocsp_signing_cert_path")
                     self.confirm_file_exists(
-                        "pki_external_signing_cert_path")
+                        "pki_ocsp_signing_cert_path")
 
     def populate_non_default_ports(self):
         if (self.mdict['pki_http_port'] !=
@@ -3974,22 +3974,22 @@ class ConfigClient:
     def save_admin_csr(self):
         config.pki_log.info(
             log.PKI_CONFIG_EXTERNAL_CSR_SAVE_PKI_ADMIN_1 + " '" +
-            self.mdict['pki_external_admin_csr_path'] + "'", self.subsystem,
+            self.mdict['pki_admin_csr_path'] + "'", self.subsystem,
             extra=config.PKI_INDENTATION_LEVEL_2)
         self.deployer.directory.create(
-            os.path.dirname(self.mdict['pki_external_admin_csr_path']))
-        with open(self.mdict['pki_external_admin_csr_path'], "w") as f:
+            os.path.dirname(self.mdict['pki_admin_csr_path']))
+        with open(self.mdict['pki_admin_csr_path'], "w") as f:
             f.write("-----BEGIN CERTIFICATE REQUEST-----\n")
         admin_certreq = None
         with open(os.path.join(
                   self.mdict['pki_client_database_dir'],
                   "admin_pkcs10.bin.asc"), "r") as f:
             admin_certreq = f.read()
-        with open(self.mdict['pki_external_admin_csr_path'], "a") as f:
+        with open(self.mdict['pki_admin_csr_path'], "a") as f:
             f.write(admin_certreq)
             f.write("-----END CERTIFICATE REQUEST-----")
         # Read in and print Admin certificate request
-        with open(self.mdict['pki_external_admin_csr_path'], "r") as f:
+        with open(self.mdict['pki_admin_csr_path'], "r") as f:
             admin_certreq = f.read()
         config.pki_log.info(
             log.PKI_CONFIG_CDATA_REQUEST + "\n" + admin_certreq,
@@ -4315,7 +4315,7 @@ class ConfigClient:
                 # 'ca_admin.cert' under the specified 'pki_client_dir'
                 # stripping the certificate HEADER/FOOTER prior to saving it.
                 imported_admin_cert = ""
-                with open(self.mdict['pki_external_admin_cert_path'], "r") as f:
+                with open(self.mdict['pki_admin_cert_path'], "r") as f:
                     for line in f:
                         if line.startswith("-----BEGIN CERTIFICATE-----"):
                             continue
@@ -4380,7 +4380,7 @@ class ConfigClient:
                 if self.standalone and not self.external_step_two:
                     # For convenience and consistency, save a copy of
                     # the Stand-alone PKI 'Admin Certificate' CSR to the
-                    # specified "pki_external_admin_csr_path" location
+                    # specified "pki_admin_csr_path" location
                     # (Step 1)
                     self.save_admin_csr()
                     # IMPORTANT:  ALWAYS save the client database for
