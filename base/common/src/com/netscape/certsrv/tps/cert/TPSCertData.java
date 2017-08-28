@@ -53,10 +53,12 @@ public class TPSCertData {
     String id;
     String serialNumber;
     String subject;
+    String userID;
     String tokenID;
+    String origin;
+    String type;
     String keyType;
     String status;
-    String userID;
     Date createTime;
     Date modifyTime;
 
@@ -89,6 +91,15 @@ public class TPSCertData {
         this.subject = subject;
     }
 
+    @XmlElement(name="UserID")
+    public String getUserID() {
+        return userID;
+    }
+
+    public void setUserID(String userID) {
+        this.userID = userID;
+    }
+
     @XmlElement(name="TokenID")
     public String getTokenID() {
         return tokenID;
@@ -96,6 +107,24 @@ public class TPSCertData {
 
     public void setTokenID(String tokenID) {
         this.tokenID = tokenID;
+    }
+
+    @XmlElement(name="Origin")
+    public String getOrigin() {
+        return origin;
+    }
+
+    public void setOrigin(String origin) {
+        this.origin = origin;
+    }
+
+    @XmlElement(name="Type")
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     @XmlElement(name="KeyType")
@@ -114,15 +143,6 @@ public class TPSCertData {
 
     public void setStatus(String status) {
         this.status = status;
-    }
-
-    @XmlElement(name="UserID")
-    public String getUserID() {
-        return userID;
-    }
-
-    public void setUserID(String userID) {
-        this.userID = userID;
     }
 
     @XmlElement(name="CreateTime")
@@ -161,10 +181,12 @@ public class TPSCertData {
         result = prime * result + ((keyType == null) ? 0 : keyType.hashCode());
         result = prime * result + ((link == null) ? 0 : link.hashCode());
         result = prime * result + ((modifyTime == null) ? 0 : modifyTime.hashCode());
+        result = prime * result + ((origin == null) ? 0 : origin.hashCode());
         result = prime * result + ((serialNumber == null) ? 0 : serialNumber.hashCode());
         result = prime * result + ((status == null) ? 0 : status.hashCode());
         result = prime * result + ((subject == null) ? 0 : subject.hashCode());
         result = prime * result + ((tokenID == null) ? 0 : tokenID.hashCode());
+        result = prime * result + ((type == null) ? 0 : type.hashCode());
         result = prime * result + ((userID == null) ? 0 : userID.hashCode());
         return result;
     }
@@ -203,6 +225,11 @@ public class TPSCertData {
                 return false;
         } else if (!modifyTime.equals(other.modifyTime))
             return false;
+        if (origin == null) {
+            if (other.origin != null)
+                return false;
+        } else if (!origin.equals(other.origin))
+            return false;
         if (serialNumber == null) {
             if (other.serialNumber != null)
                 return false;
@@ -222,6 +249,11 @@ public class TPSCertData {
             if (other.tokenID != null)
                 return false;
         } else if (!tokenID.equals(other.tokenID))
+            return false;
+        if (type == null) {
+            if (other.type != null)
+                return false;
+        } else if (!type.equals(other.type))
             return false;
         if (userID == null) {
             if (other.userID != null)
