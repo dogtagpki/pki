@@ -31,6 +31,7 @@ import org.dogtagpki.server.tps.dbs.ActivityDatabase;
 import org.dogtagpki.server.tps.dbs.TPSCertRecord;
 import org.dogtagpki.server.tps.dbs.TokenCertStatus;
 import org.dogtagpki.server.tps.dbs.TokenRecord;
+import org.dogtagpki.server.tps.main.ExternalRegCertToRecover;
 import org.dogtagpki.tps.main.TPSException;
 import org.dogtagpki.tps.msg.EndOpMsg.TPSStatus;
 
@@ -41,6 +42,7 @@ import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
 import com.netscape.certsrv.tps.token.TokenStatus;
 
 import netscape.security.x509.RevocationReason;
+import netscape.security.x509.X509CertImpl;
 
 /*
  * TPSTokendb class offers a collection of tokendb management convenience routines
@@ -216,6 +218,11 @@ public class TPSTokendb {
         tps.tokenDatabase.updateRecord(id, tokenRecord);
     }
 
+    /**
+     * tdbAddCertificatesForCUID -
+     *   adds ccerts in the array of TPSCertRecord onto the token, except
+     *   the ones already present
+     */
     public void tdbAddCertificatesForCUID(String cuid, ArrayList<TPSCertRecord> certs)
             throws TPSException {
         String method = "TPSTokendb.tdbAddCertificatesForCUID: ";
@@ -230,14 +237,16 @@ public class TPSTokendb {
         CMS.debug(method + " number of certs to update:" + certs.size());
         try {
             for (TPSCertRecord cert : certs) {
-                // cert.setOrigin(cuid);
-
                 try {
-                    tps.certDatabase.addRecord(cert.getId(), cert);
+                    if (!isCertOnToken(cert, cuid)) {
+                        CMS.debug(method + " adding cert: " + cert.getId());
+                        tps.certDatabase.addRecord(cert.getId(), cert);
+                    } else {
+                        // cert already on token
+                        CMS.debug(method + "retain and skip adding:" + cert.getId());
+                    }
                 } catch (Exception e) {
-
-                    //If this is due to a dup, try to update the record.
-                    tps.certDatabase.updateRecord(cert.getId(), cert);
+                    // ignore; go to next;
                 }
             }
         } catch (Exception e) {
@@ -300,17 +309,109 @@ public class TPSTokendb {
         return certRecords;
     }
 
+    /**
+     * tdbGetOrigCertRecord
+     * Finds and returns the original cert record --
+     *   tokenID must match tokenOrigin in the cert record;
+     * Returns null if cert not found;
+     */
+    public TPSCertRecord tdbGetOrigCertRecord(X509CertImpl cert) {
+        String method = "TPSTokendb.tdbGetCertTokenOrigin: ";
+        TPSCertRecord result = null;
+
+        String serialNumber = null;
+        String issuedBy = null;
+        try {
+            BigInteger serial_BigInt = cert.getSerialNumber();
+            String hexSerial = serial_BigInt.toString(16);
+            serialNumber = "0x" + hexSerial;
+            issuedBy = cert.getIssuerDN().toString();
+        } catch (Exception e) {
+            CMS.debug(method + ":" + e);
+            return null;
+        }
+
+        ArrayList<TPSCertRecord> certRecords = null;
+        try {
+            certRecords = tdbGetCertRecordsByCert(serialNumber, issuedBy);
+        } catch (TPSException e) {
+            return null;
+        }
+
+        for (TPSCertRecord certRec : certRecords) {
+            String tokenID = certRec.getTokenID();
+            String origin = certRec.getOrigin();
+            if ((tokenID != null) && (origin != null) &&
+                    (tokenID.equalsIgnoreCase(origin))) {
+                CMS.debug(method + "found origininal cert record");
+                result = certRec;
+            }
+        }
+        return result;
+    }
+
+    /**
+     * isCertOnToken -
+     *   returns true if cert is currently on token; false otherwise
+     */
+    private boolean isCertOnToken(TPSCertRecord cert, String cuid) {
+        String method = "TPSTokendb: isCertOnToken: ";
+        boolean result = false;
+        String filter = cuid;
+        Iterator<TPSCertRecord> records;
+        CMS.debug(method + "begins - " +
+                "cert serial = " + cert.getSerialNumber() +
+                "; token cuid = " + cuid);
+        try {
+            records = tps.certDatabase.findRecords(filter).iterator();
+        } catch (Exception e) {
+            CMS.debug(method + ":" + e);
+            return false;
+        }
+        if (!records.hasNext()) {
+            CMS.debug(method + "no cert records currently exist on token");
+            return false;
+        }
+
+        while (records.hasNext()) {
+            TPSCertRecord certRecord = records.next();
+            // CMS.debug(method + "found cert serial: " + certRecord.getSerialNumber());
+            // make sure the cuid matches the tokenID instead of the origin !
+            if (certRecord.getTokenID().equalsIgnoreCase(cuid)) {
+                if (certRecord.getSerialNumber().equals(cert.getSerialNumber())) {
+                    CMS.debug(method + "cert exists on token; serial: " + cert.getSerialNumber());
+                    result = true;
+                    break;
+                }
+            }
+        }
+
+        return result;
+    }
+
     public void tdbRemoveCertificatesByCUID(String cuid)
-        throws Exception {
+            throws Exception {
+        tdbRemoveCertificatesByCUID(cuid, null);
+    }
+
+    /**
+     * tdbRemoveCertificatesByCUID removes all certs on the token
+     * record except for the ones in the erCertsToRecover;
+     * If erCertsToRecover is null, all certs will be removed on
+     * the token;
+     */
+    public void tdbRemoveCertificatesByCUID(String cuid,
+            ArrayList<ExternalRegCertToRecover> erCertsToRecover)
+            throws Exception {
         String method = "TPSTokendb.tdbRemoveCertificatesByCUID";
         if (cuid == null)
             throw new Exception(method + ": cuid null");
 
-        CMS.debug(method + ":" + " begins for cuid=" + cuid);
+        CMS.debug(method + ":" + " begins for cuid =" + cuid);
         String filter = cuid;
         Iterator<TPSCertRecord> records;
         try {
-             records = tps.certDatabase.findRecords(filter).iterator();
+            records = tps.certDatabase.findRecords(filter).iterator();
         } catch (Exception e) {
             CMS.debug(method + ":" + e);
             throw new Exception(method + ":" + e);
@@ -320,13 +421,47 @@ public class TPSTokendb {
             TPSCertRecord certRecord = records.next();
             // make sure the cuid matches the tokenID instead of the origin !
             if (certRecord.getTokenID().equalsIgnoreCase(cuid)) {
-                tps.certDatabase.removeRecord(certRecord.getId());
-                CMS.debug(method + ":" + "cert removed:" + certRecord.getId());
+                boolean isCertRetained = false;
+                if (erCertsToRecover != null) {
+                    isCertRetained = isCertRetained(certRecord.getSerialNumberInBigInteger(), erCertsToRecover);
+                }
+
+                if (!isCertRetained) {
+                    tps.certDatabase.removeRecord(certRecord.getId());
+                    CMS.debug(method + ":" + "cert removed:" + certRecord.getId());
+                } else {
+                    CMS.debug(method + ":" + "cert retained:" + certRecord.getId());
+                }
             } else {
-                CMS.debug(method + ":" + " next record not matched:" + certRecord.getTokenID());
+                CMS.debug(method + ":" + " record not matched:" + certRecord.getTokenID());
             }
         }
         CMS.debug(method + ":" + " done");
+    }
+
+    /**
+     * isCertRetained returns true if cert is retainable, false otherwise
+     */
+    private boolean isCertRetained(BigInteger certSerial,
+            ArrayList<ExternalRegCertToRecover> erCertsToRecover) {
+        boolean result = false;
+        if (erCertsToRecover == null) {
+            return false;
+        }
+
+        for (ExternalRegCertToRecover certToRecover : erCertsToRecover) {
+            if (certToRecover == null) {
+                continue;
+            }
+            // TODO: could enhance the comparison to include more than serials
+            if (certSerial.compareTo(certToRecover.getSerial()) == 0) {
+                if (certToRecover.getIsRetainable()) {
+                    result = true;
+                    break;
+                }
+            }
+        }
+        return result;
     }
 
     public void revokeCertsByCUID(String cuid, String tokenReason, String ipAddress, String remoteUser)
@@ -347,16 +482,35 @@ public class TPSTokendb {
     }
 
     private boolean isLastActiveSharedCert(String serial, String issuer, String cuid) throws TPSException {
+        String method = "TPSTokendb.isLastActiveSharedCert";
+        CMS.debug(method + "begins for cuid = " + cuid);
         ArrayList<TPSCertRecord> certRecords = tps.getTokendb().tdbGetCertRecordsByCert(serial, issuer);
         for (TPSCertRecord cert : certRecords) {
+            CMS.debug(method + "found cert record for cuid = " + cert.getTokenID() + ", cert status = "
+                    + cert.getStatus());
             // exclude current token
             if (cert.getTokenID().equals(cuid))
                 continue;
 
-            if (cert.getStatus().equals(TokenCertStatus.ACTIVE.toString()))
+            TokenRecord tokenRecord = null;
+            try {
+                tokenRecord = tdbGetTokenEntry(cert.getTokenID());
+            } catch (Exception e) {
+                throw new TPSException("error getting token entry for: " +
+                        cert.getTokenID() + e.toString());
+            }
+            if ((tokenRecord.getTokenStatus() == TokenStatus.ACTIVE) ||
+                    (tokenRecord.getTokenStatus() == TokenStatus.SUSPENDED)) {
+                CMS.debug(method + "token " + cert.getTokenID() + " contains the cert and has status: "
+                        + tokenRecord.getTokenStatus() + "... returning false");
                 return false;
+            } else {
+                CMS.debug(method + "token " + cert.getTokenID() + " status: " + tokenRecord.getTokenStatus());
+            }
+
         }
 
+        CMS.debug(method + "returning true");
         return true;
     }
 
@@ -548,6 +702,7 @@ public class TPSTokendb {
                 throw new TPSException(msg);
             }
         }
+        CMS.debug(method + "revocation allowed.");
     }
 
     /*
