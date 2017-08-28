@@ -55,10 +55,12 @@ public class TPSCertService extends PKIService implements TPSCertResource {
         certData.setID(certRecord.getId());
         certData.setSerialNumber(certRecord.getSerialNumber());
         certData.setSubject(certRecord.getSubject());
+        certData.setUserID(certRecord.getUserID());
         certData.setTokenID(certRecord.getTokenID());
+        certData.setOrigin(certRecord.getOrigin());
+        certData.setType(certRecord.getType());
         certData.setKeyType(certRecord.getKeyType());
         certData.setStatus(certRecord.getStatus());
-        certData.setUserID(certRecord.getUserID());
         certData.setCreateTime(certRecord.getCreateTime());
         certData.setModifyTime(certRecord.getModifyTime());
 
@@ -82,10 +84,12 @@ public class TPSCertService extends PKIService implements TPSCertResource {
         certRecord.setId(certData.getID());
         certRecord.setSerialNumber(certData.getSerialNumber());
         certRecord.setSubject(certData.getSubject());
+        certRecord.setUserID(certData.getUserID());
         certRecord.setTokenID(certData.getTokenID());
+        certRecord.setOrigin(certData.getOrigin());
+        certRecord.setType(certData.getType());
         certRecord.setKeyType(certData.getKeyType());
         certRecord.setStatus(certData.getStatus());
-        certRecord.setUserID(certData.getUserID());
         certRecord.setCreateTime(certData.getCreateTime());
         certRecord.setModifyTime(certData.getModifyTime());
 
