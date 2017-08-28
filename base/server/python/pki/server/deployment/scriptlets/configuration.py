@@ -164,7 +164,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
     def generate_sslserver_csr(self, deployer, nssdb, subsystem):
 
-        csr_path = deployer.mdict.get('pki_external_sslserver_csr_path')
+        csr_path = deployer.mdict.get('pki_sslserver_csr_path')
         if not csr_path:
             return
 
@@ -192,7 +192,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
     def generate_subsystem_csr(self, deployer, nssdb, subsystem):
 
-        csr_path = deployer.mdict.get('pki_external_subsystem_csr_path')
+        csr_path = deployer.mdict.get('pki_subsystem_csr_path')
         if not csr_path:
             return
 
@@ -221,7 +221,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
     def generate_audit_signing_csr(self, deployer, nssdb, subsystem):
 
-        csr_path = deployer.mdict.get('pki_external_audit_signing_csr_path')
+        csr_path = deployer.mdict.get('pki_audit_signing_csr_path')
         if not csr_path:
             return
 
@@ -242,7 +242,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
     def generate_admin_csr(self, deployer, subsystem):
 
-        csr_path = deployer.mdict.get('pki_external_admin_csr_path')
+        csr_path = deployer.mdict.get('pki_admin_csr_path')
         if not csr_path:
             return
 
@@ -264,7 +264,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
     def generate_kra_storage_csr(self, deployer, nssdb, subsystem):
 
-        csr_path = deployer.mdict.get('pki_external_storage_csr_path')
+        csr_path = deployer.mdict.get('pki_storage_csr_path')
         if not csr_path:
             return
 
@@ -292,7 +292,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
     def generate_kra_transport_csr(self, deployer, nssdb, subsystem):
 
-        csr_path = deployer.mdict.get('pki_external_transport_csr_path')
+        csr_path = deployer.mdict.get('pki_transport_csr_path')
         if not csr_path:
             return
 
@@ -320,7 +320,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
     def generate_ocsp_signing_csr(self, deployer, nssdb, subsystem):
 
-        csr_path = deployer.mdict.get('pki_external_signing_csr_path')
+        csr_path = deployer.mdict.get('pki_ocsp_signing_csr_path')
         if not csr_path:
             return
 
@@ -407,7 +407,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
     def import_sslserver_cert(self, deployer, nssdb):
 
-        cert_file = deployer.mdict.get('pki_external_sslserver_cert_path')
+        cert_file = deployer.mdict.get('pki_sslserver_cert_path')
         if not cert_file or not os.path.exists(cert_file):
             return
 
@@ -424,7 +424,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
     def import_subsystem_cert(self, deployer, nssdb):
 
-        cert_file = deployer.mdict.get('pki_external_subsystem_cert_path')
+        cert_file = deployer.mdict.get('pki_subsystem_cert_path')
         if not cert_file or not os.path.exists(cert_file):
             return
 
@@ -441,7 +441,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
     def import_audit_signing_cert(self, deployer, nssdb):
 
-        cert_file = deployer.mdict.get('pki_external_audit_signing_cert_path')
+        cert_file = deployer.mdict.get('pki_audit_signing_cert_path')
         if not cert_file or not os.path.exists(cert_file):
             return
 
@@ -458,7 +458,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
     def import_admin_cert(self, deployer):
 
-        cert_file = deployer.mdict.get('pki_external_admin_cert_path')
+        cert_file = deployer.mdict.get('pki_admin_cert_path')
         if not cert_file or not os.path.exists(cert_file):
             return
 
@@ -483,7 +483,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
     def import_kra_storage_cert(self, deployer, nssdb):
 
-        cert_file = deployer.mdict.get('pki_external_storage_cert_path')
+        cert_file = deployer.mdict.get('pki_storage_cert_path')
         if not cert_file or not os.path.exists(cert_file):
             return
 
@@ -500,7 +500,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
     def import_kra_transport_cert(self, deployer, nssdb):
 
-        cert_file = deployer.mdict.get('pki_external_transport_cert_path')
+        cert_file = deployer.mdict.get('pki_transport_cert_path')
         if not cert_file or not os.path.exists(cert_file):
             return
 
@@ -517,7 +517,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
     def import_ocsp_signing_cert(self, deployer, nssdb):
 
-        cert_file = deployer.mdict.get('pki_external_signing_cert_path')
+        cert_file = deployer.mdict.get('pki_ocsp_signing_cert_path')
         if not cert_file or not os.path.exists(cert_file):
             return
 
@@ -1062,7 +1062,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     deployer.config_client.save_system_csr(
                         cdata['request'],
                         log.PKI_CONFIG_EXTERNAL_CSR_SAVE_PKI_AUDIT_SIGNING_1,
-                        deployer.mdict['pki_external_audit_signing_csr_path'],
+                        deployer.mdict['pki_audit_signing_csr_path'],
                         subsystem.name)
 
                 elif cdata['tag'].lower() == "signing":
@@ -1071,7 +1071,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     deployer.config_client.save_system_csr(
                         cdata['request'],
                         log.PKI_CONFIG_EXTERNAL_CSR_SAVE_OCSP_SIGNING,
-                        deployer.mdict['pki_external_signing_csr_path'])
+                        deployer.mdict['pki_signing_csr_path'])
 
                 elif cdata['tag'].lower() == "sslserver":
                     # Save Stand-alone PKI 'SSL Server Certificate' CSR
@@ -1079,7 +1079,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     deployer.config_client.save_system_csr(
                         cdata['request'],
                         log.PKI_CONFIG_EXTERNAL_CSR_SAVE_PKI_SSLSERVER_1,
-                        deployer.mdict['pki_external_sslserver_csr_path'],
+                        deployer.mdict['pki_sslserver_csr_path'],
                         subsystem.name)
 
                 elif cdata['tag'].lower() == "storage":
@@ -1088,7 +1088,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     deployer.config_client.save_system_csr(
                         cdata['request'],
                         log.PKI_CONFIG_EXTERNAL_CSR_SAVE_KRA_STORAGE,
-                        deployer.mdict['pki_external_storage_csr_path'])
+                        deployer.mdict['pki_storage_csr_path'])
 
                 elif cdata['tag'].lower() == "subsystem":
                     # Save Stand-alone PKI 'Subsystem Certificate' CSR
@@ -1096,7 +1096,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     deployer.config_client.save_system_csr(
                         cdata['request'],
                         log.PKI_CONFIG_EXTERNAL_CSR_SAVE_PKI_SUBSYSTEM_1,
-                        deployer.mdict['pki_external_subsystem_csr_path'],
+                        deployer.mdict['pki_subsystem_csr_path'],
                         subsystem.name)
 
                 elif cdata['tag'].lower() == "transport":
@@ -1105,7 +1105,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     deployer.config_client.save_system_csr(
                         cdata['request'],
                         log.PKI_CONFIG_EXTERNAL_CSR_SAVE_KRA_TRANSPORT,
-                        deployer.mdict['pki_external_transport_csr_path'])
+                        deployer.mdict['pki_transport_csr_path'])
 
             else:
                 config.pki_log.debug(
