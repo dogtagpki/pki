@@ -668,7 +668,7 @@ class KeyClient(object):
             raise TypeError("Must specify Client Key ID")
 
         if trans_wrapped_session_key is not None:
-            twsk = base64.b64encode(trans_wrapped_session_key)
+            twsk = base64.b64encode(trans_wrapped_session_key).decode('ascii')
             # noinspection PyUnusedLocal
             request = SymKeyGenerationRequest(
                 client_key_id=client_key_id,
@@ -861,9 +861,9 @@ class KeyClient(object):
         if not nonce_iv:
             raise TypeError('Missing nonce IV')
 
-        data = base64.b64encode(encrypted_data)
-        twsk = base64.b64encode(wrapped_session_key)
-        symkey_params = base64.b64encode(nonce_iv)
+        data = base64.b64encode(encrypted_data).decode('ascii')
+        twsk = base64.b64encode(wrapped_session_key).decode('ascii')
+        symkey_params = base64.b64encode(nonce_iv).decode('ascii')
 
         request = KeyArchivalRequest(client_key_id=client_key_id,
                                      data_type=data_type,
@@ -904,7 +904,7 @@ class KeyClient(object):
         if pki_archive_options is None:
             raise TypeError("No data provided to be archived")
 
-        data = base64.b64encode(pki_archive_options)
+        data = base64.b64encode(pki_archive_options).decode('ascii')
         request = KeyArchivalRequest(client_key_id=client_key_id,
                                      data_type=data_type,
                                      pki_archive_options=data,
@@ -1022,7 +1022,7 @@ class KeyClient(object):
             key_id=key_id,
             request_id=request_id,
             trans_wrapped_session_key=base64.b64encode(
-                trans_wrapped_session_key),
+                trans_wrapped_session_key).decode('ascii'),
             payload_encryption_oid=self.encrypt_alg_oid,
             payload_wrapping_name=self.wrap_name
         )
