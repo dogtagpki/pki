@@ -476,17 +476,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             ConfigurationUtils.generateCertRequest(cs, tag, cert);
         }
 
-        // to determine if we have the signing cert when using an external ca
-        // this will only execute on a ca
-        String b64 = certData.getCert();
-        if (tag.equals("signing") && b64 != null && b64.length() > 0 && !b64.startsWith("...")) {
-
-            if (request.getIssuingCA().equals("External CA")) {
-                b64 = CryptoUtil.stripCertBrackets(b64.trim());
-                cert.setCert(CryptoUtil.normalizeCertStr(b64));
-            }
-        }
-
         return cert;
     }
 
