@@ -84,7 +84,6 @@ if (APPLICATION_FLAVOR_PKI_CORE)
     find_package(Ldap REQUIRED)
     # required for native 'tpsclient' utility
     find_package(APR REQUIRED)
-    find_package(Svrcore REQUIRED)
 endif ()
 
 # Find out if we have threading available

@@ -222,7 +222,6 @@ BuildRequires:    httpd-devel >= 2.4.2
 BuildRequires:    pcre-devel
 BuildRequires:    python
 BuildRequires:    systemd
-BuildRequires:    svrcore-devel
 BuildRequires:    zlib
 BuildRequires:    zlib-devel
 
