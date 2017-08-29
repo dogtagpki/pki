@@ -4,15 +4,31 @@
 %global with_python3 1
 %endif
 
+# Optionally compute a timestamp
+%define use_timestamp  %{getenv:USE_TIMESTAMP}
+%if 0%{?use_timestamp}
+%define now            %(date +"%Y%m%d%H%M%S")
+%define timestamp      %(printf ".%.14s" %{now})
+%endif
+
+# Optionally fetch the git commit ID from the environment variable 'git_hash'
+%define use_git_commit_id  %{getenv:USE_GIT_COMMIT_ID}
+%if 0%{?use_git_commit_id}
+%define git_commit_id  %{getenv:git_hash}
+%endif
+
 Summary:          Dogtag Public Key Infrastructure (PKI) Suite
 Name:             dogtag-pki
 %if 0%{?rhel}
-Version:          10.4.1
-Release:          2%{?dist}
+Version:          10.5.0
+%define official  0
+%define sprint    .b0
 %else
-Version:          10.4.8
-Release:          1.1%{?dist}
+Version:          10.5.0
+%define official  0
+%define sprint    .b0
 %endif
+Release:          %{official}%{?sprint}%{?timestamp}%{?git_commit_id}%{?dist}
 # The entire source code is GPLv2 except for 'pki-tps' which is LGPLv2
 License:          GPLv2 and LGPLv2
 URL:              http://pki.fedoraproject.org/
@@ -24,7 +40,7 @@ BuildArch:        noarch
 %define esc_version                1.1.0
 # NOTE:  The following package versions are TLS compliant:
 %if 0%{?rhel}
-%define pki_core_rhel_version      10.4.1
+%define pki_core_rhel_version      10.5.0
 %define pki_core_rhcs_version      %{version}
 %else
 %define pki_core_version           %{version}
@@ -129,6 +145,9 @@ rm -rf %{buildroot}
 %doc README
 
 %changelog
+* Fri Aug 25 2017 Dogtag Team <pki-devel@redhat.com> 10.5.0-0.b0
+- Pagure dogtagpki Issue #2798 - Update development spec file templates
+
 * Thu Jun 22 2017 Dogtag Team <pki-devel@redhat.com> 10.4.8-1.1
 - Updated source version number to 10.4.8-1.1
 

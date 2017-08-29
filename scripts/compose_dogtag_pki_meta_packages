@@ -67,6 +67,7 @@ build_specified_META_package()
 	spec_file="${package}.spec"
 
 	printf "BEGIN: Building '${package}' META package . . .\n"
+	compute_release_information
 	cp ${spec_file_path}/${spec_file} ${PKI_PACKAGES}/SPECS
 	rpmbuild --define "_topdir ${PKI_PACKAGES}" -ba --clean ${PKI_PACKAGES}/SPECS/${spec_file} > /dev/null 2>&1
 	printf "END:   Building '${package}' META package.\n"

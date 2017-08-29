@@ -98,6 +98,13 @@ rm -f  ${PKI_CONSOLE_SRPMS_DIR}/${PKI_CONSOLE}-${PKI_CONSOLE_VERSION}*.rpm
 
 
 ##
+## Compute Release Information
+##
+
+compute_release_information
+
+
+##
 ## Copy a new 'pki-console' spec file from the
 ## current contents of the PKI working repository
 ##

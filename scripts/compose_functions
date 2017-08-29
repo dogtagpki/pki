@@ -126,6 +126,65 @@ Usage()
 
 
 ##
+## Compute Release Information
+##
+##
+##      Examples:
+##
+##          # script -c "pki/scripts/compose_dogtag_pki_meta_packages rpms"
+##          # ls packages/SRPMS
+##          dogtag-pki-10.5.0-0.b0.20170829113408.6d23ffdd.fc27.src.rpm
+##
+##          # script -c "USE_TIMESTAMP=1 USE_GIT_COMMIT_ID=1
+##            pki/scripts/compose_dogtag_pki_meta_packages rpms"
+##          # ls packages/SRPMS
+##          dogtag-pki-10.5.0-0.b0.20170829113604.6d23ffdd.fc27.src.rpm
+##
+##          # script -c "USE_TIMESTAMP=0 USE_GIT_COMMIT_ID=0
+##            pki/scripts/compose_dogtag_pki_meta_packages rpms"
+##          # ls packages/SRPMS
+##          dogtag-pki-10.5.0-0.b0.fc27.src.rpm
+##
+##          # script -c "USE_TIMESTAMP=1 USE_GIT_COMMIT_ID=0
+##            pki/scripts/compose_dogtag_pki_meta_packages rpms"
+##          # ls packages/SRPMS
+##          dogtag-pki-10.5.0-0.b0.20170829113859.fc27.src.rpm
+##
+##          # script -c "USE_TIMESTAMP=0 USE_GIT_COMMIT_ID=1
+##            pki/scripts/compose_dogtag_pki_meta_packages rpms"
+##          # ls packages/SRPMS
+##          dogtag-pki-10.5.0-0.b0.6d23ffdd.fc27.src.rpm
+##
+
+compute_release_information()
+{
+    if [ -n ${USE_TIMESTAMP} ] &&
+       [ "${USE_TIMESTAMP}" = "0" ]; then
+        printf "unset USE_TIMESTAMP\n"
+        unset USE_TIMESTAMP
+    else
+        # By default, append a timestamp to the release designation
+        printf "set USE_TIMESTAMP\n"
+        export USE_TIMESTAMP=1
+    fi
+
+    if [ -n ${USE_GIT_COMMIT_ID} ] &&
+       [ "${USE_GIT_COMMIT_ID}" = "0" ]; then
+        printf "unset USE_GIT_COMMIT_ID\n"
+        unset USE_GIT_COMMIT_ID
+    else
+        # By default, append a git commit ID to the release designation
+        printf "set USE_GIT_COMMIT_ID\n"
+        export USE_GIT_COMMIT_ID=1
+        # Store the git commit ID in the environment variable 'git_hash'
+        latest_git_hash=`git -C ${COMPOSE_PWD}/.. rev-parse --short=8 HEAD`
+        git_hash=`printf ".%.8s" ${latest_git_hash}`
+        export git_hash
+    fi
+}
+
+
+##
 ## Copy Specified Patches to SOURCES
 ##
 Fetch_Patch_Files()

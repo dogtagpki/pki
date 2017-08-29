@@ -99,6 +99,13 @@ rm -f  ${DOGTAG_PKI_THEME_SRPMS_DIR}/${DOGTAG_PKI_THEME}-${DOGTAG_PKI_THEME_VERS
 
 
 ##
+## Compute Release Information
+##
+
+compute_release_information
+
+
+##
 ## Copy a new 'dogtag-pki' spec file from the
 ## current contents of the PKI working repository
 ##
