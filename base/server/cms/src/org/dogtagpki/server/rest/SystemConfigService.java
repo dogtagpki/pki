@@ -451,7 +451,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             return cert;
         }
 
-        ConfigurationUtils.configCert(null, null, null, cert);
+        ConfigurationUtils.configCert(request, null, null, cert);
 
         String subsystem = cs.getString("preop.cert." + tag + ".subsystem");
         String certStr;

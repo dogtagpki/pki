@@ -48,7 +48,6 @@ import java.util.List;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
@@ -120,6 +119,7 @@ import com.netscape.certsrv.key.KeyData;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.ocsp.IDefStore;
 import com.netscape.certsrv.ocsp.IOCSPAuthority;
+import com.netscape.certsrv.system.ConfigurationRequest;
 import com.netscape.certsrv.system.InstallToken;
 import com.netscape.certsrv.system.SecurityDomainClient;
 import com.netscape.certsrv.system.TPSConnectorClient;
@@ -2474,8 +2474,11 @@ public class ConfigurationUtils {
         return -1;
     }
 
-    public static void configCert(HttpServletRequest request, HttpServletResponse response,
-            Context context, Cert certObj) throws Exception {
+    public static void configCert(
+            ConfigurationRequest request,
+            HttpServletResponse response,
+            Context context,
+            Cert certObj) throws Exception {
 
         IConfigStore config = CMS.getConfigStore();
         String caType = certObj.getType();
@@ -2528,6 +2531,7 @@ public class ConfigurationUtils {
             if (caType.equals("remote")) {
 
                 cert = configRemoteCert(
+                        request,
                         response,
                         context,
                         certObj,
@@ -2565,6 +2569,7 @@ public class ConfigurationUtils {
     }
 
     private static X509CertImpl configRemoteCert(
+            ConfigurationRequest request,
             HttpServletResponse response,
             Context context,
             Cert certObj,
@@ -2598,9 +2603,7 @@ public class ConfigurationUtils {
 
         if (certTag.equals("subsystem")) {
 
-            boolean standalone = config.getBoolean(sysType.toLowerCase() + ".standalone", false);
-
-            if (standalone) {
+            if (request.getStandAlone()) {
 
                 // Treat standalone subsystem the same as "otherca"
                 config.putString(subsystem + "." + certTag + ".cert",
