@@ -443,7 +443,21 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             ConfigurationUtils.loadCertRequest(cs, tag, cert);
 
             CMS.debug("SystemConfigService: Loading cert " + tag);
-            ConfigurationUtils.loadCert(cs, cert);
+            CryptoManager cm = CryptoManager.getInstance();
+            X509Certificate x509Cert = cm.findCertByNickname(cert.getNickname());
+
+            if (!x509Cert.getSubjectDN().equals(x509Cert.getIssuerDN())) {
+                CMS.debug("ConfigurationUtils: " + tag + " cert is not self-signed");
+                return cert;
+            }
+
+            // When importing existing self-signed CA certificate, create a
+            // certificate record to reserve the serial number. Otherwise it
+            // might conflict with system certificates to be created later.
+
+            CMS.debug("SystemConfigService: creating cert record for " + tag + " cert");
+            ConfigurationUtils.createCertRecord(cs, x509Cert);
+
             return cert;
         }
 
