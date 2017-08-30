@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2e0911b3_8ed3375c",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-08-30T01:08:49Z",
+      "side": 1,
+      "message": "Should it be \"0b\" or \"b0\"?\n\nOr can the release number be just \"0.0.\u003ctimestamp\u003e.\u003cgit hash\u003e\"?. At the end of the stage we create \"0.1\" release without the timestamp and git hash. When we start the next sprint we create \"0.1.\u003ctimestamp\u003e.\u003cgit hash\u003e\" again.",
+      "revId": "4efc1dc795e61ed65ac3abb9f8a01321ae93b6fc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ce531d6e_ffe70145",
+        "filename": "specs/dogtag-pki-theme.spec",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-08-30T01:08:49Z",
+      "side": 1,
+      "message": "Let\u0027s call it \"stage\" instead of \"sprint\". Should it be \".b0\" or \".0b\"?\n\nSame thing for other spec files.",
+      "revId": "4efc1dc795e61ed65ac3abb9f8a01321ae93b6fc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "55b7bd12_8b97b951",
+        "filename": "specs/dogtag-pki-theme.spec",
+        "patchSetId": 1
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-08-30T01:08:49Z",
+      "side": 1,
+      "message": "The change log for each beta stage should list the major features/changes delivered in the corresponding sprint. We\u0027ll keep the same change log entry (i.e. no need to add new ones) until the sprint is complete.",
+      "revId": "4efc1dc795e61ed65ac3abb9f8a01321ae93b6fc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
