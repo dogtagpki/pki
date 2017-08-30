@@ -19,6 +19,23 @@
     },
     {
       "key": {
+        "uuid": "f3174e3b_86ed6acc",
+        "filename": "specs/dogtag-pki-theme.spec",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-08-30T01:37:59Z",
+      "side": 1,
+      "message": "I actually would prefer if we do this calculation in the compose script, so the rpmbuild would be called with something like this:\n\n  rpmbuild \\\n      --define \"_release 0.$STAGE.$TIMESTAMP.$GIT_HASH\" \\\n      ...\n\nThis would simplify the spec files and provide flexibility if someone wants to use a different numbering scheme without modifying the spec file.\n\nNote: the spec file should define the default _release in case it\u0027s not specified.",
+      "revId": "4efc1dc795e61ed65ac3abb9f8a01321ae93b6fc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ce531d6e_ffe70145",
         "filename": "specs/dogtag-pki-theme.spec",
         "patchSetId": 1
