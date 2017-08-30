@@ -3089,25 +3089,9 @@ public class ConfigurationUtils {
         return pubk;
     }
 
-    public static void loadCert(IConfigStore config, Cert cert) throws Exception {
+    public static void createCertRecord(IConfigStore config, X509Certificate x509Cert) throws Exception {
 
-        String tag = cert.getCertTag();
-        CMS.debug("ConfigurationUtils: loadCert(" + tag + ")");
-
-        CryptoManager cm = CryptoManager.getInstance();
-        X509Certificate x509Cert = cm.findCertByNickname(cert.getNickname());
-
-        if (!x509Cert.getSubjectDN().equals(x509Cert.getIssuerDN())) {
-            CMS.debug("ConfigurationUtils: " + tag + " cert is not self-signed");
-
-            return;
-        }
-
-        CMS.debug("ConfigurationUtils: " + tag + " cert is self-signed");
-
-        // When importing existing self-signed CA certificate, create a
-        // certificate record to reserve the serial number. Otherwise it
-        // might conflict with system certificates to be created later.
+        CMS.debug("ConfigurationUtils.createCertRecord(" + x509Cert.getNickname() + ")");
 
         X509CertImpl x509CertImpl = new X509CertImpl(x509Cert.getEncoded());
 
