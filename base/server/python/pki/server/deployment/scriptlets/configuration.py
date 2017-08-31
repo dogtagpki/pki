@@ -1020,6 +1020,19 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             log.PKI_CONFIG_RESPONSE_STATUS + " " + str(response['status']),
             extra=config.PKI_INDENTATION_LEVEL_2)
 
+        # Create an empty file that designates the fact that although
+        # this server instance has been configured, it has NOT yet
+        # been restarted!
+
+        restart_server = os.path.join(instance.conf_dir, 'restart_server_after_configuration')
+        config.pki_log.debug(
+            'creating %s' % restart_server,
+            extra=config.PKI_INDENTATION_LEVEL_2)
+
+        open(restart_server, 'a').close()
+        os.chown(restart_server, instance.uid, instance.gid)
+        os.chmod(restart_server, 0o660)
+
         try:
             certs = response['systemCerts']
         except KeyError:

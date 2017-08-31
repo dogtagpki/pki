@@ -56,7 +56,6 @@ import com.netscape.cms.servlet.csadmin.Cert;
 import com.netscape.cms.servlet.csadmin.ConfigurationUtils;
 import com.netscape.cms.servlet.csadmin.SystemCertDataFactory;
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import com.netscape.cmsutil.util.Utils;
 
 import netscape.security.x509.X509CertImpl;
 
@@ -74,8 +73,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
     public String instanceRoot;
 
     public static String SUCCESS = "0";
-    public static final String RESTART_SERVER_AFTER_CONFIGURATION =
-            "restart_server_after_configuration";
 
     public SystemConfigService() throws EBaseException {
         cs = CMS.getConfigStore();
@@ -208,13 +205,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             CMS.debug(e);
             throw new PKIException("Errors when removing preop config entries: " + e, e);
         }
-
-        // Create an empty file that designates the fact that although
-        // this server instance has been configured, it has NOT yet
-        // been restarted!
-        String restart_server = instanceRoot + "/conf/" + RESTART_SERVER_AFTER_CONFIGURATION;
-        Utils.exec("touch " + restart_server);
-        Utils.exec("chmod 00660 " + restart_server);
 
         response.setStatus(SUCCESS);
     }
