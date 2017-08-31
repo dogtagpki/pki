@@ -530,64 +530,59 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
     public void finalizeConfiguration(ConfigurationRequest request) {
     }
 
-    public void configureAdministrator(ConfigurationRequest data, ConfigurationResponse response) {
+    public void configureAdministrator(ConfigurationRequest data, ConfigurationResponse response)
+            throws Exception {
 
-            try {
-                X509CertImpl admincerts[] = new X509CertImpl[1];
-                ConfigurationUtils.createAdmin(data.getAdminUID(), data.getAdminEmail(),
-                        data.getAdminName(), data.getAdminPassword());
+        X509CertImpl admincerts[] = new X509CertImpl[1];
+        ConfigurationUtils.createAdmin(data.getAdminUID(), data.getAdminEmail(),
+                data.getAdminName(), data.getAdminPassword());
 
-                if (data.getImportAdminCert().equalsIgnoreCase("true")) {
+        if (data.getImportAdminCert().equalsIgnoreCase("true")) {
 
-                    String b64 = CryptoUtil.stripCertBrackets(data.getAdminCert().trim());
-                    b64 = CryptoUtil.normalizeCertStr(b64);
-                    // standalone admin cert is already stored into CS.cfg by configuration.py
+            String b64 = CryptoUtil.stripCertBrackets(data.getAdminCert().trim());
+            b64 = CryptoUtil.normalizeCertStr(b64);
+            // standalone admin cert is already stored into CS.cfg by configuration.py
 
-                    // Convert Admin Cert to X509CertImpl
-                    byte[] b = CryptoUtil.base64Decode(b64);
-                    admincerts[0] = new X509CertImpl(b);
+            // Convert Admin Cert to X509CertImpl
+            byte[] b = CryptoUtil.base64Decode(b64);
+            admincerts[0] = new X509CertImpl(b);
 
+        } else {
+            if (csType.equals("CA")) {
+                ConfigurationUtils.createAdminCertificate(data.getAdminCertRequest(),
+                        data.getAdminCertRequestType(), data.getAdminSubjectDN());
+
+                String serialno = cs.getString("preop.admincert.serialno.0");
+                ICertificateAuthority ca = (ICertificateAuthority) CMS.getSubsystem(ICertificateAuthority.ID);
+                ICertificateRepository repo = ca.getCertificateRepository();
+                admincerts[0] = repo.getX509Certificate(new BigInteger(serialno, 16));
+
+            } else {
+                String type = cs.getString("preop.ca.type", "");
+                String ca_hostname = "";
+                int ca_port = -1;
+                if (type.equals("sdca")) {
+                    ca_hostname = cs.getString("preop.ca.hostname");
+                    ca_port = cs.getInteger("preop.ca.httpsport");
                 } else {
-                    if (csType.equals("CA")) {
-                        ConfigurationUtils.createAdminCertificate(data.getAdminCertRequest(),
-                                data.getAdminCertRequestType(), data.getAdminSubjectDN());
-
-                        String serialno = cs.getString("preop.admincert.serialno.0");
-                        ICertificateAuthority ca = (ICertificateAuthority) CMS.getSubsystem(ICertificateAuthority.ID);
-                        ICertificateRepository repo = ca.getCertificateRepository();
-                        admincerts[0] = repo.getX509Certificate(new BigInteger(serialno, 16));
-
-                    } else {
-                        String type = cs.getString("preop.ca.type", "");
-                        String ca_hostname = "";
-                        int ca_port = -1;
-                        if (type.equals("sdca")) {
-                            ca_hostname = cs.getString("preop.ca.hostname");
-                            ca_port = cs.getInteger("preop.ca.httpsport");
-                        } else {
-                            ca_hostname = cs.getString("securitydomain.host", "");
-                            ca_port = cs.getInteger("securitydomain.httpseeport");
-                        }
-                        String b64 = ConfigurationUtils.submitAdminCertRequest(ca_hostname, ca_port,
-                                data.getAdminProfileID(), data.getAdminCertRequestType(),
-                                data.getAdminCertRequest(), data.getAdminSubjectDN());
-                        b64 = CryptoUtil.stripCertBrackets(b64.trim());
-                        byte[] b = CryptoUtil.base64Decode(b64);
-                        admincerts[0] = new X509CertImpl(b);
-                    }
+                    ca_hostname = cs.getString("securitydomain.host", "");
+                    ca_port = cs.getInteger("securitydomain.httpseeport");
                 }
-                CMS.reinit(IUGSubsystem.ID);
-
-                IUGSubsystem ug = (IUGSubsystem) CMS.getSubsystem(IUGSubsystem.ID);
-                IUser user = ug.getUser(data.getAdminUID());
-                user.setX509Certificates(admincerts);
-                ug.addUserCert(user);
-                response.setAdminCert(admincerts[0]);
-
-            } catch (Exception e) {
-                CMS.debug(e);
-                throw new PKIException("Error in creating admin user: " + e);
+                String b64 = ConfigurationUtils.submitAdminCertRequest(ca_hostname, ca_port,
+                        data.getAdminProfileID(), data.getAdminCertRequestType(),
+                        data.getAdminCertRequest(), data.getAdminSubjectDN());
+                b64 = CryptoUtil.stripCertBrackets(b64.trim());
+                byte[] b = CryptoUtil.base64Decode(b64);
+                admincerts[0] = new X509CertImpl(b);
             }
+        }
+        CMS.reinit(IUGSubsystem.ID);
+
+        IUGSubsystem ug = (IUGSubsystem) CMS.getSubsystem(IUGSubsystem.ID);
+        IUser user = ug.getUser(data.getAdminUID());
+        user.setX509Certificates(admincerts);
+        ug.addUserCert(user);
+        response.setAdminCert(admincerts[0]);
     }
 
     public void configureDatabase(ConfigurationRequest data) {
