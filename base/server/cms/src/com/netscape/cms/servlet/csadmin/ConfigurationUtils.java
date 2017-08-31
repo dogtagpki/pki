@@ -2598,28 +2598,21 @@ public class ConfigurationUtils {
 
         if (certTag.equals("subsystem")) {
 
-            if (request.getStandAlone()) {
+            String sd_hostname = config.getString("securitydomain.host", "");
+            int sd_ee_port = config.getInteger("securitydomain.httpseeport", -1);
 
-                // standalone certs already imported in configuration.py
+            MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
+            content.putSingle("requestor_name", sysType + "-" + machineName + "-" + securePort);
+            content.putSingle("profileId", profileId);
+            content.putSingle("cert_request_type", "pkcs10");
+            content.putSingle("cert_request", pkcs10);
+            content.putSingle("xmlOutput", "true");
+            content.putSingle("sessionID", session_id);
 
-            } else {
+            cert = CertUtil.createRemoteCert(sd_hostname, sd_ee_port, content, response);
 
-                String sd_hostname = config.getString("securitydomain.host", "");
-                int sd_ee_port = config.getInteger("securitydomain.httpseeport", -1);
-
-                MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
-                content.putSingle("requestor_name", sysType + "-" + machineName + "-" + securePort);
-                content.putSingle("profileId", profileId);
-                content.putSingle("cert_request_type", "pkcs10");
-                content.putSingle("cert_request", pkcs10);
-                content.putSingle("xmlOutput", "true");
-                content.putSingle("sessionID", session_id);
-
-                cert = CertUtil.createRemoteCert(sd_hostname, sd_ee_port, content, response);
-
-                if (cert == null) {
-                    throw new IOException("Error: remote certificate is null");
-                }
+            if (cert == null) {
+                throw new IOException("Error: remote certificate is null");
             }
 
         } else if (v.equals("sdca")) {
