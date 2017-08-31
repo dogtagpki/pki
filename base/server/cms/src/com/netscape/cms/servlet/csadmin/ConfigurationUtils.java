@@ -2549,6 +2549,13 @@ public class ConfigurationUtils {
 
             cert = configLocalCert(context, certObj, config, caType, cert, certTag);
 
+            if (cert != null) {
+                if (certTag.equals("subsystem")) {
+                    CMS.debug("configCert: creating subsystem user");
+                    CertUtil.addUserCertificate(cert);
+                }
+            }
+
         } // done self-signed or local
 
         if (cert != null) {
@@ -2727,11 +2734,6 @@ public class ConfigurationUtils {
         } else {
             // invalid key type
             CMS.debug("Invalid key type " + pubKeyType);
-        }
-
-        if (cert != null) {
-            if (certTag.equals("subsystem"))
-                CertUtil.addUserCertificate(cert);
         }
 
         return cert;
