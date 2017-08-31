@@ -2486,86 +2486,81 @@ public class ConfigurationUtils {
         X509CertImpl cert = null;
         String certTag = certObj.getCertTag();
 
-        try {
-            String selection = config.getString("preop.subsystem.select");
-            String csType = config.getString("cs.type");
-            String preop_ca_type = null;
-            String preop_cert_signing_type = null;
-            String preop_cert_signing_profile = null;
-            String preop_cert_sslserver_type = null;
-            String preop_cert_sslserver_profile = null;
-            String original_caType = null;
-            boolean sign_clone_sslserver_cert_using_master = false;
+        String selection = config.getString("preop.subsystem.select");
+        String csType = config.getString("cs.type");
+        String preop_ca_type = null;
+        String preop_cert_signing_type = null;
+        String preop_cert_signing_profile = null;
+        String preop_cert_sslserver_type = null;
+        String preop_cert_sslserver_profile = null;
+        String original_caType = null;
+        boolean sign_clone_sslserver_cert_using_master = false;
 
-            if (selection.equals("clone") && csType.equals("CA") && certTag.equals("sslserver")) {
-                // retrieve and store original 'CS.cfg' entries
-                preop_ca_type = config.getString("preop.ca.type", "");
-                preop_cert_signing_type = config.getString("preop.cert.signing.type", "");
-                preop_cert_signing_profile = config.getString("preop.cert.signing.profile", "");
-                preop_cert_sslserver_type = config.getString("preop.cert.sslserver.type", "");
-                preop_cert_sslserver_profile = config.getString("preop.cert.sslserver.profile", "");
+        if (selection.equals("clone") && csType.equals("CA") && certTag.equals("sslserver")) {
+            // retrieve and store original 'CS.cfg' entries
+            preop_ca_type = config.getString("preop.ca.type", "");
+            preop_cert_signing_type = config.getString("preop.cert.signing.type", "");
+            preop_cert_signing_profile = config.getString("preop.cert.signing.profile", "");
+            preop_cert_sslserver_type = config.getString("preop.cert.sslserver.type", "");
+            preop_cert_sslserver_profile = config.getString("preop.cert.sslserver.profile", "");
 
-                // add/modify 'CS.cfg' entries
-                config.putString("preop.ca.type", "sdca");
-                config.putString("preop.cert.signing.type", "remote");
-                config.putString("preop.cert.signing.profile", "caInstallCACert");
-                config.putString("preop.cert.sslserver.type", "remote");
-                config.putString("preop.cert.sslserver.profile", "caInternalAuthServerCert");
+            // add/modify 'CS.cfg' entries
+            config.putString("preop.ca.type", "sdca");
+            config.putString("preop.cert.signing.type", "remote");
+            config.putString("preop.cert.signing.profile", "caInstallCACert");
+            config.putString("preop.cert.sslserver.type", "remote");
+            config.putString("preop.cert.sslserver.profile", "caInternalAuthServerCert");
 
-                // store original caType
-                original_caType = caType;
+            // store original caType
+            original_caType = caType;
 
-                // modify caType
-                certObj.setType("remote");
+            // modify caType
+            certObj.setType("remote");
 
-                // fetch revised caType
-                caType = certObj.getType();
-                CMS.debug("configCert: caType is " + caType + " (revised)");
+            // fetch revised caType
+            caType = certObj.getType();
+            CMS.debug("configCert: caType is " + caType + " (revised)");
 
-                // set master/clone signature flag
-                sign_clone_sslserver_cert_using_master = true;
-            }
-
-            updateConfig(config, certTag);
-
-            if (caType.equals("remote")) {
-
-                cert = configRemoteCert(
-                        request,
-                        response,
-                        context,
-                        certObj,
-                        config,
-                        cert,
-                        certTag,
-                        preop_ca_type,
-                        preop_cert_signing_type,
-                        preop_cert_signing_profile,
-                        preop_cert_sslserver_type,
-                        preop_cert_sslserver_profile,
-                        original_caType,
-                        sign_clone_sslserver_cert_using_master);
-
-            } else { // not remote CA, ie, self-signed or local
-
-                cert = configLocalCert(context, certObj, config, caType, cert, certTag);
-
-            } // done self-signed or local
-
-            if (cert != null) {
-                byte[] certb = cert.getEncoded();
-                String certs = CryptoUtil.base64Encode(certb);
-
-                certObj.setCert(certs);
-                String subsystem = config.getString(
-                        PCERT_PREFIX + certTag + ".subsystem");
-                config.putString(subsystem + "." + certTag + ".cert", certs);
-            }
-            config.commit(false);
-        } catch (Exception e) {
-            CMS.debug("configCert() exception caught:" + e.toString());
-            throw e;
+            // set master/clone signature flag
+            sign_clone_sslserver_cert_using_master = true;
         }
+
+        updateConfig(config, certTag);
+
+        if (caType.equals("remote")) {
+
+            cert = configRemoteCert(
+                    request,
+                    response,
+                    context,
+                    certObj,
+                    config,
+                    cert,
+                    certTag,
+                    preop_ca_type,
+                    preop_cert_signing_type,
+                    preop_cert_signing_profile,
+                    preop_cert_sslserver_type,
+                    preop_cert_sslserver_profile,
+                    original_caType,
+                    sign_clone_sslserver_cert_using_master);
+
+        } else { // not remote CA, ie, self-signed or local
+
+            cert = configLocalCert(context, certObj, config, caType, cert, certTag);
+
+        } // done self-signed or local
+
+        if (cert != null) {
+            byte[] certb = cert.getEncoded();
+            String certs = CryptoUtil.base64Encode(certb);
+
+            certObj.setCert(certs);
+            String subsystem = config.getString(
+                    PCERT_PREFIX + certTag + ".subsystem");
+            config.putString(subsystem + "." + certTag + ".cert", certs);
+        }
+        config.commit(false);
     }
 
     private static X509CertImpl configRemoteCert(
