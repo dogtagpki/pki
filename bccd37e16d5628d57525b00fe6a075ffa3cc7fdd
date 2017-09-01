@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "d305f7b0_dee530b1",
+        "filename": "base/tps/src/org/dogtagpki/server/tps/TPSTokendb.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 323,
+      "author": {
+        "id": 1010222
+      },
+      "writtenOn": "2017-09-01T22:11:55Z",
+      "side": 1,
+      "message": "I did a search apparently you have to explicitly catch a NullPointer exception. The recommendation is to avoid that happening by making sanity checks.",
+      "parentUuid": "99e89800_3cc357e7",
+      "revId": "bccd37e16d5628d57525b00fe6a075ffa3cc7fdd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "50a1c3c2_0263a0e5",
         "filename": "base/tps/src/org/dogtagpki/server/tps/TPSTokendb.java",
         "patchSetId": 1
