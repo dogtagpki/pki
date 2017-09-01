@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a8c4a59e_00c099a1",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1010223
+      },
+      "writtenOn": "2017-09-01T18:45:26Z",
+      "side": 0,
+      "message": "typo on \"happends\"; should be \"happens\"",
+      "revId": "9d6ec064b0169b822ac4964dc57cef874f1514e5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
