@@ -1,0 +1,174 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a97aa937_33fead61",
+        "filename": "base/tps/src/org/dogtagpki/server/tps/TPSTokendb.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 323,
+      "author": {
+        "id": 1010222
+      },
+      "writtenOn": "2017-09-01T18:04:34Z",
+      "side": 1,
+      "message": "Question: I wonder if that exception will catch null pointer exceptions. We could have null for cert or even maybe serial?",
+      "revId": "bccd37e16d5628d57525b00fe6a075ffa3cc7fdd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "50a1c3c2_0263a0e5",
+        "filename": "base/tps/src/org/dogtagpki/server/tps/TPSTokendb.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 338,
+      "author": {
+        "id": 1010222
+      },
+      "writtenOn": "2017-09-01T18:04:34Z",
+      "side": 1,
+      "message": "Maybe put a log message there.",
+      "revId": "bccd37e16d5628d57525b00fe6a075ffa3cc7fdd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "24b58d1f_6651d2ac",
+        "filename": "base/tps/src/org/dogtagpki/server/tps/TPSTokendb.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 346,
+      "author": {
+        "id": 1010222
+      },
+      "writtenOn": "2017-09-01T18:04:34Z",
+      "side": 1,
+      "message": "Typo.",
+      "revId": "bccd37e16d5628d57525b00fe6a075ffa3cc7fdd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2d457d4b_c4be8040",
+        "filename": "base/tps/src/org/dogtagpki/server/tps/TPSTokendb.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 362,
+      "author": {
+        "id": 1010222
+      },
+      "writtenOn": "2017-09-01T18:04:34Z",
+      "side": 1,
+      "message": "Check cert for null maybe.",
+      "revId": "bccd37e16d5628d57525b00fe6a075ffa3cc7fdd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f07e8849_9f387b72",
+        "filename": "base/tps/src/org/dogtagpki/server/tps/TPSTokendb.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 381,
+      "author": {
+        "id": 1010222
+      },
+      "writtenOn": "2017-09-01T18:04:34Z",
+      "side": 1,
+      "message": "Do we have to worry about ignoring case in this kind of comparison?",
+      "revId": "bccd37e16d5628d57525b00fe6a075ffa3cc7fdd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "219a62ef_96da7083",
+        "filename": "base/tps/src/org/dogtagpki/server/tps/TPSTokendb.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 403,
+      "author": {
+        "id": 1010222
+      },
+      "writtenOn": "2017-09-01T18:04:34Z",
+      "side": 1,
+      "message": "Perhaps change name of the method to reflect the idea \"except certs to recover\" somehow.",
+      "revId": "bccd37e16d5628d57525b00fe6a075ffa3cc7fdd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "47d3d87b_7a8b69a3",
+        "filename": "base/tps/src/org/dogtagpki/server/tps/TPSTokendb.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 419,
+      "author": {
+        "id": 1010222
+      },
+      "writtenOn": "2017-09-01T18:04:34Z",
+      "side": 1,
+      "message": "Minor suggestion. Maybe just check upfront to see if the erCertsToRecover is null and just remove the records in one step? No big dea.",
+      "revId": "bccd37e16d5628d57525b00fe6a075ffa3cc7fdd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f654f366_d1530450",
+        "filename": "base/tps/src/org/dogtagpki/server/tps/TPSTokendb.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 448,
+      "author": {
+        "id": 1010222
+      },
+      "writtenOn": "2017-09-01T18:04:34Z",
+      "side": 1,
+      "message": "Possibly check for null certSerial as well, since it is referenced later.",
+      "revId": "bccd37e16d5628d57525b00fe6a075ffa3cc7fdd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ff7b73d1_ffb5c77e",
+        "filename": "base/tps/src/org/dogtagpki/server/tps/TPSTokendb.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 485,
+      "author": {
+        "id": 1010222
+      },
+      "writtenOn": "2017-09-01T18:04:34Z",
+      "side": 1,
+      "message": "Sanity check on the params? Maybe not needed since they are sent into other methods which may return no results.",
+      "revId": "bccd37e16d5628d57525b00fe6a075ffa3cc7fdd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "30877b98_bf742bac",
+        "filename": "base/tps/src/org/dogtagpki/server/tps/TPSTokendb.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 503,
+      "author": {
+        "id": 1010222
+      },
+      "writtenOn": "2017-09-01T18:04:34Z",
+      "side": 1,
+      "message": "Are there any other states such as SUSPENDED that can be recovered from, thus making the cert still in use by another token?",
+      "revId": "bccd37e16d5628d57525b00fe6a075ffa3cc7fdd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
