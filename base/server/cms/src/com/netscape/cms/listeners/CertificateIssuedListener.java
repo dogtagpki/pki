@@ -222,6 +222,7 @@ public class CertificateIssuedListener implements IRequestListener {
                     keys.set(IEmailResolverKeys.KEY_CERT,
                             issuedCert[0]);
                 } catch (EBaseException e) {
+                    CMS.debug("CertificateIssuedListener: setting email resolver: "+ e.toString());
                     log(ILogger.LL_FAILURE,
                             CMS.getLogMessage("LISTENERS_CERT_ISSUED_SET_RESOLVER", e.toString()));
                 }
@@ -231,14 +232,17 @@ public class CertificateIssuedListener implements IRequestListener {
                 try {
                     mEmail = er.getEmail(keys);
                 } catch (ENotificationException e) {
+                    CMS.debug("CertificateIssuedListener: getting email: "+ e.toString());
                     log(ILogger.LL_FAILURE,
                             CMS.getLogMessage("LISTENERS_CERT_ISSUED_EXCEPTION",
                                     e.toString()));
                 } catch (EBaseException e) {
+                    CMS.debug("CertificateIssuedListener: getting email: "+ e.toString());
                     log(ILogger.LL_FAILURE,
                             CMS.getLogMessage("LISTENERS_CERT_ISSUED_EXCEPTION",
                                     e.toString()));
                 } catch (Exception e) {
+                    CMS.debug("CertificateIssuedListener: getting email: "+ e.toString());
                     log(ILogger.LL_FAILURE,
                             CMS.getLogMessage("LISTENERS_CERT_ISSUED_EXCEPTION",
                                     e.toString()));
@@ -246,12 +250,15 @@ public class CertificateIssuedListener implements IRequestListener {
 
                 // now we can mail
                 if ((mEmail != null) && (!mEmail.equals(""))) {
+                    CMS.debug("CertificateIssuedListener: found email: "+ mEmail);
                     mailIt(mEmail, issuedCert);
                 } else {
+                    CMS.debug("CertificateIssuedListener: failed finding email");
                     log(ILogger.LL_FAILURE,
                             CMS.getLogMessage("LISTENERS_CERT_ISSUED_NOTIFY_ERROR",
                                     issuedCert[0].getSerialNumber().toString(), mReqId.toString()));
                     // send failure notification to "sender"
+                    CMS.debug("CertificateIssuedListener: notifying sender...");
                     mSubject = "Certificate Issued notification undeliverable";
                     mailIt(mSenderEmail, issuedCert);
                 }
@@ -288,6 +295,7 @@ public class CertificateIssuedListener implements IRequestListener {
             }
             mn.setContent(c);
         } else {
+            CMS.debug("CertificateIssuedListener: mailIt: template null");
             log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("LISTENERS_CERT_ISSUED_TEMPLATE_ERROR",
                             issuedCert[0].getSerialNumber().toString(), mReqId.toString()));
@@ -300,9 +308,11 @@ public class CertificateIssuedListener implements IRequestListener {
         try {
             mn.sendNotification();
         } catch (ENotificationException e) {
+            CMS.debug("CertificateIssuedListener: mailIt: " + e.toString());
             log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
 
         } catch (IOException e) {
+            CMS.debug("CertificateIssuedListener: mailIt: " + e.toString());
             log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
         }
     }
