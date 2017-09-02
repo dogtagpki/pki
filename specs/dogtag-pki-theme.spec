@@ -1,11 +1,28 @@
+# Optionally fetch the release from the environment variable 'PKI_RELEASE'
+%define use_pki_release %{getenv:USE_PKI_RELEASE}
+%if 0%{?use_pki_release}
+%define pki_release %{getenv:PKI_RELEASE}
+%endif
+
 Name:             dogtag-pki-theme
 %if 0%{?rhel}
-Version:          10.4.1
-Release:          2%{?dist}
+Version:                10.5.0
+%define redhat_release  0
+%define redhat_stage    0
+%define default_release %{redhat_release}.%{redhat_stage}
 %else
-Version:          10.4.8
-Release:          1.1%{?dist}
+Version:                10.5.0
+%define fedora_release  0
+%define fedora_stage    0
+%define default_release %{fedora_release}.%{fedora_stage}
 %endif
+
+%if 0%{?use_pki_release}
+Release:          %{pki_release}%{?dist}
+%else
+Release:          %{default_release}%{?dist}
+%endif
+
 Summary:          Certificate System - Dogtag PKI Theme Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -173,6 +190,9 @@ cd build
 
 
 %changelog
+* Fri Aug 25 2017 Dogtag Team <pki-devel@redhat.com> 10.5.0-0.0
+- Pagure dogtagpki Issue #2798 - Update development spec file templates
+
 * Thu Jun 22 2017 Dogtag Team <pki-devel@redhat.com> 10.4.8-1.1
 - Updated source version number to 10.4.8-1.1
 
