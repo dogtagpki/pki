@@ -106,6 +106,13 @@ rm -f  ${PKI_CORE_SRPMS_DIR}/${PKI_CORE}-${PKI_CORE_VERSION}*.rpm
 
 
 ##
+## Compute Release Information
+##
+
+compute_release_information ${PKI_SPECS_FILE}
+
+
+##
 ## Copy a new 'pki-core' spec file from the
 ## current contents of the PKI working repository
 ##

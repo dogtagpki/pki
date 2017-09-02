@@ -26,6 +26,13 @@ cd `dirname $0`/../..
 PKI_PWD=`pwd`
 
 ##
+## Establish the 'dogtag-pki' spec file
+##
+
+DOGTAG_PKI_META="dogtag-pki"
+PKI_SPECS_FILE="${PKI_DIR}/specs/${DOGTAG_PKI_META}.spec"
+
+##
 ## Establish packages directory for 'dogtag-pki' META packages
 ##
 
@@ -67,6 +74,7 @@ build_specified_META_package()
 	spec_file="${package}.spec"
 
 	printf "BEGIN: Building '${package}' META package . . .\n"
+	compute_release_information ${PKI_SPECS_FILE}
 	cp ${spec_file_path}/${spec_file} ${PKI_PACKAGES}/SPECS
 	rpmbuild --define "_topdir ${PKI_PACKAGES}" -ba --clean ${PKI_PACKAGES}/SPECS/${spec_file} > /dev/null 2>&1
 	printf "END:   Building '${package}' META package.\n"
