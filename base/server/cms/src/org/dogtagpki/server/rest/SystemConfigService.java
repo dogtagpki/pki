@@ -187,7 +187,9 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         // configure admin
         CMS.debug("=== Admin Configuration ===");
-        configureAdministrator(data, response);
+        if (!data.isClone()) {
+            configureAdministrator(data, response);
+        }
 
         // create or update security domain
         CMS.debug("=== Finalization ===");
@@ -530,7 +532,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
     public void configureAdministrator(ConfigurationRequest data, ConfigurationResponse response) {
 
-        if (!data.isClone()) {
             try {
                 X509CertImpl admincerts[] = new X509CertImpl[1];
                 ConfigurationUtils.createAdmin(data.getAdminUID(), data.getAdminEmail(),
@@ -587,7 +588,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 CMS.debug(e);
                 throw new PKIException("Error in creating admin user: " + e);
             }
-        }
     }
 
     public void configureDatabase(ConfigurationRequest data) {
