@@ -327,16 +327,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             certs.add(cert);
         }
 
-        if (request.getStandAlone()) {
-
-            CMS.debug("SystemConfigService: Standalone " + csType + " Admin CSR");
-
-            String adminSubjectDN = request.getAdminSubjectDN();
-            cs.putString("preop.cert.admin.dn", adminSubjectDN);
-
-            // standalone admin cert and CSR are already stored into CS.cfg by configuration.py
-        }
-
         // make sure to commit changes here for step 1
         cs.commit(false);
 
@@ -548,9 +538,14 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             admincerts[0] = new X509CertImpl(b);
 
         } else {
+
+            String adminSubjectDN = data.getAdminSubjectDN();
+            cs.putString("preop.cert.admin.dn", adminSubjectDN);
+
             if (csType.equals("CA")) {
+
                 ConfigurationUtils.createAdminCertificate(data.getAdminCertRequest(),
-                        data.getAdminCertRequestType(), data.getAdminSubjectDN());
+                        data.getAdminCertRequestType(), adminSubjectDN);
 
                 String serialno = cs.getString("preop.admincert.serialno.0");
                 ICertificateAuthority ca = (ICertificateAuthority) CMS.getSubsystem(ICertificateAuthority.ID);
@@ -570,7 +565,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 }
                 String b64 = ConfigurationUtils.submitAdminCertRequest(ca_hostname, ca_port,
                         data.getAdminProfileID(), data.getAdminCertRequestType(),
-                        data.getAdminCertRequest(), data.getAdminSubjectDN());
+                        data.getAdminCertRequest(), adminSubjectDN);
                 b64 = CryptoUtil.stripCertBrackets(b64.trim());
                 byte[] b = CryptoUtil.base64Decode(b64);
                 admincerts[0] = new X509CertImpl(b);
