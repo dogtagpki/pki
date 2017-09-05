@@ -3913,14 +3913,6 @@ class ConfigClient:
         data.external = self.external or self.existing
         data.standAlone = self.standalone
 
-        if self.standalone:
-            # standalone installation uses two-step process (ticket #1698)
-            data.stepTwo = self.external_step_two
-
-        else:
-            # other installations use only one step in the configuration servlet
-            data.stepTwo = False
-
         # Cloning parameters
         if self.mdict['pki_instance_type'] == "Tomcat":
             if self.clone:

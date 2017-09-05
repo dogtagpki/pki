@@ -187,9 +187,6 @@ public class ConfigurationRequest {
     @XmlElement
     protected String standAlone;
 
-    @XmlElement
-    protected String stepTwo;
-
     @XmlElement(defaultValue = "true")
     protected String generateServerCert;
 
@@ -811,14 +808,6 @@ public class ConfigurationRequest {
         this.standAlone = standAlone;
     }
 
-    public boolean getStepTwo() {
-        return (stepTwo != null && stepTwo.equalsIgnoreCase("true"));
-    }
-
-    public void setStepTwo(String stepTwo) {
-        this.stepTwo = stepTwo;
-    }
-
     public String getReplicateSchema() {
         return replicateSchema;
     }
@@ -1029,7 +1018,6 @@ public class ConfigurationRequest {
                ", generateServerCert=" + generateServerCert +
                ", external=" + external +
                ", standAlone=" + standAlone +
-               ", stepTwo=" + stepTwo +
                ", authdbBaseDN=" + authdbBaseDN +
                ", authdbHost=" + authdbHost +
                ", authdbPort=" + authdbPort +
