@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "094f7b88_7bf97d66",
+        "filename": "base/kra/src/com/netscape/kra/RecoveryService.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 635,
+      "author": {
+        "id": 1010256
+      },
+      "writtenOn": "2017-09-06T01:02:45Z",
+      "side": 1,
+      "message": "Could we make encAlg configurable?  Okay if you want to make this future improvement.",
+      "range": {
+        "startLine": 635,
+        "startChar": 0,
+        "endLine": 635,
+        "endChar": 12
+      },
+      "revId": "85c03a8844ccfc50033d703b810c481c3f83f6e2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5751a8dc_900eceee",
+        "filename": "base/kra/src/com/netscape/kra/RecoveryService.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 636,
+      "author": {
+        "id": 1010256
+      },
+      "writtenOn": "2017-09-06T01:02:45Z",
+      "side": 1,
+      "message": "Could you just put the whole section on generating EncryptedPrivateKeyInfo using PBES2 into JSS EncryptedPrivateKeyInfo.java and call it something like createPBEs2, since the old createPBE is already there?",
+      "revId": "85c03a8844ccfc50033d703b810c481c3f83f6e2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3e7371ba_00a54627",
+        "filename": "base/kra/src/com/netscape/kra/RecoveryService.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 661,
+      "author": {
+        "id": 1010256
+      },
+      "writtenOn": "2017-09-06T01:02:45Z",
+      "side": 1,
+      "message": "I know you did not touch that code, but since you are in here, do you think it would be a good idea to change DEFAULT_ITERATIONS from 1 to 1000?",
+      "revId": "85c03a8844ccfc50033d703b810c481c3f83f6e2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6eba33a8_4e08b860",
+        "filename": "base/kra/src/com/netscape/kra/RecoveryService.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 697,
+      "author": {
+        "id": 1010256
+      },
+      "writtenOn": "2017-09-06T01:02:45Z",
+      "side": 1,
+      "message": "How about zero out pwd at the end of its use?",
+      "revId": "85c03a8844ccfc50033d703b810c481c3f83f6e2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
