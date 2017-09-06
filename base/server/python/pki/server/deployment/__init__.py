@@ -171,7 +171,3 @@ class PKIDeployer:
         os.chmod(
             new_descriptor,
             config.PKI_DEPLOYMENT_DEFAULT_FILE_PERMISSIONS)
-
-    @staticmethod
-    def create_system_cert_verifier(instance=None, subsystem=None):
-        return util.SystemCertificateVerifier(instance, subsystem)
