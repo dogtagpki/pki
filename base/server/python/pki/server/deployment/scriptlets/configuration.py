@@ -709,23 +709,20 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             "verifying certificates",
             extra=config.PKI_INDENTATION_LEVEL_2)
 
-        verifier = pki.server.deployment.PKIDeployer.create_system_cert_verifier(
-            subsystem.instance, subsystem.name)
-
         if subsystem.name == 'ca':
-            verifier.verify_certificate('signing')
+            subsystem.validate_system_cert('signing')
 
         if subsystem.name in ['kra', 'ocsp']:
-            verifier.verify_certificate('sslserver')
-            verifier.verify_certificate('subsystem')
-            verifier.verify_certificate('audit_signing')
+            subsystem.validate_system_cert('sslserver')
+            subsystem.validate_system_cert('subsystem')
+            subsystem.validate_system_cert('audit_signing')
 
         if subsystem.name == 'kra':
-            verifier.verify_certificate('storage')
-            verifier.verify_certificate('transport')
+            subsystem.validate_system_cert('storage')
+            subsystem.validate_system_cert('transport')
 
         if subsystem.name == 'ocsp':
-            verifier.verify_certificate('signing')
+            subsystem.validate_system_cert('signing')
 
     def create_temp_sslserver_cert(self, deployer, instance, token):
 
