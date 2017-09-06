@@ -195,6 +195,19 @@ class PKISubsystem(object):
         self.config['%s.%s.certreq' % (self.name, cert_id)] = (
             cert.get('request', None))
 
+    def validate_system_cert(self, cert_id=None):
+
+        cmd = ['pki-server', 'subsystem-cert-validate',
+               '-i', self.instance.name,
+               self.name]
+
+        if cert_id is not None:
+            cmd.append(cert_id)
+
+        subprocess.check_output(
+            cmd,
+            stderr=subprocess.STDOUT)
+
     def export_system_cert(
             self,
             cert_id,
