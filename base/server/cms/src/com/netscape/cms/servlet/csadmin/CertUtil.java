@@ -582,12 +582,7 @@ public class CertUtil {
 
         CMS.debug("CertUtil createLocalCert: got cert signed");
 
-        MetaInfo meta = new MetaInfo();
-        meta.set(ICertRecord.META_REQUEST_ID, reqId.toString());
-        meta.set(ICertRecord.META_PROFILE_ID, profile.getProfileIDMapping());
-
-        ICertRecord record = cr.createCertRecord(cert.getSerialNumber(), cert, meta);
-        cr.addCertificateRecord(record);
+        createCertRecord(req, profile, cert);
 
         // update request with cert
         req.setExtData(IEnrollProfile.REQUEST_ISSUED_CERT, cert);
@@ -596,6 +591,35 @@ public class CertUtil {
         queue.updateRequest(req);
 
         return cert;
+    }
+
+    public static void createCertRecord(
+            IRequest request,
+            CertInfoProfile profile,
+            X509Certificate cert) throws Exception {
+
+        X509CertImpl certImpl = new X509CertImpl(cert.getEncoded());
+        createCertRecord(request, profile, certImpl);
+    }
+
+    public static void createCertRecord(
+            IRequest request,
+            CertInfoProfile profile,
+            X509CertImpl cert) throws Exception {
+
+        CMS.debug("CertUtil.createCertRecord(" +
+                profile.getName() + ", " +
+                cert.getSubjectDN() + ")");
+
+        ICertificateAuthority ca = (ICertificateAuthority) CMS.getSubsystem(ICertificateAuthority.ID);
+        ICertificateRepository cr = ca.getCertificateRepository();
+
+        MetaInfo meta = new MetaInfo();
+        meta.set(ICertRecord.META_REQUEST_ID, request.getRequestId().toString());
+        meta.set(ICertRecord.META_PROFILE_ID, profile.getProfileIDMapping());
+
+        ICertRecord record = cr.createCertRecord(cert.getSerialNumber(), cert, meta);
+        cr.addCertificateRecord(record);
     }
 
     public static void addUserCertificate(X509CertImpl cert) {
