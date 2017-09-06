@@ -729,6 +729,10 @@ public class X509CertImpl extends X509Certificate
         return info.getSubjectObj();
     }
 
+    public X509CertInfo getInfo() {
+        return info;
+    }
+
     /**
      * Gets the issuer distinguished name from the certificate.
      *
