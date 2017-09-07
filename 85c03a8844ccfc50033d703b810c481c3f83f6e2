@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "c689876e_1f2a8166",
+        "filename": "base/kra/src/com/netscape/kra/RecoveryService.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 635,
+      "author": {
+        "id": 1011000
+      },
+      "writtenOn": "2017-09-07T03:58:51Z",
+      "side": 1,
+      "message": "I\u0027ll leave it as-is here, but when I move the method to JSS it will be configurable there.",
+      "parentUuid": "094f7b88_7bf97d66",
+      "range": {
+        "startLine": 635,
+        "startChar": 0,
+        "endLine": 635,
+        "endChar": 12
+      },
+      "revId": "85c03a8844ccfc50033d703b810c481c3f83f6e2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5751a8dc_900eceee",
         "filename": "base/kra/src/com/netscape/kra/RecoveryService.java",
         "patchSetId": 3
@@ -36,6 +60,24 @@
       "writtenOn": "2017-09-06T01:02:45Z",
       "side": 1,
       "message": "Could you just put the whole section on generating EncryptedPrivateKeyInfo using PBES2 into JSS EncryptedPrivateKeyInfo.java and call it something like createPBEs2, since the old createPBE is already there?",
+      "revId": "85c03a8844ccfc50033d703b810c481c3f83f6e2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b58b5fd9_1b7f64ea",
+        "filename": "base/kra/src/com/netscape/kra/RecoveryService.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 636,
+      "author": {
+        "id": 1011000
+      },
+      "writtenOn": "2017-09-07T03:58:51Z",
+      "side": 1,
+      "message": "Yep, fair enough; working on this now.",
+      "parentUuid": "5751a8dc_900eceee",
       "revId": "85c03a8844ccfc50033d703b810c481c3f83f6e2",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -59,6 +101,24 @@
     },
     {
       "key": {
+        "uuid": "1e99aa65_986c7a51",
+        "filename": "base/kra/src/com/netscape/kra/RecoveryService.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 661,
+      "author": {
+        "id": 1011000
+      },
+      "writtenOn": "2017-09-07T03:58:51Z",
+      "side": 1,
+      "message": "I think we\u0027ll need to evaluate the impact of that change\nseparately from this one :)\n\nI am not against it, just wary of scope creep in this set of changes.",
+      "parentUuid": "3e7371ba_00a54627",
+      "revId": "85c03a8844ccfc50033d703b810c481c3f83f6e2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6eba33a8_4e08b860",
         "filename": "base/kra/src/com/netscape/kra/RecoveryService.java",
         "patchSetId": 3
@@ -70,6 +130,24 @@
       "writtenOn": "2017-09-06T01:02:45Z",
       "side": 1,
       "message": "How about zero out pwd at the end of its use?",
+      "revId": "85c03a8844ccfc50033d703b810c481c3f83f6e2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "046587bd_641e5c52",
+        "filename": "base/kra/src/com/netscape/kra/RecoveryService.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 697,
+      "author": {
+        "id": 1011000
+      },
+      "writtenOn": "2017-09-07T03:58:51Z",
+      "side": 1,
+      "message": "`pwd` is a `String` value, from the request params.\nI\u0027m not aware of any safe way to overwrite its value\nin memory.  Even if there is it would be a refactoring\nthat is out of scope for this change (we didn\u0027t zero out\n`pwd` prior to this change)",
+      "parentUuid": "6eba33a8_4e08b860",
       "revId": "85c03a8844ccfc50033d703b810c481c3f83f6e2",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
