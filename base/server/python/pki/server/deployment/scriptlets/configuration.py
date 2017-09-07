@@ -703,26 +703,37 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if subsystem.name == 'ocsp':
             self.configure_ocsp_signing_cert(deployer, nssdb, subsystem)
 
-    def verify_system_certs(self, subsystem):
+    def validate_system_cert(self, deployer, nssdb, subsystem, tag):
+
+        cert_id = self.get_cert_id(subsystem, tag)
+        nickname = deployer.mdict['pki_%s_nickname' % cert_id]
+        cert_data = nssdb.get_cert(nickname)
+
+        if not cert_data:
+            return
 
         config.pki_log.info(
-            "verifying certificates",
+            "validating %s certificate" % tag,
             extra=config.PKI_INDENTATION_LEVEL_2)
 
+        subsystem.validate_system_cert(tag)
+
+    def validate_system_certs(self, deployer, nssdb, subsystem):
+
         if subsystem.name == 'ca':
-            subsystem.validate_system_cert('signing')
+            self.validate_system_cert(deployer, nssdb, subsystem, 'signing')
 
         if subsystem.name in ['kra', 'ocsp']:
-            subsystem.validate_system_cert('sslserver')
-            subsystem.validate_system_cert('subsystem')
-            subsystem.validate_system_cert('audit_signing')
+            self.validate_system_cert(deployer, nssdb, subsystem, 'sslserver')
+            self.validate_system_cert(deployer, nssdb, subsystem, 'subsystem')
+            self.validate_system_cert(deployer, nssdb, subsystem, 'audit_signing')
 
         if subsystem.name == 'kra':
-            subsystem.validate_system_cert('storage')
-            subsystem.validate_system_cert('transport')
+            self.validate_system_cert(deployer, nssdb, subsystem, 'storage')
+            self.validate_system_cert(deployer, nssdb, subsystem, 'transport')
 
         if subsystem.name == 'ocsp':
-            subsystem.validate_system_cert('signing')
+            self.validate_system_cert(deployer, nssdb, subsystem, 'signing')
 
     def create_temp_sslserver_cert(self, deployer, instance, token):
 
@@ -951,7 +962,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 self.configure_system_certs(deployer, nssdb, subsystem)
                 subsystem.save()
 
-                self.verify_system_certs(subsystem)
+                self.validate_system_certs(deployer, nssdb, subsystem)
 
             else:  # self-signed CA
 
