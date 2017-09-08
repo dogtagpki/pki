@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2b08b882_a990b55a",
+        "filename": "scripts/compose_functions",
+        "patchSetId": 1
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-09-08T19:56:38Z",
+      "side": 1,
+      "message": "I think ideally we should not need to parse the spec file to get the version/release number.\n\nWe could either provide the full version/release number:\n\n $ rpmbuild \\\n    --define \u0027VERSION 1.5.0\u0027 \\\n    --define \u0027RELEASE 0.0.\u003ctimestamp\u003e.\u003cgit hash\u003e\u0027 \\\n    ...\n\nOr use the default version/release number defined in the spec file and only add a suffix to the release number:\n\n $ rpmbuild \\\n    --define \u0027RELEASE_SUFFIX \u003ctimestamp\u003e.\u003cgit hash\u003e\u0027 \\\n    ...",
+      "revId": "8eb5866a69b433aa24c8372c126ff7cf6c18a1f7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "21fc73e8_c0b865db",
+        "filename": "specs/pki-core.spec",
+        "patchSetId": 1
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-09-08T19:56:38Z",
+      "side": 1,
+      "message": "Ideally we should use --define instead of env vars to reduce the possibility of interference with the commands executed in the spec file, although that\u0027s not likely to happen here.",
+      "revId": "8eb5866a69b433aa24c8372c126ff7cf6c18a1f7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ae78d735_71553648",
+        "filename": "specs/pki-core.spec",
+        "patchSetId": 1
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-09-08T19:56:38Z",
+      "side": 1,
+      "message": "The stage number will not exist in the official release, so ideally it shouldn\u0027t be defined explicitly as a separate variable.",
+      "revId": "8eb5866a69b433aa24c8372c126ff7cf6c18a1f7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
