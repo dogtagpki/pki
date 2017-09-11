@@ -432,8 +432,11 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
             ConfigurationUtils.updateConfig(cs, tag);
 
-            CMS.debug("SystemConfigService: Loading cert request from CS.cfg");
-            ConfigurationUtils.loadCertRequest(cs, tag, cert);
+            CMS.debug("SystemConfigService: loading existing cert request");
+            String requestStr = ConfigurationUtils.loadCertRequest(cs, subsystem, tag);
+            CMS.debug("SystemConfigService: request: " + requestStr);
+
+            cert.setRequest(requestStr);
 
             if (!x509Cert.getSubjectDN().equals(x509Cert.getIssuerDN())) {
                 CMS.debug("ConfigurationUtils: " + tag + " cert is not self-signed");
