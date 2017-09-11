@@ -444,6 +444,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             // When importing existing self-signed CA certificate, create a
             // certificate record to reserve the serial number. Otherwise it
             // might conflict with system certificates to be created later.
+            // Also create the certificate request record for renewals.
 
             CMS.debug("SystemConfigService: subsystem: " + subsystem);
             if (!subsystem.equals("ca")) {
@@ -469,7 +470,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             }
 
             CMS.debug("SystemConfigService: creating cert record for " + tag + " cert");
-            ConfigurationUtils.createCertRecord(cs, x509Cert);
+            ConfigurationUtils.createCertRecord(cs, cert);
 
             return cert;
         }
