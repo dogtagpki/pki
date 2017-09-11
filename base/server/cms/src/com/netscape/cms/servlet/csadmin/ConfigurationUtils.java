@@ -2909,24 +2909,17 @@ public class ConfigurationUtils {
         config.putString("log.instance.SignedAudit.signedAuditCertNickname", nickname);
     }
 
-    public static void loadCertRequest(IConfigStore config, String tag, Cert cert) throws Exception {
+    public static String loadCertRequest(IConfigStore config, String subsystem, String tag) throws Exception {
 
         CMS.debug("ConfigurationUtils.loadCertRequest(" + tag + ")");
 
-        String subjectDN = config.getString(PCERT_PREFIX + tag + ".dn");
-        cert.setDN(subjectDN);
-
-        String subsystem = config.getString(PCERT_PREFIX + tag + ".subsystem");
-
         try {
             String certreq = config.getString(subsystem + "." + tag + ".certreq");
-            String formattedCertreq = CryptoUtil.reqFormat(certreq);
-
-            cert.setRequest(formattedCertreq);
+            return CryptoUtil.reqFormat(certreq);
 
         } catch (EPropertyNotFound e) {
             // The CSR is optional for existing CA case.
-            CMS.debug("ConfigurationUtils.loadCertRequest: " + tag + " cert has no CSR");
+            return null;
         }
     }
 
