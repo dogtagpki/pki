@@ -3106,24 +3106,12 @@ public class ConfigurationUtils {
         String b64 = cert.getCert();
         String tokenname = config.getString("preop.module.token", "");
 
-        if (cert.getType().equals("local") && b64.equals("...certificate be generated internally...")) {
+        b64 = CryptoUtil.stripCertBrackets(b64.trim());
+        String certs = CryptoUtil.normalizeCertStr(b64);
+        byte[] certb = CryptoUtil.base64Decode(certs);
+        X509CertImpl impl = new X509CertImpl(certb);
 
-            if (CertUtil.findCertificate(tokenname, nickname) && !certTag.equals("sslserver")) {
-                // if cert already exists (except SSL server cert), skip creation
-                return;
-            }
-
-            handleLocalCert(config, cert, tokenname);
-
-        } else { // local and remote
-
-            b64 = CryptoUtil.stripCertBrackets(b64.trim());
-            String certs = CryptoUtil.normalizeCertStr(b64);
-            byte[] certb = CryptoUtil.base64Decode(certs);
-            X509CertImpl impl = new X509CertImpl(certb);
-
-            CertUtil.importCert(subsystem, certTag, tokenname, nickname, impl);
-        }
+        CertUtil.importCert(subsystem, certTag, tokenname, nickname, impl);
 
         //update requests in request queue for local certs to allow renewal
         if ((cert.getType().equals("local")) || (cert.getType().equals("selfsign"))) {
@@ -3139,40 +3127,6 @@ public class ConfigurationUtils {
             CryptoUtil.trustCertByNickname(NickName);
             CMS.reinit(ICertificateAuthority.ID);
         }
-    }
-
-    private static void handleLocalCert(
-            IConfigStore config,
-            Cert cert,
-            String tokenname)
-            throws Exception {
-
-        String certTag = cert.getCertTag();
-        CMS.debug("ConfigurationUtils.handleLocalCert(" + certTag + ")");
-
-        String pubKeyType = config.getString(PCERT_PREFIX + certTag + ".keytype");
-
-        X509Key x509key = null;
-        if (pubKeyType.equals("rsa")) {
-            x509key = getRSAX509Key(config, certTag);
-        } else if (pubKeyType.equals("ecc")) {
-            x509key = getECCX509Key(config, certTag);
-        }
-
-        CMS.debug("ConfigurationUtils: creating local cert");
-
-        X509CertImpl impl = CertUtil.createLocalCert(config, x509key, PCERT_PREFIX, certTag, cert.getType());
-
-        byte[] binCert = impl.getEncoded();
-        String strCert = CryptoUtil.base64Encode(binCert);
-        cert.setCert(strCert);
-
-        String subsystem = cert.getSubsystem();
-        config.putString(subsystem + "." + certTag + ".cert", strCert);
-
-        CMS.debug("ConfigurationUtils: importing local cert");
-
-        CertUtil.importCert(subsystem, certTag, tokenname, cert.getNickname(), impl);
     }
 
     public static void setCertPermissions(String tag) throws EBaseException, NotInitializedException,
