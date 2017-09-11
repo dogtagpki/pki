@@ -116,6 +116,11 @@ import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.key.KeyData;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
+import com.netscape.certsrv.profile.CertInfoProfile;
+import com.netscape.certsrv.profile.IEnrollProfile;
+import com.netscape.certsrv.request.IRequest;
+import com.netscape.certsrv.request.IRequestQueue;
+import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.system.ConfigurationRequest;
 import com.netscape.certsrv.system.InstallToken;
 import com.netscape.certsrv.system.SecurityDomainClient;
@@ -157,6 +162,7 @@ import netscape.security.x509.Extensions;
 import netscape.security.x509.KeyUsageExtension;
 import netscape.security.x509.X500Name;
 import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509CertInfo;
 import netscape.security.x509.X509Key;
 
 /**
@@ -3079,17 +3085,58 @@ public class ConfigurationUtils {
         return pubk;
     }
 
-    public static void createCertRecord(IConfigStore config, X509Certificate x509Cert) throws Exception {
+    public static void createCertRecord(IConfigStore cs, Cert cert) throws Exception {
 
-        CMS.debug("ConfigurationUtils.createCertRecord(" + x509Cert.getNickname() + ")");
+        String tag = cert.getCertTag();
+        CMS.debug("ConfigurationUtils.createCertRecord(" + tag + ")");
 
-        X509CertImpl x509CertImpl = new X509CertImpl(x509Cert.getEncoded());
+        // parsing cert data
+        X509CertImpl x509CertImpl = new X509CertImpl(cert.getCert());
+        X509CertInfo info = x509CertImpl.getInfo();
 
+        // parsing cert request
+        String certreq = cs.getString("ca." + tag + ".certreq");
+        byte[] b = CMS.AtoB(certreq);
+        PKCS10 pkcs10 = new PKCS10(b);
+        X509Key x509key = pkcs10.getSubjectPublicKeyInfo();
+
+        // loading cert profile
+        String profileName = cs.getString(ConfigurationUtils.PCERT_PREFIX + tag + ".profile");
+        CMS.debug("SystemConfigService: profile: " + profileName);
+
+        String instanceRoot = cs.getString("instanceRoot");
+        String configurationRoot = cs.getString("configurationRoot");
+        CertInfoProfile profile = new CertInfoProfile(instanceRoot + configurationRoot + profileName);
+
+        // creating cert request record
         ICertificateAuthority ca = (ICertificateAuthority) CMS.getSubsystem(ICertificateAuthority.ID);
         ICertificateRepository cr = ca.getCertificateRepository();
+        IRequestQueue queue = ca.getRequestQueue();
 
-        BigInteger serialNo = x509Cert.getSerialNumber();
+        IRequest req = CertUtil.createLocalRequest(
+                cs,
+                queue,
+                tag,
+                profile,
+                info,
+                x509key);
+
+        req.setExtData(IEnrollProfile.REQUEST_ISSUED_CERT, x509CertImpl);
+        req.setExtData("cert_request", cert.getRequest());
+        req.setExtData("cert_request_type", "pkcs10");
+
+        queue.updateRequest(req);
+
+        RequestId reqId = req.getRequestId();
+        CMS.debug("SystemConfigService: request: " + reqId);
+
+        cs.putString("preop.cert." + tag + ".reqId", reqId.toString());
+
+        BigInteger serialNo = x509CertImpl.getSerialNumber();
+
         MetaInfo meta = new MetaInfo();
+        meta.set(ICertRecord.META_REQUEST_ID, req.getRequestId().toString());
+        meta.set(ICertRecord.META_PROFILE_ID, profile.getProfileIDMapping());
 
         ICertRecord record = cr.createCertRecord(serialNo, x509CertImpl, meta);
         cr.addCertificateRecord(record);
