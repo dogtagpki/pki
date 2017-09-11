@@ -410,23 +410,30 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         cert.setSubsystem(subsystem);
         cert.setType(cs.getString("preop.cert." + tag + ".type"));
 
+        CMS.debug("SystemConfigService: checking " + tag + " cert from NSS database");
+
+        CryptoManager cm = CryptoManager.getInstance();
+        X509Certificate x509Cert;
+        try {
+            x509Cert = cm.findCertByNickname(nickname);
+        } catch (ObjectNotFoundException e) {
+            x509Cert = null;
+        }
+
         if (request.isExternal() && tag.equals("signing") || request.getStandAlone()) {
 
-            // load existing/external CA signing and standalone KRA/OCSP certificates
-            // previously imported by configuration.py
+            CMS.debug("SystemConfigService: loading existing " + tag + " cert");
+            byte[] bytes = x509Cert.getEncoded();
+            String b64 = CryptoUtil.base64Encode(bytes);
+            String certStr = CryptoUtil.normalizeCertStr(b64);
+            CMS.debug("SystemConfigService: cert: " + certStr);
 
-            String certStr = cs.getString(subsystem + "." + tag + ".cert" );
             cert.setCert(certStr);
 
-            CMS.debug("SystemConfigService: cert: " + certStr);
             ConfigurationUtils.updateConfig(cs, tag);
 
             CMS.debug("SystemConfigService: Loading cert request from CS.cfg");
             ConfigurationUtils.loadCertRequest(cs, tag, cert);
-
-            CMS.debug("SystemConfigService: Loading cert " + tag);
-            CryptoManager cm = CryptoManager.getInstance();
-            X509Certificate x509Cert = cm.findCertByNickname(cert.getNickname());
 
             if (!x509Cert.getSubjectDN().equals(x509Cert.getIssuerDN())) {
                 CMS.debug("ConfigurationUtils: " + tag + " cert is not self-signed");
