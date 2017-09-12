@@ -239,13 +239,14 @@ public class TPSTokendb {
             for (TPSCertRecord cert : certs) {
                 try {
                     if (!isCertOnToken(cert, cuid)) {
-                        CMS.debug(method + " adding cert: " + cert.getId());
+                        CMS.debug(method + " adding cert with serial: " + cert.getSerialNumber());
                         tps.certDatabase.addRecord(cert.getId(), cert);
                     } else {
                         // cert already on token
-                        CMS.debug(method + "retain and skip adding:" + cert.getId());
+                        CMS.debug(method + "retain and skip adding with serial:" + cert.getSerialNumber());
                     }
                 } catch (Exception e) {
+                    CMS.debug(method + "Exception after isCertOnToken call"+ e.toString());
                     // ignore; go to next;
                 }
             }

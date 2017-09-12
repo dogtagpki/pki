@@ -554,13 +554,17 @@ public class TPSEnrollProcessor extends TPSProcessor {
         if (lifecycleState != 0x0f || appletUpgraded == 1) {
             CMS.debug(method + " Need to reset the lifecycle state. current state: " + lifecycleState
                     + " Was applet upgraded: " + appletUpgraded);
-            channel.setLifeycleState((byte) 0x0f);
+            channel.setLifecycleState((byte) 0x0f);
+            CMS.debug(method + " after channel.setLifecycleState");
         } else {
             CMS.debug(method + " No need to reset lifecycle state, it is already at the proper value.");
         }
 
-        //ExternalRegAttrs erAttrs = session.getExternalRegAttrs();
-        ArrayList<ExternalRegCertToRecover> erCertsToRecover = erAttrs.getCertsToRecover();
+        ArrayList<ExternalRegCertToRecover> erCertsToRecover = null;
+        erAttrs = session.getExternalRegAttrs();
+        if (isExternalReg && (erAttrs!= null)) {
+            erCertsToRecover = erAttrs.getCertsToRecover();
+        }
 
         /**
          * Update the tokendb with new certs:
