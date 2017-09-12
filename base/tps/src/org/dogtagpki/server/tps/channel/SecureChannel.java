@@ -1478,9 +1478,9 @@ public class SecureChannel {
             return 2;
     }
 
-    public void setLifeycleState(byte flag) throws TPSException, IOException {
-
-        CMS.debug("SecureChannel.setLifecycleState: flage: " + flag);
+    public void setLifecycleState(byte flag) throws TPSException, IOException {
+        String method = "SecureChannel.setLifecycleState: ";
+        CMS.debug(method + "flage: " + flag);
 
         LifecycleAPDU life = new LifecycleAPDU(flag);
 
@@ -1489,10 +1489,12 @@ public class SecureChannel {
         APDUResponse response = processor.handleAPDURequest(life);
 
         if (!response.checkResult()) {
+             CMS.debug(method + "result.checkResult() returns false; Throwing exception!");
             throw new TPSException("SecureChannel.setLifecycleState. Failed to set Lifecycle State!.",
                     TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
         }
 
+        CMS.debug(method + "ends");
     }
 
     public void createPin(int pinNumber, int maxRetries, String pin) throws TPSException, IOException {
