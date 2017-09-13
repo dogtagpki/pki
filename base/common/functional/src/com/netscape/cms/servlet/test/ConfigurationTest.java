@@ -581,7 +581,6 @@ public class ConfigurationTest {
         data.setAdminCertRequestType("crmf");
 
         data.setIssuingCA("External CA");
-        data.setStepTwo("true");
 
         // create system certs
         List<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
