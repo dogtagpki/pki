@@ -22,7 +22,7 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
 public class Cert {
     private String mNickname = "";
     private String mTokenname = "";
-    private String mRequest = "";
+    private byte[] request;
     private byte[] cert;
     private String mType = ""; // "selfsign," "local," or "remote"
     private String mDN = "";
@@ -86,12 +86,12 @@ public class Cert {
         return mTokenname;
     }
 
-    public String getRequest() {
-        return mRequest;
+    public byte[] getRequest() {
+        return request;
     }
 
-    public void setRequest(String req) {
-        mRequest = req;
+    public void setRequest(byte[] request) {
+        this.request = request;
     }
 
     public String getEscapedCert() throws Exception {

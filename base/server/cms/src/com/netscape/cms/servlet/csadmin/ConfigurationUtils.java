@@ -2594,7 +2594,7 @@ public class ConfigurationUtils {
         PKCS10 pkcs10 = CertUtil.getPKCS10(config, PCERT_PREFIX, certObj, context);
         byte[] binRequest = pkcs10.toByteArray();
         String b64Request = CryptoUtil.base64Encode(binRequest);
-        certObj.setRequest(b64Request);
+        certObj.setRequest(binRequest);
 
         String subsystem = config.getString(PCERT_PREFIX + certTag + ".subsystem");
         config.putString(subsystem + "." + certTag + ".certreq", b64Request);
@@ -2911,13 +2911,13 @@ public class ConfigurationUtils {
         config.putString("log.instance.SignedAudit.signedAuditCertNickname", nickname);
     }
 
-    public static String loadCertRequest(IConfigStore config, String subsystem, String tag) throws Exception {
+    public static byte[] loadCertRequest(IConfigStore config, String subsystem, String tag) throws Exception {
 
         CMS.debug("ConfigurationUtils.loadCertRequest(" + tag + ")");
 
         try {
             String certreq = config.getString(subsystem + "." + tag + ".certreq");
-            return CryptoUtil.reqFormat(certreq);
+            return CryptoUtil.base64Decode(certreq);
 
         } catch (EPropertyNotFound e) {
             // The CSR is optional for existing CA case.
@@ -2978,13 +2978,12 @@ public class ConfigurationUtils {
         CMS.debug("generateCertRequest: storing cert request");
         byte[] certReqb = certReq.toByteArray();
         String certReqs = CryptoUtil.base64Encode(certReqb);
-        String certReqf = CryptoUtil.reqFormat(certReqs);
 
         String subsystem = config.getString(PCERT_PREFIX + certTag + ".subsystem");
         config.putString(subsystem + "." + certTag + ".certreq", certReqs);
         config.commit(false);
 
-        cert.setRequest(certReqf);
+        cert.setRequest(certReqb);
     }
 
     /*
@@ -3254,7 +3253,7 @@ public class ConfigurationUtils {
         X509CertImpl impl = CertUtil.createLocalCert(cs, x509key, PCERT_PREFIX, "admin", caType);
 
         // update the locally created request for renewal
-        CertUtil.updateLocalRequest(cs, "admin", certRequest, certRequestType, subject);
+        CertUtil.updateLocalRequest(cs, "admin", binRequest, certRequestType, subject);
 
         ISubsystem ca = CMS.getSubsystem("ca");
         if (ca != null) {

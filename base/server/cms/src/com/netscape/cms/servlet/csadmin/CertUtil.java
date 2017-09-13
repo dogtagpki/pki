@@ -343,7 +343,7 @@ public class CertUtil {
     public static void updateLocalRequest(
             IConfigStore config,
             String certTag,
-            String certReq,
+            byte[] certReq,
             String reqType,
             String subjectName
             ) throws Exception {
@@ -361,9 +361,11 @@ public class CertUtil {
 
         IRequest req = queue.findRequest(new RequestId(reqId));
 
-        if (!certReq.equals("")) {
+        if (certReq != null) {
             CMS.debug("CertUtil: updating cert request");
-            req.setExtData("cert_request", certReq);
+            String certReqs = CryptoUtil.base64Encode(certReq);
+            String certReqf = CryptoUtil.reqFormat(certReqs);
+            req.setExtData("cert_request", certReqf);
         }
 
         req.setExtData("cert_request_type", reqType);
