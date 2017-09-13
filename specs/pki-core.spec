@@ -66,10 +66,10 @@
 Name:             pki-core
 %if 0%{?rhel}
 Version:          10.4.1
-Release:          8%{?dist}
+Release:          14%{?dist}
 %else
 Version:          10.4.8
-Release:          2.1%{?dist}
+Release:          6%{?dist}
 %endif
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
@@ -183,10 +183,10 @@ BuildRequires:    python-ldap
 BuildRequires:    junit
 BuildRequires:    jpackage-utils >= 0:1.7.5-10
 %if 0%{?rhel}
-BuildRequires:    jss >= 4.4.0-7
+BuildRequires:    jss >= 4.4.0-8
 %else
 %if 0%{?fedora} >= 25
-BuildRequires:    jss >= 4.4.2-2
+BuildRequires:    jss >= 4.4.2-5
 %else
 BuildRequires:    jss >= 4.2.6-44
 %endif
@@ -234,6 +234,30 @@ Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{
 %else
 Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{release}/%{name}-%{version}%{?prerel}.tar.gz
 %endif
+
+#######################
+## pki-core-10.4.8-2
+#######################
+#Patch0:           pki-core-Fix-3DES-archival.patch
+#Patch1:           pki-core-Fix-token-enrollment-and-recovery-ivs.patch
+#Patch2:           pki-core-CMC-check-HTTPS-client-authentication-cert.patch
+#Patch3:           pki-core-Fix-regression-in-pkcs12-key-bag-creation.patch
+#Patch4:           pki-core-Fix-Platform-Dependent-Python-Import.patch
+#######################
+## pki-core-10.4.8-5
+#######################
+#Patch5:           pki-core-Added-banner-validation-in-InfoService.patch
+#######################
+## pki-core-10.4.8-6
+#######################
+#Patch6:           pki-core-Fix-lightweight-CA-replication-NPE-failure.patch
+#Patch7:           pki-core-Fix-missing-CN-error-in-CMC-user-signed.patch
+#Patch8:           pki-core-FixDeploymentDescriptor-upgrade-scriptlet.patch
+#Patch9:           pki-core-KRA-use-AES-in-PKCS12-encrypted-key-recovery.patch
+#Patch10:          pki-core-Fix-JSON-encoding-in-Python-3.patch
+#Patch11:          pki-core-Fix-tokenOrigin-and-tokentType-attrs-in-recovered-certs.patch
+#Patch12:          pki-core-Display-tokentType-and-tokenOrigin-in-TPS-UI-and-CLI-Server.patch
+#Patch13:          pki-core-Display-tokentType-and-tokenOrigin-in-TPS-UI-and-CLI.patch
 
 # Obtain version phase number (e. g. - used by "alpha", "beta", etc.)
 #
@@ -343,10 +367,10 @@ Requires:         nss >= 3.27.0
 %endif
 Requires:         jpackage-utils >= 0:1.7.5-10
 %if 0%{?rhel}
-Requires:         jss >= 4.4.0-7
+Requires:         jss >= 4.4.0-8
 %else
 %if 0%{?fedora} >= 25
-Requires:         jss >= 4.4.2-2
+Requires:         jss >= 4.4.2-5
 %else
 Requires:         jss >= 4.2.6-44
 %endif
@@ -437,10 +461,10 @@ Requires:         slf4j-jdk14
 Requires:         javassist
 Requires:         jpackage-utils >= 0:1.7.5-10
 %if 0%{?rhel}
-Requires:         jss >= 4.4.0-7
+Requires:         jss >= 4.4.0-8
 %else
 %if 0%{?fedora} >= 25
-Requires:         jss >= 4.4.2-2
+Requires:         jss >= 4.4.2-5
 %else
 Requires:         jss >= 4.2.6-44
 %endif
@@ -899,6 +923,20 @@ This package is a part of the PKI Core used by the Certificate System.
 
 %prep
 %setup -q -n %{name}-%{version}%{?prerel}
+#%patch0 -p1
+#%patch1 -p1
+#%patch2 -p1
+#%patch3 -p1
+#%patch4 -p1
+#%patch5 -p1
+#%patch6 -p1
+#%patch7 -p1
+#%patch8 -p1
+#%patch9 -p1
+#%patch10 -p1
+#%patch11 -p1
+#%patch12 -p1
+#%patch13 -p1
 
 %clean
 %{__rm} -rf %{buildroot}
@@ -1424,8 +1462,31 @@ fi
 %endif # %{with server}
 
 %changelog
-* Thu Jun 22 2017 Dogtag Team <pki-devel@redhat.com> 10.4.8-2.1
-- Updated source version number to 10.4.8-2.1
+* Tue Sep 12 2017 Dogtag Team <pki-devel@redhat.com> 10.4.8-6
+- Require "jss >= 4.4.2-5" as a build and runtime requirement
+- dogtagpki Pagure Issue #2796 - lightweight CA replication fails with a
+  NullPointerException (ftweedal)
+- dogtagpki Pagure Issue #2788 - Missing CN in user signing cert would cause
+  error in cmc user-signed (cfu)
+- dogtagpki Pagure Issue #2789 - FixDeploymentDescriptor upgrade scriptlet can
+  fail (ftweedal)
+- dogtagpki Pagure Issue #2664 - PKCS12: upgrade to at least AES and SHA2
+  (FIPS) (ftweedal)
+- dogtagpki Pagure Issue #2764 - py3: pki.key.archive_encrypted_data:
+  TypeError: ... is not JSON serializable (ftweedal)
+- dogtagpki Pagure Issue #2772 - TPS incorrectly assigns "tokenOrigin" and
+  "tokenType" certificate attribute for recovered certificates. (cfu)
+- dogtagpki Pagure Issue #2793 - TPS UI: need to display tokenType and
+  tokenOrigin for token certificates on TPS UI (edewata)
+
+* Mon Aug 21 2017 Dogtag Team <pki-devel@redhat.com> 10.4.8-5
+- dogtagpki Pagure Issue #2671 - Access Banner Validation (edewata)
+
+* Thu Aug 03 2017 Fedora Release Engineering <releng@fedoraproject.org> - 10.4.8-4
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Binutils_Mass_Rebuild
+
+* Thu Jul 27 2017 Fedora Release Engineering <releng@fedoraproject.org> - 10.4.8-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Mass_Rebuild
 
 * Mon Jun 19 2017 Dogtag Team <pki-devel@redhat.com> 10.4.8-2
 - dogtagpki Pagure Issue #2721 - Key recovery using externalReg fails
@@ -1451,9 +1512,6 @@ fi
   (vakwetu)
 - dogtagpki Pagure Issue #2728 - In keywrap mode, key recovery on
   KRA with HSM causes KRA to crash (ftweedal)
-
-* Thu Jun  8 2017 Dogtag Team <pki-devel@redhat.com> 10.4.7-1.1
-- Updated source version number to 10.4.7-1.1
 
 * Mon Jun  5 2017 Dogtag Team <pki-devel@redhat.com> 10.4.7-1
 - Require "selinux-policy-targeted >= 3.13.1-159" as a runtime requirement
@@ -1492,9 +1550,6 @@ fi
   key record is not marked encrypted (vakwetu)
 - dogtagpki Pagure Issue #2711 - LWCA creation fails (ftweedal)
 
-* Mon May 22 2017 Dogtag Team <pki-devel@redhat.com> 10.4.5-1.1
-- Updated source version number to 10.4.5-1.1
-
 * Mon May 22 2017 Dogtag Team <pki-devel@redhat.com> 10.4.5-1
 - dogtagpki Pagure Issue #2618 - Allow CA to process pre-signed CMC renewal
   non-signing cert requests (cfu)
@@ -1521,9 +1576,6 @@ fi
   agent-canceled cert request. (edewata)
 - dogtagpki Pagure Issue #2696 - CA CS.cfg shows default port (mharmsen)
 
-* Tue May  9 2017 Dogtag Team <pki-devel@redhat.com> 10.4.4-1.1
-- Updated source version number to 10.4.4-1.1
-
 * Tue May  9 2017 Dogtag Team <pki-devel@redhat.com> 10.4.4-1
 - dogtagpki Pagure Issue #1663 - Add SCP03 support (jmagne)
 - dogtagpki Pagure Issue #2522 - cannot extract generated private key from
@@ -1539,9 +1591,6 @@ fi
 - dogtagpki Pagure Issue #2680 - kra unable to extract symmetric keys
   generated on thales hsm (vakwetu)
 - Updated "jss" build and runtime requirements
-
-* Mon May  1 2017 Dogtag Team <pki-devel@redhat.com> 10.4.3-1.1
-- Updated source version number to 10.4.3-1.1
 
 * Mon May  1 2017 Dogtag Team <pki-devel@redhat.com> 10.4.3-1
 - dogtagpki Pagure Issue #1359 - dogtag should support GSSAPI based auth in
