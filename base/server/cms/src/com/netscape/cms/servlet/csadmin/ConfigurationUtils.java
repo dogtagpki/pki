@@ -2562,7 +2562,7 @@ public class ConfigurationUtils {
             byte[] certb = cert.getEncoded();
             String certs = CryptoUtil.base64Encode(certb);
 
-            certObj.setCert(certs);
+            certObj.setCert(certb);
             String subsystem = config.getString(
                     PCERT_PREFIX + certTag + ".subsystem");
             config.putString(subsystem + "." + certTag + ".cert", certs);
@@ -3105,12 +3105,9 @@ public class ConfigurationUtils {
 
         CMS.debug("ConfigurationUtils: cert type: " + cert.getType());
 
-        String b64 = cert.getCert();
         String tokenname = config.getString("preop.module.token", "");
 
-        b64 = CryptoUtil.stripCertBrackets(b64.trim());
-        String certs = CryptoUtil.normalizeCertStr(b64);
-        byte[] certb = CryptoUtil.base64Decode(certs);
+        byte[] certb = cert.getCert();
         X509CertImpl impl = new X509CertImpl(certb);
 
         CertUtil.importCert(subsystem, certTag, tokenname, nickname, impl);

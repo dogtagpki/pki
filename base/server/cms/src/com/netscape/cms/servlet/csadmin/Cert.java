@@ -17,11 +17,13 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
+import com.netscape.cmsutil.crypto.CryptoUtil;
+
 public class Cert {
     private String mNickname = "";
     private String mTokenname = "";
     private String mRequest = "";
-    private String mCert = "";
+    private byte[] cert;
     private String mType = ""; // "selfsign," "local," or "remote"
     private String mDN = "";
     private String mCertTag = "";
@@ -92,16 +94,17 @@ public class Cert {
         mRequest = req;
     }
 
-    public String getEscapedCert() {
-        return escapeForHTML(mCert);
+    public String getEscapedCert() throws Exception {
+        if (cert == null) return null;
+        return escapeForHTML(CryptoUtil.base64Encode(cert));
     }
 
-    public String getCert() {
-        return mCert;
+    public byte[] getCert() {
+        return cert;
     }
 
-    public void setCert(String cert) {
-        mCert = cert;
+    public void setCert(byte[] cert) {
+        this.cert = cert;
     }
 
     public String getType() {

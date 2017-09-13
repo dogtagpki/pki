@@ -23,22 +23,28 @@ import java.util.Collection;
 import java.util.List;
 
 import com.netscape.certsrv.system.SystemCertData;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
  * @author edewata
  */
 public class SystemCertDataFactory {
 
-    public static SystemCertData create(Cert cert) {
+    public static SystemCertData create(Cert cert) throws Exception {
         SystemCertData data = new SystemCertData();
         data.setNickname(cert.getNickname());
-        data.setCert(cert.getCert());
+
+        byte[] binCert = cert.getCert();
+        if (binCert != null) {
+            data.setCert(CryptoUtil.base64Encode(binCert));
+        }
+
         data.setRequest(cert.getRequest());
         data.setTag(cert.getCertTag());
         return data;
     }
 
-    public static List<SystemCertData> create(Collection<Cert> certs) {
+    public static List<SystemCertData> create(Collection<Cert> certs) throws Exception {
         List<SystemCertData> result = new ArrayList<SystemCertData>();
         for (Cert cert : certs) {
             result.add(create(cert));
