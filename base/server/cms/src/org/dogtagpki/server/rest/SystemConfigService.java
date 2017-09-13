@@ -434,10 +434,12 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             ConfigurationUtils.updateConfig(cs, tag);
 
             CMS.debug("SystemConfigService: loading existing cert request");
-            String requestStr = ConfigurationUtils.loadCertRequest(cs, subsystem, tag);
-            CMS.debug("SystemConfigService: request: " + requestStr);
+            byte[] binRequest = ConfigurationUtils.loadCertRequest(cs, subsystem, tag);
+            String b64Request = CryptoUtil.base64Encode(binRequest);
 
-            cert.setRequest(requestStr);
+            CMS.debug("SystemConfigService: request: " + b64Request);
+
+            cert.setRequest(binRequest);
 
             // When importing existing self-signed CA certificate, create a
             // certificate record to reserve the serial number. Otherwise it

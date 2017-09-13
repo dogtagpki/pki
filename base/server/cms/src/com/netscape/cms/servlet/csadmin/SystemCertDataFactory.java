@@ -39,7 +39,13 @@ public class SystemCertDataFactory {
             data.setCert(CryptoUtil.base64Encode(binCert));
         }
 
-        data.setRequest(cert.getRequest());
+        byte[] binRequest = cert.getRequest();
+        if (binRequest != null) {
+            String certReqs = CryptoUtil.base64Encode(binRequest);
+            String certReqf = CryptoUtil.reqFormat(certReqs);
+            data.setRequest(certReqf);
+        }
+
         data.setTag(cert.getCertTag());
         return data;
     }
