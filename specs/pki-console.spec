@@ -1,10 +1,10 @@
 Name:             pki-console
 %if 0%{?rhel}
 Version:          10.4.1
-Release:          5%{?dist}
+Release:          7%{?dist}
 %else
 Version:          10.4.8
-Release:          1.1%{?dist}
+Release:          3%{?dist}
 %endif
 Summary:          Certificate System - PKI Console
 URL:              http://pki.fedoraproject.org/
@@ -55,10 +55,10 @@ BuildRequires:    nss-devel >= 3.27.0
 BuildRequires:    junit
 BuildRequires:    jpackage-utils >= 1.7.5-10
 %if 0%{?rhel}
-BuildRequires:    jss >= 4.4.0-7
+BuildRequires:    jss >= 4.4.0-8
 %else
 %if 0%{?fedora} >= 25
-BuildRequires:    jss >= 4.4.2-2
+BuildRequires:    jss >= 4.4.2-5
 %else
 BuildRequires:    jss >= 4.2.6-44
 %endif
@@ -72,10 +72,10 @@ Requires:         pki-base-java >= %{pki_core_version}
 Requires:         pki-console-theme >= %{version}
 Requires:         jpackage-utils >= 1.7.5-10
 %if 0%{?rhel}
-Requires:         jss >= 4.4.0-7
+Requires:         jss >= 4.4.0-8
 %else
 %if 0%{?fedora} >= 25
-Requires:         jss >= 4.4.2-2
+Requires:         jss >= 4.4.2-5
 %else
 Requires:         jss >= 4.2.6-44
 %endif
@@ -143,36 +143,26 @@ cd build
 
 
 %changelog
-* Thu Jun 22 2017 Dogtag Team <pki-devel@redhat.com> 10.4.8-1.1
-- Updated source version number to 10.4.8-1.1
+* Tue Sep 12 2017 Dogtag Team <pki-devel@redhat.com> 10.4.8-3
+- Require "jss >= 4.4.2-5" as a build and runtime requirement
+
+* Thu Jul 27 2017 Fedora Release Engineering <releng@fedoraproject.org> - 10.4.8-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Mass_Rebuild
 
 * Mon Jun 19 2017 Dogtag Team <pki-devel@redhat.com> 10.4.8-1
-- Updated source version number to 10.4.8-1
-
-* Thu Jun  8 2017 Dogtag Team <pki-devel@redhat.com> 10.4.7-1.1
-- Updated source version number to 10.4.7-1.1
+- Updated version number to 10.4.8-1
 
 * Mon Jun  5 2017 Dogtag Team <pki-devel@redhat.com> 10.4.7-1
-- Updated source version number to 10.4.7-1
+- Updated version number to 10.4.7-1
 
 * Tue May 30 2017 Dogtag Team <pki-devel@redhat.com> 10.4.6-1
-- Updated source version number to 10.4.6-1
-
-* Mon May 22 2017 Dogtag Team <pki-devel@redhat.com> 10.4.5-1.1
-- Updated source version number to 10.4.5-1.1
+- Updated version number to 10.4.6-1
 
 * Mon May 22 2017 Dogtag Team <pki-devel@redhat.com> 10.4.5-1
-- Updated source version number to 10.4.5-1
-
-* Tue May  9 2017 Dogtag Team <pki-devel@redhat.com> 10.4.4-1.1
-- Updated source version number to 10.4.4-1.1
+- Updated version number to 10.4.5-1
 
 * Tue May  9 2017 Dogtag Team <pki-devel@redhat.com> 10.4.4-1
 - Updated "jss" build and runtime requirements
-- Updated source version number to 10.4.4-1
-
-* Mon May  1 2017 Dogtag Team <pki-devel@redhat.com> 10.4.3-1.1
-- Updated source version number to 10.4.3-1.1
 
 * Mon May  1 2017 Dogtag Team <pki-devel@redhat.com> 10.4.3-1
 - dogtagpki Pagure Issue #2643 - Session timeout for PKI console (edewata)
