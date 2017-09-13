@@ -429,7 +429,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             String certStr = CryptoUtil.normalizeCertStr(b64);
             CMS.debug("SystemConfigService: cert: " + certStr);
 
-            cert.setCert(certStr);
+            cert.setCert(bytes);
 
             ConfigurationUtils.updateConfig(cs, tag);
 
@@ -476,7 +476,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         ConfigurationUtils.configCert(request, null, null, cert);
 
         String certStr = cs.getString(subsystem + "." + tag + ".cert" );
-        cert.setCert(certStr);
+        cert.setCert(CryptoUtil.base64Decode(certStr));
 
         CMS.debug("SystemConfigService: cert: " + certStr);
 
