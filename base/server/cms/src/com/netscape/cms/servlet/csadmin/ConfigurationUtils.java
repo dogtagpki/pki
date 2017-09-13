@@ -2591,11 +2591,13 @@ public class ConfigurationUtils {
         String v = config.getString("preop.ca.type", "");
 
         CMS.debug("configCert: remote CA");
-        String pkcs10 = CertUtil.getPKCS10(config, PCERT_PREFIX, certObj, context);
-        certObj.setRequest(pkcs10);
+        PKCS10 pkcs10 = CertUtil.getPKCS10(config, PCERT_PREFIX, certObj, context);
+        byte[] binRequest = pkcs10.toByteArray();
+        String b64Request = CryptoUtil.base64Encode(binRequest);
+        certObj.setRequest(b64Request);
 
         String subsystem = config.getString(PCERT_PREFIX + certTag + ".subsystem");
-        config.putString(subsystem + "." + certTag + ".certreq", pkcs10);
+        config.putString(subsystem + "." + certTag + ".certreq", b64Request);
 
         String profileId = config.getString(PCERT_PREFIX + certTag + ".profile");
         String session_id = CMS.getConfigSDSessionId();
@@ -2612,7 +2614,7 @@ public class ConfigurationUtils {
             content.putSingle("requestor_name", sysType + "-" + machineName + "-" + securePort);
             content.putSingle("profileId", profileId);
             content.putSingle("cert_request_type", "pkcs10");
-            content.putSingle("cert_request", pkcs10);
+            content.putSingle("cert_request", b64Request);
             content.putSingle("xmlOutput", "true");
             content.putSingle("sessionID", session_id);
 
@@ -2657,7 +2659,7 @@ public class ConfigurationUtils {
             content.putSingle("requestor_name", sysType + "-" + machineName + "-" + securePort);
             content.putSingle("profileId", profileId);
             content.putSingle("cert_request_type", "pkcs10");
-            content.putSingle("cert_request", pkcs10);
+            content.putSingle("cert_request", b64Request);
             content.putSingle("xmlOutput", "true");
             content.putSingle("sessionID", session_id);
 
