@@ -3228,17 +3228,23 @@ public class ConfigurationUtils {
 
     public static void createAdminCertificate(String certRequest, String certRequestType, String subject)
             throws Exception {
+
         IConfigStore cs = CMS.getConfigStore();
-        X509Key x509key = null;
+
+        byte[] binRequest = CMS.AtoB(certRequest);
+        X509Key x509key;
+
         if (certRequestType.equals("crmf")) {
-            byte[] b = CMS.AtoB(certRequest);
-            SEQUENCE crmfMsgs = CryptoUtil.parseCRMFMsgs(b);
+            SEQUENCE crmfMsgs = CryptoUtil.parseCRMFMsgs(binRequest);
             subject = CryptoUtil.getSubjectName(crmfMsgs);
             x509key = CryptoUtil.getX509KeyFromCRMFMsgs(crmfMsgs);
+
         } else if (certRequestType.equals("pkcs10")) {
-            byte[] b = CMS.AtoB(certRequest);
-            PKCS10 pkcs10 = new PKCS10(b);
+            PKCS10 pkcs10 = new PKCS10(binRequest);
             x509key = pkcs10.getSubjectPublicKeyInfo();
+
+        } else {
+            throw new Exception("Certificate request type not supported: " + certRequestType);
         }
 
         if (x509key == null) {
