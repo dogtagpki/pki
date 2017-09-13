@@ -117,7 +117,7 @@ public class CertUtil {
         }
     }
 
-    public static String getPKCS10(IConfigStore config, String prefix,
+    public static PKCS10 getPKCS10(IConfigStore config, String prefix,
             Cert certObj, Context context) throws IOException {
         String certTag = certObj.getCertTag();
 
@@ -167,13 +167,9 @@ public class CertUtil {
             // construct cert request
             String dn = config.getString(prefix + certTag + ".dn");
 
-            PKCS10 certReq = null;
-            certReq = CryptoUtil.createCertificationRequest(dn, pubk,
+            return CryptoUtil.createCertificationRequest(dn, pubk,
                     privk, algorithm);
-            byte[] certReqb = certReq.toByteArray();
-            String certReqs = CryptoUtil.base64Encode(certReqb);
 
-            return certReqs;
         } catch (Throwable e) {
             CMS.debug(e);
             if (context != null) {
