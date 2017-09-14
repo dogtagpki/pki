@@ -508,10 +508,21 @@ public class RecoveryService implements IService {
                 }
             } else {
                 byte[] epkiBytes = ct.getCryptoStore().getEncryptedPrivateKeyInfo(
+                    /* For compatibility with OpenSSL and NSS >= 3.31,
+                     * do not BMPString-encode the passphrase when using
+                     * non-PKCS #12 PBE scheme such as PKCS #5 PBES2.
+                     *
+                     * The resulting PKCS #12 is not compatible with
+                     * NSS < 3.31.
+                     */
+                    null /* passConverter */,
+                    pass,
                     /* NSS has a bug that causes any AES CBC encryption
                      * to use AES-256, but AlgorithmID contains chosen
                      * alg.  To avoid mismatch, use AES_256_CBC. */
-                    passConverter, pass, EncryptionAlgorithm.AES_256_CBC, 0, priKey);
+                    EncryptionAlgorithm.AES_256_CBC,
+                    0 /* iterations (use default) */,
+                    priKey);
                 CMS.debug("RecoverService: createPFX() getEncryptedPrivateKeyInfo() returned");
                 if (epkiBytes == null) {
                     CMS.debug("RecoverService: createPFX() epkiBytes null");
@@ -646,8 +657,6 @@ public class RecoveryService implements IService {
                             pwd.toCharArray());
 
             SEQUENCE safeContents = new SEQUENCE();
-            PasswordConverter passConverter = new
-                    PasswordConverter();
             PrivateKeyInfo pki = (PrivateKeyInfo)
                     ASN1Util.decode(PrivateKeyInfo.getTemplate(),
                             priData);
@@ -662,14 +671,21 @@ public class RecoveryService implements IService {
                 byte salt[] = { 0x01, 0x01, 0x01, 0x01 };
                 epki = EncryptedPrivateKeyInfo.createPBE(
                     PBEAlgorithm.PBE_SHA1_DES3_CBC,
-                    pass, salt, 1, passConverter, pki);
+                    pass, salt, 1, new PasswordConverter(), pki);
             } else {
                 epki = EncryptedPrivateKeyInfo.createPBES2(
                     16, // saltLen
                     2000, // kdfIterations
                     EncryptionAlgorithm.AES_128_CBC_PAD,
                     pass,
-                    passConverter,
+                    /* For compatibility with OpenSSL and NSS >= 3.31,
+                     * do not BMPString-encode the passphrase when using
+                     * non-PKCS #12 PBE scheme such as PKCS #5 PBES2.
+                     *
+                     * The resulting PKCS #12 is not compatible with
+                     * NSS < 3.31.
+                     */
+                    null /* passConverter */,
                     pki);
             }
 
