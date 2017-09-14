@@ -1044,9 +1044,18 @@ public class ConfigurationUtils {
                 // this is OK
             }
 
-            // import private key into database
-            store.importEncryptedPrivateKeyInfo(
-                new PasswordConverter(), password, nickname, publicKey, epki);
+            try {
+                // first true without BMPString-encoding the passphrase.
+                store.importEncryptedPrivateKeyInfo(
+                    null, password, nickname, publicKey, epki);
+            } catch (Exception e) {
+                // if that failed, try again with BMPString-encoded
+                // passphrase.  This is required for PKCS #12 PBE
+                // schemes and for PKCS #12 files using PBES2 generated
+                // by NSS < 3.31
+                store.importEncryptedPrivateKeyInfo(
+                    new PasswordConverter(), password, nickname, publicKey, epki);
+            }
         }
 
         CMS.debug("Importing new certificates:");
