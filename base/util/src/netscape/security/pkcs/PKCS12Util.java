@@ -134,16 +134,25 @@ public class PKCS12Util {
             }
             logger.debug("Encrypting private key for " + keyInfo.subjectDN);
 
-            PasswordConverter passConverter = new PasswordConverter();
             epkiBytes = CryptoManager.getInstance()
                 .getInternalKeyStorageToken()
                 .getCryptoStore()
                 .getEncryptedPrivateKeyInfo(
+                    /* For compatibility with OpenSSL and NSS >= 3.31,
+                     * do not BMPString-encode the passphrase when using
+                     * non-PKCS #12 PBE scheme such as PKCS #5 PBES2.
+                     *
+                     * The resulting PKCS #12 is not compatible with
+                     * NSS < 3.31.
+                     */
+                    null /* passConverter */,
+                    password,
                     /* NSS has a bug that causes any AES CBC encryption
                      * to use AES-256, but AlgorithmID contains chosen
                      * alg.  To avoid mismatch, use AES_256_CBC. */
-                    passConverter, password,
-                    EncryptionAlgorithm.AES_256_CBC, 0, k);
+                    EncryptionAlgorithm.AES_256_CBC,
+                    0 /* iterations (default) */,
+                    k);
         }
 
         SET keyAttrs = createKeyBagAttrs(keyInfo);
@@ -616,8 +625,18 @@ public class PKCS12Util {
                 "No EncryptedPrivateKeyInfo for key '"
                 + keyInfo.subjectDN + "'; skipping key");
         }
-        store.importEncryptedPrivateKeyInfo(
-            new PasswordConverter(), password, nickname, publicKey, epkiBytes);
+        try {
+            // first true without BMPString-encoding the passphrase.
+            store.importEncryptedPrivateKeyInfo(
+                null, password, nickname, publicKey, epkiBytes);
+        } catch (Exception e) {
+            // if that failed, try again with BMPString-encoded
+            // passphrase.  This is required for PKCS #12 PBE
+            // schemes and for PKCS #12 files using PBES2 generated
+            // by NSS < 3.31
+            store.importEncryptedPrivateKeyInfo(
+                new PasswordConverter(), password, nickname, publicKey, epkiBytes);
+        }
 
         // delete the cert again (it will be imported again later
         // with the correct nickname)
