@@ -692,7 +692,7 @@ class ConfigurationFile:
             # External CA
             if not self.external_step_two:
                 # External CA (Step 1)
-                # The pki_external_csr_path is optional.
+                # The pki_ca_signing_csr_path is optional.
                 # generic extension support in CSR - for external CA
                 if self.add_req_ext:
                     self.confirm_data_exists("pki_req_ext_oid")
@@ -700,8 +700,8 @@ class ConfigurationFile:
                     self.confirm_data_exists("pki_req_ext_data")
             else:
                 # External CA (Step 2)
-                # The pki_external_ca_cert_chain_path and
-                # pki_external_ca_cert_path are optional.
+                # The pki_cert_chain_path and
+                # pki_ca_signing_cert_path are optional.
                 pass
         elif not self.skip_configuration and self.standalone:
             if not self.external_step_two:
@@ -738,7 +738,7 @@ class ConfigurationFile:
 
             else:
                 # Stand-alone PKI External CA Certificate (Step 2)
-                # The pki_external_ca_cert_path is optional.
+                # The pki_ca_signing_cert_path is optional.
 
                 # Stand-alone PKI Admin Certificate (Step 2)
                 self.confirm_data_exists("pki_admin_cert_path")

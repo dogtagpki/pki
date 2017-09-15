@@ -122,7 +122,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
     def generate_ca_signing_csr(self, deployer, nssdb, subsystem):
 
-        csr_path = deployer.mdict.get('pki_external_csr_path')
+        csr_path = deployer.mdict.get('pki_ca_signing_csr_path')
         if not csr_path:
             return
 
@@ -370,7 +370,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
     def import_ca_signing_csr(self, deployer, subsystem):
 
-        csr_path = deployer.mdict.get('pki_external_csr_path')
+        csr_path = deployer.mdict.get('pki_ca_signing_csr_path')
         if not csr_path or not os.path.exists(csr_path):
             return
 
@@ -395,7 +395,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
     def import_ca_signing_cert(self, deployer, nssdb):
 
-        cert_file = deployer.mdict.get('pki_external_ca_cert_path')
+        cert_file = deployer.mdict.get('pki_ca_signing_cert_path')
         if not cert_file or not os.path.exists(cert_file):
             return
 
@@ -569,11 +569,11 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
     def import_cert_chain(self, deployer, nssdb):
 
-        chain_file = deployer.mdict.get('pki_external_ca_cert_chain_path')
+        chain_file = deployer.mdict.get('pki_cert_chain_path')
         if not chain_file or not os.path.exists(chain_file):
             return
 
-        nickname = deployer.mdict['pki_external_ca_cert_chain_nickname']
+        nickname = deployer.mdict['pki_cert_chain_nickname']
 
         config.pki_log.info(
             "importing certificate chain from %s" % chain_file,

@@ -752,7 +752,7 @@ def print_external_ca_step_one_information(mdict):
     print()
     print("      A CSR for the CA certificate has been generated at:\n"
           "            %s"
-          % mdict['pki_external_csr_path'])
+          % mdict['pki_ca_signing_csr_path'])
     print()
     print("      Submit the CSR to an external CA to generate a CA certificate\n"
           "      for this subsystem. Import the CA certificate and the certificate\n"
