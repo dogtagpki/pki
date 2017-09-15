@@ -60,9 +60,9 @@ VERBOSITY FLAGS    CONSOLE MESSAGE LEVEL       LOG MESSAGE LEVEL
 
 # PKI Deployment Error Messages
 PKI_BADZIPFILE_ERROR_1 = "zipfile.BadZipFile:  %s!"
-PKI_CONFIGURATION_STANDALONE_1 = '''
-      Please obtain the necessary certificates for this stand-alone %s,
-      and re-run the configuration for step two.'''
+PKI_RUN_INSTALLATION_STEP_TWO = '''
+      Please obtain the necessary certificate(s) for this subsystem,
+      and run installation step two.'''
 PKI_DIRECTORY_ALREADY_EXISTS_1 = "Directory '%s' already exists!"
 PKI_DIRECTORY_ALREADY_EXISTS_NOT_A_DIRECTORY_1 = \
     "Directory '%s' already exists BUT it is NOT a directory!"
