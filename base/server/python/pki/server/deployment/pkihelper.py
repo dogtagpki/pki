@@ -453,8 +453,8 @@ class ConfigurationFile:
     def confirm_external(self):
         # ALWAYS defined via 'pkiparser.py'
         if self.external:
-            # Only allowed for External CA
-            if self.subsystem != "CA":
+            # Only allowed for External CA/KRA/OCSP.
+            if self.subsystem not in ['CA', 'KRA', 'OCSP']:
                 config.pki_log.error(log.PKI_EXTERNAL_UNSUPPORTED_1,
                                      self.subsystem,
                                      extra=config.PKI_INDENTATION_LEVEL_2)
@@ -495,8 +495,8 @@ class ConfigurationFile:
     def confirm_external_step_two(self):
         # ALWAYS defined via 'pkiparser.py'
         if self.external_step_two:
-            # Only allowed for External CA or Stand-alone PKI
-            if self.subsystem != "CA" and not self.standalone:
+            # Only allowed for External CA/KRA/OCSP, or Stand-alone PKI
+            if self.subsystem not in ['CA', 'KRA', 'OCSP'] and not self.standalone:
                 config.pki_log.error(log.PKI_EXTERNAL_STEP_TWO_UNSUPPORTED_1,
                                      self.subsystem,
                                      extra=config.PKI_INDENTATION_LEVEL_2)

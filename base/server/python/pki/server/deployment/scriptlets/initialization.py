@@ -56,11 +56,11 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                                 extra=config.PKI_INDENTATION_LEVEL_1)
 
             # Verify that the subsystem already exists for the following cases:
-            # - External CA (Step 2)
+            # - External CA/KRA/OCSP (Step 2)
             # - Stand-alone PKI (Step 2)
             # - Two-step installation (Step 2)
 
-            if (deployer.mdict['pki_subsystem'] == "CA" or
+            if (deployer.subsystem_name in ['CA', 'KRA', 'OCSP'] or
                 config.str2bool(deployer.mdict['pki_standalone'])) and \
                     config.str2bool(deployer.mdict['pki_external_step_two']) or \
                config.str2bool(deployer.mdict['pki_skip_installation']):
