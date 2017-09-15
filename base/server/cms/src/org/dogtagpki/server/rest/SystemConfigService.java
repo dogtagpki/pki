@@ -852,11 +852,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         cs.putString("securitydomain.httpseeport", CMS.getEESSLPort());
         cs.putString("securitydomain.httpsadminport", CMS.getAdminPort());
 
-        if (data.getStandAlone()) {
-            cs.putString("preop.cert.subsystem.type", "remote");
-        } else {
-            cs.putString("preop.cert.subsystem.type", "local");
-        }
+        cs.putString("preop.cert.subsystem.type", "local");
         cs.putString("preop.cert.subsystem.profile", "subsystemCert.profile");
     }
 
