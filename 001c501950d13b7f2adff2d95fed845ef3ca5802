@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fbd1d01f_f000523b",
+        "filename": "base/server/cms/src/com/netscape/cms/servlet/csadmin/ConfigurationUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1048,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-09-15T16:39:03Z",
+      "side": 1,
+      "message": "try?",
+      "range": {
+        "startLine": 1048,
+        "startChar": 25,
+        "endLine": 1048,
+        "endChar": 29
+      },
+      "revId": "001c501950d13b7f2adff2d95fed845ef3ca5802",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cb17a480_1fd9ec93",
+        "filename": "base/util/src/netscape/security/pkcs/PKCS12Util.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 629,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-09-15T16:39:03Z",
+      "side": 1,
+      "message": "try?",
+      "range": {
+        "startLine": 629,
+        "startChar": 21,
+        "endLine": 629,
+        "endChar": 25
+      },
+      "revId": "001c501950d13b7f2adff2d95fed845ef3ca5802",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
