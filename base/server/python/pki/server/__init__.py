@@ -439,6 +439,28 @@ class PKISubsystem(object):
     def __repr__(self):
         return str(self.instance) + '/' + self.name
 
+    def get_startup_tests(self):
+        # Split the line 'selftest.container.selftests.startup'
+        available_tests = self.config['selftests.container.order.startup'].split(',')
+        target_tests = {}
+        for testInfo in available_tests:
+            temp = testInfo.split(':')
+            target_tests[temp[0].strip()] = False
+            # Check if there is some test level mentioned after colon
+            if len(temp) > 1:
+                # Check if the test is critical
+                target_tests[temp[0].strip()] = temp[1].strip() == 'critical'
+
+        return target_tests
+
+    def set_startup_tests(self, target_tests):
+        # Remove unnecessary space, curly braces
+        self.config['selftests.container.order.startup'] = ", "\
+            .join([(':' if val else '')
+                  .join([key, 'critical' if val else ''])
+                   for key, val in target_tests.items()])
+
+
 
 class CASubsystem(PKISubsystem):
 
