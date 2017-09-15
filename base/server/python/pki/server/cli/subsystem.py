@@ -997,11 +997,7 @@ class SubsystemCertValidateCLI(pki.cli.CLI):
 
         print('  Usage: %s' % usage)
 
-        token = cert['token']
-        if not token:
-            print('  Status: ERROR: missing token name')
-            return False
-
+        token = cert.get('token', '')
         print('  Token: %s' % token)
 
         # get internal token password and store in temporary file
