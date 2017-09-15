@@ -259,7 +259,9 @@ compute_release_information()
 		unset USE_GIT_COMMIT_ID
 	else
 		# By default, append a git commit ID to the release designation
-		latest_git_commit_id=`git -C ${COMPOSE_PWD}/.. rev-parse --short=8 HEAD`
+		pushd ${PKI_DIR} > /dev/null
+		latest_git_commit_id=`git rev-parse --short=8 HEAD`
+		popd > /dev/null
 		git_commit_id=`printf "%.8s" ${latest_git_commit_id}`
 		printf "Setting 'git_commit_id=${git_commit_id}'\n"
 		PKI_RELEASE=${PKI_RELEASE}.${git_commit_id}
