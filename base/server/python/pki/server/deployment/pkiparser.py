@@ -65,6 +65,12 @@ class PKIConfigParser:
     # The 'new_param' is the new param name.
 
     DEPRECATED_DEFAULT_PARAMS = [
+        (None, 'pki_external_ca_cert_path',
+         None, 'pki_ca_signing_cert_path'),
+        (None, 'pki_external_ca_cert_chain_path',
+         None, 'pki_cert_chain_path'),
+        (None, 'pki_external_ca_cert_chain_nickname',
+         None, 'pki_cert_chain_nickname'),
         (None, 'pki_ssl_server_key_algorithm',
          None, 'pki_sslserver_key_algorithm'),
         (None, 'pki_ssl_server_key_size',
@@ -77,6 +83,11 @@ class PKIConfigParser:
          None, 'pki_sslserver_subject_dn'),
         (None, 'pki_ssl_server_token',
          None, 'pki_sslserver_token')
+    ]
+
+    DEPRECATED_CA_PARAMS = [
+        (['CA'], 'pki_external_csr_path',
+         None, 'pki_ca_signing_csr_path')
     ]
 
     DEPRECATED_KRA_PARAMS = [
@@ -130,6 +141,7 @@ class PKIConfigParser:
     ]
 
     DEPRECATED_PARAMS = DEPRECATED_DEFAULT_PARAMS + \
+        DEPRECATED_CA_PARAMS + \
         DEPRECATED_KRA_PARAMS + \
         DEPRECATED_OCSP_PARAMS
 
@@ -1362,9 +1374,9 @@ class PKIConfigParser:
             #     The following variables are established via the specified PKI
             #     deployment configuration file and are NOT redefined below:
             #
-            #        self.mdict['pki_external_ca_cert_chain_path']
-            #        self.mdict['pki_external_ca_cert_path']
-            #        self.mdict['pki_external_csr_path']
+            #        self.mdict['pki_cert_chain_path']
+            #        self.mdict['pki_ca_signing_cert_path']
+            #        self.mdict['pki_ca_signing_csr_path']
             #        self.mdict['pki_external_step_two']
             #
 

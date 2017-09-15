@@ -1300,12 +1300,12 @@ pki_security_domain_password=\fISecret123\fP
 
 [CA]
 pki_external=True
-pki_external_csr_path=\fI/tmp/ca_signing.csr\fP
+pki_ca_signing_csr_path=\fI/tmp/ca_signing.csr\fP
 pki_ca_signing_subject_dn=\fIcn=CA Signing,ou=External,o=example.com\fP
 .fi
 
 .PP
-The CSR is written to pki_external_csr_path. The pki_ca_signing_subject_dn
+The CSR is written to pki_ca_signing_csr_path. The pki_ca_signing_subject_dn
 should be different from the subject DN of the external CA that is signing
 the request. The pki_ca_signing_subject_dn parameter can be used to specify
 the signing certificate's subject DN.
@@ -1332,9 +1332,9 @@ pki_security_domain_password=\fISecret123\fP
 
 [CA]
 pki_external=True
-pki_external_ca_cert_chain_path=\fI/tmp/ca_cert_chain.cert\fP
-pki_external_ca_cert_path=\fI/tmp/ca_signing.cert\fP
 pki_external_step_two=True
+pki_cert_chain_path=\fI/tmp/ca_cert_chain.cert\fP
+pki_ca_signing_cert_path=\fI/tmp/ca_signing.cert\fP
 pki_ca_signing_subject_dn=\fIcn=CA Signing Certificate,ou=External,o=example.com\fP
 .fi
 
