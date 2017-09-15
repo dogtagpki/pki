@@ -99,18 +99,6 @@ rm -f  ${DOGTAG_PKI_THEME_SRPMS_DIR}/${DOGTAG_PKI_THEME}-${DOGTAG_PKI_THEME_VERS
 
 
 ##
-## Compute Release Information
-##
-
-if [ -n ${USE_PKI_RELEASE} ] && [ "${USE_PKI_RELEASE}" = "0" ]; then
-	printf "unset USE_PKI_RELEASE\n"
-	unset USE_PKI_RELEASE
-else
-	compute_release_information ${PKI_SPECS_FILE}
-fi
-
-
-##
 ## Copy a new 'dogtag-pki' spec file from the
 ## current contents of the PKI working repository
 ##

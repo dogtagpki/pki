@@ -98,18 +98,6 @@ rm -f  ${PKI_CONSOLE_SRPMS_DIR}/${PKI_CONSOLE}-${PKI_CONSOLE_VERSION}*.rpm
 
 
 ##
-## Compute Release Information
-##
-
-if [ -n ${USE_PKI_RELEASE} ] && [ "${USE_PKI_RELEASE}" = "0" ]; then
-	printf "unset USE_PKI_RELEASE\n"
-	unset USE_PKI_RELEASE
-else
-	compute_release_information ${PKI_SPECS_FILE}
-fi
-
-
-##
 ## Copy a new 'pki-console' spec file from the
 ## current contents of the PKI working repository
 ##

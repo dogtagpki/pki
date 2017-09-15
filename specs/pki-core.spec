@@ -13,7 +13,7 @@
 %global package_rhel_packages 1
 # Package RHCS-specific RPMS Only
 %global package_rhcs_packages 1
-%define pki_core_rhel_version 10.5.0
+%define pki_core_rhel_version 10.4.1
 %else
 # 0%{?fedora}
 # Fedora always packages all RPMS
@@ -63,31 +63,14 @@
 %define pki_gid 17
 %define pki_homedir /usr/share/pki
 
-# Optionally fetch the release from the environment variable 'PKI_RELEASE'
-%define use_pki_release %{getenv:USE_PKI_RELEASE}
-%if 0%{?use_pki_release}
-%define pki_release %{getenv:PKI_RELEASE}
-%endif
-
 Name:             pki-core
 %if 0%{?rhel}
-Version:                10.5.0
-%define redhat_release  0
-%define redhat_stage    0
-%define default_release %{redhat_release}.%{redhat_stage}
+Version:          10.4.1
+Release:          8%{?dist}
 %else
-Version:                10.5.0
-%define fedora_release  0
-%define fedora_stage    0
-%define default_release %{fedora_release}.%{fedora_stage}
+Version:          10.4.8
+Release:          2.1%{?dist}
 %endif
-
-%if 0%{?use_pki_release}
-Release:          %{pki_release}%{?dist}
-%else
-Release:          %{default_release}%{?dist}
-%endif
-
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -1441,9 +1424,6 @@ fi
 %endif # %{with server}
 
 %changelog
-* Fri Aug 25 2017 Dogtag Team <pki-devel@redhat.com> 10.5.0-0.0
-- Pagure dogtagpki Issue #2798 - Update development spec file templates
-
 * Thu Jun 22 2017 Dogtag Team <pki-devel@redhat.com> 10.4.8-2.1
 - Updated source version number to 10.4.8-2.1
 
