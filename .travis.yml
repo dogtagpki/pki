@@ -21,6 +21,7 @@ env:
     # - IMAGE=dogtagpki/pki-ci-containers:rawhide
 
 before_install:
+  - pyenv global system 3.5
   - docker pull ${IMAGE}
   - docker pull ${IPA_TEST_RUNNER_IMAGE}
   - >
