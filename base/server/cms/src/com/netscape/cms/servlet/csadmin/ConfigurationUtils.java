@@ -3657,59 +3657,6 @@ public class ConfigurationUtils {
         }
     }
 
-    public static void updateConnectorInfo(String ownagenthost, String ownagentsport)
-            throws Exception {
-        IConfigStore cs = CMS.getConfigStore();
-        int port = -1;
-        String url = "";
-        String host = null;
-        String transportCert = "";
-
-        url = cs.getString("preop.ca.url", "");
-        if (!url.equals("")) {
-            host = cs.getString("preop.ca.hostname", "");
-            port = cs.getInteger("preop.ca.httpsadminport", -1);
-            transportCert = cs.getString("kra.transport.cert", "");
-        }
-
-        if (host == null) {
-            CMS.debug("updateConnectorInfo(): preop.ca.url is not defined. External CA selected. No transport certificate setup is required");
-
-        } else {
-            CMS.debug("updateConnectorInfo(): Transport certificate is being setup in " + url);
-            String session_id = CMS.getConfigSDSessionId();
-
-            MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
-            content.putSingle("ca.connector.KRA.enable", "true");
-            content.putSingle("ca.connector.KRA.local", "false");
-            content.putSingle("ca.connector.KRA.timeout", "30");
-            content.putSingle("ca.connector.KRA.uri", "/kra/agent/kra/connector");
-            content.putSingle("ca.connector.KRA.host", ownagenthost);
-            content.putSingle("ca.connector.KRA.port", ownagentsport);
-            content.putSingle("ca.connector.KRA.transportCert", transportCert);
-            content.putSingle("sessionID", session_id);
-
-            updateConnectorInfo(host, port, true, content);
-        }
-    }
-
-    public static void updateConnectorInfo(String host, int port, boolean https,
-            MultivaluedMap<String, String> content) throws Exception {
-        CMS.debug("updateConnectorInfo start");
-        String c = post(host, port, https, "/ca/admin/ca/updateConnector", content, null, null);
-        if (c != null) {
-            ByteArrayInputStream bis = new ByteArrayInputStream(c.getBytes());
-            XMLObject parser = null;
-            parser = new XMLObject(bis);
-            String status = parser.getValue("Status");
-            CMS.debug("updateConnectorInfo: status=" + status);
-            if (!status.equals(SUCCESS)) {
-                String error = parser.getValue("Error");
-                throw new IOException(error);
-            }
-        }
-    }
-
     public static void setupClientAuthUser() throws Exception {
         IConfigStore cs = CMS.getConfigStore();
         String host = cs.getString("preop.ca.hostname", "");
