@@ -66,10 +66,10 @@
 Name:             pki-core
 %if 0%{?rhel}
 Version:          10.4.1
-Release:          14%{?dist}
+Release:          15%{?dist}
 %else
 Version:          10.4.8
-Release:          6%{?dist}
+Release:          7%{?dist}
 %endif
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
@@ -258,6 +258,10 @@ Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{
 #Patch11:          pki-core-Fix-tokenOrigin-and-tokentType-attrs-in-recovered-certs.patch
 #Patch12:          pki-core-Display-tokentType-and-tokenOrigin-in-TPS-UI-and-CLI-Server.patch
 #Patch13:          pki-core-Display-tokentType-and-tokenOrigin-in-TPS-UI-and-CLI.patch
+#######################
+## pki-core-10.4.8-7
+#######################
+#Patch14:          pki-core-Make-PKCS12-files-compatible-with-PBES2.patch
 
 # Obtain version phase number (e. g. - used by "alpha", "beta", etc.)
 #
@@ -937,6 +941,7 @@ This package is a part of the PKI Core used by the Certificate System.
 #%patch11 -p1
 #%patch12 -p1
 #%patch13 -p1
+#%patch14 -p1
 
 %clean
 %{__rm} -rf %{buildroot}
@@ -1462,6 +1467,10 @@ fi
 %endif # %{with server}
 
 %changelog
+* Mon Sep 18 2017 Dogtag Team <pki-devel@redhat.com> 10.4.8-7
+- dogtagpki Pagure Issue #2809 - PKCS #12 files incompatible with
+  NSS >= 3.31 (ftweedal)
+
 * Tue Sep 12 2017 Dogtag Team <pki-devel@redhat.com> 10.4.8-6
 - Require "jss >= 4.4.2-5" as a build and runtime requirement
 - dogtagpki Pagure Issue #2796 - lightweight CA replication fails with a
