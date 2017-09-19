@@ -388,23 +388,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             cert_chain_file=cert_file,
             trust_attributes='CT,C,C')
 
-    def import_external_ca_signing_cert(self, deployer, nssdb):
-
-        cert_file = deployer.mdict.get('pki_external_ca_cert_path')
-        if not cert_file or not os.path.exists(cert_file):
-            return
-
-        nickname = deployer.mdict['pki_cert_chain_nickname']
-
-        config.pki_log.info(
-            "importing external certificate from %s" % cert_file,
-            extra=config.PKI_INDENTATION_LEVEL_2)
-
-        nssdb.import_cert_chain(
-            nickname=nickname,
-            cert_chain_file=cert_file,
-            trust_attributes='CT,C,C')
-
     def import_sslserver_cert(self, deployer, nssdb):
 
         cert_file = deployer.mdict.get('pki_external_sslserver_cert_path')
@@ -568,7 +551,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             self.import_ca_signing_cert(deployer, nssdb)
 
         if subsystem.name in ['kra', 'ocsp']:
-            self.import_external_ca_signing_cert(deployer, nssdb)
+            self.import_ca_signing_cert(deployer, nssdb)
             self.import_sslserver_cert(deployer, nssdb)
             self.import_subsystem_cert(deployer, nssdb)
             self.import_audit_signing_cert(deployer, nssdb)
