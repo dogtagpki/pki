@@ -30,6 +30,7 @@ import org.mozilla.jss.crypto.X509Certificate;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
+import com.netscape.cmsutil.util.Utils;
 
 /**
  * @author Endi S. Dewata
@@ -110,8 +111,8 @@ public class ClientCertShowCLI extends CLI {
                 throw new Exception("Missing PKCS #12 password");
             }
 
-        } else if (certPath != null || clientCertPath != null || privateKeyPath != null) {
-            // exporting certificate and/or private key to PEM files using temporary PKCS #12 file
+        } else if (clientCertPath != null || privateKeyPath != null) {
+            // exporting private key to PEM file using temporary PKCS #12 file
 
             // prepare temporary PKCS #12 file
             pkcs12File = File.createTempFile("pki-client-cert-show-", ".p12");
@@ -128,7 +129,17 @@ public class ClientCertShowCLI extends CLI {
             PKIClient client = getClient();
             X509Certificate cert = client.getCert(nickname);
 
-            ClientCLI.printCertInfo(cert);
+            if (certPath != null) {
+                try (PrintWriter out = new PrintWriter(new FileWriter(certPath))) {
+                    out.println("-----BEGIN CERTIFICATE-----");
+                    out.print(Utils.base64encode(cert.getEncoded()));
+                    out.println("-----END CERTIFICATE-----");
+                }
+
+            } else {
+                ClientCLI.printCertInfo(cert);
+
+            }
             return;
         }
 
