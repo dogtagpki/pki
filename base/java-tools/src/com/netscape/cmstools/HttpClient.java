@@ -30,7 +30,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.Socket;
-import java.util.StringTokenizer;
+import java.util.Properties;
 
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoToken;
@@ -286,17 +286,14 @@ public class HttpClient {
         System.out.println("#This parameter will be ignored if clientmode=false");
         System.out.println("nickname=");
         System.out.println("");
-        System.out.println("#servlet: servlet name");
-        System.out.println("servlet=/ca/profileSubmitCMCFull");
+        System.out.println("#servlet: target URL");
+        System.out.println("#This parameter may include query parameters");
+        System.out.println("servlet=/ca/ee/ca/profileSubmitCMCFull?profileId=caCMCcaCert");
         System.out.println("");
         System.exit(0);
     }
 
     public static void main(String args[]) {
-        String host = null, portstr = null, secure = null, tokenName = null, dbdir = null, nickname = null;
-        String password = null, ofilename = null, ifilename = null;
-        String servlet = null;
-        String clientmode = null;
 
         System.out.println("");
 
@@ -322,47 +319,26 @@ public class HttpClient {
             return;
         }
 
+        Properties config = new Properties();
         try {
-            String str = "";
-            while ((str = reader.readLine()) != null) {
-                str = str.trim();
-                if (!str.startsWith("#") && str.length() > 0) {
-                    StringTokenizer tokenizer = new StringTokenizer(str, "=");
-                    if (tokenizer.hasMoreTokens()) {
-                        String name = tokenizer.nextToken();
-                        String val = null;
-                        if (tokenizer.countTokens() > 0)
-                            val = tokenizer.nextToken();
-                        if (name.equals("host")) {
-                            host = val;
-                        } else if (name.equals("port")) {
-                            portstr = val;
-                        } else if (name.equals("secure")) {
-                            secure = val;
-                        } else if (name.equals("tokenname")) {
-                            tokenName = val;
-                        } else if (name.equals("dbdir")) {
-                            dbdir = val;
-                        } else if (name.equals("nickname")) {
-                            nickname = val;
-                        } else if (name.equals("password")) {
-                            password = val;
-                        } else if (name.equals("output")) {
-                            ofilename = val;
-                        } else if (name.equals("input")) {
-                            ifilename = val;
-                        } else if (name.equals("clientmode")) {
-                            clientmode = val;
-                        } else if (name.equals("servlet")) {
-                            servlet = val;
-                        }
-                    }
-                }
-            }
+            config.load(reader);
+
         } catch (Exception e) {
             e.printStackTrace();
             printUsage();
         }
+
+        String host = config.getProperty("host");
+        String portstr = config.getProperty("port");
+        String secure = config.getProperty("secure");
+        String tokenName = config.getProperty("tokenname");
+        String dbdir = config.getProperty("dbdir");
+        String nickname = config.getProperty("nickname");
+        String password = config.getProperty("password");
+        String ofilename = config.getProperty("output");
+        String ifilename = config.getProperty("input");
+        String clientmode = config.getProperty("clientmode");
+        String servlet = config.getProperty("servlet");
 
         if (host == null) {
             System.out.println("Missing host name.");
