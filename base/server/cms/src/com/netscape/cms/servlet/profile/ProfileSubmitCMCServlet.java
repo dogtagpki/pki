@@ -353,13 +353,10 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
             return;
         }
 
-        // if we did not configure profileId in xml file,
-        // then accept the user-provided one
-        String profileId = null;
+        // use user-provided profile ID
+        String profileId = request.getParameter("profileId");
 
-        if (mProfileId == null) {
-            profileId = request.getParameter("profileId");
-        } else {
+        if (profileId == null) { // otherwise use the default one
             profileId = mProfileId;
         }
 
