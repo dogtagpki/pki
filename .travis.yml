@@ -11,18 +11,19 @@ env:
     - PKI_LOG=pki_log.log
     - CI_RESULTS_LOG="ci_results_${TRAVIS_BRANCH}.log"
     - CI_RUNNER_LOG_ARCHIVE="dogtag-ci-job-${TRAVIS_JOB_NUMBER}.tar.gz"
-    - IMAGE=dogtagpki/pki-ci-containers:f25_104
+    - IMAGE=dogtagpki/pki-ci-containers:f26_104
+    # F25 is outdated
+    # - IMAGE=dogtagpki/pki-ci-containers:f25_104
+
+    # rawhide repo is unstable
+    # - IMAGE=dogtagpki/pki-ci-containers:rawhide
   matrix:
     - TASK_TO_RUN="run-dogtag-build"
 
     - TASK_TO_RUN="run-ipa-test"
-      IPA_TEST_RUNNER_IMAGE="dogtagpki/dogtag-freeipa-ci-containers:f25_ipa_4-5"
+      IPA_TEST_RUNNER_IMAGE="dogtagpki/dogtag-freeipa-ci-containers:f26_ipa_4-5"
       RPMS_LOCATION=/tmp/workdir/packages/RPMS
       DOGTAG_PKI_RPMS=${TRAVIS_BUILD_DIR}/dogtag_rpms
-    # F26 repo is unstable
-    # - IMAGE=dogtagpki/pki-ci-containers:f26_104
-    # rawhide repo is unstable
-    # - IMAGE=dogtagpki/pki-ci-containers:rawhide
 
 before_install:
   - pyenv global system 3.5
@@ -54,7 +55,6 @@ install:
   - pip install --upgrade pip
   - pip3 install --upgrade pip
   - pip install pep8
-  - >
 
 script:
   # It is time to run FreeIPA tests with new Dogtag RPMS built
