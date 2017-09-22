@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "524526eb_3759e6d1",
+        "filename": "base/server/python/pki/server/cli/selftest.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 1011351
+      },
+      "writtenOn": "2017-09-22T16:02:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "15521253_2079eb1a",
+      "revId": "dbbb20a079904096f2938ff2a5a9e42301cebcb2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5a31d078_f5acc20d",
         "filename": "base/server/python/pki/server/cli/selftest.py",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2017-08-16T19:33:36Z",
       "side": 1,
       "message": "We can use None instead of \u0027all\u0027. Avoid introducing new constants unless necessary.",
+      "revId": "dbbb20a079904096f2938ff2a5a9e42301cebcb2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0cf60c04_44184994",
+        "filename": "base/server/python/pki/server/cli/selftest.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 1011351
+      },
+      "writtenOn": "2017-09-22T16:02:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5a31d078_f5acc20d",
       "revId": "dbbb20a079904096f2938ff2a5a9e42301cebcb2",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "c13d8ab8_7cb827b9",
+        "filename": "base/server/python/pki/server/cli/selftest.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 1011351
+      },
+      "writtenOn": "2017-09-22T16:02:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8ff4beb6_b8681087",
+      "revId": "dbbb20a079904096f2938ff2a5a9e42301cebcb2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a074ecee_a9f0c789",
         "filename": "base/server/python/pki/server/cli/selftest.py",
         "patchSetId": 1
@@ -64,6 +118,24 @@
       "writtenOn": "2017-08-16T19:33:36Z",
       "side": 1,
       "message": "We can use None instead of \u0027all\u0027. Avoid introducing new constants unless necessary.",
+      "revId": "dbbb20a079904096f2938ff2a5a9e42301cebcb2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "63c5f08b_4bc3f79b",
+        "filename": "base/server/python/pki/server/cli/selftest.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 1011351
+      },
+      "writtenOn": "2017-09-22T16:02:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a074ecee_a9f0c789",
       "revId": "dbbb20a079904096f2938ff2a5a9e42301cebcb2",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "b98160f8_f5a43284",
+        "filename": "base/server/python/pki/server/cli/selftest.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 1011351
+      },
+      "writtenOn": "2017-09-22T16:02:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "57736b62_e5765c94",
+      "revId": "dbbb20a079904096f2938ff2a5a9e42301cebcb2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "658abe40_0012f46f",
         "filename": "base/server/python/pki/server/cli/selftest.py",
         "patchSetId": 1
@@ -104,6 +194,24 @@
     },
     {
       "key": {
+        "uuid": "6cd7f340_934983af",
+        "filename": "base/server/python/pki/server/cli/selftest.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 1011351
+      },
+      "writtenOn": "2017-09-22T16:02:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "658abe40_0012f46f",
+      "revId": "dbbb20a079904096f2938ff2a5a9e42301cebcb2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1fba31af_513efc25",
         "filename": "base/server/python/pki/server/cli/selftest.py",
         "patchSetId": 1
@@ -115,6 +223,24 @@
       "writtenOn": "2017-08-16T19:33:36Z",
       "side": 1,
       "message": "It\u0027s missing the \u0027instance\u003d\u0027 option.",
+      "revId": "dbbb20a079904096f2938ff2a5a9e42301cebcb2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "279865d6_fdb5c058",
+        "filename": "base/server/python/pki/server/cli/selftest.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 1011351
+      },
+      "writtenOn": "2017-09-22T16:02:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1fba31af_513efc25",
       "revId": "dbbb20a079904096f2938ff2a5a9e42301cebcb2",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
