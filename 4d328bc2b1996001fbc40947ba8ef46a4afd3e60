@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "345d41b0_eb6b55ae",
+        "filename": "specs/pki-core.spec",
+        "patchSetId": 1
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-09-22T20:01:17Z",
+      "side": 1,
+      "message": "Not sure if we should add git build dependency. The package might be built from a source tarball (with USE_GIT_COMMIT_ID\u003d0), not necessarily from git repository.\n\nCan we include git in the Docker image instead?",
+      "revId": "4d328bc2b1996001fbc40947ba8ef46a4afd3e60",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
