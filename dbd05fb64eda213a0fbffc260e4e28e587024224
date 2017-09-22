@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bc1213cd_6348746c",
+        "filename": "base/server/python/pki/server/__init__.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 448,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-09-22T01:09:51Z",
+      "side": 1,
+      "message": "Let\u0027s assign the testInfo components into variables, e.g. key and val. The code will be easier to read and the strip() doesn\u0027t have to be called multiple times.",
+      "range": {
+        "startLine": 448,
+        "startChar": 25,
+        "endLine": 448,
+        "endChar": 40
+      },
+      "revId": "dbd05fb64eda213a0fbffc260e4e28e587024224",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "470e7bd7_0277014a",
+        "filename": "base/server/python/pki/server/__init__.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 452,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-09-22T01:09:51Z",
+      "side": 1,
+      "message": "The \u0027critical\u0027 literal should be replaced with SELFTEST_CRITICAL constant.",
+      "range": {
+        "startLine": 452,
+        "startChar": 67,
+        "endLine": 452,
+        "endChar": 77
+      },
+      "revId": "dbd05fb64eda213a0fbffc260e4e28e587024224",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f1f8dc73_8070aae3",
+        "filename": "base/server/python/pki/server/__init__.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 460,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-09-22T01:09:51Z",
+      "side": 1,
+      "message": "This code is a bit hard to read. It probably can be replaced with this:\n\n  (key + \u0027:\u0027 + SELFTEST_CRITICAL if val else key)",
+      "range": {
+        "startLine": 459,
+        "startChar": 19,
+        "endLine": 460,
+        "endChar": 57
+      },
+      "revId": "dbd05fb64eda213a0fbffc260e4e28e587024224",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "059e3f8c_19dfc781",
+        "filename": "base/server/python/pki/server/cli/selftest.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-09-22T01:09:51Z",
+      "side": 1,
+      "message": "The test_level is a string but it\u0027s converted into boolean in line 59 and 62.\n\nIt might be better to call this method set_startup_test_critical(instance, subsystem, test, critical) where critical is boolean already.",
+      "range": {
+        "startLine": 41,
+        "startChar": 0,
+        "endLine": 42,
+        "endChar": 57
+      },
+      "revId": "dbd05fb64eda213a0fbffc260e4e28e587024224",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
