@@ -107,6 +107,7 @@ BuildRequires:    apache-commons-io
 BuildRequires:    apache-commons-lang
 BuildRequires:    jakarta-commons-httpclient
 BuildRequires:    slf4j
+BuildRequires:    git
 %if ! 0%{?rhel}
 BuildRequires:    slf4j-jdk14
 %endif
