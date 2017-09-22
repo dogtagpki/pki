@@ -171,7 +171,7 @@ extract_release_information()
 ##
 ##          # script -c "pki/scripts/compose_dogtag_pki_meta_packages rpms"
 ##          # ls packages/SRPMS
-##          dogtag-pki-10.5.0-0.0.20170829113408.6d23ffdd.fc27.src.rpm
+##          dogtag-pki-10.5.0-0.0.fc27.src.rpm
 ##
 ##          # script -c "USE_TIMESTAMP=1 USE_GIT_COMMIT_ID=1
 ##            pki/scripts/compose_dogtag_pki_meta_packages rpms"
@@ -242,29 +242,29 @@ compute_release_information()
 	fi
 
 	# Optionally compute a timestamp
-	if [ -n ${USE_TIMESTAMP} ] && [ "${USE_TIMESTAMP}" = "0" ]; then
-		printf "unset USE_TIMESTAMP\n"
-		unset USE_TIMESTAMP
-	else
-		# By default, append a timestamp to the release designation
+	if [ -n ${USE_TIMESTAMP} ] && [ "${USE_TIMESTAMP}" = "1" ]; then
 		now=`date +"%Y%m%d%H%M%S"`
 		timestamp=`printf "%.14s" ${now}`
 		printf "Setting 'timestamp=${timestamp}'\n"
 		PKI_RELEASE=${PKI_RELEASE}.${timestamp}
+	else
+		# By default, do NOT append a timestamp to the release designation
+		printf "unset USE_TIMESTAMP\n"
+		unset USE_TIMESTAMP
 	fi
 
 	# Optionally fetch the git commit ID from the source repository
-	if [ -n ${USE_GIT_COMMIT_ID} ] && [ "${USE_GIT_COMMIT_ID}" = "0" ]; then
-		printf "unset USE_GIT_COMMIT_ID\n"
-		unset USE_GIT_COMMIT_ID
-	else
-		# By default, append a git commit ID to the release designation
+	if [ -n ${USE_GIT_COMMIT_ID} ] && [ "${USE_GIT_COMMIT_ID}" = "1" ]; then
 		pushd ${PKI_DIR} > /dev/null
 		latest_git_commit_id=`git rev-parse --short=8 HEAD`
 		popd > /dev/null
 		git_commit_id=`printf "%.8s" ${latest_git_commit_id}`
 		printf "Setting 'git_commit_id=${git_commit_id}'\n"
 		PKI_RELEASE=${PKI_RELEASE}.${git_commit_id}
+	else
+		# By default, do NOT append a git commit ID to the release designation
+		printf "unset USE_GIT_COMMIT_ID\n"
+		unset USE_GIT_COMMIT_ID
 	fi
 
 	printf "Setting 'PKI_RELEASE=${PKI_RELEASE}'\n"
