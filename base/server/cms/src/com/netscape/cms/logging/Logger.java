@@ -18,7 +18,6 @@
 package com.netscape.cms.logging;
 
 import java.util.Hashtable;
-import java.util.Properties;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.logging.ILogEvent;
@@ -183,7 +182,7 @@ public class Logger implements ILogger {
      */
     public void log(LogCategory evtClass, LogSource source, int level, String msg,
             Object params[]) {
-        ILogEvent iLEvent = create(evtClass, null, source, level, msg, params, ILogger.L_SINGLELINE);
+        ILogEvent iLEvent = create(evtClass, source, level, msg, params, ILogger.L_SINGLELINE);
         if (iLEvent != null)
             mLogQueue.log(iLEvent);
     }
@@ -199,26 +198,13 @@ public class Logger implements ILogger {
      * @param multiline true if the message has more than one line, otherwise false
      */
     public void log(LogCategory evtClass, LogSource source, String msg, boolean multiline) {
-        log(evtClass, null, source, level, msg, null, multiline);
-    }
-
-    /**
-     * Logs an event using default log level.
-     *
-     * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM.
-     * @param props the resource bundle used for the detailed message
-     * @param source the source of the log event
-     * @param msg the one line detail message to be logged
-     * @param multiline true if the message has more than one line, otherwise false
-     */
-    public void log(LogCategory evtClass, Properties props, LogSource source, String msg, boolean multiline) {
-        log(evtClass, props, source, level, msg, null, multiline);
+        log(evtClass, source, level, msg, null, multiline);
     }
 
     //************** no param ****************
 
     public void log(int level, String msg, boolean multiline) {
-        log(category, null, source, level, msg, multiline);
+        log(category, source, level, msg, null, multiline);
     }
 
     /**
@@ -231,21 +217,7 @@ public class Logger implements ILogger {
      * @param multiline true if the message has more than one line, otherwise false
      */
     public void log(LogCategory evtClass, LogSource source, int level, String msg, boolean multiline) {
-        log(evtClass, null, source, level, msg, null, multiline);
-    }
-
-    /**
-     * Logs an event to the log queue.
-     *
-     * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM.
-     * @param props the resource bundle used for the detailed message
-     * @param source the source of the log event
-     * @param level the level of the log event
-     * @param msg the one line detail message to be logged
-     * @param multiline true if the message has more than one line, otherwise false
-     */
-    public void log(LogCategory evtClass, Properties props, LogSource source, int level, String msg, boolean multiline) {
-        log(evtClass, props, source, level, msg, null, multiline);
+        log(evtClass, source, level, msg, null, multiline);
     }
 
     //********************* one param **********************
@@ -261,46 +233,15 @@ public class Logger implements ILogger {
      * @param multiline true if the message has more than one line, otherwise false
      */
     public void log(LogCategory evtClass, LogSource source, int level, String msg, Object param, boolean multiline) {
-        log(evtClass, null, source, level, msg, param, multiline);
-    }
-
-    /**
-     * Logs an event using default log level.
-     *
-     * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM.
-     * @param props the resource bundle used for the detailed message
-     * @param source the source of the log event
-     * @param msg the one line detail message to be logged
-     * @param param the parameter in the detail message
-     * @param multiline true if the message has more than one line, otherwise false
-     */
-    public void log(LogCategory evtClass, Properties props, LogSource source, String msg, Object param, boolean multiline) {
-        log(evtClass, props, source, level, msg, param, multiline);
-    }
-
-    /**
-     * Logs an event to the log queue.
-     *
-     * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM.
-     * @param props the resource bundle used for the detailed message
-     * @param source the source of the log event
-     * @param level the level of the log event
-     * @param msg the one line detail message to be logged
-     * @param param the parameter in the detail message
-     * @param multiline true if the message has more than one line, otherwise false
-     */
-    public void log(LogCategory evtClass, Properties props, LogSource source, int level, String msg,
-            Object param, boolean multiline) {
         Object o[] = new Object[1];
-
         o[0] = param;
-        log(evtClass, props, source, level, msg, o, multiline);
+        log(evtClass, source, level, msg, o, multiline);
     }
 
     //******************* multiple param **************************
 
     public void log(int level, String msg, Object params[], boolean multiline) {
-        log(category, null, source, level, msg, params, multiline);
+        log(category, source, level, msg, params, multiline);
     }
 
     /**
@@ -315,24 +256,7 @@ public class Logger implements ILogger {
      */
     public void log(LogCategory evtClass, LogSource source, int level, String msg,
             Object params[], boolean multiline) {
-        log(evtClass, null, source, level, msg, params, multiline);
-    }
-
-    //*************** the real implementation *****************
-    /**
-     * Logs an event to the log queue.
-     *
-     * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM.
-     * @param props the resource bundle used for the detailed message
-     * @param source the source of the log event
-     * @param level the level of the log event
-     * @param msg the one line detail message to be logged
-     * @param params the parameters in the detail message
-     * @param multiline true if the message has more than one line, otherwise false
-     */
-    public void log(LogCategory evtClass, Properties prop, LogSource source, int level, String msg,
-            Object params[], boolean multiline) {
-        ILogEvent iLEvent = create(evtClass, prop, source, level, msg, params, multiline);
+        ILogEvent iLEvent = create(evtClass, source, level, msg, params, multiline);
         if (iLEvent != null)
             mLogQueue.log(iLEvent);
     }
@@ -340,15 +264,14 @@ public class Logger implements ILogger {
     //******************** end  multiline log *************************
 
     public ILogEvent create(int level, String msg, Object params[], boolean multiline) {
-        return create(category, null, source, level, msg, params, multiline);
+        return create(category, source, level, msg, params, multiline);
     }
 
     /**
      * Creates generic log event. If required, we can recycle
      * events here.
      */
-    //XXXXXXXXXXX prop is out dated!!!! XXXXXXXXXXXXXXX
-    public ILogEvent create(LogCategory evtClass, Properties prop, LogSource source, int level,
+    public ILogEvent create(LogCategory evtClass, LogSource source, int level,
             String msg, Object params[], boolean multiline) {
 
         LogFactory f = factory == null ? mFactories.get(evtClass) : factory;
@@ -357,7 +280,7 @@ public class Logger implements ILogger {
             throw new RuntimeException("Unknown logger category: " + evtClass);
         }
 
-        return f.create(evtClass, prop, source, level, multiline, msg, params);
+        return f.create(evtClass, null, source, level, multiline, msg, params);
     }
 
     /**
