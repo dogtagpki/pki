@@ -1058,29 +1058,46 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
      * @param ev The event to be logged.
      */
     public void log(ILogEvent ev) throws ELogException {
-        if (ev instanceof AuditEvent) {
-            if (!mType.equals("transaction") || (!mOn) || mLevel > ev.getLevel()) {
-                return;
-            }
-        } else if (ev instanceof SystemEvent) {
-            if (!mType.equals("system") || (!mOn) || mLevel > ev.getLevel()) {
-                return;
-            }
-        } else if (ev instanceof SignedAuditEvent) {
-            if (!mType.equals("signedAudit") || (!mOn) || mLevel > ev.getLevel()) {
-                return;
-            }
+
+        if (!mOn || mLevel > ev.getLevel()) {
+            return;
         }
 
-        // If no selection specified in configuration, then all are selected
-        if (selectedEvents.isEmpty()) {
+        if (mType.equals("transaction")) {
+            if (ev instanceof AuditEvent) {
+                doLog(ev);
+            }
+            return;
+        }
+
+        if (mType.equals("system")) {
+            if (ev instanceof SystemEvent) {
+                doLog(ev);
+            }
+            return;
+        }
+
+        if (mType.equals("signedAudit")) {
+            if (ev instanceof SignedAuditEvent) {
+                logSignedAuditEvent((SignedAuditEvent)ev);
+            }
+            return;
+        }
+
+        CMS.debug("LogFile: logger type not supported: " + mType);
+    }
+
+    public void logSignedAuditEvent(SignedAuditEvent ev) throws ELogException {
+
+        // If no type specified in property file, then treated as selected
+        String type = ev.getEventType();
+        if (type == null) {
             doLog(ev);
             return;
         }
 
-        // If no type specified in propertity file, then treated as selected
-        String type = ev.getEventType();
-        if (type == null) {
+        // If no selection specified in configuration, then all are selected
+        if (selectedEvents.isEmpty()) {
             doLog(ev);
             return;
         }
