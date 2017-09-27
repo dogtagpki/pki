@@ -24,7 +24,7 @@ public class AuthFailEvent extends SignedAuditEvent {
     private static final long serialVersionUID = 1L;
 
     public final static String LOGGING_PROPERTY =
-            "LOGGING_SIGNED_AUDIT_AUTH_FAIL_4";
+            "LOGGING_SIGNED_AUDIT_AUTH_FAIL";
 
     public AuthFailEvent(
             String subjectID,
@@ -34,11 +34,9 @@ public class AuthFailEvent extends SignedAuditEvent {
 
         super(LOGGING_PROPERTY);
 
-        setParameters(new Object[] {
-                subjectID,
-                outcome,
-                authManagerID,
-                attemptedUID
-        });
+        setAttribute("SubjectID", subjectID);
+        setAttribute("Outcome", outcome);
+        setAttribute("AuthMgr", authManagerID);
+        setAttribute("AttemptedCred", attemptedUID);
     }
 }

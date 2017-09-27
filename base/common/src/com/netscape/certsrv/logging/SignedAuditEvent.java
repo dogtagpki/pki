@@ -141,4 +141,18 @@ public class SignedAuditEvent extends LogEvent {
 
         return sb.toString();
     }
+
+    public Object[] getParameters() {
+
+        if (mParams != null) {
+            return mParams;
+        }
+
+        // convert attribute list into a single parameter
+        mParams = new Object[] {
+                getAttributeList()
+        };
+
+        return mParams;
+    }
 }

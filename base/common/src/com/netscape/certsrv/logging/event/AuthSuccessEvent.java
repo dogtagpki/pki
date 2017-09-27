@@ -24,7 +24,7 @@ public class AuthSuccessEvent extends SignedAuditEvent {
     private static final long serialVersionUID = 1L;
 
     public final static String LOGGING_PROPERTY =
-            "LOGGING_SIGNED_AUDIT_AUTH_SUCCESS_3";
+            "LOGGING_SIGNED_AUDIT_AUTH_SUCCESS";
 
     public AuthSuccessEvent(
             String subjectID,
@@ -33,10 +33,8 @@ public class AuthSuccessEvent extends SignedAuditEvent {
 
         super(LOGGING_PROPERTY);
 
-        setParameters(new Object[] {
-                subjectID,
-                outcome,
-                authManagerID
-        });
+        setAttribute("SubjectID", subjectID);
+        setAttribute("Outcome", outcome);
+        setAttribute("AuthMgr", authManagerID);
     }
 }
