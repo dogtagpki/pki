@@ -735,8 +735,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
                 o,
                 ILogger.L_SINGLELINE);
 
-        String logMesg = logEvt2String(ev);
-        doLog(logMesg, true);
+        doLog(ev, true);
     }
 
     private static String getLastSignature(File f) throws IOException {
@@ -938,13 +937,12 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
     }
 
     /**
-     * Synchronized method to write a string to the log file. All I18N
-     * should take place before this call.
+     * Synchronized method to write an event to the log file.
      *
-     * @param entry The log entry string
+     * @param event The log event
      */
-    protected synchronized void log(String entry) throws ELogException {
-        doLog(entry, false);
+    protected synchronized void doLog(ILogEvent event) throws ELogException {
+        doLog(event, false);
     }
 
     // Standard line separator byte. We always sign this line separator,
@@ -957,8 +955,11 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
      * by subclasses, so you can call it and know that it will do exactly
      * what you see below.
      */
-    private synchronized void doLog(String entry, boolean noFlush)
+    private synchronized void doLog(ILogEvent event, boolean noFlush)
             throws ELogException {
+
+        String entry = logEvt2String(event);
+
         if (mLogWriter == null) {
             String[] params = { mFileName, entry };
 
@@ -1073,23 +1074,20 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
 
         // If no selection specified in configuration, then all are selected
         if (selectedEvents.isEmpty()) {
-            String entry = logEvt2String(ev);
-            log(entry);
+            doLog(ev);
             return;
         }
 
         // If no type specified in propertity file, then treated as selected
         String type = ev.getEventType();
         if (type == null) {
-            String entry = logEvt2String(ev);
-            log(entry);
+            doLog(ev);
             return;
         }
 
         // Is the event type mandatory or selected?
         if (mandatoryEvents.contains(type) || selectedEvents.contains(type)) {
-            String entry = logEvt2String(ev);
-            log(entry);
+            doLog(ev);
             return;
         }
 
