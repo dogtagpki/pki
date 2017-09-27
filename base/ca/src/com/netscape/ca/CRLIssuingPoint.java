@@ -3074,7 +3074,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     }
 
     protected synchronized void log(int level, String msg) {
-        mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_CA, level,
+        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_CA, level,
                 "CRLIssuingPoint " + mId + " - " + msg);
     }
 

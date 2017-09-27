@@ -70,7 +70,6 @@ public class Processor {
         if (logger == null) return;
 
         logger.log(ILogger.EV_SYSTEM,
-                null,
                 source,
                 level,
                 getClass().getSimpleName() + ": " + message);

@@ -81,7 +81,6 @@ public class SubsystemService extends PKIService {
     public void log(LogSource source, int level, String message) {
 
         logger.log(ILogger.EV_SYSTEM,
-                null,
                 source,
                 level,
                 getClass().getSimpleName() + ": " + message);

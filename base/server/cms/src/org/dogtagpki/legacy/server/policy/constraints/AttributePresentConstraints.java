@@ -392,7 +392,7 @@ public class AttributePresentConstraints extends APolicyRule
         if (mLogger == null)
             return;
 
-        mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_OTHER,
+        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
                 level, "AttributePresentConstraints: " + msg);
     }
 

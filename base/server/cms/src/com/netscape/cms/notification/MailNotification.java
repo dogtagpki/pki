@@ -21,13 +21,13 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Vector;
 
-import netscape.net.smtp.SmtpClient;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.notification.ENotificationException;
 import com.netscape.certsrv.notification.IMailNotification;
+
+import netscape.net.smtp.SmtpClient;
 
 /**
  * This class handles mail notification via SMTP.
@@ -196,7 +196,7 @@ public class MailNotification implements IMailNotification {
     private void log(int level, String msg) {
         if (mLogger == null)
             return;
-        mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_OTHER,
+        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
                 level, "MailNotification: " + msg);
     }
 

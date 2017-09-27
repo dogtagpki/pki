@@ -24,11 +24,6 @@ import java.security.cert.X509Certificate;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
-import netscape.ldap.LDAPConnection;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CRLImpl;
-import netscape.security.x509.X509CertImpl;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.base.EBaseException;
@@ -53,6 +48,11 @@ import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.util.Debug;
+
+import netscape.ldap.LDAPConnection;
+import netscape.security.x509.X500Name;
+import netscape.security.x509.X509CRLImpl;
+import netscape.security.x509.X509CertImpl;
 
 public class LdapPublishModule implements ILdapPublishModule {
     protected IConfigStore mConfig = null;
@@ -502,7 +502,7 @@ public class LdapPublishModule implements ILdapPublishModule {
     }
 
     public void log(int level, String msg) {
-        mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_LDAP, level,
+        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_LDAP, level,
                 "LdapPublishModule: " + msg);
     }
 

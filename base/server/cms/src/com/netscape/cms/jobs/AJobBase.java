@@ -20,8 +20,6 @@ package com.netscape.cms.jobs;
 import java.io.IOException;
 import java.util.Hashtable;
 
-import netscape.security.x509.X509CertImpl;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -34,6 +32,8 @@ import com.netscape.certsrv.notification.IEmailFormProcessor;
 import com.netscape.certsrv.notification.IEmailTemplate;
 import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.certsrv.request.IRequest;
+
+import netscape.security.x509.X509CertImpl;
 
 /**
  * This abstract class is a base job for real job extentions for the
@@ -198,12 +198,12 @@ public abstract class AJobBase implements IJob, Runnable {
             mn.sendNotification();
         } catch (ENotificationException e) {
             // already logged, lets audit
-            mLogger.log(ILogger.EV_AUDIT, null,
+            mLogger.log(ILogger.EV_AUDIT,
                     ILogger.S_OTHER,
                     ILogger.LL_FAILURE, CMS.getLogMessage("JOBS_SEND_NOTIFICATION", e.toString()));
         } catch (IOException e) {
             // already logged, lets audit
-            mLogger.log(ILogger.EV_AUDIT, null,
+            mLogger.log(ILogger.EV_AUDIT,
                     ILogger.S_OTHER,
                     ILogger.LL_FAILURE, CMS.getLogMessage("JOBS_SEND_NOTIFICATION", e.toString()));
         }
@@ -272,7 +272,7 @@ public abstract class AJobBase implements IJob, Runnable {
     public void log(int level, String msg) {
         if (mLogger == null)
             return;
-        mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_OTHER,
+        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
                 level, mId + ": " + msg);
     }
 
@@ -287,7 +287,7 @@ public abstract class AJobBase implements IJob, Runnable {
     public void log(int level, String msg, boolean multiline) {
         if (mLogger == null)
             return;
-        mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_OTHER,
+        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
                 level, mId + ": " + msg, multiline);
     }
 

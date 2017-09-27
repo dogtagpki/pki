@@ -17,14 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.listeners;
 
-import netscape.ldap.LDAPAttribute;
-import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPEntry;
-import netscape.ldap.LDAPException;
-import netscape.ldap.LDAPModification;
-import netscape.ldap.LDAPSearchResults;
-import netscape.ldap.LDAPv2;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -33,6 +25,14 @@ import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
+
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPModification;
+import netscape.ldap.LDAPSearchResults;
+import netscape.ldap.LDAPv2;
 
 /**
  * This represnets a listener that removes pin from LDAP directory.
@@ -162,7 +162,7 @@ public class PinRemovalListener implements IRequestListener {
     private void log(int level, String msg) {
         if (mLogger == null)
             return;
-        mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_OTHER,
+        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
                 level, "PinRemovalListener: " + msg);
     }
 

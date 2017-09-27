@@ -2399,7 +2399,7 @@ public class CMSEngine implements ICMSEngine {
     }
 
     private void log(int level, String msg) {
-        Logger.getLogger().log(ILogger.EV_SYSTEM, null,
+        Logger.getLogger().log(ILogger.EV_SYSTEM,
                 ILogger.S_AUTHENTICATION, level, msg);
     }
 

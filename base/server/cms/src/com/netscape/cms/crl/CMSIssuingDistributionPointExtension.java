@@ -21,6 +21,15 @@ import java.io.IOException;
 import java.util.Locale;
 import java.util.StringTokenizer;
 
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.EPropertyNotFound;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.IExtendedPluginInfo;
+import com.netscape.certsrv.ca.ICMSCRLExtension;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.logging.ILogger;
+
 import netscape.security.util.BitArray;
 import netscape.security.x509.Extension;
 import netscape.security.x509.GeneralNames;
@@ -31,15 +40,6 @@ import netscape.security.x509.PKIXExtensions;
 import netscape.security.x509.RDN;
 import netscape.security.x509.URIName;
 import netscape.security.x509.X500Name;
-
-import com.netscape.certsrv.apps.CMS;
-import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.EPropertyNotFound;
-import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.IExtendedPluginInfo;
-import com.netscape.certsrv.ca.ICMSCRLExtension;
-import com.netscape.certsrv.common.NameValuePairs;
-import com.netscape.certsrv.logging.ILogger;
 
 /**
  * This represents a issuing distribution point extension.
@@ -326,7 +326,7 @@ public class CMSIssuingDistributionPointExtension
     }
 
     private void log(int level, String msg) {
-        mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_CA, level,
+        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_CA, level,
                 "CMSIssuingDistributionPointExtension - " + msg);
     }
 }

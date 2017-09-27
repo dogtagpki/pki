@@ -24,8 +24,6 @@ import java.math.BigInteger;
 import java.security.Principal;
 import java.security.cert.X509Certificate;
 
-import netscape.security.x509.X509CertImpl;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.EAuthUserError;
@@ -45,6 +43,8 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cmscore.util.Debug;
+
+import netscape.security.x509.X509CertImpl;
 
 /**
  * SSL client based authentication.
@@ -242,7 +242,7 @@ public class SSLClientCertAuthentication implements IAuthManager {
     private void log(int level, String msg) {
         if (mLogger == null)
             return;
-        mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_AUTHENTICATION,
+        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_AUTHENTICATION,
                 level, msg);
     }
 

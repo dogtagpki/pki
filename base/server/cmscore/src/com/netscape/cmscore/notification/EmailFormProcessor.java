@@ -243,7 +243,7 @@ public class EmailFormProcessor implements IEmailFormProcessor {
     public void log(int level, String msg) {
         if (mLogger == null)
             return;
-        mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_OTHER,
+        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
                 level, "EmailFormProcessor: " + msg);
     }
 }

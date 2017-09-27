@@ -1414,7 +1414,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
      * @param msg message to log
      */
     public void log(int level, String msg) {
-        mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_KRA,
+        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_KRA,
                 level, msg);
     }
 

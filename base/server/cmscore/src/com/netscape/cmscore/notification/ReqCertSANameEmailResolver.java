@@ -23,15 +23,6 @@ import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 import java.util.Enumeration;
 
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.GeneralNameInterface;
-import netscape.security.x509.GeneralNames;
-import netscape.security.x509.RevokedCertImpl;
-import netscape.security.x509.SubjectAlternativeNameExtension;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.ca.ICertificateAuthority;
@@ -41,6 +32,15 @@ import com.netscape.certsrv.notification.ENotificationException;
 import com.netscape.certsrv.notification.IEmailResolver;
 import com.netscape.certsrv.notification.IEmailResolverKeys;
 import com.netscape.certsrv.request.IRequest;
+
+import netscape.security.x509.CertificateExtensions;
+import netscape.security.x509.GeneralNameInterface;
+import netscape.security.x509.GeneralNames;
+import netscape.security.x509.RevokedCertImpl;
+import netscape.security.x509.SubjectAlternativeNameExtension;
+import netscape.security.x509.X500Name;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509CertInfo;
 
 /**
  * An email resolver that first checks the request email, if none,
@@ -269,7 +269,7 @@ public class ReqCertSANameEmailResolver implements IEmailResolver {
     private void log(int level, String msg) {
         if (mLogger == null)
             return;
-        mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_OTHER,
+        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
                 level, "ReqCertSANameEmailResolver: " + msg);
     }
 

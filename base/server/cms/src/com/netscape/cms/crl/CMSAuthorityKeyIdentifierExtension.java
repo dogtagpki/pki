@@ -159,7 +159,7 @@ public class CMSAuthorityKeyIdentifierExtension
     }
 
     private void log(int level, String msg) {
-        mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_CA, level,
+        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_CA, level,
                 "CMSAuthorityKeyIdentifierExtension - " + msg);
     }
 }

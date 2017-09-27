@@ -21,16 +21,16 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.Locale;
 
-import netscape.security.x509.Extension;
-import netscape.security.x509.InvalidityDateExtension;
-import netscape.security.x509.PKIXExtensions;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ca.ICMSCRLExtension;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.logging.ILogger;
+
+import netscape.security.x509.Extension;
+import netscape.security.x509.InvalidityDateExtension;
+import netscape.security.x509.PKIXExtensions;
 
 /**
  * This represents a invalidity date extension.
@@ -93,7 +93,7 @@ public class CMSInvalidityDateExtension
     }
 
     private void log(int level, String msg) {
-        mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_CA, level,
+        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_CA, level,
                 "CMSInvalidityDateExtension - " + msg);
     }
 }
