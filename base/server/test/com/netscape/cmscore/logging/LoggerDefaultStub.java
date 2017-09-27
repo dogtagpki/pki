@@ -16,28 +16,13 @@ public class LoggerDefaultStub implements ILogger {
     public void log(LogCategory evtClass, LogSource source, String msg) {
     }
 
-    public void log(LogCategory evtClass, Properties props, LogSource source, String msg) {
-    }
-
     public void log(LogCategory evtClass, LogSource source, int level, String msg) {
-    }
-
-    public void log(LogCategory evtClass, Properties props, LogSource source, int level, String msg) {
     }
 
     public void log(LogCategory evtClass, LogSource source, int level, String msg, Object param) {
     }
 
     public void log(LogCategory evtClass, LogSource source, int level, String msg, Object params[]) {
-    }
-
-    public void log(LogCategory evtClass, Properties props, LogSource source, String msg, Object param) {
-    }
-
-    public void log(LogCategory evtClass, Properties props, LogSource source, int level, String msg, Object param) {
-    }
-
-    public void log(LogCategory evtClass, Properties prop, LogSource source, int level, String msg, Object params[]) {
     }
 
     public void log(LogCategory evtClass, LogSource source, String msg, boolean multiline) {

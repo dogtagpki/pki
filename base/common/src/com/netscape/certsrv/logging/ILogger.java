@@ -281,32 +281,11 @@ public interface ILogger {
      * Logs an event to the log queue.
      *
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM or EV_SIGNED_AUDIT.
-     * @param props The resource bundle used for the detailed message.
-     * @param source The source of the log event.
-     * @param msg The detail message to be logged.
-     */
-    public void log(LogCategory evtClass, Properties props, LogSource source, String msg);
-
-    /**
-     * Logs an event to the log queue.
-     *
-     * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM or EV_SIGNED_AUDIT.
      * @param source The source of the log event.
      * @param level The level of the log event.
      * @param msg The detail message to be logged.
      */
     public void log(LogCategory evtClass, LogSource source, int level, String msg);
-
-    /**
-     * Logs an event to the log queue.
-     *
-     * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM or EV_SIGNED_AUDIT.
-     * @param props The resource bundle used for the detailed message.
-     * @param source The source of the log event.
-     * @param level The level of the log event.
-     * @param msg The detail message to be logged.
-     */
-    public void log(LogCategory evtClass, Properties props, LogSource source, int level, String msg);
 
     /**
      * Logs an event to the log queue.
@@ -329,43 +308,6 @@ public interface ILogger {
      * @param params The parameters in the detail message.
      */
     public void log(LogCategory evtClass, LogSource source, int level, String msg, Object params[]);
-
-    /**
-     * Logs an event to the log queue.
-     *
-     * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM or EV_SIGNED_AUDIT.
-     * @param props The resource bundle used for the detailed message.
-     * @param source The source of the log event.
-     * @param msg The detail message to be logged.
-     * @param param The parameters in the detail message.
-     */
-    public void log(LogCategory evtClass, Properties props, LogSource source, String msg, Object param);
-
-    /**
-     * Logs an event to the log queue.
-     *
-     * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM or EV_SIGNED_AUDIT.
-     * @param props The resource bundle used for the detailed message.
-     * @param source The source of the log event.
-     * @param level The level of the log event.
-     * @param msg The detail message to be logged.
-     * @param param The parameter in the detail message.
-     */
-    public void log(LogCategory evtClass, Properties props, LogSource source, int level, String msg,
-            Object param);
-
-    /**
-     * Logs an event to the log queue.
-     *
-     * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM or EV_SIGNED_AUDIT.
-     * @param prop The resource bundle used for the detailed message.
-     * @param source The source of the log event.
-     * @param level The level of the log event.
-     * @param msg The detail message to be logged.
-     * @param params The parameters in the detail message.
-     */
-    public void log(LogCategory evtClass, Properties prop, LogSource source, int level, String msg,
-            Object params[]);
 
     //multiline log
 
