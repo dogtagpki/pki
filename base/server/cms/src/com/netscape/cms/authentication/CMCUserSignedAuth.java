@@ -927,7 +927,7 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
     protected void log(int level, String msg) {
         if (mLogger == null)
             return;
-        mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_AUTHENTICATION,
+        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_AUTHENTICATION,
                 level, "CMC User Signed Authentication: " + msg);
     }
 

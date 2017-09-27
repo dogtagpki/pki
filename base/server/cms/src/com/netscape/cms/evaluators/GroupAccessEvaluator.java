@@ -18,6 +18,7 @@
 package com.netscape.cms.evaluators;
 
 import java.util.Arrays;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
@@ -175,7 +176,7 @@ public class GroupAccessEvaluator implements IAccessEvaluator {
     private void log(int level, String msg) {
         if (mLogger == null)
             return;
-        mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_ACLS,
+        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_ACLS,
                 level, "GroupAccessEvaluator: " + msg);
     }
 

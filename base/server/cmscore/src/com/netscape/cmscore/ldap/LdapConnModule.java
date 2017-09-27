@@ -17,8 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.ldap;
 
-import netscape.ldap.LDAPConnection;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -32,6 +30,8 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cmscore.ldapconn.LdapAuthInfo;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.ldapconn.LdapConnInfo;
+
+import netscape.ldap.LDAPConnection;
 
 public class LdapConnModule implements ILdapConnModule {
     protected IConfigStore mConfig = null;
@@ -125,7 +125,7 @@ public class LdapConnModule implements ILdapConnModule {
     }
 
     public void log(int level, String msg) {
-        mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_LDAP, level,
+        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_LDAP, level,
                 "LdapPublishModule: " + msg);
     }
 

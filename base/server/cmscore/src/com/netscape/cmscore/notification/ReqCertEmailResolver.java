@@ -20,8 +20,6 @@ package com.netscape.cmscore.notification;
 import java.io.IOException;
 import java.security.cert.X509Certificate;
 
-import netscape.security.x509.X500Name;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.logging.ILogger;
@@ -29,6 +27,8 @@ import com.netscape.certsrv.notification.ENotificationException;
 import com.netscape.certsrv.notification.IEmailResolver;
 import com.netscape.certsrv.notification.IEmailResolverKeys;
 import com.netscape.certsrv.request.IRequest;
+
+import netscape.security.x509.X500Name;
 
 /**
  * An email resolver that first checks the request email, if none,
@@ -148,7 +148,7 @@ public class ReqCertEmailResolver implements IEmailResolver {
     private void log(int level, String msg) {
         if (mLogger == null)
             return;
-        mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_OTHER,
+        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
                 level, "ReqCertEmailResolver: " + msg);
     }
 

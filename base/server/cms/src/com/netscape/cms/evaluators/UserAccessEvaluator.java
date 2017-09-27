@@ -149,7 +149,7 @@ public class UserAccessEvaluator implements IAccessEvaluator {
     private void log(int level, String msg) {
         if (mLogger == null)
             return;
-        mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_ACLS,
+        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_ACLS,
                 level, "UserAccessEvaluator: " + msg);
     }
 

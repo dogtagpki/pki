@@ -19,8 +19,6 @@ package com.netscape.cmscore.authentication;
 
 import java.security.cert.X509Certificate;
 
-import netscape.security.x509.X509CertImpl;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
@@ -37,6 +35,8 @@ import com.netscape.certsrv.usrgrp.EUsrGrpException;
 import com.netscape.certsrv.usrgrp.ICertUserLocator;
 import com.netscape.cmscore.usrgrp.ExactMatchCertUserLocator;
 import com.netscape.cmscore.usrgrp.User;
+
+import netscape.security.x509.X509CertImpl;
 
 /**
  * Certificate server agent authentication.
@@ -247,7 +247,7 @@ public class CertUserDBAuthentication implements IAuthManager, ICertUserDBAuthen
     private void log(int level, String msg) {
         if (mLogger == null)
             return;
-        mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_AUTHENTICATION,
+        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_AUTHENTICATION,
                 level, msg);
     }
 

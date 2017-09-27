@@ -178,7 +178,7 @@ public class RequestInQListener implements IRequestListener {
             mn.sendNotification();
         } catch (ENotificationException e) {
             // already logged, lets audit
-            mLogger.log(ILogger.EV_AUDIT, null,
+            mLogger.log(ILogger.EV_AUDIT,
                     ILogger.S_OTHER,
                     ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
 
@@ -271,7 +271,7 @@ public class RequestInQListener implements IRequestListener {
     private void log(int level, String msg) {
         if (mLogger == null)
             return;
-        mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_OTHER,
+        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
                 level, msg);
     }
 }

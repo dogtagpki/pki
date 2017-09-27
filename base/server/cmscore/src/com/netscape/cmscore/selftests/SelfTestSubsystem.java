@@ -954,7 +954,6 @@ public class SelfTestSubsystem
             } catch (ELogException le) {
                 // log the message to the "transactions" log
                 mErrorLogger.log(ILogger.EV_AUDIT,
-                        null,
                         ILogger.S_OTHER,
                         ILogger.LL_INFO,
                         msg + " - " + le.toString());
@@ -962,7 +961,6 @@ public class SelfTestSubsystem
         } else {
             // log the message to the "transactions" log
             mErrorLogger.log(ILogger.EV_AUDIT,
-                    null,
                     ILogger.S_OTHER,
                     ILogger.LL_INFO,
                     msg);

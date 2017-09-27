@@ -23,8 +23,6 @@ import java.text.DateFormat;
 import java.util.Date;
 import java.util.Hashtable;
 
-import netscape.security.x509.X509CertImpl;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.base.EBaseException;
@@ -43,6 +41,8 @@ import com.netscape.certsrv.profile.IEnrollProfile;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.RequestId;
+
+import netscape.security.x509.X509CertImpl;
 
 /**
  * a listener for every completed enrollment request
@@ -452,7 +452,7 @@ public class CertificateIssuedListener implements IRequestListener {
     private void log(int level, String msg) {
         if (mLogger == null)
             return;
-        mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_OTHER,
+        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
                 level, msg);
     }
 

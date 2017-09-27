@@ -844,7 +844,7 @@ public abstract class AAclAuthz implements IAuthzManager {
     protected void log(int level, String msg) {
         if (mLogger == null)
             return;
-        mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_AUTHORIZATION,
+        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_AUTHORIZATION,
                 level, msg);
     }
 
