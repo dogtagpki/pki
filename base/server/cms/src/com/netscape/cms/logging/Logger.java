@@ -106,7 +106,7 @@ public class Logger implements ILogger {
     //************** default level ****************
 
     public void log(String msg) {
-        log(category, source, level, msg, null);
+        log(category, source, level, msg, null, ILogger.L_SINGLELINE);
     }
 
     public void log(LogEvent event) {
@@ -116,7 +116,7 @@ public class Logger implements ILogger {
 
         String message = CMS.getLogMessage(messageID, params);
 
-        log(message);
+        log(category, source, level, message, null, ILogger.L_SINGLELINE);
     }
 
     /**
@@ -127,13 +127,13 @@ public class Logger implements ILogger {
      * @param msg the one line detail message to be logged
      */
     public void log(LogCategory evtClass, LogSource source, String msg) {
-        log(evtClass, source, level, msg, null);
+        log(evtClass, source, level, msg, null, ILogger.L_SINGLELINE);
     }
 
     //************** no param ****************
 
     public void log(int level, String msg) {
-        log(category, source, level, msg, null);
+        log(category, source, level, msg, null, ILogger.L_SINGLELINE);
     }
 
     /**
@@ -145,7 +145,7 @@ public class Logger implements ILogger {
      * @param msg the one line detail message to be logged
      */
     public void log(LogCategory evtClass, LogSource source, int level, String msg) {
-        log(evtClass, source, level, msg, null);
+        log(evtClass, source, level, msg, null, ILogger.L_SINGLELINE);
     }
 
     //********************* one param **********************
@@ -162,13 +162,13 @@ public class Logger implements ILogger {
     public void log(LogCategory evtClass, LogSource source, int level, String msg, Object param) {
         Object o[] = new Object[1];
         o[0] = param;
-        log(evtClass, source, level, msg, o);
+        log(evtClass, source, level, msg, o, ILogger.L_SINGLELINE);
     }
 
     //******************* multiple param **************************
 
     public void log(int level, String msg, Object params[]) {
-        log(category, source, level, msg, params);
+        log(category, source, level, msg, params, ILogger.L_SINGLELINE);
     }
 
     /**
@@ -182,9 +182,7 @@ public class Logger implements ILogger {
      */
     public void log(LogCategory evtClass, LogSource source, int level, String msg,
             Object params[]) {
-        ILogEvent iLEvent = create(evtClass, source, level, msg, params, ILogger.L_SINGLELINE);
-        if (iLEvent != null)
-            mLogQueue.log(iLEvent);
+        log(evtClass, source, level, msg, params, ILogger.L_SINGLELINE);
     }
 
     //******************** multiline log *************************
