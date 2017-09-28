@@ -17,9 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.logging;
 
-import java.util.Properties;
-
-import com.netscape.certsrv.logging.IBundleLogEvent;
 import com.netscape.certsrv.logging.ILogEvent;
 import com.netscape.certsrv.logging.ILogEventFactory;
 import com.netscape.certsrv.logging.LogCategory;
@@ -27,31 +24,11 @@ import com.netscape.certsrv.logging.LogSource;
 
 public abstract class LogFactory implements ILogEventFactory {
 
-    public static final String PROP_BUNDLE = "bundleName";
-
     public LogFactory() {
     }
 
     public Logger createLogger(LogCategory category, LogSource source) {
         return new Logger(this, category, source);
-    }
-
-    /**
-     * Set the resource bundle of the log event.
-     *
-     * @param prop the properties
-     * @param event the log event
-     */
-    protected void setProperties(Properties prop, IBundleLogEvent event) {
-        if (prop == null) {
-            event.setBundleName(null);
-        } else {
-            String bundleName = (String) prop.get(PROP_BUNDLE);
-
-            if (bundleName != null) {
-                event.setBundleName(bundleName);
-            }
-        }
     }
 
     /**

@@ -60,7 +60,7 @@ public class SystemEventFactory extends LogFactory {
         event.setLevel(level);
         event.setSource(source);
         event.setMultiline(multiline);
-        setProperties(null, event);
+        event.setBundleName(null);
 
         return event;
     }
