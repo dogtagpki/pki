@@ -17,8 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.logging;
 
-import java.util.Properties;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.logging.ILogEvent;
 import com.netscape.certsrv.logging.ILogger;
@@ -47,15 +45,15 @@ public class SignedAuditEventFactory extends LogFactory {
      * Creates an log event.
      *
      * @param evtClass the event type
-     * @param prop the resource bundle
      * @param source the subsystem ID who creates the log event
      * @param level the severity of the log event
      * @param multiline the log message has more than one line or not
      * @param msg the detail message of the log
      * @param params the parameters in the detail log message
      */
-    public ILogEvent create(LogCategory evtClass, Properties prop, LogSource source,
+    public ILogEvent create(LogCategory evtClass, LogSource source,
             int level, boolean multiline, String msg, Object params[]) {
+
         if (evtClass != ILogger.EV_SIGNED_AUDIT)
             return null;
 
@@ -87,7 +85,7 @@ public class SignedAuditEventFactory extends LogFactory {
         event.setLevel(level);
         event.setSource(source);
         event.setMultiline(multiline);
-        setProperties(prop, event);
+        setProperties(null, event);
 
         return event;
     }

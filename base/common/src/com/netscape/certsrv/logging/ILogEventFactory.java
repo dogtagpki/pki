@@ -17,8 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.logging;
 
-import java.util.Properties;
-
 /**
  * An interface represents a log event factory. This
  * factory will be responsible for creating and returning ILogEvent objects
@@ -32,7 +30,6 @@ public interface ILogEventFactory {
      * Creates an event of a particular event type/class.
      *
      * @param evtClass The event type.
-     * @param prop The resource bundle.
      * @param source The subsystem who creates the log event.
      * @param level The severity of the log event.
      * @param multiline The log message has more than one line or not.
@@ -40,7 +37,7 @@ public interface ILogEventFactory {
      * @param params The parameters in the detail log message.
      * @return The created ILogEvent object.
      */
-    public ILogEvent create(LogCategory evtClass, Properties prop, LogSource source,
+    public ILogEvent create(LogCategory evtClass, LogSource source,
             int level, boolean multiline, String msg, Object params[]);
 
     /**
