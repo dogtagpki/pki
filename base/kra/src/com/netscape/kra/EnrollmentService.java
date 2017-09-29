@@ -96,6 +96,7 @@ import netscape.security.x509.X509Key;
  */
 public class EnrollmentService implements IService {
 
+    private static Logger transactionLogger = Logger.getLogger(ILogger.EV_AUDIT, ILogger.S_KRA);
     private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     // constants
@@ -555,8 +556,7 @@ public class EnrollmentService implements IService {
                 authMgr =
                         authToken.getInString(AuthToken.TOKEN_AUTHMGR_INST_NAME);
             }
-            CMS.getLogger().log(ILogger.EV_AUDIT,
-                    ILogger.S_KRA,
+            transactionLogger.log(
                     AuditFormat.LEVEL,
                     AuditFormat.FORMAT,
                     new Object[] {

@@ -30,16 +30,16 @@ import java.util.Hashtable;
 import java.util.Random;
 
 import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.ANY;
+import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.ASN1Value;
 import org.mozilla.jss.asn1.BMPString;
 import org.mozilla.jss.asn1.OCTET_STRING;
 import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.asn1.SET;
 import org.mozilla.jss.crypto.CryptoToken;
-import org.mozilla.jss.crypto.PBEAlgorithm;
 import org.mozilla.jss.crypto.EncryptionAlgorithm;
+import org.mozilla.jss.crypto.PBEAlgorithm;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.pkcs12.AuthenticatedSafes;
 import org.mozilla.jss.pkcs12.CertBag;
@@ -64,6 +64,7 @@ import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.security.Credential;
 import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.certsrv.util.IStatsSubsystem;
+import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.util.Debug;
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -105,6 +106,8 @@ public class RecoveryService implements IService {
     // same as encryption certs
     public static final String ATTR_USER_CERT = "cert";
     public static final String ATTR_DELIVERY = "delivery";
+
+    Logger transactionLogger = Logger.getLogger(ILogger.EV_AUDIT, ILogger.S_KRA);
 
     private IKeyRecoveryAuthority mKRA = null;
     private IKeyRepository mStorage = null;
@@ -320,8 +323,7 @@ public class RecoveryService implements IService {
                         authToken.getInString(AuthToken.TOKEN_AUTHMGR_INST_NAME);
             }
         }
-        CMS.getLogger().log(ILogger.EV_AUDIT,
-                ILogger.S_KRA,
+        transactionLogger.log(
                 AuditFormat.LEVEL,
                 AuditFormat.FORMAT,
                 new Object[] {
