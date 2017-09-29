@@ -29,6 +29,9 @@ import tempfile
 import re
 import datetime
 
+from cryptography import x509
+from cryptography.hazmat.backends import default_backend
+
 
 CSR_HEADER = '-----BEGIN NEW CERTIFICATE REQUEST-----'
 CSR_FOOTER = '-----END NEW CERTIFICATE REQUEST-----'
@@ -639,9 +642,13 @@ class NSSDatabase(object):
         ]
 
         cert_details = subprocess.check_output(cmd_extract_serial, stderr=subprocess.STDOUT)
+        cert_pem = subprocess.check_output(
+            cmd_extract_serial + ['-a'], stderr=subprocess.STDOUT)
 
-        serial = re.search(r'Serial Number.*?(\d+)', cert_details).group(1).strip()
-        cert["serial_number"] = int(serial)
+        cert_obj = x509.load_pem_x509_certificate(cert_pem, backend=default_backend())
+
+        cert["serial_number"] = cert_obj.serial_number
+
         cert["issuer"] = re.search(r'Issuer:(.*)', cert_details).group(1).strip()\
             .replace('"', '')
         cert["subject"] = re.search(r'Subject:(.*)', cert_details).group(1).strip()\
