@@ -19,8 +19,6 @@ package com.netscape.cms.logging;
 
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogEvent;
-import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.logging.LogCategory;
 import com.netscape.certsrv.logging.LogSource;
 
 /**
@@ -42,18 +40,14 @@ public class AuditEventFactory extends LogFactory {
     /**
      * Creates an log event.
      *
-     * @param evtClass the event type
      * @param source the subsystem ID who creates the log event
      * @param level the severity of the log event
      * @param multiline the log message has more than one line or not
      * @param msg the detail message of the log
      * @param params the parameters in the detail log message
      */
-    public ILogEvent create(LogCategory evtClass, LogSource source,
+    public ILogEvent create(LogSource source,
             int level, boolean multiline, String msg, Object params[]) {
-
-        if (evtClass != ILogger.EV_AUDIT)
-            return null;
 
         AuditEvent event = new AuditEvent();
 

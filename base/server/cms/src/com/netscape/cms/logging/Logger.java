@@ -271,7 +271,7 @@ public class Logger implements ILogger {
             throw new RuntimeException("Unknown logger category: " + evtClass);
         }
 
-        return f.create(evtClass, source, level, multiline, msg, params);
+        return f.create(source, level, multiline, msg, params);
     }
 
     /**
