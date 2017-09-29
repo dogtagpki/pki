@@ -376,12 +376,13 @@ public class ClientCertImportCLI extends CLI {
         // Import certs with preferred nicknames.
         // NOTE: JSS/NSS may assign different nickname.
         int i = 0;
+        X509Certificate importedCert = null;
         for (java.security.cert.X509Certificate cert : certs) {
 
             String preferredNickname = nickname + (i == 0 ? "" : " #" + (i + 1));
             if (verbose) System.out.println("Importing certificate " + preferredNickname + ": " +cert.getSubjectDN());
 
-            X509Certificate importedCert = manager.importCertPackage(cert.getEncoded(), preferredNickname);
+            importedCert = manager.importCertPackage(cert.getEncoded(), preferredNickname);
 
             String importedNickname = importedCert.getNickname();
             if (verbose) System.out.println("Certificate imported as " + importedNickname);
@@ -392,7 +393,7 @@ public class ClientCertImportCLI extends CLI {
             }
         }
 
-        X509Certificate cert = manager.findCertByNickname(nickname);
+        X509Certificate cert = importedCert;
 
         if (trustAttributes != null) {
             if (verbose) {
