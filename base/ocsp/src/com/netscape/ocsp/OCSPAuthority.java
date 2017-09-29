@@ -41,7 +41,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.logging.LogCategory;
 import com.netscape.certsrv.ocsp.IDefStore;
 import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.certsrv.ocsp.IOCSPService;
@@ -49,6 +48,7 @@ import com.netscape.certsrv.ocsp.IOCSPStore;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.security.ISigningUnit;
+import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.util.Debug;
 import com.netscape.cmsutil.ocsp.BasicOCSPResponse;
 import com.netscape.cmsutil.ocsp.KeyHashID;
@@ -97,7 +97,8 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
     public long mSignTime = 0;
     public long mLookupTime = 0;
 
-    protected ILogger mLogger = CMS.getLogger();
+    protected Logger systemLogger = Logger.getLogger(ILogger.EV_SYSTEM, ILogger.S_OCSP);
+    protected Logger transactionLogger = Logger.getLogger(ILogger.EV_AUDIT, ILogger.S_OCSP);
 
     /**
      * Retrieves the name of this subsystem.
@@ -396,14 +397,12 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
      * @param level the debug level.
      * @param msg the message to debug.
      */
-    public void log(LogCategory event, int level, String msg) {
-        mLogger.log(event, ILogger.S_OCSP,
-                level, msg);
+    public void audit(int level, String msg) {
+        transactionLogger.log(level, msg);
     }
 
     public void log(int level, String msg) {
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OCSP,
-                level, msg);
+        systemLogger.log(level, msg);
     }
 
     public void setDefaultAlgorithm(String algorithm)

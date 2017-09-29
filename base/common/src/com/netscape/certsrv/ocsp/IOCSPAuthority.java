@@ -21,7 +21,6 @@ import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.logging.LogCategory;
 import com.netscape.certsrv.security.ISigningUnit;
 import com.netscape.cmsutil.ocsp.BasicOCSPResponse;
 import com.netscape.cmsutil.ocsp.ResponderID;
@@ -129,11 +128,10 @@ public interface IOCSPAuthority extends ISubsystem {
      * the specified event.
      * <P>
      *
-     * @param event the log event
      * @param level the log message
      * @param msg the log message
      */
-    public void log(LogCategory event, int level, String msg);
+    public void audit(int level, String msg);
 
     /**
      * This method retrieves the X500Name of an OCSP server instance.
