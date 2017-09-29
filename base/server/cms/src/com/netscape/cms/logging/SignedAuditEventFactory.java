@@ -19,6 +19,7 @@ package com.netscape.cms.logging;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.logging.ILogEvent;
+import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.logging.LogSource;
 import com.netscape.certsrv.logging.SignedAuditEvent;
 
@@ -40,16 +41,26 @@ public class SignedAuditEventFactory extends LogFactory {
     }
 
     /**
-     * Creates an log event.
+     * Creates a log event.
+     */
+    public ILogEvent create() {
+        return new SignedAuditEvent();
+    }
+
+    /**
+     * Updates a log event.
      *
+     * @param event the event to be updated
      * @param source the subsystem ID who creates the log event
      * @param level the severity of the log event
      * @param multiline the log message has more than one line or not
      * @param msg the detail message of the log
      * @param params the parameters in the detail log message
      */
-    public ILogEvent create(LogSource source,
+    public void update(LogEvent event, LogSource source,
             int level, boolean multiline, String msg, Object params[]) {
+
+        super.update(event, source, level, multiline, msg, params);
 
         String message = null;
         // assume msg format <type=...>:message
@@ -71,15 +82,7 @@ public class SignedAuditEventFactory extends LogFactory {
             message = typeMessage;
         }
 
-        SignedAuditEvent event = new SignedAuditEvent();
-
         event.setEventType(eventType);
         event.setMessage(message);
-        event.setParameters(params);
-        event.setLevel(level);
-        event.setSource(source);
-        event.setMultiline(multiline);
-
-        return event;
     }
 }

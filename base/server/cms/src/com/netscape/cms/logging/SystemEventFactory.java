@@ -18,7 +18,6 @@
 package com.netscape.cms.logging;
 
 import com.netscape.certsrv.logging.ILogEvent;
-import com.netscape.certsrv.logging.LogSource;
 import com.netscape.certsrv.logging.SystemEvent;
 
 /**
@@ -38,25 +37,9 @@ public class SystemEventFactory extends LogFactory {
     }
 
     /**
-     * Creates an log event.
-     *
-     * @param source the subsystem ID who creates the log event
-     * @param level the severity of the log event
-     * @param multiline the log message has more than one line or not
-     * @param msg the detail message of the log
-     * @param params the parameters in the detail log message
+     * Creates a log event.
      */
-    public ILogEvent create(LogSource source,
-            int level, boolean multiline, String msg, Object params[]) {
-
-        SystemEvent event = new SystemEvent();
-
-        event.setMessage(msg);
-        event.setParameters(params);
-        event.setLevel(level);
-        event.setSource(source);
-        event.setMultiline(multiline);
-
-        return event;
+    public ILogEvent create() {
+        return new SystemEvent();
     }
 }

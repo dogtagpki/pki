@@ -27,16 +27,21 @@ package com.netscape.certsrv.logging;
 public interface ILogEventFactory {
 
     /**
-     * Creates an event of a particular event type/class.
+     * Creates a log event.
+     */
+    public ILogEvent create();
+
+    /**
+     * Updates a log event.
      *
+     * @param event The event to be updated.
      * @param source The subsystem who creates the log event.
      * @param level The severity of the log event.
      * @param multiline The log message has more than one line or not.
      * @param msg The detail message of the log.
      * @param params The parameters in the detail log message.
-     * @return The created ILogEvent object.
      */
-    public ILogEvent create(LogSource source,
+    public void update(LogEvent event, LogSource source,
             int level, boolean multiline, String msg, Object params[]);
 
     /**
