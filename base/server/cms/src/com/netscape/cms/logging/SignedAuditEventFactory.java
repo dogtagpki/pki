@@ -67,21 +67,21 @@ public class SignedAuditEventFactory extends LogFactory {
             // type is specified
             int colon = typeMessage.indexOf(">:");
 
-            eventType = typeMessage.substring(typeBegin + 6, colon);
+            eventType = typeMessage.substring(typeBegin + 6, colon).trim();
             message = typeMessage.substring(colon + 2);
             //CMS.debug("SignedAuditEventFactory: create() message=" + message + "\n");
             CMS.debug("SignedAuditEventFactory: create() message created for eventType=" + eventType + "\n");
 
         } else {
             // no type specified
-            message = msg;
+            message = typeMessage;
         }
 
-        SignedAuditEvent event = new SignedAuditEvent(message.trim(), params);
+        SignedAuditEvent event = new SignedAuditEvent();
 
-        if (eventType != null)
-            event.setEventType(eventType.trim());
-
+        event.setEventType(eventType);
+        event.setMessage(message);
+        event.setParameters(params);
         event.setLevel(level);
         event.setSource(source);
         event.setMultiline(multiline);

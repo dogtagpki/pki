@@ -30,6 +30,9 @@ public class SystemEvent extends LogEvent {
 
     private static final long serialVersionUID = 7160410535724580752L;
 
+    public SystemEvent() {
+    }
+
     /**
      * Constructs a SystemEvent message event.
      * <P>

@@ -192,6 +192,9 @@ public class AuditEvent extends LogEvent {
 
     private static final long serialVersionUID = -844306657733902324L;
 
+    public AuditEvent() {
+    }
+
     /**
      * Constructs a message event
      * <P>

@@ -36,6 +36,9 @@ public class SignedAuditEvent extends LogEvent {
 
     protected Map<String, Object> attributes = new LinkedHashMap<>();
 
+    public SignedAuditEvent() {
+    }
+
     /**
      * Constructs a SignedAuditEvent message event.
      * <P>
