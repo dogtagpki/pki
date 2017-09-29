@@ -19,7 +19,6 @@ package com.netscape.cms.logging;
 
 import java.util.Hashtable;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.logging.ILogEvent;
 import com.netscape.certsrv.logging.ILogQueue;
 import com.netscape.certsrv.logging.ILogger;
@@ -110,13 +109,7 @@ public class Logger implements ILogger {
     }
 
     public void log(LogEvent event) {
-
-        String messageID = event.getMessage();
-        Object[] params = event.getParameters();
-
-        String message = CMS.getLogMessage(messageID, params);
-
-        log(category, source, level, message, null, ILogger.L_SINGLELINE);
+        log(category, source, level, event.getMessage(), event.getParameters(), ILogger.L_SINGLELINE);
     }
 
     /**
