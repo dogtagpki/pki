@@ -108,7 +108,8 @@ import netscape.security.x509.X509CertImpl;
 
 public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
-    private static ILogger mLogger = CMS.getLogger();
+    private static Logger systemLogger = Logger.getLogger(ILogger.EV_SYSTEM, ILogger.S_CA);
+    private static Logger transactionLogger = Logger.getLogger(ILogger.EV_AUDIT, ILogger.S_OTHER);
     private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     /* Foreign config param for IssuingDistributionPointExtension. */
@@ -2494,7 +2495,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         if ((!mEnable) || (!mEnableCRLUpdates && !mDoLastAutoUpdate))
             return;
         CMS.debug("Updating CRL");
-        mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER, AuditFormat.LEVEL,
+        transactionLogger.log(AuditFormat.LEVEL,
                     CMS.getLogMessage("CMSCORE_CA_CA_CRL_UPDATE_STARTED"),
                     new Object[] {
                             getId(),
@@ -2796,7 +2797,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             }
             splitTimes.append(")");
 
-            mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
+            transactionLogger.log(
                     AuditFormat.LEVEL,
                     CMS.getLogMessage("CMSCORE_CA_CA_DELTA_CRL_UPDATED"),
                     new Object[] {
@@ -2939,7 +2940,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             }
             splitTimes.append(String.format(",%d,%d,%d)",deltaTime,crlTime,totalTime));
 
-            mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
+            transactionLogger.log(
                         AuditFormat.LEVEL,
                         CMS.getLogMessage("CMSCORE_CA_CA_CRL_UPDATED"),
                         new Object[] {
@@ -3074,8 +3075,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     }
 
     protected synchronized void log(int level, String msg) {
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_CA, level,
-                "CRLIssuingPoint " + mId + " - " + msg);
+        systemLogger.log(level, "CRLIssuingPoint " + mId + " - " + msg);
     }
 
     void setConfigParam(String name, String value) {
