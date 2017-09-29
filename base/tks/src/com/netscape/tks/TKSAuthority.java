@@ -25,9 +25,12 @@ import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.IRequestQueue;
+import com.netscape.cms.logging.Logger;
 
 public class TKSAuthority implements IAuthority, ISubsystem {
-    protected ILogger mLogger = CMS.getLogger();
+
+    protected Logger systemLogger = Logger.getLogger(ILogger.EV_SYSTEM, ILogger.S_TKS);
+
     private String mNickname = null;
     @SuppressWarnings("unused")
     private ISubsystem mOwner;
@@ -61,8 +64,7 @@ public class TKSAuthority implements IAuthority, ISubsystem {
      * log interface
      */
     public void log(int level, String msg) {
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_TKS,
-                level, msg);
+        systemLogger.log(level, msg);
     }
 
     /**
@@ -119,10 +121,7 @@ public class TKSAuthority implements IAuthority, ISubsystem {
      * <P>
      */
     public void shutdown() {
-
-        getLogger().log(ILogger.EV_SYSTEM, ILogger.S_TKS,
-                ILogger.LL_INFO, "TKSAuthority is stopped");
-
+        systemLogger.log(ILogger.LL_INFO, "TKSAuthority is stopped");
     }
 
     /**
@@ -148,14 +147,4 @@ public class TKSAuthority implements IAuthority, ISubsystem {
     public void setId(String id) throws EBaseException {
         mId = id;
     }
-
-    /**
-     * Retrieves logger from escrow authority.
-     *
-     * @return logger
-     */
-    public ILogger getLogger() {
-        return CMS.getLogger();
-    }
-
 }
