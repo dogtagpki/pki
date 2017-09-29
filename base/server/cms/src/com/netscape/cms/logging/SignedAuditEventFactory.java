@@ -17,10 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.logging;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.logging.ILogEvent;
-import com.netscape.certsrv.logging.LogEvent;
-import com.netscape.certsrv.logging.LogSource;
 import com.netscape.certsrv.logging.SignedAuditEvent;
 
 /**
@@ -45,44 +42,5 @@ public class SignedAuditEventFactory extends LogFactory {
      */
     public ILogEvent create() {
         return new SignedAuditEvent();
-    }
-
-    /**
-     * Updates a log event.
-     *
-     * @param event the event to be updated
-     * @param source the subsystem ID who creates the log event
-     * @param level the severity of the log event
-     * @param multiline the log message has more than one line or not
-     * @param msg the detail message of the log
-     * @param params the parameters in the detail log message
-     */
-    public void update(LogEvent event, LogSource source,
-            int level, boolean multiline, String msg, Object params[]) {
-
-        super.update(event, source, level, multiline, msg, params);
-
-        String message = null;
-        // assume msg format <type=...>:message
-        String typeMessage = msg.trim();
-        String eventType = null;
-        int typeBegin = typeMessage.indexOf("<type=");
-
-        if (typeBegin != -1) {
-            // type is specified
-            int colon = typeMessage.indexOf(">:");
-
-            eventType = typeMessage.substring(typeBegin + 6, colon).trim();
-            message = typeMessage.substring(colon + 2).trim();
-            //CMS.debug("SignedAuditEventFactory: create() message=" + message + "\n");
-            CMS.debug("SignedAuditEventFactory: create() message created for eventType=" + eventType + "\n");
-
-        } else {
-            // no type specified
-            message = typeMessage;
-        }
-
-        event.setEventType(eventType);
-        event.setMessage(message);
     }
 }

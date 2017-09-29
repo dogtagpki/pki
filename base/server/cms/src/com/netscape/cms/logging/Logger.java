@@ -272,8 +272,28 @@ public class Logger implements ILogger {
         }
 
         LogEvent event = (LogEvent) f.create();
-        f.update(event, source, level, multiline, msg, params);
+        update(event, source, level, msg, params, multiline);
         return event;
+    }
+
+    /**
+     * Updates a log event.
+     *
+     * @param event The event to be updated.
+     * @param source The subsystem who creates the log event.
+     * @param level The severity of the log event.
+     * @param message The detail message of the log.
+     * @param params The parameters in the detail log message.
+     * @param multiline The log message has more than one line or not.
+     */
+    public void update(LogEvent event, LogSource source, int level,
+            String message, Object params[], boolean multiline) {
+
+        event.setSource(source);
+        event.setLevel(level);
+        event.setMessage(message);
+        event.setParameters(params);
+        event.setMultiline(multiline);
     }
 
     /**

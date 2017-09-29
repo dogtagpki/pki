@@ -20,7 +20,6 @@ package com.netscape.cms.logging;
 import com.netscape.certsrv.logging.ILogEvent;
 import com.netscape.certsrv.logging.ILogEventFactory;
 import com.netscape.certsrv.logging.LogCategory;
-import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.logging.LogSource;
 
 public abstract class LogFactory implements ILogEventFactory {
@@ -30,26 +29,6 @@ public abstract class LogFactory implements ILogEventFactory {
 
     public Logger createLogger(LogCategory category, LogSource source) {
         return new Logger(this, category, source);
-    }
-
-    /**
-     * Updates a log event.
-     *
-     * @param event the event to be updated
-     * @param source the subsystem ID who creates the log event
-     * @param level the severity of the log event
-     * @param multiline the log message has more than one line or not
-     * @param msg the detail message of the log
-     * @param params the parameters in the detail log message
-     */
-    public void update(LogEvent event, LogSource source,
-            int level, boolean multiline, String msg, Object params[]) {
-
-        event.setSource(source);
-        event.setLevel(level);
-        event.setMessage(msg);
-        event.setParameters(params);
-        event.setMultiline(multiline);
     }
 
     /**

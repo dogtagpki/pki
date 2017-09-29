@@ -20,6 +20,7 @@ package com.netscape.cms.logging;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogEvent;
+import com.netscape.certsrv.logging.LogSource;
 
 /**
  * A class represents certificate server logger
@@ -55,5 +56,30 @@ public class SignedAuditLogger extends Logger {
         String message = CMS.getLogMessage(messageID, params);
 
         log(category, source, level, message, null, ILogger.L_SINGLELINE);
+    }
+
+    public void update(LogEvent event, LogSource source,
+            int level, String message, Object params[], boolean multiline) {
+
+        super.update(event, source, level, message, params, multiline);
+
+        // split message into event type and actual message
+        String eventType = null;
+        message = message.trim();
+
+        // message format: <type=...>:message
+        int i = message.indexOf("<type=");
+
+        if (i >= 0) { // message contains type
+
+            int j = message.indexOf(">:");
+            eventType = message.substring(i + 6, j).trim();
+            message = message.substring(j + 2).trim();
+
+            CMS.debug("SignedAuditLogger: event " + eventType);
+        }
+
+        event.setEventType(eventType);
+        event.setMessage(message);
     }
 }
