@@ -122,6 +122,7 @@ import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.security.ISigningUnit;
 import com.netscape.certsrv.util.IStatsSubsystem;
+import com.netscape.cms.logging.Logger;
 import com.netscape.cms.servlet.cert.CertEnrollmentRequestFactory;
 import com.netscape.cms.servlet.cert.EnrollmentProcessor;
 import com.netscape.cms.servlet.cert.RenewalProcessor;
@@ -226,7 +227,9 @@ public class CertificateAuthority
 
     protected ISubsystem mOwner = null;
     protected IConfigStore mConfig = null;
-    protected ILogger mLogger = CMS.getLogger();
+
+    protected Logger systemLogger = Logger.getLogger(ILogger.EV_SYSTEM, ILogger.S_CA);
+
     protected Hashtable<String, ICRLIssuingPoint> mCRLIssuePoints = new Hashtable<String, ICRLIssuingPoint>();
     protected CRLIssuingPoint mMasterCRLIssuePoint = null; // the complete crl.
     protected SigningUnit mSigningUnit;
@@ -968,13 +971,6 @@ public class CertificateAuthority
     }
 
     /**
-     * Retrieves logger.
-     */
-    public ILogger getLogger() {
-        return CMS.getLogger();
-    }
-
-    /**
      * Retrieves database services.
      */
     public IDBSubsystem getDBSubsystem() {
@@ -1520,8 +1516,7 @@ public class CertificateAuthority
      * @param msg the message to debug.
      */
     public void log(int level, String msg) {
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_CA,
-                level, msg);
+        systemLogger.log(level, msg);
     }
 
     /**

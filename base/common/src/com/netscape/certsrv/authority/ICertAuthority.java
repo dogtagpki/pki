@@ -19,7 +19,6 @@ package com.netscape.certsrv.authority;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.publish.IPublisherProcessor;
 import com.netscape.certsrv.request.IRequestListener;
 
@@ -90,13 +89,4 @@ public interface ICertAuthority extends IAuthority {
      * get authority's publishing module if any.
      */
     public IPublisherProcessor getPublisherProcessor();
-
-    /**
-     * Returns the logging interface for this authority.
-     * Using this interface both System and Audit events can be
-     * logged.
-     *
-     */
-    public ILogger getLogger();
-
 }

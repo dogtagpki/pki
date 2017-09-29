@@ -43,6 +43,7 @@ import com.netscape.certsrv.ca.CAMissingKeyException;
 import com.netscape.certsrv.ca.ECAException;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.security.ISigningUnit;
+import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Cert;
@@ -76,7 +77,7 @@ public final class SigningUnit implements ISigningUnit {
     protected String mNickname = null;
 
     private boolean mInited = false;
-    private ILogger mLogger = CMS.getLogger();
+    private Logger systemLogger = Logger.getLogger(ILogger.EV_SYSTEM, ILogger.S_CA);
     private IConfigStore mConfig;
 
     @SuppressWarnings("unused")
@@ -370,10 +371,7 @@ public final class SigningUnit implements ISigningUnit {
     }
 
     private void log(int level, String msg) {
-        if (mLogger == null)
-            return;
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_CA,
-                level, "CASigningUnit: " + msg);
+        systemLogger.log(level, "CASigningUnit: " + msg);
     }
 
     /**

@@ -38,6 +38,7 @@ import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.crl.CMSIssuingDistributionPointExtension;
+import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.base.SubsystemRegistry;
 
 import netscape.security.extensions.AuthInfoAccessExtension;
@@ -84,7 +85,7 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
     private static final Hashtable<String, String> mDefaultCRLExtensionClassNames = new Hashtable<String, String>();
     private static final Hashtable<String, String> mDefaultCRLExtensionIDs = new Hashtable<String, String>();
 
-    private ILogger mLogger = CMS.getLogger();
+    private Logger systemLogger = Logger.getLogger(ILogger.EV_SYSTEM, ILogger.S_CA);
 
     static {
 
@@ -710,7 +711,6 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
     }
 
     private void log(int level, String msg) {
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_CA, level,
-                "CMSCRLExtension - " + msg);
+        systemLogger.log(level, "CMSCRLExtension - " + msg);
     }
 }
