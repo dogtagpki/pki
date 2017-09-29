@@ -18,7 +18,6 @@
 package com.netscape.certsrv.logging;
 
 import java.io.Serializable;
-import java.util.Locale;
 
 /**
  * An interface which all loggable events must implement. CMS comes
@@ -87,22 +86,4 @@ public interface ILogEvent extends Serializable {
      * @param eventType String containing the type of event.
      */
     public void setEventType(String eventType);
-
-    /**
-     * Returns localized message string. This method should
-     * only be called if a localized string is necessary.
-     * <P>
-     *
-     * @return Details message.
-     */
-    public String toContent();
-
-    /**
-     * Returns the string based on the given locale.
-     * <P>
-     *
-     * @param locale locale
-     * @return Details message.
-     */
-    public String toContent(Locale locale);
 }

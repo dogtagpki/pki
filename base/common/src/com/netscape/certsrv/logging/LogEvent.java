@@ -18,12 +18,10 @@
 package com.netscape.certsrv.logging;
 
 import java.text.MessageFormat;
-import java.util.Locale;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.MessageFormatter;
 
-public class LogEvent implements IBundleLogEvent {
+public class LogEvent implements ILogEvent {
 
     private static final long serialVersionUID = 1L;
 
@@ -38,11 +36,6 @@ public class LogEvent implements IBundleLogEvent {
     LogSource mSource;
     boolean mMultiline = false;
     long mTimeStamp = System.currentTimeMillis();
-
-    /**
-     * The bundle name for this event.
-     */
-    String mBundleName = LogResources.class.getName();
 
     public LogEvent() {
     }
@@ -165,49 +158,6 @@ public class LogEvent implements IBundleLogEvent {
      */
     public void setParameters(Object[] params) {
         mParams = params;
-    }
-
-    /**
-     * Returns localized message string. This method should
-     * only be called if a localized string is necessary.
-     * <P>
-     *
-     * @return details message
-     */
-    public String toContent() {
-        return toContent(Locale.getDefault());
-    }
-
-    /**
-     * Returns the string based on the given locale.
-     * <P>
-     *
-     * @param locale locale
-     * @return details message
-     */
-    public String toContent(Locale locale) {
-        return MessageFormatter.getLocalizedString(locale, getBundleName(),
-                getMessage(),
-                getParameters());
-    }
-
-    /**
-     * Gets the resource bundle name for this class instance. This should
-     * be overridden by subclasses who have their own resource bundles.
-     *
-     * @param bundle String that represents the resource bundle name to be set
-     */
-    public void setBundleName(String bundle) {
-        mBundleName = bundle;
-    }
-
-    /**
-     * Retrieves bundle name.
-     *
-     * @return a String that represents the resource bundle name
-     */
-    protected String getBundleName() {
-        return mBundleName;
     }
 
     /**
@@ -338,12 +288,7 @@ public class LogEvent implements IBundleLogEvent {
      * @return String containing log message.
      */
     public String toString() {
-        if (getBundleName() == null) {
-            MessageFormat detailMessage = new MessageFormat(mMessage);
-
-            return detailMessage.format(mParams);
-            //return getMessage();
-        } else
-            return toContent();
+        MessageFormat detailMessage = new MessageFormat(mMessage);
+        return detailMessage.format(mParams);
     }
 }
