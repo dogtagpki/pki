@@ -55,8 +55,10 @@ public class AuditEventFactory extends LogFactory {
         if (evtClass != ILogger.EV_AUDIT)
             return null;
 
-        AuditEvent event = new AuditEvent(msg, params);
+        AuditEvent event = new AuditEvent();
 
+        event.setMessage(msg);
+        event.setParameters(params);
         event.setLevel(level);
         event.setSource(source);
         event.setMultiline(multiline);

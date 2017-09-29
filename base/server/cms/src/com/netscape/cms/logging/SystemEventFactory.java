@@ -55,8 +55,10 @@ public class SystemEventFactory extends LogFactory {
         if (evtClass != ILogger.EV_SYSTEM)
             return null;
 
-        SystemEvent event = new SystemEvent(msg, params);
+        SystemEvent event = new SystemEvent();
 
+        event.setMessage(msg);
+        event.setParameters(params);
         event.setLevel(level);
         event.setSource(source);
         event.setMultiline(multiline);
