@@ -53,6 +53,7 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.tps.token.TokenStatus;
+import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.base.FileConfigStore;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -64,7 +65,7 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
 
     public final static String ID = "tps";
 
-    public ILogger logger = CMS.getLogger();
+    public Logger systemLogger = Logger.getLogger(ILogger.EV_SYSTEM, ILogger.S_TPS);
 
     public String id;
     public String nickname;
@@ -297,7 +298,7 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
 
     @Override
     public void log(int level, String msg) {
-        logger.log(ILogger.EV_SYSTEM, ILogger.S_TPS, level, msg);
+        systemLogger.log(level, msg);
     }
 
     @Override
