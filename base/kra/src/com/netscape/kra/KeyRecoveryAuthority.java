@@ -104,6 +104,7 @@ import netscape.security.x509.X509CertImpl;
  */
 public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecoveryAuthority {
 
+    private static Logger systemLogger = Logger.getLogger(ILogger.EV_SYSTEM, ILogger.S_KRA);
     private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     public final static String OFFICIAL_NAME = "Data Recovery Manager";
@@ -122,7 +123,6 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
     protected boolean mInitialized = false;
     protected IConfigStore mConfig = null;
-    protected ILogger mLogger = CMS.getLogger();
     protected KRAPolicy mPolicy = null;
     protected X500Name mName = null;
     protected boolean mQueueRequests = false;
@@ -356,8 +356,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         initEntropy(mConfig);
         CMS.debug("KeyRecoveryAuthority: completed init of entropy");
 
-        getLogger().log(ILogger.EV_SYSTEM, ILogger.S_KRA,
-                ILogger.LL_INFO, mName.toString() + " is started");
+        systemLogger.log(ILogger.LL_INFO, mName.toString() + " is started");
 
         // setup the KRA request queue
         IService service = new KRAService(this);
@@ -465,8 +464,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
             mKeyDB.shutdown();
         }
 
-        getLogger().log(ILogger.EV_SYSTEM, ILogger.S_KRA,
-                ILogger.LL_INFO, mName.toString() + " is stopped");
+        systemLogger.log(ILogger.LL_INFO, mName.toString() + " is stopped");
 
         mInitialized = false;
     }
@@ -541,15 +539,6 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
      */
     public void removeAutoRecovery(String id) {
         mAutoRecovery.remove(id);
-    }
-
-    /**
-     * Retrieves logger from escrow authority.
-     *
-     * @return logger
-     */
-    public ILogger getLogger() {
-        return CMS.getLogger();
     }
 
     /**
@@ -1414,8 +1403,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
      * @param msg message to log
      */
     public void log(int level, String msg) {
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_KRA,
-                level, msg);
+        systemLogger.log(level, msg);
     }
 
     /**
