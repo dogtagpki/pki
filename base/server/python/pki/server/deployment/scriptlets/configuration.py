@@ -159,7 +159,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         self.generate_csr(
             deployer, nssdb, subsystem, 'signing', csr_path,
-            basic_constraints_ext, key_usage_ext, generic_exts
+            basic_constraints_ext=basic_constraints_ext,
+            key_usage_ext=key_usage_ext,
+            generic_exts=generic_exts
         )
 
     def generate_sslserver_csr(self, deployer, nssdb, subsystem):
