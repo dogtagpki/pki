@@ -40,6 +40,7 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.security.ISigningUnit;
+import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Cert;
@@ -70,7 +71,7 @@ public final class SigningUnit implements ISigningUnit {
     protected String mNickname = null;
 
     private boolean mInited = false;
-    private ILogger mLogger = CMS.getLogger();
+    private Logger systemLogger = Logger.getLogger(ILogger.EV_SYSTEM, ILogger.S_OCSP);
     private IConfigStore mConfig;
 
     @SuppressWarnings("unused")
@@ -314,10 +315,7 @@ public final class SigningUnit implements ISigningUnit {
     }
 
     private void log(int level, String msg) {
-        if (mLogger == null)
-            return;
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OCSP,
-                level, "OCSPSigningUnit: " + msg);
+        systemLogger.log(level, "OCSPSigningUnit: " + msg);
     }
 
     /**
