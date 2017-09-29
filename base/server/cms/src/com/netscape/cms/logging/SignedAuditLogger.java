@@ -17,7 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.logging;
 
+import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.LogEvent;
 
 /**
  * A class represents certificate server logger
@@ -42,5 +44,16 @@ public class SignedAuditLogger extends Logger {
 
     public static SignedAuditLogger getLogger() {
         return logger;
+    }
+
+    public void log(LogEvent event) {
+
+        String messageID = event.getMessage();
+        Object[] params = event.getParameters();
+
+        // generate audit log message that contains the parameters
+        String message = CMS.getLogMessage(messageID, params);
+
+        log(category, source, level, message, null, ILogger.L_SINGLELINE);
     }
 }
