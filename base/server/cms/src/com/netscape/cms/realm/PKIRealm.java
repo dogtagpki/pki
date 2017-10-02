@@ -18,8 +18,7 @@ import com.netscape.certsrv.authentication.IPasswdUserDBAuthentication;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogEvent;
-import com.netscape.certsrv.logging.event.AuthFailEvent;
-import com.netscape.certsrv.logging.event.AuthSuccessEvent;
+import com.netscape.certsrv.logging.event.AuthEvent;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
 import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
@@ -66,18 +65,16 @@ public class PKIRealm extends RealmBase {
             authToken.set(SessionContext.AUTH_MANAGER_ID, IAuthSubsystem.PASSWDUSERDB_AUTHMGR_ID);
             auditSubjectID = authToken.getInString(IAuthToken.USER_ID);
 
-            audit(new AuthSuccessEvent(
+            audit(AuthEvent.createSuccessEvent(
                         auditSubjectID,
-                        ILogger.SUCCESS,
                         IAuthSubsystem.PASSWDUSERDB_AUTHMGR_ID));
 
             return getPrincipal(username, authToken);
 
         } catch (Throwable e) {
 
-            audit(new AuthFailEvent(
+            audit(AuthEvent.createFailureEvent(
                         auditSubjectID,
-                        ILogger.FAILURE,
                         IAuthSubsystem.PASSWDUSERDB_AUTHMGR_ID,
                         attemptedAuditUID));
 
@@ -122,18 +119,16 @@ public class PKIRealm extends RealmBase {
 
             CMS.debug("PKIRealm: User ID: " + username);
 
-            audit(new AuthSuccessEvent(
+            audit(AuthEvent.createSuccessEvent(
                         auditSubjectID,
-                        ILogger.SUCCESS,
                         IAuthSubsystem.CERTUSERDB_AUTHMGR_ID));
 
             return getPrincipal(username, authToken);
 
         } catch (Throwable e) {
 
-            audit(new AuthFailEvent(
+            audit(AuthEvent.createFailureEvent(
                         auditSubjectID,
-                        ILogger.FAILURE,
                         IAuthSubsystem.CERTUSERDB_AUTHMGR_ID,
                         attemptedAuditUID));
 
