@@ -556,7 +556,8 @@ public class TPSProcessor {
             CMS.debug("TPSProcessor.setupSecureChannel: obtained randomData");
         }
 
-        acquireChannelPlatformAndProtocolInfo();
+        // We already do this when checking for applet upgrade earlier.
+        //acquireChannelPlatformAndProtocolInfo();
 
         TPSBuffer initUpdateResp = initializeUpdate(keyVersion, keyIndex, randomData);
 
@@ -1010,6 +1011,7 @@ public class TPSProcessor {
         String tksConnId = getTKSConnectorID();
 
         int upgraded = 0;
+
         if (checkForAppletUpdateEnabled()) {
 
             String targetAppletVersion = checkForAppletUpgrade("op." + currentTokenOperation);
@@ -2665,12 +2667,25 @@ public class TPSProcessor {
         return enabled;
     }
 
-    protected String checkForAppletUpgrade(String operation) throws TPSException {
+    protected String checkForAppletUpgrade(String operation) throws TPSException, IOException {
         String requiredVersion = null;
         IConfigStore configStore = CMS.getConfigStore();
 
+        acquireChannelPlatformAndProtocolInfo();
+
+        int prot = getProtocol();
+
+        CMS.debug("TPSProcessor.checkForAppletUpgrad: protocol: " + prot);
+
+        String protString = "";
+
+        // Let the existing config param handle protocol 1 by default
+        if(prot > 1) {
+            protString = ".prot."+ prot;
+        }
+
         String appletRequiredConfig = operation + "." + selectedTokenType + "."
-                + TPSEngine.CFG_APPLET_UPDATE_REQUIRED_VERSION;
+                + TPSEngine.CFG_APPLET_UPDATE_REQUIRED_VERSION +  protString;
         CMS.debug("TPSProcessor.checkForAppletUpgrade: getting config: " + appletRequiredConfig);
         try {
             requiredVersion = configStore.getString(appletRequiredConfig, null);
@@ -3677,11 +3692,6 @@ public class TPSProcessor {
         try {
             gp211GetSecureChannelProtocolDetails();
         } catch (TPSException e) {
-
-            if(platProtInfo.getProtocol() == SecureChannel.SECURE_PROTO_03) {
-                CMS.debug("PSProcessor.acquireChannelPlatformProtocolInfo: card is reporting SCP03, bail, we don't yet support!");
-                throw e;
-            }
 
             CMS.debug("TPSProcessor.acquireChannelPlatformProtocolInfo: Error getting gp211 protocol data, assume scp01 "
                     + e);
