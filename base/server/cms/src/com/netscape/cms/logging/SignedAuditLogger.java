@@ -19,8 +19,10 @@ package com.netscape.cms.logging;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.LogCategory;
 import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.logging.LogSource;
+import com.netscape.certsrv.logging.SignedAuditEvent;
 
 /**
  * A class represents certificate server logger
@@ -45,6 +47,46 @@ public class SignedAuditLogger extends Logger {
 
     public static SignedAuditLogger getLogger() {
         return logger;
+    }
+
+    public void log(LogCategory category, LogSource source, int level, String message,
+            Object params[], boolean multiline) {
+
+        // create event
+        SignedAuditEvent event = (SignedAuditEvent)create(
+                category, source, level, message, params, multiline);
+
+        // parse attributes in message
+        int start = 0;
+        while (start < message.length()) {
+
+            // find [name=value]
+            int i = message.indexOf("[", start);
+            if (i < 0) break;
+
+            int j = message.indexOf("=", i + 1);
+            if (i < 0) {
+                throw new RuntimeException("Missing equal sign: " + message);
+            }
+
+            // get attribute name
+            String name = message.substring(i + 1, j);
+
+            int k = message.indexOf("]", j + 1);
+            if (k < 0) {
+                throw new RuntimeException("Missing closing bracket: " + message);
+            }
+
+            // get attribute value
+            String value = message.substring(j + 1, k);
+
+            // store attribute in event
+            event.setAttribute(name, value);
+
+            start = k + 1;
+        }
+
+        mLogQueue.log(event);
     }
 
     public void log(LogEvent event) {
