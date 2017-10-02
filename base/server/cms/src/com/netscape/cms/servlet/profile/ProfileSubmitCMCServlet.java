@@ -47,8 +47,7 @@ import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.logging.event.AuthFailEvent;
-import com.netscape.certsrv.logging.event.AuthSuccessEvent;
+import com.netscape.certsrv.logging.event.AuthEvent;
 import com.netscape.certsrv.logging.event.CertRequestProcessedEvent;
 import com.netscape.certsrv.profile.ECMCBadIdentityException;
 import com.netscape.certsrv.profile.ECMCBadMessageCheckException;
@@ -196,9 +195,8 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
 
             if (!auditSubjectID.equals(ILogger.UNIDENTIFIED) &&
                     !auditSubjectID.equals(ILogger.NONROLEUSER)) {
-                audit(new AuthSuccessEvent(
+                audit(AuthEvent.createSuccessEvent(
                         auditSubjectID,
-                        ILogger.SUCCESS,
                         authMgrID));
             }
 
@@ -209,9 +207,8 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                 attempted_auditSubjectID =
                         (String) sc.get(SessionContext.USER_ID);
             }
-            audit(new AuthFailEvent(
+            audit(AuthEvent.createFailureEvent(
                     auditSubjectID,
-                    ILogger.FAILURE,
                     authMgrID,
                     attempted_auditSubjectID));
             throw(e);
