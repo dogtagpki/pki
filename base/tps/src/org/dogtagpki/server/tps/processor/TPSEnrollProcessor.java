@@ -1365,8 +1365,9 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
                 keyResp = tps.getEngine().recoverKey(cuid,
                         userid,
-                        channel.getDRMWrappedDesKey(), getExternalRegRecoverByKeyID() ? null : b64cert,
-                        getDRMConnectorID(), keyid);
+                        channel.getDRMWrappedDesKey(),
+                        getExternalRegRecoverByKeyID() ? null : b64cert,
+                        kraConn, keyid);
 
                 if (keyResp == null) {
                     auditInfo = "recovering key not found";
