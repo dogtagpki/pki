@@ -46,9 +46,12 @@ import java.security.interfaces.RSAPrivateKey;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.LinkedHashSet;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
@@ -81,6 +84,15 @@ import com.netscape.certsrv.logging.SignedAuditEvent;
 import com.netscape.certsrv.logging.SystemEvent;
 import com.netscape.cmsutil.util.Utils;
 
+import netscape.ldap.client.JDAPAVA;
+import netscape.ldap.client.JDAPFilter;
+import netscape.ldap.client.JDAPFilterAnd;
+import netscape.ldap.client.JDAPFilterEqualityMatch;
+import netscape.ldap.client.JDAPFilterNot;
+import netscape.ldap.client.JDAPFilterOr;
+import netscape.ldap.client.JDAPFilterPresent;
+import netscape.ldap.client.JDAPFilterSubString;
+
 /**
  * A log event listener which write logs to log files
  *
@@ -100,6 +112,8 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
     public static final String PROP_SIGNED_AUDIT_SELECTED_EVENTS = "events";
     public static final String PROP_SIGNED_AUDIT_UNSELECTED_EVENTS = "unselected.events";
     public static final String PROP_SIGNED_AUDIT_MANDATORY_EVENTS = "mandatory.events";
+    public static final String PROP_SIGNED_AUDIT_FILTERS = "filters";
+
     public static final String PROP_LEVEL = "level";
     static final String PROP_FILE_NAME = "fileName";
     static final String PROP_LAST_HASH_FILE_NAME = "lastHashFileName";
@@ -200,6 +214,11 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
     protected Set<String> unselectedEvents = new LinkedHashSet<String>();
 
     /**
+     * The event filters
+     */
+    protected Map<String, JDAPFilter> filters = new HashMap<String, JDAPFilter>();
+
+    /**
      * The eventType that this log is triggered
      */
     protected String mType = null;
@@ -298,6 +317,20 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
         String unselectedEventsList = config.getString(PROP_SIGNED_AUDIT_UNSELECTED_EVENTS, "");
         for (String event : StringUtils.split(unselectedEventsList, ", ")) {
             unselectedEvents.add(event);
+        }
+
+        CMS.debug("Event filters:");
+        IConfigStore filterStore = config.getSubStore(PROP_SIGNED_AUDIT_FILTERS);
+        for (Enumeration<String> e = filterStore.getPropertyNames(); e.hasMoreElements(); ) {
+            String eventType = e.nextElement();
+
+            // get event filter
+            String strFilter = filterStore.get(eventType);
+            CMS.debug(" - " + eventType + ": " + strFilter);
+
+            // parse filter
+            JDAPFilter filter = JDAPFilter.getFilter(strFilter);
+            filters.put(eventType, filter);
         }
 
         try {
@@ -1082,17 +1115,161 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
 
         // If no selection specified in configuration, then all are selected
         if (selectedEvents.isEmpty()) {
-            doLog(ev);
+            filter((SignedAuditEvent)ev);
             return;
         }
 
         // Is the event type mandatory or selected?
         if (mandatoryEvents.contains(type) || selectedEvents.contains(type)) {
-            doLog(ev);
+            filter((SignedAuditEvent)ev);
             return;
         }
 
         CMS.debug("LogFile: event type not selected: " + type);
+    }
+
+    public void filter(SignedAuditEvent ev) throws ELogException {
+        String type = ev.getEventType();
+        JDAPFilter filter = filters.get(type);
+
+        if (filter == null) {
+            // filter not defined for this event type
+            doLog(ev);
+            return;
+        }
+
+        try {
+            boolean result = eval(ev, filter);
+            if (!result) {
+                // event does not match filter, discard
+                return;
+            }
+
+        } catch (Exception e) {
+            throw new ELogException(e.getMessage(), e);
+        }
+
+        // log event
+        doLog(ev);
+    }
+
+    public boolean eval(SignedAuditEvent event, JDAPFilter filter) {
+
+        if (filter instanceof JDAPFilterPresent) {
+            return eval(event, (JDAPFilterPresent)filter);
+
+        } else if (filter instanceof JDAPFilterEqualityMatch) {
+            return eval(event, (JDAPFilterEqualityMatch)filter);
+
+        } else if (filter instanceof JDAPFilterSubString) {
+            return eval(event, (JDAPFilterSubString)filter);
+
+        } else if (filter instanceof JDAPFilterAnd) {
+            return eval(event, (JDAPFilterAnd)filter);
+
+        } else if (filter instanceof JDAPFilterOr) {
+            return eval(event, (JDAPFilterOr)filter);
+
+        } else if (filter instanceof JDAPFilterNot) {
+            return eval(event, (JDAPFilterNot)filter);
+
+        } else {
+            return false;
+        }
+    }
+
+    public boolean eval(SignedAuditEvent event, JDAPFilterPresent filter) {
+
+        // filter: (<name>=*)
+
+        String name = filter.getType();
+        Object attr = event.getAttribute(name);
+
+        return attr != null;
+    }
+
+    public boolean eval(SignedAuditEvent event, JDAPFilterEqualityMatch filter) {
+
+        // filter: (<name>=<value>)
+
+        JDAPAVA ava = filter.getAVA();
+        String name = ava.getType();
+        String value = ava.getValue();
+
+        Object attr = event.getAttribute(name);
+
+        if (attr == null) return false;
+        if (!(attr instanceof String)) return false;
+
+        String stringAttr = (String)attr;
+
+        return value.equals(stringAttr);
+    }
+
+    public boolean eval(SignedAuditEvent event, JDAPFilterSubString filter) {
+
+        // filter: (<name>=<initial>*<any>*...*<any>*<final>)
+
+        String name = filter.getType();
+        Object attr = event.getAttribute(name);
+
+        if (attr == null) return false;
+        if (!(attr instanceof String)) return false;
+
+        String stringAttr = (String)attr;
+
+        // check initial substring
+        String initialSubstring = filter.getInitialSubstring();
+        if (initialSubstring != null) {
+            if (!stringAttr.startsWith(initialSubstring)) return false;
+            stringAttr = stringAttr.substring(initialSubstring.length());
+        }
+
+        // check any substrings
+        for (String anySubstring : filter.getAnySubstrings()) {
+            int p = stringAttr.indexOf(anySubstring);
+            if (p < 0) return false;
+            stringAttr = stringAttr.substring(p + anySubstring.length());
+        }
+
+        // check final substring
+        String finalSubstring = filter.getFinalSubstring();
+        if (finalSubstring != null) {
+            if (!stringAttr.endsWith(finalSubstring)) return false;
+        }
+
+        return true;
+    }
+
+    public boolean eval(SignedAuditEvent event, JDAPFilterAnd filter) {
+
+        // filter: (&(filter1)(filter2)...(filterN))
+
+        for (JDAPFilter f : filter.getFilters()) {
+            if (!eval(event, f)) return false;
+        }
+
+        return true;
+    }
+
+    public boolean eval(SignedAuditEvent event, JDAPFilterOr filter) {
+
+        // filter: (|(filter1)(filter2)...(filterN))
+
+        for (JDAPFilter f : filter.getFilters()) {
+            if (eval(event, f)) return true;
+        }
+
+        return false;
+    }
+
+    public boolean eval(SignedAuditEvent event, JDAPFilterNot filter) {
+
+        // filter: (!(filter))
+
+        JDAPFilter f = filter.getFilter();
+
+        return !eval(event, f);
     }
 
     public String logEvt2String(ILogEvent ev) {
