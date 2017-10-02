@@ -68,8 +68,7 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogCategory;
 import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.logging.LogSource;
-import com.netscape.certsrv.logging.event.AuthFailEvent;
-import com.netscape.certsrv.logging.event.AuthSuccessEvent;
+import com.netscape.certsrv.logging.event.AuthEvent;
 import com.netscape.certsrv.logging.event.AuthzFailEvent;
 import com.netscape.certsrv.logging.event.AuthzSuccessEvent;
 import com.netscape.certsrv.logging.event.RoleAssumeEvent;
@@ -1805,17 +1804,15 @@ public abstract class CMSServlet extends HttpServlet {
             // reset the "auditSubjectID"
             auditSubjectID = auditSubjectID();
 
-            audit(new AuthSuccessEvent(
+            audit(AuthEvent.createSuccessEvent(
                         auditSubjectID,
-                        ILogger.SUCCESS,
                         auditAuthMgrID));
 
             return authToken;
         } catch (EBaseException eAudit1) {
 
-            audit(new AuthFailEvent(
+            audit(AuthEvent.createFailureEvent(
                         auditSubjectID,
-                        ILogger.FAILURE,
                         auditAuthMgrID,
                         auditUID));
 
