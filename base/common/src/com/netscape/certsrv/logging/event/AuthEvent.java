@@ -17,24 +17,48 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.logging.event;
 
+import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.SignedAuditEvent;
 
-public class AuthSuccessEvent extends SignedAuditEvent {
+public class AuthEvent extends SignedAuditEvent {
 
     private static final long serialVersionUID = 1L;
 
-    public final static String LOGGING_PROPERTY =
+    public final static String AUTH_SUCCESS =
             "LOGGING_SIGNED_AUDIT_AUTH_SUCCESS";
 
-    public AuthSuccessEvent(
+    public final static String AUTH_FAIL =
+            "LOGGING_SIGNED_AUDIT_AUTH_FAIL";
+
+    public AuthEvent(String messageID) {
+        super(messageID);
+    }
+
+    public static AuthEvent createSuccessEvent(
             String subjectID,
-            String outcome,
             String authManagerID) {
 
-        super(LOGGING_PROPERTY);
+        AuthEvent event = new AuthEvent(AUTH_SUCCESS);
 
-        setAttribute("SubjectID", subjectID);
-        setAttribute("Outcome", outcome);
-        setAttribute("AuthMgr", authManagerID);
+        event.setAttribute("SubjectID", subjectID);
+        event.setAttribute("Outcome", ILogger.SUCCESS);
+        event.setAttribute("AuthMgr", authManagerID);
+
+        return event;
+    }
+
+    public static AuthEvent createFailureEvent(
+            String subjectID,
+            String authManagerID,
+            String attemptedUID) {
+
+        AuthEvent event = new AuthEvent(AUTH_FAIL);
+
+        event.setAttribute("SubjectID", subjectID);
+        event.setAttribute("Outcome", ILogger.FAILURE);
+        event.setAttribute("AuthMgr", authManagerID);
+        event.setAttribute("AttemptedCred", attemptedUID);
+
+        return event;
     }
 }

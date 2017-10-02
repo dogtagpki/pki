@@ -53,8 +53,7 @@ import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogEvent;
-import com.netscape.certsrv.logging.event.AuthFailEvent;
-import com.netscape.certsrv.logging.event.AuthSuccessEvent;
+import com.netscape.certsrv.logging.event.AuthEvent;
 import com.netscape.certsrv.logging.event.AuthzFailEvent;
 import com.netscape.certsrv.logging.event.AuthzSuccessEvent;
 import com.netscape.certsrv.logging.event.RoleAssumeEvent;
@@ -486,9 +485,8 @@ public class CAProcessor extends Processor {
 
                 authSubjectID += " : " + uid_cred;
 
-                audit(new AuthFailEvent(
+                audit(AuthEvent.createFailureEvent(
                         authSubjectID,
-                        ILogger.FAILURE,
                         authMgrID,
                         uid_attempted_cred));
 
@@ -499,9 +497,8 @@ public class CAProcessor extends Processor {
 
                 authSubjectID += " : " + uid_cred;
 
-                audit(new AuthFailEvent(
+                audit(AuthEvent.createFailureEvent(
                         authSubjectID,
-                        ILogger.FAILURE,
                         authMgrID,
                         uid_attempted_cred));
 
@@ -518,9 +515,8 @@ public class CAProcessor extends Processor {
 
             authSubjectID = authSubjectID + " : " + uid_cred;
 
-            audit(new AuthSuccessEvent(
+            audit(AuthEvent.createSuccessEvent(
                     authSubjectID,
-                    ILogger.SUCCESS,
                     authMgrID));
         }
         endTiming("profile_authentication");
@@ -649,17 +645,15 @@ public class CAProcessor extends Processor {
             // reset the "auditSubjectID"
             auditSubjectID = auditSubjectID();
 
-            audit(new AuthSuccessEvent(
+            audit(AuthEvent.createSuccessEvent(
                     auditSubjectID,
-                    ILogger.SUCCESS,
                     auditAuthMgrID));
 
             return authToken;
         } catch (EBaseException eAudit1) {
 
-            audit(new AuthFailEvent(
+            audit(AuthEvent.createFailureEvent(
                     auditSubjectID,
-                    ILogger.FAILURE,
                     auditAuthMgrID,
                     auditUID));
 
