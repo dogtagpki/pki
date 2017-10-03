@@ -38,14 +38,12 @@ public class AsymKeyGenerationProcessedEvent extends SignedAuditEvent {
 
         super(LOGGING_PROPERTY);
 
-        setParameters(new Object[] {
-                subjectID,
-                outcome,
-                requestID,
-                clientKeyID,
-                keyID,
-                failureReason
-        });
+        setAttribute("SubjectID", subjectID);
+        setAttribute("Outcome", outcome);
+        setAttribute("GenerationRequestID", requestID);
+        setAttribute("ClientKeyID", clientKeyID);
+        setAttribute("KeyID", keyID);
+        setAttribute("FailureReason", failureReason);
     }
 }
 
