@@ -69,8 +69,7 @@ import com.netscape.certsrv.logging.LogCategory;
 import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.logging.LogSource;
 import com.netscape.certsrv.logging.event.AuthEvent;
-import com.netscape.certsrv.logging.event.AuthzFailEvent;
-import com.netscape.certsrv.logging.event.AuthzSuccessEvent;
+import com.netscape.certsrv.logging.event.AuthzEvent;
 import com.netscape.certsrv.logging.event.RoleAssumeEvent;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
@@ -1834,9 +1833,8 @@ public abstract class CMSServlet extends HttpServlet {
             authzToken = mAuthz.authorize(authzMgrName, authToken, exp);
             if (authzToken != null) {
 
-                audit(new AuthzSuccessEvent(
+                audit(AuthzEvent.createSuccessEvent(
                             auditSubjectID,
-                            ILogger.SUCCESS,
                             auditACLResource,
                             auditOperation));
 
@@ -1847,9 +1845,8 @@ public abstract class CMSServlet extends HttpServlet {
 
             } else {
 
-                audit(new AuthzFailEvent(
+                audit(AuthzEvent.createFailureEvent(
                             auditSubjectID,
-                            ILogger.FAILURE,
                             auditACLResource,
                             auditOperation));
 
@@ -1861,9 +1858,8 @@ public abstract class CMSServlet extends HttpServlet {
             return authzToken;
         } catch (Exception e) {
 
-            audit(new AuthzFailEvent(
+            audit(AuthzEvent.createFailureEvent(
                         auditSubjectID,
-                        ILogger.FAILURE,
                         auditACLResource,
                         auditOperation));
 
@@ -1953,9 +1949,8 @@ public abstract class CMSServlet extends HttpServlet {
 
             if (authzTok != null) {
 
-                audit(new AuthzSuccessEvent(
+                audit(AuthzEvent.createSuccessEvent(
                             auditSubjectID,
-                            ILogger.SUCCESS,
                             auditACLResource,
                             auditOperation));
 
@@ -1966,9 +1961,8 @@ public abstract class CMSServlet extends HttpServlet {
 
             } else {
 
-                audit(new AuthzFailEvent(
+                audit(AuthzEvent.createFailureEvent(
                             auditSubjectID,
-                            ILogger.FAILURE,
                             auditACLResource,
                             auditOperation));
 
@@ -1981,9 +1975,8 @@ public abstract class CMSServlet extends HttpServlet {
             return authzTok;
         } catch (EBaseException eAudit1) {
 
-            audit(new AuthzFailEvent(
+            audit(AuthzEvent.createFailureEvent(
                         auditSubjectID,
-                        ILogger.FAILURE,
                         auditACLResource,
                         auditOperation));
 
@@ -1995,9 +1988,8 @@ public abstract class CMSServlet extends HttpServlet {
             return null;
         } catch (Exception eAudit1) {
 
-            audit(new AuthzFailEvent(
+            audit(AuthzEvent.createFailureEvent(
                         auditSubjectID,
-                        ILogger.FAILURE,
                         auditACLResource,
                         auditOperation));
 
