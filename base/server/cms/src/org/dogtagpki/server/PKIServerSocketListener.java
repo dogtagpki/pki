@@ -33,8 +33,9 @@ import org.mozilla.jss.ssl.SSLSocketListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.netscape.certsrv.apps.CMS;
-import com.netscape.certsrv.logging.AuditEvent;
+import com.netscape.certsrv.logging.SignedAuditEvent;
+import com.netscape.certsrv.logging.event.AccessSessionEstablishEvent;
+import com.netscape.certsrv.logging.event.AccessSessionTerminatedEvent;
 import com.netscape.cms.logging.SignedAuditLogger;
 
 public class PKIServerSocketListener implements SSLSocketListener {
@@ -75,14 +76,11 @@ public class PKIServerSocketListener implements SSLSocketListener {
             logger.debug(" - server: " + serverIP);
             logger.debug(" - subject: " + subjectID);
 
-            String auditMessage = CMS.getLogMessage(
-                    AuditEvent.ACCESS_SESSION_TERMINATED,
+            signedAuditLogger.log(AccessSessionTerminatedEvent.createEvent(
                     clientIP,
                     serverIP,
                     subjectID,
-                    reason);
-
-            signedAuditLogger.log(auditMessage);
+                    reason));
 
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
@@ -97,14 +95,12 @@ public class PKIServerSocketListener implements SSLSocketListener {
             int description = event.getDescription();
             String reason = SSLAlertDescription.valueOf(description).toString();
 
-            String eventType;
+            SignedAuditEvent auditEvent;
             String clientIP;
             String serverIP;
             String subjectID;
 
             if (description == SSLAlertDescription.CLOSE_NOTIFY.getID()) {
-
-                eventType = AuditEvent.ACCESS_SESSION_TERMINATED;
 
                 // get socket info from socketInfos map since socket has been closed
                 Map<String,Object> info = socketInfos.get(socket);
@@ -112,9 +108,13 @@ public class PKIServerSocketListener implements SSLSocketListener {
                 serverIP = (String)info.get("serverIP");
                 subjectID = (String)info.get("subjectID");
 
-            } else {
+                auditEvent = AccessSessionTerminatedEvent.createEvent(
+                        clientIP,
+                        serverIP,
+                        subjectID,
+                        reason);
 
-                eventType = AuditEvent.ACCESS_SESSION_ESTABLISH_FAILURE;
+            } else {
 
                 // get socket info from the socket itself
                 InetAddress clientAddress = socket.getInetAddress();
@@ -126,6 +126,12 @@ public class PKIServerSocketListener implements SSLSocketListener {
                 X509Certificate peerCertificate = status.getPeerCertificate();
                 Principal subjectDN = peerCertificate == null ? null : peerCertificate.getSubjectDN();
                 subjectID = subjectDN == null ? "" : subjectDN.toString();
+
+                auditEvent = AccessSessionEstablishEvent.createFailureEvent(
+                        clientIP,
+                        serverIP,
+                        subjectID,
+                        reason);
             }
 
             logger.debug("SSL alert sent:");
@@ -134,14 +140,7 @@ public class PKIServerSocketListener implements SSLSocketListener {
             logger.debug(" - server: " + serverIP);
             logger.debug(" - subject: " + subjectID);
 
-            String auditMessage = CMS.getLogMessage(
-                    eventType,
-                    clientIP,
-                    serverIP,
-                    subjectID,
-                    reason);
-
-            signedAuditLogger.log(auditMessage);
+            signedAuditLogger.log(auditEvent);
 
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
@@ -175,13 +174,10 @@ public class PKIServerSocketListener implements SSLSocketListener {
             info.put("subjectID", subjectID);
             socketInfos.put(socket, info);
 
-            String auditMessage = CMS.getLogMessage(
-                    AuditEvent.ACCESS_SESSION_ESTABLISH_SUCCESS,
+            signedAuditLogger.log(AccessSessionEstablishEvent.createSuccessEvent(
                     clientIP,
                     serverIP,
-                    subjectID);
-
-            signedAuditLogger.log(auditMessage);
+                    subjectID));
 
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
