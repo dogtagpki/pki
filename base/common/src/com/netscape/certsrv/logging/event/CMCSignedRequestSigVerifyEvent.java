@@ -24,7 +24,7 @@ public class CMCSignedRequestSigVerifyEvent extends SignedAuditEvent {
     private static final long serialVersionUID = 1L;
 
     public final static String LOGGING_PROPERTY =
-            "LOGGING_SIGNED_AUDIT_CMC_SIGNED_REQUEST_SIG_VERIFY_5";
+            "LOGGING_SIGNED_AUDIT_CMC_SIGNED_REQUEST_SIG_VERIFY";
 
     public CMCSignedRequestSigVerifyEvent(
             String subjectID,
@@ -35,12 +35,10 @@ public class CMCSignedRequestSigVerifyEvent extends SignedAuditEvent {
 
         super(LOGGING_PROPERTY);
 
-        setParameters(new Object[] {
-                subjectID,
-                outcome,
-                auditReqType,
-                auditCertSubject,
-                auditSignerInfo
-        });
+        setAttribute("SubjectID", subjectID);
+        setAttribute("Outcome", outcome);
+        setAttribute("ReqType", auditReqType);
+        setAttribute("CertSubject", auditCertSubject);
+        setAttribute("SignerInfo", auditSignerInfo);
     }
 }
