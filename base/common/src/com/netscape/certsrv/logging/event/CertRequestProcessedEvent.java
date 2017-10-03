@@ -44,15 +44,11 @@ public class CertRequestProcessedEvent extends SignedAuditEvent {
 
         super(LOGGING_PROPERTY);
 
+        setAttribute("SubjectID", subjectID);
+        setAttribute("Outcome", outcome);
+        setAttribute("ReqID", requesterID);
         setAttribute("InfoName", infoName);
         setAttribute("InfoValue", infoValue);
-
-        setParameters(new Object[] {
-                subjectID,
-                outcome,
-                requesterID,
-                getAttributeList()
-        });
     }
 
     public CertRequestProcessedEvent(
@@ -64,14 +60,10 @@ public class CertRequestProcessedEvent extends SignedAuditEvent {
 
         super(LOGGING_PROPERTY);
 
+        setAttribute("SubjectID", subjectID);
+        setAttribute("Outcome", outcome);
+        setAttribute("ReqID", requesterID);
         setAttribute("CertSerialNum", x509cert.getSerialNumber());
-
-        setParameters(new Object[] {
-                subjectID,
-                outcome,
-                requesterID,
-                getAttributeList()
-        });
     }
 
     public CertRequestProcessedEvent(
@@ -83,15 +75,11 @@ public class CertRequestProcessedEvent extends SignedAuditEvent {
 
         super(LOGGING_PROPERTY);
 
+        setAttribute("SubjectID", subjectID);
+        setAttribute("Outcome", outcome);
+        setAttribute("ReqID", requesterID);
         setAttribute("InfoName", infoName);
         setAttribute("InfoValue", auditInfoValue(request));
-
-        setParameters(new Object[] {
-                subjectID,
-                outcome,
-                requesterID,
-                getAttributeList()
-        });
     }
 
     /**
