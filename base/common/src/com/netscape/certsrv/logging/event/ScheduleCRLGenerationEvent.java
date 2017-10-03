@@ -32,11 +32,8 @@ public class ScheduleCRLGenerationEvent extends SignedAuditEvent {
 
         super(LOGGING_PROPERTY);
 
-        setParameters(new Object[] {
-                subjectID,
-                ILogger.SUCCESS,
-                getAttributeList()
-        });
+        setAttribute("SubjectID", subjectID);
+        setAttribute("Outcome", ILogger.SUCCESS);
     }
 
     public ScheduleCRLGenerationEvent(
@@ -45,12 +42,8 @@ public class ScheduleCRLGenerationEvent extends SignedAuditEvent {
 
         super(LOGGING_PROPERTY);
 
+        setAttribute("SubjectID", subjectID);
+        setAttribute("Outcome", ILogger.FAILURE);
         setAttribute("FailureReason", e.getMessage());
-
-        setParameters(new Object[] {
-                subjectID,
-                ILogger.FAILURE,
-                getAttributeList()
-        });
     }
 }
