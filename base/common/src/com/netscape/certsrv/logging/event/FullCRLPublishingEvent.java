@@ -35,13 +35,9 @@ public class FullCRLPublishingEvent extends SignedAuditEvent {
 
         super(LOGGING_PROPERTY);
 
+        setAttribute("SubjectID", subjectID);
+        setAttribute("Outcome", ILogger.SUCCESS);
         setAttribute("CRLnum", crlNumber);
-
-        setParameters(new Object[] {
-                subjectID,
-                ILogger.SUCCESS,
-                getAttributeList()
-        });
     }
 
     public FullCRLPublishingEvent(
@@ -51,13 +47,9 @@ public class FullCRLPublishingEvent extends SignedAuditEvent {
 
         super(LOGGING_PROPERTY);
 
+        setAttribute("SubjectID", subjectID);
+        setAttribute("Outcome", ILogger.FAILURE);
         setAttribute("CRLnum", crlNumber);
         setAttribute("FailureReason", reason);
-
-        setParameters(new Object[] {
-                subjectID,
-                ILogger.FAILURE,
-                getAttributeList()
-        });
     }
 }
