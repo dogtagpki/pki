@@ -24,7 +24,7 @@ public class ConfigRoleEvent extends SignedAuditEvent {
     private static final long serialVersionUID = 1L;
 
     public final static String LOGGING_PROPERTY =
-            "LOGGING_SIGNED_AUDIT_CONFIG_ROLE_3";
+            "LOGGING_SIGNED_AUDIT_CONFIG_ROLE";
 
     public ConfigRoleEvent(
             String subjectID,
@@ -33,10 +33,8 @@ public class ConfigRoleEvent extends SignedAuditEvent {
 
         super(LOGGING_PROPERTY);
 
-        setParameters(new Object[] {
-                subjectID,
-                outcome,
-                params
-        });
+        setAttribute("SubjectID", subjectID);
+        setAttribute("Outcome", outcome);
+        setAttribute("ParamNameValPairs", params);
     }
 }
