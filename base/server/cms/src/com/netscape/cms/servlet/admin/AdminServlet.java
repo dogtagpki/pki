@@ -53,8 +53,7 @@ import com.netscape.certsrv.logging.IAuditor;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.logging.event.AuthEvent;
-import com.netscape.certsrv.logging.event.AuthzFailEvent;
-import com.netscape.certsrv.logging.event.AuthzSuccessEvent;
+import com.netscape.certsrv.logging.event.AuthzEvent;
 import com.netscape.certsrv.logging.event.RoleAssumeEvent;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
@@ -600,9 +599,8 @@ public class AdminServlet extends HttpServlet {
         } catch (EAuthzAccessDenied e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
 
-            audit(new AuthzFailEvent(
+            audit(AuthzEvent.createFailureEvent(
                         auditSubjectID,
-                        ILogger.FAILURE,
                         auditACLResource,
                         auditOperation));
 
@@ -615,9 +613,8 @@ public class AdminServlet extends HttpServlet {
         } catch (EBaseException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
 
-            audit(new AuthzFailEvent(
+            audit(AuthzEvent.createFailureEvent(
                         auditSubjectID,
-                        ILogger.FAILURE,
                         auditACLResource,
                         auditOperation));
 
@@ -629,9 +626,8 @@ public class AdminServlet extends HttpServlet {
             return null;
         } catch (Exception e) {
 
-            audit(new AuthzFailEvent(
+            audit(AuthzEvent.createFailureEvent(
                         auditSubjectID,
-                        ILogger.FAILURE,
                         auditACLResource,
                         auditOperation));
 
@@ -643,9 +639,8 @@ public class AdminServlet extends HttpServlet {
             return null;
         }
 
-        audit(new AuthzSuccessEvent(
+        audit(AuthzEvent.createSuccessEvent(
                     auditSubjectID,
-                    ILogger.SUCCESS,
                     auditACLResource,
                     auditOperation));
 
