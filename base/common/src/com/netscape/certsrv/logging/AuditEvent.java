@@ -181,12 +181,6 @@ public class AuditEvent extends LogEvent {
     public final static String AUTHORITY_CONFIG =
             "LOGGING_SIGNED_AUDIT_AUTHORITY_CONFIG_3";
 
-    public final static String ACCESS_SESSION_ESTABLISH_FAILURE =
-            "LOGGING_SIGNED_AUDIT_ACCESS_SESSION_ESTABLISH_FAILURE";
-    public final static String ACCESS_SESSION_ESTABLISH_SUCCESS =
-            "LOGGING_SIGNED_AUDIT_ACCESS_SESSION_ESTABLISH_SUCCESS";
-    public final static String ACCESS_SESSION_TERMINATED =
-            "LOGGING_SIGNED_AUDIT_ACCESS_SESSION_TERMINATED";
     public final static String AUDIT_LOG_SIGNING =
             "LOGGING_SIGNED_AUDIT_SIGNING_3";
 
