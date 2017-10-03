@@ -27,7 +27,10 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -352,6 +355,104 @@ public class ClientCertImportCLI extends CLI {
         }
     }
 
+    /**
+     * Sorts certificate chain from leaf to root.
+     *
+     * This method sorts an array of certificates (e.g. from a PKCS #7
+     * data) that represents a certificate chain from leaf to root
+     * according to the subject DNs and issuer DNs.
+     *
+     * The array must contain exactly one unbranched certificate chain
+     * with one leaf and one root. The subject DNs must be unique.
+     *
+     * @param certs array of certificates
+     */
+    public void sort(java.security.cert.X509Certificate[] certs) throws Exception {
+
+        // lookup map: subject DN -> cert
+        Map<String, java.security.cert.X509Certificate> certMap = new LinkedHashMap<>();
+
+        // hierarchy map: subject DN -> issuer DN
+        Map<String, String> parentMap = new HashMap<>();
+
+        // reverse hierarchy map: issuer DN -> subject DN
+        Map<String, String> childMap = new HashMap<>();
+
+        // build maps
+        for (java.security.cert.X509Certificate cert : certs) {
+
+            String subjectDN = cert.getSubjectDN().toString();
+            String issuerDN = cert.getIssuerDN().toString();
+
+            if (certMap.containsKey(subjectDN)) {
+                throw new Exception("Duplicate certificate: " + subjectDN);
+            }
+
+            certMap.put(subjectDN, cert);
+
+            // ignore self-signed certificate when building hierarchy maps
+            if (subjectDN.equals(issuerDN)) continue;
+
+            if (childMap.containsKey(issuerDN)) {
+                throw new Exception("Branched chain: " + issuerDN);
+            }
+
+            parentMap.put(subjectDN, issuerDN);
+            childMap.put(issuerDN, subjectDN);
+        }
+
+        if (verbose) {
+            System.out.println("Certificates:");
+            for (String subjectDN : certMap.keySet()) {
+                System.out.println(" - " + subjectDN);
+
+                String parent = parentMap.get(subjectDN);
+                if (parent != null) System.out.println("   parent: " + parent);
+
+                String child = childMap.get(subjectDN);
+                if (child != null) System.out.println("   child: " + child);
+            }
+        }
+
+        // find leaf cert
+        List<String> leafCerts = new ArrayList<>();
+
+        for (String subjectDN : certMap.keySet()) {
+
+            // if cert has a child, skip
+            if (childMap.containsKey(subjectDN)) continue;
+
+            // found leaf cert
+            leafCerts.add(subjectDN);
+        }
+
+        if (leafCerts.isEmpty()) {
+            throw new Exception("Unable to find leaf certificate");
+
+        } else if (leafCerts.size() > 1) {
+            StringBuilder sb = new StringBuilder();
+            for (String subjectDN : leafCerts) {
+                if (sb.length() > 0) sb.append(", ");
+                sb.append("[" + subjectDN + "]");
+            }
+            throw new Exception("Multiple leaf certificates: " + sb);
+        }
+
+        // build cert chain from leaf cert
+        List<java.security.cert.X509Certificate> chain = new ArrayList<>();
+        String current = leafCerts.get(0);
+
+        while (current != null) {
+
+            java.security.cert.X509Certificate cert = certMap.get(current);
+            chain.add(cert);
+
+            current = parentMap.get(current);
+        }
+
+        chain.toArray(certs);
+    }
+
     public void importPKCS7(
             String pkcs7Path,
             String nickname,
@@ -366,22 +467,29 @@ public class ClientCertImportCLI extends CLI {
         PKCS7 pkcs7 = new PKCS7(str);
 
         java.security.cert.X509Certificate[] certs = pkcs7.getCertificates();
-        if (certs == null) {
+        if (certs == null || certs.length == 0) {
             if (verbose) System.out.println("No certificates to import");
             return;
         }
+
+        // sort certs from leaf to root
+        sort(certs);
 
         CryptoManager manager = CryptoManager.getInstance();
 
         // Import certs with preferred nicknames.
         // NOTE: JSS/NSS may assign different nickname.
+
+        List<X509Certificate> importedCerts = new ArrayList<>();
         int i = 0;
+
         for (java.security.cert.X509Certificate cert : certs) {
 
             String preferredNickname = nickname + (i == 0 ? "" : " #" + (i + 1));
-            if (verbose) System.out.println("Importing certificate " + preferredNickname + ": " +cert.getSubjectDN());
+            if (verbose) System.out.println("Importing certificate " + preferredNickname + ": " + cert.getSubjectDN());
 
             X509Certificate importedCert = manager.importCertPackage(cert.getEncoded(), preferredNickname);
+            importedCerts.add(importedCert);
 
             String importedNickname = importedCert.getNickname();
             if (verbose) System.out.println("Certificate imported as " + importedNickname);
@@ -392,13 +500,15 @@ public class ClientCertImportCLI extends CLI {
             }
         }
 
-        X509Certificate cert = manager.findCertByNickname(nickname);
+        X509Certificate cert = importedCerts.get(0);
+        if (verbose) {
+            System.out.println("Leaf cert: " + cert.getNickname());
+        }
 
         if (trustAttributes != null) {
             if (verbose) {
                 System.out.println(
-                        "Setting trust attributes for " + cert.getNickname() +
-                        " to " + trustAttributes);
+                        "Setting trust attributes to " + trustAttributes);
             }
             setTrustAttributes(cert, trustAttributes);
         }
@@ -412,9 +522,9 @@ public class ClientCertImportCLI extends CLI {
         // Trust root cert.
         X509Certificate root = chain[chain.length - 1];
         if (verbose) {
+            System.out.println("Root cert: " + root.getNickname());
             System.out.println(
-                    "Setting trust attributes for " + root.getNickname() +
-                    " to CT,C,C");
+                    "Setting trust attributes to CT,C,C");
         }
         setTrustAttributes(root, "CT,C,C");
     }
