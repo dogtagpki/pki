@@ -39,13 +39,9 @@ public class FullCRLGenerationEvent extends SignedAuditEvent {
 
         FullCRLGenerationEvent event = new FullCRLGenerationEvent();
 
+        event.setAttribute("SubjectID", subjectID);
+        event.setAttribute("Outcome", ILogger.SUCCESS);
         event.setAttribute("CRLnum", crlNumber);
-
-        event.setParameters(new Object[] {
-                subjectID,
-                ILogger.SUCCESS,
-                event.getAttributeList()
-        });
 
         return event;
     }
@@ -56,13 +52,9 @@ public class FullCRLGenerationEvent extends SignedAuditEvent {
 
         FullCRLGenerationEvent event = new FullCRLGenerationEvent();
 
+        event.setAttribute("SubjectID", subjectID);
+        event.setAttribute("Outcome", ILogger.SUCCESS);
         event.setAttribute("Info", info);
-
-        event.setParameters(new Object[] {
-                subjectID,
-                ILogger.SUCCESS,
-                event.getAttributeList()
-        });
 
         return event;
     }
@@ -73,13 +65,9 @@ public class FullCRLGenerationEvent extends SignedAuditEvent {
 
         FullCRLGenerationEvent event = new FullCRLGenerationEvent();
 
+        event.setAttribute("SubjectID", subjectID);
+        event.setAttribute("Outcome", ILogger.FAILURE);
         event.setAttribute("FailureReason", reason);
-
-        event.setParameters(new Object[] {
-                subjectID,
-                ILogger.FAILURE,
-                event.getAttributeList()
-        });
 
         return event;
     }
