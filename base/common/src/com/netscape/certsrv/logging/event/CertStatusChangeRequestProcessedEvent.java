@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.logging.event;
 
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.SignedAuditEvent;
 import com.netscape.certsrv.request.RequestStatus;
 
@@ -26,7 +25,7 @@ public class CertStatusChangeRequestProcessedEvent extends SignedAuditEvent {
     private static final long serialVersionUID = 1L;
 
     public final static String LOGGING_PROPERTY =
-            "LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST_PROCESSED_7";
+            "LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST_PROCESSED";
 
     public CertStatusChangeRequestProcessedEvent(
             String subjectID,
@@ -39,14 +38,12 @@ public class CertStatusChangeRequestProcessedEvent extends SignedAuditEvent {
 
         super(LOGGING_PROPERTY);
 
-        setParameters(new Object[] {
-                subjectID,
-                outcome,
-                requesterID,
-                serialNumber,
-                requestType,
-                reasonNum,
-                approvalStatus == null ? ILogger.SIGNED_AUDIT_EMPTY_VALUE : approvalStatus.toString()
-        });
+        setAttribute("SubjectID", subjectID);
+        setAttribute("Outcome", outcome);
+        setAttribute("ReqID", requesterID);
+        setAttribute("CertSerialNum", serialNumber);
+        setAttribute("RequestType", requestType);
+        setAttribute("RevokeReasonNum", reasonNum);
+        setAttribute("Approval", approvalStatus);
     }
 }
