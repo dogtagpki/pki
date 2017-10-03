@@ -47,8 +47,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ForbiddenException;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogEvent;
-import com.netscape.certsrv.logging.event.AuthzFailEvent;
-import com.netscape.certsrv.logging.event.AuthzSuccessEvent;
+import com.netscape.certsrv.logging.event.AuthzEvent;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.realm.PKIPrincipal;
@@ -178,9 +177,8 @@ public class ACLInterceptor implements ContainerRequestFilter {
             CMS.debug("ACLInterceptor: No authentication token present.");
             // store a message in the signed audit log file
             // although if it didn't pass authentication, it should not have gotten here
-            audit(new AuthzFailEvent(
+            audit(AuthzEvent.createFailureEvent(
                         auditSubjectID,
-                        ILogger.FAILURE,
                         null, // resource
                         null, // operation
                         LOGGING_MISSING_AUTH_TOKEN + ":" + auditInfo));
@@ -194,9 +192,8 @@ public class ACLInterceptor implements ContainerRequestFilter {
         if (!authzRequired) {
             CMS.debug("ACLInterceptor: No ACL mapping; authz not required.");
 
-            audit(new AuthzSuccessEvent(
+            audit(AuthzEvent.createSuccessEvent(
                         auditSubjectID,
-                        ILogger.SUCCESS,
                         null, //resource
                         null, //operation
                         LOGGING_MISSING_ACL_MAPPING + ":" + auditInfo)); //info
@@ -217,9 +214,8 @@ public class ACLInterceptor implements ContainerRequestFilter {
 
         } catch (IOException e) {
 
-            audit(new AuthzFailEvent(
+            audit(AuthzEvent.createFailureEvent(
                         auditSubjectID,
-                        ILogger.FAILURE,
                         null, //resource
                         null, //operation
                         LOGGING_ACL_PARSING_ERROR + ":" + auditInfo));
@@ -232,9 +228,8 @@ public class ACLInterceptor implements ContainerRequestFilter {
         if (value == null) {
             CMS.debug("ACLInterceptor: No ACL configuration.");
 
-            audit(new AuthzSuccessEvent(
+            audit(AuthzEvent.createSuccessEvent(
                     auditSubjectID,
-                    ILogger.SUCCESS,
                     null, //resource
                     null, //operation
                     LOGGING_NO_ACL_ACCESS_ALLOWED + ":" + auditInfo));
@@ -248,9 +243,8 @@ public class ACLInterceptor implements ContainerRequestFilter {
         if (values.length != 2) {
             CMS.debug("ACLInterceptor: Invalid ACL mapping.");
 
-            audit(new AuthzFailEvent(
+            audit(AuthzEvent.createFailureEvent(
                     auditSubjectID,
-                    ILogger.FAILURE,
                     null, //resource
                     null, //operation
                     LOGGING_INVALID_ACL_MAPPING + ":" + auditInfo));
@@ -273,9 +267,8 @@ public class ACLInterceptor implements ContainerRequestFilter {
                 String info = "No authorization token present.";
                 CMS.debug("ACLInterceptor: " + info);
 
-                audit(new AuthzFailEvent(
+                audit(AuthzEvent.createFailureEvent(
                             auditSubjectID,
-                            ILogger.FAILURE,
                             values[0], // resource
                             values[1], // operation
                             info));
@@ -289,9 +282,8 @@ public class ACLInterceptor implements ContainerRequestFilter {
             String info = e.getMessage();
             CMS.debug("ACLInterceptor: " + info);
 
-            audit(new AuthzFailEvent(
+            audit(AuthzEvent.createFailureEvent(
                         auditSubjectID,
-                        ILogger.FAILURE,
                         values[0], // resource
                         values[1], // operation
                         info));
@@ -301,9 +293,8 @@ public class ACLInterceptor implements ContainerRequestFilter {
         } catch (EBaseException e) {
             String info = e.getMessage();
 
-            audit(new AuthzFailEvent(
+            audit(AuthzEvent.createFailureEvent(
                         auditSubjectID,
-                        ILogger.FAILURE,
                         values[0], // resource
                         values[1], // operation
                         info));
@@ -314,9 +305,8 @@ public class ACLInterceptor implements ContainerRequestFilter {
 
         // Allow request.
 
-        audit(new AuthzSuccessEvent(
+        audit(AuthzEvent.createSuccessEvent(
                     auditSubjectID,
-                    ILogger.SUCCESS,
                     values[0], // resource
                     values[1], // operation
                     auditInfo));
