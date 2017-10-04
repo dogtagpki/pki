@@ -25,7 +25,7 @@ public class ServerSideKeyGenProcessedEvent extends SignedAuditEvent {
     private static final long serialVersionUID = 1L;
 
     private static final String LOGGING_PROPERTY =
-            "LOGGING_SIGNED_AUDIT_SYMKEY_GEN_REQUEST_PROCESSED";
+            "LOGGING_SIGNED_AUDIT_SERVER_SIDE_KEYGEN_REQUEST_PROCESSED";
 
     public ServerSideKeyGenProcessedEvent(
             String subjectID,
@@ -36,12 +36,10 @@ public class ServerSideKeyGenProcessedEvent extends SignedAuditEvent {
 
         super(LOGGING_PROPERTY);
 
-        setParameters(new Object[] {
-                subjectID,
-                outcome,
-                entityID,
-                requestID,
-                pubKey
-        });
+        setAttribute("SubjectID", subjectID);
+        setAttribute("Outcome", outcome);
+        setAttribute("EntityID", entityID);
+        setAttribute("RequestID", requestID);
+        setAttribute("PubKey", pubKey);
     }
 }

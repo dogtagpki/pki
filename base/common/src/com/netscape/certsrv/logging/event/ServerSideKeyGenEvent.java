@@ -35,11 +35,9 @@ public class ServerSideKeyGenEvent extends SignedAuditEvent {
 
         super(LOGGING_PROPERTY);
 
-        setParameters(new Object[] {
-                subjectID,
-                outcome,
-                entityID,
-                requestID
-        });
+        setAttribute("SubjectID", subjectID);
+        setAttribute("Outcome", outcome);
+        setAttribute("EntityID", entityID);
+        setAttribute("RequestID", requestID);
     }
 }
