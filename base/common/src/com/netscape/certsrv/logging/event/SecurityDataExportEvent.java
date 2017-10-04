@@ -38,14 +38,12 @@ public class SecurityDataExportEvent extends SignedAuditEvent {
 
         super(LOGGING_PROPERTY);
 
-        setParameters(new Object[] {
-                subjectID,
-                outcome,
-                recoveryID,
-                keyID,
-                failureReason,
-                pubKey
-        });
+        setAttribute("SubjectID", subjectID);
+        setAttribute("Outcome", outcome);
+        setAttribute("RecoveryID", recoveryID);
+        setAttribute("KeyID", keyID);
+        setAttribute("Info", failureReason);
+        setAttribute("PubKey", pubKey);
     }
 
     public SecurityDataExportEvent(
@@ -58,13 +56,11 @@ public class SecurityDataExportEvent extends SignedAuditEvent {
 
         super(LOGGING_PROPERTY);
 
-        setParameters(new Object[] {
-                subjectID,
-                outcome,
-                recoveryID,
-                keyID,
-                failureReason,
-                pubKey
-        });
+        setAttribute("SubjectID", subjectID);
+        setAttribute("Outcome", outcome);
+        setAttribute("RecoveryID", recoveryID);
+        setAttribute("KeyID", keyID);
+        setAttribute("Info", failureReason);
+        setAttribute("PubKey", pubKey);
     }
 }
