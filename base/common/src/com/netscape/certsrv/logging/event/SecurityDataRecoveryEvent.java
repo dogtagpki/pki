@@ -37,12 +37,10 @@ public class SecurityDataRecoveryEvent extends SignedAuditEvent {
 
         super(LOGGING_PROPERTY);
 
-        setParameters(new Object[] {
-                subjectID,
-                outcome,
-                recoveryID,
-                keyID,
-                pubkey
-        });
+        setAttribute("SubjectID", subjectID);
+        setAttribute("Outcome", outcome);
+        setAttribute("RecoveryID", recoveryID);
+        setAttribute("DataID", keyID);
+        setAttribute("PubKey", pubkey);
     }
 }

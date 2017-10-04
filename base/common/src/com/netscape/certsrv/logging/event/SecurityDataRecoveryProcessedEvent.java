@@ -38,13 +38,11 @@ public class SecurityDataRecoveryProcessedEvent extends SignedAuditEvent {
 
         super(LOGGING_PROPERTY);
 
-        setParameters(new Object[] {
-                subjectID,
-                outcome,
-                recoveryID,
-                keyID,
-                failureReason,
-                recoveryAgents
-        });
+        setAttribute("SubjectID", subjectID);
+        setAttribute("Outcome", outcome);
+        setAttribute("RecoveryID", recoveryID);
+        setAttribute("KeyID", keyID);
+        setAttribute("FailureReason", failureReason);
+        setAttribute("RecoveryAgents", recoveryAgents);
     }
 }

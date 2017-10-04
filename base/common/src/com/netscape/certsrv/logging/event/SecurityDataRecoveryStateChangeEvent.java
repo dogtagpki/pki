@@ -35,11 +35,9 @@ public class SecurityDataRecoveryStateChangeEvent extends SignedAuditEvent {
 
         super(LOGGING_PROPERTY);
 
-        setParameters(new Object[] {
-                subjectID,
-                outcome,
-                recoveryID,
-                operation
-        });
+        setAttribute("SubjectID", subjectID);
+        setAttribute("Outcome", outcome);
+        setAttribute("RecoveryID", recoveryID);
+        setAttribute("Operation", operation);
     }
 }
