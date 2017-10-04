@@ -22,6 +22,30 @@
       "revId": "4262a676eb32ce8d8874bc9160b1ed0b4e3d55a3",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "18a882a5_bedc8b82",
+        "filename": "base/java-tools/src/com/netscape/cmstools/client/ClientCertImportCLI.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 433,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-10-04T02:59:15Z",
+      "side": 1,
+      "message": "OK, we can return the chain variable, but I\u0027m just wondering, is it possible for the PKCS #7 to contain multiple leaf certs? How should they be handled? Right now the childMap assumes at most one child per cert and the code only deals with the first leaf cert.",
+      "parentUuid": "8f27b8ea_a8be56d9",
+      "range": {
+        "startLine": 433,
+        "startChar": 8,
+        "endLine": 433,
+        "endChar": 13
+      },
+      "revId": "4262a676eb32ce8d8874bc9160b1ed0b4e3d55a3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
