@@ -24,9 +24,7 @@ public class AuthzFailEvent extends SignedAuditEvent {
     private static final long serialVersionUID = 1L;
 
     public final static String AUTHZ_FAIL =
-            "LOGGING_SIGNED_AUDIT_AUTHZ_FAIL_4";
-    public final static String AUTHZ_FAIL_INFO =
-            "LOGGING_SIGNED_AUDIT_AUTHZ_FAIL_5";
+            "LOGGING_SIGNED_AUDIT_AUTHZ_FAIL";
 
     public AuthzFailEvent(
             String subjectID,
@@ -36,12 +34,10 @@ public class AuthzFailEvent extends SignedAuditEvent {
 
         super(AUTHZ_FAIL);
 
-        setParameters(new Object[] {
-                subjectID,
-                outcome,
-                aclResource,
-                operation
-        });
+        setAttribute("SubjectID", subjectID);
+        setAttribute("Outcome", outcome);
+        setAttribute("aclResource", aclResource);
+        setAttribute("Op", operation);
     }
 
     public AuthzFailEvent(
@@ -51,14 +47,12 @@ public class AuthzFailEvent extends SignedAuditEvent {
             String operation,
             String info) {
 
-        super(AUTHZ_FAIL_INFO);
+        super(AUTHZ_FAIL);
 
-        setParameters(new Object[] {
-                subjectID,
-                outcome,
-                aclResource,
-                operation,
-                info
-        });
+        setAttribute("SubjectID", subjectID);
+        setAttribute("Outcome", outcome);
+        setAttribute("aclResource", aclResource);
+        setAttribute("Op", operation);
+        setAttribute("Info", info);
     }
 }
