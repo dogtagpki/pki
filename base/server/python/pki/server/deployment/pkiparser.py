@@ -1145,7 +1145,7 @@ class PKIConfigParser:
                     "-TLS_RSA_WITH_AES_128_CBC_SHA256," + \
                     "-TLS_RSA_WITH_AES_256_CBC_SHA256," + \
                     "-TLS_RSA_WITH_AES_128_GCM_SHA256," + \
-                    "+TLS_RSA_WITH_3DES_EDE_CBC_SHA," + \
+                    "-TLS_RSA_WITH_3DES_EDE_CBC_SHA," + \
                     "+TLS_RSA_WITH_AES_128_CBC_SHA," + \
                     "+TLS_RSA_WITH_AES_256_CBC_SHA"
             self.mdict['TOMCAT_SSL2_CIPHERS_SLOT'] = \
@@ -1182,7 +1182,7 @@ class PKIConfigParser:
                 "+TLS_ECDH_RSA_WITH_AES_256_CBC_SHA," + \
                 "-TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA," + \
                 "+TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA," + \
-                "+TLS_RSA_WITH_3DES_EDE_CBC_SHA," + \
+                "-TLS_RSA_WITH_3DES_EDE_CBC_SHA," + \
                 "+TLS_RSA_WITH_AES_128_CBC_SHA," + \
                 "+TLS_RSA_WITH_AES_256_CBC_SHA," + \
                 "+TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA," + \
@@ -1193,7 +1193,7 @@ class PKIConfigParser:
                 "+TLS_DHE_DSS_WITH_3DES_EDE_CBC_SHA," + \
                 "+TLS_DHE_DSS_WITH_AES_128_CBC_SHA," + \
                 "+TLS_DHE_DSS_WITH_AES_256_CBC_SHA," + \
-                "+TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA," + \
+                "-TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA," + \
                 "+TLS_DHE_RSA_WITH_AES_128_CBC_SHA," + \
                 "+TLS_DHE_RSA_WITH_AES_256_CBC_SHA"
 
