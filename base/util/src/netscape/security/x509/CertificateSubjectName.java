@@ -170,6 +170,16 @@ public class CertificateSubjectName implements CertAttrSet, Serializable {
     }
 
     /**
+     * Get underlying X500Name value.
+     *
+     * Where the type is known to be CertificateSubjectName, use
+     * this method instead of 'get' to avoid casts and exceptions.
+     */
+    public X500Name getX500Name() {
+        return dnName;
+    }
+
+    /**
      * Delete the attribute value.
      */
     public void delete(String name) throws IOException {

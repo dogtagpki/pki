@@ -76,11 +76,34 @@ public class UserSubjectNameDefault extends EnrollDefault {
 
             try {
                 x500name = new X500Name(value);
+
+                CertificateSubjectName oldName = info.getSubjectObj();
+                if (oldName != null) {
+                    /* If the canonical string representations of
+                     * existing Subject DN and new DN are equal,
+                     * keep the old name so that the attribute
+                     * encodings are preserved. */
+                    X500Name oldX500name = oldName.getX500Name();
+                    if (x500name.toString().equals(oldX500name.toString())) {
+                        CMS.debug(
+                            "UserSubjectNameDefault: setValue: "
+                            + "new Subject DN has same string representation "
+                            + "as current value; retaining current value."
+                        );
+                        x500name = oldX500name;
+                    } else {
+                        CMS.debug(
+                            "UserSubjectNameDefault: setValue: "
+                            + "replacing current value `" + oldX500name.toString() + "` "
+                            + "with new value `" + x500name.toString() + "`"
+                        );
+                    }
+                }
             } catch (IOException e) {
                 CMS.debug(e.toString());
                 // failed to build x500 name
             }
-            CMS.debug("SubjectNameDefault: setValue name=" + x500name);
+            CMS.debug("UserSubjectNameDefault: setValue name=" + x500name);
             try {
                 info.set(X509CertInfo.SUBJECT,
                         new CertificateSubjectName(x500name));
