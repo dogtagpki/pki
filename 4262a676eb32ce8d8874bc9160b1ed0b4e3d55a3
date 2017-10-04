@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8f27b8ea_a8be56d9",
+        "filename": "base/java-tools/src/com/netscape/cmstools/client/ClientCertImportCLI.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 433,
+      "author": {
+        "id": 1011000
+      },
+      "writtenOn": "2017-10-04T01:32:02Z",
+      "side": 1,
+      "message": "I think this is problematic.\n\nAccording to http://docs.oracle.com/javase/7/docs/api/java/util/List.html#toArray(T[]) if the list fits in the array, the array is updated in-place and returned.  So if the PKCS #7 file for some reason contains multiple leaf certificates, the excess array elements will be set to `null`.  This would cause NPE later on when the array gets iterated.\n\nA better approach would be to have `sort` return a `List\u003cX509Certificate\u003e`, i.e. the `chain` variable,\ninstead of using List.toArray to update the input array.",
+      "range": {
+        "startLine": 433,
+        "startChar": 8,
+        "endLine": 433,
+        "endChar": 13
+      },
+      "revId": "4262a676eb32ce8d8874bc9160b1ed0b4e3d55a3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
