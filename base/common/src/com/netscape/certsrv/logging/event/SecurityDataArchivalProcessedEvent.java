@@ -25,7 +25,8 @@ public class SecurityDataArchivalProcessedEvent extends SignedAuditEvent {
 
     private static final long serialVersionUID = 1L;
 
-    private static final String LOGGING_PROPERTY = "LOGGING_SIGNED_AUDIT_SECURITY_DATA_ARCHIVAL_REQUEST_PROCESSED";
+    private static final String LOGGING_PROPERTY =
+            "LOGGING_SIGNED_AUDIT_SECURITY_DATA_ARCHIVAL_REQUEST_PROCESSED";
 
     public SecurityDataArchivalProcessedEvent(
             String subjectID,
@@ -39,15 +40,13 @@ public class SecurityDataArchivalProcessedEvent extends SignedAuditEvent {
 
         super(LOGGING_PROPERTY);
 
-        setParameters(new Object[] {
-                subjectID,
-                outcome,
-                archivalRequestId,
-                requestID,
-                clientKeyID,
-                keyID,
-                failureReason,
-                pubkey
-        });
+        setAttribute("SubjectID", subjectID);
+        setAttribute("Outcome", outcome);
+        setAttribute("ArchivalRequestID", archivalRequestId);
+        setAttribute("RequestId", requestID);
+        setAttribute("ClientKeyID", clientKeyID);
+        setAttribute("KeyID", keyID);
+        setAttribute("FailureReason", failureReason);
+        setAttribute("PubKey", pubkey);
     }
 }

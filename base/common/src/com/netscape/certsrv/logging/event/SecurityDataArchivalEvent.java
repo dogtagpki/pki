@@ -36,12 +36,10 @@ public class SecurityDataArchivalEvent extends SignedAuditEvent {
 
         super(LOGGING_PROPERTY);
 
-        setParameters(new Object[] {
-                subjectID,
-                outcome,
-                archivalID,
-                requestID,
-                clientKeyID
-        });
+        setAttribute("SubjectID", subjectID);
+        setAttribute("Outcome", outcome);
+        setAttribute("ArchivalRequestID", archivalID);
+        setAttribute("RequestId", requestID);
+        setAttribute("ClientKeyID", clientKeyID);
     }
 }
