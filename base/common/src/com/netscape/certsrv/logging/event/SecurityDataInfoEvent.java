@@ -37,13 +37,11 @@ public class SecurityDataInfoEvent extends SignedAuditEvent {
 
         super(LOGGING_PROPERTY);
 
-        setParameters(new Object[] {
-                subjectID,
-                outcome,
-                keyID,
-                clientKeyID,
-                failureReason,
-                pubKey
-        });
+        setAttribute("SubjectID", subjectID);
+        setAttribute("Outcome", outcome);
+        setAttribute("KeyID", keyID);
+        setAttribute("ClientKeyId", clientKeyID);
+        setAttribute("Info", failureReason);
+        setAttribute("PubKey", pubKey);
     }
 }

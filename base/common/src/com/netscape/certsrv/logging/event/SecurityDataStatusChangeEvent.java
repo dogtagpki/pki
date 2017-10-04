@@ -37,13 +37,11 @@ public class SecurityDataStatusChangeEvent extends SignedAuditEvent {
 
         super(LOGGING_PROPERTY);
 
-        setParameters(new Object[] {
-                subjectID,
-                outcome,
-                keyID,
-                oldStatus,
-                newStatus,
-                info
-        });
+        setAttribute("SubjectID", subjectID);
+        setAttribute("Outcome", outcome);
+        setAttribute("KeyID", keyID);
+        setAttribute("OldStatus", oldStatus);
+        setAttribute("NewStatus", newStatus);
+        setAttribute("Info", info);
     }
 }
