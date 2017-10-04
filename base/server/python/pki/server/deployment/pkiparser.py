@@ -1092,7 +1092,7 @@ class PKIConfigParser:
                     "-TLS_RSA_WITH_3DES_EDE_CBC_SHA," + \
                     "-TLS_RSA_WITH_AES_128_CBC_SHA," + \
                     "+TLS_RSA_WITH_AES_256_CBC_SHA," + \
-                    "+TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA," + \
+                    "-TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA," + \
                     "+TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA," + \
                     "-TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA," + \
                     "-TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA," + \
@@ -1145,7 +1145,7 @@ class PKIConfigParser:
                     "-TLS_RSA_WITH_AES_128_CBC_SHA256," + \
                     "-TLS_RSA_WITH_AES_256_CBC_SHA256," + \
                     "-TLS_RSA_WITH_AES_128_GCM_SHA256," + \
-                    "+TLS_RSA_WITH_3DES_EDE_CBC_SHA," + \
+                    "-TLS_RSA_WITH_3DES_EDE_CBC_SHA," + \
                     "+TLS_RSA_WITH_AES_128_CBC_SHA," + \
                     "+TLS_RSA_WITH_AES_256_CBC_SHA"
             self.mdict['TOMCAT_SSL2_CIPHERS_SLOT'] = \
@@ -1160,12 +1160,12 @@ class PKIConfigParser:
                 "-SSL3_FORTEZZA_DMS_WITH_RC4_128_SHA," + \
                 "+SSL3_RSA_WITH_RC4_128_SHA," + \
                 "-SSL3_RSA_EXPORT_WITH_RC4_40_MD5," + \
-                "+SSL3_RSA_WITH_3DES_EDE_CBC_SHA," + \
+                "-SSL3_RSA_WITH_3DES_EDE_CBC_SHA," + \
                 "-SSL3_RSA_WITH_DES_CBC_SHA," + \
                 "-SSL3_RSA_EXPORT_WITH_RC2_CBC_40_MD5," + \
                 "-SSL3_FORTEZZA_DMS_WITH_FORTEZZA_CBC_SHA," + \
                 "-SSL_RSA_FIPS_WITH_DES_CBC_SHA," + \
-                "+SSL_RSA_FIPS_WITH_3DES_EDE_CBC_SHA," + \
+                "-SSL_RSA_FIPS_WITH_3DES_EDE_CBC_SHA," + \
                 "-SSL3_RSA_WITH_NULL_MD5," + \
                 "-TLS_RSA_EXPORT1024_WITH_RC4_56_SHA," + \
                 "-TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA," + \
@@ -1177,23 +1177,23 @@ class PKIConfigParser:
             self.mdict['TOMCAT_TLS_CIPHERS_SLOT'] = \
                 "-TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA," + \
                 "-TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA," + \
-                "+TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA," + \
+                "-TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA," + \
                 "+TLS_ECDH_RSA_WITH_AES_128_CBC_SHA," + \
                 "+TLS_ECDH_RSA_WITH_AES_256_CBC_SHA," + \
                 "-TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA," + \
                 "+TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA," + \
-                "+TLS_RSA_WITH_3DES_EDE_CBC_SHA," + \
+                "-TLS_RSA_WITH_3DES_EDE_CBC_SHA," + \
                 "+TLS_RSA_WITH_AES_128_CBC_SHA," + \
                 "+TLS_RSA_WITH_AES_256_CBC_SHA," + \
-                "+TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA," + \
+                "-TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA," + \
                 "+TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA," + \
                 "-TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA," + \
                 "-TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA," + \
                 "-TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA," + \
-                "+TLS_DHE_DSS_WITH_3DES_EDE_CBC_SHA," + \
+                "-TLS_DHE_DSS_WITH_3DES_EDE_CBC_SHA," + \
                 "+TLS_DHE_DSS_WITH_AES_128_CBC_SHA," + \
                 "+TLS_DHE_DSS_WITH_AES_256_CBC_SHA," + \
-                "+TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA," + \
+                "-TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA," + \
                 "+TLS_DHE_RSA_WITH_AES_128_CBC_SHA," + \
                 "+TLS_DHE_RSA_WITH_AES_256_CBC_SHA"
 
