@@ -46,6 +46,30 @@
       "revId": "4262a676eb32ce8d8874bc9160b1ed0b4e3d55a3",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "48cc2da8_5eb5de3e",
+        "filename": "base/java-tools/src/com/netscape/cmstools/client/ClientCertImportCLI.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 433,
+      "author": {
+        "id": 1011000
+      },
+      "writtenOn": "2017-10-05T04:05:53Z",
+      "side": 1,
+      "message": "It is possible to construct a PKCS #7 object with multiple leaf certs.  Seems to be relatively straightforward with\n`openssl crl2pkcs7`, for example.\n\nMaybe we should just bail out if there is \u003e 1 leaf cert?\nOr prompt/add an option for specifying which cert should be treated as the leaf?",
+      "parentUuid": "18a882a5_bedc8b82",
+      "range": {
+        "startLine": 433,
+        "startChar": 8,
+        "endLine": 433,
+        "endChar": 13
+      },
+      "revId": "4262a676eb32ce8d8874bc9160b1ed0b4e3d55a3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
