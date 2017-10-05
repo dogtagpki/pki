@@ -25,6 +25,7 @@ import java.net.URI;
 import java.security.InvalidKeyException;
 import java.security.Principal;
 import java.security.PublicKey;
+import java.security.SecureRandom;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -32,9 +33,20 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 import javax.ws.rs.core.Response;
+
+import netscape.security.pkcs.ContentInfo;
+import netscape.security.pkcs.PKCS7;
+import netscape.security.pkcs.SignerInfo;
+import netscape.security.provider.RSAPublicKey;
+import netscape.security.x509.AlgorithmId;
+import netscape.security.x509.CRLExtensions;
+import netscape.security.x509.CRLReasonExtension;
+import netscape.security.x509.RevocationReason;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509ExtensionException;
+import netscape.security.x509.X509Key;
 
 import org.apache.catalina.realm.GenericPrincipal;
 import org.jboss.resteasy.plugins.providers.atom.Link;
@@ -68,20 +80,9 @@ import com.netscape.cms.servlet.cert.CertRequestDAO;
 import com.netscape.cms.servlet.cert.FilterBuilder;
 import com.netscape.cms.servlet.cert.RevocationProcessor;
 import com.netscape.cms.servlet.processors.CAProcessor;
+import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 import com.netscape.cmsutil.util.Utils;
-
-import netscape.security.pkcs.ContentInfo;
-import netscape.security.pkcs.PKCS7;
-import netscape.security.pkcs.SignerInfo;
-import netscape.security.provider.RSAPublicKey;
-import netscape.security.x509.AlgorithmId;
-import netscape.security.x509.CRLExtensions;
-import netscape.security.x509.CRLReasonExtension;
-import netscape.security.x509.RevocationReason;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509ExtensionException;
-import netscape.security.x509.X509Key;
 
 /**
  * @author alee
@@ -91,7 +92,7 @@ public class CertService extends PKIService implements CertResource {
 
     ICertificateAuthority authority;
     ICertificateRepository repo;
-    Random random;
+    SecureRandom random;
 
     public static final int DEFAULT_MAXTIME = 0;
     public static final int DEFAULT_MAXRESULTS = 20;
@@ -99,7 +100,8 @@ public class CertService extends PKIService implements CertResource {
     public CertService() {
         authority = (ICertificateAuthority) CMS.getSubsystem("ca");
         if (authority.noncesEnabled()) {
-            random = new Random();
+            JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+            random = jssSubsystem.getRandomNumberGenerator();
         }
         repo = authority.getCertificateRepository();
     }
