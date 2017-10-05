@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "261af574_eac91600",
+        "filename": "base/server/cms/src/com/netscape/cms/profile/def/UserSubjectNameDefault.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-10-05T17:52:58Z",
+      "side": 1,
+      "message": "If the canonical string representation of the new subject DN is different from the old one, do we still want to use the same encoding used in the old subject DN?",
+      "revId": "da52a5be7b1d732a6a18efcfb18cf5e869883f98",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
