@@ -17,21 +17,62 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv;
 
-import java.util.*;
-import java.text.*;
-import javax.swing.*;
-import javax.swing.event.*;
-import javax.swing.border.*;
-import javax.swing.table.*;
-import javax.swing.text.*;
-import java.awt.*;
-import java.awt.event.*;
-import com.netscape.management.client.*;
-import com.netscape.management.client.util.*;
-import com.netscape.admin.certsrv.misc.MessageFormatter;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.SystemColor;
+import java.awt.event.ActionListener;
+import java.security.GeneralSecurityException;
+import java.security.SecureRandom;
 import java.text.BreakIterator;
 import java.text.Collator;
-import com.netscape.management.nmclf.*;
+import java.text.MessageFormat;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
+import java.util.StringTokenizer;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.DefaultListModel;
+import javax.swing.DefaultListSelectionModel;
+import javax.swing.Icon;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JRadioButton;
+import javax.swing.JTable;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.border.Border;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.TitledBorder;
+import javax.swing.event.DocumentListener;
+import javax.swing.table.TableColumn;
+import javax.swing.text.Document;
+import javax.swing.text.JTextComponent;
+
+import com.netscape.admin.certsrv.misc.MessageFormatter;
+import com.netscape.cmsutil.crypto.CryptoUtil;
+import com.netscape.management.client.util.Debug;
+import com.netscape.management.client.util.Help;
+import com.netscape.management.client.util.JButtonFactory;
+import com.netscape.management.client.util.RemoteImage;
+import com.netscape.management.client.util.ResourceSet;
+import com.netscape.management.client.util.UtilConsoleGlobals;
+import com.netscape.management.nmclf.SuiLookAndFeel;
 
 /**
  * Utility class for the CMSAdmin package
@@ -439,7 +480,7 @@ public class CMSAdminUtil {
         StringTokenizer tokenizer = new StringTokenizer(str, "\n");
         while (tokenizer.hasMoreTokens()) {
         BreakIterator boundary = BreakIterator.getLineInstance();
-        String s = (String)tokenizer.nextToken();
+        String s = tokenizer.nextToken();
         boundary.setText(s);
         int end;
         int start = 0;
@@ -470,7 +511,7 @@ public class CMSAdminUtil {
         String endCert = "";
         String content = "";
         while(tokenizer.hasMoreTokens()) {
-            String sToken = (String)tokenizer.nextToken();
+            String sToken = tokenizer.nextToken();
             if (index == 1) {
                 beginCert = sToken;
             } else if (index == numTokens) {
@@ -1087,9 +1128,13 @@ public class CMSAdminUtil {
         String[] s = new String[t.length];
         System.arraycopy(t,0,s,0,t.length);
         String[] result = new String[s.length];
-
         int j=0;
-        java.util.Random r = new java.util.Random();
+        SecureRandom r = null;
+        try {
+            r = CryptoUtil.getRandomNumberGenerator();
+        } catch (GeneralSecurityException e) {
+            throw new RuntimeException(e);
+        }
 
         for (int i=0; i<s.length; i++) {
                 int x = r.nextInt();

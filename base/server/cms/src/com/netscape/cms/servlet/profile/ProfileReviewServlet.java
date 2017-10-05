@@ -17,10 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.profile;
 
+import java.security.SecureRandom;
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Random;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -51,6 +51,7 @@ import com.netscape.certsrv.template.ArgList;
 import com.netscape.certsrv.template.ArgSet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
+import com.netscape.cmscore.security.JssSubsystem;
 
 /**
  * This servlet allows reviewing of profile-based request.
@@ -68,7 +69,7 @@ public class ProfileReviewServlet extends ProfileServlet {
 
     private String mAuthorityId = null;
     ICertificateAuthority authority = null;
-    private Random mRandom = null;
+    private SecureRandom mRandom = null;
 
     public ProfileReviewServlet() {
     }
@@ -87,7 +88,9 @@ public class ProfileReviewServlet extends ProfileServlet {
             authority = (ICertificateAuthority) CMS.getSubsystem(mAuthorityId);
 
         if (authority != null && authority.noncesEnabled()) {
-            mRandom = new Random();
+
+            JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+            mRandom = jssSubsystem.getRandomNumberGenerator();
         }
     }
 
