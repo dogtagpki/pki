@@ -31,11 +31,19 @@ import java.io.PrintStream;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.SecureRandom;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.Random;
 import java.util.StringTokenizer;
+
+import netscape.security.pkcs.PKCS10;
+import netscape.security.x509.KeyIdentifier;
+import netscape.security.x509.PKIXExtensions;
+import netscape.security.x509.SubjectKeyIdentifierExtension;
+import netscape.security.x509.X500Name;
+import netscape.security.x509.X509CertImpl;
 
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.ANY;
@@ -104,13 +112,6 @@ import org.mozilla.jss.util.Password;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.HMACDigest;
 import com.netscape.cmsutil.util.Utils;
-
-import netscape.security.pkcs.PKCS10;
-import netscape.security.x509.KeyIdentifier;
-import netscape.security.x509.PKIXExtensions;
-import netscape.security.x509.SubjectKeyIdentifierExtension;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CertImpl;
 
 /**
  * Tool for creating CMC full request
@@ -1498,7 +1499,16 @@ public class CMCRequest {
         byte[] finalDigest = null;
 
         // (1) generate a random byte-string R of 512 bits
-        Random random = new Random();
+
+        SecureRandom random = null;
+
+        try {
+            random = SecureRandom.getInstance("pkcs11prng","Mozilla-JSS");
+        } catch (NoSuchAlgorithmException | NoSuchProviderException e) {
+            e.printStackTrace();
+            return null;
+        }
+
         byte[] random_R = new byte[64];
         random.nextBytes(random_R);
 
@@ -1752,7 +1762,7 @@ public class CMCRequest {
                     BigInteger reqIdBI = new BigInteger(reqIdBA);
 
                     System.out.println(method + "   requestID: " + reqIdBI.toString());
-                            
+
                 } // we don't expect any other controls
             } //for
         } catch (Exception e) {
@@ -1889,7 +1899,7 @@ public class CMCRequest {
             controlSeq.addElement(decPop);
             System.out.println(method + "decryptedPop control added");
 
-            TaggedAttribute reqIdTA = 
+            TaggedAttribute reqIdTA =
                         new TaggedAttribute(new INTEGER(bpid++),
                         OBJECT_IDENTIFIER.id_cmc_regInfo,
                         reqIdOS);

@@ -17,6 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.common;
 
+import java.security.GeneralSecurityException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.SecureRandom;
 import java.util.StringTokenizer;
 
 import javax.servlet.ServletConfig;
@@ -144,5 +148,18 @@ public class ServletUtils {
         }
 
         return aclMethod;
+    }
+
+    public static SecureRandom getRandomNumberGenerator() throws GeneralSecurityException {
+        SecureRandom rnd;
+        try {
+            rnd = SecureRandom.getInstance("pkcs11prng","Mozilla-JSS");
+        } catch (NoSuchAlgorithmException | NoSuchProviderException e) {
+            e.printStackTrace();
+            throw e;
+        }
+
+        return rnd;
+
     }
 }

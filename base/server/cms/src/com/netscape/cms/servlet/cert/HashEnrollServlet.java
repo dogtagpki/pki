@@ -21,6 +21,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.security.GeneralSecurityException;
 import java.security.InvalidKeyException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateParsingException;
@@ -595,7 +596,14 @@ public class HashEnrollServlet extends CMSServlet {
         req.setExtData(IRequest.CERT_INFO, certInfoArray);
 
         if (challengePassword != null && !challengePassword.equals("")) {
-            String pwd = hashPassword(challengePassword);
+            String pwd;
+            try {
+                pwd = hashPassword(challengePassword);
+            } catch (GeneralSecurityException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+                throw new EBaseException(e);
+            }
 
             req.setExtData(CHALLENGE_PASSWORD, pwd);
         }
