@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a3d14bd5_06409ced",
+        "filename": "base/server/cms/src/com/netscape/cms/logging/SignedAuditLogger.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 1010222
+      },
+      "writtenOn": "2017-10-05T23:37:30Z",
+      "side": 1,
+      "message": "Should this be if(j \u003c 0)",
+      "revId": "5f69f60d8243fa26e035179c6cebb8b97fcb061e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
