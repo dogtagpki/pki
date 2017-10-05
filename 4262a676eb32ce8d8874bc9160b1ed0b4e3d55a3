@@ -70,6 +70,30 @@
       "revId": "4262a676eb32ce8d8874bc9160b1ed0b4e3d55a3",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "85d68fdf_c8227ad2",
+        "filename": "base/java-tools/src/com/netscape/cmstools/client/ClientCertImportCLI.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 433,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-10-05T18:44:06Z",
+      "side": 1,
+      "message": "Yeah. I\u0027ve updated the patch to do some input validations. Basically this tool is intended to import a cert with its dependencies (e.g. from CMC enrollment), so a PKCS #7 with multiple leaf certs (e.g. from crl2pkcs7) will be rejected for now. The sort() will update the input array instead of returning a new array since the output is now guaranteed to match the input (but let me know if you prefer returning a new array).\n\nIf needed, we probably could improve the code later to support multiple leaf certs in a separate ticket.",
+      "parentUuid": "48cc2da8_5eb5de3e",
+      "range": {
+        "startLine": 433,
+        "startChar": 8,
+        "endLine": 433,
+        "endChar": 13
+      },
+      "revId": "4262a676eb32ce8d8874bc9160b1ed0b4e3d55a3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
