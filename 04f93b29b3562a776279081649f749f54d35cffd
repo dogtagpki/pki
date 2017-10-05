@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a53f885d_a06eef1c",
+        "filename": "base/server/python/pki/server/deployment/pkiparser.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1095,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-10-05T19:06:46Z",
+      "side": 1,
+      "message": "It\u0027s not mentioned in the ticket, but should this be disabled by default too?",
+      "revId": "04f93b29b3562a776279081649f749f54d35cffd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c20cba31_39bd0595",
+        "filename": "base/server/python/pki/server/deployment/pkiparser.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1180,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-10-05T19:06:46Z",
+      "side": 1,
+      "message": "And this too?",
+      "revId": "04f93b29b3562a776279081649f749f54d35cffd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b4e4c0b9_06dadb5b",
+        "filename": "base/server/share/conf/ciphers.info",
+        "patchSetId": 1
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-10-05T19:06:46Z",
+      "side": 1,
+      "message": "Probably we should just remove this line because it conflicts with line 54 that says \"they can be turned off if needed\".",
+      "revId": "04f93b29b3562a776279081649f749f54d35cffd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "73dd9a23_7818e263",
+        "filename": "base/server/share/conf/ciphers.info",
+        "patchSetId": 1
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-10-05T19:06:46Z",
+      "side": 1,
+      "message": "If TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA is changed in pkiparser.py, this needs to be updated as well.",
+      "range": {
+        "startLine": 74,
+        "startChar": 375,
+        "endLine": 74,
+        "endChar": 413
+      },
+      "revId": "04f93b29b3562a776279081649f749f54d35cffd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
