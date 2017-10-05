@@ -19,9 +19,9 @@ package com.netscape.cms.servlet.csadmin;
 
 import java.io.StringWriter;
 import java.net.InetAddress;
+import java.security.SecureRandom;
 import java.util.Enumeration;
 import java.util.Locale;
-import java.util.Random;
 import java.util.Vector;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -30,6 +30,13 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPAttributeSet;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPSearchConstraints;
+import netscape.ldap.LDAPSearchResults;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -52,14 +59,8 @@ import com.netscape.certsrv.system.SecurityDomainHost;
 import com.netscape.certsrv.system.SecurityDomainSubsystem;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.cms.servlet.processors.CAProcessor;
+import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.xml.XMLObject;
-
-import netscape.ldap.LDAPAttribute;
-import netscape.ldap.LDAPAttributeSet;
-import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPEntry;
-import netscape.ldap.LDAPSearchConstraints;
-import netscape.ldap.LDAPSearchResults;
 
 /**
  * @author Endi S. Dewata
@@ -68,10 +69,13 @@ public class SecurityDomainProcessor extends CAProcessor {
 
     public final static String[] TYPES = { "CA", "KRA", "OCSP", "TKS", "RA", "TPS" };
 
-    Random random = new Random();
+    SecureRandom random = null;
+
 
     public SecurityDomainProcessor(Locale locale) throws EPropertyNotFound, EBaseException {
         super("securitydomain", locale);
+        JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+        random = jssSubsystem.getRandomNumberGenerator();
     }
 
     public static String getEnterpriseGroupName(String subsystemname) {

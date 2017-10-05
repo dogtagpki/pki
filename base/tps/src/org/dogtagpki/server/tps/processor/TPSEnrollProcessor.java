@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -12,8 +13,13 @@ import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Random;
 import java.util.zip.DataFormatException;
+
+import netscape.security.provider.RSAPublicKey;
+//import org.mozilla.jss.pkcs11.PK11ECPublicKey;
+import netscape.security.util.BigInt;
+import netscape.security.x509.RevocationReason;
+import netscape.security.x509.X509CertImpl;
 
 import org.dogtagpki.server.tps.TPSSession;
 import org.dogtagpki.server.tps.TPSSubsystem;
@@ -53,20 +59,16 @@ import org.mozilla.jss.pkcs11.PK11PubKey;
 import org.mozilla.jss.pkcs11.PK11RSAPublicKey;
 import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
 
+import sun.security.pkcs11.wrapper.PKCS11Constants;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.tps.token.TokenStatus;
+import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.util.Utils;
-
-import netscape.security.provider.RSAPublicKey;
-//import org.mozilla.jss.pkcs11.PK11ECPublicKey;
-import netscape.security.util.BigInt;
-import netscape.security.x509.RevocationReason;
-import netscape.security.x509.X509CertImpl;
-import sun.security.pkcs11.wrapper.PKCS11Constants;
 
 public class TPSEnrollProcessor extends TPSProcessor {
 
@@ -520,7 +522,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
         if (lastObjVer != 0) {
             while (lastObjVer == 0xff) {
-                Random randomGenerator = new Random();
+                JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+                SecureRandom randomGenerator = jssSubsystem.getRandomNumberGenerator();
                 lastObjVer = randomGenerator.nextInt(1000);
             }
 
@@ -941,7 +944,9 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
         int lastFormatVersion = 0x0100;
         int lastObjectVersion;
-        Random randomGenerator = new Random();
+
+        JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+        SecureRandom randomGenerator = jssSubsystem.getRandomNumberGenerator();
 
         lastObjectVersion = randomGenerator.nextInt(1000);
 

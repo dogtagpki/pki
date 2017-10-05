@@ -27,6 +27,8 @@ import java.util.List;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 
+import netscape.security.x509.X500Name;
+
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.apps.CMS;
@@ -67,8 +69,6 @@ import com.netscape.certsrv.request.RequestNotFoundException;
 import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cms.servlet.cert.CertRequestDAO;
 import com.netscape.cmsutil.ldap.LDAPUtil;
-
-import netscape.security.x509.X500Name;
 
 /**
  * @author alee
