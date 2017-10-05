@@ -18,11 +18,12 @@
 package com.netscape.cms.profile.def;
 
 import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.security.SecureRandom;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-import java.util.Random;
 
 import netscape.security.x509.CertificateValidity;
 import netscape.security.x509.X509CertInfo;
@@ -35,6 +36,7 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cms.servlet.common.ServletUtils;
 
 /**
  * This class implements an enrollment default policy
@@ -55,7 +57,7 @@ public class RandomizedValidityDefault extends EnrollDefault {
     public static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
     private long mDayInMS = 86400000; // 1 days
-    private Random mRandom = null;
+    private SecureRandom mRandom = null;
 
     public RandomizedValidityDefault() {
         super();
@@ -65,7 +67,13 @@ public class RandomizedValidityDefault extends EnrollDefault {
         addConfigName(CONFIG_NOT_AFTER_RANDOM_BITS);
         addValueName(VAL_NOT_BEFORE);
         addValueName(VAL_NOT_AFTER);
-        mRandom = new Random();
+
+
+        try {
+            mRandom = ServletUtils.getRandomNumberGenerator();
+        } catch (GeneralSecurityException e) {
+            e.printStackTrace();
+        }
     }
 
     public void init(IProfile profile, IConfigStore config)

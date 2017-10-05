@@ -27,6 +27,8 @@ import java.util.List;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 
+import netscape.security.x509.X500Name;
+
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.apps.CMS;
@@ -68,8 +70,6 @@ import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cms.servlet.cert.CertRequestDAO;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
-import netscape.security.x509.X500Name;
-
 /**
  * @author alee
  *
@@ -92,8 +92,9 @@ public class CertRequestService extends PKIService implements CertRequestResourc
         }
         CertRequestInfo info;
 
-        CertRequestDAO dao = new CertRequestDAO();
+        CertRequestDAO dao = null;
         try {
+            dao = new CertRequestDAO();
             info = dao.getRequest(id, uriInfo);
         } catch (EBaseException e) {
             CMS.debug(e);
@@ -148,10 +149,11 @@ public class CertRequestService extends PKIService implements CertRequestResourc
         data.setRemoteHost(servletRequest.getRemoteHost());
         data.setRemoteAddr(servletRequest.getRemoteAddr());
 
-        CertRequestDAO dao = new CertRequestDAO();
+        CertRequestDAO dao = null;
 
         CertRequestInfos infos;
         try {
+            dao = new CertRequestDAO();
             infos = dao.submitRequest(aid, data, servletRequest, uriInfo, getLocale(headers));
         } catch (EAuthException e) {
             CMS.debug("enrollCert: authentication failed: " + e);
@@ -223,8 +225,9 @@ public class CertRequestService extends PKIService implements CertRequestResourc
         if (id == null) {
             throw new BadRequestException("Bad data input in CertRequestResourceService. op:" + op);
         }
-        CertRequestDAO dao = new CertRequestDAO();
+        CertRequestDAO dao = null;
         try {
+            dao = new CertRequestDAO();
             dao.changeRequestState(id, servletRequest, data, getLocale(headers), op);
         } catch (ERejectException e) {
             CMS.debug("changeRequestState: execution rejected " + e);
@@ -270,8 +273,9 @@ public class CertRequestService extends PKIService implements CertRequestResourc
         }
         CertReviewResponse info;
 
-        CertRequestDAO dao = new CertRequestDAO();
+        CertRequestDAO dao = null;
         try {
+            dao = new CertRequestDAO();
             info = dao.reviewRequest(servletRequest, id, uriInfo, getLocale(headers));
         } catch (EBaseException e) {
             CMS.debug(e);
@@ -301,9 +305,10 @@ public class CertRequestService extends PKIService implements CertRequestResourc
         maxResults = maxResults == null ? DEFAULT_MAXRESULTS : maxResults;
         maxTime = maxTime == null ? DEFAULT_MAXTIME : maxTime;
 
-        CertRequestDAO reqDAO = new CertRequestDAO();
+        CertRequestDAO reqDAO = null;
         CertRequestInfos requests;
         try {
+            reqDAO = new CertRequestDAO();
             requests =  reqDAO.listRequests(filter, start, pageSize, maxResults, maxTime, uriInfo);
         } catch (EBaseException e) {
             CMS.debug("listRequests: error in obtaining request results" + e);

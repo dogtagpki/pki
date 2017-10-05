@@ -18,11 +18,12 @@
 package com.netscape.cms.servlet.cert;
 
 import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Random;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -50,6 +51,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cms.servlet.common.ServletUtils;
 
 /**
  * Specify the RevocationReason when revoking a certificate
@@ -68,7 +70,7 @@ public class ReasonToRevoke extends CMSServlet {
     private ICertificateRepository mCertDB = null;
     private String mFormPath = null;
     private ICertificateAuthority mCA = null;
-    private Random mRandom = null;
+    private SecureRandom mRandom = null;
     private int mTimeLimits = 30; /* in seconds */
 
     public ReasonToRevoke() {
@@ -90,7 +92,13 @@ public class ReasonToRevoke extends CMSServlet {
         }
 
         if (mCA != null && mCA.noncesEnabled()) {
-            mRandom = new Random();
+
+            try {
+                mRandom = ServletUtils.getRandomNumberGenerator();
+            } catch (GeneralSecurityException e) {
+                e.printStackTrace();
+                throw new ServletException(e);
+            }
         }
 
         mTemplates.remove(ICMSRequest.SUCCESS);

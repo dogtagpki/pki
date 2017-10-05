@@ -19,12 +19,12 @@ package com.netscape.cms.servlet.cert;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.security.SecureRandom;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Random;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -56,6 +56,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cms.servlet.common.ServletUtils;
 import com.netscape.cmsutil.util.Utils;
 
 /**
@@ -82,7 +83,7 @@ public class RevocationServlet extends CMSServlet {
     private String mFormPath = null;
     private boolean mRevokeByDN = true;
 
-    private Random mRandom = null;
+    private SecureRandom mRandom = null;
 
     public RevocationServlet() {
         super();
@@ -109,7 +110,8 @@ public class RevocationServlet extends CMSServlet {
 
             if (mAuthority instanceof ICertificateAuthority) {
                 if (((ICertificateAuthority) mAuthority).noncesEnabled()) {
-                    mRandom = new Random();
+
+                    mRandom = ServletUtils.getRandomNumberGenerator();
                 }
             }
 

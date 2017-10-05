@@ -27,7 +27,12 @@ import java.security.SecureRandom;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.Hashtable;
-import java.util.Random;
+
+import netscape.security.util.BigInt;
+import netscape.security.util.DerInputStream;
+import netscape.security.util.DerValue;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509Key;
 
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.ANY;
@@ -66,14 +71,9 @@ import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.certsrv.util.IStatsSubsystem;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.dbs.KeyRecord;
+import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmscore.util.Debug;
 import com.netscape.cmsutil.crypto.CryptoUtil;
-
-import netscape.security.util.BigInt;
-import netscape.security.util.DerInputStream;
-import netscape.security.util.DerValue;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509Key;
 
 /**
  * A class represents recovery request processor. There
@@ -494,7 +494,8 @@ public class RecoveryService implements IService {
 
             ASN1Value key;
             if (legacyP12) {
-                Random ran = new SecureRandom();
+                JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+                SecureRandom ran = jssSubsystem.getRandomNumberGenerator();
                 byte[] salt = new byte[20];
                 ran.nextBytes(salt);
 

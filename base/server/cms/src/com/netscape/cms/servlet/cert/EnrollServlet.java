@@ -19,6 +19,7 @@ package com.netscape.cms.servlet.cert;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.security.GeneralSecurityException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
@@ -31,6 +32,14 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import netscape.security.pkcs.PKCS10;
+import netscape.security.x509.AlgorithmId;
+import netscape.security.x509.CertificateAlgorithmId;
+import netscape.security.x509.CertificateX509Key;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509CertInfo;
+import netscape.security.x509.X509Key;
 
 import org.dogtagpki.legacy.policy.IPolicyProcessor;
 
@@ -68,14 +77,6 @@ import com.netscape.cms.servlet.processors.CRMFProcessor;
 import com.netscape.cms.servlet.processors.KeyGenProcessor;
 import com.netscape.cms.servlet.processors.PKCS10Processor;
 import com.netscape.cms.servlet.processors.PKIProcessor;
-
-import netscape.security.pkcs.PKCS10;
-import netscape.security.x509.AlgorithmId;
-import netscape.security.x509.CertificateAlgorithmId;
-import netscape.security.x509.CertificateX509Key;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
-import netscape.security.x509.X509Key;
 
 /**
  * Submit a Certificate Enrollment request
@@ -1306,7 +1307,15 @@ public class EnrollServlet extends CMSServlet {
             req.setExtData(IRequest.CERT_INFO, certInfoArray);
 
             if (challengePassword != null && !challengePassword.equals("")) {
-                String pwd = hashPassword(challengePassword);
+                String pwd;
+                try {
+                    pwd = hashPassword(challengePassword);
+                } catch (GeneralSecurityException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+
+                    throw new EBaseException(e);
+                }
 
                 req.setExtData(CHALLENGE_PASSWORD, pwd);
             }
