@@ -18,9 +18,9 @@
 package com.netscape.cms.servlet.cert;
 
 import java.io.IOException;
+import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
 import java.util.Locale;
-import java.util.Random;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -45,6 +45,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmscore.security.JssSubsystem;
 
 /**
  * For Face-to-face enrollment, enable EE enrollment feature
@@ -59,7 +60,7 @@ public class EnableEnrollResult extends CMSServlet {
     private static final long serialVersionUID = -2646998784859783012L;
     private final static String TPL_FILE = "enableEnrollResult.template";
     private String mFormPath = null;
-    private Random random = null;
+    private SecureRandom random = null;
 
     public EnableEnrollResult() {
         super();
@@ -76,7 +77,9 @@ public class EnableEnrollResult extends CMSServlet {
         mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
 
         mTemplates.remove(ICMSRequest.SUCCESS);
-        random = new Random();
+
+        JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+        random = jssSubsystem.getRandomNumberGenerator();
     }
 
     protected CMSRequest newCMSRequest() {

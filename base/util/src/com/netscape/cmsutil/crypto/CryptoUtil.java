@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.math.BigInteger;
 import java.net.SocketException;
+import java.security.GeneralSecurityException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
@@ -31,6 +32,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.PublicKey;
+import java.security.SecureRandom;
 import java.security.SignatureException;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
@@ -43,9 +45,42 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Random;
 import java.util.StringTokenizer;
 import java.util.Vector;
+
+import netscape.security.pkcs.PKCS10;
+import netscape.security.pkcs.PKCS10Attribute;
+import netscape.security.pkcs.PKCS10Attributes;
+import netscape.security.pkcs.PKCS7;
+import netscape.security.pkcs.PKCS9Attribute;
+import netscape.security.pkcs.ParsingException;
+import netscape.security.util.BigInt;
+import netscape.security.util.DerInputStream;
+import netscape.security.util.DerOutputStream;
+import netscape.security.util.DerValue;
+import netscape.security.util.ObjectIdentifier;
+import netscape.security.util.WrappingParams;
+import netscape.security.x509.AlgorithmId;
+import netscape.security.x509.CertAttrSet;
+import netscape.security.x509.CertificateAlgorithmId;
+import netscape.security.x509.CertificateChain;
+import netscape.security.x509.CertificateExtensions;
+import netscape.security.x509.CertificateIssuerName;
+import netscape.security.x509.CertificateSerialNumber;
+import netscape.security.x509.CertificateSubjectName;
+import netscape.security.x509.CertificateValidity;
+import netscape.security.x509.CertificateVersion;
+import netscape.security.x509.CertificateX509Key;
+import netscape.security.x509.Extension;
+import netscape.security.x509.Extensions;
+import netscape.security.x509.KeyIdentifier;
+import netscape.security.x509.PKIXExtensions;
+import netscape.security.x509.SubjectKeyIdentifierExtension;
+import netscape.security.x509.X500Name;
+import netscape.security.x509.X500Signer;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509CertInfo;
+import netscape.security.x509.X509Key;
 
 import org.apache.commons.lang.StringUtils;
 import org.mozilla.jss.CryptoManager;
@@ -115,40 +150,6 @@ import org.mozilla.jss.util.Password;
 
 import com.netscape.cmsutil.util.Cert;
 import com.netscape.cmsutil.util.Utils;
-
-import netscape.security.pkcs.PKCS10;
-import netscape.security.pkcs.PKCS10Attribute;
-import netscape.security.pkcs.PKCS10Attributes;
-import netscape.security.pkcs.PKCS7;
-import netscape.security.pkcs.PKCS9Attribute;
-import netscape.security.pkcs.ParsingException;
-import netscape.security.util.BigInt;
-import netscape.security.util.DerInputStream;
-import netscape.security.util.DerOutputStream;
-import netscape.security.util.DerValue;
-import netscape.security.util.ObjectIdentifier;
-import netscape.security.util.WrappingParams;
-import netscape.security.x509.AlgorithmId;
-import netscape.security.x509.CertAttrSet;
-import netscape.security.x509.CertificateAlgorithmId;
-import netscape.security.x509.CertificateChain;
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.CertificateIssuerName;
-import netscape.security.x509.CertificateSerialNumber;
-import netscape.security.x509.CertificateSubjectName;
-import netscape.security.x509.CertificateValidity;
-import netscape.security.x509.CertificateVersion;
-import netscape.security.x509.CertificateX509Key;
-import netscape.security.x509.Extension;
-import netscape.security.x509.Extensions;
-import netscape.security.x509.KeyIdentifier;
-import netscape.security.x509.PKIXExtensions;
-import netscape.security.x509.SubjectKeyIdentifierExtension;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X500Signer;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
-import netscape.security.x509.X509Key;
 
 @SuppressWarnings("serial")
 public class CryptoUtil {
@@ -2106,13 +2107,29 @@ public class CryptoUtil {
      * Generates a nonce_iv for padding.
      *
      * @return
+     * @throws GeneralSecurityException
      */
-    public static byte[] getNonceData(int size) {
+    public static byte[] getNonceData(int size) throws GeneralSecurityException {
         byte[] iv = new byte[size];
-        Random rnd = new Random();
+
+        SecureRandom rnd;
+        rnd = CryptoUtil.getRandomNumberGenerator();
         rnd.nextBytes(iv);
 
         return iv;
+    }
+
+    public static SecureRandom getRandomNumberGenerator() throws GeneralSecurityException {
+        SecureRandom rnd;
+        try {
+            rnd = SecureRandom.getInstance("pkcs11prng","Mozilla-JSS");
+        } catch (NoSuchAlgorithmException | NoSuchProviderException e) {
+            e.printStackTrace();
+            throw e;
+        }
+
+        return rnd;
+
     }
 
     public static byte[] unwrapUsingPassphrase(byte[] wrappedRecoveredKey, String recoveryPassphrase)
