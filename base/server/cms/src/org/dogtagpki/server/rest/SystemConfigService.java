@@ -23,10 +23,12 @@ import java.net.URL;
 import java.security.KeyPair;
 import java.security.Principal;
 import java.security.PublicKey;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Random;
+
+import netscape.security.x509.X509CertImpl;
 
 import org.apache.commons.lang.StringUtils;
 import org.mozilla.jss.CryptoManager;
@@ -56,9 +58,8 @@ import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cms.servlet.csadmin.Cert;
 import com.netscape.cms.servlet.csadmin.ConfigurationUtils;
 import com.netscape.cms.servlet.csadmin.SystemCertDataFactory;
+import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
-
-import netscape.security.x509.X509CertImpl;
 
 /**
  * @author alee
@@ -675,7 +676,10 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
             if (StringUtils.isEmpty(replicationPassword)) {
                 // generate random password
-                replicationPassword = Integer.toString(new Random().nextInt());
+
+                JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+                SecureRandom random = jssSubsystem.getRandomNumberGenerator();
+                replicationPassword = Integer.toString(random.nextInt());
             }
 
             IConfigStore psStore = null;
