@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4faa1b9d_4fd2e966",
+        "filename": "base/server/cms/src/com/netscape/cms/logging/LogFile.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1206,
+      "author": {
+        "id": 1010222
+      },
+      "writtenOn": "2017-10-05T23:38:52Z",
+      "side": 1,
+      "message": "Is value assured to have something in it and not null?",
+      "revId": "193bae1ad01dd9c78ac6a7cdf321bf6197156382",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
