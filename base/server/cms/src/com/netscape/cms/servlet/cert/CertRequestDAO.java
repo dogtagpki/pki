@@ -17,12 +17,12 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.cert;
 
+import java.security.SecureRandom;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Random;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -47,6 +47,7 @@ import com.netscape.certsrv.request.RequestNotFoundException;
 import com.netscape.cms.servlet.common.AuthCredentials;
 import com.netscape.cms.servlet.processors.CAProcessor;
 import com.netscape.cms.servlet.request.CMSRequestDAO;
+import com.netscape.cmscore.security.JssSubsystem;
 
 /**
  * @author alee
@@ -56,16 +57,17 @@ public class CertRequestDAO extends CMSRequestDAO {
     private IRequestQueue queue;
     private ICertificateAuthority ca;
     IProfileSubsystem ps;
-    private Random random = null;
+    private SecureRandom random = null;
 
     public static final String ATTR_SERIALNO = "serialNumber";
 
-    public CertRequestDAO() {
+    public CertRequestDAO() throws EBaseException {
         super("ca");
         ca = (ICertificateAuthority) CMS.getSubsystem("ca");
         queue = ca.getRequestQueue();
         if (ca.noncesEnabled()) {
-            random = new Random();
+            JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+            random = jssSubsystem.getRandomNumberGenerator();
         }
         ps = (IProfileSubsystem) CMS.getSubsystem(IProfileSubsystem.ID);
     }
