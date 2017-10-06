@@ -95,6 +95,6 @@ public abstract class CAEnrollDefault extends EnrollDefault {
                 "CryptoUtil.generateKeyIdentifier returns null");
             return null;
         }
-        return null;
+        return new KeyIdentifier(hash);
     }
 }
