@@ -16,6 +16,24 @@
       "revId": "da52a5be7b1d732a6a18efcfb18cf5e869883f98",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a9509178_5870be56",
+        "filename": "base/server/cms/src/com/netscape/cms/profile/def/UserSubjectNameDefault.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 1011000
+      },
+      "writtenOn": "2017-10-06T00:15:47Z",
+      "side": 1,
+      "message": "No, we really do want to keep the old encoding.  It may have come from a CSR (which itself came from a cert), so we want to preserve those encodings, not the later ones which come from parsing a stringified DN supplied by the agent (but only if the DNs have the same string repr; if it is a totally different DN then obviously we accept that).",
+      "parentUuid": "261af574_eac91600",
+      "revId": "da52a5be7b1d732a6a18efcfb18cf5e869883f98",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
