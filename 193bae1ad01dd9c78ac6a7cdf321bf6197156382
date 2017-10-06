@@ -16,6 +16,24 @@
       "revId": "193bae1ad01dd9c78ac6a7cdf321bf6197156382",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d21d8e5d_6b5f85d9",
+        "filename": "base/server/cms/src/com/netscape/cms/logging/LogFile.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1206,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-10-06T00:10:45Z",
+      "side": 1,
+      "message": "Yes. This is the only place that creates JDAPFilterEqualityMatch:\n\nhttps://hg.mozilla.org/projects/ldap-sdks/file/tip/java-sdk/ldapjdk/netscape/ldap/client/JDAPFilter.java#l227\n\nBased on that code, the value in the JDAPAVA cannot be null.",
+      "parentUuid": "4faa1b9d_4fd2e966",
+      "revId": "193bae1ad01dd9c78ac6a7cdf321bf6197156382",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
