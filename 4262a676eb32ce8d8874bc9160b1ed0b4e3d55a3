@@ -94,6 +94,30 @@
       "revId": "4262a676eb32ce8d8874bc9160b1ed0b4e3d55a3",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bbef91c7_e71076e4",
+        "filename": "base/java-tools/src/com/netscape/cmstools/client/ClientCertImportCLI.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 433,
+      "author": {
+        "id": 1011000
+      },
+      "writtenOn": "2017-10-06T00:54:36Z",
+      "side": 1,
+      "message": "I\u0027m happy with the current behaviour.\n\nI still think `List.toArray()` is to be avoided (unsafe mutation) and would prefer to see it changed, or at least a comment added so that someone modifying the behaviour of\nthis command in the future will hopefully be aware of its\nirregular behaviour.",
+      "parentUuid": "85d68fdf_c8227ad2",
+      "range": {
+        "startLine": 433,
+        "startChar": 8,
+        "endLine": 433,
+        "endChar": 13
+      },
+      "revId": "4262a676eb32ce8d8874bc9160b1ed0b4e3d55a3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
