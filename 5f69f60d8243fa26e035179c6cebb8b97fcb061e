@@ -16,6 +16,24 @@
       "revId": "5f69f60d8243fa26e035179c6cebb8b97fcb061e",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0e7539eb_d98fcc0e",
+        "filename": "base/server/cms/src/com/netscape/cms/logging/SignedAuditLogger.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-10-06T00:10:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a3d14bd5_06409ced",
+      "revId": "5f69f60d8243fa26e035179c6cebb8b97fcb061e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
