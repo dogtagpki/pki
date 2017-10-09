@@ -81,7 +81,11 @@ public class TokenAuthenticate extends CMSServlet {
         String uid = "";
         String gid = "";
         CMS.debug("TokenAuthentication: checking session in the session table");
-        if (table.sessionExists(sessionId)) {
+        if (table == null) {
+            CMS.debug("TokenAuthentication: session table is null");
+            outputError(httpResp, "Error: session table is null");
+            return;
+        } else if (table.sessionExists(sessionId)) {
             CMS.debug("TokenAuthentication: found session");
             if (checkIP) {
                 String hostname = table.getIP(sessionId);
