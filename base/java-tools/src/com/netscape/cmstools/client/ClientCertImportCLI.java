@@ -38,7 +38,7 @@ import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.InternalCertificate;
 import org.mozilla.jss.crypto.X509Certificate;
 
-import com.netscape.certsrv.cert.CertClient;
+import com.netscape.certsrv.ca.CACertClient;
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
@@ -273,7 +273,7 @@ public class ClientCertImportCLI extends CLI {
             if (verbose) System.out.println("Importing certificate " + serialNumber + " from " + serverURI + ".");
 
             PKIClient client = new PKIClient(config, null);
-            CertClient certClient = new CertClient(client, "ca");
+            CACertClient certClient = new CACertClient(client, "ca");
 
             CertData certData = certClient.getCert(new CertId(serialNumber));
 

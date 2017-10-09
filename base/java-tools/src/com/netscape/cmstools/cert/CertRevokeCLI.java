@@ -25,7 +25,7 @@ import java.util.Arrays;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
-import com.netscape.certsrv.cert.CertClient;
+import com.netscape.certsrv.ca.CACertClient;
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.cert.CertRequestInfo;
 import com.netscape.certsrv.cert.CertRevokeRequest;
@@ -104,7 +104,7 @@ public class CertRevokeCLI extends CLI {
             throw new Exception("Invalid revocation reason: " + string);
         }
 
-        CertClient certClient = certCLI.getCertClient();
+        CACertClient certClient = certCLI.getCertClient();
         CertData certData = certClient.reviewCert(certID);
 
         if (!cmd.hasOption("force")) {

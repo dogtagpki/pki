@@ -24,7 +24,7 @@ import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
 
-import com.netscape.certsrv.cert.CertClient;
+import com.netscape.certsrv.ca.CACertClient;
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.cert.CertRequestInfo;
 import com.netscape.certsrv.dbs.certdb.CertId;
@@ -71,7 +71,7 @@ public class CertReleaseHoldCLI extends CLI {
         }
 
         CertId certID = new CertId(cmdArgs[0]);
-        CertClient certClient = certCLI.getCertClient();
+        CACertClient certClient = certCLI.getCertClient();
 
         if (!cmd.hasOption("force")) {
 

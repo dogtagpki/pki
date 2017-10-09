@@ -15,14 +15,23 @@
 //(C) 2012 Red Hat, Inc.
 //All rights reserved.
 //--- END COPYRIGHT BLOCK ---
-package com.netscape.certsrv.cert;
+package com.netscape.certsrv.ca;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 
 import javax.ws.rs.core.Response;
 
-import com.netscape.certsrv.ca.AuthorityID;
+import com.netscape.certsrv.cert.CertData;
+import com.netscape.certsrv.cert.CertDataInfos;
+import com.netscape.certsrv.cert.CertEnrollmentRequest;
+import com.netscape.certsrv.cert.CertRequestInfo;
+import com.netscape.certsrv.cert.CertRequestInfos;
+import com.netscape.certsrv.cert.CertRequestResource;
+import com.netscape.certsrv.cert.CertResource;
+import com.netscape.certsrv.cert.CertReviewResponse;
+import com.netscape.certsrv.cert.CertRevokeRequest;
+import com.netscape.certsrv.cert.CertSearchRequest;
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
@@ -34,16 +43,16 @@ import netscape.security.x509.X500Name;
 /**
  * @author Endi S. Dewata
  */
-public class CertClient extends Client {
+public class CACertClient extends Client {
 
     public CertResource certClient;
     public CertRequestResource certRequestClient;
 
-    public CertClient(SubsystemClient subsystemClient) throws URISyntaxException {
+    public CACertClient(SubsystemClient subsystemClient) throws URISyntaxException {
         this(subsystemClient.client, subsystemClient.getName());
     }
 
-    public CertClient(PKIClient client, String subsystem) throws URISyntaxException {
+    public CACertClient(PKIClient client, String subsystem) throws URISyntaxException {
         super(client, subsystem, "cert");
         init();
     }

@@ -27,7 +27,7 @@ import java.util.Date;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
-import com.netscape.certsrv.cert.CertClient;
+import com.netscape.certsrv.ca.CACertClient;
 import com.netscape.certsrv.cert.CertDataInfo;
 import com.netscape.certsrv.cert.CertDataInfos;
 import com.netscape.certsrv.cert.CertSearchRequest;
@@ -246,7 +246,7 @@ public class CertFindCLI extends CLI {
 
         addSearchAttribute(cmd, searchData);
 
-        CertClient certClient = certCLI.getCertClient();
+        CACertClient certClient = certCLI.getCertClient();
         CertDataInfos certs = certClient.findCerts(searchData, start, size);
 
         MainCLI.printMessage(certs.getTotal() + " entries found");

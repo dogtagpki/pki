@@ -25,7 +25,7 @@ import java.util.Arrays;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
-import com.netscape.certsrv.cert.CertClient;
+import com.netscape.certsrv.ca.CACertClient;
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.cmstools.ca.CACertCLI;
@@ -80,7 +80,7 @@ public class CertShowCLI extends CLI {
         CertId certID = new CertId(cmdArgs[0]);
         String file = cmd.getOptionValue("output");
 
-        CertClient certClient = certCLI.getCertClient();
+        CACertClient certClient = certCLI.getCertClient();
         CertData certData = certClient.getCert(certID);
 
         String encoded = certData.getEncoded();

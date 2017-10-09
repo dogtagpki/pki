@@ -6,7 +6,7 @@ import java.util.Collection;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
-import com.netscape.certsrv.cert.CertClient;
+import com.netscape.certsrv.ca.CACertClient;
 import com.netscape.certsrv.profile.ProfileDataInfo;
 import com.netscape.certsrv.profile.ProfileDataInfos;
 import com.netscape.cmstools.ca.CACertCLI;
@@ -60,7 +60,7 @@ public class CertRequestProfileFindCLI extends CLI {
         s = cmd.getOptionValue("size");
         Integer size = s == null ? null : Integer.valueOf(s);
 
-        CertClient certClient = certCLI.getCertClient();
+        CACertClient certClient = certCLI.getCertClient();
         ProfileDataInfos response = certClient.listEnrollmentTemplates(start, size);
 
         MainCLI.printMessage(response.getTotal() + " entries matched");

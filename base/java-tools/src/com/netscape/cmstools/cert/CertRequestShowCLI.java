@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
 
-import com.netscape.certsrv.cert.CertClient;
+import com.netscape.certsrv.ca.CACertClient;
 import com.netscape.certsrv.cert.CertRequestInfo;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmstools.ca.CACertCLI;
@@ -49,7 +49,7 @@ public class CertRequestShowCLI extends CLI {
             throw new Exception("Invalid certificate request ID " + cmdArgs[0] + ".", e);
         }
 
-        CertClient certClient = certCLI.getCertClient();
+        CACertClient certClient = certCLI.getCertClient();
         CertRequestInfo certRequest = certClient.getRequest(requestId);
 
         MainCLI.printMessage("Certificate request \"" + requestId + "\"");

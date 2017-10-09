@@ -10,7 +10,7 @@ import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.util.Password;
 
 import com.netscape.certsrv.ca.CAClient;
-import com.netscape.certsrv.cert.CertClient;
+import com.netscape.certsrv.ca.CACertClient;
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.cert.CertNotFoundException;
 import com.netscape.certsrv.cert.CertRequestInfo;
@@ -23,7 +23,7 @@ public class CATestJunit extends PKIJUnitTest {
     CryptoManager manager = null;
     CryptoToken token = null;
     CAClient client;
-    CertClient certClient;
+    CACertClient certClient;
 
     public CATestJunit() {
     }
@@ -67,7 +67,7 @@ public class CATestJunit extends PKIJUnitTest {
         config.setCertNickname(clientCertNickname);
         log("URI::: " + config.getServerURI().toString());
         client = new CAClient(new PKIClient(config, null));
-        certClient = (CertClient)client.getClient("cert");
+        certClient = (CACertClient)client.getClient("cert");
     }
 
     @Test

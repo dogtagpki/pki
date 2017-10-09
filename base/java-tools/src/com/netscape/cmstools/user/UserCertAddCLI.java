@@ -26,7 +26,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.io.FileUtils;
 
 import com.netscape.certsrv.ca.CAClient;
-import com.netscape.certsrv.cert.CertClient;
+import com.netscape.certsrv.ca.CACertClient;
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.user.UserCertData;
@@ -102,7 +102,7 @@ public class UserCertAddCLI extends CLI {
             }
 
             CAClient caClient = MainCLI.createCAClient(parent.getClient());
-            CertClient certClient = new CertClient(caClient);
+            CACertClient certClient = new CACertClient(caClient);
 
             CertData certData = certClient.getCert(new CertId(serialNumber));
             encoded = certData.getEncoded();

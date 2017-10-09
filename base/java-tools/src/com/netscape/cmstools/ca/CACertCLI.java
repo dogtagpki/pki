@@ -23,7 +23,7 @@ import java.util.Date;
 
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
-import com.netscape.certsrv.cert.CertClient;
+import com.netscape.certsrv.ca.CACertClient;
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.cert.CertDataInfo;
 import com.netscape.certsrv.cert.CertRequestInfo;
@@ -53,7 +53,7 @@ public class CACertCLI extends CLI {
 
     public static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
-    public CertClient certClient;
+    public CACertClient certClient;
 
     public CACertCLI(CLI parent) {
         super("cert", "Certificate management commands", parent);
@@ -88,7 +88,7 @@ public class CACertCLI extends CLI {
         return "pki-cert";
     }
 
-    public CertClient getCertClient() throws Exception {
+    public CACertClient getCertClient() throws Exception {
 
         if (certClient != null) return certClient;
 
@@ -104,7 +104,7 @@ public class CACertCLI extends CLI {
         }
 
         // create new cert client
-        certClient = new CertClient(client, subsystem);
+        certClient = new CACertClient(client, subsystem);
 
         return certClient;
     }

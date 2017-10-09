@@ -27,7 +27,7 @@ import org.apache.commons.cli.Option;
 
 import com.netscape.certsrv.authority.AuthorityClient;
 import com.netscape.certsrv.authority.AuthorityData;
-import com.netscape.certsrv.cert.CertClient;
+import com.netscape.certsrv.ca.CACertClient;
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
@@ -97,7 +97,7 @@ public class CertStatusCLI extends CLI {
         CertId certID = new CertId(cmdArgs[0]);
 
         PKIClient client = getClient();
-        CertClient certClient = new CertClient(client, "ca");
+        CACertClient certClient = new CACertClient(client, "ca");
         AuthorityClient authorityClient = new AuthorityClient(client, "ca");
 
         ClientConfig config = getConfig();

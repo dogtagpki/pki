@@ -15,7 +15,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.lang.StringUtils;
 
-import com.netscape.certsrv.cert.CertClient;
+import com.netscape.certsrv.ca.CACertClient;
 import com.netscape.certsrv.cert.CertRequestInfo;
 import com.netscape.certsrv.cert.CertReviewResponse;
 import com.netscape.certsrv.request.RequestId;
@@ -100,7 +100,7 @@ public class CertRequestReviewCLI extends CLI {
         }
 
         // Retrieve certificate request.
-        CertClient certClient = certCLI.getCertClient();
+        CACertClient certClient = certCLI.getCertClient();
         CertReviewResponse reviewInfo = certClient.reviewRequest(requestId);
 
         if (action == null) {

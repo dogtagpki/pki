@@ -19,7 +19,7 @@
 import java.net.InetAddress;
 
 import com.netscape.certsrv.ca.CAClient;
-import com.netscape.certsrv.cert.CertClient;
+import com.netscape.certsrv.ca.CACertClient;
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.cert.CertDataInfo;
 import com.netscape.certsrv.cert.CertDataInfos;
@@ -48,7 +48,7 @@ public class CACertClientExample {
 
         PKIClient client = new PKIClient(config);
         CAClient caClient = new CAClient(client);
-        CertClient certClient = new CertClient(caClient);
+        CACertClient certClient = new CACertClient(caClient);
 
         CertDataInfos infos = certClient.listCerts(null, null, null, null, null);
 

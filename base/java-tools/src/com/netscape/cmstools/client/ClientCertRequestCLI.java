@@ -38,7 +38,7 @@ import org.mozilla.jss.pkix.crmf.CertRequest;
 import org.mozilla.jss.pkix.crmf.ProofOfPossession;
 import org.mozilla.jss.pkix.primitive.Name;
 
-import com.netscape.certsrv.cert.CertClient;
+import com.netscape.certsrv.ca.CACertClient;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
 import com.netscape.certsrv.cert.CertRequestInfos;
 import com.netscape.certsrv.client.PKIClient;
@@ -263,7 +263,7 @@ public class ClientCertRequestCLI extends CLI {
             System.out.println(csr);
         }
 
-        CertClient certClient = new CertClient(client, "ca");
+        CACertClient certClient = new CACertClient(client, "ca");
 
         if (verbose) {
             System.out.println("Retrieving " + profileID + " profile.");

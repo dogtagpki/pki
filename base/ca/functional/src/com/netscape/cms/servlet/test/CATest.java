@@ -32,7 +32,7 @@ import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.util.Password;
 
 import com.netscape.certsrv.ca.CAClient;
-import com.netscape.certsrv.cert.CertClient;
+import com.netscape.certsrv.ca.CACertClient;
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.cert.CertDataInfo;
 import com.netscape.certsrv.cert.CertDataInfos;
@@ -153,7 +153,7 @@ public class CATest {
         }
 
         CAClient client;
-        CertClient certClient;
+        CACertClient certClient;
         ProfileClient profileClient;
 
         try {
@@ -162,7 +162,7 @@ public class CATest {
             config.setCertNickname(clientCertNickname);
 
             client = new CAClient(new PKIClient(config, null));
-            certClient = (CertClient)client.getClient("cert");
+            certClient = (CACertClient)client.getClient("cert");
             profileClient = (ProfileClient)client.getClient("profile");
 
         } catch (Exception e) {
@@ -285,7 +285,7 @@ public class CATest {
 
     }
 
-    private static void enrollAndApproveCertRequest(CertClient client, CertEnrollmentRequest data) {
+    private static void enrollAndApproveCertRequest(CACertClient client, CertEnrollmentRequest data) {
         CertRequestInfos reqInfo = null;
         try {
             reqInfo = client.enrollRequest(data, null, null);
@@ -305,7 +305,7 @@ public class CATest {
         }
     }
 
-    private static void enrollCertRequest(CertClient client, CertEnrollmentRequest data) {
+    private static void enrollCertRequest(CACertClient client, CertEnrollmentRequest data) {
         CertRequestInfos reqInfo = null;
         try {
             reqInfo = client.enrollRequest(data, null, null);

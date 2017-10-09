@@ -5,7 +5,7 @@ import java.util.Arrays;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
-import com.netscape.certsrv.cert.CertClient;
+import com.netscape.certsrv.ca.CACertClient;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
 import com.netscape.cmstools.ca.CACertCLI;
 import com.netscape.cmstools.cli.CLI;
@@ -59,7 +59,7 @@ public class CertRequestProfileShowCLI extends CLI {
             }
         }
 
-        CertClient certClient = certCLI.getCertClient();
+        CACertClient certClient = certCLI.getCertClient();
         CertEnrollmentRequest request = certClient.getEnrollmentTemplate(profileId);
 
         MainCLI.printMessage("Enrollment Template for Profile \"" + profileId + "\"");
