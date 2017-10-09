@@ -183,6 +183,7 @@ public class TokenAuthentication implements IAuthManager,
                 CMS.debug("TokenAuthentication: status=" + status);
                 if (!status.equals("0")) {
                     String error = parser.getValue("Error");
+                    CMS.debug("TokenAuthentication: error: " + error);
                     throw new EBaseException(error);
                 }
 
