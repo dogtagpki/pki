@@ -17,24 +17,35 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.logging.event;
 
+import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.SignedAuditEvent;
 
-public class AuthSuccessEvent extends SignedAuditEvent {
+public class AccessSessionTerminatedEvent extends SignedAuditEvent {
 
     private static final long serialVersionUID = 1L;
 
-    public final static String LOGGING_PROPERTY =
-            "LOGGING_SIGNED_AUDIT_AUTH_SUCCESS";
+    public final static String ACCESS_SESSION_TERMINATED =
+            "LOGGING_SIGNED_AUDIT_ACCESS_SESSION_TERMINATED";
 
-    public AuthSuccessEvent(
+    public AccessSessionTerminatedEvent(String messageID) {
+        super(messageID);
+    }
+
+    public static AccessSessionTerminatedEvent createEvent(
+            String clientIP,
+            String serverIP,
             String subjectID,
-            String outcome,
-            String authManagerID) {
+            String info) {
 
-        super(LOGGING_PROPERTY);
+        AccessSessionTerminatedEvent event = new AccessSessionTerminatedEvent(
+                ACCESS_SESSION_TERMINATED);
 
-        setAttribute("SubjectID", subjectID);
-        setAttribute("Outcome", outcome);
-        setAttribute("AuthMgr", authManagerID);
+        event.setAttribute("ClientIP", clientIP);
+        event.setAttribute("ServerIP", serverIP);
+        event.setAttribute("SubjectID", subjectID);
+        event.setAttribute("Outcome", ILogger.SUCCESS);
+        event.setAttribute("Info", info);
+
+        return event;
     }
 }
