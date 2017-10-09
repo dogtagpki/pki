@@ -25,6 +25,7 @@ import javax.ws.rs.core.Response;
 
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
+import com.netscape.certsrv.client.SubsystemClient;
 
 /**
  * @author Fraser Tweedale <ftweedal@redhat.com>
@@ -32,6 +33,10 @@ import com.netscape.certsrv.client.PKIClient;
 public class AuthorityClient extends Client {
 
     public AuthorityResource proxy;
+
+    public AuthorityClient(SubsystemClient subsystemClient) throws URISyntaxException {
+        this(subsystemClient.client, subsystemClient.getName());
+    }
 
     public AuthorityClient(PKIClient client, String subsystem) throws URISyntaxException {
         super(client, subsystem, "authority");

@@ -28,6 +28,7 @@ import org.apache.commons.cli.Option;
 import com.netscape.certsrv.authority.AuthorityClient;
 import com.netscape.certsrv.authority.AuthorityData;
 import com.netscape.certsrv.ca.CACertClient;
+import com.netscape.certsrv.ca.CAClient;
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
@@ -97,8 +98,9 @@ public class CertStatusCLI extends CLI {
         CertId certID = new CertId(cmdArgs[0]);
 
         PKIClient client = getClient();
-        CACertClient certClient = new CACertClient(client, "ca");
-        AuthorityClient authorityClient = new AuthorityClient(client, "ca");
+        CAClient caClient = new CAClient(client);
+        CACertClient certClient = new CACertClient(caClient);
+        AuthorityClient authorityClient = new AuthorityClient(caClient);
 
         ClientConfig config = getConfig();
         String ocspURL = cmd.getOptionValue("ocsp", config.getServerURL() + "/ca/ocsp");
