@@ -28,6 +28,7 @@ import org.apache.commons.cli.Option;
 import com.netscape.certsrv.cert.CertClient;
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.dbs.certdb.CertId;
+import com.netscape.cmstools.ca.CACertCLI;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -36,9 +37,9 @@ import com.netscape.cmstools.cli.MainCLI;
  */
 public class CertShowCLI extends CLI {
 
-    public CertCLI certCLI;
+    public CACertCLI certCLI;
 
-    public CertShowCLI(CertCLI certCLI) {
+    public CertShowCLI(CACertCLI certCLI) {
         super("show", "Show certificate", certCLI);
         this.certCLI = certCLI;
 
@@ -92,6 +93,6 @@ public class CertShowCLI extends CLI {
 
         MainCLI.printMessage("Certificate \"" + certID.toHexString() + "\"");
 
-        CertCLI.printCertData(certData, showPrettyPrint, showEncoded);
+        CACertCLI.printCertData(certData, showPrettyPrint, showEncoded);
     }
 }

@@ -19,17 +19,18 @@ import com.netscape.certsrv.cert.CertClient;
 import com.netscape.certsrv.cert.CertRequestInfo;
 import com.netscape.certsrv.cert.CertReviewResponse;
 import com.netscape.certsrv.request.RequestId;
+import com.netscape.cmstools.ca.CACertCLI;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
 public class CertRequestReviewCLI extends CLI {
 
-    CertCLI certCLI;
+    CACertCLI certCLI;
     List<String> actions = Arrays.asList(
         "approve", "reject", "cancel", "update", "validate", "assign", "unassign"
     );
 
-    public CertRequestReviewCLI(CertCLI certCLI) {
+    public CertRequestReviewCLI(CACertCLI certCLI) {
         super("request-review", "Review certificate request", certCLI);
         this.certCLI = certCLI;
 
@@ -112,7 +113,7 @@ public class CertRequestReviewCLI extends CLI {
             marshaller.marshal(reviewInfo, stream);
 
             MainCLI.printMessage("Retrieved certificate request " + requestId);
-            CertCLI.printCertReviewResponse(reviewInfo);
+            CACertCLI.printCertReviewResponse(reviewInfo);
             System.out.println("  Filename: " + filename);
             if (verbose) System.out.println("  Nonce: " + reviewInfo.getNonce());
             System.out.println();
@@ -167,6 +168,6 @@ public class CertRequestReviewCLI extends CLI {
         }
 
         CertRequestInfo certRequest = certClient.getRequest(requestId);
-        CertCLI.printCertRequestInfo(certRequest);
+        CACertCLI.printCertRequestInfo(certRequest);
     }
 }

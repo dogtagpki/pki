@@ -7,14 +7,15 @@ import org.apache.commons.cli.CommandLine;
 import com.netscape.certsrv.cert.CertClient;
 import com.netscape.certsrv.cert.CertRequestInfo;
 import com.netscape.certsrv.request.RequestId;
+import com.netscape.cmstools.ca.CACertCLI;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
 public class CertRequestShowCLI extends CLI {
 
-    CertCLI certCLI;
+    CACertCLI certCLI;
 
-    public CertRequestShowCLI(CertCLI certCLI) {
+    public CertRequestShowCLI(CACertCLI certCLI) {
 
         super("request-show", "Show certificate request", certCLI);
         this.certCLI = certCLI;
@@ -52,6 +53,6 @@ public class CertRequestShowCLI extends CLI {
         CertRequestInfo certRequest = certClient.getRequest(requestId);
 
         MainCLI.printMessage("Certificate request \"" + requestId + "\"");
-        CertCLI.printCertRequestInfo(certRequest);
+        CACertCLI.printCertRequestInfo(certRequest);
     }
 }

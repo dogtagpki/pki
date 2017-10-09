@@ -20,6 +20,7 @@ import com.netscape.certsrv.cert.CertRequestInfos;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfileInput;
+import com.netscape.cmstools.ca.CACertCLI;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -29,9 +30,9 @@ import netscape.security.x509.X500Name;
 
 public class CertRequestSubmitCLI extends CLI {
 
-    CertCLI certCLI;
+    CACertCLI certCLI;
 
-    public CertRequestSubmitCLI(CertCLI certCLI) {
+    public CertRequestSubmitCLI(CACertCLI certCLI) {
         super("request-submit", "Submit certificate request", certCLI);
         this.certCLI = certCLI;
 
@@ -263,7 +264,7 @@ public class CertRequestSubmitCLI extends CLI {
         CertClient certClient = certCLI.getCertClient();
         CertRequestInfos cri = certClient.enrollRequest(request, aid, adn);
         MainCLI.printMessage("Submitted certificate request");
-        CertCLI.printCertRequestInfos(cri);
+        CACertCLI.printCertRequestInfos(cri);
     }
 
     private String loadFile(String fileName) throws FileNotFoundException {

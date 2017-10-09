@@ -7,15 +7,16 @@ import org.apache.commons.cli.Option;
 
 import com.netscape.certsrv.cert.CertClient;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
+import com.netscape.cmstools.ca.CACertCLI;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 import com.netscape.cmstools.profile.ProfileCLI;
 
 public class CertRequestProfileShowCLI extends CLI {
 
-    public CertCLI certCLI;
+    public CACertCLI certCLI;
 
-    public CertRequestProfileShowCLI(CertCLI certCLI) {
+    public CertRequestProfileShowCLI(CACertCLI certCLI) {
         super("request-profile-show", "Get Enrollment template", certCLI);
         this.certCLI = certCLI;
 

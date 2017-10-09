@@ -16,7 +16,7 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
-package com.netscape.cmstools.cert;
+package com.netscape.cmstools.ca;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -30,6 +30,18 @@ import com.netscape.certsrv.cert.CertRequestInfo;
 import com.netscape.certsrv.cert.CertRequestInfos;
 import com.netscape.certsrv.cert.CertReviewResponse;
 import com.netscape.certsrv.client.PKIClient;
+import com.netscape.cmstools.cert.CertFindCLI;
+import com.netscape.cmstools.cert.CertHoldCLI;
+import com.netscape.cmstools.cert.CertReleaseHoldCLI;
+import com.netscape.cmstools.cert.CertRequestFindCLI;
+import com.netscape.cmstools.cert.CertRequestProfileFindCLI;
+import com.netscape.cmstools.cert.CertRequestProfileShowCLI;
+import com.netscape.cmstools.cert.CertRequestReviewCLI;
+import com.netscape.cmstools.cert.CertRequestShowCLI;
+import com.netscape.cmstools.cert.CertRequestSubmitCLI;
+import com.netscape.cmstools.cert.CertRevokeCLI;
+import com.netscape.cmstools.cert.CertShowCLI;
+import com.netscape.cmstools.cert.CertStatusCLI;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 import com.netscape.cmstools.cli.SubsystemCLI;
@@ -37,13 +49,13 @@ import com.netscape.cmstools.cli.SubsystemCLI;
 /**
  * @author Endi S. Dewata
  */
-public class CertCLI extends CLI {
+public class CACertCLI extends CLI {
 
     public static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     public CertClient certClient;
 
-    public CertCLI(CLI parent) {
+    public CACertCLI(CLI parent) {
         super("cert", "Certificate management commands", parent);
 
         addModule(new CertFindCLI(this));

@@ -31,6 +31,7 @@ import com.netscape.certsrv.cert.CertClient;
 import com.netscape.certsrv.cert.CertDataInfo;
 import com.netscape.certsrv.cert.CertDataInfos;
 import com.netscape.certsrv.cert.CertSearchRequest;
+import com.netscape.cmstools.ca.CACertCLI;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -41,9 +42,9 @@ import netscape.security.x509.RevocationReason;
  */
 public class CertFindCLI extends CLI {
 
-    public CertCLI certCLI;
+    public CACertCLI certCLI;
 
-    public CertFindCLI(CertCLI certCLI) {
+    public CertFindCLI(CACertCLI certCLI) {
         super("find", "Find certificates", certCLI);
         this.certCLI = certCLI;
 
@@ -261,7 +262,7 @@ public class CertFindCLI extends CLI {
                 System.out.println();
             }
 
-            CertCLI.printCertInfo(cert);
+            CACertCLI.printCertInfo(cert);
         }
 
         MainCLI.printMessage("Number of entries returned " + certs.getEntries().size());
@@ -341,12 +342,12 @@ public class CertFindCLI extends CLI {
         }
         if (cmd.hasOption("revokedOnFrom")) {
             csd.setRevokedOnInUse(true);
-            Date date = CertCLI.dateFormat.parse(cmd.getOptionValue("revokedOnFrom"));
+            Date date = CACertCLI.dateFormat.parse(cmd.getOptionValue("revokedOnFrom"));
             csd.setRevokedOnFrom(""+date.getTime());
         }
         if (cmd.hasOption("revokedOnTo")) {
             csd.setRevokedOnInUse(true);
-            Date date = CertCLI.dateFormat.parse(cmd.getOptionValue("revokedOnTo"));
+            Date date = CACertCLI.dateFormat.parse(cmd.getOptionValue("revokedOnTo"));
             csd.setRevokedOnTo(""+date.getTime());
         }
         if (cmd.hasOption("revocationReason")) {
@@ -373,12 +374,12 @@ public class CertFindCLI extends CLI {
         }
         if (cmd.hasOption("issuedOnFrom")) {
             csd.setIssuedOnInUse(true);
-            Date date = CertCLI.dateFormat.parse(cmd.getOptionValue("issuedOnFrom"));
+            Date date = CACertCLI.dateFormat.parse(cmd.getOptionValue("issuedOnFrom"));
             csd.setIssuedOnFrom(""+date.getTime());
         }
         if (cmd.hasOption("issuedOnTo")) {
             csd.setIssuedOnInUse(true);
-            Date date = CertCLI.dateFormat.parse(cmd.getOptionValue("issuedOnTo"));
+            Date date = CACertCLI.dateFormat.parse(cmd.getOptionValue("issuedOnTo"));
             csd.setIssuedOnTo(""+date.getTime());
         }
         if (cmd.hasOption("certTypeSubEmailCA")) {
@@ -403,22 +404,22 @@ public class CertFindCLI extends CLI {
         }
         if (cmd.hasOption("validNotBeforeFrom")) {
             csd.setValidNotBeforeInUse(true);
-            Date date = CertCLI.dateFormat.parse(cmd.getOptionValue("validNotBeforeFrom"));
+            Date date = CACertCLI.dateFormat.parse(cmd.getOptionValue("validNotBeforeFrom"));
             csd.setValidNotBeforeFrom(""+date.getTime());
         }
         if (cmd.hasOption("validNotBeforeTo")) {
             csd.setValidNotBeforeInUse(true);
-            Date date = CertCLI.dateFormat.parse(cmd.getOptionValue("validNotBeforeTo"));
+            Date date = CACertCLI.dateFormat.parse(cmd.getOptionValue("validNotBeforeTo"));
             csd.setValidNotBeforeTo(""+date.getTime());
         }
         if (cmd.hasOption("validNotAfterFrom")) {
             csd.setValidNotAfterInUse(true);
-            Date date = CertCLI.dateFormat.parse(cmd.getOptionValue("validNotAfterFrom"));
+            Date date = CACertCLI.dateFormat.parse(cmd.getOptionValue("validNotAfterFrom"));
             csd.setValidNotAfterFrom(""+date.getTime());
         }
         if (cmd.hasOption("validNotAfterTo")) {
             csd.setValidNotAfterInUse(true);
-            Date date = CertCLI.dateFormat.parse(cmd.getOptionValue("validNotAfterTo"));
+            Date date = CACertCLI.dateFormat.parse(cmd.getOptionValue("validNotAfterTo"));
             csd.setValidNotAfterTo(""+date.getTime());
         }
 

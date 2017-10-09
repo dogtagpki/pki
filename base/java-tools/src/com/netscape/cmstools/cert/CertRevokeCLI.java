@@ -31,6 +31,7 @@ import com.netscape.certsrv.cert.CertRequestInfo;
 import com.netscape.certsrv.cert.CertRevokeRequest;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.request.RequestStatus;
+import com.netscape.cmstools.ca.CACertCLI;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -41,9 +42,9 @@ import netscape.security.x509.RevocationReason;
  */
 public class CertRevokeCLI extends CLI {
 
-    public CertCLI certCLI;
+    public CACertCLI certCLI;
 
-    public CertRevokeCLI(CertCLI certCLI) {
+    public CertRevokeCLI(CACertCLI certCLI) {
         super("revoke", "Revoke certificate", certCLI);
         this.certCLI = certCLI;
 
@@ -116,7 +117,7 @@ public class CertRevokeCLI extends CLI {
                 System.out.println("Revoking certificate:");
             }
 
-            CertCLI.printCertData(certData, false, false);
+            CACertCLI.printCertData(certData, false, false);
             if (verbose) System.out.println("  Nonce: " + certData.getNonce());
 
             System.out.print("Are you sure (Y/N)? ");
@@ -143,7 +144,7 @@ public class CertRevokeCLI extends CLI {
         }
 
         if (verbose) {
-            CertCLI.printCertRequestInfo(certRequestInfo);
+            CACertCLI.printCertRequestInfo(certRequestInfo);
         }
 
         if (certRequestInfo.getRequestStatus() == RequestStatus.COMPLETE) {
@@ -163,7 +164,7 @@ public class CertRevokeCLI extends CLI {
                 }
 
                 certData = certClient.getCert(certID);
-                CertCLI.printCertData(certData, false, false);
+                CACertCLI.printCertData(certData, false, false);
             }
         } else {
             MainCLI.printMessage("Request \"" + certRequestInfo.getRequestId() + "\": "

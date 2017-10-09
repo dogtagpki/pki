@@ -29,6 +29,7 @@ import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.cert.CertRequestInfo;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.request.RequestStatus;
+import com.netscape.cmstools.ca.CACertCLI;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -37,9 +38,9 @@ import com.netscape.cmstools.cli.MainCLI;
  */
 public class CertReleaseHoldCLI extends CLI {
 
-    public CertCLI certCLI;
+    public CACertCLI certCLI;
 
-    public CertReleaseHoldCLI(CertCLI certCLI) {
+    public CertReleaseHoldCLI(CACertCLI certCLI) {
         super("release-hold", "Place certificate off-hold", certCLI);
         this.certCLI = certCLI;
 
@@ -78,7 +79,7 @@ public class CertReleaseHoldCLI extends CLI {
 
             System.out.println("Placing certificate off-hold:");
 
-            CertCLI.printCertData(certData, false, false);
+            CACertCLI.printCertData(certData, false, false);
 
             System.out.print("Are you sure (Y/N)? ");
             System.out.flush();
@@ -93,7 +94,7 @@ public class CertReleaseHoldCLI extends CLI {
         CertRequestInfo certRequestInfo = certClient.unrevokeCert(certID);
 
         if (verbose) {
-            CertCLI.printCertRequestInfo(certRequestInfo);
+            CACertCLI.printCertRequestInfo(certRequestInfo);
         }
 
         if (certRequestInfo.getRequestStatus() == RequestStatus.COMPLETE) {
@@ -106,7 +107,7 @@ public class CertReleaseHoldCLI extends CLI {
             } else {
                 MainCLI.printMessage("Placed certificate \"" + certID.toHexString() + "\" off-hold");
                 CertData certData = certClient.getCert(certID);
-                CertCLI.printCertData(certData, false, false);
+                CACertCLI.printCertData(certData, false, false);
             }
         } else {
             MainCLI.printMessage("Request \"" + certRequestInfo.getRequestId() + "\": "

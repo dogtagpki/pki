@@ -28,6 +28,7 @@ import com.netscape.certsrv.cert.CertClient;
 import com.netscape.certsrv.cert.CertRequestInfo;
 import com.netscape.certsrv.cert.CertRequestInfos;
 import com.netscape.certsrv.request.RequestId;
+import com.netscape.cmstools.ca.CACertCLI;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -36,9 +37,9 @@ import com.netscape.cmstools.cli.MainCLI;
  */
 public class CertRequestFindCLI extends CLI {
 
-    public CertCLI certCLI;
+    public CACertCLI certCLI;
 
-    public CertRequestFindCLI(CertCLI certCLI) {
+    public CertRequestFindCLI(CACertCLI certCLI) {
         super("request-find", "Find certificate requests", certCLI);
         this.certCLI = certCLI;
 
@@ -130,7 +131,7 @@ public class CertRequestFindCLI extends CLI {
                 System.out.println();
             }
 
-            CertCLI.printCertRequestInfo(certRequest);
+            CACertCLI.printCertRequestInfo(certRequest);
         }
 
         MainCLI.printMessage("Number of entries returned " + entries.size());

@@ -52,7 +52,7 @@ import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.PKIConnection;
 import com.netscape.cmstools.ca.CACLI;
-import com.netscape.cmstools.cert.CertCLI;
+import com.netscape.cmstools.ca.CACertCLI;
 import com.netscape.cmstools.client.ClientCLI;
 import com.netscape.cmstools.group.GroupCLI;
 import com.netscape.cmstools.key.KeyCLI;
@@ -101,7 +101,7 @@ public class MainCLI extends CLI {
 
         addModule(new ClientCLI(this));
 
-        addModule(new ProxyCLI(new CertCLI(this), "ca"));
+        addModule(new ProxyCLI(new CACertCLI(this), "ca"));
         addModule(new ProxyCLI(new GroupCLI(this), "ca"));
         addModule(new ProxyCLI(new KeyCLI(this), "kra"));
         addModule(new ProxyCLI(new SecurityDomainCLI(this), "ca"));

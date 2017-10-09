@@ -32,6 +32,7 @@ import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.dbs.certdb.CertId;
+import com.netscape.cmstools.ca.CACertCLI;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.CLIException;
 import com.netscape.cmsutil.ocsp.BasicOCSPResponse;
@@ -56,9 +57,9 @@ import netscape.security.x509.X509Key;
  */
 public class CertStatusCLI extends CLI {
 
-    public CertCLI certCLI;
+    public CACertCLI certCLI;
 
-    public CertStatusCLI(CertCLI certCLI) {
+    public CertStatusCLI(CACertCLI certCLI) {
         super("status", "Check certificate status", certCLI);
         this.certCLI = certCLI;
 
