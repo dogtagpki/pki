@@ -764,6 +764,8 @@ public abstract class CMSServlet extends HttpServlet {
 
     public void renderFinalError(CMSRequest cmsReq, Exception ex)
             throws IOException {
+        CMS.debug("Caught exception in renderFinalError:");
+        CMS.debug(ex);
         // this template is the last resort for all other unexpected
         // errors in other templates so we can only output text.
         HttpServletResponse httpResp = cmsReq.getHttpResp();
