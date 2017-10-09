@@ -16,41 +16,51 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
-package com.netscape.cmstools.cli;
+package com.netscape.cmstools.ca;
 
+import com.netscape.certsrv.ca.CAClient;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
-import com.netscape.certsrv.tks.TKSClient;
+import com.netscape.cmstools.authority.AuthorityCLI;
+import com.netscape.cmstools.cert.CertCLI;
+import com.netscape.cmstools.cli.CLI;
+import com.netscape.cmstools.cli.SubsystemCLI;
+import com.netscape.cmstools.feature.FeatureCLI;
 import com.netscape.cmstools.group.GroupCLI;
 import com.netscape.cmstools.logging.AuditCLI;
+import com.netscape.cmstools.profile.ProfileCLI;
 import com.netscape.cmstools.selftests.SelfTestCLI;
-import com.netscape.cmstools.system.TPSConnectorCLI;
+import com.netscape.cmstools.system.KRAConnectorCLI;
 import com.netscape.cmstools.user.UserCLI;
 
 /**
  * @author Endi S. Dewata
  */
-public class TKSCLI extends SubsystemCLI {
+public class CACLI extends SubsystemCLI {
 
-    public TKSClient tksClient;
+    public CAClient caClient;
 
-    public TKSCLI(CLI parent) {
-        super("tks", "TKS management commands", parent);
+    public CACLI(CLI parent) {
+        super("ca", "CA management commands", parent);
 
+        addModule(new AuthorityCLI(this));
         addModule(new AuditCLI(this));
+        addModule(new CertCLI(this));
+        addModule(new FeatureCLI(this));
         addModule(new GroupCLI(this));
+        addModule(new KRAConnectorCLI(this));
+        addModule(new ProfileCLI(this));
         addModule(new SelfTestCLI(this));
-        addModule(new TPSConnectorCLI(this));
         addModule(new UserCLI(this));
     }
 
     public SubsystemClient getSubsystemClient() throws Exception {
 
-        if (tksClient != null) return tksClient;
+        if (caClient != null) return caClient;
 
         PKIClient client = getClient();
-        tksClient = new TKSClient(client);
+        caClient = new CAClient(client);
 
-        return tksClient;
+        return caClient;
     }
 }

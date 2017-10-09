@@ -16,11 +16,13 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
-package com.netscape.cmstools.cli;
+package com.netscape.cmstools.kra;
 
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.kra.KRAClient;
+import com.netscape.cmstools.cli.CLI;
+import com.netscape.cmstools.cli.SubsystemCLI;
 import com.netscape.cmstools.group.GroupCLI;
 import com.netscape.cmstools.key.KeyCLI;
 import com.netscape.cmstools.logging.AuditCLI;

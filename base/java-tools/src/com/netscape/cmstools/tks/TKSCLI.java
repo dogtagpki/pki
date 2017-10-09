@@ -16,39 +16,43 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
-package com.netscape.cmstools.cli;
+package com.netscape.cmstools.tks;
 
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
-import com.netscape.certsrv.ocsp.OCSPClient;
+import com.netscape.certsrv.tks.TKSClient;
+import com.netscape.cmstools.cli.CLI;
+import com.netscape.cmstools.cli.SubsystemCLI;
 import com.netscape.cmstools.group.GroupCLI;
 import com.netscape.cmstools.logging.AuditCLI;
 import com.netscape.cmstools.selftests.SelfTestCLI;
+import com.netscape.cmstools.system.TPSConnectorCLI;
 import com.netscape.cmstools.user.UserCLI;
 
 /**
  * @author Endi S. Dewata
  */
-public class OCSPCLI extends SubsystemCLI {
+public class TKSCLI extends SubsystemCLI {
 
-    public OCSPClient ocspClient;
+    public TKSClient tksClient;
 
-    public OCSPCLI(CLI parent) {
-        super("ocsp", "OCSP management commands", parent);
+    public TKSCLI(CLI parent) {
+        super("tks", "TKS management commands", parent);
 
         addModule(new AuditCLI(this));
         addModule(new GroupCLI(this));
         addModule(new SelfTestCLI(this));
+        addModule(new TPSConnectorCLI(this));
         addModule(new UserCLI(this));
     }
 
     public SubsystemClient getSubsystemClient() throws Exception {
 
-        if (ocspClient != null) return ocspClient;
+        if (tksClient != null) return tksClient;
 
         PKIClient client = getClient();
-        ocspClient = new OCSPClient(client);
+        tksClient = new TKSClient(client);
 
-        return ocspClient;
+        return tksClient;
     }
 }
