@@ -424,21 +424,23 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
 
             return response;
 
-        } catch (EBaseException e) {
+        } catch (Exception e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("OCSP_REQUEST_FAILURE", e.toString()));
-            throw e;
+            throw new EBaseException(e);
         }
     }
 
     /**
      * Check against the database for status.
      */
-    private SingleResponse processRequest(Request req) {
+    private SingleResponse processRequest(Request req) throws Exception {
         // need to find the right CA
 
         CertID cid = req.getCertID();
         INTEGER serialNo = cid.getSerialNumber();
         CMS.debug("DefStore: processing request for cert 0x" + serialNo.toString(16));
+
+        MessageDigest md = MessageDigest.getInstance(cid.getDigestName());
 
         try {
             // cache result to speed up the performance
@@ -467,7 +469,6 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
                         return null;
                     }
 
-                    MessageDigest md = MessageDigest.getInstance(cid.getDigestName());
                     X509Key key = (X509Key) cert.getPublicKey();
                     byte digest[] = md.digest(key.getKey());
 
