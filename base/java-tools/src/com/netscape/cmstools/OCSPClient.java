@@ -121,6 +121,14 @@ public class OCSPClient {
         System.err.println("Try 'OCSPClient --help' for more information.");
     }
 
+    public static void printError(Exception e) {
+        String message = e.getClass().getSimpleName();
+        if (e.getMessage() != null) {
+            message += ": " + e.getMessage();
+        }
+        printError(message);
+    }
+
     public static void main(String args[]) throws Exception {
 
         Options options = createOptions();
@@ -129,9 +137,8 @@ public class OCSPClient {
         try {
             CommandLineParser parser = new PosixParser();
             cmd = parser.parse(options, args);
-
         } catch (Exception e) {
-            printError(e.getMessage());
+            printError(e);
             System.exit(1);
         }
 
@@ -235,7 +242,7 @@ public class OCSPClient {
 
         } catch (Exception e) {
             if (verbose) e.printStackTrace();
-            printError(e.getMessage());
+            printError(e);
             System.exit(1);
         }
     }
