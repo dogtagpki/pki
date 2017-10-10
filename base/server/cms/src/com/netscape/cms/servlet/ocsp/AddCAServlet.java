@@ -35,9 +35,10 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
-import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.event.OCSPAddCARequestEvent;
+import com.netscape.certsrv.logging.event.OCSPAddCARequestProcessedEvent;
 import com.netscape.certsrv.ocsp.IDefStore;
 import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.cms.servlet.base.CMSServlet;
@@ -109,7 +110,6 @@ public class AddCAServlet extends CMSServlet {
             throws EBaseException {
         HttpServletRequest req = cmsReq.getHttpReq();
         HttpServletResponse resp = cmsReq.getHttpResp();
-        String auditMessage = null;
         String auditSubjectID = auditSubjectID();
         String auditCA = ILogger.SIGNED_AUDIT_EMPTY_VALUE;
         String auditCASubjectDN = ILogger.SIGNED_AUDIT_EMPTY_VALUE;
@@ -157,46 +157,32 @@ public class AddCAServlet extends CMSServlet {
         String b64 = cmsReq.getHttpReq().getParameter("cert");
 
         if (b64 == null) {
-            auditMessage = CMS.getLogMessage(
-                    AuditEvent.OCSP_ADD_CA_REQUEST,
-                    auditSubjectID,
-                    ILogger.FAILURE,
-                    ILogger.SIGNED_AUDIT_EMPTY_VALUE);
 
-            audit(auditMessage);
+            audit(OCSPAddCARequestEvent.createFailureEvent(
+                    auditSubjectID));
 
             throw new ECMSGWException(CMS.getUserMessage(getLocale(req), "CMS_GW_MISSING_CA_CERT"));
         }
 
         auditCA = Cert.normalizeCertStr(Cert.stripCertBrackets(b64.trim()));
-        // record the fact that a request to add CA is made
-        auditMessage = CMS.getLogMessage(
-                AuditEvent.OCSP_ADD_CA_REQUEST,
-                auditSubjectID,
-                ILogger.SUCCESS,
-                auditCA);
 
-        audit(auditMessage);
+        audit(OCSPAddCARequestEvent.createSuccessEvent(
+                auditSubjectID,
+                auditCA));
 
         if (b64.indexOf(BEGIN_HEADER) == -1) {
-            auditMessage = CMS.getLogMessage(
-                    AuditEvent.OCSP_ADD_CA_REQUEST_PROCESSED,
-                    auditSubjectID,
-                    ILogger.FAILURE,
-                    auditCASubjectDN);
 
-            audit(auditMessage);
+            audit(OCSPAddCARequestProcessedEvent.createFailureEvent(
+                    auditSubjectID,
+                    auditCASubjectDN));
 
             throw new ECMSGWException(CMS.getUserMessage(getLocale(req), "CMS_GW_MISSING_CERT_HEADER"));
         }
         if (b64.indexOf(END_HEADER) == -1) {
-            auditMessage = CMS.getLogMessage(
-                    AuditEvent.OCSP_ADD_CA_REQUEST_PROCESSED,
-                    auditSubjectID,
-                    ILogger.FAILURE,
-                    auditCASubjectDN);
 
-            audit(auditMessage);
+            audit(OCSPAddCARequestProcessedEvent.createFailureEvent(
+                    auditSubjectID,
+                    auditCASubjectDN));
 
             throw new ECMSGWException(CMS.getUserMessage(getLocale(req), "CMS_GW_MISSING_CERT_FOOTER"));
         }
@@ -211,13 +197,10 @@ public class AddCAServlet extends CMSServlet {
 
             if (cert == null) {
                 CMS.debug("AddCAServlet::process() - cert is null!");
-                auditMessage = CMS.getLogMessage(
-                        AuditEvent.OCSP_ADD_CA_REQUEST_PROCESSED,
-                        auditSubjectID,
-                        ILogger.FAILURE,
-                        auditCASubjectDN);
 
-                audit(auditMessage);
+                audit(OCSPAddCARequestProcessedEvent.createFailureEvent(
+                        auditSubjectID,
+                        auditCASubjectDN));
 
                 throw new EBaseException("cert is null");
             } else {
@@ -240,13 +223,10 @@ public class AddCAServlet extends CMSServlet {
                 }
                 auditCASubjectDN = leafCert.getSubjectDN().getName();
             } catch (Exception e) {
-                auditMessage = CMS.getLogMessage(
-                        AuditEvent.OCSP_ADD_CA_REQUEST_PROCESSED,
-                        auditSubjectID,
-                        ILogger.FAILURE,
-                        auditCASubjectDN);
 
-                audit(auditMessage);
+                audit(OCSPAddCARequestProcessedEvent.createFailureEvent(
+                        auditSubjectID,
+                        auditCASubjectDN));
 
                 throw new ECMSGWException(
                         CMS.getUserMessage("CMS_GW_ENCODING_CA_CHAIN_ERROR"));
@@ -265,25 +245,19 @@ public class AddCAServlet extends CMSServlet {
             try {
                 rec.set(ICRLIssuingPointRecord.ATTR_CA_CERT, leafCert.getEncoded());
             } catch (Exception e) {
-                auditMessage = CMS.getLogMessage(
-                        AuditEvent.OCSP_ADD_CA_REQUEST_PROCESSED,
-                        auditSubjectID,
-                        ILogger.FAILURE,
-                        auditCASubjectDN);
 
-                audit(auditMessage);
+                audit(OCSPAddCARequestProcessedEvent.createFailureEvent(
+                        auditSubjectID,
+                        auditCASubjectDN));
 
                 // error
             }
             defStore.addCRLIssuingPoint(leafCert.getSubjectDN().getName(), rec);
             log(ILogger.EV_AUDIT, AuditFormat.LEVEL, "Added CA certificate " + leafCert.getSubjectDN().getName());
-            auditMessage = CMS.getLogMessage(
-                    AuditEvent.OCSP_ADD_CA_REQUEST_PROCESSED,
-                    auditSubjectID,
-                    ILogger.SUCCESS,
-                    auditCASubjectDN);
 
-            audit(auditMessage);
+            audit(OCSPAddCARequestProcessedEvent.createSuccessEvent(
+                    auditSubjectID,
+                    auditCASubjectDN));
         }
 
         try {

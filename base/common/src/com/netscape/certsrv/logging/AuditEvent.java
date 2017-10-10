@@ -85,10 +85,6 @@ public class AuditEvent extends LogEvent {
             "LOGGING_SIGNED_AUDIT_CRL_RETRIEVAL_3";
     public final static String CRL_VALIDATION =
             "LOGGING_SIGNED_AUDIT_CRL_VALIDATION_2";
-    public final static String OCSP_ADD_CA_REQUEST =
-            "LOGGING_SIGNED_AUDIT_OCSP_ADD_CA_REQUEST_3";
-    public final static String OCSP_ADD_CA_REQUEST_PROCESSED =
-            "LOGGING_SIGNED_AUDIT_OCSP_ADD_CA_REQUEST_PROCESSED_3";
     public final static String OCSP_REMOVE_CA_REQUEST =
             "LOGGING_SIGNED_AUDIT_OCSP_REMOVE_CA_REQUEST_3";
     public final static String OCSP_REMOVE_CA_REQUEST_PROCESSED_SUCCESS =
