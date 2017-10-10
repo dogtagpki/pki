@@ -542,26 +542,29 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
             CertStatus certStatus;
 
             if (theCRL == null) {
+
                 certStatus = new UnknownInfo();
 
-                // if crl is not available, we can try crl cache
-                if (theRec != null) {
-                    CMS.debug("DefStore: evaluating crl cache");
-                    Hashtable<BigInteger, RevokedCertificate> cache = theRec.getCRLCacheNoClone();
-                    if (cache != null) {
-                        RevokedCertificate rc = cache.get(new BigInteger(serialNo.toString()));
-                        if (rc == null) {
-                            if (isNotFoundGood()) {
-                                certStatus = new GoodInfo();
-                            } else {
-                                certStatus = new UnknownInfo();
-                            }
-                        } else {
+                if (theRec == null) {
+                    return new SingleResponse(cid, certStatus, thisUpdate, nextUpdate);
+                }
 
-                            certStatus = new RevokedInfo(
-                                    new GeneralizedTime(
-                                            rc.getRevocationDate()));
+                // if crl is not available, we can try crl cache
+                CMS.debug("DefStore: evaluating crl cache");
+                Hashtable<BigInteger, RevokedCertificate> cache = theRec.getCRLCacheNoClone();
+                if (cache != null) {
+                    RevokedCertificate rc = cache.get(new BigInteger(serialNo.toString()));
+                    if (rc == null) {
+                        if (isNotFoundGood()) {
+                            certStatus = new GoodInfo();
+                        } else {
+                            certStatus = new UnknownInfo();
                         }
+                    } else {
+
+                        certStatus = new RevokedInfo(
+                                new GeneralizedTime(
+                                        rc.getRevocationDate()));
                     }
                 }
 
