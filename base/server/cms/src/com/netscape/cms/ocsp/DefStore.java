@@ -444,154 +444,154 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
         INTEGER serialNo = cid.getSerialNumber();
         CMS.debug("DefStore: processing request for cert 0x" + serialNo.toString(16));
 
-            // cache result to speed up the performance
-            X509CertImpl theCert = null;
-            X509CRLImpl theCRL = null;
-            ICRLIssuingPointRecord theRec = null;
-            byte keyhsh[] = cid.getIssuerKeyHash().toByteArray();
-            CRLIPContainer matched = mCacheCRLIssuingPoints.get(new String(keyhsh));
+        // cache result to speed up the performance
+        X509CertImpl theCert = null;
+        X509CRLImpl theCRL = null;
+        ICRLIssuingPointRecord theRec = null;
+        byte keyhsh[] = cid.getIssuerKeyHash().toByteArray();
+        CRLIPContainer matched = mCacheCRLIssuingPoints.get(new String(keyhsh));
 
-            if (matched == null) {
-                Enumeration<ICRLIssuingPointRecord> recs = searchCRLIssuingPointRecord(
-                        "objectclass=" +
-                                CMS.getCRLIssuingPointRecordName(),
-                        100);
+        if (matched == null) {
+            Enumeration<ICRLIssuingPointRecord> recs = searchCRLIssuingPointRecord(
+                    "objectclass=" +
+                            CMS.getCRLIssuingPointRecordName(),
+                    100);
 
-                while (recs.hasMoreElements()) {
-                    ICRLIssuingPointRecord rec = recs.nextElement();
-                    byte certdata[] = rec.getCACert();
-                    X509CertImpl cert = null;
+            while (recs.hasMoreElements()) {
+                ICRLIssuingPointRecord rec = recs.nextElement();
+                byte certdata[] = rec.getCACert();
+                X509CertImpl cert = null;
 
-                    try {
-                        cert = new X509CertImpl(certdata);
-                    } catch (Exception e) {
-                        // error
-                        log(ILogger.LL_FAILURE, CMS.getLogMessage("OCSP_DECODE_CERT", e.toString()));
-                        return null;
-                    }
-
-                    MessageDigest md = MessageDigest.getInstance(cid.getDigestName());
-                    X509Key key = (X509Key) cert.getPublicKey();
-                    byte digest[] = md.digest(key.getKey());
-
-                    if (!Arrays.equals(digest, keyhsh)) {
-                        continue;
-                    }
-
-                    theCert = cert;
-                    theRec = rec;
-                    incReqCount(theRec.getId());
-                    byte crldata[] = rec.getCRL();
-
-                    if (rec.getCRLCache() == null) {
-                        CMS.debug("DefStore: start building x509 crl impl");
-                        try {
-                            theCRL = new X509CRLImpl(crldata);
-                        } catch (Exception e) {
-                            log(ILogger.LL_FAILURE, CMS.getLogMessage("OCSP_DECODE_CRL", e.toString()));
-                        }
-                        CMS.debug("DefStore: done building x509 crl impl");
-                    } else {
-                        CMS.debug("DefStore: using crl cache");
-                    }
-                    mCacheCRLIssuingPoints.put(new String(digest), new CRLIPContainer(theRec, theCert, theCRL));
-                    break;
+                try {
+                    cert = new X509CertImpl(certdata);
+                } catch (Exception e) {
+                    // error
+                    log(ILogger.LL_FAILURE, CMS.getLogMessage("OCSP_DECODE_CERT", e.toString()));
+                    return null;
                 }
 
-            } else {
-                theCert = matched.getX509CertImpl();
-                theRec = matched.getCRLIssuingPointRecord();
-                theCRL = matched.getX509CRLImpl();
+                MessageDigest md = MessageDigest.getInstance(cid.getDigestName());
+                X509Key key = (X509Key) cert.getPublicKey();
+                byte digest[] = md.digest(key.getKey());
+
+                if (!Arrays.equals(digest, keyhsh)) {
+                    continue;
+                }
+
+                theCert = cert;
+                theRec = rec;
                 incReqCount(theRec.getId());
+                byte crldata[] = rec.getCRL();
+
+                if (rec.getCRLCache() == null) {
+                    CMS.debug("DefStore: start building x509 crl impl");
+                    try {
+                        theCRL = new X509CRLImpl(crldata);
+                    } catch (Exception e) {
+                        log(ILogger.LL_FAILURE, CMS.getLogMessage("OCSP_DECODE_CRL", e.toString()));
+                    }
+                    CMS.debug("DefStore: done building x509 crl impl");
+                } else {
+                    CMS.debug("DefStore: using crl cache");
+                }
+                mCacheCRLIssuingPoints.put(new String(digest), new CRLIPContainer(theRec, theCert, theCRL));
+                break;
             }
 
-            if (theCert == null) {
-                return null;
-            }
+        } else {
+            theCert = matched.getX509CertImpl();
+            theRec = matched.getCRLIssuingPointRecord();
+            theCRL = matched.getX509CRLImpl();
+            incReqCount(theRec.getId());
+        }
 
-            // check the serial number
-            audit(AuditFormat.LEVEL, "Checked Status of certificate 0x" + serialNo.toString(16));
+        if (theCert == null) {
+            return null;
+        }
 
-            GeneralizedTime thisUpdate;
+        // check the serial number
+        audit(AuditFormat.LEVEL, "Checked Status of certificate 0x" + serialNo.toString(16));
+
+        GeneralizedTime thisUpdate;
+
+        if (theRec == null) {
+            thisUpdate = new GeneralizedTime(CMS.getCurrentDate());
+        } else {
+            Date d = theRec.getThisUpdate();
+            CMS.debug("DefStore: CRL record this update: " + d);
+            thisUpdate = new GeneralizedTime(d);
+        }
+
+        CMS.debug("DefStore: this update: " + thisUpdate.toDate());
+
+        // this is an optional field
+        GeneralizedTime nextUpdate;
+
+        if (!includeNextUpdate()) {
+            nextUpdate = null;
+
+        } else if (theRec == null) {
+            nextUpdate = new GeneralizedTime(CMS.getCurrentDate());
+
+        } else {
+            Date d = theRec.getNextUpdate();
+            CMS.debug("DefStore: CRL record next update: " + d);
+            nextUpdate = new GeneralizedTime(d);
+        }
+
+        CMS.debug("DefStore: next update: " + (nextUpdate == null ? null : nextUpdate.toDate()));
+
+        CertStatus certStatus;
+
+        if (theCRL == null) {
+
+            certStatus = new UnknownInfo();
 
             if (theRec == null) {
-                thisUpdate = new GeneralizedTime(CMS.getCurrentDate());
-            } else {
-                Date d = theRec.getThisUpdate();
-                CMS.debug("DefStore: CRL record this update: " + d);
-                thisUpdate = new GeneralizedTime(d);
+                return new SingleResponse(cid, certStatus, thisUpdate, nextUpdate);
             }
 
-            CMS.debug("DefStore: this update: " + thisUpdate.toDate());
-
-            // this is an optional field
-            GeneralizedTime nextUpdate;
-
-            if (!includeNextUpdate()) {
-                nextUpdate = null;
-
-            } else if (theRec == null) {
-                nextUpdate = new GeneralizedTime(CMS.getCurrentDate());
-
-            } else {
-                Date d = theRec.getNextUpdate();
-                CMS.debug("DefStore: CRL record next update: " + d);
-                nextUpdate = new GeneralizedTime(d);
-            }
-
-            CMS.debug("DefStore: next update: " + (nextUpdate == null ? null : nextUpdate.toDate()));
-
-            CertStatus certStatus;
-
-            if (theCRL == null) {
-
-                certStatus = new UnknownInfo();
-
-                if (theRec == null) {
-                    return new SingleResponse(cid, certStatus, thisUpdate, nextUpdate);
-                }
-
-                // if crl is not available, we can try crl cache
-                CMS.debug("DefStore: evaluating crl cache");
-                Hashtable<BigInteger, RevokedCertificate> cache = theRec.getCRLCacheNoClone();
-                if (cache != null) {
-                    RevokedCertificate rc = cache.get(new BigInteger(serialNo.toString()));
-                    if (rc == null) {
-                        if (isNotFoundGood()) {
-                            certStatus = new GoodInfo();
-                        } else {
-                            certStatus = new UnknownInfo();
-                        }
+            // if crl is not available, we can try crl cache
+            CMS.debug("DefStore: evaluating crl cache");
+            Hashtable<BigInteger, RevokedCertificate> cache = theRec.getCRLCacheNoClone();
+            if (cache != null) {
+                RevokedCertificate rc = cache.get(new BigInteger(serialNo.toString()));
+                if (rc == null) {
+                    if (isNotFoundGood()) {
+                        certStatus = new GoodInfo();
                     } else {
-
-                        certStatus = new RevokedInfo(
-                                new GeneralizedTime(
-                                        rc.getRevocationDate()));
+                        certStatus = new UnknownInfo();
                     }
-                }
-
-                return new SingleResponse(cid, certStatus, thisUpdate,
-                        nextUpdate);
-            }
-
-            CMS.debug("DefStore: evaluating x509 crl impl");
-            X509CRLEntry crlentry = theCRL.getRevokedCertificate(new BigInteger(serialNo.toString()));
-
-            if (crlentry == null) {
-                // good or unknown
-                if (isNotFoundGood()) {
-                    certStatus = new GoodInfo();
                 } else {
-                    certStatus = new UnknownInfo();
-                }
 
-            } else {
-                certStatus = new RevokedInfo(new GeneralizedTime(
-                                crlentry.getRevocationDate()));
+                    certStatus = new RevokedInfo(
+                            new GeneralizedTime(
+                                    rc.getRevocationDate()));
+                }
             }
 
             return new SingleResponse(cid, certStatus, thisUpdate,
                     nextUpdate);
+        }
+
+        CMS.debug("DefStore: evaluating x509 crl impl");
+        X509CRLEntry crlentry = theCRL.getRevokedCertificate(new BigInteger(serialNo.toString()));
+
+        if (crlentry == null) {
+            // good or unknown
+            if (isNotFoundGood()) {
+                certStatus = new GoodInfo();
+            } else {
+                certStatus = new UnknownInfo();
+            }
+
+        } else {
+            certStatus = new RevokedInfo(new GeneralizedTime(
+                            crlentry.getRevocationDate()));
+        }
+
+        return new SingleResponse(cid, certStatus, thisUpdate,
+                nextUpdate);
     }
 
     private String transformDN(String dn) {
