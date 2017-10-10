@@ -21,6 +21,7 @@ import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.cert.X509CRL;
 import java.security.cert.X509CRLEntry;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -470,26 +471,28 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
                     X509Key key = (X509Key) cert.getPublicKey();
                     byte digest[] = md.digest(key.getKey());
 
-                    if (mOCSPAuthority.arraysEqual(digest, keyhsh)) {
-                        theCert = cert;
-                        theRec = rec;
-                        incReqCount(theRec.getId());
-                        byte crldata[] = rec.getCRL();
-
-                        if (rec.getCRLCache() == null) {
-                            CMS.debug("DefStore: start building x509 crl impl");
-                            try {
-                                theCRL = new X509CRLImpl(crldata);
-                            } catch (Exception e) {
-                                log(ILogger.LL_FAILURE, CMS.getLogMessage("OCSP_DECODE_CRL", e.toString()));
-                            }
-                            CMS.debug("DefStore: done building x509 crl impl");
-                        } else {
-                            CMS.debug("DefStore: using crl cache");
-                        }
-                        mCacheCRLIssuingPoints.put(new String(digest), new CRLIPContainer(theRec, theCert, theCRL));
-                        break;
+                    if (!Arrays.equals(digest, keyhsh)) {
+                        continue;
                     }
+
+                    theCert = cert;
+                    theRec = rec;
+                    incReqCount(theRec.getId());
+                    byte crldata[] = rec.getCRL();
+
+                    if (rec.getCRLCache() == null) {
+                        CMS.debug("DefStore: start building x509 crl impl");
+                        try {
+                            theCRL = new X509CRLImpl(crldata);
+                        } catch (Exception e) {
+                            log(ILogger.LL_FAILURE, CMS.getLogMessage("OCSP_DECODE_CRL", e.toString()));
+                        }
+                        CMS.debug("DefStore: done building x509 crl impl");
+                    } else {
+                        CMS.debug("DefStore: using crl cache");
+                    }
+                    mCacheCRLIssuingPoints.put(new String(digest), new CRLIPContainer(theRec, theCert, theCRL));
+                    break;
                 }
 
             } else {

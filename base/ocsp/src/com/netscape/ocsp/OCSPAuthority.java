@@ -352,23 +352,6 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
         return response;
     }
 
-    public boolean arraysEqual(byte[] bytes, byte[] ints) {
-        if (bytes == null || ints == null) {
-            return false;
-        }
-
-        if (bytes.length != ints.length) {
-            return false;
-        }
-
-        for (int i = 0; i < bytes.length; i++) {
-            if (bytes[i] != ints[i]) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     /**
      * Stops this system. The owner may call shutdown
      * anytime after initialization.

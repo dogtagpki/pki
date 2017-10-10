@@ -21,6 +21,7 @@ import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.cert.X509CRL;
 import java.security.cert.X509CRLEntry;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -501,12 +502,14 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
             byte digest[] = md.digest(key.getKey());
             byte keyhsh[] = cid.getIssuerKeyHash().toByteArray();
 
-            if (mOCSPAuthority.arraysEqual(digest, keyhsh)) {
-                theCert = caCert;
-                incReqCount(caCert.getSubjectDN().toString());
-                theCRL = mCRLs.get(caCert);
-                break;
+            if (!Arrays.equals(digest, keyhsh)) {
+                continue;
             }
+
+            theCert = caCert;
+            incReqCount(caCert.getSubjectDN().toString());
+            theCRL = mCRLs.get(caCert);
+            break;
         }
 
         if (theCert == null) {

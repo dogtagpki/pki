@@ -153,16 +153,6 @@ public interface IOCSPAuthority extends ISubsystem {
     public BasicOCSPResponse sign(ResponseData rd)
             throws EBaseException;
 
-    /**
-     * This method compares two byte arrays to see if they are equivalent.
-     * <P>
-     *
-     * @param bytes the first byte array
-     * @param ints the second byte array
-     * @return boolean true or false
-     */
-    public boolean arraysEqual(byte[] bytes, byte[] ints);
-
     public void incTotalTime(long inc);
 
     public void incSignTime(long inc);
