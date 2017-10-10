@@ -448,17 +448,26 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
         X509CertImpl theCert = null;
         X509CRLImpl theCRL = null;
         ICRLIssuingPointRecord theRec = null;
+
+        CMS.debug("DefStore: searching cache");
+
         byte keyhsh[] = cid.getIssuerKeyHash().toByteArray();
         CRLIPContainer matched = mCacheCRLIssuingPoints.get(new String(keyhsh));
 
         if (matched == null) {
+
+            CMS.debug("DefStore: cache not found, searching LDAP records");
+
             Enumeration<ICRLIssuingPointRecord> recs = searchCRLIssuingPointRecord(
                     "objectclass=" +
                             CMS.getCRLIssuingPointRecordName(),
                     100);
 
             while (recs.hasMoreElements()) {
+
                 ICRLIssuingPointRecord rec = recs.nextElement();
+                CMS.debug("DefStore: checking CRL issuing point: " + rec.getId());
+
                 byte certdata[] = rec.getCACert();
                 X509CertImpl cert = null;
 
@@ -467,7 +476,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
                 } catch (Exception e) {
                     // error
                     log(ILogger.LL_FAILURE, CMS.getLogMessage("OCSP_DECODE_CERT", e.toString()));
-                    return null;
+                    throw e;
                 }
 
                 MessageDigest md = MessageDigest.getInstance(cid.getDigestName());
@@ -478,10 +487,18 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
                     continue;
                 }
 
+                CMS.debug("DefStore: found a match");
+
                 theCert = cert;
                 theRec = rec;
                 incReqCount(theRec.getId());
+
                 byte crldata[] = rec.getCRL();
+                CMS.debug("DefStore: CRL data: " + crldata);
+
+                if (crldata == null) {
+                    throw new Exception("Missing CRL data");
+                }
 
                 if (rec.getCRLCache() == null) {
                     CMS.debug("DefStore: start building x509 crl impl");
@@ -489,16 +506,21 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
                         theCRL = new X509CRLImpl(crldata);
                     } catch (Exception e) {
                         log(ILogger.LL_FAILURE, CMS.getLogMessage("OCSP_DECODE_CRL", e.toString()));
+                        throw e;
                     }
                     CMS.debug("DefStore: done building x509 crl impl");
                 } else {
                     CMS.debug("DefStore: using crl cache");
                 }
+
                 mCacheCRLIssuingPoints.put(new String(digest), new CRLIPContainer(theRec, theCert, theCRL));
                 break;
             }
 
         } else {
+
+            CMS.debug("DefStore: cache found");
+
             theCert = matched.getX509CertImpl();
             theRec = matched.getCRLIssuingPointRecord();
             theCRL = matched.getX509CRLImpl();
@@ -506,7 +528,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
         }
 
         if (theCert == null) {
-            return null;
+            throw new Exception("Missing issuer certificate");
         }
 
         // check the serial number
