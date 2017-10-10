@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a16aad4b_003dff48",
+        "filename": "base/server/cms/src/com/netscape/cms/servlet/ocsp/OCSPServlet.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 1010222
+      },
+      "writtenOn": "2017-10-10T22:43:55Z",
+      "side": 1,
+      "message": "Should we put a generic message / reason there?",
+      "revId": "6400b97f77a72b029ac416368b5e5af8bf670d2a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
