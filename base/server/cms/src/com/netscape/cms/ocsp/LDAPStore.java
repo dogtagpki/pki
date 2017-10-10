@@ -494,8 +494,7 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
             X509Key key = (X509Key) caCert.getPublicKey();
 
             if (key == null) {
-                System.out.println("LDAPStore::processRequest - key is null!");
-                return null;
+                throw new Exception("Missing issuer key");
             }
 
             byte digest[] = md.digest(key.getKey());
@@ -512,11 +511,11 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
         }
 
         if (theCert == null) {
-            return null;
+            throw new Exception("Missing issuer certificate");
         }
 
         if (theCRL == null) {
-            return null;
+            throw new Exception("Missing CRL data");
         }
 
         GeneralizedTime thisUpdate = new GeneralizedTime(
