@@ -374,6 +374,10 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
         } catch (EBaseException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("OCSP_REQUEST_FAILURE", e.toString()));
             throw e;
+
+        } catch (Exception e) {
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("OCSP_REQUEST_FAILURE", e.toString()));
+            throw new EBaseException(e);
         }
     }
 
@@ -472,7 +476,7 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
     /**
      * Check against the database for status.
      */
-    private SingleResponse processRequest(Request req) throws EBaseException {
+    private SingleResponse processRequest(Request req) throws Exception {
 
         CertID cid = req.getCertID();
         INTEGER serialNo = cid.getSerialNumber();
@@ -486,12 +490,7 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
 
         while (caCerts.hasMoreElements()) {
             X509CertImpl caCert = caCerts.nextElement();
-            MessageDigest md = null;
-
-            try {
-                md = MessageDigest.getInstance(cid.getDigestName());
-            } catch (Exception e) {
-            }
+            MessageDigest md = MessageDigest.getInstance(cid.getDigestName());
             X509Key key = (X509Key) caCert.getPublicKey();
 
             if (key == null) {
