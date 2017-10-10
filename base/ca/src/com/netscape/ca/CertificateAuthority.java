@@ -2303,7 +2303,7 @@ public class CertificateAuthority
 
         if (!mEnableOCSP) {
             CMS.debug("CertificateAuthority: OCSP service disabled");
-            return null;
+            throw new EBaseException("OCSP service disabled");
         }
 
         TBSRequest tbsReq = request.getTBSRequest();
@@ -2349,8 +2349,10 @@ public class CertificateAuthority
             ocspCA = getCA(certIssuerDN);
         }
 
-        if (ocspCA == null)
+        if (ocspCA == null) {
+            CMS.debug("CertificateAuthority: Could not locate issuing CA");
             throw new CANotFoundException("Could not locate issuing CA");
+        }
 
         if (ocspCA != this)
             return ((IOCSPService) ocspCA).validate(request);
