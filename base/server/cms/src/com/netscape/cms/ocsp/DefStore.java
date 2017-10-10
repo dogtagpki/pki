@@ -427,20 +427,23 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
         } catch (EBaseException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("OCSP_REQUEST_FAILURE", e.toString()));
             throw e;
+
+        } catch (Exception e) {
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("OCSP_REQUEST_FAILURE", e.toString()));
+            throw new EBaseException(e);
         }
     }
 
     /**
      * Check against the database for status.
      */
-    private SingleResponse processRequest(Request req) {
+    private SingleResponse processRequest(Request req) throws Exception {
         // need to find the right CA
 
         CertID cid = req.getCertID();
         INTEGER serialNo = cid.getSerialNumber();
         CMS.debug("DefStore: processing request for cert 0x" + serialNo.toString(16));
 
-        try {
             // cache result to speed up the performance
             X509CertImpl theCert = null;
             X509CRLImpl theCRL = null;
@@ -589,13 +592,6 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
 
             return new SingleResponse(cid, certStatus, thisUpdate,
                     nextUpdate);
-
-        } catch (Exception e) {
-            // error log
-            CMS.debug("DefStore: failed processing request e=" + e);
-        }
-
-        return null;
     }
 
     private String transformDN(String dn) {
