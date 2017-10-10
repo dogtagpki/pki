@@ -467,7 +467,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
                 } catch (Exception e) {
                     // error
                     log(ILogger.LL_FAILURE, CMS.getLogMessage("OCSP_DECODE_CERT", e.toString()));
-                    return null;
+                    throw e;
                 }
 
                 MessageDigest md = MessageDigest.getInstance(cid.getDigestName());
@@ -481,7 +481,12 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
                 theCert = cert;
                 theRec = rec;
                 incReqCount(theRec.getId());
+
                 byte crldata[] = rec.getCRL();
+
+                if (crldata == null) {
+                    throw new Exception("Missing CRL data");
+                }
 
                 if (rec.getCRLCache() == null) {
                     CMS.debug("DefStore: start building x509 crl impl");
@@ -489,11 +494,13 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
                         theCRL = new X509CRLImpl(crldata);
                     } catch (Exception e) {
                         log(ILogger.LL_FAILURE, CMS.getLogMessage("OCSP_DECODE_CRL", e.toString()));
+                        throw e;
                     }
                     CMS.debug("DefStore: done building x509 crl impl");
                 } else {
                     CMS.debug("DefStore: using crl cache");
                 }
+
                 mCacheCRLIssuingPoints.put(new String(digest), new CRLIPContainer(theRec, theCert, theCRL));
                 break;
             }
@@ -506,7 +513,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
         }
 
         if (theCert == null) {
-            return null;
+            throw new Exception("Missing issuer certificate");
         }
 
         // check the serial number
