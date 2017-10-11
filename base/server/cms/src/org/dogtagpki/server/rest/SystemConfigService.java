@@ -897,7 +897,22 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         getInstallToken(data, host, port);
 
-        return getDomainXML(host, port);
+        String domainXML = getDomainXML(host, port);
+
+        /* Sleep for a bit to allow security domain session to replicate
+         * to other clones.  In the future we can use signed tokens
+         * (ticket https://pagure.io/dogtagpki/issue/2831) but we need to
+         * be mindful of working with older versions, too.
+         *
+         * The default sleep time is 5s.
+         */
+        Long d = data.getSecurityDomainPostLoginSleepSeconds();
+        if (null == d || d <= 0)
+            d = new Long(5);
+        CMS.debug("Logged into security domain; sleeping for " + d + "s");
+        Thread.sleep(d * 1000);
+
+        return domainXML;
     }
 
     private String getDomainXML(String host, int port) {
