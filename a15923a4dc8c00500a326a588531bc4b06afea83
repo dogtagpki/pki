@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "208c7b80_675d2834",
+        "filename": "base/server/cmsbundle/src/LogMessages.properties",
+        "patchSetId": 2
+      },
+      "lineNbr": 2182,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-10-11T14:52:00Z",
+      "side": 1,
+      "message": "whitespace",
+      "revId": "a15923a4dc8c00500a326a588531bc4b06afea83",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d880af74_711d1eba",
+        "filename": "base/server/cmsbundle/src/LogMessages.properties",
+        "patchSetId": 2
+      },
+      "lineNbr": 2194,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-10-11T14:52:00Z",
+      "side": 1,
+      "message": "white space",
+      "revId": "a15923a4dc8c00500a326a588531bc4b06afea83",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
