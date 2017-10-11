@@ -33,13 +33,13 @@ public class OCSPRemoveCARequestEvent extends SignedAuditEvent {
 
     public static OCSPRemoveCARequestEvent createSuccessEvent(
             String subjectID,
-            String ca) {
+            String caSubjectDN) {
 
         OCSPRemoveCARequestEvent event = new OCSPRemoveCARequestEvent();
 
         event.setAttribute("SubjectID", subjectID);
         event.setAttribute("Outcome", ILogger.SUCCESS);
-        event.setAttribute("CA", ca);
+        event.setAttribute("CASubjectDN", caSubjectDN);
 
         return event;
     }
