@@ -241,6 +241,11 @@ public class ConfigurationRequest {
     @XmlElement
     protected String signingCertSerialNumber;
 
+    /** Seconds to sleep after logging into the Security Domain,
+     * so that replication of the session data may complete. */
+    @XmlElement
+    protected Long securityDomainPostLoginSleepSeconds;
+
     public ConfigurationRequest() {
         // required for JAXB
     }
@@ -972,6 +977,14 @@ public class ConfigurationRequest {
         this.signingCertSerialNumber = signingCertSerialNumber;
     }
 
+    public Long getSecurityDomainPostLoginSleepSeconds() {
+        return securityDomainPostLoginSleepSeconds;
+    }
+
+    public void setSecurityDomainPostLoginSleepSeconds(Long d) {
+        securityDomainPostLoginSleepSeconds = d;
+    }
+
     @Override
     public String toString() {
         return "ConfigurationRequest [pin=XXXX" +
@@ -981,6 +994,7 @@ public class ConfigurationRequest {
                ", securityDomainName=" + securityDomainName +
                ", securityDomainUser=" + securityDomainUser +
                ", securityDomainPassword=XXXX" +
+               ", securityDomainPostLoginSleepSeconds=" + securityDomainPostLoginSleepSeconds +
                ", isClone=" + isClone +
                ", cloneUri=" + cloneUri +
                ", subsystemName=" + subsystemName +
