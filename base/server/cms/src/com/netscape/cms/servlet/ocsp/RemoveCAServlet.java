@@ -32,8 +32,9 @@ import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.common.ICMSRequest;
-import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.event.OCSPRemoveCARequestEvent;
+import com.netscape.certsrv.logging.event.OCSPRemoveCARequestProcessedEvent;
 import com.netscape.certsrv.ocsp.IDefStore;
 import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.cms.servlet.base.CMSServlet;
@@ -96,7 +97,6 @@ public class RemoveCAServlet extends CMSServlet {
             throws EBaseException {
         HttpServletRequest req = cmsReq.getHttpReq();
         HttpServletResponse resp = cmsReq.getHttpResp();
-        String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
         IAuthToken authToken = authenticate(cmsReq);
@@ -143,22 +143,16 @@ public class RemoveCAServlet extends CMSServlet {
         String caID = cmsReq.getHttpReq().getParameter("caID");
 
         if (caID == null) {
-            auditMessage = CMS.getLogMessage(
-                    AuditEvent.OCSP_REMOVE_CA_REQUEST_PROCESSED_FAILURE,
-                    auditSubjectID,
-                    ILogger.FAILURE,
-                    ILogger.SIGNED_AUDIT_EMPTY_VALUE);
+
+            audit(OCSPRemoveCARequestEvent.createFailureEvent(
+                    auditSubjectID));
 
             throw new ECMSGWException(CMS.getUserMessage(getLocale(req), "CMS_GW_MISSING_CA_ID"));
         }
 
-        auditMessage = CMS.getLogMessage(
-                AuditEvent.OCSP_REMOVE_CA_REQUEST,
+        audit(OCSPRemoveCARequestEvent.createSuccessEvent(
                 auditSubjectID,
-                ILogger.SUCCESS,
-                caID);
-
-        audit(auditMessage);
+                caID));
 
         IDefStore defStore = mOCSPAuthority.getDefaultStore();
 
@@ -167,12 +161,9 @@ public class RemoveCAServlet extends CMSServlet {
 
         } catch (EBaseException e) {
 
-            auditMessage = CMS.getLogMessage(
-                    AuditEvent.OCSP_REMOVE_CA_REQUEST_PROCESSED_FAILURE,
+            audit(OCSPRemoveCARequestProcessedEvent.createFailureEvent(
                     auditSubjectID,
-                    ILogger.FAILURE,
-                    caID);
-            audit(auditMessage);
+                    caID));
 
             CMS.debug("RemoveCAServlet::process: Error deleting CRL IssuingPoint: " + caID);
             throw new EBaseException(e.toString());
@@ -180,12 +171,9 @@ public class RemoveCAServlet extends CMSServlet {
 
         CMS.debug("RemoveCAServlet::process: CRL IssuingPoint for CA successfully removed: " + caID);
 
-        auditMessage = CMS.getLogMessage(
-                AuditEvent.OCSP_REMOVE_CA_REQUEST_PROCESSED_SUCCESS,
+        audit(OCSPRemoveCARequestProcessedEvent.createSuccessEvent(
                 auditSubjectID,
-                ILogger.SUCCESS,
-                caID);
-        audit(auditMessage);
+                caID));
 
         try {
             ServletOutputStream out = resp.getOutputStream();
