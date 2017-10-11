@@ -3933,6 +3933,13 @@ class ConfigClient:
         if self.subordinate:
             self.set_subca_security_domain(data)
 
+        try:
+            d = int(self.mdict['pki_security_domain_post_login_sleep_seconds'])
+            if d > 0:
+                data.securityDomainPostLoginSleepSeconds = d
+        except (KeyError, ValueError):
+            pass
+
         # database
         if self.subsystem != "RA":
             self.set_database_parameters(data)
