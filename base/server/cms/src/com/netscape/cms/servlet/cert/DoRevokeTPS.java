@@ -46,9 +46,9 @@ import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
-import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.event.CertStatusChangeRequestEvent;
 import com.netscape.certsrv.logging.event.CertStatusChangeRequestProcessedEvent;
 import com.netscape.certsrv.publish.IPublisherProcessor;
 import com.netscape.certsrv.request.IRequest;
@@ -323,7 +323,6 @@ public class DoRevokeTPS extends CMSServlet {
             Locale locale)
             throws EBaseException {
         boolean auditRequest = true;
-        String auditMessage = null;
         String auditSubjectID = auditSubjectID();
         String auditRequesterID = auditRequesterID(req);
         String auditSerialNumber = auditSerialNumber(null);
@@ -458,16 +457,14 @@ public class DoRevokeTPS extends CMSServlet {
                 // requested happened to be already revoked. Don't return error.
                 if (alreadyRevokedCertFound == true && badCertsRequested == false) {
                     CMS.debug(method + "Only have previously revoked certs in the list.");
-                    // store a message in the signed audit log file
-                    auditMessage = CMS.getLogMessage(
-                            AuditEvent.CERT_STATUS_CHANGE_REQUEST,
+
+                    audit(new CertStatusChangeRequestEvent(
                             auditSubjectID,
                             ILogger.SUCCESS,
                             auditRequesterID,
                             auditSerialNumber,
-                            auditRequestType);
+                            auditRequestType));
 
-                    audit(auditMessage);
                     return;
                 }
 
@@ -475,16 +472,12 @@ public class DoRevokeTPS extends CMSServlet {
                 o_status = "status=2";
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_REV_CERTS_ZERO"));
 
-                // store a message in the signed audit log file
-                auditMessage = CMS.getLogMessage(
-                            AuditEvent.CERT_STATUS_CHANGE_REQUEST,
+                audit(new CertStatusChangeRequestEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditRequesterID,
                             auditSerialNumber,
-                            auditRequestType);
-
-                audit(auditMessage);
+                            auditRequestType));
 
                 throw new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_MARKING_CERT_REVOKED"));
             }
@@ -500,16 +493,12 @@ public class DoRevokeTPS extends CMSServlet {
             IRequest revReq =
                     mQueue.newRequest(IRequest.REVOCATION_REQUEST);
 
-            // store a message in the signed audit log file
-            auditMessage = CMS.getLogMessage(
-                        AuditEvent.CERT_STATUS_CHANGE_REQUEST,
+            audit(new CertStatusChangeRequestEvent(
                         auditSubjectID,
                         ILogger.SUCCESS,
                         auditRequesterID,
                         auditSerialNumber,
-                        auditRequestType);
-
-            audit(auditMessage);
+                        auditRequestType));
 
             revReq.setExtData(IRequest.CERT_INFO, revCertImpls);
             revReq.setExtData(IRequest.REQ_TYPE, IRequest.REVOCATION_REQUEST);
@@ -790,17 +779,14 @@ public class DoRevokeTPS extends CMSServlet {
             log(ILogger.LL_FAILURE, "error " + e);
 
             if (auditRequest) {
-                // store a "CERT_STATUS_CHANGE_REQUEST" failure
-                // message in the signed audit log file
-                auditMessage = CMS.getLogMessage(
-                            AuditEvent.CERT_STATUS_CHANGE_REQUEST,
+
+                audit(new CertStatusChangeRequestEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditRequesterID,
                             auditSerialNumber,
-                            auditRequestType);
+                            auditRequestType));
 
-                audit(auditMessage);
             } else {
                 // store a "CERT_STATUS_CHANGE_REQUEST_PROCESSED" failure
                 // message in the signed audit log file
@@ -827,17 +813,14 @@ public class DoRevokeTPS extends CMSServlet {
                     CMS.getLogMessage("CMSGW_ERROR_MARKING_CERT_REVOKED_1", e.toString()));
 
             if (auditRequest) {
-                // store a "CERT_STATUS_CHANGE_REQUEST" failure
-                // message in the signed audit log file
-                auditMessage = CMS.getLogMessage(
-                            AuditEvent.CERT_STATUS_CHANGE_REQUEST,
+
+                audit(new CertStatusChangeRequestEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditRequesterID,
                             auditSerialNumber,
-                            auditRequestType);
+                            auditRequestType));
 
-                audit(auditMessage);
             } else {
                 // store a "CERT_STATUS_CHANGE_REQUEST_PROCESSED" failure
                 // message in the signed audit log file

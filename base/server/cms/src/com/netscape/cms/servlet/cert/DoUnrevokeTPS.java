@@ -43,9 +43,9 @@ import com.netscape.certsrv.ca.ICRLIssuingPoint;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
-import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.event.CertStatusChangeRequestEvent;
 import com.netscape.certsrv.logging.event.CertStatusChangeRequestProcessedEvent;
 import com.netscape.certsrv.publish.IPublisherProcessor;
 import com.netscape.certsrv.request.IRequest;
@@ -242,7 +242,6 @@ public class DoUnrevokeTPS extends CMSServlet {
             Locale locale, String initiative)
             throws EBaseException {
         boolean auditRequest = true;
-        String auditMessage = null;
         String auditSubjectID = auditSubjectID();
         String auditRequesterID = auditRequesterID(req);
         String auditSerialNumber = auditSerialNumber(serialNumbers[0].toString());
@@ -264,16 +263,12 @@ public class DoUnrevokeTPS extends CMSServlet {
 
             IRequest unrevReq = mQueue.newRequest(IRequest.UNREVOCATION_REQUEST);
 
-            // store a message in the signed audit log file
-            auditMessage = CMS.getLogMessage(
-                        AuditEvent.CERT_STATUS_CHANGE_REQUEST,
+            audit(new CertStatusChangeRequestEvent(
                         auditSubjectID,
                         ILogger.SUCCESS,
                         auditRequesterID,
                         auditSerialNumber,
-                        auditRequestType);
-
-            audit(auditMessage);
+                        auditRequestType));
 
             unrevReq.setExtData(IRequest.REQ_TYPE, IRequest.UNREVOCATION_REQUEST);
             unrevReq.setExtData(IRequest.OLD_SERIALS, serialNumbers);
@@ -475,17 +470,14 @@ public class DoUnrevokeTPS extends CMSServlet {
 
         } catch (EBaseException eAudit1) {
             if (auditRequest) {
-                // store a "CERT_STATUS_CHANGE_REQUEST" failure
-                // message in the signed audit log file
-                auditMessage = CMS.getLogMessage(
-                            AuditEvent.CERT_STATUS_CHANGE_REQUEST,
+
+                audit(new CertStatusChangeRequestEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditRequesterID,
                             auditSerialNumber,
-                            auditRequestType);
+                            auditRequestType));
 
-                audit(auditMessage);
             } else {
                 // store a "CERT_STATUS_CHANGE_REQUEST_PROCESSED" failure
                 // message in the signed audit log file

@@ -67,9 +67,6 @@ public class AuditEvent extends LogEvent {
             "LOGGING_SIGNED_AUDIT_NON_PROFILE_CERT_REQUEST_5";
     public final static String PROFILE_CERT_REQUEST =
             "LOGGING_SIGNED_AUDIT_PROFILE_CERT_REQUEST_5";
-    public final static String CERT_STATUS_CHANGE_REQUEST =
-            "LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST_5";
-
     public final static String INTER_BOUNDARY =
             "LOGGING_SIGNED_AUDIT_INTER_BOUNDARY_SUCCESS_5";
     public final static String CERT_PROFILE_APPROVAL =

@@ -46,9 +46,9 @@ import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertRecordList;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
-import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.event.CertStatusChangeRequestEvent;
 import com.netscape.certsrv.logging.event.CertStatusChangeRequestProcessedEvent;
 import com.netscape.certsrv.publish.IPublisherProcessor;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
@@ -369,7 +369,6 @@ public class CMCRevReqServlet extends CMSServlet {
         }
 
         boolean auditRequest = true;
-        String auditMessage = null;
         String auditSubjectID = auditSubjectID();
         String auditRequesterID = auditRequesterID(req);
         String auditSerialNumber = auditSerialNumber(eeSerialNumber);
@@ -543,16 +542,12 @@ public class CMCRevReqServlet extends CMSServlet {
                 revReq = mQueue.newRequest(IRequest.REVOCATION_REQUEST);
             }
 
-            // store a message in the signed audit log file
-            auditMessage = CMS.getLogMessage(
-                        AuditEvent.CERT_STATUS_CHANGE_REQUEST,
+            audit(new CertStatusChangeRequestEvent(
                         auditSubjectID,
                         ILogger.SUCCESS,
                         auditRequesterID,
                         auditSerialNumber,
-                        auditRequestType);
-
-            audit(auditMessage);
+                        auditRequestType));
 
             revReq.setExtData(IRequest.REQUESTOR_TYPE, IRequest.REQUESTOR_AGENT);
             if (revReason != null && revReason == RevocationReason.REMOVE_FROM_CRL) {
@@ -826,17 +821,14 @@ public class CMCRevReqServlet extends CMSServlet {
 
         } catch (CertificateException e) {
             if (auditRequest) {
-                // store a "CERT_STATUS_CHANGE_REQUEST" failure
-                // message in the signed audit log file
-                auditMessage = CMS.getLogMessage(
-                        AuditEvent.CERT_STATUS_CHANGE_REQUEST,
+
+                audit(new CertStatusChangeRequestEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditRequesterID,
                         auditSerialNumber,
-                        auditRequestType);
+                        auditRequestType));
 
-                audit(auditMessage);
             } else {
                 // store a "CERT_STATUS_CHANGE_REQUEST_PROCESSED" failure
                 // message in the signed audit log file
@@ -862,17 +854,14 @@ public class CMCRevReqServlet extends CMSServlet {
             log(ILogger.LL_FAILURE, "error " + e);
 
             if (auditRequest) {
-                // store a "CERT_STATUS_CHANGE_REQUEST" failure
-                // message in the signed audit log file
-                auditMessage = CMS.getLogMessage(
-                        AuditEvent.CERT_STATUS_CHANGE_REQUEST,
+
+                audit(new CertStatusChangeRequestEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditRequesterID,
                         auditSerialNumber,
-                        auditRequestType);
+                        auditRequestType));
 
-                audit(auditMessage);
             } else {
                 // store a "CERT_STATUS_CHANGE_REQUEST_PROCESSED" failure
                 // message in the signed audit log file
@@ -899,17 +888,14 @@ public class CMCRevReqServlet extends CMSServlet {
                     CMS.getLogMessage("CMSGW_ERROR_MARKING_CERT_REVOKED", e.toString()));
 
             if (auditRequest) {
-                // store a "CERT_STATUS_CHANGE_REQUEST" failure
-                // message in the signed audit log file
-                auditMessage = CMS.getLogMessage(
-                        AuditEvent.CERT_STATUS_CHANGE_REQUEST,
+
+                audit(new CertStatusChangeRequestEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditRequesterID,
                         auditSerialNumber,
-                        auditRequestType);
+                        auditRequestType));
 
-                audit(auditMessage);
             } else {
                 // store a "CERT_STATUS_CHANGE_REQUEST_PROCESSED" failure
                 // message in the signed audit log file
@@ -933,17 +919,14 @@ public class CMCRevReqServlet extends CMSServlet {
             throw new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_MARKING_CERT_REVOKED"));
         } catch (Exception e) {
             if (auditRequest) {
-                // store a "CERT_STATUS_CHANGE_REQUEST" failure
-                // message in the signed audit log file
-                auditMessage = CMS.getLogMessage(
-                        AuditEvent.CERT_STATUS_CHANGE_REQUEST,
+
+                audit(new CertStatusChangeRequestEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditRequesterID,
                         auditSerialNumber,
-                        auditRequestType);
+                        auditRequestType));
 
-                audit(auditMessage);
             } else {
                 // store a "CERT_STATUS_CHANGE_REQUEST_PROCESSED" failure
                 // message in the signed audit log file
