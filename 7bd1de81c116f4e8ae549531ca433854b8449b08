@@ -1,0 +1,248 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ef3ec6b6_c487f748",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-10-12T23:55:42Z",
+      "side": 1,
+      "message": "This phrase can be combined with the previous sentence.",
+      "revId": "7bd1de81c116f4e8ae549531ca433854b8449b08",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f3457354_d767acc1",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-10-12T23:55:42Z",
+      "side": 1,
+      "message": "ticket",
+      "range": {
+        "startLine": 18,
+        "startChar": 12,
+        "endLine": 18,
+        "endChar": 18
+      },
+      "revId": "7bd1de81c116f4e8ae549531ca433854b8449b08",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bae1851f_1f4f3300",
+        "filename": "base/console/src/com/netscape/admin/certsrv/CMSAdminUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1135,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-10-12T23:55:42Z",
+      "side": 1,
+      "message": "We probably can do this instead:\n\n  try {\n      r \u003d CryptoUtil.getRandomNumberGenerator();\n  } catch (GeneralSecurityException e) {\n      throw new RuntimeException(e);\n  }",
+      "revId": "7bd1de81c116f4e8ae549531ca433854b8449b08",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a416b0ec_547bfdd4",
+        "filename": "base/java-tools/src/com/netscape/cmstools/CMCRequest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1506,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-10-12T23:55:42Z",
+      "side": 1,
+      "message": "We probably can do this instead:\n\n  try {\n      random \u003d CryptoUtil.getRandomNumberGenerator();\n  } catch (GeneralSecurityException e) {\n      throw new RuntimeException(e);\n  }",
+      "revId": "7bd1de81c116f4e8ae549531ca433854b8449b08",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f976056e_80f1b8c4",
+        "filename": "base/server/cms/src/com/netscape/cms/profile/common/EnrollProfile.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 396,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-10-12T23:55:42Z",
+      "side": 1,
+      "message": "This line can be combined with line 399.",
+      "revId": "7bd1de81c116f4e8ae549531ca433854b8449b08",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9b420214_d6697e65",
+        "filename": "base/server/cms/src/com/netscape/cms/servlet/base/CMSServlet.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1591,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-10-12T23:55:42Z",
+      "side": 1,
+      "message": "This is a server-side code, so it should use JssSubsystem.",
+      "revId": "7bd1de81c116f4e8ae549531ca433854b8449b08",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e25afcb0_eefd39e6",
+        "filename": "base/server/cms/src/com/netscape/cms/servlet/cert/EnrollServlet.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1314,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-10-12T23:55:42Z",
+      "side": 1,
+      "message": "Let\u0027s remove this line.",
+      "revId": "7bd1de81c116f4e8ae549531ca433854b8449b08",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4887fafd_e17b5fd3",
+        "filename": "base/server/cms/src/com/netscape/cms/servlet/cert/EnrollServlet.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1315,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-10-12T23:55:42Z",
+      "side": 1,
+      "message": "No need to display the stack trace here. That should be done by the caller.",
+      "revId": "7bd1de81c116f4e8ae549531ca433854b8449b08",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "882f176b_a8887b2c",
+        "filename": "base/server/cms/src/com/netscape/cms/servlet/cert/HashEnrollServlet.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 604,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-10-12T23:55:42Z",
+      "side": 1,
+      "message": "Let\u0027s remove these 2 lines too.",
+      "revId": "7bd1de81c116f4e8ae549531ca433854b8449b08",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fdf3f0f1_f86c1846",
+        "filename": "base/server/cms/src/com/netscape/cms/servlet/common/ServletUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-10-12T23:55:42Z",
+      "side": 1,
+      "message": "Nothing is changed in this file.",
+      "revId": "7bd1de81c116f4e8ae549531ca433854b8449b08",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1e21dbfb_288d1fac",
+        "filename": "base/server/cms/src/org/dogtagpki/server/rest/SystemConfigService.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 680,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-10-12T23:55:42Z",
+      "side": 1,
+      "message": "This can be combined with line 682.",
+      "revId": "7bd1de81c116f4e8ae549531ca433854b8449b08",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "60fd8481_7b8f6d68",
+        "filename": "base/server/cmscore/src/com/netscape/cmscore/security/JssSubsystem.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-10-12T23:55:42Z",
+      "side": 1,
+      "message": "Nothing is changed in this file.",
+      "revId": "7bd1de81c116f4e8ae549531ca433854b8449b08",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "db42714f_5383db08",
+        "filename": "base/util/src/com/netscape/cmsutil/crypto/CryptoUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 2115,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-10-12T23:55:42Z",
+      "side": 1,
+      "message": "This can be combined with line 2116.",
+      "revId": "7bd1de81c116f4e8ae549531ca433854b8449b08",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e732097c_4e1ca120",
+        "filename": "base/util/src/com/netscape/cmsutil/crypto/CryptoUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 2128,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-10-12T23:55:42Z",
+      "side": 1,
+      "message": "The try-catch block is unnecessary since the exception is rethrown unchanged.",
+      "revId": "7bd1de81c116f4e8ae549531ca433854b8449b08",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
