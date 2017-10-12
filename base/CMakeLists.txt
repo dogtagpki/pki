@@ -30,11 +30,46 @@ find_file(SLF4J_JDK14_JAR
         /usr/share/java/slf4j
 )
 
+find_file(COMMONS_CODEC_JAR
+    NAMES
+        commons-codec.jar
+    PATHS
+        /usr/share/java
+)
+
+find_file(COMMONS_HTTPCLIENT_JAR
+    NAMES
+        commons-httpclient.jar
+    PATHS
+        /usr/share/java
+)
+
 find_file(COMMONS_IO_JAR
     NAMES
         commons-io.jar
     PATHS
         /usr/share/java
+)
+
+find_file(COMMONS_LANG_JAR
+    NAMES
+        commons-lang.jar
+    PATHS
+        /usr/share/java
+)
+
+find_file(HTTPCLIENT_JAR
+    NAMES
+        httpclient.jar
+    PATHS
+        /usr/share/java/httpcomponents
+)
+
+find_file(HTTPCORE_JAR
+    NAMES
+        httpcore.jar
+    PATHS
+        /usr/share/java/httpcomponents
 )
 
 find_file(JACKSON_CORE_JAR
@@ -49,6 +84,44 @@ find_file(JACKSON_MAPPER_JAR
         jackson-mapper-asl.jar
     PATHS
         /usr/share/java/jackson
+)
+
+find_file(JSS_JAR
+    NAMES
+        jss4.jar
+    PATHS
+        ${JAVA_LIB_INSTALL_DIR}
+        /usr/share/java
+)
+
+find_file(LDAPJDK_JAR
+    NAMES
+        ldapjdk.jar
+    PATHS
+        ${JAVA_LIB_INSTALL_DIR}
+        /usr/share/java
+)
+
+find_file(NUXWDOG_JAR
+    NAMES
+        nuxwdog.jar
+    PATHS
+        ${JAVA_LIB_INSTALL_DIR}
+        /usr/share/java
+)
+
+find_file(RESTEASY_JAXRS_JAR
+    NAMES
+        resteasy-jaxrs.jar
+    PATHS
+        ${RESTEASY_LIB}
+)
+
+find_file(RESTEASY_ATOM_PROVIDER_JAR
+    NAMES
+        resteasy-atom-provider.jar
+    PATHS
+        ${RESTEASY_LIB}
 )
 
 find_file(TOMCAT_API_JAR
@@ -83,6 +156,30 @@ find_file(TOMCATJSS_JAR
     NAMES
         tomcatjss.jar
     PATHS
+        /usr/share/java
+)
+
+find_file(VELOCITY_JAR
+    NAMES
+        velocity.jar
+    PATHS
+        ${JAVA_LIB_INSTALL_DIR}
+        /usr/share/java
+)
+
+find_file(XALAN_JAR
+    NAMES
+        xalan-j2.jar
+    PATHS
+        ${JAVA_LIB_INSTALL_DIR}
+        /usr/share/java
+)
+
+find_file(XERCES_JAR
+    NAMES
+        xerces-j2.jar
+    PATHS
+        ${JAVA_LIB_INSTALL_DIR}
         /usr/share/java
 )
 

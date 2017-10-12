@@ -21,6 +21,78 @@ set(APACHE_SUBSYSTEMS
     tps
 )
 
+if(WITH_TOMCAT7)
+    add_subdirectory(tomcat7)
+endif(WITH_TOMCAT7)
+
+if(WITH_TOMCAT8)
+    add_subdirectory(tomcat8)
+endif(WITH_TOMCAT8)
+
+add_subdirectory(tomcat)
+add_subdirectory(cms)
+add_subdirectory(cmsbundle)
+add_subdirectory(cmscore)
+add_subdirectory(test)
+
+# build server classes
+javac(pki-server-classes
+    SOURCES
+        cms/src/*.java
+        cmscore/src/*.java
+    CLASSPATH
+        ${SLF4J_API_JAR}
+        ${COMMONS_CODEC_JAR} ${COMMONS_HTTPCLIENT_JAR} ${COMMONS_IO_JAR} ${COMMONS_LANG_JAR}
+        ${HTTPCORE_JAR} ${HTTPCLIENT_JAR}
+        ${JSS_JAR} ${SYMKEY_JAR}
+        ${LDAPJDK_JAR}
+        ${XALAN_JAR} ${XERCES_JAR}
+        ${SERVLET_JAR} ${TOMCAT_CATALINA_JAR} ${TOMCAT_UTIL_JAR}
+        ${TOMCATJSS_JAR} ${VELOCITY_JAR}
+        ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR} ${RESTEASY_ATOM_PROVIDER_JAR}
+        ${NUXWDOG_JAR}
+        ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR} ${PKI_CERTSRV_JAR} ${PKI_TOMCAT_JAR}
+    OUTPUT_DIR
+        ${CMAKE_CURRENT_BINARY_DIR}/classes
+    DEPENDS
+        pki-nsutil-jar pki-cmsutil-jar pki-certsrv-jar pki-tools-jar pki-tomcat-jar
+)
+
+# build pki-cms.jar
+jar(pki-cms-jar
+    CREATE
+        ${CMAKE_BINARY_DIR}/dist/pki-cms.jar
+    OPTIONS
+        m
+    PARAMS
+        ${CMAKE_CURRENT_BINARY_DIR}/cms/src/pki-cms.mf
+    INPUT_DIR
+        ${CMAKE_CURRENT_BINARY_DIR}/classes
+    FILES
+        com/netscape/cms/*
+        org/dogtagpki/legacy/server/policy/*
+        org/dogtagpki/server/*
+    DEPENDS
+        pki-server-classes
+)
+
+# build pki-cmscore.jar
+jar(pki-cmscore-jar
+    CREATE
+        ${CMAKE_BINARY_DIR}/dist/pki-cmscore.jar
+    OPTIONS
+        m
+    PARAMS
+        ${CMAKE_CURRENT_BINARY_DIR}/cmscore/src/pki-cmscore.mf
+    INPUT_DIR
+        ${CMAKE_CURRENT_BINARY_DIR}/classes
+    FILES
+        com/netscape/cmscore/*
+        org/dogtagpki/legacy/core/policy/*
+    DEPENDS
+        pki-server-classes
+)
+
 # Create /usr/share/pki/server/common/lib. This can be customized for different platforms in RPM spec.
 
 add_custom_target(pki-server-common-lib ALL)
@@ -212,17 +284,3 @@ install(
 # install empty directories
 install(CODE "file(MAKE_DIRECTORY \$ENV{DESTDIR}${VAR_INSTALL_DIR}/lock/pki)")
 install(CODE "file(MAKE_DIRECTORY \$ENV{DESTDIR}${VAR_INSTALL_DIR}/run/pki)")
-
-if(WITH_TOMCAT7)
-    add_subdirectory(tomcat7)
-endif(WITH_TOMCAT7)
-
-if(WITH_TOMCAT8)
-    add_subdirectory(tomcat8)
-endif(WITH_TOMCAT8)
-
-add_subdirectory(tomcat)
-add_subdirectory(cms)
-add_subdirectory(cmsbundle)
-add_subdirectory(cmscore)
-add_subdirectory(test)
