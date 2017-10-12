@@ -351,7 +351,7 @@ public class DoRevokeTPS extends CMSServlet {
         }
 
         long startTime = CMS.getCurrentDate().getTime();
-        IRequest revReq;
+        IRequest revReq = null;
         int count = 0;
         X509CertImpl[] oldCerts;
 
@@ -463,7 +463,7 @@ public class DoRevokeTPS extends CMSServlet {
                     audit(new CertStatusChangeRequestEvent(
                             auditSubjectID,
                             ILogger.SUCCESS,
-                            auditRequesterID,
+                            revReq,
                             auditSerialNumber,
                             auditRequestType));
 
@@ -477,7 +477,7 @@ public class DoRevokeTPS extends CMSServlet {
                 audit(new CertStatusChangeRequestEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
-                            auditRequesterID,
+                            revReq,
                             auditSerialNumber,
                             auditRequestType));
 
@@ -497,7 +497,7 @@ public class DoRevokeTPS extends CMSServlet {
             audit(new CertStatusChangeRequestEvent(
                         auditSubjectID,
                         ILogger.SUCCESS,
-                        auditRequesterID,
+                        revReq,
                         auditSerialNumber,
                         auditRequestType));
 
@@ -522,7 +522,7 @@ public class DoRevokeTPS extends CMSServlet {
             audit(new CertStatusChangeRequestEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
-                        auditRequesterID,
+                        revReq,
                         auditSerialNumber,
                         auditRequestType));
             throw e;
@@ -535,7 +535,7 @@ public class DoRevokeTPS extends CMSServlet {
             audit(new CertStatusChangeRequestEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
-                        auditRequesterID,
+                        revReq,
                         auditSerialNumber,
                         auditRequestType));
 
@@ -608,7 +608,7 @@ public class DoRevokeTPS extends CMSServlet {
                         audit(new CertStatusChangeRequestProcessedEvent(
                                     auditSubjectID,
                                     ILogger.FAILURE,
-                                    auditRequesterID,
+                                    revReq,
                                     auditSerialNumber,
                                     auditRequestType,
                                     auditReasonNum,
@@ -797,7 +797,7 @@ public class DoRevokeTPS extends CMSServlet {
                 audit(new CertStatusChangeRequestProcessedEvent(
                             auditSubjectID,
                             ILogger.SUCCESS,
-                            auditRequesterID,
+                            revReq,
                             auditSerialNumber,
                             auditRequestType,
                             auditReasonNum,
@@ -819,7 +819,7 @@ public class DoRevokeTPS extends CMSServlet {
                 audit(new CertStatusChangeRequestProcessedEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
-                            auditRequesterID,
+                            revReq,
                             auditSerialNumber,
                             auditRequestType,
                             auditReasonNum,
@@ -844,7 +844,7 @@ public class DoRevokeTPS extends CMSServlet {
                 audit(new CertStatusChangeRequestProcessedEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
-                            auditRequesterID,
+                            revReq,
                             auditSerialNumber,
                             auditRequestType,
                             auditReasonNum,

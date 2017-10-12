@@ -249,7 +249,7 @@ public class DoUnrevokeTPS extends CMSServlet {
         RequestStatus auditApprovalStatus = null;
         String auditReasonNum = String.valueOf(OFF_HOLD_REASON);
 
-        IRequest unrevReq;
+        IRequest unrevReq = null;
         X509CertImpl[] certs;
 
         try {
@@ -269,7 +269,7 @@ public class DoUnrevokeTPS extends CMSServlet {
             audit(new CertStatusChangeRequestEvent(
                         auditSubjectID,
                         ILogger.SUCCESS,
-                        auditRequesterID,
+                        unrevReq,
                         auditSerialNumber,
                         auditRequestType));
 
@@ -282,7 +282,7 @@ public class DoUnrevokeTPS extends CMSServlet {
             audit(new CertStatusChangeRequestEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
-                        auditRequesterID,
+                        unrevReq,
                         auditSerialNumber,
                         auditRequestType));
             return;
@@ -475,7 +475,7 @@ public class DoUnrevokeTPS extends CMSServlet {
                 audit(new CertStatusChangeRequestProcessedEvent(
                             auditSubjectID,
                             ILogger.SUCCESS,
-                            auditRequesterID,
+                            unrevReq,
                             auditSerialNumber,
                             auditRequestType,
                             auditReasonNum,
@@ -495,7 +495,7 @@ public class DoUnrevokeTPS extends CMSServlet {
                 audit(new CertStatusChangeRequestProcessedEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
-                            auditRequesterID,
+                            unrevReq,
                             auditSerialNumber,
                             auditRequestType,
                             auditReasonNum,
