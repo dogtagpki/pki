@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a7d10843_74c90162",
+        "filename": "base/common/src/com/netscape/certsrv/system/ConfigurationRequest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1052,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-10-12T15:54:53Z",
+      "side": 1,
+      "message": "Be sure to add this new parameter to the toString() so that it can be logged.",
+      "revId": "8bae1433758c6370315eaeee2875e894441cdd28",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
