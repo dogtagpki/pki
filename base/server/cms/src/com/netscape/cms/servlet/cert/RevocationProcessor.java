@@ -43,7 +43,6 @@ import com.netscape.certsrv.logging.event.CertStatusChangeRequestProcessedEvent;
 import com.netscape.certsrv.publish.IPublisherProcessor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
-import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.usrgrp.Certificates;
 import com.netscape.certsrv.usrgrp.IUser;
@@ -72,7 +71,6 @@ public class RevocationProcessor extends CertProcessor {
     IPublisherProcessor publisherProcessor;
 
     String initiative;
-    RequestId requestID;
     CertId serialNumber;
     RevocationReason revocationReason;
     Date invalidityDate;
@@ -114,14 +112,6 @@ public class RevocationProcessor extends CertProcessor {
 
     public void setInitiative(String initiative) {
         this.initiative = initiative;
-    }
-
-    public RequestId getRequestID() {
-        return requestID;
-    }
-
-    public void setRequestID(RequestId requestID) {
-        this.requestID = requestID;
     }
 
     public CertId getSerialNumber() {
@@ -294,7 +284,6 @@ public class RevocationProcessor extends CertProcessor {
     public void createRevocationRequest() throws EBaseException {
 
         request = requestQueue.newRequest(IRequest.REVOCATION_REQUEST);
-        setRequestID(request.getRequestId());
 
         request.setExtData(IRequest.REQ_TYPE, IRequest.REVOCATION_REQUEST);
 
@@ -375,7 +364,6 @@ public class RevocationProcessor extends CertProcessor {
     public void createUnrevocationRequest() throws EBaseException {
 
         request = requestQueue.newRequest(IRequest.UNREVOCATION_REQUEST);
-        setRequestID(request.getRequestId());
 
         request.setExtData(IRequest.REQ_TYPE, IRequest.UNREVOCATION_REQUEST);
 
@@ -485,7 +473,7 @@ public class RevocationProcessor extends CertProcessor {
         signedAuditLogger.log(new CertStatusChangeRequestEvent(
                 auditor.getSubjectID(),
                 status,
-                requestID == null ? ILogger.UNIDENTIFIED : requestID.toString(),
+                request,
                 serialNumber == null ? ILogger.SIGNED_AUDIT_EMPTY_VALUE : serialNumber.toHexString(),
                 requestType));
     }
@@ -506,7 +494,7 @@ public class RevocationProcessor extends CertProcessor {
         signedAuditLogger.log(new CertStatusChangeRequestProcessedEvent(
                 auditor.getSubjectID(),
                 status,
-                requestID == null ? ILogger.UNIDENTIFIED : requestID.toString(),
+                request,
                 serialNumber == null ? ILogger.SIGNED_AUDIT_EMPTY_VALUE : serialNumber.toHexString(),
                 requestType,
                 String.valueOf(revocationReason.toInt()),

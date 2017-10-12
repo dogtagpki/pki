@@ -18,6 +18,7 @@
 package com.netscape.certsrv.logging.event;
 
 import com.netscape.certsrv.logging.SignedAuditEvent;
+import com.netscape.certsrv.request.IRequest;
 
 public class CertStatusChangeRequestEvent extends SignedAuditEvent {
 
@@ -38,6 +39,22 @@ public class CertStatusChangeRequestEvent extends SignedAuditEvent {
         setAttribute("SubjectID", subjectID);
         setAttribute("Outcome", outcome);
         setAttribute("ReqID", requesterID);
+        setAttribute("CertSerialNum", serialNumber);
+        setAttribute("RequestType", requestType);
+    }
+
+    public CertStatusChangeRequestEvent(
+            String subjectID,
+            String outcome,
+            IRequest request,
+            String serialNumber,
+            String requestType) {
+
+        super(CERT_STATUS_CHANGE_REQUEST);
+
+        setAttribute("SubjectID", subjectID);
+        setAttribute("Outcome", outcome);
+        setAttribute("ReqID", request == null ? null : request.getRequestId().toString());
         setAttribute("CertSerialNum", serialNumber);
         setAttribute("RequestType", requestType);
     }
