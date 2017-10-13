@@ -1,0 +1,248 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9352cf10_9fbcdc50",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-10-13T00:37:41Z",
+      "side": 1,
+      "message": "This phrase can be combined with the previous sentence.",
+      "revId": "8f2a1761658ba4eb60ea31d5e94d4ebe222085b0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6aec418f_3a91ac27",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-10-13T00:37:41Z",
+      "side": 1,
+      "message": "ticket",
+      "range": {
+        "startLine": 18,
+        "startChar": 12,
+        "endLine": 18,
+        "endChar": 18
+      },
+      "revId": "8f2a1761658ba4eb60ea31d5e94d4ebe222085b0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "92e110b6_1807a02f",
+        "filename": "base/ca/src/org/dogtagpki/server/ca/rest/CertRequestService.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-10-13T00:37:41Z",
+      "side": 1,
+      "message": "Nothing is changed in this file.",
+      "revId": "8f2a1761658ba4eb60ea31d5e94d4ebe222085b0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "917d5d4b_4ca5c292",
+        "filename": "base/console/src/com/netscape/admin/certsrv/CMSAdminUtil.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1135,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-10-13T00:37:41Z",
+      "side": 1,
+      "message": "We should reuse the new code in CryptoUtil, and the exception should not be ignored.\n\nThis probably should be:\n\n  try {\n      r \u003d CryptoUtil.getRandomNumberGenerator();\n  } catch (GeneralSecurityException e) {\n      throw new RuntimeException(e);\n  }",
+      "revId": "8f2a1761658ba4eb60ea31d5e94d4ebe222085b0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d9123788_423bb350",
+        "filename": "base/java-tools/src/com/netscape/cmstools/CMCRequest.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1506,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-10-13T00:37:41Z",
+      "side": 1,
+      "message": "We should reuse the new code in CryptoUtil, and the exception should not be ignored.\n\nThis probably should be:\n\n  try {\n      r \u003d CryptoUtil.getRandomNumberGenerator();\n  } catch (GeneralSecurityException e) {\n      throw new RuntimeException(e);\n  }",
+      "revId": "8f2a1761658ba4eb60ea31d5e94d4ebe222085b0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "12a1be97_0c5f9a9b",
+        "filename": "base/java-tools/src/com/netscape/cmstools/CMCRequest.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1508,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-10-13T00:37:41Z",
+      "side": 1,
+      "message": "No need to display the stack trace here. It\u0027s the caller\u0027s responsibility.",
+      "revId": "8f2a1761658ba4eb60ea31d5e94d4ebe222085b0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0e0e9b56_85886f69",
+        "filename": "base/server/cms/src/com/netscape/cms/profile/common/EnrollProfile.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 396,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-10-13T00:37:41Z",
+      "side": 1,
+      "message": "This can be combined with line 399.",
+      "revId": "8f2a1761658ba4eb60ea31d5e94d4ebe222085b0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "31a4bb31_176080da",
+        "filename": "base/server/cms/src/com/netscape/cms/servlet/base/CMSServlet.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1587,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-10-13T00:37:41Z",
+      "side": 1,
+      "message": "This can be combined with line 1589.",
+      "revId": "8f2a1761658ba4eb60ea31d5e94d4ebe222085b0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ae6ce9c9_d8bac9a1",
+        "filename": "base/server/cms/src/com/netscape/cms/servlet/cert/EnrollServlet.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-10-13T00:37:41Z",
+      "side": 1,
+      "message": "Nothing is changed in this file.",
+      "revId": "8f2a1761658ba4eb60ea31d5e94d4ebe222085b0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8932f82f_f025ac65",
+        "filename": "base/server/cms/src/org/dogtagpki/server/rest/SystemConfigService.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 680,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-10-13T00:37:41Z",
+      "side": 1,
+      "message": "This can be combined with line 682.",
+      "revId": "8f2a1761658ba4eb60ea31d5e94d4ebe222085b0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "81b50c28_dac35f2c",
+        "filename": "base/server/cmscore/src/com/netscape/cmscore/security/JssSubsystem.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-10-13T00:37:41Z",
+      "side": 1,
+      "message": "Nothing is changed in this file.",
+      "revId": "8f2a1761658ba4eb60ea31d5e94d4ebe222085b0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b4ad226e_7b7f9887",
+        "filename": "base/util/src/com/netscape/cmsutil/crypto/CryptoUtil.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 2115,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-10-13T00:37:41Z",
+      "side": 1,
+      "message": "This can be combined with line 2116.",
+      "revId": "8f2a1761658ba4eb60ea31d5e94d4ebe222085b0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "399699af_22c2e118",
+        "filename": "base/util/src/com/netscape/cmsutil/crypto/CryptoUtil.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 2126,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-10-13T00:37:41Z",
+      "side": 1,
+      "message": "The try-catch block is not needed since the exception will be rethrown unchanged.",
+      "revId": "8f2a1761658ba4eb60ea31d5e94d4ebe222085b0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e02d8a37_758b04ba",
+        "filename": "base/util/src/com/netscape/cmsutil/crypto/CryptoUtil.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 2127,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-10-13T00:37:41Z",
+      "side": 1,
+      "message": "No need to display the stack trace here. It\u0027s the caller\u0027s responsibility.",
+      "revId": "8f2a1761658ba4eb60ea31d5e94d4ebe222085b0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
