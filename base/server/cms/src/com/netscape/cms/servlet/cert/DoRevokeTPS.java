@@ -322,7 +322,7 @@ public class DoRevokeTPS extends CMSServlet {
             String comments,
             Locale locale)
             throws EBaseException {
-        boolean auditRequest = true;
+
         String auditSubjectID = auditSubjectID();
         String auditRequesterID = auditRequesterID(req);
         String auditSerialNumber = auditSerialNumber(null);
@@ -351,9 +351,11 @@ public class DoRevokeTPS extends CMSServlet {
         }
 
         long startTime = CMS.getCurrentDate().getTime();
+        IRequest revReq;
+        int count = 0;
+        X509CertImpl[] oldCerts;
 
         try {
-            int count = 0;
             Vector<X509CertImpl> oldCertsV = new Vector<X509CertImpl>();
             Vector<RevokedCertImpl> revCertImplsV = new Vector<RevokedCertImpl>();
 
@@ -482,7 +484,7 @@ public class DoRevokeTPS extends CMSServlet {
                 throw new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_MARKING_CERT_REVOKED"));
             }
 
-            X509CertImpl[] oldCerts = new X509CertImpl[count];
+            oldCerts = new X509CertImpl[count];
             RevokedCertImpl[] revCertImpls = new RevokedCertImpl[count];
 
             for (int i = 0; i < count; i++) {
@@ -490,8 +492,7 @@ public class DoRevokeTPS extends CMSServlet {
                 revCertImpls[i] = revCertImplsV.elementAt(i);
             }
 
-            IRequest revReq =
-                    mQueue.newRequest(IRequest.REVOCATION_REQUEST);
+            revReq = mQueue.newRequest(IRequest.REVOCATION_REQUEST);
 
             audit(new CertStatusChangeRequestEvent(
                         auditSubjectID,
@@ -514,10 +515,37 @@ public class DoRevokeTPS extends CMSServlet {
             revReq.setExtData(IRequest.REVOKED_REASON,
                     Integer.valueOf(reason));
 
+        } catch (EBaseException e) {
+
+            log(ILogger.LL_FAILURE, "error " + e);
+
+            audit(new CertStatusChangeRequestEvent(
+                        auditSubjectID,
+                        ILogger.FAILURE,
+                        auditRequesterID,
+                        auditSerialNumber,
+                        auditRequestType));
+            throw e;
+
+        } catch (Exception e) {
+
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSGW_ERROR_MARKING_CERT_REVOKED_1", e.toString()));
+
+            audit(new CertStatusChangeRequestEvent(
+                        auditSubjectID,
+                        ILogger.FAILURE,
+                        auditRequesterID,
+                        auditSerialNumber,
+                        auditRequestType));
+
+            throw new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_MARKING_CERT_REVOKED"), e);
+        }
+
+        try {
             // change audit processing from "REQUEST" to "REQUEST_PROCESSED"
             // to distinguish which type of signed audit log message to save
             // as a failure outcome in case an exception occurs
-            auditRequest = false;
 
             mQueue.processRequest(revReq);
 
@@ -775,76 +803,56 @@ public class DoRevokeTPS extends CMSServlet {
                             auditReasonNum,
                             auditApprovalStatus));
             }
+
         } catch (EBaseException e) {
+
             log(ILogger.LL_FAILURE, "error " + e);
 
-            if (auditRequest) {
+            // store a "CERT_STATUS_CHANGE_REQUEST_PROCESSED" failure
+            // message in the signed audit log file
+            // if and only if "auditApprovalStatus" is
+            // "complete", "revoked", or "canceled"
+            if (auditApprovalStatus == RequestStatus.COMPLETE ||
+                    auditApprovalStatus == RequestStatus.REJECTED ||
+                    auditApprovalStatus == RequestStatus.CANCELED) {
 
-                audit(new CertStatusChangeRequestEvent(
+                audit(new CertStatusChangeRequestProcessedEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditRequesterID,
                             auditSerialNumber,
-                            auditRequestType));
-
-            } else {
-                // store a "CERT_STATUS_CHANGE_REQUEST_PROCESSED" failure
-                // message in the signed audit log file
-                // if and only if "auditApprovalStatus" is
-                // "complete", "revoked", or "canceled"
-                if (auditApprovalStatus == RequestStatus.COMPLETE ||
-                        auditApprovalStatus == RequestStatus.REJECTED ||
-                        auditApprovalStatus == RequestStatus.CANCELED) {
-
-                    audit(new CertStatusChangeRequestProcessedEvent(
-                                auditSubjectID,
-                                ILogger.FAILURE,
-                                auditRequesterID,
-                                auditSerialNumber,
-                                auditRequestType,
-                                auditReasonNum,
-                                auditApprovalStatus));
-                }
+                            auditRequestType,
+                            auditReasonNum,
+                            auditApprovalStatus));
             }
 
             throw e;
-        } catch (IOException e) {
+
+        } catch (Exception e) {
+
             log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSGW_ERROR_MARKING_CERT_REVOKED_1", e.toString()));
 
-            if (auditRequest) {
+            // store a "CERT_STATUS_CHANGE_REQUEST_PROCESSED" failure
+            // message in the signed audit log file
+            // if and only if "auditApprovalStatus" is
+            // "complete", "revoked", or "canceled"
+            if (auditApprovalStatus == RequestStatus.COMPLETE ||
+                    auditApprovalStatus == RequestStatus.REJECTED ||
+                    auditApprovalStatus == RequestStatus.CANCELED) {
 
-                audit(new CertStatusChangeRequestEvent(
+                audit(new CertStatusChangeRequestProcessedEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditRequesterID,
                             auditSerialNumber,
-                            auditRequestType));
-
-            } else {
-                // store a "CERT_STATUS_CHANGE_REQUEST_PROCESSED" failure
-                // message in the signed audit log file
-                // if and only if "auditApprovalStatus" is
-                // "complete", "revoked", or "canceled"
-                if (auditApprovalStatus == RequestStatus.COMPLETE ||
-                        auditApprovalStatus == RequestStatus.REJECTED ||
-                        auditApprovalStatus == RequestStatus.CANCELED) {
-
-                    audit(new CertStatusChangeRequestProcessedEvent(
-                                auditSubjectID,
-                                ILogger.FAILURE,
-                                auditRequesterID,
-                                auditSerialNumber,
-                                auditRequestType,
-                                auditReasonNum,
-                                auditApprovalStatus));
-                }
+                            auditRequestType,
+                            auditReasonNum,
+                            auditApprovalStatus));
             }
 
-            throw new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_MARKING_CERT_REVOKED"));
+            throw new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_MARKING_CERT_REVOKED"), e);
         }
-
-        return;
     }
 
 
