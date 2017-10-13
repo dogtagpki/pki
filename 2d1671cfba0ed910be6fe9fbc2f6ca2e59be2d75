@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6cf156f1_3a1c5f81",
+        "filename": "base/common/src/com/netscape/certsrv/system/ConfigurationRequest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 997,
+      "author": {
+        "id": 1011000
+      },
+      "writtenOn": "2017-10-13T03:38:11Z",
+      "side": 1,
+      "message": "Ade, thanks for reviewing.  There ya go :)",
+      "range": {
+        "startLine": 997,
+        "startChar": 18,
+        "endLine": 997,
+        "endChar": 53
+      },
+      "revId": "2d1671cfba0ed910be6fe9fbc2f6ca2e59be2d75",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
