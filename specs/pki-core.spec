@@ -100,7 +100,7 @@ BuildRequires:    gcc-c++
 BuildRequires:    zip
 BuildRequires:    java-1.8.0-openjdk-devel
 BuildRequires:    redhat-rpm-config
-BuildRequires:    ldapjdk
+BuildRequires:    ldapjdk >= 4.19-5
 BuildRequires:    apache-commons-cli
 BuildRequires:    apache-commons-codec
 BuildRequires:    apache-commons-io
@@ -461,7 +461,7 @@ Requires:         jss >= 4.4.2-2
 Requires:         jss >= 4.2.6-44
 %endif
 %endif
-Requires:         ldapjdk
+Requires:         ldapjdk >= 4.19-5
 Requires:         pki-base = %{version}-%{release}
 
 %if 0%{?rhel}
