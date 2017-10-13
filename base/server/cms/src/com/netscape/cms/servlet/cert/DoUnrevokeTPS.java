@@ -241,7 +241,7 @@ public class DoUnrevokeTPS extends CMSServlet {
             HttpServletResponse resp,
             Locale locale, String initiative)
             throws EBaseException {
-        boolean auditRequest = true;
+
         String auditSubjectID = auditSubjectID();
         String auditRequesterID = auditRequesterID(req);
         String auditSerialNumber = auditSerialNumber(serialNumbers[0].toString());
@@ -249,11 +249,14 @@ public class DoUnrevokeTPS extends CMSServlet {
         RequestStatus auditApprovalStatus = null;
         String auditReasonNum = String.valueOf(OFF_HOLD_REASON);
 
+        IRequest unrevReq;
+        X509CertImpl[] certs;
+
         try {
             String snList = "";
 
             // certs are for old cloning and they should be removed as soon as possible
-            X509CertImpl[] certs = new X509CertImpl[serialNumbers.length];
+            certs = new X509CertImpl[serialNumbers.length];
             for (int i = 0; i < serialNumbers.length; i++) {
                 certs[i] = (X509CertImpl) getX509Certificate(serialNumbers[i]);
                 if (snList.length() > 0)
@@ -261,7 +264,7 @@ public class DoUnrevokeTPS extends CMSServlet {
                 snList += "0x" + serialNumbers[i].toString(16);
             }
 
-            IRequest unrevReq = mQueue.newRequest(IRequest.UNREVOCATION_REQUEST);
+            unrevReq = mQueue.newRequest(IRequest.UNREVOCATION_REQUEST);
 
             audit(new CertStatusChangeRequestEvent(
                         auditSubjectID,
@@ -274,10 +277,21 @@ public class DoUnrevokeTPS extends CMSServlet {
             unrevReq.setExtData(IRequest.OLD_SERIALS, serialNumbers);
             unrevReq.setExtData(IRequest.REQUESTOR_TYPE, IRequest.REQUESTOR_AGENT);
 
+        } catch (EBaseException e) {
+
+            audit(new CertStatusChangeRequestEvent(
+                        auditSubjectID,
+                        ILogger.FAILURE,
+                        auditRequesterID,
+                        auditSerialNumber,
+                        auditRequestType));
+            return;
+        }
+
+        try {
             // change audit processing from "REQUEST" to "REQUEST_PROCESSED"
             // to distinguish which type of signed audit log message to save
             // as a failure outcome in case an exception occurs
-            auditRequest = false;
 
             mQueue.processRequest(unrevReq);
 
@@ -469,37 +483,25 @@ public class DoUnrevokeTPS extends CMSServlet {
             }
 
         } catch (EBaseException eAudit1) {
-            if (auditRequest) {
 
-                audit(new CertStatusChangeRequestEvent(
+            // store a "CERT_STATUS_CHANGE_REQUEST_PROCESSED" failure
+            // message in the signed audit log file
+            // if and only if "auditApprovalStatus" is
+            // "complete", "revoked", or "canceled"
+            if (auditApprovalStatus == RequestStatus.COMPLETE ||
+                    auditApprovalStatus == RequestStatus.REJECTED ||
+                    auditApprovalStatus == RequestStatus.CANCELED) {
+
+                audit(new CertStatusChangeRequestProcessedEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditRequesterID,
                             auditSerialNumber,
-                            auditRequestType));
-
-            } else {
-                // store a "CERT_STATUS_CHANGE_REQUEST_PROCESSED" failure
-                // message in the signed audit log file
-                // if and only if "auditApprovalStatus" is
-                // "complete", "revoked", or "canceled"
-                if (auditApprovalStatus == RequestStatus.COMPLETE ||
-                        auditApprovalStatus == RequestStatus.REJECTED ||
-                        auditApprovalStatus == RequestStatus.CANCELED) {
-
-                    audit(new CertStatusChangeRequestProcessedEvent(
-                                auditSubjectID,
-                                ILogger.FAILURE,
-                                auditRequesterID,
-                                auditSerialNumber,
-                                auditRequestType,
-                                auditReasonNum,
-                                auditApprovalStatus));
-                }
+                            auditRequestType,
+                            auditReasonNum,
+                            auditApprovalStatus));
             }
         }
-
-        return;
     }
 
     private BigInteger[] getSerialNumbers(HttpServletRequest req)
