@@ -324,7 +324,6 @@ public class DoRevokeTPS extends CMSServlet {
             throws EBaseException {
 
         String auditSubjectID = auditSubjectID();
-        String auditRequesterID = auditRequesterID(req);
         String auditSerialNumber = auditSerialNumber(null);
         String auditRequestType = auditRequestType(reason);
         RequestStatus auditApprovalStatus = null;
@@ -853,34 +852,6 @@ public class DoRevokeTPS extends CMSServlet {
 
             throw new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_MARKING_CERT_REVOKED"), e);
         }
-    }
-
-
-    /**
-     * Signed Audit Log Requester ID
-     *
-     * This method is called to obtain the "RequesterID" for
-     * a signed audit log message.
-     * <P>
-     *
-     * @param req HTTP request
-     * @return id string containing the signed audit log message RequesterID
-     */
-    private String auditRequesterID(HttpServletRequest req) {
-
-        String requesterID = null;
-
-        // Obtain the requesterID
-        //TODO: should use tps subsystem user id
-        requesterID = req.getParameter(IRemoteRequest.CA_REVOKE_REQUESTER_ID);
-
-        if (requesterID != null) {
-            requesterID = requesterID.trim();
-        } else {
-            requesterID = ILogger.UNIDENTIFIED;
-        }
-
-        return requesterID;
     }
 
     /**
