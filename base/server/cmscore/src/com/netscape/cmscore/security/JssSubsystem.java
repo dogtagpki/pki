@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.math.BigInteger;
 import java.net.SocketException;
+import java.security.GeneralSecurityException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.InvalidParameterException;
@@ -350,10 +351,11 @@ public final class JssSubsystem implements ICryptoSubsystem {
         CMS.debug("JssSubsystem: - provider: " + provider);
 
         try {
-            random = SecureRandom.getInstance(algorithm, provider);
+            // wrap random number generator with PKISecureRandom for audit
+            SecureRandom random = SecureRandom.getInstance(algorithm, provider);
+            this.random = new PKISecureRandom(random);
 
-        } catch (NoSuchAlgorithmException | NoSuchProviderException e) {
-            CMS.debug(e);
+        } catch (GeneralSecurityException e) {
             throw new EBaseException(e);
         }
 
