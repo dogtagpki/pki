@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e5baee31_76e90d54",
+        "filename": "dogtag/common-ui/CMakeLists.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-10-16T18:10:48Z",
+      "side": 1,
+      "message": "This is probably not necessary but it should work as is.",
+      "range": {
+        "startLine": 15,
+        "startChar": 107,
+        "endLine": 15,
+        "endChar": 121
+      },
+      "revId": "2446327e66b71e139e144512c9b740171ebe03bc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
