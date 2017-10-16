@@ -11,7 +11,7 @@ env:
     - PKI_LOG=pki_log.log
     - CI_RESULTS_LOG="ci_results_${TRAVIS_BRANCH}.log"
     - CI_RUNNER_LOG_ARCHIVE="dogtag-ci-job-${TRAVIS_JOB_NUMBER}.tar.gz"
-    - IMAGE=dogtagpki/pki-ci-containers:f26_104
+    - IMAGE=dogtagpki/pki-ci-containers:f26_105
     # F25 is outdated
     # - IMAGE=dogtagpki/pki-ci-containers:f25_104
 
