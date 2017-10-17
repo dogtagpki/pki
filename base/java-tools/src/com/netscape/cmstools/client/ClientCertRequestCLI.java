@@ -21,6 +21,7 @@ package com.netscape.cmstools.client;
 import java.io.ByteArrayOutputStream;
 import java.io.Console;
 import java.io.File;
+import java.io.IOException;
 import java.security.KeyPair;
 import java.util.HashMap;
 import java.util.Map;
@@ -38,6 +39,7 @@ import org.mozilla.jss.pkix.crmf.CertRequest;
 import org.mozilla.jss.pkix.crmf.ProofOfPossession;
 import org.mozilla.jss.pkix.primitive.Name;
 
+import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.CACertClient;
 import com.netscape.certsrv.ca.CAClient;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
@@ -56,6 +58,7 @@ import com.netscape.cmsutil.util.Utils;
 
 import netscape.ldap.util.DN;
 import netscape.ldap.util.RDN;
+import netscape.security.x509.X500Name;
 
 /**
  * @author Endi S. Dewata
@@ -125,6 +128,14 @@ public class ClientCertRequestCLI extends CLI {
         options.addOption(option);
 
         option = new Option(null, "without-pop", false, "Do not include Proof-of-Possession in CRMF request");
+        options.addOption(option);
+
+        option = new Option(null, "issuer-id", true, "Authority ID (host authority if omitted)");
+        option.setArgName("ID");
+        options.addOption(option);
+
+        option = new Option(null, "issuer-dn", true, "Authority DN (host authority if omitted)");
+        option.setArgName("DN");
         options.addOption(option);
 
         options.addOption(null, "help", false, "Show help message.");
@@ -206,6 +217,30 @@ public class ClientCertRequestCLI extends CLI {
         }
 
         boolean withPop = !cmd.hasOption("without-pop");
+
+        AuthorityID aid = null;
+        if (cmd.hasOption("issuer-id")) {
+            String aidString = cmd.getOptionValue("issuer-id");
+            try {
+                aid = new AuthorityID(aidString);
+            } catch (IllegalArgumentException e) {
+                throw new Exception("Invalid issuer ID: " + aidString, e);
+            }
+        }
+
+        X500Name adn = null;
+        if (cmd.hasOption("issuer-dn")) {
+            String adnString = cmd.getOptionValue("issuer-dn");
+            try {
+                adn = new X500Name(adnString);
+            } catch (IOException e) {
+                throw new Exception("Invalid issuer DN: " + adnString, e);
+            }
+        }
+
+        if (aid != null && adn != null) {
+            throw new Exception("--issuer-id and --issuer-dn options are mutually exclusive");
+        }
 
         MainCLI mainCLI = (MainCLI)parent.getParent();
         File certDatabase = mainCLI.certDatabase;
@@ -342,7 +377,7 @@ public class ClientCertRequestCLI extends CLI {
             System.out.println("Sending certificate request.");
         }
 
-        CertRequestInfos infos = certClient.enrollRequest(request, null, null);
+        CertRequestInfos infos = certClient.enrollRequest(request, aid, adn);
 
         MainCLI.printMessage("Submitted certificate request");
         CACertCLI.printCertRequestInfos(infos);
