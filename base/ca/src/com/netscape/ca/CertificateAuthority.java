@@ -499,8 +499,9 @@ public class CertificateAuthority
     public void init(ISubsystem owner, IConfigStore config) throws
             EBaseException {
 
+        CMS.debug("CertificateAuthority.init(" + owner.getId() + ", " + config.getName() + ")");
+
         try {
-            CMS.debug("CertificateAuthority init ");
             mOwner = owner;
             mConfig = config;
 
@@ -1593,11 +1594,12 @@ public class CertificateAuthority
      */
     private synchronized boolean initSigUnit(boolean retrieveKeys)
             throws EBaseException {
+
+        // init signing unit
+        mSigningUnit = new SigningUnit();
+        IConfigStore caSigningCfg = mConfig.getSubStore(PROP_SIGNING_SUBSTORE);
+
         try {
-            // init signing unit
-            mSigningUnit = new SigningUnit();
-            IConfigStore caSigningCfg =
-                    mConfig.getSubStore(PROP_SIGNING_SUBSTORE);
 
             String caSigningCertStr = caSigningCfg.getString("cert", "");
             if (caSigningCertStr.equals("")) {
@@ -1613,6 +1615,18 @@ public class CertificateAuthority
                 // issues, NOT necessarily the isserDN obj of the CA signing cert
                 mIssuerObj = new CertificateIssuerName((X500Name)mSubjectObj.get(CertificateIssuerName.DN_NAME));
             }
+        } catch (CertificateException e) {
+            CMS.debug(e);
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_OCSP_CHAIN", e.toString()));
+            throw new ECAException(
+                    CMS.getUserMessage("CMS_CA_BUILD_CA_CHAIN_FAILED", e.toString()));
+
+        } catch (IOException e) {
+            CMS.debug(e);
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_OCSP_CHAIN", e.toString()));
+            throw new ECAException(
+                    CMS.getUserMessage("CMS_CA_BUILD_CA_CHAIN_FAILED", e.toString()));
+        }
 
             try {
                 mSigningUnit.init(this, caSigningCfg, mNickname);
@@ -1642,6 +1656,7 @@ public class CertificateAuthority
             }
             CMS.debug("CA signing unit inited");
 
+        try {
             // for identrus
             IConfigStore CrlStore = mConfig.getSubStore(PROP_CRL_SIGNING_SUBSTORE);
 
@@ -1768,27 +1783,27 @@ public class CertificateAuthority
         } catch (CryptoManager.NotInitializedException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_OCSP_SIGNING", e.toString()));
             throw new ECAException(CMS.getUserMessage("CMS_CA_CRYPTO_NOT_INITIALIZED"));
+
         } catch (CertificateException e) {
-            if (Debug.ON)
-                e.printStackTrace();
+            CMS.debug(e);
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_OCSP_CHAIN", e.toString()));
             throw new ECAException(
                     CMS.getUserMessage("CMS_CA_BUILD_CA_CHAIN_FAILED", e.toString()));
+
         } catch (FileNotFoundException e) {
-            if (Debug.ON)
-                e.printStackTrace();
+            CMS.debug(e);
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_OCSP_CHAIN", e.toString()));
             throw new ECAException(
                     CMS.getUserMessage("CMS_CA_BUILD_CA_CHAIN_FAILED", e.toString()));
+
         } catch (IOException e) {
-            if (Debug.ON)
-                e.printStackTrace();
+            CMS.debug(e);
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_OCSP_CHAIN", e.toString()));
             throw new ECAException(
                     CMS.getUserMessage("CMS_CA_BUILD_CA_CHAIN_FAILED", e.toString()));
+
         } catch (TokenException e) {
-            if (Debug.ON)
-                e.printStackTrace();
+            CMS.debug(e);
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_OCSP_CHAIN", e.toString()));
             throw new ECAException(
                     CMS.getUserMessage("CMS_CA_BUILD_CA_CHAIN_FAILED", e.toString()));
