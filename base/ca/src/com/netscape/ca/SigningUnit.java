@@ -134,6 +134,9 @@ public final class SigningUnit implements ISigningUnit {
 
     public void init(ISubsystem owner, IConfigStore config, String nickname)
             throws EBaseException {
+
+        CMS.debug("CA SigningUnit.init(" + owner.getId() + ", " + config.getName() + ", " + nickname + ")");
+
         mOwner = owner;
         mConfig = config;
 
@@ -159,70 +162,65 @@ public final class SigningUnit implements ISigningUnit {
                 mNickname = tokenname + ":" + mNickname;
                 setNewNickName(mNickname);
             }
-            CMS.debug(config.getName() + " Signing Unit nickname " + mNickname);
-            CMS.debug("Got token " + tokenname + " by name");
 
+            CMS.debug("SigningUnit: Logging into token " + tokenname);
             PasswordCallback cb = JssSubsystem.getInstance().getPWCB();
-
             mToken.login(cb); // ONE_TIME by default.
 
             try {
+                CMS.debug("SigningUnit: Loading certificate " + mNickname);
                 mCert = mManager.findCertByNickname(mNickname);
-                CMS.debug("Found cert by nickname: '" + mNickname + "' with serial number: " + mCert.getSerialNumber());
+                CMS.debug("SigningUnit: certificate serial number: " + mCert.getSerialNumber());
+
             } catch (ObjectNotFoundException e) {
-                CMS.debug("Unable to find certificate " + mNickname);
+                CMS.debug("SigningUnit: Unable to find certificate " + mNickname);
                 throw new CAMissingCertException(CMS.getUserMessage("CMS_CA_CERT_OBJECT_NOT_FOUND"), e);
             }
 
             mCertImpl = new X509CertImpl(mCert.getEncoded());
-            CMS.debug("converted to x509CertImpl");
 
             try {
+                CMS.debug("SigningUnit: Loading private key");
                 mPrivk = mManager.findPrivKeyByCert(mCert);
-                CMS.debug("Got private key from cert");
+
             } catch (ObjectNotFoundException e) {
-                CMS.debug("Unable to find private key for " + mNickname);
+                CMS.debug("SigningUnit: Unable to find private key for " + mNickname);
                 throw new CAMissingKeyException(CMS.getUserMessage("CMS_CA_CERT_OBJECT_NOT_FOUND"), e);
             }
 
+            String privateKeyID = CryptoUtil.byte2string(mPrivk.getUniqueID());
+            CMS.debug("SigningUnit: private key ID: " + privateKeyID);
+
             mPubk = mCert.getPublicKey();
-            CMS.debug("Got public key from cert");
 
             // get def alg and check if def sign alg is valid for token.
             mDefSigningAlgname = config.getString(PROP_DEFAULT_SIGNALG);
-            mDefSigningAlgorithm =
-                    checkSigningAlgorithmFromName(mDefSigningAlgname);
-            CMS.debug(
-                    "got signing algorithm " + mDefSigningAlgorithm);
+            mDefSigningAlgorithm = checkSigningAlgorithmFromName(mDefSigningAlgname);
+            CMS.debug("SigningUnit: signing algorithm: " + mDefSigningAlgorithm);
+
             mInited = true;
 
         } catch (java.security.cert.CertificateException e) {
-            CMS.debug("SigningUnit: " + e);
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_SIGNING_CA_CERT", e.getMessage()));
             throw new ECAException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()), e);
 
         } catch (CryptoManager.NotInitializedException e) {
-            CMS.debug("SigningUnit: " + e);
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_SIGNING_TOKEN_INIT", e.toString()));
             throw new ECAException(CMS.getUserMessage("CMS_CA_CRYPTO_NOT_INITIALIZED"), e);
 
         } catch (IncorrectPasswordException e) {
-            CMS.debug("SigningUnit: " + e);
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_SIGNING_WRONG_PWD", e.toString()));
             throw new ECAException(CMS.getUserMessage("CMS_CA_INVALID_PASSWORD"), e);
 
         } catch (NoSuchTokenException e) {
-            CMS.debug("SigningUnit: " + e);
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_SIGNING_TOKEN_NOT_FOUND", tokenname, e.toString()));
             throw new ECAException(CMS.getUserMessage("CMS_CA_TOKEN_NOT_FOUND", tokenname), e);
 
         } catch (CAMissingCertException | CAMissingKeyException e) {
-            CMS.debug("SigningUnit: " + e);
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_SIGNING_CERT_NOT_FOUND", e.toString()));
             throw e;  // re-throw
 
         } catch (TokenException e) {
-            CMS.debug("SigningUnit: " + e);
             log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
             throw new ECAException(CMS.getUserMessage("CMS_CA_TOKEN_ERROR"), e);
 

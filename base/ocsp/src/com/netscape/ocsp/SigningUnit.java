@@ -126,6 +126,9 @@ public final class SigningUnit implements ISigningUnit {
 
     public void init(ISubsystem owner, IConfigStore config)
             throws EBaseException {
+
+        CMS.debug("OCSP SigningUnit.init(" + owner.getId() + ", " + config.getName() + ")");
+
         mOwner = owner;
         mConfig = config;
 
@@ -135,8 +138,6 @@ public final class SigningUnit implements ISigningUnit {
             mManager = CryptoManager.getInstance();
 
             mNickname = config.getString(PROP_CERT_NICKNAME);
-            CMS.debug("Reading nickname from " + PROP_CERT_NICKNAME);
-            CMS.debug("OCSP nickname " + mNickname);
 
             tokenname = config.getString(PROP_TOKEN_NAME);
             mToken = CryptoUtil.getKeyStorageToken(tokenname);
@@ -144,50 +145,52 @@ public final class SigningUnit implements ISigningUnit {
                 mNickname = tokenname + ":" + mNickname;
                 setNewNickName(mNickname);
             }
-            CMS.debug(config.getName() + " Signing Unit nickname " + mNickname);
-            CMS.debug("Got token " + tokenname + " by name");
 
+            CMS.debug("SigningUnit: Logging into token " + tokenname);
             PasswordCallback cb = JssSubsystem.getInstance().getPWCB();
-
             mToken.login(cb); // ONE_TIME by default.
 
+            CMS.debug("SigningUnit: Loading certificate " + mNickname);
             mCert = mManager.findCertByNickname(mNickname);
-            CMS.debug("Found cert by nickname: '" + mNickname + "' with serial number: " + mCert.getSerialNumber());
+            CMS.debug("SigningUnit: certificate serial number: " + mCert.getSerialNumber());
 
             mCertImpl = new X509CertImpl(mCert.getEncoded());
-            CMS.debug("converted to x509CertImpl");
 
+            CMS.debug("SigningUnit: Loading private key");
             mPrivk = mManager.findPrivKeyByCert(mCert);
-            CMS.debug("Got private key from cert");
+
+            String privateKeyID = CryptoUtil.byte2string(mPrivk.getUniqueID());
+            CMS.debug("SigningUnit: private key ID: " + privateKeyID);
 
             mPubk = mCert.getPublicKey();
-            CMS.debug("Got public key from cert");
 
             // get def alg and check if def sign alg is valid for token.
             mDefSigningAlgname = config.getString(PROP_DEFAULT_SIGNALG);
-            mDefSigningAlgorithm =
-                    checkSigningAlgorithmFromName(mDefSigningAlgname);
-            CMS.debug(
-                    "got signing algorithm " + mDefSigningAlgorithm);
+            mDefSigningAlgorithm = checkSigningAlgorithmFromName(mDefSigningAlgname);
+            CMS.debug("SigningUnit: signing algorithm: " + mDefSigningAlgorithm);
+
             mInited = true;
+
         } catch (java.security.cert.CertificateException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_OCSP_CONVERT_X509", e.getMessage()));
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_OCSP_CONVERT_X509", e.getMessage()));
             throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()), e);
+
         } catch (CryptoManager.NotInitializedException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_OCSP_SIGNING", e.toString()));
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_OCSP_SIGNING", e.toString()));
             throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()), e);
+
         } catch (IncorrectPasswordException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_OCSP_INCORRECT_PWD", e.toString()));
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_OCSP_INCORRECT_PWD", e.toString()));
             throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()), e);
+
         } catch (NoSuchTokenException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_OCSP_TOKEN_NOT_FOUND", tokenname, e.toString()));
             throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()), e);
+
         } catch (ObjectNotFoundException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_OCSP_OBJECT_NOT_FOUND", e.toString()));
             throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()), e);
+
         } catch (TokenException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
             throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()), e);
