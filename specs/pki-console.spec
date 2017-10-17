@@ -58,7 +58,7 @@ BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires:    cmake >= 2.8.9-1
 BuildRequires:    idm-console-framework >= 1.1.17-4
 BuildRequires:    java-1.8.0-openjdk-devel
-BuildRequires:    ldapjdk >= 4.19-1
+BuildRequires:    ldapjdk >= 4.19-5
 BuildRequires:    nspr-devel
 %if 0%{?rhel}
 BuildRequires:    nss-devel >= 3.28.3
@@ -84,7 +84,7 @@ BuildRequires:    pki-base-java >= %{pki_core_version}
 
 Requires:         idm-console-framework >= 1.1.17-4
 Requires:         java-1.8.0-openjdk
-Requires:         ldapjdk >= 4.19-1
+Requires:         ldapjdk >= 4.19-5
 Requires:         pki-base-java >= %{pki_core_version}
 Requires:         pki-console-theme >= %{version}
 Requires:         jpackage-utils >= 1.7.5-10
