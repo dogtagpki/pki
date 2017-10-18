@@ -102,6 +102,7 @@ import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthManager;
+import com.netscape.certsrv.authentication.IAuthSubsystem;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authentication.ISharedToken;
 import com.netscape.certsrv.authority.IAuthority;
@@ -832,7 +833,7 @@ public abstract class EnrollProfile extends BasicProfile
                             ident_s = (UTF8String) (ASN1Util.decode(UTF8String.getTemplate(),
                                     ASN1Util.encode(ident.elementAt(0))));
                         }
-                        if (ident == null && ident_s == null) {
+                        if (ident_s == null) {
                             msg = " id_cmc_identification contains invalid content";
                             CMS.debug(method + msg);
                             SEQUENCE bpids = getRequestBpids(reqSeq);
@@ -1358,13 +1359,18 @@ public abstract class EnrollProfile extends BasicProfile
         }
 
         boolean sharedSecretFound = true;
-        String configName = "cmc.sharedSecret.class";
+        String configName = "SharedToken";
         String sharedSecret = null;
-        ISharedToken tokenClass = CMS.getSharedTokenClass(configName);
-        if (tokenClass == null) {
-            CMS.debug(method + " Failed to retrieve shared secret plugin class");
-            sharedSecretFound = false;
-        } else {
+        try {
+            IAuthSubsystem authSS = (IAuthSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTH);
+
+            IAuthManager sharedTokenAuth = authSS.getAuthManager(configName);
+            if (sharedTokenAuth == null) {
+                CMS.debug(method + " Failed to retrieve shared secret authentication plugin class");
+                sharedSecretFound = false;
+            }
+            ISharedToken tokenClass = (ISharedToken) sharedTokenAuth;
+
             if (ident_string != null) {
                 sharedSecret = tokenClass.getSharedToken(ident_string);
             } else {
@@ -1372,6 +1378,10 @@ public abstract class EnrollProfile extends BasicProfile
             }
             if (sharedSecret == null)
                 sharedSecretFound = false;
+
+        } catch (Exception e) {
+            CMS.debug(e);
+            return false;
         }
 
         INTEGER reqId = null;
@@ -1631,42 +1641,43 @@ public abstract class EnrollProfile extends BasicProfile
             return false;
         }
 
-        String configName = "cmc.sharedSecret.class";
-        ISharedToken tokenClass = CMS.getSharedTokenClass(configName);
-
-        if (tokenClass == null) {
-            msg = " Failed to retrieve shared secret plugin class";
-            CMS.debug(method + msg);
-            auditMessage = CMS.getLogMessage(
-                    AuditEvent.CMC_PROOF_OF_IDENTIFICATION,
-                    auditAttemptedCred,
-                    ILogger.FAILURE,
-                    method + msg);
-            audit(auditMessage);
-            return false;
-        }
-
-        String token = null;
-        if (ident_string != null) {
-            auditAttemptedCred = ident_string;
-            token = tokenClass.getSharedToken(ident_string);
-        } else
-            token = tokenClass.getSharedToken(mCMCData);
-
-        if (token == null) {
-            msg = " Failed to retrieve shared secret";
-            CMS.debug(method + msg);
-            auditMessage = CMS.getLogMessage(
-                    AuditEvent.CMC_PROOF_OF_IDENTIFICATION,
-                    auditAttemptedCred,
-                    ILogger.FAILURE,
-                    method + msg);
-            audit(auditMessage);
-            return false;
-        }
-
-        // CMS.debug(method + "Shared Secret returned by tokenClass:" + token);
         try {
+            String configName = "SharedToken";
+            IAuthSubsystem authSS = (IAuthSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTH);
+
+            IAuthManager sharedTokenAuth = authSS.getAuthManager(configName);
+            if (sharedTokenAuth == null) {
+                msg = " Failed to retrieve shared secret authentication plugin class";
+                CMS.debug(method + msg);
+                auditMessage = CMS.getLogMessage(
+                        AuditEvent.CMC_PROOF_OF_IDENTIFICATION,
+                        auditAttemptedCred,
+                        ILogger.FAILURE,
+                        method + msg);
+                audit(auditMessage);
+                return false;
+            }
+            ISharedToken tokenClass = (ISharedToken) sharedTokenAuth;
+
+            String token = null;
+            if (ident_string != null) {
+                auditAttemptedCred = ident_string;
+                token = tokenClass.getSharedToken(ident_string);
+            } else
+                token = tokenClass.getSharedToken(mCMCData);
+
+            if (token == null) {
+                msg = " Failed to retrieve shared secret";
+                CMS.debug(method + msg);
+                auditMessage = CMS.getLogMessage(
+                        AuditEvent.CMC_PROOF_OF_IDENTIFICATION,
+                        auditAttemptedCred,
+                        ILogger.FAILURE,
+                        method + msg);
+                audit(auditMessage);
+                return false;
+            }
+
             IdentityProofV2 idV2val = (IdentityProofV2) (ASN1Util.decode(IdentityProofV2.getTemplate(),
                     ASN1Util.encode(vals.elementAt(0))));
 
@@ -1695,11 +1706,10 @@ public abstract class EnrollProfile extends BasicProfile
             String auditSubjectID = null;
 
             if (verified) {
-                auditSubjectID = (String)
-                        sessionContext.get(SessionContext.USER_ID);
-                CMS.debug(method + "current auditSubjectID was:"+ auditSubjectID);
+                auditSubjectID = (String) sessionContext.get(SessionContext.USER_ID);
+                CMS.debug(method + "current auditSubjectID was:" + auditSubjectID);
                 CMS.debug(method + "identity verified. Updating auditSubjectID");
-                CMS.debug(method + "updated auditSubjectID is:"+ ident_string);
+                CMS.debug(method + "updated auditSubjectID is:" + ident_string);
                 auditSubjectID = ident_string;
                 sessionContext.put(SessionContext.USER_ID, auditSubjectID);
 
@@ -1740,17 +1750,21 @@ public abstract class EnrollProfile extends BasicProfile
         String configName = "cmc.sharedSecret.class";
             ISharedToken tokenClass = CMS.getSharedTokenClass(configName);
         if (tokenClass == null) {
-            CMS.debug(method + " Failed to retrieve shared secret plugin class");
+            CMS.debug(method + " Failed to retrieve shared secret authentication plugin class");
             return false;
         }
 
-        String token = tokenClass.getSharedToken(mCMCData);
         OCTET_STRING ostr = null;
+        String token = null;
         try {
+            token = tokenClass.getSharedToken(mCMCData);
             ostr = (OCTET_STRING) (ASN1Util.decode(OCTET_STRING.getTemplate(),
                     ASN1Util.encode(vals.elementAt(0))));
         } catch (InvalidBERException e) {
             CMS.debug(method + "Failed to decode the byte value.");
+            return false;
+        } catch (Exception e) {
+            CMS.debug(method + "exception: " + e.toString());
             return false;
         }
         byte[] b = ostr.toByteArray();

@@ -16,6 +16,7 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.authentication;
+import com.netscape.certsrv.base.EBaseException;
 
 import java.math.BigInteger;
 
@@ -27,9 +28,12 @@ import org.mozilla.jss.pkix.cmc.PKIData;
 public interface ISharedToken {
 
     // support for id_cmc_identification
-    public String getSharedToken(String identification);
+    public String getSharedToken(String identification)
+            throws EBaseException;
 
-    public String getSharedToken(PKIData cmcData);
+    public String getSharedToken(PKIData cmcData)
+            throws EBaseException;
 
-    public String getSharedToken(BigInteger serialnum);
+    public String getSharedToken(BigInteger serialnum)
+            throws EBaseException;
 }

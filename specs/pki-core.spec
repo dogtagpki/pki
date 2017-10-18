@@ -1271,6 +1271,7 @@ fi
 %{_bindir}/CMCRequest
 %{_bindir}/CMCResponse
 %{_bindir}/CMCRevoke
+%{_bindir}/CMCSharedToken
 %{_bindir}/CRMFPopClient
 %{_bindir}/DRMTool
 %{_bindir}/ExtJoiner

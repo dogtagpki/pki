@@ -55,6 +55,8 @@ public interface ICertRecord extends IDBObj {
     public static final String META_CRMF_REQID = "crmfReqId";
     public static final String META_CHALLENGE_PHRASE = "challengePhrase";
     public static final String META_PROFILE_ID = "profileId";
+    // for supporting CMC shared-secret based revocation
+    public static final String META_REV_SHRTOK = "revShrTok";
 
     public final static String STATUS_VALID = "VALID";
     public final static String STATUS_INVALID = "INVALID";
