@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8bda491e_e32a2f1c",
+        "filename": "base/java-tools/src/com/netscape/cmstools/CMCSharedToken.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 1010222
+      },
+      "writtenOn": "2017-10-18T23:40:09Z",
+      "side": 1,
+      "message": "Initialize to false maybe.",
+      "revId": "1ccf189ec7408aad5e2211b25e0d18374db4817c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "17bec048_904966ac",
+        "filename": "base/java-tools/src/com/netscape/cmstools/CMCSharedToken.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 1010222
+      },
+      "writtenOn": "2017-10-18T23:40:09Z",
+      "side": 1,
+      "message": "Can we just say here, use -b OR -n ?",
+      "revId": "1ccf189ec7408aad5e2211b25e0d18374db4817c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0257b504_d8220dd4",
+        "filename": "base/java-tools/src/com/netscape/cmstools/CMCSharedToken.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 1010222
+      },
+      "writtenOn": "2017-10-18T23:40:09Z",
+      "side": 1,
+      "message": "Might was well move that right after you get the passphrase. INstead of much later.",
+      "revId": "1ccf189ec7408aad5e2211b25e0d18374db4817c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "af185769_1f5f32e0",
+        "filename": "base/server/cms/src/com/netscape/cms/authentication/SharedSecret.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 262,
+      "author": {
+        "id": 1010222
+      },
+      "writtenOn": "2017-10-18T23:40:09Z",
+      "side": 1,
+      "message": "I think you create this at initialization and throw an exception if it\u0027s null. No need here. Another thing though, I think this thing is using a connection pool. maybe we could just try to get a connection from the pool each time, if for instance the static one is down or something.",
+      "revId": "1ccf189ec7408aad5e2211b25e0d18374db4817c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "633252a5_b5d9c6d0",
+        "filename": "base/server/cms/src/com/netscape/cms/authentication/SharedSecret.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 400,
+      "author": {
+        "id": 1010222
+      },
+      "writtenOn": "2017-10-18T23:40:09Z",
+      "side": 1,
+      "message": "I went and checked readCertificateRecord. It throws an exception when the record can\u0027t be found. YOu can put the stuff below inside the catch block.",
+      "revId": "1ccf189ec7408aad5e2211b25e0d18374db4817c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
