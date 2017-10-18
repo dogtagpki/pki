@@ -476,7 +476,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
                 status,
                 service,
                 profileID,
-                auditor.getParamString(null, params),
+                auditor.getParamString(params),
                 info);
         signedAuditLogger.log(msg);
     }

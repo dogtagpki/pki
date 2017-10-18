@@ -108,7 +108,7 @@ public class SubsystemService extends PKIService {
                 servletRequest.getUserPrincipal().getName(),
                 status,
                 service,
-                auditor.getParamString(null, params),
+                auditor.getParamString(params),
                 info);
         signedAuditLogger.log(msg);
     }

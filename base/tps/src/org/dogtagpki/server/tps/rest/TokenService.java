@@ -817,7 +817,7 @@ public class TokenService extends SubsystemService implements TokenResource {
                 status,
                 service,
                 tokenID,
-                auditor.getParamString(null, params),
+                auditor.getParamString(params),
                 info);
         signedAuditLogger.log(msg);
     }
@@ -836,7 +836,7 @@ public class TokenService extends SubsystemService implements TokenResource {
                 oldReason,
                 newState.toString(),
                 newReason,
-                auditor.getParamString(null, params),
+                auditor.getParamString(params),
                 info);
         signedAuditLogger.log(msg);
     }

@@ -120,11 +120,13 @@ public class Auditor implements IAuditor {
     }
 
     @Override
+    public String getParamString(Map<String, String> params) {
+        return getParamString(new StringBuilder(), params);
+    }
+
+    @Override
     public String getParamString(StringBuilder parameters, Map<String, String> params) {
 
-        if (parameters == null) {
-            parameters = new StringBuilder();
-        }
         if (params == null)
             return parameters.toString();
 

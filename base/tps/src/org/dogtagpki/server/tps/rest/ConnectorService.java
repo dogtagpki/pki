@@ -477,7 +477,7 @@ public class ConnectorService extends SubsystemService implements ConnectorResou
                 status,
                 service,
                 connectorID,
-                auditor.getParamString(null, params),
+                auditor.getParamString(params),
                 info);
         signedAuditLogger.log(msg);
 

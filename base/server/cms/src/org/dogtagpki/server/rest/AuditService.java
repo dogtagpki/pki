@@ -415,6 +415,6 @@ public class AuditService extends SubsystemService implements AuditResource {
         signedAuditLogger.log(new ConfigSignedAuditEvent(
                 servletRequest.getUserPrincipal().getName(),
                 status,
-                auditor.getParamString(null, params)));
+                auditor.getParamString(params)));
     }
 }
