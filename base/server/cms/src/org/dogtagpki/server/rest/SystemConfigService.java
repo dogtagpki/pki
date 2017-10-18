@@ -28,8 +28,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
-import netscape.security.x509.X509CertImpl;
-
 import org.apache.commons.lang.StringUtils;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.CryptoManager.NotInitializedException;
@@ -60,6 +58,8 @@ import com.netscape.cms.servlet.csadmin.ConfigurationUtils;
 import com.netscape.cms.servlet.csadmin.SystemCertDataFactory;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
+
+import netscape.security.x509.X509CertImpl;
 
 /**
  * @author alee
@@ -164,18 +164,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         Collection<Cert> certs = new ArrayList<Cert>();
         processCerts(data, token, certList, certs);
-
-        for (Cert cert : certs) {
-            try {
-                CMS.debug("=== Handling " + cert.getCertTag() + " cert ===");
-                ConfigurationUtils.handleCert(cert);
-                ConfigurationUtils.setCertPermissions(cert.getCertTag());
-
-            } catch (Exception e) {
-                CMS.debug(e);
-                throw new PKIException("Error in configuring system certificates: " + e, e);
-            }
-        }
+        handleCerts(certs);
         response.setSystemCerts(SystemCertDataFactory.create(certs));
 
         // backup keys
@@ -495,6 +484,23 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         ConfigurationUtils.generateCertRequest(cs, tag, cert);
 
         return cert;
+    }
+
+    public void handleCerts(Collection<Cert> certs) throws Exception {
+
+        for (Cert cert : certs) {
+
+            String tag = cert.getCertTag();
+            String subsystem = cert.getSubsystem();
+
+            CMS.debug("=== Handling " + tag + " cert ===");
+
+            ConfigurationUtils.handleCert(cert);
+
+            if (tag.equals("signing") && subsystem.equals("ca")) {
+                CMS.reinit(ICertificateAuthority.ID);
+            }
+        }
     }
 
     private void updateCloneConfiguration(SystemCertData cdata, String tag, String tokenName) throws NotInitializedException,

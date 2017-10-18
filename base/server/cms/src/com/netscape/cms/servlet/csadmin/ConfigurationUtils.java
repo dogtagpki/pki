@@ -3176,8 +3176,9 @@ public class ConfigurationUtils {
 
             CMS.debug("ConfigurationUtils: set trust on CA signing cert " + NickName);
             CryptoUtil.trustCertByNickname(NickName);
-            CMS.reinit(ICertificateAuthority.ID);
         }
+
+        ConfigurationUtils.setCertPermissions(certTag);
     }
 
     public static void setCertPermissions(String tag) throws EBaseException, NotInitializedException,
