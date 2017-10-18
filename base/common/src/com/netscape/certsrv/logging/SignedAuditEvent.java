@@ -127,6 +127,12 @@ public class SignedAuditEvent extends LogEvent {
         attributes.put(name, value);
     }
 
+    public void setAttribute(String name, Map<String, String> params) {
+        StringBuilder sb = new StringBuilder();
+        encodeMap(sb, params);
+        attributes.put(name, sb.toString());
+    }
+
     public Object getAttribute(String name) {
         return attributes.get(name);
     }
