@@ -139,25 +139,7 @@ public class Auditor implements IAuditor {
             if (name.equals(SIGNED_AUDIT_RULENAME))
                 continue;
 
-            parameters.append(SIGNED_AUDIT_NAME_VALUE_PAIRS_DELIMITER);
-
-            String value = entry.getValue();
-
-            if (value == null) {
-                parameters.append(name
-                        + SIGNED_AUDIT_NAME_VALUE_DELIMITER
-                        + ILogger.SIGNED_AUDIT_EMPTY_VALUE);
-                continue;
-            }
-
-            value = value.trim();
-
-            if (value.equals("")) {
-                parameters.append(name
-                        + SIGNED_AUDIT_NAME_VALUE_DELIMITER
-                        + ILogger.SIGNED_AUDIT_EMPTY_VALUE);
-                continue;
-            }
+            String value;
 
             //
             // To fix Blackflag Bug # 613800:
@@ -183,17 +165,30 @@ public class Auditor implements IAuditor {
                     name.equals(Constants.PR_BIND_PASSWD_AGAIN) ||
                     name.equals(Constants.PR_TOKEN_PASSWD)) {
 
-                // hide password value
-                parameters.append(name
-                        + SIGNED_AUDIT_NAME_VALUE_DELIMITER
-                        + SIGNED_AUDIT_PASSWORD_VALUE);
+                value = SIGNED_AUDIT_PASSWORD_VALUE;
 
             } else {
-                // process normally
-                parameters.append(name
-                        + SIGNED_AUDIT_NAME_VALUE_DELIMITER
-                        + value);
+
+                value = entry.getValue();
+
+                if (value == null) {
+                    value = ILogger.SIGNED_AUDIT_EMPTY_VALUE;
+                }
+
+                value = value.trim();
+
+                if (value.equals("")) {
+                    value = ILogger.SIGNED_AUDIT_EMPTY_VALUE;
+                }
             }
+
+            if (parameters.length() > 0) {
+                parameters.append(SIGNED_AUDIT_NAME_VALUE_PAIRS_DELIMITER);
+            }
+
+            parameters.append(name
+                    + SIGNED_AUDIT_NAME_VALUE_DELIMITER
+                    + value);
         }
 
         return parameters.toString();
