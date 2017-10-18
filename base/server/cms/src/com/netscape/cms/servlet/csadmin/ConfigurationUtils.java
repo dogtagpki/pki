@@ -3169,39 +3169,27 @@ public class ConfigurationUtils {
             CertUtil.updateLocalRequest(config, certTag, cert.getRequest(), "pkcs10", null);
         }
 
-        if (certTag.equals("signing") && subsystem.equals("ca")) {
-            String NickName = nickname;
-            if (!CryptoUtil.isInternalToken(tokenname))
-                NickName = tokenname + ":" + nickname;
-
-            CMS.debug("ConfigurationUtils: set trust on CA signing cert " + NickName);
-            CryptoUtil.trustCertByNickname(NickName);
-        }
-
-        ConfigurationUtils.setCertPermissions(certTag);
+        ConfigurationUtils.setCertPermissions(cert);
     }
 
-    public static void setCertPermissions(String tag) throws EBaseException, NotInitializedException,
+    public static void setCertPermissions(Cert cert) throws EBaseException, NotInitializedException,
             ObjectNotFoundException, TokenException {
 
-        CMS.debug("ConfigurationUtils.setCertPermissions(" + tag + ")");
-
-        if (tag.equals("signing") || tag.equals("sslserver")) {
-            return;
-        }
-
-        IConfigStore cs = CMS.getConfigStore();
-        String nickname = cs.getString("preop.cert." + tag + ".nickname", "");
-        String tokenname = cs.getString("preop.module.token", "");
+        String tag = cert.getCertTag();
+        String subsystem = cert.getSubsystem();
+        String nickname = cert.getNickname();
+        String tokenname = cert.getTokenname();
 
         if (!CryptoUtil.isInternalToken(tokenname))
             nickname = tokenname + ":" + nickname;
 
         CryptoManager cm = CryptoManager.getInstance();
-        CMS.debug("ConfigurationUtils: nickname: " + nickname);
         X509Certificate c = cm.findCertByNickname(nickname);
 
-        if (tag.equals("audit_signing")) { // set trust flags to u,u,Pu
+        if (tag.equals("signing") && subsystem.equals("ca")) { // set trust flags to CT,C,C
+            CryptoUtil.trustCACert(c);
+
+        } else if (tag.equals("audit_signing")) { // set trust flags to u,u,Pu
             CryptoUtil.trustAuditSigningCert(c);
 
         } // user certs will have u,u,u by default

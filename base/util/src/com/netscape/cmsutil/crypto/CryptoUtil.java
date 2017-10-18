@@ -1254,7 +1254,7 @@ public class CryptoUtil {
         X509Certificate[] certs = manager.buildCertificateChain(cert);
         X509Certificate rootCert = certs[certs.length - 1];
 
-        trustRootCert(rootCert);
+        trustCACert(rootCert);
     }
 
     public static SEQUENCE parseCRMFMsgs(byte cert_request[])
@@ -1813,19 +1813,19 @@ public class CryptoUtil {
         cert.setEmailTrust(flag);
     }
 
-    public static void trustRootCert(X509Certificate rootCert) {
+    public static void trustCACert(X509Certificate cert) {
 
         // set trust flags to CT,C,C
-        InternalCertificate cert = (InternalCertificate) rootCert;
+        InternalCertificate ic = (InternalCertificate) cert;
 
-        cert.setSSLTrust(InternalCertificate.TRUSTED_CA
+        ic.setSSLTrust(InternalCertificate.TRUSTED_CA
                 | InternalCertificate.TRUSTED_CLIENT_CA
                 | InternalCertificate.VALID_CA);
 
-        cert.setEmailTrust(InternalCertificate.TRUSTED_CA
+        ic.setEmailTrust(InternalCertificate.TRUSTED_CA
                 | InternalCertificate.VALID_CA);
 
-        cert.setObjectSigningTrust(InternalCertificate.TRUSTED_CA
+        ic.setObjectSigningTrust(InternalCertificate.TRUSTED_CA
                 | InternalCertificate.VALID_CA);
     }
 
