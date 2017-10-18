@@ -530,7 +530,32 @@ public class CertificateAuthority
             // init signing unit & CA cert.
             boolean initSigUnitSucceeded = false;
             try {
-                initSigUnitSucceeded = initSigUnit(/* retrieveKeys */ true);
+                try {
+                    initSigUnitSucceeded = initSigUnit(/* retrieveKeys */ true);
+
+                } catch (CAMissingCertException | CAMissingKeyException e) {
+                    CMS.debug("CA signing key and cert not (yet) present in NSSDB");
+                    signingUnitException = e;
+
+                    if (authorityID == null) {
+                        // Only the host authority should ever see a
+                        // null authorityID, e.g. during two-step
+                        // installation of externally-signed CA.
+                        CMS.debug("null authorityID -> host authority; not starting KeyRetriever");
+
+                    } else if (!keyRetrieverThreads.containsKey(authorityID)) {
+                        CMS.debug("Starting KeyRetrieverRunner thread");
+                        Thread t = new Thread(
+                            new KeyRetrieverRunner(authorityID, mNickname, authorityKeyHosts),
+                            "KeyRetrieverRunner-" + authorityID);
+                        t.start();
+                        keyRetrieverThreads.put(authorityID, t);
+
+                    } else {
+                        CMS.debug("KeyRetriever thread already running for authority " + authorityID);
+                    }
+                }
+
                 // init default CA attributes like cert version, validity.
                 initDefCaAttrs();
 
@@ -709,6 +734,11 @@ public class CertificateAuthority
 
             // reinit signing unit
             initSigUnit(false);
+
+        } catch (CAMissingCertException | CAMissingKeyException e) {
+            CMS.debug("CA signing key and cert not (yet) present in NSSDB");
+            signingUnitException = e;
+
         } catch (CertificateException e) {
             throw new ECAException("Failed to update certificate", e);
         } catch (CryptoManager.NotInitializedException e) {
@@ -1628,33 +1658,10 @@ public class CertificateAuthority
                     CMS.getUserMessage("CMS_CA_BUILD_CA_CHAIN_FAILED", e.toString()));
         }
 
-            try {
-                mSigningUnit.init(this, caSigningCfg, mNickname);
-                hasKeys = true;
-                signingUnitException = null;
-            } catch (CAMissingCertException | CAMissingKeyException e) {
-                CMS.debug("CA signing key and cert not (yet) present in NSSDB");
-                signingUnitException = e;
-                if (retrieveKeys == true) {
-                    if (authorityID == null) {
-                        // Only the host authority should ever see a
-                        // null authorityID, e.g. during two-step
-                        // installation of externally-signed CA.
-                        CMS.debug("null authorityID -> host authority; not starting KeyRetriever");
-                    } else if (!keyRetrieverThreads.containsKey(authorityID)) {
-                        CMS.debug("Starting KeyRetrieverRunner thread");
-                        Thread t = new Thread(
-                            new KeyRetrieverRunner(authorityID, mNickname, authorityKeyHosts),
-                            "KeyRetrieverRunner-" + authorityID);
-                        t.start();
-                        keyRetrieverThreads.put(authorityID, t);
-                    } else {
-                        CMS.debug("KeyRetriever thread already running for authority " + authorityID);
-                    }
-                }
-                return false;
-            }
-            CMS.debug("CA signing unit inited");
+        mSigningUnit.init(this, caSigningCfg, mNickname);
+        hasKeys = true;
+        signingUnitException = null;
+        CMS.debug("CA signing unit inited");
 
         try {
             // for identrus
@@ -3638,6 +3645,11 @@ public class CertificateAuthority
                 // for some reason
                 //
                 initSigUnitSucceeded = ca.initSigUnit(/* retrieveKeys */ false);
+
+            } catch (CAMissingCertException | CAMissingKeyException e) {
+                CMS.debug("CA signing key and cert not (yet) present in NSSDB");
+                signingUnitException = e;
+
             } catch (Throwable e) {
                 CMS.debug("Caught exception during SigningUnit re-init");
                 CMS.debug(e);
