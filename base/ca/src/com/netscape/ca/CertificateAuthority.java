@@ -531,7 +531,8 @@ public class CertificateAuthority
             boolean initSigUnitSucceeded = false;
             try {
                 try {
-                    initSigUnitSucceeded = initSigUnit(/* retrieveKeys */ true);
+                    initSigUnit();
+                    initSigUnitSucceeded = true;
 
                 } catch (CAMissingCertException | CAMissingKeyException e) {
                     CMS.debug("CA signing key and cert not (yet) present in NSSDB");
@@ -733,7 +734,7 @@ public class CertificateAuthority
                 .deleteCert(oldCert);
 
             // reinit signing unit
-            initSigUnit(false);
+            initSigUnit();
 
         } catch (CAMissingCertException | CAMissingKeyException e) {
             CMS.debug("CA signing key and cert not (yet) present in NSSDB");
@@ -1622,8 +1623,7 @@ public class CertificateAuthority
     /**
      * init CA signing unit & cert chain.
      */
-    private synchronized boolean initSigUnit(boolean retrieveKeys)
-            throws EBaseException {
+    private synchronized void initSigUnit() throws EBaseException {
 
         // init signing unit
         mSigningUnit = new SigningUnit();
@@ -1784,8 +1784,6 @@ public class CertificateAuthority
             mOCSPName = (X500Name) mOCSPCert.getSubjectDN();
             mNickname = mSigningUnit.getNickname();
             CMS.debug("in init - got CA name " + mName);
-
-            return true;
 
         } catch (CryptoManager.NotInitializedException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_OCSP_SIGNING", e.toString()));
@@ -3644,7 +3642,8 @@ public class CertificateAuthority
                 // key replication if initialisation fails again
                 // for some reason
                 //
-                initSigUnitSucceeded = ca.initSigUnit(/* retrieveKeys */ false);
+                ca.initSigUnit();
+                initSigUnitSucceeded = true;
 
             } catch (CAMissingCertException | CAMissingKeyException e) {
                 CMS.debug("CA signing key and cert not (yet) present in NSSDB");
