@@ -3201,17 +3201,10 @@ public class ConfigurationUtils {
         CMS.debug("ConfigurationUtils: nickname: " + nickname);
         X509Certificate c = cm.findCertByNickname(nickname);
 
-        if (c instanceof InternalCertificate) {
-            InternalCertificate ic = (InternalCertificate) c;
-            ic.setSSLTrust(InternalCertificate.USER);
-            ic.setEmailTrust(InternalCertificate.USER);
-            if (tag.equals("audit_signing")) {
-                ic.setObjectSigningTrust(InternalCertificate.USER
-                        | InternalCertificate.VALID_PEER | InternalCertificate.TRUSTED_PEER);
-            } else {
-                ic.setObjectSigningTrust(InternalCertificate.USER);
-            }
-        }
+        if (tag.equals("audit_signing")) { // set trust flags to u,u,Pu
+            CryptoUtil.trustAuditSigningCert(c);
+
+        } // user certs will have u,u,u by default
     }
 
     public static void backupKeys(String pwd, String fname) throws Exception {
