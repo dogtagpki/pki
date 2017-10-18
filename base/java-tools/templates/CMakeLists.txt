@@ -9,6 +9,7 @@ set(PKI_COMMANDS
     CMCRequest
     CMCResponse
     CMCRevoke
+    CMCSharedToken
     CRMFPopClient
     ExtJoiner
     GenExtKeyUsage
