@@ -223,9 +223,6 @@ public final class SigningUnit implements ISigningUnit {
         } catch (TokenException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
             throw new ECAException(CMS.getUserMessage("CMS_CA_TOKEN_ERROR"), e);
-
-        } catch (Exception e) {
-            CMS.debug(e);
         }
     }
 
