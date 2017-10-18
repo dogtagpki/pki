@@ -64,6 +64,7 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.security.Credential;
 import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.cms.servlet.key.KeyRecordParser;
+import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Utils;
 
@@ -632,6 +633,8 @@ public class StorageKeyUnit extends EncryptionUnit implements
     public boolean changeAgentPassword(String id, String oldpwd,
             String newpwd) throws EBaseException {
         // locate the id(s)
+
+        byte share[]=null;
         for (int i = 0;; i++) {
             try {
                 String uid =
@@ -640,15 +643,19 @@ public class StorageKeyUnit extends EncryptionUnit implements
                 if (uid == null)
                     break;
                 if (id.equals(uid)) {
-                    byte share[] = decryptShareWithInternalStorage(mStorageConfig.getString(PROP_SHARE + i), oldpwd);
+                    share = decryptShareWithInternalStorage(mStorageConfig.getString(PROP_SHARE + i), oldpwd);
 
                     mStorageConfig.putString(PROP_SHARE + i,
                             encryptShareWithInternalStorage(
                                     share, newpwd));
                     mStorageConfig.commit(false);
+                    JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+                    jssSubsystem.obscureBytes(share);
                     return true;
                 }
             } catch (Exception e) {
+                JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+                jssSubsystem.obscureBytes(share);
                 break;
             }
         }
@@ -900,6 +907,9 @@ public class StorageKeyUnit extends EncryptionUnit implements
                         pwd);
                 if (data == null) {
                     throw new EBaseException(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
+                } else {
+                    JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+                    jssSubsystem.obscureBytes(data);
                 }
                 return;
             }
@@ -1000,7 +1010,10 @@ public class StorageKeyUnit extends EncryptionUnit implements
                     if (pwd == null) {
                         throw new EBaseException(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
                     }
+
                     v.put(Integer.toString(i), pwd);
+                    JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+                    jssSubsystem.obscureBytes(pwd);
                     break;
                 }
             }
@@ -1043,6 +1056,9 @@ public class StorageKeyUnit extends EncryptionUnit implements
         try {
             byte secret[] = j.recoverSecret();
             String pwd = new String(secret);
+
+            JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+            jssSubsystem.obscureBytes(secret);
 
             return pwd;
         } catch (Exception ee) {

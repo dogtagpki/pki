@@ -194,7 +194,7 @@ def run_test(protocol, hostname, port, client_cert, certdb_dir,
                                          size=key_size,
                                          usages=usages)
     except pki.BadRequestException as exc:
-        print("BadRequestException thrown - Code:" + exc.code +
+        print("BadRequestException thrown - Code:" + str(exc.code) +
               " Message: " + exc.message)
 
     # Test 11 - Test RequestNotFoundException on get_request_info
@@ -202,7 +202,7 @@ def run_test(protocol, hostname, port, client_cert, certdb_dir,
     try:
         keyclient.get_request_info('200000034')
     except pki.RequestNotFoundException as exc:
-        print("RequestNotFoundException thrown - Code:" + exc.code +
+        print("RequestNotFoundException thrown - Code:" + str(exc.code) +
               " Message: " + exc.message)
 
     # Test 12 - Test exception on retrieve_key.
@@ -210,7 +210,7 @@ def run_test(protocol, hostname, port, client_cert, certdb_dir,
     try:
         keyclient.retrieve_key('2000003434')
     except pki.KeyNotFoundException as exc:
-        print("KeyNotFoundException thrown - Code:" + exc.code +
+        print("KeyNotFoundException thrown - Code:" + str(exc.code) +
               " Message: " + exc.message)
 
     # Test 13 = getKeyInfo
@@ -233,7 +233,7 @@ def run_test(protocol, hostname, port, client_cert, certdb_dir,
     try:
         keyclient.get_key_info('200004556')
     except pki.KeyNotFoundException as exc:
-        print("KeyNotFoundException thrown - Code:" + exc.code +
+        print("KeyNotFoundException thrown - Code:" + str(exc.code) +
               " Message: " + exc.message)
 
     # Test 17: Get key info for non-existent active key
@@ -242,7 +242,7 @@ def run_test(protocol, hostname, port, client_cert, certdb_dir,
         key_info = keyclient.get_active_key_info(client_key_id)
         print_key_info(key_info)
     except pki.ResourceNotFoundException as exc:
-        print("ResourceNotFoundException thrown - Code: " + exc.code +
+        print("ResourceNotFoundException thrown - Code: " + str(exc.code) +
               "Message: " + exc.message)
 
     # Test 18: Generate a symmetric key with default parameters
@@ -287,7 +287,7 @@ def run_test(protocol, hostname, port, client_cert, certdb_dir,
         )
         print_key_request(response.request_info)
     except pki.BadRequestException as exc:
-        print("BadRequestException thrown - Code:" + exc.code +
+        print("BadRequestException thrown - Code:" + str(exc.code) +
               " Message: " + exc.message)
 
     # Test 21: Get key information of the newly generated asymmetric keys

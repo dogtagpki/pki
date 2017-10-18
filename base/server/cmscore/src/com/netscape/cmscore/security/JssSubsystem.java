@@ -39,6 +39,7 @@ import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -114,12 +115,14 @@ public final class JssSubsystem implements ICryptoSubsystem {
     private static final String CONFIG_DIR = "configDir";
     private static final String PROP_ENABLE = "enable";
     private static final String PASSWORD_ALIAS = "password";
+    private static final String OBSCURE_METHOD = "obscureMethod";
     private static final String mId = ID;
     protected IConfigStore mConfig = null;
     private boolean mInited = false;
     private ILogger mLogger = null;
     private CryptoManager mCryptoManager = null;
     private SecureRandom random;
+    private String obscureMethod = "zeroes";
 
     protected PasswordCallback mPWCB = null;
 
@@ -360,6 +363,9 @@ public final class JssSubsystem implements ICryptoSubsystem {
             throw new EBaseException(e);
         }
 
+        obscureMethod = config.getString(JssSubsystem.OBSCURE_METHOD,"zeroes");
+
+
         mInited = true;
 
         CMS.debug("JssSubsystem: initialization complete");
@@ -367,6 +373,39 @@ public final class JssSubsystem implements ICryptoSubsystem {
 
     public SecureRandom getRandomNumberGenerator() {
         return random;
+    }
+
+    public void obscureBytes(byte[] memory) {
+        obscureBytes(memory,null);
+    }
+
+    //Allow an optional explicit method, else read from config
+    public void obscureBytes(byte[] memory, String method) {
+        String methodName = "JssSubsystem.obscureBytes: ";
+        if (memory == null || memory.length == 0) {
+            //in case we want to log
+            CMS.debug(methodName + " memory null, ok, will return... ");
+            return;
+        }
+
+        SecureRandom rnd = getRandomNumberGenerator();
+
+        String actualMethod = obscureMethod;
+
+        if(method != null)
+            actualMethod = method;
+
+        if ("zeroes".equals(actualMethod)) {
+            CMS.debug(methodName + " filling with zeroes, numBytes: " + memory.length);
+            Arrays.fill(memory, (byte)0);
+        } else {
+            //Just for the test program, this will never happen for real.
+            CMS.debug(methodName + " filling with random data, numBytes: " + memory.length);
+            if (rnd == null) {
+                rnd = new SecureRandom();
+            }
+            rnd.nextBytes(memory);
+        }
     }
 
     public String getCipherVersion() throws EBaseException {
@@ -2160,6 +2199,26 @@ public final class JssSubsystem implements ICryptoSubsystem {
 
             IOException, CertificateException {
         return KeyCertUtil.getExtensions(tokenname, nickname);
+    }
+
+    public static void main(String args[]) throws Exception {
+
+        JssSubsystem jss = new JssSubsystem();
+
+        byte[] test = {1,1,1,1,1};
+
+        for(int i = 0 ; i < 5 ; i++) {
+            System.out.println("test[" + i + "] : value before: " + test[i]);
+        }
+
+        jss.obscureBytes(test,"random");
+
+        System.out.println("******************");
+        for(int i = 0 ; i < 5 ; i++) {
+            System.out.println("test[" + i + "] : value now: " + test[i]);
+        }
+
+
     }
 }
 

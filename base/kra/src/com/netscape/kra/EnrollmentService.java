@@ -66,6 +66,7 @@ import com.netscape.cms.servlet.key.KeyRecordParser;
 import com.netscape.cmscore.crmf.CRMFParser;
 import com.netscape.cmscore.crmf.PKIArchiveOptionsContainer;
 import com.netscape.cmscore.dbs.KeyRecord;
+import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.util.Utils;
 
 import netscape.security.provider.RSAPublicKey;
@@ -269,7 +270,10 @@ public class EnrollmentService implements IService {
                 for (int j = 0; (j < tmp_unwrapped.length) && (tmp_unwrapped[j] == 0); j++) {
                     first++;
                 }
+
                 unwrapped = Arrays.copyOfRange(tmp_unwrapped, first, tmp_unwrapped.length);
+                JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+                jssSubsystem.obscureBytes(tmp_unwrapped);
             } /*else {  allowEncDecrypt_archival != true
                  this is done below with unwrap()
                 }
@@ -340,7 +344,11 @@ public class EnrollmentService implements IService {
                 if (statsSub != null) {
                     statsSub.startTiming("verify_key");
                 }
-                if (verifyKeyPair(publicKeyData, unwrapped) == false) {
+                boolean verified = verifyKeyPair(publicKeyData, unwrapped);
+
+                if (verified == false) {
+                    JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+                    jssSubsystem.obscureBytes(unwrapped);
                     mKRA.log(ILogger.LL_FAILURE,
                         CMS.getLogMessage("CMSCORE_KRA_PUBLIC_NOT_FOUND"));
 
@@ -410,6 +418,9 @@ public class EnrollmentService implements IService {
                         null));
 
                 throw new EKRAException(CMS.getUserMessage("CMS_KRA_INVALID_PRIVATE_KEY"));
+            } finally {
+                JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+                jssSubsystem.obscureBytes(unwrapped);
             }
 
             if (statsSub != null) {
