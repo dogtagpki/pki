@@ -20,6 +20,8 @@ package com.netscape.certsrv.logging;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import com.netscape.certsrv.common.Constants;
+
 /**
  * The log event object that carries message detail of a log event
  * that goes into the Signed Audit Event log. This log has the
@@ -33,6 +35,11 @@ import java.util.Map;
 public class SignedAuditEvent extends LogEvent {
 
     private static final long serialVersionUID = 4287822756516673931L;
+
+    public final static String RULENAME = "RULENAME";
+    public final static String PASSWORD_MASK = "********";
+    public final static String NAME_VALUE_DELIMITER = ";;";
+    public final static String NAME_VALUE_PAIRS_DELIMITER = "+";
 
     protected Map<String, Object> attributes = new LinkedHashMap<>();
 
@@ -157,5 +164,67 @@ public class SignedAuditEvent extends LogEvent {
         };
 
         return mParams;
+    }
+
+    public static void encodeMap(StringBuilder sb, Map<String, String> params) {
+
+        for (Map.Entry<String, String> entry : params.entrySet()) {
+            String name = entry.getKey();
+
+            // skip "RULENAME" parameter
+            if (name.equals(RULENAME))
+                continue;
+
+            String value;
+
+            //
+            // To fix Blackflag Bug # 613800:
+            //
+            //     Check "com.netscape.certsrv.common.Constants" for
+            //     case-insensitive "password", "pwd", and "passwd"
+            //     name fields, and hide any password values:
+            //
+            if (name.equals(Constants.PASSWORDTYPE) || /* "password" */
+                    name.equals(Constants.TYPE_PASSWORD) ||
+                    name.equals(Constants.PR_USER_PASSWORD) ||
+                    name.equals(Constants.PT_OLD_PASSWORD) ||
+                    name.equals(Constants.PT_NEW_PASSWORD) ||
+                    name.equals(Constants.PT_DIST_STORE) ||
+                    name.equals(Constants.PT_DIST_EMAIL) ||
+                    /* "pwd" */name.equals(Constants.PR_AUTH_ADMIN_PWD) ||
+                    // ignore this one  name.equals( Constants.PR_BINDPWD_PROMPT )        ||
+                    name.equals(Constants.PR_DIRECTORY_MANAGER_PWD) ||
+                    name.equals(Constants.PR_OLD_AGENT_PWD) ||
+                    name.equals(Constants.PR_AGENT_PWD) ||
+                    name.equals(Constants.PT_PUBLISH_PWD) ||
+                    /* "passwd" */name.equals(Constants.PR_BIND_PASSWD) ||
+                    name.equals(Constants.PR_BIND_PASSWD_AGAIN) ||
+                    name.equals(Constants.PR_TOKEN_PASSWD)) {
+
+                value = PASSWORD_MASK;
+
+            } else {
+
+                value = entry.getValue();
+
+                if (value == null) {
+                    value = ILogger.SIGNED_AUDIT_EMPTY_VALUE;
+                }
+
+                value = value.trim();
+
+                if (value.equals("")) {
+                    value = ILogger.SIGNED_AUDIT_EMPTY_VALUE;
+                }
+            }
+
+            if (sb.length() > 0) {
+                sb.append(NAME_VALUE_PAIRS_DELIMITER);
+            }
+
+            sb.append(name
+                    + NAME_VALUE_DELIMITER
+                    + value);
+        }
     }
 }

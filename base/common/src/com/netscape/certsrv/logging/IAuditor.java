@@ -28,12 +28,7 @@ public interface IAuditor {
     public final static String SIGNED_AUDIT_SCOPE = "Scope";
     public final static String SIGNED_AUDIT_OPERATION = "Operation";
     public final static String SIGNED_AUDIT_RESOURCE = "Resource";
-    public final static String SIGNED_AUDIT_RULENAME = "RULENAME";
-    public final static String SIGNED_AUDIT_PASSWORD_VALUE = "********";
     public final static String SIGNED_AUDIT_EMPTY_NAME_VALUE_PAIR = "Unknown";
-    public final static String SIGNED_AUDIT_NAME_VALUE_DELIMITER = ";;";
-    public final static String SIGNED_AUDIT_NAME_VALUE_PAIRS_DELIMITER = "+";
-
     /**
      * Get signed audit log subject ID
      *

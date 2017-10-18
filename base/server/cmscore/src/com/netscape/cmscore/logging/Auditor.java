@@ -23,9 +23,9 @@ import java.util.Map;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.SessionContext;
-import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.logging.IAuditor;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.SignedAuditEvent;
 import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 
@@ -93,7 +93,7 @@ public class Auditor implements IAuditor {
         // always identify the scope of the request
         if (scope != null) {
             parameters.append(SIGNED_AUDIT_SCOPE
-                    + SIGNED_AUDIT_NAME_VALUE_DELIMITER
+                    + SignedAuditEvent.NAME_VALUE_DELIMITER
                     + scope);
         } else {
             parameters.append(SIGNED_AUDIT_EMPTY_NAME_VALUE_PAIR);
@@ -101,19 +101,19 @@ public class Auditor implements IAuditor {
 
         // identify the operation type of the request
         if (type != null) {
-            parameters.append(SIGNED_AUDIT_NAME_VALUE_PAIRS_DELIMITER);
+            parameters.append(SignedAuditEvent.NAME_VALUE_PAIRS_DELIMITER);
 
             parameters.append(SIGNED_AUDIT_OPERATION
-                    + SIGNED_AUDIT_NAME_VALUE_DELIMITER
+                    + SignedAuditEvent.NAME_VALUE_DELIMITER
                     + type);
         }
 
         // identify the resource type of the request
         if (id != null) {
-            parameters.append(SIGNED_AUDIT_NAME_VALUE_PAIRS_DELIMITER);
+            parameters.append(SignedAuditEvent.NAME_VALUE_PAIRS_DELIMITER);
 
             parameters.append(SIGNED_AUDIT_RESOURCE
-                    + SIGNED_AUDIT_NAME_VALUE_DELIMITER
+                    + SignedAuditEvent.NAME_VALUE_DELIMITER
                     + id);
         }
         return getParamString(parameters, params);
@@ -130,66 +130,7 @@ public class Auditor implements IAuditor {
         if (params == null)
             return parameters.toString();
 
-        // identify any remaining request parameters
-
-        for (Map.Entry<String, String> entry : params.entrySet()) {
-            String name = entry.getKey();
-
-            // skip "RULENAME" parameter
-            if (name.equals(SIGNED_AUDIT_RULENAME))
-                continue;
-
-            String value;
-
-            //
-            // To fix Blackflag Bug # 613800:
-            //
-            //     Check "com.netscape.certsrv.common.Constants" for
-            //     case-insensitive "password", "pwd", and "passwd"
-            //     name fields, and hide any password values:
-            //
-            if (name.equals(Constants.PASSWORDTYPE) || /* "password" */
-                    name.equals(Constants.TYPE_PASSWORD) ||
-                    name.equals(Constants.PR_USER_PASSWORD) ||
-                    name.equals(Constants.PT_OLD_PASSWORD) ||
-                    name.equals(Constants.PT_NEW_PASSWORD) ||
-                    name.equals(Constants.PT_DIST_STORE) ||
-                    name.equals(Constants.PT_DIST_EMAIL) ||
-                    /* "pwd" */name.equals(Constants.PR_AUTH_ADMIN_PWD) ||
-                    // ignore this one  name.equals( Constants.PR_BINDPWD_PROMPT )        ||
-                    name.equals(Constants.PR_DIRECTORY_MANAGER_PWD) ||
-                    name.equals(Constants.PR_OLD_AGENT_PWD) ||
-                    name.equals(Constants.PR_AGENT_PWD) ||
-                    name.equals(Constants.PT_PUBLISH_PWD) ||
-                    /* "passwd" */name.equals(Constants.PR_BIND_PASSWD) ||
-                    name.equals(Constants.PR_BIND_PASSWD_AGAIN) ||
-                    name.equals(Constants.PR_TOKEN_PASSWD)) {
-
-                value = SIGNED_AUDIT_PASSWORD_VALUE;
-
-            } else {
-
-                value = entry.getValue();
-
-                if (value == null) {
-                    value = ILogger.SIGNED_AUDIT_EMPTY_VALUE;
-                }
-
-                value = value.trim();
-
-                if (value.equals("")) {
-                    value = ILogger.SIGNED_AUDIT_EMPTY_VALUE;
-                }
-            }
-
-            if (parameters.length() > 0) {
-                parameters.append(SIGNED_AUDIT_NAME_VALUE_PAIRS_DELIMITER);
-            }
-
-            parameters.append(name
-                    + SIGNED_AUDIT_NAME_VALUE_DELIMITER
-                    + value);
-        }
+        SignedAuditEvent.encodeMap(parameters, params);
 
         return parameters.toString();
     }
