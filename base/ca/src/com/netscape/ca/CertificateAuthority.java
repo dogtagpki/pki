@@ -3601,24 +3601,23 @@ public class CertificateAuthority
                 return false;
             }
 
-            CertificateAuthority ca;
+            CMS.debug("Reinitialising SigningUnit");
+
+            /* While we were retrieving the key and cert, the
+             * CertificateAuthority instance in the caMap might
+             * have been replaced, so look it up afresh.
+             */
+            CertificateAuthority ca = (CertificateAuthority) getCA(aid);
+            if (ca == null) {
+                /* We got the key, but the authority has been
+                 * deleted.  Do not retry.
+                 */
+                CMS.debug("Authority was deleted; returning.");
+                return true;
+            }
+
             boolean initSigUnitSucceeded = false;
             try {
-                CMS.debug("Reinitialising SigningUnit");
-
-                /* While we were retrieving the key and cert, the
-                 * CertificateAuthority instance in the caMap might
-                 * have been replaced, so look it up afresh.
-                 */
-                ca = (CertificateAuthority) getCA(aid);
-                if (ca == null) {
-                    /* We got the key, but the authority has been
-                     * deleted.  Do not retry.
-                     */
-                    CMS.debug("Authority was deleted; returning.");
-                    return true;
-                }
-
                 // re-init signing unit, but avoid triggering
                 // key replication if initialisation fails again
                 // for some reason
