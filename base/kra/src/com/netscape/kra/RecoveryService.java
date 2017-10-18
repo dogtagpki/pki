@@ -28,12 +28,6 @@ import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.Hashtable;
 
-import netscape.security.util.BigInt;
-import netscape.security.util.DerInputStream;
-import netscape.security.util.DerValue;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509Key;
-
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.ANY;
 import org.mozilla.jss.asn1.ASN1Util;
@@ -74,6 +68,12 @@ import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmscore.util.Debug;
 import com.netscape.cmsutil.crypto.CryptoUtil;
+
+import netscape.security.util.BigInt;
+import netscape.security.util.DerInputStream;
+import netscape.security.util.DerValue;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509Key;
 
 /**
  * A class represents recovery request processor. There
@@ -252,6 +252,8 @@ public class RecoveryService implements IService {
                 }
                 // verifyKeyPair() is RSA-centric
                 if (verifyKeyPair(pubData, privateKeyData) == false) {
+                    JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+                    jssSubsystem.obscureBytes(privateKeyData);
                     mKRA.log(ILogger.LL_FAILURE,
                             CMS.getLogMessage("CMSCORE_KRA_PUBLIC_NOT_FOUND"));
                     throw new EKRAException(
@@ -265,11 +267,21 @@ public class RecoveryService implements IService {
             if (statsSub != null) {
                 statsSub.startTiming("create_p12");
             }
-            if (encrypted) {
-                createPFX(request, params, privateKeyData);
-            } else {
-                createPFX(request, params, privKey, ct);
+
+            try {
+                if (encrypted) {
+                    createPFX(request, params, privateKeyData);
+                } else {
+                    createPFX(request, params, privKey, ct);
+                }
+            } catch (EBaseException e) {
+                throw e;
+            } finally {
+                //We don't need this data any more
+                JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+                jssSubsystem.obscureBytes(privateKeyData);
             }
+
             if (statsSub != null) {
                 statsSub.endTiming("create_p12");
             }

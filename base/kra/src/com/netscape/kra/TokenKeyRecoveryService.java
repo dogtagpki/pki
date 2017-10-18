@@ -486,6 +486,9 @@ public class TokenKeyRecoveryService implements IService {
                             keyId,
                             CMS.getLogMessage("CMSCORE_KRA_PUBLIC_NOT_FOUND"),
                             agentId));
+                    JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+                    jssSubsystem.obscureBytes(privateKeyData);
+                    jssSubsystem.obscureBytes(p);
                     throw new EKRAException(
                         CMS.getUserMessage("CMS_KRA_INVALID_PUBLIC_KEY"));
                 } else {
@@ -499,6 +502,10 @@ public class TokenKeyRecoveryService implements IService {
                         privateKeyData,
                         EncryptionAlgorithm.DES3_CBC_PAD,
                         algParam);
+
+                JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+                jssSubsystem.obscureBytes(privateKeyData);
+                jssSubsystem.obscureBytes(p);
             } else { //encrypted == false
                 PrivateKey privKey = recoverKey(params, keyRecord, allowEncDecrypt_recovery);
                 if (privKey == null) {

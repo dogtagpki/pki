@@ -186,9 +186,10 @@ public class SecurityDataProcessor {
                 for (int j=0; (j< tmp_unwrapped.length) && (tmp_unwrapped[j]==0); j++) {
                     first++;
                 }
-                unwrapped = Arrays.copyOfRange(tmp_unwrapped, first, tmp_unwrapped.length);
-                Arrays.fill(tmp_unwrapped, (byte)0);
 
+                unwrapped = Arrays.copyOfRange(tmp_unwrapped, first, tmp_unwrapped.length);
+                JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+                jssSubsystem.obscureBytes(tmp_unwrapped);
 
             } else {
                 try {
@@ -230,7 +231,6 @@ public class SecurityDataProcessor {
                 privateSecurityData = storageUnit.wrap(securitySymKey, params);
             } else if (unwrapped != null && allowEncDecrypt_archival == true) {
                 privateSecurityData = storageUnit.encryptInternalPrivate(unwrapped, params);
-                Arrays.fill(unwrapped, (byte)0);
                 doEncrypt = true;
                 CMS.debug("allowEncDecrypt_archival of symmetric key.");
             } else if (securityData != null) {
@@ -247,6 +247,11 @@ public class SecurityDataProcessor {
                     clientKeyId, null, CMS.getUserMessage("CMS_KRA_INVALID_PRIVATE_KEY"));
 
             throw new EBaseException(CMS.getUserMessage("CMS_KRA_INVALID_PRIVATE_KEY"));
+        } finally {
+            // clean up some data
+            JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+            jssSubsystem.obscureBytes(securityData);
+            jssSubsystem.obscureBytes(unwrapped);
         }
 
         // create key record
@@ -435,7 +440,9 @@ public class SecurityDataProcessor {
                     payloadWrapName,
                     transportUnit.getOldWrappingParams().getPayloadWrapAlgorithm());
         } catch (Exception e1) {
-             throw new EBaseException("Failed to generate IV when wrapping secret", e1);
+            JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+            jssSubsystem.obscureBytes(unwrappedSecData);
+            throw new EBaseException("Failed to generate IV when wrapping secret", e1);
         }
         String ivStr = iv != null? Utils.base64encode(iv, true): null;
         String ivStr_wrap = iv_wrap != null ? Utils.base64encode(iv_wrap, true): null;
@@ -455,6 +462,8 @@ public class SecurityDataProcessor {
                     iv != null? new IVParameterSpec(iv): null,
                     iv_wrap != null? new IVParameterSpec(iv_wrap): null);
             } catch (Exception e) {
+                JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+                jssSubsystem.obscureBytes(unwrappedSecData);
                 throw new EBaseException("Cannot generate wrapping params: " + e, e);
             }
         }
@@ -510,6 +519,8 @@ public class SecurityDataProcessor {
                 params.put(IRequest.SECURITY_DATA_PASS_WRAPPED_DATA, pbeWrappedData);
 
             } catch (Exception e) {
+                JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+                jssSubsystem.obscureBytes(unwrappedSecData);
                 throw new EBaseException("Cannot unwrap passphrase: " + e, e);
 
             } finally {
@@ -517,9 +528,9 @@ public class SecurityDataProcessor {
                     pass.clear();
                 }
 
-                if (unwrappedPass != null) {
-                    java.util.Arrays.fill(unwrappedPass, (byte) 0);
-                }
+                JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+                jssSubsystem.obscureBytes(unwrappedPass);
+
             }
 
         } else {
@@ -550,6 +561,8 @@ public class SecurityDataProcessor {
                     }
 
                 } catch (Exception e) {
+                    JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+                    jssSubsystem.obscureBytes(unwrappedSecData);
                     throw new EBaseException("Cannot wrap symmetric key: " + e, e);
                 }
 
@@ -566,6 +579,8 @@ public class SecurityDataProcessor {
                             wrapParams.getPayloadEncryptionAlgorithm(),
                             wrapParams.getPayloadEncryptionIV());
                 } catch (Exception e) {
+                    JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+                    jssSubsystem.obscureBytes(unwrappedSecData);
                     throw new EBaseException("Cannot encrypt passphrase: " + e, e);
                 }
 
@@ -596,6 +611,8 @@ public class SecurityDataProcessor {
                     }
 
                 } catch (Exception e) {
+                    JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+                    jssSubsystem.obscureBytes(unwrappedSecData);
                     throw new EBaseException("Cannot wrap private key: " + e, e);
                 }
             }
@@ -623,9 +640,10 @@ public class SecurityDataProcessor {
             }
         }
 
-        if(unwrappedSecData != null && unwrappedSecData.length > 0) {
-            Arrays.fill(unwrappedSecData, (byte)0);
-        }
+
+        //If we made it this far, all is good, and clear out the unwrappedSecData before returning.
+        JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+        jssSubsystem.obscureBytes(unwrappedSecData);
 
         params.put(IRequest.SECURITY_DATA_TYPE, dataType);
         request.setExtData(IRequest.RESULT, IRequest.RES_SUCCESS);
