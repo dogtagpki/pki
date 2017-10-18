@@ -70,6 +70,8 @@ import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
 import org.mozilla.jss.pkix.primitive.Name;
 
 import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.authentication.IAuthManager;
+import com.netscape.certsrv.authentication.IAuthSubsystem;
 import com.netscape.certsrv.authentication.ISharedToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
@@ -982,6 +984,7 @@ public class CMCOutputTemplate {
         String auditSerialNumber = null;
         String auditReasonNum = null;
         RequestStatus auditApprovalStatus = RequestStatus.REJECTED;
+        String auditReqID = null;
 
         if (attr != null) {
             INTEGER attrbpid = attr.getBodyPartID();
@@ -1069,13 +1072,13 @@ public class CMCOutputTemplate {
                     revoke = true;
                 } else { //use shared secret; request unsigned
                     CMS.debug(method + "checking shared secret");
-                    // check shared secret
-                    //TODO: remember to provide one-time-use when working
-                    //      on shared token
-                    ISharedToken tokenClass =
-                            CMS.getSharedTokenClass("cmc.revokeCert.sharedSecret.class");
-                    if (tokenClass == null) {
-                        CMS.debug(method + " Failed to retrieve shared secret plugin class");
+
+                    String configName = "SharedToken";
+                    IAuthSubsystem authSS = (IAuthSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTH);
+
+                    IAuthManager sharedTokenAuth = authSS.getAuthManager(configName);
+                    if (sharedTokenAuth == null) {
+                        CMS.debug(method + " Failed to retrieve shared secret authentication plugin class");
                         OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL, new INTEGER(OtherInfo.INTERNAL_CA_ERROR),
                                 null, null);
                         SEQUENCE failed_bpids = new SEQUENCE();
@@ -1087,9 +1090,9 @@ public class CMCOutputTemplate {
                         controlSeq.addElement(tagattr);
                         return bpid;
                     }
+                    ISharedToken tokenClass = (ISharedToken) sharedTokenAuth;
 
-                    String sharedSecret =
-                            sharedSecret = tokenClass.getSharedToken(revokeSerial);
+                    String sharedSecret = tokenClass.getSharedToken(revokeSerial);
 
                     if (sharedSecret == null) {
                         CMS.debug("CMCOutputTemplate: shared secret not found.");
@@ -1127,7 +1130,7 @@ public class CMCOutputTemplate {
                         audit(new CertStatusChangeRequestProcessedEvent(
                                 auditSubjectID,
                                 ILogger.FAILURE,
-                                auditRequesterID,
+                                auditReqID,
                                 auditSerialNumber,
                                 auditRequestType,
                                 auditReasonNum,
@@ -1161,7 +1164,7 @@ public class CMCOutputTemplate {
                     }
 
                     if (record.getStatus().equals(ICertRecord.STATUS_REVOKED)) {
-                        CMS.debug("CMCOutputTemplate: The certificate is already revoked.");
+                        CMS.debug("CMCOutputTemplate: The certificate is already revoked:" + auditSerialNumber);
                         SEQUENCE success_bpids = new SEQUENCE();
                         success_bpids.addElement(attrbpid);
                         cmcStatusInfoV2 = new CMCStatusInfoV2(CMCStatusInfoV2.SUCCESS,
@@ -1172,11 +1175,10 @@ public class CMCOutputTemplate {
                         controlSeq.addElement(tagattr);
                         return bpid;
                     }
-
                     X509CertImpl impl = record.getCertificate();
 
                     X500Name certPrincipal = (X500Name) impl.getSubjectDN();
-                    auditSubjectID = certPrincipal.getCommonName();
+                    auditSubjectID = certPrincipal.toString();
 
                     // in case of user-signed request, check if signer
                     // principal matches that of the revoking cert
@@ -1198,7 +1200,7 @@ public class CMCOutputTemplate {
                             audit(new CertStatusChangeRequestProcessedEvent(
                                     auditSubjectID,
                                     ILogger.FAILURE,
-                                    auditRequesterID,
+                                    auditReqID,
                                     auditSerialNumber,
                                     auditRequestType,
                                     auditReasonNum,
@@ -1230,6 +1232,7 @@ public class CMCOutputTemplate {
                     revCertImpls[0] = revCertImpl;
                     IRequestQueue queue = ca.getRequestQueue();
                     IRequest revReq = queue.newRequest(IRequest.REVOCATION_REQUEST);
+                    auditReqID = revReq.getRequestId().toString();
                     revReq.setExtData(IRequest.CERT_INFO, revCertImpls);
                     revReq.setExtData(IRequest.REVOKED_REASON,
                             Integer.valueOf(reason.toInt()));
@@ -1259,7 +1262,7 @@ public class CMCOutputTemplate {
                             audit(new CertStatusChangeRequestProcessedEvent(
                                     auditSubjectID,
                                     ILogger.FAILURE,
-                                    auditRequesterID,
+                                    auditReqID,
                                     auditSerialNumber,
                                     auditRequestType,
                                     auditReasonNum,
@@ -1291,7 +1294,7 @@ public class CMCOutputTemplate {
                     audit(new CertStatusChangeRequestProcessedEvent(
                             auditSubjectID,
                             ILogger.SUCCESS,
-                            auditRequesterID,
+                            auditReqID,
                             auditSerialNumber,
                             auditRequestType,
                             auditReasonNum,
@@ -1310,7 +1313,7 @@ public class CMCOutputTemplate {
                     audit(new CertStatusChangeRequestProcessedEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
-                            auditRequesterID,
+                            auditReqID,
                             auditSerialNumber,
                             auditRequestType,
                             auditReasonNum,
