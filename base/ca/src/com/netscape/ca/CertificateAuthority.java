@@ -105,6 +105,9 @@ import com.netscape.certsrv.dbs.replicadb.IReplicaIDRepository;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.event.CRLSigningInfoEvent;
+import com.netscape.certsrv.logging.event.CertSigningInfoEvent;
+import com.netscape.certsrv.logging.event.OCSPSigningInfoEvent;
 import com.netscape.certsrv.ocsp.IOCSPService;
 import com.netscape.certsrv.profile.IEnrollProfile;
 import com.netscape.certsrv.profile.IProfile;
@@ -123,6 +126,7 @@ import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.security.ISigningUnit;
 import com.netscape.certsrv.util.IStatsSubsystem;
 import com.netscape.cms.logging.Logger;
+import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.servlet.cert.CertEnrollmentRequestFactory;
 import com.netscape.cms.servlet.cert.EnrollmentProcessor;
 import com.netscape.cms.servlet.cert.RenewalProcessor;
@@ -202,6 +206,9 @@ import netscape.security.x509.X509Key;
  */
 public class CertificateAuthority
         implements ICertificateAuthority, ICertAuthority, IOCSPService, Runnable {
+
+    private static final Logger signedAuditLogger = SignedAuditLogger.getLogger();
+
     public static final String OFFICIAL_NAME = "Certificate Manager";
 
     public final static OBJECT_IDENTIFIER OCSP_NONCE = new OBJECT_IDENTIFIER("1.3.6.1.5.5.7.48.1.2");
@@ -646,6 +653,7 @@ public class CertificateAuthority
             // set up CA Issuance Protection Cert
             if (initSigUnitSucceeded)
                 initIssuanceProtectionCert();
+
         } catch (EBaseException e) {
             CMS.debug(e);
             if (CMS.isPreOpMode()) {
@@ -653,6 +661,37 @@ public class CertificateAuthority
                 return;
             }
             throw e;
+        }
+
+        try {
+
+            if (isHostAuthority()) {
+
+                // For host CA, generate cert, OCSP, and CRL signing info without authority ID.
+
+                String certSigningSKI = CryptoUtil.getSKIString(mSigningUnit.getCertImpl());
+                signedAuditLogger.log(CertSigningInfoEvent.createSuccessEvent(ILogger.SYSTEM_UID, certSigningSKI));
+
+                String ocspSigningSKI = CryptoUtil.getSKIString(mOCSPSigningUnit.getCertImpl());
+                signedAuditLogger.log(OCSPSigningInfoEvent.createSuccessEvent(ILogger.SYSTEM_UID, ocspSigningSKI));
+
+                String crlSigningSKI = CryptoUtil.getSKIString(mCRLSigningUnit.getCertImpl());
+                signedAuditLogger.log(CRLSigningInfoEvent.createSuccessEvent(ILogger.SYSTEM_UID, crlSigningSKI));
+
+            } else {
+
+                // For lightweight sub CA, generate cert and OCSP signing info with authority ID.
+                // Don't generate CRL signing info since it doesn't support CRL.
+
+                String certSigningSKI = CryptoUtil.getSKIString(mSigningUnit.getCertImpl());
+                signedAuditLogger.log(CertSigningInfoEvent.createSuccessEvent(ILogger.SYSTEM_UID, certSigningSKI, authorityID));
+
+                String ocspSigningSKI = CryptoUtil.getSKIString(mOCSPSigningUnit.getCertImpl());
+                signedAuditLogger.log(OCSPSigningInfoEvent.createSuccessEvent(ILogger.SYSTEM_UID, ocspSigningSKI, authorityID));
+            }
+
+        } catch (IOException e) {
+            throw new EBaseException(e);
         }
     }
 
