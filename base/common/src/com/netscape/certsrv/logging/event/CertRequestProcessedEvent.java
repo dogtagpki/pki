@@ -35,51 +35,76 @@ public class CertRequestProcessedEvent extends SignedAuditEvent {
 
     public final static String SIGNED_AUDIT_CERT_REQUEST_REASON = "requestNotes";
 
-    public CertRequestProcessedEvent(
+    public CertRequestProcessedEvent() {
+        super(LOGGING_PROPERTY);
+    }
+
+    public static CertRequestProcessedEvent createSuccessEvent(
             String subjectID,
-            String outcome,
             String requesterID,
             String infoName,
             String infoValue) {
 
-        super(LOGGING_PROPERTY);
+        CertRequestProcessedEvent event = new CertRequestProcessedEvent();
 
-        setAttribute("SubjectID", subjectID);
-        setAttribute("Outcome", outcome);
-        setAttribute("ReqID", requesterID);
-        setAttribute("InfoName", infoName);
-        setAttribute("InfoValue", infoValue);
+        event.setAttribute("SubjectID", subjectID);
+        event.setAttribute("Outcome", ILogger.SUCCESS);
+        event.setAttribute("ReqID", requesterID);
+        event.setAttribute("InfoName", infoName);
+        event.setAttribute("InfoValue", infoValue);
+
+        return event;
     }
 
-    public CertRequestProcessedEvent(
+    public static CertRequestProcessedEvent createSuccessEvent(
             String subjectID,
-            String outcome,
             String requesterID,
             String infoName,
             X509CertImpl x509cert) {
 
-        super(LOGGING_PROPERTY);
+        CertRequestProcessedEvent event = new CertRequestProcessedEvent();
 
-        setAttribute("SubjectID", subjectID);
-        setAttribute("Outcome", outcome);
-        setAttribute("ReqID", requesterID);
-        setAttribute("CertSerialNum", x509cert.getSerialNumber());
+        event.setAttribute("SubjectID", subjectID);
+        event.setAttribute("Outcome", ILogger.SUCCESS);
+        event.setAttribute("ReqID", requesterID);
+        event.setAttribute("CertSerialNum", x509cert.getSerialNumber());
+
+        return event;
     }
 
-    public CertRequestProcessedEvent(
+    public static CertRequestProcessedEvent createFailureEvent(
             String subjectID,
-            String outcome,
+            String requesterID,
+            String infoName,
+            String infoValue) {
+
+        CertRequestProcessedEvent event = new CertRequestProcessedEvent();
+
+        event.setAttribute("SubjectID", subjectID);
+        event.setAttribute("Outcome", ILogger.FAILURE);
+        event.setAttribute("ReqID", requesterID);
+        event.setAttribute("InfoName", infoName);
+        event.setAttribute("InfoValue", infoValue);
+
+        return event;
+    }
+
+    public static CertRequestProcessedEvent createFailureEvent(
+            String subjectID,
             String requesterID,
             String infoName,
             IRequest request) {
 
-        super(LOGGING_PROPERTY);
+        CertRequestProcessedEvent event = new CertRequestProcessedEvent();
 
-        setAttribute("SubjectID", subjectID);
-        setAttribute("Outcome", outcome);
-        setAttribute("ReqID", requesterID);
-        setAttribute("InfoName", infoName);
-        setAttribute("InfoValue", auditInfoValue(request));
+
+        event.setAttribute("SubjectID", subjectID);
+        event.setAttribute("Outcome", ILogger.FAILURE);
+        event.setAttribute("ReqID", requesterID);
+        event.setAttribute("InfoName", infoName);
+        event.setAttribute("InfoValue", auditInfoValue(request));
+
+        return event;
     }
 
     /**
@@ -92,7 +117,7 @@ public class CertRequestProcessedEvent extends SignedAuditEvent {
      * @param x509cert an X509CertImpl
      * @return cert string containing the certificate
      */
-    String auditInfoCertValue(X509CertImpl x509cert) {
+    static String auditInfoCertValue(X509CertImpl x509cert) {
 
         if (x509cert == null) {
             return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
@@ -139,7 +164,7 @@ public class CertRequestProcessedEvent extends SignedAuditEvent {
      * @param request the actual request
      * @return reason string containing the signed audit log message reason
      */
-    String auditInfoValue(IRequest request) {
+    static String auditInfoValue(IRequest request) {
 
         String reason = ILogger.SIGNED_AUDIT_EMPTY_VALUE;
 

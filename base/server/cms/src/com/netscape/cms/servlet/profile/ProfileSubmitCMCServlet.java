@@ -812,9 +812,8 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
 
                     if (x509cert != null) {
 
-                        audit(new CertRequestProcessedEvent(
+                        audit(CertRequestProcessedEvent.createSuccessEvent(
                                     auditSubjectID,
-                                    ILogger.SUCCESS,
                                     auditRequesterID,
                                     ILogger.SIGNED_AUDIT_ACCEPTANCE,
                                     x509cert));
@@ -880,9 +879,8 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                 if (errorCode != null) {
                     if (errorCode.equals("1")) {
 
-                        audit(new CertRequestProcessedEvent(
+                        audit(CertRequestProcessedEvent.createFailureEvent(
                                     auditSubjectID,
-                                    ILogger.FAILURE,
                                     auditRequesterID,
                                     ILogger.SIGNED_AUDIT_REJECTION,
                                     errorReason));
@@ -893,9 +891,8 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                         // deferred for manual acceptance/cancellation/rejection
                     } else if (errorCode.equals("3")) {
 
-                        audit(new CertRequestProcessedEvent(
+                        audit(CertRequestProcessedEvent.createFailureEvent(
                                     auditSubjectID,
-                                    ILogger.FAILURE,
                                     auditRequesterID,
                                     ILogger.SIGNED_AUDIT_REJECTION,
                                     errorReason));
@@ -922,9 +919,8 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
 
                     if (x509cert != null) {
 
-                        audit(new CertRequestProcessedEvent(
+                        audit(CertRequestProcessedEvent.createSuccessEvent(
                                 auditSubjectID,
-                                ILogger.SUCCESS,
                                 auditRequesterID,
                                 ILogger.SIGNED_AUDIT_ACCEPTANCE,
                                 x509cert));

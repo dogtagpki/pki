@@ -279,9 +279,8 @@ public class RequestProcessor extends CertProcessor {
         String auditRequesterID = auditRequesterID(req);
         req.setRequestStatus(RequestStatus.CANCELED);
 
-        audit(new CertRequestProcessedEvent(
+        audit(CertRequestProcessedEvent.createFailureEvent(
                 auditSubjectID,
-                ILogger.FAILURE,
                 auditRequesterID,
                 ILogger.SIGNED_AUDIT_CANCELLATION,
                 req));
@@ -309,9 +308,8 @@ public class RequestProcessor extends CertProcessor {
 
         req.setRequestStatus(RequestStatus.REJECTED);
 
-        audit(new CertRequestProcessedEvent(
+        audit(CertRequestProcessedEvent.createFailureEvent(
                 auditSubjectID,
-                ILogger.FAILURE,
                 auditRequesterID,
                 ILogger.SIGNED_AUDIT_REJECTION,
                 req));
@@ -384,18 +382,16 @@ public class RequestProcessor extends CertProcessor {
             X509CertImpl theCert = req.getExtDataInCert(
                     IEnrollProfile.REQUEST_ISSUED_CERT);
 
-            audit(new CertRequestProcessedEvent(
+            audit(CertRequestProcessedEvent.createSuccessEvent(
                     auditSubjectID,
-                    ILogger.SUCCESS,
                     auditRequesterID,
                     ILogger.SIGNED_AUDIT_ACCEPTANCE,
                     theCert));
 
         } catch (EProfileException eAudit1) {
 
-            audit(new CertRequestProcessedEvent(
+            audit(CertRequestProcessedEvent.createFailureEvent(
                     auditSubjectID,
-                    ILogger.FAILURE,
                     auditRequesterID,
                     ILogger.SIGNED_AUDIT_ACCEPTANCE,
                     ILogger.SIGNED_AUDIT_EMPTY_VALUE));
