@@ -624,18 +624,16 @@ public class ConnectorServlet extends CMSServlet {
 
                     if (x509cert != null) {
 
-                        audit(new CertRequestProcessedEvent(
+                        audit(CertRequestProcessedEvent.createSuccessEvent(
                                 auditSubjectID,
-                                ILogger.SUCCESS,
                                 auditRequesterID,
                                 ILogger.SIGNED_AUDIT_ACCEPTANCE,
                                 x509cert));
 
                     } else {
 
-                        audit(new CertRequestProcessedEvent(
+                        audit(CertRequestProcessedEvent.createFailureEvent(
                                 auditSubjectID,
-                                ILogger.FAILURE,
                                 auditRequesterID,
                                 ILogger.SIGNED_AUDIT_REJECTION,
                                 ILogger.SIGNED_AUDIT_EMPTY_VALUE));
