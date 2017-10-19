@@ -360,7 +360,7 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
                         throw new EBaseException("CMCAuth: agent verifySignerInfo failure");
                     }
                     userid = agentToken.getInString("userid");
-                    uid = agentToken.getInString("cn");
+                    uid = agentToken.getInString("id");
                 } else {
                     CMS.debug(method + "signerInfo verification bypassed");
                 }
@@ -970,11 +970,12 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
 
                         IAuthToken tempToken = agentAuth.authenticate(agentCred);
                         netscape.security.x509.X500Name tempPrincipal = (X500Name) x509Certs[0].getSubjectDN();
-                        String CN = tempPrincipal.getCommonName(); //tempToken.get("userid");
+                        String ID = tempPrincipal.toString();
+                        CMS.debug(method + " Principal name = " + ID);
 
                         BigInteger agentCertSerial = x509Certs[0].getSerialNumber();
                         authToken.set(IAuthManager.CRED_SSL_CLIENT_CERT, agentCertSerial.toString());
-                        tempToken.set("cn", CN);
+                        tempToken.set("id", ID);
                         return tempToken;
 
                     }
