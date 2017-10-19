@@ -41,6 +41,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.event.OCSPSigningInfoEvent;
 import com.netscape.certsrv.ocsp.IDefStore;
 import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.certsrv.ocsp.IOCSPService;
@@ -49,7 +50,9 @@ import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.security.ISigningUnit;
 import com.netscape.cms.logging.Logger;
+import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.util.Debug;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.ocsp.BasicOCSPResponse;
 import com.netscape.cmsutil.ocsp.KeyHashID;
 import com.netscape.cmsutil.ocsp.NameID;
@@ -75,6 +78,8 @@ import netscape.security.x509.X509Key;
  * @version $Revision$, $Date$
  */
 public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, IAuthority {
+
+    private static final Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     private long mServedTime = 0;
 
@@ -167,6 +172,14 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
                 return;
             }
             throw e;
+        }
+
+        try {
+            String ocspSigningSKI = CryptoUtil.getSKIString(mSigningUnit.getCertImpl());
+            signedAuditLogger.log(OCSPSigningInfoEvent.createSuccessEvent(ILogger.SYSTEM_UID, ocspSigningSKI));
+
+        } catch (IOException e) {
+            throw new EBaseException(e);
         }
     }
 

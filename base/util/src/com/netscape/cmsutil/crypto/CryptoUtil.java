@@ -1633,6 +1633,30 @@ public class CryptoUtil {
         return null;
     }
 
+    public static String getSKIString(X509CertImpl cert) throws IOException {
+
+        SubjectKeyIdentifierExtension ext = (SubjectKeyIdentifierExtension)
+                cert.getExtension(PKIXExtensions.SubjectKey_Id.toString());
+
+        byte[] ski;
+
+        if (ext == null) {
+
+            // SKI not available, generate a new one
+            ski = CryptoUtil.generateKeyIdentifier(cert.getPublicKey().getEncoded());
+
+        } else {
+
+            // use existing SKI
+            KeyIdentifier keyId = (KeyIdentifier) ext.get(SubjectKeyIdentifierExtension.KEY_ID);
+            ski = keyId.getIdentifier();
+        }
+
+        // format SKI: xx:xx:xx:...
+        netscape.security.util.PrettyPrintFormat pp = new netscape.security.util.PrettyPrintFormat(":", 20);
+        return pp.toHexString(ski).trim();
+    }
+
     /**
      * Creates a PKCS#10 request.
      */
