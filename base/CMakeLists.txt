@@ -58,6 +58,13 @@ find_file(COMMONS_LANG_JAR
         /usr/share/java
 )
 
+find_file(HAMCREST_JAR
+    NAMES
+        core.jar
+    PATHS
+        /usr/share/java/hamcrest
+)
+
 find_file(HTTPCLIENT_JAR
     NAMES
         httpclient.jar
@@ -91,6 +98,13 @@ find_file(JSS_JAR
         jss4.jar
     PATHS
         ${JAVA_LIB_INSTALL_DIR}
+        /usr/share/java
+)
+
+find_file(JUNIT_JAR
+    NAMES
+        junit.jar
+    PATHS
         /usr/share/java
 )
 
