@@ -12,14 +12,6 @@
 #   using the specified class path.
 #
 
-find_file(JUNIT_JAR
-    NAMES
-        junit.jar
-    PATHS
-        ${JAVA_LIB_INSTALL_DIR}
-        /usr/share/java
-)
-
 function(add_junit_test TARGET_NAME)
 
     if (WIN32 AND NOT CYGWIN)
