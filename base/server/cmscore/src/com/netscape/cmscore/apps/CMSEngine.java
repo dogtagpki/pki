@@ -1814,9 +1814,9 @@ public class CMSEngine implements ICMSEngine {
 
     public String getEncodedCert(X509Certificate cert) {
         try {
-            return "-----BEGIN CERTIFICATE-----\n" +
+            return Cert.HEADER + "\n" +
                     CMS.BtoA(cert.getEncoded()) +
-                    "-----END CERTIFICATE-----\n";
+                    Cert.FOOTER + "\n";
         } catch (Exception e) {
             return null;
         }

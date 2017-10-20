@@ -40,6 +40,7 @@ import com.netscape.certsrv.system.KRAConnectorInfo;
 import com.netscape.certsrv.system.SystemCertResource;
 import com.netscape.cms.servlet.admin.KRAConnectorProcessor;
 import com.netscape.cms.servlet.base.PKIService;
+import com.netscape.cmsutil.util.Cert;
 import com.netscape.cmsutil.util.Utils;
 
 /**
@@ -130,7 +131,7 @@ public class SystemCertService extends PKIService implements SystemCertResource 
         Principal subjectDN = cert.getSubjectDN();
         if (subjectDN != null) data.setSubjectDN(subjectDN.toString());
 
-        String b64 = CertData.HEADER + "\n" + CMS.BtoA(cert.getEncoded()) + CertData.FOOTER;
+        String b64 = Cert.HEADER + "\n" + CMS.BtoA(cert.getEncoded()) + Cert.FOOTER;
         data.setEncoded(b64);
 
         return data;
@@ -148,7 +149,7 @@ public class SystemCertService extends PKIService implements SystemCertResource 
         Principal subjectDN = cert.getSubjectDN();
         if (subjectDN != null) data.setSubjectDN(subjectDN.toString());
 
-        String b64 = CertData.HEADER + "\n" + CMS.BtoA(cert.getEncoded()) + CertData.FOOTER;
+        String b64 = Cert.HEADER + "\n" + CMS.BtoA(cert.getEncoded()) + Cert.FOOTER;
         data.setEncoded(b64);
 
         return data;

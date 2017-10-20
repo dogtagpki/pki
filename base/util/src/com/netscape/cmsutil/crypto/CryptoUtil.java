@@ -172,9 +172,8 @@ public class CryptoUtil {
 
     public static final String CERTREQ_BEGIN_HEADING = "-----BEGIN CERTIFICATE REQUEST-----";
     public static final String CERTREQ_END_HEADING = "-----END CERTIFICATE REQUEST-----";
+
     public static final int LINE_COUNT = 76;
-    public static final String CERT_BEGIN_HEADING = "-----BEGIN CERTIFICATE-----";
-    public static final String CERT_END_HEADING = "-----END CERTIFICATE-----";
 
     static public final Integer[] clientECCiphers = {
         SSLSocket.TLS_ECDH_RSA_WITH_AES_128_CBC_SHA,
@@ -1143,16 +1142,16 @@ public class CryptoUtil {
             return "";
         }
         StringBuffer result = new StringBuffer();
-        result.append(CERT_BEGIN_HEADING + "\n");
+        result.append(Cert.HEADER + "\n");
 
         while (content.length() >= LINE_COUNT) {
             result.append(content.substring(0, LINE_COUNT) + "\n");
             content = content.substring(LINE_COUNT);
         }
         if (content.length() > 0) {
-            result.append(content + "\n" + CERT_END_HEADING);
+            result.append(content + "\n" + Cert.FOOTER);
         } else {
-            result.append(CERT_END_HEADING);
+            result.append(Cert.FOOTER);
         }
 
         return result.toString();
@@ -1170,7 +1169,7 @@ public class CryptoUtil {
             return s;
         }
 
-        if (s.startsWith(CERT_BEGIN_HEADING) && s.endsWith(CERT_END_HEADING)) {
+        if (s.startsWith(Cert.HEADER) && s.endsWith(Cert.FOOTER)) {
             return (s.substring(27, (s.length() - 25)));
         }
 

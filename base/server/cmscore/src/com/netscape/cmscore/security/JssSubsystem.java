@@ -90,6 +90,7 @@ import com.netscape.cmscore.cert.CertPrettyPrint;
 import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.util.Debug;
 import com.netscape.cmsutil.crypto.CryptoUtil;
+import com.netscape.cmsutil.util.Cert;
 import com.netscape.cmsutil.util.Utils;
 
 import netscape.ldap.util.DN;
@@ -1644,9 +1645,9 @@ public final class JssSubsystem implements ICryptoSubsystem {
             String b64E = Utils.base64encode(cert.getEncoded());
             PrintStream stream = new PrintStream(new FileOutputStream(pathname + suffix));
 
-            stream.println("-----BEGIN CERTIFICATE-----");
+            stream.println(Cert.HEADER);
             stream.print(b64E);
-            stream.println("-----END CERTIFICATE-----");
+            stream.println(Cert.FOOTER);
             stream.close();
             if (cert instanceof TokenCertificate) {
                 TokenCertificate tcert = (TokenCertificate) cert;

@@ -30,6 +30,7 @@ import org.mozilla.jss.crypto.X509Certificate;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
+import com.netscape.cmsutil.util.Cert;
 import com.netscape.cmsutil.util.Utils;
 
 /**
@@ -131,9 +132,9 @@ public class ClientCertShowCLI extends CLI {
 
             if (certPath != null) {
                 try (PrintWriter out = new PrintWriter(new FileWriter(certPath))) {
-                    out.println("-----BEGIN CERTIFICATE-----");
+                    out.println(Cert.HEADER);
                     out.print(Utils.base64encode(cert.getEncoded()));
-                    out.println("-----END CERTIFICATE-----");
+                    out.println(Cert.FOOTER);
                 }
 
             } else {

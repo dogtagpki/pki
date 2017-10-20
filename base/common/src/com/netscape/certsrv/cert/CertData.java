@@ -35,6 +35,7 @@ import org.jboss.resteasy.plugins.providers.atom.Link;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.dbs.certdb.CertIdAdapter;
 import com.netscape.certsrv.util.DateAdapter;
+import com.netscape.cmsutil.util.Cert;
 
 /**
  * @author alee
@@ -55,10 +56,6 @@ public class CertData {
             e.printStackTrace();
         }
     }
-
-    /* HEADER and FOOTER used to create an encoded cert string*/
-    public static final String HEADER = "-----BEGIN CERTIFICATE-----";
-    public static final String FOOTER = "-----END CERTIFICATE-----";
 
     CertId serialNumber;
     String issuerDN;
@@ -320,7 +317,7 @@ public class CertData {
         StringWriter sw = new StringWriter();
         PrintWriter out = new PrintWriter(sw, true);
 
-        out.println("-----BEGIN CERTIFICATE-----");
+        out.println(Cert.HEADER);
         out.println("MIIB/zCCAWgCCQCtpWH58pqsejANBgkqhkiG9w0BAQUFADBEMRQwEgYDVQQKDAtF");
         out.println("WEFNUExFLUNPTTEYMBYGCgmSJomT8ixkAQEMCHRlc3R1c2VyMRIwEAYDVQQDDAlU");
         out.println("ZXN0IFVzZXIwHhcNMTIwNTE0MTcxNzI3WhcNMTMwNTE0MTcxNzI3WjBEMRQwEgYD");
@@ -332,7 +329,7 @@ public class CertData {
         out.println("gYEAY9bjcD/7Z+oX6gsJtX6Rd79E7X5IBdOdArYzHNE4vjdaQrZw6oCxrY8ffpKC");
         out.println("0T0q5PX9I7er+hx/sQjGPMrJDEN+vFBSNrZE7sTeLRgkyiqGvChSyuG05GtGzXO4");
         out.println("bFBr+Gwk2VF2wJvOhTXU2hN8sfkkd9clzIXuL8WCDhWk1bY=");
-        out.println("-----END CERTIFICATE-----");
+        out.println(Cert.FOOTER);
 
         CertData before = new CertData();
         before.setSerialNumber(new CertId("12512514865863765114"));

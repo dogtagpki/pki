@@ -59,10 +59,6 @@ public class AddCAServlet extends CMSServlet {
      *
      */
     private static final long serialVersionUID = 1065151608542115340L;
-    public static final String BEGIN_HEADER =
-            "-----BEGIN CERTIFICATE-----";
-    public static final String END_HEADER =
-            "-----END CERTIFICATE-----";
 
     public static final BigInteger BIG_ZERO = new BigInteger("0");
     public static final Long MINUS_ONE = Long.valueOf(-1);
@@ -170,7 +166,7 @@ public class AddCAServlet extends CMSServlet {
                 auditSubjectID,
                 auditCA));
 
-        if (b64.indexOf(BEGIN_HEADER) == -1) {
+        if (b64.indexOf(Cert.HEADER) == -1) {
 
             audit(OCSPAddCARequestProcessedEvent.createFailureEvent(
                     auditSubjectID,
@@ -178,7 +174,7 @@ public class AddCAServlet extends CMSServlet {
 
             throw new ECMSGWException(CMS.getUserMessage(getLocale(req), "CMS_GW_MISSING_CERT_HEADER"));
         }
-        if (b64.indexOf(END_HEADER) == -1) {
+        if (b64.indexOf(Cert.FOOTER) == -1) {
 
             audit(OCSPAddCARequestProcessedEvent.createFailureEvent(
                     auditSubjectID,

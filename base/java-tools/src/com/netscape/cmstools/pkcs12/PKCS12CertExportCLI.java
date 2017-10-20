@@ -33,6 +33,7 @@ import org.apache.commons.cli.Option;
 import org.mozilla.jss.util.Password;
 
 import com.netscape.cmstools.cli.CLI;
+import com.netscape.cmsutil.util.Cert;
 import com.netscape.cmsutil.util.Utils;
 
 import netscape.security.pkcs.PKCS12;
@@ -174,9 +175,9 @@ public class PKCS12CertExportCLI extends CLI {
             try (PrintStream os = new PrintStream(new FileOutputStream(certFile))) {
                 for (PKCS12CertInfo certInfo : certInfos) {
                     X509CertImpl cert = certInfo.getCert();
-                    os.println("-----BEGIN CERTIFICATE-----");
+                    os.println(Cert.HEADER);
                     os.print(Utils.base64encode(cert.getEncoded()));
-                    os.println("-----END CERTIFICATE-----");
+                    os.println(Cert.FOOTER);
                 }
             }
 

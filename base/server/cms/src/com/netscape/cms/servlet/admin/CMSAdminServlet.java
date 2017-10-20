@@ -98,8 +98,6 @@ public final class CMSAdminServlet extends AdminServlet {
      */
     private static final long serialVersionUID = 714370238027440050L;
     private final static String INFO = "CMSAdminServlet";
-    private final static String BEGIN_HEADER = "-----BEGIN CERTIFICATE-----";
-    private final static String END_HEADER = "-----END CERTIFICATE-----";
 
     private final static String PROP_DB = "dbs";
     private final static String PROP_SMTP = "smtp";
@@ -2506,8 +2504,8 @@ public final class CMSAdminServlet extends AdminServlet {
         pkcs = pkcs.trim();
         int totalLen = pkcs.length();
 
-        if (pkcs.indexOf(BEGIN_HEADER) != 0 ||
-                pkcs.indexOf(END_HEADER) != (totalLen - 25)) {
+        if (pkcs.indexOf(Cert.HEADER) != 0 ||
+                pkcs.indexOf(Cert.FOOTER) != (totalLen - 25)) {
             throw (new EBaseException(CMS.getLogMessage("BASE_INVALID_CERT_FORMAT")));
         }
 

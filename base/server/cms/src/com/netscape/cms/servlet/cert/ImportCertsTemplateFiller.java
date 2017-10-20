@@ -30,13 +30,6 @@ import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
 
-import netscape.security.pkcs.ContentInfo;
-import netscape.security.pkcs.PKCS7;
-import netscape.security.pkcs.SignerInfo;
-import netscape.security.x509.AlgorithmId;
-import netscape.security.x509.CertificateChain;
-import netscape.security.x509.X509CertImpl;
-
 import org.mozilla.jss.asn1.INTEGER;
 import org.mozilla.jss.pkix.cmmf.CertOrEncCert;
 import org.mozilla.jss.pkix.cmmf.CertRepContent;
@@ -56,7 +49,15 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
+import com.netscape.cmsutil.util.Cert;
 import com.netscape.cmsutil.util.Utils;
+
+import netscape.security.pkcs.ContentInfo;
+import netscape.security.pkcs.PKCS7;
+import netscape.security.pkcs.SignerInfo;
+import netscape.security.x509.AlgorithmId;
+import netscape.security.x509.CertificateChain;
+import netscape.security.x509.X509CertImpl;
 
 /**
  * Set up HTTP response to import certificate into browsers
@@ -244,8 +245,8 @@ public class ImportCertsTemplateFiller implements ICMSTemplateFiller {
             byte[] certEncoded = cert.getEncoded();
             //			String b64 = encoder.encodeBuffer(certEncoded);
             String b64 = CMS.BtoA(certEncoded);
-            String b64cert = "-----BEGIN CERTIFICATE-----\n" +
-                    b64 + "\n-----END CERTIFICATE-----";
+            String b64cert = Cert.HEADER + "\n" +
+                    b64 + "\n" + Cert.FOOTER;
 
             repeat.set(BASE64_CERT, b64cert);
 

@@ -56,10 +56,6 @@ public class ListCAServlet extends CMSServlet {
      *
      */
     private static final long serialVersionUID = 3764395161795483452L;
-    public static final String BEGIN_HEADER =
-            "-----BEGIN CERTIFICATE-----";
-    public static final String END_HEADER =
-            "-----END CERTIFICATE-----";
 
     private final static String TPL_FILE = "listCAs.template";
     private String mFormPath = null;

@@ -17,24 +17,19 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.task;
 
-import java.util.*;
-import javax.swing.*;
-import com.netscape.management.client.*;
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.config.install.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.management.client.util.*;
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.event.*;
-import com.netscape.management.client.console.*;
-import com.netscape.management.client.topology.*;
-import com.netscape.management.client.comm.*;
-import java.net.*;
-import java.io.*;
-import netscape.ldap.*;
-import netscape.ldap.util.*;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.util.Hashtable;
+
+import com.netscape.admin.certsrv.config.install.InstallWizardInfo;
+import com.netscape.certsrv.common.ConfigConstants;
+import com.netscape.certsrv.common.Constants;
+import com.netscape.management.client.comm.CommRecord;
+import com.netscape.management.client.comm.HttpManager;
+import com.netscape.management.client.util.Debug;
 
 /**
  * Perform certificate import.
@@ -57,8 +52,6 @@ public class CMSImportCert extends CGITask {
 		"-----BEGIN PKCS #7 SIGNED DATA-----";
     public static final String END_PKCS7_HEADER =
 		"-----END PKCS #7 SIGNED DATA-----";
-    public static final String BEGIN_HEADER = "-----BEGIN CERTIFICATE-----";
-    public static final String END_HEADER = "-----END CERTIFICATE-----";
 
 	/*==========================================================
      * constructors

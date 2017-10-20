@@ -25,17 +25,19 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.TimeZone;
 
+import org.mozilla.jss.asn1.ASN1Util;
+import org.mozilla.jss.asn1.SET;
+import org.mozilla.jss.pkcs7.ContentInfo;
+import org.mozilla.jss.pkcs7.SignedData;
+
+import com.netscape.cmsutil.util.Cert;
+
 import netscape.security.x509.CertificateExtensions;
 import netscape.security.x509.CertificateX509Key;
 import netscape.security.x509.Extension;
 import netscape.security.x509.X509CertImpl;
 import netscape.security.x509.X509CertInfo;
 import netscape.security.x509.X509Key;
-
-import org.mozilla.jss.asn1.ASN1Util;
-import org.mozilla.jss.asn1.SET;
-import org.mozilla.jss.pkcs7.ContentInfo;
-import org.mozilla.jss.pkcs7.SignedData;
 
 /**
  * This class will display the certificate content in predefined
@@ -150,8 +152,8 @@ public class CertPrettyPrint {
             return s;
         }
 
-        if ((s.startsWith("-----BEGIN CERTIFICATE-----")) &&
-                (s.endsWith("-----END CERTIFICATE-----"))) {
+        if ((s.startsWith(Cert.HEADER)) &&
+                (s.endsWith(Cert.FOOTER))) {
             return (s.substring(27, (s.length() - 25)));
         }
 

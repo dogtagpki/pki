@@ -28,8 +28,6 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import netscape.security.x509.X509CRLImpl;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
@@ -48,6 +46,8 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmsutil.util.Cert;
 
+import netscape.security.x509.X509CRLImpl;
+
 /**
  * Check the status of a specific certificate
  *
@@ -59,10 +59,6 @@ public class CheckCertServlet extends CMSServlet {
      *
      */
     private static final long serialVersionUID = 7782198059640825050L;
-    public static final String BEGIN_HEADER =
-            "-----BEGIN CERTIFICATE-----";
-    public static final String END_HEADER =
-            "-----END CERTIFICATE-----";
 
     public static final String ATTR_STATUS = "status";
     public static final String ATTR_ISSUERDN = "issuerDN";
@@ -148,12 +144,12 @@ public class CheckCertServlet extends CMSServlet {
 
         String b64 = cmsReq.getHttpReq().getParameter("cert");
 
-        if (b64.indexOf(BEGIN_HEADER) == -1) {
+        if (b64.indexOf(Cert.HEADER) == -1) {
             // error
             throw new ECMSGWException(CMS.getUserMessage(getLocale(req), "CMS_GW_MISSING_CERT_HEADER"));
 
         }
-        if (b64.indexOf(END_HEADER) == -1) {
+        if (b64.indexOf(Cert.FOOTER) == -1) {
             // error
             throw new ECMSGWException(CMS.getUserMessage(getLocale(req), "CMS_GW_MISSING_CERT_FOOTER"));
         }

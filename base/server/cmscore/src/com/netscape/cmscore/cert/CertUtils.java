@@ -46,6 +46,7 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
+import com.netscape.cmsutil.util.Cert;
 import com.netscape.cmsutil.util.Utils;
 
 import netscape.security.extensions.NSCertTypeExtension;
@@ -653,8 +654,8 @@ public class CertUtils {
             return s;
         }
 
-        if ((s.startsWith("-----BEGIN CERTIFICATE-----")) &&
-                (s.endsWith("-----END CERTIFICATE-----"))) {
+        if ((s.startsWith(Cert.HEADER)) &&
+                (s.endsWith(Cert.FOOTER))) {
             return (s.substring(27, (s.length() - 25)));
         }
 

@@ -17,19 +17,32 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config.install;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.io.*;
-import java.util.*;
-import javax.swing.*;
-import javax.swing.text.*;
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
-import com.netscape.admin.certsrv.wizard.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.admin.certsrv.task.*;
-import com.netscape.management.client.console.*;
-import com.netscape.management.client.util.*;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.text.JTextComponent;
+
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.wizard.IWizardPanel;
+import com.netscape.admin.certsrv.wizard.WizardBasePanel;
+import com.netscape.admin.certsrv.wizard.WizardInfo;
+import com.netscape.certsrv.common.ConfigConstants;
+import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.common.OpDef;
+import com.netscape.certsrv.common.TaskId;
+import com.netscape.cmsutil.util.Cert;
 
 /**
  * This page is to install the certificate in the internal token. The user can
@@ -209,9 +222,7 @@ class WIPasteCertPage extends WizardBasePanel implements IWizardPanel {
 			String certS= wizardInfo.getPKCS10();
 			// Break the long single line:header,64 byte lines,trailer
 			// Assuming this is the only format we generate.
-			String CERT_NEW_HEADER = "-----BEGIN CERTIFICATE-----";
-			String CERT_NEW_TRAILER = "-----END CERTIFICATE-----";
-			String str = CERT_NEW_HEADER + "\n";
+			String str = Cert.HEADER + "\n";
 			int len = certS.length();
 			for (int i = 0; i < len; i=i+64){
 				if (i+64 < len)
@@ -219,7 +230,7 @@ class WIPasteCertPage extends WizardBasePanel implements IWizardPanel {
 				else
 					str = str + certS.substring(i,len) +"\n";
 		    }
-			str = str + CERT_NEW_TRAILER;
+			str = str + Cert.FOOTER;
 			certS = str;
             rawData = rawData+"&"+Constants.PR_PKCS10+"="+certS;
             wizardInfo.setPKCS10(certS);

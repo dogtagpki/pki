@@ -18,7 +18,6 @@
 
 package com.netscape.cmstools.key;
 
-import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.key.KeyClient;
 import com.netscape.certsrv.key.KeyInfo;
@@ -28,6 +27,7 @@ import com.netscape.certsrv.util.NSSCryptoProvider;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 import com.netscape.cmstools.cli.SubsystemCLI;
+import com.netscape.cmsutil.util.Cert;
 import com.netscape.cmsutil.util.Utils;
 
 /**
@@ -100,8 +100,8 @@ public class KeyCLI extends CLI {
 
             // download transport cert
             String transportCert = systemCertClient.getTransportCert().getEncoded();
-            transportCert = transportCert.substring(CertData.HEADER.length(),
-                    transportCert.indexOf(CertData.FOOTER));
+            transportCert = transportCert.substring(Cert.HEADER.length(),
+                    transportCert.indexOf(Cert.FOOTER));
 
             // set transport cert for key client
             keyClient.setTransportCert(transportCert);

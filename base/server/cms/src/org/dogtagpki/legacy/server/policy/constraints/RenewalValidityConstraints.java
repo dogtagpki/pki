@@ -31,6 +31,7 @@ import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
+import com.netscape.cmsutil.util.Cert;
 import com.netscape.cmsutil.util.Utils;
 
 import netscape.security.x509.CertificateValidity;
@@ -71,8 +72,6 @@ public class RenewalValidityConstraints extends APolicyRule
     public final static int DEF_MAX_VALIDITY = 730;
     public final static long DEF_RENEWAL_INTERVAL = 15;
     public final static long DAYS_TO_MS_FACTOR = 24L * 3600 * 1000;
-    public static final String CERT_HEADER = "-----BEGIN CERTIFICATE-----\n";
-    public static final String CERT_TRAILER = "-----END CERTIFICATE-----\n";
 
     private final static Vector<String> defConfParams = new Vector<String>();
 
@@ -341,7 +340,7 @@ public class RenewalValidityConstraints extends APolicyRule
                 byte[] ba = cert.getEncoded();
                 String encodedCert = Utils.base64encode(ba);
 
-                sb.append(CERT_HEADER + encodedCert + CERT_TRAILER);
+                sb.append(Cert.HEADER + "\n" + encodedCert + Cert.FOOTER + "\n");
             } catch (Exception e) {
                 //throw new AssertionException(e.toString());
             }

@@ -22,13 +22,16 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509CRL;
 import java.security.cert.X509Certificate;
 
+import org.mozilla.jss.crypto.SignatureAlgorithm;
+
 import netscape.security.pkcs.PKCS7;
 import netscape.security.x509.X509CRLImpl;
 import netscape.security.x509.X509CertImpl;
 
-import org.mozilla.jss.crypto.SignatureAlgorithm;
-
 public class Cert {
+
+    public static final String HEADER = "-----BEGIN CERTIFICATE-----";
+    public static final String FOOTER = "-----END CERTIFICATE-----";
 
     public static SignatureAlgorithm mapAlgorithmToJss(String algname) {
         if (algname.equals("MD5withRSA"))
@@ -61,8 +64,8 @@ public class Cert {
             return s;
         }
 
-        if ((s.startsWith("-----BEGIN CERTIFICATE-----")) &&
-                (s.endsWith("-----END CERTIFICATE-----"))) {
+        if ((s.startsWith(HEADER)) &&
+                (s.endsWith(FOOTER))) {
             return (s.substring(27, (s.length() - 25)));
         }
 
