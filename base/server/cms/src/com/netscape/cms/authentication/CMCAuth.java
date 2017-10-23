@@ -241,7 +241,7 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
         String method = "CMCAuth: authenticate: ";
         String msg = "";
 
-        String auditSubjectID = auditSubjectID();
+        String auditSubjectID = getAuditSubjectID();
         String auditReqType = ILogger.UNIDENTIFIED;
         String auditCertSubject = ILogger.UNIDENTIFIED;
         String auditSignerInfo = ILogger.UNIDENTIFIED;
@@ -270,13 +270,6 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
             if (cmc == null) {
                 CMS.debug(method + "Authentication failed. Missing CMC.");
 
-                signedAuditLogger.log(new CMCSignedRequestSigVerifyEvent(
-                        auditSubjectID,
-                        ILogger.FAILURE,
-                        auditReqType,
-                        auditCertSubject,
-                        auditSignerInfo));
-
                 throw new EMissingCredential(CMS.getUserMessage(
                         "CMS_AUTHENTICATION_NULL_CREDENTIAL", CRED_CMC));
             }
@@ -284,17 +277,8 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
             if (cmc.equals("")) {
                 msg = "attempted login with empty CMC";
                 CMS.debug(method + msg);
-                log(ILogger.LL_FAILURE, method + msg);
 
-                signedAuditLogger.log(new CMCSignedRequestSigVerifyEvent(
-                        auditSubjectID,
-                        ILogger.FAILURE,
-                        auditReqType,
-                        auditCertSubject,
-                        auditSignerInfo));
-
-                throw new EInvalidCredentials(CMS.getUserMessage(
-                        "CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
+                throw new EInvalidCredentials(msg);
             }
 
             // authenticate by checking CMC.
@@ -365,8 +349,13 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
                     CMS.debug(method + "signerInfo verification bypassed");
                 }
                 // reset value of auditSignerInfo
-                if (uid != null) {
+                if (uid != null && !uid.equals(ILogger.UNIDENTIFIED)) {
                     auditSignerInfo = uid.trim();
+                    auditSubjectID = uid.trim();
+                    authToken.set(IAuthToken.USER_ID, auditSubjectID);
+                } else if (userid != null && !userid.equals(ILogger.UNIDENTIFIED)) {
+                    auditSubjectID = userid.trim();
+                    authToken.set(IAuthToken.USER_ID, auditSubjectID);
                 }
 
                 EncapsulatedContentInfo ci = cmcFullReq.getContentInfo();
@@ -549,7 +538,8 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
                                                 ILogger.SIGNED_AUDIT_EMPTY_VALUE;
                                     }
                                     authToken.set(AuthToken.TOKEN_CERT_SUBJECT,
-                                              tempName.toString());
+                                              auditCertSubject);
+                                    auditContext.put(SessionContext.CMC_REQUEST_CERT_SUBJECT, auditCertSubject);
                                 }
 
                                 authToken.set("uid", uid);
@@ -603,6 +593,7 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
                                     }
 
                                     authToken.set(AuthToken.TOKEN_CERT_SUBJECT, ss);
+                                    auditContext.put(SessionContext.CMC_REQUEST_CERT_SUBJECT, auditCertSubject);
                                     authToken.set("uid", uid);
                                     authToken.set("userid", userid);
                                 }
@@ -1074,7 +1065,7 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
      *
      * @return id string containing the signed audit log message SubjectID
      */
-    private String auditSubjectID() {
+    private String getAuditSubjectID() {
 
         String subjectID = null;
 
