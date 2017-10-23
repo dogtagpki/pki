@@ -109,7 +109,7 @@ public class DisplayTransport extends CMSServlet {
 
             content += "<HTML><PRE>";
             String mime64 = Cert.HEADER + "\n" +
-                            Utils.base64encode(transportCert.getEncoded(), true) + "\n" +
+                            Utils.base64encode(transportCert.getEncoded(), true) +
                             Cert.FOOTER + "\n";
 
             content += mime64;

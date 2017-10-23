@@ -245,8 +245,7 @@ public class ImportCertsTemplateFiller implements ICMSTemplateFiller {
             byte[] certEncoded = cert.getEncoded();
             //			String b64 = encoder.encodeBuffer(certEncoded);
             String b64 = Utils.base64encode(certEncoded, true);
-            String b64cert = Cert.HEADER + "\n" +
-                    b64 + "\n" + Cert.FOOTER;
+            String b64cert = Cert.HEADER + "\n" + b64 + Cert.FOOTER;
 
             repeat.set(BASE64_CERT, b64cert);
 
