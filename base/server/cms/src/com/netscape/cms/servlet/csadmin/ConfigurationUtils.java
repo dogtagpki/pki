@@ -3096,7 +3096,7 @@ public class ConfigurationUtils {
 
         // parsing cert request
         String certreq = cs.getString("ca." + tag + ".certreq");
-        byte[] b = CMS.AtoB(certreq);
+        byte[] b = Utils.base64decode(certreq);
         PKCS10 pkcs10 = new PKCS10(b);
         X509Key x509key = pkcs10.getSubjectPublicKeyInfo();
 
@@ -3262,7 +3262,7 @@ public class ConfigurationUtils {
 
         IConfigStore cs = CMS.getConfigStore();
 
-        byte[] binRequest = CMS.AtoB(certRequest);
+        byte[] binRequest = Utils.base64decode(certRequest);
         X509Key x509key;
 
         if (certRequestType.equals("crmf")) {
@@ -3708,7 +3708,7 @@ public class ConfigurationUtils {
             user.setState("1");
             user.setPhone("");
             X509CertImpl[] certs = new X509CertImpl[1];
-            certs[0] = new X509CertImpl(CMS.AtoB(b64));
+            certs[0] = new X509CertImpl(Utils.base64decode(b64));
             user.setX509Certificates(certs);
             try {
                 CMS.debug("setupClientAuthUser: adding user: " + id);
@@ -3905,7 +3905,7 @@ public class ConfigurationUtils {
         user.setPhone("");
 
         X509CertImpl[] certs = new X509CertImpl[1];
-        certs[0] = new X509CertImpl(CMS.AtoB(b64));
+        certs[0] = new X509CertImpl(Utils.base64decode(b64));
         user.setX509Certificates(certs);
 
         system.addUser(user);

@@ -68,6 +68,7 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmsutil.util.Utils;
 
 /**
  * Process CMC messages according to RFC 2797
@@ -108,7 +109,7 @@ public class CMCProcessor extends PKIProcessor {
         String cmc = protocolString;
 
         try {
-            byte[] cmcBlob = CMS.AtoB(cmc);
+            byte[] cmcBlob = Utils.base64decode(cmc);
             ByteArrayInputStream cmcBlobIn =
                     new ByteArrayInputStream(cmcBlob);
 

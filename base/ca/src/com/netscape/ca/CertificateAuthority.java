@@ -163,6 +163,7 @@ import com.netscape.cmsutil.ocsp.RevokedInfo;
 import com.netscape.cmsutil.ocsp.SingleResponse;
 import com.netscape.cmsutil.ocsp.TBSRequest;
 import com.netscape.cmsutil.ocsp.UnknownInfo;
+import com.netscape.cmsutil.util.Utils;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPAttributeSet;
@@ -1606,7 +1607,7 @@ public class CertificateAuthority
         try {
             String cert = mConfig.getString("signing.cert", null);
             if (cert != null) {
-                return new X509CertImpl(CMS.AtoB(cert));
+                return new X509CertImpl(Utils.base64decode(cert));
             }
 
         } catch (EBaseException e) {
@@ -1674,7 +1675,7 @@ public class CertificateAuthority
                 CMS.debug("CertificateAuthority:initSigUnit: ca.signing.cert not found");
             } else { //ca cert found
                 CMS.debug("CertificateAuthority:initSigUnit: ca cert found");
-                mCaCert = new X509CertImpl(CMS.AtoB(caSigningCertStr));
+                mCaCert = new X509CertImpl(Utils.base64decode(caSigningCertStr));
                 // this ensures the isserDN and subjectDN have the same encoding
                 // as that of the CA signing cert
                 CMS.debug("CertificateAuthority: initSigUnit 1- setting mIssuerObj and mSubjectObj");

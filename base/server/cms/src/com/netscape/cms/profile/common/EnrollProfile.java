@@ -128,6 +128,7 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.HMACDigest;
+import com.netscape.cmsutil.util.Utils;
 
 /**
  * This class implements a generic enrollment profile.
@@ -598,7 +599,7 @@ public abstract class EnrollProfile extends BasicProfile
 
         String creq = normalizeCertReq(certReqBlob);
         try {
-            byte data[] = CMS.AtoB(creq);
+            byte data[] = Utils.base64decode(creq);
             ByteArrayInputStream cmcBlobIn = new ByteArrayInputStream(data);
             PKIData pkiData = null;
 
@@ -1971,7 +1972,7 @@ public abstract class EnrollProfile extends BasicProfile
         CertReqMsg msgs[] = null;
         String creq = normalizeCertReq(certreq);
         try {
-            byte data[] = CMS.AtoB(creq);
+            byte data[] = Utils.base64decode(creq);
             ByteArrayInputStream crmfBlobIn =
                     new ByteArrayInputStream(data);
             SEQUENCE crmfMsgs = (SEQUENCE)
@@ -2219,7 +2220,7 @@ public abstract class EnrollProfile extends BasicProfile
         String creq = normalizeCertReq(certreq);
 
         // parse certificate into object
-        byte data[] = CMS.AtoB(creq);
+        byte data[] = Utils.base64decode(creq);
         PKCS10 pkcs10 = null;
         CryptoManager cm = null;
         CryptoToken savedToken = null;
@@ -2331,7 +2332,7 @@ public abstract class EnrollProfile extends BasicProfile
         try {
             //cfu - is the algorithm going to be replaced by the policy?
             X509Key key = new X509Key();
-            key.decode(CMS.AtoB(skey));
+            key.decode(Utils.base64decode(skey));
 
             info.set(X509CertInfo.KEY, new CertificateX509Key(key));
             //                      req.set(EnrollProfile.REQUEST_SUBJECT_NAME,
@@ -2358,7 +2359,7 @@ public abstract class EnrollProfile extends BasicProfile
         try {
             //cfu - is the algorithm going to be replaced by the policy?
             X509Key key = new X509Key();
-            key.decode(CMS.AtoB(skey));
+            key.decode(Utils.base64decode(skey));
 
             info.set(X509CertInfo.KEY, new CertificateX509Key(key));
             //                      req.set(EnrollProfile.REQUEST_SUBJECT_NAME,
@@ -2378,7 +2379,7 @@ public abstract class EnrollProfile extends BasicProfile
 
     public DerInputStream parseKeyGen(Locale locale, String certreq)
             throws EProfileException {
-        byte data[] = CMS.AtoB(certreq);
+        byte data[] = Utils.base64decode(certreq);
 
         DerInputStream derIn = new DerInputStream(data);
 

@@ -68,6 +68,7 @@ import com.netscape.cms.servlet.processors.CRMFProcessor;
 import com.netscape.cms.servlet.processors.KeyGenProcessor;
 import com.netscape.cms.servlet.processors.PKCS10Processor;
 import com.netscape.cms.servlet.processors.PKIProcessor;
+import com.netscape.cmsutil.util.Utils;
 
 import netscape.security.pkcs.PKCS10;
 import netscape.security.x509.AlgorithmId;
@@ -1002,7 +1003,7 @@ public class EnrollServlet extends CMSServlet {
 
                 if (p10b64 != null) {
                     try {
-                        byte[] bytes = CMS.AtoB(p10b64);
+                        byte[] bytes = Utils.base64decode(p10b64);
 
                         pkcs10 = new PKCS10(bytes);
                     } catch (Exception e) {

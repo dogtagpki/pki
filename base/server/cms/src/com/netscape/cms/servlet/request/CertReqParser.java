@@ -552,7 +552,7 @@ public class CertReqParser extends ReqParser {
                     while (enumFingerprints.hasMoreElements()) {
                         String hashname = enumFingerprints.nextElement();
                         String hashvalue = fingerprints.get(hashname);
-                        byte[] fingerprint = CMS.AtoB(hashvalue);
+                        byte[] fingerprint = Utils.base64decode(hashvalue);
                         String ppFingerprint = pp.toHexString(fingerprint, 0);
 
                         if (hashname != null && ppFingerprint != null) {

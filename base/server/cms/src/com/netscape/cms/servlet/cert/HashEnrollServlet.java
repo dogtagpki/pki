@@ -83,6 +83,7 @@ import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
+import com.netscape.cmsutil.util.Utils;
 
 /**
  * performs face-to-face enrollment.
@@ -877,7 +878,7 @@ public class HashEnrollServlet extends CMSServlet {
             String crmf, IAuthToken authToken, IArgBlock httpParams, IRequest req)
             throws EBaseException {
         try {
-            byte[] crmfBlob = CMS.AtoB(crmf);
+            byte[] crmfBlob = Utils.base64decode(crmf);
             ByteArrayInputStream crmfBlobIn =
                     new ByteArrayInputStream(crmfBlob);
 

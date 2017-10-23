@@ -44,6 +44,7 @@ import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmsutil.util.Utils;
 
 /**
  * PKCS10Processor process Certificate Requests in
@@ -256,7 +257,7 @@ public class PKCS10Processor extends PKIProcessor {
 
             if (p10b64 != null) {
                 try {
-                    byte[] bytes = CMS.AtoB(p10b64);
+                    byte[] bytes = Utils.base64decode(p10b64);
 
                     pkcs10 = new PKCS10(bytes);
                 } catch (Exception e) {

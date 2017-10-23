@@ -54,6 +54,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.processors.CAProcessor;
 import com.netscape.cmsutil.util.Cert;
+import com.netscape.cmsutil.util.Utils;
 import com.netscape.cmsutil.xml.XMLObject;
 
 import netscape.security.x509.X509CertImpl;
@@ -392,7 +393,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
                                         outputName.equals("der")) {
                                         String ss = Cert.normalizeCertStrAndReq(outputValue);
                                         outputValue = Cert.stripBrackets(ss);
-                                        byte[] bcode = CMS.AtoB(outputValue);
+                                        byte[] bcode = Utils.base64decode(outputValue);
                                         X509CertImpl impl = new X509CertImpl(bcode);
                                         xmlObj.addItemToContainer(subnode,
                                                 "serialno", impl.getSerialNumber().toString(16));

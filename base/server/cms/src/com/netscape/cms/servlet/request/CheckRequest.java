@@ -206,7 +206,7 @@ public class CheckRequest extends CMSServlet {
         if (format != null && format.equals("cmc") && queryPending != null && !queryPending.equals("")) {
             try {
                 isCMCReq = true;
-                byte[] cmcBlob = CMS.AtoB(queryPending);
+                byte[] cmcBlob = Utils.base64decode(queryPending);
                 ByteArrayInputStream cmcBlobIn =
                         new ByteArrayInputStream(cmcBlob);
 

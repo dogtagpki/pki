@@ -335,7 +335,7 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
                 } else
                     asciiBASE64Blob = cmc;
 
-                byte[] cmcBlob = CMS.AtoB(asciiBASE64Blob);
+                byte[] cmcBlob = Utils.base64decode(asciiBASE64Blob);
                 ByteArrayInputStream cmcBlobIn = new ByteArrayInputStream(cmcBlob);
 
                 org.mozilla.jss.pkix.cms.ContentInfo cmcReq = (org.mozilla.jss.pkix.cms.ContentInfo) org.mozilla.jss.pkix.cms.ContentInfo

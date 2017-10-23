@@ -926,7 +926,7 @@ public class StorageKeyUnit extends EncryptionUnit implements
             throws EBaseException {
         try {
             CMS.debug("StorageKeyUnit.decryptShare");
-            byte share[] = CMS.AtoB(encoding);
+            byte share[] = Utils.base64decode(encoding);
             Cipher cipher = token.getCipherContext(
                     EncryptionAlgorithm.DES3_CBC_PAD);
             SymmetricKey sk = StorageKeyUnit.buildSymmetricKey(

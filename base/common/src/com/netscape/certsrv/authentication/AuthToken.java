@@ -34,7 +34,6 @@ import netscape.security.util.DerValue;
 import netscape.security.x509.CertificateExtensions;
 import netscape.security.x509.X509CertImpl;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.usrgrp.Certificates;
 import com.netscape.cmsutil.util.Utils;
 
@@ -110,7 +109,7 @@ public class AuthToken implements IAuthToken {
         if (value == null) {
             return null;
         }
-        return CMS.AtoB(value);
+        return Utils.base64decode(value);
     }
 
     public boolean set(String name, byte[] value) {

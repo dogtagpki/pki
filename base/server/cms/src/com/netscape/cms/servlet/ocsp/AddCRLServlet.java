@@ -53,6 +53,7 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Cert;
+import com.netscape.cmsutil.util.Utils;
 
 import netscape.security.x509.X509CRLImpl;
 import netscape.security.x509.X509CertImpl;
@@ -571,7 +572,7 @@ public class AddCRLServlet extends CMSServlet {
             throws IOException {
         mime64 = Cert.stripCRLBrackets(mime64.trim());
 
-        byte rawPub[] = CMS.AtoB(mime64);
+        byte rawPub[] = Utils.base64decode(mime64);
         X509CRLImpl crl = null;
 
         try {

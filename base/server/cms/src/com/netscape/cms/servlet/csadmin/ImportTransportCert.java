@@ -39,6 +39,7 @@ import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
+import com.netscape.cmsutil.util.Utils;
 import com.netscape.cmsutil.xml.XMLObject;
 
 /**
@@ -129,7 +130,7 @@ public class ImportTransportCert extends CMSServlet {
             CryptoManager cm = CryptoManager.getInstance();
             CMS.debug("ImportTransportCert: Importing certificate");
             org.mozilla.jss.crypto.X509Certificate cert =
-                    cm.importCACertPackage(CMS.AtoB(certsString));
+                    cm.importCACertPackage(Utils.base64decode(certsString));
             String nickName = cert.getNickname();
             CMS.debug("ImportTransportCert: nickname " + nickName);
             cs.putString("tks.drm_transport_cert_nickname", nickName);

@@ -1454,7 +1454,7 @@ public class CRSEnrollment extends HttpServlet {
             return false;
         }
 
-        byte[] old_md5 = CMS.AtoB(old_fprints.get("MD5"));
+        byte[] old_md5 = Utils.base64decode(old_fprints.get("MD5"));
         byte[] new_md5 = fingerprints.get("MD5");
 
         if (old_md5.length != new_md5.length)

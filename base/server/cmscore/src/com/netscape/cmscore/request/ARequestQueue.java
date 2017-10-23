@@ -1112,7 +1112,7 @@ class Request implements IRequest {
     public byte[] getExtDataInByteArray(String key) {
         String value = getExtDataInString(key);
         if (value != null) {
-            return CMS.AtoB(value);
+            return Utils.base64decode(value);
         }
         return null;
     }
@@ -1164,7 +1164,7 @@ class Request implements IRequest {
         X509CertImpl[] certArray = new X509CertImpl[stringArray.length];
         for (int index = 0; index < stringArray.length; index++) {
             try {
-                certArray[index] = new X509CertImpl(CMS.AtoB(stringArray[index]));
+                certArray[index] = new X509CertImpl(Utils.base64decode(stringArray[index]));
             } catch (CertificateException e) {
                 CMS.debug("ARequestQueue: getExtDataInCertArray(): "+e.toString());
                 return null;
@@ -1220,7 +1220,7 @@ class Request implements IRequest {
         X509CertInfo[] certArray = new X509CertInfo[stringArray.length];
         for (int index = 0; index < stringArray.length; index++) {
             try {
-                certArray[index] = new X509CertInfo(CMS.AtoB(stringArray[index]));
+                certArray[index] = new X509CertInfo(Utils.base64decode(stringArray[index]));
             } catch (CertificateException e) {
                 CMS.debug("ARequestQueue: getExtDataInCertInfoArray(): "+e.toString());
                 return null;
@@ -1252,7 +1252,7 @@ class Request implements IRequest {
         RevokedCertImpl[] certArray = new RevokedCertImpl[stringArray.length];
         for (int index = 0; index < stringArray.length; index++) {
             try {
-                certArray[index] = new RevokedCertImpl(CMS.AtoB(stringArray[index]));
+                certArray[index] = new RevokedCertImpl(Utils.base64decode(stringArray[index]));
             } catch (CRLException e) {
                 return null;
             } catch (X509ExtensionException e) {

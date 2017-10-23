@@ -44,6 +44,7 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmsutil.util.Utils;
 
 import netscape.security.util.ObjectIdentifier;
 import netscape.security.x509.CertificateExtensions;
@@ -334,7 +335,7 @@ public class CRMFProcessor extends PKIProcessor {
         String crmf = protocolString;
 
         try {
-            byte[] crmfBlob = CMS.AtoB(crmf);
+            byte[] crmfBlob = Utils.base64decode(crmf);
             ByteArrayInputStream crmfBlobIn =
                     new ByteArrayInputStream(crmfBlob);
 

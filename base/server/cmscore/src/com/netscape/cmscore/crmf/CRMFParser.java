@@ -31,7 +31,7 @@ import org.mozilla.jss.pkix.crmf.CertRequest;
 import org.mozilla.jss.pkix.crmf.PKIArchiveOptions;
 import org.mozilla.jss.pkix.primitive.AVA;
 
-import com.netscape.certsrv.apps.CMS;
+import com.netscape.cmsutil.util.Utils;
 
 public class CRMFParser {
 
@@ -52,7 +52,7 @@ public class CRMFParser {
 
         byte[] crmfBerBlob = null;
 
-        crmfBerBlob = CMS.AtoB(crmfBlob);
+        crmfBerBlob = Utils.base64decode(crmfBlob);
         if (crmfBerBlob == null)
             throw new IOException("no CRMF data found");
 
