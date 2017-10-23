@@ -651,7 +651,7 @@ public class CertService extends PKIService implements CertResource {
             p7.encodeSignedData(bos, false);
             byte[] p7Bytes = bos.toByteArray();
 
-            p7Str = Utils.base64encode(p7Bytes);
+            p7Str = Utils.base64encode(p7Bytes, true);
         } catch (Exception e) {
             p7Str = null;
         }

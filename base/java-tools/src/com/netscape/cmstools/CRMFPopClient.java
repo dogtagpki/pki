@@ -811,7 +811,7 @@ public class CRMFPopClient {
         seq.addElement(crmfMessage);
 
         byte[] encodedCrmfMessage = ASN1Util.encode(seq);
-        return Utils.base64encode(encodedCrmfMessage);
+        return Utils.base64encode(encodedCrmfMessage, true);
     }
 
     public void submitRequest(

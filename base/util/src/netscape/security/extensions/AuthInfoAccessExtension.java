@@ -249,7 +249,7 @@ public class AuthInfoAccessExtension extends Extension implements CertAttrSet {
         try {
             aia.encode(os);
 
-            System.out.println(Utils.base64encode(os.toByteArray()));
+            System.out.println(Utils.base64encode(os.toByteArray(), true));
         } catch (IOException e) {
             System.out.println(e.toString());
         }

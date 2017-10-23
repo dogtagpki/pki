@@ -387,7 +387,7 @@ public class AuthorityService extends SubsystemService implements AuthorityResou
 
     private String toPem(String name, byte[] data) {
         return "-----BEGIN " + name + "-----\n" +
-                Utils.base64encode(data) +
+                Utils.base64encode(data, true) +
                 "-----END " + name + "-----\n";
     }
 

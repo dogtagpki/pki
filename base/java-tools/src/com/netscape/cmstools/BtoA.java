@@ -94,7 +94,7 @@ public class BtoA {
         try {
             byte data[] = new byte[inputBlob.available()];
             inputBlob.read(data);
-            String out = Utils.base64encode(data);
+            String out = Utils.base64encode(data, true);
             outputBlob.write(out.getBytes());
         } catch (IOException e) {
             System.out.println("BtoA():  Unexpected BASE64 " +

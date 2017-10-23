@@ -490,7 +490,7 @@ public class PKCS7 {
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw, true);
         pw.println(HEADER);
-        pw.print(Utils.base64encode(getBytes()));
+        pw.print(Utils.base64encode(getBytes(), true));
         pw.println(FOOTER);
         return sw.toString();
     }

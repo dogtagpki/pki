@@ -426,7 +426,7 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
                     FileOutputStream fos = null;
                     try {
                         fos = new FileOutputStream(tempFile);
-                        fos.write(Utils.base64encode(encodedArray).getBytes());
+                        fos.write(Utils.base64encode(encodedArray, true).getBytes());
                     } finally {
                         if (fos != null)
                             fos.close();

@@ -338,7 +338,7 @@ public class PKCS10 {
             throw new SignatureException("Cert request was not signed");
 
         out.println("-----BEGIN NEW CERTIFICATE REQUEST-----");
-        out.println(Utils.base64encode(certificateRequest));
+        out.println(Utils.base64encode(certificateRequest, true));
         out.println("-----END NEW CERTIFICATE REQUEST-----");
     }
 

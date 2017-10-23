@@ -353,7 +353,7 @@ public class ImportCertsTemplateFiller implements ICMSTemplateFiller {
 
             certRepContent.encode(certRepOut);
             byte[] certRepBytes = certRepOut.toByteArray();
-            String certRepB64 = Utils.base64encode(certRepBytes);
+            String certRepB64 = Utils.base64encode(certRepBytes, true);
             // add CR to each return as required by cartman
             BufferedReader certRepB64lines =
                     new BufferedReader(new StringReader(certRepB64));

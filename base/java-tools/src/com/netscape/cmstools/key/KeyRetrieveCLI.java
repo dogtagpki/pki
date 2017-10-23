@@ -165,14 +165,14 @@ public class KeyRetrieveCLI extends CLI {
         if (key.getSize() != null)
             System.out.println("  Key Size: " + key.getSize());
         if (key.getNonceData() != null)
-            System.out.println("  Nonce data: " + Utils.base64encode(key.getNonceData()));
+            System.out.println("  Nonce data: " + Utils.base64encode(key.getNonceData(), true));
 
         if (clientEncryption) {
             if (key.getEncryptedData() != null)
-                System.out.println("  Encrypted Data:" + Utils.base64encode(key.getEncryptedData()));
+                System.out.println("  Encrypted Data:" + Utils.base64encode(key.getEncryptedData(), true));
         } else {
             if (key.getData() !=  null)
-                System.out.println("  Actual archived data: " + Utils.base64encode(key.getData()));
+                System.out.println("  Actual archived data: " + Utils.base64encode(key.getData(), true));
         }
 
         if (key.getP12Data() != null) {

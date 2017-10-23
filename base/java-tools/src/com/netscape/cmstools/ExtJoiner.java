@@ -82,7 +82,7 @@ public class ExtJoiner {
             }
 
             out.putSequence(exts);
-            System.out.println(Utils.base64encode(out.toByteArray()));
+            System.out.println(Utils.base64encode(out.toByteArray(), true));
         } catch (IOException e) {
             System.out.println(e.toString());
         }

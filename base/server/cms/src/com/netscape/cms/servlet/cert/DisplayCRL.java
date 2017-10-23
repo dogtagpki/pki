@@ -352,7 +352,7 @@ public class DisplayCRL extends CMSServlet {
             } else if (crlDisplayType.equals("base64Encoded")) {
                 try {
                     byte[] ba = crl.getEncoded();
-                    String crlBase64Encoded = Utils.base64encode(ba);
+                    String crlBase64Encoded = Utils.base64encode(ba, true);
                     int length = crlBase64Encoded.length();
                     int i = 0;
                     int j = 0;
@@ -425,7 +425,7 @@ public class DisplayCRL extends CMSServlet {
 
                                 try {
                                     byte[] ba = deltaCRL.getEncoded();
-                                    String crlBase64Encoded = Utils.base64encode(ba);
+                                    String crlBase64Encoded = Utils.base64encode(ba, true);
                                     int length = crlBase64Encoded.length();
                                     int i = 0;
                                     int j = 0;

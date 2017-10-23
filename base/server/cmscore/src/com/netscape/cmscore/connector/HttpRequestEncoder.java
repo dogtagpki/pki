@@ -41,7 +41,7 @@ public class HttpRequestEncoder implements IRequestEncoder {
 
         os.writeObject(r);
         serial = ba.toByteArray();
-        s = Utils.base64encode(serial);
+        s = Utils.base64encode(serial, true);
         return s;
     }
 

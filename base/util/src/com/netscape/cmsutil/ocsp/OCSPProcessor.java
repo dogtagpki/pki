@@ -148,7 +148,7 @@ public class OCSPProcessor {
 
             if (verbose) {
                 System.out.println("Request Length: " + requestData.length);
-                System.out.println("Request: " + Utils.base64encode(requestData));
+                System.out.println("Request: " + Utils.base64encode(requestData, true));
             }
 
             ByteArrayEntity requestEntity = new ByteArrayEntity(requestData);
@@ -174,7 +174,7 @@ public class OCSPProcessor {
 
                 if (verbose) {
                     System.out.println("Response Length: " + responseData.length);
-                    System.out.println("Response: " + Utils.base64encode(responseData));
+                    System.out.println("Response: " + Utils.base64encode(responseData, true));
                 }
 
                 return (OCSPResponse)OCSPResponse.getTemplate().decode(

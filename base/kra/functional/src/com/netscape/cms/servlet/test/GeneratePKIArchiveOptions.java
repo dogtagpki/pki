@@ -198,7 +198,7 @@ public class GeneratePKIArchiveOptions {
         if (!passphraseMode) {
             vek = CryptoUtil.generateKey(token, KeyGenAlgorithm.DES3, 0, null, false);
             // store vek in file
-            write_file(Utils.base64encode(vek.getKeyData()), key_file);
+            write_file(Utils.base64encode(vek.getKeyData(), true), key_file);
         }
 
         byte[] encoded = null;
@@ -221,7 +221,7 @@ public class GeneratePKIArchiveOptions {
         }
 
         // write encoded to file
-        write_file(Utils.base64encode(encoded), out_file);
+        write_file(Utils.base64encode(encoded, true), out_file);
 
     }
 }

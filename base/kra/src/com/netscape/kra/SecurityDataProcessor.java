@@ -437,8 +437,8 @@ public class SecurityDataProcessor {
         } catch (Exception e1) {
              throw new EBaseException("Failed to generate IV when wrapping secret", e1);
         }
-        String ivStr = iv != null? Utils.base64encode(iv): null;
-        String ivStr_wrap = iv_wrap != null ? Utils.base64encode(iv_wrap): null;
+        String ivStr = iv != null? Utils.base64encode(iv, true): null;
+        String ivStr_wrap = iv_wrap != null ? Utils.base64encode(iv_wrap, true): null;
 
         WrappingParams wrapParams = null;
         if (payloadEncryptOID == null) {
@@ -600,7 +600,7 @@ public class SecurityDataProcessor {
                 }
             }
 
-            String wrappedKeyData = Utils.base64encode(key_data);
+            String wrappedKeyData = Utils.base64encode(key_data, true);
             params.put(IRequest.SECURITY_DATA_SESS_WRAPPED_DATA, wrappedKeyData);
         }
 
@@ -824,7 +824,7 @@ public class SecurityDataProcessor {
             ByteArrayOutputStream oStream = new ByteArrayOutputStream();
             cInfo.encode(oStream);
             encoded = oStream.toByteArray();
-            retData = Utils.base64encode(encoded);
+            retData = Utils.base64encode(encoded, true);
 
         } catch (Exception e) {
             throw new EBaseException("Can't create a PBE wrapped EncryptedContentInfo! " + e.toString());

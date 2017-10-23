@@ -262,7 +262,7 @@ public class CMCSharedToken {
             out.write(DerValue.tag_Sequence, tmp);
 
             byte[] final_data = out.toByteArray();
-            String final_data_b64 = Utils.base64encode(final_data);
+            String final_data_b64 = Utils.base64encode(final_data, true);
             if (final_data_b64 != null) {
                 System.out.println("\nEncrypted Secret Data:");
                 System.out.println(final_data_b64);

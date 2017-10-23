@@ -92,7 +92,7 @@ public class GenSubjectAltNameExt {
         ext.encode(os);
 
         System.out.println(
-                Utils.base64encode(os.toByteArray())
+                Utils.base64encode(os.toByteArray(), true)
                 );
     }
 

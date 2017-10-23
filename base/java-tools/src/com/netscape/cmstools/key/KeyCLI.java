@@ -122,7 +122,7 @@ public class KeyCLI extends CLI {
             // Print out the Base64 encoded public key in the form of a blob,
             // where the max line length is 64.
             System.out.println("  Public Key: \n");
-            String publicKey = Utils.base64encode(info.getPublicKey());
+            String publicKey = Utils.base64encode(info.getPublicKey(), true);
             System.out.println(publicKey);
             System.out.println();
         }

@@ -833,7 +833,7 @@ public class StorageKeyUnit extends EncryptionUnit implements
             byte prev[] = preVerify(share);
             byte enc[] = cipher.doFinal(prev);
 
-            return Utils.base64encode(enc).trim();
+            return Utils.base64encode(enc, true).trim();
         } catch (NoSuchAlgorithmException e) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_KEY_1",
                         e.toString()));

@@ -176,7 +176,7 @@ public class PKCS12CertExportCLI extends CLI {
                 for (PKCS12CertInfo certInfo : certInfos) {
                     X509CertImpl cert = certInfo.getCert();
                     os.println(Cert.HEADER);
-                    os.print(Utils.base64encode(cert.getEncoded()));
+                    os.print(Utils.base64encode(cert.getEncoded(), true));
                     os.println(Cert.FOOTER);
                 }
             }

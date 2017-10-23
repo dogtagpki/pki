@@ -133,7 +133,7 @@ public class ClientCertShowCLI extends CLI {
             if (certPath != null) {
                 try (PrintWriter out = new PrintWriter(new FileWriter(certPath))) {
                     out.println(Cert.HEADER);
-                    out.print(Utils.base64encode(cert.getEncoded()));
+                    out.print(Utils.base64encode(cert.getEncoded(), true));
                     out.println(Cert.FOOTER);
                 }
 

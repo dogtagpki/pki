@@ -345,7 +345,7 @@ public class CMCRevoke {
             } catch (NoSuchAlgorithmException ex) {
                 dig = salt.getBytes();
             }
-            String sn = Utils.base64encode(dig);
+            String sn = Utils.base64encode(dig, true);
 
             TaggedAttribute senderNonce = new TaggedAttribute(new INTEGER(bpid++), OBJECT_IDENTIFIER.id_cmc_senderNonce,
                     new OCTET_STRING(sn.getBytes()));

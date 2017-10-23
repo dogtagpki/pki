@@ -196,7 +196,7 @@ public class CMCEnroll {
                 dig = salt.getBytes();
             }
 
-            String sn = Utils.base64encode(dig);
+            String sn = Utils.base64encode(dig, true);
 
             TaggedAttribute senderNonce = new TaggedAttribute(new
                     INTEGER(bpid++),
@@ -284,7 +284,7 @@ public class CMCEnroll {
             ByteArrayOutputStream os = new ByteArrayOutputStream();
 
             fullEnrollmentReq.encode(os);
-            ps.print(Utils.base64encode(os.toByteArray()));
+            ps.print(Utils.base64encode(os.toByteArray(), true));
             //fullEnrollmentReq.print(ps); // no header/trailer
             asciiBASE64Blob = bs.toString();
         } catch (Exception e) {

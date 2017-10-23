@@ -88,7 +88,7 @@ public class GenExtKeyUsage {
 
             // BASE64 encode the whole thing and write it to stdout
 
-            System.out.println(Utils.base64encode(extdos.toByteArray()));
+            System.out.println(Utils.base64encode(extdos.toByteArray(), true));
 
         } catch (Exception e) {
             e.printStackTrace();

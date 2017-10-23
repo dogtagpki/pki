@@ -400,7 +400,7 @@ public class ChallengePhraseAuthentication implements IAuthManager {
     private String hashPassword(String pwd) {
         String salt = "lala123";
         byte[] pwdDigest = mSHADigest.digest((salt + pwd).getBytes());
-        String b64E = Utils.base64encode(pwdDigest);
+        String b64E = Utils.base64encode(pwdDigest, true);
 
         return "{SHA}" + b64E;
     }
