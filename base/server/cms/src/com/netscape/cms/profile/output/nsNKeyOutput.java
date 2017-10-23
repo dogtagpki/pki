@@ -31,6 +31,7 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.common.EnrollProfile;
+import com.netscape.cmsutil.util.Utils;
 
 /**
  * This class implements the output plugin that outputs
@@ -98,7 +99,7 @@ public class nsNKeyOutput extends EnrollOutput implements IProfileOutput {
                         EnrollProfile.REQUEST_ISSUED_CERT);
                 if (cert == null)
                     return null;
-                return CMS.BtoA(cert.getEncoded());
+                return Utils.base64encode(cert.getEncoded(), true);
             } catch (Exception e) {
                 return "";
             }

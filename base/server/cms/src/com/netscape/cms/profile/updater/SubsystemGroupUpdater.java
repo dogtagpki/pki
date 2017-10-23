@@ -42,6 +42,7 @@ import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
+import com.netscape.cmsutil.util.Utils;
 
 import netscape.security.x509.X509CertImpl;
 
@@ -176,7 +177,7 @@ public class SubsystemGroupUpdater implements IProfileUpdater {
             String b64 = ILogger.SIGNED_AUDIT_EMPTY_VALUE;
             try {
                 byte[] certEncoded = cert.getEncoded();
-                b64 = CMS.BtoA(certEncoded).trim();
+                b64 = Utils.base64encode(certEncoded, true).trim();
 
                 // concatenate lines
                 b64 = b64.replace("\r", "").replace("\n", "");

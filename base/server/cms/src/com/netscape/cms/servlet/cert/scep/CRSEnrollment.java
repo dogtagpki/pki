@@ -957,7 +957,7 @@ public class CRSEnrollment extends HttpServlet {
             httpResp.getOutputStream().flush();
 
             CMS.debug("Output PKIOperation response:");
-            CMS.debug(CMS.BtoA(response));
+            CMS.debug(Utils.base64encode(response, true));
         } catch (Exception e) {
             throw new ServletException("Failed to create response for CEP message" + e.getMessage());
         }
@@ -1560,7 +1560,7 @@ public class CRSEnrollment extends HttpServlet {
         // use profile framework to handle SCEP
         if (mProfileId != null) {
             PKCS10 pkcs10data = req.getP10();
-            String pkcs10blob = CMS.BtoA(pkcs10data.toByteArray());
+            String pkcs10blob = Utils.base64encode(pkcs10data.toByteArray(), true);
 
             // XXX authentication handling
             CMS.debug("Found profile=" + mProfileId);
@@ -1677,7 +1677,7 @@ public class CRSEnrollment extends HttpServlet {
             while (e.hasMoreElements()) {
                 String key = (String) e.nextElement();
                 byte[] value = (byte[]) fingerprints.get(key);
-                encodedPrints.put(key, CMS.BtoA(value));
+                encodedPrints.put(key, Utils.base64encode(value, true));
             }
             pkiReq.setExtData(IRequest.FINGERPRINTS, encodedPrints);
         }

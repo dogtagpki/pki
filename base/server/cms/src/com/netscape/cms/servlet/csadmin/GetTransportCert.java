@@ -40,6 +40,7 @@ import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
+import com.netscape.cmsutil.util.Utils;
 import com.netscape.cmsutil.xml.XMLObject;
 
 /**
@@ -129,7 +130,7 @@ public class GetTransportCert extends CMSServlet {
 
         String mime64 = "";
         try {
-            mime64 = CMS.BtoA(transportCert.getEncoded());
+            mime64 = Utils.base64encode(transportCert.getEncoded(), true);
             mime64 = com.netscape.cmsutil.util.Cert.normalizeCertStrAndReq(mime64);
         } catch (CertificateEncodingException eee) {
             CMS.debug("GetTransportCert: Failed to encode certificate");

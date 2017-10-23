@@ -80,6 +80,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmsutil.util.Utils;
 
 /**
  * Check the status of a certificate request
@@ -399,7 +400,7 @@ public class CheckRequest extends CMSServlet {
                                     p7.encodeSignedData(bos);
                                     byte[] p7Bytes = bos.toByteArray();
 
-                                    p7Str = CMS.BtoA(p7Bytes);
+                                    p7Str = Utils.base64encode(p7Bytes, true);
 
                                     StringTokenizer tokenizer = null;
 
@@ -468,7 +469,7 @@ public class CheckRequest extends CMSServlet {
                                         } catch (NoSuchAlgorithmException ex) {
                                             dig = salt.getBytes();
                                         }
-                                        String b64E = CMS.BtoA(dig);
+                                        String b64E = Utils.base64encode(dig, true);
                                         String[] newNonce = { b64E };
 
                                         ta = new TaggedAttribute(new
@@ -575,7 +576,7 @@ public class CheckRequest extends CMSServlet {
                                         fullResponse.encode(ostream);
                                         byte[] fr = ostream.toByteArray();
 
-                                        header.addStringValue(FULL_RESPONSE, CMS.BtoA(fr));
+                                        header.addStringValue(FULL_RESPONSE, Utils.base64encode(fr, true));
                                     }
                                 } catch (Exception e) {
                                     e.printStackTrace();

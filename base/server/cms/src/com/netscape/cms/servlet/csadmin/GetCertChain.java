@@ -36,6 +36,7 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
+import com.netscape.cmsutil.util.Utils;
 import com.netscape.cmsutil.xml.XMLObject;
 
 import netscape.security.x509.CertificateChain;
@@ -109,7 +110,7 @@ public class GetCertChain extends CMSServlet {
                     "Error: Failed to encode the certificate chain");
         }
 
-        String chainBase64 = CMS.BtoA(bytes);
+        String chainBase64 = Utils.base64encode(bytes, true);
 
         chainBase64 = normalizeCertStr(chainBase64);
 

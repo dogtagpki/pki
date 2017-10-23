@@ -131,7 +131,7 @@ public class SystemCertService extends PKIService implements SystemCertResource 
         Principal subjectDN = cert.getSubjectDN();
         if (subjectDN != null) data.setSubjectDN(subjectDN.toString());
 
-        String b64 = Cert.HEADER + "\n" + CMS.BtoA(cert.getEncoded()) + Cert.FOOTER;
+        String b64 = Cert.HEADER + "\n" + Utils.base64encode(cert.getEncoded(), true) + Cert.FOOTER;
         data.setEncoded(b64);
 
         return data;
@@ -149,7 +149,7 @@ public class SystemCertService extends PKIService implements SystemCertResource 
         Principal subjectDN = cert.getSubjectDN();
         if (subjectDN != null) data.setSubjectDN(subjectDN.toString());
 
-        String b64 = Cert.HEADER + "\n" + CMS.BtoA(cert.getEncoded()) + Cert.FOOTER;
+        String b64 = Cert.HEADER + "\n" + Utils.base64encode(cert.getEncoded(), true) + Cert.FOOTER;
         data.setEncoded(b64);
 
         return data;

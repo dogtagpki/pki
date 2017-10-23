@@ -90,6 +90,7 @@ import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmsutil.crypto.CryptoUtil;
+import com.netscape.cmsutil.util.Utils;
 
 import netscape.security.x509.CRLExtensions;
 import netscape.security.x509.CRLReasonExtension;
@@ -917,7 +918,7 @@ public class CMCOutputTemplate {
                     dig = salt.getBytes();
                 }
 
-                String b64E = CMS.BtoA(dig);
+                String b64E = Utils.base64encode(dig, true);
                 tagattr = new TaggedAttribute(
                         new INTEGER(bpid++), OBJECT_IDENTIFIER.id_cmc_senderNonce,
                         new OCTET_STRING(b64E.getBytes()));

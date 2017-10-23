@@ -40,6 +40,7 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.common.EnrollProfile;
+import com.netscape.cmsutil.util.Utils;
 
 /**
  * This class implements the output plugin that outputs
@@ -144,7 +145,7 @@ public class PKCS7Output extends EnrollOutput implements IProfileOutput {
 
                 p7.encodeSignedData(bos);
                 byte[] p7Bytes = bos.toByteArray();
-                String p7Str = CMS.BtoA(p7Bytes);
+                String p7Str = Utils.base64encode(p7Bytes, true);
 
                 return p7Str;
             } catch (Exception e) {

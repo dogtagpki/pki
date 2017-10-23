@@ -56,6 +56,7 @@ import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
+import com.netscape.cmsutil.util.Utils;
 
 /**
  * default Pending template filler
@@ -164,7 +165,7 @@ public class GenPendingTemplateFiller implements ICMSTemplateFiller {
                 } catch (NoSuchAlgorithmException ex) {
                     dig = salt.getBytes();
                 }
-                String b64E = CMS.BtoA(dig);
+                String b64E = Utils.base64encode(dig, true);
                 String[] newNonce = { b64E };
 
                 ta = new TaggedAttribute(new
@@ -260,7 +261,7 @@ public class GenPendingTemplateFiller implements ICMSTemplateFiller {
                     fullResponse.encode(ostream);
                     byte[] fr = ostream.toByteArray();
 
-                    fixed.set(FULL_RESPONSE, CMS.BtoA(fr));
+                    fixed.set(FULL_RESPONSE, Utils.base64encode(fr, true));
                 } catch (Exception e1) {
                     e1.printStackTrace();
                 }

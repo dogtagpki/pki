@@ -455,7 +455,7 @@ public class EnrollmentService implements IService {
                           ASN1Util.getECCurveBytesByX509PublicKeyBytes(publicKeyData,
                               true /* with tag and size */);
                         if (curveTS.length != 0) {
-                            oidDescription = CMS.BtoA(curveTS);
+                            oidDescription = Utils.base64encode(curveTS, true);
                         }
                     }
                 } catch (Exception e) {
@@ -908,7 +908,7 @@ public class EnrollmentService implements IService {
         if (rawData != null) {
             String base64Data = null;
 
-            base64Data = CMS.BtoA(rawData).trim();
+            base64Data = Utils.base64encode(rawData, true).trim();
 
             // concatenate lines
             key = base64Data.replace("\r", "").replace("\n", "");

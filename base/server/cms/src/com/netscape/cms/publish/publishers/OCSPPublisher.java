@@ -40,6 +40,7 @@ import com.netscape.certsrv.publish.ILdapPublisher;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.http.HttpRequest;
 import com.netscape.cmsutil.http.JssSSLSocketFactory;
+import com.netscape.cmsutil.util.Utils;
 
 import netscape.ldap.LDAPConnection;
 
@@ -240,7 +241,7 @@ public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
             StringBuffer query = new StringBuffer();
             query.append("crl=");
             query.append(URLEncoder.encode("-----BEGIN CERTIFICATE REVOCATION LIST-----\n", "UTF-8"));
-            query.append(URLEncoder.encode(CMS.BtoA(crl.getEncoded()), "UTF-8"));
+            query.append(URLEncoder.encode(Utils.base64encode(crl.getEncoded(), true), "UTF-8"));
             query.append(URLEncoder.encode("\n-----END CERTIFICATE REVOCATION LIST-----", "UTF-8"));
             query.append("&noui=true");
 

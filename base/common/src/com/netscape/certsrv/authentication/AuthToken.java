@@ -36,6 +36,7 @@ import netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.usrgrp.Certificates;
+import com.netscape.cmsutil.util.Utils;
 
 /**
  * Authentication token returned by Authentication Managers.
@@ -116,7 +117,7 @@ public class AuthToken implements IAuthToken {
         if (value == null) {
             return false;
         }
-        return set(name, CMS.BtoA(value));
+        return set(name, Utils.base64encode(value, true));
     }
 
     public Integer getInInteger(String name) {

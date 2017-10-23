@@ -52,6 +52,7 @@ import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
+import com.netscape.cmsutil.util.Utils;
 
 import netscape.security.util.DerInputStream;
 import netscape.security.x509.CertificateExtensions;
@@ -1105,7 +1106,7 @@ class Request implements IRequest {
         if (data == null) {
             return false;
         }
-        return setExtData(key, CMS.BtoA(data));
+        return setExtData(key, Utils.base64encode(data, true));
     }
 
     public byte[] getExtDataInByteArray(String key) {
@@ -1147,7 +1148,7 @@ class Request implements IRequest {
         String[] stringArray = new String[data.length];
         for (int index = 0; index < data.length; index++) {
             try {
-                stringArray[index] = CMS.BtoA(data[index].getEncoded());
+                stringArray[index] = Utils.base64encode(data[index].getEncoded(), true);
             } catch (CertificateEncodingException e) {
                 return false;
             }
@@ -1203,7 +1204,7 @@ class Request implements IRequest {
         String[] stringArray = new String[data.length];
         for (int index = 0; index < data.length; index++) {
             try {
-                stringArray[index] = CMS.BtoA(data[index].getEncodedInfo(true));
+                stringArray[index] = Utils.base64encode(data[index].getEncodedInfo(true), true);
             } catch (CertificateEncodingException e) {
                 return false;
             }
@@ -1235,7 +1236,7 @@ class Request implements IRequest {
         String[] stringArray = new String[data.length];
         for (int index = 0; index < data.length; index++) {
             try {
-                stringArray[index] = CMS.BtoA(data[index].getEncoded());
+                stringArray[index] = Utils.base64encode(data[index].getEncoded(), true);
             } catch (CRLException e) {
                 return false;
             }

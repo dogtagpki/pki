@@ -713,7 +713,7 @@ public class Util {
                 cert.getExtension(PKIXExtensions.AuthorityKey_Id.toString());
         KeyIdentifier kid =
                 (KeyIdentifier) certAKI.get(AuthorityKeyIdentifierExtension.KEY_ID);
-        return (CMS.BtoA(kid.getIdentifier()).trim());
+        return Utils.base64encode(kid.getIdentifier(), true).trim();
     }
 
     /*
@@ -731,7 +731,7 @@ public class Util {
                 cert.getExtension(PKIXExtensions.SubjectKey_Id.toString());
         KeyIdentifier kid =
                 (KeyIdentifier) certSKI.get(SubjectKeyIdentifierExtension.KEY_ID);
-        return (CMS.BtoA(kid.getIdentifier()).trim());
+        return Utils.base64encode(kid.getIdentifier(), true).trim();
     }
 
     /*

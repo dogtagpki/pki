@@ -36,6 +36,7 @@ import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.security.ITransportKeyUnit;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Cert;
+import com.netscape.cmsutil.util.Utils;
 
 import netscape.security.util.WrappingParams;
 
@@ -206,7 +207,7 @@ public class TransportKeyUnit extends EncryptionUnit implements
             String certB64 = null;
             if (mCert != null) {
                 try {
-                    certB64 = ((CMS.BtoA(mCert.getEncoded())).replaceAll("\n", "")).replaceAll("\r", "");
+                    certB64 = Utils.base64encode(mCert.getEncoded(), true).replaceAll("\n", "").replaceAll("\r", "");
                     if (transportCert.equals(certB64)) {
                         cert = mCert;
                         CMS.debug("TransportKeyUnit:  Transport certificate verified");
@@ -216,7 +217,7 @@ public class TransportKeyUnit extends EncryptionUnit implements
             }
             if (cert == null && mNewCert != null) {
                 try {
-                    certB64 = ((CMS.BtoA(mNewCert.getEncoded())).replaceAll("\n", "")).replaceAll("\r", "");
+                    certB64 = Utils.base64encode(mNewCert.getEncoded(), true).replaceAll("\n", "").replaceAll("\r", "");
                     if (transportCert.equals(certB64)) {
                         cert = mNewCert;
                         CMS.debug("TransportKeyUnit:  New transport certificate verified");

@@ -114,7 +114,7 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
         CMS.debug("CARemoteRequestHandler: enrollCertificate(): sending request to CA");
         String encodedPubKey = null;
         try {
-            encodedPubKey = Util.uriEncode(CMS.BtoA(pubKeybuf.toBytesArray()));
+            encodedPubKey = Util.uriEncode(Utils.base64encode(pubKeybuf.toBytesArray(), true));
         } catch (Exception e) {
             CMS.debug("CARemoteRequestHandler: enrollCertificate(): uriEncode of pubkey failed: " + e);
             throw new EBaseException("CARemoteRequestHandler: enrollCertificate(): uriEncode of pubkey failed: " + e);

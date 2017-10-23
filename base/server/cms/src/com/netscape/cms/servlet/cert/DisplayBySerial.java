@@ -335,7 +335,7 @@ public class DisplayBySerial extends CMSServlet {
 
             byte[] ba = cert.getEncoded();
             // Do base 64 encoding
-            header.addStringValue("certChainBase64", CMS.BtoA(ba));
+            header.addStringValue("certChainBase64", Utils.base64encode(ba, true));
 
             IRevocationInfo revocationInfo = rec.getRevocationInfo();
 

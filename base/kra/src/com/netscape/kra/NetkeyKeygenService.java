@@ -67,6 +67,7 @@ import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmscore.util.Debug;
 import com.netscape.cmsutil.crypto.CryptoUtil;
+import com.netscape.cmsutil.util.Utils;
 
 import netscape.security.provider.RSAPublicKey;
 import netscape.security.util.WrappingParams;
@@ -461,7 +462,7 @@ public class NetkeyKeygenService implements IService {
                                   ASN1Util.getECCurveBytesByX509PublicKeyBytes(publicKeyData,
                                       true /* with tag and size */);
                                 if (curveTS.length != 0) {
-                                    oidDescription = CMS.BtoA(curveTS);
+                                    oidDescription = Utils.base64encode(curveTS, true);
                                 }
                             }
                         } catch (Exception e) {

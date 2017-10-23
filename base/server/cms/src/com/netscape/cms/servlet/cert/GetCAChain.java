@@ -47,6 +47,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmsutil.util.Utils;
 
 /**
  * Retrieve the Certificates comprising the CA Chain for this CA.
@@ -382,7 +383,7 @@ public class GetCAChain extends CMSServlet {
      * gets base 64 encoded cert
      */
     private String getBase64(byte[] certBytes) {
-        String certBase64 = CMS.BtoA(certBytes);
+        String certBase64 = Utils.base64encode(certBytes, true);
 
         return certBase64;
     }

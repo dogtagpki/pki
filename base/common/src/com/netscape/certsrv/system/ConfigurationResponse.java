@@ -26,9 +26,9 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import netscape.security.x509.X509CertImpl;
+import com.netscape.cmsutil.util.Utils;
 
-import com.netscape.certsrv.apps.CMS;
+import netscape.security.x509.X509CertImpl;
 
 /**
  * @author alee
@@ -97,7 +97,7 @@ public class ConfigurationResponse {
 
 
     public void setAdminCert(X509CertImpl x509CertImpl) throws CertificateEncodingException {
-        adminCert.setCert(CMS.BtoA(x509CertImpl.getEncoded()));
+        adminCert.setCert(Utils.base64encode(x509CertImpl.getEncoded(), true));
     }
 
 }

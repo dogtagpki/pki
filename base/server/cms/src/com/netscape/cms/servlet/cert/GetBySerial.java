@@ -57,6 +57,7 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
 import com.netscape.cmsutil.crypto.CryptoUtil;
+import com.netscape.cmsutil.util.Utils;
 
 /**
  * Retrieve certificate by serial number.
@@ -240,7 +241,7 @@ public class GetBySerial extends CMSServlet {
                 }
 
                 byte[] p7Bytes = bos.toByteArray();
-                String p7Str = CMS.BtoA(p7Bytes);
+                String p7Str = Utils.base64encode(p7Bytes, true);
 
                 header.addStringValue("pkcs7", CryptoUtil.normalizeCertStr(p7Str));
                 try {

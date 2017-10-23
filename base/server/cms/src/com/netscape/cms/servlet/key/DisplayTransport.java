@@ -33,6 +33,7 @@ import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmsutil.util.Cert;
+import com.netscape.cmsutil.util.Utils;
 
 /**
  * Retrieve Transport Certificate used to
@@ -108,7 +109,7 @@ public class DisplayTransport extends CMSServlet {
 
             content += "<HTML><PRE>";
             String mime64 = Cert.HEADER + "\n" +
-                            CMS.BtoA(transportCert.getEncoded()) + "\n" +
+                            Utils.base64encode(transportCert.getEncoded(), true) + "\n" +
                             Cert.FOOTER + "\n";
 
             content += mime64;

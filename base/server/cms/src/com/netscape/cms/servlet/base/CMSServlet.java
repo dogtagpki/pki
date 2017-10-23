@@ -1444,10 +1444,10 @@ public abstract class CMSServlet extends HttpServlet {
 
                 p7.encodeSignedData(bos, false);
                 encoding = bos.toByteArray();
-                CMS.debug("CMServlet: return P7 " + CMS.BtoA(encoding));
+                CMS.debug("CMServlet: return P7 " + Utils.base64encode(encoding, true));
             } else {
                 encoding = cert.getEncoded();
-                CMS.debug("CMServlet: return Certificate " + CMS.BtoA(encoding));
+                CMS.debug("CMServlet: return Certificate " + Utils.base64encode(encoding, true));
             }
             httpResp.setContentType(contentType);
             out.write(encoding);

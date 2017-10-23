@@ -43,6 +43,7 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.common.EnrollProfile;
+import com.netscape.cmsutil.util.Utils;
 
 /**
  * This class implements the output plugin that outputs
@@ -149,7 +150,7 @@ public class CMMFOutput extends EnrollOutput implements IProfileOutput {
                 certRepContent.encode(certRepOut);
                 byte[] certRepBytes = certRepOut.toByteArray();
 
-                return CMS.BtoA(certRepBytes);
+                return Utils.base64encode(certRepBytes, true);
             } catch (Exception e) {
                 return null;
             }

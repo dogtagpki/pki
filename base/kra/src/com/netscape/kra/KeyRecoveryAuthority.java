@@ -86,6 +86,7 @@ import com.netscape.cmscore.dbs.KeyRepository;
 import com.netscape.cmscore.dbs.ReplicaIDRepository;
 import com.netscape.cmscore.request.RequestSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
+import com.netscape.cmsutil.util.Utils;
 
 import netscape.security.util.DerOutputStream;
 import netscape.security.x509.CertificateChain;
@@ -1631,7 +1632,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
         // convert "rawData" into "base64Data"
         if (rawData != null) {
-            String base64Data = CMS.BtoA(rawData).trim();
+            String base64Data = Utils.base64encode(rawData, true).trim();
 
             // concatenate lines
             return base64Data.replace("\r", "").replace("\n", "");
@@ -1670,7 +1671,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         if (rawData != null) {
             String base64Data = null;
 
-            base64Data = CMS.BtoA(rawData).trim();
+            base64Data = Utils.base64encode(rawData, true).trim();
 
             // concatenate lines
             key = base64Data.replace("\r", "").replace("\n", "");

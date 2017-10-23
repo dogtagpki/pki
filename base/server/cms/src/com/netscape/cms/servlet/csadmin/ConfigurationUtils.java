@@ -3316,7 +3316,7 @@ public class ConfigurationUtils {
 
         p7.encodeSignedData(bos);
         byte[] p7Bytes = bos.toByteArray();
-        String p7Str = CMS.BtoA(p7Bytes);
+        String p7Str = Utils.base64encode(p7Bytes, true);
         cs.putString("preop.admincert.pkcs7", CryptoUtil.normalizeCertStr(p7Str));
     }
 

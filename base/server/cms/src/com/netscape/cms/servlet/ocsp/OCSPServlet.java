@@ -247,7 +247,7 @@ public class OCSPServlet extends CMSServlet {
                 // we can validate the response
                 if (CMS.debugOn()) {
                     CMS.debug("OCSPServlet: OCSP Request:");
-                    CMS.debug("OCSPServlet: " + CMS.BtoA(ASN1Util.encode(ocspReq)));
+                    CMS.debug("OCSPServlet: " + Utils.base64encode(ASN1Util.encode(ocspReq), true));
 
                     TBSRequest tbsReq = ocspReq.getTBSRequest();
                     for (int i = 0; i < tbsReq.getRequestCount(); i++) {
@@ -258,7 +258,7 @@ public class OCSPServlet extends CMSServlet {
                     CMS.debug("OCSPServlet: OCSP Response Size:");
                     CMS.debug("OCSPServlet: " + Integer.toString(respbytes.length));
                     CMS.debug("OCSPServlet: OCSP Response Data:");
-                    CMS.debug("OCSPServlet: " + CMS.BtoA(respbytes));
+                    CMS.debug("OCSPServlet: " + Utils.base64encode(respbytes, true));
 
                     ResponseBytes rbytes = response.getResponseBytes();
                     if (rbytes == null) {
