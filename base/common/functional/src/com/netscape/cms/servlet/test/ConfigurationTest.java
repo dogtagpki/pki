@@ -1032,7 +1032,7 @@ public class ConfigurationTest {
 
         // BASE64Encoder encoder = new BASE64Encoder();
         // String Req1 = encoder.encodeBuffer(encoded);
-        String Req1 = Utils.base64encode(encoded);
+        String Req1 = Utils.base64encode(encoded, true);
         return Req1;
     }
 }

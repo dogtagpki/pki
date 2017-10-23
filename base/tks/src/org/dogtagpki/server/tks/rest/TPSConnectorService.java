@@ -330,8 +330,8 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
             byte[] wrappedSharedSecret = listWrappedKeys.get(1);
 
             KeyData keyData = new KeyData();
-            keyData.setWrappedPrivateData(Utils.base64encode(wrappedSessionKey));
-            keyData.setAdditionalWrappedPrivateData(Utils.base64encode(wrappedSharedSecret));
+            keyData.setWrappedPrivateData(Utils.base64encode(wrappedSessionKey, true));
+            keyData.setAdditionalWrappedPrivateData(Utils.base64encode(wrappedSharedSecret, true));
 
             return createOKResponse(keyData);
 
@@ -399,8 +399,8 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
             byte[] wrappedSharedSecret = listWrappedKeys.get(1);
 
             KeyData keyData = new KeyData();
-            keyData.setWrappedPrivateData(Utils.base64encode(wrappedSessionKey));
-            keyData.setAdditionalWrappedPrivateData(Utils.base64encode(wrappedSharedSecret));
+            keyData.setWrappedPrivateData(Utils.base64encode(wrappedSessionKey, true));
+            keyData.setAdditionalWrappedPrivateData(Utils.base64encode(wrappedSharedSecret, true));
 
             return createOKResponse(keyData);
 
@@ -483,8 +483,8 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
             byte[] wrappedSharedSecret = listWrappedKeys.get(1);
 
             KeyData keyData = new KeyData();
-            keyData.setWrappedPrivateData(Utils.base64encode(wrappedSessionKey));
-            keyData.setAdditionalWrappedPrivateData(Utils.base64encode(wrappedSharedSecret));
+            keyData.setWrappedPrivateData(Utils.base64encode(wrappedSessionKey, true));
+            keyData.setAdditionalWrappedPrivateData(Utils.base64encode(wrappedSharedSecret, true));
 
             return createOKResponse(keyData);
 

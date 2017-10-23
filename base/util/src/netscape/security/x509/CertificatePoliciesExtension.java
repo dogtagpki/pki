@@ -330,7 +330,7 @@ public class CertificatePoliciesExtension extends Extension
                     new CertificatePoliciesExtension(infos);
 
             // BASE64 encode the whole thing and write it to stdout
-            System.out.println(Utils.base64encode(ext.getExtensionValue()));
+            System.out.println(Utils.base64encode(ext.getExtensionValue(), true));
         } catch (IOException e) {
             System.out.println(e.toString());
         }

@@ -3315,7 +3315,7 @@ public final class CMSAdminServlet extends AdminServlet {
         if (rawData != null) {
             String base64Data = null;
 
-            base64Data = Utils.base64encode(rawData).trim();
+            base64Data = Utils.base64encode(rawData, true).trim();
 
             // concatenate lines
             key = base64Data.replace("\r", "").replace("\n", "");

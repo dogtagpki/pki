@@ -288,7 +288,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
             }
         }
 
-        requestB64 = Utils.base64encode(reqbuf);
+        requestB64 = Utils.base64encode(reqbuf, true);
 
         if (CMS.debugOn()) {
             CMS.debug("Start of ProfileSubmitCMCServlet Input Parameters");

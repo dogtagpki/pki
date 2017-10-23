@@ -1595,7 +1595,7 @@ public abstract class CMSServlet extends HttpServlet {
     protected String hashPassword(String pwd) {
         String salt = generateSalt();
         byte[] pwdDigest = mSHADigest.digest((salt + pwd).getBytes());
-        String b64E = Utils.base64encode(pwdDigest);
+        String b64E = Utils.base64encode(pwdDigest, true);
 
         return "{SHA}" + salt + ";" + b64E;
     }

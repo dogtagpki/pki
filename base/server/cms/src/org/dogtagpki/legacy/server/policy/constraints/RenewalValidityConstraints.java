@@ -338,7 +338,7 @@ public class RenewalValidityConstraints extends APolicyRule
             sb.append("\n");
             try {
                 byte[] ba = cert.getEncoded();
-                String encodedCert = Utils.base64encode(ba);
+                String encodedCert = Utils.base64encode(ba, true);
 
                 sb.append(Cert.HEADER + "\n" + encodedCert + Cert.FOOTER + "\n");
             } catch (Exception e) {

@@ -234,7 +234,7 @@ public class CMCRevoke {
         //ps.print(Utils.base64encode(os.toByteArray()));
         // no line breaks for ease of copy/paste for CA acceptance
         System.out.println(RFC7468_HEADER);
-        ps.print(Utils.base64encodeSingleLine(os.toByteArray()));
+        ps.print(Utils.base64encode(os.toByteArray(), false));
         ////fullEnrollmentReq.print(ps); // no header/trailer
 
         String asciiBASE64Blob = bs.toString();
@@ -345,7 +345,7 @@ public class CMCRevoke {
             } catch (NoSuchAlgorithmException ex) {
                 dig = salt.getBytes();
             }
-            String sn = Utils.base64encode(dig);
+            String sn = Utils.base64encode(dig, true);
 
             TaggedAttribute senderNonce = new TaggedAttribute(new INTEGER(bpid++), OBJECT_IDENTIFIER.id_cmc_senderNonce,
                     new OCTET_STRING(sn.getBytes()));

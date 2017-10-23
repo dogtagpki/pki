@@ -436,7 +436,7 @@ public class DisplayBySerial extends CMSServlet {
                     p7.encodeSignedData(bos, false);
                     byte[] p7Bytes = bos.toByteArray();
 
-                    p7Str = Utils.base64encode(p7Bytes);
+                    p7Str = Utils.base64encode(p7Bytes, true);
                     header.addStringValue("pkcs7ChainBase64", p7Str);
                 } catch (Exception e) {
                     //p7Str = "PKCS#7 B64 Encoding error - " + e.toString()

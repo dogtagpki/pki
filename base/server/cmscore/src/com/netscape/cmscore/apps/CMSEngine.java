@@ -1805,7 +1805,7 @@ public class CMSEngine implements ICMSEngine {
     }
 
     public String BtoA(byte data[]) {
-        return Utils.base64encode(data);
+        return Utils.base64encode(data, true);
     }
 
     public byte[] AtoB(String data) {

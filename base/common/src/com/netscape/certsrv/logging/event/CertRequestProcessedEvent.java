@@ -135,7 +135,7 @@ public class CertRequestProcessedEvent extends SignedAuditEvent {
 
         // convert "rawData" into "base64Data"
         if (rawData != null) {
-            String base64Data = Utils.base64encode(rawData).trim();
+            String base64Data = Utils.base64encode(rawData, true).trim();
 
             // concatenate lines
             cert = base64Data.replace("\r", "").replace("\n", "");

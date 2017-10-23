@@ -349,14 +349,14 @@ public class KeyClient extends Client {
         KeyRecoveryRequest data = new KeyRecoveryRequest();
         data.setKeyId(keyId);
         if (sessionWrappedPassphrase != null) {
-            data.setSessionWrappedPassphrase(Utils.base64encode(sessionWrappedPassphrase));
+            data.setSessionWrappedPassphrase(Utils.base64encode(sessionWrappedPassphrase, true));
         }
         if (transWrappedSessionKey != null) {
-            data.setTransWrappedSessionKey(Utils.base64encode(transWrappedSessionKey));
+            data.setTransWrappedSessionKey(Utils.base64encode(transWrappedSessionKey, true));
         }
 
         if (nonceData != null) {
-            data.setNonceData(Utils.base64encode(nonceData));
+            data.setNonceData(Utils.base64encode(nonceData, true));
         }
         if (b64Certificate != null) {
             data.setCertificate(b64Certificate);
@@ -463,7 +463,7 @@ public class KeyClient extends Client {
 
         KeyRecoveryRequest recoveryRequest = new KeyRecoveryRequest();
         recoveryRequest.setRequestId(requestId);
-        recoveryRequest.setTransWrappedSessionKey(Utils.base64encode(transWrappedSessionKey));
+        recoveryRequest.setTransWrappedSessionKey(Utils.base64encode(transWrappedSessionKey, true));
         recoveryRequest.setPayloadEncryptionOID(getEncryptAlgorithmOID());
         recoveryRequest.setPayloadWrappingName(wrapAlgorithm.toString());
 
@@ -502,7 +502,7 @@ public class KeyClient extends Client {
 
         KeyRecoveryRequest recoveryRequest = new KeyRecoveryRequest();
         recoveryRequest.setKeyId(keyId);
-        recoveryRequest.setTransWrappedSessionKey(Utils.base64encode(transWrappedSessionKey));
+        recoveryRequest.setTransWrappedSessionKey(Utils.base64encode(transWrappedSessionKey, true));
         recoveryRequest.setPayloadEncryptionOID(getEncryptAlgorithmOID());
         recoveryRequest.setPayloadWrappingName(wrapAlgorithm.toString());
 
@@ -560,9 +560,9 @@ public class KeyClient extends Client {
 
         KeyRecoveryRequest data = new KeyRecoveryRequest();
         data.setRequestId(requestId);
-        data.setTransWrappedSessionKey(Utils.base64encode(transWrappedSessionKey));
-        data.setSessionWrappedPassphrase(Utils.base64encode(sessionWrappedPassphrase));
-        data.setNonceData(Utils.base64encode(nonceData));
+        data.setTransWrappedSessionKey(Utils.base64encode(transWrappedSessionKey, true));
+        data.setSessionWrappedPassphrase(Utils.base64encode(sessionWrappedPassphrase, true));
+        data.setNonceData(Utils.base64encode(nonceData, true));
         data.setPayloadEncryptionOID(getEncryptAlgorithmOID());
         data.setPayloadWrappingName(wrapAlgorithm.toString());
 
@@ -616,13 +616,13 @@ public class KeyClient extends Client {
         data.setPayloadWrappingName(wrapAlgorithm.toString());
 
         if (transWrappedSessionKey != null) {
-            data.setTransWrappedSessionKey(Utils.base64encode(transWrappedSessionKey));
+            data.setTransWrappedSessionKey(Utils.base64encode(transWrappedSessionKey, true));
         }
         if (sessionWrappedPassphrase != null) {
-            data.setSessionWrappedPassphrase(Utils.base64encode(sessionWrappedPassphrase));
+            data.setSessionWrappedPassphrase(Utils.base64encode(sessionWrappedPassphrase, true));
         }
         if (nonceData != null) {
-            data.setNonceData(Utils.base64encode(nonceData));
+            data.setNonceData(Utils.base64encode(nonceData, true));
         }
 
         // Just return the KeyData as the wrappedPrivateData contains the key wrapped by the passphrase
@@ -793,10 +793,10 @@ public class KeyClient extends Client {
         data.setKeySize(keySize);
         data.setClientKeyId(clientKeyId);
         data.setAlgorithmOID(algorithmOID);
-        data.setSymmetricAlgorithmParams(Utils.base64encode(nonceData));
-        String req1 = Utils.base64encode(encryptedData);
+        data.setSymmetricAlgorithmParams(Utils.base64encode(nonceData, true));
+        String req1 = Utils.base64encode(encryptedData, true);
         data.setWrappedPrivateData(req1);
-        data.setTransWrappedSessionKey(Utils.base64encode(transWrappedSessionKey));
+        data.setTransWrappedSessionKey(Utils.base64encode(transWrappedSessionKey, true));
         data.setRealm(realm);
 
         return submitRequest(data);
@@ -847,7 +847,7 @@ public class KeyClient extends Client {
         data.setKeyAlgorithm(keyAlgorithm);
         data.setKeySize(keySize);
 
-        String options = Utils.base64encode(pkiArchiveOptions);
+        String options = Utils.base64encode(pkiArchiveOptions, true);
         data.setPKIArchiveOptions(options);
         data.setRealm(realm);
 
@@ -964,7 +964,7 @@ public class KeyClient extends Client {
         data.setKeyAlgorithm(keyAlgorithm);
         data.setKeySize(keySize);
         data.setUsages(usages);
-        data.setTransWrappedSessionKey(Utils.base64encode(transWrappedSessionKey));
+        data.setTransWrappedSessionKey(Utils.base64encode(transWrappedSessionKey, true));
         data.setRealm(realm);
 
         return submitRequest(data);

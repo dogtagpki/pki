@@ -285,7 +285,7 @@ public class RevocationServlet extends CMSServlet {
                 byte[] ba = old_cert.getEncoded();
                 // Do base 64 encoding
 
-                header.addStringValue("b64eCertificate", Utils.base64encode(ba));
+                header.addStringValue("b64eCertificate", Utils.base64encode(ba, true));
             } catch (CertificateEncodingException e) {
             }
         }

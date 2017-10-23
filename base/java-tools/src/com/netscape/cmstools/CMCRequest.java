@@ -406,7 +406,7 @@ public class CMCRequest {
                 ByteArrayOutputStream os = new ByteArrayOutputStream();
 
                 fullEnrollmentReq.encode(os);
-                ps.print(Utils.base64encode(os.toByteArray()));
+                ps.print(Utils.base64encode(os.toByteArray(), true));
             }
             String asciiBASE64Blob = bs.toString();
 
@@ -545,7 +545,7 @@ public class CMCRequest {
                             seq.addElement(new_certReqMsg);
 
                             byte[] encodedNewCrmfMessage = ASN1Util.encode(seq);
-                            String b64String = Utils.base64encode(encodedNewCrmfMessage);
+                            String b64String = Utils.base64encode(encodedNewCrmfMessage, true);
                             System.out.println(method + "new CRMF b64encode completes.");
                             System.out.println(CryptoUtil.CERTREQ_BEGIN_HEADING);
                             System.out.println(b64String);
@@ -646,7 +646,7 @@ public class CMCRequest {
                             byte[] bb = bos.toByteArray();
 
                             System.out.println(method + "calling Utils.b64encode.");
-                            String b64String = Utils.base64encode(bb);
+                            String b64String = Utils.base64encode(bb, true);
                             System.out.println(method + "new PKCS#10 b64encode completes.");
                             System.out.println(CryptoUtil.CERTREQ_BEGIN_HEADING);
                             System.out.println(b64String);
@@ -1418,7 +1418,7 @@ public class CMCRequest {
                 dig = salt.getBytes();
             }
 
-            sn = Utils.base64encode(dig);
+            sn = Utils.base64encode(dig, true);
         }
         byte bb[] = sn.getBytes();
         System.out.println("SenderNonce control: ");

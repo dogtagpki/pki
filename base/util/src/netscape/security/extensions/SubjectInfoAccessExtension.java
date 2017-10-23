@@ -228,7 +228,7 @@ public class SubjectInfoAccessExtension extends Extension implements CertAttrSet
         try {
             aia.encode(os);
 
-            System.out.println(Utils.base64encode(os.toByteArray()));
+            System.out.println(Utils.base64encode(os.toByteArray(), true));
         } catch (IOException e) {
             System.out.println(e.toString());
         }

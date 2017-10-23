@@ -1642,7 +1642,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
             DN dn = new DN(principal.getName());
             BigInteger serialno = cert.getSerialNumber();
             String suffix = "." + System.currentTimeMillis();
-            String b64E = Utils.base64encode(cert.getEncoded());
+            String b64E = Utils.base64encode(cert.getEncoded(), true);
             PrintStream stream = new PrintStream(new FileOutputStream(pathname + suffix));
 
             stream.println(Cert.HEADER);

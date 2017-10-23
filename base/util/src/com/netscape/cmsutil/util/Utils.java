@@ -280,18 +280,54 @@ public class Utils {
         return s;
     }
 
-    public static String base64encode(byte[] bytes) {
-        String string = new Base64(64).encodeToString(bytes);
-        return string;
+    /**
+     * Converts a byte array into a Base-64 encoded string.
+     * If the chunked option is true, the output will be split into
+     * multiple lines. Otherwise, the output will be a single line.
+     *
+     * @param bytes byte array
+     * @param chunked generate chunked output
+     * @return base-64 encoded data
+     */
+    public static String base64encode(byte[] bytes, boolean chunked) {
+        if (chunked) {
+            return base64encodeMultiLine(bytes);
+        } else {
+            return base64encodeSingleLine(bytes);
+        }
     }
 
-    public static String base64encodeSingleLine(byte[] bytes) {
-        String string = new Base64().encodeToString(bytes);
-        return string;
+    /**
+     * Converts a byte array into a multi-line Base-64 encoded string.
+     * Each line is at most 64-character long and terminated with CRLF.
+     *
+     * @param bytes byte array
+     * @param chunked TODO
+     * @return base-64 encoded data
+     */
+    public static String base64encodeMultiLine(byte[] bytes) {
+        return new Base64(64).encodeToString(bytes);
     }
- 
+
+
+    /**
+     * Converts a byte array into a single-line Base-64 encoded string.
+     * The line is not terminated with CRLF.
+     *
+     * @param bytes byte array
+     * @return base-64 encoded data
+     */
+    public static String base64encodeSingleLine(byte[] bytes) {
+        return new Base64().encodeToString(bytes);
+    }
+
+    /**
+     * Converts a Base-64 encoded string into a byte array.
+     *
+     * @param string base-64 encoded data
+     * @return byte array
+     */
     public static byte[] base64decode(String string) {
-        byte[] bytes = Base64.decodeBase64(string);
-        return bytes;
+        return Base64.decodeBase64(string);
     }
 }

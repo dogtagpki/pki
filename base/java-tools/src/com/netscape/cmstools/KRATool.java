@@ -1843,13 +1843,13 @@ public class KRATool {
                                                  0);
             if (mDebug) {
                 log("DEBUG: sk = '"
-                        + Utils.base64encode(sk.getEncoded())
+                        + Utils.base64encode(sk.getEncoded(), true)
                         + "' length = '"
                         + sk.getEncoded().length
                         + "'"
                         + NEWLINE, false);
                 log("DEBUG: pri = '"
-                        + Utils.base64encode(pri)
+                        + Utils.base64encode(pri, true)
                         + "' length = '"
                         + pri.length
                         + "'"
@@ -3714,7 +3714,7 @@ public class KRATool {
                         // into an ASCII BASE 64 certificate
                         // enclosed in a String() object
                         revised_data = Utils.base64encode(
-                                           target_wrappedKeyData);
+                                           target_wrappedKeyData, true);
 
                         // Unformat the ASCII BASE 64 certificate
                         // for the log file
@@ -3788,7 +3788,7 @@ public class KRATool {
                         // into an ASCII BASE 64 certificate
                         // enclosed in a String() object
                         revised_data = Utils.base64encode(
-                                           target_wrappedKeyData);
+                                           target_wrappedKeyData, true);
 
                         // Unformat the ASCII BASE 64 certificate
                         // for the log file

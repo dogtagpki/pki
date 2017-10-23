@@ -154,7 +154,7 @@ public class KeyInfo {
      */
     public void setPublicKey(byte[] publicKey) {
         if (publicKey != null) {
-            this.publicKey = Utils.base64encode(publicKey);
+            this.publicKey = Utils.base64encode(publicKey, true);
         } else {
             this.publicKey = null;
         }

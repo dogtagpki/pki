@@ -366,7 +366,7 @@ public class KeyService extends SubsystemService implements KeyResource {
 
         byte[] pubKeyBytes =  rec.getPublicKeyData();
         if (pubKeyBytes != null) {
-            keyData.setPublicKey(Utils.base64encode(pubKeyBytes));
+            keyData.setPublicKey(Utils.base64encode(pubKeyBytes, true));
         }
 
         kra.destroyVolatileRequest(request.getRequestId());
@@ -733,7 +733,7 @@ public class KeyService extends SubsystemService implements KeyResource {
         if (pkcs12 == null) {
             throw new HTTPGoneException("pkcs12 null; Key not recovered");
         }
-        String pkcs12base64encoded = Utils.base64encode(pkcs12);
+        String pkcs12base64encoded = Utils.base64encode(pkcs12, true);
 
         KeyData keyData = new KeyData();
         keyData.setP12Data(pkcs12base64encoded);

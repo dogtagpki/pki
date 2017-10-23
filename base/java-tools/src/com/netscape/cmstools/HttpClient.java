@@ -212,7 +212,7 @@ public class HttpClient {
 
             bs = new ByteArrayOutputStream();
             ps = new PrintStream(bs);
-            ps.print(Utils.base64encode(bout));
+            ps.print(Utils.base64encode(bout, true));
             System.out.println(bs.toString());
 
             System.out.println("");
