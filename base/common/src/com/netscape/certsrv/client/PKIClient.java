@@ -38,11 +38,9 @@ import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.CryptoManager.NicknameConflictException;
 import org.mozilla.jss.CryptoManager.NotInitializedException;
 import org.mozilla.jss.CryptoManager.UserCertConflictException;
-import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.InternalCertificate;
 import org.mozilla.jss.crypto.NoSuchItemOnTokenException;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
-import org.mozilla.jss.crypto.TokenCertificate;
 import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.w3c.dom.Document;
@@ -214,25 +212,6 @@ public class PKIClient {
                 InternalCertificate.TRUSTED_CLIENT_CA);
 
         return cert;
-    }
-
-    public void removeCert(String nickname)
-            throws TokenException, ObjectNotFoundException,
-            NoSuchItemOnTokenException, NotInitializedException {
-
-        CryptoManager manager = CryptoManager.getInstance();
-        X509Certificate cert = manager.findCertByNickname(nickname);
-
-        CryptoToken cryptoToken;
-        if (cert instanceof TokenCertificate) {
-            TokenCertificate tokenCert = (TokenCertificate) cert;
-            cryptoToken = tokenCert.getOwningToken();
-
-        } else {
-            cryptoToken = manager.getInternalKeyStorageToken();
-        }
-
-        cryptoToken.getCryptoStore().deleteCert(cert);
     }
 
     public void addRejectedCertStatus(Integer rejectedCertStatus) {

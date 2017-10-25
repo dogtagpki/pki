@@ -22,9 +22,9 @@ import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
 
-import com.netscape.certsrv.client.PKIClient;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
  * @author Endi S. Dewata
@@ -57,10 +57,8 @@ public class ClientCertRemoveCLI extends CLI {
             throw new Exception("No nickname specified.");
         }
 
-        PKIClient client = getClient();
-
         String nickname = cmdArgs[0];
-        client.removeCert(nickname);
+        CryptoUtil.deleteCertificates(nickname);
 
         MainCLI.printMessage("Removed certificate \"" + nickname + "\"");
    }
