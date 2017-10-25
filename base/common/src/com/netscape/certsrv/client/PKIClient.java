@@ -40,7 +40,6 @@ import org.mozilla.jss.CryptoManager.NotInitializedException;
 import org.mozilla.jss.CryptoManager.UserCertConflictException;
 import org.mozilla.jss.crypto.InternalCertificate;
 import org.mozilla.jss.crypto.NoSuchItemOnTokenException;
-import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.w3c.dom.Document;
@@ -143,12 +142,6 @@ public class PKIClient {
     public void setVerbose(boolean verbose) {
         this.verbose = verbose;
         connection.setVerbose(verbose);
-    }
-
-    public X509Certificate getCert(String nickname)
-            throws NotInitializedException, ObjectNotFoundException, TokenException {
-        CryptoManager manager = CryptoManager.getInstance();
-        return manager.findCertByNickname(nickname);
     }
 
     public byte[] downloadCACertChain(String serverURI) throws ParserConfigurationException, SAXException, IOException {
