@@ -21,9 +21,9 @@ package com.netscape.cmstools.client;
 import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
+import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.X509Certificate;
 
-import com.netscape.certsrv.client.PKIClient;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -64,13 +64,13 @@ public class ClientCertFindCLI extends CLI {
             throw new Exception("Too many arguments specified.");
         }
 
-        PKIClient client = getClient();
+        CryptoManager manager = CryptoManager.getInstance();
 
         X509Certificate[] certs;
         if (cmd.hasOption("ca")) {
-            certs = client.getCACerts();
+            certs = manager.getCACerts();
         } else {
-            certs = client.getCerts();
+            certs = manager.getPermCerts();
         }
 
         if (certs == null || certs.length == 0) {
