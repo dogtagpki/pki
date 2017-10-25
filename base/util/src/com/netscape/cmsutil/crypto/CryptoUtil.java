@@ -89,6 +89,7 @@ import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.Signature;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.crypto.SymmetricKey;
+import org.mozilla.jss.crypto.TokenCertificate;
 import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.pkcs11.PK11ECPublicKey;
@@ -2058,17 +2059,48 @@ public class CryptoUtil {
     /**
      * Deletes all certificates by a nickname.
      */
-    public static void deleteAllCertificates(String nickname)
+    public static void deleteCertificates(String nickname)
+            throws TokenException, ObjectNotFoundException,
+            NoSuchItemOnTokenException, NotInitializedException {
+
+        CryptoManager manager = CryptoManager.getInstance();
+        X509Certificate[] certs = manager.findCertsByNickname(nickname);
+
+        if (certs == null || certs.length == 0) {
+            throw new ObjectNotFoundException("Certificate not found: " + nickname);
+        }
+
+        for (X509Certificate cert : certs) {
+
+            CryptoToken token;
+            if (cert instanceof TokenCertificate) {
+                TokenCertificate tokenCert = (TokenCertificate) cert;
+                token = tokenCert.getOwningToken();
+
+            } else {
+                token = manager.getInternalKeyStorageToken();
+            }
+
+            CryptoStore store = token.getCryptoStore();
+            store.deleteCert(cert);
+        }
+    }
+
+    /**
+     * Deletes user certificates by a nickname.
+     */
+    public static void deleteUserCertificates(String nickname)
             throws CryptoManager.NotInitializedException, TokenException {
+
         CryptoManager cm = CryptoManager.getInstance();
         X509Certificate certs[] = cm.findCertsByNickname(nickname);
 
         if (certs == null) {
             return;
         }
-        for (int i = 0; i < certs.length; i++) {
+
+        for (X509Certificate cert : certs) {
             try {
-                X509Certificate cert = certs[i];
                 org.mozilla.jss.crypto.PrivateKey prikey = cm.findPrivKeyByCert(
                         cert);
                 CryptoToken token = prikey.getOwningToken();
