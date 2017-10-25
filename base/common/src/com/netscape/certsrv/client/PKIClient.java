@@ -151,16 +151,6 @@ public class PKIClient {
         return manager.findCertByNickname(nickname);
     }
 
-    public X509Certificate[] getCerts() throws NotInitializedException {
-        CryptoManager manager = CryptoManager.getInstance();
-        return manager.getPermCerts();
-    }
-
-    public X509Certificate[] getCACerts() throws NotInitializedException {
-        CryptoManager manager = CryptoManager.getInstance();
-        return manager.getCACerts();
-    }
-
     public byte[] downloadCACertChain(String serverURI) throws ParserConfigurationException, SAXException, IOException {
         return downloadCACertChain(serverURI, "/ee/ca/getCertChain");
     }
