@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.security.cert.CertificateEncodingException;
 import java.util.Collection;
 import java.util.HashSet;
 
@@ -34,14 +33,6 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.codec.binary.Base64;
 import org.dogtagpki.common.InfoClient;
-import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.CryptoManager.NicknameConflictException;
-import org.mozilla.jss.CryptoManager.NotInitializedException;
-import org.mozilla.jss.CryptoManager.UserCertConflictException;
-import org.mozilla.jss.crypto.InternalCertificate;
-import org.mozilla.jss.crypto.NoSuchItemOnTokenException;
-import org.mozilla.jss.crypto.TokenException;
-import org.mozilla.jss.crypto.X509Certificate;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -172,29 +163,6 @@ public class PKIClient {
         }
 
         return bytes;
-    }
-
-    public X509Certificate importCertPackage(byte[] bytes, String nickname)
-            throws NotInitializedException, CertificateEncodingException,
-            NicknameConflictException, UserCertConflictException,
-            NoSuchItemOnTokenException, TokenException {
-
-        CryptoManager manager = CryptoManager.getInstance();
-        return manager.importCertPackage(bytes, nickname);
-    }
-
-    public X509Certificate importCACertPackage(byte[] bytes)
-            throws NotInitializedException, CertificateEncodingException, TokenException {
-
-        CryptoManager manager = CryptoManager.getInstance();
-        InternalCertificate cert = (InternalCertificate)manager.importCACertPackage(bytes);
-
-        cert.setSSLTrust(
-                InternalCertificate.VALID_CA |
-                InternalCertificate.TRUSTED_CA |
-                InternalCertificate.TRUSTED_CLIENT_CA);
-
-        return cert;
     }
 
     public void addRejectedCertStatus(Integer rejectedCertStatus) {

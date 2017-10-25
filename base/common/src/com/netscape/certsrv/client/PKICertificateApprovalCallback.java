@@ -27,6 +27,8 @@ import java.util.Enumeration;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 
+import com.netscape.cmsutil.crypto.CryptoUtil;
+
 public class PKICertificateApprovalCallback implements SSLCertificateApprovalCallback {
 
     public PKIClient client;
@@ -114,7 +116,7 @@ public class PKICertificateApprovalCallback implements SSLCertificateApprovalCal
             byte[] bytes = client.downloadCACertChain(caServerURI);
 
             if (client.verbose) System.out.println("Importing CA certificate chain.");
-            client.importCACertPackage(bytes);
+            CryptoUtil.importCertificateChain(bytes);
 
             if (client.verbose) System.out.println("Imported CA certificate.");
             return true;
