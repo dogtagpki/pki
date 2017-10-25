@@ -33,6 +33,10 @@ public class Cert {
     public static final String HEADER = "-----BEGIN CERTIFICATE-----";
     public static final String FOOTER = "-----END CERTIFICATE-----";
 
+    // From https://www.rfc-editor.org/rfc/rfc7468.txt
+    public static final String REQUEST_HEADER = "-----BEGIN CERTIFICATE REQUEST-----";
+    public static final String REQUEST_FOOTER = "-----END CERTIFICATE REQUEST-----";
+
     public static SignatureAlgorithm mapAlgorithmToJss(String algname) {
         if (algname.equals("MD5withRSA"))
             return SignatureAlgorithm.RSASignatureWithMD5Digest;

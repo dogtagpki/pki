@@ -56,6 +56,7 @@ import org.mozilla.jss.pkix.primitive.Name;
 import org.mozilla.jss.util.Password;
 
 import com.netscape.cmsutil.crypto.CryptoUtil;
+import com.netscape.cmsutil.util.Cert;
 import com.netscape.cmsutil.util.Utils;
 
 import netscape.security.x509.X500Name;
@@ -70,9 +71,7 @@ import netscape.security.x509.X509CertImpl;
  */
 public class CMCRevoke {
     public static final int ARGC = 8;
-    // From https://www.rfc-editor.org/rfc/rfc7468.txt
-    public static final String RFC7468_HEADER = "-----BEGIN CERTIFICATE REQUEST-----";
-    public static final String RFC7468_TRAILER = "-----END CERTIFICATE REQUEST-----";
+
     static String dValue = null, nValue = null, iValue = null, sValue = null, mValue = null, hValue = null,
             pValue = null, cValue = null;
     static String tValue = null;
@@ -233,12 +232,12 @@ public class CMCRevoke {
         }
         //ps.print(Utils.base64encode(os.toByteArray()));
         // no line breaks for ease of copy/paste for CA acceptance
-        System.out.println(RFC7468_HEADER);
         ps.print(Utils.base64encode(os.toByteArray(), false));
         ////fullEnrollmentReq.print(ps); // no header/trailer
 
         String asciiBASE64Blob = bs.toString();
-        System.out.println(asciiBASE64Blob + "\n" + RFC7468_TRAILER);
+        System.out.println(Cert.REQUEST_HEADER);
+        System.out.println(asciiBASE64Blob + "\n" + Cert.REQUEST_FOOTER);
 
         // (6) Finally, print the actual CMCSigning binary blob to the
         //     specified output file

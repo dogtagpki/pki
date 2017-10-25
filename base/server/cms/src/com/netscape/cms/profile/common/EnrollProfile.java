@@ -33,32 +33,6 @@ import java.util.Enumeration;
 import java.util.Locale;
 import java.util.StringTokenizer;
 
-import netscape.security.pkcs.PKCS10;
-import netscape.security.pkcs.PKCS10Attribute;
-import netscape.security.pkcs.PKCS10Attributes;
-import netscape.security.pkcs.PKCS9Attribute;
-import netscape.security.util.DerInputStream;
-import netscape.security.util.DerOutputStream;
-import netscape.security.util.DerValue;
-import netscape.security.util.ObjectIdentifier;
-import netscape.security.x509.AlgorithmId;
-import netscape.security.x509.CertificateAlgorithmId;
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.CertificateIssuerName;
-import netscape.security.x509.CertificateSerialNumber;
-import netscape.security.x509.CertificateSubjectName;
-import netscape.security.x509.CertificateValidity;
-import netscape.security.x509.CertificateVersion;
-import netscape.security.x509.CertificateX509Key;
-import netscape.security.x509.Extension;
-import netscape.security.x509.Extensions;
-import netscape.security.x509.PKIXExtensions;
-import netscape.security.x509.SubjectKeyIdentifierExtension;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
-import netscape.security.x509.X509Key;
-
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.ASN1Value;
@@ -129,6 +103,32 @@ import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.HMACDigest;
 import com.netscape.cmsutil.util.Utils;
+
+import netscape.security.pkcs.PKCS10;
+import netscape.security.pkcs.PKCS10Attribute;
+import netscape.security.pkcs.PKCS10Attributes;
+import netscape.security.pkcs.PKCS9Attribute;
+import netscape.security.util.DerInputStream;
+import netscape.security.util.DerOutputStream;
+import netscape.security.util.DerValue;
+import netscape.security.util.ObjectIdentifier;
+import netscape.security.x509.AlgorithmId;
+import netscape.security.x509.CertificateAlgorithmId;
+import netscape.security.x509.CertificateExtensions;
+import netscape.security.x509.CertificateIssuerName;
+import netscape.security.x509.CertificateSerialNumber;
+import netscape.security.x509.CertificateSubjectName;
+import netscape.security.x509.CertificateValidity;
+import netscape.security.x509.CertificateVersion;
+import netscape.security.x509.CertificateX509Key;
+import netscape.security.x509.Extension;
+import netscape.security.x509.Extensions;
+import netscape.security.x509.PKIXExtensions;
+import netscape.security.x509.SubjectKeyIdentifierExtension;
+import netscape.security.x509.X500Name;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509CertInfo;
+import netscape.security.x509.X509Key;
 
 /**
  * This class implements a generic enrollment profile.
@@ -2437,9 +2437,9 @@ public abstract class EnrollProfile extends BasicProfile
         if (s == null) {
             return s;
         }
-        s = s.replaceAll("-----BEGIN CERTIFICATE REQUEST-----", "");
+        s = s.replaceAll(com.netscape.cmsutil.util.Cert.REQUEST_HEADER, "");
         s = s.replaceAll("-----BEGIN NEW CERTIFICATE REQUEST-----", "");
-        s = s.replaceAll("-----END CERTIFICATE REQUEST-----", "");
+        s = s.replaceAll(com.netscape.cmsutil.util.Cert.REQUEST_FOOTER, "");
         s = s.replaceAll("-----END NEW CERTIFICATE REQUEST-----", "");
 
         StringBuffer sb = new StringBuffer();
@@ -2449,11 +2449,11 @@ public abstract class EnrollProfile extends BasicProfile
             String nextLine = st.nextToken();
 
             nextLine = nextLine.trim();
-            if (nextLine.equals("-----BEGIN CERTIFICATE REQUEST-----"))
+            if (nextLine.equals(com.netscape.cmsutil.util.Cert.REQUEST_HEADER))
                 continue;
             if (nextLine.equals("-----BEGIN NEW CERTIFICATE REQUEST-----"))
                 continue;
-            if (nextLine.equals("-----END CERTIFICATE REQUEST-----"))
+            if (nextLine.equals(com.netscape.cmsutil.util.Cert.REQUEST_FOOTER))
                 continue;
             if (nextLine.equals("-----END NEW CERTIFICATE REQUEST-----"))
                 continue;

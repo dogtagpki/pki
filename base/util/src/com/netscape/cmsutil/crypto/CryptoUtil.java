@@ -171,9 +171,6 @@ public class CryptoUtil {
     public final static String INTERNAL_TOKEN_NAME = "internal";
     public final static String INTERNAL_TOKEN_FULL_NAME = "Internal Key Storage Token";
 
-    public static final String CERTREQ_BEGIN_HEADING = "-----BEGIN CERTIFICATE REQUEST-----";
-    public static final String CERTREQ_END_HEADING = "-----END CERTIFICATE REQUEST-----";
-
     public static final int LINE_COUNT = 76;
 
     static public final Integer[] clientECCiphers = {
@@ -1082,16 +1079,16 @@ public class CryptoUtil {
      */
     public static String reqFormat(String content) {
         StringBuffer result = new StringBuffer();
-        result.append(CERTREQ_BEGIN_HEADING + "\n");
+        result.append(Cert.REQUEST_HEADER + "\n");
 
         while (content.length() >= LINE_COUNT) {
             result.append(content.substring(0, LINE_COUNT) + "\n");
             content = content.substring(LINE_COUNT);
         }
         if (content.length() > 0) {
-            result.append(content + "\n" + CERTREQ_END_HEADING);
+            result.append(content + "\n" + Cert.REQUEST_FOOTER);
         } else {
-            result.append(CERTREQ_END_HEADING);
+            result.append(Cert.REQUEST_FOOTER);
         }
 
         return result.toString();

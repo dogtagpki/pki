@@ -110,6 +110,7 @@ import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
 import org.mozilla.jss.util.Password;
 
 import com.netscape.cmsutil.crypto.CryptoUtil;
+import com.netscape.cmsutil.util.Cert;
 import com.netscape.cmsutil.util.HMACDigest;
 import com.netscape.cmsutil.util.Utils;
 
@@ -547,9 +548,9 @@ public class CMCRequest {
                             byte[] encodedNewCrmfMessage = ASN1Util.encode(seq);
                             String b64String = Utils.base64encode(encodedNewCrmfMessage, true);
                             System.out.println(method + "new CRMF b64encode completes.");
-                            System.out.println(CryptoUtil.CERTREQ_BEGIN_HEADING);
+                            System.out.println(Cert.REQUEST_HEADER);
                             System.out.println(b64String);
-                            System.out.println(CryptoUtil.CERTREQ_END_HEADING);
+                            System.out.println(Cert.REQUEST_FOOTER);
                             System.out.println("");
 
                             trq = new TaggedRequest(TaggedRequest.CRMF, null,
@@ -648,9 +649,9 @@ public class CMCRequest {
                             System.out.println(method + "calling Utils.b64encode.");
                             String b64String = Utils.base64encode(bb, true);
                             System.out.println(method + "new PKCS#10 b64encode completes.");
-                            System.out.println(CryptoUtil.CERTREQ_BEGIN_HEADING);
+                            System.out.println(Cert.REQUEST_HEADER);
                             System.out.println(b64String);
-                            System.out.println(CryptoUtil.CERTREQ_END_HEADING);
+                            System.out.println(Cert.REQUEST_FOOTER);
                             System.out.println("");
 
                             TaggedCertificationRequest tcr = new TaggedCertificationRequest(

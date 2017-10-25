@@ -61,6 +61,7 @@ import org.mozilla.jss.pkix.primitive.Name;
 import org.mozilla.jss.util.Password;
 
 import com.netscape.cmsutil.crypto.CryptoUtil;
+import com.netscape.cmsutil.util.Cert;
 import com.netscape.cmsutil.util.Utils;
 
 import netscape.security.pkcs.PKCS10;
@@ -82,9 +83,6 @@ public class CMCEnroll {
     public static final int ARGC = 4;
     public static final String HEADER = "-----BEGIN";
     public static final String TRAILER = "-----END";
-    // From https://www.rfc-editor.org/rfc/rfc7468.txt
-    public static final String RFC7468_HEADER = "-----BEGIN CERTIFICATE REQUEST-----";
-    public static final String RFC7468_TRAILER = "-----END CERTIFICATE REQUEST-----";
 
     void cleanArgs(String[] s) {
 
@@ -432,10 +430,10 @@ public class CMCEnroll {
                     return;
                 }
 
-                System.out.println(RFC7468_HEADER);
-                System.out.println(asciiBASE64Blob.toString() + RFC7468_TRAILER);
+                System.out.println(Cert.REQUEST_HEADER);
+                System.out.println(asciiBASE64Blob + Cert.REQUEST_FOOTER);
                 try {
-                    asciiBASE64Blob_str = RFC7468_HEADER + "\n" + asciiBASE64Blob_str.toString() + RFC7468_TRAILER;
+                    asciiBASE64Blob_str = Cert.REQUEST_HEADER + "\n" + asciiBASE64Blob_str + Cert.REQUEST_FOOTER;
                     outputBlob.write(asciiBASE64Blob_str.getBytes());
                 } catch (IOException e) {
                     System.out.println("CMCEnroll:  I/O error " +

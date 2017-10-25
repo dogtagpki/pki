@@ -32,6 +32,7 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.KeyGenInfo;
+import com.netscape.cmsutil.util.Cert;
 import com.netscape.cmsutil.util.Utils;
 
 /**
@@ -52,8 +53,6 @@ public class ArgBlock implements IArgBlock {
      *==========================================================*/
     public static final String CERT_NEW_REQUEST_HEADER = "-----BEGIN NEW CERTIFICATE REQUEST-----";
     public static final String CERT_NEW_REQUEST_TRAILER = "-----END NEW CERTIFICATE REQUEST-----";
-    public static final String CERT_REQUEST_HEADER = "-----BEGIN CERTIFICATE REQUEST-----";
-    public static final String CERT_REQUEST_TRAILER = "-----END CERTIFICATE REQUEST-----";
     public static final String CERT_RENEWAL_HEADER = "-----BEGIN RENEWAL CERTIFICATE REQUEST-----";
     public static final String CERT_RENEWAL_TRAILER = "-----END RENEWAL CERTIFICATE REQUEST-----";
 
@@ -637,13 +636,13 @@ public class ArgBlock implements IArgBlock {
 
         // check for "-----BEGIN CERTIFICATE REQUEST-----";
         if (header == null) {
-            head = request.indexOf(CERT_REQUEST_HEADER);
-            trail = request.indexOf(CERT_REQUEST_TRAILER);
+            head = request.indexOf(Cert.REQUEST_HEADER);
+            trail = request.indexOf(Cert.REQUEST_FOOTER);
 
             // If this is not a request header, check if this is a renewal
             // header.
             if (!(head == -1 && trail == -1)) {
-                header = CERT_REQUEST_HEADER;
+                header = Cert.REQUEST_HEADER;
 
             }
         }
