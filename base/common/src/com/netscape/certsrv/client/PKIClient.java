@@ -31,7 +31,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.commons.codec.binary.Base64;
 import org.dogtagpki.common.InfoClient;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -41,6 +40,8 @@ import org.xml.sax.SAXException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.util.CryptoProvider;
 import com.netscape.cmsutil.util.Utils;
+
+import netscape.security.pkcs.PKCS7;
 
 
 public class PKIClient {
@@ -157,9 +158,9 @@ public class PKIClient {
         byte[] bytes = Utils.base64decode(encodedChain);
 
         if (verbose) {
-            System.out.println("-----BEGIN PKCS7-----");
-            System.out.print(new Base64(64).encodeToString(bytes));
-            System.out.println("-----END PKCS7-----");
+            System.out.println(PKCS7.HEADER);
+            System.out.print(Utils.base64encode(bytes, true));
+            System.out.println(PKCS7.FOOTER);
         }
 
         return bytes;
