@@ -25,9 +25,9 @@ import java.io.PrintWriter;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.lang.RandomStringUtils;
+import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.X509Certificate;
 
-import com.netscape.certsrv.client.PKIClient;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 import com.netscape.cmsutil.util.Cert;
@@ -127,8 +127,8 @@ public class ClientCertShowCLI extends CLI {
 
             mainCLI.init();
 
-            PKIClient client = getClient();
-            X509Certificate cert = client.getCert(nickname);
+            CryptoManager manager = CryptoManager.getInstance();
+            X509Certificate cert = manager.findCertByNickname(nickname);
 
             if (certPath != null) {
                 try (PrintWriter out = new PrintWriter(new FileWriter(certPath))) {
