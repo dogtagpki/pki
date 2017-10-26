@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9aaa81ad_9e5d220b",
+        "filename": "base/server/cmscore/src/com/netscape/cmscore/security/JssSubsystem.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 402,
+      "author": {
+        "id": 1010256
+      },
+      "writtenOn": "2017-10-26T22:08:01Z",
+      "side": 1,
+      "message": "This comment is very confusing here.",
+      "range": {
+        "startLine": 402,
+        "startChar": 72,
+        "endLine": 402,
+        "endChar": 73
+      },
+      "revId": "8ced8f17c9e86d98181290c4a834cb6689d9eb66",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
