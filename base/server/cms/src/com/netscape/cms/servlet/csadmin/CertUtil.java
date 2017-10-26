@@ -775,26 +775,18 @@ public class CertUtil {
         return false;
     }
 
-    public static boolean findCertificate(String fullnickname)
+    public static X509Certificate findCertificate(String fullnickname)
             throws Exception {
 
         CryptoManager cm = CryptoManager.getInstance();
         CMS.debug("CertUtil: searching for cert " + fullnickname);
 
-        X509Certificate cert;
         try {
-            cert = cm.findCertByNickname(fullnickname);
+            return cm.findCertByNickname(fullnickname);
+
         } catch (ObjectNotFoundException e) {
-            CMS.debug("CertUtil: cert not found: " + e);
-            return false;
+            return null;
         }
-
-        if (cert == null) {
-            CMS.debug("CertUtil: cert not found");
-            return false;
-        }
-
-        return true;
     }
 
     public static void deleteCert(String tokenname, String nickname)

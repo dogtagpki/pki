@@ -3192,7 +3192,9 @@ public class ConfigurationUtils {
             fullNickname = tokenname + ":" + nickname;
         }
 
-        if (CertUtil.findCertificate(fullNickname)) {
+        X509Certificate cert = CertUtil.findCertificate(fullNickname);
+
+        if (cert != null) {
             CMS.debug("ConfigurationUtils: deleting existing " + tag + " cert");
             CertUtil.deleteCert(tokenname, nickname);
         }
