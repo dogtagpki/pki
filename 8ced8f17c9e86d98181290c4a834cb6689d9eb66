@@ -2,6 +2,40 @@
   "comments": [
     {
       "key": {
+        "uuid": "56d7d9a0_0abe1a13",
+        "filename": "base/kra/src/com/netscape/kra/EnrollmentService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 275,
+      "author": {
+        "id": 1010256
+      },
+      "writtenOn": "2017-10-26T22:35:44Z",
+      "side": 1,
+      "message": "Could put this in the constructor instead of getting the subsystem at each obscureBytes call?",
+      "revId": "8ced8f17c9e86d98181290c4a834cb6689d9eb66",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2646b8b5_cfaadc07",
+        "filename": "base/kra/src/com/netscape/kra/RecoveryService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 1010256
+      },
+      "writtenOn": "2017-10-26T22:35:44Z",
+      "side": 1,
+      "message": "could go into constructor instead of getting JssSubsystem each time obscureBytes is called",
+      "revId": "8ced8f17c9e86d98181290c4a834cb6689d9eb66",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9aaa81ad_9e5d220b",
         "filename": "base/server/cmscore/src/com/netscape/cmscore/security/JssSubsystem.java",
         "patchSetId": 1
