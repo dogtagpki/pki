@@ -1828,6 +1828,8 @@ public abstract class CMSServlet extends HttpServlet {
             String exp) throws EBaseException {
         AuthzToken authzToken = null;
 
+        CMS.debug("CMSServlet.authorize(" + authzMgrName + ", " + resource + ")");
+
         String auditSubjectID = auditSubjectID();
         String auditGroupID = auditGroupID();
         String auditACLResource = resource;
@@ -1898,6 +1900,8 @@ public abstract class CMSServlet extends HttpServlet {
     public AuthzToken authorize(String authzMgrName, IAuthToken authToken,
             String resource, String operation)
             throws EBaseException {
+
+        CMS.debug("CMSServlet.authorize(" + authzMgrName + ")");
 
         String auditSubjectID = auditSubjectID();
         String auditGroupID = auditGroupID();

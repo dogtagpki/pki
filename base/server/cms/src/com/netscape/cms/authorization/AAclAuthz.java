@@ -508,65 +508,63 @@ public abstract class AAclAuthz implements IAuthzManager {
             String perm)
             throws EACLsException {
 
+        CMS.debug("AAclAuthz.checkPermission(" + name + ", " + perm + ")");
+
         Vector<String> nodev = getNodes(name);
         Enumeration<String> nodes = nodev.elements();
         String order = getOrder();
         Enumeration<ACLEntry> entries = null;
 
-        if (order.equals("deny"))
+        if (order.equals("deny")) {
             entries = getDenyEntries(nodes, perm);
-        else
+        } else {
             entries = getAllowEntries(nodes, perm);
+        }
+
+        while (entries.hasMoreElements()) {
+            ACLEntry entry = entries.nextElement();
+
+            CMS.debug("checkPermission(): expressions: " + entry.getAttributeExpressions());
+            if (evaluateExpressions(authToken, entry.getAttributeExpressions())) {
+                log(ILogger.LL_SECURITY, "checkPermission(): permission denied");
+                throw new EACLsException(CMS.getUserMessage("CMS_ACL_PERMISSION_DENIED"));
+            }
+        }
+
+        nodes = nodev.elements();
+        if (order.equals("deny")) {
+            entries = getAllowEntries(nodes, perm);
+        } else {
+            entries = getDenyEntries(nodes, perm);
+        }
 
         boolean permitted = false;
 
         while (entries.hasMoreElements()) {
             ACLEntry entry = entries.nextElement();
 
-            CMS.debug("checkACLS(): ACLEntry expressions= " +
-                    entry.getAttributeExpressions());
-            if (evaluateExpressions(authToken, entry.getAttributeExpressions())) {
-                log(ILogger.LL_SECURITY,
-                        " checkACLs(): permission denied");
-                throw new EACLsException(CMS.getUserMessage("CMS_ACL_PERMISSION_DENIED"));
-            }
-        }
-
-        nodes = nodev.elements();
-        if (order.equals("deny"))
-            entries = getAllowEntries(nodes, perm);
-        else
-            entries = getDenyEntries(nodes, perm);
-
-        while (entries.hasMoreElements()) {
-            ACLEntry entry = entries.nextElement();
-
-            CMS.debug("checkACLS(): ACLEntry expressions= " +
-                    entry.getAttributeExpressions());
+            CMS.debug("checkPermission(): expressions: " + entry.getAttributeExpressions());
             if (evaluateExpressions(authToken, entry.getAttributeExpressions())) {
                 permitted = true;
             }
         }
 
         nodev = null;
-        if (permitted) {
-            String infoMsg = "checkPermission(): permission granted for the resource " +
-                    name + " on operation " + perm;
-
-            log(ILogger.LL_INFO, infoMsg);
-            return;
-        } else {
+        if (!permitted) {
             String[] params = new String[2];
-
             params[0] = name;
             params[1] = perm;
 
             log(ILogger.LL_SECURITY,
                     CMS.getLogMessage("AUTHZ_EVALUATOR_ACCESS_DENIED", name, perm));
 
-            throw new EACLsException(CMS.getUserMessage("CMS_ACL_NO_PERMISSION",
-                        params));
+            throw new EACLsException(CMS.getUserMessage("CMS_ACL_NO_PERMISSION", params));
         }
+
+        String infoMsg = "checkPermission(): permission granted for the resource " +
+                name + " on operation " + perm;
+
+        log(ILogger.LL_INFO, infoMsg);
     }
 
     protected Enumeration<ACLEntry> getAllowEntries(Enumeration<String> nodes, String operation) {

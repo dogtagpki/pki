@@ -690,6 +690,8 @@ public class CAProcessor extends Processor {
             String exp) throws EBaseException {
         AuthzToken authzToken = null;
 
+        CMS.debug("CAProcessor.authorize(" + authzMgrName + ", " + resource + ")");
+
         String auditSubjectID = auditSubjectID();
         String auditGroupID = auditGroupID();
         String auditACLResource = resource;
@@ -759,6 +761,8 @@ public class CAProcessor extends Processor {
      */
     public AuthzToken authorize(String authzMgrName, IAuthToken authToken,
             String resource, String operation) {
+
+        CMS.debug("CAProcessor.authorize(" + authzMgrName + ")");
 
         String auditSubjectID = auditSubjectID();
         String auditGroupID = auditGroupID();
