@@ -39,6 +39,7 @@ import org.mozilla.jss.util.Password;
 
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Cert;
+import com.netscape.cmsutil.util.Utils;
 
 import netscape.security.pkcs.PKCS10;
 import netscape.security.x509.Extensions;
@@ -284,7 +285,7 @@ public class PKCS10Client {
                 extns.add(extn);
             }
 
-            String b64E = "";
+
             PKCS10 certReq = CryptoUtil.createCertificationRequest(
                     subjectName, pair, extns);
 
@@ -294,7 +295,7 @@ public class PKCS10Client {
             } else
                 System.out.println("PKCS10Client: CertificationRequest created.");
             byte[] certReqb = certReq.toByteArray();
-            b64E = CryptoUtil.base64Encode(certReqb);
+            String b64E = Utils.base64encode(certReqb, true);
 
             System.out.println("PKCS10Client: b64encode completes.");
 
@@ -307,21 +308,21 @@ public class PKCS10Client {
             System.out.println("");
 
             System.out.println(Cert.REQUEST_HEADER);
-            System.out.println(b64E);
+            System.out.print(b64E);
             System.out.println(Cert.REQUEST_FOOTER);
 
             PrintStream ps = null;
             ps = new PrintStream(new FileOutputStream(ofilename));
             ps.println(Cert.REQUEST_HEADER);
-            ps.println(b64E);
+            ps.print(b64E);
             ps.println(Cert.REQUEST_FOOTER);
             ps.flush();
             ps.close();
             System.out.println("PKCS10Client: done. Request written to file: "+ ofilename);
         } catch (Exception e) {
             System.out.println("PKCS10Client: Exception caught: "+e.toString());
+            System.exit(1);
         }
-
     }
 
     static boolean isEncoded (String elementValue) {

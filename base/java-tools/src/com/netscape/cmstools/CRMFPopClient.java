@@ -535,7 +535,7 @@ public class CRMFPopClient {
             StringWriter sw = new StringWriter();
             try (PrintWriter out = new PrintWriter(sw)) {
                 out.println(Cert.REQUEST_HEADER);
-                out.println(request);
+                out.print(request);
                 out.println(Cert.REQUEST_FOOTER);
             }
             String csr = sw.toString();
