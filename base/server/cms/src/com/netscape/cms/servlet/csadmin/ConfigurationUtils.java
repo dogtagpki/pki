@@ -3200,13 +3200,7 @@ public class ConfigurationUtils {
         }
 
         CMS.debug("ConfigurationUtils: importing " + tag + " cert");
-
-        if (subsystem.equals("ca") && tag.equals("signing") ) {
-            cert = CryptoUtil.importUserCertificate(impl, nickname);
-
-        } else {
-            cert = CryptoUtil.importUserCertificate(impl, nickname, false);
-        }
+        cert = CryptoUtil.importUserCertificate(impl, nickname, false);
     }
 
     public static void setCertPermissions(Cert cert) throws EBaseException, NotInitializedException,
