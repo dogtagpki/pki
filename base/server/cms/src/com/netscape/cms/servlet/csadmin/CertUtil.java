@@ -834,34 +834,4 @@ public class CertUtil {
             CMS.debug("CertUtil: unsupported crypto store: " + store.getClass().getName());
         }
     }
-
-    public static void importCert(
-            String subsystem,
-            String tag,
-            String tokenname,
-            String nickname,
-            X509CertImpl impl
-            ) throws Exception {
-
-        CMS.debug("CertUtil.importCert(" + tag + ")");
-
-        if (tag.equals("sslserver")) {
-            CMS.debug("CertUtil: temporary SSL server cert will be replaced on restart");
-            return;
-        }
-
-        if (findCertificate(tokenname, nickname)) {
-            CMS.debug("CertUtil: deleting existing " + tag + " cert");
-            deleteCert(tokenname, nickname);
-        }
-
-        CMS.debug("CertUtil: importing " + tag + " cert");
-
-        if (subsystem.equals("ca") && tag.equals("signing") ) {
-            CryptoUtil.importUserCertificate(impl, nickname);
-
-        } else {
-            CryptoUtil.importUserCertificate(impl, nickname, false);
-        }
-    }
 }

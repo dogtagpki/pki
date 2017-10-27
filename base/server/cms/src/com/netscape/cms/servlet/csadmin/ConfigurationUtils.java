@@ -3162,7 +3162,7 @@ public class ConfigurationUtils {
         byte[] certb = cert.getCert();
         X509CertImpl impl = new X509CertImpl(certb);
 
-        CertUtil.importCert(subsystem, certTag, tokenname, nickname, impl);
+        importCert(subsystem, certTag, tokenname, nickname, impl);
 
         //update requests in request queue for local certs to allow renewal
         if ((cert.getType().equals("local")) || (cert.getType().equals("selfsign"))) {
@@ -3170,6 +3170,36 @@ public class ConfigurationUtils {
         }
 
         ConfigurationUtils.setCertPermissions(cert);
+    }
+
+    public static void importCert(
+            String subsystem,
+            String tag,
+            String tokenname,
+            String nickname,
+            X509CertImpl impl
+            ) throws Exception {
+
+        CMS.debug("ConfigurationUtils.importCert(" + tag + ")");
+
+        if (tag.equals("sslserver")) {
+            CMS.debug("ConfigurationUtils: temporary SSL server cert will be replaced on restart");
+            return;
+        }
+
+        if (CertUtil.findCertificate(tokenname, nickname)) {
+            CMS.debug("ConfigurationUtils: deleting existing " + tag + " cert");
+            CertUtil.deleteCert(tokenname, nickname);
+        }
+
+        CMS.debug("ConfigurationUtils: importing " + tag + " cert");
+
+        if (subsystem.equals("ca") && tag.equals("signing") ) {
+            CryptoUtil.importUserCertificate(impl, nickname);
+
+        } else {
+            CryptoUtil.importUserCertificate(impl, nickname, false);
+        }
     }
 
     public static void setCertPermissions(Cert cert) throws EBaseException, NotInitializedException,
