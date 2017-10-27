@@ -3202,10 +3202,10 @@ public class ConfigurationUtils {
         CMS.debug("ConfigurationUtils: importing " + tag + " cert");
 
         if (subsystem.equals("ca") && tag.equals("signing") ) {
-            CryptoUtil.importUserCertificate(impl, nickname);
+            cert = CryptoUtil.importUserCertificate(impl, nickname);
 
         } else {
-            CryptoUtil.importUserCertificate(impl, nickname, false);
+            cert = CryptoUtil.importUserCertificate(impl, nickname, false);
         }
     }
 
