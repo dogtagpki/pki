@@ -789,24 +789,10 @@ public class CertUtil {
         }
     }
 
-    public static void deleteCert(String tokenname, String nickname)
+    public static void deleteCert(String tokenname, X509Certificate cert)
             throws Exception {
 
-        CryptoManager cm = CryptoManager.getInstance();
-
-        String fullnickname = nickname;
-        if (!CryptoUtil.isInternalToken(tokenname))
-            fullnickname = tokenname + ":" + nickname;
-
-        CMS.debug("CertUtil: deleting cert " + fullnickname);
-
-        X509Certificate cert;
-        try {
-            cert = cm.findCertByNickname(fullnickname);
-        } catch (ObjectNotFoundException e) {
-            CMS.debug("CertUtil: cert not found: " + e);
-            return;
-        }
+        CMS.debug("CertUtil: deleting cert " + cert.getNickname());
 
         CryptoToken tok = CryptoUtil.getKeyStorageToken(tokenname);
         CryptoStore store = tok.getCryptoStore();

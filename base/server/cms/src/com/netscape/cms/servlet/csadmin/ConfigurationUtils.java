@@ -3196,7 +3196,7 @@ public class ConfigurationUtils {
 
         if (cert != null) {
             CMS.debug("ConfigurationUtils: deleting existing " + tag + " cert");
-            CertUtil.deleteCert(tokenname, nickname);
+            CertUtil.deleteCert(tokenname, cert);
         }
 
         CMS.debug("ConfigurationUtils: importing " + tag + " cert");
