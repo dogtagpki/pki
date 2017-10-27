@@ -775,16 +775,10 @@ public class CertUtil {
         return false;
     }
 
-    public static boolean findCertificate(String tokenname, String nickname)
+    public static boolean findCertificate(String fullnickname)
             throws Exception {
 
         CryptoManager cm = CryptoManager.getInstance();
-
-        String fullnickname = nickname;
-        if (!CryptoUtil.isInternalToken(tokenname)) {
-            fullnickname = tokenname + ":" + nickname;
-        }
-
         CMS.debug("CertUtil: searching for cert " + fullnickname);
 
         X509Certificate cert;

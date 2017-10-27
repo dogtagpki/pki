@@ -3187,7 +3187,12 @@ public class ConfigurationUtils {
             return;
         }
 
-        if (CertUtil.findCertificate(tokenname, nickname)) {
+        String fullNickname = nickname;
+        if (!CryptoUtil.isInternalToken(tokenname)) {
+            fullNickname = tokenname + ":" + nickname;
+        }
+
+        if (CertUtil.findCertificate(fullNickname)) {
             CMS.debug("ConfigurationUtils: deleting existing " + tag + " cert");
             CertUtil.deleteCert(tokenname, nickname);
         }
