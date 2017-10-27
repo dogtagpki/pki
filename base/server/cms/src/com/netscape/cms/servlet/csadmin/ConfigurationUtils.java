@@ -3168,8 +3168,6 @@ public class ConfigurationUtils {
         if ((cert.getType().equals("local")) || (cert.getType().equals("selfsign"))) {
             CertUtil.updateLocalRequest(config, certTag, cert.getRequest(), "pkcs10", null);
         }
-
-        ConfigurationUtils.setCertPermissions(cert);
     }
 
     public static void importCert(
@@ -3201,27 +3199,12 @@ public class ConfigurationUtils {
 
         CMS.debug("ConfigurationUtils: importing " + tag + " cert");
         cert = CryptoUtil.importUserCertificate(impl.getEncoded(), nickname);
-    }
-
-    public static void setCertPermissions(Cert cert) throws EBaseException, NotInitializedException,
-            ObjectNotFoundException, TokenException {
-
-        String tag = cert.getCertTag();
-        String subsystem = cert.getSubsystem();
-        String nickname = cert.getNickname();
-        String tokenname = cert.getTokenname();
-
-        if (!CryptoUtil.isInternalToken(tokenname))
-            nickname = tokenname + ":" + nickname;
-
-        CryptoManager cm = CryptoManager.getInstance();
-        X509Certificate c = cm.findCertByNickname(nickname);
 
         if (tag.equals("signing") && subsystem.equals("ca")) { // set trust flags to CT,C,C
-            CryptoUtil.trustCACert(c);
+            CryptoUtil.trustCACert(cert);
 
         } else if (tag.equals("audit_signing")) { // set trust flags to u,u,Pu
-            CryptoUtil.trustAuditSigningCert(c);
+            CryptoUtil.trustAuditSigningCert(cert);
 
         } // user certs will have u,u,u by default
     }
