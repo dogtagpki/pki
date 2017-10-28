@@ -11,17 +11,17 @@ env:
     - PKI_LOG=pki_log.log
     - CI_RESULTS_LOG="ci_results_${TRAVIS_BRANCH}.log"
     - CI_RUNNER_LOG_ARCHIVE="dogtag-ci-job-${TRAVIS_JOB_NUMBER}.tar.gz"
-    - IMAGE=dogtagpki/pki-ci-containers:f26_105
+    - IMAGE=dogtagpki/pki-ci:f26_105
     # F25 is outdated
-    # - IMAGE=dogtagpki/pki-ci-containers:f25_104
+    # - IMAGE=dogtagpki/pki-ci:f25_104
 
     # rawhide repo is unstable
-    # - IMAGE=dogtagpki/pki-ci-containers:rawhide
+    # - IMAGE=dogtagpki/pki-ci:rawhide
   matrix:
     - TASK_TO_RUN="run-dogtag-build"
 
     - TASK_TO_RUN="run-ipa-test"
-      IPA_TEST_RUNNER_IMAGE="dogtagpki/dogtag-freeipa-ci-containers:f26_ipa_4-5"
+      IPA_TEST_RUNNER_IMAGE="dogtagpki/pki-ci:f26_ipa_4-5"
       RPMS_LOCATION=/tmp/workdir/packages/RPMS
       DOGTAG_PKI_RPMS=${TRAVIS_BUILD_DIR}/dogtag_rpms
 
