@@ -56,8 +56,9 @@ public class Auditor implements IAuditor {
     @Override
     public String getGroups(String subjectID) {
 
-        if (subjectID == null || subjectID.equals(ILogger.UNIDENTIFIED))
-            return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
+        if (subjectID == null || subjectID.equals(ILogger.UNIDENTIFIED)) {
+            return null;
+        }
 
         Enumeration<IGroup> groups;
 
@@ -66,7 +67,7 @@ public class Auditor implements IAuditor {
             groups = userGroupSubsystem.findGroups("*");
 
         } catch (Exception e) {
-            return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
+            return null;
         }
 
         StringBuilder sb = new StringBuilder();
@@ -80,7 +81,9 @@ public class Auditor implements IAuditor {
             }
         }
 
-        if (sb.length() == 0) return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
+        if (sb.length() == 0) {
+            return null;
+        }
 
         return sb.toString();
     }
