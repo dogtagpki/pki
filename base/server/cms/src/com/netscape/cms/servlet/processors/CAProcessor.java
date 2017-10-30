@@ -963,9 +963,8 @@ public class CAProcessor extends Processor {
      */
     protected String auditGroups(String SubjectID) {
 
-        if ((SubjectID == null) ||
-                (SubjectID.equals(ILogger.UNIDENTIFIED))) {
-            return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
+        if (SubjectID == null || SubjectID.equals(ILogger.UNIDENTIFIED)) {
+            return null;
         }
 
         Enumeration<IGroup> groups = null;
@@ -973,7 +972,7 @@ public class CAProcessor extends Processor {
         try {
             groups = ug.findGroups("*");
         } catch (Exception e) {
-            return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
+            return null;
         }
 
         StringBuffer membersString = new StringBuffer();
@@ -990,11 +989,11 @@ public class CAProcessor extends Processor {
             }
         }
 
-        if (membersString.length() != 0) {
-            return membersString.toString();
-        } else {
-            return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
+        if (membersString.length() == 0) {
+            return null;
         }
+
+        return membersString.toString();
     }
 
     public void validateNonce(
