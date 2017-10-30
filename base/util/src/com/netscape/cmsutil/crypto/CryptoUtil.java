@@ -2201,23 +2201,18 @@ public class CryptoUtil {
         return decodedData;
     }
 
-    public static byte[] encryptPassphrase(CryptoToken token, String passphrase, IVParameterSpec IV, SymmetricKey sk,
-            EncryptionAlgorithm alg)
+    public static byte[] encryptSecret(
+            CryptoToken token,
+            byte[] secret,
+            IVParameterSpec iv,
+            SymmetricKey key,
+            EncryptionAlgorithm algorithm)
             throws NoSuchAlgorithmException, TokenException, InvalidKeyException,
-            InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException, IOException {
-        byte[] wrappedPassphrase = null;
-        Cipher encryptor = null;
+            InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
 
-        encryptor = token.getCipherContext(alg);
-
-        if (encryptor != null) {
-            encryptor.initEncrypt(sk, IV);
-            wrappedPassphrase = encryptor.doFinal(passphrase.getBytes("UTF-8"));
-        } else {
-            throw new IOException("Failed to create cipher");
-        }
-
-        return wrappedPassphrase;
+        Cipher cipher = token.getCipherContext(algorithm);
+        cipher.initEncrypt(key, iv);
+        return cipher.doFinal(secret);
     }
 
     public static byte[] wrapSymmetricKey(CryptoManager manager, CryptoToken token, String transportCert,
@@ -2297,27 +2292,35 @@ public class CryptoUtil {
                 null,
                 false);
         byte[] key_data;
+
         if (passphraseData != null) {
-            key_data = encryptPassphrase(
+
+            byte[] secret = passphraseData.getBytes("UTF-8");
+            key_data = encryptSecret(
                     token,
-                    passphraseData,
+                    secret,
                     params.getPayloadEncryptionIV(),
                     sessionKey,
                     params.getPayloadEncryptionAlgorithm());
+
         } else if (privKeyData != null) {
+
             key_data = wrapUsingSymmetricKey(
                     token,
                     sessionKey,
                     privKeyData,
                     params.getPayloadWrappingIV(),
                     params.getPayloadWrapAlgorithm());
+
         } else if (symKeyData != null) {
+
             key_data = wrapUsingSymmetricKey(
                     token,
                     sessionKey,
                     symKeyData,
                     params.getPayloadWrappingIV(),
                     params.getPayloadWrapAlgorithm());
+
         } else {
             throw new IOException("No data to package in PKIArchiveOptions!");
         }
