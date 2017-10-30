@@ -13,15 +13,18 @@ if [ -f "/etc/redhat-release" ] ; then
 	DIST_VERSION=`cat /etc/redhat-release | tr -d [:alpha:][:blank:][\(\)]`
 	if [ "${DISTRIBUTION}" = "Fedora " ] ; then
 		MESSAGE="[built for Fedora ${DIST_VERSION}]"
+	elif [ "${DISTRIBUTION}" = "CentOS " ] ; then
+		MESSAGE="[built for CentOS ${DIST_VERSION}]"
 	elif [ "${DISTRIBUTION}" = "Red Hat" ] ; then
 		MESSAGE="[built for Red Hat ${DIST_VERSION}]"
 	else
-		printf "'$0' is ONLY available on 'Fedora' or 'Red Hat' "
-		printf "distributions!\n"
+		printf "'$0' is ONLY available on 'Fedora', 'CentOS', or "
+		printf "'Red Hat' distributions!\n"
 		exit 255
 	fi
 else
-	printf "'$0' is ONLY available on 'Fedora' or 'Red Hat' distributions!\n"
+	printf "'$0' is ONLY available on 'Fedora', 'CentOS', or "
+	printf "'Red Hat' distributions!\n"
 	exit 255
 fi
 
@@ -147,7 +150,8 @@ extract_release_information()
 	if [ "${DISTRIBUTION}" = "Fedora " ] ; then
 		release_marker="fedora_release"
 		stage_marker="fedora_stage"
-	elif [ "${DISTRIBUTION}" = "Red Hat" ] ; then
+	elif [ "${DISTRIBUTION}" = "CentOS " ] ||
+	     [ "${DISTRIBUTION}" = "Red Hat" ] ; then
 		release_marker="redhat_release"
 		stage_marker="redhat_stage"
 	fi
