@@ -31,13 +31,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import netscape.ldap.LDAPAttribute;
-import netscape.ldap.LDAPAttributeSet;
-import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPEntry;
-import netscape.ldap.LDAPSearchConstraints;
-import netscape.ldap.LDAPSearchResults;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -61,6 +54,13 @@ import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.cms.servlet.processors.CAProcessor;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.xml.XMLObject;
+
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPAttributeSet;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPSearchConstraints;
+import netscape.ldap.LDAPSearchResults;
 
 /**
  * @author Endi S. Dewata
@@ -95,17 +95,15 @@ public class SecurityDomainProcessor extends CAProcessor {
 
         if (!ugSubsystem.isMemberOf(user, group)) {
 
-            audit(new RoleAssumeEvent(
+            audit(RoleAssumeEvent.createFailureEvent(
                     user,
-                    ILogger.FAILURE,
                     group));
 
             throw new UnauthorizedException("User " + user + " is not a member of " + group + " group.");
         }
 
-        audit(new RoleAssumeEvent(
+        audit(RoleAssumeEvent.createSuccessEvent(
                 user,
-                ILogger.SUCCESS,
                 group));
 
         String ip = "";

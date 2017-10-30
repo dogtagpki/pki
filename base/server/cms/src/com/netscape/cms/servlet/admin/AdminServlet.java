@@ -604,9 +604,8 @@ public class AdminServlet extends HttpServlet {
                         auditACLResource,
                         auditOperation));
 
-            audit(new RoleAssumeEvent(
+            audit(RoleAssumeEvent.createFailureEvent(
                         auditSubjectID,
-                        ILogger.FAILURE,
                         auditGroups(auditSubjectID)));
 
             return null;
@@ -618,9 +617,8 @@ public class AdminServlet extends HttpServlet {
                         auditACLResource,
                         auditOperation));
 
-            audit(new RoleAssumeEvent(
+            audit(RoleAssumeEvent.createFailureEvent(
                         auditSubjectID,
-                        ILogger.FAILURE,
                         auditGroups(auditSubjectID)));
 
             return null;
@@ -631,9 +629,8 @@ public class AdminServlet extends HttpServlet {
                         auditACLResource,
                         auditOperation));
 
-            audit(new RoleAssumeEvent(
+            audit(RoleAssumeEvent.createFailureEvent(
                         auditSubjectID,
-                        ILogger.FAILURE,
                         auditGroups(auditSubjectID)));
 
             return null;
@@ -644,9 +641,8 @@ public class AdminServlet extends HttpServlet {
                     auditACLResource,
                     auditOperation));
 
-        audit(new RoleAssumeEvent(
+        audit(RoleAssumeEvent.createSuccessEvent(
                     auditSubjectID,
-                    ILogger.SUCCESS,
                     auditGroups(auditSubjectID)));
 
         return authzTok;

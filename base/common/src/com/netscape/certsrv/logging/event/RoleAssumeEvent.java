@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.logging.event;
 
+import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.SignedAuditEvent;
 
 public class RoleAssumeEvent extends SignedAuditEvent {
@@ -26,15 +27,33 @@ public class RoleAssumeEvent extends SignedAuditEvent {
     public final static String LOGGING_PROPERTY =
             "LOGGING_SIGNED_AUDIT_ROLE_ASSUME";
 
-    public RoleAssumeEvent(
-            String subjectID,
-            String outcome,
-            String groups) {
-
+    public RoleAssumeEvent() {
         super(LOGGING_PROPERTY);
+    }
 
-        setAttribute("SubjectID", subjectID);
-        setAttribute("Outcome", outcome);
-        setAttribute("Role", groups);
+    public static RoleAssumeEvent createSuccessEvent(
+            String subjectID,
+            String roles) {
+
+        RoleAssumeEvent event = new RoleAssumeEvent();
+
+        event.setAttribute("SubjectID", subjectID);
+        event.setAttribute("Outcome", ILogger.SUCCESS);
+        event.setAttribute("Role", roles);
+
+        return event;
+    }
+
+    public static RoleAssumeEvent createFailureEvent(
+            String subjectID,
+            String roles) {
+
+        RoleAssumeEvent event = new RoleAssumeEvent();
+
+        event.setAttribute("SubjectID", subjectID);
+        event.setAttribute("Outcome", ILogger.FAILURE);
+        event.setAttribute("Role", roles);
+
+        return event;
     }
 }

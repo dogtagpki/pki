@@ -1842,9 +1842,8 @@ public abstract class CMSServlet extends HttpServlet {
                             auditACLResource,
                             auditOperation));
 
-                audit(new RoleAssumeEvent(
+                audit(RoleAssumeEvent.createSuccessEvent(
                             auditSubjectID,
-                            ILogger.SUCCESS,
                             auditGroupID));
 
             } else {
@@ -1854,9 +1853,8 @@ public abstract class CMSServlet extends HttpServlet {
                             auditACLResource,
                             auditOperation));
 
-                audit(new RoleAssumeEvent(
+                audit(RoleAssumeEvent.createFailureEvent(
                             auditSubjectID,
-                            ILogger.FAILURE,
                             auditGroupID));
             }
             return authzToken;
@@ -1867,9 +1865,8 @@ public abstract class CMSServlet extends HttpServlet {
                         auditACLResource,
                         auditOperation));
 
-            audit(new RoleAssumeEvent(
+            audit(RoleAssumeEvent.createFailureEvent(
                         auditSubjectID,
-                        ILogger.FAILURE,
                         auditGroupID));
 
             throw new EBaseException(e.toString());
@@ -1958,9 +1955,8 @@ public abstract class CMSServlet extends HttpServlet {
                             auditACLResource,
                             auditOperation));
 
-                audit(new RoleAssumeEvent(
+                audit(RoleAssumeEvent.createSuccessEvent(
                             auditID,
-                            ILogger.SUCCESS,
                             auditGroups(auditSubjectID)));
 
             } else {
@@ -1970,9 +1966,8 @@ public abstract class CMSServlet extends HttpServlet {
                             auditACLResource,
                             auditOperation));
 
-                audit(new RoleAssumeEvent(
+                audit(RoleAssumeEvent.createFailureEvent(
                             auditID,
-                            ILogger.FAILURE,
                             auditGroups(auditSubjectID)));
             }
 
@@ -1984,9 +1979,8 @@ public abstract class CMSServlet extends HttpServlet {
                         auditACLResource,
                         auditOperation));
 
-            audit(new RoleAssumeEvent(
+            audit(RoleAssumeEvent.createFailureEvent(
                         auditID,
-                        ILogger.FAILURE,
                         auditGroups(auditSubjectID)));
 
             return null;
@@ -1997,9 +1991,8 @@ public abstract class CMSServlet extends HttpServlet {
                         auditACLResource,
                         auditOperation));
 
-            audit(new RoleAssumeEvent(
+            audit(RoleAssumeEvent.createFailureEvent(
                         auditSubjectID,
-                        ILogger.FAILURE,
                         auditGroups(auditSubjectID)));
 
             return null;
