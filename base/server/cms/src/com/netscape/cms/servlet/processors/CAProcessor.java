@@ -704,9 +704,8 @@ public class CAProcessor extends Processor {
                         auditACLResource,
                         auditOperation));
 
-                audit(new RoleAssumeEvent(
+                audit(RoleAssumeEvent.createSuccessEvent(
                         auditSubjectID,
-                        ILogger.SUCCESS,
                         auditGroupID));
 
             } else {
@@ -716,9 +715,8 @@ public class CAProcessor extends Processor {
                         auditACLResource,
                         auditOperation));
 
-                audit(new RoleAssumeEvent(
+                audit(RoleAssumeEvent.createFailureEvent(
                         auditSubjectID,
-                        ILogger.FAILURE,
                         auditGroupID));
             }
             return authzToken;
@@ -729,9 +727,8 @@ public class CAProcessor extends Processor {
                     auditACLResource,
                     auditOperation));
 
-            audit(new RoleAssumeEvent(
+            audit(RoleAssumeEvent.createFailureEvent(
                     auditSubjectID,
-                    ILogger.FAILURE,
                     auditGroupID));
 
             throw e;
@@ -819,9 +816,8 @@ public class CAProcessor extends Processor {
                         auditACLResource,
                         auditOperation));
 
-                audit(new RoleAssumeEvent(
+                audit(RoleAssumeEvent.createSuccessEvent(
                         auditID,
-                        ILogger.SUCCESS,
                         auditGroups(auditSubjectID)));
 
             } else {
@@ -831,9 +827,8 @@ public class CAProcessor extends Processor {
                         auditACLResource,
                         auditOperation));
 
-                audit(new RoleAssumeEvent(
+                audit(RoleAssumeEvent.createFailureEvent(
                         auditID,
-                        ILogger.FAILURE,
                         auditGroups(auditSubjectID)));
             }
 
@@ -845,9 +840,8 @@ public class CAProcessor extends Processor {
                     auditACLResource,
                     auditOperation));
 
-            audit(new RoleAssumeEvent(
+            audit(RoleAssumeEvent.createFailureEvent(
                     auditID,
-                    ILogger.FAILURE,
                     auditGroups(auditSubjectID)));
 
             return null;
