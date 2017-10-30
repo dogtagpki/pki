@@ -13,7 +13,7 @@
 %global package_rhel_packages 1
 # Package RHCS-specific RPMS Only
 %global package_rhcs_packages 1
-%define pki_core_rhel_version 10.5.0
+%define pki_core_rhel_version 10.5.1
 %else
 # 0%{?fedora}
 # Fedora always packages all RPMS
@@ -71,15 +71,17 @@
 
 Name:             pki-core
 %if 0%{?rhel}
-Version:                10.5.0
+Version:                10.5.1
 %define redhat_release  0
 %define redhat_stage    0
 %define default_release %{redhat_release}.%{redhat_stage}
+#%define default_release %{redhat_release}
 %else
-Version:                10.5.0
+Version:                10.5.1
 %define fedora_release  0
 %define fedora_stage    0
 %define default_release %{fedora_release}.%{fedora_stage}
+#%define default_release %{fedora_release}
 %endif
 
 %if 0%{?use_pki_release}
@@ -200,10 +202,10 @@ BuildRequires:    python-ldap
 BuildRequires:    junit
 BuildRequires:    jpackage-utils >= 0:1.7.5-10
 %if 0%{?rhel}
-BuildRequires:    jss >= 4.4.0-7
+BuildRequires:    jss >= 4.4.0-8
 %else
 %if 0%{?fedora} >= 25
-BuildRequires:    jss >= 4.4.2-2
+BuildRequires:    jss >= 4.4.2-5
 %else
 BuildRequires:    jss >= 4.2.6-44
 %endif
@@ -359,10 +361,10 @@ Requires:         nss >= 3.27.0
 %endif
 Requires:         jpackage-utils >= 0:1.7.5-10
 %if 0%{?rhel}
-Requires:         jss >= 4.4.0-7
+Requires:         jss >= 4.4.0-8
 %else
 %if 0%{?fedora} >= 25
-Requires:         jss >= 4.4.2-2
+Requires:         jss >= 4.4.2-5
 %else
 Requires:         jss >= 4.2.6-44
 %endif
@@ -453,10 +455,10 @@ Requires:         slf4j-jdk14
 Requires:         javassist
 Requires:         jpackage-utils >= 0:1.7.5-10
 %if 0%{?rhel}
-Requires:         jss >= 4.4.0-7
+Requires:         jss >= 4.4.0-8
 %else
 %if 0%{?fedora} >= 25
-Requires:         jss >= 4.4.2-2
+Requires:         jss >= 4.4.2-5
 %else
 Requires:         jss >= 4.2.6-44
 %endif
@@ -1442,11 +1444,42 @@ fi
 %endif # %{with server}
 
 %changelog
-* Fri Aug 25 2017 Dogtag Team <pki-devel@redhat.com> 10.5.0-0.0
-- Pagure dogtagpki Issue #2798 - Update development spec file templates
+* Mon Oct 30 2017 Dogtag Team <pki-devel@redhat.com> 10.5.1-0.0
+- dogtagpki Pagure Issue #2830 - CentOS build failures
+- Updated version number to 10.5.1-0.0
 
-* Thu Jun 22 2017 Dogtag Team <pki-devel@redhat.com> 10.4.8-2.1
-- Updated source version number to 10.4.8-2.1
+* Thu Oct 19 2017 Dogtag Team <pki-devel@redhat.com> 10.5.0-1
+- Re-base Dogtag to 10.5.0
+
+* Mon Sep 18 2017 Dogtag Team <pki-devel@redhat.com> 10.4.8-7
+- dogtagpki Pagure Issue #2809 - PKCS #12 files incompatible with
+  NSS >= 3.31 (ftweedal)
+
+* Tue Sep 12 2017 Dogtag Team <pki-devel@redhat.com> 10.4.8-6
+- Require "jss >= 4.4.2-5" as a build and runtime requirement
+- dogtagpki Pagure Issue #2796 - lightweight CA replication fails with a
+  NullPointerException (ftweedal)
+- dogtagpki Pagure Issue #2788 - Missing CN in user signing cert would cause
+  error in cmc user-signed (cfu)
+- dogtagpki Pagure Issue #2789 - FixDeploymentDescriptor upgrade scriptlet can
+  fail (ftweedal)
+- dogtagpki Pagure Issue #2664 - PKCS12: upgrade to at least AES and SHA2
+  (FIPS) (ftweedal)
+- dogtagpki Pagure Issue #2764 - py3: pki.key.archive_encrypted_data:
+  TypeError: ... is not JSON serializable (ftweedal)
+- dogtagpki Pagure Issue #2772 - TPS incorrectly assigns "tokenOrigin" and
+  "tokenType" certificate attribute for recovered certificates. (cfu)
+- dogtagpki Pagure Issue #2793 - TPS UI: need to display tokenType and
+  tokenOrigin for token certificates on TPS UI (edewata)
+
+* Mon Aug 21 2017 Dogtag Team <pki-devel@redhat.com> 10.4.8-5
+- dogtagpki Pagure Issue #2671 - Access Banner Validation (edewata)
+
+* Thu Aug 03 2017 Fedora Release Engineering <releng@fedoraproject.org> - 10.4.8-4
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Binutils_Mass_Rebuild
+
+* Thu Jul 27 2017 Fedora Release Engineering <releng@fedoraproject.org> - 10.4.8-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Mass_Rebuild
 
 * Mon Jun 19 2017 Dogtag Team <pki-devel@redhat.com> 10.4.8-2
 - dogtagpki Pagure Issue #2721 - Key recovery using externalReg fails
@@ -1472,9 +1505,6 @@ fi
   (vakwetu)
 - dogtagpki Pagure Issue #2728 - In keywrap mode, key recovery on
   KRA with HSM causes KRA to crash (ftweedal)
-
-* Thu Jun  8 2017 Dogtag Team <pki-devel@redhat.com> 10.4.7-1.1
-- Updated source version number to 10.4.7-1.1
 
 * Mon Jun  5 2017 Dogtag Team <pki-devel@redhat.com> 10.4.7-1
 - Require "selinux-policy-targeted >= 3.13.1-159" as a runtime requirement
@@ -1513,9 +1543,6 @@ fi
   key record is not marked encrypted (vakwetu)
 - dogtagpki Pagure Issue #2711 - LWCA creation fails (ftweedal)
 
-* Mon May 22 2017 Dogtag Team <pki-devel@redhat.com> 10.4.5-1.1
-- Updated source version number to 10.4.5-1.1
-
 * Mon May 22 2017 Dogtag Team <pki-devel@redhat.com> 10.4.5-1
 - dogtagpki Pagure Issue #2618 - Allow CA to process pre-signed CMC renewal
   non-signing cert requests (cfu)
@@ -1542,9 +1569,6 @@ fi
   agent-canceled cert request. (edewata)
 - dogtagpki Pagure Issue #2696 - CA CS.cfg shows default port (mharmsen)
 
-* Tue May  9 2017 Dogtag Team <pki-devel@redhat.com> 10.4.4-1.1
-- Updated source version number to 10.4.4-1.1
-
 * Tue May  9 2017 Dogtag Team <pki-devel@redhat.com> 10.4.4-1
 - dogtagpki Pagure Issue #1663 - Add SCP03 support (jmagne)
 - dogtagpki Pagure Issue #2522 - cannot extract generated private key from
@@ -1560,9 +1584,6 @@ fi
 - dogtagpki Pagure Issue #2680 - kra unable to extract symmetric keys
   generated on thales hsm (vakwetu)
 - Updated "jss" build and runtime requirements
-
-* Mon May  1 2017 Dogtag Team <pki-devel@redhat.com> 10.4.3-1.1
-- Updated source version number to 10.4.3-1.1
 
 * Mon May  1 2017 Dogtag Team <pki-devel@redhat.com> 10.4.3-1
 - dogtagpki Pagure Issue #1359 - dogtag should support GSSAPI based auth in

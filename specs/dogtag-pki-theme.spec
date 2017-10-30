@@ -6,15 +6,17 @@
 
 Name:             dogtag-pki-theme
 %if 0%{?rhel}
-Version:                10.5.0
+Version:                10.5.1
 %define redhat_release  0
 %define redhat_stage    0
 %define default_release %{redhat_release}.%{redhat_stage}
+#%define default_release %{redhat_release}
 %else
-Version:                10.5.0
+Version:                10.5.1
 %define fedora_release  0
 %define fedora_stage    0
 %define default_release %{fedora_release}.%{fedora_stage}
+#%define default_release %{fedora_release}
 %endif
 
 %if 0%{?use_pki_release}
@@ -190,38 +192,30 @@ cd build
 
 
 %changelog
-* Fri Aug 25 2017 Dogtag Team <pki-devel@redhat.com> 10.5.0-0.0
-- Pagure dogtagpki Issue #2798 - Update development spec file templates
+* Mon Oct 30 2017 Dogtag Team <pki-devel@redhat.com> 10.5.1-0.0
+- dogtagpki Pagure Issue #2830 - CentOS build failures
+- Updated version number to 10.5.1-0.0
 
-* Thu Jun 22 2017 Dogtag Team <pki-devel@redhat.com> 10.4.8-1.1
-- Updated source version number to 10.4.8-1.1
+* Thu Oct 19 2017 Dogtag Team <pki-devel@redhat.com> 10.5.0-1
+- Re-base Dogtag to 10.5.0
+
+* Wed Jul 26 2017 Fedora Release Engineering <releng@fedoraproject.org> - 10.4.8-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Mass_Rebuild
 
 * Mon Jun 19 2017 Dogtag Team <pki-devel@redhat.com> 10.4.8-1
-- Updated source version number to 10.4.8-1
-
-* Thu Jun  8 2017 Dogtag Team <pki-devel@redhat.com> 10.4.7-1.1
-- Updated source version number to 10.4.7-1.1
+- Updated version number to 10.4.8-1
 
 * Mon Jun  5 2017 Dogtag Team <pki-devel@redhat.com> 10.4.7-1
-- Updated source version number to 10.4.7-1
+- Updated version number to 10.4.7-1
 
 * Tue May 30 2017 Dogtag Team <pki-devel@redhat.com> 10.4.6-1
-- Updated source version number to 10.4.6-1
-
-* Mon May 22 2017 Dogtag Team <pki-devel@redhat.com> 10.4.5-1.1
-- Updated source version number to 10.4.5-1.1
+- Updated version number to 10.4.6-1
 
 * Mon May 22 2017 Dogtag Team <pki-devel@redhat.com> 10.4.5-1
-- Updated source version number to 10.4.5-1
-
-* Tue May  9 2017 Dogtag Team <pki-devel@redhat.com> 10.4.4-1.1
-- Updated source version number to 10.4.4-1.1
+- Updated version number to 10.4.5-1
 
 * Tue May  9 2017 Dogtag Team <pki-devel@redhat.com> 10.4.4-1
-- Updated source version number to 10.4.4-1
-
-* Mon May  1 2017 Dogtag Team <pki-devel@redhat.com> 10.4.3-1.1
-- Updated source version number to 10.4.3-1.1
+- Updated version number to 10.4.4-1
 
 * Mon May  1 2017 Dogtag Team <pki-devel@redhat.com> 10.4.3-1
 - Updated version number to 10.4.3-1
