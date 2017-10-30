@@ -137,10 +137,18 @@ public class NSSCryptoProvider extends CryptoProvider {
     @Override
     public byte[] wrapWithSessionKey(String passphrase, byte[] iv, SymmetricKey key, EncryptionAlgorithm encryptionAlgorithm)
             throws Exception {
+
         if (token == null) {
             throw new NotInitializedException();
         }
-        return CryptoUtil.encryptPassphrase(token, passphrase, new IVParameterSpec(iv), key, encryptionAlgorithm);
+
+        byte[] secret = passphrase.getBytes("UTF-8");
+        return CryptoUtil.encryptSecret(
+                token,
+                secret,
+                new IVParameterSpec(iv),
+                key,
+                encryptionAlgorithm);
     }
 
     @Override
