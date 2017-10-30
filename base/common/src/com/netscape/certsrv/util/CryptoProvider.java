@@ -26,10 +26,10 @@ public abstract class CryptoProvider {
     public abstract byte[] wrapSessionKeyWithTransportCert(SymmetricKey sessionKey, String transportCert)
             throws Exception;
 
-    public abstract byte[] wrapWithSessionKey(String passphrase, byte[] iv, SymmetricKey key, String keyAlgorithm)
+    public abstract byte[] encryptSecret(byte[] secret, byte[] iv, SymmetricKey key, String keyAlgorithm)
             throws Exception;
 
-    public abstract byte[] wrapWithSessionKey(String passphrase, byte[] iv, SymmetricKey key, EncryptionAlgorithm keyAlgorithm)
+    public abstract byte[] encryptSecret(byte[] secret, byte[] iv, SymmetricKey key, EncryptionAlgorithm keyAlgorithm)
             throws Exception;
 
     public abstract byte[] wrapWithSessionKey(SymmetricKey secret, SymmetricKey sessionKey, byte[] iv) throws Exception;

@@ -538,7 +538,9 @@ public class KeyClient extends Client {
         SymmetricKey sessionKey = crypto.generateSessionKey(encryptAlgorithm);
         byte[] transWrappedSessionKey = crypto.wrapSessionKeyWithTransportCert(sessionKey, transportCert);
         byte[] nonceData = CryptoUtil.getNonceData(encryptAlgorithm.getIVLength());
-        byte[] sessionWrappedPassphrase = crypto.wrapWithSessionKey(passphrase, nonceData, sessionKey,
+
+        byte[] secret = passphrase.getBytes("UTF-8");
+        byte[] sessionWrappedPassphrase = crypto.encryptSecret(secret, nonceData, sessionKey,
                 encryptAlgorithm);
 
         return retrieveKeyUsingWrappedPassphrase(keyId, transWrappedSessionKey, sessionWrappedPassphrase, nonceData);
@@ -555,7 +557,9 @@ public class KeyClient extends Client {
         SymmetricKey sessionKey = crypto.generateSessionKey(encryptAlgorithm);
         byte[] transWrappedSessionKey = crypto.wrapSessionKeyWithTransportCert(sessionKey, transportCert);
         byte[] nonceData = CryptoUtil.getNonceData(encryptAlgorithm.getIVLength());
-        byte[] sessionWrappedPassphrase = crypto.wrapWithSessionKey(passphrase, nonceData, sessionKey,
+
+        byte[] secret = passphrase.getBytes("UTF-8");
+        byte[] sessionWrappedPassphrase = crypto.encryptSecret(secret, nonceData, sessionKey,
                 encryptAlgorithm);
 
         KeyRecoveryRequest data = new KeyRecoveryRequest();
@@ -681,8 +685,9 @@ public class KeyClient extends Client {
         SymmetricKey sessionKey = crypto.generateSessionKey(encryptAlgorithm);
         byte[] transWrappedSessionKey = crypto.wrapSessionKeyWithTransportCert(sessionKey, transportCert);
 
-        byte[] encryptedData = crypto.wrapWithSessionKey(
-                passphrase,
+        byte[] secret = passphrase.getBytes("UTF-8");
+        byte[] encryptedData = crypto.encryptSecret(
+                secret,
                 nonceData,
                 sessionKey,
                 encryptAlgorithm);
