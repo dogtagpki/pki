@@ -1946,6 +1946,8 @@ public abstract class CMSServlet extends HttpServlet {
             return null;
         }
 
+        String roles = auditGroups(auditSubjectID);
+
         try {
             AuthzToken authzTok = mAuthz.authorize(authzMgrName,
                     authToken,
@@ -1959,9 +1961,11 @@ public abstract class CMSServlet extends HttpServlet {
                             auditACLResource,
                             auditOperation));
 
-                audit(RoleAssumeEvent.createSuccessEvent(
-                            auditID,
-                            auditGroups(auditSubjectID)));
+                if (roles != null) {
+                    audit(RoleAssumeEvent.createSuccessEvent(
+                                auditID,
+                                roles));
+                }
 
             } else {
 
@@ -1970,9 +1974,11 @@ public abstract class CMSServlet extends HttpServlet {
                             auditACLResource,
                             auditOperation));
 
-                audit(RoleAssumeEvent.createFailureEvent(
-                            auditID,
-                            auditGroups(auditSubjectID)));
+                if (roles != null) {
+                    audit(RoleAssumeEvent.createFailureEvent(
+                                auditID,
+                                roles));
+                }
             }
 
             return authzTok;
@@ -1983,9 +1989,11 @@ public abstract class CMSServlet extends HttpServlet {
                         auditACLResource,
                         auditOperation));
 
-            audit(RoleAssumeEvent.createFailureEvent(
-                        auditID,
-                        auditGroups(auditSubjectID)));
+            if (roles != null) {
+                audit(RoleAssumeEvent.createFailureEvent(
+                            auditID,
+                            roles));
+            }
 
             return null;
         } catch (Exception eAudit1) {
@@ -1995,9 +2003,11 @@ public abstract class CMSServlet extends HttpServlet {
                         auditACLResource,
                         auditOperation));
 
-            audit(RoleAssumeEvent.createFailureEvent(
-                        auditSubjectID,
-                        auditGroups(auditSubjectID)));
+            if (roles != null) {
+                audit(RoleAssumeEvent.createFailureEvent(
+                            auditSubjectID,
+                            roles));
+            }
 
             return null;
         }

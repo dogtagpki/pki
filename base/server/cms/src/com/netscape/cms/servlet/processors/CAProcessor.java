@@ -807,6 +807,8 @@ public class CAProcessor extends Processor {
             return null;
         }
 
+        String roles = auditGroups(auditSubjectID);
+
         try {
             AuthzToken authzTok = authz.authorize(authzMgrName,
                     authToken,
@@ -820,9 +822,11 @@ public class CAProcessor extends Processor {
                         auditACLResource,
                         auditOperation));
 
-                audit(RoleAssumeEvent.createSuccessEvent(
-                        auditID,
-                        auditGroups(auditSubjectID)));
+                if (roles != null) {
+                    audit(RoleAssumeEvent.createSuccessEvent(
+                            auditID,
+                            roles));
+                }
 
             } else {
 
@@ -831,9 +835,11 @@ public class CAProcessor extends Processor {
                         auditACLResource,
                         auditOperation));
 
-                audit(RoleAssumeEvent.createFailureEvent(
-                        auditID,
-                        auditGroups(auditSubjectID)));
+                if (roles != null) {
+                    audit(RoleAssumeEvent.createFailureEvent(
+                            auditID,
+                            roles));
+                }
             }
 
             return authzTok;
@@ -844,9 +850,11 @@ public class CAProcessor extends Processor {
                     auditACLResource,
                     auditOperation));
 
-            audit(RoleAssumeEvent.createFailureEvent(
-                    auditID,
-                    auditGroups(auditSubjectID)));
+            if (roles != null) {
+                audit(RoleAssumeEvent.createFailureEvent(
+                        auditID,
+                        roles));
+            }
 
             return null;
         }
