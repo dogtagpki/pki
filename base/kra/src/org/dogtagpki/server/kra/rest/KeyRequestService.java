@@ -50,7 +50,7 @@ import com.netscape.certsrv.key.KeyRequestResponse;
 import com.netscape.certsrv.key.SymKeyGenerationRequest;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.AsymKeyGenerationEvent;
-import com.netscape.certsrv.logging.event.SecurityDataArchivalEvent;
+import com.netscape.certsrv.logging.event.SecurityDataArchivalRequestEvent;
 import com.netscape.certsrv.logging.event.SecurityDataRecoveryEvent;
 import com.netscape.certsrv.logging.event.SecurityDataRecoveryStateChangeEvent;
 import com.netscape.certsrv.logging.event.SymKeyGenerationEvent;
@@ -151,18 +151,42 @@ public class KeyRequestService extends SubsystemService implements KeyRequestRes
                 authz.checkRealm(realm, getAuthToken(), null, "certServer.kra.requests.archival", "execute");
             }
             response = dao.submitRequest(data, uriInfo, getRequestor());
-            auditArchivalRequestMade(response.getRequestInfo().getRequestId(), ILogger.SUCCESS, data.getClientKeyId());
+
+            audit(SecurityDataArchivalRequestEvent.createSuccessEvent(
+                    getRequestor(),
+                    null,
+                    response.getRequestInfo().getRequestId(),
+                    data.getClientKeyId()));
 
             return createCreatedResponse(response, new URI(response.getRequestInfo().getRequestURL()));
+
         } catch (EAuthzAccessDenied e) {
-            auditArchivalRequestMade(null, ILogger.FAILURE, data.getClientKeyId());
+
+            audit(SecurityDataArchivalRequestEvent.createFailureEvent(
+                    getRequestor(),
+                    null,
+                    null,
+                    data.getClientKeyId()));
+
             throw new UnauthorizedException("Not authorized to generate request in this realm", e);
+
         } catch (EAuthzUnknownRealm e) {
-            auditArchivalRequestMade(null, ILogger.FAILURE, data.getClientKeyId());
+
+            audit(SecurityDataArchivalRequestEvent.createFailureEvent(
+                    getRequestor(),
+                    null,
+                    null,
+                    data.getClientKeyId()));
             throw new BadRequestException("Invalid realm", e);
+
         } catch (EBaseException | URISyntaxException e) {
-            e.printStackTrace();
-            auditArchivalRequestMade(null, ILogger.FAILURE, data.getClientKeyId());
+
+            audit(SecurityDataArchivalRequestEvent.createFailureEvent(
+                    getRequestor(),
+                    null,
+                    null,
+                    data.getClientKeyId()));
+
             throw new PKIException(e.toString(), e);
         }
     }
@@ -352,15 +376,6 @@ public class KeyRequestService extends SubsystemService implements KeyRequestRes
                 requestId,
                 dataId,
                 null));
-    }
-
-    public void auditArchivalRequestMade(RequestId requestId, String status, String clientKeyID) {
-        audit(new SecurityDataArchivalEvent(
-                getRequestor(),
-                status,
-                null,
-                requestId,
-                clientKeyID));
     }
 
     public void auditSymKeyGenRequestMade(RequestId requestId, String status, String clientKeyID) {

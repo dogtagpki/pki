@@ -31,7 +31,7 @@ import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.connector.IConnector;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.logging.event.SecurityDataArchivalEvent;
+import com.netscape.certsrv.logging.event.SecurityDataArchivalRequestEvent;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.profile.IProfileUpdater;
@@ -113,13 +113,14 @@ public class CAEnrollProfile extends EnrollProfile {
                         CMS.debug("CAEnrollProfile: KRA connector " +
                                 "not configured");
 
-                        audit(new SecurityDataArchivalEvent(
+                        audit(SecurityDataArchivalRequestEvent.createFailureEvent(
                                 auditSubjectID,
-                                ILogger.FAILURE,
                                 auditRequesterID,
                                 requestId,
                                 null));
+
                         throw new EProfileException("Internal error: missing kraConnector");
+
                     } else {
                         CMS.debug("CAEnrollProfile: execute send request");
                         kraConnector.send(request);
@@ -127,9 +128,9 @@ public class CAEnrollProfile extends EnrollProfile {
                         // check response
                         if (!request.isSuccess()) {
                             CMS.debug("CAEnrollProfile: archival request failed");
-                            audit(new SecurityDataArchivalEvent(
+
+                            audit(SecurityDataArchivalRequestEvent.createFailureEvent(
                                     auditSubjectID,
-                                    ILogger.FAILURE,
                                     auditRequesterID,
                                     requestId,
                                     null));
@@ -149,9 +150,8 @@ public class CAEnrollProfile extends EnrollProfile {
                             }
                         }
 
-                        audit(new SecurityDataArchivalEvent(
+                        audit(SecurityDataArchivalRequestEvent.createSuccessEvent(
                                 auditSubjectID,
-                                ILogger.SUCCESS,
                                 auditRequesterID,
                                 requestId,
                                 null));
@@ -160,9 +160,8 @@ public class CAEnrollProfile extends EnrollProfile {
 
                     CMS.debug("CAEnrollProfile: " + e);
 
-                    audit(new SecurityDataArchivalEvent(
+                    audit(SecurityDataArchivalRequestEvent.createFailureEvent(
                             auditSubjectID,
-                            ILogger.FAILURE,
                             auditRequesterID,
                             requestId,
                             null));

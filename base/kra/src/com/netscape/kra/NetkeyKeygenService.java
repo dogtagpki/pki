@@ -50,7 +50,7 @@ import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogEvent;
-import com.netscape.certsrv.logging.event.SecurityDataArchivalEvent;
+import com.netscape.certsrv.logging.event.SecurityDataArchivalRequestEvent;
 import com.netscape.certsrv.logging.event.SecurityDataArchivalProcessedEvent;
 import com.netscape.certsrv.logging.event.SecurityDataExportEvent;
 import com.netscape.certsrv.logging.event.ServerSideKeyGenEvent;
@@ -398,9 +398,8 @@ public class NetkeyKeygenService implements IService {
                     //
                     //            mKRA.log(ILogger.LL_INFO, "KRA encrypts internal private");
 
-                    audit( new SecurityDataArchivalEvent(
+                    audit(SecurityDataArchivalRequestEvent.createSuccessEvent(
                             agentId,
-                            ILogger.SUCCESS,
                             auditSubjectID,
                             request.getRequestId(),
                             null));

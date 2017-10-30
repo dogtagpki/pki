@@ -52,7 +52,7 @@ import com.netscape.certsrv.dbs.certdb.ICertRecordList;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogEvent;
-import com.netscape.certsrv.logging.event.SecurityDataArchivalEvent;
+import com.netscape.certsrv.logging.event.SecurityDataArchivalRequestEvent;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.profile.IProfileSubsystem;
@@ -422,10 +422,8 @@ public class CAService implements ICAService, IService {
 
                 CMS.debug("CAService: Sending enrollment request to KRA");
 
-                // store a message in the signed audit log file
-                audit(new SecurityDataArchivalEvent(
+                audit(SecurityDataArchivalRequestEvent.createSuccessEvent(
                         auditSubjectID,
-                        ILogger.SUCCESS,
                         auditRequesterID,
                         requestId,
                         null));
@@ -439,10 +437,8 @@ public class CAService implements ICAService, IService {
                         request.setExtData(IRequest.ERROR,
                                 new ECAException(CMS.getUserMessage("CMS_CA_SEND_KRA_REQUEST")));
 
-                        // store a message in the signed audit log file
-                        audit(new SecurityDataArchivalEvent(
+                        audit(SecurityDataArchivalRequestEvent.createFailureEvent(
                                 auditSubjectID,
-                                ILogger.FAILURE,
                                 auditRequesterID,
                                 requestId,
                                 null));
@@ -455,10 +451,9 @@ public class CAService implements ICAService, IService {
                         }
                     }
                     if (request.getExtDataInString(IRequest.ERROR) != null) {
-                        // store a message in the signed audit log file
-                        audit(new SecurityDataArchivalEvent(
+
+                        audit(SecurityDataArchivalRequestEvent.createFailureEvent(
                                 auditSubjectID,
-                                ILogger.FAILURE,
                                 auditRequesterID,
                                 requestId,
                                 null));
@@ -478,12 +473,11 @@ public class CAService implements ICAService, IService {
             request.setExtData(IRequest.RESULT, IRequest.RES_ERROR);
             request.setExtData(IRequest.ERROR, e);
 
-            // store a message in the signed audit log file
             if (!(type.equals(IRequest.REVOCATION_REQUEST) ||
                     type.equals(IRequest.UNREVOCATION_REQUEST) || type.equals(IRequest.CMCREVOKE_REQUEST))) {
-                audit(new SecurityDataArchivalEvent(
+
+                audit(SecurityDataArchivalRequestEvent.createFailureEvent(
                         auditSubjectID,
-                        ILogger.FAILURE,
                         auditRequesterID,
                         requestId,
                         null));
@@ -498,10 +492,9 @@ public class CAService implements ICAService, IService {
 
         if (!(type.equals(IRequest.REVOCATION_REQUEST) ||
                 type.equals(IRequest.UNREVOCATION_REQUEST) || type.equals(IRequest.CMCREVOKE_REQUEST))) {
-            // store a message in the signed audit log file
-            audit(new SecurityDataArchivalEvent(
+
+            audit(SecurityDataArchivalRequestEvent.createSuccessEvent(
                     auditSubjectID,
-                    ILogger.SUCCESS,
                     auditRequesterID,
                     requestId,
                     null));
