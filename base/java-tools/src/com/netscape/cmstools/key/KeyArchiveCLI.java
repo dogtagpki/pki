@@ -111,7 +111,8 @@ public class KeyArchiveCLI extends CLI {
             }
             String realm = cmd.getOptionValue("realm");
 
-            response = keyClient.archivePassphrase(clientKeyId, passphrase, realm);
+            byte[] secret = passphrase.getBytes("UTF-8");
+            response = keyClient.archiveSecret(clientKeyId, secret, realm);
         }
 
         MainCLI.printMessage("Archival request details");

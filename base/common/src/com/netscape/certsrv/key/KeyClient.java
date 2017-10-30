@@ -662,7 +662,7 @@ public class KeyClient extends Client {
     }
 
     /**
-     * Archive a passphrase on the DRM.
+     * Archive a secret on the KRA.
      *
      * Requires a user-supplied client ID. There can be only one active
      * key with a specified client ID. If a record for a duplicate active
@@ -670,14 +670,14 @@ public class KeyClient extends Client {
      *
      *
      * @param clientKeyId -- Client Key Identfier
-     * @param passphrase -- Secret passphrase to be archived
+     * @param secret -- Secret to be archived
      * @param realm -- authorization realm
      * @return A KeyRequestResponse object with information about the request.
      * @throws Exception - Exceptions of type NoSuchAlgorithmException, IllegalStateException, TokenException,
      *             IOException, CertificateEncodingException, InvalidKeyException, InvalidAlgorithmParameterException,
      *             BadPaddingException, IllegalBlockSizeException
      */
-    public KeyRequestResponse archivePassphrase(String clientKeyId, String passphrase, String realm)
+    public KeyRequestResponse archiveSecret(String clientKeyId, byte[] secret, String realm)
             throws Exception {
         String algorithmOID = getEncryptAlgorithmOID();
 
@@ -685,7 +685,6 @@ public class KeyClient extends Client {
         SymmetricKey sessionKey = crypto.generateSessionKey(encryptAlgorithm);
         byte[] transWrappedSessionKey = crypto.wrapSessionKeyWithTransportCert(sessionKey, transportCert);
 
-        byte[] secret = passphrase.getBytes("UTF-8");
         byte[] encryptedData = crypto.encryptSecret(
                 secret,
                 nonceData,
@@ -706,12 +705,6 @@ public class KeyClient extends Client {
             algorithmOID = encryptAlgorithm.toOID().toString();
         }
         return algorithmOID;
-    }
-
-    /* Old signature for backwards compatibility */
-    @Deprecated
-    public KeyRequestResponse archivePassphrase(String clientKeyId, String passphrase) throws Exception {
-        return archivePassphrase(clientKeyId, passphrase, null);
     }
 
     /**
