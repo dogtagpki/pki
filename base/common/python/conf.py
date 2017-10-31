@@ -12,6 +12,7 @@
 # serve to show the default.
 
 from __future__ import absolute_import
+from distutils.version import StrictVersion
 import sys
 import os
 import sphinx
@@ -22,7 +23,7 @@ import sphinx
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 # Sphinx 1.1 has only sphinx.__version__ string
-SPHINX_VERSION = tuple(int(v) for v in sphinx.__version__.split('.')[:2])
+SPHINX_VERSION = StrictVersion(sphinx.__version__)
 
 # -- General configuration -----------------------------------------------
 
@@ -97,7 +98,7 @@ pygments_style = 'sphinx'
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-if SPHINX_VERSION < (1, 3):
+if SPHINX_VERSION < StrictVersion("1.3.0"):
     html_theme = 'default'
 else:
     html_theme = 'classic'
