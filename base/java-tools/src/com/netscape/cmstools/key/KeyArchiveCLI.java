@@ -49,6 +49,10 @@ public class KeyArchiveCLI extends CLI {
         option = new Option(null, "realm", true, "Authorization realm.");
         option.setArgName("Realm");
         options.addOption(option);
+
+        option = new Option(null, "transport", true, "Transport certificate nickname.");
+        option.setArgName("Nickname");
+        options.addOption(option);
     }
 
     public void execute(String[] args) throws Exception {
@@ -67,9 +71,10 @@ public class KeyArchiveCLI extends CLI {
         }
 
         String requestFile = cmd.getOptionValue("input");
+        String transportNickname = cmd.getOptionValue("transport");
 
         KeyRequestResponse response = null;
-        KeyClient keyClient = keyCLI.getKeyClient();
+        KeyClient keyClient = keyCLI.getKeyClient(transportNickname);
 
         if (requestFile != null) {
             // Case where the request template file is used. For pre-encrypted data.

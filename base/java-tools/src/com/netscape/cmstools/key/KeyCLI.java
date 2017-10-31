@@ -75,6 +75,10 @@ public class KeyCLI extends CLI {
     }
 
     public KeyClient getKeyClient() throws Exception {
+        return getKeyClient(null);
+    }
+
+    public KeyClient getKeyClient(String transportNickname) throws Exception {
 
         if (keyClient != null) return keyClient;
 
@@ -99,14 +103,22 @@ public class KeyCLI extends CLI {
             // create crypto provider for key client
             keyClient.setCrypto(new NSSCryptoProvider(client.getConfig()));
 
-            // download transport cert
-            SystemCertClient systemCertClient = new SystemCertClient(client, subsystem);
-            String pemCert = systemCertClient.getTransportCert().getEncoded();
-            String b64Cert = pemCert.substring(Cert.HEADER.length(), pemCert.indexOf(Cert.FOOTER));
-            byte[] bytes = Utils.base64decode(b64Cert);
-
             CryptoManager manager = CryptoManager.getInstance();
-            X509Certificate transportCert = manager.importCACertPackage(bytes);
+            X509Certificate transportCert;
+
+            if (transportNickname == null) {
+                // download transport cert
+                SystemCertClient systemCertClient = new SystemCertClient(client, subsystem);
+                String pemCert = systemCertClient.getTransportCert().getEncoded();
+                String b64Cert = pemCert.substring(Cert.HEADER.length(), pemCert.indexOf(Cert.FOOTER));
+                byte[] binCert = Utils.base64decode(b64Cert);
+
+                transportCert = manager.importCACertPackage(binCert);
+
+            } else {
+                // load transport cert
+                transportCert = manager.findCertByNickname(transportNickname);
+            }
 
             if (verbose) {
                 System.out.println("Transport cert: " + transportCert.getNickname());
