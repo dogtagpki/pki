@@ -23,7 +23,7 @@ public abstract class CryptoProvider {
 
     public abstract SymmetricKey generateSessionKey(EncryptionAlgorithm algorithm) throws Exception;
 
-    public abstract byte[] wrapSessionKeyWithTransportCert(SymmetricKey sessionKey, String transportCert)
+    public abstract byte[] wrapSymmetricKey(SymmetricKey symmetricKey, PublicKey wrappingKey)
             throws Exception;
 
     public abstract byte[] encryptSecret(byte[] secret, byte[] iv, SymmetricKey key, String keyAlgorithm)

@@ -29,9 +29,11 @@ import javax.ws.rs.core.Response;
 import org.dogtagpki.common.Info;
 import org.dogtagpki.common.KRAInfoResource;
 import org.dogtagpki.common.Version;
+import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.EncryptionAlgorithm;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
 import org.mozilla.jss.crypto.SymmetricKey;
+import org.mozilla.jss.crypto.X509Certificate;
 
 import com.netscape.certsrv.base.ResourceMessage;
 import com.netscape.certsrv.client.Client;
@@ -53,7 +55,7 @@ public class KeyClient extends Client {
     public KRAInfoResource kraInfoClient;
 
     private CryptoProvider crypto;
-    private String transportCert;
+    private X509Certificate transportCert;
     private EncryptionAlgorithm encryptAlgorithm;
     private KeyWrapAlgorithm wrapAlgorithm;
     private int wrapIVLength;
@@ -113,8 +115,10 @@ public class KeyClient extends Client {
      *
      * @param transportCert
      */
-    public void setTransportCert(String transportCert) {
-        this.transportCert = transportCert;
+    public void setTransportCert(String transportCert) throws Exception {
+        byte[] binCert = Utils.base64decode(transportCert);
+        CryptoManager manager = CryptoManager.getInstance();
+        this.transportCert = manager.importCACertPackage(binCert);
     }
 
     /**
@@ -404,7 +408,7 @@ public class KeyClient extends Client {
             throw new IllegalArgumentException("KeyId must be specified.");
         }
         SymmetricKey sessionKey = crypto.generateSessionKey(encryptAlgorithm);
-        byte[] transWrappedSessionKey = crypto.wrapSessionKeyWithTransportCert(sessionKey, transportCert);
+        byte[] transWrappedSessionKey = crypto.wrapSymmetricKey(sessionKey, transportCert.getPublicKey());
 
         Key data = retrieveKey(keyId, transWrappedSessionKey);
         processKeyData(data, sessionKey);
@@ -459,7 +463,7 @@ public class KeyClient extends Client {
             throw new IllegalArgumentException("RequestId must be specified.");
         }
         SymmetricKey sessionKey = crypto.generateSessionKey(encryptAlgorithm);
-        byte[] transWrappedSessionKey = crypto.wrapSessionKeyWithTransportCert(sessionKey, transportCert);
+        byte[] transWrappedSessionKey = crypto.wrapSymmetricKey(sessionKey, transportCert.getPublicKey());
 
         KeyRecoveryRequest recoveryRequest = new KeyRecoveryRequest();
         recoveryRequest.setRequestId(requestId);
@@ -536,7 +540,7 @@ public class KeyClient extends Client {
             throw new IllegalArgumentException("Passphrase must be specified.");
         }
         SymmetricKey sessionKey = crypto.generateSessionKey(encryptAlgorithm);
-        byte[] transWrappedSessionKey = crypto.wrapSessionKeyWithTransportCert(sessionKey, transportCert);
+        byte[] transWrappedSessionKey = crypto.wrapSymmetricKey(sessionKey, transportCert.getPublicKey());
         byte[] nonceData = CryptoUtil.getNonceData(encryptAlgorithm.getIVLength());
 
         byte[] secret = passphrase.getBytes("UTF-8");
@@ -555,7 +559,7 @@ public class KeyClient extends Client {
         }
 
         SymmetricKey sessionKey = crypto.generateSessionKey(encryptAlgorithm);
-        byte[] transWrappedSessionKey = crypto.wrapSessionKeyWithTransportCert(sessionKey, transportCert);
+        byte[] transWrappedSessionKey = crypto.wrapSymmetricKey(sessionKey, transportCert.getPublicKey());
         byte[] nonceData = CryptoUtil.getNonceData(encryptAlgorithm.getIVLength());
 
         byte[] secret = passphrase.getBytes("UTF-8");
@@ -683,7 +687,7 @@ public class KeyClient extends Client {
 
         byte[] nonceData = CryptoUtil.getNonceData(encryptAlgorithm.getIVLength());
         SymmetricKey sessionKey = crypto.generateSessionKey(encryptAlgorithm);
-        byte[] transWrappedSessionKey = crypto.wrapSessionKeyWithTransportCert(sessionKey, transportCert);
+        byte[] transWrappedSessionKey = crypto.wrapSymmetricKey(sessionKey, transportCert.getPublicKey());
 
         byte[] encryptedData = crypto.encryptSecret(
                 secret,
@@ -739,7 +743,7 @@ public class KeyClient extends Client {
 
         SymmetricKey sessionKey = crypto.generateSessionKey(encryptAlgorithm);
         byte[] encryptedData = crypto.wrapWithSessionKey(secret, sessionKey, nonceData, wrapAlgorithm);
-        byte[] transWrappedSessionKey = crypto.wrapSessionKeyWithTransportCert(sessionKey, transportCert);
+        byte[] transWrappedSessionKey = crypto.wrapSymmetricKey(sessionKey, transportCert.getPublicKey());
 
         return archiveEncryptedData(clientKeyId, KeyRequestResource.SYMMETRIC_KEY_TYPE, keyAlgorithm, keySize,
                 algorithmOID, nonceData, encryptedData, transWrappedSessionKey, realm);
