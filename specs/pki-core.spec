@@ -951,14 +951,8 @@ cd build
 	-DWITH_JAVADOC:BOOL=OFF \
 %endif
 	..
-
-%if 0%{?rhel}
-# do not run unit tests on RHEL/CentOS
 %{__make} VERBOSE=1 %{?_smp_mflags} all
-%else
-# run unit tests on Fedora
-%{__make} VERBOSE=1 %{?_smp_mflags} all unit-test
-%endif
+# %{__make} VERBOSE=1 %{?_smp_mflags} unit-test
 
 
 %install
