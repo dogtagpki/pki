@@ -55,6 +55,10 @@ public class KeyRetrieveCLI extends CLI {
         option = new Option(null, "output", true, "Location to store the retrieved key information");
         option.setArgName("File path to store key information");
         options.addOption(option);
+
+        option = new Option(null, "transport", true, "Transport certificate nickname.");
+        option.setArgName("Nickname");
+        options.addOption(option);
     }
 
     public void execute(String[] args) throws Exception {
@@ -77,8 +81,9 @@ public class KeyRetrieveCLI extends CLI {
         }
 
         String requestFile = cmd.getOptionValue("input");
+        String transportNickname = cmd.getOptionValue("transport");
 
-        KeyClient keyClient = keyCLI.getKeyClient();
+        KeyClient keyClient = keyCLI.getKeyClient(transportNickname);
         Key keyData = null;
 
         if (requestFile != null) {
