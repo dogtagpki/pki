@@ -2,6 +2,9 @@ package com.netscape.cmstools.key;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 
 import javax.xml.bind.JAXBContext;
@@ -37,12 +40,16 @@ public class KeyArchiveCLI extends CLI {
         option.setArgName("Client Key Identifier");
         options.addOption(option);
 
+        option = new Option(null, "input-data", true, "Input file containing the data to be stored.");
+        option.setArgName("Path");
+        options.addOption(option);
+
         option = new Option(null, "passphrase", true, "Passphrase to be stored.");
         option.setArgName("Passphrase");
         options.addOption(option);
 
         option = new Option(null, "input", true,
-                "Location of the request template file.\nUsed for archiving already encrypted data.");
+                "Location of the request file.\nUsed for archiving already encrypted data.");
         option.setArgName("Input file path");
         options.addOption(option);
 
@@ -71,13 +78,17 @@ public class KeyArchiveCLI extends CLI {
         }
 
         String requestFile = cmd.getOptionValue("input");
+        String clientKeyId = cmd.getOptionValue("clientKeyID");
+        String realm = cmd.getOptionValue("realm");
+        String passphrase = cmd.getOptionValue("passphrase");
+        String inputDataFile = cmd.getOptionValue("input-data");
         String transportNickname = cmd.getOptionValue("transport");
 
         KeyRequestResponse response = null;
         KeyClient keyClient = keyCLI.getKeyClient(transportNickname);
 
         if (requestFile != null) {
-            // Case where the request template file is used. For pre-encrypted data.
+            // Case where the request file is used. For pre-encrypted data.
             try {
                 JAXBContext context = JAXBContext.newInstance(KeyArchivalRequest.class);
                 Unmarshaller unmarshaller = context.createUnmarshaller();
@@ -104,20 +115,29 @@ public class KeyArchiveCLI extends CLI {
                 throw new Exception("Cannot locate file at path: " + requestFile, e);
             }
 
-        } else {
-            // Simple case for archiving a passphrase
-            String clientKeyId = cmd.getOptionValue("clientKeyID");
-            String passphrase = cmd.getOptionValue("passphrase");
+        } else if (passphrase != null) {
+            // archiving a passphrase
+
             if (clientKeyId == null) {
                 throw new Exception("Client Key Id is not specified.");
             }
-            if (passphrase == null) {
-                throw new Exception("No passphrase provided to archive.");
-            }
-            String realm = cmd.getOptionValue("realm");
 
             byte[] secret = passphrase.getBytes("UTF-8");
             response = keyClient.archiveSecret(clientKeyId, secret, realm);
+
+        } else if (inputDataFile != null) {
+            // archiving a binary data
+
+            if (clientKeyId == null) {
+                throw new Exception("Client Key Id is not specified.");
+            }
+
+            Path path = Paths.get(inputDataFile);
+            byte[] data = Files.readAllBytes(path);
+            response = keyClient.archiveSecret(clientKeyId, data, realm);
+
+        } else {
+            throw new Exception("Missing passphrase, secret file, or request file.");
         }
 
         MainCLI.printMessage("Archival request details");
