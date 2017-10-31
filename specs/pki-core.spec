@@ -66,10 +66,10 @@
 Name:             pki-core
 %if 0%{?rhel}
 Version:          10.4.1
-Release:          15%{?dist}
+Release:          16%{?dist}
 %else
 Version:          10.4.8
-Release:          7%{?dist}
+Release:          8%{?dist}
 %endif
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
@@ -262,6 +262,14 @@ Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{
 ## pki-core-10.4.8-7
 #######################
 #Patch14:          pki-core-Make-PKCS12-files-compatible-with-PBES2.patch
+#######################
+## pki-core-10.4.8-8
+#######################
+#Patch15:          pki-core-externalRegRecover-multiple-KRA.patch
+#Patch16:          pki-core-TPS-applet-protocol-determination.patch
+#Patch17:          pki-core-update-cert-revocation-reasons.patch
+#Patch18:          pki-core-fix-issuance-sans-subject-key-ID-ext.patch
+#Patch19:          pki-core-fix-ipa-replica-install-timing-issue.patch
 
 # Obtain version phase number (e. g. - used by "alpha", "beta", etc.)
 #
@@ -942,6 +950,11 @@ This package is a part of the PKI Core used by the Certificate System.
 #%patch12 -p1
 #%patch13 -p1
 #%patch14 -p1
+#%patch15 -p1
+#%patch16 -p1
+#%patch17 -p1
+#%patch18 -p1
+#%patch19 -p1
 
 %clean
 %{__rm} -rf %{buildroot}
@@ -1467,6 +1480,21 @@ fi
 %endif # %{with server}
 
 %changelog
+* Fri Oct 13 2017 Dogtag Team <pki-devel@redhat.com> 10.4.8-8
+- dogtagpki Pagure Issue #2631 - externalRegRecover does not support
+  multiple KRA instances (cfu)
+- dogtagpki Pagure Issue #2824 - TPS new configuration to allow the protocol
+  of the to determine applet loaded (jmagne)
+- dogtagpki Pagure Issue #1665 - Certificate Revocation Reasons not being
+  updated in some cases (cfu)
+- dogtagpki Pagure Issue #2829 - CA cert without Subject Key Identifier
+  causes issuance failure (ftweedal)
+- dogtagpki Pagure Issue #2809 - PKCS #12 files incompatible with
+  NSS >= 3.31 (ftweedal)
+  NOTE: Check-ins for #2809 all reference the associated dogtagpki
+        Pagure Issue #2557 - CA Cloning: Failed to update number
+        range in few cases (which is not yet fully resolved)
+
 * Mon Sep 18 2017 Dogtag Team <pki-devel@redhat.com> 10.4.8-7
 - dogtagpki Pagure Issue #2809 - PKCS #12 files incompatible with
   NSS >= 3.31 (ftweedal)
