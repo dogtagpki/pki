@@ -18,12 +18,14 @@ import org.mozilla.jss.crypto.KeyWrapAlgorithm;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.crypto.TokenException;
+import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.util.IncorrectPasswordException;
 import org.mozilla.jss.util.Password;
 
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.key.KeyRequestResource;
 import com.netscape.cmsutil.crypto.CryptoUtil;
+import com.netscape.cmsutil.util.Utils;
 
 public class NSSCryptoProvider extends CryptoProvider {
 
@@ -122,10 +124,16 @@ public class NSSCryptoProvider extends CryptoProvider {
 
     @Override
     public byte[] wrapSessionKeyWithTransportCert(SymmetricKey sessionKey, String transportCert) throws Exception {
-        if ((manager == null) || (token == null)) {
+
+        if (manager == null || token == null) {
             throw new NotInitializedException();
         }
-        return CryptoUtil.wrapSymmetricKey(manager, token, transportCert, sessionKey);
+
+        byte[] binCert = Utils.base64decode(transportCert);
+        X509Certificate cert = manager.importCACertPackage(binCert);
+        PublicKey wrappingKey = cert.getPublicKey();
+
+        return CryptoUtil.wrapSymmetricKey(token, wrappingKey, sessionKey);
     }
 
     @Override

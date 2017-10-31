@@ -2215,11 +2215,11 @@ public class CryptoUtil {
         return cipher.doFinal(secret);
     }
 
-    public static byte[] wrapSymmetricKey(CryptoManager manager, CryptoToken token, String transportCert,
+    public static byte[] wrapSymmetricKey(
+            CryptoToken token,
+            PublicKey wrappingKey,
             SymmetricKey sk) throws Exception {
-        byte transport[] = Utils.base64decode(transportCert);
-        X509Certificate tcert = manager.importCACertPackage(transport);
-        return wrapUsingPublicKey(token, tcert.getPublicKey(), sk, KeyWrapAlgorithm.RSA);
+        return wrapUsingPublicKey(token, wrappingKey, sk, KeyWrapAlgorithm.RSA);
     }
 
     /* Used to create PKIArchiveOptions for wrapped private key */
