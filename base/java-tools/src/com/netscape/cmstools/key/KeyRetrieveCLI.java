@@ -2,6 +2,9 @@ package com.netscape.cmstools.key;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 
 import javax.xml.bind.JAXBContext;
@@ -56,6 +59,10 @@ public class KeyRetrieveCLI extends CLI {
         option.setArgName("File path to store key information");
         options.addOption(option);
 
+        option = new Option(null, "output-data", true, "Output file to store the retrieved data.");
+        option.setArgName("Path");
+        options.addOption(option);
+
         option = new Option(null, "transport", true, "Transport certificate nickname.");
         option.setArgName("Nickname");
         options.addOption(option);
@@ -80,6 +87,11 @@ public class KeyRetrieveCLI extends CLI {
             throw new Exception("Incorrect number of parameters provided.");
         }
 
+        String keyId = cmd.getOptionValue("keyID");
+        String passphrase = cmd.getOptionValue("passphrase");
+        String requestId = cmd.getOptionValue("requestID");
+        String outputFilePath = cmd.getOptionValue("output");
+        String outputDataFile = cmd.getOptionValue("output-data");
         String requestFile = cmd.getOptionValue("input");
         String transportNickname = cmd.getOptionValue("transport");
 
@@ -119,11 +131,7 @@ public class KeyRetrieveCLI extends CLI {
 
         } else {
             // Using command line options.
-            String keyId = cmd.getOptionValue("keyID");
-            String passphrase = cmd.getOptionValue("passphrase");
-            String requestId = cmd.getOptionValue("requestID");
-
-            if ((requestId == null) && (keyId == null)) {
+            if (requestId == null && keyId == null) {
                 throw new Exception("Either requestID or keyID must be specified");
             }
 
@@ -134,6 +142,7 @@ public class KeyRetrieveCLI extends CLI {
                 } else {
                     keyData = keyClient.retrieveKeyByPassphrase(new KeyId(keyId), passphrase);
                 }
+
             } else {
                 if (requestId != null) {
                     keyData = keyClient.retrieveKeyByRequest(new RequestId(requestId));
@@ -149,20 +158,39 @@ public class KeyRetrieveCLI extends CLI {
             }
         }
 
-        String outputFilePath = cmd.getOptionValue("output");
-        if (outputFilePath != null) {
+        MainCLI.printMessage("Retrieve Key Information");
+
+        if (outputDataFile != null) {
+
+            byte[] data;
+            if (clientEncryption) { // store encrypted data
+                data = keyData.getEncryptedData();
+
+            } else { // store unencrypted data
+                data = keyData.getData();
+            }
+
+            Path path = Paths.get(outputDataFile);
+            Files.write(path, data);
+
+            printKeyInfo(keyData);
+            System.out.println("  Output: " + outputDataFile);
+
+        } else if (outputFilePath != null) {
             JAXBContext context = JAXBContext.newInstance(Key.class);
             Marshaller marshaller = context.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
             marshaller.marshal(keyData, new File(outputFilePath));
 
+            System.out.println("  Output: " + outputFilePath);
+
         } else {
-            MainCLI.printMessage("Retrieve Key Information");
+            printKeyInfo(keyData);
             printKeyData(keyData);
         }
     }
 
-    public void printKeyData(Key key) {
+    public void printKeyInfo(Key key) {
         if (key.getRequestId() != null)
             System.out.println("  Recovery Request ID: " + key.getRequestId());
         if (key.getAlgorithm() != null)
@@ -170,14 +198,16 @@ public class KeyRetrieveCLI extends CLI {
         if (key.getSize() != null)
             System.out.println("  Key Size: " + key.getSize());
         if (key.getNonceData() != null)
-            System.out.println("  Nonce data: " + Utils.base64encode(key.getNonceData(), true));
+            System.out.println("  Nonce data: " + Utils.base64encode(key.getNonceData(), false));
+    }
 
+    public void printKeyData(Key key) {
         if (clientEncryption) {
             if (key.getEncryptedData() != null)
-                System.out.println("  Encrypted Data:" + Utils.base64encode(key.getEncryptedData(), true));
+                System.out.println("  Encrypted Data:" + Utils.base64encode(key.getEncryptedData(), false));
         } else {
             if (key.getData() !=  null)
-                System.out.println("  Actual archived data: " + Utils.base64encode(key.getData(), true));
+                System.out.println("  Actual archived data: " + Utils.base64encode(key.getData(), false));
         }
 
         if (key.getP12Data() != null) {
