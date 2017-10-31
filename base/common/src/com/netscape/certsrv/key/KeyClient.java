@@ -29,7 +29,6 @@ import javax.ws.rs.core.Response;
 import org.dogtagpki.common.Info;
 import org.dogtagpki.common.KRAInfoResource;
 import org.dogtagpki.common.Version;
-import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.EncryptionAlgorithm;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
 import org.mozilla.jss.crypto.SymmetricKey;
@@ -107,18 +106,8 @@ public class KeyClient extends Client {
         this.crypto = crypto;
     }
 
-    /**
-     * Set the value of the transport cert.
-     * The HEADER and FOOTER should be removed from the string.
-     * HEADER - CertData.HEADER
-     * FOOTER - CertData.FOOTER
-     *
-     * @param transportCert
-     */
-    public void setTransportCert(String transportCert) throws Exception {
-        byte[] binCert = Utils.base64decode(transportCert);
-        CryptoManager manager = CryptoManager.getInstance();
-        this.transportCert = manager.importCACertPackage(binCert);
+    public void setTransportCert(X509Certificate transportCert) throws Exception {
+        this.transportCert = transportCert;
     }
 
     /**

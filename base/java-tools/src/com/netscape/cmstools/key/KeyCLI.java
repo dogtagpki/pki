@@ -18,6 +18,9 @@
 
 package com.netscape.cmstools.key;
 
+import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.crypto.X509Certificate;
+
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.key.KeyClient;
 import com.netscape.certsrv.key.KeyInfo;
@@ -36,7 +39,6 @@ import com.netscape.cmsutil.util.Utils;
 public class KeyCLI extends CLI {
 
     public KeyClient keyClient;
-    public SystemCertClient systemCertClient;
 
     public KeyCLI(CLI parent) {
         super("key", "Key management commands", parent);
@@ -89,7 +91,6 @@ public class KeyCLI extends CLI {
 
         // create new key client
         keyClient = new KeyClient(client, subsystem);
-        systemCertClient = new SystemCertClient(client, subsystem);
 
         // if security database password is specified,
         // prepare key client for archival/retrieval
@@ -99,9 +100,17 @@ public class KeyCLI extends CLI {
             keyClient.setCrypto(new NSSCryptoProvider(client.getConfig()));
 
             // download transport cert
-            String transportCert = systemCertClient.getTransportCert().getEncoded();
-            transportCert = transportCert.substring(Cert.HEADER.length(),
-                    transportCert.indexOf(Cert.FOOTER));
+            SystemCertClient systemCertClient = new SystemCertClient(client, subsystem);
+            String pemCert = systemCertClient.getTransportCert().getEncoded();
+            String b64Cert = pemCert.substring(Cert.HEADER.length(), pemCert.indexOf(Cert.FOOTER));
+            byte[] bytes = Utils.base64decode(b64Cert);
+
+            CryptoManager manager = CryptoManager.getInstance();
+            X509Certificate transportCert = manager.importCACertPackage(bytes);
+
+            if (verbose) {
+                System.out.println("Transport cert: " + transportCert.getNickname());
+            }
 
             // set transport cert for key client
             keyClient.setTransportCert(transportCert);
