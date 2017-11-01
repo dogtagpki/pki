@@ -342,9 +342,13 @@ public class EnrollmentService implements IService {
                 if (statsSub != null) {
                     statsSub.startTiming("verify_key");
                 }
-                boolean verified = verifyKeyPair(publicKeyData, unwrapped);
 
-                if (verified == false) {
+                try {
+                    verifyKeyPair(publicKeyData, unwrapped);
+
+                } catch (Exception e) {
+                    CMS.debug(e);
+
                     JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
                     jssSubsystem.obscureBytes(unwrapped);
                     mKRA.log(ILogger.LL_FAILURE,
@@ -359,6 +363,7 @@ public class EnrollmentService implements IService {
                     throw new EKRAException(
                         CMS.getUserMessage("CMS_KRA_INVALID_PUBLIC_KEY"));
                 }
+
                 if (statsSub != null) {
                     statsSub.endTiming("verify_key");
                 }
@@ -644,8 +649,8 @@ public class EnrollmentService implements IService {
         return true;
     }
 
-    public boolean verifyKeyPair(byte publicKeyData[], byte privateKeyData[]) {
-        try {
+    public void verifyKeyPair(byte publicKeyData[], byte privateKeyData[]) throws Exception {
+
             DerValue publicKeyVal = new DerValue(publicKeyData);
             DerInputStream publicKeyIn = publicKeyVal.data;
             publicKeyIn.getSequence(0);
@@ -655,8 +660,11 @@ public class EnrollmentService implements IService {
             BigInt publicKeyExponent = publicKeyDerIn.getInteger();
 
             DerValue privateKeyVal = new DerValue(privateKeyData);
-            if (privateKeyVal.tag != DerValue.tag_Sequence)
-                return false;
+
+            if (privateKeyVal.tag != DerValue.tag_Sequence) {
+                throw new Exception("Invalid DER tag in private key data: " + privateKeyVal.tag);
+            }
+
             DerInputStream privateKeyIn = privateKeyVal.data;
             privateKeyIn.getInteger();
             privateKeyIn.getSequence(0);
@@ -671,20 +679,14 @@ public class EnrollmentService implements IService {
             if (!publicKeyModulus.equals(privateKeyModulus)) {
                 CMS.debug("verifyKeyPair modulus mismatch publicKeyModulus="
                         + publicKeyModulus + " privateKeyModulus=" + privateKeyModulus);
-                return false;
+                throw new Exception("Modulus mismatch");
             }
 
             if (!publicKeyExponent.equals(privateKeyExponent)) {
                 CMS.debug("verifyKeyPair exponent mismatch publicKeyExponent="
                         + publicKeyExponent + " privateKeyExponent=" + privateKeyExponent);
-                return false;
+                throw new Exception("Exponent mismatch");
             }
-
-            return true;
-        } catch (Exception e) {
-            CMS.debug("verifyKeyPair error " + e);
-            return false;
-        }
     }
 
     private static final OBJECT_IDENTIFIER PKIARCHIVEOPTIONS_OID =
