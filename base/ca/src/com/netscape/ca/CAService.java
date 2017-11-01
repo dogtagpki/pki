@@ -432,16 +432,17 @@ public class CAService implements ICAService, IService {
 
                 if (mArchivalRequired == true) {
                     if (sendStatus == false) {
+                        String message = CMS.getUserMessage("CMS_CA_SEND_KRA_REQUEST");
                         request.setExtData(IRequest.RESULT,
                                 IRequest.RES_ERROR);
-                        request.setExtData(IRequest.ERROR,
-                                new ECAException(CMS.getUserMessage("CMS_CA_SEND_KRA_REQUEST")));
+                        request.setExtData(IRequest.ERROR, new ECAException(message));
 
                         audit(SecurityDataArchivalRequestEvent.createFailureEvent(
                                 auditSubjectID,
                                 auditRequesterID,
                                 requestId,
-                                null));
+                                null,
+                                message));
 
                         return true;
                     } else {
@@ -450,13 +451,16 @@ public class CAService implements ICAService, IService {
                             request.deleteExtData(IRequest.ERROR);
                         }
                     }
-                    if (request.getExtDataInString(IRequest.ERROR) != null) {
+
+                    String message = request.getExtDataInString(IRequest.ERROR);
+                    if (message != null) {
 
                         audit(SecurityDataArchivalRequestEvent.createFailureEvent(
                                 auditSubjectID,
                                 auditRequesterID,
                                 requestId,
-                                null));
+                                null,
+                                message));
 
                         return true;
                     }
@@ -480,7 +484,8 @@ public class CAService implements ICAService, IService {
                         auditSubjectID,
                         auditRequesterID,
                         requestId,
-                        null));
+                        null,
+                        e));
             }
 
             return true;

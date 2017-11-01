@@ -110,16 +110,17 @@ public class CAEnrollProfile extends EnrollProfile {
                     IConnector kraConnector = caService.getKRAConnector();
 
                     if (kraConnector == null) {
-                        CMS.debug("CAEnrollProfile: KRA connector " +
-                                "not configured");
+                        String message = "KRA connector not configured";
+                        CMS.debug("CAEnrollProfile: " + message);
 
                         audit(SecurityDataArchivalRequestEvent.createFailureEvent(
                                 auditSubjectID,
                                 auditRequesterID,
                                 requestId,
-                                null));
+                                null,
+                                message));
 
-                        throw new EProfileException("Internal error: missing kraConnector");
+                        throw new EProfileException(message);
 
                     } else {
                         CMS.debug("CAEnrollProfile: execute send request");
@@ -127,13 +128,15 @@ public class CAEnrollProfile extends EnrollProfile {
 
                         // check response
                         if (!request.isSuccess()) {
-                            CMS.debug("CAEnrollProfile: archival request failed");
+                            String message = "archival request failed";
+                            CMS.debug("CAEnrollProfile: " + message);
 
                             audit(SecurityDataArchivalRequestEvent.createFailureEvent(
                                     auditSubjectID,
                                     auditRequesterID,
                                     requestId,
-                                    null));
+                                    null,
+                                    message));
 
                             if (getLocale(request) != null &&
                                 request.getError(getLocale(request)) != null) {
@@ -164,7 +167,8 @@ public class CAEnrollProfile extends EnrollProfile {
                             auditSubjectID,
                             auditRequesterID,
                             requestId,
-                            null));
+                            null,
+                            e));
 
                     if (e instanceof ERejectException) {
                         throw (ERejectException) e;

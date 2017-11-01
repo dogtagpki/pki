@@ -166,7 +166,8 @@ public class KeyRequestService extends SubsystemService implements KeyRequestRes
                     getRequestor(),
                     null,
                     null,
-                    data.getClientKeyId()));
+                    data.getClientKeyId(),
+                    e));
 
             throw new UnauthorizedException("Not authorized to generate request in this realm", e);
 
@@ -176,7 +177,8 @@ public class KeyRequestService extends SubsystemService implements KeyRequestRes
                     getRequestor(),
                     null,
                     null,
-                    data.getClientKeyId()));
+                    data.getClientKeyId(),
+                    e));
             throw new BadRequestException("Invalid realm", e);
 
         } catch (EBaseException | URISyntaxException e) {
@@ -185,7 +187,8 @@ public class KeyRequestService extends SubsystemService implements KeyRequestRes
                     getRequestor(),
                     null,
                     null,
-                    data.getClientKeyId()));
+                    data.getClientKeyId(),
+                    e));
 
             throw new PKIException(e.toString(), e);
         }
