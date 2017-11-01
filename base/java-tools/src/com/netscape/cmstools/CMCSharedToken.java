@@ -205,9 +205,7 @@ public class CMCSharedToken {
             if (issuanceProtCertFilename != null) {
                 if (verbose) System.out.println("Loading issuance protection certificate");
                 String encoded = FileUtils.readFileToString(new File(issuanceProtCertFilename));
-                encoded = Cert.normalizeCertStrAndReq(encoded);
-                encoded = Cert.stripBrackets(encoded);
-                byte[] issuanceProtCertData = Utils.base64decode(encoded);
+                byte[] issuanceProtCertData = Cert.parseCertificate(encoded);
 
                 issuanceProtCert = manager.importCACertPackage(issuanceProtCertData);
                 if (verbose) System.out.println("issuance protection certificate imported");

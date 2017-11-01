@@ -69,7 +69,6 @@ import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.servlet.admin.GroupMemberProcessor;
 import com.netscape.cms.servlet.base.SubsystemService;
 import com.netscape.cmsutil.util.Cert;
-import com.netscape.cmsutil.util.Utils;
 
 import netscape.security.pkcs.PKCS7;
 import netscape.security.x509.X509CertImpl;
@@ -822,8 +821,6 @@ public class UserService extends SubsystemService implements UserResource {
             IUser user = userGroupManager.createUser(userID);
 
             String encoded = userCertData.getEncoded();
-            encoded = Cert.normalizeCertStrAndReq(encoded);
-            encoded = Cert.stripBrackets(encoded);
 
             // no cert is a success
             if (encoded == null) {
@@ -835,7 +832,7 @@ public class UserService extends SubsystemService implements UserResource {
             X509Certificate cert = null;
 
             // Base64 decode cert
-            byte binaryCert[] = Utils.base64decode(encoded);
+            byte binaryCert[] = Cert.parseCertificate(encoded);
 
             try {
                 cert = new X509CertImpl(binaryCert);

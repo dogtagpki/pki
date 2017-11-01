@@ -446,9 +446,7 @@ public class CRMFPopClient {
 
             if (verbose) System.out.println("Loading transport certificate");
             String encoded = FileUtils.readFileToString(new File(transportCertFilename));
-            encoded = Cert.normalizeCertStrAndReq(encoded);
-            encoded = Cert.stripBrackets(encoded);
-            byte[] transportCertData = Utils.base64decode(encoded);
+            byte[] transportCertData = Cert.parseCertificate(encoded);
 
             X509Certificate transportCert = manager.importCACertPackage(transportCertData);
 

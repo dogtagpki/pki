@@ -47,7 +47,6 @@ import com.netscape.cmsutil.ocsp.RevokedInfo;
 import com.netscape.cmsutil.ocsp.SingleResponse;
 import com.netscape.cmsutil.ocsp.UnknownInfo;
 import com.netscape.cmsutil.util.Cert;
-import com.netscape.cmsutil.util.Utils;
 
 import netscape.security.x509.X500Name;
 import netscape.security.x509.X509CertImpl;
@@ -128,9 +127,7 @@ public class CertStatusCLI extends CLI {
 
         // parse CA certificate
         String pemCert = caCertData.getEncoded();
-        String oneLineCert = Cert.normalizeCertStrAndReq(pemCert);
-        String b64Cert = Cert.stripBrackets(oneLineCert);
-        byte[] binCert = Utils.base64decode(b64Cert);
+        byte[] binCert = Cert.parseCertificate(pemCert);
 
         X509CertImpl caCert = new X509CertImpl(binCert);
         X500Name caDN = (X500Name)caCert.getSubjectDN();

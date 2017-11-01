@@ -54,7 +54,6 @@ import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Cert;
-import com.netscape.cmsutil.util.Utils;
 
 import netscape.ldap.util.DN;
 import netscape.ldap.util.RDN;
@@ -275,9 +274,7 @@ public class ClientCertRequestCLI extends CLI {
                 encoded = FileUtils.readFileToString(new File(transportCertFilename));
             }
 
-            encoded = Cert.normalizeCertStrAndReq(encoded);
-            encoded = Cert.stripBrackets(encoded);
-            byte[] transportCertData = Utils.base64decode(encoded);
+            byte[] transportCertData = Cert.parseCertificate(encoded);
 
             CryptoManager manager = CryptoManager.getInstance();
             X509Certificate transportCert = manager.importCACertPackage(transportCertData);

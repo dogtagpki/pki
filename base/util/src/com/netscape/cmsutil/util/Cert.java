@@ -192,4 +192,10 @@ public class Cert {
         }
         return val.toString();
     }
+
+    public static byte[] parseCertificate(String cert) {
+        String encoded = normalizeCertStrAndReq(cert);
+        String b64 = stripBrackets(encoded);
+        return Utils.base64decode(b64);
+    }
 }
