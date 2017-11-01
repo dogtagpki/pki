@@ -19,12 +19,13 @@ package com.netscape.cmstools;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.FileWriter;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URLEncoder;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.KeyPair;
 import java.security.MessageDigest;
 import java.security.PublicKey;
@@ -34,7 +35,6 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
-import org.apache.commons.io.FileUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -445,7 +445,7 @@ public class CRMFPopClient {
             client.setVerbose(verbose);
 
             if (verbose) System.out.println("Loading transport certificate");
-            String encoded = FileUtils.readFileToString(new File(transportCertFilename));
+            String encoded = new String(Files.readAllBytes(Paths.get(transportCertFilename)));
             byte[] transportCertData = Cert.parseCertificate(encoded);
 
             X509Certificate transportCert = manager.importCACertPackage(transportCertData);

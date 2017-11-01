@@ -22,6 +22,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.Console;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.KeyPair;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,7 +31,6 @@ import java.util.Vector;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.apache.commons.io.FileUtils;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
@@ -271,7 +272,7 @@ public class ClientCertRequestCLI extends CLI {
                 encoded = certClient.getTransportCert().getEncoded();
 
             } else {
-                encoded = FileUtils.readFileToString(new File(transportCertFilename));
+                encoded = new String(Files.readAllBytes(Paths.get(transportCertFilename)));
             }
 
             byte[] transportCertData = Cert.parseCertificate(encoded);
@@ -411,7 +412,7 @@ public class ClientCertRequestCLI extends CLI {
             System.out.println("CSR generated: " + csrFile);
         }
 
-        return FileUtils.readFileToString(csrFile);
+        return new String(Files.readAllBytes(csrFile.toPath()));
     }
 
     public String generateCrmfRequest(

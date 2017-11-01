@@ -18,15 +18,15 @@
 
 package com.netscape.cmstools.user;
 
-import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.apache.commons.io.FileUtils;
 
-import com.netscape.certsrv.ca.CAClient;
 import com.netscape.certsrv.ca.CACertClient;
+import com.netscape.certsrv.ca.CAClient;
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.user.UserCertData;
@@ -91,7 +91,7 @@ public class UserCertAddCLI extends CLI {
                 System.out.println("Reading certificate from " + inputFile + ".");
             }
 
-            encoded = FileUtils.readFileToString(new File(inputFile));
+            encoded = new String(Files.readAllBytes(Paths.get(inputFile)));
             if (verbose) {
                 System.out.println(encoded);
             }

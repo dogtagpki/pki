@@ -17,9 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmstools;
 
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
@@ -27,7 +28,6 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
-import org.apache.commons.io.FileUtils;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.EncryptionAlgorithm;
@@ -204,7 +204,7 @@ public class CMCSharedToken {
             X509Certificate  issuanceProtCert = null;
             if (issuanceProtCertFilename != null) {
                 if (verbose) System.out.println("Loading issuance protection certificate");
-                String encoded = FileUtils.readFileToString(new File(issuanceProtCertFilename));
+                String encoded = new String(Files.readAllBytes(Paths.get(issuanceProtCertFilename)));
                 byte[] issuanceProtCertData = Cert.parseCertificate(encoded);
 
                 issuanceProtCert = manager.importCACertPackage(issuanceProtCertData);
