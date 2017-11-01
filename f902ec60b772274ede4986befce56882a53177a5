@@ -1,0 +1,163 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "888c62ea_3a6a5f89",
+        "filename": "base/kra/src/com/netscape/kra/EnrollmentService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 1010256
+      },
+      "writtenOn": "2017-11-01T18:17:13Z",
+      "side": 1,
+      "message": "should this be changed to match the e above?  it shouldn\u0027t just assume it\u0027s CMS_KRA_INVALID_PRIVATE_KEY.",
+      "range": {
+        "startLine": 215,
+        "startChar": 0,
+        "endLine": 215,
+        "endChar": 24
+      },
+      "revId": "f902ec60b772274ede4986befce56882a53177a5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ae91a1f3_eef3049f",
+        "filename": "base/kra/src/com/netscape/kra/EnrollmentService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 262,
+      "author": {
+        "id": 1010256
+      },
+      "writtenOn": "2017-11-01T18:17:13Z",
+      "side": 1,
+      "message": "same comment here about matching the e.",
+      "revId": "f902ec60b772274ede4986befce56882a53177a5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0c8f55e4_082a31db",
+        "filename": "base/kra/src/com/netscape/kra/EnrollmentService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 300,
+      "author": {
+        "id": 1010256
+      },
+      "writtenOn": "2017-11-01T18:17:13Z",
+      "side": 1,
+      "message": "seems should just use the same message that goes into the audit event.",
+      "revId": "f902ec60b772274ede4986befce56882a53177a5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "08204710_db7af3b7",
+        "filename": "base/kra/src/com/netscape/kra/EnrollmentService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 340,
+      "author": {
+        "id": 1010256
+      },
+      "writtenOn": "2017-11-01T18:17:13Z",
+      "side": 1,
+      "message": "same comment on matching the e above.",
+      "revId": "f902ec60b772274ede4986befce56882a53177a5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6cdba16d_21253302",
+        "filename": "base/kra/src/com/netscape/kra/EnrollmentService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 424,
+      "author": {
+        "id": 1010256
+      },
+      "writtenOn": "2017-11-01T18:17:13Z",
+      "side": 1,
+      "message": "same comment here on matching the e above.",
+      "revId": "f902ec60b772274ede4986befce56882a53177a5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3f716446_7df9fa12",
+        "filename": "base/kra/src/com/netscape/kra/EnrollmentService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 454,
+      "author": {
+        "id": 1010256
+      },
+      "writtenOn": "2017-11-01T18:17:13Z",
+      "side": 1,
+      "message": "same here on matching the e.",
+      "revId": "f902ec60b772274ede4986befce56882a53177a5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e2a2c3fa_92ddd6cf",
+        "filename": "base/kra/src/com/netscape/kra/EnrollmentService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 502,
+      "author": {
+        "id": 1010256
+      },
+      "writtenOn": "2017-11-01T18:17:13Z",
+      "side": 1,
+      "message": "same here on matching the message.",
+      "revId": "f902ec60b772274ede4986befce56882a53177a5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4f3eefd9_3fcf0b8d",
+        "filename": "base/kra/src/com/netscape/kra/EnrollmentService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 523,
+      "author": {
+        "id": 1010256
+      },
+      "writtenOn": "2017-11-01T18:17:13Z",
+      "side": 1,
+      "message": "same here on matching the e.",
+      "revId": "f902ec60b772274ede4986befce56882a53177a5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f1daf4ba_86b6fa99",
+        "filename": "base/kra/src/com/netscape/kra/EnrollmentService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 540,
+      "author": {
+        "id": 1010256
+      },
+      "writtenOn": "2017-11-01T18:17:13Z",
+      "side": 1,
+      "message": "same here on matching the message.",
+      "revId": "f902ec60b772274ede4986befce56882a53177a5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
