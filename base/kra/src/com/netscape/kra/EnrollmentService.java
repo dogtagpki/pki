@@ -208,7 +208,8 @@ public class EnrollmentService implements IService {
                         auditSubjectID,
                         auditRequesterID,
                         requestId,
-                        null));
+                        null,
+                        e));
 
                 throw new EKRAException(
                         CMS.getUserMessage("CMS_KRA_INVALID_PRIVATE_KEY"));
@@ -254,7 +255,8 @@ public class EnrollmentService implements IService {
                             auditSubjectID,
                             auditRequesterID,
                             requestId,
-                            null));
+                            null,
+                            e));
 
                     throw new EKRAException(
                             CMS.getUserMessage("CMS_KRA_INVALID_PRIVATE_KEY"));
@@ -284,14 +286,15 @@ public class EnrollmentService implements IService {
             byte publicKeyData[] = publicKey.getEncoded();
 
             if (publicKeyData == null) {
-                mKRA.log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSCORE_KRA_PUBLIC_NOT_FOUND"));
+                String message = CMS.getLogMessage("CMSCORE_KRA_PUBLIC_NOT_FOUND");
+                mKRA.log(ILogger.LL_FAILURE, message);
 
                 audit(SecurityDataArchivalRequestEvent.createFailureEvent(
                         auditSubjectID,
                         auditRequesterID,
                         requestId,
-                        null));
+                        null,
+                        message));
 
                 throw new EKRAException(
                         CMS.getUserMessage("CMS_KRA_INVALID_PUBLIC_KEY"));
@@ -331,7 +334,8 @@ public class EnrollmentService implements IService {
                             auditSubjectID,
                             auditRequesterID,
                             requestId,
-                            null));
+                            null,
+                            e));
 
                     throw new EKRAException(CMS.getUserMessage("CMS_KRA_INVALID_PRIVATE_KEY"), e);
                 }
@@ -345,6 +349,7 @@ public class EnrollmentService implements IService {
                 boolean verified = verifyKeyPair(publicKeyData, unwrapped);
 
                 if (verified == false) {
+                    String message = CMS.getUserMessage("CMS_KRA_INVALID_PUBLIC_KEY");
                     JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
                     jssSubsystem.obscureBytes(unwrapped);
                     mKRA.log(ILogger.LL_FAILURE,
@@ -354,10 +359,10 @@ public class EnrollmentService implements IService {
                         auditSubjectID,
                         auditRequesterID,
                         requestId,
-                        null));
+                        null,
+                        message));
 
-                    throw new EKRAException(
-                        CMS.getUserMessage("CMS_KRA_INVALID_PUBLIC_KEY"));
+                    throw new EKRAException(message);
                 }
                 if (statsSub != null) {
                     statsSub.endTiming("verify_key");
@@ -371,13 +376,15 @@ public class EnrollmentService implements IService {
             String owner = getOwnerName(request, aOpts[i].mReqPos);
 
             if (owner == null) {
-                mKRA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_OWNER_NAME_NOT_FOUND"));
+                String message = CMS.getLogMessage("CMSCORE_KRA_OWNER_NAME_NOT_FOUND");
+                mKRA.log(ILogger.LL_FAILURE, message);
 
                 audit(SecurityDataArchivalRequestEvent.createFailureEvent(
                         auditSubjectID,
                         auditRequesterID,
                         requestId,
-                        null));
+                        null,
+                        message));
 
                 throw new EKRAException(CMS.getUserMessage("CMS_KRA_INVALID_KEYRECORD"));
             }
@@ -411,7 +418,8 @@ public class EnrollmentService implements IService {
                         auditSubjectID,
                         auditRequesterID,
                         requestId,
-                        null));
+                        null,
+                        e));
 
                 throw new EKRAException(CMS.getUserMessage("CMS_KRA_INVALID_PRIVATE_KEY"));
 
@@ -440,7 +448,8 @@ public class EnrollmentService implements IService {
                         auditSubjectID,
                         auditRequesterID,
                         requestId,
-                        null));
+                        null,
+                        e));
 
                     throw new EKRAException(CMS.getUserMessage("CMS_KRA_INVALID_KEYRECORD"));
                 }
@@ -480,15 +489,15 @@ public class EnrollmentService implements IService {
 
             // if record already has a serial number, yell out.
             if (rec.getSerialNumber() != null) {
-                mKRA.log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSCORE_KRA_INVALID_SERIAL_NUMBER",
-                                rec.getSerialNumber().toString()));
+                String message = CMS.getLogMessage("CMSCORE_KRA_INVALID_SERIAL_NUMBER", rec.getSerialNumber().toString());
+                mKRA.log(ILogger.LL_FAILURE, message);
 
                 audit(SecurityDataArchivalRequestEvent.createFailureEvent(
                         auditSubjectID,
                         auditRequesterID,
                         requestId,
-                        null));
+                        null,
+                        message));
 
                 throw new EKRAException(CMS.getUserMessage("CMS_KRA_INVALID_STATE"));
             }
@@ -508,7 +517,8 @@ public class EnrollmentService implements IService {
                         auditSubjectID,
                         auditRequesterID,
                         requestId,
-                        null));
+                        null,
+                        e));
 
                 throw new EKRAException(CMS.getUserMessage("CMS_KRA_INVALID_STATE"));
             }
@@ -517,14 +527,15 @@ public class EnrollmentService implements IService {
             BigInteger serialNo = storage.getNextSerialNumber();
 
             if (serialNo == null) {
-                mKRA.log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSCORE_KRA_GET_NEXT_SERIAL"));
+                String message = CMS.getLogMessage("CMSCORE_KRA_GET_NEXT_SERIAL");
+                mKRA.log(ILogger.LL_FAILURE, message);
 
                 audit(SecurityDataArchivalRequestEvent.createFailureEvent(
                         auditSubjectID,
                         auditRequesterID,
                         requestId,
-                        null));
+                        null,
+                        message));
 
                 throw new EKRAException(CMS.getUserMessage("CMS_KRA_INVALID_STATE"));
             }
