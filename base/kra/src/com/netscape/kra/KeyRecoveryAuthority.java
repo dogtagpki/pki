@@ -770,7 +770,8 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
                         auditSubjectID,
                         auditRequesterID,
                         null /* requestId */,
-                        null /*clientKeyId */));
+                        null /*clientKeyId */,
+                        eAudit1));
             throw eAudit1;
         }
 

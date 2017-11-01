@@ -53,7 +53,23 @@ public class SecurityDataArchivalRequestEvent extends SignedAuditEvent {
             String subjectID,
             String archivalID,
             RequestId requestID,
-            String clientKeyID) {
+            String clientKeyID,
+            Exception e) {
+
+        return createFailureEvent(
+                subjectID,
+                archivalID,
+                requestID,
+                clientKeyID,
+                e.toString());
+    }
+
+    public static SecurityDataArchivalRequestEvent createFailureEvent(
+            String subjectID,
+            String archivalID,
+            RequestId requestID,
+            String clientKeyID,
+            String failureReason) {
 
         SecurityDataArchivalRequestEvent event = new SecurityDataArchivalRequestEvent();
 
@@ -62,6 +78,7 @@ public class SecurityDataArchivalRequestEvent extends SignedAuditEvent {
         event.setAttribute("ArchivalRequestID", archivalID);
         event.setAttribute("RequestId", requestID);
         event.setAttribute("ClientKeyID", clientKeyID);
+        event.setAttribute("FailureReason", failureReason);
 
         return event;
     }
