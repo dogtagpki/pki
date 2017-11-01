@@ -152,7 +152,7 @@ public class KeyRequestService extends SubsystemService implements KeyRequestRes
             }
             response = dao.submitRequest(data, uriInfo, getRequestor());
 
-            audit(SecurityDataArchivalRequestEvent.createSuccessEvent(
+            signedAuditLogger.log(SecurityDataArchivalRequestEvent.createSuccessEvent(
                     getRequestor(),
                     null,
                     response.getRequestInfo().getRequestId(),
@@ -162,7 +162,7 @@ public class KeyRequestService extends SubsystemService implements KeyRequestRes
 
         } catch (EAuthzAccessDenied e) {
 
-            audit(SecurityDataArchivalRequestEvent.createFailureEvent(
+            signedAuditLogger.log(SecurityDataArchivalRequestEvent.createFailureEvent(
                     getRequestor(),
                     null,
                     null,
@@ -173,7 +173,7 @@ public class KeyRequestService extends SubsystemService implements KeyRequestRes
 
         } catch (EAuthzUnknownRealm e) {
 
-            audit(SecurityDataArchivalRequestEvent.createFailureEvent(
+            signedAuditLogger.log(SecurityDataArchivalRequestEvent.createFailureEvent(
                     getRequestor(),
                     null,
                     null,
@@ -183,7 +183,7 @@ public class KeyRequestService extends SubsystemService implements KeyRequestRes
 
         } catch (EBaseException | URISyntaxException e) {
 
-            audit(SecurityDataArchivalRequestEvent.createFailureEvent(
+            signedAuditLogger.log(SecurityDataArchivalRequestEvent.createFailureEvent(
                     getRequestor(),
                     null,
                     null,
@@ -365,7 +365,7 @@ public class KeyRequestService extends SubsystemService implements KeyRequestRes
     }
 
     public void auditRecoveryRequestChange(RequestId requestId, String status, String operation) {
-        audit(new SecurityDataRecoveryStateChangeEvent(
+        signedAuditLogger.log(new SecurityDataRecoveryStateChangeEvent(
                 getRequestor(),
                 status,
                 requestId,
@@ -373,7 +373,7 @@ public class KeyRequestService extends SubsystemService implements KeyRequestRes
     }
 
     public void auditRecoveryRequestMade(RequestId requestId, String status, KeyId dataId) {
-        audit(new SecurityDataRecoveryEvent(
+        signedAuditLogger.log(new SecurityDataRecoveryEvent(
                 getRequestor(),
                 status,
                 requestId,
@@ -382,7 +382,7 @@ public class KeyRequestService extends SubsystemService implements KeyRequestRes
     }
 
     public void auditSymKeyGenRequestMade(RequestId requestId, String status, String clientKeyID) {
-        audit(new SymKeyGenerationEvent(
+        signedAuditLogger.log(new SymKeyGenerationEvent(
                 getRequestor(),
                 status,
                 requestId,
@@ -390,7 +390,7 @@ public class KeyRequestService extends SubsystemService implements KeyRequestRes
     }
 
     public void auditAsymKeyGenRequestMade(RequestId requestId, String status, String clientKeyID) {
-        audit(new AsymKeyGenerationEvent(
+        signedAuditLogger.log(new AsymKeyGenerationEvent(
                 getRequestor(),
                 status,
                 requestId,

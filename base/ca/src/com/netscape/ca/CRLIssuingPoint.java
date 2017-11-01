@@ -51,7 +51,6 @@ import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.dbs.crldb.ICRLRepository;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.logging.event.DeltaCRLGenerationEvent;
 import com.netscape.certsrv.logging.event.DeltaCRLPublishingEvent;
 import com.netscape.certsrv.logging.event.FullCRLGenerationEvent;
@@ -2765,7 +2764,9 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                 if (deltaCRLCerts.size() == 0) {
                     CMS.debug("CRLIssuingPoint: No Revoked Certificates Found And noCRLIfNoRevokedCert is set to true - No Delta CRL Generated");
                     mDeltaCRLSize = -1;
-                    audit(DeltaCRLGenerationEvent.createSuccessEvent(getAuditSubjectID(), "No Revoked Certificates"));
+                    signedAuditLogger.log(DeltaCRLGenerationEvent.createSuccessEvent(
+                            getAuditSubjectID(),
+                            "No Revoked Certificates"));
                     return;
                 }
             }
@@ -2811,20 +2812,26 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                     }
             );
 
-            audit(DeltaCRLGenerationEvent.createSuccessEvent(getAuditSubjectID(), mCRLNumber));
+            signedAuditLogger.log(DeltaCRLGenerationEvent.createSuccessEvent(
+                    getAuditSubjectID(),
+                    mCRLNumber));
 
         } catch (EBaseException e) {
             CMS.debug(e);
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_OR_STORE_DELTA", e.toString()));
             mDeltaCRLSize = -1;
-            audit(DeltaCRLGenerationEvent.createFailureEvent(getAuditSubjectID(), e.getMessage()));
+            signedAuditLogger.log(DeltaCRLGenerationEvent.createFailureEvent(
+                    getAuditSubjectID(),
+                    e.getMessage()));
             return;
 
         } catch (Throwable e) {
             CMS.debug(e);
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_DELTA", e.toString()));
             mDeltaCRLSize = -1;
-            audit(DeltaCRLGenerationEvent.createFailureEvent(getAuditSubjectID(), e.getMessage()));
+            signedAuditLogger.log(DeltaCRLGenerationEvent.createFailureEvent(
+                    getAuditSubjectID(),
+                    e.getMessage()));
             return;
         }
 
@@ -2833,13 +2840,13 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             publishCRL(newX509DeltaCRL, true);
             mSplits[4] += System.currentTimeMillis();
 
-            audit(new DeltaCRLPublishingEvent(getAuditSubjectID(), mCRLNumber));
+            signedAuditLogger.log(new DeltaCRLPublishingEvent(getAuditSubjectID(), mCRLNumber));
 
         } catch (Throwable e) {
             CMS.debug(e);
             log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSCORE_CA_ISSUING_PUBLISH_DELTA", mCRLNumber.toString(), e.toString()));
-            audit(new DeltaCRLPublishingEvent(getAuditSubjectID(), mCRLNumber, e.getMessage()));
+            signedAuditLogger.log(new DeltaCRLPublishingEvent(getAuditSubjectID(), mCRLNumber, e.getMessage()));
         }
     }
 
@@ -2873,7 +2880,9 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             if (mConfigStore.getBoolean("noCRLIfNoRevokedCert", false)) {
                 if (mCRLCerts.size() == 0) {
                     CMS.debug("CRLIssuingPoint: No Revoked Certificates Found And noCRLIfNoRevokedCert is set to true - No CRL Generated");
-                    audit(FullCRLGenerationEvent.createSuccessEvent(getAuditSubjectID(), "No Revoked Certificates"));
+                    signedAuditLogger.log(FullCRLGenerationEvent.createSuccessEvent(
+                            getAuditSubjectID(),
+                            "No Revoked Certificates"));
                     return;
                 }
             }
@@ -2957,20 +2966,26 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
             CMS.debug("CRLIssuingPoint: Finished Logging CRL Update to transaction log");
 
-            audit(FullCRLGenerationEvent.createSuccessEvent(getAuditSubjectID(), mCRLNumber));
+            signedAuditLogger.log(FullCRLGenerationEvent.createSuccessEvent(
+                    getAuditSubjectID(),
+                    mCRLNumber));
 
         } catch (EBaseException e) {
             CMS.debug(e);
             mUpdatingCRL = CRL_UPDATE_DONE;
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_OR_STORE_CRL", e.toString()));
-            audit(FullCRLGenerationEvent.createFailureEvent(getAuditSubjectID(), e.getMessage()));
+            signedAuditLogger.log(FullCRLGenerationEvent.createFailureEvent(
+                    getAuditSubjectID(),
+                    e.getMessage()));
             throw new ECAException(CMS.getUserMessage("CMS_CA_FAILED_CONSTRUCTING_CRL", e.toString()), e);
 
         } catch (Throwable e) {
             CMS.debug(e);
             mUpdatingCRL = CRL_UPDATE_DONE;
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_CRL", e.toString()));
-            audit(FullCRLGenerationEvent.createFailureEvent(getAuditSubjectID(), e.getMessage()));
+            signedAuditLogger.log(FullCRLGenerationEvent.createFailureEvent(
+                    getAuditSubjectID(),
+                    e.getMessage()));
             throw new ECAException(CMS.getUserMessage("CMS_CA_FAILED_CONSTRUCTING_CRL", e.toString()), e);
         }
 
@@ -2980,14 +2995,14 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             publishCRL(newX509CRL);
             mSplits[9] += System.currentTimeMillis();
 
-            audit(new FullCRLPublishingEvent(getAuditSubjectID(), mCRLNumber));
+            signedAuditLogger.log(new FullCRLPublishingEvent(getAuditSubjectID(), mCRLNumber));
 
         } catch (Throwable e) {
             CMS.debug(e);
             mUpdatingCRL = CRL_UPDATE_DONE;
             String message = CMS.getLogMessage("CMSCORE_CA_ISSUING_PUBLISH_CRL", mCRLNumber.toString(), e.toString());
             log(ILogger.LL_FAILURE, message);
-            audit(new FullCRLPublishingEvent(getAuditSubjectID(), mCRLNumber, e.getMessage()));
+            signedAuditLogger.log(new FullCRLPublishingEvent(getAuditSubjectID(), mCRLNumber, e.getMessage()));
             throw new ECAException(message, e);
         }
     }
@@ -3188,10 +3203,6 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         }
 
         return subjectID.trim();
-    }
-
-    void audit(LogEvent event) {
-        signedAuditLogger.log(event);
     }
 }
 

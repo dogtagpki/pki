@@ -50,7 +50,6 @@ import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.kra.ProofOfArchival;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.logging.event.SecurityDataArchivalProcessedEvent;
 import com.netscape.certsrv.logging.event.SecurityDataArchivalRequestEvent;
 import com.netscape.certsrv.profile.IEnrollProfile;
@@ -204,7 +203,7 @@ public class EnrollmentService implements IService {
 
             } catch (IOException e) {
 
-                audit(SecurityDataArchivalRequestEvent.createFailureEvent(
+                signedAuditLogger.log(SecurityDataArchivalRequestEvent.createFailureEvent(
                         auditSubjectID,
                         auditRequesterID,
                         requestId,
@@ -251,7 +250,7 @@ public class EnrollmentService implements IService {
                 } catch (Exception e) {
                     mKRA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_UNWRAP_USER_KEY"));
 
-                    audit(SecurityDataArchivalRequestEvent.createFailureEvent(
+                    signedAuditLogger.log(SecurityDataArchivalRequestEvent.createFailureEvent(
                             auditSubjectID,
                             auditRequesterID,
                             requestId,
@@ -289,7 +288,7 @@ public class EnrollmentService implements IService {
                 String message = CMS.getLogMessage("CMSCORE_KRA_PUBLIC_NOT_FOUND");
                 mKRA.log(ILogger.LL_FAILURE, message);
 
-                audit(SecurityDataArchivalRequestEvent.createFailureEvent(
+                signedAuditLogger.log(SecurityDataArchivalRequestEvent.createFailureEvent(
                         auditSubjectID,
                         auditRequesterID,
                         requestId,
@@ -330,7 +329,7 @@ public class EnrollmentService implements IService {
                     mKRA.log(ILogger.LL_DEBUG, e.getMessage());
                     mKRA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_WRAP_USER_KEY"));
 
-                    audit(SecurityDataArchivalRequestEvent.createFailureEvent(
+                    signedAuditLogger.log(SecurityDataArchivalRequestEvent.createFailureEvent(
                             auditSubjectID,
                             auditRequesterID,
                             requestId,
@@ -358,7 +357,7 @@ public class EnrollmentService implements IService {
                     jssSubsystem.obscureBytes(unwrapped);
                     mKRA.log(ILogger.LL_FAILURE, e.toString());
 
-                    audit(SecurityDataArchivalRequestEvent.createFailureEvent(
+                    signedAuditLogger.log(SecurityDataArchivalRequestEvent.createFailureEvent(
                         auditSubjectID,
                         auditRequesterID,
                         requestId,
@@ -384,7 +383,7 @@ public class EnrollmentService implements IService {
                 String message = CMS.getLogMessage("CMSCORE_KRA_OWNER_NAME_NOT_FOUND");
                 mKRA.log(ILogger.LL_FAILURE, message);
 
-                audit(SecurityDataArchivalRequestEvent.createFailureEvent(
+                signedAuditLogger.log(SecurityDataArchivalRequestEvent.createFailureEvent(
                         auditSubjectID,
                         auditRequesterID,
                         requestId,
@@ -420,7 +419,7 @@ public class EnrollmentService implements IService {
                 mKRA.log(ILogger.LL_DEBUG, e.getMessage());
                 mKRA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_WRAP_USER_KEY"));
 
-                audit(SecurityDataArchivalRequestEvent.createFailureEvent(
+                signedAuditLogger.log(SecurityDataArchivalRequestEvent.createFailureEvent(
                         auditSubjectID,
                         auditRequesterID,
                         requestId,
@@ -451,7 +450,7 @@ public class EnrollmentService implements IService {
                     rec.setKeySize(Integer.valueOf(rsaPublicKey.getKeySize()));
                 } catch (InvalidKeyException e) {
 
-                    audit(SecurityDataArchivalRequestEvent.createFailureEvent(
+                    signedAuditLogger.log(SecurityDataArchivalRequestEvent.createFailureEvent(
                         auditSubjectID,
                         auditRequesterID,
                         requestId,
@@ -500,7 +499,7 @@ public class EnrollmentService implements IService {
                 String message = CMS.getLogMessage("CMSCORE_KRA_INVALID_SERIAL_NUMBER", rec.getSerialNumber().toString());
                 mKRA.log(ILogger.LL_FAILURE, message);
 
-                audit(SecurityDataArchivalRequestEvent.createFailureEvent(
+                signedAuditLogger.log(SecurityDataArchivalRequestEvent.createFailureEvent(
                         auditSubjectID,
                         auditRequesterID,
                         requestId,
@@ -522,7 +521,7 @@ public class EnrollmentService implements IService {
             } catch (Exception e) {
                 mKRA.log(ILogger.LL_FAILURE, "Failed to store wrapping parameters");
                 // TODO(alee) Set correct audit message here
-                audit(SecurityDataArchivalRequestEvent.createFailureEvent(
+                signedAuditLogger.log(SecurityDataArchivalRequestEvent.createFailureEvent(
                         auditSubjectID,
                         auditRequesterID,
                         requestId,
@@ -540,7 +539,7 @@ public class EnrollmentService implements IService {
                 String message = CMS.getLogMessage("CMSCORE_KRA_GET_NEXT_SERIAL");
                 mKRA.log(ILogger.LL_FAILURE, message);
 
-                audit(SecurityDataArchivalRequestEvent.createFailureEvent(
+                signedAuditLogger.log(SecurityDataArchivalRequestEvent.createFailureEvent(
                         auditSubjectID,
                         auditRequesterID,
                         requestId,
@@ -595,7 +594,7 @@ public class EnrollmentService implements IService {
                             "serial number: 0x" + serialNo.toString(16) }
                     );
 
-            audit(SecurityDataArchivalRequestEvent.createSuccessEvent(
+            signedAuditLogger.log(SecurityDataArchivalRequestEvent.createSuccessEvent(
                         auditSubjectID,
                         auditRequesterID,
                         requestId,
@@ -603,7 +602,7 @@ public class EnrollmentService implements IService {
 
             // store a message in the signed audit log file
             auditPublicKey = auditPublicKey(rec);
-            audit(new SecurityDataArchivalProcessedEvent(
+            signedAuditLogger.log(new SecurityDataArchivalProcessedEvent(
                         auditSubjectID,
                         ILogger.SUCCESS,
                         auditRequesterID,
@@ -1005,21 +1004,5 @@ public class EnrollmentService implements IService {
         }
 
         return requesterID;
-    }
-
-    /**
-     * Signed Audit Log
-     *
-     * This method is called to store messages to the signed audit log.
-     * <P>
-     *
-     * @param msg signed audit log message
-     */
-    private void audit(String msg) {
-        signedAuditLogger.log(msg);
-    }
-
-    protected void audit(LogEvent event) {
-        signedAuditLogger.log(event);
     }
 }

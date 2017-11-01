@@ -99,6 +99,8 @@ import com.netscape.certsrv.profile.IProfileContext;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
+import com.netscape.cms.logging.Logger;
+import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.HMACDigest;
@@ -137,6 +139,8 @@ import netscape.security.x509.X509Key;
  */
 public abstract class EnrollProfile extends BasicProfile
         implements IEnrollProfile {
+
+    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     private PKIData mCMCData;
 
@@ -877,7 +881,7 @@ public abstract class EnrollProfile extends BasicProfile
                                     auditSubjectID,
                                     ILogger.FAILURE,
                                     method + msg);
-                            audit(auditMessage);
+                            signedAuditLogger.log(auditMessage);
 
                             throw new ECMCBadIdentityException(
                                     CMS.getUserMessage(locale, "CMS_PROFILE_INVALID_REQUEST") + ":" +
@@ -922,7 +926,7 @@ public abstract class EnrollProfile extends BasicProfile
                                 auditSubjectID,
                                 ILogger.FAILURE,
                                 method + msg);
-                        audit(auditMessage);
+                        signedAuditLogger.log(auditMessage);
                         throw new ECMCBadRequestException(CMS.getUserMessage(locale,
                                 "CMS_POI_VERIFICATION_ERROR") + ":" + msg);
                     }
@@ -937,7 +941,7 @@ public abstract class EnrollProfile extends BasicProfile
                                         auditSubjectID,
                                         ILogger.FAILURE,
                                         method + msg);
-                                audit(auditMessage);
+                                signedAuditLogger.log(auditMessage);
 
                                 SEQUENCE bpids = getRequestBpids(reqSeq);
                                 context.put("decryptedPOP", bpids);
@@ -964,7 +968,7 @@ public abstract class EnrollProfile extends BasicProfile
                                         auditSubjectID,
                                         ILogger.FAILURE,
                                         method + msg);
-                                audit(auditMessage);
+                                signedAuditLogger.log(auditMessage);
 
                                 SEQUENCE bpids = getRequestBpids(reqSeq);
                                 context.put("decryptedPOP", bpids);
@@ -979,7 +983,7 @@ public abstract class EnrollProfile extends BasicProfile
                                     auditSubjectID,
                                     ILogger.FAILURE,
                                     method + msg);
-                            audit(auditMessage);
+                            signedAuditLogger.log(auditMessage);
 
                             SEQUENCE bpids = getRequestBpids(reqSeq);
                             context.put("decryptedPOP", bpids);
@@ -1059,7 +1063,7 @@ public abstract class EnrollProfile extends BasicProfile
                                     auditSubjectID,
                                     ILogger.FAILURE,
                                     method + msg);
-                            audit(auditMessage);
+                            signedAuditLogger.log(auditMessage);
 
                             context.put("POPLinkWitnessV2", bpids);
                             throw new ECMCBadRequestException(CMS.getUserMessage(locale,
@@ -1085,7 +1089,7 @@ public abstract class EnrollProfile extends BasicProfile
                                     auditSubjectID,
                                     ILogger.FAILURE,
                                     method + msg);
-                            audit(auditMessage);
+                            signedAuditLogger.log(auditMessage);
                             throw new ECMCBadRequestException(CMS.getUserMessage(locale,
                                     "CMS_POP_LINK_WITNESS_VERIFICATION_ERROR") + ":" + msg);
                         } else {
@@ -1095,7 +1099,7 @@ public abstract class EnrollProfile extends BasicProfile
                                     auditSubjectID,
                                     ILogger.SUCCESS,
                                     method + msg);
-                            audit(auditMessage);
+                            signedAuditLogger.log(auditMessage);
                         }
                     }
                 } //for
@@ -1638,7 +1642,7 @@ public abstract class EnrollProfile extends BasicProfile
                     auditAttemptedCred,
                     ILogger.FAILURE,
                     method + msg);
-            audit(auditMessage);
+            signedAuditLogger.log(auditMessage);
             return false;
         }
 
@@ -1655,7 +1659,7 @@ public abstract class EnrollProfile extends BasicProfile
                         auditAttemptedCred,
                         ILogger.FAILURE,
                         method + msg);
-                audit(auditMessage);
+                signedAuditLogger.log(auditMessage);
                 return false;
             }
             ISharedToken tokenClass = (ISharedToken) sharedTokenAuth;
@@ -1675,7 +1679,7 @@ public abstract class EnrollProfile extends BasicProfile
                         auditAttemptedCred,
                         ILogger.FAILURE,
                         method + msg);
-                audit(auditMessage);
+                signedAuditLogger.log(auditMessage);
                 return false;
             }
 
@@ -1719,7 +1723,7 @@ public abstract class EnrollProfile extends BasicProfile
                         auditSubjectID,
                         ILogger.SUCCESS,
                         "method=" + method);
-                audit(auditMessage);
+                signedAuditLogger.log(auditMessage);
             } else {
                 msg = "IdentityProofV2 failed to verify";
                 CMS.debug(method + msg);
@@ -1733,7 +1737,7 @@ public abstract class EnrollProfile extends BasicProfile
                     auditAttemptedCred,
                     ILogger.FAILURE,
                     method + e.toString());
-            audit(auditMessage);
+            signedAuditLogger.log(auditMessage);
             return false;
         }
 
@@ -1836,7 +1840,7 @@ public abstract class EnrollProfile extends BasicProfile
                             auditSubjectID,
                             ILogger.SUCCESS,
                             "method="+method);
-                    audit(auditMessage);
+                    signedAuditLogger.log(auditMessage);
                 }
 
                 req.setExtData("bodyPartId", tcr.getBodyPartID());
@@ -2548,7 +2552,7 @@ public abstract class EnrollProfile extends BasicProfile
                         auditProfileID,
                         auditCertificateSubjectName);
 
-            audit(auditMessage);
+            signedAuditLogger.log(auditMessage);
         } catch (CertificateException e) {
             CMS.debug("EnrollProfile: populate " + e);
 
@@ -2561,7 +2565,7 @@ public abstract class EnrollProfile extends BasicProfile
                         auditProfileID,
                         auditCertificateSubjectName);
 
-            audit(auditMessage);
+            signedAuditLogger.log(auditMessage);
         } catch (IOException e) {
             CMS.debug("EnrollProfile: populate " + e);
 
@@ -2574,7 +2578,7 @@ public abstract class EnrollProfile extends BasicProfile
                         auditProfileID,
                         auditCertificateSubjectName);
 
-            audit(auditMessage);
+            signedAuditLogger.log(auditMessage);
         }
 
         super.validate(request);
@@ -2693,7 +2697,7 @@ public abstract class EnrollProfile extends BasicProfile
                     auditSubjectID,
                     ILogger.SUCCESS,
                     "method="+method);
-            audit(auditMessage);
+            signedAuditLogger.log(auditMessage);
         } catch (Exception e) {
             CMS.debug(method + "Unable to verify POP: " + e);
             popFailed(locale, auditSubjectID, auditMessage, e);
@@ -2716,7 +2720,7 @@ public abstract class EnrollProfile extends BasicProfile
                     auditSubjectID,
                     ILogger.FAILURE,
                     msg);
-            audit(auditMessage);
+            signedAuditLogger.log(auditMessage);
 
             if (e != null) {
                 throw new ECMCPopFailedException(CMS.getUserMessage(locale,

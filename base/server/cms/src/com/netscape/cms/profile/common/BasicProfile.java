@@ -31,7 +31,6 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.profile.IPolicyConstraint;
@@ -1162,23 +1161,6 @@ public abstract class BasicProfile implements IProfile {
 
     public void execute(IRequest request)
             throws EProfileException {
-    }
-
-    /**
-     * Signed Audit Log
-     *
-     * This method is inherited by all extended "BasicProfile"s,
-     * and is called to store messages to the signed audit log.
-     * <P>
-     *
-     * @param msg signed audit log message
-     */
-    protected void audit(String msg) {
-        signedAuditLogger.log(msg);
-    }
-
-    protected void audit(LogEvent event) {
-        signedAuditLogger.log(event);
     }
 
     /**

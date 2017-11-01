@@ -618,7 +618,7 @@ public class KeyService extends SubsystemService implements KeyResource {
     }
 
     public void auditRetrieveKey(String status, String reason) {
-        audit(new SecurityDataExportEvent(
+        signedAuditLogger.log(new SecurityDataExportEvent(
                 servletRequest.getUserPrincipal().getName(),
                 status,
                 requestId,
@@ -638,7 +638,7 @@ public class KeyService extends SubsystemService implements KeyResource {
     }
 
     public void auditKeyInfo(KeyId keyId, String clientKeyId, String status, String reason) {
-        audit(new SecurityDataInfoEvent(
+        signedAuditLogger.log(new SecurityDataInfoEvent(
                 servletRequest.getUserPrincipal().getName(),
                 status,
                 keyId,
@@ -659,7 +659,7 @@ public class KeyService extends SubsystemService implements KeyResource {
 
     public void auditKeyStatusChange(String status, KeyId keyID, String oldKeyStatus,
             String newKeyStatus, String info) {
-        audit(new SecurityDataStatusChangeEvent(
+        signedAuditLogger.log(new SecurityDataStatusChangeEvent(
                 servletRequest.getUserPrincipal().getName(),
                 status,
                 keyID,
@@ -669,7 +669,7 @@ public class KeyService extends SubsystemService implements KeyResource {
     }
 
     public void auditRecoveryRequest(String status) {
-        audit(new SecurityDataRecoveryEvent(
+        signedAuditLogger.log(new SecurityDataRecoveryEvent(
                 servletRequest.getUserPrincipal().getName(),
                 status,
                 requestId,
@@ -679,7 +679,7 @@ public class KeyService extends SubsystemService implements KeyResource {
     }
 
     public void auditRecoveryRequestProcessed(String status, String reason) {
-        audit(new SecurityDataRecoveryProcessedEvent(
+        signedAuditLogger.log(new SecurityDataRecoveryProcessedEvent(
                 servletRequest.getUserPrincipal().getName(),
                 status,
                 requestId,

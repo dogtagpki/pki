@@ -38,6 +38,8 @@ import com.netscape.certsrv.profile.IProfileUpdater;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
+import com.netscape.cms.logging.Logger;
+import com.netscape.cms.logging.SignedAuditLogger;
 
 import netscape.security.x509.X500Name;
 import netscape.security.x509.X509CertImpl;
@@ -50,6 +52,8 @@ import netscape.security.x509.X509CertInfo;
  * @version $Revision$, $Date$
  */
 public class CAEnrollProfile extends EnrollProfile {
+
+    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     public CAEnrollProfile() {
     }
@@ -113,7 +117,7 @@ public class CAEnrollProfile extends EnrollProfile {
                         String message = "KRA connector not configured";
                         CMS.debug("CAEnrollProfile: " + message);
 
-                        audit(SecurityDataArchivalRequestEvent.createFailureEvent(
+                        signedAuditLogger.log(SecurityDataArchivalRequestEvent.createFailureEvent(
                                 auditSubjectID,
                                 auditRequesterID,
                                 requestId,
@@ -131,7 +135,7 @@ public class CAEnrollProfile extends EnrollProfile {
                             String message = "archival request failed";
                             CMS.debug("CAEnrollProfile: " + message);
 
-                            audit(SecurityDataArchivalRequestEvent.createFailureEvent(
+                            signedAuditLogger.log(SecurityDataArchivalRequestEvent.createFailureEvent(
                                     auditSubjectID,
                                     auditRequesterID,
                                     requestId,
@@ -153,7 +157,7 @@ public class CAEnrollProfile extends EnrollProfile {
                             }
                         }
 
-                        audit(SecurityDataArchivalRequestEvent.createSuccessEvent(
+                        signedAuditLogger.log(SecurityDataArchivalRequestEvent.createSuccessEvent(
                                 auditSubjectID,
                                 auditRequesterID,
                                 requestId,
@@ -163,7 +167,7 @@ public class CAEnrollProfile extends EnrollProfile {
 
                     CMS.debug("CAEnrollProfile: " + e);
 
-                    audit(SecurityDataArchivalRequestEvent.createFailureEvent(
+                    signedAuditLogger.log(SecurityDataArchivalRequestEvent.createFailureEvent(
                             auditSubjectID,
                             auditRequesterID,
                             requestId,

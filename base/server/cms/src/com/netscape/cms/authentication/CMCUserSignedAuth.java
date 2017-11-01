@@ -83,7 +83,6 @@ import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.profile.IProfileAuthenticator;
@@ -737,7 +736,7 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
                         getRequestCertSubject(auditContext),
                         getAuditSignerInfo(auditContext));
 
-                audit(auditMessage);
+                signedAuditLogger.log(auditMessage);
             } else {
                 CMS.debug(method
                         + "audit event CMC_USER_SIGNED_REQUEST_SIG_VERIFY_SUCCESS not logged due to unsigned data for revocation with shared secret.");
@@ -762,7 +761,7 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
                     getAuditSignerInfo(auditContext),
                     eAudit2.toString());
 
-            audit(auditMessage);
+            signedAuditLogger.log(auditMessage);
 
             // rethrow the specific exception to be handled later
             throw eAudit2;
@@ -778,7 +777,7 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
                     getAuditSignerInfo(auditContext),
                     eAudit3.toString());
 
-            audit(auditMessage);
+            signedAuditLogger.log(auditMessage);
 
             // rethrow the specific exception to be handled later
             throw eAudit3;
@@ -794,7 +793,7 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
                     getAuditSignerInfo(auditContext),
                     eAudit4.toString());
 
-            audit(auditMessage);
+            signedAuditLogger.log(auditMessage);
 
             // rethrow the exception to be handled later
             throw new EBaseException(eAudit4);
@@ -1283,22 +1282,6 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
 
     public boolean isSSLClientRequired() {
         return false;
-    }
-
-    /**
-     * Signed Audit Log
-     *
-     * This method is called to store messages to the signed audit log.
-     * <P>
-     *
-     * @param msg signed audit log message
-     */
-    private void audit(String msg) {
-        signedAuditLogger.log(msg);
-    }
-
-    protected void audit(LogEvent event) {
-        signedAuditLogger.log(event);
     }
 
     /**

@@ -31,7 +31,6 @@ import com.netscape.certsrv.authorization.IAuthzSubsystem;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.IAuditor;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.logging.LogSource;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
@@ -84,10 +83,6 @@ public class SubsystemService extends PKIService {
                 source,
                 level,
                 getClass().getSimpleName() + ": " + message);
-    }
-
-    protected void audit(LogEvent event) {
-        signedAuditLogger.log(event);
     }
 
     public void audit(String message, String scope, String type, String id, Map<String, String> params, String status) {
