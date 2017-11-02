@@ -51,6 +51,8 @@ import com.netscape.cmsutil.util.Utils;
  */
 public class RollingLogFile extends LogFile {
 
+    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
+
     /**
      * The default max file size in bytes
      */
@@ -362,7 +364,7 @@ public class RollingLogFile extends LogFile {
                                 fullname);
                 }
 
-                audit(auditMessage);
+                signedAuditLogger.log(auditMessage);
             } else if (fileTime < oldestFile) {
                 oldestFile = fileTime;
             }

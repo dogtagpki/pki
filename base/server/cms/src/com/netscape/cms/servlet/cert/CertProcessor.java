@@ -249,7 +249,7 @@ public class CertProcessor extends CAProcessor {
 
                 if (x509cert != null) {
 
-                    audit(CertRequestProcessedEvent.createSuccessEvent(
+                    signedAuditLogger.log(CertRequestProcessedEvent.createSuccessEvent(
                             auditSubjectID,
                             auditRequesterID,
                             ILogger.SIGNED_AUDIT_ACCEPTANCE,
@@ -280,7 +280,7 @@ public class CertProcessor extends CAProcessor {
                 req.setExtData(IRequest.ERROR, e.toString());
                 req.setExtData(IRequest.ERROR_CODE, errorCode);
 
-                audit(CertRequestProcessedEvent.createFailureEvent(
+                signedAuditLogger.log(CertRequestProcessedEvent.createFailureEvent(
                         auditSubjectID,
                         auditRequesterID,
                         ILogger.SIGNED_AUDIT_REJECTION,
@@ -295,7 +295,7 @@ public class CertProcessor extends CAProcessor {
                 req.setExtData(IRequest.ERROR, errorReason);
                 req.setExtData(IRequest.ERROR_CODE, errorCode);
 
-                audit(CertRequestProcessedEvent.createFailureEvent(
+                signedAuditLogger.log(CertRequestProcessedEvent.createFailureEvent(
                         auditSubjectID,
                         auditRequesterID,
                         ILogger.SIGNED_AUDIT_REJECTION,

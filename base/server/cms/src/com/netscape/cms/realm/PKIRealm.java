@@ -17,7 +17,6 @@ import com.netscape.certsrv.authentication.ICertUserDBAuthentication;
 import com.netscape.certsrv.authentication.IPasswdUserDBAuthentication;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.logging.event.AuthEvent;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
 import com.netscape.certsrv.usrgrp.IGroup;
@@ -65,7 +64,7 @@ public class PKIRealm extends RealmBase {
             authToken.set(SessionContext.AUTH_MANAGER_ID, IAuthSubsystem.PASSWDUSERDB_AUTHMGR_ID);
             auditSubjectID = authToken.getInString(IAuthToken.USER_ID);
 
-            audit(AuthEvent.createSuccessEvent(
+            signedAuditLogger.log(AuthEvent.createSuccessEvent(
                         auditSubjectID,
                         IAuthSubsystem.PASSWDUSERDB_AUTHMGR_ID));
 
@@ -73,7 +72,7 @@ public class PKIRealm extends RealmBase {
 
         } catch (Throwable e) {
 
-            audit(AuthEvent.createFailureEvent(
+            signedAuditLogger.log(AuthEvent.createFailureEvent(
                         auditSubjectID,
                         IAuthSubsystem.PASSWDUSERDB_AUTHMGR_ID,
                         attemptedAuditUID));
@@ -119,7 +118,7 @@ public class PKIRealm extends RealmBase {
 
             CMS.debug("PKIRealm: User ID: " + username);
 
-            audit(AuthEvent.createSuccessEvent(
+            signedAuditLogger.log(AuthEvent.createSuccessEvent(
                         auditSubjectID,
                         IAuthSubsystem.CERTUSERDB_AUTHMGR_ID));
 
@@ -127,7 +126,7 @@ public class PKIRealm extends RealmBase {
 
         } catch (Throwable e) {
 
-            audit(AuthEvent.createFailureEvent(
+            signedAuditLogger.log(AuthEvent.createFailureEvent(
                         auditSubjectID,
                         IAuthSubsystem.CERTUSERDB_AUTHMGR_ID,
                         attemptedAuditUID));
@@ -196,21 +195,5 @@ public class PKIRealm extends RealmBase {
     @Override
     protected String getPassword(String username) {
         return null;
-    }
-
-    /**
-     * Signed Audit Log
-     *
-     * This method is called to store messages to the signed audit log.
-     * <P>
-     *
-     * @param msg signed audit log message
-     */
-    protected void audit(String msg) {
-        signedAuditLogger.log(msg);
-    }
-
-    protected void audit(LogEvent event) {
-        signedAuditLogger.log(event);
     }
 }

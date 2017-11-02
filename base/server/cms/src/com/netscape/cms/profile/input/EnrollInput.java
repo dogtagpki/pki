@@ -32,7 +32,6 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.profile.IProfileContext;
@@ -225,7 +224,7 @@ public abstract class EnrollInput implements IProfileInput {
                     auditSubjectID,
                     ILogger.SUCCESS,
                     "method="+method);
-            audit(auditMessage);
+            signedAuditLogger.log(auditMessage);
         } catch (Exception e) {
 
             CMS.debug(method + "Failed POP verify! " + e.toString());
@@ -238,28 +237,11 @@ public abstract class EnrollInput implements IProfileInput {
                     ILogger.FAILURE,
                     method + e.toString());
 
-            audit(auditMessage);
+            signedAuditLogger.log(auditMessage);
 
             throw new EProfileException(CMS.getUserMessage(locale,
                         "CMS_POP_VERIFICATION_ERROR"));
         }
-    }
-
-    /**
-     * Signed Audit Log
-     *
-     * This method is inherited by all extended "CMSServlet"s,
-     * and is called to store messages to the signed audit log.
-     * <P>
-     *
-     * @param msg signed audit log message
-     */
-    protected void audit(String msg) {
-        signedAuditLogger.log(msg);
-    }
-
-    protected void audit(LogEvent event) {
-        signedAuditLogger.log(event);
     }
 
     /**

@@ -95,14 +95,14 @@ public class SecurityDomainProcessor extends CAProcessor {
 
         if (!ugSubsystem.isMemberOf(user, group)) {
 
-            audit(RoleAssumeEvent.createFailureEvent(
+            signedAuditLogger.log(RoleAssumeEvent.createFailureEvent(
                     user,
                     group));
 
             throw new UnauthorizedException("User " + user + " is not a member of " + group + " group.");
         }
 
-        audit(RoleAssumeEvent.createSuccessEvent(
+        signedAuditLogger.log(RoleAssumeEvent.createSuccessEvent(
                 user,
                 group));
 
@@ -131,7 +131,7 @@ public class SecurityDomainProcessor extends CAProcessor {
                                user,
                                ILogger.SUCCESS,
                                auditParams);
-            audit(message);
+            signedAuditLogger.log(message);
 
         } else {
             message = CMS.getLogMessage(
@@ -139,7 +139,7 @@ public class SecurityDomainProcessor extends CAProcessor {
                                user,
                                ILogger.FAILURE,
                                auditParams);
-            audit(message);
+            signedAuditLogger.log(message);
 
             throw new PKIException("Failed to create session.");
         }

@@ -78,7 +78,6 @@ import com.netscape.certsrv.logging.ELogException;
 import com.netscape.certsrv.logging.ILogEvent;
 import com.netscape.certsrv.logging.ILogEventListener;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.logging.LogSource;
 import com.netscape.certsrv.logging.SignedAuditEvent;
 import com.netscape.certsrv.logging.SystemEvent;
@@ -347,14 +346,14 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
                 CMS.debug("LogFile: setting up log signing");
                 setupSigning();
 
-                audit(CMS.getLogMessage(
+                signedAuditLogger.log(CMS.getLogMessage(
                         AuditEvent.AUDIT_LOG_STARTUP,
                         ILogger.SYSTEM_UID,
                         ILogger.SUCCESS));
 
             } catch (EBaseException e) {
 
-                audit(CMS.getLogMessage(
+                signedAuditLogger.log(CMS.getLogMessage(
                         AuditEvent.AUDIT_LOG_STARTUP,
                         ILogger.SYSTEM_UID,
                         ILogger.FAILURE));
@@ -904,7 +903,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
                            ILogger.SYSTEM_UID,
                            ILogger.SUCCESS);
 
-        audit(auditMessage);
+        signedAuditLogger.log(auditMessage);
 
         close();
     }
@@ -1693,22 +1692,5 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
 
             return params;
         }
-    }
-
-    /**
-     * Signed Audit Log
-     *
-     * This method is inherited by all classes that extend this "LogFile"
-     * class, and is called to store messages to the signed audit log.
-     * <P>
-     *
-     * @param msg signed audit log message
-     */
-    protected void audit(String msg) {
-        signedAuditLogger.log(msg);
-    }
-
-    protected void audit(LogEvent event) {
-        signedAuditLogger.log(event);
     }
 }
