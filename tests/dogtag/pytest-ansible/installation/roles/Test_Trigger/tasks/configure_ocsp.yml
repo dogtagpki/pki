@@ -1,0 +1,27 @@
+- name: Replace OCSP specific changes 
+  replace: dest={{item}} regexp="ocsppki_https_port" replace={{ocsppki_https_port}}
+  with_items:
+  - /tmp/test_dir/ocsp.cfg
+  - /tmp/test_dir/constants.py
+
+- name: Replace http port for OCSP.
+  replace: dest={{item}} regexp="ocsppki_http_port" replace={{ocsppki_http_port}}
+  with_items:
+  - /tmp/test_dir/ocsp.cfg
+  - /tmp/test_dir/constants.py
+
+- name: Replace ajp port for OCSP
+  replace: dest={{item}} regexp="ocsppki_ajp_port" replace={{ocsppki_ajp_port}}
+  with_items:
+  - /tmp/test_dir/ocsp.cfg
+  - /tmp/test_dir/constants.py
+
+- name : Replace tomcat port for OCSP
+  replace: dest={{item}} regexp="ocsppki_tomcat_server_port" replace={{ocsppki_tomcat_server_port}}
+  with_items:
+  - /tmp/test_dir/ocsp.cfg
+  - /tmp/test_dir/constants.py
+
+- name : Replace tomcat port for OCSP
+  replace: dest=/tmp/test_dir/ocsp.cfg regexp="secure_domain_port" replace={{capki_https_port}}
+

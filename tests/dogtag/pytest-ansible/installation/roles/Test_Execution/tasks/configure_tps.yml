@@ -1,0 +1,24 @@
+- name: Install TPS master
+  shell: pkispawn -s TPS -f /tmp/test_dir/tps.cfg
+
+- name : Stopping TPS Subsystem
+  shell: echo "Stopping Subsystem for enabling Audit logging"
+  notify:
+    - STOPTPS
+    - INC_CONSTANTS
+
+- meta: flush_handlers
+
+- name: Enable SignedAudit
+  replace: dest=/etc/pki/{{ topology }}-TPS/tps/CS.cfg regexp="log.instance.SignedAudit.logSigning=false" replace="log.instance.SignedAudit.logSigning=true"
+
+- name: Enable OCSP for TPS
+  replace: dest=/etc/pki/{{ topology }}-TPS/server.xml regexp='enableOCSP="false"' replace='enableOCSP="true"'
+
+- name: Pointing TPS to correct OCSP port
+  replace: dest=/etc/pki/{{ topology }}-TPS/server.xml regexp='([0-9]+)/ca/ocsp' replace={{ variable.CA_HTTP_PORT }}/ca/ocsp
+
+- name: Importing OCSP certificate in tps nssdb
+  shell: certutil -A -d /etc/pki/{{ topology }}-TPS/alias -n "ocspSigningCert cert-pki-ca" -t "C,," -i  /tmp/test_dir/ocsp_signing.crt
+  notify:
+    - STARTTPS

@@ -1,0 +1,30 @@
+- name: Install TKS master
+  shell: pkispawn -s TKS -f /tmp/test_dir/tks.cfg
+
+- name : Stopping TKS Subsystem
+  shell: echo "Stopping Subsystem for enabling Audit logging"
+  notify:
+    - STOPTKS
+    - INC_CONSTANTS
+
+- meta: flush_handlers
+
+- name: Enable SignedAudit
+  replace: dest=/etc/pki/{{ topology }}-TKS/tks/CS.cfg regexp="log.instance.SignedAudit.logSigning=false" replace="log.instance.SignedAudit.logSigning=true"
+
+- name: Enable OCSP for TKS
+  replace: dest=/etc/pki/{{ topology }}-TKS/server.xml regexp='enableOCSP="false"' replace='enableOCSP="true"'
+
+- name: Pointing TKS to correct OCSP port
+  replace: dest=/etc/pki/{{ topology }}-TKS/server.xml regexp='([0-9]+)/ca/ocsp' replace={{ variable.CA_HTTP_PORT }}/ca/ocsp
+
+- name: Importing OCSP certificate in TKS nssdb
+  shell: certutil -A -d /etc/pki/{{ topology }}-TKS/alias -n "ocspSigningCert cert-pki-ca" -t "C,," -i  /tmp/test_dir/ocsp_signing.crt
+  notify:
+    - STARTTKS
+
+- meta: flush_handlers
+
+- name: Sleep for a while to start TKS
+  shell: sleep 3s
+

@@ -1,0 +1,18 @@
+- name: Install CA master
+  shell: pkispawn -s CA -f /tmp/test_dir/ca.cfg
+
+- name : Stopping CA Subsystem
+  shell: systemctl stop pki-tomcatd@{{ topology }}-CA.service
+
+- name: Enable SignedAudit for Subsystem
+  replace: dest=/etc/pki/{{ topology }}-CA/ca/CS.cfg regexp="log.instance.SignedAudit.logSigning=false" replace="log.instance.SignedAudit.logSigning=true"
+
+- name: Getting certificate nickname for CA CS.cfg
+  shell: grep "ca.ocsp_signing.nickname" /etc/pki/{{ topology }}-CA/ca/CS.cfg |awk -F"=" ' { print $2 } '
+  register: nickname_ocsp
+
+- name: Importing client certificate for OCSP
+  shell: certutil -L -d /var/lib/pki/{{ topology }}-CA/alias -n "{{ nickname_ocsp.stdout }}" -a > /tmp/test_dir/ocsp_signing.crt
+
+- name : Starting CA Subsystem
+  shell: systemctl start pki-tomcatd@{{ topology }}-CA.service

@@ -1,0 +1,146 @@
+- name: Pick constants based on {{topology}}
+  include_vars: "{{ item }}"
+  with_items:
+  - "{{ playbook_dir }}/vars/ldap_shared.yml"
+  - "{{ playbook_dir }}/vars/ca_shared.yml"
+  when: topology  == "topology-01"
+
+- name: Pick constants based on {{topology}}
+  include_vars: "{{ item }}"
+  with_items:
+  - "{{ playbook_dir }}/vars/ldap.yml"
+  - "{{ playbook_dir }}/vars/ca.yml"
+  - "{{ playbook_dir }}/vars/kra.yml"
+  - "{{ playbook_dir }}/vars/ocsp.yml"
+  - "{{ playbook_dir }}/vars/tks.yml"
+  - "{{ playbook_dir }}/vars/tps.yml"
+  when: topology  == "topology-02"
+
+- name: Pick constants based on {{topology}}
+  include_vars: "{{ item }}"
+  with_items:
+  - "{{ playbook_dir }}/vars/ldap.yml"
+  - "{{ playbook_dir }}/vars/ca.yml"
+  - "{{ playbook_dir }}/vars/kra.yml"
+  - "{{ playbook_dir }}/vars/ocsp.yml"
+  when: topology  == "topology-03"
+
+- name: Pick constants based on {{topology}}
+  include_vars: "{{ item }}"
+  with_items:
+  - "{{ playbook_dir }}/vars/ldap.yml"
+  - "{{ playbook_dir }}/vars/ca.yml"
+  - "{{ playbook_dir }}/vars/kra.yml"
+  - "{{ playbook_dir }}/vars/tks.yml"
+  - "{{ playbook_dir }}/vars/tps.yml"
+  when: topology  == "topology-04"
+
+- name: Pick constants based on {{topology}}
+  include_vars: "{{ item }}"
+  with_items:
+  - "{{ playbook_dir }}/vars/ldap.yml"
+  - "{{ playbook_dir }}/vars/ca.yml"
+  - "{{ playbook_dir }}/vars/kra.yml"
+  - "{{ playbook_dir }}/vars/ocsp.yml"
+  - "{{ playbook_dir }}/vars/tks.yml"
+  - "{{ playbook_dir }}/vars/tps.yml"
+  when: topology  == "topology-05"
+
+- name: Pick constants based on {{topology}}
+  include_vars: "{{ item }}"
+  with_items:
+  - "{{ playbook_dir }}/vars/ldap.yml"
+  - "{{ playbook_dir }}/vars/ca.yml"
+  - "{{ playbook_dir }}/vars/kra.yml"
+  - "{{ playbook_dir }}/vars/ocsp.yml"
+  - "{{ playbook_dir }}/vars/tks.yml"
+  - "{{ playbook_dir }}/vars/tps.yml"
+  when: topology  == "topology-ecc"
+
+- name: Creates directory
+  file: path=/tmp/test_files state=directory
+
+- name: Copying templates to /tmp folder
+  copy : src=test/  dest=/tmp/test_dir
+  tags: platform-ci
+
+- name: Replace  Ldap server port in all configuration files
+  replace: dest={{item}} regexp="ldapServerPort" replace={{ldapServerPort}}
+  with_items:
+  - /tmp/test_dir/ldap.cfg
+  - /tmp/test_dir/ca.cfg
+  - /tmp/test_dir/kra.cfg
+  - /tmp/test_dir/ocsp.cfg
+  - /tmp/test_dir/tks.cfg
+  - /tmp/test_dir/tps.cfg
+  - /tmp/test_dir/constants.py
+
+- name: Replace topology in use in all configuration files
+  replace: dest={{item}} regexp="topology" replace={{topology}}
+  with_items:
+  - /tmp/test_dir/ldap.cfg
+  - /tmp/test_dir/ca.cfg
+  - /tmp/test_dir/kra.cfg
+  - /tmp/test_dir/ocsp.cfg
+  - /tmp/test_dir/tks.cfg
+  - /tmp/test_dir/tps.cfg
+  - /tmp/test_dir/constants.py
+
+- name : Substitute ecc with rsa when topology=topology-ecc
+  replace: dest={{item}} regexp="SHA512withRSA" replace="SHA384withEC"
+  with_items:
+  - /tmp/test_dir/ca.cfg
+  - /tmp/test_dir/kra.cfg
+  - /tmp/test_dir/ocsp.cfg
+  when:
+    - topology == "topology-ecc"
+
+- name : Substitute ecc with rsa when topology=topology-ecc
+  replace: dest={{item}} regexp="rsa" replace="ecc"
+  with_items:
+  - /tmp/test_dir/ca.cfg
+  - /tmp/test_dir/kra.cfg
+  - /tmp/test_dir/ocsp.cfg
+  when:
+    - topology == "topology-ecc"
+
+- name : Substitute ecc with rsa when topology=topology-ecc
+  replace: dest={{item}} regexp="2048" replace="nistp384"
+  with_items:
+  - /tmp/test_dir/ca.cfg
+  - /tmp/test_dir/kra.cfg
+  - /tmp/test_dir/ocsp.cfg
+  when:
+    - topology == "topology-ecc"
+    
+- name : For topology-01
+  replace: dest={{item}} regexp="pki_instance_name" replace="#pki_instance_name"
+  with_items:
+  - /tmp/test_dir/ca.cfg
+  - /tmp/test_dir/kra.cfg
+  - /tmp/test_dir/ocsp.cfg
+  - /tmp/test_dir/tks.cfg
+  - /tmp/test_dir/tps.cfg
+  when:
+    - topology == "topology-01"
+
+
+- name: Replace ServerName in all configuration files.
+  replace: dest={{item}} regexp="SERVERNAME" replace=pki1.example.com
+  with_items:
+  - /tmp/test_dir/ldap.cfg
+  - /tmp/test_dir/ca.cfg
+  - /tmp/test_dir/kra.cfg
+  - /tmp/test_dir/ocsp.cfg
+  - /tmp/test_dir/tks.cfg
+  - /tmp/test_dir/tps.cfg
+
+- name: Replace ServerName in all configuration files.
+  replace: dest={{item}} regexp="SERVERNAME" replace=pki1.example.com
+  with_items:
+  - /tmp/test_dir/ldap_kra.cfg
+  - /tmp/test_dir/ldap_ocsp.cfg
+  - /tmp/test_dir/ldap_tks.cfg
+  - /tmp/test_dir/ldap_tps.cfg
+  when: topology  == "topology-05"
+    

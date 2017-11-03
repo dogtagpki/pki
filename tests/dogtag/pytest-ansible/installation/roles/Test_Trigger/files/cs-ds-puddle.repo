@@ -1,0 +1,11 @@
+[RHCS9]
+name=RHCS9
+baseurl=http://download.eng.bos.redhat.com/rcm-guest/puddles/RHCS/9.0/latest/x86_64/os/
+enabled=1
+gpgcheck=0
+
+[RHDS10]
+name=RHDS10 
+baseurl=http://download.eng.bos.redhat.com/rcm-guest/puddles/RHDS/10.0/latest/x86_64/os/
+enabled=1
+gpgcheck=0

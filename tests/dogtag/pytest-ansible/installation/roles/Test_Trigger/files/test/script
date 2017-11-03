@@ -1,0 +1,79 @@
+#!/bin/sh
+#Generate Noise using Openssl
+echo "Defining variables "
+tks_password="/tmp/tkspassword.txt"
+tps_password="/tmp/tpspassword.txt"
+tks_alias="/var/lib/pki/$1-TKS/alias"
+tps_alias="/var/lib/pki/$1-TPS/alias"
+tks_noise="/tmp/tks_noise"
+tks_shared_secret="sharedSecret"
+tks_conf="/var/lib/pki/$1-TKS/tks/conf/CS.cfg"
+tps_conf="/var/lib/pki/$1-TPS/tps/conf/CS.cfg"
+tps_input_file="/tmp/tps-input.txt"
+tks_secret_output="/tmp/secret"
+tks_input_file="/tmp/tks-input.txt"
+tks_input="proceed\r\n"
+tks_secret_output="/tmp/sharedSecret.out"
+tps_key_import_status="/tmp/sharedSecretImport.out"
+echo "proceed\r\n" > $tks_input_file
+echo "Generate Noise using OpenSSL"
+openssl rand -hex 2048 |  perl -p -e 's/\n//' > $tks_noise
+cat /var/lib/pki/$1-TKS/conf/password.conf | sed 's/^internal=//' > $tks_password
+cat /var/lib/pki/$1-TPS/conf/password.conf | sed 's/^internal=//' > $tps_password
+
+echo "Stopping TKS  & TPS instance"
+systemctl stop pki-tomcatd@$1-TKS.service
+systemctl stop pki-tomcatd@$1-TPS.service
+echo "Generating shared secret"
+/usr/bin/tkstool -D -d $tks_alias -n "TPS-`hostname`-25443 sharedSecret" -f $tks_password
+/usr/bin/tkstool -T -d $tks_alias -n $tks_shared_secret -f $tks_password -z $tks_noise > $tks_secret_output < $tks_input_file
+/usr/bin/tkstool -L -d $tks_alias -n $tks_shared_secret -f $tks_password > /tmp/sharedSecretList1.out
+grep "$tks_shared_secret" /tmp/sharedSecretList1.out
+first_session_tmp1=$(cat $tks_secret_output | grep -A1 "first\ssession\skey\sshare:")
+first_session_tmp2=$(echo $first_session_tmp1 | sed 's/^first session key share://')
+first_session_key=$(echo ${first_session_tmp2%% })
+first_session_KCV_tmp1=$(cat $tks_secret_output | grep "first\ssession\skey\sshare\sKCV:")
+first_session_KCV_tmp2=$(echo $first_session_KCV_tmp1 | sed 's/^first session key share KCV://')
+first_session_KCV_key=$(echo ${first_session_KCV_tmp2%% })
+
+second_session_tmp1=$(cat $tks_secret_output | grep -A1 "second\ssession\skey\sshare:")
+second_session_tmp2=$(echo $second_session_tmp1 | sed 's/^second session key share://')
+second_session_key=$(echo ${second_session_tmp2%% })
+second_session_KCV_tmp1=$(cat $tks_secret_output | grep "second\ssession\skey\sshare\sKCV:")
+second_session_KCV_tmp2=$(echo $second_session_KCV_tmp1 | sed 's/^second session key share KCV://')
+second_session_KCV_key=$(echo ${second_session_KCV_tmp2%% })
+
+third_session_tmp1=$(cat $tks_secret_output | grep -A1 "third\ssession\skey\sshare:")
+third_session_tmp2=$(echo $third_session_tmp1 | sed 's/^third session key share://')
+third_session_key=$(echo ${third_session_tmp2%% })
+third_session_KCV_tmp1=$(cat $tks_secret_output | grep "third\ssession\skey\sshare\sKCV:")
+third_session_KCV_tmp2=$(echo $third_session_KCV_tmp1 | sed 's/^third session key share KCV://')
+third_session_KCV_key=$(echo ${third_session_KCV_tmp2%% })
+
+sed -i -e "/tps.0.nickname=/s/=.*/=$tks_shared_secret/g" $tks_conf
+sed -i -e "/tks.tksSharedSymKeyName=/s/=.*/=$tks_shared_secret/g" $tks_conf
+echo "Restart $1-TKS instance"
+systemctl restart pki-tomcatd@$1-TKS.service
+echo "proceed\r\n" > $tps_input_file
+echo "$first_session_key\r\n" >> $tps_input_file
+echo "\r\n" >> $tps_input_file
+echo "$first_session_KCV_key\r\n" >> $tps_input_file
+echo "proceed\r\n" >> $tps_input_file
+echo "proceed\r\n" >> $tps_input_file
+echo "$second_session_key\r\n" >> $tps_input_file
+echo "\r\n" >> $tps_input_file
+echo "$second_session_KCV_key\r\n" >> $tps_input_file
+echo "proceed\r\n" >> $tps_input_file
+echo "proceed\r\n" >> $tps_input_file
+echo "$third_session_key\r\n" >> $tps_input_file
+echo "\r\n" >> $tps_input_file
+echo "$third_session_KCV_key\r\n" >> $tps_input_file
+echo "proceed\r\n" >> $tps_input_file
+
+/usr/bin/tkstool -I -d $tps_alias -n $tks_shared_secret -f $tps_password < $tps_input_file > $tps_key_import_status
+/usr/bin/tkstool -L -d $tps_alias -n $tks_shared_secret -f $tps_password > /tmp/sharedSecretList2.out
+grep "$tks_shared_secret" /tmp/sharedSecretList2.out
+sed -i -e "/tps.connector.tks1.tksSharedSymKeyName=/s/=.*/=$tks_shared_secret/g" $tps_conf
+sed -i -e "/conn.tks1.tksSharedSymKeyName=/s/=.*/=$tks_shared_secret/g" $tps_conf
+echo "Restart $1-TPS instance"
+systemctl restart pki-tomcatd@$1-TPS.service

@@ -1,0 +1,82 @@
+- name: Disable firewalld before LDAP and Subsystem installation
+  systemd: state=stopped name=firewalld
+
+- name: Copy CS9 and DS10 Puddle repo 
+  copy: src=cs-ds-puddle.repo dest=/etc/yum.repos.d/cs-ds-puddle.repo
+  when: ansible_distribution == "RedHat"
+  tags: platform-ci
+ 
+- name : Set hostname for machines Bydefault we choose pki1 for master and pki2 for clones.
+  hostname: name=pki1.example.com
+  tags: platform-ci
+
+- name: Install a required package for modify hostname task below
+  dnf: pkg={{item}} state=latest
+  with_items:
+    - libselinux-python
+  when: ansible_distribution == "Fedora"
+
+- name : Modify hostname for master in  /etc/hosts
+  lineinfile: dest=/etc/hosts regexp='.*{{ inventory_hostname }}$' create=yes insertafter=EOF line="{{ inventory_hostname }} {{ansible_fqdn}}" state=present
+  tags: platform-ci
+
+
+- name : fetch file in  master in  /etc/hosts
+  fetch: src=/etc/hosts dest=/etc/ flat=yes validate_checksum=no
+  tags: platform-ci
+  
+- name: Install list of packages for CS Master for Redhat
+  yum : pkg={{item}} state=latest
+  with_items:
+    - redhat-pki
+    - redhat-pki-console-theme
+    - redhat-pki-server-theme
+    - pki-console
+    - 389-ds-base
+    - pki-ca
+    - pki-kra
+    - pki-ocsp
+    - pki-tks
+    - pki-tps
+    - policycoreutils-python
+    - expect
+    - libselinux-python
+  when: ansible_distribution == "RedHat"
+  tags: platform-ci
+
+- name: Install list of packages for CS Master for Fedora
+  dnf : pkg={{item}} state=latest
+  with_items:
+    - 389-ds-base
+    - dogtag-pki
+    - dogtag-pki-console-theme
+    - dogtag-pki-server-theme
+    - policycoreutils-python
+    - expect
+  when: ansible_distribution == "Fedora"
+  tags: platform-ci
+
+- name: Check for Removed dependency from mod_revocator and mod_nss.If failes refer BZ 1295276 
+  command: rpm -q {{item}}
+  with_items:
+    - mod_revocator
+    - mod_nss
+  register: rpm_check
+  failed_when: "rpm_check.rc == 0"
+
+- name: Check for Removed dependency of perl from pki-server.If fails, refer BZ 1305769
+  command: rpm -qR pki-server | grep perl
+  register: rpm_check
+  failed_when: "rpm_check.rc == 0"
+
+- name: Copying templates to /tmp folder
+  copy : src=/tmp/test_dir  dest=/tmp/
+  tags: platform-ci
+
+- name: Making constants.py file compatable for including as vars.
+  shell: sed -e "s/ =/:/g;s/'//g" /tmp/test_dir/constants.py > /tmp/test_dir/constants.yml
+
+- name: Fetch the file
+  fetch: src=/tmp/test_dir/constants.yml dest=/tmp/test_dir/ flat=yes validate_checksum=no
+
+

@@ -1,0 +1,24 @@
+- name: Install KRA master
+  shell: pkispawn -s KRA -f /tmp/test_dir/kra.cfg
+
+- name : Stopping KRA Subsystem
+  shell: echo "Stopping Subsystem for enabling Audit logging"
+  notify:
+    - STOPKRA
+    - INC_CONSTANTS
+
+- meta: flush_handlers
+
+- name: Enable SignedAudit
+  replace: dest=/etc/pki/{{ topology }}-KRA/kra/CS.cfg regexp="log.instance.SignedAudit.logSigning=false" replace="log.instance.SignedAudit.logSigning=true"
+
+- name: Enable OCSP for KRA
+  replace: dest=/etc/pki/{{ topology }}-KRA/server.xml regexp='enableOCSP="false"' replace='enableOCSP="true"'
+
+- name: Pointing KRA to correct OCSP port
+  replace: dest=/etc/pki/{{ topology }}-KRA/server.xml regexp='([0-9]+)/ca/ocsp' replace={{ variable.CA_HTTP_PORT }}/ca/ocsp
+
+- name: Importing OCSP certificate in kra nssdb
+  shell: certutil -A -d /etc/pki/{{ topology }}-KRA/alias -n "ocspSigningCert cert-pki-ca" -t "C,," -i  /tmp/test_dir/ocsp_signing.crt
+  notify:
+    - STARTKRA

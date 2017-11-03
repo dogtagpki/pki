@@ -1,0 +1,18 @@
+[rhcs]
+name=rhcs
+baseurl=http://download.eng.pek2.redhat.com/rel-eng/repos/rhel-7.4-z-candidate/x86_64/
+enabled=1
+gpgcheck=0
+
+[rhcsextra]
+name=rhcsextra
+baseurl=http://download-node-02.eng.bos.redhat.com/rel-eng/RHCertSys/9.2-RHEL-7/latest/RH7-RHCS-9.2/x86_64/os/
+enabled=1
+gpgcheck=0
+
+[External-RHDS-Repository-1]
+name=External-RHDS-Repository - 1
+baseurl=http://download.eng.bos.redhat.com/brewroot/repos/dsrv-10-rhel-7-build/latest/x86_64
+gpgcheck=0
+enabled=1
+

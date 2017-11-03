@@ -1,0 +1,35 @@
+- hosts: master
+  gather_facts: true
+  tasks:
+    - name: Going to TPSClient
+      shell: echo -e "op=var_set name=ra_host value=hostname\nop=var_set name=ra_port value=TPS_HTTP_PORT\nop=var_set name=ra_uri value=/tps/tps\nop=token_set cuid=TOKEN_CUID msn=0120304 app_ver=6FBBC105 key_info=0101 major_ver=0 minor_ver=0\nop=token_set auth_key=404142434445464748494a4b4c4d4e4f\nop=token_set mac_key=404142434445464748494a4b4c4d4e4f\nop=token_set kek_key=404142434445464748494a4b4c4d4e4f\nop=TPS_OPERATION uid=LDAP_USER pwd=LDAP_PASSWD new_pin=LDAP_NEW_PIN num_threads=1 extensions=tokenType=userKey\nop=exit" > /tmp/tpsclient.txt
+
+    - name: Including variables from Environment
+      include_vars:
+         file: /tmp/test_dir/constants.yml
+         name: variable
+
+    - name: Replacing correct hostname
+      replace: dest=/tmp/tpsclient.txt regexp=hostname  replace={{ inventory_hostname }}
+
+    - name: Replacing correct Port
+      replace: dest=/tmp/tpsclient.txt regexp=TPS_HTTP_PORT  replace={{ variable.TPS_HTTP_PORT }}
+
+    - name: Replacing correct Password
+      replace: dest=/tmp/tpsclient.txt regexp=LDAP_PASSWD  replace={{ variable.LDAP_PASSWD }}
+ 
+    - name: Replacing correct pin
+      replace: dest=/tmp/tpsclient.txt regexp=LDAP_NEW_PIN  replace={{ variable.LDAP_PASSWD }}
+
+    - name: Replacing correct Cuid
+      replace: dest=/tmp/tpsclient.txt regexp=TOKEN_CUID  replace={{ variable.CUID }}
+
+    - name: Replacing correct TPS Operation
+      replace: dest=/tmp/tpsclient.txt regexp=TPS_OPERATION  replace={{ variable.TPS_OPERATION }}
+
+    - name: Adding LDAP user in tpsclient configuration
+      replace: dest=/tmp/tpsclient.txt regexp=LDAP_USER  replace={{ variable.LDAP_USER }}
+
+    - name: Performing token enrollment
+      shell: tpsclient < /tmp/tpsclient.txt
+      ignore_errors: yes 

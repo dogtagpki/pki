@@ -1,0 +1,27 @@
+- name: Replace TKS specific changes 
+  replace: dest={{item}} regexp="tkspki_https_port" replace={{tkspki_https_port}}
+  with_items:
+  - /tmp/test_dir/tks.cfg
+  - /tmp/test_dir/constants.py
+
+- name: Replace http port for TKS.
+  replace: dest={{item}} regexp="tkspki_http_port" replace={{tkspki_http_port}}
+  with_items:
+  - /tmp/test_dir/tks.cfg
+  - /tmp/test_dir/constants.py
+
+- name: Replace ajp port for TKS
+  replace: dest={{item}} regexp="tkspki_ajp_port" replace={{tkspki_ajp_port}}
+  with_items:
+  - /tmp/test_dir/tks.cfg
+  - /tmp/test_dir/constants.py
+
+- name : Replace tomcat port for TKS
+  replace: dest={{item}} regexp="tkspki_tomcat_server_port" replace={{tkspki_tomcat_server_port}}
+  with_items:
+  - /tmp/test_dir/tks.cfg
+  - /tmp/test_dir/constants.py
+
+- name : Replace tomcat port for TKS
+  replace: dest=/tmp/test_dir/tks.cfg regexp="secure_domain_port" replace={{capki_https_port}}
+
