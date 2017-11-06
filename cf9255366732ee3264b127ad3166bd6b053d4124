@@ -1,0 +1,282 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da864568_8cc9b8fc",
+        "filename": "tests/dogtag/pytest-ansible/installation/README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-11-06T16:16:28Z",
+      "side": 1,
+      "message": "There shouldn\u0027t be references to internal repositories. The correct package repositories must be set up properly as a prerequisite.",
+      "revId": "cf9255366732ee3264b127ad3166bd6b053d4124",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "af1e5a36_fbe61aeb",
+        "filename": "tests/dogtag/pytest-ansible/installation/roles/Test_Execution/files/cs-ds-puddle.repo",
+        "patchSetId": 1
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-11-06T16:16:28Z",
+      "side": 1,
+      "message": "This file should not be included since it points to internal repositories.",
+      "revId": "cf9255366732ee3264b127ad3166bd6b053d4124",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "995fe764_42c1b542",
+        "filename": "tests/dogtag/pytest-ansible/installation/roles/Test_Execution/tasks/configure_common.yml",
+        "patchSetId": 1
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-11-06T16:16:28Z",
+      "side": 1,
+      "message": "There shouldn\u0027t be references to internal repositories.",
+      "revId": "cf9255366732ee3264b127ad3166bd6b053d4124",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "51303356_e84b3a87",
+        "filename": "tests/dogtag/pytest-ansible/installation/roles/Test_Execution/tasks/configure_common.yml",
+        "patchSetId": 1
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-11-06T16:16:28Z",
+      "side": 1,
+      "message": "The distribution name should be either \"RHEL\" instead of \"RedHat\".",
+      "revId": "cf9255366732ee3264b127ad3166bd6b053d4124",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cac77bae_2f3b6036",
+        "filename": "tests/dogtag/pytest-ansible/installation/roles/Test_Execution/tasks/configure_common.yml",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-11-06T16:16:28Z",
+      "side": 1,
+      "message": "Should be \"RHEL\".",
+      "range": {
+        "startLine": 28,
+        "startChar": 51,
+        "endLine": 28,
+        "endChar": 57
+      },
+      "revId": "cf9255366732ee3264b127ad3166bd6b053d4124",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "15d8a4c9_c519109c",
+        "filename": "tests/dogtag/pytest-ansible/installation/roles/Test_Execution/tasks/configure_common.yml",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-11-06T16:16:28Z",
+      "side": 1,
+      "message": "Should be \"RHEL\".",
+      "revId": "cf9255366732ee3264b127ad3166bd6b053d4124",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2c362c9a_020ab57b",
+        "filename": "tests/dogtag/pytest-ansible/installation/roles/Test_Trigger/files/cs-ds-puddle.repo",
+        "patchSetId": 1
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-11-06T16:16:28Z",
+      "side": 1,
+      "message": "This file should not be included since it contains references to internal repositories.",
+      "revId": "cf9255366732ee3264b127ad3166bd6b053d4124",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5eb2849d_73846e8b",
+        "filename": "tests/dogtag/pytest-ansible/pytest/README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-11-06T16:16:28Z",
+      "side": 1,
+      "message": "Consider moving it into the official COPR repository:\nhttps://copr.fedorainfracloud.org/coprs/g/pki/10.5/",
+      "revId": "cf9255366732ee3264b127ad3166bd6b053d4124",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "17b67648_fb8e4025",
+        "filename": "tests/dogtag/pytest-ansible/pytest/README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-11-06T16:16:28Z",
+      "side": 1,
+      "message": "Use a more generic path in documentation, for example \"/opt/pkitest/certdb\".",
+      "revId": "cf9255366732ee3264b127ad3166bd6b053d4124",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "110e784d_36893837",
+        "filename": "tests/dogtag/pytest-ansible/pytest/README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 238,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-11-06T16:16:28Z",
+      "side": 1,
+      "message": "Use a more generic path in documentation, for example \"/opt/pkitest/certdb\".",
+      "revId": "cf9255366732ee3264b127ad3166bd6b053d4124",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9672d0a6_bd60f728",
+        "filename": "tests/dogtag/pytest-ansible/pytest/tps-token/test_tps_token_show.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-11-06T16:16:28Z",
+      "side": 1,
+      "message": "Let\u0027s not use \"RHCS\" name in upstream files. Can we just call it \"PKI\" instead?",
+      "revId": "cf9255366732ee3264b127ad3166bd6b053d4124",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3f9f6fc0_56de7993",
+        "filename": "tests/dogtag/pytest-ansible/pytest/tps-token/test_tps_token_show.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-11-06T16:16:28Z",
+      "side": 1,
+      "message": "Let\u0027s not use \"RHCS\" name in upstream files.",
+      "revId": "cf9255366732ee3264b127ad3166bd6b053d4124",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ccb2ff3f_ede8268f",
+        "filename": "tests/dogtag/pytest-ansible/pytest/tps-token/test_tps_token_show.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-11-06T16:16:28Z",
+      "side": 1,
+      "message": "Let\u0027s not use \"RHCS\" name in upstream files.",
+      "revId": "cf9255366732ee3264b127ad3166bd6b053d4124",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "27a1510c_930de2df",
+        "filename": "tests/dogtag/pytest-ansible/pytest/tps-token/test_tps_token_show.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-11-06T16:16:28Z",
+      "side": 1,
+      "message": "Let\u0027s not use \"RHCS\" name in upstream files.",
+      "revId": "cf9255366732ee3264b127ad3166bd6b053d4124",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a0e06d4f_4c05771a",
+        "filename": "tests/dogtag/pytest-ansible/pytest/tps-token/test_tps_token_show.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-11-06T16:16:28Z",
+      "side": 1,
+      "message": "Let\u0027s not use \"RHCS\" name in upstream files.",
+      "revId": "cf9255366732ee3264b127ad3166bd6b053d4124",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9df78ccc_04d5cf31",
+        "filename": "tests/dogtag/pytest-ansible/pytest/tps-token/test_tps_token_show.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-11-06T16:16:28Z",
+      "side": 1,
+      "message": "Let\u0027s not use \"RHCS\" name in upstream files.",
+      "revId": "cf9255366732ee3264b127ad3166bd6b053d4124",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
