@@ -38,13 +38,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.StringTokenizer;
 
-import netscape.security.pkcs.PKCS10;
-import netscape.security.x509.KeyIdentifier;
-import netscape.security.x509.PKIXExtensions;
-import netscape.security.x509.SubjectKeyIdentifierExtension;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CertImpl;
-
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.ANY;
 import org.mozilla.jss.asn1.ASN1Util;
@@ -113,6 +106,13 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Cert;
 import com.netscape.cmsutil.util.HMACDigest;
 import com.netscape.cmsutil.util.Utils;
+
+import netscape.security.pkcs.PKCS10;
+import netscape.security.x509.KeyIdentifier;
+import netscape.security.x509.PKIXExtensions;
+import netscape.security.x509.SubjectKeyIdentifierExtension;
+import netscape.security.x509.X500Name;
+import netscape.security.x509.X509CertImpl;
 
 /**
  * Tool for creating CMC full request
@@ -1856,7 +1856,9 @@ public class CMCRequest {
             try {
                 MessageDigest hash = MessageDigest.getInstance(CryptoUtil.getNameFromHashAlgorithm(witnessAlgID));
                 byte[] digest = hash.digest(challenge);
+                CryptoUtil.obscureBytes(challenge, "random");
                 boolean witnessChecked = Arrays.equals(digest, witness.toByteArray());
+                CryptoUtil.obscureBytes(digest,"random");
                 if (witnessChecked) {
                     System.out.println(method + "Yay! witness verified");
                 } else {
@@ -1864,6 +1866,7 @@ public class CMCRequest {
                     System.exit(1);
                 }
             } catch (Exception ex) {
+                CryptoUtil.obscureBytes(challenge, "random");
                 System.out.println(method + ex);
                 System.exit(1);
             }

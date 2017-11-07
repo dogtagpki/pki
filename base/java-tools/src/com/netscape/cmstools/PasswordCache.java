@@ -554,6 +554,7 @@ class PWsdrCache {
                 byte[] dcryptb = sdr.decrypt(bos.toByteArray());
 
                 dcrypts = new String(dcryptb, "UTF-8");
+                CryptoUtil.obscureBytes(dcryptb, "random");
             } catch (TokenException e) {
                 System.out.println("password cache decrypto failed " + e.toString());
                 e.printStackTrace();

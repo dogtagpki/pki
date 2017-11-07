@@ -6,6 +6,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.netscape.certsrv.request.RequestId;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Utils;
 
 /**
@@ -158,5 +159,10 @@ public class Key {
 
     public void setPublicKey(String publicKey) {
         this.publicKey = publicKey;
+    }
+
+    public void clearSensitiveData() {
+        CryptoUtil.obscureBytes(data, "random");
+        data = null;
     }
 }

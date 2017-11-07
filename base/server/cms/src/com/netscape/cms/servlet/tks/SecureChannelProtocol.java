@@ -25,11 +25,12 @@ import org.mozilla.jss.crypto.SymmetricKey.NotExtractableException;
 import org.mozilla.jss.crypto.SymmetricKeyDeriver;
 import org.mozilla.jss.crypto.TokenException;
 
-import sun.security.pkcs11.wrapper.PKCS11Constants;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
+
+import sun.security.pkcs11.wrapper.PKCS11Constants;
 
 public class SecureChannelProtocol {
 
@@ -341,7 +342,8 @@ public class SecureChannelProtocol {
                     byte[] finalKeyBytes = nistKdf.kdf_AES_CMAC_SCP03(divKey, context, constant, 16);
                     sessionKey = unwrapAESSymKeyOnToken(token, finalKeyBytes, false);
 
-                    Arrays.fill(finalKeyBytes,(byte) 0);
+                    JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+                    jssSubsystem.obscureBytes(finalKeyBytes);
 
                     //The final session key is AES.
                 }
@@ -393,7 +395,8 @@ public class SecureChannelProtocol {
                     byte[] finalKeyBytes = nistKdf.kdf_AES_CMAC_SCP03(divKey, context, constant, 16);
                     sessionKey = unwrapAESSymKeyOnToken(token, finalKeyBytes, false);
 
-                    Arrays.fill(finalKeyBytes,(byte) 0);
+                    JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+                    jssSubsystem.obscureBytes(finalKeyBytes);
                 }
             }
         }
@@ -908,7 +911,8 @@ public class SecureChannelProtocol {
             finalAESKey = keyUnWrap.unwrapSymmetric(wrappedKey, SymmetricKey.AES, 16);
 
 
-            Arrays.fill(wrappedKey,(byte) 0);
+            JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+            jssSubsystem.obscureBytes(wrappedKey);
 
             //byte[] finalKeyBytes = finalAESKey.getKeyData();
             //displayByteArray(finalKeyBytes, false);
