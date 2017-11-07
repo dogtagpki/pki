@@ -87,106 +87,116 @@ public class KeyRetrieveCLI extends CLI {
             throw new Exception("Incorrect number of parameters provided.");
         }
 
-        String keyId = cmd.getOptionValue("keyID");
-        String passphrase = cmd.getOptionValue("passphrase");
-        String requestId = cmd.getOptionValue("requestID");
-        String outputFilePath = cmd.getOptionValue("output");
-        String outputDataFile = cmd.getOptionValue("output-data");
-        String requestFile = cmd.getOptionValue("input");
-        String transportNickname = cmd.getOptionValue("transport");
-
-        KeyClient keyClient = keyCLI.getKeyClient(transportNickname);
         Key keyData = null;
 
-        if (requestFile != null) {
-            JAXBContext context = JAXBContext.newInstance(KeyRecoveryRequest.class);
-            Unmarshaller unmarshaller = context.createUnmarshaller();
-            FileInputStream fis = new FileInputStream(requestFile);
-            KeyRecoveryRequest req = (KeyRecoveryRequest) unmarshaller.unmarshal(fis);
+        try {
+            String keyId = cmd.getOptionValue("keyID");
+            String passphrase = cmd.getOptionValue("passphrase");
+            String requestId = cmd.getOptionValue("requestID");
+            String outputFilePath = cmd.getOptionValue("output");
+            String outputDataFile = cmd.getOptionValue("output-data");
+            String requestFile = cmd.getOptionValue("input");
+            String transportNickname = cmd.getOptionValue("transport");
 
-            if (req.getKeyId() == null) {
-                throw new Exception("Key ID must be specified in the request file.");
-            }
+            KeyClient keyClient = keyCLI.getKeyClient(transportNickname);
 
-            if (req.getCertificate() != null) {
-                keyData = keyClient.retrieveKeyByPKCS12(req.getKeyId(), req.getCertificate(),
-                        req.getPassphrase());
+            if (requestFile != null) {
+                JAXBContext context = JAXBContext.newInstance(KeyRecoveryRequest.class);
+                Unmarshaller unmarshaller = context.createUnmarshaller();
+                FileInputStream fis = new FileInputStream(requestFile);
+                KeyRecoveryRequest req = (KeyRecoveryRequest) unmarshaller.unmarshal(fis);
 
-            } else if (req.getPassphrase() != null) {
-                keyData = keyClient.retrieveKeyByPassphrase(req.getKeyId(), req.getPassphrase());
+                if (req.getKeyId() == null) {
+                    throw new Exception("Key ID must be specified in the request file.");
+                }
 
-            } else if (req.getSessionWrappedPassphrase() != null) {
-                keyData = keyClient.retrieveKeyUsingWrappedPassphrase(req.getKeyId(),
-                        Utils.base64decode(req.getTransWrappedSessionKey()),
-                        Utils.base64decode(req.getSessionWrappedPassphrase()),
-                        Utils.base64decode(req.getNonceData()));
+                if (req.getCertificate() != null) {
+                    keyData = keyClient.retrieveKeyByPKCS12(req.getKeyId(), req.getCertificate(),
+                            req.getPassphrase());
 
-            } else if (req.getTransWrappedSessionKey() != null) {
-                keyData = keyClient.retrieveKey(req.getKeyId(),
-                        Utils.base64decode(req.getTransWrappedSessionKey()));
+                } else if (req.getPassphrase() != null) {
+                    keyData = keyClient.retrieveKeyByPassphrase(req.getKeyId(), req.getPassphrase());
 
-            } else {
-                keyData = keyClient.retrieveKey(req.getKeyId());
-            }
+                } else if (req.getSessionWrappedPassphrase() != null) {
+                    keyData = keyClient.retrieveKeyUsingWrappedPassphrase(req.getKeyId(),
+                            Utils.base64decode(req.getTransWrappedSessionKey()),
+                            Utils.base64decode(req.getSessionWrappedPassphrase()),
+                            Utils.base64decode(req.getNonceData()));
 
-        } else {
-            // Using command line options.
-            if (requestId == null && keyId == null) {
-                throw new Exception("Either requestID or keyID must be specified");
-            }
+                } else if (req.getTransWrappedSessionKey() != null) {
+                    keyData = keyClient.retrieveKey(req.getKeyId(),
+                            Utils.base64decode(req.getTransWrappedSessionKey()));
 
-            if (passphrase != null) {
-                if (requestId != null) {
-                    keyData = keyClient.retrieveKeyByRequestWithPassphrase(
-                            new RequestId(requestId), passphrase);
                 } else {
-                    keyData = keyClient.retrieveKeyByPassphrase(new KeyId(keyId), passphrase);
+                    keyData = keyClient.retrieveKey(req.getKeyId());
                 }
 
             } else {
-                if (requestId != null) {
-                    keyData = keyClient.retrieveKeyByRequest(new RequestId(requestId));
-                } else {
-                    keyData = keyClient.retrieveKey(new KeyId(keyId));
+                // Using command line options.
+                if (requestId == null && keyId == null) {
+                    throw new Exception("Either requestID or keyID must be specified");
                 }
 
-                clientEncryption = false;
+                if (passphrase != null) {
+                    if (requestId != null) {
+                        keyData = keyClient.retrieveKeyByRequestWithPassphrase(
+                                new RequestId(requestId), passphrase);
+                    } else {
+                        keyData = keyClient.retrieveKeyByPassphrase(new KeyId(keyId), passphrase);
+                    }
 
-                // No need to return the encrypted data since encryption
-                // is done locally.
-                keyData.setEncryptedData(null);
+                } else {
+                    if (requestId != null) {
+                        keyData = keyClient.retrieveKeyByRequest(new RequestId(requestId));
+                    } else {
+                        keyData = keyClient.retrieveKey(new KeyId(keyId));
+                    }
+
+                    clientEncryption = false;
+
+                    // No need to return the encrypted data since encryption
+                    // is done locally.
+                    keyData.setEncryptedData(null);
+                }
             }
-        }
 
-        MainCLI.printMessage("Retrieve Key Information");
+            MainCLI.printMessage("Retrieve Key Information");
 
-        if (outputDataFile != null) {
+            if (outputDataFile != null) {
 
-            byte[] data;
-            if (clientEncryption) { // store encrypted data
-                data = keyData.getEncryptedData();
+                byte[] data;
+                if (clientEncryption) { // store encrypted data
+                    data = keyData.getEncryptedData();
 
-            } else { // store unencrypted data
-                data = keyData.getData();
+                } else { // store unencrypted data
+                    data = keyData.getData();
+                }
+
+                Path path = Paths.get(outputDataFile);
+                Files.write(path, data);
+
+                printKeyInfo(keyData);
+                System.out.println("  Output: " + outputDataFile);
+
+            } else if (outputFilePath != null) {
+                JAXBContext context = JAXBContext.newInstance(Key.class);
+                Marshaller marshaller = context.createMarshaller();
+                marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+                marshaller.marshal(keyData, new File(outputFilePath));
+
+                System.out.println("  Output: " + outputFilePath);
+
+            } else {
+                printKeyInfo(keyData);
+                printKeyData(keyData);
             }
 
-            Path path = Paths.get(outputDataFile);
-            Files.write(path, data);
-
-            printKeyInfo(keyData);
-            System.out.println("  Output: " + outputDataFile);
-
-        } else if (outputFilePath != null) {
-            JAXBContext context = JAXBContext.newInstance(Key.class);
-            Marshaller marshaller = context.createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            marshaller.marshal(keyData, new File(outputFilePath));
-
-            System.out.println("  Output: " + outputFilePath);
-
-        } else {
-            printKeyInfo(keyData);
-            printKeyData(keyData);
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            if (keyData != null) {
+                keyData.clearSensitiveData();
+            }
         }
     }
 

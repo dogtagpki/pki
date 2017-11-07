@@ -2176,6 +2176,26 @@ public class CryptoUtil {
 
     }
 
+    public static void obscureBytes(byte[] memory, String method) {
+        if (memory == null || memory.length == 0) {
+            //in case we want to log
+            return;
+        }
+
+        SecureRandom rnd;
+        try {
+            rnd = getRandomNumberGenerator();
+        } catch (GeneralSecurityException e) {
+            throw new RuntimeException(e);
+        }
+
+        if ("zeroes".equals(method)) {
+            Arrays.fill(memory, (byte)0);
+        } else {
+            rnd.nextBytes(memory);
+        }
+    }
+
     public static byte[] unwrapUsingPassphrase(byte[] wrappedRecoveredKey, String recoveryPassphrase)
             throws IOException, InvalidBERException, InvalidKeyException, IllegalStateException,
             NoSuchAlgorithmException, InvalidAlgorithmParameterException, NotInitializedException, TokenException,

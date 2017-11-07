@@ -38,13 +38,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.StringTokenizer;
 
-import netscape.security.pkcs.PKCS10;
-import netscape.security.x509.KeyIdentifier;
-import netscape.security.x509.PKIXExtensions;
-import netscape.security.x509.SubjectKeyIdentifierExtension;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CertImpl;
-
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.ANY;
 import org.mozilla.jss.asn1.ASN1Util;
@@ -113,6 +106,13 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Cert;
 import com.netscape.cmsutil.util.HMACDigest;
 import com.netscape.cmsutil.util.Utils;
+
+import netscape.security.pkcs.PKCS10;
+import netscape.security.x509.KeyIdentifier;
+import netscape.security.x509.PKIXExtensions;
+import netscape.security.x509.SubjectKeyIdentifierExtension;
+import netscape.security.x509.X500Name;
+import netscape.security.x509.X509CertImpl;
 
 /**
  * Tool for creating CMC full request
@@ -1803,6 +1803,7 @@ public class CMCRequest {
             System.exit(1);
         }
 
+        byte challenge[] = null;
         try {
             TaggedRequest request = encryptedPop.getRequest();
             AlgorithmIdentifier thePOPAlgID = encryptedPop.getThePOPAlgID();
@@ -1838,7 +1839,7 @@ public class CMCRequest {
             }
             System.out.println(method + "symKey unwrapped.");
 
-            byte challenge[] = CryptoUtil.decryptUsingSymmetricKey(
+            challenge = CryptoUtil.decryptUsingSymmetricKey(
                     token,
                     ivps,
                     encCI.getEncryptedContent().toByteArray(),
@@ -1857,13 +1858,16 @@ public class CMCRequest {
                 MessageDigest hash = MessageDigest.getInstance(CryptoUtil.getNameFromHashAlgorithm(witnessAlgID));
                 byte[] digest = hash.digest(challenge);
                 boolean witnessChecked = Arrays.equals(digest, witness.toByteArray());
+                CryptoUtil.obscureBytes(digest,"random");
                 if (witnessChecked) {
                     System.out.println(method + "Yay! witness verified");
                 } else {
+                    CryptoUtil.obscureBytes(challenge, "random");
                     System.out.println(method + "Oops! witness failed to verify.  Must abort!");
                     System.exit(1);
                 }
             } catch (Exception ex) {
+                CryptoUtil.obscureBytes(challenge, "random");
                 System.out.println(method + ex);
                 System.exit(1);
             }
@@ -1877,6 +1881,7 @@ public class CMCRequest {
                 hmacDigest.update(ASN1Util.encode(request));
                 popProofValue = hmacDigest.digest();
             } catch (Exception ex) {
+                CryptoUtil.obscureBytes(challenge, "random");
                 System.out.println(method + "calculating POP Proof Value failed: " + ex);
                 System.exit(1);
             }
@@ -1912,6 +1917,8 @@ public class CMCRequest {
         } catch (Exception e) {
             System.out.println(method + e);
             System.exit(1);
+        } finally {
+            CryptoUtil.obscureBytes(challenge, "random");
         }
 
         System.out.println(method + " completes.");

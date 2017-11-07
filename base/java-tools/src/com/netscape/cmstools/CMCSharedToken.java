@@ -299,6 +299,8 @@ public class CMCSharedToken {
 
                 String ver_spassphrase = new String(ver_passphrase, "UTF-8");
 
+                CryptoUtil.obscureBytes(ver_passphrase, "random");
+
                 System.out.println("ver_passphrase String = " + ver_spassphrase);
                 System.out.println("ver_passphrase UTF-8 bytes = ");
                 System.out.println(Arrays.toString(ver_spassphrase.getBytes("UTF-8")));
