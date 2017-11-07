@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fb2f2cea_cb9eb392",
+        "filename": "base/java-tools/src/com/netscape/cmstools/CMCRequest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1859,
+      "author": {
+        "id": 1010256
+      },
+      "writtenOn": "2017-11-07T23:15:18Z",
+      "side": 1,
+      "message": "challenge is being used a few lines down for calculating POP.  You want to make sure it\u0027s no longer used before clearing.",
+      "revId": "78fdeb8618ae55cc83f463ff72dbe37281f92e66",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "05cd41d0_889777a5",
+        "filename": "base/java-tools/src/com/netscape/cmstools/CMCSharedToken.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 302,
+      "author": {
+        "id": 1010256
+      },
+      "writtenOn": "2017-11-07T23:15:18Z",
+      "side": 1,
+      "message": "ver_passphrase is used a few lines down.  You want to make sure it\u0027s no longer used before clearing.",
+      "revId": "78fdeb8618ae55cc83f463ff72dbe37281f92e66",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "48a7539e_0050a42d",
+        "filename": "base/java-tools/src/com/netscape/cmstools/PasswordCache.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 557,
+      "author": {
+        "id": 1010256
+      },
+      "writtenOn": "2017-11-07T23:15:18Z",
+      "side": 1,
+      "message": "I suggest you follow the callers to this routine (readPWcache), including many in this file, to make sure those that are no longer needed are cleared up as well.",
+      "revId": "78fdeb8618ae55cc83f463ff72dbe37281f92e66",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e30e5981_2d0e9559",
+        "filename": "base/util/src/com/netscape/cmsutil/crypto/CryptoUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2184,
+      "author": {
+        "id": 1010256
+      },
+      "writtenOn": "2017-11-07T23:15:18Z",
+      "side": 1,
+      "message": "perhaps add check for null on method.",
+      "revId": "78fdeb8618ae55cc83f463ff72dbe37281f92e66",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
