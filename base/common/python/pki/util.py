@@ -272,4 +272,6 @@ def read_environment_files(env_file_list=None):
 
     for env_val in env_vals:
         (key, _, value) = env_val.partition("=")
+        if not key.strip() or key == u'_':
+            continue
         os.environ[key] = value
