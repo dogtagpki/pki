@@ -33,8 +33,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import netscape.security.x509.RevocationReason;
-
 import org.dogtagpki.server.tps.TPSSession;
 import org.dogtagpki.server.tps.TPSSubsystem;
 import org.dogtagpki.server.tps.authentication.AuthUIParameter;
@@ -103,6 +101,8 @@ import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.servlet.tks.SecureChannelProtocol;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.symkey.SessionKey;
+
+import netscape.security.x509.RevocationReason;
 
 public class TPSProcessor {
 
@@ -558,8 +558,10 @@ public class TPSProcessor {
             CMS.debug("TPSProcessor.setupSecureChannel: obtained randomData");
         }
 
-        // We already do this when checking for applet upgrade earlier.
-        //acquireChannelPlatformAndProtocolInfo();
+        // Do this on behalf of external reg, which needs it
+        // If already called, the routine will return anyway.
+
+        acquireChannelPlatformAndProtocolInfo();
 
         TPSBuffer initUpdateResp = initializeUpdate(keyVersion, keyIndex, randomData);
 
