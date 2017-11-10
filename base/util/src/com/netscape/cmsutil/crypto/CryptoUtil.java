@@ -24,6 +24,9 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.math.BigInteger;
 import java.net.SocketException;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.Charset;
 import java.security.GeneralSecurityException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -1950,6 +1953,52 @@ public class CryptoUtil {
         return bytes;
     }
 
+    public static char[] bytesToChars(byte[] bytes) {
+        if(bytes == null)
+            return null;
+
+        Charset charset = Charset.forName("UTF-8");
+        CharBuffer charBuffer = charset.decode(ByteBuffer.wrap(bytes));
+        char[] result = Arrays.copyOf(charBuffer.array(), charBuffer.limit());
+
+        //Clear up the CharBuffer we just created
+        if (charBuffer.hasArray()) {
+            char[] contentsToBeErased = charBuffer.array();
+            CryptoUtil.obscureChars(contentsToBeErased);
+        }
+        return result;
+    }
+
+    public static byte[] charsToBytes(char[] chars) {
+        if(chars == null)
+            return null;
+
+        Charset charset = Charset.forName("UTF-8");
+        ByteBuffer byteBuffer = charset.encode(CharBuffer.wrap(chars));
+        byte[] result = Arrays.copyOf(byteBuffer.array(), byteBuffer.limit());
+
+        if(byteBuffer.hasArray()) {
+            byte[] contentsToBeErased = byteBuffer.array();
+            CryptoUtil.obscureBytes(contentsToBeErased, "random");
+        }
+        return result;
+    }
+
+    /**
+     * Create a jss Password object from a provided byte array.
+     */
+    public static Password createPasswordFromBytes(byte[] bytes ) {
+
+        if(bytes == null)
+            return null;
+
+        char[] pwdChars = bytesToChars(bytes);
+        Password password = new Password(pwdChars);
+        obscureChars(pwdChars);
+
+        return password;
+    }
+
     /**
      * Retrieves a private key from a unique key ID.
      */
@@ -2176,6 +2225,14 @@ public class CryptoUtil {
 
     }
 
+    public static void obscureChars(char[] memory) {
+        if (memory == null || memory.length == 0) {
+            //in case we want to log
+            return;
+        }
+        Arrays.fill(memory, (char) 0);
+    }
+
     public static void obscureBytes(byte[] memory, String method) {
         if (memory == null || memory.length == 0) {
             //in case we want to log
@@ -2279,7 +2336,7 @@ public class CryptoUtil {
     public static PKIArchiveOptions createPKIArchiveOptions(
             CryptoToken token,
             PublicKey wrappingKey,
-            String data,
+            char[] data,
             WrappingParams params,
             AlgorithmIdentifier aid) throws Exception {
         return createPKIArchiveOptionsInternal(
@@ -2289,7 +2346,7 @@ public class CryptoUtil {
     public static byte[] createEncodedPKIArchiveOptions(
             CryptoToken token,
             PublicKey wrappingKey,
-            String data,
+            char []data,
             WrappingParams params,
             AlgorithmIdentifier aid) throws Exception {
         PKIArchiveOptions opts = createPKIArchiveOptionsInternal(
@@ -2300,7 +2357,7 @@ public class CryptoUtil {
     private static PKIArchiveOptions createPKIArchiveOptionsInternal(
             CryptoToken token,
             PublicKey wrappingKey,
-            String passphraseData,
+            char[] passphraseData,
             PrivateKey privKeyData,
             SymmetricKey symKeyData,
             WrappingParams params,
@@ -2315,7 +2372,7 @@ public class CryptoUtil {
 
         if (passphraseData != null) {
 
-            byte[] secret = passphraseData.getBytes("UTF-8");
+            byte[] secret =  CryptoUtil.charsToBytes(passphraseData);
             key_data = encryptSecret(
                     token,
                     secret,

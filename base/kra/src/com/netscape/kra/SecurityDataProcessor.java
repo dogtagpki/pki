@@ -487,9 +487,11 @@ public class SecurityDataProcessor {
                         unwrappedSess,
                         wrapParams.getPayloadEncryptionAlgorithm());
 
-                String passStr = new String(unwrappedPass, "UTF-8");
-                pass = new Password(passStr.toCharArray());
-                passStr = null;
+                char[] passChars = CryptoUtil.bytesToChars(unwrappedPass);
+                pass = new Password(passChars);
+                JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+                jssSubsystem.obscureChars(passChars);
+
 
                 if (dataType.equals(KeyRequestResource.SYMMETRIC_KEY_TYPE)) {
 

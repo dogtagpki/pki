@@ -240,7 +240,7 @@ public class SharedSecret extends DirBasedAuthentication
      * Note: caller should clear the memory for the returned token
      *       after each use
      */
-    public String getSharedToken(String identification)
+    public char[] getSharedToken(String identification)
             throws EBaseException {
         String method = "SharedSecret.getSharedToken(String identification): ";
         String msg = "";
@@ -319,7 +319,7 @@ public class SharedSecret extends DirBasedAuthentication
             }
             CMS.debug(method + " got entryShrTok");
 
-            String shrSecret = decryptShrTokData(new String(entryShrTok));
+            char[] shrSecret = decryptShrTokData(new String(entryShrTok));
             CMS.debug(method + "returning");
             return shrSecret;
         } catch (Exception e) {
@@ -338,11 +338,11 @@ public class SharedSecret extends DirBasedAuthentication
      *     encryptedPrivate OCTET STRING
      * }
      * @param data_s
-     * @return
+     * @return phrase in char array.
      */
-    private String decryptShrTokData(String data_s) {
+    private char[] decryptShrTokData(String data_s) {
         String method = "SharedSecret.decryptShrTokData: ";
-        String msg = "";
+        byte[] ver_passphrase = null;
         try {
             byte[] wrapped_secret_data = Utils.base64decode(data_s);
             DerValue wrapped_val = new DerValue(wrapped_secret_data);
@@ -357,22 +357,24 @@ public class SharedSecret extends DirBasedAuthentication
 
             SymmetricKey ver_session = CryptoUtil.unwrap(tmpToken, SymmetricKey.AES, 128, SymmetricKey.Usage.UNWRAP,
                     issuanceProtPrivKey, wrapped_session, wrapAlgorithm);
-            byte[] ver_passphrase = CryptoUtil.decryptUsingSymmetricKey(tmpToken, new IVParameterSpec(iv),
+            ver_passphrase = CryptoUtil.decryptUsingSymmetricKey(tmpToken, new IVParameterSpec(iv),
                     wrapped_passphrase,
                     ver_session, EncryptionAlgorithm.AES_128_CBC_PAD);
 
-            String ver_spassphrase = new String(ver_passphrase, "UTF-8");
-            return ver_spassphrase;
+            char[] ver_spassphraseChars = CryptoUtil.bytesToChars(ver_passphrase);
+            return ver_spassphraseChars;
         } catch (Exception e) {
             CMS.debug(method + e.toString());
             return null;
+        } finally {
+            CryptoUtil.obscureBytes(ver_passphrase, "random");
         }
     }
 
     /**
      * unsupported
      */
-    public String getSharedToken(PKIData cmcdata)
+    public char[] getSharedToken(PKIData cmcdata)
             throws EBaseException {
         String method = "SharedSecret.getSharedToken(PKIData cmcdata): ";
         String msg = "";
@@ -389,7 +391,7 @@ public class SharedSecret extends DirBasedAuthentication
      * Note: caller should clear the memory for the returned token
      *       after each use
      */
-    public String getSharedToken(BigInteger serial)
+    public char[] getSharedToken(BigInteger serial)
             throws EBaseException {
         String method = "SharedSecret.getSharedToken(BigInteger serial): ";
         String msg = "";
@@ -417,7 +419,7 @@ public class SharedSecret extends DirBasedAuthentication
             throw new EBaseException(method + msg);
         }
 
-        String shrSecret = decryptShrTokData(shrTok_s);
+        char[] shrSecret = decryptShrTokData(shrTok_s);
         CMS.debug(method + "returning");
         return shrSecret;
     }
