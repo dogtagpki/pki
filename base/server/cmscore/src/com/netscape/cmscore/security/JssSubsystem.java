@@ -409,6 +409,14 @@ public final class JssSubsystem implements ICryptoSubsystem {
         }
     }
 
+    public void obscureChars(char[] memory) {
+        String methodName = "JssSubsystem.obscureBytes: ";
+        if (memory == null || memory.length == 0)
+            return;
+        CMS.debug(methodName + " filling with zeroes, numChars: " + memory.length);
+        Arrays.fill(memory, (char) 0);
+    }
+
     public String getCipherVersion() throws EBaseException {
         return "cipherdomestic";
     }

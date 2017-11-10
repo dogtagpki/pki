@@ -240,7 +240,7 @@ public class SharedSecret extends DirBasedAuthentication
      * Note: caller should clear the memory for the returned token
      *       after each use
      */
-    public String getSharedToken(String identification)
+    public char[] getSharedToken(String identification)
             throws EBaseException {
         String method = "SharedSecret.getSharedToken(String identification): ";
         String msg = "";
@@ -319,7 +319,7 @@ public class SharedSecret extends DirBasedAuthentication
             }
             CMS.debug(method + " got entryShrTok");
 
-            String shrSecret = decryptShrTokData(new String(entryShrTok));
+            char[] shrSecret = decryptShrTokDataToChars(new String(entryShrTok));
             CMS.debug(method + "returning");
             return shrSecret;
         } catch (Exception e) {
@@ -328,6 +328,46 @@ public class SharedSecret extends DirBasedAuthentication
         } finally {
             if (shrTokLdapConnection != null)
                 shrTokLdapFactory.returnConn(shrTokLdapConnection);
+        }
+    }
+
+    /**
+     * decryptShrTokData decrypts data with the following format:
+     * SEQUENCE {
+     *     encryptedSession OCTET STRING,
+     *     encryptedPrivate OCTET STRING
+     * }
+     * @param data_s
+     * @return phrase in char array.
+     */
+    private char[] decryptShrTokDataToChars(String data_s) {
+        String method = "SharedSecret.decryptShrTokData: ";
+        byte[] ver_passphrase = null;
+        try {
+            byte[] wrapped_secret_data = Utils.base64decode(data_s);
+            DerValue wrapped_val = new DerValue(wrapped_secret_data);
+            // val.tag == DerValue.tag_Sequence
+            DerInputStream wrapped_in = wrapped_val.data;
+            DerValue wrapped_dSession = wrapped_in.getDerValue();
+            byte wrapped_session[] = wrapped_dSession.getOctetString();
+            CMS.debug(method + "wrapped session key retrieved");
+            DerValue wrapped_dPassphrase = wrapped_in.getDerValue();
+            byte wrapped_passphrase[] = wrapped_dPassphrase.getOctetString();
+            CMS.debug(method + "wrapped passphrase retrieved");
+
+            SymmetricKey ver_session = CryptoUtil.unwrap(tmpToken, SymmetricKey.AES, 128, SymmetricKey.Usage.UNWRAP,
+                    issuanceProtPrivKey, wrapped_session, wrapAlgorithm);
+            ver_passphrase = CryptoUtil.decryptUsingSymmetricKey(tmpToken, new IVParameterSpec(iv),
+                    wrapped_passphrase,
+                    ver_session, EncryptionAlgorithm.AES_128_CBC_PAD);
+
+            char[] ver_spassphraseChars = CryptoUtil.bytesToChars(ver_passphrase);
+            return ver_spassphraseChars;
+        } catch (Exception e) {
+            CMS.debug(method + e.toString());
+            return null;
+        } finally {
+            CryptoUtil.obscureBytes(ver_passphrase, "random");
         }
     }
 
@@ -372,7 +412,7 @@ public class SharedSecret extends DirBasedAuthentication
     /**
      * unsupported
      */
-    public String getSharedToken(PKIData cmcdata)
+    public char[] getSharedToken(PKIData cmcdata)
             throws EBaseException {
         String method = "SharedSecret.getSharedToken(PKIData cmcdata): ";
         String msg = "";
@@ -389,7 +429,7 @@ public class SharedSecret extends DirBasedAuthentication
      * Note: caller should clear the memory for the returned token
      *       after each use
      */
-    public String getSharedToken(BigInteger serial)
+    public char[] getSharedToken(BigInteger serial)
             throws EBaseException {
         String method = "SharedSecret.getSharedToken(BigInteger serial): ";
         String msg = "";
@@ -417,7 +457,7 @@ public class SharedSecret extends DirBasedAuthentication
             throw new EBaseException(method + msg);
         }
 
-        String shrSecret = decryptShrTokData(shrTok_s);
+        char[] shrSecret = decryptShrTokDataToChars(shrTok_s);
         CMS.debug(method + "returning");
         return shrSecret;
     }

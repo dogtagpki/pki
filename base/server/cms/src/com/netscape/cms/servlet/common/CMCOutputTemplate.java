@@ -68,6 +68,7 @@ import org.mozilla.jss.pkix.cms.SignerIdentifier;
 import org.mozilla.jss.pkix.cms.SignerInfo;
 import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
 import org.mozilla.jss.pkix.primitive.Name;
+import org.mozilla.jss.util.Password;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthManager;
@@ -1093,7 +1094,7 @@ public class CMCOutputTemplate {
                     }
                     ISharedToken tokenClass = (ISharedToken) sharedTokenAuth;
 
-                    String sharedSecret = tokenClass.getSharedToken(revokeSerial);
+                    char[] sharedSecret = tokenClass.getSharedToken(revokeSerial);
 
                     if (sharedSecret == null) {
                         CMS.debug("CMCOutputTemplate: shared secret not found.");
@@ -1110,11 +1111,21 @@ public class CMCOutputTemplate {
                     }
 
                     byte[] reqSecretb = reqSecret.toByteArray();
-                    String clientSC = new String(reqSecretb);
-                    if (clientSC.equals(sharedSecret)) {
+                    char[] reqSecretbChars = CryptoUtil.bytesToChars(reqSecretb);
+
+                    Password secret1 = new Password(sharedSecret);
+                    Password secret2 = new Password(reqSecretbChars);
+
+                    CryptoUtil.obscureChars(sharedSecret);
+                    CryptoUtil.obscureChars(reqSecretbChars);
+                    CryptoUtil.obscureBytes(reqSecretb, "random");
+
+                    if(secret1.equals(secret2)) {
                         CMS.debug(method
                                 + " Client and server shared secret are the same, can go ahead and revoke certificate.");
                         revoke = true;
+                        secret1.clear();
+                        secret2.clear();
                     } else {
                         CMS.debug(method
                                 + " Client and server shared secret are not the same, cannot revoke certificate.");
@@ -1137,6 +1148,8 @@ public class CMCOutputTemplate {
                                 auditReasonNum,
                                 auditApprovalStatus));
 
+                        secret1.clear();
+                        secret2.clear();
                         return bpid;
                     }
                 }

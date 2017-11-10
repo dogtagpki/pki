@@ -461,6 +461,7 @@ public class RecoveryService implements IService {
     public void createPFX(IRequest request, Hashtable<String, Object> params,
             PrivateKey priKey, CryptoToken ct) throws EBaseException {
         CMS.debug("RecoverService: createPFX() allowEncDecrypt_recovery=false");
+        org.mozilla.jss.util.Password pass = null;
         try {
             // create p12
             X509Certificate x509cert =
@@ -493,9 +494,14 @@ public class RecoveryService implements IService {
             // add key
             mKRA.log(ILogger.LL_INFO, "KRA adds key to P12");
             CMS.debug("RecoverService: createPFX() adds key to P12");
-            org.mozilla.jss.util.Password pass = new
+            char[] pwdChar = pwd.toCharArray();
+            pass = new
                     org.mozilla.jss.util.Password(
-                            pwd.toCharArray());
+                            pwdChar);
+            {
+                JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+                jssSubsystem.obscureChars(pwdChar);
+            }
 
             SEQUENCE safeContents = new SEQUENCE();
             PasswordConverter passConverter = new
@@ -580,7 +586,6 @@ public class RecoveryService implements IService {
                     ByteArrayOutputStream();
 
             pfx.encode(fos);
-            pass.clear();
 
             // put final PKCS12 into volatile request
             params.put(ATTR_PKCS12, fos.toByteArray());
@@ -590,6 +595,10 @@ public class RecoveryService implements IService {
             CMS.debug("RecoverService: createPFX() exception caught:"+
                 e.toString());
             throw new EKRAException(CMS.getUserMessage("CMS_KRA_PKCS12_FAILED_1", e.toString()));
+        } finally {
+            if(pass != null) {
+                pass.clear();
+            }
         }
 
         // update request
@@ -637,6 +646,7 @@ public class RecoveryService implements IService {
     public void createPFX(IRequest request, Hashtable<String, Object> params,
             byte priData[]) throws EBaseException {
         CMS.debug("RecoverService: createPFX() allowEncDecrypt_recovery=true");
+        org.mozilla.jss.util.Password pass = null;
         try {
             // create p12
             X509Certificate x509cert =
@@ -667,9 +677,13 @@ public class RecoveryService implements IService {
 
             // add key
             mKRA.log(ILogger.LL_INFO, "KRA adds key to P12");
-            org.mozilla.jss.util.Password pass = new
-                    org.mozilla.jss.util.Password(
-                            pwd.toCharArray());
+            char[] pwdChars = pwd.toCharArray();
+            pass = new org.mozilla.jss.util.Password(
+                    pwdChars);
+
+            JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+            jssSubsystem.obscureChars(pwdChars);
+
 
             SEQUENCE safeContents = new SEQUENCE();
             PrivateKeyInfo pki = (PrivateKeyInfo)
@@ -735,13 +749,15 @@ public class RecoveryService implements IService {
                     ByteArrayOutputStream();
 
             pfx.encode(fos);
-            pass.clear();
 
             // put final PKCS12 into volatile request
             params.put(ATTR_PKCS12, fos.toByteArray());
         } catch (Exception e) {
             mKRA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_CONSTRUCT_P12", e.toString()));
             throw new EKRAException(CMS.getUserMessage("CMS_KRA_PKCS12_FAILED_1", e.toString()));
+        } finally {
+            if(pass != null)
+                pass.clear();
         }
 
         // update request

@@ -189,18 +189,28 @@ public class ConfigurationUtils {
         Password password = null;
         password = new Password(tokPwd.toCharArray());
 
-        if (token.passwordIsInitialized()) {
-            CMS.debug("loginToken():token password is initialized");
-            if (!token.isLoggedIn()) {
-                CMS.debug("loginToken():Token is not logged in, try it");
-                token.login(password);
+        try {
+            if (token.passwordIsInitialized()) {
+                CMS.debug("loginToken():token password is initialized");
+                if (!token.isLoggedIn()) {
+                    CMS.debug("loginToken():Token is not logged in, try it");
+                    token.login(password);
+                } else {
+                    CMS.debug("loginToken():Token has already logged on");
+                }
             } else {
-                CMS.debug("loginToken():Token has already logged on");
+                CMS.debug("loginToken():Token password not initialized");
+                rv = false;
             }
-        } else {
-            CMS.debug("loginToken():Token password not initialized");
-            rv = false;
+
+        } catch (TokenException | IncorrectPasswordException e) {
+            throw e;
+        } finally {
+            if (password != null) {
+                password.clear();
+            }
         }
+
         return rv;
     }
 
@@ -849,74 +859,38 @@ public class ConfigurationUtils {
         StringBuffer reason = new StringBuffer();
         Password password = new Password(p12Pass.toCharArray());
 
-        PFX pfx = (PFX) (new PFX.Template()).decode(bis);
-        boolean verifypfx = pfx.verifyAuthSafes(password, reason);
+        try {
 
-        if (!verifypfx) {
-            throw new IOException("PKCS #12 password is incorrect");
-        }
+            PFX pfx = (PFX) (new PFX.Template()).decode(bis);
+            boolean verifypfx = pfx.verifyAuthSafes(password, reason);
 
-        AuthenticatedSafes safes = pfx.getAuthSafes();
-        Vector<Vector<Object>> pkeyinfo_collection = new Vector<Vector<Object>>();
-        Vector<Vector<Object>> cert_collection = new Vector<Vector<Object>>();
+            if (!verifypfx) {
+                throw new IOException("PKCS #12 password is incorrect");
+            }
 
-        CMS.debug("Importing PKCS #12 data");
+            AuthenticatedSafes safes = pfx.getAuthSafes();
+            Vector<Vector<Object>> pkeyinfo_collection = new Vector<Vector<Object>>();
+            Vector<Vector<Object>> cert_collection = new Vector<Vector<Object>>();
 
-        for (int i = 0; i < safes.getSize(); i++) {
+            CMS.debug("Importing PKCS #12 data");
 
-            CMS.debug("- Safe #" + i + ":");
-            SEQUENCE scontent = safes.getSafeContentsAt(null, i);
+            for (int i = 0; i < safes.getSize(); i++) {
 
-            for (int j = 0; j < scontent.size(); j++) {
+                CMS.debug("- Safe #" + i + ":");
+                SEQUENCE scontent = safes.getSafeContentsAt(null, i);
 
-                SafeBag bag = (SafeBag) scontent.elementAt(j);
-                OBJECT_IDENTIFIER oid = bag.getBagType();
+                for (int j = 0; j < scontent.size(); j++) {
 
-                if (oid.equals(SafeBag.PKCS8_SHROUDED_KEY_BAG)) {
+                    SafeBag bag = (SafeBag) scontent.elementAt(j);
+                    OBJECT_IDENTIFIER oid = bag.getBagType();
 
-                    CMS.debug("  - Bag #" + j + ": key");
-                    byte[] epki = bag.getBagContent().getEncoded();
+                    if (oid.equals(SafeBag.PKCS8_SHROUDED_KEY_BAG)) {
 
-                    SET bagAttrs = bag.getBagAttributes();
-                    String subjectDN = null;
+                        CMS.debug("  - Bag #" + j + ": key");
+                        byte[] epki = bag.getBagContent().getEncoded();
 
-                    for (int k = 0; k < bagAttrs.size(); k++) {
-
-                        Attribute attrs = (Attribute) bagAttrs.elementAt(k);
-                        OBJECT_IDENTIFIER aoid = attrs.getType();
-
-                        if (aoid.equals(SafeBag.FRIENDLY_NAME)) {
-                            SET val = attrs.getValues();
-                            ANY ss = (ANY) val.elementAt(0);
-
-                            ByteArrayInputStream bbis = new ByteArrayInputStream(ss.getEncoded());
-                            BMPString sss = (BMPString) new BMPString.Template().decode(bbis);
-                            subjectDN = sss.toString();
-                            CMS.debug("    Subject DN: " + subjectDN);
-                            break;
-                        }
-                    }
-
-                    // pkeyinfo_v stores EncryptedPrivateKeyInfo
-                    // (byte[]) and subject DN (String)
-                    Vector<Object> pkeyinfo_v = new Vector<Object>();
-                    pkeyinfo_v.addElement(epki);
-                    if (subjectDN != null)
-                        pkeyinfo_v.addElement(subjectDN);
-
-                    pkeyinfo_collection.addElement(pkeyinfo_v);
-
-                } else if (oid.equals(SafeBag.CERT_BAG)) {
-
-                    CMS.debug("  - Bag #" + j + ": certificate");
-                    CertBag cbag = (CertBag) bag.getInterpretedBagContent();
-                    OCTET_STRING str = (OCTET_STRING) cbag.getInterpretedCert();
-                    byte[] x509cert = str.toByteArray();
-
-                    SET bagAttrs = bag.getBagAttributes();
-                    String nickname = null;
-
-                    if (bagAttrs != null) {
+                        SET bagAttrs = bag.getBagAttributes();
+                        String subjectDN = null;
 
                         for (int k = 0; k < bagAttrs.size(); k++) {
 
@@ -928,38 +902,83 @@ public class ConfigurationUtils {
                                 ANY ss = (ANY) val.elementAt(0);
 
                                 ByteArrayInputStream bbis = new ByteArrayInputStream(ss.getEncoded());
-                                BMPString sss = (BMPString) (new BMPString.Template()).decode(bbis);
-                                nickname = sss.toString();
-                                CMS.debug("    Nickname: " + nickname);
+                                BMPString sss = (BMPString) new BMPString.Template().decode(bbis);
+                                subjectDN = sss.toString();
+                                CMS.debug("    Subject DN: " + subjectDN);
                                 break;
                             }
                         }
+
+                        // pkeyinfo_v stores EncryptedPrivateKeyInfo
+                        // (byte[]) and subject DN (String)
+                        Vector<Object> pkeyinfo_v = new Vector<Object>();
+                        pkeyinfo_v.addElement(epki);
+                        if (subjectDN != null)
+                            pkeyinfo_v.addElement(subjectDN);
+
+                        pkeyinfo_collection.addElement(pkeyinfo_v);
+
+                    } else if (oid.equals(SafeBag.CERT_BAG)) {
+
+                        CMS.debug("  - Bag #" + j + ": certificate");
+                        CertBag cbag = (CertBag) bag.getInterpretedBagContent();
+                        OCTET_STRING str = (OCTET_STRING) cbag.getInterpretedCert();
+                        byte[] x509cert = str.toByteArray();
+
+                        SET bagAttrs = bag.getBagAttributes();
+                        String nickname = null;
+
+                        if (bagAttrs != null) {
+
+                            for (int k = 0; k < bagAttrs.size(); k++) {
+
+                                Attribute attrs = (Attribute) bagAttrs.elementAt(k);
+                                OBJECT_IDENTIFIER aoid = attrs.getType();
+
+                                if (aoid.equals(SafeBag.FRIENDLY_NAME)) {
+                                    SET val = attrs.getValues();
+                                    ANY ss = (ANY) val.elementAt(0);
+
+                                    ByteArrayInputStream bbis = new ByteArrayInputStream(ss.getEncoded());
+                                    BMPString sss = (BMPString) (new BMPString.Template()).decode(bbis);
+                                    nickname = sss.toString();
+                                    CMS.debug("    Nickname: " + nickname);
+                                    break;
+                                }
+                            }
+                        }
+
+                        X509CertImpl certImpl = new X509CertImpl(x509cert);
+                        CMS.debug("    Serial number: " + certImpl.getSerialNumber());
+
+                        try {
+                            certImpl.checkValidity();
+                            CMS.debug("    Status: valid");
+
+                        } catch (CertificateExpiredException | CertificateNotYetValidException e) {
+                            CMS.debug("    Status: " + e);
+                            continue;
+                        }
+
+                        // cert_v stores certificate (byte[]) and nickname (String)
+                        Vector<Object> cert_v = new Vector<Object>();
+                        cert_v.addElement(x509cert);
+                        if (nickname != null)
+                            cert_v.addElement(nickname);
+
+                        cert_collection.addElement(cert_v);
                     }
-
-                    X509CertImpl certImpl = new X509CertImpl(x509cert);
-                    CMS.debug("    Serial number: " + certImpl.getSerialNumber());
-
-                    try {
-                        certImpl.checkValidity();
-                        CMS.debug("    Status: valid");
-
-                    } catch (CertificateExpiredException | CertificateNotYetValidException e) {
-                        CMS.debug("    Status: " + e);
-                        continue;
-                    }
-
-                    // cert_v stores certificate (byte[]) and nickname (String)
-                    Vector<Object> cert_v = new Vector<Object>();
-                    cert_v.addElement(x509cert);
-                    if (nickname != null)
-                        cert_v.addElement(nickname);
-
-                    cert_collection.addElement(cert_v);
                 }
             }
-        }
 
-        importKeyCert(password, pkeyinfo_collection, cert_collection);
+            importKeyCert(password, pkeyinfo_collection, cert_collection);
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            if (password != null) {
+                password.clear();
+            }
+        }
     }
 
     public static void verifySystemCertificates() throws Exception {
@@ -3220,53 +3239,62 @@ public class ConfigurationUtils {
 
         Password pass = new org.mozilla.jss.util.Password(pwd.toCharArray());
 
-        PKCS12Util util = new PKCS12Util();
-        PKCS12 pkcs12 = new PKCS12();
+        try {
 
-        // load system certificate (with key but without chain)
-        while (st.hasMoreTokens()) {
+            PKCS12Util util = new PKCS12Util();
+            PKCS12 pkcs12 = new PKCS12();
 
-            String t = st.nextToken();
-            if (t.equals("sslserver"))
-                continue;
+            // load system certificate (with key but without chain)
+            while (st.hasMoreTokens()) {
 
-            String nickname = cs.getString("preop.cert." + t + ".nickname");
-            String modname = cs.getString("preop.module.token");
+                String t = st.nextToken();
+                if (t.equals("sslserver"))
+                    continue;
 
-            if (!CryptoUtil.isInternalToken(modname))
-                nickname = modname + ":" + nickname;
+                String nickname = cs.getString("preop.cert." + t + ".nickname");
+                String modname = cs.getString("preop.module.token");
 
-            util.loadCertFromNSS(pkcs12, nickname, true, false);
-        }
+                if (!CryptoUtil.isInternalToken(modname))
+                    nickname = modname + ":" + nickname;
 
-        // load CA certificates (without keys or chains)
-        for (X509Certificate caCert : cm.getCACerts()) {
-            util.loadCertFromNSS(pkcs12, caCert, false, false);
-        }
+                util.loadCertFromNSS(pkcs12, nickname, true, false);
+            }
 
-        PFX pfx = util.generatePFX(pkcs12, pass);
+            // load CA certificates (without keys or chains)
+            for (X509Certificate caCert : cm.getCACerts()) {
+                util.loadCertFromNSS(pkcs12, caCert, false, false);
+            }
 
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        pfx.encode(bos);
-        byte[] output = bos.toByteArray();
+            PFX pfx = util.generatePFX(pkcs12, pass);
 
-        cs.putString("preop.pkcs12", CryptoUtil.byte2string(output));
-        pass.clear();
-        cs.commit(false);
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            pfx.encode(bos);
+            byte[] output = bos.toByteArray();
 
-        if (fname != null) {
-            FileOutputStream fout = null;
-            try {
-                fout = new FileOutputStream(fname);
-                fout.write(output);
+            cs.putString("preop.pkcs12", CryptoUtil.byte2string(output));
+            cs.commit(false);
 
-            } catch (Exception e) {
-                throw new IOException("Failed to store keys in backup file " + e, e);
+            if (fname != null) {
+                FileOutputStream fout = null;
+                try {
+                    fout = new FileOutputStream(fname);
+                    fout.write(output);
 
-            } finally {
-                if (fout != null) {
-                    fout.close();
+                } catch (Exception e) {
+                    throw new IOException("Failed to store keys in backup file " + e, e);
+
+                } finally {
+                    if (fout != null) {
+                        fout.close();
+                    }
                 }
+            }
+
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            if (pass != null) {
+                pass.clear();
             }
         }
     }

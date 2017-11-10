@@ -213,8 +213,15 @@ public class GeneratePKIArchiveOptions {
                 new OCTET_STRING(ivps.getIV()));
 
         if (passphraseMode) {
+            char[] pwdChars = passphrase.toCharArray();
+            try {
             encoded = CryptoUtil.createEncodedPKIArchiveOptions(
-                    token, transportCert.getPublicKey(), passphrase, params, aid);
+                    token, transportCert.getPublicKey(), pwdChars, params, aid);
+            } catch (Exception e) {
+                throw e;
+            } finally {
+                CryptoUtil.obscureChars(pwdChars);
+            }
         } else {
             encoded = CryptoUtil.createEncodedPKIArchiveOptions(
                     token, transportCert.getPublicKey(), vek, params, aid);
