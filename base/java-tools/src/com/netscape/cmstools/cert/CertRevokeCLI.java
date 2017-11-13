@@ -153,7 +153,7 @@ public class CertRevokeCLI extends CLI {
                 if (error != null) {
                     System.out.println(error);
                 }
-                MainCLI.printMessage("Could not revoke certificate \"" + certID.toHexString());
+                MainCLI.printMessage("Could not revoke certificate \"" + certID.toHexString() + "\"");
             } else {
                 if (reason == RevocationReason.CERTIFICATE_HOLD) {
                     MainCLI.printMessage("Placed certificate \"" + certID.toHexString() + "\" on-hold");
