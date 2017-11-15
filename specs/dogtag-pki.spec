@@ -1,7 +1,7 @@
-%if 0%{?rhel} || 0%{?fedora} < 24
-%global with_python3 0
-%else
+%if 0%{?fedora} || 0%{?rhel} > 7
 %global with_python3 1
+%else
+%global with_python3 0
 %endif
 
 # Optionally fetch the release from the environment variable 'PKI_RELEASE'
@@ -14,13 +14,13 @@ Summary:          Dogtag Public Key Infrastructure (PKI) Suite
 Name:             dogtag-pki
 %if 0%{?rhel}
 Version:                10.5.1
-%define redhat_release  0
+%define redhat_release  1
 %define redhat_stage    0
 %define default_release %{redhat_release}.%{redhat_stage}
 #%define default_release %{redhat_release}
 %else
 Version:                10.5.1
-%define fedora_release  0
+%define fedora_release  1
 %define fedora_stage    0
 %define default_release %{fedora_release}.%{fedora_stage}
 #%define default_release %{fedora_release}
@@ -40,7 +40,7 @@ BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch:        noarch
 
 %define dogtag_pki_theme_version   %{version}
-%if 0%{?fedora} >= 27
+%if 0%{?fedora} >= 27 || 0%{?rhel} > 7
 %define esc_version                1.1.1
 %else
 %define esc_version                1.1.0
@@ -54,7 +54,7 @@ BuildArch:        noarch
 %endif
 %define pki_console_version        %{version}
 
-%if 0%{?fedora} >= 27
+%if 0%{?fedora} >= 27 || 0%{?rhel} > 7
 # Exclude 'aarch64' and 's390x' architectures since
 # 'esc' does not exist on these two platforms
 ExcludeArch: aarch64 s390x
@@ -158,9 +158,8 @@ rm -rf %{buildroot}
 %doc README
 
 %changelog
-* Mon Oct 30 2017 Dogtag Team <pki-devel@redhat.com> 10.5.1-0.0
-- dogtagpki Pagure Issue #2830 - CentOS build failures
-- Updated version number to 10.5.1-0.0
+* Thu Nov  2 2017 Dogtag Team <pki-devel@redhat.com> 10.5.1-1
+- Re-base Dogtag to 10.5.1
 
 * Thu Oct 19 2017 Dogtag Team <pki-devel@redhat.com> 10.5.0-1
 - Re-base Dogtag to 10.5.0

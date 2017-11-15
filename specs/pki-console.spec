@@ -7,13 +7,13 @@
 Name:             pki-console
 %if 0%{?rhel}
 Version:                10.5.1
-%define redhat_release  0
+%define redhat_release  1
 %define redhat_stage    0
 %define default_release %{redhat_release}.%{redhat_stage}
 #%define default_release %{redhat_release}
 %else
 Version:                10.5.1
-%define fedora_release  0
+%define fedora_release  1
 %define fedora_stage    0
 %define default_release %{fedora_release}.%{fedora_stage}
 #%define default_release %{fedora_release}
@@ -31,17 +31,12 @@ License:          GPLv2
 Group:            System Environment/Base
 
 # RESTEasy
-%if 0%{?rhel}
+%if 0%{?rhel} && 0%{?rhel} <= 7
 %define jaxrs_api_jar /usr/share/java/resteasy-base/jaxrs-api.jar
 %define resteasy_lib /usr/share/java/resteasy-base
 %else
-%if 0%{?fedora} >= 24
 %define jaxrs_api_jar /usr/share/java/jboss-jaxrs-2.0-api.jar
 %define resteasy_lib /usr/share/java/resteasy
-%else
-%define jaxrs_api_jar /usr/share/java/resteasy/jaxrs-api.jar
-%define resteasy_lib /usr/share/java/resteasy
-%endif
 %endif
 
 %bcond_without    javadoc
@@ -62,25 +57,13 @@ BuildRequires:    idm-console-framework >= 1.1.17-4
 BuildRequires:    java-1.8.0-openjdk-devel
 BuildRequires:    ldapjdk >= 4.19-5
 BuildRequires:    nspr-devel
-%if 0%{?rhel}
 BuildRequires:    nss-devel >= 3.28.3
-%else
-%if 0%{?fedora} >= 25
-BuildRequires:    nss-devel >= 3.28.3
-%else
-BuildRequires:    nss-devel >= 3.27.0
-%endif
-%endif
 BuildRequires:    junit
 BuildRequires:    jpackage-utils >= 1.7.5-10
-%if 0%{?rhel}
-BuildRequires:    jss >= 4.4.0-8
+%if 0%{?rhel} && 0%{?rhel} <= 7
+BuildRequires:    jss >= 4.4.0-10
 %else
-%if 0%{?fedora} >= 25
-BuildRequires:    jss >= 4.4.2-5
-%else
-BuildRequires:    jss >= 4.2.6-44
-%endif
+BuildRequires:    jss >= 4.4.2-7
 %endif
 BuildRequires:    pki-base-java >= %{pki_core_version}
 
@@ -90,14 +73,10 @@ Requires:         ldapjdk >= 4.19-5
 Requires:         pki-base-java >= %{pki_core_version}
 Requires:         pki-console-theme >= %{version}
 Requires:         jpackage-utils >= 1.7.5-10
-%if 0%{?rhel}
-Requires:         jss >= 4.4.0-8
+%if 0%{?rhel} && 0%{?rhel} <= 7
+Requires:         jss >= 4.4.0-10
 %else
-%if 0%{?fedora} >= 25
-Requires:         jss >= 4.4.2-5
-%else
-Requires:         jss >= 4.2.6-44
-%endif
+Requires:         jss >= 4.4.2-7
 %endif
 
 %if 0%{?rhel}
@@ -162,9 +141,8 @@ cd build
 
 
 %changelog
-* Mon Oct 30 2017 Dogtag Team <pki-devel@redhat.com> 10.5.1-0.0
-- dogtagpki Pagure Issue #2830 - CentOS build failures
-- Updated version number to 10.5.1-0.0
+* Thu Nov  2 2017 Dogtag Team <pki-devel@redhat.com> 10.5.1-1
+- Re-base Dogtag to 10.5.1
 
 * Thu Oct 19 2017 Dogtag Team <pki-devel@redhat.com> 10.5.0-1
 - Re-base Dogtag to 10.5.0

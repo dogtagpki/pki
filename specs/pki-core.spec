@@ -2,10 +2,10 @@
 %{!?__python2: %global __python2 /usr/bin/python2}
 %{!?python2_sitelib: %global python2_sitelib %(%{__python2} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")}
 
-%if 0%{?rhel} || 0%{?fedora} < 24
-%global with_python3 0
-%else
+%if 0%{?fedora} || 0%{?rhel} > 7
 %global with_python3 1
+%else
+%global with_python3 0
 %endif
 
 %if 0%{?rhel}
@@ -24,27 +24,21 @@
 %define java_home /usr/lib/jvm/jre-1.8.0-openjdk
 
 # Tomcat
-%if 0%{?fedora} >= 23
+%if 0%{?fedora} || 0%{?rhel} > 7
 %define with_tomcat7 0
 %define with_tomcat8 1
 %else
-# 0%{?rhel} || 0%{?fedora} <= 22
 %define with_tomcat7 1
 %define with_tomcat8 0
 %endif
 
 # RESTEasy
-%if 0%{?rhel}
+%if 0%{?rhel} && 0%{?rhel} <= 7
 %define jaxrs_api_jar /usr/share/java/resteasy-base/jaxrs-api.jar
 %define resteasy_lib /usr/share/java/resteasy-base
 %else
-%if 0%{?fedora} >= 24
 %define jaxrs_api_jar /usr/share/java/jboss-jaxrs-2.0-api.jar
 %define resteasy_lib /usr/share/java/resteasy
-%else
-%define jaxrs_api_jar /usr/share/java/resteasy/jaxrs-api.jar
-%define resteasy_lib /usr/share/java/resteasy
-%endif
 %endif
 
 # Dogtag
@@ -72,13 +66,13 @@
 Name:             pki-core
 %if 0%{?rhel}
 Version:                10.5.1
-%define redhat_release  0
+%define redhat_release  1
 %define redhat_stage    0
 %define default_release %{redhat_release}.%{redhat_stage}
 #%define default_release %{redhat_release}
 %else
 Version:                10.5.1
-%define fedora_release  0
+%define fedora_release  3
 %define fedora_stage    0
 %define default_release %{fedora_release}.%{fedora_stage}
 #%define default_release %{fedora_release}
@@ -109,21 +103,13 @@ BuildRequires:    apache-commons-io
 BuildRequires:    apache-commons-lang
 BuildRequires:    jakarta-commons-httpclient
 BuildRequires:    slf4j
-%if ! 0%{?rhel}
+%if 0%{?fedora} || 0%{?rhel} > 7
 BuildRequires:    slf4j-jdk14
 %endif
 BuildRequires:    nspr-devel
-%if 0%{?rhel}
 BuildRequires:    nss-devel >= 3.28.3
-%else
-%if 0%{?fedora} >= 25
-BuildRequires:    nss-devel >= 3.28.3
-%else
-BuildRequires:    nss-devel >= 3.27.0
-%endif
-%endif
 
-%if 0%{?rhel}
+%if 0%{?rhel} && 0%{?rhel} <= 7
 BuildRequires:    nuxwdog-client-java >= 1.0.1-11
 %else
 BuildRequires:    nuxwdog-client-java >= 1.0.3
@@ -138,10 +124,10 @@ BuildRequires:    velocity
 BuildRequires:    xalan-j2
 BuildRequires:    xerces-j2
 
-%if 0%{?rhel}
+%if 0%{?rhel} && 0%{?rhel} <= 7
 # 'resteasy-base' is a subset of the complete set of
 # 'resteasy' packages and consists of what is needed to
-# support the PKI Restful interface on RHEL platforms
+# support the PKI Restful interface on certain RHEL platforms
 BuildRequires:    resteasy-base-atom-provider >= 3.0.6-1
 BuildRequires:    resteasy-base-client >= 3.0.6-1
 BuildRequires:    resteasy-base-jaxb-provider >= 3.0.6-1
@@ -149,7 +135,6 @@ BuildRequires:    resteasy-base-jaxrs >= 3.0.6-1
 BuildRequires:    resteasy-base-jaxrs-api >= 3.0.6-1
 BuildRequires:    resteasy-base-jackson-provider >= 3.0.6-1
 %else
-%if 0%{?fedora} >= 24
 BuildRequires:    jboss-annotations-1.2-api
 BuildRequires:    jboss-jaxrs-2.0-api
 BuildRequires:    jboss-logging
@@ -158,35 +143,16 @@ BuildRequires:    resteasy-client >= 3.0.17-1
 BuildRequires:    resteasy-jaxb-provider >= 3.0.17-1
 BuildRequires:    resteasy-core >= 3.0.17-1
 BuildRequires:    resteasy-jackson-provider >= 3.0.17-1
-%else
-%if 0%{?fedora} >= 22
-# Starting from Fedora 22, resteasy packages were split into
-# subpackages.
-BuildRequires:    resteasy-atom-provider >= 3.0.6-7
-BuildRequires:    resteasy-client >= 3.0.6-7
-BuildRequires:    resteasy-jaxb-provider >= 3.0.6-7
-BuildRequires:    resteasy-core >= 3.0.6-7
-BuildRequires:    resteasy-jaxrs-api >= 3.0.6-7
-BuildRequires:    resteasy-jackson-provider >= 3.0.6-7
-%else
-BuildRequires:    resteasy >= 3.0.6-2
-%endif
-%endif
 %endif
 
-%if ! 0%{?rhel}
+%if 0%{?fedora} || 0%{?rhel} > 7
 BuildRequires:    pylint
-%if 0%{?fedora} >= 24
 BuildRequires:    python-flake8 >= 2.5.4
 BuildRequires:    python3-flake8 >= 2.5.4
 # python-flake8 2.5.4 package should require pyflakes >= 1.2.3
 BuildRequires:    pyflakes >= 1.2.3
 # python3-flake8 2.5.4 package should require python3-pyflakes >= 1.2.3
 BuildRequires:    python3-pyflakes >= 1.2.3
-%else
-BuildRequires:    python-flake8
-BuildRequires:    python3-flake8
-%endif
 %endif
 
 BuildRequires:    python2-cryptography
@@ -195,31 +161,20 @@ BuildRequires:    python-requests >= 2.6.0
 BuildRequires:    python-six
 BuildRequires:    libselinux-python
 BuildRequires:    policycoreutils-python
-%if 0%{?fedora} >= 23
+%if 0%{?fedora} || 0%{?rhel} > 7
 BuildRequires:    policycoreutils-python-utils
 %endif
 BuildRequires:    python-ldap
 BuildRequires:    junit
 BuildRequires:    jpackage-utils >= 0:1.7.5-10
-%if 0%{?rhel}
-BuildRequires:    jss >= 4.4.0-8
-%else
-%if 0%{?fedora} >= 25
-BuildRequires:    jss >= 4.4.2-5
-%else
-BuildRequires:    jss >= 4.2.6-44
-%endif
-%endif
-BuildRequires:    systemd-units
-%if 0%{?rhel}
+%if 0%{?rhel} && 0%{?rhel} <= 7
+BuildRequires:    jss >= 4.4.0-10
 BuildRequires:    tomcatjss >= 7.2.1-4
 %else
-%if 0%{?fedora} >= 25
+BuildRequires:    jss >= 4.4.2-7
 BuildRequires:    tomcatjss >= 7.2.3
-%else
-BuildRequires:    tomcatjss >= 7.1.3
 %endif
-%endif
+BuildRequires:    systemd-units
 
 %if 0%{?with_python3}
 BuildRequires:  python3-cryptography
@@ -252,6 +207,8 @@ Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{
 %else
 Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{release}/%{name}-%{version}%{?prerel}.tar.gz
 %endif
+
+#Patch0:           pki-core-post-10.5.1-1.patch
 
 # Obtain version phase number (e. g. - used by "alpha", "beta", etc.)
 #
@@ -350,31 +307,19 @@ Summary:          Symmetric Key JNI Package
 Group:            System Environment/Libraries
 
 Requires:         java-1.8.0-openjdk-headless
-%if 0%{?rhel}
-Requires:         nss >= 3.28.3
-%else
-%if 0%{?fedora} >= 25
-Requires:         nss >= 3.28.3
-%else
-Requires:         nss >= 3.27.0
-%endif
-%endif
 Requires:         jpackage-utils >= 0:1.7.5-10
-%if 0%{?rhel}
-Requires:         jss >= 4.4.0-8
+%if 0%{?rhel} && 0%{?rhel} <= 7
+Requires:         jss >= 4.4.0-10
 %else
-%if 0%{?fedora} >= 25
-Requires:         jss >= 4.4.2-5
-%else
-Requires:         jss >= 4.2.6-44
+Requires:         jss >= 4.4.2-7
 %endif
-%endif
+Requires:         nss >= 3.28.3
 
 Provides:         symkey = %{version}-%{release}
 
 Obsoletes:        symkey < %{version}-%{release}
 
-%if 0%{?rhel}
+%if 0%{?rhel} && 0%{?rhel} <= 7
 ## Because RHCS 9.0 does not run on RHEL 7.3+, obsolete all
 ## RHCS 9.0 packages that can be replaced by RHCS 9.1 packages:
 # pki-console
@@ -415,15 +360,7 @@ Obsoletes:        pki-util < %{version}-%{release}
 
 Conflicts:        freeipa-server < 3.0.0
 
-%if 0%{?rhel}
 Requires:         nss >= 3.28.3
-%else
-%if 0%{?fedora} >= 25
-Requires:         nss >= 3.28.3
-%else
-Requires:         nss >= 3.27.0
-%endif
-%endif
 Requires:         python2-cryptography
 Requires:         python-nss
 Requires:         python-requests >= 2.6.0
@@ -449,27 +386,23 @@ Requires:         apache-commons-lang
 Requires:         apache-commons-logging
 Requires:         jakarta-commons-httpclient
 Requires:         slf4j
-%if ! 0%{?rhel}
+%if 0%{?fedora} || 0%{?rhel} > 7
 Requires:         slf4j-jdk14
 %endif
 Requires:         javassist
 Requires:         jpackage-utils >= 0:1.7.5-10
-%if 0%{?rhel}
-Requires:         jss >= 4.4.0-8
+%if 0%{?rhel} && 0%{?rhel} <= 7
+Requires:         jss >= 4.4.0-10
 %else
-%if 0%{?fedora} >= 25
-Requires:         jss >= 4.4.2-5
-%else
-Requires:         jss >= 4.2.6-44
-%endif
+Requires:         jss >= 4.4.2-7
 %endif
 Requires:         ldapjdk >= 4.19-5
 Requires:         pki-base = %{version}-%{release}
 
-%if 0%{?rhel}
+%if 0%{?rhel} && 0%{?rhel} <= 7
 # 'resteasy-base' is a subset of the complete set of
 # 'resteasy' packages and consists of what is needed to
-# support the PKI Restful interface on RHEL platforms
+# support the PKI Restful interface on certain RHEL platforms
 Requires:    resteasy-base-atom-provider >= 3.0.6-1
 Requires:    resteasy-base-client >= 3.0.6-1
 Requires:    resteasy-base-jaxb-provider >= 3.0.6-1
@@ -477,26 +410,11 @@ Requires:    resteasy-base-jaxrs >= 3.0.6-1
 Requires:    resteasy-base-jaxrs-api >= 3.0.6-1
 Requires:    resteasy-base-jackson-provider >= 3.0.6-1
 %else
-%if 0%{?fedora} >= 24
 Requires:    resteasy-atom-provider >= 3.0.17-1
 Requires:    resteasy-client >= 3.0.17-1
 Requires:    resteasy-jaxb-provider >= 3.0.17-1
 Requires:    resteasy-core >= 3.0.17-1
 Requires:    resteasy-jackson-provider >= 3.0.17-1
-%else
-%if 0%{?fedora} >= 22
-# Starting from Fedora 22, resteasy packages were split into
-# subpackages.
-Requires:    resteasy-atom-provider >= 3.0.6-7
-Requires:    resteasy-client >= 3.0.6-7
-Requires:    resteasy-jaxb-provider >= 3.0.6-7
-Requires:    resteasy-core >= 3.0.6-7
-Requires:    resteasy-jaxrs-api >= 3.0.6-7
-Requires:    resteasy-jackson-provider >= 3.0.6-7
-%else
-Requires:         resteasy >= 3.0.6-2
-%endif
-%endif
 %endif
 
 Requires:         xalan-j2
@@ -549,25 +467,13 @@ Obsoletes:        pki-native-tools < %{version}-%{release}
 Obsoletes:        pki-java-tools < %{version}-%{release}
 
 Requires:         openldap-clients
-%if 0%{?rhel}
 Requires:         nss-tools >= 3.28.3
-%else
-%if 0%{?fedora} >= 25
-Requires:         nss-tools >= 3.28.3
-%else
-Requires:         nss-tools >= 3.27.0
-%endif
-%endif
 Requires:         java-1.8.0-openjdk-headless
 Requires:         pki-base = %{version}-%{release}
 Requires:         pki-base-java = %{version}-%{release}
 Requires:         jpackage-utils >= 0:1.7.5-10
-%if 0%{?fedora} >= 23
+%if 0%{?fedora} || 0%{?rhel} > 7
 Requires:         tomcat-servlet-3.1-api
-%else
-%if 0%{?fedora} >= 22
-Requires:         tomcat-servlet-3.0-api >= 7.0.68
-%endif
 %endif
 
 %description -n   pki-tools
@@ -599,7 +505,7 @@ Requires:         java-1.8.0-openjdk-headless
 Requires:         hostname
 Requires:         net-tools
 
-%if 0%{?rhel}
+%if 0%{?rhel} && 0%{?rhel} <= 7
 Requires:    nuxwdog-client-java >= 1.0.1-11
 %else
 Requires:    nuxwdog-client-java >= 1.0.3
@@ -616,26 +522,20 @@ Requires:         python-ldap
 Requires:         python-lxml
 Requires:         libselinux-python
 Requires:         policycoreutils-python
-%if 0%{?fedora} >= 23
+%if 0%{?fedora} || 0%{?rhel} > 7
 Requires:         policycoreutils-python-utils
 %endif
 
 Requires:         selinux-policy-targeted >= 3.13.1-159
 Obsoletes:        pki-selinux
 
-%if 0%{?rhel}
+%if 0%{?rhel} && 0%{?rhel} <= 7
 Requires:         tomcat >= 7.0.69
 %else
 Requires:         tomcat >= 7.0.68
-%if 0%{?fedora} >= 23
 Requires:         tomcat-el-3.0-api
 Requires:         tomcat-jsp-2.3-api
 Requires:         tomcat-servlet-3.1-api
-%else
-Requires:         tomcat-el-2.2-api >= 7.0.68
-Requires:         tomcat-jsp-2.2-api >= 7.0.68
-Requires:         tomcat-servlet-3.0-api >= 7.0.68
-%endif
 %endif
 
 Requires:         velocity
@@ -643,17 +543,13 @@ Requires(post):   systemd-units
 Requires(preun):  systemd-units
 Requires(postun): systemd-units
 Requires(pre):    shadow-utils
-%if 0%{?rhel}
+%if 0%{?rhel} && 0%{?rhel} <= 7
 Requires:         tomcatjss >= 7.2.1-4
 %else
-%if 0%{?fedora} >= 25
 Requires:         tomcatjss >= 7.2.3
-%else
-Requires:         tomcatjss >= 7.1.3
-%endif
 %endif
 
-%if 0%{?rhel}
+%if 0%{?rhel} && 0%{?rhel} <= 7
 ## Because RHCS 9.0 does not run on RHEL 7.3+, obsolete all
 ## RHCS 9.0 packages that can be replaced by RHCS 9.1 packages:
 # pki-console
@@ -851,15 +747,7 @@ Requires(postun): systemd-units
 # additional runtime requirements needed to run native 'tpsclient'
 # REMINDER:  Revisit these once 'tpsclient' is rewritten as a Java app
 
-%if 0%{?rhel}
 Requires:         nss-tools >= 3.28.3
-%else
-%if 0%{?fedora} >= 25
-Requires:         nss-tools >= 3.28.3
-%else
-Requires:         nss-tools >= 3.27.0
-%endif
-%endif
 Requires:         openldap-clients
 %if 0%{?package_fedora_packages} || 0%{?package_rhel_packages}
 Requires:         pki-symkey = %{version}-%{release}
@@ -917,6 +805,7 @@ This package is a part of the PKI Core used by the Certificate System.
 
 %prep
 %setup -q -n %{name}-%{version}%{?prerel}
+#%patch0 -p1
 
 %clean
 %{__rm} -rf %{buildroot}
@@ -974,7 +863,7 @@ ln -s %{_datadir}/pki/java-tools/KRATool.cfg %{buildroot}%{_datadir}/pki/java-to
 ln -s %{_mandir}/man1/KRATool.1.gz %{buildroot}%{_mandir}/man1/DRMTool.1.gz
 
 # Customize system upgrade scripts in /usr/share/pki/upgrade
-%if 0%{?rhel}
+%if 0%{?rhel} && 0%{?rhel} <= 7
 
 # merge newer upgrade scripts into 10.3.3 for RHEL
 /bin/rm -rf %{buildroot}%{_datadir}/pki/upgrade/10.3.4
@@ -989,7 +878,7 @@ ln -s %{_mandir}/man1/KRATool.1.gz %{buildroot}%{_mandir}/man1/DRMTool.1.gz
 %endif
 
 # Customize client library links in /usr/share/pki/lib
-%if 0%{?fedora} >= 24
+%if 0%{?fedora} || 0%{?rhel} > 7
     rm -f %{buildroot}%{_datadir}/pki/lib/scannotation.jar
     rm -f %{buildroot}%{_datadir}/pki/lib/resteasy-jaxrs-api.jar
     rm -f %{buildroot}%{_datadir}/pki/lib/resteasy-jaxrs-jandex.jar
@@ -1015,7 +904,7 @@ fi
 %if %{with server}
 
 # Customize server upgrade scripts in /usr/share/pki/server/upgrade
-%if 0%{?rhel}
+%if 0%{?rhel} && 0%{?rhel} <= 7
 
 # merge newer upgrade scripts into 10.3.3 for RHEL
 mv %{buildroot}%{_datadir}/pki/server/upgrade/10.3.5/01-FixServerLibrary \
@@ -1041,7 +930,7 @@ mv %{buildroot}%{_datadir}/pki/server/upgrade/10.4.6/01-UpdateKeepAliveTimeout \
 %endif
 
 # Customize server library links in /usr/share/pki/server/common/lib
-%if 0%{?fedora} >= 24
+%if 0%{?fedora} || 0%{?rhel} > 7
     rm -f %{buildroot}%{_datadir}/pki/server/common/lib/scannotation.jar
     rm -f %{buildroot}%{_datadir}/pki/server/common/lib/resteasy-jaxrs-api.jar
     ln -sf %{jaxrs_api_jar} %{buildroot}%{_datadir}/pki/server/common/lib/jboss-jaxrs-2.0-api.jar
@@ -1069,7 +958,7 @@ fi
 
 %endif
 
-%if ! 0%{?rhel}
+%if 0%{?fedora} || 0%{?rhel} > 7
 # Scanning the python code with pylint.
 %{__python2} ../pylint-build-scan.py rpm --prefix %{buildroot}
 if [ $? -ne 0 ]; then
@@ -1104,7 +993,7 @@ fi
 %{__mkdir_p} %{buildroot}%{_localstatedir}/log/pki
 %{__mkdir_p} %{buildroot}%{_sharedstatedir}/pki
 
-%if ! 0%{?rhel}
+%if 0%{?fedora} || 0%{?rhel} > 7
 %pretrans -n pki-base -p <lua>
 function test(a)
     if posix.stat(a) then
@@ -1444,9 +1333,14 @@ fi
 %endif # %{with server}
 
 %changelog
-* Mon Oct 30 2017 Dogtag Team <pki-devel@redhat.com> 10.5.1-0.0
-- dogtagpki Pagure Issue #2830 - CentOS build failures
-- Updated version number to 10.5.1-0.0
+* Tue Nov 14 2017 Troy Dawson <tdawson@redhat.com> - 10.5.1-3
+- dogtagpki Pagure Issue #2853 - Cleanup spec file conditionals
+
+* Wed Nov  8 2017 Dogtag Team <pki-devel@redhat.com> 10.5.1-2
+- Patch applying check-ins since 10.5.1-1
+
+* Thu Nov  2 2017 Dogtag Team <pki-devel@redhat.com> 10.5.1-1
+- Re-base Dogtag to 10.5.1
 
 * Thu Oct 19 2017 Dogtag Team <pki-devel@redhat.com> 10.5.0-1
 - Re-base Dogtag to 10.5.0
