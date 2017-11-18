@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3bfc3d1b_6582fb44",
+        "filename": "base/server/cms/src/com/netscape/cms/authentication/SharedSecret.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 343,
+      "author": {
+        "id": 1010256
+      },
+      "writtenOn": "2017-11-18T00:42:00Z",
+      "side": 1,
+      "message": "Why made a copy of the original decryptShrTokData method?  Why not just edit the three lines to return char[] instead of String?",
+      "revId": "25919d71e0f746287c6d09e726b52586266a7e17",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c836b4a0_f1a73703",
+        "filename": "base/server/cms/src/com/netscape/cms/profile/common/EnrollProfile.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1358,
+      "author": {
+        "id": 1010256
+      },
+      "writtenOn": "2017-11-18T00:42:00Z",
+      "side": 1,
+      "message": "Shouldn\u0027t this check verifyBytes instead of ident_string !\u003dnull?",
+      "revId": "25919d71e0f746287c6d09e726b52586266a7e17",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "002fb126_9e058753",
+        "filename": "base/server/cms/src/com/netscape/cms/servlet/csadmin/ConfigurationUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 1010256
+      },
+      "writtenOn": "2017-11-18T00:42:00Z",
+      "side": 1,
+      "message": "tokPwd and the callers to loginToken and above would need some surgery too... next phase?",
+      "revId": "25919d71e0f746287c6d09e726b52586266a7e17",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
