@@ -1,0 +1,4 @@
+ocsppki_https_port: '22443'
+ocsppki_http_port: '22080'
+ocsppki_ajp_port: '22009'
+ocsppki_tomcat_server_port: '22005'

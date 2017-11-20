@@ -1,0 +1,4 @@
+capki_https_port: '20443'
+capki_http_port: '20080'
+capki_ajp_port: '20009'
+capki_tomcat_port: '20005'

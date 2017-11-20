@@ -1,0 +1,47 @@
+- name : Create different ldap files for ca,kra,ocsp,tks and tps.
+  shell : for i in kra ocsp tks tps ;do cp /tmp/test_dir/ldap.cfg /tmp/test_dir/ldap_$i.cfg ; sed -i "s/testingmaster/$i-testingmaster/" /tmp/test_dir/ldap_$i.cfg; done
+  when: topology  == "topology-05"
+
+- name : Conditional check before replacing values in ldap.cfg file.
+  replace: dest={{item}} regexp="3389" replace={{ldapkraServerPort}}
+  with_items:
+  - /tmp/test_dir/ldap_kra.cfg
+  - /tmp/test_dir/kra.cfg
+  when: topology  == "topology-05"
+
+- name : Conditional check before replacing values in ldap.cfg file.
+  replace: dest={{item}} regexp="3389" replace={{ldapocspServerPort}}
+  with_items:
+  - /tmp/test_dir/ldap_ocsp.cfg
+  - /tmp/test_dir/ocsp.cfg
+  when: topology  == "topology-05"
+
+- name : Conditional check before replacing values in ldap.cfg file.
+  replace: dest={{item}} regexp="3389" replace={{ldaptksServerPort}}
+  with_items:
+  - /tmp/test_dir/ldap_tks.cfg
+  - /tmp/test_dir/tks.cfg
+  when: topology  == "topology-05"
+
+- name : Conditional check before replacing values in ldap.cfg file.
+  replace: dest={{item}} regexp="3389" replace={{ldaptpsServerPort}}
+  with_items:
+  - /tmp/test_dir/ldap_tps.cfg
+  - /tmp/test_dir/tps.cfg
+  when: topology  == "topology-05"
+
+- name: Replace  Ldap server port in all configuration files
+  replace: dest=/tmp/test_dir/constants.py regexp="ldapkraServerPort" replace={{ldapkraServerPort}}
+  when: topology  == "topology-05"
+
+- name: Replace  Ldap server port in all configuration files
+  replace: dest=/tmp/test_dir/constants.py regexp="ldapocspServerPort" replace={{ldapocspServerPort}}
+  when: topology  == "topology-05"
+
+- name: Replace  Ldap server port in all configuration files
+  replace: dest=/tmp/test_dir/constants.py regexp="ldaptksServerPort" replace={{ldaptksServerPort}}
+  when: topology  == "topology-05"
+
+- name: Replace  Ldap server port in all configuration files
+  replace: dest=/tmp/test_dir/constants.py regexp="ldaptpsServerPort" replace={{ldaptpsServerPort}}
+  when: topology  == "topology-05"

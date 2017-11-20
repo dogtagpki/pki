@@ -1,0 +1,4 @@
+tpspki_https_port: '25443'
+tpspki_http_port: '25080'
+tpspki_ajp_port: '25009'
+tpspki_tomcat_server_port: '25005'

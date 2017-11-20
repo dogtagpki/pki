@@ -1,0 +1,17 @@
+- name: sleep
+  shell: sleep 5s
+  
+- name: Install OCSP master
+  shell: pkispawn -s OCSP -f /tmp/test_dir/ocsp.cfg
+
+- name : Stopping OCSP Subsystem
+  shell: echo "Stopping Subsystem for enabling Audit logging"
+  notify:
+    - STOPOCSP
+
+- name: Enable SignedAudit
+  replace: dest=/etc/pki/{{ topology }}-OCSP/ocsp/CS.cfg regexp="log.instance.SignedAudit.logSigning=false" replace="log.instance.SignedAudit.logSigning=true"
+  notify:
+    - STARTOCSP
+
+- meta: flush_handlers

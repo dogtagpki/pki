@@ -1,0 +1,54 @@
+- name: STOPCA
+  service:
+    name: pki-tomcatd@{{ topology }}-CA
+    state: stopped
+
+- name: STARTCA
+  service:
+    name: pki-tomcatd@{{ topology }}-CA
+    state: started
+
+- name: STOPKRA
+  service:
+    name: pki-tomcatd@{{ topology }}-KRA
+    state: stopped
+
+- name: STARTKRA
+  service:
+    name: pki-tomcatd@{{ topology }}-KRA
+    state: started
+
+- name: STOPOCSP
+  service:
+    name: pki-tomcatd@{{ topology }}-OCSP
+    state: stopped
+
+- name: STARTOCSP
+  service:
+    name: pki-tomcatd@{{ topology }}-OCSP
+    state: started
+
+- name: STOPTKS
+  service:
+    name: pki-tomcatd@{{ topology }}-TKS
+    state: stopped
+
+- name: STARTTKS
+  service:
+    name: pki-tomcatd@{{ topology }}-TKS
+    state: started
+
+- name: STOPTPS
+  service:
+    name: pki-tomcatd@{{ topology }}-TPS
+    state: stopped
+
+- name: STARTTPS
+  service:
+    name: pki-tomcatd@{{ topology }}-TPS
+    state: started
+
+- name: INC_CONSTANTS
+  include_vars:
+    file: /tmp/test_dir/constants.yml
+    name: variable

@@ -1,0 +1,4 @@
+tkspki_https_port: '23443'
+tkspki_http_port: '23080'
+tkspki_ajp_port: '23009'
+tkspki_tomcat_server_port: '23005'

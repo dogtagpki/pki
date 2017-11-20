@@ -1,0 +1,14 @@
+- name: Install CA master
+  shell: pkispawn -s CA -f /tmp/test_dir/ca.cfg
+
+- name: Install KRA master
+  shell: pkispawn -s KRA -f /tmp/test_dir/kra.cfg
+
+- name: Install OCSP master
+  shell: pkispawn -s OCSP -f /tmp/test_dir/ocsp.cfg
+
+- name: Install TKS master
+  shell: pkispawn -s TKS -f /tmp/test_dir/tks.cfg
+
+- name: Install TPS master
+  shell: pkispawn -s TPS -f /tmp/test_dir/tps.cfg
