@@ -1,0 +1,25 @@
+
+- name: Replace CA specific changes 
+  replace: dest={{item}} regexp="capki_https_port" replace={{capki_https_port}}
+  with_items:
+  - /tmp/test_dir/ca.cfg
+  - /tmp/test_dir/constants.py
+
+- name: Replace http port for CA.
+  replace: dest={{item}} regexp="capki_http_port" replace={{capki_http_port}}
+  with_items:
+  - /tmp/test_dir/ca.cfg
+  - /tmp/test_dir/constants.py
+
+- name: Replace ajp port for CA
+  replace: dest={{item}} regexp="capki_ajp_port" replace={{capki_ajp_port}}
+  with_items:
+  - /tmp/test_dir/ca.cfg
+  - /tmp/test_dir/constants.py
+
+- name : Replace tomcat port for CA
+  replace: dest={{item}} regexp="capki_tomcat_port" replace={{capki_tomcat_port}}
+  with_items:
+  - /tmp/test_dir/ca.cfg
+  - /tmp/test_dir/constants.py
+

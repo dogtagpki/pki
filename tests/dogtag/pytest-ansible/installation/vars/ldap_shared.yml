@@ -1,0 +1,3 @@
+ldapServerPort: '2389'
+ldapRootDN: CN=Directory Manager
+ldapRootDNPwd: Secret123

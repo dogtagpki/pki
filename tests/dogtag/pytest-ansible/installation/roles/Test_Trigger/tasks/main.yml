@@ -1,0 +1,15 @@
+---
+- include: configure_common.yml
+  when: topology  == "topology-01" or topology == "topology-02" or topology == "topology-03" or topology == "topology-04" or topology == "topology-05" or topology == "topology-ecc"
+- include: configure_ca.yml
+  when: topology  == "topology-01" or topology == "topology-02" or topology == "topology-03" or topology == "topology-04" or topology  == "topology-05" or topology == "topology-ecc"
+- include: configure_ldap.yml
+  when: topology  == "topology-05"
+- include: configure_kra.yml
+  when: topology  == "topology-01" or topology == "topology-02" or topology == "topology-03" or topology == "topology-04" or topology  == "topology-05" or topology == "topology-ecc"
+- include: configure_ocsp.yml
+  when: topology  == "topology-01" or topology == "topology-02" or topology == "topology-03" or topology  == "topology-05" or topology == "topology-ecc"
+- include: configure_tks.yml 
+  when: topology  == "topology-01" or topology == "topology-02" or topology == "topology-03" or topology == "topology-04" or topology  == "topology-05"
+- include: configure_tps.yml
+  when: topology  == "topology-01" or topology == "topology-02" or topology == "topology-03" or topology == "topology-04" or topology  == "topology-05"

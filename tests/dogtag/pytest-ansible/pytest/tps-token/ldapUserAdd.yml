@@ -1,0 +1,35 @@
+- hosts: master
+  gather_facts: true
+
+  tasks:
+    - name: Making constants.py file compatable for including as vars.
+      shell: sed -e "s/ =/:/g;s/'//g" /tmp/test_dir/constants.py > /tmp/test_dir/constants.yml
+
+    - name: Fetch the file
+      fetch: src=/tmp/test_dir/constants.yml dest=/tmp/test_dir flat=yes validate_checksum=no
+
+    - name: Including variables from Environment
+      include_vars:
+         file: /tmp/test_dir/constants.yml
+         name: variable
+
+    - name: Gather facts
+      set_fact: 
+         var: "{{ inventory_hostname }}"
+         userPasswd: "{{ variable.LDAP_PASSWD }}"
+
+    - name: Get rid of an old entry
+      ldap_entry:
+        dn: uid={{ variable.LDAP_USER }},ou=People,dc=example,dc=org
+        objectClass:
+           - top
+           - person
+           - inetOrgPerson
+           - organizationalRole
+        params:
+           cn: "{{ variable.LDAP_USER }}"
+           sn: "{{ variable.LDAP_USER }}"
+           userPassword: "{{ variable.LDAP_PASSWD }}"
+        server_uri: ldap://{{ inventory_hostname }}:{{ variable.LDAP_PORT }}
+        bind_dn: cn=Directory Manager
+        bind_pw: "{{ variable.LDAP_PASSWD }}"

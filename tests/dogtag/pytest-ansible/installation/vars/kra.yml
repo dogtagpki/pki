@@ -1,0 +1,4 @@
+krapki_https_port: '21443'
+krapki_http_port: '21080'
+krapki_ajp_port: '21009'
+krapki_tomcat_server_port: '21005'

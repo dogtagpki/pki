@@ -1,0 +1,20 @@
+
+- name: Setup DS Service
+  shell: setup-ds.pl --silent --file=/tmp/test_dir/ldap.cfg
+  when: topology  == "topology-01" or topology == "topology-02" or topology == "topology-03" or topology == "topology-04" or topology  == "topology-05" or topology == "topology-ecc"
+
+- name: Setup DS Service
+  shell: setup-ds.pl --silent --file=/tmp/test_dir/ldap_kra.cfg
+  when: topology  == "topology-05"
+
+- name: Setup DS Service
+  shell: setup-ds.pl --silent --file=/tmp/test_dir/ldap_ocsp.cfg
+  when: topology  == "topology-05"
+
+- name: Setup DS Service
+  shell: setup-ds.pl --silent --file=/tmp/test_dir/ldap_tks.cfg
+  when: topology  == "topology-05"
+
+- name: Setup DS Service
+  shell: setup-ds.pl --silent --file=/tmp/test_dir/ldap_tps.cfg
+  when: topology  == "topology-05"

@@ -1,0 +1,39 @@
+- name: Replace TPS specific changes 
+  replace: dest={{item}} regexp="tpspki_https_port" replace={{tpspki_https_port}}
+  with_items:
+  - /tmp/test_dir/tps.cfg
+  - /tmp/test_dir/constants.py
+
+- name: Replace http port for TPS.
+  replace: dest={{item}} regexp="tpspki_http_port" replace={{tpspki_http_port}}
+  with_items:
+  - /tmp/test_dir/tps.cfg
+  - /tmp/test_dir/constants.py
+
+- name: Replace ajp port for TPS
+  replace: dest={{item}} regexp="tpspki_ajp_port" replace={{tpspki_ajp_port}}
+  with_items:
+  - /tmp/test_dir/tps.cfg
+  - /tmp/test_dir/constants.py
+
+- name : Replace tomcat port for TPS
+  replace: dest={{item}} regexp="tpspki_tomcat_server_port" replace={{tpspki_tomcat_server_port}}
+  with_items:
+  - /tmp/test_dir/tps.cfg
+  - /tmp/test_dir/constants.py
+
+- name : Replace tomcat port for TPS
+  replace: dest={{item}} regexp="secure_domain_port" replace={{capki_https_port}}
+  with_items:
+  - /tmp/test_dir/tps.cfg
+  - /tmp/test_dir/constants.py
+
+- name : Replace ca uri for TPS
+  replace: dest=/tmp/test_dir/tps.cfg regexp="capki_https_port" replace={{capki_https_port}}
+
+- name : Replace kra uri for TPS
+  replace: dest=/tmp/test_dir/tps.cfg regexp="krapki_https_port" replace={{krapki_https_port}}
+
+- name : Replace tks uri for TPS
+  replace: dest=/tmp/test_dir/tps.cfg regexp="tkspki_https_port" replace={{tkspki_https_port}}
+
