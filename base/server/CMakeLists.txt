@@ -117,7 +117,7 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/lib/java/jss4.jar common/lib/jss4.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/share/java/ldapjdk.jar common/lib/ldapjdk.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/lib/java/nuxwdog.jar common/lib/nuxwdog.jar
-    COMMAND /usr/bin/ln -sf /usr/share/java/pki/pki-tomcat.jar ${CMAKE_CURRENT_BINARY_DIR}/common/lib/pki-tomcat.jar
+    COMMAND /bin/ln -sf /usr/share/java/pki/pki-tomcat.jar ${CMAKE_CURRENT_BINARY_DIR}/common/lib/pki-tomcat.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${RESTEASY_LIB}/resteasy-atom-provider.jar common/lib/resteasy-atom-provider.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${RESTEASY_LIB}/resteasy-client.jar common/lib/resteasy-client.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${RESTEASY_LIB}/resteasy-jackson-provider.jar common/lib/resteasy-jackson-provider.jar
@@ -127,7 +127,7 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/share/java/scannotation.jar common/lib/scannotation.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${SLF4J_API_JAR} common/lib/slf4j-api.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${SLF4J_JDK14_JAR} common/lib/slf4j-jdk14.jar
-    COMMAND /usr/bin/ln -sf /usr/lib/java/symkey.jar ${CMAKE_CURRENT_BINARY_DIR}/common/lib/symkey.jar
+    COMMAND /bin/ln -sf /usr/lib/java/symkey.jar ${CMAKE_CURRENT_BINARY_DIR}/common/lib/symkey.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/share/java/tomcatjss.jar common/lib/tomcatjss.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/share/java/velocity.jar common/lib/velocity.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/share/java/xerces-j2.jar common/lib/xerces-j2.jar
@@ -142,12 +142,12 @@ add_custom_target(pki-server-webapp-lib ALL)
 add_custom_command(
     TARGET pki-server-webapp-lib
     COMMAND ${CMAKE_COMMAND} -E make_directory webapp/lib
-    COMMAND /usr/bin/ln -sf /usr/share/java/pki/pki-nsutil.jar ${CMAKE_CURRENT_BINARY_DIR}/webapp/lib/pki-nsutil.jar
-    COMMAND /usr/bin/ln -sf /usr/share/java/pki/pki-cmsutil.jar ${CMAKE_CURRENT_BINARY_DIR}/webapp/lib/pki-cmsutil.jar
-    COMMAND /usr/bin/ln -sf /usr/share/java/pki/pki-certsrv.jar ${CMAKE_CURRENT_BINARY_DIR}/webapp/lib/pki-certsrv.jar
-    COMMAND /usr/bin/ln -sf /usr/share/java/pki/pki-cms.jar ${CMAKE_CURRENT_BINARY_DIR}/webapp/lib/pki-cms.jar
-    COMMAND /usr/bin/ln -sf /usr/share/java/pki/pki-cmscore.jar ${CMAKE_CURRENT_BINARY_DIR}/webapp/lib/pki-cmscore.jar
-    COMMAND /usr/bin/ln -sf /usr/share/java/pki/pki-cmsbundle.jar ${CMAKE_CURRENT_BINARY_DIR}/webapp/lib/pki-cmsbundle.jar
+    COMMAND /bin/ln -sf /usr/share/java/pki/pki-nsutil.jar ${CMAKE_CURRENT_BINARY_DIR}/webapp/lib/pki-nsutil.jar
+    COMMAND /bin/ln -sf /usr/share/java/pki/pki-cmsutil.jar ${CMAKE_CURRENT_BINARY_DIR}/webapp/lib/pki-cmsutil.jar
+    COMMAND /bin/ln -sf /usr/share/java/pki/pki-certsrv.jar ${CMAKE_CURRENT_BINARY_DIR}/webapp/lib/pki-certsrv.jar
+    COMMAND /bin/ln -sf /usr/share/java/pki/pki-cms.jar ${CMAKE_CURRENT_BINARY_DIR}/webapp/lib/pki-cms.jar
+    COMMAND /bin/ln -sf /usr/share/java/pki/pki-cmscore.jar ${CMAKE_CURRENT_BINARY_DIR}/webapp/lib/pki-cmscore.jar
+    COMMAND /bin/ln -sf /usr/share/java/pki/pki-cmsbundle.jar ${CMAKE_CURRENT_BINARY_DIR}/webapp/lib/pki-cmsbundle.jar
 )
 
 install(

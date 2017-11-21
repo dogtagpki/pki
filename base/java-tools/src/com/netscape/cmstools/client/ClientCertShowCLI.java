@@ -193,7 +193,7 @@ public class ClientCertShowCLI extends CLI {
             String nickname) throws Exception {
 
         String[] command = {
-                "/bin/pk12util",
+                "/usr/bin/pk12util",
                 "-d", dbPath,
                 "-K", dbPassword,
                 "-o", pkcs12Path,
@@ -214,7 +214,7 @@ public class ClientCertShowCLI extends CLI {
             String certPath) throws Exception {
 
         String[] command = {
-                "/bin/openssl",
+                "/usr/bin/openssl",
                 "pkcs12",
                 "-clcerts", // certificate only
                 "-nokeys",
@@ -236,7 +236,7 @@ public class ClientCertShowCLI extends CLI {
             String privateKeyPath) throws Exception {
 
         String[] command = {
-                "/bin/openssl",
+                "/usr/bin/openssl",
                 "pkcs12",
                 "-nocerts", // private key only
                 "-nodes",   // no encryption
@@ -258,7 +258,7 @@ public class ClientCertShowCLI extends CLI {
             String clientCertPath) throws Exception {
 
         String[] command = {
-                "/bin/openssl",
+                "/usr/bin/openssl",
                 "pkcs12",
                 "-clcerts", // client certificate and private key
                 "-nodes",   // no encryption
