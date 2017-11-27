@@ -439,6 +439,13 @@ Required for the second step of a stand-alone PKI process.  This is the location
 .IP
 [KRA ONLY] Required for the second step of a stand-alone KRA process.  This is the location of the file containing the transport certificate (as issued by the external CA).  Defaults to '%(pki_instance_configuration_path)s/kra_transport.cert'.
 
+.SS KRA PARAMETERS
+.BR
+.TP
+.B pki_kra_ephemeral_requests
+.IP
+Specifies to use ephemeral requests for archivals and retrievals.  Defaults to False.
+
 .SS TPS PARAMETERS
 .BR
 .TP

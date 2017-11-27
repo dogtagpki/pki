@@ -968,6 +968,15 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             subsystem.config['ca.defaultOcspUri'] = ocsp_uri
             subsystem.save()
 
+        # set ephemeral requests if needed
+        if subsystem.name == 'kra':
+            if config.str2bool(deployer.mdict['pki_kra_ephemeral_requests']):
+                config.pki_log.info(
+                    "setting ephemeral requests to true",
+                    extra=config.PKI_INDENTATION_LEVEL_1)
+                subsystem.config['kra.ephemeralRequests'] = 'true'
+                subsystem.save()
+
         token = deployer.mdict['pki_token_name']
         nssdb = instance.open_nssdb(token)
 
