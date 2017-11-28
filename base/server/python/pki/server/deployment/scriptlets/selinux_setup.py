@@ -83,7 +83,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     if deployer.mdict['pki_instance_name'] != \
                             config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_INSTANCE_NAME:
 
-                        fcon = seobject.fcontextRecords()
+                        fcon = seobject.fcontextRecords(trans)
 
                         config.pki_log.info(
                             "adding selinux fcontext \"%s\"",
@@ -121,7 +121,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                             deployer.mdict['pki_database_path'] + self.suffix,
                             config.PKI_CERTDB_SELINUX_CONTEXT, "", "s0", "")
 
-                        port_records = seobject.portRecords()
+                        port_records = seobject.portRecords(trans)
                         for port in ports:
                             config.pki_log.info(
                                 "adding selinux port %s", port,
@@ -176,7 +176,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     if deployer.mdict['pki_instance_name'] != \
                             config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_INSTANCE_NAME:
 
-                        fcon = seobject.fcontextRecords()
+                        fcon = seobject.fcontextRecords(trans)
 
                         config.pki_log.info(
                             "deleting selinux fcontext \"%s\"",
@@ -212,7 +212,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                             deployer.mdict['pki_database_path'] +
                             self.suffix, "")
 
-                        port_records = seobject.portRecords()
+                        port_records = seobject.portRecords(trans)
                         for port in ports:
                             config.pki_log.info(
                                 "deleting selinux port %s", port,

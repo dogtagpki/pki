@@ -801,7 +801,9 @@ class ConfigurationFile:
                 extra=config.PKI_INDENTATION_LEVEL_2)
             return
 
-        portrecs = seobject.portRecords().get_all()
+        trans = seobject.semanageRecords("targeted")
+        trans.start()
+        portrecs = seobject.portRecords(trans).get_all()
         portlist = ports[:]
         for port in portlist:
             context = ""
@@ -829,6 +831,7 @@ class ConfigurationFile:
                 raise Exception(
                     log.PKIHELPER_INVALID_SELINUX_CONTEXT_FOR_PORT %
                     (port, context))
+        trans.finish()
         return
 
     def verify_ds_secure_connection_data(self):
