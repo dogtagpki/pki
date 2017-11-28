@@ -16,6 +16,24 @@
       "revId": "c3b69ae92c884e7f230766b37a8723c2ce905eca",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3914c936_da18b725",
+        "filename": "base/server/python/pki/server/deployment/pkihelper.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 804,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-11-28T16:49:12Z",
+      "side": 1,
+      "message": "Thats a good question.  If an exception is thrown here, it will be bubbled up and cause the installer to stop.\n\nI\u0027m not sure we can do more than that.  Catching the exception and then calling transaction.finish() seems like the wrong thing to do because it commits whatever partial changes have been made.  As you say, there is no trans.abort() method.",
+      "parentUuid": "8e897efd_e89293b9",
+      "revId": "c3b69ae92c884e7f230766b37a8723c2ce905eca",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
