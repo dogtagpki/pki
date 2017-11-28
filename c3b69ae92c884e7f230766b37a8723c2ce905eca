@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8e897efd_e89293b9",
+        "filename": "base/server/python/pki/server/deployment/pkihelper.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 804,
+      "author": {
+        "id": 1010882
+      },
+      "writtenOn": "2017-11-28T16:12:01Z",
+      "side": 1,
+      "message": "What happens with the transaction an exception occurs between trans.start() and trans.finish()? The semanageRecords class does neither support the context manager protocol (with statement) nor does it have an abort() method. Is it safe to leave the transaction dangling?\n\nhttps://github.com/SELinuxProject/selinux/blob/master/python/semanage/seobject.py#L237",
+      "revId": "c3b69ae92c884e7f230766b37a8723c2ce905eca",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
