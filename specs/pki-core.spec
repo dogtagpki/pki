@@ -66,13 +66,13 @@
 Name:             pki-core
 %if 0%{?rhel}
 Version:                10.5.1
-%define redhat_release  1
+%define redhat_release  4
 %define redhat_stage    0
 %define default_release %{redhat_release}.%{redhat_stage}
 #%define default_release %{redhat_release}
 %else
-Version:                10.5.1
-%define fedora_release  3
+Version:                10.5.2
+%define fedora_release  1
 %define fedora_stage    0
 %define default_release %{fedora_release}.%{fedora_stage}
 #%define default_release %{fedora_release}
@@ -208,7 +208,7 @@ Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{
 Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{release}/%{name}-%{version}%{?prerel}.tar.gz
 %endif
 
-#Patch0:           pki-core-post-10.5.1-1.patch
+#Patch0:           pki-core-seobject-pylint.patch
 
 # Obtain version phase number (e. g. - used by "alpha", "beta", etc.)
 #
@@ -1333,6 +1333,9 @@ fi
 %endif # %{with server}
 
 %changelog
+* Mon Nov 27 2017 Dogtag Team <pki-devel@redhat.com> 10.5.2-1
+- Re-base Dogtag to 10.5.2
+
 * Tue Nov 14 2017 Troy Dawson <tdawson@redhat.com> - 10.5.1-3
 - dogtagpki Pagure Issue #2853 - Cleanup spec file conditionals
 
