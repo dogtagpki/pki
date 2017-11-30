@@ -301,4 +301,24 @@ public class SystemCertData {
         return san_for_server_cert;
     }
 
+    public String toString() {
+        return "SystemCertData["
+            + "tag=" + tag
+            + ", nickname=" + nickname
+            + ", token=" + token
+            + ", keyType=" + keyType
+            + ", keyAlgorithm=" + keyAlgorithm
+            + ", signingAlgorithm=" + signingAlgorithm
+            + ", keySize=" + keySize
+            + ", keyCurveName=" + keyCurveName
+            + ", request=" + request
+            + ", subjectDN=" + subjectDN
+            + ", cert=" + cert
+            + ", req_ext_oid=" + req_ext_oid
+            + ", req_ext_critical=" + req_ext_critical
+            + ", req_ext_data=" + req_ext_data
+            + ", san_for_server_cert=" + san_for_server_cert
+            + "]";
+    }
+
 }
