@@ -74,7 +74,8 @@ public class CAValidityConstraint extends CAEnrollConstraint {
      */
     public void validate(IRequest request, X509CertInfo info)
             throws ERejectException {
-        CMS.debug("CAValidityConstraint: validate start");
+        String method = "CAValidityConstraint: validate: ";
+        CMS.debug(method + "validate start");
         CertificateValidity v = null;
 
         try {
@@ -88,7 +89,7 @@ public class CAValidityConstraint extends CAEnrollConstraint {
         try {
             notBefore = (Date) v.get(CertificateValidity.NOT_BEFORE);
         } catch (IOException e) {
-            CMS.debug("CAValidity: not before " + e.toString());
+            CMS.debug(method + "not before " + e.toString());
             throw new ERejectException(CMS.getUserMessage(
                         getLocale(request), "CMS_PROFILE_INVALID_NOT_BEFORE"));
         }
@@ -97,27 +98,33 @@ public class CAValidityConstraint extends CAEnrollConstraint {
         try {
             notAfter = (Date) v.get(CertificateValidity.NOT_AFTER);
         } catch (IOException e) {
-            CMS.debug("CAValidity: not after " + e.toString());
+            CMS.debug(method + "not after " + e.toString());
             throw new ERejectException(CMS.getUserMessage(
                         getLocale(request), "CMS_PROFILE_INVALID_NOT_AFTER"));
         }
 
         if (mDefNotBefore != null) {
-            CMS.debug("ValidtyConstraint: notBefore=" + notBefore +
+            CMS.debug(method + "notBefore=" + notBefore +
                     " defNotBefore=" + mDefNotBefore);
             if (notBefore.before(mDefNotBefore)) {
                 throw new ERejectException(CMS.getUserMessage(
                             getLocale(request), "CMS_PROFILE_INVALID_NOT_BEFORE"));
             }
         }
-        CMS.debug("ValidtyConstraint: notAfter=" + notAfter +
+        CMS.debug(method + "notAfter=" + notAfter +
                 " defNotAfter=" + mDefNotAfter);
         if (notAfter.after(mDefNotAfter)) {
             throw new ERejectException(CMS.getUserMessage(
                         getLocale(request), "CMS_PROFILE_INVALID_NOT_AFTER"));
         }
 
-        CMS.debug("CAValidtyConstraint: validate end");
+        if (notAfter.getTime() < notBefore.getTime()) {
+            CMS.debug(method + "notAfter (" + notAfter + ") < notBefore (" + notBefore + ")");
+            throw new ERejectException(CMS.getUserMessage(getLocale(request),
+                        "CMS_PROFILE_NOT_AFTER_BEFORE_NOT_BEFORE"));
+        }
+
+        CMS.debug(method + "validate end");
     }
 
     public String getText(Locale locale) {
