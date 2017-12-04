@@ -17,8 +17,8 @@ string(REGEX REPLACE "^([0-9]+).*" "\\1" APPLICATION_VERSION_MAJOR ${VERSION})
 string(REGEX REPLACE "^[0-9]+\\.([0-9]+).*" "\\1" APPLICATION_VERSION_MINOR ${VERSION})
 string(REGEX REPLACE "^[0-9]+\\.[0-9]+\\.([0-9]+).*" "\\1" APPLICATION_VERSION_PATCH ${VERSION})
 
-option(WITH_TOMCAT7 "Build Tomcat 7" ON)
-option(WITH_TOMCAT8 "Build Tomcat 8" ON)
+set(APP_SERVER "tomcat8" CACHE STRING "Application server")
+
 option(WITH_SERVER "Build Server" ON)
 option(WITH_JAVADOC "Build Javadoc" ON)
 

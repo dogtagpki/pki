@@ -21,14 +21,7 @@ set(APACHE_SUBSYSTEMS
     tps
 )
 
-if(WITH_TOMCAT7)
-    add_subdirectory(tomcat7)
-endif(WITH_TOMCAT7)
-
-if(WITH_TOMCAT8)
-    add_subdirectory(tomcat8)
-endif(WITH_TOMCAT8)
-
+add_subdirectory(${APP_SERVER})
 add_subdirectory(tomcat)
 add_subdirectory(cms)
 add_subdirectory(cmsbundle)
