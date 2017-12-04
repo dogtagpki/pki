@@ -152,6 +152,13 @@ find_file(TOMCAT_CATALINA_JAR
         /usr/share/java/tomcat
 )
 
+find_file(TOMCAT_COYOTE_JAR
+    NAMES
+        tomcat-coyote.jar
+    PATHS
+        /usr/share/java/tomcat
+)
+
 find_file(TOMCAT_UTIL_JAR
     NAMES
         tomcat-util.jar
