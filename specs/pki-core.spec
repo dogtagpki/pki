@@ -25,11 +25,9 @@
 
 # Tomcat
 %if 0%{?fedora} || 0%{?rhel} > 7
-%define with_tomcat7 0
-%define with_tomcat8 1
+%define app_server tomcat8
 %else
-%define with_tomcat7 1
-%define with_tomcat8 0
+%define app_server tomcat7
 %endif
 
 # RESTEasy
@@ -819,12 +817,7 @@ cd build
 %if %{version_phase}
 	-DAPPLICATION_VERSION_PHASE="%{version_phase}" \
 %endif
-%if ! %{with_tomcat7}
-	-DWITH_TOMCAT7:BOOL=OFF \
-%endif
-%if ! %{with_tomcat8}
-	-DWITH_TOMCAT8:BOOL=OFF \
-%endif
+	-DAPP_SERVER=%{app_server} \
 	-DJAXRS_API_JAR=%{jaxrs_api_jar} \
 	-DRESTEASY_LIB=%{resteasy_lib} \
 %if ! %{with server}
