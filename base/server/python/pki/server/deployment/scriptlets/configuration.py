@@ -619,69 +619,75 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         self.import_cert_chain(deployer, nssdb)
 
-    def configure_system_cert(self, deployer, nssdb, subsystem, tag):
+    def configure_system_cert(self, deployer, subsystem, tag):
 
         cert_id = self.get_cert_id(subsystem, tag)
-
         nickname = deployer.mdict['pki_%s_nickname' % cert_id]
-        cert_data = nssdb.get_cert(
-            nickname=nickname,
-            output_format='base64')
 
         subsystem.config['%s.%s.nickname' % (subsystem.name, tag)] = nickname
         subsystem.config['%s.%s.tokenname' % (subsystem.name, tag)] = \
             deployer.mdict['pki_%s_token' % cert_id]
-        subsystem.config['%s.%s.cert' % (subsystem.name, tag)] = cert_data
         subsystem.config['%s.%s.defaultSigningAlgorithm' % (subsystem.name, tag)] = \
             deployer.mdict['pki_%s_key_algorithm' % cert_id]
 
-    def configure_ca_signing_cert(self, deployer, nssdb, subsystem):
+    def update_system_cert(self, deployer, nssdb, subsystem, tag):
+
+        cert_id = self.get_cert_id(subsystem, tag)
+        nickname = deployer.mdict['pki_%s_nickname' % cert_id]
+
+        cert_data = nssdb.get_cert(
+            nickname=nickname,
+            output_format='base64')
+
+        subsystem.config['%s.%s.cert' % (subsystem.name, tag)] = cert_data
+
+    def configure_ca_signing_cert(self, deployer, subsystem):
 
         config.pki_log.info(
             "configuring ca_signing certificate",
             extra=config.PKI_INDENTATION_LEVEL_2)
 
-        self.configure_system_cert(deployer, nssdb, subsystem, 'signing')
+        self.configure_system_cert(deployer, subsystem, 'signing')
 
         nickname = deployer.mdict['pki_ca_signing_nickname']
         subsystem.config['ca.signing.cacertnickname'] = nickname
 
-    def configure_ca_ocsp_signing_cert(self, deployer, nssdb, subsystem):
+    def configure_ca_ocsp_signing_cert(self, deployer, subsystem):
 
         config.pki_log.info(
             "configuring ca_ocsp_signing certificate",
             extra=config.PKI_INDENTATION_LEVEL_2)
 
-        self.configure_system_cert(deployer, nssdb, subsystem, 'ocsp_signing')
+        self.configure_system_cert(deployer, subsystem, 'ocsp_signing')
 
-    def configure_sslserver_cert(self, deployer, nssdb, subsystem):
+    def configure_sslserver_cert(self, deployer, subsystem):
 
         config.pki_log.info(
             "configuring sslserver certificate",
             extra=config.PKI_INDENTATION_LEVEL_2)
 
-        self.configure_system_cert(deployer, nssdb, subsystem, 'sslserver')
+        self.configure_system_cert(deployer, subsystem, 'sslserver')
 
-    def configure_subsystem_cert(self, deployer, nssdb, subsystem):
+    def configure_subsystem_cert(self, deployer, subsystem):
 
         config.pki_log.info(
             "configuring subsystem certificate",
             extra=config.PKI_INDENTATION_LEVEL_2)
 
-        self.configure_system_cert(deployer, nssdb, subsystem, 'subsystem')
+        self.configure_system_cert(deployer, subsystem, 'subsystem')
 
-    def configure_audit_signing_cert(self, deployer, nssdb, subsystem):
+    def configure_audit_signing_cert(self, deployer, subsystem):
 
         config.pki_log.info(
             "configuring audit_signing certificate",
             extra=config.PKI_INDENTATION_LEVEL_2)
 
-        self.configure_system_cert(deployer, nssdb, subsystem, 'audit_signing')
+        self.configure_system_cert(deployer, subsystem, 'audit_signing')
 
-    def configure_admin_cert(self, deployer, subsystem):
+    def update_admin_cert(self, deployer, subsystem):
 
         config.pki_log.info(
-            "configuring admin certificate",
+            "updating admin certificate",
             extra=config.PKI_INDENTATION_LEVEL_2)
 
         client_nssdb = pki.nssdb.NSSDatabase(
@@ -699,48 +705,65 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         finally:
             client_nssdb.close()
 
-    def configure_kra_storage_cert(self, deployer, nssdb, subsystem):
+    def configure_kra_storage_cert(self, deployer, subsystem):
 
         config.pki_log.info(
             "configuring kra_storage certificate",
             extra=config.PKI_INDENTATION_LEVEL_2)
 
-        self.configure_system_cert(deployer, nssdb, subsystem, 'storage')
+        self.configure_system_cert(deployer, subsystem, 'storage')
 
-    def configure_kra_transport_cert(self, deployer, nssdb, subsystem):
+    def configure_kra_transport_cert(self, deployer, subsystem):
 
         config.pki_log.info(
             "configuring kra_transport certificate",
             extra=config.PKI_INDENTATION_LEVEL_2)
 
-        self.configure_system_cert(deployer, nssdb, subsystem, 'transport')
+        self.configure_system_cert(deployer, subsystem, 'transport')
 
-    def configure_ocsp_signing_cert(self, deployer, nssdb, subsystem):
+    def configure_ocsp_signing_cert(self, deployer, subsystem):
 
         config.pki_log.info(
             "configuring ocsp_signing certificate",
             extra=config.PKI_INDENTATION_LEVEL_2)
 
-        self.configure_system_cert(deployer, nssdb, subsystem, 'signing')
+        self.configure_system_cert(deployer, subsystem, 'signing')
 
-    def configure_system_certs(self, deployer, nssdb, subsystem):
+    def configure_system_certs(self, deployer, subsystem):
 
         if subsystem.name == 'ca':
-            self.configure_ca_signing_cert(deployer, nssdb, subsystem)
-            self.configure_ca_ocsp_signing_cert(deployer, nssdb, subsystem)
+            self.configure_ca_signing_cert(deployer, subsystem)
+            self.configure_ca_ocsp_signing_cert(deployer, subsystem)
 
         if subsystem.name == 'kra':
-            self.configure_kra_storage_cert(deployer, nssdb, subsystem)
-            self.configure_kra_transport_cert(deployer, nssdb, subsystem)
-            self.configure_admin_cert(deployer, subsystem)
+            self.configure_kra_storage_cert(deployer, subsystem)
+            self.configure_kra_transport_cert(deployer, subsystem)
 
         if subsystem.name == 'ocsp':
-            self.configure_ocsp_signing_cert(deployer, nssdb, subsystem)
-            self.configure_admin_cert(deployer, subsystem)
+            self.configure_ocsp_signing_cert(deployer, subsystem)
 
-        self.configure_sslserver_cert(deployer, nssdb, subsystem)
-        self.configure_subsystem_cert(deployer, nssdb, subsystem)
-        self.configure_audit_signing_cert(deployer, nssdb, subsystem)
+        self.configure_sslserver_cert(deployer, subsystem)
+        self.configure_subsystem_cert(deployer, subsystem)
+        self.configure_audit_signing_cert(deployer, subsystem)
+
+    def update_system_certs(self, deployer, nssdb, subsystem):
+
+        if subsystem.name == 'ca':
+            self.update_system_cert(deployer, nssdb, subsystem, 'signing')
+            self.update_system_cert(deployer, nssdb, subsystem, 'ocsp_signing')
+
+        if subsystem.name == 'kra':
+            self.update_system_cert(deployer, nssdb, subsystem, 'storage')
+            self.update_system_cert(deployer, nssdb, subsystem, 'transport')
+            self.update_admin_cert(deployer, subsystem)
+
+        if subsystem.name == 'ocsp':
+            self.update_system_cert(deployer, nssdb, subsystem, 'signing')
+            self.update_admin_cert(deployer, subsystem)
+
+        self.update_system_cert(deployer, nssdb, subsystem, 'sslserver')
+        self.update_system_cert(deployer, nssdb, subsystem, 'subsystem')
+        self.update_system_cert(deployer, nssdb, subsystem, 'audit_signing')
 
     def validate_system_cert(self, deployer, nssdb, subsystem, tag):
 
@@ -1007,7 +1030,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 self.import_system_cert_requests(deployer, subsystem)
                 self.import_system_certs(deployer, nssdb, subsystem)
 
-                self.configure_system_certs(deployer, nssdb, subsystem)
+                self.configure_system_certs(deployer, subsystem)
+                self.update_system_certs(deployer, nssdb, subsystem)
                 subsystem.save()
 
                 self.validate_system_certs(deployer, nssdb, subsystem)
