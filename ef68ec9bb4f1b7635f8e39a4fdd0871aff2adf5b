@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "661a0115_7c06b3e0",
+        "filename": "tests/dogtag/pytest-ansible/pytest/banner/test_banner_cli.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-12-05T20:20:04Z",
+      "side": 1,
+      "message": "This internal URL probably should be removed.",
+      "revId": "ef68ec9bb4f1b7635f8e39a4fdd0871aff2adf5b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "383131e7_870ffd96",
+        "filename": "tests/dogtag/pytest-ansible/pytest/banner/test_banner_cli.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 295,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-12-05T20:20:04Z",
+      "side": 1,
+      "message": "Validate that the user was not added.",
+      "revId": "ef68ec9bb4f1b7635f8e39a4fdd0871aff2adf5b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
