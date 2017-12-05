@@ -162,10 +162,6 @@ Tomcat Port         = [TOMCAT_SERVER_PORT] (for shutdown)
               'ocspTimeout'
               'strictCiphers'
               'clientauth' (ALL lowercase)
-              'sslOptions'
-              'ssl2Ciphers'
-              'ssl3Ciphers'
-              'tlsCiphers'
               'sslVersionRangeStream'
               'sslVersionRangeDatagram'
               'sslRangeCiphers'
@@ -227,10 +223,6 @@ Tomcat Port         = [TOMCAT_SERVER_PORT] (for shutdown)
            ocspTimeout="10"
            strictCiphers="true"
            clientAuth="[PKI_AGENT_CLIENTAUTH]"
-           sslOptions="[TOMCAT_SSL_OPTIONS]"
-           ssl2Ciphers="[TOMCAT_SSL2_CIPHERS]"
-           ssl3Ciphers="[TOMCAT_SSL3_CIPHERS]"
-           tlsCiphers="[TOMCAT_TLS_CIPHERS]"
            sslVersionRangeStream="[TOMCAT_SSL_VERSION_RANGE_STREAM]"
            sslVersionRangeDatagram="[TOMCAT_SSL_VERSION_RANGE_DATAGRAM]"
            sslRangeCiphers="[TOMCAT_SSL_RANGE_CIPHERS]"

@@ -1148,54 +1148,6 @@ class PKIConfigParser:
                     "-TLS_RSA_WITH_3DES_EDE_CBC_SHA," + \
                     "+TLS_RSA_WITH_AES_128_CBC_SHA," + \
                     "+TLS_RSA_WITH_AES_256_CBC_SHA"
-            self.mdict['TOMCAT_SSL2_CIPHERS_SLOT'] = \
-                "-SSL2_RC4_128_WITH_MD5," + \
-                "-SSL2_RC4_128_EXPORT40_WITH_MD5," + \
-                "-SSL2_RC2_128_CBC_WITH_MD5," + \
-                "-SSL2_RC2_128_CBC_EXPORT40_WITH_MD5," + \
-                "-SSL2_DES_64_CBC_WITH_MD5," + \
-                "-SSL2_DES_192_EDE3_CBC_WITH_MD5"
-            self.mdict['TOMCAT_SSL3_CIPHERS_SLOT'] = \
-                "-SSL3_FORTEZZA_DMS_WITH_NULL_SHA," + \
-                "-SSL3_FORTEZZA_DMS_WITH_RC4_128_SHA," + \
-                "+SSL3_RSA_WITH_RC4_128_SHA," + \
-                "-SSL3_RSA_EXPORT_WITH_RC4_40_MD5," + \
-                "-SSL3_RSA_WITH_3DES_EDE_CBC_SHA," + \
-                "-SSL3_RSA_WITH_DES_CBC_SHA," + \
-                "-SSL3_RSA_EXPORT_WITH_RC2_CBC_40_MD5," + \
-                "-SSL3_FORTEZZA_DMS_WITH_FORTEZZA_CBC_SHA," + \
-                "-SSL_RSA_FIPS_WITH_DES_CBC_SHA," + \
-                "-SSL_RSA_FIPS_WITH_3DES_EDE_CBC_SHA," + \
-                "-SSL3_RSA_WITH_NULL_MD5," + \
-                "-TLS_RSA_EXPORT1024_WITH_RC4_56_SHA," + \
-                "-TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA," + \
-                "+TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA"
-            self.mdict['TOMCAT_SSL_OPTIONS_SLOT'] = \
-                "ssl2=false," + \
-                "ssl3=false," + \
-                "tls=true"
-            self.mdict['TOMCAT_TLS_CIPHERS_SLOT'] = \
-                "-TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA," + \
-                "-TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA," + \
-                "-TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA," + \
-                "+TLS_ECDH_RSA_WITH_AES_128_CBC_SHA," + \
-                "+TLS_ECDH_RSA_WITH_AES_256_CBC_SHA," + \
-                "-TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA," + \
-                "+TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA," + \
-                "-TLS_RSA_WITH_3DES_EDE_CBC_SHA," + \
-                "+TLS_RSA_WITH_AES_128_CBC_SHA," + \
-                "+TLS_RSA_WITH_AES_256_CBC_SHA," + \
-                "-TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA," + \
-                "+TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA," + \
-                "-TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA," + \
-                "-TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA," + \
-                "-TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA," + \
-                "-TLS_DHE_DSS_WITH_3DES_EDE_CBC_SHA," + \
-                "+TLS_DHE_DSS_WITH_AES_128_CBC_SHA," + \
-                "+TLS_DHE_DSS_WITH_AES_256_CBC_SHA," + \
-                "-TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA," + \
-                "+TLS_DHE_RSA_WITH_AES_128_CBC_SHA," + \
-                "+TLS_DHE_RSA_WITH_AES_256_CBC_SHA"
 
             if self.deployer.architecture == 64:
                 self.mdict['NUXWDOG_JNI_PATH_SLOT'] = (
