@@ -22,6 +22,7 @@ from __future__ import absolute_import
 from __future__ import print_function
 
 import getopt
+import getpass
 import sys
 import tempfile
 import os
@@ -45,6 +46,7 @@ class CertCLI(pki.cli.CLI):
         self.add_module(CertUpdateCLI())
         self.add_module(CertCreateCLI())
         self.add_module(CertImportCLI())
+        self.add_module(CertExportCLI())
 
     @staticmethod
     def print_system_cert(cert, show_all=False):
@@ -867,6 +869,203 @@ class CertImportCLI(pki.cli.CLI):
             else:
                 subsystem.update_subsystem_cert(cert)
                 subsystem.save()
+
+        finally:
+            nssdb.close()
+
+
+class CertExportCLI(pki.cli.CLI):
+    def __init__(self):
+        super(CertExportCLI, self).__init__(
+            'export', 'Export system certificate.')
+
+    def usage(self):  # flake8: noqa
+        print('Usage: pki-server cert-export [OPTIONS] <Cert ID>')
+        print()
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('      --cert-file <path>             Output file to store the exported certificate in PEM format.')
+        print('      --csr-file <path>              Output file to store the exported CSR in PEM format.')
+        print('      --pkcs12-file <path>           Output file to store the exported certificate and key in PKCS #12 format.')
+        print('      --pkcs12-password <password>   Password for the PKCS #12 file.')
+        print('      --pkcs12-password-file <path>  Input file containing the password for the PKCS #12 file.')
+        print('      --append                       Append into an existing PKCS #12 file.')
+        print('      --no-trust-flags               Do not include trust flags')
+        print('      --no-key                       Do not include private key')
+        print('      --no-chain                     Do not include certificate chain')
+        print('  -v, --verbose                      Run in verbose mode.')
+        print('      --help                         Show help message.')
+        print()
+
+    def execute(self, argv):
+        try:
+            opts, args = getopt.gnu_getopt(argv, 'i:v', [
+                'instance=', 'cert-file=', 'csr-file=',
+                'pkcs12-file=', 'pkcs12-password=', 'pkcs12-password-file=',
+                'append', 'no-trust-flags', 'no-key', 'no-chain',
+                'verbose', 'debug', 'help'])
+
+        except getopt.GetoptError as e:
+            print('ERROR: ' + str(e))
+            self.usage()
+            sys.exit(1)
+
+        instance_name = 'pki-tomcat'
+        cert_file = None
+        csr_file = None
+        pkcs12_file = None
+        pkcs12_password = None
+        pkcs12_password_file = None
+        append = False
+        include_trust_flags = True
+        include_key = True
+        include_chain = True
+        debug = False
+
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o == '--cert-file':
+                cert_file = a
+
+            elif o == '--csr-file':
+                csr_file = a
+
+            elif o == '--pkcs12-file':
+                pkcs12_file = a
+
+            elif o == '--pkcs12-password':
+                pkcs12_password = a
+
+            elif o == '--pkcs12-password-file':
+                pkcs12_password_file = a
+
+            elif o == '--append':
+                append = True
+
+            elif o == '--no-trust-flags':
+                include_trust_flags = False
+
+            elif o == '--no-key':
+                include_key = False
+
+            elif o == '--no-chain':
+                include_chain = False
+
+            elif o in ('-v', '--verbose'):
+                self.set_verbose(True)
+
+            elif o == '--debug':
+                debug = True
+
+            elif o == '--help':
+                self.usage()
+                sys.exit()
+
+            else:
+                self.print_message('ERROR: unknown option ' + o)
+                self.usage()
+                sys.exit(1)
+
+        if len(args) < 1:
+            print('ERROR: missing cert ID')
+            self.usage()
+            sys.exit(1)
+
+        cert_id = args[0]
+
+        if not (cert_file or csr_file or pkcs12_file):
+            print('ERROR: missing output file')
+            self.usage()
+            sys.exit(1)
+
+        instance = server.PKIInstance(instance_name)
+
+        if not instance.is_valid():
+            print('ERROR: Invalid instance %s.' % instance_name)
+            sys.exit(1)
+
+        instance.load()
+
+        subsystem_name = None
+        cert_tag = cert_id
+
+        if cert_id != 'sslserver' and cert_id != 'subsystem':
+            # To avoid ambiguity where cert ID can contain more than 1 _, we limit to one split
+            temp_cert_identify = cert_id.split('_', 1)
+            subsystem_name = temp_cert_identify[0]
+            cert_tag = temp_cert_identify[1]
+
+        # If cert ID is instance specific, get it from first subsystem
+        if not subsystem_name:
+            subsystem_name = instance.subsystems[0].name
+
+        subsystem = instance.get_subsystem(subsystem_name)
+
+        if not subsystem:
+            print('ERROR: No %s subsystem in instance.'
+                  '%s.' % (subsystem_name, instance_name))
+            sys.exit(1)
+
+        nssdb = instance.open_nssdb()
+
+        try:
+            cert = subsystem.get_subsystem_cert(cert_tag)
+
+            if not cert:
+                print('ERROR: missing %s certificate' % cert_id)
+                self.usage()
+                sys.exit(1)
+
+            if cert_file:
+
+                if self.verbose:
+                    print('Exporting %s certificate into %s.' % (cert_id, cert_file))
+
+                cert_data = cert.get('data', None)
+                if cert_data is None:
+                    print("ERROR: Unable to find certificate data for %s" % cert_id)
+                    sys.exit(1)
+
+                cert_data = pki.nssdb.convert_cert(cert_data, 'base64', 'pem')
+                with open(cert_file, 'w') as f:
+                    f.write(cert_data)
+
+            if csr_file:
+
+                if self.verbose:
+                    print('Exporting %s CSR into %s.' % (cert_id, csr_file))
+
+                cert_request = cert.get('request', None)
+                if cert_request is None:
+                    print("ERROR: Unable to find certificate request for %s" % cert_id)
+                    sys.exit(1)
+
+                csr_data = pki.nssdb.convert_csr(cert_request, 'base64', 'pem')
+                with open(csr_file, 'w') as f:
+                    f.write(csr_data)
+
+            if pkcs12_file:
+
+                if self.verbose:
+                    print('Exporting %s certificate and key into %s.' % (cert_id, pkcs12_file))
+
+                if not pkcs12_password and not pkcs12_password_file:
+                    pkcs12_password = getpass.getpass(prompt='Enter password for PKCS #12 file: ')
+
+                nicknames = []
+                nicknames.append(cert['nickname'])
+
+                nssdb.export_pkcs12(
+                    pkcs12_file=pkcs12_file,
+                    pkcs12_password=pkcs12_password,
+                    pkcs12_password_file=pkcs12_password_file,
+                    nicknames=nicknames,
+                    append=append,
+                    include_trust_flags=include_trust_flags,
+                    include_key=include_key,
+                    include_chain=include_chain,
+                    debug=debug)
 
         finally:
             nssdb.close()
