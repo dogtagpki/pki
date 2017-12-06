@@ -20,15 +20,16 @@ package com.netscape.cms.tomcat;
 
 import java.io.IOException;
 import java.security.cert.X509Certificate;
+import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 
+import org.apache.catalina.Authenticator;
 import org.apache.catalina.Container;
 import org.apache.catalina.Globals;
 import org.apache.catalina.LifecycleException;
-import org.apache.catalina.Authenticator;
 import org.apache.catalina.authenticator.AuthenticatorBase;
 import org.apache.catalina.authenticator.BasicAuthenticator;
 import org.apache.catalina.authenticator.FormAuthenticator;
@@ -40,6 +41,8 @@ import org.apache.catalina.connector.Request;
  */
 public abstract class AbstractPKIAuthenticator extends AuthenticatorBase {
 
+    final static Logger logger = Logger.getLogger(AbstractPKIAuthenticator.class.getName());
+
     public final static String BASIC_AUTHENTICATOR = "BASIC";
     public final static String FORM_AUTHENTICATOR = "FORM";
 
@@ -49,7 +52,7 @@ public abstract class AbstractPKIAuthenticator extends AuthenticatorBase {
     AuthenticatorBase fallbackAuthenticator = new BasicAuthenticator();
 
     public AbstractPKIAuthenticator() {
-        log("Creating SSL authenticator with fallback");
+        logger.info("PKIAuthenticator: Creating " + getClass().getSimpleName());
     }
 
     public String getFallbackMethod() {
@@ -57,7 +60,7 @@ public abstract class AbstractPKIAuthenticator extends AuthenticatorBase {
     }
 
     public void setFallbackMethod(String fallbackMethod) {
-        log("Fallback method: "+fallbackMethod);
+        logger.info("PKIAuthenticator: Fallback method: " + fallbackMethod);
         this.fallbackMethod = fallbackMethod;
 
         if (BASIC_AUTHENTICATOR.equalsIgnoreCase(fallbackMethod)) {
@@ -74,25 +77,25 @@ public abstract class AbstractPKIAuthenticator extends AuthenticatorBase {
         boolean result;
 
         if (certs != null && certs.length > 0) {
-            log("Authenticate with client certificate authentication");
+            logger.info("PKIAuthenticator: Authenticate with client certificate authentication");
             HttpServletResponseWrapper wrapper = new HttpServletResponseWrapper(response) {
                 public void setHeader(String name, String value) {
-                    log("SSL auth header: "+name+"="+value);
+                    logger.fine("PKIAuthenticator: SSL auth header: " + name + "=" + value);
                 };
                 public void sendError(int code) {
-                    log("SSL auth return code: "+code);
+                    logger.fine("PKIAuthenticator: SSL auth return code: " + code);
                 }
             };
             result = doSubAuthenticate(sslAuthenticator, request, wrapper);
 
         } else {
-            log("Authenticating with "+fallbackMethod+" authentication");
+            logger.info("PKIAuthenticator: Authenticating with " + fallbackMethod + " authentication");
             HttpServletResponseWrapper wrapper = new HttpServletResponseWrapper(response) {
                 public void setHeader(String name, String value) {
-                    log("Fallback auth header: "+name+"="+value);
+                    logger.fine("PKIAuthenticator: Fallback auth header: " + name + "=" + value);
                 };
                 public void sendError(int code) {
-                    log("Fallback auth return code: "+code);
+                    logger.fine("PKIAuthenticator: Fallback auth return code: " + code);
                 }
             };
             result = doSubAuthenticate(fallbackAuthenticator, request, wrapper);
@@ -101,7 +104,7 @@ public abstract class AbstractPKIAuthenticator extends AuthenticatorBase {
         if (result)
             return true;
 
-        log("Result: "+result);
+        logger.info("PKIAuthenticator: Result: " + result);
         String realmName = doGetRealmName(request);
         response.setHeader(AUTH_HEADER_NAME,
             "Basic realm=\"" + (realmName == null ? REALM_NAME : realmName) + "\"");
@@ -124,7 +127,7 @@ public abstract class AbstractPKIAuthenticator extends AuthenticatorBase {
 
     @Override
     public void setContainer(Container container) {
-        log("Setting container");
+        logger.fine("PKIAuthenticator: Setting container");
         super.setContainer(container);
         sslAuthenticator.setContainer(container);
         fallbackAuthenticator.setContainer(container);
@@ -132,7 +135,7 @@ public abstract class AbstractPKIAuthenticator extends AuthenticatorBase {
 
     @Override
     protected void initInternal() throws LifecycleException {
-        log("Initializing authenticators");
+        logger.fine("PKIAuthenticator: Initializing authenticators");
 
         super.initInternal();
 
@@ -145,7 +148,7 @@ public abstract class AbstractPKIAuthenticator extends AuthenticatorBase {
 
     @Override
     public void startInternal() throws LifecycleException {
-        log("Starting authenticators");
+        logger.fine("PKIAuthenticator: Starting authenticators");
         super.startInternal();
         sslAuthenticator.start();
         fallbackAuthenticator.start();
@@ -153,13 +156,9 @@ public abstract class AbstractPKIAuthenticator extends AuthenticatorBase {
 
     @Override
     public void stopInternal() throws LifecycleException {
-        log("Stopping authenticators");
+        logger.fine("PKIAuthenticator: Stopping authenticators");
         super.stopInternal();
         sslAuthenticator.stop();
         fallbackAuthenticator.stop();
-    }
-
-    public void log(String message) {
-        System.out.println("SSLAuthenticatorWithFallback: "+message);
     }
 }

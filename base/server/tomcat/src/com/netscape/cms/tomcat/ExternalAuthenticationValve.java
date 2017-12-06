@@ -21,6 +21,8 @@ package com.netscape.cms.tomcat;
 import java.io.IOException;
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.logging.Logger;
+
 import javax.servlet.ServletException;
 
 import org.apache.catalina.Session;
@@ -30,13 +32,14 @@ import org.apache.catalina.valves.ValveBase;
 
 public class ExternalAuthenticationValve extends ValveBase {
 
+    final static Logger logger = Logger.getLogger(ExternalAuthenticationValve.class.getName());
+
     public void invoke(Request req, Response resp)
             throws IOException, ServletException {
-        System.out.println("ExternalAuthenticationValve; authType: "
-                + req.getAuthType());
-        System.out.println("ExternalAuthenticationValve; principal: "
-                + req.getUserPrincipal());
-        //System.out.println(req.getCoyoteRequest().getAttributes().toString());
+
+        logger.info("ExternalAuthenticationValve: authType: " + req.getAuthType());
+        logger.info("ExternalAuthenticationValve: principal: " + req.getUserPrincipal());
+        //logger.info("ExternalAuthenticationValve: attributes: " + req.getCoyoteRequest().getAttributes());
 
         org.apache.coyote.Request coyoteReq = req.getCoyoteRequest();
         Principal principal = req.getUserPrincipal();
@@ -49,7 +52,7 @@ public class ExternalAuthenticationValve extends ValveBase {
                 try {
                     numGroups = new Integer(numGroupsStr);
                 } catch (NumberFormatException e) {
-                    System.out.println("ExternalAuthenticationValve: invalid REMOTE_USER_GROUP_N value: " + e);
+                    logger.warning("ExternalAuthenticationValve: invalid REMOTE_USER_GROUP_N value: " + e);
                 }
             }
 
@@ -60,13 +63,13 @@ public class ExternalAuthenticationValve extends ValveBase {
                 if (s != null && !s.isEmpty())
                     groups.add(s);
                 else
-                    System.out.println("ExternalAuthenticationValve: missing or empty attribute: " + k);
+                    logger.warning("ExternalAuthenticationValve: missing or empty attribute: " + k);
             }
 
             // replace the principal
             principal = new ExternalPrincipal(
                 principal.getName(), null, groups, coyoteReq.getAttributes());
-            System.out.println("ExternalAuthenticationValve: setting new principal: " + principal);
+            logger.info("ExternalAuthenticationValve: setting new principal: " + principal);
             req.setUserPrincipal(principal);
 
             // cache principal in session
