@@ -19,6 +19,7 @@
 package com.netscape.cms.tomcat;
 
 import java.io.File;
+import java.util.logging.Logger;
 
 import org.apache.catalina.Context;
 import org.apache.catalina.Engine;
@@ -34,27 +35,29 @@ import com.redhat.nuxwdog.WatchdogClient;
 
 public class PKIListener implements LifecycleListener {
 
+    final static Logger logger = Logger.getLogger(PKIListener.class.getName());
+
     private boolean startedByWD = false;
 
     @Override
     public void lifecycleEvent(LifecycleEvent event) {
 
         String type = event.getType();
-        System.out.println("PKIListener: " + event.getLifecycle().getClass().getName() + "[" + type + "]");
+        logger.info("PKIListener: " + event.getLifecycle().getClass().getName() + " [" + type + "]");
 
         if (type.equals(Lifecycle.BEFORE_INIT_EVENT)) {
 
             String wdPipeName = System.getenv("WD_PIPE_NAME");
             if (StringUtils.isNotEmpty(wdPipeName)) {
                 startedByWD = true;
-                System.out.println("PKIListener: Initializing the watchdog");
+                logger.info("PKIListener: Initializing the watchdog");
                 WatchdogClient.init();
             }
 
         } else if (type.equals(Lifecycle.AFTER_START_EVENT)) {
 
             if (startedByWD) {
-                System.out.println("PKIListener: Sending endInit to the Watchdog");
+                logger.info("PKIListener: Sending endInit to the Watchdog");
                 WatchdogClient.sendEndInit(0);
             }
 
@@ -88,13 +91,13 @@ public class PKIListener implements LifecycleListener {
 
             if (!contextXml.exists()) {
 
-                System.out.println("PKIListener: Subsystem " + subsystemName.toUpperCase() + " is disabled.");
+                logger.warning("PKIListener: Subsystem " + subsystemName.toUpperCase() + " is disabled.");
 
                 String selftestsLog = "/var/log/pki/" + instanceName + "/" + subsystemName + "/selftests.log";
-                System.out.println("PKIListener: Check " + selftestsLog + " for possible errors.");
+                logger.warning("PKIListener: Check " + selftestsLog + " for possible errors.");
 
-                System.out.println("PKIListener: To enable the subsystem:");
-                System.out.println("PKIListener:   pki-server subsystem-enable -i " + instanceName + " " + subsystemName);
+                logger.warning("PKIListener: To enable the subsystem:");
+                logger.warning("PKIListener:   pki-server subsystem-enable -i " + instanceName + " " + subsystemName);
 
                 continue;
             }
@@ -103,17 +106,17 @@ public class PKIListener implements LifecycleListener {
 
             if (context == null) {
 
-                System.out.println("PKIListener: " + "Subsystem " + subsystemName.toUpperCase() + " is not deployed.");
+                logger.warning("PKIListener: " + "Subsystem " + subsystemName.toUpperCase() + " is not deployed.");
 
                 String catalinaLog = "/var/log/pki/" + instanceName + "/catalina.*.log";
-                System.out.println("PKIListener: Check " + catalinaLog);
-                System.out.println("PKIListener: and Tomcat's standard output and error for possible errors:");
-                System.out.println("PKIListener:   journalctl -u pki-tomcatd@" + instanceName + ".service");
+                logger.warning("PKIListener: Check " + catalinaLog);
+                logger.warning("PKIListener: and Tomcat's standard output and error for possible errors:");
+                logger.warning("PKIListener:   journalctl -u pki-tomcatd@" + instanceName + ".service");
 
                 continue;
             }
 
-            System.out.println("PKIListener: Subsystem " + subsystemName.toUpperCase() + " is running.");
+            logger.info("PKIListener: Subsystem " + subsystemName.toUpperCase() + " is running.");
         }
     }
 }
