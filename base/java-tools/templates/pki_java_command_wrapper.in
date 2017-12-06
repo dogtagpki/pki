@@ -64,6 +64,38 @@ invalid_architecture() {
     echo
 }
 
+set_nss_default_db_type() {
+    if [ -z ${NSS_DEFAULT_DB_TYPE+x} ]; then
+        # NSS_DEFAULT_DB_TYPE is undefined; set 'dbm' default NSS DB type
+        NSS_DEFAULT_DB_TYPE=dbm
+    elif [ -z ${NSS_DEFAULT_DB_TYPE} ] ; then
+        # NSS_DEFAULT_DB_TYPE is empty; set 'dbm' default NSS DB type
+        NSS_DEFAULT_DB_TYPE=dbm
+    else
+        # normalize NSS_DEFAULT_DB_TYPE to all lowercase letters
+        nss_type=`echo ${NSS_DEFAULT_DB_TYPE} | tr '[:upper:]' '[:lower:]'`
+        if [ ${nss_type} = 'dbm' ] ; then
+            # Always set/reset 'dbm' default NSS DB type
+            NSS_DEFAULT_DB_TYPE=dbm
+        elif [ ${nss_type} = 'sql' ] ; then
+            # Always set/reset 'sql' default NSS DB type
+            # NSS_DEFAULT_DB_TYPE=sql
+
+            # Warn user and set 'dbm' default NSS DB type
+            echo "WARNING: NSS_DEFAULT_DB_TYPE=sql is currently unsupported!"
+            echo "         Resetting to NSS_DEFAULT_DB_TYPE=dbm."
+            NSS_DEFAULT_DB_TYPE=dbm
+        else
+            # NSS_DEFAULT_DB_TYPE is invalid; set 'dbm' default NSS DB type
+            echo -n "WARNING: NSS_DEFAULT_DB_TYPE='${NSS_DEFAULT_DB_TYPE}' is "
+            echo "invalid!"
+            echo "         Resetting to NSS_DEFAULT_DB_TYPE=dbm."
+            NSS_DEFAULT_DB_TYPE=dbm
+        fi
+    fi
+    export NSS_DEFAULT_DB_TYPE
+}
+
 
 ###############################################################################
 ##  (4) Set the LD_LIBRARY_PATH environment variable to determine the        ##
@@ -115,6 +147,8 @@ fi
 ##  (5) Execute the java command specified by this java command wrapper      ##
 ##      based upon the LD_LIBRARY_PATH and PKI_LIB environment variables.    ##
 ###############################################################################
+
+set_nss_default_db_type
 
 ${JAVA} ${JAVA_OPTIONS} \
   -Djava.ext.dirs=${PKI_LIB} \
