@@ -21,6 +21,12 @@
 # System Imports
 from __future__ import absolute_import
 from __future__ import print_function
+
+try:
+    import configparser
+except ImportError:
+    import ConfigParser as configparser
+
 import errno
 import sys
 import os
@@ -1018,8 +1024,6 @@ class Instance:
             raise
 
     def get_instance_status(self, secure_connection=True):
-        pki_protocol = None
-        pki_port = None
         if secure_connection:
             pki_protocol = "https"
             pki_port = self.mdict['pki_https_port']
@@ -2057,6 +2061,7 @@ class Password:
 
     def __init__(self, deployer):
         self.mdict = deployer.mdict
+        self.deployer = deployer
 
     def create_password_conf(self, path, pin, pin_sans_token=False,
                              overwrite_flag=False, critical_failure=True):
@@ -2146,7 +2151,7 @@ class Password:
                 raise
         return
 
-    def get_password(self, path, token_name, critical_failure=True):
+    def get_password(self, path, token_name):
         token_pwd = None
         if os.path.exists(path) and os.path.isfile(path) and\
            os.access(path, os.R_OK):
@@ -2159,16 +2164,11 @@ class Password:
                 token_pwd = tokens[token_name]
 
         if token_pwd is None or token_pwd == '':
-            # TODO prompt for this password
-            config.pki_log.error(log.PKIHELPER_PASSWORD_NOT_FOUND_1,
-                                 token_name,
-                                 extra=config.PKI_INDENTATION_LEVEL_2)
-            if critical_failure:
-                raise Exception(
-                    log.PKIHELPER_PASSWORD_NOT_FOUND_1 %
-                    token_name)
-            else:
-                return
+            self.deployer.parser.read_password(
+                'Password for token {}'.format(token_name),
+                self.deployer.subsystem_name,
+                'token_pwd')
+            token_pwd = self.mdict['token_pwd']
         return token_pwd
 
 
@@ -2929,7 +2929,6 @@ class ServerCertNickConf:
             try:
                 # overwrite value inside 'serverCertNick.conf'
                 with open(self.servercertnick_conf, "w") as fd:
-                    ssl_server_nickname = None
                     if self.step_two:
                         # use final HSM name
                         ssl_server_nickname = (self.token_name + ":" +
@@ -2998,8 +2997,7 @@ class KRAConnector:
 
             token_pwd = self.password.get_password(
                 self.mdict['pki_shared_password_conf'],
-                token_name,
-                critical_failure)
+                token_name)
 
             if token_pwd is None or token_pwd == '':
                 config.pki_log.warning(
@@ -3203,8 +3201,7 @@ class TPSConnector:
 
             token_pwd = self.password.get_password(
                 self.mdict['pki_shared_password_conf'],
-                token_name,
-                critical_failure)
+                token_name)
 
             if token_pwd is None or token_pwd == '':
                 config.pki_log.warning(
@@ -3441,8 +3438,7 @@ class SecurityDomain:
 
         token_pwd = self.password.get_password(
             self.mdict['pki_shared_password_conf'],
-            token_name,
-            critical_failure)
+            token_name)
 
         if token_pwd is None or token_pwd == '':
             config.pki_log.warning(
@@ -3495,17 +3491,77 @@ class Systemd(object):
 
         Args:
           deployer (dictionary):  PKI Deployment name/value parameters
-
-        Attributes:
-
-        Returns:
-
-        Raises:
-
-        Examples:
-
         """
         self.mdict = deployer.mdict
+        self.deployer = deployer
+        instance_name = deployer.mdict['pki_instance_name']
+
+        unit_file = 'pki-tomcatd@%s.service' % instance_name
+        systemd_link = os.path.join(
+            '/etc/systemd/system/pki-tomcatd.target.wants',
+            unit_file)
+        override_dir = '/etc/systemd/system/pki-tomcatd@{}.service.d'.format(
+            instance_name)
+        self.base_override_dir = override_dir
+
+        nuxwdog_unit_file = 'pki-tomcatd-nuxwdog@%s.service' % instance_name
+        nuxwdog_systemd_link = os.path.join(
+            '/etc/systemd/system/pki-tomcatd-nuxwdog.target.wants',
+            nuxwdog_unit_file)
+        nuxwdog_override_dir = (
+            '/etc/systemd/system/pki-tomcatd-nuxwdog@{}.service.d'.format(
+                instance_name))
+        self.nuxwdog_override_dir = nuxwdog_override_dir
+
+        # self.overrides will be a hash of ConfigParsers indexed by filename
+        # once the overrides have been constructed, the caller should call
+        # write_overrides()
+        self.overrides = {}
+
+        if os.path.exists(nuxwdog_systemd_link):
+            self.is_nuxwdog_enabled = True
+            self.service_name = nuxwdog_unit_file
+            self.systemd_link = nuxwdog_systemd_link
+            self.override_dir = nuxwdog_override_dir
+        else:
+            self.is_nuxwdog_enabled = False
+            self.service_name = unit_file
+            self.systemd_link = systemd_link
+            self.override_dir = override_dir
+
+    def create_override_directory(self):
+        self.deployer.directory.create(self.override_dir, uid=0, gid=0)
+
+    def create_override_file(self, fname):
+        self.create_override_directory()
+        self.deployer.file.create(
+            os.path.join(self.override_dir, fname),
+            uid=0, gid=0
+        )
+
+    def set_override(self, section, param, value, fname='local.conf'):
+        if fname not in self.overrides:
+            parser = configparser.ConfigParser()
+            parser.optionxform = str
+            override_file = os.path.join(self.override_dir, fname)
+            if os.path.exists(override_file):
+                parser.read(override_file)
+            self.overrides[fname] = parser
+        else:
+            parser = self.overrides[fname]
+
+        if not parser.has_section(section):
+            parser.add_section(section)
+
+        parser.set(section, param, value)
+
+    def write_overrides(self):
+        for fname, parser in self.overrides.items():
+            override_file = os.path.join(self.override_dir, fname)
+            if not os.path.exists(override_file):
+                self.create_override_file(override_file)
+            with open(override_file, 'w') as fp:
+                parser.write(fp)
 
     def daemon_reload(self, critical_failure=True):
         """PKI Deployment execution management lifecycle function.
@@ -3579,7 +3635,7 @@ class Systemd(object):
                 command = ["rm", "/etc/rc3.d/*" +
                            self.mdict['pki_instance_name']]
             else:
-                command = ["systemctl", "disable", "pki-tomcatd.target"]
+                command = ["systemctl", "disable", self.service_name]
 
             # Display this "systemd" execution managment command
             config.pki_log.info(
@@ -3629,7 +3685,7 @@ class Systemd(object):
                 command = ["ln", "-s", "/etc/init.d/pki-tomcatd",
                            "/etc/rc3.d/S89" + self.mdict['pki_instance_name']]
             else:
-                command = ["systemctl", "enable", "pki-tomcatd.target"]
+                command = ["systemctl", "enable", self.service_name]
 
             # Display this "systemd" execution managment command
             config.pki_log.info(
@@ -3673,20 +3729,15 @@ class Systemd(object):
 
         """
         try:
-            service = None
             # Execute the "systemd daemon-reload" management lifecycle command
             if reload_daemon:
                 self.daemon_reload(critical_failure)
-            # Compose this "systemd" execution management command
-            service = "pki-tomcatd" + "@" +\
-                      self.mdict['pki_instance_name'] + "." +\
-                      "service"
 
             if pki.system.SYSTEM_TYPE == "debian":
                 command = ["/etc/init.d/pki-tomcatd", "start",
                            self.mdict['pki_instance_name']]
             else:
-                command = ["systemctl", "start", service]
+                command = ["systemctl", "start", self.service_name]
 
             # Display this "systemd" execution managment command
             config.pki_log.info(
@@ -3726,17 +3777,11 @@ class Systemd(object):
 
         """
         try:
-            service = None
-            # Compose this "systemd" execution management command
-            service = "pki-tomcatd" + "@" +\
-                      self.mdict['pki_instance_name'] + "." +\
-                      "service"
-
             if pki.system.SYSTEM_TYPE == "debian":
                 command = ["/etc/init.d/pki-tomcatd", "stop",
                            self.mdict['pki_instance_name']]
             else:
-                command = ["systemctl", "stop", service]
+                command = ["systemctl", "stop", self.service_name]
 
             # Display this "systemd" execution managment command
             config.pki_log.info(
@@ -3777,21 +3822,16 @@ class Systemd(object):
 
         """
         try:
-            service = None
             # Compose this "systemd" execution management command
             # Execute the "systemd daemon-reload" management lifecycle command
             if reload_daemon:
                 self.daemon_reload(critical_failure)
 
-            service = "pki-tomcatd" + "@" +\
-                      self.mdict['pki_instance_name'] + "." +\
-                      "service"
-
             if pki.system.SYSTEM_TYPE == "debian":
                 command = ["/etc/init.d/pki-tomcatd", "restart",
                            self.mdict['pki_instance_name']]
             else:
-                command = ["systemctl", "restart", service]
+                command = ["systemctl", "restart", self.service_name]
 
             # Display this "systemd" execution managment command
             config.pki_log.info(
@@ -4099,7 +4139,6 @@ class ConfigClient:
             os.path.dirname(self.mdict['pki_external_admin_csr_path']))
         with open(self.mdict['pki_external_admin_csr_path'], "w") as f:
             f.write("-----BEGIN CERTIFICATE REQUEST-----\n")
-        admin_certreq = None
         with open(os.path.join(
                   self.mdict['pki_client_database_dir'],
                   "admin_pkcs10.bin.asc"), "r") as f:

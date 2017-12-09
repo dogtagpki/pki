@@ -39,10 +39,10 @@ set_javacmd
 # create the nuxwdog config file
 nux_fname="${CATALINA_BASE}/conf/nuxwdog.conf"
 touch ${nux_fname}
-chown pkiuser: ${nux_fname}
+chown ${TOMCAT_USER}: ${nux_fname}
 
-echo "ExeFile ${JAVACMD}" > $nux_fname
-echo "ExeArgs ${JAVACMD} ${FLAGS} -classpath ${CLASSPATH} ${OPTIONS} ${MAIN_CLASS} start" >> $nux_fname
+echo "ExeFile ${JAVA_HOME}/bin/java" > $nux_fname
+echo "ExeArgs ${JAVA_HOME}/bin/java ${JAVACMD_OPTS} ${FLAGS} -classpath ${CLASSPATH} ${OPTIONS} ${MAIN_CLASS} start" >> $nux_fname
 echo "TmpDir ${CATALINA_BASE}/logs/pids" >> $nux_fname
 echo "ChildSecurity 1" >> $nux_fname
 echo "ExeOut ${CATALINA_BASE}/logs/catalina.out" >> $nux_fname
@@ -50,4 +50,5 @@ echo "ExeErr ${CATALINA_BASE}/logs/catalina.out" >> $nux_fname
 echo "ExeBackground 1" >> $nux_fname
 echo "PidFile $NUXWDOG_PID" >> $nux_fname
 echo "ChildPidFile $CATALINA_PID" >> $nux_fname
+echo "User ${TOMCAT_USER}" >> $nux_fname
 
