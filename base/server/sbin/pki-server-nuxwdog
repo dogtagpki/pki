@@ -41,8 +41,8 @@ nux_fname="${CATALINA_BASE}/conf/nuxwdog.conf"
 touch ${nux_fname}
 chown pkiuser: ${nux_fname}
 
-echo "ExeFile ${JAVACMD}" > $nux_fname
-echo "ExeArgs ${JAVACMD} ${FLAGS} -classpath ${CLASSPATH} ${OPTIONS} ${MAIN_CLASS} start" >> $nux_fname
+echo "ExeFile ${JAVA_HOME}/bin/java" > $nux_fname
+echo "ExeArgs ${JAVA_HOME}/bin/java ${JAVACMD_OPTS} ${FLAGS} -classpath ${CLASSPATH} ${OPTIONS} ${MAIN_CLASS} start" >> $nux_fname
 echo "TmpDir ${CATALINA_BASE}/logs/pids" >> $nux_fname
 echo "ChildSecurity 1" >> $nux_fname
 echo "ExeOut ${CATALINA_BASE}/logs/catalina.out" >> $nux_fname
