@@ -562,6 +562,46 @@ class ExternalCert(object):
         self.token = token
 
 
+class ServerConfiguration(object):
+
+    def __init__(self, filename):
+        self.filename = filename
+        self.document = etree.ElementTree()
+
+    def load(self):
+        parser = etree.XMLParser(remove_blank_text=True)
+        self.document = etree.parse(self.filename, parser)
+
+    def save(self):
+        with open(self.filename, 'wb') as f:
+            self.document.write(f, pretty_print=True, encoding='utf-8')
+
+    def get_connectors(self):
+
+        server = self.document.getroot()
+
+        connectors = {}
+        counter = 0
+
+        for connector in server.findall('.//Connector'):
+
+            name = connector.get('name')
+
+            if not name:  # connector has no name, generate a temporary name
+
+                while True:  # find unused name
+                    counter += 1
+                    name = 'Connector%d' % counter
+                    if name not in connectors:
+                        break
+
+                connector.set('name', name)
+
+            connectors[name] = connector
+
+        return connectors
+
+
 @functools.total_ordering
 class PKIInstance(object):
 
@@ -578,6 +618,7 @@ class PKIInstance(object):
         self.conf_dir = os.path.join(CONFIG_BASE_DIR, name)
         self.log_dir = os.path.join(LOG_BASE_DIR, name)
 
+        self.server_xml = os.path.join(self.conf_dir, 'server.xml')
         self.banner_file = os.path.join(self.conf_dir, 'banner.txt')
         self.password_conf = os.path.join(self.conf_dir, 'password.conf')
         self.external_certs_conf = os.path.join(
@@ -813,6 +854,11 @@ class PKIInstance(object):
 
             finally:
                 shutil.rmtree(tmpdir)
+
+    def get_server_config(self):
+        server_config = ServerConfiguration(self.server_xml)
+        server_config.load()
+        return server_config
 
     def get_subsystem(self, name):
         for subsystem in self.subsystems:
