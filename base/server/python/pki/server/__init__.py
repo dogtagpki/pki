@@ -130,20 +130,25 @@ class PKISubsystem(object):
     def load(self):
         self.config.clear()
 
-        lines = open(self.cs_conf).read().splitlines()
+        if os.path.exists(self.cs_conf):
 
-        for index, line in enumerate(lines):
-            if not line or line.startswith('#'):
-                continue
-            parts = line.split('=', 1)
-            if len(parts) < 2:
-                raise Exception('Missing delimiter in %s line %d' % (self.cs_conf, index + 1))
-            name = parts[0]
-            value = parts[1]
-            self.config[name] = value
+            lines = open(self.cs_conf).read().splitlines()
 
-        self.type = self.config['cs.type']
-        self.prefix = self.type.lower()
+            for index, line in enumerate(lines):
+
+                if not line or line.startswith('#'):
+                    continue
+
+                parts = line.split('=', 1)
+                if len(parts) < 2:
+                    raise Exception('Missing delimiter in %s line %d' % (self.cs_conf, index + 1))
+
+                name = parts[0]
+                value = parts[1]
+                self.config[name] = value
+
+            self.type = self.config['cs.type']
+            self.prefix = self.type.lower()
 
     def find_system_certs(self):
         certs = []
