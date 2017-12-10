@@ -30,6 +30,7 @@ import org.apache.catalina.LifecycleListener;
 import org.apache.catalina.Server;
 import org.apache.catalina.Service;
 import org.apache.commons.lang.StringUtils;
+import org.apache.tomcat.util.net.jss.TomcatJSS;
 
 import com.redhat.nuxwdog.WatchdogClient;
 
@@ -52,6 +53,14 @@ public class PKIListener implements LifecycleListener {
                 startedByWD = true;
                 logger.info("PKIListener: Initializing the watchdog");
                 WatchdogClient.init();
+            }
+
+        } else if (type.equals(Lifecycle.AFTER_INIT_EVENT)) {
+
+            try {
+                TomcatJSS.getInstance().init();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
             }
 
         } else if (type.equals(Lifecycle.AFTER_START_EVENT)) {
