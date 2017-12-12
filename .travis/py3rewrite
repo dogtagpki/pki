@@ -14,15 +14,6 @@ PKISBIN = os.path.join(PKIBASE, 'server', 'sbin')
 SITEPACKAGES = get_python_lib()
 
 
-def copyscript(src, dst):
-    with open(src) as f:
-        lines = f.readlines()
-    lines[0] = '#!/usr/bin/python3\n'
-    with open(dst, 'w') as f:
-        os.fchmod(f.fileno(), 0o755)
-        f.writelines(lines)
-
-
 def copyfiles():
     shutil.rmtree(os.path.join(SITEPACKAGES, 'pki'))
     shutil.copytree(
@@ -33,14 +24,7 @@ def copyfiles():
         PKISERVER,
         os.path.join(SITEPACKAGES, 'pki', 'server')
     )
-    copyscript(
-        os.path.join(PKISBIN, 'pkispawn'),
-        '/usr/sbin/pkispawn'
-    )
-    copyscript(
-        os.path.join(PKISBIN, 'pkidestroy'),
-        '/usr/sbin/pkidestroy'
-    )
+
 
 if __name__ == '__main__':
     copyfiles()

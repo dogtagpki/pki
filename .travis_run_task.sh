@@ -74,7 +74,7 @@ then
    docker exec -i ${CONTAINER} ${SCRIPTDIR}/40-spawn-ca
    docker exec -i ${CONTAINER} ${SCRIPTDIR}/50-spawn-kra
    docker exec -i ${CONTAINER} ${SCRIPTDIR}/99-destroy
-   # copy pki.server for Python 3 and rewrite pkispawn/pkidestroy shebang
+   # copy pki.server for Python 3
    docker exec -i ${CONTAINER} ${SCRIPTDIR}/py3rewrite
    docker exec -i ${CONTAINER} ${SCRIPTDIR}/30-setup-389ds
    docker exec -i ${CONTAINER} ${SCRIPTDIR}/40-spawn-ca
