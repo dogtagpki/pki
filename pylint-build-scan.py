@@ -38,8 +38,6 @@ PYLINTRC = os.path.join(SCRIPTPATH, 'dogtag.pylintrc')
 FILENAMES = [
     os.path.abspath(__file__),
     '{sitepackages}/pki',
-    '{sbin}/pkispawn',
-    '{sbin}/pkidestroy',
     '{sbin}/pki-upgrade',
     '{sbin}/pki-server',
     '{sbin}/pki-server-upgrade',
