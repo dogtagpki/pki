@@ -26,7 +26,7 @@ env:
       DOGTAG_PKI_RPMS=${TRAVIS_BUILD_DIR}/dogtag_rpms
 
 before_install:
-  - pyenv global system 3.5
+  - pyenv global system 3.6
   - docker pull ${IMAGE}
   - >
     docker run
