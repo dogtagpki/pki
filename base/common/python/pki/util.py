@@ -124,10 +124,13 @@ def copydirs(source, dest):
 
 def chown(path, uid, gid):
     """
-    Change ownership of a folder and its contents.
+    Change ownership of a file or folder recursively.
     """
 
     os.chown(path, uid, gid)
+
+    if not os.path.isdir(path):
+        return
 
     for item in os.listdir(path):
         itempath = os.path.join(path, item)
@@ -136,6 +139,25 @@ def chown(path, uid, gid):
             os.chown(itempath, uid, gid)
         elif os.path.isdir(itempath):
             chown(itempath, uid, gid)
+
+
+def chmod(path, perms):
+    """
+    Change permissions of a file or folder recursively.
+    """
+
+    os.chmod(path, perms)
+
+    if not os.path.isdir(path):
+        return
+
+    for item in os.listdir(path):
+        itempath = os.path.join(path, item)
+
+        if os.path.isfile(itempath):
+            os.chmod(itempath, perms)
+        elif os.path.isdir(itempath):
+            chmod(itempath, perms)
 
 
 def customize_file(input_file, output_file, params):
