@@ -66,12 +66,12 @@
 Name:             pki-core
 %if 0%{?rhel}
 Version:                10.5.1
-%define redhat_release  4
+%define redhat_release  5
 %define redhat_stage    0
 %define default_release %{redhat_release}.%{redhat_stage}
 #%define default_release %{redhat_release}
 %else
-Version:                10.5.2
+Version:                10.5.3
 %define fedora_release  1
 %define fedora_stage    0
 %define default_release %{fedora_release}.%{fedora_stage}
@@ -207,8 +207,6 @@ Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{
 %else
 Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{release}/%{name}-%{version}%{?prerel}.tar.gz
 %endif
-
-#Patch0:           pki-core-seobject-pylint.patch
 
 # Obtain version phase number (e. g. - used by "alpha", "beta", etc.)
 #
@@ -805,7 +803,6 @@ This package is a part of the PKI Core used by the Certificate System.
 
 %prep
 %setup -q -n %{name}-%{version}%{?prerel}
-#%patch0 -p1
 
 %clean
 %{__rm} -rf %{buildroot}
@@ -1333,6 +1330,19 @@ fi
 %endif # %{with server}
 
 %changelog
+* Mon Dec 11 2017 Dogtag Team <pki-devel@redhat.com> 10.5.3-1
+- Re-base Dogtag to 10.5.3
+- dogtagpki Pagure Issue #2735 - Secure removal of secret data storage
+  (jmagne)
+- dogtagpki Pagure Issue #2856 - Pylint flags seobject failures
+  (cheimes, mharmsen)
+- dogtagpki Pagure Issue #2861 -ExternalCA: Failures in ExternalCA when
+  tried to setup with CMC signed certificates (cfu)
+- dogtagpki Pagure Issue #2862 - Create a mechanism to select the
+  default NSS DB type (jmagne, mharmsen)
+- dogtagpki Pagure Issue #2874 - nuxwdog won't start on Fedora
+  (alee, mharmsen)
+
 * Mon Nov 27 2017 Dogtag Team <pki-devel@redhat.com> 10.5.2-1
 - Re-base Dogtag to 10.5.2
 

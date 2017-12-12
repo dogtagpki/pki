@@ -7,12 +7,12 @@
 Name:             pki-console
 %if 0%{?rhel}
 Version:                10.5.1
-%define redhat_release  2
+%define redhat_release  3
 %define redhat_stage    0
 %define default_release %{redhat_release}.%{redhat_stage}
 #%define default_release %{redhat_release}
 %else
-Version:                10.5.2
+Version:                10.5.3
 %define fedora_release  1
 %define fedora_stage    0
 %define default_release %{fedora_release}.%{fedora_stage}
@@ -141,6 +141,11 @@ cd build
 
 
 %changelog
+* Mon Dec 11 2017 Dogtag Team <pki-devel@redhat.com> 10.5.3-1
+- Re-base Dogtag to 10.5.3
+- dogtagpki Pagure Issue #2862 - Create a mechanism to select the
+  default NSS DB type for console (jmagne, mharmsen)
+
 * Mon Nov 27 2017 Dogtag Team <pki-devel@redhat.com> 10.5.2-1
 - Re-base Dogtag to 10.5.2
 
