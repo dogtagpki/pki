@@ -265,6 +265,7 @@ def log_error_details():
     config.pki_log.debug(e_stacktrace, extra=config.PKI_INDENTATION_LEVEL_2)
     del e_type, e_value, e_stacktrace
 
+
 # PKI Deployment Entry Point
 if __name__ == "__main__":
     signal.signal(signal.SIGINT, interrupt_handler)

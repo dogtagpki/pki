@@ -94,7 +94,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         cert_id = self.get_cert_id(subsystem, tag)
 
         config.pki_log.info(
-            "generating %s CSR in %s" % (cert_id, csr_path),
+            "generating %s CSR in %s", cert_id, csr_path,
             extra=config.PKI_INDENTATION_LEVEL_2)
 
         subject_dn = deployer.mdict['pki_%s_subject_dn' % cert_id]
@@ -361,7 +361,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             return
 
         config.pki_log.info(
-            "importing %s CSR from %s" % (tag, csr_path),
+            "importing %s CSR from %s", tag, csr_path,
             extra=config.PKI_INDENTATION_LEVEL_2)
 
         with open(csr_path) as f:
@@ -377,7 +377,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             return
 
         config.pki_log.info(
-            "importing ca_signing CSR from %s" % csr_path,
+            "importing ca_signing CSR from %s", csr_path,
             extra=config.PKI_INDENTATION_LEVEL_2)
 
         with open(csr_path) as f:
@@ -404,7 +404,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         nickname = deployer.mdict['pki_ca_signing_nickname']
 
         config.pki_log.info(
-            "importing ca_signing certificate from %s" % cert_file,
+            "importing ca_signing certificate from %s", cert_file,
             extra=config.PKI_INDENTATION_LEVEL_2)
 
         nssdb.import_cert_chain(
@@ -421,7 +421,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         nickname = deployer.mdict['pki_ocsp_signing_nickname']
 
         config.pki_log.info(
-            "importing ca_ocsp_signing certificate from %s" % cert_file,
+            "importing ca_ocsp_signing certificate from %s", cert_file,
             extra=config.PKI_INDENTATION_LEVEL_2)
 
         nssdb.import_cert_chain(
@@ -438,7 +438,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         nickname = deployer.mdict['pki_sslserver_nickname']
 
         config.pki_log.info(
-            "importing sslserver certificate from %s" % cert_file,
+            "importing sslserver certificate from %s", cert_file,
             extra=config.PKI_INDENTATION_LEVEL_2)
 
         nssdb.import_cert_chain(
@@ -455,7 +455,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         nickname = deployer.mdict['pki_subsystem_nickname']
 
         config.pki_log.info(
-            "importing subsystem certificate from %s" % cert_file,
+            "importing subsystem certificate from %s", cert_file,
             extra=config.PKI_INDENTATION_LEVEL_2)
 
         nssdb.import_cert_chain(
@@ -472,7 +472,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         nickname = deployer.mdict['pki_audit_signing_nickname']
 
         config.pki_log.info(
-            "importing audit_signing certificate from %s" % cert_file,
+            "importing audit_signing certificate from %s", cert_file,
             extra=config.PKI_INDENTATION_LEVEL_2)
 
         nssdb.import_cert_chain(
@@ -494,7 +494,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         try:
             config.pki_log.info(
-                "importing admin certificate from %s" % cert_file,
+                "importing admin certificate from %s", cert_file,
                 extra=config.PKI_INDENTATION_LEVEL_2)
 
             client_nssdb.import_cert_chain(
@@ -514,7 +514,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         nickname = deployer.mdict['pki_storage_nickname']
 
         config.pki_log.info(
-            "importing kra_storage certificate from %s" % cert_file,
+            "importing kra_storage certificate from %s", cert_file,
             extra=config.PKI_INDENTATION_LEVEL_2)
 
         nssdb.import_cert_chain(
@@ -531,7 +531,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         nickname = deployer.mdict['pki_transport_nickname']
 
         config.pki_log.info(
-            "importing kra_transport certificate from %s" % cert_file,
+            "importing kra_transport certificate from %s", cert_file,
             extra=config.PKI_INDENTATION_LEVEL_2)
 
         nssdb.import_cert_chain(
@@ -548,7 +548,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         nickname = deployer.mdict['pki_ocsp_signing_nickname']
 
         config.pki_log.info(
-            "importing ocsp_signing certificate from %s" % cert_file,
+            "importing ocsp_signing certificate from %s", cert_file,
             extra=config.PKI_INDENTATION_LEVEL_2)
 
         nssdb.import_cert_chain(
@@ -563,7 +563,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             return
 
         config.pki_log.info(
-            "importing certificates and keys from %s" % pkcs12_file,
+            "importing certificates and keys from %s", pkcs12_file,
             extra=config.PKI_INDENTATION_LEVEL_2)
 
         pkcs12_password = deployer.mdict['pki_external_pkcs12_password']
@@ -578,7 +578,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         nickname = deployer.mdict['pki_cert_chain_nickname']
 
         config.pki_log.info(
-            "importing certificate chain from %s" % chain_file,
+            "importing certificate chain from %s", chain_file,
             extra=config.PKI_INDENTATION_LEVEL_2)
 
         nssdb.import_cert_chain(
@@ -787,7 +787,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             return
 
         config.pki_log.info(
-            "validating %s certificate" % tag,
+            "validating %s certificate", tag,
             extra=config.PKI_INDENTATION_LEVEL_2)
 
         subsystem.validate_system_cert(tag)
@@ -820,7 +820,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             nickname = deployer.mdict['pki_self_signed_nickname']
 
             config.pki_log.info(
-                "checking existing SSL server cert: %s" % nickname,
+                "checking existing SSL server cert: %s", nickname,
                 extra=config.PKI_INDENTATION_LEVEL_2)
 
             pem_cert = nssdb.get_cert(nickname)
@@ -831,7 +831,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 hostname = cn.value
 
                 config.pki_log.info(
-                    "existing SSL server cert is for %s" % hostname,
+                    "existing SSL server cert is for %s", hostname,
                     extra=config.PKI_INDENTATION_LEVEL_2)
 
                 # if hostname is correct, don't create temp cert
@@ -839,13 +839,13 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     return False
 
                 config.pki_log.info(
-                    "removing SSL server cert for %s" % hostname,
+                    "removing SSL server cert for %s", hostname,
                     extra=config.PKI_INDENTATION_LEVEL_2)
 
                 nssdb.remove_cert(nickname, remove_key=True)
 
             config.pki_log.info(
-                "creating temp SSL server cert for %s" % deployer.mdict['pki_hostname'],
+                "creating temp SSL server cert for %s", deployer.mdict['pki_hostname'],
                 extra=config.PKI_INDENTATION_LEVEL_2)
 
             # TODO: replace with pki-server create-cert sslserver --temp
@@ -911,7 +911,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         token = deployer.mdict['pki_token_name']
 
         config.pki_log.info(
-            "removing temp SSL server cert from internal token: %s" % nickname,
+            "removing temp SSL server cert from internal token: %s", nickname,
             extra=config.PKI_INDENTATION_LEVEL_2)
 
         nssdb = instance.open_nssdb()
@@ -934,7 +934,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         token = deployer.mdict['pki_token_name']
 
         config.pki_log.info(
-            "importing permanent SSL server cert into %s token: %s" % (token, nickname),
+            "importing permanent SSL server cert into %s token: %s", token, nickname,
             extra=config.PKI_INDENTATION_LEVEL_2)
 
         tmpdir = tempfile.mkdtemp()
@@ -1121,7 +1121,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         restart_server = os.path.join(instance.conf_dir, 'restart_server_after_configuration')
         config.pki_log.debug(
-            'creating %s' % restart_server,
+            'creating %s', restart_server,
             extra=config.PKI_INDENTATION_LEVEL_2)
 
         open(restart_server, 'a').close()
