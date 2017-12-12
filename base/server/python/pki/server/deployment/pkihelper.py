@@ -4032,7 +4032,7 @@ class ConfigClient:
         if not nickname:
             nickname = cert.nickname
 
-        config.pki_log.info("loading %s certificate" % nickname,
+        config.pki_log.info("loading %s certificate", nickname,
                             extra=config.PKI_INDENTATION_LEVEL_2)
 
         cert.cert = nssdb.get_cert(nickname)
