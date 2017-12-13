@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "20fea384_10b90132",
+        "filename": ".travis/py3rewrite",
+        "patchSetId": 3
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-12-13T22:31:38Z",
+      "side": 1,
+      "message": "Can you explain what is going on here?\n\nWhy were the shebangs being overwritten, and what are we not doing now as a result?",
+      "revId": "d56a554370fe84d68980d9bc34e8660ea2a9dec1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "75208aae_2d168b02",
+        "filename": "base/server/python/pki/server/pkidestroy.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-12-13T22:31:38Z",
+      "side": 1,
+      "message": "No changes from the original, right?",
+      "revId": "d56a554370fe84d68980d9bc34e8660ea2a9dec1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "770908f0_efd51d8a",
+        "filename": "base/server/python/pki/server/pkispawn.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-12-13T22:31:38Z",
+      "side": 1,
+      "message": "No changes from the original , right?",
+      "revId": "d56a554370fe84d68980d9bc34e8660ea2a9dec1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9c9f1e24_54fb4956",
+        "filename": "pylint-build-scan.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-12-13T22:31:38Z",
+      "side": 1,
+      "message": "Are the renamed pkispawn and pkidestroy packages going through a pylint scan?",
+      "revId": "d56a554370fe84d68980d9bc34e8660ea2a9dec1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "35fce7aa_da4d570f",
+        "filename": "tox.ini",
+        "patchSetId": 3
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2017-12-13T22:31:38Z",
+      "side": 1,
+      "message": "Are the renamed pkispawn/ pkidestroy going through tox scan?  Looks like it - but please confirm.",
+      "revId": "d56a554370fe84d68980d9bc34e8660ea2a9dec1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
