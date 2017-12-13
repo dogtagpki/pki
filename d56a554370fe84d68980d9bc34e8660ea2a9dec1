@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "688c2738_02f6d892",
+        "filename": ".travis/py3rewrite",
+        "patchSetId": 3
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-12-13T22:51:10Z",
+      "side": 1,
+      "message": "cheimes explained that this was done to test Python 2 and 3 compatibility within the same test.\n\nI think the Python 3 test is unnecessary right now and can be done separately as part of future Fedora 28 CI test. Besides, there\u0027s already a separate IPA test that supposedly use Python 3. Regardless, pkispawn and pkidestroy are always run as a standalone script, so it does not actually need to support Python 3 right now. Also, modifying the files being tested is actually invalidating the test result.\n\nI\u0027ve opened a separate ticket to remove duplicate tests:\nhttps://pagure.io/dogtagpki/issue/2882",
+      "parentUuid": "20fea384_10b90132",
+      "revId": "d56a554370fe84d68980d9bc34e8660ea2a9dec1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "75208aae_2d168b02",
         "filename": "base/server/python/pki/server/pkidestroy.py",
         "patchSetId": 3
@@ -30,6 +48,24 @@
       "writtenOn": "2017-12-13T22:31:38Z",
       "side": 1,
       "message": "No changes from the original, right?",
+      "revId": "d56a554370fe84d68980d9bc34e8660ea2a9dec1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b2b220b2_a12765e8",
+        "filename": "base/server/python/pki/server/pkidestroy.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-12-13T22:51:10Z",
+      "side": 1,
+      "message": "Correct.",
+      "parentUuid": "75208aae_2d168b02",
       "revId": "d56a554370fe84d68980d9bc34e8660ea2a9dec1",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "ba3a5895_dd973a3f",
+        "filename": "base/server/python/pki/server/pkispawn.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-12-13T22:51:10Z",
+      "side": 1,
+      "message": "Correct. Changes were done in the previous patch.",
+      "parentUuid": "770908f0_efd51d8a",
+      "revId": "d56a554370fe84d68980d9bc34e8660ea2a9dec1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9c9f1e24_54fb4956",
         "filename": "pylint-build-scan.py",
         "patchSetId": 3
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "18978f88_e22cc639",
+        "filename": "pylint-build-scan.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-12-13T22:51:10Z",
+      "side": 1,
+      "message": "Yes. The new files are in the same location as other Python library files, so they are checked.",
+      "parentUuid": "9c9f1e24_54fb4956",
+      "revId": "d56a554370fe84d68980d9bc34e8660ea2a9dec1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "35fce7aa_da4d570f",
         "filename": "tox.ini",
         "patchSetId": 3
@@ -81,6 +153,24 @@
       "writtenOn": "2017-12-13T22:31:38Z",
       "side": 1,
       "message": "Are the renamed pkispawn/ pkidestroy going through tox scan?  Looks like it - but please confirm.",
+      "revId": "d56a554370fe84d68980d9bc34e8660ea2a9dec1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7d596ead_f150581c",
+        "filename": "tox.ini",
+        "patchSetId": 3
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2017-12-13T22:51:10Z",
+      "side": 1,
+      "message": "Yes. The new files have the .py extension, so they are checked. The previous patch was created because the files failed pylint and flake8.",
+      "parentUuid": "35fce7aa_da4d570f",
       "revId": "d56a554370fe84d68980d9bc34e8660ea2a9dec1",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
