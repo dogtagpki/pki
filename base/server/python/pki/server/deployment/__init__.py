@@ -29,6 +29,7 @@ from lxml import etree
 
 from . import pkiconfig as config
 from . import pkihelper as util
+from . import pkimanifest as manifest
 
 
 class PKIDeployer:
@@ -171,3 +172,15 @@ class PKIDeployer:
         os.chmod(
             new_descriptor,
             config.PKI_DEPLOYMENT_DEFAULT_FILE_PERMISSIONS)
+
+    def record(self, name, record_type, uid, gid, perms, acls=None):
+        record = manifest.Record()
+        record.name = name
+        record.type = record_type
+        record.user = self.mdict['pki_user']
+        record.group = self.mdict['pki_group']
+        record.uid = uid
+        record.gid = gid
+        record.permissions = perms
+        record.acls = acls
+        self.manifest_db.append(record)
