@@ -1193,7 +1193,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # Cloned PKI subsystems do not return an Admin Certificate
         if not clone:
 
-            if standalone:
+            if external or standalone:
                 if not step_two:
                     # NOTE:  Do nothing for Stand-alone PKI (Step 1)
                     #        as this has already been addressed
