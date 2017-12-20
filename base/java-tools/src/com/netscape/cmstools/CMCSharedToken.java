@@ -38,6 +38,7 @@ import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.crypto.X509Certificate;
+import org.mozilla.jss.util.Password;
 
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Cert;
@@ -77,7 +78,11 @@ public class CMCSharedToken {
         option.setArgName("output");
         options.addOption(option);
 
-        option = new Option("p", true, "passphrase");
+        option = new Option("p", true, "password");
+        option.setArgName("password");
+        options.addOption(option);
+
+        option = new Option("s", true, "passphrase");
         option.setArgName("passphrase");
         options.addOption(option);
 
@@ -104,7 +109,8 @@ public class CMCSharedToken {
         System.out.println("Options:");
         System.out.println("  -d <database>                Security database location (default: current directory)");
         System.out.println("  -h <token>                   Security token name (default: internal)");
-        System.out.println("  -p <passphrase>              CMC enrollment passphrase (put in \"\" if containing spaces)");
+        System.out.println("  -p <password>                Security token password");
+        System.out.println("  -s <passphrase>              CMC enrollment passphrase (shared secret) (put in \"\" if containing spaces)");
         System.out.println("     Use either -b OR -n below");
         System.out.println("  -b <issuance protection cert>          PEM issuance protection certificate");
         System.out.println("  -n <issuance protection cert nickname>          issuance protection certificate nickname");
@@ -177,7 +183,7 @@ public class CMCSharedToken {
         boolean verbose = cmd.hasOption("v");
 
         String databaseDir = cmd.getOptionValue("d", ".");
-        String passphrase = cmd.getOptionValue("p");
+        String passphrase = cmd.getOptionValue("s");
         if (passphrase == null) {
             printError("Missing passphrase");
             System.exit(1);
@@ -188,6 +194,7 @@ public class CMCSharedToken {
             System.out.println(Arrays.toString(passphrase.getBytes("UTF-8")));
         }
         String tokenName = cmd.getOptionValue("h");
+        String tokenPassword = cmd.getOptionValue("p");
 
         String issuanceProtCertFilename = cmd.getOptionValue("b");
         String issuanceProtCertNick = cmd.getOptionValue("n");
@@ -201,6 +208,14 @@ public class CMCSharedToken {
             CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
             tokenName = token.getName();
             manager.setThreadToken(token);
+
+            Password password = new Password(tokenPassword.toCharArray());
+            try {
+                token.login(password);
+            } catch (Exception e) {
+                throw new Exception("Unable to login: " + e, e);
+            }
+
             X509Certificate  issuanceProtCert = null;
             if (issuanceProtCertFilename != null) {
                 if (verbose) System.out.println("Loading issuance protection certificate");
@@ -295,7 +310,7 @@ public class CMCSharedToken {
 
                 SymmetricKey ver_session = CryptoUtil.unwrap(token,  SymmetricKey.AES, 128, SymmetricKey.Usage.UNWRAP, wrappingKey, wrapped_session, wrapAlgorithm);
                 byte[] ver_passphrase = CryptoUtil.decryptUsingSymmetricKey(token, new IVParameterSpec(iv), wrapped_passphrase,
-                ver_session, EncryptionAlgorithm.AES_128_CBC_PAD);
+                ver_session, encryptAlgorithm);
 
                 String ver_spassphrase = new String(ver_passphrase, "UTF-8");
 
