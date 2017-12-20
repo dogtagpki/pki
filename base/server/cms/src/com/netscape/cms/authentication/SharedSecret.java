@@ -21,7 +21,6 @@ import java.math.BigInteger;
 // ldap java sdk
 import java.util.Enumeration;
 
-import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.EncryptionAlgorithm;
 import org.mozilla.jss.crypto.IVParameterSpec;
@@ -143,8 +142,7 @@ public class SharedSecret extends DirBasedAuthentication
     private IConfigStore shrTokLdapConfigStore = null;
 
     private PrivateKey issuanceProtPrivKey = null;
-    protected CryptoManager cm = null;
-    protected CryptoToken tmpToken = null;
+    protected CryptoToken token = null;
     protected byte iv[] = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
     EncryptionAlgorithm encryptAlgorithm = EncryptionAlgorithm.AES_128_CBC_PAD;
     ICertificateRepository certRepository = null;
@@ -193,15 +191,16 @@ public class SharedSecret extends DirBasedAuthentication
         }
 
         try {
-            cm = CryptoManager.getInstance();
+            String tokenName =
+                    CMS.getConfigStore().getString("cmc.token", CryptoUtil.INTERNAL_TOKEN_NAME);
+            CMS.debug(method + "getting token :" + tokenName);
+            token = CryptoUtil.getKeyStorageToken(tokenName);
         } catch (Exception e) {
-            msg = method + e.toString();
-            CMS.debug(msg);
-            throw new EBaseException(msg);
+            CMS.debug(method + e);
+            throw new EBaseException(e);
         }
-        tmpToken = cm.getInternalKeyStorageToken();
-        if (tmpToken == null) {
-            msg = method + "tmpToken null";
+        if (token == null) {
+            msg = method + "token null";
             CMS.debug(msg);
             throw new EBaseException(msg);
         }
@@ -355,11 +354,11 @@ public class SharedSecret extends DirBasedAuthentication
             byte wrapped_passphrase[] = wrapped_dPassphrase.getOctetString();
             CMS.debug(method + "wrapped passphrase retrieved");
 
-            SymmetricKey ver_session = CryptoUtil.unwrap(tmpToken, SymmetricKey.AES, 128, SymmetricKey.Usage.UNWRAP,
+            SymmetricKey ver_session = CryptoUtil.unwrap(token, SymmetricKey.AES, 128, SymmetricKey.Usage.UNWRAP,
                     issuanceProtPrivKey, wrapped_session, wrapAlgorithm);
-            ver_passphrase = CryptoUtil.decryptUsingSymmetricKey(tmpToken, new IVParameterSpec(iv),
+            ver_passphrase = CryptoUtil.decryptUsingSymmetricKey(token, new IVParameterSpec(iv),
                     wrapped_passphrase,
-                    ver_session, EncryptionAlgorithm.AES_128_CBC_PAD);
+                    ver_session, encryptAlgorithm);
 
             char[] ver_spassphraseChars = CryptoUtil.bytesToChars(ver_passphrase);
             return ver_spassphraseChars;
