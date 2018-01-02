@@ -3450,17 +3450,28 @@ class Systemd(object):
 
         Args:
           deployer (dictionary):  PKI Deployment name/value parameters
-
-        Attributes:
-
-        Returns:
-
-        Raises:
-
-        Examples:
-
         """
         self.mdict = deployer.mdict
+        instance_name = deployer.mdict['pki_instance_name']
+
+        unit_file = 'pki-tomcatd@%s.service' % instance_name
+        systemd_link = os.path.join(
+            '/etc/systemd/system/pki-tomcatd.target.wants',
+            unit_file)
+
+        nuxwdog_unit_file = 'pki-tomcatd-nuxwdog@%s.service' % instance_name
+        nuxwdog_systemd_link = os.path.join(
+            '/etc/systemd/system/pki-tomcatd-nuxwdog.target.wants',
+            nuxwdog_unit_file)
+
+        if os.path.exists(nuxwdog_systemd_link):
+            self.is_nuxwdog_enabled = True
+            self.service_name = nuxwdog_unit_file
+            self.systemd_link = nuxwdog_systemd_link
+        else:
+            self.is_nuxwdog_enabled = False
+            self.service_name = unit_file
+            self.systemd_link = systemd_link
 
     def daemon_reload(self, critical_failure=True):
         """PKI Deployment execution management lifecycle function.
@@ -3534,7 +3545,7 @@ class Systemd(object):
                 command = ["rm", "/etc/rc3.d/*" +
                            self.mdict['pki_instance_name']]
             else:
-                command = ["systemctl", "disable", "pki-tomcatd.target"]
+                command = ["systemctl", "disable", self.service_name]
 
             # Display this "systemd" execution managment command
             config.pki_log.info(
@@ -3584,7 +3595,7 @@ class Systemd(object):
                 command = ["ln", "-s", "/etc/init.d/pki-tomcatd",
                            "/etc/rc3.d/S89" + self.mdict['pki_instance_name']]
             else:
-                command = ["systemctl", "enable", "pki-tomcatd.target"]
+                command = ["systemctl", "enable", self.service_name]
 
             # Display this "systemd" execution managment command
             config.pki_log.info(
@@ -3628,20 +3639,15 @@ class Systemd(object):
 
         """
         try:
-            service = None
             # Execute the "systemd daemon-reload" management lifecycle command
             if reload_daemon:
                 self.daemon_reload(critical_failure)
-            # Compose this "systemd" execution management command
-            service = "pki-tomcatd" + "@" +\
-                      self.mdict['pki_instance_name'] + "." +\
-                      "service"
 
             if pki.system.SYSTEM_TYPE == "debian":
                 command = ["/etc/init.d/pki-tomcatd", "start",
                            self.mdict['pki_instance_name']]
             else:
-                command = ["systemctl", "start", service]
+                command = ["systemctl", "start", self.service_name]
 
             # Display this "systemd" execution managment command
             config.pki_log.info(
@@ -3681,17 +3687,11 @@ class Systemd(object):
 
         """
         try:
-            service = None
-            # Compose this "systemd" execution management command
-            service = "pki-tomcatd" + "@" +\
-                      self.mdict['pki_instance_name'] + "." +\
-                      "service"
-
             if pki.system.SYSTEM_TYPE == "debian":
                 command = ["/etc/init.d/pki-tomcatd", "stop",
                            self.mdict['pki_instance_name']]
             else:
-                command = ["systemctl", "stop", service]
+                command = ["systemctl", "stop", self.service_name]
 
             # Display this "systemd" execution managment command
             config.pki_log.info(
@@ -3732,21 +3732,16 @@ class Systemd(object):
 
         """
         try:
-            service = None
             # Compose this "systemd" execution management command
             # Execute the "systemd daemon-reload" management lifecycle command
             if reload_daemon:
                 self.daemon_reload(critical_failure)
 
-            service = "pki-tomcatd" + "@" +\
-                      self.mdict['pki_instance_name'] + "." +\
-                      "service"
-
             if pki.system.SYSTEM_TYPE == "debian":
                 command = ["/etc/init.d/pki-tomcatd", "restart",
                            self.mdict['pki_instance_name']]
             else:
-                command = ["systemctl", "restart", service]
+                command = ["systemctl", "restart", self.service_name]
 
             # Display this "systemd" execution managment command
             config.pki_log.info(
