@@ -519,7 +519,7 @@ def main(argv):
 
     # Process the various "scriptlets" to create the specified PKI subsystem.
     pki_subsystem_scriptlets = parser.mdict['spawn_scriplets'].split()
-    deployer.init()
+    deployer.init(parser)
 
     try:
         for scriptlet_name in pki_subsystem_scriptlets:
