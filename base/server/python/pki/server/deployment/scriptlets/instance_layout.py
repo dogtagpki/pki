@@ -58,7 +58,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             # Link /etc/pki/<instance>/logging.properties
             # to /usr/share/pki/server/conf/logging.properties.
             deployer.symlink.create(
-                os.path.join(deployer.mdict['pki_source_server_path'], "logging.properties"),
+                os.path.join(deployer.mdict['pki_source_server_path'],
+                             "logging.properties"),
                 os.path.join(deployer.mdict['pki_instance_configuration_path'],
                              "logging.properties"))
 
@@ -173,7 +174,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if len(deployer.instance.tomcat_instance_subsystems()) == 0:
 
             # remove Tomcat instance systemd service link
-            deployer.symlink.delete(deployer.mdict['pki_systemd_service_link'])
+            deployer.symlink.delete(deployer.systemd.systemd_link)
 
             # remove Tomcat instance base
             deployer.directory.delete(deployer.mdict['pki_instance_path'])
