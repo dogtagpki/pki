@@ -617,8 +617,6 @@ class PKIConfigParser:
             self.ds_connect()
             self.ds_bind()
             self.ds_search()
-        except:
-            raise
         finally:
             self.ds_close()
 
@@ -636,8 +634,6 @@ class PKIConfigParser:
 
             except ldap.NO_SUCH_OBJECT:
                 base_dn_exists = False
-        except:
-            raise
         finally:
             self.ds_close()
         return base_dn_exists
