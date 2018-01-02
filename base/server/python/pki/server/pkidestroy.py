@@ -255,9 +255,9 @@ def main(argv):
 def log_error_details():
     e_type, e_value, e_stacktrace = sys.exc_info()
     config.pki_log.debug(
-        "Error Type: " + e_type.__name__, extra=config.PKI_INDENTATION_LEVEL_2)
+        "Error Type: %s", e_type.__name__, extra=config.PKI_INDENTATION_LEVEL_2)
     config.pki_log.debug(
-        "Error Message: " + str(e_value), extra=config.PKI_INDENTATION_LEVEL_2)
+        "Error Message: %s", str(e_value), extra=config.PKI_INDENTATION_LEVEL_2)
     stacktrace_list = traceback.format_list(traceback.extract_tb(e_stacktrace))
     e_stacktrace = ""
     for l in stacktrace_list:
