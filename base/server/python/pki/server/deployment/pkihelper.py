@@ -2053,6 +2053,7 @@ class Password:
 
     def __init__(self, deployer):
         self.mdict = deployer.mdict
+        self.deployer = deployer
 
     def create_password_conf(self, path, pin, pin_sans_token=False,
                              overwrite_flag=False, critical_failure=True):
@@ -2142,7 +2143,7 @@ class Password:
                 raise
         return
 
-    def get_password(self, path, token_name, critical_failure=True):
+    def get_password(self, path, token_name):
         token_pwd = None
         if os.path.exists(path) and os.path.isfile(path) and\
            os.access(path, os.R_OK):
@@ -2155,16 +2156,11 @@ class Password:
                 token_pwd = tokens[token_name]
 
         if token_pwd is None or token_pwd == '':
-            # TODO prompt for this password
-            config.pki_log.error(log.PKIHELPER_PASSWORD_NOT_FOUND_1,
-                                 token_name,
-                                 extra=config.PKI_INDENTATION_LEVEL_2)
-            if critical_failure:
-                raise Exception(
-                    log.PKIHELPER_PASSWORD_NOT_FOUND_1 %
-                    token_name)
-            else:
-                return
+            self.deployer.parser.read_password(
+                'Password for token {}'.format(token_name),
+                self.deployer.subsystem_name,
+                'token_pwd')
+            token_pwd = self.mdict['token_pwd']
         return token_pwd
 
 
@@ -2994,8 +2990,7 @@ class KRAConnector:
 
             token_pwd = self.password.get_password(
                 self.mdict['pki_shared_password_conf'],
-                token_name,
-                critical_failure)
+                token_name)
 
             if token_pwd is None or token_pwd == '':
                 config.pki_log.warning(
@@ -3199,8 +3194,7 @@ class TPSConnector:
 
             token_pwd = self.password.get_password(
                 self.mdict['pki_shared_password_conf'],
-                token_name,
-                critical_failure)
+                token_name)
 
             if token_pwd is None or token_pwd == '':
                 config.pki_log.warning(
@@ -3437,8 +3431,7 @@ class SecurityDomain:
 
         token_pwd = self.password.get_password(
             self.mdict['pki_shared_password_conf'],
-            token_name,
-            critical_failure)
+            token_name)
 
         if token_pwd is None or token_pwd == '':
             config.pki_log.warning(

@@ -66,6 +66,7 @@ class PKIDeployer:
         self.systemd = None
         self.tps_connector = None
         self.config_client = None
+        self.parser = None
 
         # Set installation time
         ticks = time.time()
@@ -88,7 +89,7 @@ class PKIDeployer:
         if not len(self.dns_domainname):
             self.dns_domainname = self.hostname
 
-    def init(self):
+    def init(self, parser):
 
         # Utility objects
         self.identity = util.Identity(self)
@@ -111,6 +112,7 @@ class PKIDeployer:
         self.systemd = util.Systemd(self)
         self.tps_connector = util.TPSConnector(self)
         self.config_client = util.ConfigClient(self)
+        self.parser = parser
 
     def flatten_master_dict(self):
 

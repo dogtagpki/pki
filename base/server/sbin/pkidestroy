@@ -227,7 +227,7 @@ def main(argv):
 
     # Process the various "scriptlets" to remove the specified PKI subsystem.
     pki_subsystem_scriptlets = parser.mdict['destroy_scriplets'].split()
-    deployer.init()
+    deployer.init(parser)
 
     try:
         for scriptlet_name in pki_subsystem_scriptlets:
