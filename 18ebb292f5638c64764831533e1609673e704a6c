@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ca1401f8_5eb1e983",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-01-02T21:51:28Z",
+      "side": 1,
+      "message": "Please add a blank line after the first line. This will allow git to generate 1-line summary of all commits nicely.",
+      "revId": "18ebb292f5638c64764831533e1609673e704a6c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6307a57d_1dd08ab5",
+        "filename": "base/java-tools/src/com/netscape/cmstools/CMCSharedToken.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-01-02T21:51:28Z",
+      "side": 1,
+      "message": "The option\u0027s function was changed. Is there any concern about backward compatibility (e.g. test automation)?",
+      "revId": "18ebb292f5638c64764831533e1609673e704a6c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dce63ca5_1ff1b1ed",
+        "filename": "base/java-tools/src/com/netscape/cmstools/CMCSharedToken.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-01-02T21:51:28Z",
+      "side": 1,
+      "message": "It\u0027s not necessary to wrap the original exception with a new exception, unless you want to prepend \"Unable to login\" to the original exception message.\n\nThe following code would work just fine since there\u0027s already a try-catch block in line 203:\n\n Password password \u003d new Password(tokenPassword.toCharArray());\n token.login(password);\n\nIf there\u0027s a problem in token.login() the exception probably would have provided detailed information about the problem already.",
+      "revId": "18ebb292f5638c64764831533e1609673e704a6c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "563e9e71_63d63f6a",
+        "filename": "base/server/cms/src/com/netscape/cms/authentication/SharedSecret.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-01-02T21:51:28Z",
+      "side": 1,
+      "message": "Is cmc.token configured automatically during install? Or does it have to be configured post install? Is there a documentation? Do we need an upgrade script for existing instances?",
+      "revId": "18ebb292f5638c64764831533e1609673e704a6c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7efceb70_b53867f5",
+        "filename": "base/server/cms/src/com/netscape/cms/authentication/SharedSecret.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-01-02T21:51:28Z",
+      "side": 1,
+      "message": "Please chain the original exception as follows to preserve the stack trace to help troubleshooting:\n\n throw new EBaseException(e);",
+      "revId": "18ebb292f5638c64764831533e1609673e704a6c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
