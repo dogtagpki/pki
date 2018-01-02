@@ -1133,7 +1133,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     # (Step 1)
                     deployer.config_client.save_system_csr(
                         cdata['request'],
-                        log.PKI_CONFIG_EXTERNAL_CSR_SAVE_PKI_AUDIT_SIGNING_1,
+                        log.PKI_CONFIG_EXTERNAL_CSR_SAVE_PKI_AUDIT_SIGNING_2,
                         deployer.mdict['pki_audit_signing_csr_path'],
                         subsystem.name)
 
@@ -1142,7 +1142,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     # CSR (Step 1)
                     deployer.config_client.save_system_csr(
                         cdata['request'],
-                        log.PKI_CONFIG_EXTERNAL_CSR_SAVE_OCSP_SIGNING,
+                        log.PKI_CONFIG_EXTERNAL_CSR_SAVE_OCSP_SIGNING_1,
                         deployer.mdict['pki_signing_csr_path'])
 
                 elif cdata['tag'].lower() == "sslserver":
@@ -1150,7 +1150,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     # (Step 1)
                     deployer.config_client.save_system_csr(
                         cdata['request'],
-                        log.PKI_CONFIG_EXTERNAL_CSR_SAVE_PKI_SSLSERVER_1,
+                        log.PKI_CONFIG_EXTERNAL_CSR_SAVE_PKI_SSLSERVER_2,
                         deployer.mdict['pki_sslserver_csr_path'],
                         subsystem.name)
 
@@ -1159,7 +1159,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     # (Step 1)
                     deployer.config_client.save_system_csr(
                         cdata['request'],
-                        log.PKI_CONFIG_EXTERNAL_CSR_SAVE_KRA_STORAGE,
+                        log.PKI_CONFIG_EXTERNAL_CSR_SAVE_KRA_STORAGE_1,
                         deployer.mdict['pki_storage_csr_path'])
 
                 elif cdata['tag'].lower() == "subsystem":
@@ -1167,7 +1167,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     # (Step 1)
                     deployer.config_client.save_system_csr(
                         cdata['request'],
-                        log.PKI_CONFIG_EXTERNAL_CSR_SAVE_PKI_SUBSYSTEM_1,
+                        log.PKI_CONFIG_EXTERNAL_CSR_SAVE_PKI_SUBSYSTEM_2,
                         deployer.mdict['pki_subsystem_csr_path'],
                         subsystem.name)
 
@@ -1176,7 +1176,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     # (Step 1)
                     deployer.config_client.save_system_csr(
                         cdata['request'],
-                        log.PKI_CONFIG_EXTERNAL_CSR_SAVE_KRA_TRANSPORT,
+                        log.PKI_CONFIG_EXTERNAL_CSR_SAVE_KRA_TRANSPORT_1,
                         deployer.mdict['pki_transport_csr_path'])
 
             else:

@@ -428,7 +428,8 @@ class ConfigurationFile:
 
         self.existing = config.str2bool(self.mdict['pki_existing'])
         self.external = config.str2bool(self.mdict['pki_external'])
-        self.external_step_one = not config.str2bool(self.mdict['pki_external_step_two'])
+        self.external_step_one = not config.str2bool(
+            self.mdict['pki_external_step_two'])
         self.external_step_two = not self.external_step_one
 
         if self.external:
@@ -496,7 +497,8 @@ class ConfigurationFile:
         # ALWAYS defined via 'pkiparser.py'
         if self.external_step_two:
             # Only allowed for External CA/KRA/OCSP, or Stand-alone PKI
-            if self.subsystem not in ['CA', 'KRA', 'OCSP'] and not self.standalone:
+            if (self.subsystem not in ['CA', 'KRA', 'OCSP'] and
+                    not self.standalone):
                 config.pki_log.error(log.PKI_EXTERNAL_STEP_TWO_UNSUPPORTED_1,
                                      self.subsystem,
                                      extra=config.PKI_INDENTATION_LEVEL_2)
@@ -557,8 +559,9 @@ class ConfigurationFile:
             # Verify existence of PKCS #12 Password (ONLY for non-HSM Clones)
             if not config.str2bool(self.mdict['pki_hsm_enable']):
 
-                # If system certificates are already provided via pki_server_pkcs12
-                # there's no need to provide pki_clone_pkcs12.
+                # If system certificates are already provided via
+                # pki_server_pkcs12, there's no need to provide
+                # pki_clone_pkcs12.
                 if not self.mdict['pki_server_pkcs12_path']:
                     self.confirm_data_exists("pki_clone_pkcs12_password")
 
@@ -680,8 +683,9 @@ class ConfigurationFile:
             # Check clone parameters for non-HSM clone
             if not config.str2bool(self.mdict['pki_hsm_enable']):
 
-                # If system certificates are already provided via pki_server_pkcs12
-                # there's no need to provide pki_clone_pkcs12.
+                # If system certificates are already provided via
+                # pki_server_pkcs12, there's no need to provide
+                # pki_clone_pkcs12.
                 if not self.mdict['pki_server_pkcs12_path']:
                     self.confirm_data_exists("pki_clone_pkcs12_path")
                     self.confirm_file_exists("pki_clone_pkcs12_path")
@@ -1045,7 +1049,7 @@ class Instance:
                 "No connection - server may still be down",
                 extra=config.PKI_INDENTATION_LEVEL_3)
             config.pki_log.debug(
-                "No connection - exception thrown: " + str(exc),
+                "No connection - exception thrown: %s", exc,
                 extra=config.PKI_INDENTATION_LEVEL_3)
             return None
 
@@ -1707,7 +1711,8 @@ class File:
 
     def substitute_deployment_params(self, line):
         """
-        Replace all occurrences of [param] in the line with the value of the deployment parameter.
+        Replace all occurrences of [param] in the line with the value of the
+        deployment parameter.
         """
 
         # find the first parameter in the line
@@ -2181,7 +2186,7 @@ class FIPS:
             with open(os.devnull, "w") as fnull:
                 output = subprocess.check_output(command, stderr=fnull,
                                                  close_fds=True)
-                if (output != "0"):
+                if output != "0":
                     # Set FIPS mode as enabled
                     self.mdict['pki_fips_mode_enabled'] = True
                     config.pki_log.info(log.PKIHELPER_FIPS_MODE_IS_ENABLED,
@@ -2214,7 +2219,7 @@ class HSM:
 
     def initialize(self):
         if config.str2bool(self.mdict['pki_hsm_enable']):
-            if (self.mdict['pki_hsm_libfile'] == config.PKI_HSM_NCIPHER_LIB):
+            if self.mdict['pki_hsm_libfile'] == config.PKI_HSM_NCIPHER_LIB:
                 self.initialize_ncipher()
         return
 
@@ -3026,8 +3031,8 @@ class KRAConnector:
                     sechost, secport)
             except Exception as e:
                 config.pki_log.error(
-                    "unable to access security domain. Continuing .. " +
-                    str(e),
+                    "unable to access security domain. Continuing .. %s ",
+                    e,
                     extra=config.PKI_INDENTATION_LEVEL_2)
                 ca_list = []
 
@@ -3849,8 +3854,7 @@ class ConfigClient:
         # Store the Administration Certificate in a file
         admin_cert_file = self.mdict['pki_client_admin_cert']
         admin_cert_bin_file = admin_cert_file + ".der"
-        self.save_admin_cert(log.PKI_CONFIG_ADMIN_CERT_SAVE_1,
-                             admin_cert, admin_cert_file,
+        self.save_admin_cert(admin_cert, admin_cert_file,
                              self.mdict['pki_subsystem_name'])
 
         # convert the cert file to binary
@@ -3983,8 +3987,9 @@ class ConfigClient:
 
     def save_admin_csr(self):
         config.pki_log.info(
-            log.PKI_CONFIG_EXTERNAL_CSR_SAVE_PKI_ADMIN_1 + " '" +
-            self.mdict['pki_admin_csr_path'] + "'", self.subsystem,
+            log.PKI_CONFIG_EXTERNAL_CSR_SAVE_PKI_ADMIN_2,
+            self.subsystem,
+            self.mdict['pki_admin_csr_path'],
             extra=config.PKI_INDENTATION_LEVEL_2)
         self.deployer.directory.create(
             os.path.dirname(self.mdict['pki_admin_csr_path']))
@@ -4005,20 +4010,20 @@ class ConfigClient:
             log.PKI_CONFIG_CDATA_REQUEST + "\n" + admin_certreq,
             extra=config.PKI_INDENTATION_LEVEL_2)
 
-    def save_admin_cert(self, message, input_data, output_file,
-                        subsystem_name):
-        config.pki_log.debug(message + " '" + output_file + "'",
+    def save_admin_cert(self, input_data, output_file, subsystem_name):
+        config.pki_log.debug(log.PKI_CONFIG_ADMIN_CERT_SAVE_2,
                              subsystem_name,
+                             output_file,
                              extra=config.PKI_INDENTATION_LEVEL_2)
         with open(output_file, "w") as f:
             f.write(input_data)
 
     def save_system_csr(self, csr, message, path, subsystem=None):
         if subsystem is not None:
-            config.pki_log.info(message + " '" + path + "'", subsystem,
+            config.pki_log.info(message, subsystem, path,
                                 extra=config.PKI_INDENTATION_LEVEL_2)
         else:
-            config.pki_log.info(message + " '" + path + "'",
+            config.pki_log.info(message, path,
                                 extra=config.PKI_INDENTATION_LEVEL_2)
         self.deployer.directory.create(os.path.dirname(path))
         with open(path, "w") as f:
@@ -4310,7 +4315,8 @@ class ConfigClient:
                 password=self.mdict['pki_client_database_password'])
 
             try:
-                data.adminCert = client_nssdb.get_cert(self.mdict['pki_admin_nickname'])
+                data.adminCert = client_nssdb.get_cert(
+                    self.mdict['pki_admin_nickname'])
                 if data.adminCert:  # already imported, return
                     return
 
