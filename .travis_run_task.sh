@@ -50,7 +50,7 @@ then
     ls ${DOGTAG_PKI_RPMS}
 
     # Install the ipa-docker-test-runner tool
-    pip3 install git+https://github.com/freeipa/ipa-docker-test-runner@release-0-2-1
+    pip3 install git+https://github.com/freeipa/ipa-docker-test-runner@release-0-3-1
 
     for test_files in ${test_set}; do
         cert_test_file_loc="${cert_test_file_loc} test_xmlrpc/${test_files}"
