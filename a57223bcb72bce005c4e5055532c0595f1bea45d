@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "86da5805_e9a5f37e",
+        "filename": "base/server/python/pki/server/pkidestroy.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 260,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-01-03T07:22:14Z",
+      "side": 1,
+      "message": "The str() probably can be removed.",
+      "revId": "a57223bcb72bce005c4e5055532c0595f1bea45d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a4390067_765e4c16",
+        "filename": "base/server/python/pki/server/pkispawn.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 869,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-01-03T07:22:14Z",
+      "side": 1,
+      "message": "The str() probably can be removed.",
+      "revId": "a57223bcb72bce005c4e5055532c0595f1bea45d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
