@@ -58,6 +58,7 @@ steps:
   - dnf repolist
   install_packages:
   - echo "Installing recently built dogtag RPMs..."
+  - sysctl net.ipv6.conf.lo.disable_ipv6=0
   - find /freeipa/dogtag_rpms/ -name '*.rpm' -and -not -name '*debuginfo*'   | xargs dnf install -y --best --allowerasing
   - rpm -qa freeipa-*
   - rpm -qa pki-*
