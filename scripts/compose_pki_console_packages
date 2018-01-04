@@ -206,6 +206,10 @@ chmod 775 ${PKI_CONSOLE_PACKAGE_SCRIPT}
 ## Automatically invoke RPM/SRPM creation
 ##
 
-cd ${PKI_PACKAGES} ;
-sh ./package_${PKI_CONSOLE} | tee package_${PKI_CONSOLE}.log 2>&1
+cd ${PKI_PACKAGES}
+rpmbuild -ba \
+  --define "_topdir ${PKI_PACKAGES}" \
+  $OPTIONS \
+  SPECS/${PKI_CONSOLE}.spec \
+  | tee package_${PKI_CONSOLE}.log 2>&1
 

@@ -223,8 +223,12 @@ chmod 775 ${PKI_CORE_PACKAGE_SCRIPT}
 ## Automatically invoke RPM/SRPM creation
 ##
 
-cd ${PKI_PACKAGES} ;
-sh ./package_${PKI_CORE} | tee package_${PKI_CORE}.log 2>&1
+cd ${PKI_PACKAGES}
+rpmbuild -ba \
+  --define "_topdir ${PKI_PACKAGES}" \
+  $OPTIONS \
+  SPECS/${PKI_CORE}.spec \
+  | tee package_${PKI_CORE}.log 2>&1
 
 if [ "$CREATEREPO" == "Y" ] ; then
    echo "Creating a repository of the built rpms"
