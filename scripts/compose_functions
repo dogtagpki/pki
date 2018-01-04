@@ -525,7 +525,7 @@ if [ $# -ne 1 ] ; then
 	exit 255
 fi
 
-OPTIONS="--define \"_topdir \`pwd\`\" $WITHOUT_JAVADOCS $WITHOUT_SERVER"
+OPTIONS="$WITHOUT_JAVADOCS $WITHOUT_SERVER"
 
 if	[ $1 = "srpm" ] ; then
 	OPTIONS="$OPTIONS -bs"

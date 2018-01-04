@@ -208,6 +208,10 @@ chmod 775 ${DOGTAG_PKI_THEME_PACKAGE_SCRIPT}
 ## Automatically invoke RPM/SRPM creation
 ##
 
-cd ${PKI_PACKAGES} ;
-sh ./package_${DOGTAG_PKI_THEME} | tee package_${DOGTAG_PKI_THEME}.log 2>&1
+cd ${PKI_PACKAGES}
+rpmbuild -ba \
+  --define "_topdir ${PKI_PACKAGES}" \
+  $OPTIONS \
+  SPECS/${DOGTAG_PKI_THEME}.spec \
+  | tee package_${DOGTAG_PKI_THEME}.log 2>&1
 
