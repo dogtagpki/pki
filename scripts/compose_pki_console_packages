@@ -195,7 +195,8 @@ fi
 ##
 
 cd ${PKI_PACKAGES}
-rpmbuild -ba \
+rpmbuild \
+  ${RPMBUILD_OP} \
   --define "_topdir ${PKI_PACKAGES}" \
   $OPTIONS \
   SPECS/${PKI_CONSOLE}.spec \
