@@ -572,5 +572,3 @@ else
 	exit 255
 fi
 
-RPMBUILD_CMD="rpmbuild $OPTIONS"
-export RPMBUILD_CMD
