@@ -81,8 +81,8 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.SessionContext;
-import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.event.CMCUserSignedRequestSigVerifyEvent;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.profile.IProfileAuthenticator;
@@ -259,7 +259,6 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
         String msg = "";
         CMS.debug(method + "begins");
 
-        String auditMessage = null;
         String auditSubjectID = getAuditSubjectID();
         String auditReqType = ILogger.UNIDENTIFIED;
         String requestCertSubject = ILogger.UNIDENTIFIED;
@@ -724,22 +723,20 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
             }
 
             // For accuracy, make sure revocation by shared secret doesn't
-            // log CMC_USER_SIGNED_REQUEST_SIG_VERIFY_SUCCESS
+            // log successful CMC_USER_SIGNED_REQUEST_SIG_VERIFY audit event
             if (authToken.get(IAuthManager.CRED_CMC_SIGNING_CERT) != null ||
                     authToken.get(IAuthManager.CRED_CMC_SELF_SIGNED) != null) {
-                // store a message in the signed audit log file
-                auditMessage = CMS.getLogMessage(
-                        AuditEvent.CMC_USER_SIGNED_REQUEST_SIG_VERIFY_SUCCESS,
+
+                signedAuditLogger.log(
+                        CMCUserSignedRequestSigVerifyEvent.createSuccessEvent(
                         getAuditSubjectID(),
-                        ILogger.SUCCESS,
                         auditReqType,
                         getRequestCertSubject(auditContext),
-                        getAuditSignerInfo(auditContext));
+                        getAuditSignerInfo(auditContext)));
 
-                signedAuditLogger.log(auditMessage);
             } else {
                 CMS.debug(method
-                        + "audit event CMC_USER_SIGNED_REQUEST_SIG_VERIFY_SUCCESS not logged due to unsigned data for revocation with shared secret.");
+                        + "successful CMC_USER_SIGNED_REQUEST_SIG_VERIFY audit event not logged due to unsigned data for revocation with shared secret.");
             }
 
             CMS.debug(method + "ends successfully; returning authToken");
@@ -751,49 +748,40 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
             throw eAudit1;
         } catch (EInvalidCredentials eAudit2) {
             CMS.debug(method + eAudit2);
-            // store a message in the signed audit log file
-            auditMessage = CMS.getLogMessage(
-                    AuditEvent.CMC_USER_SIGNED_REQUEST_SIG_VERIFY_FAILURE,
+
+            signedAuditLogger.log(
+                    CMCUserSignedRequestSigVerifyEvent.createFailureEvent(
                     getAuditSubjectID(),
-                    ILogger.FAILURE,
                     auditReqType,
                     getRequestCertSubject(auditContext),
                     getAuditSignerInfo(auditContext),
-                    eAudit2.toString());
-
-            signedAuditLogger.log(auditMessage);
+                    eAudit2.toString()));
 
             // rethrow the specific exception to be handled later
             throw eAudit2;
         } catch (EBaseException eAudit3) {
             CMS.debug(method + eAudit3);
-            // store a message in the signed audit log file
-            auditMessage = CMS.getLogMessage(
-                    AuditEvent.CMC_USER_SIGNED_REQUEST_SIG_VERIFY_FAILURE,
+
+            signedAuditLogger.log(
+                    CMCUserSignedRequestSigVerifyEvent.createFailureEvent(
                     getAuditSubjectID(),
-                    ILogger.FAILURE,
                     auditReqType,
                     getRequestCertSubject(auditContext),
                     getAuditSignerInfo(auditContext),
-                    eAudit3.toString());
-
-            signedAuditLogger.log(auditMessage);
+                    eAudit3.toString()));
 
             // rethrow the specific exception to be handled later
             throw eAudit3;
         } catch (Exception eAudit4) {
             CMS.debug(method + eAudit4);
-            // store a message in the signed audit log file
-            auditMessage = CMS.getLogMessage(
-                    AuditEvent.CMC_USER_SIGNED_REQUEST_SIG_VERIFY_FAILURE,
+
+            signedAuditLogger.log(
+                    CMCUserSignedRequestSigVerifyEvent.createFailureEvent(
                     getAuditSubjectID(),
-                    ILogger.FAILURE,
                     auditReqType,
                     getRequestCertSubject(auditContext),
                     getAuditSignerInfo(auditContext),
-                    eAudit4.toString());
-
-            signedAuditLogger.log(auditMessage);
+                    eAudit4.toString()));
 
             // rethrow the exception to be handled later
             throw new EBaseException(eAudit4);
