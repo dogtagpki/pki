@@ -419,6 +419,26 @@ class PKISubsystem(object):
 
         pki.util.customize_file(input_file, output_file, params)
 
+    def find_audit_events(self, enabled=None):
+
+        if enabled is not True:
+            raise Exception('Not yet implemented')
+
+        events = []
+
+        names = self.config['log.instance.SignedAudit.events'].split(',')
+        names = list(map(str.strip, names))
+        names.sort()
+
+        for name in names:
+            event = {}
+            event['name'] = name
+            event['enabled'] = True
+            event['filter'] = self.config.get('log.instance.SignedAudit.filters.%s' % name)
+            events.append(event)
+
+        return events
+
     def get_audit_log_dir(self):
 
         current_file_path = self.config['log.instance.SignedAudit.fileName']
