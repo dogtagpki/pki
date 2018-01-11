@@ -429,6 +429,8 @@ class ConfigurationFile:
         # generic extension support in CSR - for external CA
         self.add_req_ext = config.str2bool(
             self.mdict['pki_req_ext_add'])
+        # include SKI extension in CSR - for external CA
+        self.req_ski = self.mdict.get('pki_req_ski')
 
         self.existing = config.str2bool(self.mdict['pki_existing'])
         self.external = config.str2bool(self.mdict['pki_external'])
