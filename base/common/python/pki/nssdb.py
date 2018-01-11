@@ -22,8 +22,10 @@
 
 from __future__ import absolute_import
 import base64
+import binascii
 import logging
 import os
+import re
 import shutil
 import stat
 import subprocess
@@ -469,20 +471,80 @@ class NSSDatabase(object):
             basic_constraints_ext=None,
             key_usage_ext=None,
             extended_key_usage_ext=None,
+            cka_id=None,
+            subject_key_id=None,
             generic_exts=None):
+        """
+        Generate a CSR.
+
+        ``cka_id``
+            PKCS #11 CKA_ID of key in the NSSDB to use, as text.
+            If ``None`` a new key will be generated (this is
+            the typical use case).
+
+        ``subject_key_id``
+            If ``None``, no Subject Key ID will be included in the
+            request.  If ``"DEFAULT"``, the Subject Key ID will be
+            derived from the generated key, using the default
+            digest.  Otherwise the value must be a hex-encoded
+            string, without leading ``0x``, containing the desired
+            Subject Key ID.
+
+        ``generic_exts``
+            List of generic extensions, each being a mapping with
+            the following keys:
+
+            ``oid``
+                Extension OID (``str``)
+            ``critical``
+                ``bool``
+            ``data``
+                Raw extension data (``bytes``)
+
+        """
+        if cka_id is not None and not isinstance(cka_id, six.text_type):
+            raise TypeError('cka_id must be a text string')
 
         tmpdir = tempfile.mkdtemp()
 
         try:
-            if not noise_file:
-                noise_file = os.path.join(tmpdir, 'noise.bin')
-                if key_size:
-                    size = key_size
+            if subject_key_id is not None:
+                if subject_key_id == 'DEFAULT':
+                    # Caller wants a default subject key ID included
+                    # in CSR.  To do this we must first generate a
+                    # key and temporary CSR, then compute an SKI
+                    # from the public key data.
+
+                    if not cka_id:
+                        cka_id = self.__generate_key(
+                            tmpdir, key_type=key_type, key_size=key_size,
+                            curve=curve, noise_file=noise_file, token=token)
+
+                    tmp_csr = os.path.join(tmpdir, 'tmp_csr.pem')
+                    self.create_request(
+                        subject_dn, tmp_csr,
+                        token=token, cka_id=cka_id, subject_key_id=None)
+                    with open(tmp_csr, 'rb') as f:
+                        data = f.read()
+                    csr = x509.load_pem_x509_csr(data, default_backend())
+                    pub = csr.public_key()
+                    ski = x509.SubjectKeyIdentifier.from_public_key(pub)
+                    ski_bytes = ski.digest
                 else:
-                    size = 2048
-                self.create_noise(
-                    noise_file=noise_file,
-                    size=size)
+                    # Explicit subject_key_id provided; decode it
+                    ski_bytes = binascii.unhexlify(subject_key_id)
+
+                if generic_exts is None:
+                    generic_exts = []
+                generic_exts.append({
+                    'oid': x509.SubjectKeyIdentifier.oid.dotted_string,
+                    'critical': False,
+                    'data': bytearray([0x04, len(ski_bytes)]) + ski_bytes,
+                    # OCTET STRING     ^tag  ^length            ^data
+                    #
+                    # This structure is incorrect if len > 127 bytes, but this
+                    # will be fine for a CKA_ID or SKID of sensible length.
+                })
 
             binary_request_file = os.path.join(tmpdir, 'request.bin')
 
@@ -494,6 +556,19 @@ class NSSDatabase(object):
                 '-d', self.directory
             ]
 
+            if cka_id is not None:
+                key_args = ['-k', cka_id]
+            else:
+                key_args = self.__generate_key_args(
+                    key_type=key_type, key_size=key_size, curve=curve)
+                if noise_file is None:
+                    noise_file = os.path.join(tmpdir, 'noise')
+                    size = key_size if key_size else 2048
+                    self.create_noise(noise_file=noise_file, size=size)
+                key_args.extend(['-z', noise_file])
+
+            cmd.extend(key_args)
+
             token = self.get_effective_token(token)
             password_file = self.get_password_file(tmpdir, token)
 
@@ -504,24 +579,7 @@ class NSSDatabase(object):
                 '-f', password_file,
                 '-s', subject_dn,
                 '-o', binary_request_file,
-                '-z', noise_file
             ])
-
-            if key_type:
-                cmd.extend(['-k', key_type])
-
-            if key_type.lower() == 'ec':
-                # This is fix for Bugzilla 1544843
-                cmd.extend([
-                    '--keyOpFlagsOn', 'sign',
-                    '--keyOpFlagsOff', 'derive'
-                ])
-
-            if key_size:
-                cmd.extend(['-g', str(key_size)])
-
-            if curve:
-                cmd.extend(['-q', curve])
 
             if hash_alg:
                 cmd.extend(['-Z', hash_alg])
@@ -624,6 +682,93 @@ class NSSDatabase(object):
 
         finally:
             shutil.rmtree(tmpdir)
+
+    def __generate_key(
+            self, tmpdir,
+            key_type=None, key_size=None, curve=None,
+            noise_file=None, token=None):
+        """
+        Generate a key of the given type and size.
+        Returns the CKA_ID of the generated key, as a text string.
+
+        This method enumerates all keys in the token, twice.  This
+        could be expensive on an HSM with lots of keys.  Therefore
+        avoid this method if possible.
+
+        ``tmpdir``
+          An existing temporary dir where a password file can be
+          written.  Must be valid.  It is caller responsibility to
+          create it and clean it up.
+
+        ``noise_file``
+          Path to a noise file, or ``None`` to automatically
+          generate a noise file.
+
+        """
+        password_file = self.get_password_file(tmpdir, token)
+        ids_pre = set(self.__list_private_keys(password_file, token=token))
+
+        cmd = [
+            'certutil',
+            '-d', self.directory,
+            '-f', password_file,
+            '-G',
+        ]
+
+        token = self.get_effective_token(token)
+        if token:
+            cmd.extend(['-h', token])
+
+        cmd.extend(self.__generate_key_args(
+            key_type=key_type, key_size=key_size, curve=curve))
+
+        temp_noise_file = noise_file is None
+        if temp_noise_file:
+            fd, noise_file = tempfile.mkstemp()
+            os.close(fd)
+            size = key_size if key_size else 2048
+            self.create_noise(noise_file=noise_file, size=size)
+        cmd.extend(['-z', noise_file])
+
+        try:
+            subprocess.check_call(cmd)
+        finally:
+            if temp_noise_file:
+                os.unlink(noise_file)
+
+        ids_post = set(self.__list_private_keys(password_file, token=token))
+        return list(ids_post - ids_pre)[0].decode('ascii')
+
+    def __list_private_keys(self, password_file, token=None):
+        """
+        Return list of hex-encoded private key CKA_IDs in the token.
+
+        """
+        cmd = [
+            'certutil',
+            '-d', self.directory,
+            '-f', password_file,
+            '-K',
+        ]
+
+        token = self.get_effective_token(token)
+        if token:
+            cmd.extend(['-h', token])
+
+        try:
+            out = subprocess.check_output(cmd)
+        except subprocess.CalledProcessError as e:
+            if e.returncode == 255:
+                return []  # no keys were found
+            else:
+                raise e  # other error; re-raise
+
+        # output contains list that looks like:
+        #   < 0> rsa      b995381610fb58e8b45d3c2401dfd30d6efdd595 (orphan)
+        #   < 1> rsa      dcd6cbc1226ede02a961488553b01639ff981cdd someNickame
+        #
+        # The hex string is the hex-encoded CKA_ID
+        return re.findall(br'^<\s*\d+>\s+\w+\s+(\w+)', out, re.MULTILINE)
 
     def create_cert(self, request_file, cert_file, serial, issuer=None,
                     key_usage_ext=None, basic_constraints_ext=None,
@@ -1323,3 +1468,24 @@ class NSSDatabase(object):
 
         finally:
             shutil.rmtree(tmpdir)
+
+    @staticmethod
+    def __generate_key_args(key_type=None, key_size=None, curve=None):
+        """
+        Construct certutil keygen command args.
+
+        """
+        args = []
+        if key_type:
+            args.extend(['-k', key_type])
+        if key_type.lower() == 'ec':
+            # This is fix for Bugzilla 1544843
+            args.extend([
+                '--keyOpFlagsOn', 'sign',
+                '--keyOpFlagsOff', 'derive',
+            ])
+        if key_size:
+            args.extend(['-g', str(key_size)])
+        if curve:
+            args.extend(['-q', curve])
+        return args

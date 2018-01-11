@@ -434,7 +434,7 @@ Requires:         jss >= 4.4.0-11
 %else
 Requires:         jss >= 4.5.0-1
 %endif
-Requires:         nss >= 3.36.1
+Requires:         nss >= 3.38.0
 
 %description -n   pki-symkey
 The PKI Symmetric Key Java Package supplies various native
