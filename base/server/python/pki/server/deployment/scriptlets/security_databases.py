@@ -248,6 +248,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 subsystem.config['preop.cert.signing.ext.critical'] = \
                     deployer.configuration_file.req_ext_critical.lower()
 
+            if deployer.configuration_file.req_ski:
+                subsystem.config['preop.cert.signing.subject_key_id'] = \
+                    deployer.configuration_file.req_ski
+
         subsystem.save()
 
         # Place 'slightly' less restrictive permissions on

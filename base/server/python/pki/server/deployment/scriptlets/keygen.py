@@ -89,6 +89,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                      basic_constraints_ext=None,
                      key_usage_ext=None,
                      extended_key_usage_ext=None,
+                     subject_key_id=None,
                      generic_exts=None):
 
         cert_id = self.get_cert_id(subsystem, tag)
@@ -110,6 +111,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             basic_constraints_ext=basic_constraints_ext,
             key_usage_ext=key_usage_ext,
             extended_key_usage_ext=extended_key_usage_ext,
+            subject_key_id=subject_key_id,
             generic_exts=generic_exts)
 
         with open(csr_path) as f:
@@ -173,7 +175,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 csr_path,
                 basic_constraints_ext=basic_constraints_ext,
                 key_usage_ext=key_usage_ext,
-                generic_exts=generic_exts
+                generic_exts=generic_exts,
+                subject_key_id=subsystem.config.get(
+                    'preop.cert.signing.subject_key_id'),
             )
 
         finally:
