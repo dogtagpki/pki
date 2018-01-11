@@ -352,6 +352,12 @@ Sets whether the new CA will have a signing certificate that will be issued by a
 .IP
 Required in the first step of the external CA signing process.  The CSR will be printed to the screen and stored in this location.
 .PP
+.B pki_req_ski
+.IP
+Include a Subject Key Identifier extension in the CSR.  The value is either a
+hex-encoded byte string (\fBwithout\fR leading "0x"), or the string "DEFAULT"
+which will derive a value from the public key.
+.PP
 .B pki_external_step_two
 .IP
 Specifies that this is the second step of the external CA process.  Defaults to False.
