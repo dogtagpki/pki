@@ -263,7 +263,7 @@ class NSSDatabase(object):
                         cka_id=cka_id, subject_key_id=None)
                     with open(tmp_csr) as f:
                         data = f.read()
-                    csr = x509.load_der_x509_csr(data, default_backend())
+                    csr = x509.load_pem_x509_csr(data, default_backend())
                     pub = csr.public_key()
                     ski = x509.SubjectKeyIdentifier.from_public_key(pub)
                     ski_bytes = ski.digest
@@ -276,11 +276,11 @@ class NSSDatabase(object):
                 generic_exts.append({
                     'oid': x509.SubjectKeyIdentifier.oid.dotted_string,
                     'critical': False,
-                    'data': bytes([0x04, len(ski_bytes)]) + ski_bytes,
-                    # OCTET STRING ^tag  ^length            ^data
+                    'data': bytearray([0x04, len(ski_bytes)]) + ski_bytes,
+                    # OCTET STRING     ^tag  ^length            ^data
                     #
-                    # This structure is incorrect if len > 127 bytes,
-                    # but will be fine for a CKA_ID.
+                    # This structure is incorrect if len > 127 bytes, but this
+                    # will be fine for a CKA_ID or SKID of sensible length.
                 })
 
             binary_request_file = os.path.join(tmpdir, 'request.bin')
@@ -460,7 +460,11 @@ class NSSDatabase(object):
             '-f', self.password_file,
             '-K',
         ]
-        out = subprocess.check_output(cmd)
+        try:
+            out = subprocess.check_output(cmd)
+        except subprocess.CalledProcessError:
+            # exit status = 255 if no keys were found
+            return []
 
         # output contains list that looks like:
         #   < 0> rsa      b995381610fb58e8b45d3c2401dfd30d6efdd595 (orphan)
