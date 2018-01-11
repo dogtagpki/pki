@@ -161,12 +161,12 @@ class PKISubsystem(object):
     def create_subsystem_cert_object(self, cert_id):
 
         nickname = self.config.get('%s.%s.nickname' % (self.name, cert_id))
+        token = self.config.get('%s.%s.tokenname' % (self.name, cert_id))
 
         cert = {}
         cert['id'] = cert_id
         cert['nickname'] = nickname
-        cert['token'] = self.config.get(
-            '%s.%s.tokenname' % (self.name, cert_id), None)
+        cert['token'] = token
         cert['data'] = self.config.get(
             '%s.%s.cert' % (self.name, cert_id), None)
         cert['request'] = self.config.get(
@@ -177,7 +177,7 @@ class PKISubsystem(object):
         if not nickname:
             return cert
 
-        nssdb = self.instance.open_nssdb()
+        nssdb = self.instance.open_nssdb(token)
         try:
             cert_info = nssdb.get_cert_info(nickname)
             cert.update(cert_info)

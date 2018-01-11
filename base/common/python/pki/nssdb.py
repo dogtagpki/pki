@@ -382,7 +382,7 @@ class NSSDatabase(object):
         if issuer:
             cmd.extend(['-c', issuer])
         else:
-            cmd.extend('-x')
+            cmd.extend(['-x'])
 
         if self.token:
             cmd.extend(['-h', self.token])
@@ -392,7 +392,7 @@ class NSSDatabase(object):
             '-a',
             '-i', request_file,
             '-o', cert_file,
-            '-m', serial
+            '-m', str(serial)
         ])
 
         if validity:
@@ -653,17 +653,27 @@ class NSSDatabase(object):
     def get_cert_info(self, nickname):
 
         cert = dict()
-        cmd_extract_serial = [
+        cmd = [
             'certutil',
             '-L',
-            '-d', self.directory,
-            '-n', nickname
+            '-d', self.directory
         ]
 
+        fullname = nickname
+
+        if self.token:
+            cmd.extend(['-h', self.token])
+            fullname = self.token + ':' + fullname
+
+        cmd.extend([
+            '-f', self.password_file,
+            '-n', fullname
+        ])
+
         cert_details = subprocess.check_output(
-            cmd_extract_serial, stderr=subprocess.STDOUT)
+            cmd, stderr=subprocess.STDOUT)
         cert_pem = subprocess.check_output(
-            cmd_extract_serial + ['-a'], stderr=subprocess.STDOUT)
+            cmd + ['-a'], stderr=subprocess.STDOUT)
 
         cert_obj = x509.load_pem_x509_certificate(
             cert_pem, backend=default_backend())
