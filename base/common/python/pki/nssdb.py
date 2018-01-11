@@ -72,19 +72,23 @@ def convert_data(data, input_format, output_format, header=None, footer=None):
 
         return ''.join(lines)
 
-    raise Exception('Unable to convert data from %s to %s' % (input_format, output_format))
+    raise Exception('Unable to convert data from {} to {}'.format(
+        input_format, output_format))
 
 
 def convert_csr(csr_data, input_format, output_format):
-    return convert_data(csr_data, input_format, output_format, CSR_HEADER, CSR_FOOTER)
+    return convert_data(csr_data, input_format, output_format,
+                        CSR_HEADER, CSR_FOOTER)
 
 
 def convert_cert(cert_data, input_format, output_format):
-    return convert_data(cert_data, input_format, output_format, CERT_HEADER, CERT_FOOTER)
+    return convert_data(cert_data, input_format, output_format,
+                        CERT_HEADER, CERT_FOOTER)
 
 
 def convert_pkcs7(pkcs7_data, input_format, output_format):
-    return convert_data(pkcs7_data, input_format, output_format, PKCS7_HEADER, PKCS7_FOOTER)
+    return convert_data(pkcs7_data, input_format, output_format,
+                        PKCS7_HEADER, PKCS7_FOOTER)
 
 
 def get_file_type(filename):
@@ -105,11 +109,13 @@ def get_file_type(filename):
 
 class NSSDatabase(object):
 
-    def __init__(self, directory=None, token=None, password=None, password_file=None,
-                 internal_password=None, internal_password_file=None):
+    def __init__(self, directory=None, token=None, password=None,
+                 password_file=None, internal_password=None,
+                 internal_password_file=None):
 
         if not directory:
-            directory = os.path.join(os.path.expanduser("~"), '.dogtag', 'nssdb')
+            directory = os.path.join(
+                os.path.expanduser("~"), '.dogtag', 'nssdb')
 
         self.directory = directory
 
@@ -133,7 +139,8 @@ class NSSDatabase(object):
 
         if internal_password:
             # Store the specified internal token into password file.
-            self.internal_password_file = os.path.join(self.tmpdir, 'internal_password.txt')
+            self.internal_password_file = os.path.join(
+                self.tmpdir, 'internal_password.txt')
             with open(self.internal_password_file, 'w') as f:
                 f.write(internal_password)
 
@@ -281,7 +288,8 @@ class NSSDatabase(object):
 
                 keystroke += '\n'
 
-                # Enter the path length constraint, enter to skip [<0 for unlimited path]:
+                # Enter the path length constraint,
+                # enter to skip [<0 for unlimited path]:
                 if basic_constraints_ext['path_length'] is not None:
                     keystroke += basic_constraints_ext['path_length']
 
@@ -316,7 +324,8 @@ class NSSDatabase(object):
                     with open(data_file, 'w') as f:
                         f.write(generic_ext['data'])
 
-                    critical = 'critical' if generic_ext['critical'] else 'not-critical'
+                    critical = ('critical' if generic_ext['critical']
+                                else 'not-critical')
 
                     ext = generic_ext['oid']
                     ext += ':' + critical
@@ -328,7 +337,9 @@ class NSSDatabase(object):
                 cmd.append(','.join(exts))
 
             # generate binary request
-            p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+            p = subprocess.Popen(cmd,
+                                 stdin=subprocess.PIPE,
+                                 stdout=subprocess.PIPE,
                                  stderr=subprocess.STDOUT)
 
             p.communicate(keystroke)
@@ -336,7 +347,8 @@ class NSSDatabase(object):
             rc = p.wait()
 
             if rc:
-                raise Exception('Failed to generate certificate request. RC: %d' % rc)
+                raise Exception(
+                    'Failed to generate certificate request. RC: %d' % rc)
 
             # encode binary request in base-64
             b64_request_file = os.path.join(tmpdir, 'request.b64')
@@ -358,8 +370,8 @@ class NSSDatabase(object):
 
     def create_cert(self, request_file, cert_file, serial, issuer=None,
                     key_usage_ext=None, basic_constraints_ext=None,
-                    aki_ext=None, ski_ext=None, aia_ext=None, ext_key_usage_ext=None,
-                    validity=None):
+                    aki_ext=None, ski_ext=None, aia_ext=None,
+                    ext_key_usage_ext=None, validity=None):
         cmd = [
             'certutil',
             '-C',
@@ -448,7 +460,8 @@ class NSSDatabase(object):
 
             keystroke += '\n'
 
-            # Enter the path length constraint, enter to skip [<0 for unlimited path]:
+            # Enter the path length constraint,
+            # enter to skip [<0 for unlimited path]:
             if basic_constraints_ext['path_length']:
                 keystroke += basic_constraints_ext['path_length']
 
@@ -482,7 +495,7 @@ class NSSDatabase(object):
             # To ensure whether this is the first AIA being added
             firstentry = True
 
-            # Enter access method type for Authority Information Access extension:
+            # Enter access method type for AIA extension:
             for s in aia_ext:
                 if not firstentry:
                     keystroke += 'y\n'
@@ -507,7 +520,8 @@ class NSSDatabase(object):
                 # One entry is done.
                 firstentry = False
 
-            # Add another location to the Authority Information Access extension [y/N]
+            # Add another location to the Authority Information
+            # Access extension [y/N]
             keystroke += '\n'
 
             # Is this a critical extension [y/N]?
@@ -516,7 +530,9 @@ class NSSDatabase(object):
 
             keystroke += '\n'
 
-        p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+        p = subprocess.Popen(cmd,
+                             stdin=subprocess.PIPE,
+                             stdout=subprocess.PIPE,
                              stderr=subprocess.STDOUT)
 
         p.communicate(keystroke)
@@ -575,7 +591,8 @@ class NSSDatabase(object):
             aia_ext=aia_ext)
 
         if rc:
-            raise Exception('Failed to generate self-signed CA certificate. RC: %d' % rc)
+            raise Exception(
+                'Failed to generate self-signed CA certificate. RC: %d' % rc)
 
     def show_certs(self):
 
@@ -616,20 +633,22 @@ class NSSDatabase(object):
             output_format_option
         ])
 
-        try:
-            cert_data = subprocess.check_output(cmd)
+        pipes = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                                 stderr=subprocess.PIPE)
+        cert_data, std_err = pipes.communicate()
 
-            if output_format == 'base64':
-                cert_data = base64.b64encode(cert_data)
+        if pipes.returncode != 0:
+            # certutil returned an error
+            # raise exception unless its not cert not found
+            if std_err.startswith('certutil: Could not find cert: '):
+                return None
 
-            return cert_data
+            raise Exception(std_err.strip())
 
-        except subprocess.CalledProcessError:
-            # All certutil errors return the same code (i.e. 255).
-            # For now assume it was caused by missing certificate.
-            # TODO: Check error message. If it's caused by other
-            # issue, throw exception.
-            return None
+        if output_format == 'base64':
+            cert_data = base64.b64encode(cert_data)
+
+        return cert_data
 
     def get_cert_info(self, nickname):
 
@@ -641,23 +660,27 @@ class NSSDatabase(object):
             '-n', nickname
         ]
 
-        cert_details = subprocess.check_output(cmd_extract_serial, stderr=subprocess.STDOUT)
+        cert_details = subprocess.check_output(
+            cmd_extract_serial, stderr=subprocess.STDOUT)
         cert_pem = subprocess.check_output(
             cmd_extract_serial + ['-a'], stderr=subprocess.STDOUT)
 
-        cert_obj = x509.load_pem_x509_certificate(cert_pem, backend=default_backend())
+        cert_obj = x509.load_pem_x509_certificate(
+            cert_pem, backend=default_backend())
 
         cert["serial_number"] = cert_obj.serial_number
 
-        cert["issuer"] = re.search(r'Issuer:(.*)', cert_details).group(1).strip()\
-            .replace('"', '')
-        cert["subject"] = re.search(r'Subject:(.*)', cert_details).group(1).strip()\
-            .replace('"', '')
+        cert["issuer"] = re.search(
+            r'Issuer:(.*)', cert_details).group(1).strip().replace('"', '')
+        cert["subject"] = re.search(
+            r'Subject:(.*)', cert_details).group(1).strip().replace('"', '')
 
-        str_not_before = re.search(r'Not Before.?:(.*)', cert_details).group(1).strip()
+        str_not_before = re.search(
+            r'Not Before.?:(.*)', cert_details).group(1).strip()
         cert["not_before"] = self.convert_time_to_millis(str_not_before)
 
-        str_not_after = re.search(r'Not After.?:(.*)', cert_details).group(1).strip()
+        str_not_after = re.search(
+            r'Not After.?:(.*)', cert_details).group(1).strip()
         cert["not_after"] = self.convert_time_to_millis(str_not_after)
 
         return cert
