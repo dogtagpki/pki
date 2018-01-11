@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c512cfee_62a9a523",
+        "filename": "base/common/python/pki/nssdb.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 643,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-01-11T22:16:00Z",
+      "side": 1,
+      "message": "Let\u0027s make it more precise:\n\n if std_err.startswith(\u0027certutil: Could not find cert: \u0027):\n     return None\n\n raise Exception(std_err.strip())\n\nOr if you\u0027re concerned about other messages in std_err before that message, we can check the last line:\n\n if std_err.strip().endswith(\u0027: PR_FILE_NOT_FOUND_ERROR: File not found\u0027):\n    return None\n\n raise Exception(std_err.strip())",
+      "revId": "165ea229249f972baefaf92a8955c1c8f7f7b31e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
