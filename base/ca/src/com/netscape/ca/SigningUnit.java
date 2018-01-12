@@ -59,13 +59,6 @@ import netscape.security.x509.X509Key;
  */
 
 public final class SigningUnit implements ISigningUnit {
-    public static final String PROP_DEFAULT_SIGNALG = "defaultSigningAlgorithm";
-    public static final String PROP_CERT_NICKNAME = "cacertnickname";
-    // This signing unit is being used in OCSP and CRL also. So
-    // it is better to have a more generic name
-    public static final String PROP_RENAMED_CERT_NICKNAME = "certnickname";
-    public static final String PROP_TOKEN_NAME = "tokenname";
-    public static final String PROP_NEW_NICKNAME = "newNickname";
 
     private CryptoManager mManager = null;
     private CryptoToken mToken = null;
