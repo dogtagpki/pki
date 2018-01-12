@@ -59,6 +59,7 @@ import com.netscape.cmstools.key.KeyCLI;
 import com.netscape.cmstools.kra.KRACLI;
 import com.netscape.cmstools.ocsp.OCSPCLI;
 import com.netscape.cmstools.pkcs12.PKCS12CLI;
+import com.netscape.cmstools.pkcs7.PKCS7CLI;
 import com.netscape.cmstools.system.SecurityDomainCLI;
 import com.netscape.cmstools.tks.TKSCLI;
 import com.netscape.cmstools.tps.TPSCLI;
@@ -113,6 +114,7 @@ public class MainCLI extends CLI {
         addModule(new TKSCLI(this));
         addModule(new TPSCLI(this));
 
+        addModule(new PKCS7CLI(this));
         addModule(new PKCS12CLI(this));
 
         createOptions();
