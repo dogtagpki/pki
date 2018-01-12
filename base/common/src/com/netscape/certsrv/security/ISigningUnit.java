@@ -20,12 +20,12 @@ package com.netscape.certsrv.security;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 
-import netscape.security.x509.X509CertImpl;
-
 import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.crypto.X509Certificate;
 
 import com.netscape.certsrv.base.EBaseException;
+
+import netscape.security.x509.X509CertImpl;
 
 /**
  * A class represents the signing unit which is
@@ -36,10 +36,18 @@ import com.netscape.certsrv.base.EBaseException;
 public interface ISigningUnit {
 
     public static final String PROP_DEFAULT_SIGNALG = "defaultSigningAlgorithm";
-    public static final String PROP_CERT_NICKNAME = "cacertnickname";
-    // This signing unit is being used in OCSP and CRL also. So
-    // it is better to have a more generic name
-    public static final String PROP_RENAMED_CERT_NICKNAME = "certnickname";
+
+    /**
+     * @deprecated The cacertnickname has been replaced with certnickname.
+     *
+     * TODO: Remove cacertnickname property from existing instances with
+     * an upgrade script.
+     */
+    @Deprecated
+    public static final String PROP_CA_CERT_NICKNAME = "cacertnickname";
+    public static final String PROP_CERT_NICKNAME = "certnickname";
+
+
     public static final String PROP_TOKEN_NAME = "tokenname";
     public static final String PROP_NEW_NICKNAME = "newNickname";
 

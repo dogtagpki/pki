@@ -36,6 +36,7 @@ import org.mozilla.jss.util.PasswordCallback;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.ca.CAMissingCertException;
@@ -111,7 +112,7 @@ public final class SigningUnit implements ISigningUnit {
     }
 
     public void updateConfig(String nickname, String tokenname) {
-        mConfig.putString(PROP_CERT_NICKNAME, nickname);
+        mConfig.putString(PROP_CA_CERT_NICKNAME, nickname);
         mConfig.putString(PROP_TOKEN_NAME, tokenname);
     }
 
@@ -139,9 +140,9 @@ public final class SigningUnit implements ISigningUnit {
 
             if (nickname == null) {
                 try {
-                    mNickname = mConfig.getString(PROP_RENAMED_CERT_NICKNAME);
-                } catch (EBaseException e) {
                     mNickname = mConfig.getString(PROP_CERT_NICKNAME);
+                } catch (EPropertyNotFound e) {
+                    mNickname = mConfig.getString(PROP_CA_CERT_NICKNAME);
                 }
             } else {
                 mNickname = nickname;
