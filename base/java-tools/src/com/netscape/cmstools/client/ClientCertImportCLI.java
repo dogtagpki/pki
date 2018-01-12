@@ -46,6 +46,7 @@ import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
+import com.netscape.cmsutil.util.Cert;
 
 import netscape.security.pkcs.PKCS12;
 import netscape.security.pkcs.PKCS7;
@@ -180,10 +181,13 @@ public class ClientCertImportCLI extends CLI {
 
             if (verbose) System.out.println("Importing CA certificate from " + caCertPath + ".");
 
+            // initialize JSS
+            mainCLI.init();
+
             if (trustAttributes == null)
                 trustAttributes = "CT,C,C";
 
-            importCert(
+            importCACert(
                     mainCLI.certDatabase,
                     nssdbPasswordFile,
                     caCertPath,
@@ -300,13 +304,6 @@ public class ClientCertImportCLI extends CLI {
         } else {
             throw new Exception("Missing certificate to import");
         }
-
-        if (nickname == null) {
-            MainCLI.printMessage("Imported certificates from PKCS #12 file");
-
-        } else {
-            MainCLI.printMessage("Imported certificate \"" + nickname + "\"");
-        }
     }
 
     public void setTrustAttributes(X509Certificate cert, String trustAttributes)
@@ -355,6 +352,30 @@ public class ClientCertImportCLI extends CLI {
         } catch (Exception e) {
             throw new Exception("Unable to import certificate file", e);
         }
+
+        MainCLI.printMessage("Imported certificate \"" + nickname + "\"");
+    }
+
+    public void importCACert(
+            File dbPath,
+            File dbPasswordFile,
+            String certFile,
+            String nickname,
+            String trustAttributes) throws Exception {
+
+        if (nickname != null) {
+            importCert(dbPath, dbPasswordFile, certFile, nickname, trustAttributes);
+            return;
+        }
+
+        String pemCert = new String(Files.readAllBytes(Paths.get(certFile))).trim();
+        byte[] binCert = Cert.parseCertificate(pemCert);
+
+        CryptoManager manager = CryptoManager.getInstance();
+        X509Certificate cert = manager.importCACertPackage(binCert);
+        setTrustAttributes(cert, trustAttributes);
+
+        MainCLI.printMessage("Imported certificate \"" + cert.getNickname() + "\"");
     }
 
     /**
@@ -532,6 +553,8 @@ public class ClientCertImportCLI extends CLI {
                     "Setting trust attributes to CT,C,C");
         }
         setTrustAttributes(root, "CT,C,C");
+
+        MainCLI.printMessage("Imported certificate \"" + nickname + "\"");
     }
 
     public void importPKCS12(
@@ -560,5 +583,7 @@ public class ClientCertImportCLI extends CLI {
         } catch (Exception e) {
             throw new Exception("Unable to import PKCS #12 file", e);
         }
+
+        MainCLI.printMessage("Imported certificates from PKCS #12 file");
     }
 }
