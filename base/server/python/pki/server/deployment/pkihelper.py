@@ -4319,7 +4319,7 @@ class ConfigClient:
                 self.deployer.certutil.generate_certificate_request(
                     self.mdict['pki_admin_subject_dn'],
                     self.mdict['pki_admin_key_type'],
-                    self.mdict['pki_admin_keysize'],
+                    self.mdict['pki_admin_key_size'],
                     self.mdict['pki_client_password_conf'],
                     noise_file,
                     output_file,
