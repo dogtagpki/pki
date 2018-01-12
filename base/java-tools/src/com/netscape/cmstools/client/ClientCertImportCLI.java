@@ -29,11 +29,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
+import org.apache.commons.lang.ArrayUtils;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.InternalCertificate;
 import org.mozilla.jss.crypto.X509Certificate;
@@ -379,21 +381,22 @@ public class ClientCertImportCLI extends CLI {
     }
 
     /**
-     * Sorts certificate chain from leaf to root.
+     * Sorts certificate chain from root to leaf.
      *
      * This method sorts an array of certificates (e.g. from a PKCS #7
-     * data) that represents a certificate chain from leaf to root
+     * data) that represents a certificate chain from root to leaf
      * according to the subject DNs and issuer DNs.
      *
-     * The array must contain exactly one unbranched certificate chain
-     * with one leaf and one root. The subject DNs must be unique.
+     * The input array is a set of certificates that are part of a
+     * chain but not in specific order.
      *
-     * The result is returned in a new array. The input array is unchanged.
+     * The result is a new array that contains the certificate chain
+     * sorted from root to leaf. The input array is unchanged.
      *
-     * @param certs array of certificates
+     * @param certs input array of certificates
      * @return new array containing sorted certificates
      */
-    public java.security.cert.X509Certificate[] sort(java.security.cert.X509Certificate[] certs) throws Exception {
+    public java.security.cert.X509Certificate[] sortCertificateChain(java.security.cert.X509Certificate[] certs) throws Exception {
 
         // lookup map: subject DN -> cert
         Map<String, java.security.cert.X509Certificate> certMap = new LinkedHashMap<>();
@@ -416,7 +419,7 @@ public class ClientCertImportCLI extends CLI {
 
             certMap.put(subjectDN, cert);
 
-            // ignore self-signed certificate when building hierarchy maps
+            // ignore self-signed certificate
             if (subjectDN.equals(issuerDN)) continue;
 
             if (childMap.containsKey(issuerDN)) {
@@ -464,19 +467,37 @@ public class ClientCertImportCLI extends CLI {
             throw new Exception("Multiple leaf certificates: " + sb);
         }
 
-        // build cert chain from leaf cert
-        List<java.security.cert.X509Certificate> chain = new ArrayList<>();
+        // build sorted chain
+        LinkedList<java.security.cert.X509Certificate> chain = new LinkedList<>();
+
+        // start from leaf
         String current = leafCerts.get(0);
 
         while (current != null) {
 
             java.security.cert.X509Certificate cert = certMap.get(current);
-            chain.add(cert);
 
+            // add to the beginning of chain
+            chain.addFirst(cert);
+
+            // follow parent to root
             current = parentMap.get(current);
         }
 
         return chain.toArray(new java.security.cert.X509Certificate[chain.size()]);
+    }
+
+    public java.security.cert.X509Certificate[] sortCertificateChain(
+            java.security.cert.X509Certificate[] certs,
+            boolean reverse) throws Exception {
+
+        certs = sortCertificateChain(certs);
+
+        if (reverse) {
+            ArrayUtils.reverse(certs);
+        }
+
+        return certs;
     }
 
     public void importPKCS7(
@@ -499,7 +520,7 @@ public class ClientCertImportCLI extends CLI {
         }
 
         // sort certs from leaf to root
-        certs = sort(certs);
+        certs = sortCertificateChain(certs, true);
 
         CryptoManager manager = CryptoManager.getInstance();
 
