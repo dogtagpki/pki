@@ -159,13 +159,14 @@ class NSSDatabase(object):
 
         # Add cert in two steps due to bug #1393668.
 
-        # First, import cert into HSM without trust attributes.
+        # If HSM is used, import cert into HSM without trust attributes.
         if self.token:
             cmd = [
                 'certutil',
                 '-A',
                 '-d', self.directory,
                 '-h', self.token,
+                '-P', self.token,
                 '-f', self.password_file,
                 '-n', nickname,
                 '-i', cert_file,
@@ -175,18 +176,20 @@ class NSSDatabase(object):
             # Ignore return code due to bug #1393668.
             subprocess.call(cmd)
 
-        # Then, import cert into internal token with trust attributes.
-        cmd = [
-            'certutil',
-            '-A',
-            '-d', self.directory,
-            '-f', self.internal_password_file,
-            '-n', nickname,
-            '-i', cert_file,
-            '-t', trust_attributes
-        ]
+        # If HSM is not used, or cert has trust attributes,
+        # import cert into internal token.
+        if not self.token or trust_attributes != ',,':
+            cmd = [
+                'certutil',
+                '-A',
+                '-d', self.directory,
+                '-f', self.internal_password_file,
+                '-n', nickname,
+                '-i', cert_file,
+                '-t', trust_attributes
+            ]
 
-        subprocess.check_call(cmd)
+            subprocess.check_call(cmd)
 
     def modify_cert(self, nickname, trust_attributes):
         cmd = [
