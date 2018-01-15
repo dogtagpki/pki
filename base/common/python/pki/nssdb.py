@@ -800,15 +800,43 @@ class NSSDatabase(object):
     def import_pkcs7(self, pkcs7_file, nickname, trust_attributes=None,
                      output_format='pem'):
 
-        subprocess.check_call([
-            'pki',
-            '-d', self.directory,
-            '-C', self.password_file,
-            'client-cert-import',
-            '--pkcs7', pkcs7_file,
-            '--trust', trust_attributes,
-            nickname
-        ])
+        tmpdir = tempfile.mkdtemp()
+
+        try:
+            # Sort and split the certs from root to leaf.
+            prefix = os.path.join(tmpdir, 'cert')
+            suffix = '.crt'
+
+            cmd = [
+                'pki',
+                '-d', self.directory,
+                'pkcs7-cert-export',
+                '--pkcs7-file', pkcs7_file,
+                '--output-prefix', prefix,
+                '--output-suffix', suffix
+            ]
+
+            subprocess.check_call(cmd)
+
+            # Count the number of certs in the chain.
+            n = 0
+            while True:
+                cert_file = prefix + str(n) + suffix
+                if not os.path.exists(cert_file):
+                    break
+                n = n + 1
+
+            # Import CA certs with default nicknames and trust attributes.
+            for i in range(0, n - 1):
+                cert_file = prefix + str(i) + suffix
+                self.add_ca_cert(cert_file)
+
+            # Import user cert with specified nickname and trust attributes.
+            cert_file = prefix + str(n - 1) + suffix
+            self.add_cert(nickname, cert_file, trust_attributes)
+
+        finally:
+            shutil.rmtree(tmpdir)
 
         # convert PKCS #7 data to the requested format
         with open(pkcs7_file, 'r') as f:
