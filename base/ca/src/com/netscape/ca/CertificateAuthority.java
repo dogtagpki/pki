@@ -2571,7 +2571,6 @@ public class CertificateAuthority
 
         CertStatus certStatus = null;
         GeneralizedTime thisUpdate = new GeneralizedTime(CMS.getCurrentDate());
-        GeneralizedTime nextUpdate = null;
 
         byte[] nameHash = null;
         String digestName = cid.getDigestName();
@@ -2608,6 +2607,12 @@ public class CertificateAuthority
             }
             CRLIssuingPoint point = (CRLIssuingPoint)
                     getCRLIssuingPoint(issuingPointId);
+
+            /* set nextUpdate to the nextUpdate time of the CRL */
+            GeneralizedTime nextUpdate = null;
+            Date crlNextUpdate = point.getNextUpdate();
+            if (crlNextUpdate != null)
+                nextUpdate = new GeneralizedTime(crlNextUpdate);
 
             if (point.isCRLCacheEnabled()) {
                 // only do this if cache is enabled
@@ -2660,7 +2665,12 @@ public class CertificateAuthority
             certStatus = new UnknownInfo(); // not issued not all
         }
 
-        return new SingleResponse(cid, certStatus, thisUpdate, nextUpdate);
+        return new SingleResponse(
+            cid, certStatus, thisUpdate,
+            /* We are not using a CRL cache for generating OCSP
+             * responses, so there is no reasonable value for
+             * nextUpdate. */
+            null /* nextUpdate */);
     }
 
     /**
