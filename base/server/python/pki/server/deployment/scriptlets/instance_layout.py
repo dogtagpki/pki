@@ -144,10 +144,21 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             deployer.symlink.create(
                 deployer.mdict['pki_tomcat_bin_path'],
                 deployer.mdict['pki_tomcat_bin_link'])
+
+            # create systemd links
             deployer.symlink.create(
                 deployer.mdict['pki_tomcat_systemd'],
                 deployer.mdict['pki_instance_systemd_link'],
                 uid=0, gid=0)
+            user = deployer.mdict['pki_user']
+            group = deployer.mdict['pki_group']
+            if user != 'pkiuser' or group != 'pkiuser':
+                deployer.systemd.set_override(
+                    'Service', 'User', user, 'user.conf')
+                deployer.systemd.set_override(
+                    'Service', 'Group', group, 'user.conf')
+            deployer.systemd.write_overrides()
+            deployer.systemd.daemon_reload()
 
             # establish shared NSS security databases for this instance
             deployer.directory.create(deployer.mdict['pki_database_path'])
@@ -175,6 +186,13 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
             # remove Tomcat instance systemd service link
             deployer.symlink.delete(deployer.systemd.systemd_link)
+
+            # delete systemd override directories
+            if deployer.directory.exists(deployer.systemd.base_override_dir):
+                deployer.directory.delete(deployer.systemd.base_override_dir)
+            if deployer.directory.exists(deployer.systemd.nuxwdog_override_dir):
+                deployer.directory.delete(deployer.systemd.nuxwdog_override_dir)
+            deployer.systemd.daemon_reload()
 
             # remove Tomcat instance base
             deployer.directory.delete(deployer.mdict['pki_instance_path'])
