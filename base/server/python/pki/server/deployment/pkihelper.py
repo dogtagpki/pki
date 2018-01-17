@@ -21,6 +21,12 @@
 # System Imports
 from __future__ import absolute_import
 from __future__ import print_function
+
+try:
+    import configparser
+except ImportError:
+    import ConfigParser as configparser
+
 import errno
 import sys
 import os
@@ -3445,26 +3451,62 @@ class Systemd(object):
           deployer (dictionary):  PKI Deployment name/value parameters
         """
         self.mdict = deployer.mdict
+        self.deployer = deployer
         instance_name = deployer.mdict['pki_instance_name']
 
         unit_file = 'pki-tomcatd@%s.service' % instance_name
         systemd_link = os.path.join(
             '/etc/systemd/system/pki-tomcatd.target.wants',
             unit_file)
+        override_dir = '/etc/systemd/system/pki-tomcatd@{}.service.d'.format(
+            instance_name)
+        self.base_override_dir = override_dir
 
         nuxwdog_unit_file = 'pki-tomcatd-nuxwdog@%s.service' % instance_name
         nuxwdog_systemd_link = os.path.join(
             '/etc/systemd/system/pki-tomcatd-nuxwdog.target.wants',
             nuxwdog_unit_file)
+        nuxwdog_override_dir = (
+            '/etc/systemd/system/pki-tomcatd-nuxwdog@{}.service.d'.format(
+                instance_name))
+        self.nuxwdog_override_dir = nuxwdog_override_dir
 
         if os.path.exists(nuxwdog_systemd_link):
             self.is_nuxwdog_enabled = True
             self.service_name = nuxwdog_unit_file
             self.systemd_link = nuxwdog_systemd_link
+            self.override_dir = nuxwdog_override_dir
         else:
             self.is_nuxwdog_enabled = False
             self.service_name = unit_file
             self.systemd_link = systemd_link
+            self.override_dir = override_dir
+
+    def create_override_directory(self):
+        self.deployer.directory.create(self.override_dir, uid=0, gid=0)
+
+    def create_override_file(self, fname):
+        self.create_override_directory()
+        self.deployer.file.create(
+            os.path.join(self.override_dir, fname),
+            uid=0, gid=0
+        )
+
+    def set_override(self, section, param, value, fname='local.conf'):
+        parser = configparser.ConfigParser()
+        parser.optionxform = str
+        override_file = os.path.join(self.override_dir, fname)
+        if os.path.exists(override_file):
+            parser.read(override_file)
+        else:
+            self.create_override_file(override_file)
+
+        if not parser.has_section(section):
+            parser.add_section(section)
+
+        parser[section][param] = value
+        with open(override_file, 'w') as fp:
+            parser.write(fp, space_around_delimiters=False)
 
     def daemon_reload(self, critical_failure=True):
         """PKI Deployment execution management lifecycle function.
