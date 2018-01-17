@@ -24,6 +24,7 @@ from __future__ import absolute_import
 from __future__ import print_function
 import sys
 import signal
+import subprocess
 
 if not hasattr(sys, "hexversion") or sys.hexversion < 0x020700f0:
     print("Python version %s.%s.%s is too old." % sys.version_info[:3])
@@ -531,6 +532,14 @@ def main(argv):
             scriptlet = scriptlet_module.PkiScriptlet()
 
             scriptlet.spawn(deployer)
+
+    except subprocess.CalledProcessError as e:
+        log_error_details()
+        print()
+        print("Installation failed: Command failed: %s" % ' '.join(e.cmd))
+        print()
+        print('Please check pkispawn logs in %s/%s' % (config.pki_log_dir, config.pki_log_name))
+        sys.exit(1)
 
     except requests.HTTPError as e:
         r = e.response
