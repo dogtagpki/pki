@@ -866,6 +866,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 deployer.mdict['pki_self_signed_token'],
                 deployer.mdict['pki_self_signed_nickname'],
                 deployer.mdict['pki_self_signed_subject'],
+                deployer.mdict['pki_sslserver_key_type'],
+                deployer.mdict['pki_sslserver_key_size'],
                 deployer.mdict['pki_self_signed_serial_number'],
                 deployer.mdict['pki_self_signed_validity_period'],
                 deployer.mdict['pki_self_signed_issuer_name'],

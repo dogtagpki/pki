@@ -123,10 +123,10 @@ If an optional hardware security module (HSM) is being utilized (rather than the
 .PP
 Each system certificate can be customized using the parameters below:
 .TP
-.B pki_<tag>_key_type, pki_<type>_keysize, pki_<tag>_key_algorithm
+.B pki_<tag>_key_type, pki_<type>_key_size, pki_<tag>_key_algorithm
 .IP
 Characteristics of the private key. See the Red Hat Certificate System documentation at https://access.redhat.com/knowledge/docs/Red_Hat_Certificate_System/ for possible options.  The defaults are RSA for the type, 2048 bits for the key size, and SHA256withRSA for the algorithm.
-.TP 
+.TP
 .B pki_<tag>_signing_algorithm
 .IP
 For signing certificates, the algorithm used for signing.  Defaults to SHA256withRSA.
@@ -157,7 +157,7 @@ Password for the admin user.  This password is used to log into the pki-console 
 .IP
 Email address for the admin user.
 .TP
-.B pki_admin_dualkey, pki_admin_keysize, pki_admin_key_type
+.B pki_admin_dualkey, pki_admin_key_size, pki_admin_key_type, pki_admin_key_algorithm
 .IP
 Settings for the administrator certificate and keys.
 .TP
@@ -211,7 +211,7 @@ Hostname and ports for the internal database.  Defaults to localhost, 389, and 6
 .PP
 .B pki_ds_bind_dn, pki_ds_password
 .IP
-Credentials to connect to the database during installation.  Directory Manager-level access is required during installation to set up the relevant schema and database.  During the installation, a more restricted Certificate Server user is set up to client authentication connections to the database.  Some additional configuration is required, including setting up the directory server to use SSL.  See the documentation for details. 
+Credentials to connect to the database during installation.  Directory Manager-level access is required during installation to set up the relevant schema and database.  During the installation, a more restricted Certificate Server user is set up to client authentication connections to the database.  Some additional configuration is required, including setting up the directory server to use SSL.  See the documentation for details.
 .PP
 .B pki_ds_secure_connection
 .IP
@@ -315,7 +315,7 @@ If you would like the Dogtag installer to add the indexes and reindex the data i
 .TP
 .B pki_clone_replication_master_port, pki_clone_replication_clone_port
 .IP
-Ports on which replication occurs.  These are the ports on the master and clone databases respectively.  Defaults to the internal database port. 
+Ports on which replication occurs.  These are the ports on the master and clone databases respectively.  Defaults to the internal database port.
 .TP
 .B pki_clone_replicate_schema
 .IP
