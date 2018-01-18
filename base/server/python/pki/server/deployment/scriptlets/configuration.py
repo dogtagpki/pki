@@ -593,13 +593,25 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             self.import_ca_ocsp_signing_cert(deployer, nssdb)
 
         if subsystem.name == 'kra':
-            self.import_ca_signing_cert(deployer, nssdb)
+            # Always import cert chain into internal token.
+            internal_nssdb = subsystem.instance.open_nssdb()
+            try:
+                self.import_ca_signing_cert(deployer, internal_nssdb)
+            finally:
+                internal_nssdb.close()
+
             self.import_kra_storage_cert(deployer, nssdb)
             self.import_kra_transport_cert(deployer, nssdb)
             self.import_admin_cert(deployer)
 
         if subsystem.name == 'ocsp':
-            self.import_ca_signing_cert(deployer, nssdb)
+            # Always import cert chain into internal token.
+            internal_nssdb = subsystem.instance.open_nssdb()
+            try:
+                self.import_ca_signing_cert(deployer, internal_nssdb)
+            finally:
+                internal_nssdb.close()
+
             self.import_ocsp_signing_cert(deployer, nssdb)
             self.import_admin_cert(deployer)
 
