@@ -65,6 +65,8 @@ class PKIConfigParser:
     # The 'new_param' is the new param name.
 
     DEPRECATED_DEFAULT_PARAMS = [
+        (None, 'pki_admin_keysize',
+         None, 'pki_admin_key_size'),
         (None, 'pki_external_ca_cert_path',
          None, 'pki_ca_signing_cert_path'),
         (None, 'pki_external_ca_cert_chain_path',

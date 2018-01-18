@@ -24,14 +24,14 @@ pkispawn \-s <subsystem> \-f <config_file> [\-h] [\-v] [\-p <prefix>]
 Sets up a Certificate Server subsystem (CA, KRA, OCSP, TKS, or TPS) in a
 Tomcat instance.
 .TP
-\fBNote:\fP 
+\fBNote:\fP
 A 389 Directory Server instance must be configured and running before this script can be run. Certificate Server requires an internal directory database. The default configuration assumes a Directory Server instance running on the same machine on port 389.  For more information on creating a Directory Server instance, see
 .B setup-ds.pl(8).
 .PP
-An instance can contain multiple subsystems, although it may contain at most one of each type of subsystem on a single machine.  So, for example, an instance could contain CA and KRA subsystems,  but not two CA subsystems.  To create an instance with a CA and a KRA, simply run pkispawn twice, with values 
-.I -s CA 
-and 
-.I -s KRA 
+An instance can contain multiple subsystems, although it may contain at most one of each type of subsystem on a single machine.  So, for example, an instance could contain CA and KRA subsystems,  but not two CA subsystems.  To create an instance with a CA and a KRA, simply run pkispawn twice, with values
+.I -s CA
+and
+.I -s KRA
 respectively.
 .PP
 The instances are created based on values for configuration parameters in the default configuration (/etc/pki/default.cfg) and the user-provided configuration file.  The user-provided configuration file is read after the default configuration file, so any parameters defined in that file will override parameters in the default configuration file.  In general, most users will store only those parameters which are different from the default configuration in their user-provided configuration file.
@@ -48,22 +48,22 @@ customization.
 \fBNote:\fP
 Any non-password related parameter values in the configuration file that needs to contain a \fB%\fP character must be properly escaped.  For example, a value of \fBfoo%bar\fP would be specified as \fBfoo%%bar\fP in the configuration file.
 .PP
-At a minimum, the user-defined configuration file must provide some passwords needed for the install.  An example configuration file is provided in the 
+At a minimum, the user-defined configuration file must provide some passwords needed for the install.  An example configuration file is provided in the
 .B EXAMPLES
 section below.  For more information on the default configuration file and the parameters it contains (and can be customized), see
 .B pki_default.cfg(5).
 .PP
 The \fBpkispawn\fP run creates several different installation files that can be referenced later, if need be:
 .IP
-* For Tomcat-based instances, a Tomcat instance is created at \fT/var/lib/pki/<pki_instance_name>\fP, where pki_instance_name is defined in the configuration file.  
+* For Tomcat-based instances, a Tomcat instance is created at \fT/var/lib/pki/<pki_instance_name>\fP, where pki_instance_name is defined in the configuration file.
 .IP
-* A log file of \fBpkispawn\fP operations is written to \fI/var/log/pki/pki-<subsystem>-spawn.<timestamp>.log\fP.  
+* A log file of \fBpkispawn\fP operations is written to \fI/var/log/pki/pki-<subsystem>-spawn.<timestamp>.log\fP.
 .IP
-* A .p12 (PKCS #12) file containing a certificate for a subsystem administrator is stored in pki_client_dir. 
+* A .p12 (PKCS #12) file containing a certificate for a subsystem administrator is stored in pki_client_dir.
 .PP
-When the utility is done running, the CA can be accessed by pointing a browser to https://<hostname>:<pki_https_port>/. The agent pages can be accessed by importing the CA certificate and administrator certificate into the browser. 
+When the utility is done running, the CA can be accessed by pointing a browser to https://<hostname>:<pki_https_port>/. The agent pages can be accessed by importing the CA certificate and administrator certificate into the browser.
 .PP
-The Certificate Server instance can also be accessed using the \fBpki\fP command line interface.  See 
+The Certificate Server instance can also be accessed using the \fBpki\fP command line interface.  See
 \fBpki(1)\fP. For more extensive documentation on how to use Certificate Server features, see the Red Hat Certificate System Documentation at https://access.redhat.com/knowledge/docs/Red_Hat_Certificate_System/.
 .PP
 Instances created using \fBpkispawn\fP can be removed using \fBpkidestroy\fP.  See
@@ -71,7 +71,7 @@ Instances created using \fBpkispawn\fP can be removed using \fBpkidestroy\fP.  S
 .PP
 \fBpkispawn\fP supersedes and combines the functionality of \fBpkicreate\fP and \fBpkisilent\fP, which were available in earlier releases of Certificate Server.  It is now possible to completely create and configure the Certificate Server subsystem in a single step using \fBpkispawn\fP.
 .TP
-\fBNote:\fP 
+\fBNote:\fP
 Previously, as an alternative to using \fBpkisilent\fP to perform a non-interactive batch configuration, a PKI instance could be interactively configured by a GUI-based configuration wizard via a Firefox browser.  GUI-based configuration of a PKI instance is unavailable in this version of the product.
 .SH OPTIONS
 .TP
@@ -89,7 +89,7 @@ Prints additional help information.
 .TP
 .B -v
 Displays verbose information about the installation.  This flag can be provided multiple times to increase verbosity.  See
-.B pkispawn -h 
+.B pkispawn -h
 for details.
 
 .SH SEPARATE VERSUS SHARED INSTANCES
@@ -165,7 +165,7 @@ the AJP port of the Tomcat instance. The default value is 8009.
 \fIManagement port:\fP
 the management port of the Tomcat instance. The default value is 8005.
 .TP
-\fBNote:\fP When deploying a new subsystem into an existing instance, pkispawn will attempt to read the ports from \fBdeployment.cfg\fP files stored for previously installed subsystems for this instance.  If successful, the installer will not prompt for these ports. 
+\fBNote:\fP When deploying a new subsystem into an existing instance, pkispawn will attempt to read the ports from \fBdeployment.cfg\fP files stored for previously installed subsystems for this instance.  If successful, the installer will not prompt for these ports.
 .PP
 \fBAdministrative User Parameters\fP
 .TP
@@ -274,7 +274,7 @@ its default configuration:
 * Installed on the local machine
 
 .IP
-* Listening on port 389 
+* Listening on port 389
 
 .IP
 * The user is cn=Directory Manager, with the password specified in pki_ds_password
@@ -315,7 +315,8 @@ where \fImyconfig.txt\fP contains the following text:
 .nf
 [DEFAULT]
 pki_admin_password=\fISecret123\fP
-pki_admin_keysize=nistp256
+pki_admin_key_algorithm=SHA256withEC
+pki_admin_key_size=nistp256
 pki_admin_key_type=ecc
 pki_client_pkcs12_password=\fISecret123\fP
 pki_ds_password=\fISecret123\fP
@@ -698,7 +699,7 @@ The subsystem section is [KRA], [OCSP], [TKS], or [TPS].
 This example assumes that the specified CA hosts the security
 domain.  The CA must be running and accessible.
 
-.PP 
+.PP
 A new administrator certificate is generated for the new
 subsystem and stored in a PKCS #12 file
 in \fI$HOME/.dogtag/<pki_instance_name>\fP.
@@ -942,7 +943,7 @@ To install a CA clone execute the following command:
 .IP
 \x'-1'\fBpkispawn \-s CA \-f myconfig.txt\fR
 
-.PP 
+.PP
 where \fImyconfig.txt\fP contains the following text:
 
 .IP
