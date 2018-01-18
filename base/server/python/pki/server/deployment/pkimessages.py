@@ -179,6 +179,10 @@ PKIHELPER_CERTUTIL_MISSING_ISSUER_NAME = \
     "certutil:  Missing '-c issuer-name' option!"
 PKIHELPER_CERTUTIL_MISSING_KEY_TYPE = \
     "certutil:  Missing '-k key-type-or-id' option (must be 'ecc' or 'rsa')!"
+PKIHELPER_CERTUTIL_MISSING_KEY_SIZE = \
+    "certutil:  Missing '-g keysize' option!"
+PKIHELPER_CERTUTIL_MISSING_CURVE_NAME = \
+    "certutil:  Missing '-q curve-name' option!"
 PKIHELPER_CERTUTIL_MISSING_NICKNAME = \
     "certutil:  Missing '-n nickname' option!"
 PKIHELPER_CERTUTIL_MISSING_NOISE_FILE = \
