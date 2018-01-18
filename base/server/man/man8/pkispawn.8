@@ -315,7 +315,8 @@ where \fImyconfig.txt\fP contains the following text:
 .nf
 [DEFAULT]
 pki_admin_password=\fISecret123\fP
-pki_admin_keysize=nistp256
+pki_admin_key_algorithm=SHA256withEC
+pki_admin_key_size=nistp256
 pki_admin_key_type=ecc
 pki_client_pkcs12_password=\fISecret123\fP
 pki_ds_password=\fISecret123\fP

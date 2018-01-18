@@ -2367,8 +2367,8 @@ class Certutil:
 
     def generate_self_signed_certificate(self, path, pki_cert_database,
                                          pki_key_database, pki_secmod_database,
-                                         token, nickname,
-                                         subject, serial_number,
+                                         token, nickname, subject,
+                                         key_type, key_size, serial_number,
                                          validity_period, issuer_name,
                                          trustargs, noise_file,
                                          password_file=None,
@@ -2408,6 +2408,35 @@ class Certutil:
                     log.PKIHELPER_CERTUTIL_MISSING_SUBJECT,
                     extra=config.PKI_INDENTATION_LEVEL_2)
                 raise Exception(log.PKIHELPER_CERTUTIL_MISSING_SUBJECT)
+            #   Specify the key type
+            if key_type:
+                if key_type == "ecc":
+                    command.extend(["-k", "ec"])
+                    #   Specify the curve name
+                    if key_size:
+                        command.extend(["-q", key_size])
+                    else:
+                        config.pki_log.error(
+                            log.PKIHELPER_CERTUTIL_MISSING_CURVE_NAME,
+                            extra=config.PKI_INDENTATION_LEVEL_2)
+                        raise Exception(
+                            log.PKIHELPER_CERTUTIL_MISSING_CURVE_NAME)
+                else:
+                    command.extend(["-k", key_type])
+                    #   Specify the key size
+                    if key_size:
+                        command.extend(["-g", key_size])
+                    else:
+                        config.pki_log.error(
+                            log.PKIHELPER_CERTUTIL_MISSING_KEY_SIZE,
+                            extra=config.PKI_INDENTATION_LEVEL_2)
+                        raise Exception(
+                            log.PKIHELPER_CERTUTIL_MISSING_KEY_SIZE)
+            else:
+                config.pki_log.error(
+                    log.PKIHELPER_CERTUTIL_MISSING_KEY_TYPE,
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+                raise Exception(log.PKIHELPER_CERTUTIL_MISSING_KEY_TYPE)
             #   Specify the serial number
             if serial_number is not None:
                 command.extend(["-m", str(serial_number)])
@@ -4319,7 +4348,7 @@ class ConfigClient:
                 self.deployer.certutil.generate_certificate_request(
                     self.mdict['pki_admin_subject_dn'],
                     self.mdict['pki_admin_key_type'],
-                    self.mdict['pki_admin_keysize'],
+                    self.mdict['pki_admin_key_size'],
                     self.mdict['pki_client_password_conf'],
                     noise_file,
                     output_file,
