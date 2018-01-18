@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e70de17e_5a0b3d76",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2018-01-18T15:26:27Z",
+      "side": 1,
+      "message": "Can we be a little more explicit?  Will be easier to understand what was corrected later.",
+      "revId": "45874161e8194138035f0878da9c789e6734e010",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fbfef51b_e299e651",
+        "filename": "base/server/man/man5/pki_default.cfg.5",
+        "patchSetId": 1
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2018-01-18T15:26:27Z",
+      "side": 1,
+      "message": "whitespace",
+      "revId": "45874161e8194138035f0878da9c789e6734e010",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b559fded_882d53f3",
+        "filename": "base/server/man/man8/pkispawn.8",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2018-01-18T15:26:27Z",
+      "side": 1,
+      "message": "I know  these are not introduced by your patch, but it would be great to clean up these whitespace errors.",
+      "revId": "45874161e8194138035f0878da9c789e6734e010",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
