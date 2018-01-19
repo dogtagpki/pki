@@ -29,7 +29,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Vector;
 
 import javax.ws.rs.PathParam;
@@ -523,9 +522,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
         Map<String, String> auditParams = new LinkedHashMap<String, String>();
         String profileId = null;
         String classId = null;
-        // First read the data into a Properties to process escaped
-        // separator characters (':', '=') in values
-        Properties properties = new Properties();
+        SimpleProperties properties = new SimpleProperties();
         try {
             // load data and read profileId and classId
             properties.load(new ByteArrayInputStream(data));
@@ -543,16 +540,9 @@ public class ProfileService extends SubsystemService implements ProfileResource 
         properties.remove("profileId");
         properties.remove("classId");
 
-        // Now copy into SimpleProperties to avoid unwanted escapes
-        // of separator characters in output
-        SimpleProperties simpleProperties = new SimpleProperties();
-        for (String k : properties.stringPropertyNames()) {
-            simpleProperties.setProperty(k, properties.getProperty(k));
-        }
-
         try {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
-            simpleProperties.store(out, null);
+            properties.store(out, null);
             data = out.toByteArray();  // original data sans profileId, classId
 
             IProfile profile = ps.getProfile(profileId);
@@ -669,9 +659,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
             throw new ConflictingOperationException("Cannot change profile data.  Profile must be disabled");
         }
 
-        // First read the data into a Properties to process escaped
-        // separator characters (':', '=') in values
-        Properties properties = new Properties();
+        SimpleProperties properties = new SimpleProperties();
         try {
             properties.load(new ByteArrayInputStream(data));
         } catch (IOException e) {
@@ -680,13 +668,6 @@ public class ProfileService extends SubsystemService implements ProfileResource 
         properties.remove("profileId");
         properties.remove("classId");
 
-        // Now copy into SimpleProperties to avoid unwanted escapes
-        // of separator characters in output
-        SimpleProperties simpleProperties = new SimpleProperties();
-        for (String k : properties.stringPropertyNames()) {
-            simpleProperties.setProperty(k, properties.getProperty(k));
-        }
-
         try {
             IProfile profile = ps.getProfile(profileId);
             if (profile == null) {
@@ -694,7 +675,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
             }
 
             ByteArrayOutputStream out = new ByteArrayOutputStream();
-            simpleProperties.store(out, null);
+            properties.store(out, null);
             data = out.toByteArray();  // original data sans profileId, classId
 
             // create temporary profile to verify profile configuration
