@@ -4328,7 +4328,7 @@ class ConfigClient:
         data.adminUID = self.mdict['pki_admin_uid']
         data.adminSubjectDN = self.mdict['pki_admin_subject_dn']
 
-        if self.standalone:
+        if self.standalone or self.external and self.subsystem in ['KRA', 'OCSP']:
             if not self.external_step_two:
                 # IMPORTANT:  ALWAYS set 'pki_import_admin_cert' FALSE for
                 #             Stand-alone PKI (Step 1)
@@ -4354,11 +4354,10 @@ class ConfigClient:
             finally:
                 client_nssdb.close()
 
-            if self.standalone:
-                # Stand-alone PKI (Step 2)
+            if self.standalone or self.external and self.subsystem in ['KRA', 'OCSP']:
+                # Stand-alone/External PKI (Step 2)
                 #
-                # Copy the Stand-alone PKI 'Admin Certificate'
-                # (that was previously generated via an external CA) into
+                # Copy the externally-issued admin certificate into
                 # 'ca_admin.cert' under the specified 'pki_client_dir'
                 # stripping the certificate HEADER/FOOTER prior to saving it.
                 imported_admin_cert = ""
