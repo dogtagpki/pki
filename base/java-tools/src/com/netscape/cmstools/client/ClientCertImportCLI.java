@@ -27,15 +27,10 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.apache.commons.lang.ArrayUtils;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.InternalCertificate;
 import org.mozilla.jss.crypto.X509Certificate;
@@ -48,6 +43,7 @@ import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Cert;
 
 import netscape.security.pkcs.PKCS12;
@@ -380,126 +376,6 @@ public class ClientCertImportCLI extends CLI {
         MainCLI.printMessage("Imported certificate \"" + cert.getNickname() + "\"");
     }
 
-    /**
-     * Sorts certificate chain from root to leaf.
-     *
-     * This method sorts an array of certificates (e.g. from a PKCS #7
-     * data) that represents a certificate chain from root to leaf
-     * according to the subject DNs and issuer DNs.
-     *
-     * The input array is a set of certificates that are part of a
-     * chain but not in specific order.
-     *
-     * The result is a new array that contains the certificate chain
-     * sorted from root to leaf. The input array is unchanged.
-     *
-     * @param certs input array of certificates
-     * @return new array containing sorted certificates
-     */
-    public java.security.cert.X509Certificate[] sortCertificateChain(java.security.cert.X509Certificate[] certs) throws Exception {
-
-        // lookup map: subject DN -> cert
-        Map<String, java.security.cert.X509Certificate> certMap = new LinkedHashMap<>();
-
-        // hierarchy map: subject DN -> issuer DN
-        Map<String, String> parentMap = new HashMap<>();
-
-        // reverse hierarchy map: issuer DN -> subject DN
-        Map<String, String> childMap = new HashMap<>();
-
-        // build maps
-        for (java.security.cert.X509Certificate cert : certs) {
-
-            String subjectDN = cert.getSubjectDN().toString();
-            String issuerDN = cert.getIssuerDN().toString();
-
-            if (certMap.containsKey(subjectDN)) {
-                throw new Exception("Duplicate certificate: " + subjectDN);
-            }
-
-            certMap.put(subjectDN, cert);
-
-            // ignore self-signed certificate
-            if (subjectDN.equals(issuerDN)) continue;
-
-            if (childMap.containsKey(issuerDN)) {
-                throw new Exception("Branched chain: " + issuerDN);
-            }
-
-            parentMap.put(subjectDN, issuerDN);
-            childMap.put(issuerDN, subjectDN);
-        }
-
-        if (verbose) {
-            System.out.println("Certificates:");
-            for (String subjectDN : certMap.keySet()) {
-                System.out.println(" - " + subjectDN);
-
-                String parent = parentMap.get(subjectDN);
-                if (parent != null) System.out.println("   parent: " + parent);
-
-                String child = childMap.get(subjectDN);
-                if (child != null) System.out.println("   child: " + child);
-            }
-        }
-
-        // find leaf cert
-        List<String> leafCerts = new ArrayList<>();
-
-        for (String subjectDN : certMap.keySet()) {
-
-            // if cert has a child, skip
-            if (childMap.containsKey(subjectDN)) continue;
-
-            // found leaf cert
-            leafCerts.add(subjectDN);
-        }
-
-        if (leafCerts.isEmpty()) {
-            throw new Exception("Unable to find leaf certificate");
-
-        } else if (leafCerts.size() > 1) {
-            StringBuilder sb = new StringBuilder();
-            for (String subjectDN : leafCerts) {
-                if (sb.length() > 0) sb.append(", ");
-                sb.append("[" + subjectDN + "]");
-            }
-            throw new Exception("Multiple leaf certificates: " + sb);
-        }
-
-        // build sorted chain
-        LinkedList<java.security.cert.X509Certificate> chain = new LinkedList<>();
-
-        // start from leaf
-        String current = leafCerts.get(0);
-
-        while (current != null) {
-
-            java.security.cert.X509Certificate cert = certMap.get(current);
-
-            // add to the beginning of chain
-            chain.addFirst(cert);
-
-            // follow parent to root
-            current = parentMap.get(current);
-        }
-
-        return chain.toArray(new java.security.cert.X509Certificate[chain.size()]);
-    }
-
-    public java.security.cert.X509Certificate[] sortCertificateChain(
-            java.security.cert.X509Certificate[] certs,
-            boolean reverse) throws Exception {
-
-        certs = sortCertificateChain(certs);
-
-        if (reverse) {
-            ArrayUtils.reverse(certs);
-        }
-
-        return certs;
-    }
-
     public void importPKCS7(
             String pkcs7Path,
             String nickname,
@@ -520,7 +396,7 @@ public class ClientCertImportCLI extends CLI {
         }
 
         // sort certs from leaf to root
-        certs = sortCertificateChain(certs, true);
+        certs = CryptoUtil.sortCertificateChain(certs, true);
 
         CryptoManager manager = CryptoManager.getInstance();
 
