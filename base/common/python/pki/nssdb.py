@@ -191,6 +191,26 @@ class NSSDatabase(object):
 
             subprocess.check_call(cmd)
 
+    def add_ca_cert(self, cert_file, trust_attributes=None):
+        cmd = [
+            'pki',
+            '-d', self.directory,
+            '-C', self.password_file
+        ]
+
+        if self.token:
+            cmd.extend(['--token', self.token])
+
+        cmd.extend([
+            'client-cert-import',
+            '--ca-cert', cert_file
+        ])
+
+        if trust_attributes:
+            cmd.extend(['--trust', trust_attributes])
+
+        subprocess.check_call(cmd)
+
     def modify_cert(self, nickname, trust_attributes):
         cmd = [
             'certutil',
