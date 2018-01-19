@@ -1053,9 +1053,14 @@ public abstract class EnrollProfile extends BasicProfile
                     if (id_cmc_revokeRequest)
                         continue;
 
-                    CertReqMsg crm = msgs[i].getCrm();
+                    boolean hasPop = true;
+                    if (msgs[i].getType().equals(TaggedRequest.CRMF)) {
+                        CertReqMsg crm = msgs[i].getCrm();
+                        if (!crm.hasPop())
+                            hasPop = false;
+                    }
                     if (popLinkWitnessRequired &&
-                            crm.hasPop() && // popLinkWitness needs POP
+                            hasPop && // popLinkWitness needs POP
                             !context.containsKey("POPLinkWitnessV2") &&
                             !context.containsKey("POPLinkWitness")) {
                         CMS.debug(method + "popLinkWitness(V2) required");
