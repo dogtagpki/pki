@@ -899,7 +899,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         finally:
             nssdb.close()
 
-    def replace_sslserver_cert(self, deployer, instance, sslserver):
+    def remove_temp_sslserver_cert(self, deployer, instance, sslserver):
 
         if len(deployer.instance.tomcat_instance_subsystems()) == 1:
             # Modify contents of 'serverCertNick.conf' (if necessary)
@@ -922,6 +922,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         finally:
             nssdb.close()
 
+    def import_perm_sslserver_cert(self, deployer, instance, sslserver):
+
+        nickname = sslserver['nickname']
         token = deployer.mdict['pki_token_name']
 
         config.pki_log.info(
@@ -1225,7 +1228,13 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # replace it with the perm cert.
         if create_temp_sslserver_cert and sslserver and sslserver['cert']:
             deployer.systemd.stop()
-            self.replace_sslserver_cert(deployer, instance, sslserver)
+
+            # Remove temp SSL server cert.
+            self.remove_temp_sslserver_cert(deployer, instance, sslserver)
+
+            # Import perm SSL server cert.
+            self.import_perm_sslserver_cert(deployer, instance, sslserver)
+
             deployer.systemd.start()
 
         elif config.str2bool(deployer.mdict['pki_restart_configured_instance']):
