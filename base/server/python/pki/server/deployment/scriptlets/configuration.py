@@ -809,12 +809,12 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         self.validate_system_cert(deployer, nssdb, subsystem, 'subsystem')
         self.validate_system_cert(deployer, nssdb, subsystem, 'audit_signing')
 
-    def create_temp_sslserver_cert(self, deployer, instance, token):
+    def create_temp_sslserver_cert(self, deployer, instance):
 
         if len(deployer.instance.tomcat_instance_subsystems()) > 1:
             return False
 
-        nssdb = instance.open_nssdb(token)
+        nssdb = instance.open_nssdb()
 
         try:
             nickname = deployer.mdict['pki_self_signed_nickname']
@@ -908,6 +908,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # TODO: replace with pki-server cert-import sslserver
 
         nickname = sslserver['nickname']
+        token = deployer.mdict['pki_token_name']
 
         config.pki_log.info(
             "removing temp SSL server cert from internal token: %s" % nickname,
@@ -916,8 +917,13 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         nssdb = instance.open_nssdb()
 
         try:
-            # remove temp SSL server cert but keep the key
-            nssdb.remove_cert(nickname)
+            # Remove temp SSL server cert from internal token.
+            # Remove temp key too if the perm cert uses HSM.
+            if not token or token == 'internal':
+                remove_key = False
+            else:
+                remove_key = True
+            nssdb.remove_cert(nickname, remove_key=remove_key)
 
         finally:
             nssdb.close()
@@ -1066,7 +1072,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         finally:
             nssdb.close()
 
-        create_temp_sslserver_cert = self.create_temp_sslserver_cert(deployer, instance, token)
+        create_temp_sslserver_cert = self.create_temp_sslserver_cert(deployer, instance)
 
         # Start/Restart this Tomcat PKI Process
         # Optionally prepare to enable a java debugger
@@ -1232,8 +1238,11 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             # Remove temp SSL server cert.
             self.remove_temp_sslserver_cert(deployer, instance, sslserver)
 
-            # Import perm SSL server cert.
-            self.import_perm_sslserver_cert(deployer, instance, sslserver)
+            # Import perm SSL server cert unless it's already imported
+            # earlier in external/standalone installation.
+
+            if not (standalone or external and subsystem.name in ['kra', 'ocsp']):
+                self.import_perm_sslserver_cert(deployer, instance, sslserver)
 
             deployer.systemd.start()
 
