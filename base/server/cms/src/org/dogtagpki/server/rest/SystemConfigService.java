@@ -401,12 +401,19 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         cert.setSubsystem(subsystem);
         cert.setType(cs.getString("preop.cert." + tag + ".type"));
 
+        String fullName;
+        if (!CryptoUtil.isInternalToken(tokenName)) {
+            fullName = tokenName + ":" + nickname;
+        } else {
+            fullName = nickname;
+        }
+
         CMS.debug("SystemConfigService: checking " + tag + " cert in NSS database");
 
         CryptoManager cm = CryptoManager.getInstance();
         X509Certificate x509Cert;
         try {
-            x509Cert = cm.findCertByNickname(nickname);
+            x509Cert = cm.findCertByNickname(fullName);
         } catch (ObjectNotFoundException e) {
             x509Cert = null;
         }
@@ -414,11 +421,12 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         // For external/existing CA case, some/all system certs may be provided.
         // The SSL server cert will always be generated for the current host.
 
-        // For standalone KRA/OCSP case, all system certs will be provided.
+        // For external/standalone KRA/OCSP case, all system certs will be provided.
         // No system certs will be generated including the SSL server cert.
 
-        if (request.isExternal() && !tag.equals("sslserver") && x509Cert != null
-                || request.getStandAlone()) {
+        if (request.isExternal() && "ca".equals(subsystem) && !tag.equals("sslserver") && x509Cert != null
+                || request.getStandAlone()
+                || request.isExternal() && ("kra".equals(subsystem) || "ocsp".equals(subsystem))) {
 
             CMS.debug("SystemConfigService: loading existing " + tag + " cert");
             byte[] bytes = x509Cert.getEncoded();
