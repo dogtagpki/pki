@@ -917,6 +917,12 @@ mv %{buildroot}%{_datadir}/pki/server/upgrade/10.4.6/01-UpdateKeepAliveTimeout \
 /bin/rm -rf %{buildroot}%{_datadir}/pki/server/upgrade/10.4.5
 /bin/rm -rf %{buildroot}%{_datadir}/pki/server/upgrade/10.4.6
 
+# merge newer upgrade script into 10.5.1 for RHEL
+mv %{buildroot}%{_datadir}/pki/server/upgrade/10.5.5/01-AddTPSExternalRegISEtokenParams \
+   %{buildroot}%{_datadir}/pki/server/upgrade/10.5.1/01-AddTPSExternalRegISEtokenParams
+
+/bin/rm -rf %{buildroot}%{_datadir}/pki/server/upgrade/10.5.5
+
 %endif
 
 # Customize server library links in /usr/share/pki/server/common/lib
