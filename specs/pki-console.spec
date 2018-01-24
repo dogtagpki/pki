@@ -61,9 +61,9 @@ BuildRequires:    nss-devel >= 3.28.3
 BuildRequires:    junit
 BuildRequires:    jpackage-utils >= 1.7.5-10
 %if 0%{?rhel} && 0%{?rhel} <= 7
-BuildRequires:    jss >= 4.4.0-10
+BuildRequires:    jss >= 4.4.0-11
 %else
-BuildRequires:    jss >= 4.4.2-7
+BuildRequires:    jss >= 4.4.2-9
 %endif
 BuildRequires:    pki-base-java >= %{pki_core_version}
 
@@ -74,9 +74,9 @@ Requires:         pki-base-java >= %{pki_core_version}
 Requires:         pki-console-theme >= %{version}
 Requires:         jpackage-utils >= 1.7.5-10
 %if 0%{?rhel} && 0%{?rhel} <= 7
-Requires:         jss >= 4.4.0-10
+Requires:         jss >= 4.4.0-11
 %else
-Requires:         jss >= 4.4.2-7
+Requires:         jss >= 4.4.2-9
 %endif
 
 %if 0%{?rhel}
