@@ -485,14 +485,13 @@ class PropertyFile(object):
         for i, line in enumerate(self.lines):
 
             # parse <key> <delimiter> <value>
-            match = re.match(r'^\s*(\S*)\s*%s\s*(.*)\s*$' % self.delimiter,
+            match = re.match(r'^\s*([^%s]*)\s*%s\s*(.*)\s*$' % (self.delimiter, self.delimiter),
                              line)
 
             if not match:
                 continue
 
             key = match.group(1)
-
             if key.lower() == name.lower():
                 return i
 
@@ -511,7 +510,7 @@ class PropertyFile(object):
         for line in self.lines:
 
             # parse <key> <delimiter> <value>
-            match = re.match(r'^\s*(\S*)\s*%s\s*(.*)\s*$' % self.delimiter,
+            match = re.match(r'^\s*([^%s]*)\s*%s\s*(.*)\s*$' % (self.delimiter, self.delimiter),
                              line)
 
             if not match:
@@ -540,7 +539,7 @@ class PropertyFile(object):
         for i, line in enumerate(self.lines):
 
             # parse <key> <delimiter> <value>
-            match = re.match(r'^\s*(\S*)\s*%s\s*(.*)\s*$' % self.delimiter,
+            match = re.match(r'^\s*([^%s]*)\s*%s\s*(.*)\s*$' % (self.delimiter, self.delimiter),
                              line)
 
             if not match:
@@ -569,7 +568,7 @@ class PropertyFile(object):
         for i, line in enumerate(self.lines):
 
             # parse <key> <delimiter> <value>
-            match = re.match(r'^\s*(\S*)\s*%s\s*(.*)\s*$' % self.delimiter,
+            match = re.match(r'^\s*([^%s]*)\s*%s\s*(.*)\s*$' % (self.delimiter, self.delimiter),
                              line)
 
             if not match:
