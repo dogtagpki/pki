@@ -66,12 +66,12 @@
 Name:             pki-core
 %if 0%{?rhel}
 Version:                10.5.1
-%define redhat_release  5
+%define redhat_release  6
 %define redhat_stage    0
 %define default_release %{redhat_release}.%{redhat_stage}
 #%define default_release %{redhat_release}
 %else
-Version:                10.5.3
+Version:                10.5.4
 %define fedora_release  1
 %define fedora_stage    0
 %define default_release %{fedora_release}.%{fedora_stage}
@@ -110,9 +110,9 @@ BuildRequires:    nspr-devel
 BuildRequires:    nss-devel >= 3.28.3
 
 %if 0%{?rhel} && 0%{?rhel} <= 7
-BuildRequires:    nuxwdog-client-java >= 1.0.1-11
+BuildRequires:    nuxwdog-client-java >= 1.0.3-7
 %else
-BuildRequires:    nuxwdog-client-java >= 1.0.3
+BuildRequires:    nuxwdog-client-java >= 1.0.3-13
 %endif
 
 BuildRequires:    openldap-devel
@@ -168,10 +168,10 @@ BuildRequires:    python-ldap
 BuildRequires:    junit
 BuildRequires:    jpackage-utils >= 0:1.7.5-10
 %if 0%{?rhel} && 0%{?rhel} <= 7
-BuildRequires:    jss >= 4.4.0-10
+BuildRequires:    jss >= 4.4.0-11
 BuildRequires:    tomcatjss >= 7.2.1-4
 %else
-BuildRequires:    jss >= 4.4.2-7
+BuildRequires:    jss >= 4.4.2-9
 BuildRequires:    tomcatjss >= 7.2.3
 %endif
 BuildRequires:    systemd-units
@@ -307,9 +307,9 @@ Group:            System Environment/Libraries
 Requires:         java-1.8.0-openjdk-headless
 Requires:         jpackage-utils >= 0:1.7.5-10
 %if 0%{?rhel} && 0%{?rhel} <= 7
-Requires:         jss >= 4.4.0-10
+Requires:         jss >= 4.4.0-11
 %else
-Requires:         jss >= 4.4.2-7
+Requires:         jss >= 4.4.2-9
 %endif
 Requires:         nss >= 3.28.3
 
@@ -390,9 +390,9 @@ Requires:         slf4j-jdk14
 Requires:         javassist
 Requires:         jpackage-utils >= 0:1.7.5-10
 %if 0%{?rhel} && 0%{?rhel} <= 7
-Requires:         jss >= 4.4.0-10
+Requires:         jss >= 4.4.0-11
 %else
-Requires:         jss >= 4.4.2-7
+Requires:         jss >= 4.4.2-9
 %endif
 Requires:         ldapjdk >= 4.19-5
 Requires:         pki-base = %{version}-%{release}
@@ -504,15 +504,19 @@ Requires:         hostname
 Requires:         net-tools
 
 %if 0%{?rhel} && 0%{?rhel} <= 7
-Requires:    nuxwdog-client-java >= 1.0.1-11
+Requires:    nuxwdog-client-java >= 1.0.3-7
 %else
-Requires:    nuxwdog-client-java >= 1.0.3
+Requires:    nuxwdog-client-java >= 1.0.3-13
 %endif
 
 Requires:         policycoreutils
 Requires:         procps-ng
 Requires:         openldap-clients
+%if 0%{?rhel} && 0%{?rhel} <= 7
+Requires:         openssl >= 1.0.2k-11
+%else
 Requires:         openssl
+%endif
 Requires:         pki-base = %{version}-%{release}
 Requires:         pki-base-java = %{version}-%{release}
 Requires:         pki-tools = %{version}-%{release}
@@ -1330,6 +1334,31 @@ fi
 %endif # %{with server}
 
 %changelog
+* Tue Jan 23 2018 Dogtag Team <pki-devel@redhat.com> 10.5.4-1
+- dogtagpki Pagure Issue #2557 -CA Cloning: Failed to update number range
+  in few cases (ftweedal)
+- dogtagpki Pagure Issue #2604 - RFE: shared token storage and retrieval
+  mechanism (cfu)
+- dogtagpki Pagure Issue #2661 -HAProxy rejects OCSP responses due to
+  missing nextupdate field (ftweedal)
+- dogtagpki Pagure Issue #2835 - pkidestroy does not work with nuxwdog
+  (vakwetu)
+- dogtagpki Pagure Issue #2870 - Adjust requirement for openssl to latest
+  version to include latest openssl fixes for FIPS SSL (mharmsen)
+- dogtagpki Pagure Issue #2872 -PR_FILE_NOT_FOUND_ERROR during
+  pkispawn (vakwetu)
+- dogtagpki Pagure Issue #2873 - p12 admin certificate is missing when
+  certificate is signed Externally (edewata)
+- dogtagpki Pagure Issue #2887 -Not able to setup CA with ECC (mharmsen)
+- dogtagpki Pagure Issue #2889 - Unable to have non "pkiuser" owned CA
+  instance (vakwetu)
+- dogtagpki Pagure Issue #2904 - Adjust dependencies to require the latest
+  nuxwdog (mharmsen)
+- dogtagpki Pagure Issue #2910 - pkispawn fails to mask specified parameter
+  values under the [DEFAULT] section (vakwetu)
+- dogtagpki Pagure Issue #2911 -Adjust dependencies to require the latest
+  JSS (mharmsen)
+
 * Mon Dec 11 2017 Dogtag Team <pki-devel@redhat.com> 10.5.3-1
 - Re-base Dogtag to 10.5.3
 - dogtagpki Pagure Issue #2735 - Secure removal of secret data storage
