@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8bc92f33_e08b8f44",
+        "filename": "base/server/upgrade/10.5.5/01-AddTPSExternalRegISEtokenParams",
+        "patchSetId": 1
+      },
+      "lineNbr": 356,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-01-24T18:55:45Z",
+      "side": 1,
+      "message": "The port number in that line is not actually used, so it\u0027s not guaranteed to be correct. Also, that line is actually going to be removed in this ticket:\nhttps://pagure.io/dogtagpki/issue/1496\n\nIt would be better to get the unsecured port from the Connector element:\n\n  \u003cConnector name\u003d\"Unsecure\"\n          port\u003d\"8080\"\n          ...\n          /\u003e\n\nThen construct the URL as follows:\n\n  http://\u003chostname\u003e:\u003e\u003cport\u003e/tps/phoneHome\n\nSee this script for example:\nhttps://github.com/dogtagpki/pki/blob/master/base/server/upgrade/10.4.6/01-UpdateKeepAliveTimeout",
+      "revId": "5cfaed020dbaa293d8bec85bc9d0b9d4a8cbcd45",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
