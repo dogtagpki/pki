@@ -133,10 +133,6 @@ public class AuditEvent extends LogEvent {
             "LOGGING_SIGNED_AUDIT_TOKEN_FORMAT_SUCCESS_9";
     public final static String TOKEN_FORMAT_FAILURE =
             "LOGGING_SIGNED_AUDIT_TOKEN_FORMAT_FAILURE_9";
-    public final static String TOKEN_APPLET_UPGRADE_SUCCESS =
-            "LOGGING_SIGNED_AUDIT_TOKEN_APPLET_UPGRADE_SUCCESS_9";
-    public final static String TOKEN_APPLET_UPGRADE_FAILURE =
-            "LOGGING_SIGNED_AUDIT_TOKEN_APPLET_UPGRADE_FAILURE_9";
     public final static String TOKEN_KEY_CHANGEOVER_REQUIRED =
             "LOGGING_SIGNED_AUDIT_TOKEN_KEY_CHANGEOVER_REQUIRED_10";
     public final static String TOKEN_KEY_CHANGEOVER_SUCCESS =
