@@ -66,7 +66,7 @@ public class RollingLogFile extends LogFile {
     /**
      * The default expiration time in seconds
      */
-    static final String EXPIRATION_TIME = "2592000";
+    static final String EXPIRATION_TIME = "0";
 
     /**
      * The maximum file size in bytes
