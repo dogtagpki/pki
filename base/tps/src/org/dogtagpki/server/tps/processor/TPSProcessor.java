@@ -96,6 +96,7 @@ import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.logging.event.TokenAppletUpgradeEvent;
+import com.netscape.certsrv.logging.event.TokenKeyChangeoverEvent;
 import com.netscape.certsrv.tps.token.TokenStatus;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
@@ -4218,28 +4219,30 @@ public class TPSProcessor {
             String newKeyVersion,
             String info) {
 
-        String auditType = "";
+        String auditType;
+
         switch (status) {
         case "success":
-            auditType = AuditEvent.TOKEN_KEY_CHANGEOVER_SUCCESS;
+            auditType = TokenKeyChangeoverEvent.TOKEN_KEY_CHANGEOVER_SUCCESS;
             break;
         default:
-            auditType = AuditEvent.TOKEN_KEY_CHANGEOVER_FAILURE;
+            auditType = TokenKeyChangeoverEvent.TOKEN_KEY_CHANGEOVER_FAILURE;
         }
 
-        String auditMessage = CMS.getLogMessage(
+        TokenKeyChangeoverEvent event = new TokenKeyChangeoverEvent(
                 auditType,
-                (session != null) ? session.getIpAddress() : null,
+                session != null ? session.getIpAddress() : null,
                 userid,
-                (aInfo != null) ? aInfo.getCUIDhexStringPlain() : null,
-                (aInfo != null) ? aInfo.getMSNString() : null,
+                aInfo != null ? aInfo.getCUIDhexStringPlain() : null,
+                aInfo != null ? aInfo.getMSNString() : null,
                 status,
                 getSelectedTokenType(),
-                (aInfo != null) ? aInfo.getFinalAppletVersion() : null,
+                aInfo != null ? aInfo.getFinalAppletVersion() : null,
                 oldKeyVersion,
                 newKeyVersion,
                 info);
-        audit(auditMessage);
+
+        signedAuditLogger.log(event);
     }
 
     /*
