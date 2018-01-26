@@ -1202,7 +1202,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
 
         String stringAttr = (String)attr;
 
-        return value.equals(stringAttr);
+        return value.equalsIgnoreCase(stringAttr);
     }
 
     public boolean eval(SignedAuditEvent event, JDAPFilterSubString filter) {
@@ -1215,18 +1215,18 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
         if (attr == null) return false;
         if (!(attr instanceof String)) return false;
 
-        String stringAttr = (String)attr;
+        String stringAttr = ((String)attr).toLowerCase();
 
         // check initial substring
         String initialSubstring = filter.getInitialSubstring();
         if (initialSubstring != null) {
-            if (!stringAttr.startsWith(initialSubstring)) return false;
+            if (!stringAttr.startsWith(initialSubstring.toLowerCase())) return false;
             stringAttr = stringAttr.substring(initialSubstring.length());
         }
 
         // check any substrings
         for (String anySubstring : filter.getAnySubstrings()) {
-            int p = stringAttr.indexOf(anySubstring);
+            int p = stringAttr.indexOf(anySubstring.toLowerCase());
             if (p < 0) return false;
             stringAttr = stringAttr.substring(p + anySubstring.length());
         }
@@ -1234,7 +1234,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
         // check final substring
         String finalSubstring = filter.getFinalSubstring();
         if (finalSubstring != null) {
-            if (!stringAttr.endsWith(finalSubstring)) return false;
+            if (!stringAttr.endsWith(finalSubstring.toLowerCase())) return false;
         }
 
         return true;
