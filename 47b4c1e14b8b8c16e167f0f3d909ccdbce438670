@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "02b0d3ba_fcf82873",
+        "filename": "base/ca/shared/conf/CS.cfg",
+        "patchSetId": 2
+      },
+      "lineNbr": 913,
+      "author": {
+        "id": 1010256
+      },
+      "writtenOn": "2018-01-26T22:58:58Z",
+      "side": 1,
+      "message": "I think we need same filter for CMC_SIGNED_REQUEST_SIG_VERIFY",
+      "range": {
+        "startLine": 913,
+        "startChar": 33,
+        "endLine": 913,
+        "endChar": 67
+      },
+      "revId": "47b4c1e14b8b8c16e167f0f3d909ccdbce438670",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
