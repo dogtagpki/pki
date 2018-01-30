@@ -195,16 +195,11 @@ def main(argv):
                           deployer.log_timestamp + "." + "log"
     print('Log file: %s/%s' % (config.pki_log_dir, config.pki_log_name))
 
-    rv = pkilogging.enable_pki_logger(config.pki_log_dir,
-                                      config.pki_log_name,
-                                      config.pki_log_level,
-                                      config.pki_console_log_level,
-                                      "pkidestroy")
-    if rv != OSError:
-        config.pki_log = rv
-    else:
-        print(log.PKI_UNABLE_TO_CREATE_LOG_DIRECTORY_1 % config.pki_log_dir)
-        sys.exit(1)
+    pkilogging.enable_pki_logger(config.pki_log_dir,
+                                 config.pki_log_name,
+                                 config.pki_log_level,
+                                 config.pki_console_log_level,
+                                 "pkidestroy")
 
     # Read the specified PKI configuration file.
     rv = parser.read_pki_configuration_file()
