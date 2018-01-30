@@ -24,6 +24,8 @@ import logging
 import os
 import pprint
 
+from pki.server.deployment import pkiconfig as config
+
 sensitive_parameters = []
 
 # Initialize 'pretty print' for objects
@@ -46,15 +48,9 @@ def log_format(given_dict):
 
 # PKI Deployment Logging Functions
 def enable_pki_logger(log_dir, log_name, log_level, console_log_level, name):
-    if not os.path.isdir(log_dir):
-        try:
-            os.makedirs(log_dir)
-        except OSError:
-            return OSError
 
-    # Configure logger
-    logger = logging.getLogger(name)
-    logger.setLevel(log_level)
+    if not os.path.isdir(log_dir):
+        os.makedirs(log_dir)
 
     # Configure console handler
     console = logging.StreamHandler()
@@ -63,7 +59,6 @@ def enable_pki_logger(log_dir, log_name, log_level, console_log_level, name):
                                        '%(levelname)-8s ' +
                                        '%(indent)s%(message)s')
     console.setFormatter(console_format)
-    logger.addHandler(console)
 
     # Configure file handler
     log_file = logging.FileHandler(log_dir + "/" + log_name, 'w')
@@ -73,6 +68,15 @@ def enable_pki_logger(log_dir, log_name, log_level, console_log_level, name):
                                     '%(indent)s%(message)s',
                                     '%Y-%m-%d %H:%M:%S')
     log_file.setFormatter(file_format)
-    logger.addHandler(log_file)
 
-    return logger
+    # Configure pkispawn/pkidestroy logger
+    config.pki_log = logging.getLogger(name)
+    config.pki_log.setLevel(log_level)
+    config.pki_log.addHandler(console)
+    config.pki_log.addHandler(log_file)
+
+    # Configure pki logger
+    logger = logging.getLogger('pki')
+    logger.setLevel(log_level)
+    logger.addHandler(console)
+    logger.addHandler(log_file)
