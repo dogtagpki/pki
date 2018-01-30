@@ -27,11 +27,12 @@ import os
 import shutil
 import subprocess
 import tempfile
-import re
 import datetime
 
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
+
+import pki
 
 CSR_HEADER = '-----BEGIN NEW CERTIFICATE REQUEST-----'
 CSR_FOOTER = '-----END NEW CERTIFICATE REQUEST-----'
@@ -705,55 +706,26 @@ class NSSDatabase(object):
     def get_cert_info(self, nickname):
 
         cert = dict()
-        cmd = [
-            'certutil',
-            '-L',
-            '-d', self.directory
-        ]
 
-        fullname = nickname
-
-        if self.token:
-            cmd.extend(['-h', self.token])
-            fullname = self.token + ':' + fullname
-
-        cmd.extend([
-            '-f', self.password_file,
-            '-n', fullname
-        ])
-
-        logger.debug('Command: %s', ' '.join(cmd))
-
-        cert_details = subprocess.check_output(
-            cmd, stderr=subprocess.STDOUT)
-        cert_pem = subprocess.check_output(
-            cmd + ['-a'], stderr=subprocess.STDOUT)
+        cert_pem = self.get_cert(nickname)
 
         cert_obj = x509.load_pem_x509_certificate(
             cert_pem, backend=default_backend())
 
         cert["serial_number"] = cert_obj.serial_number
 
-        cert["issuer"] = re.search(
-            r'Issuer:(.*)', cert_details).group(1).strip().replace('"', '')
-        cert["subject"] = re.search(
-            r'Subject:(.*)', cert_details).group(1).strip().replace('"', '')
+        cert["issuer"] = pki.convert_x509_name_to_dn(cert_obj.issuer)
+        cert["subject"] = pki.convert_x509_name_to_dn(cert_obj.subject)
 
-        str_not_before = re.search(
-            r'Not Before.?:(.*)', cert_details).group(1).strip()
-        cert["not_before"] = self.convert_time_to_millis(str_not_before)
-
-        str_not_after = re.search(
-            r'Not After.?:(.*)', cert_details).group(1).strip()
-        cert["not_after"] = self.convert_time_to_millis(str_not_after)
+        cert["not_before"] = self.convert_time_to_millis(cert_obj.not_valid_before)
+        cert["not_after"] = self.convert_time_to_millis(cert_obj.not_valid_after)
 
         return cert
 
     @staticmethod
     def convert_time_to_millis(date):
         epoch = datetime.datetime.utcfromtimestamp(0)
-        stripped_date = datetime.datetime.strptime(date, "%a %b %d %H:%M:%S %Y")
-        return (stripped_date - epoch).total_seconds() * 1000
+        return (date - epoch).total_seconds() * 1000
 
     def remove_cert(self, nickname, remove_key=False):
 
