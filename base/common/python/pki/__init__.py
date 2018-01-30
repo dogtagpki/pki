@@ -26,6 +26,7 @@ from __future__ import print_function
 
 from functools import wraps
 import os
+import cryptography.x509
 import random
 import re
 import string
@@ -50,6 +51,65 @@ CERT_FOOTER = "-----END CERTIFICATE-----"
 #  - equal sign since it's used as delimiter in password.conf
 #  - backslash since it's causing SSL handshake failure
 PUNCTUATIONS = '!"#$%&\'()*+,-./:;<>?@[]^_`{|}~'
+
+# Map from X.509 attribute OID to short name.
+# Source: https://github.com/freeipa/freeipa/blob/master/ipapython/dn.py
+ATTR_NAME_BY_OID = {
+    cryptography.x509.oid.NameOID.COMMON_NAME: 'CN',
+    cryptography.x509.oid.NameOID.COUNTRY_NAME: 'C',
+    cryptography.x509.oid.NameOID.LOCALITY_NAME: 'L',
+    cryptography.x509.oid.NameOID.STATE_OR_PROVINCE_NAME: 'ST',
+    cryptography.x509.oid.NameOID.ORGANIZATION_NAME: 'O',
+    cryptography.x509.oid.NameOID.ORGANIZATIONAL_UNIT_NAME: 'OU',
+    cryptography.x509.oid.NameOID.SERIAL_NUMBER: 'serialNumber',
+    cryptography.x509.oid.NameOID.SURNAME: 'SN',
+    cryptography.x509.oid.NameOID.GIVEN_NAME: 'givenName',
+    cryptography.x509.oid.NameOID.TITLE: 'title',
+    cryptography.x509.oid.NameOID.GENERATION_QUALIFIER: 'generationQualifier',
+    cryptography.x509.oid.NameOID.DN_QUALIFIER: 'dnQualifier',
+    cryptography.x509.oid.NameOID.PSEUDONYM: 'pseudonym',
+    cryptography.x509.oid.NameOID.DOMAIN_COMPONENT: 'DC',
+    cryptography.x509.oid.NameOID.EMAIL_ADDRESS: 'E',
+    cryptography.x509.oid.NameOID.JURISDICTION_COUNTRY_NAME:
+        'incorporationCountry',
+    cryptography.x509.oid.NameOID.JURISDICTION_LOCALITY_NAME:
+        'incorporationLocality',
+    cryptography.x509.oid.NameOID.JURISDICTION_STATE_OR_PROVINCE_NAME:
+        'incorporationState',
+    cryptography.x509.oid.NameOID.BUSINESS_CATEGORY: 'businessCategory',
+    cryptography.x509.ObjectIdentifier('2.5.4.9'): 'STREET',
+    cryptography.x509.ObjectIdentifier('2.5.4.17'): 'postalCode',
+    cryptography.x509.ObjectIdentifier('0.9.2342.19200300.100.1.1'): 'UID',
+}
+
+
+def convert_x509_name_to_dn(name):
+    """
+    Convert X.509 Name into NSS-style DN string.
+
+    See also:
+    - https://cryptography.io/en/latest/x509/reference/#cryptography.x509.Name
+    - https://cryptography.io/en/latest/x509/reference/#cryptography.x509.NameAttribute
+    - https://cryptography.io/en/latest/x509/reference/#cryptography.x509.ObjectIdentifier
+
+    :param name: X.509 Name
+    :type name: cryptography.x509.Name
+    :returns: str -- DN string.
+    """
+    dn = None
+    attrs = list(name)
+
+    for attr in reversed(attrs):
+        oid = attr.oid
+        attr_name = ATTR_NAME_BY_OID.get(oid, oid.dotted_string)
+        rdn = '%s=%s' % (attr_name, attr.value)
+
+        if dn:
+            dn = dn + ',' + rdn
+        else:
+            dn = rdn
+
+    return dn
 
 
 def read_text(message,
