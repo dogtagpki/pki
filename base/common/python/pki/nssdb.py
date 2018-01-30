@@ -33,7 +33,6 @@ import datetime
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 
-
 CSR_HEADER = '-----BEGIN NEW CERTIFICATE REQUEST-----'
 CSR_FOOTER = '-----END NEW CERTIFICATE REQUEST-----'
 
@@ -677,17 +676,26 @@ class NSSDatabase(object):
 
         logger.debug('Command: %s', ' '.join(cmd))
 
-        pipes = subprocess.Popen(cmd, stdout=subprocess.PIPE,
-                                 stderr=subprocess.PIPE)
-        cert_data, std_err = pipes.communicate()
+        p = subprocess.Popen(cmd,
+                             stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE)
 
-        if pipes.returncode != 0:
+        cert_data, std_err = p.communicate()
+
+        if std_err:
             # certutil returned an error
             # raise exception unless its not cert not found
             if std_err.startswith('certutil: Could not find cert: '):
                 return None
 
-            raise Exception(std_err.strip())
+            raise Exception('Could not find cert: %s: %s' % (fullname, std_err.strip()))
+
+        if not cert_data:
+            # certutil did not return data
+            return None
+
+        if p.returncode != 0:
+            logger.warning('certutil returned non-zero exit code (bug #1539996)')
 
         if output_format == 'base64':
             cert_data = base64.b64encode(cert_data)
