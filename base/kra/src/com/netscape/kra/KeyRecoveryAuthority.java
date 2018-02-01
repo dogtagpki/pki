@@ -59,8 +59,8 @@ import com.netscape.certsrv.kra.IKeyService;
 import com.netscape.certsrv.listeners.EListenersException;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogEvent;
-import com.netscape.certsrv.logging.event.SecurityDataArchivalRequestEvent;
 import com.netscape.certsrv.logging.event.SecurityDataArchivalProcessedEvent;
+import com.netscape.certsrv.logging.event.SecurityDataArchivalRequestEvent;
 import com.netscape.certsrv.logging.event.SecurityDataRecoveryEvent;
 import com.netscape.certsrv.logging.event.SecurityDataRecoveryProcessedEvent;
 import com.netscape.certsrv.request.ARequestNotifier;
@@ -783,19 +783,18 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
                 queue.processRequest(r);
             }
 
-            audit(new SecurityDataArchivalProcessedEvent(
+            audit(SecurityDataArchivalProcessedEvent.createSuccessEvent(
                     auditSubjectID,
-                    ILogger.SUCCESS,
                     auditRequesterID,
                     r.getRequestId(),
                     null,
                     new KeyId(rec.getSerialNumber()),
-                    null,
                     auditPublicKey));
+
         } catch (EBaseException eAudit1) {
-            audit(new SecurityDataArchivalProcessedEvent(
+
+            audit(SecurityDataArchivalProcessedEvent.createFailureEvent(
                     auditSubjectID,
-                    ILogger.FAILURE,
                     auditRequesterID,
                     r.getRequestId(),
                     null,

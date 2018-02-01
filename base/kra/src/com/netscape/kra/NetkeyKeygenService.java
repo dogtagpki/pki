@@ -50,8 +50,8 @@ import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogEvent;
-import com.netscape.certsrv.logging.event.SecurityDataArchivalRequestEvent;
 import com.netscape.certsrv.logging.event.SecurityDataArchivalProcessedEvent;
+import com.netscape.certsrv.logging.event.SecurityDataArchivalRequestEvent;
 import com.netscape.certsrv.logging.event.SecurityDataExportEvent;
 import com.netscape.certsrv.logging.event.ServerSideKeyGenEvent;
 import com.netscape.certsrv.logging.event.ServerSideKeyGenProcessedEvent;
@@ -495,14 +495,12 @@ public class NetkeyKeygenService implements IService {
                     storage.addKeyRecord(rec);
                     CMS.debug("NetkeyKeygenService: key archived for " + rCUID + ":" + rUserid);
 
-                    audit(new SecurityDataArchivalProcessedEvent(
+                    audit(SecurityDataArchivalProcessedEvent.createSuccessEvent(
                             agentId,
-                            ILogger.SUCCESS,
                             auditSubjectID,
                             request.getRequestId(),
                             null,
                             new KeyId(serialNo),
-                            null,
                             PubKey));
                 } //if archive
 
