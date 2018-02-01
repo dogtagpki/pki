@@ -214,8 +214,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             deployer.mdict['pki_instance_registry_path'])
         # remove Tomcat PKI registry (if empty)
         if deployer.instance.tomcat_instances() == 0:
-            deployer.directory.delete(
-                deployer.mdict['pki_instance_type_registry_path'])
+            if deployer.mdict['pki_root_prefix'] != "":
+                deployer.directory.delete(
+                    deployer.mdict['pki_instance_type_registry_path'])
 
 
 # Callback only when the /usr/share/pki/server/conf directory
