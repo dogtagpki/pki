@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e617acb8_8b1ddff3",
+        "filename": "base/server/share/conf/ciphers.info",
+        "patchSetId": 1
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 1010256
+      },
+      "writtenOn": "2018-02-01T01:30:43Z",
+      "side": 1,
+      "message": "since you have flipped them on by default in pkiparser.py, shouldn\u0027t you change this statement to something like:\n\"The following ciphers are supported in RHEL 7.2 or greater, and are turned on by default.  They can be turned off by sites running older RHEL\"?",
+      "revId": "2390f08b40b083c5ba8feaaffbea7e9616c872b8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "69a8bb49_d8660771",
+        "filename": "base/server/share/conf/ciphers.info",
+        "patchSetId": 1
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 1010256
+      },
+      "writtenOn": "2018-02-01T01:30:43Z",
+      "side": 1,
+      "message": "I did not check the next two long lines.  Just make sure they reflect what would look like in the new default installation.",
+      "revId": "2390f08b40b083c5ba8feaaffbea7e9616c872b8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
