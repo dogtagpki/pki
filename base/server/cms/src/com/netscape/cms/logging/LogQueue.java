@@ -19,10 +19,13 @@ package com.netscape.cms.logging;
 
 import java.util.Vector;
 
-import com.netscape.certsrv.logging.ELogException;
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.logging.ConsoleError;
 import com.netscape.certsrv.logging.ILogEvent;
 import com.netscape.certsrv.logging.ILogEventListener;
 import com.netscape.certsrv.logging.ILogQueue;
+import com.netscape.certsrv.logging.SignedAuditEvent;
+import com.netscape.certsrv.logging.SystemEvent;
 
 /**
  * A class represents a log queue.
@@ -95,13 +98,20 @@ public class LogQueue implements ILogQueue {
      */
     public void log(ILogEvent event) {
         for (int i = 0; i < mListeners.size(); i++) {
+
+            boolean isAudit = false;
+
+            if( event instanceof SignedAuditEvent) {
+                isAudit = true;
+            }
             try {
                 mListeners.elementAt(i).log(event);
-            } catch (ELogException e) {
-                // Raidzilla Bug #57592:  Don't display potentially
-                //                        incorrect log message.
-                // ConsoleError.send(new SystemEvent(CMS.getUserMessage("CMS_LOG_EVENT_FAILED",
-                //          event.getEventType(), e.toString())));
+            } catch (Exception e) {//Try to catch ELogException or possible RuntimeExceptions if thrown
+                //Last resort log to the system for failed audit log attempt
+                if(isAudit == true) {
+                    ConsoleError.send(new SystemEvent(CMS.getUserMessage("CMS_LOG_WRITE_FAILED", event.getEventType(), e.toString(),
+                            "Audit Event Failure!")));
+                }
             }
         }
     }

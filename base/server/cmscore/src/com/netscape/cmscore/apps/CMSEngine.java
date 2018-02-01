@@ -100,12 +100,14 @@ import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ILdapAuthInfo;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.ldap.ILdapConnInfo;
+import com.netscape.certsrv.logging.ConsoleError;
 import com.netscape.certsrv.logging.ELogException;
 import com.netscape.certsrv.logging.IAuditor;
 import com.netscape.certsrv.logging.ILogEvent;
 import com.netscape.certsrv.logging.ILogEventListener;
 import com.netscape.certsrv.logging.ILogQueue;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.SystemEvent;
 import com.netscape.certsrv.notification.IEmailFormProcessor;
 import com.netscape.certsrv.notification.IEmailResolver;
 import com.netscape.certsrv.notification.IEmailResolverKeys;
@@ -1318,6 +1320,7 @@ public class CMSEngine implements ICMSEngine {
     public void checkForAndAutoShutdown() {
         String method= "CMSEngine: checkForAndAutoShutdown: ";
         CMS.debug(method + "begins");
+
         try {
             boolean allowShutdown  = mConfig.getBoolean("autoShutdown.allowed", false);
             if ((!allowShutdown) || (mSigningKey == null) ||
@@ -1336,7 +1339,13 @@ public class CMSEngine implements ICMSEngine {
             byte[] result = signer.sign();
             CMS.debug(method + " signining successful: " + new String(result));
         } catch (SignatureException e) {
+
+            //Let's write to the error console in case we are in a bad memory situation
+            //This will be the most likely to work, giving us a record of the signing failure
+            ConsoleError.send(new SystemEvent(CMS.getUserMessage("CMS_CA_SIGNING_OPERATION_FAILED", e.toString())));
+
             CMS.debug(method + "autoShutdown for " + e.toString());
+
             CMS.autoShutdown();
         } catch (Exception e) {
             CMS.debug(method + "continue for " + e.toString());
