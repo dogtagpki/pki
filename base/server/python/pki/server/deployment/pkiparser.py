@@ -1111,7 +1111,7 @@ class PKIConfigParser:
             self.mdict['TOMCAT_SERVER_PORT_SLOT'] = \
                 self.mdict['pki_tomcat_server_port']
             self.mdict['TOMCAT_SSL_VERSION_RANGE_STREAM_SLOT'] = \
-                "tls1_0:tls1_2"
+                "tls1_1:tls1_2"
             self.mdict['TOMCAT_SSL_VERSION_RANGE_DATAGRAM_SLOT'] = \
                 "tls1_1:tls1_2"
             ##
@@ -1171,18 +1171,18 @@ class PKIConfigParser:
                     "-TLS_DHE_DSS_WITH_AES_128_CBC_SHA," + \
                     "-TLS_DHE_DSS_WITH_AES_256_CBC_SHA," + \
                     "-TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA," + \
-                    "-TLS_DHE_RSA_WITH_AES_128_CBC_SHA," + \
-                    "-TLS_DHE_RSA_WITH_AES_256_CBC_SHA," + \
-                    "-TLS_DHE_RSA_WITH_AES_128_CBC_SHA256," + \
-                    "-TLS_DHE_RSA_WITH_AES_256_CBC_SHA256," + \
-                    "-TLS_DHE_RSA_WITH_AES_128_GCM_SHA256," + \
+                    "+TLS_DHE_RSA_WITH_AES_128_CBC_SHA," + \
+                    "+TLS_DHE_RSA_WITH_AES_256_CBC_SHA," + \
+                    "+TLS_DHE_RSA_WITH_AES_128_CBC_SHA256," + \
+                    "+TLS_DHE_RSA_WITH_AES_256_CBC_SHA256," + \
+                    "+TLS_DHE_RSA_WITH_AES_128_GCM_SHA256," + \
                     "-TLS_DHE_DSS_WITH_AES_128_GCM_SHA256," + \
                     "-TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256," + \
                     "-TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256," + \
                     "-TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256," + \
                     "-TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256," + \
-                    "-TLS_RSA_WITH_AES_128_CBC_SHA256," + \
-                    "-TLS_RSA_WITH_AES_256_CBC_SHA256," + \
+                    "+TLS_RSA_WITH_AES_128_CBC_SHA256," + \
+                    "+TLS_RSA_WITH_AES_256_CBC_SHA256," + \
                     "-TLS_RSA_WITH_AES_128_GCM_SHA256," + \
                     "-TLS_RSA_WITH_3DES_EDE_CBC_SHA," + \
                     "+TLS_RSA_WITH_AES_128_CBC_SHA," + \
