@@ -40,7 +40,6 @@ import com.netscape.certsrv.key.KeyRequestResource;
 import com.netscape.certsrv.kra.EKRAException;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.logging.event.SecurityDataArchivalProcessedEvent;
 import com.netscape.certsrv.profile.IEnrollProfile;
 import com.netscape.certsrv.request.IRequest;
@@ -121,8 +120,16 @@ public class SecurityDataProcessor {
 
         //Check here even though restful layer checks for this.
         if (clientKeyId == null || dataType == null) {
-            auditArchivalRequestProcessed(auditSubjectID, ILogger.FAILURE, requestId,
-                    clientKeyId, null, "Bad data in request");
+
+            signedAuditLogger.log(SecurityDataArchivalProcessedEvent.createFailureEvent(
+                    auditSubjectID,
+                    null,
+                    requestId,
+                    clientKeyId,
+                    null,
+                    "Bad data in request",
+                    null));
+
             throw new EBaseException("Bad data in SecurityDataService.serviceRequest");
         }
 
@@ -237,14 +244,29 @@ public class SecurityDataProcessor {
                 privateSecurityData = storageUnit.encryptInternalPrivate(securityData, params);
                 doEncrypt = true;
             } else { // We have no data.
-                auditArchivalRequestProcessed(auditSubjectID, ILogger.FAILURE, requestId,
-                        clientKeyId, null, "Failed to create security data to archive");
+
+                signedAuditLogger.log(SecurityDataArchivalProcessedEvent.createFailureEvent(
+                        auditSubjectID,
+                        null,
+                        requestId,
+                        clientKeyId,
+                        null,
+                        "Failed to create security data to archive",
+                        null));
+
                 throw new EBaseException("Failed to create security data to archive!");
             }
         } catch (Exception e) {
             CMS.debug("Failed to create security data to archive: " + e.getMessage());
-            auditArchivalRequestProcessed(auditSubjectID, ILogger.FAILURE, requestId,
-                    clientKeyId, null, CMS.getUserMessage("CMS_KRA_INVALID_PRIVATE_KEY"));
+
+            signedAuditLogger.log(SecurityDataArchivalProcessedEvent.createFailureEvent(
+                    auditSubjectID,
+                    null,
+                    requestId,
+                    clientKeyId,
+                    null,
+                    CMS.getUserMessage("CMS_KRA_INVALID_PRIVATE_KEY"),
+                    null));
 
             throw new EBaseException(CMS.getUserMessage("CMS_KRA_INVALID_PRIVATE_KEY"));
         } finally {
@@ -269,8 +291,16 @@ public class SecurityDataProcessor {
         //Now we need a serial number for our new key.
 
         if (rec.getSerialNumber() != null) {
-            auditArchivalRequestProcessed(auditSubjectID, ILogger.FAILURE, requestId,
-                    clientKeyId, null, CMS.getUserMessage("CMS_KRA_INVALID_STATE"));
+
+            signedAuditLogger.log(SecurityDataArchivalProcessedEvent.createFailureEvent(
+                    auditSubjectID,
+                    null,
+                    requestId,
+                    clientKeyId,
+                    null,
+                    CMS.getUserMessage("CMS_KRA_INVALID_STATE"),
+                    null));
+
             throw new EBaseException(CMS.getUserMessage("CMS_KRA_INVALID_STATE"));
         }
 
@@ -279,8 +309,16 @@ public class SecurityDataProcessor {
         if (serialNo == null) {
             kra.log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSCORE_KRA_GET_NEXT_SERIAL"));
-            auditArchivalRequestProcessed(auditSubjectID, ILogger.FAILURE, requestId,
-                    clientKeyId, null, "Failed to get  next Key ID");
+
+            signedAuditLogger.log(SecurityDataArchivalProcessedEvent.createFailureEvent(
+                    auditSubjectID,
+                    null,
+                    requestId,
+                    clientKeyId,
+                    null,
+                    "Failed to get  next Key ID",
+                    null));
+
             throw new EBaseException(CMS.getUserMessage("CMS_KRA_INVALID_STATE"));
         }
 
@@ -302,8 +340,16 @@ public class SecurityDataProcessor {
         } catch (Exception e) {
             kra.log(ILogger.LL_FAILURE,
                     "Failed to store wrapping parameters: " + e);
-            auditArchivalRequestProcessed(auditSubjectID, ILogger.FAILURE, requestId,
-                    clientKeyId, null, "Failed to store wrapping parameters");
+
+            signedAuditLogger.log(SecurityDataArchivalProcessedEvent.createFailureEvent(
+                    auditSubjectID,
+                    null,
+                    requestId,
+                    clientKeyId,
+                    null,
+                    "Failed to store wrapping parameters",
+                    null));
+
             throw new EBaseException(CMS.getUserMessage("CMS_KRA_INVALID_STATE"), e);
         }
 
@@ -311,8 +357,13 @@ public class SecurityDataProcessor {
 
         keyRepository.addKeyRecord(rec);
 
-        auditArchivalRequestProcessed(auditSubjectID, ILogger.SUCCESS, requestId,
-                clientKeyId, new KeyId(serialNo), "None");
+        signedAuditLogger.log(SecurityDataArchivalProcessedEvent.createSuccessEvent(
+                auditSubjectID,
+                null,
+                requestId,
+                clientKeyId,
+                new KeyId(serialNo),
+                null));
 
         request.setExtData(ATTR_KEY_RECORD, serialNo);
         request.setExtData(IRequest.RESULT, IRequest.RES_SUCCESS);
@@ -851,26 +902,5 @@ public class SecurityDataProcessor {
         }
 
         return retData;
-    }
-
-    private void audit(String msg) {
-        signedAuditLogger.log(msg);
-    }
-
-    protected void audit(LogEvent event) {
-        signedAuditLogger.log(event);
-    }
-
-    private void auditArchivalRequestProcessed(String subjectID, String status, RequestId requestID, String clientKeyID,
-            KeyId keyID, String reason) {
-        audit(new SecurityDataArchivalProcessedEvent(
-                subjectID,
-                status,
-                null,
-                requestID,
-                clientKeyID,
-                keyID,
-                reason,
-                null));
     }
 }

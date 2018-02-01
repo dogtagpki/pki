@@ -602,14 +602,12 @@ public class EnrollmentService implements IService {
 
             // store a message in the signed audit log file
             auditPublicKey = auditPublicKey(rec);
-            signedAuditLogger.log(new SecurityDataArchivalProcessedEvent(
+            signedAuditLogger.log(SecurityDataArchivalProcessedEvent.createSuccessEvent(
                         auditSubjectID,
-                        ILogger.SUCCESS,
                         auditRequesterID,
                         requestId,
                         null,
                         new KeyId(rec.getSerialNumber()),
-                        null,
                         auditPublicKey));
 
             // Xxx - should sign this proof of archival
