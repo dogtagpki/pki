@@ -966,7 +966,7 @@ public class ProcessCertReq extends CMSServlet {
                             // store a message in the signed audit log file
                             // (manual "agent" cert request processed
                             //  - "accepted")
-                            audit(CertRequestProcessedEvent.createSuccessEvent(
+                            audit(CertRequestProcessedEvent.createFailureEvent(
                                         auditSubjectID,
                                         auditRequesterID,
                                         auditInfoName,
@@ -1087,7 +1087,7 @@ public class ProcessCertReq extends CMSServlet {
 
                     // store a message in the signed audit log file
                     // (manual "agent" cert request processed - "rejected")
-                    audit(CertRequestProcessedEvent.createSuccessEvent(
+                    audit(CertRequestProcessedEvent.createFailureEvent(
                                 auditSubjectID,
                                 auditRequesterID,
                                 auditInfoName,
@@ -1145,7 +1145,7 @@ public class ProcessCertReq extends CMSServlet {
 
                     // store a message in the signed audit log file
                     // (manual "agent" cert request processed - "cancelled")
-                    audit(CertRequestProcessedEvent.createSuccessEvent(
+                    audit(CertRequestProcessedEvent.createFailureEvent(
                                 auditSubjectID,
                                 auditRequesterID,
                                 auditInfoName,
