@@ -1222,6 +1222,8 @@ fi
 %doc base/server/LICENSE
 %doc base/server/README
 %{_sysconfdir}/pki/default.cfg
+%attr(755,-,-) %dir %{_sysconfdir}/sysconfig/pki
+%attr(755,-,-) %dir %{_sysconfdir}/sysconfig/pki/tomcat
 %{_sbindir}/pkispawn
 %{_sbindir}/pkidestroy
 %{_sbindir}/pki-server
