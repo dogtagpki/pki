@@ -18,11 +18,13 @@
 package com.netscape.cms.logging;
 
 import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.logging.ConsoleError;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogCategory;
 import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.logging.LogSource;
 import com.netscape.certsrv.logging.SignedAuditEvent;
+import com.netscape.certsrv.logging.SystemEvent;
 
 /**
  * A class represents certificate server logger
@@ -53,37 +55,48 @@ public class SignedAuditLogger extends Logger {
             Object params[], boolean multiline) {
 
         // create event
-        SignedAuditEvent event = (SignedAuditEvent)create(
+        SignedAuditEvent event = (SignedAuditEvent) create(
                 category, source, level, message, params, multiline);
 
         // parse attributes in message
         int start = 0;
-        while (start < message.length()) {
 
-            // find [name=value]
-            int i = message.indexOf("[", start);
-            if (i < 0) break;
+        try {
+            while (start < message.length()) {
 
-            int j = message.indexOf("=", i + 1);
-            if (j < 0) {
-                throw new RuntimeException("Missing equal sign: " + message);
+                // find [name=value]
+                int i = message.indexOf("[", start);
+                if (i < 0)
+                    break;
+
+                int j = message.indexOf("=", i + 1);
+                if (j < 0) {
+                    throw new RuntimeException("Missing equal sign: " + message);
+                }
+
+                // get attribute name
+                String name = message.substring(i + 1, j);
+
+                int k = message.indexOf("]", j + 1);
+                if (k < 0) {
+                    throw new RuntimeException("Missing closing bracket: " + message);
+                }
+
+                // get attribute value
+                String value = message.substring(j + 1, k);
+
+                // store attribute in event
+                event.setAttribute(name, value);
+
+                start = k + 1;
             }
 
-            // get attribute name
-            String name = message.substring(i + 1, j);
+        } catch (Exception e) { //Catch any of our RunTime exceptions just so we can log it to the console
+            ConsoleError
+                    .send(new SystemEvent(CMS.getUserMessage("CMS_LOG_WRITE_FAILED", event.getEventType(), e.toString(),
+                            "Audit Event Failure!")));
 
-            int k = message.indexOf("]", j + 1);
-            if (k < 0) {
-                throw new RuntimeException("Missing closing bracket: " + message);
-            }
-
-            // get attribute value
-            String value = message.substring(j + 1, k);
-
-            // store attribute in event
-            event.setAttribute(name, value);
-
-            start = k + 1;
+            throw e;
         }
 
         mLogQueue.log(event);
