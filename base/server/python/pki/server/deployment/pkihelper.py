@@ -1024,8 +1024,6 @@ class Instance:
             raise
 
     def get_instance_status(self, secure_connection=True):
-        pki_protocol = None
-        pki_port = None
         if secure_connection:
             pki_protocol = "https"
             pki_port = self.mdict['pki_https_port']
@@ -2931,7 +2929,6 @@ class ServerCertNickConf:
             try:
                 # overwrite value inside 'serverCertNick.conf'
                 with open(self.servercertnick_conf, "w") as fd:
-                    ssl_server_nickname = None
                     if self.step_two:
                         # use final HSM name
                         ssl_server_nickname = (self.token_name + ":" +
@@ -3556,7 +3553,7 @@ class Systemd(object):
         if not parser.has_section(section):
             parser.add_section(section)
 
-        parser[section][param] = value
+        parser.set(section, param, value)
 
     def write_overrides(self):
         for fname, parser in self.overrides.items():
@@ -3564,7 +3561,7 @@ class Systemd(object):
             if not os.path.exists(override_file):
                 self.create_override_file(override_file)
             with open(override_file, 'w') as fp:
-                parser.write(fp, space_around_delimiters=False)
+                parser.write(fp)
 
     def daemon_reload(self, critical_failure=True):
         """PKI Deployment execution management lifecycle function.
@@ -4142,7 +4139,6 @@ class ConfigClient:
             os.path.dirname(self.mdict['pki_external_admin_csr_path']))
         with open(self.mdict['pki_external_admin_csr_path'], "w") as f:
             f.write("-----BEGIN CERTIFICATE REQUEST-----\n")
-        admin_certreq = None
         with open(os.path.join(
                   self.mdict['pki_client_database_dir'],
                   "admin_pkcs10.bin.asc"), "r") as f:
