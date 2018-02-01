@@ -824,6 +824,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
                             mFileName)));
         } catch (GeneralSecurityException gse) {
             // error with signed audit log, shutdown CMS
+            ConsoleError.send(new SystemEvent(CMS.getUserMessage("CMS_LOG_OPEN_FAILED", mFileName, gse.toString())));
             gse.printStackTrace();
             shutdownCMS();
         }
@@ -843,6 +844,8 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
                 } catch (ELogException le) {
                     ConsoleError.send(new SystemEvent(CMS.getUserMessage("CMS_LOG_FLUSH_LOG_FAILED", mFileName,
                             le.toString())));
+                    le.printStackTrace();
+                    shutdownCMS();
                 }
             }
 
@@ -858,8 +861,15 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
             }
         } catch (GeneralSecurityException gse) {
             // error with signed audit log, shutdown CMS
+            ConsoleError.send(new SystemEvent(CMS.getUserMessage("CMS_LOG_FLUSH_LOG_FAILED", mFileName, gse.toString())));
             gse.printStackTrace();
             shutdownCMS();
+        } catch (Exception ee) {
+            ConsoleError.send(new SystemEvent(CMS.getUserMessage("CMS_LOG_FLUSH_LOG_FAILED", mFileName, ee.toString())));
+            if(mLogSigning) {
+                ee.printStackTrace();
+                shutdownCMS();
+            }
         }
 
         mBytesUnflushed = 0;
@@ -995,6 +1005,11 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
         if (mLogWriter == null) {
             String[] params = { mFileName, entry };
 
+            if (mLogSigning) {
+                ConsoleError.send(new SystemEvent(CMS.getUserMessage("CMS_LOG_LOGFILE_CLOSED", params)));
+                // Failed to write to audit log, shut down CMS
+                shutdownCMS();
+            }
             throw new ELogException(CMS.getUserMessage("CMS_LOG_LOGFILE_CLOSED", params));
         } else {
             try {
@@ -1066,6 +1081,14 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
                 gse.printStackTrace();
                 ConsoleError.send(new SignedAuditEvent(CMS.getLogMessage(
                         LOG_SIGNED_AUDIT_EXCEPTION, gse.toString())));
+            } catch (Exception ee) { // Make darn sure we got everything
+                ConsoleError.send(new SignedAuditEvent(CMS.getLogMessage(LOG_SIGNED_AUDIT_EXCEPTION, ee.toString())));
+                if (mLogSigning) {
+                    // Failed to write to audit log, shut down CMS
+                    ee.printStackTrace();
+                    shutdownCMS();
+                }
+
             }
 
             // XXX

@@ -42,7 +42,9 @@ import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.ca.CAMissingCertException;
 import com.netscape.certsrv.ca.CAMissingKeyException;
 import com.netscape.certsrv.ca.ECAException;
+import com.netscape.certsrv.logging.ConsoleError;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.SystemEvent;
 import com.netscape.certsrv.security.ISigningUnit;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.security.JssSubsystem;
@@ -268,6 +270,7 @@ public final class SigningUnit implements ISigningUnit {
         if (!mInited) {
             throw new EBaseException("CASigningUnit not initialized!");
         }
+        boolean testSignatureFailure = false;
         try {
             // XXX for now do this mapping until James changes the names
             // to match JCA names and provide a getAlgorithm method.
@@ -297,6 +300,13 @@ public final class SigningUnit implements ISigningUnit {
 
             // XXX add something more descriptive.
             CMS.debug("Signing Certificate");
+
+            testSignatureFailure = mConfig.getBoolean("testSignatureFailure",false);
+
+            if(testSignatureFailure == true) {
+                throw new SignatureException("Signature Exception forced for testing purposes.");
+            }
+
             return signer.sign();
         } catch (NoSuchAlgorithmException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
@@ -313,6 +323,12 @@ public final class SigningUnit implements ISigningUnit {
         } catch (SignatureException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
             CMS.debug("SigningUnit.sign: " + e.toString());
+
+            //For this one case, show the eventual erorr message that will be written to the system error
+            //log in case of a Signature failure.
+            if (testSignatureFailure == true) {
+                ConsoleError.send(new SystemEvent(CMS.getUserMessage("CMS_CA_SIGNING_OPERATION_FAILED", e.toString())));
+            }
             CMS.checkForAndAutoShutdown();
             // XXX fix this exception later.
             throw new EBaseException(e);
