@@ -135,6 +135,18 @@ install(
 
 install(
     DIRECTORY
+    DESTINATION
+        /etc/sysconfig/pki
+)
+
+install(
+    DIRECTORY
+    DESTINATION
+        /etc/sysconfig/pki/tomcat
+)
+
+install(
+    DIRECTORY
         man/
     DESTINATION
         ${MAN_INSTALL_DIR}
