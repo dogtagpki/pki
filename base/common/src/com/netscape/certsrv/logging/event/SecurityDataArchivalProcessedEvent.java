@@ -18,6 +18,7 @@
 package com.netscape.certsrv.logging.event;
 
 import com.netscape.certsrv.dbs.keydb.KeyId;
+import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.SignedAuditEvent;
 import com.netscape.certsrv.request.RequestId;
 
@@ -28,9 +29,33 @@ public class SecurityDataArchivalProcessedEvent extends SignedAuditEvent {
     private static final String LOGGING_PROPERTY =
             "LOGGING_SIGNED_AUDIT_SECURITY_DATA_ARCHIVAL_REQUEST_PROCESSED";
 
-    public SecurityDataArchivalProcessedEvent(
+    public SecurityDataArchivalProcessedEvent() {
+        super(LOGGING_PROPERTY);
+    }
+
+    public static SecurityDataArchivalProcessedEvent createSuccessEvent(
             String subjectID,
-            String outcome,
+            String archivalRequestId,
+            RequestId requestID,
+            String clientKeyID,
+            KeyId keyID,
+            String pubkey) {
+
+        SecurityDataArchivalProcessedEvent event = new SecurityDataArchivalProcessedEvent();
+
+        event.setAttribute("SubjectID", subjectID);
+        event.setAttribute("Outcome", ILogger.SUCCESS);
+        event.setAttribute("ArchivalRequestID", archivalRequestId);
+        event.setAttribute("RequestId", requestID);
+        event.setAttribute("ClientKeyID", clientKeyID);
+        event.setAttribute("KeyID", keyID);
+        event.setAttribute("PubKey", pubkey);
+
+        return event;
+    }
+
+    public static SecurityDataArchivalProcessedEvent createFailureEvent(
+            String subjectID,
             String archivalRequestId,
             RequestId requestID,
             String clientKeyID,
@@ -38,15 +63,17 @@ public class SecurityDataArchivalProcessedEvent extends SignedAuditEvent {
             String failureReason,
             String pubkey) {
 
-        super(LOGGING_PROPERTY);
+        SecurityDataArchivalProcessedEvent event = new SecurityDataArchivalProcessedEvent();
 
-        setAttribute("SubjectID", subjectID);
-        setAttribute("Outcome", outcome);
-        setAttribute("ArchivalRequestID", archivalRequestId);
-        setAttribute("RequestId", requestID);
-        setAttribute("ClientKeyID", clientKeyID);
-        setAttribute("KeyID", keyID);
-        setAttribute("FailureReason", failureReason);
-        setAttribute("PubKey", pubkey);
+        event.setAttribute("SubjectID", subjectID);
+        event.setAttribute("Outcome", ILogger.FAILURE);
+        event.setAttribute("ArchivalRequestID", archivalRequestId);
+        event.setAttribute("RequestId", requestID);
+        event.setAttribute("ClientKeyID", clientKeyID);
+        event.setAttribute("KeyID", keyID);
+        event.setAttribute("FailureReason", failureReason);
+        event.setAttribute("PubKey", pubkey);
+
+        return event;
     }
 }
