@@ -16,8 +16,8 @@ env:
     - RPMS_LOCATION=/tmp/workdir/packages/RPMS
     - DOGTAG_PKI_RPMS=${TRAVIS_BUILD_DIR}/dogtag_rpms
   matrix:
-    - TASK_TO_RUN="run-dogtag-build"
-    - TASK_TO_RUN="run-ipa-test"
+    - TASK_TO_RUN="pki-test"
+    - TASK_TO_RUN="ipa-test"
 
 before_install:
   - pyenv global system 3.6
