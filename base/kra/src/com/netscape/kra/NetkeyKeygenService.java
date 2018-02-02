@@ -65,7 +65,6 @@ import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.servlet.key.KeyRecordParser;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.security.JssSubsystem;
-import com.netscape.cmscore.util.Debug;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Utils;
 
@@ -279,8 +278,10 @@ public class NetkeyKeygenService implements IService {
 
                 return false;
             }
+
             CMS.debug("NetkeyKeygenService: finished generate key pair for " + rCUID + ":" + rUserid);
 
+            java.security.PrivateKey privKey;
             try {
                 publicKeyData = keypair.getPublic().getEncoded();
                 if (publicKeyData == null) {
@@ -309,8 +310,7 @@ public class NetkeyKeygenService implements IService {
                         PubKey));
 
                 //...extract the private key handle (not privatekeydata)
-                java.security.PrivateKey privKey =
-                        keypair.getPrivate();
+                privKey = keypair.getPrivate();
 
                 if (privKey == null) {
                     request.setExtData(IRequest.RESULT, Integer.valueOf(4));
@@ -386,6 +386,13 @@ public class NetkeyKeygenService implements IService {
                 iv_s = /*base64Encode(iv);*/com.netscape.cmsutil.util.Utils.SpecialEncode(iv);
                 request.setExtData("iv_s", iv_s);
 
+            } catch (Exception e) {
+                CMS.debug(e);
+                request.setExtData(IRequest.RESULT, Integer.valueOf(4));
+                return false;
+            }
+
+            try {
                 /*
                  * archival - option flag "archive" controllable by the caller - TPS
                  */
@@ -505,11 +512,13 @@ public class NetkeyKeygenService implements IService {
                 } //if archive
 
                 request.setExtData(IRequest.RESULT, Integer.valueOf(1));
+
             } catch (Exception e) {
-                CMS.debug("NetKeyKeygenService: " + e.toString());
-                Debug.printStackTrace(e);
+                CMS.debug(e);
                 request.setExtData(IRequest.RESULT, Integer.valueOf(4));
+                return false;
             }
+
         } else
             request.setExtData(IRequest.RESULT, Integer.valueOf(2));
 
