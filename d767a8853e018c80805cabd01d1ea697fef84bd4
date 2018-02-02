@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8f701447_f725b335",
+        "filename": "base/server/cms/src/com/netscape/cms/logging/LogFile.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1012,
+      "author": {
+        "id": 1010256
+      },
+      "writtenOn": "2018-02-02T19:36:43Z",
+      "side": 1,
+      "message": "I think the flush() call above this already took care of it.",
+      "revId": "d767a8853e018c80805cabd01d1ea697fef84bd4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "38fc23de_ba6540a6",
+        "filename": "base/server/cms/src/com/netscape/cms/logging/LogFile.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1084,
+      "author": {
+        "id": 1010256
+      },
+      "writtenOn": "2018-02-02T19:36:43Z",
+      "side": 1,
+      "message": "same here. I think the flush() call does it already.",
+      "revId": "d767a8853e018c80805cabd01d1ea697fef84bd4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ef1a125e_430e45f2",
+        "filename": "base/server/cms/src/com/netscape/cms/logging/LogQueue.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 1010256
+      },
+      "writtenOn": "2018-02-02T19:36:43Z",
+      "side": 1,
+      "message": "Is this going to show up double when the flush() call already does it?",
+      "revId": "d767a8853e018c80805cabd01d1ea697fef84bd4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
