@@ -424,10 +424,10 @@ public class NetkeyKeygenService implements IService {
                         params.setPayloadEncryptionIV(params.getPayloadWrappingIV());
 
                         privateKeyData = mStorageUnit.wrap((org.mozilla.jss.crypto.PrivateKey) privKey, params);
+
                     } catch (Exception e) {
                         request.setExtData(IRequest.RESULT, Integer.valueOf(4));
-                        CMS.debug("NetkeyKeygenService: privatekey encryption by storage unit failed");
-                        return false;
+                        throw new Exception("Unable to wrap private key with storage key", e);
                     }
 
                     CMS.debug("NetkeyKeygenService: privatekey encryption by storage unit successful");
@@ -443,13 +443,13 @@ public class NetkeyKeygenService implements IService {
                     if (rKeytype.equals("RSA")) {
                         try {
                             RSAPublicKey rsaPublicKey = new RSAPublicKey(publicKeyData);
-
                             rec.setKeySize(Integer.valueOf(rsaPublicKey.getKeySize()));
+
                         } catch (InvalidKeyException e) {
                             request.setExtData(IRequest.RESULT, Integer.valueOf(11));
-                            CMS.debug("NetkeyKeygenService: failed:InvalidKeyException");
-                            return false;
+                            throw new Exception("Invalid RSA public key", e);
                         }
+
                     } else if (rKeytype.equals("EC")) {
                         CMS.debug("NetkeyKeygenService: alg is EC");
                         String oidDescription = "UNDETERMINED";
@@ -490,8 +490,7 @@ public class NetkeyKeygenService implements IService {
 
                     if (serialNo == null) {
                         request.setExtData(IRequest.RESULT, Integer.valueOf(11));
-                        CMS.debug("NetkeyKeygenService: serialNo null");
-                        return false;
+                        throw new Exception("Unable to generate next serial number");
                     }
 
                     rec.setWrappingParams(params, allowEncDecrypt_archival);
@@ -515,7 +514,22 @@ public class NetkeyKeygenService implements IService {
 
             } catch (Exception e) {
                 CMS.debug(e);
-                request.setExtData(IRequest.RESULT, Integer.valueOf(4));
+
+                audit(SecurityDataArchivalProcessedEvent.createFailureEvent(
+                        agentId,
+                        auditSubjectID,
+                        request.getRequestId(),
+                        null,
+                        null,
+                        e.toString(),
+                        PubKey));
+
+                Integer result = request.getExtDataInInteger(IRequest.RESULT);
+                if (result == null) {
+                    // set default RESULT code
+                    request.setExtData(IRequest.RESULT, Integer.valueOf(4));
+                }
+
                 return false;
             }
 
@@ -524,18 +538,6 @@ public class NetkeyKeygenService implements IService {
 
         return true;
     } //serviceRequest
-
-    /**
-     * Signed Audit Log
-     * y
-     * This method is called to store messages to the signed audit log.
-     * <P>
-     *
-     * @param msg signed audit log message
-     */
-    private void audit(String msg) {
-        signedAuditLogger.log(msg);
-    }
 
     protected void audit(LogEvent event) {
         signedAuditLogger.log(event);
