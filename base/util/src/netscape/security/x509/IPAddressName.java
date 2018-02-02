@@ -18,6 +18,7 @@
 package netscape.security.x509;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.StringTokenizer;
 
 import netscape.security.util.DerOutputStream;
@@ -77,25 +78,22 @@ public class IPAddressName implements GeneralNameInterface {
      * @param netmask the netmask address in the format: n.n.n.n or x:x:x:x:x:x:x:x (RFC 1884)
      */
     public IPAddressName(String s, String netmask) {
-        // Based on PKIX RFC2459. IPAddress has
-        // 8 bytes (instead of 4 bytes) in the
-        // context of NameConstraints
-        IPAddr ipAddr = null;
-        if (s.indexOf(':') != -1) {
-            ipAddr = IPv6;
-            address = new byte[IPv6_LEN * 2];
-        } else {
-            ipAddr = IPv4;
-            address = new byte[IPv4_LEN * 2];
-        }
-        StringTokenizer st = new StringTokenizer(s, ",");
-        int numFilled = ipAddr.getIPAddr(st.nextToken(), address, 0);
-        if (st.hasMoreTokens()) {
-            ipAddr.getIPAddr(st.nextToken(), address, numFilled);
-        } else {
-            for (int i = numFilled; i < address.length; i++)
-                address[i] = (byte) 0xff;
-        }
+        IPAddr ipAddr = initAddress(true, s);
+        int numFilled = ipAddr.getIPAddr(s, address, 0);
+        ipAddr.getIPAddr(netmask, address, numFilled);
+    }
+
+    /**
+     * IP address with CIDR netmask
+     *
+     * @param s a single IPv4 or IPv6 address
+     * @param mask a CIDR netmask
+     */
+    public IPAddressName(String s, CIDRNetmask mask) {
+        IPAddr ipAddr = initAddress(true, s);
+        int numFilled = ipAddr.getIPAddr(s, address, 0);
+        mask.write(ByteBuffer.wrap(
+                    address, address.length / 2, address.length / 2));
     }
 
     /**
@@ -105,15 +103,18 @@ public class IPAddressName implements GeneralNameInterface {
      * @param s the ip address in the format: n.n.n.n or x:x:x:x:x:x:x:x
      */
     public IPAddressName(String s) {
-        IPAddr ipAddr = null;
-        if (s.indexOf(':') != -1) {
-            ipAddr = IPv6;
-            address = new byte[IPv6_LEN];
-        } else {
-            ipAddr = IPv4;
-            address = new byte[IPv4_LEN];
-        }
+        IPAddr ipAddr = initAddress(false, s);
         ipAddr.getIPAddr(s, address, 0);
+    }
+
+    private IPAddr initAddress(boolean withNetmask, String s) {
+        if (s.indexOf(':') != -1) {
+            address = new byte[IPv6_LEN * (withNetmask ? 2 : 1)];
+            return IPv6;
+        } else {
+            address = new byte[IPv4_LEN * (withNetmask ? 2 : 1)];
+            return IPv4;
+        }
     }
 
     /**

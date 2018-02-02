@@ -46,6 +46,7 @@ import netscape.security.util.DerInputStream;
 import netscape.security.util.DerOutputStream;
 import netscape.security.util.DerValue;
 import netscape.security.util.ObjectIdentifier;
+import netscape.security.x509.CIDRNetmask;
 import netscape.security.x509.CertificateExtensions;
 import netscape.security.x509.DNSName;
 import netscape.security.x509.EDIPartyName;
@@ -497,8 +498,16 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
         if (nameType.equalsIgnoreCase("IPAddress")) {
             CMS.debug("IP Value:" + nameValue);
             if (nameValue.indexOf('/') != -1) {
-                // CIDR support for NameConstraintsExt
                 StringTokenizer st = new StringTokenizer(nameValue, "/");
+                String addr = st.nextToken();
+                CIDRNetmask netmask = new CIDRNetmask(st.nextToken());
+                CMS.debug("addr:" + addr + " CIDR netmask: " + netmask);
+                return new IPAddressName(addr, netmask);
+            } else if (nameValue.indexOf(',') != -1) {
+                // interpret as IPADDR "," NETMASK e.g.
+                //   "192.168.1.0,255.255.255.0" (/24)
+                //   "2001:0db8:0123:4567::,ffff:ffff:ffff:ffff::"  (/64)
+                StringTokenizer st = new StringTokenizer(nameValue, ",");
                 String addr = st.nextToken();
                 String netmask = st.nextToken();
                 CMS.debug("addr:" + addr + " netmask: " + netmask);
