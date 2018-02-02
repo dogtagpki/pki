@@ -1198,15 +1198,7 @@ public class CryptoUtil {
         // grammar defined at https://tools.ietf.org/html/rfc7468#section-3
         s = s.replaceAll("-----(BEGIN|END) [\\p{Print}&&[^- ]]([- ]?[\\p{Print}&&[^- ]])*-----", "");
 
-        StringBuffer sb = new StringBuffer();
-        StringTokenizer st = new StringTokenizer(s, "\r\n ");
-
-        while (st.hasMoreTokens()) {
-            String nextLine = st.nextToken();
-            nextLine = nextLine.trim();
-            sb.append(nextLine);
-        }
-        return sb.toString();
+        return Utils.normalizeString(s);
     }
 
     public static String normalizeCertStr(String s) {
