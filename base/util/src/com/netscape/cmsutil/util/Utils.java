@@ -32,6 +32,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.StringTokenizer;
 import java.util.Vector;
 
 import org.apache.commons.codec.binary.Base64;
@@ -329,5 +330,27 @@ public class Utils {
      */
     public static byte[] base64decode(String string) {
         return Base64.decodeBase64(string);
+    }
+
+    /**
+     * Normalize B64 input String
+     *
+     * @pram string base-64 string
+     * @return normalized string
+     */
+    public static String normalizeString(String string) {
+        if (string == null) {
+            return string;
+        }
+
+        StringBuffer sb = new StringBuffer();
+        StringTokenizer st = new StringTokenizer(string, "\r\n ");
+
+        while (st.hasMoreTokens()) {
+            String nextLine = st.nextToken();
+            nextLine = nextLine.trim();
+            sb.append(nextLine);
+        }
+        return sb.toString();
     }
 }
