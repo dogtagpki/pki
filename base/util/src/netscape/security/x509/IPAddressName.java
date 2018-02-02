@@ -166,8 +166,6 @@ public class IPAddressName implements GeneralNameInterface {
 
 interface IPAddr {
     public int getIPAddr(String s, byte[] address, int start);
-
-    public int getLength();
 }
 
 class IPv4Addr implements IPAddr {
@@ -191,10 +189,6 @@ class IPv4Addr implements IPAddr {
             throw new InvalidIPAddressException(s);
         }
         return nt;
-    }
-
-    public int getLength() {
-        return IPv4_LEN;
     }
 }
 
@@ -268,10 +262,6 @@ class IPv6Addr implements IPAddr {
         } catch (NumberFormatException e) {
             throw new InvalidIPAddressException(s);
         }
-        return 16;
-    }
-
-    public int getLength() {
         return 16;
     }
 }
