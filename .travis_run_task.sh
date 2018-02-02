@@ -21,7 +21,6 @@
 #
 
 PYTHON="/usr/bin/python${TRAVIS_PYTHON_VERSION}"
-TEST_RUNNER_CONFIG=".test_runner_config.yaml"
 
 test_set="test_caacl_plugin.py test_caacl_profile_enforcement.py test_cert_plugin.py test_certprofile_plugin.py test_vault_plugin.py"
 developer_mode_opt="--developer-mode"
@@ -40,7 +39,7 @@ function truncate_log_to_test_failures() {
 }
 
 
-if [[ "$TASK_TO_RUN" == "run-ipa-test" ]]
+if [[ "$TASK_TO_RUN" == "ipa-test" ]]
 then
     docker pull ${IPA_IMAGE}
 
@@ -59,14 +58,14 @@ then
     echo ${cert_test_file_loc}
 
     ipa-docker-test-runner -l ${CI_RESULTS_LOG} \
-        -c ${TEST_RUNNER_CONFIG} \
+        -c .travis/ipa-test.yaml \
         $developer_mode_opt \
         --container-environment "PYTHON=$PYTHON" \
         --container-image ${IPA_IMAGE} \
         --git-repo ${TRAVIS_BUILD_DIR} \
         run-tests ${cert_test_file_loc}
 
-elif [[ "$TASK_TO_RUN" == "run-dogtag-build" ]]
+elif [[ "$TASK_TO_RUN" == "pki-test" ]]
 then
    docker exec -i ${CONTAINER} ${SCRIPTDIR}/20-install-rpms
    docker exec -i ${CONTAINER} ${SCRIPTDIR}/30-setup-389ds
@@ -86,7 +85,7 @@ fi
 
 exit_status="$?"
 
-if [[ "$exit_status" -ne 0 && "$TASK_TO_RUN" == "run-ipa-test" ]]
+if [[ "$exit_status" -ne 0 && "$TASK_TO_RUN" == "ipa-test" ]]
 then
     truncate_log_to_test_failures
 fi
