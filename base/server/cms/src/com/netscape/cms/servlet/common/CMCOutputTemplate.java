@@ -79,6 +79,7 @@ import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogEvent;
@@ -150,6 +151,7 @@ public class CMCOutputTemplate {
             OutputStream os = resp.getOutputStream();
             os.write(contentBytes);
             os.flush();
+            auditCMCResponseSent(Utils.base64encode(contentBytes, false));
         } catch (Exception e) {
             CMS.debug("CMCOutputTemplate createFullResponseWithFailedStatus Exception: " + e.toString());
             return;
@@ -480,6 +482,7 @@ public class CMCOutputTemplate {
             OutputStream os = resp.getOutputStream();
             os.write(contentBytes);
             os.flush();
+            auditCMCResponseSent(Utils.base64encode(contentBytes, false));
             CMS.debug(method + "ends");
         } catch (java.security.cert.CertificateEncodingException e) {
             CMS.debug(method + e.toString());
@@ -722,6 +725,7 @@ public class CMCOutputTemplate {
             OutputStream os = resp.getOutputStream();
             os.write(contentBytes);
             os.flush();
+            auditCMCResponseSent(Utils.base64encode(contentBytes, false));
         } catch (java.security.cert.CertificateEncodingException e) {
             CMS.debug("CMCOutputTemplate exception: " + e.toString());
         } catch (InvalidBERException e) {
@@ -1347,6 +1351,17 @@ public class CMCOutputTemplate {
 
     protected void audit(String msg) {
         signedAuditLogger.log(msg);
+    }
+
+    protected void auditCMCResponseSent(String response) {
+        SessionContext context = SessionContext.getContext();
+
+        String auditMessage = CMS.getLogMessage(
+            AuditEvent.CMC_RESPONSE_SENT,
+            (String) context.get(SessionContext.USER_ID),
+            ILogger.SUCCESS,
+            Utils.normalizeString(response));
+        audit(auditMessage);
     }
 
     private RevocationReason toRevocationReason(ENUMERATED n) {

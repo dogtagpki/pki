@@ -46,9 +46,10 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
-import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.event.AuthEvent;
 import com.netscape.certsrv.logging.event.CertRequestProcessedEvent;
+import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.profile.ECMCBadIdentityException;
 import com.netscape.certsrv.profile.ECMCBadMessageCheckException;
 import com.netscape.certsrv.profile.ECMCBadRequestException;
@@ -67,6 +68,8 @@ import com.netscape.certsrv.request.INotify;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
+import com.netscape.cms.logging.Logger;
+import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.servlet.common.AuthCredentials;
 import com.netscape.cms.servlet.common.CMCOutputTemplate;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -85,6 +88,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
     /**
      *
      */
+    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
     private static final long serialVersionUID = -8017841111435988197L;
     private static final String PROP_PROFILE_ID = "profileId";
 
@@ -112,7 +116,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
     }
 
     private void setInputsIntoContext(HttpServletRequest request, IProfile profile, IProfileContext ctx) {
-
+        String method = "ProfileSubmitCMCServlet.setInputsIntoContext: ";
         // passing inputs into context
         Enumeration<String> inputIds = profile.getProfileInputIds();
 
@@ -126,6 +130,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                     String inputName = inputNames.nextElement();
 
                     if (request.getParameter(inputName) != null) {
+                        CMS.debug(method + "setting: " + inputName);
                         ctx.set(inputName, request.getParameter(inputName));
                     }
                 }
@@ -399,7 +404,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
         IProfileContext ctx = profile.createContext();
         if (requestB64 != null) {
             ctx.set("cert_request_type", cert_request_type);
-            ctx.set("cert_request", requestB64);
+            ctx.set("cert_request", Utils.normalizeString(requestB64));
         }
         // passing auths into context
         IProfileAuthenticator authenticator = null;
@@ -480,6 +485,17 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                 return;
             }
         }
+
+        String auditSubjectID = auditSubjectID();
+        if (authToken != null) {
+            auditSubjectID = authToken.getInString(IAuthToken.USER_ID);
+        }
+        String auditMessage = CMS.getLogMessage(
+                AuditEvent.CMC_REQUEST_RECEIVED,
+                auditSubjectID,
+                ILogger.SUCCESS,
+                Utils.normalizeString(requestB64));
+        signedAuditLogger.log(auditMessage);
 
         IRequest reqs[] = null;
 
@@ -777,7 +793,6 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
             }
         } //for
 
-        String auditSubjectID = auditSubjectID();
         String auditRequesterID = ILogger.UNIDENTIFIED;
 
         try {
