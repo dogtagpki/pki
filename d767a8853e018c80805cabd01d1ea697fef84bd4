@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "92cd3d69_ca2b6c16",
+        "filename": "base/server/cms/src/com/netscape/cms/logging/LogFile.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1012,
+      "author": {
+        "id": 1010222
+      },
+      "writtenOn": "2018-02-03T02:09:10Z",
+      "side": 1,
+      "message": "flush is called at the end of this method.",
+      "parentUuid": "8f701447_f725b335",
+      "revId": "d767a8853e018c80805cabd01d1ea697fef84bd4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "38fc23de_ba6540a6",
         "filename": "base/server/cms/src/com/netscape/cms/logging/LogFile.java",
         "patchSetId": 1
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "2fcda329_2571e9cb",
+        "filename": "base/server/cms/src/com/netscape/cms/logging/LogFile.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1084,
+      "author": {
+        "id": 1010222
+      },
+      "writtenOn": "2018-02-03T02:09:10Z",
+      "side": 1,
+      "message": "flush is called at the end of this method.",
+      "parentUuid": "38fc23de_ba6540a6",
+      "revId": "d767a8853e018c80805cabd01d1ea697fef84bd4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ef1a125e_430e45f2",
         "filename": "base/server/cms/src/com/netscape/cms/logging/LogQueue.java",
         "patchSetId": 1
@@ -47,6 +83,24 @@
       "writtenOn": "2018-02-02T19:36:43Z",
       "side": 1,
       "message": "Is this going to show up double when the flush() call already does it?",
+      "revId": "d767a8853e018c80805cabd01d1ea697fef84bd4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1477cbf7_ff7b4a76",
+        "filename": "base/server/cms/src/com/netscape/cms/logging/LogQueue.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 1010222
+      },
+      "writtenOn": "2018-02-03T02:09:10Z",
+      "side": 1,
+      "message": "This catch of Exception will only catch some Runtime Exceptions called down in the log code path. Plus this is just insurance in case anything escapes from below.",
+      "parentUuid": "ef1a125e_430e45f2",
       "revId": "d767a8853e018c80805cabd01d1ea697fef84bd4",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
