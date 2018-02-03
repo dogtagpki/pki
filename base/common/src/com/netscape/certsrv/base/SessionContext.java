@@ -56,6 +56,7 @@ public class SessionContext extends Hashtable<Object, Object> {
      * Principal name object of the signed CMC request
      */
     public static final String CMC_SIGNER_PRINCIPAL = "cmcSignerPrincipal";
+    public static final String CMC_ISSUER_PRINCIPAL = "cmcISSUERPrincipal";
     public static final String CMC_SIGNER_INFO = "cmcSignerInfo";
     public static final String CMC_REQUEST_CERT_SUBJECT = "cmcRequestCertSubject";
 
