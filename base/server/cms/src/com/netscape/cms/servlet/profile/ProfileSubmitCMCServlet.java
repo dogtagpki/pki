@@ -924,6 +924,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
 
                 auditRequesterID = auditRequesterID(provedReq);
                 try {
+                    profile.validate(provedReq);
                     profile.execute(provedReq);
                     reqs = new IRequest[1];
                     reqs[0] = provedReq;
@@ -965,6 +966,11 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                     error_codes[0] = Integer.parseInt(errorCode);
                     profile.getRequestQueue().updateRequest(provedReq);
                     CMS.debug("ProfileSubmitCMCServlet: provedReq updateRequest");
+                    audit(CertRequestProcessedEvent.createFailureEvent(
+                                auditSubjectID,
+                                auditRequesterID,
+                                ILogger.SIGNED_AUDIT_REJECTION,
+                                errorReason));
                 }
             }
 
