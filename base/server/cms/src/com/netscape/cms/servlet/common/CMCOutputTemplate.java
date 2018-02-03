@@ -971,10 +971,6 @@ public class CMCOutputTemplate {
             CMS.debug(method + "authManagerId =" + authManagerId);
         }
 
-        // in case of CMCUserSignedAuth,
-        // for matching signer and revoked cert principal
-        X500Name signerPrincipal = null;
-
         // for auditing
         String auditRequesterID = null;
         auditRequesterID = (String) context.get(SessionContext.USER_ID);
@@ -984,7 +980,14 @@ public class CMCOutputTemplate {
         } else {
             auditRequesterID = ILogger.NONROLEUSER;
         }
-        signerPrincipal = (X500Name) context.get(SessionContext.CMC_SIGNER_PRINCIPAL);
+
+        // in case of CMCUserSignedAuth,
+        // for matching signer and revoked cert principal
+        X500Name reqSignerPrincipal = (X500Name) context.get(SessionContext.CMC_SIGNER_PRINCIPAL);
+
+        // in case of shared secret revocation, for matching issuer
+        X500Name reqIssuerPrincipal = (X500Name) context.get(SessionContext.CMC_ISSUER_PRINCIPAL);
+
         String auditSubjectID = null;
         String auditRequestType = "revoke";
         String auditSerialNumber = null;
@@ -1019,7 +1022,7 @@ public class CMCOutputTemplate {
 
                     if (needVerify) {
                         if (authManagerId.equals("CMCUserSignedAuth")) {
-                            if (signerPrincipal == null) {
+                            if (reqSignerPrincipal == null) {
                                 CMS.debug(method + "missing CMC signer principal");
                                 OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL,
                                         new INTEGER(OtherInfo.BAD_MESSAGE_CHECK),
@@ -1235,12 +1238,47 @@ public class CMCOutputTemplate {
                     X509CertImpl impl = record.getCertificate();
 
                     X500Name certPrincipal = (X500Name) impl.getSubjectDN();
+                    X500Name certIssuerPrincipal = (X500Name) impl.getIssuerDN();
                     auditSubjectID = certPrincipal.toString();
+
+                    // for Shared Secret case, check if issuer DN matches
+                    if (reqSecret != null) {
+                        CMS.debug(method + "shared secret revocation: checking issuer DN");
+                        if ((reqIssuerPrincipal == null) ||
+                                ! reqIssuerPrincipal.equals(certIssuerPrincipal)) {
+                            msg = " certificate issuer DN and revocation request issuer DN do not match";
+                            CMS.debug(method + msg);
+                            OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL, new INTEGER(OtherInfo.BAD_IDENTITY),
+                                    null, null);
+                            SEQUENCE failed_bpids = new SEQUENCE();
+                            failed_bpids.addElement(attrbpid);
+                            cmcStatusInfoV2 = new CMCStatusInfoV2(CMCStatusInfoV2.FAILED, failed_bpids, msg,
+                                    otherInfo);
+                            tagattr = new TaggedAttribute(
+                                    new INTEGER(bpid++),
+                                    OBJECT_IDENTIFIER.id_cmc_statusInfoV2, cmcStatusInfoV2);
+                            controlSeq.addElement(tagattr);
+
+                            audit(new CertStatusChangeRequestProcessedEvent(
+                                    auditSubjectID,
+                                    ILogger.FAILURE,
+                                    auditReqID,
+                                    auditSerialNumber,
+                                    auditRequestType,
+                                    auditReasonNum,
+                                    auditApprovalStatus,
+                                    msg));
+
+                            return bpid;
+                        } else {
+                            CMS.debug( method + "certificate issuer DN and revocation request issuer DN match");
+                        }
+                    }
 
                     // in case of user-signed request, check if signer
                     // principal matches that of the revoking cert
                     if ((reqSecret == null) && authManagerId.equals("CMCUserSignedAuth")) {
-                        if (!certPrincipal.equals(signerPrincipal)) {
+                        if (!certPrincipal.equals(reqSignerPrincipal)) {
                             msg = " certificate principal and signer do not match";
                             CMS.debug(method + msg);
                             OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL, new INTEGER(OtherInfo.BAD_IDENTITY),

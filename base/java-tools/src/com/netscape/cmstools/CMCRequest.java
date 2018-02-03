@@ -1180,6 +1180,7 @@ public class CMCRequest {
                     System.out.println(method + "issuer name must be supplied when shared secret is used");
                     System.exit(1);
                 }
+                System.out.println(method + "adding revRequestIssuer: " + revRequestIssuer);
                 issuerName = new X500Name(revRequestIssuer);
             } else { // signing case; revokeSignCert is required
                 if (revokeSignCert == null) {
