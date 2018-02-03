@@ -51,6 +51,28 @@ public class CertStatusChangeRequestProcessedEvent extends SignedAuditEvent {
     public CertStatusChangeRequestProcessedEvent(
             String subjectID,
             String outcome,
+            String requesterID,
+            String serialNumber,
+            String requestType,
+            String reasonNum,
+            RequestStatus approvalStatus,
+            String info) {
+
+        super(LOGGING_PROPERTY);
+
+        setAttribute("SubjectID", subjectID);
+        setAttribute("Outcome", outcome);
+        setAttribute("ReqID", requesterID);
+        setAttribute("CertSerialNum", serialNumber);
+        setAttribute("RequestType", requestType);
+        setAttribute("RevokeReasonNum", reasonNum);
+        setAttribute("Approval", approvalStatus);
+        setAttribute("Info", info);
+    }
+
+    public CertStatusChangeRequestProcessedEvent(
+            String subjectID,
+            String outcome,
             IRequest request,
             String serialNumber,
             String requestType,
