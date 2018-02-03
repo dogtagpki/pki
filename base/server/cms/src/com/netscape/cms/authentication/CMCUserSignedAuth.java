@@ -39,6 +39,7 @@ import java.util.Locale;
 import java.util.Vector;
 
 import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.asn1.ANY;
 import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.BIT_STRING;
 import org.mozilla.jss.asn1.INTEGER;
@@ -489,6 +490,22 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
                                     long reasonCode = revRequest.getReason().getValue();
                                     Integer IntObject = Integer.valueOf((int) reasonCode);
                                     authToken.set(REASON_CODE, IntObject);
+
+                                    ANY issuerANY = revRequest.getIssuerName();
+                                    // handling of faillures with issuer is deferred
+                                    // to CMCOutputTemplate so that we can
+                                    // have a chance to capture user identification info
+                                    if (issuerANY != null) {
+                                        try {
+                                            byte[] issuerBytes = issuerANY.getEncoded();
+                                            X500Name issuerName = new X500Name(issuerBytes);
+                                            CMS.debug(method + "revRequest issuer name = " + issuerName.toString());
+                                            // capture issuer principal to be checked against
+                                            // cert issuer principal later in CMCOutputTemplate
+                                            auditContext.put(SessionContext.CMC_ISSUER_PRINCIPAL, issuerName);
+                                        } catch (Exception e) {
+                                        }
+                                    }
 
                                     //authToken.set("uid", uid);
                                     //authToken.set("userid", userid);
