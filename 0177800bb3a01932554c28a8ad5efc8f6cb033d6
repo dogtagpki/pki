@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "87dfc61d_80719d47",
+        "filename": "base/server/cms/src/com/netscape/cms/authentication/CMCUserSignedAuth.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 506,
+      "author": {
+        "id": 1010222
+      },
+      "writtenOn": "2018-02-04T03:05:35Z",
+      "side": 1,
+      "message": "Do something with this exception, don\u0027t jus swallow. This seems to have undefined action at this point.",
+      "revId": "0177800bb3a01932554c28a8ad5efc8f6cb033d6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
