@@ -16,6 +16,24 @@
       "revId": "0177800bb3a01932554c28a8ad5efc8f6cb033d6",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "56c6de34_ffc6ef0e",
+        "filename": "base/server/cms/src/com/netscape/cms/authentication/CMCUserSignedAuth.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 506,
+      "author": {
+        "id": 1010256
+      },
+      "writtenOn": "2018-02-04T03:20:53Z",
+      "side": 1,
+      "message": "as explained in the comment above, the handling is deferred for a reason: so that the request could be further processed and we can get user info etc.  I will add a debug message here as discussed just now.",
+      "parentUuid": "87dfc61d_80719d47",
+      "revId": "0177800bb3a01932554c28a8ad5efc8f6cb033d6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
