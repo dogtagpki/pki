@@ -57,4 +57,20 @@ public interface GeneralNameInterface extends java.io.Serializable {
      *                encoded.
      */
     void encode(DerOutputStream out) throws IOException;
+
+    /**
+     * Whether the name is valid as a single name (e.g. for use in
+     * Subject Alternative Name extension).
+     */
+    default boolean validSingle() {
+        return true;
+    }
+
+    /**
+     * Whether the name is valid as a subtree name (e.g. for use in
+     * Name Constraints extension)
+     */
+    default boolean validSubtree() {
+        return true;
+    }
 }

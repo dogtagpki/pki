@@ -124,6 +124,16 @@ public class IPAddressName implements GeneralNameInterface {
         return (GeneralNameInterface.NAME_IP);
     }
 
+    @Override
+    public boolean validSingle() {
+        return address.length == IPv4_LEN || address.length == IPv6_LEN;
+    }
+
+    @Override
+    public boolean validSubtree() {
+        return address.length == 2*IPv4_LEN || address.length == 2*IPv6_LEN;
+    }
+
     /**
      * Encode the IPAddress name into the DerOutputStream.
      *
