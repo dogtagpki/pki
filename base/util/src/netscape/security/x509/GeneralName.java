@@ -197,6 +197,18 @@ public class GeneralName implements GeneralNameInterface {
         }
     }
 
+    @Override
+    public boolean validSingle() {
+        if (this == name) return false;  // can't happen, but just in case...
+        return name.validSingle();
+    }
+
+    @Override
+    public boolean validSubtree() {
+        if (this == name) return false;  // can't happen, but just in case...
+        return name.validSubtree();
+    }
+
     /**
      * Unwrap this GeneralName until we reach something that is not
      * a GeneralName.
