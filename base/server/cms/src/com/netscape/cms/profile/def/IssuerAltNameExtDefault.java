@@ -164,6 +164,10 @@ public class IssuerAltNameExtDefault extends EnrollExtDefault {
 
                     GeneralNameInterface n = parseGeneralName(gname);
                     if (n != null) {
+                        if (!n.validSingle()) {
+                            throw new EPropertyException(
+                                "Not valid for Issuer Alternative Name: " + gname);
+                        }
                         gn.addElement(n);
                     }
                 }
@@ -285,7 +289,7 @@ public class IssuerAltNameExtDefault extends EnrollExtDefault {
     }
 
     public IssuerAlternativeNameExtension createExtension(IRequest request)
-            throws IOException {
+            throws IOException, EProfileException {
         IssuerAlternativeNameExtension ext = null;
 
         try {
@@ -307,8 +311,15 @@ public class IssuerAltNameExtDefault extends EnrollExtDefault {
                 gname = mapPattern(request, pattern);
             }
 
-            gn.addElement(parseGeneralName(
-                    getConfig(CONFIG_TYPE) + ":" + gname));
+            String gtype = getConfig(CONFIG_TYPE);
+            GeneralNameInterface n = parseGeneralName(gtype + ":" + gname);
+            if (n != null) {
+                if (!n.validSingle()) {
+                    throw new EProfileException(
+                        "Not valid for Issuer Alternative Name: " + gtype + ":" + gname);
+                }
+                gn.addElement(n);
+            }
             ext.set(IssuerAlternativeNameExtension.ISSUER_NAME, gn);
         }
         ext.setCritical(critical);
