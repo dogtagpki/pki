@@ -277,6 +277,10 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
                     }
                     GeneralNameInterface n = parseGeneralName(gname);
                     if (n != null) {
+                        if (!n.validSingle()) {
+                            throw new EPropertyException(
+                                "Not valid for Subject Alternative Name: " + gname);
+                        }
                         gn.addElement(n);
                     }
                 }
@@ -428,7 +432,7 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
     }
 
     public SubjectAlternativeNameExtension createExtension(IRequest request)
-            throws IOException {
+            throws IOException, EProfileException {
         SubjectAlternativeNameExtension ext = null;
         int num = getNumGNs();
 
@@ -495,6 +499,10 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
 
                     CMS.debug("adding gname: " + gname);
                     if (n != null) {
+                        if (!n.validSingle()) {
+                            throw new EProfileException(
+                                "Not valid for Subject Alternative Name: " + gtype + ":" + gname);
+                        }
                         CMS.debug("SubjectAlternativeNameExtension: n not null");
                         gn.addElement(n);
                         count++;
