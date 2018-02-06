@@ -66,12 +66,12 @@
 Name:             pki-core
 %if 0%{?rhel}
 Version:                10.5.1
-%define redhat_release  6
+%define redhat_release  7
 %define redhat_stage    0
 %define default_release %{redhat_release}.%{redhat_stage}
 #%define default_release %{redhat_release}
 %else
-Version:                10.5.4
+Version:                10.5.5
 %define fedora_release  1
 %define fedora_stage    0
 %define default_release %{fedora_release}.%{fedora_stage}
@@ -1343,6 +1343,32 @@ fi
 %endif # %{with server}
 
 %changelog
+* Mon Feb  5 2018 Dogtag Team <pki-devel@redhat.com> 10.5.5-1
+- dogtagpki Pagure Issue #2656 - Updating list of default audit events
+  (edewata)
+- dogtagpki Pagure Issue #2838 - Inconsistent  CERT_REQUEST_PROCESSED
+  outcomes. (edewata)
+- dogtagpki Pagure Issue #2844 - TPS CS.cfg should be reflected with the
+  changes after an in-place upgrade (jmagne)
+- dogtagpki Pagure Issue #2855 - restrict default cipher suite to those
+  ciphers permitted in fips mode (mharmsen)
+- dogtagpki Pagure Issue #2878 - Missing faillure resumption detection and
+  audit event logging at startup (jmagne)
+- dogtagpki Pagure Issue #2880 - Need to record CMC requests and responses
+  (cfu)
+- dogtagpki Pagure Issue #2889 - Unable to have non "pkiuser" owned CA
+  instance (alee)
+- dogtagpki Pagure Issue #2901 - Installing subsystems with external CMC
+  certificates in HSM environment shows import error (edewata)
+- dogtagpki Pagure Issue #2909 - ProfileService: config values with
+  backslashes have backslashes removed (ftweedal)
+- dogtagpki Pagure Issue #2916 - ExternalCA: Failures when installed with
+  hsm (edewata)
+- dogtagpki Pagure Issue #2920 - CMC: Audit Events needed for failures in
+  SharedToken scenarios (cfu)
+- dogtagpki Pagure Issue #2921 - CMC: Revocation works with an unknown
+  revRequest.issuer (cfu)
+
 * Tue Jan 23 2018 Dogtag Team <pki-devel@redhat.com> 10.5.4-1
 - dogtagpki Pagure Issue #2557 -CA Cloning: Failed to update number range
   in few cases (ftweedal)
