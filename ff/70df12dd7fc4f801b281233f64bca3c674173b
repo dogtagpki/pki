@@ -1,0 +1,9 @@
+Verified+1: <pki.jenkins.bot@gmail.com>
+Code-Review+2: Christina Fu <cfu@redhat.com>
+Workflow+1: Christina Fu <cfu@redhat.com>
+Workflow+1: Jack Magne <jmagne@redhat.com>
+Submitted-by: Jack Magne <jmagne@redhat.com>
+Submitted-at: Wed, 07 Feb 2018 17:59:43 -0500
+Reviewed-on: https://review.gerrithub.io/398865
+Project: dogtagpki/pki
+Branch: refs/heads/master
