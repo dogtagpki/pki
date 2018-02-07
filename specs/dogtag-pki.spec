@@ -150,9 +150,6 @@ This package is just a "meta-package" whose dependencies pull in all of the
 packages comprising the Dogtag Public Key Infrastructure (PKI) Suite.
 EOF
 
-%install
-rm -rf %{buildroot}
-
 %files
 %defattr(-,root,root,-)
 %doc README
