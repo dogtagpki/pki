@@ -216,12 +216,13 @@ public class AdminServlet extends HttpServlet {
                     pn.equalsIgnoreCase("pin") ||
                     pn.equalsIgnoreCase("pwd") ||
                     pn.equalsIgnoreCase("pwdagain") ||
-                    pn.equalsIgnoreCase("uPasswd")) {
+                    pn.equalsIgnoreCase("uPasswd") ||
+                    pn.equalsIgnoreCase("PASSWORD_CACHE_ADD")) {
                 CMS.debug("AdminServlet::service() param name='" + pn +
-                         "' value='(sensitive)'");
+                        "' value='(sensitive)'");
             } else {
                 CMS.debug("AdminServlet::service() param name='" + pn +
-                         "' value='" + httpReq.getParameter(pn) + "'");
+                        "' value='" + httpReq.getParameter(pn) + "'");
             }
         }
     }
