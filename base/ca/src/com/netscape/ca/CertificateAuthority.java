@@ -662,7 +662,10 @@ public class CertificateAuthority
             }
             throw e;
         }
+    }
 
+    private void generateSigningInfoAuditEvents()
+            throws EBaseException {
         try {
 
             if (isHostAuthority()) {
@@ -1852,6 +1855,8 @@ public class CertificateAuthority
             throw new ECAException(
                     CMS.getUserMessage("CMS_CA_BUILD_CA_CHAIN_FAILED", e.toString()));
         }
+
+        generateSigningInfoAuditEvents();
     }
 
     /**
