@@ -1,0 +1,8 @@
+Workflow+1: Jack Magne <jmagne@redhat.com>
+Code-Review+2: Jack Magne <jmagne@redhat.com>
+Verified+1: <pki.jenkins.bot@gmail.com>
+Submitted-by: Jack Magne <jmagne@redhat.com>
+Submitted-at: Wed, 07 Feb 2018 19:02:52 -0500
+Reviewed-on: https://review.gerrithub.io/398871
+Project: dogtagpki/pki
+Branch: refs/heads/DOGTAG_10_5_BRANCH
