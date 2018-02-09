@@ -1,5 +1,7 @@
 package com.netscape.test;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,6 +39,23 @@ public class TestRunner {
 
         TestRunner runner = new TestRunner();
         Result result = runner.run(args);
-        System.exit(result.wasSuccessful() ? 0 : 1);
+
+        String status;
+        int rc;
+
+        if (result.wasSuccessful()) {
+            status = "PASSED";
+            rc = 0;
+        } else {
+            status = "FAILED";
+            rc = 1;
+        }
+
+        System.err.println("TestRunner: Test " + status);
+
+        Path path = Paths.get(System.getProperty("junit.reports.dir"));
+        System.out.println("TestRunner: See test reports in " + path.toAbsolutePath());
+
+        System.exit(rc);
     }
 }
