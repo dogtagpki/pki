@@ -21,6 +21,7 @@ set(APP_SERVER "tomcat8" CACHE STRING "Application server")
 
 option(WITH_SERVER "Build Server" ON)
 option(WITH_JAVADOC "Build Javadoc" ON)
+option(WITH_TEST "Run unit tests" OFF)
 
 if (BUILD_DOGTAG_PKI_THEME)
     set(APPLICATION_FLAVOR_DOGTAG_PKI_THEME TRUE)
