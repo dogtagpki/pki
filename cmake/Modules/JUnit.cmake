@@ -12,46 +12,46 @@
 #   using the specified class path.
 #
 
-function(add_junit_test TARGET_NAME)
+function(add_junit_test target)
 
     if (WIN32 AND NOT CYGWIN)
-        set(SEPARATOR ";")
+        set(separator ";")
     else (WIN32 AND NOT CYGWIN)
-        set(SEPARATOR ":")
+        set(separator ":")
     endif(WIN32 AND NOT CYGWIN)
 
-    set(REPORTS_DIR "reports")
+    set(reports_dir "reports")
 
-    foreach (ARG ${ARGN})
-        if (ARG MATCHES "(CLASSPATH|TESTS|REPORTS_DIR)")
-            set(TYPE ${ARG})
+    foreach (arg ${ARGN})
+        if (arg MATCHES "(CLASSPATH|TESTS|REPORTS_DIR)")
+            set(param ${arg})
         
-        else (ARG MATCHES "(CLASSPATH|TESTS|REPORTS_DIR)")
+        else (arg MATCHES "(CLASSPATH|TESTS|REPORTS_DIR)")
 
-            if (TYPE MATCHES "CLASSPATH")
-                set(CLASSPATH "${CLASSPATH}${SEPARATOR}${ARG}")
+            if (param MATCHES "CLASSPATH")
+                set(classpath "${classpath}${separator}${arg}")
 
-            elseif (TYPE MATCHES "TESTS")
-                set(TESTS ${TESTS} ${ARG})
+            elseif (param MATCHES "TESTS")
+                set(tests ${tests} ${arg})
 
-            elseif (TYPE MATCHES "REPORTS_DIR")
-                set(REPORTS_DIR ${ARG})
+            elseif (param MATCHES "REPORTS_DIR")
+                set(reports_dir ${arg})
 
-            endif(TYPE MATCHES "CLASSPATH")
+            endif(param MATCHES "CLASSPATH")
 
-        endif(ARG MATCHES "(CLASSPATH|TESTS|REPORTS_DIR)")
+        endif(arg MATCHES "(CLASSPATH|TESTS|REPORTS_DIR)")
 
-    endforeach(ARG)
+    endforeach(arg)
 
-    add_custom_target(${TARGET_NAME}
+    add_custom_target(${target}
         COMMAND
-            mkdir -p "${REPORTS_DIR}"
+            mkdir -p "${reports_dir}"
         COMMAND
             ${Java_JAVA_EXECUTABLE}
-            -Djunit.reports.dir=${REPORTS_DIR}
-            -classpath ${CLASSPATH}
+            -Djunit.reports.dir=${reports_dir}
+            -classpath ${classpath}
             com.netscape.test.TestRunner
-            ${TESTS}
+            ${tests}
     )
 
 endfunction(add_junit_test)
