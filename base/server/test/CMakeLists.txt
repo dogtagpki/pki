@@ -61,7 +61,7 @@ add_junit_test(test-pki-server
         ${HAMCREST_JAR} ${JUNIT_JAR}
         ${CMAKE_BINARY_DIR}/test/classes
     TESTS
-        com.netscape.cmscore.authentication.AuthTokenTest
+        # com.netscape.cmscore.authentication.AuthTokenTest
         com.netscape.cmscore.dbs.CertRecordListTest
         com.netscape.cmscore.dbs.DBRegistryTest
         # com.netscape.cmscore.request.AgentApprovalsTest
@@ -69,7 +69,7 @@ add_junit_test(test-pki-server
         com.netscape.cmscore.request.ExtDataHashtableTest
         com.netscape.cmscore.request.RequestQueueTest
         com.netscape.cmscore.request.RequestRecordTest
-        com.netscape.cmscore.request.RequestTest
+        # com.netscape.cmscore.request.RequestTest
     REPORTS_DIR
         reports
 )
