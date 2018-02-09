@@ -42,6 +42,7 @@
 # Dogtag
 %bcond_without    server
 %bcond_without    javadoc
+%bcond_without    test
 
 # ignore unpackaged files from native 'tpsclient'
 # REMINDER:  Remove this '%%define' once 'tpsclient' is rewritten as a Java app
@@ -827,15 +828,14 @@ cd build
 %if ! %{with server}
 	-DWITH_SERVER:BOOL=OFF \
 %endif
-%if ! %{with server}
-	-DWITH_SERVER:BOOL=OFF \
-%endif
 %if ! %{with javadoc}
 	-DWITH_JAVADOC:BOOL=OFF \
 %endif
+%if ! %{with test}
+	-DWITH_TEST:BOOL=OFF \
+%endif
 	..
 %{__make} VERBOSE=1 %{?_smp_mflags} all
-# %{__make} VERBOSE=1 %{?_smp_mflags} unit-test
 
 
 %install
