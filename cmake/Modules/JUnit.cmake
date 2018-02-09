@@ -48,16 +48,18 @@ function(add_junit_test target)
 
     add_custom_target(${target} ALL DEPENDS ${depends})
 
-    add_custom_command(
-        TARGET ${target}
-        COMMAND
-            mkdir -p "${reports_dir}"
-        COMMAND
-            ${Java_JAVA_EXECUTABLE}
-            -Djunit.reports.dir=${reports_dir}
-            -classpath ${classpath}
-            com.netscape.test.TestRunner
-            ${tests}
-    )
+    if(WITH_TEST)
+        add_custom_command(
+            TARGET ${target}
+            COMMAND
+                mkdir -p "${reports_dir}"
+            COMMAND
+                ${Java_JAVA_EXECUTABLE}
+                -Djunit.reports.dir=${reports_dir}
+                -classpath ${classpath}
+                com.netscape.test.TestRunner
+                ${tests}
+        )
+    endif(WITH_TEST)
 
 endfunction(add_junit_test)

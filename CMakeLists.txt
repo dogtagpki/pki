@@ -19,8 +19,9 @@ string(REGEX REPLACE "^[0-9]+\\.[0-9]+\\.([0-9]+).*" "\\1" APPLICATION_VERSION_P
 
 set(APP_SERVER "tomcat8" CACHE STRING "Application server")
 
-option(WITH_SERVER "Build Server" ON)
-option(WITH_JAVADOC "Build Javadoc" ON)
+option(WITH_SERVER "Build server package" ON)
+option(WITH_JAVADOC "Build Javadoc package" ON)
+option(WITH_TEST "Run unit tests" ON)
 
 if (BUILD_DOGTAG_PKI_THEME)
     set(APPLICATION_FLAVOR_DOGTAG_PKI_THEME TRUE)
@@ -58,8 +59,6 @@ file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/dist)
 
 # required for all PKI components
 include(JUnit)
-
-add_custom_target(unit-test)
 
 # search for libraries
 

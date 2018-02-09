@@ -75,6 +75,3 @@ add_junit_test(test-pki-server
     DEPENDS
         pki-server-test-classes
 )
-
-# include test into the main test
-add_dependencies(unit-test test-pki-server)
