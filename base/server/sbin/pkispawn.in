@@ -34,6 +34,6 @@ then
     . $HOME/.dogtag/pki.conf
 fi
 
-python -m pki.server.pkidestroy "$@"
+@PYTHON_EXECUTABLE@ -m pki.server.pkispawn "$@"
 
 exit $?

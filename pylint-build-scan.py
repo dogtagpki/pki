@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 
 # Authors:
 #     Christian Heimes <cheimes@redhat.com>
@@ -38,9 +38,6 @@ PYLINTRC = os.path.join(SCRIPTPATH, 'dogtag.pylintrc')
 FILENAMES = [
     os.path.abspath(__file__),
     '{sitepackages}/pki',
-    '{sbin}/pki-upgrade',
-    '{sbin}/pki-server',
-    '{sbin}/pki-server-upgrade',
 ]
 UPGRADE_SCRIPT = re.compile('^[0-9]+-.*')
 

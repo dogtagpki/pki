@@ -1,4 +1,3 @@
-#!/usr/bin/python -tu
 # Authors:
 #     Matthew Harmsen <mharmsen@redhat.com>
 #

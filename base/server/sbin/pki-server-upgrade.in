@@ -14,26 +14,11 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
-# Copyright (C) 2017 Red Hat, Inc.
+# Copyright (C) 2018 Red Hat, Inc.
 # All rights reserved.
 # --- END COPYRIGHT BLOCK ---
 #
 
-# default PKI configuration
-. /usr/share/pki/etc/pki.conf
-
-# system-wide PKI configuration
-if [ -f /etc/pki/pki.conf ]
-then
-    . /etc/pki/pki.conf
-fi
-
-# user-specific PKI configuration
-if [ -f $HOME/.dogtag/pki.conf ]
-then
-    . $HOME/.dogtag/pki.conf
-fi
-
-python -m pki.cli.main "$@"
+@PYTHON_EXECUTABLE@ -m pki.server.pkiserverupgrade "$@"
 
 exit $?
