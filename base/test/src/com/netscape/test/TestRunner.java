@@ -1,5 +1,6 @@
 package com.netscape.test;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,6 +38,20 @@ public class TestRunner {
 
         TestRunner runner = new TestRunner();
         Result result = runner.run(args);
-        System.exit(result.wasSuccessful() ? 0 : 1);
+
+        if (result.wasSuccessful()) {
+
+            System.err.println("TestRunner: Test PASSED");
+
+        } else {
+
+            System.err.println("TestRunner: Test FAILED");
+
+            System.out.println("TestRunner: See test reports in "
+                    + System.getProperty("user.dir") + File.separator
+                    + System.getProperty("junit.reports.dir"));
+
+            System.exit(1);
+        }
     }
 }
