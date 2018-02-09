@@ -72,6 +72,8 @@ add_junit_test(test-pki-server
         com.netscape.cmscore.request.RequestTest
     REPORTS_DIR
         reports
+    DEPENDS
+        pki-server-test-classes
 )
 
 # include test into the main test
