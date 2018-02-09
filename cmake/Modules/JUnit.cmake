@@ -23,10 +23,10 @@ function(add_junit_test target)
     set(reports_dir "reports")
 
     foreach (arg ${ARGN})
-        if (arg MATCHES "(CLASSPATH|TESTS|REPORTS_DIR)")
+        if (arg MATCHES "(CLASSPATH|TESTS|REPORTS_DIR|DEPENDS)")
             set(param ${arg})
 
-        else (arg MATCHES "(CLASSPATH|TESTS|REPORTS_DIR)")
+        else (arg MATCHES "(CLASSPATH|TESTS|REPORTS_DIR|DEPENDS)")
 
             if (param MATCHES "CLASSPATH")
                 set(classpath "${classpath}${separator}${arg}")
@@ -37,13 +37,19 @@ function(add_junit_test target)
             elseif (param MATCHES "REPORTS_DIR")
                 set(reports_dir ${arg})
 
+            elseif (param STREQUAL "DEPENDS")
+                list(APPEND depends ${arg})
+
             endif(param MATCHES "CLASSPATH")
 
-        endif(arg MATCHES "(CLASSPATH|TESTS|REPORTS_DIR)")
+        endif(arg MATCHES "(CLASSPATH|TESTS|REPORTS_DIR|DEPENDS)")
 
     endforeach(arg)
 
-    add_custom_target(${target}
+    add_custom_target(${target} ALL DEPENDS ${depends})
+
+    add_custom_command(
+        TARGET ${target}
         COMMAND
             mkdir -p "${reports_dir}"
         COMMAND

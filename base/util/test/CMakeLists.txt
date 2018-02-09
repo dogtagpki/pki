@@ -37,6 +37,8 @@ add_junit_test(test-pki-util
         com.netscape.security.x509.PrintableConverterTest
     REPORTS_DIR
         reports
+    DEPENDS
+        pki-util-test-classes
 )
 
 # include test into the main test
