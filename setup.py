@@ -66,14 +66,6 @@ setup(
         'pki.server.deployment',
         'pki.server.deployment.scriptlets',
     ],
-    scripts=[
-        'base/common/sbin/pki-upgrade',
-        'base/server/sbin/pkidestroy',
-        'base/server/sbin/pki-server',
-        'base/server/sbin/pki-server-upgrade',
-        'base/server/sbin/pkispawn',
-        'base/java-tools/bin/pki',
-    ],
     data_files=list(upgrades.items()),
     classifiers=[
         'Development Status :: 5 - Production/Stable',

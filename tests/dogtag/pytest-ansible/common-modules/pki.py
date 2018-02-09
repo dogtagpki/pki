@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 # -*- coding: utf-8 -*-
 # (c) 2016, Geetika Kapoor <gkapoor@redhat.com>
 #
