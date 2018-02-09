@@ -3,7 +3,7 @@
 #
 # Available Functions:
 #
-#   add_junit_test(<target name> 
+#   add_junit_test(<target name>
 #       CLASSPATH [path1 ...]
 #       TESTS [class1 ...]
 #   )
@@ -12,46 +12,46 @@
 #   using the specified class path.
 #
 
-function(add_junit_test TARGET_NAME)
+function(add_junit_test target)
 
     if (WIN32 AND NOT CYGWIN)
-        set(SEPARATOR ";")
+        set(separator ";")
     else (WIN32 AND NOT CYGWIN)
-        set(SEPARATOR ":")
+        set(separator ":")
     endif(WIN32 AND NOT CYGWIN)
 
-    set(REPORTS_DIR "reports")
+    set(reports_dir "reports")
 
-    foreach (ARG ${ARGN})
-        if (ARG MATCHES "(CLASSPATH|TESTS|REPORTS_DIR)")
-            set(TYPE ${ARG})
-        
-        else (ARG MATCHES "(CLASSPATH|TESTS|REPORTS_DIR)")
+    foreach (arg ${ARGN})
+        if (arg MATCHES "(CLASSPATH|TESTS|REPORTS_DIR)")
+            set(param ${arg})
 
-            if (TYPE MATCHES "CLASSPATH")
-                set(CLASSPATH "${CLASSPATH}${SEPARATOR}${ARG}")
+        else (arg MATCHES "(CLASSPATH|TESTS|REPORTS_DIR)")
 
-            elseif (TYPE MATCHES "TESTS")
-                set(TESTS ${TESTS} ${ARG})
+            if (param MATCHES "CLASSPATH")
+                set(classpath "${classpath}${separator}${arg}")
 
-            elseif (TYPE MATCHES "REPORTS_DIR")
-                set(REPORTS_DIR ${ARG})
+            elseif (param MATCHES "TESTS")
+                set(tests ${tests} ${arg})
 
-            endif(TYPE MATCHES "CLASSPATH")
+            elseif (param MATCHES "REPORTS_DIR")
+                set(reports_dir ${arg})
 
-        endif(ARG MATCHES "(CLASSPATH|TESTS|REPORTS_DIR)")
+            endif(param MATCHES "CLASSPATH")
 
-    endforeach(ARG)
+        endif(arg MATCHES "(CLASSPATH|TESTS|REPORTS_DIR)")
 
-    add_custom_target(${TARGET_NAME}
+    endforeach(arg)
+
+    add_custom_target(${target}
         COMMAND
-            mkdir -p "${REPORTS_DIR}"
+            mkdir -p "${reports_dir}"
         COMMAND
             ${Java_JAVA_EXECUTABLE}
-            -Djunit.reports.dir=${REPORTS_DIR}
-            -classpath ${CLASSPATH}
+            -Djunit.reports.dir=${reports_dir}
+            -classpath ${classpath}
             com.netscape.test.TestRunner
-            ${TESTS}
+            ${tests}
     )
 
 endfunction(add_junit_test)
