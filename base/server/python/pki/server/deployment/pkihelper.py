@@ -3117,7 +3117,7 @@ class KRAConnector:
     def execute_using_pki(
             self, caport, cahost, subsystemnick,
             token_pwd, krahost, kraport, critical_failure=False):
-        command = ["/usr/bin/pki",
+        command = ["/bin/pki",
                    "-p", str(caport),
                    "-h", cahost,
                    "-n", subsystemnick,
@@ -3261,7 +3261,7 @@ class TPSConnector:
     def execute_using_pki(
             self, tkshost, tksport, subsystemnick,
             token_pwd, tpshost, tpsport, critical_failure=False):
-        command = ["/usr/bin/pki",
+        command = ["/bin/pki",
                    "-p", str(tksport),
                    "-h", tkshost,
                    "-n", subsystemnick,

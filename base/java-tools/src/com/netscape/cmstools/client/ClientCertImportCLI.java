@@ -328,7 +328,7 @@ public class ClientCertImportCLI extends CLI {
         }
 
         List<String> command = new ArrayList<>();
-        command.add("/usr/bin/certutil");
+        command.add("/bin/certutil");
         command.add("-A");
         command.add("-d");
         command.add(dbPath.getAbsolutePath());
@@ -461,7 +461,7 @@ public class ClientCertImportCLI extends CLI {
             String pkcs12PasswordFile) throws Exception {
 
         List<String> command = new ArrayList<>();
-        command.add("/usr/bin/pk12util");
+        command.add("/bin/pk12util");
         command.add("-d");
         command.add(dbPath.getAbsolutePath());
 

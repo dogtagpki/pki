@@ -68,7 +68,7 @@ public class HelpCLI extends CLI {
         while (true) {
             // display man page for the command
             ProcessBuilder pb = new ProcessBuilder(
-                    "/usr/bin/man",
+                    "/bin/man",
                     manPage);
 
             pb.inheritIO();
