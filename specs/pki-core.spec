@@ -825,6 +825,9 @@ cd build
 	-DAPP_SERVER=%{app_server} \
 	-DJAXRS_API_JAR=%{jaxrs_api_jar} \
 	-DRESTEASY_LIB=%{resteasy_lib} \
+%if ! %{?with_python3}
+    -DWITH_PYTHON3:BOOL=OFF \
+%endif
 %if ! %{with server}
 	-DWITH_SERVER:BOOL=OFF \
 %endif
