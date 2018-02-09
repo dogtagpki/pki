@@ -34,6 +34,6 @@ then
     . $HOME/.dogtag/pki.conf
 fi
 
-python -m pki.cli.main "$@"
+python2 -m pki.cli.main "$@"
 
 exit $?

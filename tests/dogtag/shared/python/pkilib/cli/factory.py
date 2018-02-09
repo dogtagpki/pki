@@ -1,4 +1,3 @@
-#!/usr/bin/python
 import rpm
 import subprocess
 import os

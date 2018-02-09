@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 
 # Authors:
 #     Christian Heimes <cheimes@redhat.com>
