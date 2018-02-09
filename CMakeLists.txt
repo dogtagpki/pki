@@ -22,6 +22,9 @@ set(APP_SERVER "tomcat8" CACHE STRING "Application server")
 option(WITH_SERVER "Build server package" ON)
 option(WITH_JAVADOC "Build Javadoc package" ON)
 option(WITH_TEST "Run unit tests" ON)
+option(WITH_PYTHON2 "Build with Python 2 support" ON)
+option(WITH_PYTHON3 "Build with Python 3 support" ON)
+option(WITH_PYTHON3_SERVER "Build server with Python 3" OFF)
 
 if (BUILD_DOGTAG_PKI_THEME)
     set(APPLICATION_FLAVOR_DOGTAG_PKI_THEME TRUE)
@@ -89,39 +92,70 @@ endif ()
 set(CMAKE_THREAD_PREFER_PTHREADS ON)
 find_package(Threads)
 
-find_package(PythonInterp REQUIRED)
-execute_process(
-    COMMAND
-        ${PYTHON_EXECUTABLE} -c
-        "from distutils.sysconfig import get_python_lib; print get_python_lib()"
-    OUTPUT_VARIABLE
-        PYTHON2_SITE_PACKAGES
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-)
-
-# CMake doesn't support multiple PythonInterp
-execute_process(
-    COMMAND
-        python3 -c
-        "from distutils.sysconfig import get_python_lib; print(get_python_lib())"
-    OUTPUT_VARIABLE
-        PYTHON3_SITE_PACKAGES
-    ERROR_VARIABLE
-        PYTHON3_ERROR
-    RESULT_VARIABLE
-        PYTHON3_RESULT
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-)
-
-if(PYTHON3_RESULT)
-    message(WARNING "python3 not found: ${PYTHON3_RESULT}")
-    if(PYTHON3_ERROR)
-        message(WARNING ${PYTHON3_ERROR})
+# Python 2 / 3 detection
+function(find_site_packages pythonexecutable targetname)
+    execute_process(
+        COMMAND
+            ${pythonexecutable} -c
+            "from distutils.sysconfig import get_python_lib; print(get_python_lib())"
+        OUTPUT_VARIABLE
+            out
+        ERROR_VARIABLE
+            error
+        RESULT_VARIABLE
+            result
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+    if(result)
+        message(FATAL_ERROR "${pythonexecutable} not found: ${result} / ${error}")
+    else()
+        message(STATUS "${targetname} ${out}")
+        set(${targetname} ${out})
+        set(${targetname} ${out} PARENT_SCOPE)
     endif()
-    unset(PYTHON3_SITE_PACKAGES)
+endfunction(find_site_packages)
+
+# Find default Python
+# When WITH_PYTHON3_SERVER is enabled, then require Python 3, otherwise 2.
+if (WITH_PYTHON3_SERVER)
+    if (NOT WITH_PYTHON3)
+        message(FATAL_ERROR "WITH_PYTHON3_SERVER=ON requires WITH_PYTHON3=ON")
+    endif(NOT WITH_PYTHON3)
+    # find Python interpreter
+    set(Python_ADDITIONAL_VERSIONS 3)
+    find_package(PythonInterp REQUIRED)
+    # FindPythonInterp doesn't restrict version with ADDITIONAL_VERSIONS
+    if (PYTHON_VERSION_STRING VERSION_LESS "3.5.0")
+        message(FATAL_ERROR "Detect Python interpreter < 3.5.0")
+    endif()
+else()
+    if (NOT WITH_PYTHON2)
+        message(FATAL_ERROR "WITH_PYTHON3_SERVER=OFF requires WITH_PYTHON2=ON")
+    endif(NOT WITH_PYTHON2)
+    # find Python interpreter
+    set(Python_ADDITIONAL_VERSIONS 2)
+    find_package(PythonInterp REQUIRED)
+    # only accept python2.7 as python2
+    if (PYTHON_VERSION_STRING VERSION_LESS "2.7.0" OR PYTHON_VERSION_STRING VERSION_GREATER "3.0")
+        message(FATAL_ERROR "Detect Python interpreter != 2.7")
+    endif()
 endif()
-unset(PYTHON3_RESULT)
-unset(PYTHON3_ERROR)
+message(STATUS "Building pki.server for ${PYTHON_VERSION_STRING}")
+
+# Find site-packages for Python 2 and 3
+if (WITH_PYTHON2)
+    find_site_packages("python2" PYTHON2_SITE_PACKAGES)
+    message(STATUS "Building Python 2 pki client package")
+else()
+    message(STATUS "Skipping Python 2 pki client package")
+endif(WITH_PYTHON2)
+
+if (WITH_PYTHON3)
+    find_site_packages("python3" PYTHON3_SITE_PACKAGES)
+    message(STATUS "Building Python 3 pki client package")
+else()
+    message(STATUS "Skipping Python 3 pki client package")
+endif(WITH_PYTHON3)
 
 # config.h checks
 include(ConfigureChecks.cmake)

@@ -39,16 +39,18 @@ add_custom_target(dogtag_python_client_man_docs ALL
         ${CMAKE_CURRENT_SOURCE_DIR}
     COMMENT "Building Python Client Library manual pages")
 
-install(
-    DIRECTORY
-        pki
-    DESTINATION
-        ${PYTHON2_SITE_PACKAGES}
-    FILES_MATCHING PATTERN
-        *.py
-)
+if(WITH_PYTHON2)
+    install(
+        DIRECTORY
+            pki
+        DESTINATION
+            ${PYTHON2_SITE_PACKAGES}
+        FILES_MATCHING PATTERN
+            *.py
+    )
+endif()
 
-if(PYTHON3_SITE_PACKAGES)
+if(WITH_PYTHON3)
     install(
         DIRECTORY
             pki
