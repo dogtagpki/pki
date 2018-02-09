@@ -1,6 +1,6 @@
-# Authors:
-#     Fraser Tweedale <ftweedal@redhat.com>
+#!/bin/sh
 #
+# --- BEGIN COPYRIGHT BLOCK ---
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; version 2 of the License.
@@ -14,23 +14,26 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
-# Copyright (C) 2015 Red Hat, Inc.
+# Copyright (C) 2017 Red Hat, Inc.
 # All rights reserved.
+# --- END COPYRIGHT BLOCK ---
 #
 
-from __future__ import absolute_import
-import subprocess
+# default PKI configuration
+. /usr/share/pki/etc/pki.conf
 
-import pki.server.upgrade
+# system-wide PKI configuration
+if [ -f /etc/pki/pki.conf ]
+then
+    . /etc/pki/pki.conf
+fi
 
+# user-specific PKI configuration
+if [ -f $HOME/.dogtag/pki.conf ]
+then
+    . $HOME/.dogtag/pki.conf
+fi
 
-class FixNuxwdogListenerClass(pki.server.upgrade.PKIServerUpgradeScriptlet):
-    def __init__(self):
-        super(FixNuxwdogListenerClass, self).__init__()
-        self.message = 'Fix nuxwdog listener class'
+@PYTHON_EXECUTABLE@ -m pki.server.pkidestroy "$@"
 
-    def upgrade_instance(self, instance):
-        subprocess.check_call([
-            'sed', '-i', 's/NuxwdogPasswordStoreInitializer/PKIListener/',
-            '/etc/pki/{0}/server.xml'.format(instance.name)
-        ])
+exit $?

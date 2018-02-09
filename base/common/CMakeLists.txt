@@ -11,6 +11,11 @@ configure_file(
     ${CMAKE_CURRENT_BINARY_DIR}/etc/pki.conf
 )
 
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/sbin/pki-upgrade.in
+    ${CMAKE_CURRENT_BINARY_DIR}/sbin/pki-upgrade
+)
+
 # Create /usr/share/pki/lib. This can be customized for different platforms in RPM spec.
 
 add_custom_target(pki-lib ALL)
@@ -76,7 +81,7 @@ install(
 # install executables
 install(
     FILES
-        sbin/pki-upgrade
+        ${CMAKE_CURRENT_BINARY_DIR}/sbin/pki-upgrade
     DESTINATION
         ${SBIN_INSTALL_DIR}
     PERMISSIONS

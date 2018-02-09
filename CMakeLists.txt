@@ -89,6 +89,7 @@ endif ()
 set(CMAKE_THREAD_PREFER_PTHREADS ON)
 find_package(Threads)
 
+set(Python_ADDITIONAL_VERSIONS 2.7)
 find_package(PythonInterp REQUIRED)
 execute_process(
     COMMAND

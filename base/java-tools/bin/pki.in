@@ -34,6 +34,6 @@ then
     . $HOME/.dogtag/pki.conf
 fi
 
-python -m pki.server.pkispawn "$@"
+@PYTHON_EXECUTABLE@ -m pki.cli.main "$@"
 
 exit $?
