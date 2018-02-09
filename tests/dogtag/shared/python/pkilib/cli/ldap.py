@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 import ldap
 import ldap.modlist as modlist
 import time

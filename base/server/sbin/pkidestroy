@@ -34,6 +34,6 @@ then
     . $HOME/.dogtag/pki.conf
 fi
 
-python -m pki.server.pkidestroy "$@"
+python2 -m pki.server.pkidestroy "$@"
 
 exit $?
