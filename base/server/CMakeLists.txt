@@ -168,15 +168,26 @@ install(
         WORLD_READ
 )
 
-# install Python libraries (Python 2 only)
-install(
-    DIRECTORY
-        python/pki/server
-    DESTINATION
-        ${PYTHON2_SITE_PACKAGES}/pki
-    FILES_MATCHING PATTERN
-        *.py
-)
+# install Python libraries
+if(WITH_PYTHON3_SERVER)
+    install(
+        DIRECTORY
+            python/pki/server
+        DESTINATION
+            ${PYTHON3_SITE_PACKAGES}/pki
+        FILES_MATCHING PATTERN
+            *.py
+    )
+else()
+    install(
+        DIRECTORY
+            python/pki/server
+        DESTINATION
+            ${PYTHON2_SITE_PACKAGES}/pki
+        FILES_MATCHING PATTERN
+            *.py
+    )
+endif()
 
 # install systemd scripts
 install(

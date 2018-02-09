@@ -22,6 +22,9 @@ set(APP_SERVER "tomcat8" CACHE STRING "Application server")
 option(WITH_SERVER "Build server package" ON)
 option(WITH_JAVADOC "Build Javadoc package" ON)
 option(WITH_TEST "Run unit tests" ON)
+option(WITH_PYTHON2 "Build with Python 2 support" ON)
+option(WITH_PYTHON3 "Build with Python 3 support" ON)
+option(WITH_PYTHON3_SERVER "Build server with Python 3" OFF)
 
 if (BUILD_DOGTAG_PKI_THEME)
     set(APPLICATION_FLAVOR_DOGTAG_PKI_THEME TRUE)
@@ -89,39 +92,49 @@ endif ()
 set(CMAKE_THREAD_PREFER_PTHREADS ON)
 find_package(Threads)
 
-find_package(PythonInterp REQUIRED)
-execute_process(
-    COMMAND
-        ${PYTHON_EXECUTABLE} -c
-        "from distutils.sysconfig import get_python_lib; print get_python_lib()"
-    OUTPUT_VARIABLE
-        PYTHON2_SITE_PACKAGES
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-)
-
-# CMake doesn't support multiple PythonInterp
-execute_process(
-    COMMAND
-        python3 -c
-        "from distutils.sysconfig import get_python_lib; print(get_python_lib())"
-    OUTPUT_VARIABLE
-        PYTHON3_SITE_PACKAGES
-    ERROR_VARIABLE
-        PYTHON3_ERROR
-    RESULT_VARIABLE
-        PYTHON3_RESULT
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-)
-
-if(PYTHON3_RESULT)
-    message(WARNING "python3 not found: ${PYTHON3_RESULT}")
-    if(PYTHON3_ERROR)
-        message(WARNING ${PYTHON3_ERROR})
+function(find_site_packages pythonexecutable targetname)
+    execute_process(
+        COMMAND
+            ${pythonexecutable} -c
+            "from distutils.sysconfig import get_python_lib; print(get_python_lib())"
+        OUTPUT_VARIABLE
+            out
+        ERROR_VARIABLE
+            error
+        RESULT_VARIABLE
+            result
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+    if(result)
+        message(FATAL_ERROR "${pythonexecutable} not found: ${result} / ${error}")
+    else()
+        message(STATUS "${targetname} ${out}")
+        set(${targetname} ${out})
+        set(${targetname} ${out} PARENT_SCOPE)
     endif()
-    unset(PYTHON3_SITE_PACKAGES)
+endfunction(find_site_packages)
+
+# Find default Python
+if (WITH_PYTHON3_SERVER)
+    set(Python_ADDITIONAL_VERSIONS 3)
+else()
+    set(Python_ADDITIONAL_VERSIONS 2)
 endif()
-unset(PYTHON3_RESULT)
-unset(PYTHON3_ERROR)
+find_package(PythonInterp REQUIRED)
+
+if (PYTHON_VERSION_MAJOR EQUAL 2)
+    set(WITH_PYTHON2 1)
+else()
+    set(WITH_PYTHON3 1)
+endif()
+
+# Find site-packages for Python 2 and 3
+if (WITH_PYTHON2)
+    find_site_packages("python2" PYTHON2_SITE_PACKAGES)
+endif(WITH_PYTHON2)
+if (WITH_PYTHON3)
+    find_site_packages("python3" PYTHON3_SITE_PACKAGES)
+endif(WITH_PYTHON3)
 
 # config.h checks
 include(ConfigureChecks.cmake)
