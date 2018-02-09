@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "43420049_0769391e",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 2
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-02-09T21:25:39Z",
+      "side": 1,
+      "message": "Is WITH_PYTHON2 option required? It looks like the value will be set automatically by line 126.",
+      "revId": "4e4065c6ca6a2556fc3e2a9a9db964c3ece9ee57",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fbcbf7bc_19fca5af",
+        "filename": "specs/pki-core.spec",
+        "patchSetId": 2
+      },
+      "lineNbr": 828,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-02-09T21:25:39Z",
+      "side": 1,
+      "message": "This is not really necessary since WITH_PYTHON3 is ON by default.",
+      "revId": "4e4065c6ca6a2556fc3e2a9a9db964c3ece9ee57",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a1afbc4_2e256008",
+        "filename": "specs/pki-core.spec",
+        "patchSetId": 2
+      },
+      "lineNbr": 831,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-02-09T21:25:39Z",
+      "side": 1,
+      "message": "We probably need to specify WITH_PYTHON3_SERVER option here (i.e. for F28?).",
+      "revId": "4e4065c6ca6a2556fc3e2a9a9db964c3ece9ee57",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
