@@ -2046,12 +2046,47 @@ public class CryptoUtil {
         return false;
     }
 
+    /**
+     * Converts key ID from byte array into hexadecimal.
+     */
     public static String byte2string(byte id[]) {
         return new BigInteger(id).toString(16);
     }
 
+    /**
+     * Converts key ID from hexadecimal into byte array.
+     */
     public static byte[] string2byte(String id) {
-        return (new BigInteger(id, 16)).toByteArray();
+
+        int length = 20;
+
+        BigInteger value = new BigInteger(id, 16);
+        byte[] array = value.toByteArray();
+
+        if (array.length > length) {
+            throw new NumberFormatException("Key ID too long: " + id);
+        }
+
+        if (array.length < length) { // too short
+
+            // extend the array with most significant bit
+            byte[] tmp = array;
+            array = new byte[length];
+
+            // calculate the extension
+            int p = length - tmp.length;
+
+            // get most significant bit
+            byte b = (byte)(value.signum() >= 0 ? 0x00 : 0xff);
+
+            // fill the extension with most significant bit
+            Arrays.fill(array, 0, p, b);
+
+            // copy the original array
+            System.arraycopy(tmp, 0, array, p, tmp.length);
+        }
+
+        return array;
     }
 
     /**
