@@ -20,11 +20,13 @@ javac(pki-util-test-classes
 # TODO: create CMake function to find all JUnit test classes
 add_junit_test(test-pki-util
     CLASSPATH
+        ${SLF4J_API_JAR} ${SLF4J_JDK14_JAR}
         ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR}
         ${JSS_JAR} ${LDAPJDK_JAR} ${COMMONS_CODEC_JAR}
         ${HAMCREST_JAR} ${JUNIT_JAR}
         ${CMAKE_BINARY_DIR}/test/classes
     TESTS
+        com.netscape.cmsutil.crypto.KeyIDCodecTest
         com.netscape.security.util.BMPStringTest
         com.netscape.security.util.IA5StringTest
         com.netscape.security.util.PrintableStringTest
