@@ -54,6 +54,7 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.mozilla.jss.CryptoManager;
@@ -178,6 +179,8 @@ public class CryptoUtil {
             this.value = value;
         }
     }
+
+    public final static int KEY_ID_LENGTH = 20;
 
     public final static String INTERNAL_TOKEN_NAME = "internal";
     public final static String INTERNAL_TOKEN_FULL_NAME = "Internal Key Storage Token";
@@ -2046,12 +2049,70 @@ public class CryptoUtil {
         return false;
     }
 
+    /**
+     * Converts any length byte array into a signed, variable-length
+     * hexadecimal number.
+     */
     public static String byte2string(byte id[]) {
         return new BigInteger(id).toString(16);
     }
 
+    /**
+     * Converts a signed, variable-length hexadecimal number into a byte
+     * array, which may not be identical to the original byte array.
+     */
     public static byte[] string2byte(String id) {
-        return (new BigInteger(id, 16)).toByteArray();
+        return new BigInteger(id, 16).toByteArray();
+    }
+
+    /**
+     * Converts NSS key ID from 20 byte array into a signed, variable-length
+     * hexadecimal number (to maintain compatibility with byte2string()).
+     */
+    public static String encodeKeyID(byte[] keyID) {
+
+        if (keyID.length != KEY_ID_LENGTH) {
+            throw new IllegalArgumentException(
+                    "Unable to encode Key ID: " + Hex.encodeHexString(keyID));
+        }
+
+        return new BigInteger(keyID).toString(16);
+    }
+
+    /**
+     * Converts NSS key ID from signed, variable-length hexadecimal number
+     * into 20 byte array, which will be identical to the original byte array.
+     */
+    public static byte[] decodeKeyID(String id) {
+
+        BigInteger value = new BigInteger(id, 16);
+        byte[] array = value.toByteArray();
+
+        if (array.length > KEY_ID_LENGTH) {
+            throw new IllegalArgumentException(
+                    "Unable to decode Key ID: " + id);
+        }
+
+        if (array.length < KEY_ID_LENGTH) {
+
+            // extend the array with most significant bit
+            byte[] tmp = array;
+            array = new byte[KEY_ID_LENGTH];
+
+            // calculate the extension
+            int p = KEY_ID_LENGTH - tmp.length;
+
+            // get most significant bit
+            byte b = (byte)(value.signum() >= 0 ? 0x00 : 0xff);
+
+            // fill the extension with most significant bit
+            Arrays.fill(array, 0, p, b);
+
+            // copy the original array
+            System.arraycopy(tmp, 0, array, p, tmp.length);
+        }
+
+        return array;
     }
 
     /**
