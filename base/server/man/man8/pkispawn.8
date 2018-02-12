@@ -18,7 +18,7 @@
 pkispawn \- Sets up an instance of Certificate Server.
 
 .SH SYNOPSIS
-pkispawn \-s <subsystem> \-f <config_file> [\-h] [\-v] [\-p <prefix>]
+pkispawn \-s <subsystem> \-f <config_file> [options] [\-p <prefix>]
 
 .SH DESCRIPTION
 Sets up a Certificate Server subsystem (CA, KRA, OCSP, TKS, or TPS) in a
@@ -83,6 +83,12 @@ Specifies the path to the user-defined configuration file.  This file contains d
 .TP
 .B --precheck
 Execute pre-checks and exit.
+.TP
+.B --skip-configuration
+Run the first step of the installation (i.e. skipping the instance configuration step).
+.TP
+.B --skip-installation
+Run the second step of the installation (i.e. skipping the instance installation step).
 .TP
 .B -h, --help
 Prints additional help information.
@@ -243,6 +249,37 @@ disable validation of the credentials for the internal database user if the
 directory server instance has not yet been created.
 
 See \fB pki_default.cfg(5) \fP for more details about available flags.
+
+.SH TWO-STEP INSTALLATION MODE
+.PP
+pkispawn provides a number of parameters to customize an instance before it is
+created. Usually, most other customization can be done after the server is created.
+However, sometimes certain types of customization need to be done before the server is
+created, but there are no parameters for that. For example, configuring session timeout,
+adding CSR extensions, customizing certificate profiles, configuring TLS ciphers, etc.
+To support such customization, pkispawn provides a two-step installation mode.
+
+Generally, instance creation happens in one step (except for the external CA case).
+Internally, the process happens in two stages. In the first stage, pkispawn will
+install the instance files (e.g. CS.cfg, NSS database, profiles, etc.) in the instance
+directory and customize them based on pkispawn parameters. In the second stage,
+pkispawn will start the instance and configure the instance based on the instance
+configuration files (e.g. initializing database, generating certificates, configuring
+connectors, etc.). The two-step process allows the process to be stopped after the first
+stage, allowing further customization to be done before running the second stage.
+
+To use two-step installation mode, prepare a normal pkispawn configuration file, then
+run pkispawn with the --skip-configuration parameter. For example:
+
+.IP
+\x'-1'\fBpkispawn -s CA -f myconfig.txt --skip-configuration\fR
+
+.PP
+Then customize the files in the instance directory as needed. Finally, finish the
+installation by running pkispawn again with the --skip-installation parameter. For example:
+
+.IP
+\x'-1'\fBpkispawn -s CA -f myconfig.txt --skip-installation\fR
 
 .SH EXAMPLES
 
