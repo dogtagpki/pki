@@ -155,7 +155,7 @@ public final class SigningUnit implements ISigningUnit {
             CMS.debug("SigningUnit: Loading private key");
             mPrivk = mManager.findPrivKeyByCert(mCert);
 
-            String privateKeyID = CryptoUtil.byte2string(mPrivk.getUniqueID());
+            String privateKeyID = CryptoUtil.encodeKeyID(mPrivk.getUniqueID());
             CMS.debug("SigningUnit: private key ID: " + privateKeyID);
 
             mPubk = mCert.getPublicKey();

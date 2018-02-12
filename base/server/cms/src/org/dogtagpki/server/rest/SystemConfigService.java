@@ -532,7 +532,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         cs.putString("preop.cert." + tag + ".pubkey.modulus", CryptoUtil.byte2string(modulus));
         cs.putString("preop.cert." + tag + ".pubkey.exponent", CryptoUtil.byte2string(exponent));
-        cs.putString("preop.cert." + tag + ".privkey.id", CryptoUtil.byte2string(privk.getUniqueID()));
+        cs.putString("preop.cert." + tag + ".privkey.id", CryptoUtil.encodeKeyID(privk.getUniqueID()));
         cs.putString("preop.cert." + tag + ".keyalgorithm", cdata.getKeyAlgorithm());
         cs.putString("preop.cert." + tag + ".keytype", cdata.getKeyType());
     }

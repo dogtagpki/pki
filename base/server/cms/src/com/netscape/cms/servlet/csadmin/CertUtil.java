@@ -154,7 +154,7 @@ public class CertUtil {
             }
             // get private key
             String privKeyID = config.getString(prefix + certTag + ".privkey.id");
-            byte[] keyIDb = CryptoUtil.string2byte(privKeyID);
+            byte[] keyIDb = CryptoUtil.decodeKeyID(privKeyID);
 
             PrivateKey privk = CryptoUtil.findPrivateKeyFromID(keyIDb);
 
@@ -546,7 +546,7 @@ public class CertUtil {
         PrivateKey caPrik = (PrivateKey) pk;
         */
         String caPriKeyID = config.getString(prefix + "signing" + ".privkey.id");
-        byte[] keyIDb = CryptoUtil.string2byte(caPriKeyID);
+        byte[] keyIDb = CryptoUtil.decodeKeyID(caPriKeyID);
         PrivateKey caPrik = CryptoUtil.findPrivateKeyFromID(keyIDb);
 
         if (caPrik == null) {
@@ -761,7 +761,7 @@ public class CertUtil {
         } else {
             String str = "";
             try {
-                str = CryptoUtil.byte2string(privKey.getUniqueID());
+                str = CryptoUtil.encodeKeyID(privKey.getUniqueID());
             } catch (Exception e) {
                 CMS.debug("CertUtil privateKeyExistsOnToken: encode string Exception: " + e.toString());
             }
