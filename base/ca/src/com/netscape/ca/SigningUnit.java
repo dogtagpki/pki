@@ -190,7 +190,7 @@ public final class SigningUnit implements ISigningUnit {
                 throw new CAMissingKeyException(CMS.getUserMessage("CMS_CA_CERT_OBJECT_NOT_FOUND"), e);
             }
 
-            String privateKeyID = CryptoUtil.byte2string(mPrivk.getUniqueID());
+            String privateKeyID = CryptoUtil.encodeKeyID(mPrivk.getUniqueID());
             CMS.debug("SigningUnit: private key ID: " + privateKeyID);
 
             mPubk = mCert.getPublicKey();
