@@ -475,7 +475,7 @@ public class CRMFPopClient {
             PrivateKey privateKey = (PrivateKey) keyPair.getPrivate();
             @SuppressWarnings("deprecation")
             byte id[] = privateKey.getUniqueID();
-            String kid = CryptoUtil.byte2string(id);
+            String kid = CryptoUtil.encodeKeyID(id);
             System.out.println("Keypair private key id: " + kid);
 
             if (hostPort != null) {

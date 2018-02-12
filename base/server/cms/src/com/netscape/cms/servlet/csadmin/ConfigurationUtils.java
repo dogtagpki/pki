@@ -2351,7 +2351,7 @@ public class ConfigurationUtils {
 
         PrivateKey privateKey = (PrivateKey) pair.getPrivate();
         byte id[] = privateKey.getUniqueID();
-        String kid = CryptoUtil.byte2string(id);
+        String kid = CryptoUtil.encodeKeyID(id);
         config.putString(PCERT_PREFIX + tag + ".privkey.id", kid);
 
         String keyAlgo = config.getString(PCERT_PREFIX + tag + ".signingalgorithm");
@@ -2411,10 +2411,10 @@ public class ConfigurationUtils {
 
             // XXX - store curve , w
             byte id[] = ((org.mozilla.jss.crypto.PrivateKey) pair.getPrivate()).getUniqueID();
-            String kid = CryptoUtil.byte2string(id);
+            String kid = CryptoUtil.encodeKeyID(id);
 
             // try to locate the private key
-            org.mozilla.jss.crypto.PrivateKey privk = CryptoUtil.findPrivateKeyFromID(CryptoUtil.string2byte(kid));
+            org.mozilla.jss.crypto.PrivateKey privk = CryptoUtil.findPrivateKeyFromID(CryptoUtil.decodeKeyID(kid));
             if (privk == null) {
                 CMS.debug("Found bad ECC key id " + kid);
                 pair = null;
@@ -2433,11 +2433,11 @@ public class ConfigurationUtils {
         do {
             pair = CryptoUtil.generateRSAKeyPair(token, keysize);
             byte id[] = ((org.mozilla.jss.crypto.PrivateKey) pair.getPrivate()).getUniqueID();
-            String kid = CryptoUtil.byte2string(id);
+            String kid = CryptoUtil.encodeKeyID(id);
 
             // try to locate the private key
             org.mozilla.jss.crypto.PrivateKey privk =
-                    CryptoUtil.findPrivateKeyFromID(CryptoUtil.string2byte(kid));
+                    CryptoUtil.findPrivateKeyFromID(CryptoUtil.decodeKeyID(kid));
 
             if (privk == null) {
                 CMS.debug("Found bad RSA key id " + kid);
@@ -2981,7 +2981,7 @@ public class ConfigurationUtils {
         String privKeyID = config.getString(PCERT_PREFIX + certTag + ".privkey.id");
 
         CMS.debug("generateCertRequest: private key ID: " + privKeyID);
-        byte[] keyIDb = CryptoUtil.string2byte(privKeyID);
+        byte[] keyIDb = CryptoUtil.decodeKeyID(privKeyID);
 
         PrivateKey privk = CryptoUtil.findPrivateKeyFromID(keyIDb);
         if (privk == null) {

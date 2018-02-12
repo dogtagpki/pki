@@ -2163,7 +2163,7 @@ public class CMCRequest {
                 } else {
                     System.out.println("got request privKeyId: " + privKeyId);
 
-                    byte[] keyIDb = CryptoUtil.string2byte(privKeyId);
+                    byte[] keyIDb = CryptoUtil.decodeKeyID(privKeyId);
 
                     privk = CryptoUtil.findPrivateKeyFromID(keyIDb);
 

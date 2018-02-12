@@ -303,7 +303,7 @@ public class PKCS10Client {
             PrivateKey privateKey = (PrivateKey) pair.getPrivate();
             @SuppressWarnings("deprecation")
             byte id[] = privateKey.getUniqueID();
-            String kid = CryptoUtil.byte2string(id);
+            String kid = CryptoUtil.encodeKeyID(id);
             System.out.println("Keypair private key id: " + kid);
             System.out.println("");
 
