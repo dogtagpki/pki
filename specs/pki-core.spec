@@ -841,8 +841,7 @@ cd build
 	-DWITH_JAVADOC:BOOL=OFF \
 %endif
 	..
-%{__make} VERBOSE=1 %{?_smp_mflags} all
-# %{__make} VERBOSE=1 %{?_smp_mflags} unit-test
+%{__make} VERBOSE=1 %{?_smp_mflags} all unit-test
 
 
 %install
