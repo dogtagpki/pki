@@ -114,7 +114,7 @@ def main():
         raise IOError('{} not found'.format(PYLINTRC))
 
     pylint = [
-        'pylint',
+        'pylint' if sys.version_info.major == 2 else 'pylint-3',
         '--rcfile={}'.format(PYLINTRC)
     ]
     pylint.extend(extra_args)

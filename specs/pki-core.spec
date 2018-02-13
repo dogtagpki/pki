@@ -1,11 +1,22 @@
-# Python, keep every statement on a single line
-%{!?__python2: %global __python2 /usr/bin/python2}
-%{!?python2_sitelib: %global python2_sitelib %(%{__python2} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")}
-
+# Python 3 packages
+%if 0%{!?with_python3:1}
 %if 0%{?fedora} || 0%{?rhel} > 7
 %global with_python3 1
 %else
 %global with_python3 0
+%endif
+%endif
+
+# Python 2 packages
+%{!?with_python2:%global with_python2 1}
+
+# Use Python 3 for all commands?
+%if 0%{!?with_python3_default:1}
+%if 0%{?fedora} >= 28 || 0%{?rhel} > 7
+%global with_python3_default 1
+%else
+%global with_python3_default 0
+%endif
 %endif
 
 %if 0%{?rhel}
@@ -15,7 +26,6 @@
 %global package_rhcs_packages 1
 %define pki_core_rhel_version 10.5.1
 %else
-# 0%{?fedora}
 # Fedora always packages all RPMS
 %global package_fedora_packages 1
 %endif
@@ -145,15 +155,24 @@ BuildRequires:    resteasy-jackson-provider >= 3.0.17-1
 %endif
 
 %if 0%{?fedora} || 0%{?rhel} > 7
+%if 0%{?with_python2}
 BuildRequires:    pylint
 BuildRequires:    python-flake8 >= 2.5.4
-BuildRequires:    python3-flake8 >= 2.5.4
 # python-flake8 2.5.4 package should require pyflakes >= 1.2.3
 BuildRequires:    pyflakes >= 1.2.3
+%endif  # with_python2
+
+%if 0%{?with_python3}
+BuildRequires:    python3-pylint
 # python3-flake8 2.5.4 package should require python3-pyflakes >= 1.2.3
+BuildRequires:    python3-flake8 >= 2.5.4
 BuildRequires:    python3-pyflakes >= 1.2.3
+%endif  # with_python3
 %endif
 
+%if 0%{?with_python2}
+BuildRequires:    python
+BuildRequires:    python-devel
 BuildRequires:    python2-cryptography
 BuildRequires:    python-nss
 BuildRequires:    python-requests >= 2.6.0
@@ -164,6 +183,7 @@ BuildRequires:    policycoreutils-python
 BuildRequires:    policycoreutils-python-utils
 %endif
 BuildRequires:    python-ldap
+%endif  # with_python2
 BuildRequires:    junit
 BuildRequires:    jpackage-utils >= 0:1.7.5-10
 %if 0%{?rhel} && 0%{?rhel} <= 7
@@ -176,15 +196,15 @@ BuildRequires:    tomcatjss >= 7.2.3
 BuildRequires:    systemd-units
 
 %if 0%{?with_python3}
-BuildRequires:  python3-cryptography
+BuildRequires:  python3
 BuildRequires:  python3-devel
+BuildRequires:  python3-cryptography
 BuildRequires:  python3-lxml
 BuildRequires:  python3-nss
 BuildRequires:  python3-pyldap
 BuildRequires:  python3-requests >= 2.6.0
 BuildRequires:  python3-six
 %endif  # with_python3
-BuildRequires:  python-devel
 
 # additional build requirements needed to build native 'tpsclient'
 # REMINDER:  Revisit these once 'tpsclient' is rewritten as a Java app
@@ -193,7 +213,6 @@ BuildRequires:    apr-util-devel
 BuildRequires:    cyrus-sasl-devel
 BuildRequires:    httpd-devel >= 2.4.2
 BuildRequires:    pcre-devel
-BuildRequires:    python
 BuildRequires:    systemd
 BuildRequires:    zlib
 BuildRequires:    zlib-devel
@@ -244,8 +263,8 @@ PKI Core contains ALL top-level java-based Tomcat PKI components:      \
                                                                        \
   * pki-symkey                                                         \
   * pki-base                                                           \
-  * pki-base-python2 (alias for pki-base)                              \
-  * pki-base-python3                                                   \
+  * python2-pki                                                        \
+  * python3-pki                                                        \
   * pki-base-java                                                      \
   * pki-tools                                                          \
   * pki-server                                                         \
@@ -350,7 +369,6 @@ BuildArch:        noarch
 
 Provides:         pki-common = %{version}-%{release}
 Provides:         pki-util = %{version}-%{release}
-Provides:         pki-base-python2 = %{version}-%{release}
 
 Obsoletes:        pki-common < %{version}-%{release}
 Obsoletes:        pki-util < %{version}-%{release}
@@ -358,10 +376,11 @@ Obsoletes:        pki-util < %{version}-%{release}
 Conflicts:        freeipa-server < 3.0.0
 
 Requires:         nss >= 3.28.3
-Requires:         python2-cryptography
-Requires:         python-nss
-Requires:         python-requests >= 2.6.0
-Requires:         python-six
+%if 0%{?with_python3_default}
+Requires:         python3-pki = %{version}-%{release}
+%else
+Requires:         python2-pki = %{version}-%{release}
+%endif  # with_python3_default
 
 %description -n   pki-base
 The PKI Framework contains the common and client libraries and utilities
@@ -369,6 +388,29 @@ written in Python.  This package is a part of the PKI Core used by the
 Certificate System.
 
 %{overview}
+
+%if 0%{?with_python2}
+%package -n       python2-pki
+Summary:          Certificate System - Java Framework
+Group:            System Environment/Base
+BuildArch:        noarch
+
+Provides:         pki-base-python2 = %{version}-%{release}
+%{?python_provide:%python_provide python2-pki}
+
+Requires:         pki-base = %{version}-%{release}
+Requires:         python2-cryptography
+Requires:         python-nss
+Requires:         python-requests >= 2.6.0
+Requires:         python-six
+
+%description -n   python2-pki
+This package contains PKI client library for Python 2.
+
+This package is a part of the PKI Core used by the Certificate System.
+
+%{overview}
+%endif  # with_python2
 
 %package -n       pki-base-java
 Summary:          Certificate System - Java Framework
@@ -430,21 +472,22 @@ This package is a part of the PKI Core used by the Certificate System.
 
 %if 0%{?with_python3}
 
-%package -n       pki-base-python3
+%package -n       python3-pki
 Summary:          Certificate System - PKI Framework
 Group:            System Environment/Base
-
 BuildArch:        noarch
 
-Requires:         pki-base = %{version}-%{release}
+Provides:         pki-base-python3 = %{version}-%{release}
+%{?python_provide:%python_provide python3-pki}
 
+Requires:         pki-base = %{version}-%{release}
 Requires:         python3-cryptography
 Requires:         python3-lxml
 Requires:         python3-nss
 Requires:         python3-requests >= 2.6.0
 Requires:         python3-six
 
-%description -n   pki-base-python3
+%description -n   python3-pki
 This package contains PKI client library for Python 3.
 
 This package is a part of the PKI Core used by the Certificate System.
@@ -519,13 +562,20 @@ Requires:         openssl
 Requires:         pki-base = %{version}-%{release}
 Requires:         pki-base-java = %{version}-%{release}
 Requires:         pki-tools = %{version}-%{release}
+%if 0%{?fedora} || 0%{?rhel} > 7
+Requires:         policycoreutils-python-utils
+%endif
+%if 0%{?with_python3_default}
 Requires:         python-ldap
 Requires:         python-lxml
 Requires:         libselinux-python
 Requires:         policycoreutils-python
-%if 0%{?fedora} || 0%{?rhel} > 7
-Requires:         policycoreutils-python-utils
-%endif
+%else
+Requires:         python3-ldap
+Requires:         python3-lxml
+Requires:         libselinux-python3
+Requires:         policycoreutils-python3
+%endif  # with_python3_default
 
 Requires:         selinux-policy-targeted >= 3.13.1-159
 Obsoletes:        pki-selinux
@@ -828,6 +878,12 @@ cd build
 %if ! %{?with_python3}
     -DWITH_PYTHON3:BOOL=OFF \
 %endif
+%if ! %{?with_python3}
+    -DWITH_PYTHON2:BOOL=OFF \
+%endif
+%if %{?with_python3_default}
+    -DWITH_PYTHON3_DEFAULT:BOOL=ON \
+%endif
 %if ! %{with server}
 	-DWITH_SERVER:BOOL=OFF \
 %endif
@@ -962,32 +1018,46 @@ fi
 %endif
 
 %if 0%{?fedora} || 0%{?rhel} > 7
+
+%if 0%{?with_python3_default}
+# Scanning the python code with pylint.
+%{__python3} ../pylint-build-scan.py rpm --prefix %{buildroot}
+if [ $? -ne 0 ]; then
+    echo "pylint for Python 3 failed. RC: $?"
+    exit 1
+fi
+%else
 # Scanning the python code with pylint.
 %{__python2} ../pylint-build-scan.py rpm --prefix %{buildroot}
 if [ $? -ne 0 ]; then
-    echo "pylint failed. RC: $?"
+    echo "pylint for Python 2 failed. RC: $?"
     exit 1
 fi
 
 %{__python2} ../pylint-build-scan.py rpm --prefix %{buildroot} -- --py3k
 if [ $? -ne 0 ]; then
-    echo "pylint --py3k failed. RC: $?"
+    echo "pylint for Python 2 with --py3k failed. RC: $?"
     exit 1
 fi
+%endif  # with_python3_default
 
+%if 0%{?with_python2}
 flake8 --config ../tox.ini %{buildroot}
 if [ $? -ne 0 ]; then
     echo "flake8 for Python 2 failed. RC: $?"
     exit 1
 fi
+%endif  # with_python2
 
+%if 0%{?with_python3}
 python3-flake8 --config ../tox.ini %{buildroot}
 if [ $? -ne 0 ]; then
     echo "flake8 for Python 3 failed. RC: $?"
     exit 1
 fi
+%endif  # with_python3
 
-%endif
+%endif  # Fedora / RHEL > 7
 
 %{__rm} -rf %{buildroot}%{_datadir}/pki/server/lib
 
@@ -1117,13 +1187,22 @@ fi
 %{_datadir}/pki/key/templates
 %dir %{_sysconfdir}/pki
 %config(noreplace) %{_sysconfdir}/pki/pki.conf
-%exclude %{python2_sitelib}/pki/server
-%{python2_sitelib}/pki
 %dir %{_localstatedir}/log/pki
 %{_sbindir}/pki-upgrade
 %{_mandir}/man1/pki-python-client.1.gz
 %{_mandir}/man5/pki-logging.5.gz
 %{_mandir}/man8/pki-upgrade.8.gz
+%endif
+
+%if 0%{?package_fedora_packages} || 0%{?package_rhel_packages}
+%if %{with_python2}
+%files -n python2-pki
+%defattr(-,root,root,-)
+%doc base/common/LICENSE
+%doc base/common/LICENSE.LESSER
+%exclude %{python2_sitelib}/pki/server
+%{python2_sitelib}/pki
+%endif # with_python2
 %endif
 
 %if 0%{?package_fedora_packages} || 0%{?package_rhel_packages}
@@ -1138,7 +1217,7 @@ fi
 
 %if 0%{?package_fedora_packages} || 0%{?package_rhel_packages}
 %if %{with_python3}
-%files -n pki-base-python3
+%files -n python3-pki
 %defattr(-,root,root,-)
 %doc base/common/LICENSE
 %doc base/common/LICENSE.LESSER
@@ -1226,7 +1305,11 @@ fi
 %{_sbindir}/pki-server
 %{_sbindir}/pki-server-nuxwdog
 %{_sbindir}/pki-server-upgrade
+%if 0%{?with_python3_default}
+%{python3_sitelib}/pki/server/
+%else
 %{python2_sitelib}/pki/server/
+%endif  # with_python3_default
 %dir %{_datadir}/pki/deployment
 %{_datadir}/pki/deployment/config/
 %dir %{_datadir}/pki/scripts
@@ -1255,7 +1338,6 @@ fi
 %{_mandir}/man8/pki-server-nuxwdog.8.gz
 %{_mandir}/man8/pki-server-migrate.8.gz
 %{_mandir}/man8/pki-server-cert.8.gz
-
 %{_datadir}/pki/setup/
 %{_datadir}/pki/server/
 %endif
