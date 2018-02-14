@@ -686,7 +686,7 @@ class NSSDatabase(object):
         if std_err:
             # certutil returned an error
             # raise exception unless its not cert not found
-            if std_err.startswith('certutil: Could not find cert: '):
+            if std_err.startswith(b'certutil: Could not find cert: '):
                 return None
 
             raise Exception('Could not find cert: %s: %s' % (fullname, std_err.strip()))
