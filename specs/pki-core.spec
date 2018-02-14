@@ -105,7 +105,7 @@ BuildRequires:    nss-devel >= 3.27.0
 %endif
 
 %if 0%{?rhel}
-BuildRequires:    nuxwdog-client-java >= 1.0.1-11
+BuildRequires:    nuxwdog-client-java >= 1.0.3-5.1
 %else
 BuildRequires:    nuxwdog-client-java >= 1.0.3
 %endif
@@ -618,7 +618,7 @@ Requires:         hostname
 Requires:         net-tools
 
 %if 0%{?rhel}
-Requires:    nuxwdog-client-java >= 1.0.1-11
+Requires:    nuxwdog-client-java >= 1.0.3-5.1
 %else
 Requires:    nuxwdog-client-java >= 1.0.3
 %endif
@@ -1363,6 +1363,8 @@ fi
 %doc base/server/LICENSE
 %doc base/server/README
 %{_sysconfdir}/pki/default.cfg
+%attr(755,-,-) %dir %{_sysconfdir}/sysconfig/pki
+%attr(755,-,-) %dir %{_sysconfdir}/sysconfig/pki/tomcat
 %{_sbindir}/pkispawn
 %{_sbindir}/pkidestroy
 %{_sbindir}/pki-server
