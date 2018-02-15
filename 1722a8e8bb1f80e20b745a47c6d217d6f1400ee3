@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bf9ed42f_bcdd6000",
+        "filename": "base/server/cms/src/com/netscape/cms/profile/def/NameConstraintsExtDefault.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 641,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-02-15T04:27:17Z",
+      "side": 1,
+      "message": "I think all exceptions should bubble up. But if it\u0027s too complicated to change this is ok too.",
+      "revId": "1722a8e8bb1f80e20b745a47c6d217d6f1400ee3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
