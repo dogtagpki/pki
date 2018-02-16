@@ -201,14 +201,24 @@ class NSSDatabase(object):
             subprocess.check_call(cmd)
 
     def add_ca_cert(self, cert_file, trust_attributes=None):
+
+        # Import CA certificate into internal token with automatically
+        # assigned nickname.
+
+        # If the certificate has previously been imported, it will keep
+        # the existing nickname. If the certificate has not been imported,
+        # JSS will generate a nickname based on root CA's subject DN.
+
+        # For example, if the root CA's subject DN is "CN=CA Signing
+        # Certificate, O=EXAMPLE", the root CA cert's nickname will be
+        # "CA Signing Certificate - EXAMPLE". The subordinate CA cert's
+        # nickname will be "CA Signing Certificate - EXAMPLE #2".
+
         cmd = [
             'pki',
             '-d', self.directory,
-            '-C', self.password_file
+            '-C', self.internal_password_file
         ]
-
-        if self.token:
-            cmd.extend(['--token', self.token])
 
         cmd.extend([
             'client-cert-import',
