@@ -215,7 +215,7 @@ cd ${PKI_PACKAGES}
 rpmbuild \
   ${RPMBUILD_OP} \
   --define "_topdir ${PKI_PACKAGES}" \
-  $OPTIONS \
+  "${OPTIONS[@]}" \
   SPECS/${PKI_CORE}.spec \
   | tee package_${PKI_CORE}.log 2>&1
 

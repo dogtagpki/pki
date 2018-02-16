@@ -200,7 +200,7 @@ cd ${PKI_PACKAGES}
 rpmbuild \
   ${RPMBUILD_OP} \
   --define "_topdir ${PKI_PACKAGES}" \
-  $OPTIONS \
+  "${OPTIONS[@]}" \
   SPECS/${DOGTAG_PKI_THEME}.spec \
   | tee package_${DOGTAG_PKI_THEME}.log 2>&1
 
