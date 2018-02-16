@@ -14,16 +14,12 @@ Summary:          Dogtag Public Key Infrastructure (PKI) Suite
 Name:             dogtag-pki
 %if 0%{?rhel}
 Version:                10.6.0
-%define redhat_release  0
-%define redhat_stage    1
-%define default_release %{redhat_release}.%{redhat_stage}
-#%define default_release %{redhat_release}
+%define redhat_release  0.1
+%define default_release %{redhat_release}
 %else
 Version:                10.6.0
-%define fedora_release  0
-%define fedora_stage    1
-%define default_release %{fedora_release}.%{fedora_stage}
-#%define default_release %{fedora_release}
+%define fedora_release  0.1
+%define default_release %{fedora_release}
 %endif
 
 %if 0%{?use_pki_release}
