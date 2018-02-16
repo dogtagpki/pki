@@ -508,13 +508,14 @@ if [ $? != 0 ] ; then
     exit 255
 fi
 
+OPTIONS=()
 eval set -- "$GETOPT"
 
 while true ; do
     case "$1" in
-        --without-javadoc) WITHOUT_JAVADOCS="--without javadoc" ; shift ;;
-        --without-server) WITHOUT_SERVER="--without server" ; shift ;;
-        --without-test) WITHOUT_TEST="--without test" ; shift ;;
+        --without-javadoc) OPTIONS+=(--without javadoc) ; shift ;;
+        --without-server) OPTIONS+=(--without server) ; shift ;;
+        --without-test) OPTIONS+=(--without test) ; shift ;;
         --work-dir) WORK_DIR="$2" ; shift 2 ;;
         --createrepo) CREATEREPO="Y" ; REPO_CFG_FILE="$2" ; shift 2 ;;
         --) shift ; break ;;
@@ -526,8 +527,6 @@ if [ $# -ne 1 ] ; then
 	Usage
 	exit 255
 fi
-
-OPTIONS="$WITHOUT_JAVADOCS $WITHOUT_SERVER $WITHOUT_TEST"
 
 if	[ $1 = "srpm" ] ; then
 	RPMBUILD_OP="-bs"

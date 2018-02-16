@@ -198,7 +198,7 @@ cd ${PKI_PACKAGES}
 rpmbuild \
   ${RPMBUILD_OP} \
   --define "_topdir ${PKI_PACKAGES}" \
-  $OPTIONS \
+  "${OPTIONS[@]}" \
   SPECS/${PKI_CONSOLE}.spec \
   | tee package_${PKI_CONSOLE}.log 2>&1
 
