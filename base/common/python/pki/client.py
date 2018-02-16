@@ -156,9 +156,7 @@ class PKIConnection:
             verify=False,
             headers=headers,
             params=params,
-            data=payload,
-            timeout=5,
-        )
+            data=payload)
         r.raise_for_status()
         return r
 
