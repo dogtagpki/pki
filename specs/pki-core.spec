@@ -74,9 +74,9 @@ Version:                10.6.0
 %endif
 
 %if 0%{?use_pki_release}
-Release:          %{pki_release}%{?dist}
+Release:          %{pki_release}%{?_timestamp}%{?_commit}%{?dist}
 %else
-Release:          %{default_release}%{?dist}
+Release:          %{default_release}%{?_timestamp}%{?_commit}%{?dist}
 %endif
 
 Summary:          Certificate System - PKI Core Components
