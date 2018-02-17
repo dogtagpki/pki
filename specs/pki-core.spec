@@ -834,13 +834,12 @@ cd build
 	-DWITH_TEST:BOOL=OFF \
 %endif
 	..
-%{__make} VERBOSE=1 %{?_smp_mflags} all
 
 
 %install
 %{__rm} -rf %{buildroot}
 cd build
-%{__make} install DESTDIR=%{buildroot} INSTALL="install -p"
+%{__make} VERBOSE=1 %{?_smp_mflags} all install DESTDIR=%{buildroot} INSTALL="install -p"
 
 # Create symlinks for admin console (TPS does not use admin console)
 for subsystem in ca kra ocsp tks; do
