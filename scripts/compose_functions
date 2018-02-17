@@ -150,11 +150,9 @@ extract_release_information()
 
 	if [ "${DISTRIBUTION}" = "Fedora " ] ; then
 		release_marker="fedora_release"
-		stage_marker="fedora_stage"
 	elif [ "${DISTRIBUTION}" = "CentOS " ] ||
 	     [ "${DISTRIBUTION}" = "Red Hat" ] ; then
 		release_marker="redhat_release"
-		stage_marker="redhat_stage"
 	fi
 
 	exec < ${pki_spec_file}
@@ -162,8 +160,6 @@ extract_release_information()
 		entry=`echo $line | cut -d: -f 1`
 		if [ "${entry:8:14}" = "${release_marker}" ] ; then
 			default_release_value=`echo $line | cut -d' ' -f 3`
-		elif [ "${entry:8:12}" = "${stage_marker}" ] ; then
-			default_stage_value=`echo $line | cut -d' ' -f 3`
 		fi
 	done
 }
@@ -182,11 +178,6 @@ extract_release_information()
 ##            pki/scripts/compose_dogtag_pki_meta_packages rpms"
 ##          # ls packages/SRPMS
 ##          dogtag-pki-10.5.0-0.0.20170829113604.6d23ffdd.fc27.src.rpm
-##
-##          # script -c "USE_STAGE=0 USE_TIMESTAMP=0 USE_GIT_COMMIT_ID=0
-##            pki/scripts/compose_dogtag_pki_meta_packages rpms"
-##          # ls packages/SRPMS
-##          dogtag-pki-10.5.0-0.fc27.src.rpm
 ##
 ##          # script -c "USE_TIMESTAMP=0 USE_GIT_COMMIT_ID=0
 ##            pki/scripts/compose_dogtag_pki_meta_packages rpms"
@@ -235,16 +226,6 @@ compute_release_information()
 	# Always apply the official release value in ${default_release_value}
 	printf "Setting 'default_release_value=${default_release_value}'\n"
 	PKI_RELEASE=${default_release_value}
-
-	# Optionally apply the stage release value in ${default_stage_value}
-	if [ -n ${USE_STAGE} ] && [ "${USE_STAGE}" = "0" ]; then
-		printf "unset USE_STAGE\n"
-		unset USE_STAGE
-	else
-		# By default, append a stage to the release designation
-		printf "Setting 'default_stage_value=${default_stage_value}'\n"
-		PKI_RELEASE=${PKI_RELEASE}.${default_stage_value}
-	fi
 
 	# Optionally compute a timestamp
 	if [ -n ${USE_TIMESTAMP} ] && [ "${USE_TIMESTAMP}" = "1" ]; then
