@@ -74,12 +74,7 @@ build_specified_META_package()
 	spec_file="${package}.spec"
 
 	printf "BEGIN: Building '${package}' META package . . .\n"
-	if [ -n ${USE_PKI_RELEASE} ] && [ "${USE_PKI_RELEASE}" = "0" ]; then
-		printf "unset USE_PKI_RELEASE\n"
-		unset USE_PKI_RELEASE
-	else
-		compute_release_information ${PKI_SPECS_FILE}
-	fi
+	compute_release_information ${PKI_SPECS_FILE}
 	cp ${spec_file_path}/${spec_file} ${PKI_PACKAGES}/SPECS
 	rpmbuild --define "_topdir ${PKI_PACKAGES}" -ba --clean ${PKI_PACKAGES}/SPECS/${spec_file} > /dev/null 2>&1
 	printf "END:   Building '${package}' META package.\n"

@@ -194,13 +194,6 @@ extract_release_information()
 ##          # ls packages/SRPMS
 ##          dogtag-pki-10.5.0-0.0.6d23ffdd.fc27.src.rpm
 ##
-##      To use the default release specified in the spec file:
-##
-##          # script -c "USE_PKI_RELEASE=0
-##            pki/scripts/compose_dogtag_pki_meta_packages rpms"
-##          # ls packages/SRPMS
-##          dogtag-pki-10.5.0-0.0.fc27.src.rpm
-##
 
 compute_release_information()
 {
@@ -217,15 +210,8 @@ compute_release_information()
 		exit 255
 	fi
 
-	# Set USE_PKI_RELEASE=1
-	export USE_PKI_RELEASE=1
-
 	# Obtain relevant values from the spec file of the specified package
 	extract_release_information ${pki_spec_file}
-
-	# Always apply the official release value in ${default_release_value}
-	printf "Setting 'default_release_value=${default_release_value}'\n"
-	PKI_RELEASE=${default_release_value}
 
 	# Optionally compute a timestamp
 	if [ -n ${USE_TIMESTAMP} ] && [ "${USE_TIMESTAMP}" = "1" ]; then
@@ -252,9 +238,6 @@ compute_release_information()
 		printf "unset USE_GIT_COMMIT_ID\n"
 		unset USE_GIT_COMMIT_ID
 	fi
-
-	printf "Setting 'PKI_RELEASE=${PKI_RELEASE}'\n"
-	export PKI_RELEASE
 }
 
 
