@@ -7,16 +7,12 @@
 Summary:          Dogtag Public Key Infrastructure (PKI) Suite
 Name:             dogtag-pki
 %if 0%{?rhel}
-Version:                10.6.0
-%define redhat_release  0.1
-%define default_release %{redhat_release}
+Version:          10.6.0
+Release:          0.1%{?_timestamp}%{?_commit}%{?dist}
 %else
-Version:                10.6.0
-%define fedora_release  0.1
-%define default_release %{fedora_release}
+Version:          10.6.0
+Release:          0.1%{?_timestamp}%{?_commit}%{?dist}
 %endif
-
-Release:          %{default_release}%{?_timestamp}%{?_commit}%{?dist}
 
 # The entire source code is GPLv2 except for 'pki-tps' which is LGPLv2
 License:          GPLv2 and LGPLv2
