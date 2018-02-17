@@ -151,13 +151,12 @@ cd build
 	-DBUILD_DOGTAG_PKI_THEME:BOOL=ON \
 	-DJAVA_LIB_INSTALL_DIR=%{_jnidir} \
 	..
-%{__make} VERBOSE=1 %{?_smp_mflags}
 
 
 %install
 %{__rm} -rf %{buildroot}
 cd build
-%{__make} install DESTDIR=%{buildroot} INSTALL="install -p"
+%{__make} VERBOSE=1 %{?_smp_mflags} all install DESTDIR=%{buildroot} INSTALL="install -p"
 
 
 # NOTE:  Several "theme" packages require ownership of the "/usr/share/pki"

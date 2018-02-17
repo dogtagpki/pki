@@ -120,13 +120,12 @@ cd build
     -DWITH_JAVADOC:BOOL=OFF \
 %endif
     ..
-%{__make} VERBOSE=1 %{?_smp_mflags}
 
 
 %install
 %{__rm} -rf %{buildroot}
 cd build
-%{__make} install DESTDIR=%{buildroot} INSTALL="install -p"
+%{__make} VERBOSE=1 %{?_smp_mflags} all install DESTDIR=%{buildroot} INSTALL="install -p"
 
 
 %files
