@@ -147,21 +147,6 @@ extract_release_information()
 		Usage
 		exit 255
 	fi
-
-	if [ "${DISTRIBUTION}" = "Fedora " ] ; then
-		release_marker="fedora_release"
-	elif [ "${DISTRIBUTION}" = "CentOS " ] ||
-	     [ "${DISTRIBUTION}" = "Red Hat" ] ; then
-		release_marker="redhat_release"
-	fi
-
-	exec < ${pki_spec_file}
-	while read line; do
-		entry=`echo $line | cut -d: -f 1`
-		if [ "${entry:8:14}" = "${release_marker}" ] ; then
-			default_release_value=`echo $line | cut -d' ' -f 3`
-		fi
-	done
 }
 
 ##
