@@ -56,12 +56,6 @@
 %define pki_gid 17
 %define pki_homedir /usr/share/pki
 
-# Optionally fetch the release from the environment variable 'PKI_RELEASE'
-%define use_pki_release %{getenv:USE_PKI_RELEASE}
-%if 0%{?use_pki_release}
-%define pki_release %{getenv:PKI_RELEASE}
-%endif
-
 Name:             pki-core
 %if 0%{?rhel}
 Version:                10.6.0
@@ -73,11 +67,7 @@ Version:                10.6.0
 %define default_release %{fedora_release}
 %endif
 
-%if 0%{?use_pki_release}
-Release:          %{pki_release}%{?_timestamp}%{?_commit}%{?dist}
-%else
 Release:          %{default_release}%{?_timestamp}%{?_commit}%{?dist}
-%endif
 
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/

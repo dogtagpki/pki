@@ -4,12 +4,6 @@
 %global with_python3 0
 %endif
 
-# Optionally fetch the release from the environment variable 'PKI_RELEASE'
-%define use_pki_release %{getenv:USE_PKI_RELEASE}
-%if 0%{?use_pki_release}
-%define pki_release %{getenv:PKI_RELEASE}
-%endif
-
 Summary:          Dogtag Public Key Infrastructure (PKI) Suite
 Name:             dogtag-pki
 %if 0%{?rhel}
@@ -22,11 +16,7 @@ Version:                10.6.0
 %define default_release %{fedora_release}
 %endif
 
-%if 0%{?use_pki_release}
-Release:          %{pki_release}%{?_timestamp}%{?_commit}%{?dist}
-%else
 Release:          %{default_release}%{?_timestamp}%{?_commit}%{?dist}
-%endif
 
 # The entire source code is GPLv2 except for 'pki-tps' which is LGPLv2
 License:          GPLv2 and LGPLv2
