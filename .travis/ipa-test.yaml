@@ -41,7 +41,7 @@ steps:
   - echo "Skipping Build. Nothing to do..."
   builddep:
   - rm -rf /var/cache/dnf/*
-  - "dnf makecache fast || :"
+  - "dnf makecache || :"
   cleanup:
   - chown -R ${uid}:${gid} ${container_working_dir}
   - journalctl -b --no-pager > systemd_journal.log
