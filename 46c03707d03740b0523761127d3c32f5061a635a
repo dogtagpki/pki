@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f782fc4e_06f657af",
+        "filename": "base/common/python/pki/nssdb.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 518,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-02-19T21:59:30Z",
+      "side": 1,
+      "message": "I think we need a code to check the status, and raise an exception if it\u0027s not 255.",
+      "revId": "46c03707d03740b0523761127d3c32f5061a635a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
