@@ -129,7 +129,7 @@ PRBool __EXPORT InitSecurity(char* certDir, char* certname, char* certpassword, 
     SECStatus stat;
 	PR_Init( PR_USER_THREAD, PR_PRIORITY_NORMAL, 0 );
      if (!NSS_IsInitialized()) { 
-        stat = NSS_Initialize( certDir, prefix, prefix,"secmod.db",
+        stat = NSS_Initialize( certDir, prefix, prefix, SECMOD_DB,
 									 NSS_INIT_READONLY);
      } else {
         stat = SECSuccess;

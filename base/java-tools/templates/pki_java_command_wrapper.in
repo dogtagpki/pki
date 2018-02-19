@@ -75,22 +75,19 @@ set_nss_default_db_type() {
         # normalize NSS_DEFAULT_DB_TYPE to all lowercase letters
         nss_type=`echo ${NSS_DEFAULT_DB_TYPE} | tr '[:upper:]' '[:lower:]'`
         if [ ${nss_type} = 'dbm' ] ; then
-            # Always set/reset 'dbm' default NSS DB type
-            NSS_DEFAULT_DB_TYPE=dbm
+            # Warn user and set 'sql' default NSS DB type
+            echo "WARNING: NSS_DEFAULT_DB_TYPE=dbm is no longer unsupported!"
+            echo "         Resetting to NSS_DEFAULT_DB_TYPE=sql."
+            NSS_DEFAULT_DB_TYPE=sql
         elif [ ${nss_type} = 'sql' ] ; then
             # Always set/reset 'sql' default NSS DB type
-            # NSS_DEFAULT_DB_TYPE=sql
-
-            # Warn user and set 'dbm' default NSS DB type
-            echo "WARNING: NSS_DEFAULT_DB_TYPE=sql is currently unsupported!"
-            echo "         Resetting to NSS_DEFAULT_DB_TYPE=dbm."
-            NSS_DEFAULT_DB_TYPE=dbm
+            NSS_DEFAULT_DB_TYPE=sql
         else
-            # NSS_DEFAULT_DB_TYPE is invalid; set 'dbm' default NSS DB type
+            # NSS_DEFAULT_DB_TYPE is invalid; set 'sql' default NSS DB type
             echo -n "WARNING: NSS_DEFAULT_DB_TYPE='${NSS_DEFAULT_DB_TYPE}' is "
             echo "invalid!"
-            echo "         Resetting to NSS_DEFAULT_DB_TYPE=dbm."
-            NSS_DEFAULT_DB_TYPE=dbm
+            echo "         Resetting to NSS_DEFAULT_DB_TYPE=sql."
+            NSS_DEFAULT_DB_TYPE=sql
         fi
     fi
     export NSS_DEFAULT_DB_TYPE
