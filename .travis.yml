@@ -12,7 +12,11 @@ env:
     - CI_RESULTS_LOG="ci_results_${TRAVIS_BRANCH}.log"
     - CI_RUNNER_LOG_ARCHIVE="dogtag-ci-job-${TRAVIS_JOB_NUMBER}.tar.gz"
     - PKI_IMAGE=${IMAGE_REPO:-dogtagpki/pki-ci}:f27_106
+<<<<<<< HEAD
+    - IPA_IMAGE=${IMAGE_REPO:-dogtagpki/pki-ci}:f27_ipa_4-6
+=======
     - IPA_IMAGE=${IMAGE_REPO:-dogtagpki/pki-ci}:f27_ipa_4-5
+>>>>>>> e0c29881412438f36b1be60d032addc43acec452
     - RPMS_LOCATION=/tmp/workdir/packages/RPMS
     - DOGTAG_PKI_RPMS=${TRAVIS_BUILD_DIR}/dogtag_rpms
   matrix:
