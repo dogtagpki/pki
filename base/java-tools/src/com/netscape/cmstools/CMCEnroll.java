@@ -309,7 +309,7 @@ public class CMCEnroll {
         if (s.length != (ARGC * 2)) {
             System.out.println("Wrong number of parameters:" + s.length);
             System.out.println("Usage:  CMCEnroll " +
-                    "-d <dir to cert8.db, key3.db> " +
+                    "-d <dir to cert9.db, key4.db> " +
                     "-n <nickname> " +
                     "-r <request PKCS#10 file name> " +
                     "-p <password>"
@@ -342,7 +342,7 @@ public class CMCEnroll {
                 bWrongParam = true;
             if (bWrongParam == true) {
                 System.out.println("Usage:  CMCEnroll " +
-                        "-d <dir to cert8.db, key3.db> " +
+                        "-d <dir to cert9.db, key4.db> " +
                         "-n <nickname> " +
                         "-r <request PKCS#10 file name> " +
                         "-p <password>"

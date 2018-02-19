@@ -25,12 +25,18 @@ import base64
 import logging
 import os
 import shutil
+import stat
 import subprocess
 import tempfile
 import datetime
 
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
+
+try:
+    import selinux
+except ImportError:
+    selinux = None
 
 import pki
 
@@ -159,6 +165,63 @@ class NSSDatabase(object):
 
     def close(self):
         shutil.rmtree(self.tmpdir)
+
+    def get_dbtype(self):
+        cert9 = os.path.join(self.directory, 'cert9.db')
+        if os.path.isfile(cert9):
+            return 'sql'
+        cert8 = os.path.join(self.directory, 'cert8.db')
+        if os.path.isfile(cert8):
+            return 'dbm'
+        return None
+
+    def convert_db(self):
+        if self.get_dbtype() == 'sql':
+            raise ValueError("NSSDB already in SQL format")
+
+        logger.info(
+            "Convert NSSDB %s from DBM to SQL format", self.directory
+        )
+
+        basecmd = [
+            'certutil',
+            '-d', 'sql:{}'.format(self.directory),
+            '-f', self.password_file,
+        ]
+        # See https://fedoraproject.org/wiki/Changes/NSSDefaultFileFormatSql
+        cmd = basecmd + [
+            '-N',
+            '-@', self.password_file
+        ]
+
+        logger.debug('Command: %s', ' '.join(cmd))
+        subprocess.check_call(cmd)
+
+        migration = (
+            ('cert8.db', 'cert9.db'),
+            ('key3.db', 'key4.db'),
+            ('secmod.db', 'pkcs11.txt'),
+        )
+
+        for oldname, newname in migration:
+            oldname = os.path.join(self.directory, oldname)
+            newname = os.path.join(self.directory, newname)
+            oldstat = os.stat(oldname)
+            os.chmod(newname, stat.S_IMODE(oldstat.st_mode))
+            os.chown(newname, oldstat.st_uid, oldstat.st_gid)
+
+        if selinux is not None and selinux.is_selinux_enabled():
+            selinux.restorecon(self.directory, recursive=True)
+
+        # list certs to verify DB
+        with open(os.devnull, 'wb') as f:
+            subprocess.check_call(basecmd + ['-L'], stdout=f)
+
+        for oldname, _ in migration:  # pylint: disable=unused-variable
+            oldname = os.path.join(self.directory, oldname)
+            os.rename(oldname, oldname + '.migrated')
+
+        logger.info("Migration successful")
 
     def add_cert(self, nickname, cert_file, trust_attributes=',,'):
 

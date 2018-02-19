@@ -160,12 +160,12 @@ Usage(const char *progName)
     fprintf( stderr,
              "    (1) cd <server-root>/bin/cert/tools\n" );
     fprintf( stderr,
-             "    (2) cp <client-database>/cert8.db .\n" );
+             "    (2) cp <client-database>/cert9.db .\n" );
     fprintf( stderr,
-             "    (3) cp <client-database>/key3.db .\n" );
+             "    (3) cp <client-database>/key4.db .\n" );
     fprintf( stderr,
              "    (4) Ensure that the agent certificate is\n"
-             "        inside these cert8.db/key3.db databases.\n"
+             "        inside these cert9.db/key4.db databases.\n"
              "        (for this example, call it \"CS Agent\'s CS ID\")\n" );
     fprintf( stderr,
              "    (5) ./bulkissuance.sh -n \"CS Agent\'s CS ID\" -p password\n"

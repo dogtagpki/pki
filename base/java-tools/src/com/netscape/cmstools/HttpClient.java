@@ -111,7 +111,7 @@ public class HttpClient {
             System.out.println("Total number of bytes read = " + b.length);
             if (_secure) {
                 CryptoManager.InitializationValues vals =
-                        new CryptoManager.InitializationValues(dbdir, "", "", "secmod.db");
+                        new CryptoManager.InitializationValues(dbdir, "", "", " secmod.db");
                 CryptoManager.initialize(vals);
                 CryptoManager cm = CryptoManager.getInstance();
                 CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
@@ -270,7 +270,7 @@ public class HttpClient {
         System.out.println("#This parameter will be ignored if secure=false");
         System.out.println("tokenname=hsmname");
         System.out.println("");
-        System.out.println("#dbdir: directory for cert8.db, key3.db and secmod.db");
+        System.out.println("#dbdir: directory for cert9.db, key4.db and pkcs11.txt");
         System.out.println("#This parameter will be ignored if secure=false");
         System.out.println("dbdir=/u/smith/.netscape");
         System.out.println("");
@@ -278,7 +278,7 @@ public class HttpClient {
         System.out.println("#This parameter will be ignored if secure=false");
         System.out.println("clientmode=false");
         System.out.println("");
-        System.out.println("#password: password for cert8.db");
+        System.out.println("#password: password for key4.db");
         System.out.println("#This parameter will be ignored if secure=false and clientauth=false");
         System.out.println("password=");
         System.out.println("");

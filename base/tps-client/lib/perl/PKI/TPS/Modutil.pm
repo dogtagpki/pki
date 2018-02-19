@@ -43,7 +43,7 @@ sub new {
 sub exists {
 	my $self = shift;
 	
-	return -e "$self->{dir}/secmod.db";
+	return -e "$self->{dir}/pkcs11.txt";
 }
 
 sub create {

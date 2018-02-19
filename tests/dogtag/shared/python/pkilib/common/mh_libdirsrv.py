@@ -158,12 +158,12 @@ class DirSrv(object):
         os.write(pwdfile_fd, DSNSSPassPhrase)
         os.close(pwdfile_fd)
 
-        #setup NSS DB with the password created
+        # setup NSS DB with the password created
         DSCertDBOjb.create_db(pwd_file_path)
-        #since there is no exception handling , we need to verify
-        #if the nssdb is created properly, we check if cert8.db,
-        #secmod.db and key3.db exists
-        nss_db_file = ['cert8.db', 'key3.db', 'secmod.db']
+        # since there is no exception handling , we need to verify
+        # if the nssdb is created properly, we check if cert9.db,
+        # key4.db and pkcs11.txt exists
+        nss_db_file = ['cert9.db', 'key4.db', 'pkcs11.txt']
         for files in nss_db_file:
             if not exists(os.path.join(self.DSInstPath, files)):
                 raise DirSrvException('Could not setup NSS DB on %s' % self.DSInstPath)

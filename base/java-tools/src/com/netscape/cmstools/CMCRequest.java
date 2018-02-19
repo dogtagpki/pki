@@ -806,10 +806,10 @@ public class CMCRequest {
         System.out.println("");
         System.out.println("selfSign=false");
         System.out.println("");
-        System.out.println("#dbdir: directory for cert8.db, key3.db and secmod.db");
+        System.out.println("#dbdir: directory for cert9.db, key4.db and pkcs11.txt");
         System.out.println("dbdir=./");
         System.out.println("");
-        System.out.println("#password: password for cert8.db which stores the user signing");
+        System.out.println("#password: password for key4.db which stores the user signing");
         System.out.println("#certificate and keys");
         System.out.println("password=pass");
         System.out.println("");

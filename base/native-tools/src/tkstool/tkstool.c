@@ -869,7 +869,7 @@ main( int argc, char **argv )
     rvNSSinit = NSS_Initialize( DBDir,
                                 DBPrefix,
                                 DBPrefix,
-                                "secmod.db",
+                                SECMOD_DB,
                                 readOnly ? NSS_INIT_READONLY : 0 );
     if( rvNSSinit != SECSuccess ) {
         char    buffer[513];

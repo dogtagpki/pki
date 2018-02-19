@@ -262,46 +262,38 @@ class PKIConfigParser:
                 self.arg_parser.exit(-1)
 
     def set_nss_default_db_type(self):
-        # Define default NSS DB types
-        dbm = 'dbm'
-        # sql = 'sql'
-        default = dbm
-
         # Set default NSS DB type
+        default = 'sql'
         nss_default_db_type = os.getenv('NSS_DEFAULT_DB_TYPE')
         if nss_default_db_type is None:
-            # NSS_DEFAULT_DB_TYPE is undefined; set 'dbm' default NSS DB type
-            os.putenv('NSS_DEFAULT_DB_TYPE', 'dbm')
+            # NSS_DEFAULT_DB_TYPE is undefined; set 'sql' default NSS DB type
+            os.putenv('NSS_DEFAULT_DB_TYPE', default)
         elif nss_default_db_type == '':
-            # NSS_DEFAULT_DB_TYPE is empty; set 'dbm' default NSS DB type
-            os.putenv('NSS_DEFAULT_DB_TYPE', 'dbm')
+            # NSS_DEFAULT_DB_TYPE is empty; set 'sql' default NSS DB type
+            os.putenv('NSS_DEFAULT_DB_TYPE', default)
         else:
             nss_type = nss_default_db_type.lower()
             if nss_type == 'dbm':
-                # Always set/reset 'dbm' default NSS DB type
-                os.putenv('NSS_DEFAULT_DB_TYPE', 'dbm')
-            elif nss_type == 'sql':
-                # Always set/reset 'sql' default NSS DB type
-                # os.putenv('NSS_DEFAULT_DB_TYPE', 'sql')
-                # default = sql
-
-                # Warn user and set 'dbm' default NSS DB type
-                print('WARNING: NSS_DEFAULT_DB_TYPE=sql is currently ' +
+                # Warn user and set 'sql' default NSS DB type
+                print('WARNING: NSS_DEFAULT_DB_TYPE=dbm is no longer '
                       'unsupported!')
-                print('         Resetting to NSS_DEFAULT_DB_TYPE=dbm.')
-                # Currently override 'sql' with 'dbm' default NSS DB type
-                os.putenv('NSS_DEFAULT_DB_TYPE', 'dbm')
+                print('         Resetting to NSS_DEFAULT_DB_TYPE=sql.')
+                os.putenv('NSS_DEFAULT_DB_TYPE', default)
+            elif nss_type == 'sql':
+                # Always set/reset 'dbm' default NSS DB type
+                os.putenv('NSS_DEFAULT_DB_TYPE', default)
             else:
-                # NSS_DEFAULT_DB_TYPE is invalid; set 'dbm' default NSS DB type
+                # NSS_DEFAULT_DB_TYPE is invalid; set 'sql' default NSS DB type
                 print('WARNING: NSS_DEFAULT_DB_TYPE=%s is invalid!'
                       % nss_default_db_type)
-                print('         Resetting to NSS_DEFAULT_DB_TYPE=dbm.')
-                os.putenv('NSS_DEFAULT_DB_TYPE', 'dbm')
+                print('         Resetting to NSS_DEFAULT_DB_TYPE=sql.')
+                os.putenv('NSS_DEFAULT_DB_TYPE', default)
         return default
 
     def init_config(self):
 
         nss_default_db_type = self.set_nss_default_db_type()
+        self.set_nss_default_db_type()
 
         java_home = subprocess.check_output(
             '. /usr/share/pki/etc/pki.conf && . /etc/pki/pki.conf '
@@ -1226,13 +1218,13 @@ class PKIConfigParser:
                     "password.conf")
             self.mdict['pki_cert_database'] = \
                 os.path.join(self.mdict['pki_database_path'],
-                             "cert8.db")
+                             "cert9.db")
             self.mdict['pki_key_database'] = \
                 os.path.join(self.mdict['pki_database_path'],
-                             "key3.db")
+                             "key4.db")
             self.mdict['pki_secmod_database'] = \
                 os.path.join(self.mdict['pki_database_path'],
-                             "secmod.db")
+                             "pkcs11.txt")
             self.mdict['pki_self_signed_nickname'] = \
                 self.mdict['pki_sslserver_nickname']
             self.mdict['pki_self_signed_subject'] = \

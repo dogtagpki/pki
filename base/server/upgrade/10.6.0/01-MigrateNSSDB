@@ -1,0 +1,93 @@
+# Authors:
+#     Christian Heimes <cheimes@rehdat.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#
+# This program is distributed in the hope that it will be useful',
+
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not', write to the Free Software Foundation', Inc.',
+# 51 Franklin Street', Fifth Floor', Boston', MA 02110-1301 USA.
+#
+# Copyright (C) 2018 Red Hat', Inc.
+# All rights reserved.
+
+from __future__ import absolute_import
+
+import os
+
+from pki.server.upgrade import PKIServerUpgradeScriptlet
+
+
+class MigrateNSSDB(PKIServerUpgradeScriptlet):
+    def __init__(self):
+        super(MigrateNSSDB, self).__init__()
+        self.message = 'Migrate NSS database to SQL format'
+
+    def upgrade_instance(self, instance):
+        systemd_conf = os.path.join('/etc/sysconfig', instance.name)
+        self.fix_tomcat_conf(systemd_conf)
+
+        tomcat_conf = os.path.join(instance.conf_dir, 'tomcat.conf')
+        self.fix_tomcat_conf(tomcat_conf)
+
+    def convert_nssdb(self, instance):
+        nssdb = instance.open_nssdb()
+        if nssdb.get_dbtype() == 'dbm':
+            # NSSDB must be migrated while Dogtag is offline
+            instance.systemd.stop()
+            try:
+                nssdb.convert_db()
+            finally:
+                instance.systemd.start()
+
+    def fix_pki_conf(self):
+        pki_conf = '/etc/pki/pki.conf'
+        expected = 'NSS_DEFAULT_DB_TYPE="sql"\n'
+
+        with open(pki_conf) as f:
+            lines = list(f)
+        for line in lines:
+            if line == expected:
+                return  # already ok
+
+        self.backup(pki_conf)
+        lines.extend([
+            '\n',
+            '# NSS database format\n',
+            expected,
+        ])
+        with open(pki_conf, 'w') as f:
+            f.write(''.join(lines))
+
+    def fix_tomcat_conf(self, conffile):
+        expected = 'NSS_DEFAULT_DB_TYPE="sql"\n'
+
+        with open(conffile) as f:
+            lines = list(f)
+
+        for i, line in enumerate(lines):
+            if line == expected:
+                return  # already ok
+            if line.startswith('NSS_DEFAULT_DB_TYPE'):
+                # old format found
+                lines[i] = expected
+                break
+        else:
+            # no matching line found
+            lines.extend([
+                '\n',
+                ('# Default NSS DB type (computed at instance creation '
+                 'time)\n'),
+                expected,
+            ])
+
+        self.backup(conffile)
+        with open(conffile, 'w') as f:
+            f.write(''.join(lines))
