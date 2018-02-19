@@ -881,6 +881,9 @@ cd build
 %if ! %{with test}
 	-DWITH_TEST:BOOL=OFF \
 %endif
+%if 0%{?fedora} >= 28 || 0%{?rhel} > 7
+    -DPKI_NSS_DEFAULT_DB_TYPE=sql \
+%endif
 	..
 
 
