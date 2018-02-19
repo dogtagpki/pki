@@ -872,9 +872,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
             deployer.certutil.generate_self_signed_certificate(
                 deployer.mdict['pki_database_path'],
-                deployer.mdict['pki_cert_database'],
-                deployer.mdict['pki_key_database'],
-                deployer.mdict['pki_secmod_database'],
                 deployer.mdict['pki_self_signed_token'],
                 deployer.mdict['pki_self_signed_nickname'],
                 deployer.mdict['pki_self_signed_subject'],
@@ -998,9 +995,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             uid=0, gid=0)
         deployer.certutil.create_security_databases(
             deployer.mdict['pki_client_database_dir'],
-            deployer.mdict['pki_client_cert_database'],
-            deployer.mdict['pki_client_key_database'],
-            deployer.mdict['pki_client_secmod_database'],
             password_file=deployer.mdict['pki_client_password_conf'])
 
         instance = pki.server.PKIInstance(deployer.mdict['pki_instance_name'])

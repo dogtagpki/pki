@@ -72,9 +72,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         deployer.certutil.create_security_databases(
             deployer.mdict['pki_database_path'],
-            deployer.mdict['pki_cert_database'],
-            deployer.mdict['pki_key_database'],
-            deployer.mdict['pki_secmod_database'],
             password_file=deployer.mdict['pki_shared_pfile'])
 
         if config.str2bool(deployer.mdict['pki_hsm_enable']):

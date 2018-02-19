@@ -2219,11 +2219,21 @@ class Certutil:
 
     def __init__(self, deployer):
         self.mdict = deployer.mdict
+        self.nss_db_type = deployer.nss_db_type
 
-    def create_security_databases(self, path, pki_cert_database,
-                                  pki_key_database, pki_secmod_database,
+    def _get_dbfiles(self, path):
+        if self.nss_db_type == 'sql':
+            filenames = ['cert9.db', 'key4.db', 'pkcs11.txt']
+        elif self.nss_db_type == 'dbm':
+            filenames = ['cert8.db', 'key3.db', 'secmod.db']
+        else:
+            raise ValueError(self.nss_db_type)
+        return [os.path.join(path, filename) for filename in filenames]
+
+    def create_security_databases(self, path,
                                   password_file=None, prefix=None,
                                   critical_failure=True):
+        cert_db, key_db, secmod_db = self._get_dbfiles(path)
         try:
             # Compose this "certutil" command
             command = ["certutil", "-N"]
@@ -2245,15 +2255,15 @@ class Certutil:
                     extra=config.PKI_INDENTATION_LEVEL_2)
                 raise Exception(
                     log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1 % path)
-            if os.path.exists(pki_cert_database) or\
-               os.path.exists(pki_key_database) or\
-               os.path.exists(pki_secmod_database):
+            if os.path.exists(cert_db) or\
+               os.path.exists(key_db) or\
+               os.path.exists(secmod_db):
                 # Simply notify user that the security databases exist
                 config.pki_log.info(
                     log.PKI_SECURITY_DATABASES_ALREADY_EXIST_3,
-                    pki_cert_database,
-                    pki_key_database,
-                    pki_secmod_database,
+                    cert_db,
+                    key_db,
+                    secmod_db,
                     extra=config.PKI_INDENTATION_LEVEL_2)
             else:
                 if password_file is not None:
@@ -2285,10 +2295,10 @@ class Certutil:
                 raise
         return
 
-    def verify_certificate_exists(self, path, pki_cert_database,
-                                  pki_key_database, pki_secmod_database,
-                                  token, nickname, password_file=None,
-                                  silent=True, critical_failure=True):
+    def verify_certificate_exists(self, path, token, nickname,
+                                  password_file=None, silent=True,
+                                  critical_failure=True):
+        cert_db, key_db, secmod_db = self._get_dbfiles(path)
         try:
             # Compose this "certutil" command
             command = ["certutil", "-L"]
@@ -2325,21 +2335,21 @@ class Certutil:
                     extra=config.PKI_INDENTATION_LEVEL_2)
                 raise Exception(
                     log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1 % path)
-            if not os.path.exists(pki_cert_database) or\
-               not os.path.exists(pki_key_database) or\
-               not os.path.exists(pki_secmod_database):
+            if not os.path.exists(cert_db) or\
+               not os.path.exists(key_db) or\
+               not os.path.exists(secmod_db):
                 # NSS security databases MUST exist!
                 config.pki_log.error(
                     log.PKI_SECURITY_DATABASES_DO_NOT_EXIST_3,
-                    pki_cert_database,
-                    pki_key_database,
-                    pki_secmod_database,
+                    cert_db,
+                    key_db,
+                    secmod_db,
                     extra=config.PKI_INDENTATION_LEVEL_2)
                 raise Exception(
                     log.PKI_SECURITY_DATABASES_DO_NOT_EXIST_3 % (
-                        pki_cert_database,
-                        pki_key_database,
-                        pki_secmod_database))
+                        cert_db,
+                        key_db,
+                        secmod_db))
             if password_file is not None:
                 if not os.path.exists(password_file) or\
                    not os.path.isfile(password_file):
@@ -2369,14 +2379,13 @@ class Certutil:
                 raise
         return True
 
-    def generate_self_signed_certificate(self, path, pki_cert_database,
-                                         pki_key_database, pki_secmod_database,
-                                         token, nickname, subject,
+    def generate_self_signed_certificate(self, path, token, nickname, subject,
                                          key_type, key_size, serial_number,
                                          validity_period, issuer_name,
                                          trustargs, noise_file,
                                          password_file=None,
                                          critical_failure=True):
+        cert_db, key_db, secmod_db = self._get_dbfiles(path)
         try:
             # Compose this "certutil" command
             command = ["certutil", "-S"]
@@ -2496,21 +2505,21 @@ class Certutil:
                     extra=config.PKI_INDENTATION_LEVEL_2)
                 raise Exception(
                     log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1 % path)
-            if not os.path.exists(pki_cert_database) or\
-               not os.path.exists(pki_key_database) or\
-               not os.path.exists(pki_secmod_database):
+            if not os.path.exists(cert_db) or\
+               not os.path.exists(key_db) or\
+               not os.path.exists(secmod_db):
                 # NSS security databases MUST exist!
                 config.pki_log.error(
                     log.PKI_SECURITY_DATABASES_DO_NOT_EXIST_3,
-                    pki_cert_database,
-                    pki_key_database,
-                    pki_secmod_database,
+                    cert_db,
+                    key_db,
+                    secmod_db,
                     extra=config.PKI_INDENTATION_LEVEL_2)
                 raise Exception(
                     log.PKI_SECURITY_DATABASES_DO_NOT_EXIST_3 % (
-                        pki_cert_database,
-                        pki_key_database,
-                        pki_secmod_database))
+                        cert_db,
+                        key_db,
+                        secmod_db))
             if not os.path.exists(noise_file):
                 config.pki_log.error(
                     log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1,

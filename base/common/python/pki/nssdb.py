@@ -187,6 +187,11 @@ class NSSDatabase(object):
         else:
             return None
 
+    def needs_conversion(self):
+        # Only attempt to convert if target format is SQL and DB is DBM
+        dest_dbtype = os.environ.get('NSS_DEFAULT_DB_TYPE')
+        return dest_dbtype == 'sql' and self.get_dbtype() == 'dbm'
+
     def convert_db(self):
         dbtype = self.get_dbtype()
         if dbtype is None:
