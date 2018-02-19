@@ -1,0 +1,446 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "22c0a3fd_21b83b67",
+        "filename": "base/common/etc/pki.conf",
+        "patchSetId": 2
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-02-19T16:48:26Z",
+      "side": 1,
+      "message": "We may need to use different defaults for different platforms, e.g. dbm for F27, sql for F28. The actual value of this param should be defined in the RPM spec.",
+      "revId": "69c165d508e0f4acf805ea7f50140a6d0e5224e0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "90c4a69b_b82c60e5",
+        "filename": "base/common/python/pki/cli/main.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-02-19T16:48:26Z",
+      "side": 1,
+      "message": "Line 76-81 can be removed since the env var is guaranteed to exist in pki.conf.",
+      "revId": "69c165d508e0f4acf805ea7f50140a6d0e5224e0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f3926ca6_48948650",
+        "filename": "base/common/python/pki/cli/main.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-02-19T16:48:26Z",
+      "side": 1,
+      "message": "Line 84-92 should be removed. The code should not override the value set by the user.",
+      "revId": "69c165d508e0f4acf805ea7f50140a6d0e5224e0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "30d90381_af52cf4b",
+        "filename": "base/common/python/pki/cli/main.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-02-19T16:48:26Z",
+      "side": 1,
+      "message": "The code should raise an exception if the value is not dbm or sql.",
+      "revId": "69c165d508e0f4acf805ea7f50140a6d0e5224e0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8b6dbdaf_7b7845ce",
+        "filename": "base/console/templates/pki_console_wrapper",
+        "patchSetId": 2
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-02-19T16:48:26Z",
+      "side": 1,
+      "message": "Line 70-75 can be removed since the env var is guaranteed by pki.conf.",
+      "revId": "69c165d508e0f4acf805ea7f50140a6d0e5224e0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "67caa703_312d10cb",
+        "filename": "base/console/templates/pki_console_wrapper",
+        "patchSetId": 2
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-02-19T16:48:26Z",
+      "side": 1,
+      "message": "We should not override user settings.",
+      "revId": "69c165d508e0f4acf805ea7f50140a6d0e5224e0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ab9b669d_1b500ee7",
+        "filename": "base/console/templates/pki_console_wrapper",
+        "patchSetId": 2
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-02-19T16:48:26Z",
+      "side": 1,
+      "message": "Kind of redundant. We can assume the valid values are \"dbm\" or \"sql\" only, all lower case.",
+      "revId": "69c165d508e0f4acf805ea7f50140a6d0e5224e0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "425ac4d6_76fac8d4",
+        "filename": "base/console/templates/pki_console_wrapper",
+        "patchSetId": 2
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-02-19T16:48:26Z",
+      "side": 1,
+      "message": "If the value is invalid the code should terminate.",
+      "revId": "69c165d508e0f4acf805ea7f50140a6d0e5224e0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f5dc88aa_95a8aa16",
+        "filename": "base/java-tools/man/man1/CMCEnroll.1",
+        "patchSetId": 2
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-02-19T16:48:26Z",
+      "side": 1,
+      "message": "We should just remove references to type-specific NSS files. We can change this into \"The directory containing the NSS database associated with the agent certificate.\"",
+      "revId": "69c165d508e0f4acf805ea7f50140a6d0e5224e0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "17cf40c1_e8dbe551",
+        "filename": "base/java-tools/man/man1/PKCS10Client.1",
+        "patchSetId": 2
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-02-19T16:48:26Z",
+      "side": 1,
+      "message": "Same thing, remove references to type-specific NSS files.",
+      "revId": "69c165d508e0f4acf805ea7f50140a6d0e5224e0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0981869b_aab0e212",
+        "filename": "base/java-tools/src/com/netscape/cmstools/CMCEnroll.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 312,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-02-19T16:48:26Z",
+      "side": 1,
+      "message": "Same thing, remove references to type-specific NSS files.",
+      "revId": "69c165d508e0f4acf805ea7f50140a6d0e5224e0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e7d5e632_2b7ed66d",
+        "filename": "base/java-tools/src/com/netscape/cmstools/CMCRequest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 809,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-02-19T16:48:26Z",
+      "side": 1,
+      "message": "Same thing, remove references to type-specific NSS files.",
+      "revId": "69c165d508e0f4acf805ea7f50140a6d0e5224e0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0f82c872_61738075",
+        "filename": "base/java-tools/src/com/netscape/cmstools/CMCRevoke.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-02-19T16:48:26Z",
+      "side": 1,
+      "message": "Same thing, remove references to type-specific NSS files.",
+      "revId": "69c165d508e0f4acf805ea7f50140a6d0e5224e0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cff6ebf5_8acd75f1",
+        "filename": "base/java-tools/src/com/netscape/cmstools/HttpClient.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-02-19T16:48:26Z",
+      "side": 1,
+      "message": "Typo?",
+      "revId": "69c165d508e0f4acf805ea7f50140a6d0e5224e0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e2383121_0463cea7",
+        "filename": "base/java-tools/src/com/netscape/cmstools/HttpClient.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 273,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-02-19T16:48:26Z",
+      "side": 1,
+      "message": "Same thing, remove references to type-specific NSS files.",
+      "revId": "69c165d508e0f4acf805ea7f50140a6d0e5224e0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "941fa9da_8a8c6a0f",
+        "filename": "base/java-tools/src/com/netscape/cmstools/HttpClient.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 281,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-02-19T16:48:26Z",
+      "side": 1,
+      "message": "Same thing, remove references to type-specific NSS files.",
+      "revId": "69c165d508e0f4acf805ea7f50140a6d0e5224e0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "58b682fe_8dd8e843",
+        "filename": "base/java-tools/src/com/netscape/cmstools/KRATool.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-02-19T16:48:26Z",
+      "side": 1,
+      "message": "Remove references to type-specific NSS files.",
+      "revId": "69c165d508e0f4acf805ea7f50140a6d0e5224e0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5fb325d9_e9a111ff",
+        "filename": "base/java-tools/templates/pki_java_command_wrapper.in",
+        "patchSetId": 2
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-02-19T16:48:26Z",
+      "side": 1,
+      "message": "Line 68-73 since the env var is guaranteed by pki.conf.",
+      "revId": "69c165d508e0f4acf805ea7f50140a6d0e5224e0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ee2c3d50_7eeccc8d",
+        "filename": "base/java-tools/templates/pki_java_command_wrapper.in",
+        "patchSetId": 2
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-02-19T16:48:26Z",
+      "side": 1,
+      "message": "Should not override user defined value in line 77-84.",
+      "revId": "69c165d508e0f4acf805ea7f50140a6d0e5224e0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "beb379c6_72b5dc9d",
+        "filename": "base/java-tools/templates/pki_java_command_wrapper.in",
+        "patchSetId": 2
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-02-19T16:48:26Z",
+      "side": 1,
+      "message": "Should terminate on invalid value.",
+      "revId": "69c165d508e0f4acf805ea7f50140a6d0e5224e0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8633a5e7_23aeb616",
+        "filename": "base/native-tools/src/bulkissuance/bulkissuance.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-02-19T16:48:26Z",
+      "side": 1,
+      "message": "Remove references to type-specific NSS files.",
+      "revId": "69c165d508e0f4acf805ea7f50140a6d0e5224e0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a5d8ecb9_c1931cea",
+        "filename": "base/native-tools/src/revoker/revoker.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 757,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-02-19T16:48:26Z",
+      "side": 1,
+      "message": "Remove references to type-specific NSS files.",
+      "revId": "69c165d508e0f4acf805ea7f50140a6d0e5224e0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "65fb07e1_af2b2340",
+        "filename": "base/server/etc/default.cfg",
+        "patchSetId": 2
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-02-19T16:48:26Z",
+      "side": 1,
+      "message": "PKI should not have to deal with NSS internal files directly. We should remove the code that uses these parameters.",
+      "revId": "69c165d508e0f4acf805ea7f50140a6d0e5224e0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "24fa97cf_2190187d",
+        "filename": "base/server/upgrade/10.6.0/01-MigrateNSSDB",
+        "patchSetId": 2
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-02-19T16:48:26Z",
+      "side": 1,
+      "message": "This should run only in F28+.",
+      "revId": "69c165d508e0f4acf805ea7f50140a6d0e5224e0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "77d0c2a8_df9af1eb",
+        "filename": "base/tps-client/lib/perl/PKI/TPS/Modutil.pm",
+        "patchSetId": 2
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-02-19T16:48:26Z",
+      "side": 1,
+      "message": "Remove the code that calls this function.",
+      "revId": "69c165d508e0f4acf805ea7f50140a6d0e5224e0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f14f5181_786a7caa",
+        "filename": "tests/dogtag/shared/python/pkilib/common/mh_libdirsrv.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-02-19T16:48:26Z",
+      "side": 1,
+      "message": "Remove line 166-169.",
+      "revId": "69c165d508e0f4acf805ea7f50140a6d0e5224e0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
