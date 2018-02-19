@@ -779,7 +779,7 @@ public class CertificateAuthority
             initSigUnit();
 
         } catch (CAMissingCertException | CAMissingKeyException e) {
-            CMS.debug("CA signing key and cert not (yet) present in NSSDB");
+            CMS.debug("WARNING: CA signing key and cert not (yet) present in NSSDB: " + e);
             signingUnitException = e;
 
         } catch (CertificateException e) {
@@ -1691,13 +1691,13 @@ public class CertificateAuthority
             CMS.debug(e);
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_OCSP_CHAIN", e.toString()));
             throw new ECAException(
-                    CMS.getUserMessage("CMS_CA_BUILD_CA_CHAIN_FAILED", e.toString()));
+                    CMS.getUserMessage("CMS_CA_BUILD_CA_CHAIN_FAILED", e.toString()), e);
 
         } catch (IOException e) {
             CMS.debug(e);
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_OCSP_CHAIN", e.toString()));
             throw new ECAException(
-                    CMS.getUserMessage("CMS_CA_BUILD_CA_CHAIN_FAILED", e.toString()));
+                    CMS.getUserMessage("CMS_CA_BUILD_CA_CHAIN_FAILED", e.toString()), e);
         }
 
         mSigningUnit.init(this, caSigningCfg, mNickname);
@@ -1829,31 +1829,31 @@ public class CertificateAuthority
 
         } catch (CryptoManager.NotInitializedException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_OCSP_SIGNING", e.toString()));
-            throw new ECAException(CMS.getUserMessage("CMS_CA_CRYPTO_NOT_INITIALIZED"));
+            throw new ECAException(CMS.getUserMessage("CMS_CA_CRYPTO_NOT_INITIALIZED"), e);
 
         } catch (CertificateException e) {
             CMS.debug(e);
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_OCSP_CHAIN", e.toString()));
             throw new ECAException(
-                    CMS.getUserMessage("CMS_CA_BUILD_CA_CHAIN_FAILED", e.toString()));
+                    CMS.getUserMessage("CMS_CA_BUILD_CA_CHAIN_FAILED", e.toString()), e);
 
         } catch (FileNotFoundException e) {
             CMS.debug(e);
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_OCSP_CHAIN", e.toString()));
             throw new ECAException(
-                    CMS.getUserMessage("CMS_CA_BUILD_CA_CHAIN_FAILED", e.toString()));
+                    CMS.getUserMessage("CMS_CA_BUILD_CA_CHAIN_FAILED", e.toString()), e);
 
         } catch (IOException e) {
             CMS.debug(e);
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_OCSP_CHAIN", e.toString()));
             throw new ECAException(
-                    CMS.getUserMessage("CMS_CA_BUILD_CA_CHAIN_FAILED", e.toString()));
+                    CMS.getUserMessage("CMS_CA_BUILD_CA_CHAIN_FAILED", e.toString()), e);
 
         } catch (TokenException e) {
             CMS.debug(e);
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_OCSP_CHAIN", e.toString()));
             throw new ECAException(
-                    CMS.getUserMessage("CMS_CA_BUILD_CA_CHAIN_FAILED", e.toString()));
+                    CMS.getUserMessage("CMS_CA_BUILD_CA_CHAIN_FAILED", e.toString()), e);
         }
 
         generateSigningInfoAuditEvents();
