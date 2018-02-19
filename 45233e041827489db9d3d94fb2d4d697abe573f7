@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8a38c3e9_180902d9",
+        "filename": "specs/pki-core.spec",
+        "patchSetId": 6
+      },
+      "lineNbr": 457,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-02-19T22:23:45Z",
+      "side": 1,
+      "message": "Do we need to obsolete the old package name when we rename a package?",
+      "revId": "45233e041827489db9d3d94fb2d4d697abe573f7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
