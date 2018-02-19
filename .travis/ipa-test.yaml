@@ -41,7 +41,7 @@ steps:
   - echo "Skipping Build. Nothing to do..."
   builddep:
   - rm -rf /var/cache/dnf/*
-  - "dnf makecache fast || :"
+  - "dnf makecache || :"
   cleanup:
   - chown -R ${uid}:${gid} ${container_working_dir}
   - journalctl -b --no-pager > systemd_journal.log
@@ -75,7 +75,7 @@ steps:
   - echo ${server_password} > ~/.ipa/.dmpw
   - echo 'wait_for_dns=5' >> ~/.ipa/default.conf
   run_tests:
-  - ipa-run-tests ${tests_ignore} -k-test_dns_soa ${tests_verbose} ${path}
+  - ipa-run-tests-2 ${tests_ignore} -k-test_dns_soa ${tests_verbose} ${path}
   - ipa-server-install --uninstall -U
 tests:
   ignore:
