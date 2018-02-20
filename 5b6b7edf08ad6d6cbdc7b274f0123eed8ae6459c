@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e89452cb_37391335",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-02-20T14:50:13Z",
+      "side": 1,
+      "message": "services?",
+      "range": {
+        "startLine": 20,
+        "startChar": 7,
+        "endLine": 20,
+        "endChar": 15
+      },
+      "revId": "5b6b7edf08ad6d6cbdc7b274f0123eed8ae6459c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2d9a0ee5_4d129915",
+        "filename": "base/server/python/pki/server/deployment/pkiparser.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 268,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-02-20T14:50:13Z",
+      "side": 1,
+      "message": "sourced?",
+      "range": {
+        "startLine": 268,
+        "startChar": 8,
+        "endLine": 268,
+        "endChar": 14
+      },
+      "revId": "5b6b7edf08ad6d6cbdc7b274f0123eed8ae6459c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "adf8286d_ee63d1e0",
+        "filename": "base/server/python/pki/server/deployment/pkiparser.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 287,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-02-20T14:50:13Z",
+      "side": 1,
+      "message": "I think this could be replaced with os.environ.get(\u0027JAVA_HOME\u0027) since the pki.conf is loaded by the shell wrapper.\n\nSame thing for others below.",
+      "revId": "5b6b7edf08ad6d6cbdc7b274f0123eed8ae6459c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
