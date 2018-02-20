@@ -44,7 +44,7 @@ case ${NSS_DEFAULT_DB_TYPE} in
         exit 1;;
 esac
 
-# export all known variables to subsequently executed commands
+# export all known variables to subsequently executed child processes
 export JAVA_HOME
 export JNI_JAR_DIR
 export PKI_LIB
