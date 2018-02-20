@@ -138,6 +138,13 @@ find_file(RESTEASY_ATOM_PROVIDER_JAR
         ${RESTEASY_LIB}
 )
 
+find_file(JASPIC_API_JAR
+    NAMES
+        jaspic-api.jar
+    PATHS
+        /usr/share/java/tomcat
+)
+
 find_file(TOMCAT_API_JAR
     NAMES
         tomcat-api.jar
