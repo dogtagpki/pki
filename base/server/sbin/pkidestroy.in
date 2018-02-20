@@ -19,20 +19,9 @@
 # --- END COPYRIGHT BLOCK ---
 #
 
-# default PKI configuration
-. /usr/share/pki/etc/pki.conf
-
-# system-wide PKI configuration
-if [ -f /etc/pki/pki.conf ]
-then
-    . /etc/pki/pki.conf
-fi
-
-# user-specific PKI configuration
-if [ -f $HOME/.dogtag/pki.conf ]
-then
-    . $HOME/.dogtag/pki.conf
-fi
+# load default, system-wide, and user-specific PKI configuration and
+# set NSS_DEFAULT_DB_TYPE.
+. /usr/share/pki/scripts/config
 
 @PYTHON_EXECUTABLE@ -m pki.server.pkidestroy "$@"
 

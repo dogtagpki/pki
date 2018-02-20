@@ -29,6 +29,10 @@ add_subdirectory(cmscore)
 add_subdirectory(test)
 
 configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/share/etc/tomcat.conf.in
+    ${CMAKE_CURRENT_BINARY_DIR}/share/etc/tomcat.conf
+)
+configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/sbin/pki-server.in
     ${CMAKE_CURRENT_BINARY_DIR}/sbin/pki-server
 )
@@ -158,6 +162,13 @@ add_custom_command(
     COMMAND ln -sf /usr/share/java/pki/pki-cms.jar ${CMAKE_CURRENT_BINARY_DIR}/webapp/lib/pki-cms.jar
     COMMAND ln -sf /usr/share/java/pki/pki-cmscore.jar ${CMAKE_CURRENT_BINARY_DIR}/webapp/lib/pki-cmscore.jar
     COMMAND ln -sf /usr/share/java/pki/pki-cmsbundle.jar ${CMAKE_CURRENT_BINARY_DIR}/webapp/lib/pki-cmsbundle.jar
+)
+
+install(
+    FILES
+         ${CMAKE_CURRENT_BINARY_DIR}/share/etc/tomcat.conf
+    DESTINATION
+        ${DATA_INSTALL_DIR}/etc/
 )
 
 install(

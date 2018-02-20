@@ -4,6 +4,7 @@ PartOf=pki-tomcatd.target
 
 [Service]
 Type=simple
+EnvironmentFile=/usr/share/pki/etc/tomcat.conf
 EnvironmentFile=/etc/tomcat/tomcat.conf
 Environment="NAME=%i"
 EnvironmentFile=-/etc/sysconfig/%i
