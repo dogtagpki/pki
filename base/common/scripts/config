@@ -43,20 +43,3 @@ case ${NSS_DEFAULT_DB_TYPE} in
         echo "ERROR: Unsupported NSS_DEFAULT_DB_TYPE=${NSS_DEFAULT_DB_TYPE}"
         exit 1;;
 esac
-
-# export all known variables to subsequently executed commands
-export JAVA_HOME
-export JNI_JAR_DIR
-export PKI_LIB
-export RESTEASY_LIB
-export NSS_DEFAULT_DB_TYPE
-export LOGGING_CONFIG
-export PKI_CLI_OPTIONS
-export SSL_STREAM_VERSION_MIN
-export SSL_STREAM_VERSION_MAX
-export SSL_DATAGRAM_VERSION_MIN
-export SSL_DATAGRAM_VERSION_MAX
-export SSL_DEFAULT_CIPHERS
-export SSL_CIPHERS
-export KEY_WRAP_PARAMETER_SET
-export PKI_SERVER_AUTO_ENABLE_SUBSYSTEMS
