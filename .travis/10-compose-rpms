@@ -5,6 +5,8 @@ BUILDLOG=/tmp/compose.log
 
 function compose {
     pushd ${BUILDDIR}/pki
+    export USE_TIMESTAMP=1
+    export USE_GIT_COMMIT_ID=1
     # run make with --quiet to reduce log verbosity.
     sudo -u ${BUILDUSER} MAKEFLAGS="-j2 --quiet" -- \
         ./scripts/compose_pki_core_packages rpms
