@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b37bafd6_b7d3c5d3",
+        "filename": "specs/pki-core.spec",
+        "patchSetId": 7
+      },
+      "lineNbr": 869,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-02-20T14:25:49Z",
+      "side": 1,
+      "message": "Should this be with_python2?",
+      "revId": "c08876f3df10a84136815cb25cadd33fd8d4cb94",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
