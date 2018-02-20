@@ -70,36 +70,19 @@ class PKICLI(pki.cli.CLI):
         super(PKICLI, self).print_help()
 
     def set_nss_default_db_type(self):
-        # Set default NSS DB type
-        nss_default_db_type = os.getenv('NSS_DEFAULT_DB_TYPE')
-        if nss_default_db_type is None:
-            # NSS_DEFAULT_DB_TYPE is undefined; set 'dbm' default NSS DB type
-            os.putenv('NSS_DEFAULT_DB_TYPE', 'dbm')
-        elif nss_default_db_type == '':
-            # NSS_DEFAULT_DB_TYPE is empty; set 'dbm' default NSS DB type
-            os.putenv('NSS_DEFAULT_DB_TYPE', 'dbm')
-        else:
-            nss_type = nss_default_db_type.lower()
-            if nss_type == 'dbm':
-                # Always set/reset 'dbm' default NSS DB type
-                os.putenv('NSS_DEFAULT_DB_TYPE', 'dbm')
-            elif nss_type == 'sql':
-                # Always set/reset 'sql' default NSS DB type
-                # os.putenv('NSS_DEFAULT_DB_TYPE', 'sql')
+        """Validate NSS_DEFAULT_DB_TYPE
 
-                # Warn user and set 'dbm' default NSS DB type
-                print('WARNING: NSS_DEFAULT_DB_TYPE=sql is currently ' +
-                      'unsupported!')
-                print('         Resetting to NSS_DEFAULT_DB_TYPE=dbm.')
-                # Currently override 'sql' with 'dbm' default NSS DB type
-                os.putenv('NSS_DEFAULT_DB_TYPE', 'dbm')
-            else:
-                # NSS_DEFAULT_DB_TYPE is invalid; set 'dbm' default NSS DB type
-                print('WARNING: NSS_DEFAULT_DB_TYPE=%s is invalid!'
-                      % nss_default_db_type)
-                print('         Resetting to NSS_DEFAULT_DB_TYPE=dbm.')
-                os.putenv('NSS_DEFAULT_DB_TYPE', 'dbm')
-        return
+        Value is globally configured in /usr/share/pki/etc/pki.conf and
+        source by shell wrapper scripts.
+        """
+        dbtype = os.environ.get('NSS_DEFAULT_DB_TYPE')
+        if dbtype is None:
+            raise ValueError("NSS_DEFAULT_DB_TYPE env var is not set")
+        if dbtype not in {'dbm', 'sql'}:
+            raise ValueError(
+                "Unsupported NSS_DEFAULT_DB_TYPE value '{}'".format(dbtype)
+            )
+        return dbtype
 
     def execute_java(self, args, stdout=sys.stdout):
 

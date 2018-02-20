@@ -4,6 +4,7 @@ PartOf=pki-tomcatd-nuxwdog.target
 
 [Service]
 Type=forking
+EnvironmentFile=/usr/share/pki/etc/tomcat.conf
 EnvironmentFile=/etc/tomcat/tomcat.conf
 Environment="NAME=%i"
 Environment="STARTED_BY_SYSTEMD=1"

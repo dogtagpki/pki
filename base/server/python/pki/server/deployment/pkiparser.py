@@ -261,51 +261,26 @@ class PKIConfigParser:
                 self.arg_parser.print_help()
                 self.arg_parser.exit(-1)
 
-    def set_nss_default_db_type(self):
-        # Define default NSS DB types
-        dbm = 'dbm'
-        # sql = 'sql'
-        default = dbm
+    def get_nss_db_type(self):
+        """Get and validate NSS_DEFAULT_DB_TYPE
 
-        # Set default NSS DB type
-        nss_default_db_type = os.getenv('NSS_DEFAULT_DB_TYPE')
-        if nss_default_db_type is None:
-            # NSS_DEFAULT_DB_TYPE is undefined; set 'dbm' default NSS DB type
-            os.putenv('NSS_DEFAULT_DB_TYPE', 'dbm')
-        elif nss_default_db_type == '':
-            # NSS_DEFAULT_DB_TYPE is empty; set 'dbm' default NSS DB type
-            os.putenv('NSS_DEFAULT_DB_TYPE', 'dbm')
-        else:
-            nss_type = nss_default_db_type.lower()
-            if nss_type == 'dbm':
-                # Always set/reset 'dbm' default NSS DB type
-                os.putenv('NSS_DEFAULT_DB_TYPE', 'dbm')
-            elif nss_type == 'sql':
-                # Always set/reset 'sql' default NSS DB type
-                # os.putenv('NSS_DEFAULT_DB_TYPE', 'sql')
-                # default = sql
-
-                # Warn user and set 'dbm' default NSS DB type
-                print('WARNING: NSS_DEFAULT_DB_TYPE=sql is currently ' +
-                      'unsupported!')
-                print('         Resetting to NSS_DEFAULT_DB_TYPE=dbm.')
-                # Currently override 'sql' with 'dbm' default NSS DB type
-                os.putenv('NSS_DEFAULT_DB_TYPE', 'dbm')
-            else:
-                # NSS_DEFAULT_DB_TYPE is invalid; set 'dbm' default NSS DB type
-                print('WARNING: NSS_DEFAULT_DB_TYPE=%s is invalid!'
-                      % nss_default_db_type)
-                print('         Resetting to NSS_DEFAULT_DB_TYPE=dbm.')
-                os.putenv('NSS_DEFAULT_DB_TYPE', 'dbm')
-        return default
+        Value is globally configured in /usr/share/pki/etc/pki.conf and
+        source by shell wrapper scripts.
+        """
+        dbtype = os.environ.get('NSS_DEFAULT_DB_TYPE')
+        if dbtype is None:
+            raise ValueError("NSS_DEFAULT_DB_TYPE env var is not set")
+        if dbtype not in {'dbm', 'sql'}:
+            raise ValueError(
+                "Unsupported NSS_DEFAULT_DB_TYPE value '{}'".format(dbtype)
+            )
+        return dbtype
 
     def init_config(self):
-
-        nss_default_db_type = self.set_nss_default_db_type()
+        self.deployer.nss_db_type = self.get_nss_db_type()
 
         java_home = subprocess.check_output(
-            '. /usr/share/pki/etc/pki.conf && . /etc/pki/pki.conf '
-            '&& echo $JAVA_HOME',
+            '. /usr/share/pki/scripts/config && echo $JAVA_HOME',
             shell=True)
         java_home = java_home.decode(sys.getfilesystemencoding())
         # workaround for pylint error E1103
@@ -313,8 +288,7 @@ class PKIConfigParser:
 
         # RESTEasy
         resteasy_lib = subprocess.check_output(
-            '. /usr/share/pki/etc/pki.conf && . /etc/pki/pki.conf '
-            '&& echo $RESTEASY_LIB',
+            '. /usr/share/pki/scripts/config && echo $RESTEASY_LIB',
             shell=True)
         resteasy_lib = resteasy_lib.decode(sys.getfilesystemencoding())
         # workaround for pylint error E1103
@@ -322,8 +296,7 @@ class PKIConfigParser:
 
         # JNI jar location
         jni_jar_dir = subprocess.check_output(
-            '. /usr/share/pki/etc/pki.conf && . /etc/pki/pki.conf '
-            '&& echo $JNI_JAR_DIR',
+            '. /usr/share/pki/scripts/config && echo $JNI_JAR_DIR',
             shell=True)
         jni_jar_dir = jni_jar_dir.decode(sys.getfilesystemencoding())
         # workaround for pylint error E1103
@@ -345,7 +318,7 @@ class PKIConfigParser:
             'pki_subsystem': self.deployer.subsystem_name,
             'pki_subsystem_type': self.deployer.subsystem_name.lower(),
             'pki_root_prefix': config.pki_root_prefix,
-            'nss_default_db_type': nss_default_db_type,
+            'nss_default_db_type': self.deployer.nss_db_type,
             'java_home': java_home,
             'resteasy_lib': resteasy_lib,
             'jni_jar_dir': jni_jar_dir,
