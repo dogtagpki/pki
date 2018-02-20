@@ -26,9 +26,9 @@ import requests
 import json
 
 
-class TestHTTPError(requests.exceptions.HTTPError):
+class HTTPTestError(requests.exceptions.HTTPError):
     def __init__(self, body):
-        super(TestHTTPError, self).__init__()
+        super(HTTPTestError, self).__init__()
         self.response = requests.Response()
         self.response._content = body
         self.response.encoding = 'utf-8'
@@ -39,7 +39,7 @@ class PKITests(unittest.TestCase):
 
         @pki.handle_exceptions()
         def raiser(body):
-            raise TestHTTPError(body)
+            raise HTTPTestError(body)
 
         body = json.dumps({
             'Message': 'message',
@@ -79,7 +79,7 @@ class PKITests(unittest.TestCase):
             'com.netscape.certsrv.base.BadRequestException'
         )
 
-        with self.assertRaises(TestHTTPError) as e:
+        with self.assertRaises(HTTPTestError) as e:
             raiser(b'no json body')
 
 

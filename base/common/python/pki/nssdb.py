@@ -25,12 +25,18 @@ import base64
 import logging
 import os
 import shutil
+import stat
 import subprocess
 import tempfile
 import datetime
 
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
+
+try:
+    import selinux
+except ImportError:
+    selinux = None
 
 import pki
 
@@ -159,6 +165,89 @@ class NSSDatabase(object):
 
     def close(self):
         shutil.rmtree(self.tmpdir)
+
+    def get_dbtype(self):
+        def dbexists(filename):
+            return os.path.isfile(os.path.join(self.directory, filename))
+
+        if dbexists('cert9.db'):
+            if not dbexists('key4.db') or not dbexists('pkcs11.txt'):
+                raise RuntimeError(
+                    "{} contains an incomplete NSS database in SQL "
+                    "format".format(self.directory)
+                )
+            return 'sql'
+        elif dbexists('cert8.db'):
+            if not dbexists('key3.db') or not dbexists('secmod.db'):
+                raise RuntimeError(
+                    "{} contains an incomplete NSS database in DBM "
+                    "format".format(self.directory)
+                )
+            return 'dbm'
+        else:
+            return None
+
+    def convert_db(self):
+        dbtype = self.get_dbtype()
+        if dbtype is None:
+            raise ValueError(
+                "NSS database {} does not exist".format(self.directory)
+            )
+        elif dbtype == 'sql':
+            raise ValueError(
+                "NSS database {} already in SQL format".format(self.directory)
+            )
+
+        logger.info(
+            "Convert NSSDB %s from DBM to SQL format", self.directory
+        )
+
+        basecmd = [
+            'certutil',
+            '-d', 'sql:{}'.format(self.directory),
+            '-f', self.password_file,
+        ]
+        # See https://fedoraproject.org/wiki/Changes/NSSDefaultFileFormatSql
+        cmd = basecmd + [
+            '-N',
+            '-@', self.password_file
+        ]
+
+        logger.debug('Command: %s', ' '.join(cmd))
+        subprocess.check_call(cmd)
+
+        migration = (
+            ('cert8.db', 'cert9.db'),
+            ('key3.db', 'key4.db'),
+            ('secmod.db', 'pkcs11.txt'),
+        )
+
+        for oldname, newname in migration:
+            oldname = os.path.join(self.directory, oldname)
+            newname = os.path.join(self.directory, newname)
+            oldstat = os.stat(oldname)
+            os.chmod(newname, stat.S_IMODE(oldstat.st_mode))
+            os.chown(newname, oldstat.st_uid, oldstat.st_gid)
+
+        if selinux is not None and selinux.is_selinux_enabled():
+            selinux.restorecon(self.directory, recursive=True)
+
+        # list certs to verify DB
+        if self.get_dbtype() != 'sql':
+            raise RuntimeError(
+                "Migration of NSS database {} was not successfull.".format(
+                    self.directory
+                )
+            )
+
+        with open(os.devnull, 'wb') as f:
+            subprocess.check_call(basecmd + ['-L'], stdout=f)
+
+        for oldname, _ in migration:  # pylint: disable=unused-variable
+            oldname = os.path.join(self.directory, oldname)
+            os.rename(oldname, oldname + '.migrated')
+
+        logger.info("Migration successful")
 
     def add_cert(self, nickname, cert_file, trust_attributes=',,'):
 
