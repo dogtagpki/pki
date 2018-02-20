@@ -66,12 +66,12 @@
 Name:             pki-core
 %if 0%{?rhel}
 Version:                10.5.1
-%define redhat_release  7
+%define redhat_release  9
 %define redhat_stage    0
 %define default_release %{redhat_release}.%{redhat_stage}
 #%define default_release %{redhat_release}
 %else
-Version:                10.5.5
+Version:                10.5.6
 %define fedora_release  1
 %define fedora_stage    0
 %define default_release %{fedora_release}.%{fedora_stage}
@@ -1342,6 +1342,16 @@ fi
 %endif # %{with server}
 
 %changelog
+ * Mon Feb  19 2018 Dogtag Team <pki-devel@redhat.com> 10.5.6-1
+- dogtagpki Pagure Issue #2656 - Updating list of default audit events
+  (edewata)
+- dogtagpki Pagure Issue #2884 - Inconsistent key ID encoding
+  (edewata)
+- dogtagpki Pagure Issue #2929 - Regression in lightweight CA
+  key replication (ftweedal)
+- dogtagpki Pagure Issue #2944 - External OCSP Installation failure
+  with HSM and FIPS (edewata)
+
 * Mon Feb  5 2018 Dogtag Team <pki-devel@redhat.com> 10.5.5-1
 - dogtagpki Pagure Issue #2656 - Updating list of default audit events
   (edewata)
