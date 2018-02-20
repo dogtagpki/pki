@@ -1,0 +1,3 @@
+Name: pki-tomcat
+Specification-Version: ${APPLICATION_VERSION}
+Implementation-Version: ${VERSION}
