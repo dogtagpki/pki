@@ -90,9 +90,8 @@ import netscape.security.x509.X509CertImpl;
  *                        must have previously undergone the appropriate
  *                        migration steps.
  *
- *             (3) the NSS security databases (e. g. - cert8.db, key3.db,
- *                 and secmod.db) associated with the data contained in
- *                 the source LDIF file
+ *             (3) the NSS security databases associated with the data
+ *                 contained in the source LDIF file
  *
  *                 NOTE:  If the storage key was located on an HSM, then the
  *                        HSM must be available to the machine on which the

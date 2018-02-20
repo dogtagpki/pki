@@ -765,7 +765,7 @@ main(int argc, char **argv)
 	  PR_Cleanup();
 	  return 0;
 
-/* Directory which holds cert8.db and key3.db */
+/* Directory which holds NSS database */
 	case 'd':
 	    dir = optarg;
 	    break;
@@ -775,12 +775,12 @@ main(int argc, char **argv)
 	    nickName = optarg;
 	    break;
 
-/* password to open key3.db */
+/* password to open NSS database */
 	case 'p':
 	    passwd = optarg;
 	    break;
 
-/* name of file holding password for key3.db */
+/* name of file holding password for NSS database */
 	case 'w':
 	    passwdfile = optarg;
 	    break;

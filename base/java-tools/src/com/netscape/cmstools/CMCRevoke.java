@@ -106,7 +106,7 @@ public class CMCRevoke {
             bWrongParam = true;
             System.out.println("Wrong number of parameters:" + s.length);
             System.out.println("Usage:  CMCRevoke " +
-                    "-d<dir to cert8.db, key3.db> " +
+                    "-d<dir to NSS database> " +
                     "-n<nickname> " +
                     "-i<issuerName> " +
                     "-s<serialNumber> " +
@@ -158,7 +158,7 @@ public class CMCRevoke {
 
             if (bWrongParam == true) {
                 System.out.println("Usage:  CMCRevoke " +
-                        "-d<dir to cert8.db, key3.db> " +
+                        "-d<dir to NSS database> " +
                         "-n<nickname> " +
                         "-i<issuerName> " +
                         "-s<serialNumber> " +

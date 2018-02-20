@@ -411,7 +411,7 @@ public class ComCrypto {
     }
 
     /**
-     * Delete all keys frim key3.db
+     * Delete all keys from NSS database
      **/
 
     public void deleteKeys() {

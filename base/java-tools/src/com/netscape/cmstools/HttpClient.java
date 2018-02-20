@@ -270,7 +270,7 @@ public class HttpClient {
         System.out.println("#This parameter will be ignored if secure=false");
         System.out.println("tokenname=hsmname");
         System.out.println("");
-        System.out.println("#dbdir: directory for cert8.db, key3.db and secmod.db");
+        System.out.println("#dbdir: directory for NSS database");
         System.out.println("#This parameter will be ignored if secure=false");
         System.out.println("dbdir=/u/smith/.netscape");
         System.out.println("");
@@ -278,7 +278,7 @@ public class HttpClient {
         System.out.println("#This parameter will be ignored if secure=false");
         System.out.println("clientmode=false");
         System.out.println("");
-        System.out.println("#password: password for cert8.db");
+        System.out.println("#password: password for NSS database");
         System.out.println("#This parameter will be ignored if secure=false and clientauth=false");
         System.out.println("password=");
         System.out.println("");
