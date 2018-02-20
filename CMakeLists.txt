@@ -13,6 +13,10 @@ if (NOT DEFINED VERSION)
     set(VERSION "10.0.0")
 endif(NOT DEFINED VERSION)
 
+if (NOT DEFINED PKI_NSS_DB_TYPE)
+    set(PKI_NSS_DB_TYPE "dbm")
+endif(NOT DEFINED PKI_NSS_DB_TYPE)
+
 string(REGEX REPLACE "^([0-9]+).*" "\\1" APPLICATION_VERSION_MAJOR ${VERSION})
 string(REGEX REPLACE "^[0-9]+\\.([0-9]+).*" "\\1" APPLICATION_VERSION_MINOR ${VERSION})
 string(REGEX REPLACE "^[0-9]+\\.[0-9]+\\.([0-9]+).*" "\\1" APPLICATION_VERSION_PATCH ${VERSION})
@@ -91,6 +95,15 @@ endif ()
 # Find out if we have threading available
 set(CMAKE_THREAD_PREFER_PTHREADS ON)
 find_package(Threads)
+
+# NSS default database type
+if (PKI_NSS_DB_TYPE STREQUAL "dbm")
+    message(STATUS "Using old 'dbm' format for NSS_DEFAULT_DB_TYPE")
+elseif (PKI_NSS_DB_TYPE STREQUAL "sql")
+    message(STATUS "Using new 'sql' format for NSS_DEFAULT_DB_TYPE")
+else()
+    message(FATAL_ERROR "Unsupported PKI_NSS_DB_TYPE=${PKI_NSS_DB_TYPE}")
+endif()
 
 
 # Python 2 / 3 detection

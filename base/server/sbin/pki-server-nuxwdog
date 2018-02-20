@@ -5,7 +5,12 @@ if [ "$#" -ne 1 ]; then
     exit 1
 fi
 
+# default pki tomcat.conf for NSS_DEFAULT_DB_TYPE
+. /usr/share/pki/etc/tomcat.conf
+
+# system-wide config
 . /etc/tomcat/tomcat.conf
+
 NAME=$1
 if [ -f /etc/sysconfig/$NAME ]; then
     . /etc/sysconfig/$NAME

@@ -29,8 +29,6 @@ import os
 import random
 import requests.exceptions
 import string
-import subprocess
-import sys
 import xml.etree.ElementTree as ET
 
 from six.moves import input, range  # pylint: disable=W0622,F0401
@@ -261,73 +259,36 @@ class PKIConfigParser:
                 self.arg_parser.print_help()
                 self.arg_parser.exit(-1)
 
-    def set_nss_default_db_type(self):
-        # Define default NSS DB types
-        dbm = 'dbm'
-        # sql = 'sql'
-        default = dbm
+    def _getenv(self, key):
+        """Get value from env
 
-        # Set default NSS DB type
-        nss_default_db_type = os.getenv('NSS_DEFAULT_DB_TYPE')
-        if nss_default_db_type is None:
-            # NSS_DEFAULT_DB_TYPE is undefined; set 'dbm' default NSS DB type
-            os.putenv('NSS_DEFAULT_DB_TYPE', 'dbm')
-        elif nss_default_db_type == '':
-            # NSS_DEFAULT_DB_TYPE is empty; set 'dbm' default NSS DB type
-            os.putenv('NSS_DEFAULT_DB_TYPE', 'dbm')
-        else:
-            nss_type = nss_default_db_type.lower()
-            if nss_type == 'dbm':
-                # Always set/reset 'dbm' default NSS DB type
-                os.putenv('NSS_DEFAULT_DB_TYPE', 'dbm')
-            elif nss_type == 'sql':
-                # Always set/reset 'sql' default NSS DB type
-                # os.putenv('NSS_DEFAULT_DB_TYPE', 'sql')
-                # default = sql
+        Environment variables are sourced by the shell script wrappers.
+        """
+        value = os.environ.get(key)
+        if value is None:
+            raise KeyError("{} env var is missing.".format(key))
+        if not value:
+            raise KeyError("{} env var is empty.".format(key))
+        return value
 
-                # Warn user and set 'dbm' default NSS DB type
-                print('WARNING: NSS_DEFAULT_DB_TYPE=sql is currently ' +
-                      'unsupported!')
-                print('         Resetting to NSS_DEFAULT_DB_TYPE=dbm.')
-                # Currently override 'sql' with 'dbm' default NSS DB type
-                os.putenv('NSS_DEFAULT_DB_TYPE', 'dbm')
-            else:
-                # NSS_DEFAULT_DB_TYPE is invalid; set 'dbm' default NSS DB type
-                print('WARNING: NSS_DEFAULT_DB_TYPE=%s is invalid!'
-                      % nss_default_db_type)
-                print('         Resetting to NSS_DEFAULT_DB_TYPE=dbm.')
-                os.putenv('NSS_DEFAULT_DB_TYPE', 'dbm')
-        return default
+    def get_nss_db_type(self):
+        """Get and validate NSS_DEFAULT_DB_TYPE
+
+        Value is globally configured in /usr/share/pki/etc/pki.conf and
+        sourced by shell wrapper scripts.
+        """
+        dbtype = self._getenv('NSS_DEFAULT_DB_TYPE')
+        if dbtype not in {'dbm', 'sql'}:
+            raise ValueError(
+                "Unsupported NSS_DEFAULT_DB_TYPE value '{}'".format(dbtype)
+            )
+        return dbtype
 
     def init_config(self):
-
-        nss_default_db_type = self.set_nss_default_db_type()
-
-        java_home = subprocess.check_output(
-            '. /usr/share/pki/etc/pki.conf && . /etc/pki/pki.conf '
-            '&& echo $JAVA_HOME',
-            shell=True)
-        java_home = java_home.decode(sys.getfilesystemencoding())
-        # workaround for pylint error E1103
-        java_home = java_home.strip()
-
-        # RESTEasy
-        resteasy_lib = subprocess.check_output(
-            '. /usr/share/pki/etc/pki.conf && . /etc/pki/pki.conf '
-            '&& echo $RESTEASY_LIB',
-            shell=True)
-        resteasy_lib = resteasy_lib.decode(sys.getfilesystemencoding())
-        # workaround for pylint error E1103
-        resteasy_lib = resteasy_lib.strip()
-
-        # JNI jar location
-        jni_jar_dir = subprocess.check_output(
-            '. /usr/share/pki/etc/pki.conf && . /etc/pki/pki.conf '
-            '&& echo $JNI_JAR_DIR',
-            shell=True)
-        jni_jar_dir = jni_jar_dir.decode(sys.getfilesystemencoding())
-        # workaround for pylint error E1103
-        jni_jar_dir = jni_jar_dir.strip()
+        self.deployer.nss_db_type = self.get_nss_db_type()
+        java_home = self._getenv('JAVA_HOME').strip()
+        resteasy_lib = self._getenv('RESTEASY_LIB').strip()
+        jni_jar_dir = self._getenv('JNI_JAR_DIR').strip()
 
         default_instance_name = 'pki-tomcat'
         default_http_port = '8080'
@@ -345,7 +306,7 @@ class PKIConfigParser:
             'pki_subsystem': self.deployer.subsystem_name,
             'pki_subsystem_type': self.deployer.subsystem_name.lower(),
             'pki_root_prefix': config.pki_root_prefix,
-            'nss_default_db_type': nss_default_db_type,
+            'nss_default_db_type': self.deployer.nss_db_type,
             'java_home': java_home,
             'resteasy_lib': resteasy_lib,
             'jni_jar_dir': jni_jar_dir,

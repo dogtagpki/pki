@@ -19,6 +19,10 @@
 # --- END COPYRIGHT BLOCK ---
 #
 
+# load default, system-wide, and user-specific PKI configuration and
+# set NSS_DEFAULT_DB_TYPE.
+. /usr/share/pki/scripts/config
+
 @PYTHON_EXECUTABLE@ -m pki.server.pkiserver "$@"
 
 exit $?

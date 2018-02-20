@@ -30,14 +30,9 @@
 #  200-254 reserved
 #
 
-# default PKI configuration
-. /usr/share/pki/etc/pki.conf
-
-# system-wide PKI configuration
-if [ -f /etc/pki/pki.conf ]
-then
-    . /etc/pki/pki.conf
-fi
+# load default, system-wide, and user-specific PKI configuration and
+# set NSS_DEFAULT_DB_TYPE.
+. /usr/share/pki/scripts/config
 
 default_error=0
 

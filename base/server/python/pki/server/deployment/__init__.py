@@ -68,6 +68,7 @@ class PKIDeployer:
         self.tps_connector = None
         self.config_client = None
         self.parser = None
+        self.nss_db_type = None
 
         # Set installation time
         ticks = time.time()

@@ -91,6 +91,17 @@ install(
 )
 
 install(
+    FILES
+        scripts/config
+    DESTINATION
+        ${DATA_INSTALL_DIR}/scripts/
+    PERMISSIONS
+        OWNER_WRITE OWNER_READ
+        GROUP_READ
+        WORLD_READ
+)
+
+install(
     DIRECTORY
         upgrade
     DESTINATION

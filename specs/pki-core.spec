@@ -1169,7 +1169,11 @@ fi
 %doc %{_datadir}/doc/pki-base/html
 %dir %{_datadir}/pki
 %{_datadir}/pki/VERSION
-%{_datadir}/pki/etc/
+%dir %{_datadir}/pki/etc
+%{_datadir}/pki/etc/pki.conf
+%{_datadir}/pki/etc/logging.properties
+%dir %{_datadir}/pki/scripts
+%{_datadir}/pki/scripts/config
 %{_datadir}/pki/upgrade/
 %{_datadir}/pki/key/templates
 %dir %{_sysconfdir}/pki
@@ -1297,9 +1301,10 @@ fi
 %else
 %{python2_sitelib}/pki/server/
 %endif  # with_python3_default
+
+%{_datadir}/pki/etc/tomcat.conf
 %dir %{_datadir}/pki/deployment
 %{_datadir}/pki/deployment/config/
-%dir %{_datadir}/pki/scripts
 %{_datadir}/pki/scripts/operations
 %{_bindir}/pkidaemon
 %dir %{_sysconfdir}/systemd/system/pki-tomcatd.target.wants
