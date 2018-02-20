@@ -16,6 +16,24 @@
       "revId": "45233e041827489db9d3d94fb2d4d697abe573f7",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9fa67590_46d19fef",
+        "filename": "specs/pki-core.spec",
+        "patchSetId": 6
+      },
+      "lineNbr": 457,
+      "author": {
+        "id": 1010882
+      },
+      "writtenOn": "2018-02-20T08:34:55Z",
+      "side": 1,
+      "message": "Good point! You are right. I have updated the spec file and added obsoletes.",
+      "parentUuid": "8a38c3e9_180902d9",
+      "revId": "45233e041827489db9d3d94fb2d4d697abe573f7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
