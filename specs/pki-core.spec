@@ -173,7 +173,7 @@ BuildRequires:    jss >= 4.4.0-11
 BuildRequires:    tomcatjss >= 7.2.1-4
 %else
 BuildRequires:    jss >= 4.4.2-9
-BuildRequires:    tomcatjss >= 7.2.3
+BuildRequires:    tomcatjss >= 7.3.0
 %endif
 BuildRequires:    systemd-units
 
@@ -585,7 +585,7 @@ Requires(pre):    shadow-utils
 %if 0%{?rhel} && 0%{?rhel} <= 7
 Requires:         tomcatjss >= 7.2.1-4
 %else
-Requires:         tomcatjss >= 7.2.3
+Requires:         tomcatjss >= 7.3.0
 %endif
 
 %if 0%{?rhel} && 0%{?rhel} <= 7
