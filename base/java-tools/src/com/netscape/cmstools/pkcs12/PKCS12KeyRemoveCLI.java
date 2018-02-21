@@ -20,12 +20,12 @@ package com.netscape.cmstools.pkcs12;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.math.BigInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
+import org.apache.commons.codec.binary.Hex;
 import org.mozilla.jss.util.Password;
 
 import com.netscape.cmstools.cli.CLI;
@@ -93,7 +93,7 @@ public class PKCS12KeyRemoveCLI extends CLI {
             throw new Exception("Missing key ID.");
         }
 
-        BigInteger keyID = new BigInteger(cmdArgs[0], 16);
+        byte[] keyID = Hex.decodeHex(cmdArgs[0].toCharArray());
 
         String filename = cmd.getOptionValue("pkcs12-file");
 
@@ -130,6 +130,6 @@ public class PKCS12KeyRemoveCLI extends CLI {
             password.clear();
         }
 
-        MainCLI.printMessage("Deleted key \"" + keyID.toString(16) + "\"");
+        MainCLI.printMessage("Deleted key \"" + Hex.encodeHexString(keyID) + "\"");
     }
 }

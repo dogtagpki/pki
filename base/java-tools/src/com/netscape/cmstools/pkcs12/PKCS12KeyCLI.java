@@ -18,6 +18,8 @@
 
 package com.netscape.cmstools.pkcs12;
 
+import org.apache.commons.codec.binary.Hex;
+
 import com.netscape.cmstools.cli.CLI;
 
 import netscape.security.pkcs.PKCS12KeyInfo;
@@ -36,7 +38,7 @@ public class PKCS12KeyCLI extends CLI {
 
     public static void printKeyInfo(PKCS12KeyInfo keyInfo) throws Exception {
 
-        System.out.println("  Key ID: " + keyInfo.getID().toString(16));
+        System.out.println("  Key ID: " + Hex.encodeHexString(keyInfo.getID()));
         System.out.println("  Subject DN: " + keyInfo.getSubjectDN());
     }
 }

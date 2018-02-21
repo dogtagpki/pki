@@ -22,7 +22,6 @@ import java.io.BufferedReader;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.PrintStream;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.logging.Level;
@@ -30,6 +29,7 @@ import java.util.logging.Logger;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
+import org.apache.commons.codec.binary.Hex;
 import org.mozilla.jss.util.Password;
 
 import com.netscape.cmstools.cli.CLI;
@@ -114,12 +114,12 @@ public class PKCS12CertExportCLI extends CLI {
         }
 
         String nickname = null;
-        BigInteger certID = null;
+        byte[] certID = null;
 
         if (cmdArgs.length >= 1) {
             nickname = cmdArgs[0];
         } else {
-            certID = new BigInteger(id, 16);
+            certID = Hex.decodeHex(id.toCharArray());
         }
 
         String pkcs12File = cmd.getOptionValue("pkcs12-file");
