@@ -25,12 +25,24 @@ set(TPS_SHARED_LIBRARY
   CACHE INTERNAL "tps shared library"
 )
 
+find_library(ZLIB_LIBRARY
+  NAMES
+    z
+  PATHS
+    /usr/lib
+    /usr/lib64
+    /usr/local/lib
+    /opt/local/lib
+    /sw/lib
+)
+
 set(TPS_LINK_LIBRARIES
   ${NSPR_LIBRARIES}
   ${NSS_LIBRARIES}
   ${APR_LIBRARIES}
   ${LDAP_LIBRARIES}
   ${TOKENDB_SHARED_LIBRARY}
+  ${ZLIB_LIBRARY}
 )
 
 set(tps_library_SRCS
