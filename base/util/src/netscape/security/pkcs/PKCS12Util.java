@@ -20,7 +20,6 @@ package netscape.security.pkcs;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
-import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -30,6 +29,7 @@ import java.security.PublicKey;
 import java.security.cert.CertificateException;
 import java.util.Collection;
 
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang.StringUtils;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.ANY;
@@ -176,16 +176,16 @@ public class PKCS12Util {
         safeContents.addElement(safeBag);
     }
 
-    BigInteger createLocalID(X509Certificate cert) throws Exception {
+    byte[] createLocalID(X509Certificate cert) throws Exception {
         // SHA1 hash of the X509Cert DER encoding
         return createLocalID(cert.getEncoded());
     }
 
-    BigInteger createLocalID(byte[] bytes) throws Exception {
+    byte[] createLocalID(byte[] bytes) throws Exception {
 
         MessageDigest md = MessageDigest.getInstance("SHA");
         md.update(bytes);
-        return new BigInteger(1, md.digest());
+        return md.digest();
     }
 
     SET createKeyBagAttrs(PKCS12KeyInfo keyInfo) throws Exception {
@@ -205,7 +205,7 @@ public class PKCS12Util {
         localKeyAttr.addElement(SafeBag.LOCAL_KEY_ID);
 
         SET localKeySet = new SET();
-        localKeySet.addElement(new OCTET_STRING(keyInfo.id.toByteArray()));
+        localKeySet.addElement(new OCTET_STRING(keyInfo.id));
         localKeyAttr.addElement(localKeySet);
 
         attrs.addElement(localKeyAttr);
@@ -231,7 +231,7 @@ public class PKCS12Util {
             localKeyAttr.addElement(SafeBag.LOCAL_KEY_ID);
 
             SET localKeySet = new SET();
-            localKeySet.addElement(new OCTET_STRING(certInfo.id.toByteArray()));
+            localKeySet.addElement(new OCTET_STRING(certInfo.id));
             localKeyAttr.addElement(localKeySet);
 
             attrs.addElement(localKeyAttr);
@@ -282,7 +282,8 @@ public class PKCS12Util {
 
         CryptoManager cm = CryptoManager.getInstance();
 
-        BigInteger id = createLocalID(cert);
+        byte[] id = createLocalID(cert);
+        logger.debug("ID: " + Hex.encodeHexString(id));
 
         // load cert info
         loadCertInfoFromNSS(pkcs12, cert, id, true);
@@ -297,13 +298,13 @@ public class PKCS12Util {
             X509Certificate[] certChain = cm.buildCertificateChain(cert);
             for (int i = 1; i < certChain.length; i++) {
                 X509Certificate c = certChain[i];
-                BigInteger cid = createLocalID(c);
+                byte[] cid = createLocalID(c);
                 loadCertInfoFromNSS(pkcs12, c, cid, false);
             }
         }
     }
 
-    public void loadCertInfoFromNSS(PKCS12 pkcs12, X509Certificate cert, BigInteger id, boolean replace) throws Exception {
+    public void loadCertInfoFromNSS(PKCS12 pkcs12, X509Certificate cert, byte[] id, boolean replace) throws Exception {
 
         String nickname = cert.getNickname();
         logger.info("Loading certificate \"" + nickname + "\" from NSS database");
@@ -317,7 +318,7 @@ public class PKCS12Util {
         pkcs12.addCertInfo(certInfo, replace);
     }
 
-    public void loadKeyInfoFromNSS(PKCS12 pkcs12, X509Certificate cert, BigInteger id) throws Exception {
+    public void loadKeyInfoFromNSS(PKCS12 pkcs12, X509Certificate cert, byte[] id) throws Exception {
 
         String nickname = cert.getNickname();
         logger.info("Loading private key for certificate \"" + nickname + "\" from NSS database");
@@ -416,8 +417,8 @@ public class PKCS12Util {
                 ByteArrayInputStream bis = new ByteArrayInputStream(value.getEncoded());
                 OCTET_STRING keyID = (OCTET_STRING) new OCTET_STRING.Template().decode(bis);
 
-                keyInfo.id = new BigInteger(1, keyID.toByteArray());
-                logger.debug("   ID: " + keyInfo.id.toString(16));
+                keyInfo.id = keyID.toByteArray();
+                logger.debug("   ID: " + Hex.encodeHexString(keyInfo.id));
             }
         }
 
@@ -464,8 +465,8 @@ public class PKCS12Util {
                 ByteArrayInputStream bis = new ByteArrayInputStream(value.getEncoded());
                 OCTET_STRING keyID = (OCTET_STRING) new OCTET_STRING.Template().decode(bis);
 
-                certInfo.id = new BigInteger(1, keyID.toByteArray());
-                logger.debug("   ID: " + certInfo.id.toString(16));
+                certInfo.id = keyID.toByteArray();
+                logger.debug("   ID: " + Hex.encodeHexString(certInfo.id));
 
             } else if (oid.equals(PKCS12.CERT_TRUST_FLAGS_OID) && trustFlagsEnabled) {
 
@@ -483,7 +484,7 @@ public class PKCS12Util {
         if (certInfo.id == null) {
             logger.debug("   ID not specified, generating new ID");
             certInfo.id = createLocalID(x509cert);
-            logger.debug("   ID: " + certInfo.id.toString(16));
+            logger.debug("   ID: " + Hex.encodeHexString(certInfo.id));
         }
 
         if (certInfo.nickname == null) {
@@ -659,7 +660,7 @@ public class PKCS12Util {
         CryptoToken ct = cm.getInternalKeyStorageToken();
         CryptoStore store = ct.getCryptoStore();
 
-        BigInteger id = certInfo.getID();
+        byte[] id = certInfo.getID();
         PKCS12KeyInfo keyInfo = pkcs12.getKeyInfoByID(id);
 
         for (X509Certificate cert : cm.findCertsByNickname(certInfo.nickname)) {

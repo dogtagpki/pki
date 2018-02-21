@@ -152,15 +152,15 @@ public class PKCS12 {
     }
 
     public void addKeyInfo(PKCS12KeyInfo keyInfo) {
-        keyInfosByID.put(keyInfo.id, keyInfo);
+        keyInfosByID.put(new BigInteger(1, keyInfo.id), keyInfo);
     }
 
-    public PKCS12KeyInfo getKeyInfoByID(BigInteger id) {
-        return keyInfosByID.get(id);
+    public PKCS12KeyInfo getKeyInfoByID(byte[] id) {
+        return keyInfosByID.get(new BigInteger(1, id));
     }
 
-    public PKCS12KeyInfo removeKeyInfoByID(BigInteger id) {
-        return keyInfosByID.remove(id);
+    public PKCS12KeyInfo removeKeyInfoByID(byte[] id) {
+        return keyInfosByID.remove(new BigInteger(1, id));
     }
 
     public Collection<PKCS12CertInfo> getCertInfos() {
@@ -168,7 +168,7 @@ public class PKCS12 {
     }
 
     public void addCertInfo(PKCS12CertInfo certInfo, boolean replace) {
-        BigInteger id = certInfo.getID();
+        BigInteger id = new BigInteger(1, certInfo.getID());
 
         if (!replace && certInfosByID.containsKey(id))
             return;
@@ -176,8 +176,8 @@ public class PKCS12 {
         certInfosByID.put(id, certInfo);
     }
 
-    public PKCS12CertInfo getCertInfoByID(BigInteger id) {
-        return certInfosByID.get(id);
+    public PKCS12CertInfo getCertInfoByID(byte[] id) {
+        return certInfosByID.get(new BigInteger(1, id));
     }
 
     public Collection<PKCS12CertInfo> getCertInfosByNickname(String nickname) {

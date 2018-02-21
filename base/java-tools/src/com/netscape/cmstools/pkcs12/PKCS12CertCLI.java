@@ -18,7 +18,7 @@
 
 package com.netscape.cmstools.pkcs12;
 
-import java.math.BigInteger;
+import org.apache.commons.codec.binary.Hex;
 
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.cmstools.cli.CLI;
@@ -43,8 +43,8 @@ public class PKCS12CertCLI extends CLI {
 
     public static void printCertInfo(PKCS12 pkcs12, PKCS12CertInfo certInfo) throws Exception {
 
-        BigInteger id = certInfo.getID();
-        System.out.println("  Certificate ID: " + id.toString(16));
+        byte[] id = certInfo.getID();
+        System.out.println("  Certificate ID: " + Hex.encodeHexString(id));
 
         System.out.println("  Serial Number: " + new CertId(certInfo.getCert().getSerialNumber()).toHexString());
         System.out.println("  Nickname: " + certInfo.getNickname());
