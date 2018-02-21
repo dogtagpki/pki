@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d17e2b8a_ba94ed90",
+        "filename": ".travis/ipa-test.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 1010882
+      },
+      "writtenOn": "2018-02-21T18:45:36Z",
+      "side": 1,
+      "message": "I added this line to debug an installation failure in freeIPA. IMO it\u0027s useful to keep it.",
+      "revId": "aec0d794a04f4485ee1d22d3a6908562f874d65b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "85e2f3e1_1fb0d3aa",
+        "filename": "base/server/upgrade/10.6.0/01-MigrateNSSDB",
+        "patchSetId": 1
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 1010882
+      },
+      "writtenOn": "2018-02-21T18:45:36Z",
+      "side": 1,
+      "message": "Dogtag must be stopped here to prevent multiple readers/writers to one DBM NSSDB.",
+      "revId": "aec0d794a04f4485ee1d22d3a6908562f874d65b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
