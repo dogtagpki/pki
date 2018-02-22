@@ -331,21 +331,30 @@ public class PKCS12Util {
 
         logger.info("Generating PKCS #12 data");
 
-        SEQUENCE safeContents = new SEQUENCE();
-
-        for (PKCS12CertInfo certInfo : pkcs12.getCertInfos()) {
-            addCertBag(certInfo, safeContents);
-        }
-
-        SEQUENCE encSafeContents = new SEQUENCE();
-
-        for (PKCS12KeyInfo keyInfo : pkcs12.getKeyInfos()) {
-            addKeyBag(keyInfo, password, encSafeContents);
-        }
-
         AuthenticatedSafes authSafes = new AuthenticatedSafes();
-        authSafes.addSafeContents(safeContents);
-        authSafes.addSafeContents(encSafeContents);
+
+        Collection<PKCS12KeyInfo> keyInfos = pkcs12.getKeyInfos();
+        Collection<PKCS12CertInfo> certInfos = pkcs12.getCertInfos();
+
+        if (!keyInfos.isEmpty()) {
+            SEQUENCE keySafeContents = new SEQUENCE();
+
+            for (PKCS12KeyInfo keyInfo : keyInfos) {
+                addKeyBag(keyInfo, password, keySafeContents);
+            }
+
+            authSafes.addSafeContents(keySafeContents);
+        }
+
+        if (!certInfos.isEmpty()) {
+            SEQUENCE certSafeContents = new SEQUENCE();
+
+            for (PKCS12CertInfo certInfo : certInfos) {
+                addCertBag(certInfo, certSafeContents);
+            }
+
+            authSafes.addSafeContents(certSafeContents);
+        }
 
         PFX pfx = new PFX(authSafes);
         pfx.computeMacData(password, null, 5);
