@@ -1003,6 +1003,8 @@ class NSSDatabase(object):
                       pkcs12_password=None,
                       pkcs12_password_file=None,
                       nicknames=None,
+                      cert_encryption=None,
+                      key_encryption=None,
                       append=False,
                       include_trust_flags=True,
                       include_key=True,
@@ -1038,6 +1040,12 @@ class NSSDatabase(object):
                 '--pkcs12-file', pkcs12_file,
                 '--pkcs12-password-file', password_file
             ])
+
+            if cert_encryption:
+                cmd.extend(['--cert-encryption', cert_encryption])
+
+            if key_encryption:
+                cmd.extend(['--key-encryption', key_encryption])
 
             if append:
                 cmd.extend(['--append'])

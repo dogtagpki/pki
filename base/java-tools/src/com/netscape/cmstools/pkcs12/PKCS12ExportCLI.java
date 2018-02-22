@@ -61,6 +61,16 @@ public class PKCS12ExportCLI extends CLI {
         option.setArgName("path");
         options.addOption(option);
 
+        option = new Option(null, "cert-encryption", true,
+                "Certificate encryption algorithm (default: " + PKCS12Util.DEFAULT_CERT_ENCRYPTION_NAME + ").");
+        option.setArgName("algorithm");
+        options.addOption(option);
+
+        option = new Option(null, "key-encryption", true,
+                "Key encryption algorithm (default: " + PKCS12Util.DEFAULT_KEY_ENCRYPTION_NAME + ").");
+        option.setArgName("algorithm");
+        options.addOption(option);
+
         options.addOption(null, "append", false, "Append into an existing PKCS #12 file");
         options.addOption(null, "no-trust-flags", false, "Do not include trust flags");
         options.addOption(null, "no-key", false, "Do not include private key");
@@ -116,6 +126,9 @@ public class PKCS12ExportCLI extends CLI {
 
         Password password = new Password(passwordString.toCharArray());
 
+        String certEncryption = cmd.getOptionValue("cert-encryption");
+        String keyEncryption = cmd.getOptionValue("key-encryption");
+
         boolean append = cmd.hasOption("append");
         boolean includeTrustFlags = !cmd.hasOption("no-trust-flags");
         boolean includeKey = !cmd.hasOption("no-key");
@@ -123,6 +136,12 @@ public class PKCS12ExportCLI extends CLI {
 
         try {
             PKCS12Util util = new PKCS12Util();
+            if (certEncryption != null) {
+                util.setCertEncryption(certEncryption);
+            }
+            if (keyEncryption != null) {
+                util.setKeyEncryption(keyEncryption);
+            }
             util.setTrustFlagsEnabled(includeTrustFlags);
 
             PKCS12 pkcs12;
