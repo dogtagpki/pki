@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "ca1a742b_b163c671",
+        "filename": "base/server/python/pki/server/deployment/pkihelper.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 2352,
+      "author": {
+        "id": 1010882
+      },
+      "writtenOn": "2018-02-22T09:37:33Z",
+      "side": 1,
+      "message": "I don\u0027t mind to remove the check. The code is still there because I tried to keep the old logic.",
+      "parentUuid": "63fab6db_5dc4eaee",
+      "revId": "aec0d794a04f4485ee1d22d3a6908562f874d65b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "438f8dce_4d027d12",
         "filename": "base/server/python/pki/server/deployment/pkihelper.py",
         "patchSetId": 1
@@ -82,6 +100,24 @@
       "side": 1,
       "message": "If the server is not currently running at the time of upgrade it should remain stopped.",
       "parentUuid": "85e2f3e1_1fb0d3aa",
+      "revId": "aec0d794a04f4485ee1d22d3a6908562f874d65b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "98ef840e_db8d3435",
+        "filename": "base/server/upgrade/10.6.0/01-MigrateNSSDB",
+        "patchSetId": 1
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 1010882
+      },
+      "writtenOn": "2018-02-22T09:37:33Z",
+      "side": 1,
+      "message": "I\u0027m fine with that, too. Stopping and starting the instance should be handled by pki-server-upgrade. I\u0027ll open a ticket.",
+      "parentUuid": "4b6b69be_baa2a9c2",
       "revId": "aec0d794a04f4485ee1d22d3a6908562f874d65b",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
