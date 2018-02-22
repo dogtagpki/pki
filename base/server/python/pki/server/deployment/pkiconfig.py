@@ -104,9 +104,6 @@ pki_deployed_instance_name = None
 pki_secdomain_user = None
 pki_secdomain_pass = None
 
-# PKI Deployment "Test" Command-Line Variables
-pki_root_prefix = None
-
 
 # PKI Deployment Helper Functions
 def str2bool(string):
