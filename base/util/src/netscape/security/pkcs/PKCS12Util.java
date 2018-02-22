@@ -25,6 +25,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.Principal;
 import java.security.PublicKey;
+import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.util.Collection;
 
@@ -64,7 +65,12 @@ public class PKCS12Util {
 
     private static Logger logger = LoggerFactory.getLogger(PKCS12Util.class);
 
+    SecureRandom random;
     boolean trustFlagsEnabled = true;
+
+    public PKCS12Util() throws Exception {
+        random = SecureRandom.getInstance("pkcs11prng", "Mozilla-JSS");
+    }
 
     public boolean isTrustFlagsEnabled() {
         return trustFlagsEnabled;
@@ -357,7 +363,12 @@ public class PKCS12Util {
         }
 
         PFX pfx = new PFX(authSafes);
-        pfx.computeMacData(password, null, 5);
+
+        // Use the same salt size and number of iterations as in pk12util.
+
+        byte[] salt = new byte[16];
+        random.nextBytes(salt);
+        pfx.computeMacData(password, salt, 100000);
 
         return pfx;
     }
