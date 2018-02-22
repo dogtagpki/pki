@@ -511,9 +511,10 @@ class KeyClient(object):
             self.wrap_name = pki.crypto.WRAP_AES_CBC_PAD
 
     def get_client_keyset(self):
-        # get client keyset
-        pki.util.read_environment_files()
-        client_keyset = os.getenv('KEY_WRAP_PARAMETER_SET')
+        if 'KEY_WRAP_PARAMETER_SET' not in os.environ:
+            # load default and system-wide pki.conf into os.environ
+            pki.util.read_environment_files()
+        client_keyset = os.environ.get('KEY_WRAP_PARAMETER_SET')
         if client_keyset is not None:
             return int(client_keyset)
         return 0
