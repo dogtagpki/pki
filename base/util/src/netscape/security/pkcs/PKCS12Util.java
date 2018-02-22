@@ -25,8 +25,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.Principal;
 import java.security.PublicKey;
+import java.security.SecureRandom;
 import java.security.cert.CertificateException;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang.StringUtils;
@@ -44,6 +47,7 @@ import org.mozilla.jss.crypto.EncryptionAlgorithm;
 import org.mozilla.jss.crypto.InternalCertificate;
 import org.mozilla.jss.crypto.NoSuchItemOnTokenException;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
+import org.mozilla.jss.crypto.PBEAlgorithm;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.pkcs12.AuthenticatedSafes;
@@ -52,6 +56,7 @@ import org.mozilla.jss.pkcs12.PFX;
 import org.mozilla.jss.pkcs12.PasswordConverter;
 import org.mozilla.jss.pkcs12.SafeBag;
 import org.mozilla.jss.pkix.primitive.Attribute;
+import org.mozilla.jss.pkix.primitive.EncryptedPrivateKeyInfo;
 import org.mozilla.jss.util.Password;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,7 +69,80 @@ public class PKCS12Util {
 
     private static Logger logger = LoggerFactory.getLogger(PKCS12Util.class);
 
+    public final static String NO_ENCRYPTION = "none";
+
+    public final static List<PBEAlgorithm> SUPPORTED_CERT_ENCRYPTIONS = Arrays.asList(new PBEAlgorithm[] {
+            null, // no encryption
+            PBEAlgorithm.PBE_SHA1_RC2_40_CBC
+    });
+
+    public final static List<PBEAlgorithm> SUPPORTED_KEY_ENCRYPTIONS = Arrays.asList(new PBEAlgorithm[] {
+            PBEAlgorithm.PBE_PKCS5_PBES2,
+            PBEAlgorithm.PBE_SHA1_DES3_CBC
+    });
+
+    public final static PBEAlgorithm DEFAULT_CERT_ENCRYPTION = SUPPORTED_CERT_ENCRYPTIONS.get(0);
+    public final static String DEFAULT_CERT_ENCRYPTION_NAME = NO_ENCRYPTION;
+
+    public final static PBEAlgorithm DEFAULT_KEY_ENCRYPTION = SUPPORTED_KEY_ENCRYPTIONS.get(0);
+    public final static String DEFAULT_KEY_ENCRYPTION_NAME = DEFAULT_KEY_ENCRYPTION.toString();
+
+    SecureRandom random;
+    PBEAlgorithm certEncryption = DEFAULT_CERT_ENCRYPTION;
+    PBEAlgorithm keyEncryption = DEFAULT_KEY_ENCRYPTION;
     boolean trustFlagsEnabled = true;
+
+    public PKCS12Util() throws Exception {
+        random = SecureRandom.getInstance("pkcs11prng", "Mozilla-JSS");
+    }
+
+    public void setCertEncryption(String name) throws Exception {
+
+        for (PBEAlgorithm algorithm : SUPPORTED_CERT_ENCRYPTIONS) {
+
+            if (algorithm == null) {
+                if (NO_ENCRYPTION.equals(name)) {
+                    this.certEncryption = null;
+                    return;
+                }
+
+            } else if (algorithm.toString().equals(name)) {
+                this.certEncryption = algorithm;
+                return;
+            }
+        }
+
+        throw new Exception("Unsupported certificate encryption: " + name);
+    }
+
+    public void setCertEncryption(PBEAlgorithm algorithm) throws Exception {
+        this.certEncryption = algorithm;
+    }
+
+    public PBEAlgorithm getCertEncryption() {
+        return certEncryption;
+    }
+
+    public void setKeyEncryption(String name) throws Exception {
+
+        for (PBEAlgorithm algorithm : SUPPORTED_KEY_ENCRYPTIONS) {
+
+            if (algorithm.toString().equals(name)) {
+                this.keyEncryption = algorithm;
+                return;
+            }
+        }
+
+        throw new Exception("Unsupported key encryption: " + name);
+    }
+
+    public void setKeyEncryption(PBEAlgorithm algorithm) throws Exception {
+        this.keyEncryption = algorithm;
+    }
+
+    public PBEAlgorithm getKeyEncryption() {
+        return keyEncryption;
+    }
 
     public boolean isTrustFlagsEnabled() {
         return trustFlagsEnabled;
@@ -101,7 +179,8 @@ public class PKCS12Util {
         icert.setObjectSigningTrust(PKCS12.decodeFlags(flags[2]));
     }
 
-    /** Add a private key to the PKCS #12 object.
+    /**
+     * Add a private key to the PKCS #12 object.
      *
      * The PKCS12KeyInfo object received comes about in two
      * different scenarios:
@@ -122,43 +201,84 @@ public class PKCS12Util {
      */
     public void addKeyBag(PKCS12KeyInfo keyInfo, Password password,
             SEQUENCE encSafeContents) throws Exception {
+
         logger.debug("Creating key bag for " + keyInfo.getFriendlyName());
 
+        ASN1Value content;
+
         byte[] epkiBytes = keyInfo.getEncryptedPrivateKeyInfoBytes();
-        if (epkiBytes == null) {
-            PrivateKey k = keyInfo.getPrivateKey();
-            if (k == null) {
-                logger.debug("NO PRIVATE KEY for " + keyInfo.getFriendlyName());
-                return;
-            }
+
+        if (epkiBytes != null) {
+            // private key already encrypted
+            content = new ANY(epkiBytes);
+
+        } else {
             logger.debug("Encrypting private key for " + keyInfo.getFriendlyName());
 
-            epkiBytes = CryptoManager.getInstance()
-                .getInternalKeyStorageToken()
-                .getCryptoStore()
-                .getEncryptedPrivateKeyInfo(
-                    /* For compatibility with OpenSSL and NSS >= 3.31,
-                     * do not BMPString-encode the passphrase when using
-                     * non-PKCS #12 PBE scheme such as PKCS #5 PBES2.
-                     *
-                     * The resulting PKCS #12 is not compatible with
-                     * NSS < 3.31.
-                     */
-                    null /* passConverter */,
-                    password,
-                    /* NSS has a bug that causes any AES CBC encryption
-                     * to use AES-256, but AlgorithmID contains chosen
-                     * alg.  To avoid mismatch, use AES_256_CBC. */
-                    EncryptionAlgorithm.AES_256_CBC,
-                    0 /* iterations (default) */,
-                    k);
+            PrivateKey privateKey = keyInfo.getPrivateKey();
+            if (privateKey == null) {
+                throw new Exception("Missing private key for " + keyInfo.getFriendlyName());
+            }
+
+            CryptoToken token = CryptoManager.getInstance().getInternalKeyStorageToken();
+
+            if (keyEncryption == PBEAlgorithm.PBE_SHA1_DES3_CBC) {
+                content = create_EPKI_with_PBE_SHA1_DES3_CBC(token, privateKey, password);
+
+            } else if (keyEncryption == PBEAlgorithm.PBE_PKCS5_PBES2) {
+                content = create_EPKIwithPBE_PKCS5_PBES2(token, privateKey, password);
+
+            } else {
+                throw new Exception("Unsupported key encryption: " + keyEncryption);
+            }
         }
 
         SET keyAttrs = createKeyBagAttrs(keyInfo);
 
-        SafeBag safeBag = new SafeBag(
-            SafeBag.PKCS8_SHROUDED_KEY_BAG, new ANY(epkiBytes), keyAttrs);
+        SafeBag safeBag = new SafeBag(SafeBag.PKCS8_SHROUDED_KEY_BAG, content, keyAttrs);
         encSafeContents.addElement(safeBag);
+    }
+
+    public ASN1Value create_EPKI_with_PBE_SHA1_DES3_CBC(CryptoToken token, PrivateKey privateKey, Password password)
+            throws Exception {
+
+        // The salt size and number of iterations are selected to match pk12util.
+
+        byte[] salt = new byte[16];
+        random.nextBytes(salt);
+
+        return EncryptedPrivateKeyInfo.createPBE(
+                PBEAlgorithm.PBE_SHA1_DES3_CBC,
+                password,
+                salt,
+                100000, // iterations
+                null, // password converter
+                privateKey,
+                token);
+    }
+
+    public ASN1Value create_EPKIwithPBE_PKCS5_PBES2(CryptoToken token, PrivateKey privateKey, Password password)
+            throws Exception {
+
+        CryptoStore store = token.getCryptoStore();
+
+        byte[] bytes = store.getEncryptedPrivateKeyInfo(
+                // For compatibility with OpenSSL and NSS >= 3.31,
+                // do not BMPString-encode the passphrase when using
+                // non-PKCS #12 PBE scheme such as PKCS #5 PBES2.
+                //
+                // The resulting PKCS #12 is not compatible with
+                // NSS < 3.31.
+                null, // password converter
+                password,
+                // NSS has a bug that causes any AES CBC encryption
+                // to use AES-256, but AlgorithmID contains chosen
+                // alg.  To avoid mismatch, use AES_256_CBC.
+                EncryptionAlgorithm.AES_256_CBC,
+                0, // iterations (default)
+                privateKey);
+
+        return new ANY(bytes);
     }
 
     public void addCertBag(PKCS12CertInfo certInfo,
@@ -331,21 +451,39 @@ public class PKCS12Util {
 
         logger.info("Generating PKCS #12 data");
 
-        SEQUENCE safeContents = new SEQUENCE();
+        SEQUENCE certSafeContents = new SEQUENCE();
 
         for (PKCS12CertInfo certInfo : pkcs12.getCertInfos()) {
-            addCertBag(certInfo, safeContents);
+            addCertBag(certInfo, certSafeContents);
         }
 
-        SEQUENCE encSafeContents = new SEQUENCE();
+        SEQUENCE keySafeContents = new SEQUENCE();
 
         for (PKCS12KeyInfo keyInfo : pkcs12.getKeyInfos()) {
-            addKeyBag(keyInfo, password, encSafeContents);
+            addKeyBag(keyInfo, password, keySafeContents);
         }
 
         AuthenticatedSafes authSafes = new AuthenticatedSafes();
-        authSafes.addSafeContents(safeContents);
-        authSafes.addSafeContents(encSafeContents);
+        authSafes.addSafeContents(keySafeContents);
+
+        if (certEncryption == null) {
+            authSafes.addSafeContents(certSafeContents);
+
+        } else if (certEncryption == PBEAlgorithm.PBE_SHA1_RC2_40_CBC) {
+
+            byte[] salt = new byte[16];
+            random.nextBytes(salt);
+
+            authSafes.addEncryptedSafeContents(
+                    certEncryption,
+                    password,
+                    salt,
+                    100000, // iterations
+                    certSafeContents);
+
+        } else {
+            throw new Exception("Unsupported certificate encryption: " + certEncryption);
+        }
 
         PFX pfx = new PFX(authSafes);
         pfx.computeMacData(password, null, 5);
