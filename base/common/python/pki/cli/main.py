@@ -236,7 +236,7 @@ if __name__ == '__main__':
 
     except subprocess.CalledProcessError as e:
         if cli.verbose:
-            print('ERROR: %s' % e)
+            print('ERROR: Command: %s' % ' '.join(e.cmd))
         elif cli.debug:
             traceback.print_exc()
         sys.exit(e.returncode)

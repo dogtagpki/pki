@@ -121,7 +121,7 @@ if __name__ == '__main__':
     except subprocess.CalledProcessError as e:
         if cli.verbose:
             traceback.print_exc()
-        print('ERROR: %s' % e)
+        print('ERROR: Command: %s' % ' '.join(e.cmd))
         sys.exit(e.returncode)
 
     except Exception as e:  # pylint: disable=broad-except
