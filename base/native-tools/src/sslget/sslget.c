@@ -58,6 +58,7 @@
 #include "prio.h"
 #include "prnetdb.h"
 #include "nss.h"
+#include <nss3/sslproto.h>
 
 
 /*  set Tabs to 8 */
@@ -122,7 +123,8 @@ int	verbose;
 SECItem	bigBuf;
 
 
-char * ownPasswd( PK11SlotInfo *slot, PRBool retry, void *arg)
+static char*
+ownPasswd( PK11SlotInfo *slot, PRBool retry, void *arg)
 {
     char *passwd = NULL;
 
@@ -300,7 +302,7 @@ printSecurityInfo(PRFileDesc *fd)
 PRBool useModelSocket = PR_TRUE;
 
 
-PRInt32
+static PRInt32
 do_writes(
     void *       a
 )
@@ -334,7 +336,8 @@ do_writes(
 }
 
 
-int isLinkLocalAddress(char *address, int family)
+static int
+isLinkLocalAddress(char *address, int family)
 {
     if ( !address || ( strlen(address) == 0 ) ) {
         return 0;
@@ -363,7 +366,7 @@ int isLinkLocalAddress(char *address, int family)
 }
 
 
-SECStatus
+static SECStatus
 do_io( PRFileDesc *ssl_sock, int connection)
 {
     int countRead = 0;
@@ -472,7 +475,7 @@ do_io( PRFileDesc *ssl_sock, int connection)
     return SECSuccess;	/* success */
 }
 
-int
+static int
 do_connect(
     PRNetAddr *addr,
     PRFileDesc *model_sock,
@@ -543,7 +546,7 @@ do_connect(
 ** Since the value returned is an integer (not a string of bytes), 
 ** it is inherently in Host Byte Order. 
 */
-PRUint32
+static PRUint32
 getIPAddress(const char * hostName) 
 {
     const unsigned char *p;
@@ -565,7 +568,7 @@ getIPAddress(const char * hostName)
     return rv;
 }
 
-void
+static void
 client_main(
     unsigned short      port, 
     int                 connections, 
@@ -576,31 +579,82 @@ client_main(
 {
     PRFileDesc *model_sock = NULL;
     int         rv;
-
+    int i;
+    const PRUint16* ssl_ciphers;
+    PRUint16 num_ciphers;
+    PRBool enabled;
+    SSLCipherSuiteInfo info;
+    SSLVersionRange versions = {
+        SSL_LIBRARY_VERSION_TLS_1_1,
+        SSL_LIBRARY_VERSION_TLS_1_2
+    };
 
     FPRINTF(stderr, "port: %d\n", port);
 
     /* all suites except RSA_NULL_MD5 are enabled by Domestic Policy */
     NSS_SetDomesticPolicy();
 
-    /* all the SSL2 and SSL3 cipher suites are enabled by default. */
+    /* disable SSL 2.0 and SSL 3.0 */
+    SSL_VersionRangeSetDefault(ssl_variant_stream, &versions);
 
-    /* enable FIPS ciphers */
-    SSL_CipherPrefSetDefault(0xc004 /* TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA */, PR_TRUE);
-    SSL_CipherPrefSetDefault(0xc003 /* TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA */, PR_TRUE);
-    SSL_CipherPrefSetDefault(0xC005 /* TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA */, PR_TRUE);
-    SSL_CipherPrefSetDefault(0xc00a /* TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA */, PR_TRUE);
-    SSL_CipherPrefSetDefault(0x2f /* TLS_RSA_WITH_AES_128_CBC_SHA */, PR_TRUE);
-    SSL_CipherPrefSetDefault(0x35 /* TLS_RSA_WITH_AES_256_CBC_SHA */, PR_TRUE);
-    SSL_CipherPrefSetDefault(0xc008 /* TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA */, PR_TRUE);
-    SSL_CipherPrefSetDefault(0xc009 /* TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA */, PR_TRUE);
-    SSL_CipherPrefSetDefault(0xc012 /* TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA */, PR_TRUE);
-    SSL_CipherPrefSetDefault(0xc013 /* TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA */, PR_TRUE);
-    SSL_CipherPrefSetDefault(0xc014 /* TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA */, PR_TRUE);
-    SSL_CipherPrefSetDefault(0x32 /* TLS_DHE_DSS_WITH_AES_128_CBC_SHA */, PR_TRUE);
-    SSL_CipherPrefSetDefault(0x38 /* TLS_DHE_DSS_WITH_AES_256_CBC_SHA */, PR_TRUE);
-    SSL_CipherPrefSetDefault(0x33 /* TLS_DHE_RSA_WITH_AES_128_CBC_SHA */, PR_TRUE);
-    SSL_CipherPrefSetDefault(0x39 /* TLS_DHE_RSA_WITH_AES_256_CBC_SHA */, PR_TRUE);
+    /* disable all weak or non-FIPS compliant ciphers */
+    ssl_ciphers = SSL_GetImplementedCiphers();
+    num_ciphers = SSL_GetNumImplementedCiphers();
+
+    for (i = 0; i < num_ciphers; i++) {
+        if (SSL_GetCipherSuiteInfo(ssl_ciphers[i], &info, sizeof(info)) == SECSuccess) {
+            SSL_CipherPrefGetDefault(ssl_ciphers[i], &enabled);
+            if (!enabled) {
+                /* Although some NSS versions do not support SHA384, try to enable select SHA384 ciphers by default */
+                if (PL_strcmp(info.cipherSuiteName, "TLS_DHE_RSA_WITH_AES_256_GCM_SHA384") == 0) {
+                    SSL_CipherPrefSetDefault(0x009f /* TLS_DHE_RSA_WITH_AES_256_GCM_SHA384 */, PR_TRUE);
+                    FPRINTF(stderr, "enabled  %-42s\n", info.cipherSuiteName);
+                }
+                else if (PL_strcmp(info.cipherSuiteName, "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384") == 0) {
+                    /* NOTE:  CBC ciphers may be deprecated in TLS v1.3 */
+                    SSL_CipherPrefSetDefault(0xc024 /* TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384 */, PR_TRUE);
+                    FPRINTF(stderr, "enabled  %-42s\n", info.cipherSuiteName);
+                }
+                else if (PL_strcmp(info.cipherSuiteName, "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384") == 0) {
+                    SSL_CipherPrefSetDefault(0xc02c /* TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384 */, PR_TRUE);
+                    FPRINTF(stderr, "enabled  %-42s\n", info.cipherSuiteName);
+                }
+                else if (PL_strcmp(info.cipherSuiteName, "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384") == 0) {
+                    /* NOTE:  CBC ciphers may be deprecated in TLS v1.3 */
+                    SSL_CipherPrefSetDefault(0xc028 /* TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384 */, PR_TRUE);
+                    FPRINTF(stderr, "enabled  %-42s\n", info.cipherSuiteName);
+                }
+                else if (PL_strcmp(info.cipherSuiteName, "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384") == 0) {
+                    SSL_CipherPrefSetDefault(0xc030 /* TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384 */, PR_TRUE);
+                    FPRINTF(stderr, "enabled  %-42s\n", info.cipherSuiteName);
+                }
+                else if (PL_strcmp(info.cipherSuiteName, "TLS_RSA_WITH_AES_256_GCM_SHA384") == 0) {
+                    SSL_CipherPrefSetDefault(0x009d /* TLS_RSA_WITH_AES_256_GCM_SHA384 */, PR_TRUE);
+                    FPRINTF(stderr, "enabled  %-42s\n", info.cipherSuiteName);
+                } else {
+                    FPRINTF(stderr, "disabled %-42s\t(disabled by default)\n", info.cipherSuiteName);
+                }
+            }
+            else if (!info.isFIPS) {
+                /* Disable non-FIPS compliant ciphers */
+                enabled = PR_FALSE;
+                FPRINTF(stderr, "disabled %-42s\t(not FIPS)\n", info.cipherSuiteName);
+            }
+            else if (info.symCipher == ssl_calg_rc4) {
+                /* No RC4, see RFC 7465 (recent NSS flag RC4 as not FIPS) */
+                enabled = PR_FALSE;
+                FPRINTF(stderr, "disabled %-42s\t(RC4)\n", info.cipherSuiteName);
+            }
+            else if (info.symCipher == ssl_calg_3des) {
+                /* No 3DES to mitigate SWEET32 attack */
+                enabled = PR_FALSE;
+                FPRINTF(stderr, "disabled %-42s\t(3DES)\n", info.cipherSuiteName);
+            } else {
+                FPRINTF(stderr, "enabled  %-42s\n", info.cipherSuiteName);
+            }
+            SSL_CipherPrefSetDefault(ssl_ciphers[i], enabled);
+        }
+    }
 
     /*
      *  Rifle through the values for the host
@@ -694,7 +748,7 @@ client_main(
 }
 
 
-SECStatus
+static SECStatus
 createRequest(
     char * url,
     char *post,
