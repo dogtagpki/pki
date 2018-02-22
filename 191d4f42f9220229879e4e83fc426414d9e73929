@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "8013a0b4_d046bf38",
+        "filename": "base/common/python/pki/nssdb.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 1006,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-02-22T21:19:51Z",
+      "side": 1,
+      "message": "pk12util uses it by default. Tomcat works with or without cert encryption. I\u0027d like to keep this option in case we need to match pk12util output exactly.",
+      "parentUuid": "2fc34313_e479546d",
+      "range": {
+        "startLine": 1006,
+        "startChar": 22,
+        "endLine": 1006,
+        "endChar": 37
+      },
+      "revId": "191d4f42f9220229879e4e83fc426414d9e73929",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "498aecfd_e0dc6ae4",
         "filename": "base/java-tools/src/com/netscape/cmstools/pkcs12/PKCS12ExportCLI.java",
         "patchSetId": 2
@@ -42,6 +66,24 @@
     },
     {
       "key": {
+        "uuid": "f9deca0f_72221995",
+        "filename": "base/java-tools/src/com/netscape/cmstools/pkcs12/PKCS12ExportCLI.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-02-22T21:19:51Z",
+      "side": 1,
+      "message": "I\u0027ve added it into the help message.",
+      "parentUuid": "498aecfd_e0dc6ae4",
+      "revId": "191d4f42f9220229879e4e83fc426414d9e73929",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d8980316_af73f1da",
         "filename": "base/util/src/netscape/security/pkcs/PKCS12Util.java",
         "patchSetId": 2
@@ -53,6 +95,24 @@
       "writtenOn": "2018-02-22T06:40:00Z",
       "side": 1,
       "message": "Change this line to `new PasswordConverter(),`.\nIt will make OpenSSL happy, so hopefully Tomcat/Java too.",
+      "revId": "191d4f42f9220229879e4e83fc426414d9e73929",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "55c9477c_3cd179fd",
+        "filename": "base/util/src/netscape/security/pkcs/PKCS12Util.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-02-22T21:19:51Z",
+      "side": 1,
+      "message": "Tomcat is working now with this change. Thanks!",
+      "parentUuid": "d8980316_af73f1da",
       "revId": "191d4f42f9220229879e4e83fc426414d9e73929",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
