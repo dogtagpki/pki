@@ -25,6 +25,7 @@ import java.util.logging.Logger;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
+import org.mozilla.jss.crypto.PBEAlgorithm;
 import org.mozilla.jss.util.Password;
 
 import com.netscape.cmstools.cli.CLI;
@@ -46,6 +47,32 @@ public class PKCS12ExportCLI extends CLI {
 
     public void printHelp() {
         formatter.printHelp(getFullName() + " [OPTIONS...] [nicknames...]", options);
+
+        System.out.println();
+
+        System.out.println("Supported certificate encryption algorithms:");
+        for (PBEAlgorithm algorithm : PKCS12Util.SUPPORTED_CERT_ENCRYPTIONS) {
+
+            if (algorithm == null) {
+                System.out.println(" - " + PKCS12Util.NO_ENCRYPTION);
+
+            } else {
+                System.out.println(" - " + algorithm);
+            }
+        }
+
+        System.out.println();
+
+        System.out.println("Supported key encryption algorithms:");
+        for (PBEAlgorithm algorithm : PKCS12Util.SUPPORTED_KEY_ENCRYPTIONS) {
+
+            if (algorithm == null) {
+                System.out.println(" - " + PKCS12Util.NO_ENCRYPTION);
+
+            } else {
+                System.out.println(" - " + algorithm);
+            }
+        }
     }
 
     public void createOptions() {
@@ -59,6 +86,16 @@ public class PKCS12ExportCLI extends CLI {
 
         option = new Option(null, "pkcs12-password-file", true, "PKCS #12 password file");
         option.setArgName("path");
+        options.addOption(option);
+
+        option = new Option(null, "cert-encryption", true,
+                "Certificate encryption algorithm (default: " + PKCS12Util.DEFAULT_CERT_ENCRYPTION_NAME + ").");
+        option.setArgName("algorithm");
+        options.addOption(option);
+
+        option = new Option(null, "key-encryption", true,
+                "Key encryption algorithm (default: " + PKCS12Util.DEFAULT_KEY_ENCRYPTION_NAME + ").");
+        option.setArgName("algorithm");
         options.addOption(option);
 
         options.addOption(null, "append", false, "Append into an existing PKCS #12 file");
@@ -116,6 +153,9 @@ public class PKCS12ExportCLI extends CLI {
 
         Password password = new Password(passwordString.toCharArray());
 
+        String certEncryption = cmd.getOptionValue("cert-encryption");
+        String keyEncryption = cmd.getOptionValue("key-encryption");
+
         boolean append = cmd.hasOption("append");
         boolean includeTrustFlags = !cmd.hasOption("no-trust-flags");
         boolean includeKey = !cmd.hasOption("no-key");
@@ -123,6 +163,12 @@ public class PKCS12ExportCLI extends CLI {
 
         try {
             PKCS12Util util = new PKCS12Util();
+            if (certEncryption != null) {
+                util.setCertEncryption(certEncryption);
+            }
+            if (keyEncryption != null) {
+                util.setKeyEncryption(keyEncryption);
+            }
             util.setTrustFlagsEnabled(includeTrustFlags);
 
             PKCS12 pkcs12;

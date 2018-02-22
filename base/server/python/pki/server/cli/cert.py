@@ -890,6 +890,8 @@ class CertExportCLI(pki.cli.CLI):
         print('      --pkcs12-file <path>           Output file to store the exported certificate and key in PKCS #12 format.')
         print('      --pkcs12-password <password>   Password for the PKCS #12 file.')
         print('      --pkcs12-password-file <path>  Input file containing the password for the PKCS #12 file.')
+        print('      --cert-encryption <algorithm>  Certificate encryption algorithm (default: none).')
+        print('      --key-encryption <algorithm>   Key encryption algorithm (default: PBES2).')
         print('      --append                       Append into an existing PKCS #12 file.')
         print('      --no-trust-flags               Do not include trust flags')
         print('      --no-key                       Do not include private key')
@@ -897,12 +899,21 @@ class CertExportCLI(pki.cli.CLI):
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --help                         Show help message.')
         print()
+        print('Supported certificate encryption algorithms:')
+        print(' - none')
+        print(' - PBE/SHA1/RC2-40')
+        print()
+        print('Supported key encryption algorithms:')
+        print(' - PBES2')
+        print(' - PBE/SHA1/DES3/CBC')
+        print()
 
     def execute(self, argv):
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=', 'cert-file=', 'csr-file=',
                 'pkcs12-file=', 'pkcs12-password=', 'pkcs12-password-file=',
+                'cert-encryption=', 'key-encryption=',
                 'append', 'no-trust-flags', 'no-key', 'no-chain',
                 'verbose', 'debug', 'help'])
 
@@ -917,6 +928,8 @@ class CertExportCLI(pki.cli.CLI):
         pkcs12_file = None
         pkcs12_password = None
         pkcs12_password_file = None
+        cert_encryption = None
+        key_encryption = None
         append = False
         include_trust_flags = True
         include_key = True
@@ -941,6 +954,12 @@ class CertExportCLI(pki.cli.CLI):
 
             elif o == '--pkcs12-password-file':
                 pkcs12_password_file = a
+
+            elif o == '--cert-encryption':
+                cert_encryption = a
+
+            elif o == '--key-encryption':
+                key_encryption = a
 
             elif o == '--append':
                 append = True
@@ -1063,6 +1082,8 @@ class CertExportCLI(pki.cli.CLI):
                     pkcs12_password=pkcs12_password,
                     pkcs12_password_file=pkcs12_password_file,
                     nicknames=nicknames,
+                    cert_encryption=cert_encryption,
+                    key_encryption=key_encryption,
                     append=append,
                     include_trust_flags=include_trust_flags,
                     include_key=include_key,
