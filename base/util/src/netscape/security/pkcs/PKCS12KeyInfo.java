@@ -35,7 +35,7 @@ public class PKCS12KeyInfo {
     private PrivateKey privateKey;
     private byte[] epkiBytes;
     byte[] id;
-    String subjectDN;
+    String friendlyName;
 
     public PKCS12KeyInfo() {
     }
@@ -72,11 +72,11 @@ public class PKCS12KeyInfo {
         this.id = id;
     }
 
-    public String getSubjectDN() {
-        return subjectDN;
+    public String getFriendlyName() {
+        return friendlyName;
     }
 
-    public void setSubjectDN(String subjectDN) {
-        this.subjectDN = subjectDN;
+    public void setFriendlyName(String friendlyName) {
+        this.friendlyName = friendlyName;
     }
 }

@@ -123,16 +123,16 @@ public class PKCS12Util {
      */
     public void addKeyBag(PKCS12KeyInfo keyInfo, Password password,
             SEQUENCE encSafeContents) throws Exception {
-        logger.debug("Creating key bag for " + keyInfo.subjectDN);
+        logger.debug("Creating key bag for " + keyInfo.getFriendlyName());
 
         byte[] epkiBytes = keyInfo.getEncryptedPrivateKeyInfoBytes();
         if (epkiBytes == null) {
             PrivateKey k = keyInfo.getPrivateKey();
             if (k == null) {
-                logger.debug("NO PRIVATE KEY for " + keyInfo.subjectDN);
+                logger.debug("NO PRIVATE KEY for " + keyInfo.getFriendlyName());
                 return;
             }
-            logger.debug("Encrypting private key for " + keyInfo.subjectDN);
+            logger.debug("Encrypting private key for " + keyInfo.getFriendlyName());
 
             epkiBytes = CryptoManager.getInstance()
                 .getInternalKeyStorageToken()
@@ -196,7 +196,7 @@ public class PKCS12Util {
         subjectAttr.addElement(SafeBag.FRIENDLY_NAME);
 
         SET subjectSet = new SET();
-        subjectSet.addElement(new BMPString(keyInfo.subjectDN));
+        subjectSet.addElement(new BMPString(keyInfo.getFriendlyName()));
         subjectAttr.addElement(subjectSet);
 
         attrs.addElement(subjectAttr);
@@ -331,7 +331,7 @@ public class PKCS12Util {
 
             PKCS12KeyInfo keyInfo = new PKCS12KeyInfo(privateKey);
             keyInfo.id = id;
-            keyInfo.subjectDN = cert.getSubjectDN().toString();
+            keyInfo.setFriendlyName(cert.getNickname());
 
             pkcs12.addKeyInfo(keyInfo);
 
@@ -404,10 +404,10 @@ public class PKCS12Util {
                 ANY value = (ANY) values.elementAt(0);
 
                 ByteArrayInputStream bis = new ByteArrayInputStream(value.getEncoded());
-                BMPString subjectDN = (BMPString) new BMPString.Template().decode(bis);
+                BMPString friendlyName = (BMPString) new BMPString.Template().decode(bis);
 
-                keyInfo.subjectDN = subjectDN.toString();
-                logger.debug("   Subject DN: " + keyInfo.subjectDN);
+                keyInfo.setFriendlyName(friendlyName.toString());
+                logger.debug("   Friendly Name: " + keyInfo.getFriendlyName());
 
             } else if (oid.equals(SafeBag.LOCAL_KEY_ID)) {
 
@@ -603,7 +603,7 @@ public class PKCS12Util {
             String nickname,
             PKCS12KeyInfo keyInfo) throws Exception {
 
-        logger.debug("Importing private key " + keyInfo.subjectDN);
+        logger.debug("Importing private key " + keyInfo.getFriendlyName());
 
         PKCS12CertInfo certInfo = pkcs12.getCertInfoByID(keyInfo.getID());
         if (certInfo == null) {
@@ -624,7 +624,7 @@ public class PKCS12Util {
         if (epkiBytes == null) {
             logger.debug(
                 "No EncryptedPrivateKeyInfo for key '"
-                + keyInfo.subjectDN + "'; skipping key");
+                + keyInfo.getFriendlyName() + "'; skipping key");
         }
         try {
             // first true without BMPString-encoding the passphrase.

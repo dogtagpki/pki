@@ -39,6 +39,6 @@ public class PKCS12KeyCLI extends CLI {
     public static void printKeyInfo(PKCS12KeyInfo keyInfo) throws Exception {
 
         System.out.println("  Key ID: " + Hex.encodeHexString(keyInfo.getID()));
-        System.out.println("  Subject DN: " + keyInfo.getSubjectDN());
+        System.out.println("  Friendly Name: " + keyInfo.getFriendlyName());
     }
 }
