@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2fc34313_e479546d",
+        "filename": "base/common/python/pki/nssdb.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 1006,
+      "author": {
+        "id": 1011000
+      },
+      "writtenOn": "2018-02-22T06:40:00Z",
+      "side": 1,
+      "message": "Do we even need to support cert encryption?\nIt is an obscure use case IMO.  I think the complication and\npotential for confusion outweights the benefit of supporting\nit (given that it is presumably available via pk12util).",
+      "range": {
+        "startLine": 1006,
+        "startChar": 22,
+        "endLine": 1006,
+        "endChar": 37
+      },
+      "revId": "191d4f42f9220229879e4e83fc426414d9e73929",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "498aecfd_e0dc6ae4",
+        "filename": "base/java-tools/src/com/netscape/cmstools/pkcs12/PKCS12ExportCLI.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 1011000
+      },
+      "writtenOn": "2018-02-22T06:40:00Z",
+      "side": 1,
+      "message": "The valid values for the encryption argument(s) are obscure strings.  The --help output should be extended to list the valid values (or else, a separate option provided for listing the valid values... but having it as part of --help output would be best IMO).",
+      "revId": "191d4f42f9220229879e4e83fc426414d9e73929",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d8980316_af73f1da",
+        "filename": "base/util/src/netscape/security/pkcs/PKCS12Util.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 1011000
+      },
+      "writtenOn": "2018-02-22T06:40:00Z",
+      "side": 1,
+      "message": "Change this line to `new PasswordConverter(),`.\nIt will make OpenSSL happy, so hopefully Tomcat/Java too.",
+      "revId": "191d4f42f9220229879e4e83fc426414d9e73929",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
