@@ -54,13 +54,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # deployment configuration file used to spawn this instance,
         # and save a copy of this file
         #
-        # Unless a prefix is used, the top level directories should exist
-        # and be owned by the rpm
-        if deployer.mdict['pki_root_prefix'] != "":
-            deployer.directory.create(deployer.mdict['pki_registry_path'])
-            deployer.directory.create(
-                deployer.mdict['pki_instance_type_registry_path'])
-
+        # The top level directories should exist and be owned by the rpm.
         deployer.directory.create(deployer.mdict['pki_instance_registry_path'])
         deployer.directory.create(
             deployer.mdict['pki_subsystem_registry_path'])
@@ -133,6 +127,3 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     config.PKI_DEPLOYMENT_CONFIGURATION_ROOT:
                 deployer.directory.delete(
                     deployer.mdict['pki_configuration_path'])
-            # remove top-level infrastructure registry
-            if deployer.mdict['pki_root_prefix'] != "":
-                deployer.directory.delete(deployer.mdict['pki_registry_path'])

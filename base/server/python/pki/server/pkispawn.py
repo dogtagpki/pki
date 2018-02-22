@@ -652,8 +652,7 @@ def sanitize_user_deployment_cfg(cfg):
 
 def start_logging():
     # Enable 'pkispawn' logging.
-    config.pki_log_dir = config.pki_root_prefix + \
-        config.PKI_DEPLOYMENT_LOG_ROOT
+    config.pki_log_dir = config.PKI_DEPLOYMENT_LOG_ROOT
     config.pki_log_name = "pki" + "-" + \
                           deployer.subsystem_name.lower() + \
                           "-" + "spawn" + "." + \

@@ -154,9 +154,9 @@ def main(argv):
             config.pki_secdomain_pass = pwd_file.readline().strip('\n')
 
     # verify that previously deployed instance exists
-    deployed_pki_instance_path = \
-        config.pki_root_prefix + config.PKI_DEPLOYMENT_BASE_ROOT + "/" + \
-        config.pki_deployed_instance_name
+    deployed_pki_instance_path = os.path.join(
+        config.PKI_DEPLOYMENT_BASE_ROOT, config.pki_deployed_instance_name
+    )
     if not os.path.exists(deployed_pki_instance_path):
         print("ERROR:  " + log.PKI_INSTANCE_DOES_NOT_EXIST_1 %
               deployed_pki_instance_path)
@@ -186,8 +186,7 @@ def main(argv):
     parser.init_config()
 
     # Enable 'pkidestroy' logging.
-    config.pki_log_dir = \
-        config.pki_root_prefix + config.PKI_DEPLOYMENT_LOG_ROOT
+    config.pki_log_dir = config.PKI_DEPLOYMENT_LOG_ROOT
     config.pki_log_name = "pki" + "-" +\
                           deployer.subsystem_name.lower() +\
                           "-" + "destroy" + "." +\

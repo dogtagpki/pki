@@ -178,14 +178,6 @@ class PKIConfigParser:
             dest='pki_verbosity', action='count', default=0,
             help='display verbose information (details below)')
 
-        # Establish 'Test' command-line options
-        test = self.arg_parser.add_argument_group('test arguments')
-        test.add_argument(
-            '-p',
-            dest='pki_root_prefix', action='store',
-            nargs=1, metavar='<prefix>',
-            help='directory prefix to specify local directory '
-            '[TEST ONLY]')
         self.indent = 0
         self.ds_connection = None
         self.sd_connection = None
@@ -216,28 +208,9 @@ class PKIConfigParser:
         # Debug log is always at DEBUG level
         config.pki_log_level = logging.DEBUG
 
-        # Process 'Test' command-line options
-        #    '-p'
-        if args.pki_root_prefix is None:
-            config.pki_root_prefix = ""
-        else:
-            config.pki_root_prefix = str(args.pki_root_prefix).strip('[\']')
-
         return args
 
     def validate(self):
-
-        # Validate command-line options
-        if len(config.pki_root_prefix) > 0:
-            if not os.path.exists(config.pki_root_prefix) or \
-                    not os.path.isdir(config.pki_root_prefix):
-                print("ERROR:  " +
-                      log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1 %
-                      config.pki_root_prefix)
-                print()
-                self.arg_parser.print_help()
-                self.arg_parser.exit(-1)
-
         # always default that configuration file exists
         if not os.path.exists(config.default_deployment_cfg) or \
                 not os.path.isfile(config.default_deployment_cfg):
@@ -305,7 +278,6 @@ class PKIConfigParser:
             'pki_dns_domainname': self.deployer.dns_domainname,
             'pki_subsystem': self.deployer.subsystem_name,
             'pki_subsystem_type': self.deployer.subsystem_name.lower(),
-            'pki_root_prefix': config.pki_root_prefix,
             'nss_default_db_type': self.deployer.nss_db_type,
             'java_home': java_home,
             'resteasy_lib': resteasy_lib,
@@ -821,7 +793,6 @@ class PKIConfigParser:
                     self.mdict['pki_instance_configuration_path'],
                     "context.xml")
             self.mdict['pki_target_tomcat_conf_instance_id'] = \
-                self.mdict['pki_root_prefix'] + \
                 "/etc/sysconfig/" + \
                 self.mdict['pki_instance_name']
             self.mdict['pki_target_tomcat_conf'] = \
