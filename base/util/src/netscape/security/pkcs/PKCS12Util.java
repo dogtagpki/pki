@@ -23,7 +23,6 @@ import java.io.FileOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.MessageDigest;
 import java.security.Principal;
 import java.security.PublicKey;
 import java.security.cert.CertificateException;
@@ -176,18 +175,6 @@ public class PKCS12Util {
         safeContents.addElement(safeBag);
     }
 
-    byte[] createLocalID(X509Certificate cert) throws Exception {
-        // SHA1 hash of the X509Cert DER encoding
-        return createLocalID(cert.getEncoded());
-    }
-
-    byte[] createLocalID(byte[] bytes) throws Exception {
-
-        MessageDigest md = MessageDigest.getInstance("SHA");
-        md.update(bytes);
-        return md.digest();
-    }
-
     SET createKeyBagAttrs(PKCS12KeyInfo keyInfo) throws Exception {
 
         SET attrs = new SET();
@@ -282,7 +269,7 @@ public class PKCS12Util {
 
         CryptoManager cm = CryptoManager.getInstance();
 
-        byte[] id = createLocalID(cert);
+        byte[] id = SafeBag.getLocalKeyIDFromCert(cert.getEncoded());
         logger.debug("ID: " + Hex.encodeHexString(id));
 
         // load cert info
@@ -298,7 +285,7 @@ public class PKCS12Util {
             X509Certificate[] certChain = cm.buildCertificateChain(cert);
             for (int i = 1; i < certChain.length; i++) {
                 X509Certificate c = certChain[i];
-                byte[] cid = createLocalID(c);
+                byte[] cid = SafeBag.getLocalKeyIDFromCert(c.getEncoded());
                 loadCertInfoFromNSS(pkcs12, c, cid, false);
             }
         }
@@ -483,7 +470,7 @@ public class PKCS12Util {
 
         if (certInfo.id == null) {
             logger.debug("   ID not specified, generating new ID");
-            certInfo.id = createLocalID(x509cert);
+            certInfo.id = SafeBag.getLocalKeyIDFromCert(x509cert);
             logger.debug("   ID: " + Hex.encodeHexString(certInfo.id));
         }
 
