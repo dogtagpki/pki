@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8c059916_cc161815",
+        "filename": "base/server/python/pki/server/deployment/scriptlets/infrastructure_layout.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 1010223
+      },
+      "writtenOn": "2018-02-22T16:34:15Z",
+      "side": 1,
+      "message": "Remove \u0027prefix\u0027 text; this should be changed to:\n\nThe top level directories should exist and be owned by the rpm.",
+      "revId": "592122a82e1d0161342c830a042927ff6ce2824b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
