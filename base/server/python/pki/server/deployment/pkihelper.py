@@ -1018,7 +1018,7 @@ class Instance:
                                  extra=config.PKI_INDENTATION_LEVEL_2)
             raise
 
-    def get_instance_status(self, secure_connection=True):
+    def get_instance_status(self, secure_connection=True, timeout=None):
         if secure_connection:
             pki_protocol = "https"
             pki_port = self.mdict['pki_https_port']
@@ -1040,7 +1040,7 @@ class Instance:
         # pylint: disable=W0703
         try:
             client = pki.system.SystemStatusClient(connection)
-            response = client.get_status()
+            response = client.get_status(timeout=timeout)
             config.pki_log.debug(
                 response,
                 extra=config.PKI_INDENTATION_LEVEL_3)
@@ -1057,11 +1057,29 @@ class Instance:
                 extra=config.PKI_INDENTATION_LEVEL_3)
             return None
 
-    def wait_for_startup(self, timeout, secure_connection=True):
+    def wait_for_startup(
+        self,
+        timeout,
+        secure_connection=True,
+        request_timeout=None,
+    ):
+        """
+        Wait for Dogtag to start and become ready to serve requests.
+
+        :param secure_connection: Whether to use HTTPS (default: True)
+        :param timeout: Absolute timeout.  Unsuccessful status requests will
+            be retried until this timeout is exceeded
+        :param request_timeout: connect/receive timeout for each individual
+            status request (default: None)
+
+        """
         start_time = datetime.today()
         status = None
         while status != "running":
-            status = self.get_instance_status(secure_connection)
+            status = self.get_instance_status(
+                secure_connection=secure_connection,
+                timeout=request_timeout,
+            )
             time.sleep(1)
             stop_time = datetime.today()
             if (stop_time - start_time).total_seconds() >= timeout:
