@@ -165,7 +165,7 @@ public class PKCS12Util {
     public void addCertBag(PKCS12CertInfo certInfo,
             SEQUENCE safeContents) throws Exception {
 
-        logger.debug("Creating cert bag for " + certInfo.nickname);
+        logger.debug("Creating cert bag for " + certInfo.getFriendlyName());
 
         ASN1Value cert = new OCTET_STRING(certInfo.cert.getEncoded());
         CertBag certBag = new CertBag(CertBag.X509_CERT_TYPE, cert);
@@ -221,7 +221,7 @@ public class PKCS12Util {
         nicknameAttr.addElement(SafeBag.FRIENDLY_NAME);
 
         SET nicknameSet = new SET();
-        nicknameSet.addElement(new BMPString(certInfo.nickname));
+        nicknameSet.addElement(new BMPString(certInfo.getFriendlyName()));
         nicknameAttr.addElement(nicknameSet);
 
         attrs.addElement(nicknameAttr);
@@ -311,7 +311,7 @@ public class PKCS12Util {
 
         PKCS12CertInfo certInfo = new PKCS12CertInfo();
         certInfo.id = id;
-        certInfo.nickname = nickname;
+        certInfo.setFriendlyName(nickname);
         certInfo.cert = new X509CertImpl(cert.getEncoded());
         certInfo.trustFlags = getTrustFlags(cert);
 
@@ -451,10 +451,10 @@ public class PKCS12Util {
                 ANY value = (ANY) values.elementAt(0);
 
                 ByteArrayInputStream bis = new ByteArrayInputStream(value.getEncoded());
-                BMPString nickname = (BMPString) (new BMPString.Template()).decode(bis);
+                BMPString friendlyName = (BMPString) (new BMPString.Template()).decode(bis);
 
-                certInfo.nickname = nickname.toString();
-                logger.debug("   Nickname: " + certInfo.nickname);
+                certInfo.setFriendlyName(friendlyName.toString());
+                logger.debug("   Friendly name: " + certInfo.getFriendlyName());
 
 
             } else if (oid.equals(SafeBag.LOCAL_KEY_ID)) {
@@ -487,12 +487,12 @@ public class PKCS12Util {
             logger.debug("   ID: " + Hex.encodeHexString(certInfo.id));
         }
 
-        if (certInfo.nickname == null) {
-            logger.debug("   Nickname not specified, generating new nickname");
+        if (certInfo.getFriendlyName() == null) {
+            logger.debug("   Generating new friendly name");
             DN dn = new DN(subjectDN.getName());
             String[] values = dn.explodeDN(true);
-            certInfo.nickname = StringUtils.join(values, " - ");
-            logger.debug("   Nickname: " + certInfo.nickname);
+            certInfo.setFriendlyName(StringUtils.join(values, " - "));
+            logger.debug("   Friendly name: " + certInfo.friendlyName);
         }
 
         return certInfo;
@@ -663,7 +663,8 @@ public class PKCS12Util {
         byte[] id = certInfo.getID();
         PKCS12KeyInfo keyInfo = pkcs12.getKeyInfoByID(id);
 
-        for (X509Certificate cert : cm.findCertsByNickname(certInfo.nickname)) {
+        String nickname = certInfo.getFriendlyName();
+        for (X509Certificate cert : cm.findCertsByNickname(nickname)) {
             if (!overwrite) {
                 return;
             }
@@ -672,14 +673,15 @@ public class PKCS12Util {
 
         X509Certificate cert;
         if (keyInfo != null) { // cert has key
-            logger.debug("Importing user key for " + certInfo.nickname);
-            importKey(pkcs12, password, certInfo.nickname, keyInfo);
+            logger.debug("Importing user key for " + certInfo.getFriendlyName());
+            importKey(pkcs12, password, certInfo.getFriendlyName(), keyInfo);
 
-            logger.debug("Importing user certificate " + certInfo.nickname);
-            cert = cm.importUserCACertPackage(certInfo.cert.getEncoded(), certInfo.nickname);
+            logger.debug("Importing user certificate " + certInfo.getFriendlyName());
+            cert = cm.importUserCACertPackage(
+                    certInfo.cert.getEncoded(), certInfo.getFriendlyName());
 
         } else { // cert has no key
-            logger.debug("Importing CA certificate " + certInfo.nickname);
+            logger.debug("Importing CA certificate " + certInfo.getFriendlyName());
             // Note: JSS does not preserve CA certificate nickname
             cert = cm.importCACertPackage(certInfo.cert.getEncoded());
         }
@@ -689,7 +691,7 @@ public class PKCS12Util {
     }
 
     public void storeCertIntoNSS(PKCS12 pkcs12, Password password, String nickname, boolean overwrite) throws Exception {
-        Collection<PKCS12CertInfo> certInfos = pkcs12.getCertInfosByNickname(nickname);
+        Collection<PKCS12CertInfo> certInfos = pkcs12.getCertInfosByFriendlyName(nickname);
         for (PKCS12CertInfo certInfo : certInfos) {
             storeCertIntoNSS(pkcs12, password, certInfo, overwrite);
         }

@@ -159,7 +159,7 @@ public class PKCS12CertExportCLI extends CLI {
             Collection<PKCS12CertInfo> certInfos = new ArrayList<PKCS12CertInfo>();
 
             if (nickname != null) {
-                certInfos.addAll(pkcs12.getCertInfosByNickname(nickname));
+                certInfos.addAll(pkcs12.getCertInfosByFriendlyName(nickname));
 
             } else {
                 PKCS12CertInfo certInfo = pkcs12.getCertInfoByID(certID);

@@ -133,7 +133,7 @@ public class PKCS12CertModCLI extends CLI {
         try {
             PKCS12Util util = new PKCS12Util();
             PKCS12 pkcs12 = util.loadFromFile(filename, password);
-            Collection<PKCS12CertInfo> certInfos = pkcs12.getCertInfosByNickname(nickname);
+            Collection<PKCS12CertInfo> certInfos = pkcs12.getCertInfosByFriendlyName(nickname);
 
             if (trustFlags.equals("")) { // remove trust flags
                 for (PKCS12CertInfo certInfo : certInfos) {

@@ -23,7 +23,7 @@ public class PKCS12CertInfo {
 
     byte[] id;
     X509CertImpl cert;
-    String nickname;
+    String friendlyName;
     String trustFlags;
 
     public PKCS12CertInfo() {
@@ -45,12 +45,12 @@ public class PKCS12CertInfo {
         this.cert = cert;
     }
 
-    public String getNickname() {
-        return nickname;
+    public String getFriendlyName() {
+        return friendlyName;
     }
 
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
+    public void setFriendlyName(String friendlyName) {
+        this.friendlyName = friendlyName;
     }
 
     public String getTrustFlags() {

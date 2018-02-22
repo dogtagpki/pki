@@ -122,7 +122,7 @@ public class PKCS12CertRemoveCLI extends CLI {
             PKCS12Util util = new PKCS12Util();
 
             PKCS12 pkcs12 = util.loadFromFile(filename, password);
-            pkcs12.removeCertInfoByNickname(nickname);
+            pkcs12.removeCertInfoByFriendlyName(nickname);
             util.storeIntoFile(pkcs12, filename, password);
 
         } finally {

@@ -180,30 +180,31 @@ public class PKCS12 {
         return certInfosByID.get(new BigInteger(1, id));
     }
 
-    public Collection<PKCS12CertInfo> getCertInfosByNickname(String nickname) {
+    public Collection<PKCS12CertInfo> getCertInfosByFriendlyName(String friendlyName) {
 
         Collection<PKCS12CertInfo> result = new ArrayList<PKCS12CertInfo>();
 
         for (PKCS12CertInfo certInfo : certInfosByID.values()) {
-            if (!nickname.equals(certInfo.getNickname())) continue;
+            if (!friendlyName.equals(certInfo.getFriendlyName())) continue;
             result.add(certInfo);
         }
 
         return result;
     }
 
-    public void removeCertInfoByNickname(String nickname) throws Exception {
+    public void removeCertInfoByFriendlyName(String friendlyName) throws Exception {
 
-        Collection<PKCS12CertInfo> result = getCertInfosByNickname(nickname);
+        Collection<PKCS12CertInfo> result = getCertInfosByFriendlyName(friendlyName);
 
         if (result.isEmpty()) {
-            throw new Exception("Certificate not found: " + nickname);
+            throw new Exception("Certificate not found: " + friendlyName);
         }
 
         for (PKCS12CertInfo certInfo : result) {
             // remove cert and key
-            certInfosByID.remove(certInfo.getID());
-            keyInfosByID.remove(certInfo.getID());
+            BigInteger id = new BigInteger(1, certInfo.getID());
+            certInfosByID.remove(id);
+            keyInfosByID.remove(id);
         }
     }
 }
