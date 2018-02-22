@@ -285,7 +285,7 @@ class SystemStatusClient(object):
     def __init__(self, connection):
         self.connection = connection
 
-    def get_status(self):
+    def get_status(self, timeout=None):
         """
         Checks the status of the subsystem by calling the getStatus()
         servlet.  This is used to determine if the server is up and ready to
@@ -293,8 +293,10 @@ class SystemStatusClient(object):
 
         :return: str - getStatus response
         """
-        response = self.connection.get('/admin/' +
-                                       self.connection.subsystem + '/getStatus')
+        response = self.connection.get(
+            '/admin/' + self.connection.subsystem + '/getStatus',
+            timeout=timeout,
+        )
         return response.text
 
 
