@@ -54,6 +54,8 @@ script:
   # It is time to run FreeIPA tests with new Dogtag RPMS built
   - travis_wait 20 ./.travis_run_task.sh
 after_script:
+  # find IPA install logs in CI results
+  - grep -s transfer.sh ./${CI_RESULTS_LOG} || :
   - docker kill ${CONTAINER}
   - docker rm ${CONTAINER}
 

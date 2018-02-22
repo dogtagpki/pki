@@ -23,6 +23,11 @@
 # set NSS_DEFAULT_DB_TYPE.
 . /usr/share/pki/scripts/config
 
-@PYTHON_EXECUTABLE@ -m pki.server.pkiserverupgrade "$@"
+if [ -n "${PKI_SERVER_UPGRADE_LOG}" ]; then
+    "Upgrading PKI server configuration at `/bin/date`." | tee --append "${PKI_SERVER_UPGRADE_LOG}"
+    @PYTHON_EXECUTABLE@ -m pki.server.pkiserverupgrade "$@" 2>&1 | tee --append "${PKI_SERVER_UPGRADE_LOG}"
+else
+    @PYTHON_EXECUTABLE@ -m pki.server.pkiserverupgrade "$@"
+fi
 
 exit $?

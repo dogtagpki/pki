@@ -360,8 +360,10 @@ Conflicts:        freeipa-server < 3.0.0
 Requires:         nss >= 3.28.3
 %if 0%{?with_python3_default}
 Requires:         python3-pki = %{version}-%{release}
+Requires(post):   python3-pki = %{version}-%{release}
 %else
 Requires:         python2-pki = %{version}-%{release}
+Requires(post):   python2-pki = %{version}-%{release}
 %endif  # with_python3_default
 
 %description -n   pki-base
@@ -1127,9 +1129,7 @@ fi
 ##        from EITHER 'sysVinit' OR previous 'systemd' processes to the new
 ##        PKI deployment process
 
-echo "Upgrading PKI server configuration at `/bin/date`." >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
-/sbin/pki-server-upgrade --silent >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
-echo >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
+# Instance upgrade is now handled by systemd services
 
 # Migrate Tomcat configuration
 /sbin/pki-server migrate >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
