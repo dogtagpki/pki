@@ -128,7 +128,7 @@ class PKIConnection:
 
     @catch_insecure_warning
     def get(self, path, headers=None, params=None, payload=None,
-            use_root_uri=False):
+            use_root_uri=False, timeout=None):
         """
         Uses python-requests to issue a GET request to the server.
 
@@ -156,7 +156,9 @@ class PKIConnection:
             verify=False,
             headers=headers,
             params=params,
-            data=payload)
+            data=payload,
+            timeout=timeout,
+        )
         r.raise_for_status()
         return r
 

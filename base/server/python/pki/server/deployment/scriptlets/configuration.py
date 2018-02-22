@@ -1081,8 +1081,21 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         elif tomcat_instance_subsystems > 1:
             deployer.systemd.restart()
 
+        # Configure status request timeout.  This is used for each
+        # status request in wait_for_startup
+        value = deployer.mdict['pki_status_request_timeout']
+        if len(value) == 0:
+            status_request_timeout = None
+        else:
+            status_request_timeout = int(value)
+            if status_request_timeout <= 0:
+                raise ValueError("timeout must be greater than zero")
+
         # wait for startup
-        status = deployer.instance.wait_for_startup(PKISPAWN_STARTUP_TIMEOUT_SECONDS)
+        status = deployer.instance.wait_for_startup(
+            PKISPAWN_STARTUP_TIMEOUT_SECONDS,
+            request_timeout=status_request_timeout,
+        )
         if status is None:
             config.pki_log.error(
                 "server failed to restart",
@@ -1250,11 +1263,17 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if deployer.fips.is_fips_enabled():
             # must use 'http' protocol when FIPS mode is enabled
             status = deployer.instance.wait_for_startup(
-                PKISPAWN_STARTUP_TIMEOUT_SECONDS, secure_connection=False)
+                PKISPAWN_STARTUP_TIMEOUT_SECONDS,
+                request_timeout=status_request_timeout,
+                secure_connection=False,
+            )
 
         else:
             status = deployer.instance.wait_for_startup(
-                PKISPAWN_STARTUP_TIMEOUT_SECONDS, secure_connection=True)
+                PKISPAWN_STARTUP_TIMEOUT_SECONDS,
+                request_timeout=status_request_timeout,
+                secure_connection=True,
+            )
 
         if not status:
             config.pki_log.error(
