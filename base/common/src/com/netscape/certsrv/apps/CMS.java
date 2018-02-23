@@ -35,6 +35,8 @@ import org.dogtagpki.legacy.policy.IGeneralNamesConfig;
 import org.dogtagpki.legacy.policy.ISubjAltNameConfig;
 import org.mozilla.jss.CryptoManager.CertificateUsage;
 import org.mozilla.jss.util.PasswordCallback;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.acls.EACLsException;
 import com.netscape.certsrv.acls.IACL;
@@ -112,6 +114,8 @@ import netscape.security.x509.X509CertInfo;
  * @version $Revision$, $Date$
  */
 public final class CMS {
+
+    public static Logger logger = LoggerFactory.getLogger(CMS.class);
 
     public static final int DEBUG_OBNOXIOUS = 1;
     public static final int DEBUG_VERBOSE = 5;

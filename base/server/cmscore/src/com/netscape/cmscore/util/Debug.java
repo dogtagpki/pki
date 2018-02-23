@@ -17,28 +17,19 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.util;
 
-import java.io.FileOutputStream;
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.util.Date;
 import java.util.Hashtable;
 import java.util.StringTokenizer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import org.apache.commons.lang.time.FastDateFormat;
-
+import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.cmsutil.util.Utils;
 
 public class Debug
         implements ISubsystem {
 
     private static Debug mInstance = new Debug();
-    private static boolean mShowCaller = false;
-
-    // FastDateFormat is a thread-safe replacement for SimpleDateFormat
-    private static String DATE_PATTERN = "dd/MMM/yyyy:HH:mm:ss";
-    private static FastDateFormat df = FastDateFormat.getInstance(DATE_PATTERN);
 
     public static final boolean ON = false;
     public static final int OBNOXIOUS = 1;
@@ -58,86 +49,23 @@ public class Debug
 
     private static int mDebugLevel = VERBOSE;
 
-    private static PrintStream mOut = null;
     private static Hashtable<String, String> mHK = null;
 
-    static {
-        if (TRACE_ON == true) {
-            mOut = System.out;
-        }
-    }
-
     public static void trace(int level, String t) {
-        trace(level, t, null, true);
-    }
-
-    /**
-     * Output a debug message at the output stream sepcified in the init()
-     * method. This method is very lightweight if debugging is turned off, since
-     * it will return immediately. However, the caller should be aware that
-     * if the argument to Debug.trace() is an object whose toString() is
-     * expensive, that this toString() will still be called in any case.
-     * In such a case, it is wise to wrap the Debug.trace like this:
-     *
-     * <pre>
-     * if (Debug.on()) {
-     *     Debug.trace(&quot;obj is: &quot; + obj);
-     * }
-     * </pre>
-     *
-     * @param level the message level. If this is >= than the currently set
-     *            level (set with setLevel() ), the message is printed
-     * @param t the message to print
-     * @param ignoreStack when walking the stack to determine the
-     *            location of the method that called the trace() method,
-     *            ignore any classes with this string in. Can be null
-     * @param printCaller if true, (and if static mShowCaller is true)
-     *            dump caller information in this format:
-     *            (source-file:line) methodname():
-     */
-    public static void trace(int level, String t, String ignoreStack, boolean printCaller) {
-        String callerinfo = "";
         if (!TRACE_ON)
             return;
-        if (level >= mDebugLevel) {
-            if (mShowCaller && printCaller) {
-                String method = "";
-                String fileAndLine = "";
 
-                try {
-                    Throwable tr = new Throwable();
-                    StackTraceElement ste[] = tr.getStackTrace();
-                    int i = 0;
-                    while ((i < ste.length) &&
-                            (ste[i].getMethodName().toLowerCase().indexOf("debug") > -1) ||
-                            (ste[i].getMethodName().toLowerCase().indexOf("hashkey") > -1) ||
-                            (ste[i].getClassName().toLowerCase().indexOf("propconfigstore") > -1) ||
-                            (ste[i].getClassName().toLowerCase().indexOf("argblock") > -1) ||
-                            (ste[i].getClassName().toLowerCase().indexOf("debug") > -1) ||
-                            (ste[i].getMethodName().toLowerCase().indexOf("trace") > -1))
-                        i++;
+        if (level <= OBNOXIOUS) {
+            CMS.logger.trace(t);
 
-                    if (i < ste.length) {
-                        fileAndLine = ste[i].getFileName() + ":" +
-                                ste[i].getLineNumber();
-                        method = ste[i].getMethodName() + "()";
-                    }
+        } else if (level <= VERBOSE) {
+            CMS.logger.debug(t);
 
-                    callerinfo = fileAndLine + ":" + method + " ";
-                } catch (Exception f) {
-                }
-            }
+        } else if (level <= INFORM) {
+            CMS.logger.info(t);
 
-            outputTraceMessage(callerinfo + t);
-        }
-    }
-
-    private static void outputTraceMessage(String t) {
-        if (!TRACE_ON)
-            return;
-        if (mOut != null) {
-            mOut.println("[" + df.format(new Date()) + "][" + Thread.currentThread().getName() + "]: " + t);
-            mOut.flush();
+        } else {
+            CMS.logger.warn(t);
         }
     }
 
@@ -170,7 +98,7 @@ public class Debug
 
     public static void putHashKey(String type, String key, String value) {
         if (hkdotype(type)) {
-            outputTraceMessage("PUT r=" + type + ",k=" + key + ",v=" + value);
+            trace("PUT r=" + type + ",k=" + key + ",v=" + value);
         }
     }
 
@@ -179,25 +107,19 @@ public class Debug
     }
 
     public static void print(int level, String t) {
-        if (!TRACE_ON)
-            return;
-        if (mOut != null) {
-            if (level >= mDebugLevel)
-                mOut.print(t);
-        }
+        trace(level, t);
     }
 
     public static void print(String t) {
         print(VERBOSE, t);
     }
 
-    private static void printNybble(byte b) {
-        if (mOut == null)
-            return;
-        if (b < 10)
-            mOut.write('0' + b);
-        else
-            mOut.write('a' + b - 10);
+    private static int getNybble(byte b) {
+        if (b < 10) {
+            return '0' + b;
+        } else {
+            return 'a' + b - 10;
+        }
     }
 
     /**
@@ -207,18 +129,23 @@ public class Debug
     public static void print(byte[] b) {
         if (!TRACE_ON)
             return;
-        if (mOut == null)
-            return;
+
+        StringBuilder sb = new StringBuilder();
 
         for (int i = 0; i < b.length; i++) {
-            printNybble((byte) ((b[i] & 0xf0) >> 4));
-            printNybble((byte) (b[i] & 0x0f));
-            mOut.print(" ");
-            if (((i % 16) == 15) && i != b.length)
-                mOut.println("");
+            sb.append(getNybble((byte) ((b[i] & 0xf0) >> 4)));
+            sb.append(getNybble((byte) (b[i] & 0x0f)));
+            sb.append(" ");
+
+            if (((i % 16) == 15) && i != b.length) {
+                CMS.logger.debug(sb.toString());
+                sb = new StringBuilder();
+            }
         }
-        mOut.println("");
-        mOut.flush();
+
+        if (sb.length() > 0) {
+            CMS.logger.debug(sb.toString());
+        }
     }
 
     /**
@@ -239,10 +166,8 @@ public class Debug
     public static void printStackTrace(Throwable e) {
         if (!TRACE_ON)
             return;
-        if (mOut == null)
-            return;
 
-        e.printStackTrace(mOut);
+        CMS.logger.warn(e.getMessage(), e);
     }
 
     /**
@@ -259,6 +184,25 @@ public class Debug
 
     public static void setLevel(int level) {
         mDebugLevel = level;
+
+        Level logLevel;
+
+        if (level <= OBNOXIOUS) {
+            logLevel = Level.FINEST;
+
+        } else if (level <= VERBOSE) {
+            logLevel = Level.FINE;
+
+        } else if (level <= INFORM) {
+            logLevel = Level.INFO;
+
+        } else {
+            logLevel = Level.WARNING;
+        }
+
+        Logger.getLogger("org.dogtagpki").setLevel(logLevel);
+        Logger.getLogger("com.netscape").setLevel(logLevel);
+        Logger.getLogger("netscape").setLevel(logLevel);
     }
 
     public static int getLevel(int level) {
@@ -288,9 +232,7 @@ public class Debug
     private static final String PROP_ENABLED = "enabled";
     private static final String PROP_FILENAME = "filename";
     private static final String PROP_HASHKEYS = "hashkeytypes";
-    private static final String PROP_SHOWCALLER = "showcaller";
     private static final String PROP_LEVEL = "level";
-    private static final String PROP_APPEND = "append";
 
     /**
      * Debug subsystem initialization. This subsystem is usually
@@ -308,7 +250,6 @@ public class Debug
         mConfig = config;
         String filename = null;
         String hashkeytypes = null;
-        boolean append = true;
 
         try {
             TRACE_ON = mConfig.getBoolean(PROP_ENABLED, false);
@@ -318,21 +259,8 @@ public class Debug
                     TRACE_ON = false;
                 }
                 hashkeytypes = mConfig.getString(PROP_HASHKEYS, null);
-                mShowCaller = mConfig.getBoolean(PROP_SHOWCALLER, false);
-                append = mConfig.getBoolean(PROP_APPEND, true);
             }
             if (TRACE_ON) {
-                if (filename.equals("STDOUT")) {
-                    mOut = System.out;
-                } else {
-                    if (!Utils.isNT()) {
-                        // Always insure that a physical file exists!
-                        Utils.exec("touch " + filename);
-                        Utils.exec("chmod 00640 " + filename);
-                    }
-                    OutputStream os = new FileOutputStream(filename, append);
-                    mOut = new PrintStream(os, true); /* true == autoflush */
-                }
                 if (hashkeytypes != null) {
                     StringTokenizer st = new StringTokenizer(hashkeytypes,
                             ",", false);
@@ -343,9 +271,9 @@ public class Debug
                     }
                 }
             }
-            outputTraceMessage("============================================");
-            outputTraceMessage("=====  DEBUG SUBSYSTEM INITIALIZED   =======");
-            outputTraceMessage("============================================");
+            trace("============================================");
+            trace("=====  DEBUG SUBSYSTEM INITIALIZED   =======");
+            trace("============================================");
             int level = mConfig.getInteger(PROP_LEVEL, VERBOSE);
             setLevel(level);
         } catch (Exception e) {
