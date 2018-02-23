@@ -23,11 +23,12 @@ import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.cert.X509Certificate;
-import java.util.logging.Logger;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.util.logging.PKILogger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -38,7 +39,7 @@ import netscape.security.pkcs.PKCS7;
 
 public class PKCS7CertExportCLI extends CLI {
 
-    private static Logger logger = Logger.getLogger(PKCS7CertExportCLI.class.getName());
+    private static Logger logger = LoggerFactory.getLogger(PKCS7CertExportCLI.class.getName());
 
     public PKCS7CertExportCLI(PKCS7CertCLI certCLI) {
         super("export", "Export certificates from PKCS #7 file", certCLI);

@@ -9,6 +9,7 @@ javac(pki-tomcat-classes
         ${TOMCAT_CATALINA_JAR} ${TOMCAT_COYOTE_JAR} ${TOMCAT_UTIL_SCAN_JAR}
         ${NUXWDOG_JAR} ${APACHE_COMMONS_LANG_JAR}
         ${JSS_JAR} ${TOMCATJSS_JAR}
+        ${SLF4J_API_JAR}
     OUTPUT_DIR
         ${CMAKE_BINARY_DIR}/../../tomcat
     DEPENDS
