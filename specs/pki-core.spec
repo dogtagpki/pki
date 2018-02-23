@@ -550,11 +550,6 @@ Requires:         pki-tools = %{version}-%{release}
 Requires:         policycoreutils-python-utils
 %endif
 %if 0%{?with_python3_default}
-Requires:         python-ldap
-Requires:         python-lxml
-Requires:         libselinux-python
-Requires:         policycoreutils-python
-%else
 %if 0%{?fedora} >= 28
 Requires:         python3-ldap
 %else
@@ -563,6 +558,11 @@ Requires:         python3-pyldap
 Requires:         python3-lxml
 Requires:         libselinux-python3
 Requires:         policycoreutils-python3
+%else
+Requires:         python-ldap
+Requires:         python-lxml
+Requires:         libselinux-python
+Requires:         policycoreutils-python
 %endif  # with_python3_default
 
 Requires:         selinux-policy-targeted >= 3.13.1-159
