@@ -18,11 +18,15 @@ import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.tomcat.util.descriptor.web.SecurityConstraint;
 import org.ietf.jgss.GSSContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Endi S. Dewata
  */
 public class ProxyRealm implements Realm {
+
+    private static Logger logger = LoggerFactory.getLogger(ProxyRealm.class);
 
     public static Map<String, ProxyRealm> proxies = new HashMap<String, ProxyRealm>();
 
@@ -67,6 +71,7 @@ public class ProxyRealm implements Realm {
         if (realm == null) {
             throw new ServiceUnavailableException("Subsystem unavailable");
         }
+        logger.info("Authenticating user " + username + ".");
         return realm.authenticate(username);
     }
 
@@ -75,6 +80,7 @@ public class ProxyRealm implements Realm {
         if (realm == null) {
             throw new ServiceUnavailableException("Subsystem unavailable");
         }
+        logger.info("Authenticating user " + username + " with password.");
         return realm.authenticate(username, password);
     }
 
@@ -82,6 +88,10 @@ public class ProxyRealm implements Realm {
     public Principal authenticate(X509Certificate certs[]) {
         if (realm == null) {
             throw new ServiceUnavailableException("Subsystem unavailable");
+        }
+        logger.info("Authenticating certificate chain:");
+        for (X509Certificate cert : certs) {
+            logger.info(" - " + cert.getSubjectDN());
         }
         return realm.authenticate(certs);
     }
@@ -100,6 +110,7 @@ public class ProxyRealm implements Realm {
         if (realm == null) {
             throw new ServiceUnavailableException("Subsystem unavailable");
         }
+        logger.info("Authenticating user " + username + " for realm "+ realmName + ".");
         return realm.authenticate(username, digest, nonce, nc, cnonce, qop, realmName, md5a2);
     }
 
@@ -108,6 +119,7 @@ public class ProxyRealm implements Realm {
         if (realm == null) {
             throw new ServiceUnavailableException("Subsystem unavailable");
         }
+        logger.info("Authenticating GSS context " + gssContext + ".");
         return realm.authenticate(gssContext, storeCreds);
     }
 

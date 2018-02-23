@@ -38,6 +38,8 @@ import netscape.security.x509.X509CertImpl;
 
 public class PKIRealm extends RealmBase {
 
+    private static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PKIRealm.class);
+
     private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     @Override
@@ -47,7 +49,7 @@ public class PKIRealm extends RealmBase {
 
     @Override
     public Principal authenticate(String username, String password) {
-        CMS.debug("PKIRealm: Authenticating user " + username + " with password.");
+        logger.info("Authenticating user " + username + " with password.");
 
         String auditSubjectID = ILogger.UNIDENTIFIED;
         String attemptedAuditUID = username;
@@ -85,7 +87,7 @@ public class PKIRealm extends RealmBase {
 
     @Override
     public Principal authenticate(final X509Certificate certs[]) {
-        CMS.debug("PKIRealm: Authenticating certificate chain:");
+        logger.info("Authenticating certificate chain:");
 
         // get the cert from the ssl client auth
         // in cert based auth, subject id from cert has already passed SSL authentication
@@ -98,7 +100,7 @@ public class PKIRealm extends RealmBase {
             X509CertImpl certImpls[] = new X509CertImpl[certs.length];
             for (int i=0; i<certs.length; i++) {
                 X509Certificate cert = certs[i];
-                CMS.debug("PKIRealm:   " + cert.getSubjectDN());
+                logger.info(" - " + cert.getSubjectDN());
 
                 // Convert sun.security.x509.X509CertImpl to netscape.security.x509.X509CertImpl
                 certImpls[i] = new X509CertImpl(cert.getEncoded());
@@ -116,7 +118,7 @@ public class PKIRealm extends RealmBase {
             // reset it to the one authenticated with authManager
             auditSubjectID = authToken.getInString(IAuthToken.USER_ID);
 
-            CMS.debug("PKIRealm: User ID: " + username);
+            logger.info("User ID: " + username);
 
             signedAuditLogger.log(AuthEvent.createSuccessEvent(
                         auditSubjectID,
@@ -139,8 +141,6 @@ public class PKIRealm extends RealmBase {
 
     private String getAuditUserfromCert(X509Certificate clientCert) {
         String certUID = clientCert.getSubjectDN().getName();
-        CMS.debug("PKIRealm.getAuditUserfromCert: certUID=" + certUID);
-
         return StringUtils.stripToNull(certUID);
     }
 
@@ -150,7 +150,6 @@ public class PKIRealm extends RealmBase {
     }
 
     protected Principal getPrincipal(String username, IAuthToken authToken) {
-
         try {
             IUser user = getUser(username);
             return getPrincipal(user, authToken);
@@ -169,7 +168,7 @@ public class PKIRealm extends RealmBase {
     protected IUser getUser(String username) throws EUsrGrpException {
         IUGSubsystem ugSub = (IUGSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_UG);
         IUser user = ugSub.getUser(username);
-        CMS.debug("PKIRealm: User DN: " + user.getUserDN());
+        logger.info("User DN: " + user.getUserDN());
         return user;
     }
 
@@ -180,12 +179,12 @@ public class PKIRealm extends RealmBase {
         IUGSubsystem ugSub = (IUGSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_UG);
         Enumeration<IGroup> groups = ugSub.findGroupsByUser(user.getUserDN(), null);
 
-        CMS.debug("PKIRealm: Roles:");
+        logger.info("Roles:");
         while (groups.hasMoreElements()) {
             IGroup group = groups.nextElement();
 
             String name = group.getName();
-            CMS.debug("PKIRealm:   " + name);
+            logger.info(" - " + name);
             roles.add(name);
         }
 

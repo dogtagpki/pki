@@ -53,6 +53,7 @@ javac(pki-server-test-classes
 # TODO: create CMake function to find all JUnit test classes
 add_junit_test(test-pki-server
     CLASSPATH
+        ${SLF4J_API_JAR}
         ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR}
         ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR} ${PKI_CMSCORE_JAR} ${PKI_CMSBUNDLE_JAR}
         ${LDAPJDK_JAR} ${SERVLET_JAR} ${VELOCITY_JAR}

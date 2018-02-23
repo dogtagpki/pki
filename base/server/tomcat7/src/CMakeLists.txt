@@ -7,6 +7,7 @@ javac(pki-tomcat7-classes
     CLASSPATH
         ${SERVLET_JAR} ${TOMCAT_CATALINA_JAR} ${TOMCAT_UTIL_SCAN_JAR}
         ${JAXRS_API_JAR}
+        ${SLF4J_API_JAR}
         ${CMAKE_BINARY_DIR}/../../tomcat
     OUTPUT_DIR
         ${CMAKE_BINARY_DIR}/../../tomcat
