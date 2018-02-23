@@ -21,11 +21,12 @@ package com.netscape.cmstools.pkcs7;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.cert.X509Certificate;
-import java.util.logging.Logger;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.util.logging.PKILogger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -34,7 +35,7 @@ import netscape.security.pkcs.PKCS7;
 
 public class PKCS7CertFindCLI extends CLI {
 
-    private static Logger logger = Logger.getLogger(PKCS7CertFindCLI.class.getName());
+    private static Logger logger = LoggerFactory.getLogger(PKCS7CertFindCLI.class.getName());
 
     public PKCS7CertFindCLI(PKCS7CertCLI certCLI) {
         super("find", "Find certificates in PKCS #7 file", certCLI);

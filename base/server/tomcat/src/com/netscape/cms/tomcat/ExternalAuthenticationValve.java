@@ -21,7 +21,6 @@ package com.netscape.cms.tomcat;
 import java.io.IOException;
 import java.security.Principal;
 import java.util.ArrayList;
-import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
 
@@ -29,10 +28,12 @@ import org.apache.catalina.Session;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.catalina.valves.ValveBase;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ExternalAuthenticationValve extends ValveBase {
 
-    final static Logger logger = Logger.getLogger(ExternalAuthenticationValve.class.getName());
+    final static Logger logger = LoggerFactory.getLogger(ExternalAuthenticationValve.class.getName());
 
     public void invoke(Request req, Response resp)
             throws IOException, ServletException {
@@ -52,7 +53,7 @@ public class ExternalAuthenticationValve extends ValveBase {
                 try {
                     numGroups = new Integer(numGroupsStr);
                 } catch (NumberFormatException e) {
-                    logger.warning("ExternalAuthenticationValve: invalid REMOTE_USER_GROUP_N value: " + e);
+                    logger.warn("ExternalAuthenticationValve: invalid REMOTE_USER_GROUP_N value: " + e);
                 }
             }
 
@@ -63,7 +64,7 @@ public class ExternalAuthenticationValve extends ValveBase {
                 if (s != null && !s.isEmpty())
                     groups.add(s);
                 else
-                    logger.warning("ExternalAuthenticationValve: missing or empty attribute: " + k);
+                    logger.warn("ExternalAuthenticationValve: missing or empty attribute: " + k);
             }
 
             // replace the principal

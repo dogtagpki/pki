@@ -19,8 +19,6 @@ package com.netscape.cmstools;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.dogtagpki.util.logging.PKILogger;
 import org.mozilla.jss.CryptoManager;
@@ -40,7 +38,7 @@ import netscape.security.pkcs.PKCS12Util;
  */
 public class PKCS12Export {
 
-    private static Logger logger = Logger.getLogger(PKCS12Export.class.getName());
+    private static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PKCS12Export.class.getName());
 
     String databaseDirectory;
     String databasePasswordFilename;
@@ -202,9 +200,9 @@ public class PKCS12Export {
 
         } catch (Exception e) {
             if (debug) {
-                logger.log(Level.SEVERE, "Unable to export PKCS #12 file", e);
+                logger.error("Unable to export PKCS #12 file", e);
             } else {
-                logger.severe("Unable to export PKCS #12 file: " + e.getMessage());
+                logger.error("Unable to export PKCS #12 file: " + e.getMessage());
             }
             System.exit(1);
         }
