@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d738f20d_c24c0d80",
+        "filename": "base/server/share/lib/systemd/system/pki-tomcatd@.service",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-02-23T16:16:04Z",
+      "side": 1,
+      "message": "Do we need the same thing for nuxwdog\u0027s systemd unit file?\n\nAlso, the pki-server-upgrade execution should now be removed from the spec file.",
+      "revId": "cae2ce361455c57e313c88e73865219de4676642",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
