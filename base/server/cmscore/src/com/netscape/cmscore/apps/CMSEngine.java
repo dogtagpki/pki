@@ -192,6 +192,9 @@ import netscape.security.x509.X509CertImpl;
 import netscape.security.x509.X509CertInfo;
 
 public class CMSEngine implements ICMSEngine {
+
+    private static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMSEngine.class);
+
     private static final String ID = "MAIN";
 
     private static final String PROP_SUBSYSTEM = "subsystem";
@@ -1407,7 +1410,7 @@ public class CMSEngine implements ICMSEngine {
                 ILogger.LL_INFO, CMS.getLogMessage("SERVER_STARTUP"));
 
         String type = mConfig.get("cs.type");
-        System.out.println(type + " is started.");
+        logger.warn(type + " is started.");
         isStarted = true;
 
     }
