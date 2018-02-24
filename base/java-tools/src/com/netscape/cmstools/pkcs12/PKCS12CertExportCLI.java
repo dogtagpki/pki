@@ -24,12 +24,11 @@ import java.io.FileReader;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.codec.binary.Hex;
+import org.dogtagpki.util.logger.PKILogger;
 import org.mozilla.jss.util.Password;
 
 import com.netscape.cmstools.cli.CLI;
@@ -92,14 +91,10 @@ public class PKCS12CertExportCLI extends CLI {
         }
 
         if (cmd.hasOption("verbose")) {
-            Logger.getLogger("org.dogtagpki").setLevel(Level.INFO);
-            Logger.getLogger("com.netscape").setLevel(Level.INFO);
-            Logger.getLogger("netscape").setLevel(Level.INFO);
+            PKILogger.setLevel(PKILogger.Level.INFO);
 
         } else if (cmd.hasOption("debug")) {
-            Logger.getLogger("org.dogtagpki").setLevel(Level.FINE);
-            Logger.getLogger("com.netscape").setLevel(Level.FINE);
-            Logger.getLogger("netscape").setLevel(Level.FINE);
+            PKILogger.setLevel(PKILogger.Level.DEBUG);
         }
 
         String[] cmdArgs = cmd.getArgs();
