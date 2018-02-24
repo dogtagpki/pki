@@ -22,6 +22,7 @@ import java.io.FileReader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.dogtagpki.util.PKILogger;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.util.Password;
@@ -182,9 +183,7 @@ public class PKCS12Export {
         }
 
         if (debug) {
-            Logger.getLogger("org.dogtagpki").setLevel(Level.FINE);
-            Logger.getLogger("com.netscape").setLevel(Level.FINE);
-            Logger.getLogger("netscape").setLevel(Level.FINE);
+            PKILogger.setLevel(PKILogger.Level.DEBUG);
         }
 
         // TODO: validate parameters
