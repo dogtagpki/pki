@@ -192,6 +192,9 @@ import netscape.security.x509.X509CertImpl;
 import netscape.security.x509.X509CertInfo;
 
 public class CMSEngine implements ICMSEngine {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMSEngine.class);
+
     private static final String ID = "MAIN";
 
     private static final String PROP_SUBSYSTEM = "subsystem";
@@ -351,7 +354,7 @@ public class CMSEngine implements ICMSEngine {
                 mPasswordStore.init(pwdPath);
                 mPasswordStore.setId(instanceId);
             } catch (Exception e) {
-                System.out.println("Cannot get password store: " + e);
+                logger.error("Cannot get password store: " + e);
                 throw new EBaseException(e);
             }
         }
@@ -359,7 +362,7 @@ public class CMSEngine implements ICMSEngine {
     }
 
     public void initializePasswordStore(IConfigStore config) throws EBaseException, IOException {
-        System.out.println("CMSEngine.initializePasswordStore() begins");
+        logger.debug("CMSEngine.initializePasswordStore() begins");
         // create and initialize mPasswordStore
         getPasswordStore();
 
@@ -374,7 +377,7 @@ public class CMSEngine implements ICMSEngine {
             String binddn;
             String authType;
             LdapConnInfo connInfo = null;
-            System.out.println("CMSEngine.initializePasswordStore(): tag=" + tag);
+            logger.debug("CMSEngine.initializePasswordStore(): tag=" + tag);
 
             if (tag.equals("internaldb")) {
                 authType = config.getString("internaldb.ldapauth.authtype", "BasicAuth");
@@ -430,12 +433,12 @@ public class CMSEngine implements ICMSEngine {
                  */
                 String authPrefix = config.getString(tag + ".authPrefix", null);
                 if (authPrefix ==  null) {
-                    System.out.println("CMSEngine.initializePasswordStore(): authPrefix not found...skipping");
+                    logger.debug("CMSEngine.initializePasswordStore(): authPrefix not found...skipping");
                     continue;
                 }
-                System.out.println("CMSEngine.initializePasswordStore(): authPrefix=" + authPrefix);
+                logger.debug("CMSEngine.initializePasswordStore(): authPrefix=" + authPrefix);
                 authType = config.getString(authPrefix +".ldap.ldapauth.authtype", "BasicAuth");
-                System.out.println("CMSEngine.initializePasswordStore(): authType " + authType);
+                logger.debug("CMSEngine.initializePasswordStore(): authType " + authType);
                 if (!authType.equals("BasicAuth"))
                     continue;
 
@@ -446,7 +449,7 @@ public class CMSEngine implements ICMSEngine {
 
                 binddn = config.getString(authPrefix + ".ldap.ldapauth.bindDN", null);
                 if (binddn == null) {
-                    System.out.println("CMSEngine.initializePasswordStore(): binddn not found...skipping");
+                    logger.debug("CMSEngine.initializePasswordStore(): binddn not found...skipping");
                     continue;
                 }
             }
@@ -459,16 +462,16 @@ public class CMSEngine implements ICMSEngine {
 
             if (result != PW_OK) {
                 if ((result == PW_NO_USER) && (tag.equals("replicationdb"))) {
-                    System.out.println(
+                    logger.warn(
                         "CMSEngine: init(): password test execution failed for replicationdb" +
                         "with NO_SUCH_USER.  This may not be a latest instance.  Ignoring ..");
                 } else if (skipPublishingCheck && (result == PW_CANNOT_CONNECT) && (tag.equals("CA LDAP Publishing"))) {
-                    System.out.println(
+                    logger.warn(
                         "Unable to connect to the publishing database to check password, " +
                         "but continuing to start up.  Please check if publishing is operational.");
                 } else {
                     // password test failed
-                    System.out.println("CMSEngine: init(): password test execution failed: " + result);
+                    logger.error("CMSEngine: init(): password test execution failed: " + result);
                     throw new EBaseException("Password test execution failed. Is the database up?");
                 }
             }
@@ -486,22 +489,22 @@ public class CMSEngine implements ICMSEngine {
 
         LDAPConnection conn = new LDAPConnection(CMS.getLDAPSocketFactory(info.getSecure()));
 
-        System.out.println("testLDAPConnection connecting to " + host + ":" + port);
+        logger.debug("testLDAPConnection connecting to " + host + ":" + port);
 
         try {
             conn.connect(host, port, binddn, pwd);
         } catch (LDAPException e) {
             switch (e.getLDAPResultCode()) {
             case LDAPException.NO_SUCH_OBJECT:
-                System.out.println("testLDAPConnection: The specified user " + binddn + " does not exist");
+                logger.error("testLDAPConnection: The specified user " + binddn + " does not exist");
                 ret = PW_NO_USER;
                 break;
             case LDAPException.INVALID_CREDENTIALS:
-                System.out.println("testLDAPConnection: Invalid Password");
+                logger.error("testLDAPConnection: Invalid Password");
                 ret = PW_INVALID_PASSWORD;
                 break;
             default:
-                System.out.println("testLDAPConnection: Unable to connect to " + name + ": " + e);
+                logger.error("testLDAPConnection: Unable to connect to " + name + ": " + e);
                 ret = PW_CANNOT_CONNECT;
                 break;
             }
@@ -1376,7 +1379,7 @@ public class CMSEngine implements ICMSEngine {
 
         mQueue.removeLogEventListener(mWarningListener);
         if (!mWarning.toString().equals("")) {
-            System.out.println(Constants.SERVER_STARTUP_WARNING_MESSAGE + mWarning);
+            logger.warn(Constants.SERVER_STARTUP_WARNING_MESSAGE + mWarning);
         }
 
         // check serial number ranges if a CA/KRA
@@ -1407,7 +1410,7 @@ public class CMSEngine implements ICMSEngine {
                 ILogger.LL_INFO, CMS.getLogMessage("SERVER_STARTUP"));
 
         String type = mConfig.get("cs.type");
-        System.out.println(type + " is started.");
+        logger.info(type + " is started.");
         isStarted = true;
 
     }
@@ -1982,7 +1985,7 @@ public class CMSEngine implements ICMSEngine {
 
     public boolean areRequestsDisabled() {
         CMS.debug("CMSEngine: in areRequestsDisabled");
-        System.out.println("CMSEngine: in areRequestsDisabled");
+        logger.debug("CMSEngine: in areRequestsDisabled");
         return CommandQueue.mShuttingDown;
     }
 
