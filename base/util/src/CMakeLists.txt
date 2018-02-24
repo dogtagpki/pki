@@ -72,6 +72,7 @@ find_file(NUXWDOG_JAR
 javac(pki-nsutil-classes
     SOURCES
         netscape/*.java
+        org/dogtagpki/*.java
     CLASSPATH
         ${APACHE_COMMONS_LANG_JAR} ${LDAPJDK_JAR} ${XALAN_JAR} ${XERCES_JAR}
         ${JSS_JAR} ${COMMONS_CODEC_JAR}
@@ -98,6 +99,7 @@ jar(pki-nsutil-jar
         ${CMAKE_CURRENT_BINARY_DIR}/classes
     FILES
         netscape/*.class
+        org/dogtagpki/*.class
     DEPENDS
         pki-nsutil-classes
 )

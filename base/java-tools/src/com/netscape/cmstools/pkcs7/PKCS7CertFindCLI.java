@@ -21,11 +21,11 @@ package com.netscape.cmstools.pkcs7;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.cert.X509Certificate;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
+import org.dogtagpki.util.logging.PKILogger;
 
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -66,14 +66,10 @@ public class PKCS7CertFindCLI extends CLI {
         }
 
         if (cmd.hasOption("verbose")) {
-            Logger.getLogger("org.dogtagpki").setLevel(Level.INFO);
-            Logger.getLogger("com.netscape").setLevel(Level.INFO);
-            Logger.getLogger("netscape").setLevel(Level.INFO);
+            PKILogger.setLevel(PKILogger.Level.INFO);
 
         } else if (cmd.hasOption("debug")) {
-            Logger.getLogger("org.dogtagpki").setLevel(Level.FINE);
-            Logger.getLogger("com.netscape").setLevel(Level.FINE);
-            Logger.getLogger("netscape").setLevel(Level.FINE);
+            PKILogger.setLevel(PKILogger.Level.DEBUG);
         }
 
         String filename = cmd.getOptionValue("pkcs7-file");
