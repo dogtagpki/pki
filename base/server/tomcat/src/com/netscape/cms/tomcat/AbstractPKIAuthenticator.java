@@ -20,6 +20,7 @@ package com.netscape.cms.tomcat;
 
 import java.io.IOException;
 import java.security.cert.X509Certificate;
+import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -34,15 +35,13 @@ import org.apache.catalina.authenticator.BasicAuthenticator;
 import org.apache.catalina.authenticator.FormAuthenticator;
 import org.apache.catalina.authenticator.SSLAuthenticator;
 import org.apache.catalina.connector.Request;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author Endi S. Dewata
  */
 public abstract class AbstractPKIAuthenticator extends AuthenticatorBase {
 
-    final static Logger logger = LoggerFactory.getLogger(AbstractPKIAuthenticator.class.getName());
+    final static Logger logger = Logger.getLogger(AbstractPKIAuthenticator.class.getName());
 
     public final static String BASIC_AUTHENTICATOR = "BASIC";
     public final static String FORM_AUTHENTICATOR = "FORM";
@@ -81,10 +80,10 @@ public abstract class AbstractPKIAuthenticator extends AuthenticatorBase {
             logger.info("PKIAuthenticator: Authenticate with client certificate authentication");
             HttpServletResponseWrapper wrapper = new HttpServletResponseWrapper(response) {
                 public void setHeader(String name, String value) {
-                    logger.debug("PKIAuthenticator: SSL auth header: " + name + "=" + value);
+                    logger.fine("PKIAuthenticator: SSL auth header: " + name + "=" + value);
                 };
                 public void sendError(int code) {
-                    logger.debug("PKIAuthenticator: SSL auth return code: " + code);
+                    logger.fine("PKIAuthenticator: SSL auth return code: " + code);
                 }
             };
             result = doSubAuthenticate(sslAuthenticator, request, wrapper);
@@ -93,10 +92,10 @@ public abstract class AbstractPKIAuthenticator extends AuthenticatorBase {
             logger.info("PKIAuthenticator: Authenticating with " + fallbackMethod + " authentication");
             HttpServletResponseWrapper wrapper = new HttpServletResponseWrapper(response) {
                 public void setHeader(String name, String value) {
-                    logger.debug("PKIAuthenticator: Fallback auth header: " + name + "=" + value);
+                    logger.fine("PKIAuthenticator: Fallback auth header: " + name + "=" + value);
                 };
                 public void sendError(int code) {
-                    logger.debug("PKIAuthenticator: Fallback auth return code: " + code);
+                    logger.fine("PKIAuthenticator: Fallback auth return code: " + code);
                 }
             };
             result = doSubAuthenticate(fallbackAuthenticator, request, wrapper);
@@ -128,7 +127,7 @@ public abstract class AbstractPKIAuthenticator extends AuthenticatorBase {
 
     @Override
     public void setContainer(Container container) {
-        logger.debug("PKIAuthenticator: Setting container");
+        logger.fine("PKIAuthenticator: Setting container");
         super.setContainer(container);
         sslAuthenticator.setContainer(container);
         fallbackAuthenticator.setContainer(container);
@@ -136,7 +135,7 @@ public abstract class AbstractPKIAuthenticator extends AuthenticatorBase {
 
     @Override
     protected void initInternal() throws LifecycleException {
-        logger.debug("PKIAuthenticator: Initializing authenticators");
+        logger.fine("PKIAuthenticator: Initializing authenticators");
 
         super.initInternal();
 
@@ -149,7 +148,7 @@ public abstract class AbstractPKIAuthenticator extends AuthenticatorBase {
 
     @Override
     public void startInternal() throws LifecycleException {
-        logger.debug("PKIAuthenticator: Starting authenticators");
+        logger.fine("PKIAuthenticator: Starting authenticators");
         super.startInternal();
         sslAuthenticator.start();
         fallbackAuthenticator.start();
@@ -157,7 +156,7 @@ public abstract class AbstractPKIAuthenticator extends AuthenticatorBase {
 
     @Override
     public void stopInternal() throws LifecycleException {
-        logger.debug("PKIAuthenticator: Stopping authenticators");
+        logger.fine("PKIAuthenticator: Stopping authenticators");
         super.stopInternal();
         sslAuthenticator.stop();
         fallbackAuthenticator.stop();

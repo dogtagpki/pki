@@ -6,6 +6,7 @@ import java.security.Principal;
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import javax.ws.rs.ServiceUnavailableException;
 
@@ -18,15 +19,13 @@ import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.tomcat.util.descriptor.web.SecurityConstraint;
 import org.ietf.jgss.GSSContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author Endi S. Dewata
  */
 public class ProxyRealm implements Realm {
 
-    private static Logger logger = LoggerFactory.getLogger(ProxyRealm.class);
+    private static Logger logger = Logger.getLogger(ProxyRealm.class.getName());
 
     public static Map<String, ProxyRealm> proxies = new HashMap<String, ProxyRealm>();
 

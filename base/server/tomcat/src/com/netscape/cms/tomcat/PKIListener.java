@@ -19,6 +19,7 @@
 package com.netscape.cms.tomcat;
 
 import java.io.File;
+import java.util.logging.Logger;
 
 import org.apache.catalina.Context;
 import org.apache.catalina.Engine;
@@ -30,14 +31,12 @@ import org.apache.catalina.Server;
 import org.apache.catalina.Service;
 import org.apache.commons.lang.StringUtils;
 import org.apache.tomcat.util.net.jss.TomcatJSS;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.redhat.nuxwdog.WatchdogClient;
 
 public class PKIListener implements LifecycleListener {
 
-    final static Logger logger = LoggerFactory.getLogger(PKIListener.class.getName());
+    final static Logger logger = Logger.getLogger(PKIListener.class.getName());
 
     private boolean startedByWD = false;
 
@@ -101,13 +100,13 @@ public class PKIListener implements LifecycleListener {
 
             if (!contextXml.exists()) {
 
-                logger.warn("PKIListener: Subsystem " + subsystemName.toUpperCase() + " is disabled.");
+                logger.warning("PKIListener: Subsystem " + subsystemName.toUpperCase() + " is disabled.");
 
                 String selftestsLog = "/var/log/pki/" + instanceName + "/" + subsystemName + "/selftests.log";
-                logger.warn("PKIListener: Check " + selftestsLog + " for possible errors.");
+                logger.warning("PKIListener: Check " + selftestsLog + " for possible errors.");
 
-                logger.warn("PKIListener: To enable the subsystem:");
-                logger.warn("PKIListener:   pki-server subsystem-enable -i " + instanceName + " " + subsystemName);
+                logger.warning("PKIListener: To enable the subsystem:");
+                logger.warning("PKIListener:   pki-server subsystem-enable -i " + instanceName + " " + subsystemName);
 
                 continue;
             }
@@ -116,12 +115,12 @@ public class PKIListener implements LifecycleListener {
 
             if (context == null) {
 
-                logger.warn("PKIListener: " + "Subsystem " + subsystemName.toUpperCase() + " is not deployed.");
+                logger.warning("PKIListener: " + "Subsystem " + subsystemName.toUpperCase() + " is not deployed.");
 
                 String catalinaLog = "/var/log/pki/" + instanceName + "/catalina.*.log";
-                logger.warn("PKIListener: Check " + catalinaLog);
-                logger.warn("PKIListener: and Tomcat's standard output and error for possible errors:");
-                logger.warn("PKIListener:   journalctl -u pki-tomcatd@" + instanceName + ".service");
+                logger.warning("PKIListener: Check " + catalinaLog);
+                logger.warning("PKIListener: and Tomcat's standard output and error for possible errors:");
+                logger.warning("PKIListener:   journalctl -u pki-tomcatd@" + instanceName + ".service");
 
                 continue;
             }
