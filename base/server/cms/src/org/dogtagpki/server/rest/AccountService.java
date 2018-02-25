@@ -26,6 +26,8 @@ import javax.ws.rs.core.Response;
 
 import org.apache.catalina.realm.GenericPrincipal;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.account.AccountInfo;
 import com.netscape.certsrv.account.AccountResource;
@@ -38,12 +40,15 @@ import com.netscape.cms.servlet.base.PKIService;
  */
 public class AccountService extends PKIService implements AccountResource {
 
+    public static Logger logger = LoggerFactory.getLogger(AccountService.class);
+
     protected AccountInfo createAccountInfo() {
         Principal principal = servletRequest.getUserPrincipal();
-        System.out.println("Principal: " + principal);
+        logger.info("Principal:");
 
         AccountInfo accountInfo = new AccountInfo();
         String name = principal.getName();
+        logger.info(" - ID: " + name);
         accountInfo.setID(name);
 
         if (principal instanceof PKIPrincipal) {
@@ -51,14 +56,20 @@ public class AccountService extends PKIService implements AccountResource {
             IUser user = pkiPrincipal.getUser();
 
             String fullName = user.getFullName();
+            logger.info(" - Full Name: " + fullName);
             if (!StringUtils.isEmpty(fullName)) accountInfo.setFullName(fullName);
 
             String email = user.getEmail();
+            logger.info(" - Email: " + email);
             if (!StringUtils.isEmpty(email)) accountInfo.setEmail(email);
         }
 
         if (principal instanceof GenericPrincipal) {
             String[] roles = ((GenericPrincipal) principal).getRoles();
+            logger.info(" - Roles:");
+            for (String role : roles) {
+                logger.info("   - " + role);
+            }
             accountInfo.setRoles(Arrays.asList(roles));
         }
 
@@ -68,7 +79,7 @@ public class AccountService extends PKIService implements AccountResource {
     @Override
     public Response login() {
         HttpSession session = servletRequest.getSession();
-        System.out.println("Creating session " + session.getId());
+        logger.info("Creating session " + session.getId());
 
         AccountInfo accountInfo = createAccountInfo();
         return createOKResponse(accountInfo);
@@ -79,7 +90,7 @@ public class AccountService extends PKIService implements AccountResource {
         HttpSession session = servletRequest.getSession(false);
         if (session == null) return createNoContentResponse();
 
-        System.out.println("Destroying session "+session.getId());
+        logger.info("Destroying session " + session.getId());
         session.invalidate();
 
         return createNoContentResponse();
