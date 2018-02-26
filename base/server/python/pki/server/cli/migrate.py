@@ -377,7 +377,7 @@ class MigrateCLI(pki.cli.CLI):
             if connector.get('secure') == 'true':
                 connector.set(
                     'protocol',
-                    'org.apache.coyote.http11.Http11Protocol')
+                    'org.dogtagpki.tomcat.Http11NioProtocol')
 
         if self.debug:
             print('* updating AccessLogValve')
