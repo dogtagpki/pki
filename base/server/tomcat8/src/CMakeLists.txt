@@ -1,18 +1,21 @@
 project(pki-tomcat8)
 
 # build pki-tomcat
-javac(pki-tomcat8-classes
+javac(pki-tomcat-classes
     SOURCES
+        ../../tomcat/src/*.java
         *.java
     CLASSPATH
         ${SERVLET_JAR}
-        ${TOMCAT_CATALINA_JAR} ${TOMCAT_UTIL_SCAN_JAR} ${TOMCAT_API_JAR}
         ${JAXRS_API_JAR}
-        ${CMAKE_BINARY_DIR}/../../tomcat
+        ${APACHE_COMMONS_LANG_JAR}
+        ${TOMCAT_API_JAR} ${TOMCAT_CATALINA_JAR} ${TOMCAT_COYOTE_JAR} ${TOMCAT_UTIL_SCAN_JAR}
+        ${JSS_JAR} ${TOMCATJSS_JAR} ${NUXWDOG_JAR}
+        ${PKI_NSUTIL_JAR}
     OUTPUT_DIR
         ${CMAKE_BINARY_DIR}/../../tomcat
     DEPENDS
-        pki-tomcat-classes
+        pki-nsutil-jar pki-tools-jar
 )
 
 configure_file(
@@ -31,7 +34,6 @@ jar(pki-tomcat-jar
         ${CMAKE_BINARY_DIR}/../../tomcat
     DEPENDS
         pki-tomcat-classes
-        pki-tomcat8-classes
 )
 
 install(
