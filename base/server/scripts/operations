@@ -1,4 +1,4 @@
-#!/bin/sh -X
+#!/bin/sh -e
 
 # From "http://fedoraproject.org/wiki/FCNewInit/Initscripts":
 #
@@ -1302,6 +1302,21 @@ EOF
         # enable all subsystems
         pki-server subsystem-enable -i "$PKI_INSTANCE_NAME" --all
     fi
+
+    echo "Exporting internal password."
+    pki-server password-export \
+        internal \
+        --output "/etc/pki/$PKI_INSTANCE_NAME/keystore.pwd"
+    chmod 0660 "/etc/pki/$PKI_INSTANCE_NAME/keystore.pwd"
+
+    echo "Exporting SSL server certificate."
+    pki-server cert-export \
+        sslserver \
+        --pkcs12-file "/etc/pki/$PKI_INSTANCE_NAME/keystore.p12" \
+        --pkcs12-password-file "/etc/pki/$PKI_INSTANCE_NAME/keystore.pwd" \
+        --cert-encryption "PBE/SHA1/RC2-40" \
+        --key-encryption "PBE/SHA1/DES3/CBC"
+    chmod 0660 "/etc/pki/$PKI_INSTANCE_NAME/keystore.p12"
 
     # We no longer start tomcat instances here.
     # instead we rely on the tomcat unit scripts
