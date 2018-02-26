@@ -89,8 +89,7 @@ class HTTPConnectorCLI(pki.cli.CLI):
         HTTPConnectorCLI.print_param(connector, 'keystoreFile', 'Keystore File')
         HTTPConnectorCLI.print_param(connector, 'keystorePassFile', 'Keystore Password File')
 
-        HTTPConnectorCLI.print_param(connector, 'truststoreFile', 'Truststore File')
-        HTTPConnectorCLI.print_param(connector, 'truststorePassFile', 'Truststore Password File')
+        HTTPConnectorCLI.print_param(connector, 'trustManagerClassName', 'Trust Manager')
 
 
 class HTTPConnectorFindCLI(pki.cli.CLI):
@@ -244,8 +243,6 @@ class HTTPConnectorModCLI(pki.cli.CLI):
         print('      --nss-password-file <file>            NSS password file.')
         print('      --keystore-file <file>                Key store file.')
         print('      --keystore-password-file <file>       Key store password file.')
-        print('      --truststore-file <file>              Trust store file.')
-        print('      --truststore-password-file <file>     Trust store password file.')
         print('      --server-cert-nickname-file <file>    Server certificate nickname file.')
         print('  -v, --verbose                             Run in verbose mode.')
         print('      --help                                Show help message.')
@@ -258,7 +255,6 @@ class HTTPConnectorModCLI(pki.cli.CLI):
                 'instance=', 'type=',
                 'nss-database-dir=', 'nss-password-file=',
                 'keystore-file=', 'keystore-password-file=',
-                'truststore-file=', 'truststore-password-file=',
                 'server-cert-nickname-file=',
                 'verbose', 'help'])
 
@@ -273,8 +269,6 @@ class HTTPConnectorModCLI(pki.cli.CLI):
         nss_password_file = None
         keystore_file = None
         keystore_password_file = None
-        truststore_file = None
-        truststore_password_file = None
         server_cert_nickname_file = None
 
         for o, a in opts:
@@ -295,12 +289,6 @@ class HTTPConnectorModCLI(pki.cli.CLI):
 
             elif o == '--keystore-password-file':
                 keystore_password_file = a
-
-            elif o == '--truststore-file':
-                truststore_file = a
-
-            elif o == '--truststore-password-file':
-                truststore_password_file = a
 
             elif o == '--server-cert-nickname-file':
                 server_cert_nickname_file = a
@@ -360,9 +348,7 @@ class HTTPConnectorModCLI(pki.cli.CLI):
             connector.attrib.pop('keystoreFile', None)
             connector.attrib.pop('keystorePassFile', None)
 
-            connector.attrib.pop('truststoreType', None)
-            connector.attrib.pop('truststoreFile', None)
-            connector.attrib.pop('truststorePassFile', None)
+            connector.attrib.pop('trustManagerClassName', None)
 
         elif connector_type == 'JSSE':
 
@@ -376,9 +362,7 @@ class HTTPConnectorModCLI(pki.cli.CLI):
             HTTPConnectorCLI.set_param(connector, 'keystoreFile', keystore_file)
             HTTPConnectorCLI.set_param(connector, 'keystorePassFile', keystore_password_file)
 
-            HTTPConnectorCLI.set_param(connector, 'truststoreType', 'pkcs12')
-            HTTPConnectorCLI.set_param(connector, 'truststoreFile', truststore_file)
-            HTTPConnectorCLI.set_param(connector, 'truststorePassFile', truststore_password_file)
+            HTTPConnectorCLI.set_param(connector, 'trustManagerClassName', 'org.dogtagpki.tomcat.PKITrustManager')
 
         else:
             raise Exception('Invalid connector type: %s' % connector_type)
