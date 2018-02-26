@@ -809,12 +809,15 @@ class NSSDatabase(object):
 
     def get_cert_info(self, nickname):
 
-        cert = dict()
-
         cert_pem = self.get_cert(nickname)
+
+        if not cert_pem:
+            return None
 
         cert_obj = x509.load_pem_x509_certificate(
             cert_pem, backend=default_backend())
+
+        cert = dict()
 
         cert["serial_number"] = cert_obj.serial_number
 

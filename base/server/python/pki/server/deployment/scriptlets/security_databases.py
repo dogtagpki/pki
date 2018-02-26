@@ -217,7 +217,12 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
             # store nickname
             nickname = deployer.mdict['pki_%s_nickname' % deploy_tag]
+            subsystem.config['%s.%s.nickname' % (subsystem.name, config_tag)] = nickname
             subsystem.config['preop.cert.%s.nickname' % config_tag] = nickname
+
+            # store tokenname
+            tokenname = deployer.mdict['pki_%s_token' % deploy_tag]
+            subsystem.config['%s.%s.tokenname' % (subsystem.name, config_tag)] = tokenname
 
             # store subject DN
             subject_dn = deployer.mdict['pki_%s_subject_dn' % deploy_tag]

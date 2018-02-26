@@ -155,7 +155,12 @@ class PKISubsystem(object):
 
         cert_ids = self.config['%s.cert.list' % self.name].split(',')
         for cert_id in cert_ids:
+
             cert = self.create_subsystem_cert_object(cert_id)
+
+            if not cert:
+                continue
+
             certs.append(cert)
 
         return certs
@@ -185,7 +190,8 @@ class PKISubsystem(object):
         nssdb = self.instance.open_nssdb(token)
         try:
             cert_info = nssdb.get_cert_info(nickname)
-            cert.update(cert_info)
+            if cert_info:
+                cert.update(cert_info)
         finally:
             nssdb.close()
 
