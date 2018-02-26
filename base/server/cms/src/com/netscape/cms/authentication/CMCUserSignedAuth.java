@@ -1131,19 +1131,7 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
                         }
                         CMS.debug(method + "finished checking signature");
 
-                        // verify signer's certificate using the revocator
-                        // ...or not;  I think it just checks usage and
-                        // validity, but not revocation status
-                        if (!cm.isCertValid(certByteArray, true, CryptoManager.CertUsage.SSLClient)) {
-                            msg = "CMC signing cert is invalid";
-                            CMS.debug(method + msg);
-                            s.close();
-                            throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL") + ":" + msg);
-                        } else {
-                            CMS.debug(method + "CMC signature verified; but signer not yet;");
-                        }
                         // At this point, the signature has been verified;
-
                         // now check revocation status of the cert
                         if (CMS.isRevoked(x509Certs)) {
                             msg = "CMC signing cert is a revoked certificate";
