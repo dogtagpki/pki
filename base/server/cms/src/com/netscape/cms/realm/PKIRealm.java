@@ -86,7 +86,7 @@ public class PKIRealm extends RealmBase {
     }
 
     @Override
-    public Principal authenticate(final X509Certificate certs[]) {
+    public Principal authenticate(final X509Certificate[] certs) {
         logger.info("Authenticating certificate chain:");
 
         // get the cert from the ssl client auth

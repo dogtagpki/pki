@@ -180,7 +180,7 @@ class PKCS12ImportCLI(pki.cli.CLI):
                         certs.append(cert_info)
                         continue
 
-                    match = re.match(r'  Nickname: (.*)$', line)
+                    match = re.match(r'  Friendly Name: (.*)$', line)
                     if match:
                         cert_info['nickname'] = match.group(1)
                         continue

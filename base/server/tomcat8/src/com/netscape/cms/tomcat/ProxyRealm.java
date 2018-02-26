@@ -84,7 +84,7 @@ public class ProxyRealm implements Realm {
     }
 
     @Override
-    public Principal authenticate(X509Certificate certs[]) {
+    public Principal authenticate(X509Certificate[] certs) {
         if (realm == null) {
             throw new ServiceUnavailableException("Subsystem unavailable");
         }

@@ -551,7 +551,7 @@ public class PKCS12Util {
                 BMPString friendlyName = (BMPString) new BMPString.Template().decode(bis);
 
                 keyInfo.setFriendlyName(friendlyName.toString());
-                logger.debug("   Friendly Name: " + keyInfo.getFriendlyName());
+                logger.debug("   Friendly name: " + keyInfo.getFriendlyName());
 
             } else if (oid.equals(SafeBag.LOCAL_KEY_ID)) {
 
