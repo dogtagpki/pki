@@ -115,6 +115,7 @@ public class CMCRevoke {
                     "-p<password to db> " +
                     "-h<tokenname> " +
                     "-c<comment> ");
+            System.out.println("\nNOTE: You can alternatively use CMCRequest instead for better usability.");
             for (int i = 0; i < s.length; i++) {
                 System.out.println(i + ":" + s[i]);
             }
