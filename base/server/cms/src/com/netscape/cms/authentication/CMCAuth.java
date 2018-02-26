@@ -944,9 +944,6 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
                             si.verify(digest, id, pubK);
                         }
                         CMS.debug("CMCAuth: finished checking signature");
-                        // verify signer's certificate using the revocator
-                        if (!cm.isCertValid(certByteArray, true, CryptoManager.CertUsage.SSLClient))
-                            throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
 
                         // authenticate signer's certificate using the userdb
                         IAuthSubsystem authSS = (IAuthSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTH);
