@@ -1,0 +1,63 @@
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH CMCResponse 1 "March 14, 2018" "version 10.5" "PKI CMC Response Parsing Tool" Dogtag Team
+.\" Please adjust this date whenever revising the man page.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for man page specific macros, see man(7)
+.SH NAME
+CMCResponse \- Used to parse CMC responses returned from CMC issuance or revocation requests.
+
+.SH SYNOPSIS
+.PP
+\fBCMCResponse [OPTIONS]\fP
+
+.SH DESCRIPTION
+.PP
+The Certificate Management over Cryptographic Message Syntax (CMC) Response parsing utility, \fBCMCResponse\fP, provides a command-line utility used to parse and present CMC responses from CMC issuance or revocation requests.
+.PP
+It takes the CMC response returned from the CA as input, parses, and shows the content of the response along with CMC status in a human-readable format. In addition, it can optionally output the response in PKCS#7 PEM format for further processing by other tools.
+
+.SH OPTIONS
+.PP
+The following are supported options.
+.PP
+.TP
+.B -d <path>
+Path of directory to the NSS database. This option is required.
+
+.TP
+.B -i <path>
+Name of file (could include path) for the CMC issuance or revocation response. This option is required.
+
+.TP
+.B -o <path>
+Name of file (could include path) to store the certificate chain in PKCS#7 PEM. This is optional.
+
+.TP
+.B -v
+If specified, will run in verbose mode, which would entail all certs in the chain being displayed individually in Base64 encoding format. It is false by default.
+
+.SH EXAMPLE
+.PP
+CMCResponse -d . -i cmc.role_p10-ec3.resp -o cmc.role_p10-ec3.resp.PEM
+
+.SH AUTHORS
+Christina Fu <cfu@redhat.com>.
+
+.SH COPYRIGHT
+Copyright (c) 2018 Red Hat, Inc. This is licensed under the GNU General Public
+License, version 2 (GPLv2). A copy of this license is available at
+http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
+
+.SH SEE ALSO
+.BR CMCRequest(1)

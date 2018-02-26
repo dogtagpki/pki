@@ -18,6 +18,7 @@
 package com.netscape.cmstools;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.math.BigInteger;
@@ -53,6 +54,7 @@ import org.mozilla.jss.pkix.cms.ContentInfo;
 import org.mozilla.jss.pkix.cms.EncapsulatedContentInfo;
 import org.mozilla.jss.pkix.cms.SignedData;
 
+import com.netscape.cmsutil.util.Utils;
 import netscape.security.pkcs.PKCS7;
 import netscape.security.util.CertPrettyPrint;
 import netscape.security.x509.X509CertImpl;
@@ -124,7 +126,7 @@ public class CMCResponse {
         return list;
     }
 
-    public void printContent() {
+    public void printContent(boolean printCerts) {
         try {
             SignedData cmcFullResp = (SignedData) contentInfo.getInterpretedContent();
 
@@ -137,6 +139,18 @@ public class CMCResponse {
                 for (int i = 0; i < numCerts; i++) {
                     Certificate cert = (Certificate) certs.elementAt(i);
                     X509CertImpl certImpl = new X509CertImpl(ASN1Util.encode(cert));
+
+                    if (printCerts) {
+                        System.out.println("Cert:" + i );
+                        ByteArrayOutputStream fos = new ByteArrayOutputStream();
+                        certImpl.encode(fos);
+                        fos.close();
+                        byte[] certBytes = fos.toByteArray();
+                        String certB64 = Utils.base64encode(certBytes, true);
+                        System.out.println(certB64);
+                        System.out.println("===");
+                    }
+
                     CertPrettyPrint print = new CertPrettyPrint(certImpl);
                     content.append(print.toString(Locale.getDefault()));
                 }
@@ -320,9 +334,11 @@ public class CMCResponse {
         option.setArgName("path");
         options.addOption(option);
 
-        option = new Option("o", true, "Output file to store certificate chain in PKCS #7 PEM format");
+        option = new Option("o", true, "Output file to store certificate chain in PKCS #7 PEM format; also prints out cert base 64 encoding individually");
         option.setArgName("path");
         options.addOption(option);
+
+        options.addOption("v", "verbose", false, "Run in verbose mode. Base64 encoding of certs in response will be printed individually");
 
         options.addOption(null, "help", false, "Show help message.");
 
@@ -333,6 +349,7 @@ public class CMCResponse {
 
         String input = cmd.getOptionValue("i");
         String output = cmd.getOptionValue("o");
+        boolean printCerts = cmd.hasOption("v");
 
         if (cmd.hasOption("help")) {
             printUsage();
@@ -341,6 +358,7 @@ public class CMCResponse {
 
         if (input == null) {
             System.err.println("ERROR: Missing input CMC response");
+            System.err.println("Try 'CMCResponse --help' for more information.");
             System.exit(1);
         }
 
@@ -349,7 +367,7 @@ public class CMCResponse {
 
         // display CMC response
         CMCResponse response = new CMCResponse(data);
-        response.printContent();
+        response.printContent(printCerts);
 
         // terminate if any of the statuses is not a SUCCESS
         Collection<CMCStatusInfoV2> statusInfos = response.getStatusInfos();
@@ -379,6 +397,7 @@ public class CMCResponse {
             try (FileWriter fw = new FileWriter(output)) {
                 fw.write(pkcs7.toPEMString());
             }
+            System.out.println("\nPKCS#7 now stored in file: " + output);
         }
     }
 }
