@@ -22,9 +22,12 @@ from __future__ import absolute_import
 from __future__ import print_function
 
 import os
+import shutil
+
 import pki.nssdb
 import pki.pkcs12
 import pki.server
+import pki.util
 
 # PKI Deployment Imports
 from .. import pkiconfig as config
@@ -79,14 +82,12 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 deployer.mdict['pki_database_path'],
                 deployer.mdict['pki_hsm_modulename'],
                 deployer.mdict['pki_hsm_libfile'])
-        deployer.file.modify(
-            deployer.mdict['pki_cert_database'],
-            perms=config.PKI_DEPLOYMENT_DEFAULT_SECURITY_DATABASE_PERMISSIONS)
-        deployer.file.modify(
-            deployer.mdict['pki_key_database'],
-            perms=config.PKI_DEPLOYMENT_DEFAULT_SECURITY_DATABASE_PERMISSIONS)
-        deployer.file.modify(
-            deployer.mdict['pki_secmod_database'],
+        pki.util.chown(
+            deployer.mdict['pki_database_path'],
+            deployer.mdict['pki_uid'],
+            deployer.mdict['pki_uid'])
+        pki.util.chmod(
+            deployer.mdict['pki_database_path'],
             perms=config.PKI_DEPLOYMENT_DEFAULT_SECURITY_DATABASE_PERMISSIONS)
 
         # import system certificates before starting the server
@@ -256,7 +257,5 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         config.pki_log.info(log.SECURITY_DATABASES_DESTROY_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
         if len(deployer.instance.tomcat_instance_subsystems()) == 0:
-            deployer.file.delete(deployer.mdict['pki_cert_database'])
-            deployer.file.delete(deployer.mdict['pki_key_database'])
-            deployer.file.delete(deployer.mdict['pki_secmod_database'])
+            shutil.rmtree(deployer.mdict['pki_database_path'])
             deployer.file.delete(deployer.mdict['pki_shared_password_conf'])
