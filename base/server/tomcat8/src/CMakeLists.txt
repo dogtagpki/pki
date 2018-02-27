@@ -10,6 +10,7 @@ javac(pki-tomcat-classes
         ${JAXRS_API_JAR}
         ${APACHE_COMMONS_LANG_JAR}
         ${TOMCAT_API_JAR} ${TOMCAT_CATALINA_JAR} ${TOMCAT_COYOTE_JAR} ${TOMCAT_UTIL_SCAN_JAR}
+        ${SLF4J_API_JAR}
         ${JSS_JAR} ${TOMCATJSS_JAR} ${NUXWDOG_JAR}
         ${PKI_NSUTIL_JAR}
     OUTPUT_DIR
