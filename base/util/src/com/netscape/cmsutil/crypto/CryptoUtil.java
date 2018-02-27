@@ -1319,6 +1319,11 @@ public class CryptoUtil {
 
             java.security.cert.X509Certificate cert = certMap.get(current);
 
+            if (cert == null) {
+                // incomplete chain
+                break;
+            }
+
             // add to the beginning of chain
             chain.addFirst(cert);
 
