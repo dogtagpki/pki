@@ -116,6 +116,15 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     deployer.mdict['pki_instance_lib'],
                     name))
 
+        for name in os.listdir('/usr/share/pki/server/lib'):
+            deployer.symlink.create(
+                os.path.join(
+                    '/usr/share/pki/server/lib',
+                    name),
+                os.path.join(
+                    deployer.mdict['pki_instance_lib'],
+                    name))
+
         # Link /var/lib/pki/<instance>/lib/log4j.properties
         # to /usr/share/pki/server/conf/log4j.properties.
         deployer.symlink.create(

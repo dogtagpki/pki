@@ -107,6 +107,17 @@ jar(pki-cmscore-jar
         pki-server-classes
 )
 
+# Create /usr/share/pki/server/lib. This can be customized for different platforms in RPM spec.
+
+add_custom_target(pki-server-lib ALL)
+
+add_custom_command(
+    TARGET pki-server-lib
+    COMMAND ${CMAKE_COMMAND} -E make_directory lib
+    COMMAND ${CMAKE_COMMAND} -E create_symlink ${SLF4J_API_JAR} lib/slf4j-api.jar
+    COMMAND ${CMAKE_COMMAND} -E create_symlink ${SLF4J_JDK14_JAR} lib/slf4j-jdk14.jar
+)
+
 # Create /usr/share/pki/server/common/lib. This can be customized for different platforms in RPM spec.
 
 add_custom_target(pki-server-common-lib ALL)
@@ -169,6 +180,13 @@ install(
          ${CMAKE_CURRENT_BINARY_DIR}/share/etc/tomcat.conf
     DESTINATION
         ${DATA_INSTALL_DIR}/etc/
+)
+
+install(
+    DIRECTORY
+        ${CMAKE_CURRENT_BINARY_DIR}/lib/
+    DESTINATION
+        ${DATA_INSTALL_DIR}/server/lib
 )
 
 install(

@@ -1051,8 +1051,6 @@ fi
 
 %endif  # Fedora / RHEL > 7
 
-%{__rm} -rf %{buildroot}%{_datadir}/pki/server/lib
-
 %endif # %{with server}
 
 %{__mkdir_p} %{buildroot}%{_localstatedir}/log/pki
