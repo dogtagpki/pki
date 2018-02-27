@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3f8e8ce7_5c6b34ab",
+        "filename": "base/server/etc/default.cfg",
+        "patchSetId": 1
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-02-27T02:35:57Z",
+      "side": 1,
+      "message": "This should be empty by default. See my other comment.",
+      "revId": "401d4ae21f0e19ab45b1cc9ecc60190363869c20",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3d83cc94_263f0b3e",
+        "filename": "base/server/python/pki/server/deployment/scriptlets/configuration.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1092,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-02-27T02:35:57Z",
+      "side": 1,
+      "message": "I\u0027d rather we report the error than silently defaulting to None. So the code would look something like this:\n\n  value \u003d deployer.mdict[\u0027pki_status_request_timeout\u0027]\n  if not value:\n      status_request_timeout \u003d None\n  else:\n      status_request_timeout \u003d int(value)",
+      "revId": "401d4ae21f0e19ab45b1cc9ecc60190363869c20",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
