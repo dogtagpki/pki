@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0dc65fc0_e137e5f4",
+        "filename": "base/server/python/pki/server/cli/http.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 1010222
+      },
+      "writtenOn": "2018-02-27T00:36:34Z",
+      "side": 1,
+      "message": "Should there be a line below for the trustManagerClassName ?",
+      "revId": "7785c48844c19274593af115f454f76b597494bc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1ee0fefa_d1808b2d",
+        "filename": "base/server/tomcat/src/org/dogtagpki/tomcat/PKITrustManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 1010222
+      },
+      "writtenOn": "2018-02-27T00:36:34Z",
+      "side": 1,
+      "message": "Global question here. Do we care about the token used here, for instance if the hsm is in the picture with respect to the server certs? Just asking.",
+      "revId": "7785c48844c19274593af115f454f76b597494bc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d976ae27_17582925",
+        "filename": "base/server/tomcat/src/org/dogtagpki/tomcat/PKITrustManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1010222
+      },
+      "writtenOn": "2018-02-27T00:36:34Z",
+      "side": 1,
+      "message": "Do we care if certs has nothing in it or null? First the log won\u0027t happen and then below it will try to reference certs[0]. Maybe it\u0027s assured not to happen. Same in the checkServerTrusted method.",
+      "revId": "7785c48844c19274593af115f454f76b597494bc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bf3a29b8_c3cb2a3c",
+        "filename": "base/server/tomcat/src/org/dogtagpki/tomcat/PKITrustManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1010222
+      },
+      "writtenOn": "2018-02-27T00:36:34Z",
+      "side": 1,
+      "message": "Is the message make sense here, talking about \"usage\" ?",
+      "revId": "7785c48844c19274593af115f454f76b597494bc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0d2d8f8a_a44b8d87",
+        "filename": "base/server/tomcat/src/org/dogtagpki/tomcat/PKITrustManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 1010222
+      },
+      "writtenOn": "2018-02-27T00:36:34Z",
+      "side": 1,
+      "message": "Looks like the two methods are nearly the same. MAYBE we could make a common one that is called from both places?",
+      "revId": "7785c48844c19274593af115f454f76b597494bc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
