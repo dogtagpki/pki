@@ -253,7 +253,17 @@ public class ClientCertRequestCLI extends CLI {
         String csr;
         PKIClient client;
         if ("pkcs10".equals(requestType)) {
-            csr = generatePkcs10Request(certDatabase, password, algorithm, length, subjectDN);
+            if ("rsa".equals(algorithm)){
+                csr = generatePkcs10Request(certDatabase, password, algorithm,
+                        Integer.toString(length), subjectDN);
+            }
+
+	        else if ("ecc".equals(algorithm)){
+                csr = generatePkcs10Request(certDatabase, password, algorithm, curve, subjectDN);
+	        }
+	        else{
+		        throw new Exception("Invalid algorithm specified.");
+	        }
 
             // initialize database after PKCS10Client to avoid conflict
             mainCLI.init();
@@ -385,7 +395,7 @@ public class ClientCertRequestCLI extends CLI {
             File certDatabase,
             String password,
             String algorithm,
-            int length,
+            String length,
             String subjectDN
             ) throws Exception {
 
