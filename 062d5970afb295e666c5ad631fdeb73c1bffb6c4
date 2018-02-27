@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4ef04b28_e2c4db71",
+        "filename": "base/java-tools/src/com/netscape/cmstools/client/ClientCertRequestCLI.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-02-27T16:49:55Z",
+      "side": 1,
+      "message": "Please add a space before the curly bracket.",
+      "revId": "062d5970afb295e666c5ad631fdeb73c1bffb6c4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6390f124_b1465fac",
+        "filename": "base/java-tools/src/com/netscape/cmstools/client/ClientCertRequestCLI.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 261,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-02-27T16:49:55Z",
+      "side": 1,
+      "message": "Please use spaces instead of tab.",
+      "revId": "062d5970afb295e666c5ad631fdeb73c1bffb6c4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "29228597_5289f538",
+        "filename": "base/java-tools/src/com/netscape/cmstools/client/ClientCertRequestCLI.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 265,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-02-27T16:49:55Z",
+      "side": 1,
+      "message": "Specify the invalid algorithm in the exception message:\n\n  throw new Exception(\"Invalid algorithm: \" + algorithm);",
+      "revId": "062d5970afb295e666c5ad631fdeb73c1bffb6c4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1232db43_0114e7ff",
+        "filename": "base/java-tools/src/com/netscape/cmstools/client/ClientCertRequestCLI.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 410,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-02-27T16:49:55Z",
+      "side": 1,
+      "message": "In this patch the length parameter is used to pass either an RSA key length or an EC curve name, and both are passed to PKCS10Client using -l parameter. However, according to PKCS10Client help message, the EC curve name should be passed using -c parameter.\n\nI\u0027d suggest adding a separate parameter for the EC curve name like this:\n\n  if (\"rsa\".equals(algorithm)) {\n      csr \u003d generatePkcs10Request(\n          certDatabase, password, algorithm, length, null, subjectDN);\n\n  } else if (\"ecc\".equals(algorithm)) {\n      csr \u003d generatePkcs10Request(\n          certDatabase, password, algorithm, null, curve, subjectDN);\n  }\n\nAnd the generatePkcs10Request() can be defined like this:\n\n  public String generatePkcs10Request(\n          File certDatabase,\n          String password,\n          String algorithm,\n          Integer length,\n          String curve,\n          String subjectDN\n          ) throws Exception {\n  }\n\nYou will need to construct the commands array dynamically (e.g. with ArrayList) and add the -l or -c parameter only if the value is not null.",
+      "revId": "062d5970afb295e666c5ad631fdeb73c1bffb6c4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
