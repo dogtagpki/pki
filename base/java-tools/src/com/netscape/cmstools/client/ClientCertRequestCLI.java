@@ -123,7 +123,8 @@ public class ClientCertRequestCLI extends CLI {
         option.setArgName("path");
         options.addOption(option);
 
-        option = new Option(null, "profile", true, "Certificate profile (RSA default: caUserCert, ECC default: caECUserCert)");
+        option = new Option(null, "profile", true,
+                "Certificate profile (RSA default: caUserCert, ECC default: caECUserCert)");
         option.setArgName("profile");
         options.addOption(option);
 
@@ -242,7 +243,7 @@ public class ClientCertRequestCLI extends CLI {
             throw new Exception("--issuer-id and --issuer-dn options are mutually exclusive");
         }
 
-        MainCLI mainCLI = (MainCLI)parent.getParent();
+        MainCLI mainCLI = (MainCLI) parent.getParent();
         File certDatabase = mainCLI.certDatabase;
 
         String password = mainCLI.config.getCertPassword();
@@ -253,12 +254,20 @@ public class ClientCertRequestCLI extends CLI {
         String csr;
         PKIClient client;
         if ("pkcs10".equals(requestType)) {
-            csr = generatePkcs10Request(certDatabase, password, algorithm, length, subjectDN);
+            if ("rsa".equals(algorithm)) {
+                csr = generatePkcs10Request(certDatabase, password, algorithm,
+                        Integer.toString(length), subjectDN);
+            }
+
+            else if ("ec".equals(algorithm)) {
+                csr = generatePkcs10Request(certDatabase, password, algorithm, curve, subjectDN);
+            } else {
+                throw new Exception("Error: Unknown algorithm: " + algorithm);
+            }
 
             // initialize database after PKCS10Client to avoid conflict
             mainCLI.init();
             client = getClient();
-
 
         } else if ("crmf".equals(requestType)) {
 
@@ -325,8 +334,8 @@ public class ClientCertRequestCLI extends CLI {
         Vector<?> rdns = dn.getRDNs();
 
         Map<String, String> subjectAttributes = new HashMap<String, String>();
-        for (int i=0; i< rdns.size(); i++) {
-            RDN rdn = (RDN)rdns.elementAt(i);
+        for (int i = 0; i < rdns.size(); i++) {
+            RDN rdn = (RDN) rdns.elementAt(i);
             String type = rdn.getTypes()[0].toLowerCase();
             String value = rdn.getValues()[0];
             subjectAttributes.put(type, value);
@@ -334,7 +343,8 @@ public class ClientCertRequestCLI extends CLI {
 
         ProfileInput sn = request.getInput("Subject Name");
         if (sn != null) {
-            if (verbose) System.out.println("Subject Name:");
+            if (verbose)
+                System.out.println("Subject Name:");
 
             for (ProfileAttribute attribute : sn.getAttributes()) {
                 String name = attribute.getName();
@@ -350,13 +360,16 @@ public class ClientCertRequestCLI extends CLI {
 
                 } else {
                     // unknown attribute, ignore
-                    if (verbose) System.out.println(" - " + name);
+                    if (verbose)
+                        System.out.println(" - " + name);
                     continue;
                 }
 
-                if (value == null) continue;
+                if (value == null)
+                    continue;
 
-                if (verbose) System.out.println(" - " + name + ": " + value);
+                if (verbose)
+                    System.out.println(" - " + name + ": " + value);
                 attribute.setValue(value);
             }
         }
@@ -385,19 +398,20 @@ public class ClientCertRequestCLI extends CLI {
             File certDatabase,
             String password,
             String algorithm,
-            int length,
-            String subjectDN
-            ) throws Exception {
+            String length,
+            String subjectDN) throws Exception {
 
         File csrFile = File.createTempFile("pki-client-cert-request-", ".csr", certDatabase);
         csrFile.deleteOnExit();
+
+        String lenOrCurve = "ec".equals(algorithm) ? "-c" : "-l";
 
         String[] commands = {
                 "/usr/bin/PKCS10Client",
                 "-d", certDatabase.getAbsolutePath(),
                 "-p", password,
                 "-a", algorithm,
-                "-l", "" + length,
+                lenOrCurve, "" + length,
                 "-o", csrFile.getAbsolutePath(),
                 "-n", subjectDN
         };
@@ -427,8 +441,7 @@ public class ClientCertRequestCLI extends CLI {
             int sensitive,
             int extractable,
             boolean withPop,
-            KeyWrapAlgorithm keyWrapAlgorithm
-            ) throws Exception {
+            KeyWrapAlgorithm keyWrapAlgorithm) throws Exception {
 
         CryptoManager manager = CryptoManager.getInstance();
         CryptoToken token = manager.getThreadToken();
