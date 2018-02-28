@@ -19,8 +19,8 @@ package com.netscape.cmscore.util;
 
 import java.util.Hashtable;
 import java.util.StringTokenizer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.dogtagpki.util.logging.PKILogger;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
@@ -114,11 +114,11 @@ public class Debug
         print(VERBOSE, t);
     }
 
-    private static int getNybble(byte b) {
+    private static char getNybble(byte b) {
         if (b < 10) {
-            return '0' + b;
+            return (char)('0' + b);
         } else {
-            return 'a' + b - 10;
+            return (char)('a' + b - 10);
         }
     }
 
@@ -185,24 +185,22 @@ public class Debug
     public static void setLevel(int level) {
         mDebugLevel = level;
 
-        Level logLevel;
+        PKILogger.Level logLevel;
 
         if (level <= OBNOXIOUS) {
-            logLevel = Level.FINEST;
+            logLevel = PKILogger.Level.TRACE;
 
         } else if (level <= VERBOSE) {
-            logLevel = Level.FINE;
+            logLevel = PKILogger.Level.DEBUG;
 
         } else if (level <= INFORM) {
-            logLevel = Level.INFO;
+            logLevel = PKILogger.Level.INFO;
 
         } else {
-            logLevel = Level.WARNING;
+            logLevel = PKILogger.Level.WARN;
         }
 
-        Logger.getLogger("org.dogtagpki").setLevel(logLevel);
-        Logger.getLogger("com.netscape").setLevel(logLevel);
-        Logger.getLogger("netscape").setLevel(logLevel);
+        PKILogger.setLevel(logLevel);
     }
 
     public static int getLevel(int level) {
