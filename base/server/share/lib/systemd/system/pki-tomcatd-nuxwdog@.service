@@ -11,6 +11,7 @@ Environment="STARTED_BY_SYSTEMD=1"
 Environment="PKI_SERVER_UPGRADE_LOG=/var/log/pki/%i/pki-upgrade.log"
 EnvironmentFile=-/etc/sysconfig/%i
 ExecStartPre=/usr/sbin/pki-server-upgrade --silent --instance %i
+ExecStartPre=/usr/sbin/pki-server migrate --instance %i
 ExecStartPre=/usr/bin/pkidaemon start %i
 ExecStart=/bin/nuxwdog -f /etc/pki/%i/nuxwdog.conf
 SuccessExitStatus=143

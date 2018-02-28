@@ -1129,10 +1129,6 @@ fi
 
 # Instance upgrade is now handled by systemd services
 
-# Migrate Tomcat configuration
-/sbin/pki-server migrate >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
-echo >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
-
 # Reload systemd daemons on upgrade only
 if [ "$1" == "2" ]
 then
