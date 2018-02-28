@@ -7,9 +7,7 @@ Type=simple
 EnvironmentFile=/usr/share/pki/etc/tomcat.conf
 EnvironmentFile=/etc/tomcat/tomcat.conf
 Environment="NAME=%i"
-Environment="PKI_SERVER_UPGRADE_LOG=/var/log/pki/%i/pki-upgrade.log"
 EnvironmentFile=-/etc/sysconfig/%i
-ExecStartPre=/usr/sbin/pki-server-upgrade --silent --instance %i
 ExecStartPre=/usr/sbin/pki-server migrate --instance %i
 ExecStartPre=/usr/bin/pkidaemon start %i
 ExecStart=/usr/libexec/tomcat/server start

@@ -1127,7 +1127,9 @@ fi
 ##        from EITHER 'sysVinit' OR previous 'systemd' processes to the new
 ##        PKI deployment process
 
-# Instance upgrade is now handled by systemd services
+echo "Upgrading PKI server configuration at `/bin/date`." >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
+/sbin/pki-server-upgrade --silent >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
+echo >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
 
 # Reload systemd daemons on upgrade only
 if [ "$1" == "2" ]
