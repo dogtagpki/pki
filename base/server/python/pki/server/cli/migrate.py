@@ -40,6 +40,7 @@ class MigrateCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server migrate [OPTIONS]')
         print()
+        print('  -i, --instance <instance ID> Instance ID.')
         print('      --tomcat <version>       Use the specified Tomcat version.')
         print('  -v, --verbose                Run in verbose mode.')
         print('      --debug                  Show debug messages.')
@@ -49,6 +50,7 @@ class MigrateCLI(pki.cli.CLI):
     def execute(self, argv):
         try:
             opts, _ = getopt.gnu_getopt(argv, 'i:v', [
+                'instance=',
                 'tomcat=', 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
@@ -56,10 +58,14 @@ class MigrateCLI(pki.cli.CLI):
             self.print_help()
             sys.exit(1)
 
+        instance_name = None
         tomcat_version = None
 
         for o, a in opts:
-            if o == '--tomcat':
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o == '--tomcat':
                 tomcat_version = a
 
             elif o in ('-v', '--verbose'):
@@ -81,24 +87,35 @@ class MigrateCLI(pki.cli.CLI):
         if not tomcat_version:
             tomcat_version = pki.server.Tomcat.get_major_version()
 
-        if self.verbose:
-            print('Migrating to Tomcat %s' % tomcat_version)
+        if instance_name:
 
-        instances = pki.server.PKIServer.instances()
+            instance = pki.server.PKIInstance(instance_name)
 
-        for instance in instances:
+            if not instance.is_valid():
+                print('ERROR: Invalid instance %s.' % instance_name)
+                sys.exit(1)
+
+            instance.load()
+
             self.migrate(instance, tomcat_version)
 
-        self.print_message('System migrated')
+        else:
+            instances = pki.server.PKIServer.instances()
+
+            for instance in instances:
+                self.migrate(instance, tomcat_version)
 
     def migrate(self, instance, tomcat_version):
         self.migrate_instance(instance, tomcat_version)
         self.migrate_subsystems(instance, tomcat_version)
 
+        self.print_message('%s instance migrated' % instance.name)
+
     def migrate_instance(self, instance, tomcat_version):
 
         if self.verbose:
-            print('Migrating %s instance' % instance.name)
+            print('Migrating %s instance to Tomcat %s' %
+                  (instance.name, tomcat_version))
 
         server_xml = os.path.join(instance.conf_dir, 'server.xml')
         self.migrate_server_xml(server_xml, tomcat_version)
