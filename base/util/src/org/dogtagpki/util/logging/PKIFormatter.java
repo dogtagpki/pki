@@ -16,7 +16,7 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
-package org.dogtagpki.tomcat;
+package org.dogtagpki.util.logging;
 
 import java.util.Date;
 import java.util.logging.Formatter;
