@@ -439,9 +439,6 @@ class MigrateCLI(pki.cli.CLI):
         # remove old links
         for filename in os.listdir(instance.lib_dir):
 
-            if not filename.endswith('.jar'):
-                continue
-
             path = os.path.join(instance.lib_dir, filename)
 
             if self.verbose:
@@ -454,14 +451,29 @@ class MigrateCLI(pki.cli.CLI):
         # create new links
         for filename in os.listdir(tomcat_dir):
 
-            if not filename.endswith('.jar'):
-                continue
-
             source = os.path.join(tomcat_dir, filename)
             dest = os.path.join(instance.lib_dir, filename)
+            self.create_link(instance, source, dest)
 
-            if self.verbose:
-                print('Creating %s' % dest)
+        # log4j.properties
+        source = '/usr/share/pki/server/conf/log4j.properties'
+        dest = os.path.join(instance.lib_dir, 'log4j.properties')
+        self.create_link(instance, source, dest)
 
-            os.symlink(source, dest)
-            os.lchown(dest, instance.uid, instance.gid)
+        # slf4j-api.jar
+        source = '/usr/share/pki/server/lib/slf4j-api.jar'
+        dest = os.path.join(instance.lib_dir, 'slf4j-api.jar')
+        self.create_link(instance, source, dest)
+
+        # slf4j-jdk14.jar
+        source = '/usr/share/pki/server/lib/slf4j-jdk14.jar'
+        dest = os.path.join(instance.lib_dir, 'slf4j-jdk14.jar')
+        self.create_link(instance, source, dest)
+
+    def create_link(self, instance, source, dest):
+
+        if self.verbose:
+            print('Creating %s' % dest)
+
+        os.symlink(source, dest)
+        os.lchown(dest, instance.uid, instance.gid)
