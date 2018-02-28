@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "8be831b6_2f1887b6",
+        "filename": "base/server/python/pki/server/cli/http.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-02-28T00:21:10Z",
+      "side": 1,
+      "message": "No, because that parameter will be hard-coded. It\u0027s not user configurable.",
+      "parentUuid": "0dc65fc0_e137e5f4",
+      "revId": "7785c48844c19274593af115f454f76b597494bc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1ee0fefa_d1808b2d",
         "filename": "base/server/tomcat/src/org/dogtagpki/tomcat/PKITrustManager.java",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2018-02-27T00:36:34Z",
       "side": 1,
       "message": "Global question here. Do we care about the token used here, for instance if the hsm is in the picture with respect to the server certs? Just asking.",
+      "revId": "7785c48844c19274593af115f454f76b597494bc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "18381a22_e35b8f91",
+        "filename": "base/server/tomcat/src/org/dogtagpki/tomcat/PKITrustManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-02-28T00:21:10Z",
+      "side": 1,
+      "message": "No. The SSL client certificate will be validated against the CA certificates without involving NSS, so the HSM is irrelevant.",
+      "parentUuid": "1ee0fefa_d1808b2d",
       "revId": "7785c48844c19274593af115f454f76b597494bc",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "b8871439_2604fd72",
+        "filename": "base/server/tomcat/src/org/dogtagpki/tomcat/PKITrustManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-02-28T00:21:10Z",
+      "side": 1,
+      "message": "Not really. We\u0027re assuming Tomcat will provide a non-null/non-empty array containing the SSL client certificate chain. Otherwise we will not be able to validate the certificate.",
+      "parentUuid": "d976ae27_17582925",
+      "revId": "7785c48844c19274593af115f454f76b597494bc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bf3a29b8_c3cb2a3c",
         "filename": "base/server/tomcat/src/org/dogtagpki/tomcat/PKITrustManager.java",
         "patchSetId": 1
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "9c6bc99a_f6bebd67",
+        "filename": "base/server/tomcat/src/org/dogtagpki/tomcat/PKITrustManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-02-28T00:21:10Z",
+      "side": 1,
+      "message": "Yes, we are checking to make sure the SSL client certificate has SSL client key usage.",
+      "parentUuid": "bf3a29b8_c3cb2a3c",
+      "revId": "7785c48844c19274593af115f454f76b597494bc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0d2d8f8a_a44b8d87",
         "filename": "base/server/tomcat/src/org/dogtagpki/tomcat/PKITrustManager.java",
         "patchSetId": 1
@@ -81,6 +153,24 @@
       "writtenOn": "2018-02-27T00:36:34Z",
       "side": 1,
       "message": "Looks like the two methods are nearly the same. MAYBE we could make a common one that is called from both places?",
+      "revId": "7785c48844c19274593af115f454f76b597494bc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "25fe1ca1_8bd06d27",
+        "filename": "base/server/tomcat/src/org/dogtagpki/tomcat/PKITrustManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-02-28T00:21:10Z",
+      "side": 1,
+      "message": "It is now combined in the new patch.",
+      "parentUuid": "0d2d8f8a_a44b8d87",
       "revId": "7785c48844c19274593af115f454f76b597494bc",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
