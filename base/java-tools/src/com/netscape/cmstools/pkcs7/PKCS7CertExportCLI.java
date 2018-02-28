@@ -39,7 +39,7 @@ import netscape.security.pkcs.PKCS7;
 
 public class PKCS7CertExportCLI extends CLI {
 
-    private static Logger logger = LoggerFactory.getLogger(PKCS7CertExportCLI.class.getName());
+    private static Logger logger = LoggerFactory.getLogger(PKCS7CertExportCLI.class);
 
     public PKCS7CertExportCLI(PKCS7CertCLI certCLI) {
         super("export", "Export certificates from PKCS #7 file", certCLI);

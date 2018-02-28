@@ -40,7 +40,7 @@ import netscape.security.pkcs.PKCS12Util;
  */
 public class PKCS12Export {
 
-    private static Logger logger = LoggerFactory.getLogger(PKCS12Export.class.getName());
+    private static Logger logger = LoggerFactory.getLogger(PKCS12Export.class);
 
     String databaseDirectory;
     String databasePasswordFilename;

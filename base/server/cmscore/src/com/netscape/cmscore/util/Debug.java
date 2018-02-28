@@ -19,8 +19,8 @@ package com.netscape.cmscore.util;
 
 import java.util.Hashtable;
 import java.util.StringTokenizer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.dogtagpki.util.logging.PKILogger;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
@@ -133,8 +133,8 @@ public class Debug
         StringBuilder sb = new StringBuilder();
 
         for (int i = 0; i < b.length; i++) {
-            sb.append(getNybble((byte) ((b[i] & 0xf0) >> 4)));
-            sb.append(getNybble((byte) (b[i] & 0x0f)));
+            sb.append((char)getNybble((byte) ((b[i] & 0xf0) >> 4)));
+            sb.append((char)getNybble((byte) (b[i] & 0x0f)));
             sb.append(" ");
 
             if (((i % 16) == 15) && i != b.length) {
@@ -185,24 +185,22 @@ public class Debug
     public static void setLevel(int level) {
         mDebugLevel = level;
 
-        Level logLevel;
+        PKILogger.Level logLevel;
 
         if (level <= OBNOXIOUS) {
-            logLevel = Level.FINEST;
+            logLevel = PKILogger.Level.TRACE;
 
         } else if (level <= VERBOSE) {
-            logLevel = Level.FINE;
+            logLevel = PKILogger.Level.DEBUG;
 
         } else if (level <= INFORM) {
-            logLevel = Level.INFO;
+            logLevel = PKILogger.Level.INFO;
 
         } else {
-            logLevel = Level.WARNING;
+            logLevel = PKILogger.Level.WARN;
         }
 
-        Logger.getLogger("org.dogtagpki").setLevel(logLevel);
-        Logger.getLogger("com.netscape").setLevel(logLevel);
-        Logger.getLogger("netscape").setLevel(logLevel);
+        PKILogger.setLevel(logLevel);
     }
 
     public static int getLevel(int level) {

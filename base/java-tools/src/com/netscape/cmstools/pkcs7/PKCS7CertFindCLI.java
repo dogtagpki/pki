@@ -35,7 +35,7 @@ import netscape.security.pkcs.PKCS7;
 
 public class PKCS7CertFindCLI extends CLI {
 
-    private static Logger logger = LoggerFactory.getLogger(PKCS7CertFindCLI.class.getName());
+    private static Logger logger = LoggerFactory.getLogger(PKCS7CertFindCLI.class);
 
     public PKCS7CertFindCLI(PKCS7CertCLI certCLI) {
         super("find", "Find certificates in PKCS #7 file", certCLI);
