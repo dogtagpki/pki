@@ -106,12 +106,27 @@ class MigrateCLI(pki.cli.CLI):
                 self.migrate(instance, tomcat_version)
 
     def migrate(self, instance, tomcat_version):
-        self.migrate_instance(instance, tomcat_version)
+        self.migrate_nssdb(instance)
+        self.migrate_tomcat(instance, tomcat_version)
         self.migrate_subsystems(instance, tomcat_version)
 
         self.print_message('%s instance migrated' % instance.name)
 
-    def migrate_instance(self, instance, tomcat_version):
+    def migrate_nssdb(self, instance):
+
+        if self.verbose:
+            print('Migrating %s instance to NSS SQL database' % instance.name)
+
+        nssdb = instance.open_nssdb()
+
+        try:
+            # Only attempt to convert if target format is sql and DB is dbm
+            if nssdb.needs_conversion():
+                nssdb.convert_db()
+        finally:
+            nssdb.close()
+
+    def migrate_tomcat(self, instance, tomcat_version):
 
         if self.verbose:
             print('Migrating %s instance to Tomcat %s' %

@@ -64,15 +64,6 @@ class PKIServerUpgradeScriptlet(pki.upgrade.PKIUpgradeScriptlet):
             tracker.remove_index()
             tracker.set_version(self.version.next)
 
-    def convert_nssdb(self, instance):
-        nssdb = instance.open_nssdb()
-        # Only attempt to convert if target format is sql and DB is dbm
-        if nssdb.needs_conversion():
-            if verbose:
-                print('Migrate NSS database of {} instance to SQL '
-                      'format.'.format(instance))
-            nssdb.convert_db()
-
     def upgrade(self):
         for instance in self.upgrader.instances():
 
@@ -90,9 +81,6 @@ class PKIServerUpgradeScriptlet(pki.upgrade.PKIUpgradeScriptlet):
             try:
                 if verbose:
                     print('Upgrading ' + str(instance) + ' instance.')
-                # HACK: Always attempt to upgrade NSS DB. The method is
-                # idempotent.
-                self.convert_nssdb(instance)
 
                 self.upgrade_instance(instance)
                 self.update_server_tracker(instance)
