@@ -25,6 +25,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
 
 import com.netscape.certsrv.apps.CMS;
@@ -37,9 +39,8 @@ import com.netscape.cmsutil.xml.XMLObject;
 
 public class GetStatus extends CMSServlet {
 
-    /**
-     *
-     */
+    public final static Logger logger = LoggerFactory.getLogger(GetStatus.class);
+
     private static final long serialVersionUID = -2852842030221659847L;
 
     public GetStatus() {
@@ -61,6 +62,9 @@ public class GetStatus extends CMSServlet {
      * @param cmsReq the object holding the request and response information
      */
     protected void process(CMSRequest cmsReq) throws EBaseException {
+
+        logger.debug("GetStatus: process()");
+
         HttpServletResponse httpResp = cmsReq.getHttpResp();
         IConfigStore config = CMS.getConfigStore();
 
@@ -83,8 +87,9 @@ public class GetStatus extends CMSServlet {
             byte[] cb = xmlObj.toByteArray();
 
             outputResult(httpResp, "application/xml", cb);
+
         } catch (Exception e) {
-            CMS.debug("Failed to send the XML output");
+            logger.warn("GetStatus: Failed to send the XML output: " + e, e);
         }
     }
 
