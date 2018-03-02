@@ -40,6 +40,8 @@ import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.pkcs11.PK11Store;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import com.netscape.certsrv.apps.CMS;
@@ -72,13 +74,16 @@ import netscape.security.x509.X509CertInfo;
 import netscape.security.x509.X509Key;
 
 public class CertUtil {
+
+    public final static Logger logger = LoggerFactory.getLogger(CertUtil.class);
+
     static final int LINE_COUNT = 76;
 
     public static X509CertImpl createRemoteCert(String hostname,
             int port, MultivaluedMap<String, String> content, HttpServletResponse response)
             throws Exception {
 
-        CMS.debug("CertUtil: content: " + content);
+        logger.debug("CertUtil: content: " + content);
 
         String c = ConfigurationUtils.post(hostname, port, true, "/ca/ee/ca/profileSubmit", content, null, null);
 
@@ -88,31 +93,30 @@ public class CertUtil {
             try {
                 parser = new XMLObject(bis);
             } catch (SAXException e) {
-                CMS.debug("CertUtil: Unable to parse XML response:");
-                CMS.debug(c);
-                CMS.debug(e);
+                logger.error("Response: " + c);
+                logger.error("CertUtil: Unable to parse XML response: " + e, e);
                 throw e;
             }
 
             String status = parser.getValue("Status");
 
-            CMS.debug("CertUtil: status: " + status);
+            logger.debug("CertUtil: status: " + status);
             if (!status.equals("0")) {
                 String error = parser.getValue("Error");
-                CMS.debug("CertUtil: error: " + error);
+                logger.error("CertUtil: error: " + error);
                 throw new IOException(error);
             }
 
             String b64 = parser.getValue("b64");
 
-            CMS.debug("CertUtil: cert: " + b64);
+            logger.debug("CertUtil: cert: " + b64);
             b64 = CryptoUtil.normalizeCertAndReq(b64);
             byte[] b = CryptoUtil.base64Decode(b64);
 
             return new X509CertImpl(b);
 
         } else {
-            CMS.debug("CertUtil: Missing CA response");
+            logger.error("CertUtil: Missing CA response");
             throw new Exception("Missing CA response");
         }
     }
@@ -141,15 +145,15 @@ public class CertUtil {
                 pubk = CryptoUtil.getPublicX509ECCKey(
                         CryptoUtil.string2byte(pubKeyEncoded));
             } else {
-                CMS.debug("CertRequestPanel::getPKCS10() - "
-                        + "public key type is unsupported!");
-                throw new IOException("public key type is unsupported");
+                logger.error("CertUtil: getPKCS10() - "
+                        + "public key type is unsupported: " + pubKeyType);
+                throw new IOException("Public key type is unsupported: " + pubKeyType);
             }
 
             if (pubk != null) {
-                CMS.debug("CertRequestPanel: got public key");
+                logger.debug("CertUtil: got public key");
             } else {
-                CMS.debug("CertRequestPanel: error getting public key null");
+                logger.error("CertUtil: error getting public key null");
                 throw new IOException("public key is null");
             }
             // get private key
@@ -159,9 +163,9 @@ public class CertUtil {
             PrivateKey privk = CryptoUtil.findPrivateKeyFromID(keyIDb);
 
             if (privk != null) {
-                CMS.debug("CertRequestPanel: got private key");
+                logger.debug("CertUtil: got private key");
             } else {
-                CMS.debug("CertRequestPanel: error getting private key null");
+                logger.warn("CertUtil: error getting private key null");
             }
 
             // construct cert request
@@ -171,12 +175,11 @@ public class CertUtil {
                     privk, algorithm);
 
         } catch (Throwable e) {
-            CMS.debug(e);
+            logger.error("CertUtil: getPKCS10: " + e, e);
             if (context != null) {
                 context.put("errorString", e.toString());
             }
-            CMS.debug("CertUtil getPKCS10: " + e.toString());
-            throw new IOException(e.toString());
+            throw new IOException(e);
         }
     }
 
@@ -193,7 +196,7 @@ public class CertUtil {
     //
     public static void injectSANextensionIntoRequest(IConfigStore config,
                            IRequest req) throws Exception {
-        CMS.debug("CertUtil::injectSANextensionIntoRequest() - injecting SAN " +
+        logger.debug("CertUtil: injectSANextensionIntoRequest() - injecting SAN " +
                   "entries into request . . .");
         int i = 0;
         if (config == null || req == null) {
@@ -202,12 +205,12 @@ public class CertUtil {
         String sanHostnames = config.getString("service.sslserver.san");
         String sans[] = StringUtils.split(sanHostnames, ",");
         for (String san : sans) {
-            CMS.debug("CertUtil: injectSANextensionIntoRequest() injecting " +
+            logger.debug("CertUtil: injectSANextensionIntoRequest() injecting " +
                       "SAN hostname: " + san);
             req.setExtData("req_san_pattern_" + i, san);
             i++;
         }
-        CMS.debug("CertUtil: injectSANextensionIntoRequest() " + "injected " +
+        logger.debug("CertUtil: injectSANextensionIntoRequest() " + "injected " +
                   i + " SAN entries into request.");
     }
 
@@ -233,7 +236,7 @@ public class CertUtil {
         String url = "";
         String entries = "";
 
-        CMS.debug("CertUtil: buildSANSSLserverURLExtension() " +
+        logger.debug("CertUtil: buildSANSSLserverURLExtension() " +
                   "building SAN SSL Server Certificate URL extension . . .");
         int i = 0;
         if (config == null) {
@@ -242,7 +245,7 @@ public class CertUtil {
         String sanHostnames = config.getString("service.sslserver.san");
         String sans[] = StringUtils.split(sanHostnames, ",");
         for (String san : sans) {
-            CMS.debug("CertUtil: buildSANSSLserverURLExtension() processing " +
+            logger.debug("CertUtil: buildSANSSLserverURLExtension() processing " +
                       "SAN hostname: " + san);
             // Add the DNSName for all SANs
             entries = entries +
@@ -252,7 +255,7 @@ public class CertUtil {
 
         url = "&req_san_entries=" + i + entries;
 
-        CMS.debug("CertUtil: buildSANSSLserverURLExtension() " + "placed " +
+        logger.debug("CertUtil: buildSANSSLserverURLExtension() " + "placed " +
                   i + " SAN entries into SSL Server Certificate URL.");
 
         return url;
@@ -275,7 +278,7 @@ public class CertUtil {
         // just need a request, no need to get into a queue
         //        IRequest r = new EnrollmentRequest(rid);
 
-        CMS.debug("CertUtil.createLocalRequest(" + tag + ")");
+        logger.debug("CertUtil: createLocalRequest(" + tag + ")");
 
         IRequest req = queue.newRequest("enrollment");
 
@@ -297,7 +300,7 @@ public class CertUtil {
         req.setExtData("profileapprovedby", "system");
 
         Boolean injectSAN = cs.getBoolean("service.injectSAN", false);
-        CMS.debug("createLocalCert: inject SAN: " + injectSAN);
+        logger.debug("createLocalCert: inject SAN: " + injectSAN);
 
         if (tag.equals("sslserver") && injectSAN) {
             injectSANextensionIntoRequest(cs, req);
@@ -328,7 +331,7 @@ public class CertUtil {
         }
 
         // mark request as complete
-        CMS.debug("certUtil: calling setRequestStatus");
+        logger.debug("certUtil: calling setRequestStatus");
         req.setRequestStatus(RequestStatus.COMPLETE);
 
         return req;
@@ -348,11 +351,11 @@ public class CertUtil {
             String subjectName
             ) throws Exception {
 
-        CMS.debug("CertUtil.updateLocalRequest(" + certTag + ")");
+        logger.debug("CertUtil: updateLocalRequest(" + certTag + ")");
 
         String reqId = config.getString("preop.cert." + certTag + ".reqId", null);
         if (reqId == null) {
-            CMS.debug("CertUtil: cert has no request record");
+            logger.warn("CertUtil: cert has no request record");
             return;
         }
 
@@ -362,7 +365,7 @@ public class CertUtil {
         IRequest req = queue.findRequest(new RequestId(reqId));
 
         if (certReq != null) {
-            CMS.debug("CertUtil: updating cert request");
+            logger.debug("CertUtil: updating cert request");
             String certReqs = CryptoUtil.base64Encode(certReq);
             String certReqf = CryptoUtil.reqFormat(certReqs);
             req.setExtData("cert_request", certReqf);
@@ -371,7 +374,7 @@ public class CertUtil {
         req.setExtData("cert_request_type", reqType);
 
         if (subjectName != null) {
-            CMS.debug("CertUtil: updating request subject: " + subjectName);
+            logger.debug("CertUtil: updating request subject: " + subjectName);
             req.setExtData("subject", subjectName);
             new X500Name(subjectName); // check for errors
         }
@@ -467,7 +470,7 @@ public class CertUtil {
             String certTag,
             String type) throws Exception {
 
-        CMS.debug("CertUtil.createLocalCert(" + certTag + ")");
+        logger.debug("CertUtil: createLocalCert(" + certTag + ")");
 
         String dn = config.getString(prefix + certTag + ".dn");
         String keyAlgorithm = null;
@@ -487,38 +490,38 @@ public class CertUtil {
 
         if (type.equals("selfsign")) {
 
-            CMS.debug("Creating local certificate... selfsign cert");
-            CMS.debug("Creating local certificate... issuer DN: " + dn);
-            CMS.debug("Creating local certificate... DN: " + dn);
+            logger.debug("Creating local certificate... selfsign cert");
+            logger.debug("Creating local certificate... issuer DN: " + dn);
+            logger.debug("Creating local certificate... DN: " + dn);
             info = CryptoUtil.createX509CertInfo(x509key, serialNo, dn, dn, date, date, keyAlgorithm);
 
         } else {
 
             String issuerdn = config.getString("preop.cert.signing.dn", "");
-            CMS.debug("Creating local certificate... issuer DN: " + issuerdn);
-            CMS.debug("Creating local certificate... DN: " + dn);
+            logger.debug("Creating local certificate... issuer DN: " + issuerdn);
+            logger.debug("Creating local certificate... DN: " + dn);
 
             if (ca.getIssuerObj() != null) {
                 // this ensures the isserDN has the same encoding as the
                 // subjectDN of the CA signing cert
-                CMS.debug("Creating local certificate...  setting issuerDN using exact CA signing cert subjectDN encoding");
+                logger.debug("Creating local certificate...  setting issuerDN using exact CA signing cert subjectDN encoding");
                 CertificateIssuerName issuerdnObj = ca.getIssuerObj();
 
                 info = CryptoUtil.createX509CertInfo(x509key, serialNo, issuerdnObj, dn, date, date, keyAlgorithm);
 
             } else {
-                CMS.debug("Creating local certificate... ca.getIssuerObj() is null, creating new CertificateIssuerName");
+                logger.debug("Creating local certificate... ca.getIssuerObj() is null, creating new CertificateIssuerName");
                 info = CryptoUtil.createX509CertInfo(x509key, serialNo, issuerdn, dn, date, date, keyAlgorithm);
             }
         }
 
-        CMS.debug("Cert Template: " + info);
+        logger.debug("Cert Template: " + info);
 
         String instanceRoot = config.getString("instanceRoot");
         String configurationRoot = config.getString("configurationRoot");
 
         String profileName = config.getString(prefix + certTag + ".profile");
-        CMS.debug("CertUtil: profile: " + profileName);
+        logger.debug("CertUtil: profile: " + profileName);
 
         CertInfoProfile profile = new CertInfoProfile(instanceRoot + configurationRoot + profileName);
 
@@ -553,13 +556,13 @@ public class CertUtil {
             throw new Exception("Unable to find CA private key");
         }
 
-        CMS.debug("CertUtil createLocalCert: got CA private key");
+        logger.debug("CertUtil createLocalCert: got CA private key");
 
         String keyAlgo = x509key.getAlgorithm();
-        CMS.debug("key algorithm is " + keyAlgo);
+        logger.debug("key algorithm is " + keyAlgo);
 
         String caSigningKeyType = config.getString("preop.cert.signing.keytype", "rsa");
-        CMS.debug("CA Signing Key type " + caSigningKeyType);
+        logger.debug("CA Signing Key type " + caSigningKeyType);
 
         String caSigningKeyAlgo;
         if (type.equals("selfsign")) {
@@ -567,18 +570,18 @@ public class CertUtil {
         } else {
             caSigningKeyAlgo = config.getString("preop.cert.signing.signingalgorithm", "SHA256withRSA");
         }
-        CMS.debug("CA Signing Key algorithm " + caSigningKeyAlgo);
+        logger.debug("CA Signing Key algorithm " + caSigningKeyAlgo);
 
         X509CertImpl cert;
         if (caSigningKeyType.equals("ecc")) {
-            CMS.debug("CA signing cert is ECC");
+            logger.debug("CA signing cert is ECC");
             cert = CryptoUtil.signECCCert(caPrik, info, caSigningKeyAlgo);
         } else {
-            CMS.debug("CA signing cert is not ecc");
+            logger.debug("CA signing cert is not ecc");
             cert = CryptoUtil.signCert(caPrik, info, caSigningKeyAlgo);
         }
 
-        CMS.debug("CertUtil createLocalCert: got cert signed");
+        logger.debug("CertUtil createLocalCert: got cert signed");
 
         createCertRecord(req, profile, cert);
 
@@ -605,7 +608,7 @@ public class CertUtil {
             CertInfoProfile profile,
             X509CertImpl cert) throws Exception {
 
-        CMS.debug("CertUtil.createCertRecord(" +
+        logger.debug("CertUtil: createCertRecord(" +
                 profile.getName() + ", " +
                 cert.getSubjectDN() + ")");
 
@@ -626,6 +629,7 @@ public class CertUtil {
         try {
             num = cs.getInteger("preop.subsystem.count", 0);
         } catch (Exception e) {
+            logger.warn("Unable to retrieve server configuration: " + e, e);
         }
         IUGSubsystem system = (IUGSubsystem) (CMS.getSubsystem(IUGSubsystem.ID));
         String id = "user" + num;
@@ -635,8 +639,8 @@ public class CertUtil {
             String machineName = cs.getString("machineName", "");
             String securePort = cs.getString("service.securePort", "");
             id = sysType + "-" + machineName + "-" + securePort;
-        } catch (Exception e1) {
-            // ignore
+        } catch (Exception e) {
+            logger.warn("Unable to retrieve server configuration: " + e, e);
         }
 
         num++;
@@ -646,11 +650,12 @@ public class CertUtil {
         try {
             cs.commit(false);
         } catch (Exception e) {
+            logger.warn("Unable to store server configuration: " + e, e);
         }
 
         IUser user = null;
         X509CertImpl[] certs = new X509CertImpl[1];
-        CMS.debug("CertUtil addUserCertificate starts");
+        logger.debug("CertUtil addUserCertificate starts");
         try {
             user = system.createUser(id);
             user.setFullName(id);
@@ -660,14 +665,13 @@ public class CertUtil {
             user.setState("1");
             user.setPhone("");
             system.addUser(user);
-            CMS.debug("CertUtil addUserCertificate: successfully add the user");
+            logger.debug("CertUtil addUserCertificate: successfully add the user");
 
         } catch (ConflictingOperationException e) {
-            CMS.debug("CertUtil addUserCertificate" + e.toString());
-            // ignore
+            logger.warn("CertUtil addUserCertificate: " + e, e);
 
         } catch (Exception e) {
-            CMS.debug("CertUtil addUserCertificate addUser " + e.toString());
+            logger.warn("CertUtil addUserCertificate addUser: " + e, e);
         }
 
         try {
@@ -676,10 +680,10 @@ public class CertUtil {
             user.setX509Certificates(certs);
 
             system.addUserCert(user);
-            CMS.debug("CertUtil addUserCertificate: successfully add the user certificate");
+            logger.debug("CertUtil addUserCertificate: successfully add the user certificate");
 
         } catch (Exception e) {
-            CMS.debug("CertUtil addUserCertificate exception=" + e.toString());
+            logger.warn("CertUtil addUserCertificate: " + e, e);
         }
 
         IGroup group = null;
@@ -690,10 +694,10 @@ public class CertUtil {
             if (!group.isMember(id)) {
                 group.addMemberName(id);
                 system.modifyGroup(group);
-                CMS.debug("CertUtil addUserCertificate: update: successfully added the user to the group.");
+                logger.debug("CertUtil addUserCertificate: update: successfully added the user to the group.");
             }
         } catch (Exception e) {
-            CMS.debug("CertUtil addUserCertificate update: modifyGroup " + e.toString());
+            logger.warn("CertUtil addUserCertificate update: modifyGroup: " + e, e);
         }
     }
 
@@ -727,7 +731,7 @@ public class CertUtil {
         try {
             givenid = cs.getString("preop.cert." + certTag + ".privkey.id");
         } catch (Exception e) {
-            CMS.debug("CertUtil privateKeyExistsOnToken: we did not generate private key yet.");
+            logger.warn("CertUtil privateKeyExistsOnToken: we did not generate private key yet: " + e, e);
             return false;
         }
 
@@ -742,7 +746,7 @@ public class CertUtil {
             cm = CryptoManager.getInstance();
             cert = cm.findCertByNickname(fullnickname);
         } catch (Exception e) {
-            CMS.debug("CertUtil privateKeyExistsOnToken: nickname=" + fullnickname + " Exception:" + e.toString());
+            logger.warn("CertUtil privateKeyExistsOnToken: nickname=" + fullnickname + " Exception:" + e, e);
             return false;
         }
 
@@ -750,24 +754,24 @@ public class CertUtil {
         try {
             privKey = cm.findPrivKeyByCert(cert);
         } catch (Exception e) {
-            CMS.debug("CertUtil privateKeyExistsOnToken: cant find private key ("
-                    + fullnickname + ") exception: " + e.toString());
+            logger.warn("CertUtil privateKeyExistsOnToken: cant find private key ("
+                    + fullnickname + ") exception: " + e, e);
             return false;
         }
 
         if (privKey == null) {
-            CMS.debug("CertUtil privateKeyExistsOnToken: cant find private key (" + fullnickname + ")");
+            logger.warn("CertUtil privateKeyExistsOnToken: cant find private key (" + fullnickname + ")");
             return false;
         } else {
             String str = "";
             try {
                 str = CryptoUtil.encodeKeyID(privKey.getUniqueID());
             } catch (Exception e) {
-                CMS.debug("CertUtil privateKeyExistsOnToken: encode string Exception: " + e.toString());
+                logger.warn("CertUtil privateKeyExistsOnToken: encode string Exception: " + e, e);
             }
 
             if (str.equals(givenid)) {
-                CMS.debug("CertUtil privateKeyExistsOnToken: find the private key on the token.");
+                logger.debug("CertUtil privateKeyExistsOnToken: find the private key on the token.");
                 return true;
             }
         }
@@ -779,7 +783,7 @@ public class CertUtil {
             throws Exception {
 
         CryptoManager cm = CryptoManager.getInstance();
-        CMS.debug("CertUtil: searching for cert " + fullnickname);
+        logger.debug("CertUtil: searching for cert " + fullnickname);
 
         try {
             return cm.findCertByNickname(fullnickname);
@@ -792,7 +796,7 @@ public class CertUtil {
     public static void deleteCert(String tokenname, X509Certificate cert)
             throws Exception {
 
-        CMS.debug("CertUtil: deleting cert " + cert.getNickname());
+        logger.debug("CertUtil: deleting cert " + cert.getNickname());
 
         CryptoToken tok = CryptoUtil.getKeyStorageToken(tokenname);
         CryptoStore store = tok.getCryptoStore();
@@ -800,10 +804,10 @@ public class CertUtil {
         if (store instanceof PK11Store) {
             PK11Store pk11store = (PK11Store) store;
             pk11store.deleteCertOnly(cert);
-            CMS.debug("CertUtil: cert deleted successfully");
+            logger.debug("CertUtil: cert deleted successfully");
 
         } else {
-            CMS.debug("CertUtil: unsupported crypto store: " + store.getClass().getName());
+            logger.warn("CertUtil: unsupported crypto store: " + store.getClass().getName());
         }
     }
 }
