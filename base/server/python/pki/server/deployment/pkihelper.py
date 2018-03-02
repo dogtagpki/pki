@@ -1020,28 +1020,17 @@ class Instance:
 
     def get_instance_status(self, connection, timeout=None):
 
-        # catching all exceptions because we do not want to break if underlying
-        # requests or urllib3 use a different exception.
-        # If the connection fails, we will time out in any case
-        # pylint: disable=W0703
-        try:
-            client = pki.system.SystemStatusClient(connection)
-            response = client.get_status(timeout=timeout)
-            config.pki_log.debug(
-                response,
-                extra=config.PKI_INDENTATION_LEVEL_3)
+        client = pki.system.SystemStatusClient(connection)
+        response = client.get_status(timeout=timeout)
 
-            root = ET.fromstring(response)
-            status = root.findtext("Status")
-            return status
-        except Exception as exc:
-            config.pki_log.debug(
-                "No connection - server may still be down",
-                extra=config.PKI_INDENTATION_LEVEL_3)
-            config.pki_log.debug(
-                "No connection - exception thrown: %s", exc,
-                extra=config.PKI_INDENTATION_LEVEL_3)
-            return None
+        config.pki_log.debug(
+            response,
+            extra=config.PKI_INDENTATION_LEVEL_3)
+
+        root = ET.fromstring(response)
+        status = root.findtext("Status")
+
+        return status
 
     def wait_for_startup(
         self,
@@ -1081,20 +1070,45 @@ class Instance:
 
         start_time = datetime.today()
         status = None
+        counter = 0
 
         while status != "running":
+            try:
+                time.sleep(1)
 
-            time.sleep(1)
+                status = self.get_instance_status(
+                    connection=connection,
+                    timeout=request_timeout,
+                )
 
-            status = self.get_instance_status(
-                connection=connection,
-                timeout=request_timeout,
-            )
-
-            stop_time = datetime.today()
-
-            if (stop_time - start_time).total_seconds() >= timeout:
+            except requests.exceptions.SSLError as exc:
+                max_retry_error = exc.args[0]
+                reason = getattr(max_retry_error, 'reason')
+                config.pki_log.error(
+                    "server unreachable due to SSL error: %s", reason,
+                    extra=config.PKI_INDENTATION_LEVEL_3)
                 break
+
+            except requests.exceptions.ConnectionError as exc:
+
+                stop_time = datetime.today()
+                counter = (stop_time - start_time).total_seconds()
+
+                if counter >= timeout:
+
+                    config.pki_log.error(
+                        "server did not start after %ds",
+                        timeout,
+                        extra=config.PKI_INDENTATION_LEVEL_3)
+
+                    break
+
+                config.pki_log.info(
+                    "waiting for server to start (%ds)",
+                    int(round(counter)),
+                    extra=config.PKI_INDENTATION_LEVEL_3)
+
+                continue
 
         return status
 
