@@ -22,7 +22,7 @@ pki-pkcs12-cert \- Command-Line Interface for managing individual certificates i
 \fBpki\fR [CLI options] \fBpkcs12-cert\fR
 \fBpki\fR [CLI options] \fBpkcs12-cert-find\fR [command options]
 \fBpki\fR [CLI options] \fBpkcs12-cert-export <nickname>\fR [command options]
-\fBpki\fR [CLI options] \fBpkcs12-cert-add <nickanme>\fR [command options]
+\fBpki\fR [CLI options] \fBpkcs12-cert-import <nickanme>\fR [command options]
 \fBpki\fR [CLI options] \fBpkcs12-cert-mod <nickname>\fR [command options]
 \fBpki\fR [CLI options] \fBpkcs12-cert-del <nickname>\fR [command options]
 .fi
@@ -42,9 +42,9 @@ This command is to list certificates in a PKCS #12 file.
 This command is to export a certificate from a PKCS #12 file.
 .RE
 .PP
-\fBpki\fR [CLI options] \fBpkcs12-cert-add <nickname>\fR [command options]
+\fBpki\fR [CLI options] \fBpkcs12-cert-import <nickname>\fR [command options]
 .RS 4
-This command is to add a certificate into a PKCS #12 file.
+This command is to import a certificate into a PKCS #12 file.
 .RE
 .PP
 \fBpki\fR [CLI options] \fBpkcs12-cert-mod <nickname>\fR [command options]
@@ -88,9 +88,9 @@ The certificate file can be specified with the \fB--cert-file\fP parameter.
 
 .SS Adding a certificate from an NSS database into a PKCS #12 file
 
-To add a certificate including its key and trust flags from an NSS database into a PKCS #12 file:
+To import a certificate including its key and trust flags from an NSS database into a PKCS #12 file:
 
-.B pki <NSS database location> <NSS database password> pkcs12-cert-add <nickname> <PKCS #12 file> <PKCS #12 password>
+.B pki <NSS database location> <NSS database password> pkcs12-cert-import <nickname> <PKCS #12 file> <PKCS #12 password>
 
 If the PKCS #12 file does not exist, it will be created automatically.
 If the PKCS #12 file already exists, the certificate will be added into the file.
