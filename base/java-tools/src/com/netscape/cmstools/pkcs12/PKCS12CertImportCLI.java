@@ -12,7 +12,7 @@
 // with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-// (C) 2016 Red Hat, Inc.
+// (C) 2018 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
@@ -36,10 +36,10 @@ import netscape.security.pkcs.PKCS12Util;
 /**
  * @author Endi S. Dewata
  */
-public class PKCS12CertAddCLI extends CLI {
+public class PKCS12CertImportCLI extends CLI {
 
-    public PKCS12CertAddCLI(PKCS12CertCLI certCLI) {
-        super("add", "DEPRECATED: Add certificate into PKCS #12 file", certCLI);
+    public PKCS12CertImportCLI(PKCS12CertCLI certCLI) {
+        super("import", "Import certificate into PKCS #12 file", certCLI);
 
         createOptions();
     }
@@ -61,7 +61,7 @@ public class PKCS12CertAddCLI extends CLI {
         option.setArgName("path");
         options.addOption(option);
 
-        options.addOption(null, "new-file", false, "Create a new PKCS #12 file");
+        options.addOption(null, "append", false, "Import into an existing PKCS #12 file");
         options.addOption(null, "no-trust-flags", false, "Do not include trust flags");
         options.addOption(null, "no-key", false, "Do not include private key");
         options.addOption(null, "no-chain", false, "Do not include certificate chain");
@@ -72,8 +72,6 @@ public class PKCS12CertAddCLI extends CLI {
     }
 
     public void execute(String[] args) throws Exception {
-
-        System.err.println("WARNING: This command has been deprecated. Use pki pkcs12-cert-import instead.");
 
         CommandLine cmd = parser.parse(options, args);
 
@@ -121,7 +119,7 @@ public class PKCS12CertAddCLI extends CLI {
 
         Password password = new Password(passwordString.toCharArray());
 
-        boolean newFile = cmd.hasOption("new-file");
+        boolean append = cmd.hasOption("append");
         boolean includeTrustFlags = !cmd.hasOption("no-trust-flags");
         boolean includeKey = !cmd.hasOption("no-key");
         boolean includeChain = !cmd.hasOption("no-chain");
@@ -132,13 +130,13 @@ public class PKCS12CertAddCLI extends CLI {
 
             PKCS12 pkcs12;
 
-            if (newFile || !new File(filename).exists()) {
-                // if new file requested or file does not exist, create a new file
-                pkcs12 = new PKCS12();
+            if (append && new File(filename).exists()) {
+                // if append requested and file exists, import into the existing file
+                pkcs12 = util.loadFromFile(filename, password);
 
             } else {
-                // otherwise, add into the existing file
-                pkcs12 = util.loadFromFile(filename, password);
+                // otherwise, create a new file
+                pkcs12 = new PKCS12();
             }
 
             // load the specified certificate
@@ -149,6 +147,6 @@ public class PKCS12CertAddCLI extends CLI {
             password.clear();
         }
 
-        MainCLI.printMessage("Added certificate \"" + nickname + "\"");
+        MainCLI.printMessage("Imported certificate \"" + nickname + "\"");
     }
 }
