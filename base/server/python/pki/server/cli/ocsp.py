@@ -143,7 +143,8 @@ class OCSPClonePrepareCLI(pki.cli.CLI):
                 'signing', pkcs12_file, pkcs12_password_file)
             subsystem.export_system_cert(
                 'audit_signing', pkcs12_file, pkcs12_password_file)
-            instance.export_external_certs(pkcs12_file, pkcs12_password_file)
+            instance.export_external_certs(
+                pkcs12_file, pkcs12_password_file, append=True)
 
         finally:
             shutil.rmtree(tmpdir)

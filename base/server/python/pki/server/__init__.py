@@ -816,7 +816,7 @@ class PKIInstance(object):
                 indx += 1
 
     def export_external_certs(self, pkcs12_file, pkcs12_password_file,
-                              new_file=False):
+                              append=False):
         for cert in self.external_certs:
             nickname = cert.nickname
             token = cert.token
@@ -844,13 +844,13 @@ class PKIInstance(object):
                     cmd.extend(['--token', token])
 
                 cmd.extend([
-                    'pkcs12-cert-add',
+                    'pkcs12-cert-import',
                     '--pkcs12-file', pkcs12_file,
                     '--pkcs12-password-file', pkcs12_password_file,
                 ])
 
-                if new_file:
-                    cmd.extend(['--new-file'])
+                if append:
+                    cmd.extend(['--append'])
 
                 cmd.extend([
                     nickname
