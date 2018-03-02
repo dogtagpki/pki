@@ -86,6 +86,8 @@ import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback.ValidityStatus;
 import org.mozilla.jss.util.IncorrectPasswordException;
 import org.mozilla.jss.util.Password;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -173,6 +175,8 @@ import netscape.security.x509.X509Key;
  */
 public class ConfigurationUtils {
 
+    public final static Logger logger = LoggerFactory.getLogger(ConfigurationUtils.class);
+
     private static final String PCERT_PREFIX = "preop.cert.";
     public static String SUCCESS = "0";
     public static String FAILURE = "1";
@@ -191,15 +195,15 @@ public class ConfigurationUtils {
 
         try {
             if (token.passwordIsInitialized()) {
-                CMS.debug("loginToken():token password is initialized");
+                logger.debug("loginToken():token password is initialized");
                 if (!token.isLoggedIn()) {
-                    CMS.debug("loginToken():Token is not logged in, try it");
+                    logger.debug("loginToken():Token is not logged in, try it");
                     token.login(password);
                 } else {
-                    CMS.debug("loginToken():Token has already logged on");
+                    logger.debug("loginToken():Token has already logged on");
                 }
             } else {
-                CMS.debug("loginToken():Token password not initialized");
+                logger.debug("loginToken():Token password not initialized");
                 rv = false;
             }
 
@@ -224,7 +228,7 @@ public class ConfigurationUtils {
         config.setServerURI(protocol + "://" + hostname + ":" + port);
         config.setCertNickname(clientnickname);
 
-        CMS.debug("ConfigurationUtils: GET " + config.getServerURI() + path);
+        logger.info("ConfigurationUtils: GET " + config.getServerURI() + path);
         PKIConnection connection = new PKIConnection(config);
         if (certApprovalCallback == null) certApprovalCallback = ConfigurationUtils.certApprovalCallback;
         connection.setCallback(certApprovalCallback);
@@ -241,7 +245,7 @@ public class ConfigurationUtils {
         config.setServerURI(protocol + "://" + hostname + ":" + port);
         config.setCertNickname(clientnickname);
 
-        CMS.debug("ConfigurationUtils: POST " + config.getServerURI() + path);
+        logger.info("ConfigurationUtils: POST " + config.getServerURI() + path);
         PKIConnection connection = new PKIConnection(config);
         if (certApprovalCallback == null) certApprovalCallback = ConfigurationUtils.certApprovalCallback;
         connection.setCallback(certApprovalCallback);
@@ -251,7 +255,7 @@ public class ConfigurationUtils {
     public static void importCertChain(String host, int port, String serverPath, String tag)
             throws Exception {
 
-        CMS.debug("ConfigurationUtils.importCertChain()");
+        logger.debug("ConfigurationUtils.importCertChain()");
 
         IConfigStore cs = CMS.getConfigStore();
         ConfigCertApprovalCallback certApprovalCallback = new ConfigCertApprovalCallback();
@@ -268,9 +272,8 @@ public class ConfigurationUtils {
             try {
                 parser = new XMLObject(bis);
             } catch (SAXException e) {
-                CMS.debug("ConfigurationUtils: Unable to parse XML response:");
-                CMS.debug(c);
-                CMS.debug(e);
+                logger.error("Response: " + c);
+                logger.error("ConfigurationUtils: Unable to parse XML response: " + e, e);
                 throw e;
             }
 
@@ -288,14 +291,14 @@ public class ConfigurationUtils {
                 int size;
 
                 if (b_certchain == null) {
-                    CMS.debug("ConfigurationUtils: no certificate chain");
+                    logger.debug("ConfigurationUtils: no certificate chain");
 
                     size = 0;
 
                 } else {
-                    CMS.debug("ConfigurationUtils: certificate chain:");
+                    logger.debug("ConfigurationUtils: certificate chain:");
                     for (java.security.cert.X509Certificate cert : b_certchain) {
-                        CMS.debug("ConfigurationUtils: - " + cert.getSubjectDN());
+                        logger.debug("ConfigurationUtils: - " + cert.getSubjectDN());
                     }
 
                     size = b_certchain.length;
@@ -348,7 +351,7 @@ public class ConfigurationUtils {
         SecurityDomainClient sdClient = new SecurityDomainClient(client, "ca");
 
         try {
-            CMS.debug("Getting install token");
+            logger.debug("Getting install token");
             accountClient.login();
             InstallToken token = sdClient.getInstallToken(sdhost, csType);
             accountClient.logout();
@@ -356,9 +359,9 @@ public class ConfigurationUtils {
         } catch (PKIException e) {
             if (e.getCode() == Response.Status.NOT_FOUND.getStatusCode()) {
                 // try the old servlet
-                CMS.debug("Getting old cookie");
+                logger.warn("Getting old cookie");
                 String tokenString = getOldCookie(sdhost, sdport, user, passwd);
-                CMS.debug("Token: " + tokenString);
+                logger.debug("Token: " + tokenString);
                 return tokenString;
             }
             throw e;
@@ -379,14 +382,14 @@ public class ConfigurationUtils {
 
         String body = post(sdhost, sdport, true, "/ca/admin/ca/getCookie",
                 content, null, null);
-        CMS.debug("ConfigurationUtils: response: " + body);
+        logger.debug("ConfigurationUtils: response: " + body);
 
         return getContentValue(body, "header.session_id");
     }
 
     public static String getContentValue(String body, String header) {
 
-        CMS.debug("ConfigurationUtils: searching for " + header);
+        logger.debug("ConfigurationUtils: searching for " + header);
 
         StringTokenizer st = new StringTokenizer(body, "\n");
 
@@ -411,7 +414,7 @@ public class ConfigurationUtils {
     public static String getDomainXML(String hostname, int https_admin_port, boolean https)
             throws Exception {
 
-        CMS.debug("ConfigurationUtils: getting domain info");
+        logger.debug("ConfigurationUtils: getting domain info");
 
         String c = get(hostname, https_admin_port, https, "/ca/admin/ca/getDomainXML", null, null);
 
@@ -422,11 +425,11 @@ public class ConfigurationUtils {
 
             parser = new XMLObject(bis);
             String status = parser.getValue("Status");
-            CMS.debug("ConfigurationUtils: status: " + status);
+            logger.debug("ConfigurationUtils: status: " + status);
 
             if (status.equals(SUCCESS)) {
                 String domainInfo = parser.getValue("DomainInfo");
-                CMS.debug("ConfigurationUtils: domain info: " + domainInfo);
+                logger.debug("ConfigurationUtils: domain info: " + domainInfo);
                 return domainInfo;
 
             } else {
@@ -448,12 +451,12 @@ public class ConfigurationUtils {
         NodeList nodeList = doc.getElementsByTagName("CA");
 
         int len = nodeList.getLength();
-        CMS.debug("len is " + len);
+        logger.debug("len is " + len);
         for (int i = 0; i < len; i++) {
             String hostname = parser.getValuesFromContainer(nodeList.item(i), "Host").elementAt(0);
             String admin_port = parser.getValuesFromContainer(nodeList.item(i), "SecureAdminPort").elementAt(0);
-            CMS.debug("hostname: <" + hostname + ">");
-            CMS.debug("admin_port: <" + admin_port + ">");
+            logger.debug("hostname: <" + hostname + ">");
+            logger.debug("admin_port: <" + admin_port + ">");
 
             if (hostname.equals(host) && admin_port.equals(port + "")) {
                 cs.putString("securitydomain.httpport",
@@ -476,15 +479,15 @@ public class ConfigurationUtils {
         String hostname = config.getString("securitydomain.host");
         int httpsadminport = config.getInteger("securitydomain.httpsadminport");
 
-        CMS.debug("getUrlListFromSecurityDomain(): Getting domain.xml from CA...");
+        logger.debug("getUrlListFromSecurityDomain(): Getting domain.xml from CA...");
         String c = getDomainXML(hostname, httpsadminport, true);
 
-        CMS.debug("getUrlListFromSecurityDomain: Getting " + portType + " from Security Domain ...");
+        logger.debug("getUrlListFromSecurityDomain: Getting " + portType + " from Security Domain ...");
         if (!portType.equals("UnSecurePort") &&
                 !portType.equals("SecureAgentPort") &&
                 !portType.equals("SecurePort") &&
                 !portType.equals("SecureAdminPort")) {
-            CMS.debug("getUrlListFromSecurityDomain:  " +
+            logger.debug("getUrlListFromSecurityDomain:  " +
                     "unknown port type " + portType);
             return v;
         }
@@ -499,7 +502,7 @@ public class ConfigurationUtils {
 
         int len = nodeList.getLength();
 
-        CMS.debug("Len " + len);
+        logger.debug("Len " + len);
         for (int i = 0; i < len; i++) {
             Vector<String> v_name = parser.getValuesFromContainer(nodeList.item(i), "SubsystemName");
             Vector<String> v_host = parser.getValuesFromContainer(nodeList.item(i), "Host");
@@ -640,8 +643,8 @@ public class ConfigurationUtils {
     public static void updateNumberRange(String hostname, int eePort, int adminPort, boolean https,
             MultivaluedMap<String, String> content, String type) throws Exception {
 
-        CMS.debug("updateNumberRange start host=" + hostname + " adminPort=" + adminPort + " eePort=" + eePort);
-        CMS.debug("updateNumberRange content: " + content);
+        logger.debug("updateNumberRange start host=" + hostname + " adminPort=" + adminPort + " eePort=" + eePort);
+        logger.debug("updateNumberRange content: " + content);
 
         IConfigStore cs = CMS.getConfigStore();
 
@@ -654,32 +657,32 @@ public class ConfigurationUtils {
         try {
             c = post(hostname, adminPort, https, serverPath, content, null, null);
             if (c == null || c.equals("")) {
-                CMS.debug("updateNumberRange: content is null.");
+                logger.debug("updateNumberRange: content is null.");
                 throw new IOException("The server you want to contact is not available");
             }
 
-            CMS.debug("content from admin interface =" + c);
+            logger.debug("content from admin interface =" + c);
             // when the admin servlet is unavailable, we return a badly formatted error page
             // in that case, this will throw an exception and be passed into the catch block.
             parser = new XMLObject(new ByteArrayInputStream(c.getBytes()));
 
         } catch (Exception e) {
             // for backward compatibility, try the old ee interface too
-            CMS.debug("updateNumberRange: Failed to contact master using admin port" + e);
-            CMS.debug("updateNumberRange: Attempting to contact master using EE port");
+            logger.warn("updateNumberRange: Failed to contact master using admin port" + e);
+            logger.warn("updateNumberRange: Attempting to contact master using EE port");
             serverPath = "/" + cstype + "/ee/" + cstype + "/updateNumberRange";
             c = post(hostname, eePort, https, serverPath, content, null, null);
             if (c == null || c.equals("")) {
-                CMS.debug("updateNumberRange: content is null.");
+                logger.error("updateNumberRange: content is null.");
                 throw new IOException("The server you want to contact is not available", e);
             }
-            CMS.debug("content from ee interface =" + c);
+            logger.info("content from ee interface =" + c);
             parser = new XMLObject(new ByteArrayInputStream(c.getBytes()));
         }
 
         String status = parser.getValue("Status");
 
-        CMS.debug("updateNumberRange(): status=" + status);
+        logger.debug("updateNumberRange(): status=" + status);
         if (status.equals(SUCCESS)) {
             String beginNum = parser.getValue("beginNumber");
             String endNum = parser.getValue("endNumber");
@@ -710,7 +713,7 @@ public class ConfigurationUtils {
     public static boolean updateConfigEntries(String hostname, int port, boolean https,
             String servlet, MultivaluedMap<String, String> content, IConfigStore config)
             throws Exception {
-        CMS.debug("updateConfigEntries start");
+        logger.debug("updateConfigEntries start");
         String c = post(hostname, port, https, servlet, content, null, null);
 
         if (c != null) {
@@ -721,14 +724,14 @@ public class ConfigurationUtils {
             parser = new XMLObject(bis);
 
             String status = parser.getValue("Status");
-            CMS.debug("updateConfigEntries: status=" + status);
+            logger.debug("updateConfigEntries: status=" + status);
 
             if (status.equals(SUCCESS)) {
                 String cstype = "";
 
                 cstype = config.getString("cs.type", "");
 
-                CMS.debug("Master's configuration:");
+                logger.debug("Master's configuration:");
                 Document doc = parser.getDocument();
                 NodeList list = doc.getElementsByTagName("name");
                 int len = list.getLength();
@@ -736,7 +739,7 @@ public class ConfigurationUtils {
                     Node n = list.item(i);
                     NodeList nn = n.getChildNodes();
                     String name = nn.item(0).getNodeValue();
-                    CMS.debug(" - " + name);
+                    logger.debug(" - " + name);
 
                     Node parent = n.getParentNode();
                     nn = parent.getChildNodes();
@@ -872,11 +875,11 @@ public class ConfigurationUtils {
             Vector<Vector<Object>> pkeyinfo_collection = new Vector<Vector<Object>>();
             Vector<Vector<Object>> cert_collection = new Vector<Vector<Object>>();
 
-            CMS.debug("Importing PKCS #12 data");
+            logger.debug("Importing PKCS #12 data");
 
             for (int i = 0; i < safes.getSize(); i++) {
 
-                CMS.debug("- Safe #" + i + ":");
+                logger.debug("- Safe #" + i + ":");
                 SEQUENCE scontent = safes.getSafeContentsAt(null, i);
 
                 for (int j = 0; j < scontent.size(); j++) {
@@ -886,7 +889,7 @@ public class ConfigurationUtils {
 
                     if (oid.equals(SafeBag.PKCS8_SHROUDED_KEY_BAG)) {
 
-                        CMS.debug("  - Bag #" + j + ": key");
+                        logger.debug("  - Bag #" + j + ": key");
                         byte[] epki = bag.getBagContent().getEncoded();
 
                         SET bagAttrs = bag.getBagAttributes();
@@ -904,7 +907,7 @@ public class ConfigurationUtils {
                                 ByteArrayInputStream bbis = new ByteArrayInputStream(ss.getEncoded());
                                 BMPString sss = (BMPString) new BMPString.Template().decode(bbis);
                                 subjectDN = sss.toString();
-                                CMS.debug("    Subject DN: " + subjectDN);
+                                logger.debug("    Subject DN: " + subjectDN);
                                 break;
                             }
                         }
@@ -920,7 +923,7 @@ public class ConfigurationUtils {
 
                     } else if (oid.equals(SafeBag.CERT_BAG)) {
 
-                        CMS.debug("  - Bag #" + j + ": certificate");
+                        logger.debug("  - Bag #" + j + ": certificate");
                         CertBag cbag = (CertBag) bag.getInterpretedBagContent();
                         OCTET_STRING str = (OCTET_STRING) cbag.getInterpretedCert();
                         byte[] x509cert = str.toByteArray();
@@ -942,21 +945,21 @@ public class ConfigurationUtils {
                                     ByteArrayInputStream bbis = new ByteArrayInputStream(ss.getEncoded());
                                     BMPString sss = (BMPString) (new BMPString.Template()).decode(bbis);
                                     nickname = sss.toString();
-                                    CMS.debug("    Nickname: " + nickname);
+                                    logger.debug("    Nickname: " + nickname);
                                     break;
                                 }
                             }
                         }
 
                         X509CertImpl certImpl = new X509CertImpl(x509cert);
-                        CMS.debug("    Serial number: " + certImpl.getSerialNumber());
+                        logger.debug("    Serial number: " + certImpl.getSerialNumber());
 
                         try {
                             certImpl.checkValidity();
-                            CMS.debug("    Status: valid");
+                            logger.debug("    Status: valid");
 
                         } catch (CertificateExpiredException | CertificateNotYetValidException e) {
-                            CMS.debug("    Status: " + e);
+                            logger.debug("    Status: " + e);
                             continue;
                         }
 
@@ -1003,7 +1006,7 @@ public class ConfigurationUtils {
             if (!CryptoUtil.isInternalToken(tokenname))
                 nickname = tokenname + ":" + nickname;
 
-            CMS.debug("ConfigurationUtils.verifySystemCertificates(): checking certificate " + nickname);
+            logger.debug("ConfigurationUtils.verifySystemCertificates(): checking certificate " + nickname);
 
             // TODO : remove this when we eliminate the extraneous nicknames
             // needed for self tests
@@ -1024,7 +1027,7 @@ public class ConfigurationUtils {
             Vector<Vector<Object>> cert_collection
             ) throws Exception {
 
-        CMS.debug("ConfigurationUtils.importKeyCert()");
+        logger.debug("ConfigurationUtils.importKeyCert()");
         CryptoManager cm = CryptoManager.getInstance();
         CryptoToken token = cm.getInternalKeyStorageToken();
         CryptoStore store = token.getCryptoStore();
@@ -1033,28 +1036,28 @@ public class ConfigurationUtils {
 
         ArrayList<String> masterList = getMasterCertKeyList();
 
-        CMS.debug("Importing new keys:");
+        logger.debug("Importing new keys:");
         for (int i = 0; i < pkeyinfo_collection.size(); i++) {
             Vector<Object> pkeyinfo_v = pkeyinfo_collection.elementAt(i);
             byte[] epki = (byte[]) pkeyinfo_v.elementAt(0);
             String nickname = (String) pkeyinfo_v.elementAt(1);
-            CMS.debug("- Key: " + nickname);
+            logger.debug("- Key: " + nickname);
 
             if (!importRequired(masterList, nickname)) {
-                CMS.debug("  Key not in master list, ignore key");
+                logger.debug("  Key not in master list, ignore key");
                 continue;
             }
 
-            CMS.debug("  Find cert with subject DN " + nickname);
+            logger.debug("  Find cert with subject DN " + nickname);
             // TODO: use better mechanism to find the cert
             byte[] x509cert = getX509Cert(nickname, cert_collection);
             if (x509cert == null) {
-                CMS.debug("  Certificate is missing/removed, ignore key");
+                logger.debug("  Certificate is missing/removed, ignore key");
                 continue;
             }
 
             X509Certificate cert = cm.importCACertPackage(x509cert);
-            CMS.debug("  Imported cert " + cert.getSerialNumber());
+            logger.debug("  Imported cert " + cert.getSerialNumber());
 
             // get public key
             PublicKey publicKey = cert.getPublicKey();
@@ -1080,7 +1083,7 @@ public class ConfigurationUtils {
             }
         }
 
-        CMS.debug("Importing new certificates:");
+        logger.debug("Importing new certificates:");
         for (int i = 0; i < cert_collection.size(); i++) {
 
             Vector<Object> cert_v = cert_collection.elementAt(i);
@@ -1088,35 +1091,35 @@ public class ConfigurationUtils {
 
             if (cert_v.size() > 1) {
                 String name = (String) cert_v.elementAt(1);
-                CMS.debug("- Certificate: " + name);
+                logger.debug("- Certificate: " + name);
 
                 if (!masterList.contains(name)) {
-                    CMS.debug("  Certificate not in master list, ignore certificate");
+                    logger.debug("  Certificate not in master list, ignore certificate");
                     continue;
                 }
 
                 // we need to delete the trusted CA certificate if it is
                 // the same as the ca signing certificate
                 boolean isCASigningCert = isCASigningCert(name);
-                CMS.debug("  CA signing cert: " + isCASigningCert);
+                logger.debug("  CA signing cert: " + isCASigningCert);
 
                 if (isCASigningCert) {
                     X509Certificate certchain = getX509CertFromToken(cert);
                     if (certchain != null) {
                         if (store instanceof PK11Store) {
                             try {
-                                CMS.debug("  Deleting trusted CA cert");
+                                logger.debug("  Deleting trusted CA cert");
                                 PK11Store pk11store = (PK11Store) store;
                                 pk11store.deleteCertOnly(certchain);
                             } catch (Exception e) {
-                                CMS.debug(e);
+                                logger.warn("Unable to delete trusted CA cert: " + e);
                             }
                         }
                     }
                 }
 
                 X509Certificate xcert = cm.importUserCACertPackage(cert, name);
-                CMS.debug("  Imported cert " + xcert.getSerialNumber());
+                logger.debug("  Imported cert " + xcert.getSerialNumber());
                 InternalCertificate icert = (InternalCertificate) xcert;
 
                 if (isCASigningCert) {
@@ -1225,11 +1228,11 @@ public class ConfigurationUtils {
         IConfigStore cs = CMS.getConfigStore();
         try {
             String nickname = cs.getString("preop.master.signing.nickname");
-            CMS.debug("Property preop.master.signing.nickname: " + nickname);
+            logger.debug("Property preop.master.signing.nickname: " + nickname);
             if (nickname.equals(name)) return true;
 
         } catch (EPropertyNotFound e) {
-            CMS.debug("Property preop.master.signing.nickname not found -> cert " + name + " is not CA signing cert");
+            logger.warn("Property preop.master.signing.nickname not found -> cert " + name + " is not CA signing cert");
             // nickname may not exist if this is not cloning a CA
         };
 
@@ -1247,7 +1250,7 @@ public class ConfigurationUtils {
 
     public static void deleteExistingCerts() throws NotInitializedException, EBaseException, TokenException {
 
-        CMS.debug("Deleting existing certificates:");
+        logger.debug("Deleting existing certificates:");
 
         CryptoManager cm = CryptoManager.getInstance();
         CryptoToken ct = cm.getInternalKeyStorageToken();
@@ -1265,20 +1268,20 @@ public class ConfigurationUtils {
 
             String name = "preop.master." + s + ".nickname";
             String nickname = cs.getString(name, "");
-            CMS.debug("- Certificate " + nickname);
+            logger.debug("- Certificate " + nickname);
 
             X509Certificate cert;
             try {
                 cert = cm.findCertByNickname(nickname);
             } catch (ObjectNotFoundException ee) {
-                CMS.debug("  Certificate nickname " + nickname + " not found");
+                logger.warn("  Certificate nickname " + nickname + " not found");
                 continue;
             }
 
             try {
                 store.deleteCert(cert);
             } catch (NoSuchItemOnTokenException ee) {
-                CMS.debug("  Certificate object " + nickname + " not found");
+                logger.warn("  Certificate object " + nickname + " not found");
             }
         }
     }
@@ -1289,7 +1292,7 @@ public class ConfigurationUtils {
         String certList = cs.getString("preop.cert.list", "");
         StringTokenizer st = new StringTokenizer(certList, ",");
 
-        CMS.debug("Master certs:");
+        logger.debug("Master certs:");
         while (st.hasMoreTokens()) {
             String s = st.nextToken();
             if (s.equals("sslserver"))
@@ -1301,7 +1304,7 @@ public class ConfigurationUtils {
             name = "preop.cert." + s + ".dn";
             String dn = cs.getString(name);
             list.add(dn);
-            CMS.debug(" - " + name + ": " + dn);
+            logger.debug(" - " + name + ": " + dn);
         }
 
         return list;
@@ -1326,8 +1329,7 @@ public class ConfigurationUtils {
             if (conn != null)
                 conn.disconnect();
         } catch (LDAPException e) {
-            CMS.debug(e);
-            CMS.debug("releaseConnection: " + e);
+            logger.warn("releaseConnection: " + e, e);
         }
     }
 
@@ -1341,7 +1343,7 @@ public class ConfigurationUtils {
         try {
             importLDIFS("preop.internaldb.usn.ldif", conn);
         } catch (Exception e) {
-            CMS.debug("Failed to enable USNPlugin: " + e);
+            logger.error("Failed to enable USNPlugin: " + e);
             throw new EBaseException("Failed to enable USN plugin: " + e, e);
         } finally {
             releaseConnection(conn);
@@ -1383,19 +1385,19 @@ public class ConfigurationUtils {
 
                 // delete mapping entry
                 if (mappingEntry != null) {
-                    CMS.debug("populateDB: Deleting mapping " + mappingDN);
+                    logger.debug("populateDB: Deleting mapping " + mappingDN);
                     deleteSubtree(conn, mappingDN);
                 }
 
                 // delete the database including the subtree data
                 if (databaseEntry != null) {
-                    CMS.debug("populateDB: Deleting database " + database);
+                    logger.debug("populateDB: Deleting database " + database);
                     deleteSubtree(conn, databaseDN);
                 }
 
                 // delete subtree data in case it's stored by another database
                 if (baseEntry != null) {
-                    CMS.debug("populateDB: Deleting subtree " + baseDN);
+                    logger.debug("populateDB: Deleting subtree " + baseDN);
                     deleteSubtree(conn, baseDN);
                 }
 
@@ -1413,7 +1415,7 @@ public class ConfigurationUtils {
 
                     // delete subtree data in case it's stored by another database
                     if (baseEntry != null) {
-                        CMS.debug("populateDB: Deleting subtree " + baseDN);
+                        logger.debug("populateDB: Deleting subtree " + baseDN);
                         deleteSubtree(conn, baseDN);
                     }
 
@@ -1457,7 +1459,7 @@ public class ConfigurationUtils {
                     importLDIFS("preop.internaldb.index_ldif", conn);
                 }
             } catch (Exception e) {
-                CMS.debug("Failed to import ldif files: " + e);
+                logger.error("Failed to import ldif files: " + e);
                 throw new EBaseException("Failed to import ldif files: " + e, e);
             }
         } finally {
@@ -1466,7 +1468,7 @@ public class ConfigurationUtils {
     }
 
     private static void populateIndexes(LDAPConnection conn) throws EPropertyNotFound, IOException, EBaseException {
-        CMS.debug("populateIndexes(): start");
+        logger.debug("populateIndexes(): start");
         IConfigStore cs = CMS.getConfigStore();
 
         importLDIFS("preop.internaldb.index_task_ldif", conn, false);
@@ -1483,7 +1485,7 @@ public class ConfigurationUtils {
     private static void wait_for_task(LDAPConnection conn, String wait_dn) {
         LDAPEntry task = null;
         boolean taskComplete = false;
-        CMS.debug("Checking wait_dn " + wait_dn);
+        logger.debug("Checking wait_dn " + wait_dn);
         do {
             try {
                 Thread.sleep(1000);
@@ -1500,19 +1502,19 @@ public class ConfigurationUtils {
                         taskComplete = true;
                         String val = (String) attr.getStringValues().nextElement();
                         if (val.compareTo("0") != 0) {
-                            CMS.debug("Error in populating indexes: nsTaskExitCode=" + val);
+                            logger.debug("Error in populating indexes: nsTaskExitCode=" + val);
                         }
                     }
                 }
             } catch (Exception le) {
-                CMS.debug("Still checking wait_dn '" + wait_dn + "' (" + le.toString() + ")");
+                logger.info("Still checking wait_dn '" + wait_dn + "' (" + le + ")");
             }
         } while (!taskComplete);
     }
 
     private static void createBaseEntry(String baseDN, LDAPConnection conn) throws EBaseException {
         try {
-            CMS.debug("Creating base DN: " + baseDN);
+            logger.debug("Creating base DN: " + baseDN);
             String dns3[] = LDAPDN.explodeDN(baseDN, false);
             StringTokenizer st = new StringTokenizer(dns3[0], "=");
             String n = st.nextToken();
@@ -1530,7 +1532,7 @@ public class ConfigurationUtils {
             LDAPEntry entry = new LDAPEntry(baseDN, attrs);
             conn.add(entry);
         } catch (LDAPException e) {
-            CMS.debug("createBaseDN: Unable to add " + baseDN + ": " + e);
+            logger.error("createBaseDN: Unable to add " + baseDN + ": " + e);
             throw new EBaseException("Failed to create root entry: " + e, e);
         }
     }
@@ -1547,7 +1549,7 @@ public class ConfigurationUtils {
             LDAPEntry entry = new LDAPEntry(mappingDN, attrs);
             conn.add(entry);
         } catch (LDAPException e) {
-            CMS.debug("createDatabaseMapping: Unable to add " + mappingDN + ": " + e);
+            logger.error("createDatabaseMapping: Unable to add " + mappingDN + ": " + e);
             throw new EBaseException("Failed to create subtree: " + e, e);
         }
     }
@@ -1563,7 +1565,7 @@ public class ConfigurationUtils {
             LDAPEntry entry = new LDAPEntry(databaseDN, attrs);
             conn.add(entry);
         } catch (LDAPException e) {
-            CMS.debug("createDatabase: Unable to add " + databaseDN + ": " + e);
+            logger.error("createDatabase: Unable to add " + databaseDN + ": " + e);
             throw new EBaseException("Failed to create the database: " + e, e);
         }
     }
@@ -1571,7 +1573,7 @@ public class ConfigurationUtils {
     private static void confirmNoConflictingMappingsForDB(String baseDN, String database, LDAPConnection conn)
             throws EBaseException {
         try {
-            CMS.debug("confirmMappings: Checking other subtrees using database " + database + ".");
+            logger.debug("confirmMappings: Checking other subtrees using database " + database + ".");
             LDAPSearchResults res = conn.search(
                     "cn=mapping tree, cn=config", LDAPConnection.SCOPE_ONE,
                     "nsslapd-backend=" + LDAPUtil.escapeFilter(database),
@@ -1585,15 +1587,15 @@ public class ConfigurationUtils {
                 if (LDAPDN.equals(baseDN, dn))
                     continue;
 
-                CMS.debug("confirmMappings: Database " + database + " is used by " + dn + ".");
+                logger.error("confirmMappings: Database " + database + " is used by " + dn + ".");
                 throw new EBaseException("The database (" + database + ") is used by another base DN. " +
                         "Please use a different database name.");
             }
 
-            CMS.debug("confirmMappings: Database " + database + " is not used by another subtree.");
+            logger.debug("confirmMappings: Database " + database + " is not used by another subtree.");
 
         } catch (LDAPException e) {
-            CMS.debug("populateDB: " + e);
+            logger.error("populateDB: " + e);
             throw new EBaseException("Failed to check database mapping: " + e, e);
         }
     }
@@ -1602,9 +1604,9 @@ public class ConfigurationUtils {
             throws EBaseException {
         LDAPEntry databaseEntry = null;
         try {
-            CMS.debug("getDatabaseEntry: Checking database " + database + ".");
+            logger.debug("getDatabaseEntry: Checking database " + database + ".");
             databaseEntry = conn.read(databaseDN);
-            CMS.debug("getDatabaseEntry: Database " + database + " already exists.");
+            logger.debug("getDatabaseEntry: Database " + database + " already exists.");
 
             if (!remove) {
                 throw new EBaseException("The database (" + database + ") already exists. " +
@@ -1613,9 +1615,9 @@ public class ConfigurationUtils {
 
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT) {
-                CMS.debug("getDatabaseEntry: Database " + database + " does not exist.");
+                logger.warn("getDatabaseEntry: Database " + database + " does not exist.");
             } else {
-                CMS.debug("getDatabaseEntry: " + e);
+                logger.error("getDatabaseEntry: " + e);
                 throw new EBaseException("Failed to determine if database exists: " + e, e);
             }
         }
@@ -1626,9 +1628,9 @@ public class ConfigurationUtils {
             throws EBaseException {
         LDAPEntry mappingEntry = null;
         try {
-            CMS.debug("getMappingDNEntry: Checking subtree " + baseDN + " mapping.");
+            logger.debug("getMappingDNEntry: Checking subtree " + baseDN + " mapping.");
             mappingEntry = conn.read(mappingDN);
-            CMS.debug("getMapppingDNEntry: Mapping for subtree " + baseDN + " already exists.");
+            logger.debug("getMapppingDNEntry: Mapping for subtree " + baseDN + " already exists.");
 
             if (!remove) {
                 throw new EBaseException("The base DN (" + baseDN + ") has already been used. " +
@@ -1637,9 +1639,9 @@ public class ConfigurationUtils {
 
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT) {
-                CMS.debug("getMappingDNEntry: Mapping for subtree " + baseDN + " does not exist.");
+                logger.warn("getMappingDNEntry: Mapping for subtree " + baseDN + " does not exist.");
             } else {
-                CMS.debug("getMappingDNEntry: " + e);
+                logger.error("getMappingDNEntry: " + e);
                 throw new EBaseException("Failed to determine if mapping entry exists: " + e, e);
             }
         }
@@ -1649,9 +1651,9 @@ public class ConfigurationUtils {
     private static LDAPEntry getBaseEntry(String baseDN, boolean remove, LDAPConnection conn) throws EBaseException {
         LDAPEntry baseEntry = null;
         try {
-            CMS.debug("getBaseDNEntry: Checking subtree " + baseDN + ".");
+            logger.debug("getBaseDNEntry: Checking subtree " + baseDN + ".");
             baseEntry = conn.read(baseDN);
-            CMS.debug("getBaseDNEntry: Subtree " + baseDN + " already exists.");
+            logger.debug("getBaseDNEntry: Subtree " + baseDN + " already exists.");
 
             if (!remove) {
                 throw new EBaseException("The base DN (" + baseDN + ") has already been used. " +
@@ -1660,9 +1662,9 @@ public class ConfigurationUtils {
 
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT) {
-                CMS.debug("getBaseDNEntry: Subtree " + baseDN + " does not exist.");
+                logger.warn("getBaseDNEntry: Subtree " + baseDN + " does not exist.");
             } else {
-                CMS.debug("getBaseDNEntry: " + e);
+                logger.error("getBaseDNEntry: " + e);
                 throw new EBaseException("Failed to determine if base DN exists: " + e, e);
             }
         }
@@ -1672,20 +1674,20 @@ public class ConfigurationUtils {
     private static void checkParentExists(String baseDN, LDAPConnection conn) throws EBaseException {
         String[] dns = LDAPDN.explodeDN(baseDN, false);
         if (dns.length == 1) {
-            CMS.debug("checkParentExists: no parent in baseDN: " + baseDN);
+            logger.error("checkParentExists: no parent in baseDN: " + baseDN);
             throw new EBaseException("Invalid BaseDN. No parent DN in " + baseDN);
         }
         String parentDN = Arrays.toString(Arrays.copyOfRange(dns, 1, dns.length));
         parentDN = parentDN.substring(1, parentDN.length() - 1);
         try {
-            CMS.debug("checkParentExists: Checking parent " + parentDN + ".");
+            logger.debug("checkParentExists: Checking parent " + parentDN + ".");
             conn.read(parentDN);
-            CMS.debug("checkParentExists: Parent entry " + parentDN + " exists.");
+            logger.debug("checkParentExists: Parent entry " + parentDN + " exists.");
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT) {
                 throw new EBaseException("Parent entry " + parentDN + " does not exist", e);
             } else {
-                CMS.debug("checkParentExists: " + e);
+                logger.error("checkParentExists: " + e);
                 throw new EBaseException("Failed to determine if base DN exists: " + e, e);
             }
         }
@@ -1701,7 +1703,7 @@ public class ConfigurationUtils {
             EBaseException {
         IConfigStore cs = CMS.getConfigStore();
 
-        CMS.debug("importLDIFS: param=" + param);
+        logger.debug("importLDIFS: param=" + param);
         String v = cs.getString(param);
 
         String baseDN = cs.getString("internaldb.basedn");
@@ -1724,10 +1726,10 @@ public class ConfigurationUtils {
                 name = token.substring(index + 1);
             }
 
-            CMS.debug("importLDIFS(): ldif file = " + token);
+            logger.debug("importLDIFS(): ldif file = " + token);
             String filename = configDir + File.separator + name;
 
-            CMS.debug("importLDIFS(): ldif file copy to " + filename);
+            logger.debug("importLDIFS(): ldif file copy to " + filename);
             PrintStream ps = null;
             BufferedReader in = null;
 
@@ -1775,9 +1777,9 @@ public class ConfigurationUtils {
             ArrayList<String> errors = new ArrayList<String>();
             LDAPUtil.importLDIF(conn, filename, errors);
             if (!errors.isEmpty()) {
-                CMS.debug("importLDIFS(): LDAP Errors in importing " + filename);
+                logger.error("importLDIFS(): LDAP Errors in importing " + filename);
                 for (String error : errors) {
-                    CMS.debug(error);
+                    logger.error(error);
                 }
                 if (!suppressErrors) {
                     throw new EBaseException("LDAP Errors in importing " + filename);
@@ -1796,9 +1798,9 @@ public class ConfigurationUtils {
 
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT) {
-                CMS.debug("deleteSubtree: Subtree " + dn + " does not exist.");
+                logger.warn("deleteSubtree: Subtree " + dn + " does not exist.");
             } else {
-                CMS.debug("deleteSubtree: Unable to delete subtree " + dn + ": " + e);
+                logger.error("deleteSubtree: Unable to delete subtree " + dn + ": " + e);
                 throw new EBaseException("Unable to delete subtree " + dn, e);
             }
         }
@@ -1823,7 +1825,7 @@ public class ConfigurationUtils {
             if (!LDAPDN.equals(dn, excludedDN))
                 continue;
 
-            CMS.debug("deleteEntry: entry with this dn " + dn + " is not deleted.");
+            logger.debug("deleteEntry: entry with this dn " + dn + " is not deleted.");
             return;
         }
 
@@ -1841,7 +1843,7 @@ public class ConfigurationUtils {
         while (results.hasMoreElements()) {
             LDAPEntry entry = results.next();
             String dn = entry.getDN();
-            CMS.debug("getInstanceDir: DN for storing nsslapd-directory: " + dn);
+            logger.debug("getInstanceDir: DN for storing nsslapd-directory: " + dn);
             LDAPAttributeSet entryAttrs = entry.getAttributeSet();
 
             @SuppressWarnings("unchecked")
@@ -1849,13 +1851,13 @@ public class ConfigurationUtils {
             while (attrsInSet.hasMoreElements()) {
                 LDAPAttribute nextAttr = attrsInSet.nextElement();
                 String attrName = nextAttr.getName();
-                CMS.debug("getInstanceDir: attribute name: " + attrName);
+                logger.debug("getInstanceDir: attribute name: " + attrName);
                 @SuppressWarnings("unchecked")
                 Enumeration<String> valsInAttr = nextAttr.getStringValues();
                 while (valsInAttr.hasMoreElements()) {
                     String nextValue = valsInAttr.nextElement();
                     if (attrName.equalsIgnoreCase("nsslapd-directory")) {
-                        CMS.debug("getInstanceDir: instanceDir=" + nextValue);
+                        logger.debug("getInstanceDir: instanceDir=" + nextValue);
                         return nextValue.substring(0, nextValue.lastIndexOf("/db"));
                     }
                 }
@@ -1879,7 +1881,7 @@ public class ConfigurationUtils {
     }
 
     public static void populateDBManager() throws Exception {
-        CMS.debug("populateDBManager(): start");
+        logger.debug("populateDBManager(): start");
         IConfigStore cs = CMS.getConfigStore();
 
         IConfigStore dbCfg = cs.getSubStore("internaldb");
@@ -1890,7 +1892,7 @@ public class ConfigurationUtils {
         try {
             importLDIFS("preop.internaldb.manager_ldif", conn);
         } catch (Exception e) {
-            CMS.debug("populateDBManager(): Exception thrown: " + e);
+            logger.error("populateDBManager(): Exception thrown: " + e);
             throw e;
         } finally {
             releaseConnection(conn);
@@ -1898,7 +1900,7 @@ public class ConfigurationUtils {
     }
 
     public static void populateVLVIndexes() throws Exception {
-        CMS.debug("populateVLVIndexes(): start");
+        logger.debug("populateVLVIndexes(): start");
         IConfigStore cs = CMS.getConfigStore();
 
         IConfigStore dbCfg = cs.getSubStore("internaldb");
@@ -1917,7 +1919,7 @@ public class ConfigurationUtils {
                 wait_for_task(conn, wait_dn);
             }
         } catch (Exception e) {
-            CMS.debug("populateVLVIndexes(): Exception thrown: " + e);
+            logger.error("populateVLVIndexes(): Exception thrown: " + e);
             throw e;
         } finally {
             releaseConnection(conn);
@@ -1951,8 +1953,7 @@ public class ConfigurationUtils {
             masterFactory.init(masterCfg);
             masterConn = masterFactory.getConn();
         } catch (Exception e) {
-            CMS.debug("setupEeplication: Failed to set up connection to master:" + e.toString());
-            e.printStackTrace();
+            logger.error("setupEeplication: Failed to set up connection to master:" + e, e);
             releaseConnection(masterConn);
             throw new IOException("Failed to set up replication: No connection to master", e);
         }
@@ -1966,8 +1967,7 @@ public class ConfigurationUtils {
             replicaFactory.init(replicaCfg);
             replicaConn = replicaFactory.getConn();
         } catch (Exception e) {
-            CMS.debug("SetupReplication: Failed to set up connection to replica:" + e.toString());
-            e.printStackTrace();
+            logger.error("SetupReplication: Failed to set up connection to replica:" + e, e);
             releaseConnection(masterConn);
             releaseConnection(replicaConn);
             throw new IOException("Failed to set up replication: No connection to replica", e);
@@ -1982,7 +1982,7 @@ public class ConfigurationUtils {
             String suffix = cs.getString("internaldb.basedn", "");
 
             String replicadn = "cn=replica,cn=\"" + suffix + "\",cn=mapping tree,cn=config";
-            CMS.debug("ConfigurationUtils: setupReplication: replicadn=" + replicadn);
+            logger.debug("ConfigurationUtils: setupReplication: replicadn=" + replicadn);
 
             String masterBindUser = "Replication Manager " + masterAgreementName;
             String cloneBindUser = "Replication Manager " + cloneAgreementName;
@@ -2002,7 +2002,7 @@ public class ConfigurationUtils {
             replicaId = enableReplication(replicadn, replicaConn, cloneBindUser, basedn, replicaId);
             cs.putString("dbs.beginReplicaNumber", Integer.toString(replicaId));
 
-            CMS.debug("setupReplication: Finished enabling replication");
+            logger.debug("setupReplication: Finished enabling replication");
 
             createReplicationAgreement(replicadn, masterConn, masterAgreementName,
                     replica_hostname, cloneReplicationPort, replica_replicationpwd, basedn,
@@ -2016,7 +2016,7 @@ public class ConfigurationUtils {
             initializeConsumer(replicadn, masterConn, masterAgreementName);
 
             while (!replicationDone(replicadn, masterConn, masterAgreementName)) {
-                CMS.debug("setupReplication: Waiting for replication to complete");
+                logger.debug("setupReplication: Waiting for replication to complete");
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
@@ -2026,7 +2026,7 @@ public class ConfigurationUtils {
 
             String status = replicationStatus(replicadn, masterConn, masterAgreementName);
             if (!status.startsWith("0 ")) {
-                CMS.debug("setupReplication: consumer initialization failed. " + status);
+                logger.error("setupReplication: consumer initialization failed. " + status);
                 throw new IOException("consumer initialization failed. " + status);
             }
 
@@ -2037,8 +2037,7 @@ public class ConfigurationUtils {
             psStore.commit(false);
 
         } catch (Exception e) {
-            e.printStackTrace();
-            CMS.debug("setupReplication: " + e.toString());
+            logger.error("setupReplication: " + e, e);
             throw new IOException("Failed to setup the replication for cloning.", e);
         } finally {
             releaseConnection(masterConn);
@@ -2062,10 +2061,9 @@ public class ConfigurationUtils {
             conn.add(entry);
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.ENTRY_ALREADY_EXISTS) {
-                CMS.debug("createReplicationManager: containing ou already exists");
+                logger.warn("createReplicationManager: containing ou already exists");
             } else {
-                CMS.debug("createReplicationManager: Failed to create containing ou. Exception: "
-                        + e.toString());
+                logger.error("createReplicationManager: Failed to create containing ou. Exception: " + e);
                 throw e;
             }
         }
@@ -2082,22 +2080,21 @@ public class ConfigurationUtils {
             conn.add(entry);
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.ENTRY_ALREADY_EXISTS) {
-                CMS.debug("createReplicationManager: Replication Manager has already used");
+                logger.warn("createReplicationManager: Replication Manager has already used");
                 try {
                     conn.delete(dn);
                     conn.add(entry);
                 } catch (LDAPException ee) {
-                    CMS.debug("createReplicationManager: " + ee.toString());
+                    logger.warn("createReplicationManager: " + ee);
                 }
                 return;
             } else {
-                CMS.debug("createReplicationManager: Failed to create replication manager. Exception: "
-                        + e.toString());
+                logger.error("createReplicationManager: Failed to create replication manager. Exception: " + e);
                 throw e;
             }
         }
 
-        CMS.debug("createReplicationManager: Successfully created Replication Manager");
+        logger.info("createReplicationManager: Successfully created Replication Manager");
     }
 
     public static void createChangeLog(LDAPConnection conn, String dir)
@@ -2115,21 +2112,21 @@ public class ConfigurationUtils {
             conn.add(entry);
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.ENTRY_ALREADY_EXISTS) {
-                CMS.debug("createChangeLog: Changelog entry has already used");
+                logger.warn("createChangeLog: Changelog entry has already used");
                 /* leave it, dont delete it because it will have operation error */
                 return;
             } else {
-                CMS.debug("createChangeLog: Failed to create changelog entry. Exception: " + e.toString());
+                logger.error("createChangeLog: Failed to create changelog entry. Exception: " + e);
                 throw e;
             }
         }
 
-        CMS.debug("createChangeLog: Successfully create change log entry");
+        logger.debug("createChangeLog: Successfully create change log entry");
     }
 
     public static int enableReplication(String replicadn, LDAPConnection conn, String bindUser, String basedn, int id)
             throws LDAPException {
-        CMS.debug("enableReplication: replicadn: " + replicadn);
+        logger.debug("enableReplication: replicadn: " + replicadn);
         LDAPAttributeSet attrs = null;
         LDAPEntry entry = null;
         try {
@@ -2150,7 +2147,7 @@ public class ConfigurationUtils {
             if (e.getLDAPResultCode() == LDAPException.ENTRY_ALREADY_EXISTS) {
                 /* BZ 470918 -we cant just add the new dn.  We need to do a replace instead
                  * until the DS code is fixed */
-                CMS.debug("enableReplication: " + replicadn + " has already been used");
+                logger.warn("enableReplication: " + replicadn + " has already been used");
 
                 try {
                     entry = conn.read(replicadn);
@@ -2159,18 +2156,18 @@ public class ConfigurationUtils {
                     LDAPModification mod = new LDAPModification(LDAPModification.REPLACE, attr);
                     conn.modify(replicadn, mod);
                 } catch (LDAPException ee) {
-                    CMS.debug("enableReplication: Failed to modify "
-                            + replicadn + " entry. Exception: " + e.toString());
+                    logger.warn("enableReplication: Failed to modify "
+                            + replicadn + " entry. Exception: " + e);
                 }
                 return id;
             } else {
-                CMS.debug("enableReplication: Failed to create "
-                        + replicadn + " entry. Exception: " + e.toString());
+                logger.warn("enableReplication: Failed to create "
+                        + replicadn + " entry. Exception: " + e);
                 return id;
             }
         }
 
-        CMS.debug("enableReplication: Successfully create " + replicadn + " entry.");
+        logger.info("enableReplication: Successfully create " + replicadn + " entry.");
         return id + 1;
     }
 
@@ -2178,7 +2175,7 @@ public class ConfigurationUtils {
             String replicahost, int replicaport, String replicapwd, String basedn, String bindUser,
             String secure, String replicationSecurity) throws LDAPException {
         String dn = "cn=" + LDAPUtil.escapeRDNValue(name) + "," + replicadn;
-        CMS.debug("createReplicationAgreement: dn: " + dn);
+        logger.debug("createReplicationAgreement: dn: " + dn);
         LDAPEntry entry = null;
         LDAPAttributeSet attrs = null;
         try {
@@ -2202,47 +2199,47 @@ public class ConfigurationUtils {
                 attrs.add(new LDAPAttribute("nsDS5ReplicaTransportInfo", "TLS"));
             }
 
-            CMS.debug("About to set description attr to " + name);
+            logger.debug("About to set description attr to " + name);
             attrs.add(new LDAPAttribute("description", name));
 
             entry = new LDAPEntry(dn, attrs);
             conn.add(entry);
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.ENTRY_ALREADY_EXISTS) {
-                CMS.debug("createReplicationAgreement: " + dn + " has already used");
+                logger.warn("createReplicationAgreement: " + dn + " has already used");
                 try {
                     conn.delete(dn);
                 } catch (LDAPException ee) {
-                    CMS.debug("createReplicationAgreement: " + ee.toString());
+                    logger.error("createReplicationAgreement: " + ee);
                     throw ee;
                 }
 
                 try {
                     conn.add(entry);
                 } catch (LDAPException ee) {
-                    CMS.debug("createReplicationAgreement: " + ee.toString());
+                    logger.error("createReplicationAgreement: " + ee);
                     throw ee;
                 }
             } else {
-                CMS.debug("createReplicationAgreement: Failed to create "
-                        + dn + " entry. Exception: " + e.toString());
+                logger.error("createReplicationAgreement: Failed to create "
+                        + dn + " entry. Exception: " + e);
                 throw e;
             }
         }
 
-        CMS.debug("createReplicationAgreement: Successfully create replication agreement " + name);
+        logger.info("createReplicationAgreement: Successfully create replication agreement " + name);
     }
 
     public static void initializeConsumer(String replicadn, LDAPConnection conn, String name) throws LDAPException {
         String dn = "cn=" + LDAPUtil.escapeRDNValue(name) + "," + replicadn;
-        CMS.debug("initializeConsumer: initializeConsumer dn: " + dn);
-        CMS.debug("initializeConsumer: initializeConsumer host: " + conn.getHost() + " port: " + conn.getPort());
+        logger.debug("initializeConsumer: initializeConsumer dn: " + dn);
+        logger.debug("initializeConsumer: initializeConsumer host: " + conn.getHost() + " port: " + conn.getPort());
 
         LDAPAttribute attr = new LDAPAttribute("nsds5beginreplicarefresh", "start");
         LDAPModification mod = new LDAPModification(LDAPModification.REPLACE, attr);
         conn.modify(dn, mod);
 
-        CMS.debug("initializeConsumer: Successfully initialized consumer");
+        logger.debug("initializeConsumer: Successfully initialized consumer");
     }
 
     public static boolean replicationDone(String replicadn, LDAPConnection conn, String name)
@@ -2251,7 +2248,7 @@ public class ConfigurationUtils {
         String filter = "(objectclass=*)";
         String[] attrs = { "nsds5beginreplicarefresh" };
 
-        CMS.debug("replicationDone: dn: " + dn);
+        logger.debug("replicationDone: dn: " + dn);
 
         LDAPSearchResults results = conn.search(dn, LDAPConnection.SCOPE_BASE, filter, attrs, true);
         int count = results.getCount();
@@ -2273,7 +2270,7 @@ public class ConfigurationUtils {
         String filter = "(objectclass=*)";
         String[] attrs = { "nsds5replicalastinitstatus" };
 
-        CMS.debug("replicationStatus: dn: " + dn);
+        logger.debug("replicationStatus: dn: " + dn);
 
         LDAPSearchResults results = conn.search(dn, LDAPConnection.SCOPE_BASE, filter, attrs, false);
 
@@ -2308,7 +2305,7 @@ public class ConfigurationUtils {
 
     public static KeyPair loadKeyPair(String nickname, String token) throws Exception {
 
-        CMS.debug("ConfigurationUtils: loadKeyPair(" + nickname + ", " + token + ")");
+        logger.debug("ConfigurationUtils: loadKeyPair(" + nickname + ", " + token + ")");
 
         CryptoManager cm = CryptoManager.getInstance();
 
@@ -2326,7 +2323,7 @@ public class ConfigurationUtils {
     public static void storeKeyPair(IConfigStore config, String tag, KeyPair pair)
             throws TokenException, EBaseException {
 
-        CMS.debug("ConfigurationUtils: storeKeyPair(" + tag + ")");
+        logger.debug("ConfigurationUtils: storeKeyPair(" + tag + ")");
 
         PublicKey publicKey = pair.getPublic();
 
@@ -2344,7 +2341,7 @@ public class ConfigurationUtils {
 
         } else { // ECC
 
-            CMS.debug("ConfigurationUtils: Public key class: " + publicKey.getClass().getName());
+            logger.debug("ConfigurationUtils: Public key class: " + publicKey.getClass().getName());
             byte encoded[] = publicKey.getEncoded();
             config.putString(PCERT_PREFIX + tag + ".pubkey.encoded", CryptoUtil.byte2string(encoded));
         }
@@ -2362,7 +2359,7 @@ public class ConfigurationUtils {
             throws NoSuchAlgorithmException, NoSuchTokenException, TokenException,
             CryptoManager.NotInitializedException, EPropertyNotFound, EBaseException {
 
-        CMS.debug("ConfigurationUtils.createECCKeyPair(" + token + ", " + curveName + ")");
+        logger.debug("ConfigurationUtils.createECCKeyPair(" + token + ", " + curveName + ")");
 
         KeyPair pair = null;
         /*
@@ -2396,13 +2393,13 @@ public class ConfigurationUtils {
 
         do {
             if (ct.equals("sslserver") && sslType.equalsIgnoreCase("ECDH")) {
-                CMS.debug("ConfigurationUtils: createECCKeypair: sslserver cert for ECDH. Make sure server.xml is set "
+                logger.debug("ConfigurationUtils: createECCKeypair: sslserver cert for ECDH. Make sure server.xml is set "
                         +
                         "properly with -TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,+TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA");
                 pair = CryptoUtil.generateECCKeyPair(token, curveName, null, ECDH_usages_mask);
             } else {
                 if (ct.equals("sslserver")) {
-                    CMS.debug("ConfigurationUtils: createECCKeypair: sslserver cert for ECDHE. Make sure server.xml is set "
+                    logger.debug("ConfigurationUtils: createECCKeypair: sslserver cert for ECDHE. Make sure server.xml is set "
                             +
                             "properly with +TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,-TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA");
                 }
@@ -2416,7 +2413,7 @@ public class ConfigurationUtils {
             // try to locate the private key
             org.mozilla.jss.crypto.PrivateKey privk = CryptoUtil.findPrivateKeyFromID(CryptoUtil.decodeKeyID(kid));
             if (privk == null) {
-                CMS.debug("Found bad ECC key id " + kid);
+                logger.debug("Found bad ECC key id " + kid);
                 pair = null;
             }
         } while (pair == null);
@@ -2427,7 +2424,7 @@ public class ConfigurationUtils {
     public static KeyPair createRSAKeyPair(String token, int keysize, IConfigStore config, String ct)
             throws Exception {
 
-        CMS.debug("ConfigurationUtils.createRSAKeyPair(" + token + ")");
+        logger.debug("ConfigurationUtils.createRSAKeyPair(" + token + ")");
 
         KeyPair pair = null;
         do {
@@ -2440,7 +2437,7 @@ public class ConfigurationUtils {
                     CryptoUtil.findPrivateKeyFromID(CryptoUtil.decodeKeyID(kid));
 
             if (privk == null) {
-                CMS.debug("Found bad RSA key id " + kid);
+                logger.debug("Found bad RSA key id " + kid);
                 pair = null;
             }
         } while (pair == null);
@@ -2471,7 +2468,7 @@ public class ConfigurationUtils {
 
     public static int getSubsystemCount(String hostname, int https_admin_port,
             boolean https, String type) throws Exception {
-        CMS.debug("getSubsystemCount start");
+        logger.debug("getSubsystemCount start");
         String c = getDomainXML(hostname, https_admin_port, true);
         if (c != null) {
             ByteArrayInputStream bis = new ByteArrayInputStream(c.getBytes());
@@ -2490,7 +2487,7 @@ public class ConfigurationUtils {
                     break;
                 }
             }
-            CMS.debug("getSubsystemCount: SubsystemCount=" + countS);
+            logger.debug("getSubsystemCount: SubsystemCount=" + countS);
             int num = 0;
 
             if (countS != null && !countS.equals("")) {
@@ -2513,7 +2510,7 @@ public class ConfigurationUtils {
 
         IConfigStore config = CMS.getConfigStore();
         String caType = certObj.getType();
-        CMS.debug("configCert: caType is " + caType);
+        logger.debug("configCert: caType is " + caType);
         X509CertImpl cert = null;
         String certTag = certObj.getCertTag();
 
@@ -2550,7 +2547,7 @@ public class ConfigurationUtils {
 
             // fetch revised caType
             caType = certObj.getType();
-            CMS.debug("configCert: caType is " + caType + " (revised)");
+            logger.debug("configCert: caType is " + caType + " (revised)");
 
             // set master/clone signature flag
             sign_clone_sslserver_cert_using_master = true;
@@ -2582,7 +2579,7 @@ public class ConfigurationUtils {
 
             if (cert != null) {
                 if (certTag.equals("subsystem")) {
-                    CMS.debug("configCert: creating subsystem user");
+                    logger.debug("configCert: creating subsystem user");
                     CertUtil.addUserCertificate(cert);
                 }
             }
@@ -2621,7 +2618,7 @@ public class ConfigurationUtils {
         String caType;
         String v = config.getString("preop.ca.type", "");
 
-        CMS.debug("configCert: remote CA");
+        logger.debug("configCert: remote CA");
         PKCS10 pkcs10 = CertUtil.getPKCS10(config, PCERT_PREFIX, certObj, context);
         byte[] binRequest = pkcs10.toByteArray();
         String b64Request = CryptoUtil.base64Encode(binRequest);
@@ -2663,7 +2660,7 @@ public class ConfigurationUtils {
             try {
                 if (sign_clone_sslserver_cert_using_master) {
 
-                    CMS.debug("ConfigurationUtils: For this Cloned CA, always use its Master CA to generate " +
+                    logger.debug("ConfigurationUtils: For this Cloned CA, always use its Master CA to generate " +
                             "the 'sslserver' certificate to avoid any changes which may have been " +
                             "made to the X500Name directory string encoding order.");
                     ca_hostname = config.getString("preop.master.hostname", "");
@@ -2680,7 +2677,7 @@ public class ConfigurationUtils {
 
             String sslserver_extension = "";
             Boolean injectSAN = config.getBoolean("service.injectSAN", false);
-            CMS.debug("ConfigurationUtils: injectSAN: " + injectSAN);
+            logger.debug("ConfigurationUtils: injectSAN: " + injectSAN);
 
             if (certTag.equals("sslserver") && injectSAN == true) {
                 sslserver_extension = CertUtil.buildSANSSLserverURLExtension(config);
@@ -2720,7 +2717,7 @@ public class ConfigurationUtils {
             // external certs already imported in configuration.py
 
         } else {
-            CMS.debug("ConfigurationUtils: no preop.ca.type is provided");
+            logger.warn("ConfigurationUtils: no preop.ca.type is provided");
         }
 
         return cert;
@@ -2739,7 +2736,7 @@ public class ConfigurationUtils {
 
         if (ca == null) {
             String s = PCERT_PREFIX + certTag + ".type";
-            CMS.debug("The value for " + s + " should be remote, nothing else.");
+            logger.error("The value for " + s + " should be remote, nothing else.");
             throw new IOException("The value for " + s + " should be remote");
         }
 
@@ -2766,7 +2763,7 @@ public class ConfigurationUtils {
 
         } else {
             // invalid key type
-            CMS.debug("Invalid key type " + pubKeyType);
+            logger.warn("Invalid key type " + pubKeyType);
         }
 
         return cert;
@@ -2778,9 +2775,9 @@ public class ConfigurationUtils {
         String subsystem = config.getString(PCERT_PREFIX + certTag + ".subsystem");
         String nickname = getNickname(config, certTag);
 
-        CMS.debug("ConfigurationUtils: updateConfig() for certTag " + certTag);
+        logger.debug("ConfigurationUtils: updateConfig() for certTag " + certTag);
         if (certTag.equals("signing") || certTag.equals("ocsp_signing")) {
-            CMS.debug("ConfigurationUtils: setting signing nickname=" + nickname);
+            logger.debug("ConfigurationUtils: setting signing nickname=" + nickname);
             config.putString(subsystem + "." + certTag + ".cacertnickname", nickname);
             config.putString(subsystem + "." + certTag + ".certnickname", nickname);
         }
@@ -2826,7 +2823,7 @@ public class ConfigurationUtils {
         }
 
         config.commit(false);
-        CMS.debug("updateConfig() done");
+        logger.debug("updateConfig() done");
     }
 
     public static void updateServerCertNickConf() throws Exception {
@@ -2865,7 +2862,7 @@ public class ConfigurationUtils {
     public static int getPortFromSecurityDomain(String domainXML, String host, int port, String csType,
             String givenTag, String wantedTag) throws SAXException, IOException, ParserConfigurationException {
 
-        CMS.debug("ConfigurationUtils: Searching for " + wantedTag + " in " + csType + " hosts");
+        logger.debug("ConfigurationUtils: Searching for " + wantedTag + " in " + csType + " hosts");
 
         IConfigStore cs = CMS.getConfigStore();
         ByteArrayInputStream bis = new ByteArrayInputStream(domainXML.getBytes());
@@ -2882,10 +2879,10 @@ public class ConfigurationUtils {
             Node node = nodeList.item(i);
 
             String v_host = parser.getValuesFromContainer(node, "Host").elementAt(0);
-            CMS.debug("ConfigurationUtils: host: " + v_host);
+            logger.debug("ConfigurationUtils: host: " + v_host);
 
             String v_given_port = parser.getValuesFromContainer(node, givenTag).elementAt(0);
-            CMS.debug("ConfigurationUtils: " + givenTag + " port: " + v_given_port);
+            logger.debug("ConfigurationUtils: " + givenTag + " port: " + v_given_port);
 
             if (!(v_host.equals(host) && v_given_port.equals(port + "")))
                 continue;
@@ -2893,12 +2890,12 @@ public class ConfigurationUtils {
             // v_host == host || v_given_port != port
 
             String wanted_port = parser.getValuesFromContainer(node, wantedTag).elementAt(0);
-            CMS.debug("ConfigurationUtils: " + wantedTag + " port found: " + wanted_port);
+            logger.debug("ConfigurationUtils: " + wantedTag + " port found: " + wanted_port);
 
             return Integer.parseInt(wanted_port);
         }
 
-        CMS.debug("ConfigurationUtils: " + wantedTag + " port not found");
+        logger.warn("ConfigurationUtils: " + wantedTag + " port not found");
         return 0;
     }
 
@@ -2914,7 +2911,7 @@ public class ConfigurationUtils {
 
             if (!CryptoUtil.isInternalToken(token)) {
 
-                CMS.debug("ConfigurationUtils: updating configuration for KRA clone with hardware token");
+                logger.debug("ConfigurationUtils: updating configuration for KRA clone with hardware token");
 
                 String subsystem = config.getString(PCERT_PREFIX + "storage.subsystem");
                 String storageNickname = getNickname(config, "storage");
@@ -2944,7 +2941,7 @@ public class ConfigurationUtils {
 
     public static byte[] loadCertRequest(IConfigStore config, String subsystem, String tag) throws Exception {
 
-        CMS.debug("ConfigurationUtils.loadCertRequest(" + tag + ")");
+        logger.debug("ConfigurationUtils.loadCertRequest(" + tag + ")");
 
         try {
             String certreq = config.getString(subsystem + "." + tag + ".certreq");
@@ -2958,7 +2955,7 @@ public class ConfigurationUtils {
 
     public static void generateCertRequest(IConfigStore config, String certTag, Cert cert) throws Exception {
 
-        CMS.debug("generateCertRequest: getting public key for certificate " + certTag);
+        logger.debug("generateCertRequest: getting public key for certificate " + certTag);
 
         String pubKeyType = config.getString(PCERT_PREFIX + certTag + ".keytype");
         String algorithm = config.getString(PCERT_PREFIX + certTag + ".keyalgorithm");
@@ -2971,21 +2968,21 @@ public class ConfigurationUtils {
             pubk = getECCX509Key(config, certTag);
 
         } else {
-            CMS.debug("generateCertRequest: Unsupported public key type: " + pubKeyType);
+            logger.error("generateCertRequest: Unsupported public key type: " + pubKeyType);
             throw new BadRequestException("Unsupported public key type: " + pubKeyType);
         }
 
         // public key cannot be null here
 
-        CMS.debug("generateCertRequest: getting private key for certificate " + certTag);
+        logger.debug("generateCertRequest: getting private key for certificate " + certTag);
         String privKeyID = config.getString(PCERT_PREFIX + certTag + ".privkey.id");
 
-        CMS.debug("generateCertRequest: private key ID: " + privKeyID);
+        logger.debug("generateCertRequest: private key ID: " + privKeyID);
         byte[] keyIDb = CryptoUtil.decodeKeyID(privKeyID);
 
         PrivateKey privk = CryptoUtil.findPrivateKeyFromID(keyIDb);
         if (privk == null) {
-            CMS.debug("generateCertRequest: Unable to find private key for certificate " + certTag);
+            logger.error("generateCertRequest: Unable to find private key for certificate " + certTag);
             throw new BadRequestException("Unable to find private key for certificate " + certTag);
         }
 
@@ -2996,17 +2993,17 @@ public class ConfigurationUtils {
 
         Extensions exts = new Extensions();
         if (certTag.equals("signing")) {
-            CMS.debug("generateCertRequest: generating basic CA extensions");
+            logger.debug("generateCertRequest: generating basic CA extensions");
             createBasicCAExtensions(config, exts);
         }
 
-        CMS.debug("generateCertRequest: generating generic extensions");
+        logger.debug("generateCertRequest: generating generic extensions");
         createGenericExtensions(config, certTag, exts);
 
-        CMS.debug("generateCertRequest: generating PKCS #10 request");
+        logger.debug("generateCertRequest: generating PKCS #10 request");
         PKCS10 certReq = CryptoUtil.createCertificationRequest(caDN, pubk, privk, algorithm, exts);
 
-        CMS.debug("generateCertRequest: storing cert request");
+        logger.debug("generateCertRequest: storing cert request");
         byte[] certReqb = certReq.toByteArray();
         String certReqs = CryptoUtil.base64Encode(certReqb);
 
@@ -3022,7 +3019,7 @@ public class ConfigurationUtils {
      * CA signing certificate
      */
     private static void createBasicCAExtensions(IConfigStore config, Extensions exts) throws Exception {
-        CMS.debug("ConfigurationUtils: createBasicCAExtensions: begins");
+        logger.debug("ConfigurationUtils: createBasicCAExtensions: begins");
 
         // create BasicConstraintsExtension
         BasicConstraintsExtension bcExt = new BasicConstraintsExtension(true, -1);
@@ -3053,14 +3050,14 @@ public class ConfigurationUtils {
     }
 
     private static void createGenericExtensions(IConfigStore config, String tag, Extensions exts) throws Exception {
-        CMS.debug("ConfigurationUtils: createGenericExtensions: begins");
+        logger.debug("ConfigurationUtils: createGenericExtensions: begins");
         // if specified, add a generic extension
         try {
             String oidString = config.getString(PCERT_PREFIX + tag + ".ext.oid");
             String dataString = config.getString(PCERT_PREFIX + tag + ".ext.data");
 
             if (oidString != null && dataString != null) {
-                CMS.debug("ConfigurationUtils: createGenericExtensions: adding generic extension for " + tag);
+                logger.debug("ConfigurationUtils: createGenericExtensions: adding generic extension for " + tag);
                 boolean critical = config.getBoolean(PCERT_PREFIX + tag + ".ext.critical");
                 ObjectIdentifier oid = new ObjectIdentifier(oidString);
 
@@ -3072,14 +3069,14 @@ public class ConfigurationUtils {
                 out.close();
 
                 exts.add(genExt);
-                CMS.debug("ConfigurationUtils: createGenericExtensions: generic extension added: " + oidString);
+                logger.debug("ConfigurationUtils: createGenericExtensions: generic extension added: " + oidString);
             }
 
         } catch (EPropertyNotFound e) {
             // generic extension not specified, ignore
 
         } catch (EBaseException e) {
-            CMS.debug("ConfigurationUtils: createGenericExtensions: Unable to add generic extension: " + e);
+            logger.error("ConfigurationUtils: createGenericExtensions: Unable to add generic extension: " + e);
             throw new BadRequestException("Unable to add generic certificate extension: " + e, e);
         }
     }
@@ -3107,7 +3104,7 @@ public class ConfigurationUtils {
     public static void createCertRecord(IConfigStore cs, Cert cert) throws Exception {
 
         String tag = cert.getCertTag();
-        CMS.debug("ConfigurationUtils.createCertRecord(" + tag + ")");
+        logger.debug("ConfigurationUtils.createCertRecord(" + tag + ")");
 
         // parsing cert data
         X509CertImpl x509CertImpl = new X509CertImpl(cert.getCert());
@@ -3121,7 +3118,7 @@ public class ConfigurationUtils {
 
         // loading cert profile
         String profileName = cs.getString(ConfigurationUtils.PCERT_PREFIX + tag + ".profile");
-        CMS.debug("SystemConfigService: profile: " + profileName);
+        logger.debug("SystemConfigService: profile: " + profileName);
 
         String instanceRoot = cs.getString("instanceRoot");
         String configurationRoot = cs.getString("configurationRoot");
@@ -3147,7 +3144,7 @@ public class ConfigurationUtils {
         queue.updateRequest(req);
 
         RequestId reqId = req.getRequestId();
-        CMS.debug("SystemConfigService: request: " + reqId);
+        logger.debug("SystemConfigService: request: " + reqId);
 
         cs.putString("preop.cert." + tag + ".reqId", reqId.toString());
 
@@ -3164,7 +3161,7 @@ public class ConfigurationUtils {
     public static void handleCert(Cert cert) throws Exception {
 
         String certTag = cert.getCertTag();
-        CMS.debug("ConfigurationUtils.handleCert(" + certTag + ")");
+        logger.debug("ConfigurationUtils.handleCert(" + certTag + ")");
 
         String subsystem = cert.getSubsystem();
         String nickname = cert.getNickname();
@@ -3174,7 +3171,7 @@ public class ConfigurationUtils {
         if (!enable)
             return;
 
-        CMS.debug("ConfigurationUtils: cert type: " + cert.getType());
+        logger.debug("ConfigurationUtils: cert type: " + cert.getType());
 
         String tokenname = config.getString("preop.module.token", "");
 
@@ -3197,10 +3194,10 @@ public class ConfigurationUtils {
             X509CertImpl impl
             ) throws Exception {
 
-        CMS.debug("ConfigurationUtils.importCert(" + tag + ")");
+        logger.debug("ConfigurationUtils.importCert(" + tag + ")");
 
         if (tag.equals("sslserver")) {
-            CMS.debug("ConfigurationUtils: temporary SSL server cert will be replaced on restart");
+            logger.info("ConfigurationUtils: temporary SSL server cert will be replaced on restart");
             return;
         }
 
@@ -3212,11 +3209,11 @@ public class ConfigurationUtils {
         X509Certificate cert = CertUtil.findCertificate(fullNickname);
 
         if (cert != null) {
-            CMS.debug("ConfigurationUtils: deleting existing " + tag + " cert");
+            logger.debug("ConfigurationUtils: deleting existing " + tag + " cert");
             CertUtil.deleteCert(tokenname, cert);
         }
 
-        CMS.debug("ConfigurationUtils: importing " + tag + " cert");
+        logger.debug("ConfigurationUtils: importing " + tag + " cert");
         cert = CryptoUtil.importUserCertificate(impl.getEncoded(), nickname);
 
         if (tag.equals("signing") && subsystem.equals("ca")) { // set trust flags to CT,C,C
@@ -3230,7 +3227,7 @@ public class ConfigurationUtils {
 
     public static void backupKeys(String pwd, String fname) throws Exception {
 
-        CMS.debug("backupKeys(): start");
+        logger.debug("backupKeys(): start");
         IConfigStore cs = CMS.getConfigStore();
         String certlist = cs.getString("preop.cert.list");
 
@@ -3321,7 +3318,7 @@ public class ConfigurationUtils {
         }
 
         if (x509key == null) {
-            CMS.debug("createAdminCertificate() - x509key is null!");
+            logger.error("createAdminCertificate() - x509key is null!");
             throw new IOException("x509key is null");
         }
 
@@ -3381,7 +3378,7 @@ public class ConfigurationUtils {
             system.addUser(user);
 
         } catch (ConflictingOperationException e) {
-            CMS.debug("ConfigurationUtils: createAdmin: addUser " + e.toString());
+            logger.warn("ConfigurationUtils: createAdmin: addUser " + e);
             // ignore
         }
 
@@ -3399,7 +3396,7 @@ public class ConfigurationUtils {
         if (select.equals("new")) {
             group = system.getGroupFromName("Security Domain Administrators");
             if (group != null && !group.isMember(uid)) {
-                CMS.debug("ConfigurationUtils: createAdmin:  add user '" + uid
+                logger.debug("ConfigurationUtils: createAdmin:  add user '" + uid
                         + "' to group 'Security Domain Administrators'");
                 group.addMemberName(uid);
                 system.modifyGroup(group);
@@ -3407,7 +3404,7 @@ public class ConfigurationUtils {
 
             group = system.getGroupFromName("Enterprise CA Administrators");
             if (group != null && !group.isMember(uid)) {
-                CMS.debug("ConfigurationUtils: createAdmin:  add user '" + uid
+                logger.debug("ConfigurationUtils: createAdmin:  add user '" + uid
                         + "' to group 'Enterprise CA Administrators'");
                 group.addMemberName(uid);
                 system.modifyGroup(group);
@@ -3415,7 +3412,7 @@ public class ConfigurationUtils {
 
             group = system.getGroupFromName("Enterprise KRA Administrators");
             if (group != null && !group.isMember(uid)) {
-                CMS.debug("ConfigurationUtils: createAdmin:  add user '" + uid
+                logger.debug("ConfigurationUtils: createAdmin:  add user '" + uid
                         + "' to group 'Enterprise KRA Administrators'");
                 group.addMemberName(uid);
                 system.modifyGroup(group);
@@ -3423,7 +3420,7 @@ public class ConfigurationUtils {
 
             group = system.getGroupFromName("Enterprise RA Administrators");
             if (group != null && !group.isMember(uid)) {
-                CMS.debug("ConfigurationUtils: createAdmin:  add user '" + uid
+                logger.debug("ConfigurationUtils: createAdmin:  add user '" + uid
                         + "' to group 'Enterprise RA Administrators'");
                 group.addMemberName(uid);
                 system.modifyGroup(group);
@@ -3431,7 +3428,7 @@ public class ConfigurationUtils {
 
             group = system.getGroupFromName("Enterprise TKS Administrators");
             if (group != null && !group.isMember(uid)) {
-                CMS.debug("ConfigurationUtils: createAdmin:  add user '" + uid
+                logger.debug("ConfigurationUtils: createAdmin:  add user '" + uid
                         + "' to group 'Enterprise TKS Administrators'");
                 group.addMemberName(uid);
                 system.modifyGroup(group);
@@ -3439,7 +3436,7 @@ public class ConfigurationUtils {
 
             group = system.getGroupFromName("Enterprise OCSP Administrators");
             if (group != null && !group.isMember(uid)) {
-                CMS.debug("ConfigurationUtils: createAdmin:  add user '" + uid
+                logger.debug("ConfigurationUtils: createAdmin:  add user '" + uid
                         + "' to group 'Enterprise OCSP Administrators'");
                 group.addMemberName(uid);
                 system.modifyGroup(group);
@@ -3447,7 +3444,7 @@ public class ConfigurationUtils {
 
             group = system.getGroupFromName("Enterprise TPS Administrators");
             if (group != null && !group.isMember(uid)) {
-                CMS.debug("ConfigurationUtils: createAdmin:  add user '" + uid
+                logger.debug("ConfigurationUtils: createAdmin:  add user '" + uid
                         + "' to group 'Enterprise TPS Administrators'");
                 group.addMemberName(uid);
                 system.modifyGroup(group);
@@ -3458,7 +3455,7 @@ public class ConfigurationUtils {
     public static String submitAdminCertRequest(String ca_hostname, int ca_port, String profileId,
             String certRequestType, String certRequest, String subjectDN) throws Exception {
 
-        CMS.debug("ConfigurationUtils: submitAdminCertRequest()");
+        logger.debug("ConfigurationUtils: submitAdminCertRequest()");
 
         IConfigStore config = CMS.getConfigStore();
 
@@ -3484,13 +3481,13 @@ public class ConfigurationUtils {
             XMLObject parser = new XMLObject(bis);
 
             String status = parser.getValue("Status");
-            CMS.debug("submitAdminXertRequest: status=" + status);
+            logger.debug("submitAdminXertRequest: status=" + status);
             if (status.equals(AUTH_FAILURE)) {
                 throw new EAuthException("Unable to generate admin certificate: authentication failure");
 
             } else if (!status.equals(SUCCESS)) {
                 String error = parser.getValue("Error");
-                CMS.debug("Error: " + error);
+                logger.error("Error: " + error);
                 throw new IOException("Unable to generate admin certificate: " + error);
             }
 
@@ -3576,11 +3573,11 @@ public class ConfigurationUtils {
         entry = new LDAPEntry(dn, attrs);
         conn.add(entry);
 
-        CMS.debug("createSecurityDomain(): finish updating domain info");
+        logger.debug("createSecurityDomain(): finish updating domain info");
         conn.disconnect();
 
         // Fetch the "new" security domain and display it
-        // CMS.debug("createSecurityDomain(): Dump contents of new Security Domain . . .");
+        // logger.debug("createSecurityDomain(): Dump contents of new Security Domain . . .");
         // @SuppressWarnings("unused")
         // String c = getDomainXML(CMS.getEESSLHost(), Integer.parseInt(CMS.getAdminPort()), true);
     }
@@ -3600,7 +3597,7 @@ public class ConfigurationUtils {
 
         if (select.equals("clone") && type.equalsIgnoreCase("CA") && isSDHostDomainMaster(cs)) {
             cloneMaster = true;
-            CMS.debug("Cloning a domain master");
+            logger.debug("Cloning a domain master");
         }
 
         String url = "/ca/admin/ca/updateDomainXML";
@@ -3623,21 +3620,21 @@ public class ConfigurationUtils {
         content.putSingle("httpport", CMS.getEENonSSLPort());
 
         try {
-            CMS.debug("Update security domain using admin interface");
+            logger.debug("Update security domain using admin interface");
             String session_id = CMS.getConfigSDSessionId();
             content.putSingle("sessionID", session_id);
             updateDomainXML(sd_host, sd_admin_port, true, url, content, false);
 
         } catch (Exception e) {
-            CMS.debug("Unable to access admin interface: " + e);
+            logger.warn("Unable to access admin interface: " + e);
 
-            CMS.debug("Update security domain using agent interface");
+            logger.warn("Update security domain using agent interface");
             url = "/ca/agent/ca/updateDomainXML";
             updateDomainXML(sd_host, sd_agent_port, true, url, content, true);
         }
 
         // Fetch the "updated" security domain and display it
-        CMS.debug("updateSecurityDomain(): Dump contents of updated Security Domain . . .");
+        logger.debug("updateSecurityDomain(): Dump contents of updated Security Domain . . .");
         @SuppressWarnings("unused")
         String c = getDomainXML(sd_host, sd_admin_port, true);
     }
@@ -3648,7 +3645,7 @@ public class ConfigurationUtils {
         String hostname = config.getString("securitydomain.host");
         int httpsadminport = config.getInteger("securitydomain.httpsadminport");
 
-        CMS.debug("isSDHostDomainMaster(): Getting domain.xml from CA...");
+        logger.debug("isSDHostDomainMaster(): Getting domain.xml from CA...");
         String c = getDomainXML(hostname, httpsadminport, true);
 
         ByteArrayInputStream bis = new ByteArrayInputStream(c.getBytes());
@@ -3675,7 +3672,7 @@ public class ConfigurationUtils {
             String servlet, MultivaluedMap<String, String> content, boolean useClientAuth)
             throws Exception {
 
-        CMS.debug("ConfigurationUtils: updateDomainXML start hostname=" + hostname + " port=" + port);
+        logger.debug("ConfigurationUtils: updateDomainXML start hostname=" + hostname + " port=" + port);
 
         String c = null;
         if (useClientAuth) {
@@ -3686,7 +3683,7 @@ public class ConfigurationUtils {
             if (!CryptoUtil.isInternalToken(tokenname)) {
                 nickname = tokenname + ":" + nickname;
             }
-            CMS.debug("updateDomainXML() nickname=" + nickname);
+            logger.debug("updateDomainXML() nickname=" + nickname);
 
             c = post(hostname, port, https, servlet, content, nickname, null);
 
@@ -3695,7 +3692,7 @@ public class ConfigurationUtils {
         }
 
         if (c == null || c.equals("")) {
-            CMS.debug("Unable to update security domain: empty response");
+            logger.error("Unable to update security domain: empty response");
             throw new IOException("Unable to update security domain: empty response");
         }
 
@@ -3703,24 +3700,24 @@ public class ConfigurationUtils {
             ByteArrayInputStream bis = new ByteArrayInputStream(c.getBytes());
             XMLObject obj = new XMLObject(bis);
             String status = obj.getValue("Status");
-            CMS.debug("ConfigurationUtils: updateDomainXML: status=" + status);
+            logger.debug("ConfigurationUtils: updateDomainXML: status=" + status);
 
             if (status.equals(SUCCESS)) {
                 return;
 
             } else if (status.equals(AUTH_FAILURE)) {
-                CMS.debug("Unable to update security domain: authentication failure");
+                logger.error("Unable to update security domain: authentication failure");
                 throw new IOException("Unable to update security domain: authentication failure");
 
             } else {
                 String error = obj.getValue("Error");
-                CMS.debug("Unable to update security domain: " + error);
+                logger.error("Unable to update security domain: " + error);
                 throw new IOException("Unable to update security domain: " + error);
             }
 
         } catch (SAXParseException e) {
-            CMS.debug("Unable to update security domain: " + e);
-            CMS.debug(c);
+            logger.error("Response: " + c);
+            logger.error("Unable to update security domain: " + e);
             throw new IOException("Unable to update security domain: " + e, e);
         }
     }
@@ -3753,18 +3750,18 @@ public class ConfigurationUtils {
             certs[0] = new X509CertImpl(Utils.base64decode(b64));
             user.setX509Certificates(certs);
             try {
-                CMS.debug("setupClientAuthUser: adding user: " + id);
+                logger.debug("setupClientAuthUser: adding user: " + id);
                 system.addUser(user);
             } catch (ConflictingOperationException e) {
                 // ignore exception
-                CMS.debug("setupClientAuthUser: User already exists: " + e);
+                logger.warn("setupClientAuthUser: User already exists: " + e);
             }
             try {
-                CMS.debug("setupClientAuthUser: Adding cert to user: " + id);
+                logger.debug("setupClientAuthUser: Adding cert to user: " + id);
                 system.addUserCert(user);
             } catch (ConflictingOperationException e) {
                 // ignore exception
-                CMS.debug("setupClientAuthUser: Cert already added: " + e);
+                logger.warn("setupClientAuthUser: Cert already added: " + e);
             }
             cs.commit(false);
         }
@@ -3772,7 +3769,7 @@ public class ConfigurationUtils {
         String groupName = "Trusted Managers";
         IGroup group = system.getGroupFromName(groupName);
         if (!group.isMember(id)) {
-            CMS.debug("setupClientAuthUser: adding user to the " + groupName + " group.");
+            logger.debug("setupClientAuthUser: adding user to the " + groupName + " group.");
             group.addMemberName(id);
             system.modifyGroup(group);
         }
@@ -3782,7 +3779,7 @@ public class ConfigurationUtils {
     public static String getSubsystemCert(String host, int port, boolean https)
             throws Exception {
 
-        CMS.debug("getSubsystemCert() start");
+        logger.debug("getSubsystemCert() start");
 
         String c = get(host, port, https, "/ca/admin/ca/getSubsystemCert", null, null);
 
@@ -3804,7 +3801,7 @@ public class ConfigurationUtils {
 
     public static String getTransportCert(URI secdomainURI, URI kraUri)
             throws Exception {
-        CMS.debug("getTransportCert() start");
+        logger.debug("getTransportCert() start");
         String sessionId = CMS.getConfigSDSessionId();
 
         MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
@@ -3857,7 +3854,7 @@ public class ConfigurationUtils {
 
         PKIClient client = new PKIClient(config, null);
 
-        CMS.debug("In ConfigurationUtils.getSharedSecret! importKey: " + importKey);
+        logger.debug("In ConfigurationUtils.getSharedSecret! importKey: " + importKey);
 
         // Ignore the "UNTRUSTED_ISSUER" and "CA_CERT_INVALID" validity status
         // during PKI instance creation since we are using an untrusted temporary CA cert.
@@ -3896,14 +3893,14 @@ public class ConfigurationUtils {
         String nick = "TPS-" + host + "-" + port + " sharedSecret";
 
         if (importKey) {
-            CMS.debug("getSharedSecret: About to attempt to import shared secret key.");
+            logger.debug("getSharedSecret: About to attempt to import shared secret key.");
             byte[] sessionKeyData = Utils.base64decode(keyData.getWrappedPrivateData());
             byte[] sharedSecretData = Utils.base64decode(keyData.getAdditionalWrappedPrivateData());
 
             try {
                 CryptoUtil.importSharedSecret(sessionKeyData, sharedSecretData, dbNick, nick);
             } catch (Exception e) {
-                CMS.debug("getSharedSecret()): WARNING, Failed to automatically import shared secret. Please follow the manual procedure." + e.toString());
+                logger.warn("getSharedSecret()): WARNING, Failed to automatically import shared secret. Please follow the manual procedure." + e.toString());
             }
             // this is not needed if we are using a shared database with
             // the tks.
@@ -3925,16 +3922,16 @@ public class ConfigurationUtils {
 
         if (user != null) {
             // user found
-            CMS.debug("setupDBUser(): user already exists: " + DBUSER);
+            logger.warn("setupDBUser(): user already exists: " + DBUSER);
             return;
         }
 
         // user not found
-        CMS.debug("setupDBUser(): creating user: " + DBUSER);
+        logger.debug("setupDBUser(): creating user: " + DBUSER);
 
         String b64 = getSubsystemCert();
         if (b64 == null) {
-            CMS.debug("setupDBUser(): failed to fetch subsystem cert");
+            logger.error("setupDBUser(): failed to fetch subsystem cert");
             throw new EBaseException("setupDBUser(): failed to fetch subsystem cert");
         }
 
@@ -3951,16 +3948,16 @@ public class ConfigurationUtils {
         user.setX509Certificates(certs);
 
         system.addUser(user);
-        CMS.debug("setupDBUser(): successfully added " + DBUSER);
+        logger.debug("setupDBUser(): successfully added " + DBUSER);
 
         system.addUserCert(user);
-        CMS.debug("setupDBUser(): successfully add the user certificate");
+        logger.debug("setupDBUser(): successfully add the user certificate");
 
         // set subject dn
         system.addCertSubjectDN(user);
 
         // remove old db users
-        CMS.debug("setupDBUser(): removing seeAlso from old dbusers");
+        logger.debug("setupDBUser(): removing seeAlso from old dbusers");
         removeOldDBUsers(certs[0].getSubjectDN().toString());
 
         // workaround for ticket #1595
@@ -3987,7 +3984,7 @@ public class ConfigurationUtils {
         for (String groupName : groupNames) {
             IGroup group = system.getGroupFromName(groupName);
             if (!group.isMember(DBUSER)) {
-                CMS.debug("setupDBUser(): adding " + DBUSER + " to the " + groupName + " group.");
+                logger.debug("setupDBUser(): adding " + DBUSER + " to the " + groupName + " group.");
                 group.addMemberName(DBUSER);
                 system.modifyGroup(group);
             }
@@ -3995,7 +3992,7 @@ public class ConfigurationUtils {
     }
 
     public static void addProfilesToTPSUser(String adminID) throws EUsrGrpException, LDAPException {
-        CMS.debug("Adding all profiles to TPS admin user");
+        logger.debug("Adding all profiles to TPS admin user");
         IUGSubsystem system = (IUGSubsystem) CMS.getSubsystem(IUGSubsystem.ID);
         IUser user = system.getUser(adminID);
 
@@ -4033,19 +4030,19 @@ public class ConfigurationUtils {
                 content, null, null);
 
         if (response == null || response.equals("")) {
-            CMS.debug("registerUser: response is empty or null.");
+            logger.error("registerUser: response is empty or null.");
             throw new IOException("The server " + targetURI + "is not available");
 
         } else {
-            CMS.debug("registerUser: response: " + response);
+            logger.debug("registerUser: response: " + response);
             ByteArrayInputStream bis = new ByteArrayInputStream(response.getBytes());
             XMLObject parser = new XMLObject(bis);
 
             String status = parser.getValue("Status");
-            CMS.debug("registerUser: status=" + status);
+            logger.debug("registerUser: status=" + status);
 
             if (status.equals(SUCCESS)) {
-                CMS.debug("registerUser: Successfully added user " + uid + " to " + targetURI +
+                logger.debug("registerUser: Successfully added user " + uid + " to " + targetURI +
                         " using " + targetURL);
 
             } else if (status.equals(AUTH_FAILURE)) {
@@ -4082,17 +4079,17 @@ public class ConfigurationUtils {
                 content, null, null);
 
         if (response == null || response.equals("")) {
-            CMS.debug("exportTransportCert: response is empty or null.");
+            logger.error("exportTransportCert: response is empty or null.");
             throw new IOException("The server " + targetURI + " is not available");
         } else {
             ByteArrayInputStream bis = new ByteArrayInputStream(response.getBytes());
             XMLObject parser = new XMLObject(bis);
 
             String status = parser.getValue("Status");
-            CMS.debug("exportTransportCert: status=" + status);
+            logger.debug("exportTransportCert: status=" + status);
 
             if (status.equals(SUCCESS)) {
-                CMS.debug("exportTransportCert: Successfully added transport cert to " + targetURI);
+                logger.debug("exportTransportCert: Successfully added transport cert to " + targetURI);
             } else if (status.equals(AUTH_FAILURE)) {
                 throw new EAuthException(AUTH_FAILURE);
             } else {
@@ -4119,7 +4116,7 @@ public class ConfigurationUtils {
             while (res.hasMoreElements()) {
                 String uid = (String) res.next().getAttribute("uid").getStringValues().nextElement();
                 IUser user = system.getUser(uid);
-                CMS.debug("removeOldDUsers: Removing seeAlso from " + uid);
+                logger.debug("removeOldDUsers: Removing seeAlso from " + uid);
                 system.removeCertSubjectDN(user);
             }
         }
@@ -4135,12 +4132,12 @@ public class ConfigurationUtils {
             nickname = tokenname + ":" + nickname;
         }
 
-        CMS.debug("ConfigurationUtils: getSubsystemCert: nickname=" + nickname);
+        logger.debug("ConfigurationUtils: getSubsystemCert: nickname=" + nickname);
 
         CryptoManager cm = CryptoManager.getInstance();
         org.mozilla.jss.crypto.X509Certificate cert = cm.findCertByNickname(nickname);
         if (cert == null) {
-            CMS.debug("ConfigurationUtils: getSubsystemCert: subsystem cert is null");
+            logger.warn("ConfigurationUtils: getSubsystemCert: subsystem cert is null");
             return null;
         }
         byte[] bytes = cert.getEncoded();
