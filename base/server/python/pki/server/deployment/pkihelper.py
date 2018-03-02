@@ -1018,21 +1018,7 @@ class Instance:
                                  extra=config.PKI_INDENTATION_LEVEL_2)
             raise
 
-    def get_instance_status(self, secure_connection=True, timeout=None):
-        if secure_connection:
-            pki_protocol = "https"
-            pki_port = self.mdict['pki_https_port']
-        else:
-            pki_protocol = "http"
-            pki_port = self.mdict['pki_http_port']
-
-        connection = pki.client.PKIConnection(
-            protocol=pki_protocol,
-            hostname=self.mdict['pki_hostname'],
-            port=pki_port,
-            subsystem=self.mdict['pki_subsystem_type'],
-            accept='application/xml',
-            trust_env=False)
+    def get_instance_status(self, connection, timeout=None):
 
         # catching all exceptions because we do not want to break if underlying
         # requests or urllib3 use a different exception.
@@ -1073,17 +1059,43 @@ class Instance:
             status request (default: None)
 
         """
+
+        if secure_connection:
+            pki_protocol = "https"
+            pki_port = self.mdict['pki_https_port']
+        else:
+            pki_protocol = "http"
+            pki_port = self.mdict['pki_http_port']
+
+        connection = pki.client.PKIConnection(
+            protocol=pki_protocol,
+            hostname=self.mdict['pki_hostname'],
+            port=pki_port,
+            subsystem=self.mdict['pki_subsystem_type'],
+            accept='application/xml',
+            trust_env=False)
+
+        config.pki_log.info(
+            "checking %s", connection.serverURI,
+            extra=config.PKI_INDENTATION_LEVEL_3)
+
         start_time = datetime.today()
         status = None
+
         while status != "running":
+
+            time.sleep(1)
+
             status = self.get_instance_status(
-                secure_connection=secure_connection,
+                connection=connection,
                 timeout=request_timeout,
             )
-            time.sleep(1)
+
             stop_time = datetime.today()
+
             if (stop_time - start_time).total_seconds() >= timeout:
                 break
+
         return status
 
 
