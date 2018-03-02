@@ -36,6 +36,7 @@ public class PKCS12CertCLI extends CLI {
 
         addModule(new PKCS12CertAddCLI(this));
         addModule(new PKCS12CertExportCLI(this));
+        addModule(new PKCS12CertImportCLI(this));
         addModule(new PKCS12CertFindCLI(this));
         addModule(new PKCS12CertModCLI(this));
         addModule(new PKCS12CertRemoveCLI(this));
