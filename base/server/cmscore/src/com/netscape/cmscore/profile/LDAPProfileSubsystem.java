@@ -27,17 +27,8 @@ import java.util.LinkedHashMap;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import netscape.ldap.LDAPAttribute;
-import netscape.ldap.LDAPAttributeSet;
-import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPDN;
-import netscape.ldap.LDAPEntry;
-import netscape.ldap.LDAPException;
-import netscape.ldap.LDAPSearchConstraints;
-import netscape.ldap.LDAPSearchResults;
-import netscape.ldap.controls.LDAPEntryChangeControl;
-import netscape.ldap.controls.LDAPPersistSearchControl;
-import netscape.ldap.util.DN;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
@@ -51,12 +42,27 @@ import com.netscape.certsrv.profile.IProfileSubsystem;
 import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.certsrv.registry.IPluginRegistry;
 import com.netscape.certsrv.util.AsyncLoader;
+import com.netscape.cms.servlet.csadmin.GetStatus;
 import com.netscape.cmscore.base.LDAPConfigStore;
 import com.netscape.cmsutil.ldap.LDAPUtil;
+
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPAttributeSet;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPDN;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPSearchConstraints;
+import netscape.ldap.LDAPSearchResults;
+import netscape.ldap.controls.LDAPEntryChangeControl;
+import netscape.ldap.controls.LDAPPersistSearchControl;
+import netscape.ldap.util.DN;
 
 public class LDAPProfileSubsystem
         extends AbstractProfileSubsystem
         implements IProfileSubsystem, Runnable {
+
+    public final static Logger logger = LoggerFactory.getLogger(GetStatus.class);
 
     private String dn;
     private ILdapConnFactory dbFactory;
@@ -86,7 +92,8 @@ public class LDAPProfileSubsystem
      */
     public void init(ISubsystem owner, IConfigStore config)
             throws EBaseException {
-        CMS.debug("LDAPProfileSubsystem: start init");
+
+        logger.debug("LDAPProfileSubsystem: start init");
 
         // (re)init member collections
         mProfiles = new LinkedHashMap<String, IProfile>();
@@ -119,10 +126,10 @@ public class LDAPProfileSubsystem
         try {
             loader.awaitLoadDone();
         } catch (InterruptedException e) {
-            CMS.debug("LDAPProfileSubsystem: caught InterruptedException "
-                    + "while waiting for initial load of profiles.");
+            logger.warn("LDAPProfileSubsystem: caught InterruptedException "
+                    + "while waiting for initial load of profiles: " + e, e);
         }
-        CMS.debug("LDAPProfileSubsystem: finished init");
+        logger.debug("LDAPProfileSubsystem: finished init");
     }
 
     public IProfile getProfile(String id)
@@ -130,8 +137,8 @@ public class LDAPProfileSubsystem
         try {
             loader.awaitLoadDone();
         } catch (InterruptedException e) {
-            CMS.debug("LDAPProfileSubsystem.getProfile: caught InterruptedException "
-                    + "while waiting for profiles to be loaded.");
+            logger.warn("LDAPProfileSubsystem.getProfile: caught InterruptedException "
+                    + "while waiting for profiles to be loaded: " + e, e);
         }
         return super.getProfile(id);
     }
@@ -140,8 +147,8 @@ public class LDAPProfileSubsystem
         try {
             loader.awaitLoadDone();
         } catch (InterruptedException e) {
-            CMS.debug("LDAPProfileSubsystem.getProfile: caught InterruptedException "
-                    + "while waiting for profiles to be loaded.");
+            logger.warn("LDAPProfileSubsystem.getProfile: caught InterruptedException "
+                    + "while waiting for profiles to be loaded: " + e, e);
         }
         return super.getProfileIds();
     }
@@ -156,7 +163,7 @@ public class LDAPProfileSubsystem
         String nsUniqueId =
             ldapProfile.getAttribute("nsUniqueId").getStringValueArray()[0];
         if (deletedNsUniqueIds.contains(nsUniqueId)) {
-            CMS.debug("readProfile: ignoring entry with nsUniqueId '"
+            logger.warn("readProfile: ignoring entry with nsUniqueId '"
                     + nsUniqueId + "' due to deletion");
             return;
         }
@@ -164,20 +171,20 @@ public class LDAPProfileSubsystem
         String profileId = null;
         String dn = ldapProfile.getDN();
         if (!dn.startsWith("cn=")) {
-            CMS.debug("Error reading profile entry: DN " + dn + " does not start with 'cn='");
+            logger.error("Error reading profile entry: DN " + dn + " does not start with 'cn='");
             return;
         }
         profileId = LDAPDN.explodeDN(dn, true)[0];
 
         BigInteger newEntryUSN = new BigInteger(
                 ldapProfile.getAttribute("entryUSN").getStringValueArray()[0]);
-        CMS.debug("readProfile: new entryUSN = " + newEntryUSN);
+        logger.debug("readProfile: new entryUSN = " + newEntryUSN);
 
         BigInteger knownEntryUSN = entryUSNs.get(profileId);
         if (knownEntryUSN != null) {
-            CMS.debug("readProfile: known entryUSN = " + knownEntryUSN);
+            logger.debug("readProfile: known entryUSN = " + knownEntryUSN);
             if (newEntryUSN.compareTo(knownEntryUSN) <= 0) {
-                CMS.debug("readProfile: data is current");
+                logger.info("readProfile: data is current");
                 return;
             }
         }
@@ -190,17 +197,16 @@ public class LDAPProfileSubsystem
 
         IPluginInfo info = registry.getPluginInfo("profile", classId);
         if (info == null) {
-            CMS.debug("Error loading profile: No plugins for type : profile, with classId " + classId);
+            logger.error("Error loading profile: No plugins for type : profile, with classId " + classId);
         } else {
             try {
-                CMS.debug("Start Profile Creation - " + profileId + " " + classId + " " + info.getClassName());
+                logger.debug("Start Profile Creation - " + profileId + " " + classId + " " + info.getClassName());
                 createProfile(profileId, classId, info.getClassName(), data);
                 entryUSNs.put(profileId, newEntryUSN);
                 nsUniqueIds.put(profileId, nsUniqueId);
-                CMS.debug("Done Profile Creation - " + profileId);
+                logger.info("Done Profile Creation - " + profileId);
             } catch (EProfileException e) {
-                CMS.debug("Error creating profile '" + profileId + "'; skipping.");
-                CMS.debug(e);
+                logger.error("Error creating profile '" + profileId + "': " + e, e);
             }
         }
     }
@@ -233,7 +239,7 @@ public class LDAPProfileSubsystem
             if (data != null)
                 subStoreConfig.load(data);
 
-            CMS.debug("LDAPProfileSubsystem: initing " + className);
+            logger.debug("LDAPProfileSubsystem: initing " + className);
             IProfile profile = (IProfile) Class.forName(className).newInstance();
             profile.setId(id);
             profile.init(this, subStoreConfig);
@@ -241,6 +247,7 @@ public class LDAPProfileSubsystem
             mProfileClassIds.put(id, classid);
             return profile;
         } catch (Exception e) {
+            logger.error("LDAPProfileSubsystem: error creating or reading profile: " + e, e);
             throw new EProfileException("Error creating or reading profile", e);
         }
     }
@@ -279,14 +286,14 @@ public class LDAPProfileSubsystem
             nsUniqueId = attr.getStringValueArray()[0];
 
        if (deletedNsUniqueIds.remove(nsUniqueId)) {
-            CMS.debug("handleDELETE: delete was already effected");
+           logger.debug("handleDELETE: delete was already effected");
             return;
         }
 
         String profileId = null;
         String dn = entry.getDN();
         if (!dn.startsWith("cn=")) {
-            CMS.debug("handleDELETE: DN " + dn + " does not start with 'cn='");
+            logger.debug("handleDELETE: DN " + dn + " does not start with 'cn='");
             return;
         }
         profileId = LDAPDN.explodeDN(dn, true)[0];
@@ -324,17 +331,18 @@ public class LDAPProfileSubsystem
             if (attr != null)
                 entryUSN = new BigInteger(attr.getStringValueArray()[0]);
             entryUSNs.put(id, entryUSN);
-            CMS.debug("commitProfile: new entryUSN = " + entryUSN);
+            logger.debug("commitProfile: new entryUSN = " + entryUSN);
 
             String nsUniqueId = null;
             attr = entry.getAttribute("nsUniqueId");
             if (attr != null)
                 nsUniqueId = attr.getStringValueArray()[0];
-            CMS.debug("commitProfile: nsUniqueId = " + nsUniqueId);
+            logger.debug("commitProfile: nsUniqueId = " + nsUniqueId);
             nsUniqueIds.put(id, nsUniqueId);
         } catch (ELdapException e) {
+            logger.error("commitProfile: Failed to commit config store of profile '" + id + ": " + e, e);
             throw new EProfileException(
-                "Failed to commit config store of profile '" + id + ": " + e);
+                "Failed to commit config store of profile '" + id + ": " + e, e);
         }
     }
 
@@ -355,7 +363,7 @@ public class LDAPProfileSubsystem
      * Notifies this subsystem if owner is in running mode.
      */
     public void startup() throws EBaseException {
-        CMS.debug("LDAPProfileSubsystem: startup");
+        logger.info("LDAPProfileSubsystem: startup");
     }
 
     /**
@@ -392,7 +400,7 @@ public class LDAPProfileSubsystem
             conn.search(dn, LDAPConnection.SCOPE_BASE, "(objectclass=*)", null, false);
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT) {
-                CMS.debug("Adding LDAP certificate profiles container");
+                logger.info("Adding LDAP certificate profiles container");
                 LDAPAttribute[] attrs = {
                     new LDAPAttribute("objectClass", "organizationalUnit"),
                     new LDAPAttribute("ou", "certificateProfiles")
@@ -414,7 +422,7 @@ public class LDAPProfileSubsystem
 
         LDAPConnection conn = null;
 
-        CMS.debug("Profile change monitor: starting.");
+        logger.info("Profile change monitor: starting.");
 
         while (!stopped) {
             try {
@@ -456,56 +464,56 @@ public class LDAPProfileSubsystem
                     LDAPEntryChangeControl changeControl = (LDAPEntryChangeControl)
                         LDAPUtil.getControl(
                             LDAPEntryChangeControl.class, results.getResponseControls());
-                    CMS.debug("Profile change monitor: Processed change controls.");
+                    logger.debug("Profile change monitor: Processed change controls.");
                     if (changeControl != null) {
                         int changeType = changeControl.getChangeType();
                         switch (changeType) {
                         case LDAPPersistSearchControl.ADD:
-                            CMS.debug("Profile change monitor: ADD");
+                            logger.debug("Profile change monitor: ADD");
                             readProfile(entry);
                             break;
                         case LDAPPersistSearchControl.DELETE:
-                            CMS.debug("Profile change monitor: DELETE");
+                            logger.debug("Profile change monitor: DELETE");
                             handleDELETE(entry);
                             break;
                         case LDAPPersistSearchControl.MODIFY:
-                            CMS.debug("Profile change monitor: MODIFY");
+                            logger.debug("Profile change monitor: MODIFY");
                             readProfile(entry);
                             break;
                         case LDAPPersistSearchControl.MODDN:
-                            CMS.debug("Profile change monitor: MODDN");
+                            logger.debug("Profile change monitor: MODDN");
                             handleMODDN(new DN(changeControl.getPreviousDN()), entry);
                             break;
                         default:
-                            CMS.debug("Profile change monitor: unknown change type: " + changeType);
+                            logger.warn("Profile change monitor: unknown change type: " + changeType);
                             break;
                         }
                     } else {
-                        CMS.debug("Profile change monitor: immediate result");
+                        logger.debug("Profile change monitor: immediate result");
                         readProfile(entry);
                         loader.increment();
                     }
                 }
             } catch (ELdapException e) {
-                CMS.debug("Profile change monitor: failed to get LDAPConnection. Retrying in 1 second.");
+                logger.warn("Profile change monitor: failed to get LDAPConnection. Retrying in 1 second.");
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException ex) {
                     Thread.currentThread().interrupt();
                 }
             } catch (LDAPException e) {
-                CMS.debug("Profile change monitor: Caught exception: " + e.toString());
+                logger.error("Profile change monitor: Caught exception: " + e, e);
             } finally {
                 if (conn != null) {
                     try {
                         dbFactory.returnConn(conn);
                         conn = null;
                     } catch (Exception e) {
-                        CMS.debug("Profile change monitor: Error releasing the LDAPConnection" + e.toString());
+                        logger.error("Profile change monitor: Error releasing the LDAPConnection" + e, e);
                     }
                 }
             }
         }
-        CMS.debug("Profile change monitor: stopping.");
+        logger.info("Profile change monitor: stopping.");
     }
 }
