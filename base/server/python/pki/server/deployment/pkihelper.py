@@ -4013,7 +4013,9 @@ class ConfigClient:
         # Issuing CA Information
         self.set_issuing_ca_parameters(data)
 
-        data.systemCertsImported = self.mdict['pki_server_pkcs12_path'] != ''
+        data.systemCertsImported = \
+            self.mdict['pki_server_pkcs12_path'] != '' or \
+            self.mdict['pki_clone_pkcs12_path'] != ''
 
         # Create system certs
         self.set_system_certs(nssdb, data)
