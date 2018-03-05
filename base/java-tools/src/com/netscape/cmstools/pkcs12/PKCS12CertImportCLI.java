@@ -25,6 +25,7 @@ import java.io.FileReader;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.util.logging.PKILogger;
+import org.mozilla.jss.crypto.PBEAlgorithm;
 import org.mozilla.jss.util.Password;
 
 import com.netscape.cmstools.cli.CLI;
@@ -46,6 +47,32 @@ public class PKCS12CertImportCLI extends CLI {
 
     public void printHelp() {
         formatter.printHelp(getFullName() + " <nickname> [OPTIONS...]", options);
+
+        System.out.println();
+
+        System.out.println("Supported certificate encryption algorithms:");
+        for (PBEAlgorithm algorithm : PKCS12Util.SUPPORTED_CERT_ENCRYPTIONS) {
+
+            if (algorithm == null) {
+                System.out.println(" - " + PKCS12Util.NO_ENCRYPTION);
+
+            } else {
+                System.out.println(" - " + algorithm);
+            }
+        }
+
+        System.out.println();
+
+        System.out.println("Supported key encryption algorithms:");
+        for (PBEAlgorithm algorithm : PKCS12Util.SUPPORTED_KEY_ENCRYPTIONS) {
+
+            if (algorithm == null) {
+                System.out.println(" - " + PKCS12Util.NO_ENCRYPTION);
+
+            } else {
+                System.out.println(" - " + algorithm);
+            }
+        }
     }
 
     public void createOptions() {
@@ -59,6 +86,20 @@ public class PKCS12CertImportCLI extends CLI {
 
         option = new Option(null, "pkcs12-password-file", true, "PKCS #12 password file");
         option.setArgName("path");
+        options.addOption(option);
+
+        option = new Option(null, "friendly-name", true, "Friendly name for the certificate in PKCS #12");
+        option.setArgName("name");
+        options.addOption(option);
+
+        option = new Option(null, "cert-encryption", true,
+                "Certificate encryption algorithm (default: " + PKCS12Util.DEFAULT_CERT_ENCRYPTION_NAME + ").");
+        option.setArgName("algorithm");
+        options.addOption(option);
+
+        option = new Option(null, "key-encryption", true,
+                "Key encryption algorithm (default: " + PKCS12Util.DEFAULT_KEY_ENCRYPTION_NAME + ").");
+        option.setArgName("algorithm");
         options.addOption(option);
 
         options.addOption(null, "append", false, "Import into an existing PKCS #12 file");
@@ -119,6 +160,10 @@ public class PKCS12CertImportCLI extends CLI {
 
         Password password = new Password(passwordString.toCharArray());
 
+        String friendlyName = cmd.getOptionValue("friendly-name");
+        String certEncryption = cmd.getOptionValue("cert-encryption");
+        String keyEncryption = cmd.getOptionValue("key-encryption");
+
         boolean append = cmd.hasOption("append");
         boolean includeTrustFlags = !cmd.hasOption("no-trust-flags");
         boolean includeKey = !cmd.hasOption("no-key");
@@ -126,6 +171,12 @@ public class PKCS12CertImportCLI extends CLI {
 
         try {
             PKCS12Util util = new PKCS12Util();
+            if (certEncryption != null) {
+                util.setCertEncryption(certEncryption);
+            }
+            if (keyEncryption != null) {
+                util.setKeyEncryption(keyEncryption);
+            }
             util.setTrustFlagsEnabled(includeTrustFlags);
 
             PKCS12 pkcs12;
@@ -140,7 +191,7 @@ public class PKCS12CertImportCLI extends CLI {
             }
 
             // load the specified certificate
-            util.loadCertFromNSS(pkcs12, nickname, includeKey, includeChain);
+            util.loadCertFromNSS(pkcs12, nickname, includeKey, includeChain, friendlyName);
             util.storeIntoFile(pkcs12, filename, password);
 
         } finally {
