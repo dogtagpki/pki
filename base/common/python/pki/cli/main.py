@@ -27,10 +27,11 @@ import sys
 import traceback
 
 import pki.cli
+import pki.cli.password
 import pki.cli.pkcs12
 
 
-PYTHON_COMMANDS = ['pkcs12-import']
+PYTHON_COMMANDS = ['password-generate', 'pkcs12-import']
 
 
 class PKICLI(pki.cli.CLI):
@@ -45,6 +46,7 @@ class PKICLI(pki.cli.CLI):
         self.token = None
         self.ignore_banner = False
 
+        self.add_module(pki.cli.password.PasswordCLI())
         self.add_module(pki.cli.pkcs12.PKCS12CLI())
 
     def get_full_module_name(self, module_name):
