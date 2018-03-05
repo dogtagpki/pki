@@ -834,6 +834,82 @@ class NSSDatabase(object):
         epoch = datetime.datetime.utcfromtimestamp(0)
         return (date - epoch).total_seconds() * 1000
 
+    def export_cert(self,
+                    nickname,
+                    pkcs12_file,
+                    pkcs12_password=None,
+                    pkcs12_password_file=None,
+                    friendly_name=None,
+                    cert_encryption=None,
+                    key_encryption=None,
+                    append=False,
+                    include_trust_flags=True,
+                    include_key=True,
+                    include_chain=True,
+                    debug=False):
+
+        tmpdir = tempfile.mkdtemp()
+
+        try:
+            if pkcs12_password:
+                password_file = os.path.join(tmpdir, 'password.txt')
+                with open(password_file, 'w') as f:
+                    f.write(pkcs12_password)
+
+            elif pkcs12_password_file:
+                password_file = pkcs12_password_file
+
+            else:
+                raise Exception('Missing PKCS #12 password')
+
+            cmd = [
+                'pki',
+                '-d', self.directory,
+                '-C', self.password_file
+            ]
+
+            if self.token:
+                cmd.extend(['--token', self.token])
+
+            cmd.extend(['pkcs12-cert-import'])
+
+            cmd.extend([
+                '--pkcs12-file', pkcs12_file,
+                '--pkcs12-password-file', password_file
+            ])
+
+            if cert_encryption:
+                cmd.extend(['--cert-encryption', cert_encryption])
+
+            if key_encryption:
+                cmd.extend(['--key-encryption', key_encryption])
+
+            if friendly_name:
+                cmd.extend(['--friendly-name', friendly_name])
+
+            if append:
+                cmd.extend(['--append'])
+
+            if not include_trust_flags:
+                cmd.extend(['--no-trust-flags'])
+
+            if not include_key:
+                cmd.extend(['--no-key'])
+
+            if not include_chain:
+                cmd.extend(['--no-chain'])
+
+            if debug:
+                cmd.extend(['--debug'])
+
+            cmd.extend([nickname])
+
+            logger.debug('Command: %s', ' '.join(cmd))
+            subprocess.check_call(cmd)
+
+        finally:
+            shutil.rmtree(tmpdir)
+
     def remove_cert(self, nickname, remove_key=False):
 
         cmd = ['certutil']
