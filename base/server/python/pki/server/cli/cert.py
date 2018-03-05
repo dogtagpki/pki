@@ -890,6 +890,7 @@ class CertExportCLI(pki.cli.CLI):
         print('      --pkcs12-file <path>           Output file to store the exported certificate and key in PKCS #12 format.')
         print('      --pkcs12-password <password>   Password for the PKCS #12 file.')
         print('      --pkcs12-password-file <path>  Input file containing the password for the PKCS #12 file.')
+        print('      --friendly-name <name>         Friendly name for the certificate in PKCS #12 file.')
         print('      --cert-encryption <algorithm>  Certificate encryption algorithm (default: none).')
         print('      --key-encryption <algorithm>   Key encryption algorithm (default: PBES2).')
         print('      --append                       Append into an existing PKCS #12 file.')
@@ -913,6 +914,7 @@ class CertExportCLI(pki.cli.CLI):
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=', 'cert-file=', 'csr-file=',
                 'pkcs12-file=', 'pkcs12-password=', 'pkcs12-password-file=',
+                'friendly-name=',
                 'cert-encryption=', 'key-encryption=',
                 'append', 'no-trust-flags', 'no-key', 'no-chain',
                 'verbose', 'debug', 'help'])
@@ -928,6 +930,7 @@ class CertExportCLI(pki.cli.CLI):
         pkcs12_file = None
         pkcs12_password = None
         pkcs12_password_file = None
+        friendly_name = None
         cert_encryption = None
         key_encryption = None
         append = False
@@ -954,6 +957,9 @@ class CertExportCLI(pki.cli.CLI):
 
             elif o == '--pkcs12-password-file':
                 pkcs12_password_file = a
+
+            elif o == '--friendly-name':
+                friendly_name = a
 
             elif o == '--cert-encryption':
                 cert_encryption = a
@@ -1074,14 +1080,18 @@ class CertExportCLI(pki.cli.CLI):
                 if not pkcs12_password and not pkcs12_password_file:
                     pkcs12_password = getpass.getpass(prompt='Enter password for PKCS #12 file: ')
 
-                nicknames = []
-                nicknames.append(cert['nickname'])
+                nickname = cert['nickname']
 
-                nssdb.export_pkcs12(
+                if self.verbose:
+                    print('Nickname: %s' % nickname)
+                    print('Friendly name: %s' % friendly_name)
+
+                nssdb.export_cert(
+                    nickname=nickname,
                     pkcs12_file=pkcs12_file,
                     pkcs12_password=pkcs12_password,
                     pkcs12_password_file=pkcs12_password_file,
-                    nicknames=nicknames,
+                    friendly_name=friendly_name,
                     cert_encryption=cert_encryption,
                     key_encryption=key_encryption,
                     append=append,
