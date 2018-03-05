@@ -133,7 +133,7 @@ class MigrateCLI(pki.cli.CLI):
                   (instance.name, tomcat_version))
 
         server_xml = os.path.join(instance.conf_dir, 'server.xml')
-        self.migrate_server_xml(server_xml, tomcat_version)
+        self.migrate_server_xml(instance, server_xml, tomcat_version)
 
         root_context_xml = os.path.join(
             instance.conf_dir,
@@ -151,7 +151,7 @@ class MigrateCLI(pki.cli.CLI):
 
         self.migrate_tomcat_libraries(instance)
 
-    def migrate_server_xml(self, filename, tomcat_version):
+    def migrate_server_xml(self, instance, filename, tomcat_version):
         if self.verbose:
             print('Migrating %s' % filename)
 
@@ -161,7 +161,7 @@ class MigrateCLI(pki.cli.CLI):
             self.migrate_server_xml_to_tomcat7(document)
 
         elif tomcat_version == '8':
-            self.migrate_server_xml_to_tomcat8(document)
+            self.migrate_server_xml_to_tomcat8(instance, document)
 
         elif tomcat_version:
             print('ERROR: invalid Tomcat version %s' % tomcat_version)
@@ -284,7 +284,7 @@ class MigrateCLI(pki.cli.CLI):
             if valve.get('className') == 'org.apache.catalina.valves.AccessLogValve':
                 valve.set('prefix', 'localhost_access_log.')
 
-    def migrate_server_xml_to_tomcat8(self, document):
+    def migrate_server_xml_to_tomcat8(self, instance, document):
         server = document.getroot()
 
         version_logger_listener = etree.Element('Listener')
@@ -386,13 +386,27 @@ class MigrateCLI(pki.cli.CLI):
         if self.debug:
             print('* updating secure Connector')
 
+        keystore_file = os.path.join(instance.conf_dir, 'keystore.p12')
+        keystore_password_file = os.path.join(instance.conf_dir, 'keystore.pwd')
+
         connectors = server.findall('Service/Connector')
         for connector in connectors:
 
-            if connector.get('secure') == 'true':
-                connector.set(
-                    'protocol',
-                    'org.apache.coyote.http11.Http11Protocol')
+            if connector.get('secure') != 'true':
+                continue
+
+            connector.set(
+                'protocol',
+                'org.dogtagpki.tomcat.Http11NioProtocol')
+
+            connector.attrib.pop('sslImplementationName', None)
+
+            connector.set('keystoreType', 'pkcs12')
+            connector.set('keystoreFile', keystore_file)
+            connector.set('keystorePassFile', keystore_password_file)
+            connector.set('keyAlias', 'sslserver')
+
+            connector.set('trustManagerClassName', 'org.dogtagpki.tomcat.PKITrustManager')
 
         if self.debug:
             print('* updating AccessLogValve')

@@ -347,6 +347,7 @@ class HTTPConnectorModCLI(pki.cli.CLI):
             connector.attrib.pop('keystoreType', None)
             connector.attrib.pop('keystoreFile', None)
             connector.attrib.pop('keystorePassFile', None)
+            connector.attrib.pop('keyAlias', None)
 
             connector.attrib.pop('trustManagerClassName', None)
 
@@ -361,6 +362,7 @@ class HTTPConnectorModCLI(pki.cli.CLI):
             HTTPConnectorCLI.set_param(connector, 'keystoreType', 'pkcs12')
             HTTPConnectorCLI.set_param(connector, 'keystoreFile', keystore_file)
             HTTPConnectorCLI.set_param(connector, 'keystorePassFile', keystore_password_file)
+            HTTPConnectorCLI.set_param(connector, 'keyAlias', 'sslserver')
 
             HTTPConnectorCLI.set_param(connector, 'trustManagerClassName', 'org.dogtagpki.tomcat.PKITrustManager')
 
