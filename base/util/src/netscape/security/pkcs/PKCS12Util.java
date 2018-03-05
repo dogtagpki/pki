@@ -381,17 +381,45 @@ public class PKCS12Util {
         }
     }
 
-    public void loadCertFromNSS(PKCS12 pkcs12, String nickname, boolean includeKey, boolean includeChain) throws Exception {
+    public void loadCertFromNSS(
+            PKCS12 pkcs12,
+            String nickname,
+            boolean includeKey,
+            boolean includeChain) throws Exception {
+
+        loadCertFromNSS(pkcs12, nickname, includeKey, includeChain, null);
+    }
+
+    public void loadCertFromNSS(
+            PKCS12 pkcs12,
+            String nickname,
+            boolean includeKey,
+            boolean includeChain,
+            String friendlyName) throws Exception {
 
         CryptoManager cm = CryptoManager.getInstance();
 
         X509Certificate[] certs = cm.findCertsByNickname(nickname);
         for (X509Certificate cert : certs) {
-            loadCertFromNSS(pkcs12, cert, includeKey, includeChain);
+            loadCertFromNSS(pkcs12, cert, includeKey, includeChain, friendlyName);
         }
     }
 
-    public void loadCertFromNSS(PKCS12 pkcs12, X509Certificate cert, boolean includeKey, boolean includeChain) throws Exception {
+    public void loadCertFromNSS(
+            PKCS12 pkcs12,
+            X509Certificate cert,
+            boolean includeKey,
+            boolean includeChain) throws Exception {
+
+        loadCertFromNSS(pkcs12, cert, includeKey, includeChain, null);
+    }
+
+    public void loadCertFromNSS(
+            PKCS12 pkcs12,
+            X509Certificate cert,
+            boolean includeKey,
+            boolean includeChain,
+            String friendlyName) throws Exception {
 
         CryptoManager cm = CryptoManager.getInstance();
 
@@ -399,7 +427,7 @@ public class PKCS12Util {
         logger.debug("ID: " + Hex.encodeHexString(id));
 
         // load cert info
-        loadCertInfoFromNSS(pkcs12, cert, id, true);
+        loadCertInfoFromNSS(pkcs12, cert, id, true, friendlyName);
 
         if (includeKey) {
             // load key info if exists
@@ -417,14 +445,32 @@ public class PKCS12Util {
         }
     }
 
-    public void loadCertInfoFromNSS(PKCS12 pkcs12, X509Certificate cert, byte[] id, boolean replace) throws Exception {
+    public void loadCertInfoFromNSS(
+            PKCS12 pkcs12,
+            X509Certificate cert,
+            byte[] id,
+            boolean replace) throws Exception {
+
+        loadCertInfoFromNSS(pkcs12, cert, id, replace, null);
+    }
+
+    public void loadCertInfoFromNSS(
+            PKCS12 pkcs12,
+            X509Certificate cert,
+            byte[] id,
+            boolean replace,
+            String friendlyName) throws Exception {
 
         String nickname = cert.getNickname();
         logger.info("Loading certificate \"" + nickname + "\" from NSS database");
 
+        if (friendlyName == null) {
+            friendlyName = nickname;
+        }
+
         PKCS12CertInfo certInfo = new PKCS12CertInfo();
         certInfo.id = id;
-        certInfo.setFriendlyName(nickname);
+        certInfo.setFriendlyName(friendlyName);
         certInfo.cert = new X509CertImpl(cert.getEncoded());
         certInfo.trustFlags = getTrustFlags(cert);
 
