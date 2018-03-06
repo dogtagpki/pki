@@ -431,7 +431,7 @@ public class PKCS12Util {
 
         if (includeKey) {
             // load key info if exists
-            loadKeyInfoFromNSS(pkcs12, cert, id);
+            loadKeyInfoFromNSS(pkcs12, cert, id, friendlyName);
         }
 
         if (includeChain) {
@@ -477,10 +477,26 @@ public class PKCS12Util {
         pkcs12.addCertInfo(certInfo, replace);
     }
 
-    public void loadKeyInfoFromNSS(PKCS12 pkcs12, X509Certificate cert, byte[] id) throws Exception {
+    public void loadKeyInfoFromNSS(
+            PKCS12 pkcs12,
+            X509Certificate cert,
+            byte[] id) throws Exception {
+
+        loadKeyInfoFromNSS(pkcs12, cert, id, null);
+    }
+
+    public void loadKeyInfoFromNSS(
+            PKCS12 pkcs12,
+            X509Certificate cert,
+            byte[] id,
+            String friendlyName) throws Exception {
 
         String nickname = cert.getNickname();
         logger.info("Loading private key for certificate \"" + nickname + "\" from NSS database");
+
+        if (friendlyName == null) {
+            friendlyName = nickname;
+        }
 
         CryptoManager cm = CryptoManager.getInstance();
 
@@ -490,7 +506,7 @@ public class PKCS12Util {
 
             PKCS12KeyInfo keyInfo = new PKCS12KeyInfo(privateKey);
             keyInfo.id = id;
-            keyInfo.setFriendlyName(cert.getNickname());
+            keyInfo.setFriendlyName(friendlyName);
 
             pkcs12.addKeyInfo(keyInfo);
 
