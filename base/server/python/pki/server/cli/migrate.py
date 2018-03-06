@@ -434,7 +434,8 @@ class MigrateCLI(pki.cli.CLI):
             self.print_help()
             sys.exit(1)
 
-        with open(filename, 'w') as f:
+        with open(filename, 'wb') as f:
+            # xml as UTF-8 encoded bytes
             document.write(f, pretty_print=True, encoding='utf-8')
 
     def migrate_context_xml_to_tomcat7(self, document):
