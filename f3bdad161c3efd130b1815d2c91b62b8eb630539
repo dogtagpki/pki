@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "836751a9_687527b7",
+        "filename": "base/server/python/pki/server/deployment/pkiparser.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1056,
+      "author": {
+        "id": 1010256
+      },
+      "writtenOn": "2018-03-06T23:45:58Z",
+      "side": 1,
+      "message": "You can\u0027t use openSSL cipher names.  You have to use names that JSS/NSS recognize.  For example, the openSSL cipher name TLS_AES_128_GCM_SHA256 is known as TLS_RSA_WITH_AES_128_GCM_SHA256 in JSS/NSS, which I believe is already in existing list of disabled ciphers.",
+      "revId": "f3bdad161c3efd130b1815d2c91b62b8eb630539",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
