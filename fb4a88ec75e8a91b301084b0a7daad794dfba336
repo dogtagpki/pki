@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a4aa0120_72a167ad",
+        "filename": "base/util/src/netscape/security/x509/IPAddressName.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 1010256
+      },
+      "writtenOn": "2018-03-06T01:28:34Z",
+      "side": 1,
+      "message": "good idea to pull this out as a convenience routine.  But why not just fold the ipAddr.getIPAddr(...) call into initAddress as well while you are at it?  I don\u0027t like the name \"getIPAddr\" (existing code...not your fault) because it is more like a \"fillIPAddr\" to me.",
+      "revId": "fb4a88ec75e8a91b301084b0a7daad794dfba336",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
