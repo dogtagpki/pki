@@ -111,78 +111,60 @@ cp -p ${PKI_SPECS_FILE} ${PKI_CONSOLE_SPEC_FILE}
 
 
 ##
-## If specified, copy all Patches from the spec file URL to SOURCES
+## Always start with a new 'pki-console' staging directory
 ##
 
-if [ ${FETCH_PATCH_FILES} -eq 1 ] ; then
-	Fetch_Patch_Files ${PKI_SPECS_FILE} ${PKI_CONSOLE_SOURCES_DIR}
-fi
+rm -rf ${PKI_CONSOLE_STAGING_DIR}
 
 
 ##
-## Copy the specified Source Tarball from the spec file URL to SOURCES, or
-## Generate a fresh Source Tarball from the local source
+## To generate the 'pki-console' tarball, construct a staging area
+## consisting of the 'pki-console' source components from the
+## current contents of the PKI working repository
 ##
 
-if [ ${FETCH_SOURCE_TARBALL} -eq 1 ] ; then
-	Fetch_Source_Tarball ${PKI_SPECS_FILE} ${PKI_CONSOLE_SOURCES_DIR}
-else
-	##
-	## Always start with a new 'pki-console' staging directory
-	##
+mkdir -p ${PKI_CONSOLE_DIR}
+cd ${PKI_DIR}
+for file in "${PKI_FILE_LIST}" ;
+do
+	cp -p ${file} ${PKI_CONSOLE_DIR}
+done
+find ${PKI_CMAKE_DIR}             \
+	-name .svn -prune -o          \
+	-name *.swp -prune -o         \
+	-print | cpio -pdum ${PKI_CONSOLE_DIR} > /dev/null 2>&1
+cd - > /dev/null 2>&1
 
-	rm -rf ${PKI_CONSOLE_STAGING_DIR}
-
-
-	##
-	## To generate the 'pki-console' tarball, construct a staging area
-	## consisting of the 'pki-console' source components from the
-	## current contents of the PKI working repository
-	##
-
-	mkdir -p ${PKI_CONSOLE_DIR}
-	cd ${PKI_DIR}
-	for file in "${PKI_FILE_LIST}" ;
-	do
-		cp -p ${file} ${PKI_CONSOLE_DIR}
-	done
-	find ${PKI_CMAKE_DIR}             \
-		-name .svn -prune -o          \
-		-name *.swp -prune -o         \
-		-print | cpio -pdum ${PKI_CONSOLE_DIR} > /dev/null 2>&1
-	cd - > /dev/null 2>&1
-
-	mkdir -p ${PKI_CONSOLE_BASE_DIR}
-	cd ${PKI_BASE_DIR}
-	cp -p ${PKI_BASE_MANIFEST} ${PKI_CONSOLE_BASE_DIR}
-	for component in "${PKI_COMPONENT_LIST}" ;
-	do
-		find ${component}             \
-		-name .svn -prune -o          \
-		-name *.swp -prune -o         \
-		-print | cpio -pdum ${PKI_CONSOLE_BASE_DIR} > /dev/null 2>&1
-	done
-	cd - > /dev/null 2>&1
+mkdir -p ${PKI_CONSOLE_BASE_DIR}
+cd ${PKI_BASE_DIR}
+cp -p ${PKI_BASE_MANIFEST} ${PKI_CONSOLE_BASE_DIR}
+for component in "${PKI_COMPONENT_LIST}" ;
+do
+	find ${component}             \
+	-name .svn -prune -o          \
+	-name *.swp -prune -o         \
+	-print | cpio -pdum ${PKI_CONSOLE_BASE_DIR} > /dev/null 2>&1
+done
+cd - > /dev/null 2>&1
 
 
-	##
-	## Create the 'pki-console' tarball
-	##
+##
+## Create the 'pki-console' tarball
+##
 
-	mkdir -p ${PKI_CONSOLE_SOURCES_DIR}
-	cd ${PKI_CONSOLE_STAGING_DIR}
-	gtar -zcvf ${PKI_CONSOLE_TARBALL}    \
-		"${PKI_CONSOLE}-${PKI_CONSOLE_VERSION}" > /dev/null 2>&1
-	mv ${PKI_CONSOLE_TARBALL} ${PKI_CONSOLE_SOURCES_DIR}
-	cd - > /dev/null 2>&1
+mkdir -p ${PKI_CONSOLE_SOURCES_DIR}
+cd ${PKI_CONSOLE_STAGING_DIR}
+gtar -zcvf ${PKI_CONSOLE_TARBALL}    \
+	"${PKI_CONSOLE}-${PKI_CONSOLE_VERSION}" > /dev/null 2>&1
+mv ${PKI_CONSOLE_TARBALL} ${PKI_CONSOLE_SOURCES_DIR}
+cd - > /dev/null 2>&1
 
 
-	##
-	## Always remove the PKI staging area
-	##
+##
+## Always remove the PKI staging area
+##
 
-	rm -rf ${PKI_CONSOLE_STAGING_DIR}
-fi
+rm -rf ${PKI_CONSOLE_STAGING_DIR}
 
 
 ##

@@ -119,87 +119,69 @@ cp -p ${PKI_SPECS_FILE} ${PKI_CORE_SPEC_FILE}
 
 
 ##
-## If specified, copy all Patches from the spec file URL to SOURCES
+## Always start with a new 'pki-core' staging directory
 ##
 
-if [ ${FETCH_PATCH_FILES} -eq 1 ] ; then
-	Fetch_Patch_Files ${PKI_SPECS_FILE} ${PKI_CORE_SOURCES_DIR}
-fi
+rm -rf ${PKI_CORE_STAGING_DIR}
 
 
 ##
-## Copy the specified Source Tarball from the spec file URL to SOURCES, or
-## Generate a fresh Source Tarball from the local source
+## To generate the 'pki-core' tarball, construct a staging area
+## consisting of the 'pki-core' source components from the
+## current contents of the PKI working repository
 ##
 
-if [ ${FETCH_SOURCE_TARBALL} -eq 1 ] ; then
-	Fetch_Source_Tarball ${PKI_SPECS_FILE} ${PKI_CORE_SOURCES_DIR}
-else
-	##
-	## Always start with a new 'pki-core' staging directory
-	##
+mkdir -p ${PKI_CORE_DIR}
+cd ${PKI_DIR}
+for file in "${PKI_FILE_LIST}" ;
+do
+	cp -p ${file} ${PKI_CORE_DIR}
+done
+find ${PKI_CMAKE_DIR}             \
+	-name .svn -prune -o          \
+	-name *.swp -prune -o         \
+	-print | cpio -pdum ${PKI_CORE_DIR} > /dev/null 2>&1
+cd - > /dev/null 2>&1
 
-	rm -rf ${PKI_CORE_STAGING_DIR}
+mkdir -p ${PKI_CORE_BASE_DIR}
+cd ${PKI_BASE_DIR}
+cp -p ${PKI_BASE_MANIFEST} ${PKI_CORE_BASE_DIR}
+cp -p VERSION ${PKI_CORE_BASE_DIR}
+for component in ${PKI_COMPONENT_LIST} ;
+do
+	dest="${component}"
 
+	# copying ${PKI_BASE_DIR}/${component} to ${PKI_CORE_BASE_DIR}/${dest}
+	cd ${component}
+	mkdir ${PKI_CORE_BASE_DIR}/${dest}
 
-	##
-	## To generate the 'pki-core' tarball, construct a staging area
-	## consisting of the 'pki-core' source components from the
-	## current contents of the PKI working repository
-	##
+	find                          \
+	-name .svn -prune -o          \
+	-name *.swp -prune -o         \
+	-print | cpio -pdum ${PKI_CORE_BASE_DIR}/${dest} > /dev/null 2>&1
 
-	mkdir -p ${PKI_CORE_DIR}
-	cd ${PKI_DIR}
-	for file in "${PKI_FILE_LIST}" ;
-	do
-		cp -p ${file} ${PKI_CORE_DIR}
-	done
-	find ${PKI_CMAKE_DIR}             \
-		-name .svn -prune -o          \
-		-name *.swp -prune -o         \
-		-print | cpio -pdum ${PKI_CORE_DIR} > /dev/null 2>&1
-	cd - > /dev/null 2>&1
-
-	mkdir -p ${PKI_CORE_BASE_DIR}
-	cd ${PKI_BASE_DIR}
-	cp -p ${PKI_BASE_MANIFEST} ${PKI_CORE_BASE_DIR}
-	cp -p VERSION ${PKI_CORE_BASE_DIR}
-	for component in ${PKI_COMPONENT_LIST} ;
-	do
-		dest="${component}"
-
-		# copying ${PKI_BASE_DIR}/${component} to ${PKI_CORE_BASE_DIR}/${dest}
-		cd ${component}
-		mkdir ${PKI_CORE_BASE_DIR}/${dest}
-
-		find                          \
-		-name .svn -prune -o          \
-		-name *.swp -prune -o         \
-		-print | cpio -pdum ${PKI_CORE_BASE_DIR}/${dest} > /dev/null 2>&1
-
-		cd ..
-	done
-	cd - > /dev/null 2>&1
+	cd ..
+done
+cd - > /dev/null 2>&1
 
 
-	##
-	## Create the 'pki-core' tarball
-	##
+##
+## Create the 'pki-core' tarball
+##
 
-	mkdir -p ${PKI_CORE_SOURCES_DIR}
-	cd ${PKI_CORE_STAGING_DIR}
-	gtar -zcvf ${PKI_CORE_TARBALL}    \
-		"${PKI_CORE}-${PKI_CORE_VERSION}" > /dev/null 2>&1
-	mv ${PKI_CORE_TARBALL} ${PKI_CORE_SOURCES_DIR}
-	cd - > /dev/null 2>&1
+mkdir -p ${PKI_CORE_SOURCES_DIR}
+cd ${PKI_CORE_STAGING_DIR}
+gtar -zcvf ${PKI_CORE_TARBALL}    \
+	"${PKI_CORE}-${PKI_CORE_VERSION}" > /dev/null 2>&1
+mv ${PKI_CORE_TARBALL} ${PKI_CORE_SOURCES_DIR}
+cd - > /dev/null 2>&1
 
 
-	##
-	## Always remove the PKI staging area
-	##
+##
+## Always remove the PKI staging area
+##
 
-	rm -rf ${PKI_CORE_STAGING_DIR}
-fi
+rm -rf ${PKI_CORE_STAGING_DIR}
 
 
 ##
