@@ -30,7 +30,7 @@ PKI_PWD=`pwd`
 ##
 
 PKI_CORE="pki-core"
-PKI_SPECS_FILE="${PKI_DIR}/specs/${PKI_CORE}.spec"
+PKI_SPECS_FILE="${PKI_DIR}/specs/${PKI_CORE}.spec.in"
 PKI_CORE_VERSION="`rpmspec -P "${PKI_SPECS_FILE}" | grep '^Version:' | awk '{print $2;}'`"
 
 
@@ -115,7 +115,7 @@ compute_release_information ${PKI_SPECS_FILE}
 ## current contents of the PKI working repository
 ##
 
-cp -p ${PKI_SPECS_FILE} ${PKI_CORE_SPECS_DIR}
+cp -p ${PKI_SPECS_FILE} ${PKI_CORE_SPEC_FILE}
 
 
 ##
@@ -211,7 +211,7 @@ rpmbuild \
   ${RPMBUILD_OP} \
   --define "_topdir ${PKI_PACKAGES}" \
   "${OPTIONS[@]}" \
-  SPECS/${PKI_CORE}.spec \
+  ${PKI_CORE_SPEC_FILE} \
   | tee package_${PKI_CORE}.log 2>&1
 
 if [ "$CREATEREPO" == "Y" ] ; then
