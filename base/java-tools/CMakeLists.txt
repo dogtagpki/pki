@@ -16,6 +16,26 @@ install(
         WORLD_READ
 )
 
+# Create compatibility symlink for DRMTool.1.gz -> KRATool.1.gz
+
+add_custom_target(pki-DRMTool-man-link ALL)
+
+add_custom_command(
+    TARGET pki-DRMTool-man-link
+    COMMAND ln -sf ${MAN_INSTALL_DIR}/man1/KRATool.1.gz ${CMAKE_CURRENT_BINARY_DIR}/DRMTool.1.gz
+)
+
+install(
+    FILES
+        ${CMAKE_CURRENT_BINARY_DIR}/DRMTool.1.gz
+    DESTINATION
+        ${MAN_INSTALL_DIR}/man1
+    PERMISSIONS
+        OWNER_READ OWNER_WRITE
+        GROUP_READ
+        WORLD_READ
+)
+
 install(
     FILES
         ${CMAKE_CURRENT_BINARY_DIR}/bin/pki

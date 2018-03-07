@@ -38,6 +38,25 @@ foreach(PKI_COMMAND ${PKI_COMMANDS})
     )
 endforeach(PKI_COMMAND)
 
+# Create compatibility symlink for DRMTool -> KRATool
+
+add_custom_target(pki-DRMTool-link ALL)
+
+add_custom_command(
+    TARGET pki-DRMTool-link
+    COMMAND ln -sf ${BIN_INSTALL_DIR}/KRATool ${CMAKE_CURRENT_BINARY_DIR}/DRMTool
+)
+
+install(
+    FILES
+        ${CMAKE_CURRENT_BINARY_DIR}/DRMTool
+    DESTINATION
+        ${BIN_INSTALL_DIR}
+    PERMISSIONS
+        OWNER_EXECUTE OWNER_WRITE OWNER_READ
+        GROUP_EXECUTE GROUP_READ
+        WORLD_EXECUTE WORLD_READ
+)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/pretty_print_cert_command_wrapper.in ${CMAKE_CURRENT_BINARY_DIR}/PrettyPrintCert @ONLY)
 

@@ -900,13 +900,6 @@ for subsystem in ca kra ocsp tks; do
     ln -s %{_datadir}/pki/server/webapps/pki/admin/console %{buildroot}%{_datadir}/pki/$subsystem/webapps/$subsystem/admin
 done
 
-# Create compatibility symlink for DRMTool -> KRATool
-ln -s %{_bindir}/KRATool %{buildroot}%{_bindir}/DRMTool
-# Create compatibility symlink for DRMTool.cfg -> KRATool.cfg
-ln -s %{_datadir}/pki/java-tools/KRATool.cfg %{buildroot}%{_datadir}/pki/java-tools/DRMTool.cfg
-# Create compatibility symlink for DRMTool.1.gz -> KRATool.1.gz
-ln -s %{_mandir}/man1/KRATool.1.gz %{buildroot}%{_mandir}/man1/DRMTool.1.gz
-
 # Customize system upgrade scripts in /usr/share/pki/upgrade
 %if 0%{?rhel} && 0%{?rhel} <= 7
 

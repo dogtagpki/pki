@@ -124,9 +124,19 @@ install(
         ${JAVA_JAR_INSTALL_DIR}/pki
 )
 
+# Create compatibility symlink for DRMTool.cfg -> KRATool.cfg
+
+add_custom_target(pki-DRMTool-cfg-link ALL)
+
+add_custom_command(
+    TARGET pki-DRMTool-cfg-link
+    COMMAND ln -sf ${SHARE_INSTALL_PREFIX}/pki/java-tools/KRATool.cfg ${CMAKE_CURRENT_BINARY_DIR}/DRMTool.cfg
+)
+
 install(
     FILES
         com/netscape/cmstools/KRATool.cfg
+        ${CMAKE_CURRENT_BINARY_DIR}/DRMTool.cfg
     DESTINATION
         ${SHARE_INSTALL_PREFIX}/pki/java-tools
 )
