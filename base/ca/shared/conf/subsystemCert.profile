@@ -1,10 +1,10 @@
 #
-# Server Certificate
+# Subsystem Certificate
 #
 id=subsystemCert.profile
 name=All Purpose SSL server cert Profile
-description=This profile creates an SSL server certificate that is valid for SSL servers
-profileIDMapping=caServerCert
+description=This profile creates a subsystem certificate that is valid for SSL client
+profileIDMapping=caSubsystemCert
 profileSetIDMapping=serverCertSet
 list=2,4,5,6,7
 2.default.class=com.netscape.cms.profile.def.ValidityDefault
@@ -36,4 +36,4 @@ list=2,4,5,6,7
 7.default.class=com.netscape.cms.profile.def.ExtendedKeyUsageExtDefault
 7.default.name=Extended Key Usage Extension Default
 7.default.params.exKeyUsageCritical=false
-7.default.params.exKeyUsageOIDs=1.3.6.1.5.5.7.3.1,1.3.6.1.5.5.7.3.2
+7.default.params.exKeyUsageOIDs=1.3.6.1.5.5.7.3.2
