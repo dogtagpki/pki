@@ -83,42 +83,6 @@ Usage()
 	printf "                           local 'patches' directory, and\n"
 	printf "                           produces an SRPM and one or more RPMS\n"
 	printf "                           ${MESSAGE}\n\n"
-	printf "            hybrid_srpm  - copies a spec file from local source,\n"
-	printf "                           generates a tarball from local source,\n"
-	printf "                           fetches any relevant patches from the\n"
-	printf "                           spec's URL, and\n"
-	printf "                           produces an SRPM\n"
-	printf "                           [suitable for use by 'mock']\n\n"
-	printf "            hybrid_rpms  - copies a spec file from local source,\n"
-	printf "                           generates a tarball from local source,\n"
-	printf "                           fetches any relevant patches from the\n"
-	printf "                           spec's URL, and\n"
-	printf "                           produces an SRPM and one or more RPMS\n"
-	printf "                           ${MESSAGE}\n\n"
-	printf "            patched_srpm - copies a spec file from local source,\n"
-	printf "                           fetches a non-RHEL tarball from the spec's URL,\n"
-	printf "                           fetches any relevant patches from the\n"
-	printf "                           spec's URL, and\n"
-	printf "                           produces an SRPM\n"
-	printf "                           [suitable for use by 'mock']\n\n"
-	printf "            patched_rpms - copies a spec file from local source,\n"
-	printf "                           fetches a non-RHEL tarball from the spec's URL,\n"
-	printf "                           fetches any relevant patches from the\n"
-	printf "                           spec's URL, and\n"
-	printf "                           produces an SRPM and one or more RPMS\n"
-	printf "                           ${MESSAGE}\n\n"
-	printf "            patched_rhel_srpm - copies a spec file from local source,\n"
-	printf "                           fetches a RHEL tarball from the spec's URL,\n"
-	printf "                           fetches any relevant patches from the\n"
-	printf "                           spec's URL, and\n"
-	printf "                           produces an SRPM\n"
-	printf "                           [suitable for use by 'mock']\n\n"
-	printf "            patched_rhel_rpms - copies a spec file from local source,\n"
-	printf "                           fetches a RHEL tarball from the spec's URL,\n"
-	printf "                           fetches any relevant patches from the\n"
-	printf "                           spec's URL, and\n"
-	printf "                           produces an SRPM and one or more RPMS\n"
-	printf "                           ${MESSAGE}\n\n"
 	printf "Options:\n"
 	printf "  --without-javadoc        do not build Javadoc RPMS\n\n"
 	printf "  --without-server         do not build server RPMS\n\n"
@@ -481,42 +445,10 @@ if	[ $1 = "srpm" ] ; then
 	RPMBUILD_OP="-bs"
 	FETCH_SOURCE_TARBALL=0
 	FETCH_PATCH_FILES=0
-elif [ $1 = "hybrid_srpm" ] ; then
-	RPMBUILD_OP="-bs"
-	FETCH_SOURCE_TARBALL=0
-	FETCH_PATCH_FILES=1
-elif [ $1 = "patched_srpm" ] ; then
-	RPMBUILD_OP="-bs"
-	FETCH_SOURCE_TARBALL=1
-	FETCH_RHEL_SOURCE_TARBALL=0
-	FETCH_PATCH_FILES=1
-	FETCH_RHEL_PATCH_FILES=0
-elif [ $1 = "patched_rhel_srpm" ] ; then
-	RPMBUILD_OP="-bs"
-	FETCH_SOURCE_TARBALL=1
-	FETCH_RHEL_SOURCE_TARBALL=1
-	FETCH_PATCH_FILES=1
-	FETCH_RHEL_PATCH_FILES=1
 elif [ $1 = "rpms" ] ; then
 	RPMBUILD_OP="-ba"
 	FETCH_SOURCE_TARBALL=0
 	FETCH_PATCH_FILES=0
-elif [ $1 = "hybrid_rpms" ] ; then
-	RPMBUILD_OP="-ba"
-	FETCH_SOURCE_TARBALL=0
-	FETCH_PATCH_FILES=1
-elif [ $1 = "patched_rpms" ] ; then
-	RPMBUILD_OP="-ba"
-	FETCH_SOURCE_TARBALL=1
-	FETCH_RHEL_SOURCE_TARBALL=0
-	FETCH_PATCH_FILES=1
-	FETCH_RHEL_PATCH_FILES=0
-elif [ $1 = "patched_rhel_rpms" ] ; then
-	RPMBUILD_OP="-ba"
-	FETCH_SOURCE_TARBALL=1
-	FETCH_RHEL_SOURCE_TARBALL=1
-	FETCH_PATCH_FILES=1
-	FETCH_RHEL_PATCH_FILES=1
 else
 	Usage
 	exit 255

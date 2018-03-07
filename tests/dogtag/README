@@ -103,7 +103,7 @@
        Use --createrepo option in the compose scripts to create a repository
        of the rpms built, like:
 
-        ./compose_pki_core_packages --createrepo=conf/repository.cfg hybrid_rpms
+        ./compose_pki_core_packages --createrepo=conf/repository.cfg rpms
 
        This command builds the rpms, copies them to the REPOSITORY_LOCATION specified in the
        file and creates it as a repository.
@@ -241,7 +241,7 @@
        In the "Build" section, select "Add build step" -> "Execute Shell"
        Paste the following code in the Command text box.
 
-         cd $WORKSPACE/scripts; ./compose_pki_core_packages [--  createrepo=<repository_file_absolute_path>] hybrid_rpms
+         cd $WORKSPACE/scripts; ./compose_pki_core_packages [--  createrepo=<repository_file_absolute_path>] rpms
          echo "Compose the test package and submit the beaker task and job"
          cd $WORKSPACE/scripts; ./compose_pki_test_package dogtagCI --submit-tests
 
