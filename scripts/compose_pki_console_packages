@@ -31,7 +31,7 @@ PKI_PWD=`pwd`
 ##
 
 PKI_CONSOLE="pki-console"
-PKI_SPECS_FILE="${PKI_DIR}/specs/${PKI_CONSOLE}.spec"
+PKI_SPECS_FILE="${PKI_DIR}/specs/${PKI_CONSOLE}.spec.in"
 PKI_CONSOLE_VERSION="`rpmspec -P "${PKI_SPECS_FILE}" | grep '^Version:' | awk '{print $2;}'`"
 
 
@@ -107,7 +107,7 @@ compute_release_information ${PKI_SPECS_FILE}
 ## current contents of the PKI working repository
 ##
 
-cp -p ${PKI_SPECS_FILE} ${PKI_CONSOLE_SPECS_DIR}
+cp -p ${PKI_SPECS_FILE} ${PKI_CONSOLE_SPEC_FILE}
 
 
 ##
@@ -194,6 +194,6 @@ rpmbuild \
   ${RPMBUILD_OP} \
   --define "_topdir ${PKI_PACKAGES}" \
   "${OPTIONS[@]}" \
-  SPECS/${PKI_CONSOLE}.spec \
+  ${PKI_CONSOLE_SPEC_FILE} \
   | tee package_${PKI_CONSOLE}.log 2>&1
 
