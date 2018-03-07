@@ -1,10 +1,10 @@
 #
-# Server Certificate
+# ECC Server Certificate
 #
 id=serverCert.profile
-name=All Purpose SSL server cert Profile
-description=This profile creates an SSL server certificate that is valid for SSL servers
-profileIDMapping=caServerCert
+name=All Purpose SSL server cert with ECC keys Profile
+description=This profile creates an SSL server certificate with ECC keys that is valid for SSL servers
+profileIDMapping=caECServerCert
 profileSetIDMapping=serverCertSet
 list=2,4,5,6,7
 2.default.class=com.netscape.cms.profile.def.ValidityDefault
@@ -27,8 +27,8 @@ list=2,4,5,6,7
 6.default.params.keyUsageDigitalSignature=true
 6.default.params.keyUsageNonRepudiation=false
 6.default.params.keyUsageDataEncipherment=true
-6.default.params.keyUsageKeyEncipherment=true
-6.default.params.keyUsageKeyAgreement=false
+6.default.params.keyUsageKeyEncipherment=false
+6.default.params.keyUsageKeyAgreement=true
 6.default.params.keyUsageKeyCertSign=false
 6.default.params.keyUsageCrlSign=false
 6.default.params.keyUsageEncipherOnly=false
