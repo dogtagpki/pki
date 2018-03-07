@@ -65,8 +65,6 @@ public class IPAddressName implements GeneralNameInterface {
 
     protected static final char IPv4_LEN = 4;
     protected static final char IPv6_LEN = 16;
-    protected static final IPAddr IPv4 = new IPv4Addr();
-    protected static final IPAddr IPv6 = new IPv6Addr();
 
     /**
      * Create the IPAddressName object with a string representing the
@@ -78,9 +76,11 @@ public class IPAddressName implements GeneralNameInterface {
      * @param netmask the netmask address in the format: n.n.n.n or x:x:x:x:x:x:x:x (RFC 1884)
      */
     public IPAddressName(String s, String netmask) {
-        IPAddr ipAddr = initAddress(true, s);
-        int numFilled = ipAddr.getIPAddr(s, address, 0);
-        ipAddr.getIPAddr(netmask, address, numFilled);
+        address = initAddress(true, s);
+        if (address.length == IPv4_LEN * 2)
+            fillIPv4Address(netmask, address, address.length / 2);
+        else
+            fillIPv6Address(netmask, address, address.length / 2);
     }
 
     /**
@@ -90,8 +90,7 @@ public class IPAddressName implements GeneralNameInterface {
      * @param mask a CIDR netmask
      */
     public IPAddressName(String s, CIDRNetmask mask) {
-        IPAddr ipAddr = initAddress(true, s);
-        int numFilled = ipAddr.getIPAddr(s, address, 0);
+        address = initAddress(true, s);
         mask.write(ByteBuffer.wrap(
                     address, address.length / 2, address.length / 2));
     }
@@ -103,17 +102,26 @@ public class IPAddressName implements GeneralNameInterface {
      * @param s the ip address in the format: n.n.n.n or x:x:x:x:x:x:x:x
      */
     public IPAddressName(String s) {
-        IPAddr ipAddr = initAddress(false, s);
-        ipAddr.getIPAddr(s, address, 0);
+        initAddress(false, s);
     }
 
-    private IPAddr initAddress(boolean withNetmask, String s) {
+    /**
+     * Initialise and return a byte[] and write the IP address into it.
+     * If withNetmask == true, the byte[] will be double the size,
+     * with the latter half uninitialised.
+     *
+     * @return byte[] of length 4 or 16 if withNetmask == false,
+     *         or length 8 or 32 if withNetmask == true.
+     */
+    private static byte[] initAddress(boolean withNetmask, String s) {
         if (s.indexOf(':') != -1) {
-            address = new byte[IPv6_LEN * (withNetmask ? 2 : 1)];
-            return IPv6;
+            byte[] address = new byte[IPv6_LEN * (withNetmask ? 2 : 1)];
+            fillIPv6Address(s, address, 0);
+            return address;
         } else {
-            address = new byte[IPv4_LEN * (withNetmask ? 2 : 1)];
-            return IPv4;
+            byte[] address = new byte[IPv4_LEN * (withNetmask ? 2 : 1)];
+            fillIPv4Address(s, address, 0);
+            return address;
         }
     }
 
@@ -173,19 +181,11 @@ public class IPAddressName implements GeneralNameInterface {
             return r.toString();
         }
     }
-}
-
-interface IPAddr {
-    public int getIPAddr(String s, byte[] address, int start);
-}
-
-class IPv4Addr implements IPAddr {
-    protected static final int IPv4_LEN = 4;
 
     /**
      * Gets an IP v4 address in the form n.n.n.n.
      */
-    public int getIPAddr(String s, byte[] address, int start) {
+    public static int fillIPv4Address(String s, byte[] address, int start) {
         StringTokenizer st = new StringTokenizer(s, ".");
         int nt = st.countTokens();
         if (nt != IPv4_LEN)
@@ -201,9 +201,7 @@ class IPv4Addr implements IPAddr {
         }
         return nt;
     }
-}
 
-class IPv6Addr implements IPAddr {
     /**
      * Gets an IP address in the forms as defined in RFC1884:<br>
      * <ul>
@@ -212,7 +210,7 @@ class IPv6Addr implements IPAddr {
      * <li>...:n.n.n.n (with n.n.n.n at the end)
      * </ul>
      */
-    public int getIPAddr(String s, byte[] address, int start) {
+    public static int fillIPv6Address(String s, byte[] address, int start) {
         int lastcolon = -2;
         int end = start + 16;
         int idx = start;
@@ -223,8 +221,7 @@ class IPv6Addr implements IPAddr {
             if (lastcolon == -1)
                 throw new InvalidIPAddressException(s);
             end -= 4;
-            IPAddressName.IPv4.getIPAddr(
-                    s.substring(lastcolon + 1), address, end);
+            fillIPv4Address(s.substring(lastcolon + 1), address, end);
         }
         try {
             String s1 = s;
