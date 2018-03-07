@@ -1,11 +1,11 @@
 #
-# Server Certificate
+# Admin Certificate
 #
-id=serverCert.profile
-name=All Purpose SSL server cert Profile
-description=This profile creates an SSL server certificate that is valid for SSL servers
-profileIDMapping=caServerCert
-profileSetIDMapping=serverCertSet
+id=adminCert.profile
+name=All Purpose admin cert with ECC keys Profile
+description=This profile creates an administrator's certificate with ECC keys
+profileIDMapping=caAdminCert
+profileSetIDMapping=adminCertSet
 list=2,4,5,6,7
 2.default.class=com.netscape.cms.profile.def.ValidityDefault
 2.default.name=Validity Default
@@ -25,10 +25,10 @@ list=2,4,5,6,7
 6.default.name=Key Usage Default
 6.default.params.keyUsageCritical=true
 6.default.params.keyUsageDigitalSignature=true
-6.default.params.keyUsageNonRepudiation=false
+6.default.params.keyUsageNonRepudiation=true
 6.default.params.keyUsageDataEncipherment=true
-6.default.params.keyUsageKeyEncipherment=true
-6.default.params.keyUsageKeyAgreement=false
+6.default.params.keyUsageKeyEncipherment=false
+6.default.params.keyUsageKeyAgreement=true
 6.default.params.keyUsageKeyCertSign=false
 6.default.params.keyUsageCrlSign=false
 6.default.params.keyUsageEncipherOnly=false
@@ -36,4 +36,4 @@ list=2,4,5,6,7
 7.default.class=com.netscape.cms.profile.def.ExtendedKeyUsageExtDefault
 7.default.name=Extended Key Usage Extension Default
 7.default.params.exKeyUsageCritical=false
-7.default.params.exKeyUsageOIDs=1.3.6.1.5.5.7.3.1
+7.default.params.exKeyUsageOIDs=1.3.6.1.5.5.7.3.2,1.3.6.1.5.5.7.3.4
