@@ -30,7 +30,7 @@ PKI_PWD=`pwd`
 ##
 
 DOGTAG_PKI_META="dogtag-pki"
-PKI_SPECS_FILE="${PKI_DIR}/specs/${DOGTAG_PKI_META}.spec"
+PKI_SPECS_FILE="${PKI_DIR}/specs/${DOGTAG_PKI_META}.spec.in"
 
 ##
 ## Establish packages directory for 'dogtag-pki' META packages
@@ -71,12 +71,17 @@ build_specified_META_package()
 {
 	package=$1
 	spec_file_path="${PKI_PWD}/pki/specs"
-	spec_file="${package}.spec"
+	spec_file="${package}.spec.in"
 
 	printf "BEGIN: Building '${package}' META package . . .\n"
 	compute_release_information ${PKI_SPECS_FILE}
-	cp ${spec_file_path}/${spec_file} ${PKI_PACKAGES}/SPECS
-	rpmbuild --define "_topdir ${PKI_PACKAGES}" -ba --clean ${PKI_PACKAGES}/SPECS/${spec_file} > /dev/null 2>&1
+	cp ${spec_file_path}/${spec_file} ${PKI_PACKAGES}/SPECS/${package}.spec
+	rpmbuild \
+	    -ba \
+	    --define "_topdir ${PKI_PACKAGES}" \
+	    --clean \
+	    ${PKI_PACKAGES}/SPECS/${package}.spec \
+	    2>&1
 	printf "END:   Building '${package}' META package.\n"
 }
 

@@ -30,7 +30,7 @@ DOGTAG_BUILD_SCRIPT=`basename $0`
 export DOGTAG_BUILD_SCRIPT
 DOGTAG_COMPONENT=`basename ${PWD}`
 export DOGTAG_COMPONENT
-DOGTAG_SPECFILE="dogtag-pki-console-ui.spec"
+DOGTAG_SPECFILE="dogtag-pki-console-ui.spec.in"
 export DOGTAG_SPECFILE
 
 # Set PKI 'ant' environment variables (originally obtained from specfile)

@@ -33,4 +33,4 @@ dnf makecache
 dnf update -y
 
 ## prepare additional build dependencies
-dnf builddep -y ${BUILDDIR}/pki/specs/pki-core.spec
+dnf builddep -y ${BUILDDIR}/pki/specs/pki-core.spec.in
