@@ -180,7 +180,7 @@ public abstract class AAclAuthz implements IAuthzManager {
      * @throws EBaseException parsing error from <code>parseACL</code>
      */
     public void addACLs(String resACLs) throws EBaseException {
-        ACL acl = (ACL) CMS.parseACL(resACLs);
+        ACL acl = ACL.parseACL(resACLs);
 
         if (acl != null) {
             ACL curACL = mACLs.get(acl.getName());
@@ -791,7 +791,7 @@ public abstract class AAclAuthz implements IAuthzManager {
         ACL ac = null;
 
         try {
-            ac = (ACL) CMS.parseACL(resourceACLs);
+            ac = ACL.parseACL(resourceACLs);
         } catch (EBaseException ex) {
             throw new EACLsException(CMS.getUserMessage("CMS_ACL_PARSING_ERROR_0"));
         }
