@@ -32,6 +32,7 @@ License:          GPLv2
 BuildArch:        noarch
 
 BuildRequires:    cmake >= 2.8.9-1
+BuildRequires:    gcc-c++
 BuildRequires:    idm-console-framework >= 1.1.17-4
 BuildRequires:    java-1.8.0-openjdk-devel
 BuildRequires:    ldapjdk >= 4.19-5

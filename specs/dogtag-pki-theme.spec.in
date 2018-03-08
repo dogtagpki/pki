@@ -13,7 +13,8 @@ License:          GPLv2
 
 BuildArch:        noarch
 
-BuildRequires:    cmake
+BuildRequires:    cmake >= 2.8.9-1
+BuildRequires:    gcc-c++
 BuildRequires:    java-1.8.0-openjdk-devel
 BuildRequires:    jpackage-utils >= 1.7.5-10
 
