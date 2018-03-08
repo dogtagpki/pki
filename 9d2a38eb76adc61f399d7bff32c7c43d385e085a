@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f46c7fb5_42a1d92c",
+        "filename": "base/server/scripts/operations",
+        "patchSetId": 5
+      },
+      "lineNbr": 1330,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2018-03-08T16:10:58Z",
+      "side": 1,
+      "message": "What user executes these commands?  If root, then we likely need to set the ownership as well to all the instance user to read them.  Has this been tested with an instance that uses a non-default user?\n\nDoes this change introduce any new selinux AVCs?\n\nShould we use a filename that is a little more specific -- like ssl-server-keystore.p12 for instance?\n\nWhat happens if the file already exists, is it overwritten?\nShould we do that, or should we set a flag somewhere to override in the somewhat rare case where the server cert has been renewed -- something which could in fact be set by something like certmonger?\n\nWhat happens if the server cert is in an HSM?  In this case, do we fail and also fail to start?",
+      "revId": "9d2a38eb76adc61f399d7bff32c7c43d385e085a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
