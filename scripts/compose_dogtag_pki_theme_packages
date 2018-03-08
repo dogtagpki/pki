@@ -112,60 +112,24 @@ sed "s/%{?_timestamp}/${_TIMESTAMP}/g; s/%{?_commit}/${_COMMIT}/g" \
 
 
 ##
-## Always start with a new 'dogtag-pki' staging directory
-##
-
-rm -rf ${DOGTAG_PKI_THEME_STAGING_DIR}
-
-
-##
-## To generate the 'dogtag-pki' tarball, construct a staging area
-## consisting of the 'dogtag-pki' source components from the
-## current contents of the PKI working repository
-##
-
-mkdir -p ${DOGTAG_PKI_THEME_DIR}
-cd ${PKI_DIR}
-for file in "${PKI_FILE_LIST}" ;
-do
-	cp -p ${file} ${DOGTAG_PKI_THEME_DIR}
-done
-find ${PKI_CMAKE_DIR}             \
-	-name .svn -prune -o          \
-	-name *.swp -prune -o         \
-	-print | cpio -pdum ${DOGTAG_PKI_THEME_DIR} > /dev/null 2>&1
-cd - > /dev/null 2>&1
-
-mkdir -p ${DOGTAG_PKI_THEME_DOGTAG_DIR}
-cd ${PKI_DOGTAG_DIR}
-cp -p ${PKI_DOGTAG_MANIFEST} ${DOGTAG_PKI_THEME_DOGTAG_DIR}
-for component in "${PKI_COMPONENT_LIST}" ;
-do
-	find ${component}             \
-	-name .svn -prune -o          \
-	-name *.swp -prune -o         \
-	-print | cpio -pdum ${DOGTAG_PKI_THEME_DOGTAG_DIR} > /dev/null 2>&1
-done
-cd - > /dev/null 2>&1
-
-
-##
 ## Create the 'dogtag-pki' tarball
 ##
 
-mkdir -p ${DOGTAG_PKI_THEME_SOURCES_DIR}
-cd ${DOGTAG_PKI_THEME_STAGING_DIR}
-gtar -zcvf ${DOGTAG_PKI_THEME_TARBALL}    \
-	"${DOGTAG_PKI_THEME}-${DOGTAG_PKI_THEME_VERSION}" > /dev/null 2>&1
-mv ${DOGTAG_PKI_THEME_TARBALL} ${DOGTAG_PKI_THEME_SOURCES_DIR}
-cd - > /dev/null 2>&1
-
-
-##
-## Always remove the PKI staging area
-##
-
-rm -rf ${DOGTAG_PKI_THEME_STAGING_DIR}
+tar czf \
+ ${DOGTAG_PKI_THEME_SOURCES_DIR}/${DOGTAG_PKI_THEME_TARBALL} \
+ --transform "s,^./,${DOGTAG_PKI_THEME}-${DOGTAG_PKI_THEME_VERSION}/," \
+ --exclude .git \
+ --exclude .svn \
+ --exclude .swp \
+ --exclude .metadata \
+ --exclude build \
+ --exclude .tox \
+ --exclude dist \
+ --exclude MANIFEST \
+ --exclude *.pyc \
+ --exclude __pycache__ \
+ -C ${PKI_DIR} \
+ .
 
 
 ##
