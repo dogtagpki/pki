@@ -78,7 +78,6 @@ Release:          0.1%{?_timestamp}%{?_commit}%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
-Group:            System Environment/Daemons
 
 BuildRequires:    cmake >= 2.8.9-1
 BuildRequires:    gcc-c++
@@ -300,7 +299,6 @@ least one PKI Theme package:                                           \
 
 %package -n       pki-symkey
 Summary:          Symmetric Key JNI Package
-Group:            System Environment/Libraries
 
 Requires:         java-1.8.0-openjdk-headless
 Requires:         jpackage-utils >= 0:1.7.5-10
@@ -343,7 +341,6 @@ This package is a part of the PKI Core used by the Certificate System.
 
 %package -n       pki-base
 Summary:          Certificate System - PKI Framework
-Group:            System Environment/Base
 
 BuildArch:        noarch
 
@@ -374,7 +371,6 @@ Certificate System.
 %if 0%{?with_python2}
 %package -n       python2-pki
 Summary:          Certificate System - Java Framework
-Group:            System Environment/Base
 BuildArch:        noarch
 
 Obsoletes:        pki-base-python2 < 10.6
@@ -397,7 +393,6 @@ This package is a part of the PKI Core used by the Certificate System.
 
 %package -n       pki-base-java
 Summary:          Certificate System - Java Framework
-Group:            System Environment/Base
 BuildArch:        noarch
 
 Requires:         java-1.8.0-openjdk-headless
@@ -457,7 +452,6 @@ This package is a part of the PKI Core used by the Certificate System.
 
 %package -n       python3-pki
 Summary:          Certificate System - PKI Framework
-Group:            System Environment/Base
 BuildArch:        noarch
 
 Obsoletes:        pki-base-python3 < 10.6
@@ -482,7 +476,6 @@ This package is a part of the PKI Core used by the Certificate System.
 
 %package -n       pki-tools
 Summary:          Certificate System - PKI Tools
-Group:            System Environment/Base
 
 Provides:         pki-native-tools = %{version}-%{release}
 Provides:         pki-java-tools = %{version}-%{release}
@@ -513,7 +506,6 @@ This package is a part of the PKI Core used by the Certificate System.
 
 %package -n       pki-server
 Summary:          Certificate System - PKI Server Framework
-Group:            System Environment/Base
 
 BuildArch:        noarch
 
@@ -621,7 +613,6 @@ The package contains scripts to create and remove PKI subsystems.
 
 %package -n       pki-ca
 Summary:          Certificate System - Certificate Authority
-Group:            System Environment/Daemons
 
 BuildArch:        noarch
 
@@ -648,7 +639,6 @@ provided by the PKI Core used by the Certificate System.
 
 %package -n       pki-kra
 Summary:          Certificate System - Key Recovery Authority
-Group:            System Environment/Daemons
 
 BuildArch:        noarch
 
@@ -681,7 +671,6 @@ provided by the PKI Core used by the Certificate System.
 
 %package -n       pki-ocsp
 Summary:          Certificate System - Online Certificate Status Protocol Manager
-Group:            System Environment/Daemons
 
 BuildArch:        noarch
 
@@ -725,7 +714,6 @@ provided by the PKI Core used by the Certificate System.
 
 %package -n       pki-tks
 Summary:          Certificate System - Token Key Service
-Group:            System Environment/Daemons
 
 BuildArch:        noarch
 
@@ -765,7 +753,6 @@ provided by the PKI Core used by the Certificate System.
 
 %package -n       pki-tps
 Summary:          Certificate System - Token Processing Service
-Group:            System Environment/Daemons
 
 Provides:         pki-tps-tomcat
 Provides:         pki-tps-client
@@ -819,7 +806,6 @@ smart card.
 
 %package -n       pki-javadoc
 Summary:          Certificate System - PKI Framework Javadocs
-Group:            Documentation
 
 BuildArch:        noarch
 

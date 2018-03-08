@@ -10,7 +10,6 @@ Release:          0.1%{?_timestamp}%{?_commit}%{?dist}
 Summary:          Certificate System - Dogtag PKI Theme Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
-Group:            System Environment/Base
 
 BuildArch:        noarch
 
@@ -40,7 +39,6 @@ exclusive!                                                             \
 
 %package -n       dogtag-pki-server-theme
 Summary:          Certificate System - PKI Server Framework User Interface
-Group:            System Environment/Base
 
 Obsoletes:        dogtag-pki-common-theme <= %{version}-%{release}
 Obsoletes:        dogtag-pki-common-ui
@@ -93,7 +91,6 @@ This package is used by the Dogtag Certificate System.
 
 %package -n       dogtag-pki-console-theme
 Summary:          Certificate System - PKI Console User Interface
-Group:            System Environment/Base
 
 Requires:         java-1.8.0-openjdk
 
