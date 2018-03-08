@@ -16,6 +16,24 @@
       "revId": "9d2a38eb76adc61f399d7bff32c7c43d385e085a",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "10f3a0b1_d3e81cbb",
+        "filename": "base/server/scripts/operations",
+        "patchSetId": 5
+      },
+      "lineNbr": 1330,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-03-08T16:35:44Z",
+      "side": 1,
+      "message": "This code runs as pkiuser, so the files created by the code is automatically owned by pkiuser. I suppose it will be the same with non-default user.\n\nI\u0027ve been testing in Enforcing mode, so I suppose there is no AVC.\n\nI was considering sslserver.p12, but I don\u0027t know yet whether we will use the keystore file for other certs too (e.g. OCSP), so I\u0027m keeping it generic for now.\n\nThe code will always overwrite the keystore. The keystore is only a transient copy of the NSS database. Certmonger is not and should not be managing the keystore directly. All cert operations should be done against the NSS database.\n\nHSM will not be addressed in this patch. If someone wants to use HSM, they will need to install the server with SSL server cert in internal token, and the rest in HSM. If someone already has SSL server cert in HSM, they will need to run a migration script (to be implemented separately). This patch assumes that the SSL server cert is already in the internal token, regardless of HSM.",
+      "parentUuid": "f46c7fb5_42a1d92c",
+      "revId": "9d2a38eb76adc61f399d7bff32c7c43d385e085a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
