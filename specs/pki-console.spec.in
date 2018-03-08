@@ -10,7 +10,6 @@ Release:          0.1%{?_timestamp}%{?_commit}%{?dist}
 Summary:          Certificate System - PKI Console
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
-Group:            System Environment/Base
 
 # RESTEasy
 %if 0%{?rhel} && 0%{?rhel} <= 7
