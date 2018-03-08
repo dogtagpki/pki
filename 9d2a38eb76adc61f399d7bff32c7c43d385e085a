@@ -34,6 +34,24 @@
       "revId": "9d2a38eb76adc61f399d7bff32c7c43d385e085a",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8a73bed0_badf6788",
+        "filename": "base/server/scripts/operations",
+        "patchSetId": 5
+      },
+      "lineNbr": 1330,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2018-03-08T17:45:29Z",
+      "side": 1,
+      "message": "I\u0027m concerned about simply breaking folks.  Because as I understand this, once this change goes in - all nuxwdog and HSM deployments will cease to work, even if tomcat has not been updated.\n\nCan we make this code conditional on a boolean and/or tomcat version, so that people will not be broken - at least until such time as we have migration scripts in place?",
+      "parentUuid": "10f3a0b1_d3e81cbb",
+      "revId": "9d2a38eb76adc61f399d7bff32c7c43d385e085a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
