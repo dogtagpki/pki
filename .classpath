@@ -2,7 +2,7 @@
 <classpath>
 	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/test/src"/>
 	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/server/tomcat/src"/>
-	<classpathentry kind="src" output="tests/dogtag/dev_java_tests/bin" path="tests/dogtag/dev_java_tests/src"/>
+	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="tests/dogtag/dev_java_tests/src"/>
 	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/symkey/src"/>
 	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/util/src"/>
 	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/util/test"/>
@@ -19,9 +19,9 @@
 	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/ocsp/src"/>
 	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/tks/src"/>
 	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/tps/src"/>
-	<classpathentry kind="src" path="base/server/tomcat8/src"/>
-	<classpathentry kind="src" path="base/common/examples/java"/>
-	<classpathentry kind="src" path="base/console/src"/>
+	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/server/tomcat8/src"/>
+	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/common/examples/java"/>
+	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/console/src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="/usr/share/java/apache-commons-cli.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/apache-commons-logging.jar"/>
