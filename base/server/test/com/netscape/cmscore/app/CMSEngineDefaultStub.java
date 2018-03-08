@@ -19,8 +19,6 @@ import org.dogtagpki.legacy.policy.ISubjAltNameConfig;
 import org.mozilla.jss.CryptoManager.CertificateUsage;
 import org.mozilla.jss.util.PasswordCallback;
 
-import com.netscape.certsrv.acls.EACLsException;
-import com.netscape.certsrv.acls.IACL;
 import com.netscape.certsrv.apps.ICMSEngine;
 import com.netscape.certsrv.apps.ICommandQueue;
 import com.netscape.certsrv.authentication.ISharedToken;
@@ -257,10 +255,6 @@ public class CMSEngineDefaultStub implements ICMSEngine {
 
     public String getLogMessage(String msgID, String p1, String p2, String p3, String p4, String p5, String p6,
             String p7, String p8, String p9, String p10) {
-        return null;
-    }
-
-    public IACL parseACL(String resACLs) throws EACLsException {
         return null;
     }
 

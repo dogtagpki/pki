@@ -36,8 +36,6 @@ import org.dogtagpki.legacy.policy.ISubjAltNameConfig;
 import org.mozilla.jss.CryptoManager.CertificateUsage;
 import org.mozilla.jss.util.PasswordCallback;
 
-import com.netscape.certsrv.acls.EACLsException;
-import com.netscape.certsrv.acls.IACL;
 import com.netscape.certsrv.authentication.ISharedToken;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
@@ -466,20 +464,6 @@ public interface ICMSEngine extends ISubsystem {
      */
     public String getLogMessage(String msgID, String p1, String p2, String p3, String p4, String p5, String p6,
             String p7, String p8, String p9, String p10);
-
-    /**
-     * Parse ACL resource attributes
-     *
-     * @param resACLs same format as the resourceACLs attribute:
-     *
-     *            <PRE>
-     *     <resource name>:<permission1,permission2,...permissionn>:
-     *     <allow|deny> (<subset of the permission set>) <evaluator expression>
-     * </PRE>
-     * @exception EACLsException ACL related parsing errors for resACLs
-     * @return an ACL instance built from the parsed resACLs
-     */
-    public IACL parseACL(String resACLs) throws EACLsException;
 
     /**
      * Creates an issuing poing record.
