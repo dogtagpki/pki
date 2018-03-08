@@ -51,11 +51,6 @@ public class ACL implements IACL, java.io.Serializable {
     protected String name = null; // resource name
     protected String description = null; // resource description
 
-    /**
-     * Class constructor.
-     */
-    public ACL() {
-    }
 
     /**
      * Class constructor.
