@@ -20,8 +20,11 @@ package com.netscape.certsrv.acls;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.StringTokenizer;
 import java.util.TreeSet;
 import java.util.Vector;
+
+import com.netscape.certsrv.apps.CMS;
 
 /**
  * A class represents an access control list (ACL). An ACL
@@ -193,5 +196,122 @@ public class ACL implements IACL, java.io.Serializable {
      */
     public Enumeration<String> rights() {
         return Collections.enumeration(rights);
+    }
+
+    /**
+     * Parse ACL resource attributes
+     *
+     * @param resACLs same format as the resourceACLs attribute:
+     *
+     * <PRE>
+     *     <resource name>:<permission1,permission2,...permissionn>:
+     *     <allow|deny> (<subset of the permission set>) <evaluator expression>
+     * </PRE>
+     *
+     * @exception EACLsException ACL related parsing errors for resACLs
+     * @return an ACL instance built from the parsed resACLs
+     */
+    public static ACL parseACL(String resACLs) throws EACLsException {
+        if (resACLs == null) {
+            throw new EACLsException(CMS.getUserMessage("CMS_ACL_NULL_VALUE", "resACLs"));
+        }
+
+        ACL acl = null;
+        Vector<String> rights = null;
+        int idx1 = resACLs.indexOf(":");
+
+        if (idx1 <= 0) {
+            acl = new ACL(resACLs, rights, resACLs);
+        } else {
+            // getting resource id
+            String resource = resACLs.substring(0, idx1);
+
+            if (resource == null) {
+                String infoMsg = "resource not specified in resourceACLS attribute:" +
+                        resACLs;
+
+                String[] params = new String[2];
+
+                params[0] = resACLs;
+                params[1] = infoMsg;
+                throw new EACLsException(CMS.getUserMessage("CMS_ACL_PARSING_ERROR", params));
+            }
+
+            // getting list of applicable rights
+            String st = resACLs.substring(idx1 + 1);
+            int idx2 = st.indexOf(":");
+            String rightsString = null;
+
+            if (idx2 != -1)
+                rightsString = st.substring(0, idx2);
+            else {
+                String infoMsg =
+                        "rights not specified in resourceACLS attribute:" + resACLs;
+                String[] params = new String[2];
+
+                params[0] = resACLs;
+                params[1] = infoMsg;
+                throw new EACLsException(CMS.getUserMessage("CMS_ACL_PARSING_ERROR", params));
+            }
+
+            if (rightsString != null) {
+                rights = new Vector<String>();
+                StringTokenizer rtok = new StringTokenizer(rightsString, ",");
+
+                while (rtok.hasMoreTokens()) {
+                    rights.addElement(rtok.nextToken());
+                }
+            }
+
+            acl = new ACL(resource, rights, resACLs);
+
+            // search *backwards* for final instance of ':', to handle case
+            // where acl expressions contain colon, e.g. in a group name.
+            String stx = st.substring(idx2 + 1);
+            int idx3 = stx.lastIndexOf(":");
+            String aclStr = stx.substring(0, idx3);
+
+            // getting list of acl entries
+            if (aclStr != null) {
+                StringTokenizer atok = new StringTokenizer(aclStr, ";");
+
+                while (atok.hasMoreTokens()) {
+                    String acs = atok.nextToken();
+
+                    // construct ACL entry
+                    ACLEntry entry = ACLEntry.parseACLEntry(acl, acs);
+
+                    if (entry == null) {
+                        String infoMsg = "parseACLEntry() call failed";
+                        String[] params = new String[2];
+
+                        params[0] = "ACLEntry = " + acs;
+                        params[1] = infoMsg;
+                        throw new EACLsException(CMS.getUserMessage("CMS_ACL_PARSING_ERROR", params));
+                    }
+
+                    entry.setACLEntryString(acs);
+                    acl.addEntry(entry);
+                }
+            } else {
+                // fine
+                String infoMsg = "acls not specified in resourceACLS attribute:" +
+
+                resACLs;
+
+                String[] params = new String[2];
+
+                params[0] = resACLs;
+                params[1] = infoMsg;
+                throw new EACLsException(CMS.getUserMessage("CMS_ACL_PARSING_ERROR", params));
+            }
+
+            // getting description
+            String desc = stx.substring(idx3 + 1);
+
+            acl.setDescription(desc);
+        }
+
+        return (acl);
     }
 }

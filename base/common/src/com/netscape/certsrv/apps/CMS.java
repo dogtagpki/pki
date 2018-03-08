@@ -36,8 +36,6 @@ import org.dogtagpki.legacy.policy.ISubjAltNameConfig;
 import org.mozilla.jss.CryptoManager.CertificateUsage;
 import org.mozilla.jss.util.PasswordCallback;
 
-import com.netscape.certsrv.acls.EACLsException;
-import com.netscape.certsrv.acls.IACL;
 import com.netscape.certsrv.authentication.IAuthSubsystem;
 import com.netscape.certsrv.authentication.ISharedToken;
 import com.netscape.certsrv.authority.IAuthority;
@@ -313,22 +311,6 @@ public final class CMS {
      */
     public static IRepositoryRecord createRepositoryRecord() {
         return _engine.createRepositoryRecord();
-    }
-
-    /**
-     * Parse ACL resource attributes
-     *
-     * @param resACLs same format as the resourceACLs attribute:
-     *
-     *            <PRE>
-     *     <resource name>:<permission1,permission2,...permissionn>:
-     *     <allow|deny> (<subset of the permission set>) <evaluator expression>
-     * </PRE>
-     * @exception EACLsException ACL related parsing errors for resACLs
-     * @return an ACL instance built from the parsed resACLs
-     */
-    public static IACL parseACL(String resACLs) throws EACLsException {
-        return _engine.parseACL(resACLs);
     }
 
     /**
