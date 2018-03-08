@@ -66,8 +66,9 @@ public class ACL implements IACL, java.io.Serializable {
      *            Allow administrators to read and modify log
      *            configuration"
      */
-    public ACL(String name, Collection<String> rights, String resourceACLs) {
-        setName(name);
+    private ACL(String name, Collection<String> rights, String resourceACLs) {
+        if (name == null)
+            throw new IllegalArgumentException("ACL name cannot be null");
         if (rights != null) {
             this.rights = new TreeSet<>(rights);
         } else {
