@@ -32,8 +32,6 @@ Group:            System Environment/Base
 
 BuildArch:        noarch
 
-BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-
 BuildRequires:    cmake >= 2.8.9-1
 BuildRequires:    idm-console-framework >= 1.1.17-4
 BuildRequires:    java-1.8.0-openjdk-devel
@@ -89,10 +87,6 @@ following "Mutually-Exclusive" PKI Theme packages:
 %setup -q -n %{name}-%{version}%{?prerel}
 
 
-%clean
-%{__rm} -rf %{buildroot}
-
-
 %build
 %{__mkdir_p} build
 cd build
@@ -109,7 +103,6 @@ cd build
 
 
 %install
-%{__rm} -rf %{buildroot}
 cd build
 %{__make} VERBOSE=1 %{?_smp_mflags} all install DESTDIR=%{buildroot} INSTALL="install -p"
 

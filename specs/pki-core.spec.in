@@ -80,8 +80,6 @@ URL:              http://pki.fedoraproject.org/
 License:          GPLv2
 Group:            System Environment/Daemons
 
-BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-
 BuildRequires:    cmake >= 2.8.9-1
 BuildRequires:    gcc-c++
 BuildRequires:    zip
@@ -847,9 +845,6 @@ This package is a part of the PKI Core used by the Certificate System.
 %prep
 %setup -q -n %{name}-%{version}%{?prerel}
 
-%clean
-%{__rm} -rf %{buildroot}
-
 %build
 %{__mkdir_p} build
 cd build
@@ -890,7 +885,6 @@ cd build
 
 
 %install
-%{__rm} -rf %{buildroot}
 cd build
 %{__make} VERBOSE=1 %{?_smp_mflags} all install DESTDIR=%{buildroot} INSTALL="install -p"
 
