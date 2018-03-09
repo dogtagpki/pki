@@ -47,10 +47,11 @@ public class ACL implements IACL, java.io.Serializable {
 
     protected Vector<ACLEntry> entries = new Vector<ACLEntry>(); // ACL entries
     protected TreeSet<String> rights = null; // possible rights entries
-    protected String resourceACLs = null; // exact resourceACLs string on ldap server
     protected String name = null; // resource name
     protected String description = null; // resource description
 
+    // exact resourceACLs strings on ldap server
+    protected TreeSet<String> resourceACLs = new TreeSet<>();
 
     /**
      * Class constructor.
@@ -69,23 +70,26 @@ public class ACL implements IACL, java.io.Serializable {
     private ACL(String name, Collection<String> rights, String resourceACLs) {
         if (name == null)
             throw new IllegalArgumentException("ACL name cannot be null");
+        this.name = name;
         if (rights != null) {
             this.rights = new TreeSet<>(rights);
         } else {
             this.rights = new TreeSet<>();
         }
-        this.resourceACLs = resourceACLs;
-
+        this.resourceACLs.add(resourceACLs);
     }
 
-    /**
-     * Sets the name of the resource governed by this
-     * access control.
+    /** Merge the rules of the other ACL into this one.
      *
-     * @param name name of the resource
+     * @throws IllegalArgumentException if the ACLs do not have the same name.
      */
-    public void setName(String name) {
-        this.name = name;
+    public void merge(ACL other) {
+        if (!this.name.equals(other.name))
+            throw new IllegalArgumentException("Cannot merge ACLs; names do not match.");
+
+        this.rights.addAll(other.rights);
+        this.entries.addAll(other.entries);
+        this.resourceACLs.addAll(other.resourceACLs);
     }
 
     /**
@@ -99,11 +103,11 @@ public class ACL implements IACL, java.io.Serializable {
     }
 
     /**
-     * Retrieves the exact string of the resourceACLs
+     * Retrieve an iterable of strings that were used to produce this ACL.
      *
-     * @return resource's acl
+     * @return Iterable of formatted ACLs
      */
-    public String getResourceACLs() {
+    public Iterable<String> getResourceACLs() {
         return resourceACLs;
     }
 
@@ -125,15 +129,6 @@ public class ACL implements IACL, java.io.Serializable {
      */
     public String getDescription() {
         return description;
-    }
-
-    /**
-     * Adds an ACL entry to this list.
-     *
-     * @param entry the <code>ACLEntry</code> to be added to this resource
-     */
-    public void addEntry(ACLEntry entry) {
-        entries.addElement(entry);
     }
 
     /**
@@ -164,15 +159,6 @@ public class ACL implements IACL, java.io.Serializable {
                 entries.append(",");
         }
         return getName() + "[" + entries + "]";
-    }
-
-    /**
-     * Adds an rights entry to this list.
-     *
-     * @param right The right to be added for this ACL
-     */
-    public void addRight(String right) {
-        rights.add(right);
     }
 
     /**
@@ -287,7 +273,7 @@ public class ACL implements IACL, java.io.Serializable {
                     }
 
                     entry.setACLEntryString(acs);
-                    acl.addEntry(entry);
+                    acl.entries.add(entry);
                 }
             } else {
                 // fine
