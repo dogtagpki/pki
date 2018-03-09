@@ -211,7 +211,7 @@ public class DirAclAuthz extends AAclAuthz
 
             log(ILogger.LL_FAILURE, CMS.getLogMessage("AUTHZ_EVALUATOR_FLUSH_RESOURCES", ex.toString()));
 
-            throw new EACLsException(CMS.getUserMessage("CMS_ACL_UPDATE_FAIL"));
+            throw ex;
         }
     }
 
