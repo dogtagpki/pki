@@ -203,6 +203,11 @@ public class ACLEntry implements IACLEntry, java.io.Serializable {
         }
         // locate the second space
         i = suffix.indexOf(' ');
+        if (i <= 0) {
+            // second space not found, or is at start of string
+            return null;
+        }
+
         // this prefix should be rights list, delimited by ","
         prefix = suffix.substring(1, i - 1);
         // the suffix is the rest, which is the "expressions"
