@@ -66,7 +66,7 @@ PKI_CORE_SOURCES_DIR="${PKI_PACKAGES}/SOURCES"
 PKI_CORE_SPECS_DIR="${PKI_PACKAGES}/SPECS"
 PKI_CORE_SRPMS_DIR="${PKI_PACKAGES}/SRPMS"
 
-PKI_CORE_TARBALL="${PKI_CORE}-${PKI_CORE_VERSION}.tar.gz"
+PKI_CORE_TARBALL="pki-${PKI_CORE_VERSION}.tar.gz"
 PKI_CORE_SPEC_FILE="${PKI_CORE_SPECS_DIR}/${PKI_CORE}.spec"
 
 PKI_CORE_STAGING_DIR="${PKI_PACKAGES}/staging"
@@ -124,7 +124,7 @@ sed "s/%{?_timestamp}/${_TIMESTAMP}/g; s/%{?_commit}/${_COMMIT}/g" \
 
 tar czf \
  ${PKI_CORE_SOURCES_DIR}/${PKI_CORE_TARBALL} \
- --transform "s,^./,${PKI_CORE}-${PKI_CORE_VERSION}/," \
+ --transform "s,^./,pki-${PKI_CORE_VERSION}/," \
  --exclude .git \
  --exclude .svn \
  --exclude .swp \

@@ -58,7 +58,7 @@ PKI_CONSOLE_SOURCES_DIR="${PKI_PACKAGES}/SOURCES"
 PKI_CONSOLE_SPECS_DIR="${PKI_PACKAGES}/SPECS"
 PKI_CONSOLE_SRPMS_DIR="${PKI_PACKAGES}/SRPMS"
 
-PKI_CONSOLE_TARBALL="${PKI_CONSOLE}-${PKI_CONSOLE_VERSION}.tar.gz"
+PKI_CONSOLE_TARBALL="pki-${PKI_CONSOLE_VERSION}.tar.gz"
 PKI_CONSOLE_SPEC_FILE="${PKI_CONSOLE_SPECS_DIR}/${PKI_CONSOLE}.spec"
 
 PKI_CONSOLE_STAGING_DIR="${PKI_PACKAGES}/staging"
@@ -117,7 +117,7 @@ sed "s/%{?_timestamp}/${_TIMESTAMP}/g; s/%{?_commit}/${_COMMIT}/g" \
 
 tar czf \
  ${PKI_CONSOLE_SOURCES_DIR}/${PKI_CONSOLE_TARBALL} \
- --transform "s,^./,${PKI_CONSOLE}-${PKI_CONSOLE_VERSION}/," \
+ --transform "s,^./,pki-${PKI_CONSOLE_VERSION}/," \
  --exclude .git \
  --exclude .svn \
  --exclude .swp \

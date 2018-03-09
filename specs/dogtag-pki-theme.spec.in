@@ -18,14 +18,7 @@ BuildRequires:    gcc-c++
 BuildRequires:    java-1.8.0-openjdk-devel
 BuildRequires:    jpackage-utils >= 1.7.5-10
 
-%if 0%{?rhel}
-# NOTE:  In the future, as a part of its path, this URL will contain a release
-#        directory which consists of the fixed number of the upstream release
-#        upon which this tarball was originally based.
-Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{release}/rhel/%{name}-%{version}%{?prerel}.tar.gz
-%else
-Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{release}/%{name}-%{version}%{?prerel}.tar.gz
-%endif
+Source:           https://github.com/dogtagpki/pki/archive/v%{version}/pki-%{version}.tar.gz
 
 %global overview                                                       \
 Several PKI packages utilize a "virtual" theme component.  These       \
@@ -116,9 +109,7 @@ This package is used by the Dogtag Certificate System.
 
 
 %prep
-
-
-%setup -q -n %{name}-%{version}%{?prerel}
+%autosetup -n pki-%{version}
 
 
 %build
