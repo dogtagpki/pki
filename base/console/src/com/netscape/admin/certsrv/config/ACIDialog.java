@@ -74,7 +74,7 @@ public class ACIDialog extends JDialog
             this.hide();
         } else if (evt.getSource().equals(mOK)) {
             String acl = mACIText.getText().trim();
-            Vector v = parseExpressions(acl);
+            Vector<String> v = parseExpressions(acl);
 
             NameValuePairs response;
             try {
@@ -88,20 +88,15 @@ public class ACIDialog extends JDialog
                 return;
             }
 
-            Enumeration enum1 = v.elements();
             boolean allCorrect = true;
-            while (enum1.hasMoreElements()) {
-                String element = (String)enum1.nextElement();
-                boolean correctSyntax = validateSyntax(element, response);
-                if (correctSyntax) {
-                    continue;
-                } else {
+            for (String element : v) {
+                if (!validateSyntax(element, response)) {
                     allCorrect = false;
                     break;
                 }
             }
 
-            if (allCorrect) {
+            if (v.size() > 0 && allCorrect) {
                 mDone = true;
                 this.hide();
             } else {
@@ -116,7 +111,7 @@ public class ACIDialog extends JDialog
         }
     }
 
-    private Vector parseExpressions(String s) {
+    private Vector<String> parseExpressions(String s) {
         String str = s;
         Vector v = new Vector();
 
