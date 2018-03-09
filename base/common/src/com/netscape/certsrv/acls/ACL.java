@@ -67,7 +67,11 @@ public class ACL implements IACL, java.io.Serializable {
      *            Allow administrators to read and modify log
      *            configuration"
      */
-    private ACL(String name, Collection<String> rights, String resourceACLs) {
+    private ACL(
+            String name,
+            Collection<String> rights,
+            String desc,
+            String resourceACLs) {
         if (name == null)
             throw new IllegalArgumentException("ACL name cannot be null");
         this.name = name;
@@ -77,6 +81,7 @@ public class ACL implements IACL, java.io.Serializable {
             this.rights = new TreeSet<>();
         }
         this.resourceACLs.add(resourceACLs);
+        this.description = desc;
     }
 
     /** Merge the rules of the other ACL into this one.
@@ -109,16 +114,6 @@ public class ACL implements IACL, java.io.Serializable {
      */
     public Iterable<String> getResourceACLs() {
         return resourceACLs;
-    }
-
-    /**
-     * Sets the description of the resource governed by this
-     * access control.
-     *
-     * @param description Description of the protected resource
-     */
-    public void setDescription(String description) {
-        this.description = description;
     }
 
     /**
@@ -203,7 +198,7 @@ public class ACL implements IACL, java.io.Serializable {
         int idx1 = resACLs.indexOf(":");
 
         if (idx1 <= 0) {
-            acl = new ACL(resACLs, rights, resACLs);
+            acl = new ACL(resACLs, rights, null /* desc */, resACLs);
         } else {
             // getting resource id
             String resource = resACLs.substring(0, idx1);
@@ -245,13 +240,14 @@ public class ACL implements IACL, java.io.Serializable {
                 }
             }
 
-            acl = new ACL(resource, rights, resACLs);
-
             // search *backwards* for final instance of ':', to handle case
             // where acl expressions contain colon, e.g. in a group name.
             String stx = st.substring(idx2 + 1);
             int idx3 = stx.lastIndexOf(":");
             String aclStr = stx.substring(0, idx3);
+            String desc = stx.substring(idx3 + 1);
+
+            acl = new ACL(resource, rights, desc, resACLs);
 
             // getting list of acl entries
             if (aclStr != null) {
@@ -287,11 +283,6 @@ public class ACL implements IACL, java.io.Serializable {
                 params[1] = infoMsg;
                 throw new EACLsException(CMS.getUserMessage("CMS_ACL_PARSING_ERROR", params));
             }
-
-            // getting description
-            String desc = stx.substring(idx3 + 1);
-
-            acl.setDescription(desc);
         }
 
         return (acl);
