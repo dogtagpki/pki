@@ -111,11 +111,11 @@ compute_build_options
 
 
 ##
-## Copy a new 'pki-core' spec file from the
-## current contents of the PKI working repository
+## Insert timestamp and commit ID while copying spec template into actual spec file.
 ##
 
-cp -p ${PKI_SPECS_FILE} ${PKI_CORE_SPEC_FILE}
+sed "s/%{?_timestamp}/${_TIMESTAMP}/g; s/%{?_commit}/${_COMMIT}/g" \
+    ${PKI_SPECS_FILE} > ${PKI_CORE_SPEC_FILE}
 
 
 ##
