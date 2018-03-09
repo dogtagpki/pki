@@ -231,9 +231,9 @@ public class DirAclAuthz extends AAclAuthz
             if (en.hasMoreElements() == true) {
                 while (en.hasMoreElements()) {
                     ACL a = en.nextElement();
-                    String resAclString = a.getResourceACLs();
-
-                    attrs.addValue(resAclString);
+                    for (String s : a.getResourceACLs()) {
+                        attrs.addValue(s);
+                    }
                 }
 
                 mod.add(LDAPModification.REPLACE, attrs);

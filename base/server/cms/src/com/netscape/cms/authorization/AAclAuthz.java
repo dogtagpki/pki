@@ -187,14 +187,7 @@ public abstract class AAclAuthz implements IAuthzManager {
             if (curACL == null) {
                 mACLs.put(acl.getName(), acl);
             } else {
-                for (Enumeration<ACLEntry> entries = acl.entries() ;
-                        entries.hasMoreElements() ; ) {
-                    curACL.addEntry(entries.nextElement());
-                }
-                for (Enumeration<String> rights = acl.rights() ;
-                        rights.hasMoreElements() ; ) {
-                    curACL.addRight(rights.nextElement());
-                }
+                curACL.merge(acl);
             }
         } else {
             log(ILogger.LL_FAILURE, "parseACL failed");
