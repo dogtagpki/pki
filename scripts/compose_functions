@@ -94,26 +94,6 @@ Usage()
 
 
 ##
-## Extract Release Information from Specified Spec File
-##
-
-extract_release_information()
-{
-	if [ $# -ne 1 ] ; then
-		Usage
-		exit 255
-	fi
-
-	local pki_spec_file=$1
-
-	if [ ! -f ${pki_spec_file} ] ; then
-		printf "ERROR:  '${pki_spec_file}' is missing!\n\n"
-		Usage
-		exit 255
-	fi
-}
-
-##
 ## Compute Release Information
 ##
 ##
@@ -158,9 +138,6 @@ compute_release_information()
 		Usage
 		exit 255
 	fi
-
-	# Obtain relevant values from the spec file of the specified package
-	extract_release_information ${pki_spec_file}
 
 	# Optionally compute a timestamp
 	if [ -n ${USE_TIMESTAMP} ] && [ "${USE_TIMESTAMP}" = "1" ]; then
