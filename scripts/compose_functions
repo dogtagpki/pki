@@ -94,7 +94,7 @@ Usage()
 
 
 ##
-## Compute Release Information
+## Compute build options
 ##
 ##
 ##      Examples:
@@ -124,21 +124,8 @@ Usage()
 ##          dogtag-pki-10.5.0-0.0.6d23ffdd.fc27.src.rpm
 ##
 
-compute_release_information()
+compute_build_options()
 {
-	if [ $# -ne 1 ] ; then
-		Usage
-		exit 255
-	fi
-
-	local pki_spec_file=$1
-
-	if [ ! -f ${pki_spec_file} ] ; then
-		printf "ERROR:  '${pki_spec_file}' is missing!\n\n"
-		Usage
-		exit 255
-	fi
-
 	# Optionally compute a timestamp
 	if [ -n ${USE_TIMESTAMP} ] && [ "${USE_TIMESTAMP}" = "1" ]; then
 		now=`date +"%Y%m%d%H%M%S"`

@@ -96,10 +96,10 @@ rm -f  ${PKI_CONSOLE_SRPMS_DIR}/${PKI_CONSOLE}-${PKI_CONSOLE_VERSION}*.rpm
 
 
 ##
-## Compute Release Information
+## Compute build options
 ##
 
-compute_release_information ${PKI_SPECS_FILE}
+compute_build_options
 
 
 ##

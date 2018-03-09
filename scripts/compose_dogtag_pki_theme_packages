@@ -97,10 +97,10 @@ rm -f  ${DOGTAG_PKI_THEME_SRPMS_DIR}/${DOGTAG_PKI_THEME}-${DOGTAG_PKI_THEME_VERS
 
 
 ##
-## Compute Release Information
+## Compute build options
 ##
 
-compute_release_information ${PKI_SPECS_FILE}
+compute_build_options
 
 
 ##

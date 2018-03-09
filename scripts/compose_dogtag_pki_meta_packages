@@ -74,7 +74,7 @@ build_specified_META_package()
 	spec_file="${package}.spec.in"
 
 	printf "BEGIN: Building '${package}' META package . . .\n"
-	compute_release_information ${PKI_SPECS_FILE}
+	compute_build_options
 	cp ${spec_file_path}/${spec_file} ${PKI_PACKAGES}/SPECS/${package}.spec
 	rpmbuild \
 	    -ba \
