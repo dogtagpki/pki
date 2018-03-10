@@ -17,6 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.util;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Hashtable;
 import java.util.StringTokenizer;
 
@@ -167,7 +169,24 @@ public class Debug
         if (!TRACE_ON)
             return;
 
-        CMS.logger.warn(e.getMessage(), e);
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+
+        // If the exception does not have a message, the stack trace will
+        // show the exception class name.
+        //
+        // However, if the exception has a message, the stack trace will
+        // only show the message. To help troubleshooting, the class name
+        // is prepended to the message.
+
+        if (e.getMessage() != null) {
+            pw.print(e.getClass().getName());
+            pw.print(": ");
+        }
+
+        e.printStackTrace(pw);
+
+        CMS.logger.warn(sw.toString());
     }
 
     /**
