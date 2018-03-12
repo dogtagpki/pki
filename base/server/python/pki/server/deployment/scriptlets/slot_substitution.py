@@ -57,10 +57,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 deployer.mdict['pki_source_server_xml'],
                 deployer.mdict['pki_target_server_xml'],
                 overwrite_flag=True)
-            deployer.file.copy_with_slot_substitution(
-                deployer.mdict['pki_source_context_xml'],
-                deployer.mdict['pki_target_context_xml'],
-                overwrite_flag=True)
 
         if deployer.mdict['pki_subsystem'] == "CA":
             deployer.file.copy_with_slot_substitution(

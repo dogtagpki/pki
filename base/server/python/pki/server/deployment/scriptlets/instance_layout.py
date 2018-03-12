@@ -56,6 +56,15 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             deployer.mdict['pki_instance_configuration_path'],
             ignore_cb=file_ignore_callback_src_server)
 
+        # Link /etc/pki/<instance>/context.xml
+        # to /usr/share/tomcat/conf/context.xml.
+        deployer.symlink.create(
+            os.path.join(deployer.mdict['CATALINA_HOME'],
+                         "conf",
+                         "context.xml"),
+            os.path.join(deployer.mdict['pki_instance_configuration_path'],
+                         "context.xml"))
+
         # Link /etc/pki/<instance>/logging.properties
         # to /usr/share/pki/server/conf/logging.properties.
         deployer.symlink.create(
