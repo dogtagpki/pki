@@ -34,10 +34,14 @@
 %define java_home /usr/lib/jvm/jre-1.8.0-openjdk
 
 # Tomcat
-%if 0%{?fedora} || 0%{?rhel} > 7
-%define app_server tomcat-8.0
+%if 0%{?fedora} >= 27 || 0%{?rhel} >= 8
+%global app_server tomcat-8.5
 %else
-%define app_server tomcat-7.0
+%if 0%{?fedora}
+%global app_server tomcat-8.0
+%else
+%global app_server tomcat-7.0
+%endif
 %endif
 
 # RESTEasy
@@ -173,6 +177,16 @@ BuildRequires:    jss >= 4.4.2-9
 BuildRequires:    tomcatjss >= 7.3.0
 %endif
 BuildRequires:    systemd-units
+
+%if 0%{?fedora} >= 27 || 0%{?rhel} >= 8
+BuildRequires:    tomcat >= 8.5.23
+%else
+%if 0%{?fedora}
+BuildRequires:    tomcat >= 8.0.49
+%else
+BuildRequires:    tomcat >= 7.0.69
+%endif
+%endif
 
 %if 0%{?with_python3}
 BuildRequires:  python3
@@ -553,13 +567,14 @@ Requires:         policycoreutils-python
 Requires:         selinux-policy-targeted >= 3.13.1-159
 Obsoletes:        pki-selinux
 
-%if 0%{?rhel} && 0%{?rhel} <= 7
-Requires:         tomcat >= 7.0.69
+%if 0%{?fedora} >= 27 || 0%{?rhel} >= 8
+Requires:         tomcat >= 8.5.23
 %else
-Requires:         tomcat >= 7.0.68
-Requires:         tomcat-el-3.0-api
-Requires:         tomcat-jsp-2.3-api
-Requires:         tomcat-servlet-3.1-api
+%if 0%{?fedora}
+Requires:         tomcat >= 8.0.49
+%else
+Requires:         tomcat >= 7.0.69
+%endif
 %endif
 
 Requires:         velocity
