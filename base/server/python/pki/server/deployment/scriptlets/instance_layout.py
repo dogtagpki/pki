@@ -64,6 +64,15 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             os.path.join(deployer.mdict['pki_instance_configuration_path'],
                          "logging.properties"))
 
+        # Link /etc/pki/<instance>/web.xml
+        # to /usr/share/tomcat/conf/web.xml.
+        deployer.symlink.create(
+            os.path.join(deployer.mdict['CATALINA_HOME'],
+                         "conf",
+                         "web.xml"),
+            os.path.join(deployer.mdict['pki_instance_configuration_path'],
+                         "web.xml"))
+
         # create /etc/sysconfig/<instance>
         deployer.file.copy_with_slot_substitution(
             deployer.mdict['pki_source_tomcat_conf'],
