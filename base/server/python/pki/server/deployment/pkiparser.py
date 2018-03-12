@@ -776,10 +776,6 @@ class PKIConfigParser:
                     ''.join(random.choice(string.ascii_letters + string.digits)
                             for x in range(20))
 
-            self.mdict['pki_target_catalina_properties'] = \
-                os.path.join(
-                    self.mdict['pki_instance_configuration_path'],
-                    "catalina.properties")
             self.mdict['pki_target_servercertnick_conf'] = \
                 os.path.join(
                     self.mdict['pki_instance_configuration_path'],

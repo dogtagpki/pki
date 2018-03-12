@@ -56,6 +56,14 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             deployer.mdict['pki_instance_configuration_path'],
             ignore_cb=file_ignore_callback_src_server)
 
+        # Link /etc/pki/<instance>/catalina.properties
+        # to /usr/share/pki/server/conf/catalina.properties.
+        deployer.symlink.create(
+            os.path.join(deployer.mdict['pki_source_server_path'],
+                         "catalina.properties"),
+            os.path.join(deployer.mdict['pki_instance_configuration_path'],
+                         "catalina.properties"))
+
         # Link /etc/pki/<instance>/context.xml
         # to /usr/share/tomcat/conf/context.xml.
         deployer.symlink.create(
@@ -250,6 +258,7 @@ def file_ignore_callback_src_server(src, names):
                         extra=config.PKI_INDENTATION_LEVEL_1)
 
     return {
+        'catalina.properties',
         'schema.ldif',
         'database.ldif',
         'manager.ldif',
