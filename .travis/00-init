@@ -4,6 +4,7 @@ set -e
 . /etc/os-release
 
 echo "$NAME $VERSION"
+ls ${BUILDDIR}
 
 if test -z "${BUILDDIR}" || ! test -d "${BUILDDIR}"; then
     echo "BUILDDIR not set or ${BUILDDIR} is not a directory."
