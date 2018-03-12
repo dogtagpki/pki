@@ -1,4 +1,4 @@
-project(server-tomcat8)
+project(server-tomcat-8.0)
 
 add_subdirectory(src)
 

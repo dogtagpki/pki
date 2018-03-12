@@ -35,9 +35,9 @@
 
 # Tomcat
 %if 0%{?fedora} || 0%{?rhel} > 7
-%define app_server tomcat8
+%define app_server tomcat-8.0
 %else
-%define app_server tomcat7
+%define app_server tomcat-7.0
 %endif
 
 # RESTEasy

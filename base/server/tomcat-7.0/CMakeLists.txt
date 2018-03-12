@@ -1,4 +1,4 @@
-project(server-tomcat7)
+project(server-tomcat-7.0)
 
 add_subdirectory(src)
 
