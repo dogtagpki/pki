@@ -16,6 +16,24 @@
       "revId": "46c03707d03740b0523761127d3c32f5061a635a",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "db3dafc5_e9f1e085",
+        "filename": "base/common/python/pki/nssdb.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 518,
+      "author": {
+        "id": 1011000
+      },
+      "writtenOn": "2018-03-13T05:19:54Z",
+      "side": 1,
+      "message": "Yes, a fair point.  I\u0027ll cut a new patch at some point but this is blocked by NSS at the moment, so it\u0027s not urgent.\n\nThanks for the review, Endi!",
+      "parentUuid": "f782fc4e_06f657af",
+      "revId": "46c03707d03740b0523761127d3c32f5061a635a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
