@@ -67,6 +67,24 @@
       "revId": "062d5970afb295e666c5ad631fdeb73c1bffb6c4",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4ef1ce49_0261d478",
+        "filename": "base/java-tools/src/com/netscape/cmstools/client/ClientCertRequestCLI.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 410,
+      "author": {
+        "id": 1012851
+      },
+      "writtenOn": "2018-03-13T06:32:33Z",
+      "side": 1,
+      "message": "Hi Endi,\nInstead of using ArrayList we can use this small fix:\n\n```\n        String lenOrCurve \u003d \"ecc\".equals(algorithm) ? \"-c\" : \"-l\";\n\n        String[] commands \u003d {\n                \"/usr/bin/PKCS10Client\",\n                \"-d\", certDatabase.getAbsolutePath(),\n                \"-p\", password,\n                \"-a\", algorithm,\n                lenOrCurve, \"\" + length,\n                \"-o\", csrFile.getAbsolutePath(),\n                \"-n\", subjectDN\n        };\n\n```\n\nIt will reduce code. Waiting for your reply.",
+      "parentUuid": "1232db43_0114e7ff",
+      "revId": "062d5970afb295e666c5ad631fdeb73c1bffb6c4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
