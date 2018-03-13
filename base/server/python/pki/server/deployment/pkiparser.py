@@ -1031,10 +1031,6 @@ class PKIConfigParser:
 
             self.mdict['TOMCAT_CFG_SLOT'] = \
                 self.mdict['pki_target_tomcat_conf']
-            self.mdict['TOMCAT_INSTANCE_COMMON_LIB_SLOT'] = \
-                os.path.join(
-                    self.mdict['pki_tomcat_common_lib_path'],
-                    "*.jar")
             self.mdict['TOMCAT_LOG_DIR_SLOT'] = \
                 self.mdict['pki_instance_log_path']
             self.mdict['TOMCAT_PIDFILE_SLOT'] = \
