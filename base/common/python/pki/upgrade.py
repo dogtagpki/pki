@@ -22,6 +22,7 @@
 from __future__ import absolute_import
 from __future__ import print_function
 import functools
+import logging
 import os
 import re
 import shutil
@@ -36,6 +37,8 @@ DEFAULT_VERSION = '10.0.0'
 UPGRADE_DIR = pki.SHARE_DIR + '/upgrade'
 BACKUP_DIR = pki.LOG_DIR + '/upgrade'
 SYSTEM_TRACKER = pki.CONF_DIR + '/pki.version'
+
+logger = logging.getLogger(__name__)
 verbose = False
 
 
@@ -489,7 +492,10 @@ class PKIUpgrader(object):
     def versions(self):
 
         current_version = self.get_current_version()
+        logger.debug('Current version: %s', current_version)
+
         target_version = self.get_target_version()
+        logger.debug('Target version: %s', target_version)
 
         current_versions = []
 
@@ -500,6 +506,10 @@ class PKIUpgrader(object):
                 current_versions.append(version)
 
         current_versions.sort()
+
+        logger.debug('Upgrade path:')
+        for version in current_versions:
+            logger.debug(' - %s', version)
 
         versions = []
 
