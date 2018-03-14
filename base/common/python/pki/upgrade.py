@@ -84,6 +84,9 @@ class Version(object):
                 self.minor == other.minor and
                 self.patch == other.patch)
 
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
     def __lt__(self, other):
         if self.major < other.major:
             return True
@@ -97,6 +100,9 @@ class Version(object):
             return True
 
         return False
+
+    def __gt__(self, other):
+        return not self.__lt__(other) and not self.__eq__(other)
 
     # not hashable
     __hash__ = None
