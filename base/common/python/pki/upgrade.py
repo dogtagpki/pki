@@ -497,27 +497,39 @@ class PKIUpgrader(object):
         target_version = self.get_target_version()
         logger.debug('Target version: %s', target_version)
 
-        current_versions = []
+        upgrade_path = []
 
         for version in self.all_versions():
 
-            # skip old versions
-            if version >= current_version:
-                current_versions.append(version)
+            # skip older versions
+            if version <= current_version:
+                continue
 
-        current_versions.sort()
+            # skip newer versions
+            if version >= target_version:
+                continue
+
+            upgrade_path.append(version)
+
+        upgrade_path.sort()
+
+        # start from current version
+        upgrade_path.insert(0, current_version)
+
+        # stop at target version
+        upgrade_path.append(target_version)
 
         logger.debug('Upgrade path:')
-        for version in current_versions:
+        for version in upgrade_path:
             logger.debug(' - %s', version)
 
         versions = []
 
-        for index, version in enumerate(current_versions):
+        for index, version in enumerate(upgrade_path):
 
             # link versions
-            if index < len(current_versions) - 1:
-                version.next = current_versions[index + 1]
+            if index < len(upgrade_path) - 1:
+                version.next = upgrade_path[index + 1]
             else:
                 version.next = target_version
 
