@@ -325,6 +325,8 @@ install(
         ${DATA_INSTALL_DIR}/server/
     PATTERN
         "lib/*" EXCLUDE
+    PATTERN
+        "etc/*" EXCLUDE
 )
 
 # install server configuration files
