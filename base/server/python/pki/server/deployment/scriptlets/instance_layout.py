@@ -64,6 +64,14 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             os.path.join(deployer.mdict['pki_instance_configuration_path'],
                          "catalina.properties"))
 
+        # Link /etc/pki/<instance>/ciphers.info
+        # to /usr/share/pki/server/conf/ciphers.info.
+        deployer.symlink.create(
+            os.path.join(deployer.mdict['pki_source_server_path'],
+                         "ciphers.info"),
+            os.path.join(deployer.mdict['pki_instance_configuration_path'],
+                         "ciphers.info"))
+
         # Link /etc/pki/<instance>/context.xml
         # to /usr/share/tomcat/conf/context.xml.
         deployer.symlink.create(
@@ -259,6 +267,7 @@ def file_ignore_callback_src_server(src, names):
 
     return {
         'catalina.properties',
+        'ciphers.info',
         'schema.ldif',
         'database.ldif',
         'manager.ldif',
