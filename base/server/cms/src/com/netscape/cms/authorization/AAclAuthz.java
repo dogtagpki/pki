@@ -66,6 +66,8 @@ import com.netscape.cmsutil.util.Utils;
  */
 public abstract class AAclAuthz implements IAuthzManager {
 
+    public enum EvaluationOrder { DenyAllow , AllowDeny };
+
     protected static final String PROP_CLASS = "class";
     protected static final String PROP_IMPL = "impl";
     protected static final String PROP_EVAL = "accessEvaluator";
@@ -375,7 +377,7 @@ public abstract class AAclAuthz implements IAuthzManager {
                         log(ILogger.LL_SECURITY, " checkACLs(): permission denied");
                         throw new EACLsException(CMS.getUserMessage("CMS_ACL_PERMISSION_DENIED"));
                     }
-                } else if (!entry.isNegative()) {
+                } else if (entry.getType() == ACLEntry.Type.Allow) {
                     // didn't meet the access expression for "allow", failed
                     log(ILogger.LL_SECURITY, "checkACLs(): permission denied");
                     throw new EACLsException(CMS.getUserMessage("CMS_ACL_PERMISSION_DENIED"));
@@ -503,46 +505,18 @@ public abstract class AAclAuthz implements IAuthzManager {
 
         CMS.debug("AAclAuthz.checkPermission(" + name + ", " + perm + ")");
 
-        Vector<String> nodev = getNodes(name);
-        Enumeration<String> nodes = nodev.elements();
-        String order = getOrder();
-        Enumeration<ACLEntry> entries = null;
-
-        if (order.equals("deny")) {
-            entries = getDenyEntries(nodes, perm);
-        } else {
-            entries = getAllowEntries(nodes, perm);
-        }
-
-        while (entries.hasMoreElements()) {
-            ACLEntry entry = entries.nextElement();
-
-            CMS.debug("checkPermission(): expressions: " + entry.getAttributeExpressions());
-            if (evaluateExpressions(authToken, entry.getAttributeExpressions())) {
-                log(ILogger.LL_SECURITY, "checkPermission(): permission denied");
-                throw new EACLsException(CMS.getUserMessage("CMS_ACL_PERMISSION_DENIED"));
-            }
-        }
-
-        nodes = nodev.elements();
-        if (order.equals("deny")) {
-            entries = getAllowEntries(nodes, perm);
-        } else {
-            entries = getDenyEntries(nodes, perm);
-        }
+        Vector<String> nodes = getNodes(name);
+        EvaluationOrder order = getOrder();
 
         boolean permitted = false;
-
-        while (entries.hasMoreElements()) {
-            ACLEntry entry = entries.nextElement();
-
-            CMS.debug("checkPermission(): expressions: " + entry.getAttributeExpressions());
-            if (evaluateExpressions(authToken, entry.getAttributeExpressions())) {
-                permitted = true;
-            }
+        if (order == EvaluationOrder.DenyAllow) {
+            checkDenyEntries(authToken, nodes, perm);
+            permitted = checkAllowEntries(authToken, nodes, perm);
+        } else if (order == EvaluationOrder.AllowDeny) {
+            permitted = checkAllowEntries(authToken, nodes, perm);
+            checkDenyEntries(authToken, nodes, perm);
         }
 
-        nodev = null;
         if (!permitted) {
             String[] params = new String[2];
             params[0] = name;
@@ -560,54 +534,57 @@ public abstract class AAclAuthz implements IAuthzManager {
         log(ILogger.LL_INFO, infoMsg);
     }
 
-    protected Enumeration<ACLEntry> getAllowEntries(Enumeration<String> nodes, String operation) {
-        String name = "";
-        ACL acl = null;
-        Enumeration<ACLEntry> e = null;
-        Vector<ACLEntry> v = new Vector<ACLEntry>();
-
-        while (nodes.hasMoreElements()) {
-            name = nodes.nextElement();
-            acl = mACLs.get(name);
-            if (acl == null)
-                continue;
-            e = acl.entries();
-            while (e.hasMoreElements()) {
-                ACLEntry entry = e.nextElement();
-
-                if (!entry.isNegative() &&
-                        entry.containPermission(operation)) {
-                    v.addElement(entry);
-                }
+    protected boolean checkAllowEntries(
+            IAuthToken authToken,
+            Iterable<String> nodes,
+            String perm) {
+        for (ACLEntry entry : getEntries(ACLEntry.Type.Allow, nodes, perm)) {
+            CMS.debug("checkAllowEntries(): expressions: " + entry.getAttributeExpressions());
+            if (evaluateExpressions(authToken, entry.getAttributeExpressions())) {
+                return true;
             }
         }
-
-        return v.elements();
+        return false;
     }
 
-    protected Enumeration<ACLEntry> getDenyEntries(Enumeration<String> nodes, String operation) {
-        String name = "";
-        ACL acl = null;
-        Enumeration<ACLEntry> e = null;
+    /** throw EACLsException if a deny entry is matched */
+    protected void checkDenyEntries(
+            IAuthToken authToken,
+            Iterable<String> nodes,
+            String perm)
+            throws EACLsException {
+        for (ACLEntry entry : getEntries(ACLEntry.Type.Deny, nodes, perm)) {
+            CMS.debug("checkDenyEntries(): expressions: " + entry.getAttributeExpressions());
+            if (evaluateExpressions(authToken, entry.getAttributeExpressions())) {
+                log(ILogger.LL_SECURITY, "checkPermission(): permission denied");
+                throw new EACLsException(CMS.getUserMessage("CMS_ACL_PERMISSION_DENIED"));
+            }
+        }
+    }
+
+    protected Iterable<ACLEntry> getEntries(
+            ACLEntry.Type entryType,
+            Iterable<String> nodes,
+            String operation
+    ) {
         Vector<ACLEntry> v = new Vector<ACLEntry>();
 
-        while (nodes.hasMoreElements()) {
-            name = nodes.nextElement();
-            acl = mACLs.get(name);
+        for (String name : nodes) {
+            ACL acl = mACLs.get(name);
             if (acl == null)
                 continue;
-            e = acl.entries();
+            Enumeration<ACLEntry> e = acl.entries();
             while (e.hasMoreElements()) {
                 ACLEntry entry = e.nextElement();
 
-                if (entry.isNegative() &&
+                if (entry.getType() == entryType &&
                         entry.containPermission(operation)) {
                     v.addElement(entry);
                 }
             }
         }
 
-        return v.elements();
+        return v;
     }
 
     /**
@@ -897,19 +874,16 @@ public abstract class AAclAuthz implements IAuthzManager {
         }
     }
 
-    public String getOrder() {
-        IConfigStore mainConfig = CMS.getConfigStore();
-        String order = "";
-
+    public static EvaluationOrder getOrder() {
         try {
-            order = mainConfig.getString("authz.evaluateOrder", "");
+            String order = CMS.getConfigStore().getString("authz.evaluateOrder", "");
             if (order.startsWith("allow"))
-                return "allow";
+                return EvaluationOrder.AllowDeny;
             else
-                return "deny";
+                return EvaluationOrder.DenyAllow;
         } catch (Exception e) {
+            return EvaluationOrder.DenyAllow;
         }
-        return "deny";
     }
 
     public boolean evaluateACLs(IAuthToken authToken, String exp) {
