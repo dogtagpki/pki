@@ -21,12 +21,15 @@
 from __future__ import absolute_import
 from __future__ import print_function
 import getopt
+import logging
 import signal
 import sys
 
 import pki
 import pki.upgrade
 import pki.server.upgrade
+
+logger = logging.getLogger('pki.server.cli.upgrade')
 
 
 # pylint: disable=W0613
@@ -70,13 +73,15 @@ def main(argv):
 
     signal.signal(signal.SIGINT, interrupt_handler)
 
+    logging.basicConfig(format='%(levelname)s: %(message)s')
+
     try:
         opts, _ = getopt.getopt(argv[1:], 'hi:s:t:vX', [
             'instance=', 'subsystem=', 'instance-type=',
             'scriptlet-version=', 'scriptlet-index=',
             'silent', 'status', 'revert',
             'remove-tracker', 'reset-tracker', 'set-tracker=',
-            'verbose', 'help'])
+            'verbose', 'debug', 'help'])
 
     except getopt.GetoptError as e:
         print('ERROR: ' + str(e))
@@ -135,6 +140,10 @@ def main(argv):
 
         elif o in ('-v', '--verbose'):
             pki.upgrade.verbose = True
+            logging.getLogger().setLevel(logging.INFO)
+
+        elif o == '--debug':
+            logging.getLogger().setLevel(logging.DEBUG)
 
         elif o in ('-h', '--help'):
             usage()
@@ -170,21 +179,27 @@ def main(argv):
             silent=silent)
 
         if status:
+            logger.info('Getting PKI server upgrade status')
             upgrader.status()
 
         elif revert:
+            logger.info('Reverting PKI server last upgrade')
             upgrader.revert()
 
         elif remove_tracker:
+            logger.info('Removing PKI server upgrade tracker')
             upgrader.remove_tracker()
 
         elif reset_tracker:
+            logger.info('Resetting PKI server upgrade tracker')
             upgrader.reset_tracker()
 
         elif tracker_version is not None:
+            logger.info('Setting PKI server upgrade tracker')
             upgrader.set_tracker(tracker_version)
 
         else:
+            logger.info('Upgrading PKI server')
             upgrader.upgrade()
 
     except pki.PKIException as e:
