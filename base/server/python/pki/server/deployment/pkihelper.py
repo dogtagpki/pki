@@ -3618,8 +3618,7 @@ class Systemd(object):
         #
         """PKI Deployment execution management 'disable' method.
 
-        Executes a 'systemd disable pki-tomcatd.target' system command, or
-        an 'rm /etc/rc3.d/*<instance>' system command on Debian systems.
+        Executes a 'systemd disable pki-tomcatd.target' system command.
 
         Args:
           critical_failure (boolean, optional):  Raise exception on failures;
@@ -3637,8 +3636,7 @@ class Systemd(object):
         """
         try:
             if pki.system.SYSTEM_TYPE == "debian":
-                command = ["rm", "/etc/rc3.d/*" +
-                           self.mdict['pki_instance_name']]
+                command = ["true"]
             else:
                 command = ["systemctl", "disable", self.service_name]
 
@@ -3667,9 +3665,7 @@ class Systemd(object):
         #
         """PKI Deployment execution management 'enable' method.
 
-           Executes a 'systemd enable pki-tomcatd.target' system command, or
-           an 'ln -s /etc/init.d/pki-tomcatd /etc/rc3.d/S89<instance>'
-           system command on Debian systems.
+           Executes a 'systemd enable pki-tomcatd.target' system command.
 
         Args:
           critical_failure (boolean, optional):  Raise exception on failures;
@@ -3687,8 +3683,7 @@ class Systemd(object):
         """
         try:
             if pki.system.SYSTEM_TYPE == "debian":
-                command = ["ln", "-s", "/etc/init.d/pki-tomcatd",
-                           "/etc/rc3.d/S89" + self.mdict['pki_instance_name']]
+                command = ["true"]
             else:
                 command = ["systemctl", "enable", self.service_name]
 
