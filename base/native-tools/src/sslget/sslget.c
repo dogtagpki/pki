@@ -58,7 +58,7 @@
 #include "prio.h"
 #include "prnetdb.h"
 #include "nss.h"
-#include <nss3/sslproto.h>
+#include "sslproto.h"
 
 
 /*  set Tabs to 8 */
