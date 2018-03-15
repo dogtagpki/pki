@@ -96,7 +96,7 @@ class PKICLI(pki.cli.CLI):
 
         java_home = os.getenv('JAVA_HOME')
         pki_lib = os.getenv('PKI_LIB')
-        logging_config = os.getenv('LOGGING_CONFIG')
+        logging_config = os.getenv('PKI_LOGGING_CONFIG')
 
         cmd = [
             java_home + '/bin/java',
