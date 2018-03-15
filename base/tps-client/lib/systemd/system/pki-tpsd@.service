@@ -1,7 +1,7 @@
 [Unit]
 Description=PKI Token Processing Server %i
 After=pki-tpsd.target
-BindTo=pki-tpsd.target
+BindsTo=pki-tpsd.target
 
 [Service]
 Type=forking
