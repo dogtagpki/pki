@@ -1,4 +1,4 @@
-#!/bin/sh -X
+#!/bin/bash -X
 
 # From "http://fedoraproject.org/wiki/FCNewInit/Initscripts":
 #
@@ -38,8 +38,11 @@ default_error=0
 
 if [ -f /etc/debian_version ]; then
     debian=true
+    . /lib/lsb/init-functions
+    SYSCONFIG_PKI=/etc/dogtag
 else
     debian=false
+    SYSCONFIG_PKI=/etc/sysconfig/pki
 fi
 
 case $command in
@@ -144,7 +147,7 @@ usage()
 list_instances()
 {
     echo
-    for INSTANCE in /etc/sysconfig/pki/tomcat/*; do
+    for INSTANCE in $SYSCONFIG_PKI/tomcat/*; do
         if [ -d "${INSTANCE}" ] ; then
             instance_name=`basename ${INSTANCE}`
             echo "    $instance_name"
@@ -729,7 +732,7 @@ display_instance_status_debian()
 {
     set_debian_tomcat_parameters
     start-stop-daemon --status --pidfile "$CATALINA_PID" \
-            --user $TOMCAT7_USER --exec "$JAVA_HOME/bin/java" \
+            --user $TOMCAT_USER --exec "$JAVA_HOME/bin/java" \
             >/dev/null 2>&1
     rv=$?
 
@@ -917,7 +920,7 @@ verify_symlinks()
     # Dogtag 10 Conditional Variables
     if $debian ; then
         jni_jar_dir="/usr/share/java"
-        tomcat_dir="/usr/share/tomcat7"
+        tomcat_dir="/usr/share/tomcat8"
     else
         jni_jar_dir="$JNI_JAR_DIR"
         tomcat_dir="/usr/share/tomcat"
@@ -926,7 +929,7 @@ verify_symlinks()
     # Dogtag 10 Symbolic Link Variables
     java_dir="/usr/share/java"
     pki_common_jar_dir="${PKI_INSTANCE_PATH}/common/lib"
-    pki_registry_dir="/etc/sysconfig/pki/${PKI_WEB_SERVER_TYPE}/${PKI_INSTANCE_NAME}"
+    pki_registry_dir="$SYSCONFIG_PKI/${PKI_WEB_SERVER_TYPE}/${PKI_INSTANCE_NAME}"
 
     # Dogtag 10 Systemd variables
     systemd_dir="/lib/systemd/system"
@@ -1071,6 +1074,39 @@ verify_symlinks()
     fi
 
     return 0
+}
+
+start_deb_instance()
+{
+    if start-stop-daemon --test --start --pidfile "$CATALINA_PID" \
+        --user $TOMCAT_USER --exec "$JAVA_HOME/bin/java" \
+        >/dev/null; then
+
+        # Remove / recreate JVM_TMP directory
+        rm -rf "$JVM_TMP"
+        mkdir "$JVM_TMP" || {
+            log_failure_msg "could not create JVM temporary directory"
+            exit 1
+        }
+        chown -h $TOMCAT_USER "$JVM_TMP"
+
+        catalina_sh start $SECURITY
+        sleep 5
+
+        if start-stop-daemon --test --start --pidfile "$CATALINA_PID" \
+            --user $TOMCAT_USER --exec "$JAVA_HOME/bin/java" \
+            >/dev/null; then
+            if [ -f "$CATALINA_PID" ]; then
+                rm -f "$CATALINA_PID"
+            fi
+            log_end_msg 1
+        else
+            log_end_msg 0
+        fi
+    else
+        log_progress_msg "(already running)"
+        log_end_msg 0
+    fi
 }
 
 backup_instance_configuration_files()
@@ -1271,6 +1307,10 @@ start_instance()
         return $rv
     fi
 
+    if $debian; then
+        set_debian_tomcat_parameters
+    fi
+
     # Copy pki.policy template
     /bin/cp /usr/share/pki/server/conf/pki.policy /var/lib/pki/$PKI_INSTANCE_NAME/conf
 
@@ -1332,6 +1372,11 @@ EOF
     # We no longer start tomcat instances here.
     # instead we rely on the tomcat unit scripts
 
+    # except on Debian
+    if $debian; then
+        start_deb_instance
+    fi
+
     # From the PKI point of view a returned error code of 6 implies
     # that the program is not "configured". An error code of 1 implies
     # that the program was "configured" but must still be restarted.
@@ -1377,7 +1422,6 @@ EOF
 
 # function used in debian to find the correct jdk
 # this is used to set OPENJDKS
-# taken from /etc/init.d/tomcat7
 find_openjdks()
 {
     for jvmdir in /usr/lib/jvm/java-7-openjdk-*
@@ -1397,7 +1441,6 @@ find_openjdks()
 }
 
 # function used by debian to set JAVA_HOME
-# taken from /etc/init.d/tomcat7
 # TODO: get JAVA_HOME for Debian from pki.conf
 set_java_home()
 {
@@ -1417,7 +1460,6 @@ set_java_home()
 }
 
 # used to start debian instances
-# taken from /etc/init.d/tomcat7
 catalina_sh() {
     # Escape any double quotes in the value of JAVA_OPTS
     JAVA_OPTS="$(echo $JAVA_OPTS | sed 's/\"/\\\"/g')"
@@ -1425,7 +1467,7 @@ catalina_sh() {
     AUTHBIND_COMMAND=""
     if [ "$AUTHBIND" = "yes" -a "$1" = "start" ]; then
             JAVA_OPTS="$JAVA_OPTS -Djava.net.preferIPv4Stack=true"
-            AUTHBIND_COMMAND="/usr/bin/authbind --deep /bin/sh -c "
+            AUTHBIND_COMMAND="/usr/bin/authbind --deep /bin/bash -c "
     fi
 
     # Define the command to run Tomcat's catalina.sh as a daemon
@@ -1445,11 +1487,14 @@ catalina_sh() {
     fi
 
     # Run the catalina.sh script as a daemon
-    touch "$CATALINA_PID" "$CATALINA_BASE"/logs/catalina.out
-    chown $TOMCAT7_USER "$CATALINA_PID" "$CATALINA_BASE"/logs/catalina.out
-    start-stop-daemon --start -b -u "$TOMCAT7_USER" -g "$TOMCAT7_GROUP" \
-            -c "$TOMCAT7_USER" -d "$CATALINA_TMPDIR" -p "$CATALINA_PID" \
-            -x /bin/sh -- -c "$AUTHBIND_COMMAND $TOMCAT_SH"
+    if [ ! -f "$CATALINA_BASE"/logs/catalina.out ]; then
+        # run install as pkiuser to work around #841371
+        su $TOMCAT_USER -s /bin/bash -c "install -m 644 /dev/null $CATALINA_BASE/logs/catalina.out"
+    fi
+    install -o $TOMCAT_USER -m 644 /dev/null "$CATALINA_PID"
+    start-stop-daemon --start -b -u "$TOMCAT_USER" -g "$TOMCAT_GROUP" \
+            -c "$TOMCAT_USER" -d "$CATALINA_TMPDIR" -p "$CATALINA_PID" \
+            -x /bin/bash -- -c "$AUTHBIND_COMMAND $TOMCAT_SH"
     status="$?"
     set +a
     return $status
@@ -1458,25 +1503,25 @@ catalina_sh() {
 set_debian_tomcat_parameters()
 {
     set_java_home
-    CATALINA_HOME=/usr/share/tomcat7
+    CATALINA_HOME=/usr/share/tomcat8
     CATALINA_BASE=/var/lib/pki/${PKI_INSTANCE_NAME}
-    DESC="Tomcat 7 instance for ${PKI_INSTANCE_NAME}"
+    DESC="Tomcat instance for ${PKI_INSTANCE_NAME}"
 
     if [ -z "$JAVA_OPTS" ]; then
-        JAVA_OPTS="-Djava.awt.headless=true -Xmx128M"
+        JAVA_OPTS="-Djava.awt.headless=true"
     fi
 
     # overwrite with settings from the registry file
-    if [ -f /etc/sysconfig/${PKI_INSTANCE_NAME} ]; then
-        . /etc/sysconfig/${PKI_INSTANCE_NAME}
+    if [ -f /etc/default/${PKI_INSTANCE_NAME} ]; then
+        . /etc/default/${PKI_INSTANCE_NAME}
     fi
 
-    JVM_TMP=/tmp/tomcat7-${PKI_INSTANCE_NAME}-tmp
+    JVM_TMP=/tmp/tomcat-${PKI_INSTANCE_NAME}-tmp
     if [ -z "$CATALINA_TMPDIR" ]; then
         CATALINA_TMPDIR="$JVM_TMP"
     fi
 
-    # Set the JSP compiler if set in the tomcat7.default file
+    # Set the JSP compiler if set in the tomcat8.default file
     if [ -n "$JSP_COMPILER" ]; then
         JAVA_OPTS="$JAVA_OPTS -Dbuild.compiler=\"$JSP_COMPILER\""
     fi
@@ -1485,9 +1530,9 @@ set_debian_tomcat_parameters()
     # for now, do not generate policy here, because we need to figure out
     # where to get the tomcat policy.
 
-    TOMCAT7_SECURITY=no
+    TOMCAT8_SECURITY=no
     SECURITY=""
-    if [ "$TOMCAT7_SECURITY" = "True" ]; then
+    if [ "$TOMCAT8_SECURITY" = "True" ]; then
         SECURITY="-security"
     fi
 
@@ -1499,70 +1544,9 @@ set_debian_tomcat_parameters()
     if [ -z "${JSSE_HOME}" -a -r "${JAVA_HOME}/jre/lib/jsse.jar" ]; then
         JSSE_HOME="${JAVA_HOME}/jre/"
     fi
-
-    TOMCAT7_USER=$TOMCAT_USER
-    TOMCAT7_GROUP=$TOMCAT_USER
-}
-
-start_deb_instance()
-{
-    rv=0
-
-    if [ -f ${RESTART_SERVER} ] ; then
-        rm -f ${RESTART_SERVER}
-    fi
-
-    # Verify symbolic links (detecting and correcting them if possible)
-    verify_symlinks
-    rv=$?
-    if [ $rv -ne 0 ] ; then
-        return $rv
-    fi
-
-    set_debian_tomcat_parameters
-
-    if start-stop-daemon --test --start --pidfile "$CATALINA_PID" \
-           --user $TOMCAT7_USER --exec "$JAVA_HOME/bin/java" \
-           >/dev/null; then
-
-        # Remove / recreate JVM_TMP directory
-        rm -rf "$JVM_TMP"
-        mkdir -p "$JVM_TMP" || {
-            log_failure_msg "could not create JVM temporary directory"
-            exit 1
-        }
-        chown $TOMCAT7_USER "$JVM_TMP"
-
-        catalina_sh start $SECURITY
-        sleep 5
-        if start-stop-daemon --test --start --pidfile "$CATALINA_PID" \
-               --user $TOMCAT7_USER --exec "$JAVA_HOME/bin/java" \
-               >/dev/null; then
-            if [ -f "$CATALINA_PID" ]; then
-                rm -f "$CATALINA_PID"
-            fi
-            log_end_msg 1
-        else
-            log_end_msg 0
-        fi
-    else
-        log_progress_msg "(already running)"
-        log_end_msg 0
-    fi
-
-    check_pki_configuration_status
-    rv=$?
-    if [ $rv -eq 6 ]; then
-        # 6 program is not configured
-        return 6
-    else
-        # 0 success
-        return 0
-    fi
 }
 
 # used to stop debian instances
-# taken from /etc/init.d/tomcat7
 stop_instance()
 {
     set_debian_tomcat_parameters
@@ -1570,7 +1554,7 @@ stop_instance()
 
     if [ -f "$CATALINA_PID" ]; then
         start-stop-daemon --stop --pidfile "$CATALINA_PID" \
-                --user "$TOMCAT7_USER" \
+                --user "$TOMCAT_USER" \
                 --retry=TERM/20/KILL/5 >/dev/null
         if [ $? -eq 1 ]; then
             log_progress_msg "$DESC is not running but pid file exists, cleaning up"
@@ -1684,13 +1668,8 @@ start()
 
         [ ${TOTAL_PKI_REGISTRY_ENTRIES} -gt 1 ] && echo
 
-        if ! $debian; then
-            start_instance
-            rv=$?
-        else
-            start_deb_instance
-            rv=$?
-        fi
+        start_instance
+        rv=$?
 
         if [ $rv = 6 ] ; then
             # Since at least ONE configuration error exists, then there
