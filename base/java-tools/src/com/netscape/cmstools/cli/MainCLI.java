@@ -139,23 +139,7 @@ public class MainCLI extends CLI {
         formatter.printHelp(name + " [OPTIONS..] <command> [ARGS..]", options);
         System.out.println();
 
-        int leftPadding = 1;
-        int rightPadding = 25;
-
-        System.out.println("Commands:");
-
-        for (CLI module : modules.values()) {
-            String label = module.getFullName();
-
-            int padding = rightPadding - leftPadding - label.length();
-            if (padding < 1)
-                padding = 1;
-
-            System.out.print(StringUtils.repeat(" ", leftPadding));
-            System.out.print(label);
-            System.out.print(StringUtils.repeat(" ", padding));
-            System.out.println(module.getDescription());
-        }
+        super.printHelp();
     }
 
     public void createOptions() throws UnknownHostException {
