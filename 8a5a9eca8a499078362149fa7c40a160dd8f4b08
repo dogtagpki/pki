@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a54502c5_c888f325",
+        "filename": "base/java-tools/man/man1/CMCRequest.1",
+        "patchSetId": 1
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 1012780
+      },
+      "writtenOn": "2018-03-15T12:20:32Z",
+      "side": 1,
+      "message": "I know this is not a document question but still:\nyou know sometimes we use hex serial number for cert and sometimes in decimal, I always have to convert my hex serial number to decimal before i send revocation request.Do you think it\u0027s good to have one format?",
+      "revId": "8a5a9eca8a499078362149fa7c40a160dd8f4b08",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "74a2ec94_109a8ef0",
+        "filename": "base/java-tools/man/man1/CMCResponse.1",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1012780
+      },
+      "writtenOn": "2018-03-15T12:20:32Z",
+      "side": 1,
+      "message": "is it processing?",
+      "revId": "8a5a9eca8a499078362149fa7c40a160dd8f4b08",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
