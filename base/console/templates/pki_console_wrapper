@@ -128,7 +128,7 @@ ${JAVA} ${JAVA_OPTIONS} \
   -cp ${CP} \
   -Djava.util.prefs.systemRoot=/tmp/.java \
   -Djava.util.prefs.userRoot=/tmp/java \
-  -Djava.util.logging.config.file=${LOGGING_CONFIG} \
+  -Djava.util.logging.config.file=${PKI_LOGGING_CONFIG} \
   com.netscape.admin.certsrv.Console \
   "$@"
 
