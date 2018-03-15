@@ -63,7 +63,7 @@ import com.netscape.cmstools.pkcs7.PKCS7CLI;
 import com.netscape.cmstools.system.SecurityDomainCLI;
 import com.netscape.cmstools.tks.TKSCLI;
 import com.netscape.cmstools.tps.TPSCLI;
-import com.netscape.cmstools.user.UserCLI;
+import com.netscape.cmstools.user.ProxyUserCLI;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.crypto.CryptoUtil.SSLVersion;
 
@@ -106,7 +106,7 @@ public class MainCLI extends CLI {
         addModule(new ProxyCLI(new GroupCLI(this), "ca"));
         addModule(new ProxyCLI(new KeyCLI(this), "kra"));
         addModule(new ProxyCLI(new SecurityDomainCLI(this), "ca"));
-        addModule(new ProxyCLI(new UserCLI(this), "ca"));
+        addModule(new ProxyUserCLI(this));
 
         addModule(new CACLI(this));
         addModule(new KRACLI(this));
