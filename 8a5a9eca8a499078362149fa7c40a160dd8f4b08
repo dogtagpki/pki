@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ae50adfa_4fe38701",
+        "filename": "base/java-tools/man/man1/CMCRequest.1",
+        "patchSetId": 1
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 1010256
+      },
+      "writtenOn": "2018-03-16T02:11:23Z",
+      "side": 1,
+      "message": "Yes, I myself from time to time run into this as well... not knowing which format is expected for various areas within the system!!!  I suggest you open a bug so we can either make it clear at every interface or configuration parameters, and every document reference, or change the code to conform to one single format.",
+      "parentUuid": "a54502c5_c888f325",
+      "revId": "8a5a9eca8a499078362149fa7c40a160dd8f4b08",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "74a2ec94_109a8ef0",
         "filename": "base/java-tools/man/man1/CMCResponse.1",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2018-03-15T12:20:32Z",
       "side": 1,
       "message": "is it processing?",
+      "revId": "8a5a9eca8a499078362149fa7c40a160dd8f4b08",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b09781aa_3a3b7587",
+        "filename": "base/java-tools/man/man1/CMCResponse.1",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1010256
+      },
+      "writtenOn": "2018-03-16T02:11:23Z",
+      "side": 1,
+      "message": "yes!!",
+      "parentUuid": "74a2ec94_109a8ef0",
       "revId": "8a5a9eca8a499078362149fa7c40a160dd8f4b08",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
