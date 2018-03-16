@@ -43,7 +43,8 @@ install:
   - docker exec -ti ${CONTAINER} /bin/ls -la /tmp/workdir
 
   - docker exec -ti ${CONTAINER} ${SCRIPTDIR}/00-init
-  - docker exec -ti ${CONTAINER} ${SCRIPTDIR}/10-compose-rpms
+  - docker exec -ti ${CONTAINER} ${SCRIPTDIR}/01-install-dependencies pki-core
+  - docker exec -ti ${CONTAINER} ${SCRIPTDIR}/10-compose-rpms compose_pki_core_packages
 
   # IPA related installs
   - pip install --upgrade pip
@@ -54,8 +55,6 @@ script:
   # It is time to run FreeIPA tests with new Dogtag RPMS built
   - travis_wait 20 ./.travis_run_task.sh
 after_script:
-  # find IPA install logs in CI results
-  - grep -s transfer.sh ./${CI_RESULTS_LOG} || :
   - docker kill ${CONTAINER}
   - docker rm ${CONTAINER}
 
