@@ -1,3 +1,24 @@
+# Python 3 packages
+%if 0%{!?with_python3:1}
+%if 0%{?fedora} || 0%{?rhel} > 7
+%global with_python3 1
+%else
+%global with_python3 0
+%endif
+%endif
+
+# Python 2 packages
+%{!?with_python2:%global with_python2 1}
+
+# Use Python 3 for all commands?
+%if 0%{!?with_python3_default:1}
+%if 0%{?fedora} >= 28 || 0%{?rhel} > 7
+%global with_python3_default 1
+%else
+%global with_python3_default 0
+%endif
+%endif
+
 Name:             pki-console
 %if 0%{?rhel}
 Version:          10.6.0
@@ -89,6 +110,15 @@ cd build
     -DRESTEASY_LIB=%{resteasy_lib} \
 %if ! %{with javadoc}
     -DWITH_JAVADOC:BOOL=OFF \
+%endif
+%if ! %{?with_python3}
+    -DWITH_PYTHON3:BOOL=OFF \
+%endif
+%if ! %{?with_python2}
+    -DWITH_PYTHON2:BOOL=OFF \
+%endif
+%if %{?with_python3_default}
+    -DWITH_PYTHON3_DEFAULT:BOOL=ON \
 %endif
     ..
 
