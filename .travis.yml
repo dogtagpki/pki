@@ -43,7 +43,7 @@ install:
   - docker exec -ti ${CONTAINER} /bin/ls -la /tmp/workdir
 
   - docker exec -ti ${CONTAINER} ${SCRIPTDIR}/00-init
-  - docker exec -ti ${CONTAINER} ${SCRIPTDIR}/10-compose-rpms
+  - docker exec -ti ${CONTAINER} ${SCRIPTDIR}/10-compose-rpms compose_pki_core_packages
 
   # IPA related installs
   - pip install --upgrade pip
