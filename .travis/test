@@ -1,0 +1,13 @@
+#! /bin/bash
+#curl --upload-file 00-init https://transfer.sh/test
+
+function upload {
+    if test -f $BUILDLOG; then
+        echo "Uploading build log to transfer"
+        curl --upload-file 00-init https://transfer.sh/pkitravis_test.txt
+        # Add new line for readability of logs
+        echo ""
+    fi
+}
+
+upload
