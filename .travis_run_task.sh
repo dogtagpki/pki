@@ -67,7 +67,23 @@ then
 
 elif [[ "$TASK_TO_RUN" == "pki-test" ]]
 then
-   docker exec -i ${CONTAINER} ${SCRIPTDIR}/20-install-rpms
+   # First install pki-core packges as it's the dependency for other packages
+   docker exec -i ${CONTAINER} ${SCRIPTDIR}/20-install-rpms || exit $?
+
+   # Install deps, generate RPMS for all other packages and install them (in order)
+   docker exec -i ${CONTAINER} ${SCRIPTDIR}/01-install-dependencies dogtag-pki-theme   # meta
+   docker exec -i ${CONTAINER} ${SCRIPTDIR}/01-install-dependencies pki-console
+   docker exec -i ${CONTAINER} ${SCRIPTDIR}/01-install-dependencies dogtag-pki
+
+   docker exec -i ${CONTAINER} ${SCRIPTDIR}/10-compose-rpms compose_dogtag_pki_theme_packages
+   docker exec -i ${CONTAINER} ${SCRIPTDIR}/20-install-rpms || exit $?
+
+   docker exec -i ${CONTAINER} ${SCRIPTDIR}/10-compose-rpms compose_pki_console_packages
+   docker exec -i ${CONTAINER} ${SCRIPTDIR}/20-install-rpms || exit $?
+
+   docker exec -i ${CONTAINER} ${SCRIPTDIR}/10-compose-rpms compose_dogtag_pki_meta_packages
+   docker exec -i ${CONTAINER} ${SCRIPTDIR}/20-install-rpms || exit $?
+
    docker exec -i ${CONTAINER} ${SCRIPTDIR}/30-setup-389ds
    # Test whether pki subsystem works correctly
    docker exec -i ${CONTAINER} ${SCRIPTDIR}/40-spawn-ca
