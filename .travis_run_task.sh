@@ -67,6 +67,11 @@ then
 
 elif [[ "$TASK_TO_RUN" == "pki-test" ]]
 then
+   # Generate RPMS for all other packages 
+   docker exec -ti ${CONTAINER} ${SCRIPTDIR}/10-compose-rpms compose_dogtag_pki_theme_packages
+   docker exec -ti ${CONTAINER} ${SCRIPTDIR}/10-compose-rpms compose_pki_console_packages
+   docker exec -ti ${CONTAINER} ${SCRIPTDIR}/10-compose-rpms compose_dogtag_pki_meta_packages
+
    docker exec -i ${CONTAINER} ${SCRIPTDIR}/20-install-rpms
    docker exec -i ${CONTAINER} ${SCRIPTDIR}/30-setup-389ds
    # Test whether pki subsystem works correctly
