@@ -181,12 +181,11 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 #        the instance will utilize 'softokn' or an HSM
                 #
                 rv = deployer.certutil.verify_certificate_exists(
-                    deployer.mdict['pki_database_path'],
-                    deployer.mdict['pki_cert_database'],
-                    deployer.mdict['pki_key_database'],
-                    deployer.mdict['pki_secmod_database'],
-                    deployer.mdict['pki_self_signed_token'],
-                    deployer.mdict['pki_ds_secure_connection_ca_nickname'],
+                    path=deployer.mdict['pki_database_path'],
+                    token=deployer.mdict['pki_self_signed_token'],
+                    nickname=deployer.mdict[
+                        'pki_ds_secure_connection_ca_nickname'
+                    ],
                     password_file=deployer.mdict['pki_shared_pfile'])
                 if not rv:
                     # Import the directory server CA certificate
