@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a20a785b_e8697010",
+        "filename": ".travis/20-install-rpms",
+        "patchSetId": 5
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-03-19T19:19:28Z",
+      "side": 1,
+      "message": "Can we replace it like this to avoid repeating the find command?\n\n echo ${PACKAGES} | xargs dnf install -y --best --allowerasing",
+      "revId": "7e1c847aa8989a67472881ce20dc5014ce2d7471",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "499144f3_501081e4",
+        "filename": ".travis/20-install-rpms",
+        "patchSetId": 5
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-03-19T19:19:28Z",
+      "side": 1,
+      "message": "Can we replace it like this to avoid repeating the find command?\n\n echo ${PACKAGES} | xargs rm",
+      "revId": "7e1c847aa8989a67472881ce20dc5014ce2d7471",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
