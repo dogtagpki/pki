@@ -870,6 +870,9 @@ class NSSDatabase(object):
 
             if self.token:
                 cmd.extend(['--token', self.token])
+                full_name = self.token + ':' + nickname
+            else:
+                full_name = nickname
 
             cmd.extend(['pkcs12-cert-import'])
 
@@ -902,7 +905,7 @@ class NSSDatabase(object):
             if debug:
                 cmd.extend(['--debug'])
 
-            cmd.extend([nickname])
+            cmd.extend([full_name])
 
             logger.debug('Command: %s', ' '.join(cmd))
             subprocess.check_call(cmd)
