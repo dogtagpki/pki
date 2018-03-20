@@ -1041,8 +1041,22 @@ class CertExportCLI(pki.cli.CLI):
             self.usage()
             sys.exit(1)
 
-        nickname = cert['nickname']
-        token = cert['token']
+        if cert_id == 'sslserver':
+            # get nickname and token from serverCertNick.conf
+            full_name = instance.get_sslserver_cert_nickname()
+            i = full_name.find(':')
+            if i < 0:
+                nickname = full_name
+                token = None
+
+            else:
+                nickname = full_name[i+1:]
+                token = full_name[:i]
+
+        else:
+            # get nickname and token from CS.cfg
+            nickname = cert['nickname']
+            token = cert['token']
 
         if self.verbose:
             print('Nickname: %s' % nickname)
