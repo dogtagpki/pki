@@ -27,14 +27,14 @@ These services include certificates, groups, keys, security domains, and users.
   
 .SH CLI OPTIONS
 .TP
-.B -c <client security database password>
-Specifies the client security database password (mutually exclusive to the '-C' option).
+.B -c <NSS database password>
+Specifies the NSS database password (mutually exclusive to the '-C' option).
 .TP
-.B -C <client-side password file>
-Specifies the file which contains the client security database password (mutually exclusive to the '-c' option).
+.B -C <NSS database password file>
+Specifies the file which contains the NSS database password (mutually exclusive to the '-c' option).
 .TP
-.B -d <client security database location>
-Specifies the client security database location (default: \fI~/.dogtag/nssdb\fP).
+.B -d <NSS database location>
+Specifies the NSS database location (default: \fI~/.dogtag/nssdb\fP).
 .TP
 .B -h <hostname>
 Specifies the hostname (default: hostname of the local machine).
@@ -93,8 +93,8 @@ To view available commands and options, simply type \fBpki\fP.  Some commands ha
 To view the sub-commands, type \fBpki <command>\fP.
 To view each command's usage, type \fB pki <command> \-\-help\fP.
 
-A client security database is needed to execute commands that require SSL connection or client certificate
-for authentication. See \fBpki-client\fR(1) for more information.
+An NSS database is needed to execute commands that require crypto operations such as establishing SSL connection.
+See \fBpki-client\fR(1) for more information.
 
 .SS Connection
 By default, the CLI connects to a server running on the local machine via the non-secure HTTP port 8080.  To specify a different server location, use the appropriate arguments to give a different host (\fB-h\fP), port (\fB-p\fP), or connection protocol (\fB-P\fP).
@@ -147,7 +147,7 @@ client authentication. This can be done by importing the client certificate
 into an NSS security database and passing the values to the relevant options
 provided by the \fBpki\fP CLI framework.
 
-To achieve this, execute the following commands to set up an NSS security database for use by the \fBpki\fP client, import the client certificate into the NSS database, and list information (including the nickname of the client certificate) stored in the NSS database:
+To achieve this, execute the following commands to set up an NSS database for use by the \fBpki\fP client, import the client certificate into the NSS database, and list information (including the nickname of the client certificate) stored in the NSS database:
 
 .B    - certutil -N -d <CERT_DB_DIR_PATH>
 
@@ -155,34 +155,34 @@ To achieve this, execute the following commands to set up an NSS security databa
 
 .B    - certutil -L -d <CERT_DB_DIR_PATH>
 
-The first command creates a client security database, and asks the client user to enter a password for this NSS database.
+The first command creates an NSS database, and asks the client user to enter a password for this NSS database.
 
-The second command imports a client certificate stored in a PKCS12 format into this NSS database; it prompts for the passwords of the PKCS12 file and the client security database.  The simplist example of such a client certificate is to obtain the administrator certificate created during the configuration portion of the basic PKI installation of the associated PKI server (e. g. - located at \fI/root/.dogtag/pki-tomcat/ca_admin_cert.p12\fP on the PKI server machine).
+The second command imports a client certificate stored in a PKCS12 format into this NSS database; it prompts for the passwords of the PKCS12 file and the NSS database.  The simplest example of such a client certificate is to obtain the administrator certificate created during the configuration portion of the basic PKI installation of the associated PKI server (e. g. - located at \fI/root/.dogtag/pki-tomcat/ca_admin_cert.p12\fP on the PKI server machine).
 
 The third command shows the information about the imported client certificate (including its nickname).
 
 \fBNote:\fP
-When issuing the first \fBpki\fP command using the authentication parameters (after completion of the setup of the client security database), a user may be greeted with a warning message which indicates that an untrusted issuer was encountered.  Simply reply 'Y' to import the CA certificate, and, presuming that the displayed CA server URL is valid, press the carriage return.
+When issuing the first \fBpki\fP command using the authentication parameters (after completion of the setup of the NSS database), a user may be greeted with a warning message which indicates that an untrusted issuer was encountered.  Simply reply 'Y' to import the CA certificate, and, presuming that the displayed CA server URL is valid, press the carriage return.
 
 .SS Client Authentication
 To authenticate with a client certificate:
 
-.B pki -d <client security database location> -c <client security database password> -n <client certificate nickname> <command>
-    
-Alternatively, to prevent exposure via the command-line, a client security database may store their password in a file instead. See \fBClient-side Password Files\fR for detailed information.
+.B pki -d <NSS database location> -c <NSS database password> -n <client certificate nickname> <command>
 
-To authenticate with a client certificate by obtaining the client security database password from a client-side password file:
+Alternatively, to prevent exposure via the command-line, an NSS database may store their password in a file instead. See \fBClient-side Password Files\fR for detailed information.
 
-.B pki -d <client security database location> -C <client-side password file> -n <client certificate nickname> <command>
+To authenticate with a client certificate by using the NSS database password stored in a file:
 
-Finally, if a client certificate has been specified on the command-line, and neither the '-C <client-side password file>' nor the '-c <client security database password>' options have been utilized, the client security database password will be prompted for.
+.B pki -d <NSS database location> -C <NSS password file> -n <client certificate nickname> <command>
 
-To authenticate with a client certificate by interactively prompting for a client security database password:
+Finally, if a client certificate has been specified on the command-line, and neither the '-C <NSS database password file>' nor the '-c <NSS database password>' options have been utilized, the NSS database password will be prompted for.
 
-.B pki -d <client security database location> -n <client certificate nickname> <command>
+To authenticate with a client certificate by interactively prompting for an NSS database password:
+
+.B pki -d <NSS database location> -n <client certificate nickname> <command>
 
 \fBNote:\fP
-Prompting for a client security database password is not suitable for automated batch processing.
+Prompting for an NSS database password is not suitable for automated batch processing.
 
 .SS Client-side Password Files
 
@@ -270,7 +270,7 @@ Certificate management commands
 .PP
 \fBpki-client\fR(1)
 .RS 4
-Client security database management commands
+NSS database management commands
 .RE
 
 .PP
