@@ -38,6 +38,8 @@ import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.util.IncorrectPasswordException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.BadRequestException;
@@ -67,6 +69,8 @@ import netscape.security.x509.X509CertImpl;
  */
 public class SystemConfigService extends PKIService implements SystemConfigResource {
 
+    public final static Logger logger = LoggerFactory.getLogger(SystemConfigService.class);
+
     public IConfigStore cs;
     public String csType;
     public String csSubsystem;
@@ -94,7 +98,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
     @Override
     public ConfigurationResponse configure(ConfigurationRequest request) throws Exception {
 
-        CMS.debug("SystemConfigService: configure()");
+        logger.debug("SystemConfigService: configure()");
 
         try {
             ConfigurationResponse response = new ConfigurationResponse();
@@ -102,15 +106,15 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             return response;
 
         } catch (PKIException e) { // normal responses
-            CMS.debug(e.getMessage()); // log the response
+            logger.error("Configuration failed: " + e.getMessage()); // log the response
             throw e;
 
         } catch (Exception e) { // unexpected exceptions
-            CMS.debug(e); // show stack trace for troubleshooting
+            logger.error("Configuration failed: " + e.getMessage(), e); // show stack trace for troubleshooting
             throw e;
 
         } catch (Error e) { // system errors
-            CMS.debug(e); // show stack trace for troubleshooting
+            logger.error("Configuration failed: " + e.getMessage(), e); // show stack trace for troubleshooting
             throw e;
         }
     }
@@ -122,13 +126,13 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             throw new BadRequestException("System is already configured");
         }
 
-        CMS.debug("SystemConfigService: request: " + data);
+        logger.debug("SystemConfigService: request: " + data);
         validateRequest(data);
 
         Collection<String> certList = getCertList(data);
 
         // specify module and log into token
-        CMS.debug("=== Token Authentication ===");
+        logger.debug("=== Token Authentication ===");
         String token = data.getToken();
         if (CryptoUtil.isInternalToken(token)) {
             token = CryptoUtil.INTERNAL_TOKEN_FULL_NAME;
@@ -136,24 +140,24 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         loginToken(data, token);
 
         // configure security domain
-        CMS.debug("=== Security Domain Configuration ===");
+        logger.debug("=== Security Domain Configuration ===");
         String domainXML = configureSecurityDomain(data);
 
         // configure subsystem
-        CMS.debug("=== Subsystem Configuration ===");
+        logger.debug("=== Subsystem Configuration ===");
         configureSubsystem(data, certList, token, domainXML);
 
         // configure hierarchy
-        CMS.debug("=== Hierarchy Configuration ===");
+        logger.debug("=== Hierarchy Configuration ===");
         configureHierarchy(data);
 
         // configure database
-        CMS.debug("=== Database Configuration ===");
+        logger.debug("=== Database Configuration ===");
         try {
             configureDatabase(data);
             cs.commit(false);
         } catch (EBaseException e) {
-            CMS.debug(e);
+            logger.error("Unable to commit config parameters to file: " + e.getMessage(), e);
             throw new PKIException("Unable to commit config parameters to file", e);
         }
         initializeDatabase(data);
@@ -168,19 +172,19 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         response.setSystemCerts(SystemCertDataFactory.create(certs));
 
         // backup keys
-        CMS.debug("=== Backup Keys ===");
+        logger.debug("=== Backup Keys ===");
         if (data.getBackupKeys().equals("true")) {
             backupKeys(data);
         }
 
         // configure admin
-        CMS.debug("=== Admin Configuration ===");
+        logger.debug("=== Admin Configuration ===");
         if (!data.isClone()) {
             configureAdministrator(data, response);
         }
 
         // create or update security domain
-        CMS.debug("=== Finalization ===");
+        logger.debug("=== Finalization ===");
         setupSecurityDomain(data);
         setupDBUser(data);
         finalizeConfiguration(data);
@@ -193,7 +197,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         try {
             ConfigurationUtils.removePreopConfigEntries();
         } catch (EBaseException e) {
-            CMS.debug(e);
+            logger.error("Errors when removing preop config entries: " + e.getMessage(), e);
             throw new PKIException("Errors when removing preop config entries: " + e, e);
         }
 
@@ -204,7 +208,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         try {
             if (!data.getSharedDB()) ConfigurationUtils.setupDBUser();
         } catch (Exception e) {
-            CMS.debug(e);
+            logger.error("Errors in creating or updating dbuser: " + e.getMessage(), e);
             throw new PKIException("Errors in creating or updating dbuser: " + e);
         }
     }
@@ -213,10 +217,10 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         try {
             String securityDomainType = data.getSecurityDomainType();
             if (securityDomainType.equals(ConfigurationRequest.NEW_DOMAIN)) {
-                CMS.debug("Creating new security domain");
+                logger.debug("Creating new security domain");
                 ConfigurationUtils.createSecurityDomain();
             } else if (securityDomainType.equals(ConfigurationRequest.NEW_SUBDOMAIN)) {
-                CMS.debug("Creating subordinate CA security domain");
+                logger.debug("Creating subordinate CA security domain");
 
                 // switch out security domain parameters from issuing CA security domain
                 // to subordinate CA hosted security domain
@@ -228,14 +232,14 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 cs.putString("securitydomain.httpsadminport", CMS.getAdminPort());
                 ConfigurationUtils.createSecurityDomain();
             } else {
-                CMS.debug("Updating existing security domain");
+                logger.debug("Updating existing security domain");
                 ConfigurationUtils.updateSecurityDomain();
             }
             cs.putString("service.securityDomainPort", CMS.getAgentPort());
             cs.putString("securitydomain.store", "ldap");
             cs.commit(false);
         } catch (Exception e) {
-            CMS.debug(e);
+            logger.error("Error while updating security domain: " + e.getMessage(), e);
             throw new PKIException("Error while updating security domain: " + e);
         }
     }
@@ -249,8 +253,8 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             certList.addAll(Arrays.asList(value.split(",")));
 
         } catch (Exception e) {
-            CMS.debug(e);
-            throw new PKIException("Unable to get certList from config file");
+            logger.error("Unable to get certList from config file: " + e.getMessage(), e);
+            throw new PKIException("Unable to get certList from config file: " + e, e);
         }
 
         return certList;
@@ -267,7 +271,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         for (String tag : certList) {
 
-            CMS.debug("=== Processing " + tag + " cert ===");
+            logger.debug("=== Processing " + tag + " cert ===");
 
             boolean enable = cs.getBoolean("preop.cert." + tag + ".enable", true);
             if (!enable) continue;
@@ -275,7 +279,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             SystemCertData certData = request.getSystemCert(tag);
 
             if (certData == null) {
-                CMS.debug("No data for '" + tag + "' was found!");
+                logger.error("No data for '" + tag + "' was found!");
                 throw new BadRequestException("No data for '" + tag + "' was found!");
             }
 
@@ -325,7 +329,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             ) throws Exception {
 
         String tag = certData.getTag();
-        CMS.debug("SystemConfigService.processKeyPair(" + tag + ")");
+        logger.debug("SystemConfigService.processKeyPair(" + tag + ")");
 
         String keytype = certData.getKeyType() != null ? certData.getKeyType() : "rsa";
 
@@ -342,28 +346,28 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         // support injecting SAN into server cert
         if (tag.equals("sslserver") && certData.getServerCertSAN() != null) {
-            CMS.debug("SystemConfigService: san_server_cert found");
+            logger.debug("SystemConfigService: san_server_cert found");
             cs.putString("service.injectSAN", "true");
             cs.putString("service.sslserver.san", certData.getServerCertSAN());
 
         } else {
             if (tag.equals("sslserver")) {
-                CMS.debug("SystemConfigService: san_server_cert not found");
+                logger.debug("SystemConfigService: san_server_cert not found");
             }
         }
         cs.commit(false);
 
         try {
 
-            CMS.debug("SystemConfigService: loading existing key pair from NSS database");
+            logger.debug("SystemConfigService: loading existing key pair from NSS database");
             KeyPair pair = ConfigurationUtils.loadKeyPair(certData.getNickname(), certData.getToken());
 
-            CMS.debug("SystemConfigService: storing key pair into CS.cfg");
+            logger.debug("SystemConfigService: storing key pair into CS.cfg");
             ConfigurationUtils.storeKeyPair(cs, tag, pair);
 
         } catch (ObjectNotFoundException e) {
 
-            CMS.debug("SystemConfigService: key pair not found, generating new key pair");
+            logger.debug("SystemConfigService: key pair not found, generating new key pair");
 
             KeyPair pair;
             if (keytype.equals("ecc")) {
@@ -379,7 +383,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 pair = ConfigurationUtils.createRSAKeyPair(token, Integer.parseInt(keysize), cs, tag);
             }
 
-            CMS.debug("SystemConfigService: storing key pair into CS.cfg");
+            logger.debug("SystemConfigService: storing key pair into CS.cfg");
             ConfigurationUtils.storeKeyPair(cs, tag, pair);
         }
     }
@@ -390,7 +394,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             String tokenName) throws Exception {
 
         String tag = certData.getTag();
-        CMS.debug("SystemConfigService.processCert(" + tag + ")");
+        logger.debug("SystemConfigService.processCert(" + tag + ")");
 
         String nickname = cs.getString("preop.cert." + tag + ".nickname");
         String dn = cs.getString("preop.cert." + tag + ".dn");
@@ -408,7 +412,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             fullName = nickname;
         }
 
-        CMS.debug("SystemConfigService: checking " + tag + " cert in NSS database");
+        logger.debug("SystemConfigService: checking " + tag + " cert in NSS database");
 
         CryptoManager cm = CryptoManager.getInstance();
         X509Certificate x509Cert;
@@ -428,21 +432,21 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 || request.getStandAlone()
                 || request.isExternal() && ("kra".equals(subsystem) || "ocsp".equals(subsystem))) {
 
-            CMS.debug("SystemConfigService: loading existing " + tag + " cert");
+            logger.debug("SystemConfigService: loading existing " + tag + " cert");
             byte[] bytes = x509Cert.getEncoded();
             String b64 = CryptoUtil.base64Encode(bytes);
             String certStr = CryptoUtil.normalizeCertStr(b64);
-            CMS.debug("SystemConfigService: cert: " + certStr);
+            logger.debug("SystemConfigService: cert: " + certStr);
 
             cert.setCert(bytes);
 
             ConfigurationUtils.updateConfig(cs, tag);
 
-            CMS.debug("SystemConfigService: loading existing cert request");
+            logger.debug("SystemConfigService: loading existing cert request");
             byte[] binRequest = ConfigurationUtils.loadCertRequest(cs, subsystem, tag);
             String b64Request = CryptoUtil.base64Encode(binRequest);
 
-            CMS.debug("SystemConfigService: request: " + b64Request);
+            logger.debug("SystemConfigService: request: " + b64Request);
 
             cert.setRequest(binRequest);
 
@@ -451,7 +455,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             // might conflict with system certificates to be created later.
             // Also create the certificate request record for renewals.
 
-            CMS.debug("SystemConfigService: subsystem: " + subsystem);
+            logger.debug("SystemConfigService: subsystem: " + subsystem);
             if (!subsystem.equals("ca")) {
                 // not a CA -> done
                 return cert;
@@ -459,7 +463,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
             // checking whether the cert was generated by the current CA
 
-            CMS.debug("SystemConfigService: issuer DN: " + x509Cert.getIssuerDN());
+            logger.debug("SystemConfigService: issuer DN: " + x509Cert.getIssuerDN());
 
             // getting CA signing cert
             SystemCertData caSigningData = request.getSystemCert("signing");
@@ -467,14 +471,14 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             X509Certificate caSigningCert = cm.findCertByNickname(caSigningNickname);
             Principal caSigningDN = caSigningCert.getSubjectDN();
 
-            CMS.debug("SystemConfigService: CA signing DN: " + caSigningDN);
+            logger.debug("SystemConfigService: CA signing DN: " + caSigningDN);
 
             if (!x509Cert.getIssuerDN().equals(caSigningDN)) {
                 // cert was issued by an external CA -> done
                 return cert;
             }
 
-            CMS.debug("SystemConfigService: creating cert record for " + tag + " cert");
+            logger.debug("SystemConfigService: creating cert record for " + tag + " cert");
             ConfigurationUtils.createCertRecord(cs, cert);
 
             return cert;
@@ -486,7 +490,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         String certStr = cs.getString(subsystem + "." + tag + ".cert" );
         cert.setCert(CryptoUtil.base64Decode(certStr));
 
-        CMS.debug("SystemConfigService: cert: " + certStr);
+        logger.debug("SystemConfigService: cert: " + certStr);
 
         // generate certificate request for the system certificate
         ConfigurationUtils.generateCertRequest(cs, tag, cert);
@@ -501,7 +505,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             String tag = cert.getCertTag();
             String subsystem = cert.getSubsystem();
 
-            CMS.debug("=== Handling " + tag + " cert ===");
+            logger.debug("=== Handling " + tag + " cert ===");
 
             ConfigurationUtils.handleCert(cert);
 
@@ -517,10 +521,10 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         CryptoManager cryptoManager = CryptoManager.getInstance();
         String nickname;
         if (!CryptoUtil.isInternalToken(tokenName)) {
-            CMS.debug("SystemConfigService:updateCloneConfiguration: tokenName=" + tokenName);
+            logger.debug("SystemConfigService:updateCloneConfiguration: tokenName=" + tokenName);
             nickname = tokenName + ":" + cdata.getNickname();
         } else {
-            CMS.debug("SystemConfigService:updateCloneConfiguration: tokenName empty; using internal");
+            logger.debug("SystemConfigService:updateCloneConfiguration: tokenName empty; using internal");
             nickname = cdata.getNickname();
         }
 
@@ -556,7 +560,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         try {
             ConfigurationUtils.backupKeys(request.getBackupPassword(), request.getBackupFile());
         } catch (Exception e) {
-            CMS.debug(e);
+            logger.error("Error in creating pkcs12 to backup keys and certs: " + e.getMessage(), e);
             throw new PKIException("Error in creating pkcs12 to backup keys and certs: " + e);
         }
     }
@@ -717,7 +721,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             cs.commit(false);
 
             if (data.isClone() && data.getSetupReplication()) {
-                CMS.debug("Start setting up replication.");
+                logger.debug("Start setting up replication.");
                 ConfigurationUtils.setupReplication();
             }
 
@@ -725,7 +729,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             ConfigurationUtils.populateVLVIndexes();
 
         } catch (Exception e) {
-            CMS.debug(e);
+            logger.error("Error in populating database: " + e.getMessage(), e);
             throw new PKIException("Error in populating database: " + e, e);
         }
     }
@@ -751,7 +755,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             try {
                 String url = data.getIssuingCA();
                 if (url.equals("External CA")) {
-                    CMS.debug("external CA selected");
+                    logger.debug("external CA selected");
                     cs.putString("preop.ca.type", "otherca");
                     cs.putString("preop.ca.pkcs7", "");
                     cs.putInteger("preop.ca.certchain.size", 0);
@@ -760,7 +764,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                     }
 
                 } else {
-                    CMS.debug("local CA selected");
+                    logger.debug("local CA selected");
                     url = url.substring(url.indexOf("https"));
                     cs.putString("preop.ca.url", url);
                     URL urlx = new URL(url);
@@ -804,7 +808,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         String masterHost = url.getHost();
         int masterPort = url.getPort();
 
-        CMS.debug("SystemConfigService: validate clone URI: " + url);
+        logger.debug("SystemConfigService: validate clone URI: " + url);
         boolean validCloneUri = ConfigurationUtils.isValidCloneURI(domainXML, masterHost, masterPort);
 
         if (!validCloneUri) {
@@ -813,30 +817,30 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         }
 
         if (csType.equals("CA") && !data.getSystemCertsImported()) {
-            CMS.debug("SystemConfigService: import certificate chain from master");
+            logger.debug("SystemConfigService: import certificate chain from master");
             int masterAdminPort = ConfigurationUtils.getPortFromSecurityDomain(domainXML,
                     masterHost, masterPort, "CA", "SecurePort", "SecureAdminPort");
             ConfigurationUtils.importCertChain(masterHost, masterAdminPort,
                     "/ca/admin/ca/getCertChain", "clone");
         }
 
-        CMS.debug("SystemConfigService: get configuration entries from master");
+        logger.debug("SystemConfigService: get configuration entries from master");
         ConfigurationUtils.getConfigEntriesFromMaster();
 
         if (CryptoUtil.isInternalToken(token)) {
             if (!data.getSystemCertsImported()) {
-                CMS.debug("SystemConfigService: restore certificates from P12 file");
+                logger.debug("SystemConfigService: restore certificates from P12 file");
                 String p12File = data.getP12File();
                 String p12Pass = data.getP12Password();
                 ConfigurationUtils.restoreCertsFromP12(p12File, p12Pass);
             }
 
         } else {
-            CMS.debug("SystemConfigService: import certificates from HSM and set permission");
+            logger.debug("SystemConfigService: import certificates from HSM and set permission");
             ConfigurationUtils.importAndSetCertPermissionsFromHSM();
         }
 
-        CMS.debug("SystemConfigService: verify certificates");
+        logger.debug("SystemConfigService: verify certificates");
         ConfigurationUtils.verifySystemCertificates();
     }
 
@@ -850,12 +854,12 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         if (securityDomainType.equals(ConfigurationRequest.NEW_DOMAIN)) {
             configureNewSecurityDomain(data, securityDomainName);
         } else if (securityDomainType.equals(ConfigurationRequest.NEW_SUBDOMAIN)){
-            CMS.debug("Configuring new subordinate root CA");
+            logger.debug("Configuring new subordinate root CA");
             configureNewSecurityDomain(data, data.getSubordinateSecurityDomainName());
             String securityDomainURL = data.getSecurityDomainUri();
             domainXML = logIntoSecurityDomain(data, securityDomainURL);
         } else {
-            CMS.debug("Joining existing security domain");
+            logger.debug("Joining existing security domain");
             cs.putString("preop.securitydomain.select", "existing");
             cs.putString("securitydomain.select", "existing");
             cs.putString("preop.cert.subsystem.type", "remote");
@@ -867,7 +871,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
     }
 
     private void configureNewSecurityDomain(ConfigurationRequest data, String securityDomainName) {
-        CMS.debug("Creating new security domain");
+        logger.debug("Creating new security domain");
         cs.putString("preop.securitydomain.select", "new");
         cs.putString("securitydomain.select", "new");
         cs.putString("preop.securitydomain.name", securityDomainName);
@@ -887,19 +891,19 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         String host;
         int port;
         try {
-            CMS.debug("Resolving security domain URL " + securityDomainURL);
+            logger.debug("Resolving security domain URL " + securityDomainURL);
             secdomainURL = new URL(securityDomainURL);
             host = secdomainURL.getHost();
             port = secdomainURL.getPort();
             cs.putString("securitydomain.host", host);
             cs.putInteger("securitydomain.httpsadminport",port);
         } catch (Exception e) {
-            CMS.debug(e);
-            throw new PKIException("Failed to resolve security domain URL", e);
+            logger.error("Failed to resolve security domain URL: " + e.getMessage(), e);
+            throw new PKIException("Failed to resolve security domain URL: " + e, e);
         }
 
         if (!data.getSystemCertsImported()) {
-            CMS.debug("Getting security domain cert chain");
+            logger.debug("Getting security domain cert chain");
             ConfigurationUtils.importCertChain(host, port, "/ca/admin/ca/getCertChain", "securitydomain");
         }
 
@@ -917,27 +921,27 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         Long d = data.getSecurityDomainPostLoginSleepSeconds();
         if (null == d || d <= 0)
             d = new Long(5);
-        CMS.debug("Logged into security domain; sleeping for " + d + "s");
+        logger.debug("Logged into security domain; sleeping for " + d + "s");
         Thread.sleep(d * 1000);
 
         return domainXML;
     }
 
     private String getDomainXML(String host, int port) {
-        CMS.debug("Getting domain XML");
+        logger.debug("Getting domain XML");
         String domainXML = null;
         try {
             domainXML = ConfigurationUtils.getDomainXML(host, port, true);
             ConfigurationUtils.getSecurityDomainPorts(domainXML, host, port);
         } catch (Exception e) {
-            CMS.debug(e);
+            logger.error("Failed to obtain security domain decriptor from security domain master: " + e.getMessage(), e);
             throw new PKIException("Failed to obtain security domain decriptor from security domain master: " + e, e);
         }
         return domainXML;
     }
 
     private void getInstallToken(ConfigurationRequest data, String host, int port) {
-        CMS.debug("Getting install token");
+        logger.debug("Getting install token");
         // log onto security domain and get token
         String user = data.getSecurityDomainUser();
         String pass = data.getSecurityDomainPassword();
@@ -945,13 +949,13 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         try {
             installToken = ConfigurationUtils.getInstallToken(host, port, user, pass);
         } catch (Exception e) {
-            CMS.debug(e);
+            logger.error("Failed to obtain installation token from security domain: " + e.getMessage(), e);
             throw new PKIException("Failed to obtain installation token from security domain: " + e, e);
         }
 
         if (installToken == null) {
-            CMS.debug("Install token is null");
-            throw new PKIException("Failed to obtain installation token from security domain");
+            logger.error("Missing install token");
+            throw new PKIException("Missing install token");
         }
         CMS.setConfigSDSessionId(installToken);
     }
@@ -978,21 +982,21 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         if (!CryptoUtil.isInternalToken(token)) {
             try {
-                CMS.debug("Logging into token " + token);
+                logger.debug("Logging into token " + token);
                 CryptoToken ctoken = CryptoUtil.getKeyStorageToken(token);
                 String tokenpwd = data.getTokenPassword();
                 ConfigurationUtils.loginToken(ctoken, tokenpwd);
 
             } catch (NotInitializedException e) {
-                CMS.debug(e);
-                throw new PKIException("Token is not initialized", e);
+                logger.error("Token is not initialized: " + e.getMessage(), e);
+                throw new PKIException("Token is not initialized: " + e, e);
 
             } catch (NoSuchTokenException e) {
-                CMS.debug(e);
+                logger.error("No such key storage token: " + token, e);
                 throw new BadRequestException("No such key storage token: " + token, e);
 
             } catch (TokenException e) {
-                CMS.debug(e);
+                logger.error("Token Exception: " + e.getMessage(), e);
                 throw new PKIException("Token Exception: " + e, e);
 
             } catch (IncorrectPasswordException e) {
