@@ -1,7 +1,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH pki-client 1 "May 5, 2014" "version 10.2" "PKI Client Security Database Management Commands" Dogtag Team
+.TH pki-client 1 "May 5, 2014" "version 10.2" "PKI NSS Database Management Commands" Dogtag Team
 .\" Please adjust this date whenever revising the man page.
 .\"
 .\" Some roff macros, for reference:
@@ -44,7 +44,7 @@ This command is to create a new security database for the client.
 .PP
 \fBpki\fR [CLI options] \fBclient-cert-find\fR [command options]
 .RS 4
-This command is to list certificates in the client security database.
+This command is to list certificates in the NSS database.
 .RE
 .PP
 \fBpki\fR [CLI options] \fBclient-cert-request\fR [subject DN] [command options]
@@ -54,22 +54,22 @@ This command is to generate and submit a certificate request.
 .PP
 \fBpki\fR [CLI options] \fBclient-cert-import\fR [nickname] [command options]
 .RS 4
-This command is to import a certificate into the client security database.
+This command is to import a certificate into the NSS database.
 .RE
 .PP
 \fBpki\fR [CLI options] \fBclient-cert-mod\fR <nickname> [command options]
 .RS 4
-This command is to modify a certificate in the client security database.
+This command is to modify a certificate in the NSS database.
 .RE
 .PP
 \fBpki\fR [CLI options] \fBclient-cert-show\fR <nickname> [command options]
 .RS 4
-This command is to view a certificate in the client security database.
+This command is to view a certificate in the NSS database.
 .RE
 .PP
 \fBpki\fR [CLI options] \fBclient-cert-del\fR <nickname> [command options]
 .RS 4
-This command is to delete a certificate from the client security database.
+This command is to delete a certificate from the NSS database.
 .RE
 
 .SH OPTIONS
