@@ -35,7 +35,7 @@ public class ClientCertFindCLI extends CLI {
     public ClientCLI clientCLI;
 
     public ClientCertFindCLI(ClientCLI clientCLI) {
-        super("cert-find", "Find certificates in client security database", clientCLI);
+        super("cert-find", "Find certificates in NSS database", clientCLI);
         this.clientCLI = clientCLI;
 
         createOptions();

@@ -57,7 +57,7 @@ public class ClientCertImportCLI extends CLI {
     public ClientCLI clientCLI;
 
     public ClientCertImportCLI(ClientCLI clientCLI) {
-        super("cert-import", "Import certificate into client security database", clientCLI);
+        super("cert-import", "Import certificate into NSS database", clientCLI);
         this.clientCLI = clientCLI;
 
         createOptions();

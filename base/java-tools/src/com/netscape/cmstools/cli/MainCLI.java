@@ -164,16 +164,16 @@ public class MainCLI extends CLI {
         option.setArgName("type");
         options.addOption(option);
 
-        option = new Option("d", true, "Client security database location (default: ~/.dogtag/nssdb)");
+        option = new Option("d", true, "NSS database location (default: ~/.dogtag/nssdb)");
         option.setArgName("database");
         options.addOption(option);
 
-        option = new Option("c", true, "Client security database password (mutually exclusive to the '-C' option; requires the '-n' client authentication option)");
-        option.setArgName("certpassword");
+        option = new Option("c", true, "NSS database password (mutually exclusive to the '-C' option)");
+        option.setArgName("password");
         options.addOption(option);
 
-        option = new Option("C", true, "Client-side password file (mutually exclusive to the '-c' option; requires the '-n' client authentication option)");
-        option.setArgName("certpasswordfile");
+        option = new Option("C", true, "NSS database password file (mutually exclusive to the '-c' option)");
+        option.setArgName("password file");
         options.addOption(option);
 
         option = new Option("n", true, "Client certificate nickname (signifies client authentication which is mutually exclusive to '-u' basic authentication option)");
@@ -386,7 +386,7 @@ public class MainCLI extends CLI {
         if (certPasswordFile != null) {
             if (verbose) System.out.println("Loading NSS password from " + certPasswordFile);
             tokenPasswordPair = loadPassword(certPasswordFile);
-            // XXX TBD set client security database token
+            // XXX TBD set NSS database token
 
             certPassword = tokenPasswordPair[1];
         }
@@ -421,7 +421,7 @@ public class MainCLI extends CLI {
         ignoreBanner = cmd.hasOption("ignore-banner");
 
         this.certDatabase = new File(config.getCertDatabase());
-        if (verbose) System.out.println("Client security database: "+this.certDatabase.getAbsolutePath());
+        if (verbose) System.out.println("NSS database: " + this.certDatabase.getAbsolutePath());
 
         String messageFormat = cmd.getOptionValue("message-format");
         config.setMessageFormat(messageFormat);
@@ -494,11 +494,11 @@ public class MainCLI extends CLI {
 
             } catch (NotInitializedException e) {
                 // The original exception doesn't contain a message.
-                throw new Exception("Client security database does not exist.", e);
+                throw new Exception("NSS database does not exist.", e);
 
             } catch (IncorrectPasswordException e) {
                 // The original exception doesn't contain a message.
-                throw new Exception("Incorrect client security database password.", e);
+                throw new Exception("Incorrect NSS database password.", e);
             }
 
         }

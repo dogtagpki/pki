@@ -34,7 +34,7 @@ public class ClientCertRemoveCLI extends CLI {
     public ClientCLI clientCLI;
 
     public ClientCertRemoveCLI(ClientCLI clientCLI) {
-        super("cert-del", "Remove certificate from client security database", clientCLI);
+        super("cert-del", "Remove certificate from NSS database", clientCLI);
         this.clientCLI = clientCLI;
     }
 

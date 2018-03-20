@@ -41,7 +41,7 @@ public class ClientCertShowCLI extends CLI {
     public ClientCLI clientCLI;
 
     public ClientCertShowCLI(ClientCLI clientCLI) {
-        super("cert-show", "Show certificate in client security database", clientCLI);
+        super("cert-show", "Show certificate in NSS database", clientCLI);
         this.clientCLI = clientCLI;
 
         createOptions();

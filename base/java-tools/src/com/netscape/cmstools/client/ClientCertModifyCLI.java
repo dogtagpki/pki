@@ -32,7 +32,7 @@ public class ClientCertModifyCLI extends CLI {
     public ClientCLI clientCLI;
 
     public ClientCertModifyCLI(ClientCLI clientCLI) {
-        super("cert-mod", "Modify certificate in client security database", clientCLI);
+        super("cert-mod", "Modify certificate in NSS database", clientCLI);
         this.clientCLI = clientCLI;
 
         createOptions();

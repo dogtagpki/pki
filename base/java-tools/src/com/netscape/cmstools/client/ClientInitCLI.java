@@ -39,7 +39,7 @@ import com.netscape.cmstools.cli.MainCLI;
 public class ClientInitCLI extends CLI {
 
     public ClientInitCLI(ClientCLI clientCLI) {
-        super("init", "Initialize client security database", clientCLI);
+        super("init", "Initialize NSS database", clientCLI);
 
         createOptions();
     }

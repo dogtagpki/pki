@@ -56,11 +56,11 @@ class PKICLI(pki.cli.CLI):
         print('Usage: pki [OPTIONS]')
         print()
         print('      --client-type <type>     PKI client type (default: java)')
-        print('   -d <path>                   Client security database location ' +
+        print('   -d <path>                   NSS database location ' +
               '(default: ~/.dogtag/nssdb)')
-        print('   -c <password>               Client security database password ' +
+        print('   -c <password>               NSS database password ' +
               '(mutually exclusive to the -C option)')
-        print('   -C <path>                   Client-side password file ' +
+        print('   -C <path>                   NSS database password file ' +
               '(mutually exclusive to the -c option)')
         print('      --token <name>           Security token name')
         print()
