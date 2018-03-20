@@ -16,6 +16,24 @@
       "revId": "4c8c4240bfccc1fdd3605ae986d34564a13ff1bf",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e476c1a8_4204e674",
+        "filename": "base/common/python/pki/nssdb.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 514,
+      "author": {
+        "id": 1011000
+      },
+      "writtenOn": "2018-03-20T02:04:34Z",
+      "side": 1,
+      "message": "Roger that.  Will fix in next patchset.  (No need to rush it because we are blocked on NSS at the moment).  Thanks for the review.",
+      "parentUuid": "5224e1d3_a95f96e2",
+      "revId": "4c8c4240bfccc1fdd3605ae986d34564a13ff1bf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
