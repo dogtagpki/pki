@@ -1136,7 +1136,7 @@ run_pki-tks-user-cli-tks-user-add_tests(){
 	rlLog "tks-user-add email address četrdesmitdivi@qetestsdomain.com with i18n characters"
         command="pki -d $CERTDB_DIR -n ${prefix}_adminV  -c $CERTDB_DIR_PASSWORD -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) tks-user-add --fullName=test --email='četrdesmitdivi@qetestsdomain.com' u32"
         rlLog "Executing $command"
-        errmsg="IncorrectPasswordException: Incorrect client security database password."
+        errmsg="IncorrectPasswordException: Incorrect NSS database password."
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Adding email četrdesmitdivi@qetestsdomain.com with i18n characters"
         rlLog "PKI Ticket :: https://fedorahosted.org/pki/ticket/860"
