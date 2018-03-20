@@ -50,9 +50,8 @@ from .pkiconfig import pki_selinux_config_ports as ports
 from . import pkimanifest as manifest
 from . import pkimessages as log
 from .pkiparser import PKIConfigParser
-import pki.client
-import pki.system
-import pki.util
+
+import pki
 
 # special care for SELinux
 import selinux
@@ -4068,7 +4067,7 @@ class ConfigClient:
         with open(output_file, "w") as f:
             f.write(input_data)
 
-    def save_system_csr(self, csr, message, path, subsystem=None):
+    def save_system_csr(self, request, message, path, subsystem=None):
         if subsystem is not None:
             config.pki_log.info(message, subsystem, path,
                                 extra=config.PKI_INDENTATION_LEVEL_2)
@@ -4076,6 +4075,7 @@ class ConfigClient:
             config.pki_log.info(message, path,
                                 extra=config.PKI_INDENTATION_LEVEL_2)
         self.deployer.directory.create(os.path.dirname(path))
+        csr = pki.nssdb.convert_csr(request, 'base64', 'pem')
         with open(path, "w") as f:
             f.write(csr)
         # Print this certificate request
