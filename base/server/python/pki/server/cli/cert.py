@@ -1034,16 +1034,23 @@ class CertExportCLI(pki.cli.CLI):
                   '%s.' % (subsystem_name, instance_name))
             sys.exit(1)
 
-        nssdb = instance.open_nssdb()
+        cert = subsystem.get_subsystem_cert(cert_tag)
+
+        if not cert:
+            print('ERROR: missing %s certificate' % cert_id)
+            self.usage()
+            sys.exit(1)
+
+        nickname = cert['nickname']
+        token = cert['token']
+
+        if self.verbose:
+            print('Nickname: %s' % nickname)
+            print('Token: %s' % token)
+
+        nssdb = instance.open_nssdb(token)
 
         try:
-            cert = subsystem.get_subsystem_cert(cert_tag)
-
-            if not cert:
-                print('ERROR: missing %s certificate' % cert_id)
-                self.usage()
-                sys.exit(1)
-
             if cert_file:
 
                 if self.verbose:
@@ -1080,10 +1087,7 @@ class CertExportCLI(pki.cli.CLI):
                 if not pkcs12_password and not pkcs12_password_file:
                     pkcs12_password = getpass.getpass(prompt='Enter password for PKCS #12 file: ')
 
-                nickname = cert['nickname']
-
                 if self.verbose:
-                    print('Nickname: %s' % nickname)
                     print('Friendly name: %s' % friendly_name)
 
                 nssdb.export_cert(
