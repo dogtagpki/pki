@@ -400,6 +400,11 @@ public class PKCS12Util {
         CryptoManager cm = CryptoManager.getInstance();
 
         X509Certificate[] certs = cm.findCertsByNickname(nickname);
+
+        if (certs == null || certs.length == 0) {
+            throw new Exception("Certificate not found: " + nickname);
+        }
+
         for (X509Certificate cert : certs) {
             loadCertFromNSS(pkcs12, cert, includeKey, includeChain, friendlyName);
         }
