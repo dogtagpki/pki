@@ -218,6 +218,10 @@ profile, and submit the request using the following command:
 Depending on the profile, the command may require authentication (see the profile configuration file).
 The CLI currently supports client certificate authentication and directory-based authentication.
 
+To submit the certificate renewal request can be submitted using the following command:
+
+.B pki ca-cert-request-submit --profile <Renewal Profile> --serial <Certificate ID> --renewal
+
 Also depending on the profile, an agent may need to review and approve the request by running
 the following command:
 
