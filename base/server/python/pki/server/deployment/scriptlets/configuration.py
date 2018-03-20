@@ -905,7 +905,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # TODO: replace with pki-server cert-import sslserver
 
         nickname = sslserver['nickname']
-        token = deployer.mdict['pki_token_name']
+        token = sslserver['token']
 
         config.pki_log.info(
             "removing temp SSL server cert from internal token: %s", nickname,
@@ -916,7 +916,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         try:
             # Remove temp SSL server cert from internal token.
             # Remove temp key too if the perm cert uses HSM.
-            if not token or token == 'internal':
+            if not token or \
+                    token.lower() == 'internal' or \
+                    token.lower() == 'internal key storage token':
                 remove_key = False
             else:
                 remove_key = True
@@ -925,10 +927,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         finally:
             nssdb.close()
 
-    def import_perm_sslserver_cert(self, deployer, instance, sslserver):
+    def import_perm_sslserver_cert(self, instance, sslserver):
 
         nickname = sslserver['nickname']
-        token = deployer.mdict['pki_token_name']
+        token = sslserver['token']
 
         config.pki_log.info(
             "importing permanent SSL server cert into %s token: %s", token, nickname,
@@ -938,7 +940,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         nssdb = instance.open_nssdb(token)
 
         try:
-            pem_cert = pki.nssdb.convert_cert(sslserver['cert'], 'base64', 'pem')
+            pem_cert = pki.nssdb.convert_cert(sslserver['data'], 'base64', 'pem')
 
             cert_file = os.path.join(tmpdir, 'sslserver.crt')
             with open(cert_file, 'w') as f:
@@ -1147,12 +1149,13 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if not isinstance(certs, list):
             certs = [certs]
 
-        sslserver = None
+        sslserver = subsystem.get_subsystem_cert('sslserver')
 
         for cdata in certs:
 
             if cdata['tag'] == 'sslserver':
-                sslserver = cdata
+                sslserver['data'] = cdata['cert']
+                sslserver['request'] = cdata['request']
 
             if standalone and not step_two:
 
@@ -1239,7 +1242,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         # If temp SSL server cert was created and there's a new perm cert,
         # replace it with the perm cert.
-        if create_temp_sslserver_cert and sslserver and sslserver['cert']:
+        if create_temp_sslserver_cert and sslserver and sslserver['data']:
             deployer.systemd.stop()
 
             # Remove temp SSL server cert.
@@ -1249,7 +1252,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             # earlier in external/standalone installation.
 
             if not (standalone or external and subsystem.name in ['kra', 'ocsp']):
-                self.import_perm_sslserver_cert(deployer, instance, sslserver)
+                self.import_perm_sslserver_cert(instance, sslserver)
 
             deployer.systemd.start()
 
