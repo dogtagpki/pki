@@ -625,6 +625,7 @@ class PKIInstance(object):
         self.log_dir = os.path.join(LOG_BASE_DIR, name)
 
         self.server_xml = os.path.join(self.conf_dir, 'server.xml')
+        self.server_cert_nick_conf = os.path.join(self.conf_dir, 'serverCertNick.conf')
         self.banner_file = os.path.join(self.conf_dir, 'banner.txt')
         self.password_conf = os.path.join(self.conf_dir, 'password.conf')
         self.external_certs_conf = os.path.join(
@@ -865,6 +866,10 @@ class PKIInstance(object):
         server_config = ServerConfiguration(self.server_xml)
         server_config.load()
         return server_config
+
+    def get_sslserver_cert_nickname(self):
+        with open(self.server_cert_nick_conf) as f:
+            return f.readline().strip()
 
     def get_subsystem(self, name):
         for subsystem in self.subsystems:
