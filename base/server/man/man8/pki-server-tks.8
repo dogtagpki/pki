@@ -1,0 +1,69 @@
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH pki-server-tks 8 "Mar 21, 2018" "version 10.5" "PKI Instance Management Commands" Dogtag Team
+.\" Please adjust this date whenever revising the man page.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for man page specific macros, see man(7)
+.SH NAME
+pki-server-tks \- Command-Line Interface for managing TKS.
+
+.SH SYNOPSIS
+.nf
+\fBpki-server tks-clone-prepare\fR -i <instance ID>
+\fBpki-server tks-audit-event-find\fR -i <instance ID>
+\fBpki-server tks-audit-file-find\fR -i <instance ID>
+\fBpki-server tks-audit-file-verify\fR -i <instance ID>
+.fi
+
+.SH DESCRIPTION
+.PP
+The \fBpki-server tks\fR commands provide command-line interfaces to manage
+Token Key Service instances.
+.PP
+Operations that are available include: TKS clone prepare will store certificates
+into pkcs12 file; TKS certificate backup (clone prepare); finding TKS audit file;
+verifying TKS audit file.
+.PP
+\fBpki-server tks\fR
+.RS 4
+This command is to list available tks commands.
+.RE
+.PP
+\fBpki-server tks-clone-prepare -i <instance ID> --pkcs12-file <file_name.p12> --pkcs12-password <password> \fR
+.RS 4
+This command export all TKS instance certificate to the PKCS #12 file with private keys.
+.RE
+.PP
+\fBpki-server tks-audit-event-find -i <instance ID> --enabled True/False \fR
+.RS 4
+This command list all the audit events which are enabled/disabled.
+.RE
+.PP
+\fBpki-server tks-audit-file-find -i <instance ID> \fR
+.RS 4
+This command find the TKS instance audit log file.
+.RE
+.PP
+\fBpki-server tks-audit-file-verify -i <instance ID> \fR
+.RS 4
+This command will verify that audit log file is signed or not.
+.RE
+.PP
+
+All pki-server commands must be executed as the system administrator.
+
+.SH AUTHORS
+Amol Kahat <akahat@redhat.com>
+
+.SH COPYRIGHT
+Copyright (c) 2018 Red Hat, Inc. This is licensed under the GNU General Public License, version 2 (GPLv2). A copy of this license is available at http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.

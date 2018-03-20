@@ -1,0 +1,100 @@
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH pki-server-kra 8 "Mar 21, 2018" "version 10.5" "PKI Instance Management Commands" Dogtag Team
+.\" Please adjust this date whenever revising the man page.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for man page specific macros, see man(7)
+.SH NAME
+pki-server-kra \- Command-Line Interface for managing Certificate System KRA.
+
+.SH SYNOPSIS
+.nf
+\fBpki-server kra-clone-prepare\fR -i <instance ID>
+\fBpki-server kra-db-vlv-find\fR -i <instance ID>
+\fBpki-server kra-db-vlv-add\fR -i <instance ID>
+\fBpki-server kra-db-vlv-del\fR -i <instance ID>
+\fBpki-server kra-db-vlv-reindex\fR -i <instance ID>
+\fBpki-server kra-audit-event-find\fR -i <instance ID>
+\fBpki-server kra-audit-file-find\fR -i <instance ID>
+\fBpki-server kra-audit-file-verify\fR -i <instance ID>
+.fi
+
+.SH DESCRIPTION
+.PP
+The \fBpki-server kra\fR commands provide command-line interfaces to manage
+Key Recovery Authority instances.
+.PP
+Operations that are available include: KRA clone prepare will store certificates
+into pkcs12 file; KRA certificate backup (clone prepare); finding KRA audit file;
+verifying KRA audit file. KRA database vlv records management;
+.PP
+\fBpki-server kra\fR
+.RS 4
+This command is to list available kra commands.
+.RE
+.PP
+\fBpki-server kra-clone-prepare -i <instance ID> --pkcs12-file <file_name.p12> --pkcs12-password <password> \fR
+.RS 4
+This command export all KRA instance certificate to the PKCS #12 file with private keys.
+.RE
+.PP
+\fBpki-server kra-db-vlv-find -i <instance ID> --bind-dn <connect DN> --bind-password <database password> --verbose\fR
+.RS 4
+This command will list all the VLV records. To run this command bind-dn and bind password is required.
+If DN is not provided it will consider dn=Directory Manager as default.
+.RE
+.PP
+\fBpki-server kra-db-vlv-add -i <instance ID> --bind-dn <connect DN> --bind-password <database password> --genrate-ldif <ldif_file> --verbose\fR
+.RS 4
+This command will add VLV records to KRA instance. To run this command bind-dn and bind password is required.
+If DN is not provided it will consider dn=Directory Manager as default.
+It will genrate the ldif file for required changes.
+.RE
+.PP
+\fBpki-server kra-db-vlv-del -i <instance ID> --bind-dn <connect DN> --bind-password <database password> --genrate-ldif <ldif_file> --verbose\fR
+.RS 4
+This command will delete VLV records from KRA instance. To run this command bind-dn and bind password is required.
+If DN is not provided it will consider dn=Directory Manager as default.
+It will genrate the ldif file for required changes.
+.RE
+.PP
+\fBpki-server kra-db-vlv-reindex -i <instance ID> --bind-dn <connect DN> --bind-password <database password> --genrate-ldif <ldif_file> --verbose\fR
+.RS 4
+This command will reindex VLV records in KRA instance. To run this command bind-dn and bind password is required.
+If DN is not provided it will consider dn=Directory Manager as default.
+It will genrate the ldif file for required changes.
+.RE
+.PP
+\fBpki-server kra-audit-event-find -i <instance ID> --enabled True/False \fR
+.RS 4
+This command list all the audit events which are enabled/disabled.
+.RE
+.PP
+\fBpki-server kra-audit-file-find -i <instance ID> \fR
+.RS 4
+This command find the KRA instance audit log file.
+.RE
+.PP
+\fBpki-server kra-audit-file-verify -i <instance ID> \fR
+.RS 4
+This command will verify that audit log file is signed or not.
+.RE
+.PP
+
+All pki-server commands must be executed as the system administrator.
+
+.SH AUTHORS
+Amol Kahat <akahat@redhat.com>
+
+.SH COPYRIGHT
+Copyright (c) 2018 Red Hat, Inc. This is licensed under the GNU General Public License, version 2 (GPLv2). A copy of this license is available at http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
