@@ -81,7 +81,7 @@ public class ProfileShowCLI extends CLI {
             if (filename != null) {
                 ProfileCLI.saveProfileToFile(filename, profileData);
             } else {
-                ProfileCLI.printProfile(profileData, profileCLI.getConfig().getServerURI());
+                ProfileCLI.printProfile(profileData, profileCLI.getConfig().getServerURL().toURI());
             }
         }
     }

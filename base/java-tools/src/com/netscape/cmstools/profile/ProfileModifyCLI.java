@@ -61,7 +61,7 @@ public class ProfileModifyCLI extends CLI {
 
             MainCLI.printMessage("Modified profile " + data.getId());
 
-            ProfileCLI.printProfile(data, profileCLI.getConfig().getServerURI());
+            ProfileCLI.printProfile(data, profileCLI.getConfig().getServerURL().toURI());
         }
     }
 }

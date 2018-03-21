@@ -23,6 +23,7 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.net.URI;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -239,7 +240,7 @@ public class ClientCertImportCLI extends CLI {
             mainCLI.init();
 
             PKIClient client = getClient();
-            URI serverURI = mainCLI.config.getServerURI();
+            URI serverURI = mainCLI.config.getServerURL().toURI();
 
             String caServerURI = serverURI.getScheme() + "://" +
                 serverURI.getHost() + ":" + serverURI.getPort() + "/ca";
@@ -272,8 +273,8 @@ public class ClientCertImportCLI extends CLI {
             config.setNSSPassword(null);
             config.setCertNickname(null);
 
-            URI serverURI = config.getServerURI();
-            if (verbose) System.out.println("Importing certificate " + serialNumber + " from " + serverURI + ".");
+            URL serverURL = config.getServerURL();
+            if (verbose) System.out.println("Importing certificate " + serialNumber + " from " + serverURL + ".");
 
             PKIClient client = new PKIClient(config, null);
             CAClient caClient = new CAClient(client);

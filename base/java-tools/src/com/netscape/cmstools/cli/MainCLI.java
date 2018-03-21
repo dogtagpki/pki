@@ -26,7 +26,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.net.InetAddress;
-import java.net.URI;
+import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Collection;
@@ -144,7 +144,7 @@ public class MainCLI extends CLI {
 
     public void createOptions() throws UnknownHostException {
 
-        Option option = new Option("U", true, "Server URI");
+        Option option = new Option("U", true, "Server URL");
         option.setArgName("uri");
         options.addOption(option);
 
@@ -291,10 +291,10 @@ public class MainCLI extends CLI {
         while (!caClient.exists()) {
             System.err.println("Error: CA subsystem not available");
 
-            URI serverURI = config.getServerURI();
-            String uri = serverURI.getScheme() + "://" + serverURI.getHost() + ":" + serverURI.getPort();
+            URL serverURI = config.getServerURL();
+            String uri = serverURI.getProtocol() + "://" + serverURI.getHost() + ":" + serverURI.getPort();
 
-            System.out.print("CA server URI [" + uri + "]: ");
+            System.out.print("CA server URL [" + uri + "]: ");
             System.out.flush();
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
@@ -304,7 +304,7 @@ public class MainCLI extends CLI {
             }
 
             config = new ClientConfig(client.getConfig());
-            config.setServerURI(uri);
+            config.setServerURL(uri);
 
             client = new PKIClient(config);
             caClient = new CAClient(client);
@@ -318,24 +318,24 @@ public class MainCLI extends CLI {
         verbose = cmd.hasOption("v");
         output = cmd.getOptionValue("output");
 
-        String uri = cmd.getOptionValue("U");
+        String url = cmd.getOptionValue("U");
 
         String protocol = cmd.getOptionValue("P", "http");
         String hostname = cmd.getOptionValue("h", InetAddress.getLocalHost().getCanonicalHostName());
         String port = cmd.getOptionValue("p", "8080");
         String subsystem = cmd.getOptionValue("t");
 
-        if (uri == null)
-            uri = protocol + "://" + hostname + ":" + port;
+        if (url == null)
+            url = protocol + "://" + hostname + ":" + port;
 
         if (subsystem != null) {
             System.err.println("WARNING: The -t option has been deprecated. Use pki " + subsystem + " command instead.");
-            uri = uri + "/" + subsystem;
+            url = url + "/" + subsystem;
         }
 
-        config.setServerURI(uri);
+        config.setServerURL(url);
 
-        if (verbose) System.out.println("Server URI: "+uri);
+        if (verbose) System.out.println("Server URL: " + url);
 
         String certDatabase = cmd.getOptionValue("d");
         String certNickname = cmd.getOptionValue("n");

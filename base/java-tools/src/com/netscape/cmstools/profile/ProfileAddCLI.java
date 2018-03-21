@@ -61,7 +61,7 @@ public class ProfileAddCLI extends CLI {
 
             MainCLI.printMessage("Added profile " + data.getId());
 
-            ProfileCLI.printProfile(data, profileCLI.getConfig().getServerURI());
+            ProfileCLI.printProfile(data, profileCLI.getConfig().getServerURL().toURI());
         }
     }
 }

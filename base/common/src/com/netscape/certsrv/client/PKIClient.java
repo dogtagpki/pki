@@ -78,7 +78,7 @@ public class PKIClient {
     public <T> T createProxy(String subsystem, Class<T> clazz) throws URISyntaxException {
 
         if (subsystem == null) {
-            // by default use the subsystem specified in server URI
+            // by default use the subsystem specified in server URL
             subsystem = getSubsystem();
         }
 
@@ -86,7 +86,7 @@ public class PKIClient {
             throw new PKIException("Missing subsystem name.");
         }
 
-        URI serverURI = config.getServerURI();
+        URI serverURI = config.getServerURL().toURI();
         URI resourceURI = new URI(
             serverURI.getScheme(),
             serverURI.getUserInfo(),

@@ -102,18 +102,18 @@ public class PKICertificateApprovalCallback implements SSLCertificateApprovalCal
             if (!line.equals("") && !line.equalsIgnoreCase("Y"))
                 return false;
 
-            String caServerURI = "http://" + client.getConfig().getServerURI().getHost() + ":8080/ca";
+            String caServerURL = "http://" + client.getConfig().getServerURL().getHost() + ":8080/ca";
 
-            System.out.print("CA server URI [" + caServerURI + "]: ");
+            System.out.print("CA server URL [" + caServerURL + "]: ");
             System.out.flush();
 
             line = reader.readLine().trim();
             if (!line.equals("")) {
-                caServerURI = line;
+                caServerURL = line;
             }
 
-            if (client.verbose) System.out.println("Downloading CA certificate chain from " + caServerURI + ".");
-            byte[] bytes = client.downloadCACertChain(caServerURI);
+            if (client.verbose) System.out.println("Downloading CA certificate chain from " + caServerURL + ".");
+            byte[] bytes = client.downloadCACertChain(caServerURL);
 
             if (client.verbose) System.out.println("Importing CA certificate chain.");
             CryptoUtil.importCertificateChain(bytes);

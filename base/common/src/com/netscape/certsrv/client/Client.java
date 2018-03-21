@@ -37,7 +37,7 @@ public class Client {
     public LinkedHashMap<String, Client> clients = new LinkedHashMap<String, Client>();
 
     public Client(PKIClient client, String name) {
-        // by default use the subsystem specified in server URI
+        // by default use the subsystem specified in server URL
         this(client, client.getSubsystem(), name);
     }
 

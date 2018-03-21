@@ -91,7 +91,11 @@ public class ClientConfig {
         messageFormat = config.messageFormat;
     }
 
+    /**
+     * @deprecated Use getServerURL() instead.
+     */
     @XmlElement(name="ServerURI")
+    @Deprecated
     public URI getServerURI() {
         try {
             return serverURL.toURI();
@@ -100,6 +104,10 @@ public class ClientConfig {
         }
     }
 
+    /**
+     * @deprecated Use setServerURL() instead.
+     */
+    @Deprecated
     public void setServerURI(String serverUri) throws URISyntaxException {
         try {
             this.serverURL = new URI(serverUri).toURL();

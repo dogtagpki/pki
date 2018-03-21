@@ -53,7 +53,7 @@ public class SubsystemClient extends Client {
     public boolean exists() throws Exception {
 
         ClientConfig config = client.getConfig();
-        URI serverURI = config.getServerURI();
+        URI serverURI = config.getServerURL().toURI();
 
         URI subsystemURI = new URI(
                 serverURI.getScheme(),

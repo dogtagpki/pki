@@ -492,7 +492,7 @@ public class PKIConnection {
     }
 
     public <T> T get(String path, Class<T> responseType) throws Exception {
-        String uri = config.getServerURI().toString();
+        String uri = config.getServerURL().toString();
         if (path != null) {
             uri += path;
         }
@@ -501,7 +501,7 @@ public class PKIConnection {
     }
 
     public String post(String path, MultivaluedMap<String, String> content) throws Exception {
-        String uri = config.getServerURI().toString();
+        String uri = config.getServerURL().toString();
         if (path != null) {
             uri += path;
         }

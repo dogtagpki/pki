@@ -225,10 +225,10 @@ public class ConfigurationUtils {
 
         String protocol = secure ? "https" : "http";
         ClientConfig config = new ClientConfig();
-        config.setServerURI(protocol + "://" + hostname + ":" + port);
+        config.setServerURL(protocol + "://" + hostname + ":" + port);
         config.setCertNickname(clientnickname);
 
-        logger.info("ConfigurationUtils: GET " + config.getServerURI() + path);
+        logger.info("ConfigurationUtils: GET " + config.getServerURL() + path);
         PKIConnection connection = new PKIConnection(config);
         if (certApprovalCallback == null) certApprovalCallback = ConfigurationUtils.certApprovalCallback;
         connection.setCallback(certApprovalCallback);
@@ -242,10 +242,10 @@ public class ConfigurationUtils {
 
         String protocol = secure ? "https" : "http";
         ClientConfig config = new ClientConfig();
-        config.setServerURI(protocol + "://" + hostname + ":" + port);
+        config.setServerURL(protocol + "://" + hostname + ":" + port);
         config.setCertNickname(clientnickname);
 
-        logger.info("ConfigurationUtils: POST " + config.getServerURI() + path);
+        logger.info("ConfigurationUtils: POST " + config.getServerURL() + path);
         PKIConnection connection = new PKIConnection(config);
         if (certApprovalCallback == null) certApprovalCallback = ConfigurationUtils.certApprovalCallback;
         connection.setCallback(certApprovalCallback);
@@ -331,7 +331,7 @@ public class ConfigurationUtils {
         String csType = cs.getString("cs.type");
 
         ClientConfig config = new ClientConfig();
-        config.setServerURI("https://" + sdhost + ":" + sdport);
+        config.setServerURL("https://" + sdhost + ":" + sdport);
         config.setUsername(user);
         config.setPassword(passwd);
 
@@ -3847,7 +3847,7 @@ public class ConfigurationUtils {
         String dbPass = psStore.getString("internal");
 
         ClientConfig config = new ClientConfig();
-        config.setServerURI("https://" + tksHost + ":" + tksPort);
+        config.setServerURL("https://" + tksHost + ":" + tksPort);
         config.setNSSDatabase(dbDir);
         config.setNSSPassword(dbPass);
         config.setCertNickname(dbNick);
