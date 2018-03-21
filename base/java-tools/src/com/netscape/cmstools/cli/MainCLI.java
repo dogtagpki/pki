@@ -28,9 +28,14 @@ import java.lang.reflect.Field;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.ws.rs.ProcessingException;
 
@@ -168,12 +173,16 @@ public class MainCLI extends CLI {
         option.setArgName("database");
         options.addOption(option);
 
-        option = new Option("c", true, "NSS database password (mutually exclusive to -C option)");
+        option = new Option("c", true, "NSS database password (mutually exclusive to -C and -f options)");
         option.setArgName("password");
         options.addOption(option);
 
-        option = new Option("C", true, "NSS database password file (mutually exclusive to -c option)");
+        option = new Option("C", true, "NSS database password file (mutually exclusive to -c and -f options)");
         option.setArgName("password file");
+        options.addOption(option);
+
+        option = new Option("f", true, "NSS database password configuration (mutually exclusive to -c and -C options)");
+        option.setArgName("password config");
         options.addOption(option);
 
         option = new Option("n", true, "Nickname for client certificate authentication (mutually exclusive to -u option)");
@@ -271,6 +280,48 @@ public class MainCLI extends CLI {
         return tokenPassword;
     }
 
+    public Map<String, String> loadPasswordConfig(String filename) throws Exception {
+
+        Map<String, String> passwords = new LinkedHashMap<String, String>();
+
+        List<String> list = Files.readAllLines(Paths.get(filename));
+        String[] lines = list.toArray(new String[list.size()]);
+
+        for (int i=0; i<lines.length; i++) {
+
+            String line = lines[i].trim();
+
+            if (line.isEmpty()) { // skip blanks
+                continue;
+            }
+
+            if (line.startsWith("#")) { // skip comments
+                continue;
+            }
+
+            int p = line.indexOf("=");
+            if (p < 0) {
+                throw new Exception("Missing delimiter in " + filename + ":" + (i + 1));
+            }
+
+            String token = line.substring(0, p).trim();
+            String password = line.substring(p + 1).trim();
+
+            if (token.equals("internal")) {
+                passwords.put(token, password);
+
+            } else if (token.startsWith("hardware-")) {
+                token = token.substring(9);  // remove hardware- prefix
+                passwords.put(token, password);
+
+            } else {
+                // skip non-token passwords
+            }
+        }
+
+        return passwords;
+    }
+
     public String promptForPassword(String prompt) throws IOException {
         char[] password = null;
         Console console = System.console();
@@ -340,6 +391,8 @@ public class MainCLI extends CLI {
         String nssDatabase = cmd.getOptionValue("d");
         String nssPassword = cmd.getOptionValue("c");
         String nssPasswordFile = cmd.getOptionValue("C");
+        String nssPasswordConfig = cmd.getOptionValue("f");
+
         String tokenName = cmd.getOptionValue("token");
         String certNickname = cmd.getOptionValue("n");
 
@@ -348,8 +401,13 @@ public class MainCLI extends CLI {
         String passwordFile = cmd.getOptionValue("W");
 
         // make sure no conflicting NSS passwords
-        if (nssPassword != null && nssPasswordFile != null) {
-            throw new Exception("The -c and -C options are mutually exclusive.");
+        int nssPasswordCounter = 0;
+        if (nssPassword != null) nssPasswordCounter++;
+        if (nssPasswordFile != null) nssPasswordCounter++;
+        if (nssPasswordConfig != null) nssPasswordCounter++;
+
+        if (nssPasswordCounter > 1) {
+            throw new Exception("The -c, -C, -f options are mutually exclusive.");
         }
 
         // make sure no conflicting authentication methods
@@ -391,6 +449,11 @@ public class MainCLI extends CLI {
             String[] tokenPasswordPair = loadPassword(nssPasswordFile);
             nssPassword = tokenPasswordPair[1];
             config.setNSSPassword(nssPassword);
+
+        } else if (nssPasswordConfig != null) {
+            if (verbose) System.out.println("Loading NSS password configuration from " + nssPasswordConfig);
+            Map<String, String> nssPasswords = loadPasswordConfig(nssPasswordConfig);
+            config.setNSSPasswords(nssPasswords);
         }
 
         // store user name
@@ -498,6 +561,26 @@ public class MainCLI extends CLI {
             } catch (IncorrectPasswordException e) {
                 // The original exception doesn't contain a message.
                 throw new Exception("Incorrect password for " + tokenName + " token", e);
+            }
+
+        } else {
+
+            Map<String, String> passwords = config.getNSSPasswords();
+
+            for (String tokenName : passwords.keySet()) {
+
+                if (verbose) System.out.println("Logging into " + tokenName + " token");
+
+                CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
+                Password password = new Password(passwords.get(tokenName).toCharArray());
+
+                try {
+                    token.login(password);
+
+                } catch (IncorrectPasswordException e) {
+                    // The original exception doesn't contain a message.
+                    throw new Exception("Incorrect password for " + tokenName + " token", e);
+                }
             }
         }
 
