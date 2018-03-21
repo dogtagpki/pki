@@ -337,11 +337,11 @@ public class MainCLI extends CLI {
 
         if (verbose) System.out.println("Server URL: " + url);
 
-        String certDatabase = cmd.getOptionValue("d");
-        String certNickname = cmd.getOptionValue("n");
-        String certPassword = cmd.getOptionValue("c");
-        String certPasswordFile = cmd.getOptionValue("C");
+        String nssDatabase = cmd.getOptionValue("d");
+        String nssPassword = cmd.getOptionValue("c");
+        String nssPasswordFile = cmd.getOptionValue("C");
         String tokenName = cmd.getOptionValue("token");
+        String certNickname = cmd.getOptionValue("n");
 
         String username = cmd.getOptionValue("u");
         String password = cmd.getOptionValue("w");
@@ -354,7 +354,7 @@ public class MainCLI extends CLI {
 
         } else if (certNickname != null) { // client certificate authentication
 
-            if (certPasswordFile != null && certPassword != null) {
+            if (nssPasswordFile != null && nssPassword != null) {
                 throw new Exception("The '-C' and '-c' options are mutually exclusive.");
             }
 
@@ -368,9 +368,9 @@ public class MainCLI extends CLI {
             }
         }
 
-        if (certDatabase != null) {
+        if (nssDatabase != null) {
             // store user-provided NSS database location
-            config.setNSSDatabase(new File(certDatabase).getAbsolutePath());
+            config.setNSSDatabase(new File(nssDatabase).getAbsolutePath());
         } else {
             // store default NSS database location
             config.setNSSDatabase(System.getProperty("user.home") +
@@ -383,16 +383,16 @@ public class MainCLI extends CLI {
         // store certificate nickname
         config.setCertNickname(certNickname);
 
-        if (certPasswordFile != null) {
-            if (verbose) System.out.println("Loading NSS password from " + certPasswordFile);
-            tokenPasswordPair = loadPassword(certPasswordFile);
+        if (nssPasswordFile != null) {
+            if (verbose) System.out.println("Loading NSS password from " + nssPasswordFile);
+            tokenPasswordPair = loadPassword(nssPasswordFile);
             // XXX TBD set NSS database token
 
-            certPassword = tokenPasswordPair[1];
+            nssPassword = tokenPasswordPair[1];
         }
 
         // store NSS database password
-        config.setNSSPassword(certPassword);
+        config.setNSSPassword(nssPassword);
 
         // store user name
         config.setUsername(username);
