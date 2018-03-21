@@ -219,11 +219,19 @@ public class ClientConfig {
         public String value;
     }
 
+    /**
+     * @deprecated Use getNSSDatabase() instead.
+     */
     @XmlElement(name="CertDatabase")
+    @Deprecated
     public String getCertDatabase() {
         return nssDatabase;
     }
 
+    /**
+     * @deprecated Use setNSSDatabase() instead.
+     */
+    @Deprecated
     public void setCertDatabase(String certDatabase) {
         this.nssDatabase = certDatabase;
     }
@@ -246,11 +254,19 @@ public class ClientConfig {
         this.certNickname = certNickname;
     }
 
+    /**
+     * @deprecated Use getNSSPassword() instead.
+     */
     @XmlElement(name="CertPassword")
+    @Deprecated
     public String getCertPassword() {
         return nssPassword;
     }
 
+    /**
+     * @deprecated Use setNSSPassword() instead.
+     */
+    @Deprecated
     public void setCertPassword(String certPassword) {
         this.nssPassword = certPassword;
     }

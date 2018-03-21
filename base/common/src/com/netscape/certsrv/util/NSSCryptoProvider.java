@@ -53,16 +53,16 @@ public class NSSCryptoProvider extends CryptoProvider {
         if (config == null) {
             throw new IllegalArgumentException("ClientConfig object must be specified.");
         }
-        if ((config.getCertDatabase() == null) || (config.getCertPassword() == null)) {
+        if ((config.getNSSDatabase() == null) || (config.getNSSPassword() == null)) {
             throw new IllegalArgumentException(" Both the db directory path and the password must be specified.");
         }
-        this.certDBDir = new File(config.getCertDatabase());
+        this.certDBDir = new File(config.getNSSDatabase());
         if (this.certDBDir.exists()) {
             if (!this.certDBDir.isDirectory())
                 throw new IllegalArgumentException("Cert database must be a directory.");
         }
         this.certDBDir.mkdir();
-        this.certDBPassword = config.getCertPassword();
+        this.certDBPassword = config.getNSSPassword();
         initialize();
     }
 

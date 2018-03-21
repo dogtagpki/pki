@@ -177,7 +177,7 @@ public class CAInfoService extends PKIService implements CAInfoResource {
         ClientConfig config = new ClientConfig();
         int port = Integer.parseInt(connInfo.getPort());
         config.setServerURL("https", connInfo.getHost(), port);
-        config.setCertDatabase(
+        config.setNSSDatabase(
             CMS.getConfigStore().getString("instanceRoot") + "/alias");
         return new KRAInfoClient(new PKIClient(config), "kra");
     }

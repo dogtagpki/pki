@@ -3848,9 +3848,9 @@ public class ConfigurationUtils {
 
         ClientConfig config = new ClientConfig();
         config.setServerURI("https://" + tksHost + ":" + tksPort);
-        config.setCertDatabase(dbDir);
+        config.setNSSDatabase(dbDir);
+        config.setNSSPassword(dbPass);
         config.setCertNickname(dbNick);
-        config.setCertPassword(dbPass);
 
         PKIClient client = new PKIClient(config, null);
 

@@ -155,7 +155,7 @@ public class ClientCertShowCLI extends CLI {
         if (verbose) System.out.println("Exporting certificate chain and private key to " + pkcs12File + ".");
         exportPKCS12(
                 mainCLI.certDatabase.getAbsolutePath(),
-                mainCLI.config.getCertPassword(),
+                mainCLI.config.getNSSPassword(),
                 pkcs12File.getAbsolutePath(),
                 pkcs12PasswordFile.getAbsolutePath(),
                 nickname);

@@ -98,7 +98,7 @@ public class KeyCLI extends CLI {
 
         // if security database password is specified,
         // prepare key client for archival/retrieval
-        if (client.getConfig().getCertPassword() != null) {
+        if (client.getConfig().getNSSPassword() != null) {
 
             // create crypto provider for key client
             keyClient.setCrypto(new NSSCryptoProvider(client.getConfig()));

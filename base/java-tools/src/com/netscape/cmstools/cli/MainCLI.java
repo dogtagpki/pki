@@ -369,11 +369,11 @@ public class MainCLI extends CLI {
         }
 
         if (certDatabase != null) {
-            // store user-provided security database location
-            config.setCertDatabase(new File(certDatabase).getAbsolutePath());
+            // store user-provided NSS database location
+            config.setNSSDatabase(new File(certDatabase).getAbsolutePath());
         } else {
-            // store default security database location
-            config.setCertDatabase(System.getProperty("user.home") +
+            // store default NSS database location
+            config.setNSSDatabase(System.getProperty("user.home") +
                     File.separator + ".dogtag" + File.separator + "nssdb");
         }
 
@@ -391,8 +391,8 @@ public class MainCLI extends CLI {
             certPassword = tokenPasswordPair[1];
         }
 
-        // store security database password
-        config.setCertPassword(certPassword);
+        // store NSS database password
+        config.setNSSPassword(certPassword);
 
         // store user name
         config.setUsername(username);
@@ -420,7 +420,7 @@ public class MainCLI extends CLI {
 
         ignoreBanner = cmd.hasOption("ignore-banner");
 
-        this.certDatabase = new File(config.getCertDatabase());
+        this.certDatabase = new File(config.getNSSDatabase());
         if (verbose) System.out.println("NSS database: " + this.certDatabase.getAbsolutePath());
 
         String messageFormat = cmd.getOptionValue("message-format");
@@ -476,7 +476,7 @@ public class MainCLI extends CLI {
         CryptoManager.initialize(certDatabase.getAbsolutePath());
 
         // If password is specified, use password to access security token
-        if (config.getCertPassword() != null) {
+        if (config.getNSSPassword() != null) {
 
             try {
                 CryptoManager manager = CryptoManager.getInstance();
@@ -489,7 +489,7 @@ public class MainCLI extends CLI {
 
                 if (verbose) System.out.println("Logging into " + token.getName());
 
-                Password password = new Password(config.getCertPassword().toCharArray());
+                Password password = new Password(config.getNSSPassword().toCharArray());
                 token.login(password);
 
             } catch (NotInitializedException e) {

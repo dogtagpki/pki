@@ -101,12 +101,12 @@ public class ClientInitCLI extends CLI {
             list.add("-d");
             list.add(certDatabase.getAbsolutePath());
 
-            if (mainCLI.config.getCertPassword() == null) {
+            if (mainCLI.config.getNSSPassword() == null) {
                 list.add("--empty-password");
 
             } else {
                 try (PrintWriter out = new PrintWriter(new FileWriter(passwordFile))) {
-                    out.println(mainCLI.config.getCertPassword());
+                    out.println(mainCLI.config.getNSSPassword());
                 }
 
                 list.add("-f");

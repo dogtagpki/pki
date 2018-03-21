@@ -246,7 +246,7 @@ public class ClientCertRequestCLI extends CLI {
         MainCLI mainCLI = (MainCLI) parent.getParent();
         File certDatabase = mainCLI.certDatabase;
 
-        String password = mainCLI.config.getCertPassword();
+        String password = mainCLI.config.getNSSPassword();
         if (password == null) {
             throw new Exception("Missing security database password.");
         }

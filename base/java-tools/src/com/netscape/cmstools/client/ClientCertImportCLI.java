@@ -148,7 +148,7 @@ public class ClientCertImportCLI extends CLI {
 
         File nssdbPasswordFile = null;
 
-        if (mainCLI.config.getCertPassword() != null) {
+        if (mainCLI.config.getNSSPassword() != null) {
 
             // store NSS database password in a temporary file
 
@@ -156,7 +156,7 @@ public class ClientCertImportCLI extends CLI {
             nssdbPasswordFile.deleteOnExit();
 
             try (PrintWriter out = new PrintWriter(new FileWriter(nssdbPasswordFile))) {
-                out.print(mainCLI.config.getCertPassword());
+                out.print(mainCLI.config.getNSSPassword());
             }
         }
 
@@ -268,8 +268,8 @@ public class ClientCertImportCLI extends CLI {
 
             // connect to CA anonymously
             ClientConfig config = new ClientConfig(mainCLI.config);
-            config.setCertDatabase(null);
-            config.setCertPassword(null);
+            config.setNSSDatabase(null);
+            config.setNSSPassword(null);
             config.setCertNickname(null);
 
             URI serverURI = config.getServerURI();
