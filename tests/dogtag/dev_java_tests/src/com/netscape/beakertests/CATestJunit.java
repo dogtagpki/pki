@@ -9,8 +9,8 @@ import org.mozilla.jss.crypto.AlreadyInitializedException;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.util.Password;
 
-import com.netscape.certsrv.ca.CAClient;
 import com.netscape.certsrv.ca.CACertClient;
+import com.netscape.certsrv.ca.CAClient;
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.cert.CertNotFoundException;
 import com.netscape.certsrv.cert.CertRequestInfo;
@@ -63,9 +63,9 @@ public class CATestJunit extends PKIJUnitTest {
         }
 
         ClientConfig config = new ClientConfig();
-        config.setServerURI(protocol + "://" + host + ":" + port + "/ca");
+        config.setServerURL(protocol + "://" + host + ":" + port + "/ca");
         config.setCertNickname(clientCertNickname);
-        log("URI::: " + config.getServerURI().toString());
+        log("URL: " + config.getServerURL());
         client = new CAClient(new PKIClient(config, null));
         certClient = (CACertClient)client.getClient("cert");
     }

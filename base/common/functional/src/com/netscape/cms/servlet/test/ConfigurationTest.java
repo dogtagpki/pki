@@ -183,7 +183,7 @@ public class ConfigurationTest {
         SystemConfigClient client = null;
         try {
             ClientConfig config = new ClientConfig();
-            config.setServerURI(protocol + "://" + host + ":" + port);
+            config.setServerURL(protocol + "://" + host + ":" + port);
 
             client = new SystemConfigClient(new PKIClient(config, null), cstype);
         } catch (URISyntaxException e1) {

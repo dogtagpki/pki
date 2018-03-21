@@ -31,8 +31,8 @@ import org.mozilla.jss.crypto.AlreadyInitializedException;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.util.Password;
 
-import com.netscape.certsrv.ca.CAClient;
 import com.netscape.certsrv.ca.CACertClient;
+import com.netscape.certsrv.ca.CAClient;
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.cert.CertDataInfo;
 import com.netscape.certsrv.cert.CertDataInfos;
@@ -158,7 +158,7 @@ public class CATest {
 
         try {
             ClientConfig config = new ClientConfig();
-            config.setServerURI(protocol + "://" + host + ":" + port);
+            config.setServerURL(protocol + "://" + host + ":" + port);
             config.setCertNickname(clientCertNickname);
 
             client = new CAClient(new PKIClient(config, null));

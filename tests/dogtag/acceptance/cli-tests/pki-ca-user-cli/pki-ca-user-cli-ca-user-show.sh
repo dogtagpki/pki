@@ -1003,7 +1003,7 @@ run_pki-ca-user-cli-ca-user-show_tests(){
         echo "expect \"WARNING: UNTRUSTED ISSUER encountered on '$(eval echo \$${subsystemId}_SSL_SERVER_CERT_SUBJECT_NAME)' indicates a non-trusted CA cert '$(eval echo \$${subsystemId}_SIGNING_CERT_SUBJECT_NAME)'
 Import CA certificate (Y/n)? \"" >> $expfile
         echo "send -- \"Y\r\"" >> $expfile
-        echo "expect \"CA server URI \[http://$HOSTNAME:8080/ca\]: \"" >> $expfile
+        echo "expect \"CA server URL \[http://$HOSTNAME:8080/ca\]: \"" >> $expfile
         echo "send -- \"http://$HOSTNAME:$(eval echo \$${prefix}_UNSECURE_PORT)/ca\r\"" >> $expfile
         echo "expect eof" >> $expfile
 	echo "catch wait result" >> $expfile

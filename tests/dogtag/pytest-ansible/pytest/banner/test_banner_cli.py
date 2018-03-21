@@ -303,7 +303,7 @@ def test_banner_reject_pki_command(create_delete_banner, import_admin_certs, ans
           constants.CA_PASSWORD, constants.CA_HTTP_PORT, constants.CA_ADMIN_NICK, rand),
           responses={"\(y\/N\)\?":"y",
                      "Import CA certificate \(Y\/n\)\? ": "Y",
-                     "CA server URI \[http:\/\/pki1.example.com\:8080\/ca\]\: ": "http:\/\/pki1.example.com\:%s\/ca" % constants.CA_HTTP_PORT})
+                     "CA server URL \[http:\/\/pki1.example.com\:8080\/ca\]\: ": "http:\/\/pki1.example.com\:%s\/ca" % constants.CA_HTTP_PORT})
     for result in output2.values():
         assert "UserNotFoundException: User tuser-%s not found" %rand in result['stdout']
 
@@ -331,7 +331,7 @@ def test_banner_accept_pki_command(create_delete_banner, import_admin_certs, ans
         constants.CA_PASSWORD, constants.CA_HTTP_PORT, constants.CA_ADMIN_NICK, rand, rand),
         responses={"\(y\/N\)\?": "y",
                    "Import CA certificate \(Y\/n\)\? ": "Y",
-                   "CA server URI \[http:\/\/pki1.example.com\:8080\/ca\]\: ": "http:\/\/pki1.example.com\:%s\/ca" % constants.CA_HTTP_PORT})
+                   "CA server URL \[http:\/\/pki1.example.com\:8080\/ca\]\: ": "http:\/\/pki1.example.com\:%s\/ca" % constants.CA_HTTP_PORT})
     for result in output.values():
         assert "Added user \"tuser-%s\"" % rand in result['stdout']
 
@@ -355,7 +355,7 @@ def test_ignore_banner_pki_command(create_delete_banner, import_admin_certs, ans
         command='pki -d /opt/tmp_nssdb -c %s -h pki1.example.com -p %s --ignore-banner -n "%s" user-add tuser-%s --fullName testuser-%s' % (
         constants.CA_PASSWORD, constants.CA_HTTP_PORT, constants.CA_ADMIN_NICK, rand, rand),
         responses={"Import CA certificate \(Y\/n\)\? ": "Y",
-                   "CA server URI \[http:\/\/pki1.example.com\:8080\/ca\]\: ": "http:\/\/pki1.example.com\:%s\/ca" % constants.CA_HTTP_PORT})
+                   "CA server URL \[http:\/\/pki1.example.com\:8080\/ca\]\: ": "http:\/\/pki1.example.com\:%s\/ca" % constants.CA_HTTP_PORT})
     for result in output.values():
         assert "Added user \"tuser-%s\"" % rand in result['stdout']
 
@@ -383,7 +383,7 @@ def test_ignore_banner_specified_in_userspace_pki_command(create_delete_banner, 
         command='pki -d /opt/tmp_nssdb -c %s -h pki1.example.com -p %s -n "%s" user-add tuser-%s --fullName testuser-%s' % (
             constants.CA_PASSWORD, constants.CA_HTTP_PORT, constants.CA_ADMIN_NICK, rand, rand),
         responses={"Import CA certificate \(Y\/n\)\? ": "Y",
-                   "CA server URI \[http:\/\/pki1.example.com\:8080\/ca\]\: ": "http:\/\/pki1.example.com\:%s\/ca" % constants.CA_HTTP_PORT})
+                   "CA server URL \[http:\/\/pki1.example.com\:8080\/ca\]\: ": "http:\/\/pki1.example.com\:%s\/ca" % constants.CA_HTTP_PORT})
     for result in output.values():
         assert "Added user \"tuser-%s\"" % rand in result['stdout']
     ansible_module.command("rm -rf ~/.dogtag")
