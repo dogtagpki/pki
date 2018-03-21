@@ -451,10 +451,10 @@ public class MainCLI extends CLI {
 
     public void init() throws Exception {
 
-        // Create security database if it doesn't exist
+        // Create NSS database if it doesn't exist
         if (!certDatabase.exists()) {
 
-            if (verbose) System.out.println("Creating security database");
+            if (verbose) System.out.println("Creating NSS database");
 
             certDatabase.mkdirs();
 
@@ -467,41 +467,49 @@ public class MainCLI extends CLI {
             try {
                 runExternal(commands);
             } catch (Exception e) {
-                throw new Exception("Unable to create security database", e);
+                throw new Exception("Unable to create NSS database", e);
             }
         }
 
-        // Main program should initialize security database
-        if (verbose) System.out.println("Initializing security database");
+        // Main program should initialize NSS
+        if (verbose) System.out.println("Initializing NSS");
         CryptoManager.initialize(certDatabase.getAbsolutePath());
+
+        CryptoManager manager;
+        try {
+            manager = CryptoManager.getInstance();
+
+        } catch (NotInitializedException e) {
+            // The original exception doesn't contain a message.
+            throw new Exception("NSS has not been initialized", e);
+        }
 
         // If password is specified, use password to access security token
         if (config.getNSSPassword() != null) {
 
+            String tokenName = config.getTokenName();
+            tokenName = tokenName == null ? CryptoUtil.INTERNAL_TOKEN_NAME : tokenName;
+
+            if (verbose) System.out.println("Logging into " + tokenName + " token");
+
+            CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
+            Password password = new Password(config.getNSSPassword().toCharArray());
+
             try {
-                CryptoManager manager = CryptoManager.getInstance();
-
-                String tokenName = config.getTokenName();
-                if (verbose) System.out.println("Getting " + (tokenName == null ? "internal" : tokenName) + " token");
-
-                CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
-                manager.setThreadToken(token);
-
-                if (verbose) System.out.println("Logging into " + token.getName());
-
-                Password password = new Password(config.getNSSPassword().toCharArray());
                 token.login(password);
-
-            } catch (NotInitializedException e) {
-                // The original exception doesn't contain a message.
-                throw new Exception("NSS database does not exist.", e);
 
             } catch (IncorrectPasswordException e) {
                 // The original exception doesn't contain a message.
-                throw new Exception("Incorrect NSS database password.", e);
+                throw new Exception("Incorrect password for " + tokenName + " token", e);
             }
-
         }
+
+        String tokenName = config.getTokenName();
+        tokenName = tokenName == null ? CryptoUtil.INTERNAL_TOKEN_NAME : tokenName;
+        if (verbose) System.out.println("Using " + tokenName + " token");
+
+        CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
+        manager.setThreadToken(token);
 
         // See default SSL configuration in /usr/share/pki/etc/pki.conf.
 
