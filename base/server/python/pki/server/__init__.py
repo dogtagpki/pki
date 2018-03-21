@@ -21,13 +21,10 @@
 from __future__ import absolute_import
 
 import codecs
-from lxml import etree
 import functools
 import getpass
 import grp
 import io
-import ldap
-import ldap.filter
 import logging
 import operator
 import os
@@ -37,9 +34,12 @@ import shutil
 import subprocess
 import tempfile
 
+import ldap
+import ldap.filter
 import pki
 import pki.nssdb
 import pki.util
+from lxml import etree
 
 INSTANCE_BASE_DIR = '/var/lib/pki'
 CONFIG_BASE_DIR = '/etc/pki'
@@ -420,6 +420,43 @@ class PKISubsystem(object):
         }
 
         pki.util.customize_file(input_file, output_file, params)
+
+    def enable_audit_event(self, e_name):
+
+        if not e_name:
+            raise ValueError("Please specify the Event name")
+
+        events = self.config['log.instance.SignedAudit.events'].split(',')
+        if e_name not in events:
+            self.config['log.instance.SignedAudit.events'] += ',{}'.format(e_name)
+            self.save()
+            return True
+        else:
+            return False
+
+    def update_audit_event_filter(self, e_name, filter_name):
+        if not e_name:
+            raise ValueError("Please specify the Event name")
+        if not e_name:
+            raise ValueError("Please specify the filter")
+
+        self.config['log.instance.SignedAudit.filters.%s' % e_name] = filter_name
+        self.save()
+
+    def disable_audit_event(self, e_name):
+        if not e_name:
+            raise ValueError("Please specify the Event name")
+
+        events = self.config['log.instance.SignedAudit.events'].split(',')
+        if e_name not in events:
+            return False
+
+        elif e_name in events:
+            index = events.index(e_name)
+            del events[index]
+            self.config['log.instance.SignedAudit.events'] = ','.join(events)
+            self.save()
+            return True
 
     def find_audit_events(self, enabled=None):
 
