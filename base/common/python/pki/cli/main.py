@@ -43,6 +43,7 @@ class PKICLI(pki.cli.CLI):
         self.database = None
         self.password = None
         self.password_file = None
+        self.password_config = None
         self.token = None
         self.ignore_banner = False
 
@@ -59,9 +60,11 @@ class PKICLI(pki.cli.CLI):
         print('   -d <path>                   NSS database location ' +
               '(default: ~/.dogtag/nssdb)')
         print('   -c <password>               NSS database password ' +
-              '(mutually exclusive to -C option)')
+              '(mutually exclusive to -C and -f options)')
         print('   -C <password file>          NSS database password file ' +
-              '(mutually exclusive to -c option)')
+              '(mutually exclusive to -c and -f options)')
+        print('   -f <password config>        NSS database password configuration ' +
+              '(mutually exclusive to -c and -C options)')
         print('      --token <name>           Security token name')
         print()
         print('  -v, --verbose                Run in verbose mode.')
@@ -111,6 +114,9 @@ class PKICLI(pki.cli.CLI):
 
         if self.password_file:
             cmd.extend(['-C', self.password_file])
+
+        if self.password_config:
+            cmd.extend(['-f', self.password_config])
 
         if self.token and self.token != 'internal':
             cmd.extend(['--token', self.token])
@@ -168,6 +174,13 @@ class PKICLI(pki.cli.CLI):
             # get database password file path
             elif args[i] == '-C':
                 self.password_file = args[i + 1]
+                pki_options.append(args[i])
+                pki_options.append(args[i + 1])
+                i = i + 2
+
+            # get database password config path
+            elif args[i] == '-f':
+                self.password_config = args[i + 1]
                 pki_options.append(args[i])
                 pki_options.append(args[i + 1])
                 i = i + 2
