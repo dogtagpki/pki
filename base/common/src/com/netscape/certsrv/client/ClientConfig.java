@@ -52,10 +52,11 @@ public class ClientConfig {
 
     URL serverURL;
 
-    String certDatabase;
+    String nssDatabase;
+    String nssPassword;
+
     String tokenName;
     String certNickname;
-    String certPassword;
 
     String username;
     String password;
@@ -68,10 +69,11 @@ public class ClientConfig {
     public ClientConfig(ClientConfig config) {
         serverURL = config.serverURL;
 
-        certDatabase = config.certDatabase;
+        nssDatabase = config.nssDatabase;
+        nssPassword = config.nssPassword;
+
         tokenName = config.tokenName;
         certNickname = config.certNickname;
-        certPassword = config.certPassword;
 
         username = config.username;
         password = config.password;
@@ -130,13 +132,31 @@ public class ClientConfig {
         return path.substring(1);
     }
 
+    @XmlElement(name="NSSDatabase")
+    public String getNSSDatabase() {
+        return nssDatabase;
+    }
+
+    public void setNSSDatabase(String nssDatabase) {
+        this.nssDatabase = nssDatabase;
+    }
+
+    @XmlElement(name="NSSPassword")
+    public String getNSSPassword() {
+        return nssPassword;
+    }
+
+    public void setNSSPassword(String nssPassword) {
+        this.nssPassword = nssPassword;
+    }
+
     @XmlElement(name="CertDatabase")
     public String getCertDatabase() {
-        return certDatabase;
+        return nssDatabase;
     }
 
     public void setCertDatabase(String certDatabase) {
-        this.certDatabase = certDatabase;
+        this.nssDatabase = certDatabase;
     }
 
     @XmlElement(name="Token")
@@ -159,11 +179,11 @@ public class ClientConfig {
 
     @XmlElement(name="CertPassword")
     public String getCertPassword() {
-        return certPassword;
+        return nssPassword;
     }
 
     public void setCertPassword(String certPassword) {
-        this.certPassword = certPassword;
+        this.nssPassword = certPassword;
     }
 
     @XmlElement(name="Username")
@@ -197,10 +217,10 @@ public class ClientConfig {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((certDatabase == null) ? 0 : certDatabase.hashCode());
         result = prime * result + ((certNickname == null) ? 0 : certNickname.hashCode());
-        result = prime * result + ((certPassword == null) ? 0 : certPassword.hashCode());
         result = prime * result + ((messageFormat == null) ? 0 : messageFormat.hashCode());
+        result = prime * result + ((nssDatabase == null) ? 0 : nssDatabase.hashCode());
+        result = prime * result + ((nssPassword == null) ? 0 : nssPassword.hashCode());
         result = prime * result + ((password == null) ? 0 : password.hashCode());
         result = prime * result + ((serverURL == null) ? 0 : serverURL.hashCode());
         result = prime * result + ((tokenName == null) ? 0 : tokenName.hashCode());
@@ -217,25 +237,25 @@ public class ClientConfig {
         if (getClass() != obj.getClass())
             return false;
         ClientConfig other = (ClientConfig) obj;
-        if (certDatabase == null) {
-            if (other.certDatabase != null)
-                return false;
-        } else if (!certDatabase.equals(other.certDatabase))
-            return false;
         if (certNickname == null) {
             if (other.certNickname != null)
                 return false;
         } else if (!certNickname.equals(other.certNickname))
             return false;
-        if (certPassword == null) {
-            if (other.certPassword != null)
-                return false;
-        } else if (!certPassword.equals(other.certPassword))
-            return false;
         if (messageFormat == null) {
             if (other.messageFormat != null)
                 return false;
         } else if (!messageFormat.equals(other.messageFormat))
+            return false;
+        if (nssDatabase == null) {
+            if (other.nssDatabase != null)
+                return false;
+        } else if (!nssDatabase.equals(other.nssDatabase))
+            return false;
+        if (nssPassword == null) {
+            if (other.nssPassword != null)
+                return false;
+        } else if (!nssPassword.equals(other.nssPassword))
             return false;
         if (password == null) {
             if (other.password != null)
@@ -282,9 +302,11 @@ public class ClientConfig {
     public static void main(String args[]) throws Exception {
 
         ClientConfig before = new ClientConfig();
-        before.setServerURI("http://localhost:8080");
-        before.setCertDatabase("certs");
+        before.setServerURL("http://localhost:8080");
+        before.setNSSDatabase("certs");
+        before.setNSSPassword("12345");
         before.setCertNickname("caadmin");
+        before.setUsername("caadmin");
         before.setPassword("12345");
 
         String string = before.toString();
