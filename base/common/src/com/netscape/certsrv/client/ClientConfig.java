@@ -24,12 +24,20 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlValue;
+import javax.xml.bind.annotation.adapters.XmlAdapter;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
  * @author Endi S. Dewata
@@ -54,6 +62,8 @@ public class ClientConfig {
 
     String nssDatabase;
     String nssPassword;
+
+    Map<String, String> nssPasswords = new LinkedHashMap<String, String>();
 
     String tokenName;
     String certNickname;
@@ -150,6 +160,65 @@ public class ClientConfig {
         this.nssPassword = nssPassword;
     }
 
+    @XmlElement(name = "NSSPasswords")
+    @XmlJavaTypeAdapter(NSSPasswordsAdapter.class)
+    public Map<String, String> getNSSPasswords() {
+        return nssPasswords;
+    }
+
+    public void setNSSPasswords(Map<String, String> nssPasswords) {
+        this.nssPasswords.clear();
+        this.nssPasswords.putAll(nssPasswords);
+    }
+
+    public String getNSSPassword(String name) {
+        return nssPasswords.get(name);
+    }
+
+    public void setNSSPassword(String name, String value) {
+        nssPasswords.put(name, value);
+    }
+
+    public String removeNSSPassword(String name) {
+        return nssPasswords.remove(name);
+    }
+
+    public static class NSSPasswordsAdapter extends XmlAdapter<NSSPasswordList, Map<String, String>> {
+
+        public NSSPasswordList marshal(Map<String, String> map) {
+            NSSPasswordList list = new NSSPasswordList();
+            for (Map.Entry<String, String> entry : map.entrySet()) {
+                NSSPassword password = new NSSPassword();
+                password.name = entry.getKey();
+                password.value = entry.getValue();
+                list.passwords.add(password);
+            }
+            return list;
+        }
+
+        public Map<String, String> unmarshal(NSSPasswordList list) {
+            Map<String, String> map = new LinkedHashMap<String, String>();
+            for (NSSPassword password : list.passwords) {
+                map.put(password.name, password.value);
+            }
+            return map;
+        }
+    }
+
+    public static class NSSPasswordList {
+        @XmlElement(name = "NSSPassword")
+        public List<NSSPassword> passwords = new ArrayList<NSSPassword>();
+    }
+
+    public static class NSSPassword {
+
+        @XmlAttribute
+        public String name;
+
+        @XmlValue
+        public String value;
+    }
+
     @XmlElement(name="CertDatabase")
     public String getCertDatabase() {
         return nssDatabase;
@@ -221,6 +290,7 @@ public class ClientConfig {
         result = prime * result + ((messageFormat == null) ? 0 : messageFormat.hashCode());
         result = prime * result + ((nssDatabase == null) ? 0 : nssDatabase.hashCode());
         result = prime * result + ((nssPassword == null) ? 0 : nssPassword.hashCode());
+        result = prime * result + ((nssPasswords == null) ? 0 : nssPasswords.hashCode());
         result = prime * result + ((password == null) ? 0 : password.hashCode());
         result = prime * result + ((serverURL == null) ? 0 : serverURL.hashCode());
         result = prime * result + ((tokenName == null) ? 0 : tokenName.hashCode());
@@ -256,6 +326,11 @@ public class ClientConfig {
             if (other.nssPassword != null)
                 return false;
         } else if (!nssPassword.equals(other.nssPassword))
+            return false;
+        if (nssPasswords == null) {
+            if (other.nssPasswords != null)
+                return false;
+        } else if (!nssPasswords.equals(other.nssPasswords))
             return false;
         if (password == null) {
             if (other.password != null)
@@ -308,6 +383,8 @@ public class ClientConfig {
         before.setCertNickname("caadmin");
         before.setUsername("caadmin");
         before.setPassword("12345");
+        before.setNSSPassword("internal", "12345");
+        before.setNSSPassword("hsm", "12345");
 
         String string = before.toString();
         System.out.println(string);
