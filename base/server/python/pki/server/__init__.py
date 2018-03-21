@@ -21,13 +21,10 @@
 from __future__ import absolute_import
 
 import codecs
-from lxml import etree
 import functools
 import getpass
 import grp
 import io
-import ldap
-import ldap.filter
 import operator
 import os
 import pwd
@@ -36,9 +33,12 @@ import shutil
 import subprocess
 import tempfile
 
+import ldap
+import ldap.filter
 import pki
 import pki.nssdb
 import pki.util
+from lxml import etree
 
 INSTANCE_BASE_DIR = '/var/lib/pki'
 CONFIG_BASE_DIR = '/etc/pki'
@@ -424,6 +424,71 @@ class PKISubsystem(object):
         }
 
         pki.util.customize_file(input_file, output_file, params)
+
+    def enable_audit_event(self, event_name):
+
+        if not event_name:
+            raise ValueError("Please specify the Event name")
+
+        e_name = event_name.upper()
+
+        events = self.config['log.instance.SignedAudit.events'].split(',')
+        if e_name not in events:
+            self.config['log.instance.SignedAudit.events'] += ',{}'.format(e_name)
+            self.save()
+            msg = "Audit event \"{}\" enabled. You may need to restart the instance.".format(e_name)
+            print(len(msg) * '-')
+            print(msg)
+            print(len(msg) * '-')
+        else:
+            raise Exception("Filter already present. Please use mod cli to modify it.")
+
+    def update_audit_event_filter(self, event_name, filter_name):
+        if not event_name:
+            raise ValueError("Please specify the Event name")
+        if not filter_name:
+            raise ValueError("Please specify the filter")
+
+        e_name = event_name.upper()
+        f_name = filter_name.title()
+
+        events = self.config['log.instance.SignedAudit.events'].split(',')
+        if e_name not in events:
+            if not self.config.get('log.instance.SignedAudit.filters.%s' % e_name):
+                raise PKIServerException("Event or filter is not present.")
+
+        if e_name in events:
+            # if self.config.get('log.instance.SignedAudit.filters.%s' % e_name):
+            self.config['log.instance.SignedAudit.filters.%s' % e_name] = f_name
+            self.save()
+            msg = 'Filter "{}" updated successfully. You may need to restart the ' \
+                  'instance.'.format(e_name)
+            print(len(msg) * '-')
+            print(msg)
+            print(len(msg) * '-')
+        else:
+            raise Exception("Filter already present. Please use modify cli to update it.")
+
+    def disable_audit_event(self, event_name):
+        if not event_name:
+            raise ValueError("Please specify the Event name")
+
+        e_name = event_name.upper()
+
+        events = self.config['log.instance.SignedAudit.events'].split(',')
+        if e_name not in events:
+            raise PKIServerException('No such event exists: "{}"'.format(event_name))
+
+        elif e_name in events:
+            index = events.index(e_name)
+            del events[index]
+            self.config['log.instance.SignedAudit.events'] = ','.join(events)
+            self.save()
+            msg = 'Audit event "{}" disabled. You may need to restart the ' \
+                  'instance.'.format(e_name)
+            print(len(msg) * '-')
+            print(msg)
+            print(len(msg) * '-')
 
     def find_audit_events(self, enabled=None):
 
