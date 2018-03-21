@@ -20,14 +20,14 @@
 
 from __future__ import absolute_import
 from __future__ import print_function
+
 import getopt
 import os
+import pki.cli
 import shutil
 import subprocess
 import sys
 import tempfile
-
-import pki.cli
 
 
 class AuditCLI(pki.cli.CLI):
@@ -38,6 +38,8 @@ class AuditCLI(pki.cli.CLI):
 
         self.parent = parent
         self.add_module(AuditEventFindCLI(self))
+        self.add_module(AuditEventAddCLI(self))
+        self.add_module(AuditEventUpdateCLI(self))
         self.add_module(AuditFileFindCLI(self))
         self.add_module(AuditFileVerifyCLI(self))
 
@@ -123,6 +125,161 @@ class AuditEventFindCLI(pki.cli.CLI):
             print('  Enabled: %s' % event.get('enabled'))
             print('  Filter: %s' % event.get('filter'))
 
+
+class AuditEventAddCLI(pki.cli.CLI):
+
+    def __init__(self, parent):
+        super(AuditEventAddCLI, self).__init__(
+            'event-add', 'Add audit event configurations')
+
+        self.parent = parent
+
+    def print_help(self):
+        print('Usage: pki-server %s-audit-event-add [OPTIONS]' % self.parent.parent.name)
+        print()
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -e, --event <event name>           Event Name (Ex: AUTH, RANDOM_GENERATION).')
+        print('  -f, --filter <event filter>        Event Filter (Ex: (Outcome=Failre)).')
+        # print('      --enabled <True|False>         Show enabled/disabled events only.')
+        print('  -v, --verbose                      Run in verbose mode.')
+        print('      --help                         Show help message.')
+        print()
+
+    def execute(self, argv):
+
+        try:
+            opts, _ = getopt.gnu_getopt(argv, 'i:e:f:v', [
+                'instance=',
+                'event=',
+                'filter=',
+                # 'enabled=',
+                'verbose', 'help'])
+
+        except getopt.GetoptError as e:
+            print('ERROR: ' + str(e))
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = 'pki-tomcat'
+        enabled = None
+        event_name = None
+        filter_name = None
+
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o in ('-e', '--event'):
+                event_name = a
+
+            elif o in ('-f', '--filter'):
+                filter_name = a
+
+            elif o in ('-v', '--verbose'):
+                self.set_verbose(True)
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                print('ERROR: unknown option ' + o)
+                self.print_help()
+                sys.exit(1)
+
+        instance = pki.server.PKIInstance(instance_name)
+        if not instance.is_valid():
+            print('ERROR: Invalid instance %s.' % instance_name)
+            sys.exit(1)
+
+        instance.load()
+
+        subsystem_name = self.parent.parent.name
+        subsystem = instance.get_subsystem(subsystem_name)
+        if not subsystem:
+            print('ERROR: No %s subsystem in instance %s.'
+                  % (subsystem_name.upper(), instance_name))
+            sys.exit(1)
+
+        subsystem.add_audit_events(event_name, filter_name)
+
+
+class AuditEventUpdateCLI(pki.cli.CLI):
+
+    def __init__(self, parent):
+        super(AuditEventUpdateCLI, self).__init__(
+            'event-update', 'Update audit event configurations')
+
+        self.parent = parent
+
+    def print_help(self):
+        print('Usage: pki-server %s-audit-event-update [OPTIONS]' % self.parent.parent.name)
+        print()
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -e, --event <event name>           Event Name (Ex: AUTH, RANDOM_GENERATION).')
+        print('  -f, --filter <event filter>        Event Filter (Ex: (Outcome=Failre)).')
+        # print('      --enabled <True|False>         Show enabled/disabled events only.')
+        print('  -v, --verbose                      Run in verbose mode.')
+        print('      --help                         Show help message.')
+        print()
+
+    def execute(self, argv):
+
+        try:
+            opts, _ = getopt.gnu_getopt(argv, 'i:e:f:v', [
+                'instance=',
+                'event=',
+                'filter=',
+                # 'enabled=',
+                'verbose', 'help'])
+
+        except getopt.GetoptError as e:
+            print('ERROR: ' + str(e))
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = 'pki-tomcat'
+        enabled = None
+        event_name = None
+        filter_name = None
+
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o in ('-e', '--event'):
+                event_name = a
+
+            elif o in ('-f', '--filter'):
+                filter_name = a
+
+            elif o in ('-v', '--verbose'):
+                self.set_verbose(True)
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                print('ERROR: unknown option ' + o)
+                self.print_help()
+                sys.exit(1)
+
+        instance = pki.server.PKIInstance(instance_name)
+        if not instance.is_valid():
+            print('ERROR: Invalid instance %s.' % instance_name)
+            sys.exit(1)
+
+        instance.load()
+
+        subsystem_name = self.parent.parent.name
+        subsystem = instance.get_subsystem(subsystem_name)
+        if not subsystem:
+            print('ERROR: No %s subsystem in instance %s.'
+                  % (subsystem_name.upper(), instance_name))
+            sys.exit(1)
+
+        subsystem.update_audit_events(event_name, filter_name)
 
 class AuditFileFindCLI(pki.cli.CLI):
 
