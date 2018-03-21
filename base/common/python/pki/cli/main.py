@@ -59,9 +59,9 @@ class PKICLI(pki.cli.CLI):
         print('   -d <path>                   NSS database location ' +
               '(default: ~/.dogtag/nssdb)')
         print('   -c <password>               NSS database password ' +
-              '(mutually exclusive to the -C option)')
-        print('   -C <path>                   NSS database password file ' +
-              '(mutually exclusive to the -c option)')
+              '(mutually exclusive to -C option)')
+        print('   -C <password file>          NSS database password file ' +
+              '(mutually exclusive to -c option)')
         print('      --token <name>           Security token name')
         print()
         print('  -v, --verbose                Run in verbose mode.')

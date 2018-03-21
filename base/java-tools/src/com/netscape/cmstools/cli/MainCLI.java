@@ -168,27 +168,27 @@ public class MainCLI extends CLI {
         option.setArgName("database");
         options.addOption(option);
 
-        option = new Option("c", true, "NSS database password (mutually exclusive to the '-C' option)");
+        option = new Option("c", true, "NSS database password (mutually exclusive to -C option)");
         option.setArgName("password");
         options.addOption(option);
 
-        option = new Option("C", true, "NSS database password file (mutually exclusive to the '-c' option)");
+        option = new Option("C", true, "NSS database password file (mutually exclusive to -c option)");
         option.setArgName("password file");
         options.addOption(option);
 
-        option = new Option("n", true, "Client certificate nickname (signifies client authentication which is mutually exclusive to '-u' basic authentication option)");
+        option = new Option("n", true, "Nickname for client certificate authentication (mutually exclusive to -u option)");
         option.setArgName("nickname");
         options.addOption(option);
 
-        option = new Option("u", true, "Username (signifies basic authentication which is mutually exclusive to '-n' client authentication option)");
+        option = new Option("u", true, "Username for basic authentication (mutually exclusive to -n option)");
         option.setArgName("username");
         options.addOption(option);
 
-        option = new Option("w", true, "Password (mutually exclusive to the '-W' option; requires the '-u' basic authentication option)");
+        option = new Option("w", true, "Password for basic authentication (mutually exclusive to -W option)");
         option.setArgName("password");
         options.addOption(option);
 
-        option = new Option("W", true, "Client-side password file (mutually exclusive to the '-w' option; requires the '-u' basic authentication option)");
+        option = new Option("W", true, "Password file for basic authentication (mutually exclusive to -w option)");
         option.setArgName("passwordfile");
         options.addOption(option);
 
@@ -349,21 +349,21 @@ public class MainCLI extends CLI {
 
         // make sure no conflicting NSS passwords
         if (nssPassword != null && nssPasswordFile != null) {
-            throw new Exception("The '-C' and '-c' options are mutually exclusive.");
+            throw new Exception("The -c and -C options are mutually exclusive.");
         }
 
         // make sure no conflicting authentication methods
         if (certNickname != null && username != null) {
-            throw new Exception("The '-n' and '-u' options are mutually exclusive.");
+            throw new Exception("The -n and -u options are mutually exclusive.");
         }
 
         // make sure no conflicting basic authentication passwords
         if (username != null) {
 
-            if (passwordFile != null && password != null) {
-                throw new Exception("The '-W' and '-w' options are mutually exclusive.");
+            if (password != null && passwordFile != null) {
+                throw new Exception("The -w and -W options are mutually exclusive.");
 
-            } else if (passwordFile == null && password == null) {
+            } else if (password == null && passwordFile == null) {
                 throw new Exception("Missing user password.");
             }
         }
