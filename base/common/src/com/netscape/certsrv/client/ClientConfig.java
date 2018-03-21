@@ -82,6 +82,9 @@ public class ClientConfig {
         nssDatabase = config.nssDatabase;
         nssPassword = config.nssPassword;
 
+        nssPasswords.clear();
+        nssPasswords.putAll(config.nssPasswords);
+
         tokenName = config.tokenName;
         certNickname = config.certNickname;
 
@@ -402,13 +405,16 @@ public class ClientConfig {
 
         ClientConfig before = new ClientConfig();
         before.setServerURL("http://localhost:8080");
+
         before.setNSSDatabase("certs");
         before.setNSSPassword("12345");
-        before.setCertNickname("caadmin");
-        before.setUsername("caadmin");
-        before.setPassword("12345");
         before.setNSSPassword("internal", "12345");
         before.setNSSPassword("hsm", "12345");
+
+        before.setCertNickname("caadmin");
+
+        before.setUsername("caadmin");
+        before.setPassword("12345");
 
         String string = before.toString();
         System.out.println(string);

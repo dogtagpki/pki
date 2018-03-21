@@ -346,19 +346,19 @@ public class MainCLI extends CLI {
         String username = cmd.getOptionValue("u");
         String password = cmd.getOptionValue("w");
         String passwordFile = cmd.getOptionValue("W");
-        String[] tokenPasswordPair = { null, null };
 
-        // check authentication parameters
+        // make sure no conflicting NSS passwords
+        if (nssPassword != null && nssPasswordFile != null) {
+            throw new Exception("The '-C' and '-c' options are mutually exclusive.");
+        }
+
+        // make sure no conflicting authentication methods
         if (certNickname != null && username != null) {
             throw new Exception("The '-n' and '-u' options are mutually exclusive.");
+        }
 
-        } else if (certNickname != null) { // client certificate authentication
-
-            if (nssPasswordFile != null && nssPassword != null) {
-                throw new Exception("The '-C' and '-c' options are mutually exclusive.");
-            }
-
-        } else if (username != null) { // basic authentication
+        // make sure no conflicting basic authentication passwords
+        if (username != null) {
 
             if (passwordFile != null && password != null) {
                 throw new Exception("The '-W' and '-w' options are mutually exclusive.");
@@ -383,25 +383,22 @@ public class MainCLI extends CLI {
         // store certificate nickname
         config.setCertNickname(certNickname);
 
-        if (nssPasswordFile != null) {
+        if (nssPassword != null) {
+            config.setNSSPassword(nssPassword);
+
+        } else if (nssPasswordFile != null) {
             if (verbose) System.out.println("Loading NSS password from " + nssPasswordFile);
-            tokenPasswordPair = loadPassword(nssPasswordFile);
-            // XXX TBD set NSS database token
-
+            String[] tokenPasswordPair = loadPassword(nssPasswordFile);
             nssPassword = tokenPasswordPair[1];
+            config.setNSSPassword(nssPassword);
         }
-
-        // store NSS database password
-        config.setNSSPassword(nssPassword);
 
         // store user name
         config.setUsername(username);
 
         if (passwordFile != null) {
             if (verbose) System.out.println("Loading user password from " + passwordFile);
-            tokenPasswordPair = loadPassword(passwordFile);
-            // XXX TBD set user token
-
+            String[] tokenPasswordPair = loadPassword(passwordFile);
             password = tokenPasswordPair[1];
 
         } else if (username != null && password == null) {
