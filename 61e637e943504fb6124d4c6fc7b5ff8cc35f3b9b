@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "08046160_ca1eff2c",
+        "filename": "base/common/python/pki/nssdb.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 380,
+      "author": {
+        "id": 1011000
+      },
+      "writtenOn": "2018-03-21T01:52:54Z",
+      "side": 1,
+      "message": "Thanks, nick pickup.  New patchset uploaded.",
+      "parentUuid": "752e5782_2b396708",
+      "revId": "61e637e943504fb6124d4c6fc7b5ff8cc35f3b9b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "50cdd527_8548c6b3",
         "filename": "base/common/python/pki/nssdb.py",
         "patchSetId": 5
@@ -30,6 +48,24 @@
       "writtenOn": "2018-03-20T15:10:00Z",
       "side": 1,
       "message": "This is probably OK for now, but with shared HSM there\u0027s a possibility that someone else is also generating other keys.\n\nCould we modify certutil to return the ID of the newly generated key?",
+      "revId": "61e637e943504fb6124d4c6fc7b5ff8cc35f3b9b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c6101daf_630c8c23",
+        "filename": "base/common/python/pki/nssdb.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 606,
+      "author": {
+        "id": 1011000
+      },
+      "writtenOn": "2018-03-21T01:52:54Z",
+      "side": 1,
+      "message": "Hm, that would be a good idea, and we\u0027re already waiting on NSS changes to land so why not add another one?\n\nOTOH its a pretty narrow edge case.",
+      "parentUuid": "50cdd527_8548c6b3",
       "revId": "61e637e943504fb6124d4c6fc7b5ff8cc35f3b9b",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
