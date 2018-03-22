@@ -2,6 +2,40 @@
   "comments": [
     {
       "key": {
+        "uuid": "515088ed_f8e38cf3",
+        "filename": "base/server/python/pki/server/deployment/pkihelper.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 3639,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2018-03-22T19:37:24Z",
+      "side": 1,
+      "message": "So the correct behavior on Debian is to do nothing here?",
+      "revId": "bfc96d16c6a42b78b272b31480a0024b1260c3ce",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "34c5abbb_aa320e54",
+        "filename": "base/server/python/pki/server/deployment/pkihelper.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 3686,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2018-03-22T19:37:24Z",
+      "side": 1,
+      "message": "ditto?",
+      "revId": "bfc96d16c6a42b78b272b31480a0024b1260c3ce",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a4e4b4c9_bff200ec",
         "filename": "base/server/scripts/operations",
         "patchSetId": 1
@@ -13,6 +47,23 @@
       "writtenOn": "2018-03-22T19:36:16Z",
       "side": 1,
       "message": "Line #925 says tomcat8. Can you correct the comments to avoid confusion in future?",
+      "revId": "bfc96d16c6a42b78b272b31480a0024b1260c3ce",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "eef059fc_755abee8",
+        "filename": "base/server/scripts/operations",
+        "patchSetId": 1
+      },
+      "lineNbr": 1547,
+      "author": {
+        "id": 1006809
+      },
+      "writtenOn": "2018-03-22T19:37:24Z",
+      "side": 1,
+      "message": "This polls port 8080, which is the default port.  But what if the user has specified different ports?  Or what if we are starting a non-CA and the CA is on a different host?",
       "revId": "bfc96d16c6a42b78b272b31480a0024b1260c3ce",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
