@@ -180,6 +180,11 @@ class NSSDatabase(object):
     def close(self):
         shutil.rmtree(self.tmpdir)
 
+    def get_effective_token(self, token=None):
+        if not normalize_token(token):
+            return self.token
+        return token
+
     def create_password_file(self, tmpdir, password, filename='password.txt'):
         password_file = os.path.join(tmpdir, filename)
         with open(password_file, 'w') as f:
@@ -274,18 +279,20 @@ class NSSDatabase(object):
 
         logger.info("Migration successful")
 
-    def add_cert(self, nickname, cert_file, trust_attributes=None):
+    def add_cert(self, nickname, cert_file, token=None, trust_attributes=None):
+
+        token = self.get_effective_token(token)
 
         # Add cert in two steps due to bug #1393668.
 
         # If HSM is used, import cert into HSM without trust attributes.
-        if self.token:
+        if token:
             cmd = [
                 'certutil',
                 '-A',
                 '-d', self.directory,
-                '-h', self.token,
-                '-P', self.token,
+                '-h', token,
+                '-P', token,
                 '-f', self.password_file,
                 '-n', nickname,
                 '-i', cert_file,
@@ -303,7 +310,7 @@ class NSSDatabase(object):
 
         # If HSM is not used, or cert has trust attributes,
         # import cert into internal token.
-        if not self.token or trust_attributes != ',,':
+        if not token or trust_attributes != ',,':
             cmd = [
                 'certutil',
                 '-A',
@@ -378,13 +385,20 @@ class NSSDatabase(object):
         logger.debug('Command: %s', ' '.join(cmd))
         subprocess.check_call(cmd)
 
-    def create_request(self, subject_dn, request_file, noise_file=None,
-                       key_type=None, key_size=None, curve=None,
-                       hash_alg=None,
-                       basic_constraints_ext=None,
-                       key_usage_ext=None,
-                       extended_key_usage_ext=None,
-                       generic_exts=None):
+    def create_request(
+            self,
+            subject_dn,
+            request_file,
+            token=None,
+            noise_file=None,
+            key_type=None,
+            key_size=None,
+            curve=None,
+            hash_alg=None,
+            basic_constraints_ext=None,
+            key_usage_ext=None,
+            extended_key_usage_ext=None,
+            generic_exts=None):
 
         tmpdir = tempfile.mkdtemp()
 
@@ -409,8 +423,10 @@ class NSSDatabase(object):
                 '-d', self.directory
             ]
 
-            if self.token:
-                cmd.extend(['-h', self.token])
+            token = self.get_effective_token(token)
+
+            if token:
+                cmd.extend(['-h', token])
 
             cmd.extend([
                 '-f', self.password_file,
@@ -959,8 +975,12 @@ class NSSDatabase(object):
         logger.debug('Command: %s', ' '.join(cmd))
         subprocess.check_call(cmd)
 
-    def import_cert_chain(self, nickname, cert_chain_file,
-                          trust_attributes=None):
+    def import_cert_chain(
+            self,
+            nickname,
+            cert_chain_file,
+            token=None,
+            trust_attributes=None):
 
         tmpdir = tempfile.mkdtemp()
 
@@ -971,6 +991,7 @@ class NSSDatabase(object):
                 self.add_cert(
                     nickname=nickname,
                     cert_file=cert_chain_file,
+                    token=token,
                     trust_attributes=trust_attributes)
                 return (
                     self.get_cert(nickname=nickname, output_format='base64'),
@@ -981,6 +1002,7 @@ class NSSDatabase(object):
                 chain, nicks = self.import_pkcs7(
                     pkcs7_file=cert_chain_file,
                     nickname=nickname,
+                    token=token,
                     trust_attributes=trust_attributes,
                     output_format='base64')
                 return chain, nicks
@@ -1004,6 +1026,7 @@ class NSSDatabase(object):
                 chain, nicks = self.import_pkcs7(
                     pkcs7_file=tmp_cert_chain_file,
                     nickname=nickname,
+                    token=token,
                     trust_attributes=trust_attributes)
 
                 return base64_data, nicks
@@ -1011,8 +1034,13 @@ class NSSDatabase(object):
         finally:
             shutil.rmtree(tmpdir)
 
-    def import_pkcs7(self, pkcs7_file, nickname, trust_attributes=None,
-                     output_format='pem'):
+    def import_pkcs7(
+            self,
+            pkcs7_file,
+            nickname,
+            token=None,
+            trust_attributes=None,
+            output_format='pem'):
 
         tmpdir = tempfile.mkdtemp()
 
@@ -1048,7 +1076,11 @@ class NSSDatabase(object):
 
             # Import user cert with specified nickname and trust attributes.
             cert_file = prefix + str(n - 1) + suffix
-            self.add_cert(nickname, cert_file, trust_attributes)
+            self.add_cert(
+                nickname=nickname,
+                cert_file=cert_file,
+                token=token,
+                trust_attributes=trust_attributes)
 
         finally:
             shutil.rmtree(tmpdir)

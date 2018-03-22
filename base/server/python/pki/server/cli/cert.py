@@ -852,7 +852,9 @@ class CertImportCLI(pki.cli.CLI):
 
             if self.verbose:
                 print('Adding new %s certificate into NSS database.' % cert_id)
-            nssdb.add_cert(nickname=cert['nickname'], cert_file=cert_file)
+            nssdb.add_cert(
+                nickname=cert['nickname'],
+                cert_file=cert_file)
 
             # Update CS.cfg with the new certificate
             if self.verbose:

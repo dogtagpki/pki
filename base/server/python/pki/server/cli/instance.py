@@ -714,7 +714,9 @@ class InstanceExternalCertAddCLI(pki.cli.CLI):
             password=password,
             token=token)
         _chain, nicks = certdb.import_cert_chain(
-            nickname, cert_file, trust_attributes=trust_args)
+            nickname=nickname,
+            cert_chain_file=cert_file,
+            trust_attributes=trust_args)
         return nicks
 
     def update_instance_config(self, instance, nicks, token):
