@@ -412,73 +412,26 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             cert_chain_file=cert_file,
             trust_attributes='CT,C,C')
 
-    def import_ca_ocsp_signing_cert(self, deployer, nssdb):
+    def import_system_cert(
+            self, deployer, nssdb, subsystem, tag,
+            trust_attributes=None):
 
-        cert_file = deployer.mdict.get('pki_ocsp_signing_cert_path')
+        cert_id = self.get_cert_id(subsystem, tag)
+
+        cert_file = deployer.mdict.get('pki_%s_cert_path' % cert_id)
         if not cert_file or not os.path.exists(cert_file):
             return
 
-        nickname = deployer.mdict['pki_ocsp_signing_nickname']
-
         config.pki_log.info(
-            "importing ca_ocsp_signing certificate from %s", cert_file,
+            "importing %s certificate from %s", cert_id, cert_file,
             extra=config.PKI_INDENTATION_LEVEL_2)
+
+        nickname = deployer.mdict['pki_%s_nickname' % cert_id]
 
         nssdb.import_cert_chain(
             nickname=nickname,
             cert_chain_file=cert_file,
-            trust_attributes=',,')
-
-    def import_sslserver_cert(self, deployer, nssdb):
-
-        cert_file = deployer.mdict.get('pki_sslserver_cert_path')
-        if not cert_file or not os.path.exists(cert_file):
-            return
-
-        nickname = deployer.mdict['pki_sslserver_nickname']
-
-        config.pki_log.info(
-            "importing sslserver certificate from %s", cert_file,
-            extra=config.PKI_INDENTATION_LEVEL_2)
-
-        nssdb.import_cert_chain(
-            nickname=nickname,
-            cert_chain_file=cert_file,
-            trust_attributes=',,')
-
-    def import_subsystem_cert(self, deployer, nssdb):
-
-        cert_file = deployer.mdict.get('pki_subsystem_cert_path')
-        if not cert_file or not os.path.exists(cert_file):
-            return
-
-        nickname = deployer.mdict['pki_subsystem_nickname']
-
-        config.pki_log.info(
-            "importing subsystem certificate from %s", cert_file,
-            extra=config.PKI_INDENTATION_LEVEL_2)
-
-        nssdb.import_cert_chain(
-            nickname=nickname,
-            cert_chain_file=cert_file,
-            trust_attributes=',,')
-
-    def import_audit_signing_cert(self, deployer, nssdb):
-
-        cert_file = deployer.mdict.get('pki_audit_signing_cert_path')
-        if not cert_file or not os.path.exists(cert_file):
-            return
-
-        nickname = deployer.mdict['pki_audit_signing_nickname']
-
-        config.pki_log.info(
-            "importing audit_signing certificate from %s", cert_file,
-            extra=config.PKI_INDENTATION_LEVEL_2)
-
-        nssdb.import_cert_chain(
-            nickname=nickname,
-            cert_chain_file=cert_file,
-            trust_attributes=',,P')
+            trust_attributes=trust_attributes)
 
     def import_admin_cert(self, deployer):
 
@@ -504,57 +457,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         finally:
             client_nssdb.close()
-
-    def import_kra_storage_cert(self, deployer, nssdb):
-
-        cert_file = deployer.mdict.get('pki_storage_cert_path')
-        if not cert_file or not os.path.exists(cert_file):
-            return
-
-        nickname = deployer.mdict['pki_storage_nickname']
-
-        config.pki_log.info(
-            "importing kra_storage certificate from %s", cert_file,
-            extra=config.PKI_INDENTATION_LEVEL_2)
-
-        nssdb.import_cert_chain(
-            nickname=nickname,
-            cert_chain_file=cert_file,
-            trust_attributes=',,')
-
-    def import_kra_transport_cert(self, deployer, nssdb):
-
-        cert_file = deployer.mdict.get('pki_transport_cert_path')
-        if not cert_file or not os.path.exists(cert_file):
-            return
-
-        nickname = deployer.mdict['pki_transport_nickname']
-
-        config.pki_log.info(
-            "importing kra_transport certificate from %s", cert_file,
-            extra=config.PKI_INDENTATION_LEVEL_2)
-
-        nssdb.import_cert_chain(
-            nickname=nickname,
-            cert_chain_file=cert_file,
-            trust_attributes=',,')
-
-    def import_ocsp_signing_cert(self, deployer, nssdb):
-
-        cert_file = deployer.mdict.get('pki_ocsp_signing_cert_path')
-        if not cert_file or not os.path.exists(cert_file):
-            return
-
-        nickname = deployer.mdict['pki_ocsp_signing_nickname']
-
-        config.pki_log.info(
-            "importing ocsp_signing certificate from %s", cert_file,
-            extra=config.PKI_INDENTATION_LEVEL_2)
-
-        nssdb.import_cert_chain(
-            nickname=nickname,
-            cert_chain_file=cert_file,
-            trust_attributes=',,')
 
     def import_certs_and_keys(self, deployer, nssdb):
 
@@ -589,8 +491,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
     def import_system_certs(self, deployer, nssdb, subsystem):
 
         if subsystem.name == 'ca':
-            self.import_ca_signing_cert(deployer, nssdb)
-            self.import_ca_ocsp_signing_cert(deployer, nssdb)
+            self.import_system_cert(deployer, nssdb, subsystem, 'signing', 'CT,C,C')
+            self.import_system_cert(deployer, nssdb, subsystem, 'ocsp_signing')
 
         if subsystem.name == 'kra':
             # Always import cert chain into internal token.
@@ -600,8 +502,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             finally:
                 internal_nssdb.close()
 
-            self.import_kra_storage_cert(deployer, nssdb)
-            self.import_kra_transport_cert(deployer, nssdb)
+            self.import_system_cert(deployer, nssdb, subsystem, 'storage')
+            self.import_system_cert(deployer, nssdb, subsystem, 'transport')
             self.import_admin_cert(deployer)
 
         if subsystem.name == 'ocsp':
@@ -612,12 +514,12 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             finally:
                 internal_nssdb.close()
 
-            self.import_ocsp_signing_cert(deployer, nssdb)
+            self.import_system_cert(deployer, nssdb, subsystem, 'signing')
             self.import_admin_cert(deployer)
 
-        self.import_sslserver_cert(deployer, nssdb)
-        self.import_subsystem_cert(deployer, nssdb)
-        self.import_audit_signing_cert(deployer, nssdb)
+        self.import_system_cert(deployer, nssdb, subsystem, 'sslserver')
+        self.import_system_cert(deployer, nssdb, subsystem, 'subsystem')
+        self.import_system_cert(deployer, nssdb, subsystem, 'audit_signing', ',,P')
 
         # If provided, import certs and keys from PKCS #12 file
         # into NSS database.
