@@ -24,6 +24,8 @@ import pki.encoder as encoder
 import xml.etree.ElementTree as ETree
 import os
 
+import pki.nssdb
+
 SYSTEM_TYPE = "Fedora/RHEL"
 if os.path.exists("/etc/debian_version"):
     SYSTEM_TYPE = "debian"
@@ -214,7 +216,7 @@ class ConfigurationRequest(object):
     """
 
     def __init__(self):
-        self.token = "Internal Key Storage Token"
+        self.token = pki.nssdb.INTERNAL_TOKEN_FULL_NAME
         self.isClone = "false"
         self.secureConn = "off"
         self.importAdminCert = "false"

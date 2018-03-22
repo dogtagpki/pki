@@ -29,6 +29,7 @@ import traceback
 import pki.cli
 import pki.cli.password
 import pki.cli.pkcs12
+import pki.nssdb
 
 
 PYTHON_COMMANDS = ['password-generate', 'pkcs12-import']
@@ -118,7 +119,7 @@ class PKICLI(pki.cli.CLI):
         if self.password_config:
             cmd.extend(['-f', self.password_config])
 
-        if self.token and self.token != 'internal':
+        if pki.nssdb.normalize_token(self.token):
             cmd.extend(['--token', self.token])
 
         if self.ignore_banner:

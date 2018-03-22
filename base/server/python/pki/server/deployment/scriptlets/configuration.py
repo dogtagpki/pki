@@ -818,12 +818,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         try:
             # Remove temp SSL server cert from internal token.
             # Remove temp key too if the perm cert uses HSM.
-            if not token or \
-                    token.lower() == 'internal' or \
-                    token.lower() == 'internal key storage token':
-                remove_key = False
-            else:
+            if pki.nssdb.normalize_token(token):
                 remove_key = True
+            else:
+                remove_key = False
             nssdb.remove_cert(nickname, remove_key=remove_key)
 
         finally:

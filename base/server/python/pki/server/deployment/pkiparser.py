@@ -663,10 +663,8 @@ class PKIConfigParser:
             token = self.mdict.get('pki_token_name')
 
         # normalize internal token name
-        if not token or \
-                token.lower() == 'internal' or \
-                token.lower() == 'internal key storage token':
-            token = 'Internal Key Storage Token'
+        if not pki.nssdb.normalize_token(token):
+            token = pki.nssdb.INTERNAL_TOKEN_FULL_NAME
 
         # update cert token
         self.mdict[name] = token
@@ -1226,9 +1224,9 @@ class PKIConfigParser:
             #
 
             # if the case insensitive softokn name is the 'default' value
-            if (self.mdict['pki_token_name'].lower() == "internal"):
+            if not pki.nssdb.normalize_token(self.mdict['pki_token_name']):
                 # always normalize 'default' softokn name
-                self.mdict['pki_token_name'] = "internal"
+                self.mdict['pki_token_name'] = pki.nssdb.INTERNAL_TOKEN_NAME
 
             # normalize cert tokens
             self.normalize_cert_token('pki_audit_signing_token')

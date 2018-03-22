@@ -647,7 +647,7 @@ class InstanceExternalCertAddCLI(pki.cli.CLI):
         cert_file = None
         trust_args = '\",,\"'
         nickname = None
-        token = 'internal'
+        token = pki.nssdb.INTERNAL_TOKEN_NAME
 
         for o, a in opts:
             if o in ('-i', '--instance'):
@@ -752,7 +752,7 @@ class InstanceExternalCertDeleteCLI(pki.cli.CLI):
 
         instance_name = 'pki-tomcat'
         nickname = None
-        token = 'internal'
+        token = pki.nssdb.INTERNAL_TOKEN_NAME
 
         for o, a in opts:
             if o in ('-i', '--instance'):

@@ -52,6 +52,7 @@ from . import pkimessages as log
 from .pkiparser import PKIConfigParser
 
 import pki
+import pki.nssdb
 
 # special care for SELinux
 import selinux
@@ -597,12 +598,12 @@ class ConfigurationFile:
             self.confirm_data_exists("pki_hsm_libfile")
             self.confirm_data_exists("pki_hsm_modulename")
             self.confirm_data_exists("pki_token_name")
-            if self.mdict['pki_token_name'] == "internal":
+            if not pki.nssdb.normalize_token(self.mdict['pki_token_name']):
                 config.pki_log.error(
                     log.PKIHELPER_UNDEFINED_HSM_TOKEN,
                     extra=config.PKI_INDENTATION_LEVEL_2)
                 raise Exception(log.PKIHELPER_UNDEFINED_HSM_TOKEN)
-        if not self.mdict['pki_token_name'] == "internal":
+        if pki.nssdb.normalize_token(self.mdict['pki_token_name']):
             self.confirm_data_exists("pki_token_password")
 
     def verify_mutually_exclusive_data(self):
@@ -2997,7 +2998,7 @@ class KRAConnector:
             if ':' in subsystemnick:
                 token_name = subsystemnick.split(':')[0]
             else:
-                token_name = "internal"
+                token_name = pki.nssdb.INTERNAL_TOKEN_NAME
 
             token_pwd = self.password.get_password(
                 self.mdict['pki_shared_password_conf'],
@@ -3201,7 +3202,7 @@ class TPSConnector:
             if ':' in subsystemnick:
                 token_name = subsystemnick.split(':')[0]
             else:
-                token_name = "internal"
+                token_name = pki.nssdb.INTERNAL_TOKEN_NAME
 
             token_pwd = self.password.get_password(
                 self.mdict['pki_shared_password_conf'],
@@ -3438,7 +3439,7 @@ class SecurityDomain:
         if ':' in subsystemnick:
             token_name = subsystemnick.split(':')[0]
         else:
-            token_name = "internal"
+            token_name = pki.nssdb.INTERNAL_TOKEN_NAME
 
         token_pwd = self.password.get_password(
             self.mdict['pki_shared_password_conf'],

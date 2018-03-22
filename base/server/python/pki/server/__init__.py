@@ -230,10 +230,7 @@ class PKISubsystem(object):
 
         cert = self.get_subsystem_cert(cert_id)
         nickname = cert['nickname']
-        token = cert['token']
-
-        if token and token.lower() in ['internal', 'internal key storage token']:
-            token = None
+        token = pki.nssdb.normalize_token(cert['token'])
 
         nssdb_password = self.instance.get_token_password(token)
 
@@ -280,10 +277,7 @@ class PKISubsystem(object):
         # use subsystem certificate to get certificate chain
         cert = self.get_subsystem_cert('subsystem')
         nickname = cert['nickname']
-        token = cert['token']
-
-        if token and token.lower() in ['internal', 'internal key storage token']:
-            token = None
+        token = pki.nssdb.normalize_token(cert['token'])
 
         nssdb_password = self.instance.get_token_password(token)
 
@@ -409,7 +403,8 @@ class PKISubsystem(object):
                 client_cert_nickname=self.config[
                     '%s.ldapauth.clientCertNickname' % name],
                 # TODO: remove hard-coded token name
-                nssdb_password=self.instance.get_token_password('internal')
+                nssdb_password=self.instance.get_token_password(
+                    pki.nssdb.INTERNAL_TOKEN_NAME)
             )
 
         else:
@@ -764,11 +759,11 @@ class PKIInstance(object):
 
         return password
 
-    def get_token_password(self, token='internal'):
+    def get_token_password(self, token=pki.nssdb.INTERNAL_TOKEN_NAME):
 
         # determine the password name for the token
-        if not token or token.lower() in ['internal', 'internal key storage token']:
-            name = 'internal'
+        if not pki.nssdb.normalize_token(token):
+            name = pki.nssdb.INTERNAL_TOKEN_NAME
 
         else:
             name = 'hardware-%s' % token
@@ -783,7 +778,7 @@ class PKIInstance(object):
 
         return password
 
-    def open_nssdb(self, token='internal'):
+    def open_nssdb(self, token=pki.nssdb.INTERNAL_TOKEN_NAME):
         return pki.nssdb.NSSDatabase(
             directory=self.nssdb_dir,
             token=token,
@@ -820,10 +815,7 @@ class PKIInstance(object):
                               append=False):
         for cert in self.external_certs:
             nickname = cert.nickname
-            token = cert.token
-
-            if token and token.lower() in ['internal', 'internal key storage token']:
-                token = None
+            token = pki.nssdb.normalize_token(cert.token)
 
             nssdb_password = self.get_token_password(token)
 
