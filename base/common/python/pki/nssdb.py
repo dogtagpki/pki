@@ -141,7 +141,8 @@ class NSSDatabase(object):
                  password=None,
                  password_file=None,
                  internal_password=None,
-                 internal_password_file=None):
+                 internal_password_file=None,
+                 passwords=None):
 
         if not directory:
             directory = os.path.join(
@@ -177,6 +178,8 @@ class NSSDatabase(object):
             # By default use the same password for both internal token and HSM.
             self.internal_password_file = self.password_file
 
+        self.passwords = passwords
+
     def close(self):
         shutil.rmtree(self.tmpdir)
 
@@ -190,6 +193,25 @@ class NSSDatabase(object):
         with open(password_file, 'w') as f:
             f.write(password)
         return password_file
+
+    def get_password_file(self, tmpdir, token, filename=None):
+
+        # if no password map is provided, use password file
+        if not self.passwords:
+            return self.password_file
+
+        # if password map is provided, get token password
+        if normalize_token(token):
+            token = 'hardware-%s' % token
+        else:
+            token = INTERNAL_TOKEN_NAME
+        password = self.passwords[token]
+
+        # then store it in a temp file
+        return self.create_password_file(
+            tmpdir,
+            password,
+            filename)
 
     def get_dbtype(self):
         def dbexists(filename):
@@ -284,6 +306,7 @@ class NSSDatabase(object):
         tmpdir = tempfile.mkdtemp()
         try:
             token = self.get_effective_token(token)
+            password_file = self.get_password_file(tmpdir, token)
 
             # Add cert in two steps due to bug #1393668.
 
@@ -295,7 +318,7 @@ class NSSDatabase(object):
                     '-d', self.directory,
                     '-h', token,
                     '-P', token,
-                    '-f', self.password_file,
+                    '-f', password_file,
                     '-n', nickname,
                     '-i', cert_file,
                     '-t', ''
@@ -429,12 +452,13 @@ class NSSDatabase(object):
             ]
 
             token = self.get_effective_token(token)
+            password_file = self.get_password_file(tmpdir, token)
 
             if token:
                 cmd.extend(['-h', token])
 
             cmd.extend([
-                '-f', self.password_file,
+                '-f', password_file,
                 '-s', subject_dn,
                 '-o', binary_request_file,
                 '-z', noise_file
