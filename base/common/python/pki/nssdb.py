@@ -136,8 +136,11 @@ def normalize_token(token):
 
 class NSSDatabase(object):
 
-    def __init__(self, directory=None, token=None, password=None,
-                 password_file=None, internal_password=None,
+    def __init__(self, directory=None,
+                 token=None,
+                 password=None,
+                 password_file=None,
+                 internal_password=None,
                  internal_password_file=None):
 
         if not directory:
@@ -150,25 +153,24 @@ class NSSDatabase(object):
         self.tmpdir = tempfile.mkdtemp()
 
         if password:
-            self.password_file = os.path.join(self.tmpdir, 'password.txt')
-            with open(self.password_file, 'w') as f:
-                f.write(password)
+            # if token password is provided, store it in a temp file
+            self.password_file = self.create_password_file(
+                self.tmpdir, password)
 
         elif password_file:
+            # if token password file is provided, use the file
             self.password_file = password_file
 
         else:
             self.password_file = None
 
         if internal_password:
-            # Store the specified internal token into password file.
-            self.internal_password_file = os.path.join(
-                self.tmpdir, 'internal_password.txt')
-            with open(self.internal_password_file, 'w') as f:
-                f.write(internal_password)
+            # if internal password is provided, store it in a temp file
+            self.internal_password_file = self.create_password_file(
+                self.tmpdir, internal_password, 'internal_password.txt')
 
         elif internal_password_file:
-            # Use the specified internal token password file.
+            # if internal password file is provided, use the file
             self.internal_password_file = internal_password_file
 
         else:
@@ -177,6 +179,12 @@ class NSSDatabase(object):
 
     def close(self):
         shutil.rmtree(self.tmpdir)
+
+    def create_password_file(self, tmpdir, password, filename='password.txt'):
+        password_file = os.path.join(tmpdir, filename)
+        with open(password_file, 'w') as f:
+            f.write(password)
+        return password_file
 
     def get_dbtype(self):
         def dbexists(filename):
@@ -867,11 +875,12 @@ class NSSDatabase(object):
 
         try:
             if pkcs12_password:
-                password_file = os.path.join(tmpdir, 'password.txt')
-                with open(password_file, 'w') as f:
-                    f.write(pkcs12_password)
+                # if PKCS #12 password is provided, store it in a temp file
+                password_file = self.create_password_file(
+                    tmpdir, pkcs12_password)
 
             elif pkcs12_password_file:
+                # if PKCS #12 password file is provided, use the file
                 password_file = pkcs12_password_file
 
             else:
@@ -1061,11 +1070,12 @@ class NSSDatabase(object):
 
         try:
             if pkcs12_password:
-                password_file = os.path.join(tmpdir, 'password.txt')
-                with open(password_file, 'w') as f:
-                    f.write(pkcs12_password)
+                # if PKCS #12 password is provided, store it in a temp file
+                password_file = self.create_password_file(
+                    tmpdir, pkcs12_password)
 
             elif pkcs12_password_file:
+                # if PKCS #12 password file is provided, use the file
                 password_file = pkcs12_password_file
 
             else:
@@ -1117,11 +1127,12 @@ class NSSDatabase(object):
 
         try:
             if pkcs12_password:
-                password_file = os.path.join(tmpdir, 'password.txt')
-                with open(password_file, 'w') as f:
-                    f.write(pkcs12_password)
+                # if PKCS #12 password is provided, store it in a temp file
+                password_file = self.create_password_file(
+                    tmpdir, pkcs12_password)
 
             elif pkcs12_password_file:
+                # if PKCS #12 password file is provided, use the file
                 password_file = pkcs12_password_file
 
             else:
