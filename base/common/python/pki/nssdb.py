@@ -266,7 +266,7 @@ class NSSDatabase(object):
 
         logger.info("Migration successful")
 
-    def add_cert(self, nickname, cert_file, trust_attributes=',,'):
+    def add_cert(self, nickname, cert_file, trust_attributes=None):
 
         # Add cert in two steps due to bug #1393668.
 
@@ -289,6 +289,9 @@ class NSSDatabase(object):
 
             if rc:
                 logger.warning('certutil returned non-zero exit code (bug #1393668)')
+
+        if not trust_attributes:
+            trust_attributes = ',,'
 
         # If HSM is not used, or cert has trust attributes,
         # import cert into internal token.
