@@ -32,5 +32,3 @@ dnf makecache
 # update, container might be outdated
 dnf update -y
 
-## prepare additional build dependencies
-dnf builddep -y ${BUILDDIR}/pki/specs/pki-core.spec
