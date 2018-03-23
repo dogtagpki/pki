@@ -19,6 +19,7 @@
 # Copyright (C) 2017 Red Hat, Inc.
 # All rights reserved.
 #
+set -e
 
 PYTHON="/usr/bin/python${TRAVIS_PYTHON_VERSION}"
 
@@ -106,4 +107,4 @@ then
     truncate_log_to_test_failures
 fi
 
-exit $exit_status
+exit 100
