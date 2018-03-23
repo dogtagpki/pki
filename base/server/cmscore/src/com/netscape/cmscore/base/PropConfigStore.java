@@ -31,6 +31,8 @@ import java.util.TreeMap;
 import java.util.Vector;
 
 import org.mozilla.jss.util.Base64OutputStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
@@ -62,9 +64,8 @@ import com.netscape.cmsutil.util.Utils;
  */
 public class PropConfigStore implements IConfigStore, Cloneable {
 
-    /**
-     *
-     */
+    public final static Logger logger = LoggerFactory.getLogger(PropConfigStore.class);
+
     private static final long serialVersionUID = 4714108964096659077L;
 
     protected static final String PROP_SUBSTORES = "substores";
@@ -154,7 +155,9 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      * @param value property value
      */
     public String put(String name, String value) {
-        return mSource.put(getFullName(name), value);
+        String property = getFullName(name);
+        logger.debug("Setting " + property + "=" + value);
+        return mSource.put(property, value);
     }
 
     /**
