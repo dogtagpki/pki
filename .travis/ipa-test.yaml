@@ -41,7 +41,7 @@ steps:
   - echo "Skipping Build. Nothing to do..."
   builddep:
   - rm -rf /var/cache/dnf/*
-  - "dnf makecache fast || :"
+  - "dnf makecache || :"
   cleanup:
   - chown -R ${uid}:${gid} ${container_working_dir}
   - journalctl -b --no-pager > systemd_journal.log
@@ -54,16 +54,16 @@ steps:
       /var/log/pki
       systemd_journal.log
   - chown ${uid}:${gid} ${container_working_dir}/var_log.tar
+  - curl --upload ${container_working_dir}/var_log.tar https://transfer.sh/var_log.tar
   configure:
   - dnf repolist
   install_packages:
   - echo "Installing recently built dogtag RPMs..."
-  - sysctl net.ipv6.conf.lo.disable_ipv6=0
-  - find /freeipa/dogtag_rpms/ -name '*.rpm' -and -not -name '*debuginfo*'   | xargs dnf install -y --best --allowerasing
-  - rpm -qa freeipa-*
-  - rpm -qa pki-*
+  - find ${container_working_dir}/dogtag_rpms/ -name '*.rpm' -and -not -name '*debuginfo*'   | xargs dnf install -y
+  - rpm -qa tomcat* pki-* freeipa-* | sort
   install_server:
   - echo "Installing ipa-server..."
+  - sysctl net.ipv6.conf.lo.disable_ipv6=0
   - ipa-server-install -U --domain ${server_domain} --realm ${server_realm} -p ${server_password}
     -a ${server_password} --setup-dns --setup-kra --auto-forwarders
   - systemctl restart httpd.service
