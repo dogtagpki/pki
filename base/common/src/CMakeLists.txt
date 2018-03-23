@@ -30,13 +30,6 @@ find_file(COMMONS_HTTPCLIENT_JAR
         /usr/share/java
 )
 
-find_file(APACHE_COMMONS_LANG_JAR
-    NAMES
-        apache-commons-lang.jar
-    PATHS
-        /usr/share/java
-)
-
 find_file(VELOCITY_JAR
     NAMES
         velocity.jar
@@ -87,6 +80,7 @@ find_file(HTTPCLIENT_JAR
         httpclient.jar
     PATHS
         /usr/share/java/httpcomponents
+        /usr/share/java
 )
 
 find_file(HTTPCORE_JAR
@@ -94,6 +88,7 @@ find_file(HTTPCORE_JAR
         httpcore.jar
     PATHS
         /usr/share/java/httpcomponents
+        /usr/share/java
 )
 
 # build pki-certsrv
@@ -104,7 +99,7 @@ javac(pki-certsrv-classes
         ${SLF4J_API_JAR}
         ${LDAPJDK_JAR} ${SERVLET_JAR} ${VELOCITY_JAR} ${XALAN_JAR} ${XERCES_JAR}
         ${JSS_JAR} ${COMMONS_CODEC_JAR} ${COMMONS_HTTPCLIENT_JAR} ${COMMONS_IO_JAR}
-        ${APACHE_COMMONS_LANG_JAR}
+        ${COMMONS_LANG_JAR}
         ${TOMCAT_CATALINA_JAR} ${TOMCAT_UTIL_JAR} ${SYMKEY_JAR}
         ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR} ${RESTEASY_ATOM_PROVIDER_JAR} ${RESTEASY_CLIENT_JAR}
         ${HTTPCLIENT_JAR} ${HTTPCORE_JAR}

@@ -3,6 +3,7 @@ project(base)
 find_file(SERVLET_JAR
     NAMES
         servlet.jar
+        servlet-api-3.1.jar
     PATHS
         /usr/share/java
 )
@@ -11,6 +12,7 @@ find_file(JAXRS_API_JAR
     NAMES
         jaxrs-api.jar
         jboss-jaxrs-2.0-api.jar
+        javax.ws.rs-api.jar
     PATHS
         ${RESTEASY_LIB}
         /usr/share/java
@@ -21,6 +23,7 @@ find_file(SLF4J_API_JAR
         slf4j-api.jar
     PATHS
         /usr/share/java/slf4j
+        /usr/share/java
 )
 
 find_file(SLF4J_JDK14_JAR
@@ -28,11 +31,27 @@ find_file(SLF4J_JDK14_JAR
         slf4j-jdk14.jar
     PATHS
         /usr/share/java/slf4j
+        /usr/share/java
+)
+
+find_file(COMMONS_CLI_JAR
+    NAMES
+        commons-cli.jar
+    PATHS
+        /usr/share/java
 )
 
 find_file(COMMONS_CODEC_JAR
     NAMES
         commons-codec.jar
+    PATHS
+        /usr/share/java
+)
+
+find_file(COMMONS_COLLECTIONS_JAR
+    NAMES
+        commons-collections.jar
+        commons-collections3.jar
     PATHS
         /usr/share/java
 )
@@ -58,6 +77,13 @@ find_file(COMMONS_LANG_JAR
         /usr/share/java
 )
 
+find_file(COMMONS_LOGGING_JAR
+    NAMES
+        commons-logging.jar
+    PATHS
+        /usr/share/java
+)
+
 find_file(HAMCREST_JAR
     NAMES
         core.jar
@@ -70,6 +96,7 @@ find_file(HTTPCLIENT_JAR
         httpclient.jar
     PATHS
         /usr/share/java/httpcomponents
+        /usr/share/java
 )
 
 find_file(HTTPCORE_JAR
@@ -77,6 +104,7 @@ find_file(HTTPCORE_JAR
         httpcore.jar
     PATHS
         /usr/share/java/httpcomponents
+        /usr/share/java
 )
 
 find_file(JACKSON_CORE_JAR
@@ -84,6 +112,15 @@ find_file(JACKSON_CORE_JAR
         jackson-core-asl.jar
     PATHS
         /usr/share/java/jackson
+        /usr/share/java
+)
+
+find_file(JACKSON_JAXRS_JAR
+    NAMES
+        jackson-jaxrs.jar
+    PATHS
+        /usr/share/java/jackson
+        /usr/share/java
 )
 
 find_file(JACKSON_MAPPER_JAR
@@ -91,6 +128,38 @@ find_file(JACKSON_MAPPER_JAR
         jackson-mapper-asl.jar
     PATHS
         /usr/share/java/jackson
+        /usr/share/java
+)
+
+find_file(JACKSON_MRBEAN_JAR
+    NAMES
+        jackson-mrbean.jar
+    PATHS
+        /usr/share/java/jackson
+        /usr/share/java
+)
+
+find_file(JACKSON_SMILE_JAR
+    NAMES
+        jackson-smile.jar
+    PATHS
+        /usr/share/java/jackson
+        /usr/share/java
+)
+
+find_file(JACKSON_XC_JAR
+    NAMES
+        jackson-xc.jar
+    PATHS
+        /usr/share/java/jackson
+        /usr/share/java
+)
+
+find_file(JAXB_API_JAR
+    NAMES
+        jaxb-api.jar
+    PATHS
+        /usr/share/java
 )
 
 find_file(JSS_JAR
@@ -104,6 +173,7 @@ find_file(JSS_JAR
 find_file(JUNIT_JAR
     NAMES
         junit.jar
+        junit4.jar
     PATHS
         /usr/share/java
 )
@@ -141,43 +211,55 @@ find_file(RESTEASY_ATOM_PROVIDER_JAR
 find_file(JASPIC_API_JAR
     NAMES
         jaspic-api.jar
+        tomcat8-jaspic-api.jar
     PATHS
         /usr/share/java/tomcat
+        /usr/share/java
 )
 
 find_file(TOMCAT_API_JAR
     NAMES
         tomcat-api.jar
+        tomcat8-api.jar
     PATHS
         /usr/share/java/tomcat
+        /usr/share/java
 )
 
 find_file(TOMCAT_CATALINA_JAR
     NAMES
         catalina.jar
+        tomcat8-catalina.jar
     PATHS
         /usr/share/java/tomcat
+        /usr/share/java
 )
 
 find_file(TOMCAT_COYOTE_JAR
     NAMES
         tomcat-coyote.jar
+        tomcat8-coyote.jar
     PATHS
         /usr/share/java/tomcat
+        /usr/share/java
 )
 
 find_file(TOMCAT_UTIL_JAR
     NAMES
         tomcat-util.jar
+        tomcat8-util.jar
     PATHS
         /usr/share/java/tomcat
+        /usr/share/java
 )
 
 find_file(TOMCAT_UTIL_SCAN_JAR
     NAMES
         tomcat-util-scan.jar
+        tomcat8-util-scan.jar
     PATHS
         /usr/share/java/tomcat
+        /usr/share/java
 )
 
 find_file(TOMCATJSS_JAR
@@ -198,6 +280,7 @@ find_file(VELOCITY_JAR
 find_file(XALAN_JAR
     NAMES
         xalan-j2.jar
+        xalan2.jar
     PATHS
         ${JAVA_LIB_INSTALL_DIR}
         /usr/share/java
@@ -206,8 +289,25 @@ find_file(XALAN_JAR
 find_file(XERCES_JAR
     NAMES
         xerces-j2.jar
+        xercesImpl.jar
     PATHS
         ${JAVA_LIB_INSTALL_DIR}
+        /usr/share/java
+)
+
+find_file(XML_COMMONS_APIS_JAR
+    NAMES
+        xml-commons-apis.jar
+        xml-apis.jar
+    PATHS
+        /usr/share/java
+)
+
+find_file(XML_COMMONS_RESOLVER_JAR
+    NAMES
+        xml-commons-resolver.jar
+        xml-resolver.jar
+    PATHS
         /usr/share/java
 )
 

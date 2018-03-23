@@ -17,20 +17,6 @@ find_file(JSS_JAR
         ${JAVA_LIB_INSTALL_DIR}
 )
 
-find_file(COMMONS_CODEC_JAR
-    NAMES
-        commons-codec.jar
-    PATHS
-        /usr/share/java
-)
-
-find_file(COMMONS_LANG_JAR
-    NAMES
-        commons-lang.jar
-    PATHS
-        /usr/share/java
-)
-
 find_file(RESTEASY_JAXRS_JAR
     NAMES
         resteasy-jaxrs.jar
