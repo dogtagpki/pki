@@ -188,7 +188,9 @@ class NSSDatabase(object):
             return self.token
         return token
 
-    def create_password_file(self, tmpdir, password, filename='password.txt'):
+    def create_password_file(self, tmpdir, password, filename=None):
+        if not filename:
+            filename = 'password.txt'
         password_file = os.path.join(tmpdir, filename)
         with open(password_file, 'w') as f:
             f.write(password)
