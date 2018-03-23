@@ -59,7 +59,7 @@ steps:
   - dnf repolist
   install_packages:
   - echo "Installing recently built dogtag RPMs..."
-  - find /freeipa/dogtag_rpms/ -name '*.rpm' -and -not -name '*debuginfo*'   | xargs dnf install -y
+  - find ${container_working_dir}/dogtag_rpms/ -name '*.rpm' -and -not -name '*debuginfo*'   | xargs dnf install -y
   - rpm -qa tomcat* pki-* freeipa-* | sort
   install_server:
   - echo "Installing ipa-server..."
