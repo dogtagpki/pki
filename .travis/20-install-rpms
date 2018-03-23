@@ -1,6 +1,12 @@
 #!/bin/bash
 set -e
+PACKAGES=`find ${BUILDDIR}/packages/RPMS/ -name '*.rpm' -and -not -name '*debuginfo*'`
 
-find ${BUILDDIR}/packages/RPMS/ -name '*.rpm' -and -not -name '*debuginfo*' \
-    | xargs dnf install -y --best --allowerasing
+# To list all packages that are available. Useful for debug purposes
+echo ${PACKAGES}
 
+dnf install -y --best --allowerasing ${PACKAGES}
+
+# Remove the RPMs once installed. They are not required anymore. This will ensure
+# that there is no issue generating next set of RPMs
+rm ${PACKAGES}
