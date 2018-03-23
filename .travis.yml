@@ -4,63 +4,57 @@ language: python
 services:
   - docker
 cache: pip
-env:
-  global:
-    - CONTAINER=pkitest
-    - SCRIPTDIR=/tmp/workdir/pki/.travis
-    - PKI_LOG=pki_log.log
-    - CI_RESULTS_LOG="ci_results_${TRAVIS_BRANCH}.log"
-    - CI_RUNNER_LOG_ARCHIVE="dogtag-ci-job-${TRAVIS_JOB_NUMBER}.tar.gz"
-    - PKI_IMAGE=${IMAGE_REPO:-dogtagpki/pki-ci}:f27_106
-    - IPA_IMAGE=${IMAGE_REPO:-dogtagpki/pki-ci}:f27_ipa_4-6
-    - RPMS_LOCATION=/tmp/workdir/packages/RPMS
-    - DOGTAG_PKI_RPMS=${TRAVIS_BUILD_DIR}/dogtag_rpms
-  matrix:
-    - TASK_TO_RUN="pki-test"
-    - TASK_TO_RUN="ipa-test"
 
-before_install:
-  - pyenv global system 3.6
-  - docker pull ${PKI_IMAGE}
-  - >
-    docker run
-    --detach
-    --name=${CONTAINER}
-    --hostname='pki.test'
-    --privileged
-    --tmpfs /tmp
-    --tmpfs /run
-    -v /sys/fs/cgroup:/sys/fs/cgroup:ro
-    -v $(pwd):/tmp/workdir/pki
-    -e BUILDUSER_UID=$(id -u)
-    -e BUILDUSER_GID=$(id -g)
-    -e TRAVIS=${TRAVIS}
-    -e TRAVIS_JOB_NUMBER=${TRAVIS_JOB_NUMBER}
-    -ti
-    ${PKI_IMAGE}
+jobs:
+  include:
+    - env: TASK_TO_RUN="pki-test"
+      before_install:
+        - set -a && source .travis/global_variables
+        - echo -e $gerrit_ssh_key >> ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa
+        # Post the Travis Build URL
+        - TRAVIS_BUILD_URL="https://travis-ci.org/$TRAVIS_REPO_SLUG/builds/$TRAVIS_BUILD_ID"
+        - MESSAGE="$(printf "Build Started.\nTravis Build:"${TRAVIS_BUILD_URL})"
+        - .travis/set_gerrit_message.sh -m "${MESSAGE}"
+      install: .travis/init_task.sh | tee /dev/tty | grep -Eo '(http|https)://transfer.sh/[a-zA-Z0-9./?=_-]*.txt' | uniq >> ${TRANSFER_SH_URLS}
+      script:
+        - set -o pipefail 
+        - travis_wait 20 .travis/run_task.sh | tee /dev/tty | grep -Eo '(http|https)://transfer.sh/[a-zA-Z0-9./?=_-]*.txt' | uniq >> ${TRANSFER_SH_URLS}
+      after_failure:
+        # Post the URL of Travis Job that failed
+        - TRAVIS_JOB_URL="https://travis-ci.org/$TRAVIS_REPO_SLUG/jobs/$TRAVIS_JOB_ID"
+        - MESSAGE="$(printf "Job 1 Failed\nTravis Job:"${TRAVIS_JOB_URL}"\n\nLogs:\n" )"$'\n'"$(cat ${TRANSFER_SH_URLS})"
+        - .travis/set_gerrit_message.sh -v -1 -m "${MESSAGE}"
+        - cat ${TRANSFER_SH_URLS}
+      after_script:
+        - docker kill ${CONTAINER}
+        - docker rm ${CONTAINER}
 
-install:
-  - docker exec -ti ${CONTAINER} /bin/ls -la /tmp/workdir
+    - env: TASK_TO_RUN="ipa-test"
+      before_install:
+        - set -a && source .travis/global_variables
+        - echo -e $gerrit_ssh_key >> ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa
+      install: .travis/init_task.sh
+      script: travis_wait 20 .travis/run_task.sh
+      after_script:
+        - docker kill ${CONTAINER}
+        - docker rm ${CONTAINER}
+      after_failure:
+        - docker exec ${CONTAINER} journalctl  -l > ${PKI_LOG}
+        - echo "Uploading CI Logs to transfer.sh ..."
+        - curl -w "\n" --upload-file ./${PKI_LOG} https://transfer.sh/dogtag_build_logs.txt > ${TRANSFER_SH_URLS}
+        - curl -w "\n" --upload-file ./${CI_RESULTS_LOG} https://transfer.sh/freeipa-integration.txt >> ${TRANSFER_SH_URLS}
+        # Post the URL of Travis Job that failed
+        - TRAVIS_JOB_URL="https://travis-ci.org/$TRAVIS_REPO_SLUG/jobs/$TRAVIS_JOB_ID"
+        - MESSAGE="$(printf "Job 2 Failed\nTravis Job:"${TRAVIS_JOB_URL}"\n\nLogs:\n" )"$'\n'"$(cat ${TRANSFER_SH_URLS})"
+        - .travis/set_gerrit_message.sh -v -1 -m "${MESSAGE}"
+        - cat ${TRANSFER_SH_URLS}
 
-  - docker exec -ti ${CONTAINER} ${SCRIPTDIR}/00-init
-  - docker exec -ti ${CONTAINER} ${SCRIPTDIR}/01-install-dependencies pki-core
-  - docker exec -ti ${CONTAINER} ${SCRIPTDIR}/10-compose-rpms compose_pki_core_packages
-
-  # IPA related installs
-  - pip install --upgrade pip
-  - pip3 install --upgrade pip
-  - pip install pep8
-
-script:
-  # It is time to run FreeIPA tests with new Dogtag RPMS built
-  - travis_wait 20 ./.travis_run_task.sh
-after_script:
-  - docker kill ${CONTAINER}
-  - docker rm ${CONTAINER}
-
-# The errors can be in either dogtag container or freeipa container
-after_failure:
-  - docker exec ${CONTAINER} journalctl  -l > ${PKI_LOG}
-  - echo "Uploading CI Logs to transfer.sh ..."
-  - curl --upload-file ./${PKI_LOG} https://transfer.sh/dogtag_build_logs.txt
-  - curl --upload-file ./${CI_RESULTS_LOG} https://transfer.sh/freeipa-integration.txt
+    - stage: Verification Label
+      before_install: echo -e $gerrit_ssh_key >> ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa
+      script:
+        - MESSAGE="$(printf "Travis Build Successful.")"
+        - .travis/set_gerrit_message.sh -v +1 -m "${MESSAGE}"
+      after_script:
+        # Add remote repo in SSH form. Using existing 'origin' will result in user/pass authentication
+        - git remote add bot git@github.com:${TRAVIS_REPO_SLUG}.git
+        - git push -d bot ${TRAVIS_BRANCH}
