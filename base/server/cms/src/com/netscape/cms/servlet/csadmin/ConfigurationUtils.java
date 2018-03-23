@@ -2553,7 +2553,7 @@ public class ConfigurationUtils {
             sign_clone_sslserver_cert_using_master = true;
         }
 
-        updateConfig(config, certTag);
+        updateConfig(config, certObj);
 
         if (caType.equals("remote")) {
 
@@ -2769,8 +2769,11 @@ public class ConfigurationUtils {
         return cert;
     }
 
-    public static void updateConfig(IConfigStore config, String certTag)
+    public static void updateConfig(IConfigStore config, Cert cert)
             throws EBaseException, IOException {
+
+        String certTag = cert.getCertTag();
+
         String token = config.getString("preop.module.token");
         String subsystem = config.getString(PCERT_PREFIX + certTag + ".subsystem");
         String nickname = getNickname(config, certTag);

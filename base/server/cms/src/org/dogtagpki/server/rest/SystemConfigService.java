@@ -440,7 +440,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
             cert.setCert(bytes);
 
-            ConfigurationUtils.updateConfig(cs, tag);
+            ConfigurationUtils.updateConfig(cs, cert);
 
             logger.debug("SystemConfigService: loading existing cert request");
             byte[] binRequest = ConfigurationUtils.loadCertRequest(cs, subsystem, tag);
