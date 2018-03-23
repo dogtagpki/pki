@@ -281,48 +281,53 @@ class NSSDatabase(object):
 
     def add_cert(self, nickname, cert_file, token=None, trust_attributes=None):
 
-        token = self.get_effective_token(token)
+        tmpdir = tempfile.mkdtemp()
+        try:
+            token = self.get_effective_token(token)
 
-        # Add cert in two steps due to bug #1393668.
+            # Add cert in two steps due to bug #1393668.
 
-        # If HSM is used, import cert into HSM without trust attributes.
-        if token:
-            cmd = [
-                'certutil',
-                '-A',
-                '-d', self.directory,
-                '-h', token,
-                '-P', token,
-                '-f', self.password_file,
-                '-n', nickname,
-                '-i', cert_file,
-                '-t', ''
-            ]
+            # If HSM is used, import cert into HSM without trust attributes.
+            if token:
+                cmd = [
+                    'certutil',
+                    '-A',
+                    '-d', self.directory,
+                    '-h', token,
+                    '-P', token,
+                    '-f', self.password_file,
+                    '-n', nickname,
+                    '-i', cert_file,
+                    '-t', ''
+                ]
 
-            logger.debug('Command: %s', ' '.join(cmd))
-            rc = subprocess.call(cmd)
+                logger.debug('Command: %s', ' '.join(cmd))
+                rc = subprocess.call(cmd)
 
-            if rc:
-                logger.warning('certutil returned non-zero exit code (bug #1393668)')
+                if rc:
+                    logger.warning('certutil returned non-zero exit code (bug #1393668)')
 
-        if not trust_attributes:
-            trust_attributes = ',,'
+            if not trust_attributes:
+                trust_attributes = ',,'
 
-        # If HSM is not used, or cert has trust attributes,
-        # import cert into internal token.
-        if not token or trust_attributes != ',,':
-            cmd = [
-                'certutil',
-                '-A',
-                '-d', self.directory,
-                '-f', self.internal_password_file,
-                '-n', nickname,
-                '-i', cert_file,
-                '-t', trust_attributes
-            ]
+            # If HSM is not used, or cert has trust attributes,
+            # import cert into internal token.
+            if not token or trust_attributes != ',,':
+                cmd = [
+                    'certutil',
+                    '-A',
+                    '-d', self.directory,
+                    '-f', self.internal_password_file,
+                    '-n', nickname,
+                    '-i', cert_file,
+                    '-t', trust_attributes
+                ]
 
-            logger.debug('Command: %s', ' '.join(cmd))
-            subprocess.check_call(cmd)
+                logger.debug('Command: %s', ' '.join(cmd))
+                subprocess.check_call(cmd)
+
+        finally:
+            shutil.rmtree(tmpdir)
 
     def add_ca_cert(self, cert_file, trust_attributes=None):
 
