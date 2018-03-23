@@ -1,12 +1,5 @@
 project(pki-cmsutil_java NONE)
 
-find_file(APACHE_COMMONS_LANG_JAR
-    NAMES
-        apache-commons-lang.jar
-    PATHS
-        /usr/share/java
-)
-
 find_file(JSS_JAR
     NAMES
         jss4.jar
@@ -35,6 +28,7 @@ find_file(HTTPCLIENT_JAR
         httpclient.jar
     PATHS
         /usr/share/java/httpcomponents
+        /usr/share/java
 )
 
 find_file(HTTPCORE_JAR
@@ -42,6 +36,7 @@ find_file(HTTPCORE_JAR
         httpcore.jar
     PATHS
         /usr/share/java/httpcomponents
+        /usr/share/java
 )
 
 find_file(XALAN_JAR
@@ -74,7 +69,7 @@ javac(pki-nsutil-classes
         netscape/*.java
         org/dogtagpki/*.java
     CLASSPATH
-        ${APACHE_COMMONS_LANG_JAR} ${LDAPJDK_JAR} ${XALAN_JAR} ${XERCES_JAR}
+        ${COMMONS_LANG_JAR} ${LDAPJDK_JAR} ${XALAN_JAR} ${XERCES_JAR}
         ${JSS_JAR} ${COMMONS_CODEC_JAR}
         ${SLF4J_API_JAR}
     OUTPUT_DIR
@@ -119,7 +114,7 @@ javac(pki-cmsutil-classes
     SOURCES
         com/netscape/cmsutil/*.java
     CLASSPATH
-        ${APACHE_COMMONS_LANG_JAR} ${HTTPCORE_JAR} ${HTTPCLIENT_JAR}
+        ${COMMONS_LANG_JAR} ${HTTPCORE_JAR} ${HTTPCLIENT_JAR}
         ${LDAPJDK_JAR} ${XALAN_JAR} ${XERCES_JAR}
         ${JSS_JAR} ${COMMONS_CODEC_JAR} ${NUXWDOG_JAR}
         ${SLF4J_API_JAR}

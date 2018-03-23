@@ -82,13 +82,6 @@ find_file(SYMKEY_JAR
         ${JAVA_LIB_INSTALL_DIR}
 )
 
-find_file(COMMONS_LANG_JAR
-    NAMES
-	commons-lang.jar
-    PATHS
-	/usr/share/java
-)
-
 # build pki-kra
 javac(pki-kra-classes
     SOURCES

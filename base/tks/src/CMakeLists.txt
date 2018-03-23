@@ -61,13 +61,6 @@ find_file(COMMONS_CODEC_JAR
         /usr/share/java
 )
 
-find_file(COMMONS_LANG_JAR
-    NAMES
-        commons-lang.jar
-    PATHS
-        /usr/share/java
-)
-
 find_file(RESTEASY_JAXRS_JAR
     NAMES
         resteasy-jaxrs.jar
