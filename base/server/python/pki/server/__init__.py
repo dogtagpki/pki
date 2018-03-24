@@ -863,6 +863,14 @@ class PKIInstance(object):
         with open(self.server_cert_nick_conf) as f:
             return f.readline().strip()
 
+    def set_sslserver_cert_nickname(self, nickname, token=None):
+        if pki.nssdb.normalize_token(token):
+            nickname = token + ':' + nickname
+        with open(self.server_cert_nick_conf, 'w') as f:
+            f.write(nickname + '\n')
+        os.chown(self.server_cert_nick_conf, self.uid, self.gid)
+        os.chmod(self.server_cert_nick_conf, 0o0660)
+
     def get_subsystem(self, name):
         for subsystem in self.subsystems:
             if name == subsystem.name:

@@ -517,6 +517,11 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             self.import_system_cert(deployer, nssdb, subsystem, 'signing')
             self.import_admin_cert(deployer)
 
+        sslserver = subsystem.get_subsystem_cert('sslserver')
+        nickname = sslserver['nickname']
+        token = sslserver['token']
+        subsystem.instance.set_sslserver_cert_nickname(nickname, token)
+
         self.import_system_cert(deployer, nssdb, subsystem, 'sslserver')
         self.import_system_cert(deployer, nssdb, subsystem, 'subsystem')
         self.import_system_cert(deployer, nssdb, subsystem, 'audit_signing', ',,P')
@@ -750,6 +755,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 "creating temp SSL server cert for %s", deployer.mdict['pki_hostname'],
                 extra=config.PKI_INDENTATION_LEVEL_2)
 
+            instance.set_sslserver_cert_nickname(nickname)
+
             # TODO: replace with pki-server create-cert sslserver --temp
 
             deployer.password.create_password_conf(
@@ -798,11 +805,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         finally:
             nssdb.close()
 
-    def remove_temp_sslserver_cert(self, deployer, instance, sslserver):
-
-        if len(deployer.instance.tomcat_instance_subsystems()) == 1:
-            # Modify contents of 'serverCertNick.conf' (if necessary)
-            deployer.servercertnick_conf.modify()
+    def remove_temp_sslserver_cert(self, instance, sslserver):
 
         # TODO: replace with pki-server cert-import sslserver
 
@@ -1148,12 +1151,17 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             deployer.systemd.stop()
 
             # Remove temp SSL server cert.
-            self.remove_temp_sslserver_cert(deployer, instance, sslserver)
+            self.remove_temp_sslserver_cert(instance, sslserver)
 
             # Import perm SSL server cert unless it's already imported
             # earlier in external/standalone installation.
 
             if not (standalone or external and subsystem.name in ['kra', 'ocsp']):
+
+                nickname = sslserver['nickname']
+                token = sslserver['token']
+                instance.set_sslserver_cert_nickname(nickname, token)
+
                 self.import_perm_sslserver_cert(instance, sslserver)
 
             deployer.systemd.start()

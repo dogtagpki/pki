@@ -273,5 +273,6 @@ def file_ignore_callback_src_server(src, names):
         'manager.ldif',
         'pki.xml',
         'log4j.properties',
-        'logging.properties'
+        'logging.properties',
+        'serverCertNick.conf'
     }
