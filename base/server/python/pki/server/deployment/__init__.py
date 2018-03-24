@@ -63,7 +63,6 @@ class PKIDeployer:
         self.pk12util = None
         self.kra_connector = None
         self.security_domain = None
-        self.servercertnick_conf = None
         self.systemd = None
         self.tps_connector = None
         self.config_client = None
@@ -110,7 +109,6 @@ class PKIDeployer:
         self.pk12util = util.PK12util(self)
         self.kra_connector = util.KRAConnector(self)
         self.security_domain = util.SecurityDomain(self)
-        self.servercertnick_conf = util.ServerCertNickConf(self)
         self.systemd = util.Systemd(self)
         self.tps_connector = util.TPSConnector(self)
         self.config_client = util.ConfigClient(self)

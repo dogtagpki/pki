@@ -315,8 +315,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         // make sure to commit changes here for step 1
         cs.commit(false);
 
-        ConfigurationUtils.updateServerCertNickConf();
-
         if (request.isClone()) {
             ConfigurationUtils.updateCloneConfig();
         }

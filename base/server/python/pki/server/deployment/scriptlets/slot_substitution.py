@@ -46,10 +46,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # these are instance level files. Only copy for the first instance.
         if len(deployer.instance.tomcat_instance_subsystems()) == 1:
             deployer.file.copy_with_slot_substitution(
-                deployer.mdict['pki_source_servercertnick_conf'],
-                deployer.mdict['pki_target_servercertnick_conf'],
-                overwrite_flag=True)
-            deployer.file.copy_with_slot_substitution(
                 deployer.mdict['pki_source_server_xml'],
                 deployer.mdict['pki_target_server_xml'],
                 overwrite_flag=True)

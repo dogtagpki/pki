@@ -2829,23 +2829,6 @@ public class ConfigurationUtils {
         logger.debug("updateConfig() done");
     }
 
-    public static void updateServerCertNickConf() throws Exception {
-
-        IConfigStore cs = CMS.getConfigStore();
-        String token = cs.getString("preop.module.token");
-        String nickname = getNickname(cs, "sslserver");
-
-        String serverCertNickname = nickname;
-        if (!CryptoUtil.isInternalToken(token)) {
-            serverCertNickname = token + ":" + nickname;
-        }
-
-        String path = cs.getString("instanceRoot", "");
-        PrintStream ps = new PrintStream(path + "/conf/serverCertNick.conf", "UTF-8");
-        ps.println(serverCertNickname);
-        ps.close();
-    }
-
     public static String getNickname(IConfigStore config, String certTag) throws EBaseException {
         String instanceID = config.getString("instanceId", "");
 
