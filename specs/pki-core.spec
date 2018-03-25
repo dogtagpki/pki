@@ -71,7 +71,7 @@ Version:                10.5.1
 %define default_release %{redhat_release}.%{redhat_stage}
 #%define default_release %{redhat_release}
 %else
-Version:                10.5.6
+Version:                10.5.7
 %define fedora_release  1
 %define fedora_stage    0
 %define default_release %{fedora_release}.%{fedora_stage}
@@ -1345,7 +1345,32 @@ fi
 %endif # %{with server}
 
 %changelog
- * Mon Feb  19 2018 Dogtag Team <pki-devel@redhat.com> 10.5.6-1
+* Fri Mar 23 2018 Dogtag Team <pki-devel@redhat.com> 10.5.7-1
+- dogtagpki Pagure Issue #2918 - Make sslget aware of TLSv1_2 ciphers
+  (cheimes, mharmsen)
+- dogtagpki Pagure Issue #2922 - Name Constraints: Using a Netmask
+  produces an odd entry in a certificate (ftweedal)
+- dogtagpki Pagure Issue #2938 - [MAN] Add --skip-configuration
+  and --skip-installation into pkispawn man page. (edewata)
+- dogtagpki Pagure Issue #2940 -[MAN] Missing Man pages for tools
+  CMCRequest, CMCResponse, CMCSharedToken (cfu)
+- dogtagpki Pagure Issue #2949 - CMCAuth throws
+  org.mozilla.jss.crypto.TokenException: Unable to insert certificate
+  into temporary database (cfu)
+- dogtagpki Pagure Issue #2950 - Need ECC-specific Enrollment Profiles
+  for standard conformance (cfu)
+- dogtagpki Pagure Issue #2952 - Permit additional FIPS ciphers to be
+  enabled by default for RSA . . . (mharmsen, cfu)
+- dogtagpki Pagure Issue #2957 - Console: Adding ACL from pki-console
+  gives StringIndexOutOfBoundsException (ftweedal)
+- dogtagpki Pagure Issue #2975 - Not able to generate certificate
+  request with ECC using pki client-cert-request (akahat)
+
+* Wed Feb  21 2018 Dogtag Team <pki-devel@redhat.com> 10.5.6-2
+- dogtagpki Pagure Issue #2946 - libtps does not directly depend on libz
+  (build failure with nss-3.35)
+
+* Mon Feb  19 2018 Dogtag Team <pki-devel@redhat.com> 10.5.6-1
 - dogtagpki Pagure Issue #2656 - Updating list of default audit events
   (edewata)
 - dogtagpki Pagure Issue #2884 - Inconsistent key ID encoding
