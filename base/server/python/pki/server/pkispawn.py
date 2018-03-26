@@ -38,6 +38,7 @@ try:
     import pki
     from pki.server.deployment import pkiconfig as config
     from pki.server.deployment import pkimanifest as manifest
+    from pki.server.deployment.pkihelper import RETRYABLE_EXCEPTIONS
     from pki.server.deployment.pkiparser import PKIConfigParser
     from pki.server.deployment import pkilogging
     from pki.server.deployment import pkimessages as log
@@ -357,7 +358,7 @@ def main(argv):
                                             'pki_security_domain_name',
                                             info.name)
                         break
-                    except requests.exceptions.ConnectionError as e:
+                    except RETRYABLE_EXCEPTIONS as e:
                         parser.print_text('ERROR: ' + str(e))
 
                 while True:
@@ -388,7 +389,7 @@ def main(argv):
                         if status == 'running':
                             break
                         parser.print_text('ERROR: CA is not running')
-                    except requests.exceptions.ConnectionError as e:
+                    except RETRYABLE_EXCEPTIONS as e:
                         parser.print_text('ERROR: ' + str(e))
 
                 while True:
@@ -400,7 +401,7 @@ def main(argv):
                         if status == 'running':
                             break
                         parser.print_text('ERROR: TKS is not running')
-                    except requests.exceptions.ConnectionError as e:
+                    except RETRYABLE_EXCEPTIONS as e:
                         parser.print_text('ERROR: ' + str(e))
 
                 while True:
@@ -423,7 +424,7 @@ def main(argv):
                             if status == 'running':
                                 break
                             parser.print_text('ERROR: KRA is not running')
-                        except requests.exceptions.ConnectionError as e:
+                        except RETRYABLE_EXCEPTIONS as e:
                             parser.print_text('ERROR: ' + str(e))
                     else:
                         parser.set_property(deployer.subsystem_name,
@@ -709,11 +710,7 @@ def check_security_domain(parser):
                                     info.name)
                 parser.sd_authenticate()
 
-        except requests.exceptions.ConnectionError as e:
-            print(('ERROR:  Unable to access security domain: ' + str(e)))
-            sys.exit(1)
-
-        except requests.exceptions.HTTPError as e:
+        except requests.exceptions.RequestException as e:
             print(('ERROR:  Unable to access security domain: ' + str(e)))
             sys.exit(1)
 

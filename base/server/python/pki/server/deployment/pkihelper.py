@@ -66,6 +66,12 @@ if selinux.is_selinux_enabled():
         if sys.version_info.major == 2:
             raise
 
+# Retry-able connection errors, see https://pagure.io/dogtagpki/issue/2973
+RETRYABLE_EXCEPTIONS = (
+    requests.exceptions.ConnectionError,  # connection failed
+    requests.exceptions.Timeout,  # connection or read time out
+)
+
 
 class Identity:
     """PKI Deployment Identity Class"""
@@ -1089,7 +1095,7 @@ class Instance:
                     extra=config.PKI_INDENTATION_LEVEL_3)
                 break
 
-            except requests.exceptions.ConnectionError as exc:
+            except RETRYABLE_EXCEPTIONS as exc:
 
                 stop_time = datetime.today()
                 counter = (stop_time - start_time).total_seconds()
