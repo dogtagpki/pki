@@ -543,7 +543,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         if (CryptoUtil.isInternalToken(cdata.getToken())) {
             cs.putString(csSubsystem + ".cert." + tag + ".nickname", cdata.getNickname());
         } else {
-            cs.putString(csSubsystem + ".cert." + tag + ".nickname", data.getToken() +
+            cs.putString(csSubsystem + ".cert." + tag + ".nickname", cdata.getToken() +
                     ":" + cdata.getNickname());
         }
 

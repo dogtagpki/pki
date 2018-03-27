@@ -2773,10 +2773,10 @@ public class ConfigurationUtils {
             throws EBaseException, IOException {
 
         String certTag = cert.getCertTag();
+        String token = cert.getTokenname();
+        String nickname = cert.getNickname();
 
-        String token = config.getString("preop.module.token");
         String subsystem = config.getString(PCERT_PREFIX + certTag + ".subsystem");
-        String nickname = getNickname(config, certTag);
 
         logger.debug("ConfigurationUtils: updateConfig() for certTag " + certTag);
         if (certTag.equals("signing") || certTag.equals("ocsp_signing")) {
@@ -2807,6 +2807,7 @@ public class ConfigurationUtils {
 
         config.putString(subsystem + "." + certTag + ".nickname", nickname);
         config.putString(subsystem + "." + certTag + ".tokenname", token);
+
         if (certTag.equals("audit_signing")) {
             if (!CryptoUtil.isInternalToken(token)) {
                 config.putString("log.instance.SignedAudit.signedAuditCertNickname",
@@ -4110,9 +4111,12 @@ public class ConfigurationUtils {
 
     public static String getSubsystemCert() throws EBaseException, NotInitializedException, ObjectNotFoundException,
             TokenException, CertificateEncodingException, IOException {
+
         IConfigStore cs = CMS.getConfigStore();
-        String nickname = cs.getString("preop.cert.subsystem.nickname", "");
-        String tokenname = cs.getString("preop.module.token", "");
+        String subsystem = cs.getString(PCERT_PREFIX + "subsystem.subsystem");
+
+        String nickname = cs.getString(subsystem + ".subsystem.nickname");
+        String tokenname = cs.getString(subsystem + ".subsystem.tokenname");
 
         if (!CryptoUtil.isInternalToken(tokenname)) {
             nickname = tokenname + ":" + nickname;
