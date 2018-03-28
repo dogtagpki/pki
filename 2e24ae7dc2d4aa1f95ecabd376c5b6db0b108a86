@@ -1,0 +1,225 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b74c602a_767fc2ca",
+        "filename": "base/server/python/pki/server/cli/audit.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-03-28T22:45:30Z",
+      "side": 1,
+      "message": "Instead of event-add I think it should be event-enable. The server only supports a fixed set of events, so from the admin\u0027s perspective we cannot add/delete events, but we can enable/disable events.",
+      "revId": "2e24ae7dc2d4aa1f95ecabd376c5b6db0b108a86",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "50320cca_633fe4e7",
+        "filename": "base/server/python/pki/server/cli/audit.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-03-28T22:45:30Z",
+      "side": 1,
+      "message": "This command should take a mandatory \u003cevent name\u003e argument.",
+      "revId": "2e24ae7dc2d4aa1f95ecabd376c5b6db0b108a86",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f44205af_21d8a7ed",
+        "filename": "base/server/python/pki/server/cli/audit.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-03-28T22:45:30Z",
+      "side": 1,
+      "message": "This is no longer needed since it will be a mandatory argument.",
+      "revId": "2e24ae7dc2d4aa1f95ecabd376c5b6db0b108a86",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9e3db53b_370d13eb",
+        "filename": "base/server/python/pki/server/cli/audit.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-03-28T22:45:30Z",
+      "side": 1,
+      "message": "Let\u0027s drop this parameter to simplify it. The filter configuration can be handled by the event-mod command.",
+      "revId": "2e24ae7dc2d4aa1f95ecabd376c5b6db0b108a86",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1524bce5_123000d1",
+        "filename": "base/server/python/pki/server/cli/audit.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-03-28T22:45:30Z",
+      "side": 1,
+      "message": "This command should only enable the event, e.g.:\n\n  subsystem.enable_audit_event(event_name)\n\nDon\u0027t change the filter here.",
+      "revId": "2e24ae7dc2d4aa1f95ecabd376c5b6db0b108a86",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "29b00a77_b0e4ed10",
+        "filename": "base/server/python/pki/server/cli/audit.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-03-28T22:45:30Z",
+      "side": 1,
+      "message": "This command should take a mandatory \u003cevent name\u003e argument.",
+      "revId": "2e24ae7dc2d4aa1f95ecabd376c5b6db0b108a86",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3d2fa9bf_fc5119f9",
+        "filename": "base/server/python/pki/server/cli/audit.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-03-28T22:45:30Z",
+      "side": 1,
+      "message": "This is no longer needed.",
+      "revId": "2e24ae7dc2d4aa1f95ecabd376c5b6db0b108a86",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0b72250f_150322ca",
+        "filename": "base/server/python/pki/server/cli/audit.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-03-28T22:45:30Z",
+      "side": 1,
+      "message": "Typo: Failre \u003d\u003e Failure",
+      "revId": "2e24ae7dc2d4aa1f95ecabd376c5b6db0b108a86",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "750616c1_0119b29f",
+        "filename": "base/server/python/pki/server/cli/audit.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-03-28T22:45:30Z",
+      "side": 1,
+      "message": "This command should only update the filter for the event, e.g.:\n\n  subsystem.update_audit_event_filter(event_name, filter)",
+      "revId": "2e24ae7dc2d4aa1f95ecabd376c5b6db0b108a86",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b09dd49f_d9c4d534",
+        "filename": "base/server/python/pki/server/cli/audit.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 284,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-03-28T22:45:30Z",
+      "side": 1,
+      "message": "Let\u0027s change this to event-disable.",
+      "revId": "2e24ae7dc2d4aa1f95ecabd376c5b6db0b108a86",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a0bb78fc_9636ae8a",
+        "filename": "base/server/python/pki/server/cli/audit.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 289,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-03-28T22:45:30Z",
+      "side": 1,
+      "message": "The \u003cevent name\u003e should be a mandatory argument.",
+      "revId": "2e24ae7dc2d4aa1f95ecabd376c5b6db0b108a86",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "239fc830_b2f1487b",
+        "filename": "base/server/python/pki/server/cli/audit.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 292,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-03-28T22:45:30Z",
+      "side": 1,
+      "message": "No need for this.",
+      "revId": "2e24ae7dc2d4aa1f95ecabd376c5b6db0b108a86",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7315ce57_a1f95c05",
+        "filename": "base/server/python/pki/server/cli/audit.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 346,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-03-28T22:45:30Z",
+      "side": 1,
+      "message": "This command should only disable the event, e.g.:\n\n  subsystem.disable_audit_event(event_name)\n\nDon\u0027t change the filter here.",
+      "revId": "2e24ae7dc2d4aa1f95ecabd376c5b6db0b108a86",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
