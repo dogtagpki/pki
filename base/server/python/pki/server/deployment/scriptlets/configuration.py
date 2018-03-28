@@ -85,7 +85,12 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         return (key_type, key_size, curve, hash_alg)
 
-    def generate_csr(self, deployer, nssdb, subsystem, tag, csr_path,
+    def generate_csr(self,
+                     deployer,
+                     nssdb,
+                     subsystem,
+                     tag,
+                     csr_path,
                      basic_constraints_ext=None,
                      key_usage_ext=None,
                      extended_key_usage_ext=None,
@@ -97,6 +102,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             "generating %s CSR in %s", cert_id, csr_path,
             extra=config.PKI_INDENTATION_LEVEL_2)
 
+        cert = subsystem.get_subsystem_cert(tag)
+        token = pki.nssdb.normalize_token(cert['token'])
+
         subject_dn = deployer.mdict['pki_%s_subject_dn' % cert_id]
 
         (key_type, key_size, curve, hash_alg) = self.get_key_params(
@@ -105,6 +113,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         nssdb.create_request(
             subject_dn=subject_dn,
             request_file=csr_path,
+            token=token,
             key_type=key_type,
             key_size=key_size,
             curve=curve,
@@ -158,7 +167,11 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             generic_exts = [generic_ext]
 
         self.generate_csr(
-            deployer, nssdb, subsystem, 'signing', csr_path,
+            deployer,
+            nssdb,
+            subsystem,
+            'signing',
+            csr_path,
             basic_constraints_ext=basic_constraints_ext,
             key_usage_ext=key_usage_ext,
             generic_exts=generic_exts
@@ -426,11 +439,14 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             "importing %s certificate from %s", cert_id, cert_file,
             extra=config.PKI_INDENTATION_LEVEL_2)
 
-        nickname = deployer.mdict['pki_%s_nickname' % cert_id]
+        cert = subsystem.get_subsystem_cert(tag)
+        nickname = cert['nickname']
+        token = pki.nssdb.normalize_token(cert['token'])
 
         nssdb.import_cert_chain(
             nickname=nickname,
             cert_chain_file=cert_file,
+            token=token,
             trust_attributes=trust_attributes)
 
     def import_admin_cert(self, deployer):
@@ -495,24 +511,14 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             self.import_system_cert(deployer, nssdb, subsystem, 'ocsp_signing')
 
         if subsystem.name == 'kra':
-            # Always import cert chain into internal token.
-            internal_nssdb = subsystem.instance.open_nssdb()
-            try:
-                self.import_ca_signing_cert(deployer, internal_nssdb)
-            finally:
-                internal_nssdb.close()
+            self.import_ca_signing_cert(deployer, nssdb)
 
             self.import_system_cert(deployer, nssdb, subsystem, 'storage')
             self.import_system_cert(deployer, nssdb, subsystem, 'transport')
             self.import_admin_cert(deployer)
 
         if subsystem.name == 'ocsp':
-            # Always import cert chain into internal token.
-            internal_nssdb = subsystem.instance.open_nssdb()
-            try:
-                self.import_ca_signing_cert(deployer, internal_nssdb)
-            finally:
-                internal_nssdb.close()
+            self.import_ca_signing_cert(deployer, nssdb)
 
             self.import_system_cert(deployer, nssdb, subsystem, 'signing')
             self.import_admin_cert(deployer)
@@ -925,7 +931,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 subsystem.save()
 
         token = deployer.mdict['pki_token_name']
-        nssdb = instance.open_nssdb(token)
+        nssdb = instance.open_nssdb()
 
         existing = deployer.configuration_file.existing
         external = deployer.configuration_file.external

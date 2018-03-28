@@ -783,7 +783,8 @@ class PKIInstance(object):
             directory=self.nssdb_dir,
             token=token,
             password=self.get_token_password(token),
-            internal_password=self.get_token_password())
+            internal_password=self.get_token_password(),
+            passwords=self.passwords)
 
     def external_cert_exists(self, nickname, token):
         for cert in self.external_certs:
