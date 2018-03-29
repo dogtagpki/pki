@@ -1,10 +1,10 @@
 Name:             dogtag-pki-theme
 %if 0%{?rhel}
 Version:          10.6.0
-Release:          0.2%{?_timestamp}%{?_commit}%{?dist}
+Release:          0.3%{?_timestamp}%{?_commit}%{?dist}
 %else
 Version:          10.6.0
-Release:          0.2%{?_timestamp}%{?_commit}%{?dist}
+Release:          0.3%{?_timestamp}%{?_commit}%{?dist}
 %endif
 
 Summary:          Certificate System - Dogtag PKI Theme Components
@@ -109,7 +109,7 @@ This package is used by the Dogtag Certificate System.
 
 
 %prep
-%autosetup -n pki-%{version}
+%autosetup -n pki-%{version} -p 1
 
 
 %build
