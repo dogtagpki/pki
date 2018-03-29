@@ -1,3 +1,18 @@
+Name:             pki-console
+%if 0%{?rhel}
+Version:          10.6.0
+Release:          0.3%{?_timestamp}%{?_commit}%{?dist}
+%else
+Version:          10.6.0
+Release:          0.3%{?_timestamp}%{?_commit}%{?dist}
+%endif
+
+Summary:          Certificate System - PKI Console
+URL:              http://pki.fedoraproject.org/
+License:          GPLv2
+
+Source:           https://github.com/dogtagpki/pki/archive/v%{version}/pki-%{version}.tar.gz
+
 # Python 3 packages
 %if 0%{!?with_python3:1}
 %if 0%{?fedora} || 0%{?rhel} > 7
@@ -18,19 +33,6 @@
 %global with_python3_default 0
 %endif
 %endif
-
-Name:             pki-console
-%if 0%{?rhel}
-Version:          10.6.0
-Release:          0.2%{?_timestamp}%{?_commit}%{?dist}
-%else
-Version:          10.6.0
-Release:          0.2%{?_timestamp}%{?_commit}%{?dist}
-%endif
-
-Summary:          Certificate System - PKI Console
-URL:              http://pki.fedoraproject.org/
-License:          GPLv2
 
 # RESTEasy
 %if 0%{?rhel} && 0%{?rhel} <= 7
@@ -80,8 +82,6 @@ Requires:         jss >= 4.4.0-11
 Requires:         jss >= 4.4.2-9
 %endif
 
-Source:           https://github.com/dogtagpki/pki/archive/v%{version}/pki-%{version}.tar.gz
-
 %description
 Certificate System (CS) is an enterprise software system designed
 to manage enterprise Public Key Infrastructure (PKI) deployments.
@@ -96,7 +96,7 @@ following "Mutually-Exclusive" PKI Theme packages:
 
 
 %prep
-%autosetup -n pki-%{version}
+%autosetup -n pki-%{version} -p 1
 
 
 %build

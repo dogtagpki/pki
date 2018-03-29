@@ -1,3 +1,25 @@
+Name:             pki-core
+%if 0%{?rhel}
+Version:          10.6.0
+Release:          0.3%{?_timestamp}%{?_commit}%{?dist}
+%else
+Version:          10.6.0
+Release:          0.3%{?_timestamp}%{?_commit}%{?dist}
+%endif
+
+Summary:          Certificate System - PKI Core Components
+URL:              http://pki.fedoraproject.org/
+License:          GPLv2
+
+Source:           https://github.com/dogtagpki/pki/archive/v%{version}/pki-%{version}.tar.gz
+
+# Obtain version phase number (e. g. - used by "alpha", "beta", etc.)
+#
+#     NOTE:  For "alpha" releases, will be ".a1", ".a2", etc.
+#            For "beta" releases, will be ".b1", ".b2", etc.
+#
+%define version_phase "%(echo `echo %{version} | awk -F. '{ print $4 }'`)"
+
 # Python 3 packages
 %if 0%{!?with_python3:1}
 %if 0%{?fedora} || 0%{?rhel} > 7
@@ -70,19 +92,6 @@
 %define pki_gid 17
 %define pki_homedir /usr/share/pki
 
-Name:             pki-core
-%if 0%{?rhel}
-Version:          10.6.0
-Release:          0.2%{?_timestamp}%{?_commit}%{?dist}
-%else
-Version:          10.6.0
-Release:          0.2%{?_timestamp}%{?_commit}%{?dist}
-%endif
-
-Summary:          Certificate System - PKI Core Components
-URL:              http://pki.fedoraproject.org/
-License:          GPLv2
-
 BuildRequires:    cmake >= 2.8.9-1
 BuildRequires:    gcc-c++
 BuildRequires:    zip
@@ -110,8 +119,13 @@ BuildRequires:    nuxwdog-client-java >= 1.0.3-13
 BuildRequires:    openldap-devel
 BuildRequires:    pkgconfig
 BuildRequires:    policycoreutils
+%if 0%{?rhel} && 0%{?rhel} <= 7
 BuildRequires:    python-lxml
 BuildRequires:    python-sphinx
+%else
+BuildRequires:    python2-lxml
+BuildRequires:    python2-sphinx
+%endif
 BuildRequires:    velocity
 BuildRequires:    xalan-j2
 BuildRequires:    xerces-j2
@@ -140,9 +154,14 @@ BuildRequires:    resteasy-jackson-provider >= 3.0.17-1
 %if 0%{?fedora} || 0%{?rhel} > 7
 %if 0%{?with_python2}
 BuildRequires:    pylint
-BuildRequires:    python-flake8 >= 2.5.4
+%if 0%{?fedora} >= 28
+BuildRequires:    python2-flake8 >= 2.5.4
 # python-flake8 2.5.4 package should require pyflakes >= 1.2.3
+BuildRequires:    python2-pyflakes >= 1.2.3
+%else
+BuildRequires:    python-flake8 >= 2.5.4
 BuildRequires:    pyflakes >= 1.2.3
+%endif
 %endif  # with_python2
 
 %if 0%{?with_python3}
@@ -154,18 +173,27 @@ BuildRequires:    python3-pyflakes >= 1.2.3
 %endif
 
 %if 0%{?with_python2}
-BuildRequires:    python
-BuildRequires:    python-devel
+BuildRequires:    python2
+BuildRequires:    python2-devel
 BuildRequires:    python2-cryptography
+%if 0%{?fedora} >= 28 || 0%{?rhel} > 7
+BuildRequires:    python2-nss
+BuildRequires:    python2-requests >= 2.6.0
+BuildRequires:    python2-six
+BuildRequires:    python2-libselinux
+BuildRequires:    python2-policycoreutils
+BuildRequires:    python2-ldap
+%else
 BuildRequires:    python-nss
 BuildRequires:    python-requests >= 2.6.0
 BuildRequires:    python-six
 BuildRequires:    libselinux-python
 BuildRequires:    policycoreutils-python
+BuildRequires:    python-ldap
+%endif
 %if 0%{?fedora} || 0%{?rhel} > 7
 BuildRequires:    policycoreutils-python-utils
 %endif
-BuildRequires:    python-ldap
 %endif  # with_python2
 BuildRequires:    junit
 BuildRequires:    jpackage-utils >= 0:1.7.5-10
@@ -209,15 +237,6 @@ BuildRequires:    pcre-devel
 BuildRequires:    systemd
 BuildRequires:    zlib
 BuildRequires:    zlib-devel
-
-Source:           https://github.com/dogtagpki/pki/archive/v%{version}/pki-%{version}.tar.gz
-
-# Obtain version phase number (e. g. - used by "alpha", "beta", etc.)
-#
-#     NOTE:  For "alpha" releases, will be ".a1", ".a2", etc.
-#            For "beta" releases, will be ".b1", ".b2", etc.
-#
-%define version_phase "%(echo `echo %{version} | awk -F. '{ print $4 }'`)"
 
 %global saveFileContext() \
 if [ -s /etc/selinux/config ]; then \
@@ -386,9 +405,15 @@ Provides:         pki-base-python2 = %{version}-%{release}
 
 Requires:         pki-base = %{version}-%{release}
 Requires:         python2-cryptography
+%if 0%{?fedora} >= 28 || 0%{?rhel} > 7
+Requires:         python2-nss
+Requires:         python2-requests >= 2.6.0
+Requires:         python2-six
+%else
 Requires:         python-nss
 Requires:         python-requests >= 2.6.0
 Requires:         python-six
+%endif
 
 %description -n   python2-pki
 This package contains PKI client library for Python 2.
@@ -558,10 +583,17 @@ Requires:         python3-lxml
 Requires:         libselinux-python3
 Requires:         policycoreutils-python3
 %else
+%if 0%{?fedora} >= 28 || 0%{?rhel} > 7
+Requires:         python2-ldap
+Requires:         python2-lxml
+Requires:         python2-libselinux
+Requires:         python2-policycoreutils
+%else
 Requires:         python-ldap
 Requires:         python-lxml
 Requires:         libselinux-python
 Requires:         policycoreutils-python
+%endif
 %endif  # with_python3_default
 
 Requires:         selinux-policy-targeted >= 3.13.1-159
@@ -837,7 +869,7 @@ This package is a part of the PKI Core used by the Certificate System.
 
 
 %prep
-%autosetup -n pki-%{version}
+%autosetup -n pki-%{version} -p 1
 
 %build
 %{__mkdir_p} build
