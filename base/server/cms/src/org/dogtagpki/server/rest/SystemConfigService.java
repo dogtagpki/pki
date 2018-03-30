@@ -549,8 +549,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         cs.putString(csSubsystem + "." + tag + ".nickname", cdata.getNickname());
         cs.putString(csSubsystem + "." + tag + ".tokenname", cdata.getToken());
-        cs.putString(csSubsystem + "." + tag + ".certreq", cdata.getRequest());
-        cs.putString(csSubsystem + "." + tag + ".cert", cdata.getCert());
         cs.putString(csSubsystem + "." + tag + ".dn", cdata.getSubjectDN());
     }
 

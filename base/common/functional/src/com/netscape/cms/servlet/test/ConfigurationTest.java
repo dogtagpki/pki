@@ -225,14 +225,11 @@ public class ConfigurationTest {
         ConfigurationResponse response = client.configure(data);
 
         System.out.println("status: " + response.getStatus());
-        System.out.println("adminCert: " + response.getAdminCert().getCert());
         List<SystemCertData> certs = response.getSystemCerts();
         Iterator<SystemCertData> iterator = certs.iterator();
         while (iterator.hasNext()) {
             SystemCertData cdata = iterator.next();
             System.out.println("tag: " + cdata.getTag());
-            System.out.println("cert: " + cdata.getCert());
-            System.out.println("request: " + cdata.getRequest());
         }
 
     }
