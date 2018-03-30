@@ -167,7 +167,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         configureCACertChain(data, domainXML);
 
         Collection<Cert> certs = new ArrayList<Cert>();
-        processCerts(data, token, certList, certs);
+        processCerts(data, certList, certs);
         handleCerts(certs);
         response.setSystemCerts(SystemCertDataFactory.create(certs));
 
@@ -262,7 +262,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
     public void processCerts(
             ConfigurationRequest request,
-            String token,
             Collection<String> certList,
             Collection<Cert> certs) throws Exception {
 
@@ -283,8 +282,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 throw new BadRequestException("No data for '" + tag + "' was found!");
             }
 
-            String tokenName = certData.getToken() != null ? certData.getToken() : token;
-
             if (!generateServerCert && tag.equals("sslserver")) {
                 updateConfiguration(request, certData, "sslserver");
                 continue;
@@ -295,19 +292,17 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 updateConfiguration(request, certData, "subsystem");
 
                 // get parameters needed for cloning
-                updateCloneConfiguration(certData, "subsystem", tokenName);
+                updateCloneConfiguration(certData, "subsystem");
                 continue;
             }
 
             processKeyPair(
                     request,
-                    token,
                     certData);
 
             Cert cert = processCert(
                     request,
-                    certData,
-                    tokenName);
+                    certData);
 
             certs.add(cert);
         }
@@ -322,11 +317,12 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
     public void processKeyPair(
             ConfigurationRequest request,
-            String token,
             SystemCertData certData
             ) throws Exception {
 
         String tag = certData.getTag();
+        String token = certData.getToken();
+
         logger.debug("SystemConfigService.processKeyPair(" + tag + ")");
 
         String keytype = certData.getKeyType() != null ? certData.getKeyType() : "rsa";
@@ -388,10 +384,11 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
     public Cert processCert(
             ConfigurationRequest request,
-            SystemCertData certData,
-            String tokenName) throws Exception {
+            SystemCertData certData) throws Exception {
 
         String tag = certData.getTag();
+        String tokenName = certData.getToken();
+
         logger.debug("SystemConfigService.processCert(" + tag + ")");
 
         String nickname = cs.getString("preop.cert." + tag + ".nickname");
@@ -513,8 +510,11 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         }
     }
 
-    private void updateCloneConfiguration(SystemCertData cdata, String tag, String tokenName) throws NotInitializedException,
+    private void updateCloneConfiguration(SystemCertData cdata, String tag) throws NotInitializedException,
             ObjectNotFoundException, TokenException {
+
+        String tokenName = cdata.getToken();
+
         // TODO - some of these parameters may only be valid for RSA
         CryptoManager cryptoManager = CryptoManager.getInstance();
         String nickname;
