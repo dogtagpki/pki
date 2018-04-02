@@ -1,0 +1,214 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "47cf1feb_3f524b06",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-04-02T23:02:52Z",
+      "side": 1,
+      "message": "The patch description should be updated to match the actual commands.",
+      "revId": "d515d6ceb6b1ce42bd45ae4f74e97ed63b9444cd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d5109d22_7cc42176",
+        "filename": "base/server/python/pki/server/__init__.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 433,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-04-02T23:02:52Z",
+      "side": 1,
+      "message": "Let\u0027s remove this since the event name is case sensitive. We don\u0027t want to encourage people to use inconsistent cases in their scripts.",
+      "revId": "d515d6ceb6b1ce42bd45ae4f74e97ed63b9444cd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "88f31adf_529138d1",
+        "filename": "base/server/python/pki/server/__init__.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 443,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-04-02T23:02:52Z",
+      "side": 1,
+      "message": "Let\u0027s move line 438-443 into AuditEventEnableCLI so the enable_audit_event() will be simpler and more reusable.",
+      "revId": "d515d6ceb6b1ce42bd45ae4f74e97ed63b9444cd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "63055895_a68aec7c",
+        "filename": "base/server/python/pki/server/__init__.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 445,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-04-02T23:02:52Z",
+      "side": 1,
+      "message": "If the event already exists in log.instance.SignedAudit.events, that means the event is already enabled. Usually we just ignore it if the system is already in the state that we want.",
+      "revId": "d515d6ceb6b1ce42bd45ae4f74e97ed63b9444cd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "04dd9b6c_14311d43",
+        "filename": "base/server/python/pki/server/__init__.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 454,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-04-02T23:02:52Z",
+      "side": 1,
+      "message": "Let\u0027s remove this too since the attribute names in the filter is case sensitive too.",
+      "revId": "d515d6ceb6b1ce42bd45ae4f74e97ed63b9444cd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "40d4ff18_3d3409ef",
+        "filename": "base/server/python/pki/server/__init__.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 461,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-04-02T23:02:52Z",
+      "side": 1,
+      "message": "Let\u0027s remove line 456-461 since the filter can be updated regardless whether the event is enabled or not.",
+      "revId": "d515d6ceb6b1ce42bd45ae4f74e97ed63b9444cd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "94f15fc8_7f1791cf",
+        "filename": "base/server/python/pki/server/__init__.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 469,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-04-02T23:02:52Z",
+      "side": 1,
+      "message": "Let\u0027s move 464-469 into AuditEventModCLI.",
+      "revId": "d515d6ceb6b1ce42bd45ae4f74e97ed63b9444cd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bd63ffc2_db866f87",
+        "filename": "base/server/python/pki/server/__init__.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 471,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-04-02T23:02:52Z",
+      "side": 1,
+      "message": "We can remove 470-471.",
+      "revId": "d515d6ceb6b1ce42bd45ae4f74e97ed63b9444cd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "16e38a71_fc79d359",
+        "filename": "base/server/python/pki/server/__init__.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 477,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-04-02T23:02:52Z",
+      "side": 1,
+      "message": "Remove this one too.",
+      "revId": "d515d6ceb6b1ce42bd45ae4f74e97ed63b9444cd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f97a2c17_99119f0e",
+        "filename": "base/server/python/pki/server/__init__.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 481,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-04-02T23:02:52Z",
+      "side": 1,
+      "message": "If the event doesn\u0027t exist in log.instance.SignedAudit.events, that means the event is already disabled. We can ignore simply it.",
+      "revId": "d515d6ceb6b1ce42bd45ae4f74e97ed63b9444cd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "05c11067_88151dc0",
+        "filename": "base/server/python/pki/server/__init__.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 492,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-04-02T23:02:52Z",
+      "side": 1,
+      "message": "Let\u0027s move 487-492 to AuditEventDeleteCLI.",
+      "revId": "d515d6ceb6b1ce42bd45ae4f74e97ed63b9444cd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e96d5a78_5b927820",
+        "filename": "base/server/python/pki/server/cli/audit.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-04-02T23:02:52Z",
+      "side": 1,
+      "message": "Let\u0027s use the full word \"Modify\" in the command description.",
+      "range": {
+        "startLine": 203,
+        "startChar": 29,
+        "endLine": 203,
+        "endChar": 32
+      },
+      "revId": "d515d6ceb6b1ce42bd45ae4f74e97ed63b9444cd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
