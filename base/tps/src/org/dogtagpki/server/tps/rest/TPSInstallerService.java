@@ -49,33 +49,23 @@ public class TPSInstallerService extends SystemConfigService  {
 
         super.configureSubsystem(request, certList, token, domainXML);
 
-        // get token prefix, if applicable
-        String tokPrefix = "";
-        if (!CryptoUtil.isInternalToken(request.getToken())) {
-            tokPrefix = request.getToken() + ":";
-        }
+        SystemCertData subsystemCert = request.getSystemCert("subsystem");
 
-        // get subsystem certificate nickname
-        String nickname = null;
-        for (SystemCertData cert : request.getSystemCerts()) {
-            if (cert.getTag().equals("subsystem")) {
-                nickname = cert.getNickname();
-                break;
-            }
-        }
-
-        if (nickname == null || nickname.isEmpty()) {
-            throw new BadRequestException("No nickname provided for subsystem certificate");
+        String nickname;
+        if (CryptoUtil.isInternalToken(subsystemCert.getToken())) {
+            nickname = subsystemCert.getNickname();
+        } else {
+            nickname = subsystemCert.getToken() + ":" + subsystemCert.getNickname();
         }
 
         // CA Info Panel
-        configureCAConnector(request, tokPrefix + nickname);
+        configureCAConnector(request, nickname);
 
         // TKS Info Panel
-        configureTKSConnector(request, tokPrefix + nickname);
+        configureTKSConnector(request, nickname);
 
         //DRM Info Panel
-        configureKRAConnector(request, tokPrefix + nickname);
+        configureKRAConnector(request, nickname);
 
         //AuthDBPanel
         ConfigurationUtils.updateAuthdbInfo(request.getAuthdbBaseDN(),
