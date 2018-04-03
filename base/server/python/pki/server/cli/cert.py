@@ -148,33 +148,33 @@ class CertFindCLI(pki.cli.CLI):
             sys.exit(1)
 
         instance.load()
+
+        first = True
         results = []
 
         for subsystem in instance.subsystems:
 
             # Retrieve the subsystem's system certificate
-            sub_system_certs = subsystem.find_system_certs()
+            certs = subsystem.find_system_certs()
 
             # Iterate on all subsystem's system certificate to prepend subsystem name to the ID
-            for subsystem_cert in sub_system_certs:
+            for cert in certs:
 
-                if subsystem_cert['id'] != 'sslserver' and subsystem_cert['id'] != 'subsystem':
-                    subsystem_cert['id'] = subsystem.name + '_' + subsystem_cert['id']
+                if cert['id'] != 'sslserver' and cert['id'] != 'subsystem':
+                    cert['id'] = subsystem.name + '_' + cert['id']
 
                 # Append only unique certificates to other subsystem certificate list
-                if subsystem_cert not in results:
-                    results.append(subsystem_cert)
+                if cert['id'] in results:
+                    continue
 
-        self.print_message('%s entries matched' % len(results))
+                results.append(cert['id'])
 
-        first = True
-        for cert in results:
-            if first:
-                first = False
-            else:
-                print()
+                if first:
+                    first = False
+                else:
+                    print()
 
-            CertCLI.print_system_cert(cert, show_all)
+                CertCLI.print_system_cert(cert, show_all)
 
 
 class CertUpdateCLI(pki.cli.CLI):
