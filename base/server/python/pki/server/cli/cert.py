@@ -46,6 +46,7 @@ class CertCLI(pki.cli.CLI):
         super(CertCLI, self).__init__('cert',
                                       'System certificate management commands')
         self.add_module(CertFindCLI())
+        self.add_module(CertShowCLI())
         self.add_module(CertUpdateCLI())
         self.add_module(CertCreateCLI())
         self.add_module(CertImportCLI())
@@ -177,6 +178,102 @@ class CertFindCLI(pki.cli.CLI):
                     print()
 
                 CertCLI.print_system_cert(cert, show_all)
+
+
+class CertShowCLI(pki.cli.CLI):
+    def __init__(self):
+        super(CertShowCLI, self).__init__(
+            'show', 'Display system certificate details.')
+
+    def print_help(self):
+        print('Usage: pki-server cert-show [OPTIONS] <cert ID>')
+        print()
+        print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
+        print('      --show-all                  Show all attributes.')
+        print('  -v, --verbose                   Run in verbose mode.')
+        print('      --debug                     Run in debug mode.')
+        print('      --help                      Show help message.')
+        print()
+
+    def execute(self, argv):
+
+        logging.basicConfig(format='%(levelname)s: %(message)s')
+
+        try:
+            opts, args = getopt.gnu_getopt(argv, 'i:v', [
+                'instance=', 'show-all',
+                'verbose', 'debug', 'help'])
+
+        except getopt.GetoptError as e:
+            logger.error(e)
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = 'pki-tomcat'
+        show_all = False
+
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o == '--show-all':
+                show_all = True
+
+            elif o in ('-v', '--verbose'):
+                self.set_verbose(True)
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                self.set_verbose(True)
+                self.set_debug(True)
+                logging.getLogger().setLevel(logging.DEBUG)
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                logger.error('option %s not recognized', o)
+                self.print_help()
+                sys.exit(1)
+
+        if len(args) < 1:
+            logger.error('Missing cert ID.')
+            self.usage()
+            sys.exit(1)
+
+        cert_id = args[0]
+
+        instance = server.PKIInstance(instance_name)
+
+        if not instance.is_valid():
+            logger.error('Invalid instance %s.', instance_name)
+            sys.exit(1)
+
+        instance.load()
+
+        if cert_id == 'sslserver' or cert_id == 'subsystem':
+            subsystem_name = None
+            cert_tag = cert_id
+
+        else:
+            parts = cert_id.split('_', 1)
+            subsystem_name = parts[0]
+            cert_tag = parts[1]
+
+        # If cert ID is instance specific, get it from first subsystem
+        if not subsystem_name:
+            subsystem_name = instance.subsystems[0].name
+
+        subsystem = instance.get_subsystem(subsystem_name)
+        if not subsystem:
+            logger.error(
+                'No %s subsystem in instance %s.',
+                subsystem_name, instance_name)
+            sys.exit(1)
+
+        cert = subsystem.get_subsystem_cert(cert_tag)
+        CertCLI.print_system_cert(cert, show_all)
 
 
 class CertUpdateCLI(pki.cli.CLI):
