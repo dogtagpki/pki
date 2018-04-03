@@ -792,15 +792,20 @@ class CertImportCLI(pki.cli.CLI):
         # ca.cert.list=signing,ocsp_signing,sslserver,subsystem,audit_signing
         print()
         print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
-        print('  -v, --verbose                   Run in verbose mode.')
         print('      --input <file>              Provide input file name.')
+        print('  -v, --verbose                   Run in verbose mode.')
+        print('      --debug                     Show debug messages.')
         print('      --help                      Show help message.')
         print()
 
     def execute(self, argv):
+
+        logging.basicConfig(format='%(levelname)s: %(message)s')
+
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=', 'verbose', 'input=', 'help'])
+                'instance=', 'input=',
+                'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
             print('ERROR: ' + str(e))
@@ -814,15 +819,21 @@ class CertImportCLI(pki.cli.CLI):
             if o in ('-i', '--instance'):
                 instance_name = a
 
+            elif o == '--input':
+                cert_file = a
+
             elif o in ('-v', '--verbose'):
                 self.set_verbose(True)
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                self.set_verbose(True)
+                self.set_debug(True)
+                logging.getLogger().setLevel(logging.DEBUG)
 
             elif o == '--help':
                 self.usage()
                 sys.exit()
-
-            elif o == '--input':
-                cert_file = a
 
             else:
                 self.print_message('ERROR: unknown option ' + o)
@@ -879,20 +890,17 @@ class CertImportCLI(pki.cli.CLI):
 
             cert = subsystem.get_subsystem_cert(cert_tag)
 
-            # Import cert into NSS db
-            if self.verbose:
-                print('Removing old %s certificate from NSS database.' % cert_id)
+            logger.info('Removing old %s certificate from NSS database', cert_id)
+
             nssdb.remove_cert(cert['nickname'])
 
-            if self.verbose:
-                print('Adding new %s certificate into NSS database.' % cert_id)
+            logger.info('Importing new %s certificate into NSS database', cert_id)
+
             nssdb.add_cert(
                 nickname=cert['nickname'],
                 cert_file=cert_file)
 
-            # Update CS.cfg with the new certificate
-            if self.verbose:
-                print('Updating CS.cfg')
+            logger.info('Updating CS.cfg with the new certificate')
 
             data = nssdb.get_cert(nickname=cert['nickname'], output_format='base64')
             cert['data'] = data
