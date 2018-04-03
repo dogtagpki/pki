@@ -28,6 +28,7 @@ import grp
 import io
 import ldap
 import ldap.filter
+import logging
 import operator
 import os
 import pwd
@@ -49,6 +50,10 @@ SUBSYSTEM_TYPES = ['ca', 'kra', 'ocsp', 'tks', 'tps']
 SUBSYSTEM_CLASSES = {}
 
 SELFTEST_CRITICAL = 'critical'
+
+logger = logging.LoggerAdapter(
+    logging.getLogger(__name__),
+    extra={'indent': ''})
 
 
 class PKIServer(object):
@@ -169,6 +174,8 @@ class PKISubsystem(object):
         return self.create_subsystem_cert_object(cert_id)
 
     def create_subsystem_cert_object(self, cert_id):
+
+        logger.info('Getting %s cert info for %s', cert_id, self.name)
 
         nickname = self.config.get('%s.%s.nickname' % (self.name, cert_id))
         token = self.config.get('%s.%s.tokenname' % (self.name, cert_id))

@@ -21,15 +21,16 @@
 from __future__ import absolute_import
 from __future__ import print_function
 
+import datetime
 import getopt
 import getpass
+import logging
+import os
+import re
+import shutil
+import subprocess
 import sys
 import tempfile
-import os
-import shutil
-import re
-import subprocess
-import datetime
 
 import pki.cli
 import pki.server as server
@@ -94,15 +95,18 @@ class CertFindCLI(pki.cli.CLI):
         print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
         print('      --show-all                  Show all attributes.')
         print('  -v, --verbose                   Run in verbose mode.')
+        print('      --debug                     Show debug messages.')
         print('      --help                      Show help message.')
         print()
 
     def execute(self, argv):
 
+        logging.basicConfig(format='%(levelname)s: %(message)s')
+
         try:
             opts, _ = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=', 'show-all',
-                'verbose', 'help'])
+                'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
             print('ERROR: ' + str(e))
@@ -121,6 +125,12 @@ class CertFindCLI(pki.cli.CLI):
 
             elif o in ('-v', '--verbose'):
                 self.set_verbose(True)
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                self.set_verbose(True)
+                self.set_debug(True)
+                logging.getLogger().setLevel(logging.DEBUG)
 
             elif o == '--help':
                 self.print_help()
@@ -141,12 +151,16 @@ class CertFindCLI(pki.cli.CLI):
         results = []
 
         for subsystem in instance.subsystems:
+
             # Retrieve the subsystem's system certificate
             sub_system_certs = subsystem.find_system_certs()
+
             # Iterate on all subsystem's system certificate to prepend subsystem name to the ID
             for subsystem_cert in sub_system_certs:
+
                 if subsystem_cert['id'] != 'sslserver' and subsystem_cert['id'] != 'subsystem':
                     subsystem_cert['id'] = subsystem.name + '_' + subsystem_cert['id']
+
                 # Append only unique certificates to other subsystem certificate list
                 if subsystem_cert not in results:
                     results.append(subsystem_cert)
