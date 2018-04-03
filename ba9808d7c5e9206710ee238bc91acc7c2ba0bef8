@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6776fe4c_7eb518d1",
+        "filename": ".travis.yml",
+        "patchSetId": 4
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-04-03T22:14:24Z",
+      "side": 1,
+      "message": "Could we add a message to Gerrit showing the URL of the build that is about to start? Or can that be done by Jenkins?\n\n TRAVIS_BUILD_URL\u003d\"https://travis-ci.org/$TRAVIS_REPO_SLUG/builds/$TRAVIS_BUILD_ID\"\n\nThis way we can check the progress or cancel the build before it completes if necessary.",
+      "revId": "ba9808d7c5e9206710ee238bc91acc7c2ba0bef8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "832526e2_1b9b2913",
+        "filename": ".travis.yml",
+        "patchSetId": 4
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-04-03T22:14:24Z",
+      "side": 1,
+      "message": "I think we should provide a link to the failed job instead:\n\n TRAVIS_JOB_URL\u003d\"https://travis-ci.org/$TRAVIS_REPO_SLUG/jobs/$TRAVIS_JOB_ID\"",
+      "revId": "ba9808d7c5e9206710ee238bc91acc7c2ba0bef8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dd37c248_cc9863c7",
+        "filename": ".travis.yml",
+        "patchSetId": 4
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-04-03T22:14:24Z",
+      "side": 1,
+      "message": "I think we should provide a link to the failed job instead:\n\n TRAVIS_JOB_URL\u003d\"https://travis-ci.org/$TRAVIS_REPO_SLUG/jobs/$TRAVIS_JOB_ID\"",
+      "revId": "ba9808d7c5e9206710ee238bc91acc7c2ba0bef8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
