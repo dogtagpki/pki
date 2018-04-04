@@ -820,7 +820,11 @@ class NSSDatabase(object):
         logger.debug('Command: %s', ' '.join(cmd))
         subprocess.check_call(cmd)
 
-    def get_cert(self, nickname, output_format='pem'):
+    def get_cert(
+            self,
+            nickname,
+            token=None,
+            output_format='pem'):
 
         if output_format == 'pem':
             output_format_option = '-a'
@@ -837,11 +841,12 @@ class NSSDatabase(object):
             '-d', self.directory
         ]
 
+        token = self.get_effective_token(token)
         fullname = nickname
 
-        if self.token:
-            cmd.extend(['-h', self.token])
-            fullname = self.token + ':' + fullname
+        if token:
+            cmd.extend(['-h', token])
+            fullname = token + ':' + fullname
 
         cmd.extend([
             '-f', self.password_file,
@@ -879,7 +884,8 @@ class NSSDatabase(object):
 
     def get_cert_info(self, nickname):
 
-        cert_pem = self.get_cert(nickname)
+        cert_pem = self.get_cert(
+            nickname=nickname)
 
         if not cert_pem:
             return None
@@ -1025,7 +1031,10 @@ class NSSDatabase(object):
                     token=token,
                     trust_attributes=trust_attributes)
                 return (
-                    self.get_cert(nickname=nickname, output_format='base64'),
+                    self.get_cert(
+                        nickname=nickname,
+                        token=token,
+                        output_format='base64'),
                     [nickname]
                 )
 
