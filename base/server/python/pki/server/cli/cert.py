@@ -184,24 +184,27 @@ class CertUpdateCLI(pki.cli.CLI):
         super(CertUpdateCLI, self).__init__(
             'update', 'Update system certificate.')
 
-    def usage(self):
+    def print_help(self):
         print('Usage: pki-server cert-update [OPTIONS] <cert ID>')
         print()
         print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
         print('  -v, --verbose                   Run in verbose mode.')
+        print('      --debug                     Run in debug mode.')
         print('      --help                      Show help message.')
         print()
 
     def execute(self, argv):
 
+        logging.basicConfig(format='%(levelname)s: %(message)s')
+
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=',
-                'verbose', 'help'])
+                'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
-            print('ERROR: ' + str(e))
-            self.usage()
+            logger.error(e)
+            self.print_help()
             sys.exit(1)
 
         instance_name = 'pki-tomcat'
@@ -212,19 +215,25 @@ class CertUpdateCLI(pki.cli.CLI):
 
             elif o in ('-v', '--verbose'):
                 self.set_verbose(True)
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                self.set_verbose(True)
+                self.set_debug(True)
+                logging.getLogger().setLevel(logging.DEBUG)
 
             elif o == '--help':
-                self.usage()
+                self.print_help()
                 sys.exit()
 
             else:
-                print('ERROR: unknown option ' + o)
-                self.usage()
+                logger.error('option %s not recognized', o)
+                self.print_help()
                 sys.exit(1)
 
         if len(args) < 1:
-            print('ERROR: missing cert ID')
-            self.usage()
+            logger.error('Missing cert ID.')
+            self.print_help()
             sys.exit(1)
 
         cert_id = args[0]
@@ -232,7 +241,7 @@ class CertUpdateCLI(pki.cli.CLI):
         instance = server.PKIInstance(instance_name)
 
         if not instance.is_valid():
-            print('ERROR: Invalid instance %s.' % instance_name)
+            logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
 
         instance.load()
@@ -252,14 +261,17 @@ class CertUpdateCLI(pki.cli.CLI):
 
         subsystem = instance.get_subsystem(subsystem_name)
         if not subsystem:
-            print('ERROR: No %s subsystem in instance '
-                  '%s.' % (subsystem_name, instance_name))
+            logger.error(
+                'No %s subsystem in instance %s.',
+                subsystem_name, instance_name)
             sys.exit(1)
+
         subsystem_cert = subsystem.get_subsystem_cert(cert_tag)
 
-        if self.verbose:
-            print('Retrieving certificate %s from %s' %
-                  (subsystem_cert['nickname'], subsystem_cert['token']))
+        logger.info(
+            'Retrieving certificate %s from %s',
+            subsystem_cert['nickname'],
+            subsystem_cert['token'])
 
         token = subsystem_cert['token']
         nssdb = instance.open_nssdb(token)
@@ -275,13 +287,12 @@ class CertUpdateCLI(pki.cli.CLI):
         data = '\r\n'.join(lines) + '\r\n'
 
         # Get the cert request from LDAP database
-        if self.verbose:
-            print('Retrieving certificate request from CA database')
+        logger.info('Retrieving certificate request from CA database')
 
         # TODO: add support for remote CA
         ca = instance.get_subsystem('ca')
         if not ca:
-            print('ERROR: No CA subsystem in instance %s.' % instance_name)
+            logger.error('No CA subsystem in instance %s.', instance_name)
             sys.exit(1)
 
         results = ca.find_cert_requests(cert=data)
