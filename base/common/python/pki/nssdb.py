@@ -1003,27 +1003,39 @@ class NSSDatabase(object):
         finally:
             shutil.rmtree(tmpdir)
 
-    def remove_cert(self, nickname, remove_key=False):
+    def remove_cert(
+            self,
+            nickname,
+            token=None,
+            remove_key=False):
 
-        cmd = ['certutil']
+        tmpdir = tempfile.mkdtemp()
+        try:
+            token = self.get_effective_token(token)
+            password_file = self.get_password_file(tmpdir, token)
 
-        if remove_key:
-            cmd.extend(['-F'])
-        else:
-            cmd.extend(['-D'])
+            cmd = ['certutil']
 
-        cmd.extend(['-d', self.directory])
+            if remove_key:
+                cmd.extend(['-F'])
+            else:
+                cmd.extend(['-D'])
 
-        if self.token:
-            cmd.extend(['-h', self.token])
+            cmd.extend(['-d', self.directory])
 
-        cmd.extend([
-            '-f', self.password_file,
-            '-n', nickname
-        ])
+            if token:
+                cmd.extend(['-h', token])
 
-        logger.debug('Command: %s', ' '.join(cmd))
-        subprocess.check_call(cmd)
+            cmd.extend([
+                '-f', password_file,
+                '-n', nickname
+            ])
+
+            logger.debug('Command: %s', ' '.join(cmd))
+            subprocess.check_call(cmd)
+
+        finally:
+            shutil.rmtree(tmpdir)
 
     def import_cert_chain(
             self,

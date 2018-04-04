@@ -798,9 +798,10 @@ class InstanceExternalCertDeleteCLI(pki.cli.CLI):
                            instance_name)
 
     def remove_cert(self, instance, nickname, token):
-        password = instance.get_token_password(token)
-        certdb = pki.nssdb.NSSDatabase(
-            directory=instance.nssdb_dir,
-            password=password,
-            token=token)
-        certdb.remove_cert(nickname)
+        nssdb = instance.open_nssdb()
+        try:
+            nssdb.remove_cert(
+                nickname=nickname,
+                token=token)
+        finally:
+            nssdb.close()

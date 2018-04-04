@@ -757,7 +757,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     "removing SSL server cert for %s", hostname,
                     extra=config.PKI_INDENTATION_LEVEL_2)
 
-                nssdb.remove_cert(nickname, remove_key=True)
+                nssdb.remove_cert(
+                    nickname=nickname,
+                    remove_key=True)
 
             config.pki_log.info(
                 "creating temp SSL server cert for %s", deployer.mdict['pki_hostname'],
@@ -833,7 +835,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 remove_key = True
             else:
                 remove_key = False
-            nssdb.remove_cert(nickname, remove_key=remove_key)
+            nssdb.remove_cert(
+                nickname=nickname,
+                remove_key=remove_key)
 
         finally:
             nssdb.close()
