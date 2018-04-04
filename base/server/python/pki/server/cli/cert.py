@@ -50,6 +50,7 @@ class CertCLI(pki.cli.CLI):
         self.add_module(CertCreateCLI())
         self.add_module(CertImportCLI())
         self.add_module(CertExportCLI())
+        self.add_module(CertRemoveCLI())
 
     @staticmethod
     def print_system_cert(cert, show_all=False):
@@ -1132,6 +1133,119 @@ class CertExportCLI(pki.cli.CLI):
                     include_key=include_key,
                     include_chain=include_chain,
                     debug=debug)
+
+        finally:
+            nssdb.close()
+
+
+class CertRemoveCLI(pki.cli.CLI):
+    def __init__(self):
+        super(CertRemoveCLI, self).__init__(
+            'del', 'Remove system certificate.')
+
+    def print_help(self):
+        print('Usage: pki-server cert-del [OPTIONS] <Cert ID>')
+        # CertID:  subsystem, sslserver, kra_storage, kra_transport, ca_ocsp_signing,
+        # ca_audit_signing, kra_audit_signing
+        # ca.cert.list=signing,ocsp_signing,sslserver,subsystem,audit_signing
+        print()
+        print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
+        print('      --remove-key                Remove key.')
+        print('  -v, --verbose                   Run in verbose mode.')
+        print('      --debug                     Run in debug mode.')
+        print('      --help                      Show help message.')
+        print()
+
+    def execute(self, argv):
+
+        logging.basicConfig(format='%(levelname)s: %(message)s')
+
+        try:
+            opts, args = getopt.gnu_getopt(argv, 'i:v', [
+                'instance=', 'remove-key',
+                'verbose', 'debug', 'help'])
+
+        except getopt.GetoptError as e:
+            logger.error(e)
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = 'pki-tomcat'
+        remove_key = False
+
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o == '--remove-key':
+                remove_key = True
+
+            elif o in ('-v', '--verbose'):
+                self.set_verbose(True)
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                self.set_verbose(True)
+                self.set_debug(True)
+                logging.getLogger().setLevel(logging.DEBUG)
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                logger.error('option %s not recognized', o)
+                self.print_help()
+                sys.exit(1)
+
+        if len(args) < 1:
+            logger.error('Missing cert ID.')
+            self.print_help()
+            sys.exit(1)
+
+        cert_id = args[0]
+
+        instance = server.PKIInstance(instance_name)
+
+        if not instance.is_valid():
+            logger.error('Invalid instance %s.', instance_name)
+            sys.exit(1)
+
+        # Load the instance. Default: pki-tomcat
+        instance.load()
+
+        if cert_id == 'sslserver' or cert_id == 'subsystem':
+            subsystem_name = None
+            cert_tag = cert_id
+
+        else:
+            parts = cert_id.split('_', 1)
+            subsystem_name = parts[0]
+            cert_tag = parts[1]
+
+        # If cert ID is instance specific, get it from first subsystem
+        if not subsystem_name:
+            subsystem_name = instance.subsystems[0].name
+
+        subsystem = instance.get_subsystem(subsystem_name)
+
+        if not subsystem:
+            logger.error(
+                'No %s subsystem in instance %s.',
+                subsystem_name, instance_name)
+            sys.exit(1)
+
+        cert = subsystem.get_subsystem_cert(cert_tag)
+
+        nssdb = instance.open_nssdb()
+
+        try:
+            logger.info('Removing %s certificate from NSS database', cert_id)
+
+            nssdb.remove_cert(
+                nickname=cert['nickname'],
+                token=cert['token'],
+                remove_key=remove_key)
 
         finally:
             nssdb.close()
