@@ -232,7 +232,8 @@ class PKCS12ImportCLI(pki.cli.CLI):
                             print('WARNING: cert %s already exists' % nickname)
                             continue
 
-                        nssdb.remove_cert(nickname)
+                        nssdb.remove_cert(
+                            nickname=nickname)
 
                     if 'trust_flags' in cert_info:
                         trust_flags = cert_info['trust_flags']

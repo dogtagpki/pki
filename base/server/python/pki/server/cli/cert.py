@@ -897,8 +897,17 @@ class CertImportCLI(pki.cli.CLI):
             cert = subsystem.get_subsystem_cert(cert_tag)
 
             logger.info('Removing old %s certificate from NSS database', cert_id)
-
-            nssdb.remove_cert(cert['nickname'])
+            try:
+                nssdb.remove_cert(
+                    nickname=cert['nickname'],
+                    token=cert['token'])
+            except subprocess.CalledProcessError as e:
+                # if the cert is missing, certutil will return 255, ignore it
+                if e.returncode != 255:
+                    raise e
+                logger.warning(
+                    'Unable to remove old %s certificate from NSS database (rc: %d)',
+                    cert_id, e.returncode)
 
             logger.info('Importing new %s certificate into NSS database', cert_id)
 
