@@ -190,6 +190,7 @@ class CertShowCLI(pki.cli.CLI):
         print()
         print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
         print('      --show-all                  Show all attributes.')
+        print('      --pretty-print              Pretty print.')
         print('  -v, --verbose                   Run in verbose mode.')
         print('      --debug                     Run in debug mode.')
         print('      --help                      Show help message.')
@@ -201,7 +202,7 @@ class CertShowCLI(pki.cli.CLI):
 
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=', 'show-all',
+                'instance=', 'show-all', 'pretty-print',
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
@@ -211,6 +212,7 @@ class CertShowCLI(pki.cli.CLI):
 
         instance_name = 'pki-tomcat'
         show_all = False
+        pretty_print = False
 
         for o, a in opts:
             if o in ('-i', '--instance'):
@@ -218,6 +220,9 @@ class CertShowCLI(pki.cli.CLI):
 
             elif o == '--show-all':
                 show_all = True
+
+            elif o == '--pretty-print':
+                pretty_print = True
 
             elif o in ('-v', '--verbose'):
                 self.set_verbose(True)
@@ -274,6 +279,20 @@ class CertShowCLI(pki.cli.CLI):
 
         cert = subsystem.get_subsystem_cert(cert_tag)
         CertCLI.print_system_cert(cert, show_all)
+
+        if pretty_print:
+            nssdb = instance.open_nssdb()
+            try:
+                output = nssdb.get_cert(
+                    nickname=cert['nickname'],
+                    token=cert['token'],
+                    output_format='pretty-print')
+
+                print()
+                print(output)
+
+            finally:
+                nssdb.close()
 
 
 class CertUpdateCLI(pki.cli.CLI):

@@ -832,6 +832,9 @@ class NSSDatabase(object):
         elif output_format == 'base64':
             output_format_option = '-r'
 
+        elif output_format == 'pretty-print':
+            output_format_option = None
+
         else:
             raise Exception('Unsupported output format: %s' % output_format)
 
@@ -854,9 +857,11 @@ class NSSDatabase(object):
 
             cmd.extend([
                 '-f', password_file,
-                '-n', fullname,
-                output_format_option
+                '-n', fullname
             ])
+
+            if output_format_option:
+                cmd.extend([output_format_option])
 
             logger.debug('Command: %s', ' '.join(cmd))
 
@@ -900,15 +905,16 @@ class NSSDatabase(object):
         cert_obj = x509.load_pem_x509_certificate(
             cert_pem, backend=default_backend())
 
-        cert = dict()
+        cert = {}
+        cert['object'] = cert_obj
 
-        cert["serial_number"] = cert_obj.serial_number
+        cert['serial_number'] = cert_obj.serial_number
 
-        cert["issuer"] = pki.convert_x509_name_to_dn(cert_obj.issuer)
-        cert["subject"] = pki.convert_x509_name_to_dn(cert_obj.subject)
+        cert['issuer'] = pki.convert_x509_name_to_dn(cert_obj.issuer)
+        cert['subject'] = pki.convert_x509_name_to_dn(cert_obj.subject)
 
-        cert["not_before"] = self.convert_time_to_millis(cert_obj.not_valid_before)
-        cert["not_after"] = self.convert_time_to_millis(cert_obj.not_valid_after)
+        cert['not_before'] = self.convert_time_to_millis(cert_obj.not_valid_before)
+        cert['not_after'] = self.convert_time_to_millis(cert_obj.not_valid_after)
 
         return cert
 

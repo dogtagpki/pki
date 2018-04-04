@@ -158,19 +158,11 @@ class PKISubsystem(object):
     def find_system_certs(self):
 
         cert_ids = self.config['%s.cert.list' % self.name].split(',')
+
         for cert_id in cert_ids:
-
-            cert = self.create_subsystem_cert_object(cert_id)
-
-            if not cert:
-                continue
-
-            yield cert
+            yield self.get_subsystem_cert(cert_id)
 
     def get_subsystem_cert(self, cert_id):
-        return self.create_subsystem_cert_object(cert_id)
-
-    def create_subsystem_cert_object(self, cert_id):
 
         logger.info('Getting %s cert info for %s', cert_id, self.name)
 
