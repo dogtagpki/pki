@@ -82,6 +82,8 @@ public class PKCS10Client {
         System.out.println(
                 "    -x <true for SSL cert that does ECDH ECDSA; false otherwise; default false>\n");
         System.out.println(
+                "    -v Verbose mode");
+        System.out.println(
                 "   available ECC curve names (if provided by the crypto module): nistp256 (secp256r1),nistp384 (secp384r1),nistp521 (secp521r1),nistk163 (sect163k1),sect163r1,nistb163 (sect163r2),sect193r1,sect193r2,nistk233 (sect233k1),nistb233 (sect233r1),sect239k1,nistk283 (sect283k1),nistb283 (sect283r1),nistk409 (sect409k1),nistb409 (sect409r1),nistk571 (sect571k1),nistb571 (sect571r1),secp160k1,secp160r1,secp160r2,secp192k1,nistp192 (secp192r1, prime192v1),secp224k1,nistp224 (secp224r1),secp256k1,prime192v2,prime192v3,prime239v1,prime239v2,prime239v3,c2pnb163v1,c2pnb163v2,c2pnb163v3,c2pnb176v1,c2tnb191v1,c2tnb191v2,c2tnb191v3,c2pnb208w1,c2tnb239v1,c2tnb239v2,c2tnb239v3,c2pnb272w1,c2pnb304w1,c2tnb359w1,c2pnb368w1,c2tnb431r1,secp112r1,secp112r2,secp128r1,secp128r2,sect113r1,sect113r2,sect131r1,sect131r2\n");
         System.out.println(
                 "In addition: -y <true for adding SubjectKeyIdentifier extensionfor self-signed cmc requests; false otherwise; default false>\n");
@@ -94,6 +96,7 @@ public class PKCS10Client {
         String ecc_curve = "nistp256";
         boolean ec_temporary = false; /* session if true; token if false */
         boolean enable_encoding = false; /* enable encoding attribute values if true */
+        boolean verbose = false;
         int ec_sensitive = -1; /* -1, 0, or 1 */
         int ec_extractable = -1; /* -1, 0, or 1 */
         boolean ec_ssl_ecdh = false;
@@ -173,6 +176,8 @@ public class PKCS10Client {
                     self_sign = true;
                 else
                     self_sign = false;
+            } else if (name.equals("-v")) {
+                verbose = true;
             } else {
                 System.out.println("Unrecognized argument(" + i + "): "
                     + name);
@@ -202,16 +207,24 @@ public class PKCS10Client {
             CryptoManager cm = CryptoManager.getInstance();
             CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
             tokenName = token.getName();
+            if(verbose) {
+                System.out.println("PKCS10Client: Debug: got token.");
+            }
 
-            System.out.println("PKCS10Client: Debug: got token.");
             cm.setThreadToken(token);
-            System.out.println("PKCS10Client: Debug: thread token set.");
+
+            if(verbose) {
+                System.out.println("PKCS10Client: Debug: thread token set.");
+            }
+
 
             Password pass = new Password(password.toCharArray());
 
             try {
                 token.login(pass);
-                System.out.println("PKCS10Client: token "+ tokenName + " logged in...");
+                if(verbose) {
+                    System.out.println("PKCS10Client: token "+ tokenName + " logged in...");
+                }
             } catch (Exception e) {
                 System.out.println("PKCS10Client: login Exception: " + e.toString());
                 System.exit(1);
@@ -244,8 +257,9 @@ public class PKCS10Client {
                     System.exit(1);
                 }
             }
-
-            System.out.println("PKCS10Client: key pair generated."); //key pair generated");
+            if(verbose) {
+                System.out.println("PKCS10Client: key pair generated."); //key pair generated");
+            }
 
             /*** leave out this test code; cmc can add popLinkwitnessV2;
 
@@ -278,7 +292,10 @@ public class PKCS10Client {
 
             Extensions extns = new Extensions();
             if (self_sign) { // per rfc 5272
-                System.out.println("PKCS10Client: self_sign true. Generating SubjectKeyIdentifier extension.");
+                if(verbose) {
+                    System.out.println("PKCS10Client: self_sign true. Generating SubjectKeyIdentifier extension.");
+                }
+
                 KeyIdentifier subjKeyId = CryptoUtil.createKeyIdentifier(pair);
                 SubjectKeyIdentifierExtension extn = new SubjectKeyIdentifierExtension(false,
                         subjKeyId.getIdentifier());
@@ -293,19 +310,27 @@ public class PKCS10Client {
                 System.out.println("PKCS10Client: cert request null");
                 System.exit(1);
             } else
-                System.out.println("PKCS10Client: CertificationRequest created.");
+                if(verbose) {
+                    System.out.println("PKCS10Client: CertificationRequest created.");
+                }
+
             byte[] certReqb = certReq.toByteArray();
             String b64E = Utils.base64encode(certReqb, true);
 
-            System.out.println("PKCS10Client: b64encode completes.");
+            if(verbose) {
+                System.out.println("PKCS10Client: b64encode completes.");
+            }
 
             // print out keyid to be used in cmc popLinkWitnessV2
             PrivateKey privateKey = (PrivateKey) pair.getPrivate();
             @SuppressWarnings("deprecation")
             byte id[] = privateKey.getUniqueID();
             String kid = CryptoUtil.encodeKeyID(id);
-            System.out.println("Keypair private key id: " + kid);
-            System.out.println("");
+            if(verbose) {
+                System.out.println("Keypair private key id: " + kid);
+                System.out.println("");
+            }
+
 
             System.out.println(Cert.REQUEST_HEADER);
             System.out.print(b64E);
