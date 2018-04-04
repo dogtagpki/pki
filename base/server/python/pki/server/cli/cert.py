@@ -98,7 +98,7 @@ class CertFindCLI(pki.cli.CLI):
         print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
         print('      --show-all                  Show all attributes.')
         print('  -v, --verbose                   Run in verbose mode.')
-        print('      --debug                     Show debug messages.')
+        print('      --debug                     Run in debug mode.')
         print('      --help                      Show help message.')
         print()
 
@@ -112,7 +112,7 @@ class CertFindCLI(pki.cli.CLI):
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
-            print('ERROR: ' + str(e))
+            logger.error(e)
             self.print_help()
             sys.exit(1)
 
@@ -140,14 +140,14 @@ class CertFindCLI(pki.cli.CLI):
                 sys.exit()
 
             else:
-                print('ERROR: unknown option ' + o)
+                logger.error('option %s not recognized', o)
                 self.print_help()
                 sys.exit(1)
 
         instance = server.PKIInstance(instance_name)
 
         if not instance.is_valid():
-            print('ERROR: Invalid instance %s.' % instance_name)
+            logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
 
         instance.load()
