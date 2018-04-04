@@ -835,7 +835,11 @@ class NSSDatabase(object):
         logger.debug('Command: %s', ' '.join(cmd))
         subprocess.check_call(cmd)
 
-    def get_cert(self, nickname, output_format='pem'):
+    def get_cert(
+            self,
+            nickname,
+            token=None,
+            output_format='pem'):
 
         if output_format == 'pem':
             output_format_option = '-a'
@@ -846,55 +850,63 @@ class NSSDatabase(object):
         else:
             raise Exception('Unsupported output format: %s' % output_format)
 
-        cmd = [
-            'certutil',
-            '-L',
-            '-d', self.directory
-        ]
+        tmpdir = tempfile.mkdtemp()
+        try:
+            token = self.get_effective_token(token)
 
-        fullname = nickname
+            cmd = [
+                'certutil',
+                '-L',
+                '-d', self.directory
+            ]
 
-        if self.token:
-            cmd.extend(['-h', self.token])
-            fullname = self.token + ':' + fullname
+            fullname = nickname
 
-        cmd.extend([
-            '-f', self.password_file,
-            '-n', fullname,
-            output_format_option
-        ])
+            if token:
+                cmd.extend(['-h', token])
+                fullname = token + ':' + fullname
 
-        logger.debug('Command: %s', ' '.join(cmd))
+            cmd.extend([
+                '-f', self.password_file,
+                '-n', fullname,
+                output_format_option
+            ])
 
-        p = subprocess.Popen(cmd,
-                             stdout=subprocess.PIPE,
-                             stderr=subprocess.PIPE)
+            logger.debug('Command: %s', ' '.join(cmd))
 
-        cert_data, std_err = p.communicate()
+            p = subprocess.Popen(cmd,
+                                 stdout=subprocess.PIPE,
+                                 stderr=subprocess.PIPE)
 
-        if std_err:
-            # certutil returned an error
-            # raise exception unless its not cert not found
-            if std_err.startswith(b'certutil: Could not find cert: '):
+            cert_data, std_err = p.communicate()
+
+            if std_err:
+                # certutil returned an error
+                # raise exception unless its not cert not found
+                if std_err.startswith(b'certutil: Could not find cert: '):
+                    return None
+
+                raise Exception('Could not find cert: %s: %s' % (fullname, std_err.strip()))
+
+            if not cert_data:
+                # certutil did not return data
                 return None
 
-            raise Exception('Could not find cert: %s: %s' % (fullname, std_err.strip()))
+            if p.returncode != 0:
+                logger.warning('certutil returned non-zero exit code (bug #1539996)')
 
-        if not cert_data:
-            # certutil did not return data
-            return None
+            if output_format == 'base64':
+                cert_data = base64.b64encode(cert_data)
 
-        if p.returncode != 0:
-            logger.warning('certutil returned non-zero exit code (bug #1539996)')
+            return cert_data
 
-        if output_format == 'base64':
-            cert_data = base64.b64encode(cert_data)
-
-        return cert_data
+        finally:
+            shutil.rmtree(tmpdir)
 
     def get_cert_info(self, nickname):
 
-        cert_pem = self.get_cert(nickname)
+        cert_pem = self.get_cert(
+            nickname=nickname)
 
         if not cert_pem:
             return None
@@ -960,7 +972,10 @@ class NSSDatabase(object):
                     token=token,
                     trust_attributes=trust_attributes)
                 return (
-                    self.get_cert(nickname=nickname, output_format='base64'),
+                    self.get_cert(
+                        nickname=nickname,
+                        token=token,
+                        output_format='base64'),
                     [nickname]
                 )
 
