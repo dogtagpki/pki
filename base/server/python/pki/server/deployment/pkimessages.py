@@ -29,11 +29,6 @@ PKI_DICTIONARY_MASTER = '''
     DISPLAY CONTENTS OF PKI MASTER DICTIONARY
 =====================================================
 '''
-PKI_DICTIONARY_SLOTS = '''
-=====================================================
-    DISPLAY CONTENTS OF PKI SLOTS DICTIONARY
-=====================================================
-'''
 PKI_DICTIONARY_SUBSYSTEM = '''
 =====================================================
     DISPLAY CONTENTS OF PKI SUBSYSTEM DICTIONARY

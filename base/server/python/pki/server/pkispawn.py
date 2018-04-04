@@ -672,11 +672,6 @@ def create_master_dictionary(parser):
     # Read in the PKI slots configuration file.
     parser.compose_pki_slots_dictionary()
 
-    config.pki_log.debug(log.PKI_DICTIONARY_SLOTS,
-                         extra=config.PKI_INDENTATION_LEVEL_0)
-    config.pki_log.debug(pkilogging.log_format(parser.slots_dict),
-                         extra=config.PKI_INDENTATION_LEVEL_0)
-
     # Combine the various sectional dictionaries into a PKI master dictionary
     parser.compose_pki_master_dictionary()
 
