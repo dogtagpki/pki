@@ -1031,7 +1031,7 @@ class CertExportCLI(pki.cli.CLI):
         super(CertExportCLI, self).__init__(
             'export', 'Export system certificate.')
 
-    def usage(self):  # flake8: noqa
+    def print_help(self):  # flake8: noqa
         print('Usage: pki-server cert-export [OPTIONS] <Cert ID>')
         print()
         print('Specify at least one output file: certificate, CSR, or PKCS #12.')
@@ -1050,6 +1050,7 @@ class CertExportCLI(pki.cli.CLI):
         print('      --no-key                       Do not include private key')
         print('      --no-chain                     Do not include certificate chain')
         print('  -v, --verbose                      Run in verbose mode.')
+        print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
         print()
         print('Supported certificate encryption algorithms:')
@@ -1062,6 +1063,9 @@ class CertExportCLI(pki.cli.CLI):
         print()
 
     def execute(self, argv):
+
+        logging.basicConfig(format='%(levelname)s: %(message)s')
+
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=', 'cert-file=', 'csr-file=',
@@ -1072,8 +1076,8 @@ class CertExportCLI(pki.cli.CLI):
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
-            print('ERROR: ' + str(e))
-            self.usage()
+            logger.error(e)
+            self.print_help()
             sys.exit(1)
 
         instance_name = 'pki-tomcat'
@@ -1089,7 +1093,6 @@ class CertExportCLI(pki.cli.CLI):
         include_trust_flags = True
         include_key = True
         include_chain = True
-        debug = False
 
         for o, a in opts:
             if o in ('-i', '--instance'):
@@ -1133,35 +1136,38 @@ class CertExportCLI(pki.cli.CLI):
 
             elif o in ('-v', '--verbose'):
                 self.set_verbose(True)
+                logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--debug':
-                debug = True
+                self.set_verbose(True)
+                self.set_debug(True)
+                logging.getLogger().setLevel(logging.DEBUG)
 
             elif o == '--help':
-                self.usage()
+                self.print_help()
                 sys.exit()
 
             else:
-                self.print_message('ERROR: unknown option ' + o)
-                self.usage()
+                logger.error('option %s not recognized', o)
+                self.print_help()
                 sys.exit(1)
 
         if len(args) < 1:
-            print('ERROR: missing cert ID')
-            self.usage()
+            logger.error('Missing cert ID.')
+            self.print_help()
             sys.exit(1)
 
         cert_id = args[0]
 
         if not (cert_file or csr_file or pkcs12_file):
-            print('ERROR: missing output file')
-            self.usage()
+            logger.error('missing output file')
+            self.print_help()
             sys.exit(1)
 
         instance = server.PKIInstance(instance_name)
 
         if not instance.is_valid():
-            print('ERROR: Invalid instance %s.' % instance_name)
+            logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
 
         instance.load()
@@ -1182,15 +1188,16 @@ class CertExportCLI(pki.cli.CLI):
         subsystem = instance.get_subsystem(subsystem_name)
 
         if not subsystem:
-            print('ERROR: No %s subsystem in instance.'
-                  '%s.' % (subsystem_name, instance_name))
+            logger.error(
+                'No %s subsystem in instance %s.',
+                subsystem_name, instance_name)
             sys.exit(1)
 
         cert = subsystem.get_subsystem_cert(cert_tag)
 
         if not cert:
-            print('ERROR: missing %s certificate' % cert_id)
-            self.usage()
+            logger.error('missing %s certificate', cert_id)
+            self.print_help()
             sys.exit(1)
 
         if cert_id == 'sslserver':
@@ -1210,21 +1217,19 @@ class CertExportCLI(pki.cli.CLI):
             nickname = cert['nickname']
             token = cert['token']
 
-        if self.verbose:
-            print('Nickname: %s' % nickname)
-            print('Token: %s' % token)
+        logger.info('Nickname: %s', nickname)
+        logger.info('Token: %s', token)
 
         nssdb = instance.open_nssdb(token)
 
         try:
             if cert_file:
 
-                if self.verbose:
-                    print('Exporting %s certificate into %s.' % (cert_id, cert_file))
+                logger.info('Exporting %s certificate into %s.', cert_id, cert_file)
 
                 cert_data = cert.get('data', None)
                 if cert_data is None:
-                    print("ERROR: Unable to find certificate data for %s" % cert_id)
+                    logger.error('Unable to find certificate data for %s', cert_id)
                     sys.exit(1)
 
                 cert_data = pki.nssdb.convert_cert(cert_data, 'base64', 'pem')
@@ -1233,12 +1238,11 @@ class CertExportCLI(pki.cli.CLI):
 
             if csr_file:
 
-                if self.verbose:
-                    print('Exporting %s CSR into %s.' % (cert_id, csr_file))
+                logger.info('Exporting %s CSR into %s.', cert_id, csr_file)
 
                 cert_request = cert.get('request', None)
                 if cert_request is None:
-                    print("ERROR: Unable to find certificate request for %s" % cert_id)
+                    logger.error('Unable to find certificate request for %s', cert_id)
                     sys.exit(1)
 
                 csr_data = pki.nssdb.convert_csr(cert_request, 'base64', 'pem')
@@ -1247,14 +1251,12 @@ class CertExportCLI(pki.cli.CLI):
 
             if pkcs12_file:
 
-                if self.verbose:
-                    print('Exporting %s certificate and key into %s.' % (cert_id, pkcs12_file))
+                logger.info('Exporting %s certificate and key into %s.', cert_id, pkcs12_file)
 
                 if not pkcs12_password and not pkcs12_password_file:
                     pkcs12_password = getpass.getpass(prompt='Enter password for PKCS #12 file: ')
 
-                if self.verbose:
-                    print('Friendly name: %s' % friendly_name)
+                logger.info('Friendly name: %s', friendly_name)
 
                 nssdb.export_cert(
                     nickname=nickname,
@@ -1268,7 +1270,7 @@ class CertExportCLI(pki.cli.CLI):
                     include_trust_flags=include_trust_flags,
                     include_key=include_key,
                     include_chain=include_chain,
-                    debug=debug)
+                    debug=self.debug)
 
         finally:
             nssdb.close()
