@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "b1e53513_705c8fa5",
+        "filename": ".travis.yml",
+        "patchSetId": 6
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1011351
+      },
+      "writtenOn": "2018-04-04T22:44:31Z",
+      "side": 1,
+      "message": "This would involve booting up a new job which would approx. cost us around 1-2 mins. Is that fine?",
+      "parentUuid": "0b867896_f26d6d85",
+      "revId": "cb08f9d66cf56a6301d088413827698a86410aaf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b7d52c31_c8bffa34",
         "filename": ".travis.yml",
         "patchSetId": 6
@@ -30,6 +48,30 @@
       "writtenOn": "2018-04-04T21:59:24Z",
       "side": 1,
       "message": "I think the path should be \"jobs\" instead of \"builds\".",
+      "range": {
+        "startLine": 20,
+        "startChar": 66,
+        "endLine": 20,
+        "endChar": 72
+      },
+      "revId": "cb08f9d66cf56a6301d088413827698a86410aaf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "eae171d4_7a3cd43d",
+        "filename": ".travis.yml",
+        "patchSetId": 6
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1011351
+      },
+      "writtenOn": "2018-04-04T22:44:31Z",
+      "side": 1,
+      "message": "Good catch! Will fix in next patch",
+      "parentUuid": "b7d52c31_c8bffa34",
       "range": {
         "startLine": 20,
         "startChar": 66,
