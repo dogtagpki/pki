@@ -222,7 +222,9 @@ class NSSDatabase(object):
             return self.token
         return token
 
-    def create_password_file(self, tmpdir, password, filename='password.txt'):
+    def create_password_file(self, tmpdir, password, filename=None):
+        if not filename:
+            filename = 'password.txt'
         password_file = os.path.join(tmpdir, filename)
         with open(password_file, 'w') as f:
             f.write(password)
@@ -318,50 +320,55 @@ class NSSDatabase(object):
 
     def add_cert(self, nickname, cert_file, token=None, trust_attributes=None):
 
-        token = self.get_effective_token(token)
+        tmpdir = tempfile.mkdtemp()
+        try:
+            token = self.get_effective_token(token)
 
-        # Add cert in two steps due to bug #1393668.
+            # Add cert in two steps due to bug #1393668.
 
-        # If HSM is used, import cert into HSM without trust attributes.
-        if token:
-            cmd = [
-                'certutil',
-                '-A',
-                '-d', self.directory,
-                '-h', token,
-                '-P', token,
-                '-f', self.password_file,
-                '-n', nickname,
-                '-a',
-                '-i', cert_file,
-                '-t', ''
-            ]
+            # If HSM is used, import cert into HSM without trust attributes.
+            if token:
+                cmd = [
+                    'certutil',
+                    '-A',
+                    '-d', self.directory,
+                    '-h', token,
+                    '-P', token,
+                    '-f', self.password_file,
+                    '-n', nickname,
+                    '-a',
+                    '-i', cert_file,
+                    '-t', ''
+                ]
 
-            logger.debug('Command: %s', ' '.join(cmd))
-            rc = subprocess.call(cmd)
+                logger.debug('Command: %s', ' '.join(cmd))
+                rc = subprocess.call(cmd)
 
-            if rc:
-                logger.warning('certutil returned non-zero exit code (bug #1393668)')
+                if rc:
+                    logger.warning('certutil returned non-zero exit code (bug #1393668)')
 
-        if not trust_attributes:
-            trust_attributes = ',,'
+            if not trust_attributes:
+                trust_attributes = ',,'
 
-        # If HSM is not used, or cert has trust attributes,
-        # import cert into internal token.
-        if not token or trust_attributes != ',,':
-            cmd = [
-                'certutil',
-                '-A',
-                '-d', self.directory,
-                '-f', self.internal_password_file,
-                '-n', nickname,
-                '-a',
-                '-i', cert_file,
-                '-t', trust_attributes
-            ]
+            # If HSM is not used, or cert has trust attributes,
+            # import cert into internal token.
+            if not token or trust_attributes != ',,':
+                cmd = [
+                    'certutil',
+                    '-A',
+                    '-d', self.directory,
+                    '-f', self.internal_password_file,
+                    '-n', nickname,
+                    '-a',
+                    '-i', cert_file,
+                    '-t', trust_attributes
+                ]
 
-            logger.debug('Command: %s', ' '.join(cmd))
-            subprocess.check_call(cmd)
+                logger.debug('Command: %s', ' '.join(cmd))
+                subprocess.check_call(cmd)
+
+        finally:
+            shutil.rmtree(tmpdir)
 
     def add_ca_cert(self, cert_file, trust_attributes=None):
 
@@ -914,15 +921,16 @@ class NSSDatabase(object):
         cert_obj = x509.load_pem_x509_certificate(
             cert_pem, backend=default_backend())
 
-        cert = dict()
+        cert = {}
+        cert['object'] = cert_obj
 
-        cert["serial_number"] = cert_obj.serial_number
+        cert['serial_number'] = cert_obj.serial_number
 
-        cert["issuer"] = pki.convert_x509_name_to_dn(cert_obj.issuer)
-        cert["subject"] = pki.convert_x509_name_to_dn(cert_obj.subject)
+        cert['issuer'] = pki.convert_x509_name_to_dn(cert_obj.issuer)
+        cert['subject'] = pki.convert_x509_name_to_dn(cert_obj.subject)
 
-        cert["not_before"] = self.convert_time_to_millis(cert_obj.not_valid_before)
-        cert["not_after"] = self.convert_time_to_millis(cert_obj.not_valid_after)
+        cert['not_before'] = self.convert_time_to_millis(cert_obj.not_valid_before)
+        cert['not_after'] = self.convert_time_to_millis(cert_obj.not_valid_after)
 
         return cert
 
@@ -931,27 +939,38 @@ class NSSDatabase(object):
         epoch = datetime.datetime.utcfromtimestamp(0)
         return (date - epoch).total_seconds() * 1000
 
-    def remove_cert(self, nickname, remove_key=False):
+    def remove_cert(
+            self,
+            nickname,
+            token=None,
+            remove_key=False):
 
-        cmd = ['certutil']
+        tmpdir = tempfile.mkdtemp()
+        try:
+            token = self.get_effective_token(token)
 
-        if remove_key:
-            cmd.extend(['-F'])
-        else:
-            cmd.extend(['-D'])
+            cmd = ['certutil']
 
-        cmd.extend(['-d', self.directory])
+            if remove_key:
+                cmd.extend(['-F'])
+            else:
+                cmd.extend(['-D'])
 
-        if self.token:
-            cmd.extend(['-h', self.token])
+            cmd.extend(['-d', self.directory])
 
-        cmd.extend([
-            '-f', self.password_file,
-            '-n', nickname
-        ])
+            if token:
+                cmd.extend(['-h', token])
 
-        logger.debug('Command: %s', ' '.join(cmd))
-        subprocess.check_call(cmd)
+            cmd.extend([
+                '-f', self.password_file,
+                '-n', nickname
+            ])
+
+            logger.debug('Command: %s', ' '.join(cmd))
+            subprocess.check_call(cmd)
+
+        finally:
+            shutil.rmtree(tmpdir)
 
     def import_cert_chain(
             self,
