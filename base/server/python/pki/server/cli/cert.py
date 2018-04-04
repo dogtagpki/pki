@@ -331,7 +331,7 @@ class CertCreateCLI(pki.cli.CLI):
         super(CertCreateCLI, self).__init__(
             'create', 'Create system certificate.')
 
-    def usage(self):
+    def print_help(self):
         print('Usage: pki-server cert-create [OPTIONS] <Cert ID>')
         # CertID:  subsystem, sslserver, kra_storage, kra_transport, ca_ocsp_signing,
         # ca_audit_signing, kra_audit_signing
@@ -349,7 +349,7 @@ class CertCreateCLI(pki.cli.CLI):
         print('      --output <file>             Provide output file name.')
         print('      --renew                     Renew permanent certificate.')
         print('  -v, --verbose                   Run in verbose mode.')
-        print('      --debug                     Show debug messages.')
+        print('      --debug                     Run in debug mode.')
         print('      --help                      Show help message.')
         print()
 
@@ -364,8 +364,8 @@ class CertCreateCLI(pki.cli.CLI):
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
-            print('ERROR: ' + str(e))
-            self.usage()
+            logger.error(e)
+            self.print_help()
             sys.exit(1)
 
         instance_name = 'pki-tomcat'
@@ -417,24 +417,24 @@ class CertCreateCLI(pki.cli.CLI):
                 logging.getLogger().setLevel(logging.DEBUG)
 
             elif o == '--help':
-                self.usage()
+                self.print_help()
                 sys.exit()
 
             else:
-                self.print_message('ERROR: unknown option ' + o)
-                self.usage()
+                logger.error('option %s not recognized', o)
+                self.print_help()
                 sys.exit(1)
 
         if len(args) < 1:
-            print('ERROR: missing cert ID')
-            self.usage()
+            logger.error('Missing cert ID.')
+            self.print_help()
             sys.exit(1)
 
         if not create_temp_cert:
             # For permanent certificate, password of NSS db is required.
             if not client_nssdb_password and not client_nssdb_pass_file:
-                print('ERROR: NSS db password is required.')
-                self.usage()
+                logger.error('NSS database password is required.')
+                self.print_help()
                 sys.exit(1)
 
         cert_id = args[0]
@@ -442,7 +442,7 @@ class CertCreateCLI(pki.cli.CLI):
         instance = server.PKIInstance(instance_name)
 
         if not instance.is_valid():
-            print('ERROR: Invalid instance %s.' % instance_name)
+            logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
 
         # Load the instance. Default: pki-tomcat
@@ -464,8 +464,9 @@ class CertCreateCLI(pki.cli.CLI):
         # Get the subsystem - Eg: ca, kra, tps, tks
         subsystem = instance.get_subsystem(subsystem_name)
         if not subsystem:
-            print('ERROR: No %s subsystem in instance '
-                  '%s.' % (subsystem_name, instance_name))
+            logger.error(
+                'No %s subsystem in instance %s.',
+                subsystem_name, instance_name)
             sys.exit(1)
 
         nssdb = instance.open_nssdb()
@@ -589,8 +590,8 @@ class CertCreateCLI(pki.cli.CLI):
         temp_auth_cert = os.path.join(tmpdir, 'auth.pem')
 
         if not c_cert:
-            print('ERROR: Client cert nickname is required.')
-            self.usage()
+            logger.error('Client cert nickname is required.')
+            self.print_help()
             sys.exit(1)
 
         # Create a PKIConnection object that stores the details of subsystem.
@@ -630,14 +631,12 @@ class CertCreateCLI(pki.cli.CLI):
             cmd_generate_pem.extend(['-passin', 'pass:' + c_nssdb_pass])
 
         res_pk12 = subprocess.check_output(cmd_generate_pk12, stderr=subprocess.STDOUT)
-        if self.verbose:
-            print(res_pk12)
+        logger.info(res_pk12)
 
         res_pem = subprocess.check_output(cmd_generate_pem, stderr=subprocess.STDOUT)
-        if self.verbose:
-            print(res_pem)
+        logger.info(res_pem)
 
-            # Bind the authentication with the connection object
+        # Bind the authentication with the connection object
         connection.set_authentication_cert(temp_auth_cert)
 
         return connection
@@ -657,24 +656,23 @@ class CertCreateCLI(pki.cli.CLI):
 
         request_data = ret[0].request
         cert_data = ret[0].cert
-        if self.verbose:
-            print('Request ID: ' + request_data.request_id)
-            print('Request Status:' + request_data.request_status)
+
+        logger.info('Request ID: %s', request_data.request_id)
+        logger.info('Request Status: %s', request_data.request_status)
 
         if not cert_data:
-            raise Exception('ERROR: Unable to renew system certificate for serial: %s' % serial)
+            raise Exception('Unable to renew system certificate for serial: %s' % serial)
 
         # store cert_id for usage later
         cert_id = cert_data.serial_number
         if not cert_id:
-            raise Exception('ERROR: Unable to retrieve serial number of renewed certificate.')
+            raise Exception('Unable to retrieve serial number of renewed certificate.')
 
-        if self.verbose:
-            print('Serial Number: ' + cert_id)
-            print('Issuer: ' + cert_data.issuer_dn)
-            print('Subject: ' + cert_data.subject_dn)
-            print('Pretty Print:')
-            print(cert_data.pretty_repr)
+        logger.info('Serial Number: %s', cert_id)
+        logger.info('Issuer: %s', cert_data.issuer_dn)
+        logger.info('Subject: %s', cert_data.subject_dn)
+        logger.info('Pretty Print:')
+        logger.info(cert_data.pretty_repr)
 
         new_cert_data = cert_client.get_cert(cert_serial_number=cert_id)
         with open(output, 'w') as f:
@@ -750,8 +748,7 @@ class CertCreateCLI(pki.cli.CLI):
                 # If serial number is not provided, get Serial Number from NSS db
                 serial = subsystem.get_subsystem_cert(cert_tag)["serial_number"]
 
-            if self.verbose:
-                print('Renewing for certificate with serial number: %s' % serial)
+            logger.info('Renewing for certificate with serial number: %s', serial)
 
             self.renew_system_certificate(connection=connection,
                                           output=new_cert_file, serial=serial)
@@ -767,8 +764,7 @@ class CertCreateCLI(pki.cli.CLI):
                 # If serial number is not provided, get Serial Number from NSS db
                 serial = subsystem.get_subsystem_cert('subsystem')["serial_number"]
 
-            if self.verbose:
-                print('Renewing for certificate with serial number: %s' % serial)
+            logger.info('Renewing for certificate with serial number: %s', serial)
 
             self.renew_system_certificate(connection=connection,
                                           output=new_cert_file, serial=serial)
@@ -784,8 +780,7 @@ class CertCreateCLI(pki.cli.CLI):
                 # If serial number is not provided, get Serial Number from NSS db
                 serial = subsystem.get_subsystem_cert('audit_signing')["serial_number"]
 
-            if self.verbose:
-                print('Renewing for certificate with serial number: %s' % serial)
+            logger.info('Renewing for certificate with serial number: %s', serial)
 
             self.renew_system_certificate(connection=connection,
                                           output=new_cert_file, serial=serial)
