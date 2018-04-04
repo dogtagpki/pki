@@ -791,7 +791,7 @@ class CertImportCLI(pki.cli.CLI):
         super(CertImportCLI, self).__init__(
             'import', 'Import system certificate.')
 
-    def usage(self):
+    def print_help(self):
         print('Usage: pki-server cert-import [OPTIONS] <Cert ID>')
         # CertID:  subsystem, sslserver, kra_storage, kra_transport, ca_ocsp_signing,
         # ca_audit_signing, kra_audit_signing
@@ -800,7 +800,7 @@ class CertImportCLI(pki.cli.CLI):
         print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
         print('      --input <file>              Provide input file name.')
         print('  -v, --verbose                   Run in verbose mode.')
-        print('      --debug                     Show debug messages.')
+        print('      --debug                     Run in debug mode.')
         print('      --help                      Show help message.')
         print()
 
@@ -814,8 +814,8 @@ class CertImportCLI(pki.cli.CLI):
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
-            print('ERROR: ' + str(e))
-            self.usage()
+            logger.error(e)
+            self.print_help()
             sys.exit(1)
 
         instance_name = 'pki-tomcat'
@@ -838,17 +838,17 @@ class CertImportCLI(pki.cli.CLI):
                 logging.getLogger().setLevel(logging.DEBUG)
 
             elif o == '--help':
-                self.usage()
+                self.print_help()
                 sys.exit()
 
             else:
-                self.print_message('ERROR: unknown option ' + o)
-                self.usage()
+                logger.error('option %s not recognized', o)
+                self.print_help()
                 sys.exit(1)
 
         if len(args) < 1:
-            print('ERROR: missing cert ID')
-            self.usage()
+            logger.error('Missing cert ID.')
+            self.print_help()
             sys.exit(1)
 
         cert_id = args[0]
@@ -856,7 +856,7 @@ class CertImportCLI(pki.cli.CLI):
         instance = server.PKIInstance(instance_name)
 
         if not instance.is_valid():
-            print('ERROR: Invalid instance %s.' % instance_name)
+            logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
 
         # Load the instance. Default: pki-tomcat
@@ -878,8 +878,9 @@ class CertImportCLI(pki.cli.CLI):
         subsystem = instance.get_subsystem(subsystem_name)
 
         if not subsystem:
-            print('ERROR: No %s subsystem in instance.'
-                  '%s.' % (subsystem_name, instance_name))
+            logger.error(
+                'No %s subsystem in instance %s.',
+                subsystem_name, instance_name)
             sys.exit(1)
 
         nssdb = instance.open_nssdb()
@@ -890,8 +891,8 @@ class CertImportCLI(pki.cli.CLI):
                 cert_file = os.path.join(cert_folder, cert_id + '.crt')
 
             if not os.path.isfile(cert_file):
-                print('ERROR: No %s such file.' % cert_file)
-                self.usage()
+                logger.error('No %s such file.', cert_file)
+                self.print_help()
                 sys.exit(1)
 
             cert = subsystem.get_subsystem_cert(cert_tag)
