@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0b867896_f26d6d85",
+        "filename": ".travis.yml",
+        "patchSetId": 6
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-04-04T21:59:24Z",
+      "side": 1,
+      "message": "Actually I was thinking there would be 3 stages. In the first stage we should log a message saying that the build is starting (line 14-16). In the second stage we run PKI and IPA tests. In the third stage we log the completion message.",
+      "revId": "cb08f9d66cf56a6301d088413827698a86410aaf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b7d52c31_c8bffa34",
+        "filename": ".travis.yml",
+        "patchSetId": 6
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-04-04T21:59:24Z",
+      "side": 1,
+      "message": "I think the path should be \"jobs\" instead of \"builds\".",
+      "range": {
+        "startLine": 20,
+        "startChar": 66,
+        "endLine": 20,
+        "endChar": 72
+      },
+      "revId": "cb08f9d66cf56a6301d088413827698a86410aaf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5abd6bd0_4d65ed21",
+        "filename": ".travis.yml",
+        "patchSetId": 6
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-04-04T21:59:24Z",
+      "side": 1,
+      "message": "I think the path should be \"jobs\" instead of \"builds\".",
+      "range": {
+        "startLine": 41,
+        "startChar": 66,
+        "endLine": 41,
+        "endChar": 72
+      },
+      "revId": "cb08f9d66cf56a6301d088413827698a86410aaf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
