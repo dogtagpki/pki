@@ -224,7 +224,8 @@ class PKCS12ImportCLI(pki.cli.CLI):
                     cert_id = cert_info['id']
                     nickname = cert_info['nickname']
 
-                    cert = nssdb.get_cert(nickname)
+                    cert = nssdb.get_cert(
+                        nickname=nickname)
 
                     if cert:
                         if not overwrite:
