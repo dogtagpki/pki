@@ -4078,7 +4078,8 @@ class ConfigClient:
         config.pki_log.info("loading %s certificate", nickname,
                             extra=config.PKI_INDENTATION_LEVEL_2)
 
-        cert.cert = nssdb.get_cert(nickname)
+        cert.cert = nssdb.get_cert(
+            nickname=nickname)
 
     def set_system_certs(self, nssdb, data):
         systemCerts = []  # nopep8
@@ -4354,7 +4355,7 @@ class ConfigClient:
 
             try:
                 data.adminCert = client_nssdb.get_cert(
-                    self.mdict['pki_admin_nickname'])
+                    nickname=self.mdict['pki_admin_nickname'])
                 if data.adminCert:  # already imported, return
                     return
 
