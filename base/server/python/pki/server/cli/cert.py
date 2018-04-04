@@ -909,11 +909,15 @@ class CertImportCLI(pki.cli.CLI):
 
             nssdb.add_cert(
                 nickname=cert['nickname'],
+                token=cert['token'],
                 cert_file=cert_file)
 
             logger.info('Updating CS.cfg with the new certificate')
 
-            data = nssdb.get_cert(nickname=cert['nickname'], output_format='base64')
+            data = nssdb.get_cert(
+                nickname=cert['nickname'],
+                token=cert['token'],
+                output_format='base64')
             cert['data'] = data
 
             if cert_id == 'sslserver' or cert_id == 'subsystem':

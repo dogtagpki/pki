@@ -794,7 +794,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         cert_id = self.get_cert_id(subsystem, tag)
         nickname = deployer.mdict['pki_%s_nickname' % cert_id]
-        cert_data = nssdb.get_cert(nickname)
+        cert_data = nssdb.get_cert(
+            nickname=nickname)
 
         if not cert_data:
             return
@@ -836,7 +837,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 "checking existing SSL server cert: %s", nickname,
                 extra=config.PKI_INDENTATION_LEVEL_2)
 
-            pem_cert = nssdb.get_cert(nickname)
+            pem_cert = nssdb.get_cert(
+                nickname=nickname)
 
             if pem_cert:
                 cert = x509.load_pem_x509_certificate(pem_cert, default_backend())
