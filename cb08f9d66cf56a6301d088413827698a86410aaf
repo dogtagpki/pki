@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "d5274bd0_ba22bb27",
+        "filename": ".travis.yml",
+        "patchSetId": 6
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-04-04T22:52:09Z",
+      "side": 1,
+      "message": "OK, let\u0027s keep this for now.\n\nMaybe in the future we could use the first stage to do the build, and the second stage to run the tests using the build from the first stage, but that\u0027s for another discussion.",
+      "parentUuid": "b1e53513_705c8fa5",
+      "revId": "cb08f9d66cf56a6301d088413827698a86410aaf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b7d52c31_c8bffa34",
         "filename": ".travis.yml",
         "patchSetId": 6
