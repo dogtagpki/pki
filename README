@@ -16,9 +16,6 @@ These directories contain the following:
 
    CMakeLists.txt
    COPYING
-   CPackConfig.cmake
-   ConfigureChecks.cmake
-   DefineOptions.cmake
    cmake_uninstall.cmake.in
    config.h.cmake
    cmake/    - These files and this directory contain

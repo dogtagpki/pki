@@ -51,8 +51,8 @@ include(DefineCMakeDefaults)
 include(DefinePlatformDefaults)
 include(DefineCompilerFlags)
 include(DefineInstallationPaths)
-include(DefineOptions.cmake)
-include(CPackConfig.cmake)
+include(DefineOptions)
+include(CPackConfig)
 
 # disallow in-source build
 include(MacroEnsureOutOfSourceBuild)
@@ -113,7 +113,7 @@ if (APPLICATION_FLAVOR_PKI_CORE      OR
 endif ()
 
 # config.h checks
-include(ConfigureChecks.cmake)
+include(ConfigureChecks)
 configure_file(config.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 
 add_definitions(-DHAVE_CONFIG_H)
@@ -145,7 +145,6 @@ add_custom_target(clean-cmake
         ${CMAKE_BINARY_DIR}/cmake_install.cmake
         ${CMAKE_BINARY_DIR}/cmake_uninstall.cmake
         ${CMAKE_BINARY_DIR}/config.h
-        ${CMAKE_BINARY_DIR}/CPackConfig.cmake
         ${CMAKE_BINARY_DIR}/CPackSourceConfig.cmake
         ${CMAKE_BINARY_DIR}/install_manifest.txt
         ${CMAKE_BINARY_DIR}/Makefile
