@@ -8,7 +8,7 @@ Release:          0.3%{?_timestamp}%{?_commit}%{?dist}
 %endif
 
 Summary:          Certificate System - PKI Core Components
-URL:              http://pki.fedoraproject.org/
+URL:              http://www.dogtagpki.org/
 License:          GPLv2
 
 Source:           https://github.com/dogtagpki/pki/archive/v%{version}/pki-%{version}.tar.gz
@@ -1070,7 +1070,7 @@ if (test("/etc/sysconfig/pki/ca") or
          "Tomcat 6 is no longer available in Fedora 20.\n\n" ..
          "Please follow these instructions to migrate the instances to \n" ..
          "Dogtag 10:\n\n" ..
-         "http://pki.fedoraproject.org/wiki/Migrating_Dogtag_9_Instances_to_Dogtag_10"
+         "http://www.dogtagpki.org/wiki/Migrating_Dogtag_9_Instances_to_Dogtag_10"
    error(msg)
 end
 %endif

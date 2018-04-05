@@ -8,7 +8,7 @@ Release:          0.3%{?_timestamp}%{?_commit}%{?dist}
 %endif
 
 Summary:          Certificate System - Dogtag PKI Theme Components
-URL:              http://pki.fedoraproject.org/
+URL:              http://www.dogtagpki.org/
 License:          GPLv2
 
 Source:           https://github.com/dogtagpki/pki/archive/v%{version}/pki-%{version}.tar.gz

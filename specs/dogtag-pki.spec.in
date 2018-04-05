@@ -10,7 +10,7 @@ Release:          0.3%{?_timestamp}%{?_commit}%{?dist}
 
 # The entire source code is GPLv2 except for 'pki-tps' which is LGPLv2
 License:          GPLv2 and LGPLv2
-URL:              http://pki.fedoraproject.org/
+URL:              http://www.dogtagpki.org/
 BuildArch:        noarch
 
 %if 0%{?fedora} || 0%{?rhel} > 7

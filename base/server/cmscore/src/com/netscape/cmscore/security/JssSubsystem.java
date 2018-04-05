@@ -343,7 +343,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
 
         // read jss.random.* properties
         // by default use PK11SecureRandom from JSS
-        // see http://pki.fedoraproject.org/wiki/Random_Number_Generator
+        // see http://www.dogtagpki.org/wiki/Random_Number_Generator
 
         IConfigStore randomConfig = config.getSubStore("random");
         CMS.debug("JssSubsystem: random:");

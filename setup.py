@@ -53,7 +53,7 @@ setup(
     description='Dogtag Certificate System',
     license='GPL',
     keywords='pki',
-    url='http://pki.fedoraproject.org/',
+    url='http://www.dogtagpki.org/',
     package_dir={
         'pki': 'base/common/python/pki',
         'pki.server': 'base/server/python/pki/server'
