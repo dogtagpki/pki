@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5cedd63b_9cc12719",
+        "filename": ".travis.yml",
+        "patchSetId": 9
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-04-05T23:37:04Z",
+      "side": 1,
+      "message": "I think we need to add a new line between line 44 and 45:\n\n  echo \u003e\u003e ${TRANSFER_SH_URLS}\n\nSee the message from Job 2 for Patch Set 8.",
+      "revId": "645263d7b88ed7fcd9d9dabe1c97daaf290b35a4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
