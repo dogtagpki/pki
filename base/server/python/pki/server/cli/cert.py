@@ -250,17 +250,21 @@ class CertUpdateCLI(pki.cli.CLI):
         subsystem_name = None
         cert_tag = cert_id
 
-        if cert_id != 'sslserver' and cert_id != 'subsystem':
-            # To avoid ambiguity where cert ID can contain more than 1 _, we limit to one split
-            temp_cert_identify = cert_id.split('_', 1)
-            subsystem_name = temp_cert_identify[0]
-            cert_tag = temp_cert_identify[1]
+        if cert_id == 'sslserver' or cert_id == 'subsystem':
+            subsystem_name = None
+            cert_tag = cert_id
+
+        else:
+            parts = cert_id.split('_', 1)
+            subsystem_name = parts[0]
+            cert_tag = parts[1]
 
         # If cert ID is instance specific, get it from first subsystem
         if not subsystem_name:
             subsystem_name = instance.subsystems[0].name
 
         subsystem = instance.get_subsystem(subsystem_name)
+
         if not subsystem:
             logger.error(
                 'No %s subsystem in instance %s.',
@@ -452,11 +456,14 @@ class CertCreateCLI(pki.cli.CLI):
         subsystem_name = None
         cert_tag = cert_id
 
-        if cert_id != 'sslserver' and cert_id != 'subsystem':
-            # To avoid ambiguity where cert ID can contain more than 1 _, we limit to one split
-            temp_cert_identify = cert_id.split('_', 1)
-            subsystem_name = temp_cert_identify[0]
-            cert_tag = temp_cert_identify[1]
+        if cert_id == 'sslserver' or cert_id == 'subsystem':
+            subsystem_name = None
+            cert_tag = cert_id
+
+        else:
+            parts = cert_id.split('_', 1)
+            subsystem_name = parts[0]
+            cert_tag = parts[1]
 
         # If cert ID is instance specific, get it from first subsystem
         if not subsystem_name:
@@ -863,13 +870,14 @@ class CertImportCLI(pki.cli.CLI):
         # Load the instance. Default: pki-tomcat
         instance.load()
 
-        subsystem_name = None
-        cert_tag = cert_id
-        if cert_id != 'sslserver' and cert_id != 'subsystem':
-            # To avoid ambiguity where cert ID can contain more than 1 _, we limit to one split
-            temp_cert_identify = cert_id.split('_', 1)
-            subsystem_name = temp_cert_identify[0]
-            cert_tag = temp_cert_identify[1]
+        if cert_id == 'sslserver' or cert_id == 'subsystem':
+            subsystem_name = None
+            cert_tag = cert_id
+
+        else:
+            parts = cert_id.split('_', 1)
+            subsystem_name = parts[0]
+            cert_tag = parts[1]
 
         # If cert ID is instance specific, get it from first subsystem
         if not subsystem_name:
@@ -1052,11 +1060,14 @@ class CertExportCLI(pki.cli.CLI):
         subsystem_name = None
         cert_tag = cert_id
 
-        if cert_id != 'sslserver' and cert_id != 'subsystem':
-            # To avoid ambiguity where cert ID can contain more than 1 _, we limit to one split
-            temp_cert_identify = cert_id.split('_', 1)
-            subsystem_name = temp_cert_identify[0]
-            cert_tag = temp_cert_identify[1]
+        if cert_id == 'sslserver' or cert_id == 'subsystem':
+            subsystem_name = None
+            cert_tag = cert_id
+
+        else:
+            parts = cert_id.split('_', 1)
+            subsystem_name = parts[0]
+            cert_tag = parts[1]
 
         # If cert ID is instance specific, get it from first subsystem
         if not subsystem_name:
