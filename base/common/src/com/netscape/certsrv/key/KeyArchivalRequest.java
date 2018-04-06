@@ -113,10 +113,10 @@ public class KeyArchivalRequest extends ResourceMessage {
     }
 
     /**
-     * @param transWrappedSessionKey the trans wrapped session key to set
+     * @param transWrappedSessionKey thetransWrappedSessionKey trans wrapped session key to set
      */
-    public void setTransWrappedSessionKey(String twsk) {
-        attributes.put(TRANS_WRAPPED_SESSION_KEY, twsk);
+    public void setTransWrappedSessionKey(String transWrappedSessionKey) {
+        attributes.put(TRANS_WRAPPED_SESSION_KEY, transWrappedSessionKey);
     }
 
     /**
@@ -127,7 +127,7 @@ public class KeyArchivalRequest extends ResourceMessage {
     }
 
     /**
-     * @param pkiArchiveIOptions the archive options structure to set
+     * @param pkiArchiveOptions the archive options structure to set
      */
     public void setPKIArchiveOptions(String pkiArchiveOptions) {
         attributes.put(PKI_ARCHIVE_OPTIONS, pkiArchiveOptions);
@@ -143,8 +143,8 @@ public class KeyArchivalRequest extends ResourceMessage {
     /**
      * @param algorithmOID the symmetric algorithm OID to set
      */
-    public void setAlgorithmOID(String algOID) {
-        attributes.put(ALGORITHM_OID, algOID);
+    public void setAlgorithmOID(String algorithmOID) {
+        attributes.put(ALGORITHM_OID, algorithmOID);
     }
 
     /**

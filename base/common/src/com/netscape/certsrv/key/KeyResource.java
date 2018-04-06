@@ -54,7 +54,6 @@ public interface KeyResource {
     /**
      * Used to retrieve a key
      * @param data
-     * @return
      */
     @POST
     @Path("retrieve")

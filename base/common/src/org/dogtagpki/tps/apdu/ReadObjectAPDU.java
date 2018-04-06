@@ -48,7 +48,7 @@ public class ReadObjectAPDU extends APDU {
      *
      * @param object_id as defined in APDU
      * @param offset
-     * @param data
+     * @param len
      * @see APDU
      */
 

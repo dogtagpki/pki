@@ -18,7 +18,6 @@
 package com.netscape.cmsutil.ldap;
 
 import java.io.IOException;
-import java.lang.Class;
 import java.util.ArrayList;
 
 import netscape.ldap.LDAPAttribute;
@@ -44,7 +43,7 @@ public class LDAPUtil {
      * Each special character will be replaced by a backslash followed by
      * 2-digit hex of the ASCII code.
      *
-     * @param string string to escape
+     * @param object string to escape
      * @return escaped string
      */
     public static String escapeFilter(Object object) {

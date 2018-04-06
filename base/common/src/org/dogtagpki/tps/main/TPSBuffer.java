@@ -255,7 +255,6 @@ public class TPSBuffer {
     /**
      * Get the SubString from start to the end
      * @param start
-     * @return
      */
     public TPSBuffer substr(int start) {
         return substr(start,buf.length -2);

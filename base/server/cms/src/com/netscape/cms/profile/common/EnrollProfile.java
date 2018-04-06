@@ -136,6 +136,7 @@ import netscape.security.x509.X509Key;
 /**
  * This class implements a generic enrollment profile.
  *
+ * @author cfu
  * @version $Revision$, $Date$
  */
 public abstract class EnrollProfile extends BasicProfile
@@ -382,8 +383,7 @@ public abstract class EnrollProfile extends BasicProfile
      * setPOPchallenge generates a POP challenge and sets necessary info in request
      * for composing encryptedPOP later
      *
-     * @param IRequest the request
-     * @author cfu
+     * @param req the request
      */
     public void setPOPchallenge(IRequest req) throws EBaseException {
         String method = "EnrollProfile: setPOPchallenge: ";
@@ -1283,8 +1283,6 @@ public abstract class EnrollProfile extends BasicProfile
 
     /**
      * getPopLinkWitnessV2control
-     *
-     * @author cfu
      */
     protected PopLinkWitnessV2 getPopLinkWitnessV2control(ASN1Value value) {
         String method = "EnrollProfile: getPopLinkWitnessV2control: ";
@@ -1303,8 +1301,6 @@ public abstract class EnrollProfile extends BasicProfile
 
     /**
      * verifyPopLinkWitnessV2
-     *
-     * @author cfu
      */
     protected boolean verifyPopLinkWitnessV2(
             PopLinkWitnessV2 popLinkWitnessV2,

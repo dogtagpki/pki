@@ -40,9 +40,6 @@ public class GetIssuerInfoAPDU extends APDU {
      * Possible error Status Codes:
      * 9C 06 - unauthorized
      *
-     * @param p1 always 0x00
-     * @param p2 always 0x00
-     * @param data issuer info
      * @see APDU
      */
     public GetIssuerInfoAPDU()

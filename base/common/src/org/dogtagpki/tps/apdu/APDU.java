@@ -120,8 +120,8 @@ public abstract class APDU {
      * <Data> <Data Size> byte(s)
      * 0 1 byte
      *
-     * @param data the result buffer which will contain the actual data
-     *            including the APDU header, data, and pre-calculated mac.
+     * @return the result buffer which will contain the actual data
+     *         including the APDU header, data, and pre-calculated mac.
      */
 
     public TPSBuffer getEncoding() {

@@ -107,6 +107,7 @@ import netscape.security.x509.X509Key;
 /**
  * Utility CMCOutputTemplate
  *
+ * @author cfu
  * @version $ $, $Date$
  */
 public class CMCOutputTemplate {
@@ -499,8 +500,6 @@ public class CMCOutputTemplate {
      * constructEncryptedPop pulls cmc pop challenge fields out of the request
      * and constructs an EncryptedPOP
      * to be included in the response later
-     *
-     * @author cfu
      */
     public EncryptedPOP constructEncryptedPop(IRequest req)
             throws EBaseException {
