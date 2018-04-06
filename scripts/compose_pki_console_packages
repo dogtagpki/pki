@@ -36,13 +36,6 @@ PKI_CONSOLE_VERSION="`rpmspec -P "${PKI_SPECS_FILE}" | grep '^Version:' | awk '{
 
 
 ##
-## Establish the SOURCE files/directories of the 'pki-console' source directory
-##
-
-PKI_COMPONENT_LIST="test console"
-
-
-##
 ## Establish the TARGET files/directories of the 'pki-console' source/spec files
 ##
 

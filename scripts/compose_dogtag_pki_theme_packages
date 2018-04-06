@@ -36,13 +36,6 @@ DOGTAG_PKI_THEME_VERSION="`rpmspec -P "${PKI_SPECS_FILE}" | grep '^Version:' | a
 
 
 ##
-## Establish the SOURCE files/directories of the 'dogtag-pki' source directory
-##
-
-PKI_COMPONENT_LIST="common-ui console-ui"
-
-
-##
 ## Establish the TARGET files/directories of the 'dogtag-pki' source/spec files
 ##
 

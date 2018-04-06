@@ -35,22 +35,6 @@ PKI_CORE_VERSION="`rpmspec -P "${PKI_SPECS_FILE}" | grep '^Version:' | awk '{pri
 
 
 ##
-## Establish the SOURCE files/directories of the 'pki-core' source directory
-##
-
-PKI_COMPONENT_LIST="test symkey util common native-tools java-tools"
-
-if [ "$WITHOUT_JAVADOC" = "" ]; then
-    PKI_COMPONENT_LIST="$PKI_COMPONENT_LIST javadoc"
-fi
-
-if [ "$WITHOUT_SERVER" = "" ]; then
-    PKI_COMPONENT_LIST="$PKI_COMPONENT_LIST server ca kra ocsp tks tps"
-    # required for native 'tpsclient' utility
-    PKI_COMPONENT_LIST="$PKI_COMPONENT_LIST tps-client"
-fi
-
-##
 ## Establish the TARGET files/directories of the 'pki-core' source/spec files
 ##
 
