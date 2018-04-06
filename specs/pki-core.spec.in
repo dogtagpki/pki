@@ -912,7 +912,7 @@ cd build
 
 %install
 cd build
-%{__make} VERBOSE=1 %{?_smp_mflags} all install DESTDIR=%{buildroot} INSTALL="install -p"
+%{__make} VERBOSE=%{?_verbose} %{?_smp_mflags} all install DESTDIR=%{buildroot} INSTALL="install -p"
 
 # Customize system upgrade scripts in /usr/share/pki/upgrade
 %if 0%{?rhel} && 0%{?rhel} <= 7
