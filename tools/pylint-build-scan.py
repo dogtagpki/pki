@@ -34,7 +34,7 @@ from distutils.sysconfig import get_python_lib  # pylint: disable=F0401
 
 
 SCRIPTPATH = os.path.dirname(os.path.abspath(__file__))
-PYLINTRC = os.path.join(SCRIPTPATH, 'dogtag.pylintrc')
+PYLINTRC = os.path.join(SCRIPTPATH, 'pylintrc')
 FILENAMES = [
     os.path.abspath(__file__),
     '{sitepackages}/pki',

@@ -1,7 +1,8 @@
 .metadata/
 build/
-.tox
-dist
+.tox/
+dist/
 MANIFEST
 *.pyc
 __pycache__
+.pytest_cache/
