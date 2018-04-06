@@ -229,55 +229,10 @@ public class MainCLI extends CLI {
         options.addOption(null, "version", false, "Show version number.");
     }
 
-    public String[] loadPassword(String pwfile) throws Exception {
-
-        String[] tokenPassword = { null, null };
-        String delimiter = "=";
-
-        try (BufferedReader br = new BufferedReader(new FileReader(pwfile))) {
-
-            String line = br.readLine();
-
-            if (line == null) {
-                throw new Exception("File '" + pwfile + "' is empty!");
-            }
-
-            if (line.isEmpty()) {
-                throw new Exception("File '" + pwfile + "' does not define a token or a password!");
-            }
-
-            if (line.contains(delimiter)) {
-                // Process 'token=password' format:
-                //
-                //     Token:     tokenPassword[0]
-                //     Password:  tokenPassword[1]
-                //
-                tokenPassword = line.split(delimiter, 2);
-
-                // Always trim leading/trailing whitespace from 'token'
-                tokenPassword[0] = tokenPassword[0].trim();
-
-                // Check for undefined 'token'
-                if (tokenPassword[0].isEmpty()) {
-                    // Set default 'token'
-                    tokenPassword[0] = CryptoUtil.INTERNAL_TOKEN_NAME;
-                }
-
-                // Check for undefined 'password'
-                if (tokenPassword[1].isEmpty()) {
-                    throw new Exception("File '" + pwfile + "' does not define a password!");
-                }
-
-            } else {
-                // Set default 'token'
-                tokenPassword[0] = CryptoUtil.INTERNAL_TOKEN_NAME;
-
-                // Set simple 'password' (do not trim leading/trailing whitespace)
-                tokenPassword[1] = line;
-            }
+    public String loadPassword(String path) throws IOException {
+        try (BufferedReader br = new BufferedReader(new FileReader(path))) {
+            return br.readLine();
         }
-
-        return tokenPassword;
     }
 
     public Map<String, String> loadPasswordConfig(String filename) throws Exception {
@@ -446,8 +401,7 @@ public class MainCLI extends CLI {
 
         } else if (nssPasswordFile != null) {
             if (verbose) System.out.println("Loading NSS password from " + nssPasswordFile);
-            String[] tokenPasswordPair = loadPassword(nssPasswordFile);
-            nssPassword = tokenPasswordPair[1];
+            nssPassword = loadPassword(nssPasswordFile);
             config.setNSSPassword(nssPassword);
 
         } else if (nssPasswordConfig != null) {
@@ -461,8 +415,7 @@ public class MainCLI extends CLI {
 
         if (passwordFile != null) {
             if (verbose) System.out.println("Loading user password from " + passwordFile);
-            String[] tokenPasswordPair = loadPassword(passwordFile);
-            password = tokenPasswordPair[1];
+            password = loadPassword(passwordFile);
 
         } else if (username != null && password == null) {
             // prompt for user password if required for authentication
