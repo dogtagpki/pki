@@ -548,7 +548,7 @@ public class CRMFPopClient {
                         requestor);
 
             } else if (output != null) {
-                System.out.println("Storing CRMF requrest into " + output);
+                System.out.println("Storing CRMF request into " + output);
                 try (FileWriter out = new FileWriter(output)) {
                     out.write(csr);
                 }
