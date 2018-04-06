@@ -124,7 +124,7 @@ cd build
 
 %install
 cd build
-%{__make} VERBOSE=1 %{?_smp_mflags} all install DESTDIR=%{buildroot} INSTALL="install -p"
+%{__make} VERBOSE=%{?verbose} %{?_smp_mflags} all install DESTDIR=%{buildroot} INSTALL="install -p"
 
 
 # NOTE:  Several "theme" packages require ownership of the "/usr/share/pki"
