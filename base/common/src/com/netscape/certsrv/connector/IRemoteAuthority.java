@@ -73,7 +73,6 @@ public interface IRemoteAuthority {
      * Retrieves the Content-Type value of the connection to the Remote Authority.
      *
      * @return String with Content-Type, if it was set
-     * @return
      */
     public String getContentType();
 }

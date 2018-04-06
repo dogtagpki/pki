@@ -172,7 +172,6 @@ public interface IUser extends IAttrSet, IUserConstants {
 
     /**
      * Get TPS profiles
-     * @return
      */
     public List<String> getTpsProfiles();
 

@@ -303,7 +303,6 @@ public class Utils {
      * Each line is at most 64-character long and terminated with CRLF.
      *
      * @param bytes byte array
-     * @param chunked TODO
      * @return base-64 encoded data
      */
     public static String base64encodeMultiLine(byte[] bytes) {
@@ -335,7 +334,7 @@ public class Utils {
     /**
      * Normalize B64 input String
      *
-     * @pram string base-64 string
+     * @param string base-64 string
      * @return normalized string
      */
     public static String normalizeString(String string) {

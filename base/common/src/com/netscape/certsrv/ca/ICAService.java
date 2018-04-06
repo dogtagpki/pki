@@ -17,15 +17,14 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.ca;
 
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.connector.IConnector;
+import com.netscape.certsrv.request.IRequest;
+
 import netscape.security.x509.RevokedCertImpl;
 import netscape.security.x509.X509CertImpl;
 import netscape.security.x509.X509CertInfo;
-
-import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.ca.AuthorityID;
-import com.netscape.certsrv.connector.IConnector;
-import com.netscape.certsrv.request.IRequest;
 
 /**
  * An interface representing a CA request services.
@@ -60,7 +59,7 @@ public interface ICAService {
      * Issues certificate base on enrollment information,
      * creates certificate record, and stores all necessary data.
      *
-     * @param caID CA ID
+     * @param aid CA ID
      * @param certi information obtain from revocation request
      * @param profileId Name of profile used
      * @param rid Request ID

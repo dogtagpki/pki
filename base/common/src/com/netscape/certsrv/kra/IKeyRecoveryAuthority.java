@@ -330,14 +330,12 @@ public interface IKeyRecoveryAuthority extends ISubsystem {
     /**
      * Are ephemeral requests enabled for SECURITY_DATA recovery and archival
      * @param realm authz realm
-     * @return
      */
     public boolean isEphemeral(String realm);
 
     /**
      * Is the SECURITY_DATA retrieval synchronous?
      * @param realm
-     * @return
      */
     public boolean isRetrievalSynchronous(String realm);
 

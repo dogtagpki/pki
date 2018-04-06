@@ -110,7 +110,6 @@ public class EnrollmentProcessor extends CertProcessor {
      * through the approval process
      * </ul>
      *
-     * @param cmsReq the object holding the request and response information
      * @exception EBaseException an error has occurred
      */
     public HashMap<String, Object> processEnrollment(

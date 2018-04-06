@@ -80,7 +80,7 @@ public class CertRequestInfo extends CMSRequestInfo {
     }
 
     /**
-     * @set the certURL
+     * set the certURL
      */
     public void setCertURL(String certURL) {
         this.certURL = certURL;

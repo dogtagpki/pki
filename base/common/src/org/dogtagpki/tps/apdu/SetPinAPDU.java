@@ -45,13 +45,13 @@ public class SetPinAPDU extends APDU {
      * @param data pin
      * @see APDU
      */
-    public SetPinAPDU(byte p1, byte p2, TPSBuffer theData)
+    public SetPinAPDU(byte p1, byte p2, TPSBuffer data)
     {
         setCLA((byte) 0x84);
         setINS((byte) 0x04);
         setP1(p1);
         setP2(p2);
-        setData(theData);
+        setData(data);
     }
 
     public TPSBuffer getNewPIN()

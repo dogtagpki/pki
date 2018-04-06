@@ -234,7 +234,6 @@ public class KeyClient extends Client {
      * Get the info in the KeyRecord for the active secret in the DRM.
      *
      * @param clientKeyID -- Client Key Identifier
-     * @return
      */
     public KeyInfo getActiveKeyInfo(String clientKeyID) {
         if (clientKeyID == null) {
@@ -757,7 +756,7 @@ public class KeyClient extends Client {
      * @param keyAlgorithm -- Algorithm used - if the secret is a symmetric key
      * @param keySize -- Strength of the symmetric key (secret)
      * @param algorithmOID -- OID of the algorithm used for the symmetric key wrap
-     * @param symAlgParams -- storing the value of Utils.base64encode(nonceData)
+     * @param nonceData -- nonce data
      * @param encryptedData -- which is the secret wrapped by a session
      *            key (168 bit 3DES symmetric key)
      * @param transWrappedSessionKey -- session key wrapped by the transport cert.
@@ -912,7 +911,6 @@ public class KeyClient extends Client {
      * @param transWrappedSessionKey  -- client generated session key wrapped by the
      *        KRA transport key
      * @param realm  -- authorization realm
-     * @return
      */
     public KeyRequestResponse generateAsymmetricKey(String clientKeyId, String keyAlgorithm, int keySize,
             List<String> usages, byte[] transWrappedSessionKey, String realm) {

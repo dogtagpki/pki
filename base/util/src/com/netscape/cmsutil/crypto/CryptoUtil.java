@@ -2392,7 +2392,6 @@ public class CryptoUtil {
     /**
      * Generates a nonce_iv for padding.
      *
-     * @return
      * @throws GeneralSecurityException
      */
     public static byte[] getNonceData(int size) throws GeneralSecurityException {

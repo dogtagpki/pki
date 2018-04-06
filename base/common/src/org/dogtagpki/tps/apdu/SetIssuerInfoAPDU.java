@@ -45,13 +45,13 @@ public class SetIssuerInfoAPDU extends APDU {
      * @param data issuer info
      * @see APDU
      */
-    public SetIssuerInfoAPDU(byte p1, byte p2, TPSBuffer theData)
+    public SetIssuerInfoAPDU(byte p1, byte p2, TPSBuffer data)
     {
         setCLA((byte) 0x84);
         setINS((byte) 0xF4);
         setP1(p1);
         setP2(p2);
-        setData(theData);
+        setData(data);
     }
 
     public TPSBuffer getIssuerInfo()

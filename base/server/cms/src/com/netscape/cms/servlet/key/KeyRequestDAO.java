@@ -125,7 +125,6 @@ public class KeyRequestDAO extends CMSRequestDAO {
      * @param maxResults - max results to be returned in normal search
      * @param maxTime - max time for normal search
      * @param uriInfo - uri context of request
-     * @param authToken - auth token
      * @return collection of key request info
      * @throws EBaseException
      */
