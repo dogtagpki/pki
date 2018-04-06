@@ -40,9 +40,6 @@ These directories contain the following:
                who wish to experiment with this project
                should focus on this directory first.
 
-    patches/ - Contains "patches" needed for specific
-               versions of this certificate system.
-
     scripts/ - Contains "scripts" used by this
                certificate system.  This directory
                contains numerous "compose" scripts
