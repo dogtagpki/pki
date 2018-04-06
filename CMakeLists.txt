@@ -114,12 +114,12 @@ endif ()
 
 # config.h checks
 include(ConfigureChecks)
-configure_file(config.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config.h)
+configure_file(cmake/config.h.in ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 
 add_definitions(-DHAVE_CONFIG_H)
 
 # uninstall target
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"
                "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
                IMMEDIATE @ONLY)
 
