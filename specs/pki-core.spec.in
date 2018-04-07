@@ -249,72 +249,18 @@ if [ $? == 0  -a "${SELINUXTYPE}" == %1 -a -f ${FILE_CONTEXT}.%{name} ]; then \
      rm -f ${FILE_CONTEXT}.%name; \
 fi;
 
-%global overview                                                       \
-==================================                                     \
-||  ABOUT "CERTIFICATE SYSTEM"  ||                                     \
-==================================                                     \
-                                                                       \
-Certificate System (CS) is an enterprise software system designed      \
-to manage enterprise Public Key Infrastructure (PKI) deployments.      \
-                                                                       \
-PKI Core contains ALL top-level java-based Tomcat PKI components:      \
-                                                                       \
-  * pki-symkey                                                         \
-  * pki-base                                                           \
-  * python2-pki                                                        \
-  * python3-pki                                                        \
-  * pki-base-java                                                      \
-  * pki-tools                                                          \
-  * pki-server                                                         \
-  * pki-ca                                                             \
-  * pki-kra                                                            \
-  * pki-ocsp                                                           \
-  * pki-tks                                                            \
-  * pki-tps                                                            \
-  * pki-javadoc                                                        \
-                                                                       \
-which comprise the following corresponding PKI subsystems:             \
-                                                                       \
-  * Certificate Authority (CA)                                         \
-  * Key Recovery Authority (KRA)                                        \
-  * Online Certificate Status Protocol (OCSP) Manager                  \
-  * Token Key Service (TKS)                                            \
-  * Token Processing Service (TPS)                                     \
-                                                                       \
-Python clients need only install the pki-base package.  This           \
-package contains the python REST client packages and the client        \
-upgrade framework.                                                     \
-                                                                       \
-Java clients should install the pki-base-java package.  This package   \
-contains the legacy and REST Java client packages.  These clients      \
-should also consider installing the pki-tools package, which contain   \
-native and Java-based PKI tools and utilities.                         \
-                                                                       \
-Certificate Server instances require the fundamental classes and       \
-modules in pki-base and pki-base-java, as well as the utilities in     \
-pki-tools.  The main server classes are in pki-server, with subsystem  \
-specific Java classes and resources in pki-ca, pki-kra, pki-ocsp etc.  \
-                                                                       \
-Finally, if Certificate System is being deployed as an individual or   \
-set of standalone rather than embedded server(s)/service(s), it is     \
-strongly recommended (though not explicitly required) to include at    \
-least one PKI Theme package:                                           \
-                                                                       \
-  * dogtag-pki-theme (Dogtag Certificate System deployments)           \
-    * dogtag-pki-server-theme                                          \
-  * redhat-pki-server-theme (Red Hat Certificate System deployments)   \
-    * redhat-pki-server-theme                                          \
-  * customized pki theme (Customized Certificate System deployments)   \
-    * <customized>-pki-server-theme                                    \
-                                                                       \
-  NOTE:  As a convenience for standalone deployments, top-level meta   \
-         packages may be provided which bind a particular theme to     \
-         these certificate server packages.                            \
-                                                                       \
-%{nil}
+%description
 
-%description %{overview}
+Dogtag PKI is an enterprise software system designed
+to manage enterprise Public Key Infrastructure deployments.
 
+PKI consists of the following components:
+
+  * Certificate Authority (CA)
+  * Key Recovery Authority (KRA)
+  * Online Certificate Status Protocol (OCSP) Manager
+  * Token Key Service (TKS)
+  * Token Processing Service (TPS)
 
 %package -n       pki-symkey
 Summary:          Symmetric Key JNI Package
@@ -353,11 +299,6 @@ Obsoletes:        redhat-pki-server-theme < 10.3.0
 The Symmetric Key Java Native Interface (JNI) package supplies various native
 symmetric key operations to Java programs.
 
-This package is a part of the PKI Core used by the Certificate System.
-
-%{overview}
-
-
 %package -n       pki-base
 Summary:          Certificate System - PKI Framework
 
@@ -382,10 +323,7 @@ Requires(post):   python2-pki = %{version}-%{release}
 
 %description -n   pki-base
 The PKI Framework contains the common and client libraries and utilities
-written in Python.  This package is a part of the PKI Core used by the
-Certificate System.
-
-%{overview}
+written in Python.
 
 %if 0%{?with_python2}
 %package -n       python2-pki
@@ -411,9 +349,6 @@ Requires:         python-six
 %description -n   python2-pki
 This package contains PKI client library for Python 2.
 
-This package is a part of the PKI Core used by the Certificate System.
-
-%{overview}
 %endif  # with_python2
 
 %package -n       pki-base-java
@@ -466,12 +401,7 @@ Requires:         xml-commons-resolver
 
 %description -n   pki-base-java
 The PKI Framework contains the common and client libraries and utilities
-written in Java.  This package is a part of the PKI Core used by the
-Certificate System.
-
-This package is a part of the PKI Core used by the Certificate System.
-
-%{overview}
+written in Java.
 
 %if 0%{?with_python3}
 
@@ -492,10 +422,6 @@ Requires:         python3-six
 
 %description -n   python3-pki
 This package contains PKI client library for Python 3.
-
-This package is a part of the PKI Core used by the Certificate System.
-
-%{overview}
 
 %endif  # with_python3 for python3-pki
 
@@ -521,11 +447,6 @@ Requires:         tomcat-servlet-3.1-api
 %description -n   pki-tools
 This package contains PKI executables that can be used to help make
 Certificate System into a more complete and robust PKI solution.
-
-This package is a part of the PKI Core used by the Certificate System.
-
-%{overview}
-
 
 %if %{with server}
 
@@ -639,11 +560,6 @@ The PKI Server Framework is required by the following four PKI subsystems:
     the Token Key Service (TKS), and
     the Token Processing Service (TPS).
 
-This package is a part of the PKI Core used by the Certificate System.
-The package contains scripts to create and remove PKI subsystems.
-
-%{overview}
-
 %package -n       pki-ca
 Summary:          Certificate System - Certificate Authority
 
@@ -663,12 +579,6 @@ publishing Certificate Revocation Lists (CRLs).
 The Certificate Authority can be configured as a self-signing Certificate
 Authority, where it is the root CA, or it can act as a subordinate CA,
 where it obtains its own signing certificate from a public CA.
-
-This package is one of the top-level java-based Tomcat PKI subsystems
-provided by the PKI Core used by the Certificate System.
-
-%{overview}
-
 
 %package -n       pki-kra
 Summary:          Certificate System - Key Recovery Authority
@@ -695,12 +605,6 @@ protection of the public encryption keys for the users in the PKI deployment.
 
 Note that the KRA archives encryption keys; it does NOT archive signing keys,
 since such archival would undermine non-repudiation properties of signing keys.
-
-This package is one of the top-level java-based Tomcat PKI subsystems
-provided by the PKI Core used by the Certificate System.
-
-%{overview}
-
 
 %package -n       pki-ocsp
 Summary:          Certificate System - Online Certificate Status Protocol Manager
@@ -739,12 +643,6 @@ When an instance of OCSP Manager is set up with an instance of CA, and
 publishing is set up to this OCSP Manager, CRLs are published to it
 whenever they are issued or updated.
 
-This package is one of the top-level java-based Tomcat PKI subsystems
-provided by the PKI Core used by the Certificate System.
-
-%{overview}
-
-
 %package -n       pki-tks
 Summary:          Certificate System - Token Key Service
 
@@ -777,12 +675,6 @@ TKS.  Tokens with older keys will get new token keys.
 
 Because of the sensitivity of the data that TKS manages, TKS should be set up
 behind the firewall with restricted access.
-
-This package is one of the top-level java-based Tomcat PKI subsystems
-provided by the PKI Core used by the Certificate System.
-
-%{overview}
-
 
 %package -n       pki-tps
 Summary:          Certificate System - Token Processing Service
@@ -834,9 +726,6 @@ The utility "tpsclient" is a test tool that interacts with TPS.  This
 tool is useful to test TPS server configs without risking an actual
 smart card.
 
-%{overview}
-
-
 %package -n       pki-javadoc
 Summary:          Certificate System - PKI Framework Javadocs
 
@@ -853,10 +742,6 @@ Obsoletes:        pki-common-javadoc < %{version}-%{release}
 %description -n   pki-javadoc
 This documentation pertains exclusively to version %{version} of
 the PKI Framework and Tools.
-
-This package is a part of the PKI Core used by the Certificate System.
-
-%{overview}
 
 %endif # %{with server}
 

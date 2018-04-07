@@ -94,7 +94,6 @@ following "Mutually-Exclusive" PKI Theme packages:
   * dogtag-pki-console-theme (Dogtag Certificate System deployments)
   * redhat-pki-console-theme (Red Hat Certificate System deployments)
 
-
 %prep
 %autosetup -n pki-%{version} -p 1
 

@@ -20,16 +20,12 @@ BuildRequires:    gcc-c++
 BuildRequires:    java-1.8.0-openjdk-devel
 BuildRequires:    jpackage-utils >= 1.7.5-10
 
-%global overview                                                       \
-Several PKI packages utilize a "virtual" theme component.  These       \
-"virtual" theme components are "Provided" by various theme "flavors"   \
-including "dogtag" or a user customized theme package.  Consequently,  \
-all "dogtag" and any customized theme components MUST be mutually      \
-exclusive!                                                             \
-%{nil}
-
-%description %{overview}
-
+%description
+Several PKI packages utilize a "virtual" theme component.  These
+"virtual" theme components are "Provided" by various theme "flavors"
+including "dogtag" or a user customized theme package.  Consequently,
+all "dogtag" and any customized theme components MUST be mutually
+exclusive!
 
 %package -n       dogtag-pki-server-theme
 Summary:          Certificate System - PKI Server Framework User Interface
@@ -78,11 +74,6 @@ Provides:         pki-tps-ui = %{version}-%{release}
 This PKI Server Framework User Interface contains
 the Dogtag textual and graphical user interface for the PKI Server Framework.
 
-This package is used by the Dogtag Certificate System.
-
-%{overview}
-
-
 %package -n       dogtag-pki-console-theme
 Summary:          Certificate System - PKI Console User Interface
 
@@ -102,11 +93,6 @@ Provides:         pki-console-ui = %{version}-%{release}
 %description -n   dogtag-pki-console-theme
 This PKI Console User Interface contains
 the Dogtag textual and graphical user interface for the PKI Console.
-
-This package is used by the Dogtag Certificate System.
-
-%{overview}
-
 
 %prep
 %autosetup -n pki-%{version} -p 1
