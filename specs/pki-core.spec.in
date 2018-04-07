@@ -13,13 +13,6 @@ License:          GPLv2
 
 Source:           https://github.com/dogtagpki/pki/archive/v%{version}/pki-%{version}.tar.gz
 
-# Obtain version phase number (e. g. - used by "alpha", "beta", etc.)
-#
-#     NOTE:  For "alpha" releases, will be ".a1", ".a2", etc.
-#            For "beta" releases, will be ".b1", ".b2", etc.
-#
-%define version_phase "%(echo `echo %{version} | awk -F. '{ print $4 }'`)"
-
 # Python 3 packages
 %if 0%{!?with_python3:1}
 %if 0%{?fedora} || 0%{?rhel} > 7
@@ -880,9 +873,6 @@ cd build
 	-DJAVA_HOME=%{java_home} \
 	-DJAVA_LIB_INSTALL_DIR=%{_jnidir} \
 	-DSYSTEMD_LIB_INSTALL_DIR=%{_unitdir} \
-%if %{version_phase}
-	-DAPPLICATION_VERSION_PHASE="%{version_phase}" \
-%endif
 	-DAPP_SERVER=%{app_server} \
 	-DJAXRS_API_JAR=%{jaxrs_api_jar} \
 	-DRESTEASY_LIB=%{resteasy_lib} \
