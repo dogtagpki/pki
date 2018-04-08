@@ -56,5 +56,11 @@ jobs:
         - .travis/set_gerrit_message.sh -v +1 -m "${MESSAGE}"
       after_script:
         # Add remote repo in SSH form. Using existing 'origin' will result in user/pass authentication
-        - git remote add bot git@github.com:${TRAVIS_REPO_SLUG}.git
-        - git push -d bot ${TRAVIS_BRANCH}
+        - >
+          if [[ -n "${GERRIT_URL}" ]]
+          then
+            git remote add bot git@github.com:${TRAVIS_REPO_SLUG}.git
+            git push -d bot ${TRAVIS_BRANCH}
+          else
+            echo "Skip deleting branch"
+          fi
