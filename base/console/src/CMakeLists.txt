@@ -1,31 +1,5 @@
 project(pki-console_java NONE)
 
-# '/usr/share/java/pki' jars
-find_file(PKI_NSUTIL_JAR
-    NAMES
-        pki-nsutil.jar
-    PATHS
-        ${JAVA_LIB_INSTALL_DIR}
-        /usr/share/java/pki
-)
-
-find_file(PKI_CERTSRV_JAR
-    NAMES
-        pki-certsrv.jar
-    PATHS
-        ${JAVA_LIB_INSTALL_DIR}
-        /usr/share/java/pki
-)
-
-find_file(PKI_CMSUTIL_JAR
-    NAMES
-        pki-cmsutil.jar
-    PATHS
-        ${JAVA_LIB_INSTALL_DIR}
-        /usr/share/java/pki
-)
-
-
 # '/usr/share/java' jars
 find_file(BASE_JAR
     NAMES
