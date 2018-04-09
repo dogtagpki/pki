@@ -30,16 +30,6 @@ option(WITH_PYTHON2 "Build with Python 2 support" ON)
 option(WITH_PYTHON3 "Build with Python 3 support" ON)
 option(WITH_PYTHON3_DEFAULT "Build server and scripts with Python 3" OFF)
 
-if (BUILD_DOGTAG_PKI_THEME)
-    set(APPLICATION_FLAVOR_DOGTAG_PKI_THEME TRUE)
-elseif (BUILD_REDHAT_PKI_THEME)
-    set(APPLICATION_FLAVOR_REDHAT_PKI_THEME TRUE)
-elseif (BUILD_PKI_CORE)
-    set(APPLICATION_FLAVOR_PKI_CORE TRUE)
-elseif (BUILD_PKI_CONSOLE)
-    set(APPLICATION_FLAVOR_PKI_CONSOLE TRUE)
-endif ()
-
 set(APPLICATION_VERSION "${APPLICATION_VERSION_MAJOR}.${APPLICATION_VERSION_MINOR}.${APPLICATION_VERSION_PATCH}")
 
 # where to look first for cmake modules
@@ -70,23 +60,16 @@ include(JUnit)
 # search for libraries
 
 # required for all PKI components EXCEPT Theme-based components
-if (NOT APPLICATION_FLAVOR_DOGTAG_PKI_THEME   AND
-    NOT APPLICATION_FLAVOR_REDHAT_PKI_THEME)
+if (BUILD_PKI_CORE OR BUILD_PKI_CONSOLE)
     find_package(NSPR REQUIRED)
     find_package(NSS REQUIRED)
 endif ()
 
-# ONLY required for Java-based PKI components
-if (APPLICATION_FLAVOR_PKI_CORE         OR
-    APPLICATION_FLAVOR_PKI_CONSOLE      OR
-    APPLICATION_FLAVOR_DOGTAG_PKI_THEME OR
-    APPLICATION_FLAVOR_REDHAT_PKI_THEME)
-    find_package(Java REQUIRED)
-    find_package(JNI REQUIRED)
-endif ()
+find_package(Java REQUIRED)
+find_package(JNI REQUIRED)
 
 # ONLY required for PKI_CORE
-if (APPLICATION_FLAVOR_PKI_CORE)
+if (BUILD_PKI_CORE)
     find_package(Ldap REQUIRED)
     # required for native 'tpsclient' utility
     find_package(APR REQUIRED)
@@ -107,8 +90,7 @@ endif()
 
 # Detect default Python interpreter
 # Set PYTHON2_SITE_PACKAGES, PYTHON3_SITE_PACKAGES
-if (APPLICATION_FLAVOR_PKI_CORE      OR
-    APPLICATION_FLAVOR_PKI_CONSOLE)
+if (BUILD_PKI_CORE OR BUILD_PKI_CONSOLE)
     include(DefinePythonSitePackages)
 endif ()
 
@@ -152,14 +134,13 @@ add_custom_target(clean-cmake
 )
 
 # check subdirectories
-if (APPLICATION_FLAVOR_PKI_CORE      OR
-    APPLICATION_FLAVOR_PKI_CONSOLE)
+if (BUILD_PKI_CORE OR BUILD_PKI_CONSOLE)
     add_subdirectory(base)
 endif ()
 
 # 'Themes' MUST be "mutually-exclusive"!
-if (APPLICATION_FLAVOR_DOGTAG_PKI_THEME)
+if (BUILD_DOGTAG_PKI_THEME)
     add_subdirectory(dogtag)
-elseif (APPLICATION_FLAVOR_REDHAT_PKI_THEME)
+elseif (BUILD_REDHAT_PKI_THEME)
     add_subdirectory(redhat)
 endif ()

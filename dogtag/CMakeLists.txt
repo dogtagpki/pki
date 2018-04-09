@@ -1,6 +1,6 @@
 project(dogtag)
 
-if (APPLICATION_FLAVOR_DOGTAG_PKI_THEME)
+if (BUILD_DOGTAG_PKI_THEME)
     add_subdirectory(common-ui)
     add_subdirectory(console-ui)
-endif (APPLICATION_FLAVOR_DOGTAG_PKI_THEME)
+endif (BUILD_DOGTAG_PKI_THEME)
