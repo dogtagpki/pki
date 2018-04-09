@@ -34,6 +34,20 @@ Source:           https://github.com/dogtagpki/pki/archive/v%{version}/pki-%{ver
 %endif
 %endif
 
+# Java
+%define java_home /usr/lib/jvm/jre-1.8.0-openjdk
+
+# Tomcat
+%if 0%{?fedora} >= 27 || 0%{?rhel} > 7
+%global app_server tomcat-8.5
+%else
+%if 0%{?fedora}
+%global app_server tomcat-8.0
+%else
+%global app_server tomcat-7.0
+%endif
+%endif
+
 # RESTEasy
 %if 0%{?rhel} && 0%{?rhel} <= 7
 %define jaxrs_api_jar /usr/share/java/resteasy-base/jaxrs-api.jar
@@ -45,35 +59,162 @@ Source:           https://github.com/dogtagpki/pki/archive/v%{version}/pki-%{ver
 
 %bcond_without    javadoc
 
-%if 0%{?rhel}
-%define pki_core_rhel_version      10.5.1
-%define pki_core_version           %{pki_core_rhel_version}
-%else
-%define pki_core_version           %{version}
-%endif
-
 BuildArch:        noarch
 
 BuildRequires:    cmake >= 2.8.9-1
 BuildRequires:    gcc-c++
-BuildRequires:    idm-console-framework >= 1.1.17-4
+BuildRequires:    zip
 BuildRequires:    java-1.8.0-openjdk-devel
+BuildRequires:    redhat-rpm-config
 BuildRequires:    ldapjdk >= 4.19-5
+BuildRequires:    apache-commons-cli
+BuildRequires:    apache-commons-codec
+BuildRequires:    apache-commons-io
+BuildRequires:    apache-commons-lang
+BuildRequires:    jakarta-commons-httpclient
+BuildRequires:    slf4j
+%if 0%{?fedora} || 0%{?rhel} > 7
+BuildRequires:    slf4j-jdk14
+%endif
 BuildRequires:    nspr-devel
 BuildRequires:    nss-devel >= 3.28.3
+
+%if 0%{?rhel} && 0%{?rhel} <= 7
+BuildRequires:    nuxwdog-client-java >= 1.0.3-7
+%else
+BuildRequires:    nuxwdog-client-java >= 1.0.3-13
+%endif
+
+BuildRequires:    openldap-devel
+BuildRequires:    pkgconfig
+BuildRequires:    policycoreutils
+%if 0%{?rhel} && 0%{?rhel} <= 7
+BuildRequires:    python-lxml
+BuildRequires:    python-sphinx
+%else
+BuildRequires:    python2-lxml
+BuildRequires:    python2-sphinx
+%endif
+BuildRequires:    velocity
+BuildRequires:    xalan-j2
+BuildRequires:    xerces-j2
+
+%if 0%{?rhel} && 0%{?rhel} <= 7
+# 'resteasy-base' is a subset of the complete set of
+# 'resteasy' packages and consists of what is needed to
+# support the PKI Restful interface on certain RHEL platforms
+BuildRequires:    resteasy-base-atom-provider >= 3.0.6-1
+BuildRequires:    resteasy-base-client >= 3.0.6-1
+BuildRequires:    resteasy-base-jaxb-provider >= 3.0.6-1
+BuildRequires:    resteasy-base-jaxrs >= 3.0.6-1
+BuildRequires:    resteasy-base-jaxrs-api >= 3.0.6-1
+BuildRequires:    resteasy-base-jackson-provider >= 3.0.6-1
+%else
+BuildRequires:    jboss-annotations-1.2-api
+BuildRequires:    jboss-jaxrs-2.0-api
+BuildRequires:    jboss-logging
+BuildRequires:    resteasy-atom-provider >= 3.0.17-1
+BuildRequires:    resteasy-client >= 3.0.17-1
+BuildRequires:    resteasy-jaxb-provider >= 3.0.17-1
+BuildRequires:    resteasy-core >= 3.0.17-1
+BuildRequires:    resteasy-jackson-provider >= 3.0.17-1
+%endif
+
+%if 0%{?fedora} || 0%{?rhel} > 7
+%if 0%{?with_python2}
+BuildRequires:    pylint
+%if 0%{?fedora} >= 28
+BuildRequires:    python2-flake8 >= 2.5.4
+# python-flake8 2.5.4 package should require pyflakes >= 1.2.3
+BuildRequires:    python2-pyflakes >= 1.2.3
+%else
+BuildRequires:    python-flake8 >= 2.5.4
+BuildRequires:    pyflakes >= 1.2.3
+%endif
+%endif  # with_python2
+
+%if 0%{?with_python3}
+BuildRequires:    python3-pylint
+# python3-flake8 2.5.4 package should require python3-pyflakes >= 1.2.3
+BuildRequires:    python3-flake8 >= 2.5.4
+BuildRequires:    python3-pyflakes >= 1.2.3
+%endif  # with_python3
+%endif
+
+%if 0%{?with_python2}
+BuildRequires:    python2
+BuildRequires:    python2-devel
+BuildRequires:    python2-cryptography
+%if 0%{?fedora} >= 28 || 0%{?rhel} > 7
+BuildRequires:    python2-nss
+BuildRequires:    python2-requests >= 2.6.0
+BuildRequires:    python2-six
+BuildRequires:    python2-libselinux
+BuildRequires:    python2-policycoreutils
+BuildRequires:    python2-ldap
+%else
+BuildRequires:    python-nss
+BuildRequires:    python-requests >= 2.6.0
+BuildRequires:    python-six
+BuildRequires:    libselinux-python
+BuildRequires:    policycoreutils-python
+BuildRequires:    python-ldap
+%endif
+%if 0%{?fedora} || 0%{?rhel} > 7
+BuildRequires:    policycoreutils-python-utils
+%endif
+%endif  # with_python2
 BuildRequires:    junit
-BuildRequires:    jpackage-utils >= 1.7.5-10
+BuildRequires:    jpackage-utils >= 0:1.7.5-10
 %if 0%{?rhel} && 0%{?rhel} <= 7
 BuildRequires:    jss >= 4.4.0-11
+BuildRequires:    tomcatjss >= 7.2.1-4
 %else
 BuildRequires:    jss >= 4.4.2-9
+BuildRequires:    tomcatjss >= 7.3.0
 %endif
-BuildRequires:    pki-base-java >= %{pki_core_version}
+BuildRequires:    systemd-units
+
+%if 0%{?fedora} >= 27 || 0%{?rhel} > 7
+BuildRequires:    tomcat >= 1:8.5.23
+%else
+%if 0%{?fedora}
+BuildRequires:    tomcat >= 8.0.49
+%else
+BuildRequires:    tomcat >= 7.0.69
+%endif
+%endif
+
+%if 0%{?with_python3}
+BuildRequires:    python3
+BuildRequires:    python3-devel
+BuildRequires:    python3-cryptography
+BuildRequires:    python3-lxml
+BuildRequires:    python3-nss
+BuildRequires:    python3-pyldap
+BuildRequires:    python3-requests >= 2.6.0
+BuildRequires:    python3-six
+%endif  # with_python3
+
+# additional build requirements needed to build native 'tpsclient'
+# REMINDER:  Revisit these once 'tpsclient' is rewritten as a Java app
+BuildRequires:    apr-devel
+BuildRequires:    apr-util-devel
+BuildRequires:    cyrus-sasl-devel
+BuildRequires:    httpd-devel >= 2.4.2
+BuildRequires:    pcre-devel
+BuildRequires:    systemd
+BuildRequires:    zlib
+BuildRequires:    zlib-devel
+
+# Required by pki-console
+BuildRequires:    pki-base-java >= %{version}
+BuildRequires:    idm-console-framework >= 1.1.17-4
 
 Requires:         idm-console-framework >= 1.1.17-4
 Requires:         java-1.8.0-openjdk
 Requires:         ldapjdk >= 4.19-5
-Requires:         pki-base-java >= %{pki_core_version}
+Requires:         pki-base-java >= %{version}
 Requires:         pki-console-theme >= %{version}
 Requires:         jpackage-utils >= 1.7.5-10
 %if 0%{?rhel} && 0%{?rhel} <= 7
