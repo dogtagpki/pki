@@ -34,17 +34,6 @@ Source:           https://github.com/dogtagpki/pki/archive/v%{version}/pki-%{ver
 %endif
 %endif
 
-%if 0%{?rhel}
-# Package RHEL-specific RPMS Only
-%global package_rhel_packages 1
-# Package RHCS-specific RPMS Only
-%global package_rhcs_packages 1
-%define pki_core_rhel_version 10.5.1
-%else
-# Fedora always packages all RPMS
-%global package_fedora_packages 1
-%endif
-
 # Java
 %define java_home /usr/lib/jvm/jre-1.8.0-openjdk
 
@@ -612,11 +601,7 @@ Summary:          Certificate System - Online Certificate Status Protocol Manage
 BuildArch:        noarch
 
 Requires:         java-1.8.0-openjdk-headless
-%if 0%{?package_fedora_packages} || 0%{?package_rhel_packages}
-Requires:         pki-server = %{version}-%{release}
-%else
-Requires:         pki-server >= %{pki_core_rhel_version}
-%endif
+Requires:         pki-server >= %{version}-%{release}
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
 Requires(postun): systemd-units
@@ -649,13 +634,8 @@ Summary:          Certificate System - Token Key Service
 BuildArch:        noarch
 
 Requires:         java-1.8.0-openjdk-headless
-%if 0%{?package_fedora_packages} || 0%{?package_rhel_packages}
-Requires:         pki-server = %{version}-%{release}
-Requires:         pki-symkey = %{version}-%{release}
-%else
-Requires:         pki-server >= %{pki_core_rhel_version}
-Requires:         pki-symkey >= %{pki_core_rhel_version}
-%endif
+Requires:         pki-server >= %{version}-%{release}
+Requires:         pki-symkey >= %{version}-%{release}
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
 Requires(postun): systemd-units
@@ -686,11 +666,7 @@ Obsoletes:        pki-tps-tomcat
 Obsoletes:        pki-tps-client
 
 Requires:         java-1.8.0-openjdk-headless
-%if 0%{?package_fedora_packages} || 0%{?package_rhel_packages}
-Requires:         pki-server = %{version}-%{release}
-%else
-Requires:         pki-server >= %{pki_core_rhel_version}
-%endif
+Requires:         pki-server >= %{version}-%{release}
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
 Requires(postun): systemd-units
@@ -700,11 +676,7 @@ Requires(postun): systemd-units
 
 Requires:         nss-tools >= 3.28.3
 Requires:         openldap-clients
-%if 0%{?package_fedora_packages} || 0%{?package_rhel_packages}
-Requires:         pki-symkey = %{version}-%{release}
-%else
-Requires:         pki-symkey >= %{pki_core_rhel_version}
-%endif
+Requires:         pki-symkey >= %{version}-%{release}
 
 %description -n   pki-tps
 The Token Processing System (TPS) is an optional PKI subsystem that acts
@@ -1018,16 +990,13 @@ fi
 %endif # %{with server}
 
 
-%if 0%{?package_fedora_packages} || 0%{?package_rhel_packages}
 %files -n pki-symkey
 %defattr(-,root,root,-)
 %doc base/symkey/LICENSE
 %{_jnidir}/symkey.jar
 %{_libdir}/symkey/
-%endif
 
 
-%if 0%{?package_fedora_packages} || 0%{?package_rhel_packages}
 %files -n pki-base
 %defattr(-,root,root,-)
 %doc base/common/LICENSE
@@ -1049,9 +1018,7 @@ fi
 %{_mandir}/man1/pki-python-client.1.gz
 %{_mandir}/man5/pki-logging.5.gz
 %{_mandir}/man8/pki-upgrade.8.gz
-%endif
 
-%if 0%{?package_fedora_packages} || 0%{?package_rhel_packages}
 %if %{with_python2}
 %files -n python2-pki
 %defattr(-,root,root,-)
@@ -1060,9 +1027,7 @@ fi
 %exclude %{python2_sitelib}/pki/server
 %{python2_sitelib}/pki
 %endif # with_python2
-%endif
 
-%if 0%{?package_fedora_packages} || 0%{?package_rhel_packages}
 %files -n pki-base-java
 %{_datadir}/pki/examples/java/
 %{_datadir}/pki/lib/
@@ -1070,9 +1035,7 @@ fi
 %{_javadir}/pki/pki-cmsutil.jar
 %{_javadir}/pki/pki-nsutil.jar
 %{_javadir}/pki/pki-certsrv.jar
-%endif
 
-%if 0%{?package_fedora_packages} || 0%{?package_rhel_packages}
 %if %{with_python3}
 %files -n python3-pki
 %defattr(-,root,root,-)
@@ -1081,9 +1044,7 @@ fi
 %exclude %{python3_sitelib}/pki/server
 %{python3_sitelib}/pki
 %endif # with_python3
-%endif
 
-%if 0%{?package_fedora_packages} || 0%{?package_rhel_packages}
 %files -n pki-tools
 %defattr(-,root,root,-)
 %doc base/native-tools/LICENSE base/native-tools/doc/README
@@ -1147,11 +1108,9 @@ fi
 %{_mandir}/man1/pki-user-cert.1.gz
 %{_mandir}/man1/pki-user-membership.1.gz
 %{_mandir}/man1/PKCS10Client.1.gz
-%endif
 
 %if %{with server}
 
-%if 0%{?package_fedora_packages} || 0%{?package_rhel_packages}
 %files -n pki-server
 %defattr(-,root,root,-)
 %doc base/common/THIRD_PARTY_LICENSES
@@ -1201,10 +1160,8 @@ fi
 %{_mandir}/man8/pki-server-cert.8.gz
 %{_datadir}/pki/setup/
 %{_datadir}/pki/server/
-%endif
 
 
-%if 0%{?package_fedora_packages} || 0%{?package_rhel_packages}
 %files -n pki-ca
 %defattr(-,root,root,-)
 %doc base/ca/LICENSE
@@ -1216,9 +1173,7 @@ fi
 %{_datadir}/pki/ca/profiles/ca/
 %{_datadir}/pki/ca/setup/
 %{_datadir}/pki/ca/webapps/
-%endif
 
-%if 0%{?package_fedora_packages} || 0%{?package_rhel_packages}
 %files -n pki-kra
 %defattr(-,root,root,-)
 %doc base/kra/LICENSE
@@ -1227,9 +1182,7 @@ fi
 %{_datadir}/pki/kra/conf/
 %{_datadir}/pki/kra/setup/
 %{_datadir}/pki/kra/webapps/
-%endif
 
-%if 0%{?package_fedora_packages} || 0%{?package_rhcs_packages}
 %files -n pki-ocsp
 %defattr(-,root,root,-)
 %doc base/ocsp/LICENSE
@@ -1238,9 +1191,7 @@ fi
 %{_datadir}/pki/ocsp/conf/
 %{_datadir}/pki/ocsp/setup/
 %{_datadir}/pki/ocsp/webapps/
-%endif
 
-%if 0%{?package_fedora_packages} || 0%{?package_rhcs_packages}
 %files -n pki-tks
 %defattr(-,root,root,-)
 %doc base/tks/LICENSE
@@ -1249,9 +1200,7 @@ fi
 %{_datadir}/pki/tks/conf/
 %{_datadir}/pki/tks/setup/
 %{_datadir}/pki/tks/webapps/
-%endif
 
-%if 0%{?package_fedora_packages} || 0%{?package_rhcs_packages}
 %files -n pki-tps
 %defattr(-,root,root,-)
 %doc base/tps/LICENSE
@@ -1269,14 +1218,11 @@ fi
 %{_bindir}/tpsclient
 %{_libdir}/tps/libtps.so
 %{_libdir}/tps/libtokendb.so
-%endif
 
-%if 0%{?package_fedora_packages} || 0%{?package_rhel_packages}
 %if %{with javadoc}
 %files -n pki-javadoc
 %defattr(-,root,root,-)
 %{_javadocdir}/pki-%{version}/
-%endif
 %endif
 
 %endif # %{with server}
