@@ -314,10 +314,6 @@ find_file(XML_COMMONS_RESOLVER_JAR
 # The order is important!
 if (BUILD_PKI_CORE OR BUILD_PKI_CONSOLE)
     add_subdirectory(test)
-endif (BUILD_PKI_CORE OR BUILD_PKI_CONSOLE)
-
-if (BUILD_PKI_CORE)
-
     add_subdirectory(symkey)
     add_subdirectory(util)
     add_subdirectory(common)
