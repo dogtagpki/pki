@@ -1,5 +1,19 @@
-Summary:          Dogtag Public Key Infrastructure (PKI) Suite
+################################################################################
 Name:             dogtag-pki
+################################################################################
+
+Summary:          Dogtag PKI Package
+URL:              http://www.dogtagpki.org/
+# The entire source code is GPLv2 except for 'pki-tps' which is LGPLv2
+License:          GPLv2 and LGPLv2
+BuildArch:        noarch
+
+%if 0%{?fedora} >= 27 || 0%{?rhel} > 7
+# Exclude 'aarch64' and 's390x' architectures since
+# 'esc' does not exist on these two platforms
+ExcludeArch:      aarch64 s390x
+%endif
+
 %if 0%{?rhel}
 Version:          10.6.0
 Release:          0.3%{?_timestamp}%{?_commit}%{?dist}
@@ -8,10 +22,9 @@ Version:          10.6.0
 Release:          0.3%{?_timestamp}%{?_commit}%{?dist}
 %endif
 
-# The entire source code is GPLv2 except for 'pki-tps' which is LGPLv2
-License:          GPLv2 and LGPLv2
-URL:              http://www.dogtagpki.org/
-BuildArch:        noarch
+################################################################################
+# Python
+################################################################################
 
 %if 0%{?fedora} || 0%{?rhel} > 7
 %global with_python3 1
@@ -33,12 +46,6 @@ BuildArch:        noarch
 %define pki_core_version           %{version}
 %endif
 %define pki_console_version        %{version}
-
-%if 0%{?fedora} >= 27 || 0%{?rhel} > 7
-# Exclude 'aarch64' and 's390x' architectures since
-# 'esc' does not exist on these two platforms
-ExcludeArch: aarch64 s390x
-%endif
 
 # Make certain that this 'meta' package requires the latest version(s)
 # of ALL Dogtag PKI theme packages
@@ -124,17 +131,26 @@ NOTE:  As a convenience for standalone deployments, this 'dogtag-pki'
            * dogtag-pki-server-theme
            * dogtag-pki-console-theme
 
+################################################################################
 %prep
+################################################################################
+
 cat > README <<EOF
 This package is just a "meta-package" whose dependencies pull in all of the
 packages comprising the Dogtag Public Key Infrastructure (PKI) Suite.
 EOF
 
+################################################################################
 %files
+################################################################################
+
 %defattr(-,root,root,-)
 %doc README
 
+################################################################################
 %changelog
+################################################################################
+
 * Tue Mar 6 2018 Dogtag Team <pki-devel@redhat.com> 10.6.0-0
 - To list changes in <branch> since <tag>:
   $ git log --pretty=oneline --abbrev-commit --no-decorate <tag>..<branch>
