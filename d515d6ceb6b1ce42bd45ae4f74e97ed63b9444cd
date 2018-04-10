@@ -54,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "4463c502_953a3b46",
+        "filename": "base/server/python/pki/server/__init__.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 433,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-04-10T16:15:07Z",
+      "side": 1,
+      "message": "If this line is included, the CLI will accept an unsupported event name (e.g. AuThZ), and then enable a different event (i.e. AUTHZ). We don\u0027t want to encourage people to use the CLI with incorrect event names and expect it to work.\n\nI think the proper solution is to define a full list of supported events somewhere, then the event_name should be compared against that list. If the event_name doesn\u0027t match exactly, it should be rejected.\n\nHowever, since we don\u0027t have that list yet, we can\u0027t do that validation. So any invalid event name will still be accepted by the CLI, but at least it will not cause an unintended consequence (i.e. AUTHZ got enabled).\n\nSince there\u0027s no validation yet, the test case should not attempt to test negative cases. Or if a negative test is added, it should fail if tested against the current code. Don\u0027t add a test case that accepts unsupported event names. In any case, feel free to open a ticket to add the missing event list.",
+      "parentUuid": "633e929d_5169aee8",
+      "revId": "d515d6ceb6b1ce42bd45ae4f74e97ed63b9444cd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "88f31adf_529138d1",
         "filename": "base/server/python/pki/server/__init__.py",
         "patchSetId": 4
@@ -152,6 +170,24 @@
       "side": 1,
       "message": "\u003e Let\u0027s remove line 456-461 since the filter can be updated\n \u003e regardless whether the event is enabled or not.\n\nok. If the event is not enabled, then it should expect to print warning message? or some return code?",
       "parentUuid": "40d4ff18_3d3409ef",
+      "revId": "d515d6ceb6b1ce42bd45ae4f74e97ed63b9444cd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b3ba17b0_0c6f1ef5",
+        "filename": "base/server/python/pki/server/__init__.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 461,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-04-10T16:15:07Z",
+      "side": 1,
+      "message": "I don\u0027t think we need to generate any warnings. I suppose some people might want to configure the filters first, then enable the event at a later time. In that case they already know that the event is disabled.",
+      "parentUuid": "91e9afd4_9052ce5a",
       "revId": "d515d6ceb6b1ce42bd45ae4f74e97ed63b9444cd",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
