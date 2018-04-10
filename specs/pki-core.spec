@@ -66,13 +66,13 @@
 Name:             pki-core
 %if 0%{?rhel}
 Version:                10.5.1
-%define redhat_release  9
+%define redhat_release  11
 %define redhat_stage    0
 %define default_release %{redhat_release}.%{redhat_stage}
 #%define default_release %{redhat_release}
 %else
 Version:                10.5.7
-%define fedora_release  1
+%define fedora_release  2
 %define fedora_stage    0
 %define default_release %{fedora_release}.%{fedora_stage}
 #%define default_release %{fedora_release}
@@ -207,6 +207,8 @@ Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{
 %else
 Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{release}/%{name}-%{version}%{?prerel}.tar.gz
 %endif
+
+#Patch0:           pki-core-10.5.7-2.patch
 
 # Obtain version phase number (e. g. - used by "alpha", "beta", etc.)
 #
@@ -807,6 +809,7 @@ This package is a part of the PKI Core used by the Certificate System.
 
 %prep
 %setup -q -n %{name}-%{version}%{?prerel}
+#%patch0 -p1
 
 %clean
 %{__rm} -rf %{buildroot}
@@ -1345,6 +1348,14 @@ fi
 %endif # %{with server}
 
 %changelog
+* Tue Apr 10 2018 Dogtag Team <pki-devel@redhat.com> 10.5.7-2
+- dogtagpki Pagure Issue #2940 -[MAN] Missing Man pages for tools
+  CMCRequest, CMCResponse, CMCSharedToken (cfu)
+- dogtagpki Pagure Issue #2946 - libtps does not directly depend on libz
+  (build failure with nss-3.35) (ftweedal, cfu)
+- dogtagpki Pagure Issue #2950 - Need ECC-specific Enrollment Profiles
+  for standard conformance (cfu)
+
 * Fri Mar 23 2018 Dogtag Team <pki-devel@redhat.com> 10.5.7-1
 - dogtagpki Pagure Issue #2918 - Make sslget aware of TLSv1_2 ciphers
   (cheimes, mharmsen)
