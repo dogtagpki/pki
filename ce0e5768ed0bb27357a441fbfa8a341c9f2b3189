@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "58eae224_59f115a7",
+        "filename": "base/server/python/pki/server/__init__.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 429,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-04-10T21:34:29Z",
+      "side": 1,
+      "message": "I think we need to remove this. Please see my comment for patch set 7.",
+      "revId": "ce0e5768ed0bb27357a441fbfa8a341c9f2b3189",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "65c293be_3dbc3421",
+        "filename": "base/server/python/pki/server/__init__.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 452,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-04-10T21:34:29Z",
+      "side": 1,
+      "message": "I think we need to remove this too. Please see my comment for patch set 7.",
+      "revId": "ce0e5768ed0bb27357a441fbfa8a341c9f2b3189",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
