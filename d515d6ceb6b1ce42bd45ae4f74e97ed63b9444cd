@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "633e929d_5169aee8",
+        "filename": "base/server/python/pki/server/__init__.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 433,
+      "author": {
+        "id": 1012851
+      },
+      "writtenOn": "2018-04-10T15:21:25Z",
+      "side": 1,
+      "message": "I completely agree with not using the inconsistent name, But as the testing corner case, I implemented this.\n\nI\u0027m going to write the test cases for that so I thought it was a good idea to implement it in a such a way that it will cover the corner case.\n\nWaiting for your reply.",
+      "parentUuid": "d5109d22_7cc42176",
+      "revId": "d515d6ceb6b1ce42bd45ae4f74e97ed63b9444cd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "88f31adf_529138d1",
         "filename": "base/server/python/pki/server/__init__.py",
         "patchSetId": 4
@@ -70,6 +88,24 @@
     },
     {
       "key": {
+        "uuid": "f99f6ff0_e742c230",
+        "filename": "base/server/python/pki/server/__init__.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 445,
+      "author": {
+        "id": 1012851
+      },
+      "writtenOn": "2018-04-10T15:21:25Z",
+      "side": 1,
+      "message": "\u003e If the event already exists in log.instance.SignedAudit.events,\n \u003e that means the event is already enabled. Usually we just ignore it\n \u003e if the system is already in the state that we want.\n\nOk.",
+      "parentUuid": "63055895_a68aec7c",
+      "revId": "d515d6ceb6b1ce42bd45ae4f74e97ed63b9444cd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "04dd9b6c_14311d43",
         "filename": "base/server/python/pki/server/__init__.py",
         "patchSetId": 4
@@ -98,6 +134,24 @@
       "writtenOn": "2018-04-02T23:02:52Z",
       "side": 1,
       "message": "Let\u0027s remove line 456-461 since the filter can be updated regardless whether the event is enabled or not.",
+      "revId": "d515d6ceb6b1ce42bd45ae4f74e97ed63b9444cd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "91e9afd4_9052ce5a",
+        "filename": "base/server/python/pki/server/__init__.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 461,
+      "author": {
+        "id": 1012851
+      },
+      "writtenOn": "2018-04-10T15:21:25Z",
+      "side": 1,
+      "message": "\u003e Let\u0027s remove line 456-461 since the filter can be updated\n \u003e regardless whether the event is enabled or not.\n\nok. If the event is not enabled, then it should expect to print warning message? or some return code?",
+      "parentUuid": "40d4ff18_3d3409ef",
       "revId": "d515d6ceb6b1ce42bd45ae4f74e97ed63b9444cd",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
@@ -166,6 +220,24 @@
       "writtenOn": "2018-04-02T23:02:52Z",
       "side": 1,
       "message": "If the event doesn\u0027t exist in log.instance.SignedAudit.events, that means the event is already disabled. We can ignore simply it.",
+      "revId": "d515d6ceb6b1ce42bd45ae4f74e97ed63b9444cd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7dd27a98_f4774a5f",
+        "filename": "base/server/python/pki/server/__init__.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 481,
+      "author": {
+        "id": 1012851
+      },
+      "writtenOn": "2018-04-10T15:21:25Z",
+      "side": 1,
+      "message": "\u003e If the event doesn\u0027t exist in log.instance.SignedAudit.events, that\n \u003e means the event is already disabled. We can ignore simply it.\n\nAgreed. Again I implemented it as a testing corner case. If the filter is not there then at least it should print the message.",
+      "parentUuid": "f97a2c17_99119f0e",
       "revId": "d515d6ceb6b1ce42bd45ae4f74e97ed63b9444cd",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
