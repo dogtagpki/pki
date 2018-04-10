@@ -21,6 +21,7 @@ usage() {
     echo "    --without-test       Do not run unit tests."
     echo "    --without-server     Do not build server packages."
     echo "    --without-javadoc    Do not build javadoc package."
+    echo "    --without-console    Do not build console package."
     echo "    --without-debug      Do not build debug packages."
     echo " -v,--verbose            Run in verbose mode."
     echo "    --debug              Run in debug mode."
@@ -42,6 +43,7 @@ WITH_COMMIT_ID=
 WITHOUT_TEST=
 WITHOUT_SERVER=
 WITHOUT_JAVADOC=
+WITHOUT_CONSOLE=
 WITHOUT_DEBUG=
 
 VERBOSE=
@@ -73,6 +75,9 @@ while getopts v-: arg ; do
             ;;
         without-javadoc)
             WITHOUT_JAVADOC=true
+            ;;
+        without-console)
+            WITHOUT_CONSOLE=true
             ;;
         without-debug)
             WITHOUT_DEBUG=true
@@ -277,6 +282,10 @@ fi
 
 if [ "$WITHOUT_JAVADOC" = true ] ; then
     OPTIONS+=(--without javadoc)
+fi
+
+if [ "$WITHOUT_CONSOLE" = true ] ; then
+    OPTIONS+=(--without console)
 fi
 
 if [ "$WITHOUT_DEBUG" = true ] ; then

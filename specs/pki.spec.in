@@ -80,6 +80,7 @@ Source:           https://github.com/dogtagpki/pki/archive/v%{version}/pki-%{ver
 %bcond_without    test
 %bcond_without    server
 %bcond_without    javadoc
+%bcond_without    console
 
 # ignore unpackaged files from native 'tpsclient'
 # REMINDER:  Remove this '%%define' once 'tpsclient' is rewritten as a Java app
@@ -776,6 +777,39 @@ This package contains PKI API documentation.
 
 %endif # %{with javadoc}
 
+%if %{with console}
+################################################################################
+%package -n       pki-console
+################################################################################
+
+Summary:          PKI Console Package
+BuildArch:        noarch
+
+BuildRequires:    idm-console-framework >= 1.1.17-4
+
+Requires:         idm-console-framework >= 1.1.17-4
+Requires:         java-1.8.0-openjdk
+Requires:         ldapjdk >= 4.19-5
+Requires:         pki-base-java >= %{version}
+Requires:         pki-console-theme >= %{version}
+Requires:         jpackage-utils >= 1.7.5-10
+%if 0%{?rhel} && 0%{?rhel} <= 7
+Requires:         jss >= 4.4.0-11
+%else
+Requires:         jss >= 4.4.2-9
+%endif
+
+%description -n   pki-console
+The PKI Console is a Java application used to administer PKI server.
+
+For deployment purposes, a PKI Console requires ONE AND ONLY ONE of the
+following "Mutually-Exclusive" PKI Theme packages:
+
+  * dogtag-pki-console-theme (Dogtag Certificate System deployments)
+  * redhat-pki-console-theme (Red Hat Certificate System deployments)
+
+%endif # %{with console}
+
 ################################################################################
 %prep
 ################################################################################
@@ -819,6 +853,9 @@ cd build
 %endif
 %if ! %{with javadoc}
     -DWITH_JAVADOC:BOOL=OFF \
+%endif
+%if %{with console}
+    -DBUILD_PKI_CONSOLE:BOOL=ON \
 %endif
     ..
 
@@ -1349,6 +1386,18 @@ fi
 %{_javadocdir}/pki-%{version}/
 
 %endif # %{with javadoc}
+
+%if %{with console}
+################################################################################
+%files -n pki-console
+################################################################################
+
+%defattr(-,root,root,-)
+%doc base/console/LICENSE
+%{_bindir}/pkiconsole
+%{_javadir}/pki/pki-console.jar
+
+%endif # %{with console}
 
 ################################################################################
 %changelog
