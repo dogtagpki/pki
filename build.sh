@@ -23,6 +23,7 @@ usage() {
     echo "    --without-javadoc    Do not build javadoc package."
     echo "    --without-console    Do not build console package."
     echo "    --without-theme      Do not build theme packages."
+    echo "    --without-meta       Do not build meta package."
     echo "    --without-debug      Do not build debug packages."
     echo " -v,--verbose            Run in verbose mode."
     echo "    --debug              Run in debug mode."
@@ -46,6 +47,7 @@ WITHOUT_SERVER=
 WITHOUT_JAVADOC=
 WITHOUT_CONSOLE=
 WITHOUT_THEME=
+WITHOUT_META=
 WITHOUT_DEBUG=
 
 VERBOSE=
@@ -83,6 +85,9 @@ while getopts v-: arg ; do
             ;;
         without-theme)
             WITHOUT_THEME=true
+            ;;
+        without-meta)
+            WITHOUT_META=true
             ;;
         without-debug)
             WITHOUT_DEBUG=true
@@ -295,6 +300,10 @@ fi
 
 if [ "$WITHOUT_THEME" = true ] ; then
     OPTIONS+=(--without theme)
+fi
+
+if [ "$WITHOUT_META" = true ] ; then
+    OPTIONS+=(--without meta)
 fi
 
 if [ "$WITHOUT_DEBUG" = true ] ; then

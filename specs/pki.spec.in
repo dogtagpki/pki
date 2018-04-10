@@ -4,7 +4,8 @@ Name:             pki
 
 Summary:          Dogtag PKI Package
 URL:              http://www.dogtagpki.org/
-License:          GPLv2
+# The entire source code is GPLv2 except for 'pki-tps' which is LGPLv2
+License:          GPLv2 and LGPLv2
 
 %if 0%{?rhel}
 Version:          10.6.0
@@ -82,6 +83,7 @@ Source:           https://github.com/dogtagpki/pki/archive/v%{version}/pki-%{ver
 %bcond_without    javadoc
 %bcond_without    console
 %bcond_without    theme
+%bcond_without    meta
 
 # ignore unpackaged files from native 'tpsclient'
 # REMINDER:  Remove this '%%define' once 'tpsclient' is rewritten as a Java app
@@ -887,6 +889,89 @@ Dogtag textual and graphical user interface for PKI Console.
 
 %endif # %{with theme}
 
+%if %{with meta}
+################################################################################
+%package -n       dogtag-pki
+################################################################################
+
+Summary:          Dogtag PKI Package
+BuildArch:        noarch
+
+%if 0%{?fedora} >= 27 || 0%{?rhel} > 7
+# Exclude 'aarch64' and 's390x' architectures since
+# 'esc' does not exist on these two platforms
+ExcludeArch: aarch64 s390x
+%endif
+
+# Make certain that this 'meta' package requires the latest version(s)
+# of ALL PKI theme packages
+Requires:         dogtag-pki-server-theme >= %{version}
+Requires:         dogtag-pki-console-theme >= %{version}
+
+# Make certain that this 'meta' package requires the latest version(s)
+# of ALL PKI core packages
+Requires:         pki-base >= %{version}
+Requires:         pki-base-java >= %{version}
+%if 0%{?with_python3}
+Requires:         pki-base-python3 >= %{version}
+%endif
+Requires:         pki-symkey >= %{version}
+Requires:         pki-tools >= %{version}
+Requires:         pki-server >= %{version}
+Requires:         pki-ca >= %{version}
+Requires:         pki-kra >= %{version}
+Requires:         pki-ocsp >= %{version}
+Requires:         pki-tks >= %{version}
+Requires:         pki-tps >= %{version}
+
+# Make certain that this 'meta' package requires the latest version(s)
+# of PKI console
+Requires:         pki-console >= %{version}
+
+# Make certain that this 'meta' package requires the latest version(s)
+# of ALL PKI clients
+%if 0%{?fedora} >= 27 || 0%{?rhel} > 7
+Requires:         esc >= 1.1.1
+%else
+Requires:         esc >= 1.1.0
+%endif
+
+%description -n   dogtag-pki
+The Dogtag Public Key Infrastructure (PKI) Suite is comprised of the following
+five subsystems and a client (for use by a Token Management System):
+
+  * Certificate Authority (CA)
+  * Key Recovery Authority (KRA)
+  * Online Certificate Status Protocol (OCSP) Manager
+  * Token Key Service (TKS)
+  * Token Processing System (TPS)
+  * Enterprise Security Client (ESC)
+
+Additionally, it provides a console GUI application used for server and
+user/group administration of CA, KRA, OCSP, and TKS, as well as various
+command-line tools used to assist with a PKI deployment.
+
+To successfully deploy instances of a CA, KRA, OCSP, TKS, or TPS,
+a Tomcat Web Server must be up and running locally on this machine.
+
+To meet the database storage requirements of each CA, KRA, OCSP, TKS, or TPS
+instance, a 389 Directory Server must be up and running either locally on
+this machine, or remotely over the attached network connection.
+
+Finally, although they are no longer supplied by this 'meta' package,
+javadocs are available for both JSS (jss-javadoc) and portions of
+the Dogtag PKI API (pki-javadoc).
+
+NOTE:  As a convenience for standalone deployments, this 'dogtag-pki'
+       top-level meta package supplies Dogtag themes for use by the
+       certificate server packages:
+
+         * dogtag-pki-theme (Dogtag Certificate System deployments)
+           * dogtag-pki-server-theme
+           * dogtag-pki-console-theme
+
+%endif # %{with meta}
+
 ################################################################################
 %prep
 ################################################################################
@@ -952,6 +1037,15 @@ cd build
     INSTALL="install -p" \
     --no-print-directory \
     all install
+
+%if %{with meta}
+%{__mkdir_p} %{buildroot}%{_datadir}/doc/pki
+
+cat > %{buildroot}%{_datadir}/doc/pki/README << EOF
+This package is just a "meta-package" whose dependencies pull in all of the
+packages comprising the Dogtag Public Key Infrastructure (PKI) Suite.
+EOF
+%endif # %{with meta}
 
 # Customize system upgrade scripts in /usr/share/pki/upgrade
 %if 0%{?rhel} && 0%{?rhel} <= 7
@@ -1507,6 +1601,16 @@ fi
 %{_javadir}/pki/pki-console-theme.jar
 
 %endif # %{with theme}
+
+%if %{with meta}
+################################################################################
+%files -n dogtag-pki
+################################################################################
+
+%defattr(-,root,root,-)
+%doc %{_datadir}/doc/pki/README
+
+%endif # %{with meta}
 
 ################################################################################
 %changelog
