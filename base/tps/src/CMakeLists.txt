@@ -1,12 +1,5 @@
 project(pki-tps_java NONE)
 
-find_file(LDAPJDK_JAR
-    NAMES
-        ldapjdk.jar
-    PATHS
-        /usr/share/java
-)
-
 find_file(JSS_JAR
     NAMES
         jss4.jar

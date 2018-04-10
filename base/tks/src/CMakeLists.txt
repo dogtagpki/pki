@@ -38,14 +38,6 @@ find_file(PKI_NSUTIL_JAR
 )
 
 
-# '/usr/share/java' jars
-find_file(LDAPJDK_JAR
-    NAMES
-        ldapjdk.jar
-    PATHS
-        /usr/share/java
-)
-
 # '${JAVA_LIB_INSTALL_DIR}' jars
 find_file(JSS_JAR
     NAMES

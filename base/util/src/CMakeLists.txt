@@ -8,14 +8,6 @@ find_file(JSS_JAR
         /usr/share/java
 )
 
-find_file(LDAPJDK_JAR
-    NAMES
-        ldapjdk.jar
-    PATHS
-        ${JAVA_LIB_INSTALL_DIR}
-        /usr/share/java
-)
-
 find_file(COMMONS_CODEC_JAR
     NAMES
         commons-codec.jar

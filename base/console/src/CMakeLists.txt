@@ -9,14 +9,6 @@ find_file(BASE_JAR
         /usr/share/java
 )
 
-find_file(LDAPJDK_JAR
-    NAMES
-        ldapjdk.jar
-    PATHS
-        ${JAVA_LIB_INSTALL_DIR}
-        /usr/share/java
-)
-
 find_file(MMC_JAR
     NAMES
         idm-console-mcc.jar
