@@ -50,6 +50,7 @@ Source:           https://github.com/dogtagpki/pki/archive/v%{version}/pki-%{ver
 ################################################################################
 # Tomcat
 ################################################################################
+
 %if 0%{?fedora} >= 27 || 0%{?rhel} > 7
 %global app_server tomcat-8.5
 %else
@@ -1326,7 +1327,10 @@ fi
 %{_libdir}/tps/libtokendb.so
 
 %if %{with javadoc}
+################################################################################
 %files -n pki-javadoc
+################################################################################
+
 %defattr(-,root,root,-)
 %{_javadocdir}/pki-%{version}/
 %endif
