@@ -1,4 +1,11 @@
-Name:             pki-core
+################################################################################
+Name:             pki
+################################################################################
+
+Summary:          Dogtag PKI
+URL:              http://www.dogtagpki.org/
+License:          GPLv2
+
 %if 0%{?rhel}
 Version:          10.6.0
 Release:          0.3%{?_timestamp}%{?_commit}%{?dist}
@@ -7,11 +14,11 @@ Version:          10.6.0
 Release:          0.3%{?_timestamp}%{?_commit}%{?dist}
 %endif
 
-Summary:          Certificate System - PKI Core Components
-URL:              http://www.dogtagpki.org/
-License:          GPLv2
-
 Source:           https://github.com/dogtagpki/pki/archive/v%{version}/pki-%{version}.tar.gz
+
+################################################################################
+# Python
+################################################################################
 
 # Python 3 packages
 %if 0%{!?with_python3:1}
@@ -34,10 +41,15 @@ Source:           https://github.com/dogtagpki/pki/archive/v%{version}/pki-%{ver
 %endif
 %endif
 
+################################################################################
 # Java
+################################################################################
+
 %define java_home /usr/lib/jvm/jre-1.8.0-openjdk
 
+################################################################################
 # Tomcat
+################################################################################
 %if 0%{?fedora} >= 27 || 0%{?rhel} > 7
 %global app_server tomcat-8.5
 %else
@@ -48,7 +60,10 @@ Source:           https://github.com/dogtagpki/pki/archive/v%{version}/pki-%{ver
 %endif
 %endif
 
+################################################################################
 # RESTEasy
+################################################################################
+
 %if 0%{?rhel} && 0%{?rhel} <= 7
 %define jaxrs_api_jar /usr/share/java/resteasy-base/jaxrs-api.jar
 %define resteasy_lib /usr/share/java/resteasy-base
@@ -57,7 +72,10 @@ Source:           https://github.com/dogtagpki/pki/archive/v%{version}/pki-%{ver
 %define resteasy_lib /usr/share/java/resteasy
 %endif
 
-# Dogtag
+################################################################################
+# PKI
+################################################################################
+
 %bcond_without    server
 %bcond_without    javadoc
 %bcond_without    test
@@ -73,6 +91,10 @@ Source:           https://github.com/dogtagpki/pki/archive/v%{version}/pki-%{ver
 %define pki_groupname pkiuser
 %define pki_gid 17
 %define pki_homedir /usr/share/pki
+
+################################################################################
+# Build Dependencies
+################################################################################
 
 BuildRequires:    cmake >= 2.8.9-1
 BuildRequires:    gcc-c++
@@ -199,14 +221,14 @@ BuildRequires:    tomcat >= 7.0.69
 %endif
 
 %if 0%{?with_python3}
-BuildRequires:  python3
-BuildRequires:  python3-devel
-BuildRequires:  python3-cryptography
-BuildRequires:  python3-lxml
-BuildRequires:  python3-nss
-BuildRequires:  python3-pyldap
-BuildRequires:  python3-requests >= 2.6.0
-BuildRequires:  python3-six
+BuildRequires:    python3
+BuildRequires:    python3-devel
+BuildRequires:    python3-cryptography
+BuildRequires:    python3-lxml
+BuildRequires:    python3-nss
+BuildRequires:    python3-pyldap
+BuildRequires:    python3-requests >= 2.6.0
+BuildRequires:    python3-six
 %endif  # with_python3
 
 # additional build requirements needed to build native 'tpsclient'
@@ -251,8 +273,11 @@ PKI consists of the following components:
   * Token Key Service (TKS)
   * Token Processing Service (TPS)
 
+################################################################################
 %package -n       pki-symkey
-Summary:          Symmetric Key JNI Package
+################################################################################
+
+Summary:          PKI Symmetric Key Package
 
 Requires:         java-1.8.0-openjdk-headless
 Requires:         jpackage-utils >= 0:1.7.5-10
@@ -285,12 +310,14 @@ Obsoletes:        redhat-pki-server-theme < 10.3.0
 %endif
 
 %description -n   pki-symkey
-The Symmetric Key Java Native Interface (JNI) package supplies various native
+The PKI Symmetric Key Java Package supplies various native
 symmetric key operations to Java programs.
 
+################################################################################
 %package -n       pki-base
-Summary:          Certificate System - PKI Framework
+################################################################################
 
+Summary:          PKI Base Package
 BuildArch:        noarch
 
 Provides:         pki-common = %{version}-%{release}
@@ -311,12 +338,16 @@ Requires(post):   python2-pki = %{version}-%{release}
 %endif  # with_python3_default
 
 %description -n   pki-base
-The PKI Framework contains the common and client libraries and utilities
+The PKI Base Package contains the common and client libraries and utilities
 written in Python.
 
 %if 0%{?with_python2}
+
+################################################################################
 %package -n       python2-pki
-Summary:          Certificate System - Java Framework
+################################################################################
+
+Summary:          PKI Python 2 Package
 BuildArch:        noarch
 
 Obsoletes:        pki-base-python2 < 10.6
@@ -340,8 +371,11 @@ This package contains PKI client library for Python 2.
 
 %endif  # with_python2
 
+################################################################################
 %package -n       pki-base-java
-Summary:          Certificate System - Java Framework
+################################################################################
+
+Summary:          PKI Base Java Package
 BuildArch:        noarch
 
 Requires:         java-1.8.0-openjdk-headless
@@ -369,18 +403,18 @@ Requires:         pki-base = %{version}-%{release}
 # 'resteasy-base' is a subset of the complete set of
 # 'resteasy' packages and consists of what is needed to
 # support the PKI Restful interface on certain RHEL platforms
-Requires:    resteasy-base-atom-provider >= 3.0.6-1
-Requires:    resteasy-base-client >= 3.0.6-1
-Requires:    resteasy-base-jaxb-provider >= 3.0.6-1
-Requires:    resteasy-base-jaxrs >= 3.0.6-1
-Requires:    resteasy-base-jaxrs-api >= 3.0.6-1
-Requires:    resteasy-base-jackson-provider >= 3.0.6-1
+Requires:         resteasy-base-atom-provider >= 3.0.6-1
+Requires:         resteasy-base-client >= 3.0.6-1
+Requires:         resteasy-base-jaxb-provider >= 3.0.6-1
+Requires:         resteasy-base-jaxrs >= 3.0.6-1
+Requires:         resteasy-base-jaxrs-api >= 3.0.6-1
+Requires:         resteasy-base-jackson-provider >= 3.0.6-1
 %else
-Requires:    resteasy-atom-provider >= 3.0.17-1
-Requires:    resteasy-client >= 3.0.17-1
-Requires:    resteasy-jaxb-provider >= 3.0.17-1
-Requires:    resteasy-core >= 3.0.17-1
-Requires:    resteasy-jackson-provider >= 3.0.17-1
+Requires:         resteasy-atom-provider >= 3.0.17-1
+Requires:         resteasy-client >= 3.0.17-1
+Requires:         resteasy-jaxb-provider >= 3.0.17-1
+Requires:         resteasy-core >= 3.0.17-1
+Requires:         resteasy-jackson-provider >= 3.0.17-1
 %endif
 
 Requires:         xalan-j2
@@ -389,13 +423,16 @@ Requires:         xml-commons-apis
 Requires:         xml-commons-resolver
 
 %description -n   pki-base-java
-The PKI Framework contains the common and client libraries and utilities
+The PKI Base Java Package contains the common and client libraries and utilities
 written in Java.
 
 %if 0%{?with_python3}
 
+################################################################################
 %package -n       python3-pki
-Summary:          Certificate System - PKI Framework
+################################################################################
+
+Summary:          PKI Python 3 Package
 BuildArch:        noarch
 
 Obsoletes:        pki-base-python3 < 10.6
@@ -414,8 +451,11 @@ This package contains PKI client library for Python 3.
 
 %endif  # with_python3 for python3-pki
 
+################################################################################
 %package -n       pki-tools
-Summary:          Certificate System - PKI Tools
+################################################################################
+
+Summary:          PKI Tools Package
 
 Provides:         pki-native-tools = %{version}-%{release}
 Provides:         pki-java-tools = %{version}-%{release}
@@ -439,8 +479,11 @@ Certificate System into a more complete and robust PKI solution.
 
 %if %{with server}
 
+################################################################################
 %package -n       pki-server
-Summary:          Certificate System - PKI Server Framework
+################################################################################
+
+Summary:          PKI Server Package
 
 BuildArch:        noarch
 
@@ -541,7 +584,7 @@ Obsoletes:        redhat-pki-server-theme < 10.3.0
 %endif
 
 %description -n   pki-server
-The PKI Server Framework is required by the following four PKI subsystems:
+The PKI Server Package contains libraries and utilities needed by the following PKI subsystems:
 
     the Certificate Authority (CA),
     the Key Recovery Authority (KRA),
@@ -549,9 +592,11 @@ The PKI Server Framework is required by the following four PKI subsystems:
     the Token Key Service (TKS), and
     the Token Processing Service (TPS).
 
+################################################################################
 %package -n       pki-ca
-Summary:          Certificate System - Certificate Authority
+################################################################################
 
+Summary:          PKI CA Package
 BuildArch:        noarch
 
 Requires:         java-1.8.0-openjdk-headless
@@ -569,9 +614,11 @@ The Certificate Authority can be configured as a self-signing Certificate
 Authority, where it is the root CA, or it can act as a subordinate CA,
 where it obtains its own signing certificate from a public CA.
 
+################################################################################
 %package -n       pki-kra
-Summary:          Certificate System - Key Recovery Authority
+################################################################################
 
+Summary:          PKI KRA Package
 BuildArch:        noarch
 
 Requires:         java-1.8.0-openjdk-headless
@@ -595,9 +642,11 @@ protection of the public encryption keys for the users in the PKI deployment.
 Note that the KRA archives encryption keys; it does NOT archive signing keys,
 since such archival would undermine non-repudiation properties of signing keys.
 
+################################################################################
 %package -n       pki-ocsp
-Summary:          Certificate System - Online Certificate Status Protocol Manager
+################################################################################
 
+Summary:          PKI OCSP Package
 BuildArch:        noarch
 
 Requires:         java-1.8.0-openjdk-headless
@@ -628,9 +677,11 @@ When an instance of OCSP Manager is set up with an instance of CA, and
 publishing is set up to this OCSP Manager, CRLs are published to it
 whenever they are issued or updated.
 
+################################################################################
 %package -n       pki-tks
-Summary:          Certificate System - Token Key Service
+################################################################################
 
+Summary:          PKI TKS Package
 BuildArch:        noarch
 
 Requires:         java-1.8.0-openjdk-headless
@@ -656,8 +707,11 @@ TKS.  Tokens with older keys will get new token keys.
 Because of the sensitivity of the data that TKS manages, TKS should be set up
 behind the firewall with restricted access.
 
+################################################################################
 %package -n       pki-tps
-Summary:          Certificate System - Token Processing Service
+################################################################################
+
+Summary:          PKI TPS Package
 
 Provides:         pki-tps-tomcat
 Provides:         pki-tps-client
@@ -698,8 +752,11 @@ The utility "tpsclient" is a test tool that interacts with TPS.  This
 tool is useful to test TPS server configs without risking an actual
 smart card.
 
+################################################################################
 %package -n       pki-javadoc
-Summary:          Certificate System - PKI Framework Javadocs
+################################################################################
+
+Summary:          PKI Javadoc Package
 
 BuildArch:        noarch
 
@@ -712,27 +769,32 @@ Obsoletes:        pki-java-tools-javadoc < %{version}-%{release}
 Obsoletes:        pki-common-javadoc < %{version}-%{release}
 
 %description -n   pki-javadoc
-This documentation pertains exclusively to version %{version} of
-the PKI Framework and Tools.
+This package contains PKI API documentation.
 
 %endif # %{with server}
 
-
+################################################################################
 %prep
+################################################################################
+
 %autosetup -n pki-%{version} -p 1
 
+################################################################################
 %build
+################################################################################
+
 %{__mkdir_p} build
 cd build
-%cmake -DVERSION=%{version}-%{release} \
-	-DVAR_INSTALL_DIR:PATH=/var \
-	-DBUILD_PKI_CORE:BOOL=ON \
-	-DJAVA_HOME=%{java_home} \
-	-DJAVA_LIB_INSTALL_DIR=%{_jnidir} \
-	-DSYSTEMD_LIB_INSTALL_DIR=%{_unitdir} \
-	-DAPP_SERVER=%{app_server} \
-	-DJAXRS_API_JAR=%{jaxrs_api_jar} \
-	-DRESTEASY_LIB=%{resteasy_lib} \
+%cmake \
+    -DVERSION=%{version}-%{release} \
+    -DVAR_INSTALL_DIR:PATH=/var \
+    -DJAVA_HOME=%{java_home} \
+    -DJAVA_LIB_INSTALL_DIR=%{_jnidir} \
+    -DSYSTEMD_LIB_INSTALL_DIR=%{_unitdir} \
+    -DAPP_SERVER=%{app_server} \
+    -DJAXRS_API_JAR=%{jaxrs_api_jar} \
+    -DRESTEASY_LIB=%{resteasy_lib} \
+    -DBUILD_PKI_CORE:BOOL=ON \
 %if ! %{?with_python3}
     -DWITH_PYTHON3:BOOL=OFF \
 %endif
@@ -743,21 +805,23 @@ cd build
     -DWITH_PYTHON3_DEFAULT:BOOL=ON \
 %endif
 %if ! %{with server}
-	-DWITH_SERVER:BOOL=OFF \
+    -DWITH_SERVER:BOOL=OFF \
 %endif
 %if ! %{with javadoc}
-	-DWITH_JAVADOC:BOOL=OFF \
+    -DWITH_JAVADOC:BOOL=OFF \
 %endif
 %if ! %{with test}
-	-DWITH_TEST:BOOL=OFF \
+    -DWITH_TEST:BOOL=OFF \
 %endif
 %if 0%{?fedora} >= 28 || 0%{?rhel} > 7
     -DPKI_NSS_DB_TYPE=sql \
 %endif
-	..
+    ..
 
-
+################################################################################
 %install
+################################################################################
+
 cd build
 
 # Do not use _smp_mflags to preserve build order
@@ -996,14 +1060,19 @@ fi
 %endif # %{with server}
 
 
+################################################################################
 %files -n pki-symkey
+################################################################################
+
 %defattr(-,root,root,-)
 %doc base/symkey/LICENSE
 %{_jnidir}/symkey.jar
 %{_libdir}/symkey/
 
-
+################################################################################
 %files -n pki-base
+################################################################################
+
 %defattr(-,root,root,-)
 %doc base/common/LICENSE
 %doc base/common/LICENSE.LESSER
@@ -1026,7 +1095,10 @@ fi
 %{_mandir}/man8/pki-upgrade.8.gz
 
 %if %{with_python2}
+################################################################################
 %files -n python2-pki
+################################################################################
+
 %defattr(-,root,root,-)
 %doc base/common/LICENSE
 %doc base/common/LICENSE.LESSER
@@ -1034,7 +1106,10 @@ fi
 %{python2_sitelib}/pki
 %endif # with_python2
 
+################################################################################
 %files -n pki-base-java
+################################################################################
+
 %{_datadir}/pki/examples/java/
 %{_datadir}/pki/lib/
 %dir %{_javadir}/pki
@@ -1043,7 +1118,10 @@ fi
 %{_javadir}/pki/pki-certsrv.jar
 
 %if %{with_python3}
+################################################################################
 %files -n python3-pki
+################################################################################
+
 %defattr(-,root,root,-)
 %doc base/common/LICENSE
 %doc base/common/LICENSE.LESSER
@@ -1051,7 +1129,10 @@ fi
 %{python3_sitelib}/pki
 %endif # with_python3
 
+################################################################################
 %files -n pki-tools
+################################################################################
+
 %defattr(-,root,root,-)
 %doc base/native-tools/LICENSE base/native-tools/doc/README
 %{_bindir}/pki
@@ -1117,7 +1198,10 @@ fi
 
 %if %{with server}
 
+################################################################################
 %files -n pki-server
+################################################################################
+
 %defattr(-,root,root,-)
 %doc base/common/THIRD_PARTY_LICENSES
 %doc base/server/LICENSE
@@ -1167,8 +1251,10 @@ fi
 %{_datadir}/pki/setup/
 %{_datadir}/pki/server/
 
-
+################################################################################
 %files -n pki-ca
+################################################################################
+
 %defattr(-,root,root,-)
 %doc base/ca/LICENSE
 %{_javadir}/pki/pki-ca.jar
@@ -1180,7 +1266,10 @@ fi
 %{_datadir}/pki/ca/setup/
 %{_datadir}/pki/ca/webapps/
 
+################################################################################
 %files -n pki-kra
+################################################################################
+
 %defattr(-,root,root,-)
 %doc base/kra/LICENSE
 %{_javadir}/pki/pki-kra.jar
@@ -1189,7 +1278,10 @@ fi
 %{_datadir}/pki/kra/setup/
 %{_datadir}/pki/kra/webapps/
 
+################################################################################
 %files -n pki-ocsp
+################################################################################
+
 %defattr(-,root,root,-)
 %doc base/ocsp/LICENSE
 %{_javadir}/pki/pki-ocsp.jar
@@ -1198,7 +1290,10 @@ fi
 %{_datadir}/pki/ocsp/setup/
 %{_datadir}/pki/ocsp/webapps/
 
+################################################################################
 %files -n pki-tks
+################################################################################
+
 %defattr(-,root,root,-)
 %doc base/tks/LICENSE
 %{_javadir}/pki/pki-tks.jar
@@ -1207,7 +1302,10 @@ fi
 %{_datadir}/pki/tks/setup/
 %{_datadir}/pki/tks/webapps/
 
+################################################################################
 %files -n pki-tps
+################################################################################
+
 %defattr(-,root,root,-)
 %doc base/tps/LICENSE
 %{_javadir}/pki/pki-tps.jar
@@ -1219,8 +1317,10 @@ fi
 %{_mandir}/man5/pki-tps-connector.5.gz
 %{_mandir}/man5/pki-tps-profile.5.gz
 %{_mandir}/man1/tpsclient.1.gz
+
 # files for native 'tpsclient'
 # REMINDER:  Remove this comment once 'tpsclient' is rewritten as a Java app
+
 %{_bindir}/tpsclient
 %{_libdir}/tps/libtps.so
 %{_libdir}/tps/libtokendb.so
@@ -1233,7 +1333,10 @@ fi
 
 %endif # %{with server}
 
+################################################################################
 %changelog
-* Tue Mar 6 2018 Dogtag Team <pki-devel@redhat.com> 10.6.0-0
+################################################################################
+
+* Tue Mar 6 2018 Dogtag PKI Team <pki-devel@redhat.com> 10.6.0-0
 - To list changes in <branch> since <tag>:
   $ git log --pretty=oneline --abbrev-commit --no-decorate <tag>..<branch>
