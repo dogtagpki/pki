@@ -1,0 +1,136 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "218681a2_a840f3e0",
+        "filename": "base/server/python/pki/server/cli/audit.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-04-10T16:15:07Z",
+      "side": 1,
+      "message": "Let\u0027s change to \"many\".",
+      "range": {
+        "startLine": 179,
+        "startChar": 42,
+        "endLine": 179,
+        "endChar": 46
+      },
+      "revId": "e0ab6cc6a5c0d6f3271cfa219d12654a9853b19b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7c9ad403_58d24a1e",
+        "filename": "base/server/python/pki/server/cli/audit.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-04-10T16:15:07Z",
+      "side": 1,
+      "message": "Let\u0027s use \"enabled\"",
+      "range": {
+        "startLine": 199,
+        "startChar": 30,
+        "endLine": 199,
+        "endChar": 37
+      },
+      "revId": "e0ab6cc6a5c0d6f3271cfa219d12654a9853b19b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a61e364a_c975f8b1",
+        "filename": "base/server/python/pki/server/cli/audit.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-04-10T16:15:07Z",
+      "side": 1,
+      "message": "Let\u0027s just say \"Event \u003cname\u003e already enabled\". No need to tell the user to use the update CLI. They might have configured the filter already.",
+      "revId": "e0ab6cc6a5c0d6f3271cfa219d12654a9853b19b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "62d86d41_02f62849",
+        "filename": "base/server/python/pki/server/cli/audit.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-04-10T16:15:07Z",
+      "side": 1,
+      "message": "Let\u0027s change to \"Update\".",
+      "range": {
+        "startLine": 213,
+        "startChar": 29,
+        "endLine": 213,
+        "endChar": 32
+      },
+      "revId": "e0ab6cc6a5c0d6f3271cfa219d12654a9853b19b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9b832db0_fe402659",
+        "filename": "base/server/python/pki/server/cli/audit.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-04-10T16:15:07Z",
+      "side": 1,
+      "message": "Let\u0027s change to \"many\".",
+      "range": {
+        "startLine": 264,
+        "startChar": 42,
+        "endLine": 264,
+        "endChar": 46
+      },
+      "revId": "e0ab6cc6a5c0d6f3271cfa219d12654a9853b19b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8dee50d2_ae41da7f",
+        "filename": "base/server/python/pki/server/cli/audit.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 334,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-04-10T16:15:07Z",
+      "side": 1,
+      "message": "Let\u0027s change to \"many\".",
+      "range": {
+        "startLine": 334,
+        "startChar": 42,
+        "endLine": 334,
+        "endChar": 46
+      },
+      "revId": "e0ab6cc6a5c0d6f3271cfa219d12654a9853b19b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
