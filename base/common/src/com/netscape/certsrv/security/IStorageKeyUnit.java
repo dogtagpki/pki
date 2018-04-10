@@ -118,7 +118,6 @@ public interface IStorageKeyUnit extends IEncryptionUnit {
      *
      * @param priKey private key to be wrapped
      * @param params wrapping parameters
-     * @param WrappingParams - wrapping parameters
      * @return wrapped data
      * @exception EBaseException failed to wrap
      */
@@ -130,7 +129,6 @@ public interface IStorageKeyUnit extends IEncryptionUnit {
      *
      * @param symKey symmetric key to be wrapped
      * @param params wrapping parameters
-     * @param wrappingParams - wrapping parameters
      * @return wrapped data
      * @exception EBaseException failed to wrap
      */

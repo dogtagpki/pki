@@ -348,7 +348,7 @@ if (BUILD_PKI_CORE OR BUILD_PKI_CONSOLE)
             ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}
     )
 
-endif (BUILD_PKI_CORE)
+endif (BUILD_PKI_CORE OR BUILD_PKI_CONSOLE)
 
 if (BUILD_PKI_CONSOLE)
     add_subdirectory(console)
