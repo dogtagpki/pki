@@ -1,0 +1,123 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0bcf7e70_8d4843f6",
+        "filename": "base/server/python/pki/server/__init__.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 429,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-04-10T02:40:53Z",
+      "side": 1,
+      "message": "Event names are case sensitive. Let\u0027s remove lines 429, 445, and 463.",
+      "revId": "9c264ecc8bc4324def25bc5afccbf444a93a16e2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9ec7df59_647fb8b5",
+        "filename": "base/server/python/pki/server/__init__.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 452,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-04-10T02:40:53Z",
+      "side": 1,
+      "message": "Lines 447-452 should be removed since the filter can always be configured regardless of the event status (enabled or disabled).",
+      "revId": "9c264ecc8bc4324def25bc5afccbf444a93a16e2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "83d82878_82adaa54",
+        "filename": "base/server/python/pki/server/__init__.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 457,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-04-10T02:40:53Z",
+      "side": 1,
+      "message": "Lines 455-457 should be removed as well since the filter can be configured regardless of the event status, so it should always succeed.",
+      "revId": "9c264ecc8bc4324def25bc5afccbf444a93a16e2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "af89aaaa_1430259d",
+        "filename": "base/server/python/pki/server/__init__.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 467,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-04-10T02:40:53Z",
+      "side": 1,
+      "message": "If the event doesn\u0027t exist in the list, that means the event is already disabled. We should just return False.",
+      "revId": "9c264ecc8bc4324def25bc5afccbf444a93a16e2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4451bead_9bf9109e",
+        "filename": "base/server/python/pki/server/cli/audit.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-04-10T02:40:53Z",
+      "side": 1,
+      "message": "We can just say that the event is already enabled.",
+      "revId": "9c264ecc8bc4324def25bc5afccbf444a93a16e2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f93fb001_10c7e3c2",
+        "filename": "base/server/python/pki/server/cli/audit.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 290,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-04-10T02:40:53Z",
+      "side": 1,
+      "message": "The else clause should not exist. The update_audit_event_filter() should always succeed (i.e. no return value).",
+      "revId": "9c264ecc8bc4324def25bc5afccbf444a93a16e2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "eb382b23_0708aa8b",
+        "filename": "base/server/python/pki/server/cli/audit.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 368,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-04-10T02:40:53Z",
+      "side": 1,
+      "message": "For completeness, we need to add an else clause to say that the event is already disabled.",
+      "revId": "9c264ecc8bc4324def25bc5afccbf444a93a16e2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
