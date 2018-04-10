@@ -1,8 +1,8 @@
 ################################################################################
-Name:             pki
+Name:             pki-core
 ################################################################################
 
-Summary:          Dogtag PKI
+Summary:          Dogtag PKI Core Package
 URL:              http://www.dogtagpki.org/
 License:          GPLv2
 
@@ -1059,7 +1059,6 @@ fi
 ##        PKI deployment process
 
 %endif # %{with server}
-
 
 ################################################################################
 %files -n pki-symkey

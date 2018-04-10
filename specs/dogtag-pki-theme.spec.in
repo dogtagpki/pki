@@ -1,4 +1,11 @@
+################################################################################
 Name:             dogtag-pki-theme
+################################################################################
+
+Summary:          Dogtag PKI Theme Package
+URL:              http://www.dogtagpki.org/
+License:          GPLv2
+
 %if 0%{?rhel}
 Version:          10.6.0
 Release:          0.3%{?_timestamp}%{?_commit}%{?dist}
@@ -7,13 +14,13 @@ Version:          10.6.0
 Release:          0.3%{?_timestamp}%{?_commit}%{?dist}
 %endif
 
-Summary:          Certificate System - Dogtag PKI Theme Components
-URL:              http://www.dogtagpki.org/
-License:          GPLv2
-
 Source:           https://github.com/dogtagpki/pki/archive/v%{version}/pki-%{version}.tar.gz
 
 BuildArch:        noarch
+
+################################################################################
+# Build Dependencies
+################################################################################
 
 BuildRequires:    cmake >= 2.8.9-1
 BuildRequires:    gcc-c++
@@ -27,8 +34,11 @@ including "dogtag" or a user customized theme package.  Consequently,
 all "dogtag" and any customized theme components MUST be mutually
 exclusive!
 
+################################################################################
 %package -n       dogtag-pki-server-theme
-Summary:          Certificate System - PKI Server Framework User Interface
+################################################################################
+
+Summary:          Dogtag PKI Server Theme Package
 
 Obsoletes:        dogtag-pki-common-theme <= %{version}-%{release}
 Obsoletes:        dogtag-pki-common-ui
@@ -72,10 +82,13 @@ Provides:         pki-tps-ui = %{version}-%{release}
 
 %description -n   dogtag-pki-server-theme
 This PKI Server Framework User Interface contains
-the Dogtag textual and graphical user interface for the PKI Server Framework.
+Dogtag textual and graphical user interface for PKI Server.
 
+################################################################################
 %package -n       dogtag-pki-console-theme
-Summary:          Certificate System - PKI Console User Interface
+################################################################################
+
+Summary:          Dogtag PKI Console Theme Package
 
 Requires:         java-1.8.0-openjdk
 
@@ -91,24 +104,32 @@ Provides:         pki-console-theme = %{version}-%{release}
 Provides:         pki-console-ui = %{version}-%{release}
 
 %description -n   dogtag-pki-console-theme
-This PKI Console User Interface contains
-the Dogtag textual and graphical user interface for the PKI Console.
+This PKI Console Theme Package contains
+Dogtag textual and graphical user interface for PKI Console.
 
+################################################################################
 %prep
+################################################################################
+
 %autosetup -n pki-%{version} -p 1
 
-
+################################################################################
 %build
+################################################################################
+
 %{__mkdir_p} build
 cd build
-%cmake -DVERSION=%{version}-%{release} \
-	-DVAR_INSTALL_DIR:PATH=/var \
-	-DBUILD_DOGTAG_PKI_THEME:BOOL=ON \
-	-DJAVA_LIB_INSTALL_DIR=%{_jnidir} \
-	..
+%cmake
+    -DVERSION=%{version}-%{release} \
+    -DVAR_INSTALL_DIR:PATH=/var \
+    -DJAVA_LIB_INSTALL_DIR=%{_jnidir} \
+    -DBUILD_DOGTAG_PKI_THEME:BOOL=ON \
+    ..
 
-
+################################################################################
 %install
+################################################################################
+
 cd build
 
 # Do not use _smp_mflags to preserve build order
@@ -118,13 +139,15 @@ cd build
     INSTALL="install -p" \
     all install
 
-
 # NOTE:  Several "theme" packages require ownership of the "/usr/share/pki"
 #        directory because the PKI subsystems (CA, KRA, OCSP, TKS, TPS)
 #        which require them may be installed either independently or in
 #        multiple combinations.
 
+################################################################################
 %files -n dogtag-pki-server-theme
+################################################################################
+
 %defattr(-,root,root,-)
 %doc dogtag/common-ui/LICENSE
 %dir %{_datadir}/pki
@@ -139,14 +162,18 @@ cd build
 %{_datadir}/pki/server/webapps/pki/pki.properties
 %{_datadir}/pki/server/webapps/pki/tks
 
-
+################################################################################
 %files -n dogtag-pki-console-theme
+################################################################################
+
 %defattr(-,root,root,-)
 %doc dogtag/console-ui/LICENSE
-%{_javadir}/pki/
+%{_javadir}/pki/pki-console-theme.jar
 
-
+################################################################################
 %changelog
+################################################################################
+
 * Tue Mar 6 2018 Dogtag Team <pki-devel@redhat.com> 10.6.0-0
 - To list changes in <branch> since <tag>:
   $ git log --pretty=oneline --abbrev-commit --no-decorate <tag>..<branch>
