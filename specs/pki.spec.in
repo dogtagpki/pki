@@ -81,6 +81,7 @@ Source:           https://github.com/dogtagpki/pki/archive/v%{version}/pki-%{ver
 %bcond_without    server
 %bcond_without    javadoc
 %bcond_without    console
+%bcond_without    theme
 
 # ignore unpackaged files from native 'tpsclient'
 # REMINDER:  Remove this '%%define' once 'tpsclient' is rewritten as a Java app
@@ -810,6 +811,82 @@ following "Mutually-Exclusive" PKI Theme packages:
 
 %endif # %{with console}
 
+%if %{with theme}
+################################################################################
+%package -n       dogtag-pki-server-theme
+################################################################################
+
+Summary:          Dogtag PKI Server Theme Package
+BuildArch:        noarch
+
+Obsoletes:        dogtag-pki-common-theme <= %{version}-%{release}
+Obsoletes:        dogtag-pki-common-ui
+Obsoletes:        dogtag-pki-ca-theme <= %{version}-%{release}
+Obsoletes:        dogtag-pki-ca-ui
+Obsoletes:        dogtag-pki-kra-theme <= %{version}-%{release}
+Obsoletes:        dogtag-pki-kra-ui
+Obsoletes:        dogtag-pki-ocsp-theme <= %{version}-%{release}
+Obsoletes:        dogtag-pki-ocsp-ui
+Obsoletes:        dogtag-pki-tks-theme <= %{version}-%{release}
+Obsoletes:        dogtag-pki-tks-ui
+Obsoletes:        dogtag-pki-ra-theme <= %{version}-%{release}
+Obsoletes:        dogtag-pki-ra-ui
+Obsoletes:        dogtag-pki-tps-theme <= %{version}-%{release}
+Obsoletes:        dogtag-pki-tps-ui
+
+Provides:         dogtag-pki-common-theme = %{version}-%{release}
+Provides:         pki-server-theme = %{version}-%{release}
+Provides:         pki-common-theme = %{version}-%{release}
+Provides:         pki-common-ui = %{version}-%{release}
+
+Provides:         dogtag-pki-ca-theme = %{version}-%{release}
+Provides:         pki-ca-theme = %{version}-%{release}
+Provides:         pki-ca-ui = %{version}-%{release}
+
+Provides:         dogtag-pki-kra-theme = %{version}-%{release}
+Provides:         pki-kra-theme = %{version}-%{release}
+Provides:         pki-kra-ui = %{version}-%{release}
+
+Provides:         dogtag-pki-ocsp-theme = %{version}-%{release}
+Provides:         pki-ocsp-theme = %{version}-%{release}
+Provides:         pki-ocsp-ui = %{version}-%{release}
+
+Provides:         dogtag-pki-tks-theme = %{version}-%{release}
+Provides:         pki-tks-theme = %{version}-%{release}
+Provides:         pki-tks-ui = %{version}-%{release}
+
+Provides:         dogtag-pki-tps-theme = %{version}-%{release}
+Provides:         pki-tps-theme = %{version}-%{release}
+Provides:         pki-tps-ui = %{version}-%{release}
+
+%description -n   dogtag-pki-server-theme
+This PKI Server Theme Package contains
+Dogtag textual and graphical user interface for PKI Server.
+
+################################################################################
+%package -n       dogtag-pki-console-theme
+################################################################################
+
+Summary:          Dogtag PKI Console Theme Package
+BuildArch:        noarch
+
+%if 0%{?rhel}
+# EPEL version of Dogtag "theme" conflicts with all versions of Red Hat "theme"
+Conflicts:        redhat-pki-console-theme
+Conflicts:        redhat-pki-console-ui
+%endif
+
+Obsoletes:        dogtag-pki-console-ui <= 9
+
+Provides:         pki-console-theme = %{version}-%{release}
+Provides:         pki-console-ui = %{version}-%{release}
+
+%description -n   dogtag-pki-console-theme
+This PKI Console Theme Package contains
+Dogtag textual and graphical user interface for PKI Console.
+
+%endif # %{with theme}
+
 ################################################################################
 %prep
 ################################################################################
@@ -856,6 +933,9 @@ cd build
 %endif
 %if %{with console}
     -DBUILD_PKI_CONSOLE:BOOL=ON \
+%endif
+%if %{with theme}
+    -DBUILD_DOGTAG_PKI_THEME:BOOL=ON \
 %endif
     ..
 
@@ -1398,6 +1478,35 @@ fi
 %{_javadir}/pki/pki-console.jar
 
 %endif # %{with console}
+
+%if %{with theme}
+################################################################################
+%files -n dogtag-pki-server-theme
+################################################################################
+
+%defattr(-,root,root,-)
+%doc dogtag/common-ui/LICENSE
+%dir %{_datadir}/pki
+%{_datadir}/pki/common-ui/
+%{_datadir}/pki/server/webapps/pki/ca
+%{_datadir}/pki/server/webapps/pki/css
+%{_datadir}/pki/server/webapps/pki/esc
+%{_datadir}/pki/server/webapps/pki/fonts
+%{_datadir}/pki/server/webapps/pki/images
+%{_datadir}/pki/server/webapps/pki/kra
+%{_datadir}/pki/server/webapps/pki/ocsp
+%{_datadir}/pki/server/webapps/pki/pki.properties
+%{_datadir}/pki/server/webapps/pki/tks
+
+################################################################################
+%files -n dogtag-pki-console-theme
+################################################################################
+
+%defattr(-,root,root,-)
+%doc dogtag/console-ui/LICENSE
+%{_javadir}/pki/pki-console-theme.jar
+
+%endif # %{with theme}
 
 ################################################################################
 %changelog
