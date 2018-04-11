@@ -20,11 +20,6 @@ BuildArch:        noarch
 %endif
 
 %define dogtag_pki_theme_version   %{version}
-%if 0%{?fedora} >= 27 || 0%{?rhel} > 7
-%define esc_version                1.1.1
-%else
-%define esc_version                1.1.0
-%endif
 # NOTE:  The following package versions are TLS compliant:
 %if 0%{?rhel}
 %define pki_core_rhel_version      10.5.1
@@ -88,7 +83,11 @@ Requires:         pki-console >= %{pki_console_version}
 
 # Make certain that this 'meta' package requires the latest version(s)
 # of ALL Dogtag PKI clients
-Requires:         esc >= %{esc_version}
+%if 0%{?fedora} >= 27 || 0%{?rhel} > 7
+Requires:         esc >= 1.1.1
+%else
+Requires:         esc >= 1.1.0
+%endif
 
 %description
 The Dogtag Public Key Infrastructure (PKI) Suite is comprised of the following
