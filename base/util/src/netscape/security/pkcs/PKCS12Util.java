@@ -50,6 +50,7 @@ import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.PBEAlgorithm;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.X509Certificate;
+import org.mozilla.jss.pkcs11.PK11Store;
 import org.mozilla.jss.pkcs12.AuthenticatedSafes;
 import org.mozilla.jss.pkcs12.CertBag;
 import org.mozilla.jss.pkcs12.PFX;
@@ -822,7 +823,7 @@ public class PKCS12Util {
 
         CryptoManager cm = CryptoManager.getInstance();
         CryptoToken token = cm.getInternalKeyStorageToken();
-        CryptoStore store = token.getCryptoStore();
+        PK11Store store = (PK11Store)token.getCryptoStore();
 
         X509Certificate cert = cm.importCACertPackage(certInfo.cert.getEncoded());
 
@@ -851,7 +852,7 @@ public class PKCS12Util {
         // delete the cert again (it will be imported again later
         // with the correct nickname)
         try {
-            store.deleteCert(cert);
+            store.deleteCertOnly(cert);
         } catch (NoSuchItemOnTokenException e) {
             // this is OK
         }
