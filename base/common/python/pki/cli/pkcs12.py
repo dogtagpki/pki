@@ -22,6 +22,7 @@
 from __future__ import absolute_import
 from __future__ import print_function
 import getopt
+import logging
 import os
 import re
 import shutil
@@ -30,6 +31,8 @@ import tempfile
 
 import pki.cli
 import pki.nssdb
+
+logger = logging.getLogger(__name__)
 
 
 class PKCS12CLI(pki.cli.CLI):
@@ -64,6 +67,8 @@ class PKCS12ImportCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
+        logging.basicConfig(format='%(levelname)s: %(message)s')
+
         try:
             opts, _ = getopt.gnu_getopt(argv, 'v', [
                 'pkcs12-file=', 'pkcs12-password=', 'pkcs12-password-file=',
@@ -71,7 +76,7 @@ class PKCS12ImportCLI(pki.cli.CLI):
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
-            print('ERROR: ' + str(e))
+            logger.error(e)
             self.print_help()
             sys.exit(1)
 
@@ -82,7 +87,6 @@ class PKCS12ImportCLI(pki.cli.CLI):
         import_user_certs = True
         import_ca_certs = True
         overwrite = False
-        debug = False
 
         for o, a in opts:
             if o == '--pkcs12-file':
@@ -108,26 +112,28 @@ class PKCS12ImportCLI(pki.cli.CLI):
 
             elif o in ('-v', '--verbose'):
                 self.set_verbose(True)
+                logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--debug':
-                debug = True
+                self.set_debug(True)
+                logging.getLogger().setLevel(logging.DEBUG)
 
             elif o == '--help':
                 self.print_help()
                 sys.exit()
 
             else:
-                print('ERROR: unknown option ' + o)
+                logger.error('option %s not recognized', o)
                 self.print_help()
                 sys.exit(1)
 
         if not pkcs12_file:
-            print('ERROR: Missing PKCS #12 file')
+            logger.error('Missing PKCS #12 file')
             self.print_help()
             sys.exit(1)
 
         if not pkcs12_password and not password_file:
-            print('ERROR: Missing PKCS #12 password')
+            logger.error('Missing PKCS #12 password')
             self.print_help()
             sys.exit(1)
 
@@ -137,8 +143,7 @@ class PKCS12ImportCLI(pki.cli.CLI):
         # using certutil in order to preserve the nickname stored in
         # the PKCS #12 file.
 
-        if main_cli.verbose:
-            print('Getting certificate infos in PKCS #12 file')
+        logger.info('Getting certificate infos in PKCS #12 file')
 
         certs = []
 
@@ -163,7 +168,7 @@ class PKCS12ImportCLI(pki.cli.CLI):
                 if self.verbose:
                     cmd.extend(['--verbose'])
 
-                if debug:
+                if self.debug:
                     cmd.extend(['--debug'])
 
                 main_cli.execute_java(cmd, stdout=f)
@@ -201,8 +206,7 @@ class PKCS12ImportCLI(pki.cli.CLI):
         # import CA certificates if requested
         if import_ca_certs:
 
-            if main_cli.verbose:
-                print('Importing CA certificates')
+            logger.info('Importing CA certificates')
 
             tmpdir = tempfile.mkdtemp()
 
@@ -229,7 +233,7 @@ class PKCS12ImportCLI(pki.cli.CLI):
 
                     if cert:
                         if not overwrite:
-                            print('WARNING: cert %s already exists' % nickname)
+                            logger.warning('cert %s already exists', nickname)
                             continue
 
                         nssdb.remove_cert(
@@ -241,8 +245,7 @@ class PKCS12ImportCLI(pki.cli.CLI):
                         # default trust flags for CA certificates
                         trust_flags = 'CT,C,C'
 
-                    if main_cli.verbose:
-                        print('Exporting %s (%s) from PKCS #12 file' % (nickname, cert_id))
+                    logger.info('Exporting %s (%s) from PKCS #12 file', nickname, cert_id)
 
                     cmd = ['pkcs12-cert-export']
 
@@ -262,13 +265,12 @@ class PKCS12ImportCLI(pki.cli.CLI):
                     if self.verbose:
                         cmd.extend(['--verbose'])
 
-                    if debug:
+                    if self.debug:
                         cmd.extend(['--debug'])
 
                     main_cli.execute_java(cmd)
 
-                    if main_cli.verbose:
-                        print('Importing %s' % nickname)
+                    logger.info('Importing %s', nickname)
 
                     nssdb.add_cert(
                         nickname=nickname,
@@ -281,8 +283,7 @@ class PKCS12ImportCLI(pki.cli.CLI):
         # import user certificates if requested
         if import_user_certs:
 
-            if main_cli.verbose:
-                print('Importing user certificates')
+            logger.info('Importing user certificates')
 
             nicknames = []
             for cert_info in certs:
@@ -315,7 +316,7 @@ class PKCS12ImportCLI(pki.cli.CLI):
             if self.verbose:
                 cmd.extend(['--verbose'])
 
-            if debug:
+            if self.debug:
                 cmd.extend(['--debug'])
 
             cmd.extend(nicknames)

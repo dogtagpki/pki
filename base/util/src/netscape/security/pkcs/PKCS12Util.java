@@ -814,8 +814,6 @@ public class PKCS12Util {
             String nickname,
             PKCS12KeyInfo keyInfo) throws Exception {
 
-        logger.debug("Importing private key " + keyInfo.getFriendlyName());
-
         PKCS12CertInfo certInfo = pkcs12.getCertInfoByID(keyInfo.getID());
         if (certInfo == null) {
             logger.debug("Private key has no certificate, ignore");
@@ -884,7 +882,7 @@ public class PKCS12Util {
 
         X509Certificate cert;
         if (keyInfo != null) { // cert has key
-            logger.debug("Importing user key for " + certInfo.getFriendlyName());
+            logger.debug("Importing private key for " + certInfo.getFriendlyName());
             importKey(pkcs12, password, certInfo.getFriendlyName(), keyInfo);
 
             logger.debug("Importing user certificate " + certInfo.getFriendlyName());
