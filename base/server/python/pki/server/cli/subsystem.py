@@ -374,6 +374,7 @@ class SubsystemCertCLI(pki.cli.CLI):
 
     @staticmethod
     def print_subsystem_cert(cert, show_all=False):
+        print('  Serial No: %s' % cert['serial_number'])
         print('  Cert ID: %s' % cert['id'])
         print('  Nickname: %s' % cert['nickname'])
         print('  Token: %s' % cert['token'])
@@ -542,7 +543,7 @@ class SubsystemCertShowCLI(pki.cli.CLI):
                   '%s.' % (subsystem_name, instance_name))
             sys.exit(1)
         cert = subsystem.get_subsystem_cert(cert_id)
-
+        self.print_message('"{}" subsystem "{}" certificate'.format(subsystem_name, cert_id))
         SubsystemCertCLI.print_subsystem_cert(cert, show_all)
 
 
