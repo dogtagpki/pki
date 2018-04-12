@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7b5ee8dd_f5d18aa8",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-04-12T14:54:07Z",
+      "side": 1,
+      "message": "Should be \"subsystem\".",
+      "range": {
+        "startLine": 7,
+        "startChar": 32,
+        "endLine": 7,
+        "endChar": 40
+      },
+      "revId": "be59bbe26584c173bdcbd0b94f5eaa4ce8e8196c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
