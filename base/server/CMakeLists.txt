@@ -109,7 +109,8 @@ jar(pki-cmscore-jar
 
 # Create /usr/share/pki/server/lib. This can be customized for different platforms in RPM spec.
 
-add_custom_target(pki-server-lib ALL)
+add_custom_target(pki-server-lib ALL
+    COMMENT "Creating links for PKI server library")
 
 add_custom_command(
     TARGET pki-server-lib
@@ -120,7 +121,8 @@ add_custom_command(
 
 # Create /usr/share/pki/server/common/lib. This can be customized for different platforms in RPM spec.
 
-add_custom_target(pki-server-common-lib ALL)
+add_custom_target(pki-server-common-lib ALL
+    COMMENT "Creating links for PKI server common library")
 
 add_custom_command(
     TARGET pki-server-common-lib
@@ -162,7 +164,8 @@ add_custom_command(
 
 # Create /usr/share/pki/server/webapps/pki/WEB-INF/lib. This can be customized for different platforms in RPM spec.
 
-add_custom_target(pki-server-webapp-lib ALL)
+add_custom_target(pki-server-webapp-lib ALL
+    COMMENT "Creating links for PKI webapp library")
 
 add_custom_command(
     TARGET pki-server-webapp-lib

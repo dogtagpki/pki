@@ -18,7 +18,8 @@ install(
 
 # Create compatibility symlink for DRMTool.1.gz -> KRATool.1.gz
 
-add_custom_target(pki-DRMTool-man-link ALL)
+add_custom_target(pki-DRMTool-man-link ALL
+    COMMENT "Creating link for DRMTool man page")
 
 add_custom_command(
     TARGET pki-DRMTool-man-link

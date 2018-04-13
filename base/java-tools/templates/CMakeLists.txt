@@ -40,7 +40,8 @@ endforeach(PKI_COMMAND)
 
 # Create compatibility symlink for DRMTool -> KRATool
 
-add_custom_target(pki-DRMTool-link ALL)
+add_custom_target(pki-DRMTool-link ALL
+    COMMENT "Creating link for DRMTool")
 
 add_custom_command(
     TARGET pki-DRMTool-link

@@ -106,7 +106,8 @@ install(
 
 # Create compatibility symlink for DRMTool.cfg -> KRATool.cfg
 
-add_custom_target(pki-DRMTool-cfg-link ALL)
+add_custom_target(pki-DRMTool-cfg-link ALL
+    COMMENT "Creating link for DRMTool.cfg")
 
 add_custom_command(
     TARGET pki-DRMTool-cfg-link

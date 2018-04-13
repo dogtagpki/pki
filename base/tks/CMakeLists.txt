@@ -9,7 +9,8 @@ add_subdirectory(${APP_SERVER})
 # Create /usr/share/pki/tks/webapps/tks/WEB-INF/lib.
 # This can be customized for different platforms in RPM spec.
 
-add_custom_target(pki-tks-links ALL)
+add_custom_target(pki-tks-links ALL
+    COMMENT "Creating links for TKS")
 
 add_custom_command(
     TARGET pki-tks-links

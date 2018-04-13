@@ -9,7 +9,8 @@ add_subdirectory(${APP_SERVER})
 # Create links in /usr/share/pki/ocsp/webapps/ocsp/WEB-INF/lib.
 # This can be customized for different platforms in RPM spec.
 
-add_custom_target(pki-ocsp-links ALL)
+add_custom_target(pki-ocsp-links ALL
+    COMMENT "Creating links for OCSP")
 
 add_custom_command(
     TARGET pki-ocsp-links

@@ -65,7 +65,9 @@ function(javac target)
 
     set(file_list "${CMAKE_CURRENT_BINARY_DIR}/${target}.files")
 
-    add_custom_target(${target} ALL DEPENDS ${depends})
+    add_custom_target(${target} ALL
+        DEPENDS ${depends}
+        COMMENT "Compiling Java sources for ${target}")
 
     file(MAKE_DIRECTORY ${output_dir})
 
@@ -146,7 +148,9 @@ function(jar target)
 
     endforeach(arg)
 
-    add_custom_target(${target} ALL DEPENDS ${depends})
+    add_custom_target(${target} ALL
+        DEPENDS ${depends}
+        COMMENT "Packaging resources for ${target}")
 
     foreach(i RANGE ${counter})
 
@@ -279,7 +283,9 @@ function(javadoc target)
 
     set(command ${command} ${files} ${packages})
 
-    add_custom_target(${target} ALL DEPENDS ${depends})
+    add_custom_target(${target} ALL
+        DEPENDS ${depends}
+        COMMENT "Generating Javadoc for ${target}")
 
     add_custom_command(
         TARGET ${target}
@@ -312,7 +318,9 @@ function(link target)
 
     endforeach(arg)
 
-    add_custom_target(${target} ALL DEPENDS ${depends})
+    add_custom_target(${target} ALL
+        DEPENDS ${depends}
+        COMMENT "Linking ${target} to ${source}")
 
     add_custom_command(
         TARGET ${target}

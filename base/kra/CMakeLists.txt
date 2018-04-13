@@ -9,7 +9,8 @@ add_subdirectory(${APP_SERVER})
 # Create links in /usr/share/pki/kra/webapps/kra/WEB-INF/lib.
 # This can be customized for different platforms in RPM spec.
 
-add_custom_target(pki-kra-links ALL)
+add_custom_target(pki-kra-links ALL
+    COMMENT "Creating links for KRA")
 
 add_custom_command(
     TARGET pki-kra-links

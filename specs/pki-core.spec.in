@@ -832,6 +832,7 @@ cd build
     VERBOSE=%{?_verbose} \
     DESTDIR=%{buildroot} \
     INSTALL="install -p" \
+    --no-print-directory \
     all install
 
 # Customize system upgrade scripts in /usr/share/pki/upgrade

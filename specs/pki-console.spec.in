@@ -309,6 +309,7 @@ cd build
     VERBOSE=%{?_verbose} \
     DESTDIR=%{buildroot} \
     INSTALL="install -p" \
+    --no-print-directory \
     all install
 
 ################################################################################

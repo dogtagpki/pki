@@ -18,7 +18,8 @@ configure_file(
 
 # Create /usr/share/pki/lib. This can be customized for different platforms in RPM spec.
 
-add_custom_target(pki-lib ALL)
+add_custom_target(pki-lib ALL
+    COMMENT "Creating links for PKI common library")
 
 add_custom_command(
     TARGET pki-lib

@@ -1,6 +1,7 @@
 project(common-ui)
 
-add_custom_target(pki-server-theme-links ALL)
+add_custom_target(pki-server-theme-links ALL
+    COMMENT "Creating links for PKI server theme")
 
 add_custom_command(
     TARGET pki-server-theme-links

@@ -11,7 +11,8 @@ add_subdirectory(${APP_SERVER})
 # Create links in /usr/share/pki/tps/webapps/tps/WEB-INF/lib.
 # This can be customized for different platforms in RPM spec.
 
-add_custom_target(pki-tps-links ALL)
+add_custom_target(pki-tps-links ALL
+    COMMENT "Creating links for TPS")
 
 add_custom_command(
     TARGET pki-tps-links
