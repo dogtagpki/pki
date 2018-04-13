@@ -17,15 +17,15 @@ jobs:
         - .travis/set_gerrit_message.sh -m "${MESSAGE}"
       install: .travis/init_task.sh | tee /dev/tty | grep -Eo '(http|https)://transfer.sh/[a-zA-Z0-9./?=_-]*.txt' | uniq >> ${TRANSFER_SH_URLS}
       script:
-        - set -o pipefail 
+        - set -o pipefail
         - travis_wait 20 .travis/run_task.sh | tee /dev/tty | grep -Eo '(http|https)://transfer.sh/[a-zA-Z0-9./?=_-]*.txt' | uniq >> ${TRANSFER_SH_URLS}
       after_failure:
         # Post the URL of Travis Job that failed
         - TRAVIS_JOB_URL="https://travis-ci.org/$TRAVIS_REPO_SLUG/jobs/$TRAVIS_JOB_ID"
         - MESSAGE="$(printf "Job 1 Failed\nTravis Job:"${TRAVIS_JOB_URL}"\n\nLogs:\n" )"$'\n'"$(cat ${TRANSFER_SH_URLS})"
         - .travis/set_gerrit_message.sh -v -1 -m "${MESSAGE}"
-        - cat ${TRANSFER_SH_URLS}
       after_script:
+        - cat ${TRANSFER_SH_URLS}
         - docker kill ${CONTAINER}
         - docker rm ${CONTAINER}
 
@@ -35,9 +35,6 @@ jobs:
         - echo -e $gerrit_ssh_key >> ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa
       install: .travis/init_task.sh
       script: travis_wait 20 .travis/run_task.sh
-      after_script:
-        - docker kill ${CONTAINER}
-        - docker rm ${CONTAINER}
       after_failure:
         - docker exec ${CONTAINER} journalctl  -l > ${PKI_LOG}
         - echo "Uploading CI Logs to transfer.sh ..."
@@ -48,6 +45,9 @@ jobs:
         - MESSAGE="$(printf "Job 2 Failed\nTravis Job:"${TRAVIS_JOB_URL}"\n\nLogs:\n" )"$'\n'"$(cat ${TRANSFER_SH_URLS})"
         - .travis/set_gerrit_message.sh -v -1 -m "${MESSAGE}"
         - cat ${TRANSFER_SH_URLS}
+      after_script:
+        - docker kill ${CONTAINER}
+        - docker rm ${CONTAINER}
 
     - stage: Verification Label
       before_install: echo -e $gerrit_ssh_key >> ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa
