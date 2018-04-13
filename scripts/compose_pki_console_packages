@@ -137,3 +137,5 @@ rpmbuild \
   ${PKI_CONSOLE_SPEC_FILE} \
   | tee package_${PKI_CONSOLE}.log 2>&1
 
+echo "RPM packages:"
+find "$PKI_CONSOLE_RPMS_DIR" -type f -printf " %p\n"

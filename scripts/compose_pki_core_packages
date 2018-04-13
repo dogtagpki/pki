@@ -139,3 +139,6 @@ if [ "$CREATEREPO" == "Y" ] ; then
    cp -r $PKI_PWD/$PKI_DIR/scripts/scp_the_repo.exp .
    Create_repo_after_build $REPO_CFG_FILE
 fi
+
+echo "RPM packages:"
+find "$PKI_CORE_RPMS_DIR" -type f -printf " %p\n"

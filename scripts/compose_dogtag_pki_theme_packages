@@ -137,3 +137,5 @@ rpmbuild \
   ${DOGTAG_PKI_THEME_SPEC_FILE} \
   | tee package_${DOGTAG_PKI_THEME}.log 2>&1
 
+echo "RPM packages:"
+find "$DOGTAG_PKI_THEME_RPMS_DIR" -type f -printf " %p\n"

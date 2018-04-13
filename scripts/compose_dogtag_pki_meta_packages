@@ -94,3 +94,5 @@ create_packages_directory
 create_META_package_directories
 build_specified_META_package dogtag-pki
 
+echo "RPM packages:"
+find "${PKI_PACKAGES}/RPMS" -type f -printf " %p\n"
