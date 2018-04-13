@@ -330,11 +330,32 @@ if (BUILD_PKI_CORE OR BUILD_PKI_CONSOLE)
         # required for native 'tpsclient' utility
         add_subdirectory(tps-client)
 
-        if(WITH_JAVADOC)
-            add_subdirectory(javadoc)
-        endif(WITH_JAVADOC)
+        list(APPEND PKI_JAVADOC_SOURCEPATH
+            ${CMAKE_SOURCE_DIR}/base/server/cms/src)
+
+        list(APPEND PKI_JAVADOC_SUBPACKAGES
+            com.netscape.cms)
+
+        list(APPEND PKI_JAVADOC_CLASSPATH
+            ${PKI_TOMCAT_JAR}
+            ${PKI_CMS_JAR}
+            ${PKI_CMSCORE_JAR})
+
+        list(APPEND PKI_JAVADOC_DEPENDS
+            pki-tomcat-jar
+            pki-cms-jar
+            pki-cmscore-jar
+            pki-ca-jar
+            pki-kra-jar
+            pki-ocsp-jar
+            pki-tks-jar
+            pki-tps-jar)
 
     endif(WITH_SERVER)
+
+    if(WITH_JAVADOC)
+        add_subdirectory(javadoc)
+    endif(WITH_JAVADOC)
 
     configure_file(
         ${CMAKE_CURRENT_SOURCE_DIR}/VERSION

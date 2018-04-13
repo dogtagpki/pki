@@ -67,15 +67,15 @@ javadoc(pki-javadoc
         ${CMAKE_SOURCE_DIR}/base/util/src
         ${CMAKE_SOURCE_DIR}/base/common/src
         ${CMAKE_SOURCE_DIR}/base/java-tools/src
-        ${CMAKE_SOURCE_DIR}/base/server/cms/src
+        ${PKI_JAVADOC_SOURCEPATH}
     DEST
         ${CMAKE_CURRENT_BINARY_DIR}/javadoc/pki-${APPLICATION_VERSION}
     SUBPACKAGES
-        com.netscape.certsrv
-        com.netscape.cms
-        com.netscape.cmstools
         com.netscape.cmsutil
+        com.netscape.certsrv
+        com.netscape.cmstools
         org.dogtagpki
+        ${PKI_JAVADOC_SUBPACKAGES}
     CLASSPATH
         ${SLF4J_API_JAR}
         ${XALAN_JAR} ${XERCES_JAR}
@@ -85,9 +85,9 @@ javadoc(pki-javadoc
         ${SERVLET_JAR} ${TOMCAT_CATALINA_JAR} ${TOMCAT_UTIL_JAR}
         ${HTTPCLIENT_JAR} ${HTTPCORE_JAR}
         ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR} ${RESTEASY_ATOM_PROVIDER_JAR} ${RESTEASY_CLIENT_JAR}
-        ${JSS_JAR} ${SYMKEY_JAR} ${TOMCATJSS_JAR}
-        ${PKI_CMSUTIL_JAR} ${PKI_CERTSRV_JAR} ${PKI_TOMCAT_JAR} ${PKI_CMS_JAR} ${PKI_CMSCORE_JAR} ${PKI_TOOLS_JAR}
-        ${NUXWDOG_JAR}
+        ${JSS_JAR} ${SYMKEY_JAR} ${TOMCATJSS_JAR} ${NUXWDOG_JAR}
+        ${PKI_CMSUTIL_JAR} ${PKI_CERTSRV_JAR} ${PKI_TOOLS_JAR}
+        ${PKI_JAVADOC_CLASSPATH}
     OPTIONS
         -windowtitle 'pki-javadoc'
         -doctitle '<h1>PKI Javadoc</h1>'
@@ -96,8 +96,8 @@ javadoc(pki-javadoc
         -version
         ${doclintstr}
     DEPENDS
-        pki-cmsutil-jar pki-certsrv-jar pki-tools-jar pki-tomcat-jar
-        pki-cms-jar pki-cmscore-jar pki-ca-jar pki-kra-jar pki-ocsp-jar pki-tks-jar pki-tps-jar
+        pki-cmsutil-jar pki-certsrv-jar pki-tools-jar
+        ${PKI_JAVADOC_DEPENDS}
 )
 
 install(

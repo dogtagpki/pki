@@ -479,7 +479,6 @@ This package contains PKI executables that can be used to help make
 Certificate System into a more complete and robust PKI solution.
 
 %if %{with server}
-
 ################################################################################
 %package -n       pki-server
 ################################################################################
@@ -753,6 +752,9 @@ The utility "tpsclient" is a test tool that interacts with TPS.  This
 tool is useful to test TPS server configs without risking an actual
 smart card.
 
+%endif # %{with server}
+
+%if %{with javadoc}
 ################################################################################
 %package -n       pki-javadoc
 ################################################################################
@@ -771,8 +773,7 @@ Obsoletes:        pki-common-javadoc < %{version}-%{release}
 
 %description -n   pki-javadoc
 This package contains PKI API documentation.
-
-%endif # %{with server}
+%endif # %{with javadoc}
 
 ################################################################################
 %prep
@@ -1197,7 +1198,6 @@ fi
 %{_mandir}/man1/PKCS10Client.1.gz
 
 %if %{with server}
-
 ################################################################################
 %files -n pki-server
 ################################################################################
@@ -1325,6 +1325,8 @@ fi
 %{_libdir}/tps/libtps.so
 %{_libdir}/tps/libtokendb.so
 
+%endif # %{with server}
+
 %if %{with javadoc}
 ################################################################################
 %files -n pki-javadoc
@@ -1332,9 +1334,8 @@ fi
 
 %defattr(-,root,root,-)
 %{_javadocdir}/pki-%{version}/
-%endif
 
-%endif # %{with server}
+%endif # %{with javadoc}
 
 ################################################################################
 %changelog
