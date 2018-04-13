@@ -271,6 +271,7 @@ following "Mutually-Exclusive" PKI Theme packages:
 %{__mkdir_p} build
 cd build
 %cmake \
+    --no-warn-unused-cli \
     -DVERSION=%{version}-%{release} \
     -DVAR_INSTALL_DIR:PATH=/var \
     -DJAVA_HOME=%{java_home} \

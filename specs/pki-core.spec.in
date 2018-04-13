@@ -77,9 +77,9 @@ Source:           https://github.com/dogtagpki/pki/archive/v%{version}/pki-%{ver
 # PKI
 ################################################################################
 
+%bcond_without    test
 %bcond_without    server
 %bcond_without    javadoc
-%bcond_without    test
 
 # ignore unpackaged files from native 'tpsclient'
 # REMINDER:  Remove this '%%define' once 'tpsclient' is rewritten as a Java app
@@ -789,6 +789,7 @@ This package contains PKI API documentation.
 %{__mkdir_p} build
 cd build
 %cmake \
+    --no-warn-unused-cli \
     -DVERSION=%{version}-%{release} \
     -DVAR_INSTALL_DIR:PATH=/var \
     -DJAVA_HOME=%{java_home} \
