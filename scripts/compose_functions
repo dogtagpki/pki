@@ -140,7 +140,7 @@ compute_build_options()
 		popd > /dev/null
 		_COMMIT=`printf ".%.8s" ${latest_git_commit_id}`
 		echo "_COMMIT=${_COMMIT}"
-		OPTIONS+=(--define "_commit ${_COMMIT}")
+		OPTIONS+=(--define "_commit_id ${_COMMIT}")
 	else
 		# By default, do NOT append a git commit ID to the release designation
 		printf "unset USE_GIT_COMMIT_ID\n"
