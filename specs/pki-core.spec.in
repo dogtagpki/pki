@@ -351,7 +351,7 @@ written in Python.
 Summary:          PKI Python 2 Package
 BuildArch:        noarch
 
-Obsoletes:        pki-base-python2 < 10.6
+Obsoletes:        pki-base-python2 < %{version}
 Provides:         pki-base-python2 = %{version}-%{release}
 %{?python_provide:%python_provide python2-pki}
 
@@ -436,7 +436,7 @@ written in Java.
 Summary:          PKI Python 3 Package
 BuildArch:        noarch
 
-Obsoletes:        pki-base-python3 < 10.6
+Obsoletes:        pki-base-python3 < %{version}
 Provides:         pki-base-python3 = %{version}-%{release}
 %{?python_provide:%python_provide python3-pki}
 
@@ -925,15 +925,17 @@ fi
 
 %if 0%{?fedora} || 0%{?rhel} > 7
 
+################################################################################
+echo "Scanning Python code with pylint"
+################################################################################
+
 %if 0%{?with_python3_default}
-# Scanning the python code with pylint.
 %{__python3} ../tools/pylint-build-scan.py rpm --prefix %{buildroot}
 if [ $? -ne 0 ]; then
     echo "pylint for Python 3 failed. RC: $?"
     exit 1
 fi
 %else
-# Scanning the python code with pylint.
 %{__python2} ../tools/pylint-build-scan.py rpm --prefix %{buildroot}
 if [ $? -ne 0 ]; then
     echo "pylint for Python 2 failed. RC: $?"
@@ -946,6 +948,10 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 %endif  # with_python3_default
+
+################################################################################
+echo "Scanning Python code with flake8"
+################################################################################
 
 %if 0%{?with_python2}
 flake8 --config ../tox.ini %{buildroot}
@@ -1106,7 +1112,9 @@ fi
 %defattr(-,root,root,-)
 %doc base/common/LICENSE
 %doc base/common/LICENSE.LESSER
+%if %{with server}
 %exclude %{python2_sitelib}/pki/server
+%endif
 %{python2_sitelib}/pki
 %endif # with_python2
 
@@ -1129,7 +1137,9 @@ fi
 %defattr(-,root,root,-)
 %doc base/common/LICENSE
 %doc base/common/LICENSE.LESSER
+%if %{with server}
 %exclude %{python3_sitelib}/pki/server
+%endif
 %{python3_sitelib}/pki
 %endif # with_python3
 
