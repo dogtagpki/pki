@@ -797,6 +797,9 @@ cd build
     -DJAXRS_API_JAR=%{jaxrs_api_jar} \
     -DRESTEASY_LIB=%{resteasy_lib} \
     -DBUILD_PKI_CORE:BOOL=ON \
+%if 0%{?fedora} >= 28 || 0%{?rhel} > 7
+    -DPKI_NSS_DB_TYPE=sql \
+%endif
 %if ! %{?with_python3}
     -DWITH_PYTHON3:BOOL=OFF \
 %endif
@@ -814,9 +817,6 @@ cd build
 %endif
 %if ! %{with test}
     -DWITH_TEST:BOOL=OFF \
-%endif
-%if 0%{?fedora} >= 28 || 0%{?rhel} > 7
-    -DPKI_NSS_DB_TYPE=sql \
 %endif
     ..
 
