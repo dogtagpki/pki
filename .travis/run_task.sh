@@ -42,7 +42,6 @@ function truncate_log_to_test_failures() {
 
 if [[ "$TASK_TO_RUN" == "ipa-test" ]]
 then
-    docker pull ${IPA_IMAGE}
 
     # Copy the built RPMS to host machine
     mkdir -p ${DOGTAG_PKI_RPMS}
@@ -62,7 +61,7 @@ then
         -c .travis/ipa-test.yaml \
         $developer_mode_opt \
         --container-environment "PYTHON=$PYTHON" \
-        --container-image ${IPA_IMAGE} \
+        --container-image ${BASE_IMAGE} \
         --git-repo ${TRAVIS_BUILD_DIR} \
         run-tests ${cert_test_file_loc}
 
