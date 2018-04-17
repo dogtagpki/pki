@@ -124,28 +124,18 @@ compute_build_options()
 {
 	# Optionally compute a timestamp
 	if [ -n ${USE_TIMESTAMP} ] && [ "${USE_TIMESTAMP}" = "1" ]; then
-		now=`date +"%Y%m%d%H%M%S"`
-		_TIMESTAMP=`printf ".%.14s" ${now}`
-		echo "_TIMESTAMP=${_TIMESTAMP}"
+		TIMESTAMP=`date +"%Y%m%d%H%M%S"`
+		echo "TIMESTAMP: ${TIMESTAMP}"
+		_TIMESTAMP=`printf ".%.14s" ${TIMESTAMP}`
 		OPTIONS+=(--define "_timestamp ${_TIMESTAMP}")
-	else
-		# By default, do NOT append a timestamp to the release designation
-		printf "unset USE_TIMESTAMP\n"
-		unset USE_TIMESTAMP
 	fi
 
 	# Optionally fetch the git commit ID from the source repository
 	if [ -n ${USE_GIT_COMMIT_ID} ] && [ "${USE_GIT_COMMIT_ID}" = "1" ]; then
-		pushd ${PKI_DIR} > /dev/null
-		latest_git_commit_id=`git rev-parse --short=8 HEAD`
-		popd > /dev/null
-		_COMMIT=`printf ".%.8s" ${latest_git_commit_id}`
-		echo "_COMMIT=${_COMMIT}"
-		OPTIONS+=(--define "_commit_id ${_COMMIT}")
-	else
-		# By default, do NOT append a git commit ID to the release designation
-		printf "unset USE_GIT_COMMIT_ID\n"
-		unset USE_GIT_COMMIT_ID
+		COMMIT_ID=`git -C "${PKI_DIR}" rev-parse --short=8 HEAD`
+		echo "COMMIT_ID: ${COMMIT_ID}"
+		_COMMIT_ID=`printf ".%.8s" ${COMMIT_ID}`
+		OPTIONS+=(--define "_commit_id ${_COMMIT_ID}")
 	fi
 }
 
