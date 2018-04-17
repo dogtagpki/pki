@@ -1,0 +1,8 @@
+Verified+1: <pki.jenkins.bot@gmail.com>
+Code-Review+2: Matthew Harmsen <mharmsen@redhat.com>
+Workflow+1: Endi S. Dewata <edewata@redhat.com>
+Submitted-by: Endi S. Dewata <edewata@redhat.com>
+Submitted-at: Tue, 17 Apr 2018 16:35:42 -0400
+Reviewed-on: https://review.gerrithub.io/407854
+Project: dogtagpki/pki
+Branch: refs/heads/master
