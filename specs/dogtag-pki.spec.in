@@ -33,7 +33,7 @@ Release:          1%{?_timestamp}%{?_commit_id}%{?dist}
 %endif
 
 # Make certain that this 'meta' package requires the latest version(s)
-# of ALL Dogtag PKI theme packages
+# of ALL PKI theme packages
 Requires:         dogtag-pki-server-theme >= %{version}
 Requires:         dogtag-pki-console-theme >= %{version}
 
@@ -58,7 +58,7 @@ Requires:         pki-tps >= %{version}
 Requires:         pki-console >= %{version}
 
 # Make certain that this 'meta' package requires the latest version(s)
-# of ALL Dogtag PKI clients
+# of ALL PKI clients
 %if 0%{?fedora} >= 27 || 0%{?rhel} > 7
 Requires:         esc >= 1.1.1
 %else
@@ -121,6 +121,6 @@ EOF
 %changelog
 ################################################################################
 
-* Tue Mar 6 2018 Dogtag Team <pki-devel@redhat.com> 10.6.0-0
+* Tue Mar 6 2018 Dogtag PKI Team <pki-devel@redhat.com> 10.6.0-0
 - To list changes in <branch> since <tag>:
   $ git log --pretty=oneline --abbrev-commit --no-decorate <tag>..<branch>
