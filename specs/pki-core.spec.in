@@ -45,7 +45,7 @@ Source:           https://github.com/dogtagpki/pki/archive/v%{version}/pki-%{ver
 # Java
 ################################################################################
 
-%define java_home /usr/lib/jvm/jre-1.8.0-openjdk
+%define java_home %{_usr}/lib/jvm/jre-1.8.0-openjdk
 
 ################################################################################
 # Tomcat
