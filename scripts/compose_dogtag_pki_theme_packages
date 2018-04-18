@@ -103,6 +103,8 @@ compute_build_options
 sed "s/%{?_timestamp}/${_TIMESTAMP}/g; s/%{?_commit_id}/${_COMMIT}/g" \
     ${PKI_SPECS_FILE} > ${DOGTAG_PKI_THEME_SPEC_FILE}
 
+rpmlint ${DOGTAG_PKI_THEME_SPEC_FILE}
+
 
 ##
 ## Create the 'dogtag-pki' tarball
