@@ -217,6 +217,8 @@ sed "s/%{?_timestamp}/${_TIMESTAMP}/g; s/%{?_commit_id}/${_COMMIT_ID}/g" \
 echo "RPM spec:"
 echo " $RPM_SPEC"
 
+rpmlint $RPM_SPEC
+
 if [ "$BUILD_TARGET" = "spec" ] ; then
     exit
 fi
