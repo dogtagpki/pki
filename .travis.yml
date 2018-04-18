@@ -18,7 +18,7 @@ jobs:
       install: .travis/init_task.sh | tee /dev/tty | grep -Eo '(http|https)://transfer.sh/[a-zA-Z0-9./?=_-]*.txt' | uniq >> ${TRANSFER_SH_URLS}
       script:
         - set -o pipefail
-        - travis_wait 20 .travis/run_task.sh | tee /dev/tty | grep -Eo '(http|https)://transfer.sh/[a-zA-Z0-9./?=_-]*.txt' | uniq >> ${TRANSFER_SH_URLS}
+        - travis_wait 20 .travis/pki-test.sh | tee /dev/tty | grep -Eo '(http|https)://transfer.sh/[a-zA-Z0-9./?=_-]*.txt' | uniq >> ${TRANSFER_SH_URLS}
       after_failure:
         # Post the URL of Travis Job that failed
         - TRAVIS_JOB_URL="https://travis-ci.org/$TRAVIS_REPO_SLUG/jobs/$TRAVIS_JOB_ID"
@@ -34,11 +34,11 @@ jobs:
         - set -a && source .travis/global_variables
         - echo -e $gerrit_ssh_key >> ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa
       install: .travis/init_task.sh
-      script: travis_wait 20 .travis/run_task.sh
+      script: travis_wait 20 .travis/ipa-test.sh
       after_failure:
-        - docker exec ${CONTAINER} journalctl  -l > ${PKI_LOG}
+        - docker exec ${CONTAINER} journalctl  -l > ${SYSTEMD_LOG}
         - echo "Uploading CI Logs to transfer.sh ..."
-        - curl -w "\n" --upload-file ./${PKI_LOG} https://transfer.sh/dogtag_build_logs.txt > ${TRANSFER_SH_URLS}
+        - curl -w "\n" --upload-file ./${SYSTEMD_LOG} https://transfer.sh/systemd_logs.txt > ${TRANSFER_SH_URLS}
         - curl -w "\n" --upload-file ./${CI_RESULTS_LOG} https://transfer.sh/freeipa-integration.txt >> ${TRANSFER_SH_URLS}
         # Post the URL of Travis Job that failed
         - TRAVIS_JOB_URL="https://travis-ci.org/$TRAVIS_REPO_SLUG/jobs/$TRAVIS_JOB_ID"
@@ -54,6 +54,3 @@ jobs:
       script:
         - MESSAGE="$(printf "Travis Build Successful.")"
         - .travis/set_gerrit_message.sh -v +1 -m "${MESSAGE}"
-      after_script:
-        # Add remote repo in SSH form. Using existing 'origin' will result in user/pass authentication
-        - .travis/delete_branch.sh

@@ -1,6 +1,6 @@
 CONTAINER=pkitest
 SCRIPTDIR=/tmp/workdir/pki/.travis
-PKI_LOG=pki_log.log
+SYSTEMD_LOG=systemd_log.log
 CI_RESULTS_LOG="ci_results_${TRAVIS_BRANCH}.log"
 CI_RUNNER_LOG_ARCHIVE="dogtag-ci-job-${TRAVIS_JOB_NUMBER}.tar.gz"
 PKI_IMAGE=${IMAGE_REPO:-dogtagpki/pki-ci}:f27_106
