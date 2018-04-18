@@ -1,4 +1,5 @@
-#!/bin/sh
+#!/bin/sh -e
+
 # BEGIN COPYRIGHT BLOCK
 # (C) 2010 Red Hat, Inc.
 # All rights reserved.
@@ -75,7 +76,12 @@ build_specified_META_package()
 
 	printf "BEGIN: Building '${package}' META package . . .\n"
 	compute_build_options
-	cp ${spec_file_path}/${spec_file} ${PKI_PACKAGES}/SPECS/${package}.spec
+
+	cp ${spec_file_path}/${spec_file} \
+	    ${PKI_PACKAGES}/SPECS/${package}.spec
+
+	rpmlint ${PKI_PACKAGES}/SPECS/${package}.spec
+
 	rpmbuild \
 	    -ba \
 	    --define "_topdir ${PKI_PACKAGES}" \

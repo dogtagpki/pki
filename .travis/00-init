@@ -31,3 +31,6 @@ dnf makecache
 
 # update, container might be outdated
 dnf update -y
+
+# TODO: move this into container image
+dnf install -y rpmlint
