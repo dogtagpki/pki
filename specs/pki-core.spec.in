@@ -752,7 +752,7 @@ The utility "tpsclient" is a test tool that interacts with TPS.  This
 tool is useful to test TPS server configs without risking an actual
 smart card.
 
-%endif # %{with server}
+%endif # with server
 
 %if %{with javadoc}
 ################################################################################
@@ -774,7 +774,7 @@ Obsoletes:        pki-common-javadoc < %{version}-%{release}
 %description -n   pki-javadoc
 This package contains PKI API documentation.
 
-%endif # %{with javadoc}
+%endif # with javadoc
 
 ################################################################################
 %prep
@@ -971,7 +971,7 @@ fi
 
 %endif  # Fedora / RHEL > 7
 
-%endif # %{with server}
+%endif # with server
 
 %{__mkdir_p} %{buildroot}%{_localstatedir}/log/pki
 %{__mkdir_p} %{buildroot}%{_sharedstatedir}/pki
@@ -1016,7 +1016,7 @@ if ! getent passwd %{pki_username} >/dev/null ; then
 fi
 exit 0
 
-%endif # %{with server}
+%endif # with server
 
 %post -n pki-base
 
@@ -1057,18 +1057,18 @@ then
     systemctl daemon-reload
 fi
 
-## %preun -n pki-server
+## preun -n pki-server
 ## NOTE:  At this time, NO attempt has been made to update ANY PKI subsystem
 ##        from EITHER 'sysVinit' OR previous 'systemd' processes to the new
 ##        PKI deployment process
 
 
-## %postun -n pki-server
+## postun -n pki-server
 ## NOTE:  At this time, NO attempt has been made to update ANY PKI subsystem
 ##        from EITHER 'sysVinit' OR previous 'systemd' processes to the new
 ##        PKI deployment process
 
-%endif # %{with server}
+%endif # with server
 
 ################################################################################
 %files -n pki-symkey
@@ -1338,7 +1338,7 @@ fi
 %{_libdir}/tps/libtps.so
 %{_libdir}/tps/libtokendb.so
 
-%endif # %{with server}
+%endif # with server
 
 %if %{with javadoc}
 ################################################################################
@@ -1348,7 +1348,7 @@ fi
 %defattr(-,root,root,-)
 %{_javadocdir}/pki-%{version}/
 
-%endif # %{with javadoc}
+%endif # with javadoc
 
 ################################################################################
 %changelog
