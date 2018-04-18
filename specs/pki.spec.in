@@ -717,8 +717,8 @@ behind the firewall with restricted access.
 
 Summary:          PKI TPS Package
 
-Provides:         pki-tps-tomcat
-Provides:         pki-tps-client
+Provides:         pki-tps-tomcat = %{version}-%{release}
+Provides:         pki-tps-client = %{version}-%{release}
 
 Obsoletes:        pki-tps-tomcat
 Obsoletes:        pki-tps-client
