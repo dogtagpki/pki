@@ -1,4 +1,5 @@
-#!/bin/sh
+#!/bin/sh -e
+
 # BEGIN COPYRIGHT BLOCK
 # (C) 2010 Red Hat, Inc.
 # All rights reserved.
@@ -101,6 +102,8 @@ compute_build_options
 
 sed "s/%{?_timestamp}/${_TIMESTAMP}/g; s/%{?_commit_id}/${_COMMIT}/g" \
     ${PKI_SPECS_FILE} > ${PKI_CONSOLE_SPEC_FILE}
+
+rpmlint ${PKI_CONSOLE_SPEC_FILE}
 
 
 ##
