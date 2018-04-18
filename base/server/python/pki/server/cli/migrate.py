@@ -160,7 +160,7 @@ class MigrateCLI(pki.cli.CLI):
         if tomcat_version == '7':
             self.migrate_server_xml_to_tomcat7(document)
 
-        elif tomcat_version == '8':
+        elif tomcat_version == '8' or tomcat_version == '9':
             self.migrate_server_xml_to_tomcat8(instance, document)
 
         elif tomcat_version:
@@ -440,7 +440,7 @@ class MigrateCLI(pki.cli.CLI):
         if tomcat_version == '7':
             self.migrate_context_xml_to_tomcat7(document)
 
-        elif tomcat_version == '8':
+        elif tomcat_version == '8' or tomcat_version == '9':
             self.migrate_context_xml_to_tomcat8(document)
 
         elif tomcat_version:

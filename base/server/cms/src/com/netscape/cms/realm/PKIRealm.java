@@ -42,7 +42,6 @@ public class PKIRealm extends RealmBase {
 
     private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
-    @Override
     protected String getName() {
         return "PKIRealm";
     }
