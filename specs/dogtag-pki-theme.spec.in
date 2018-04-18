@@ -40,20 +40,20 @@ exclusive!
 
 Summary:          Dogtag PKI Server Theme Package
 
-Obsoletes:        dogtag-pki-common-theme <= %{version}-%{release}
-Obsoletes:        dogtag-pki-common-ui
-Obsoletes:        dogtag-pki-ca-theme <= %{version}-%{release}
-Obsoletes:        dogtag-pki-ca-ui
-Obsoletes:        dogtag-pki-kra-theme <= %{version}-%{release}
-Obsoletes:        dogtag-pki-kra-ui
-Obsoletes:        dogtag-pki-ocsp-theme <= %{version}-%{release}
-Obsoletes:        dogtag-pki-ocsp-ui
-Obsoletes:        dogtag-pki-tks-theme <= %{version}-%{release}
-Obsoletes:        dogtag-pki-tks-ui
-Obsoletes:        dogtag-pki-ra-theme <= %{version}-%{release}
-Obsoletes:        dogtag-pki-ra-ui
-Obsoletes:        dogtag-pki-tps-theme <= %{version}-%{release}
-Obsoletes:        dogtag-pki-tps-ui
+Obsoletes:        dogtag-pki-common-theme < %{version}-%{release}
+Obsoletes:        dogtag-pki-common-ui < %{version}-%{release}
+Obsoletes:        dogtag-pki-ca-theme < %{version}-%{release}
+Obsoletes:        dogtag-pki-ca-ui < %{version}-%{release}
+Obsoletes:        dogtag-pki-kra-theme < %{version}-%{release}
+Obsoletes:        dogtag-pki-kra-ui < %{version}-%{release}
+Obsoletes:        dogtag-pki-ocsp-theme < %{version}-%{release}
+Obsoletes:        dogtag-pki-ocsp-ui < %{version}-%{release}
+Obsoletes:        dogtag-pki-tks-theme < %{version}-%{release}
+Obsoletes:        dogtag-pki-tks-ui < %{version}-%{release}
+Obsoletes:        dogtag-pki-ra-theme < %{version}-%{release}
+Obsoletes:        dogtag-pki-ra-ui < %{version}-%{release}
+Obsoletes:        dogtag-pki-tps-theme < %{version}-%{release}
+Obsoletes:        dogtag-pki-tps-ui < %{version}-%{release}
 
 Provides:         dogtag-pki-common-theme = %{version}-%{release}
 Provides:         pki-server-theme = %{version}-%{release}
@@ -98,7 +98,7 @@ Conflicts:        redhat-pki-console-theme
 Conflicts:        redhat-pki-console-ui
 %endif
 
-Obsoletes:        dogtag-pki-console-ui <= 9
+Obsoletes:        dogtag-pki-console-ui < %{version}-%{release}
 
 Provides:         pki-console-theme = %{version}-%{release}
 Provides:         pki-console-ui = %{version}-%{release}

@@ -547,7 +547,7 @@ Requires:         policycoreutils-python
 %endif  # with_python3_default
 
 Requires:         selinux-policy-targeted >= 3.13.1-159
-Obsoletes:        pki-selinux
+Obsoletes:        pki-selinux < %{version}-%{release}
 
 %if 0%{?fedora} >= 27 || 0%{?rhel} > 7
 Requires:         tomcat >= 1:8.5.23
@@ -720,8 +720,8 @@ Summary:          PKI TPS Package
 Provides:         pki-tps-tomcat = %{version}-%{release}
 Provides:         pki-tps-client = %{version}-%{release}
 
-Obsoletes:        pki-tps-tomcat
-Obsoletes:        pki-tps-client
+Obsoletes:        pki-tps-tomcat < %{version}-%{release}
+Obsoletes:        pki-tps-client < %{version}-%{release}
 
 Requires:         java-1.8.0-openjdk-headless
 Requires:         pki-server >= %{version}-%{release}
@@ -821,20 +821,20 @@ following "Mutually-Exclusive" PKI Theme packages:
 Summary:          Dogtag PKI Server Theme Package
 BuildArch:        noarch
 
-Obsoletes:        dogtag-pki-common-theme <= %{version}-%{release}
-Obsoletes:        dogtag-pki-common-ui
-Obsoletes:        dogtag-pki-ca-theme <= %{version}-%{release}
-Obsoletes:        dogtag-pki-ca-ui
-Obsoletes:        dogtag-pki-kra-theme <= %{version}-%{release}
-Obsoletes:        dogtag-pki-kra-ui
-Obsoletes:        dogtag-pki-ocsp-theme <= %{version}-%{release}
-Obsoletes:        dogtag-pki-ocsp-ui
-Obsoletes:        dogtag-pki-tks-theme <= %{version}-%{release}
-Obsoletes:        dogtag-pki-tks-ui
-Obsoletes:        dogtag-pki-ra-theme <= %{version}-%{release}
-Obsoletes:        dogtag-pki-ra-ui
-Obsoletes:        dogtag-pki-tps-theme <= %{version}-%{release}
-Obsoletes:        dogtag-pki-tps-ui
+Obsoletes:        dogtag-pki-common-theme < %{version}-%{release}
+Obsoletes:        dogtag-pki-common-ui < %{version}-%{release}
+Obsoletes:        dogtag-pki-ca-theme < %{version}-%{release}
+Obsoletes:        dogtag-pki-ca-ui < %{version}-%{release}
+Obsoletes:        dogtag-pki-kra-theme < %{version}-%{release}
+Obsoletes:        dogtag-pki-kra-ui < %{version}-%{release}
+Obsoletes:        dogtag-pki-ocsp-theme < %{version}-%{release}
+Obsoletes:        dogtag-pki-ocsp-ui < %{version}-%{release}
+Obsoletes:        dogtag-pki-tks-theme < %{version}-%{release}
+Obsoletes:        dogtag-pki-tks-ui < %{version}-%{release}
+Obsoletes:        dogtag-pki-ra-theme < %{version}-%{release}
+Obsoletes:        dogtag-pki-ra-ui < %{version}-%{release}
+Obsoletes:        dogtag-pki-tps-theme < %{version}-%{release}
+Obsoletes:        dogtag-pki-tps-ui < %{version}-%{release}
 
 Provides:         dogtag-pki-common-theme = %{version}-%{release}
 Provides:         pki-server-theme = %{version}-%{release}
@@ -878,7 +878,7 @@ Conflicts:        redhat-pki-console-theme
 Conflicts:        redhat-pki-console-ui
 %endif
 
-Obsoletes:        dogtag-pki-console-ui <= 9
+Obsoletes:        dogtag-pki-console-ui < %{version}-%{release}
 
 Provides:         pki-console-theme = %{version}-%{release}
 Provides:         pki-console-ui = %{version}-%{release}
