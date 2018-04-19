@@ -333,7 +333,7 @@ fi
 find "$WORK_DIR/RPMS" -mindepth 2 -type f -exec mv -i '{}' "$WORK_DIR/RPMS" ';'
 
 # remove empty subfolders
-rm -rf "$WORK_DIR/RPMS/*/"
+find "$WORK_DIR/RPMS" -mindepth 1 -type d -delete
 
 echo "RPM packages:"
 find "$WORK_DIR/RPMS" -type f -printf " %p\n"
