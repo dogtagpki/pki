@@ -63,10 +63,35 @@ generate_rpm_spec() {
         echo "Generating $RPM_SPEC"
     fi
 
+    # update timestamp and commit ID
     sed "s/%{?_timestamp}/${_TIMESTAMP}/g; s/%{?_commit_id}/${_COMMIT_ID}/g" \
         "$SPEC_TEMPLATE" > "$WORK_DIR/SPECS/$RPM_SPEC"
 
+    if [ "$SOURCE_TAG" != "" ] &&
+        [ "$SOURCE_TAG" != "HEAD" ] ; then
+
+        PATCH="$NAME-$VERSION-$RELEASE.patch"
+
+        # update patch
+        sed "s/# Patch: pki-VERSION-RELEASE.patch/Patch: $PATCH/g" \
+            "$WORK_DIR/SPECS/$RPM_SPEC" > "$WORK_DIR/SPECS/$RPM_SPEC.tmp"
+        mv "$WORK_DIR/SPECS/$RPM_SPEC.tmp" "$WORK_DIR/SPECS/$RPM_SPEC"
+    fi
+
     rpmlint "$WORK_DIR/SPECS/$RPM_SPEC"
+}
+
+generate_patch() {
+
+    if [ "$VERBOSE" = true ] ; then
+        echo "Generating $PATCH for all changes since $SOURCE_TAG tag"
+    fi
+
+    git -C "$SRC_DIR" \
+        format-patch \
+        --stdout \
+        $SOURCE_TAG \
+        > "$WORK_DIR/SOURCES/$PATCH"
 }
 
 generate_rpm_sources() {
@@ -85,6 +110,10 @@ generate_rpm_sources() {
             --prefix $NAME-$VERSION/ \
             -o "$WORK_DIR/SOURCES/$TARBALL" \
             $SOURCE_TAG
+
+        if [ "$SOURCE_TAG" != "HEAD" ] ; then
+            generate_patch
+        fi
 
         return
     fi
