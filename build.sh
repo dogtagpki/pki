@@ -16,6 +16,7 @@ usage() {
     echo
     echo "Options:"
     echo "    --work-dir <path>    Build directory (default: ~/build/$NAME)."
+    echo "    --tag <tag>          Generate source tarball from specified tag."
     echo "    --with-timestamp     Append timestamp to release number."
     echo "    --with-commit-id     Append commit ID to release number."
     echo "    --without-test       Do not run unit tests."
@@ -38,6 +39,7 @@ usage() {
 
 WORK_DIR="$HOME/build/$NAME"
 BUILD_TARGET=rpm
+TAG=
 
 WITH_TIMESTAMP=
 WITH_COMMIT_ID=
@@ -64,6 +66,9 @@ while getopts v-: arg ; do
         case $OPTARG in
         work-dir=?*)
             WORK_DIR="$LONG_OPTARG"
+            ;;
+        tag=?*)
+            TAG="$LONG_OPTARG"
             ;;
         with-timestamp)
             WITH_TIMESTAMP=true
@@ -106,7 +111,7 @@ while getopts v-: arg ; do
         '')
             break # "--" terminates argument processing
             ;;
-        work-dir*)
+        work-dir* | tag*)
             echo "ERROR: Missing argument for --$OPTARG option" >&2
             exit 1
             ;;
@@ -229,24 +234,38 @@ fi
 
 TARBALL="$WORK_DIR/SOURCES/pki-$VERSION.tar.gz"
 
-if [ "$VERBOSE" = true ] ; then
-    echo "Generating $TARBALL"
-fi
+if [ "$TAG" = "" ] ; then
 
-tar czf "$TARBALL" \
- --transform "s,^./,pki-$VERSION/," \
- --exclude .git \
- --exclude .svn \
- --exclude .swp \
- --exclude .metadata \
- --exclude build \
- --exclude .tox \
- --exclude dist \
- --exclude MANIFEST \
- --exclude *.pyc \
- --exclude __pycache__ \
- -C "$SRC_DIR" \
- .
+    if [ "$VERBOSE" = true ] ; then
+        echo "Generating $TARBALL from $SRC_DIR"
+    fi
+
+    tar czf "$TARBALL" \
+        --transform "s,^./,pki-$VERSION/," \
+        --exclude .git \
+        --exclude .svn \
+        --exclude .swp \
+        --exclude .metadata \
+        --exclude build \
+        --exclude .tox \
+        --exclude dist \
+        --exclude MANIFEST \
+        --exclude *.pyc \
+        --exclude __pycache__ \
+        -C "$SRC_DIR" \
+        .
+else
+    if [ "$VERBOSE" = true ] ; then
+        echo "Generating $TARBALL from $TAG"
+    fi
+
+    git -C "$SRC_DIR" \
+        archive \
+        --format=tar.gz \
+        --prefix pki-$VERSION/ \
+        -o "$TARBALL" \
+        $TAG
+fi
 
 echo "RPM sources:"
 find "$WORK_DIR/SOURCES" -type f -printf " %p\n"
