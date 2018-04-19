@@ -23,6 +23,13 @@ Release:          1%{?_timestamp}%{?_commit_id}%{?dist}
 #     v<version>
 Source: https://github.com/dogtagpki/pki/archive/v%{version}/pki-%{version}.tar.gz
 
+# To create a patch for all changes since a version tag:
+# $ git format-patch \
+#     --stdout \
+#     v<version> \
+#     > pki-VERSION-RELEASE.patch
+# Patch: pki-VERSION-RELEASE.patch
+
 ################################################################################
 # Python
 ################################################################################
@@ -982,7 +989,7 @@ NOTE:  As a convenience for standalone deployments, this 'dogtag-pki'
 %prep
 ################################################################################
 
-%autosetup -n pki-%{version} -p 1
+%autosetup -n pki-%{version} -p 1 -S git
 
 ################################################################################
 %build
