@@ -66,6 +66,30 @@ generate_rpm_spec() {
     rpmlint "$WORK_DIR/SPECS/$RPM_SPEC"
 }
 
+generate_rpm_sources() {
+
+    TARBALL="$NAME-$VERSION.tar.gz"
+
+    if [ "$VERBOSE" = true ] ; then
+        echo "Generating $TARBALL"
+    fi
+
+    tar czf "$WORK_DIR/SOURCES/$TARBALL" \
+        --transform "s,^./,$NAME-$VERSION/," \
+        --exclude .git \
+        --exclude .svn \
+        --exclude .swp \
+        --exclude .metadata \
+        --exclude build \
+        --exclude .tox \
+        --exclude dist \
+        --exclude MANIFEST \
+        --exclude *.pyc \
+        --exclude __pycache__ \
+        -C "$SRC_DIR" \
+        .
+}
+
 while getopts v-: arg ; do
     case $arg in
     v)
@@ -231,26 +255,7 @@ fi
 # Generate RPM sources
 ################################################################################
 
-TARBALL="$WORK_DIR/SOURCES/$NAME-$VERSION.tar.gz"
-
-if [ "$VERBOSE" = true ] ; then
-    echo "Generating $TARBALL"
-fi
-
-tar czf "$TARBALL" \
- --transform "s,^./,$NAME-$VERSION/," \
- --exclude .git \
- --exclude .svn \
- --exclude .swp \
- --exclude .metadata \
- --exclude build \
- --exclude .tox \
- --exclude dist \
- --exclude MANIFEST \
- --exclude *.pyc \
- --exclude __pycache__ \
- -C "$SRC_DIR" \
- .
+generate_rpm_sources
 
 echo "RPM sources:"
 find "$WORK_DIR/SOURCES" -type f -printf " %p\n"
