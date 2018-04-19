@@ -9,13 +9,29 @@ NAME=pki
 
 SCRIPT_PATH=`readlink -f "$0"`
 SCRIPT_NAME=`basename "$SCRIPT_PATH"`
+
 SRC_DIR=`dirname "$SCRIPT_PATH"`
+WORK_DIR="$HOME/build/$NAME"
+
+WITH_TIMESTAMP=
+WITH_COMMIT_ID=
+
+WITHOUT_TEST=
+WITHOUT_SERVER=
+WITHOUT_JAVADOC=
+WITHOUT_CONSOLE=
+WITHOUT_THEME=
+WITHOUT_META=
+WITHOUT_DEBUG=
+
+VERBOSE=
+DEBUG=
 
 usage() {
     echo "Usage: $SCRIPT_NAME [OPTIONS] <target>"
     echo
     echo "Options:"
-    echo "    --work-dir <path>    Build directory (default: ~/build/$NAME)."
+    echo "    --work-dir <path>    Working directory (default: $WORK_DIR)."
     echo "    --with-timestamp     Append timestamp to release number."
     echo "    --with-commit-id     Append commit ID to release number."
     echo "    --without-test       Do not run unit tests."
@@ -35,23 +51,6 @@ usage() {
     echo "    srpm   Build SRPM package."
     echo "    rpm    Build RPM packages."
 }
-
-WORK_DIR="$HOME/build/$NAME"
-BUILD_TARGET=rpm
-
-WITH_TIMESTAMP=
-WITH_COMMIT_ID=
-
-WITHOUT_TEST=
-WITHOUT_SERVER=
-WITHOUT_JAVADOC=
-WITHOUT_CONSOLE=
-WITHOUT_THEME=
-WITHOUT_META=
-WITHOUT_DEBUG=
-
-VERBOSE=
-DEBUG=
 
 while getopts v-: arg ; do
     case $arg in
@@ -145,7 +144,7 @@ if [ "$BUILD_TARGET" != "spec" ] &&
     exit 1
 fi
 
-SPEC_TEMPLATE="$SRC_DIR/specs/pki.spec.in"
+SPEC_TEMPLATE="$SRC_DIR/specs/$NAME.spec.in"
 VERSION="`rpmspec -P "$SPEC_TEMPLATE" | grep "^Version:" | awk '{print $2;}'`"
 
 if [ "$DEBUG" = true ] ; then
@@ -205,7 +204,7 @@ mkdir SRPMS
 # Generate RPM spec
 ################################################################################
 
-RPM_SPEC="$WORK_DIR/SPECS/pki.spec"
+RPM_SPEC="$WORK_DIR/SPECS/$NAME.spec"
 
 if [ "$VERBOSE" = true ] ; then
     echo "Generating $RPM_SPEC"
@@ -227,14 +226,14 @@ fi
 # Generate RPM sources
 ################################################################################
 
-TARBALL="$WORK_DIR/SOURCES/pki-$VERSION.tar.gz"
+TARBALL="$WORK_DIR/SOURCES/$NAME-$VERSION.tar.gz"
 
 if [ "$VERBOSE" = true ] ; then
     echo "Generating $TARBALL"
 fi
 
 tar czf "$TARBALL" \
- --transform "s,^./,pki-$VERSION/," \
+ --transform "s,^./,$NAME-$VERSION/," \
  --exclude .git \
  --exclude .svn \
  --exclude .swp \
