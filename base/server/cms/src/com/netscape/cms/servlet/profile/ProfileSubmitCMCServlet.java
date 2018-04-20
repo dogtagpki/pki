@@ -509,7 +509,10 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
             CMS.debug("ProfileSubmitCMCServlet: null it out");
             ctx.set(IAuthManager.CRED_CMC_SIGNING_CERT, "");
         }
-        String signingCertSerialS = (String) authToken.get(IAuthManager.CRED_CMC_SIGNING_CERT);
+        String signingCertSerialS = null;
+        if (authToken != null) {
+            signingCertSerialS = (String) authToken.get(IAuthManager.CRED_CMC_SIGNING_CERT);
+        }
         if (signingCertSerialS != null) {
             CMS.debug("ProfileSubmitCMCServlet: setting CRED_CMC_SIGNING_CERT in ctx for CMCUserSignedAuth");
             ctx.set(IAuthManager.CRED_CMC_SIGNING_CERT, signingCertSerialS);
