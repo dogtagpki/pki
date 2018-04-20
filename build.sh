@@ -13,6 +13,8 @@ SCRIPT_NAME=`basename "$SCRIPT_PATH"`
 SRC_DIR=`dirname "$SCRIPT_PATH"`
 WORK_DIR="$HOME/build/$NAME"
 
+SOURCE_TAG=
+
 WITH_TIMESTAMP=
 WITH_COMMIT_ID=
 
@@ -32,6 +34,7 @@ usage() {
     echo
     echo "Options:"
     echo "    --work-dir=<path>    Working directory (default: $WORK_DIR)."
+    echo "    --source-tag=<tag>   Generate RPM sources from a source tag."
     echo "    --with-timestamp     Append timestamp to release number."
     echo "    --with-commit-id     Append commit ID to release number."
     echo "    --without-test       Do not run unit tests."
@@ -70,6 +73,22 @@ generate_rpm_sources() {
 
     TARBALL="$NAME-$VERSION.tar.gz"
 
+    if [ "$SOURCE_TAG" != "" ] ; then
+
+        if [ "$VERBOSE" = true ] ; then
+            echo "Generating $TARBALL from $SOURCE_TAG tag"
+        fi
+
+        git -C "$SRC_DIR" \
+            archive \
+            --format=tar.gz \
+            --prefix $NAME-$VERSION/ \
+            -o "$WORK_DIR/SOURCES/$TARBALL" \
+            $SOURCE_TAG
+
+        return
+    fi
+
     if [ "$VERBOSE" = true ] ; then
         echo "Generating $TARBALL"
     fi
@@ -101,6 +120,9 @@ while getopts v-: arg ; do
         case $OPTARG in
         work-dir=?*)
             WORK_DIR="$LONG_OPTARG"
+            ;;
+        source-tag=?*)
+            SOURCE_TAG="$LONG_OPTARG"
             ;;
         with-timestamp)
             WITH_TIMESTAMP=true
@@ -143,7 +165,7 @@ while getopts v-: arg ; do
         '')
             break # "--" terminates argument processing
             ;;
-        work-dir*)
+        work-dir* | source-tag*)
             echo "ERROR: Missing argument for --$OPTARG option" >&2
             exit 1
             ;;

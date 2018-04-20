@@ -15,7 +15,13 @@ Version:          10.6.0
 Release:          1%{?_timestamp}%{?_commit_id}%{?dist}
 %endif
 
-Source:           https://github.com/dogtagpki/pki/archive/v%{version}/pki-%{version}.tar.gz
+# To create a tarball from a version tag:
+# $ git archive \
+#     --format=tar.gz \
+#     --prefix pki-<version>/ \
+#     -o pki-<version>.tar.gz \
+#     v<version>
+Source: https://github.com/dogtagpki/pki/archive/v%{version}/pki-%{version}.tar.gz
 
 ################################################################################
 # Python
