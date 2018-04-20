@@ -52,6 +52,20 @@ usage() {
     echo "    rpm    Build RPM packages."
 }
 
+generate_rpm_spec() {
+
+    RPM_SPEC="$NAME.spec"
+
+    if [ "$VERBOSE" = true ] ; then
+        echo "Generating $RPM_SPEC"
+    fi
+
+    sed "s/%{?_timestamp}/${_TIMESTAMP}/g; s/%{?_commit_id}/${_COMMIT_ID}/g" \
+        "$SPEC_TEMPLATE" > "$WORK_DIR/SPECS/$RPM_SPEC"
+
+    rpmlint "$WORK_DIR/SPECS/$RPM_SPEC"
+}
+
 while getopts v-: arg ; do
     case $arg in
     v)
@@ -204,19 +218,10 @@ mkdir SRPMS
 # Generate RPM spec
 ################################################################################
 
-RPM_SPEC="$WORK_DIR/SPECS/$NAME.spec"
-
-if [ "$VERBOSE" = true ] ; then
-    echo "Generating $RPM_SPEC"
-fi
-
-sed "s/%{?_timestamp}/${_TIMESTAMP}/g; s/%{?_commit_id}/${_COMMIT_ID}/g" \
-    "$SPEC_TEMPLATE" > "$RPM_SPEC"
+generate_rpm_spec
 
 echo "RPM spec:"
-echo " $RPM_SPEC"
-
-rpmlint $RPM_SPEC
+echo " $WORK_DIR/SPECS/$RPM_SPEC"
 
 if [ "$BUILD_TARGET" = "spec" ] ; then
     exit
@@ -316,10 +321,10 @@ fi
 ################################################################################
 
 if [ "$DEBUG" = true ] ; then
-    echo "rpmbuild "${OPTIONS[@]}" $RPM_SPEC"
+    echo "rpmbuild "${OPTIONS[@]}" $WORK_DIR/SPECS/$RPM_SPEC"
 fi
 
-rpmbuild "${OPTIONS[@]}" "$RPM_SPEC"
+rpmbuild "${OPTIONS[@]}" "$WORK_DIR/SPECS/$RPM_SPEC"
 
 echo "SRPM package:"
 find "$WORK_DIR/SRPMS" -type f -printf " %p\n"
