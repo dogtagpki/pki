@@ -31,7 +31,7 @@ usage() {
     echo "Usage: $SCRIPT_NAME [OPTIONS] <target>"
     echo
     echo "Options:"
-    echo "    --work-dir <path>    Working directory (default: $WORK_DIR)."
+    echo "    --work-dir=<path>    Working directory (default: $WORK_DIR)."
     echo "    --with-timestamp     Append timestamp to release number."
     echo "    --with-commit-id     Append commit ID to release number."
     echo "    --without-test       Do not run unit tests."
@@ -196,8 +196,8 @@ if [ "$DEBUG" = true ] ; then
 fi
 
 if [ "$WITH_TIMESTAMP" = true ] ; then
-    TIMESTAMP=`date +"%Y%m%d%H%M%S"`
-    _TIMESTAMP=`printf ".%.14s" $TIMESTAMP`
+    TIMESTAMP="`date +"%Y%m%d%H%M%S"`"
+    _TIMESTAMP=".$TIMESTAMP"
 fi
 
 if [ "$DEBUG" = true ] ; then
@@ -205,8 +205,8 @@ if [ "$DEBUG" = true ] ; then
 fi
 
 if [ "$WITH_COMMIT_ID" = true ]; then
-    COMMIT_ID=`git -C "$SRC_DIR" rev-parse --short=8 HEAD`
-    _COMMIT_ID=`printf ".%.8s" $COMMIT_ID`
+    COMMIT_ID="`git -C "$SRC_DIR" rev-parse --short=8 HEAD`"
+    _COMMIT_ID=".$COMMIT_ID"
 fi
 
 if [ "$DEBUG" = true ] ; then
