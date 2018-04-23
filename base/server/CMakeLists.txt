@@ -179,6 +179,12 @@ add_custom_command(
 )
 
 install(
+    DIRECTORY
+    DESTINATION
+        ${VAR_INSTALL_DIR}/lib/pki
+)
+
+install(
     FILES
          ${CMAKE_CURRENT_BINARY_DIR}/share/etc/tomcat.conf
     DESTINATION

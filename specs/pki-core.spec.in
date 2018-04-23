@@ -973,9 +973,6 @@ fi
 
 %endif # with server
 
-%{__mkdir_p} %{buildroot}%{_localstatedir}/log/pki
-%{__mkdir_p} %{buildroot}%{_sharedstatedir}/pki
-
 %if 0%{?fedora} || 0%{?rhel} > 7
 %pretrans -n pki-base -p <lua>
 function test(a)

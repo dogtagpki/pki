@@ -1201,9 +1201,6 @@ fi
 
 %endif # with server
 
-%{__mkdir_p} %{buildroot}%{_localstatedir}/log/pki
-%{__mkdir_p} %{buildroot}%{_sharedstatedir}/pki
-
 %if %{with base}
 
 %if 0%{?fedora} || 0%{?rhel} > 7

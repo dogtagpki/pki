@@ -128,6 +128,12 @@ install(
 install(
     DIRECTORY
     DESTINATION
+        ${VAR_INSTALL_DIR}/log/pki
+)
+
+install(
+    DIRECTORY
+    DESTINATION
         ${VAR_INSTALL_DIR}/lock/pki/tomcat
 )
 
