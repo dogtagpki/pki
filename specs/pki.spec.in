@@ -20,13 +20,13 @@ Release:          1%{?_timestamp}%{?_commit_id}%{?dist}
 #     --format=tar.gz \
 #     --prefix pki-<version>/ \
 #     -o pki-<version>.tar.gz \
-#     v<version>
+#     <version tag>
 Source: https://github.com/dogtagpki/pki/archive/v%{version}/pki-%{version}.tar.gz
 
 # To create a patch for all changes since a version tag:
 # $ git format-patch \
 #     --stdout \
-#     v<version> \
+#     <version tag> \
 #     > pki-VERSION-RELEASE.patch
 # Patch: pki-VERSION-RELEASE.patch
 
@@ -92,6 +92,7 @@ Source: https://github.com/dogtagpki/pki/archive/v%{version}/pki-%{version}.tar.
 ################################################################################
 
 %bcond_without    test
+%bcond_without    base
 %bcond_without    server
 %bcond_without    javadoc
 %bcond_without    console
@@ -291,6 +292,7 @@ PKI consists of the following components:
   * Token Key Service (TKS)
   * Token Processing Service (TPS)
 
+%if %{with base}
 ################################################################################
 %package -n       pki-symkey
 ################################################################################
@@ -494,6 +496,8 @@ Requires:         tomcat-servlet-3.1-api
 %description -n   pki-tools
 This package contains PKI executables that can be used to help make
 Certificate System into a more complete and robust PKI solution.
+
+%endif # with base
 
 %if %{with server}
 ################################################################################
@@ -1200,6 +1204,8 @@ fi
 %{__mkdir_p} %{buildroot}%{_localstatedir}/log/pki
 %{__mkdir_p} %{buildroot}%{_sharedstatedir}/pki
 
+%if %{with base}
+
 %if 0%{?fedora} || 0%{?rhel} > 7
 %pretrans -n pki-base -p <lua>
 function test(a)
@@ -1227,6 +1233,8 @@ if (test("/etc/sysconfig/pki/ca") or
 end
 %endif
 
+%endif # with base
+
 %if %{with server}
 
 %pre -n pki-server
@@ -1241,6 +1249,8 @@ fi
 exit 0
 
 %endif # with server
+
+%if %{with base}
 
 %post -n pki-base
 
@@ -1263,6 +1273,8 @@ then
     # On RPM uninstallation remove system upgrade tracker
     rm -f %{_sysconfdir}/pki/pki.version
 fi
+
+%endif # with base
 
 %if %{with server}
 
@@ -1294,6 +1306,7 @@ fi
 
 %endif # with server
 
+%if %{with base}
 ################################################################################
 %files -n pki-symkey
 ################################################################################
@@ -1433,6 +1446,8 @@ fi
 %{_mandir}/man1/pki-user-cert.1.gz
 %{_mandir}/man1/pki-user-membership.1.gz
 %{_mandir}/man1/PKCS10Client.1.gz
+
+%endif # with base
 
 %if %{with server}
 ################################################################################

@@ -19,6 +19,7 @@ WITH_TIMESTAMP=
 WITH_COMMIT_ID=
 
 WITHOUT_TEST=
+WITHOUT_BASE=
 WITHOUT_SERVER=
 WITHOUT_JAVADOC=
 WITHOUT_CONSOLE=
@@ -38,6 +39,7 @@ usage() {
     echo "    --with-timestamp     Append timestamp to release number."
     echo "    --with-commit-id     Append commit ID to release number."
     echo "    --without-test       Do not run unit tests."
+    echo "    --without-base       Do not build base packages."
     echo "    --without-server     Do not build server packages."
     echo "    --without-javadoc    Do not build javadoc package."
     echo "    --without-console    Do not build console package."
@@ -161,6 +163,9 @@ while getopts v-: arg ; do
             ;;
         without-test)
             WITHOUT_TEST=true
+            ;;
+        without-base)
+            WITHOUT_BASE=true
             ;;
         without-server)
             WITHOUT_SERVER=true
@@ -346,6 +351,10 @@ fi
 
 if [ "$WITHOUT_TEST" = true ] ; then
     OPTIONS+=(--without test)
+fi
+
+if [ "$WITHOUT_BASE" = true ] ; then
+    OPTIONS+=(--without base)
 fi
 
 if [ "$WITHOUT_SERVER" = true ] ; then
