@@ -76,7 +76,6 @@ import org.mozilla.jss.pkix.cert.Certificate;
 import org.mozilla.jss.ssl.SSLServerSocket;
 import org.mozilla.jss.ssl.SSLSocket;
 import org.mozilla.jss.util.Password;
-import org.mozilla.jss.util.PasswordCallback;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
@@ -114,7 +113,6 @@ public final class JssSubsystem implements ICryptoSubsystem {
 
     private static final String CONFIG_DIR = "configDir";
     private static final String PROP_ENABLE = "enable";
-    private static final String PASSWORD_ALIAS = "password";
     private static final String OBSCURE_METHOD = "obscureMethod";
     private static final String mId = ID;
     protected IConfigStore mConfig = null;
@@ -123,8 +121,6 @@ public final class JssSubsystem implements ICryptoSubsystem {
     private CryptoManager mCryptoManager = null;
     private SecureRandom random;
     private String obscureMethod = "zeroes";
-
-    protected PasswordCallback mPWCB = null;
 
     private static JssSubsystem mInstance = new JssSubsystem();
     private Hashtable<String, X509Certificate[]> mNicknameMapCertsTable = new Hashtable<String, X509Certificate[]>();
@@ -297,14 +293,6 @@ public final class JssSubsystem implements ICryptoSubsystem {
             devRandomInputStream = new FileInputStream("/dev/urandom");
         } catch (IOException ioe) {
             // XXX - add new exception
-        }
-
-        // get debugging password from config file
-        String pw = config.getString(PASSWORD_ALIAS, null);
-
-        if (pw != null) {
-            CMS.debug("JssSubsystem: use debug password");
-            mPWCB = new Password(pw.toCharArray());
         }
 
         String certDir = config.getString(CONFIG_DIR, null);
@@ -565,10 +553,6 @@ public final class JssSubsystem implements ICryptoSubsystem {
 
     public void log(int level, String msg) {
         mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER, level, "JSS " + msg);
-    }
-
-    public PasswordCallback getPWCB() {
-        return mPWCB;
     }
 
     public String getInternalTokenName() throws EBaseException {
