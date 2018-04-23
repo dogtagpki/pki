@@ -31,8 +31,6 @@ import org.mozilla.jss.crypto.Signature;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.crypto.X509Certificate;
-import org.mozilla.jss.util.IncorrectPasswordException;
-import org.mozilla.jss.util.PasswordCallback;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
@@ -47,7 +45,6 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.SystemEvent;
 import com.netscape.certsrv.security.ISigningUnit;
 import com.netscape.cms.logging.Logger;
-import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Cert;
 
@@ -159,10 +156,6 @@ public final class SigningUnit implements ISigningUnit {
                 setNewNickName(mNickname);
             }
 
-            CMS.debug("SigningUnit: Logging into token " + tokenname);
-            PasswordCallback cb = JssSubsystem.getInstance().getPWCB();
-            mToken.login(cb); // ONE_TIME by default.
-
             try {
                 CMS.debug("SigningUnit: Loading certificate " + mNickname);
                 mCert = mManager.findCertByNickname(mNickname);
@@ -203,10 +196,6 @@ public final class SigningUnit implements ISigningUnit {
         } catch (CryptoManager.NotInitializedException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_SIGNING_TOKEN_INIT", e.toString()));
             throw new ECAException(CMS.getUserMessage("CMS_CA_CRYPTO_NOT_INITIALIZED"), e);
-
-        } catch (IncorrectPasswordException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_SIGNING_WRONG_PWD", e.toString()));
-            throw new ECAException(CMS.getUserMessage("CMS_CA_INVALID_PASSWORD"), e);
 
         } catch (NoSuchTokenException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_SIGNING_TOKEN_NOT_FOUND", tokenname, e.toString()));
