@@ -28,6 +28,7 @@ import grp
 import io
 import ldap
 import ldap.filter
+import logging
 import operator
 import os
 import pwd
@@ -49,6 +50,10 @@ SUBSYSTEM_TYPES = ['ca', 'kra', 'ocsp', 'tks', 'tps']
 SUBSYSTEM_CLASSES = {}
 
 SELFTEST_CRITICAL = 'critical'
+
+logger = logging.LoggerAdapter(
+    logging.getLogger(__name__),
+    extra={'indent': ''})
 
 
 class PKIServer(object):
@@ -205,6 +210,8 @@ class PKISubsystem(object):
 
         if cert_id:
             cmd.append(cert_id)
+
+        logger.debug('Command: %s', ' '.join(cmd))
 
         subprocess.check_output(
             cmd,

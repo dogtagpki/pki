@@ -43,6 +43,9 @@ CERT_FOOTER = '-----END CERTIFICATE-----'
 PKCS7_HEADER = '-----BEGIN PKCS7-----'
 PKCS7_FOOTER = '-----END PKCS7-----'
 
+INTERNAL_TOKEN_NAME = 'internal'
+INTERNAL_TOKEN_FULL_NAME = 'Internal Key Storage Token'
+
 logger = logging.LoggerAdapter(
     logging.getLogger(__name__),
     extra={'indent': ''})
@@ -112,6 +115,19 @@ def get_file_type(filename):
     return None
 
 
+def normalize_token(token):
+    if not token:
+        return None
+
+    if token.lower() == INTERNAL_TOKEN_NAME:
+        return None
+
+    if token.lower() == INTERNAL_TOKEN_FULL_NAME.lower():
+        return None
+
+    return token
+
+
 class NSSDatabase(object):
 
     def __init__(self, directory=None, token=None, password=None,
@@ -123,11 +139,7 @@ class NSSDatabase(object):
                 os.path.expanduser("~"), '.dogtag', 'nssdb')
 
         self.directory = directory
-
-        if token == 'internal' or token == 'Internal Key Storage Token':
-            self.token = None
-        else:
-            self.token = token
+        self.token = normalize_token(token)
 
         self.tmpdir = tempfile.mkdtemp()
 
