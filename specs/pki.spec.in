@@ -94,6 +94,11 @@ Source: https://github.com/dogtagpki/pki/archive/v%{version}/pki-%{version}.tar.
 %bcond_without    test
 %bcond_without    base
 %bcond_without    server
+%bcond_without    ca
+%bcond_without    kra
+%bcond_without    ocsp
+%bcond_without    tks
+%bcond_without    tps
 %bcond_without    javadoc
 %bcond_without    console
 %bcond_without    theme
@@ -613,6 +618,9 @@ The PKI Server Package contains libraries and utilities needed by the following 
     the Token Key Service (TKS), and
     the Token Processing Service (TPS).
 
+%endif # with server
+
+%if %{with ca}
 ################################################################################
 %package -n       pki-ca
 ################################################################################
@@ -635,6 +643,9 @@ The Certificate Authority can be configured as a self-signing Certificate
 Authority, where it is the root CA, or it can act as a subordinate CA,
 where it obtains its own signing certificate from a public CA.
 
+%endif # with ca
+
+%if %{with kra}
 ################################################################################
 %package -n       pki-kra
 ################################################################################
@@ -663,6 +674,9 @@ protection of the public encryption keys for the users in the PKI deployment.
 Note that the KRA archives encryption keys; it does NOT archive signing keys,
 since such archival would undermine non-repudiation properties of signing keys.
 
+%endif # with kra
+
+%if %{with ocsp}
 ################################################################################
 %package -n       pki-ocsp
 ################################################################################
@@ -698,6 +712,9 @@ When an instance of OCSP Manager is set up with an instance of CA, and
 publishing is set up to this OCSP Manager, CRLs are published to it
 whenever they are issued or updated.
 
+%endif # with ocsp
+
+%if %{with tks}
 ################################################################################
 %package -n       pki-tks
 ################################################################################
@@ -728,6 +745,9 @@ TKS.  Tokens with older keys will get new token keys.
 Because of the sensitivity of the data that TKS manages, TKS should be set up
 behind the firewall with restricted access.
 
+%endif # with tks
+
+%if %{with tps}
 ################################################################################
 %package -n       pki-tps
 ################################################################################
@@ -773,7 +793,7 @@ The utility "tpsclient" is a test tool that interacts with TPS.  This
 tool is useful to test TPS server configs without risking an actual
 smart card.
 
-%endif # with server
+%endif # with tps
 
 %if %{with javadoc}
 ################################################################################
@@ -1027,7 +1047,7 @@ cd build
 %if ! %{with test}
     -DWITH_TEST:BOOL=OFF \
 %endif
-%if ! %{with server}
+%if ! %{with server} && ! %{with ca} && ! %{with kra} && ! %{with ocsp} && ! %{with tks} && ! %{with tps}
     -DWITH_SERVER:BOOL=OFF \
 %endif
 %if ! %{with javadoc}
@@ -1500,6 +1520,9 @@ fi
 %{_datadir}/pki/setup/
 %{_datadir}/pki/server/
 
+%endif # with server
+
+%if %{with ca}
 ################################################################################
 %files -n pki-ca
 ################################################################################
@@ -1515,6 +1538,9 @@ fi
 %{_datadir}/pki/ca/setup/
 %{_datadir}/pki/ca/webapps/
 
+%endif # with ca
+
+%if %{with kra}
 ################################################################################
 %files -n pki-kra
 ################################################################################
@@ -1527,6 +1553,9 @@ fi
 %{_datadir}/pki/kra/setup/
 %{_datadir}/pki/kra/webapps/
 
+%endif # with kra
+
+%if %{with ocsp}
 ################################################################################
 %files -n pki-ocsp
 ################################################################################
@@ -1539,6 +1568,9 @@ fi
 %{_datadir}/pki/ocsp/setup/
 %{_datadir}/pki/ocsp/webapps/
 
+%endif # with ocsp
+
+%if %{with tks}
 ################################################################################
 %files -n pki-tks
 ################################################################################
@@ -1551,6 +1583,9 @@ fi
 %{_datadir}/pki/tks/setup/
 %{_datadir}/pki/tks/webapps/
 
+%endif # with tks
+
+%if %{with tps}
 ################################################################################
 %files -n pki-tps
 ################################################################################
@@ -1574,7 +1609,7 @@ fi
 %{_libdir}/tps/libtps.so
 %{_libdir}/tps/libtokendb.so
 
-%endif # with server
+%endif # with tps
 
 %if %{with javadoc}
 ################################################################################
