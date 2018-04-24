@@ -537,6 +537,8 @@ def main(argv):
         log_error_details()
         print()
         print("Installation failed: Command failed: %s" % ' '.join(e.cmd))
+        if e.output:
+            print(e.output)
         print()
         print('Please check pkispawn logs in %s/%s' % (config.pki_log_dir, config.pki_log_name))
         sys.exit(1)

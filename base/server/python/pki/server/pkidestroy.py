@@ -23,6 +23,7 @@ from __future__ import absolute_import
 from __future__ import print_function
 import sys
 import signal
+import subprocess
 
 if not hasattr(sys, "hexversion") or sys.hexversion < 0x020700f0:
     print("Python version %s.%s.%s is too old." % sys.version_info[:3])
@@ -233,8 +234,16 @@ def main(argv):
 
             scriptlet.destroy(deployer)
 
-    # pylint: disable=W0703
-    except Exception as e:
+    except subprocess.CalledProcessError as e:
+        log_error_details()
+        print()
+        print("Uninstallation failed: Command failed: %s" % ' '.join(e.cmd))
+        if e.output:
+            print(e.output)
+        print()
+        sys.exit(1)
+
+    except Exception as e:  # pylint: disable=broad-except
         log_error_details()
         print()
         print("Uninstallation failed: %s" % e)
