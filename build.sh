@@ -19,13 +19,9 @@ WITH_TIMESTAMP=
 WITH_COMMIT_ID=
 
 WITHOUT_TEST=
-WITHOUT_BASE=
-WITHOUT_SERVER=
-WITHOUT_JAVADOC=
-WITHOUT_CONSOLE=
-WITHOUT_THEME=
-WITHOUT_META=
-WITHOUT_DEBUG=
+
+WITH_PKGS=
+WITHOUT_PKGS=
 
 VERBOSE=
 DEBUG=
@@ -39,16 +35,14 @@ usage() {
     echo "    --with-timestamp       Append timestamp to release number."
     echo "    --with-commit-id       Append commit ID to release number."
     echo "    --without-test         Do not run unit tests."
-    echo "    --without-base         Do not build base packages."
-    echo "    --without-server       Do not build server packages."
-    echo "    --without-javadoc      Do not build javadoc package."
-    echo "    --without-console      Do not build console package."
-    echo "    --without-theme        Do not build theme packages."
-    echo "    --without-meta         Do not build meta package."
-    echo "    --without-debug        Do not build debug packages."
+    echo "    --with-pkgs=<list>     Build packages specified in comma-separated list only."
+    echo "    --without-pkgs=<list>  Build everything except packages specified in the list."
     echo " -v,--verbose              Run in verbose mode."
     echo "    --debug                Run in debug mode."
     echo "    --help                 Show help message."
+    echo
+    echo "Packages:"
+    echo "    base, server, ca, kra, ocsp, tks, tps, javadoc, console, theme, meta, debug"
     echo
     echo "Target:"
     echo "    spec   Generate RPM spec."
@@ -164,26 +158,19 @@ while getopts v-: arg ; do
         without-test)
             WITHOUT_TEST=true
             ;;
-        without-base)
-            WITHOUT_BASE=true
+        with-pkgs=?*)
+            if [ "$WITHOUT_PKGS" != "" ]; then
+                echo "ERROR: The --with-pkgs and --without-pkgs options are mutually exclusive" >&2
+                exit 1
+            fi
+            WITH_PKGS="$LONG_OPTARG"
             ;;
-        without-server)
-            WITHOUT_SERVER=true
-            ;;
-        without-javadoc)
-            WITHOUT_JAVADOC=true
-            ;;
-        without-console)
-            WITHOUT_CONSOLE=true
-            ;;
-        without-theme)
-            WITHOUT_THEME=true
-            ;;
-        without-meta)
-            WITHOUT_META=true
-            ;;
-        without-debug)
-            WITHOUT_DEBUG=true
+        without-pkgs=?*)
+            if [ "$WITH_PKGS" != "" ]; then
+                echo "ERROR: The --with-pkgs and --without-pkgs options are mutually exclusive" >&2
+                exit 1
+            fi
+            WITHOUT_PKGS="$LONG_OPTARG"
             ;;
         verbose)
             VERBOSE=true
@@ -199,7 +186,7 @@ while getopts v-: arg ; do
         '')
             break # "--" terminates argument processing
             ;;
-        work-dir* | source-tag*)
+        work-dir* | source-tag* | with-pkgs* | without-pkgs*)
             echo "ERROR: Missing argument for --$OPTARG option" >&2
             exit 1
             ;;
@@ -354,28 +341,44 @@ if [ "$WITHOUT_TEST" = true ] ; then
     OPTIONS+=(--without test)
 fi
 
-if [ "$WITHOUT_BASE" = true ] ; then
-    OPTIONS+=(--without base)
-fi
+if [ "$WITH_PKGS" != "" ] ; then
 
-if [ "$WITHOUT_SERVER" = true ] ; then
-    OPTIONS+=(--without server)
-fi
+    # Build specified packages only.
+    OPTIONS+=(--with pkgs)
 
-if [ "$WITHOUT_JAVADOC" = true ] ; then
-    OPTIONS+=(--without javadoc)
-fi
+    # Don't build debug package unless specified.
+    WITHOUT_DEBUG=true
 
-if [ "$WITHOUT_CONSOLE" = true ] ; then
-    OPTIONS+=(--without console)
-fi
+    # Parse comma-separated list of packages.
+    for package in `echo $WITH_PKGS | sed 's/,/\n/g'`
+    do
+        if [ "$package" == "debug" ] ; then
+            # Build debug package.
+            WITHOUT_DEBUG=
+        else
+            # Build specified package.
+            OPTIONS+=(--with $package)
+        fi
+    done
 
-if [ "$WITHOUT_THEME" = true ] ; then
-    OPTIONS+=(--without theme)
-fi
+else
+    # Build everything except specified packages.
+    # Do not add --with pkgs into OPTIONS.
 
-if [ "$WITHOUT_META" = true ] ; then
-    OPTIONS+=(--without meta)
+    # Build debug package unless specified.
+    WITHOUT_DEBUG=
+
+    # Parse comma-separated list of packages.
+    for package in `echo $WITHOUT_PKGS | sed 's/,/\n/g'`
+    do
+        if [ "$package" == "debug" ] ; then
+            # Don't build debug package.
+            WITHOUT_DEBUG=true
+        else
+            # Don't build specified package.
+            OPTIONS+=(--without $package)
+        fi
+    done
 fi
 
 if [ "$WITHOUT_DEBUG" = true ] ; then
