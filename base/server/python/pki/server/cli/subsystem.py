@@ -1000,6 +1000,8 @@ class SubsystemCertValidateCLI(pki.cli.CLI):
         token = cert.get('token', '')
         print('  Token: %s' % token)
 
+        token = pki.nssdb.normalize_token(token)
+
         # get token password and store in temporary file
         passwd = instance.get_token_password(token)
 
