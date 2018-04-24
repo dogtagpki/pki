@@ -122,6 +122,11 @@ def get_file_type(filename):
 
 
 def normalize_token(token):
+    """
+    Normalize internal token name (e.g. empty string, 'internal',
+    'Internal Key Storage Token') into None. Other token names
+    will be unchanged.
+    """
     if not token:
         return None
 
