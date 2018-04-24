@@ -21,10 +21,13 @@
 from __future__ import absolute_import
 
 import codecs
+from lxml import etree
 import functools
 import getpass
 import grp
 import io
+import ldap
+import ldap.filter
 import logging
 import operator
 import os
@@ -34,12 +37,9 @@ import shutil
 import subprocess
 import tempfile
 
-import ldap
-import ldap.filter
 import pki
 import pki.nssdb
 import pki.util
-from lxml import etree
 
 INSTANCE_BASE_DIR = '/var/lib/pki'
 CONFIG_BASE_DIR = '/etc/pki'
@@ -212,6 +212,8 @@ class PKISubsystem(object):
 
         if cert_id:
             cmd.append(cert_id)
+
+        logger.debug('Command: %s', ' '.join(cmd))
 
         subprocess.check_output(
             cmd,

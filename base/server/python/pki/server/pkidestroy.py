@@ -233,8 +233,16 @@ def main(argv):
 
             scriptlet.destroy(deployer)
 
-    # pylint: disable=W0703
-    except Exception as e:
+    except subprocess.CalledProcessError as e:
+        log_error_details()
+        print()
+        print("Uninstallation failed: Command failed: %s" % ' '.join(e.cmd))
+        if e.output:
+            print(e.output)
+        print()
+        sys.exit(1)
+
+    except Exception as e:  # pylint: disable=broad-except
         log_error_details()
         print()
         print("Uninstallation failed: %s" % e)
