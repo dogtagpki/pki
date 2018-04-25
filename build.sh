@@ -34,21 +34,21 @@ usage() {
     echo "Usage: $SCRIPT_NAME [OPTIONS] <target>"
     echo
     echo "Options:"
-    echo "    --work-dir=<path>    Working directory (default: $WORK_DIR)."
-    echo "    --source-tag=<tag>   Generate RPM sources from a source tag."
-    echo "    --with-timestamp     Append timestamp to release number."
-    echo "    --with-commit-id     Append commit ID to release number."
-    echo "    --without-test       Do not run unit tests."
-    echo "    --without-base       Do not build base packages."
-    echo "    --without-server     Do not build server packages."
-    echo "    --without-javadoc    Do not build javadoc package."
-    echo "    --without-console    Do not build console package."
-    echo "    --without-theme      Do not build theme packages."
-    echo "    --without-meta       Do not build meta package."
-    echo "    --without-debug      Do not build debug packages."
-    echo " -v,--verbose            Run in verbose mode."
-    echo "    --debug              Run in debug mode."
-    echo "    --help               Show help message."
+    echo "    --work-dir=<path>      Working directory (default: $WORK_DIR)."
+    echo "    --source-tag=<tag>     Generate RPM sources from a source tag."
+    echo "    --with-timestamp       Append timestamp to release number."
+    echo "    --with-commit-id       Append commit ID to release number."
+    echo "    --without-test         Do not run unit tests."
+    echo "    --without-base         Do not build base packages."
+    echo "    --without-server       Do not build server packages."
+    echo "    --without-javadoc      Do not build javadoc package."
+    echo "    --without-console      Do not build console package."
+    echo "    --without-theme        Do not build theme packages."
+    echo "    --without-meta         Do not build meta package."
+    echo "    --without-debug        Do not build debug packages."
+    echo " -v,--verbose              Run in verbose mode."
+    echo "    --debug                Run in debug mode."
+    echo "    --help                 Show help message."
     echo
     echo "Target:"
     echo "    spec   Generate RPM spec."
@@ -219,8 +219,9 @@ done
 shift $((OPTIND-1))
 
 if [ "$#" -lt 1 ] ; then
+    echo "ERROR: Missing build target" >&2
     usage
-    exit
+    exit 1
 fi
 
 BUILD_TARGET=$1
@@ -327,10 +328,10 @@ fi
 OPTIONS=()
 
 if [ "$BUILD_TARGET" = "srpm" ] ; then
-    OPTIONS+=(--bs)
+    OPTIONS+=(-bs)
 
 elif [ "$BUILD_TARGET" = "rpm" ] ; then
-    OPTIONS+=(--ba)
+    OPTIONS+=(-ba)
 fi
 
 if [ "$VERBOSE" = true ] ; then
