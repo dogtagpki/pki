@@ -44,7 +44,6 @@ Requires:         pki-base-java >= %{version}
 %if 0%{?with_python3}
 Requires:         pki-base-python3 >= %{version}
 %endif
-Requires:         pki-symkey >= %{version}
 Requires:         pki-tools >= %{version}
 Requires:         pki-server >= %{version}
 Requires:         pki-ca >= %{version}

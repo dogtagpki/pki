@@ -513,6 +513,7 @@ Requires:         openssl >= 1.0.2k-11
 %else
 Requires:         openssl
 %endif
+Requires:         pki-symkey >= %{version}-%{release}
 Requires:         pki-base = %{version}-%{release}
 Requires:         pki-base-java = %{version}-%{release}
 Requires:         pki-tools = %{version}-%{release}
@@ -686,7 +687,6 @@ BuildArch:        noarch
 
 Requires:         java-1.8.0-openjdk-headless
 Requires:         pki-server >= %{version}-%{release}
-Requires:         pki-symkey >= %{version}-%{release}
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
 Requires(postun): systemd-units
@@ -730,7 +730,6 @@ Requires(postun): systemd-units
 
 Requires:         nss-tools >= 3.28.3
 Requires:         openldap-clients
-Requires:         pki-symkey >= %{version}-%{release}
 
 %description -n   pki-tps
 The Token Processing System (TPS) is an optional PKI subsystem that acts
