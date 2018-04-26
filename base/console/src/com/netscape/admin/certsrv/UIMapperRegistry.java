@@ -17,10 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv;
 
-import com.netscape.management.client.util.*;
-import java.security.cert.CertificateException;
-import netscape.security.x509.*;
-import java.util.*;
+import java.util.Enumeration;
+import java.util.Hashtable;
 
 /**
  * UIMapper Registry
@@ -37,8 +35,7 @@ public class UIMapperRegistry {
     /*==========================================================
      * variables
      *==========================================================*/
-    private static UIMapperRegistry mSelf = null;
-    private static Hashtable mAttrContent = new Hashtable();
+    private static Hashtable<String, String> mAttrContent = new Hashtable<>();
 
 	/*==========================================================
 	 * public methods
@@ -79,14 +76,14 @@ public class UIMapperRegistry {
     /**
      * Retrieve all certificate attribute name
      */
-    public static Enumeration getCertAttrNames() {
+    public static Enumeration<String> getCertAttrNames() {
         return mAttrContent.keys();
     }
 
     /**
      * Retrieve all extension UI Mappers
      */
-    public static Enumeration getCertAttrUIs() {
+    public static Enumeration<String> getCertAttrUIs() {
         return mAttrContent.elements();
     }
 
@@ -98,8 +95,8 @@ public class UIMapperRegistry {
     public static IUIMapper getCertAttrUI(String certAttrClassName)
         throws InstantiationException, IllegalAccessException, ClassNotFoundException
     {
-        String mapperClassName = (String) mAttrContent.get(certAttrClassName);
-        Class mapClass = Class.forName(mapperClassName);
+        String mapperClassName = mAttrContent.get(certAttrClassName);
+        Class<?> mapClass = Class.forName(mapperClassName);
         IUIMapper instance = (IUIMapper) mapClass.newInstance();
         return instance;
     }
