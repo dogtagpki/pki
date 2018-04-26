@@ -17,16 +17,44 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.ug;
 
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
-import javax.swing.*;
-import javax.swing.event.*;
-import java.awt.event.*;
-import java.awt.*;
-import java.util.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.util.ResourceBundle;
+import java.util.StringTokenizer;
 
-import com.netscape.management.client.util.*;
-import com.netscape.certsrv.common.*;
+import javax.swing.BorderFactory;
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+
+import com.netscape.admin.certsrv.CMSAdminResources;
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.EAdminException;
+import com.netscape.admin.certsrv.connection.AdminConnection;
+import com.netscape.admin.certsrv.connection.BasicAuthenticator;
+import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.common.DestDef;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.common.ScopeDef;
+import com.netscape.management.client.util.Debug;
 
 /**
  * User Information Editor - UI provides the user information
@@ -41,6 +69,7 @@ import com.netscape.certsrv.common.*;
 public class UserEditor extends JDialog
     implements ActionListener, MouseListener, DocumentListener
 {
+    private static final long serialVersionUID = 1L;
 
     /*==========================================================
      * variables
@@ -52,11 +81,10 @@ public class UserEditor extends JDialog
     private String mUserName;
     private boolean mIsNewUser = false;
     private ResourceBundle mResource;
-    private Color mActiveColor;
-    protected DefaultListModel mDataModel;
+    protected DefaultListModel<String> mDataModel;
 
     protected JScrollPane mScrollPane;
-    protected JList mList;
+    protected JList<String> mList;
 
     private boolean mUserAdded;
     private JButton mOK, mCancel, mHelp;
@@ -65,7 +93,7 @@ public class UserEditor extends JDialog
     private JPasswordField mPasswordField;
     private JPasswordField mPasswordConfirm;
     private JLabel mUserLabel, mMembership, mGroupLbl, dummy1;
-    private JComboBox mGroupBox;
+    private JComboBox<String> mGroupBox;
     private static final String ADDHELPINDEX =
       "usersgroups-certsrv-add-user-dbox-help";
     private static final String EDITHELPINDEX =
@@ -79,7 +107,7 @@ public class UserEditor extends JDialog
         super(parent,true);
         mParentFrame = parent;
         mConnection = conn;
-        mDataModel = new DefaultListModel();
+        mDataModel = new DefaultListModel<>();
         mResource = ResourceBundle.getBundle(CMSAdminResources.class.getName());
         setTitle(mResource.getString(PREFIX+"_TITLE"));
         mIsNewUser = isNew;
@@ -359,20 +387,20 @@ public class UserEditor extends JDialog
         //content panel
         JPanel content = makeContentPane();
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
-        gbc.fill = gbc.BOTH;
+        gbc.fill = GridBagConstraints.BOTH;
         gb.setConstraints(content, gbc);
         center.add(content);
 
         //action panel
         JPanel action = makeActionPane();
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gb.setConstraints(action, gbc);
         center.add(action);
@@ -392,7 +420,7 @@ public class UserEditor extends JDialog
 
     private JPanel makeContentPane() {
 
-        Insets insets = new Insets(CMSAdminUtil.COMPONENT_SPACE,0,
+        new Insets(CMSAdminUtil.COMPONENT_SPACE,0,
                             CMSAdminUtil.COMPONENT_SPACE,0);
 
         //top panel
@@ -408,15 +436,15 @@ public class UserEditor extends JDialog
         mUserNameField.getDocument().addDocumentListener(this);
         mUserLabel = new JLabel();
         mUserLabel.setVisible(false);
-        gbc.fill = gbc.NONE;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.weightx = 0.0;
-        gbc.anchor = gbc.EAST;
+        gbc.anchor = GridBagConstraints.EAST;
         gbc. insets = new Insets(CMSAdminUtil.COMPONENT_SPACE,
                                  CMSAdminUtil.COMPONENT_SPACE,0,0);
         top.add(label1, gbc);
 
-        gbc.anchor = gbc.WEST;
-        gbc.fill = gbc.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1.0;
         gbc. insets = new Insets(CMSAdminUtil.COMPONENT_SPACE,
                                  CMSAdminUtil.COMPONENT_SPACE,
@@ -426,7 +454,7 @@ public class UserEditor extends JDialog
 
         JLabel dummy = new JLabel();
         dummy.setVisible(false);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weightx = 0.0;
         top.add( dummy, gbc);
 
@@ -440,7 +468,7 @@ public class UserEditor extends JDialog
         mPasswordField = new JPasswordField();
         mPasswordField.addMouseListener(this);
         mPasswordField.getDocument().addDocumentListener(this);
-        mActiveColor = mPasswordField.getBackground();
+        mPasswordField.getBackground();
         CMSAdminUtil.addEntryField(top, mPasswordLbl, mPasswordField, gbc);
 
         mPasswordConfirmLbl = CMSAdminUtil.makeJLabel(mResource, PREFIX, "PASSWORDCONFIRM", null);
@@ -467,7 +495,7 @@ public class UserEditor extends JDialog
 
         CMSAdminUtil.resetGBC(gbc);
         mGroupLbl = CMSAdminUtil.makeJLabel(mResource, PREFIX, "GROUP",null);
-        mGroupBox = new JComboBox();
+        mGroupBox = new JComboBox<>();
         //mGroupBox.addItem("Admin group");
         dummy1 = new JLabel(" ");
         CMSAdminUtil.addEntryField(top, mGroupLbl, mGroupBox, dummy1, gbc);
@@ -486,23 +514,23 @@ public class UserEditor extends JDialog
         //setLabelCellRenderer(mTable,0);
 
         CMSAdminUtil.resetGBC(gbc);
-        gbc.fill = gbc.NONE;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.weightx = 0.0;
         gbc.gridwidth = 1;
         gbc.gridx = 0;
-        gbc.anchor = gbc.NORTHEAST;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTHEAST;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(CMSAdminUtil.COMPONENT_SPACE,
                 CMSAdminUtil.COMPONENT_SPACE,0,0);
         top.add( mMembership, gbc );
 
         gbc.gridx++;
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.fill = gbc.BOTH;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.fill = GridBagConstraints.BOTH;
         gbc.weightx = 0.5;
         gbc.weighty=1.0;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(CMSAdminUtil.COMPONENT_SPACE,
                 CMSAdminUtil.COMPONENT_SPACE,0,CMSAdminUtil.COMPONENT_SPACE);
         top.add( mScrollPane, gbc );
