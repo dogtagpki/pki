@@ -17,12 +17,12 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
-import javax.swing.*;
-import javax.swing.border.*;
-import javax.swing.event.*;
+import java.util.Hashtable;
+import java.util.Vector;
+
+import javax.swing.AbstractListModel;
+import javax.swing.ComboBoxModel;
+import javax.swing.ImageIcon;
 
 /**
  * Custom Combo Box Model
@@ -33,14 +33,16 @@ import javax.swing.event.*;
  * @see     com.netscape.admin.certsrv
  * @see     CustomComboBox
  */
-class CustomComboBoxModel extends AbstractListModel implements ComboBoxModel {
+class CustomComboBoxModel extends AbstractListModel<Object> implements ComboBoxModel<Object> {
+
+    private static final long serialVersionUID = 1L;
 
     /*==========================================================
      * constructors
      *==========================================================*/
     public CustomComboBoxModel() {
-        _cache = new Vector();
-        _index = new Vector();
+        _cache = new Vector<>();
+        _index = new Vector<>();
     }
 
 	/*==========================================================
@@ -101,7 +103,7 @@ class CustomComboBoxModel extends AbstractListModel implements ComboBoxModel {
      * @param title text associated
      */
     public void addItem(ImageIcon icon, String title, Object data) {
-        Hashtable newItem = new Hashtable();
+        Hashtable<String, Object> newItem = new Hashtable<>();
         newItem.put(SELECTION_ICON,icon);
         newItem.put(SELECTION_TITLE, title);
         newItem.put(SELECTION_DATA, data);
@@ -115,7 +117,7 @@ class CustomComboBoxModel extends AbstractListModel implements ComboBoxModel {
      * @param title text associated
      */
     public void addItem(ImageIcon icon, String title) {
-        Hashtable newItem = new Hashtable();
+        Hashtable<String, Object> newItem = new Hashtable<>();
         newItem.put(SELECTION_ICON,icon);
         newItem.put(SELECTION_TITLE, title);
         _cache.addElement(newItem);
@@ -128,7 +130,7 @@ class CustomComboBoxModel extends AbstractListModel implements ComboBoxModel {
      * @param title text associated
      */
     public void addItem(String title) {
-        Hashtable newItem = new Hashtable();
+        Hashtable<String, Object> newItem = new Hashtable<>();
         newItem.put(SELECTION_ICON,_icon);
         newItem.put(SELECTION_TITLE, title);
         _cache.addElement(newItem);
@@ -163,7 +165,7 @@ class CustomComboBoxModel extends AbstractListModel implements ComboBoxModel {
     public static final String SELECTION_DATA = "data";
 
     private Object _currentValue;
-    private Vector _cache;
-    private Vector _index;
+    private Vector<Object> _cache;
+    private Vector<String> _index;
     private ImageIcon _icon;
 }
