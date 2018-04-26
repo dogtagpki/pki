@@ -17,6 +17,7 @@ SOURCE_TAG=
 
 WITH_TIMESTAMP=
 WITH_COMMIT_ID=
+DIST=
 
 WITHOUT_TEST=
 
@@ -34,6 +35,7 @@ usage() {
     echo "    --source-tag=<tag>     Generate RPM sources from a source tag."
     echo "    --with-timestamp       Append timestamp to release number."
     echo "    --with-commit-id       Append commit ID to release number."
+    echo "    --dist=<name>          Distribution name (e.g. fc28)."
     echo "    --without-test         Do not run unit tests."
     echo "    --with-pkgs=<list>     Build packages specified in comma-separated list only."
     echo "    --without-pkgs=<list>  Build everything except packages specified in comma-separated list."
@@ -155,6 +157,9 @@ while getopts v-: arg ; do
         with-commit-id)
             WITH_COMMIT_ID=true
             ;;
+        dist=?*)
+            DIST="$LONG_OPTARG"
+            ;;
         without-test)
             WITHOUT_TEST=true
             ;;
@@ -186,7 +191,7 @@ while getopts v-: arg ; do
         '')
             break # "--" terminates argument processing
             ;;
-        work-dir* | source-tag* | with-pkgs* | without-pkgs*)
+        work-dir* | source-tag* | with-pkgs* | without-pkgs* | dist*)
             echo "ERROR: Missing argument for --$OPTARG option" >&2
             exit 1
             ;;
@@ -335,6 +340,10 @@ fi
 
 if [ "$WITH_COMMIT_ID" = true ] ; then
     OPTIONS+=(--define "_commit_id ${_COMMIT_ID}")
+fi
+
+if [ "$DIST" != "" ] ; then
+    OPTIONS+=(--define "dist .$DIST")
 fi
 
 if [ "$WITHOUT_TEST" = true ] ; then
