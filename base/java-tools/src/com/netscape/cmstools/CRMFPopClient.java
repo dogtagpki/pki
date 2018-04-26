@@ -665,7 +665,7 @@ public class CRMFPopClient {
          */
         AlgorithmIdentifier aid = new AlgorithmIdentifier(kwOID, new OCTET_STRING(iv));
 
-        Class[] iv_classes = keyWrapAlgorithm.getParameterClasses();
+        Class<?>[] iv_classes = keyWrapAlgorithm.getParameterClasses();
         if (iv_classes == null || iv_classes.length == 0)
             iv = null;
 
