@@ -17,15 +17,44 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config;
 
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
-import javax.swing.*;
-import java.awt.event.*;
-import java.awt.*;
-import java.util.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.util.ResourceBundle;
+import java.util.StringTokenizer;
 
-import com.netscape.management.client.util.*;
-import com.netscape.certsrv.common.*;
+import javax.swing.BorderFactory;
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+
+import com.netscape.admin.certsrv.CMSAdminResources;
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.EAdminException;
+import com.netscape.admin.certsrv.connection.AdminConnection;
+import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.common.DestDef;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.common.ScopeDef;
+import com.netscape.management.client.util.Debug;
+import com.netscape.management.client.util.JButtonFactory;
 
 /**
  * ACL Editor
@@ -37,17 +66,20 @@ import com.netscape.certsrv.common.*;
 public class ACLEditDialog extends JDialog
     implements ActionListener, MouseListener
 {
+
+    private static final long serialVersionUID = 1L;
+
     private final static String PREFIX = "ACLEDITDIALOG";
     private final static String HELPINDEX =
       "configuration-authorization";
     private JScrollPane mScrollPane;
-    private JList mList;
+    private JList<String> mList;
     private JFrame mParentFrame;
     private JButton mOK, mCancel, mHelp;
     private JButton mAdd, mEdit, mDelete;
     private ResourceBundle mResource;
     private String mResourceName, mDesc;
-    private DefaultListModel mDataModel;
+    private DefaultListModel<String> mDataModel;
     private String mOperations;
     private AdminConnection mAdmin;
     private ACIDialog mDialog;
@@ -55,7 +87,6 @@ public class ACLEditDialog extends JDialog
     private JTextArea mDescArea, mHelpArea;
     private JTextField mResourceText, mRightsText;
     private boolean mIsNew = false;
-    private Color mActiveColor;
 
     public ACLEditDialog(AdminConnection admin, JFrame parent) {
         this(admin, parent, null, null);
@@ -73,7 +104,7 @@ public class ACLEditDialog extends JDialog
             mIsNew = true;
         mAdmin = admin;
         mHelpToken = HELPINDEX;
-        mDataModel = new DefaultListModel();
+        mDataModel = new DefaultListModel<>();
         setSize(460, 420);
         setTitle(mResource.getString(PREFIX+"_TITLE"));
         setLocationRelativeTo(parent);
@@ -137,9 +168,9 @@ public class ACLEditDialog extends JDialog
 
                 for (int i=0; i<size; i++) {
                     if (i > 0)
-                        str = str+";"+(String)mDataModel.elementAt(i);
+                        str = str+";"+mDataModel.elementAt(i);
                     else
-                        str = str+(String)mDataModel.elementAt(i);
+                        str = str+mDataModel.elementAt(i);
                 }
                 pairs.put(Constants.PR_ACI, str);
                 pairs.put(Constants.PR_ACL_DESC, desc);
@@ -181,7 +212,7 @@ public class ACLEditDialog extends JDialog
             mDialog = new ACIDialog(mParentFrame, mOperations, mAdmin);
             int index = mList.getSelectedIndex();
             if (index >= 0) {
-                String aci = (String)mDataModel.elementAt(index);
+                String aci = mDataModel.elementAt(index);
                 mDialog.showDialog(aci, false);
 
                 if (mDialog.getOK())
@@ -205,8 +236,8 @@ public class ACLEditDialog extends JDialog
 
         if ((aci != null) && (!aci.trim().equals(""))) {
             StringTokenizer tokenizer = new StringTokenizer(aci, ";");
-            while (tokenizer.hasMoreElements())
-                mDataModel.addElement(tokenizer.nextElement());
+            while (tokenizer.hasMoreTokens())
+                mDataModel.addElement(tokenizer.nextToken());
         }
         if (mList.getSelectedIndex() < 0) {
             mEdit.setEnabled(false);
@@ -232,11 +263,11 @@ public class ACLEditDialog extends JDialog
         //content panel
         JPanel content = makeContentPanel();
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
-        gbc.fill = gbc.BOTH;
+        gbc.fill = GridBagConstraints.BOTH;
         gbc.insets = CMSAdminUtil.DEFAULT_EMPTY_INSETS;
         gb.setConstraints(content, gbc);
         center.add(content);
@@ -244,11 +275,11 @@ public class ACLEditDialog extends JDialog
         // Help Panel
         JPanel helpPanel = makeHelpPanel();
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
-        gbc.fill = gbc.BOTH;
+        gbc.fill = GridBagConstraints.BOTH;
         gbc.insets = new Insets(CMSAdminUtil.DIFFERENT_COMPONENT_SPACE,
                 CMSAdminUtil.DIFFERENT_COMPONENT_SPACE,
                 0,CMSAdminUtil.DIFFERENT_COMPONENT_SPACE);
@@ -258,9 +289,9 @@ public class ACLEditDialog extends JDialog
         //action panel
         JPanel action = makeActionPane();
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gb.setConstraints(action, gbc);
         center.add(action);
@@ -346,10 +377,10 @@ public class ACLEditDialog extends JDialog
         mHelpArea.setEditable(false);
 
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
-        gbc.fill=gbc.BOTH;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
+        gbc.fill = GridBagConstraints.BOTH;
         gbc.insets = CMSAdminUtil.DEFAULT_EMPTY_INSETS;
 /*
         gbc.insets = new Insets(0,
@@ -375,7 +406,7 @@ public class ACLEditDialog extends JDialog
         CMSAdminUtil.resetGBC(gbc);
         JLabel label1 = CMSAdminUtil.makeJLabel(mResource, PREFIX,
           "RESOURCEOBJECT", null);
-        gbc.anchor = gbc.WEST;
+        gbc.anchor = GridBagConstraints.WEST;
 	gbc.insets = new Insets(CMSAdminUtil.COMPONENT_SPACE,
 				CMSAdminUtil.DIFFERENT_COMPONENT_SPACE,
 				0, CMSAdminUtil.COMPONENT_SPACE);
@@ -387,14 +418,14 @@ public class ACLEditDialog extends JDialog
         CMSAdminUtil.resetGBC(gbc);
         if (mIsNew) {
             mResourceText = new JTextField(30);
-            gbc.anchor = gbc.WEST;
-            gbc.gridwidth = gbc.REMAINDER;
+            gbc.anchor = GridBagConstraints.WEST;
+            gbc.gridwidth = GridBagConstraints.REMAINDER;
             gb.setConstraints(mResourceText, gbc);
             mainPanel.add(mResourceText);
         } else {
             JLabel label2 = new JLabel(mResourceName);
-            gbc.anchor = gbc.WEST;
-            gbc.gridwidth = gbc.REMAINDER;
+            gbc.anchor = GridBagConstraints.WEST;
+            gbc.gridwidth = GridBagConstraints.REMAINDER;
             gb.setConstraints(label2, gbc);
             mainPanel.add(label2);
         }
@@ -402,7 +433,7 @@ public class ACLEditDialog extends JDialog
         CMSAdminUtil.resetGBC(gbc);
         JLabel rightsLbl = CMSAdminUtil.makeJLabel(
           mResource, PREFIX, "RIGHTS", null);
-        gbc.anchor = gbc.EAST;
+        gbc.anchor = GridBagConstraints.EAST;
         gbc.insets = new Insets(CMSAdminUtil.COMPONENT_SPACE,
 			CMSAdminUtil.DIFFERENT_COMPONENT_SPACE,
 			0, CMSAdminUtil.COMPONENT_SPACE);
@@ -413,17 +444,17 @@ public class ACLEditDialog extends JDialog
 
         CMSAdminUtil.resetGBC(gbc);
         mRightsText = new JTextField(30);
-        gbc.anchor = gbc.WEST;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gb.setConstraints(mRightsText, gbc);
         mainPanel.add(mRightsText);
 
         JLabel aciLbl = CMSAdminUtil.makeJLabel(mResource, PREFIX,
           "ACI", null);
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.WEST;
+        gbc.anchor = GridBagConstraints.WEST;
         gbc.weightx = 1.0;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(CMSAdminUtil.COMPONENT_SPACE,
 				CMSAdminUtil.DIFFERENT_COMPONENT_SPACE,
 				0,CMSAdminUtil.DIFFERENT_COMPONENT_SPACE);
@@ -434,11 +465,11 @@ public class ACLEditDialog extends JDialog
 
         JPanel listPanel = makeListPanel();
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.WEST;
+        gbc.anchor = GridBagConstraints.WEST;
 	gbc.weightx = 1.0;
 	gbc.weighty = 1.0;
-        gbc.fill=gbc.BOTH;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         //gbc.gridheight = gbc.REMAINDER;
         gbc.insets = new Insets(0,
 				CMSAdminUtil.DIFFERENT_COMPONENT_SPACE,
@@ -449,9 +480,9 @@ public class ACLEditDialog extends JDialog
         JLabel descLbl = CMSAdminUtil.makeJLabel(mResource, PREFIX,
           "DESC", null);
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.WEST;
+        gbc.anchor = GridBagConstraints.WEST;
         gbc.weightx = 1.0;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(CMSAdminUtil.COMPONENT_SPACE,
 				CMSAdminUtil.DIFFERENT_COMPONENT_SPACE,
 				0,CMSAdminUtil.DIFFERENT_COMPONENT_SPACE);
@@ -468,10 +499,10 @@ public class ACLEditDialog extends JDialog
         if (mDesc != null)
             mDescArea.setText(mDesc);
         JScrollPane scrollPane = createScrollPane(mDescArea);
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
-        gbc.fill=gbc.BOTH;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
+        gbc.fill = GridBagConstraints.BOTH;
         gbc.insets = new Insets(0,
 				CMSAdminUtil.DIFFERENT_COMPONENT_SPACE,
 				0,CMSAdminUtil.DIFFERENT_COMPONENT_SPACE);
@@ -483,7 +514,7 @@ public class ACLEditDialog extends JDialog
         mainPanel.add(scrollPane);
 
 /*
-        mActiveColor = mDescArea.getBackground();
+        Color mActiveColor = mDescArea.getBackground();
 
         if (mIsNew)
             enableTextField(mResourceText, true, mActiveColor);
@@ -530,22 +561,22 @@ public class ACLEditDialog extends JDialog
         mScrollPane.setBackground(Color.white);
 
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
+        gbc.anchor = GridBagConstraints.NORTH;
         //gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
-        gbc.fill = gbc.BOTH;
+        gbc.fill = GridBagConstraints.BOTH;
         gbc.insets = CMSAdminUtil.DEFAULT_EMPTY_INSETS;
         gb.setConstraints(mScrollPane, gbc);
         listPanel.add(mScrollPane);
 
         CMSAdminUtil.resetGBC(gbc);
         JPanel VBtnPanel = createUDButtonPanel();
-        gbc.anchor = gbc.NORTHWEST;
-	gbc.fill = gbc.NONE;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weightx = 0.0;
         gbc.weighty = 1.0;
         gbc.insets = CMSAdminUtil.DEFAULT_EMPTY_INSETS;
