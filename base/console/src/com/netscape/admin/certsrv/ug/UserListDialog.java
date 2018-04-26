@@ -17,15 +17,38 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.ug;
 
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
-import javax.swing.*;
-import java.awt.event.*;
-import java.awt.*;
-import java.util.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.util.Hashtable;
+import java.util.ResourceBundle;
+import java.util.StringTokenizer;
+import java.util.Vector;
 
-import com.netscape.management.client.util.*;
-import com.netscape.certsrv.common.*;
+import javax.swing.BorderFactory;
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.ListSelectionModel;
+
+import com.netscape.admin.certsrv.CMSAdminResources;
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.EAdminException;
+import com.netscape.admin.certsrv.connection.AdminConnection;
+import com.netscape.certsrv.common.DestDef;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.common.ScopeDef;
+import com.netscape.management.client.util.JButtonFactory;
 
 /**
  * User Listing Dialog - <p>
@@ -41,6 +64,8 @@ import com.netscape.certsrv.common.*;
 public class UserListDialog extends JDialog
     implements ActionListener, MouseListener
 {
+    private static final long serialVersionUID = 1L;
+
     /*==========================================================
      * variables
      *==========================================================*/
@@ -49,12 +74,12 @@ public class UserListDialog extends JDialog
     private JFrame mParentFrame;
     private AdminConnection mConnection;
     private ResourceBundle mResource;
-    protected DefaultListModel mDataModel;
-    protected Vector mCurrentUsers;
-    protected Vector mSelectedUser;
+    protected DefaultListModel<JLabel> mDataModel;
+    protected Vector<String> mCurrentUsers;
+    protected Vector<String> mSelectedUser;
 
     private JScrollPane mScrollPane;
-    private JList mList;
+    private JList<JLabel> mList;
 
     private JButton mOK, mCancel;
     private boolean mIsOk = false;
@@ -66,9 +91,9 @@ public class UserListDialog extends JDialog
         super(parent,true);
         mParentFrame = parent;
         mConnection = conn;
-        mSelectedUser = new Vector();
+        mSelectedUser = new Vector<>();
         mResource = ResourceBundle.getBundle(CMSAdminResources.class.getName());
-        mDataModel = new DefaultListModel();
+        mDataModel = new DefaultListModel<>();
         setSize(360, 216);
         setTitle(mResource.getString(PREFIX+"_TITLE"));
         setLocationRelativeTo(parent);
@@ -84,7 +109,7 @@ public class UserListDialog extends JDialog
      * show the windows
      * @param users list of current users
      */
-    public void showDialog(Vector users) {
+    public void showDialog(Vector<String> users) {
 
         mCurrentUsers = users;
         mSelectedUser.removeAllElements();
@@ -108,7 +133,7 @@ public class UserListDialog extends JDialog
      * otherwise, empty string will be returned.
      * @return user name
      */
-    public Vector getSelectedUser() {
+    public Vector<String> getSelectedUser() {
         return mSelectedUser;
     }
 
@@ -132,7 +157,7 @@ public class UserListDialog extends JDialog
             //Debug.println("Rows Selected ="+rowIndex.length);
             for (int j=0; j< rowIndex.length; j++)
                 mSelectedUser.addElement(
-                    ((JLabel)mDataModel.elementAt(rowIndex[j])).getText());
+                    mDataModel.elementAt(rowIndex[j]).getText());
 
             //set return flag
             mIsOk = true;
@@ -182,9 +207,9 @@ public class UserListDialog extends JDialog
         //content panel
         JPanel content = makeContentPane();
         CMSAdminUtil.resetGBC(gbc);
-		gbc.anchor = gbc.NORTH;
-		gbc.gridwidth = gbc.REMAINDER;
-                gbc.fill = gbc.BOTH;
+		gbc.anchor = GridBagConstraints.NORTH;
+		gbc.gridwidth = GridBagConstraints.REMAINDER;
+                gbc.fill = GridBagConstraints.BOTH;
 		gbc.weightx = 1.0;
 		gbc.weighty = 1.0;
         gb.setConstraints(content, gbc);
@@ -193,9 +218,9 @@ public class UserListDialog extends JDialog
 		//action panel
 		JPanel action = makeActionPane();
         CMSAdminUtil.resetGBC(gbc);
-		gbc.anchor = gbc.NORTH;
-		gbc.gridwidth = gbc.REMAINDER;
-		gbc.gridheight = gbc.REMAINDER;
+		gbc.anchor = GridBagConstraints.NORTH;
+		gbc.gridwidth = GridBagConstraints.REMAINDER;
+		gbc.gridheight = GridBagConstraints.REMAINDER;
 		gbc.weightx = 1.0;
         gb.setConstraints(action, gbc);
 		center.add(action);
@@ -227,12 +252,12 @@ public class UserListDialog extends JDialog
         mScrollPane.setBorder(BorderFactory.createLoweredBevelBorder());
 
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
-        gbc.fill = gbc.BOTH;
+        gbc.fill = GridBagConstraints.BOTH;
         gb.setConstraints(mScrollPane, gbc);
         mListPanel.add(mScrollPane);
 
@@ -264,9 +289,9 @@ public class UserListDialog extends JDialog
 		setLabelCellRenderer(mTable,0);
 
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weighty = 1.0;
         gbc.weightx = 1.0;
         gb3.setConstraints(mScrollPane, gbc);
@@ -304,7 +329,7 @@ public class UserListDialog extends JDialog
 
         //parse the data
 /*
-        Vector store = new Vector();
+        Vector<String> store = new Vector<>();
         for (Enumeration e = response.getNames(); e.hasMoreElements() ;) {
             String entry = ((String)e.nextElement()).trim();
             if (mCurrentUsers.indexOf(entry)== -1)
@@ -320,21 +345,21 @@ public class UserListDialog extends JDialog
        StringTokenizer tokenizer = new StringTokenizer(responseValue, ";");
        StringTokenizer subTokenizer = null;
 
-       Vector store = new Vector();
-       Hashtable table = new Hashtable();
+       Vector<String> store = new Vector<>();
+       Hashtable<String, String> table = new Hashtable<>();
 
        while (tokenizer.hasMoreTokens()) {
-           String t = (String)tokenizer.nextToken();
+           String t = tokenizer.nextToken();
            subTokenizer = new StringTokenizer(t, ":");
            int i=0;
            String str1 = null;
            String str2 = null;
            while (subTokenizer.hasMoreTokens()) {
                if (i == 0) {
-                   str1 = (String)subTokenizer.nextToken();
+                   str1 = subTokenizer.nextToken();
                    store.addElement(str1);
                } else {
-                   str2 = (String)subTokenizer.nextToken();
+                   str2 = subTokenizer.nextToken();
                    table.put(str1, str2);
                }
                i++;
