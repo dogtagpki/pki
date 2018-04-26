@@ -17,19 +17,36 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv;
 
-import java.util.*;
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.tree.*;
-import com.netscape.management.client.*;
-import com.netscape.management.client.console.*;
-import com.netscape.management.client.util.*;
-import com.netscape.admin.certsrv.security.KeyCertWizard;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.ResourceBundle;
+import java.util.StringTokenizer;
+
 import com.netscape.admin.certsrv.security.CertManagementDialog;
+import com.netscape.admin.certsrv.security.KeyCertWizard;
 import com.netscape.admin.certsrv.security.PKCS11ManagementDialog;
-import com.netscape.management.client.preferences.*;
-import netscape.ldap.*;
+import com.netscape.management.client.Framework;
+import com.netscape.management.client.IMenuInfo;
+import com.netscape.management.client.IMenuItem;
+import com.netscape.management.client.IPage;
+import com.netscape.management.client.ITaskObject;
+import com.netscape.management.client.MenuItemSeparator;
+import com.netscape.management.client.MenuItemText;
+import com.netscape.management.client.TaskModel;
+import com.netscape.management.client.TaskObject;
+import com.netscape.management.client.console.ConsoleInfo;
+import com.netscape.management.client.preferences.PreferenceManager;
+import com.netscape.management.client.preferences.Preferences;
+import com.netscape.management.client.util.ClassLoaderUtil;
+import com.netscape.management.client.util.Debug;
+import com.netscape.management.client.util.LDAPUtil;
+
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPDN;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPSearchResults;
 
 /**
  * Certificate Server 4.0 Task Model
@@ -119,7 +136,7 @@ public class CMSTaskModel extends TaskModel implements IMenuInfo {
     public void actionMenuSelected(IPage viewInstance, IMenuItem item) {
 
         if(item.getID().equals(MENU_KEYCERT)) {
-            KeyCertWizard wizard = new KeyCertWizard(mConsoleInfo);
+            new KeyCertWizard(mConsoleInfo);
         } else if(item.getID().equals(MENU_KEYCERT_MANAGEMENT)) {
             (new CertManagementDialog( mConsoleInfo )).showModal();
         } else if(item.getID().equals(MENU_PKCS11)){
@@ -150,7 +167,7 @@ public class CMSTaskModel extends TaskModel implements IMenuInfo {
 			String order = findTaskOrder( serverDN );
 
 			/* Accumulate tasks in a hash table */
-			Hashtable list = new Hashtable();
+			Hashtable<String, TaskObject> list = new Hashtable<>();
 			Debug.println( "CMSTaskModel.init: Searching for tasks under " +
 						   serverDN );
 			findTasks(root, serverDN, list );
@@ -167,15 +184,15 @@ public class CMSTaskModel extends TaskModel implements IMenuInfo {
 			if ( order != null ) {
 				StringTokenizer st = new StringTokenizer( order, " " );
 				while( st.hasMoreTokens() ) {
-					TaskObject task = (TaskObject)list.get( st.nextToken() );
+					TaskObject task = list.get( st.nextToken() );
 					if ( task != null ) {
 						root.add(task);
 					}
 				}
 			} else {
-				Enumeration en = list.elements();
+				Enumeration<TaskObject> en = list.elements();
 				while( en.hasMoreElements() ) {
-					root.add( (TaskObject)en.nextElement() );
+					root.add( en.nextElement() );
 				}
 			}
 		} else {
@@ -184,7 +201,7 @@ public class CMSTaskModel extends TaskModel implements IMenuInfo {
 		setRoot(root);
 	}
 
-    private void findTasks(TaskObject root, String base, Hashtable list ) {
+    private void findTasks(TaskObject root, String base, Hashtable<String, TaskObject> list ) {
 		// connect to the DS and search for task information
 		LDAPConnection ldc = mConsoleInfo.getLDAPConnection();
 		if ( ldc == null)
@@ -192,7 +209,7 @@ public class CMSTaskModel extends TaskModel implements IMenuInfo {
 		try {
 			String[] attrs = {"nsclassname", "nsexecref"};
 			LDAPSearchResults result =
-				ldc.search( base, ldc.SCOPE_SUB,
+				ldc.search( base, LDAPConnection.SCOPE_SUB,
 							"(objectclass=nstask)",
 							attrs, false );
 
@@ -208,7 +225,7 @@ public class CMSTaskModel extends TaskModel implements IMenuInfo {
 				if ( sJavaClassName != null ) {
 					// load the associated task class file
 					try {
-						Class c =
+						Class<?> c =
 							ClassLoaderUtil.getClass(mConsoleInfo,
 													 sJavaClassName);
 						TaskObject task = (TaskObject)c.newInstance();
@@ -217,7 +234,6 @@ public class CMSTaskModel extends TaskModel implements IMenuInfo {
 						taskConsoleInfo.setCurrentDN(findEntry.getDN());
 						/* Add a listener interface for
 						   authentication changes */
-						Vector v = new Vector(1);
 						anAttr = findEntry.getAttribute( attrs[1] );
 						if ( anAttr != null ) {
 							String s = LDAPUtil.flatting(
