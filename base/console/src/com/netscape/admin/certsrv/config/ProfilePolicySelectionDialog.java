@@ -17,16 +17,41 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config;
 
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
-import javax.swing.*;
-import javax.swing.event.*;
-import java.awt.event.*;
-import java.awt.*;
-import java.util.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.ResourceBundle;
+import java.util.StringTokenizer;
 
-import com.netscape.management.client.util.*;
-import com.netscape.certsrv.common.*;
+import javax.swing.BorderFactory;
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+
+import com.netscape.admin.certsrv.CMSAdminResources;
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.CMSBaseResourceModel;
+import com.netscape.admin.certsrv.EAdminException;
+import com.netscape.admin.certsrv.connection.AdminConnection;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.common.ScopeDef;
+import com.netscape.management.client.util.Debug;
+import com.netscape.management.client.util.JButtonFactory;
 
 /**
  * Plugin Selection Dialog
@@ -38,19 +63,21 @@ import com.netscape.certsrv.common.*;
 public class ProfilePolicySelectionDialog extends JDialog
     implements ActionListener, MouseListener, ListSelectionListener
 {
+    private static final long serialVersionUID = 1L;
+
     /*==========================================================
      * variables
      *==========================================================*/
     protected JFrame mParentFrame;
     protected AdminConnection mConnection;
     protected ResourceBundle mResource;
-    protected DefaultListModel mConstraintModel;
-    protected DefaultListModel mDefaultModel;
+    protected DefaultListModel<JLabel> mConstraintModel;
+    protected DefaultListModel<JLabel> mDefaultModel;
     protected String mDestination;              //dest flag
 
     private JScrollPane mScrollPane;
-    protected JList mDefaultList, mConstraintList;
-    protected Hashtable mDefaultData, mConstraintData;
+    protected JList<JLabel> mDefaultList, mConstraintList;
+    protected Hashtable<String, String> mDefaultData, mConstraintData;
     protected JLabel mDefaultLabel, mConstraintLabel;
     protected JButton mOK, mCancel, mHelp;
     protected String mDefSetId;
@@ -121,10 +148,10 @@ public class ProfilePolicySelectionDialog extends JDialog
         mDestination = dest;
         mExtraDestination = extraDest;
         mResource = ResourceBundle.getBundle(CMSAdminResources.class.getName());
-        mDefaultModel = new DefaultListModel();
-        mConstraintModel = new DefaultListModel();
-        mDefaultData = new Hashtable();
-        mConstraintData = new Hashtable();
+        mDefaultModel = new DefaultListModel<>();
+        mConstraintModel = new DefaultListModel<>();
+        mDefaultData = new Hashtable<>();
+        mConstraintData = new Hashtable<>();
         mPrefix = prefix;
 		mPluginInstanceDialog = pluginType;
 
@@ -210,8 +237,8 @@ public class ProfilePolicySelectionDialog extends JDialog
 			dialog.setInstanceScope(mInstanceScope);
 
 		// profile;defClass;conClass
-            String defaultName = ((JLabel)mDefaultModel.elementAt(mDefaultList.getSelectedIndex())).getText();
-            String conName = ((JLabel)mConstraintModel.elementAt(mConstraintList.getSelectedIndex())).getText();
+            String defaultName = mDefaultModel.elementAt(mDefaultList.getSelectedIndex()).getText();
+            String conName = mConstraintModel.elementAt(mConstraintList.getSelectedIndex()).getText();
 
 
 		String namex = mProfileId + ";" + getID(defaultName, mDefaultData) +
@@ -270,11 +297,11 @@ public class ProfilePolicySelectionDialog extends JDialog
 
         JPanel content = makeDefaultContentPane();
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
-        gbc.fill = gbc.BOTH;
+        gbc.fill = GridBagConstraints.BOTH;
         gb.setConstraints(content, gbc);
         center.add(content);
 
@@ -285,20 +312,20 @@ public class ProfilePolicySelectionDialog extends JDialog
 
         JPanel content1 = makeConstraintContentPane();
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
-        gbc.fill = gbc.BOTH;
+        gbc.fill = GridBagConstraints.BOTH;
         gb.setConstraints(content1, gbc);
         center.add(content1);
 
         //action panel
         JPanel action = makeActionPane();
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gb.setConstraints(action, gbc);
         center.add(action);
@@ -337,12 +364,12 @@ public class ProfilePolicySelectionDialog extends JDialog
         mScrollPane.setBorder(BorderFactory.createLoweredBevelBorder());
 
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
-        gbc.fill = gbc.BOTH;
+        gbc.fill = GridBagConstraints.BOTH;
         gb.setConstraints(mScrollPane, gbc);
         mListPanel.add(mScrollPane);
 
@@ -368,12 +395,12 @@ public class ProfilePolicySelectionDialog extends JDialog
         mScrollPane.setBorder(BorderFactory.createLoweredBevelBorder());
 
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
-        gbc.fill = gbc.BOTH;
+        gbc.fill = GridBagConstraints.BOTH;
         gb.setConstraints(mScrollPane, gbc);
         mListPanel.add(mScrollPane);
 
@@ -406,7 +433,7 @@ public class ProfilePolicySelectionDialog extends JDialog
         if (e.getSource().equals(mDefaultList)) {
             if (mDefaultList.getSelectedIndex() < 0)
                 return;
-            String name = ((JLabel)mDefaultModel.elementAt(mDefaultList.getSelectedIndex())).getText();
+            String name = mDefaultModel.elementAt(mDefaultList.getSelectedIndex()).getText();
             NameValuePairs response=null;
 
             try {
@@ -432,8 +459,8 @@ public class ProfilePolicySelectionDialog extends JDialog
     //=================================================
 
     //save order information to the server
-    protected boolean update(String scope, DefaultListModel model,
-      Hashtable data) {
+    protected boolean update(String scope, DefaultListModel<JLabel> model,
+      Hashtable<String, String> data) {
 
         NameValuePairs response;
         NameValuePairs params = new NameValuePairs();
@@ -455,8 +482,8 @@ public class ProfilePolicySelectionDialog extends JDialog
         return true;
     }
 
-    private void parseData(NameValuePairs response, DefaultListModel model,
-      Hashtable data) {
+    private void parseData(NameValuePairs response, DefaultListModel<JLabel> model,
+      Hashtable<String, String> data) {
         //parse the data
         String[] vals = new String[response.size()];
         int i=0;
@@ -464,8 +491,8 @@ public class ProfilePolicySelectionDialog extends JDialog
             name = name.trim();
             String val = response.get(name);
             StringTokenizer st = new StringTokenizer(val, ",");
-            String className = st.nextToken();
-            String desc = st.nextToken();
+            st.nextToken(); // className
+            st.nextToken(); // desc
             String friendlyName = st.nextToken();
             vals[i++] = friendlyName.trim();
             data.put(name, friendlyName);
@@ -490,7 +517,7 @@ public class ProfilePolicySelectionDialog extends JDialog
 
     //this returns the default configuration
     protected NameValuePairs getDefaultConfig() throws EAdminException {
-        String name = ((JLabel)mDefaultModel.elementAt(mDefaultList.getSelectedIndex())).getText();
+        String name = mDefaultModel.elementAt(mDefaultList.getSelectedIndex()).getText();
         NameValuePairs response;
         response = mConnection.read(mDestination,
           ScopeDef.SC_SUPPORTED_CONSTRAINTPOLICIES, getID(name.trim(), mDefaultData),
@@ -501,11 +528,11 @@ public class ProfilePolicySelectionDialog extends JDialog
         return response;
     }
 
-    private String getID(String name, Hashtable t) {
-        Enumeration keys = t.keys();
+    private String getID(String name, Hashtable<String, String> t) {
+        Enumeration<String> keys = t.keys();
         while (keys.hasMoreElements()) {
-            String key = (String)keys.nextElement();
-            String val = (String)t.get(key);
+            String key = keys.nextElement();
+            String val = t.get(key);
             if (val.equals(name)) {
                 return key;
             }
