@@ -17,16 +17,46 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.ug;
 
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
-import javax.swing.*;
-import javax.swing.event.*;
-import java.awt.event.*;
-import java.awt.*;
-import java.util.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ResourceBundle;
+import java.util.StringTokenizer;
+import java.util.Vector;
 
-import com.netscape.management.client.util.*;
-import com.netscape.certsrv.common.*;
+import javax.swing.BorderFactory;
+import javax.swing.DefaultListModel;
+import javax.swing.DefaultListSelectionModel;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+
+import com.netscape.admin.certsrv.AttrCellRenderer;
+import com.netscape.admin.certsrv.CMSAdminResources;
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.EAdminException;
+import com.netscape.admin.certsrv.LabelCellRenderer;
+import com.netscape.admin.certsrv.connection.AdminConnection;
+import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.common.DestDef;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.common.ScopeDef;
+import com.netscape.management.client.util.Debug;
+import com.netscape.management.client.util.JButtonFactory;
 
 /**
  * Group Membership Editor
@@ -38,6 +68,7 @@ import com.netscape.certsrv.common.*;
 public class GroupEditor extends JDialog
     implements ActionListener, ListSelectionListener
 {
+    private static final long serialVersionUID = 1L;
 
     /*==========================================================
      * variables
@@ -49,11 +80,11 @@ public class GroupEditor extends JDialog
     private String mGroupName;
     private boolean mIsNewGroup = false;
     private ResourceBundle mResource;
-    protected DefaultListModel mDataModel;
+    protected DefaultListModel<String> mDataModel;
     protected UserListDialog mUserDialog = null;    //keeping a copy for reuse
 
     protected JScrollPane mScrollPane;
-    protected JList mList;
+    protected JList<String> mList;
 
     private JButton mOK, mCancel, mHelp, mAddUser, mDelete;
     private JTextField mGroupNameField, mGroupDescField;
@@ -72,7 +103,7 @@ public class GroupEditor extends JDialog
         super(parent,true);
         mParentFrame = parent;
 		mConnection = conn;
-        mDataModel = new DefaultListModel();
+        mDataModel = new DefaultListModel<>();
         mResource = ResourceBundle.getBundle(CMSAdminResources.class.getName());
 
         setSize(360, 300);
@@ -192,9 +223,9 @@ public class GroupEditor extends JDialog
             //bring up the list for selection
 
             //create vector here
-            Vector currentUser = new Vector();
+            Vector<String> currentUser = new Vector<>();
             for (int i=0; i<mDataModel.getSize(); i++) {
-                currentUser.addElement((String)mDataModel.getElementAt(i));
+                currentUser.addElement(mDataModel.getElementAt(i));
             }
 
             NameValuePairs response;
@@ -228,12 +259,12 @@ public class GroupEditor extends JDialog
                 return;
 
             //create user NVP data object and add user entry
-            Vector selectedUser = mUserDialog.getSelectedUser();
+            Vector<String> selectedUser = mUserDialog.getSelectedUser();
             //Debug.println("Selected User = "+selectedUser.toString());
 
 
             for(int i=0; i<selectedUser.size(); i++) {
-                String name = ((String) selectedUser.elementAt(i)).trim();
+                String name = selectedUser.elementAt(i).trim();
                 if (!isDuplicate(name))
                     mDataModel.addElement(name);
             }
@@ -256,7 +287,7 @@ public class GroupEditor extends JDialog
 
     private boolean isDuplicate(String name) {
         for (int i=0; i<mDataModel.getSize(); i++) {
-            String name1 = ((String)mDataModel.getElementAt(i)).trim();
+            String name1 = mDataModel.getElementAt(i).trim();
             if (name1.equals(name))
                 return true;
         }
@@ -280,8 +311,8 @@ public class GroupEditor extends JDialog
         //content panel
         JPanel content = makeContentPane();
         CMSAdminUtil.resetGBC(gbc);
-		gbc.anchor = gbc.NORTH;
-		gbc.gridwidth = gbc.REMAINDER;
+		gbc.anchor = GridBagConstraints.NORTH;
+		gbc.gridwidth = GridBagConstraints.REMAINDER;
 		gbc.weightx = 1.0;
 		gbc.weighty = 1.0;
         gb.setConstraints(content, gbc);
@@ -290,9 +321,9 @@ public class GroupEditor extends JDialog
 		//action panel
 		JPanel action = makeActionPane();
         CMSAdminUtil.resetGBC(gbc);
-		gbc.anchor = gbc.NORTH;
-		gbc.gridwidth = gbc.REMAINDER;
-		gbc.gridheight = gbc.REMAINDER;
+		gbc.anchor = GridBagConstraints.NORTH;
+		gbc.gridwidth = GridBagConstraints.REMAINDER;
+		gbc.gridheight = GridBagConstraints.REMAINDER;
 		gbc.weightx = 1.0;
         gb.setConstraints(action, gbc);
 		center.add(action);
@@ -336,7 +367,7 @@ public class GroupEditor extends JDialog
         content.setLayout(gb3);
         //content.setBorder(CMSAdminUtil.makeEtchedBorder());
 
-        Insets insets = new Insets(CMSAdminUtil.COMPONENT_SPACE,0,
+        new Insets(CMSAdminUtil.COMPONENT_SPACE,0,
                             CMSAdminUtil.COMPONENT_SPACE,0);
 
         //top panel
@@ -350,15 +381,15 @@ public class GroupEditor extends JDialog
         mGroupNameField = new JTextField();
         mGroupNameLabel = new JLabel();
         mGroupNameLabel.setVisible(false);
-        gbc.fill = gbc.NONE;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.weightx = 0.0;
-        gbc.anchor = gbc.EAST;
+        gbc.anchor = GridBagConstraints.EAST;
         gbc. insets = new Insets(CMSAdminUtil.COMPONENT_SPACE,
                                  CMSAdminUtil.COMPONENT_SPACE,0,0);
         top.add(label1, gbc);
 
-        gbc.anchor = gbc.WEST;
-        gbc.fill = gbc.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1.0;
         gbc. insets = new Insets(CMSAdminUtil.COMPONENT_SPACE,
                                  CMSAdminUtil.COMPONENT_SPACE,
@@ -368,7 +399,7 @@ public class GroupEditor extends JDialog
 
         JLabel dummy = new JLabel();
         dummy.setVisible(false);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weightx = 0.0;
         top.add( dummy, gbc);
 
@@ -380,18 +411,18 @@ public class GroupEditor extends JDialog
 
         CMSAdminUtil.resetGBC(gbc);
         JLabel label3 = CMSAdminUtil.makeJLabel(mResource, PREFIX, "MEMBER", null);
-        gbc.gridheight = gbc.REMAINDER;
-        gbc.fill = gbc.NONE;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.anchor = gbc.WEST;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.anchor = GridBagConstraints.WEST;
         gbc.insets = new Insets(CMSAdminUtil.COMPONENT_SPACE,
                                 CMSAdminUtil.DIFFERENT_COMPONENT_SPACE,
                                 CMSAdminUtil.COMPONENT_SPACE,0);
         top.add(label3, gbc );
 
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gbc.insets = CMSAdminUtil.DEFAULT_EMPTY_INSETS;
         gb3.setConstraints(top, gbc);
@@ -420,8 +451,8 @@ public class GroupEditor extends JDialog
         mScrollPane.setBorder(BorderFactory.createLoweredBevelBorder());
 
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-        gbc.fill = gbc.BOTH;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.fill = GridBagConstraints.BOTH;
         gbc.gridwidth = 1;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
@@ -434,9 +465,9 @@ public class GroupEditor extends JDialog
 
 		JPanel memberButtonPanel = createMemberButtonPanel();
 		CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weightx = 0.0;
         gbc.insets = new Insets(CMSAdminUtil.COMPONENT_SPACE,0,
                             CMSAdminUtil.COMPONENT_SPACE,
@@ -445,9 +476,9 @@ public class GroupEditor extends JDialog
 		bottom.add(memberButtonPanel);
 
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
         gbc.insets = CMSAdminUtil.DEFAULT_EMPTY_INSETS;
@@ -559,7 +590,7 @@ public class GroupEditor extends JDialog
         //go through membership table
         if(mDataModel.getSize()>0)
             for (int i=0; i<mDataModel.getSize(); i++) {
-                String data = (String)mDataModel.getElementAt(i);
+                String data = mDataModel.getElementAt(i);
                 if (userBuf.length()>0)
                     userBuf.append(",");
                 userBuf.append(data);
@@ -581,8 +612,8 @@ public class GroupEditor extends JDialog
 		//Debug.println("GroupEditor: refreshTable() - end");
     }
 
-    public JList makeJList(DefaultListModel listModel, int visibleCount) {
-        JList listbox = new JList(listModel);
+    public JList<String> makeJList(DefaultListModel<String> listModel, int visibleCount) {
+        JList<String> listbox = new JList<String>(listModel);
         listbox.setCellRenderer(new AttrCellRenderer());
         listbox.setSelectionModel(new DefaultListSelectionModel());
         listbox.setVisibleRowCount(visibleCount);
