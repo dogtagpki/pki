@@ -17,15 +17,40 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.ug;
 
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
-import javax.swing.*;
-import java.awt.event.*;
-import java.awt.*;
-import java.util.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.util.ResourceBundle;
+import java.util.StringTokenizer;
+import java.util.Vector;
 
-import com.netscape.management.client.util.*;
-import com.netscape.certsrv.common.*;
+import javax.swing.BorderFactory;
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.ListSelectionModel;
+
+import com.netscape.admin.certsrv.CMSAdminResources;
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.EAdminException;
+import com.netscape.admin.certsrv.connection.AdminConnection;
+import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.common.DestDef;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.common.ScopeDef;
+import com.netscape.management.client.util.JButtonFactory;
 
 /**
  * User Certificate Management Dialog - <p>
@@ -46,6 +71,8 @@ import com.netscape.certsrv.common.*;
 public class CertManagementDialog extends JDialog
     implements ActionListener, MouseListener
 {
+    private static final long serialVersionUID = 1L;
+
     /*==========================================================
      * variables
      *==========================================================*/
@@ -54,14 +81,14 @@ public class CertManagementDialog extends JDialog
     private JFrame mParentFrame;
     private AdminConnection mConnection;
     private ResourceBundle mResource;
-    protected DefaultListModel mDataModel;
-    protected Vector mPPData;
+    protected DefaultListModel<JLabel> mDataModel;
+    protected Vector<String> mPPData;
     protected String mUID;              //dest flag
     protected CertViewDialog mViewDialog = null;      //keeping a copy for reuse
     protected CertImportDialog mCertDialog = null;    //keeping a copy for reuse
 
     private JScrollPane mScrollPane;
-    private JList mList;
+    private JList<JLabel> mList;
 
     private JButton mOK, mCancel, mAdd, mDelete, mView, mHelp;
     private final static String HELPINDEX =
@@ -75,8 +102,8 @@ public class CertManagementDialog extends JDialog
         mParentFrame = parent;
         mConnection = conn;
         mResource = ResourceBundle.getBundle(CMSAdminResources.class.getName());
-        mDataModel = new DefaultListModel();
-        mPPData = new Vector();
+        mDataModel = new DefaultListModel<>();
+        mPPData = new Vector<>();
         setSize(800, 216);
         setTitle(mResource.getString(PREFIX+"_TITLE"));
         setLocationRelativeTo(parent);
@@ -134,8 +161,8 @@ public class CertManagementDialog extends JDialog
         } else if (evt.getSource().equals(mView)) {
             if (mViewDialog==null)
                 mViewDialog = new CertViewDialog(mParentFrame);
-            String id = ((JLabel)mDataModel.elementAt(mList.getSelectedIndex())).getText();
-            mViewDialog.showDialog(id,(String)mPPData.elementAt(mList.getSelectedIndex()));
+            String id = mDataModel.elementAt(mList.getSelectedIndex()).getText();
+            mViewDialog.showDialog(id,mPPData.elementAt(mList.getSelectedIndex()));
         } else if (evt.getSource().equals(mHelp)) {
             CMSAdminUtil.help(HELPINDEX);
         }
@@ -168,9 +195,9 @@ public class CertManagementDialog extends JDialog
         //content panel
         JPanel content = makeContentPane();
         CMSAdminUtil.resetGBC(gbc);
-        gbc.fill = gbc.BOTH;
-		gbc.anchor = gbc.NORTH;
-		gbc.gridwidth = gbc.REMAINDER;
+        gbc.fill = GridBagConstraints.BOTH;
+		gbc.anchor = GridBagConstraints.NORTH;
+		gbc.gridwidth = GridBagConstraints.REMAINDER;
 		gbc.weightx = 1.0;
 		gbc.weighty = 1.0;
         gb.setConstraints(content, gbc);
@@ -179,9 +206,9 @@ public class CertManagementDialog extends JDialog
 		//action panel
 		JPanel action = makeActionPane();
         CMSAdminUtil.resetGBC(gbc);
-		gbc.anchor = gbc.NORTH;
-		gbc.gridwidth = gbc.REMAINDER;
-		gbc.gridheight = gbc.REMAINDER;
+		gbc.anchor = GridBagConstraints.NORTH;
+		gbc.gridwidth = GridBagConstraints.REMAINDER;
+		gbc.gridheight = GridBagConstraints.REMAINDER;
 		gbc.weightx = 1.0;
         gb.setConstraints(action, gbc);
 		center.add(action);
@@ -232,8 +259,8 @@ public class CertManagementDialog extends JDialog
 		mScrollPane.setBorder(BorderFactory.createLoweredBevelBorder());
 
 		CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-        gbc.fill = gbc.BOTH;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.fill = GridBagConstraints.BOTH;
         gbc.gridwidth = 1;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
@@ -243,9 +270,9 @@ public class CertManagementDialog extends JDialog
 
 	    JPanel buttonPanel = createUDButtonPanel();
 		CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weightx = 0.0;
         gbc.weighty = 1.0;
         gbc.insets = new Insets(CMSAdminUtil.COMPONENT_SPACE,
@@ -351,13 +378,12 @@ public class CertManagementDialog extends JDialog
 		String name = "";
 
 		StringTokenizer st = new StringTokenizer(val,";",false);
-		String version=null;  // I think this is cert version #
 		String serial=null;
 		String issuer=null;
 		String subject=null;
 
 		try {
-			version = st.nextToken();
+			st.nextToken(); // version
 			serial  = st.nextToken();
 			issuer  = st.nextToken();
 			subject = st.nextToken();
@@ -419,7 +445,7 @@ public class CertManagementDialog extends JDialog
 
     private void deleteCert() {
         //get entry name
-        String dn = ((JLabel)mDataModel.elementAt(mList.getSelectedIndex())).getText();
+        String dn = mDataModel.elementAt(mList.getSelectedIndex()).getText();
         dn = toServerFormat(dn);
         NameValuePairs config = new NameValuePairs();
         config.put(Constants.PR_USER_CERT, dn);
