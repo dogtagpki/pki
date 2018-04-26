@@ -17,15 +17,43 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv;
 
-import javax.swing.*;
-import javax.swing.event.*;
-import javax.swing.border.*;
-import javax.swing.text.*;
-import com.netscape.management.client.util.*;
-import com.netscape.management.nmclf.*;
-import java.util.*;
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.Cursor;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
+
+import javax.swing.BorderFactory;
+import javax.swing.ComboBoxModel;
+import javax.swing.DefaultListModel;
+import javax.swing.Icon;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JRadioButton;
+import javax.swing.JTextField;
+import javax.swing.border.Border;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.TitledBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.text.Document;
+
+import com.netscape.management.nmclf.SuiLookAndFeel;
 
 /**
  * Netscape Certificate Server 4.0 Default Base Panel
@@ -326,25 +354,25 @@ public class CMSBasePanel extends JPanel
     }
 
     //====== COMBOBOX CREATION ==========================
-    protected JComboBox makeJComboBox(ComboBoxModel cbm) {
-        JComboBox cb = new JComboBox();
+    protected JComboBox<String> makeJComboBox(ComboBoxModel<String> cbm) {
+        JComboBox<String> cb = new JComboBox<>();
         if (cbm != null)
             cb.setModel(cbm);
         cb.addItemListener(this);
         return cb;
     }
 
-    protected JComboBox makeJComboBox() {
-        return makeJComboBox((ComboBoxModel)null);
+    protected JComboBox<String> makeJComboBox() {
+        return makeJComboBox((ComboBoxModel<String>)null);
     }
 
-    protected JComboBox makeJComboBox(String keyword) {
+    protected JComboBox<String> makeJComboBox(String keyword) {
         String value = null;
         try {
             value = mResource.getString(mPanelName+"_COMBOBOX_"+keyword+"_DEFAULT");
         } catch (MissingResourceException e) {
         }
-        JComboBox jcb = makeJComboBox((ComboBoxModel)null);
+        JComboBox<String> jcb = makeJComboBox((ComboBoxModel<String>)null);
         String val = null;
         int ii = 0;
         do {

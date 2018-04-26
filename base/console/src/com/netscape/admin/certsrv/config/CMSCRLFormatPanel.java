@@ -17,14 +17,28 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config;
 
-import com.netscape.management.client.util.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
 import java.util.StringTokenizer;
+
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.CMSBaseResourceModel;
+import com.netscape.admin.certsrv.EAdminException;
+import com.netscape.admin.certsrv.connection.AdminConnection;
+import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.common.DestDef;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.common.ScopeDef;
+import com.netscape.management.client.util.Debug;
 
 /**
  * Panel Setting CRL Format
@@ -33,6 +47,8 @@ import java.util.StringTokenizer;
  * @version $Revision$, $Date$
  */
 public class CMSCRLFormatPanel extends CMSBaseTab {
+
+    private static final long serialVersionUID = 1L;
 
     /*==========================================================
      * variables
@@ -46,7 +62,7 @@ public class CMSCRLFormatPanel extends CMSBaseTab {
     private JTextField mProfiles;
     private AdminConnection _admin;
     private CMSBaseResourceModel _model;
-    private JComboBox mAlgorithms;
+    private JComboBox<String> mAlgorithms;
     private Color mActiveColor;
     private CMSTabPanel mParent;
     private String mId = null;
@@ -89,8 +105,8 @@ public class CMSCRLFormatPanel extends CMSBaseTab {
         JPanel formatPanel = new JPanel();
         formatPanel.setBorder(makeTitledBorder("FORMAT"));
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gbc.weighty = 0.0;
         gb.setConstraints(formatPanel, gbc);
@@ -103,8 +119,8 @@ public class CMSCRLFormatPanel extends CMSBaseTab {
         // algorithm selection
         CMSAdminUtil.resetGBC(gbc);
         JLabel digestLabel = makeJLabel("MESSAGEDIGEST");
-        gbc.anchor = gbc.EAST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.gridx = 0;
         gbc.weightx = 0.0;
         gbc.gridwidth = 1;
@@ -113,10 +129,10 @@ public class CMSCRLFormatPanel extends CMSBaseTab {
 
         mAlgorithms = makeJComboBox();
         mAlgorithms.addItemListener(this);
-        gbc.anchor = gbc.WEST;
+        gbc.anchor = GridBagConstraints.WEST;
         gbc.gridx++;
         gbc.weightx = 1.0;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,0,COMPONENT_SPACE);
         formatPanel.add(mAlgorithms, gbc);
 
@@ -124,8 +140,8 @@ public class CMSCRLFormatPanel extends CMSBaseTab {
         // allow extensions
         CMSAdminUtil.resetGBC(gbc);
         JLabel allowExtensionsLabel = makeJLabel("EXT");
-        gbc.anchor = gbc.EAST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.gridx = 0;
         gbc.weightx = 0.0;
         gbc.gridwidth = 1;
@@ -133,10 +149,10 @@ public class CMSCRLFormatPanel extends CMSBaseTab {
         formatPanel.add(allowExtensionsLabel, gbc );
 
         mEnableExtensions = makeJCheckBox();
-        gbc.anchor = gbc.WEST;
+        gbc.anchor = GridBagConstraints.WEST;
         gbc.gridx++;
         gbc.weightx = 1.0;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,0,COMPONENT_SPACE);
         formatPanel.add(mEnableExtensions, gbc);
 
@@ -145,9 +161,9 @@ public class CMSCRLFormatPanel extends CMSBaseTab {
         JPanel contentsPanel = new JPanel();
         contentsPanel.setBorder(makeTitledBorder("CONTENTS"));
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
         gb.setConstraints(contentsPanel, gbc);
@@ -160,11 +176,11 @@ public class CMSCRLFormatPanel extends CMSBaseTab {
         // include expired certs
         CMSAdminUtil.resetGBC(gbc);
         mEnableExpired = makeJCheckBox("EXPIRED");
-        gbc.anchor = gbc.WEST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.gridx = 0;
         gbc.weightx = 1.0;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(COMPONENT_SPACE,DIFFERENT_COMPONENT_SPACE,0,0);
         contentsPanel.add(mEnableExpired, gbc);
 
@@ -172,11 +188,11 @@ public class CMSCRLFormatPanel extends CMSBaseTab {
         // include expired certs one extra time
         CMSAdminUtil.resetGBC(gbc);
         mEnableOneExtraTime = makeJCheckBox("ONEEXTRATIME");
-        gbc.anchor = gbc.WEST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.gridx = 0;
         gbc.weightx = 1.0;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(COMPONENT_SPACE,DIFFERENT_COMPONENT_SPACE,0,0);
         contentsPanel.add(mEnableOneExtraTime, gbc);
 
@@ -184,11 +200,11 @@ public class CMSCRLFormatPanel extends CMSBaseTab {
         // CA certs only
         CMSAdminUtil.resetGBC(gbc);
         mCACertsOnly = makeJCheckBox("CACERTSONLY");
-        gbc.anchor = gbc.WEST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.gridx = 0;
         gbc.weightx = 1.0;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(COMPONENT_SPACE,DIFFERENT_COMPONENT_SPACE,0,0);
         contentsPanel.add(mCACertsOnly, gbc);
 
@@ -196,8 +212,8 @@ public class CMSCRLFormatPanel extends CMSBaseTab {
         // profile certs only
         CMSAdminUtil.resetGBC(gbc);
         mProfileCertsOnly = makeJCheckBox("PROFILECERTSONLY");
-        gbc.anchor = gbc.WEST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.gridx = 0;
         gbc.weightx = 0.0;
         gbc.gridwidth = 1;
@@ -205,9 +221,9 @@ public class CMSCRLFormatPanel extends CMSBaseTab {
         contentsPanel.add(mProfileCertsOnly, gbc);
 
         mProfiles = makeJTextField(20);
-        gbc.anchor = gbc.WEST;
+        gbc.anchor = GridBagConstraints.WEST;
         gbc.gridx++;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(COMPONENT_SPACE,0,0,COMPONENT_SPACE);
         contentsPanel.add(mProfiles, gbc);
         mActiveColor = mProfiles.getBackground();
@@ -367,8 +383,6 @@ public class CMSCRLFormatPanel extends CMSBaseTab {
         else
             nvps.put(Constants.PR_PROFILE_LIST, mProfiles.getText().trim());
 
-
-        int index = mAlgorithms.getSelectedIndex();
 
         nvps.put(Constants.PR_SIGNING_ALGORITHM,
                 (String) mAlgorithms.getSelectedItem());
