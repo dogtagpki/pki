@@ -18,9 +18,11 @@
 package com.netscape.admin.certsrv;
 
 
-import java.util.*;
-import javax.swing.table.*;
-import com.netscape.management.client.util.*;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
+import java.util.Vector;
+
+import javax.swing.table.AbstractTableModel;
 
 /**
  * Generic base class for the JTable data container
@@ -32,6 +34,8 @@ import com.netscape.management.client.util.*;
  * @see javax.swing.table.AbstractTableModel
  */
 public class CMSTableModel extends AbstractTableModel {
+
+    private static final long serialVersionUID = 1L;
 
     /*==========================================================
      * variables
@@ -99,8 +103,8 @@ public class CMSTableModel extends AbstractTableModel {
     protected static String GROUPDESC = "GROUPDESC";
     protected static String MEMBER = "MEMBER";
 
-    protected Vector _columnNames = new Vector();     // name container
-    protected Vector _tableColumns = new Vector();    // column container
+    protected Vector<String> _columnNames = new Vector<>();     // name container
+    protected Vector<Vector<Object>> _tableColumns = new Vector<>();    // column container
     protected ResourceBundle mResource;               // resource boundle
 
 	/*==========================================================
@@ -121,7 +125,7 @@ public class CMSTableModel extends AbstractTableModel {
 
     public int getRowCount() {
         if (getColumnCount() > 0 ) {
-            Vector v = (Vector)_tableColumns.elementAt(0);
+            Vector<Object> v = _tableColumns.elementAt(0);
             return v.size();
         }
         return 0;
@@ -130,7 +134,7 @@ public class CMSTableModel extends AbstractTableModel {
     public String getColumnName(int column) {
         if (column >= _columnNames.size())
             return "";
-        return (String)_columnNames.elementAt(column);
+        return _columnNames.elementAt(column);
     }
 
     public boolean isCellEditable(int row, int col) {
@@ -138,13 +142,13 @@ public class CMSTableModel extends AbstractTableModel {
     }
 
     public synchronized void setValueAt(Object aValue, int row, int column) {
-            Vector col = (Vector)_tableColumns.elementAt(column);
+            Vector<Object> col = _tableColumns.elementAt(column);
             col.setElementAt(aValue, row);
     }
 
     public synchronized Object getValueAt(int row, int col) {
         if ( getColumnCount() > 0 ) {
-            Vector v = (Vector)_tableColumns.elementAt(col);
+            Vector<Object> v = _tableColumns.elementAt(col);
             return v.elementAt(row);
         }
         return null;
@@ -152,7 +156,7 @@ public class CMSTableModel extends AbstractTableModel {
 
     public synchronized void removeAllRows() {
         for (int i=0; i<_tableColumns.size(); i++) {
-            Vector v = (Vector)_tableColumns.elementAt(i);
+            Vector<Object> v = _tableColumns.elementAt(i);
             v.removeAllElements();
         }
         fireTableDataChanged();
@@ -161,9 +165,9 @@ public class CMSTableModel extends AbstractTableModel {
     /**
      * add specified data to the end of the table
      */
-    public synchronized void addRow(Vector values) {
+    public synchronized void addRow(Vector<Object> values) {
         for (int i=0; i < values.size(); i++) {
-            Vector v = (Vector)_tableColumns.elementAt(i);
+            Vector<Object> v = _tableColumns.elementAt(i);
             v.addElement(values.elementAt(i));
         }
         fireTableDataChanged();
@@ -176,7 +180,7 @@ public class CMSTableModel extends AbstractTableModel {
         throws ArrayIndexOutOfBoundsException
     {
         for (int i=0; i < _tableColumns.size(); i++) {
-            Vector v = (Vector)_tableColumns.elementAt(i);
+            Vector<Object> v = _tableColumns.elementAt(i);
             v.removeElementAt(index);
         }
         fireTableDataChanged();
@@ -184,10 +188,10 @@ public class CMSTableModel extends AbstractTableModel {
 
     public synchronized void addColumn(String name) {
         _columnNames.addElement(name);
-        _tableColumns.addElement(new Vector());
+        _tableColumns.addElement(new Vector<Object>());
     }
 
-    public Class getColumnClass(int c) {
+    public Class<?> getColumnClass(int c) {
         return getValueAt(0, c).getClass();
     }
 

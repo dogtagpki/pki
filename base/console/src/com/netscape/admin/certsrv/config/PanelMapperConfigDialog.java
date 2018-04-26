@@ -233,7 +233,7 @@ public class PanelMapperConfigDialog extends JDialog
             entry = entry.trim();
             if (!entry.equals(Constants.PR_MAPPER)) {
                 String value = mData.get(entry);
-                Vector<String> v = new Vector<String>();
+                Vector<Object> v = new Vector<>();
                 v.addElement(entry);
                 v.addElement(value);
                 mDataModel.addRow(v);
