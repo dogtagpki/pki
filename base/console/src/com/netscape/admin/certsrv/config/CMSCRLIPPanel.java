@@ -17,16 +17,38 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config;
 
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.ug.*;
-import com.netscape.management.client.*;
-import com.netscape.management.client.util.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.admin.certsrv.connection.*;
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
+import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.util.Enumeration;
+import java.util.Vector;
+
+import javax.swing.BorderFactory;
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+
+import com.netscape.admin.certsrv.CMSAdminResources;
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.CMSBaseResourceModel;
+import com.netscape.admin.certsrv.CMSResourceObject;
+import com.netscape.admin.certsrv.EAdminException;
+import com.netscape.admin.certsrv.connection.AdminConnection;
+import com.netscape.admin.certsrv.ug.CMSUGTabPanel;
+import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.common.DestDef;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.common.ScopeDef;
+import com.netscape.management.client.util.Debug;
+import com.netscape.management.client.util.JButtonFactory;
 
 /**
  * CRL IP Panel
@@ -36,6 +58,7 @@ import java.util.*;
 public class CMSCRLIPPanel  extends CMSBaseTab
     implements MouseListener
 {
+    private static final long serialVersionUID = 1L;
 
     /*==========================================================
      * variables
@@ -47,13 +70,13 @@ public class CMSCRLIPPanel  extends CMSBaseTab
     private AdminConnection mAdmin;
     private CMSBaseResourceModel mModel;
     private CMSTabPanel mParent;
-    private JList mList;
-    private DefaultListModel mDataModel;
+    private JList<JLabel> mList;
+    private DefaultListModel<JLabel> mDataModel;
     private JScrollPane mScrollPane;
     private JButton mAdd;
     private JButton mEdit;
     private JButton mDelete;
-    private Vector mNames;
+    private Vector<String> mNames;
 
     /*==========================================================
      * constructors
@@ -62,9 +85,9 @@ public class CMSCRLIPPanel  extends CMSBaseTab
         super(PANEL_NAME, parent);
         mModel = model;
         mParent = parent;
-        mDataModel = new DefaultListModel();
+        mDataModel = new DefaultListModel<>();
         mHelpToken = HELPINDEX;
-        mNames = new Vector();
+        mNames = new Vector<>();
     }
 
     /*==========================================================
@@ -86,9 +109,9 @@ public class CMSCRLIPPanel  extends CMSBaseTab
         GridBagConstraints gbc = new GridBagConstraints();
         CMSAdminUtil.resetGBC(gbc);
         JLabel listLabel = makeJLabel("CRLIPLIST");
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.fill = gbc.NONE;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gbc.insets = new Insets(DIFFERENT_COMPONENT_SPACE,
                                 DIFFERENT_COMPONENT_SPACE,
@@ -104,7 +127,7 @@ public class CMSCRLIPPanel  extends CMSBaseTab
         mList.addMouseListener(this);
         mScrollPane.setBackground(Color.white);
         mScrollPane.setBorder(BorderFactory.createLoweredBevelBorder());
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 0.5;
         gbc.weighty = 1.0;
         gbc.insets = new Insets(COMPONENT_SPACE,
@@ -115,9 +138,9 @@ public class CMSCRLIPPanel  extends CMSBaseTab
 
 	    JPanel buttonPanel = createUserButtonPanel();
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weightx = 0.0;
         gbc.weighty = 1.0;
         gbc.insets = new Insets(COMPONENT_SPACE,0,
@@ -167,8 +190,8 @@ public class CMSCRLIPPanel  extends CMSBaseTab
     //======= ActionLister ============================
     public void actionPerformed(ActionEvent e) {
         if (e.getSource().equals(mEdit)) {
-            JFrame frame = mModel.getFrame();
-            String name = ((JLabel)mList.getSelectedValue()).getText();
+            mModel.getFrame();
+            String name = mList.getSelectedValue().getText();
 						  //(String)mList.getSelectedValue();
             NameValuePairs nvps = new NameValuePairs();
             nvps.put(Constants.PR_ENABLED, "");
@@ -218,13 +241,13 @@ public class CMSCRLIPPanel  extends CMSBaseTab
             node.setIcon( CMSAdminUtil.getImage(CMSAdminResources.IMAGE_RULEOBJECT));
             node.setAllowsChildren(false);
             crlNode.add(node);
-            mModel.fireTreeStructureChanged((ResourceObject)crlsNode);
+            mModel.fireTreeStructureChanged(crlsNode);
 
             refresh();
         } else if (e.getSource().equals(mDelete)) {
             int index = mList.getSelectedIndex();
             if (index >= 0) {
-                String name = ((JLabel)mList.getSelectedValue()).getText();
+                String name = mList.getSelectedValue().getText();
 							  //(String)mList.getSelectedValue();
 
                 int i = showConfirmDialog("DELETE");
@@ -249,7 +272,7 @@ public class CMSCRLIPPanel  extends CMSBaseTab
                     String name1 = child.getName();
                     if (name1.equals(name)) {
                         node.remove(child);
-                        mModel.fireTreeStructureChanged((ResourceObject)node);
+                        mModel.fireTreeStructureChanged(node);
                         return;
                     }
                 }
