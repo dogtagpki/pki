@@ -17,10 +17,12 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.misc;
 
-import java.io.*;
-import java.util.*;
-import java.text.*;
-import java.lang.reflect.*;
+import java.lang.reflect.Method;
+import java.text.MessageFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
 
 /**
  * Factors out common function of formatting internatinalized
@@ -35,7 +37,7 @@ import java.lang.reflect.*;
  */
 public class MessageFormatter {
 
-    private static final Class [] toStringSignature = { Locale.class };
+    private static final Class<?> [] toStringSignature = { Locale.class };
 
     public static String getLocalizedString(
             Locale locale, String resourceBundleBaseName,

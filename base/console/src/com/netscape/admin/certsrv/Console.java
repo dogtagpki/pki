@@ -1137,7 +1137,7 @@ public class Console implements CommClient {
         if (!successfulAuth)
             return false;
 
-        if ((param = (ht.get("UserDN"))) != null)
+        if ((param = ht.get("UserDN")) != null)
             info.setAuthenticationDN(param);
         else {
             Debug.println("Console:authenticate_user():UserDN not found");
