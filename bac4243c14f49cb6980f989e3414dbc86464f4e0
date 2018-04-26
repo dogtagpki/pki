@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b5c68e71_e5e34fdb",
+        "filename": "build.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 1010223
+      },
+      "writtenOn": "2018-04-26T18:57:58Z",
+      "side": 1,
+      "message": "Build everything except packages specified in comma-separated list.",
+      "range": {
+        "startLine": 39,
+        "startChar": 37,
+        "endLine": 39,
+        "endChar": 91
+      },
+      "revId": "bac4243c14f49cb6980f989e3414dbc86464f4e0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
