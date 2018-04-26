@@ -204,8 +204,7 @@ public class Console implements CommClient {
                 // has an incorrect layout for some of the buttons. Create
                 // and discard an instance.
                 if (!_isWindows) {
-                    Object o = new JFileChooser();
-                    o = null;
+                    new JFileChooser();
                 }
             }
             FontFactory.initializeLFFonts(); // load default customized fonts for login/splash
@@ -378,7 +377,7 @@ public class Console implements CommClient {
     private String serverIDtoDN(String id) {
 
         LDAPConnection ldc = _info.getLDAPConnection();
-        Vector instances = new Vector();
+        Vector<String> instances = new Vector<>();
 
         try {
             LDAPSearchResults res = ldc.search(
@@ -397,7 +396,7 @@ public class Console implements CommClient {
                 System.exit(0);
             }
             else if (instances.size() == 1) {
-                id = (String) instances.elementAt(0);
+                id = instances.elementAt(0);
             }
             else {
 
@@ -435,7 +434,7 @@ public class Console implements CommClient {
                         break;
                     }
                 }
-                id = (String) instances.elementAt(idx);
+                id = instances.elementAt(idx);
             }
         }
         catch (Exception e) {
@@ -485,7 +484,7 @@ public class Console implements CommClient {
             }
             _info.setCurrentDN(host);
 
-            Class c = ClassLoaderUtil.getClass(_info, className);
+            Class<?> c = ClassLoaderUtil.getClass(_info, className);
             if (c == null) {
                 Debug.println(
                         "ERROR Console.constructor: could not get class " +
@@ -543,7 +542,7 @@ public class Console implements CommClient {
     }
 
     public Console(String adminURL, String localAdminURL, String language, String host, String uid, String passwd) {
-		Vector recentURLs = new Vector();
+		Vector<String> recentURLs = new Vector<>();
 		String lastUsedURL;
         common_init(language);
         String userid = uid;
@@ -673,9 +672,9 @@ public class Console implements CommClient {
 
 					String recentlyUsedURL;
 					int count = 1;
-					Enumeration urlEnum = recentURLs.elements();
+					Enumeration<String> urlEnum = recentURLs.elements();
 					while (urlEnum.hasMoreElements()) {
-						recentlyUsedURL = (String)urlEnum.nextElement();
+						recentlyUsedURL = urlEnum.nextElement();
 						if(!recentlyUsedURL.equals(adminURL))
 							_preferences.set(PREFERENCE_URL+Integer.toString(count++), recentlyUsedURL);
 					}
@@ -749,12 +748,6 @@ public class Console implements CommClient {
         LDAPConnection ldc = _info.getLDAPConnection();
 
         if (ldc != null) {
-            String sName;
-            String sValue;
-            int iFirstQuote;
-            int iSecondQuote;
-            int iThirdQuote;
-            int iFourthQuote;
             LDAPAttribute attribute;
             Enumeration eAttributes;
             String ldapLocation = "";
@@ -773,7 +766,7 @@ public class Console implements CommClient {
                             LDAPUtil.getLDAPAttributeLocale());
 
                     if (attribute != null) {
-                        Vector vUserObjectClasses = new Vector();
+                        Vector<String> vUserObjectClasses = new Vector<>();
                         eAttributes = attribute.getStringValues();
                         while (eAttributes.hasMoreElements()) {
                             String sUserObjectClass =
@@ -792,7 +785,7 @@ public class Console implements CommClient {
             }
             if (ResourceEditor.getNewObjectClasses().get(
                     ResourceEditor.KEY_NEW_USER_OBJECTCLASSES) == null) {
-                Vector vObject = new Vector();
+                Vector<String> vObject = new Vector<>();
                 vObject.addElement("top");
                 vObject.addElement("person");
                 vObject.addElement("organizationalPerson");
@@ -811,7 +804,7 @@ public class Console implements CommClient {
                             LDAPUtil.getLDAPAttributeLocale());
 
                     if (attribute != null) {
-                        Vector vGroupObjectClasses = new Vector();
+                        Vector<String> vGroupObjectClasses = new Vector<>();
                         eAttributes = attribute.getStringValues();
                         while (eAttributes.hasMoreElements()) {
                             String sGroupObjectClass =
@@ -830,7 +823,7 @@ public class Console implements CommClient {
             }
             if (ResourceEditor.getNewObjectClasses().get(
                     ResourceEditor.KEY_NEW_GROUP_OBJECTCLASSES) == null) {
-                Vector vObject = new Vector();
+                Vector<String> vObject = new Vector<>();
                 vObject.addElement("top");
                 vObject.addElement("groupofuniquenames");
                 ResourceEditor.getNewObjectClasses().put(
@@ -847,7 +840,7 @@ public class Console implements CommClient {
                             LDAPUtil.getLDAPAttributeLocale());
 
                     if (attribute != null) {
-                        Vector vOUObjectClasses = new Vector();
+                        Vector<String> vOUObjectClasses = new Vector<>();
                         eAttributes = attribute.getStringValues();
                         while (eAttributes.hasMoreElements()) {
                             String sOUObjectClass =
@@ -865,7 +858,7 @@ public class Console implements CommClient {
             }
             if (ResourceEditor.getNewObjectClasses().get(
                     ResourceEditor.KEY_NEW_OU_OBJECTCLASSES) == null) {
-                Vector vObject = new Vector();
+                Vector<String> vObject = new Vector<>();
                 vObject.addElement("top");
                 vObject.addElement("organizationalunit");
                 ResourceEditor.getNewObjectClasses().put(
@@ -881,8 +874,8 @@ public class Console implements CommClient {
                 result = ldc.search(ldapLocation,
                         LDAPConnection.SCOPE_ONE, "(Objectclass=nsAdminResourceEditorExtension)",
                         null, false, cons);
-                Hashtable hResourceEditorExtension = new Hashtable();
-                Hashtable deleteResourceEditorExtension = new Hashtable();
+                Hashtable<String, Vector<Class<?>>> hResourceEditorExtension = new Hashtable<>();
+                Hashtable<String, Vector<Class<?>>> deleteResourceEditorExtension = new Hashtable<>();
 
                 if (result != null) {
                     while (result.hasMoreElements()) {
@@ -908,11 +901,11 @@ public class Console implements CommClient {
                                 LDAPUtil.getLDAPAttributeLocale());
                         if (attribute != null) {
                             eValues = attribute.getStringValues();
-                            Vector vClass = new Vector();
+                            Vector<Class<?>> vClass = new Vector<>();
                             while (eValues.hasMoreElements()) {
                                 String sJarClassName =
                                         (String) eValues.nextElement();
-                                Class c = ClassLoaderUtil.getClass(
+                                Class<?> c = ClassLoaderUtil.getClass(
                                         _info, sJarClassName);
 
                                 if (c != null) {
@@ -929,11 +922,11 @@ public class Console implements CommClient {
                         if (attribute != null) {
                             Enumeration deleteClasses =
                                     attribute.getStringValues();
-                            Vector deleteClassesVector = new Vector();
+                            Vector<Class<?>> deleteClassesVector = new Vector<>();
                             while (deleteClasses.hasMoreElements()) {
                                 String jarClassname = (String)
                                         deleteClasses.nextElement();
-                                Class c = ClassLoaderUtil.getClass(
+                                Class<?> c = ClassLoaderUtil.getClass(
                                         _info, jarClassname);
                                 if (c != null) {
                                     deleteClassesVector.addElement(c);
@@ -1016,7 +1009,7 @@ public class Console implements CommClient {
       * @return hashtable which contain all the resource editor plugin.
       */
     private Hashtable buildAccountPluginHashtable() {
-        Hashtable HTAccountPlugin = new Hashtable();
+        Hashtable<String, Vector<String>> HTAccountPlugin = new Hashtable<>();
         try {
             LDAPConnection ldc = _info.getLDAPConnection();
             String sExtension = "cn=ResourceEditorExtension, "+
@@ -1037,7 +1030,7 @@ public class Console implements CommClient {
                     LDAPAttributeSet entryAttrs = entry.getAttributeSet();
                     Enumeration attrsInSet = entryAttrs.getAttributes();
                     String sName = "";
-                    Vector vJavaClass = new Vector();
+                    Vector<String> vJavaClass = new Vector<>();
                     while (attrsInSet.hasMoreElements()) {
                         LDAPAttribute nextAttr =
                                 (LDAPAttribute) attrsInSet.nextElement();
@@ -1106,14 +1099,14 @@ public class Console implements CommClient {
             return false;
         }
 
-        Hashtable ht = new Hashtable();
+        Hashtable<String, String> ht = new Hashtable<>();
 
         boolean successfulAuth = invoke_task(url, user, pw, ht);
 
         String param;
 
         // DT 6/29/98 Check Password Expiration data
-        if ((param = (String)(ht.get("NW_PASSWD_EXPIRING"))) != null) {
+        if ((param = ht.get("NW_PASSWD_EXPIRING")) != null) {
             int secondsToExpiration = Integer.parseInt(param);
 
             if (secondsToExpiration == 0) {
@@ -1144,7 +1137,7 @@ public class Console implements CommClient {
         if (!successfulAuth)
             return false;
 
-        if ((param = (String)(ht.get("UserDN"))) != null)
+        if ((param = (ht.get("UserDN"))) != null)
             info.setAuthenticationDN(param);
         else {
             Debug.println("Console:authenticate_user():UserDN not found");
@@ -1178,7 +1171,7 @@ public class Console implements CommClient {
             return false;
         }
 
-        return invoke_task(url, user, pw, new Hashtable());
+        return invoke_task(url, user, pw, new Hashtable<String, String>());
     }
 
     /**
@@ -1192,7 +1185,7 @@ public class Console implements CommClient {
       */
 
     private synchronized final boolean invoke_task(URL url,
-            String user, String pw, Hashtable ht) {
+            String user, String pw, Hashtable<String, String> ht) {
         HttpManager h = new HttpManager();
 
         InputStream is;
@@ -1201,7 +1194,7 @@ public class Console implements CommClient {
 
         try {
             h.get(url, this, r = new Response(user, pw),
-                    h.FORCE_BASIC_AUTH);
+                    HttpManager.FORCE_BASIC_AUTH);
         } catch (Exception ioe) {
             String _url;
             try {
@@ -1268,7 +1261,7 @@ public class Console implements CommClient {
         } catch (Exception e2) {
         }
 
-        String status = (String)(ht.get("NMC_Status"));
+        String status = ht.get("NMC_Status");
 
         if ((status == null) || (Integer.parseInt(status) != 0)) {
             Debug.println("Console:invoke_task():invocation failed");
@@ -1646,7 +1639,7 @@ public class Console implements CommClient {
             if (Debug.getTraceLevel() == 9) {
                 try {
                     Properties props = System.getProperties();
-                    for (Enumeration e = props.keys();
+                    for (Enumeration<Object> e = props.keys();
                             e.hasMoreElements();) {
                         String key = (String) e.nextElement();
                         String val = (String) props.get(key);
