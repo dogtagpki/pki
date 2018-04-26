@@ -17,10 +17,11 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config;
 
-import java.awt.*;
-import javax.swing.*;
-import javax.swing.border.*;
-import javax.swing.table.*;
+import javax.swing.JTable;
+import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableModel;
 
 /**
  * class used to creat the password label
@@ -31,6 +32,8 @@ import javax.swing.table.*;
 public class ProfileDataTable extends JTable
 {
 
+    private static final long serialVersionUID = 1L;
+
     public ProfileDataTable(TableModel model) {
         super(model);
     }
@@ -39,7 +42,7 @@ public class ProfileDataTable extends JTable
         TableColumn tableColumn = getColumnModel().getColumn(column);
         TableCellRenderer renderer = tableColumn.getCellRenderer();
         if (renderer == null) {
-            Class c = getColumnClass(column);
+            Class<?> c = getColumnClass(column);
             if( c.equals(Object.class) ) {
                 Object o = getValueAt(row,column);
                 if( o != null ) {
@@ -55,7 +58,7 @@ public class ProfileDataTable extends JTable
         TableColumn tableColumn = getColumnModel().getColumn(column);
         TableCellEditor editor = tableColumn.getCellEditor();
         if (editor == null) {
-            Class c = getColumnClass(column);
+            Class<?> c = getColumnClass(column);
             if( c.equals(Object.class) ) {
                 Object o = getValueAt(row,column);
                 if( o != null )
