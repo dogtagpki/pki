@@ -18,8 +18,6 @@
 package com.netscape.admin.certsrv;
 
 import java.util.Hashtable;
-import java.io.IOException;
-import com.netscape.admin.certsrv.connection.AdminConnection;
 
 /**
  * The CMSRemoteClassLoader is designed to load classes from remote
@@ -36,8 +34,7 @@ class CMSRemoteClassLoader extends ClassLoader {
     /*==========================================================
      * variables
      *==========================================================*/
-    private Hashtable mCache = new Hashtable();     // stores classes
-    private AdminConnection mAdmin;                     // srever entry point
+    private Hashtable<String, Class<?>> mCache = new Hashtable<>();     // stores classes
 
 	/*==========================================================
      * constructors
@@ -57,10 +54,10 @@ class CMSRemoteClassLoader extends ClassLoader {
 	 * @return the Class object of the named class.
 	 * @throws ClassNotFoundException if the class cannot be found.
 	 */
-    public synchronized Class loadClass(String name, boolean resolve)
+    public synchronized Class<?> loadClass(String name, boolean resolve)
         throws ClassNotFoundException
     {
-        Class c = (Class) mCache.get(name);
+        Class<?> c = mCache.get(name);
 
         if (c == null) {
             String path = name.replace('.', '/') + ".class";
@@ -84,7 +81,7 @@ class CMSRemoteClassLoader extends ClassLoader {
 	 * @return the Class object of the named class.
 	 * @throws ClassNotFoundException if the class cannot be found.
 	 */
-	public Class loadClass(String name) throws ClassNotFoundException {
+	public Class<?> loadClass(String name) throws ClassNotFoundException {
         return this.loadClass(name, true);
     }
 
