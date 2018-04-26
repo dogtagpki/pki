@@ -17,15 +17,42 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config;
 
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
-import javax.swing.*;
-import java.awt.event.*;
-import java.awt.*;
-import java.util.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.util.ResourceBundle;
+import java.util.StringTokenizer;
+import java.util.Vector;
 
-import com.netscape.management.client.util.*;
-import com.netscape.certsrv.common.*;
+import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+
+import com.netscape.admin.certsrv.CMSAdminResources;
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.EAdminException;
+import com.netscape.admin.certsrv.connection.AdminConnection;
+import com.netscape.certsrv.common.DestDef;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.common.ScopeDef;
+import com.netscape.management.client.util.JButtonFactory;
 
 /**
  * ACL Editor
@@ -37,6 +64,9 @@ import com.netscape.certsrv.common.*;
 public class ACIDialog extends JDialog
     implements ActionListener, MouseListener
 {
+
+    private static final long serialVersionUID = 1L;
+
     private final static String PREFIX = "ACIDIALOG";
     private static final String HELPINDEX =
       "configuration-authorization";
@@ -46,9 +76,9 @@ public class ACIDialog extends JDialog
     private boolean mDone = false;
     private JTextArea mACIText, mHelpArea;
     private String mOperations;
-    private JList mList;
+    private JList<String> mList;
     private JScrollPane mScrollPane;
-    private DefaultListModel mDataModel;
+    private DefaultListModel<String> mDataModel;
     private JRadioButton mAllowBtn, mDenyBtn;
     private String mHelpToken;
     private AdminConnection mConnection;
@@ -57,7 +87,7 @@ public class ACIDialog extends JDialog
         super(parent,true);
         mParentFrame = parent;
         mResource = ResourceBundle.getBundle(CMSAdminResources.class.getName());
-        mDataModel = new DefaultListModel();
+        mDataModel = new DefaultListModel<>();
         mConnection = adminConn;
         mOperations = ops;
         mHelpToken = HELPINDEX;
@@ -113,7 +143,7 @@ public class ACIDialog extends JDialog
 
     private Vector<String> parseExpressions(String s) {
         String str = s;
-        Vector v = new Vector();
+        Vector<String> v = new Vector<String>();
 
         while (str.length() > 0) {
             int orIndex = str.indexOf("||");
@@ -268,22 +298,22 @@ public class ACIDialog extends JDialog
         //content panel
         JPanel content = makeContentPanel();
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
-        gbc.fill = gbc.BOTH;
+        gbc.fill = GridBagConstraints.BOTH;
         gb.setConstraints(content, gbc);
         center.add(content);
 
         // Help Panel
         JPanel helpPanel = makeHelpPanel();
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
-        gbc.fill = gbc.BOTH;
+        gbc.fill = GridBagConstraints.BOTH;
         gbc.insets = new Insets(CMSAdminUtil.DIFFERENT_COMPONENT_SPACE,
                 CMSAdminUtil.DIFFERENT_COMPONENT_SPACE,
                 0,CMSAdminUtil.DIFFERENT_COMPONENT_SPACE);
@@ -293,9 +323,9 @@ public class ACIDialog extends JDialog
         //action panel
         JPanel action = makeActionPane();
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gb.setConstraints(action, gbc);
         center.add(action);
@@ -329,10 +359,10 @@ public class ACIDialog extends JDialog
         mHelpArea.setEditable(false);
 
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
-        gbc.fill=gbc.BOTH;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
+        gbc.fill = GridBagConstraints.BOTH;
         gbc.insets = CMSAdminUtil.DEFAULT_EMPTY_INSETS;
 /*
         gbc.insets = new Insets(0,
@@ -359,8 +389,8 @@ public class ACIDialog extends JDialog
         CMSAdminUtil.resetGBC(gbc);
         JLabel opsLabel = CMSAdminUtil.makeJLabel(mResource, PREFIX,
           "RIGHTS", null);
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gb.setConstraints(opsLabel, gbc);
         listPanel.add(opsLabel);
 
@@ -374,17 +404,17 @@ public class ACIDialog extends JDialog
 
         if (!mOperations.equals("")) {
             StringTokenizer tokenizer = new StringTokenizer(mOperations, ",");
-            while (tokenizer.hasMoreElements()) {
-                mDataModel.addElement(tokenizer.nextElement());
+            while (tokenizer.hasMoreTokens()) {
+                mDataModel.addElement(tokenizer.nextToken());
             }
         }
 
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gb.setConstraints(mScrollPane, gbc);
         listPanel.add(mScrollPane);
 
@@ -400,7 +430,7 @@ public class ACIDialog extends JDialog
         CMSAdminUtil.resetGBC(gbc);
         JLabel accessLbl = CMSAdminUtil.makeJLabel(mResource, PREFIX,
           "ACCESS", null);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gb.setConstraints(accessLbl, gbc);
         mainPanel.add(accessLbl);
         accessLbl.addMouseListener(this);
@@ -412,7 +442,7 @@ public class ACIDialog extends JDialog
         mAllowBtn = CMSAdminUtil.makeJRadioButton(mResource, PREFIX,
           "ALLOW", null, true, this);
         group.add(mAllowBtn);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gb.setConstraints(mAllowBtn, gbc);
         mainPanel.add(mAllowBtn);
 
@@ -421,15 +451,15 @@ public class ACIDialog extends JDialog
         mDenyBtn = CMSAdminUtil.makeJRadioButton(mResource, PREFIX,
           "DENY", null, false, this);
         group.add(mDenyBtn);
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gb.setConstraints(mDenyBtn, gbc);
         mainPanel.add(mDenyBtn);
 
         CMSAdminUtil.resetGBC(gbc);
         JLabel opsLabel = CMSAdminUtil.makeJLabel(mResource, PREFIX,
           "RIGHTS", null);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         //gbc.gridwidth = gbc.REMAINDER;
         gb.setConstraints(opsLabel, gbc);
         mainPanel.add(opsLabel);
@@ -446,24 +476,24 @@ public class ACIDialog extends JDialog
 
         if (!mOperations.equals("")) {
             StringTokenizer tokenizer = new StringTokenizer(mOperations, ",");
-            while (tokenizer.hasMoreElements()) {
-                mDataModel.addElement(tokenizer.nextElement());
+            while (tokenizer.hasMoreTokens()) {
+                mDataModel.addElement(tokenizer.nextToken());
             }
         }
 
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
-        gbc.fill = gbc.BOTH;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gb.setConstraints(mScrollPane, gbc);
         mainPanel.add(mScrollPane);
 /*
         JPanel listPane = makeListPane();
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gb.setConstraints(listPane, gbc);
         mainPanel.add(listPane);
 */
@@ -471,8 +501,8 @@ public class ACIDialog extends JDialog
         CMSAdminUtil.resetGBC(gbc);
         JLabel attrLabel = CMSAdminUtil.makeJLabel(mResource, PREFIX,
           "SYNTAX", null);
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gb.setConstraints(attrLabel, gbc);
         mainPanel.add(attrLabel);
         attrLabel.addMouseListener(this);
@@ -484,10 +514,10 @@ public class ACIDialog extends JDialog
         mACIText.setLineWrap(true);
         mACIText.setWrapStyleWord(true);
         JScrollPane scrollPane = createScrollPane(mACIText);
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
-        gbc.fill=gbc.BOTH;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
+        gbc.fill = GridBagConstraints.BOTH;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
     //    gbc.gridx = 1;
