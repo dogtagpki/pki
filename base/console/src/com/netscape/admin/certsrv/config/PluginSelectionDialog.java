@@ -17,15 +17,36 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config;
 
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
-import javax.swing.*;
-import java.awt.event.*;
-import java.awt.*;
-import java.util.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.util.ResourceBundle;
 
-import com.netscape.management.client.util.*;
-import com.netscape.certsrv.common.*;
+import javax.swing.BorderFactory;
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.ListSelectionModel;
+
+import com.netscape.admin.certsrv.CMSAdminResources;
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.CMSBaseResourceModel;
+import com.netscape.admin.certsrv.EAdminException;
+import com.netscape.admin.certsrv.connection.AdminConnection;
+import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.management.client.util.Debug;
+import com.netscape.management.client.util.JButtonFactory;
 
 /**
  * Plugin Selection Dialog
@@ -37,18 +58,20 @@ import com.netscape.certsrv.common.*;
 public class PluginSelectionDialog extends JDialog
     implements ActionListener, MouseListener
 {
+    private static final long serialVersionUID = 1L;
+
     /*==========================================================
      * variables
      *==========================================================*/
     protected JFrame mParentFrame;
     protected AdminConnection mConnection;
     protected ResourceBundle mResource;
-    protected DefaultListModel mDataModel;
+    protected DefaultListModel<JLabel> mDataModel;
     protected String mDestination;              //dest flag
     protected String mExtraDestination = null;              //dest flag
 
     private JScrollPane mScrollPane;
-    protected JList mList;
+    protected JList<JLabel> mList;
 
     protected JButton mOK, mCancel, mHelp;
     protected String mPrefix;
@@ -87,7 +110,7 @@ public class PluginSelectionDialog extends JDialog
         mConnection = conn;
         mDestination = dest;
         mResource = ResourceBundle.getBundle(CMSAdminResources.class.getName());
-        mDataModel = new DefaultListModel();
+        mDataModel = new DefaultListModel<>();
         mPrefix = prefix;
 		mPluginInstanceDialog = pluginType;
 
@@ -110,7 +133,7 @@ public class PluginSelectionDialog extends JDialog
         mDestination = dest;
         mExtraDestination = extraDest;
         mResource = ResourceBundle.getBundle(CMSAdminResources.class.getName());
-        mDataModel = new DefaultListModel();
+        mDataModel = new DefaultListModel<>();
         mPrefix = prefix;
         mPluginInstanceDialog = pluginType;
 
@@ -161,7 +184,7 @@ public class PluginSelectionDialog extends JDialog
                 return;
             }
             Debug.println(response.toString());
-            String id = ((JLabel)mDataModel.elementAt(mList.getSelectedIndex())).getText();
+            String id = mDataModel.elementAt(mList.getSelectedIndex()).getText();
             response.put(Constants.PR_POLICY_IMPL_NAME, id);
 
             CMSBaseConfigDialog dialog = null;
@@ -184,7 +207,7 @@ public class PluginSelectionDialog extends JDialog
             }
 
             response = dialog.getData();
-            String name = dialog.getRuleName();
+            dialog.getRuleName();
 
             Debug.println(response.toString());
 
@@ -226,20 +249,20 @@ public class PluginSelectionDialog extends JDialog
         //content panel
         JPanel content = makeContentPane();
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
-        gbc.fill = gbc.BOTH;
+        gbc.fill = GridBagConstraints.BOTH;
         gb.setConstraints(content, gbc);
         center.add(content);
 
         //action panel
         JPanel action = makeActionPane();
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gb.setConstraints(action, gbc);
         center.add(action);
@@ -280,12 +303,12 @@ public class PluginSelectionDialog extends JDialog
         mScrollPane.setBorder(BorderFactory.createLoweredBevelBorder());
 
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
-        gbc.fill = gbc.BOTH;
+        gbc.fill = GridBagConstraints.BOTH;
         gb.setConstraints(mScrollPane, gbc);
         mListPanel.add(mScrollPane);
 
@@ -362,7 +385,7 @@ public class PluginSelectionDialog extends JDialog
 
     //this returns the default configuration
     protected NameValuePairs getDefaultConfig() throws EAdminException {
-        String id = ((JLabel)mDataModel.elementAt(mList.getSelectedIndex())).getText();
+        String id = mDataModel.elementAt(mList.getSelectedIndex()).getText();
         NameValuePairs response;
         response = mConnection.read(mDestination, mScope, id,
           new NameValuePairs());
