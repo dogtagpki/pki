@@ -146,7 +146,7 @@ while getopts v-: arg ; do
 
         case $OPTARG in
         work-dir=?*)
-            WORK_DIR="$LONG_OPTARG"
+            WORK_DIR=`readlink -f "$LONG_OPTARG"`
             ;;
         source-tag=?*)
             SOURCE_TAG="$LONG_OPTARG"
