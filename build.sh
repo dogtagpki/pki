@@ -374,13 +374,6 @@ fi
 
 OPTIONS=()
 
-if [ "$BUILD_TARGET" = "srpm" ] ; then
-    OPTIONS+=(-bs)
-
-elif [ "$BUILD_TARGET" = "rpm" ] ; then
-    OPTIONS+=(-ba)
-fi
-
 if [ "$VERBOSE" = true ] ; then
     OPTIONS+=(--define "_verbose 1")
 else
@@ -430,21 +423,52 @@ else
 fi
 
 ################################################################################
-# Build packages
+# Build source package
 ################################################################################
 
 if [ "$DEBUG" = true ] ; then
-    echo "rpmbuild "${OPTIONS[@]}" $WORK_DIR/SPECS/$RPM_SPEC"
+    echo "rpmbuild -bs "${OPTIONS[@]}" $WORK_DIR/SPECS/$RPM_SPEC"
 fi
 
-rpmbuild "${OPTIONS[@]}" "$WORK_DIR/SPECS/$RPM_SPEC"
+# build SRPM with user-provided options
+rpmbuild -bs "${OPTIONS[@]}" "$WORK_DIR/SPECS/$RPM_SPEC"
+
+rc=$?
+
+if [ $rc != 0 ]; then
+    echo "ERROR: Unable to build SRPM package"
+    exit 1
+fi
+
+SRPM=`find "$WORK_DIR/SRPMS" -type f`
 
 echo "SRPM package:"
-find "$WORK_DIR/SRPMS" -type f -printf " %p\n"
+echo " $SRPM"
 
 if [ "$BUILD_TARGET" = "srpm" ] ; then
     exit
 fi
+
+################################################################################
+# Build binary packages
+################################################################################
+
+if [ "$DEBUG" = true ] ; then
+    echo "rpmbuild --rebuild --define "_topdir $WORK_DIR" $SRPM"
+fi
+
+# rebuild RPM with hard-coded options in SRPM
+rpmbuild --rebuild --define "_topdir $WORK_DIR" "$SRPM"
+
+rc=$?
+
+if [ $rc != 0 ]; then
+    echo "ERROR: Unable to build RPM packages"
+    exit 1
+fi
+
+# install SRPM to restore sources and spec file removed during rebuild
+rpm -i --define "_topdir $WORK_DIR" "$SRPM"
 
 # flatten folder
 find "$WORK_DIR/RPMS" -mindepth 2 -type f -exec mv -i '{}' "$WORK_DIR/RPMS" ';'
