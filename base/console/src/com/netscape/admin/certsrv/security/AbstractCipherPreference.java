@@ -17,14 +17,15 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.security;
 
-import javax.swing.*;
-import javax.swing.border.*;
-import javax.swing.plaf.*;
-import java.awt.event.*;
-import java.awt.*;
-import java.util.*;
-import com.netscape.management.client.util.*;
-import com.netscape.management.nmclf.*;
+import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Vector;
+
+import javax.swing.BoxLayout;
+import javax.swing.JPanel;
 
 /**
  *
@@ -41,6 +42,8 @@ import com.netscape.management.nmclf.*;
  */
 public class AbstractCipherPreference extends JPanel {
 
+    private static final long serialVersionUID = 1L;
+
     /**
      * Main listener for all the cipher component under AbstractCipherPreference panel.
      * This listener will catch all the cipher event(on/off) occures with in this panel.
@@ -52,7 +55,7 @@ public class AbstractCipherPreference extends JPanel {
      * also be routed to all the listener store in this vector
      * Listener stored here are added by programmer via addActionListener(actionListener) call
      */
-    Vector listenerList = new Vector();
+    Vector<ActionListener> listenerList = new Vector<>();
 
 
     /**
@@ -68,7 +71,7 @@ public class AbstractCipherPreference extends JPanel {
     /**
      * Store the old setting, for reset purpose.
      */
-    Hashtable oldValue = new Hashtable();
+    Hashtable<String, String> oldValue = new Hashtable<>();
 
     /**
      * Create an abstract cipher preference
@@ -93,9 +96,9 @@ public class AbstractCipherPreference extends JPanel {
     class CipherPrefActionListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             _ismodified = true;
-            Enumeration l = listenerList.elements();
+            Enumeration<ActionListener> l = listenerList.elements();
             while (l.hasMoreElements()) {
-                ((ActionListener)(l.nextElement())).actionPerformed(e);
+                l.nextElement().actionPerformed(e);
             }
         }
     }
@@ -249,9 +252,9 @@ public class AbstractCipherPreference extends JPanel {
       * @see #setSaved
       */
     public void reset() {
-        Enumeration keys = oldValue.keys();
+        Enumeration<String> keys = oldValue.keys();
         while (keys.hasMoreElements()) {
-            String cipherName = (String)(keys.nextElement());
+            String cipherName = keys.nextElement();
             setCipherEnabled(cipherName,
                     "1".equals(oldValue.get(cipherName)) ? true : false);
         }
