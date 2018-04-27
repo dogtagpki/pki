@@ -17,15 +17,39 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config;
 
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
-import javax.swing.*;
-import java.awt.event.*;
-import java.awt.*;
-import java.util.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.util.ResourceBundle;
+import java.util.Vector;
 
-import com.netscape.management.client.util.*;
-import com.netscape.certsrv.common.*;
+import javax.swing.BorderFactory;
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.ListSelectionModel;
+
+import com.netscape.admin.certsrv.CMSAdminResources;
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.EAdminException;
+import com.netscape.admin.certsrv.connection.AdminConnection;
+import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.common.DestDef;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.common.ScopeDef;
+import com.netscape.management.client.util.Debug;
+import com.netscape.management.client.util.JButtonFactory;
 
 /**
  * Policy Rule Order Dialog - <p>
@@ -40,6 +64,8 @@ import com.netscape.certsrv.common.*;
 public class PolicyRuleOrderDialog extends JDialog
     implements ActionListener, MouseListener
 {
+    private static final long serialVersionUID = 1L;
+
     /*==========================================================
      * variables
      *==========================================================*/
@@ -48,11 +74,11 @@ public class PolicyRuleOrderDialog extends JDialog
     private JFrame mParentFrame;
     private AdminConnection mConnection;
     private ResourceBundle mResource;
-    protected DefaultListModel mDataModel;
+    protected DefaultListModel<JLabel> mDataModel;
     protected String mDestination;              //dest flag
 
     private JScrollPane mScrollPane;
-    private JList mList;
+    private JList<JLabel> mList;
 
     private JButton mOK, mCancel, mUp, mDown, mHelp;
     private final static String RAHELPINDEX =
@@ -78,7 +104,7 @@ public class PolicyRuleOrderDialog extends JDialog
         else
             mHelpToken = CAHELPINDEX;
         mResource = ResourceBundle.getBundle(CMSAdminResources.class.getName());
-        mDataModel = new DefaultListModel();
+        mDataModel = new DefaultListModel<>();
         setSize(360, 216);
         setTitle(mResource.getString(PREFIX+"_TITLE"));
         setLocationRelativeTo(parent);
@@ -94,12 +120,12 @@ public class PolicyRuleOrderDialog extends JDialog
      * show the windows
      * @param users list of current groups
      */
-    public void showDialog(Vector rules) {
+    public void showDialog(Vector<String> rules) {
 
         mDataModel.clear();
         for (int i=0; i<rules.size(); i++)
             mDataModel.addElement(
-                new JLabel((String)rules.elementAt(i),
+                new JLabel(rules.elementAt(i),
                 CMSAdminUtil.getImage(CMSAdminResources.IMAGE_RULE),
                 JLabel.LEFT));
         if (mDataModel.getSize() >0)
@@ -133,7 +159,7 @@ public class PolicyRuleOrderDialog extends JDialog
         }
         if (evt.getSource().equals(mUp)) {
             int index = mList.getSelectedIndex();
-            Object obj = mDataModel.elementAt(index);
+            JLabel obj = mDataModel.elementAt(index);
             mDataModel.removeElementAt(index);
             mDataModel.insertElementAt(obj,index-1);
             mList.setSelectedIndex(index-1);
@@ -142,7 +168,7 @@ public class PolicyRuleOrderDialog extends JDialog
         }
         if (evt.getSource().equals(mDown)) {
             int index = mList.getSelectedIndex();
-            Object obj = mDataModel.elementAt(index);
+            JLabel obj = mDataModel.elementAt(index);
             mDataModel.removeElementAt(index);
             mDataModel.insertElementAt(obj,index+1);
             mList.setSelectedIndex(index+1);
@@ -181,20 +207,20 @@ public class PolicyRuleOrderDialog extends JDialog
         //content panel
         JPanel content = makeContentPane();
         CMSAdminUtil.resetGBC(gbc);
-		gbc.anchor = gbc.NORTH;
-		gbc.gridwidth = gbc.REMAINDER;
+		gbc.anchor = GridBagConstraints.NORTH;
+		gbc.gridwidth = GridBagConstraints.REMAINDER;
 		gbc.weightx = 1.0;
 		gbc.weighty = 1.0;
-                gbc.fill = gbc.BOTH;
+                gbc.fill = GridBagConstraints.BOTH;
         gb.setConstraints(content, gbc);
 		center.add(content);
 
 		//action panel
 		JPanel action = makeActionPane();
         CMSAdminUtil.resetGBC(gbc);
-		gbc.anchor = gbc.NORTH;
-		gbc.gridwidth = gbc.REMAINDER;
-		gbc.gridheight = gbc.REMAINDER;
+		gbc.anchor = GridBagConstraints.NORTH;
+		gbc.gridwidth = GridBagConstraints.REMAINDER;
+		gbc.gridheight = GridBagConstraints.REMAINDER;
 		gbc.weightx = 1.0;
         gb.setConstraints(action, gbc);
 		center.add(action);
@@ -244,20 +270,20 @@ public class PolicyRuleOrderDialog extends JDialog
 		mScrollPane.setBorder(BorderFactory.createLoweredBevelBorder());
 
 		CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
+        gbc.anchor = GridBagConstraints.NORTH;
         gbc.gridwidth = 1;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
-        gbc.fill = gbc.BOTH;
+        gbc.fill = GridBagConstraints.BOTH;
         gbc.insets = new Insets(CMSAdminUtil.COMPONENT_SPACE,CMSAdminUtil.COMPONENT_SPACE,0,0);
         gb.setConstraints(mScrollPane, gbc);
 		mListPanel.add(mScrollPane);
 
 	    JPanel buttonPanel = createUDButtonPanel();
 		CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weightx = 0.0;
         gbc.weighty = 1.0;
         gbc.insets = new Insets(CMSAdminUtil.COMPONENT_SPACE,0,0,0);
@@ -280,7 +306,7 @@ public class PolicyRuleOrderDialog extends JDialog
             if (x > 0)
                 buf.append(",");
             x++;
-            buf.append(((JLabel)mDataModel.getElementAt(i)).getText());
+            buf.append(mDataModel.getElementAt(i).getText());
         }
 
         NameValuePairs nvp = new NameValuePairs();
