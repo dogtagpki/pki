@@ -27,7 +27,6 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.InvalidParameterException;
 import java.security.KeyPair;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
@@ -212,7 +211,7 @@ public class KeyCertUtil {
 
         /*
          String caNickname = store.getString("ca.signing.tokenname");
-         String tokenName = store.getString("ca.signing.cacertnickname");
+         String tokenName = store.getString("ca.signing." + ISigningUnit.PROP_CA_CERT_NICKNAME);
          */
         X509Certificate cert = getCertificate(tokenname, nickname);
 

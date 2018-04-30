@@ -149,12 +149,10 @@ public final class SigningUnit implements ISigningUnit {
 
             tokenname = config.getString(PROP_TOKEN_NAME);
             mToken = CryptoUtil.getKeyStorageToken(tokenname);
-            if (CryptoUtil.isInternalToken(tokenname)) {
-                setNewNickName(mNickname);
-            } else {
+            if (!CryptoUtil.isInternalToken(tokenname)) {
                 mNickname = tokenname + ":" + mNickname;
-                setNewNickName(mNickname);
             }
+            setNewNickName(mNickname);
 
             try {
                 CMS.debug("SigningUnit: Loading certificate " + mNickname);

@@ -29,6 +29,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.ConfigConstants;
 import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.security.ISigningUnit;
 import com.netscape.certsrv.security.KeyCertData;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
@@ -107,11 +108,12 @@ public class OCSPSigningCert extends CertificateInfo {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_ALG_NOT_SUPPORTED", keyType));
 
         cmsFileTmp.putString("ca.signing.defaultSigningAlgorithm", alg);
-        if (CryptoUtil.isInternalToken(tokenname))
-            cmsFileTmp.putString("ca.signing.cacertnickname", nickname);
-        else
-            cmsFileTmp.putString("ca.signing.cacertnickname",
-                    tokenname + ":" + nickname);
+
+        if (!CryptoUtil.isInternalToken(tokenname)) {
+            nickname = tokenname + ":" + nickname;
+        }
+        cmsFileTmp.putString("ca.signing." + ISigningUnit.PROP_CA_CERT_NICKNAME, nickname);
+
         cmsFileTmp.commit(false);
     }
 

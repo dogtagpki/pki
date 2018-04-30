@@ -123,6 +123,7 @@ import com.netscape.certsrv.profile.IEnrollProfile;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
+import com.netscape.certsrv.security.ISigningUnit;
 import com.netscape.certsrv.system.ConfigurationRequest;
 import com.netscape.certsrv.system.InstallToken;
 import com.netscape.certsrv.system.SecurityDomainClient;
@@ -2781,7 +2782,7 @@ public class ConfigurationUtils {
         logger.debug("ConfigurationUtils: updateConfig() for certTag " + certTag);
         if (certTag.equals("signing") || certTag.equals("ocsp_signing")) {
             logger.debug("ConfigurationUtils: setting signing nickname=" + nickname);
-            config.putString(subsystem + "." + certTag + ".cacertnickname", nickname);
+            config.putString(subsystem + "." + certTag + "." + ISigningUnit.PROP_CA_CERT_NICKNAME, nickname);
             config.putString(subsystem + "." + certTag + ".certnickname", nickname);
         }
 
