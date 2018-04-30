@@ -560,7 +560,7 @@ class NSSDatabase(object):
                                  stdout=subprocess.PIPE,
                                  stderr=subprocess.STDOUT)
 
-            p.communicate(keystroke)
+            p.communicate(keystroke.encode('ascii'))
 
             rc = p.wait()
 
@@ -755,7 +755,7 @@ class NSSDatabase(object):
                              stdout=subprocess.PIPE,
                              stderr=subprocess.STDOUT)
 
-        p.communicate(keystroke)
+        p.communicate(keystroke.encode('ascii'))
 
         rc = p.wait()
 
