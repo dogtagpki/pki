@@ -1008,8 +1008,10 @@ class SubsystemCertValidateCLI(pki.cli.CLI):
         passwd = instance.get_token_password(token)
 
         pwfile_handle, pwfile_path = tempfile.mkstemp()
-        os.write(pwfile_handle, passwd)
-        os.close(pwfile_handle)
+        try:
+            os.write(pwfile_handle, passwd.encode('utf-8'))
+        finally:
+            os.close(pwfile_handle)
 
         try:
             cmd = [
