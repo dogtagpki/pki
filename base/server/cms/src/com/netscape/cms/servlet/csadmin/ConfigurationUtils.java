@@ -134,6 +134,7 @@ import com.netscape.certsrv.usrgrp.EUsrGrpException;
 import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 import com.netscape.cmsutil.util.Utils;
@@ -2296,12 +2297,15 @@ public class ConfigurationUtils {
     }
 
     public static void reInitSubsystem(String csType) throws EBaseException {
-        CMS.reinit(IDBSubsystem.SUB_ID);
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+
+        engine.reinit(IDBSubsystem.SUB_ID);
         if (csType.equals("CA"))
-            CMS.reinit(ICertificateAuthority.ID);
-        CMS.reinit(IAuthSubsystem.ID);
-        CMS.reinit(IAuthzSubsystem.ID);
-        CMS.reinit(IUGSubsystem.ID);
+            engine.reinit(ICertificateAuthority.ID);
+        engine.reinit(IAuthSubsystem.ID);
+        engine.reinit(IAuthzSubsystem.ID);
+        engine.reinit(IUGSubsystem.ID);
     }
 
     public static KeyPair loadKeyPair(String nickname, String token) throws Exception {

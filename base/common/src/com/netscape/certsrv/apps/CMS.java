@@ -149,6 +149,10 @@ public final class CMS {
         _engine = engine;
     }
 
+    public static ICMSEngine getCMSEngine() {
+        return _engine;
+    }
+
     /**
      * This method is used for unit tests. It allows the underlying _engine
      * to be stubbed out.
@@ -176,32 +180,6 @@ public final class CMS {
      */
     public static void setId(String id) throws EBaseException {
         _engine.setId(id);
-    }
-
-    /**
-     * Initialize all static, dynamic and final static subsystems.
-     *
-     * @param owner null
-     * @param config main config store.
-     * @exception EBaseException if any error occur in subsystems during
-     *                initialization.
-     */
-    public static void init(ISubsystem owner, IConfigStore config)
-            throws EBaseException {
-        _engine.init(owner, config);
-    }
-
-    public static void reinit(String id) throws EBaseException {
-        _engine.reinit(id);
-    }
-
-    /**
-     * Starts up all subsystems. subsystems must be initialized.
-     *
-     * @exception EBaseException if any subsystem fails to startup.
-     */
-    public static void startup() throws EBaseException {
-        _engine.startup();
     }
 
     /**
@@ -1600,11 +1578,12 @@ public final class CMS {
         try {
             ICMSEngine engine = (ICMSEngine)
                     Class.forName(classname).newInstance();
-
             CMS.setCMSEngine(engine);
+
             IConfigStore mainConfig = createFileConfigStore(path);
-            CMS.init(null, mainConfig);
-            CMS.startup();
+            engine.init(null, mainConfig);
+
+            engine.startup();
 
         } catch (EBaseException e) { // catch everything here purposely
             CMS.debug(e);

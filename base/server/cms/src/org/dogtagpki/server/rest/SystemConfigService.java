@@ -58,6 +58,7 @@ import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cms.servlet.csadmin.Cert;
 import com.netscape.cms.servlet.csadmin.ConfigurationUtils;
 import com.netscape.cms.servlet.csadmin.SystemCertDataFactory;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -499,6 +500,8 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
     public void handleCerts(Collection<Cert> certs) throws Exception {
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+
         for (Cert cert : certs) {
 
             String tag = cert.getCertTag();
@@ -509,7 +512,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             ConfigurationUtils.handleCert(cert);
 
             if (tag.equals("signing") && subsystem.equals("ca")) {
-                CMS.reinit(ICertificateAuthority.ID);
+                engine.reinit(ICertificateAuthority.ID);
             }
         }
     }
@@ -618,7 +621,9 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 admincerts[0] = new X509CertImpl(b);
             }
         }
-        CMS.reinit(IUGSubsystem.ID);
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        engine.reinit(IUGSubsystem.ID);
 
         IUGSubsystem ug = (IUGSubsystem) CMS.getSubsystem(IUGSubsystem.ID);
         IUser user = ug.getUser(data.getAdminUID());

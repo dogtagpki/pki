@@ -36,6 +36,7 @@ import com.netscape.certsrv.ocsp.IDefStore;
 import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.certsrv.system.ConfigurationRequest;
 import com.netscape.cms.servlet.csadmin.ConfigurationUtils;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmsutil.xml.XMLObject;
 
 /**
@@ -60,7 +61,8 @@ public class OCSPInstallerService extends SystemConfigService {
             // import the CA certificate into the OCSP
             // configure the CRL Publishing to OCSP in CA
             if (!ca_host.equals("")) {
-                CMS.reinit(IOCSPAuthority.ID);
+                CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+                engine.reinit(IOCSPAuthority.ID);
                 if (!request.isClone())
                     importCACert();
                 else
