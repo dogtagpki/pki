@@ -39,18 +39,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         config.pki_log.info(log.SLOT_ASSIGNMENT_SPAWN_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
 
-        if deployer.mdict['pki_subsystem'] == "CA":
-            deployer.file.copy_with_slot_substitution(
-                deployer.mdict['pki_source_proxy_conf'],
-                deployer.mdict['pki_target_proxy_conf'])
-        elif deployer.mdict['pki_subsystem'] == "TPS":
-            deployer.file.copy_with_slot_substitution(
-                deployer.mdict['pki_source_registry_cfg'],
-                deployer.mdict['pki_target_registry_cfg'])
-            deployer.file.copy_with_slot_substitution(
-                deployer.mdict['pki_source_phone_home_xml'],
-                deployer.mdict['pki_target_phone_home_xml'])
-
     def destroy(self, deployer):
         config.pki_log.info(log.SLOT_ASSIGNMENT_DESTROY_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)

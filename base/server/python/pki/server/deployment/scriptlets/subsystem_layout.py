@@ -38,6 +38,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         config.pki_log.info(log.SUBSYSTEM_SPAWN_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
+
         # establish instance-based subsystem logs
         deployer.directory.create(deployer.mdict['pki_subsystem_log_path'])
         deployer.directory.create(
@@ -70,9 +71,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             deployer.directory.copy(
                 deployer.mdict['pki_source_profiles'],
                 deployer.mdict['pki_subsystem_profiles_path'])
-        # establish instance-based Tomcat PKI subsystem logs
-        # establish instance-based Tomcat PKI subsystem configuration
-        if deployer.mdict['pki_subsystem'] == "CA":
             deployer.file.copy(
                 deployer.mdict['pki_source_flatfile_txt'],
                 deployer.mdict['pki_target_flatfile_txt'])
@@ -98,6 +96,17 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             deployer.file.copy(
                 deployer.mdict['pki_source_subsystemcert_profile'],
                 deployer.mdict['pki_target_subsystemcert_profile'])
+            deployer.file.copy_with_slot_substitution(
+                deployer.mdict['pki_source_proxy_conf'],
+                deployer.mdict['pki_target_proxy_conf'])
+
+        elif deployer.mdict['pki_subsystem'] == "TPS":
+            deployer.file.copy_with_slot_substitution(
+                deployer.mdict['pki_source_registry_cfg'],
+                deployer.mdict['pki_target_registry_cfg'])
+            deployer.file.copy_with_slot_substitution(
+                deployer.mdict['pki_source_phone_home_xml'],
+                deployer.mdict['pki_target_phone_home_xml'])
 
         # establish instance-based subsystem convenience symbolic links
         deployer.symlink.create(
