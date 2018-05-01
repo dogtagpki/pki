@@ -38,10 +38,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         config.pki_log.info(log.SLOT_ASSIGNMENT_SPAWN_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
-        deployer.file.copy_with_slot_substitution(
-            deployer.mdict['pki_source_registry'],
-            deployer.mdict['pki_target_registry'],
-            overwrite_flag=True)
 
         # these are instance level files. Only copy for the first instance.
         if len(deployer.instance.tomcat_instance_subsystems()) == 1:

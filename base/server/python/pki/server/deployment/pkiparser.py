@@ -740,9 +740,7 @@ class PKIConfigParser:
                 os.path.join(
                     self.mdict['pki_subsystem_configuration_path'],
                     "CS.cfg")
-            self.mdict['pki_target_registry'] = \
-                os.path.join(self.mdict['pki_instance_registry_path'],
-                             self.mdict['pki_instance_name'])
+
             if config.str2bool(self.mdict['pki_external_step_two']) or\
                config.str2bool(self.mdict['pki_skip_installation']):
                 # For CA (External CA Step 2) and Stand-alone PKI (Step 2),

@@ -221,6 +221,13 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         deployer.symlink.create(deployer.mdict['pki_systemd_service'],
                                 deployer.mdict['pki_systemd_service_link'])
 
+        # create instance registry
+        deployer.file.copy_with_slot_substitution(
+            deployer.mdict['pki_source_registry'],
+            os.path.join(deployer.mdict['pki_instance_registry_path'],
+                         deployer.mdict['pki_instance_name']),
+            overwrite_flag=True)
+
     def destroy(self, deployer):
 
         config.pki_log.info(log.INSTANCE_DESTROY_1, __name__,
