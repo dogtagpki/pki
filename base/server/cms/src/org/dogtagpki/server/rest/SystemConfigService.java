@@ -624,16 +624,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
     }
 
     public void configureDatabase(ConfigurationRequest data) {
-        cs.putString("internaldb.ldapconn.host", data.getDsHost());
-        cs.putString("internaldb.ldapconn.port", data.getDsPort());
-        cs.putString("internaldb.database", data.getDatabase());
-        cs.putString("internaldb.basedn", data.getBaseDN());
-        cs.putString("internaldb.ldapauth.bindDN", data.getBindDN());
-        cs.putBoolean("internaldb.ldapconn.secureConn", data.getSecureConn().equals("true"));
-        cs.putString("preop.database.removeData", data.getRemoveData());
-        cs.putBoolean("preop.database.createNewDB", data.getCreateNewDB());
-        cs.putBoolean("preop.database.setupReplication", data.getSetupReplication());
-        cs.putBoolean("preop.database.reindexData", data.getReindexData());
     }
 
     public void initializeDatabase(ConfigurationRequest data) {

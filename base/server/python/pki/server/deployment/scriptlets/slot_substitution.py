@@ -20,6 +20,8 @@
 
 from __future__ import absolute_import
 
+import pki.server
+
 # PKI Deployment Imports
 from .. import pkiconfig as config
 from .. import pkimessages as log
@@ -38,6 +40,43 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         config.pki_log.info(log.SLOT_ASSIGNMENT_SPAWN_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
+
+        instance = pki.server.PKIInstance(deployer.mdict['pki_instance_name'])
+        instance.load()
+
+        subsystem = instance.get_subsystem(deployer.mdict['pki_subsystem'].lower())
+
+        # Configure internal database parameters.
+
+        subsystem.config['internaldb.ldapconn.host'] = deployer.mdict['pki_ds_hostname']
+
+        subsystem.config['internaldb.ldapconn.secureConn'] = \
+            deployer.mdict['pki_ds_secure_connection'].lower()
+
+        if config.str2bool(deployer.mdict['pki_ds_secure_connection']):
+            subsystem.config['internaldb.ldapconn.port'] = \
+                deployer.mdict['pki_ds_secure_connection']
+        else:
+            subsystem.config['internaldb.ldapconn.port'] = \
+                deployer.mdict['pki_ds_ldap_port']
+
+        subsystem.config['internaldb.basedn'] = deployer.mdict['pki_ds_base_dn']
+        subsystem.config['internaldb.ldapauth.bindDN'] = deployer.mdict['pki_ds_bind_dn']
+        subsystem.config['internaldb.database'] = deployer.mdict['pki_ds_database']
+
+        subsystem.config['preop.database.removeData'] = \
+            deployer.mdict['pki_ds_remove_data'].lower()
+
+        subsystem.config['preop.database.createNewDB'] = \
+            deployer.mdict['pki_ds_create_new_db'].lower()
+
+        subsystem.config['preop.database.setupReplication'] = \
+            deployer.mdict['pki_clone_setup_replication'].lower()
+
+        subsystem.config['preop.database.reindexData'] = \
+            deployer.mdict['pki_clone_reindex_data'].lower()
+
+        subsystem.save()
 
     def destroy(self, deployer):
         config.pki_log.info(log.SLOT_ASSIGNMENT_DESTROY_1, __name__,
