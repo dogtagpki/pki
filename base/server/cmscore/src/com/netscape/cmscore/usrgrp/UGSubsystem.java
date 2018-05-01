@@ -28,6 +28,7 @@ import java.util.Vector;
 import org.apache.commons.lang.StringUtils;
 
 import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.BaseSubsystem;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
@@ -69,7 +70,7 @@ import netscape.security.x509.X509CertImpl;
  * @author cfu
  * @version $Revision$, $Date$
  */
-public final class UGSubsystem implements IUGSubsystem {
+public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
 
     private static final long serialVersionUID = 8080165044652629774L;
     public static final String ID = "usrgrp";
@@ -86,7 +87,6 @@ public final class UGSubsystem implements IUGSubsystem {
 
     protected static final String PROP_BASEDN = "basedn";
 
-    protected IConfigStore mConfig = null;
     protected transient LdapBoundConnFactory mLdapConnFactory = null;
     protected String mBaseDN = null;
     protected static UGSubsystem mUG = null;
@@ -128,12 +128,14 @@ public final class UGSubsystem implements IUGSubsystem {
      */
     public void init(ISubsystem owner, IConfigStore config)
             throws EBaseException {
+
+        super.init(owner, config);
+
         mLogger = CMS.getLogger();
-        mConfig = config;
 
         // initialize LDAP connection factory
         try {
-            IConfigStore ldapConfig = mConfig.getSubStore("ldap");
+            IConfigStore ldapConfig = config.getSubStore("ldap");
 
             mBaseDN = ldapConfig.getString(PROP_BASEDN, null);
 
@@ -177,13 +179,6 @@ public final class UGSubsystem implements IUGSubsystem {
 
     public IGroup createGroup(String id) {
         return new Group(this, id);
-    }
-
-    /**
-     * Retrieves configuration store.
-     */
-    public IConfigStore getConfigStore() {
-        return mConfig;
     }
 
     /**
