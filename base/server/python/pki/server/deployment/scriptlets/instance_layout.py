@@ -56,6 +56,13 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             deployer.mdict['pki_instance_configuration_path'],
             ignore_cb=file_ignore_callback_src_server)
 
+        # Copy /usr/share/pki/server/conf/server.xml
+        # to /etc/pki/<instance>/server.xml.
+        deployer.file.copy_with_slot_substitution(
+            deployer.mdict['pki_source_server_xml'],
+            deployer.mdict['pki_target_server_xml'],
+            overwrite_flag=True)
+
         # Link /etc/pki/<instance>/catalina.properties
         # to /usr/share/pki/server/conf/catalina.properties.
         deployer.symlink.create(
