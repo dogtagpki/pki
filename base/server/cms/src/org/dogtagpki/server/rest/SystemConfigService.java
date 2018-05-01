@@ -59,6 +59,7 @@ import com.netscape.cms.servlet.csadmin.Cert;
 import com.netscape.cms.servlet.csadmin.ConfigurationUtils;
 import com.netscape.cms.servlet.csadmin.SystemCertDataFactory;
 import com.netscape.cmscore.security.JssSubsystem;
+import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 import netscape.security.x509.X509CertImpl;
@@ -161,6 +162,10 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             throw new PKIException("Unable to commit config parameters to file", e);
         }
         initializeDatabase(data);
+
+        // Enable some subsystems after database initialization.
+        UGSubsystem ug = UGSubsystem.getInstance();
+        ug.setEnabled(true);
 
         ConfigurationUtils.reInitSubsystem(csType);
 

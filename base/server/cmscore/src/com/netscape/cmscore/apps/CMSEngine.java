@@ -568,6 +568,13 @@ public class CMSEngine implements ICMSEngine {
                 new netscape.security.provider.CMS());
 
         mSSReg.put(ID, this);
+
+        if (isPreOpMode()) {
+            // Disable some subsystems before database initialization.
+            UGSubsystem ug = UGSubsystem.getInstance();
+            ug.setEnabled(false);
+        }
+
         initSubsystems(mStaticSubsystems, false);
 
         // Once the log subsystem is initialized, we
