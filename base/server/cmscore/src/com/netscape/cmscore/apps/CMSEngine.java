@@ -32,11 +32,14 @@ import java.security.cert.X509Certificate;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Timer;
 import java.util.Vector;
@@ -259,8 +262,8 @@ public class CMSEngine implements ICMSEngine {
                     RequestSubsystem.ID, RequestSubsystem.getInstance()),
         };
 
-    // dynamic subsystems are loaded at init time, not neccessarily singletons.
-    private static SubsystemInfo[] mDynSubsystems = null;
+    // dynamic subsystems are loaded at init time, not necessarily singletons.
+    Map<String, SubsystemInfo> dynSubsystems = new LinkedHashMap<>();
 
     // final static subsystems - must be singletons.
     private static SubsystemInfo[] mFinalSubsystems = {
@@ -585,7 +588,7 @@ public class CMSEngine implements ICMSEngine {
         mWarningListener = new WarningListener(mWarning);
         mQueue.addLogEventListener(mWarningListener);
 
-        initSubsystems(mDynSubsystems, true);
+        initSubsystems(dynSubsystems, true);
         initSubsystems(mFinalSubsystems, false);
 
         CMS.debug("Java version=" + System.getProperty("java.version"));
@@ -973,6 +976,13 @@ public class CMSEngine implements ICMSEngine {
         }
     }
 
+    private void initSubsystems(Map<String, SubsystemInfo> subsystems, boolean doSetId)
+            throws EBaseException {
+        for (SubsystemInfo si : subsystems.values()) {
+            initSubsystem(si, doSetId);
+        }
+    }
+
     private ArrayList<String> getDynSubsystemNames() throws EBaseException {
         IConfigStore ssconfig = mConfig.getSubStore(PROP_SUBSYSTEM);
         Enumeration<String> ssNames = ssconfig.getSubStoreNames();
@@ -987,36 +997,37 @@ public class CMSEngine implements ICMSEngine {
      */
     private void loadDynSubsystems()
             throws EBaseException {
-        ArrayList<String> ssNames = getDynSubsystemNames();
-        if (Debug.ON) {
-            Debug.trace(ssNames.size() + " dyn subsystems loading..");
-        }
 
-        // load dyn subsystems.
+        CMS.debug("CMSEngine: loading dyn subsystems");
+
+        dynSubsystems.clear();
+
+        ArrayList<String> ssNames = getDynSubsystemNames();
         IConfigStore ssconfig = mConfig.getSubStore(PROP_SUBSYSTEM);
-        mDynSubsystems = new SubsystemInfo[ssNames.size()];
-        int i = 0;
+
         for (String ssName : ssNames) {
             IConfigStore config = ssconfig.getSubStore(ssName);
+
             String id = config.getString(PROP_ID);
             String classname = config.getString(PROP_CLASS);
             boolean enabled = config.getBoolean(PROP_ENABLED, true);
-            ISubsystem ss = null;
 
+            ISubsystem ss = null;
             try {
                 ss = (ISubsystem) Class.forName(classname).newInstance();
             } catch (InstantiationException e) {
                 throw new EBaseException(
-                        CMS.getUserMessage("CMS_BASE_LOAD_FAILED_1", id, e.toString()));
+                        CMS.getUserMessage("CMS_BASE_LOAD_FAILED_1", id, e.toString()), e);
             } catch (IllegalAccessException e) {
                 throw new EBaseException(
-                        CMS.getUserMessage("CMS_BASE_LOAD_FAILED_1", id, e.toString()));
+                        CMS.getUserMessage("CMS_BASE_LOAD_FAILED_1", id, e.toString()), e);
             } catch (ClassNotFoundException e) {
                 throw new EBaseException(
-                        CMS.getUserMessage("CMS_BASE_LOAD_FAILED_1", id, e.toString()));
+                        CMS.getUserMessage("CMS_BASE_LOAD_FAILED_1", id, e.toString()), e);
             }
-            mDynSubsystems[i++] = new SubsystemInfo(id, ss, enabled);
-            Debug.trace("loaded dyn subsystem " + id);
+
+            dynSubsystems.put(id, new SubsystemInfo(id, ss, enabled));
+            CMS.debug("CMSEngine: loaded dyn subsystem " + id);
         }
     }
 
@@ -1255,8 +1266,7 @@ public class CMSEngine implements ICMSEngine {
      */
     public void startup() throws EBaseException {
         startupSubsystems(mStaticSubsystems);
-        if (mDynSubsystems != null)
-            startupSubsystems(mDynSubsystems);
+        startupSubsystems(dynSubsystems);
         startupSubsystems(mFinalSubsystems);
 
         // global admin servlet. (anywhere else more fit for this ?)
@@ -1865,6 +1875,16 @@ public class CMSEngine implements ICMSEngine {
         }
     }
 
+    private void startupSubsystems(Map<String, SubsystemInfo> sslist)
+            throws EBaseException {
+
+        for (SubsystemInfo si : sslist.values()) {
+            CMS.debug("CMSEngine: starting " + si.mId);
+            si.mInstance.startup();
+            CMS.debug("CMSEngine: " + si.mId + " started");
+        }
+    }
+
     public void disableRequests() {
         CommandQueue.mShuttingDown = true;
     }
@@ -1956,7 +1976,7 @@ public class CMSEngine implements ICMSEngine {
         */
 
         shutdownSubsystems(mFinalSubsystems);
-        shutdownSubsystems(mDynSubsystems);
+        shutdownSubsystems(dynSubsystems);
         shutdownSubsystems(mStaticSubsystems);
 
         if (mSDTimer != null) {
@@ -2045,7 +2065,7 @@ public class CMSEngine implements ICMSEngine {
         }
         terminateRequests();
         shutdownSubsystems(mFinalSubsystems);
-        shutdownSubsystems(mDynSubsystems);
+        shutdownSubsystems(dynSubsystems);
         shutdownSubsystems(mStaticSubsystems);
 
         shutdownHttpServer(restart);
@@ -2063,6 +2083,18 @@ public class CMSEngine implements ICMSEngine {
             if (sslist[i] != null && sslist[i].mInstance != null) {
                 sslist[i].mInstance.shutdown();
             }
+        }
+    }
+
+    private void shutdownSubsystems(Map<String, SubsystemInfo> sslist) {
+        // reverse list of subsystems
+        List<SubsystemInfo> subsystems = new ArrayList<>(sslist.values());
+        Collections.reverse(subsystems);
+
+        for (SubsystemInfo si : subsystems) {
+            CMS.debug("CMSEngine: stopping " + si.mId);
+            si.mInstance.shutdown();
+            CMS.debug("CMSEngine: " + si.mId + " stopped");
         }
     }
 
