@@ -24,22 +24,21 @@ package com.netscape.certsrv.base;
  *
  * @version $Revision$, $Date$
  */
-public abstract class ASubsystem implements ISubsystem {
+public abstract class BaseSubsystem implements ISubsystem {
 
-    @SuppressWarnings("unused")
-    private ISubsystem mParent;
-    private IConfigStore mCfg;
-    private String mId;
+    ISubsystem owner;
+    IConfigStore config;
+    String id;
 
     /**
      * Initializes this subsystem.
      *
-     * @param parent parent subsystem
-     * @param cfg configuration store
+     * @param owner owner subsystem
+     * @param config configuration store
      */
-    public void init(ISubsystem parent, IConfigStore cfg) {
-        mParent = parent;
-        mCfg = cfg;
+    public void init(ISubsystem owner, IConfigStore config) {
+        this.owner = owner;
+        this.config = config;
     }
 
     /**
@@ -48,7 +47,7 @@ public abstract class ASubsystem implements ISubsystem {
      * @return configuration store
      */
     public IConfigStore getConfigStore() {
-        return mCfg;
+        return config;
     }
 
     /**
@@ -57,7 +56,7 @@ public abstract class ASubsystem implements ISubsystem {
      * @param id subsystem identifier
      */
     public void setId(String id) {
-        mId = id;
+        this.id = id;
     }
 
     /**
@@ -66,6 +65,6 @@ public abstract class ASubsystem implements ISubsystem {
      * @return subsystem identifier
      */
     public String getId() {
-        return mId;
+        return id;
     }
 }
