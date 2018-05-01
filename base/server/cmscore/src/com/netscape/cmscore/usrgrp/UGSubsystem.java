@@ -129,6 +129,13 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
     public void init(ISubsystem owner, IConfigStore config)
             throws EBaseException {
 
+        CMS.debug("UGSubsystem: initializing");
+
+        if (!isEnabled()) {
+            CMS.debug("UGSubsystem: subsystem disabled");
+            return;
+        }
+
         super.init(owner, config);
 
         mLogger = CMS.getLogger();
@@ -144,12 +151,10 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
 
         } catch (EBaseException e) {
             CMS.debug(e);
-            if (CMS.isPreOpMode()) {
-                CMS.debug("UGSubsystem.init(): Swallow exception in pre-op mode");
-                return;
-            }
             throw e;
         }
+
+        CMS.debug("UGSubsystem: initialization complete");
     }
 
     /**
@@ -312,9 +317,11 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
             return e.nextElement();
 
         } catch (LDAPException e) {
+            CMS.debug(e);
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_FIND_USER_BY_CERT", e.toString()));
 
         } catch (ELdapException e) {
+            CMS.debug(e);
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_FIND_USER_BY_CERT", e.toString()));
 
         } finally {
