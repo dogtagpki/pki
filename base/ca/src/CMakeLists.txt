@@ -27,6 +27,7 @@ javac(pki-ca-classes
     SOURCES
         *.java
     CLASSPATH
+        ${SLF4J_API_JAR}
         ${COMMONS_CODEC_JAR} ${COMMONS_IO_JAR} ${COMMONS_LANG_JAR}
         ${JACKSON_CORE_JAR} ${JACKSON_MAPPER_JAR}
         ${JSS_JAR} ${SYMKEY_JAR}

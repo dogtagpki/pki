@@ -208,6 +208,8 @@ import netscape.security.x509.X509Key;
 public class CertificateAuthority
         implements ICertificateAuthority, ICertAuthority, IOCSPService, Runnable {
 
+    public final static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertificateAuthority.class);
+
     private static final Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     public static final String OFFICIAL_NAME = "Certificate Manager";
@@ -507,7 +509,7 @@ public class CertificateAuthority
     public void init(ISubsystem owner, IConfigStore config) throws
             EBaseException {
 
-        CMS.debug("CertificateAuthority.init(" + owner.getId() + ", " + config.getName() + ")");
+        logger.debug("CertificateAuthority.init(" + owner.getId() + ", " + config.getName() + ")");
 
         try {
             mOwner = owner;
@@ -530,7 +532,7 @@ public class CertificateAuthority
                 }
                 mReplicaRepot = new ReplicaIDRepository(
                         DBSubsystem.getInstance(), 1, replicaReposDN);
-                CMS.debug("Replica Repot inited");
+                logger.debug("Replica Repot inited");
             } else {
                 mReplicaRepot = hostCA.mReplicaRepot;
             }
@@ -543,17 +545,17 @@ public class CertificateAuthority
                     initSigUnitSucceeded = true;
 
                 } catch (CAMissingCertException | CAMissingKeyException e) {
-                    CMS.debug("CA signing key and cert not (yet) present in NSSDB");
+                    logger.warn("CA signing key and cert not (yet) present in NSSDB");
                     signingUnitException = e;
 
                     if (authorityID == null) {
                         // Only the host authority should ever see a
                         // null authorityID, e.g. during two-step
                         // installation of externally-signed CA.
-                        CMS.debug("null authorityID -> host authority; not starting KeyRetriever");
+                        logger.debug("null authorityID -> host authority; not starting KeyRetriever");
 
                     } else if (!keyRetrieverThreads.containsKey(authorityID)) {
-                        CMS.debug("Starting KeyRetrieverRunner thread");
+                        logger.debug("Starting KeyRetrieverRunner thread");
                         Thread t = new Thread(
                             new KeyRetrieverRunner(authorityID, mNickname, authorityKeyHosts),
                             "KeyRetrieverRunner-" + authorityID);
@@ -561,7 +563,7 @@ public class CertificateAuthority
                         keyRetrieverThreads.put(authorityID, t);
 
                     } else {
-                        CMS.debug("KeyRetriever thread already running for authority " + authorityID);
+                        logger.debug("KeyRetriever thread already running for authority " + authorityID);
                     }
                 }
 
@@ -569,10 +571,11 @@ public class CertificateAuthority
                 initDefCaAttrs();
 
             } catch (EBaseException e) {
-                CMS.debug(e);
                 if (CMS.isPreOpMode()) {
-                    CMS.debug("CertificateAuthority.init(): Swallow exception in pre-op mode");
+                    logger.warn("Exception: " + e.getMessage(), e);
+                    logger.warn("CertificateAuthority.init(): Swallow exception in pre-op mode");
                 } else {
+                    logger.error("Exception: " + e.getMessage(), e);
                     throw e;
                 }
             }
@@ -586,10 +589,10 @@ public class CertificateAuthority
             mMaxNonces = mConfig.getInteger("maxNumberOfNonces", 100);
 
             // init request queue and related modules.
-            CMS.debug("CertificateAuthority init: initRequestQueue");
+            logger.debug("CertificateAuthority init: initRequestQueue");
             initRequestQueue();
             if (CMS.isPreOpMode()) {
-                CMS.debug("CertificateAuthority.init(): Abort in pre-op mode");
+                logger.debug("CertificateAuthority.init(): Abort in pre-op mode");
                 return;
             }
 
@@ -638,29 +641,30 @@ public class CertificateAuthority
                 try {
                     initialLoadDone.await();
                 } catch (InterruptedException e) {
-                    CMS.debug("CertificateAuthority: caught InterruptedException "
+                    logger.warn("CertificateAuthority: caught InterruptedException "
                             + "while waiting for initial load of authorities.");
                 }
 
                 if (!foundHostAuthority) {
-                    CMS.debug("loadLightweightCAs: no entry for host authority");
-                    CMS.debug("loadLightweightCAs: adding entry for host authority");
+                    logger.debug("loadLightweightCAs: no entry for host authority");
+                    logger.debug("loadLightweightCAs: adding entry for host authority");
                     caMap.put(addHostAuthorityEntry(), this);
                 }
 
-                CMS.debug("CertificateAuthority: finished init of host authority");
+                logger.debug("CertificateAuthority: finished init of host authority");
             }
 
             // set up CA Issuance Protection Cert
             if (initSigUnitSucceeded)
                 initIssuanceProtectionCert();
         } catch (EBaseException e) {
-            CMS.debug(e);
             if (CMS.isPreOpMode()) {
-                CMS.debug("CertificateAuthority: Swallow exception in pre-op mode");
-                return;
+                logger.warn("Exception: " + e.getMessage(), e);
+                logger.warn("CertificateAuthority: Swallow exception in pre-op mode");
+            } else {
+                logger.error("Exception: " + e.getMessage(), e);
+                throw e;
             }
-            throw e;
         }
     }
 
@@ -712,24 +716,24 @@ public class CertificateAuthority
         try {
             cManager = CryptoManager.getInstance();
             name = "cert.issuance_protection.nickname";
-            CMS.debug(method + " about to look for CA Issuance Protection cert: "+
+            logger.debug(method + " about to look for CA Issuance Protection cert: "+
                 name);
             certNickName = mConfig.getString(name);
         } catch (EBaseException e) {
-            CMS.debug(method + name + " not found; use defaultName : " + defaultName );
+            logger.debug(method + name + " not found; use defaultName : " + defaultName );
             name = defaultName ;
             certNickName = mConfig.getString(name);
         } catch (Exception e) {
             throw new EBaseException(method + e);
         }
-        CMS.debug(method + "found nickname: "+ certNickName);
+        logger.debug(method + "found nickname: "+ certNickName);
 
         try {
                 mIssuanceProtCert = cManager.findCertByNickname(certNickName);
             if (mIssuanceProtCert != null) {
-                CMS.debug(method + " found CA Issuance Protection cert:" + certNickName);
+                logger.debug(method + " found CA Issuance Protection cert:" + certNickName);
                 mIssuanceProtPubKey = mIssuanceProtCert.getPublicKey();
-                mIssuanceProtPrivKey = cManager.getInstance().findPrivKeyByCert(mIssuanceProtCert);
+                mIssuanceProtPrivKey = cManager.findPrivKeyByCert(mIssuanceProtCert);
             }
         } catch (Exception e) {
             throw new EBaseException(method + e);
@@ -760,7 +764,7 @@ public class CertificateAuthority
         // Note that the new serial number need not be greater,
         // e.g. if random serial numbers are enabled.
         //
-        CMS.debug(
+        logger.debug(
             "Updating certificate in NSSDB; new serial number: "
             + authoritySerial);
         try {
@@ -779,7 +783,7 @@ public class CertificateAuthority
             initSigUnit();
 
         } catch (CAMissingCertException | CAMissingKeyException e) {
-            CMS.debug("WARNING: CA signing key and cert not (yet) present in NSSDB: " + e);
+            logger.warn("CA signing key and cert not (yet) present in NSSDB: " + e);
             signingUnitException = e;
 
         } catch (CertificateException e) {
@@ -978,7 +982,7 @@ public class CertificateAuthority
      */
     public void startup() throws EBaseException {
         if (CMS.isPreOpMode()) {
-            CMS.debug("CertificateAuthority.startup(): Do not start CA in pre-op mode");
+            logger.debug("CertificateAuthority.startup(): Do not start CA in pre-op mode");
             return;
         }
         mService.startup();
@@ -1030,7 +1034,7 @@ public class CertificateAuthority
         try {
             dbFactory.reset();
         } catch (ELdapException e) {
-            CMS.debug("CertificateAuthority.shutdown: failed to reset "
+            logger.warn("CertificateAuthority.shutdown: failed to reset "
                     + "dbFactory: " + e);
             // not much else we can do here.
         }
@@ -1451,10 +1455,10 @@ public class CertificateAuthority
                     signedcrl = crl;
                     // signedcrl = new X509CRLImpl(out.toByteArray());
                 } else {
-                    CMS.debug("Failed to add signed-CRL to CRL object.");
+                    logger.warn("Failed to add signed-CRL to CRL object.");
                 }
             } else {
-                CMS.debug("Failed to add signature to CRL object.");
+                logger.warn("Failed to add signature to CRL object.");
             }
         } catch (CRLException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_SIGN_CRL", e.toString(), e.getMessage()));
@@ -1503,8 +1507,8 @@ public class CertificateAuthority
             statsSub.startTiming("signing");
         }
 
-        try (DerOutputStream out = new DerOutputStream()) {
-            DerOutputStream tmp = new DerOutputStream();
+        try (DerOutputStream out = new DerOutputStream();
+                DerOutputStream tmp = new DerOutputStream()) {
 
             if (certInfo == null) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_NO_CERTINFO"));
@@ -1515,19 +1519,19 @@ public class CertificateAuthority
                 algname = mSigningUnit.getDefaultAlgorithm();
             }
 
-            CMS.debug("sign cert get algorithm");
+            logger.debug("sign cert get algorithm");
             AlgorithmId alg = AlgorithmId.get(algname);
 
             // encode certificate info
-            CMS.debug("sign cert encoding cert");
+            logger.debug("sign cert encoding cert");
             certInfo.encode(tmp);
             byte[] rawCert = tmp.toByteArray();
 
             // encode algorithm identifier
-            CMS.debug("sign cert encoding algorithm");
+            logger.debug("sign cert encoding algorithm");
             alg.encode(tmp);
 
-            CMS.debug("CA cert signing: signing cert");
+            logger.debug("CA cert signing: signing cert");
             byte[] signature = mSigningUnit.sign(rawCert, algname);
 
             tmp.putBitString(signature);
@@ -1614,7 +1618,7 @@ public class CertificateAuthority
             }
 
         } catch (EBaseException e) {
-            CMS.debug(e);
+            logger.error("Unable to get CA certificate: " + e.getMessage(), e);
             throw e;
 
         } catch (CertificateException e) {
@@ -1648,10 +1652,10 @@ public class CertificateAuthority
             return null; // something seriously wrong.
         mCASigningAlgorithms = AlgorithmId.getSigningAlgorithms(alg);
         if (mCASigningAlgorithms == null) {
-            CMS.debug(
+            logger.warn(
                     "CA - no signing algorithms for " + alg.getName());
         } else {
-            CMS.debug(
+            logger.debug(
                     "CA First signing algorithm is " + mCASigningAlgorithms[0]);
         }
 
@@ -1675,26 +1679,26 @@ public class CertificateAuthority
 
             String caSigningCertStr = caSigningCfg.getString("cert", "");
             if (caSigningCertStr.equals("")) {
-                CMS.debug("CertificateAuthority:initSigUnit: ca.signing.cert not found");
+                logger.debug("CertificateAuthority:initSigUnit: ca.signing.cert not found");
             } else { //ca cert found
-                CMS.debug("CertificateAuthority:initSigUnit: ca cert found");
+                logger.debug("CertificateAuthority:initSigUnit: ca cert found");
                 mCaCert = new X509CertImpl(Utils.base64decode(caSigningCertStr));
                 // this ensures the isserDN and subjectDN have the same encoding
                 // as that of the CA signing cert
-                CMS.debug("CertificateAuthority: initSigUnit 1- setting mIssuerObj and mSubjectObj");
+                logger.debug("CertificateAuthority: initSigUnit 1- setting mIssuerObj and mSubjectObj");
                 mSubjectObj = mCaCert.getSubjectObj();
                 // this mIssuerObj is the "issuerDN" obj for the certs this CA
                 // issues, NOT necessarily the isserDN obj of the CA signing cert
                 mIssuerObj = new CertificateIssuerName((X500Name)mSubjectObj.get(CertificateIssuerName.DN_NAME));
             }
         } catch (CertificateException e) {
-            CMS.debug(e);
+            logger.error("Unable to initialize signing unit: " + e.getMessage(), e);
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_OCSP_CHAIN", e.toString()));
             throw new ECAException(
                     CMS.getUserMessage("CMS_CA_BUILD_CA_CHAIN_FAILED", e.toString()), e);
 
         } catch (IOException e) {
-            CMS.debug(e);
+            logger.error("Unable to initialize signing unit: " + e.getMessage(), e);
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_OCSP_CHAIN", e.toString()));
             throw new ECAException(
                     CMS.getUserMessage("CMS_CA_BUILD_CA_CHAIN_FAILED", e.toString()), e);
@@ -1703,7 +1707,7 @@ public class CertificateAuthority
         mSigningUnit.init(this, caSigningCfg, mNickname);
         hasKeys = true;
         signingUnitException = null;
-        CMS.debug("CA signing unit inited");
+        logger.debug("CA signing unit inited");
 
         try {
             // for identrus
@@ -1719,15 +1723,14 @@ public class CertificateAuthority
             // init cert chain
             CryptoManager manager = CryptoManager.getInstance();
 
-            int caChainNum =
-                    caSigningCfg.getInteger(PROP_CA_CHAIN_NUM, 0);
+            int caChainNum = caSigningCfg.getInteger(PROP_CA_CHAIN_NUM, 0);
+            logger.debug("CertificateAuthority: cachainNum: " + caChainNum);
 
-            CMS.debug("cachainNum= " + caChainNum);
             if (caChainNum > 0) {
-                // custom build chain (for cross cert chain)
-                // audit here ***
-                IConfigStore chainStore =
-                        caSigningCfg.getSubStore(PROP_CA_CHAIN);
+
+                logger.debug("CertificateAuthority: create cert chain from files:");
+
+                IConfigStore chainStore = caSigningCfg.getSubStore(PROP_CA_CHAIN);
 
                 if (chainStore == null) {
                     log(ILogger.LL_FAILURE,
@@ -1743,9 +1746,10 @@ public class CertificateAuthority
 
                 for (int i = 0; i < caChainNum; i++) {
                     String subtreeName = PROP_CA_CERT + i;
+
                     // cert file name must be full path
-                    String certFileName =
-                            chainStore.getString(subtreeName, null);
+                    String certFileName = chainStore.getString(subtreeName, null);
+                    logger.debug(" - file: " + certFileName);
 
                     if ((certFileName == null) || certFileName.equals("")) {
                         log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_OCSP_CHAIN", "cert file config error"));
@@ -1753,39 +1757,49 @@ public class CertificateAuthority
                                 CMS.getUserMessage("CMS_CA_BUILD_CA_CHAIN_FAILED",
                                         "cert file config error"));
                     }
+
                     byte[] b64Bytes = getCertFromFile(certFileName);
                     String b64String = new String(b64Bytes);
                     byte[] certBytes = KeyCertUtil.convertB64EToByteArray(b64String);
 
                     implchain[i] = new X509CertImpl(certBytes);
-                } // for
+                }
 
                 mCACertChain = new CertificateChain(implchain);
-                CMS.debug("in init - custom built CA cert chain.");
+
             } else {
-                // build ca chain the traditional way
+
+                logger.debug("CertificateAuthority: create cert chain from certs in NSS database");
+
+                org.mozilla.jss.crypto.X509Certificate caCert = mSigningUnit.getCert();
+                logger.debug("CertificateAuthority: CA cert: " + caCert.getSubjectDN());
+
                 org.mozilla.jss.crypto.X509Certificate[] chain =
-                        manager.buildCertificateChain(mSigningUnit.getCert());
+                        manager.buildCertificateChain(caCert);
+
                 // do this in case other subsyss expect a X509CertImpl
                 java.security.cert.X509Certificate[] implchain =
                         new java.security.cert.X509Certificate[chain.length];
 
                 for (int i = 0; i < chain.length; i++) {
                     implchain[i] = new X509CertImpl(chain[i].getEncoded());
+                    logger.debug("CertificateAuthority: CA cert: " + caCert.getSubjectDN());
                 }
+
                 mCACertChain = new CertificateChain(implchain);
-                CMS.debug("in init - got CA chain from JSS.");
             }
+
+            logger.debug("CertificateAuthority: cert chain created");
 
             IConfigStore OCSPStore = mConfig.getSubStore(PROP_OCSP_SIGNING_SUBSTORE);
 
             if (isHostAuthority() && OCSPStore != null && OCSPStore.size() > 0) {
                 mOCSPSigningUnit = new SigningUnit();
                 mOCSPSigningUnit.init(this, mConfig.getSubStore(PROP_OCSP_SIGNING_SUBSTORE));
-                CMS.debug("Separate OCSP signing unit inited");
+                logger.debug("Separate OCSP signing unit inited");
             } else {
                 mOCSPSigningUnit = mSigningUnit;
-                CMS.debug("Shared OCSP signing unit inited");
+                logger.debug("Shared OCSP signing unit inited");
             }
 
             org.mozilla.jss.crypto.X509Certificate[] ocspChain =
@@ -1798,7 +1812,7 @@ public class CertificateAuthority
                 ocspImplchain[i] = new X509CertImpl(ocspChain[i].getEncoded());
             }
             mOCSPCertChain = new CertificateChain(ocspImplchain);
-            CMS.debug("in init - got OCSP chain from JSS.");
+            logger.debug("in init - got OCSP chain from JSS.");
 
             mCaX509Cert = mSigningUnit.getCert();
             mCaCert = new X509CertImpl(mCaX509Cert.getEncoded());
@@ -1807,7 +1821,7 @@ public class CertificateAuthority
             if (mSubjectObj != null) {
                 // this ensures the isserDN and subjectDN have the same encoding
                 // as that of the CA signing cert
-                CMS.debug("CertificateAuthority: initSigUnit - setting mIssuerObj and mSubjectObj");
+                logger.debug("CertificateAuthority: initSigUnit - setting mIssuerObj and mSubjectObj");
                 // this mIssuerObj is the "issuerDN" obj for the certs this CA
                 // issues, NOT necessarily the isserDN obj of the CA signing cert
                 // unless the CA is self-signed
@@ -1825,32 +1839,32 @@ public class CertificateAuthority
             mOCSPCert = new X509CertImpl(mOCSPX509Cert.getEncoded());
             mOCSPName = (X500Name) mOCSPCert.getSubjectDN();
             mNickname = mSigningUnit.getNickname();
-            CMS.debug("in init - got CA name " + mName);
+            logger.debug("in init - got CA name " + mName);
 
         } catch (CryptoManager.NotInitializedException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_OCSP_SIGNING", e.toString()));
             throw new ECAException(CMS.getUserMessage("CMS_CA_CRYPTO_NOT_INITIALIZED"), e);
 
         } catch (CertificateException e) {
-            CMS.debug(e);
+            logger.error("Unable to build cert chain: " + e.getMessage(), e);
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_OCSP_CHAIN", e.toString()));
             throw new ECAException(
                     CMS.getUserMessage("CMS_CA_BUILD_CA_CHAIN_FAILED", e.toString()), e);
 
         } catch (FileNotFoundException e) {
-            CMS.debug(e);
+            logger.error("Unable to build cert chain: " + e.getMessage(), e);
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_OCSP_CHAIN", e.toString()));
             throw new ECAException(
                     CMS.getUserMessage("CMS_CA_BUILD_CA_CHAIN_FAILED", e.toString()), e);
 
         } catch (IOException e) {
-            CMS.debug(e);
+            logger.error("Unable to build cert chain: " + e.getMessage(), e);
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_OCSP_CHAIN", e.toString()));
             throw new ECAException(
                     CMS.getUserMessage("CMS_CA_BUILD_CA_CHAIN_FAILED", e.toString()), e);
 
         } catch (TokenException e) {
-            CMS.debug(e);
+            logger.error("Unable to build cert chain: " + e.getMessage(), e);
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_OCSP_CHAIN", e.toString()));
             throw new ECAException(
                     CMS.getUserMessage("CMS_CA_BUILD_CA_CHAIN_FAILED", e.toString()), e);
@@ -1952,7 +1966,7 @@ public class CertificateAuthority
         mCertRepot.setTransitMaxRecords(transitMaxRecords);
         mCertRepot.setTransitRecordPageSize(transitRecordPageSize);
 
-        CMS.debug("Cert Repot inited");
+        logger.debug("Cert Repot inited");
     }
 
     /**
@@ -1972,7 +1986,7 @@ public class CertificateAuthority
                     crldb_inc,
                     "ou=crlIssuingPoints, ou=" + getId() + ", " +
                             getDBSubsystem().getBaseDN());
-        CMS.debug("CRL Repot inited");
+        logger.debug("CRL Repot inited");
     }
 
     private void startPublish()
@@ -1983,7 +1997,7 @@ public class CertificateAuthority
         try {
             if (mPublisherProcessor.isCertPublishingEnabled()) {
                 mPublisherProcessor.publishCACert(mCaCert);
-                CMS.debug("published ca cert");
+                logger.debug("published ca cert");
             }
         } catch (ELdapException e) {
             // exception not thrown - not seen as a fatal error.
@@ -2009,7 +2023,7 @@ public class CertificateAuthority
                 mPublisherProcessor = new PublisherProcessor(
                             getId() + "pp");
                 mPublisherProcessor.init(this, c);
-                CMS.debug("Publishing inited");
+                logger.debug("Publishing inited");
             } else {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_NO_PUBLISH"));
                 throw new ECAException(
@@ -2175,14 +2189,14 @@ public class CertificateAuthority
 
         mPolicy = new CAPolicy();
         mPolicy.init(this, mConfig.getSubStore(PROP_POLICY));
-        CMS.debug("CA policy inited");
+        logger.debug("CA policy inited");
         mService = new CAService(this);
-        CMS.debug("CA service inited");
+        logger.debug("CA service inited");
 
         mNotify = new ARequestNotifier(this);
-        CMS.debug("CA notifier inited");
+        logger.debug("CA notifier inited");
         mPNotify = new ARequestNotifier();
-        CMS.debug("CA pending notifier inited");
+        logger.debug("CA pending notifier inited");
 
         // instantiate CA request queue.
         try {
@@ -2257,7 +2271,7 @@ public class CertificateAuthority
         while (issuePointIdEnum.hasMoreElements()) {
             String issuePointId = issuePointIdEnum.nextElement();
 
-            CMS.debug("initializing crl issue point " + issuePointId);
+            logger.debug("initializing crl issue point " + issuePointId);
             IConfigStore issuePointConfig = null;
             String issuePointClassName = null;
             Class<CRLIssuingPoint> issuePointClass = null;
@@ -2366,13 +2380,13 @@ public class CertificateAuthority
             throws EBaseException {
 
         if (!mEnableOCSP) {
-            CMS.debug("CertificateAuthority: OCSP service disabled");
+            logger.debug("CertificateAuthority: OCSP service disabled");
             throw new EBaseException("OCSP service disabled");
         }
 
         TBSRequest tbsReq = request.getTBSRequest();
         if (tbsReq.getRequestCount() == 0) {
-            CMS.debug("CertificateAuthority: No request found");
+            logger.error("CertificateAuthority: No request found");
             log(ILogger.LL_FAILURE, CMS.getLogMessage("OCSP_REQUEST_FAILURE", "No Request Found"));
             throw new EBaseException("OCSP request is empty");
         }
@@ -2414,14 +2428,14 @@ public class CertificateAuthority
         }
 
         if (ocspCA == null) {
-            CMS.debug("CertificateAuthority: Could not locate issuing CA");
+            logger.error("CertificateAuthority: Could not locate issuing CA");
             throw new CANotFoundException("Could not locate issuing CA");
         }
 
         if (ocspCA != this)
             return ((IOCSPService) ocspCA).validate(request);
 
-        CMS.debug("CertificateAuthority: validating OCSP request");
+        logger.debug("CertificateAuthority: validating OCSP request");
 
         mNumOCSPRequest++;
         IStatsSubsystem statsSub = (IStatsSubsystem) CMS.getSubsystem("stats");
@@ -2537,7 +2551,7 @@ public class CertificateAuthority
             }
             rd.encode(tmp);
             AlgorithmId.get(algname).encode(tmp);
-            CMS.debug("adding signature");
+            logger.debug("adding signature");
             byte[] signature = mOCSPSigningUnit.sign(rd_data, algname);
 
             tmp.putBitString(signature);
@@ -2572,7 +2586,7 @@ public class CertificateAuthority
 
         CertID cid = req.getCertID();
         INTEGER serialNo = cid.getSerialNumber();
-        CMS.debug("CertificateAuthority: processing request for cert 0x" + serialNo.toString(16));
+        logger.debug("CertificateAuthority: processing request for cert 0x" + serialNo.toString(16));
 
         CertStatus certStatus = null;
         GeneralizedTime thisUpdate = new GeneralizedTime(CMS.getCurrentDate());
@@ -2785,7 +2799,7 @@ public class CertificateAuthority
 
         // build database entry
         String dn = "cn=" + aidString + "," + authorityBaseDN();
-        CMS.debug("createSubCA: DN = " + dn);
+        logger.debug("createSubCA: DN = " + dn);
         String parentDNString = null;
         try {
             parentDNString = mName.toLdapDNString();
@@ -2830,7 +2844,7 @@ public class CertificateAuthority
             X509Key x509key = CryptoUtil.convertPublicKeyToX509Key(pub);
 
             // Create pkcs10 request
-            CMS.debug("createSubCA: creating pkcs10 request");
+            logger.debug("createSubCA: creating pkcs10 request");
             PKCS10 pkcs10 = new PKCS10(x509key);
             Signature signature = Signature.getInstance("SHA256withRSA");
             signature.initSign(keypair.getPrivate());
@@ -2877,14 +2891,14 @@ public class CertificateAuthority
             cryptoManager.importCertPackage(cert.getEncoded(), nickname);
         } catch (Exception e) {
             // something went wrong; delete just-added entry
-            CMS.debug("Error creating lightweight CA certificate");
-            CMS.debug(e);
+            logger.error("Error creating lightweight CA certificate: " + e.getMessage(), e);
+
             try {
                 deleteAuthorityEntry(aid);
             } catch (ELdapException e2) {
                 // we are about to throw ECAException, so just
                 // log this error.
-                CMS.debug("Error deleting new authority entry after failure during certificate generation: " + e2);
+                logger.error("Error deleting new authority entry after failure during certificate generation: " + e2.getMessage(), e2);
             }
             if (e instanceof BadRequestDataException)
                 throw (BadRequestDataException) e;  // re-throw
@@ -3057,14 +3071,14 @@ public class CertificateAuthority
         if (attr != null) {
             BigInteger entryUSN = new BigInteger(attr.getStringValueArray()[0]);
             entryUSNs.put(aid, entryUSN);
-            CMS.debug("postCommit: new entryUSN = " + entryUSN);
+            logger.debug("postCommit: new entryUSN = " + entryUSN);
         }
 
         attr = entry.getAttribute("nsUniqueId");
         if (attr != null) {
             String nsUniqueId = attr.getStringValueArray()[0];
             nsUniqueIds.put(aid, nsUniqueId);
-            CMS.debug("postCommit: nsUniqueId = " + nsUniqueId);
+            logger.debug("postCommit: nsUniqueId = " + nsUniqueId);
         }
     }
 
@@ -3172,16 +3186,16 @@ public class CertificateAuthority
      */
     private void revokeAuthority(HttpServletRequest httpReq)
             throws EBaseException {
-        CMS.debug("revokeAuthority: checking serial " + authoritySerial);
+        logger.debug("revokeAuthority: checking serial " + authoritySerial);
         ICertRecord certRecord = mCertRepot.readCertificateRecord(authoritySerial);
         String curStatus = certRecord.getStatus();
-        CMS.debug("revokeAuthority: current cert status: " + curStatus);
+        logger.debug("revokeAuthority: current cert status: " + curStatus);
         if (curStatus.equals(CertRecord.STATUS_REVOKED)
                 || curStatus.equals(CertRecord.STATUS_REVOKED_EXPIRED)) {
             return;  // already revoked
         }
 
-        CMS.debug("revokeAuthority: revoking cert");
+        logger.debug("revokeAuthority: revoking cert");
         RevocationProcessor processor = new RevocationProcessor(
                 "CertificateAuthority.revokeAuthority", httpReq.getLocale());
         processor.setSerialNumber(new CertId(authoritySerial));
@@ -3205,7 +3219,7 @@ public class CertificateAuthority
         if (isHostAuthority()) {
             String msg = "Attempt to delete host authority signing key; not proceeding";
             log(ILogger.LL_WARN, msg);
-            CMS.debug(msg);
+            logger.debug(msg);
             return;
         }
 
@@ -3227,10 +3241,10 @@ public class CertificateAuthority
         try {
             cryptoStore.deleteCert(mCaX509Cert);
         } catch (NoSuchItemOnTokenException e) {
-            CMS.debug("deleteAuthority: cert is not on token: " + e);
+            logger.warn("deleteAuthority: cert is not on token: " + e);
             // if the cert isn't there, never mind
         } catch (TokenException e) {
-            CMS.debug("deleteAuthority: TokenExcepetion while deleting cert: " + e);
+            logger.error("deleteAuthority: TokenExcepetion while deleting cert: " + e.getMessage(), e);
             throw new ECAException("TokenException while deleting cert: " + e);
         }
     }
@@ -3268,7 +3282,7 @@ public class CertificateAuthority
         LDAPPersistSearchControl persistCtrl =
             new LDAPPersistSearchControl(op, false, true, true);
 
-        CMS.debug("authorityMonitor: starting.");
+        logger.debug("authorityMonitor: starting.");
 
         while (!stopped) {
             LDAPConnection conn = null;
@@ -3318,63 +3332,64 @@ public class CertificateAuthority
                     LDAPEntryChangeControl changeControl = (LDAPEntryChangeControl)
                         LDAPUtil.getControl(
                             LDAPEntryChangeControl.class, results.getResponseControls());
-                    CMS.debug("authorityMonitor: Processed change controls.");
+                    logger.debug("authorityMonitor: Processed change controls.");
                     if (changeControl != null) {
                         int changeType = changeControl.getChangeType();
                         switch (changeType) {
                         case LDAPPersistSearchControl.ADD:
-                            CMS.debug("authorityMonitor: ADD");
+                            logger.debug("authorityMonitor: ADD");
                             readAuthority(entry);
                             break;
                         case LDAPPersistSearchControl.DELETE:
-                            CMS.debug("authorityMonitor: DELETE");
+                            logger.debug("authorityMonitor: DELETE");
                             handleDELETE(entry);
                             break;
                         case LDAPPersistSearchControl.MODIFY:
-                            CMS.debug("authorityMonitor: MODIFY");
+                            logger.debug("authorityMonitor: MODIFY");
                             // TODO how do we handle authorityID change?
                             readAuthority(entry);
                             break;
                         case LDAPPersistSearchControl.MODDN:
-                            CMS.debug("authorityMonitor: MODDN");
+                            logger.debug("authorityMonitor: MODDN");
                             handleMODDN(new DN(changeControl.getPreviousDN()), entry);
                             break;
                         default:
-                            CMS.debug("authorityMonitor: unknown change type: " + changeType);
+                            logger.debug("authorityMonitor: unknown change type: " + changeType);
                             break;
                         }
                     } else {
-                        CMS.debug("authorityMonitor: immediate result");
+                        logger.debug("authorityMonitor: immediate result");
                         readAuthority(entry);
                         numAuthoritiesLoaded += 1;
                         checkInitialLoadDone();
                     }
                 }
             } catch (ELdapException e) {
-                CMS.debug("authorityMonitor: failed to get LDAPConnection. Retrying in 1 second.");
+                logger.warn("authorityMonitor: Failed to get LDAPConnection: " + e.getMessage(), e);
+                logger.warn("authorityMonitor: Retrying in 1 second.");
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException ex) {
                     Thread.currentThread().interrupt();
                 }
             } catch (LDAPException e) {
-                CMS.debug("authorityMonitor: Failed to execute LDAP search for lightweight CAs: " + e);
+                logger.warn("authorityMonitor: Failed to execute LDAP search for lightweight CAs: " + e, e);
             } finally {
                 try {
                     dbFactory.returnConn(conn);
                 } catch (Exception e) {
-                    CMS.debug("authorityMonitor: Error releasing the LDAPConnection" + e.toString());
+                    logger.warn("authorityMonitor: Error releasing the LDAPConnection" + e.getMessage(), e);
                 }
             }
         }
-        CMS.debug("authorityMonitor: stopping.");
+        logger.debug("authorityMonitor: stopping.");
     }
 
     private synchronized void readAuthority(LDAPEntry entry) {
         String nsUniqueId =
             entry.getAttribute("nsUniqueId").getStringValueArray()[0];
         if (deletedNsUniqueIds.contains(nsUniqueId)) {
-            CMS.debug("readAuthority: ignoring entry with nsUniqueId '"
+            logger.warn("readAuthority: ignoring entry with nsUniqueId '"
                     + nsUniqueId + "' due to deletion");
             return;
         }
@@ -3388,7 +3403,7 @@ public class CertificateAuthority
         LDAPAttribute serialAttr = entry.getAttribute("authoritySerial");
 
         if (aidAttr == null || nickAttr == null || dnAttr == null) {
-            CMS.debug("Malformed authority object; required attribute(s) missing: " + entry.getDN());
+            logger.warn("Malformed authority object; required attribute(s) missing: " + entry.getDN());
             return;
         }
 
@@ -3399,7 +3414,7 @@ public class CertificateAuthority
         try {
             dn = new X500Name((String) dnAttr.getStringValues().nextElement());
         } catch (IOException e) {
-            CMS.debug("Malformed authority object; invalid authorityDN: " + entry.getDN());
+            logger.warn("Malformed authority object; invalid authorityDN: " + entry.getDN() + ": " + e.getMessage(), e);
         }
 
         String desc = null;
@@ -3413,7 +3428,7 @@ public class CertificateAuthority
          * from LDAP vs UTF8String in certificate.
          */
         if (dn.toString().equals(mName.toString())) {
-            CMS.debug("Found host authority");
+            logger.debug("Found host authority");
             foundHostAuthority = true;
             this.authorityID = aid;
             this.authorityDescription = desc;
@@ -3424,29 +3439,29 @@ public class CertificateAuthority
         BigInteger newEntryUSN = null;
         LDAPAttribute entryUSNAttr = entry.getAttribute("entryUSN");
         if (entryUSNAttr == null) {
-            CMS.debug("readAuthority: no entryUSN");
+            logger.debug("readAuthority: no entryUSN");
             if (!entryUSNPluginEnabled()) {
-                CMS.debug("readAuthority: dirsrv USN plugin is not enabled; skipping entry");
+                logger.warn("readAuthority: dirsrv USN plugin is not enabled; skipping entry");
                 log(ILogger.LL_FAILURE, "Lightweight authority entry has no"
                         + " entryUSN attribute and USN plugin not enabled;"
                         + " skipping.  Enable dirsrv USN plugin.");
                 return;
             } else {
-                CMS.debug("readAuthority: dirsrv USN plugin is enabled; continuing");
+                logger.debug("readAuthority: dirsrv USN plugin is enabled; continuing");
                 // entryUSN plugin is enabled, but no entryUSN attribute. We
                 // can proceed because future modifications will result in the
                 // entryUSN attribute being added.
             }
         } else {
             newEntryUSN = new BigInteger(entryUSNAttr.getStringValueArray()[0]);
-            CMS.debug("readAuthority: new entryUSN = " + newEntryUSN);
+            logger.debug("readAuthority: new entryUSN = " + newEntryUSN);
         }
 
         BigInteger knownEntryUSN = entryUSNs.get(aid);
         if (newEntryUSN != null && knownEntryUSN != null) {
-            CMS.debug("readAuthority: known entryUSN = " + knownEntryUSN);
+            logger.debug("readAuthority: known entryUSN = " + knownEntryUSN);
             if (newEntryUSN.compareTo(knownEntryUSN) <= 0) {
-                CMS.debug("readAuthority: data is current");
+                logger.debug("readAuthority: data is current");
                 return;
             }
         }
@@ -3457,7 +3472,7 @@ public class CertificateAuthority
             try {
                 parentDN = new X500Name((String) parentDNAttr.getStringValues().nextElement());
             } catch (IOException e) {
-                CMS.debug("Malformed authority object; invalid authorityParentDN: " + entry.getDN());
+                logger.warn("Malformed authority object; invalid authorityParentDN: " + entry.getDN() + ": " + e.getMessage(), e);
                 return;
             }
         }
@@ -3498,7 +3513,7 @@ public class CertificateAuthority
             entryUSNs.put(aid, newEntryUSN);
             nsUniqueIds.put(aid, nsUniqueId);
         } catch (EBaseException e) {
-            CMS.debug("Error initialising lightweight CA: " + e);
+            logger.warn("Error initialising lightweight CA: " + e.getMessage(), e);
         }
     }
 
@@ -3509,7 +3524,7 @@ public class CertificateAuthority
             nsUniqueId = attr.getStringValueArray()[0];
 
         if (deletedNsUniqueIds.remove(nsUniqueId)) {
-            CMS.debug("handleDELETE: delete was already effected");
+            logger.debug("handleDELETE: delete was already effected");
             return;
         }
 
@@ -3525,9 +3540,9 @@ public class CertificateAuthority
                 ca.deleteAuthorityNSSDB();
             } catch (ECAException e) {
                 // log and carry on
-                CMS.debug(
+                logger.warn(
                     "Caught exception attempting to delete NSSDB material "
-                    + "for authority '" + aid + "': " + e);
+                    + "for authority '" + aid + "': " + e.getMessage(), e);
             }
             forgetAuthority(aid);
         }
@@ -3571,7 +3586,7 @@ public class CertificateAuthority
             try {
                 long d = 10000;  // initial delay of 10 seconds
                 while (!_run()) {
-                    CMS.debug("Retrying in " + d / 1000 + " seconds");
+                    logger.debug("Retrying in " + d / 1000 + " seconds");
                     try {
                         Thread.sleep(d);
                     } catch (InterruptedException e) {
@@ -3602,7 +3617,7 @@ public class CertificateAuthority
             try {
                 className = CMS.getConfigStore().getString(KR_CLASS_KEY);
             } catch (EBaseException e) {
-                CMS.debug("Unable to read key retriever class from CS.cfg: " + e);
+                logger.warn("Unable to read key retriever class from CS.cfg: " + e.getMessage(), e);
                 return false;
             }
 
@@ -3624,17 +3639,14 @@ public class CertificateAuthority
                     kr = cls.newInstance();
                 }
             } catch (ClassNotFoundException e) {
-                CMS.debug("Could not find class: " + className);
-                CMS.debug(e);
+                logger.warn("Could not find class: " + className, e);
                 return false;
             } catch (ClassCastException e) {
-                CMS.debug("Class is not an instance of KeyRetriever: " + className);
-                CMS.debug(e);
+                logger.warn("Class is not an instance of KeyRetriever: " + className, e);
                 return false;
             } catch (InstantiationException | IllegalAccessException
                     | IllegalArgumentException | InvocationTargetException e) {
-                CMS.debug("Could not instantiate class: " + className);
-                CMS.debug(e);
+                logger.warn("Could not instantiate class: " + className, e);
                 return false;
             }
 
@@ -3642,17 +3654,16 @@ public class CertificateAuthority
             try {
                 krr = kr.retrieveKey(nickname, hosts);
             } catch (Throwable e) {
-                CMS.debug("Caught exception during execution of KeyRetriever.retrieveKey");
-                CMS.debug(e);
+                logger.warn("Caught exception during execution of KeyRetriever.retrieveKey", e);
                 return false;
             }
 
             if (krr == null) {
-                CMS.debug("KeyRetriever did not return a result.");
+                logger.warn("KeyRetriever did not return a result.");
                 return false;
             }
 
-            CMS.debug("Importing key and cert");
+            logger.debug("Importing key and cert");
             byte[] certBytes = krr.getCertificate();
             byte[] paoData = krr.getPKIArchiveOptions();
             try {
@@ -3670,12 +3681,11 @@ public class CertificateAuthority
 
                 cert = manager.importUserCACertPackage(certBytes, nickname);
             } catch (Throwable e) {
-                CMS.debug("Caught exception during cert/key import");
-                CMS.debug(e);
+                logger.warn("Caught exception during cert/key import", e);
                 return false;
             }
 
-            CMS.debug("Reinitialising SigningUnit");
+            logger.debug("Reinitialising SigningUnit");
 
             /* While we were retrieving the key and cert, the
              * CertificateAuthority instance in the caMap might
@@ -3686,7 +3696,7 @@ public class CertificateAuthority
                 /* We got the key, but the authority has been
                  * deleted.  Do not retry.
                  */
-                CMS.debug("Authority was deleted; returning.");
+                logger.debug("Authority was deleted; returning.");
                 return true;
             }
 
@@ -3700,21 +3710,20 @@ public class CertificateAuthority
                 initSigUnitSucceeded = true;
 
             } catch (CAMissingCertException | CAMissingKeyException e) {
-                CMS.debug("CA signing key and cert not (yet) present in NSSDB");
+                logger.warn("CA signing key and cert not (yet) present in NSSDB");
                 signingUnitException = e;
 
             } catch (Throwable e) {
-                CMS.debug("Caught exception during SigningUnit re-init");
-                CMS.debug(e);
+                logger.warn("Caught exception during SigningUnit re-init", e);
                 return false;
             }
 
             if (!initSigUnitSucceeded) {
-                CMS.debug("Failed to re-init SigningUnit");
+                logger.warn("Failed to re-init SigningUnit");
                 return false;
             }
 
-            CMS.debug("Adding self to authorityKeyHosts attribute");
+            logger.debug("Adding self to authorityKeyHosts attribute");
             try {
                 ca.addInstanceToAuthorityKeyHosts();
             } catch (Throwable e) {
@@ -3724,8 +3733,7 @@ public class CertificateAuthority
                  * that possess the key.  This is unlikely, and the
                  * key is available elsewhere, so no need to retry.
                  */
-                CMS.debug("Failed to add self to authorityKeyHosts");
-                CMS.debug(e);
+                logger.warn("Failed to add self to authorityKeyHosts", e);
                 return true;
             }
 
