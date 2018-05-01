@@ -28,6 +28,7 @@ import java.util.Vector;
 import org.apache.commons.lang.StringUtils;
 
 import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.BaseSubsystem;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
@@ -69,7 +70,7 @@ import netscape.security.x509.X509CertImpl;
  * @author cfu
  * @version $Revision$, $Date$
  */
-public final class UGSubsystem implements IUGSubsystem {
+public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
 
     private static final long serialVersionUID = 8080165044652629774L;
     public static final String ID = "usrgrp";
