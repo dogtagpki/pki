@@ -51,6 +51,7 @@ public class CMSStartServlet extends HttpServlet {
 
     private static final long serialVersionUID = 515623839479425172L;
     public final static String PROP_CMS_CFG = "cfgPath";
+    public final static String PROP_CMS_ENGINE = "engine";
 
     public void init() throws ServletException {
 
@@ -117,20 +118,40 @@ public class CMSStartServlet extends HttpServlet {
             }
         }
 
-        String classname = "com.netscape.cmscore.apps.CMSEngine";
+        Class<?> engineClass = CMSEngine.class;
+
+        String className = getServletConfig().getInitParameter(PROP_CMS_ENGINE);
+        if (className != null) {
+            try {
+                logger.debug("CMSStartServlet: Loading CMS engine " + className);
+                engineClass = Class.forName(className);
+            } catch (ClassNotFoundException e) {
+                logger.error("Unable to load CMS engine: " + e.getMessage(), e);
+                throw new ServletException(e);
+            }
+        }
+
         CMSEngine engine = null;
 
         try {
-            engine = (CMSEngine) Class.forName(classname).newInstance();
+            logger.debug("CMSStartServlet: Creating CMS engine " + engineClass.getName());
+            engine = (CMSEngine) engineClass.newInstance();
             CMS.setCMSEngine(engine);
 
+        } catch (InstantiationException | IllegalAccessException e) {
+            logger.error("Unable to create CMS engine: " + e.getMessage(), e);
+            throw new ServletException(e);
+        }
+
+        try {
+            logger.debug("CMSStartServlet: Starting CMS engine " + engineClass.getName());
             IConfigStore mainConfig = engine.createFileConfigStore(path);
             engine.init(null, mainConfig);
 
             engine.startup();
 
         } catch (Exception e) {
-            logger.error("Unable to start server: " + e.getMessage(), e);
+            logger.error("Unable to start CMS engine: " + e.getMessage(), e);
             logger.info(Constants.SERVER_SHUTDOWN_MESSAGE);
 
             if (engine != null) {
