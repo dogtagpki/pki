@@ -2386,20 +2386,3 @@ class WarningListener implements ILogEventListener {
         return v;
     }
 }
-
-class SubsystemInfo {
-    public final String mId;
-    public final ISubsystem mInstance;
-    public final boolean enabled;
-
-    public SubsystemInfo(String id, ISubsystem ssInstance) {
-        this(id, ssInstance, true);
-    }
-
-    public SubsystemInfo(String id, ISubsystem ssInstance, boolean enabled) {
-        mId = id;
-        mInstance = ssInstance;
-        this.enabled = enabled;
-    }
-
-}
