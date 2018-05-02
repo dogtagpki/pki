@@ -334,7 +334,8 @@ class PKISubsystem(object):
         with io.open(self.cs_conf, 'w') as f:
             for key, value in sorted_config:
                 if value is None:
-                    f.write(u'{0}=None\n'.format(key))
+                    # write None as empty value
+                    f.write(u'{0}=\n'.format(key))
                 elif isinstance(value, six.string_types):
                     f.write(u'{0}={1}\n'.format(key, value))
                 elif isinstance(value, six.integer_types):
