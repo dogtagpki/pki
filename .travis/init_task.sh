@@ -21,7 +21,7 @@
 #
 
 pyenv global system 3.6
-docker pull ${PKI_IMAGE}
+docker pull ${BASE_IMAGE}
 docker run \
     --detach \
     --name=${CONTAINER} \
@@ -36,7 +36,7 @@ docker run \
     -e TRAVIS=${TRAVIS} \
     -e TRAVIS_JOB_NUMBER=${TRAVIS_JOB_NUMBER} \
     -i \
-    ${PKI_IMAGE}
+    ${BASE_IMAGE}
 
 
 docker exec -i ${CONTAINER} /bin/ls -la /tmp/workdir

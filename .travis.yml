@@ -7,7 +7,11 @@ cache: pip
 
 jobs:
   include:
-    - env: TASK_TO_RUN="pki-test"
+
+    # F27 Image
+    - env: 
+        - TASK_TO_RUN="pki-test"
+        - BASE_IMAGE=${IMAGE_REPO:-dogtagpki/pki-ci}:f27_106_46
       before_install:
         - set -a && source .travis/global_variables
         - echo -e $gerrit_ssh_key >> ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa
@@ -29,7 +33,9 @@ jobs:
         - docker kill ${CONTAINER}
         - docker rm ${CONTAINER}
 
-    - env: TASK_TO_RUN="ipa-test"
+    - env: 
+        - TASK_TO_RUN="ipa-test"
+        - BASE_IMAGE=${IMAGE_REPO:-dogtagpki/pki-ci}:f27_106_46
       before_install:
         - set -a && source .travis/global_variables
         - echo -e $gerrit_ssh_key >> ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa
@@ -46,6 +52,27 @@ jobs:
         - .travis/set_gerrit_message.sh -v -1 -m "${MESSAGE}"
         - cat ${TRANSFER_SH_URLS}
       after_script:
+        - docker kill ${CONTAINER}
+        - docker rm ${CONTAINER}
+
+    # F28 image
+    - env:
+        - TASK_TO_RUN="pki-test"
+        - BASE_IMAGE=${IMAGE_REPO:-dogtagpki/pki-ci}:f28_106_46
+      before_install:
+        - set -a && source .travis/global_variables
+        - echo -e $gerrit_ssh_key >> ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa
+      install: .travis/init_task.sh | tee /dev/tty | grep -Eo '(http|https)://transfer.sh/[a-zA-Z0-9./?=_-]*.txt' | uniq >> ${TRANSFER_SH_URLS}
+      script:
+        - set -o pipefail
+        - travis_wait 20 .travis/run_task.sh | tee /dev/tty | grep -Eo '(http|https)://transfer.sh/[a-zA-Z0-9./?=_-]*.txt' | uniq >> ${TRANSFER_SH_URLS}
+      after_failure:
+        # Post the URL of Travis Job that failed
+        - TRAVIS_JOB_URL="https://travis-ci.org/$TRAVIS_REPO_SLUG/jobs/$TRAVIS_JOB_ID"
+        - MESSAGE="$(printf "Job 3 Failed\nTravis Job:"${TRAVIS_JOB_URL}"\n\nLogs:\n" )"$'\n'"$(cat ${TRANSFER_SH_URLS})"
+        - .travis/set_gerrit_message.sh -v -1 -m "${MESSAGE}"
+      after_script:
+        - cat ${TRANSFER_SH_URLS}
         - docker kill ${CONTAINER}
         - docker rm ${CONTAINER}
 
