@@ -86,6 +86,7 @@ import com.netscape.certsrv.security.ICryptoSubsystem;
 import com.netscape.certsrv.selftests.ISelfTestSubsystem;
 import com.netscape.certsrv.tks.ITKSAuthority;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmsutil.net.ISocketFactory;
 import com.netscape.cmsutil.password.IPasswordStore;
 
@@ -1576,32 +1577,28 @@ public final class CMS {
         String classname = "com.netscape.cmscore.apps.CMSEngine";
 
         try {
-            ICMSEngine engine = (ICMSEngine)
+            CMSEngine engine = (CMSEngine)
                     Class.forName(classname).newInstance();
-            CMS.setCMSEngine(engine);
+            setCMSEngine(engine);
 
-            IConfigStore mainConfig = createFileConfigStore(path);
+            IConfigStore mainConfig = engine.createFileConfigStore(path);
             engine.init(null, mainConfig);
 
             engine.startup();
 
         } catch (EBaseException e) { // catch everything here purposely
-            CMS.debug(e);
-
-            // Raidzilla Bug #57592:  Always print error message to stdout.
-            System.out.println(e);
-
-            CMS.debug("CMS.start(): shutdown server");
+            logger.error("Unable to start server: " + e.getMessage(), e);
+            logger.info(Constants.SERVER_SHUTDOWN_MESSAGE);
 
             shutdown();
             throw e;
 
         } catch (Exception e) { // catch everything here purposely
-            CMS.debug(e);
-            System.out.println(Constants.SERVER_SHUTDOWN_MESSAGE);
+            logger.error("Unable to start server: " + e.getMessage(), e);
+            logger.info(Constants.SERVER_SHUTDOWN_MESSAGE);
 
+            // shutdown();
             throw new EBaseException(e);
-            // cms.shutdown();
         }
     }
 
@@ -1657,7 +1654,7 @@ public final class CMS {
     /**
      * Main driver to start CMS.
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         String path = CONFIG_FILE;
 
         for (int i = 0; i < args.length; i++) {
@@ -1666,31 +1663,21 @@ public final class CMS {
             if (arg.equals("-f")) {
                 path = args[++i];
             } else {
-                // ignore unknown arguments since we
-                // have no real way to report them
+                throw new Exception("Unknown option: " + arg);
             }
         }
-        try {
-            start(path);
-        } catch (EBaseException e) {
-        }
+
+        start(path);
 
         // Use shutdown hook in stand-alone application
         // to catch SIGINT, SIGTERM, or SIGHUP.
         Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {
-                /*LogDoc
-                *
-                * @phase watchdog check
-                */
-                CMS.getLogger().log(ILogger.EV_SYSTEM,
-                        ILogger.S_OTHER,
-                        ILogger.LL_INFO,
-                        "CMSEngine: Received shutdown signal");
 
-                CMS.debug("CMS.main(): shutdown server");
+                logger.info("Received shutdown signal");
+                logger.info(Constants.SERVER_SHUTDOWN_MESSAGE);
 
-                CMS.shutdown();
+                shutdown();
             };
         });
     }
