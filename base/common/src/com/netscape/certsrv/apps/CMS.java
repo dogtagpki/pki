@@ -119,7 +119,7 @@ public final class CMS {
     public static final int DEBUG_VERBOSE = 5;
     public static final int DEBUG_INFORM = 10;
 
-    private static final String CONFIG_FILE = "CS.cfg";
+    public static final String CONFIG_FILE = "CS.cfg";
     private static ICMSEngine _engine = null;
 
     public static final String SUBSYSTEM_LOG = ILogSubsystem.ID;
@@ -1648,36 +1648,5 @@ public final class CMS {
 
     public static boolean isExcludedLdapAttr(String key) {
         return _engine.isExcludedLdapAttr(key);
-    }
-
-    /**
-     * Main driver to start CMS.
-     */
-    public static void main(String[] args) throws Exception {
-        String path = CONFIG_FILE;
-
-        for (int i = 0; i < args.length; i++) {
-            String arg = args[i];
-
-            if (arg.equals("-f")) {
-                path = args[++i];
-            } else {
-                throw new Exception("Unknown option: " + arg);
-            }
-        }
-
-        start(path);
-
-        // Use shutdown hook in stand-alone application
-        // to catch SIGINT, SIGTERM, or SIGHUP.
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            public void run() {
-
-                logger.info("Received shutdown signal");
-                logger.info(Constants.SERVER_SHUTDOWN_MESSAGE);
-
-                shutdown();
-            };
-        });
     }
 }
