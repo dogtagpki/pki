@@ -76,7 +76,7 @@ generate_rpm_spec() {
         mv "$WORK_DIR/SPECS/$RPM_SPEC.tmp" "$WORK_DIR/SPECS/$RPM_SPEC"
     fi
 
-    rpmlint "$WORK_DIR/SPECS/$RPM_SPEC"
+    # rpmlint "$WORK_DIR/SPECS/$RPM_SPEC"
 }
 
 generate_patch() {

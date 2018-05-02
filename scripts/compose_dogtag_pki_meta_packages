@@ -80,7 +80,7 @@ build_specified_META_package()
 	cp ${spec_file_path}/${spec_file} \
 	    ${PKI_PACKAGES}/SPECS/${package}.spec
 
-	rpmlint ${PKI_PACKAGES}/SPECS/${package}.spec
+	# rpmlint ${PKI_PACKAGES}/SPECS/${package}.spec
 
 	rpmbuild \
 	    -ba \
