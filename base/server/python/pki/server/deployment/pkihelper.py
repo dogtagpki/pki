@@ -44,8 +44,6 @@ from pwd import getpwuid
 import xml.etree.ElementTree as ET
 import zipfile
 
-import six
-
 # PKI Deployment Imports
 from . import pkiconfig as config
 from .pkiconfig import pki_selinux_config_ports as ports
@@ -4180,12 +4178,12 @@ class ConfigClient:
             "loading %s certificate", nickname,
             extra=config.PKI_INDENTATION_LEVEL_2)
 
-        certdata = nssdb.get_cert(nickname=nickname)
-        if six.PY3 and isinstance(certdata, bytes):
-            # certdata is bytes but JSON encoder needs text
-            cert.cert = certdata.decode('ascii')
-        else:
-            cert.cert = certdata
+        certdata = nssdb.get_cert(
+            nickname=nickname,
+            output_format='base64',
+            output_text=True,  # JSON encoder needs text
+        )
+        cert.cert = certdata
 
     def set_system_certs(self, nssdb, data):
         systemCerts = []  # nopep8

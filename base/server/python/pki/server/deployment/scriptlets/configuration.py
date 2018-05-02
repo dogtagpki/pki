@@ -562,7 +562,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         cert_data = nssdb.get_cert(
             nickname=nickname,
-            output_format='base64')
+            output_format='base64',
+            output_text=True,
+        )
 
         subsystem.config['%s.%s.cert' % (subsystem.name, tag)] = cert_data
 
@@ -623,7 +625,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             nickname = deployer.mdict['pki_admin_nickname']
             cert_data = client_nssdb.get_cert(
                 nickname=nickname,
-                output_format='base64')
+                output_format='base64',
+                output_text=True,
+            )
 
             subsystem.config['%s.admin.cert' % subsystem.name] = cert_data
 
