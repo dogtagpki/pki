@@ -486,7 +486,7 @@ public class CMSEngine implements ICMSEngine {
         String host = info.getHost();
         int port = info.getPort();
 
-        LDAPConnection conn = new LDAPConnection(CMS.getLDAPSocketFactory(info.getSecure()));
+        LDAPConnection conn = new LDAPConnection(getLDAPSocketFactory(info.getSecure()));
 
         logger.debug("testLDAPConnection connecting to " + host + ":" + port);
 
@@ -1139,19 +1139,23 @@ public class CMSEngine implements ICMSEngine {
 
         if (id.equals("ca") || id.equals("ocsp") ||
                 id.equals("kra") || id.equals("tks")) {
-            logger.debug("CMSEngine::initSubsystem " + id + " Java subsytem about to calculate serverCertNickname. ");
-            // get SSL server nickname
+
+            logger.debug("CMSEngine: get SSL server nickname");
             IConfigStore serverCertStore = mConfig.getSubStore(id + "." + "sslserver");
+
             if (serverCertStore != null && serverCertStore.size() > 0) {
                 String nickName = serverCertStore.getString("nickname");
                 String tokenName = serverCertStore.getString("tokenname");
+
                 if (tokenName != null && tokenName.length() > 0 &&
                         nickName != null && nickName.length() > 0) {
-                    CMS.setServerCertNickname(tokenName, nickName);
+                    setServerCertNickname(tokenName, nickName);
                     logger.debug("Subsystem " + id + " init sslserver:  tokenName:" + tokenName + "  nickName:" + nickName);
+
                 } else if (nickName != null && nickName.length() > 0) {
-                    CMS.setServerCertNickname(nickName);
+                    setServerCertNickname(nickName);
                     logger.debug("Subsystem " + id + " init sslserver:  nickName:" + nickName);
+
                 } else {
                     logger.warn("Subsystem " + id + " init error: SSL server certificate nickname is not available.");
                 }
@@ -1246,7 +1250,7 @@ public class CMSEngine implements ICMSEngine {
 
             logger.warn(method + "autoShutdown for " + e.getMessage(), e);
 
-            CMS.autoShutdown();
+            autoShutdown();
         } catch (Exception e) {
             logger.warn(method + "continue for " + e.getMessage(), e);
         }
@@ -1323,7 +1327,7 @@ public class CMSEngine implements ICMSEngine {
                 return null;
 
             ICertificateAuthority ca = (ICertificateAuthority)
-                    CMS.getSubsystem("ca");
+                    getSubsystem("ca");
             CertificateChain cachain = ca.getCACertChain();
             X509Certificate[] cacerts = cachain.getChain();
 
@@ -1368,62 +1372,6 @@ public class CMSEngine implements ICMSEngine {
     }
 
     public void setServerCertNickname(String newName) {
-        // modify server.xml
-        /*
-                String filePrefix = instanceDir + File.separator +
-                    "config" + File.separator;
-                String orig = filePrefix + "server.xml";
-                String dest = filePrefix + "server.xml.bak";
-                String newF = filePrefix + "server.xml.new";
-
-                // save the old copy
-                Utils.copy(orig, dest);
-
-                BufferedReader in1 = null;
-                PrintWriter out1 = null;
-
-                try {
-                    in1 = new BufferedReader(new FileReader(dest));
-                    out1 = new PrintWriter(
-                                new BufferedWriter(new FileWriter(newF)));
-                    String line = "";
-
-                    while (in1.ready()) {
-                        line = in1.readLine();
-                        if (line != null)
-                            out1.println(lineParsing(line, newName));
-                    }
-
-                    out1.close();
-                    in1.close();
-                } catch (Exception eee) {
-                    Logger.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_ADMIN,
-                        ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", eee.toString()));
-                }
-
-                File file = new File(newF);
-                File nfile = new File(orig);
-
-                try {
-                    boolean success = file.renameTo(nfile);
-
-                    if (!success) {
-                        if (Utils.isNT()) {
-                            // NT is very picky on the path
-                            Utils.exec("copy " +
-                                file.getAbsolutePath().replace('/', '\\') + " " +
-                                nfile.getAbsolutePath().replace('/', '\\'));
-                        } else {
-                            Utils.exec("cp " + file.getAbsolutePath() + " " +
-                                nfile.getAbsolutePath());
-                        }
-                    }
-                } catch (Exception exx) {
-                    Logger.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_ADMIN,
-                        ILogger.LL_FAILURE, "CMSEngine: Error " + exx.toString());
-                }
-                // update "cache" for CMS.getServerCertNickname()
-        */
         mServerCertNickname = newName;
     }
 
@@ -1827,7 +1775,7 @@ public class CMSEngine implements ICMSEngine {
         String name = null;
         try {
             logger.debug(method + "getting :" + configName);
-            name = CMS.getConfigStore().getString(configName);
+            name = getConfigStore().getString(configName);
             logger.debug(method + "Shared Secret plugin class name retrieved:" +
                     name);
         } catch (Exception e) {
