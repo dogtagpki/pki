@@ -53,7 +53,6 @@ import com.netscape.certsrv.base.ISecurityDomainSessionTable;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.ca.ICRLIssuingPoint;
 import com.netscape.certsrv.ca.ICertificateAuthority;
-import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.connector.IHttpConnection;
 import com.netscape.certsrv.connector.IPKIMessage;
 import com.netscape.certsrv.connector.IRemoteAuthority;
@@ -1563,42 +1562,6 @@ public final class CMS {
      */
     public static ICommandQueue getCommandQueue() {
         return _engine.getCommandQueue();
-    }
-
-    /**
-     * Loads the configuration file and starts CMS's core implementation.
-     *
-     * @param path path to configuration file (CMS.cfg)
-     * @exception EBaseException failed to start CMS
-     */
-    public static void start(String path) throws EBaseException {
-
-        String classname = "com.netscape.cmscore.apps.CMSEngine";
-
-        try {
-            ICMSEngine engine = (ICMSEngine)
-                    Class.forName(classname).newInstance();
-            setCMSEngine(engine);
-
-            IConfigStore mainConfig = engine.createFileConfigStore(path);
-            engine.init(null, mainConfig);
-
-            engine.startup();
-
-        } catch (EBaseException e) { // catch everything here purposely
-            logger.error("Unable to start server: " + e.getMessage(), e);
-            logger.info(Constants.SERVER_SHUTDOWN_MESSAGE);
-
-            shutdown();
-            throw e;
-
-        } catch (Exception e) { // catch everything here purposely
-            logger.error("Unable to start server: " + e.getMessage(), e);
-            logger.info(Constants.SERVER_SHUTDOWN_MESSAGE);
-
-            // shutdown();
-            throw new EBaseException(e);
-        }
     }
 
     public static IConfigStore createFileConfigStore(String path) throws EBaseException {

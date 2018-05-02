@@ -18,11 +18,15 @@
 
 package org.dogtagpki.server;
 
+import javax.servlet.ServletException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.Constants;
+import com.netscape.cmscore.apps.CMSEngine;
 
 public class PKIServer {
 
@@ -42,7 +46,29 @@ public class PKIServer {
             }
         }
 
-        CMS.start(path);
+        String classname = "com.netscape.cmscore.apps.CMSEngine";
+        CMSEngine engine = null;
+
+        try {
+            engine = (CMSEngine) Class.forName(classname).newInstance();
+            CMS.setCMSEngine(engine);
+
+            IConfigStore mainConfig = engine.createFileConfigStore(path);
+            engine.init(null, mainConfig);
+
+            engine.startup();
+
+        } catch (Exception e) {
+            logger.error("Unable to start server: " + e.getMessage(), e);
+            logger.info(Constants.SERVER_SHUTDOWN_MESSAGE);
+
+            if (engine != null) {
+                engine.shutdown();
+            }
+            throw new ServletException(e);
+        }
+
+        final CMSEngine finalEngine = engine;
 
         // Use shutdown hook in stand-alone application
         // to catch SIGINT, SIGTERM, or SIGHUP.
@@ -52,7 +78,7 @@ public class PKIServer {
                 logger.info("Received shutdown signal");
                 logger.info(Constants.SERVER_SHUTDOWN_MESSAGE);
 
-                CMS.shutdown();
+                finalEngine.shutdown();
             };
         });
     }

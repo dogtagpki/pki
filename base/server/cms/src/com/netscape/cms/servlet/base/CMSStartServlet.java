@@ -28,11 +28,15 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.tomcat.util.net.jss.TomcatJSS;
 import org.dogtagpki.server.PKIServerSocketListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.apps.CMS;
-import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.common.Constants;
 import com.netscape.cms.realm.PKIRealm;
 import com.netscape.cms.tomcat.ProxyRealm;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmsutil.util.Utils;
 
 /**
@@ -42,9 +46,9 @@ import com.netscape.cmsutil.util.Utils;
  * @version $Revision$, $Date$
  */
 public class CMSStartServlet extends HttpServlet {
-    /**
-     *
-     */
+
+    public static Logger logger = LoggerFactory.getLogger(CMSStartServlet.class);
+
     private static final long serialVersionUID = 515623839479425172L;
     public final static String PROP_CMS_CFG = "cfgPath";
 
@@ -98,7 +102,7 @@ public class CMSStartServlet extends HttpServlet {
                     // the backup copy was successful.
                     if (f.exists()) {
                         if (!f1.delete()) {
-                            CMS.debug("CMSStartServlet: init: Cannot delete file : " + old_path);
+                            logger.warn("CMSStartServlet: init: Cannot delete file : " + old_path);
                         }
 
                         // Make certain that the new file has
@@ -108,15 +112,31 @@ public class CMSStartServlet extends HttpServlet {
                         }
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    logger.warn("Unable to rename CMS.cfg to CS.cfg: " + e.getMessage(), e);
                 }
             }
         }
 
+        String classname = "com.netscape.cmscore.apps.CMSEngine";
+        CMSEngine engine = null;
+
         try {
-            CMS.start(path);
-        } catch (EBaseException e) {
-            e.printStackTrace();
+            engine = (CMSEngine) Class.forName(classname).newInstance();
+            CMS.setCMSEngine(engine);
+
+            IConfigStore mainConfig = engine.createFileConfigStore(path);
+            engine.init(null, mainConfig);
+
+            engine.startup();
+
+        } catch (Exception e) {
+            logger.error("Unable to start server: " + e.getMessage(), e);
+            logger.info(Constants.SERVER_SHUTDOWN_MESSAGE);
+
+            if (engine != null) {
+                engine.shutdown();
+            }
+            throw new ServletException(e);
         }
 
         // Register realm for this subsystem
