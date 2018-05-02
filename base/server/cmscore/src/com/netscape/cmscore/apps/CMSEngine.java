@@ -570,21 +570,7 @@ public class CMSEngine implements ICMSEngine {
         Security.addProvider(new netscape.security.provider.CMS());
 
         loadSubsystems();
-
-        mSSReg.put(ID, this);
-
-        initSubsystems(mStaticSubsystems, false);
-
-        // Once the log subsystem is initialized, we
-        // want to register a listener to catch
-        // all the warning message so that we can
-        // display them in the console.
-        mQueue = Logger.getLogger().getLogQueue();
-        mWarningListener = new WarningListener(mWarning);
-        mQueue.addLogEventListener(mWarningListener);
-
-        initSubsystems(dynSubsystems, true);
-        initSubsystems(mFinalSubsystems, false);
+        initSubsystems();
 
         logger.debug("Java version: " + System.getProperty("java.version"));
         java.security.Provider ps[] = java.security.Security.getProviders();
@@ -957,6 +943,24 @@ public class CMSEngine implements ICMSEngine {
 
     public ISubsystem getSubsystem(String name) {
         return mSSReg.get(name);
+    }
+
+    protected void initSubsystems() throws EBaseException {
+
+        mSSReg.put(ID, this);
+
+        initSubsystems(mStaticSubsystems, false);
+
+        // Once the log subsystem is initialized, we
+        // want to register a listener to catch
+        // all the warning message so that we can
+        // display them in the console.
+        mQueue = Logger.getLogger().getLogQueue();
+        mWarningListener = new WarningListener(mWarning);
+        mQueue.addLogEventListener(mWarningListener);
+
+        initSubsystems(dynSubsystems, true);
+        initSubsystems(mFinalSubsystems, false);
     }
 
     /**
