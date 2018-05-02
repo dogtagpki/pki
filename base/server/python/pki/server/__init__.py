@@ -37,6 +37,8 @@ import shutil
 import subprocess
 import tempfile
 
+import six
+
 import pki
 import pki.nssdb
 import pki.util
@@ -330,8 +332,15 @@ class PKISubsystem(object):
     def save(self):
         sorted_config = sorted(self.config.items(), key=operator.itemgetter(0))
         with io.open(self.cs_conf, 'w') as f:
-            for (key, value) in sorted_config:
-                f.write(u'%s=%s\n' % (key, value))
+            for key, value in sorted_config:
+                if value is None:
+                    f.write(u'{0}=None\n'.format(key))
+                elif isinstance(value, six.string_types):
+                    f.write(u'{0}={1}\n'.format(key, value))
+                elif isinstance(value, six.integer_types):
+                    f.write(u'{0}={1:d}\n'.format(key, value))
+                else:
+                    raise TypeError((key, value, type(value)))
 
     def is_valid(self):
         return os.path.exists(self.conf_dir)

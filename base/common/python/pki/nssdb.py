@@ -30,6 +30,8 @@ import subprocess
 import tempfile
 import datetime
 
+import six
+
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 
@@ -825,11 +827,8 @@ class NSSDatabase(object):
         logger.debug('Command: %s', ' '.join(cmd))
         subprocess.check_call(cmd)
 
-    def get_cert(
-            self,
-            nickname,
-            token=None,
-            output_format='pem'):
+    def get_cert(self, nickname, token=None, output_format='pem',
+                 output_text=False):
 
         if output_format == 'pem':
             output_format_option = '-a'
@@ -893,6 +892,8 @@ class NSSDatabase(object):
 
             if output_format == 'base64':
                 cert_data = base64.b64encode(cert_data)
+            if output_text and not isinstance(cert_data, six.string_types):
+                cert_data = cert_data.decode('ascii')
 
             return cert_data
 
