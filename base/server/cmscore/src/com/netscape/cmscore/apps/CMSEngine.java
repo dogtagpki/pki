@@ -241,28 +241,7 @@ public class CMSEngine implements ICMSEngine {
     private String serverStatus = null;
 
     // static subsystems - must be singletons
-    private static SubsystemInfo[] mStaticSubsystems = {
-            new SubsystemInfo(
-                    Debug.ID, Debug.getInstance()),
-            new SubsystemInfo(LogSubsystem.ID,
-                    LogSubsystem.getInstance()),
-            new SubsystemInfo(
-                    JssSubsystem.ID, JssSubsystem.getInstance()),
-            new SubsystemInfo(
-                    DBSubsystem.ID, DBSubsystem.getInstance()),
-            new SubsystemInfo(
-                    UGSubsystem.ID, UGSubsystem.getInstance()),
-            new SubsystemInfo(
-                    PluginRegistry.ID, new PluginRegistry()),
-            new SubsystemInfo(
-                    OidLoaderSubsystem.ID, OidLoaderSubsystem.getInstance()),
-            new SubsystemInfo(
-                    X500NameSubsystem.ID, X500NameSubsystem.getInstance()),
-            // skip TP subsystem;
-            // problem in needing dbsubsystem in constructor. and it's not used.
-            new SubsystemInfo(
-                    RequestSubsystem.ID, RequestSubsystem.getInstance()),
-        };
+    Map<String, SubsystemInfo> staticSubsystems = new LinkedHashMap<>();
 
     // dynamic subsystems are loaded at init time, not necessarily singletons.
     Map<String, SubsystemInfo> dynSubsystems = new LinkedHashMap<>();
@@ -949,7 +928,7 @@ public class CMSEngine implements ICMSEngine {
 
         mSSReg.put(ID, this);
 
-        initSubsystems(mStaticSubsystems, false);
+        initSubsystems(staticSubsystems, false);
 
         // Once the log subsystem is initialized, we
         // want to register a listener to catch
@@ -995,6 +974,31 @@ public class CMSEngine implements ICMSEngine {
      * load subsystems
      */
     private void loadSubsystems() throws EBaseException {
+
+        logger.debug("CMSEngine: loading static subsystems");
+
+        staticSubsystems.clear();
+
+        staticSubsystems.put(Debug.ID,
+                new SubsystemInfo(Debug.ID, Debug.getInstance()));
+        staticSubsystems.put(LogSubsystem.ID,
+                new SubsystemInfo(LogSubsystem.ID, LogSubsystem.getInstance()));
+        staticSubsystems.put(JssSubsystem.ID,
+                new SubsystemInfo(JssSubsystem.ID, JssSubsystem.getInstance()));
+        staticSubsystems.put(DBSubsystem.ID,
+                new SubsystemInfo(DBSubsystem.ID, DBSubsystem.getInstance()));
+        staticSubsystems.put(UGSubsystem.ID,
+                new SubsystemInfo(UGSubsystem.ID, UGSubsystem.getInstance()));
+        staticSubsystems.put(PluginRegistry.ID,
+                new SubsystemInfo(PluginRegistry.ID, new PluginRegistry()));
+        staticSubsystems.put(OidLoaderSubsystem.ID,
+                new SubsystemInfo(OidLoaderSubsystem.ID, OidLoaderSubsystem.getInstance()));
+        staticSubsystems.put(X500NameSubsystem.ID,
+                new SubsystemInfo(X500NameSubsystem.ID, X500NameSubsystem.getInstance()));
+        // skip TP subsystem;
+        // problem in needing dbsubsystem in constructor. and it's not used.
+        staticSubsystems.put(RequestSubsystem.ID,
+                new SubsystemInfo(RequestSubsystem.ID, RequestSubsystem.getInstance()));
 
         logger.debug("CMSEngine: loading dyn subsystems");
 
@@ -1272,7 +1276,7 @@ public class CMSEngine implements ICMSEngine {
      * @exception EBaseException if any subsystem fails to startup.
      */
     public void startup() throws EBaseException {
-        startupSubsystems(mStaticSubsystems);
+        startupSubsystems(staticSubsystems);
         startupSubsystems(dynSubsystems);
         startupSubsystems(mFinalSubsystems);
 
@@ -1928,7 +1932,7 @@ public class CMSEngine implements ICMSEngine {
 
         shutdownSubsystems(mFinalSubsystems);
         shutdownSubsystems(dynSubsystems);
-        shutdownSubsystems(mStaticSubsystems);
+        shutdownSubsystems(staticSubsystems);
 
         if (mSDTimer != null) {
             mSDTimer.cancel();
@@ -2016,7 +2020,7 @@ public class CMSEngine implements ICMSEngine {
         terminateRequests();
         shutdownSubsystems(mFinalSubsystems);
         shutdownSubsystems(dynSubsystems);
-        shutdownSubsystems(mStaticSubsystems);
+        shutdownSubsystems(staticSubsystems);
 
         shutdownHttpServer(restart);
 
