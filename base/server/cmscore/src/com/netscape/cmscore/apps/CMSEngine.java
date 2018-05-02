@@ -57,6 +57,7 @@ import org.dogtagpki.legacy.policy.ISubjAltNameConfig;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.CryptoManager.CertificateUsage;
 import org.mozilla.jss.crypto.CryptoToken;
+import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.Signature;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
@@ -540,7 +541,7 @@ public class CMSEngine implements ICMSEngine {
             try {
                 initializePasswordStore(config);
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.error("Unable to initialize password store: " + e.getMessage(), e);
                 throw new EBaseException("Exception while initializing password store: " + e);
             }
         }
@@ -591,14 +592,14 @@ public class CMSEngine implements ICMSEngine {
         initSubsystems(dynSubsystems, true);
         initSubsystems(mFinalSubsystems, false);
 
-        CMS.debug("Java version=" + System.getProperty("java.version"));
+        logger.debug("Java version: " + System.getProperty("java.version"));
         java.security.Provider ps[] = java.security.Security.getProviders();
 
         if (ps == null || ps.length <= 0) {
-            CMS.debug("CMSEngine: Java Security Provider NONE");
+            logger.debug("CMSEngine: Java Security Provider NONE");
         } else {
             for (int x = 0; x < ps.length; x++) {
-                CMS.debug("CMSEngine: Java Security Provider " + x + " class=" + ps[x]);
+                logger.debug("CMSEngine: Java Security Provider " + x + " class=" + ps[x]);
             }
         }
         parseServerXML();
@@ -724,8 +725,8 @@ public class CMSEngine implements ICMSEngine {
             }
 
         } catch (Exception e) {
-            CMS.debug("CMSEngine: parseServerXML exception: " + e.toString());
-            throw new EBaseException("CMSEngine: Cannot parse the configuration file. " + e.toString());
+            logger.error("CMSEngine: parseServerXML exception: " + e.getMessage(), e);
+            throw new EBaseException("CMSEngine: Cannot parse the configuration file. " + e.getMessage(), e);
         }
     }
 
@@ -744,7 +745,7 @@ public class CMSEngine implements ICMSEngine {
                 info[EE_NON_SSL][PORT] = port;
             }
         } catch (EBaseException e) {
-            CMS.debug("CMSEngine: fixProxyPorts exception: " + e.toString());
+            logger.error("CMSEngine: fixProxyPorts exception: " + e.getMessage(), e);
             throw e;
         }
     }
@@ -755,8 +756,8 @@ public class CMSEngine implements ICMSEngine {
             File f = new File(path);
             f.createNewFile();
         } catch (IOException e) {
-            CMS.debug("Cannot create file: " + path + " ." + e.toString());
-            throw new EBaseException("Cannot create file: " + path + " ." + e.toString());
+            logger.error("Cannot create file: " + path + ": " + e.getMessage(), e);
+            throw new EBaseException("Cannot create file: " + path + ": " + e.getMessage(), e);
         }
         return new FileConfigStore(path);
     }
@@ -998,7 +999,7 @@ public class CMSEngine implements ICMSEngine {
     private void loadDynSubsystems()
             throws EBaseException {
 
-        CMS.debug("CMSEngine: loading dyn subsystems");
+        logger.debug("CMSEngine: loading dyn subsystems");
 
         dynSubsystems.clear();
 
@@ -1027,7 +1028,7 @@ public class CMSEngine implements ICMSEngine {
             }
 
             dynSubsystems.put(id, new SubsystemInfo(id, ss, enabled));
-            CMS.debug("CMSEngine: loaded dyn subsystem " + id);
+            logger.debug("CMSEngine: loaded dyn subsystem " + id);
         }
     }
 
@@ -1065,15 +1066,15 @@ public class CMSEngine implements ICMSEngine {
         ISubsystem ss = ssinfo.mInstance;
         IConfigStore ssConfig = mConfig.getSubStore(id);
 
-        CMS.debug("CMSEngine: initSubsystem id=" + id);
+        logger.debug("CMSEngine: initSubsystem id=" + id);
         mSSReg.put(id, ss);
         if (doSetId)
             ss.setId(id);
         if (!ssinfo.enabled) {
-            CMS.debug("CMSEngine: subsystem disabled id=" + id);
+            logger.debug("CMSEngine: subsystem disabled id=" + id);
             return;
         }
-        CMS.debug("CMSEngine: ready to init id=" + id);
+        logger.debug("CMSEngine: ready to init id=" + id);
         ss.init(this, ssConfig);
 
         try {
@@ -1086,25 +1087,25 @@ public class CMSEngine implements ICMSEngine {
              */
 
             mAutoSD_Restart = mConfig.getBoolean("autoShutdown.restart.enable", false);
-            CMS.debug("CMSEngine: restart at autoShutdown? " + mAutoSD_Restart);
+            logger.debug("CMSEngine: restart at autoShutdown? " + mAutoSD_Restart);
             if (mAutoSD_Restart) {
                 mAutoSD_RestartMax = mConfig.getInteger("autoShutdown.restart.max", 3);
-                CMS.debug("CMSEngine: restart max? " + mAutoSD_RestartMax);
+                logger.debug("CMSEngine: restart max? " + mAutoSD_RestartMax);
                 mAutoSD_RestartCount = mConfig.getInteger("autoShutdown.restart.count", 0);
-                CMS.debug("CMSEngine: current restart count? " + mAutoSD_RestartCount);
+                logger.debug("CMSEngine: current restart count? " + mAutoSD_RestartCount);
             } else { //!mAutoSD_Restart
                 mAutoSD_CrumbFile = mConfig.getString("autoShutdown.crumbFile",
                     instanceDir + "/logs/autoShutdown.crumb");
-                CMS.debug("CMSEngine: autoShutdown crumb file path? " + mAutoSD_CrumbFile);
+                logger.debug("CMSEngine: autoShutdown crumb file path? " + mAutoSD_CrumbFile);
                 File crumb = new File(mAutoSD_CrumbFile);
                 try {
                     if (crumb.exists()) {
-                        CMS.debug("CMSEngine: delete autoShutdown crumb file");
+                        logger.debug("CMSEngine: delete autoShutdown crumb file");
                         crumb.delete();
                     }
                 } catch (Exception e) {
-                    CMS.debug("CMSEngine: delete autoShutdown crumb file failed; continue: " + e.toString());
-                    e.printStackTrace();
+                    logger.warn("Delete autoShutdown crumb file failed: " + e.getMessage(), e);
+                    logger.warn("Continue with initialization");
                 }
             }
 
@@ -1114,32 +1115,31 @@ public class CMSEngine implements ICMSEngine {
              */
             mSAuditCertNickName = mConfig.getString(PROP_SIGNED_AUDIT_CERT_NICKNAME);
             mManager = CryptoManager.getInstance();
-            CMS.debug("CMSEngine: about to look for cert for auto-shutdown support:" + mSAuditCertNickName);
+            logger.debug("CMSEngine: about to look for cert for auto-shutdown support:" + mSAuditCertNickName);
             org.mozilla.jss.crypto.X509Certificate cert = null;
             try {
                 cert = mManager.findCertByNickname(mSAuditCertNickName);
-            } catch (Exception as) {
+            } catch (ObjectNotFoundException as) {
                 // can't support auto-shutdown at this point
-                CMS.debug("CMSEngine: cert not found:" + mSAuditCertNickName);
-                CMS.debug("CMSEngine: Exception:" + as.toString());
+                logger.warn("CMSEngine: " + as.getMessage());
             }
             if (cert != null) {
-                CMS.debug("CMSEngine: found cert:" + mSAuditCertNickName);
+                logger.debug("CMSEngine: found cert:" + mSAuditCertNickName);
                 mSigningKey = mManager.findPrivKeyByCert(cert);
                 mSigningData = cert.getPublicKey().getEncoded();
             }
 
         } catch (Exception e) {
-            CMS.debug("CMSEngine: " + e.toString());
+            logger.warn("CMSEngine: " + e.getMessage(), e);
         }
 
         // add to id - subsystem hash table.
-        CMS.debug("CMSEngine: done init id=" + id);
-        CMS.debug("CMSEngine: initialized " + id);
+        logger.debug("CMSEngine: done init id=" + id);
+        logger.debug("CMSEngine: initialized " + id);
 
         if (id.equals("ca") || id.equals("ocsp") ||
                 id.equals("kra") || id.equals("tks")) {
-            CMS.debug("CMSEngine::initSubsystem " + id + " Java subsytem about to calculate serverCertNickname. ");
+            logger.debug("CMSEngine::initSubsystem " + id + " Java subsytem about to calculate serverCertNickname. ");
             // get SSL server nickname
             IConfigStore serverCertStore = mConfig.getSubStore(id + "." + "sslserver");
             if (serverCertStore != null && serverCertStore.size() > 0) {
@@ -1148,12 +1148,12 @@ public class CMSEngine implements ICMSEngine {
                 if (tokenName != null && tokenName.length() > 0 &&
                         nickName != null && nickName.length() > 0) {
                     CMS.setServerCertNickname(tokenName, nickName);
-                    CMS.debug("Subsystem " + id + " init sslserver:  tokenName:" + tokenName + "  nickName:" + nickName);
+                    logger.debug("Subsystem " + id + " init sslserver:  tokenName:" + tokenName + "  nickName:" + nickName);
                 } else if (nickName != null && nickName.length() > 0) {
                     CMS.setServerCertNickname(nickName);
-                    CMS.debug("Subsystem " + id + " init sslserver:  nickName:" + nickName);
+                    logger.debug("Subsystem " + id + " init sslserver:  nickName:" + nickName);
                 } else {
-                    CMS.debug("Subsystem " + id + " init error: SSL server certificate nickname is not available.");
+                    logger.warn("Subsystem " + id + " init error: SSL server certificate nickname is not available.");
                 }
             }
         }
@@ -1168,14 +1168,14 @@ public class CMSEngine implements ICMSEngine {
              */
             mExcludedLdapAttrsEnabled = mConfig.getBoolean("excludedLdapAttrs.enabled", false);
             if (mExcludedLdapAttrsEnabled == true) {
-                CMS.debug("CMSEngine: initSubsystem: excludedLdapAttrs.enabled: true");
+                logger.debug("CMSEngine: initSubsystem: excludedLdapAttrs.enabled: true");
                 excludedLdapAttrsList = Arrays.asList(excludedLdapAttrs);
                 String unparsedExcludedLdapAttrs = "";
                 try {
                     unparsedExcludedLdapAttrs = mConfig.getString("excludedLdapAttrs.attrs");
-                    CMS.debug("CMSEngine: initSubsystem: excludedLdapAttrs.attrs =" + unparsedExcludedLdapAttrs);
+                    logger.debug("CMSEngine: initSubsystem: excludedLdapAttrs.attrs =" + unparsedExcludedLdapAttrs);
                 } catch (Exception e) {
-                    CMS.debug("CMSEngine: initSubsystem: excludedLdapAttrs.attrs unspecified, taking default");
+                    logger.debug("CMSEngine: initSubsystem: excludedLdapAttrs.attrs unspecified, taking default");
                 }
                 if (!unparsedExcludedLdapAttrs.equals("")) {
                     excludedLdapAttrsList = Arrays.asList(unparsedExcludedLdapAttrs.split(","));
@@ -1183,7 +1183,7 @@ public class CMSEngine implements ICMSEngine {
                     //excludedLdapAttrSet = new HashSet(excludedLdapAttrsList);
                 }
             } else {
-                CMS.debug("CMSEngine: initSubsystem: excludedLdapAttrs.enabled: false");
+                logger.debug("CMSEngine: initSubsystem: excludedLdapAttrs.enabled: false");
             }
         }
     }
@@ -1219,16 +1219,16 @@ public class CMSEngine implements ICMSEngine {
      */
     public void checkForAndAutoShutdown() {
         String method= "CMSEngine: checkForAndAutoShutdown: ";
-        CMS.debug(method + "begins");
+        logger.debug(method + "begins");
 
         try {
             boolean allowShutdown  = mConfig.getBoolean("autoShutdown.allowed", false);
             if ((!allowShutdown) || (mSigningKey == null) ||
                     (mSigningData == null)) {
-                CMS.debug(method + "autoShutdown not allowed");
+                logger.debug(method + "autoShutdown not allowed");
                 return;
             }
-            CMS.debug(method + "autoShutdown allowed");
+            logger.debug(method + "autoShutdown allowed");
             CryptoToken token =
                 ((org.mozilla.jss.pkcs11.PK11PrivKey) mSigningKey).getOwningToken();
             SignatureAlgorithm signAlg = Cert.mapAlgorithmToJss("SHA256withRSA");
@@ -1237,20 +1237,20 @@ public class CMSEngine implements ICMSEngine {
             signer.initSign(mSigningKey);
             signer.update(mSigningData);
             byte[] result = signer.sign();
-            CMS.debug(method + " signining successful: " + new String(result));
+            logger.debug(method + " signining successful: " + new String(result));
         } catch (SignatureException e) {
 
             //Let's write to the error console in case we are in a bad memory situation
             //This will be the most likely to work, giving us a record of the signing failure
             ConsoleError.send(new SystemEvent(CMS.getUserMessage("CMS_CA_SIGNING_OPERATION_FAILED", e.toString())));
 
-            CMS.debug(method + "autoShutdown for " + e.toString());
+            logger.warn(method + "autoShutdown for " + e.getMessage(), e);
 
             CMS.autoShutdown();
         } catch (Exception e) {
-            CMS.debug(method + "continue for " + e.toString());
+            logger.warn(method + "continue for " + e.getMessage(), e);
         }
-        CMS.debug(method + "passed; continue");
+        logger.debug(method + "passed; continue");
     }
 
     public void reinit(String id) throws EBaseException {
@@ -1281,19 +1281,19 @@ public class CMSEngine implements ICMSEngine {
         // check serial number ranges if a CA/KRA
         ICertificateAuthority ca = (ICertificateAuthority) getSubsystem("ca");
         if ((ca != null) && !isPreOpMode()) {
-            CMS.debug("CMSEngine: checking request serial number ranges for the CA");
+            logger.debug("CMSEngine: checking request serial number ranges for the CA");
             ca.getRequestQueue().getRequestRepository().checkRanges();
 
-            CMS.debug("CMSEngine: checking certificate serial number ranges");
+            logger.debug("CMSEngine: checking certificate serial number ranges");
             ca.getCertificateRepository().checkRanges();
         }
 
         IKeyRecoveryAuthority kra = (IKeyRecoveryAuthority) getSubsystem("kra");
         if ((kra != null) && !isPreOpMode()) {
-            CMS.debug("CMSEngine: checking request serial number ranges for the KRA");
+            logger.debug("CMSEngine: checking request serial number ranges for the KRA");
             kra.getRequestQueue().getRequestRepository().checkRanges();
 
-            CMS.debug("CMSEngine: checking key serial number ranges");
+            logger.debug("CMSEngine: checking key serial number ranges");
             kra.getKeyRepository().checkRanges();
         }
 
@@ -1826,26 +1826,26 @@ public class CMSEngine implements ICMSEngine {
 
         String name = null;
         try {
-            CMS.debug(method + "getting :" + configName);
+            logger.debug(method + "getting :" + configName);
             name = CMS.getConfigStore().getString(configName);
-            CMS.debug(method + "Shared Secret plugin class name retrieved:" +
+            logger.debug(method + "Shared Secret plugin class name retrieved:" +
                     name);
         } catch (Exception e) {
-            CMS.debug(method + " Failed to retrieve shared secret plugin class name");
+            logger.warn(method + " Failed to retrieve shared secret plugin class name");
             return null;
         }
 
         try {
             tokenClass = (ISharedToken) Class.forName(name).newInstance();
-            CMS.debug(method + "Shared Secret plugin class retrieved");
+            logger.debug(method + "Shared Secret plugin class retrieved");
         } catch (ClassNotFoundException e) {
-            CMS.debug(method + " Failed to find class name: " + name);
+            logger.warn(method + " Failed to find class name: " + name);
             return null;
         } catch (InstantiationException e) {
-            CMS.debug("EnrollProfile: Failed to instantiate class: " + name);
+            logger.warn("EnrollProfile: Failed to instantiate class: " + name);
             return null;
         } catch (IllegalAccessException e) {
-            CMS.debug(method + " Illegal access: " + name);
+            logger.warn(method + " Illegal access: " + name);
             return null;
         }
 
@@ -1868,10 +1868,10 @@ public class CMSEngine implements ICMSEngine {
         ISubsystem ss = null;
 
         for (int i = 0; i < sslist.length; i++) {
-            CMS.debug("CMSEngine: " + sslist[i].mId + " startup start");
+            logger.debug("CMSEngine: " + sslist[i].mId + " startup start");
             ss = sslist[i].mInstance;
             ss.startup();
-            CMS.debug("CMSEngine: " + sslist[i].mId + " startup done");
+            logger.debug("CMSEngine: " + sslist[i].mId + " startup done");
         }
     }
 
@@ -1879,9 +1879,9 @@ public class CMSEngine implements ICMSEngine {
             throws EBaseException {
 
         for (SubsystemInfo si : subsystems.values()) {
-            CMS.debug("CMSEngine: starting " + si.mId);
+            logger.debug("CMSEngine: starting " + si.mId);
             si.mInstance.startup();
-            CMS.debug("CMSEngine: " + si.mId + " started");
+            logger.debug("CMSEngine: " + si.mId + " started");
         }
     }
 
@@ -1890,7 +1890,6 @@ public class CMSEngine implements ICMSEngine {
     }
 
     public boolean areRequestsDisabled() {
-        CMS.debug("CMSEngine: in areRequestsDisabled");
         logger.debug("CMSEngine: in areRequestsDisabled");
         return CommandQueue.mShuttingDown;
     }
@@ -1936,7 +1935,8 @@ public class CMSEngine implements ICMSEngine {
             process.waitFor();
 
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.warn("Unable to shutdown HTTP server: " + e.getMessage(), e);
+
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
@@ -1950,7 +1950,7 @@ public class CMSEngine implements ICMSEngine {
         Logger.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_ADMIN,
                 ILogger.LL_INFO, Constants.SERVER_SHUTDOWN_MESSAGE);
 
-        CMS.debug("CMSEngine.shutdown()");
+        logger.debug("CMSEngine.shutdown()");
 
         /*
                 CommandQueue commandQueue = new CommandQueue();
@@ -1994,7 +1994,7 @@ public class CMSEngine implements ICMSEngine {
      * Added extra call to shutdown the web server.
      */
     public void forceShutdown() {
-        CMS.debug("CMSEngine.forceShutdown()...begins graceful shutdown.");
+        logger.debug("CMSEngine.forceShutdown()...begins graceful shutdown.");
         autoShutdown(false /*no restart*/);
     }
 
@@ -2006,19 +2006,19 @@ public class CMSEngine implements ICMSEngine {
         String method = "CMSEngine.autoShutdown(): ";
         Logger.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_ADMIN,
                 ILogger.LL_INFO, Constants.SERVER_SHUTDOWN_MESSAGE);
-        CMS.debug(method + "...with restart=" + restart);
+        logger.debug(method + "...with restart=" + restart);
 
         // update restart tracker so we don't go into infinite restart loop
         if (restart == true) {
-            CMS.debug(method + "...checking autoShutdown.restart trackers");
+            logger.debug(method + "...checking autoShutdown.restart trackers");
             if (mAutoSD_RestartCount >= mAutoSD_RestartMax) {
                 mAutoSD_Restart = false;
                 mConfig.putBoolean("autoShutdown.restart.enable", mAutoSD_Restart);
-                CMS.debug(method + "...autoShutdown.restart.max reached, disabled autoShutdown.restart.enable");
+                logger.debug(method + "...autoShutdown.restart.max reached, disabled autoShutdown.restart.enable");
             } else {
                 mAutoSD_RestartCount++;
                 mConfig.putInteger("autoShutdown.restart.count", mAutoSD_RestartCount);
-                CMS.debug(method + "...autoShutdown.restart.max not reached, increment autoShutdown.restart.count");
+                logger.debug(method + "...autoShutdown.restart.max not reached, increment autoShutdown.restart.count");
             }
             try {
                 mConfig.commit(false);
@@ -2030,9 +2030,8 @@ public class CMSEngine implements ICMSEngine {
             try {
                 crumb.createNewFile();
             } catch (IOException e) {
-                CMS.debug(method + " create autoShutdown crumb file failed on " +
-                    mAutoSD_CrumbFile + "; nothing to do...keep shutting down:" + e);
-                e.printStackTrace();
+                logger.warn("Create autoShutdown crumb file failed on " + mAutoSD_CrumbFile + ": " + e.getMessage(), e);
+                logger.warn("Nothing to do, keep shutting down");
             }
         }
 
@@ -2092,9 +2091,9 @@ public class CMSEngine implements ICMSEngine {
         Collections.reverse(list);
 
         for (SubsystemInfo si : list) {
-            CMS.debug("CMSEngine: stopping " + si.mId);
+            logger.debug("CMSEngine: stopping " + si.mId);
             si.mInstance.shutdown();
-            CMS.debug("CMSEngine: " + si.mId + " stopped");
+            logger.debug("CMSEngine: " + si.mId + " stopped");
         }
     }
 
@@ -2146,10 +2145,14 @@ public class CMSEngine implements ICMSEngine {
             pid = Integer.parseInt(value);
 
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.warn("Unable to get PID: " + e.getMessage(), e);
 
         } finally {
-            if (bf != null) try { bf.close(); } catch (Exception e) { e.printStackTrace(); }
+            try {
+                if (bf != null) bf.close();
+            } catch (Exception e) {
+                logger.warn("Unable to close BufferedReader: " + e.getMessage(), e);
+            }
         }
 
         return pid;
@@ -2206,7 +2209,7 @@ public class CMSEngine implements ICMSEngine {
                 certDB = ca.getCertificateRepository();
             }
         } catch (Exception e) {
-            CMS.debug("CMSEngine: " + CMS.getLogMessage("CMSCORE_AUTH_AGENT_CERT_REPO"));
+            logger.warn("CMSEngine: " + CMS.getLogMessage("CMSCORE_AUTH_AGENT_CERT_REPO"));
         }
 
         return certDB;
@@ -2348,11 +2351,11 @@ public class CMSEngine implements ICMSEngine {
 
         /* debugSleep: sleep for one minute to check something, e.g. ldap*/
         if (debugSleep == true) {
-            CMS.debug("debugSleep: about to sleep for one minute; do check now: e.g. ldap, hsm, etc.");
+            logger.debug("debugSleep: about to sleep for one minute; do check now: e.g. ldap, hsm, etc.");
             try {
                 Thread.sleep(60000);
             } catch (InterruptedException e) {
-                CMS.debug("debugSleep: sleep out:" + e.toString());
+                logger.warn("debugSleep: sleep out:" + e.toString());
             }
         }
     }
