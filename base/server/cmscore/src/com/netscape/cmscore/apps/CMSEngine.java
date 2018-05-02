@@ -24,6 +24,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
+import java.security.Security;
 import java.security.SignatureException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
@@ -566,18 +567,11 @@ public class CMSEngine implements ICMSEngine {
             mTimeSource = new SimpleTimeSource();
         }
 
-        loadDynSubsystems();
+        Security.addProvider(new netscape.security.provider.CMS());
 
-        java.security.Security.addProvider(
-                new netscape.security.provider.CMS());
+        loadSubsystems();
 
         mSSReg.put(ID, this);
-
-        if (isPreOpMode()) {
-            // Disable some subsystems before database initialization
-            // in pre-op mode to prevent errors.
-            UGSubsystem.getInstance().setEnabled(false);
-        }
 
         initSubsystems(mStaticSubsystems, false);
 
@@ -994,10 +988,9 @@ public class CMSEngine implements ICMSEngine {
     }
 
     /**
-     * load dynamic subsystems
+     * load subsystems
      */
-    private void loadDynSubsystems()
-            throws EBaseException {
+    private void loadSubsystems() throws EBaseException {
 
         logger.debug("CMSEngine: loading dyn subsystems");
 
@@ -1029,6 +1022,12 @@ public class CMSEngine implements ICMSEngine {
 
             dynSubsystems.put(id, new SubsystemInfo(id, ss, enabled));
             logger.debug("CMSEngine: loaded dyn subsystem " + id);
+        }
+
+        if (isPreOpMode()) {
+            // Disable some subsystems before database initialization
+            // in pre-op mode to prevent errors.
+            UGSubsystem.getInstance().setEnabled(false);
         }
     }
 
