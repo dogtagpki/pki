@@ -33,4 +33,4 @@ dnf makecache
 dnf update -y
 
 # TODO: move this into container image
-dnf install -y rpmlint
+dnf install -y rpm rpmlint
