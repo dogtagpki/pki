@@ -1607,25 +1607,24 @@ public class CertificateAuthority
     }
 
     public X509CertImpl getCACert() throws EBaseException {
+
         if (mCaCert != null) {
             return mCaCert;
         }
-        // during configuration
-        try {
-            String cert = mConfig.getString("signing.cert", null);
-            if (cert != null) {
-                return new X509CertImpl(Utils.base64decode(cert));
-            }
 
-        } catch (EBaseException e) {
-            logger.error("Unable to get CA certificate: " + e.getMessage(), e);
-            throw e;
+        String cert = mConfig.getString("signing.cert");
+        logger.debug("CertificateAuthority: CA signing cert: " + cert);
+
+        byte[] bytes = Utils.base64decode(cert);
+        logger.debug("CertificateAuthority: size: " + bytes.length + " bytes");
+
+        try {
+            return new X509CertImpl(bytes);
 
         } catch (CertificateException e) {
+            logger.error("Unable to parse CA signing cert: " + e.getMessage(), e);
             throw new EBaseException(e);
         }
-
-        return null;
     }
 
     public org.mozilla.jss.crypto.X509Certificate getCaX509Cert() {
@@ -1676,21 +1675,29 @@ public class CertificateAuthority
         IConfigStore caSigningCfg = mConfig.getSubStore(PROP_SIGNING_SUBSTORE);
 
         try {
-
             String caSigningCertStr = caSigningCfg.getString("cert", "");
             if (caSigningCertStr.equals("")) {
-                logger.debug("CertificateAuthority:initSigUnit: ca.signing.cert not found");
-            } else { //ca cert found
-                logger.debug("CertificateAuthority:initSigUnit: ca cert found");
-                mCaCert = new X509CertImpl(Utils.base64decode(caSigningCertStr));
+                logger.debug("CertificateAuthority: CA signing cert not found");
+
+            } else {
+                logger.debug("CertificateAuthority: CA signing cert: " + caSigningCertStr);
+
+                byte[] bytes = Utils.base64decode(caSigningCertStr);
+                logger.debug("CertificateAuthority: size: " + bytes.length + " bytes");
+
+                mCaCert = new X509CertImpl(bytes);
+
                 // this ensures the isserDN and subjectDN have the same encoding
                 // as that of the CA signing cert
-                logger.debug("CertificateAuthority: initSigUnit 1- setting mIssuerObj and mSubjectObj");
                 mSubjectObj = mCaCert.getSubjectObj();
+                logger.debug("CertificateAuthority: subject DN: " + mSubjectObj);
+
                 // this mIssuerObj is the "issuerDN" obj for the certs this CA
                 // issues, NOT necessarily the isserDN obj of the CA signing cert
                 mIssuerObj = new CertificateIssuerName((X500Name)mSubjectObj.get(CertificateIssuerName.DN_NAME));
+                logger.debug("CertificateAuthority: issuer DN: " + mIssuerObj);
             }
+
         } catch (CertificateException e) {
             logger.error("Unable to initialize signing unit: " + e.getMessage(), e);
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_OCSP_CHAIN", e.toString()));
