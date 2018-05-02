@@ -247,14 +247,7 @@ public class CMSEngine implements ICMSEngine {
     Map<String, SubsystemInfo> dynSubsystems = new LinkedHashMap<>();
 
     // final static subsystems - must be singletons.
-    private static SubsystemInfo[] mFinalSubsystems = {
-            new SubsystemInfo(
-                    AuthSubsystem.ID, AuthSubsystem.getInstance()),
-            new SubsystemInfo(
-                    AuthzSubsystem.ID, AuthzSubsystem.getInstance()),
-            new SubsystemInfo(
-                    JobsScheduler.ID, JobsScheduler.getInstance()),
-        };
+    Map<String, SubsystemInfo> finalSubsystems = new LinkedHashMap<>();
 
     private static final int IP = 0;
     private static final int PORT = 1;
@@ -939,7 +932,7 @@ public class CMSEngine implements ICMSEngine {
         mQueue.addLogEventListener(mWarningListener);
 
         initSubsystems(dynSubsystems, true);
-        initSubsystems(mFinalSubsystems, false);
+        initSubsystems(finalSubsystems, false);
     }
 
     /**
@@ -1031,6 +1024,15 @@ public class CMSEngine implements ICMSEngine {
             dynSubsystems.put(id, new SubsystemInfo(id, ss, enabled));
             logger.debug("CMSEngine: loaded dyn subsystem " + id);
         }
+
+        logger.debug("CMSEngine: loading final subsystems");
+
+        finalSubsystems.put(AuthSubsystem.ID,
+                new SubsystemInfo(AuthSubsystem.ID, AuthSubsystem.getInstance()));
+        finalSubsystems.put(AuthzSubsystem.ID,
+                new SubsystemInfo(AuthzSubsystem.ID, AuthzSubsystem.getInstance()));
+        finalSubsystems.put(JobsScheduler.ID,
+                new SubsystemInfo(JobsScheduler.ID, JobsScheduler.getInstance()));
 
         if (isPreOpMode()) {
             // Disable some subsystems before database initialization
@@ -1278,7 +1280,7 @@ public class CMSEngine implements ICMSEngine {
     public void startup() throws EBaseException {
         startupSubsystems(staticSubsystems);
         startupSubsystems(dynSubsystems);
-        startupSubsystems(mFinalSubsystems);
+        startupSubsystems(finalSubsystems);
 
         // global admin servlet. (anywhere else more fit for this ?)
 
@@ -1930,7 +1932,7 @@ public class CMSEngine implements ICMSEngine {
                 terminateRequests();
         */
 
-        shutdownSubsystems(mFinalSubsystems);
+        shutdownSubsystems(finalSubsystems);
         shutdownSubsystems(dynSubsystems);
         shutdownSubsystems(staticSubsystems);
 
@@ -2018,7 +2020,7 @@ public class CMSEngine implements ICMSEngine {
             disableRequests();
         }
         terminateRequests();
-        shutdownSubsystems(mFinalSubsystems);
+        shutdownSubsystems(finalSubsystems);
         shutdownSubsystems(dynSubsystems);
         shutdownSubsystems(staticSubsystems);
 
