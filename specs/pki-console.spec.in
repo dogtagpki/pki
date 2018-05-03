@@ -120,7 +120,7 @@ BuildRequires:    slf4j
 BuildRequires:    slf4j-jdk14
 %endif
 BuildRequires:    nspr-devel
-BuildRequires:    nss-devel >= 3.28.3
+BuildRequires:    nss-devel >= 3.36.1
 
 %if 0%{?rhel} && 0%{?rhel} <= 7
 BuildRequires:    nuxwdog-client-java >= 1.0.3-7

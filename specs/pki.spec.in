@@ -157,7 +157,7 @@ BuildRequires:    slf4j
 BuildRequires:    slf4j-jdk14
 %endif
 BuildRequires:    nspr-devel
-BuildRequires:    nss-devel >= 3.28.3
+BuildRequires:    nss-devel >= 3.36.1
 
 %if 0%{?rhel} && 0%{?rhel} <= 7
 BuildRequires:    nuxwdog-client-java >= 1.0.3-7
@@ -332,7 +332,7 @@ Requires:         jss >= 4.4.0-11
 %else
 Requires:         jss >= 4.4.2-9
 %endif
-Requires:         nss >= 3.28.3
+Requires:         nss >= 3.36.1
 
 Provides:         symkey = %{version}-%{release}
 
@@ -374,7 +374,7 @@ Obsoletes:        pki-util < %{version}-%{release}
 
 Conflicts:        freeipa-server < 3.0.0
 
-Requires:         nss >= 3.28.3
+Requires:         nss >= 3.36.1
 %if 0%{?with_python3_default}
 Requires:         python3-pki = %{version}-%{release}
 Requires(post):   python3-pki = %{version}-%{release}
@@ -510,7 +510,7 @@ Obsoletes:        pki-native-tools < %{version}-%{release}
 Obsoletes:        pki-java-tools < %{version}-%{release}
 
 Requires:         openldap-clients
-Requires:         nss-tools >= 3.28.3
+Requires:         nss-tools >= 3.36.1
 Requires:         java-1.8.0-openjdk-headless
 Requires:         pki-base >= %{version}-%{release}
 Requires:         pki-base-java >= %{version}-%{release}
@@ -790,7 +790,7 @@ Requires(postun): systemd-units
 # additional runtime requirements needed to run native 'tpsclient'
 # REMINDER:  Revisit these once 'tpsclient' is rewritten as a Java app
 
-Requires:         nss-tools >= 3.28.3
+Requires:         nss-tools >= 3.36.1
 Requires:         openldap-clients
 
 %description -n   pki-tps
