@@ -18,7 +18,22 @@
 
 package org.dogtagpki.server.ca;
 
+import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.SubsystemInfo;
+import com.netscape.cmscore.cert.CrossCertPairSubsystem;
 
 public class CAEngine extends CMSEngine {
+
+    protected void loadSubsystems() throws EBaseException {
+
+        super.loadSubsystems();
+
+        if (isPreOpMode()) {
+            // Disable some subsystems before database initialization
+            // in pre-op mode to prevent errors.
+            SubsystemInfo si = dynSubsystems.get(CrossCertPairSubsystem.ID);
+            si.enabled = false;
+        }
+    }
 }

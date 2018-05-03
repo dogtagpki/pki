@@ -98,6 +98,9 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
 
     public void init(ISubsystem owner, IConfigStore config)
             throws EBaseException {
+
+        CMS.debug("CrossCertPairSubsystem: initializing");
+
         try {
             mConfig = config;
             mLogger = CMS.getLogger();
@@ -131,12 +134,10 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
 
         } catch (EBaseException e) {
             CMS.debug(e);
-            if (CMS.isPreOpMode()) {
-                CMS.debug("CrossCertPairSubsystem.init(): Swallow exception in pre-op mode");
-                return;
-            }
             throw e;
         }
+
+        CMS.debug("CrossCertPairSubsystem: initialization complete");
     }
 
     /**
