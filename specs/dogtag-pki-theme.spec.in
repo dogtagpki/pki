@@ -14,13 +14,29 @@ Version:          10.6.1
 Release:          1%{?_timestamp}%{?_commit_id}%{?dist}
 %endif
 
-Source:           https://github.com/dogtagpki/pki/archive/v%{version}/pki-%{version}.tar.gz
+# To create a tarball from a version tag:
+# $ git archive \
+#     --format=tar.gz \
+#     --prefix pki-<version>/ \
+#     -o pki-<version>.tar.gz \
+#     <version tag>
+Source: https://github.com/dogtagpki/pki/archive/v%{version}/pki-%{version}.tar.gz
+
+# To create a patch for all changes since a version tag:
+# $ git format-patch \
+#     --stdout \
+#     <version tag> \
+#     > pki-VERSION-RELEASE.patch
+# Patch: pki-VERSION-RELEASE.patch
 
 BuildArch:        noarch
 
 ################################################################################
 # Build Dependencies
 ################################################################################
+
+# autosetup
+BuildRequires:    git
 
 BuildRequires:    cmake >= 2.8.9-1
 BuildRequires:    gcc-c++
@@ -111,7 +127,7 @@ Dogtag textual and graphical user interface for PKI Console.
 %prep
 ################################################################################
 
-%autosetup -n pki-%{version} -p 1
+%autosetup -n pki-%{version} -p 1 -S git
 
 ################################################################################
 %build
