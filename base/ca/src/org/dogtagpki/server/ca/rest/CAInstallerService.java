@@ -121,7 +121,11 @@ public class CAInstallerService extends SystemConfigService {
 
         // Enable subsystems after database initialization.
         CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        SubsystemInfo si = engine.dynSubsystems.get(CrossCertPairSubsystem.ID);
+
+        SubsystemInfo si = engine.dynSubsystems.get("ca");
+        si.enabled = true;
+
+        si = engine.dynSubsystems.get(CrossCertPairSubsystem.ID);
         si.enabled = true;
 
         if (!data.isClone()

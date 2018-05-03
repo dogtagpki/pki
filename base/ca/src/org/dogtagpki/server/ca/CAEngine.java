@@ -32,7 +32,11 @@ public class CAEngine extends CMSEngine {
         if (isPreOpMode()) {
             // Disable some subsystems before database initialization
             // in pre-op mode to prevent errors.
-            SubsystemInfo si = dynSubsystems.get(CrossCertPairSubsystem.ID);
+
+            SubsystemInfo si = dynSubsystems.get("ca");
+            si.enabled = false;
+
+            si = dynSubsystems.get(CrossCertPairSubsystem.ID);
             si.enabled = false;
         }
     }
