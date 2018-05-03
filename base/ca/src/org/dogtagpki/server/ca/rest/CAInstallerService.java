@@ -37,7 +37,10 @@ import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.certsrv.registry.IPluginRegistry;
 import com.netscape.certsrv.system.ConfigurationRequest;
 import com.netscape.cms.servlet.csadmin.ConfigurationUtils;
+import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.SubsystemInfo;
 import com.netscape.cmscore.base.LDAPConfigStore;
+import com.netscape.cmscore.cert.CrossCertPairSubsystem;
 import com.netscape.cmscore.profile.LDAPProfileSubsystem;
 
 import netscape.ldap.LDAPAttribute;
@@ -112,8 +115,14 @@ public class CAInstallerService extends SystemConfigService {
     }
 
     @Override
-    public void initializeDatabase(ConfigurationRequest data) {
+    public void initializeDatabase(ConfigurationRequest data) throws EBaseException {
+
         super.initializeDatabase(data);
+
+        // Enable subsystems after database initialization.
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        SubsystemInfo si = engine.dynSubsystems.get(CrossCertPairSubsystem.ID);
+        si.enabled = true;
 
         if (!data.isClone()
                 && CMS.getSubsystem("profile") instanceof LDAPProfileSubsystem) {

@@ -164,9 +164,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         }
         initializeDatabase(data);
 
-        // Enable subsystems after database initialization.
-        UGSubsystem.getInstance().setEnabled(true);
-
         ConfigurationUtils.reInitSubsystem(csType);
 
         configureCACertChain(data, domainXML);
@@ -645,7 +642,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         cs.putBoolean("preop.database.reindexData", data.getReindexData());
     }
 
-    public void initializeDatabase(ConfigurationRequest data) {
+    public void initializeDatabase(ConfigurationRequest data) throws EBaseException {
 
         if (data.isClone() && data.getSetupReplication()) {
             String masterhost = "";
@@ -737,6 +734,9 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             logger.error("Error in populating database: " + e.getMessage(), e);
             throw new PKIException("Error in populating database: " + e, e);
         }
+
+        // Enable subsystems after database initialization.
+        UGSubsystem.getInstance().setEnabled(true);
     }
 
     public void configureHierarchy(ConfigurationRequest data) {
