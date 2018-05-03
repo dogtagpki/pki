@@ -954,7 +954,7 @@ public class CMSEngine implements ICMSEngine {
     /**
      * load subsystems
      */
-    private void loadSubsystems() throws EBaseException {
+    protected void loadSubsystems() throws EBaseException {
 
         logger.debug("CMSEngine: loading static subsystems");
 

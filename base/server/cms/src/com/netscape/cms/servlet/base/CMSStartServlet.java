@@ -123,7 +123,7 @@ public class CMSStartServlet extends HttpServlet {
         String className = getServletConfig().getInitParameter(PROP_CMS_ENGINE);
         if (className != null) {
             try {
-                logger.error("CMSStartServlet: Loading CMS engine " + className);
+                logger.debug("CMSStartServlet: Loading CMS engine " + className);
                 engineClass = Class.forName(className);
             } catch (ClassNotFoundException e) {
                 logger.error("Invalid CMS engine: " + e.getMessage(), e);
@@ -134,7 +134,7 @@ public class CMSStartServlet extends HttpServlet {
         CMSEngine engine = null;
 
         try {
-            logger.error("CMSStartServlet: Creating CMS engine " + className);
+            logger.debug("CMSStartServlet: Creating CMS engine " + engineClass.getName());
             engine = (CMSEngine) engineClass.newInstance();
             CMS.setCMSEngine(engine);
 
@@ -144,7 +144,7 @@ public class CMSStartServlet extends HttpServlet {
         }
 
         try {
-            logger.error("CMSStartServlet: Starting CMS engine " + className);
+            logger.debug("CMSStartServlet: Starting CMS engine " + engineClass.getName());
             IConfigStore mainConfig = engine.createFileConfigStore(path);
             engine.init(null, mainConfig);
 
