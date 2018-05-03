@@ -20,6 +20,9 @@ package com.netscape.cmscore.dbs;
 import java.math.BigInteger;
 import java.util.Hashtable;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotDefined;
@@ -65,6 +68,8 @@ import netscape.security.x509.CertificateValidity;
  * @version $Revision$, $Date$
  */
 public class DBSubsystem implements IDBSubsystem {
+
+    public static Logger logger = LoggerFactory.getLogger(DBSubsystem.class);
 
     public static String ID = IDBSubsystem.SUB_ID;
 
@@ -198,9 +203,9 @@ public class DBSubsystem implements IDBSubsystem {
     public void setEnableSerialMgmt(boolean v)
             throws EBaseException {
         if (v) {
-            CMS.debug("DBSubsystem: Enabling Serial Number Management");
+            logger.debug("DBSubsystem: Enabling Serial Number Management");
         } else {
-            CMS.debug("DBSubsystem: Disabling Serial Number Management");
+            logger.debug("DBSubsystem: Disabling Serial Number Management");
         }
 
         mDBConfig.putBoolean(PROP_ENABLE_SERIAL_MGMT, v);
@@ -302,7 +307,7 @@ public class DBSubsystem implements IDBSubsystem {
     public void setMaxSerialConfig(int repo, String serial)
             throws EBaseException {
         Hashtable<String, String> h = mRepos[repo];
-        CMS.debug("DBSubsystem: Setting max serial number for " + h.get(NAME) + ": " + serial);
+        logger.debug("DBSubsystem: Setting max serial number for " + h.get(NAME) + ": " + serial);
 
         //persist to file
         mDBConfig.putString(h.get(PROP_MAX_NAME), serial);
@@ -323,7 +328,7 @@ public class DBSubsystem implements IDBSubsystem {
     public void setMinSerialConfig(int repo, String serial)
             throws EBaseException {
         Hashtable<String, String> h = mRepos[repo];
-        CMS.debug("DBSubsystem: Setting min serial number for " + h.get(NAME) + ": " + serial);
+        logger.debug("DBSubsystem: Setting min serial number for " + h.get(NAME) + ": " + serial);
 
         //persist to file
         mDBConfig.putString(h.get(PROP_MIN_NAME), serial);
@@ -345,10 +350,10 @@ public class DBSubsystem implements IDBSubsystem {
             throws EBaseException {
         Hashtable<String, String> h = mRepos[repo];
         if (serial == null) {
-            CMS.debug("DBSubsystem: Removing next max " + h.get(NAME) + " number");
+            logger.debug("DBSubsystem: Removing next max " + h.get(NAME) + " number");
             mDBConfig.remove(h.get(PROP_NEXT_MAX_NAME));
         } else {
-            CMS.debug("DBSubsystem: Setting next max " + h.get(NAME) + " number: " + serial);
+            logger.debug("DBSubsystem: Setting next max " + h.get(NAME) + " number: " + serial);
             mDBConfig.putString(h.get(PROP_NEXT_MAX_NAME), serial);
         }
         IConfigStore rootStore = getOwner().getConfigStore();
@@ -372,10 +377,10 @@ public class DBSubsystem implements IDBSubsystem {
             throws EBaseException {
         Hashtable<String, String> h = mRepos[repo];
         if (serial == null) {
-            CMS.debug("DBSubsystem: Removing next min " + h.get(NAME) + " number");
+            logger.debug("DBSubsystem: Removing next min " + h.get(NAME) + " number");
             mDBConfig.remove(h.get(PROP_NEXT_MIN_NAME));
         } else {
-            CMS.debug("DBSubsystem: Setting next min " + h.get(NAME) + " number: " + serial);
+            logger.debug("DBSubsystem: Setting next min " + h.get(NAME) + " number: " + serial);
             mDBConfig.putString(h.get(PROP_NEXT_MIN_NAME), serial);
         }
         IConfigStore rootStore = getOwner().getConfigStore();
@@ -405,7 +410,7 @@ public class DBSubsystem implements IDBSubsystem {
             String dn = h.get(PROP_BASEDN) + "," + mBaseDN;
             String rangeDN = h.get(PROP_RANGE_DN) + "," + mBaseDN;
 
-            CMS.debug("DBSubsystem: retrieving " + dn);
+            logger.debug("DBSubsystem: retrieving " + dn);
             LDAPEntry entry = conn.read(dn);
 
             LDAPAttribute attr = entry.getAttribute(PROP_NEXT_RANGE);
@@ -425,7 +430,7 @@ public class DBSubsystem implements IDBSubsystem {
                     new LDAPModification(LDAPModification.DELETE, attr),
                     new LDAPModification(LDAPModification.ADD, attrNextRange) };
 
-            CMS.debug("DBSubsystem: updating " + PROP_NEXT_RANGE + " from " + nextRange + " to " + newNextRange);
+            logger.debug("DBSubsystem: updating " + PROP_NEXT_RANGE + " from " + nextRange + " to " + newNextRange);
 
             conn.modify(dn, mods);
 
@@ -442,25 +447,25 @@ public class DBSubsystem implements IDBSubsystem {
             String dn2 = "cn=" + nextRange + "," + rangeDN;
             LDAPEntry rangeEntry = new LDAPEntry(dn2, attrs);
 
-            CMS.debug("DBSubsystem: adding new range object: " + dn2);
+            logger.debug("DBSubsystem: adding new range object: " + dn2);
 
             conn.add(rangeEntry);
 
-            CMS.debug("DBSubsystem: getNextRange  Next range has been added: " +
+            logger.debug("DBSubsystem: getNextRange  Next range has been added: " +
                       nextRange + " - " + endRange);
 
         } catch (Exception e) {
-            CMS.debug(e);
+            logger.warn("DBSubsystem: Unable to get next range: " + e.getMessage(), e);
             nextRange = null;
 
         } finally {
             try {
                 if ((conn != null) && (mLdapConnFactory != null)) {
-                    CMS.debug("Releasing ldap connection");
+                    logger.debug("Releasing ldap connection");
                     mLdapConnFactory.returnConn(conn);
                 }
             } catch (Exception e) {
-                CMS.debug("Error releasing the ldap connection" + e.toString());
+                logger.warn("Error releasing the ldap connection: " + e.getMessage(), e);
             }
         }
 
@@ -497,20 +502,19 @@ public class DBSubsystem implements IDBSubsystem {
                 conflict = true;
                 LDAPEntry entry = results.next();
                 String dn = entry.getDN();
-                CMS.debug("Deleting conflict entry:" + dn);
+                logger.debug("Deleting conflict entry:" + dn);
                 conn.delete(dn);
             }
         } catch (Exception e) {
-            CMS.debug("DBSubsystem: hasRangeConflict. Error while checking next range." + e);
-            e.printStackTrace();
+            logger.warn("DBSubsystem: Error while checking next range: " + e.getMessage(), e);
         } finally {
             try {
                 if ((conn != null) && (mLdapConnFactory != null)) {
-                    CMS.debug("Releasing ldap connection");
+                    logger.debug("Releasing ldap connection");
                     mLdapConnFactory.returnConn(conn);
                 }
             } catch (Exception e) {
-                CMS.debug("Error releasing the ldap connection" + e.toString());
+                logger.warn("Error releasing the ldap connection" + e.getMessage(), e);
             }
         }
         return conflict;
@@ -545,7 +549,7 @@ public class DBSubsystem implements IDBSubsystem {
                     PROP_NEXT_SERIAL_NUMBER, "0"), 16);
 
             mEnableSerialMgmt = mDBConfig.getBoolean(PROP_ENABLE_SERIAL_MGMT, false);
-            CMS.debug("DBSubsystem: init()  mEnableSerialMgmt="+mEnableSerialMgmt);
+            logger.debug("DBSubsystem: init()  mEnableSerialMgmt="+mEnableSerialMgmt);
 
             // populate the certs hash entry
             Hashtable<String, String> certs = new Hashtable<String, String>();
@@ -655,11 +659,7 @@ public class DBSubsystem implements IDBSubsystem {
             tmpConfig.putString(PROP_BASEDN, mBaseDN);
 
         } catch (EBaseException e) {
-            CMS.debug(e);
-            if (CMS.isPreOpMode()) {
-                CMS.debug("DBSubsystem.init(): Swallow exception in pre-op mode");
-                return;
-            }
+            logger.error("DBSubsystem: initialization failed: " + e.getMessage(), e);
             throw e;
         }
 
@@ -668,30 +668,25 @@ public class DBSubsystem implements IDBSubsystem {
 
         } catch (EPropertyNotDefined e) {
             if (CMS.isPreOpMode()) {
-                CMS.debug("DBSubsystem: Ignore EPropertyNotDefined during pre-op: " + e);
+                logger.warn("DBSubsystem: initialization failed: " + e.getMessage(), e);
+                logger.warn("DBSubsystem: Swallow exception in pre-op mode");
                 return;
+            } else {
+                logger.error("DBSubsystem: initialization failed: " + e.getMessage(), e);
+                throw e;
             }
 
-            CMS.debug(e);
-            throw e;
-
         } catch (ELdapServerDownException e) {
-            CMS.debug(e);
-            if (CMS.isPreOpMode())
-                return;
+            logger.error("DBSubsystem: initialization failed: " + e.getMessage(), e);
             throw new EDBNotAvailException(
-                    CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_UNAVAILABLE"));
+                CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_UNAVAILABLE"), e);
 
         } catch (ELdapException e) {
-            CMS.debug(e);
-            if (CMS.isPreOpMode())
-                return;
-            throw new EDBException(CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_ERROR", e.toString()));
+            logger.error("DBSubsystem: initialization failed: " + e.getMessage(), e);
+            throw new EDBException(CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_ERROR", e.toString()), e);
 
         } catch (EBaseException e) {
-            CMS.debug(e);
-            if (CMS.isPreOpMode())
-                return;
+            logger.error("DBSubsystem: initialization failed: " + e.getMessage(), e);
             throw e;
         }
 
@@ -801,7 +796,7 @@ public class DBSubsystem implements IDBSubsystem {
                     ObjectStreamMapper(CRLDBSchema.LDAP_ATTR_EXPIRED_CERTS));
 
             boolean registered = reg.isObjectClassRegistered(RepositoryRecord.class.getName());
-            CMS.debug("registered: " + registered);
+            logger.debug("registered: " + registered);
             if (!registered) {
                 String repRecordOC[] = new String[2];
 
@@ -825,9 +820,7 @@ public class DBSubsystem implements IDBSubsystem {
             }
 
         } catch (EBaseException e) {
-            CMS.debug(e);
-            if (CMS.isPreOpMode())
-                return;
+            logger.error("DBSubsystem: initialization failed: " + e.getMessage(), e);
             throw e;
         }
     }
@@ -851,24 +844,25 @@ public class DBSubsystem implements IDBSubsystem {
                 attrValue = errorValue;
             }
         } catch (LDAPException e) {
-            CMS.debug("DBSubsystem: getEntryAttribute  LDAPException  code="+e.getLDAPResultCode());
+            logger.warn("DBSubsystem: getEntryAttribute  LDAPException  code="+e.getLDAPResultCode());
             if (e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT) {
                 attrValue = defaultValue;
             }
         } catch (Exception e) {
-            CMS.debug("DBSubsystem: getEntryAttribute. Unable to retrieve '"+attrName+"': "+ e);
+            logger.warn("DBSubsystem: getEntryAttribute. Unable to retrieve '"+attrName+"': "+ e);
             attrValue = errorValue;
         } finally {
             try {
                 if ((conn != null) && (mLdapConnFactory != null)) {
-                    CMS.debug("Releasing ldap connection");
+                    logger.debug("Releasing ldap connection");
                     mLdapConnFactory.returnConn(conn);
                 }
             } catch (Exception e) {
-                CMS.debug("Error releasing the ldap connection" + e.toString());
+                logger.warn("Error releasing the ldap connection: " + e.getMessage(), e);
             }
         }
-        CMS.debug("DBSubsystem: getEntryAttribute:  dn="+dn+"  attr="+attrName+":"+attrValue+";");
+
+        logger.debug("DBSubsystem: getEntryAttribute:  dn="+dn+"  attr="+attrName+":"+attrValue+";");
 
         return attrValue;
     }
