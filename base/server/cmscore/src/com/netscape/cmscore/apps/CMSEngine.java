@@ -241,13 +241,13 @@ public class CMSEngine implements ICMSEngine {
     private String serverStatus = null;
 
     // static subsystems - must be singletons
-    Map<String, SubsystemInfo> staticSubsystems = new LinkedHashMap<>();
+    public Map<String, SubsystemInfo> staticSubsystems = new LinkedHashMap<>();
 
     // dynamic subsystems are loaded at init time, not necessarily singletons.
-    Map<String, SubsystemInfo> dynSubsystems = new LinkedHashMap<>();
+    public Map<String, SubsystemInfo> dynSubsystems = new LinkedHashMap<>();
 
     // final static subsystems - must be singletons.
-    Map<String, SubsystemInfo> finalSubsystems = new LinkedHashMap<>();
+    public Map<String, SubsystemInfo> finalSubsystems = new LinkedHashMap<>();
 
     private static final int IP = 0;
     private static final int PORT = 1;
@@ -935,18 +935,6 @@ public class CMSEngine implements ICMSEngine {
         initSubsystems(finalSubsystems, false);
     }
 
-    /**
-     * initialize an array of subsystem info.
-     */
-    private void initSubsystems(SubsystemInfo[] sslist, boolean doSetId)
-            throws EBaseException {
-        if (sslist == null)
-            return;
-        for (int i = 0; i < sslist.length; i++) {
-            initSubsystem(sslist[i], doSetId);
-        }
-    }
-
     private void initSubsystems(Map<String, SubsystemInfo> subsystems, boolean doSetId)
             throws EBaseException {
         for (SubsystemInfo si : subsystems.values()) {
@@ -966,7 +954,7 @@ public class CMSEngine implements ICMSEngine {
     /**
      * load subsystems
      */
-    private void loadSubsystems() throws EBaseException {
+    protected void loadSubsystems() throws EBaseException {
 
         logger.debug("CMSEngine: loading static subsystems");
 
@@ -1073,19 +1061,24 @@ public class CMSEngine implements ICMSEngine {
      */
     private void initSubsystem(SubsystemInfo ssinfo, boolean doSetId)
             throws EBaseException {
+
         String id = ssinfo.mId;
         ISubsystem ss = ssinfo.mInstance;
-        IConfigStore ssConfig = mConfig.getSubStore(id);
 
-        logger.debug("CMSEngine: initSubsystem id=" + id);
+        logger.debug("CMSEngine: initSubsystem(" + id + ")");
         mSSReg.put(id, ss);
-        if (doSetId)
+
+        if (doSetId) {
             ss.setId(id);
+        }
+
+        IConfigStore ssConfig = mConfig.getSubStore(id);
         if (!ssinfo.enabled) {
-            logger.debug("CMSEngine: subsystem disabled id=" + id);
+            logger.debug("CMSEngine: " + id + " disabled");
             return;
         }
-        logger.debug("CMSEngine: ready to init id=" + id);
+
+        logger.debug("CMSEngine: initializing " + id);
         ss.init(this, ssConfig);
 
         try {
@@ -1098,16 +1091,20 @@ public class CMSEngine implements ICMSEngine {
              */
 
             mAutoSD_Restart = mConfig.getBoolean("autoShutdown.restart.enable", false);
-            logger.debug("CMSEngine: restart at autoShutdown? " + mAutoSD_Restart);
+            logger.debug("CMSEngine: restart at autoShutdown: " + mAutoSD_Restart);
+
             if (mAutoSD_Restart) {
                 mAutoSD_RestartMax = mConfig.getInteger("autoShutdown.restart.max", 3);
-                logger.debug("CMSEngine: restart max? " + mAutoSD_RestartMax);
+                logger.debug("CMSEngine: restart max: " + mAutoSD_RestartMax);
+
                 mAutoSD_RestartCount = mConfig.getInteger("autoShutdown.restart.count", 0);
-                logger.debug("CMSEngine: current restart count? " + mAutoSD_RestartCount);
+                logger.debug("CMSEngine: current restart count: " + mAutoSD_RestartCount);
+
             } else { //!mAutoSD_Restart
                 mAutoSD_CrumbFile = mConfig.getString("autoShutdown.crumbFile",
                     instanceDir + "/logs/autoShutdown.crumb");
-                logger.debug("CMSEngine: autoShutdown crumb file path? " + mAutoSD_CrumbFile);
+                logger.debug("CMSEngine: autoShutdown crumb file path: " + mAutoSD_CrumbFile);
+
                 File crumb = new File(mAutoSD_CrumbFile);
                 try {
                     if (crumb.exists()) {
@@ -1126,14 +1123,16 @@ public class CMSEngine implements ICMSEngine {
              */
             mSAuditCertNickName = mConfig.getString(PROP_SIGNED_AUDIT_CERT_NICKNAME);
             mManager = CryptoManager.getInstance();
+
             logger.debug("CMSEngine: about to look for cert for auto-shutdown support:" + mSAuditCertNickName);
+
             org.mozilla.jss.crypto.X509Certificate cert = null;
             try {
                 cert = mManager.findCertByNickname(mSAuditCertNickName);
             } catch (ObjectNotFoundException as) {
-                // can't support auto-shutdown at this point
-                logger.warn("CMSEngine: " + as.getMessage());
+                logger.warn("CMSEngine: Unable to support auto-shutdown: " + as.getMessage());
             }
+
             if (cert != null) {
                 logger.debug("CMSEngine: found cert:" + mSAuditCertNickName);
                 mSigningKey = mManager.findPrivKeyByCert(cert);
@@ -1141,7 +1140,7 @@ public class CMSEngine implements ICMSEngine {
             }
 
         } catch (Exception e) {
-            logger.warn("CMSEngine: " + e.getMessage(), e);
+            logger.warn("CMSEngine: Unable to configure auto-shutdown: " + e.getMessage(), e);
         }
 
         // add to id - subsystem hash table.
@@ -1819,21 +1818,6 @@ public class CMSEngine implements ICMSEngine {
         return Auditor.getAuditor();
     }
 
-    /**
-     * starts up subsystems in a subsystem list..
-     */
-    private void startupSubsystems(SubsystemInfo[] sslist)
-            throws EBaseException {
-        ISubsystem ss = null;
-
-        for (int i = 0; i < sslist.length; i++) {
-            logger.debug("CMSEngine: " + sslist[i].mId + " startup start");
-            ss = sslist[i].mInstance;
-            ss.startup();
-            logger.debug("CMSEngine: " + sslist[i].mId + " startup done");
-        }
-    }
-
     private void startupSubsystems(Map<String, SubsystemInfo> subsystems)
             throws EBaseException {
 
@@ -2028,20 +2012,6 @@ public class CMSEngine implements ICMSEngine {
 
         shutdownHttpServer(restart);
 
-    }
-
-    /**
-     * shuts down a subsystem list in reverse order.
-     */
-    private void shutdownSubsystems(SubsystemInfo[] sslist) {
-        if (sslist == null)
-            return;
-
-        for (int i = sslist.length - 1; i >= 0; i--) {
-            if (sslist[i] != null && sslist[i].mInstance != null) {
-                sslist[i].mInstance.shutdown();
-            }
-        }
     }
 
     private void shutdownSubsystems(Map<String, SubsystemInfo> subsystems) {
