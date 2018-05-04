@@ -218,13 +218,17 @@ BuildRequires:    tomcatjss >= 7.3.0
 %endif
 BuildRequires:    systemd-units
 
-%if 0%{?fedora} >= 27 || 0%{?rhel} > 7
+%if 0%{?fedora} >= 29 || 0%{?rhel} > 7
+BuildRequires:    tomcat >= 1:9.0.7
+%else
+%if 0%{?fedora} >= 27
 BuildRequires:    tomcat >= 1:8.5.23
 %else
 %if 0%{?fedora}
 BuildRequires:    tomcat >= 8.0.49
 %else
 BuildRequires:    tomcat >= 7.0.69
+%endif
 %endif
 %endif
 

@@ -255,13 +255,17 @@ BuildRequires:    tomcatjss >= 7.3.0
 %endif
 BuildRequires:    systemd-units
 
-%if 0%{?fedora} >= 27 || 0%{?rhel} > 7
+%if 0%{?fedora} >= 29 || 0%{?rhel} > 7
+BuildRequires:    tomcat >= 1:9.0.7
+%else
+%if 0%{?fedora} >= 27
 BuildRequires:    tomcat >= 1:8.5.23
 %else
 %if 0%{?fedora}
 BuildRequires:    tomcat >= 8.0.49
 %else
 BuildRequires:    tomcat >= 7.0.69
+%endif
 %endif
 %endif
 
@@ -515,9 +519,6 @@ Requires:         java-1.8.0-openjdk-headless
 Requires:         pki-base >= %{version}-%{release}
 Requires:         pki-base-java >= %{version}-%{release}
 Requires:         jpackage-utils >= 0:1.7.5-10
-%if 0%{?fedora} || 0%{?rhel} > 7
-Requires:         tomcat-servlet-3.1-api
-%endif
 
 %description -n   pki-tools
 This package contains PKI executables that can be used to help make
@@ -593,13 +594,17 @@ Requires:         policycoreutils-python
 Requires:         selinux-policy-targeted >= 3.13.1-159
 Obsoletes:        pki-selinux < %{version}-%{release}
 
-%if 0%{?fedora} >= 27 || 0%{?rhel} > 7
+%if 0%{?fedora} >= 29 || 0%{?rhel} > 7
+Requires:         tomcat >= 1:9.0.7
+%else
+%if 0%{?fedora} >= 27
 Requires:         tomcat >= 1:8.5.23
 %else
 %if 0%{?fedora}
 Requires:         tomcat >= 8.0.49
 %else
 Requires:         tomcat >= 7.0.69
+%endif
 %endif
 %endif
 
