@@ -71,7 +71,13 @@ generate_rpm_sources() {
             $SOURCE_TAG
 
         if [ "$SOURCE_TAG" != "HEAD" ] ; then
-            generate_patch
+
+            TAG_ID=`git -C "$SRC_DIR" rev-parse $SOURCE_TAG`
+            HEAD_ID=`git -C "$SRC_DIR" rev-parse HEAD`
+
+            if [ "$TAG_ID" != "$HEAD_ID" ] ; then
+                generate_patch
+            fi
         fi
 
         return
