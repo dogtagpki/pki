@@ -904,27 +904,29 @@ Obsoletes:        dogtag-pki-tps-theme < %{version}-%{release}
 Obsoletes:        dogtag-pki-tps-ui < %{version}-%{release}
 
 Provides:         dogtag-pki-common-theme = %{version}-%{release}
+Provides:         dogtag-pki-common-ui = %{version}-%{release}
+Provides:         dogtag-pki-ca-theme = %{version}-%{release}
+Provides:         dogtag-pki-ca-ui = %{version}-%{release}
+Provides:         dogtag-pki-kra-theme = %{version}-%{release}
+Provides:         dogtag-pki-kra-ui = %{version}-%{release}
+Provides:         dogtag-pki-ocsp-theme = %{version}-%{release}
+Provides:         dogtag-pki-ocsp-ui = %{version}-%{release}
+Provides:         dogtag-pki-tks-theme = %{version}-%{release}
+Provides:         dogtag-pki-tks-ui = %{version}-%{release}
+Provides:         dogtag-pki-tps-theme = %{version}-%{release}
+Provides:         dogtag-pki-tps-ui = %{version}-%{release}
+
 Provides:         pki-server-theme = %{version}-%{release}
 Provides:         pki-common-theme = %{version}-%{release}
 Provides:         pki-common-ui = %{version}-%{release}
-
-Provides:         dogtag-pki-ca-theme = %{version}-%{release}
 Provides:         pki-ca-theme = %{version}-%{release}
 Provides:         pki-ca-ui = %{version}-%{release}
-
-Provides:         dogtag-pki-kra-theme = %{version}-%{release}
 Provides:         pki-kra-theme = %{version}-%{release}
 Provides:         pki-kra-ui = %{version}-%{release}
-
-Provides:         dogtag-pki-ocsp-theme = %{version}-%{release}
 Provides:         pki-ocsp-theme = %{version}-%{release}
 Provides:         pki-ocsp-ui = %{version}-%{release}
-
-Provides:         dogtag-pki-tks-theme = %{version}-%{release}
 Provides:         pki-tks-theme = %{version}-%{release}
 Provides:         pki-tks-ui = %{version}-%{release}
-
-Provides:         dogtag-pki-tps-theme = %{version}-%{release}
 Provides:         pki-tps-theme = %{version}-%{release}
 Provides:         pki-tps-ui = %{version}-%{release}
 
@@ -1703,7 +1705,6 @@ fi
 
 ################################################################################
 %changelog
-################################################################################
 
 * Tue Mar 6 2018 Dogtag PKI Team <pki-devel@redhat.com> 10.6.0-0
 - To list changes in <branch> since <tag>:
