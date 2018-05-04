@@ -47,49 +47,10 @@ usage() {
     echo "    base, server, ca, kra, ocsp, tks, tps, javadoc, console, theme, meta, debug"
     echo
     echo "Target:"
-    echo "    spec   Generate RPM spec."
     echo "    src    Generate RPM sources."
+    echo "    spec   Generate RPM spec."
     echo "    srpm   Build SRPM package."
     echo "    rpm    Build RPM packages."
-}
-
-generate_rpm_spec() {
-
-    RPM_SPEC="$NAME.spec"
-
-    if [ "$VERBOSE" = true ] ; then
-        echo "Generating $RPM_SPEC"
-    fi
-
-    # update timestamp and commit ID
-    sed "s/%{?_timestamp}/${_TIMESTAMP}/g; s/%{?_commit_id}/${_COMMIT_ID}/g" \
-        "$SPEC_TEMPLATE" > "$WORK_DIR/SPECS/$RPM_SPEC"
-
-    if [ "$SOURCE_TAG" != "" ] &&
-        [ "$SOURCE_TAG" != "HEAD" ] ; then
-
-        PATCH="$NAME-$VERSION-$RELEASE.patch"
-
-        # update patch
-        sed "s/# Patch: pki-VERSION-RELEASE.patch/Patch: $PATCH/g" \
-            "$WORK_DIR/SPECS/$RPM_SPEC" > "$WORK_DIR/SPECS/$RPM_SPEC.tmp"
-        mv "$WORK_DIR/SPECS/$RPM_SPEC.tmp" "$WORK_DIR/SPECS/$RPM_SPEC"
-    fi
-
-    # rpmlint "$WORK_DIR/SPECS/$RPM_SPEC"
-}
-
-generate_patch() {
-
-    if [ "$VERBOSE" = true ] ; then
-        echo "Generating $PATCH for all changes since $SOURCE_TAG tag"
-    fi
-
-    git -C "$SRC_DIR" \
-        format-patch \
-        --stdout \
-        $SOURCE_TAG \
-        > "$WORK_DIR/SOURCES/$PATCH"
 }
 
 generate_rpm_sources() {
@@ -134,6 +95,44 @@ generate_rpm_sources() {
         --exclude __pycache__ \
         -C "$SRC_DIR" \
         .
+}
+
+generate_patch() {
+
+    PATCH="$NAME-$VERSION-$RELEASE.patch"
+
+    if [ "$VERBOSE" = true ] ; then
+        echo "Generating $PATCH for all changes since $SOURCE_TAG tag"
+    fi
+
+    git -C "$SRC_DIR" \
+        format-patch \
+        --stdout \
+        $SOURCE_TAG \
+        > "$WORK_DIR/SOURCES/$PATCH"
+}
+
+generate_rpm_spec() {
+
+    RPM_SPEC="$NAME.spec"
+
+    if [ "$VERBOSE" = true ] ; then
+        echo "Generating $RPM_SPEC"
+    fi
+
+    # update timestamp and commit ID
+    sed "s/%{?_timestamp}/${_TIMESTAMP}/g; s/%{?_commit_id}/${_COMMIT_ID}/g" \
+        "$SPEC_TEMPLATE" > "$WORK_DIR/SPECS/$RPM_SPEC"
+
+    if [ "$PATCH" != "" ] ; then
+
+        # update patch
+        sed "s/# Patch: pki-VERSION-RELEASE.patch/Patch: $PATCH/g" \
+            "$WORK_DIR/SPECS/$RPM_SPEC" > "$WORK_DIR/SPECS/$RPM_SPEC.tmp"
+        mv "$WORK_DIR/SPECS/$RPM_SPEC.tmp" "$WORK_DIR/SPECS/$RPM_SPEC"
+    fi
+
+    # rpmlint "$WORK_DIR/SPECS/$RPM_SPEC"
 }
 
 while getopts v-: arg ; do
@@ -223,8 +222,8 @@ if [ "$DEBUG" = true ] ; then
     echo "BUILD_TARGET: $BUILD_TARGET"
 fi
 
-if [ "$BUILD_TARGET" != "spec" ] &&
-        [ "$BUILD_TARGET" != "src" ] &&
+if [ "$BUILD_TARGET" != "src" ] &&
+        [ "$BUILD_TARGET" != "spec" ] &&
         [ "$BUILD_TARGET" != "srpm" ] &&
         [ "$BUILD_TARGET" != "rpm" ] ; then
     echo "ERROR: Invalid build target: $BUILD_TARGET" >&2
@@ -288,19 +287,6 @@ mkdir SPECS
 mkdir SRPMS
 
 ################################################################################
-# Generate RPM spec
-################################################################################
-
-generate_rpm_spec
-
-echo "RPM spec:"
-find "$WORK_DIR/SPECS" -type f -printf " %p\n"
-
-if [ "$BUILD_TARGET" = "spec" ] ; then
-    exit
-fi
-
-################################################################################
 # Generate RPM sources
 ################################################################################
 
@@ -310,6 +296,19 @@ echo "RPM sources:"
 find "$WORK_DIR/SOURCES" -type f -printf " %p\n"
 
 if [ "$BUILD_TARGET" = "src" ] ; then
+    exit
+fi
+
+################################################################################
+# Generate RPM spec
+################################################################################
+
+generate_rpm_spec
+
+echo "RPM spec:"
+find "$WORK_DIR/SPECS" -type f -printf " %p\n"
+
+if [ "$BUILD_TARGET" = "spec" ] ; then
     exit
 fi
 
