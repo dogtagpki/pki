@@ -120,7 +120,7 @@ Source: https://github.com/dogtagpki/pki/archive/v%{version}/pki-%{version}.tar.
 %bcond_without    console
 %bcond_without    theme
 %bcond_without    meta
-%endif
+%endif # with pkgs
 
 # ignore unpackaged files from native 'tpsclient'
 # REMINDER:  Remove this '%%define' once 'tpsclient' is rewritten as a Java app
@@ -1066,30 +1066,16 @@ cd build
 %if 0%{?fedora} >= 28 || 0%{?rhel} > 7
     -DPKI_NSS_DB_TYPE=sql \
 %endif
-%if ! %{?with_python3}
-    -DWITH_PYTHON3:BOOL=OFF \
-%endif
-%if ! %{?with_python2}
-    -DWITH_PYTHON2:BOOL=OFF \
-%endif
-%if %{?with_python3_default}
-    -DWITH_PYTHON3_DEFAULT:BOOL=ON \
-%endif
-%if ! %{with test}
-    -DWITH_TEST:BOOL=OFF \
-%endif
+    -DWITH_PYTHON2:BOOL=%{?with_python2:ON}%{!?with_python2:OFF} \
+    -DWITH_PYTHON3:BOOL=%{?with_python3:ON}%{!?with_python3:OFF} \
+    -DWITH_PYTHON3_DEFAULT:BOOL=%{?with_python3_default:ON}%{!?with_python3_default:OFF} \
+    -DWITH_TEST:BOOL=%{?with_test:ON}%{!?with_test:OFF} \
 %if ! %{with server} && ! %{with ca} && ! %{with kra} && ! %{with ocsp} && ! %{with tks} && ! %{with tps}
     -DWITH_SERVER:BOOL=OFF \
 %endif
-%if ! %{with javadoc}
-    -DWITH_JAVADOC:BOOL=OFF \
-%endif
-%if %{with console}
-    -DBUILD_PKI_CONSOLE:BOOL=ON \
-%endif
-%if %{with theme}
-    -DBUILD_DOGTAG_PKI_THEME:BOOL=ON \
-%endif
+    -DWITH_JAVADOC:BOOL=%{?with_javadoc:ON}%{!?with_javadoc:OFF} \
+    -DBUILD_PKI_CONSOLE:BOOL=%{?with_console:ON}%{!?with_console:OFF} \
+    -DBUILD_DOGTAG_PKI_THEME:BOOL=%{?with_theme:ON}%{!?with_theme:OFF} \
     ..
 
 ################################################################################
