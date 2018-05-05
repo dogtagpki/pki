@@ -1075,21 +1075,13 @@ cd build
 %if %{?with_python3_default}
     -DWITH_PYTHON3_DEFAULT:BOOL=ON \
 %endif
-%if ! %{with test}
-    -DWITH_TEST:BOOL=OFF \
-%endif
+    -DWITH_TEST:BOOL=%{?with_test:ON}%{!?with_test:OFF} \
 %if ! %{with server} && ! %{with ca} && ! %{with kra} && ! %{with ocsp} && ! %{with tks} && ! %{with tps}
     -DWITH_SERVER:BOOL=OFF \
 %endif
-%if ! %{with javadoc}
-    -DWITH_JAVADOC:BOOL=OFF \
-%endif
-%if %{with console}
-    -DBUILD_PKI_CONSOLE:BOOL=ON \
-%endif
-%if %{with theme}
-    -DBUILD_DOGTAG_PKI_THEME:BOOL=ON \
-%endif
+    -DWITH_JAVADOC:BOOL=%{?with_javadoc:ON}%{!?with_javadoc:OFF} \
+    -DBUILD_PKI_CONSOLE:BOOL=%{?with_console:ON}%{!?with_console:OFF} \
+    -DBUILD_DOGTAG_PKI_THEME:BOOL=%{?with_theme:ON}%{!?with_theme:OFF} \
     ..
 
 ################################################################################
