@@ -1066,12 +1066,8 @@ cd build
 %if 0%{?fedora} >= 28 || 0%{?rhel} > 7
     -DPKI_NSS_DB_TYPE=sql \
 %endif
-%if ! %{?with_python3}
-    -DWITH_PYTHON3:BOOL=OFF \
-%endif
-%if ! %{?with_python2}
-    -DWITH_PYTHON2:BOOL=OFF \
-%endif
+    -DWITH_PYTHON2:BOOL=%{?with_python2:ON}%{!?with_python2:OFF} \
+    -DWITH_PYTHON3:BOOL=%{?with_python3:ON}%{!?with_python3:OFF} \
 %if %{?with_python3_default}
     -DWITH_PYTHON3_DEFAULT:BOOL=ON \
 %endif
