@@ -30,6 +30,16 @@ Source: https://github.com/dogtagpki/pki/archive/v%{version}/pki-%{version}.tar.
 # Patch: pki-VERSION-RELEASE.patch
 
 ################################################################################
+# NSS
+################################################################################
+
+%if 0%{?fedora} >= 28 || 0%{?rhel} > 7
+%global nss_default_db_type sql
+%else
+%global nss_default_db_type dbm
+%endif
+
+################################################################################
 # Python
 ################################################################################
 
@@ -823,10 +833,8 @@ cd build
     -DAPP_SERVER=%{app_server} \
     -DJAXRS_API_JAR=%{jaxrs_api_jar} \
     -DRESTEASY_LIB=%{resteasy_lib} \
+    -DNSS_DEFAULT_DB_TYPE=%{nss_default_db_type} \
     -DBUILD_PKI_CORE:BOOL=ON \
-%if 0%{?fedora} >= 28 || 0%{?rhel} > 7
-    -DNSS_DEFAULT_DB_TYPE=sql \
-%endif
     -DWITH_PYTHON2:BOOL=%{?with_python2:ON}%{!?with_python2:OFF} \
     -DWITH_PYTHON3:BOOL=%{?with_python3:ON}%{!?with_python3:OFF} \
 %if %{?with_python3_default}
