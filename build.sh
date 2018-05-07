@@ -144,6 +144,48 @@ generate_rpm_spec() {
         commands="${commands}; s/%bcond_without *test\$/%global with_test 1/g"
     fi
 
+    # hard-code packages to build
+    if [ "$WITH_PKGS" != "" ] ; then
+
+        # use inclusion method by replacing
+        #   %bcond_with pkgs
+        # with
+        #   %global with_pkgs 1
+        commands="${commands}; s/^%bcond_with *pkgs\$/%global with_pkgs 1/g"
+
+        # include specified packages by replacing
+        #   %package_option <package>
+        # with
+        #   %global with_<package> 1
+        for package in `echo $WITH_PKGS | sed 's/,/\n/g'`
+        do
+            commands="${commands}; s/^%package_option *$package\$/%global with_$package 1/g"
+        done
+
+        # exclude other packages by deleting
+        #   %package_option <package>
+        commands="${commands}; s/^\(%package_option .*\)\$/# \1/g"
+
+    elif [ "$WITHOUT_PKGS" != "" ] ; then
+
+        # use exclusion method by deleting
+        #   %bcond_with pkgs
+        commands="${commands}; s/^\(%bcond_with *pkgs\)\$/# \1/g"
+
+        # exclude specified packages by deleting
+        #   %package_option <package>
+        for package in `echo $WITHOUT_PKGS | sed 's/,/\n/g'`
+        do
+            commands="${commands}; s/^\(%package_option *$package\)\$/# \1/g"
+        done
+
+        # include all other packages by replacing
+        #   %package_option <package>
+        # with
+        #   %global with_<package> 1
+        commands="${commands}; s/^%package_option *\(.*\)\$/%global with_\1 1/g"
+    fi
+
     sed "$commands" "$SPEC_TEMPLATE" > "$WORK_DIR/SPECS/$RPM_SPEC"
 
     # rpmlint "$WORK_DIR/SPECS/$RPM_SPEC"
