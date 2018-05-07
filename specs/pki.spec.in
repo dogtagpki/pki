@@ -101,38 +101,43 @@ Source: https://github.com/dogtagpki/pki/archive/v%{version}/pki-%{version}.tar.
 # PKI
 ################################################################################
 
+# By default the build will execute unit tests unless --without test
+# option is specified.
+
 %bcond_without    test
+
+# By default all packages will be built except the ones specified with
+# --without <package> option (exclusion method).
+
+# If --with pkgs option is specified, only packages specified with
+# --with <package> will be built (inclusion method).
+
 %bcond_with       pkgs
 
+# Define package_option macro to wrap bcond_with or bcond_without macro
+# depending on package selection method.
+
 %if %{with pkgs}
-# If --with pkgs is specified, build packages specified with --with <package> only.
-%bcond_with       base
-%bcond_with       server
-%bcond_with       ca
-%bcond_with       kra
-%bcond_with       ocsp
-%bcond_with       tks
-%bcond_with       tps
-%bcond_with       javadoc
-%bcond_with       console
-%bcond_with       theme
-%bcond_with       meta
-%bcond_with       debug
+%define package_option() %bcond_with %1
 %else
-# If --with pkgs is not specified, build everything except packages specified with --without <package>.
-%bcond_without    base
-%bcond_without    server
-%bcond_without    ca
-%bcond_without    kra
-%bcond_without    ocsp
-%bcond_without    tks
-%bcond_without    tps
-%bcond_without    javadoc
-%bcond_without    console
-%bcond_without    theme
-%bcond_without    meta
-%bcond_without    debug
+%define package_option() %bcond_without %1
 %endif # with pkgs
+
+# Define --with <package> or --without <package> options depending on
+# package selection method.
+
+%package_option   base
+%package_option   server
+%package_option   ca
+%package_option   kra
+%package_option   ocsp
+%package_option   tks
+%package_option   tps
+%package_option   javadoc
+%package_option   console
+%package_option   theme
+%package_option   meta
+%package_option   debug
 
 %if ! %{with debug}
 %define debug_package %{nil}
