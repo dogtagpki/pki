@@ -126,17 +126,18 @@ generate_rpm_spec() {
         echo "Generating $RPM_SPEC"
     fi
 
-    # update timestamp and commit ID
-    sed "s/%{?_timestamp}/${_TIMESTAMP}/g; s/%{?_commit_id}/${_COMMIT_ID}/g" \
-        "$SPEC_TEMPLATE" > "$WORK_DIR/SPECS/$RPM_SPEC"
+    # update timestamp
+    commands="s/%{?_timestamp}/${_TIMESTAMP}/g"
+
+    # update commit ID
+    commands="${commands}; s/%{?_commit_id}/${_COMMIT_ID}/g"
 
     if [ "$PATCH" != "" ] ; then
-
         # update patch
-        sed "s/# Patch: pki-VERSION-RELEASE.patch/Patch: $PATCH/g" \
-            "$WORK_DIR/SPECS/$RPM_SPEC" > "$WORK_DIR/SPECS/$RPM_SPEC.tmp"
-        mv "$WORK_DIR/SPECS/$RPM_SPEC.tmp" "$WORK_DIR/SPECS/$RPM_SPEC"
+        commands="${commands}; s/# Patch: pki-VERSION-RELEASE.patch/Patch: $PATCH/g"
     fi
+
+    sed "$commands" "$SPEC_TEMPLATE" > "$WORK_DIR/SPECS/$RPM_SPEC"
 
     # rpmlint "$WORK_DIR/SPECS/$RPM_SPEC"
 }
