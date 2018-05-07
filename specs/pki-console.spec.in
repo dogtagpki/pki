@@ -302,7 +302,7 @@ cd build
     -DRESTEASY_LIB=%{resteasy_lib} \
     -DBUILD_PKI_CORE:BOOL=ON \
 %if 0%{?fedora} >= 28 || 0%{?rhel} > 7
-    -DPKI_NSS_DB_TYPE=sql \
+    -DNSS_DEFAULT_DB_TYPE=sql \
 %endif
     -DWITH_PYTHON2:BOOL=%{?with_python2:ON}%{!?with_python2:OFF} \
     -DWITH_PYTHON3:BOOL=%{?with_python3:ON}%{!?with_python3:OFF} \
