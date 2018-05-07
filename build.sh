@@ -126,15 +126,22 @@ generate_rpm_spec() {
         echo "Generating $RPM_SPEC"
     fi
 
-    # update timestamp
+    # hard-code timestamp
     commands="s/%{?_timestamp}/${_TIMESTAMP}/g"
 
-    # update commit ID
+    # hard-code commit ID
     commands="${commands}; s/%{?_commit_id}/${_COMMIT_ID}/g"
 
     if [ "$PATCH" != "" ] ; then
-        # update patch
+        # hard-code patch
         commands="${commands}; s/# Patch: pki-VERSION-RELEASE.patch/Patch: $PATCH/g"
+    fi
+
+    # hard-code test option
+    if [ "$WITHOUT_TEST" = true ] ; then
+        commands="${commands}; s/%bcond_without *test\$/%global with_test 0/g"
+    else
+        commands="${commands}; s/%bcond_without *test\$/%global with_test 1/g"
     fi
 
     sed "$commands" "$SPEC_TEMPLATE" > "$WORK_DIR/SPECS/$RPM_SPEC"
