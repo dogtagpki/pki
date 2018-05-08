@@ -117,6 +117,7 @@ Source: https://github.com/dogtagpki/pki/archive/v%{version}/pki-%{version}.tar.
 %bcond_with       console
 %bcond_with       theme
 %bcond_with       meta
+%bcond_with       debug
 %else
 # If --with pkgs is not specified, build everything except packages specified with --without <package>.
 %bcond_without    base
@@ -130,7 +131,12 @@ Source: https://github.com/dogtagpki/pki/archive/v%{version}/pki-%{version}.tar.
 %bcond_without    console
 %bcond_without    theme
 %bcond_without    meta
-%endif
+%bcond_without    debug
+%endif # with pkgs
+
+%if ! %{with debug}
+%define debug_package %{nil}
+%endif # with debug
 
 # ignore unpackaged files from native 'tpsclient'
 # REMINDER:  Remove this '%%define' once 'tpsclient' is rewritten as a Java app

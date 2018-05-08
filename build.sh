@@ -132,8 +132,8 @@ generate_rpm_spec() {
     # hard-code commit ID
     commands="${commands}; s/%{?_commit_id}/${_COMMIT_ID}/g"
 
+    # hard-code patch
     if [ "$PATCH" != "" ] ; then
-        # hard-code patch
         commands="${commands}; s/# Patch: pki-VERSION-RELEASE.patch/Patch: $PATCH/g"
     fi
 
@@ -368,43 +368,23 @@ if [ "$WITH_PKGS" != "" ] ; then
     # Build specified packages only.
     OPTIONS+=(--with pkgs)
 
-    # Don't build debug package unless specified.
-    WITHOUT_DEBUG=true
-
     # Parse comma-separated list of packages.
     for package in `echo $WITH_PKGS | sed 's/,/\n/g'`
     do
-        if [ "$package" == "debug" ] ; then
-            # Build debug package.
-            WITHOUT_DEBUG=
-        else
-            # Build specified package.
-            OPTIONS+=(--with $package)
-        fi
+        # Build specified package.
+        OPTIONS+=(--with $package)
     done
 
 else
     # Build everything except specified packages.
     # Do not add --with pkgs into OPTIONS.
 
-    # Build debug package unless specified.
-    WITHOUT_DEBUG=
-
     # Parse comma-separated list of packages.
     for package in `echo $WITHOUT_PKGS | sed 's/,/\n/g'`
     do
-        if [ "$package" == "debug" ] ; then
-            # Don't build debug package.
-            WITHOUT_DEBUG=true
-        else
-            # Don't build specified package.
-            OPTIONS+=(--without $package)
-        fi
+        # Don't build specified package.
+        OPTIONS+=(--without $package)
     done
-fi
-
-if [ "$WITHOUT_DEBUG" = true ] ; then
-    OPTIONS+=(--define "debug_package %{nil}")
 fi
 
 ################################################################################
