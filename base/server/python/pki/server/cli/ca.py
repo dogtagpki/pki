@@ -265,6 +265,7 @@ class CACertRequestShowCLI(pki.cli.CLI):
         print()
         print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
         print('  -v, --verbose                   Run in verbose mode.')
+        print('      --output-file <file_name>   Save request in file.')
         print('      --help                      Show help message.')
         print()
 

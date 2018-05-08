@@ -354,7 +354,7 @@ class AuditEventDisableCLI(pki.cli.CLI):
             msg = 'Audit event "{}" disabled. You may need to restart the ' \
                   'instance.'.format(event_name)
         else:
-            msg = 'Audit event "{}" already disabled.'
+            msg = 'Audit event "{}" already disabled.'.format(event_name)
 
         print(len(msg) * '-')
         print(msg)
