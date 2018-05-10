@@ -52,6 +52,7 @@ import java.util.concurrent.CountDownLatch;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang.StringUtils;
 import org.dogtagpki.legacy.ca.CAPolicy;
 import org.dogtagpki.legacy.policy.IPolicyProcessor;
 import org.mozilla.jss.CryptoManager;
@@ -1603,25 +1604,30 @@ public class CertificateAuthority
     }
 
     public X509CertImpl getCACert() throws EBaseException {
+
         if (mCaCert != null) {
             return mCaCert;
         }
-        // during configuration
-        try {
-            String cert = mConfig.getString("signing.cert", null);
-            if (cert != null) {
-                return new X509CertImpl(Utils.base64decode(cert));
-            }
 
-        } catch (EBaseException e) {
-            CMS.debug(e);
-            throw e;
+        String cert = mConfig.getString("signing.cert");
+        CMS.debug("CertificateAuthority: CA signing cert: " + cert);
 
-        } catch (CertificateException e) {
-            throw new EBaseException(e);
+        if (StringUtils.isEmpty(cert)) {
+            CMS.debug("CertificateAuthority: Missing CA signing certificate");
+            throw new EBaseException("Missing CA signing certificate");
         }
 
-        return null;
+        byte[] bytes = Utils.base64decode(cert);
+        CMS.debug("CertificateAuthority: size: " + bytes.length + " bytes");
+
+        try {
+            return new X509CertImpl(bytes);
+
+        } catch (CertificateException e) {
+            CMS.debug("Unable to parse CA signing cert: " + e.getMessage());
+            CMS.debug(e);
+            throw new EBaseException(e);
+        }
     }
 
     public org.mozilla.jss.crypto.X509Certificate getCaX509Cert() {
