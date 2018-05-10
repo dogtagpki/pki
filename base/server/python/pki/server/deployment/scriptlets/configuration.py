@@ -430,10 +430,32 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             trust_attributes=None):
 
         cert_id = self.get_cert_id(subsystem, tag)
+        param = 'pki_%s_cert_path' % cert_id
+        cert_file = deployer.mdict.get(param)
 
-        cert_file = deployer.mdict.get('pki_%s_cert_path' % cert_id)
-        if not cert_file or not os.path.exists(cert_file):
-            return
+        # Existing/external CA:
+        #  - CA signing cert is mandatory
+        #  - other certs are optional (ignored if missing)
+        #
+        # External/standalone KRA/OCSP:
+        #  - all certs are mandatory
+
+        exists = cert_file and os.path.exists(cert_file)
+
+        if subsystem.name == 'ca':  # existing or external
+
+            if tag == 'signing':
+                if not exists:
+                    raise Exception('Invalid certificate path: %s=%s' % (param, cert_file))
+
+            else:  # other certs
+                if not exists:
+                    return
+
+        elif subsystem.name in ['kra', 'ocsp']:  # external or standalone
+
+            if not exists:
+                raise Exception('Invalid certificate path: %s=%s' % (param, cert_file))
 
         config.pki_log.info(
             "importing %s certificate from %s", cert_id, cert_file,

@@ -52,6 +52,7 @@ import java.util.concurrent.CountDownLatch;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang.StringUtils;
 import org.dogtagpki.legacy.ca.CAPolicy;
 import org.dogtagpki.legacy.policy.IPolicyProcessor;
 import org.mozilla.jss.CryptoManager;
@@ -1614,6 +1615,11 @@ public class CertificateAuthority
 
         String cert = mConfig.getString("signing.cert");
         logger.debug("CertificateAuthority: CA signing cert: " + cert);
+
+        if (StringUtils.isEmpty(cert)) {
+            logger.error("CertificateAuthority: Missing CA signing certificate");
+            throw new EBaseException("Missing CA signing certificate");
+        }
 
         byte[] bytes = Utils.base64decode(cert);
         logger.debug("CertificateAuthority: size: " + bytes.length + " bytes");
