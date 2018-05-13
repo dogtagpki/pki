@@ -49,7 +49,6 @@ import com.netscape.management.client.MenuItemSeparator;
 import com.netscape.management.client.MenuItemText;
 import com.netscape.management.client.ResourcePage;
 import com.netscape.management.client.StatusItemSecureMode;
-import com.netscape.management.client.StatusItemText;
 import com.netscape.management.client.console.ConsoleInfo;
 import com.netscape.management.client.topology.AbstractServerObject;
 import com.netscape.management.client.topology.IRemovableServerObject;
@@ -80,6 +79,7 @@ import netscape.ldap.LDAPSearchResults;
 public class CMSAdmin extends AbstractServerObject
     implements IWizardDone, IRemovableServerObject, IMenuInfo
 {
+    private static final long serialVersionUID = 1L;
 
     /*==========================================================
      * variables
@@ -93,17 +93,13 @@ public class CMSAdmin extends AbstractServerObject
     private ConsoleInfo mConsoleInfo;       // global information
     private CMSServerInfo mServerInfo;      // server-specific information
     private ConsoleInfo mServerInstanceInfo;
-    private CMSServerInfo mStatusInfo;      // server-specific information
     private CMSUIFramework  mFramework;     // parent frame
-    private CMSPageFeeder mPagefeeder;      // what generates tab views
     //private CMSInfoPanel mInfoPanel;        // information panel
     private RemoteImage mIconImage = null;  // server icon
     private String mServerID, mServerVersion, mInstallationDate, mServerRoot;
     private String mHost = null;            // server name
     private int mPort = 0;                  // server port
-    private String mAdminURL = null;        // admin server url
     private int mServerStatus = STATUS_UNKNOWN;
-    private StatusItemText mAuthid;
     private JFrame mActiveFrame;
 
     protected ResourceBundle mResource;   //resource boundle
@@ -298,7 +294,7 @@ public class CMSAdmin extends AbstractServerObject
       */
     public void actionMenuSelected(IPage viewInstance, IMenuItem item) {
         if (item.getID().equals(START)) {
-            ConsoleInfo info = getServerInstanceInfo();
+            getServerInstanceInfo();
             /* Fire off the Start task */
             CMSStart task = new CMSStart();
             mConsoleInfo.put(CMSStart.START_TASK_CGI, mServerID);
@@ -313,7 +309,7 @@ public class CMSAdmin extends AbstractServerObject
             }
         } else if(item.getID().equals(STOP)) {
             CMSStop task = new CMSStop();
-            ConsoleInfo info = getServerInstanceInfo();
+            getServerInstanceInfo();
             mConsoleInfo.put(CMSStop.STOP_TASK_CGI, mServerID);
             mConsoleInfo.put("servid", mServerID);
             mConsoleInfo.put("serverRoot",mServerRoot);
@@ -370,8 +366,8 @@ public class CMSAdmin extends AbstractServerObject
             " - "+ id );
     }
 
-    private Hashtable createWizardInfo() {
-        Hashtable data = new Hashtable();
+    private Hashtable<String, Object> createWizardInfo() {
+        Hashtable<String, Object> data = new Hashtable<>();
 		/* This does nothing
         data.put(ConfigConstants.TASKID,TaskId.TASK_LIST_PREVIOUS_STAGES);
         data.put(ConfigConstants.OPTYPE, OpDef.OP_READ);
@@ -403,7 +399,7 @@ public class CMSAdmin extends AbstractServerObject
 			return;
 		}
 		try {
-			Thread.currentThread().sleep(2000); // 2 seconds
+			Thread.sleep(2000); // 2 seconds
 		} catch (Exception e) {
 		}
 	}
@@ -413,7 +409,7 @@ public class CMSAdmin extends AbstractServerObject
      * Start up the installation wizard
      */
     public void startupInstallationWizard(IPage viewInstance) {
-        Hashtable data = new Hashtable();
+        Hashtable<String, Object> data = new Hashtable<>();
         CMSStartDaemon daemon = new CMSStartDaemon();
         mConsoleInfo.put("servid", mServerID);
         mConsoleInfo.put(CMSStartDaemon.START_DAEMON_CGI, mServerID);
@@ -634,7 +630,7 @@ public class CMSAdmin extends AbstractServerObject
 	      return STATUS_UNKNOWN;
 	    }
 	    try {
-	      ConsoleInfo info = getServerInstanceInfo();
+	      getServerInstanceInfo();
 	      CMSStatus task = new CMSStatus();
 	      mConsoleInfo.put(CMSStatus.STATUS_TASK_CGI, mServerID);
 	      mConsoleInfo.put("serverRoot",mServerRoot);
@@ -728,7 +724,7 @@ public class CMSAdmin extends AbstractServerObject
         Debug.println("--------------  removeServer() ==== --------------------");
 
 	Debug.println("getting console obj");
-	ConsoleInfo info = getServerInstanceInfo();
+	getServerInstanceInfo();
 	Debug.println("constuctor for remove");
 	/* Fire off the Remove task */
 	CMSRemove task = new CMSRemove();
@@ -812,7 +808,6 @@ public class CMSAdmin extends AbstractServerObject
     throws LDAPException {
 
       LDAPConnection ldc = mConsoleInfo.getLDAPConnection();
-      boolean ret = false;
 
       String dn = entry.getDN();
       if ( entryHasChildren( entry ) ) {
@@ -826,7 +821,7 @@ public class CMSAdmin extends AbstractServerObject
 				/* Get the next child */
 	  LDAPEntry child_entry =
 	    (LDAPEntry)search_results.nextElement();
-	  ret = delete_sieTree( child_entry );
+	  delete_sieTree( child_entry );
 
 	}
       }
@@ -839,9 +834,9 @@ public class CMSAdmin extends AbstractServerObject
     LDAPAttribute attr = entry.getAttribute(
 					    "numsubordinates" );
     if ( attr != null ) {
-      Enumeration e = attr.getStringValues();
+      Enumeration<String> e = attr.getStringValues();
       if ( e.hasMoreElements() ) {
-	String s = (String)e.nextElement();
+	String s = e.nextElement();
 	int count = Integer.parseInt( s );
 	if ( count > 0 ) {
 	  hasChildren = true;
@@ -862,7 +857,7 @@ public class CMSAdmin extends AbstractServerObject
       sieDN+"))";
 
     try {
-      search_results = ldc.search( baseDN, ldc.SCOPE_SUB,
+      search_results = ldc.search( baseDN, LDAPConnection.SCOPE_SUB,
 				   filter, attrs, false);
     } catch (LDAPException e) {
       Debug.println( "Failed to search - " + e.toString() );
@@ -975,7 +970,7 @@ public class CMSAdmin extends AbstractServerObject
                            ", " + e );
         }
 
-        mAdminURL = mConsoleInfo.getAdminURL();
+        mConsoleInfo.getAdminURL();
 
         /* Extract the username part of the admin authentication DN */
         String[] rdns = LDAPDN.explodeDN( mConsoleInfo.getAuthenticationDN(),
