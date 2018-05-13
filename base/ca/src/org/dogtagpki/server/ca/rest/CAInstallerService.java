@@ -18,7 +18,6 @@
 package org.dogtagpki.server.ca.rest;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -53,6 +52,8 @@ import netscape.ldap.LDAPException;
  */
 public class CAInstallerService extends SystemConfigService {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CAInstallerService.class);
+
     public CAInstallerService() throws EBaseException {
     }
 
@@ -67,8 +68,8 @@ public class CAInstallerService extends SystemConfigService {
             }
 
         } catch (Exception e) {
-            CMS.debug(e);
-            throw new PKIException("Errors in updating next serial number ranges in DB: " + e);
+            logger.error("Unable to update next serial number ranges: " + e.getMessage(), e);
+            throw new PKIException("Unable to update next serial number ranges: " + e.getMessage(), e);
         }
 
         try {
@@ -89,15 +90,15 @@ public class CAInstallerService extends SystemConfigService {
             configureStartingCRLNumber(request);
 
         } catch (Exception e) {
-            CMS.debug(e);
-            throw new PKIException("Errors in determining if security domain host is a master CA");
+            logger.error("Unable to determine if security domain host is a master CA: " + e.getMessage(), e);
+            throw new PKIException("Unable to determine if security domain host is a master CA: " + e.getMessage(), e);
         }
 
         try {
             CMS.enableSubsystem("profile");
         } catch (Exception e) {
-            CMS.debug(e);
-            throw new PKIException("Error enabling profile subsystem");
+            logger.error("Unable to enable profile subsystem: " + e.getMessage(), e);
+            throw new PKIException("Unable to enable profile subsystem: " + e.getMessage(), e);
         }
 
         if (! request.createSigningCertRecord()) {
@@ -108,8 +109,8 @@ public class CAInstallerService extends SystemConfigService {
                 String serialNumber = request.getSigningCertSerialNumber();
                 deleteSigningRecord(serialNumber);
             } catch (Exception e) {
-                CMS.debug(e);
-                throw new PKIException("Error deleting signing cert record:" + e, e);
+                logger.error("Unable to delete signing cert record: " + e.getMessage(), e);
+                throw new PKIException("Unable to delete signing cert record: " + e.getMessage(), e);
             }
         }
     }
@@ -133,7 +134,8 @@ public class CAInstallerService extends SystemConfigService {
             try {
                 importProfiles("/usr/share/pki");
             } catch (Exception e) {
-                throw new PKIException("Error importing profiles.");
+                logger.error("Unable to import profiles: " + e.getMessage(), e);
+                throw new PKIException("Unable to import profiles: " + e.getMessage(), e);
             }
         }
     }
@@ -170,11 +172,12 @@ public class CAInstallerService extends SystemConfigService {
                 }
 
                 String profilePath = configRoot + "/ca/profiles/ca/" + profileId + ".cfg";
-                CMS.debug("Importing profile '" + profileId + "' from " + profilePath);
+                logger.info("Importing profile '" + profileId + "' from " + profilePath);
                 importProfile(dbFactory, classId, profileId, profilePath);
+
             } catch (EBaseException e) {
-                CMS.debug("Error importing profile '" + profileId + "': " + e.toString());
-                CMS.debug("  Continuing with profile import procedure...");
+                logger.warn("Unable to import profile '" + profileId + "': " + e.getMessage());
+                logger.warn("ontinuing with profile import procedure");
             }
         }
     }
@@ -209,10 +212,9 @@ public class CAInstallerService extends SystemConfigService {
         try {
             FileInputStream input = new FileInputStream(profilePath);
             configStore.load(input);
-        } catch (FileNotFoundException e) {
-            throw new EBaseException("Could not find file for profile: " + profileId);
         } catch (IOException e) {
-            throw new EBaseException("Error loading data for profile: " + profileId);
+            logger.error("Unable to loading data for profile " + profileId + ": " + e.getMessage(), e);
+            throw new EBaseException("Unable to loading data for profile " + profileId + ": " + e.getMessage(), e);
         }
 
         configStore.commit(false /* no backup */);
@@ -240,20 +242,20 @@ public class CAInstallerService extends SystemConfigService {
                 if (conn != null)
                     conn.disconnect();
             } catch (LDAPException e) {
-                CMS.debug(e);
-                CMS.debug("releaseConnection: " + e);
+                logger.warn("Unable to release connection: " + e.getMessage(), e);
             }
         }
     }
 
     private void configureStartingCRLNumber(ConfigurationRequest data) {
-        CMS.debug("CAInstallerService:configureStartingCRLNumber entering.");
-        cs.putString("ca.crl.MasterCRL.startingCrlNumber",data.getStartingCRLNumber());
+        logger.debug("CAInstallerService: configuring starting CRL number");
+        cs.putString("ca.crl.MasterCRL.startingCrlNumber", data.getStartingCRLNumber());
 
     }
     private void disableCRLCachingAndGenerationForClone(ConfigurationRequest data) throws MalformedURLException {
 
-        CMS.debug("CAInstallerService:disableCRLCachingAndGenerationForClone entering.");
+        logger.debug("CAInstallerService: disabling CRL caching and generation for clone");
+
         if (!data.isClone())
             return;
 
@@ -273,8 +275,8 @@ public class CAInstallerService extends SystemConfigService {
         String masterHost = url.getHost();
         int masterPort = url.getPort();
 
-        CMS.debug("CAInstallerService:disableCRLCachingAndGenerationForClone: masterHost: " + masterHost
-                + " masterPort: " + masterPort);
+        logger.debug("CAInstallerService: master host: " + masterHost);
+        logger.debug("CAInstallerService: master pPort: " + masterPort);
 
         cs.putString("master.ca.agent.host", masterHost);
         cs.putInteger("master.ca.agent.port", masterPort);
