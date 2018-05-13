@@ -119,9 +119,9 @@ public class AbstractCipherPreference extends JPanel {
         cipherPane.setLayout(new BoxLayout(cipherPane, BoxLayout.Y_AXIS));
         add(cipherPane);
 
-        Vector ciphers = cipherList.getCipherList();
-        for (Enumeration e = ciphers.elements(); e.hasMoreElements();) {
-            addCipher((AbstractCipher)(e.nextElement()));
+        Vector<AbstractCipher> ciphers = cipherList.getCipherList();
+        for (Enumeration<AbstractCipher> e = ciphers.elements(); e.hasMoreElements();) {
+            addCipher(e.nextElement());
         }
     }
 

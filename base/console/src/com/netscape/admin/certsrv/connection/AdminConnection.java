@@ -148,7 +148,7 @@ public class AdminConnection {
      *==========================================================*/
 
     private String b64encode (byte[] data) {
-        int i, k, n;
+        int i;
         int len = data.length;
         byte b;
         StringBuffer b64 = new StringBuffer();
@@ -378,9 +378,9 @@ public class AdminConnection {
 
         Response response = sendRequest(request);
         if (response.getReturnCode() == Response.SUCCESS) {
-            Enumeration e = response.getNames();
+            Enumeration<String> e = response.getNames();
             while (e.hasMoreElements()) {
-                String n = (String)e.nextElement();
+                String n = e.nextElement();
                 if (n.equals("authType"))
                     mAuthType = response.get(n);
                     return mAuthType;
@@ -429,10 +429,10 @@ public class AdminConnection {
 
         if (response.getReturnCode() == Response.SUCCESS) {
             NameValuePairs newpairs = new NameValuePairs();
-            Enumeration e = response.getNames();
+            Enumeration<String> e = response.getNames();
             while (e.hasMoreElements()) {
-                String n = (String)e.nextElement();
-		        newpairs.put(n, response.get(n));
+                String n = e.nextElement();
+                newpairs.put(n, response.get(n));
             }
             return newpairs;
         }
@@ -481,10 +481,10 @@ public class AdminConnection {
 
         if (response.getReturnCode() == Response.SUCCESS) {
             NameValuePairs newpairs = new NameValuePairs();
-            Enumeration e = response.getNames();
+            Enumeration<String> e = response.getNames();
             while (e.hasMoreElements()) {
-                String n = (String)e.nextElement();
-		        newpairs.put(n, response.get(n));
+                String n = e.nextElement();
+                newpairs.put(n, response.get(n));
             }
             return newpairs;
         }
@@ -511,9 +511,9 @@ public class AdminConnection {
         Response response = sendRequest(request, useGET);
         if (response.getReturnCode() == Response.SUCCESS) {
             NameValuePairs newpairs = new NameValuePairs();
-            Enumeration e = response.getNames();
+            Enumeration<String> e = response.getNames();
             while (e.hasMoreElements()) {
-                String n = (String)e.nextElement();
+                String n = e.nextElement();
                 newpairs.put(n, response.get(n));
             }
             return newpairs;
@@ -722,13 +722,13 @@ public class AdminConnection {
         StringBuffer sb = new StringBuffer();
         if (useGET) {
           sb.append("GET /" + request.getPrefix() + "?");
-          Enumeration names = request.getElements();
+          Enumeration<String> names = request.getElements();
           while (names.hasMoreElements()) {
-            String name = (String)names.nextElement();
+            String name = names.nextElement();
             sb.append(name);
             sb.append("=");
             if (request.get(name) != null) {
-                sb.append(java.net.URLEncoder.encode(request.get(name)));
+                sb.append(java.net.URLEncoder.encode(request.get(name), "UTF-8"));
             }
             if (names.hasMoreElements())
               sb.append("&");
@@ -741,13 +741,13 @@ public class AdminConnection {
         StringBuffer sb1 = new StringBuffer();
         if (!useGET) {
             sb.append("Content-type: application/x-www-form-urlencoded\n");
-          Enumeration names = request.getElements();
+          Enumeration<String> names = request.getElements();
           while (names.hasMoreElements()) {
-            String name = (String)names.nextElement();
+            String name = names.nextElement();
             sb1.append(name);
             sb1.append("=");
             if (request.get(name) != null) {
-                sb1.append(java.net.URLEncoder.encode(request.get(name)));
+                sb1.append(java.net.URLEncoder.encode(request.get(name), "UTF-8"));
             }
             if (names.hasMoreElements())
               sb1.append("&");

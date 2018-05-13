@@ -17,8 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.connection;
 
-import java.io.*;
-import java.util.*;
+import java.util.Enumeration;
+import java.util.Vector;
 
 /**
  * A class represents a connection to certificate server.
@@ -34,8 +34,8 @@ public class Request {
 	//internal structure is changed to vector to maintain
 	//the ordering
 
-	private Vector mName = new Vector();
-	private Vector mValue = new Vector();
+	private Vector<String> mName = new Vector<>();
+	private Vector<String> mValue = new Vector<>();
 
 	public Request(String prefix) {
 		mPrefix = prefix;
@@ -53,13 +53,13 @@ public class Request {
 	public String get(String name) {
 	    int i = mName.indexOf(name);
 	    try {
-		    return (String) mValue.elementAt(i);
+		    return mValue.elementAt(i);
 		} catch (ArrayIndexOutOfBoundsException e) {
 		    return "";
 		}
 	}
 
-	public Enumeration getElements() {
+	public Enumeration<String> getElements() {
 		return mName.elements();
 	}
 

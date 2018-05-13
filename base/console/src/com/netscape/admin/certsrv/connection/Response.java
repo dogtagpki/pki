@@ -17,9 +17,13 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.connection;
 
-import java.net.*;
-import java.io.*;
-import java.util.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.util.Enumeration;
+import java.util.StringTokenizer;
+import java.util.Vector;
 
 /**
  * Response - now use vector to maintain the oredering
@@ -43,8 +47,8 @@ public class Response {
 	//internal structure is changed to vector to maintain
 	//the ordering
 
-	private Vector mName = new Vector();
-	private Vector mValue = new Vector();
+	private Vector<String> mName = new Vector<>();
+	private Vector<String> mValue = new Vector<>();
 
 	public Response() {
 	// for testing only
@@ -102,7 +106,7 @@ public class Response {
 			return null;
 		ByteArrayOutputStream out = new ByteArrayOutputStream(s.length());
 		for (int i = 0; i < s.length(); i++) {
-			int c = (int) s.charAt(i);
+			int c = s.charAt(i);
 			if (c == '+') {
 				out.write(' ');
 			} else if (c == '%') {
@@ -116,7 +120,7 @@ public class Response {
 		return out.toString();
 	}
 
-	public Enumeration getNames() {
+	public Enumeration<String> getNames() {
 		return mName.elements();
 	}
 
@@ -124,7 +128,7 @@ public class Response {
 	    int i = mName.indexOf(name);
 	    String value;
 	    try {
-		    value =  (String) mValue.elementAt(i);
+		    value =  mValue.elementAt(i);
 		} catch (ArrayIndexOutOfBoundsException e) {
 		    value = "";
 		}
