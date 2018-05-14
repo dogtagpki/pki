@@ -18,10 +18,12 @@
 
 package org.dogtagpki.server.ca;
 
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.SubsystemInfo;
 import com.netscape.cmscore.cert.CrossCertPairSubsystem;
+import com.netscape.cmscore.selftests.SelfTestSubsystem;
 
 public class CAEngine extends CMSEngine {
 
@@ -31,12 +33,15 @@ public class CAEngine extends CMSEngine {
 
         if (isPreOpMode()) {
             // Disable some subsystems before database initialization
-            // in pre-op mode to prevent errors.
+            // in pre-op mode to prevent misleading exceptions.
 
-            SubsystemInfo si = dynSubsystems.get("ca");
+            SubsystemInfo si = dynSubsystems.get(CertificateAuthority.ID);
             si.enabled = false;
 
             si = dynSubsystems.get(CrossCertPairSubsystem.ID);
+            si.enabled = false;
+
+            si = dynSubsystems.get(SelfTestSubsystem.ID);
             si.enabled = false;
         }
     }
