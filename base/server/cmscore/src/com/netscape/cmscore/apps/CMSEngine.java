@@ -921,7 +921,7 @@ public class CMSEngine implements ICMSEngine {
 
         mSSReg.put(ID, this);
 
-        initSubsystems(staticSubsystems, false);
+        initSubsystems(staticSubsystems);
 
         // Once the log subsystem is initialized, we
         // want to register a listener to catch
@@ -931,14 +931,14 @@ public class CMSEngine implements ICMSEngine {
         mWarningListener = new WarningListener(mWarning);
         mQueue.addLogEventListener(mWarningListener);
 
-        initSubsystems(dynSubsystems, true);
-        initSubsystems(finalSubsystems, false);
+        initSubsystems(dynSubsystems);
+        initSubsystems(finalSubsystems);
     }
 
-    private void initSubsystems(Map<String, SubsystemInfo> subsystems, boolean doSetId)
+    private void initSubsystems(Map<String, SubsystemInfo> subsystems)
             throws EBaseException {
         for (SubsystemInfo si : subsystems.values()) {
-            initSubsystem(si, doSetId);
+            initSubsystem(si);
         }
     }
 
@@ -1009,7 +1009,7 @@ public class CMSEngine implements ICMSEngine {
                         CMS.getUserMessage("CMS_BASE_LOAD_FAILED_1", id, e.toString()), e);
             }
 
-            dynSubsystems.put(id, new SubsystemInfo(id, ss, enabled));
+            dynSubsystems.put(id, new SubsystemInfo(id, ss, enabled, true));
             logger.debug("CMSEngine: loaded dyn subsystem " + id);
         }
 
@@ -1059,16 +1059,16 @@ public class CMSEngine implements ICMSEngine {
     /**
      * initialize a subsystem
      */
-    private void initSubsystem(SubsystemInfo ssinfo, boolean doSetId)
+    private void initSubsystem(SubsystemInfo ssinfo)
             throws EBaseException {
 
-        String id = ssinfo.mId;
-        ISubsystem ss = ssinfo.mInstance;
+        String id = ssinfo.id;
+        ISubsystem ss = ssinfo.instance;
 
         logger.debug("CMSEngine: initSubsystem(" + id + ")");
         mSSReg.put(id, ss);
 
-        if (doSetId) {
+        if (ssinfo.updateIdOnInit) {
             ss.setId(id);
         }
 
@@ -1822,9 +1822,9 @@ public class CMSEngine implements ICMSEngine {
             throws EBaseException {
 
         for (SubsystemInfo si : subsystems.values()) {
-            logger.debug("CMSEngine: starting " + si.mId);
-            si.mInstance.startup();
-            logger.debug("CMSEngine: " + si.mId + " started");
+            logger.debug("CMSEngine: starting " + si.id);
+            si.instance.startup();
+            logger.debug("CMSEngine: " + si.id + " started");
         }
     }
 
@@ -2020,9 +2020,9 @@ public class CMSEngine implements ICMSEngine {
         Collections.reverse(list);
 
         for (SubsystemInfo si : list) {
-            logger.debug("CMSEngine: stopping " + si.mId);
-            si.mInstance.shutdown();
-            logger.debug("CMSEngine: " + si.mId + " stopped");
+            logger.debug("CMSEngine: stopping " + si.id);
+            si.instance.shutdown();
+            logger.debug("CMSEngine: " + si.id + " stopped");
         }
     }
 

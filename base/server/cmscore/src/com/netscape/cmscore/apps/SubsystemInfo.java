@@ -21,18 +21,19 @@ import com.netscape.certsrv.base.ISubsystem;
 
 public class SubsystemInfo {
 
-    public String mId;
-    public ISubsystem mInstance;
+    public String id;
+    public ISubsystem instance;
     public boolean enabled;
+    public boolean updateIdOnInit;
 
-    public SubsystemInfo(String id, ISubsystem ssInstance) {
-        this(id, ssInstance, true);
+    public SubsystemInfo(String id, ISubsystem instance) {
+        this(id, instance, true, false);
     }
 
-    public SubsystemInfo(String id, ISubsystem ssInstance, boolean enabled) {
-        mId = id;
-        mInstance = ssInstance;
+    public SubsystemInfo(String id, ISubsystem instance, boolean enabled, boolean updateIdOnInit) {
+        this.id = id;
+        this.instance = instance;
         this.enabled = enabled;
+        this.updateIdOnInit = updateIdOnInit;
     }
-
 }
