@@ -32,7 +32,11 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.system.ConfigurationRequest;
 import com.netscape.cms.servlet.csadmin.ConfigurationUtils;
+import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.SubsystemInfo;
+import com.netscape.cmscore.selftests.SelfTestSubsystem;
 import com.netscape.cmsutil.xml.XMLObject;
+import com.netscape.kra.KeyRecoveryAuthority;
 
 /**
  * @author alee
@@ -41,6 +45,21 @@ import com.netscape.cmsutil.xml.XMLObject;
 public class KRAInstallerService extends SystemConfigService {
 
     public KRAInstallerService() throws EBaseException {
+    }
+
+    @Override
+    public void initializeDatabase(ConfigurationRequest data) throws EBaseException {
+
+        super.initializeDatabase(data);
+
+        // Enable subsystems after database initialization.
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+
+        SubsystemInfo si = engine.dynSubsystems.get(KeyRecoveryAuthority.ID);
+        si.enabled = true;
+
+        si = engine.dynSubsystems.get(SelfTestSubsystem.ID);
+        si.enabled = true;
     }
 
     @Override
