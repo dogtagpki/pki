@@ -26,6 +26,7 @@ import java.util.StringTokenizer;
 import org.apache.commons.lang.StringUtils;
 import org.dogtagpki.server.rest.SystemConfigService;
 
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -125,7 +126,7 @@ public class CAInstallerService extends SystemConfigService {
         // Enable subsystems after database initialization.
         CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
 
-        SubsystemInfo si = engine.dynSubsystems.get("ca");
+        SubsystemInfo si = engine.dynSubsystems.get(CertificateAuthority.ID);
         si.enabled = true;
 
         si = engine.dynSubsystems.get(CrossCertPairSubsystem.ID);

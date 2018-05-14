@@ -16,15 +16,14 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
-package org.dogtagpki.server.ca;
+package org.dogtagpki.server.kra;
 
-import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.SubsystemInfo;
-import com.netscape.cmscore.cert.CrossCertPairSubsystem;
+import com.netscape.kra.KeyRecoveryAuthority;
 
-public class CAEngine extends CMSEngine {
+public class KRAEngine extends CMSEngine {
 
     protected void loadSubsystems() throws EBaseException {
 
@@ -34,10 +33,7 @@ public class CAEngine extends CMSEngine {
             // Disable some subsystems before database initialization
             // in pre-op mode to prevent misleading exceptions.
 
-            SubsystemInfo si = dynSubsystems.get(CertificateAuthority.ID);
-            si.enabled = false;
-
-            si = dynSubsystems.get(CrossCertPairSubsystem.ID);
+            SubsystemInfo si = dynSubsystems.get(KeyRecoveryAuthority.ID);
             si.enabled = false;
         }
     }
