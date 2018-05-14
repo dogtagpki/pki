@@ -12,42 +12,33 @@
 // with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-// (C) 2014 Red Hat, Inc.
+// (C) 2018 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
-package org.dogtagpki.server.tks.rest;
 
-import org.dogtagpki.server.rest.SystemConfigService;
+package org.dogtagpki.server.tks;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.system.ConfigurationRequest;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.SubsystemInfo;
 import com.netscape.cmscore.selftests.SelfTestSubsystem;
 import com.netscape.tks.TKSAuthority;
 
-/**
- * @author alee
- *
- */
-public class TKSInstallerService extends SystemConfigService {
+public class TKSEngine extends CMSEngine {
 
-    public TKSInstallerService() throws EBaseException {
-    }
+    protected void loadSubsystems() throws EBaseException {
 
-    @Override
-    public void initializeDatabase(ConfigurationRequest data) throws EBaseException {
+        super.loadSubsystems();
 
-        super.initializeDatabase(data);
+        if (isPreOpMode()) {
+            // Disable some subsystems before database initialization
+            // in pre-op mode to prevent misleading exceptions.
 
-        // Enable subsystems after database initialization.
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+            SubsystemInfo si = dynSubsystems.get(TKSAuthority.ID);
+            si.enabled = false;
 
-        SubsystemInfo si = engine.dynSubsystems.get(TKSAuthority.ID);
-        si.enabled = true;
-
-        si = engine.dynSubsystems.get(SelfTestSubsystem.ID);
-        si.enabled = true;
+            si = dynSubsystems.get(SelfTestSubsystem.ID);
+            si.enabled = false;
+        }
     }
 }

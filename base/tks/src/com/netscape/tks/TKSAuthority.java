@@ -31,6 +31,8 @@ public class TKSAuthority implements IAuthority, ISubsystem {
 
     protected Logger systemLogger = Logger.getLogger(ILogger.EV_SYSTEM, ILogger.S_TKS);
 
+    public static final String ID = "tks";
+
     private String mNickname = null;
     @SuppressWarnings("unused")
     private ISubsystem mOwner;
