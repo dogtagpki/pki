@@ -1316,13 +1316,12 @@ public class CMSEngine implements ICMSEngine {
          * @phase server startup
          * @reason all subsystems are initialized and started.
          */
-        Logger.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_ADMIN,
-                ILogger.LL_INFO, CMS.getLogMessage("SERVER_STARTUP"));
+        logger.info(CMS.getLogMessage("SERVER_STARTUP"));
 
         String type = mConfig.get("cs.type");
         logger.info(type + " is started.");
-        isStarted = true;
 
+        isStarted = true;
     }
 
     public boolean isInRunningState() {
@@ -1890,10 +1889,8 @@ public class CMSEngine implements ICMSEngine {
      * exceptions are ignored. process exists at end to force exit.
      */
     public void shutdown() {
-        Logger.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_ADMIN,
-                ILogger.LL_INFO, Constants.SERVER_SHUTDOWN_MESSAGE);
 
-        logger.debug("CMSEngine.shutdown()");
+        logger.info("Shutting down");
 
         /*
                 CommandQueue commandQueue = new CommandQueue();
@@ -1946,26 +1943,26 @@ public class CMSEngine implements ICMSEngine {
     }
 
     public void autoShutdown(boolean restart) {
-        String method = "CMSEngine.autoShutdown(): ";
-        Logger.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_ADMIN,
-                ILogger.LL_INFO, Constants.SERVER_SHUTDOWN_MESSAGE);
-        logger.debug(method + "...with restart=" + restart);
+
+        logger.info("Shutting down");
+        logger.debug("CMSEngine: restart: " + restart);
 
         // update restart tracker so we don't go into infinite restart loop
-        if (restart == true) {
-            logger.debug(method + "...checking autoShutdown.restart trackers");
+        if (restart) {
+            logger.debug("CMSEngine: checking autoShutdown.restart trackers");
             if (mAutoSD_RestartCount >= mAutoSD_RestartMax) {
                 mAutoSD_Restart = false;
                 mConfig.putBoolean("autoShutdown.restart.enable", mAutoSD_Restart);
-                logger.debug(method + "...autoShutdown.restart.max reached, disabled autoShutdown.restart.enable");
+                logger.debug("CMSEngine: autoShutdown.restart.max reached, disabled autoShutdown.restart.enable");
             } else {
                 mAutoSD_RestartCount++;
                 mConfig.putInteger("autoShutdown.restart.count", mAutoSD_RestartCount);
-                logger.debug(method + "...autoShutdown.restart.max not reached, increment autoShutdown.restart.count");
+                logger.debug("CMSEngine: autoShutdown.restart.max not reached, increment autoShutdown.restart.count");
             }
             try {
                 mConfig.commit(false);
             } catch (EBaseException e) {
+                logger.warn("Unable to store configuration: " + e.getMessage(), e);
             }
         } else {
             // leave a crumb file to be monitored by external monitor
@@ -2046,8 +2043,7 @@ public class CMSEngine implements ICMSEngine {
             pwc.addEntry(tag, pw);
         } catch (EBaseException e) {
             // intercept this for now -- don't want to change the callers
-            Logger.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                    ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SDR_ADD_ERROR", e.toString()));
+            logger.warn(CMS.getLogMessage("CMSCORE_SDR_ADD_ERROR", e.toString()), e);
         }
     }
 
@@ -2156,7 +2152,7 @@ public class CMSEngine implements ICMSEngine {
             }
 
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTH_AGENT_REQUEST_QUEUE"));
+            logger.warn(CMS.getLogMessage("CMSCORE_AUTH_AGENT_REQUEST_QUEUE"), e);
         }
 
         return queue;
@@ -2200,7 +2196,7 @@ public class CMSEngine implements ICMSEngine {
                                 mVCList.update(cert, VerifiedCert.NOT_REVOKED);
                         }
                     } catch (EBaseException e) {
-                        log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTH_AGENT_REVO_STATUS"));
+                        logger.warn(CMS.getLogMessage("CMSCORE_AUTH_AGENT_REVO_STATUS"), e);
                     }
                 } else {
                     IRequestQueue queue = getReqQueue();
@@ -2248,7 +2244,7 @@ public class CMSEngine implements ICMSEngine {
                                     mVCList.update(cert, VerifiedCert.CHECKED);
                             }
                         } catch (EBaseException e) {
-                            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTH_AGENT_PROCESS_CHECKING"));
+                            logger.warn(CMS.getLogMessage("CMSCORE_AUTH_AGENT_PROCESS_CHECKING"), e);
                         }
                     }
                 }
@@ -2258,11 +2254,6 @@ public class CMSEngine implements ICMSEngine {
         }
 
         return revoked;
-    }
-
-    private void log(int level, String msg) {
-        Logger.getLogger().log(ILogger.EV_SYSTEM,
-                ILogger.S_AUTHENTICATION, level, msg);
     }
 
     @Override
