@@ -167,10 +167,6 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
 
         } catch (EBaseException e) {
             CMS.debug(e);
-            if (CMS.isPreOpMode()) {
-                CMS.debug("OCSPAuthority.init(): Swallow exception in pre-op mode");
-                return;
-            }
             throw e;
         }
 
