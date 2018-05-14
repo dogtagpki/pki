@@ -31,6 +31,9 @@ import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.system.ConfigurationRequest;
 import com.netscape.certsrv.system.SystemCertData;
 import com.netscape.cms.servlet.csadmin.ConfigurationUtils;
+import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.SubsystemInfo;
+import com.netscape.cmscore.selftests.SelfTestSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -41,6 +44,18 @@ public class TPSInstallerService extends SystemConfigService  {
 
 
     public TPSInstallerService() throws EBaseException {
+    }
+
+    @Override
+    public void initializeDatabase(ConfigurationRequest data) throws EBaseException {
+
+        super.initializeDatabase(data);
+
+        // Enable subsystems after database initialization.
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+
+        SubsystemInfo si = engine.dynSubsystems.get(SelfTestSubsystem.ID);
+        si.enabled = true;
     }
 
     @Override
