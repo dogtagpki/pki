@@ -1027,7 +1027,12 @@ public class CMSEngine implements ICMSEngine {
         if (isPreOpMode()) {
             // Disable some subsystems before database initialization
             // in pre-op mode to prevent errors.
-            UGSubsystem.getInstance().setEnabled(false);
+
+            SubsystemInfo si = staticSubsystems.get(DBSubsystem.ID);
+            si.enabled = false;
+
+            si = staticSubsystems.get(UGSubsystem.ID);
+            si.enabled = false;
         }
     }
 

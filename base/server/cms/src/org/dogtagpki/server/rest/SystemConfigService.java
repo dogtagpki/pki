@@ -59,6 +59,8 @@ import com.netscape.cms.servlet.csadmin.Cert;
 import com.netscape.cms.servlet.csadmin.ConfigurationUtils;
 import com.netscape.cms.servlet.csadmin.SystemCertDataFactory;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.SubsystemInfo;
+import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -736,7 +738,13 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         }
 
         // Enable subsystems after database initialization.
-        UGSubsystem.getInstance().setEnabled(true);
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+
+        SubsystemInfo si = engine.staticSubsystems.get(DBSubsystem.ID);
+        si.enabled = true;
+
+        si = engine.staticSubsystems.get(UGSubsystem.ID);
+        si.enabled = true;
     }
 
     public void configureHierarchy(ConfigurationRequest data) {
