@@ -17,16 +17,23 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.task;
 
-import com.netscape.admin.certsrv.*;
-import java.util.*;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URL;
-import javax.swing.JFrame;
-import com.netscape.management.client.TaskObject;
+import java.util.Enumeration;
+import java.util.Hashtable;
+
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.CMSTaskObject;
 import com.netscape.management.client.IPage;
-import com.netscape.management.client.console.ConsoleInfo;
-import com.netscape.management.client.comm.*;
-import com.netscape.management.client.util.*;
+import com.netscape.management.client.comm.CommClient;
+import com.netscape.management.client.comm.CommManager;
+import com.netscape.management.client.comm.CommRecord;
+import com.netscape.management.client.comm.HttpManager;
+import com.netscape.management.client.util.Debug;
+import com.netscape.management.client.util.URLByteEncoder;
 
 /**
  *	Netscape Certificate Server 4.0 CGI base task
@@ -37,6 +44,7 @@ import com.netscape.management.client.util.*;
 public class CGITask extends CMSTaskObject
     implements CommClient
 {
+    private static final long serialVersionUID = 1L;
 
     /*==========================================================
      * variables
@@ -116,7 +124,7 @@ public class CGITask extends CMSTaskObject
 		HttpManager h = new HttpManager();
 		// tell the http manager to use UTF8 encoding
 		h.setResponseTimeout(60000);
-		h.setSendUTF8(true);
+		HttpManager.setSendUTF8(true);
 
 		try {
 			mSuccess = false;
@@ -124,7 +132,7 @@ public class CGITask extends CMSTaskObject
 
 			// _consoleInfo.get("arguments") is a hashtable of key/value pairs
 			// to use as the arguments to the CGI
-			Hashtable args = (Hashtable)_consoleInfo.get("arguments");
+			Hashtable<String, Object> args = (Hashtable<String, Object>)_consoleInfo.get("arguments");
 			ByteArrayInputStream data = null;
 			if (args != null && !args.isEmpty())
 				data = encode(args);
@@ -314,7 +322,7 @@ public class CGITask extends CMSTaskObject
 	 */
 	public String username(Object authObject, CommRecord cr) {
 		Debug.println( "username = " +
-		    (String)_consoleInfo.getAuthenticationDN());
+		    _consoleInfo.getAuthenticationDN());
         return _consoleInfo.getAuthenticationDN();
 	}
 
@@ -377,17 +385,17 @@ public class CGITask extends CMSTaskObject
     * @param   args   <code>Hashtable</code> containing name/value pairs to be translated.
     * @return  a ByteArrayInputStream to the translated <code>Hashtable</code> contents.
     */
-   public static ByteArrayInputStream encode(Hashtable args)
+   public static ByteArrayInputStream encode(Hashtable<String, Object> args)
    {
       if ((args == null) || (args.size() == 0))
          return (null);
 
       String      p = "";
-      Enumeration e = args.keys();
+      Enumeration<String> e = args.keys();
 
       while (e.hasMoreElements())
       {
-         String name  = (String)e.nextElement();
+         String name  = e.nextElement();
          String value = URLByteEncoder.encodeUTF8(args.get(name).toString());
          Debug.println("********** Encoding name --> "+name+" value --> "+value);
          p += URLByteEncoder.encodeUTF8(name) + "=" +

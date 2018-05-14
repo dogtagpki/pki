@@ -17,18 +17,20 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.task;
 
-import java.util.*;
-import java.io.*;
+import java.io.ByteArrayInputStream;
 import java.net.URL;
-import javax.swing.*;
-import com.netscape.management.client.*;
-import com.netscape.management.client.console.*;
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.management.client.util.*;
-import com.netscape.management.client.comm.*;
-import netscape.ldap.*;
+import java.util.Hashtable;
+
+import com.netscape.admin.certsrv.CMSAdmin;
+import com.netscape.management.client.IPage;
+import com.netscape.management.client.comm.HttpManager;
+import com.netscape.management.client.console.ConsoleInfo;
+import com.netscape.management.client.util.Debug;
+import com.netscape.management.client.util.LDAPUtil;
+
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
 
 /**
  * Retrieve the status of the server
@@ -38,13 +40,13 @@ import netscape.ldap.*;
  */
 public class CMSStatus extends CGITask
 {
+    private static final long serialVersionUID = 1L;
+
     /*==========================================================
      * variables
      *==========================================================*/
-    private static final String PREFIX = "TASKSTATUS";
+    // private static final String PREFIX = "TASKSTATUS";
     public static final String STATUS_TASK_CGI = "Tasks/Operation/status";
-    private Hashtable mCgiResponse = null;
-    private String mCgiTask = null;
 
 	/*==========================================================
      * constructors
@@ -71,7 +73,7 @@ public class CMSStatus extends CGITask
         Debug.println("CMSStatus: run()");
         boolean status = false; // return value
 
-        Hashtable configParams = new Hashtable();
+        Hashtable<String, Object> configParams = new Hashtable<>();
         configParams.put("serverRoot",_consoleInfo.get("serverRoot"));
         String servid = (String)_consoleInfo.get("servid");
         int index = servid.indexOf("-");
@@ -168,7 +170,7 @@ public class CMSStatus extends CGITask
 
     HttpManager h = new HttpManager();
     // tell the http manager to use UTF8 encoding
-    h.setSendUTF8(true);
+    HttpManager.setSendUTF8(true);
 
     try {
       mSuccess = false;
@@ -176,7 +178,7 @@ public class CMSStatus extends CGITask
 
       // _consoleInfo.get("arguments") is a hashtable of key/value pairs
       // to use as the arguments to the CGI
-      Hashtable args = (Hashtable)_consoleInfo.get("arguments");
+      Hashtable<String, Object> args = (Hashtable<String, Object>)_consoleInfo.get("arguments");
       ByteArrayInputStream data = null;
       if (args != null && !args.isEmpty())
 	data = encode(args);
