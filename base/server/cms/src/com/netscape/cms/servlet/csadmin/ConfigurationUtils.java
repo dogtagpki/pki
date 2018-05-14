@@ -98,8 +98,6 @@ import org.xml.sax.SAXParseException;
 import com.netscape.certsrv.account.AccountClient;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.EAuthException;
-import com.netscape.certsrv.authentication.IAuthSubsystem;
-import com.netscape.certsrv.authorization.IAuthzSubsystem;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.ConflictingOperationException;
 import com.netscape.certsrv.base.EBaseException;
@@ -113,7 +111,6 @@ import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.PKIConnection;
-import com.netscape.certsrv.dbs.IDBSubsystem;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.key.KeyData;
@@ -134,7 +131,6 @@ import com.netscape.certsrv.usrgrp.EUsrGrpException;
 import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 import com.netscape.cmsutil.util.Utils;
@@ -2294,18 +2290,6 @@ public class ConfigurationUtils {
         } else {
             throw new IOException("nsDS5ReplicaLastInitStatus is null.");
         }
-    }
-
-    public static void reInitSubsystem(String csType) throws EBaseException {
-
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-
-        engine.reinit(IDBSubsystem.SUB_ID);
-        if (csType.equals("CA"))
-            engine.reinit(ICertificateAuthority.ID);
-        engine.reinit(IAuthSubsystem.ID);
-        engine.reinit(IAuthzSubsystem.ID);
-        engine.reinit(IUGSubsystem.ID);
     }
 
     public static KeyPair loadKeyPair(String nickname, String token) throws Exception {

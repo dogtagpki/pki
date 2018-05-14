@@ -124,6 +124,23 @@ public class CAInstallerService extends SystemConfigService {
 
         super.initializeDatabase(data);
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+
+        if (!data.isClone()
+                && engine.getSubsystem("profile") instanceof LDAPProfileSubsystem) {
+            try {
+                importProfiles("/usr/share/pki");
+            } catch (Exception e) {
+                logger.error("Unable to import profiles: " + e.getMessage(), e);
+                throw new PKIException("Unable to import profiles: " + e.getMessage(), e);
+            }
+        }
+    }
+
+    public void reinitSubsystems() throws EBaseException {
+
+        super.reinitSubsystems();
+
         // Enable subsystems after database initialization.
         CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
 
@@ -136,15 +153,7 @@ public class CAInstallerService extends SystemConfigService {
         si = engine.dynSubsystems.get(SelfTestSubsystem.ID);
         si.enabled = true;
 
-        if (!data.isClone()
-                && engine.getSubsystem("profile") instanceof LDAPProfileSubsystem) {
-            try {
-                importProfiles("/usr/share/pki");
-            } catch (Exception e) {
-                logger.error("Unable to import profiles: " + e.getMessage(), e);
-                throw new PKIException("Unable to import profiles: " + e.getMessage(), e);
-            }
-        }
+        engine.reinit(CertificateAuthority.ID);
     }
 
     /**
