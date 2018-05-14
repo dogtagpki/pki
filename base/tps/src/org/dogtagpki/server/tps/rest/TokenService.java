@@ -643,11 +643,6 @@ public class TokenService extends SubsystemService implements TokenResource {
         }
 
         auditModParams.put("tokenID", tokenID);
-        if (tokenStatus == null) {
-            auditConfigTokenGeneral(ILogger.FAILURE, method, null,
-                    "Token state is null.");
-            throw new BadRequestException("Token state is null.");
-        }
         auditModParams.put("tokenStatus", tokenStatus.toString());
 
         CMS.debug("TokenService.changeTokenStatus(\"" + tokenID + "\", \"" + tokenStatus + "\")");

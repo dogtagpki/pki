@@ -164,10 +164,6 @@ public class CertReqInput extends EnrollInput implements IProfileInput {
                 msgs[i] = (TaggedRequest) reqSeq.elementAt(i);
             }
 
-            if (msgs == null) {
-                throw new EProfileException(CMS.getUserMessage(
-                            getLocale(request), "CMS_PROFILE_NO_CERT_REQ"));
-            }
             // This profile only handle the first request in CRMF
             Integer seqNum = request.getExtDataInInteger(EnrollProfile.REQUEST_SEQ_NUM);
             if (seqNum == null) {

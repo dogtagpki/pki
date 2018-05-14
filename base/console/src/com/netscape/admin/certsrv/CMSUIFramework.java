@@ -17,12 +17,19 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv;
 
-import java.util.*;
-import com.netscape.management.client.*;
-import com.netscape.management.client.util.*;
-import com.netscape.management.client.console.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.admin.certsrv.connection.*;
+import java.util.Hashtable;
+import java.util.ResourceBundle;
+import java.util.Vector;
+
+import com.netscape.admin.certsrv.connection.AdminConnection;
+import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.common.DestDef;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.common.ScopeDef;
+import com.netscape.management.client.Framework;
+import com.netscape.management.client.IPage;
+import com.netscape.management.client.console.ConsoleInfo;
+import com.netscape.management.client.util.Debug;
 
 /**
  * Netscape Certificate Server 4.0 UI Framework
@@ -183,10 +190,8 @@ class DefaultSubSystemLocator implements ISubSystemLocator {
         subsystems[2].mType=Constants.PR_KRA_INSTANCE;
         subsystems[3].mType=Constants.PR_OCSP_INSTANCE;
         //subsystems[3].mType="ccm";
-        if (true)
-            return subsystems;
-        //this should never be called
-        throw new EAdminException("DefaultSubSystemLocator - error loading",true);
+
+        return subsystems;
     }
 }
 

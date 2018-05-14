@@ -1019,7 +1019,7 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
                         SET certs = cmcFullReq.getCertificates();
                         int numCerts = certs.size();
                         X509Certificate[] x509Certs = new X509Certificate[1];
-                        byte[] certByteArray = new byte[0];
+
                         for (int j = 0; j < numCerts; j++) {
                             Certificate certJss = (Certificate) certs.elementAt(j);
                             CertificateInfo certI = certJss.getInfo();
@@ -1034,7 +1034,7 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
                                 ByteArrayOutputStream os = new ByteArrayOutputStream();
 
                                 certJss.encode(os);
-                                certByteArray = os.toByteArray();
+                                os.toByteArray();
 
                                 X509CertImpl tempcert = new X509CertImpl(os.toByteArray());
 

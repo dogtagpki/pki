@@ -19,8 +19,6 @@ package com.netscape.cms.profile.input;
 
 import java.util.Locale;
 
-import netscape.security.x509.X509CertInfo;
-
 import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.pkix.cmc.PKIData;
 import org.mozilla.jss.pkix.cmc.TaggedRequest;
@@ -35,6 +33,8 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.common.EnrollProfile;
+
+import netscape.security.x509.X509CertInfo;
 
 /**
  * This class implements the certificate request input.
@@ -111,10 +111,6 @@ public class CMCCertReqInput extends EnrollInput implements IProfileInput {
             msgs[i] = (TaggedRequest) reqSeq.elementAt(i);
         }
 
-        if (msgs == null) {
-            CMS.debug(method + "TaggedRequest msgs null after getPKIDataFromCMCblob");
-            return;
-        }
         // This profile only handle the first request in CRMF
         Integer seqNum = request.getExtDataInInteger(EnrollProfile.REQUEST_SEQ_NUM);
         if (seqNum == null) {
