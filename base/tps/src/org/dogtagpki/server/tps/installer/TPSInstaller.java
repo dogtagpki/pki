@@ -26,6 +26,7 @@ import org.dogtagpki.server.tps.config.ConnectorRecord;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.PKIException;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * Utility class for TPS installation to be used both by the RESTful installer
@@ -36,6 +37,8 @@ import com.netscape.certsrv.base.PKIException;
  */
 
 public class TPSInstaller {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMSEngine.class);
 
     public TPSInstaller() {
     }
@@ -53,7 +56,8 @@ public class TPSInstaller {
             database.addCAConnector(uri.getHost(), uri.getPort(), nickname);
 
         } catch (Exception e) {
-            throw new PKIException("Unable to create CA connector", e);
+            logger.error("Unable to create CA connector: " + e.getMessage(), e);
+            throw new PKIException("Unable to create CA connector: " + e.getMessage(), e);
         }
     }
 
@@ -70,7 +74,8 @@ public class TPSInstaller {
             database.addTKSConnector(uri.getHost(), uri.getPort(), nickname, false);
 
         } catch (Exception e) {
-            throw new PKIException("Unable to create TKS connector", e);
+            logger.error("Unable to create TKS connector: " + e.getMessage(), e);
+            throw new PKIException("Unable to create TKS connector: " + e.getMessage(), e);
         }
     }
 
@@ -94,7 +99,8 @@ public class TPSInstaller {
                 database.addKRAConnector(uri.getHost(), uri.getPort(), nickname);
 
             } catch (Exception e) {
-                throw new PKIException("Unable to create KRA connector", e);
+                logger.error("Unable to create KRA connector: " + e.getMessage(), e);
+                throw new PKIException("Unable to create KRA connector: " + e.getMessage(), e);
             }
 
         } else { // no keygen
@@ -118,6 +124,7 @@ public class TPSInstaller {
             database.updateRecord(id, record);
 
         } catch (Exception e) {
+            logger.error("Unable to update TKS connector: " + e.getMessage(), e);
             throw new PKIException("Unable to update TKS connector", e);
         }
     }

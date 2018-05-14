@@ -84,6 +84,7 @@ javac(pki-tps-classes
     SOURCES
         *.java
     CLASSPATH
+        ${SLF4J_API_JAR}
         ${COMMONS_CODEC_JAR} ${COMMONS_LANG_JAR}
         ${LDAPJDK_JAR}
         ${JSS_JAR} ${SYMKEY_JAR}
