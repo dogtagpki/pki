@@ -73,6 +73,7 @@ import com.netscape.certsrv.selftests.ESelfTestException;
 import com.netscape.certsrv.selftests.ISelfTest;
 import com.netscape.certsrv.selftests.ISelfTestSubsystem;
 import com.netscape.certsrv.tks.ITKSAuthority;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Cert;
 import com.netscape.cmsutil.util.Utils;
@@ -340,7 +341,8 @@ public final class CMSAdminServlet extends AdminServlet {
     }
 
     private boolean isSubsystemInstalled(String subsystem) {
-        Enumeration<ISubsystem> e = CMS.getSubsystems();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        Enumeration<ISubsystem> e = engine.getSubsystems();
 
         while (e.hasMoreElements()) {
             ISubsystem sys = e.nextElement();
@@ -367,7 +369,8 @@ public final class CMSAdminServlet extends AdminServlet {
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
 
-        Enumeration<ISubsystem> e = CMS.getSubsystems();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        Enumeration<ISubsystem> e = engine.getSubsystems();
         boolean isCAInstalled = false;
         boolean isRAInstalled = false;
         boolean isKRAInstalled = false;
@@ -505,6 +508,8 @@ public final class CMSAdminServlet extends AdminServlet {
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -517,7 +522,7 @@ public final class CMSAdminServlet extends AdminServlet {
                     CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
 
             jssSubSystem.getInternalTokenName();
-            Enumeration<ISubsystem> e = CMS.getSubsystems();
+            Enumeration<ISubsystem> e = engine.getSubsystems();
             boolean isCAInstalled = false;
             boolean isRAInstalled = false;
             boolean isKRAInstalled = false;
@@ -763,7 +768,9 @@ public final class CMSAdminServlet extends AdminServlet {
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         NameValuePairs params = new NameValuePairs();
-        Enumeration<ISubsystem> e = CMS.getSubsystems();
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        Enumeration<ISubsystem> e = engine.getSubsystems();
 
         while (e.hasMoreElements()) {
             String type = "";

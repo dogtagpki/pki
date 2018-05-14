@@ -163,25 +163,6 @@ public final class CMS {
     }
 
     /**
-     * Gets this ID .
-     *
-     * @return CMS engine identifier
-     */
-    public static String getId() {
-        return _engine.getId();
-    }
-
-    /**
-     * Sets the identifier of this subsystem. Should never be called.
-     * Returns error.
-     *
-     * @param id CMS engine identifier
-     */
-    public static void setId(String id) throws EBaseException {
-        _engine.setId(id);
-    }
-
-    /**
      * Blocks all new incoming requests.
      */
     public static void disableRequests() {
@@ -451,15 +432,6 @@ public final class CMS {
     }
 
     /**
-     * Returns all the registered subsystems.
-     *
-     * @return a list of ISubsystem-based subsystems
-     */
-    public static Enumeration<ISubsystem> getSubsystems() {
-        return _engine.getSubsystems();
-    }
-
-    /**
      * Retrieves the registered subsytem with the given name.
      *
      * @param name subsystem name
@@ -467,28 +439,6 @@ public final class CMS {
      */
     public static ISubsystem getSubsystem(String name) {
         return _engine.getSubsystem(name);
-    }
-
-    /**
-     * Enable the subsystem with the given ID.
-     *
-     * Does not start the subsystem.
-     *
-     * @param id Subsystem ID.
-     */
-    public static void enableSubsystem(String id) throws EBaseException {
-        _engine.setSubsystemEnabled(id, true);
-    }
-
-    /**
-     * Disable the subsystem with the given ID.
-     *
-     * Does not stop the subsystem.
-     *
-     * @param id Subsystem ID.
-     */
-    public static void disableSubsystem(String id) throws EBaseException {
-        _engine.setSubsystemEnabled(id, false);
     }
 
     /**

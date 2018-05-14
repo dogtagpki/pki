@@ -62,6 +62,8 @@ public class CAInstallerService extends SystemConfigService {
 
         super.finalizeConfiguration(request);
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+
         try {
             if (!request.isClone()) {
                 ConfigurationUtils.updateNextRanges();
@@ -95,7 +97,7 @@ public class CAInstallerService extends SystemConfigService {
         }
 
         try {
-            CMS.enableSubsystem("profile");
+            engine.setSubsystemEnabled("profile", true);
         } catch (Exception e) {
             logger.error("Unable to enable profile subsystem: " + e.getMessage(), e);
             throw new PKIException("Unable to enable profile subsystem: " + e.getMessage(), e);
@@ -130,7 +132,7 @@ public class CAInstallerService extends SystemConfigService {
         si.enabled = true;
 
         if (!data.isClone()
-                && CMS.getSubsystem("profile") instanceof LDAPProfileSubsystem) {
+                && engine.getSubsystem("profile") instanceof LDAPProfileSubsystem) {
             try {
                 importProfiles("/usr/share/pki");
             } catch (Exception e) {
@@ -151,8 +153,10 @@ public class CAInstallerService extends SystemConfigService {
      */
     public void importProfiles(String configRoot)
             throws EBaseException, ELdapException {
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         IPluginRegistry registry = (IPluginRegistry)
-                CMS.getSubsystem(CMS.SUBSYSTEM_REGISTRY);
+                engine.getSubsystem(CMS.SUBSYSTEM_REGISTRY);
         IConfigStore profileCfg = cs.getSubStore("profile");
         String profileIds = profileCfg.getString("list", "");
         StringTokenizer st = new StringTokenizer(profileIds, ",");
