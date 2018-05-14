@@ -13,6 +13,10 @@
         <servlet-name>tpsstart</servlet-name>
         <servlet-class>com.netscape.cms.servlet.base.CMSStartServlet</servlet-class>
         <init-param>
+            <param-name>engine</param-name>
+            <param-value>org.dogtagpki.server.tps.TPSEngine</param-value>
+        </init-param>
+        <init-param>
             <param-name>AuthzMgr</param-name>
             <param-value>BasicAclAuthz</param-value>
         </init-param>
