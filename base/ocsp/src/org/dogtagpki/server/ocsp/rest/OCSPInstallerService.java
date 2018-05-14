@@ -37,7 +37,9 @@ import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.certsrv.system.ConfigurationRequest;
 import com.netscape.cms.servlet.csadmin.ConfigurationUtils;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.SubsystemInfo;
 import com.netscape.cmsutil.xml.XMLObject;
+import com.netscape.ocsp.OCSPAuthority;
 
 /**
  * @author alee
@@ -48,6 +50,18 @@ public class OCSPInstallerService extends SystemConfigService {
     private static final int DEF_REFRESH_IN_SECS_FOR_CLONE = 14400; // CRL Publishing schedule
 
     public OCSPInstallerService() throws EBaseException {
+    }
+
+    @Override
+    public void initializeDatabase(ConfigurationRequest data) throws EBaseException {
+
+        super.initializeDatabase(data);
+
+        // Enable subsystems after database initialization.
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+
+        SubsystemInfo si = engine.dynSubsystems.get(OCSPAuthority.ID);
+        si.enabled = true;
     }
 
     @Override
