@@ -77,8 +77,8 @@ build_specified_META_package()
 	printf "BEGIN: Building '${package}' META package . . .\n"
 	compute_build_options
 
-	cp ${spec_file_path}/${spec_file} \
-	    ${PKI_PACKAGES}/SPECS/${package}.spec
+    sed "s/%{?_timestamp}/${_TIMESTAMP}/g; s/%{?_commit_id}/${_COMMIT_ID}/g" \
+        ${spec_file_path}/${spec_file} > ${PKI_PACKAGES}/SPECS/${package}.spec
 
 	# rpmlint ${PKI_PACKAGES}/SPECS/${package}.spec
 

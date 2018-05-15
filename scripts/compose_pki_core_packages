@@ -99,7 +99,7 @@ compute_build_options
 ## Insert timestamp and commit ID while copying spec template into actual spec file.
 ##
 
-sed "s/%{?_timestamp}/${_TIMESTAMP}/g; s/%{?_commit_id}/${_COMMIT}/g" \
+sed "s/%{?_timestamp}/${_TIMESTAMP}/g; s/%{?_commit_id}/${_COMMIT_ID}/g" \
     ${PKI_SPECS_FILE} > ${PKI_CORE_SPEC_FILE}
 
 # rpmlint ${PKI_CORE_SPEC_FILE}
