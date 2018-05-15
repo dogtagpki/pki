@@ -46,6 +46,19 @@ install(
         ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/${PROJECT_NAME}
     PATTERN
         "CMakeLists.txt" EXCLUDE
+    PATTERN
+        listappletdates EXCLUDE
+)
+
+install(
+    FILES
+        shared/applets/listappletdates
+    DESTINATION
+        ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/${PROJECT_NAME}/shared/applets
+    PERMISSIONS
+        OWNER_EXECUTE OWNER_WRITE OWNER_READ
+        GROUP_EXECUTE GROUP_READ
+        WORLD_EXECUTE WORLD_READ
 )
 
 install(
