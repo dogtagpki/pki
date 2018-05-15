@@ -15,16 +15,21 @@ jobs:
       before_install:
         - set -a && source travis/global_variables
         - echo -e $gerrit_ssh_key >> ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa
+        - touch ${LOGS}
         # Post the Travis Build URL
         - TRAVIS_BUILD_URL="https://travis-ci.org/$TRAVIS_REPO_SLUG/builds/$TRAVIS_BUILD_ID"
         - MESSAGE="$(printf "Build Started.\nTravis Build:"${TRAVIS_BUILD_URL})"
         - travis/send-result.sh -m "${MESSAGE}"
       install:
         - travis/builder-init.sh
-        - travis/init_task.sh | tee /dev/tty | grep -Eo '(http|https)://transfer.sh/[a-zA-Z0-9./?=_-]*.txt' | uniq >> ${LOGS}
+        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/pki-build.sh pki-core compose_pki_core_packages
+        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/pki-build.sh dogtag-pki-theme compose_dogtag_pki_theme_packages
+        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/pki-build.sh pki-console compose_pki_console_packages
+        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/pki-build.sh dogtag-pki compose_dogtag_pki_meta_packages
+        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/20-install-rpms
       script:
         - set -o pipefail
-        - travis_wait 20 travis/pki-test.sh | tee /dev/tty | grep -Eo '(http|https)://transfer.sh/[a-zA-Z0-9./?=_-]*.txt' | uniq >> ${LOGS}
+        - travis_wait 20 travis/pki-test.sh
       after_failure:
         # Post the URL of Travis Job that failed
         - TRAVIS_JOB_URL="https://travis-ci.org/$TRAVIS_REPO_SLUG/jobs/$TRAVIS_JOB_ID"
@@ -43,12 +48,15 @@ jobs:
         - echo -e $gerrit_ssh_key >> ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa
       install:
         - travis/builder-init.sh
+        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/pki-build.sh pki-core compose_pki_core_packages
         - travis/init_task.sh
-      script: travis_wait 20 travis/ipa-test.sh
+        - touch ${LOGS}
+      script:
+        - travis_wait 20 travis/ipa-test.sh
       after_failure:
         - docker exec ${CONTAINER} journalctl  -l > ${SYSTEMD_LOG}
         - echo "Uploading CI Logs to transfer.sh ..."
-        - curl -w "\n" --upload-file ./${SYSTEMD_LOG} https://transfer.sh/systemd_logs.txt > ${LOGS}
+        - curl -w "\n" --upload-file ./${SYSTEMD_LOG} https://transfer.sh/systemd_logs.txt >> ${LOGS}
         - curl -w "\n" --upload-file ./${CI_RESULTS_LOG} https://transfer.sh/freeipa-integration.txt >> ${LOGS}
         # Post the URL of Travis Job that failed
         - TRAVIS_JOB_URL="https://travis-ci.org/$TRAVIS_REPO_SLUG/jobs/$TRAVIS_JOB_ID"
@@ -66,12 +74,17 @@ jobs:
       before_install:
         - set -a && source travis/global_variables
         - echo -e $gerrit_ssh_key >> ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa
+        - touch ${LOGS}
       install:
         - travis/builder-init.sh
-        - travis/init_task.sh | tee /dev/tty | grep -Eo '(http|https)://transfer.sh/[a-zA-Z0-9./?=_-]*.txt' | uniq >> ${LOGS}
+        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/pki-build.sh pki-core compose_pki_core_packages
+        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/pki-build.sh dogtag-pki-theme compose_dogtag_pki_theme_packages
+        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/pki-build.sh pki-console compose_pki_console_packages
+        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/pki-build.sh dogtag-pki compose_dogtag_pki_meta_packages
+        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/20-install-rpms
       script:
         - set -o pipefail
-        - travis_wait 20 travis/pki-test.sh | tee /dev/tty | grep -Eo '(http|https)://transfer.sh/[a-zA-Z0-9./?=_-]*.txt' | uniq >> ${LOGS}
+        - travis_wait 20 travis/pki-test.sh
       after_failure:
         # Post the URL of Travis Job that failed
         - TRAVIS_JOB_URL="https://travis-ci.org/$TRAVIS_REPO_SLUG/jobs/$TRAVIS_JOB_ID"

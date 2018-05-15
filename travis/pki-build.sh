@@ -15,7 +15,8 @@ function compose {
 function upload {
     if test -f $BUILDLOG; then
         echo "Uploading build log to transfer"
-        curl --upload-file $BUILDLOG https://transfer.sh/pkitravis_$SCRIPT.txt
+        curl --upload-file $BUILDLOG https://transfer.sh/pkitravis_$SCRIPT.txt >> /tmp/workdir/pki/logs.txt
+        echo >> /tmp/workdir/pki/logs.txt
         # Add new line for readability of logs
         printf "\n\n=====================================\n\n"
     fi
@@ -33,5 +34,5 @@ else
     echo "Build log will be posted to transfer.sh"
     echo $(date) > $BUILDLOG
     echo "Travis job ${TRAVIS_JOB_NUMBER}" >> $BUILDLOG
-    compose $ $SCRIPT >> $BUILDLOG 2>&1
+    compose >> $BUILDLOG 2>&1
 fi
