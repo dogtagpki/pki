@@ -26,6 +26,7 @@ host:
   binds:
   - /sys/fs/cgroup:/sys/fs/cgroup:ro
   - /dev/urandom:/dev/random:ro
+  - $PWD:/tmp/workdir/pki
   privileged: true
   security_opt:
   - label:disable
@@ -54,7 +55,7 @@ steps:
       /var/log/pki
       systemd_journal.log
   - chown ${uid}:${gid} ${container_working_dir}/var_log.tar
-  - curl --upload ${container_working_dir}/var_log.tar https://transfer.sh/var_log.tar
+  - curl --upload ${container_working_dir}/var_log.tar https://transfer.sh/var_log.tar >> logs.txt
   configure:
   - dnf repolist
   install_packages:

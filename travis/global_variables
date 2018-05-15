@@ -1,8 +1,9 @@
 CONTAINER=pkitest
-SCRIPTDIR=/tmp/workdir/pki/travis
+SRC_DIR=/tmp/workdir/pki
+SCRIPTDIR="${SRC_DIR}/travis"
 SYSTEMD_LOG=systemd_log.log
 CI_RESULTS_LOG="ci_results_${TRAVIS_BRANCH}.log"
 CI_RUNNER_LOG_ARCHIVE="dogtag-ci-job-${TRAVIS_JOB_NUMBER}.tar.gz"
 RPMS_LOCATION=/tmp/workdir/packages/RPMS
 DOGTAG_PKI_RPMS=${TRAVIS_BUILD_DIR}/dogtag_rpms
-TRANSFER_SH_URLS=message.txt
+LOGS=logs.txt

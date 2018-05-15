@@ -20,17 +20,17 @@ jobs:
         - MESSAGE="$(printf "Build Started.\nTravis Build:"${TRAVIS_BUILD_URL})"
         - travis/send-result.sh -m "${MESSAGE}"
       install:
-        - travis/init_task.sh | tee /dev/tty | grep -Eo '(http|https)://transfer.sh/[a-zA-Z0-9./?=_-]*.txt' | uniq >> ${TRANSFER_SH_URLS}
+        - travis/init_task.sh | tee /dev/tty | grep -Eo '(http|https)://transfer.sh/[a-zA-Z0-9./?=_-]*.txt' | uniq >> ${LOGS}
       script:
         - set -o pipefail
-        - travis_wait 20 travis/pki-test.sh | tee /dev/tty | grep -Eo '(http|https)://transfer.sh/[a-zA-Z0-9./?=_-]*.txt' | uniq >> ${TRANSFER_SH_URLS}
+        - travis_wait 20 travis/pki-test.sh | tee /dev/tty | grep -Eo '(http|https)://transfer.sh/[a-zA-Z0-9./?=_-]*.txt' | uniq >> ${LOGS}
       after_failure:
         # Post the URL of Travis Job that failed
         - TRAVIS_JOB_URL="https://travis-ci.org/$TRAVIS_REPO_SLUG/jobs/$TRAVIS_JOB_ID"
-        - MESSAGE="$(printf "Job 1 Failed\nTravis Job:"${TRAVIS_JOB_URL}"\n\nLogs:\n" )"$'\n'"$(cat ${TRANSFER_SH_URLS})"
+        - MESSAGE="$(printf "Job 1 Failed\nTravis Job:"${TRAVIS_JOB_URL}"\n\nLogs:\n" )"$'\n'"$(cat ${LOGS})"
         - travis/send-result.sh -v -1 -m "${MESSAGE}"
       after_script:
-        - cat ${TRANSFER_SH_URLS}
+        - cat ${LOGS}
         - docker kill ${CONTAINER}
         - docker rm ${CONTAINER}
 
@@ -46,14 +46,14 @@ jobs:
       after_failure:
         - docker exec ${CONTAINER} journalctl  -l > ${SYSTEMD_LOG}
         - echo "Uploading CI Logs to transfer.sh ..."
-        - curl -w "\n" --upload-file ./${SYSTEMD_LOG} https://transfer.sh/systemd_logs.txt > ${TRANSFER_SH_URLS}
-        - curl -w "\n" --upload-file ./${CI_RESULTS_LOG} https://transfer.sh/freeipa-integration.txt >> ${TRANSFER_SH_URLS}
+        - curl -w "\n" --upload-file ./${SYSTEMD_LOG} https://transfer.sh/systemd_logs.txt > ${LOGS}
+        - curl -w "\n" --upload-file ./${CI_RESULTS_LOG} https://transfer.sh/freeipa-integration.txt >> ${LOGS}
         # Post the URL of Travis Job that failed
         - TRAVIS_JOB_URL="https://travis-ci.org/$TRAVIS_REPO_SLUG/jobs/$TRAVIS_JOB_ID"
-        - MESSAGE="$(printf "Job 2 Failed\nTravis Job:"${TRAVIS_JOB_URL}"\n\nLogs:\n" )"$'\n'"$(cat ${TRANSFER_SH_URLS})"
+        - MESSAGE="$(printf "Job 2 Failed\nTravis Job:"${TRAVIS_JOB_URL}"\n\nLogs:\n" )"$'\n'"$(cat ${LOGS})"
         - travis/send-result.sh -v -1 -m "${MESSAGE}"
       after_script:
-        - cat ${TRANSFER_SH_URLS}
+        - cat ${LOGS}
         - docker kill ${CONTAINER}
         - docker rm ${CONTAINER}
 
@@ -65,17 +65,17 @@ jobs:
         - set -a && source travis/global_variables
         - echo -e $gerrit_ssh_key >> ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa
       install:
-        - travis/init_task.sh | tee /dev/tty | grep -Eo '(http|https)://transfer.sh/[a-zA-Z0-9./?=_-]*.txt' | uniq >> ${TRANSFER_SH_URLS}
+        - travis/init_task.sh | tee /dev/tty | grep -Eo '(http|https)://transfer.sh/[a-zA-Z0-9./?=_-]*.txt' | uniq >> ${LOGS}
       script:
         - set -o pipefail
-        - travis_wait 20 travis/pki-test.sh | tee /dev/tty | grep -Eo '(http|https)://transfer.sh/[a-zA-Z0-9./?=_-]*.txt' | uniq >> ${TRANSFER_SH_URLS}
+        - travis_wait 20 travis/pki-test.sh | tee /dev/tty | grep -Eo '(http|https)://transfer.sh/[a-zA-Z0-9./?=_-]*.txt' | uniq >> ${LOGS}
       after_failure:
         # Post the URL of Travis Job that failed
         - TRAVIS_JOB_URL="https://travis-ci.org/$TRAVIS_REPO_SLUG/jobs/$TRAVIS_JOB_ID"
-        - MESSAGE="$(printf "Job 3 Failed\nTravis Job:"${TRAVIS_JOB_URL}"\n\nLogs:\n" )"$'\n'"$(cat ${TRANSFER_SH_URLS})"
+        - MESSAGE="$(printf "Job 3 Failed\nTravis Job:"${TRAVIS_JOB_URL}"\n\nLogs:\n" )"$'\n'"$(cat ${LOGS})"
         - travis/send-result.sh -v -1 -m "${MESSAGE}"
       after_script:
-        - cat ${TRANSFER_SH_URLS}
+        - cat ${LOGS}
         - docker kill ${CONTAINER}
         - docker rm ${CONTAINER}
 
