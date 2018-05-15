@@ -26,7 +26,7 @@ jobs:
         - docker exec -i ${CONTAINER} ${SCRIPTDIR}/pki-build.sh dogtag-pki-theme compose_dogtag_pki_theme_packages
         - docker exec -i ${CONTAINER} ${SCRIPTDIR}/pki-build.sh pki-console compose_pki_console_packages
         - docker exec -i ${CONTAINER} ${SCRIPTDIR}/pki-build.sh dogtag-pki compose_dogtag_pki_meta_packages
-        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/20-install-rpms
+        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/pki-install.sh
       script:
         - docker exec -i ${CONTAINER} ${SCRIPTDIR}/ds-create.sh
         - docker exec -i ${CONTAINER} ${SCRIPTDIR}/ca-create.sh
@@ -60,7 +60,7 @@ jobs:
       install:
         - travis/builder-init.sh
         - docker exec -i ${CONTAINER} ${SCRIPTDIR}/pki-build.sh pki-core compose_pki_core_packages
-        - travis/init_task.sh
+        - travis/ipa-init.sh
       script:
         - travis_wait 20 travis/ipa-test.sh
       after_failure:
@@ -91,7 +91,7 @@ jobs:
         - docker exec -i ${CONTAINER} ${SCRIPTDIR}/pki-build.sh dogtag-pki-theme compose_dogtag_pki_theme_packages
         - docker exec -i ${CONTAINER} ${SCRIPTDIR}/pki-build.sh pki-console compose_pki_console_packages
         - docker exec -i ${CONTAINER} ${SCRIPTDIR}/pki-build.sh dogtag-pki compose_dogtag_pki_meta_packages
-        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/20-install-rpms
+        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/pki-install.sh
       script:
         - docker exec -i ${CONTAINER} ${SCRIPTDIR}/ds-create.sh
         - docker exec -i ${CONTAINER} ${SCRIPTDIR}/ca-create.sh
