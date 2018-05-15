@@ -41,6 +41,7 @@ docker exec -i ${CONTAINER} ${SCRIPTDIR}/20-install-rpms || exit $?
 
 # Test basic PKI installations
 docker exec -i ${CONTAINER} ${SCRIPTDIR}/30-setup-389ds
-docker exec -i ${CONTAINER} ${SCRIPTDIR}/40-spawn-ca
-docker exec -i ${CONTAINER} ${SCRIPTDIR}/50-spawn-kra
+docker exec -i ${CONTAINER} ${SCRIPTDIR}/ca-create.sh
+docker exec -i ${CONTAINER} ${SCRIPTDIR}/kra-create.sh
+docker exec -i ${CONTAINER} ${SCRIPTDIR}/ocsp-create.sh
 docker exec -i ${CONTAINER} ${SCRIPTDIR}/99-destroy
