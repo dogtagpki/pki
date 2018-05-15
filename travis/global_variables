@@ -5,4 +5,4 @@ CI_RESULTS_LOG="ci_results_${TRAVIS_BRANCH}.log"
 CI_RUNNER_LOG_ARCHIVE="dogtag-ci-job-${TRAVIS_JOB_NUMBER}.tar.gz"
 RPMS_LOCATION=/tmp/workdir/packages/RPMS
 DOGTAG_PKI_RPMS=${TRAVIS_BUILD_DIR}/dogtag_rpms
-TRANSFER_SH_URLS=message.txt
+LOGS=logs.txt
