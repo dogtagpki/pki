@@ -20,8 +20,7 @@
 # All rights reserved.
 #
 
-docker exec -i ${CONTAINER} ${SCRIPTDIR}/01-install-dependencies pki-core
-docker exec -i ${CONTAINER} ${SCRIPTDIR}/10-compose-rpms compose_pki_core_packages
+docker exec -i ${CONTAINER} ${SCRIPTDIR}/pki-build.sh pki-core compose_pki_core_packages
 
 # IPA related installs
 pip install --upgrade pip

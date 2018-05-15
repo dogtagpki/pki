@@ -1,30 +1,37 @@
 #!/bin/bash
 set -e
 
-BUILDLOG=/tmp/compose_$1.log
+PACKAGE=$1
+SCRIPT=$2
+
+BUILDLOG=/tmp/compose_$SCRIPT.log
 
 function compose {
     pushd ${BUILDDIR}/pki
-    sudo -u ${BUILDUSER} -- ./scripts/$1 rpms
+    sudo -u ${BUILDUSER} -- ./scripts/$SCRIPT rpms
     popd
 }
 
 function upload {
     if test -f $BUILDLOG; then
         echo "Uploading build log to transfer"
-        curl --upload-file $BUILDLOG https://transfer.sh/pkitravis_$1.txt
+        curl --upload-file $BUILDLOG https://transfer.sh/pkitravis_$SCRIPT.txt
         # Add new line for readability of logs
         printf "\n\n=====================================\n\n"
     fi
 }
 
+## prepare additional build dependencies
+dnf builddep -y --spec ${BUILDDIR}/pki/specs/$PACKAGEspec.in
+
 if test "${TRAVIS}" != "true"; then
     compose
+
 else
-    trap "upload $1" EXIT
-    echo "Runing $1 rpms."
+    trap "upload" EXIT
+    echo "Runing $SCRIPT rpms."
     echo "Build log will be posted to transfer.sh"
     echo $(date) > $BUILDLOG
     echo "Travis job ${TRAVIS_JOB_NUMBER}" >> $BUILDLOG
-    compose $1>>$BUILDLOG 2>&1
+    compose $ $SCRIPT >> $BUILDLOG 2>&1
 fi
