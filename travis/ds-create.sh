@@ -9,4 +9,4 @@ setup-ds.pl \
     slapd.ServerPort=389 \
     slapd.Suffix="dc=pki,dc=test" \
     slapd.RootDN="cn=Directory Manager" \
-    slapd.RootDNPwd="DMSecret.123"
+    slapd.RootDNPwd="Secret.123"
