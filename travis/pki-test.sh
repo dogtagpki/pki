@@ -40,8 +40,9 @@ docker exec -i ${CONTAINER} ${SCRIPTDIR}/10-compose-rpms compose_dogtag_pki_meta
 docker exec -i ${CONTAINER} ${SCRIPTDIR}/20-install-rpms || exit $?
 
 # Test basic PKI installations
-docker exec -i ${CONTAINER} ${SCRIPTDIR}/30-setup-389ds
+docker exec -i ${CONTAINER} ${SCRIPTDIR}/ds-create.sh
 docker exec -i ${CONTAINER} ${SCRIPTDIR}/ca-create.sh
 docker exec -i ${CONTAINER} ${SCRIPTDIR}/kra-create.sh
 docker exec -i ${CONTAINER} ${SCRIPTDIR}/ocsp-create.sh
+docker exec -i ${CONTAINER} ${SCRIPTDIR}/tks-create.sh
 docker exec -i ${CONTAINER} ${SCRIPTDIR}/remove-all.sh
