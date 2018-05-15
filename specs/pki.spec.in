@@ -601,7 +601,6 @@ Requires:         python3-ldap
 Requires:         python3-pyldap
 %endif
 Requires:         python3-lxml
-Requires:         libselinux-python3
 Requires:         policycoreutils-python3
 %else
 %if 0%{?fedora} >= 28 || 0%{?rhel} > 7
