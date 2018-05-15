@@ -20,8 +20,6 @@
 # All rights reserved.
 #
 
-docker exec -i ${CONTAINER} ${SCRIPTDIR}/pki-build.sh pki-core compose_pki_core_packages
-
 # IPA related installs
 pip install --upgrade pip
 pip3 install --upgrade pip

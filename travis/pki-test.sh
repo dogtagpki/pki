@@ -21,14 +21,6 @@
 #
 set -e
 
-# Build PKI packages
-docker exec -i ${CONTAINER} ${SCRIPTDIR}/pki-build.sh dogtag-pki-theme compose_dogtag_pki_theme_packages
-docker exec -i ${CONTAINER} ${SCRIPTDIR}/pki-build.sh pki-console compose_pki_console_packages
-docker exec -i ${CONTAINER} ${SCRIPTDIR}/pki-build.sh dogtag-pki compose_dogtag_pki_meta_packages
-
-# Install PKI packages
-docker exec -i ${CONTAINER} ${SCRIPTDIR}/20-install-rpms || exit $?
-
 # Test basic PKI installations
 docker exec -i ${CONTAINER} ${SCRIPTDIR}/ds-create.sh
 docker exec -i ${CONTAINER} ${SCRIPTDIR}/ca-create.sh
