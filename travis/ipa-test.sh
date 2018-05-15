@@ -38,19 +38,13 @@ function truncate_log_to_test_failures() {
     fi
 }
 
-# Copy the built RPMS to host machine
-mkdir -p ${DOGTAG_PKI_RPMS}
-docker cp ${CONTAINER}:${RPMS_LOCATION}/. ${DOGTAG_PKI_RPMS}
-ls ${DOGTAG_PKI_RPMS}
-
-# Install the ipa-docker-test-runner tool
-pip3 install git+https://github.com/freeipa/ipa-docker-test-runner@release-0-3-1
-
 for test_files in ${test_set}; do
     cert_test_file_loc="${cert_test_file_loc} test_xmlrpc/${test_files}"
 done
 
 echo ${cert_test_file_loc}
+
+echo "Running IPA test in ${PWD}"
 
 ipa-docker-test-runner -l ${CI_RESULTS_LOG} \
     -c travis/ipa-test.yaml \

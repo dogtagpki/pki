@@ -20,7 +20,17 @@
 # All rights reserved.
 #
 
+# Copy the built RPMS to host machine
+echo "Copying binary packages into ${DOGTAG_PKI_RPMS}"
+
+mkdir -p ${DOGTAG_PKI_RPMS}
+docker cp ${CONTAINER}:${RPMS_LOCATION}/. ${DOGTAG_PKI_RPMS}
+ls ${DOGTAG_PKI_RPMS}
+
 # IPA related installs
 pip install --upgrade pip
 pip3 install --upgrade pip
 pip install pep8
+
+# Install the ipa-docker-test-runner tool
+pip3 install git+https://github.com/freeipa/ipa-docker-test-runner@release-0-3-1

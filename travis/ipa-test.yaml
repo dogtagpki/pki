@@ -26,6 +26,7 @@ host:
   binds:
   - /sys/fs/cgroup:/sys/fs/cgroup:ro
   - /dev/urandom:/dev/random:ro
+  - ${PWD}:/tmp/workdir/pki
   privileged: true
   security_opt:
   - label:disable
