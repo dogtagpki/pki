@@ -28,8 +28,18 @@ jobs:
         - docker exec -i ${CONTAINER} ${SCRIPTDIR}/pki-build.sh dogtag-pki compose_dogtag_pki_meta_packages
         - docker exec -i ${CONTAINER} ${SCRIPTDIR}/20-install-rpms
       script:
-        - set -o pipefail
-        - travis_wait 20 travis/pki-test.sh
+        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/ds-create.sh
+        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/ca-create.sh
+        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/kra-create.sh
+        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/ocsp-create.sh
+        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/tks-create.sh
+        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/tps-create.sh
+        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/tps-remove.sh
+        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/tks-remove.sh
+        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/ocsp-remove.sh
+        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/kra-remove.sh
+        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/ca-remove.sh
+        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/ds-remove.sh
       after_failure:
         # Post the URL of Travis Job that failed
         - TRAVIS_JOB_URL="https://travis-ci.org/$TRAVIS_REPO_SLUG/jobs/$TRAVIS_JOB_ID"
@@ -83,8 +93,18 @@ jobs:
         - docker exec -i ${CONTAINER} ${SCRIPTDIR}/pki-build.sh dogtag-pki compose_dogtag_pki_meta_packages
         - docker exec -i ${CONTAINER} ${SCRIPTDIR}/20-install-rpms
       script:
-        - set -o pipefail
-        - travis_wait 20 travis/pki-test.sh
+        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/ds-create.sh
+        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/ca-create.sh
+        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/kra-create.sh
+        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/ocsp-create.sh
+        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/tks-create.sh
+        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/tps-create.sh
+        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/tps-remove.sh
+        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/tks-remove.sh
+        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/ocsp-remove.sh
+        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/kra-remove.sh
+        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/ca-remove.sh
+        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/ds-remove.sh
       after_failure:
         # Post the URL of Travis Job that failed
         - TRAVIS_JOB_URL="https://travis-ci.org/$TRAVIS_REPO_SLUG/jobs/$TRAVIS_JOB_ID"
