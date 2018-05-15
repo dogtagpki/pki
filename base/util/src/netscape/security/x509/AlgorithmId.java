@@ -142,7 +142,16 @@ public class AlgorithmId implements Serializable, DerEncoder {
          * Figure out what class (if any) knows about this oid's
          * parameters.  Make one, and give it the data to decode.
          */
-        AlgorithmId alg = new AlgorithmId(algid, params);
+        AlgorithmId alg = null;
+        // omit parameter field for ECDSA
+        if (!algid.equals(sha224WithEC_oid) &&
+                !algid.equals(sha256WithEC_oid) &&
+                !algid.equals(sha384WithEC_oid) &&
+                !algid.equals(sha512WithEC_oid)) {
+            alg = new AlgorithmId(algid, params);
+        } else {
+            alg = new AlgorithmId(algid);
+        }
         if (params != null)
             alg.decodeParams();
 

@@ -648,8 +648,17 @@ public class CMCOutputTemplate {
             SET digestAlgs = new SET();
 
             if (digestAlg != null) {
-                AlgorithmIdentifier ai = new
+                AlgorithmIdentifier ai = null;
+                if ((signAlg == SignatureAlgorithm.ECSignatureWithSHA256Digest) ||
+                        (signAlg == SignatureAlgorithm.ECSignatureWithSHA384Digest) ||
+                        (signAlg == SignatureAlgorithm.ECSignatureWithSHA512Digest))
+{
+                    ai = new
+                        AlgorithmIdentifier(digestAlg.toOID());
+                } else {
+                    ai = new
                         AlgorithmIdentifier(digestAlg.toOID(), null);
+                }
 
                 digestAlgs.addElement(ai);
             }

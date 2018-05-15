@@ -142,10 +142,7 @@ public class CMCResponse {
 
                     if (printCerts) {
                         System.out.println("Cert:" + i );
-                        ByteArrayOutputStream fos = new ByteArrayOutputStream();
-                        certImpl.encode(fos);
-                        fos.close();
-                        byte[] certBytes = fos.toByteArray();
+                        byte[] certBytes = certImpl.getEncoded();
                         String certB64 = Utils.base64encode(certBytes, true);
                         System.out.println(certB64);
                         System.out.println("===");
