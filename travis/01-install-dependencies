@@ -1,4 +1,0 @@
-#!/bin/bash
-
-## prepare additional build dependencies
-dnf builddep -y --spec ${BUILDDIR}/pki/specs/$1.spec.in

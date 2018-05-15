@@ -21,23 +21,13 @@
 #
 set -e
 
-# First install pki-core packges as it's the dependency for other packages
-docker exec -i ${CONTAINER} ${SCRIPTDIR}/20-install-rpms || exit $?
+# Build PKI packages
+docker exec -i ${CONTAINER} ${SCRIPTDIR}/pki-build.sh pki-console compose_pki_console_packages
+docker exec -i ${CONTAINER} ${SCRIPTDIR}/pki-build.sh dogtag-pki-theme compose_dogtag_pki_theme_packages
+docker exec -i ${CONTAINER} ${SCRIPTDIR}/pki-build.sh dogtag-pki compose_dogtag_pki_meta_packages
 
-# Install PKI build dependencies
-docker exec -i ${CONTAINER} ${SCRIPTDIR}/01-install-dependencies dogtag-pki-theme
-docker exec -i ${CONTAINER} ${SCRIPTDIR}/01-install-dependencies pki-console
-docker exec -i ${CONTAINER} ${SCRIPTDIR}/01-install-dependencies dogtag-pki
-
-# Build and install PKI packages
-docker exec -i ${CONTAINER} ${SCRIPTDIR}/10-compose-rpms compose_dogtag_pki_theme_packages
-docker exec -i ${CONTAINER} ${SCRIPTDIR}/20-install-rpms || exit $?
-
-docker exec -i ${CONTAINER} ${SCRIPTDIR}/10-compose-rpms compose_pki_console_packages
-docker exec -i ${CONTAINER} ${SCRIPTDIR}/20-install-rpms || exit $?
-
-docker exec -i ${CONTAINER} ${SCRIPTDIR}/10-compose-rpms compose_dogtag_pki_meta_packages
-docker exec -i ${CONTAINER} ${SCRIPTDIR}/20-install-rpms || exit $?
+# Install PKI packages
+docker exec -i ${CONTAINER} ${SCRIPTDIR}/pki-install.sh || exit $?
 
 # Test basic PKI installations
 docker exec -i ${CONTAINER} ${SCRIPTDIR}/ds-create.sh

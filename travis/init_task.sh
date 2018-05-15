@@ -40,9 +40,8 @@ docker run \
 
 
 docker exec -i ${CONTAINER} /bin/ls -la /tmp/workdir
-docker exec -i ${CONTAINER} ${SCRIPTDIR}/00-init
-docker exec -i ${CONTAINER} ${SCRIPTDIR}/01-install-dependencies pki-core
-docker exec -i ${CONTAINER} ${SCRIPTDIR}/10-compose-rpms compose_pki_core_packages
+docker exec -i ${CONTAINER} ${SCRIPTDIR}/pki-init.sh
+docker exec -i ${CONTAINER} ${SCRIPTDIR}/pki-build.sh pki-core compose_pki_core_packages
 
 # IPA related installs
 pip install --upgrade pip
