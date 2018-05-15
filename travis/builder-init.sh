@@ -20,10 +20,25 @@
 # All rights reserved.
 #
 
-docker exec -i ${CONTAINER} ${SCRIPTDIR}/01-install-dependencies pki-core
-docker exec -i ${CONTAINER} ${SCRIPTDIR}/10-compose-rpms compose_pki_core_packages
+pyenv global system 3.6
 
-# IPA related installs
-pip install --upgrade pip
-pip3 install --upgrade pip
-pip install pep8
+docker pull ${BASE_IMAGE}
+
+docker run \
+    --detach \
+    --name=${CONTAINER} \
+    --hostname='pki.test' \
+    --privileged \
+    --tmpfs /tmp \
+    --tmpfs /run \
+    -v /sys/fs/cgroup:/sys/fs/cgroup:ro \
+    -v $(pwd):/tmp/workdir/pki \
+    -e BUILDUSER_UID=$(id -u) \
+    -e BUILDUSER_GID=$(id -g) \
+    -e TRAVIS=${TRAVIS} \
+    -e TRAVIS_JOB_NUMBER=${TRAVIS_JOB_NUMBER} \
+    -i \
+    ${BASE_IMAGE}
+
+docker exec -i ${CONTAINER} /bin/ls -la /tmp/workdir
+docker exec -i ${CONTAINER} ${SCRIPTDIR}/pki-init.sh

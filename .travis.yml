@@ -20,6 +20,7 @@ jobs:
         - MESSAGE="$(printf "Build Started.\nTravis Build:"${TRAVIS_BUILD_URL})"
         - travis/send-result.sh -m "${MESSAGE}"
       install:
+        - travis/builder-init.sh
         - travis/init_task.sh | tee /dev/tty | grep -Eo '(http|https)://transfer.sh/[a-zA-Z0-9./?=_-]*.txt' | uniq >> ${LOGS}
       script:
         - set -o pipefail
@@ -41,6 +42,7 @@ jobs:
         - set -a && source travis/global_variables
         - echo -e $gerrit_ssh_key >> ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa
       install:
+        - travis/builder-init.sh
         - travis/init_task.sh
       script: travis_wait 20 travis/ipa-test.sh
       after_failure:
@@ -65,6 +67,7 @@ jobs:
         - set -a && source travis/global_variables
         - echo -e $gerrit_ssh_key >> ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa
       install:
+        - travis/builder-init.sh
         - travis/init_task.sh | tee /dev/tty | grep -Eo '(http|https)://transfer.sh/[a-zA-Z0-9./?=_-]*.txt' | uniq >> ${LOGS}
       script:
         - set -o pipefail
