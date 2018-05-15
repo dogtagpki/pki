@@ -13,21 +13,21 @@ jobs:
         - TASK_TO_RUN="pki-test"
         - BASE_IMAGE=${IMAGE_REPO:-dogtagpki/pki-ci}:f27_106_46
       before_install:
-        - set -a && source .travis/global_variables
+        - set -a && source travis/global_variables
         - echo -e $gerrit_ssh_key >> ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa
         # Post the Travis Build URL
         - TRAVIS_BUILD_URL="https://travis-ci.org/$TRAVIS_REPO_SLUG/builds/$TRAVIS_BUILD_ID"
         - MESSAGE="$(printf "Build Started.\nTravis Build:"${TRAVIS_BUILD_URL})"
-        - .travis/set_gerrit_message.sh -m "${MESSAGE}"
-      install: .travis/init_task.sh | tee /dev/tty | grep -Eo '(http|https)://transfer.sh/[a-zA-Z0-9./?=_-]*.txt' | uniq >> ${TRANSFER_SH_URLS}
+        - travis/set_gerrit_message.sh -m "${MESSAGE}"
+      install: travis/init_task.sh | tee /dev/tty | grep -Eo '(http|https)://transfer.sh/[a-zA-Z0-9./?=_-]*.txt' | uniq >> ${TRANSFER_SH_URLS}
       script:
         - set -o pipefail
-        - travis_wait 20 .travis/pki-test.sh | tee /dev/tty | grep -Eo '(http|https)://transfer.sh/[a-zA-Z0-9./?=_-]*.txt' | uniq >> ${TRANSFER_SH_URLS}
+        - travis_wait 20 travis/pki-test.sh | tee /dev/tty | grep -Eo '(http|https)://transfer.sh/[a-zA-Z0-9./?=_-]*.txt' | uniq >> ${TRANSFER_SH_URLS}
       after_failure:
         # Post the URL of Travis Job that failed
         - TRAVIS_JOB_URL="https://travis-ci.org/$TRAVIS_REPO_SLUG/jobs/$TRAVIS_JOB_ID"
         - MESSAGE="$(printf "Job 1 Failed\nTravis Job:"${TRAVIS_JOB_URL}"\n\nLogs:\n" )"$'\n'"$(cat ${TRANSFER_SH_URLS})"
-        - .travis/set_gerrit_message.sh -v -1 -m "${MESSAGE}"
+        - travis/set_gerrit_message.sh -v -1 -m "${MESSAGE}"
       after_script:
         - cat ${TRANSFER_SH_URLS}
         - docker kill ${CONTAINER}
@@ -37,10 +37,10 @@ jobs:
         - TASK_TO_RUN="ipa-test"
         - BASE_IMAGE=${IMAGE_REPO:-dogtagpki/pki-ci}:f27_106_46
       before_install:
-        - set -a && source .travis/global_variables
+        - set -a && source travis/global_variables
         - echo -e $gerrit_ssh_key >> ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa
-      install: .travis/init_task.sh
-      script: travis_wait 20 .travis/ipa-test.sh
+      install: travis/init_task.sh
+      script: travis_wait 20 travis/ipa-test.sh
       after_failure:
         - docker exec ${CONTAINER} journalctl  -l > ${SYSTEMD_LOG}
         - echo "Uploading CI Logs to transfer.sh ..."
@@ -49,7 +49,7 @@ jobs:
         # Post the URL of Travis Job that failed
         - TRAVIS_JOB_URL="https://travis-ci.org/$TRAVIS_REPO_SLUG/jobs/$TRAVIS_JOB_ID"
         - MESSAGE="$(printf "Job 2 Failed\nTravis Job:"${TRAVIS_JOB_URL}"\n\nLogs:\n" )"$'\n'"$(cat ${TRANSFER_SH_URLS})"
-        - .travis/set_gerrit_message.sh -v -1 -m "${MESSAGE}"
+        - travis/set_gerrit_message.sh -v -1 -m "${MESSAGE}"
       after_script:
         - cat ${TRANSFER_SH_URLS}
         - docker kill ${CONTAINER}
@@ -60,17 +60,17 @@ jobs:
         - TASK_TO_RUN="pki-test"
         - BASE_IMAGE=${IMAGE_REPO:-dogtagpki/pki-ci}:f28_106_46
       before_install:
-        - set -a && source .travis/global_variables
+        - set -a && source travis/global_variables
         - echo -e $gerrit_ssh_key >> ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa
-      install: .travis/init_task.sh | tee /dev/tty | grep -Eo '(http|https)://transfer.sh/[a-zA-Z0-9./?=_-]*.txt' | uniq >> ${TRANSFER_SH_URLS}
+      install: travis/init_task.sh | tee /dev/tty | grep -Eo '(http|https)://transfer.sh/[a-zA-Z0-9./?=_-]*.txt' | uniq >> ${TRANSFER_SH_URLS}
       script:
         - set -o pipefail
-        - travis_wait 20 .travis/pki-test.sh | tee /dev/tty | grep -Eo '(http|https)://transfer.sh/[a-zA-Z0-9./?=_-]*.txt' | uniq >> ${TRANSFER_SH_URLS}
+        - travis_wait 20 travis/pki-test.sh | tee /dev/tty | grep -Eo '(http|https)://transfer.sh/[a-zA-Z0-9./?=_-]*.txt' | uniq >> ${TRANSFER_SH_URLS}
       after_failure:
         # Post the URL of Travis Job that failed
         - TRAVIS_JOB_URL="https://travis-ci.org/$TRAVIS_REPO_SLUG/jobs/$TRAVIS_JOB_ID"
         - MESSAGE="$(printf "Job 3 Failed\nTravis Job:"${TRAVIS_JOB_URL}"\n\nLogs:\n" )"$'\n'"$(cat ${TRANSFER_SH_URLS})"
-        - .travis/set_gerrit_message.sh -v -1 -m "${MESSAGE}"
+        - travis/set_gerrit_message.sh -v -1 -m "${MESSAGE}"
       after_script:
         - cat ${TRANSFER_SH_URLS}
         - docker kill ${CONTAINER}
@@ -80,4 +80,4 @@ jobs:
       before_install: echo -e $gerrit_ssh_key >> ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa
       script:
         - MESSAGE="$(printf "Travis Build Successful.")"
-        - .travis/set_gerrit_message.sh -v +1 -m "${MESSAGE}"
+        - travis/set_gerrit_message.sh -v +1 -m "${MESSAGE}"

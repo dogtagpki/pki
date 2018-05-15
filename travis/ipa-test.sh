@@ -53,7 +53,7 @@ done
 echo ${cert_test_file_loc}
 
 ipa-docker-test-runner -l ${CI_RESULTS_LOG} \
-    -c .travis/ipa-test.yaml \
+    -c travis/ipa-test.yaml \
     $developer_mode_opt \
     --container-environment "PYTHON=$PYTHON" \
     --container-image ${BASE_IMAGE} \
