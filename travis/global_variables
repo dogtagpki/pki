@@ -6,3 +6,5 @@ CI_RUNNER_LOG_ARCHIVE="dogtag-ci-job-${TRAVIS_JOB_NUMBER}.tar.gz"
 RPMS_LOCATION=/tmp/workdir/packages/RPMS
 DOGTAG_PKI_RPMS=${TRAVIS_BUILD_DIR}/dogtag_rpms
 LOGS=logs.txt
+USE_TIMESTAMP=1
+USE_GIT_COMMIT_ID=1
