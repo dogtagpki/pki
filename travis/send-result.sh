@@ -21,10 +21,14 @@
 #
 
 
-usage() { echo "Usage: $0 [-v <+1|-1>] [-m <message>]" 1>&2; exit 1; }
-if [[ -n "${GERRIT_URL}" ]]
-then
+usage() {
+    echo "Usage: $0 [-v <+1|-1>] [-m <message>] [-f <filename>" 1>&2; exit 1;
+}
+
+if [[ -n "${GERRIT_URL}" ]]; then
+
     CMD="ssh -p 29418 "${GERRIT_URL}" -o StrictHostKeyChecking=no gerrit review ${TRAVIS_COMMIT}"
+
     while getopts ":v:m:" o; do
         case "${o}" in
             v)
@@ -34,7 +38,12 @@ then
                 ;;
             m)
                 m=${OPTARG}
-                CMD="$CMD --message  \"'$m'\""
+                CMD="$CMD --message \"'$m'\""
+                ;;
+            f)
+                filename=${OPTARG}
+                message=`cat $filename`
+                CMD="$CMD --message \"'$message'\""
                 ;;
             *)
                 usage
@@ -42,9 +51,8 @@ then
         esac
     done
     shift "$((OPTIND-1))"
+
     # For debugging purpose
     echo "${CMD}"
     eval "${CMD}"
-else
-    echo "Skip setting label..."
 fi
