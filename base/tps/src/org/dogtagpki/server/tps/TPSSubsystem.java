@@ -54,6 +54,7 @@ import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.tps.token.TokenStatus;
 import com.netscape.cms.logging.Logger;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.FileConfigStore;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -62,6 +63,8 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
  * @author Endi S. Dewata <edewata@redhat.com>
  */
 public class TPSSubsystem implements IAuthority, ISubsystem {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMSEngine.class);
 
     public final static String ID = "tps";
 
@@ -102,6 +105,9 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
 
     @Override
     public void init(ISubsystem owner, IConfigStore config) throws EBaseException {
+
+        logger.info("Initializing TPS subsystem");
+
         this.owner = owner;
         this.config = config;
 
@@ -142,7 +148,7 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
         String value = cs.getString(property);
 
         if (StringUtils.isEmpty(value)) {
-            CMS.debug("Missing token state transitions in " + property);
+            logger.error("Missing token state transitions in " + property);
             throw new EBaseException("Missing token state transition in " + property);
         }
 
@@ -157,7 +163,7 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
 
             String states[] = transition.split(":");
             if (states.length < 2) {
-                CMS.debug("Invalid token state transition in " + property + ": " + transition);
+                logger.error("Invalid token state transition in " + property + ": " + transition);
                 throw new EBaseException("Invalid token state transition in " + property + ": " + transition);
             }
 
@@ -166,7 +172,7 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
 
             String info = currentState + " to " + nextState +
                     " (" + currentState.getValue() + ":" + nextState.getValue() + ")";
-            CMS.debug("TokenSubsystem:   - " + info);
+            logger.debug("TokenSubsystem:   - " + info);
 
             Collection<TokenStatus> nextStates = transitions.get(currentState);
             nextStates.add(nextState);
@@ -198,17 +204,17 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
             IConfigStore userDefinedConfig,
             String property) throws EBaseException {
 
-        CMS.debug("TokenSubsystem: Loading transitions in " + property);
+        logger.debug("TokenSubsystem: Loading transitions in " + property);
 
-        CMS.debug("TokenSubsystem: * default transitions:");
+        logger.debug("TokenSubsystem: * default transitions:");
         Map<TokenStatus, Collection<TokenStatus>> defaultTransitions =
                 loadTokenStateTransitions(defaultConfig, property);
 
-        CMS.debug("TokenSubsystem: * user-defined transitions:");
+        logger.debug("TokenSubsystem: * user-defined transitions:");
         Map<TokenStatus, Collection<TokenStatus>> userDefinedTransitions =
                 loadTokenStateTransitions(userDefinedConfig, property);
 
-        CMS.debug("TokenSubsystem: Validating transitions in " + property);
+        logger.debug("TokenSubsystem: Validating transitions in " + property);
         validateTokenStateTransitions(defaultTransitions, userDefinedTransitions);
 
         return userDefinedTransitions;
@@ -264,14 +270,14 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
 
     @Override
     public void startup() throws EBaseException {
-        CMS.debug("TPSSubsystem: startup() begins");
+        logger.debug("TPSSubsystem: startup() begins");
         connManager = new ConnectionManager();
         connManager.initConnectors();
         authManager = new AuthenticationManager();
         authManager.initAuthInstances();
         mappingResolverManager = new MappingResolverManager();
         mappingResolverManager.initMappingResolverInstances();
-        CMS.debug("TPSSubsystem: startup() ends.");
+        logger.debug("TPSSubsystem: startup() ends.");
     }
 
     @Override
