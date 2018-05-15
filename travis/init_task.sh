@@ -21,7 +21,11 @@
 #
 
 pyenv global system 3.6
+
+echo "Logs:" > $LOGS
+
 docker pull ${BASE_IMAGE}
+
 docker run \
     --detach \
     --name=${CONTAINER} \

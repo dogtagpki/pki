@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-BUILDLOG=/tmp/compose_$1.log
+BUILDLOG=/tmp/$1-build.log
 
 function compose {
     pushd ${BUILDDIR}/pki
@@ -12,7 +12,7 @@ function compose {
 function upload {
     if test -f $BUILDLOG; then
         echo "Uploading build log to transfer"
-        curl --upload-file $BUILDLOG https://transfer.sh/pkitravis_$1.txt
+        curl --upload-file $BUILDLOG https://transfer.sh/$1-build.log >> "$SRC_DIR/$LOGS"
         # Add new line for readability of logs
         printf "\n\n=====================================\n\n"
     fi

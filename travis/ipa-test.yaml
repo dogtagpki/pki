@@ -54,7 +54,7 @@ steps:
       /var/log/pki
       systemd_journal.log
   - chown ${uid}:${gid} ${container_working_dir}/var_log.tar
-  - curl --upload ${container_working_dir}/var_log.tar https://transfer.sh/var_log.tar
+  - curl --upload ${container_working_dir}/var_log.tar https://transfer.sh/var_log.tar >> "$SRC_DIR/$LOGS"
   configure:
   - dnf repolist
   install_packages:
