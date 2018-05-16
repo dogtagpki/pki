@@ -2540,7 +2540,9 @@ public class ConfigurationUtils {
             config.putString("preop.cert.signing.type", "remote");
             config.putString("preop.cert.signing.profile", "caInstallCACert");
             config.putString("preop.cert.sslserver.type", "remote");
-            config.putString("preop.cert.sslserver.profile", "caInternalAuthServerCert");
+
+            config.putString("preop.cert.sslserver.profile",
+                   request.getSystemCertProfileID("sslserver", "caInternalAuthServerCert"));
 
             // store original caType
             original_caType = caType;
@@ -2622,6 +2624,8 @@ public class ConfigurationUtils {
         String v = config.getString("preop.ca.type", "");
 
         CMS.debug("configCert: remote CA");
+        CMS.debug("confgCert: tag: " + certTag);
+
         PKCS10 pkcs10 = CertUtil.getPKCS10(config, PCERT_PREFIX, certObj, context);
         byte[] binRequest = pkcs10.toByteArray();
         String b64Request = CryptoUtil.base64Encode(binRequest);
@@ -2643,7 +2647,10 @@ public class ConfigurationUtils {
 
             MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
             content.putSingle("requestor_name", sysType + "-" + machineName + "-" + securePort);
-            content.putSingle("profileId", profileId);
+            CMS.debug("configRemoteCert: subsystemCert: setting profileId to: " + profileId);
+            String actualProfileId = request.getSystemCertProfileID(certTag, profileId);
+            CMS.debug("configRemoteCert: subsystemCert: calculated profileId: " + actualProfileId);
+            content.putSingle("profileId", actualProfileId);
             content.putSingle("cert_request_type", "pkcs10");
             content.putSingle("cert_request", b64Request);
             content.putSingle("xmlOutput", "true");
@@ -2688,7 +2695,12 @@ public class ConfigurationUtils {
 
             MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
             content.putSingle("requestor_name", sysType + "-" + machineName + "-" + securePort);
-            content.putSingle("profileId", profileId);
+            //Get the correct profile id to send in case it's sslserver type:
+            CMS.debug("configRemoteCert: tag: " + certTag + " : setting profileId to: " + profileId);
+            String actualProfileId = request.getSystemCertProfileID(certTag, profileId);
+            CMS.debug("configRemoteCert: tag: " + certTag + " calculated profileId: " + actualProfileId);
+
+            content.putSingle("profileId", actualProfileId);
             content.putSingle("cert_request_type", "pkcs10");
             content.putSingle("cert_request", b64Request);
             content.putSingle("xmlOutput", "true");
