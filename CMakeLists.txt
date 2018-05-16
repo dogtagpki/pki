@@ -6,6 +6,9 @@ cmake_minimum_required(VERSION 2.6.0)
 # global needed variables
 set(APPLICATION_NAME ${PROJECT_NAME})
 
+# Suppress install messages
+set(CMAKE_INSTALL_MESSAGE NEVER)
+
 # Un-comment the following line to add 'javac' options (e. g. - "-g" debugging)
 #set(CMAKE_JAVA_COMPILE_FLAGS "-g")
 
