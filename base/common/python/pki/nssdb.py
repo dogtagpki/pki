@@ -539,7 +539,7 @@ class NSSDatabase(object):
 
                 for generic_ext in generic_exts:
                     data_file = os.path.join(tmpdir, 'csr-ext-%d' % counter)
-                    with open(data_file, 'w') as f:
+                    with open(data_file, 'wb') as f:
                         f.write(generic_ext['data'])
 
                     critical = ('critical' if generic_ext['critical']
