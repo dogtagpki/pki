@@ -44,22 +44,28 @@ steps:
   - "dnf makecache || :"
   cleanup:
   - chown -R ${uid}:${gid} ${container_working_dir}
+  - curl -w "\n" --upload /var/log/ipaclient-install.log https://transfer.sh/ipaclient-install.txt >> logs.txt
+  - curl -w "\n" --upload /var/log/ipaclient-uninstall.log https://transfer.sh/ipaclient-uninstall.txt >> logs.txt
+  - curl -w "\n" --upload /var/log/ipaserver-install.log https://transfer.sh/ipaserver-install.txt >> logs.txt
+  - curl -w "\n" --upload /var/log/ipaserver-uninstall.log https://transfer.sh/ipaserver-uninstall.txt >> logs.txt
+  - curl -w "\n" --upload /var/log/krb5kdc.log https://transfer.sh/krb5kdc.txt >> logs.txt
   - journalctl -b --no-pager > systemd_journal.log
+  - curl -w "\n" --upload systemd_journal.log https://transfer.sh/systemd_journal.txt >> logs.txt
+  - journalctl -l > systemd.log
+  - curl -w "\n" --upload-file systemd.log https://transfer.sh/systemd.txt >> logs.txt
   - >
       tar --ignore-failed-read -cvf ${container_working_dir}/var_log.tar
       /var/log/dirsrv
       /var/log/httpd
-      /var/log/ipa*
-      /var/log/krb5kdc.log
+      /var/log/ipa
       /var/log/pki
-      systemd_journal.log
   - chown ${uid}:${gid} ${container_working_dir}/var_log.tar
-  - curl --upload ${container_working_dir}/var_log.tar https://transfer.sh/var_log.tar >> ${container_working_dir}/logs.txt
+  - curl -w "\n" --upload ${container_working_dir}/var_log.tar https://transfer.sh/var_log.tar >> logs.txt
   configure:
   - dnf repolist
   install_packages:
-  - echo "Installing recently built dogtag RPMs..."
-  - find ${container_working_dir}/dogtag_rpms/ -name '*.rpm' -and -not -name '*debuginfo*'   | xargs dnf install -y
+  - echo "Installing recently built packages..."
+  - find ${container_working_dir}/RPMS/ -name '*.rpm' -and -not -name '*debuginfo*' | xargs dnf install -y
   - rpm -qa tomcat* pki-* freeipa-* | sort
   install_server:
   - echo "Installing ipa-server..."

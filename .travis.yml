@@ -64,10 +64,6 @@ jobs:
       script:
         - travis_wait 20 travis/ipa-test.sh
       after_failure:
-        - docker exec ${CONTAINER} journalctl  -l > ${SYSTEMD_LOG}
-        - echo "Uploading CI Logs to transfer.sh ..."
-        - curl -w "\n" --upload-file ./${SYSTEMD_LOG} https://transfer.sh/systemd_logs.txt >> ${LOGS}
-        - curl -w "\n" --upload-file ./${CI_RESULTS_LOG} https://transfer.sh/freeipa-integration.txt >> ${LOGS}
         # Post the URL of Travis Job that failed
         - TRAVIS_JOB_URL="https://travis-ci.org/$TRAVIS_REPO_SLUG/jobs/$TRAVIS_JOB_ID"
         - MESSAGE="$(printf "Job 2 Failed\nTravis Job:"${TRAVIS_JOB_URL}"\n\nLogs:\n" )"$'\n'"$(cat ${LOGS})"
