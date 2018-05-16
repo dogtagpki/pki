@@ -94,6 +94,7 @@ javadoc(pki-javadoc
         -author
         -use
         -version
+        -quiet
         ${doclintstr}
     DEPENDS
         pki-cmsutil-jar pki-certsrv-jar pki-tools-jar
