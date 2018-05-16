@@ -21,20 +21,20 @@
 #
 
 PYTHON="/usr/bin/python${TRAVIS_PYTHON_VERSION}"
+IPA_TEST_LOG="ipa-test.log"
 
 test_set="test_caacl_plugin.py test_caacl_profile_enforcement.py test_cert_plugin.py test_certprofile_plugin.py test_vault_plugin.py"
-developer_mode_opt="--developer-mode"
 cert_test_file_loc=""
 
 
 function truncate_log_to_test_failures() {
-    # chop off everything in the CI_RESULTS_LOG preceding pytest error output
+    # chop off everything in the IPA_TEST_LOG preceding pytest error output
     # if there are pytest errors in the log
     error_fail_regexp='\(=== ERRORS ===\)\|\(=== FAILURES ===\)'
 
-    if grep -e "$error_fail_regexp" $CI_RESULTS_LOG > /dev/null
+    if grep -e "$error_fail_regexp" $IPA_TEST_LOG > /dev/null
     then
-        sed -i "/$error_fail_regexp/,\$!d" $CI_RESULTS_LOG
+        sed -i "/$error_fail_regexp/,\$!d" $IPA_TEST_LOG
     fi
 }
 
@@ -46,9 +46,9 @@ echo ${cert_test_file_loc}
 
 echo "Running IPA test in ${PWD}"
 
-ipa-docker-test-runner -l ${CI_RESULTS_LOG} \
+ipa-docker-test-runner -l ${IPA_TEST_LOG} \
     -c travis/ipa-test.yaml \
-    $developer_mode_opt \
+    --developer-mode \
     --container-environment "PYTHON=$PYTHON" \
     --container-image ${BASE_IMAGE} \
     --git-repo ${TRAVIS_BUILD_DIR} \
@@ -61,5 +61,7 @@ if [[ "$exit_status" -ne 0 ]]
 then
     truncate_log_to_test_failures
 fi
+
+curl -w "\n" --upload-file ${IPA_TEST_LOG} https://transfer.sh/ipa-test.log >> ${LOGS}
 
 exit $exit_status

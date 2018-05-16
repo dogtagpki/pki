@@ -21,11 +21,11 @@
 #
 
 # Copy the built RPMS to host machine
-echo "Copying binary packages into ${DOGTAG_PKI_RPMS}"
+echo "Copying binary packages into ${HOST_RPMS}"
 
-mkdir -p ${DOGTAG_PKI_RPMS}
-docker cp ${CONTAINER}:${RPMS_LOCATION}/. ${DOGTAG_PKI_RPMS}
-ls ${DOGTAG_PKI_RPMS}
+mkdir -p ${HOST_RPMS}
+docker cp ${CONTAINER}:${BUILDER_RPMS}/. ${HOST_RPMS}
+ls -la ${HOST_RPMS}
 
 # IPA related installs
 pip install --upgrade pip
