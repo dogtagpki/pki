@@ -43,6 +43,16 @@ public class ConfigurationRequest {
     public static final String EXISTING_DOMAIN = "existingdomain";
     public static final String NEW_SUBDOMAIN = "newsubdomain";
 
+    // Hard coded values for ECC and RSA internal cert profile names
+    public static final String ECC_INTERNAL_SERVER_CERT_PROFILE = "caECInternalAuthServerCert";
+    public static final String RSA_INTERNAL_SERVER_CERT_PROFILE = "caInternalAuthServerCert";
+
+    public static final String ECC_INTERNAL_SUBSYSTEM_CERT_PROFILE= "caECInternalAuthSubsystemCert";
+    public static final String RSA_INTERNAL_SUBSYSTEM_CERT_PROFILE= "caInternalAuthSubsystemCert";
+
+    public static final String ECC_INTERNAL_ADMIN_CERT_PROFILE="caECAdminCert";
+    public static final String RSA_INTERNAL_ADMIN_CERT_PROFILE="caAdminCert";
+
     @XmlElement
     protected String pin;
 
@@ -605,6 +615,42 @@ public class ConfigurationRequest {
        return null;
    }
 
+   public String getSystemCertKeyType(String tag) {
+       SystemCertData cert = getSystemCert(tag);
+       if(cert == null)
+           return null;
+
+       return cert.getKeyType();
+   }
+
+    public String getSystemCertProfileID(String tag, String defaultName) {
+        String profileName = defaultName;
+        String keyType = getSystemCertKeyType(tag);
+
+        System.out.println("getSystemCertProfileID tag: " + tag + " defaultName: " + defaultName + " keyType: " + keyType);
+        if (keyType == null)
+            return profileName;
+
+        // Hard code for now based on key type.  Method can be changed later to read pkispawn
+        // params sent over in the future.
+        if ("ecc".equalsIgnoreCase(keyType)) {
+            if ("sslserver".equalsIgnoreCase(tag)) {
+                profileName = ECC_INTERNAL_SERVER_CERT_PROFILE;
+            } else if ("subsystem".equalsIgnoreCase(tag)) {
+                profileName = ECC_INTERNAL_SUBSYSTEM_CERT_PROFILE;
+            }
+        } else if ("rsa".equalsIgnoreCase(keyType)) {
+            if ("sslserver".equalsIgnoreCase(tag)) {
+                profileName = RSA_INTERNAL_SERVER_CERT_PROFILE;
+            } else if ("subsystem".equalsIgnoreCase(tag)) {
+                profileName = RSA_INTERNAL_SUBSYSTEM_CERT_PROFILE;
+            }
+        }
+
+        System.out.println("getSystemCertProfileID: returning: " + profileName);
+        return profileName;
+    }
+
    /**
     *
     * @param systemCerts
@@ -771,7 +817,22 @@ public class ConfigurationRequest {
      * @return the adminProfileID
      */
     public String getAdminProfileID() {
-        return adminProfileID;
+
+        // Modify the value returned based on key type of the
+        // subsystem cert. If keyType not found take the default
+        // sent over the server. In the future we can make sure
+        // the correct value is sent over the server.
+        String keyType = this.getSystemCertKeyType("subsystem");
+        String actualAdminProfileID = adminProfileID;
+        if(keyType != null) {
+            if("ecc".equalsIgnoreCase(keyType)) {
+                actualAdminProfileID = ECC_INTERNAL_ADMIN_CERT_PROFILE;
+            } else if("rsa".equalsIgnoreCase(keyType)) {
+                actualAdminProfileID = RSA_INTERNAL_ADMIN_CERT_PROFILE;
+            }
+        }
+
+        return actualAdminProfileID;
     }
 
     /**
