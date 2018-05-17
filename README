@@ -15,7 +15,7 @@ regulations defined at:
 These directories contain the following:
 
    CMakeLists.txt
-   COPYING
+   LICENSE
    cmake/    - These files and this directory contain
                the top-level files necessary to integrate
                the CMake build system in pki.
