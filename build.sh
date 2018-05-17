@@ -369,17 +369,12 @@ if [ "$BUILD_TARGET" = "spec" ] ; then
 fi
 
 ################################################################################
-# Construct rpmbuild options
+# Build source package
 ################################################################################
 
 OPTIONS=()
 
-if [ "$VERBOSE" = true ] ; then
-    OPTIONS+=(--define "_verbose 1")
-else
-    OPTIONS+=(--quiet)
-fi
-
+OPTIONS+=(--quiet)
 OPTIONS+=(--define "_topdir ${WORK_DIR}")
 
 if [ "$WITH_TIMESTAMP" = true ] ; then
@@ -422,12 +417,8 @@ else
     done
 fi
 
-################################################################################
-# Build source package
-################################################################################
-
 if [ "$DEBUG" = true ] ; then
-    echo "rpmbuild -bs "${OPTIONS[@]}" $WORK_DIR/SPECS/$RPM_SPEC"
+    echo "rpmbuild -bs ${OPTIONS[@]} $WORK_DIR/SPECS/$RPM_SPEC"
 fi
 
 # build SRPM with user-provided options
@@ -453,12 +444,20 @@ fi
 # Build binary packages
 ################################################################################
 
+OPTIONS=()
+
+if [ "$VERBOSE" = true ] ; then
+    OPTIONS+=(--define "_verbose 1")
+fi
+
+OPTIONS+=(--define "_topdir ${WORK_DIR}")
+
 if [ "$DEBUG" = true ] ; then
-    echo "rpmbuild --rebuild --define "_topdir $WORK_DIR" $SRPM"
+    echo "rpmbuild --rebuild ${OPTIONS[@]} $SRPM"
 fi
 
 # rebuild RPM with hard-coded options in SRPM
-rpmbuild --rebuild --define "_topdir $WORK_DIR" "$SRPM"
+rpmbuild --rebuild "${OPTIONS[@]}" "$SRPM"
 
 rc=$?
 
