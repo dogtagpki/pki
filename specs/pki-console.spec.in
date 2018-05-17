@@ -332,6 +332,7 @@ cd build
 # Do not use _smp_mflags to preserve build order
 %{__make} \
     VERBOSE=%{?_verbose} \
+    CMAKE_NO_VERBOSE=1 \
     DESTDIR=%{buildroot} \
     INSTALL="install -p" \
     --no-print-directory \
