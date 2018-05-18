@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e69a3b05_83d3d03c",
+        "filename": "base/server/cms/src/com/netscape/cms/servlet/csadmin/ConfigurationUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2638,
+      "author": {
+        "id": 1010256
+      },
+      "writtenOn": "2018-05-18T23:32:03Z",
+      "side": 1,
+      "message": "did you mean to replace profileId with the actualProfileId you just captured?",
+      "revId": "753b4a094ae57616c43553d2fc54783c5ed31fdf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
