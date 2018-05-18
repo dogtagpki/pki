@@ -22,6 +22,30 @@
       "revId": "7413521b9f7a5bc29e0774f4eea66b67dcbba4df",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "68e93be9_6adda1dc",
+        "filename": "base/ca/shared/profiles/ca/caInternalAuthServerCert.cfg",
+        "patchSetId": 1
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 1010256
+      },
+      "writtenOn": "2018-05-18T23:04:51Z",
+      "side": 1,
+      "message": "ok, so you mean if the existing SAN has 3 entries, commonNameToSANDefault would add one more to it if it doesn\u0027t exist in the current 3?  That sounds good.",
+      "parentUuid": "dcb159dd_85a3b711",
+      "range": {
+        "startLine": 98,
+        "startChar": 0,
+        "endLine": 98,
+        "endChar": 1
+      },
+      "revId": "7413521b9f7a5bc29e0774f4eea66b67dcbba4df",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
