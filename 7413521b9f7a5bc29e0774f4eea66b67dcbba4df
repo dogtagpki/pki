@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dcb159dd_85a3b711",
+        "filename": "base/ca/shared/profiles/ca/caInternalAuthServerCert.cfg",
+        "patchSetId": 1
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 1011000
+      },
+      "writtenOn": "2018-05-18T06:16:22Z",
+      "side": 1,
+      "message": "Actually, commonNameToSANDefault can coexist with subjectAltNameExtDefault, as long as commonNameToSANDefault comes afterwards in the processing order.\n\nThis is because commonNameToSANDefault will \"merge\" its results with the existing SAN extension, if it is present.\n\n(This comment applies to caECInternalAuthServerCert.cfg as well).",
+      "range": {
+        "startLine": 98,
+        "startChar": 0,
+        "endLine": 98,
+        "endChar": 1
+      },
+      "revId": "7413521b9f7a5bc29e0774f4eea66b67dcbba4df",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
