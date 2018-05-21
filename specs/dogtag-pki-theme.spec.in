@@ -66,8 +66,6 @@ Obsoletes:        dogtag-pki-ocsp-theme < %{version}-%{release}
 Obsoletes:        dogtag-pki-ocsp-ui < %{version}-%{release}
 Obsoletes:        dogtag-pki-tks-theme < %{version}-%{release}
 Obsoletes:        dogtag-pki-tks-ui < %{version}-%{release}
-Obsoletes:        dogtag-pki-ra-theme < %{version}-%{release}
-Obsoletes:        dogtag-pki-ra-ui < %{version}-%{release}
 Obsoletes:        dogtag-pki-tps-theme < %{version}-%{release}
 Obsoletes:        dogtag-pki-tps-ui < %{version}-%{release}
 
@@ -115,8 +113,6 @@ Requires:         java-1.8.0-openjdk
 Conflicts:        redhat-pki-console-theme
 Conflicts:        redhat-pki-console-ui
 %endif
-
-Obsoletes:        dogtag-pki-console-ui < %{version}-%{release}
 
 Provides:         pki-console-theme = %{version}-%{release}
 Provides:         pki-console-ui = %{version}-%{release}
