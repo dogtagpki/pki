@@ -575,7 +575,6 @@ Requires:         policycoreutils-python
 %endif  # with_python3_default
 
 Requires:         selinux-policy-targeted >= 3.13.1-159
-Obsoletes:        pki-selinux < %{version}-%{release}
 
 %if 0%{?fedora} >= 29 || 0%{?rhel} > 7
 Requires:         tomcat >= 1:9.0.7
