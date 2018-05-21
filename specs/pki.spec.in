@@ -601,6 +601,7 @@ Requires:         python3-ldap
 Requires:         python3-pyldap
 %endif
 Requires:         python3-lxml
+Requires:         python3-libselinux
 Requires:         policycoreutils-python3
 %else
 %if 0%{?fedora} >= 28 || 0%{?rhel} > 7
@@ -662,7 +663,8 @@ Obsoletes:        redhat-pki-server-theme < 10.3.0
 %endif
 
 %description -n   pki-server
-The PKI Server Package contains libraries and utilities needed by the following PKI subsystems:
+The PKI Server Package contains libraries and utilities needed by the
+following PKI subsystems:
 
     the Certificate Authority (CA),
     the Key Recovery Authority (KRA),
