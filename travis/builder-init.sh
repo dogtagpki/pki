@@ -22,7 +22,7 @@
 
 pyenv global system 3.6
 
-docker pull ${BASE_IMAGE}
+docker pull ${IMAGE_REPO:-dogtagpki/pki-ci}:${IMAGE}
 
 docker run \
     --detach \
@@ -38,7 +38,7 @@ docker run \
     -e TRAVIS=${TRAVIS} \
     -e TRAVIS_JOB_NUMBER=${TRAVIS_JOB_NUMBER} \
     -i \
-    ${BASE_IMAGE}
+    ${IMAGE_REPO:-dogtagpki/pki-ci}:${IMAGE}
 
 docker exec -i ${CONTAINER} /bin/ls -la /tmp/workdir
 docker exec -i ${CONTAINER} ${SCRIPTDIR}/pki-init.sh

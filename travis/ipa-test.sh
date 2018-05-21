@@ -50,7 +50,7 @@ ipa-docker-test-runner -l ${IPA_TEST_LOG} \
     -c travis/ipa-test.yaml \
     --developer-mode \
     --container-environment "PYTHON=$PYTHON" \
-    --container-image ${BASE_IMAGE} \
+    --container-image ${IMAGE_REPO:-dogtagpki/pki-ci}:${IMAGE} \
     --git-repo ${TRAVIS_BUILD_DIR} \
     run-tests ${cert_test_file_loc}
 
