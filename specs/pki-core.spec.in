@@ -1142,6 +1142,9 @@ fi
 %files -n pki-base-java
 ################################################################################
 
+%defattr(-,root,root,-)
+%doc base/common/LICENSE
+%doc base/common/LICENSE.LESSER
 %{_datadir}/pki/examples/java/
 %{_datadir}/pki/lib/
 %dir %{_javadir}/pki
