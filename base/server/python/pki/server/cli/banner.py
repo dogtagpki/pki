@@ -145,26 +145,33 @@ class BannerValidateCLI(pki.cli.CLI):
                 self.usage()
                 sys.exit(1)
 
-        if banner_file:
-            # load banner from file
-            with io.open(banner_file) as f:
-                banner = f.read().strip()
-        else:
+        try:
+            if banner_file:
+                # load banner from file
+                with io.open(banner_file) as f:
+                    banner = f.read().strip()
+            else:
 
-            # load banner from instance
-            instance = pki.server.PKIInstance(instance_name)
+                # load banner from instance
+                instance = pki.server.PKIInstance(instance_name)
 
-            if not instance.is_valid():
-                print('ERROR: Invalid instance %s.' % instance_name)
-                sys.exit(1)
+                if not instance.is_valid():
+                    print('ERROR: Invalid instance %s.' % instance_name)
+                    sys.exit(1)
 
-            instance.load()
+                instance.load()
 
-            if not instance.banner_installed():
-                self.print_message('Banner is not installed')
-                return
+                if not instance.banner_installed():
+                    self.print_message('Banner is not installed')
+                    return
 
-            banner = instance.get_banner()
+                banner = instance.get_banner()
+
+        except UnicodeDecodeError as e:
+            if self.verbose:
+                traceback.print_exc()
+            print('ERROR: Banner contains invalid character(s)')
+            sys.exit(1)
 
         if not banner:
             print('ERROR: Banner is empty')
