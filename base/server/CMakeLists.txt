@@ -341,9 +341,9 @@ install(
 # install server configuration files
 install(
     DIRECTORY
-        etc/
+        etc
     DESTINATION
-        ${SYSCONF_INSTALL_DIR}/pki
+        ${DATA_INSTALL_DIR}/server
 )
 
 # install empty directories

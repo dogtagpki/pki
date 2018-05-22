@@ -628,7 +628,7 @@ def sanitize_user_deployment_cfg(cfg):
     for line in fileinput.FileInput(cfg, inplace=1):
         # Remove extraneous leading and trailing whitespace from all lines
         line = line.strip()
-        # Normalize section headings to match '/etc/pki/default.cfg'
+        # Normalize section headings to match '/usr/share/pki/server/etc/default.cfg'
         if line.startswith("["):
             if line.upper().startswith("[DEFAULT"):
                 line = "[DEFAULT]"

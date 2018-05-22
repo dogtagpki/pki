@@ -34,7 +34,7 @@ and
 .I -s KRA
 respectively.
 .PP
-The instances are created based on values for configuration parameters in the default configuration (/etc/pki/default.cfg) and the user-provided configuration file.  The user-provided configuration file is read after the default configuration file, so any parameters defined in that file will override parameters in the default configuration file.  In general, most users will store only those parameters which are different from the default configuration in their user-provided configuration file.
+The instances are created based on values for configuration parameters in the default configuration (/usr/share/pki/server/etc/default.cfg) and the user-provided configuration file.  The user-provided configuration file is read after the default configuration file, so any parameters defined in that file will override parameters in the default configuration file.  In general, most users will store only those parameters which are different from the default configuration in their user-provided configuration file.
 .PP
 This configuration file contains parameters that are grouped into sections.
 These sections are stacked, so that parameters defined in earlier sections can
@@ -481,7 +481,7 @@ pki_authdb_basedn=\fIdc=example,dc=com\fP
 \fBNote:\fP
 For this particular example, the computed default values for a
 PKI instance name including its ports, URLs, machine names, etc.
-were utilized as defined in \fI/etc/pki/default.cfg\fP.  Each
+were utilized as defined in \fI/usr/share/pki/server/etc/default.cfg\fP.  Each
 subsystem in this example will reside under the
 \fI/var/lib/pki/pki-tomcat\fP instance housed within their own
 \fIca\fP, \fIkra\fP, \fIocsp\fP, \fItks\fP, and \fItps\fP
@@ -962,13 +962,13 @@ backed up, moved, or copied to a PKCS #12 file (software).
 For example, if \fBpki_hsm_enable\fP is set to True,
 \fBpki_backup_keys\fP should be set to False and
 \fBpki_backup_password\fP should be left unset (the default
-values in \fB/etc/pki/default.cfg\fP).  Similarly, for the case
+values in \fB/usr/share/pki/server/etc/default.cfg\fP).  Similarly, for the case
 of clones using an HSM, this means that the HSM keys must be
 shared between the master and its clones.  Therefore, if
 \fBpki_hsm_enable\fP is set to True, both
 \fBpki_clone_pkcs12_path\fP and \fBpki_clone_pkcs12_password\fP
 should be left unset (the default values in
-\fB/etc/pki/default.cfg\fP).  Failure to comply with these rules
+\fB/usr/share/pki/server/etc/default.cfg\fP).  Failure to comply with these rules
 will result in \fBpkispawn\fP reporting an appropriate error and
 exiting.
 
