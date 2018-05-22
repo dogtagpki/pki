@@ -20,8 +20,8 @@
 
 from __future__ import absolute_import
 from __future__ import print_function
-import codecs
 import getopt
+import io
 from lxml import etree
 import sys
 import traceback
@@ -146,10 +146,9 @@ class BannerValidateCLI(pki.cli.CLI):
                 sys.exit(1)
 
         if banner_file:
-
             # load banner from file
-            banner = codecs.open(banner_file, "UTF-8").read().strip()
-
+            with io.open(banner_file) as f:
+                banner = f.read().strip()
         else:
 
             # load banner from instance

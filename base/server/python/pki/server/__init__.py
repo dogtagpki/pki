@@ -20,7 +20,6 @@
 
 from __future__ import absolute_import
 
-import codecs
 from lxml import etree
 import functools
 import getpass
@@ -977,7 +976,8 @@ class PKIInstance(object):
         return os.path.exists(self.banner_file)
 
     def get_banner(self):
-        return codecs.open(self.banner_file, "UTF-8").read().strip()
+        with io.open(self.banner_file) as f:
+            return f.read().strip()
 
     def __repr__(self):
         if self.type == 9:
