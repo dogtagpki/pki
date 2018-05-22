@@ -1244,7 +1244,7 @@ fi
 %doc base/common/THIRD_PARTY_LICENSES
 %doc base/server/LICENSE
 %doc base/server/README
-%{_sysconfdir}/pki/default.cfg
+%{_datadir}/pki/server/etc/default.cfg
 %attr(755,-,-) %dir %{_sysconfdir}/sysconfig/pki
 %attr(755,-,-) %dir %{_sysconfdir}/sysconfig/pki/tomcat
 %{_sbindir}/pkispawn
