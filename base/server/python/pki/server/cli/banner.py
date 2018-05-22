@@ -22,7 +22,6 @@ from __future__ import absolute_import
 from __future__ import print_function
 import getopt
 import io
-from lxml import etree
 import sys
 import traceback
 
@@ -145,41 +144,36 @@ class BannerValidateCLI(pki.cli.CLI):
                 self.usage()
                 sys.exit(1)
 
-        if banner_file:
-            # load banner from file
-            with io.open(banner_file) as f:
-                banner = f.read().strip()
-        else:
+        try:
+            if banner_file:
+                # load banner from file
+                with io.open(banner_file) as f:
+                    banner = f.read().strip()
+            else:
 
-            # load banner from instance
-            instance = pki.server.PKIInstance(instance_name)
+                # load banner from instance
+                instance = pki.server.PKIInstance(instance_name)
 
-            if not instance.is_valid():
-                print('ERROR: Invalid instance %s.' % instance_name)
-                sys.exit(1)
+                if not instance.is_valid():
+                    print('ERROR: Invalid instance %s.' % instance_name)
+                    sys.exit(1)
 
-            instance.load()
+                instance.load()
 
-            if not instance.banner_installed():
-                self.print_message('Banner is not installed')
-                return
+                if not instance.banner_installed():
+                    self.print_message('Banner is not installed')
+                    return
 
-            banner = instance.get_banner()
+                banner = instance.get_banner()
+
+        except UnicodeDecodeError as e:
+            if self.verbose:
+                traceback.print_exc()
+            print('ERROR: Banner contains invalid character(s): %s' % e)
+            sys.exit(1)
 
         if not banner:
             print('ERROR: Banner is empty')
             sys.exit(1)
 
-        xml_banner = "<banner>" + banner + "</banner>"
-
-        try:
-            parser = etree.XMLParser()
-            etree.fromstring(xml_banner, parser)
-
-            self.print_message('Banner is valid')
-
-        except etree.XMLSyntaxError as e:
-            if self.verbose:
-                traceback.print_exc()
-            print('ERROR: Banner contains invalid character(s)')
-            sys.exit(1)
+        self.print_message('Banner is valid')
