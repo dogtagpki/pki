@@ -531,26 +531,22 @@ class NSSDatabase(object):
                 cmd.extend([','.join(usages)])
 
             if generic_exts:
-
                 cmd.extend(['--extGeneric'])
-
-                counter = 0
                 exts = []
 
-                for generic_ext in generic_exts:
-                    data_file = os.path.join(tmpdir, 'csr-ext-%d' % counter)
-                    with open(data_file, 'w') as f:
-                        f.write(generic_ext['data'])
+                for i, ext in enumerate(generic_exts):
+                    data_file = os.path.join(tmpdir, 'csr-ext-%d' % i)
+                    with open(data_file, 'wb') as f:
+                        f.write(ext['data'])
 
-                    critical = ('critical' if generic_ext['critical']
-                                else 'not-critical')
+                    if ext['critical']:
+                        critical = 'critical'
+                    else:
+                        critical = 'not-critical'
 
-                    ext = generic_ext['oid']
-                    ext += ':' + critical
-                    ext += ':' + data_file
-
-                    exts.append(ext)
-                    counter += 1
+                    exts.append(
+                        '{}:{}:{}'.format(ext['oid'], critical, data_file)
+                    )
 
                 cmd.append(','.join(exts))
 

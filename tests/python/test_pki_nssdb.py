@@ -19,6 +19,7 @@
 # All rights reserved.
 #
 
+import binascii
 import os
 import shutil
 import subprocess
@@ -26,6 +27,11 @@ import tempfile
 import unittest
 
 from pki import nssdb
+
+
+# DNS name "example.org"
+SAN_OID = "2.5.29.17"
+SAN_DATA = binascii.unhexlify("300D820B6578616D706C652E6F7267")
 
 
 class PKINSSDBTests(unittest.TestCase):
@@ -131,6 +137,32 @@ class PKINSSDBTests(unittest.TestCase):
         self.assertSQLFiles()
         self.assertNotDBMFiles()
         self.assertEqual(db.get_dbtype(), 'sql')
+
+    def test_request_generic_ext(self):
+        self.create_db('sql')
+        db = nssdb.NSSDatabase(
+            'sql:' + self.tmpdir,
+            password_file=self.password_file
+        )
+
+        reqfile = os.path.join(self.tmpdir, "req.csr")
+        generic = {
+            'oid': SAN_OID,
+            'critical': True,
+            'data': SAN_DATA
+        }
+        db.create_request(
+            "CN=testrequest",
+            reqfile,
+            generic_exts=[generic]
+        )
+
+        out = subprocess.check_output(
+            ['openssl', 'req', '-text', '-in', reqfile],
+            env={}
+        )
+        self.assertIn(b'X509v3 Subject Alternative Name: critical', out)
+        self.assertIn(b'DNS:example.org', out)
 
 
 if __name__ == '__main__':
