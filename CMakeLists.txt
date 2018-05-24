@@ -10,7 +10,7 @@ set(APPLICATION_NAME ${PROJECT_NAME})
 set(CMAKE_INSTALL_MESSAGE NEVER)
 
 # Un-comment the following line to add 'javac' options (e. g. - "-g" debugging)
-#set(CMAKE_JAVA_COMPILE_FLAGS "-g")
+set(CMAKE_JAVA_COMPILE_FLAGS "-Xlint:deprecation")
 
 if (NOT DEFINED VERSION)
     set(VERSION "10.0.0")
