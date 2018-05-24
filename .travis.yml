@@ -16,10 +16,7 @@ jobs:
         - set -a && source travis/global_variables
         - echo -e $gerrit_ssh_key >> ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa
         - touch ${LOGS}
-        # Post the Travis Build URL
-        - TRAVIS_BUILD_URL="https://travis-ci.org/$TRAVIS_REPO_SLUG/builds/$TRAVIS_BUILD_ID"
-        - MESSAGE="$(printf "Build Started.\nTravis Build:"${TRAVIS_BUILD_URL})"
-        - travis/send-result.sh -m "${MESSAGE}"
+        - travis/post-test-started.sh
       install:
         - travis/builder-init.sh
         - docker exec -i ${CONTAINER} ${SCRIPTDIR}/pki-build.sh pki-core compose_pki_core_packages
@@ -41,10 +38,7 @@ jobs:
         - docker exec -i ${CONTAINER} ${SCRIPTDIR}/ca-remove.sh
         - docker exec -i ${CONTAINER} ${SCRIPTDIR}/ds-remove.sh
       after_failure:
-        # Post the URL of Travis Job that failed
-        - TRAVIS_JOB_URL="https://travis-ci.org/$TRAVIS_REPO_SLUG/jobs/$TRAVIS_JOB_ID"
-        - MESSAGE="$(printf "Job 1 Failed\nTravis Job:"${TRAVIS_JOB_URL}"\n\nLogs:\n" )"$'\n'"$(cat ${LOGS})"
-        - travis/send-result.sh -v -1 -m "${MESSAGE}"
+        - travis/post-test-failed.sh
       after_script:
         - cat ${LOGS}
         - docker kill ${CONTAINER}
@@ -64,10 +58,7 @@ jobs:
       script:
         - travis_wait 20 travis/ipa-test.sh
       after_failure:
-        # Post the URL of Travis Job that failed
-        - TRAVIS_JOB_URL="https://travis-ci.org/$TRAVIS_REPO_SLUG/jobs/$TRAVIS_JOB_ID"
-        - MESSAGE="$(printf "Job 2 Failed\nTravis Job:"${TRAVIS_JOB_URL}"\n\nLogs:\n" )"$'\n'"$(cat ${LOGS})"
-        - travis/send-result.sh -v -1 -m "${MESSAGE}"
+        - travis/post-test-failed.sh
       after_script:
         - cat ${LOGS}
         - docker kill ${CONTAINER}
@@ -102,17 +93,14 @@ jobs:
         - docker exec -i ${CONTAINER} ${SCRIPTDIR}/ca-remove.sh
         - docker exec -i ${CONTAINER} ${SCRIPTDIR}/ds-remove.sh
       after_failure:
-        # Post the URL of Travis Job that failed
-        - TRAVIS_JOB_URL="https://travis-ci.org/$TRAVIS_REPO_SLUG/jobs/$TRAVIS_JOB_ID"
-        - MESSAGE="$(printf "Job 3 Failed\nTravis Job:"${TRAVIS_JOB_URL}"\n\nLogs:\n" )"$'\n'"$(cat ${LOGS})"
-        - travis/send-result.sh -v -1 -m "${MESSAGE}"
+        - travis/post-test-failed.sh
       after_script:
         - cat ${LOGS}
         - docker kill ${CONTAINER}
         - docker rm ${CONTAINER}
 
     - stage: Verification Label
-      before_install: echo -e $gerrit_ssh_key >> ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa
+      before_install:
+        - echo -e $gerrit_ssh_key >> ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa
       script:
-        - MESSAGE="$(printf "Travis Build Successful.")"
-        - travis/send-result.sh -v +1 -m "${MESSAGE}"
+        - travis/post-test-passed.sh
