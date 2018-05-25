@@ -1,8 +1,8 @@
 package com.netscape.cmstools.profile;
 
-import java.io.FileOutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.Properties;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -66,13 +66,13 @@ public class ProfileShowCLI extends CLI {
         ProfileClient profileClient = profileCLI.getProfileClient();
 
         if (cmd.hasOption("raw")) {
-            Properties profileConfig = profileClient.retrieveProfileRaw(profileId);
+            byte[] cfg = profileClient.retrieveProfileRaw(profileId);
 
             if (filename != null) {
-                profileConfig.store(new FileOutputStream(filename), null);
+                Files.write(Paths.get(filename), cfg);
                 MainCLI.printMessage("Saved profile " + profileId + " to " + filename);
             } else {
-                profileConfig.store(System.out, null);
+                System.out.write(cfg);
             }
         } else {
             MainCLI.printMessage("Profile \"" + profileId + "\"");

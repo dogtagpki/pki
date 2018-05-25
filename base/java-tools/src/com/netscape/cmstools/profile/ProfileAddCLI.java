@@ -1,5 +1,6 @@
 package com.netscape.cmstools.profile;
 
+import java.io.ByteArrayInputStream;
 import java.util.Arrays;
 import java.util.Properties;
 
@@ -51,9 +52,15 @@ public class ProfileAddCLI extends CLI {
         ProfileClient profileClient = profileCLI.getProfileClient();
 
         if (cmd.hasOption("raw")) {
-            Properties properties = ProfileCLI.readRawProfileFromFile(filename);
-            String profileId = properties.getProperty("profileId");
-            profileClient.createProfileRaw(properties).store(System.out, null);
+            byte[] properties = ProfileCLI.readRawProfileFromFile(filename);
+
+            // read profileId from the configuration
+            Properties p = new Properties();
+            p.load(new ByteArrayInputStream(properties));
+            String profileId = p.getProperty("profileId");
+
+            byte[] resp = profileClient.createProfileRaw(properties);
+            System.out.write(resp);
             MainCLI.printMessage("Added profile " + profileId);
         } else {
             ProfileData data = ProfileCLI.readProfileFromFile(filename);

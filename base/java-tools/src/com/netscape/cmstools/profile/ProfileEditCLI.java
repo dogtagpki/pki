@@ -18,10 +18,10 @@
 
 package com.netscape.cmstools.profile;
 
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.Properties;
 
 import org.apache.commons.cli.CommandLine;
 
@@ -61,15 +61,13 @@ public class ProfileEditCLI extends CLI {
         ProfileClient profileClient = profileCLI.getProfileClient();
 
         // read profile into temporary file
-        Properties orig = profileClient.retrieveProfileRaw(profileId);
-        String enabled = orig.getProperty("enable");
-        if (Boolean.valueOf(enabled)) {
-            throw new Exception("Cannot edit profile. Profile must be disabled.");
-        }
+        byte[] orig = profileClient.retrieveProfileRaw(profileId);
+        ProfileCLI.checkConfiguration(
+            orig, false /* requireProfileId */, true /* requireDisabled */);
         Path tempFile = Files.createTempFile("pki", ".cfg");
 
         try {
-            orig.store(Files.newOutputStream(tempFile), null);
+            Files.write(tempFile, orig);
 
             // invoke editor on temporary file
             String editor = System.getenv("EDITOR");
@@ -87,13 +85,11 @@ public class ProfileEditCLI extends CLI {
             }
 
             // read data from temporary file and modify if changed
-            Properties cur = new Properties();
-            cur.load(Files.newInputStream(tempFile));
-
-            if (!cur.equals(orig)) {
+            byte[] cur = ProfileCLI.readRawProfileFromFile(tempFile);
+            if (!Arrays.equals(cur, orig)) {
                 profileClient.modifyProfileRaw(profileId, cur);
             }
-            cur.store(System.out, null);
+            System.out.write(cur);
         } finally {
             Files.delete(tempFile);
         }
