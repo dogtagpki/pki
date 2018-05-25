@@ -1,10 +1,13 @@
 package com.netscape.cmstools.profile;
 
+import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Locale;
 import java.util.Properties;
@@ -14,6 +17,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
+import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.profile.ProfileAttribute;
@@ -140,14 +144,57 @@ public class ProfileCLI extends CLI {
         return data;
     }
 
-    public static Properties readRawProfileFromFile(String filename)
-            throws Exception {
-        Properties properties = new Properties();
-        properties.load(Files.newInputStream(Paths.get(filename)));
-        String profileId = properties.getProperty("profileId");
-        if (profileId == null)
-            throw new Exception("Missing profileId property in profile data.");
-        return properties;
+    /** Reads a raw profile from the specified file.
+     *
+     * @throws PKIException if it doesn't parse as a Properties or
+     *         if it doesn't contain the profileId field.
+     */
+    public static byte[] readRawProfileFromFile(Path path)
+            throws PKIException, IOException {
+        byte[] s = Files.readAllBytes(path);
+        checkConfiguration(s, true /* requireProfileId */, false /* requireDisabled */);
+        return s;
+    }
+
+    /** Reads a raw profile from the specified file.
+     *
+     * @throws PKIException if it doesn't parse as a Properties or
+     *         if it doesn't contain the profileId field.
+     */
+    public static byte[] readRawProfileFromFile(String path)
+            throws PKIException, IOException {
+        return readRawProfileFromFile(Paths.get(path));
+    }
+
+    /** Sanity check the profile configuration.
+     *
+     * We are working with plain byte[] because java.util.Properties
+     * has undesirable (i.e. bug-causing) escaping behaviour (it
+     * inserts backslashes in places we don't want them).
+     *
+     * But we do still want to check that the input looks something
+     * like a profile configuration.  So we use java.util.Properties
+     * to do that.
+     */
+    public static void checkConfiguration(
+            byte[] in,
+            boolean requireProfileId,
+            boolean requireDisabled)
+            throws PKIException {
+        Properties p = new Properties();
+        try {
+            p.load(new ByteArrayInputStream(in));
+        } catch (IOException e) {
+            throw new PKIException("Failed to parse profile configuration", e);
+        }
+
+        if (requireProfileId && p.getProperty("profileId") == null)
+            throw new PKIException("Missing profileId property in profile data.");
+
+        String enabled = p.getProperty("enable");
+        if (requireDisabled && Boolean.valueOf(enabled)) {
+            throw new PKIException("Cannot edit profile. Profile must be disabled.");
+        }
     }
 
     public static void saveEnrollmentTemplateToFile(String filename, CertEnrollmentRequest request)

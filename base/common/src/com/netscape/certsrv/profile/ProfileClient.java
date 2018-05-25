@@ -21,7 +21,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.Properties;
 
 import javax.ws.rs.core.Response;
 
@@ -50,9 +49,9 @@ public class ProfileClient extends Client {
         return client.getEntity(response, ProfileData.class);
     }
 
-    public Properties retrieveProfileRaw(String id) {
+    public byte[] retrieveProfileRaw(String id) {
         Response response = profileClient.retrieveProfileRaw(id);
-        return byteArrayToProperties(client.getEntity(response, byte[].class));
+        return client.getEntity(response, byte[].class);
     }
 
     public ProfileDataInfos listProfiles(Integer start, Integer size) {
@@ -75,10 +74,10 @@ public class ProfileClient extends Client {
         return client.getEntity(response, ProfileData.class);
     }
 
-    public Properties createProfileRaw(Properties properties) {
+    public byte[] createProfileRaw(byte[] properties) {
         Response response =
-            profileClient.createProfileRaw(propertiesToByteArray(properties));
-        return byteArrayToProperties(client.getEntity(response, byte[].class));
+            profileClient.createProfileRaw(properties);
+        return client.getEntity(response, byte[].class);
     }
 
     public ProfileData modifyProfile(ProfileData data) {
@@ -86,10 +85,10 @@ public class ProfileClient extends Client {
         return client.getEntity(response, ProfileData.class);
     }
 
-    public Properties modifyProfileRaw(String profileId, Properties properties) {
+    public byte[] modifyProfileRaw(String profileId, byte[] properties) {
         Response response =
-            profileClient.modifyProfileRaw(profileId, propertiesToByteArray(properties));
-        return byteArrayToProperties(client.getEntity(response, byte[].class));
+            profileClient.modifyProfileRaw(profileId, properties);
+        return client.getEntity(response, byte[].class);
     }
 
     public void deleteProfile(String id) {
@@ -97,23 +96,4 @@ public class ProfileClient extends Client {
         client.getEntity(response, Void.class);
     }
 
-    private Properties byteArrayToProperties(byte[] data) throws PKIException {
-        Properties properties = new Properties();
-        try {
-            properties.load(new ByteArrayInputStream(data));
-        } catch (IOException e) {
-            throw new PKIException("Failed to decode profile Properties: " + e.toString());
-        }
-        return properties;
-    }
-
-    private byte[] propertiesToByteArray(Properties properties) throws PKIException {
-        ByteArrayOutputStream data = new ByteArrayOutputStream();
-        try {
-            properties.store(data, null);
-        } catch (IOException e) {
-            throw new PKIException("Failed to encode profile Properties: " + e.toString());
-        }
-        return data.toByteArray();
-    }
 }
