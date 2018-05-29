@@ -478,12 +478,7 @@ public class NameConstraintsExtDefault extends EnrollExtDefault {
                 CMS.debug("NameConstraintExtDefault: getValue " + e.toString());
             }
 
-            if (subtrees == null) {
-                CMS.debug("NameConstraintsExtDefault::getValue() VAL_PERMITTED_SUBTREES is null!");
-                throw new EPropertyException("subtrees is null");
-            }
-
-            return getSubtreesInfo(ext, subtrees);
+            return getSubtreesInfo(subtrees);
         } else if (name.equals(VAL_EXCLUDED_SUBTREES)) {
             ext = (NameConstraintsExtension)
                     getExtension(PKIXExtensions.NameConstraints_Id.toString(), info);
@@ -500,28 +495,22 @@ public class NameConstraintsExtDefault extends EnrollExtDefault {
                 CMS.debug("NameConstraintExtDefault: getValue " + e.toString());
             }
 
-            if (subtrees == null) {
-                CMS.debug("NameConstraintsExtDefault::getValue() VAL_EXCLUDED_SUBTREES is null!");
-                throw new EPropertyException("subtrees is null");
-            }
-
-            return getSubtreesInfo(ext, subtrees);
+            return getSubtreesInfo(subtrees);
         } else {
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         }
     }
 
-    private String getSubtreesInfo(NameConstraintsExtension ext,
-            GeneralSubtrees subtrees) throws EPropertyException {
+    private static String getSubtreesInfo(GeneralSubtrees subtrees)
+            throws EPropertyException {
+        if (subtrees == null)
+            return "";
+
         Vector<GeneralSubtree> trees = subtrees.getSubtrees();
-        int size = trees.size();
+        Vector<NameValuePairs> recs = new Vector<>();
 
-        Vector<NameValuePairs> recs = new Vector<NameValuePairs>();
-
-        for (int i = 0; i < size; i++) {
-            GeneralSubtree tree = trees.elementAt(i);
-
+        for (GeneralSubtree tree : trees) {
             GeneralName gn = tree.getGeneralName();
             String type = getGeneralNameType(gn);
             int max = tree.getMaxValue();
