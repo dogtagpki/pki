@@ -156,30 +156,46 @@ public class IPAddressName implements GeneralNameInterface {
      * Return a printable string of IPaddress
      */
     public String toString() {
-        if (address.length == 4) {
-            return ("IPAddress: " + (address[0] & 0xff) + "."
-                    + (address[1] & 0xff) + "."
-                    + (address[2] & 0xff) + "." + (address[3] & 0xff));
+        StringBuilder r = new StringBuilder("IPAddress: ");
+        ByteBuffer buf = ByteBuffer.wrap(address);
+        if (address.length == IPv4_LEN) {
+            writeIPv4(r, buf);
+        } else if (address.length == IPv4_LEN * 2) {
+            writeIPv4(r, buf);
+            r.append(",");
+            writeIPv4(r, buf);
+        } else if (address.length == IPv6_LEN) {
+            writeIPv6(r, buf);
+        } else if (address.length == IPv6_LEN * 2) {
+            writeIPv6(r, buf);
+            r.append(",");
+            writeIPv6(r, buf);
         } else {
-            StringBuffer r = new StringBuffer("IPAddress: " + Integer.toHexString(address[0] & 0xff));
-            String hexString = Integer.toHexString(address[1] & 0xff);
-            if (hexString.length() == 1) {
-                r.append("0" + hexString);
-            } else {
-                r.append(hexString);
-            }
-            for (int i = 2; i < address.length;) {
-                r.append(":" + Integer.toHexString(address[i] & 0xff));
-                hexString = Integer.toHexString(address[i + 1] & 0xff);
-                if (hexString.length() == 1) {
-                    r.append("0" + hexString);
-                } else {
-                    r.append(hexString);
-                }
-                i += 2;
-            }
-            return r.toString();
+            // shouldn't be possible
+            r.append("0.0.0.0");
         }
+        return r.toString();
+    }
+
+    private static void writeIPv4(StringBuilder r, ByteBuffer buf) {
+        for (int i = 0; i < 4; i++) {
+            if (i > 0) r.append(".");
+            r.append(buf.get() & 0xff);
+        }
+    }
+
+    private static void writeIPv6(StringBuilder r, ByteBuffer buf) {
+        for (int i = 0; i < 8; i++) {
+            if (i > 0) r.append(":");
+            r.append(Integer.toHexString(read16BitInt(buf)));
+        }
+    }
+
+    /**
+     * Read big-endian 16-bit int from buffer (advancing cursor)
+     */
+    private static int read16BitInt(ByteBuffer buf) {
+        return ((buf.get() & 0xff) << 8) + (buf.get() & 0xff);
     }
 
     /**
