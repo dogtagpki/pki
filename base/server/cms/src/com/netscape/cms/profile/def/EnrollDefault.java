@@ -672,7 +672,7 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
         return true;
     }
 
-    protected String buildRecords(Vector<NameValuePairs> recs) throws EPropertyException {
+    protected static String buildRecords(Vector<NameValuePairs> recs) {
         StringBuffer sb = new StringBuffer();
 
         for (int i = 0; i < recs.size(); i++) {
@@ -739,7 +739,7 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
         return v;
     }
 
-    protected String getGeneralNameType(GeneralName gn)
+    protected static String getGeneralNameType(GeneralName gn)
             throws EPropertyException {
         int type = gn.getType();
 
@@ -763,7 +763,8 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
         throw new EPropertyException("Unsupported type: " + type);
     }
 
-    protected String getGeneralNameValue(GeneralName gn) throws EPropertyException {
+    protected static String getGeneralNameValue(GeneralName gn)
+            throws EPropertyException {
         String s = gn.toString();
         int type = gn.getType();
 
