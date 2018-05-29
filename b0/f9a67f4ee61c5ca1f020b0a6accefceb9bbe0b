@@ -1,0 +1,9 @@
+Verified+1: <pki.jenkins.bot@gmail.com>
+Code-Review+2: Endi S. Dewata <edewata@redhat.com>
+Code-Review+2: Jack Magne <jmagne@redhat.com>
+Workflow+1: Geetika Kapoor <gkapoor@redhat.com>
+Submitted-by: Geetika Kapoor <gkapoor@redhat.com>
+Submitted-at: Tue, 29 May 2018 20:21:28 +0000
+Reviewed-on: https://review.gerrithub.io/412824
+Project: dogtagpki/pki
+Branch: refs/heads/master
