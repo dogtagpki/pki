@@ -476,6 +476,13 @@ class NSSDatabase(object):
             if key_type:
                 cmd.extend(['-k', key_type])
 
+            if key_type.lower() == 'ec':
+                # This is fix for Bugzilla 1544843
+                cmd.extend([
+                    '--keyOpFlagsOn', 'sign',
+                    '--keyOpFlagsOff', 'derive'
+                ])
+
             if key_size:
                 cmd.extend(['-g', str(key_size)])
 
