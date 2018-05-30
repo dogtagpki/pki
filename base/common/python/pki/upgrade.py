@@ -662,9 +662,6 @@ class PKIUpgrader(object):
                 scriptlet.init()
                 scriptlet.upgrade()
 
-            except pki.PKIException:
-                raise
-
             except Exception as e:  # pylint: disable=W0703
 
                 print()
@@ -728,9 +725,6 @@ class PKIUpgrader(object):
 
             try:
                 scriptlet.revert()
-
-            except pki.PKIException:
-                raise
 
             except Exception as e:  # pylint: disable=W0703
 
