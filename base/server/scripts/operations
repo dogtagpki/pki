@@ -1343,32 +1343,6 @@ EOF
         pki-server subsystem-enable -i "$PKI_INSTANCE_NAME" --all
     fi
 
-    # If nuxwdog is disabled (default) the SSL server certificate and
-    # key will automatically be exported into keystore.p12 with "sslserver"
-    # friendly name on each startup, and a random password will be created
-    # in keystore.pwd.
-
-    # If nuxwdog is enabled, the admin is responsible to manually prepare
-    # the keystore.p12 and keystore.pwd with the commands below.
-
-    if [ "$USE_NUXWDOG" == "false" ]
-    then
-        echo "Generating keystore password."
-        pki password-generate > "/etc/pki/$PKI_INSTANCE_NAME/keystore.pwd"
-        chmod 0660 "/etc/pki/$PKI_INSTANCE_NAME/keystore.pwd"
-
-        echo "Exporting SSL server certificate and key into keystore."
-        pki-server cert-export \
-            sslserver \
-            --instance "$PKI_INSTANCE_NAME" \
-            --pkcs12-file "/etc/pki/$PKI_INSTANCE_NAME/keystore.p12" \
-            --pkcs12-password-file "/etc/pki/$PKI_INSTANCE_NAME/keystore.pwd" \
-            --friendly-name "sslserver" \
-            --cert-encryption "PBE/SHA1/RC2-40" \
-            --key-encryption "PBE/SHA1/DES3/CBC"
-        chmod 0660 "/etc/pki/$PKI_INSTANCE_NAME/keystore.p12"
-    fi
-
     # We no longer start tomcat instances here.
     # instead we rely on the tomcat unit scripts
 
