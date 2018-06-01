@@ -20,13 +20,10 @@
 
 from __future__ import absolute_import
 
-from lxml import etree
 import functools
 import getpass
 import grp
 import io
-import ldap
-import ldap.filter
 import logging
 import operator
 import os
@@ -36,11 +33,13 @@ import shutil
 import subprocess
 import tempfile
 
-import six
-
+import ldap
+import ldap.filter
 import pki
 import pki.nssdb
 import pki.util
+import six
+from lxml import etree
 
 INSTANCE_BASE_DIR = '/var/lib/pki'
 CONFIG_BASE_DIR = '/etc/pki'
@@ -507,6 +506,16 @@ class PKISubsystem(object):
         files.append(current_file)
 
         return files
+
+    def signed_audit_log(self, enable=False):
+        if enable:
+            self.config['log.instance.SignedAudit.logSigning'] = 'true'
+            self.save()
+            return True
+        else:
+            self.config['log.instance.SignedAudit.logSigning'] = 'false'
+            self.save()
+            return True
 
     def __repr__(self):
         return str(self.instance) + '/' + self.name
