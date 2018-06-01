@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cb2d2200_442866f1",
+        "filename": "base/server/python/pki/server/__init__.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-06-01T14:33:43Z",
+      "side": 1,
+      "message": "Usually we keep the imports for builtin libraries above, then pki imports below.",
+      "revId": "f11db9a37d27b4627d7bf664d96ca6cc406d380b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9f3b9062_811a4270",
+        "filename": "base/server/python/pki/server/__init__.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 510,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-06-01T14:33:43Z",
+      "side": 1,
+      "message": "For consistency the method name should be a \u003cverb\u003e or \u003cverb\u003e\u003cobject\u003e, e.g. set_signed_audit_log().",
+      "revId": "f11db9a37d27b4627d7bf664d96ca6cc406d380b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c5b33aab_2a4050ca",
+        "filename": "base/server/python/pki/server/__init__.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 518,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-06-01T14:33:43Z",
+      "side": 1,
+      "message": "Let\u0027s move the self.save() into the main program, that way we can configure various things in the subsystem without saving the changes multiple times, e.g.:\n\n  subsystem.set_signed_audit_log(enabled\u003dTrue, maxFileSize\u003d1000)\n  subsystem.set_signed_audit_event(name\u003d\u0027AUTH\u0027, enabled\u003dTrue, filter\u003d\u0027(Outcome\u003dFailure)\u0027)\n  subsystem.set_selftest(enabled\u003dFalse)\n  subsystem.save()\n\nAlso, remove the \"return True\" because it\u0027s redundant.",
+      "revId": "f11db9a37d27b4627d7bf664d96ca6cc406d380b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9b1cf467_7ec480ad",
+        "filename": "base/server/python/pki/server/cli/audit.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-06-01T14:33:43Z",
+      "side": 1,
+      "message": "For consistency the class name should be \u003cobject\u003e\u003caction\u003eCLI, e.g. AuditConfigModifyCLI. That way we later can have other commands such as AuditConfigShowCLI, etc.",
+      "revId": "f11db9a37d27b4627d7bf664d96ca6cc406d380b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8abc331e_47637b6c",
+        "filename": "base/server/python/pki/server/cli/audit.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-06-01T14:33:43Z",
+      "side": 1,
+      "message": "Let\u0027s call it pki-server %s-audit-config-mod.",
+      "revId": "f11db9a37d27b4627d7bf664d96ca6cc406d380b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1af22e8f_66654f99",
+        "filename": "base/server/python/pki/server/cli/audit.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-06-01T14:33:43Z",
+      "side": 1,
+      "message": "Let\u0027s remove the return value since it\u0027s redundant.\n\nCall subsystem.save() here.",
+      "revId": "f11db9a37d27b4627d7bf664d96ca6cc406d380b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
