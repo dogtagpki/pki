@@ -43,6 +43,88 @@ class AuditCLI(pki.cli.CLI):
         self.add_module(AuditEventDisableCLI(self))
         self.add_module(AuditFileFindCLI(self))
         self.add_module(AuditFileVerifyCLI(self))
+        self.add_module(AuditConfigModifyCLI(self))
+
+
+class AuditConfigModifyCLI(pki.cli.CLI):
+
+    def __init__(self, parent):
+        super(AuditConfigModifyCLI, self).__init__(
+            'config-mod', 'Enable/Disable signed audit logs')
+        self.parent = parent
+
+    def print_help(self):
+        print('Usage: pki-server %s-audit-config-mod [OPTIONS]' % self.parent.parent.name)
+        print()
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('      --enabled <True|False>         Show enabled/disabled events only.')
+        print('      --fileSize                     Set Audit file size. (Default 2000)')
+        print('      --help                         Show help message.')
+        print()
+
+    def execute(self, argv):
+        try:
+            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
+                'instance=', 'fileSize=',
+                'enabled=',
+                'verbose', 'help'])
+
+        except getopt.GetoptError as e:
+            print('ERROR: ' + str(e))
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = 'pki-tomcat'
+        enabled = None
+        file_size = 2000
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o == '--enabled':
+                if a.lower().title() not in ['True', 'False']:
+                    raise ValueError("Not valid input. Specify True or False")
+                if a.lower() == 'true':
+                    enabled = True
+                else:
+                    enabled = False
+
+            elif o == '--fileSize':
+                if o.isdigit():
+                    file_size = o
+                else:
+                    raise ValueError("Not valid input, Specify file size in digits")
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                print('ERROR: unknown option ' + o)
+                self.print_help()
+                sys.exit(1)
+
+        instance = pki.server.PKIInstance(instance_name)
+        if not instance.is_valid():
+            print('ERROR: Invalid instance %s.' % instance_name)
+            sys.exit(1)
+
+        instance.load()
+
+        subsystem_name = self.parent.parent.name
+        subsystem = instance.get_subsystem(subsystem_name)
+        if not subsystem:
+            print('ERROR: No %s subsystem in instance %s.'
+                  % (subsystem_name.upper(), instance_name))
+            sys.exit(1)
+
+        subsystem.signed_audit_log(enabled, file_size)
+        subsystem.save()
+        if enabled:
+            self.print_message("Signed Audit enabled for {}".format(instance_name))
+        else:
+            self.print_message("Signed Audit disabled for {}".format(instance_name))
+        self.print_message("You might need to restart the instance")
 
 
 class AuditEventFindCLI(pki.cli.CLI):
