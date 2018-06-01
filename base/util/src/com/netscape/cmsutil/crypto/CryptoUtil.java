@@ -726,17 +726,17 @@ public class CryptoUtil {
         else if (extractable == 0)
             keygen.extractablePairs(false);
 
-//        System.out.println("CryptoUtil: generateECCKeyPair: curve = " + curveName);
+//        logger.debug("CryptoUtil: generateECCKeyPair: curve = " + curveName);
         int curveCode = 0;
         try {
             curveCode = keygen.getCurveCodeByName(curveName);
         } catch (Exception e) {
-//            System.out.println("CryptoUtil: generateECCKeyPair: " + e.toString());
+//            logger.debug("CryptoUtil: generateECCKeyPair: " + e.toString());
             throw new NoSuchAlgorithmException();
         }
         keygen.initialize(curveCode);
 
-//        System.out.println("CryptoUtil: generateECCKeyPair: after KeyPairGenerator initialize with:" + curveName);
+//        logger.debug("CryptoUtil: generateECCKeyPair: after KeyPairGenerator initialize with:" + curveName);
         KeyPair pair = keygen.genKeyPair();
 
         return pair;
@@ -1015,7 +1015,7 @@ public class CryptoUtil {
         for (int cipher : ciphers) {
 
             boolean enabled = SSLSocket.getCipherPreferenceDefault(cipher);
-            //System.out.println("CryptoUtil: cipher '0x" +
+            //logger.debug("CryptoUtil: cipher '0x" +
             //    Integer.toHexString(ciphers[j]) + "'" + " enabled? " +
             //    enabled);
 
@@ -1024,7 +1024,7 @@ public class CryptoUtil {
 
                 if (!enabled) continue;
 
-                //System.out.println("CryptoUtil: disabling SSLv2 NSS Cipher '0x" +
+                //logger.debug("CryptoUtil: disabling SSLv2 NSS Cipher '0x" +
                 //    Integer.toHexString(ciphers[j]) + "'");
                 SSLSocket.setCipherPreferenceDefault(cipher, false);
                 continue;
@@ -1032,7 +1032,7 @@ public class CryptoUtil {
 
             // unlike RSA ciphers, ECC ciphers are not enabled by default
             if (!enabled && clientECCipherList.contains(cipher)) {
-                //System.out.println("CryptoUtil: enabling ECC NSS Cipher '0x" +
+                //logger.debug("CryptoUtil: enabling ECC NSS Cipher '0x" +
                 //    Integer.toHexString(ciphers[j]) + "'");
                 SSLSocket.setCipherPreferenceDefault(cipher, true);
             }
@@ -1702,7 +1702,7 @@ public class CryptoUtil {
                     exts);
             PKCS10Attributes attrs = new PKCS10Attributes();
 
-            System.out.println("PKCS10: createCertificationRequest: adding attribute name =" +
+            logger.debug("PKCS10: createCertificationRequest: adding attribute name =" +
                     attr.getAttributeValue().getName());
             attrs.setAttribute(attr.getAttributeValue().getName(), attr);
 
@@ -1720,7 +1720,7 @@ public class CryptoUtil {
     public static KeyIdentifier createKeyIdentifier(KeyPair keypair)
             throws NoSuchAlgorithmException, InvalidKeyException {
         String method = "CryptoUtil: createKeyIdentifier: ";
-        System.out.println(method + "begins");
+        logger.debug(method + "begins");
 
         X509Key subjectKeyInfo = convertPublicKeyToX509Key(
                 keypair.getPublic());
@@ -1728,7 +1728,7 @@ public class CryptoUtil {
         byte[] hash = generateKeyIdentifier(subjectKeyInfo.getKey());
 
         if (hash == null) {
-            System.out.println(method +
+            logger.debug(method +
                     "generateKeyIdentifier returns null");
             return null;
         }
@@ -1754,10 +1754,10 @@ public class CryptoUtil {
             return hash;
         } catch (NoSuchAlgorithmException e) {
             msg = method + e;
-            System.out.println(msg);
+            logger.warn(msg, e);
         } catch (Exception e) {
             msg = method + e;
-            System.out.println(msg);
+            logger.warn(msg, e);
         }
         return null;
     }
@@ -1839,37 +1839,37 @@ public class CryptoUtil {
         Extension extn = null;
 
         String method = "CryptoUtiil: getExtensionFromPKCS10: ";
-        System.out.println(method + "begins");
+        logger.debug(method + "begins");
 
         PKCS10Attributes attributeSet = pkcs10.getAttributes();
         if (attributeSet == null) {
-            System.out.println(method + "attributeSet not found");
+            logger.debug(method + "attributeSet not found");
             return null;
         }
         PKCS10Attribute attr = attributeSet.getAttribute("extensions");
         if (attr == null) {
-            System.out.println(method + "extensions attribute not found");
+            logger.debug(method + "extensions attribute not found");
             return null;
         }
-        System.out.println(method + attr.toString());
+        logger.debug(method + attr);
 
         CertAttrSet cas = attr.getAttributeValue();
         if (cas == null) {
-            System.out.println(method + "CertAttrSet not found in PKCS10Attribute");
+            logger.debug(method + "CertAttrSet not found in PKCS10Attribute");
             return null;
         }
 
         Enumeration<String> en = cas.getAttributeNames();
         while (en.hasMoreElements()) {
             String name = en.nextElement();
-            System.out.println(method + " checking extension in request:" + name);
+            logger.debug(method + " checking extension in request:" + name);
             if (name.equals(extnName)) {
-                System.out.println(method + "extension matches");
+                logger.debug(method + "extension matches");
                 extn = (Extension)cas.get(name);
             }
         }
 
-        System.out.println(method + "ends");
+        logger.debug(method + "ends");
         return extn;
     }
 
@@ -1904,9 +1904,9 @@ public class CryptoUtil {
                          certTemplate.extensionAt(j);
                  org.mozilla.jss.asn1.OBJECT_IDENTIFIER extnoid =
                          jssext.getExtnId();
-                 System.out.println(method + "checking extension in request:" + extnoid.toString());
+                 logger.debug(method + "checking extension in request:" + extnoid);
                  if (extnoid.equals(jssOID)) {
-                     System.out.println(method + "extension found");
+                     logger.debug(method + "extension found");
                      try {
                        if (jssOID.equals(SKIoid)) {
                          extn =
@@ -1916,12 +1916,12 @@ public class CryptoUtil {
                              new netscape.security.x509.Extension(csOID, false, jssext.getExtnValue().toByteArray());
                        }
                      } catch (IOException e) {
-                       System.out.println(method + e);
+                       logger.warn(method + e, e);
                      }
                  }
             }
         } else {
-            System.out.println(method + "no extension found");
+            logger.debug(method + "no extension found");
         }
 
         return extn;
@@ -2785,7 +2785,7 @@ public class CryptoUtil {
 
     public static Vector<String> getECKeyCurve(X509Key key) throws Exception {
         AlgorithmId algid = key.getAlgorithmId();
-        //System.out.println("CryptoUtil: getECKeyCurve: algid ="+ algid);
+        //logger.debug("CryptoUtil: getECKeyCurve: algid ="+ algid);
 
         /*
          * Get raw string representation of alg parameters, will give
@@ -2800,7 +2800,7 @@ public class CryptoUtil {
             params = params.substring(4);
         }
 
-        //System.out.println("CryptoUtil: getECKeyCurve: EC key OID ="+ params);
+        //logger.debug("CryptoUtil: getECKeyCurve: EC key OID ="+ params);
         Vector<String> vect = ecOIDs.get(params);
 
         return vect;
@@ -2897,11 +2897,11 @@ public class CryptoUtil {
             throws Exception {
         String method = "CryptoUtl: createEnvelopedData: ";
         String msg = "";
-        System.out.println(method + "begins");
+        logger.debug(method + "begins");
         if ((encContent == null) ||
                 (encSymKey == null)) {
             msg = method + "method parameters cannot be null";
-            System.out.println(msg);
+            logger.warn(msg);
 
             throw new Exception(method + msg);
         }
@@ -3034,7 +3034,7 @@ public class CryptoUtil {
      */
     public static String getNameFromHashAlgorithm(AlgorithmIdentifier ai)
            throws NoSuchAlgorithmException {
-        System.out.println("CryptoUtil: getNameFromHashAlgorithm: " + ai.getOID().toString());
+        logger.debug("CryptoUtil: getNameFromHashAlgorithm: " + ai.getOID().toString());
         if (ai != null) {
             if (ai.getOID().equals((DigestAlgorithm.SHA256).toOID())) {
                 return "SHA-256";
