@@ -54,6 +54,8 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
+import javax.crypto.BadPaddingException;
+
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
@@ -73,7 +75,6 @@ import org.mozilla.jss.asn1.OCTET_STRING;
 import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.asn1.SET;
 import org.mozilla.jss.crypto.Algorithm;
-import org.mozilla.jss.crypto.BadPaddingException;
 import org.mozilla.jss.crypto.Cipher;
 import org.mozilla.jss.crypto.CryptoStore;
 import org.mozilla.jss.crypto.CryptoToken;

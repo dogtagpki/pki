@@ -9,7 +9,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.mozilla.jss.crypto.BadPaddingException;
+import javax.crypto.BadPaddingException;
+
 import org.mozilla.jss.crypto.Cipher;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.EncryptionAlgorithm;

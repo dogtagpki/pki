@@ -30,10 +30,11 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import javax.crypto.BadPaddingException;
+
 import org.apache.commons.codec.binary.Base64;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
-import org.mozilla.jss.crypto.BadPaddingException;
 import org.mozilla.jss.crypto.Cipher;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.EncryptionAlgorithm;

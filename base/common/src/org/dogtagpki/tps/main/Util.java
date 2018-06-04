@@ -30,14 +30,9 @@ import java.security.NoSuchAlgorithmException;
 import java.security.spec.AlgorithmParameterSpec;
 import java.util.Calendar;
 
-import netscape.security.x509.AuthorityKeyIdentifierExtension;
-import netscape.security.x509.KeyIdentifier;
-import netscape.security.x509.PKIXExtensions;
-import netscape.security.x509.SubjectKeyIdentifierExtension;
-import netscape.security.x509.X509CertImpl;
+import javax.crypto.BadPaddingException;
 
 import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.crypto.BadPaddingException;
 import org.mozilla.jss.crypto.Cipher;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.EncryptionAlgorithm;
@@ -51,6 +46,12 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmsutil.util.Utils;
 import com.netscape.symkey.SessionKey;
+
+import netscape.security.x509.AuthorityKeyIdentifierExtension;
+import netscape.security.x509.KeyIdentifier;
+import netscape.security.x509.PKIXExtensions;
+import netscape.security.x509.SubjectKeyIdentifierExtension;
+import netscape.security.x509.X509CertImpl;
 
 public class Util {
 
