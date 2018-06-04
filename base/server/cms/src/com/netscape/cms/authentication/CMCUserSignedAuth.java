@@ -696,15 +696,20 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
                                     SubjectPublicKeyInfo pkinfo = template.getPublicKey();
                                     PrivateKey.Type keyType = null;
                                     String alg = pkinfo.getAlgorithm();
-                                    BIT_STRING bitString = pkinfo.getSubjectPublicKey();
-                                    byte[] publicKeyData = bitString.getBits();
+                                    byte[] publicKeyData = null;
+
                                     if (alg.equals("RSA")) {
+                                        BIT_STRING bitString = pkinfo.getSubjectPublicKey();
+                                        publicKeyData = bitString.getBits();
                                         CMS.debug(method + "signing key alg=RSA");
                                         keyType = PrivateKey.RSA;
                                         selfsign_pubK = PK11PubKey.fromRaw(keyType, publicKeyData);
                                     } else if (alg.equals("EC")) {
                                         CMS.debug(method + "signing key alg=EC");
                                         keyType = PrivateKey.EC;
+                                        X509Key pubKey = CryptoUtil.getX509KeyFromCRMFMsg(crm);
+                                        CMS.debug(method + "got X509Key ");
+                                        publicKeyData = (pubKey).getEncoded();
                                         selfsign_pubK = PK11ECPublicKey.fromSPKI(/*keyType,*/ publicKeyData);
                                     } else {
                                         msg = "unsupported signature algorithm: " + alg;

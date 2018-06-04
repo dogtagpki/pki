@@ -1403,7 +1403,13 @@ public class CryptoUtil {
             throw new IOException("invalid certificate requests");
         }
         CertReqMsg msg = (CertReqMsg) crmfMsgs.elementAt(0);
-        CertRequest certreq = msg.getCertReq();
+        return getX509KeyFromCRMFMsg(msg);
+    }
+
+    public static X509Key getX509KeyFromCRMFMsg(CertReqMsg crmfMsg)
+              throws IOException, NoSuchAlgorithmException,
+                  InvalidKeyException, InvalidKeyFormatException {
+        CertRequest certreq = crmfMsg.getCertReq();
         CertTemplate certTemplate = certreq.getCertTemplate();
         SubjectPublicKeyInfo spkinfo = certTemplate.getPublicKey();
         PublicKey pkey = spkinfo.toPublicKey();
@@ -1909,9 +1915,11 @@ public class CryptoUtil {
                      logger.debug(method + "extension found");
                      try {
                        if (jssOID.equals(SKIoid)) {
+                         System.out.println(method + "SKIoid == jssOID");
                          extn =
                              new SubjectKeyIdentifierExtension(false, jssext.getExtnValue().toByteArray());
                        } else {
+                         System.out.println(method + "SKIoid != jssOID");
                          extn =
                              new netscape.security.x509.Extension(csOID, false, jssext.getExtnValue().toByteArray());
                        }
