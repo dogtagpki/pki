@@ -1,5 +1,5 @@
 CONTAINER=pkitest
-SCRIPTDIR=/tmp/workdir/pki/.travis
+SCRIPTDIR=/tmp/workdir/pki/travis
 PKI_LOG=pki_log.log
 CI_RESULTS_LOG="ci_results_${TRAVIS_BRANCH}.log"
 CI_RUNNER_LOG_ARCHIVE="dogtag-ci-job-${TRAVIS_JOB_NUMBER}.tar.gz"
