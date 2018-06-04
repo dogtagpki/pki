@@ -309,7 +309,8 @@ public class CRMFPopClient {
         String subjectDN = cmd.getOptionValue("n");
         boolean encodingEnabled = Boolean.parseBoolean(cmd.getOptionValue("k", "false"));
 
-        String transportCertFilename = cmd.getOptionValue("b", "transport.txt");
+        // if transportCertFilename is not specified then assume no key archival
+        String transportCertFilename = cmd.getOptionValue("b");
 
         String popOption = cmd.getOptionValue("q", "POP_SUCCESS");
 
@@ -444,11 +445,18 @@ public class CRMFPopClient {
             CRMFPopClient client = new CRMFPopClient();
             client.setVerbose(verbose);
 
-            if (verbose) System.out.println("Loading transport certificate");
-            String encoded = new String(Files.readAllBytes(Paths.get(transportCertFilename)));
-            byte[] transportCertData = Cert.parseCertificate(encoded);
+            String encoded = null;
+            X509Certificate transportCert = null;
+            if (transportCertFilename != null) {
+                if (verbose) System.out.println("archival option enabled");
+                if (verbose) System.out.println("Loading transport certificate");
+                encoded = new String(Files.readAllBytes(Paths.get(transportCertFilename)));
+                byte[] transportCertData = Cert.parseCertificate(encoded);
+                transportCert = manager.importCACertPackage(transportCertData);
+            } else {
+                if (verbose) System.out.println("archival option not enabled");
+            }
 
-            X509Certificate transportCert = manager.importCACertPackage(transportCertData);
 
             if (verbose) System.out.println("Parsing subject DN");
             Name subject = client.createName(subjectDN, encodingEnabled);
@@ -478,7 +486,7 @@ public class CRMFPopClient {
             String kid = CryptoUtil.encodeKeyID(id);
             System.out.println("Keypair private key id: " + kid);
 
-            if (hostPort != null) {
+            if ((transportCert != null) && (hostPort != null)) {
                 // check the CA for the required key wrap algorithm
                 // if found, override whatever has been set by the command line
                 // options for the key wrap algorithm
@@ -492,8 +500,10 @@ public class CRMFPopClient {
                 kwAlg = getKeyWrapAlgotihm(pkiclient);
             }
 
-            if (verbose) System.out.println("Using key wrap algorithm: " + kwAlg);
-            keyWrapAlgorithm = KeyWrapAlgorithm.fromString(kwAlg);
+            if (verbose && (transportCert != null)) System.out.println("Using key wrap algorithm: " + kwAlg);
+            if (transportCert != null) {
+                keyWrapAlgorithm = KeyWrapAlgorithm.fromString(kwAlg);
+            }
 
             if (verbose) System.out.println("Creating certificate request");
             CertRequest certRequest = client.createCertRequest(
@@ -652,36 +662,39 @@ public class CRMFPopClient {
             KeyPair keyPair,
             Name subject,
             KeyWrapAlgorithm keyWrapAlgorithm) throws Exception {
-        byte[] iv = CryptoUtil.getNonceData(keyWrapAlgorithm.getBlockSize());
-        OBJECT_IDENTIFIER kwOID = CryptoUtil.getOID(keyWrapAlgorithm);
-
-        /* TODO(alee)
-         *
-         * HACK HACK!
-         * algorithms like AES KeyWrap do not require an IV, but we need to include one
-         * in the AlgorithmIdentifier above, or the creation and parsing of the
-         * PKIArchiveOptions options will fail.  So we include an IV in aid, but null it
-         * later to correctly encrypt the data
-         */
-        AlgorithmIdentifier aid = new AlgorithmIdentifier(kwOID, new OCTET_STRING(iv));
-
-        Class[] iv_classes = keyWrapAlgorithm.getParameterClasses();
-        if (iv_classes == null || iv_classes.length == 0)
-            iv = null;
-
-        WrappingParams params = getWrappingParams(keyWrapAlgorithm, iv);
-
-        PKIArchiveOptions opts = CryptoUtil.createPKIArchiveOptions(
-                token,
-                transportCert.getPublicKey(),
-                (PrivateKey) keyPair.getPrivate(),
-                params,
-                aid);
 
         CertTemplate certTemplate = createCertTemplate(subject, keyPair.getPublic());
-
         SEQUENCE seq = new SEQUENCE();
-        seq.addElement(new AVA(new OBJECT_IDENTIFIER("1.3.6.1.5.5.7.5.1.4"), opts));
+
+        if (transportCert != null) { // add key archive Option
+            byte[] iv = CryptoUtil.getNonceData(keyWrapAlgorithm.getBlockSize());
+            OBJECT_IDENTIFIER kwOID = CryptoUtil.getOID(keyWrapAlgorithm);
+
+            /* TODO(alee)
+             *
+             * HACK HACK!
+             * algorithms like AES KeyWrap do not require an IV, but we need to include one
+             * in the AlgorithmIdentifier above, or the creation and parsing of the
+             * PKIArchiveOptions options will fail.  So we include an IV in aid, but null it
+             * later to correctly encrypt the data
+             */
+            AlgorithmIdentifier aid = new AlgorithmIdentifier(kwOID, new OCTET_STRING(iv));
+
+            Class[] iv_classes = keyWrapAlgorithm.getParameterClasses();
+            if (iv_classes == null || iv_classes.length == 0)
+                iv = null;
+
+            WrappingParams params = getWrappingParams(keyWrapAlgorithm, iv);
+
+            PKIArchiveOptions opts = CryptoUtil.createPKIArchiveOptions(
+                    token,
+                    transportCert.getPublicKey(),
+                    (PrivateKey) keyPair.getPrivate(),
+                    params,
+                    aid);
+
+            seq.addElement(new AVA(new OBJECT_IDENTIFIER("1.3.6.1.5.5.7.5.1.4"), opts));
+        } // key archival option
 
         /*
         OCTET_STRING ostr = createIDPOPLinkWitness();
