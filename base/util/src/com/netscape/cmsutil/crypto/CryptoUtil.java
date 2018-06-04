@@ -1387,6 +1387,9 @@ public class CryptoUtil {
 
     public static SEQUENCE parseCRMFMsgs(byte cert_request[])
                throws IOException, InvalidBERException {
+        if (cert_request == null) {
+            throw new IOException("invalid certificate requests: cert_request null");
+        }
         ByteArrayInputStream crmfBlobIn =
                 new ByteArrayInputStream(cert_request);
         SEQUENCE crmfMsgs = (SEQUENCE)
@@ -1398,6 +1401,9 @@ public class CryptoUtil {
     public static X509Key getX509KeyFromCRMFMsgs(SEQUENCE crmfMsgs)
               throws IOException, NoSuchAlgorithmException,
                   InvalidKeyException, InvalidKeyFormatException {
+        if (crmfMsgs == null) {
+            throw new IOException("invalid certificate requests: crmfMsgs null");
+        }
         int nummsgs = crmfMsgs.size();
         if (nummsgs <= 0) {
             throw new IOException("invalid certificate requests");
