@@ -438,10 +438,15 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
         context.put("sslClientCertProvider",
                 new SSLClientCertProvider(request));
         CMS.debug("ProfileSubmitCMCServlet: set sslClientCertProvider");
+
+        String auditSubjectID = auditSubjectID();
         if (authenticator != null) {
             try {
                 authToken = authenticate(authenticator, request);
                 // authentication success
+                if (authToken != null) {
+                    auditSubjectID = authToken.getInString(IAuthToken.USER_ID);
+                }
             } catch (EBaseException e) {
                 CMCOutputTemplate template = new CMCOutputTemplate();
                 SEQUENCE seq = new SEQUENCE();
@@ -468,6 +473,20 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                 } catch (Exception e) {
                     CMS.debug("ProfileSubmitCMCServlet authorization failure: " + e.toString());
                 }
+
+                // CMCAuth should pair with additional authz check as it counts
+                // as pre-approved
+                String authMgrID = authenticator.getName();
+                if (authMgrID.equals("CMCAuth")) {
+                    authzToken = null; // reset authzToken
+                    CMS.debug("ProfileSubmitCMCServlet CMCAuth requires additional authz check");
+                    try {
+                        authzToken = authorize(mAclMethod, authToken,
+                                "certServer.ca.certrequests", "execute");
+                    } catch (Exception e) {
+                        CMS.debug("ProfileSubmitCMCServlet authorization failure: " + e.toString());
+                    }
+                }
             }
 
             if (authzToken == null) {
@@ -486,10 +505,6 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
             }
         }
 
-        String auditSubjectID = auditSubjectID();
-        if (authToken != null) {
-            auditSubjectID = authToken.getInString(IAuthToken.USER_ID);
-        }
         String auditMessage = CMS.getLogMessage(
                 AuditEvent.CMC_REQUEST_RECEIVED,
                 auditSubjectID,
