@@ -1,9 +1,9 @@
 package com.netscape.security.util;
 
-import org.junit.Test;
 import org.junit.Assert;
+import org.junit.Test;
 
-import sun.security.util.DerValue;
+import netscape.security.util.DerValue;
 
 public class UTF8StringTest {
 
