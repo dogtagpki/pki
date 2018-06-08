@@ -18,27 +18,39 @@
 
 package com.netscape.cmstools.pkcs11;
 
+import java.security.Key;
+
+import org.mozilla.jss.crypto.PrivateKey;
+
 import com.netscape.cmstools.cli.CLI;
-import com.netscape.cmstools.cli.MainCLI;
 
 /**
  * @author Endi S. Dewata
  */
-public class PKCS11CLI extends CLI {
+public class PKCS11KeyCLI extends CLI {
 
-    public PKCS11CLI(CLI parent) {
-        super("pkcs11", "PKCS #11 utilities", parent);
+    public PKCS11KeyCLI(PKCS11CLI parent) {
+        super("key", "PKCS #11 key management commands", parent);
 
-        addModule(new PKCS11CertCLI(this));
-        addModule(new PKCS11KeyCLI(this));
+        addModule(new PKCS11KeyFindCLI(this));
     }
 
-    public String getFullName() {
-        if (parent instanceof MainCLI) {
-            // do not include MainCLI's name
-            return name;
-        } else {
-            return parent.getFullName() + "-" + name;
+    public static void printKeyInfo(String alias, Key key) {
+
+        System.out.println("  Key ID: " + alias);
+
+        if (key instanceof PrivateKey) {
+            PrivateKey privateKey = (PrivateKey) key;
+
+            PrivateKey.Type keyType = privateKey.getType();
+            System.out.println("  Type: " + keyType);
+        }
+
+        System.out.println("  Algorithm: " + key.getAlgorithm());
+
+        String format = key.getFormat();
+        if (format != null) {
+            System.out.println("  Format: " + format);
         }
     }
 }
