@@ -33,6 +33,7 @@ public class PKCS11KeyCLI extends CLI {
         super("key", "PKCS #11 key management commands", parent);
 
         addModule(new PKCS11KeyFindCLI(this));
+        addModule(new PKCS11KeyShowCLI(this));
     }
 
     public static void printKeyInfo(String alias, Key key) {
