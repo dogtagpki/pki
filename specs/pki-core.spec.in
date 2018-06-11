@@ -500,11 +500,6 @@ Requires:         java-1.8.0-openjdk-headless
 Requires:         pki-base >= %{version}-%{release}
 Requires:         pki-base-java >= %{version}-%{release}
 Requires:         jpackage-utils >= 0:1.7.5-10
-%if 0%{?fedora} >= 29 || 0%{?rhel} > 7
-Requires:         tomcat-servlet-4.0-api
-%else
-Requires:         tomcat-servlet-3.1-api
-%endif
 
 %description -n   pki-tools
 This package contains PKI executables that can be used to help make

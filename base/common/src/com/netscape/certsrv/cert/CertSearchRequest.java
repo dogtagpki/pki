@@ -22,7 +22,6 @@ package com.netscape.certsrv.cert;
 
 import java.io.Reader;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -563,13 +562,6 @@ public class CertSearchRequest {
 
     public CertSearchRequest() {
         // required for JAXB (defaults)
-    }
-
-    public void buildFromServletRequest(HttpServletRequest req) {
-        //Set values from the servlet request
-        if (req == null) {
-            return;
-        }
     }
 
     public CertSearchRequest(MultivaluedMap<String, String> form) {
