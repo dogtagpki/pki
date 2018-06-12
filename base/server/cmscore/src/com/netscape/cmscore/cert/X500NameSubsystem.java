@@ -185,10 +185,15 @@ public class X500NameSubsystem implements ISubsystem {
      */
     private void setDirStrEncodingOrder()
             throws EBaseException {
+        String method = "X500NameSubsystem: setDirStrEncodingOrder: ";
         String order = mConfig.getString(PROP_DIR_STR_ENCODING_ORDER, null);
 
-        if (order == null || order.length() == 0) // nothing.
+        if (order == null || order.length() == 0) { // nothing.
+            CMS.debug(method + "X500Name.directoryStringEncodingOrder not specified in config; Using default order in DirStrConverter.");
             return;
+        }
+        CMS.debug(method + "X500Name.directoryStringEncodingOrder specified in config: " + order);
+
         StringTokenizer toker = new StringTokenizer(order, ", \t");
         int numTokens = toker.countTokens();
 
