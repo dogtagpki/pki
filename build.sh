@@ -50,7 +50,7 @@ usage() {
     echo "    src    Generate RPM sources."
     echo "    spec   Generate RPM spec."
     echo "    srpm   Build SRPM package."
-    echo "    rpm    Build RPM packages."
+    echo "    rpm    Build RPM packages (default)."
 }
 
 generate_rpm_sources() {
@@ -266,12 +266,10 @@ done
 shift $((OPTIND-1))
 
 if [ "$#" -lt 1 ] ; then
-    echo "ERROR: Missing build target" >&2
-    usage
-    exit 1
+    BUILD_TARGET=rpm
+else
+    BUILD_TARGET=$1
 fi
-
-BUILD_TARGET=$1
 
 if [ "$DEBUG" = true ] ; then
     echo "WORK_DIR: $WORK_DIR"
