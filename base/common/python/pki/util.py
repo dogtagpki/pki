@@ -34,6 +34,7 @@ try:
 except ImportError:
     WindowsError = None
 
+import six
 import subprocess
 
 DEFAULT_PKI_ENV_LIST = [
@@ -306,7 +307,7 @@ class Version(object):
 
     def __init__(self, obj):
 
-        if isinstance(obj, str):
+        if isinstance(obj, six.string_types):
 
             # parse <version>-<release>
             pos = obj.find('-')
