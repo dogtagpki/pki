@@ -1057,15 +1057,15 @@ class PKIServerException(pki.PKIException):
 class Tomcat(object):
 
     @classmethod
-    def get_major_version(cls):
+    def get_version(cls):
 
         # run "tomcat version"
         output = subprocess.check_output(['/usr/sbin/tomcat', 'version'])
         output = output.decode('utf-8')
 
-        # find "Server version: Apache Tomcat/<major version>.<minor version>"
+        # find "Server version: Apache Tomcat/<version>"
         match = re.search(
-            r'^Server version:[^/]*/(\d+).*$',
+            r'^Server version: *.*/(.+)$',
             output,
             re.MULTILINE  # pylint: disable=no-member
         )
@@ -1073,5 +1073,5 @@ class Tomcat(object):
         if not match:
             raise Exception('Unable to determine Tomcat version')
 
-        # return major version
-        return match.group(1)
+        # return version
+        return pki.util.Version(match.group(1))

@@ -28,6 +28,7 @@ from lxml import etree
 
 import pki.cli
 import pki.server
+import pki.util
 
 
 class MigrateCLI(pki.cli.CLI):
@@ -66,7 +67,7 @@ class MigrateCLI(pki.cli.CLI):
                 instance_name = a
 
             elif o == '--tomcat':
-                tomcat_version = a
+                tomcat_version = pki.util.Version(a)
 
             elif o in ('-v', '--verbose'):
                 self.set_verbose(True)
@@ -85,7 +86,7 @@ class MigrateCLI(pki.cli.CLI):
                 sys.exit(1)
 
         if not tomcat_version:
-            tomcat_version = pki.server.Tomcat.get_major_version()
+            tomcat_version = pki.server.Tomcat.get_version()
 
         if instance_name:
 
@@ -157,10 +158,10 @@ class MigrateCLI(pki.cli.CLI):
 
         document = etree.parse(filename, self.parser)
 
-        if tomcat_version == '7':
+        if tomcat_version.major == 7:
             self.migrate_server_xml_to_tomcat7(document)
 
-        elif tomcat_version == '8' or tomcat_version == '9':
+        elif tomcat_version.major == 8 or tomcat_version.major == 9:
             self.migrate_server_xml_to_tomcat8(instance, document)
 
         elif tomcat_version:
@@ -437,10 +438,10 @@ class MigrateCLI(pki.cli.CLI):
 
         document = etree.parse(filename, self.parser)
 
-        if tomcat_version == '7':
+        if tomcat_version.major == 7:
             self.migrate_context_xml_to_tomcat7(document)
 
-        elif tomcat_version == '8' or tomcat_version == '9':
+        elif tomcat_version.major == 8 or tomcat_version.major == 9:
             self.migrate_context_xml_to_tomcat8(document)
 
         elif tomcat_version:
