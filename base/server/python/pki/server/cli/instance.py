@@ -29,6 +29,7 @@ import pki.cli
 import pki.nssdb
 import pki.server
 import pki.server.cli.nuxwdog
+import pki.util
 
 
 class InstanceCLI(pki.cli.CLI):
@@ -444,7 +445,7 @@ class InstanceMigrateCLI(pki.cli.CLI):
 
         for o, a in opts:
             if o == '--tomcat':
-                tomcat_version = a
+                tomcat_version = pki.util.Version(a)
 
             elif o in ('-v', '--verbose'):
                 self.set_verbose(True)
@@ -470,7 +471,7 @@ class InstanceMigrateCLI(pki.cli.CLI):
         instance_name = args[0]
 
         if not tomcat_version:
-            tomcat_version = pki.server.Tomcat.get_major_version()
+            tomcat_version = pki.server.Tomcat.get_version()
 
         if self.verbose:
             print('Migrating to Tomcat %s' % tomcat_version)
