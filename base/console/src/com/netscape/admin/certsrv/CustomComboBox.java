@@ -17,12 +17,16 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
-import javax.swing.*;
-import javax.swing.border.*;
-import javax.swing.event.*;
+import java.awt.Color;
+import java.awt.Component;
+import java.util.Hashtable;
+
+import javax.swing.ComboBoxModel;
+import javax.swing.ImageIcon;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.ListCellRenderer;
 
 /**
  * General Purpose Custom Combo Box
@@ -60,7 +64,7 @@ class CustomCellRenderer extends JLabel implements ListCellRenderer   {
         JList listbox, Object value, int index,
         boolean isSelected, boolean cellHasFocus)
     {
-        Hashtable h = (Hashtable) value;
+        Hashtable<String, Object> h = (Hashtable<String, Object>) value;
         if(value == null) {
             setText("");
             setIcon(null);

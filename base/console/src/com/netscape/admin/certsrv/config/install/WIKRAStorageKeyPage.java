@@ -17,17 +17,31 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config.install;
 
-import java.util.*;
-import java.awt.*;
-import javax.swing.*;
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
-import com.netscape.admin.certsrv.wizard.*;
-import com.netscape.admin.certsrv.task.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.management.client.console.*;
-import javax.swing.event.*;
-import java.awt.event.*;
+import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.util.StringTokenizer;
+
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextArea;
+
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.task.CMSConfigCert;
+import com.netscape.admin.certsrv.wizard.IWizardPanel;
+import com.netscape.admin.certsrv.wizard.WizardBasePanel;
+import com.netscape.admin.certsrv.wizard.WizardInfo;
+import com.netscape.certsrv.common.ConfigConstants;
+import com.netscape.certsrv.common.OpDef;
+import com.netscape.certsrv.common.TaskId;
+import com.netscape.management.client.console.ConsoleInfo;
 
 /**
  * Install KRA storage key.
@@ -98,7 +112,7 @@ class WIKRAStorageKeyPage extends WizardBasePanel implements IWizardPanel {
        StringTokenizer tokenizer = new StringTokenizer(tokenList, ":");
        int count = tokenizer.countTokens();
        while (tokenizer.hasMoreTokens()) {
-           mTokenBox.addItem((String)tokenizer.nextToken());
+           mTokenBox.addItem(tokenizer.nextToken());
        }
 
        String initializedList = wizardInfo.getTokensInit();
@@ -106,7 +120,7 @@ class WIKRAStorageKeyPage extends WizardBasePanel implements IWizardPanel {
        int i=0;
        mTokenInitialized = new String[count];
        while (tokenizer.hasMoreElements()) {
-           mTokenInitialized[i] = (String)tokenizer.nextToken();
+           mTokenInitialized[i] = tokenizer.nextToken();
            i++;
        }
 
@@ -115,7 +129,7 @@ class WIKRAStorageKeyPage extends WizardBasePanel implements IWizardPanel {
        i=0;
        mTokenLogin = new String[count];
        while (tokenizer.hasMoreElements()) {
-           mTokenLogin[i] = (String)tokenizer.nextToken();
+           mTokenLogin[i] = tokenizer.nextToken();
            i++;
        }
 
@@ -146,7 +160,6 @@ class WIKRAStorageKeyPage extends WizardBasePanel implements IWizardPanel {
 		ConsoleInfo consoleInfo = wizardInfo.getAdminConsoleInfo();
 		CMSConfigCert configCertCgi = new CMSConfigCert();
 		configCertCgi.initialize(wizardInfo);
-		Hashtable data = new Hashtable();
 
         String rawData = ConfigConstants.TASKID+"="+TaskId.TASK_STORAGE_KEY;
         rawData = rawData+"&"+ConfigConstants.OPTYPE+"="+OpDef.OP_MODIFY;
@@ -154,7 +167,7 @@ class WIKRAStorageKeyPage extends WizardBasePanel implements IWizardPanel {
         rawData = rawData+"&"+ConfigConstants.PR_KEY_LEN+"="+wizardInfo.getKeyLength();
         rawData = rawData+"&"+ConfigConstants.PR_TOKEN_NAME+"="+(String)mTokenBox.getSelectedItem();
         rawData = rawData+"&"+ConfigConstants.PR_TOKEN_PASSWD+"="+
-          (String)mPassword.getText().trim();
+          mPassword.getText().trim();
         startProgressStatus();
         boolean ready = send(rawData, wizardInfo);
         endProgressStatus();

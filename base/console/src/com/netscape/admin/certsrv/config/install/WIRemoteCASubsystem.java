@@ -17,14 +17,27 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config.install;
 
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.wizard.*;
-import com.netscape.admin.certsrv.task.*;
-import com.netscape.management.client.console.*;
-import com.netscape.certsrv.common.*;
-import javax.swing.*;
-import java.awt.*;
-import java.util.*;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.util.Hashtable;
+
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.CMSMessageBox;
+import com.netscape.admin.certsrv.task.CMSConfigCert;
+import com.netscape.admin.certsrv.wizard.IWizardPanel;
+import com.netscape.admin.certsrv.wizard.WizardBasePanel;
+import com.netscape.admin.certsrv.wizard.WizardInfo;
+import com.netscape.certsrv.common.ConfigConstants;
+import com.netscape.certsrv.common.OpDef;
+import com.netscape.certsrv.common.TaskId;
+import com.netscape.management.client.console.ConsoleInfo;
 
 /**
  * Remote subsystems.
@@ -127,7 +140,7 @@ class WIRemoteCASubsystem extends WizardBasePanel implements IWizardPanel {
         ConsoleInfo consoleInfo = wizardInfo.getAdminConsoleInfo();
         CMSConfigCert configCertCgi = new CMSConfigCert();
         configCertCgi.initialize(wizardInfo);
-        Hashtable data = new Hashtable();
+        Hashtable<String, Object> data = new Hashtable<>();
 
         data.put(ConfigConstants.TASKID,TaskId.TASK_SELECT_SUBSYSTEMS);
         data.put(ConfigConstants.OPTYPE, OpDef.OP_MODIFY);

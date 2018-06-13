@@ -17,16 +17,18 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.keycert;
 
-import java.util.*;
-import java.awt.*;
-import java.io.*;
-import javax.swing.*;
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
-import com.netscape.admin.certsrv.wizard.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.admin.certsrv.config.*;
-import com.netscape.admin.certsrv.task.*;
+import java.util.Hashtable;
+
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.CMSServerInfo;
+import com.netscape.admin.certsrv.config.WBaseManualCertRequestPage;
+import com.netscape.admin.certsrv.task.CMSCertRequest;
+import com.netscape.admin.certsrv.wizard.IWizardPanel;
+import com.netscape.admin.certsrv.wizard.WizardInfo;
+import com.netscape.certsrv.common.Constants;
 
 /**
  * Generate cert request page for cert setup wizard.
@@ -143,7 +145,7 @@ class WManualCertRequestPage extends WBaseManualCertRequestPage implements IWiza
 
         CMSCertRequest requestCertCgi = new CMSCertRequest();
         requestCertCgi.initialize(wizardInfo);
-        Hashtable data = new Hashtable();
+        Hashtable<String, Object> data = new Hashtable<>();
 
         String certType = null;
 

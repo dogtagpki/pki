@@ -17,15 +17,22 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.task;
 
-import java.util.*;
-import javax.swing.*;
-import com.netscape.management.client.*;
-import com.netscape.management.client.console.*;
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.management.client.util.*;
-import netscape.ldap.*;
+import java.util.Hashtable;
+
+import javax.swing.Icon;
+import javax.swing.JOptionPane;
+
+import com.netscape.admin.certsrv.CMSAdminResources;
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.management.client.IPage;
+import com.netscape.management.client.console.ConsoleInfo;
+import com.netscape.management.client.util.Debug;
+import com.netscape.management.client.util.LDAPUtil;
+import com.netscape.management.client.util.UtilConsoleGlobals;
+
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
 
 /**
  * Stop the server
@@ -40,7 +47,7 @@ public class CMSStop extends CGITask
      *==========================================================*/
     private static final String PREFIX = "TASKSTOP";
     public static final String STOP_TASK_CGI = "Tasks/Operation/stop";
-    private Hashtable mCgiResponse = null;
+    private Hashtable<String, String> mCgiResponse = null;
     private String mCgiTask = null;
 
 	/*==========================================================
@@ -70,7 +77,7 @@ public class CMSStop extends CGITask
         if (dialog.isCancel())
             return false;
 	    */
-        Hashtable configParams = new Hashtable();
+        Hashtable<String, Object> configParams = new Hashtable<>();
         configParams.put("serverRoot", _consoleInfo.get("serverRoot"));
         String servid = (String)_consoleInfo.get("servid");
         int index = servid.indexOf("-");

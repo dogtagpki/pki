@@ -17,19 +17,33 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config;
 
-import java.util.*;
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.border.*;
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
-import com.netscape.admin.certsrv.wizard.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.admin.certsrv.config.install.*;
-import com.netscape.admin.certsrv.task.*;
-import com.netscape.management.client.console.*;
-import com.netscape.management.client.util.*;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.util.Hashtable;
+
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.config.install.InstallWizardInfo;
+import com.netscape.admin.certsrv.task.CMSConfigCert;
+import com.netscape.admin.certsrv.task.CMSRequestCert;
+import com.netscape.admin.certsrv.wizard.WizardBasePanel;
+import com.netscape.admin.certsrv.wizard.WizardInfo;
+import com.netscape.certsrv.common.ConfigConstants;
+import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.common.OpDef;
+import com.netscape.certsrv.common.TaskId;
+import com.netscape.management.client.console.ConsoleInfo;
+import com.netscape.management.client.util.Debug;
 
 /**
  * Certificate wizard page
@@ -228,7 +242,7 @@ public class WBaseManualCertRequestPage extends WizardBasePanel {
 
         CMSRequestCert requestCertCgi = new CMSRequestCert();
         requestCertCgi.initialize(wizardInfo);
-        Hashtable data = new Hashtable();
+        Hashtable<String, Object> data = new Hashtable<>();
 
 		String certType = null;
 		if (mReqType.equals(Constants.PR_CA_SIGNING_CERT)){
@@ -285,7 +299,7 @@ public class WBaseManualCertRequestPage extends WizardBasePanel {
 			 (reqStatus.equals(Constants.PR_REQUEST_SUCCESS)
                || reqStatus.equals(Constants.PR_REQUEST_PENDING)
 				|| reqStatus.equals(Constants.PR_REQUEST_SVC_PENDING)) ) {
-            data  = new Hashtable();
+            data  = new Hashtable<>();
 
             ConsoleInfo consoleInfo = wizardInfo.getAdminConsoleInfo();
             data.put(ConfigConstants.TASKID, TaskId.TASK_REQUEST_SUCCESS);

@@ -77,7 +77,7 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
     private Hashtable<String, CipherEntryData> mCertMapping;         //maps the function list items to tags
     private String mSelectedItem, mSelectedToken, mSelectedCert;
     private JButton mWizard, mCipherPref, mSetup;
-    private Hashtable mTokenCertList;        //container for tokens and certs (Vector)
+    private Hashtable<String, Vector<String>> mTokenCertList;        //container for tokens and certs (Vector)
     private boolean mIsDomestic = false;
     private boolean mHasFortezza =  false;
     private Vector mCipherPrefStore;
@@ -99,7 +99,7 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
         mServerInfo = parent.getResourceModel().getServerInfo();
         mConnection = mServerInfo.getAdmin();
         mCertMapping = new Hashtable<>();
-        mTokenCertList = new Hashtable();
+        mTokenCertList = new Hashtable<>();
         mCipherPrefStore = new Vector();
         mHelpToken = HELPINDEX;
     }
@@ -503,7 +503,7 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
 
                 //get the certificate associated with this token
                 String certList = response.get(Constants.PR_TOKEN_PREFIX + token);
-                Vector certVector = new Vector();
+                Vector<String> certVector = new Vector<>();
                 if ( (certList != null) && (!certList.trim().equals("")) ) {
                     StringTokenizer tokenizer2 = new StringTokenizer(certList, ",");
                     while (tokenizer2.hasMoreTokens()) {
@@ -525,7 +525,7 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
         String newToken = (String) mTokenList.getSelectedItem();
         mSelectedToken = newToken;
         mCertList.removeAllItems();
-        Vector list = (Vector) mTokenCertList.get(newToken);
+        Vector list = mTokenCertList.get(newToken);
         for (int i=0; i< list.size(); i++)
             mCertList.addItem(list.elementAt(i));
     }
@@ -552,7 +552,7 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
     private void setupCertCombo() {
         String newToken = (String) mTokenList.getSelectedItem();
         mCertList.removeAllItems();
-        Vector list = (Vector) mTokenCertList.get(newToken);
+        Vector list = mTokenCertList.get(newToken);
         for (int i=0; i< list.size(); i++)
             mCertList.addItem(list.elementAt(i));
     }

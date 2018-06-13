@@ -17,17 +17,14 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.security;
 
+import java.io.IOException;
+import java.io.InterruptedIOException;
+import java.net.ConnectException;
+import java.util.Hashtable;
+
 import com.netscape.management.client.console.ConsoleInfo;
-import com.netscape.management.client.util.*;
-
-import javax.swing.*;
-
-import java.awt.event.*;
-import java.util.*;
-import java.io.*;
-import java.net.*;
-
-import netscape.ldap.*;
+import com.netscape.management.client.util.Debug;
+import com.netscape.management.client.util.ResourceSet;
 
 /*-----IMPLEMENTATION-----*/
 //need to implementation timer...if server don't response in 30 sec then
@@ -35,7 +32,7 @@ import netscape.ldap.*;
 //has not response in a resonable amount of time...and should check
 //the server or call the cgi again.
 
-class KeyCertTaskInfo extends Hashtable {
+class KeyCertTaskInfo extends Hashtable<String, Object> {
 
     //need to replace this by useful name later since the name will
     //be map and no need to use real name.

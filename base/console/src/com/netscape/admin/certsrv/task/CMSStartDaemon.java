@@ -17,23 +17,22 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.task;
 
-import java.util.*;
-import javax.swing.*;
-import com.netscape.management.client.*;
-import com.netscape.admin.certsrv.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.management.client.util.*;
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.event.*;
-import com.netscape.management.client.console.*;
-import com.netscape.management.client.topology.*;
-import com.netscape.management.client.comm.*;
-import java.net.*;
-import java.io.*;
-import netscape.ldap.*;
-import netscape.ldap.util.*;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.Hashtable;
+
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.management.client.comm.CommRecord;
+import com.netscape.management.client.console.ConsoleInfo;
+import com.netscape.management.client.util.Debug;
+import com.netscape.management.client.util.LDAPUtil;
+import com.netscape.management.client.util.UtilConsoleGlobals;
+
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPSearchResults;
 
 /**
  * Start daemon to do the certificate server configuration.
@@ -51,7 +50,7 @@ public class CMSStartDaemon extends CGITask {
     public static final String START_DAEMON_CGI = "Tasks/Operation/start-daemon";
 
 	private boolean mSuccess = false; // status of last executed CGI
-	private Hashtable mCgiResponse = null; // holds parsed contents of CGI return
+	private Hashtable<String, String> mCgiResponse = null; // holds parsed contents of CGI return
 	private String mCgiTask = null; // CGI task to call
 
 	/*==========================================================
@@ -79,7 +78,7 @@ public class CMSStartDaemon extends CGITask {
 	 * @return  boolean value indicating whether the process succeeded (true)
 	 *          or failed (false).
 	 */
-	public boolean runDaemon(Hashtable configParams) {
+	public boolean runDaemon(Hashtable<String, Object> configParams) {
         String response = null;
 /*
         LDAPConnection ldc = _consoleInfo.getLDAPConnection();
@@ -116,7 +115,7 @@ public class CMSStartDaemon extends CGITask {
 					  status + " mSuccess=" + mSuccess);
 again:
         if (!mSuccess) {
-            response = (String) mCgiResponse.get("NMC_ERRINFO");
+            response = mCgiResponse.get("NMC_ERRINFO");
             if ((response != null) && response.equalsIgnoreCase("daemon found lock file")) {
                 int result = CMSAdminUtil.showConfirmDialog(mResource, "CMSSTARTDAEMON"/*PREFIX*/,
                         "LOCKDELETECONFIRM", CMSAdminUtil.WARNING_MESSAGE);
@@ -191,7 +190,7 @@ again:
 			sValue = s.substring(iIndex+1).trim();
 			Debug.println("Parse input: name=" + sName + " value=" + sValue);
 			if (mCgiResponse == null)
-				mCgiResponse = new Hashtable();
+				mCgiResponse = new Hashtable<>();
 			mCgiResponse.put(sName, sValue);
 			if (sName.equalsIgnoreCase("NMC_Status"))
 			{
@@ -207,7 +206,7 @@ again:
     /**
 	 * return the value for the response
 	 */
-	public Hashtable getResponse() {
+	public Hashtable<String, String> getResponse() {
 		return mCgiResponse;
     }
 

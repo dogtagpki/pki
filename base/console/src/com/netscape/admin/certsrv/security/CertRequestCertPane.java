@@ -17,17 +17,32 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.security;
 
-import java.awt.*;
-import java.util.*;
-import java.net.*;
-import java.io.*;
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.border.*;
-import javax.swing.text.*;
-import com.netscape.management.client.util.*;
-import com.netscape.management.nmclf.*;
-import com.netscape.management.client.comm.HttpChannel;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.StringReader;
+import java.util.Hashtable;
+
+import javax.swing.Box;
+import javax.swing.JButton;
+import javax.swing.JEditorPane;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.EtchedBorder;
+import javax.swing.border.TitledBorder;
+import javax.swing.text.Document;
+
+import com.netscape.management.client.util.Debug;
+import com.netscape.management.client.util.GridBagUtil;
+import com.netscape.management.client.util.JButtonFactory;
+import com.netscape.management.client.util.MultilineLabel;
+import com.netscape.management.client.util.ResourceSet;
+import com.netscape.management.nmclf.SuiConstants;
 
 class CertRequestCertPane extends JPanel implements SuiConstants,
 IKeyCertPage {
@@ -67,10 +82,10 @@ IKeyCertPage {
                 ((Boolean)(observable.get("requestCert"))).booleanValue();
 
 
-        Hashtable param = (Hashtable)(observable.get("CertReqCGIParam"));
+        Hashtable<String, String> param = (Hashtable<String, String>)(observable.get("CertReqCGIParam"));
         if (show && param.get("xmt_select").equals("1")) {
 
-            Hashtable urlParam = new Hashtable();
+            Hashtable<String, Object> urlParam = new Hashtable<>();
             urlParam.put("op" , "submitCSR");
             urlParam.put("csrCertType" , "server");
             urlParam.put("csrRequestorName" , param.get("requestor_name"));
@@ -83,7 +98,7 @@ IKeyCertPage {
                     && !(oldUrl.equals(param.get("url")))) {
                 try {
                     //attempt to contect cms
-                    oldUrl = (String)(param.get("url"));
+                    oldUrl = (param.get("url"));
                     Comm cmsUrl = new Comm(oldUrl, /*null*/urlParam, true);
                     cmsUrl.run();
                     /*System.out.println(cmsUrl.getData());*/

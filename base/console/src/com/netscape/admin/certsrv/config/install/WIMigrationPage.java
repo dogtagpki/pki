@@ -17,18 +17,36 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config.install;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
-import javax.swing.*;
-import javax.swing.text.*;
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
-import com.netscape.admin.certsrv.wizard.*;
-import com.netscape.certsrv.common.*;
+import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.util.Hashtable;
+import java.util.StringTokenizer;
+
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.text.JTextComponent;
+
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.task.CMSConfigCert;
+import com.netscape.admin.certsrv.wizard.IWizardPanel;
+import com.netscape.admin.certsrv.wizard.WizardBasePanel;
+import com.netscape.admin.certsrv.wizard.WizardInfo;
+import com.netscape.certsrv.common.ConfigConstants;
+import com.netscape.certsrv.common.OpDef;
+import com.netscape.certsrv.common.TaskId;
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import com.netscape.admin.certsrv.task.*;
-import com.netscape.management.client.console.*;
+import com.netscape.management.client.console.ConsoleInfo;
 
 /**
  * Migration page for installation wizard.
@@ -121,7 +139,7 @@ class WIMigrationPage extends WizardBasePanel implements IWizardPanel, ItemListe
         StringTokenizer tokenizer = new StringTokenizer(tokenList, ":");
         int count = tokenizer.countTokens();
         while (tokenizer.hasMoreTokens()) {
-            tokenBox.addItem((String)tokenizer.nextToken());
+            tokenBox.addItem(tokenizer.nextToken());
         }
 
         String initializedList = mWizardInfo.getTokensInit();
@@ -129,7 +147,7 @@ class WIMigrationPage extends WizardBasePanel implements IWizardPanel, ItemListe
         int i=0;
         mTokenInitialized = new String[count];
         while (tokenizer.hasMoreElements()) {
-            mTokenInitialized[i] = (String)tokenizer.nextToken();
+            mTokenInitialized[i] = tokenizer.nextToken();
             i++;
         }
 
@@ -138,7 +156,7 @@ class WIMigrationPage extends WizardBasePanel implements IWizardPanel, ItemListe
         i=0;
         mTokenLogin = new String[count];
         while (tokenizer.hasMoreElements()) {
-            mTokenLogin[i] = (String)tokenizer.nextToken();
+            mTokenLogin[i] = tokenizer.nextToken();
             i++;
         }
     }
@@ -229,7 +247,7 @@ class WIMigrationPage extends WizardBasePanel implements IWizardPanel, ItemListe
     }
 
     public boolean concludePanel(WizardInfo info) {
-        Hashtable data = new Hashtable();
+        Hashtable<String, Object> data = new Hashtable<>();
         String caTokenName = "";
         String sslTokenName = "";
         if (mCATokenBox.getSelectedIndex() == 0) {

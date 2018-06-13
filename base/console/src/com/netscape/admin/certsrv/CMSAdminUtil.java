@@ -110,7 +110,7 @@ public class CMSAdminUtil {
     public static final int NO_OPTION = JOptionPane.NO_OPTION;
     public static final int CANCEL_OPTION = JOptionPane.CANCEL_OPTION;
 
-    private static Hashtable mPackageImages = new Hashtable();  //image container
+    private static Hashtable<String, RemoteImage> mPackageImages = new Hashtable<>();  //image container
     private static final ResourceSet mHelpResource =
       new ResourceSet("com.netscape.admin.certsrv.certsrv-help");
     public static final ResourceSet mResource =
@@ -132,7 +132,7 @@ public class CMSAdminUtil {
      */
     public static RemoteImage getImage( String name ) {
         String imageDir = CMSAdminResources.DEFAULT_IMAGE_DIRECTORY;
-		RemoteImage i = (RemoteImage) mPackageImages.get( name );
+		RemoteImage i = mPackageImages.get( name );
 		if ( i != null )
 			return i;
         i = getSystemImage( imageDir + "/" + name );
@@ -143,7 +143,7 @@ public class CMSAdminUtil {
 
     public static RemoteImage getThemeImage( String name ) {
         String imageDir = CMSAdminResources.DEFAULT_THEME_IMAGE_DIRECTORY;
-		RemoteImage i = (RemoteImage) mPackageImages.get( name );
+		RemoteImage i = mPackageImages.get( name );
 		if ( i != null )
 			return i;
         i = getSystemImage( imageDir + "/" + name );

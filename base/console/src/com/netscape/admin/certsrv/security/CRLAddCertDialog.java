@@ -17,18 +17,25 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.security;
 
-import javax.swing.*;
-import javax.swing.border.*;
+import java.awt.Container;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Hashtable;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
+import javax.swing.JButton;
 
 import com.netscape.management.client.console.ConsoleInfo;
-
-
-import com.netscape.management.client.util.*;
-import com.netscape.management.nmclf.*;
+import com.netscape.management.client.util.AbstractDialog;
+import com.netscape.management.client.util.Debug;
+import com.netscape.management.client.util.GridBagUtil;
+import com.netscape.management.client.util.Help;
+import com.netscape.management.client.util.JButtonFactory;
+import com.netscape.management.client.util.ResourceSet;
+import com.netscape.management.client.util.UtilConsoleGlobals;
+import com.netscape.management.nmclf.SuiConstants;
+import com.netscape.management.nmclf.SuiOptionPane;
 
 class CRLAddCertDialog extends AbstractDialog implements SuiConstants {
 
@@ -112,7 +119,7 @@ class CRLAddCertDialog extends AbstractDialog implements SuiConstants {
         return _certInfo;
     }
 
-    Hashtable _certInstInfo = new Hashtable();
+    Hashtable<String, String> _certInstInfo = new Hashtable<>();
     public void show(String filename, String list_type) {
         _filename = filename;
         _listtype = list_type;
@@ -159,7 +166,7 @@ class CRLAddCertDialog extends AbstractDialog implements SuiConstants {
         _crlCertInfoPane.setCertInfo(certInfo);
 
         try {
-            if (((String)(_certInstInfo.get("crl_action"))).equals("add")) {
+            if ((_certInstInfo.get("crl_action")).equals("add")) {
                 bAction.setText(
                         _resource.getString("CRLAddCertDialog", "add"));
             } else {

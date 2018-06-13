@@ -17,24 +17,35 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config.install;
 
-import java.io.*;
-import java.net.*;
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
-import javax.swing.*;
-import javax.swing.border.*;
-import javax.swing.event.*;
-import javax.swing.text.*;
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
-import com.netscape.admin.certsrv.wizard.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.admin.certsrv.config.*;
-import com.netscape.admin.certsrv.task.*;
-import com.netscape.management.client.console.*;
-import com.netscape.management.client.comm.*;
-import com.netscape.management.client.util.*;
+import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.Hashtable;
+import java.util.StringTokenizer;
+
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JTextArea;
+
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.wizard.IWizardPanel;
+import com.netscape.admin.certsrv.wizard.WizardBasePanel;
+import com.netscape.admin.certsrv.wizard.WizardInfo;
+import com.netscape.certsrv.common.ConfigConstants;
+import com.netscape.certsrv.common.OpDef;
+import com.netscape.certsrv.common.TaskId;
+import com.netscape.management.client.comm.CommClient;
+import com.netscape.management.client.comm.CommRecord;
+import com.netscape.management.client.comm.HttpManager;
+import com.netscape.management.client.console.ConsoleInfo;
+import com.netscape.management.client.util.Debug;
 
 /**
  * Setup Single Signon for the installation wizard.
@@ -187,7 +198,7 @@ class WISingleSignonPage extends WizardBasePanel implements IWizardPanel, CommCl
 
             // _consoleInfo.get("arguments") is a hashtable of key/value pairs
             // to use as the arguments to the CGI
-            Hashtable args = (Hashtable)_consoleInfo.get("arguments");
+            Hashtable<String, Object> args = (Hashtable<String, Object>)_consoleInfo.get("arguments");
             ByteArrayInputStream data = null;
             if (args != null && !args.isEmpty())
                 data = com.netscape.admin.certsrv.task.CGITask.encode(args);
@@ -281,7 +292,7 @@ class WISingleSignonPage extends WizardBasePanel implements IWizardPanel, CommCl
      */
     public String username(Object authObject, CommRecord cr) {
         Debug.println( "username = " +
-            (String)_consoleInfo.getAuthenticationDN());
+            _consoleInfo.getAuthenticationDN());
         return _consoleInfo.getAuthenticationDN();
     }
 
@@ -299,7 +310,7 @@ class WISingleSignonPage extends WizardBasePanel implements IWizardPanel, CommCl
     public boolean startServer(InstallWizardInfo info) {
         _consoleInfo = info.getAdminConsoleInfo();
 
-        Hashtable configParams = new Hashtable();
+        Hashtable<String, Object> configParams = new Hashtable<>();
         configParams.put("serverRoot",_consoleInfo.get("serverRoot"));
         String servid = (String)_consoleInfo.get("servid");
         int index = servid.indexOf("-");

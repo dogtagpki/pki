@@ -17,16 +17,43 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config;
 
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
-import javax.swing.*;
-import javax.swing.table.*;
-import java.awt.event.*;
-import java.awt.*;
-import java.util.*;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.util.Hashtable;
+import java.util.StringTokenizer;
+import java.util.Vector;
 
-import com.netscape.management.client.util.*;
-import com.netscape.certsrv.common.*;
+import javax.swing.DefaultCellEditor;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTable;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+import javax.swing.table.TableCellRenderer;
+
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.EAdminException;
+import com.netscape.admin.certsrv.connection.AdminConnection;
+import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.common.DestDef;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.common.ScopeDef;
+import com.netscape.management.client.util.Debug;
+import com.netscape.management.client.util.JButtonFactory;
 
 /**
  * Policy Parameter Configuration Dialog
@@ -46,7 +73,7 @@ public class ProfilePolicyNewDialog extends CMSBaseConfigDialog
     private String mConstraintId = null, mDefaultId = null;
 
      public String mDefSetId = null;
-    protected Hashtable mHelpDesc = new Hashtable();
+    protected Hashtable<Object, String> mHelpDesc = new Hashtable<>();
 
     /*==========================================================
      * constructors
@@ -699,7 +726,7 @@ public class ProfilePolicyNewDialog extends CMSBaseConfigDialog
         public void focusGained(FocusEvent f) {
            Debug.println("focusGained");
            Component comp = f.getComponent();
-           String desc = (String)mHelpDesc.get(comp);
+           String desc = mHelpDesc.get(comp);
            if (desc != null) {
                 mHelpLabel.setText(desc);
            }

@@ -115,7 +115,7 @@ IKeyCertPage {
 
             taskInfo = observable.getTaskInfo();
 
-            Hashtable certInstInfo = (Hashtable)(observable.get("certInstInfo"));
+            Hashtable<String, Object> certInstInfo = (Hashtable<String, Object>)(observable.get("certInstInfo"));
             certInstInfo.put("tokenName", observable.get("tokenName"));
 
             if (certInstInfo.get("repbutton") != null) {

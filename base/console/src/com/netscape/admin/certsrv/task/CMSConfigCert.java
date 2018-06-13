@@ -17,25 +17,20 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.task;
 
-import java.util.*;
-import javax.swing.*;
-import com.netscape.management.client.*;
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.config.install.*;
+import java.awt.Cursor;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.Hashtable;
+
+import javax.swing.JFrame;
+
+import com.netscape.admin.certsrv.config.install.InstallWizardInfo;
 import com.netscape.admin.certsrv.wizard.WizardBasePanel;
-import com.netscape.certsrv.common.*;
-import com.netscape.management.client.util.*;
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.event.*;
-import com.netscape.management.client.console.*;
-import com.netscape.management.client.topology.*;
-import com.netscape.management.client.comm.*;
-import java.net.*;
-import java.io.*;
-import netscape.ldap.*;
-import netscape.ldap.util.*;
+import com.netscape.certsrv.common.ConfigConstants;
+import com.netscape.management.client.comm.CommRecord;
+import com.netscape.management.client.util.Debug;
+import com.netscape.management.client.util.UtilConsoleGlobals;
 
 /**
  * Perform certificate server configuration.
@@ -81,7 +76,7 @@ public class CMSConfigCert extends CGITask {
      * Collect the data in name value pairs format and then send them to the
      * cgi process.
 	 */
-	public boolean configCert(Hashtable data) {
+	public boolean configCert(Hashtable<String, Object> data) {
         JFrame mActiveFrame = UtilConsoleGlobals.getActivatedFrame();
         if (_consoleInfo.get("AdminUsername") == null)
             _consoleInfo.put("AdminUsername", _consoleInfo.getAuthenticationDN());

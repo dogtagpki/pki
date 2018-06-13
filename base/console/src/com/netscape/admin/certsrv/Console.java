@@ -493,7 +493,7 @@ public class Console implements CommClient {
                     }
 
             try {
-                Hashtable topologyplugin =
+                Hashtable<String, ITopologyPlugin> topologyplugin =
                         TopologyInitializer.getTopologyPluginFromDS( _info);
                 Enumeration<ITopologyPlugin> ePlugins = topologyplugin.elements();
                 while (ePlugins.hasMoreElements()) {
@@ -1007,7 +1007,7 @@ public class Console implements CommClient {
       *
       * @return hashtable which contain all the resource editor plugin.
       */
-    private Hashtable buildAccountPluginHashtable() {
+    private Hashtable<String, Vector<String>> buildAccountPluginHashtable() {
         Hashtable<String, Vector<String>> HTAccountPlugin = new Hashtable<>();
         try {
             LDAPConnection ldc = _info.getLDAPConnection();
@@ -1280,33 +1280,33 @@ public class Console implements CommClient {
     private final int LDAPinitialization(ConsoleInfo info) {
         // Set DS information;
 
-        Hashtable ht = _info.getAuthenticationValues();
+        Hashtable<String, String> ht = _info.getAuthenticationValues();
 
         String param;
 
         // set up configuration data base information
 
-        if ((param = (String)(ht.get("SIE"))) != null)
+        if ((param = (ht.get("SIE"))) != null)
             _adminServerSIE = param;
         else
             Debug.println("Console:authenticate_user():SIE not found");
 
-        if ((param = (String)(ht.get("ldapHost"))) != null)
+        if ((param = (ht.get("ldapHost"))) != null)
             info.setHost(param);
         else
             Debug.println("Console:authenticate_user():ldapHost not found");
 
-        if ((param = (String)(ht.get("ldapPort"))) != null)
+        if ((param = (ht.get("ldapPort"))) != null)
             info.setPort(Integer.parseInt(param));
         else
             Debug.println("Console:authenticate_user():ldapPort not found");
 
-        if ((param = (String)(ht.get("ldapBaseDN"))) != null)
+        if ((param = (ht.get("ldapBaseDN"))) != null)
             info.setBaseDN(param);
         else
             Debug.println("Console:authenticate_user():ldapBaseDN not found");
 
-        param = (String)(ht.get("ldapSecurity"));
+        param = (ht.get("ldapSecurity"));
         boolean fLdapSecurity = false;
         if ((param != null) && (param.equals("on"))) {
             info.put("ldapSecurity","on");
@@ -1387,7 +1387,7 @@ public class Console implements CommClient {
 
         // set up user data base information
         // If config DS is unaccessable when authenticate CGI is called, the CGI returns ? for UserDirectory
-        if ((param = (String)(ht.get("UserDirectory"))) != null &&
+        if ((param = (ht.get("UserDirectory"))) != null &&
                 !param.equals("?")) {
             // this caused I18n problem - param=param.toLowerCase();
             LDAPConnection ldc = null;
