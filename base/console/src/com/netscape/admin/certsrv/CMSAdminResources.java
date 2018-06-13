@@ -17,10 +17,13 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv;
 
-import com.netscape.management.client.util.*;
-import java.io.*;
-import java.util.*;
-import com.netscape.certsrv.common.Constants;
+import java.util.Enumeration;
+import java.util.Locale;
+import java.util.PropertyResourceBundle;
+import java.util.ResourceBundle;
+
+import com.netscape.management.client.util.Debug;
+import com.netscape.management.client.util.ResourceSet;
 
 /**
  * Resource Boundle for the Certificate Server Admin Console
@@ -173,7 +176,7 @@ public class CMSAdminResources extends ResourceBundle {
     /**
      * Implementation of ResourceBundle.getKeys.
      */
-    public Enumeration getKeys() {
+    public Enumeration<String> getKeys() {
 	return mResourceBundle.getKeys();
     }
 

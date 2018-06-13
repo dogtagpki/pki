@@ -17,13 +17,33 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.security;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
-import javax.swing.*;
-import javax.swing.border.*;
-import com.netscape.management.client.util.*;
-import com.netscape.management.nmclf.*;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Vector;
+
+import javax.swing.Box;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.EtchedBorder;
+import javax.swing.border.TitledBorder;
+
+import com.netscape.management.client.util.GridBagUtil;
+import com.netscape.management.client.util.IWizardControl;
+import com.netscape.management.client.util.MultilineLabel;
+import com.netscape.management.client.util.ResourceSet;
+import com.netscape.management.client.util.UITools;
+import com.netscape.management.client.util.UtilConsoleGlobals;
+import com.netscape.management.nmclf.SuiConstants;
+import com.netscape.management.nmclf.SuiOptionPane;
 
 /**
  *
@@ -162,10 +182,10 @@ IKeyCertPage {
     class CertInfoActionListener implements ActionListener {
         public void actionPerformed(ActionEvent event) {
             if (event.getActionCommand().equals("add_replace")) {
-                Hashtable certInstInfo = (Hashtable)(obs.get("certInstInfo"));
-                Enumeration keys = certInstInfo.keys();
+                Hashtable<String, Object> certInstInfo = (Hashtable<String, Object>)(obs.get("certInstInfo"));
+                Enumeration<String> keys = certInstInfo.keys();
                 while (keys.hasMoreElements()) {
-                    String key = (String)(keys.nextElement());
+                    String key = keys.nextElement();
                     taskInfo.put(key, certInstInfo.get(key));
                 }
 

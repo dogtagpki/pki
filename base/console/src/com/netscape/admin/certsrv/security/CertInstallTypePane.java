@@ -17,13 +17,30 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.security;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
-import javax.swing.*;
-import javax.swing.border.*;
-import com.netscape.management.client.util.*;
-import com.netscape.management.nmclf.*;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.util.Hashtable;
+
+import javax.swing.Box;
+import javax.swing.ButtonGroup;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.EtchedBorder;
+import javax.swing.border.TitledBorder;
+
+import com.netscape.management.client.util.GridBagUtil;
+import com.netscape.management.client.util.IWizardControl;
+import com.netscape.management.client.util.ResourceSet;
+import com.netscape.management.client.util.SingleBytePasswordField;
+import com.netscape.management.nmclf.SuiConstants;
 
 class CertInstallTypePane extends JPanel implements SuiConstants,
 IKeyCertPage {
@@ -41,7 +58,7 @@ IKeyCertPage {
     JLabel _certType;
     JLabel _passwordLabel;
 
-    public static Hashtable param = new Hashtable();
+    public static Hashtable<String, Object> param = new Hashtable<>();
 
     IWizardControl control;
     boolean modified = true;
@@ -86,7 +103,7 @@ IKeyCertPage {
             observable.put("keyPasswd", passwd.getText());
 
             if (thisServer.isSelected()) {
-                param.put("certname", (String)(observable.get("certName")));
+                param.put("certname", (observable.get("certName")));
             } else {
                 param.remove("certname");
             }

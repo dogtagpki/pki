@@ -17,17 +17,22 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv;
 
-import java.util.*;
-import java.io.*;
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.event.*;
-import com.netscape.management.client.*;
-import com.netscape.management.client.util.*;
-import com.netscape.management.client.console.*;
-import com.netscape.admin.certsrv.config.*;
-import com.netscape.admin.certsrv.menu.*;
+import java.awt.Component;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.ResourceBundle;
+import java.util.Vector;
+
+import javax.swing.JFrame;
+
+import com.netscape.admin.certsrv.config.CMSBlankPanel;
+import com.netscape.admin.certsrv.menu.RefreshTabPane;
+import com.netscape.management.client.IPage;
+import com.netscape.management.client.IResourceObject;
+import com.netscape.management.client.ResourceModel;
+import com.netscape.management.client.console.ConsoleInfo;
+import com.netscape.management.client.util.Debug;
+import com.netscape.management.client.util.UtilConsoleGlobals;
 
 /**
  *	Netscape Certificate Server 4.0 BASE resource model.<br>
@@ -52,7 +57,7 @@ public class CMSBaseResourceModel extends ResourceModel {
 	protected ConsoleInfo mConsoleInfo;     // console info
 	protected CMSServerInfo mServerInfo;    // server info
 	protected IResourceObject[] mSelection; // selected objects
-	protected Vector mSelectionListeners;   // listener list
+	protected Vector<IResourceSelectionListener> mSelectionListeners;   // listener list
 	protected ResourceBundle mResource;     // resource boundle
 	protected Hashtable mNickNameRegistry;  // storing the obejct nickname pair
     protected RefreshTabPane mRefreshPane;
@@ -205,7 +210,7 @@ public class CMSBaseResourceModel extends ResourceModel {
 	/**
      *   Returns list of listeners for this model.
 	 */
-	public Enumeration getSelectionListeners() {
+	public Enumeration<IResourceSelectionListener> getSelectionListeners() {
 		return mSelectionListeners.elements();
 	}
 

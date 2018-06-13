@@ -495,10 +495,10 @@ public class CMSBaseConfigDialog extends JDialog
 			}
 
 			Debug.println(4,"User pressed okay on instance config dialog");
-			Enumeration e = mEPIs.keys();
+			Enumeration<String> e = mEPIs.keys();
 			NameValuePairs nvp = new NameValuePairs();
 			while (e.hasMoreElements()) {
-				String paramName = (String)e.nextElement();
+				String paramName = e.nextElement();
 				ExtendedPluginInfo epi = mEPIs.get(paramName);
 				String value = epi.getComponentStateAsString();
 				if (epi.getType() == ExtendedPluginInfo.TYPE_PASSWORD) {
@@ -721,7 +721,7 @@ public class CMSBaseConfigDialog extends JDialog
 }
 
 
-class ExtendedPluginInfoSet extends Hashtable {
+class ExtendedPluginInfoSet extends Hashtable<String, ExtendedPluginInfo> {
 
 	/**
 	 * Add a value for this config parameter.
@@ -794,7 +794,7 @@ class ExtendedPluginInfoSet extends Hashtable {
 	}
 
 	public ExtendedPluginInfo get(String param) {
-		return (ExtendedPluginInfo)super.get(param);
+		return super.get(param);
 	}
 
 }

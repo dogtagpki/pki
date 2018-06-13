@@ -568,10 +568,10 @@ public class CMSAdminUtil {
      * @table JTable object
      */
     public static int getTotalColumnWidth( JTable table ) {
-		Enumeration en = table.getColumnModel().getColumns();
+		Enumeration<TableColumn> en = table.getColumnModel().getColumns();
 		int width = 0;
 		while( en.hasMoreElements() ) {
-			TableColumn col = (TableColumn)en.nextElement();
+			TableColumn col = en.nextElement();
 			width += col.getWidth();
 		}
 		return width - 200;

@@ -17,10 +17,16 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.security;
 
-import java.util.*;
-import javax.swing.*;
-import java.awt.event.*;
-import com.netscape.management.client.util.*;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Vector;
+
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+
+import com.netscape.management.client.util.ResourceSet;
 
 class CipherEntry {
     private JCheckBox _cipherEnable;
@@ -30,12 +36,12 @@ class CipherEntry {
 
     ResourceSet resource = new ResourceSet("com.netscape.admin.certsrv.security.EncryptionPaneResource");
 
-    private Hashtable _tokenCertList;
-    public CipherEntry(String cipherName, Hashtable tokenCertList) {
+    private Hashtable<String, Vector<String>> _tokenCertList;
+    public CipherEntry(String cipherName, Hashtable<String, Vector<String>> tokenCertList) {
         _cipherEnable = new JCheckBox(cipherName);
 
-        Vector tokenList = new Vector();
-        Enumeration tokens = tokenCertList.keys();
+        Vector<String> tokenList = new Vector<>();
+        Enumeration<String> tokens = tokenCertList.keys();
         while (tokens.hasMoreElements()) {
             tokenList.addElement(tokens.nextElement());
         }
@@ -68,10 +74,10 @@ class CipherEntry {
                 _certList.removeAllItems();
                 _certList.setEditable(false);
                 if (_tokenCertList.get(e.getItem()) != null) {
-                    Vector certList =
-                            (Vector)(_tokenCertList.get(e.getItem()));
+                    Vector<String> certList =
+                            (_tokenCertList.get(e.getItem()));
                     if (certList.size() != 0) {
-                        if (((String)(certList.elementAt(0))).
+                        if ((certList.elementAt(0)).
                                 toLowerCase().indexOf("unknown") != -1) {
                             _certList.addItem(
                                     resource.getString("CipherEntry", "enterCert"));

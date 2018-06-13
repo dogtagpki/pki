@@ -18,17 +18,23 @@
 package com.netscape.admin.certsrv.security;
 
 
-import com.netscape.management.client.console.*;
-import com.netscape.management.client.util.*;
-import com.netscape.management.nmclf.*;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.util.Vector;
 
-import java.util.*;
-import java.awt.*;
-import java.awt.event.*;
+import javax.swing.BoxLayout;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JViewport;
+import javax.swing.table.JTableHeader;
 
-import javax.swing.*;
-import javax.swing.table.*;
-import javax.swing.event.*;
+import com.netscape.management.client.console.ConsoleInfo;
+import com.netscape.management.client.util.UtilConsoleGlobals;
+import com.netscape.management.nmclf.SuiOptionPane;
+import com.netscape.management.nmclf.SuiTable;
 
 //import crysec.SSL.DBManager;
 //import crysec.X509;
@@ -189,9 +195,9 @@ class CertListTable extends JPanel implements MouseListener, Runnable {
 
       //  trustdb = new DBManager();
      //   Enumeration e = trustdb.elements();
-       Enumeration e = null;
+        //Enumeration e = null;
         certList = new Vector();
-        Vector v = new Vector();
+        Vector<CertBasicInfo> v = new Vector<>();
       //  while (e.hasMoreElements()) {
     //        X509 cert = (X509)(e.nextElement());
    //         certList.addElement(cert);

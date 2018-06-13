@@ -186,7 +186,7 @@ public class JSSConnection implements IConnection, SSLCertificateApprovalCallbac
             return mCertAccepted;
         }
 
-        Enumeration errors = status.getReasons();
+        Enumeration<ValidityItem> errors = status.getReasons();
         //if there are more then 1 error we need to propmt user for trust
         promptForTrust = errors.hasMoreElements();
 
@@ -303,7 +303,7 @@ public class JSSConnection implements IConnection, SSLCertificateApprovalCallbac
         return mServerCertImported;
     }
 
-    public String select(Vector nicknames)
+    public String select(Vector<String> nicknames)
     {
         selectCertDialog = null;
         mClientAuth = true;
@@ -752,7 +752,7 @@ public class JSSConnection implements IConnection, SSLCertificateApprovalCallbac
 
 	class SelectCertDialog extends AbstractDialog {
 
-        JComboBox certList = new JComboBox();
+        JComboBox<String> certList = new JComboBox<>();
 	    protected ResourceBundle mResource = ResourceBundle.getBundle(
           CMSAdminResources.class.getName());
         public SelectCertDialog() {
@@ -778,9 +778,9 @@ public class JSSConnection implements IConnection, SSLCertificateApprovalCallbac
             pack();
         }
 
-        public void setCertList(Vector nicknames) {
+        public void setCertList(Vector<String> nicknames) {
             certList.removeAllItems();
-            Enumeration enum1 = nicknames.elements();
+            Enumeration<String> enum1 = nicknames.elements();
             while (enum1.hasMoreElements()) {
                 certList.insertItemAt(enum1.nextElement(), 0);
             }

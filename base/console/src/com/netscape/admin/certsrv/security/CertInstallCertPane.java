@@ -17,13 +17,36 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.security;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
-import javax.swing.*;
-import javax.swing.border.*;
-import com.netscape.management.client.util.*;
-import com.netscape.management.nmclf.*;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.util.Enumeration;
+
+import javax.swing.Box;
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.EtchedBorder;
+import javax.swing.border.TitledBorder;
+
+import com.netscape.management.client.util.GridBagUtil;
+import com.netscape.management.client.util.IWizardControl;
+import com.netscape.management.client.util.MultilineLabel;
+import com.netscape.management.client.util.ResourceSet;
+import com.netscape.management.client.util.UITools;
+import com.netscape.management.client.util.UtilConsoleGlobals;
+import com.netscape.management.nmclf.SuiConstants;
+import com.netscape.management.nmclf.SuiOptionPane;
 
 class CertInstallCertPane extends JPanel implements SuiConstants,
 IKeyCertPage {
@@ -68,9 +91,9 @@ IKeyCertPage {
             CertInstallTypePane.param.put("tokenName", observable.get("tokenName"));
 
             KeyCertTaskInfo taskInfo = observable.getTaskInfo();
-            Enumeration cgiParam = CertInstallTypePane.param.keys();
+            Enumeration<String> cgiParam = CertInstallTypePane.param.keys();
             while (cgiParam.hasMoreElements()) {
-                String key = (String)(cgiParam.nextElement());
+                String key = cgiParam.nextElement();
                 taskInfo.put(key, CertInstallTypePane.param.get(key));
             }
 

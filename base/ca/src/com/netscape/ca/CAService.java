@@ -984,10 +984,10 @@ public class CAService implements ICAService, IService {
         CMS.debug("CAService.revokeCert: revokeCert begins");
 
         // Get the revocation reason
-        Enumeration enum1 = crlentryexts.getElements();
+        Enumeration<Extension> enum1 = crlentryexts.getElements();
         RevocationReason revReason = null;
         while (enum1.hasMoreElements()) {
-            Extension ext = (Extension) enum1.nextElement();
+            Extension ext = enum1.nextElement();
             if (ext instanceof CRLReasonExtension) {
                 revReason = ((CRLReasonExtension) ext).getReason();
                 break;

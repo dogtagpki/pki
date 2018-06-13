@@ -495,10 +495,10 @@ public class Console implements CommClient {
             try {
                 Hashtable topologyplugin =
                         TopologyInitializer.getTopologyPluginFromDS( _info);
-                Enumeration ePlugins = topologyplugin.elements();
+                Enumeration<ITopologyPlugin> ePlugins = topologyplugin.elements();
                 while (ePlugins.hasMoreElements()) {
                     ITopologyPlugin plugin =
-                            (ITopologyPlugin) ePlugins.nextElement();
+                            ePlugins.nextElement();
                     ResourceObject resObj =
                             plugin.getResourceObjectByID(host);
                     if (resObj != null) {
@@ -749,7 +749,7 @@ public class Console implements CommClient {
 
         if (ldc != null) {
             LDAPAttribute attribute;
-            Enumeration eAttributes;
+            Enumeration<String> eAttributes;
             String ldapLocation = "";
             LDAPEntry entry;
             LDAPSearchResults result;
@@ -770,7 +770,7 @@ public class Console implements CommClient {
                         eAttributes = attribute.getStringValues();
                         while (eAttributes.hasMoreElements()) {
                             String sUserObjectClass =
-                                    (String) eAttributes.nextElement();
+                                    eAttributes.nextElement();
                             vUserObjectClasses.addElement(
                                     sUserObjectClass);
                         }
@@ -808,7 +808,7 @@ public class Console implements CommClient {
                         eAttributes = attribute.getStringValues();
                         while (eAttributes.hasMoreElements()) {
                             String sGroupObjectClass =
-                                    (String) eAttributes.nextElement();
+                                    eAttributes.nextElement();
                             vGroupObjectClasses.addElement(
                                     sGroupObjectClass);
                         }
@@ -844,7 +844,7 @@ public class Console implements CommClient {
                         eAttributes = attribute.getStringValues();
                         while (eAttributes.hasMoreElements()) {
                             String sOUObjectClass =
-                                    (String) eAttributes.nextElement();
+                                    eAttributes.nextElement();
                             vOUObjectClasses.addElement(sOUObjectClass);
                         }
 
@@ -889,10 +889,10 @@ public class Console implements CommClient {
 
                         attribute = ExtensionEntry.getAttribute("cn",
                                 LDAPUtil.getLDAPAttributeLocale());
-                        Enumeration eValues = attribute.getStringValues();
+                        Enumeration<String> eValues = attribute.getStringValues();
                         String sCN = "";
                         while (eValues.hasMoreElements()) {
-                            sCN = (String) eValues.nextElement(); // Take the first CN
+                            sCN = eValues.nextElement(); // Take the first CN
                             break;
                         }
 
@@ -904,7 +904,7 @@ public class Console implements CommClient {
                             Vector<Class<?>> vClass = new Vector<>();
                             while (eValues.hasMoreElements()) {
                                 String sJarClassName =
-                                        (String) eValues.nextElement();
+                                        eValues.nextElement();
                                 Class<?> c = ClassLoaderUtil.getClass(
                                         _info, sJarClassName);
 
@@ -920,12 +920,11 @@ public class Console implements CommClient {
                                 ExtensionEntry.getAttribute("nsDeleteClassname",
                                 LDAPUtil.getLDAPAttributeLocale());
                         if (attribute != null) {
-                            Enumeration deleteClasses =
+                            Enumeration<String> deleteClasses =
                                     attribute.getStringValues();
                             Vector<Class<?>> deleteClassesVector = new Vector<>();
                             while (deleteClasses.hasMoreElements()) {
-                                String jarClassname = (String)
-                                        deleteClasses.nextElement();
+                                String jarClassname = deleteClasses.nextElement();
                                 Class<?> c = ClassLoaderUtil.getClass(
                                         _info, jarClassname);
                                 if (c != null) {
@@ -1028,12 +1027,12 @@ public class Console implements CommClient {
                         continue;
                     }
                     LDAPAttributeSet entryAttrs = entry.getAttributeSet();
-                    Enumeration attrsInSet = entryAttrs.getAttributes();
+                    Enumeration<LDAPAttribute> attrsInSet = entryAttrs.getAttributes();
                     String sName = "";
                     Vector<String> vJavaClass = new Vector<>();
                     while (attrsInSet.hasMoreElements()) {
                         LDAPAttribute nextAttr =
-                                (LDAPAttribute) attrsInSet.nextElement();
+                                attrsInSet.nextElement();
                         if (nextAttr.getName().equalsIgnoreCase("cn")) {
                             sName = LDAPUtil.flatting(
                                     nextAttr.getStringValues());

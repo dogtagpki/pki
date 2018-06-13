@@ -17,18 +17,42 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config;
 
-import com.netscape.admin.certsrv.*;
-import com.netscape.management.client.console.*;
-import com.netscape.admin.certsrv.connection.*;
-import com.netscape.certsrv.common.*;
-import java.awt.*;
-import java.util.*;
-import javax.swing.*;
-import java.awt.event.*;
-import javax.swing.border.*;
-import com.netscape.management.client.util.*;
-import com.netscape.admin.certsrv.keycert.*;
-import com.netscape.admin.certsrv.managecert.*;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ItemEvent;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.MissingResourceException;
+import java.util.StringTokenizer;
+import java.util.Vector;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+
+import com.netscape.admin.certsrv.CMSAdminResources;
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.CMSServerInfo;
+import com.netscape.admin.certsrv.EAdminException;
+import com.netscape.admin.certsrv.connection.AdminConnection;
+import com.netscape.admin.certsrv.keycert.CertSetupWizard;
+import com.netscape.admin.certsrv.keycert.CertSetupWizardInfo;
+import com.netscape.admin.certsrv.managecert.ManageCertDialog;
+import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.common.DestDef;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.common.ScopeDef;
+import com.netscape.management.client.console.ConsoleInfo;
+import com.netscape.management.client.util.Debug;
 
 /**
  * Encryption panel used for setup server encryption options.
@@ -50,7 +74,7 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
     private AdminConnection mConnection;
     private JPanel mEncryptPane;
     private JComboBox mSelection, mTokenList, mCertList;
-    private Hashtable mCertMapping;         //maps the function list items to tags
+    private Hashtable<String, CipherEntryData> mCertMapping;         //maps the function list items to tags
     private String mSelectedItem, mSelectedToken, mSelectedCert;
     private JButton mWizard, mCipherPref, mSetup;
     private Hashtable mTokenCertList;        //container for tokens and certs (Vector)
@@ -74,7 +98,7 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
         mConsoleInfo = parent.getResourceModel().getConsoleInfo();
         mServerInfo = parent.getResourceModel().getServerInfo();
         mConnection = mServerInfo.getAdmin();
-        mCertMapping = new Hashtable();
+        mCertMapping = new Hashtable<>();
         mTokenCertList = new Hashtable();
         mCipherPrefStore = new Vector();
         mHelpToken = HELPINDEX;
@@ -177,9 +201,9 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
 
         //construct NVP parameters
         NameValuePairs nvp = new NameValuePairs();
-        for (Enumeration e = mCertMapping.keys() ; e.hasMoreElements() ;) {
+        for (Enumeration<String> e = mCertMapping.keys() ; e.hasMoreElements() ;) {
             CipherEntryData data =
-                (CipherEntryData)mCertMapping.get(e.nextElement());
+                mCertMapping.get(e.nextElement());
             nvp.put(data.getTagName(), data.getTokenName() + "," + data.getCertName());
         }
 
@@ -356,10 +380,10 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
 
     //save the mappings if changes made
     private void saveChanges(String entry) {
-        if ( (!mSelectedToken.equals((String)mTokenList.getSelectedItem())) ||
-             (!mSelectedCert.equals((String)mCertList.getSelectedItem())) ) {
+        if ( (!mSelectedToken.equals(mTokenList.getSelectedItem())) ||
+             (!mSelectedCert.equals(mCertList.getSelectedItem())) ) {
 
-            CipherEntryData data = (CipherEntryData) mCertMapping.get(entry);
+            CipherEntryData data = mCertMapping.get(entry);
             data.setData((String)mTokenList.getSelectedItem(),
                          (String)mCertList.getSelectedItem());
         }
@@ -447,9 +471,9 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
         //setup the cipher entry data - loop through table and retrieve
         //the current mappings
         mSelectionIgnore = true;
-        for (Enumeration e = mCertMapping.keys() ; e.hasMoreElements() ;) {
-            String name = (String) e.nextElement();
-            CipherEntryData data = (CipherEntryData)mCertMapping.get(name);
+        for (Enumeration<String> e = mCertMapping.keys() ; e.hasMoreElements() ;) {
+            String name = e.nextElement();
+            CipherEntryData data = mCertMapping.get(name);
             String value = response.get(data.getTagName());
             if ( (value != null) && (!value.trim().equals("")) ) {
                 StringTokenizer tokenizer = new StringTokenizer(value, ",");
@@ -509,7 +533,7 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
     //setup combobox selection
     private void setupComboSelection() {
         //get current function selection
-        CipherEntryData data = (CipherEntryData) mCertMapping.get(mSelection.getSelectedItem());
+        CipherEntryData data = mCertMapping.get(mSelection.getSelectedItem());
 
         //select correct token from the token list
         String oldToken = (String) mTokenList.getSelectedItem();
@@ -740,8 +764,8 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
         nvp.put(Constants.PR_TOKEN_LIST, "");
 
         //create installed certificate list data request
-        for (Enumeration e = mCertMapping.elements(); e.hasMoreElements() ;) {
-            CipherEntryData data = (CipherEntryData)e.nextElement();
+        for (Enumeration<CipherEntryData> e = mCertMapping.elements(); e.hasMoreElements() ;) {
+            CipherEntryData data = e.nextElement();
             nvp.put(data.getTagName(), "");
         }
 

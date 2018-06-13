@@ -17,28 +17,26 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.security;
 
-import java.util.*;
-import java.awt.event.*;
+import java.util.Vector;
 
-import javax.swing.*;
-import javax.swing.table.*;
-import javax.swing.event.*;
+import javax.swing.event.TableModelListener;
+import javax.swing.table.AbstractTableModel;
 
 
 class CertListTableModel extends AbstractTableModel {
 
-    Vector _header;
+    Vector<String> _header;
 
-    Vector _rowData = new Vector();
+    Vector<CertBasicInfo> _rowData = new Vector<>();
 
-    Vector _tableModelListener = new Vector();
+    Vector<TableModelListener> _tableModelListener = new Vector<>();
 
-    public CertListTableModel(Vector columnIdentifier, Vector certList) {
+    public CertListTableModel(Vector<String> columnIdentifier, Vector<CertBasicInfo> certList) {
         _header = columnIdentifier;
         _rowData = certList;
     }
 
-    public void setRowData(Vector rowData) {
+    public void setRowData(Vector<CertBasicInfo> rowData) {
         _rowData = rowData;
     }
 
@@ -59,8 +57,8 @@ class CertListTableModel extends AbstractTableModel {
         Object o = null;
 
         try {
-            o = ((CertBasicInfo)(_rowData.elementAt(rowIndex))).
-                    getCertInfo((String)(_header.elementAt(columnIndex)));
+            o = (_rowData.elementAt(rowIndex)).
+                    getCertInfo((_header.elementAt(columnIndex)));
         } catch (Exception e) {}
 
         return o;

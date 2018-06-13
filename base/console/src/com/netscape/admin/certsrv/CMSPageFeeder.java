@@ -17,15 +17,16 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv;
 
-import java.util.*;
-import javax.swing.*;
-import javax.swing.event.*;
-import com.netscape.management.client.*;
-import com.netscape.management.client.console.*;
-import com.netscape.management.client.topology.*;
-import com.netscape.management.client.util.*;
-import com.netscape.admin.certsrv.config.*;
-import netscape.ldap.*;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
+
+import com.netscape.management.client.FrameworkInitializer;
+import com.netscape.management.client.IPage;
+import com.netscape.management.client.TaskModel;
+import com.netscape.management.client.TaskPage;
+import com.netscape.management.client.console.ConsoleInfo;
 
 /**
  *	Netscape Certificate Server 4.0 page model.
@@ -47,7 +48,7 @@ public class CMSPageFeeder extends FrameworkInitializer {
 	private CMSServerInfo mServerInfo;		// instance information
 
 	//private TaskPage mTaskPage;		    // task page
-	private Hashtable mPages;               // resource pages
+	private Hashtable<String, IPage> mPages;               // resource pages
 	//private ResourcePage mResourcePage;	// resource page
 	//private ResourcePage mContentPage;    // content page
     //private ResourcePage mUGPage;         // identity and roles page
@@ -69,7 +70,7 @@ public class CMSPageFeeder extends FrameworkInitializer {
 		mConsoleInfo = info;
 		mServerInfo = serverInfo;
         mResource = ResourceBundle.getBundle(CMSAdminResources.class.getName());
-        mPages = new Hashtable();
+        mPages = new Hashtable<>();
 
 		setFrameTitle(mResource.getString(PREFIX+"SERVERNAME"));
 		setMinimizedImage(CMSAdminUtil.getImage(CMSAdminResources.IMAGE_CERTICON_MEDIUM).getImage());
@@ -105,7 +106,7 @@ public class CMSPageFeeder extends FrameworkInitializer {
         }
 
         if (mPages.containsKey(name.trim())) {
-            return (IPage) mPages.get(name.trim());
+            return mPages.get(name.trim());
         } else {
             CMSResourcePage page = new CMSResourcePage(new CMSBaseResourceModel(mConsoleInfo,mServerInfo));
             String title;
@@ -126,9 +127,9 @@ public class CMSPageFeeder extends FrameworkInitializer {
      * Expend resource trees insde each individual pages
      */
     public void expendPages() {
-        for (Enumeration e = mPages.keys() ; e.hasMoreElements() ;) {
-              String name = (String)e.nextElement();
-              IPage page = (IPage)mPages.get(name);
+        for (Enumeration<String> e = mPages.keys() ; e.hasMoreElements() ;) {
+              String name = e.nextElement();
+              IPage page = mPages.get(name);
               if (page instanceof CMSResourcePage)
                   ((CMSResourcePage)page).getTree().expandRow(0);
           }

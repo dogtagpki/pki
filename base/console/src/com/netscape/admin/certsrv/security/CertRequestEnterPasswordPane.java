@@ -17,13 +17,29 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.security;
 
-import java.awt.*;
-import java.util.*;
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.border.*;
-import com.netscape.management.client.util.*;
-import com.netscape.management.nmclf.*;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.util.Enumeration;
+import java.util.Hashtable;
+
+import javax.swing.Box;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.EtchedBorder;
+import javax.swing.border.TitledBorder;
+
+import com.netscape.management.client.util.GridBagUtil;
+import com.netscape.management.client.util.IWizardControl;
+import com.netscape.management.client.util.MultilineLabel;
+import com.netscape.management.client.util.ResourceSet;
+import com.netscape.management.client.util.SingleBytePasswordField;
+import com.netscape.management.client.util.UtilConsoleGlobals;
+import com.netscape.management.nmclf.SuiConstants;
+import com.netscape.management.nmclf.SuiOptionPane;
 
 class CertRequestEnterPasswordPane extends JPanel implements SuiConstants,
 IKeyCertPage {
@@ -68,7 +84,7 @@ IKeyCertPage {
         if (modified || ((Boolean)(observable.get("CertReqModified"))).
                 booleanValue()) {
             observable.put("CertReqModified", new Boolean(true));
-            Hashtable param = (Hashtable)(observable.get("CertReqCGIParam"));
+            Hashtable<String, Object> param = (Hashtable)(observable.get("CertReqCGIParam"));
             //param.put("alias"     , ((Boolean)(observable.get("isInternal"))).booleanValue()?observable.get("sie"):observable.get("tokenName"));
             param.put("alias" , observable.get("sie"));
 
@@ -76,9 +92,9 @@ IKeyCertPage {
             observable.put("keyPasswd", _passwd.getText());
 
 
-            Enumeration cgiParam = param.keys();
+            Enumeration<String> cgiParam = param.keys();
             while (cgiParam.hasMoreElements()) {
-                String key = (String)(cgiParam.nextElement());
+                String key = cgiParam.nextElement();
                 taskInfo.put(key, param.get(key));
             }
 

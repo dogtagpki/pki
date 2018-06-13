@@ -266,9 +266,9 @@ public class CMSCRLIPPanel  extends CMSBaseTab
                 }
                 CMSResourceObject node =
                   (CMSResourceObject)(mParent.getResourceObject());
-                Enumeration allchildren = node.children();
+                Enumeration<CMSResourceObject> allchildren = node.children();
                 while (allchildren.hasMoreElements()) {
-                    CMSResourceObject child = (CMSResourceObject)(allchildren.nextElement());
+                    CMSResourceObject child = allchildren.nextElement();
                     String name1 = child.getName();
                     if (name1.equals(name)) {
                         node.remove(child);

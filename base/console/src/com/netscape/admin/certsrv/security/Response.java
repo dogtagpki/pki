@@ -17,14 +17,21 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.security;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.StringReader;
 /**
  *
  *  Parse the response that was sent back by the cgi
  *
  */
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.NoSuchElementException;
+import java.util.StringTokenizer;
+import java.util.Vector;
 
-import java.util.*;
-import java.io.*;
 import com.netscape.management.client.util.Debug;
 
 //this class need some optimization....
@@ -225,7 +232,7 @@ class Response {
                 new ByteArrayOutputStream(urlString.length());
 
         for (int i = 0; i < urlString.length(); i++) {
-            int c = (int) urlString.charAt(i);
+            int c = urlString.charAt(i);
             if (c == '+') {
                 out.write(' ');
             } else if (c == '%') {
@@ -240,9 +247,9 @@ class Response {
         return out.toString();
     }
 
-    Vector familyList;
-    public Vector parseFamilyList(String response) {
-        familyList = new Vector();
+    Vector<CipherEntry> familyList;
+    public Vector<CipherEntry> parseFamilyList(String response) {
+        familyList = new Vector<>();
         _fsecurityFortezza = false;
         _fsecurityDomestic = false;
         try {
@@ -256,24 +263,24 @@ class Response {
                 StringTokenizer st = new StringTokenizer(
                         line.substring(line.indexOf("=") + 1,
                         line.length()), ",\n", false);
-                Vector tokenList = new Vector();
-                Hashtable tokenCertList = new Hashtable();
+                Vector<String> tokenList = new Vector<>();
+                Hashtable<String, Vector<String>> tokenCertList = new Hashtable<>();
                 while (st.hasMoreTokens()) {
                     String token = st.nextToken();
                     tokenList.addElement(token);
-                    tokenCertList.put(token, "");
+                    tokenCertList.put(token, new Vector<String>());
                 }
 
-                Enumeration e = tokenList.elements();
+                Enumeration<String> e = tokenList.elements();
                 while (e.hasMoreElements()) {
-                    String token = (String)(e.nextElement());
+                    String token = (e.nextElement());
                     line = stream.readLine();
                     String certListString = line.substring(
                             (token + "-certs=").length(), line.length());
                     StringTokenizer certNames =
                             new StringTokenizer(certListString, ",\n",
                             false);
-                    Vector certList = new Vector();
+                    Vector<String> certList = new Vector<>();
                     while (certNames.hasMoreTokens()) {
                         certList.addElement(certNames.nextToken());
                     }

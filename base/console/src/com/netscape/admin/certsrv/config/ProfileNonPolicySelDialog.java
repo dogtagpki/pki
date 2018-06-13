@@ -17,15 +17,39 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config;
 
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
-import javax.swing.*;
-import java.awt.event.*;
-import java.awt.*;
-import java.util.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.ResourceBundle;
+import java.util.StringTokenizer;
 
-import com.netscape.management.client.util.*;
-import com.netscape.certsrv.common.*;
+import javax.swing.BorderFactory;
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.ListSelectionModel;
+
+import com.netscape.admin.certsrv.CMSAdminResources;
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.CMSBaseResourceModel;
+import com.netscape.admin.certsrv.EAdminException;
+import com.netscape.admin.certsrv.connection.AdminConnection;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.common.ScopeDef;
+import com.netscape.management.client.util.Debug;
+import com.netscape.management.client.util.JButtonFactory;
 
 /**
  * Plugin Selection Dialog
@@ -43,8 +67,8 @@ public class ProfileNonPolicySelDialog extends JDialog
     protected JFrame mParentFrame;
     protected AdminConnection mConnection;
     protected ResourceBundle mResource;
-    protected DefaultListModel mListModel;
-    protected Hashtable mListData;
+    protected DefaultListModel<JLabel> mListModel;
+    protected Hashtable<String, String> mListData;
     protected String mDestination;              //dest flag
 
     private JScrollPane mScrollPane;
@@ -116,8 +140,8 @@ public class ProfileNonPolicySelDialog extends JDialog
         mExtraDestination = extraDest;
         mScope = scope;
         mResource = ResourceBundle.getBundle(CMSAdminResources.class.getName());
-        mListModel = new DefaultListModel();
-        mListData = new Hashtable();
+        mListModel = new DefaultListModel<>();
+        mListData = new Hashtable<>();
         mPrefix = prefix;
 		mPluginInstanceDialog = pluginType;
 
@@ -181,7 +205,7 @@ public class ProfileNonPolicySelDialog extends JDialog
 
 			dialog.setModel(mModel);
 
-            String name = ((JLabel)mListModel.elementAt(mList.getSelectedIndex())).getText();
+            String name = mListModel.elementAt(mList.getSelectedIndex()).getText();
 
             dialog.showDialog(response, mProfileId, getID(name));
 
@@ -373,10 +397,10 @@ public class ProfileNonPolicySelDialog extends JDialog
     }
 
     private String getID(String name) {
-        Enumeration keys = mListData.keys();
+        Enumeration<String> keys = mListData.keys();
         while (keys.hasMoreElements()) {
-            String key = (String)keys.nextElement();
-            String val = (String)mListData.get(key);
+            String key = keys.nextElement();
+            String val = mListData.get(key);
             if (val.equals(name)) {
                 return key;
             }

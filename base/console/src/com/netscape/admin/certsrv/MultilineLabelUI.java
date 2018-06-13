@@ -17,25 +17,25 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv;
 
-import java.util.*;
-import javax.swing.*;
-import javax.swing.plaf.basic.*; //<JFC1.0>
-//<JFC0.7>import javax.swing.basic.*;
-import javax.swing.plaf.*;
-import java.awt.event.ActionEvent;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.Rectangle;
-import java.awt.Insets;
 import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Font;
+import java.awt.Dimension;
 import java.awt.FontMetrics;
-import java.io.Serializable;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import javax.swing.AbstractAction;
+import java.awt.Graphics;
+import java.awt.Insets;
+import java.awt.Rectangle;
+import java.util.Enumeration;
+import java.util.Vector;
+
+import javax.swing.Icon;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+//<JFC0.7>import javax.swing.basic.*;
+import javax.swing.plaf.ComponentUI;
+//<JFC1.0>
+import javax.swing.plaf.basic.BasicGraphicsUtils;
+import javax.swing.plaf.basic.BasicLabelUI;
 
 /**
  * Specific UI to handle to the line wrap for the multi-line log entries.
@@ -372,11 +372,11 @@ public class MultilineLabelUI extends BasicLabelUI {
             int iconW;
             iconW = (icon == null) ? 0 : icon.getIconWidth();
 
-            Vector tmp = new Vector();
+            Vector<String> tmp = new Vector<>();
             //Debug.println("calling parseTextV with " + text);
             parseTextV(text, tmp);
-            for (Enumeration e = tmp.elements(); e.hasMoreElements(); ) {
-                String subs = (String)e.nextElement();
+            for (Enumeration<String> e = tmp.elements(); e.hasMoreElements(); ) {
+                String subs = e.nextElement();
                 //Debug.println("parseTextV returns " + subs);
                 textVector.addElement(subs);
             	wrapString(textVector, fm, preferredSize.width - gap - iconW, SEPARATORS);
