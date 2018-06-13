@@ -24,7 +24,6 @@ from __future__ import print_function
 import functools
 import logging
 import os
-import re
 import shutil
 import traceback
 
@@ -40,75 +39,6 @@ SYSTEM_TRACKER = pki.CONF_DIR + '/pki.version'
 
 logger = logging.getLogger(__name__)
 verbose = False
-
-
-@functools.total_ordering
-class Version(object):
-
-    def __init__(self, obj):
-
-        if isinstance(obj, str):
-
-            # parse <version>-<release>
-            pos = obj.find('-')
-
-            if pos > 0:
-                self.version = obj[0:pos]
-            elif pos < 0:
-                self.version = obj
-            else:
-                raise Exception('Invalid version number: ' + obj)
-
-            # parse <major>.<minor>.<patch>
-            match = re.match(r'^(\d+)\.(\d+)\.(\d+)$', self.version)
-
-            if match is None:
-                raise Exception('Invalid version number: ' + self.version)
-
-            self.major = int(match.group(1))
-            self.minor = int(match.group(2))
-            self.patch = int(match.group(3))
-
-        elif isinstance(obj, Version):
-
-            self.major = obj.major
-            self.minor = obj.minor
-            self.patch = obj.patch
-
-        else:
-            raise Exception('Unsupported version type: ' + str(type(obj)))
-
-    # release is ignored in comparisons
-    def __eq__(self, other):
-        return (self.major == other.major and
-                self.minor == other.minor and
-                self.patch == other.patch)
-
-    def __ne__(self, other):
-        return not self.__eq__(other)
-
-    def __lt__(self, other):
-        if self.major < other.major:
-            return True
-
-        if self.major == other.major and self.minor < other.minor:
-            return True
-
-        if (self.major == other.major and
-                self.minor == other.minor and
-                self.patch < other.patch):
-            return True
-
-        return False
-
-    def __gt__(self, other):
-        return not self.__lt__(other) and not self.__eq__(other)
-
-    # not hashable
-    __hash__ = None
-
-    def __repr__(self):
-        return self.version
 
 
 class PKIUpgradeTracker(object):
@@ -212,9 +142,9 @@ class PKIUpgradeTracker(object):
 
         version = self.properties.get(self.version_key)
         if version:
-            return Version(version)
+            return pki.util.Version(version)
 
-        return Version(DEFAULT_VERSION)
+        return pki.util.Version(DEFAULT_VERSION)
 
     def set_version(self, version):
 
@@ -488,7 +418,7 @@ class PKIUpgrader(object):
 
         if os.path.exists(self.upgrade_dir):
             for version in os.listdir(self.upgrade_dir):
-                version = Version(version)
+                version = pki.util.Version(version)
                 all_versions.append(version)
 
         all_versions.sort()
@@ -617,7 +547,7 @@ class PKIUpgrader(object):
         return tracker.get_version()
 
     def get_target_version(self):
-        return Version(pki.implementation_version())
+        return pki.util.Version(pki.implementation_version())
 
     def is_complete(self):
 

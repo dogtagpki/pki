@@ -24,7 +24,9 @@ Module containing utility functions and classes for the Dogtag python code
 
 
 from __future__ import absolute_import
+import functools
 import os
+import re
 import shutil
 from shutil import Error
 try:
@@ -297,3 +299,72 @@ def read_environment_files(env_file_list=None):
         if not key.strip() or key == u'_':
             continue
         os.environ[key] = value
+
+
+@functools.total_ordering
+class Version(object):
+
+    def __init__(self, obj):
+
+        if isinstance(obj, str):
+
+            # parse <version>-<release>
+            pos = obj.find('-')
+
+            if pos > 0:
+                self.version = obj[0:pos]
+            elif pos < 0:
+                self.version = obj
+            else:
+                raise Exception('Invalid version number: ' + obj)
+
+            # parse <major>.<minor>.<patch>
+            match = re.match(r'^(\d+)\.(\d+)\.(\d+)$', self.version)
+
+            if match is None:
+                raise Exception('Invalid version number: ' + self.version)
+
+            self.major = int(match.group(1))
+            self.minor = int(match.group(2))
+            self.patch = int(match.group(3))
+
+        elif isinstance(obj, Version):
+
+            self.major = obj.major
+            self.minor = obj.minor
+            self.patch = obj.patch
+
+        else:
+            raise Exception('Unsupported version type: ' + str(type(obj)))
+
+    # release is ignored in comparisons
+    def __eq__(self, other):
+        return (self.major == other.major and
+                self.minor == other.minor and
+                self.patch == other.patch)
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __lt__(self, other):
+        if self.major < other.major:
+            return True
+
+        if self.major == other.major and self.minor < other.minor:
+            return True
+
+        if (self.major == other.major and
+                self.minor == other.minor and
+                self.patch < other.patch):
+            return True
+
+        return False
+
+    def __gt__(self, other):
+        return not self.__lt__(other) and not self.__eq__(other)
+
+    # not hashable
+    __hash__ = None
+
+    def __repr__(self):
+        return self.version

@@ -26,6 +26,7 @@ import sys
 
 import pki
 import pki.upgrade
+import pki.util
 
 # pylint: disable=W0613
 
@@ -112,7 +113,7 @@ def main(argv):
             reset_tracker = True
 
         elif o == '--set-tracker':
-            tracker_version = pki.upgrade.Version(a)
+            tracker_version = pki.util.Version(a)
 
         elif o in ('-v', '--verbose'):
             pki.upgrade.verbose = True
