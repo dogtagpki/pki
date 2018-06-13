@@ -17,15 +17,35 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.ug;
 
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
-import javax.swing.*;
-import java.awt.event.*;
-import java.awt.*;
-import java.util.*;
+import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.MouseEvent;
+import java.util.Hashtable;
+import java.util.StringTokenizer;
+import java.util.Vector;
 
-import com.netscape.management.client.util.*;
-import com.netscape.certsrv.common.*;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
+
+import com.netscape.admin.certsrv.CMSAdminResources;
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.CMSBaseResourceModel;
+import com.netscape.admin.certsrv.EAdminException;
+import com.netscape.admin.certsrv.LabelCellRenderer;
+import com.netscape.admin.certsrv.connection.AdminConnection;
+import com.netscape.certsrv.common.DestDef;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.common.ScopeDef;
+import com.netscape.management.client.util.Debug;
+import com.netscape.management.client.util.JButtonFactory;
 
 /**
  * User Tab - this UI component provides the user
@@ -294,20 +314,20 @@ public class UserTab extends CMSBaseUGTab {
         StringTokenizer subTokenizer = null;
 
         Vector store = new Vector();
-        Hashtable table = new Hashtable();
+        Hashtable<String, String> table = new Hashtable<>();
 
         while (tokenizer.hasMoreTokens()) {
-            String t = (String)tokenizer.nextToken();
+            String t = tokenizer.nextToken();
             subTokenizer = new StringTokenizer(t, ":");
             int i=0;
             String str1 = null;
             String str2 = null;
             while (subTokenizer.hasMoreTokens()) {
                 if (i == 0) {
-                    str1 = (String)subTokenizer.nextToken();
+                    str1 = subTokenizer.nextToken();
                     store.addElement(str1);
                 } else {
-                    str2 = (String)subTokenizer.nextToken();
+                    str2 = subTokenizer.nextToken();
                     table.put(str1, str2);
                 }
                 i++;
@@ -323,7 +343,7 @@ public class UserTab extends CMSBaseUGTab {
         }
 
         for (int y=0; y< names.length ; y++) {
-            String s = (String)table.get(names[y]);
+            String s = table.get(names[y]);
             mDataModel.processData(names[y], s);
         }
 

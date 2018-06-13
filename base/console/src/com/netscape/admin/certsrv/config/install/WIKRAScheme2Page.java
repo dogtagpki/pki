@@ -17,17 +17,34 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config.install;
 
-import java.util.*;
-import java.awt.*;
-import javax.swing.*;
-import javax.swing.text.*;
-import javax.swing.table.*;
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
-import com.netscape.admin.certsrv.wizard.*;
-import com.netscape.admin.certsrv.task.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.management.client.console.*;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.util.Hashtable;
+import java.util.Vector;
+
+import javax.swing.DefaultCellEditor;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JPasswordField;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextArea;
+import javax.swing.ListSelectionModel;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.text.JTextComponent;
+
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.CMSTableModel;
+import com.netscape.admin.certsrv.PasswordCellRenderer;
+import com.netscape.admin.certsrv.wizard.IWizardPanel;
+import com.netscape.admin.certsrv.wizard.WizardBasePanel;
+import com.netscape.admin.certsrv.wizard.WizardInfo;
+import com.netscape.certsrv.common.ConfigConstants;
+import com.netscape.certsrv.common.OpDef;
+import com.netscape.certsrv.common.TaskId;
 
 /**
  * KRA Key recovery for installation wizard: specify the uid and password
@@ -146,7 +163,7 @@ class WIKRAScheme2Page extends WizardBasePanel implements IWizardPanel {
     }
 
     private boolean checkDuplicate() {
-        Hashtable table = new Hashtable();
+        Hashtable<String, String> table = new Hashtable<>();
         for (int i=0; i<mDataModel.getRowCount(); i++) {
             String val1 = (String)mDataModel.getValueAt(i,1);
             table.put(val1.trim(), "1");

@@ -76,7 +76,7 @@ public class CMSImportCert extends CGITask {
      * Collect the data in name value pairs format and then send them to the
      * cgi process.
 	 */
-	public boolean importCert(Hashtable data) {
+	public boolean importCert(Hashtable<String, Object> data) {
 	    boolean status = false; // return value
 
 		try {
@@ -262,7 +262,7 @@ public class CMSImportCert extends CGITask {
 	 * Send an http request to the server. Return true if we're sure it
 	 * succeeded, otherwise false.
 	 */
-	boolean run(Hashtable args) {
+	boolean run(Hashtable<String, Object> args) {
 
 		String fullCmd = mWizardInfo.getCMEEType() + "://" +
 			mWizardInfo.getCMHost() + ":" +

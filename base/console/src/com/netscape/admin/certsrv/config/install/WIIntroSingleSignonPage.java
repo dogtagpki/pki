@@ -17,23 +17,24 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config.install;
 
-import java.io.*;
-import java.net.*;
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
-import javax.swing.*;
-import javax.swing.border.*;
-import javax.swing.event.*;
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
-import com.netscape.admin.certsrv.wizard.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.admin.certsrv.config.*;
-import com.netscape.admin.certsrv.task.*;
-import com.netscape.management.client.console.*;
-import com.netscape.management.client.comm.*;
-import com.netscape.management.client.util.*;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.util.Hashtable;
+
+import javax.swing.ButtonGroup;
+import javax.swing.JLabel;
+import javax.swing.JRadioButton;
+
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.task.CMSConfigCert;
+import com.netscape.admin.certsrv.wizard.IWizardPanel;
+import com.netscape.admin.certsrv.wizard.WizardBasePanel;
+import com.netscape.admin.certsrv.wizard.WizardInfo;
+import com.netscape.certsrv.common.ConfigConstants;
+import com.netscape.certsrv.common.OpDef;
+import com.netscape.certsrv.common.TaskId;
+import com.netscape.management.client.console.ConsoleInfo;
 
 /**
  * Setup Single Signon for the installation wizard.
@@ -71,7 +72,7 @@ class WIIntroSingleSignonPage extends WizardBasePanel implements IWizardPanel {
     public boolean concludePanel(WizardInfo info) {
         if (mNo.isSelected()) {
             InstallWizardInfo wizardInfo = (InstallWizardInfo)info;
-            Hashtable data = new Hashtable();
+            Hashtable<String, Object> data = new Hashtable<>();
             ConsoleInfo consoleInfo = wizardInfo.getAdminConsoleInfo();
             CMSConfigCert configCertCgi = new CMSConfigCert();
             configCertCgi.initialize(wizardInfo);
@@ -80,7 +81,7 @@ class WIIntroSingleSignonPage extends WizardBasePanel implements IWizardPanel {
             data.put(ConfigConstants.PR_CERT_INSTANCE_NAME,
               consoleInfo.get(ConfigConstants.PR_CERT_INSTANCE_NAME));
             data.put(ConfigConstants.PR_ADMIN_PASSWD,
-              (String)consoleInfo.get(ConfigConstants.PR_ADMIN_PASSWD));
+              consoleInfo.get(ConfigConstants.PR_ADMIN_PASSWD));
 
             boolean ready = configCertCgi.configCert(data);
             return ready;

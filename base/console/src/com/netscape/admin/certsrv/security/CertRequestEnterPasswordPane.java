@@ -84,7 +84,7 @@ IKeyCertPage {
         if (modified || ((Boolean)(observable.get("CertReqModified"))).
                 booleanValue()) {
             observable.put("CertReqModified", new Boolean(true));
-            Hashtable<String, Object> param = (Hashtable)(observable.get("CertReqCGIParam"));
+            Hashtable<String, Object> param = (Hashtable<String, Object>)(observable.get("CertReqCGIParam"));
             //param.put("alias"     , ((Boolean)(observable.get("isInternal"))).booleanValue()?observable.get("sie"):observable.get("tokenName"));
             param.put("alias" , observable.get("sie"));
 

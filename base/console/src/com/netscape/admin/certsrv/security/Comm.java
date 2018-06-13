@@ -17,12 +17,21 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.security;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.InterruptedIOException;
+import java.net.ConnectException;
+import java.net.URL;
+import java.util.Hashtable;
 
-import com.netscape.management.client.comm.*;
-import com.netscape.management.client.util.*;
+import com.netscape.management.client.comm.CommClient;
+import com.netscape.management.client.comm.CommManager;
+import com.netscape.management.client.comm.CommRecord;
+import com.netscape.management.client.comm.HttpChannel;
+import com.netscape.management.client.comm.HttpManager;
+import com.netscape.management.client.util.Debug;
 
 /**
  *
@@ -43,7 +52,7 @@ class Comm implements CommClient, Runnable {
     static String server_response = null;
 
     String url_cgi;
-    Hashtable cgi_arg;
+    Hashtable<String, Object> cgi_arg;
     boolean waitForResponse;
 
     String id = "Admin";
@@ -51,7 +60,7 @@ class Comm implements CommClient, Runnable {
 
     Exception error = null;
 
-    public Comm(String url_cgi, Hashtable cgi_arg,
+    public Comm(String url_cgi, Hashtable<String, Object> cgi_arg,
             boolean waitForResponse) {
         this.url_cgi = url_cgi;
         this.cgi_arg = cgi_arg;

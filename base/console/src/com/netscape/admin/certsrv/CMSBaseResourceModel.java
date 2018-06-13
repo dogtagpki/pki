@@ -59,7 +59,7 @@ public class CMSBaseResourceModel extends ResourceModel {
 	protected IResourceObject[] mSelection; // selected objects
 	protected Vector<IResourceSelectionListener> mSelectionListeners;   // listener list
 	protected ResourceBundle mResource;     // resource boundle
-	protected Hashtable mNickNameRegistry;  // storing the obejct nickname pair
+	protected Hashtable<String, CMSResourceObject> mNickNameRegistry;  // storing the object nickname pair
     protected RefreshTabPane mRefreshPane;
 
 	/*==========================================================
@@ -76,8 +76,8 @@ public class CMSBaseResourceModel extends ResourceModel {
 		mResource = ResourceBundle.getBundle(CMSAdminResources.class.getName());
 		mConsoleInfo = info;
 		mServerInfo = serverInfo;
-		mNickNameRegistry = new Hashtable();
-		mSelectionListeners = new Vector();
+		mNickNameRegistry = new Hashtable<>();
+		mSelectionListeners = new Vector<>();
 		init();
 	}
 
@@ -235,7 +235,7 @@ public class CMSBaseResourceModel extends ResourceModel {
      * Retrieve the resource obejct associated with this nickname
      */
     public CMSResourceObject getByNickName(String nickName) {
-        return (CMSResourceObject) mNickNameRegistry.get(nickName);
+        return mNickNameRegistry.get(nickName);
     }
 
 	/**

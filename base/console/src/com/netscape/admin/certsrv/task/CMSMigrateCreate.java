@@ -17,23 +17,29 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.task;
 
-import java.util.*;
-import javax.swing.*;
-import com.netscape.management.client.*;
-import com.netscape.admin.certsrv.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.management.client.util.*;
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.event.*;
-import com.netscape.management.client.console.*;
-import com.netscape.management.client.topology.*;
-import com.netscape.management.client.comm.*;
-import java.net.*;
-import java.io.*;
-import netscape.ldap.*;
-import netscape.ldap.util.*;
+import java.awt.Cursor;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.Hashtable;
+
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+
+import com.netscape.admin.certsrv.CMSAdminResources;
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.management.client.comm.CommRecord;
+import com.netscape.management.client.console.ConsoleInfo;
+import com.netscape.management.client.topology.IProductObject;
+import com.netscape.management.client.util.Debug;
+import com.netscape.management.client.util.LDAPUtil;
+import com.netscape.management.client.util.UtilConsoleGlobals;
+
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPDN;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPSearchResults;
 
 /**
  * Create or Migrate the Certificate Server
@@ -53,7 +59,7 @@ public class CMSMigrateCreate extends CGITask
     private static final String CREATE_CGI_NAME = "Tasks/Operation/Create";
 
 	//private boolean mSuccess = false; // status of last executed CGI
-	private Hashtable mCgiResponse = null; // holds parsed contents of CGI return
+	private Hashtable<String, String> mCgiResponse = null; // holds parsed contents of CGI return
 	private String mCgiTask = null; // CGI task to call
 
 	/*==========================================================
@@ -114,7 +120,7 @@ public class CMSMigrateCreate extends CGITask
         //serverRoot=/u/thomask/s4
         //adminDomain=mcom.com
 
-	    Hashtable configParams = new Hashtable();
+	    Hashtable<String, String> configParams = new Hashtable<>();
 
 	    configParams.put("instanceID",dialog.getInstanceName());
 
@@ -253,7 +259,7 @@ public class CMSMigrateCreate extends CGITask
 			sValue = s.substring(iIndex+1).trim();
 			Debug.println("Parse input: name=" + sName + " value=" + sValue);
 			if (mCgiResponse == null)
-				mCgiResponse = new Hashtable();
+				mCgiResponse = new Hashtable<>();
 			mCgiResponse.put(sName, sValue);
 			if (sName.equalsIgnoreCase("NMC_Status")) {
 				int code = Integer.parseInt(sValue);

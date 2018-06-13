@@ -17,24 +17,17 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.task;
 
-import java.util.*;
-import javax.swing.*;
-import com.netscape.management.client.*;
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.keycert.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.management.client.util.*;
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.event.*;
-import com.netscape.management.client.console.*;
-import com.netscape.management.client.topology.*;
-import com.netscape.management.client.comm.*;
-import java.net.*;
-import java.io.*;
-import netscape.ldap.*;
-import netscape.ldap.util.*;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.util.Hashtable;
+
+import com.netscape.admin.certsrv.keycert.CertSetupWizardInfo;
+import com.netscape.management.client.comm.CommRecord;
+import com.netscape.management.client.comm.HttpManager;
+import com.netscape.management.client.util.Debug;
 
 /**
  * Perform certificate request in certificate setup wizard.
@@ -75,7 +68,7 @@ public class CMSCertRequest extends CGITask {
      * Collect the data in name value pairs format and then send them to the
      * cgi process.
 	 */
-	public boolean requestCert(Hashtable data) {
+	public boolean requestCert(Hashtable<String, Object> data) {
 	    boolean status = false; // return value
 
 		try {
@@ -294,7 +287,7 @@ public class CMSCertRequest extends CGITask {
 	 * Send an http request to the server. Return true if we're sure it
 	 * succeeded, otherwise false.
 	 */
-	boolean run(Hashtable args) {
+	boolean run(Hashtable<String, Object> args) {
 
 		String fullCmd = mWizardInfo.getCMEEType() + "://" +
 			mWizardInfo.getCMHost() + ":" +

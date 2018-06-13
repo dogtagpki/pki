@@ -139,7 +139,7 @@ public class CMSUIFramework {
  */
 class UILoaderRegistry {
     private final String PREFIX = "UILOADERREGISTRY_";
-    private Hashtable mContent = new Hashtable();
+    private Hashtable<String, ISubSystemUILoader> mContent = new Hashtable<>();
     private ResourceBundle mResource;       // resource boundle
 
     public UILoaderRegistry(CMSUIFramework uiFramework) {
@@ -156,7 +156,7 @@ class UILoaderRegistry {
             Debug.println("Error Loading Subsystem UI Loader");
             return null;
         }
-        return (ISubSystemUILoader) mContent.get(type);
+        return mContent.get(type);
     }
 }
 

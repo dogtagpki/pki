@@ -18,14 +18,11 @@
 package com.netscape.admin.certsrv.security;
 
 
+import java.util.Hashtable;
+
 import com.netscape.management.client.console.ConsoleInfo;
 
-
-import javax.swing.*;
-import java.awt.event.*;
-import java.util.*;
-
-class WizardObservable extends Hashtable {
+class WizardObservable extends Hashtable<String, Object> {
 
 
     KeyCertTaskInfo taskInfo;

@@ -17,15 +17,32 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config;
 
-import java.awt.*;
-import java.util.*;
-import javax.swing.*;
-import javax.swing.table.*;
-import javax.swing.text.*;
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.wizard.*;
-import com.netscape.management.client.util.*;
-import com.netscape.certsrv.common.*;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.util.Hashtable;
+import java.util.Vector;
+
+import javax.swing.DefaultCellEditor;
+import javax.swing.JLabel;
+import javax.swing.JPasswordField;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.text.JTextComponent;
+
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.CMSTableModel;
+import com.netscape.admin.certsrv.EAdminException;
+import com.netscape.admin.certsrv.PasswordCellRenderer;
+import com.netscape.admin.certsrv.wizard.IWizardPanel;
+import com.netscape.admin.certsrv.wizard.WizardBasePanel;
+import com.netscape.admin.certsrv.wizard.WizardInfo;
+import com.netscape.certsrv.common.Constants;
+import com.netscape.management.client.util.Debug;
 
 /**
  * New Agent names/passwords for reconfiguring the Recovery MN Scheme
@@ -211,7 +228,7 @@ class WMNNewAgent extends WizardBasePanel
     }
 
     private boolean checkDuplicate() {
-        Hashtable table = new Hashtable();
+        Hashtable<String, String> table = new Hashtable<>();
         for (int i=0; i<mDataModel.getRowCount(); i++) {
             String val1 = (String)mDataModel.getValueAt(i,1);
             table.put(val1.trim(), "1");

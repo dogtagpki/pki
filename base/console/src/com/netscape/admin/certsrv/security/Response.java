@@ -43,10 +43,7 @@ class Response {
     Vector _messages = new Vector();
     Vector _certList = null;
     CertInfo _certInfo = null;
-    Hashtable _certInstInfo = null;
-
-    Hashtable _ssl2Preference = null;
-    Hashtable _ssl3Preference = null;
+    Hashtable<String, String> _certInstInfo = null;
 
     String startCert = "-----BEGIN NEW CERTIFICATE REQUEST-----";
     String endCert = "-----END NEW CERTIFICATE REQUEST-----";
@@ -193,7 +190,7 @@ class Response {
     void parseCertificateInstInfo(String response) {
         if ((response.indexOf(startCertInstInfo) != -1) ||
                 (response.indexOf(startCRLCertInstInfo) != -1)) {
-            _certInstInfo = new Hashtable();
+            _certInstInfo = new Hashtable<>();
 
             try {
                 BufferedReader stream =
@@ -405,7 +402,7 @@ class Response {
     public CertInfo getCertInfo() {
         return _certInfo;
     }
-    public Hashtable getCertInstInfo() {
+    public Hashtable<String, String> getCertInstInfo() {
         return _certInstInfo;
     }
     public String getServerResponse() {

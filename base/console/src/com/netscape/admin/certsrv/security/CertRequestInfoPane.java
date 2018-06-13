@@ -17,14 +17,35 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.security;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
-import javax.swing.*;
-import javax.swing.border.*;
-import javax.swing.*;
-import com.netscape.management.client.util.*;
-import com.netscape.management.nmclf.*;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.util.Hashtable;
+import java.util.StringTokenizer;
+import java.util.Vector;
+
+import javax.swing.Box;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.EtchedBorder;
+import javax.swing.border.TitledBorder;
+
+import com.netscape.management.client.util.GridBagUtil;
+import com.netscape.management.client.util.IWizardControl;
+import com.netscape.management.client.util.ResourceSet;
+import com.netscape.management.client.util.SingleByteTextField;
+import com.netscape.management.client.util.UtilConsoleGlobals;
+import com.netscape.management.nmclf.SuiConstants;
 
 class CertRequestInfoPane extends JPanel implements SuiConstants,
 IKeyCertPage {
@@ -83,7 +104,7 @@ IKeyCertPage {
         if (modified) {
             observable.put("CertReqModified", new Boolean(true));
 
-            Hashtable param = (Hashtable)(observable.get("CertReqCGIParam"));
+            Hashtable<String, Object> param = (Hashtable<String, Object>)(observable.get("CertReqCGIParam"));
             param.put("requestor_name", name.getText());
             param.put("telephone" , phone.getText());
             param.put("common_name" , dn.getText());
