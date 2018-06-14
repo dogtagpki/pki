@@ -76,7 +76,7 @@ public class IPAddressName implements GeneralNameInterface {
      * @param netmask the netmask address in the format: n.n.n.n or x:x:x:x:x:x:x:x (RFC 1884)
      */
     public IPAddressName(String s, String netmask) {
-        address = initAddress(true, s);
+        address = parseAddress(true, s);
         if (address.length == IPv4_LEN * 2)
             fillIPv4Address(netmask, address, address.length / 2);
         else
@@ -90,7 +90,7 @@ public class IPAddressName implements GeneralNameInterface {
      * @param mask a CIDR netmask
      */
     public IPAddressName(String s, CIDRNetmask mask) {
-        address = initAddress(true, s);
+        address = parseAddress(true, s);
         mask.write(ByteBuffer.wrap(
                     address, address.length / 2, address.length / 2));
     }
@@ -102,7 +102,7 @@ public class IPAddressName implements GeneralNameInterface {
      * @param s the ip address in the format: n.n.n.n or x:x:x:x:x:x:x:x
      */
     public IPAddressName(String s) {
-        initAddress(false, s);
+        address = parseAddress(false, s);
     }
 
     /**
@@ -113,7 +113,7 @@ public class IPAddressName implements GeneralNameInterface {
      * @return byte[] of length 4 or 16 if withNetmask == false,
      *         or length 8 or 32 if withNetmask == true.
      */
-    private static byte[] initAddress(boolean withNetmask, String s) {
+    private static byte[] parseAddress(boolean withNetmask, String s) {
         if (s.indexOf(':') != -1) {
             byte[] address = new byte[IPv6_LEN * (withNetmask ? 2 : 1)];
             fillIPv6Address(s, address, 0);
