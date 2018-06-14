@@ -13,7 +13,7 @@
 %global package_rhel_packages 1
 # Package RHCS-specific RPMS Only
 %global package_rhcs_packages 1
-%define pki_core_rhel_version 10.5.1
+%define pki_core_rhel_version 10.5.9
 %else
 # 0%{?fedora}
 # Fedora always packages all RPMS
@@ -65,13 +65,13 @@
 
 Name:             pki-core
 %if 0%{?rhel}
-Version:                10.5.1
-%define redhat_release  12
+Version:                10.5.9
+%define redhat_release  1
 %define redhat_stage    0
 %define default_release %{redhat_release}.%{redhat_stage}
 #%define default_release %{redhat_release}
 %else
-Version:                10.5.8
+Version:                10.5.9
 %define fedora_release  1
 %define fedora_stage    0
 %define default_release %{fedora_release}.%{fedora_stage}
@@ -1345,6 +1345,18 @@ fi
 %endif # %{with server}
 
 %changelog
+* Fri Jun  8 2018 Dogtag Team <pki-devel@redhat.com> 10.5.9-1
+- dogtagpki Pagure Issue #2922 - Name Constraints: Using a Netmask
+  produces an odd entry in a certifcate (ftweedal)
+- dogtagpki Pagure Issue #2941 - ExternalCA: Installation failed during
+  csr generation with ecc (rrelyea, gkapoor)
+- dogtagpki Pagure Issue #2999 - Cert validation for installation with
+  external CA cert (edewata)
+- dogtagpki Pagure Issue #3028 - CMC CRMF request results in
+  InvalidKeyFormatException when signing algorithm is ECC (cfu)
+- dogtagpki Pagure Issue #3033 - CRMFPopClient tool - should allow
+  option to do no key archival (cfu)
+
 * Wed May 23 2018 Dogtag Team <pki-devel@redhat.com> 10.5.8-1
 - Updated "jss" build and runtime requirements (mharmsen)
 - dogtagpki Pagure Issue #1576 - subsystem -> subsystem SSL handshake
