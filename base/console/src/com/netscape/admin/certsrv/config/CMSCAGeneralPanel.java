@@ -17,15 +17,29 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config;
 
-import com.netscape.admin.certsrv.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.management.client.util.*;
-import com.netscape.admin.certsrv.connection.*;
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
-import java.math.*;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ItemListener;
+import java.math.BigInteger;
+import java.util.StringTokenizer;
+import java.util.Vector;
+
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.CMSBaseResourceModel;
+import com.netscape.admin.certsrv.EAdminException;
+import com.netscape.admin.certsrv.connection.AdminConnection;
+import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.common.DestDef;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.common.ScopeDef;
+import com.netscape.management.client.util.Debug;
 
 /**
  * RA General Setting
@@ -42,8 +56,7 @@ public class CMSCAGeneralPanel extends CMSBaseTab implements ItemListener {
     private JCheckBox mEEEnable;
     private JCheckBox mOCSPEnable;
     private CMSTabPanel mParent;
-    private JComboBox mGroups;
-    private JComboBox mAlgorithms;
+    private JComboBox<String> mAlgorithms;
     private JTextField mSerialNumber;
     private JTextField mMaxSerialNumber;
     private JCheckBox mValidity;
@@ -170,7 +183,7 @@ public class CMSCAGeneralPanel extends CMSBaseTab implements ItemListener {
         signingPanel.add(signingLabel);
 
         CMSAdminUtil.resetGBC(gbc);
-        mAlgorithms = new JComboBox();
+        mAlgorithms = new JComboBox<>();
         mAlgorithms.addItemListener(this);
         //mAlgorithms = makeJComboBox("ALGORITHM");
         gbc.anchor = gbc.NORTHWEST;
@@ -430,7 +443,7 @@ public class CMSCAGeneralPanel extends CMSBaseTab implements ItemListener {
         nvps.put(Constants.PR_DEFAULT_ALGORITHM,
                 (String) mAlgorithms.getSelectedItem());
 
-        String serial = (String)mSerialNumber.getText().trim();
+        String serial = mSerialNumber.getText().trim();
         try {
 			//if (serial.startsWith("0x")) {
 			serial = hexToDecimal(serial);
@@ -447,7 +460,7 @@ public class CMSCAGeneralPanel extends CMSBaseTab implements ItemListener {
 //        nvps.add(Constants.PR_SERIAL, serial);
 
         String maxserial =
-			(String)mMaxSerialNumber.getText().trim();
+			mMaxSerialNumber.getText().trim();
 		if (maxserial != null && !maxserial.equals("")) {
 			try {
 				//if (serial.startsWith("0x")) {

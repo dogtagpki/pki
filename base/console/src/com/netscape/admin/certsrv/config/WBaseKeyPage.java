@@ -38,8 +38,8 @@ import com.netscape.admin.certsrv.wizard.WizardBasePanel;
  * @see com.netscape.admin.certsrv.config.install
  */
 public class WBaseKeyPage extends WizardBasePanel {
-    protected JComboBox mKeyTypeBox;
-    protected JComboBox mKeyLengthBox;
+    protected JComboBox<String> mKeyTypeBox;
+    protected JComboBox<String> mKeyLengthBox;
     //protected JComboBox mTokenBox;
     //protected JPasswordField mPasswordText;
     protected JTextField mKeyLengthText;

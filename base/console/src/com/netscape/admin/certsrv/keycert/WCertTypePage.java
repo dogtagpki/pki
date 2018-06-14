@@ -17,13 +17,32 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.keycert;
 
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
-import com.netscape.admin.certsrv.wizard.*;
-import com.netscape.certsrv.common.*;
+import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+
+import javax.swing.ButtonGroup;
+import javax.swing.JComboBox;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JRadioButton;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.EAdminException;
+import com.netscape.admin.certsrv.connection.AdminConnection;
+import com.netscape.admin.certsrv.wizard.IWizardPanel;
+import com.netscape.admin.certsrv.wizard.WizardBasePanel;
+import com.netscape.admin.certsrv.wizard.WizardInfo;
+import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.common.DestDef;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.common.ScopeDef;
 
 /**
  * Select certificate type from certificate setup wizard.
@@ -42,7 +61,7 @@ class WCertTypePage extends WizardBasePanel implements IWizardPanel,
     private JTextArea mCALbl;
     private JRadioButton mCABtn;
     private JRadioButton mSubBtn;
-    private JComboBox mCertBox;
+    private JComboBox<String> mCertBox;
     private JTextArea mCertType;
     private JTextField mCertTypeText;
     private Color mActiveColor;
@@ -281,7 +300,7 @@ class WCertTypePage extends WizardBasePanel implements IWizardPanel,
         gbc.gridwidth = gbc.REMAINDER;
         add(heading1, gbc);
 
-        mCertBox = new JComboBox();
+        mCertBox = new JComboBox<>();
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.NORTHWEST;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,

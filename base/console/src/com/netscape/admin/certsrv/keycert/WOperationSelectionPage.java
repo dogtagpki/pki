@@ -17,12 +17,20 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.keycert;
 
-import java.awt.*;
-import java.util.*;
-import javax.swing.*;
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.wizard.*;
-import com.netscape.certsrv.common.*;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+
+import javax.swing.ButtonGroup;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JRadioButton;
+import javax.swing.JTextArea;
+
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.wizard.IWizardPanel;
+import com.netscape.admin.certsrv.wizard.WizardBasePanel;
+import com.netscape.admin.certsrv.wizard.WizardInfo;
 
 /**
  * Operation Selection page for certificate setup wizard
@@ -34,7 +42,6 @@ import com.netscape.certsrv.common.*;
 class WOperationSelectionPage extends WizardBasePanel implements IWizardPanel {
     private JRadioButton mInstallBtn;
     private JRadioButton mRequestBtn;
-    private JComboBox mToken;
     private static final String PANELNAME = "OPERATIONSELECTIONWIZARD";
     private static final String HELPINDEX =
       "configuration-keycert-wizard-operationselection-help";

@@ -835,12 +835,12 @@ implements ExtendedPluginInfoComponent
 
 }
 
-class ExtendedPluginInfoComboBox extends JComboBox
+class ExtendedPluginInfoComboBox extends JComboBox<String>
 implements ExtendedPluginInfoComponent
 {
 	private ExtendedPluginInfo mEpi;
 
-	public ExtendedPluginInfoComboBox(ExtendedPluginInfo epi, Vector v)
+	public ExtendedPluginInfoComboBox(ExtendedPluginInfo epi, Vector<String> v)
 	{
 		super(v);
 		mEpi = epi;
@@ -968,7 +968,7 @@ class ExtendedPluginInfo {
 
 	private String mValue = null;
 
-	private Vector mChoices = null;
+	private Vector<String> mChoices = null;
 
 	private String mHelpText = null;
 
@@ -999,7 +999,7 @@ class ExtendedPluginInfo {
 				type.indexOf(')')
 				);
 			StringTokenizer tokenizer = new StringTokenizer(choices,",",false);
-			mChoices = new Vector();
+			mChoices = new Vector<>();
 			String prefix = null;
 			while (tokenizer.hasMoreElements()) {
 				String c = (String)tokenizer.nextElement();
@@ -1023,7 +1023,7 @@ class ExtendedPluginInfo {
 		}
 	}
 
-	public Vector getChoices() {
+	public Vector<String> getChoices() {
 		return mChoices;
 	}
 
@@ -1090,7 +1090,7 @@ class ExtendedPluginInfo {
 				break;
 
 			case ExtendedPluginInfo.TYPE_CHOICE:
-				JComboBox cb = new ExtendedPluginInfoComboBox(this,getChoices());
+				JComboBox<String> cb = new ExtendedPluginInfoComboBox(this,getChoices());
 				cb.setSelectedItem(getValue());
 				((ExtendedPluginInfoComboBox)cb).addActionListener(al);
 				component = cb;

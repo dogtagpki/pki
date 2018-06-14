@@ -17,17 +17,26 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config.install;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
-import javax.swing.*;
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
-import com.netscape.admin.certsrv.wizard.*;
-import com.netscape.certsrv.common.*;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.util.StringTokenizer;
+
+import javax.swing.JComboBox;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JTextArea;
+
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.wizard.IWizardPanel;
+import com.netscape.admin.certsrv.wizard.WizardBasePanel;
+import com.netscape.admin.certsrv.wizard.WizardInfo;
+import com.netscape.certsrv.common.ConfigConstants;
+import com.netscape.certsrv.common.OpDef;
+import com.netscape.certsrv.common.TaskId;
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import com.netscape.admin.certsrv.task.*;
-import com.netscape.management.client.console.*;
 
 /**
  * Introduction page for installation wizard.
@@ -40,7 +49,7 @@ class WICloneKRAKeyCertPage extends WizardBasePanel implements IWizardPanel {
     private String mKRANicknameStr, mStorageNicknameStr, mSSLNicknameStr;
     private String mKRATokenname, mStorageTokenname, mSSLTokenname;
     protected InstallWizardInfo mWizardInfo;
-    protected JComboBox mKRANicknameBox, mStorageNicknameBox, mSSLNicknameBox;
+    protected JComboBox<String> mKRANicknameBox, mStorageNicknameBox, mSSLNicknameBox;
     private static final String PANELNAME = "CLONEKRAKEYCERTWIZARD";
     private static final String KRAHELPINDEX =
       "install-kracertclone-wizard-help";
@@ -99,21 +108,21 @@ class WICloneKRAKeyCertPage extends WizardBasePanel implements IWizardPanel {
         String certsList = mWizardInfo.getCloneCertsList();
         StringTokenizer t1 = new StringTokenizer(certsList, ";");
         while (t1.hasMoreTokens()) {
-            String s1 = (String)t1.nextToken();
+            String s1 = t1.nextToken();
             if (s1.indexOf(mStorageNicknameStr) >= 0)
                 mStorageNicknameBox.addItem(s1);
         }
 
         StringTokenizer t2 = new StringTokenizer(certsList, ";");
         while (t2.hasMoreTokens()) {
-            String s1 = (String)t2.nextToken();
+            String s1 = t2.nextToken();
             if (s1.indexOf(mSSLNicknameStr) >= 0)
                 mSSLNicknameBox.addItem(s1);
         }
 
         StringTokenizer t3 = new StringTokenizer(certsList, ";");
         while (t3.hasMoreTokens()) {
-            String s1 = (String)t3.nextToken();
+            String s1 = t3.nextToken();
             if (s1.indexOf(mKRANicknameStr) >= 0)
                 mKRANicknameBox.addItem(s1);
         }
@@ -211,7 +220,7 @@ class WICloneKRAKeyCertPage extends WizardBasePanel implements IWizardPanel {
         add(kraNicknameLbl, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
-        mKRANicknameBox = new JComboBox();
+        mKRANicknameBox = new JComboBox<>();
         gbc.anchor = gbc.NORTHWEST;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
@@ -238,7 +247,7 @@ class WICloneKRAKeyCertPage extends WizardBasePanel implements IWizardPanel {
         add(storageNicknameLbl, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
-        mStorageNicknameBox = new JComboBox();
+        mStorageNicknameBox = new JComboBox<>();
         gbc.anchor = gbc.NORTHWEST;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
@@ -265,7 +274,7 @@ class WICloneKRAKeyCertPage extends WizardBasePanel implements IWizardPanel {
         add(sslNicknameLbl, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
-        mSSLNicknameBox = new JComboBox();
+        mSSLNicknameBox = new JComboBox<>();
         gbc.anchor = gbc.NORTHWEST;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);

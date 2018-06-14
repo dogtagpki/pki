@@ -64,9 +64,9 @@ class WKeyPage extends WizardBasePanel implements IWizardPanel, ItemListener {
     private JPanel mNicknamePanel;
     private JRadioButton mExistingKeyBtn;
     private JRadioButton mNewKeyBtn;
-    private JComboBox mKeyTypeBox, mDSAKeyTypeBox;
-    private JComboBox mKeyLengthBox, mDSAKeyLengthBox, mKeyCurveBox;
-    private JComboBox mTokenBox, mNicknameBox;
+    private JComboBox<String> mKeyTypeBox, mDSAKeyTypeBox;
+    private JComboBox<String> mKeyLengthBox, mDSAKeyLengthBox, mKeyCurveBox;
+    private JComboBox<String> mTokenBox, mNicknameBox;
     private JTextField mKeyLengthText;
     private JTextField mKeyCurveText;
     private JLabel keyHeading, keyTypeLbl, keyLengthLbl, keyCurveLbl, unitLbl,
@@ -381,7 +381,7 @@ class WKeyPage extends WizardBasePanel implements IWizardPanel, ItemListener {
         gbc.fill = gbc.NONE;
         panel.add(mTokenLbl, gbc);
 
-        mTokenBox = new JComboBox();
+        mTokenBox = new JComboBox<>();
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.NORTHWEST;
         //gbc.weightx = 1.0;
@@ -449,7 +449,7 @@ class WKeyPage extends WizardBasePanel implements IWizardPanel, ItemListener {
         gbc.fill = gbc.HORIZONTAL;
         mNicknamePanel.add(dummy18, gbc);
 
-        mNicknameBox = new JComboBox();
+        mNicknameBox = new JComboBox<>();
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.NORTHWEST;
         //gbc.fill = gbc.NONE;

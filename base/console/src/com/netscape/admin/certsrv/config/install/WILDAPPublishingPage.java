@@ -46,7 +46,7 @@ class WILDAPPublishingPage extends WizardBasePanel implements IWizardPanel {
     private JTextField mHostNameText, mPortText, mBindAsText;
     private JCheckBox mSecurePort, mEnable;
     private JLabel mBindAsLabel, mCertLabel;
-    private JComboBox mAuthBox, mCertBox, mVersionBox;
+    private JComboBox<String> mAuthBox, mCertBox, mVersionBox;
 
     private static final String PANELNAME = "LDAPPUBLISHINGWIZARD";
     private static final String HELPINDEX =
@@ -225,7 +225,7 @@ class WILDAPPublishingPage extends WizardBasePanel implements IWizardPanel {
         panel.add(mCertLabel, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
-        mCertBox = new JComboBox();
+        mCertBox = new JComboBox<>();
         mCertBox.addItem(CryptoUtil.INTERNAL_TOKEN_NAME);
         gbc.fill = gbc.NONE;
         gbc.anchor = gbc.NORTHWEST;

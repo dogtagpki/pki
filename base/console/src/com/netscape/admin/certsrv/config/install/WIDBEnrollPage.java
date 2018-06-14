@@ -17,12 +17,21 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config.install;
 
-import java.awt.*;
-import javax.swing.*;
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
-import com.netscape.admin.certsrv.wizard.*;
-import com.netscape.certsrv.common.*;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.wizard.IWizardPanel;
+import com.netscape.admin.certsrv.wizard.WizardBasePanel;
+import com.netscape.admin.certsrv.wizard.WizardInfo;
 
 /**
  * Introduction page for installation wizard.
@@ -34,7 +43,7 @@ import com.netscape.certsrv.common.*;
 class WIDBEnrollPage extends WizardBasePanel implements IWizardPanel {
     private JCheckBox mEnable;
     private JTextField mHostNameText, mPortText, mBaseDNText;
-    private JComboBox mVersionBox;
+    private JComboBox<String> mVersionBox;
 
     private static final String PANELNAME = "DBENROLLWIZARD";
     private static final String HELPINDEX =

@@ -1076,7 +1076,7 @@ public class CMSAdminUtil {
 
     //===== COMBOBOX CREATION =======================
 
-    public static JComboBox makeJComboBox(ResourceBundle resource,
+    public static JComboBox<String> makeJComboBox(ResourceBundle resource,
                                        String panelName,
                                        String keyword)
     {
@@ -1085,7 +1085,7 @@ public class CMSAdminUtil {
             value = resource.getString(panelName+"_COMBOBOX_"+keyword+"_DEFAULT");
         } catch (MissingResourceException e) {
         }
-        JComboBox jcb = new JComboBox();
+        JComboBox<String> jcb = new JComboBox<>();
         String val = null;
         int ii = 0;
         do {
@@ -1319,7 +1319,7 @@ public class CMSAdminUtil {
                 }
 
                 CMSAdminUtil.bubbleSort(item);
-                JComboBox b = new JComboBox(item);
+                JComboBox<String> b = new JComboBox<>(item);
 
                 if (v != null && v.length() > 0)
                     b.setSelectedItem(v);
@@ -1329,7 +1329,7 @@ public class CMSAdminUtil {
             }
         } else if (syntax.equalsIgnoreCase("boolean")) {
             String[] item = {"true", "false"};
-            JComboBox b = new JComboBox(item);
+            JComboBox<String> b = new JComboBox<>(item);
             if (v != null && v.equalsIgnoreCase("true")) {
                 b.setSelectedIndex(0);
             } else {

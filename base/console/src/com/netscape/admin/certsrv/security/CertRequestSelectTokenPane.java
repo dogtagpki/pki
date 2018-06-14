@@ -57,7 +57,7 @@ import com.netscape.management.nmclf.SuiOptionPane;
 class CertRequestSelectTokenPane extends JPanel implements SuiConstants,
 IKeyCertPage {
 
-    JComboBox tokenSelection = new JComboBox();
+    JComboBox<String> tokenSelection = new JComboBox<>();
     JRadioButton _no;
     JRadioButton _yes;
     JRadioButton _noneed;
@@ -107,7 +107,7 @@ IKeyCertPage {
             Vector cipherList = taskInfo.getResponse().getFamilyList();
             for (int i = 0; i < cipherList.size(); i++) {
                 CipherEntry cipher = (CipherEntry)(cipherList.elementAt(i));
-                JComboBox tokenNames = cipher.getTokenComboBox();
+                JComboBox<String> tokenNames = cipher.getTokenComboBox();
                 for (int j = 0; j < cipher.getTokenCount(); j++) {
                     tokenSelection.addItem(tokenNames.getItemAt(j));
                 }

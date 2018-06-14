@@ -69,7 +69,7 @@ class WISingleSignonPage extends WizardBasePanel implements IWizardPanel, CommCl
     private boolean kra;
     private String mDBPasswd;
     private String capassword, rapassword, krapassword, sslpassword;
-    private JComboBox mTokenBox;
+    private JComboBox<String> mTokenBox;
     private static final String START_TASK_CGI = "Tasks/Operation/start";
     private static final String PREFIX = "CGITASK";
     private boolean mFinished = false;
@@ -490,7 +490,7 @@ class WISingleSignonPage extends WizardBasePanel implements IWizardPanel, CommCl
         gbc.insets = new Insets(COMPONENT_SPACE, 4*COMPONENT_SPACE, 0, COMPONENT_SPACE);
         add(tokenLbl, gbc);
 
-        mTokenBox = new JComboBox();
+        mTokenBox = new JComboBox<>();
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.NORTHWEST;
         //gbc.gridwidth = gbc.REMAINDER;

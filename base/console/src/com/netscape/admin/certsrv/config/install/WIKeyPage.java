@@ -53,7 +53,7 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
  */
 class WIKeyPage extends WizardBasePanel implements IWizardPanel, ItemListener {
     protected Color mActiveColor;
-    protected JComboBox mKeyTypeBox, mKeyLengthBox, mDSAKeyLengthBox, mTokenBox;
+    protected JComboBox<String> mKeyTypeBox, mKeyLengthBox, mDSAKeyLengthBox, mTokenBox;
     protected JTextField mKeyLengthText;
     protected JPasswordField mPassword, mPasswordAgain, mSOPPassword;
     protected JLabel keyTypeLbl, keyLengthCustomText, keyLengthLbl, unitLbl,
@@ -342,7 +342,7 @@ class WIKeyPage extends WizardBasePanel implements IWizardPanel, ItemListener {
         gbc.fill = gbc.NONE;
         panel.add(tokenLbl, gbc);
 
-        mTokenBox = new JComboBox();
+        mTokenBox = new JComboBox<>();
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.NORTHWEST;
         //gbc.weightx = 1.0;
@@ -558,7 +558,7 @@ class WIKeyPage extends WizardBasePanel implements IWizardPanel, ItemListener {
     public void itemStateChanged(ItemEvent e){
         //super.itemStateChanged(e);
         if (e.getSource().equals(mTokenBox)) {
-            JComboBox c = (JComboBox)(e.getSource());
+            JComboBox<?> c = (JComboBox<?>)(e.getSource());
             if (c.getItemCount() > 0)
                 enableFields();
         } else if (e.getSource().equals(mKeyLengthBox) ||

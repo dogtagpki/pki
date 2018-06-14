@@ -17,15 +17,23 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv;
 
-import java.awt.*;
-import java.lang.*;
-import java.util.*;
-import javax.swing.table.*;
-import javax.swing.*;
+import java.awt.Color;
+import java.awt.Component;
 import java.io.Serializable;
-import com.netscape.certsrv.common.*;
-import javax.swing.border.*;
-import com.netscape.admin.certsrv.connection.*;
+import java.util.Vector;
+
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPasswordField;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.border.EmptyBorder;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableModel;
+
+import com.netscape.certsrv.common.Constants;
 
 /**
  * Class that will render components correctly in table
@@ -44,7 +52,7 @@ public class GenericCellRenderer
     private JPasswordField mPasswordField;
     private JLabel mLabel;
     private JCheckBox mCheckBox;
-    private JComboBox mComboBox;
+    private JComboBox<String> mComboBox;
     protected ValueProperty value;
     static Color HIGHLIGHTCOLOR = new Color(0, 0, 128);
     static Color WHITECOLOR = Color.white;
@@ -64,7 +72,7 @@ public class GenericCellRenderer
 
     public void setToolTipText(String text) {
     	if (component instanceof JComponent)
-    	    ((JComponent)component).setToolTipText(text);
+            component.setToolTipText(text);
     }
 
     public Component getComponent() {
@@ -130,7 +138,7 @@ public class GenericCellRenderer
                 String[] items = (String[])v.elementAt(1);
 
                 if (mComboBox == null)
-                    mComboBox = new JComboBox(items);
+                    mComboBox = new JComboBox<>(items);
                 else {
                     mComboBox.removeAllItems();
                     for (int i=0; i<items.length; i++) {

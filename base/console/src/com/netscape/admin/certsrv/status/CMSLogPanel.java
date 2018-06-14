@@ -17,17 +17,36 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.status;
 
-import java.awt.*;
-import java.util.*;
-import javax.swing.*;
-import javax.swing.table.*;
-import javax.swing.border.*;
-import com.netscape.admin.certsrv.connection.*;
-import com.netscape.admin.certsrv.*;
-import javax.swing.event.*;
-import java.awt.event.*;
-import com.netscape.management.client.*;
-import com.netscape.management.client.util.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+import javax.swing.border.EmptyBorder;
+import javax.swing.table.TableColumn;
+
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.CMSBasePanel;
+import com.netscape.admin.certsrv.CMSBaseResourceModel;
+import com.netscape.admin.certsrv.IRefreshTab;
+import com.netscape.admin.certsrv.IRefreshTabPanel;
+import com.netscape.admin.certsrv.IResourceSelectionListener;
+import com.netscape.admin.certsrv.LabelCellRenderer;
+import com.netscape.management.client.IResourceObject;
+import com.netscape.management.client.util.Debug;
 
 /**
  * Log Panel to be displayed at the right hand side
@@ -61,7 +80,7 @@ public abstract class CMSLogPanel extends CMSBasePanel
     protected JTable mTable;            //table
     protected JButton mView, mRefresh, mHelp;  //action buttons
     protected JTextField mNoRecord;
-    protected JComboBox mSource, mLevel, mFile;
+    protected JComboBox<String> mSource, mLevel, mFile;
     protected String mHelpToken;
     protected LogEntryViewDialog mViewer;
 
@@ -291,7 +310,7 @@ public abstract class CMSLogPanel extends CMSBasePanel
 		CMSAdminUtil.resetGBC(gbc);
 		gbc.gridheight = gbc.REMAINDER;
 		JLabel label3 = makeJLabel("FILE");
-		mFile = new JComboBox();
+		mFile = new JComboBox<>();
         CMSAdminUtil.addEntryField(panel, label3, mFile, gbc);
                 mFile.addActionListener(this);
 

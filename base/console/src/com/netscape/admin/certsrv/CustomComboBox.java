@@ -36,9 +36,9 @@ import javax.swing.ListCellRenderer;
  * @see     com.netscape.admin.certsrv
  * @see     CustomComboBoxModel
  */
-public class CustomComboBox extends JComboBox {
+public class CustomComboBox<E> extends JComboBox<E> {
 
-    public CustomComboBox(ComboBoxModel m) {
+    public CustomComboBox(ComboBoxModel<E> m) {
         super(m);
         super.setRenderer( new CustomCellRenderer(this));
     }

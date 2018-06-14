@@ -30,8 +30,8 @@ import com.netscape.management.client.util.ResourceSet;
 
 class CipherEntry {
     private JCheckBox _cipherEnable;
-    private JComboBox _tokenList;
-    private JComboBox _certList;
+    private JComboBox<String> _tokenList;
+    private JComboBox<String> _certList;
 
 
     ResourceSet resource = new ResourceSet("com.netscape.admin.certsrv.security.EncryptionPaneResource");
@@ -50,11 +50,11 @@ class CipherEntry {
             tokenList.addElement(resource.getString("CipherEntry", "noToken"));
         }
 
-        _tokenList = new JComboBox(tokenList);
+        _tokenList = new JComboBox<>(tokenList);
         _tokenCertList = tokenCertList;
         _tokenList.addItemListener(new TokenListListener());
 
-        _certList = new JComboBox();
+        _certList = new JComboBox<>();
 
         try {
             _tokenList.setSelectedIndex(0);
@@ -107,10 +107,10 @@ class CipherEntry {
     public JCheckBox getCipherCheckBox() {
         return _cipherEnable;
     }
-    public JComboBox getTokenComboBox() {
+    public JComboBox<String> getTokenComboBox() {
         return _tokenList;
     }
-    public JComboBox getCertComboBox() {
+    public JComboBox<String> getCertComboBox() {
         return _certList;
     }
     public String getCipherName() {

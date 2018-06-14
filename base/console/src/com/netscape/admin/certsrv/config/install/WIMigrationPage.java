@@ -65,7 +65,7 @@ class WIMigrationPage extends WizardBasePanel implements IWizardPanel, ItemListe
     private JLabel mPathLbl, mCATokenHeading, mSSLTokenHeading;
     private JLabel mCATokenLbl, mSSLTokenLbl;
     private JTextField mPathText;
-    private JComboBox mCATokenBox, mSSLTokenBox;
+    private JComboBox<String> mCATokenBox, mSSLTokenBox;
     private String[] mTokenInitialized;
     private String[] mTokenLogin;
     private Color mActiveColor;
@@ -106,7 +106,7 @@ class WIMigrationPage extends WizardBasePanel implements IWizardPanel, ItemListe
         if (mSSLTokenBox.getItemCount() > 0)
             mSSLTokenBox.removeAllItems();
         for (int i=0; i<mCATokenBox.getItemCount(); i++) {
-            String str = (String)mCATokenBox.getItemAt(i);
+            String str = mCATokenBox.getItemAt(i);
             mSSLTokenBox.addItem(str);
         }
         int index = mCATokenBox.getSelectedIndex();
@@ -131,7 +131,7 @@ class WIMigrationPage extends WizardBasePanel implements IWizardPanel, ItemListe
         return true;
     }
 
-    private void initializeTokenBox(JComboBox tokenBox) {
+    private void initializeTokenBox(JComboBox<String> tokenBox) {
         if (tokenBox.getItemCount() > 0)
             tokenBox.removeAllItems();
 
@@ -507,7 +507,7 @@ class WIMigrationPage extends WizardBasePanel implements IWizardPanel, ItemListe
         gbc.fill = gbc.NONE;
         panel1.add(mCATokenLbl, gbc);
 
-        mCATokenBox = new JComboBox();
+        mCATokenBox = new JComboBox<>();
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.WEST;
         //gbc.weightx = 1.0;
@@ -607,7 +607,7 @@ class WIMigrationPage extends WizardBasePanel implements IWizardPanel, ItemListe
         gbc.fill = gbc.NONE;
         panel2.add(mSSLTokenLbl, gbc);
 
-        mSSLTokenBox = new JComboBox();
+        mSSLTokenBox = new JComboBox<>();
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.WEST;
         //gbc.weightx = 1.0;

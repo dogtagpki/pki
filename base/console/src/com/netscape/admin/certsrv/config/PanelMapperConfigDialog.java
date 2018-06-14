@@ -17,17 +17,44 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config;
 
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
-import javax.swing.*;
-import javax.swing.table.*;
-import javax.swing.text.*;
-import java.awt.event.*;
-import java.awt.*;
-import java.util.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.util.ResourceBundle;
+import java.util.Vector;
 
-import com.netscape.management.client.util.*;
-import com.netscape.certsrv.common.*;
+import javax.swing.DefaultCellEditor;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.text.JTextComponent;
+
+import com.netscape.admin.certsrv.CMSAdminResources;
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.EAdminException;
+import com.netscape.admin.certsrv.connection.AdminConnection;
+import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.common.DestDef;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.common.ScopeDef;
+import com.netscape.management.client.util.Debug;
+import com.netscape.management.client.util.JButtonFactory;
 
 /**
  * LDAP Mapper Parameter Configuration Dialog
@@ -56,7 +83,7 @@ public class PanelMapperConfigDialog extends JDialog
     private String mScope;  //SC_USERCERT or SC_CACERT
     private AdminConnection mConn;
     private JButton mOK, mCancel, mHelp;
-    private JComboBox mSelection;
+    private JComboBox<String> mSelection;
 
     private static final String CAHELPINDEX =
       "configuration-ldappublish-camapper-dbox-help";
@@ -294,7 +321,7 @@ public class PanelMapperConfigDialog extends JDialog
 
         CMSAdminUtil.resetGBC(gbc);
         JLabel label3 = CMSAdminUtil.makeJLabel(mResource, PREFIX, "IMPLNAME", null);
-        mSelection = new JComboBox();
+        mSelection = new JComboBox<>();
         mSelection.addItemListener(this);
         addEntryField(mListPanel, label3, mSelection, gbc);
 

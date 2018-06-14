@@ -59,8 +59,8 @@ IKeyCertPage {
     JTextField o = new JTextField();
     JTextField ou = new JTextField();
     JTextField l = new JTextField();
-    JComboBox st;
-    JComboBox c;
+    JComboBox<String> st;
+    JComboBox<String> c;
 
 
     JLabel _nameLabel;
@@ -306,14 +306,14 @@ IKeyCertPage {
 
                 StringTokenizer stateTokens =
                         new StringTokenizer(stList, ",", false);
-                Vector states = new Vector();
+                Vector<String> states = new Vector<>();
                 while (stateTokens.hasMoreTokens()) {
                     states.addElement(stateTokens.nextToken());
                 }
                 //this will make it load faster.
                 //It will do some extra work if we call addItem() one at a time
 
-                st = new JComboBox(states);
+                st = new JComboBox<String>(states);
             }
             else {
                 st.removeAllItems();
@@ -380,8 +380,8 @@ IKeyCertPage {
             countries.addElement(countryTokens.nextToken());
         }
 
-        st = new JComboBox();
-        c = new JComboBox(countries);
+        st = new JComboBox<>();
+        c = new JComboBox<>(countries);
 
         try {
             c.setSelectedItem(

@@ -505,7 +505,7 @@ public class ProfilePolicyNewDialog extends CMSBaseConfigDialog
             if (comp instanceof JTextField) {
                 val = ((JTextField)comp).getText().trim();
             } else if (comp instanceof JComboBox) {
-                val = (String)(((JComboBox)comp).getSelectedItem());
+                val = (String)(((JComboBox<String>)comp).getSelectedItem());
             }
             String name1 = ((JLabel)(mDefaultTable.getValueAt(i,0))).getText();
             nvp.put(name1, val);
@@ -526,7 +526,7 @@ public class ProfilePolicyNewDialog extends CMSBaseConfigDialog
             if (comp instanceof JTextField) {
                 val = ((JTextField)comp).getText().trim();
             } else if (comp instanceof JComboBox) {
-                val = (String)(((JComboBox)comp).getSelectedItem());
+                val = (String)(((JComboBox<String>)comp).getSelectedItem());
             }
 
             String name1 = ((JLabel)(mConstraintTable.getValueAt(i,0))).getText();

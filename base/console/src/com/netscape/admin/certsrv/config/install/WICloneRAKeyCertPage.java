@@ -52,7 +52,7 @@ class WICloneRAKeyCertPage extends WizardBasePanel implements IWizardPanel {
     private String mRANicknameStr, mSSLNicknameStr;
     private String mRATokenname, mSSLTokenname;
     protected InstallWizardInfo mWizardInfo;
-    protected JComboBox mRANicknameBox, mSSLNicknameBox;
+    protected JComboBox<String> mRANicknameBox, mSSLNicknameBox;
     private static final String PANELNAME = "CLONERAKEYCERTWIZARD";
     private static final String CAHELPINDEX =
       "install-racertclone-wizard-help";
@@ -200,7 +200,7 @@ class WICloneRAKeyCertPage extends WizardBasePanel implements IWizardPanel {
         add(raNicknameLbl, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
-        mRANicknameBox = new JComboBox();
+        mRANicknameBox = new JComboBox<>();
         gbc.anchor = gbc.NORTHWEST;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
@@ -227,7 +227,7 @@ class WICloneRAKeyCertPage extends WizardBasePanel implements IWizardPanel {
         add(sslNicknameLbl, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
-        mSSLNicknameBox = new JComboBox();
+        mSSLNicknameBox = new JComboBox<>();
         gbc.anchor = gbc.NORTHWEST;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);

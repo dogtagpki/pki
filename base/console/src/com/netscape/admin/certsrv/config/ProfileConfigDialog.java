@@ -17,15 +17,33 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config;
 
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
-import javax.swing.*;
-import java.awt.event.*;
-import java.awt.*;
-import java.util.*;
+import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Vector;
 
-import com.netscape.management.client.util.*;
-import com.netscape.certsrv.common.*;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.EAdminException;
+import com.netscape.admin.certsrv.connection.AdminConnection;
+import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.common.ScopeDef;
+import com.netscape.management.client.util.Debug;
+import com.netscape.management.client.util.JButtonFactory;
 
 /**
  * Policy Parameter Configuration Dialog
@@ -39,7 +57,7 @@ public class ProfileConfigDialog extends CMSBaseConfigDialog
 {
  protected JButton mRefresh, mEdit, mAdd, mDelete, mOrder, mHelp;
     protected JTextField mAuthField=null,mNameField=null, mDescField=null, mConfigField=null;
-    protected JComboBox mVisibleField = null;
+    protected JComboBox<String> mVisibleField = null;
     protected JLabel mVisibleLabel=null,mAuthLabel=null,mNameLabel=null, mDescLabel = null, mConfigLabel =null;
 
     /*==========================================================
@@ -154,7 +172,7 @@ public class ProfileConfigDialog extends CMSBaseConfigDialog
         gbc.weightx = 1.0;
         gbc.gridwidth = gbc.REMAINDER;
         String[] item = {"true", "false"};
-        mVisibleField = new JComboBox(item);
+        mVisibleField = new JComboBox<>(item);
         mListPanel.add( mVisibleField, gbc );
 
 	// authentication

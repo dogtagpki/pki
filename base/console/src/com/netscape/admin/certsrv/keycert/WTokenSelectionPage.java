@@ -17,12 +17,22 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.keycert;
 
-import java.awt.*;
-import java.util.*;
-import javax.swing.*;
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.wizard.*;
-import com.netscape.certsrv.common.*;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.util.StringTokenizer;
+
+import javax.swing.ButtonGroup;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JRadioButton;
+import javax.swing.JTextArea;
+
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.wizard.IWizardPanel;
+import com.netscape.admin.certsrv.wizard.WizardBasePanel;
+import com.netscape.admin.certsrv.wizard.WizardInfo;
+import com.netscape.certsrv.common.Constants;
 
 /**
  * Token Selection page for certificate setup wizard
@@ -34,7 +44,7 @@ import com.netscape.certsrv.common.*;
 class WTokenSelectionPage extends WizardBasePanel implements IWizardPanel {
     private JRadioButton mInstallBtn;
     private JRadioButton mRequestBtn;
-    private JComboBox mToken;
+    private JComboBox<String> mToken;
     private static final String PANELNAME = "TOKENSELECTIONWIZARD";
     private static final String HELPINDEX =
       "configuration-kra-wizard-change-keyscheme-help";
@@ -53,7 +63,7 @@ class WTokenSelectionPage extends WizardBasePanel implements IWizardPanel {
         String tokenList = (String)wizardInfo.getEntry(Constants.PR_TOKEN_LIST);
         StringTokenizer tokenizer = new StringTokenizer(tokenList, ",");
         while (tokenizer.hasMoreTokens()) {
-            mToken.addItem((String)tokenizer.nextToken());
+            mToken.addItem(tokenizer.nextToken());
         }
         return true;
     }
@@ -64,7 +74,7 @@ class WTokenSelectionPage extends WizardBasePanel implements IWizardPanel {
 
     public boolean concludePanel(WizardInfo info) {
         CertSetupWizardInfo wizardInfo = (CertSetupWizardInfo)info;
-        info.addEntry(wizardInfo.TOKENNAME, (String)mToken.getSelectedItem());
+        info.addEntry(wizardInfo.TOKENNAME, mToken.getSelectedItem());
         if (mRequestBtn.isSelected())
             info.addEntry(wizardInfo.OPTYPE, wizardInfo.REQUESTTYPE);
         else
@@ -132,7 +142,7 @@ class WTokenSelectionPage extends WizardBasePanel implements IWizardPanel {
         gbc.insets = new Insets(COMPONENT_SPACE,4*COMPONENT_SPACE, COMPONENT_SPACE,0);
         add(tokenLbl, gbc);
 
-        mToken = new JComboBox();
+        mToken = new JComboBox<>();
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.NORTHWEST;
         gbc.weightx = 1.0;

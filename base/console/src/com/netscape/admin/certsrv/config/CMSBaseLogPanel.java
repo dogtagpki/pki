@@ -17,13 +17,21 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config;
 
-import com.netscape.admin.certsrv.*;
-import com.netscape.management.client.util.*;
-import com.netscape.admin.certsrv.connection.*;
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
-import javax.swing.*;
+import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.CMSBaseResourceModel;
+import com.netscape.admin.certsrv.connection.AdminConnection;
 
 /**
  * Base Log Panel
@@ -37,7 +45,7 @@ public abstract class CMSBaseLogPanel extends CMSBaseTab {
      *==========================================================*/
 	protected JCheckBox activateLog;
 
-	protected JComboBox mlogFQC, mLogLevel, mNTLogLevel;
+	protected JComboBox<String> mlogFQC, mLogLevel, mNTLogLevel;
 	protected JTextField mlogMaxSizText, mlogBufSizText, mEventSourceText;
 	protected Color mActiveColor;
 

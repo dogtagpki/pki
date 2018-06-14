@@ -17,21 +17,18 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
-import javax.swing.*;
-import javax.swing.text.*;
-import javax.swing.border.*;
-import javax.swing.event.*;
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
-import com.netscape.admin.certsrv.wizard.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.admin.certsrv.config.*;
-import com.netscape.admin.certsrv.task.*;
-import com.netscape.management.client.console.*;
-import com.netscape.management.client.util.*;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JTextArea;
+
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.wizard.IWizardPanel;
+import com.netscape.admin.certsrv.wizard.WizardBasePanel;
+import com.netscape.admin.certsrv.wizard.WizardInfo;
 
 /**
  * Setup the message digest information for the installation wizard.
@@ -41,8 +38,8 @@ import com.netscape.management.client.util.*;
  * @see com.netscape.admin.certsrv.config.install
  */
 public class WMessageDigestPage extends WizardBasePanel implements IWizardPanel {
-    protected JComboBox mRSAHashTypeBox, mDSAHashTypeBox, mECCHashTypeBox;
-    protected JComboBox mRSASignedByTypeBox, mDSASignedByTypeBox, mECCSignedByTypeBox;
+    protected JComboBox<String> mRSAHashTypeBox, mDSAHashTypeBox, mECCHashTypeBox;
+    protected JComboBox<String> mRSASignedByTypeBox, mDSASignedByTypeBox, mECCSignedByTypeBox;
     protected String mHelpIndex;
     protected String mCAKeyType;
     protected JTextArea mSignedByTypeLbl;

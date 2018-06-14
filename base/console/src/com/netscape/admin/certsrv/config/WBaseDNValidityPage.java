@@ -17,13 +17,19 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config;
 
-import java.awt.*;
-import javax.swing.*;
-import javax.swing.event.*;
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
-import com.netscape.admin.certsrv.wizard.*;
-import com.netscape.certsrv.common.*;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.wizard.WizardBasePanel;
 
 /**
  * CA signing cert for installation wizard.
@@ -35,7 +41,7 @@ import com.netscape.certsrv.common.*;
 public class WBaseDNValidityPage extends WizardBasePanel {
     public JTextField mCNText, mOUText, mOText, mLText, mSTText, mCText;
     public JTextField mValidityText;
-    public JComboBox mUnitBox;
+    public JComboBox<String> mUnitBox;
     public JLabel validityLbl;
     public JTextArea mSubjectDNText, desc1;
     public static final String CN = "CN=";

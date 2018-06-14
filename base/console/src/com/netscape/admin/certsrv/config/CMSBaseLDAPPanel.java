@@ -17,14 +17,34 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config;
 
-import com.netscape.admin.certsrv.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.management.client.util.*;
-import com.netscape.admin.certsrv.connection.*;
-import javax.swing.*;
-import java.awt.*;
-import java.util.*;
-import java.awt.event.*;
+import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.util.StringTokenizer;
+
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
+
+import com.netscape.admin.certsrv.CMSAdminResources;
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.CMSBaseResourceModel;
+import com.netscape.admin.certsrv.EAdminException;
+import com.netscape.admin.certsrv.connection.AdminConnection;
+import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.common.DestDef;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.common.ScopeDef;
+import com.netscape.management.client.util.UtilConsoleGlobals;
 
 /**
  * LDAP server setting tab
@@ -58,9 +78,9 @@ public abstract class CMSBaseLDAPPanel extends CMSBaseTab implements ItemListene
     private String mPublishingQueuePageSize = "40";
     private String mPublishingQueueStatus = "200";
     private JLabel mAuthLabel, mCertLabel;
-    private JComboBox mAuthBox, mCertBox;
+    private JComboBox<String> mAuthBox, mCertBox;
     private String mPanelName;
-    private JComboBox mVersionBox;
+    private JComboBox<String> mVersionBox;
     private final static String[] AUTHTYPE = {Constants.PR_BASIC_AUTH,
       Constants.PR_SSL_AUTH};
 
@@ -329,7 +349,7 @@ public abstract class CMSBaseLDAPPanel extends CMSBaseTab implements ItemListene
                 StringTokenizer tokenizer = new StringTokenizer(certNames,
                   DELIMITER);
                 for (int index=0; tokenizer.hasMoreTokens(); index++) {
-                    String str = (String)tokenizer.nextToken();
+                    String str = tokenizer.nextToken();
                     if (str.startsWith(SERVER_CERT_NICKNAME))
                         serverCertIndex = index;
                     mCertBox.addItem(str);

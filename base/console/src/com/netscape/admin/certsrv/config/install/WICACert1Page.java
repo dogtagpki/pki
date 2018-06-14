@@ -39,8 +39,8 @@ import com.netscape.admin.certsrv.wizard.WizardInfo;
  * @see com.netscape.admin.certsrv.config.install
  */
 class WICACert1Page extends WizardBasePanel implements IWizardPanel {
-    private JComboBox mKeyTypeBox;
-    private JComboBox mKeyLengthBox;
+    private JComboBox<String> mKeyTypeBox;
+    private JComboBox<String> mKeyLengthBox;
     //private JComboBox mTokenBox;
     //private JPasswordField mPasswordText;
 

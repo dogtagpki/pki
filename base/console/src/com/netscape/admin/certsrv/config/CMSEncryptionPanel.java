@@ -73,7 +73,7 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
     private CMSServerInfo mServerInfo;
     private AdminConnection mConnection;
     private JPanel mEncryptPane;
-    private JComboBox mSelection, mTokenList, mCertList;
+    private JComboBox<String> mSelection, mTokenList, mCertList;
     private Hashtable<String, CipherEntryData> mCertMapping;         //maps the function list items to tags
     private String mSelectedItem, mSelectedToken, mSelectedCert;
     private JButton mWizard, mCipherPref, mSetup;
@@ -132,7 +132,7 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
 
         //add selection combobox
         JLabel label1 = makeJLabel("SELECT");
-        mSelection = new JComboBox();
+        mSelection = new JComboBox<>();
         updateCertSelection();                  //dynamically generate this list
         addTopEntryField(top, label1, mSelection, gbc);
         if (mSelection.getItemCount()>0) {
@@ -525,7 +525,7 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
         String newToken = (String) mTokenList.getSelectedItem();
         mSelectedToken = newToken;
         mCertList.removeAllItems();
-        Vector list = mTokenCertList.get(newToken);
+        Vector<String> list = mTokenCertList.get(newToken);
         for (int i=0; i< list.size(); i++)
             mCertList.addItem(list.elementAt(i));
     }
@@ -552,7 +552,7 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
     private void setupCertCombo() {
         String newToken = (String) mTokenList.getSelectedItem();
         mCertList.removeAllItems();
-        Vector list = mTokenCertList.get(newToken);
+        Vector<String> list = mTokenCertList.get(newToken);
         for (int i=0; i< list.size(); i++)
             mCertList.addItem(list.elementAt(i));
     }
@@ -574,9 +574,9 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
                             0)));
 
         //add components
-        mTokenList = new JComboBox();
+        mTokenList = new JComboBox<>();
         mTokenList.addItemListener(this);
-        mCertList = new JComboBox();
+        mCertList = new JComboBox<>();
         mCertList.addItemListener(this);
         JLabel label1 = makeJLabel("TOKEN");
         JLabel label2 = makeJLabel("CERTIFICATE");

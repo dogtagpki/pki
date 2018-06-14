@@ -60,7 +60,7 @@ class WIKRAStorageKeyPage extends WizardBasePanel implements IWizardPanel {
     private static final String RAKRAHELPINDEX =
       "install-rakra-storagekey-wizard-help";
 
-    protected JComboBox mKeyTypeBox, mKeyLengthBox, mDSAKeyLengthBox, mTokenBox;
+    protected JComboBox<String> mKeyTypeBox, mKeyLengthBox, mDSAKeyLengthBox, mTokenBox;
     protected JPasswordField mPassword, mPasswordAgain, mSOPPassword;
     protected JLabel keyTypeLbl, keyLengthCustomText, keyLengthLbl, unitLbl,
       keyLengthCustomLbl, unit1Lbl, mTokenLbl;
@@ -230,7 +230,7 @@ class WIKRAStorageKeyPage extends WizardBasePanel implements IWizardPanel {
         gbc.fill = gbc.NONE;
         panel.add(tokenLbl, gbc);
 
-        mTokenBox = new JComboBox();
+        mTokenBox = new JComboBox<>();
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.NORTHWEST;
         //gbc.weightx = 1.0;
