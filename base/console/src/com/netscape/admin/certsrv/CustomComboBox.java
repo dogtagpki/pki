@@ -40,11 +40,11 @@ public class CustomComboBox<E> extends JComboBox<E> {
 
     public CustomComboBox(ComboBoxModel<E> m) {
         super(m);
-        super.setRenderer( new CustomCellRenderer(this));
+        super.setRenderer( new CustomCellRenderer<E>(this));
     }
 }
 
-class CustomCellRenderer extends JLabel implements ListCellRenderer   {
+class CustomCellRenderer<E> extends JLabel implements ListCellRenderer<E>   {
 
     final static Color selectedCellBackground = new Color(0,0,128);
     final static Color selectedCellForeground = Color.white;
@@ -53,9 +53,9 @@ class CustomCellRenderer extends JLabel implements ListCellRenderer   {
     final static String SELECTION_TITLE = CustomComboBoxModel.SELECTION_TITLE;
     final static String SELECTION_ICON = CustomComboBoxModel.SELECTION_ICON;
 
-    CustomComboBox combobox;
+    CustomComboBox<E> combobox;
 
-    public CustomCellRenderer(CustomComboBox x) {
+    public CustomCellRenderer(CustomComboBox<E> x) {
         combobox = x;
         setOpaque(true);
     }
