@@ -28,7 +28,6 @@ import java.awt.event.MouseListener;
 import java.util.ResourceBundle;
 
 import javax.swing.BorderFactory;
-import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -66,7 +65,7 @@ public class PluginSelectionDialog extends JDialog
     protected JFrame mParentFrame;
     protected AdminConnection mConnection;
     protected ResourceBundle mResource;
-    protected DefaultListModel<JLabel> mDataModel;
+    protected ProfileListDataModel mDataModel;
     protected String mDestination;              //dest flag
     protected String mExtraDestination = null;              //dest flag
 
@@ -110,7 +109,7 @@ public class PluginSelectionDialog extends JDialog
         mConnection = conn;
         mDestination = dest;
         mResource = ResourceBundle.getBundle(CMSAdminResources.class.getName());
-        mDataModel = new DefaultListModel<>();
+        mDataModel = new ProfileListDataModel();
         mPrefix = prefix;
 		mPluginInstanceDialog = pluginType;
 
@@ -133,7 +132,7 @@ public class PluginSelectionDialog extends JDialog
         mDestination = dest;
         mExtraDestination = extraDest;
         mResource = ResourceBundle.getBundle(CMSAdminResources.class.getName());
-        mDataModel = new DefaultListModel<>();
+        mDataModel = new ProfileListDataModel();
         mPrefix = prefix;
         mPluginInstanceDialog = pluginType;
 

@@ -17,9 +17,14 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv;
 
-import java.awt.*;
-import javax.swing.*;
-import javax.swing.border.*;
+import java.awt.Color;
+import java.awt.Component;
+
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JTextField;
+import javax.swing.ListCellRenderer;
+import javax.swing.border.EmptyBorder;
 
 /**
  * class used to crate the label to be displayed in the attr list
@@ -27,7 +32,7 @@ import javax.swing.border.*;
  * @author Jack Pan-Chen
  * @version $Revision$, $Date$
  */
-public class AttrCellRenderer extends JLabel implements ListCellRenderer {
+public class AttrCellRenderer<E> extends JLabel implements ListCellRenderer<E> {
     static Color HIGHLIGHTCOLOR = new Color(0, 0, 128);
     static Color WHITECOLOR = Color.white;
     static Color BLACKCOLOR = Color.black;
@@ -39,8 +44,8 @@ public class AttrCellRenderer extends JLabel implements ListCellRenderer {
         setFont(temp.getFont());
     }
 
-    public Component getListCellRendererComponent(JList list,
-        Object value, int index, boolean isSelected, boolean cellHasFocus) {
+    public Component getListCellRendererComponent(JList<? extends E> list,
+        E value, int index, boolean isSelected, boolean cellHasFocus) {
 
         if (value instanceof JLabel) {
             setText(((JLabel)value).getText());

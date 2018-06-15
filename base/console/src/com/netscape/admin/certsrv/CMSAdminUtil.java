@@ -877,9 +877,9 @@ public class CMSAdminUtil {
      * Factory Method to create a list box mode specified with specific
      * visible row count. Special cell renderer is used to display each cell.
      */
-    public static JList makeJList(DefaultListModel listModel, int visibleCount) {
-        JList listbox = new JList(listModel);
-        listbox.setCellRenderer(new AttrCellRenderer());
+    public static <E> JList<E> makeJList(DefaultListModel<E> listModel, int visibleCount) {
+        JList<E> listbox = new JList<E>(listModel);
+        listbox.setCellRenderer(new AttrCellRenderer<E>());
         listbox.setSelectionModel(new DefaultListSelectionModel());
         listbox.setVisibleRowCount(visibleCount);
         if(listModel.size()!=0)

@@ -17,13 +17,19 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config;
 
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
-import javax.swing.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
 
-import com.netscape.management.client.util.*;
-import com.netscape.certsrv.common.*;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+
+import com.netscape.admin.certsrv.CMSAdminResources;
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.EAdminException;
+import com.netscape.admin.certsrv.connection.AdminConnection;
+import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.common.ScopeDef;
+import com.netscape.management.client.util.Debug;
 
 /**
  * Policy Plugin Selection Dialog
@@ -85,7 +91,7 @@ public class ProfilePluginSelectionDialog extends PluginSelectionDialog
                 return;
             }
             Debug.println(response.toString());
-            String id =(String)(((ProfileListDataModel)mDataModel).getObjectValueAt(mList.getSelectedIndex()));
+            String id =(String)(mDataModel.getObjectValueAt(mList.getSelectedIndex()));
             response.put(Constants.PR_POLICY_IMPL_NAME, id);
 
             CMSBaseConfigDialog dialog = null;
@@ -127,7 +133,7 @@ public class ProfilePluginSelectionDialog extends PluginSelectionDialog
 
     //this returns the default configuration
     protected NameValuePairs getDefaultConfig() throws EAdminException {
-        String id = (String)(((ProfileListDataModel)mDataModel).getObjectValueAt(mList.getSelectedIndex()));
+        String id = (String)(mDataModel.getObjectValueAt(mList.getSelectedIndex()));
         NameValuePairs response;
         response = mConnection.read(mDestination, mScope, id,
           new NameValuePairs());
@@ -171,13 +177,13 @@ public class ProfilePluginSelectionDialog extends PluginSelectionDialog
 
         for (int y=0; y< classnames.length ; y++) {
             try {
-            ((ProfileListDataModel)mDataModel).addElement(new JLabel(classnames[y],
+            mDataModel.addElement(new JLabel(classnames[y],
               CMSAdminUtil.getImage(mImageName), JLabel.LEFT), ids[y]);
             }
             catch (Exception ex) {
                 Debug.println("PluginSelectionDialog could not get image for '"+
                     mImageName+"'. Adding without image");
-            ((ProfileListDataModel)mDataModel).addElement(new JLabel(classnames[y],
+            mDataModel.addElement(new JLabel(classnames[y],
               JLabel.LEFT), ids[y]);
             }
         }

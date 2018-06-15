@@ -72,7 +72,7 @@ public class ProfileNonPolicySelDialog extends JDialog
     protected String mDestination;              //dest flag
 
     private JScrollPane mScrollPane;
-    protected JList mList;
+    protected JList<JLabel> mList;
 
     protected JLabel mLabel;
     protected JButton mOK, mCancel, mHelp;

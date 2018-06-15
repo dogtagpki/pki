@@ -61,7 +61,7 @@ class CustomCellRenderer<E> extends JLabel implements ListCellRenderer<E>   {
     }
 
     public Component getListCellRendererComponent(
-        JList listbox, Object value, int index,
+        JList<? extends E> listbox, E value, int index,
         boolean isSelected, boolean cellHasFocus)
     {
         Hashtable<String, Object> h = (Hashtable<String, Object>) value;

@@ -17,15 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config;
 
-import com.netscape.admin.certsrv.*;
-import javax.swing.*;
-import javax.swing.event.*;
-import java.awt.event.*;
-import java.awt.*;
-import java.util.*;
-import com.netscape.management.client.*;
-import com.netscape.management.client.util.*;
-import com.netscape.certsrv.common.*;
+import java.util.Vector;
+
+import javax.swing.DefaultListModel;
+import javax.swing.JLabel;
 
 /**
  * Profile List Model
@@ -34,7 +29,7 @@ import com.netscape.certsrv.common.*;
  * @version $Revision$, $Date$
  * @see com.netscape.admin.certsrv.config
  */
-public class ProfileListDataModel extends DefaultListModel {
+public class ProfileListDataModel extends DefaultListModel<JLabel> {
 
     private Vector mObjectContainer = new Vector();
 
@@ -47,7 +42,7 @@ public class ProfileListDataModel extends DefaultListModel {
         mObjectContainer.removeAllElements();
     }
 
-    public void addElement(Object displayData, Object extraData) {
+    public void addElement(JLabel displayData, Object extraData) {
         super.addElement(displayData);
         mObjectContainer.addElement(extraData);
     }

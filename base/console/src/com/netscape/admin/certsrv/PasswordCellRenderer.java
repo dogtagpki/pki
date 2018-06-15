@@ -17,10 +17,16 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv;
 
-import java.awt.*;
-import javax.swing.*;
-import javax.swing.border.*;
-import javax.swing.table.*;
+import java.awt.Color;
+import java.awt.Component;
+
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPasswordField;
+import javax.swing.JTable;
+import javax.swing.ListCellRenderer;
+import javax.swing.border.EmptyBorder;
+import javax.swing.table.TableCellRenderer;
 
 /**
  * class used to creat the password label
@@ -29,7 +35,7 @@ import javax.swing.table.*;
  * @version $Revision$, $Date$
  */
 public class PasswordCellRenderer extends JLabel
-    implements ListCellRenderer, TableCellRenderer
+    implements ListCellRenderer<String>, TableCellRenderer
 {
     static Color HIGHLIGHTCOLOR = new Color(0, 0, 128);
     static Color WHITECOLOR = Color.white;
@@ -43,10 +49,10 @@ public class PasswordCellRenderer extends JLabel
         setFont(temp.getFont());
     }
 
-    public Component getListCellRendererComponent(JList list,
-        Object value, int index, boolean isSelected, boolean cellHasFocus) {
+    public Component getListCellRendererComponent(JList<? extends String> list,
+            String value, int index, boolean isSelected, boolean cellHasFocus) {
         StringBuffer buf = new StringBuffer();
-        for(int i=0; i< ((String)value).length(); i++)
+        for(int i=0; i< value.length(); i++)
             buf.append("*");
                 setText(buf.toString());
         setBackground(isSelected ? HIGHLIGHTCOLOR : WHITECOLOR);

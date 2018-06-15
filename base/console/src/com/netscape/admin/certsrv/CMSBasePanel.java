@@ -395,7 +395,7 @@ public class CMSBasePanel extends JPanel
 
     //==== LIST CREATION ============================
 
-    protected JList makeJList(DefaultListModel listModel, int visibleCount) {
+    protected <E> JList<E> makeJList(DefaultListModel<E> listModel, int visibleCount) {
         return CMSAdminUtil.makeJList(listModel, visibleCount);
     }
 

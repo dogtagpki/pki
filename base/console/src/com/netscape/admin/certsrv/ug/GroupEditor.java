@@ -614,7 +614,7 @@ public class GroupEditor extends JDialog
 
     public JList<String> makeJList(DefaultListModel<String> listModel, int visibleCount) {
         JList<String> listbox = new JList<String>(listModel);
-        listbox.setCellRenderer(new AttrCellRenderer());
+        listbox.setCellRenderer(new AttrCellRenderer<String>());
         listbox.setSelectionModel(new DefaultListSelectionModel());
         listbox.setVisibleRowCount(visibleCount);
         if(listModel.size()!=0)
