@@ -8,11 +8,11 @@ URL:              http://www.dogtagpki.org/
 License:          GPLv2 and LGPLv2
 
 %if 0%{?rhel}
-Version:          10.6.1
-Release:          3%{?_timestamp}%{?_commit_id}%{?dist}
+Version:          10.6.2
+Release:          1%{?_timestamp}%{?_commit_id}%{?dist}
 %else
-Version:          10.6.1
-Release:          3%{?_timestamp}%{?_commit_id}%{?dist}
+Version:          10.6.2
+Release:          1%{?_timestamp}%{?_commit_id}%{?dist}
 %endif
 
 # To create a tarball from a version tag:
@@ -78,7 +78,7 @@ Source: https://github.com/dogtagpki/pki/archive/v%{version}/pki-%{version}.tar.
 %if 0%{?rhel} && 0%{?rhel} <= 7
 %global app_server tomcat-7.0
 %else
-%if 0%{?fedora} <= 27
+%if 0%{?fedora} && 0%{?fedora} <= 27
 %global app_server tomcat-8.0
 %else
 %global app_server tomcat-8.5
@@ -271,7 +271,7 @@ BuildRequires:    jpackage-utils >= 0:1.7.5-10
 BuildRequires:    jss >= 4.4.0-11
 BuildRequires:    tomcatjss >= 7.2.1-4
 %else
-BuildRequires:    jss >= 4.5.0
+BuildRequires:    jss >= 4.5.0-0.1
 BuildRequires:    tomcatjss >= 7.3.0
 %endif
 BuildRequires:    systemd-units
@@ -279,10 +279,10 @@ BuildRequires:    systemd-units
 %if 0%{?rhel} && 0%{?rhel} <= 7
 BuildRequires:    tomcat >= 7.0.69
 %else
-%if 0%{?fedora} <= 27
+%if 0%{?fedora} && 0%{?fedora} <= 27
 BuildRequires:    tomcat >= 8.0.49
 %else
-%if 0%{?fedora} <= 28
+%if 0%{?fedora} && 0%{?fedora} <= 28
 BuildRequires:    tomcat >= 1:8.5.23
 %else
 BuildRequires:    tomcat >= 1:9.0.7
@@ -355,7 +355,7 @@ Requires:         jpackage-utils >= 0:1.7.5-10
 %if 0%{?rhel} && 0%{?rhel} <= 7
 Requires:         jss >= 4.4.0-11
 %else
-Requires:         jss >= 4.5.0
+Requires:         jss >= 4.5.0-0.1
 %endif
 Requires:         nss >= 3.36.1
 
@@ -465,7 +465,7 @@ Requires:         jpackage-utils >= 0:1.7.5-10
 %if 0%{?rhel} && 0%{?rhel} <= 7
 Requires:         jss >= 4.4.0-11
 %else
-Requires:         jss >= 4.5.0
+Requires:         jss >= 4.5.0-0.1
 %endif
 Requires:         ldapjdk >= 4.19-5
 Requires:         pki-base >= %{version}-%{release}
@@ -617,11 +617,11 @@ Requires:         selinux-policy-targeted >= 3.13.1-159
 %if 0%{?rhel} && 0%{?rhel} <= 7
 Requires:         tomcat >= 7.0.69
 %else
-%if 0%{?fedora} <= 27
+%if 0%{?fedora} && 0%{?fedora} <= 27
 Requires:         tomcat >= 8.0.49
 Conflicts:        tomcat >= 1:8.5
 %else
-%if 0%{?fedora} <= 28
+%if 0%{?fedora} && 0%{?fedora} <= 28
 Requires:         tomcat >= 1:8.5.23
 %else
 Requires:         tomcat >= 1:9.0.7
@@ -880,11 +880,6 @@ Requires:         ldapjdk >= 4.19-5
 Requires:         pki-base-java >= %{version}
 Requires:         pki-console-theme >= %{version}
 Requires:         jpackage-utils >= 1.7.5-10
-%if 0%{?rhel} && 0%{?rhel} <= 7
-Requires:         jss >= 4.4.0-11
-%else
-Requires:         jss >= 4.5.0
-%endif
 
 %description -n   pki-console
 The PKI Console is a Java application used to administer PKI server.
@@ -1509,7 +1504,6 @@ fi
 %doc base/common/THIRD_PARTY_LICENSES
 %doc base/server/LICENSE
 %doc base/server/README
-%{_datadir}/pki/server/etc/default.cfg
 %attr(755,-,-) %dir %{_sysconfdir}/sysconfig/pki
 %attr(755,-,-) %dir %{_sysconfdir}/sysconfig/pki/tomcat
 %{_sbindir}/pkispawn

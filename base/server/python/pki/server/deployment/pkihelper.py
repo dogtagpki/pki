@@ -1132,7 +1132,7 @@ class Instance:
                     extra=config.PKI_INDENTATION_LEVEL_3)
                 break
 
-            except RETRYABLE_EXCEPTIONS as exc:
+            except RETRYABLE_EXCEPTIONS:
 
                 stop_time = datetime.today()
                 counter = (stop_time - start_time).total_seconds()
