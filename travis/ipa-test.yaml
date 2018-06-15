@@ -44,13 +44,13 @@ steps:
   - "dnf makecache || :"
   cleanup:
   - chown -R ${uid}:${gid} ${container_working_dir}
-  - curl -w "\n" --upload /var/log/ipaclient-install.log https://transfer.sh/ipaclient-install.txt >> logs.txt
-  - curl -w "\n" --upload /var/log/ipaclient-uninstall.log https://transfer.sh/ipaclient-uninstall.txt >> logs.txt
-  - curl -w "\n" --upload /var/log/ipaserver-install.log https://transfer.sh/ipaserver-install.txt >> logs.txt
-  - curl -w "\n" --upload /var/log/ipaserver-uninstall.log https://transfer.sh/ipaserver-uninstall.txt >> logs.txt
-  - curl -w "\n" --upload /var/log/krb5kdc.log https://transfer.sh/krb5kdc.txt >> logs.txt
+  - curl -w "\n" --upload /var/log/ipaclient-install.log https://transfer.sh/ipaclient-install.txt | tee >> logs.txt
+  - curl -w "\n" --upload /var/log/ipaclient-uninstall.log https://transfer.sh/ipaclient-uninstall.txt | tee >> logs.txt
+  - curl -w "\n" --upload /var/log/ipaserver-install.log https://transfer.sh/ipaserver-install.txt | tee >> logs.txt
+  - curl -w "\n" --upload /var/log/ipaserver-uninstall.log https://transfer.sh/ipaserver-uninstall.txt | tee >> logs.txt
+  - curl -w "\n" --upload /var/log/krb5kdc.log https://transfer.sh/krb5kdc.txt | tee >> logs.txt
   - journalctl -b --no-pager > systemd_journal.log
-  - curl -w "\n" --upload systemd_journal.log https://transfer.sh/systemd_journal.txt >> logs.txt
+  - curl -w "\n" --upload systemd_journal.log https://transfer.sh/systemd_journal.txt | tee >> logs.txt
   - >
       tar --ignore-failed-read -cvf ${container_working_dir}/var_log.tar
       /var/log/dirsrv
@@ -58,7 +58,7 @@ steps:
       /var/log/ipa
       /var/log/pki
   - chown ${uid}:${gid} ${container_working_dir}/var_log.tar
-  - curl -w "\n" --upload ${container_working_dir}/var_log.tar https://transfer.sh/var_log.tar >> logs.txt
+  - curl -w "\n" --upload ${container_working_dir}/var_log.tar https://transfer.sh/var_log.tar | tee >> logs.txt
   configure:
   - dnf repolist
   install_packages:
