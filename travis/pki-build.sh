@@ -14,7 +14,7 @@ function compose {
 
 function upload {
     if test -f $BUILDLOG; then
-        curl -w "\n" --upload-file $BUILDLOG https://transfer.sh/$PACKAGE-build.txt >> /tmp/workdir/pki/logs.txt
+        curl -w "\n" --upload-file $BUILDLOG https://transfer.sh/$PACKAGE-build.txt | tee >> /tmp/workdir/pki/logs.txt
     fi
 }
 
@@ -28,4 +28,5 @@ else
     trap "upload" EXIT
     echo "Building $PACKAGE with $SCRIPT."
     compose >> $BUILDLOG 2>&1
+    echo "RC: $?"
 fi

@@ -15,11 +15,11 @@ ExcludeArch:      aarch64 s390x
 %endif
 
 %if 0%{?rhel}
-Version:          10.6.1
-Release:          3%{?_timestamp}%{?_commit_id}%{?dist}
+Version:          10.6.2
+Release:          1%{?_timestamp}%{?_commit_id}%{?dist}
 %else
-Version:          10.6.1
-Release:          3%{?_timestamp}%{?_commit_id}%{?dist}
+Version:          10.6.2
+Release:          1%{?_timestamp}%{?_commit_id}%{?dist}
 %endif
 
 ################################################################################
