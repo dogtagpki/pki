@@ -26,10 +26,10 @@ Release:          1%{?_timestamp}%{?_commit_id}%{?dist}
 # Python
 ################################################################################
 
-%if 0%{?fedora} || 0%{?rhel} > 7
-%global with_python3 1
-%else
+%if 0%{?rhel} && 0%{?rhel} <= 7
 %global with_python3 0
+%else
+%global with_python3 1
 %endif
 
 # Make certain that this 'meta' package requires the latest version(s)

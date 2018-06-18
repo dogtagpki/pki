@@ -43,24 +43,30 @@ Source: https://github.com/dogtagpki/pki/archive/v%{version}/pki-%{version}.tar.
 # Python
 ################################################################################
 
-# Python 3 packages
-%if 0%{!?with_python3:1}
-%if 0%{?fedora} || 0%{?rhel} > 7
-%global with_python3 1
+# Python 2 packages
+%if 0%{!?with_python2:1}
+%if 0%{?rhel} && 0%{?rhel} <= 7 || 0%{?fedora} && 0%{?fedora} <= 28
+%global with_python2 1
 %else
-%global with_python3 0
+%global with_python2 0
 %endif
 %endif
 
-# Python 2 packages
-%{!?with_python2:%global with_python2 1}
+# Python 3 packages
+%if 0%{!?with_python3:1}
+%if 0%{?rhel} && 0%{?rhel} <= 7
+%global with_python3 0
+%else
+%global with_python3 1
+%endif
+%endif
 
 # Use Python 3 for all commands?
 %if 0%{!?with_python3_default:1}
-%if 0%{?fedora} >= 28 || 0%{?rhel} > 7
-%global with_python3_default 1
-%else
+%if 0%{?rhel} && 0%{?rhel} <= 7 || 0%{?fedora} && 0%{?fedora} <= 27
 %global with_python3_default 0
+%else
+%global with_python3_default 1
 %endif
 %endif
 
@@ -141,13 +147,20 @@ BuildRequires:    nuxwdog-client-java >= 1.0.3-13
 BuildRequires:    openldap-devel
 BuildRequires:    pkgconfig
 BuildRequires:    policycoreutils
+
 %if 0%{?rhel} && 0%{?rhel} <= 7
 BuildRequires:    python-lxml
 BuildRequires:    python-sphinx
 %else
+%if 0%{?fedora} && 0%{?fedora} <= 28
 BuildRequires:    python2-lxml
 BuildRequires:    python2-sphinx
+%else
+BuildRequires:    python3-lxml
+BuildRequires:    python3-sphinx
 %endif
+%endif
+
 BuildRequires:    velocity
 BuildRequires:    xalan-j2
 BuildRequires:    xerces-j2
@@ -173,50 +186,69 @@ BuildRequires:    resteasy-core >= 3.0.17-1
 BuildRequires:    resteasy-jackson-provider >= 3.0.17-1
 %endif
 
-%if 0%{?fedora} || 0%{?rhel} > 7
 %if 0%{?with_python2}
-BuildRequires:    pylint
-%if 0%{?fedora} >= 28
-BuildRequires:    python2-flake8 >= 2.5.4
-# python-flake8 2.5.4 package should require pyflakes >= 1.2.3
-BuildRequires:    python2-pyflakes >= 1.2.3
+%if 0%{?rhel} && 0%{?rhel} <= 7
+# no pylint
 %else
+BuildRequires:    pylint
+%if 0%{?fedora} && 0%{?fedora} <= 27
 BuildRequires:    python-flake8 >= 2.5.4
 BuildRequires:    pyflakes >= 1.2.3
+%else
+BuildRequires:    python2-flake8 >= 2.5.4
+BuildRequires:    python2-pyflakes >= 1.2.3
+%endif
 %endif
 %endif  # with_python2
 
 %if 0%{?with_python3}
 BuildRequires:    python3-pylint
-# python3-flake8 2.5.4 package should require python3-pyflakes >= 1.2.3
 BuildRequires:    python3-flake8 >= 2.5.4
 BuildRequires:    python3-pyflakes >= 1.2.3
 %endif  # with_python3
-%endif
 
 %if 0%{?with_python2}
 BuildRequires:    python2
 BuildRequires:    python2-devel
 BuildRequires:    python2-cryptography
-%if 0%{?fedora} >= 28 || 0%{?rhel} > 7
-BuildRequires:    python2-nss
-BuildRequires:    python2-requests >= 2.6.0
-BuildRequires:    python2-six
-BuildRequires:    python2-libselinux
-BuildRequires:    python2-policycoreutils
-BuildRequires:    python2-ldap
-%else
+%if 0%{?rhel} && 0%{?rhel} <= 7 || 0%{?fedora} && 0%{?fedora} <= 27
 BuildRequires:    python-nss
 BuildRequires:    python-requests >= 2.6.0
 BuildRequires:    python-six
 BuildRequires:    libselinux-python
 BuildRequires:    policycoreutils-python
 BuildRequires:    python-ldap
+%else
+BuildRequires:    python2-nss
+BuildRequires:    python2-requests >= 2.6.0
+BuildRequires:    python2-six
+BuildRequires:    python2-libselinux
+BuildRequires:    python2-policycoreutils
+BuildRequires:    python2-ldap
 %endif
-%if 0%{?fedora} || 0%{?rhel} > 7
+%if 0%{?rhel} && 0%{?rhel} <= 7
+# no policycoreutils-python-utils
+%else
 BuildRequires:    policycoreutils-python-utils
 %endif
 %endif  # with_python2
+
+%if 0%{?with_python3}
+BuildRequires:    python3
+BuildRequires:    python3-devel
+BuildRequires:    python3-cryptography
+BuildRequires:    python3-lxml
+%if 0%{?rhel} && 0%{?rhel} <= 7 || 0%{?fedora} && 0%{?fedora} <= 27
+# no python3-libselinux
+%else
+BuildRequires:    python3-libselinux
+%endif
+BuildRequires:    python3-nss
+BuildRequires:    python3-pyldap
+BuildRequires:    python3-requests >= 2.6.0
+BuildRequires:    python3-six
+%endif  # with_python3
+
 BuildRequires:    junit
 BuildRequires:    jpackage-utils >= 0:1.7.5-10
 %if 0%{?rhel} && 0%{?rhel} <= 7
@@ -241,17 +273,6 @@ BuildRequires:    tomcat >= 1:9.0.7
 %endif
 %endif
 %endif
-
-%if 0%{?with_python3}
-BuildRequires:    python3
-BuildRequires:    python3-devel
-BuildRequires:    python3-cryptography
-BuildRequires:    python3-lxml
-BuildRequires:    python3-nss
-BuildRequires:    python3-pyldap
-BuildRequires:    python3-requests >= 2.6.0
-BuildRequires:    python3-six
-%endif  # with_python3
 
 # additional build requirements needed to build native 'tpsclient'
 # REMINDER:  Revisit these once 'tpsclient' is rewritten as a Java app

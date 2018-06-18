@@ -44,24 +44,30 @@ Source: https://github.com/dogtagpki/pki/archive/v%{version}/pki-%{version}.tar.
 # Python
 ################################################################################
 
-# Python 3 packages
-%if 0%{!?with_python3:1}
-%if 0%{?fedora} || 0%{?rhel} > 7
-%global with_python3 1
+# Python 2 packages
+%if 0%{!?with_python2:1}
+%if 0%{?rhel} && 0%{?rhel} <= 7 || 0%{?fedora} && 0%{?fedora} <= 28
+%global with_python2 1
 %else
-%global with_python3 0
+%global with_python2 0
 %endif
 %endif
 
-# Python 2 packages
-%{!?with_python2:%global with_python2 1}
+# Python 3 packages
+%if 0%{!?with_python3:1}
+%if 0%{?rhel} && 0%{?rhel} <= 7
+%global with_python3 0
+%else
+%global with_python3 1
+%endif
+%endif
 
 # Use Python 3 for all commands?
 %if 0%{!?with_python3_default:1}
-%if 0%{?fedora} >= 28 || 0%{?rhel} > 7
-%global with_python3_default 1
-%else
+%if 0%{?rhel} && 0%{?rhel} <= 7 || 0%{?fedora} && 0%{?fedora} <= 27
 %global with_python3_default 0
+%else
+%global with_python3_default 1
 %endif
 %endif
 
@@ -189,13 +195,20 @@ BuildRequires:    nuxwdog-client-java >= 1.0.3-13
 BuildRequires:    openldap-devel
 BuildRequires:    pkgconfig
 BuildRequires:    policycoreutils
+
 %if 0%{?rhel} && 0%{?rhel} <= 7
 BuildRequires:    python-lxml
 BuildRequires:    python-sphinx
 %else
+%if 0%{?fedora} && 0%{?fedora} <= 28
 BuildRequires:    python2-lxml
 BuildRequires:    python2-sphinx
+%else
+BuildRequires:    python3-lxml
+BuildRequires:    python3-sphinx
 %endif
+%endif
+
 BuildRequires:    velocity
 BuildRequires:    xalan-j2
 BuildRequires:    xerces-j2
@@ -221,50 +234,69 @@ BuildRequires:    resteasy-core >= 3.0.17-1
 BuildRequires:    resteasy-jackson-provider >= 3.0.17-1
 %endif
 
-%if 0%{?fedora} || 0%{?rhel} > 7
 %if 0%{?with_python2}
-BuildRequires:    pylint
-%if 0%{?fedora} >= 28
-BuildRequires:    python2-flake8 >= 2.5.4
-# python-flake8 2.5.4 package should require pyflakes >= 1.2.3
-BuildRequires:    python2-pyflakes >= 1.2.3
+%if 0%{?rhel} && 0%{?rhel} <= 7
+# no pylint
 %else
+BuildRequires:    pylint
+%if 0%{?fedora} && 0%{?fedora} <= 27
 BuildRequires:    python-flake8 >= 2.5.4
 BuildRequires:    pyflakes >= 1.2.3
+%else
+BuildRequires:    python2-flake8 >= 2.5.4
+BuildRequires:    python2-pyflakes >= 1.2.3
+%endif
 %endif
 %endif  # with_python2
 
 %if 0%{?with_python3}
 BuildRequires:    python3-pylint
-# python3-flake8 2.5.4 package should require python3-pyflakes >= 1.2.3
 BuildRequires:    python3-flake8 >= 2.5.4
 BuildRequires:    python3-pyflakes >= 1.2.3
 %endif  # with_python3
-%endif
 
 %if 0%{?with_python2}
 BuildRequires:    python2
 BuildRequires:    python2-devel
 BuildRequires:    python2-cryptography
-%if 0%{?fedora} >= 28 || 0%{?rhel} > 7
-BuildRequires:    python2-nss
-BuildRequires:    python2-requests >= 2.6.0
-BuildRequires:    python2-six
-BuildRequires:    python2-libselinux
-BuildRequires:    python2-policycoreutils
-BuildRequires:    python2-ldap
-%else
+%if 0%{?rhel} && 0%{?rhel} <= 7 || 0%{?fedora} && 0%{?fedora} <= 27
 BuildRequires:    python-nss
 BuildRequires:    python-requests >= 2.6.0
 BuildRequires:    python-six
 BuildRequires:    libselinux-python
 BuildRequires:    policycoreutils-python
 BuildRequires:    python-ldap
+%else
+BuildRequires:    python2-nss
+BuildRequires:    python2-requests >= 2.6.0
+BuildRequires:    python2-six
+BuildRequires:    python2-libselinux
+BuildRequires:    python2-policycoreutils
+BuildRequires:    python2-ldap
 %endif
-%if 0%{?fedora} || 0%{?rhel} > 7
+%if 0%{?rhel} && 0%{?rhel} <= 7
+# no policycoreutils-python-utils
+%else
 BuildRequires:    policycoreutils-python-utils
 %endif
 %endif  # with_python2
+
+%if 0%{?with_python3}
+BuildRequires:    python3
+BuildRequires:    python3-devel
+BuildRequires:    python3-cryptography
+BuildRequires:    python3-lxml
+%if 0%{?rhel} && 0%{?rhel} <= 7 || 0%{?fedora} && 0%{?fedora} <= 27
+# no python3-libselinux
+%else
+BuildRequires:    python3-libselinux
+%endif
+BuildRequires:    python3-nss
+BuildRequires:    python3-pyldap
+BuildRequires:    python3-requests >= 2.6.0
+BuildRequires:    python3-six
+%endif  # with_python3
+
 BuildRequires:    junit
 BuildRequires:    jpackage-utils >= 0:1.7.5-10
 %if 0%{?rhel} && 0%{?rhel} <= 7
@@ -289,17 +321,6 @@ BuildRequires:    tomcat >= 1:9.0.7
 %endif
 %endif
 %endif
-
-%if 0%{?with_python3}
-BuildRequires:    python3
-BuildRequires:    python3-devel
-BuildRequires:    python3-cryptography
-BuildRequires:    python3-lxml
-BuildRequires:    python3-nss
-BuildRequires:    python3-pyldap
-BuildRequires:    python3-requests >= 2.6.0
-BuildRequires:    python3-six
-%endif  # with_python3
 
 # additional build requirements needed to build native 'tpsclient'
 # REMINDER:  Revisit these once 'tpsclient' is rewritten as a Java app
@@ -413,7 +434,6 @@ The PKI Base Package contains the common and client libraries and utilities
 written in Python.
 
 %if 0%{?with_python2}
-
 ################################################################################
 %package -n       python2-pki
 ################################################################################
@@ -427,20 +447,44 @@ Provides:         pki-base-python2 = %{version}-%{release}
 
 Requires:         pki-base >= %{version}-%{release}
 Requires:         python2-cryptography
-%if 0%{?fedora} >= 28 || 0%{?rhel} > 7
-Requires:         python2-nss
-Requires:         python2-requests >= 2.6.0
-Requires:         python2-six
-%else
+%if 0%{?rhel} && 0%{?rhel} <= 7 || 0%{?fedora} && 0%{?fedora} <= 27
 Requires:         python-nss
 Requires:         python-requests >= 2.6.0
 Requires:         python-six
+%else
+Requires:         python2-nss
+Requires:         python2-requests >= 2.6.0
+Requires:         python2-six
 %endif
 
 %description -n   python2-pki
 This package contains PKI client library for Python 2.
 
 %endif  # with_python2
+
+%if 0%{?with_python3}
+################################################################################
+%package -n       python3-pki
+################################################################################
+
+Summary:          PKI Python 3 Package
+BuildArch:        noarch
+
+Obsoletes:        pki-base-python3 < %{version}
+Provides:         pki-base-python3 = %{version}-%{release}
+%{?python_provide:%python_provide python3-pki}
+
+Requires:         pki-base >= %{version}-%{release}
+Requires:         python3-cryptography
+Requires:         python3-lxml
+Requires:         python3-nss
+Requires:         python3-requests >= 2.6.0
+Requires:         python3-six
+
+%description -n   python3-pki
+This package contains PKI client library for Python 3.
+
+%endif  # with_python3 for python3-pki
 
 ################################################################################
 %package -n       pki-base-java
@@ -457,7 +501,9 @@ Requires:         apache-commons-lang
 Requires:         apache-commons-logging
 Requires:         jakarta-commons-httpclient
 Requires:         slf4j
-%if 0%{?fedora} || 0%{?rhel} > 7
+%if 0%{?rhel} && 0%{?rhel} <= 7
+# no slf4j-jdk14
+%else
 Requires:         slf4j-jdk14
 %endif
 Requires:         javassist
@@ -496,31 +542,6 @@ Requires:         xml-commons-resolver
 %description -n   pki-base-java
 The PKI Base Java Package contains the common and client libraries and utilities
 written in Java.
-
-%if 0%{?with_python3}
-
-################################################################################
-%package -n       python3-pki
-################################################################################
-
-Summary:          PKI Python 3 Package
-BuildArch:        noarch
-
-Obsoletes:        pki-base-python3 < %{version}
-Provides:         pki-base-python3 = %{version}-%{release}
-%{?python_provide:%python_provide python3-pki}
-
-Requires:         pki-base >= %{version}-%{release}
-Requires:         python3-cryptography
-Requires:         python3-lxml
-Requires:         python3-nss
-Requires:         python3-requests >= 2.6.0
-Requires:         python3-six
-
-%description -n   python3-pki
-This package contains PKI client library for Python 3.
-
-%endif  # with_python3 for python3-pki
 
 ################################################################################
 %package -n       pki-tools
@@ -586,29 +607,31 @@ Requires:         pki-symkey >= %{version}-%{release}
 Requires:         pki-base >= %{version}-%{release}
 Requires:         pki-base-java >= %{version}-%{release}
 Requires:         pki-tools >= %{version}-%{release}
+
 %if 0%{?fedora} || 0%{?rhel} > 7
 Requires:         policycoreutils-python-utils
 %endif
+
 %if 0%{?with_python3_default}
-%if 0%{?fedora} >= 28
-Requires:         python3-ldap
-%else
+%if 0%{?fedora} && 0%{?fedora} <= 27
 Requires:         python3-pyldap
+%else
+Requires:         python3-ldap
 %endif
 Requires:         python3-lxml
 Requires:         python3-libselinux
 Requires:         policycoreutils-python3
 %else
-%if 0%{?fedora} >= 28 || 0%{?rhel} > 7
-Requires:         python2-ldap
-Requires:         python2-lxml
-Requires:         python2-libselinux
-Requires:         python2-policycoreutils
-%else
+%if 0%{?rhel} && 0%{?rhel} <= 7 || 0%{?fedora} && 0%{?fedora} <= 27
 Requires:         python-ldap
 Requires:         python-lxml
 Requires:         libselinux-python
 Requires:         policycoreutils-python
+%else
+Requires:         python2-ldap
+Requires:         python2-lxml
+Requires:         python2-libselinux
+Requires:         python2-policycoreutils
 %endif
 %endif  # with_python3_default
 
