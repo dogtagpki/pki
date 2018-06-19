@@ -1408,10 +1408,14 @@ public abstract class EnrollProfile extends BasicProfile
                     CMS.debug(method + " Failed to retrieve shared secret authentication plugin class");
                     sharedSecretFound = false;
                 }
+
+                IAuthToken authToken = (IAuthToken)
+                    context.get(SessionContext.AUTH_TOKEN);
+
                 ISharedToken tokenClass = (ISharedToken) sharedTokenAuth;
 
                 if (ident_string != null) {
-                    sharedSecret = tokenClass.getSharedToken(ident_string);
+                    sharedSecret = tokenClass.getSharedToken(ident_string, authToken);
                 } else {
                     sharedSecret = tokenClass.getSharedToken(mCMCData);
                 }
@@ -1705,12 +1709,16 @@ public abstract class EnrollProfile extends BasicProfile
                 signedAuditLogger.log(auditMessage);
                 return false;
             }
+
+            IAuthToken authToken = (IAuthToken)
+                sessionContext.get(SessionContext.AUTH_TOKEN);
+
             ISharedToken tokenClass = (ISharedToken) sharedTokenAuth;
 
             char[] token = null;
             if (ident_string != null) {
                 auditAttemptedCred = ident_string;
-                token = tokenClass.getSharedToken(ident_string);
+                token = tokenClass.getSharedToken(ident_string, authToken);
             } else
                 token = tokenClass.getSharedToken(mCMCData);
 
