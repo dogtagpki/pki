@@ -446,6 +446,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                 // authentication success
                 if (authToken != null) {
                     auditSubjectID = authToken.getInString(IAuthToken.USER_ID);
+                    context.put(SessionContext.AUTH_TOKEN, authToken);
                 }
             } catch (EBaseException e) {
                 CMCOutputTemplate template = new CMCOutputTemplate();

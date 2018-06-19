@@ -33,6 +33,7 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.IAuthCredentials;
+import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authentication.ISharedToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -233,18 +234,25 @@ public class SharedSecret extends DirBasedAuthentication
     }
 
     /**
-     * getSharedToken(String identification) provides
+     * getSharedToken(String identification, IAuthToken authToken) provides
      *  support for id_cmc_identification shared secret based enrollment
+     *
+     * @param identification maps to the uid in user's ldap record
+     * @param authToken the IAuthToken that will be filled with the DN
+     *        in user's ldap record
      *
      * Note: caller should clear the memory for the returned token
      *       after each use
      */
-    public char[] getSharedToken(String identification)
+    public char[] getSharedToken(String identification, IAuthToken authToken)
             throws EBaseException {
-        String method = "SharedSecret.getSharedToken(String identification): ";
+        String method = "SharedSecret.getSharedToken(String identification, IAuthToken authToken): ";
         String msg = "";
         CMS.debug(method + "begins.");
 
+        if ((identification == null) || (authToken == null)) {
+            throw new EBaseException(method + "paramsters identification or authToken cannot be null");
+        }
         LDAPConnection shrTokLdapConnection = null;
         LDAPSearchResults res = null;
         LDAPEntry entry = null;
@@ -286,6 +294,9 @@ public class SharedSecret extends DirBasedAuthentication
                 CMS.debug(msg);
                 throw new EBaseException(msg);
             }
+
+            CMS.debug(method + "found user ldap entry: userdn = " + userdn);
+            authToken.set(AuthToken.TOKEN_CERT_SUBJECT, userdn);
 
             res = shrTokLdapConnection.search(userdn, LDAPv2.SCOPE_BASE,
                     "(objectclass=*)", new String[] { mShrTokAttr }, false);
