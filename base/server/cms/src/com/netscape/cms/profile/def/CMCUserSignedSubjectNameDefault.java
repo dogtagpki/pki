@@ -137,9 +137,14 @@ public class CMCUserSignedSubjectNameDefault extends EnrollDefault {
         String msg = "";
         CMS.debug(method + "begins");
 
-        String signingUserSerial = request.getExtDataInString(IAuthManager.CRED_CMC_SIGNING_CERT);
         if (info == null) {
             msg = method + "info null";
+            CMS.debug(msg);
+            throw new EProfileException(msg);
+        }
+        String signingUserSerial = request.getExtDataInString(IAuthManager.CRED_CMC_SIGNING_CERT);
+        if (signingUserSerial == null) {
+            msg = method + "signing user serial not found; request was unsigned?";
             CMS.debug(msg);
             throw new EProfileException(msg);
         }

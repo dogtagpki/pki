@@ -533,10 +533,16 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
             CMS.debug("ProfileSubmitCMCServlet: setting CRED_CMC_SIGNING_CERT in ctx for CMCUserSignedAuth");
             ctx.set(IAuthManager.CRED_CMC_SIGNING_CERT, signingCertSerialS);
         }
+
+        String errorCode = null;
+        String errorReason = null;
+        String auditRequesterID = ILogger.UNIDENTIFIED;
+
         try {
             reqs = profile.createRequests(ctx, locale);
         } catch (ECMCBadMessageCheckException e) {
-            CMS.debug("ProfileSubmitCMCServlet: after createRequests - " + e.toString());
+            errorReason = e.toString();
+            CMS.debug("ProfileSubmitCMCServlet: after createRequests - " + errorReason);
             CMCOutputTemplate template = new CMCOutputTemplate();
             SEQUENCE seq = new SEQUENCE();
             seq.addElement(new INTEGER(0));
@@ -547,9 +553,9 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
             }
             template.createFullResponseWithFailedStatus(response, seq,
                     OtherInfo.BAD_MESSAGE_CHECK, s);
-            return;
         } catch (ECMCBadIdentityException e) {
-            CMS.debug("ProfileSubmitCMCServlet: after createRequests - " + e.toString());
+            errorReason = e.toString();
+            CMS.debug("ProfileSubmitCMCServlet: after createRequests - " + errorReason);
             CMCOutputTemplate template = new CMCOutputTemplate();
             SEQUENCE seq = new SEQUENCE();
             seq.addElement(new INTEGER(0));
@@ -560,9 +566,9 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
             }
             template.createFullResponseWithFailedStatus(response, seq,
                     OtherInfo.BAD_IDENTITY, s);
-            return;
         } catch (ECMCPopFailedException e) {
-            CMS.debug("ProfileSubmitCMCServlet: after createRequests - " + e.toString());
+            errorReason = e.toString();
+            CMS.debug("ProfileSubmitCMCServlet: after createRequests - " + errorReason);
             CMCOutputTemplate template = new CMCOutputTemplate();
             SEQUENCE seq = new SEQUENCE();
             seq.addElement(new INTEGER(0));
@@ -573,9 +579,9 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
             }
             template.createFullResponseWithFailedStatus(response, seq,
                     OtherInfo.POP_FAILED, s);
-            return;
         } catch (ECMCBadRequestException e) {
-            CMS.debug("ProfileSubmitCMCServlet: after createRequests - " + e.toString());
+            errorReason = e.toString();
+            CMS.debug("ProfileSubmitCMCServlet: after createRequests - " + errorReason);
             CMCOutputTemplate template = new CMCOutputTemplate();
             SEQUENCE seq = new SEQUENCE();
             seq.addElement(new INTEGER(0));
@@ -586,9 +592,9 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
             }
             template.createFullResponseWithFailedStatus(response, seq,
                     OtherInfo.BAD_REQUEST, s);
-            return;
         } catch (EProfileException e) {
-            CMS.debug("ProfileSubmitCMCServlet: after createRequests - " + e.toString());
+            errorReason = e.toString();
+            CMS.debug("ProfileSubmitCMCServlet: after createRequests - " + errorReason);
             CMCOutputTemplate template = new CMCOutputTemplate();
             SEQUENCE seq = new SEQUENCE();
             seq.addElement(new INTEGER(0));
@@ -599,9 +605,9 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
             }
             template.createFullResponseWithFailedStatus(response, seq,
                     OtherInfo.INTERNAL_CA_ERROR, s);
-            return;
         } catch (Throwable e) {
-            CMS.debug("ProfileSubmitCMCServlet: createRequests - " + e.toString());
+            errorReason = e.toString();
+            CMS.debug("ProfileSubmitCMCServlet: createRequests - " + errorReason);
             CMCOutputTemplate template = new CMCOutputTemplate();
             SEQUENCE seq = new SEQUENCE();
             seq.addElement(new INTEGER(0));
@@ -612,7 +618,15 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
             }
             template.createFullResponseWithFailedStatus(response, seq,
                     OtherInfo.INTERNAL_CA_ERROR, s);
-            return;
+        }
+
+        if (errorReason != null) {
+            audit(CertRequestProcessedEvent.createFailureEvent(
+                        auditSubjectID,
+                        auditRequesterID,
+                        ILogger.SIGNED_AUDIT_REJECTION,
+                        errorReason));
+                return;
         }
 
         TaggedAttribute attr =
@@ -684,13 +698,11 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
             }
         }
 
-        String errorCode = null;
-        String errorReason = null;
-
         ///////////////////////////////////////////////
         // populate request
         ///////////////////////////////////////////////
         for (int k = 0; (!isRevoke) && (provedReq == null) &&(k < reqs.length); k++) {
+            auditRequesterID = auditRequesterID(reqs[k]);
             // adding parameters to request
             setInputsIntoRequest(request, profile, reqs[k]);
 
@@ -769,7 +781,8 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                 profile.populateInput(ctx, reqs[k]);
                 profile.populate(reqs[k]);
             } catch (ECMCPopFailedException e) {
-                CMS.debug("ProfileSubmitCMCServlet: after populate - " + e.toString());
+                errorReason = e.toString();
+                CMS.debug("ProfileSubmitCMCServlet: after populate - " + errorReason);
                 CMCOutputTemplate template = new CMCOutputTemplate();
                 SEQUENCE seq = new SEQUENCE();
                 seq.addElement(new INTEGER(0));
@@ -780,9 +793,9 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                 }
                 template.createFullResponseWithFailedStatus(response, seq,
                         OtherInfo.POP_FAILED, s);
-                return;
             } catch (EProfileException e) {
-                CMS.debug("ProfileSubmitCMCServlet: after populate - " + e.toString());
+                errorReason = e.toString();
+                CMS.debug("ProfileSubmitCMCServlet: after populate - " + errorReason);
                 CMCOutputTemplate template = new CMCOutputTemplate();
                 SEQUENCE seq = new SEQUENCE();
                 seq.addElement(new INTEGER(0));
@@ -793,9 +806,9 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                 }
                 template.createFullResponseWithFailedStatus(response, seq,
                         OtherInfo.BAD_REQUEST, s);
-                return;
             } catch (Throwable e) {
-                CMS.debug("ProfileSubmitCMCServlet: after populate - " + e.toString());
+                errorReason = e.toString();
+                CMS.debug("ProfileSubmitCMCServlet: after populate - " + errorReason);
                 //  throw new IOException("Profile " + profileId +
                 //          " cannot populate");
                 CMCOutputTemplate template = new CMCOutputTemplate();
@@ -808,11 +821,17 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                 }
                 template.createFullResponseWithFailedStatus(response, seq,
                         OtherInfo.INTERNAL_CA_ERROR, s);
+            }
+
+            if (errorReason != null) {
+                audit(CertRequestProcessedEvent.createFailureEvent(
+                        auditSubjectID,
+                        auditRequesterID,
+                        ILogger.SIGNED_AUDIT_REJECTION,
+                        errorReason));
                 return;
             }
         } //for
-
-        String auditRequesterID = ILogger.UNIDENTIFIED;
 
         try {
             ///////////////////////////////////////////////

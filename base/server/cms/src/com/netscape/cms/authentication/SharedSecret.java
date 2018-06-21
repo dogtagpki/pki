@@ -406,6 +406,11 @@ public class SharedSecret extends DirBasedAuthentication
         String method = "SharedSecret.getSharedToken(BigInteger serial): ";
         String msg = "";
 
+        if (serial == null) {
+            throw new EBaseException(method + "paramster serial cannot be null");
+        }
+        CMS.debug(method + serial.toString());
+
         ICertRecord record = null;
         try {
             record = certRepository.readCertificateRecord(serial);
