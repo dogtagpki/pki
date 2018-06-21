@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d07a48d5_80d330a6",
+        "filename": "tests/dogtag/pytest-ansible/pytest/ca/externalca/fixtures.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 1012791
+      },
+      "writtenOn": "2018-06-21T15:53:51Z",
+      "side": 1,
+      "message": "Any reason we are referencing specifically RHEL74 RHEL75. \nIf yes, since this is upstream code do we need to do for fedora26, fedora27?",
+      "revId": "66677e63e61147446b5396a452199beaa6f72317",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
