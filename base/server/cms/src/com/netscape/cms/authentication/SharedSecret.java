@@ -405,6 +405,7 @@ public class SharedSecret extends DirBasedAuthentication
             throws EBaseException {
         String method = "SharedSecret.getSharedToken(BigInteger serial): ";
         String msg = "";
+        CMS.debug(method + serial.toString());
 
         ICertRecord record = null;
         try {

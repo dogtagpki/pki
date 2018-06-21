@@ -1103,14 +1103,15 @@ public class CMCOutputTemplate {
 
                     char[] sharedSecret = null;
                     try {
-                       sharedSecret = tokenClass.getSharedToken(revokeSerial);
+                        sharedSecret = tokenClass.getSharedToken(revokeSerial);
                     } catch (Exception eShrTok) {
-                        CMS.debug("CMCOutputTemplate: " + eShrTok.toString());
+                        msg = "CMCOutputTemplate: " + eShrTok.toString();
                     }
 
                     if (sharedSecret == null) {
-                        msg = " shared secret not found";
-                        CMS.debug(method + msg);
+                        if (msg.equals("")) // don't overwrite the msg
+                            msg = " shared secret not found";
+                        CMS.debug(msg);
                         audit(new CertStatusChangeRequestProcessedEvent(
                                 auditSubjectID,
                                 ILogger.FAILURE,
