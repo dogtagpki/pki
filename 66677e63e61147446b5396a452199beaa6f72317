@@ -16,6 +16,40 @@
       "revId": "66677e63e61147446b5396a452199beaa6f72317",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fe2643c9_b8eed394",
+        "filename": "tests/dogtag/pytest-ansible/pytest/ca/externalca/test_externalca_dogtagpki.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 1012851
+      },
+      "writtenOn": "2018-06-21T17:43:47Z",
+      "side": 1,
+      "message": "Copyright (c) 2018",
+      "revId": "66677e63e61147446b5396a452199beaa6f72317",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c158a0c7_7a2d68d7",
+        "filename": "tests/dogtag/pytest-ansible/pytest/ca/externalca/utils.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 1012851
+      },
+      "writtenOn": "2018-06-21T17:43:47Z",
+      "side": 1,
+      "message": "We can reduce this statement to small like:\n`kwargs.get(\u0027ca_http_port\u0027, constants.CA_HTTP_PORT)`\n\nWe can do this for all of the following statements.",
+      "revId": "66677e63e61147446b5396a452199beaa6f72317",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
