@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ee34327a_fb62e5a3",
+        "filename": "base/server/cms/src/com/netscape/cms/authentication/SharedSecret.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 408,
+      "author": {
+        "id": 1010256
+      },
+      "writtenOn": "2018-06-21T18:53:25Z",
+      "side": 1,
+      "message": "unlikely.  Also it\u0027s existing code.  I can add check though.",
+      "parentUuid": "b97f40a4_58ffeabf",
+      "revId": "4b120c8909762f5959a608c1699693ad20e5bde9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7201c77b_2c893875",
         "filename": "base/server/cms/src/com/netscape/cms/servlet/common/CMCOutputTemplate.java",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2018-06-21T18:15:27Z",
       "side": 1,
       "message": "Is there a chance msg can be null? If so this blows up.",
+      "revId": "4b120c8909762f5959a608c1699693ad20e5bde9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a97bdb1c_14ccb794",
+        "filename": "base/server/cms/src/com/netscape/cms/servlet/common/CMCOutputTemplate.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1112,
+      "author": {
+        "id": 1010256
+      },
+      "writtenOn": "2018-06-21T18:53:25Z",
+      "side": 1,
+      "message": "no, because it\u0027s initialized to be \"\"",
+      "parentUuid": "7201c77b_2c893875",
       "revId": "4b120c8909762f5959a608c1699693ad20e5bde9",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
