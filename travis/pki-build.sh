@@ -14,7 +14,7 @@ function compose {
 
 function upload {
     if test -f $BUILDLOG; then
-        curl -w "\n" --upload-file $BUILDLOG https://transfer.sh/$PACKAGE-build.txt >> /tmp/workdir/pki/logs.txt
+        curl ${CURL_OPTS} --upload-file $BUILDLOG https://transfer.sh/$PACKAGE-build.txt >> /tmp/workdir/pki/logs.txt
     fi
 }
 
