@@ -3,3 +3,6 @@ SCRIPTDIR=/tmp/workdir/pki/travis
 BUILDER_RPMS=/tmp/workdir/packages/RPMS
 HOST_RPMS=${TRAVIS_BUILD_DIR}/RPMS
 LOGS=logs.txt
+
+# Disable validation due to expired transfer.sh cert
+CURL_OPTS=--insecure -w "\n"
