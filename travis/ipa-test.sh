@@ -62,6 +62,6 @@ then
     truncate_log_to_test_failures
 fi
 
-curl -w "\n" --upload-file ${IPA_TEST_LOG} https://transfer.sh/ipa-test.txt >> logs.txt
+curl ${CURL_OPTS} --upload-file ${IPA_TEST_LOG} https://transfer.sh/ipa-test.txt >> logs.txt
 
 exit $exit_status

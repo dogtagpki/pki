@@ -35,6 +35,7 @@ docker run \
     -v $(pwd):/tmp/workdir/pki \
     -e BUILDUSER_UID=$(id -u) \
     -e BUILDUSER_GID=$(id -g) \
+    -e CURL_OPTS=${CURL_OPTS} \
     -e TRAVIS=${TRAVIS} \
     -e TRAVIS_JOB_NUMBER=${TRAVIS_JOB_NUMBER} \
     -i \
