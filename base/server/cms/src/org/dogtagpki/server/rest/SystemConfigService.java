@@ -57,6 +57,7 @@ import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cms.servlet.csadmin.Cert;
 import com.netscape.cms.servlet.csadmin.ConfigurationUtils;
+import com.netscape.cms.servlet.csadmin.ReplicationUtil;
 import com.netscape.cms.servlet.csadmin.SystemCertDataFactory;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.SubsystemInfo;
@@ -741,16 +742,15 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             cs.commit(false);
 
             if (data.isClone() && data.getSetupReplication()) {
-                logger.debug("Start setting up replication.");
-                ConfigurationUtils.setupReplication();
+                ReplicationUtil.setupReplication();
             }
 
             ConfigurationUtils.populateDBManager();
             ConfigurationUtils.populateVLVIndexes();
 
         } catch (Exception e) {
-            logger.error("Error in populating database: " + e.getMessage(), e);
-            throw new PKIException("Error in populating database: " + e, e);
+            logger.error("Unable to populate database: " + e.getMessage(), e);
+            throw new PKIException("Unable to populate database: " + e.getMessage(), e);
         }
     }
 
