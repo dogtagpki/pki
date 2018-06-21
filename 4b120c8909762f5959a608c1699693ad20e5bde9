@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b97f40a4_58ffeabf",
+        "filename": "base/server/cms/src/com/netscape/cms/authentication/SharedSecret.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 408,
+      "author": {
+        "id": 1010222
+      },
+      "writtenOn": "2018-06-21T18:15:27Z",
+      "side": 1,
+      "message": "Can serial ever be null, if so we can blow up the server with a debug log message?",
+      "revId": "4b120c8909762f5959a608c1699693ad20e5bde9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7201c77b_2c893875",
+        "filename": "base/server/cms/src/com/netscape/cms/servlet/common/CMCOutputTemplate.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1112,
+      "author": {
+        "id": 1010222
+      },
+      "writtenOn": "2018-06-21T18:15:27Z",
+      "side": 1,
+      "message": "Is there a chance msg can be null? If so this blows up.",
+      "revId": "4b120c8909762f5959a608c1699693ad20e5bde9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
