@@ -1,5 +1,8 @@
-CONTAINER=pkitest
-SCRIPTDIR=/tmp/workdir/pki/travis
-BUILDER_RPMS=/tmp/workdir/packages/RPMS
-HOST_RPMS=${TRAVIS_BUILD_DIR}/RPMS
-LOGS=logs.txt
+export CONTAINER=pkitest
+export SCRIPTDIR=/tmp/workdir/pki/travis
+export BUILDER_RPMS=/tmp/workdir/packages/RPMS
+export HOST_RPMS=${TRAVIS_BUILD_DIR}/RPMS
+export LOGS=logs.txt
+
+# Disable validation due to expired transfer.sh cert
+export CURL_OPTS="--insecure -w '\n'"
