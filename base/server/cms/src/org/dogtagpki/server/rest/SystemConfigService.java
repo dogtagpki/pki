@@ -975,22 +975,25 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
     }
 
     private void getInstallToken(ConfigurationRequest data, String host, int port) {
-        logger.debug("Getting install token");
-        // log onto security domain and get token
+
+        logger.debug("Getting installation token from security domain");
+
         String user = data.getSecurityDomainUser();
         String pass = data.getSecurityDomainPassword();
         String installToken;
+
         try {
             installToken = ConfigurationUtils.getInstallToken(host, port, user, pass);
         } catch (Exception e) {
-            logger.error("Failed to obtain installation token from security domain: " + e.getMessage(), e);
-            throw new PKIException("Failed to obtain installation token from security domain: " + e, e);
+            logger.error("Unable to get installation token: " + e.getMessage(), e);
+            throw new PKIException("Unable to get installation token: " + e.getMessage(), e);
         }
 
         if (installToken == null) {
-            logger.error("Missing install token");
-            throw new PKIException("Missing install token");
+            logger.error("Missing installation token");
+            throw new PKIException("Missing installation token");
         }
+
         CMS.setConfigSDSessionId(installToken);
     }
 

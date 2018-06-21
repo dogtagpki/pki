@@ -309,21 +309,11 @@ class Version(object):
 
         if isinstance(obj, six.string_types):
 
-            # parse <version>-<release>
-            pos = obj.find('-')
-
-            if pos > 0:
-                self.version = obj[0:pos]
-            elif pos < 0:
-                self.version = obj
-            else:
-                raise Exception('Invalid version number: ' + obj)
-
-            # parse <major>.<minor>.<patch>
-            match = re.match(r'^(\d+)\.(\d+)\.(\d+)$', self.version)
+            # parse <major>.<minor>.<patch>[<suffix>]
+            match = re.match(r'^(\d+)\.(\d+)\.(\d+)', obj)
 
             if match is None:
-                raise Exception('Invalid version number: ' + self.version)
+                raise Exception('Unable to parse version number: %s' % obj)
 
             self.major = int(match.group(1))
             self.minor = int(match.group(2))
@@ -336,7 +326,7 @@ class Version(object):
             self.patch = obj.patch
 
         else:
-            raise Exception('Unsupported version type: ' + str(type(obj)))
+            raise Exception('Unsupported version type: %s' % type(obj))
 
     # release is ignored in comparisons
     def __eq__(self, other):
@@ -368,4 +358,4 @@ class Version(object):
     __hash__ = None
 
     def __repr__(self):
-        return self.version
+        return '%d.%d.%d' % (self.major, self.minor, self.patch)
