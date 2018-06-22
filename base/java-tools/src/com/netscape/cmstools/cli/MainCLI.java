@@ -60,7 +60,7 @@ import com.netscape.cmstools.ca.CACLI;
 import com.netscape.cmstools.cert.ProxyCertCLI;
 import com.netscape.cmstools.client.ClientCLI;
 import com.netscape.cmstools.group.ProxyGroupCLI;
-import com.netscape.cmstools.key.KeyCLI;
+import com.netscape.cmstools.key.ProxyKeyCLI;
 import com.netscape.cmstools.kra.KRACLI;
 import com.netscape.cmstools.ocsp.OCSPCLI;
 import com.netscape.cmstools.pkcs11.PKCS11CLI;
@@ -110,7 +110,7 @@ public class MainCLI extends CLI {
 
         addModule(new ProxyCertCLI(this));
         addModule(new ProxyGroupCLI(this));
-        addModule(new ProxyCLI(new KeyCLI(this), "kra"));
+        addModule(new ProxyKeyCLI(this));
         addModule(new ProxyCLI(new SecurityDomainCLI(this), "ca"));
         addModule(new ProxyUserCLI(this));
 
