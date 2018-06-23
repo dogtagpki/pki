@@ -1,4 +1,4 @@
-package com.netscape.cmstools.cert;
+package com.netscape.cmstools.ca;
 
 import java.util.Arrays;
 
@@ -7,15 +7,14 @@ import org.apache.commons.cli.CommandLine;
 import com.netscape.certsrv.ca.CACertClient;
 import com.netscape.certsrv.cert.CertRequestInfo;
 import com.netscape.certsrv.request.RequestId;
-import com.netscape.cmstools.ca.CACertCLI;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
-public class CertRequestShowCLI extends CLI {
+public class CACertRequestShowCLI extends CLI {
 
     CACertCLI certCLI;
 
-    public CertRequestShowCLI(CACertCLI certCLI) {
+    public CACertRequestShowCLI(CACertCLI certCLI) {
 
         super("request-show", "Show certificate request", certCLI);
         this.certCLI = certCLI;

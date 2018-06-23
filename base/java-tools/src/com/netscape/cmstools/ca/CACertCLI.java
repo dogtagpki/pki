@@ -30,18 +30,6 @@ import com.netscape.certsrv.cert.CertRequestInfo;
 import com.netscape.certsrv.cert.CertRequestInfos;
 import com.netscape.certsrv.cert.CertReviewResponse;
 import com.netscape.certsrv.client.PKIClient;
-import com.netscape.cmstools.cert.CertFindCLI;
-import com.netscape.cmstools.cert.CertHoldCLI;
-import com.netscape.cmstools.cert.CertReleaseHoldCLI;
-import com.netscape.cmstools.cert.CertRequestFindCLI;
-import com.netscape.cmstools.cert.CertRequestProfileFindCLI;
-import com.netscape.cmstools.cert.CertRequestProfileShowCLI;
-import com.netscape.cmstools.cert.CertRequestReviewCLI;
-import com.netscape.cmstools.cert.CertRequestShowCLI;
-import com.netscape.cmstools.cert.CertRequestSubmitCLI;
-import com.netscape.cmstools.cert.CertRevokeCLI;
-import com.netscape.cmstools.cert.CertShowCLI;
-import com.netscape.cmstools.cert.CertStatusCLI;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 import com.netscape.cmstools.cli.SubsystemCLI;
@@ -58,20 +46,20 @@ public class CACertCLI extends CLI {
     public CACertCLI(CLI parent) {
         super("cert", "Certificate management commands", parent);
 
-        addModule(new CertFindCLI(this));
-        addModule(new CertShowCLI(this));
-        addModule(new CertRevokeCLI(this));
-        addModule(new CertHoldCLI(this));
-        addModule(new CertReleaseHoldCLI(this));
-        addModule(new CertStatusCLI(this));
+        addModule(new CACertFindCLI(this));
+        addModule(new CACertShowCLI(this));
+        addModule(new CACertRevokeCLI(this));
+        addModule(new CACertHoldCLI(this));
+        addModule(new CACertReleaseHoldCLI(this));
+        addModule(new CACertStatusCLI(this));
 
-        addModule(new CertRequestFindCLI(this));
-        addModule(new CertRequestShowCLI(this));
-        addModule(new CertRequestSubmitCLI(this));
-        addModule(new CertRequestReviewCLI(this));
+        addModule(new CACertRequestFindCLI(this));
+        addModule(new CACertRequestShowCLI(this));
+        addModule(new CACertRequestSubmitCLI(this));
+        addModule(new CACertRequestReviewCLI(this));
 
-        addModule(new CertRequestProfileFindCLI(this));
-        addModule(new CertRequestProfileShowCLI(this));
+        addModule(new CACertRequestProfileFindCLI(this));
+        addModule(new CACertRequestProfileShowCLI(this));
     }
 
     public String getFullName() {

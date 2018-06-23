@@ -1,4 +1,4 @@
-package com.netscape.cmstools.cert;
+package com.netscape.cmstools.ca;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -19,18 +19,17 @@ import com.netscape.certsrv.ca.CACertClient;
 import com.netscape.certsrv.cert.CertRequestInfo;
 import com.netscape.certsrv.cert.CertReviewResponse;
 import com.netscape.certsrv.request.RequestId;
-import com.netscape.cmstools.ca.CACertCLI;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
-public class CertRequestReviewCLI extends CLI {
+public class CACertRequestReviewCLI extends CLI {
 
     CACertCLI certCLI;
     List<String> actions = Arrays.asList(
         "approve", "reject", "cancel", "update", "validate", "assign", "unassign"
     );
 
-    public CertRequestReviewCLI(CACertCLI certCLI) {
+    public CACertRequestReviewCLI(CACertCLI certCLI) {
         super("request-review", "Review certificate request", certCLI);
         this.certCLI = certCLI;
 

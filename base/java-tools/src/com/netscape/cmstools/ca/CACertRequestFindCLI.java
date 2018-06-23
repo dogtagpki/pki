@@ -16,7 +16,7 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
-package com.netscape.cmstools.cert;
+package com.netscape.cmstools.ca;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -28,18 +28,17 @@ import com.netscape.certsrv.ca.CACertClient;
 import com.netscape.certsrv.cert.CertRequestInfo;
 import com.netscape.certsrv.cert.CertRequestInfos;
 import com.netscape.certsrv.request.RequestId;
-import com.netscape.cmstools.ca.CACertCLI;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
 /**
  * @author Ade Lee
  */
-public class CertRequestFindCLI extends CLI {
+public class CACertRequestFindCLI extends CLI {
 
     public CACertCLI certCLI;
 
-    public CertRequestFindCLI(CACertCLI certCLI) {
+    public CACertRequestFindCLI(CACertCLI certCLI) {
         super("request-find", "Find certificate requests", certCLI);
         this.certCLI = certCLI;
 

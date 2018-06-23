@@ -16,7 +16,7 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
-package com.netscape.cmstools.cert;
+package com.netscape.cmstools.ca;
 
 import java.io.FileWriter;
 import java.io.PrintWriter;
@@ -28,18 +28,17 @@ import org.apache.commons.cli.Option;
 import com.netscape.certsrv.ca.CACertClient;
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.dbs.certdb.CertId;
-import com.netscape.cmstools.ca.CACertCLI;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
 /**
  * @author Endi S. Dewata
  */
-public class CertShowCLI extends CLI {
+public class CACertShowCLI extends CLI {
 
     public CACertCLI certCLI;
 
-    public CertShowCLI(CACertCLI certCLI) {
+    public CACertShowCLI(CACertCLI certCLI) {
         super("show", "Show certificate", certCLI);
         this.certCLI = certCLI;
 

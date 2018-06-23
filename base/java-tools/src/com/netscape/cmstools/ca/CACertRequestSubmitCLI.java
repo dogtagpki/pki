@@ -1,4 +1,4 @@
-package com.netscape.cmstools.cert;
+package com.netscape.cmstools.ca;
 
 import java.io.Console;
 import java.io.File;
@@ -20,7 +20,6 @@ import com.netscape.certsrv.cert.CertRequestInfos;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfileInput;
-import com.netscape.cmstools.ca.CACertCLI;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -28,11 +27,11 @@ import netscape.ldap.util.DN;
 import netscape.ldap.util.RDN;
 import netscape.security.x509.X500Name;
 
-public class CertRequestSubmitCLI extends CLI {
+public class CACertRequestSubmitCLI extends CLI {
 
     CACertCLI certCLI;
 
-    public CertRequestSubmitCLI(CACertCLI certCLI) {
+    public CACertRequestSubmitCLI(CACertCLI certCLI) {
         super("request-submit", "Submit certificate request", certCLI);
         this.certCLI = certCLI;
 

@@ -16,32 +16,35 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
-package com.netscape.cmstools.cert;
+package com.netscape.cmstools.ca;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Option;
 
 import com.netscape.certsrv.ca.CACertClient;
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.cert.CertRequestInfo;
+import com.netscape.certsrv.cert.CertRevokeRequest;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.cmstools.ca.CACertCLI;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
+
+import netscape.security.x509.RevocationReason;
 
 /**
  * @author Endi S. Dewata
  */
-public class CertReleaseHoldCLI extends CLI {
+public class CACertHoldCLI extends CLI {
 
     public CACertCLI certCLI;
 
-    public CertReleaseHoldCLI(CACertCLI certCLI) {
-        super("release-hold", "Place certificate off-hold", certCLI);
+    public CACertHoldCLI(CACertCLI certCLI) {
+        super("hold", "Place certificate on-hold", certCLI);
         this.certCLI = certCLI;
 
         createOptions();
@@ -52,6 +55,10 @@ public class CertReleaseHoldCLI extends CLI {
     }
 
     public void createOptions() {
+        Option option = new Option(null, "comments", true, "Comments");
+        option.setArgName("comments");
+        options.addOption(option);
+
         options.addOption(null, "force", false, "Force");
     }
 
@@ -72,14 +79,14 @@ public class CertReleaseHoldCLI extends CLI {
 
         CertId certID = new CertId(cmdArgs[0]);
         CACertClient certClient = certCLI.getCertClient();
+        CertData certData = certClient.reviewCert(certID);
 
         if (!cmd.hasOption("force")) {
 
-            CertData certData = certClient.getCert(certID);
-
-            System.out.println("Placing certificate off-hold:");
+            System.out.println("Placing certificate on-hold:");
 
             CACertCLI.printCertData(certData, false, false);
+            if (verbose) System.out.println("  Nonce: " + certData.getNonce());
 
             System.out.print("Are you sure (Y/N)? ");
             System.out.flush();
@@ -91,7 +98,12 @@ public class CertReleaseHoldCLI extends CLI {
             }
         }
 
-        CertRequestInfo certRequestInfo = certClient.unrevokeCert(certID);
+        CertRevokeRequest request = new CertRevokeRequest();
+        request.setReason(RevocationReason.CERTIFICATE_HOLD);
+        request.setComments(cmd.getOptionValue("comments"));
+        request.setNonce(certData.getNonce());
+
+        CertRequestInfo certRequestInfo = certClient.revokeCert(certID, request);
 
         if (verbose) {
             CACertCLI.printCertRequestInfo(certRequestInfo);
@@ -103,10 +115,10 @@ public class CertReleaseHoldCLI extends CLI {
                 if (error != null) {
                     System.out.println(error);
                 }
-                MainCLI.printMessage("Could not place certificate \"" + certID.toHexString() + "\" off-hold");
+                MainCLI.printMessage("Could not place certificate \"" + certID.toHexString() + "\" on-hold");
             } else {
-                MainCLI.printMessage("Placed certificate \"" + certID.toHexString() + "\" off-hold");
-                CertData certData = certClient.getCert(certID);
+                MainCLI.printMessage("Placed certificate \"" + certID.toHexString() + "\" on-hold");
+                certData = certClient.getCert(certID);
                 CACertCLI.printCertData(certData, false, false);
             }
         } else {

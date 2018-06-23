@@ -1,4 +1,4 @@
-package com.netscape.cmstools.cert;
+package com.netscape.cmstools.ca;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -9,16 +9,15 @@ import org.apache.commons.cli.Option;
 import com.netscape.certsrv.ca.CACertClient;
 import com.netscape.certsrv.profile.ProfileDataInfo;
 import com.netscape.certsrv.profile.ProfileDataInfos;
-import com.netscape.cmstools.ca.CACertCLI;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 import com.netscape.cmstools.profile.ProfileCLI;
 
-public class CertRequestProfileFindCLI extends CLI {
+public class CACertRequestProfileFindCLI extends CLI {
 
     public CACertCLI certCLI;
 
-    public CertRequestProfileFindCLI(CACertCLI certCLI) {
+    public CACertRequestProfileFindCLI(CACertCLI certCLI) {
         super("request-profile-find", "List Enrollment templates", certCLI);
         this.certCLI = certCLI;
 

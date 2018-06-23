@@ -16,7 +16,7 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
-package com.netscape.cmstools.cert;
+package com.netscape.cmstools.ca;
 
 import java.io.ByteArrayInputStream;
 import java.math.BigInteger;
@@ -33,7 +33,6 @@ import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.dbs.certdb.CertId;
-import com.netscape.cmstools.ca.CACertCLI;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.CLIException;
 import com.netscape.cmsutil.ocsp.BasicOCSPResponse;
@@ -55,11 +54,11 @@ import netscape.security.x509.X509Key;
 /**
  * @author Endi S. Dewata
  */
-public class CertStatusCLI extends CLI {
+public class CACertStatusCLI extends CLI {
 
     public CACertCLI certCLI;
 
-    public CertStatusCLI(CACertCLI certCLI) {
+    public CACertStatusCLI(CACertCLI certCLI) {
         super("status", "Check certificate status", certCLI);
         this.certCLI = certCLI;
 

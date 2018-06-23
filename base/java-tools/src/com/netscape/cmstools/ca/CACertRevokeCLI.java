@@ -16,7 +16,7 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
-package com.netscape.cmstools.cert;
+package com.netscape.cmstools.ca;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -31,7 +31,6 @@ import com.netscape.certsrv.cert.CertRequestInfo;
 import com.netscape.certsrv.cert.CertRevokeRequest;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.cmstools.ca.CACertCLI;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -40,12 +39,12 @@ import netscape.security.x509.RevocationReason;
 /**
  * @author Endi S. Dewata
  */
-public class CertHoldCLI extends CLI {
+public class CACertRevokeCLI extends CLI {
 
     public CACertCLI certCLI;
 
-    public CertHoldCLI(CACertCLI certCLI) {
-        super("hold", "Place certificate on-hold", certCLI);
+    public CACertRevokeCLI(CACertCLI certCLI) {
+        super("revoke", "Revoke certificate", certCLI);
         this.certCLI = certCLI;
 
         createOptions();
@@ -56,10 +55,27 @@ public class CertHoldCLI extends CLI {
     }
 
     public void createOptions() {
-        Option option = new Option(null, "comments", true, "Comments");
+        StringBuilder sb = new StringBuilder();
+
+        for (RevocationReason reason : RevocationReason.INSTANCES) {
+            if (sb.length() > 0) {
+                sb.append(", ");
+            }
+            sb.append(reason);
+            if (reason == RevocationReason.UNSPECIFIED) {
+                sb.append(" (default)");
+            }
+        }
+
+        Option option = new Option(null, "reason", true, "Revocation reason: " + sb);
+        option.setArgName("reason");
+        options.addOption(option);
+
+        option = new Option(null, "comments", true, "Comments");
         option.setArgName("comments");
         options.addOption(option);
 
+        options.addOption(null, "ca", false, "CA signing certificate");
         options.addOption(null, "force", false, "Force");
     }
 
@@ -79,12 +95,26 @@ public class CertHoldCLI extends CLI {
         }
 
         CertId certID = new CertId(cmdArgs[0]);
+
+        String string = cmd.getOptionValue("reason", RevocationReason.UNSPECIFIED.toString());
+        RevocationReason reason = RevocationReason.valueOf(string);
+
+        if (reason == null) {
+            throw new Exception("Invalid revocation reason: " + string);
+        }
+
         CACertClient certClient = certCLI.getCertClient();
         CertData certData = certClient.reviewCert(certID);
 
         if (!cmd.hasOption("force")) {
 
-            System.out.println("Placing certificate on-hold:");
+            if (reason == RevocationReason.CERTIFICATE_HOLD) {
+                System.out.println("Placing certificate on-hold:");
+            } else if (reason == RevocationReason.REMOVE_FROM_CRL) {
+                System.out.println("Placing certificate off-hold:");
+            } else {
+                System.out.println("Revoking certificate:");
+            }
 
             CACertCLI.printCertData(certData, false, false);
             if (verbose) System.out.println("  Nonce: " + certData.getNonce());
@@ -100,11 +130,17 @@ public class CertHoldCLI extends CLI {
         }
 
         CertRevokeRequest request = new CertRevokeRequest();
-        request.setReason(RevocationReason.CERTIFICATE_HOLD);
+        request.setReason(reason);
         request.setComments(cmd.getOptionValue("comments"));
         request.setNonce(certData.getNonce());
 
-        CertRequestInfo certRequestInfo = certClient.revokeCert(certID, request);
+        CertRequestInfo certRequestInfo;
+
+        if (cmd.hasOption("ca")) {
+            certRequestInfo = certClient.revokeCACert(certID, request);
+        } else {
+            certRequestInfo = certClient.revokeCert(certID, request);
+        }
 
         if (verbose) {
             CACertCLI.printCertRequestInfo(certRequestInfo);
@@ -116,9 +152,16 @@ public class CertHoldCLI extends CLI {
                 if (error != null) {
                     System.out.println(error);
                 }
-                MainCLI.printMessage("Could not place certificate \"" + certID.toHexString() + "\" on-hold");
+                MainCLI.printMessage("Could not revoke certificate \"" + certID.toHexString() + "\"");
             } else {
-                MainCLI.printMessage("Placed certificate \"" + certID.toHexString() + "\" on-hold");
+                if (reason == RevocationReason.CERTIFICATE_HOLD) {
+                    MainCLI.printMessage("Placed certificate \"" + certID.toHexString() + "\" on-hold");
+                } else if (reason == RevocationReason.REMOVE_FROM_CRL) {
+                    MainCLI.printMessage("Placed certificate \"" + certID.toHexString() + "\" off-hold");
+                } else {
+                    MainCLI.printMessage("Revoked certificate \"" + certID.toHexString() + "\"");
+                }
+
                 certData = certClient.getCert(certID);
                 CACertCLI.printCertData(certData, false, false);
             }
