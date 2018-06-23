@@ -16,33 +16,41 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
-package com.netscape.cmstools.key;
+package com.netscape.cmstools.kra;
 
 import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Option;
 
+import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.key.KeyClient;
-import com.netscape.certsrv.key.KeyRequestInfo;
-import com.netscape.certsrv.request.RequestId;
+import com.netscape.certsrv.key.KeyInfo;
 import com.netscape.cmstools.cli.CLI;
 
-public class KeyRequestShowCLI extends CLI {
+public class KRAKeyModifyCLI extends CLI {
+    public KRAKeyCLI keyCLI;
 
-    public KeyCLI keyCLI;
-
-    public KeyRequestShowCLI(KeyCLI keyCLI) {
-        super("request-show", "Get key request", keyCLI);
+    public KRAKeyModifyCLI(KRAKeyCLI keyCLI) {
+        super("mod", "Modify the status of a key", keyCLI);
         this.keyCLI = keyCLI;
+
+        createOptions();
     }
 
     public void printHelp() {
-        formatter.printHelp(getFullName() + " <Request ID> [OPTIONS...]", options);
+        formatter.printHelp(getFullName() + " <Key ID> --status <status> [OPTIONS...]", options);
+    }
+
+    public void createOptions() {
+        Option option = new Option(null, "status", true, "Status of the key.\nValid values: active, inactive");
+        option.setRequired(true);
+        option.setArgName("status");
+        options.addOption(option);
     }
 
     public void execute(String[] args) throws Exception {
-
-        // Check for "--help"
+        // Always check for "--help" prior to parsing
         if (Arrays.asList(args).contains("--help")) {
             printHelp();
             return;
@@ -53,14 +61,17 @@ public class KeyRequestShowCLI extends CLI {
         String[] cmdArgs = cmd.getArgs();
 
         if (cmdArgs.length != 1) {
-            throw new Exception("No Request ID specified.");
+            throw new Exception("No Key ID specified.");
         }
 
-        RequestId requestId = new RequestId(args[0].trim());
+        String status = cmd.getOptionValue("status");
+
+        KeyId keyId = new KeyId(cmdArgs[0]);
 
         KeyClient keyClient = keyCLI.getKeyClient();
-        KeyRequestInfo keyRequestInfo = keyClient.getRequestInfo(requestId);
+        keyClient.modifyKeyStatus(keyId, status);
 
-        KeyCLI.printKeyRequestInfo(keyRequestInfo);
+        KeyInfo keyInfo = keyClient.getKeyInfo(keyId);
+        KRAKeyCLI.printKeyInfo(keyInfo);
     }
 }

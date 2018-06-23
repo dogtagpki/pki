@@ -1,4 +1,4 @@
-package com.netscape.cmstools.key;
+package com.netscape.cmstools.kra;
 
 import java.io.FileOutputStream;
 import java.util.Arrays;
@@ -11,10 +11,10 @@ import com.netscape.certsrv.key.KeyArchivalRequest;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
-public class KeyTemplateShowCLI extends CLI {
-    public KeyCLI keyCLI;
+public class KRAKeyTemplateShowCLI extends CLI {
+    public KRAKeyCLI keyCLI;
 
-    public KeyTemplateShowCLI(KeyCLI keyCLI) {
+    public KRAKeyTemplateShowCLI(KRAKeyCLI keyCLI) {
         super("template-show", "Get request template", keyCLI);
         this.keyCLI = keyCLI;
 

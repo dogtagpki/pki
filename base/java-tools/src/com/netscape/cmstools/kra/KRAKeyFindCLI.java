@@ -16,7 +16,7 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
-package com.netscape.cmstools.key;
+package com.netscape.cmstools.kra;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -33,11 +33,11 @@ import com.netscape.cmstools.cli.MainCLI;
 /**
  * @author Endi S. Dewata
  */
-public class KeyFindCLI extends CLI {
+public class KRAKeyFindCLI extends CLI {
 
-    public KeyCLI keyCLI;
+    public KRAKeyCLI keyCLI;
 
-    public KeyFindCLI(KeyCLI keyCLI) {
+    public KRAKeyFindCLI(KRAKeyCLI keyCLI) {
         super("find", "Find keys", keyCLI);
         this.keyCLI = keyCLI;
 
@@ -126,7 +126,7 @@ public class KeyFindCLI extends CLI {
                 System.out.println();
             }
 
-            KeyCLI.printKeyInfo(info);
+            KRAKeyCLI.printKeyInfo(info);
         }
 
         MainCLI.printMessage("Number of entries returned " + entries.size());

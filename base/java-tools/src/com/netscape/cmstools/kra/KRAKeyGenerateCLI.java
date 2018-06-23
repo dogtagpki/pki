@@ -1,4 +1,4 @@
-package com.netscape.cmstools.key;
+package com.netscape.cmstools.kra;
 
 import java.util.Arrays;
 import java.util.List;
@@ -12,10 +12,10 @@ import com.netscape.certsrv.key.KeyRequestResponse;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
-public class KeyGenerateCLI extends CLI {
-    public KeyCLI keyCLI;
+public class KRAKeyGenerateCLI extends CLI {
+    public KRAKeyCLI keyCLI;
 
-    public KeyGenerateCLI(KeyCLI keyCLI) {
+    public KRAKeyGenerateCLI(KRAKeyCLI keyCLI) {
         super("generate", "Generate key", keyCLI);
         this.keyCLI = keyCLI;
 
@@ -132,7 +132,7 @@ public class KeyGenerateCLI extends CLI {
             throw new Exception("Algorithm not supported.");
         }
         MainCLI.printMessage("Key generation request info");
-        KeyCLI.printKeyRequestInfo(response.getRequestInfo());
+        KRAKeyCLI.printKeyRequestInfo(response.getRequestInfo());
     }
 
 }

@@ -1,4 +1,4 @@
-package com.netscape.cmstools.key;
+package com.netscape.cmstools.kra;
 
 import java.util.Arrays;
 
@@ -11,10 +11,10 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
-public class KeyRequestReviewCLI extends CLI {
-    public KeyCLI keyCLI;
+public class KRAKeyRequestReviewCLI extends CLI {
+    public KRAKeyCLI keyCLI;
 
-    public KeyRequestReviewCLI(KeyCLI keyCLI) {
+    public KRAKeyRequestReviewCLI(KRAKeyCLI keyCLI) {
         super("request-review", "Review key request", keyCLI);
         this.keyCLI = keyCLI;
 
@@ -69,6 +69,6 @@ public class KeyRequestReviewCLI extends CLI {
         KeyRequestInfo keyRequestInfo = keyClient.getRequestInfo(reqId);
 
         MainCLI.printMessage("Result");
-        KeyCLI.printKeyRequestInfo(keyRequestInfo);
+        KRAKeyCLI.printKeyRequestInfo(keyRequestInfo);
     }
 }

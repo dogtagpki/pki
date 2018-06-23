@@ -1,4 +1,4 @@
-package com.netscape.cmstools.key;
+package com.netscape.cmstools.kra;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -23,11 +23,11 @@ import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 import com.netscape.cmsutil.util.Utils;
 
-public class KeyRetrieveCLI extends CLI {
-    public KeyCLI keyCLI;
+public class KRAKeyRetrieveCLI extends CLI {
+    public KRAKeyCLI keyCLI;
     private boolean clientEncryption = true;
 
-    public KeyRetrieveCLI(KeyCLI keyCLI) {
+    public KRAKeyRetrieveCLI(KRAKeyCLI keyCLI) {
         super("retrieve", "Retrieve key", keyCLI);
         this.keyCLI = keyCLI;
 

@@ -16,7 +16,7 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
-package com.netscape.cmstools.key;
+package com.netscape.cmstools.kra;
 
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.X509Certificate;
@@ -36,28 +36,28 @@ import com.netscape.cmsutil.util.Utils;
 /**
  * @author Endi S. Dewata
  */
-public class KeyCLI extends CLI {
+public class KRAKeyCLI extends CLI {
 
     public KeyClient keyClient;
 
-    public KeyCLI(CLI parent) {
+    public KRAKeyCLI(CLI parent) {
         super("key", "Key management commands", parent);
 
-        addModule(new KeyTemplateFindCLI(this));
-        addModule(new KeyTemplateShowCLI(this));
+        addModule(new KRAKeyTemplateFindCLI(this));
+        addModule(new KRAKeyTemplateShowCLI(this));
 
-        addModule(new KeyRequestFindCLI(this));
-        addModule(new KeyRequestShowCLI(this));
-        addModule(new KeyRequestReviewCLI(this));
+        addModule(new KRAKeyRequestFindCLI(this));
+        addModule(new KRAKeyRequestShowCLI(this));
+        addModule(new KRAKeyRequestReviewCLI(this));
 
-        addModule(new KeyFindCLI(this));
-        addModule(new KeyShowCLI(this));
-        addModule(new KeyModifyCLI(this));
+        addModule(new KRAKeyFindCLI(this));
+        addModule(new KRAKeyShowCLI(this));
+        addModule(new KRAKeyModifyCLI(this));
 
-        addModule(new KeyGenerateCLI(this));
-        addModule(new KeyArchiveCLI(this));
-        addModule(new KeyRetrieveCLI(this));
-        addModule(new KeyRecoverCLI(this));
+        addModule(new KRAKeyGenerateCLI(this));
+        addModule(new KRAKeyArchiveCLI(this));
+        addModule(new KRAKeyRetrieveCLI(this));
+        addModule(new KRAKeyRecoverCLI(this));
     }
 
     public String getFullName() {

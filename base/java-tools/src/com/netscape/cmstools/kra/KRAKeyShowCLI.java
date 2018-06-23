@@ -16,7 +16,7 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
-package com.netscape.cmstools.key;
+package com.netscape.cmstools.kra;
 
 import java.util.Arrays;
 
@@ -28,11 +28,11 @@ import com.netscape.certsrv.key.KeyClient;
 import com.netscape.certsrv.key.KeyInfo;
 import com.netscape.cmstools.cli.CLI;
 
-public class KeyShowCLI extends CLI {
+public class KRAKeyShowCLI extends CLI {
 
-    public KeyCLI keyCLI;
+    public KRAKeyCLI keyCLI;
 
-    public KeyShowCLI(KeyCLI keyCLI) {
+    public KRAKeyShowCLI(KRAKeyCLI keyCLI) {
         super("show", "Get key", keyCLI);
         this.keyCLI = keyCLI;
 
@@ -74,6 +74,6 @@ public class KeyShowCLI extends CLI {
             throw new Exception("Missing Key ID or Client Key ID.");
         }
 
-        KeyCLI.printKeyInfo(keyInfo);
+        KRAKeyCLI.printKeyInfo(keyInfo);
     }
 }

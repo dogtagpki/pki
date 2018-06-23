@@ -1,4 +1,4 @@
-package com.netscape.cmstools.key;
+package com.netscape.cmstools.kra;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -12,12 +12,12 @@ import com.netscape.certsrv.key.SymKeyGenerationRequest;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
-public class KeyTemplateFindCLI extends CLI {
-    public KeyCLI keyCLI;
+public class KRAKeyTemplateFindCLI extends CLI {
+    public KRAKeyCLI keyCLI;
 
     public ArrayList<KeyTemplate> templates = new ArrayList<KeyTemplate>();
 
-    public KeyTemplateFindCLI(KeyCLI keyCLI) {
+    public KRAKeyTemplateFindCLI(KRAKeyCLI keyCLI) {
         super("template-find", "List request template IDs", keyCLI);
         this.keyCLI = keyCLI;
     }

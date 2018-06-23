@@ -1,4 +1,4 @@
-package com.netscape.cmstools.key;
+package com.netscape.cmstools.kra;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -19,10 +19,10 @@ import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 import com.netscape.cmsutil.util.Utils;
 
-public class KeyRecoverCLI extends CLI {
-    public KeyCLI keyCLI;
+public class KRAKeyRecoverCLI extends CLI {
+    public KRAKeyCLI keyCLI;
 
-    public KeyRecoverCLI(KeyCLI keyCLI) {
+    public KRAKeyRecoverCLI(KRAKeyCLI keyCLI) {
         super("recover", "Create a key recovery request", keyCLI);
         this.keyCLI = keyCLI;
 
@@ -88,7 +88,7 @@ public class KeyRecoverCLI extends CLI {
         }
 
         MainCLI.printMessage("Key Recovery Request Information");
-        KeyCLI.printKeyRequestInfo(response.getRequestInfo());
+        KRAKeyCLI.printKeyRequestInfo(response.getRequestInfo());
 
     }
 }

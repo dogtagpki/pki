@@ -20,6 +20,7 @@ package com.netscape.cmstools.key;
 
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.ProxyCLI;
+import com.netscape.cmstools.kra.KRAKeyCLI;
 
 /**
  * @deprecated pki key has been deprecated. Use pki kra-key instead.
@@ -28,7 +29,7 @@ import com.netscape.cmstools.cli.ProxyCLI;
 public class ProxyKeyCLI extends ProxyCLI {
 
     public ProxyKeyCLI(CLI parent) {
-        super(new KeyCLI(parent), "kra");
+        super(new KRAKeyCLI(parent), "kra");
     }
 
     public void execute(String[] args) throws Exception {

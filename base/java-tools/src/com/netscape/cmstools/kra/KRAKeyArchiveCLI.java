@@ -1,4 +1,4 @@
-package com.netscape.cmstools.key;
+package com.netscape.cmstools.kra;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -21,10 +21,10 @@ import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 import com.netscape.cmsutil.util.Utils;
 
-public class KeyArchiveCLI extends CLI {
-    public KeyCLI keyCLI;
+public class KRAKeyArchiveCLI extends CLI {
+    public KRAKeyCLI keyCLI;
 
-    public KeyArchiveCLI(KeyCLI keyCLI) {
+    public KRAKeyArchiveCLI(KRAKeyCLI keyCLI) {
         super("archive", "Archive a secret in the DRM.", keyCLI);
         this.keyCLI = keyCLI;
 
@@ -141,6 +141,6 @@ public class KeyArchiveCLI extends CLI {
         }
 
         MainCLI.printMessage("Archival request details");
-        KeyCLI.printKeyRequestInfo(response.getRequestInfo());
+        KRAKeyCLI.printKeyRequestInfo(response.getRequestInfo());
     }
 }
