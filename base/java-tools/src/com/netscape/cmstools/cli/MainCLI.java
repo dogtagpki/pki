@@ -516,6 +516,9 @@ public class MainCLI extends CLI {
             } catch (IncorrectPasswordException e) {
                 // The original exception doesn't contain a message.
                 throw new Exception("Incorrect password for " + tokenName + " token", e);
+
+            } finally {
+                password.clear();
             }
 
         } else {
@@ -535,6 +538,9 @@ public class MainCLI extends CLI {
                 } catch (IncorrectPasswordException e) {
                     // The original exception doesn't contain a message.
                     throw new Exception("Incorrect password for " + tokenName + " token", e);
+
+                } finally {
+                    password.clear();
                 }
             }
         }
