@@ -26,6 +26,9 @@ import java.security.Signature;
 import java.security.SignatureException;
 import java.security.cert.CertificateException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.netscape.cmsutil.util.Utils;
 
 import netscape.security.util.BigInt;
@@ -71,6 +74,9 @@ import netscape.security.x509.X509Key;
  * @version 1.28
  */
 public class PKCS10 {
+
+    public static Logger logger = LoggerFactory.getLogger(PKCS10.class);
+
     /**
      * Constructs an unsigned PKCS #10 certificate request. Before this
      * request may be used, it must be encoded and signed. Then it
@@ -123,12 +129,11 @@ public class PKCS10 {
         byte sigData[];
         Signature sig;
 
-        String method = "PKCS10: PKCS10: ";
         String msg = "";
 
-        System.out.println(method + "begins");
+        logger.debug("PKCS10: begins");
         if (data == null) {
-            throw new IllegalArgumentException(method + "param data cann't be null");
+            throw new IllegalArgumentException("Missing PKCS #10 data");
         }
         certificateRequest = data;
 
@@ -139,11 +144,11 @@ public class PKCS10 {
         in = new DerInputStream(data);
         seq = in.getSequence(3);
         if (seq == null) {
-            throw new IllegalArgumentException(method + "in.getSequence null");
+            throw new IllegalArgumentException("in.getSequence null");
         }
 
         if (seq.length != 3)
-            throw new IllegalArgumentException(method + "not a PKCS #10 request");
+            throw new IllegalArgumentException("Invalid PKCS #10 request");
 
         data = seq[0].toByteArray(); // reusing this variable
         certRequestInfo = seq[0].toByteArray(); // make a copy
@@ -168,8 +173,8 @@ public class PKCS10 {
         subjectPublicKeyInfo = X509Key.parse(new DerValue(val1));
         PublicKey publicKey = X509Key.parsePublicKey(new DerValue(val1));
         if (publicKey == null) {
-            System.out.println(method + msg + "publicKey null");
-            throw new SignatureException (method + msg + "publicKey null");
+            logger.error("PKCS10: " + msg + "publicKey null");
+            throw new SignatureException(msg + "publicKey null");
         }
 
         // Cope with a somewhat common illegal PKCS #10 format
@@ -214,15 +219,15 @@ public class PKCS10 {
                 sig.initVerify(publicKey);
                 sig.update(data);
                 if (!sig.verify(sigData)) {
-                    System.out.println(method + msg + "sig.verify() failed");
-                        throw new SignatureException(method + msg + "Invalid PKCS #10 signature");
+                    logger.error("PKCS10: " + msg + "sig.verify() failed");
+                    throw new SignatureException(msg + "Invalid PKCS #10 signature");
                 }
             }
         } catch (InvalidKeyException e) {
-            System.out.println(method + msg + e.toString());
-            throw new SignatureException(method + msg + "invalid key");
+            logger.error("PKCS10: " + msg + e.getMessage());
+            throw new SignatureException(msg + "invalid key", e);
         }
-        System.out.println(method + "ends");
+        logger.debug("PKCS10: ends");
     }
 
     public PKCS10(byte data[])
