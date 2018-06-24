@@ -21,9 +21,6 @@ import com.netscape.admin.certsrv.*;
 import javax.swing.*;
 import javax.swing.event.*;
 import com.netscape.management.client.*;
-import com.netscape.management.client.util.*;
-import javax.swing.tree.*;
-import java.awt.event.*;
 import java.awt.*;
 
 /**

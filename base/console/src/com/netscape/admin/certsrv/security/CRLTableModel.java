@@ -18,9 +18,6 @@
 package com.netscape.admin.certsrv.security;
 
 import java.util.*;
-import java.awt.event.*;
-
-import javax.swing.*;
 import javax.swing.table.*;
 import javax.swing.event.*;
 

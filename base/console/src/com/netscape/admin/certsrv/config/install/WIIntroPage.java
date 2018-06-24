@@ -21,12 +21,8 @@ import java.awt.*;
 import java.util.*;
 import javax.swing.*;
 import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
 import com.netscape.admin.certsrv.wizard.*;
 import com.netscape.certsrv.common.*;
-import com.netscape.admin.certsrv.task.*;
-import com.netscape.management.client.console.*;
-import com.netscape.management.client.util.*;
 
 /**
  * Introduction page for installation wizard.

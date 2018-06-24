@@ -28,7 +28,6 @@ import java.util.*;
 
 import com.netscape.management.client.util.*;
 import com.netscape.management.nmclf.*;
-import netscape.ldap.*;
 
 /**
  *

@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config;
 
-import com.netscape.admin.certsrv.security.CipherPreferenceDialog;
 import com.netscape.management.client.util.*;
 import javax.swing.*;
 import java.awt.*;

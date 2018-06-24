@@ -17,9 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.connection;
 
-import java.io.*;
-import java.util.*;
-
 /**
  * An interface represents authentiator.
  *

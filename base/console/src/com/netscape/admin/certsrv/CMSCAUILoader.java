@@ -21,11 +21,9 @@ import com.netscape.management.client.*;
 import com.netscape.management.client.util.*;
 import com.netscape.admin.certsrv.config.*;
 import com.netscape.admin.certsrv.ug.*;
-import com.netscape.admin.certsrv.menu.*;
 import com.netscape.certsrv.common.*;
 import com.netscape.admin.certsrv.connection.*;
 import com.netscape.admin.certsrv.notification.*;
-import java.util.*;
 
 /**
  * Netscape Certificate Server 4.0 Certificate Authority UI Loader.

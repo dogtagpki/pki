@@ -20,7 +20,6 @@ package com.netscape.admin.certsrv.config;
 import com.netscape.admin.certsrv.*;
 import javax.swing.*;
 import javax.swing.event.*;
-import com.netscape.admin.certsrv.connection.*;
 import javax.swing.tree.*;
 import java.awt.event.*;
 import java.awt.*;

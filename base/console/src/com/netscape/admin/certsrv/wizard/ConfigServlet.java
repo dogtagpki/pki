@@ -17,8 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.wizard;
 
-import java.net.*;
-
 public interface ConfigServlet {
     public boolean send(String s, WizardInfo wizardInfo);
 }

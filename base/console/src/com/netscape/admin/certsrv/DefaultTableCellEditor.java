@@ -20,13 +20,10 @@ package com.netscape.admin.certsrv;
 import com.netscape.certsrv.common.*;
 import java.awt.Component;
 import java.awt.event.*;
-import java.awt.AWTEvent;
-import java.lang.Boolean;
 import javax.swing.table.*;
 import javax.swing.event.*;
 import java.util.EventObject;
 import javax.swing.*;
-import javax.swing.tree.*;
 import com.netscape.management.client.util.*;
 
 /**

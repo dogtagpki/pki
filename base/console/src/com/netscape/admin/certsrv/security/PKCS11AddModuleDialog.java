@@ -20,12 +20,8 @@ package com.netscape.admin.certsrv.security;
 import com.netscape.management.client.console.ConsoleInfo;
 
 import javax.swing.*;
-import javax.swing.JFileChooser;
-
 import java.awt.*;
 import java.awt.event.*;
-import java.util.*;
-
 import com.netscape.management.client.util.*;
 import com.netscape.management.nmclf.*;
 

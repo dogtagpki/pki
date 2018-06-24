@@ -17,8 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.wizard;
 
-import javax.swing.*;
-
 /**
  * Interface for WizardWidget delegation.<p>
  * The methods will be call in the following order: <br>

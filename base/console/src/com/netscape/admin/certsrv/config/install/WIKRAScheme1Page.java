@@ -20,9 +20,7 @@ package com.netscape.admin.certsrv.config.install;
 import java.awt.*;
 import javax.swing.*;
 import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
 import com.netscape.admin.certsrv.wizard.*;
-import com.netscape.certsrv.common.*;
 
 /**
  * KRA Key recovery for installation wizard: specify number of required and

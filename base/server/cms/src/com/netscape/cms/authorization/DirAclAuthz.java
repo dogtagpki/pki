@@ -22,8 +22,6 @@ import java.util.Enumeration;
 import com.netscape.certsrv.acls.ACL;
 import com.netscape.certsrv.acls.EACLsException;
 import com.netscape.certsrv.apps.CMS;
-import com.netscape.certsrv.authentication.IAuthToken;
-import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.authorization.IAuthzManager;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;

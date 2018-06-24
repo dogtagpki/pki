@@ -19,7 +19,6 @@ package com.netscape.admin.certsrv.config.install;
 
 import com.netscape.admin.certsrv.wizard.*;
 import javax.swing.*;
-import com.netscape.management.client.util.*;
 
 /**
  * Subject DN page for RA signing certificate

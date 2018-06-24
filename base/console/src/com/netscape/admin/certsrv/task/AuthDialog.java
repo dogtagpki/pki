@@ -22,10 +22,8 @@ import java.util.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.*;
-import javax.swing.border.*;
 import com.netscape.admin.certsrv.*;
 import com.netscape.management.client.util.*;
-import com.netscape.certsrv.common.*;
 
 /**
  * Display this dialog to get the instance name and password.

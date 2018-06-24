@@ -17,8 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.wizard;
 
-import javax.swing.*;
-
 public interface IWizardDone {
 
     /**

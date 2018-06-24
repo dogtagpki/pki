@@ -17,14 +17,11 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.wizard;
 
-import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.util.*;
 import javax.swing.*;
 import com.netscape.admin.certsrv.*;
-import com.netscape.management.client.util.*;
-import javax.swing.border.*;
 import java.net.*;
 import java.io.*;
 

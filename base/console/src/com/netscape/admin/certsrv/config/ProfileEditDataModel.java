@@ -17,18 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config;
 
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
-import javax.swing.*;
-import javax.swing.event.*;
 import javax.swing.table.*;
-import javax.swing.text.*;
-import java.awt.event.*;
-import java.awt.*;
 import java.util.*;
-import com.netscape.management.client.*;
-import com.netscape.management.client.util.*;
-import com.netscape.certsrv.common.*;
 
 /**
  * Policy Parameter Configuration Dialog

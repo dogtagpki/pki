@@ -19,7 +19,6 @@ package com.netscape.admin.certsrv.config.install;
 
 import com.netscape.admin.certsrv.wizard.*;
 import javax.swing.*;
-import com.netscape.management.client.util.*;
 
 /**
  * The panel asks if the user wants to install the RA certificate now.

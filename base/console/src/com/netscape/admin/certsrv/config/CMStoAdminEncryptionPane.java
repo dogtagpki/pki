@@ -20,14 +20,7 @@ package com.netscape.admin.certsrv.config;
 import com.netscape.admin.certsrv.security.EncryptionPane;
 import com.netscape.management.client.console.*;
 import com.netscape.management.client.util.*;
-import com.netscape.admin.certsrv.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.admin.certsrv.connection.*;
-import java.awt.*;
 import java.awt.event.*;
-import java.util.*;
-import javax.swing.*;
-import javax.swing.event.*;
 
 /**
  * Encryption set preference panel glue between CMS and KingPin

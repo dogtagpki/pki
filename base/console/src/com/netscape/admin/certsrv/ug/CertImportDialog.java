@@ -23,11 +23,6 @@ import javax.swing.event.*;
 import java.awt.event.*;
 import java.awt.*;
 import java.util.*;
-import com.netscape.management.client.*;
-import com.netscape.management.client.util.*;
-import javax.swing.table.*;
-import com.netscape.admin.certsrv.connection.*;
-import com.netscape.certsrv.common.*;
 
 /**
  * Certificate Import Editor - this UI will take Base64Encoded

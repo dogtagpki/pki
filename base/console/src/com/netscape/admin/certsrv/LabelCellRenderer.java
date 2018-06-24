@@ -18,7 +18,6 @@
 package com.netscape.admin.certsrv;
 
 import java.awt.*;
-import java.lang.*;
 import javax.swing.table.*;
 import javax.swing.border.*;
 import javax.swing.*;

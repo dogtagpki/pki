@@ -18,8 +18,6 @@
 package com.netscape.admin.certsrv.security;
 
 import javax.swing.*;
-import javax.swing.border.*;
-import com.netscape.management.nmclf.*;
 
 /**
  *

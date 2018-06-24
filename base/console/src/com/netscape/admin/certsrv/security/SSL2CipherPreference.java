@@ -17,8 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.security;
 
-import javax.swing.*;
-
 /**
  *
  * Convenient class to construct SSL2 cipher preference toggle pane

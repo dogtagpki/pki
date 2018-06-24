@@ -20,7 +20,6 @@ package com.netscape.admin.certsrv;
 import com.netscape.management.client.*;
 import com.netscape.management.client.util.*;
 import com.netscape.admin.certsrv.config.*;
-import com.netscape.admin.certsrv.ug.*;
 
 
 /**

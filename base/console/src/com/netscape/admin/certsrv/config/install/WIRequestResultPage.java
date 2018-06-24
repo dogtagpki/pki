@@ -17,18 +17,12 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config.install;
 
-import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.border.*;
 import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
 import com.netscape.admin.certsrv.wizard.*;
 import com.netscape.certsrv.common.*;
-import com.netscape.admin.certsrv.config.install.*;
-import com.netscape.admin.certsrv.task.*;
-import com.netscape.management.client.util.*;
 
 /**
  * Certificate wizard request result page

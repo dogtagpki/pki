@@ -20,11 +20,6 @@ package com.netscape.admin.certsrv.security;
 import com.netscape.management.nmclf.*;
 import com.netscape.management.client.console.ConsoleInfo;
 import com.netscape.management.client.util.*;
-import javax.swing.*;
-
-import java.awt.SystemColor;
-import java.util.*;
-import java.io.*;
 
 class KeyCertUtility {
 

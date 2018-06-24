@@ -18,17 +18,12 @@
 package com.netscape.admin.certsrv.security;
 
 import java.awt.*;
-import java.awt.event.*;
 import java.util.*;
-import java.io.*;
-
 import javax.swing.*;
 
 import com.netscape.management.client.util.Help;
 import com.netscape.management.client.util.Debug;
 import com.netscape.management.client.console.ConsoleInfo;
-import netscape.ldap.*;
-
 import com.netscape.management.client.util.*;
 
 /**

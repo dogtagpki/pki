@@ -18,8 +18,6 @@
 package com.netscape.cms.profile.def;
 
 import java.io.IOException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 
 import com.netscape.certsrv.apps.CMS;

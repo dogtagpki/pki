@@ -18,9 +18,7 @@
 package com.netscape.admin.certsrv.config.install;
 
 import java.awt.*;
-import java.util.*;
 import javax.swing.*;
-import javax.swing.text.*;
 import javax.swing.table.*;
 
 class ComponentCellRenderer implements TableCellRenderer {

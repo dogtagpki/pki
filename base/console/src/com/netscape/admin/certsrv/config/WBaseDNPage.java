@@ -23,9 +23,7 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.*;
 import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
 import com.netscape.admin.certsrv.wizard.*;
-import com.netscape.certsrv.common.*;
 
 /**
  * CA signing cert for installation wizard.

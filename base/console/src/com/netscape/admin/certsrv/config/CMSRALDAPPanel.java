@@ -17,8 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config;
 
-import com.netscape.management.client.util.*;
-
 /**
  * LDAP server setting tab
  *

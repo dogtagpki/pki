@@ -17,13 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.keycert;
 
-import java.awt.*;
 import java.util.*;
 import javax.swing.*;
 import javax.swing.border.*;
-import javax.swing.event.*;
 import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
 import com.netscape.admin.certsrv.wizard.*;
 import com.netscape.certsrv.common.*;
 import com.netscape.admin.certsrv.config.*;

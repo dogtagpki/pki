@@ -18,7 +18,6 @@
 package com.netscape.admin.certsrv.menu;
 
 import com.netscape.management.client.*;
-import com.netscape.management.client.util.*;
 import com.netscape.management.client.console.*;
 import com.netscape.admin.certsrv.security.*;
 import com.netscape.admin.certsrv.*;

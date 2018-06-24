@@ -19,8 +19,6 @@ package com.netscape.admin.certsrv.security;
 
 import javax.swing.*;
 
-import java.awt.SystemColor;
-import java.util.*;
 import com.netscape.management.client.util.UtilConsoleGlobals;
 import com.netscape.management.nmclf.*;
 

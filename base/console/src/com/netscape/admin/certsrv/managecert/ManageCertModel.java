@@ -17,10 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.managecert;
 
-import java.util.*;
-import javax.swing.*;
 import com.netscape.admin.certsrv.*;
-import com.netscape.certsrv.common.*;
 
 /**
  * Manage certificate data model - represents the instance

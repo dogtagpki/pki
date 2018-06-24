@@ -23,7 +23,6 @@ import java.util.Enumeration;
 import java.util.Locale;
 
 import com.netscape.certsrv.apps.CMS;
-import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.EMissingCredential;
 import com.netscape.certsrv.authentication.IAuthCredentials;
 import com.netscape.certsrv.authentication.IAuthToken;

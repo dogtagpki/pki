@@ -22,11 +22,7 @@ import java.util.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.*;
-import javax.swing.border.*;
-import com.netscape.admin.certsrv.*;
 import com.netscape.management.client.util.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.admin.certsrv.connection.*;
 
 /**
  * Display this dialog to get a password.

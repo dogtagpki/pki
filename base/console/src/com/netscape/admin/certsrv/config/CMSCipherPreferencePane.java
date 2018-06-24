@@ -24,7 +24,6 @@ import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.plaf.*;
 import com.netscape.management.nmclf.*;
-import com.netscape.admin.certsrv.*;
 
 /**
  * Constructs a Cipher preference pane.

@@ -21,7 +21,6 @@ import java.awt.*;
 import javax.swing.*;
 import com.netscape.admin.certsrv.*;
 import com.netscape.admin.certsrv.wizard.*;
-import com.netscape.management.client.util.*;
 import com.netscape.certsrv.common.*;
 
 /**

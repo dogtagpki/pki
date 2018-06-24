@@ -18,14 +18,6 @@
 package com.netscape.admin.certsrv.config;
 
 import com.netscape.admin.certsrv.*;
-import javax.swing.*;
-import javax.swing.event.*;
-import javax.swing.border.*;
-import javax.swing.text.*;
-import java.util.*;
-import java.awt.*;
-import java.awt.event.*;
-import com.netscape.management.client.util.*;
 
 /**
  * Netscape Certificate Server 4.0 Deafult Base TAB

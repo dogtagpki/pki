@@ -17,10 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv;
 
-import java.lang.*;
 import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
 import com.netscape.management.client.*;
 import com.netscape.management.client.util.*;
 

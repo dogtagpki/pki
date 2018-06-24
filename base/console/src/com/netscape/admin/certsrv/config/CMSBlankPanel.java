@@ -18,7 +18,6 @@
 package com.netscape.admin.certsrv.config;
 
 import com.netscape.management.client.*;
-import com.netscape.admin.certsrv.*;
 
 /**
  * Blank Panel to be displayed at the right hand side

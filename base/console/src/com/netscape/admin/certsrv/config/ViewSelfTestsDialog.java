@@ -18,17 +18,9 @@
 package com.netscape.admin.certsrv.config;
 
 import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.management.client.*;
-import com.netscape.management.client.util.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.*;
 import javax.swing.*;
-import javax.swing.border.*;
-import javax.swing.event.*;
-import javax.swing.table.*;
 
 /**
  * Self Tests Implementation Information viewer

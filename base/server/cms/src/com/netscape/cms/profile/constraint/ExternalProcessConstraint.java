@@ -18,8 +18,6 @@
 
 package com.netscape.cms.profile.constraint;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Map;

@@ -17,11 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config;
 
-import java.awt.*;
 import javax.swing.*;
-import com.netscape.admin.certsrv.*;
 import com.netscape.admin.certsrv.wizard.*;
-import com.netscape.management.client.util.*;
 
 /**
  * Wizard for reconfiguring the Recovery MN Scheme

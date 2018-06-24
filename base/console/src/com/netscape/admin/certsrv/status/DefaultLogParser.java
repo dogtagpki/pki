@@ -17,15 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.status;
 
-import java.awt.*;
 import java.util.*;
 import java.text.*;
-import java.io.*;
-import java.awt.event.*;
 import javax.swing.*;
 import com.netscape.admin.certsrv.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.management.client.util.*;
 
 /**
  * Parse the log in the following default format:

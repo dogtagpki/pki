@@ -20,8 +20,6 @@ package com.netscape.admin.certsrv;
 import java.util.*;
 import java.awt.*;
 import javax.swing.*;
-import javax.swing.tree.*;
-import com.netscape.management.client.util.*;
 import com.netscape.management.client.*;
 
 /**

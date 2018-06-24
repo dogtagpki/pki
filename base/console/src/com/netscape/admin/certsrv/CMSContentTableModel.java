@@ -18,9 +18,7 @@
 package com.netscape.admin.certsrv;
 
 import java.util.*;
-import javax.swing.table.*;
 import com.netscape.management.client.util.*;
-import com.netscape.management.client.logging.*;
 
 /**
  * Generic base class for the JTable data container that will

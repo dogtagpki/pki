@@ -20,7 +20,6 @@ package com.netscape.admin.certsrv.security;
 import java.awt.*;
 import javax.swing.*;
 import com.netscape.management.client.util.*;
-import com.netscape.management.nmclf.*;
 
 /**
  * General dialog which display the ciper preference.

@@ -19,14 +19,12 @@ package com.netscape.admin.certsrv;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.lang.*;
 import java.util.*;
 import javax.swing.table.*;
 import javax.swing.*;
 import javax.swing.event.*;
 import java.io.Serializable;
 import com.netscape.certsrv.common.*;
-import com.netscape.admin.certsrv.connection.*;
 
 /**
  * Class that will edit components correctly in table

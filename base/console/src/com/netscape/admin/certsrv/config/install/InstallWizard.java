@@ -17,10 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config.install;
 
-import java.util.*;
 import java.awt.*;
 import javax.swing.*;
-import com.netscape.admin.certsrv.*;
 import com.netscape.admin.certsrv.wizard.*;
 
 /**

@@ -18,11 +18,9 @@
 package com.netscape.admin.certsrv.config;
 
 import com.netscape.admin.certsrv.*;
-import com.netscape.management.client.util.*;
 import com.netscape.admin.certsrv.connection.*;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
 
 /**
  * CA Certificate Setting

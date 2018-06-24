@@ -18,8 +18,6 @@
 package com.netscape.admin.certsrv.security;
 
 import java.util.*;
-import java.io.*;
-import com.netscape.management.client.util.Debug;
 
 class Index {
     String _indexValue;

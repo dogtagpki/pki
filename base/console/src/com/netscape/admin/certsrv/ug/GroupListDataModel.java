@@ -21,7 +21,6 @@ import java.util.*;
 import javax.swing.*;
 import com.netscape.certsrv.common.*;
 import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
 
 /**
  * Group List Data model - represents the group selection information

@@ -20,7 +20,6 @@ package com.netscape.admin.certsrv.config.install;
 import com.netscape.admin.certsrv.wizard.*;
 import com.netscape.certsrv.common.*;
 import javax.swing.*;
-import com.netscape.management.client.util.*;
 
 /**
  * The panel asks the user to paste the certificate.

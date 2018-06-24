@@ -19,21 +19,16 @@
 package com.netscape.admin.certsrv.connection;
 
 import com.netscape.management.nmclf.SuiConstants;
-import com.netscape.management.nmclf.SuiLookAndFeel;
 import com.netscape.management.client.util.*;
 import com.netscape.admin.certsrv.ug.*;
 
 import java.awt.event.*;
 import java.awt.*;
 import javax.swing.*;
-import java.io.*;
 import java.util.*;
-import java.net.*;
 import java.text.*;
 import java.security.cert.X509Certificate;
 import com.netscape.admin.certsrv.*;
-import com.netscape.certsrv.common.*;
-
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback.ValidityStatus;
 
 /**

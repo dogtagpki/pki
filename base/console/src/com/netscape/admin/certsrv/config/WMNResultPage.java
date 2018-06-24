@@ -18,14 +18,9 @@
 package com.netscape.admin.certsrv.config;
 
 import java.awt.*;
-import java.util.*;
 import javax.swing.*;
-import javax.swing.table.*;
-import javax.swing.text.*;
 import com.netscape.admin.certsrv.*;
 import com.netscape.admin.certsrv.wizard.*;
-import com.netscape.management.client.util.*;
-import com.netscape.certsrv.common.*;
 
 /**
  * Result page for the Recovery MN Scheme

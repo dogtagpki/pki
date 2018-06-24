@@ -17,19 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config.install;
 
-import java.util.Hashtable;
-import java.net.URL;
-import java.io.InputStream;
-import java.io.ByteArrayInputStream;
 import java.awt.*;
 import com.netscape.admin.certsrv.*;
 import com.netscape.admin.certsrv.wizard.*;
 import javax.swing.*;
-import javax.swing.border.*;
-import javax.swing.event.*;
-import com.netscape.management.client.console.ConsoleInfo;
-import com.netscape.management.client.util.*;
-import com.netscape.management.client.comm.*;
 import com.netscape.management.client.*;
 
 /**

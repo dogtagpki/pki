@@ -19,9 +19,7 @@ package com.netscape.admin.certsrv.ug;
 
 import java.util.*;
 import javax.swing.*;
-import com.netscape.certsrv.common.*;
 import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
 
 /**
  * Group Data model - represents the group table information
