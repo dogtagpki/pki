@@ -142,9 +142,9 @@ class WMNSelection extends WizardBasePanel
         //show icon
         JLabel iconLabel = new JLabel(CMSAdminUtil.getImage(CMSAdminResources.IMAGE_CERTICON_LARGE));
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.fill = gbc.NONE;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gb.setConstraints(iconLabel,gbc);
         add(iconLabel);
 
@@ -156,12 +156,12 @@ class WMNSelection extends WizardBasePanel
         desc.setEditable(false);
         desc.setCaretColor(getBackground());
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.WEST;
+        gbc.anchor = GridBagConstraints.WEST;
         gbc.weightx = 1.0;
         gbc.weighty = 0.1;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
       		                   COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(desc, gbc);
 
         //current setting
@@ -180,12 +180,12 @@ class WMNSelection extends WizardBasePanel
         JLabel label3 = makeJLabel("N");
         mNLabel = new JLabel("");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         CMSAdminUtil.addEntryField(oldPanel, label3, mNLabel, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
       		                   COMPONENT_SPACE,COMPONENT_SPACE);
@@ -208,12 +208,12 @@ class WMNSelection extends WizardBasePanel
         JLabel label6 = makeJLabel("N");
         mNField = new JTextField("");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         CMSAdminUtil.addEntryField(newPanel, label6, mNField, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         //gbc.gridheight = gbc.REMAINDER;
         gbc.weightx = 1.0;
         gbc.weighty = 0.9;

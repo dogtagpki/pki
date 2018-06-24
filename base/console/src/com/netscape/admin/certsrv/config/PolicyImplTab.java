@@ -182,8 +182,8 @@ public class PolicyImplTab extends CMSBaseUGTab {
         mTable = new JTable(mDataModel);
         mScrollPane = JTable.createScrollPaneForTable(mTable);
         //mScrollPane.setBorder(CMSAdminUtil.makeTitledBorder(mResource,PANEL_NAME,"USERS"));
-        mScrollPane.setHorizontalScrollBarPolicy(mScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        mScrollPane.setVerticalScrollBarPolicy(mScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        mScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        mScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         mTable.setAutoscrolls(true);
         mTable.sizeColumnsToFit(true);
         mTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -193,8 +193,8 @@ public class PolicyImplTab extends CMSBaseUGTab {
         setLabelCellRenderer(mTable,0);
 
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-      gbc.fill = gbc.BOTH;
+        gbc.anchor = GridBagConstraints.NORTH;
+      gbc.fill = GridBagConstraints.BOTH;
         gbc.gridwidth = 1;
         gbc.weightx = 1.0;
         gbc.insets = EMPTY_INSETS;
@@ -203,9 +203,9 @@ public class PolicyImplTab extends CMSBaseUGTab {
 
         JPanel buttonPanel = createButtonPanel();
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weightx = 0.0;
         gbc.weighty = 1.0;
         gbc.insets = EMPTY_INSETS;

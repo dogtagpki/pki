@@ -115,19 +115,19 @@ public class WIRequestResultPage extends WizardBasePanel implements IWizardPanel
 		mPanelName+"_TEXT_DESC_LABEL"));
         //mDesc = createTextArea("request id");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.weighty = 0.0;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(mDesc, gbc);
 
         JLabel label = new JLabel(" ");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.WEST;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weighty = 1.0;
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE);

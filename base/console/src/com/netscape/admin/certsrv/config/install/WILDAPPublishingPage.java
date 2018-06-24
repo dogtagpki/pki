@@ -90,21 +90,21 @@ class WILDAPPublishingPage extends WizardBasePanel implements IWizardPanel {
         JTextArea desc = createTextArea(
           CMSAdminUtil.wrapText(mResource.getString(
             "INTERNALDBWIZARD_TEXT_HEADING_LABEL"), 80), 2, 80);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.weighty = 0.0;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(desc, gbc);
 
         mEnable = makeJCheckBox("ENABLE");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE, 0,
           COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(mEnable, gbc);
 
         JPanel panel = new JPanel();
@@ -114,29 +114,29 @@ class WILDAPPublishingPage extends WizardBasePanel implements IWizardPanel {
         panel.setLayout(gb1);
 
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE, 0,
           COMPONENT_SPACE);
         gbc.weighty = 1.0;
         gbc.weightx = 1.0;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(panel, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
         JLabel hostName = makeJLabel("HOST");
-        gbc.anchor = gbc.NORTHEAST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.NORTHEAST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE, 0,
           COMPONENT_SPACE);
         panel.add(hostName, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
         mHostNameText = makeJTextField(30);
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE, 0,
           COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         panel.add(mHostNameText, gbc);
 
 /*
@@ -150,15 +150,15 @@ class WILDAPPublishingPage extends WizardBasePanel implements IWizardPanel {
 
         CMSAdminUtil.resetGBC(gbc);
         JLabel portNumber = makeJLabel("PORT");
-        gbc.anchor = gbc.NORTHEAST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.NORTHEAST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
         panel.add(portNumber, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
         mPortText = makeJTextField(10);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
@@ -166,60 +166,60 @@ class WILDAPPublishingPage extends WizardBasePanel implements IWizardPanel {
 
         CMSAdminUtil.resetGBC(gbc);
         mSecurePort = makeJCheckBox("SECUREPORT");
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         //gbc.weightx = 0.0;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.fill = gbc.NONE;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(COMPONENT_SPACE,
           DIFFERENT_COMPONENT_SPACE - COMPONENT_SPACE,0,COMPONENT_SPACE);
         panel.add(mSecurePort, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
         JLabel versionLbl = makeJLabel("VERSION");
-        gbc.anchor = gbc.NORTHEAST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.NORTHEAST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(0, COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE);
         panel.add(versionLbl, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
         mVersionBox = makeJComboBox("VERSION");
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(0, COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE);
         panel.add(mVersionBox, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
         JLabel dummy = new JLabel(" ");
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(0, COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE);
         panel.add(dummy, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
         mBindAsLabel = makeJLabel("BINDAS");
-        gbc.anchor = gbc.NORTHEAST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.NORTHEAST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(0, COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE);
         panel.add(mBindAsLabel, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
         mBindAsText = makeJTextField(30);
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.fill = gbc.NONE;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(0, COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE);
         panel.add(mBindAsText, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
         mCertLabel = makeJLabel("CERTLIST");
-        gbc.anchor = gbc.NORTHEAST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.NORTHEAST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(0, COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE);
         panel.add(mCertLabel, gbc);
@@ -227,15 +227,15 @@ class WILDAPPublishingPage extends WizardBasePanel implements IWizardPanel {
         CMSAdminUtil.resetGBC(gbc);
         mCertBox = new JComboBox<>();
         mCertBox.addItem(CryptoUtil.INTERNAL_TOKEN_NAME);
-        gbc.fill = gbc.NONE;
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.insets = new Insets(0, COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE);
         panel.add(mCertBox, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
         JLabel dummy1 = new JLabel(" ");
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gbc.insets = new Insets(0, COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE);
@@ -243,9 +243,9 @@ class WILDAPPublishingPage extends WizardBasePanel implements IWizardPanel {
 
         CMSAdminUtil.resetGBC(gbc);
         JLabel authLbl = makeJLabel("AUTHTYPE");
-        gbc.anchor = gbc.NORTHEAST;
-        gbc.fill = gbc.NONE;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTHEAST;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         //gbc.weighty = 1.0;
         gbc.insets = new Insets(0, COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE);
@@ -254,17 +254,17 @@ class WILDAPPublishingPage extends WizardBasePanel implements IWizardPanel {
         CMSAdminUtil.resetGBC(gbc);
         mAuthBox = makeJComboBox("AUTHTYPE");
         //gbc.weighty = 1.0;
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(0, COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE);
         panel.add(mAuthBox, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
         JLabel dummy2 = new JLabel(" ");
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         //gbc.weighty = 1.0;
         gbc.insets = new Insets(0, COMPONENT_SPACE, COMPONENT_SPACE,

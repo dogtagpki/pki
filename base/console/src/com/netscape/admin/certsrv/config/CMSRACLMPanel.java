@@ -64,8 +64,8 @@ public class CMSRACLMPanel extends CMSBaseTab {
 
         CMSAdminUtil.resetGBC(gbc);
         mRenewEnable = makeJCheckBox("RENEWENABLED");
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gb.setConstraints(mRenewEnable, gbc);
         mCenterPanel.add(mRenewEnable);
 
@@ -76,9 +76,9 @@ public class CMSRACLMPanel extends CMSBaseTab {
 
         CMSAdminUtil.resetGBC(gbc);
         mCenterPanel.setLayout(gb);
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
         gb.setConstraints(adminPanel, gbc);
@@ -95,8 +95,8 @@ public class CMSRACLMPanel extends CMSBaseTab {
         CMSAdminUtil.resetGBC(gbc);
         //JLabel dummy2 = new JLabel("");
         mNotifyEnable = makeJCheckBox("NOTIFIED");
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gb1.setConstraints(mNotifyEnable, gbc);
         adminPanel.add(mNotifyEnable);
 
@@ -107,9 +107,9 @@ public class CMSRACLMPanel extends CMSBaseTab {
         subPanel.setLayout(gb2);
         subPanel.setBorder(makeTitledBorder("CLMRENEWALNOTIFY"));
 
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
         gb1.setConstraints(subPanel, gbc);

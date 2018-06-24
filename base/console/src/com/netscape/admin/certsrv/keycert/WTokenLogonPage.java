@@ -136,53 +136,53 @@ class WTokenLogonPage extends WizardBasePanel implements IWizardPanel {
 
         CMSAdminUtil.resetGBC(gbc);
         mDesc = createTextArea("");
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.weighty = 0.0;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(mDesc, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
         JLabel tokenLabel = makeJLabel("TOKEN");
-        gbc.anchor = gbc.NORTHEAST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.NORTHEAST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(0, 0, COMPONENT_SPACE,
           COMPONENT_SPACE);
         add(tokenLabel, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
         mTokenNameText = new JLabel(" ");
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         //gbc.fill = gbc.NONE;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(0, COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE);
         add(mTokenNameText, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
         JLabel passwordLabel = makeJLabel("PWD");
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(0, COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE);
         add(passwordLabel, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
         mPasswordText = makeJPasswordField(30);
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.fill = gbc.NONE;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(0, COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE);
         add(mPasswordText, gbc);
 
         JLabel dummy = new JLabel(" ");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weighty = 1.0;
         add(dummy, gbc);
     }

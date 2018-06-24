@@ -197,8 +197,8 @@ public class KeyCreateDialog extends JDialog
         //content panel
         JPanel content = makeContentPane();
         CMSAdminUtil.resetGBC(gbc);
-		gbc.anchor = gbc.NORTH;
-		gbc.gridwidth = gbc.REMAINDER;
+		gbc.anchor = GridBagConstraints.NORTH;
+		gbc.gridwidth = GridBagConstraints.REMAINDER;
 		gbc.weightx = 1.0;
 		gbc.weighty = 1.0;
         gb.setConstraints(content, gbc);
@@ -207,9 +207,9 @@ public class KeyCreateDialog extends JDialog
 		//action panel
 		JPanel action = makeActionPane();
         CMSAdminUtil.resetGBC(gbc);
-		gbc.anchor = gbc.NORTH;
-		gbc.gridwidth = gbc.REMAINDER;
-		gbc.gridheight = gbc.REMAINDER;
+		gbc.anchor = GridBagConstraints.NORTH;
+		gbc.gridwidth = GridBagConstraints.REMAINDER;
+		gbc.gridheight = GridBagConstraints.REMAINDER;
 		gbc.weightx = 1.0;
         gb.setConstraints(action, gbc);
 		center.add(action);

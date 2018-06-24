@@ -86,7 +86,7 @@ class CreateTrustPane extends JPanel implements SuiConstants, IKeyCertPage {
             taskInfo.put("keyfilepw", _confirmPasswd.getText());
             observable.put("keyPasswd", _confirmPasswd.getText());
             try {
-                taskInfo.exec(taskInfo.SEC_TRUST);
+                taskInfo.exec(KeyCertTaskInfo.SEC_TRUST);
             } catch (Exception e) {
                 SuiOptionPane.showMessageDialog(
                         UtilConsoleGlobals.getActivatedFrame(),

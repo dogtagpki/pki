@@ -87,16 +87,16 @@ class StatusPane extends JPanel implements IKeyCertPage, SuiConstants {
     String getMessage(Message message) {
         String status = "";
 
-        if (message.getStatus() == message.NMC_SUCCESS) {
+        if (message.getStatus() == Message.NMC_SUCCESS) {
             status = message.getDescription() + message.getExtraMessage();
-        } else if (message.getStatus() == message.NMC_FAILURE) {
+        } else if (message.getStatus() == Message.NMC_FAILURE) {
             status += message.getErrorType() + "\n";
             status += message.getErrorInfo() + "\n";
             status += message.getErrorDetail();
             error = true;
-        } else if (message.getStatus() == message.NMC_WARNING) {
+        } else if (message.getStatus() == Message.NMC_WARNING) {
             status += message.getDescription();
-        } else if (message.getStatus() == message.NMC_UNKNOWN) {
+        } else if (message.getStatus() == Message.NMC_UNKNOWN) {
             status += message.getDescription();
             error = true;
         }

@@ -33,6 +33,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.text.JTextComponent;
 
@@ -247,17 +248,17 @@ class WIKRAScheme2Page extends WizardBasePanel implements IWizardPanel {
         CMSAdminUtil.resetGBC(gbc);
         JTextArea headingLbl = createTextArea(mResource.getString(
           PANELNAME+"_LABEL_HEADING_LABEL"));
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(headingLbl, gbc);
 
         mDataModel = new NewAgentModel();
         mTable = new JTable(mDataModel);
         JScrollPane scrollPane = JTable.createScrollPaneForTable(mTable);
-        scrollPane.setHorizontalScrollBarPolicy(scrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        scrollPane.setVerticalScrollBarPolicy(scrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         mTable.setAutoscrolls(true);
         mTable.sizeColumnsToFit(true);
         mTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
@@ -267,8 +268,8 @@ class WIKRAScheme2Page extends WizardBasePanel implements IWizardPanel {
         setLabelCellEditor(mTable, 3);
 
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
-	gbc.fill = gbc.BOTH;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+	gbc.fill = GridBagConstraints.BOTH;
    gbc.weighty = 1.0;
    gbc.weightx = 1.0;
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE,

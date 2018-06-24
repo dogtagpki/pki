@@ -160,7 +160,7 @@ class WMNOldAgent extends WizardBasePanel
 
         CMSAdminUtil.resetGBC(gbc);
         JLabel label3 = makeJLabel("DESC");
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         add(label3,gbc);
 
@@ -169,8 +169,8 @@ class WMNOldAgent extends WizardBasePanel
         mTable = new JTable(mDataModel);
         mScrollPane = JTable.createScrollPaneForTable(mTable);
         //mScrollPane.setBorder(CMSAdminUtil.makeTitledBorder(mResource,PANEL_NAME,"USERS"));
-        mScrollPane.setHorizontalScrollBarPolicy(mScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        mScrollPane.setVerticalScrollBarPolicy(mScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        mScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        mScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         mTable.setAutoscrolls(true);
         mTable.sizeColumnsToFit(true);
         mTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
@@ -180,12 +180,12 @@ class WMNOldAgent extends WizardBasePanel
         setLabelCellEditor(mTable, 2);
 
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         //gbc.gridheight = gbc.REMAINDER;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
-        gbc.fill = gbc.BOTH;
+        gbc.fill = GridBagConstraints.BOTH;
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE,COMPONENT_SPACE,COMPONENT_SPACE);
         gb.setConstraints(mScrollPane, gbc);
         add(mScrollPane);

@@ -135,26 +135,26 @@ class WIConfigWebServerPage extends WizardBasePanel implements IWizardPanel {
         CMSAdminUtil.resetGBC(gbc);
         JTextArea desc = createTextArea(mResource.getString(
             PANELNAME+"_TEXT_HEADING_LABEL"));
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.weighty = 0.0;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(desc, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
         JLabel serverRootLbl = makeJLabel("SERVERROOT");
-        gbc.anchor = gbc.NORTHEAST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.NORTHEAST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(COMPONENT_SPACE, 0, COMPONENT_SPACE,
           COMPONENT_SPACE);
         add(serverRootLbl, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
         mServerRootText = makeJTextField(30);
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         //gbc.fill = gbc.NONE;
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE);
@@ -162,16 +162,16 @@ class WIConfigWebServerPage extends WizardBasePanel implements IWizardPanel {
 
         CMSAdminUtil.resetGBC(gbc);
         JLabel userIDLbl = makeJLabel("USERID");
-        gbc.anchor = gbc.NORTHEAST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.NORTHEAST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(COMPONENT_SPACE, 0, COMPONENT_SPACE,
           COMPONENT_SPACE);
         add(userIDLbl, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
         mUserIDText = makeJTextField(30);
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         //gbc.fill = gbc.NONE;
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE);
@@ -179,9 +179,9 @@ class WIConfigWebServerPage extends WizardBasePanel implements IWizardPanel {
 
         JLabel dummy = new JLabel(" ");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weighty = 1.0;
         add(dummy, gbc);
     }

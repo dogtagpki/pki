@@ -111,9 +111,9 @@ public abstract class CMSBaseLDAPPanel extends CMSBaseTab implements ItemListene
         mEnablePublishing = makeJCheckBox("ENABLEPUBLISHING");
         mEnablePublishing.setSelected(true);
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.fill = gbc.NONE;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gbc.insets = new Insets(DIFFERENT_COMPONENT_SPACE,
                                 DIFFERENT_COMPONENT_SPACE,
@@ -127,9 +127,9 @@ public abstract class CMSBaseLDAPPanel extends CMSBaseTab implements ItemListene
         mEnableQueue = makeJCheckBox("ENABLEQUEUE");
         mEnableQueue.setSelected(true);
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.fill = gbc.NONE;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gbc.insets = new Insets(DIFFERENT_COMPONENT_SPACE,
                                 DIFFERENT_COMPONENT_SPACE,
@@ -143,9 +143,9 @@ public abstract class CMSBaseLDAPPanel extends CMSBaseTab implements ItemListene
         mEnable = makeJCheckBox("ENABLE");
         mEnable.setSelected(true);
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.fill = gbc.NONE;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gbc.insets = new Insets(DIFFERENT_COMPONENT_SPACE,
                                 DIFFERENT_COMPONENT_SPACE,
@@ -158,9 +158,9 @@ public abstract class CMSBaseLDAPPanel extends CMSBaseTab implements ItemListene
 
         //add the destination panel
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
         gb.setConstraints(serverInfo, gbc);
@@ -181,8 +181,8 @@ public abstract class CMSBaseLDAPPanel extends CMSBaseTab implements ItemListene
         // add port number label
         CMSAdminUtil.resetGBC(gbc);
         mPortLabel = makeJLabel("PORT");
-        gbc.anchor = gbc.EAST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,0,0);
         gb1.setConstraints(mPortLabel, gbc);
         serverInfo.add(mPortLabel);
@@ -190,8 +190,8 @@ public abstract class CMSBaseLDAPPanel extends CMSBaseTab implements ItemListene
         // add port number text field
         CMSAdminUtil.resetGBC(gbc);
         mPortText = makeJTextField(10);
-        gbc.anchor = gbc.WEST;
-        gbc.fill = gbc.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 0.0;
         gb1.setConstraints(mPortText, gbc);
         serverInfo.add(mPortText);
@@ -199,10 +199,10 @@ public abstract class CMSBaseLDAPPanel extends CMSBaseTab implements ItemListene
         // add check box
         CMSAdminUtil.resetGBC(gbc);
         mSecurePort = makeJCheckBox("SECUREPORT");
-        gbc.anchor = gbc.WEST;
-        gbc.fill = gbc.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 0.0;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(COMPONENT_SPACE,DIFFERENT_COMPONENT_SPACE - COMPONENT_SPACE,0,COMPONENT_SPACE);
         gb1.setConstraints(mSecurePort, gbc);
         serverInfo.add(mSecurePort);

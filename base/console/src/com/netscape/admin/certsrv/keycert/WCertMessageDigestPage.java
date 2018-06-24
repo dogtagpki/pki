@@ -61,17 +61,17 @@ class WCertMessageDigestPage extends WMessageDigestPage {
 
         mCAKeyType = (String)wizardInfo.get(Constants.PR_KEY_TYPE);
 
-        if (wizardInfo.getOperationType().equals(wizardInfo.INSTALLTYPE))
+        if (wizardInfo.getOperationType().equals(CertSetupWizardInfo.INSTALLTYPE))
             return false;
 
-        if ((wizardInfo.getCAType().equals(wizardInfo.SUBORDINATE_CA))
+        if ((wizardInfo.getCAType().equals(CertSetupWizardInfo.SUBORDINATE_CA))
             && !(wizardInfo.isSSLCertLocalCA()))
             return false;
 
         if (!wizardInfo.isNewKey())
             return false;
 
-        if (wizardInfo.getCAType().equals(wizardInfo.SELF_SIGNED) &&
+        if (wizardInfo.getCAType().equals(CertSetupWizardInfo.SELF_SIGNED) &&
             certType.equals(Constants.PR_CA_SIGNING_CERT)) {
             enableSignedByFields(true);
         } else {

@@ -112,9 +112,9 @@ public class CertViewDialog extends JDialog
         //content panel
         JPanel content = makeContentPane();
         CMSAdminUtil.resetGBC(gbc);
-        gbc.fill = gbc.BOTH;
-		gbc.anchor = gbc.NORTH;
-		gbc.gridwidth = gbc.REMAINDER;
+        gbc.fill = GridBagConstraints.BOTH;
+		gbc.anchor = GridBagConstraints.NORTH;
+		gbc.gridwidth = GridBagConstraints.REMAINDER;
 		gbc.weightx = 1.0;
 		gbc.weighty = 1.0;
         gb.setConstraints(content, gbc);
@@ -123,9 +123,9 @@ public class CertViewDialog extends JDialog
 		//action panel
 		JPanel action = makeActionPane();
         CMSAdminUtil.resetGBC(gbc);
-		gbc.anchor = gbc.NORTH;
-		gbc.gridwidth = gbc.REMAINDER;
-		gbc.gridheight = gbc.REMAINDER;
+		gbc.anchor = GridBagConstraints.NORTH;
+		gbc.gridwidth = GridBagConstraints.REMAINDER;
+		gbc.gridheight = GridBagConstraints.REMAINDER;
 		gbc.weightx = 1.0;
         gb.setConstraints(action, gbc);
 		center.add(action);
@@ -154,9 +154,9 @@ public class CertViewDialog extends JDialog
         CMSAdminUtil.resetGBC(gbc);
         //JLabel label1 = CMSAdminUtil.makeJLabel(mResource, PREFIX, "CERTNAME", null);
         mCertNameField = new JLabel();
-        gbc.fill = gbc.NONE;
-        gbc.anchor = gbc.WEST;
-        gbc.gridwidth =  gbc.REMAINDER;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.gridwidth =  GridBagConstraints.REMAINDER;
         gbc.weightx=1.0;
         gbc.weightx=0.0;
         gb3.setConstraints(mCertNameField, gbc);
@@ -165,9 +165,9 @@ public class CertViewDialog extends JDialog
 
         CMSAdminUtil.resetGBC(gbc);
         JLabel label2 = CMSAdminUtil.makeJLabel(mResource, PREFIX, "PP", null);
-        gbc.fill = gbc.NONE;
-        gbc.anchor = gbc.WEST;
-        gbc.gridwidth =  gbc.REMAINDER;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.gridwidth =  GridBagConstraints.REMAINDER;
         gbc.weightx=1.0;
         gb3.setConstraints(label2, gbc);
         content.add(label2);
@@ -185,9 +185,9 @@ public class CertViewDialog extends JDialog
         scrollPanel.setAlignmentY(TOP_ALIGNMENT);
         scrollPanel.setBorder(BorderFactory.createLoweredBevelBorder());
 	scrollPanel.setPreferredSize(new Dimension(300, 500));
-        gbc.fill = gbc.BOTH;
-        gbc.gridwidth =  gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.gridwidth =  GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weightx=1.0;
         gbc.weighty=1.0;
 //	gbc.insets = new Insets(0, CMSAdminUtil.COMPONENT_SPACE,

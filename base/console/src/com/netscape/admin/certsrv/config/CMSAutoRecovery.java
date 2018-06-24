@@ -155,28 +155,28 @@ public class CMSAutoRecovery extends JDialog implements ActionListener,
         CMSAdminUtil.resetGBC(gbc);
         JLabel heading = CMSAdminUtil.makeJLabel(mResource, PREFIX,
           "HEADING", null);
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gbm.setConstraints(heading, gbc);
         getContentPane().add(heading);
 
         createTable();
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
-        gbc.fill = gbc.BOTH;
+        gbc.fill = GridBagConstraints.BOTH;
         gbm.setConstraints(mScrollPane, gbc);
         getContentPane().add(mScrollPane);
 
         JPanel action = makeActionPane();
 
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.SOUTH;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.SOUTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gbm.setConstraints(action, gbc);
         getContentPane().add(action);
@@ -193,9 +193,9 @@ public class CMSAutoRecovery extends JDialog implements ActionListener,
         CMSAdminUtil.resetGBC(gbc);
         JLabel heading = CMSAdminUtil.makeJLabel(mResource, PREFIX,
           "HEADING", null);
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
         gb.setConstraints(heading, gbc);
@@ -242,8 +242,8 @@ public class CMSAutoRecovery extends JDialog implements ActionListener,
         mTable = new JTable(mDataModel);
         mTable.setShowGrid(true);
         mScrollPane = JTable.createScrollPaneForTable(mTable);
-        mScrollPane.setHorizontalScrollBarPolicy(mScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        mScrollPane.setVerticalScrollBarPolicy(mScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        mScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        mScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         mTable.setAutoscrolls(true);
         mTable.sizeColumnsToFit(true);
         mTable.setPreferredScrollableViewportSize(new Dimension(200, 100));

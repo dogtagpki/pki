@@ -153,11 +153,11 @@ public class StatusPanel extends CMSBasePanel
         panel.setBorder(CMSAdminUtil.makeTitledBorder(mResource, PANEL_NAME, "GENERALINFO"));
 
         CMSAdminUtil.resetGBC(gbc2);
-        gbc2.anchor = gbc2.NORTH;
+        gbc2.anchor = GridBagConstraints.NORTH;
         gbc2.weightx = 1.0;
         gbc2.weighty = 1.0;
-        gbc2.gridwidth = gbc2.REMAINDER;
-        gbc2.gridheight = gbc2.REMAINDER;
+        gbc2.gridwidth = GridBagConstraints.REMAINDER;
+        gbc2.gridheight = GridBagConstraints.REMAINDER;
         outPanel.add(panel, gbc2);
 
         CMSAdminUtil.resetGBC(gbc);
@@ -181,23 +181,23 @@ public class StatusPanel extends CMSBasePanel
         CMSAdminUtil.addEntryField(panel, label3, mServerStart, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weighty = 1.0;
         JLabel label4 = makeJLabel("SERVERTIME");
         mServerTime = new JLabel();
-        gbc.fill = gbc.NONE;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.weightx = 0.0;
         gbc.gridwidth = 1;
         gbc.gridx = 0;
-        gbc.anchor = gbc.EAST;
+        gbc.anchor = GridBagConstraints.EAST;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,COMPONENT_SPACE,0);
         panel.add( label4, gbc );
 
         gbc.gridx++;
-        gbc.anchor = gbc.WEST;
-        gbc.fill = gbc.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1.0;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
       		                            COMPONENT_SPACE,COMPONENT_SPACE);
         panel.add( mServerTime, gbc );

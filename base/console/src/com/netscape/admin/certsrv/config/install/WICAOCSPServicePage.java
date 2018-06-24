@@ -127,18 +127,18 @@ class WICAOCSPServicePage extends WizardBasePanel implements IWizardPanel {
         CMSAdminUtil.resetGBC(gbc);
         mDesc = createTextArea(mResource.getString(
             PANELNAME+"_TEXT_HEADING_LABEL"));
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.weighty = 0.0;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(mDesc, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
         mOCSPServiceLabel = makeJLabel("OCSPSERVICE");
-        gbc.anchor = gbc.EAST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(0, COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE);
         add(mOCSPServiceLabel, gbc);
@@ -146,18 +146,18 @@ class WICAOCSPServicePage extends WizardBasePanel implements IWizardPanel {
         CMSAdminUtil.resetGBC(gbc);
         mOCSPServiceCB = makeJCheckBox("OCSPSERVICE");
         mOCSPServiceCB.setSelected(true);
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.fill = gbc.NONE;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(0, COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE);
         add(mOCSPServiceCB, gbc);
 
        JLabel dummy = new JLabel(" ");
        CMSAdminUtil.resetGBC(gbc);
-       gbc.anchor = gbc.NORTHWEST;
-       gbc.gridwidth = gbc.REMAINDER;
-       gbc.gridheight = gbc.REMAINDER;
+       gbc.anchor = GridBagConstraints.NORTHWEST;
+       gbc.gridwidth = GridBagConstraints.REMAINDER;
+       gbc.gridheight = GridBagConstraints.REMAINDER;
        gbc.weighty = 1.0;
        add(dummy, gbc);
     }

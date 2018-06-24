@@ -176,64 +176,64 @@ class WICloneOCSPKeyCertPage extends WizardBasePanel implements IWizardPanel {
         CMSAdminUtil.resetGBC(gbc);
         JTextArea heading1 = createTextArea(mResource.getString(
           PANELNAME+"_TEXT_HEADING1_LABEL"));
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(heading1, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
         JLabel ocspNicknameLbl = makeJLabel("OCSPNICKNAME");
-        gbc.anchor = gbc.NORTHEAST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.NORTHEAST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(COMPONENT_SPACE, 4*COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
         add(ocspNicknameLbl, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
         mOCSPNicknameBox = new JComboBox<>();
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
         gbc.weightx = 0.0;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(mOCSPNicknameBox, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
         JTextArea heading2 = createTextArea(mResource.getString(
           PANELNAME+"_TEXT_HEADING2_LABEL"));
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(heading2, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
         JLabel sslNicknameLbl = makeJLabel("SSLNICKNAME");
-        gbc.anchor = gbc.NORTHEAST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.NORTHEAST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(COMPONENT_SPACE, 4*COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
         add(sslNicknameLbl, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
         mSSLNicknameBox = new JComboBox<>();
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
         gbc.weightx = 0.0;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(mSSLNicknameBox, gbc);
 
         JLabel dummy = new JLabel(" ");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         add(dummy, gbc);
     }
 

@@ -437,33 +437,33 @@ class WIMigrationPage extends WizardBasePanel implements IWizardPanel, ItemListe
 
         CMSAdminUtil.resetGBC(gbc);
         mPathLbl = makeJLabel("PATH");
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
         add(mPathLbl, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
         mPathText = makeJTextField(30);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(mPathText, gbc);
 
         mTransportLbl = makeJLabel("TRANSPORTPASSWORD");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHEAST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.NORTHEAST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(0, COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
         add(mTransportLbl, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
         mTransportPassword = makeJPasswordField(20);
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(0, COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE);
         add(mTransportPassword, gbc);
@@ -493,35 +493,35 @@ class WIMigrationPage extends WizardBasePanel implements IWizardPanel, ItemListe
 
         mCATokenHeading = makeJLabel("SELECTCATOKEN");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(COMPONENT_SPACE, 0, COMPONENT_SPACE,
           COMPONENT_SPACE);
         panel1.add(mCATokenHeading, gbc);
 
         mCATokenLbl = makeJLabel("TOKEN");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.WEST;
+        gbc.anchor = GridBagConstraints.WEST;
         gbc.insets = new Insets(COMPONENT_SPACE, 0, 0,
           COMPONENT_SPACE);
-        gbc.fill = gbc.NONE;
+        gbc.fill = GridBagConstraints.NONE;
         panel1.add(mCATokenLbl, gbc);
 
         mCATokenBox = new JComboBox<>();
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.WEST;
+        gbc.anchor = GridBagConstraints.WEST;
         //gbc.weightx = 1.0;
-        gbc.fill = gbc.NONE;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE, 0,
           COMPONENT_SPACE);
         panel1.add(mCATokenBox, gbc);
 
         JTextArea dummy1 = createTextArea(" ", 1, 5);
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         panel1.add(dummy1, gbc);
 
         JPanel panel1a = new JPanel();
@@ -530,59 +530,59 @@ class WIMigrationPage extends WizardBasePanel implements IWizardPanel, ItemListe
 
         mLogonInitCATokenLbl = new JLabel("Initialize the selected token:");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(0, 0, 0, COMPONENT_SPACE);
         panel1a.add(mLogonInitCATokenLbl, gbc);
 
         mCAPasswdLbl = makeJLabel("PASSWD");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.EAST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(COMPONENT_SPACE, 0, 0,
           COMPONENT_SPACE);
         panel1a.add(mCAPasswdLbl, gbc);
 
         mCAPassword = new JPasswordField();
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE, 0,
           COMPONENT_SPACE);
         panel1a.add(mCAPassword, gbc);
 
         mCAPasswdAgainLbl = makeJLabel("PASSWDAGAIN");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.EAST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(COMPONENT_SPACE, 0, 0,
           COMPONENT_SPACE);
         panel1a.add(mCAPasswdAgainLbl, gbc);
 
         mCAPasswordAgain = new JPasswordField();
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE, 0,
           COMPONENT_SPACE);
         panel1a.add(mCAPasswordAgain, gbc);
 
         mCASOPLbl = makeJLabel("SOP");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.WEST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(COMPONENT_SPACE, 0, COMPONENT_SPACE,
           COMPONENT_SPACE);
         panel1a.add(mCASOPLbl, gbc);
 
         mCASOPPassword = new JPasswordField();
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE);
         panel1a.add(mCASOPPassword, gbc);
@@ -593,35 +593,35 @@ class WIMigrationPage extends WizardBasePanel implements IWizardPanel, ItemListe
 
         mSSLTokenHeading = makeJLabel("SELECTSSLTOKEN");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(0, 0, COMPONENT_SPACE,
           COMPONENT_SPACE);
         panel2.add(mSSLTokenHeading, gbc);
 
         mSSLTokenLbl = makeJLabel("TOKEN");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.WEST;
+        gbc.anchor = GridBagConstraints.WEST;
         gbc.insets = new Insets(COMPONENT_SPACE, 0, 0,
           COMPONENT_SPACE);
-        gbc.fill = gbc.NONE;
+        gbc.fill = GridBagConstraints.NONE;
         panel2.add(mSSLTokenLbl, gbc);
 
         mSSLTokenBox = new JComboBox<>();
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.WEST;
+        gbc.anchor = GridBagConstraints.WEST;
         //gbc.weightx = 1.0;
-        gbc.fill = gbc.NONE;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE, 0,
           COMPONENT_SPACE);
         panel2.add(mSSLTokenBox, gbc);
 
         JTextArea dummy1a = createTextArea(" ", 1, 5);
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         panel2.add(dummy1a, gbc);
 
         JPanel panel2a = new JPanel();
@@ -630,90 +630,90 @@ class WIMigrationPage extends WizardBasePanel implements IWizardPanel, ItemListe
 
         mLogonInitSSLTokenLbl = new JLabel("Initialize the SSL token");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(0, 0, 0, COMPONENT_SPACE);
         panel2a.add(mLogonInitSSLTokenLbl, gbc);
 
         mSSLPasswdLbl = makeJLabel("PASSWD");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.EAST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(COMPONENT_SPACE, 0, 0,
           COMPONENT_SPACE);
         panel2a.add(mSSLPasswdLbl, gbc);
 
         mSSLPassword = new JPasswordField();
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE, 0,
           COMPONENT_SPACE);
         panel2a.add(mSSLPassword, gbc);
 
         mSSLPasswdAgainLbl = makeJLabel("PASSWDAGAIN");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.EAST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(COMPONENT_SPACE, 0, 0,
           COMPONENT_SPACE);
         panel2a.add(mSSLPasswdAgainLbl, gbc);
 
         mSSLPasswordAgain = new JPasswordField();
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE, 0,
           COMPONENT_SPACE);
         panel2a.add(mSSLPasswordAgain, gbc);
 
         mSSLSOPLbl = makeJLabel("SOP");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.WEST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(COMPONENT_SPACE, 0, COMPONENT_SPACE,
           COMPONENT_SPACE);
         panel2a.add(mSSLSOPLbl, gbc);
 
         mSSLSOPPassword = new JPasswordField();
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE);
         panel2a.add(mSSLSOPPassword, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE, COMPONENT_SPACE);
         gbc.weightx = 1.0;
         add(panel1, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE, COMPONENT_SPACE);
         gbc.weightx = 1.0;
         add(panel1a, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE, COMPONENT_SPACE);
         gbc.weightx = 1.0;
         add(panel2, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE, COMPONENT_SPACE);
         gbc.weightx = 1.0;
@@ -721,8 +721,8 @@ class WIMigrationPage extends WizardBasePanel implements IWizardPanel, ItemListe
 
         CMSAdminUtil.resetGBC(gbc);
         JLabel dumLbl = new JLabel("");
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weighty = 1.0;
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE, COMPONENT_SPACE);

@@ -111,8 +111,8 @@ IKeyCertPage {
                                 "cmsNotResponding"));
                         Debug.println("CertRequestCertPane:"+
                                 cmsUrl.getError());
-                    } else if ((cmsUrl.getData() != null) &&
-                            (cmsUrl.getData().trim().length() != 0)) {
+                    } else if ((Comm.getData() != null) &&
+                            (Comm.getData().trim().length() != 0)) {
                         //cms return a message
 
                         JEditorPane editor = new JEditorPane();
@@ -121,11 +121,11 @@ IKeyCertPage {
                         //editor.setOpaque(false);
 
                         //display cms's message
-                        Debug.println(cmsUrl.getData());
+                        Debug.println(Comm.getData());
                         StringReader reader =
-                                new StringReader(cmsUrl.getData());
+                                new StringReader(Comm.getData());
                         editor.setEditorKit(
-                                editor.createEditorKitForContentType("text/html"));
+                                JEditorPane.createEditorKitForContentType("text/html"));
                         Document dstDoc = editor.getDocument();
                         editor.getEditorKit().read(reader, dstDoc, 0);
 

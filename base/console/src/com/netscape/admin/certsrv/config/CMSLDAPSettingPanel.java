@@ -69,9 +69,9 @@ public class CMSLDAPSettingPanel extends CMSBaseTab {
 
         //add the destination panel
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
         gb.setConstraints(serverInfo, gbc);
@@ -90,8 +90,8 @@ public class CMSLDAPSettingPanel extends CMSBaseTab {
         // add port number label
         CMSAdminUtil.resetGBC(gbc);
         JLabel portLabel = makeJLabel("PORT");
-        gbc.anchor = gbc.EAST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,0,0);
         gb1.setConstraints(portLabel, gbc);
         serverInfo.add(portLabel);
@@ -99,11 +99,11 @@ public class CMSLDAPSettingPanel extends CMSBaseTab {
         // add port number text field
         CMSAdminUtil.resetGBC(gbc);
         mPortText = makeJTextField(10);
-        gbc.anchor = gbc.WEST;
-        gbc.fill = gbc.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
         //gbc.weightx = 0.0;
         gbc.weightx = 1.0;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gb1.setConstraints(mPortText, gbc);
         serverInfo.add(mPortText);
 

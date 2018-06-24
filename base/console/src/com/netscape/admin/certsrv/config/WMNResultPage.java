@@ -92,7 +92,7 @@ class WMNResultPage extends WizardBasePanel
 
         CMSAdminUtil.resetGBC(gbc);
         JLabel label3 = makeJLabel("DESC");
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         add(label3,gbc);
 

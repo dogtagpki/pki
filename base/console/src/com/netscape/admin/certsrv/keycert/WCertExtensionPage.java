@@ -60,10 +60,10 @@ class WCertExtensionPage extends WBaseCertExtensionPage implements
     public boolean initializePanel(WizardInfo info) {
 		//System.out.println("extension");
         CertSetupWizardInfo wizardInfo = (CertSetupWizardInfo)info;
-        if (wizardInfo.getOperationType().equals(wizardInfo.INSTALLTYPE))
+        if (wizardInfo.getOperationType().equals(CertSetupWizardInfo.INSTALLTYPE))
             return false;
 
-        if (wizardInfo.getCAType().equals(wizardInfo.SUBORDINATE_CA)
+        if (wizardInfo.getCAType().equals(CertSetupWizardInfo.SUBORDINATE_CA)
 			&& !(wizardInfo.isSSLCertLocalCA()))
 			return false;
 
@@ -195,7 +195,7 @@ class WCertExtensionPage extends WBaseCertExtensionPage implements
         if (mMIMECheckBox.isSelected())
             nvps.put(Constants.PR_DER_EXTENSION, mMIMEText.getText().trim());
 
-        wizardInfo.addEntry(wizardInfo.ALL_INFO, nvps);
+        wizardInfo.addEntry(CertSetupWizardInfo.ALL_INFO, nvps);
 
         mModified = true;
         return true;

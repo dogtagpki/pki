@@ -66,7 +66,7 @@ public class ChangeKeyPasswordDialog extends AbstractDialog {
         }
         Response response = null;
         try {
-            response = taskInfo.exec(taskInfo.SEC_CHANGEPW);
+            response = taskInfo.exec(KeyCertTaskInfo.SEC_CHANGEPW);
         } catch (Exception e) {
             SuiOptionPane.showMessageDialog(
                     UtilConsoleGlobals.getActivatedFrame(), e.getMessage());

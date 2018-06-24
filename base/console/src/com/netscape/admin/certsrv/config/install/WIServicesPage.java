@@ -343,65 +343,65 @@ class WIServicesPage extends WizardBasePanel implements IWizardPanel {
         mServiceLbl = createTextArea(mResource.getString(
           PANELNAME+"_LABEL_INSTALL_LABEL"));
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.weighty = 0.0;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(mServiceLbl, gbc);
 
         mCACheckBox = makeJRadioButton("CA");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.weighty = 0.0;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE, 0,
           COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(mCACheckBox, gbc);
 
         mOCSPCheckBox = makeJRadioButton("OCSP");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.weighty = 0.0;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE, 0,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(mOCSPCheckBox, gbc);
 
         mRACheckBox = makeJRadioButton("RA");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.weighty = 0.0;
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE, 0, COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(mRACheckBox, gbc);
 
         mKRACheckBox = makeJRadioButton("KRA");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         //gbc.weighty = 1.0;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE, COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(mKRACheckBox, gbc);
 
         mTKSCheckBox = makeJRadioButton("TKS");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         //gbc.weighty = 1.0;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE, COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(mTKSCheckBox, gbc);
 
        JLabel dummy = new JLabel(" ");
        CMSAdminUtil.resetGBC(gbc);
-       gbc.anchor = gbc.NORTHWEST;
-       gbc.gridwidth = gbc.REMAINDER;
-       gbc.gridheight = gbc.REMAINDER;
+       gbc.anchor = GridBagConstraints.NORTHWEST;
+       gbc.gridwidth = GridBagConstraints.REMAINDER;
+       gbc.gridheight = GridBagConstraints.REMAINDER;
        gbc.weighty = 1.0;
        add(dummy, gbc);
 

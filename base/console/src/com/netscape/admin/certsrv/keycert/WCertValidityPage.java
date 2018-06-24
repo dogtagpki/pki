@@ -60,9 +60,9 @@ class WCertValidityPage extends WBaseValidityPage implements IWizardPanel {
 
     public boolean initializePanel(WizardInfo info) {
         CertSetupWizardInfo wizardInfo = (CertSetupWizardInfo)info;
-        if (wizardInfo.getOperationType().equals(wizardInfo.INSTALLTYPE) )
+        if (wizardInfo.getOperationType().equals(CertSetupWizardInfo.INSTALLTYPE) )
             return false;
-		if ((wizardInfo.getCAType().equals(wizardInfo.SUBORDINATE_CA))
+		if ((wizardInfo.getCAType().equals(CertSetupWizardInfo.SUBORDINATE_CA))
 			&& !(wizardInfo.isSSLCertLocalCA()))
 			return false;
 

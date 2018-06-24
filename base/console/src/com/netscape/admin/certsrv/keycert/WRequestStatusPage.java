@@ -59,8 +59,8 @@ class WRequestStatusPage extends WizardBasePanel implements IWizardPanel {
 
 		if (!wizardInfo.requestSent()) {
 			String str = "";
-			if (wizardInfo.getOperationType().equals(wizardInfo.REQUESTTYPE) &&
-				(!wizardInfo.getCAType().equals(wizardInfo.SELF_SIGNED))) {
+			if (wizardInfo.getOperationType().equals(CertSetupWizardInfo.REQUESTTYPE) &&
+				(!wizardInfo.getCAType().equals(CertSetupWizardInfo.SELF_SIGNED))) {
 				str = mResource.getString(
 							"REQUESTSTATUSWIZARD_TEXT_REQUEST_LABEL");
 				mDesc.setText(str);
@@ -116,19 +116,19 @@ class WRequestStatusPage extends WizardBasePanel implements IWizardPanel {
         mDesc = createTextArea(" ");
         //mDesc = createTextArea("request id");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.weighty = 0.0;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(mDesc, gbc);
 
         JLabel label = new JLabel(" ");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.WEST;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weighty = 1.0;
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE);

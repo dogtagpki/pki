@@ -49,8 +49,8 @@ class WCertDNValidityPage extends WBaseDNValidityPage implements IWizardPanel {
 
     public boolean initializePanel(WizardInfo info) {
         CertSetupWizardInfo wizardInfo = (CertSetupWizardInfo)info;
-        if (wizardInfo.getOperationType().equals(wizardInfo.INSTALLTYPE) ||
-          (wizardInfo.getCAType().equals(wizardInfo.SUBORDINATE_CA)))
+        if (wizardInfo.getOperationType().equals(CertSetupWizardInfo.INSTALLTYPE) ||
+          (wizardInfo.getCAType().equals(CertSetupWizardInfo.SUBORDINATE_CA)))
             return false;
 
         return true;

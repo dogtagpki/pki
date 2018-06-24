@@ -129,25 +129,25 @@ public class CMSKRASchemePanel extends CMSBaseUGTab {
         agentPanel.setBorder(makeTitledBorder("CURRENT"));
 
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
+        gbc.anchor = GridBagConstraints.NORTH;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
-        gbc.gridheight = gbc.REMAINDER;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gb3.setConstraints(agentPanel, gbc);
         listPanel.add(agentPanel);
 
         CMSAdminUtil.resetGBC(gbc);
         JLabel label2 = makeJLabel("REQAGENT");
         mReqAgentLbl= new JLabel("");
-        gbc.fill = gbc.NONE;
-        gbc.anchor = gbc.EAST;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.anchor = GridBagConstraints.EAST;
         gbc. insets = new Insets(0,COMPONENT_SPACE,0,0);
         gb.setConstraints(label2, gbc);
         agentPanel.add(label2);
 
-        gbc.anchor = gbc.WEST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc. insets = new Insets(0,COMPONENT_SPACE,
                                         0,COMPONENT_SPACE);
         gb.setConstraints(mReqAgentLbl, gbc);
@@ -155,17 +155,17 @@ public class CMSKRASchemePanel extends CMSBaseUGTab {
 
         mSchemeBtn = makeJButton("CHANGESCHEME");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.EAST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.weightx = 1.0;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gb.setConstraints(mSchemeBtn, gbc);
         agentPanel.add(mSchemeBtn);
 
         CMSAdminUtil.resetGBC(gbc);
         JLabel label1 = makeJLabel("AVAILAGENT");
         mAvailAgentLbl = new JLabel("");
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         CMSAdminUtil.addEntryField(agentPanel, label1, mAvailAgentLbl, gbc);
 
         refresh();

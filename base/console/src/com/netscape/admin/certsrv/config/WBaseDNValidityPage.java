@@ -65,12 +65,12 @@ public class WBaseDNValidityPage extends WizardBasePanel {
             "CACERT2WIZARD_TEXT_DN_LABEL"), 80), 1, 80);
 
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.weighty = 0.0;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(desc, gbc);
 
         JLabel cnLabel = makeJLabel("CN");
@@ -135,12 +135,12 @@ public class WBaseDNValidityPage extends WizardBasePanel {
           CMSAdminUtil.wrapText(mResource.getString(
             "CACERT2WIZARD_TEXT_VALIDITY_LABEL"), 80), 1, 80);
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.weighty = 0.0;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(desc1, gbc);
 
         validityLbl = makeJLabel("VALIDITY");

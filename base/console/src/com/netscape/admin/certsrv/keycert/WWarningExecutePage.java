@@ -50,10 +50,10 @@ class WWarningExecutePage extends WizardBasePanel implements IWizardPanel {
 
     public boolean initializePanel(WizardInfo info) {
         CertSetupWizardInfo wizardInfo = (CertSetupWizardInfo)info;
-        if (wizardInfo.getOperationType().equals(wizardInfo.REQUESTTYPE) &&
+        if (wizardInfo.getOperationType().equals(CertSetupWizardInfo.REQUESTTYPE) &&
           wizardInfo.isNewKey() &&
           wizardInfo.getCertType().equals(Constants.PR_CA_SIGNING_CERT) &&
-          wizardInfo.getCAType().equals(wizardInfo.SELF_SIGNED))
+          wizardInfo.getCAType().equals(CertSetupWizardInfo.SELF_SIGNED))
         return true;
 
         return false;
@@ -96,11 +96,11 @@ class WWarningExecutePage extends WizardBasePanel implements IWizardPanel {
 
         JLabel label = new JLabel(icon);
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(label, gbc);
 
         JTextArea desc = new JTextArea(
@@ -111,11 +111,11 @@ class WWarningExecutePage extends WizardBasePanel implements IWizardPanel {
         desc.setEditable(false);
         desc.setCaretColor(getBackground());
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(desc, gbc);
 
         JTextArea desc1 = new JTextArea(
@@ -125,7 +125,7 @@ class WWarningExecutePage extends WizardBasePanel implements IWizardPanel {
         desc1.setEditable(false);
         desc1.setCaretColor(getBackground());
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
@@ -134,10 +134,10 @@ class WWarningExecutePage extends WizardBasePanel implements IWizardPanel {
 
         mAgree = makeJButton("OK");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(mAgree, gbc);
 
         super.init();

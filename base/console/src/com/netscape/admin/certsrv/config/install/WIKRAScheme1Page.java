@@ -130,43 +130,43 @@ class WIKRAScheme1Page extends WizardBasePanel implements IWizardPanel {
 
         CMSAdminUtil.resetGBC(gbc);
         JLabel requiredLbl = makeJLabel("REQUIRED");
-        gbc.anchor = gbc.NORTHEAST;
+        gbc.anchor = GridBagConstraints.NORTHEAST;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.fill = gbc.NONE;
+        gbc.fill = GridBagConstraints.NONE;
         add(requiredLbl, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
         mRequiredText = makeJTextField(5);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.fill = gbc.NONE;
+        gbc.fill = GridBagConstraints.NONE;
         add(mRequiredText, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
         JTextArea dummy = createTextArea(" ", 1, 15);
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(dummy, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
         JLabel availLbl = makeJLabel("AVAILABLE");
-        gbc.anchor = gbc.NORTHEAST;
+        gbc.anchor = GridBagConstraints.NORTHEAST;
         gbc.insets = new Insets(0,COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE);
         gbc.weighty = 1.0;
-        gbc.fill = gbc.NONE;
+        gbc.fill = GridBagConstraints.NONE;
         add(availLbl, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
         mAvailText = makeJTextField(5);
         gbc.insets = new Insets(0,COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weighty = 1.0;
-        gbc.fill = gbc.NONE;
+        gbc.fill = GridBagConstraints.NONE;
         add(mAvailText, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
@@ -174,7 +174,7 @@ class WIKRAScheme1Page extends WizardBasePanel implements IWizardPanel {
         gbc.weighty = 1.0;
         gbc.insets = new Insets(0,COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(dummy1, gbc);
 
         super.init();

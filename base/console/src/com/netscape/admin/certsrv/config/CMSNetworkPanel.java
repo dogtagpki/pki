@@ -110,8 +110,8 @@ public class CMSNetworkPanel extends CMSBaseTab {
         adminPanel.setLayout(gb1);
         adminPanel.setBorder(makeTitledBorder("ADMIN"));
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gb.setConstraints(adminPanel, gbc);
         mCenterPanel.add(adminPanel);
@@ -133,8 +133,8 @@ public class CMSNetworkPanel extends CMSBaseTab {
         agentPanel.setLayout(gb2);
         agentPanel.setBorder(makeTitledBorder("AGENT"));
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gb.setConstraints(agentPanel, gbc);
         mCenterPanel.add(agentPanel);
@@ -153,9 +153,9 @@ public class CMSNetworkPanel extends CMSBaseTab {
         gatewayPanel.setLayout(gb3);
         gatewayPanel.setBorder(makeTitledBorder("EE"));
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
         gb.setConstraints(gatewayPanel, gbc);

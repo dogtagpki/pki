@@ -85,8 +85,8 @@ public class CMSOCSPGeneralPanel extends CMSBaseTab implements ItemListener {
 
         CMSAdminUtil.resetGBC(gbc);
         mCenterPanel.setLayout(gb);
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         //gbc.gridheight = gbc.REMAINDER;
         gbc.weightx = 1.0;
         //gbc.weighty = 1.0;
@@ -95,9 +95,9 @@ public class CMSOCSPGeneralPanel extends CMSBaseTab implements ItemListener {
 
 
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
         gb.setConstraints(signingPanel, gbc);
@@ -106,7 +106,7 @@ public class CMSOCSPGeneralPanel extends CMSBaseTab implements ItemListener {
 
         CMSAdminUtil.resetGBC(gbc);
         JLabel signingLabel = makeJLabel("ALGORITHM");
-        gbc.anchor = gbc.CENTER;
+        gbc.anchor = GridBagConstraints.CENTER;
         gb2.setConstraints(signingLabel, gbc);
         gbc.weighty = 1.0;
         signingPanel.add(signingLabel);
@@ -115,7 +115,7 @@ public class CMSOCSPGeneralPanel extends CMSBaseTab implements ItemListener {
         mAlgorithms = new JComboBox<>();
         mAlgorithms.addItemListener(this);
         //mAlgorithms = makeJComboBox("ALGORITHM");
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         //gbc.gridwidth = gbc.REMAINDER;
         //gbc.gridheight = gbc.REMAINDER;
         //gbc.weightx = 1.0;
@@ -125,9 +125,9 @@ public class CMSOCSPGeneralPanel extends CMSBaseTab implements ItemListener {
 
         CMSAdminUtil.resetGBC(gbc);
         JLabel dummy1 = new JLabel(" ");
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
         gb2.setConstraints(dummy1, gbc);

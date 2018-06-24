@@ -201,15 +201,15 @@ class WIKRAStorageKeyPage extends WizardBasePanel implements IWizardPanel {
         panel2.setLayout(gb3);
 
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE, COMPONENT_SPACE);
         add(panel, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE, COMPONENT_SPACE);
         add(panel2, gbc);
@@ -217,24 +217,24 @@ class WIKRAStorageKeyPage extends WizardBasePanel implements IWizardPanel {
         JTextArea selectTokenLbl = createTextArea(mResource.getString(
           mPanelName+"_LABEL_SELECTTOKEN_LABEL"));
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(0, 0, COMPONENT_SPACE,0);
         panel.add(selectTokenLbl, gbc);
 
         JLabel tokenLbl = makeJLabel("TOKEN");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.CENTER;
+        gbc.anchor = GridBagConstraints.CENTER;
         gbc.insets = new Insets(COMPONENT_SPACE, 0, 0,
           COMPONENT_SPACE);
-        gbc.fill = gbc.NONE;
+        gbc.fill = GridBagConstraints.NONE;
         panel.add(tokenLbl, gbc);
 
         mTokenBox = new JComboBox<>();
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         //gbc.weightx = 1.0;
-        gbc.fill = gbc.NONE;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE, 0,
           COMPONENT_SPACE);
         panel.add(mTokenBox, gbc);
@@ -242,34 +242,34 @@ class WIKRAStorageKeyPage extends WizardBasePanel implements IWizardPanel {
 
         JTextArea dummy2 = createTextArea(" ", 1, 5);
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         panel.add(dummy2, gbc);
 
         mTokenLbl = new JLabel("");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(COMPONENT_SPACE, 0,
           COMPONENT_SPACE,COMPONENT_SPACE);
         panel2.add(mTokenLbl, gbc);
 
         mPasswdLbl = makeJLabel("PASSWD");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.EAST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(COMPONENT_SPACE, 0, 0,
           COMPONENT_SPACE);
         panel2.add(mPasswdLbl, gbc);
 
         mPassword = new JPasswordField();
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE, 0,
           COMPONENT_SPACE);
         panel2.add(mPassword, gbc);
@@ -315,8 +315,8 @@ class WIKRAStorageKeyPage extends WizardBasePanel implements IWizardPanel {
         CMSAdminUtil.resetGBC(gbc);
         JTextArea label = createTextArea(mResource.getString(
           PANELNAME+"_LABEL_HEADING_LABEL"));
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE, COMPONENT_SPACE);
         gbc.weightx = 1.0;
@@ -324,19 +324,19 @@ class WIKRAStorageKeyPage extends WizardBasePanel implements IWizardPanel {
 
         CMSAdminUtil.resetGBC(gbc);
         JLabel keyLengthLbl = makeJLabel("KEYLENGTH");
-        gbc.anchor = gbc.WEST;
+        gbc.anchor = GridBagConstraints.WEST;
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE, COMPONENT_SPACE);
-        gbc.fill = gbc.NONE;
+        gbc.fill = GridBagConstraints.NONE;
         add(keyLengthLbl, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
         mKeyLengthBox = makeJComboBox("KEYLENGTH");
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE, COMPONENT_SPACE);
-        gbc.fill = gbc.NONE;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(mKeyLengthBox, gbc);
 
 /**
@@ -355,9 +355,9 @@ class WIKRAStorageKeyPage extends WizardBasePanel implements IWizardPanel {
 
         CMSAdminUtil.resetGBC(gbc);
         JLabel dummy = new JLabel(" ");
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weighty = 1.0;
         add(dummy, gbc);
 

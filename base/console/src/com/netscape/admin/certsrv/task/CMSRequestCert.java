@@ -25,6 +25,7 @@ import java.net.URL;
 import java.util.Hashtable;
 
 import com.netscape.admin.certsrv.config.install.InstallWizardInfo;
+import com.netscape.management.client.comm.CommManager;
 import com.netscape.management.client.comm.CommRecord;
 import com.netscape.management.client.comm.HttpManager;
 import com.netscape.management.client.util.Debug;
@@ -298,7 +299,7 @@ public class CMSRequestCert extends CGITask {
 
 		HttpManager h = new HttpManager();
 		// tell the http manager to use UTF8 encoding
-		h.setSendUTF8(true);
+		CommManager.setSendUTF8(true);
 
 		try {
 			mSuccess = false;

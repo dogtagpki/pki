@@ -43,6 +43,7 @@ import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 
@@ -106,18 +107,18 @@ public class ProfilePolicyEditDialog extends CMSBaseConfigDialog
         mPluginLabel.setVisible(false);
         mPluginName = new JTextField();
 
-        gbc.fill = gbc.NONE;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.weightx = 0.0;
         gbc.gridwidth = 1;
-        gbc.anchor = gbc.EAST;
+        gbc.anchor = GridBagConstraints.EAST;
         gbc.insets = new Insets(CMSAdminUtil.COMPONENT_SPACE,
                                  CMSAdminUtil.COMPONENT_SPACE,0,0);
         mListPanel.add(mRulenameCaption, gbc);
 
-        gbc.anchor = gbc.WEST;
-        gbc.fill = gbc.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1.0;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(CMSAdminUtil.COMPONENT_SPACE,
                                  CMSAdminUtil.COMPONENT_SPACE,
                                  0,CMSAdminUtil.COMPONENT_SPACE);
@@ -130,20 +131,20 @@ public class ProfilePolicyEditDialog extends CMSBaseConfigDialog
          "NAMENAME", null);
         mNameLabel.addMouseListener(this);
 
-        gbc.fill = gbc.NONE;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.weightx = 0.0;
         gbc.gridwidth = 1;
-        gbc.anchor = gbc.EAST;
+        gbc.anchor = GridBagConstraints.EAST;
         gbc.insets = new Insets(CMSAdminUtil.COMPONENT_SPACE,
                                  CMSAdminUtil.COMPONENT_SPACE,0,0);
         // mListPanel.add( mNameLabel, gbc );
 	mNameLabel.setBackground(getBackground());
 	mNameLabel.setEnabled(false);
 
-        gbc.anchor = gbc.WEST;
-        gbc.fill = gbc.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1.0;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         mNameField = new JTextField();
        // mListPanel.add( mNameField, gbc );
 
@@ -153,18 +154,18 @@ public class ProfilePolicyEditDialog extends CMSBaseConfigDialog
          "DESCNAME", null);
        // mDescLabel.addMouseListener(this);
 
-        gbc.fill = gbc.NONE;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.weightx = 0.0;
         gbc.gridwidth = 1;
-        gbc.anchor = gbc.EAST;
+        gbc.anchor = GridBagConstraints.EAST;
         gbc.insets = new Insets(CMSAdminUtil.COMPONENT_SPACE,
                                  CMSAdminUtil.COMPONENT_SPACE,0,0);
         mListPanel.add( mDescLabel, gbc );
 
-        gbc.anchor = gbc.WEST;
-        gbc.fill = gbc.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1.0;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         mDescField = new JTextField();
         mListPanel.add( mDescField, gbc );
 
@@ -172,18 +173,18 @@ public class ProfilePolicyEditDialog extends CMSBaseConfigDialog
         mIdLabel = CMSAdminUtil.makeJLabel(mResource, PREFIX,
          "IDNAME", null);
 
-        gbc.fill = gbc.NONE;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.weightx = 0.0;
         gbc.gridwidth = 1;
-        gbc.anchor = gbc.EAST;
+        gbc.anchor = GridBagConstraints.EAST;
         gbc.insets = new Insets(CMSAdminUtil.COMPONENT_SPACE,
                                  CMSAdminUtil.COMPONENT_SPACE,0,0);
         mListPanel.add( mIdLabel, gbc );
 
-        gbc.anchor = gbc.WEST;
-        gbc.fill = gbc.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1.0;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         mIdField = new JTextField();
         mListPanel.add( mIdField, gbc );
 
@@ -217,18 +218,18 @@ public class ProfilePolicyEditDialog extends CMSBaseConfigDialog
          "IMPLNAME", null);
         mImplnameCaption.addMouseListener(this);
 
-        gbc.fill = gbc.NONE;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.weightx = 0.0;
         gbc.gridwidth = 1;
-        gbc.anchor = gbc.EAST;
+        gbc.anchor = GridBagConstraints.EAST;
         gbc.insets = new Insets(CMSAdminUtil.COMPONENT_SPACE,
                                  CMSAdminUtil.COMPONENT_SPACE,0,0);
  //       mListPanel.add( mImplnameCaption, gbc );
 
-        gbc.anchor = gbc.WEST;
-        gbc.fill = gbc.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1.0;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         mImplName = new JLabel();
 //        mListPanel.add( mImplName, gbc );
 
@@ -237,9 +238,9 @@ public class ProfilePolicyEditDialog extends CMSBaseConfigDialog
        JPanel lpanel1 = createDefaultListPanel();
        JPanel lpanel2 = createConstraintListPanel();
         CMSAdminUtil.resetGBC(gbc);
-        gbc.fill = gbc.BOTH;
-        gbc.anchor = gbc.WEST;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
         gb.setConstraints(tabPane, gbc);
@@ -274,9 +275,9 @@ public class ProfilePolicyEditDialog extends CMSBaseConfigDialog
         GridBagConstraints gbc2 = new GridBagConstraints();
 
         CMSAdminUtil.resetGBC(gbc2);
-        gbc2.fill = gbc.BOTH;
-        gbc2.anchor = gbc.WEST;
-        gbc2.gridwidth = gbc.REMAINDER;
+        gbc2.fill = GridBagConstraints.BOTH;
+        gbc2.anchor = GridBagConstraints.WEST;
+        gbc2.gridwidth = GridBagConstraints.REMAINDER;
         gbc2.weightx = 1.0;
         gbc2.weighty = 1.0;
         gb2.setConstraints(mHelpLabel, gbc2);
@@ -284,9 +285,9 @@ public class ProfilePolicyEditDialog extends CMSBaseConfigDialog
         mHelpPanel.add(mHelpLabel);
 
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.SOUTH;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.SOUTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gbc.weighty = 0.0;
         gb.setConstraints(mHelpPanel, gbc);
@@ -316,8 +317,8 @@ public class ProfilePolicyEditDialog extends CMSBaseConfigDialog
        model.setInfo(data, colNames);
         mDefaultTable = new ProfileDataTable(model);
         JScrollPane mScrollPane = JTable.createScrollPaneForTable(mDefaultTable);
-        mScrollPane.setHorizontalScrollBarPolicy(mScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        mScrollPane.setVerticalScrollBarPolicy(mScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        mScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        mScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         mDefaultTable.setAutoscrolls(true);
         mDefaultTable.sizeColumnsToFit(true);
         mDefaultTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -331,10 +332,10 @@ public class ProfilePolicyEditDialog extends CMSBaseConfigDialog
           new ProfileComponentCellEditor());
 
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-        gbc.fill = gbc.BOTH;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
       //  gbc.gridwidth = 1;
@@ -380,8 +381,8 @@ public class ProfilePolicyEditDialog extends CMSBaseConfigDialog
        model.setInfo(data, colNames);
         mConstraintTable = new ProfileDataTable(model);
         JScrollPane mScrollPane = JTable.createScrollPaneForTable(mConstraintTable);
-        mScrollPane.setHorizontalScrollBarPolicy(mScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        mScrollPane.setVerticalScrollBarPolicy(mScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        mScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        mScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         mConstraintTable.setAutoscrolls(true);
         mConstraintTable.sizeColumnsToFit(true);
         mConstraintTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -394,10 +395,10 @@ public class ProfilePolicyEditDialog extends CMSBaseConfigDialog
           new ProfileComponentCellEditor());
 
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-        gbc.fill = gbc.BOTH;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
       //  gbc.gridwidth = 1;

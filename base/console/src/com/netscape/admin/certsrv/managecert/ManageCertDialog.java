@@ -129,9 +129,9 @@ public class ManageCertDialog extends JDialog implements ActionListener,
         //content panel
         JPanel content = makeContentPane();
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
-		gbc.fill = gbc.BOTH;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+		gbc.fill = GridBagConstraints.BOTH;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
         gb.setConstraints(content, gbc);
@@ -140,9 +140,9 @@ public class ManageCertDialog extends JDialog implements ActionListener,
         //action panel
         JPanel action = makeActionPane();
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gb.setConstraints(action, gbc);
         center.add(action);
@@ -202,12 +202,12 @@ public class ManageCertDialog extends JDialog implements ActionListener,
         setLabelCellRenderer(mTable, 2);
 
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
-        gbc.fill = gbc.BOTH;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(CMSAdminUtil.COMPONENT_SPACE,
           CMSAdminUtil.COMPONENT_SPACE,
           CMSAdminUtil.COMPONENT_SPACE, CMSAdminUtil.COMPONENT_SPACE);

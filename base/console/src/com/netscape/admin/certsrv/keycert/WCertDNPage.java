@@ -61,9 +61,9 @@ class WCertDNPage extends WBaseDNPage implements IWizardPanel {
         CertSetupWizardInfo wizardInfo = (CertSetupWizardInfo)info;
         NameValuePairs nvps = new NameValuePairs();
         nvps.put(Constants.PR_SUBJECT_NAME, wizardInfo.getSubjectName());
-        wizardInfo.addEntry(wizardInfo.ALL_INFO, nvps);
+        wizardInfo.addEntry(CertSetupWizardInfo.ALL_INFO, nvps);
 
-        if (wizardInfo.getOperationType().equals(wizardInfo.INSTALLTYPE) ||
+        if (wizardInfo.getOperationType().equals(CertSetupWizardInfo.INSTALLTYPE) ||
           !wizardInfo.isNewKey())
             return false;
 
@@ -156,7 +156,7 @@ class WCertDNPage extends WBaseDNPage implements IWizardPanel {
             nvps.put(Constants.PR_TOKEN_NAME, wizardInfo.getTokenName());
         }
 
-        wizardInfo.addEntry(wizardInfo.ALL_INFO, nvps);
+        wizardInfo.addEntry(CertSetupWizardInfo.ALL_INFO, nvps);
 /*
         try {
             NameValuePairs response = connection.process(

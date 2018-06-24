@@ -81,21 +81,21 @@ public class WBaseCertRequestPage extends WizardBasePanel {
 
         JLabel desc = makeJLabel("DESC");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.weighty = 0.0;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(desc, gbc);
 
         mManualBtn = makeJRadioButton("MANUAL", true);
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.insets = new Insets(0, COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(mManualBtn, gbc);
 
         mText = new JTextArea(null, null, 0, 0);
@@ -106,53 +106,53 @@ public class WBaseCertRequestPage extends WizardBasePanel {
           JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
         scrollPane.setPreferredSize(new Dimension(50, 20));
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.fill = gbc.BOTH;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.fill = GridBagConstraints.BOTH;
         gbc.insets = new Insets(0, 4*COMPONENT_SPACE, 0, COMPONENT_SPACE);
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(scrollPane, gbc);
 
         mCopy = makeJButton("COPY");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHEAST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.NORTHEAST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE, 0,
           COMPONENT_SPACE);
         gbc.weightx = 1.0;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(mCopy, gbc);
 
         mEmailBtn = makeJRadioButton("EMAIL", false);
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.WEST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE, 0,
           COMPONENT_SPACE);
         add(mEmailBtn, gbc);
 
         mEmailText = new JTextField(30);
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.WEST;
+        gbc.anchor = GridBagConstraints.WEST;
         gbc.insets = new Insets(COMPONENT_SPACE, 0, 0, COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(mEmailText, gbc);
 
         mURLBtn = makeJRadioButton("URL", false);
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.WEST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
         add(mURLBtn, gbc);
 
         mURLText = new JTextField(30);
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.WEST;
+        gbc.anchor = GridBagConstraints.WEST;
         gbc.insets = new Insets(COMPONENT_SPACE, 0,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(mURLText, gbc);
 
         ButtonGroup methodGroup = new ButtonGroup();
@@ -168,8 +168,8 @@ public class WBaseCertRequestPage extends WizardBasePanel {
         mContactText.setCaretColor(getBackground());
         CMSAdminUtil.resetGBC(gbc);
         gbc.weightx = 1.0;
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(COMPONENT_SPACE, 4*COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
         add(mContactText, gbc);
@@ -182,69 +182,69 @@ public class WBaseCertRequestPage extends WizardBasePanel {
         CMSAdminUtil.resetGBC(gbc);
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.insets = new Insets(COMPONENT_SPACE, 0, 0, 0);
         add(panel, gbc);
 
         mNameLbl = makeJLabel("NAME");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.EAST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(0, COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
         panel.add(mNameLbl, gbc);
 
         mNameTxt = new JTextField(30);
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.WEST;
+        gbc.anchor = GridBagConstraints.WEST;
         gbc.insets = new Insets(0, COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         panel.add(mNameTxt, gbc);
 
         mContactEmailLbl = makeJLabel("EMAILADDRESS");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.EAST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(0, COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
         panel.add(mContactEmailLbl, gbc);
 
         mContactEmailTxt = new JTextField(30);
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.WEST;
+        gbc.anchor = GridBagConstraints.WEST;
         gbc.insets = new Insets(0, COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         panel.add(mContactEmailTxt, gbc);
 
         mContactPhoneLbl = makeJLabel("PHONE");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.WEST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(0, 4*COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
         panel.add(mContactPhoneLbl, gbc);
 
         mContactPhoneTxt = new JTextField(30);
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.WEST;
+        gbc.anchor = GridBagConstraints.WEST;
         gbc.weightx = 1.0;
         gbc.insets = new Insets(0, COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         panel.add(mContactPhoneTxt, gbc);
 
         JLabel dummy = new JLabel(" ");
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weighty = 1.0;
-        gbc.fill = gbc.BOTH;
+        gbc.fill = GridBagConstraints.BOTH;
         panel.add(dummy, gbc);
 
         super.init();

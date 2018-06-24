@@ -69,7 +69,7 @@ class CipherEntry {
 
     class TokenListListener implements ItemListener {
         public void itemStateChanged(ItemEvent e) {
-            if (e.getStateChange() == e.SELECTED) {
+            if (e.getStateChange() == ItemEvent.SELECTED) {
                 //code here to swap in/out cert list
                 _certList.removeAllItems();
                 _certList.setEditable(false);

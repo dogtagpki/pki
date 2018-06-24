@@ -149,8 +149,8 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
         //mEncryptPane = new InnerEncryptionPane(mConsoleInfo);
         //mEncryptPane.addEncryptionPaneListener(this);
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         //gbc.gridheight = gbc.REMAINDER;
         gbc.weightx = 1.0;
         //gbc.weighty = 1.0;
@@ -160,7 +160,7 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
         top.add(mEncryptPane);
 
         CMSAdminUtil.resetGBC(gbc);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gb.setConstraints(top, gbc);
         mCenterPanel.add(top);
@@ -169,7 +169,7 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
         mCipherPref = makeJButton("CIPHERPREF");
         mSetup = makeJButton("SETUP");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weighty = 1.0;
         //addButtonEntryField(mCenterPanel, mSetup, mWizard, mCipherPref, gbc);
         addButtonEntryField(mCenterPanel, mSetup, mWizard, gbc);
@@ -311,8 +311,8 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
             //Save the cipher settings
             StringBuffer buf = new StringBuffer();
 
-            if (mCipherDialog.isSSLEnabled(mCipherDialog.SSL2)) {
-                String[] v2 = mCipherDialog.getSSLPreference(mCipherDialog.SSL2);
+            if (mCipherDialog.isSSLEnabled(CMSCipherPreferenceDialog.SSL2)) {
+                String[] v2 = mCipherDialog.getSSLPreference(CMSCipherPreferenceDialog.SSL2);
                 for (int i=0; i< v2.length; i++) {
                     if (mCipherDialog.isCipherEnabled(v2[i])) {
                         if (buf.length()>0)
@@ -322,8 +322,8 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
                 }
             }
 
-            if (mCipherDialog.isSSLEnabled(mCipherDialog.SSL3)) {
-                String[] v3 = mCipherDialog.getSSLPreference(mCipherDialog.SSL3);
+            if (mCipherDialog.isSSLEnabled(CMSCipherPreferenceDialog.SSL3)) {
+                String[] v3 = mCipherDialog.getSSLPreference(CMSCipherPreferenceDialog.SSL3);
                 for (int i=0; i< v3.length; i++) {
                     if (mCipherDialog.isCipherEnabled(v3[i])) {
                         if (buf.length()>0)
@@ -346,7 +346,7 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
     public void itemStateChanged(ItemEvent e){
 
         if (e.getSource().equals(mSelection)) {
-            if (e.getStateChange() == e.SELECTED) {
+            if (e.getStateChange() == ItemEvent.SELECTED) {
                 if (!mSelectionIgnore) {
                     updateFlag = true;
                     saveChanges(mSelectedItem);
@@ -356,7 +356,7 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
                 }
             }
         } else if (e.getSource().equals(mTokenList)) {
-            if ( (!updateFlag) && (e.getStateChange() == e.SELECTED) ){
+            if ( (!updateFlag) && (e.getStateChange() == ItemEvent.SELECTED) ){
                 Debug.println("Token Selected");
                 setDirtyFlag();
                 updateFlag = true;
@@ -364,7 +364,7 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
                 updateFlag = false;
             }
         } else if (e.getSource().equals(mCertList)) {
-            if ( (!updateFlag) && (e.getStateChange() == e.SELECTED) ){
+            if ( (!updateFlag) && (e.getStateChange() == ItemEvent.SELECTED) ){
                 Debug.println("Cert Selected");
                 saveChanges(mSelectedItem);
                 setupComboSelection();
@@ -400,15 +400,15 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
     //setup the cipher dialog
     private void setupCipherDialog(CMSCipherPreferenceDialog dialog) {
         Debug.println("setupCipherDialog");
-        dialog.setSSLEnabled(dialog.SSL3,true);
+        dialog.setSSLEnabled(CMSCipherPreferenceDialog.SSL3,true);
 
         //set selected/unselected ciphers
-        String[] v2 = dialog.getSSLPreference(dialog.SSL2);
+        String[] v2 = dialog.getSSLPreference(CMSCipherPreferenceDialog.SSL2);
 
         if (v2.length <= 0)
-            dialog.setSSLEnabled(dialog.SSL2,false);
+            dialog.setSSLEnabled(CMSCipherPreferenceDialog.SSL2,false);
         else
-            dialog.setSSLEnabled(dialog.SSL2,true);
+            dialog.setSSLEnabled(CMSCipherPreferenceDialog.SSL2,true);
 
         for (int i=0; i< v2.length; i++) {
             if (mCipherPrefStore.contains(v2[i])) {
@@ -419,11 +419,11 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
                 dialog.setCipherEnabled(v2[i], false);
             }
         }
-        String[] v3 = dialog.getSSLPreference(dialog.SSL3);
+        String[] v3 = dialog.getSSLPreference(CMSCipherPreferenceDialog.SSL3);
         if (v3.length <= 0)
-            dialog.setSSLEnabled(dialog.SSL3,false);
+            dialog.setSSLEnabled(CMSCipherPreferenceDialog.SSL3,false);
         else
-            dialog.setSSLEnabled(dialog.SSL3,true);
+            dialog.setSSLEnabled(CMSCipherPreferenceDialog.SSL3,true);
 
         for (int i=0; i< v3.length; i++) {
             if (mCipherPrefStore.contains(v3[i])) {
@@ -642,19 +642,19 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
 
     private static void addTopEntryField(JPanel panel, JComponent label,
       JComponent field, GridBagConstraints gbc) {
-        gbc.fill = gbc.NONE;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.weightx = 0.0;
         gbc.gridwidth = 1;
         gbc.gridx = 0;
-        gbc.anchor = gbc.EAST;
+        gbc.anchor = GridBagConstraints.EAST;
         gbc.insets = new Insets(COMPONENT_SPACE,DIFFERENT_COMPONENT_SPACE,0,0);
         panel.add( label, gbc );
 
         gbc.gridx++;
-        gbc.anchor = gbc.WEST;
-        gbc.fill = gbc.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1.0;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
                                         0,DIFFERENT_COMPONENT_SPACE);
         panel.add( field, gbc );
@@ -662,20 +662,20 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
 
    private static void addButtonEntryField(JPanel panel,
       JComponent field, GridBagConstraints gbc) {
-        gbc.fill = gbc.NONE;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.weightx = 0.0;
         gbc.gridwidth = 1;
         gbc.gridx = 0;
-        gbc.anchor = gbc.NORTHEAST;
+        gbc.anchor = GridBagConstraints.NORTHEAST;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,0,0);
         //gbc.insets = new Insets(DIFFERENT_COMPONENT_SPACE,DIFFERENT_COMPONENT_SPACE,0,0);
         panel.add(new JLabel(""));
 
         gbc.gridx++;
-        gbc.anchor = gbc.NORTHEAST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.NORTHEAST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.weightx = 0.0;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         //gbc.insets = new Insets(DIFFERENT_COMPONENT_SPACE,DIFFERENT_COMPONENT_SPACE,
          //                               0,DIFFERENT_COMPONENT_SPACE);
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
@@ -685,11 +685,11 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
 
     private static void addButtonEntryField(JPanel panel, JComponent label,
       JComponent field, GridBagConstraints gbc) {
-        gbc.fill = gbc.NONE;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.weightx = 0.0;
         gbc.gridwidth = 1;
         gbc.gridx = 0;
-        gbc.anchor = gbc.NORTHEAST;
+        gbc.anchor = GridBagConstraints.NORTHEAST;
         //gbc.insets = new Insets(DIFFERENT_COMPONENT_SPACE,DIFFERENT_COMPONENT_SPACE,0,0);
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,0,0);
         panel.add(new JLabel(""));
@@ -699,10 +699,10 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
         panel.add( label, gbc );
 
         gbc.gridx++;
-        gbc.anchor = gbc.NORTHEAST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.NORTHEAST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.weightx = 0.0;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         //gbc.insets = new Insets(DIFFERENT_COMPONENT_SPACE,DIFFERENT_COMPONENT_SPACE,
                                         //0,DIFFERENT_COMPONENT_SPACE);
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
@@ -712,11 +712,11 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
 
     private static void addButtonEntryField(JPanel panel, JComponent label,
       JComponent field, JComponent field1, GridBagConstraints gbc) {
-        gbc.fill = gbc.NONE;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.weightx = 0.0;
         gbc.gridwidth = 1;
         gbc.gridx = 0;
-        gbc.anchor = gbc.NORTHEAST;
+        gbc.anchor = GridBagConstraints.NORTHEAST;
         //gbc.insets = new Insets(DIFFERENT_COMPONENT_SPACE,DIFFERENT_COMPONENT_SPACE,0,0);
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,0,0);
         panel.add(new JLabel(""));
@@ -726,8 +726,8 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
         panel.add( label, gbc );
 
         gbc.gridx++;
-        gbc.anchor = gbc.NORTHEAST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.NORTHEAST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.weightx = 0.0;
         //gbc.gridwidth = gbc.REMAINDER;
         //gbc.insets = new Insets(DIFFERENT_COMPONENT_SPACE,DIFFERENT_COMPONENT_SPACE,
@@ -737,10 +737,10 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
         panel.add( field, gbc );
 
         gbc.gridx++;
-        gbc.anchor = gbc.NORTHEAST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.NORTHEAST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.weightx = 0.0;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         //gbc.insets = new Insets(DIFFERENT_COMPONENT_SPACE,DIFFERENT_COMPONENT_SPACE,
          //                               0,DIFFERENT_COMPONENT_SPACE);
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,

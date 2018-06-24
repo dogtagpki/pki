@@ -49,8 +49,8 @@ class WCertRequestPage extends WBaseCertRequestPage implements IWizardPanel {
     public boolean initializePanel(WizardInfo info) {
         CertSetupWizardInfo wizardInfo = (CertSetupWizardInfo)info;
 
-        if (wizardInfo.getOperationType().equals(wizardInfo.INSTALLTYPE) ||
-          wizardInfo.getCAType().equals(wizardInfo.SELF_SIGNED))
+        if (wizardInfo.getOperationType().equals(CertSetupWizardInfo.INSTALLTYPE) ||
+          wizardInfo.getCAType().equals(CertSetupWizardInfo.SELF_SIGNED))
             return false;
 
         String str = wizardInfo.getCSR();

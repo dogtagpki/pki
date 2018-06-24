@@ -69,8 +69,8 @@ public abstract class CMSCertSettingPanel extends CMSBaseTab {
         mapPanel.setLayout(gb2);
         mapPanel.setBorder(makeTitledBorder("MAPPER"));
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gb.setConstraints(mapPanel, gbc);
         mCenterPanel.add(mapPanel);
@@ -86,9 +86,9 @@ public abstract class CMSCertSettingPanel extends CMSBaseTab {
         certSetting.setLayout(gb1);
         certSetting.setBorder(makeTitledBorder("PUBLISHER"));
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
         gb.setConstraints(certSetting, gbc);
@@ -120,27 +120,27 @@ public abstract class CMSCertSettingPanel extends CMSBaseTab {
      */
     protected void addEntryField(JPanel panel, JComponent field1,
       JComponent field2, JComponent field3, GridBagConstraints gbc) {
-        gbc.fill = gbc.NONE;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.weightx = 0.0;
         gbc.gridwidth = 1;
         gbc.gridx = 0;
-        gbc.anchor = gbc.EAST;
+        gbc.anchor = GridBagConstraints.EAST;
         gbc.insets = new Insets(COMPONENT_SPACE,DIFFERENT_COMPONENT_SPACE,0,0);
         panel.add( field1, gbc );
 
         gbc.gridx++;
-        gbc.anchor = gbc.EAST;
-        gbc.fill = gbc.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1.0;
         gbc.gridwidth = 1;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,0,0);
         panel.add(field2, gbc);
 
         gbc.gridx++;
-        gbc.anchor = gbc.WEST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.weightx = 0.0;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
       		                            0,DIFFERENT_COMPONENT_SPACE);
         panel.add( field3, gbc );

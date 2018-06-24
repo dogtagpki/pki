@@ -93,8 +93,8 @@ public abstract class CMSBaseLogPanel extends CMSBaseTab {
 		//=== Activate Radio Button ===
 		activateLog = makeJCheckBox("ACTIVATE");
 		CMSAdminUtil.resetGBC(gbc);
-		gbc.anchor = gbc.NORTHWEST;
-		gbc.gridwidth = gbc.REMAINDER;
+		gbc.anchor = GridBagConstraints.NORTHWEST;
+		gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE, 0, COMPONENT_SPACE);
 		gb.setConstraints(activateLog, gbc);
 		mCenterPanel.add(activateLog);
@@ -105,10 +105,10 @@ public abstract class CMSBaseLogPanel extends CMSBaseTab {
         logInfo.setLayout(gb1);
         logInfo.setBorder(makeTitledBorder("LOGATTRIBUTE"));
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         if (!mIsNT)
-            gbc.gridheight = gbc.REMAINDER;
+            gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
         gb.setConstraints(logInfo, gbc);
@@ -117,98 +117,98 @@ public abstract class CMSBaseLogPanel extends CMSBaseTab {
 		// Log Rotation Frequency
 		CMSAdminUtil.resetGBC(gbc);
 		JLabel logFQC = makeJLabel("LOGFQC");
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 0.0;
         gbc.weighty = 0.0;
-        gbc.fill = gbc.NONE;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE, 0, COMPONENT_SPACE);
         logInfo.add(logFQC, gbc);
 
 		mlogFQC = makeJComboBox("LOGFQC");
-        gbc.anchor = gbc.WEST;
+        gbc.anchor = GridBagConstraints.WEST;
         logInfo.add(mlogFQC, gbc);
 
         JLabel dummyFQC = new JLabel();
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.fill = gbc.HORIZONTAL;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1.0;
         logInfo.add(dummyFQC, gbc);
 
 		// Log File Maximum Size
         CMSAdminUtil.resetGBC(gbc);
         JLabel logMaxSiz = makeJLabel("LOGMAXSIZ");
-        gbc.anchor = gbc.NORTHEAST;
+        gbc.anchor = GridBagConstraints.NORTHEAST;
         gbc.weightx = 0.0;
         gbc.weighty = 0.0;
-        gbc.fill = gbc.NONE;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE, 0, COMPONENT_SPACE);
         logInfo.add(logMaxSiz, gbc);
 
         mlogMaxSizText = makeJTextField(10);
-        gbc.anchor = gbc.WEST;
+        gbc.anchor = GridBagConstraints.WEST;
         gbc.weightx = 0.007;
-        gbc.fill = gbc.HORIZONTAL;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
         logInfo.add(mlogMaxSizText, gbc);
         mActiveColor = mlogMaxSizText.getBackground();
 
         mMaxLabel = makeJLabel("SIZEUNIT");
         gbc.weightx = 0.0;
-        gbc.fill = gbc.NONE;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(COMPONENT_SPACE, 0, 0, COMPONENT_SPACE);
         logInfo.add(mMaxLabel, gbc);
 
         JLabel dummy = new JLabel(" ");
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
-        gbc.fill = gbc.HORIZONTAL;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
         logInfo.add(dummy, gbc);
 
 		// Log File Buffer Size
         CMSAdminUtil.resetGBC(gbc);
         JLabel logBufSiz = makeJLabel("LOGBUFSIZ");
-        gbc.anchor = gbc.NORTHEAST;
+        gbc.anchor = GridBagConstraints.NORTHEAST;
         gbc.weightx = 0.0;
         gbc.weighty = 0.0;
-        gbc.fill = gbc.NONE;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE, 0, COMPONENT_SPACE);
         logInfo.add(logBufSiz, gbc);
 
         mlogBufSizText = makeJTextField(10);
-        gbc.anchor = gbc.WEST;
+        gbc.anchor = GridBagConstraints.WEST;
         gbc.weightx = 0.007;
-        gbc.fill = gbc.HORIZONTAL;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
         logInfo.add(mlogBufSizText, gbc);
 
         mBufferLabel = makeJLabel("SIZEUNIT");
         gbc.insets = new Insets(COMPONENT_SPACE, 0, 0, COMPONENT_SPACE);
         gbc.weightx = 0.0;
-        gbc.fill = gbc.NONE;
+        gbc.fill = GridBagConstraints.NONE;
         logInfo.add(mBufferLabel, gbc);
 
         JLabel dummy1 = new JLabel(" ");
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
-        gbc.fill = gbc.HORIZONTAL;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
         logInfo.add(dummy1, gbc);
 
         // Log Level
         CMSAdminUtil.resetGBC(gbc);
         JLabel logLevel = makeJLabel("LOGLEVEL");
-        gbc.anchor = gbc.NORTHEAST;
+        gbc.anchor = GridBagConstraints.NORTHEAST;
         gbc.weightx = 0.0;
         gbc.weighty = 0.0;
-        gbc.fill = gbc.NONE;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE, 0, COMPONENT_SPACE);
         logInfo.add(logLevel, gbc);
 
         mLogLevel = makeJComboBox("LOGLEVEL");
-        gbc.anchor = gbc.WEST;
+        gbc.anchor = GridBagConstraints.WEST;
         logInfo.add(mLogLevel, gbc);
 
         JLabel dummy2 = new JLabel(" ");
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
-        gbc.fill = gbc.HORIZONTAL;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
         logInfo.add(dummy2, gbc);
 
         if (mIsNT)
@@ -219,9 +219,9 @@ public abstract class CMSBaseLogPanel extends CMSBaseTab {
         GridBagConstraints gbc = new GridBagConstraints();
         CMSAdminUtil.resetGBC(gbc);
         mActivateNTLog = makeJCheckBox("ACTIVATENTLOG");
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.insets = new Insets(0, COMPONENT_SPACE, 0, COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         mCenterPanel.add(mActivateNTLog, gbc);
 
         JPanel NTLogInfo = new JPanel();
@@ -229,51 +229,51 @@ public abstract class CMSBaseLogPanel extends CMSBaseTab {
         NTLogInfo.setLayout(gb1);
         NTLogInfo.setBorder(makeTitledBorder("NTLOGATTRIBUTE"));
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
         mCenterPanel.add(NTLogInfo, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
         mEventSourceLbl = makeJLabel("EVENTSOURCE");
-        gbc.anchor = gbc.NORTHEAST;
+        gbc.anchor = GridBagConstraints.NORTHEAST;
         gbc.weightx = 0.0;
         gbc.weighty = 0.0;
-        gbc.fill = gbc.NONE;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE, 0, COMPONENT_SPACE);
         NTLogInfo.add(mEventSourceLbl, gbc);
 
         mEventSourceText = makeJTextField(10);
-        gbc.anchor = gbc.WEST;
+        gbc.anchor = GridBagConstraints.WEST;
         gbc.weightx = 0.007;
-        gbc.fill = gbc.HORIZONTAL;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
         NTLogInfo.add(mEventSourceText, gbc);
 
         JLabel dummy1 = new JLabel(" ");
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
-        gbc.fill = gbc.HORIZONTAL;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
         NTLogInfo.add(dummy1, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
         mNTLogLevelLbl = makeJLabel("LOGLEVEL");
-        gbc.anchor = gbc.NORTHEAST;
+        gbc.anchor = GridBagConstraints.NORTHEAST;
         gbc.weightx = 0.0;
         gbc.weighty = 0.0;
-        gbc.fill = gbc.NONE;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE, 0, COMPONENT_SPACE);
         NTLogInfo.add(mNTLogLevelLbl, gbc);
 
         mNTLogLevel = makeJComboBox("LOGLEVEL");
-        gbc.anchor = gbc.WEST;
+        gbc.anchor = GridBagConstraints.WEST;
         NTLogInfo.add(mNTLogLevel, gbc);
 
         JLabel dummy2 = new JLabel(" ");
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
-        gbc.fill = gbc.HORIZONTAL;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
         NTLogInfo.add(dummy2, gbc);
     }
 

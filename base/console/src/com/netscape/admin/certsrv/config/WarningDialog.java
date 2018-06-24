@@ -80,11 +80,11 @@ public class WarningDialog extends JDialog
         //content panel
         JPanel content = makeContentPane();
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
-        gbc.fill=gbc.BOTH;
+        gbc.fill=GridBagConstraints.BOTH;
         gbc.insets = new Insets(CMSAdminUtil.COMPONENT_SPACE,
           CMSAdminUtil.COMPONENT_SPACE,
           CMSAdminUtil.COMPONENT_SPACE, CMSAdminUtil.COMPONENT_SPACE);
@@ -94,9 +94,9 @@ public class WarningDialog extends JDialog
         //action panel
         JPanel action = makeActionPane();
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gb.setConstraints(action, gbc);
         gbc.insets = new Insets(CMSAdminUtil.COMPONENT_SPACE,
@@ -136,12 +136,12 @@ public class WarningDialog extends JDialog
         Icon icon = CMSAdminUtil.getImage(CMSAdminResources.IMAGE_WARN_ICON);
         JLabel label = new JLabel(icon);
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(CMSAdminUtil.COMPONENT_SPACE,
           CMSAdminUtil.COMPONENT_SPACE,
           CMSAdminUtil.COMPONENT_SPACE,CMSAdminUtil.COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         content.add(label, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
@@ -154,15 +154,15 @@ public class WarningDialog extends JDialog
           JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
           JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
-        gbc.fill= gbc.BOTH;
+        gbc.fill= GridBagConstraints.BOTH;
         gbc.insets = new Insets(CMSAdminUtil.COMPONENT_SPACE,
           CMSAdminUtil.COMPONENT_SPACE,
           CMSAdminUtil.COMPONENT_SPACE, CMSAdminUtil.COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         content.add(scrollPane, gbc);
 
         return content;

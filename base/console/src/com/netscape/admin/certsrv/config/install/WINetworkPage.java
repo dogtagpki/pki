@@ -313,27 +313,27 @@ class WINetworkPage extends WizardBasePanel implements IWizardPanel {
         JTextArea heading = createTextArea(mResource.getString(
           "NETWORKWIZARD_TEXT_DESC_LABEL"));
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
         add(heading, gbc);
 
         JLabel adminSSLport = makeJLabel("ADMINSSLPORT");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.EAST;
+        gbc.anchor = GridBagConstraints.EAST;
         gbc.insets = new Insets(COMPONENT_SPACE, 0,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.fill = gbc.NONE;
+        gbc.fill = GridBagConstraints.NONE;
         add(adminSSLport, gbc);
 
         mAdminSSLPortText = makeJTextField(10);
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.WEST;
+        gbc.anchor = GridBagConstraints.WEST;
         //gbc.gridwidth = gbc.REMAINDER;
         //gbc.fill = gbc.NONE;
-        gbc.fill = gbc.HORIZONTAL;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1.0;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
@@ -342,22 +342,22 @@ class WINetworkPage extends WizardBasePanel implements IWizardPanel {
 
         JLabel dummy2a = new JLabel(" ");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         add(dummy2a, gbc);
 
         JLabel agentPort = makeJLabel("AGENTSSLPORT");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.EAST;
+        gbc.anchor = GridBagConstraints.EAST;
         gbc.insets = new Insets(0, 0, COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.fill = gbc.NONE;
+        gbc.fill = GridBagConstraints.NONE;
         add(agentPort, gbc);
 
         mAgentSSLPortText = makeJTextField(10);
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.WEST;
-        gbc.fill = gbc.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1.0;
         //gbc.fill = gbc.NONE;
         gbc.insets = new Insets(0, COMPONENT_SPACE, COMPONENT_SPACE,
@@ -367,24 +367,24 @@ class WINetworkPage extends WizardBasePanel implements IWizardPanel {
 
         JLabel dummy2b = new JLabel(" ");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         add(dummy2b, gbc);
 
         mSSLPortLabel = makeJLabel("GATEWAYSSLPORT");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.fill = gbc.NONE;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(0, 0, COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.anchor = gbc.EAST;
+        gbc.anchor = GridBagConstraints.EAST;
         add(mSSLPortLabel, gbc);
 
         mGatewaySSLPortText = makeJTextField(10);
         CMSAdminUtil.resetGBC(gbc);
         //gbc.fill = gbc.NONE;
-        gbc.fill = gbc.HORIZONTAL;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1.0;
-        gbc.anchor = gbc.WEST;
+        gbc.anchor = GridBagConstraints.WEST;
         //gbc.gridwidth = gbc.REMAINDER;
         gbc.insets = new Insets(0, COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE);
@@ -392,34 +392,34 @@ class WINetworkPage extends WizardBasePanel implements IWizardPanel {
 
         JLabel dummy2c = new JLabel(" ");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         add(dummy2c, gbc);
 
         mPortLabel = makeJLabel("GATEWAYPORT");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.WEST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(0, COMPONENT_SPACE, COMPONENT_SPACE,COMPONENT_SPACE);
         add(mPortLabel, gbc);
 
         mGatewayPortText = makeJTextField(10);
         CMSAdminUtil.resetGBC(gbc);
         //gbc.fill = gbc.NONE;
-        gbc.fill = gbc.HORIZONTAL;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1.0;
         gbc.insets = new Insets(0, COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE);
-        gbc.anchor = gbc.WEST;
+        gbc.anchor = GridBagConstraints.WEST;
         add(mGatewayPortText, gbc);
 
    // 610632 - remove the enable button
 
         JLabel enableLbl = makeJLabel("ENABLED");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.fill = gbc.NONE;
-        gbc.anchor = gbc.CENTER;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.anchor = GridBagConstraints.CENTER;
         gbc.insets = new Insets(0, COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE);
    //     add(enableLbl, gbc);
@@ -427,42 +427,42 @@ class WINetworkPage extends WizardBasePanel implements IWizardPanel {
         mEnable = new JCheckBox();
         mEnable.addActionListener(this);
         CMSAdminUtil.resetGBC(gbc);
-        gbc.fill = gbc.NONE;
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.insets = new Insets(0, COMPONENT_SPACE, COMPONENT_SPACE,
         COMPONENT_SPACE);
   //      add(mEnable, gbc);
 
         JLabel dummy1 = new JLabel(" ");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         add(dummy1, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
         mAgentDesc = createTextArea(mResource.getString(
             PANELNAME+"_TEXT_HEADING1_LABEL"));
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.weighty = 0.0;
         gbc.insets = new Insets(2*COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(mAgentDesc, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
         mAgentPortLbl = makeJLabel("AGENTPORT");
-        gbc.anchor = gbc.NORTHEAST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.NORTHEAST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(COMPONENT_SPACE, 0, COMPONENT_SPACE,
           COMPONENT_SPACE);
         add(mAgentPortLbl, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
         mPortText = makeJTextField(30);
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.fill = gbc.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1.0;
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE);
@@ -470,20 +470,20 @@ class WINetworkPage extends WizardBasePanel implements IWizardPanel {
 
         JLabel dummy2 = new JLabel(" ");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         add(dummy2, gbc);
 
         JLabel dummy = new JLabel(" ");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.fill = gbc.NONE;
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weighty = 1.0;
         gbc.insets = new Insets(0, COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         add(dummy, gbc);
     }
 

@@ -64,9 +64,9 @@ public class CMSRAGeneralPanel extends CMSBaseTab {
 
         CMSAdminUtil.resetGBC(gbc);
         mCenterPanel.setLayout(gb);
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
         gb.setConstraints(adminPanel, gbc);
@@ -74,9 +74,9 @@ public class CMSRAGeneralPanel extends CMSBaseTab {
 
         CMSAdminUtil.resetGBC(gbc);
         mEEEnable = makeJCheckBox("EE");
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
         gb1.setConstraints(mEEEnable, gbc);

@@ -69,7 +69,7 @@ class WOperationSelectionPage extends WizardBasePanel implements IWizardPanel {
         // Fixes Bugscape Bug #55862:  console - Certificate Setup Wizard
         //                             throws Null Pointer Exception
         if (mode != null && mode.equals("0")) {
-            info.addEntry(wizardInfo.OPTYPE, wizardInfo.INSTALLTYPE);
+            info.addEntry(CertSetupWizardInfo.OPTYPE, CertSetupWizardInfo.INSTALLTYPE);
             return false;
         }
         setBorder(makeTitledBorder(PANELNAME));
@@ -84,9 +84,9 @@ class WOperationSelectionPage extends WizardBasePanel implements IWizardPanel {
         CertSetupWizardInfo wizardInfo = (CertSetupWizardInfo)info;
         startProgressStatus();
         if (mRequestBtn.isSelected())
-            info.addEntry(wizardInfo.OPTYPE, wizardInfo.REQUESTTYPE);
+            info.addEntry(CertSetupWizardInfo.OPTYPE, CertSetupWizardInfo.REQUESTTYPE);
         else
-            info.addEntry(wizardInfo.OPTYPE, wizardInfo.INSTALLTYPE);
+            info.addEntry(CertSetupWizardInfo.OPTYPE, CertSetupWizardInfo.INSTALLTYPE);
         endProgressStatus();
         return true;
     }
@@ -103,31 +103,31 @@ class WOperationSelectionPage extends WizardBasePanel implements IWizardPanel {
         CMSAdminUtil.resetGBC(gbc);
         JTextArea operationTypeLbl = createTextArea(mResource.getString(
           PANELNAME+"_LABEL_OPERATIONTYPE_LABEL"));
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.weighty = 0.0;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(operationTypeLbl, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
         mRequestBtn = makeJRadioButton("REQUEST", true);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(mRequestBtn, gbc);
 
         ButtonGroup btnGroup = new ButtonGroup();
         CMSAdminUtil.resetGBC(gbc);
         mInstallBtn = makeJRadioButton("INSTALL", false);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
         gbc.insets = new Insets(0,COMPONENT_SPACE,COMPONENT_SPACE, 0);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(mInstallBtn, gbc);
 
         btnGroup.add(mInstallBtn);

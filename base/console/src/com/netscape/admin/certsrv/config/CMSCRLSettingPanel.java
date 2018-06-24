@@ -105,8 +105,8 @@ public class CMSCRLSettingPanel extends CMSBaseTab {
         JPanel schemaPanel = new JPanel();
         schemaPanel.setBorder(makeTitledBorder("SCHEMA"));
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gbc.weighty = 0.0;
         gb.setConstraints(schemaPanel, gbc);
@@ -119,8 +119,8 @@ public class CMSCRLSettingPanel extends CMSBaseTab {
         // enable CRL generation
         CMSAdminUtil.resetGBC(gbc);
         JLabel enableCRLLabel = makeJLabel("CRL");
-        gbc.anchor = gbc.EAST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.gridx = 0;
         gbc.weightx = 0.0;
         gbc.gridwidth = 1;
@@ -128,10 +128,10 @@ public class CMSCRLSettingPanel extends CMSBaseTab {
         schemaPanel.add(enableCRLLabel, gbc );
 
         mEnableCRL = makeJCheckBox();
-        gbc.anchor = gbc.WEST;
+        gbc.anchor = GridBagConstraints.WEST;
         gbc.gridx++;
         gbc.weightx = 1.0;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,0,COMPONENT_SPACE);
         schemaPanel.add(mEnableCRL, gbc);
 
@@ -139,8 +139,8 @@ public class CMSCRLSettingPanel extends CMSBaseTab {
         // generate full CRL every X deltas
         CMSAdminUtil.resetGBC(gbc);
         mCRLGenLabel = makeJLabel("GENERATION");
-        gbc.anchor = gbc.EAST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.gridx = 0;
         gbc.weightx = 0.0;
         gbc.gridwidth = 1;
@@ -148,17 +148,17 @@ public class CMSCRLSettingPanel extends CMSBaseTab {
         schemaPanel.add(mCRLGenLabel, gbc );
 
         mCRLGen = makeJTextField(5);
-        gbc.anchor = gbc.WEST;
+        gbc.anchor = GridBagConstraints.WEST;
         gbc.gridx++;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,0,0);
         schemaPanel.add(mCRLGen, gbc);
         mActiveColor = mCRLGen.getBackground();
 
         mDeltaGenLabel = makeJLabel("DELTAS");
-        gbc.anchor = gbc.WEST;
+        gbc.anchor = GridBagConstraints.WEST;
         gbc.gridx++;
         gbc.weightx = 1.0;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,0,COMPONENT_SPACE);
         schemaPanel.add(mDeltaGenLabel, gbc);
 
@@ -166,8 +166,8 @@ public class CMSCRLSettingPanel extends CMSBaseTab {
         // Extend next update time
         CMSAdminUtil.resetGBC(gbc);
         mExtendNextUpdateLabel = makeJLabel("NEXTTIME");
-        gbc.anchor = gbc.EAST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.gridx = 0;
         gbc.weightx = 0.0;
         gbc.gridwidth = 1;
@@ -175,10 +175,10 @@ public class CMSCRLSettingPanel extends CMSBaseTab {
         schemaPanel.add(mExtendNextUpdateLabel, gbc );
 
         mExtendNextUpdate = makeJCheckBox();
-        gbc.anchor = gbc.WEST;
+        gbc.anchor = GridBagConstraints.WEST;
         gbc.gridx++;
         gbc.weightx = 1.0;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,0,COMPONENT_SPACE);
         schemaPanel.add(mExtendNextUpdate, gbc);
 
@@ -187,9 +187,9 @@ public class CMSCRLSettingPanel extends CMSBaseTab {
         JPanel freqPanel = new JPanel();
         freqPanel.setBorder(makeTitledBorder("FREQ"));
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
         gb.setConstraints(freqPanel, gbc);
@@ -203,10 +203,10 @@ public class CMSCRLSettingPanel extends CMSBaseTab {
         // update every time
         CMSAdminUtil.resetGBC(gbc);
         mAlways = makeJCheckBox("ALWAYS");
-        gbc.anchor = gbc.WEST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.gridx = 0;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(COMPONENT_SPACE,DIFFERENT_COMPONENT_SPACE,0,COMPONENT_SPACE);
         freqPanel.add(mAlways, gbc);
 
@@ -214,8 +214,8 @@ public class CMSCRLSettingPanel extends CMSBaseTab {
         // update at specified time
         CMSAdminUtil.resetGBC(gbc);
         mDaily = makeJCheckBox("DAILY");
-        gbc.anchor = gbc.WEST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.gridx = 0;
         gbc.weightx = 0.0;
         gbc.gridwidth = 1;
@@ -223,17 +223,17 @@ public class CMSCRLSettingPanel extends CMSBaseTab {
         freqPanel.add(mDaily, gbc);
 
         mDailyAt = makeJTextField(30);
-        gbc.anchor = gbc.WEST;
+        gbc.anchor = GridBagConstraints.WEST;
         gbc.gridx++;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,0,COMPONENT_SPACE);
         freqPanel.add(mDailyAt, gbc);
 
 
         // update by time interval
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.WEST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.gridx = 0;
         gbc.weightx = 0.0;
         gbc.gridwidth = 1;
@@ -242,16 +242,16 @@ public class CMSCRLSettingPanel extends CMSBaseTab {
         freqPanel.add(mEnableFreq, gbc);
 
         mFrequency = makeJTextField(5);
-        gbc.anchor = gbc.WEST;
+        gbc.anchor = GridBagConstraints.WEST;
         gbc.gridx++;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,0,0);
         freqPanel.add(mFrequency, gbc);
 
         mMinLabel = makeJLabel("MINUTES");
-        gbc.anchor = gbc.WEST;
+        gbc.anchor = GridBagConstraints.WEST;
         gbc.gridx++;
         gbc.weightx = 1.0;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,0,COMPONENT_SPACE);
         freqPanel.add(mMinLabel, gbc);
 
@@ -259,8 +259,8 @@ public class CMSCRLSettingPanel extends CMSBaseTab {
         // next update grace period
         CMSAdminUtil.resetGBC(gbc);
         mGracePeriodLabel = makeJLabel("GRACEPERIOD");
-        gbc.anchor = gbc.WEST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.gridx = 0;
         // gbc.gridx = 2;
         gbc.weightx = 0.0;
@@ -269,24 +269,24 @@ public class CMSCRLSettingPanel extends CMSBaseTab {
         freqPanel.add(mGracePeriodLabel, gbc);
 
         mGracePeriod = makeJTextField(5);
-        gbc.anchor = gbc.WEST;
+        gbc.anchor = GridBagConstraints.WEST;
         gbc.gridx++;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,0,0);
         freqPanel.add(mGracePeriod, gbc);
 
         mGracePeriodMinLabel = makeJLabel("MINUTES");
-        gbc.anchor = gbc.WEST;
+        gbc.anchor = GridBagConstraints.WEST;
         gbc.gridx++;
         gbc.weightx = 1.0;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,0,COMPONENT_SPACE);
         freqPanel.add(mGracePeriodMinLabel, gbc);
 
         // next update as this update extension
         CMSAdminUtil.resetGBC(gbc);
         mNextAsThisUpdateExtensionLabel = makeJLabel("NEXTASTHISEXTENSION");
-        gbc.anchor = gbc.WEST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.gridx = 0;
         // gbc.gridx = 2;
         gbc.weightx = 0.0;
@@ -295,16 +295,16 @@ public class CMSCRLSettingPanel extends CMSBaseTab {
         freqPanel.add(mNextAsThisUpdateExtensionLabel, gbc);
 
         mNextAsThisUpdateExtension = makeJTextField(5);
-        gbc.anchor = gbc.WEST;
+        gbc.anchor = GridBagConstraints.WEST;
         gbc.gridx++;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,0,0);
         freqPanel.add(mNextAsThisUpdateExtension, gbc);
 
         mNextAsThisUpdateExtensionMinLabel = makeJLabel("MINUTES");
-        gbc.anchor = gbc.WEST;
+        gbc.anchor = GridBagConstraints.WEST;
         gbc.gridx++;
         gbc.weightx = 1.0;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,0,COMPONENT_SPACE);
         freqPanel.add(mNextAsThisUpdateExtensionMinLabel, gbc);
 

@@ -498,7 +498,7 @@ public class EncryptionPane extends JPanel implements ActionListener {
         taskInfo.put("sie", certdbName);
 
         try {
-            taskInfo.exec(taskInfo.SEC_LSTOKEN);
+            taskInfo.exec(KeyCertTaskInfo.SEC_LSTOKEN);
         } catch (Exception e) {
             SuiOptionPane.showMessageDialog(
                     UtilConsoleGlobals.getActivatedFrame(), e.getMessage());

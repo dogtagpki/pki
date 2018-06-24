@@ -149,7 +149,7 @@ public class PKCS11ManagementDialog extends AbstractDialog {
         taskInfo = new KeyCertTaskInfo(_consoleInfo);
         taskInfo.put("sie", KeyCertUtility.createTokenName(_consoleInfo));
         try {
-            taskInfo.exec(taskInfo.SEC_LSMODULE);
+            taskInfo.exec(KeyCertTaskInfo.SEC_LSMODULE);
         } catch (Exception e) {
             SuiOptionPane.showMessageDialog(
                     UtilConsoleGlobals.getActivatedFrame(), e.getMessage());

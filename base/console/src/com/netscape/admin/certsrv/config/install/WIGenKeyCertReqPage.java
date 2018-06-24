@@ -63,7 +63,7 @@ class WIGenKeyCertReqPage extends WizardBasePanel implements IWizardPanel {
         desc.setText(str);
 		// check subject key identifier to enable cmc or not
 		NameValuePairs nvps =
-			(NameValuePairs)wizardInfo.get(wizardInfo.ALL_CERT_INFO);
+			(NameValuePairs)wizardInfo.get(InstallWizardInfo.ALL_CERT_INFO);
 		if (nvps != null) {
 			str = (String)nvps.get(Constants.PR_SKI);
 			if (str != null && str.equals(ConfigConstants.TRUE)) {
@@ -244,30 +244,30 @@ class WIGenKeyCertReqPage extends WizardBasePanel implements IWizardPanel {
 */
         desc = createTextArea("");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         //gbc.weighty = 1.0;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(desc, gbc);
 
         mPKCS10 = makeJRadioButton("PKCS10", true);
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(mPKCS10, gbc);
 
         mCMC = makeJRadioButton("CMC", false);
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(mCMC, gbc);
 
         ButtonGroup group = new ButtonGroup();
@@ -276,11 +276,11 @@ class WIGenKeyCertReqPage extends WizardBasePanel implements IWizardPanel {
 
         CMSAdminUtil.resetGBC(gbc);
         JLabel d1 = new JLabel(" ");
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
-        gbc.gridheight = gbc.REMAINDER;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(d1, gbc);
 
         super.init();

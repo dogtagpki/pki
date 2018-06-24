@@ -193,12 +193,12 @@ class WILogonAllTokensPage extends WizardBasePanel implements IWizardPanel {
         CMSAdminUtil.resetGBC(gbc);
         JTextArea desc = createTextArea(mResource.getString(
           PANELNAME+"_TEXT_HEADING_LABEL"));
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.weighty = 0.0;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(desc, gbc);
 
         Vector colNames = new Vector();
@@ -214,9 +214,9 @@ class WILogonAllTokensPage extends WizardBasePanel implements IWizardPanel {
         mTable = new ProfileDataTable(dataModel);
         JScrollPane scrollPane = JTable.createScrollPaneForTable(mTable);
         scrollPane.setHorizontalScrollBarPolicy(
-          scrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+          ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPane.setVerticalScrollBarPolicy(
-          scrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+          ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         mTable.setAutoscrolls(true);
         mTable.sizeColumnsToFit(true);
         mTable.getSelectionModel().setSelectionMode(
@@ -227,11 +227,11 @@ class WILogonAllTokensPage extends WizardBasePanel implements IWizardPanel {
           new ProfileComponentCellEditor());
 
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.fill = gbc.BOTH;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.fill = GridBagConstraints.BOTH;
         gbc.weighty = 1.0;
         gbc.weightx = 1.0;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE, COMPONENT_SPACE);
         gb.setConstraints(scrollPane, gbc);
@@ -239,9 +239,9 @@ class WILogonAllTokensPage extends WizardBasePanel implements IWizardPanel {
 
         JLabel dummy = new JLabel(" ");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weighty = 1.0;
         add(dummy, gbc);
     }

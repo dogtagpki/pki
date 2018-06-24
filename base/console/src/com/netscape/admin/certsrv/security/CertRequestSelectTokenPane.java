@@ -96,7 +96,7 @@ IKeyCertPage {
             taskInfo.put("sie", observable.get("sie"));
 
             try {
-                taskInfo.exec(taskInfo.SEC_LSTOKEN);
+                taskInfo.exec(KeyCertTaskInfo.SEC_LSTOKEN);
             } catch (Exception e) {
                 SuiOptionPane.showMessageDialog(
                         UtilConsoleGlobals.getActivatedFrame(),

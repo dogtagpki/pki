@@ -67,7 +67,7 @@ class WInstallCertChainPage extends WizardBasePanel implements IWizardPanel {
 
     public boolean initializePanel(WizardInfo info) {
         CertSetupWizardInfo wizardInfo = (CertSetupWizardInfo)info;
-        if (wizardInfo.getOperationType().equals(wizardInfo.REQUESTTYPE))
+        if (wizardInfo.getOperationType().equals(CertSetupWizardInfo.REQUESTTYPE))
             return false;
 
         setBorder(makeTitledBorder(PANELNAME));
@@ -100,26 +100,26 @@ class WInstallCertChainPage extends WizardBasePanel implements IWizardPanel {
         JTextArea introLbl = createTextArea(mResource.getString(
           PANELNAME+"_LABEL_INTRO_LABEL"));
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(introLbl, gbc);
 
         JTextArea opLbl = createTextArea(mResource.getString(
           PANELNAME+"_LABEL_INSTALLCERT_LABEL"));
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(opLbl, gbc);
 
         mCertBox = makeJComboBox("CERTCHAINTYPE");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.insets = new Insets(COMPONENT_SPACE, 4*COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
         gbc.weighty = 1.0;
@@ -127,8 +127,8 @@ class WInstallCertChainPage extends WizardBasePanel implements IWizardPanel {
 
         JTextArea dummy = createTextArea(" ", 1, 10);
         CMSAdminUtil.resetGBC(gbc);
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.insets = new Insets(0, 0, COMPONENT_SPACE,COMPONENT_SPACE);
         add(dummy, gbc);
@@ -140,9 +140,9 @@ class WInstallCertChainPage extends WizardBasePanel implements IWizardPanel {
         CertSetupWizardInfo wizardInfo = (CertSetupWizardInfo)info;
         String str = (String)(mCertBox.getSelectedItem());
         if (str.startsWith("Trusted")) {
-            wizardInfo.addEntry(wizardInfo.INSTALLCERTTYPE, Constants.PR_TRUSTED_CA_CERT);
+            wizardInfo.addEntry(CertSetupWizardInfo.INSTALLCERTTYPE, Constants.PR_TRUSTED_CA_CERT);
         } else if (str.startsWith("Untrusted")) {
-            wizardInfo.addEntry(wizardInfo.INSTALLCERTTYPE, Constants.PR_SERVER_CERT_CHAIN);
+            wizardInfo.addEntry(CertSetupWizardInfo.INSTALLCERTTYPE, Constants.PR_SERVER_CERT_CHAIN);
         }
     }
 }

@@ -73,42 +73,42 @@ class WITrustDBPage extends WizardBasePanel implements IWizardPanel {
             "TRUSTDBWIZARD_TEXT_DESC_LABEL"), 80), 2, 80);
 
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.weighty = 0.0;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(desc, gbc);
 
         JLabel passwdLbl = makeJLabel("PASSWD");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHEAST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.NORTHEAST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
         add(passwdLbl, gbc);
 
         mPassword = makeJPasswordField(20);
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
         add(mPassword, gbc);
 
         JTextArea dummy = createTextArea(" ", 1, 15);
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHEAST;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTHEAST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
         add(dummy, gbc);
 
         JLabel passwdAgainLbl = makeJLabel("PASSWDAGAIN");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHEAST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.NORTHEAST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(0,COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE);
         gbc.weighty = 1.0;
@@ -116,8 +116,8 @@ class WITrustDBPage extends WizardBasePanel implements IWizardPanel {
 
         mPasswordAgain = makeJPasswordField(20);
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(0, COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE);
         gbc.weighty = 1.0;
@@ -127,7 +127,7 @@ class WITrustDBPage extends WizardBasePanel implements IWizardPanel {
         CMSAdminUtil.resetGBC(gbc);
         gbc.insets = new Insets(0, COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(dummy1, gbc);
 
         super.init();

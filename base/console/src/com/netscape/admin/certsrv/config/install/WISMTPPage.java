@@ -69,56 +69,56 @@ class WISMTPPage extends WizardBasePanel implements IWizardPanel {
 
         CMSAdminUtil.resetGBC(gbc);
         JLabel headingLbl = makeJLabel("HEADING");
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gbc.weighty = 0.0;
         add(headingLbl, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
         JLabel serverLbl = makeJLabel("SERVERNAME");
-        gbc.anchor = gbc.NORTHEAST;
+        gbc.anchor = GridBagConstraints.NORTHEAST;
         gbc.weightx = 0.0;
         gbc.weighty = 0.0;
-        gbc.fill = gbc.NONE;
+        gbc.fill = GridBagConstraints.NONE;
         add(serverLbl, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
         mServerTxt = makeJTextField(30);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 0.0;
         gbc.weighty = 0.0;
         add(mServerTxt, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
         JLabel dummy2 = new JLabel("    ");
-        gbc.anchor = gbc.NORTHEAST;
+        gbc.anchor = GridBagConstraints.NORTHEAST;
         gbc.weightx = 1.0;
         gbc.weighty = 0.0;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(dummy2, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
         JLabel portLbl = makeJLabel("PORT");
-        gbc.anchor = gbc.NORTHEAST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.NORTHEAST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.weightx = 0.0;
         gbc.weighty = 1.0;
         add(portLbl, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
         mPortTxt = makeJTextField(30);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 0.0;
         gbc.weighty = 1.0;
         add(mPortTxt, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
         JLabel dummy3 = new JLabel("     ");
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.weighty = 0.0;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(dummy3, gbc);
 
         super.init();

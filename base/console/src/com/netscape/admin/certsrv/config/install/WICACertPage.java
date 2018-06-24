@@ -74,21 +74,21 @@ class WICACertPage extends WizardBasePanel implements IWizardPanel {
           CMSAdminUtil.wrapText(mResource.getString(
             "CACERTWIZARD_TEXT_HEADING_LABEL"), 80), 1, 80);
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.weighty = 0.0;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(desc, gbc);
 
         mSelfBtn = makeJRadioButton("SELF", true);
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE, 0,
           COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(mSelfBtn, gbc);
 
         mSubordinateBtn = makeJRadioButton("SUBORDINATE", false);
@@ -96,19 +96,19 @@ class WICACertPage extends WizardBasePanel implements IWizardPanel {
         gbc.weightx = 1.0;
         gbc.insets = new Insets(0,COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(mSubordinateBtn, gbc);
 
         JTextArea desc1 = createTextArea(
           CMSAdminUtil.wrapText(mResource.getString(
             "CACERTWIZARD_TEXT_HEADING1_LABEL"), 80), 2, 80);
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.weighty = 0.0;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(desc1, gbc);
 
         mEmailBtn = makeJRadioButton("EMAIL", true);
@@ -120,8 +120,8 @@ class WICACertPage extends WizardBasePanel implements IWizardPanel {
 
         mEmailText = makeJTextField(30);
         CMSAdminUtil.resetGBC(gbc);
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.fill = gbc.NONE;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE, 0,
           COMPONENT_SPACE);
         add(mEmailText, gbc);
@@ -135,10 +135,10 @@ class WICACertPage extends WizardBasePanel implements IWizardPanel {
 
         mUrlText = makeJTextField(30);
         CMSAdminUtil.resetGBC(gbc);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(0, COMPONENT_SPACE, 0,
           COMPONENT_SPACE);
-        gbc.fill = gbc.NONE;
+        gbc.fill = GridBagConstraints.NONE;
         add(mUrlText, gbc);
 
         mManualBtn = makeJRadioButton("MANUAL", false);
@@ -146,12 +146,12 @@ class WICACertPage extends WizardBasePanel implements IWizardPanel {
         gbc.weightx = 1.0;
         gbc.insets = new Insets(0, COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(mManualBtn, gbc);
 
         JLabel dummy = new JLabel(" ");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weighty = 1.0;
         add(dummy, gbc);
 

@@ -125,56 +125,56 @@ public class WMessageDigestPage extends WizardBasePanel implements IWizardPanel 
         JTextArea hashTypeLbl = createTextArea(mResource.getString(
           mPanelName+"_TEXT_HASHTYPE_LABEL"));
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.weighty = 0.0;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(hashTypeLbl, gbc);
 
         mRSAHashTypeBox = makeJComboBox("RSAHASHTYPE");
         mRSAHashTypeBox.setVisible(true);
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.insets = new Insets(0, 4*COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE);
-        gbc.fill = gbc.NONE;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(mRSAHashTypeBox, gbc);
 
         mDSAHashTypeBox = makeJComboBox("DSAHASHTYPE");
         mDSAHashTypeBox.setVisible(false);
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.insets = new Insets(0, COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE);
-        gbc.fill = gbc.NONE;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(mDSAHashTypeBox, gbc);
 
         mECCHashTypeBox = makeJComboBox("ECCHASHTYPE");
         mECCHashTypeBox.setVisible(false);
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.insets = new Insets(0, COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE);
-        gbc.fill = gbc.NONE;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(mECCHashTypeBox, gbc);
 
         JLabel dummy = new JLabel(" ");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.WEST;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gbc.insets = new Insets(0, 0,COMPONENT_SPACE, COMPONENT_SPACE);
         add(dummy, gbc);
 
         JLabel dummy2 = new JLabel(" ");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.WEST;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gbc.insets = new Insets(0, 0,COMPONENT_SPACE, COMPONENT_SPACE);
         add(dummy2, gbc);
@@ -182,49 +182,49 @@ public class WMessageDigestPage extends WizardBasePanel implements IWizardPanel 
         mSignedByTypeLbl = createTextArea(mResource.getString(
           mPanelName+"_TEXT_SIGNEDBYTYPE_LABEL"));
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.weighty = 0.0;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(mSignedByTypeLbl, gbc);
 
         mRSASignedByTypeBox = makeJComboBox("RSASIGNEDBYTYPE");
         mRSASignedByTypeBox.setVisible(true);
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.insets = new Insets(0, 4*COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE);
-        gbc.fill = gbc.NONE;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(mRSASignedByTypeBox, gbc);
 
         mDSASignedByTypeBox = makeJComboBox("DSASIGNEDBYTYPE");
         mDSASignedByTypeBox.setVisible(false);
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.insets = new Insets(0, COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE);
-        gbc.fill = gbc.NONE;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(mDSASignedByTypeBox, gbc);
 
         mECCSignedByTypeBox = makeJComboBox("ECCSIGNEDBYTYPE");
         mECCSignedByTypeBox.setVisible(false);
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.insets = new Insets(0, COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE);
-        gbc.fill = gbc.NONE;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(mECCSignedByTypeBox, gbc);
 
         JLabel dummy1 = new JLabel(" ");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.CENTER;
-        gbc.gridheight = gbc.REMAINDER;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weighty = 1.0;
         gbc.insets = new Insets(0, 0,COMPONENT_SPACE, COMPONENT_SPACE);
         add(dummy1, gbc);

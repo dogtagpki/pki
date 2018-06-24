@@ -92,8 +92,8 @@ class KeyCertTaskInfo extends Hashtable<String, Object> {
         } catch (Exception e) {
             throw (new Exception(resource.getString("KeyCertTaskInfo", "serverError")));
         }
-        Debug.println(kComm.getData());
-        _response = new Response(kComm.getData());
+        Debug.println(Comm.getData());
+        _response = new Response(Comm.getData());
 
         return (_response);
     }

@@ -46,7 +46,7 @@ class WGenerateReqPage extends WizardBasePanel implements IWizardPanel {
 
     public boolean initializePanel(WizardInfo info) {
         CertSetupWizardInfo wizardInfo = (CertSetupWizardInfo)info;
-        if (wizardInfo.getOperationType().equals(wizardInfo.INSTALLTYPE))
+        if (wizardInfo.getOperationType().equals(CertSetupWizardInfo.INSTALLTYPE))
             return false;
         return true;
     }
@@ -76,12 +76,12 @@ class WGenerateReqPage extends WizardBasePanel implements IWizardPanel {
         desc.setEditable(false);
         desc.setCaretColor(getBackground());
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(desc, gbc);
 
         super.init();

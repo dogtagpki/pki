@@ -89,8 +89,8 @@ class WILoggingPage extends WizardBasePanel implements IWizardPanel {
 
         CMSAdminUtil.resetGBC(gbc);
         mEnableSysLog = makeJCheckBox("SYSLOG");
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gbc.weighty = 0.0;
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE, 0,
@@ -99,8 +99,8 @@ class WILoggingPage extends WizardBasePanel implements IWizardPanel {
 
         CMSAdminUtil.resetGBC(gbc);
         mEnableErrorLog = makeJCheckBox("ERRORLOG");
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gbc.weighty = 0.0;
         gbc.insets = new Insets(0, COMPONENT_SPACE, 0,
@@ -109,8 +109,8 @@ class WILoggingPage extends WizardBasePanel implements IWizardPanel {
 
         CMSAdminUtil.resetGBC(gbc);
         mEnableAuditLog = makeJCheckBox("AUDITLOG");
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gbc.weighty = 0.0;
         gbc.insets = new Insets(0, COMPONENT_SPACE, COMPONENT_SPACE,
@@ -119,13 +119,13 @@ class WILoggingPage extends WizardBasePanel implements IWizardPanel {
 
         CMSAdminUtil.resetGBC(gbc);
         JLabel logFQC = makeJLabel("LOGFQC");
-        gbc.anchor = gbc.NORTHEAST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.NORTHEAST;
+        gbc.fill = GridBagConstraints.NONE;
         add(logFQC, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
         mlogFQC = makeJComboBox("LOGFQC");
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 0.0;
         add(mlogFQC, gbc);
 
@@ -134,63 +134,63 @@ class WILoggingPage extends WizardBasePanel implements IWizardPanel {
         dummy1.setBackground(getBackground());
         dummy1.setEditable(false);
         dummy1.setCaretColor(getBackground());
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(dummy1, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
         JLabel logMaxSiz = makeJLabel("LOGMAXSIZ");
-        gbc.anchor = gbc.NORTHEAST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.NORTHEAST;
+        gbc.fill = GridBagConstraints.NONE;
         add(logMaxSiz, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
         mlogMaxSizText = makeJTextField(10);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         add(mlogMaxSizText, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
         JLabel maxLabel = makeJLabel("SIZEUNIT");
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(maxLabel, gbc);
         //mActiveColor = mlogMaxSizText.getBackground();
 
         CMSAdminUtil.resetGBC(gbc);
         JLabel logBufSiz = makeJLabel("LOGBUFSIZ");
-        gbc.anchor = gbc.NORTHEAST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.NORTHEAST;
+        gbc.fill = GridBagConstraints.NONE;
         add(logBufSiz, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
         mlogBufSizText = makeJTextField(10);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         add(mlogBufSizText, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
         JLabel bufferLabel = makeJLabel("SIZEUNIT");
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(bufferLabel, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
         JLabel logLevel = makeJLabel("LOGLEVEL");
-        gbc.fill = gbc.NONE;
-        gbc.anchor = gbc.NORTHEAST;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.anchor = GridBagConstraints.NORTHEAST;
         add(logLevel, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
         mLogLevel = makeJComboBox("LOGLEVEL");
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         add(mLogLevel, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
         JLabel dummy4 = new JLabel(EMPTYSTR);
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weighty = 1.0;
         add(dummy4, gbc);
 

@@ -103,8 +103,8 @@ public class CMSCAGeneralPanel extends CMSBaseTab implements ItemListener {
 
         CMSAdminUtil.resetGBC(gbc);
         mCenterPanel.setLayout(gb);
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         //gbc.gridheight = gbc.REMAINDER;
         gbc.weightx = 1.0;
         //gbc.weighty = 1.0;
@@ -112,23 +112,23 @@ public class CMSCAGeneralPanel extends CMSBaseTab implements ItemListener {
        // mCenterPanel.add(adminPanel);
 
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gb.setConstraints(validityPanel, gbc);
         mCenterPanel.add(validityPanel);
 
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gb.setConstraints(serialPanel, gbc);
         mCenterPanel.add(serialPanel);
 
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
         gb.setConstraints(signingPanel, gbc);
@@ -136,7 +136,7 @@ public class CMSCAGeneralPanel extends CMSBaseTab implements ItemListener {
 
         CMSAdminUtil.resetGBC(gbc);
         mEEEnable = makeJCheckBox("EE");
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         // gbc.gridwidth = gbc.REMAINDER;
         // gbc.gridheight = gbc.REMAINDER;
         gbc.weightx = 1.0;
@@ -146,9 +146,9 @@ public class CMSCAGeneralPanel extends CMSBaseTab implements ItemListener {
 
         CMSAdminUtil.resetGBC(gbc);
         mOCSPEnable = makeJCheckBox("OCSP");
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
         gb1.setConstraints(mOCSPEnable, gbc);
@@ -157,7 +157,7 @@ public class CMSCAGeneralPanel extends CMSBaseTab implements ItemListener {
 		// add validity block
         CMSAdminUtil.resetGBC(gbc);
         mValidity = makeJCheckBox("VALIDITY");
-        gbc.anchor = gbc.CENTER;
+        gbc.anchor = GridBagConstraints.CENTER;
         //gbc.gridwidth = gbc.REMAINDER;
         //gbc.gridheight = gbc.REMAINDER;
         //gbc.weightx = 1.0;
@@ -167,9 +167,9 @@ public class CMSCAGeneralPanel extends CMSBaseTab implements ItemListener {
 
         CMSAdminUtil.resetGBC(gbc);
         JLabel dummy4 = new JLabel(" ");
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
         gb4.setConstraints(dummy4, gbc);
@@ -177,7 +177,7 @@ public class CMSCAGeneralPanel extends CMSBaseTab implements ItemListener {
 
         CMSAdminUtil.resetGBC(gbc);
         JLabel signingLabel = makeJLabel("ALGORITHM");
-        gbc.anchor = gbc.CENTER;
+        gbc.anchor = GridBagConstraints.CENTER;
         gb2.setConstraints(signingLabel, gbc);
         gbc.weighty = 1.0;
         signingPanel.add(signingLabel);
@@ -186,7 +186,7 @@ public class CMSCAGeneralPanel extends CMSBaseTab implements ItemListener {
         mAlgorithms = new JComboBox<>();
         mAlgorithms.addItemListener(this);
         //mAlgorithms = makeJComboBox("ALGORITHM");
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         //gbc.gridwidth = gbc.REMAINDER;
         //gbc.gridheight = gbc.REMAINDER;
         //gbc.weightx = 1.0;
@@ -196,9 +196,9 @@ public class CMSCAGeneralPanel extends CMSBaseTab implements ItemListener {
 
         CMSAdminUtil.resetGBC(gbc);
         JLabel dummy1 = new JLabel(" ");
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
         gb2.setConstraints(dummy1, gbc);
@@ -208,8 +208,8 @@ public class CMSCAGeneralPanel extends CMSBaseTab implements ItemListener {
         CMSAdminUtil.resetGBC(gbc);
         mEnableSerialNumberManagement = makeJCheckBox("MANAGEMENT");
         //mEnableSerialNumberManagement.setEnabled(false);
-        gbc.anchor = gbc.CENTER;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.gridheight = 1;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
@@ -221,9 +221,9 @@ public class CMSCAGeneralPanel extends CMSBaseTab implements ItemListener {
         // add random serial numbers
         CMSAdminUtil.resetGBC(gbc);
         mEnableRandomSerialNumbers = makeJCheckBox("RANDOM");
-        gbc.anchor = gbc.CENTER;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER; //1;
+        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER; //1;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
         gbc.gridx = 0;
@@ -235,7 +235,7 @@ public class CMSCAGeneralPanel extends CMSBaseTab implements ItemListener {
         CMSAdminUtil.resetGBC(gbc);
         JLabel serialLabel = makeJLabel("SERIAL");
         serialLabel.setEnabled(false);
-        gbc.anchor = gbc.CENTER;
+        gbc.anchor = GridBagConstraints.CENTER;
         gb3.setConstraints(serialLabel, gbc);
         gbc.gridwidth = 1;
         gbc.gridheight = 1;
@@ -248,7 +248,7 @@ public class CMSCAGeneralPanel extends CMSBaseTab implements ItemListener {
         CMSAdminUtil.resetGBC(gbc);
         mSerialNumber = makeJTextField(17);
         mSerialNumber.setEnabled(false);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.gridwidth = 1;
         gbc.gridheight = 1;
         gbc.weightx = 0.0;
@@ -262,7 +262,7 @@ public class CMSCAGeneralPanel extends CMSBaseTab implements ItemListener {
         CMSAdminUtil.resetGBC(gbc);
         JLabel maxSerialLabel = makeJLabel("MAXSERIAL");
         maxSerialLabel.setEnabled(false);
-        gbc.anchor = gbc.CENTER;
+        gbc.anchor = GridBagConstraints.CENTER;
         gbc.gridwidth = 1;
         gbc.gridheight = 1;
         gbc.weightx = 0.0;
@@ -275,7 +275,7 @@ public class CMSCAGeneralPanel extends CMSBaseTab implements ItemListener {
         CMSAdminUtil.resetGBC(gbc);
         mMaxSerialNumber = makeJTextField(17);
         mMaxSerialNumber.setEnabled(false);
-        gbc.anchor = gbc.CENTER;
+        gbc.anchor = GridBagConstraints.CENTER;
         gbc.gridwidth = 1;
         gbc.gridheight = 1;
         gbc.weightx = 0.0;
@@ -287,9 +287,9 @@ public class CMSCAGeneralPanel extends CMSBaseTab implements ItemListener {
 
         CMSAdminUtil.resetGBC(gbc);
         JLabel dummy2 = new JLabel(" ");
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
         gb3.setConstraints(dummy2, gbc);

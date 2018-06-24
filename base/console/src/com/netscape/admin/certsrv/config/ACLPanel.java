@@ -32,6 +32,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.ScrollPaneConstants;
 
 import com.netscape.admin.certsrv.CMSAdminResources;
 import com.netscape.admin.certsrv.CMSAdminUtil;
@@ -85,9 +86,9 @@ public class ACLPanel extends CMSBaseUGTab {
         mTable = new JTable(mDataModel);
         mScrollPane = JTable.createScrollPaneForTable(mTable);
         mScrollPane.setHorizontalScrollBarPolicy(
-          mScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+          ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         mScrollPane.setVerticalScrollBarPolicy(
-          mScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+          ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         mTable.setAutoscrolls(true);
         mTable.sizeColumnsToFit(true);
         mTable.getSelectionModel().setSelectionMode(
@@ -98,20 +99,20 @@ public class ACLPanel extends CMSBaseUGTab {
         setLabelCellRenderer(mTable,0);
 
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
+        gbc.anchor = GridBagConstraints.NORTH;
         gbc.gridwidth = 1;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
-	gbc.fill = gbc.BOTH;
+	gbc.fill = GridBagConstraints.BOTH;
         gbc.insets = EMPTY_INSETS;
         gb.setConstraints(mScrollPane, gbc);
         mainPanel.add(mScrollPane);
 
         JPanel buttonPanel = createButtonPanel();
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weightx = 0.0;
         gbc.weighty = 1.0;
         gbc.insets = EMPTY_INSETS;

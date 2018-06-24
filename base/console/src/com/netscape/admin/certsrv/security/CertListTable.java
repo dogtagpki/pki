@@ -274,7 +274,7 @@ class CertListTable extends JPanel implements MouseListener, Runnable {
         alias = _certName;
         Response response = null;
         try {
-            response = _taskInfo.exec(_taskInfo.SEC_MGCRT);
+            response = _taskInfo.exec(KeyCertTaskInfo.SEC_MGCRT);
         } catch (Exception e) {
             SuiOptionPane.showMessageDialog(
                     UtilConsoleGlobals.getActivatedFrame(), e.getMessage());

@@ -79,8 +79,8 @@ public class CRLIPEditor extends JDialog implements ActionListener {
         //content panel
         JPanel content = makeContentPanel();
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
         //gbc.insets = CMSAdminUtil.DEFAULT_EMPTY_INSETS;
@@ -90,9 +90,9 @@ public class CRLIPEditor extends JDialog implements ActionListener {
         //action panel
         JPanel action = makeActionPane();
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gb.setConstraints(action, gbc);
         center.add(action);
@@ -166,9 +166,9 @@ public class CRLIPEditor extends JDialog implements ActionListener {
             CMSAdminUtil.resetGBC(gbc);
             JLabel label1 = CMSAdminUtil.makeJLabel(mResource, PREFIX,
                                                     "CRLIPNAME", null);
-            gbc.anchor = gbc.WEST;
+            gbc.anchor = GridBagConstraints.WEST;
             //gbc.weightx = 1.0;
-            gbc.fill = gbc.NONE;
+            gbc.fill = GridBagConstraints.NONE;
             gbc.insets = new Insets(CMSAdminUtil.COMPONENT_SPACE,
                                     CMSAdminUtil.COMPONENT_SPACE,
                                     CMSAdminUtil.COMPONENT_SPACE,
@@ -178,10 +178,10 @@ public class CRLIPEditor extends JDialog implements ActionListener {
 
             CMSAdminUtil.resetGBC(gbc);
             JLabel label2 = new JLabel(mName);
-            gbc.anchor = gbc.WEST;
-            gbc.gridwidth = gbc.REMAINDER;
+            gbc.anchor = GridBagConstraints.WEST;
+            gbc.gridwidth = GridBagConstraints.REMAINDER;
             gbc.weightx = 0.0;
-            gbc.fill = gbc.NONE;
+            gbc.fill = GridBagConstraints.NONE;
             gbc.insets = new Insets(CMSAdminUtil.COMPONENT_SPACE,
                                     CMSAdminUtil.COMPONENT_SPACE,
                                     CMSAdminUtil.COMPONENT_SPACE,
@@ -193,8 +193,8 @@ public class CRLIPEditor extends JDialog implements ActionListener {
         CMSAdminUtil.resetGBC(gbc);
         mEnableBox = CMSAdminUtil.makeJCheckBox(mResource, PREFIX,
           "ENABLE", null, false, this);
-        gbc.anchor = gbc.WEST;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(CMSAdminUtil.COMPONENT_SPACE,
           CMSAdminUtil.COMPONENT_SPACE, CMSAdminUtil.COMPONENT_SPACE,
           CMSAdminUtil.COMPONENT_SPACE);
@@ -205,8 +205,8 @@ public class CRLIPEditor extends JDialog implements ActionListener {
             CMSAdminUtil.resetGBC(gbc);
             nameLabel = CMSAdminUtil.makeJLabel(mResource, PREFIX,
               "CRLIPNAME", null);
-            gbc.anchor = gbc.EAST;
-            gbc.fill = gbc.NONE;
+            gbc.anchor = GridBagConstraints.EAST;
+            gbc.fill = GridBagConstraints.NONE;
             gbc.weightx = 0.0;
             gbc.insets = new Insets(0, 0,
                                     CMSAdminUtil.COMPONENT_SPACE,
@@ -216,10 +216,10 @@ public class CRLIPEditor extends JDialog implements ActionListener {
 
             CMSAdminUtil.resetGBC(gbc);
             mNameText = new JTextField(30);
-            gbc.anchor = gbc.WEST;
+            gbc.anchor = GridBagConstraints.WEST;
             gbc.weightx = 0.0;
-            gbc.fill = gbc.NONE;
-            gbc.gridwidth = gbc.REMAINDER;
+            gbc.fill = GridBagConstraints.NONE;
+            gbc.gridwidth = GridBagConstraints.REMAINDER;
             //gbc.gridheight = gbc.REMAINDER;
             gbc.insets = new Insets(0, CMSAdminUtil.COMPONENT_SPACE,
                                     CMSAdminUtil.COMPONENT_SPACE,
@@ -232,8 +232,8 @@ public class CRLIPEditor extends JDialog implements ActionListener {
         CMSAdminUtil.resetGBC(gbc);
         descLabel = CMSAdminUtil.makeJLabel(mResource, PREFIX,
           "DESCRIPTION", null);
-        gbc.anchor = gbc.EAST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(0, 0,
                                 CMSAdminUtil.COMPONENT_SPACE,
                                 CMSAdminUtil.COMPONENT_SPACE);
@@ -243,12 +243,12 @@ public class CRLIPEditor extends JDialog implements ActionListener {
 
         CMSAdminUtil.resetGBC(gbc);
         mDescText = new JTextField(30);
-        gbc.anchor = gbc.WEST;
+        gbc.anchor = GridBagConstraints.WEST;
         gbc.weightx = 0.0;
-        gbc.fill = gbc.NONE;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(0, CMSAdminUtil.COMPONENT_SPACE,
           CMSAdminUtil.COMPONENT_SPACE, CMSAdminUtil.COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         //gbc.gridheight = gbc.REMAINDER;
         gb.setConstraints(mDescText, gbc);
         mainPanel.add(mDescText);

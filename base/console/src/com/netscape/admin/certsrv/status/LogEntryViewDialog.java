@@ -107,8 +107,8 @@ public class LogEntryViewDialog extends JDialog
         //content panel
         JPanel content = makeContentPane();
         CMSAdminUtil.resetGBC(gbc);
-		gbc.anchor = gbc.NORTH;
-		gbc.gridwidth = gbc.REMAINDER;
+		gbc.anchor = GridBagConstraints.NORTH;
+		gbc.gridwidth = GridBagConstraints.REMAINDER;
 		gbc.weightx = 1.0;
 		gbc.weighty = 1.0;
         gb.setConstraints(content, gbc);
@@ -117,9 +117,9 @@ public class LogEntryViewDialog extends JDialog
 		//action panel
 		JPanel action = makeActionPane();
         CMSAdminUtil.resetGBC(gbc);
-		gbc.anchor = gbc.NORTH;
-		gbc.gridwidth = gbc.REMAINDER;
-		gbc.gridheight = gbc.REMAINDER;
+		gbc.anchor = GridBagConstraints.NORTH;
+		gbc.gridwidth = GridBagConstraints.REMAINDER;
+		gbc.gridheight = GridBagConstraints.REMAINDER;
 		gbc.weightx = 1.0;
         gb.setConstraints(action, gbc);
 		center.add(action);
@@ -168,7 +168,7 @@ public class LogEntryViewDialog extends JDialog
         CMSAdminUtil.resetGBC(gbc);
         JLabel label5 = CMSAdminUtil.makeJLabel(mResource, PREFIX, "DESC", null);
         label5.setHorizontalAlignment(JLabel.RIGHT);
-        gbc.anchor = gbc.NORTHEAST;
+        gbc.anchor = GridBagConstraints.NORTHEAST;
         gbc. insets = new Insets(CMSAdminUtil.COMPONENT_SPACE,
                                 CMSAdminUtil.COMPONENT_SPACE,0,0);
         gb3.setConstraints(label5, gbc);
@@ -189,9 +189,9 @@ public class LogEntryViewDialog extends JDialog
         scrollPanel.setBorder(BorderFactory.createEmptyBorder());
 	scrollPanel.setPreferredSize(new Dimension(500, 200));
         //gbc.fill = gbc.VERTICAL;
-        gbc.fill = gbc.BOTH;
-        gbc.gridwidth =  gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.gridwidth =  GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weightx=1.0;
         gbc.weighty=1.0;
         gb3.setConstraints(scrollPanel, gbc);

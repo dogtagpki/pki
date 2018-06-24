@@ -88,7 +88,7 @@ class WCertTypePage extends WizardBasePanel implements IWizardPanel,
 
     public boolean initializePanel(WizardInfo info) {
         CertSetupWizardInfo wizardInfo = (CertSetupWizardInfo)info;
-        if (wizardInfo.getOperationType().equals(wizardInfo.INSTALLTYPE))
+        if (wizardInfo.getOperationType().equals(CertSetupWizardInfo.INSTALLTYPE))
             return false;
 
         setBorder(makeTitledBorder(PANELNAME));
@@ -282,27 +282,27 @@ class WCertTypePage extends WizardBasePanel implements IWizardPanel,
           PANELNAME+"_LABEL_HEADING_LABEL"));
 
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(heading, gbc);
 
         JTextArea heading1 = createTextArea(mResource.getString(
           PANELNAME+"_LABEL_HEADING1_LABEL"));
 
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(heading1, gbc);
 
         mCertBox = new JComboBox<>();
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
         add(mCertBox, gbc);
@@ -310,18 +310,18 @@ class WCertTypePage extends WizardBasePanel implements IWizardPanel,
 
         JLabel dummy = new JLabel(" ");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(dummy, gbc);
 
         mCertType = createTextArea(mResource.getString(
           PANELNAME+"_LABEL_CERTTYPE_LABEL"));
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(mCertType, gbc);
 
 /*
@@ -335,7 +335,7 @@ class WCertTypePage extends WizardBasePanel implements IWizardPanel,
 
         mCertTypeText = makeJTextField(10);
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.insets = new Insets(COMPONENT_SPACE, 4*COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
         add(mCertTypeText, gbc);
@@ -343,9 +343,9 @@ class WCertTypePage extends WizardBasePanel implements IWizardPanel,
 
         JLabel dummy2 = new JLabel(" ");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(dummy2, gbc);
 
         mCALbl = createTextArea(mResource.getString(
@@ -356,28 +356,28 @@ class WCertTypePage extends WizardBasePanel implements IWizardPanel,
         CMSAdminUtil.resetGBC(gbc);
         gbc.insets = new Insets(2*COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         add(mCALbl, gbc);
 
         mCABtn = makeJRadioButton("SELFSIGN", true);
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.insets = new Insets(0,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(mCABtn, gbc);
 
         mSubBtn = makeJRadioButton("SUBORDINATE", false);
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
         gbc.insets = new Insets(0,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(mSubBtn, gbc);
 
         ButtonGroup caGroup = new ButtonGroup();
@@ -400,37 +400,37 @@ class WCertTypePage extends WizardBasePanel implements IWizardPanel,
 
 		if ((mCASigningCert != null) && (str.equals(mCASigningCert))) {
 			if (mCABtn.isSelected()) {
-				wizardInfo.addEntry(wizardInfo.CA_TYPE, wizardInfo.SELF_SIGNED);
+				wizardInfo.addEntry(CertSetupWizardInfo.CA_TYPE, CertSetupWizardInfo.SELF_SIGNED);
 			} else if (mSubBtn.isSelected()) {
-				wizardInfo.addEntry(wizardInfo.CA_TYPE,
-									wizardInfo.SUBORDINATE_CA);
+				wizardInfo.addEntry(CertSetupWizardInfo.CA_TYPE,
+									CertSetupWizardInfo.SUBORDINATE_CA);
 				}
 		} else if ((mCASigningCert != null) && (mServerCert != null)
 				   && (str.equals(mServerCert))) {
-            wizardInfo.addEntry(wizardInfo.CA_TYPE, wizardInfo.SUBORDINATE_CA);
+            wizardInfo.addEntry(CertSetupWizardInfo.CA_TYPE, CertSetupWizardInfo.SUBORDINATE_CA);
 			if (mCABtn.isSelected())
 				wizardInfo.setSSLCertLocalCA(Constants.TRUE);
 			else if (mSubBtn.isSelected())
 				wizardInfo.setSSLCertLocalCA(Constants.FALSE);
 		} else if ((mCASigningCert != null) && (mServerCertRadm != null)
 				   && (str.equals(mServerCertRadm))) {
-            wizardInfo.addEntry(wizardInfo.CA_TYPE, wizardInfo.SUBORDINATE_CA);
+            wizardInfo.addEntry(CertSetupWizardInfo.CA_TYPE, CertSetupWizardInfo.SUBORDINATE_CA);
 			if (mCABtn.isSelected())
 				wizardInfo.setSSLCertLocalCA(Constants.TRUE);
 			else if (mSubBtn.isSelected())
 				wizardInfo.setSSLCertLocalCA(Constants.FALSE);
 		} else if ((mCASigningCert != null) && (mOCSPSigningCert != null)
 				   && (str.equals(mOCSPSigningCert))) {
-            wizardInfo.addEntry(wizardInfo.CA_TYPE, wizardInfo.SUBORDINATE_CA);
+            wizardInfo.addEntry(CertSetupWizardInfo.CA_TYPE, CertSetupWizardInfo.SUBORDINATE_CA);
 			if (mCABtn.isSelected())
 				wizardInfo.setSSLCertLocalCA(Constants.TRUE);
 			else if (mSubBtn.isSelected())
 				wizardInfo.setSSLCertLocalCA(Constants.FALSE);
         } else if (mOtherCert != null && str.equals(mOtherCert)) {
-            wizardInfo.addEntry(wizardInfo.CA_TYPE, wizardInfo.SUBORDINATE_CA);
+            wizardInfo.addEntry(CertSetupWizardInfo.CA_TYPE, CertSetupWizardInfo.SUBORDINATE_CA);
             wizardInfo.setCertSubType(mCertTypeText.getText());
 		} else {
-            wizardInfo.addEntry(wizardInfo.CA_TYPE, wizardInfo.SUBORDINATE_CA);
+            wizardInfo.addEntry(CertSetupWizardInfo.CA_TYPE, CertSetupWizardInfo.SUBORDINATE_CA);
         }
     }
 

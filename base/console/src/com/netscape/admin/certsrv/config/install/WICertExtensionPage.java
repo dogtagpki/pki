@@ -105,7 +105,7 @@ class WICertExtensionPage extends WBaseCertExtensionPage implements
             if (mMIMECheckBox.isSelected())
                 nvps.put(Constants.PR_DER_EXTENSION, mMIMEText.getText().trim());
 
-            wizardInfo.put(wizardInfo.ALL_CERT_INFO, nvps);
+            wizardInfo.put(InstallWizardInfo.ALL_CERT_INFO, nvps);
         }
 
         mModified = true;

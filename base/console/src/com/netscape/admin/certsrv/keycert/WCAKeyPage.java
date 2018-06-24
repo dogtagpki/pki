@@ -45,7 +45,7 @@ class WCAKeyPage extends WBaseKeyPage implements IWizardPanel {
 
     public boolean initializePanel(WizardInfo info) {
         CertSetupWizardInfo wizardInfo = (CertSetupWizardInfo)info;
-        if (wizardInfo.getOperationType().equals(wizardInfo.INSTALLTYPE))
+        if (wizardInfo.getOperationType().equals(CertSetupWizardInfo.INSTALLTYPE))
         //  (wizardInfo.isNewKey()))
             return false;
 

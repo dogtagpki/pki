@@ -149,26 +149,26 @@ class WIAdminPage extends WizardBasePanel implements IWizardPanel {
         CMSAdminUtil.resetGBC(gbc);
         JTextArea desc = createTextArea(mResource.getString(
           "ADMININSTALLWIZARD_TEXT_HEADING_LABEL"));
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(desc, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
         JLabel idLbl = makeJLabel("ADMINID");
-        gbc.anchor = gbc.NORTHEAST;
+        gbc.anchor = GridBagConstraints.NORTHEAST;
         gbc.insets = new Insets(COMPONENT_SPACE,0,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.fill = gbc.NONE;
+        gbc.fill = GridBagConstraints.NONE;
         add(idLbl, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
         mIDText = makeJTextField(30);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
         add(mIDText, gbc);
@@ -177,32 +177,32 @@ class WIAdminPage extends WizardBasePanel implements IWizardPanel {
         JLabel nameLbl = makeJLabel("FULLNAME");
         gbc.insets = new Insets(0, 0,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.fill = gbc.NONE;
-        gbc.anchor = gbc.NORTHEAST;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.anchor = GridBagConstraints.NORTHEAST;
         add(nameLbl, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
         mFullNameText = makeJTextField(30);
         gbc.insets = new Insets(0, COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(mFullNameText, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
         JLabel passwdLbl = makeJLabel("PASSWORD");
         gbc.insets = new Insets(0, 0,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.anchor = gbc.NORTHEAST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.NORTHEAST;
+        gbc.fill = GridBagConstraints.NONE;
         add(passwdLbl, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
         mPasswordText = makeJPasswordField(30);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.insets = new Insets(0,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(mPasswordText, gbc);
 
 /*
@@ -219,35 +219,35 @@ class WIAdminPage extends WizardBasePanel implements IWizardPanel {
         JLabel passwdAgainLbl = makeJLabel("PASSWORDAGAIN");
         gbc.insets = new Insets(0, 0,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.anchor = gbc.NORTHEAST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.NORTHEAST;
+        gbc.fill = GridBagConstraints.NONE;
         add(passwdAgainLbl, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
         mPasswordAgainText = makeJPasswordField(30);
         gbc.insets = new Insets(0, COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(mPasswordAgainText, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
         JLabel passwdAgainLbl1 = makeJLabel("DUMMY");
         gbc.insets = new Insets(0, COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.weighty = 1.0;
         add(passwdAgainLbl1, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
        mEnable = makeJCheckBox("ENABLE");
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.insets = new Insets(0, COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
         gbc.weighty = 1.0;
-        gbc.gridheight = gbc.REMAINDER;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
        add(mEnable, gbc);
         mEnable.setSelected(true);
 /*

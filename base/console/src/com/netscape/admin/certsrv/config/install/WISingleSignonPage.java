@@ -42,6 +42,7 @@ import com.netscape.certsrv.common.ConfigConstants;
 import com.netscape.certsrv.common.OpDef;
 import com.netscape.certsrv.common.TaskId;
 import com.netscape.management.client.comm.CommClient;
+import com.netscape.management.client.comm.CommManager;
 import com.netscape.management.client.comm.CommRecord;
 import com.netscape.management.client.comm.HttpManager;
 import com.netscape.management.client.console.ConsoleInfo;
@@ -190,7 +191,7 @@ class WISingleSignonPage extends WizardBasePanel implements IWizardPanel, CommCl
 
         HttpManager h = new HttpManager();
         // tell the http manager to use UTF8 encoding
-        h.setSendUTF8(true);
+        CommManager.setSendUTF8(true);
 
         try {
             mSuccess = false;
@@ -449,12 +450,12 @@ class WISingleSignonPage extends WizardBasePanel implements IWizardPanel, CommCl
         JTextArea desc = createTextArea(mResource.getString(
           PANELNAME+"_TEXT_HEADING_LABEL"));
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.weighty = 0.0;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE, 0,
           COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(desc, gbc);
 
 /*
@@ -475,33 +476,33 @@ class WISingleSignonPage extends WizardBasePanel implements IWizardPanel, CommCl
         JTextArea heading = createTextArea(mResource.getString(
           PANELNAME+"_TEXT_HEADING1_LABEL"));
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         //gbc.fill = gbc.NONE;
         gbc.weightx = 1.0;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(2*COMPONENT_SPACE, COMPONENT_SPACE, COMPONENT_SPACE, 0);
         add(heading, gbc);
 
         JLabel tokenLbl = makeJLabel("TOKEN");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHEAST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.NORTHEAST;
+        gbc.fill = GridBagConstraints.NONE;
         //gbc.gridwidth = gbc.REMAINDER;
         gbc.insets = new Insets(COMPONENT_SPACE, 4*COMPONENT_SPACE, 0, COMPONENT_SPACE);
         add(tokenLbl, gbc);
 
         mTokenBox = new JComboBox<>();
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         //gbc.gridwidth = gbc.REMAINDER;
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE, 0, 0);
         add(mTokenBox, gbc);
 
         JLabel dum = new JLabel(" ");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.fill = gbc.BOTH;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.fill = GridBagConstraints.BOTH;
         gbc.weightx = 1.0;
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE, 0, 0);
         add(dum, gbc);
@@ -509,30 +510,30 @@ class WISingleSignonPage extends WizardBasePanel implements IWizardPanel, CommCl
         JTextArea passwordConfText = createTextArea(mResource.getString(
           PANELNAME+"_TEXT_PASSWDCONF_LABEL"));
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.weighty = 0.0;
         gbc.insets = new Insets(4*COMPONENT_SPACE,COMPONENT_SPACE, 0,
           COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(passwordConfText, gbc);
 
 	mPasswordConf = makeJCheckBox("PASSWDCONF");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.weighty = 0.0;
         gbc.insets = new Insets(COMPONENT_SPACE,2*COMPONENT_SPACE, 0,
           COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
 	add(mPasswordConf, gbc);
 
         JLabel dummy = new JLabel(" ");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
-        gbc.fill = gbc.BOTH;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
+        gbc.fill = GridBagConstraints.BOTH;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
         add(dummy, gbc);

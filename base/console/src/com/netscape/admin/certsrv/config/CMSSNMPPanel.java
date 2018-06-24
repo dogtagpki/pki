@@ -75,15 +75,15 @@ public class CMSSNMPPanel extends CMSBaseTab {
         mEnable = makeJCheckBox("ENABLE");
         mEnable.setActionCommand("enable");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gb.setConstraints(mEnable, gbc);
         mCenterPanel.add(mEnable);
 
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
         gb.setConstraints(snmpInfo, gbc);
@@ -135,9 +135,9 @@ public class CMSSNMPPanel extends CMSBaseTab {
         CMSAdminUtil.addEntryField(snmpInfo, mContactLabel, mContactText, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gb1.setConstraints(buttonPanel, gbc);
         snmpInfo.add(buttonPanel);
 

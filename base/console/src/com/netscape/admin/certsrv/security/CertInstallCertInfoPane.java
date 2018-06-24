@@ -191,7 +191,7 @@ IKeyCertPage {
 
                 try {
                     taskInfo.put("keyfilepw", obs.get("keyfilepw"));
-                    taskInfo.exec(taskInfo.SEC_ICRT);
+                    taskInfo.exec(KeyCertTaskInfo.SEC_ICRT);
                     taskInfo.clear();
                 } catch (Exception e) {
                     SuiOptionPane.showMessageDialog(

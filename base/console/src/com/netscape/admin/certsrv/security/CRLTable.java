@@ -140,7 +140,7 @@ class CRLTable extends JPanel implements MouseListener {
 
         _taskInfo.put("sie", _sie);
         try {
-            _taskInfo.exec(_taskInfo.SEC_MGCRL);
+            _taskInfo.exec(KeyCertTaskInfo.SEC_MGCRL);
         } catch (Exception e) {
             SuiOptionPane.showMessageDialog(
                     UtilConsoleGlobals.getActivatedFrame(), e.getMessage());
@@ -173,7 +173,7 @@ class CRLTable extends JPanel implements MouseListener {
         _crlTable = new SuiTable();
         //_crlTableModel = new CRLTableModel(getRowData(_taskInfo.getResponse().getServerResponse()), getColumnHeader());
         _crlTable.setModel(_crlTableModel);
-        _crlTable.setAutoResizeMode(_crlTable.AUTO_RESIZE_ALL_COLUMNS);
+        _crlTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
         _crlTable.addMouseListener(this);
         //_crlTable.setMultipleSelectionAllowed(false);
         _crlTable.getSelectionModel().setSelectionMode(

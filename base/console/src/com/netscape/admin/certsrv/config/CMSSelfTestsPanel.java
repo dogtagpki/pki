@@ -64,9 +64,9 @@ public class CMSSelfTestsPanel extends CMSBaseTab
         GridBagConstraints gbc = new GridBagConstraints();
         CMSAdminUtil.resetGBC( gbc );
         mCenterPanel.setLayout( gb );
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
         gb.setConstraints( selftestsInfo, gbc );
@@ -88,11 +88,11 @@ public class CMSSelfTestsPanel extends CMSBaseTab
         // add on-demand self tests label
         CMSAdminUtil.resetGBC( gbc );
         JLabel onDemandLabel = makeJLabel( "ONDEMAND" );
-        gbc.fill = gbc.NONE;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.weightx = 0.0;
         gbc.gridwidth = 1;
         gbc.gridx = 0;
-        gbc.anchor = gbc.WEST;
+        gbc.anchor = GridBagConstraints.WEST;
         gbc.insets = new Insets( COMPONENT_SPACE,
                                  DIFFERENT_COMPONENT_SPACE,
                                  0,
@@ -105,11 +105,11 @@ public class CMSSelfTestsPanel extends CMSBaseTab
         JButton[] buttons = { mOnDemand };
         JButtonFactory.resize( buttons );
         CMSAdminUtil.makeJButtonVPanel( buttons );
-        gbc.fill = gbc.HORIZONTAL;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 0.0;
-        gbc.gridwidth = gbc.RELATIVE;
-        gbc.gridx = gbc.RELATIVE;
-        gbc.anchor = gbc.WEST;
+        gbc.gridwidth = GridBagConstraints.RELATIVE;
+        gbc.gridx = GridBagConstraints.RELATIVE;
+        gbc.anchor = GridBagConstraints.WEST;
         gbc.insets = new Insets( COMPONENT_SPACE,
                                  DIFFERENT_COMPONENT_SPACE,
                                  0,
@@ -118,11 +118,11 @@ public class CMSSelfTestsPanel extends CMSBaseTab
 
         // add space after the run button
         JLabel dummy = new JLabel(" ");
-        gbc.fill = gbc.HORIZONTAL;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1.0;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridx = gbc.RELATIVE;
-        gbc.anchor = gbc.WEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridx = GridBagConstraints.RELATIVE;
+        gbc.anchor = GridBagConstraints.WEST;
         gbc.insets = new Insets( COMPONENT_SPACE,
                                  0,
                                  COMPONENT_SPACE,

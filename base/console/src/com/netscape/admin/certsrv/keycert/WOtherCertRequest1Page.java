@@ -52,7 +52,7 @@ class WOtherCertRequest1Page extends WizardBasePanel implements IWizardPanel {
 
     public boolean initializePanel(WizardInfo info) {
         CertSetupWizardInfo wizardInfo = (CertSetupWizardInfo)info;
-        if (wizardInfo.getOperationType().equals(wizardInfo.INSTALLTYPE))
+        if (wizardInfo.getOperationType().equals(CertSetupWizardInfo.INSTALLTYPE))
             return false;
 
         String type = wizardInfo.getCertType();
@@ -70,16 +70,16 @@ class WOtherCertRequest1Page extends WizardBasePanel implements IWizardPanel {
         CertSetupWizardInfo wizardInfo = (CertSetupWizardInfo)info;
 
         if (mNewKeyBtn.isSelected())
-            wizardInfo.addEntry(wizardInfo.KEY_MATERIAL, Constants.TRUE);
+            wizardInfo.addEntry(CertSetupWizardInfo.KEY_MATERIAL, Constants.TRUE);
         else if (mExistingKeyBtn.isSelected())
-            wizardInfo.addEntry(wizardInfo.KEY_MATERIAL, Constants.FALSE);
+            wizardInfo.addEntry(CertSetupWizardInfo.KEY_MATERIAL, Constants.FALSE);
 
         if (mEmailBtn.isSelected())
-            wizardInfo.addEntry(wizardInfo.SUBMIT_METHOD, wizardInfo.CA_EMAIL);
+            wizardInfo.addEntry(CertSetupWizardInfo.SUBMIT_METHOD, CertSetupWizardInfo.CA_EMAIL);
         else if (mURLBtn.isSelected())
-            wizardInfo.addEntry(wizardInfo.SUBMIT_METHOD, wizardInfo.CA_URL);
+            wizardInfo.addEntry(CertSetupWizardInfo.SUBMIT_METHOD, CertSetupWizardInfo.CA_URL);
         else if (mManualBtn.isSelected())
-            wizardInfo.addEntry(wizardInfo.SUBMIT_METHOD, wizardInfo.MANUAL);
+            wizardInfo.addEntry(CertSetupWizardInfo.SUBMIT_METHOD, CertSetupWizardInfo.MANUAL);
 
         return true;
     }
@@ -97,65 +97,65 @@ class WOtherCertRequest1Page extends WizardBasePanel implements IWizardPanel {
           CMSAdminUtil.wrapText(mResource.getString(
             "CACERTREQUESTWIZARD_TEXT_METHOD_LABEL"), 80), 2, 80);
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(methodText, gbc);
 
         mEmailBtn = makeJRadioButton("EMAIL", true);
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.insets = new Insets(0, 4*COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(mEmailBtn, gbc);
 
         mURLBtn = makeJRadioButton("URL", false);
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.insets = new Insets(0, 4*COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(mURLBtn, gbc);
 
         mManualBtn = makeJRadioButton("MANUAL", false);
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.insets = new Insets(0, 4*COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(mManualBtn, gbc);
 
         JLabel keyLbl = makeJLabel("KEYPAIR");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(keyLbl, gbc);
 
         mExistingKeyBtn = makeJRadioButton("OLDKEY", true);
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.insets = new Insets(0, 4*COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(mExistingKeyBtn, gbc);
 
         mNewKeyBtn = makeJRadioButton("NEWKEY", false);
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.insets = new Insets(0, 4*COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weighty = 1.0;
         add(mNewKeyBtn, gbc);
 

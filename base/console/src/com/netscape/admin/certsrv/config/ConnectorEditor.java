@@ -94,11 +94,11 @@ public class ConnectorEditor extends JDialog implements ActionListener, MouseLis
         //content panel
         JPanel content = makeContentPanel();
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
-        gbc.fill = gbc.BOTH;
+        gbc.fill = GridBagConstraints.BOTH;
         //gbc.insets = CMSAdminUtil.DEFAULT_EMPTY_INSETS;
         gb.setConstraints(content, gbc);
         center.add(content);
@@ -152,9 +152,9 @@ public class ConnectorEditor extends JDialog implements ActionListener, MouseLis
         //action panel
         JPanel action = makeActionPane();
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gb.setConstraints(action, gbc);
         center.add(action);
@@ -348,18 +348,18 @@ public class ConnectorEditor extends JDialog implements ActionListener, MouseLis
 
         CMSAdminUtil.resetGBC(gbc);
         JLabel label2 = new JLabel(mName+":");
-        gbc.anchor = gbc.WEST;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
-        gbc.fill = gbc.HORIZONTAL;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
         gb.setConstraints(label2, gbc);
         mainPanel.add(label2);
 
         CMSAdminUtil.resetGBC(gbc);
         mEnableBox = CMSAdminUtil.makeJCheckBox(mResource, PREFIX,
           "ENABLE", null, false, this);
-        gbc.anchor = gbc.WEST;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
 /*
         gbc.insets = new Insets(CMSAdminUtil.COMPONENT_SPACE,
           CMSAdminUtil.COMPONENT_SPACE, CMSAdminUtil.COMPONENT_SPACE,
@@ -371,8 +371,8 @@ public class ConnectorEditor extends JDialog implements ActionListener, MouseLis
         CMSAdminUtil.resetGBC(gbc);
         hostLabel = CMSAdminUtil.makeJLabel(mResource, PREFIX,
           "HOST", null);
-        gbc.anchor = gbc.EAST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.weightx = 0.0;
         gbc.insets = new Insets(0, CMSAdminUtil.COMPONENT_SPACE,
           CMSAdminUtil.COMPONENT_SPACE, CMSAdminUtil.COMPONENT_SPACE);
@@ -381,10 +381,10 @@ public class ConnectorEditor extends JDialog implements ActionListener, MouseLis
 
         CMSAdminUtil.resetGBC(gbc);
         mHostText = new JTextField(20);
-        gbc.anchor = gbc.WEST;
+        gbc.anchor = GridBagConstraints.WEST;
         gbc.weightx = 1.0;
-        gbc.fill = gbc.HORIZONTAL;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         //gbc.gridheight = gbc.REMAINDER;
 /*
         gbc.insets = new Insets(0, CMSAdminUtil.COMPONENT_SPACE,
@@ -397,8 +397,8 @@ public class ConnectorEditor extends JDialog implements ActionListener, MouseLis
         CMSAdminUtil.resetGBC(gbc);
         portLabel = CMSAdminUtil.makeJLabel(mResource, PREFIX,
           "PORT", null);
-        gbc.anchor = gbc.EAST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(0, CMSAdminUtil.COMPONENT_SPACE,
           CMSAdminUtil.COMPONENT_SPACE, CMSAdminUtil.COMPONENT_SPACE);
         gbc.weightx = 0.0;
@@ -407,14 +407,14 @@ public class ConnectorEditor extends JDialog implements ActionListener, MouseLis
 
         CMSAdminUtil.resetGBC(gbc);
         mPortText = new JTextField(20);
-        gbc.anchor = gbc.WEST;
+        gbc.anchor = GridBagConstraints.WEST;
         gbc.weightx = 1.0;
-        gbc.fill = gbc.HORIZONTAL;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
 /*
         gbc.insets = new Insets(0, CMSAdminUtil.COMPONENT_SPACE,
           CMSAdminUtil.COMPONENT_SPACE, CMSAdminUtil.COMPONENT_SPACE);
 */
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         //gbc.gridheight = gbc.REMAINDER;
         gb.setConstraints(mPortText, gbc);
         mainPanel.add(mPortText);
@@ -422,8 +422,8 @@ public class ConnectorEditor extends JDialog implements ActionListener, MouseLis
         CMSAdminUtil.resetGBC(gbc);
         timeoutLabel = CMSAdminUtil.makeJLabel(mResource, PREFIX,
           "TIMEOUT", null);
-        gbc.anchor = gbc.EAST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(0, 4*CMSAdminUtil.COMPONENT_SPACE,
           CMSAdminUtil.COMPONENT_SPACE, CMSAdminUtil.COMPONENT_SPACE);
         gbc.weightx = 0.0;
@@ -432,14 +432,14 @@ public class ConnectorEditor extends JDialog implements ActionListener, MouseLis
 
         CMSAdminUtil.resetGBC(gbc);
         mTimeoutText = new JTextField(20);
-        gbc.anchor = gbc.WEST;
+        gbc.anchor = GridBagConstraints.WEST;
         gbc.weightx = 1.0;
-        gbc.fill = gbc.HORIZONTAL;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
 /*
         gbc.insets = new Insets(0, CMSAdminUtil.COMPONENT_SPACE,
           CMSAdminUtil.COMPONENT_SPACE, CMSAdminUtil.COMPONENT_SPACE);
 */
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         //gbc.gridheight = gbc.REMAINDER;
         gb.setConstraints(mTimeoutText, gbc);
         mTimeoutText.setText("30");
@@ -448,8 +448,8 @@ public class ConnectorEditor extends JDialog implements ActionListener, MouseLis
         CMSAdminUtil.resetGBC(gbc);
         nicknameLabel = CMSAdminUtil.makeJLabel(mResource, PREFIX,
           "NICKNAME", null);
-        gbc.anchor = gbc.EAST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.weightx = 0.0;
         gbc.insets = new Insets(0, CMSAdminUtil.COMPONENT_SPACE,
           CMSAdminUtil.COMPONENT_SPACE, CMSAdminUtil.COMPONENT_SPACE);
@@ -458,10 +458,10 @@ public class ConnectorEditor extends JDialog implements ActionListener, MouseLis
 
         CMSAdminUtil.resetGBC(gbc);
         mNicknameText = new JTextField(50);
-        gbc.anchor = gbc.WEST;
+        gbc.anchor = GridBagConstraints.WEST;
         gbc.weightx = 1.0;
-        gbc.fill = gbc.HORIZONTAL;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gb.setConstraints(mNicknameText, gbc);
         mainPanel.add(mNicknameText);
 
@@ -469,13 +469,13 @@ public class ConnectorEditor extends JDialog implements ActionListener, MouseLis
         mHeading = createTextArea(mResource.getString(
           PREFIX+"_TEXT_CERTHEADING_LABEL"));
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.WEST;
+        gbc.anchor = GridBagConstraints.WEST;
         gbc.weightx = 1.0;
-        gbc.fill = gbc.HORIZONTAL;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(2*CMSAdminUtil.COMPONENT_SPACE,
           4*CMSAdminUtil.COMPONENT_SPACE,
           CMSAdminUtil.COMPONENT_SPACE, CMSAdminUtil.COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gb.setConstraints(mHeading, gbc);
         mainPanel.add(mHeading);
 
@@ -513,12 +513,12 @@ public class ConnectorEditor extends JDialog implements ActionListener, MouseLis
 */
 
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.WEST;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
-        gbc.fill = gbc.BOTH;
+        gbc.fill = GridBagConstraints.BOTH;
         gbc.insets = new Insets(CMSAdminUtil.COMPONENT_SPACE,
           4*CMSAdminUtil.COMPONENT_SPACE,
           CMSAdminUtil.COMPONENT_SPACE, CMSAdminUtil.COMPONENT_SPACE);

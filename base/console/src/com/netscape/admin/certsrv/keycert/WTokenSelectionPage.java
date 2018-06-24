@@ -74,11 +74,11 @@ class WTokenSelectionPage extends WizardBasePanel implements IWizardPanel {
 
     public boolean concludePanel(WizardInfo info) {
         CertSetupWizardInfo wizardInfo = (CertSetupWizardInfo)info;
-        info.addEntry(wizardInfo.TOKENNAME, mToken.getSelectedItem());
+        info.addEntry(CertSetupWizardInfo.TOKENNAME, mToken.getSelectedItem());
         if (mRequestBtn.isSelected())
-            info.addEntry(wizardInfo.OPTYPE, wizardInfo.REQUESTTYPE);
+            info.addEntry(CertSetupWizardInfo.OPTYPE, CertSetupWizardInfo.REQUESTTYPE);
         else
-            info.addEntry(wizardInfo.OPTYPE, wizardInfo.INSTALLTYPE);
+            info.addEntry(CertSetupWizardInfo.OPTYPE, CertSetupWizardInfo.INSTALLTYPE);
         return true;
     }
 
@@ -93,33 +93,33 @@ class WTokenSelectionPage extends WizardBasePanel implements IWizardPanel {
 
         CMSAdminUtil.resetGBC(gbc);
         JLabel operationTypeLbl = makeJLabel("OPERATIONTYPE");
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.weighty = 0.0;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(operationTypeLbl, gbc);
 
         ButtonGroup btnGroup = new ButtonGroup();
         CMSAdminUtil.resetGBC(gbc);
         mInstallBtn = makeJRadioButton("INSTALL", true);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.weighty = 0.0;
         gbc.insets = new Insets(COMPONENT_SPACE,4*COMPONENT_SPACE,
           COMPONENT_SPACE, 0);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(mInstallBtn, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
         mRequestBtn = makeJRadioButton("REQUEST", false);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.weighty = 0.0;
         gbc.insets = new Insets(0, 4*COMPONENT_SPACE, 2*COMPONENT_SPACE,
           COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(mRequestBtn, gbc);
 
         btnGroup.add(mInstallBtn);
@@ -127,26 +127,26 @@ class WTokenSelectionPage extends WizardBasePanel implements IWizardPanel {
 
         CMSAdminUtil.resetGBC(gbc);
         JLabel tokenTypeLbl = makeJLabel("TOKENSELECTION");
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(tokenTypeLbl, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
         JLabel tokenLbl = makeJLabel("TOKEN");
-        gbc.anchor = gbc.NORTHEAST;
+        gbc.anchor = GridBagConstraints.NORTHEAST;
         gbc.weighty = 0.0;
-        gbc.fill = gbc.NONE;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(COMPONENT_SPACE,4*COMPONENT_SPACE, COMPONENT_SPACE,0);
         add(tokenLbl, gbc);
 
         mToken = new JComboBox<>();
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
-        gbc.fill = gbc.NONE;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.weighty = 0.0;
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
@@ -154,10 +154,10 @@ class WTokenSelectionPage extends WizardBasePanel implements IWizardPanel {
 
         JTextArea dummy2 = createTextArea(" ", 1, 20);
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(dummy2, gbc);
 
         super.init();

@@ -53,7 +53,7 @@ class WCACertRequest1Page extends WizardBasePanel implements IWizardPanel {
 
     public boolean initializePanel(WizardInfo info) {
         CertSetupWizardInfo wizardInfo = (CertSetupWizardInfo)info;
-        if (wizardInfo.getOperationType().equals(wizardInfo.INSTALLTYPE))
+        if (wizardInfo.getOperationType().equals(CertSetupWizardInfo.INSTALLTYPE))
             return false;
 
         if (wizardInfo.getCertType().equals(Constants.PR_CA_SIGNING_CERT))
@@ -85,29 +85,29 @@ class WCACertRequest1Page extends WizardBasePanel implements IWizardPanel {
 
         JLabel caLbl = makeJLabel("CATYPE");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
         add(caLbl, gbc);
 
         mCABtn = makeJRadioButton("SELFSIGN", true);
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.insets = new Insets(0,4*COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(mCABtn, gbc);
 
         mSubBtn = makeJRadioButton("SUBORDINATE", false);
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.insets = new Insets(0,4*COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(mSubBtn, gbc);
 
         ButtonGroup caGroup = new ButtonGroup();
@@ -116,29 +116,29 @@ class WCACertRequest1Page extends WizardBasePanel implements IWizardPanel {
 
         JLabel keyLbl = makeJLabel("KEYPAIR");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(keyLbl, gbc);
 
         mExistingKeyBtn = makeJRadioButton("OLDKEY", true);
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.insets = new Insets(0, 4*COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(mExistingKeyBtn, gbc);
 
         mNewKeyBtn = makeJRadioButton("NEWKEY", true);
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.insets = new Insets(0, 4*COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(mNewKeyBtn, gbc);
 
         ButtonGroup keyGroup = new ButtonGroup();
@@ -150,38 +150,38 @@ class WCACertRequest1Page extends WizardBasePanel implements IWizardPanel {
             "CACERTREQUESTWIZARD_TEXT_METHOD_LABEL"), 100), 1, 100);
         mActiveColor = mMethodText.getBackground();
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(mMethodText, gbc);
 
         mEmailBtn = makeJRadioButton("EMAIL", true);
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.insets = new Insets(0, 4*COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(mEmailBtn, gbc);
 
         mURLBtn = makeJRadioButton("URL", false);
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.insets = new Insets(0, 4*COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(mURLBtn, gbc);
 
         mManualBtn = makeJRadioButton("MANUAL", false);
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.insets = new Insets(0, 4*COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weighty = 1.0;
         add(mManualBtn, gbc);
 
@@ -198,21 +198,21 @@ class WCACertRequest1Page extends WizardBasePanel implements IWizardPanel {
         CertSetupWizardInfo wizardInfo = (CertSetupWizardInfo)info;
 
         if (mCABtn.isSelected())
-            wizardInfo.addEntry(wizardInfo.CA_TYPE, wizardInfo.SELF_SIGNED);
+            wizardInfo.addEntry(CertSetupWizardInfo.CA_TYPE, CertSetupWizardInfo.SELF_SIGNED);
         else if (mSubBtn.isSelected())
-            wizardInfo.addEntry(wizardInfo.CA_TYPE, wizardInfo.SUBORDINATE_CA);
+            wizardInfo.addEntry(CertSetupWizardInfo.CA_TYPE, CertSetupWizardInfo.SUBORDINATE_CA);
 
         if (mNewKeyBtn.isSelected())
-            wizardInfo.addEntry(wizardInfo.KEY_MATERIAL, Constants.TRUE);
+            wizardInfo.addEntry(CertSetupWizardInfo.KEY_MATERIAL, Constants.TRUE);
         else if (mExistingKeyBtn.isSelected())
-            wizardInfo.addEntry(wizardInfo.KEY_MATERIAL, Constants.FALSE);
+            wizardInfo.addEntry(CertSetupWizardInfo.KEY_MATERIAL, Constants.FALSE);
 
         if (mEmailBtn.isSelected())
-            wizardInfo.addEntry(wizardInfo.SUBMIT_METHOD, wizardInfo.CA_EMAIL);
+            wizardInfo.addEntry(CertSetupWizardInfo.SUBMIT_METHOD, CertSetupWizardInfo.CA_EMAIL);
         else if (mURLBtn.isSelected())
-            wizardInfo.addEntry(wizardInfo.SUBMIT_METHOD, wizardInfo.CA_URL);
+            wizardInfo.addEntry(CertSetupWizardInfo.SUBMIT_METHOD, CertSetupWizardInfo.CA_URL);
         else if (mManualBtn.isSelected())
-            wizardInfo.addEntry(wizardInfo.SUBMIT_METHOD, wizardInfo.MANUAL);
+            wizardInfo.addEntry(CertSetupWizardInfo.SUBMIT_METHOD, CertSetupWizardInfo.MANUAL);
     }
 
     public void actionPerformed(ActionEvent e) {

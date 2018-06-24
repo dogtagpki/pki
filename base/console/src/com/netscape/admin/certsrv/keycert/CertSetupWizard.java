@@ -35,8 +35,8 @@ public class CertSetupWizard extends WizardWidget {
     public CertSetupWizard(CMSBaseResourceModel parent, CertSetupWizardInfo info) {
         super(parent.getFrame());
         JFrame frame = parent.getFrame();
-        info.addEntry(info.FRAME, frame);
-        info.addEntry(info.SERVERINFO, parent.getServerInfo());
+        info.addEntry(CertSetupWizardInfo.FRAME, frame);
+        info.addEntry(CertSetupWizardInfo.SERVERINFO, parent.getServerInfo());
         setWizardInfo(info);
         addPage(new WIntroPage(this, frame));
 //        addPage(new WTokenSelectionPage());

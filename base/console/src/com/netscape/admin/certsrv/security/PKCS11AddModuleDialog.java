@@ -58,7 +58,7 @@ class PKCS11AddModuleDialog extends AbstractDialog {
 
         Response response = null;
         try {
-            response = taskInfo.exec(taskInfo.SEC_ADDMOD);
+            response = taskInfo.exec(KeyCertTaskInfo.SEC_ADDMOD);
         } catch (Exception e) {
             SuiOptionPane.showMessageDialog(
                     UtilConsoleGlobals.getActivatedFrame(), e.getMessage());

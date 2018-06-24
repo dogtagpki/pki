@@ -169,8 +169,8 @@ public class GroupListDialog extends JDialog
         //content panel
         JPanel content = makeContentPane();
         CMSAdminUtil.resetGBC(gbc);
-		gbc.anchor = gbc.NORTH;
-		gbc.gridwidth = gbc.REMAINDER;
+		gbc.anchor = GridBagConstraints.NORTH;
+		gbc.gridwidth = GridBagConstraints.REMAINDER;
 		gbc.weightx = 1.0;
 		gbc.weighty = 1.0;
         gb.setConstraints(content, gbc);
@@ -179,9 +179,9 @@ public class GroupListDialog extends JDialog
 		//action panel
 		JPanel action = makeActionPane();
         CMSAdminUtil.resetGBC(gbc);
-		gbc.anchor = gbc.NORTH;
-		gbc.gridwidth = gbc.REMAINDER;
-		gbc.gridheight = gbc.REMAINDER;
+		gbc.anchor = GridBagConstraints.NORTH;
+		gbc.gridwidth = GridBagConstraints.REMAINDER;
+		gbc.gridheight = GridBagConstraints.REMAINDER;
 		gbc.weightx = 1.0;
         gb.setConstraints(action, gbc);
 		center.add(action);
@@ -208,8 +208,8 @@ public class GroupListDialog extends JDialog
         mTable = new JTable(mDataModel);
 		mScrollPane = JTable.createScrollPaneForTable(mTable);
 		//mScrollPane.setBorder(CMSAdminUtil.makeTitledBorder(mResource,PREFIX,"CERTIFICATE"));
-		mScrollPane.setHorizontalScrollBarPolicy(mScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		mScrollPane.setVerticalScrollBarPolicy(mScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		mScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		mScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		int width = CMSAdminUtil.getTotalColumnWidth( mTable );
 		//Dimension d = new Dimension( width, mTable.getRowHeight()*14);
 		//mTable.setMinimumSize( d );
@@ -223,9 +223,9 @@ public class GroupListDialog extends JDialog
 		setLabelCellRenderer(mTable,0);
 
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weighty = 1.0;
         gbc.weightx = 1.0;
         gb3.setConstraints(mScrollPane, gbc);

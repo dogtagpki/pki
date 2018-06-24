@@ -57,9 +57,9 @@ class WExecute1Page extends WizardBasePanel implements IWizardPanel {
 
     public boolean initializePanel(WizardInfo info) {
         CertSetupWizardInfo wizardInfo = (CertSetupWizardInfo)info;
-        if (wizardInfo.getOperationType().equals(wizardInfo.REQUESTTYPE) &&
+        if (wizardInfo.getOperationType().equals(CertSetupWizardInfo.REQUESTTYPE) &&
 //          !wizardInfo.isNewKey() &&
-            wizardInfo.getCAType().equals(wizardInfo.SUBORDINATE_CA) &&
+            wizardInfo.getCAType().equals(CertSetupWizardInfo.SUBORDINATE_CA) &&
 		    !(wizardInfo.isSSLCertLocalCA())) {
 
             String title = "";
@@ -142,12 +142,12 @@ class WExecute1Page extends WizardBasePanel implements IWizardPanel {
         desc = createTextArea("");
 
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(desc, gbc);
 
         super.init();

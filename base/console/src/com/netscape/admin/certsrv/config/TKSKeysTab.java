@@ -33,6 +33,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.ScrollPaneConstants;
 
 import org.mozilla.jss.CryptoManager;
 
@@ -191,11 +192,11 @@ public class TKSKeysTab extends CMSBaseUGTab {
         mToken = new JComboBox<>();
         mToken.setPreferredSize(new java.awt.Dimension(54, 22));
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
+        gbc.anchor = GridBagConstraints.NORTH;
         gbc.weightx = 0.0;
         gbc.weighty = 0.0;
 		gbc.gridheight = 1;
-		gbc.gridwidth = gbc.REMAINDER;
+		gbc.gridwidth = GridBagConstraints.REMAINDER;
 		gbc.insets = new Insets(CMSAdminUtil.COMPONENT_SPACE,
                                  CMSAdminUtil.COMPONENT_SPACE,
                                  CMSAdminUtil.COMPONENT_SPACE,
@@ -208,8 +209,8 @@ public class TKSKeysTab extends CMSBaseUGTab {
         mTable = new JTable(mDataModel);
         mScrollPane = JTable.createScrollPaneForTable(mTable);
         //mScrollPane.setBorder(CMSAdminUtil.makeTitledBorder(mResource,PANEL_NAME,"USERS"));
-        mScrollPane.setHorizontalScrollBarPolicy(mScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        mScrollPane.setVerticalScrollBarPolicy(mScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        mScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        mScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         mTable.setAutoscrolls(true);
         mTable.sizeColumnsToFit(true);
         mTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -219,8 +220,8 @@ public class TKSKeysTab extends CMSBaseUGTab {
         setLabelCellRenderer(mTable,0);
 
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-        gbc.fill = gbc.BOTH;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.fill = GridBagConstraints.BOTH;
         gbc.gridwidth = 1;
         gbc.gridheight = 10;
         gbc.weighty = 1.0;
@@ -231,9 +232,9 @@ public class TKSKeysTab extends CMSBaseUGTab {
 
         JPanel buttonPanel = createButtonPanel();
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weightx = 0.0;
         gbc.weighty = 1.0;
         gbc.insets = EMPTY_INSETS;

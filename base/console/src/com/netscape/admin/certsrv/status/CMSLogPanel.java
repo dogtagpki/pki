@@ -35,6 +35,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.TableColumn;
 
@@ -251,12 +252,12 @@ public abstract class CMSLogPanel extends CMSBasePanel
 		//center table
 		mTable = new JTable(mDataModel);
 		mScrollPane = JTable.createScrollPaneForTable(mTable);
-		mScrollPane.setHorizontalScrollBarPolicy(mScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		mScrollPane.setVerticalScrollBarPolicy(mScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+		mScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		mScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
 		mTable.setAutoscrolls(true);
 		mTable.addMouseListener(this);
 		//setColumnWidth(mTable);
-		mTable.setAutoResizeMode(mTable.AUTO_RESIZE_OFF);
+		mTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		setColumnWidth(mTable);
 		mTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		mListPanel.add("Center",mScrollPane);
@@ -308,7 +309,7 @@ public abstract class CMSLogPanel extends CMSBasePanel
 
 		//file
 		CMSAdminUtil.resetGBC(gbc);
-		gbc.gridheight = gbc.REMAINDER;
+		gbc.gridheight = GridBagConstraints.REMAINDER;
 		JLabel label3 = makeJLabel("FILE");
 		mFile = new JComboBox<>();
         CMSAdminUtil.addEntryField(panel, label3, mFile, gbc);
@@ -359,19 +360,19 @@ public abstract class CMSLogPanel extends CMSBasePanel
 
     private static void addEntryField(JPanel panel, JComponent label,
       JComponent field, GridBagConstraints gbc) {
-        gbc.fill = gbc.NONE;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.weightx = 0.0;
         gbc.gridwidth = 1;
         gbc.gridx = 0;
-        gbc.anchor = gbc.EAST;
+        gbc.anchor = GridBagConstraints.EAST;
         gbc.insets = new Insets(COMPONENT_SPACE,DIFFERENT_COMPONENT_SPACE,0,0);
         panel.add( label, gbc );
 
         gbc.gridx++;
-        gbc.anchor = gbc.WEST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.weightx = 1.0;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
       		                            0,DIFFERENT_COMPONENT_SPACE);
         panel.add( field, gbc );

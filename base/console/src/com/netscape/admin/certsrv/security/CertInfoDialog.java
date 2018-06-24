@@ -157,7 +157,7 @@ class CertInfoDialog extends AbstractDialog implements SuiConstants {
                     _taskInfo.put("alias", alias);
                     Response response = null;
                     try {
-                        response = _taskInfo.exec(_taskInfo.SEC_ECRT);
+                        response = _taskInfo.exec(KeyCertTaskInfo.SEC_ECRT);
                     } catch (Exception error) {
                         SuiOptionPane.showMessageDialog(
                                 UtilConsoleGlobals.getActivatedFrame(),
@@ -192,7 +192,7 @@ class CertInfoDialog extends AbstractDialog implements SuiConstants {
                     _taskInfo.put("alias", alias);
                     Response response = null;
                     try {
-                        response = _taskInfo.exec(_taskInfo.SEC_ECRT);
+                        response = _taskInfo.exec(KeyCertTaskInfo.SEC_ECRT);
                     } catch (Exception error2) {
                         SuiOptionPane.showMessageDialog(
                                 UtilConsoleGlobals.getActivatedFrame(),

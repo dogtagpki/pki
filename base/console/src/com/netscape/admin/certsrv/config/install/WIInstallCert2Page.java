@@ -70,7 +70,7 @@ class WIInstallCert2Page extends WizardBasePanel implements IWizardPanel {
 
         JLabel subjectDNLbl = makeJLabel("SUBJECTDN");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE, 0,
           COMPONENT_SPACE);
@@ -78,8 +78,8 @@ class WIInstallCert2Page extends WizardBasePanel implements IWizardPanel {
 
         JLabel issuerLbl = makeJLabel("ISSUE");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE, 0,
           COMPONENT_SPACE);
@@ -91,11 +91,11 @@ class WIInstallCert2Page extends WizardBasePanel implements IWizardPanel {
           JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
         //subjectScrollPane.setPreferredSize(new Dimension(50, 30));
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.insets = new Insets(0, COMPONENT_SPACE, COMPONENT_SPACE, 0 );
         gbc.weighty = 1.0;
         gbc.weightx = 1.0;
-        gbc.fill = gbc.BOTH;
+        gbc.fill = GridBagConstraints.BOTH;
         add(subjectScrollPane, gbc);
 
         JTextArea issueText = new JTextArea(null, null, 0, 0);
@@ -106,30 +106,30 @@ class WIInstallCert2Page extends WizardBasePanel implements IWizardPanel {
         CMSAdminUtil.resetGBC(gbc);
         gbc.insets = new Insets(0, COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weighty = 1.0;
         gbc.weightx = 1.0;
-        gbc.fill = gbc.BOTH;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(issueScrollPane, gbc);
 
         JTextArea infoText = new JTextArea(null, null, 0, 0);
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE, COMPONENT_SPACE);
         infoText.setPreferredSize(new Dimension(50, 20));
-        gbc.fill = gbc.BOTH;
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weighty = 1.0;
         add(infoText, gbc);
 
         mAdd = makeJButton("ADD");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHEAST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.NORTHEAST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE, COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(mAdd, gbc);
 
         super.init();

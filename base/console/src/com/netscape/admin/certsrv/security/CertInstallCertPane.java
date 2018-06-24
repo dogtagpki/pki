@@ -99,7 +99,7 @@ IKeyCertPage {
 
             Response response = null;
             try {
-                response = taskInfo.exec(taskInfo.SEC_ICRT);
+                response = taskInfo.exec(KeyCertTaskInfo.SEC_ICRT);
                 taskInfo.clear();
             } catch (Exception e) {
                 SuiOptionPane.showMessageDialog(

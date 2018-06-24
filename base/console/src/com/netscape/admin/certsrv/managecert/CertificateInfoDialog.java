@@ -172,9 +172,9 @@ public class CertificateInfoDialog extends JDialog
         //content panel
         JPanel content = makeContentPane();
         CMSAdminUtil.resetGBC(gbc);
- gbc.fill = gbc.BOTH;
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
+ gbc.fill = GridBagConstraints.BOTH;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
         gb.setConstraints(content, gbc);
@@ -183,9 +183,9 @@ public class CertificateInfoDialog extends JDialog
         //action panel
         JPanel action = makeActionPane();
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gb.setConstraints(action, gbc);
         center.add(action);
@@ -227,15 +227,15 @@ public class CertificateInfoDialog extends JDialog
 
         CMSAdminUtil.resetGBC(gbc);
         gbc.insets = new Insets(0, 0, 0, 0);
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.fill = gbc.BOTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.fill = GridBagConstraints.BOTH;
         content.add(panel, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
         JLabel label1 = CMSAdminUtil.makeJLabel(mResource, PREFIX, "CERTNAME",
           null);
-        gbc.fill = gbc.NONE;
-        gbc.anchor = gbc.EAST;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.anchor = GridBagConstraints.EAST;
         gbc.insets = new Insets(CMSAdminUtil.COMPONENT_SPACE,
           0, //CMSAdminUtil.COMPONENT_SPACE,
           CMSAdminUtil.COMPONENT_SPACE, CMSAdminUtil.COMPONENT_SPACE);
@@ -244,8 +244,8 @@ public class CertificateInfoDialog extends JDialog
 
         CMSAdminUtil.resetGBC(gbc);
         mCertNameField = new JLabel(" ");
-        gbc.gridwidth =  gbc.REMAINDER;
-        gbc.anchor = gbc.WEST;
+        gbc.gridwidth =  GridBagConstraints.REMAINDER;
+        gbc.anchor = GridBagConstraints.WEST;
         gbc.weightx=1.0;
         //gbc.fill = gbc.NONE;
         gbc.insets = new Insets(CMSAdminUtil.COMPONENT_SPACE,
@@ -259,8 +259,8 @@ public class CertificateInfoDialog extends JDialog
 
         CMSAdminUtil.resetGBC(gbc);
         JLabel label2 = CMSAdminUtil.makeJLabel(mResource, PREFIX, "CONTENT", null);
-        gbc.fill = gbc.NONE;
-        gbc.anchor = gbc.WEST;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.anchor = GridBagConstraints.WEST;
         //gbc.gridwidth =  gbc.REMAINDER;
         gbc.insets = new Insets(0,
           CMSAdminUtil.COMPONENT_SPACE,
@@ -272,9 +272,9 @@ public class CertificateInfoDialog extends JDialog
         JLabel label3 = new JLabel(" ");
         //gbc.fill = gbc.NONE;
         gbc.weightx = 1.0;
-        gbc.anchor = gbc.WEST;
-        gbc.gridwidth =  gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.gridwidth =  GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(0,
           CMSAdminUtil.COMPONENT_SPACE,
           CMSAdminUtil.COMPONENT_SPACE, CMSAdminUtil.COMPONENT_SPACE);
@@ -291,8 +291,8 @@ public class CertificateInfoDialog extends JDialog
         scrollPanel.setAlignmentX(LEFT_ALIGNMENT);
         scrollPanel.setAlignmentY(TOP_ALIGNMENT);
         scrollPanel.setBorder(BorderFactory.createLoweredBevelBorder());
-        gbc.fill = gbc.BOTH;
-        gbc.gridwidth =  gbc.REMAINDER;
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.gridwidth =  GridBagConstraints.REMAINDER;
 //        gbc.gridheight = gbc.REMAINDER;
         gbc.weightx=1.0;
         gbc.weighty=1.0;
@@ -304,8 +304,8 @@ public class CertificateInfoDialog extends JDialog
 
         CMSAdminUtil.resetGBC(gbc);
         mStatusLbl = CMSAdminUtil.makeJLabel(mResource, PREFIX, "TRUSTSTATUS", null);
-        gbc.anchor = gbc.WEST;
-        gbc.gridwidth =  gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.gridwidth =  GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(0,
           CMSAdminUtil.COMPONENT_SPACE,
           CMSAdminUtil.COMPONENT_SPACE, CMSAdminUtil.COMPONENT_SPACE);
@@ -314,7 +314,7 @@ public class CertificateInfoDialog extends JDialog
 
         CMSAdminUtil.resetGBC(gbc);
         changeLbl = CMSAdminUtil.makeJLabel(mResource, PREFIX, "MODIFY", null);
-        gbc.anchor = gbc.WEST;
+        gbc.anchor = GridBagConstraints.WEST;
         gbc.insets = new Insets(0,
           CMSAdminUtil.COMPONENT_SPACE,
           CMSAdminUtil.COMPONENT_SPACE, CMSAdminUtil.COMPONENT_SPACE);
@@ -323,13 +323,13 @@ public class CertificateInfoDialog extends JDialog
 
         CMSAdminUtil.resetGBC(gbc);
         mActionBtn = CMSAdminUtil.makeJButton(mResource, PREFIX,"UNTRUST", null, this);
-        gbc.anchor = gbc.WEST;
+        gbc.anchor = GridBagConstraints.WEST;
         gbc.insets = new Insets(0,
           CMSAdminUtil.COMPONENT_SPACE,
           CMSAdminUtil.COMPONENT_SPACE, CMSAdminUtil.COMPONENT_SPACE);
-        gbc.gridwidth =  gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
-        gbc.fill = gbc.NONE;
+        gbc.gridwidth =  GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
+        gbc.fill = GridBagConstraints.NONE;
         gb3.setConstraints(mActionBtn, gbc);
         content.add(mActionBtn);
 /*

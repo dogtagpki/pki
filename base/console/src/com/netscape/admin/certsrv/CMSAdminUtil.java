@@ -160,12 +160,12 @@ public class CMSAdminUtil {
      */
     public static void resetGBC(GridBagConstraints gbc)
 	{
-      		gbc.gridx      = gbc.RELATIVE;
-      		gbc.gridy      = gbc.RELATIVE;
+      		gbc.gridx      = GridBagConstraints.RELATIVE;
+      		gbc.gridy      = GridBagConstraints.RELATIVE;
       		gbc.gridwidth  = 1;
       		gbc.gridheight = 1;
-      		gbc.fill       = gbc.HORIZONTAL;
-      		gbc.anchor     = gbc.CENTER;
+      		gbc.fill       = GridBagConstraints.HORIZONTAL;
+      		gbc.anchor     = GridBagConstraints.CENTER;
       		gbc.ipadx      = 0;
       		gbc.ipady      = 0;
       		gbc.weightx    = 0.0;
@@ -194,16 +194,16 @@ public class CMSAdminUtil {
       JComponent comp2, GridBagConstraints gbc) {
         double weighty = gbc.weighty;
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHEAST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.NORTHEAST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.weighty = weighty;
         panel.add(comp1, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.weighty = weighty;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         panel.add(comp2, gbc);
     }
 
@@ -211,22 +211,22 @@ public class CMSAdminUtil {
       JComponent comp2, JComponent comp3, GridBagConstraints gbc) {
         double weighty = gbc.weighty;
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHEAST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.NORTHEAST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.weighty = weighty;
         panel.add(comp1, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.weighty = weighty;
         panel.add(comp2, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.weighty = weighty;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         panel.add(comp3, gbc);
     }
 
@@ -235,28 +235,28 @@ public class CMSAdminUtil {
       GridBagConstraints gbc) {
         double weighty = gbc.weighty;
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHEAST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.NORTHEAST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.weighty = weighty;
         panel.add(comp1, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.weighty = weighty;
         panel.add(comp2, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.weighty = weighty;
         panel.add(comp3, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.weighty = weighty;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         panel.add(comp4, gbc);
     }
 
@@ -266,19 +266,19 @@ public class CMSAdminUtil {
      */
     public static void addEntryField(JPanel panel, JComponent label,
       JComponent field, GridBagConstraints gbc) {
-        gbc.fill = gbc.NONE;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.weightx = 0.0;
         gbc.gridwidth = 1;
         gbc.gridx = 0;
-        gbc.anchor = gbc.EAST;
+        gbc.anchor = GridBagConstraints.EAST;
         gbc.insets = new Insets(COMPONENT_SPACE,DIFFERENT_COMPONENT_SPACE,0,0);
         panel.add( label, gbc );
 
         gbc.gridx++;
-        gbc.anchor = gbc.WEST;
-        gbc.fill = gbc.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1.0;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
       		                            0,DIFFERENT_COMPONENT_SPACE);
         panel.add( field, gbc );
@@ -290,27 +290,27 @@ public class CMSAdminUtil {
      */
     public static void addEntryField(JPanel panel, JComponent field1,
       JComponent field2, JComponent field3, GridBagConstraints gbc) {
-        gbc.fill = gbc.NONE;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.weightx = 0.0;
         gbc.gridwidth = 1;
         gbc.gridx = 0;
-        gbc.anchor = gbc.EAST;
+        gbc.anchor = GridBagConstraints.EAST;
         gbc.insets = new Insets(COMPONENT_SPACE,DIFFERENT_COMPONENT_SPACE,0,0);
         panel.add( field1, gbc );
 
         gbc.gridx++;
-        gbc.anchor = gbc.WEST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.weightx = 0.0;
         gbc.gridwidth = 1;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,0,0);
         panel.add(field2, gbc);
 
         gbc.gridx++;
-        gbc.anchor = gbc.WEST;
-        gbc.fill = gbc.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1.0;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
       		                            0,DIFFERENT_COMPONENT_SPACE);
         panel.add( field3, gbc );
@@ -322,35 +322,35 @@ public class CMSAdminUtil {
      */
     public static void addEntryField(JPanel panel, JComponent field1,
       JComponent field2, JComponent field3, JComponent field4, GridBagConstraints gbc) {
-        gbc.fill = gbc.NONE;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.weightx = 0.0;
         gbc.gridwidth = 1;
         gbc.gridx = 0;
-        gbc.anchor = gbc.EAST;
+        gbc.anchor = GridBagConstraints.EAST;
         gbc.insets = new Insets(COMPONENT_SPACE,DIFFERENT_COMPONENT_SPACE,0,0);
         panel.add( field1, gbc );
 
         gbc.gridx++;
-        gbc.anchor = gbc.EAST;
-        gbc.fill = gbc.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 0.5;
         gbc.gridwidth = 1;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,0,0);
         panel.add(field2, gbc);
 
-        gbc.fill = gbc.NONE;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.weightx = 0.0;
         gbc.gridwidth = 1;
         gbc.gridx++;
-        gbc.anchor = gbc.EAST;
+        gbc.anchor = GridBagConstraints.EAST;
         gbc.insets = new Insets(COMPONENT_SPACE,DIFFERENT_COMPONENT_SPACE,0,0);
         panel.add( field3, gbc );
 
         gbc.gridx++;
-        gbc.anchor = gbc.WEST;
-        gbc.fill = gbc.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 0.5;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
       		                            0,DIFFERENT_COMPONENT_SPACE);
         panel.add( field4, gbc );
@@ -363,43 +363,43 @@ public class CMSAdminUtil {
     public static void addEntryField(JPanel panel, JComponent field1,
       JComponent field2, JComponent field3, JComponent field4,
       JComponent field5, GridBagConstraints gbc) {
-        gbc.fill = gbc.NONE;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.weightx = 0.0;
         gbc.gridwidth = 1;
         gbc.gridx = 0;
-        gbc.anchor = gbc.EAST;
+        gbc.anchor = GridBagConstraints.EAST;
         gbc.insets = new Insets(COMPONENT_SPACE,DIFFERENT_COMPONENT_SPACE,0,0);
         panel.add( field1, gbc );
 
         gbc.gridx++;
-        gbc.anchor = gbc.EAST;
-        gbc.fill = gbc.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
         //gbc.weightx = 0.5;
         gbc.gridwidth = 1;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,0,0);
         panel.add(field2, gbc);
 
-        gbc.fill = gbc.NONE;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.weightx = 0.0;
         gbc.gridwidth = 1;
         gbc.gridx++;
-        gbc.anchor = gbc.EAST;
+        gbc.anchor = GridBagConstraints.EAST;
         gbc.insets = new Insets(COMPONENT_SPACE,DIFFERENT_COMPONENT_SPACE,0,0);
         panel.add( field3, gbc );
 
         gbc.gridx++;
-        gbc.anchor = gbc.WEST;
-        gbc.fill = gbc.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
         //gbc.weightx = 0.5;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
                                             0,DIFFERENT_COMPONENT_SPACE);
         panel.add( field4, gbc );
 
         gbc.gridx++;
-        gbc.anchor = gbc.WEST;
-        gbc.fill = gbc.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1.0;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
                                             0,DIFFERENT_COMPONENT_SPACE);
         panel.add( field5, gbc );
@@ -412,51 +412,51 @@ public class CMSAdminUtil {
     public static void addEntryField(JPanel panel, JComponent field1,
       JComponent field2, JComponent field3, JComponent field4,
       JComponent field5, JComponent field6, GridBagConstraints gbc) {
-        gbc.fill = gbc.NONE;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.weightx = 0.0;
         gbc.gridwidth = 1;
         gbc.gridx = 0;
-        gbc.anchor = gbc.EAST;
+        gbc.anchor = GridBagConstraints.EAST;
         gbc.insets = new Insets(COMPONENT_SPACE,DIFFERENT_COMPONENT_SPACE,0,0);
         panel.add( field1, gbc );
 
         gbc.gridx++;
-        gbc.anchor = gbc.EAST;
-        gbc.fill = gbc.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
         //gbc.weightx = 0.5;
         gbc.gridwidth = 1;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,0,0);
         panel.add(field2, gbc);
 
-        gbc.fill = gbc.NONE;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.weightx = 0.0;
         gbc.gridwidth = 1;
         gbc.gridx++;
-        gbc.anchor = gbc.EAST;
+        gbc.anchor = GridBagConstraints.EAST;
         gbc.insets = new Insets(COMPONENT_SPACE,DIFFERENT_COMPONENT_SPACE,0,0);
         panel.add( field3, gbc );
 
         gbc.gridx++;
-        gbc.anchor = gbc.WEST;
-        gbc.fill = gbc.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
         //gbc.weightx = 0.5;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
                                             0,DIFFERENT_COMPONENT_SPACE);
         panel.add(field4, gbc);
 
-        gbc.fill = gbc.NONE;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.weightx = 0.0;
         gbc.gridwidth = 1;
         gbc.gridx++;
-        gbc.anchor = gbc.EAST;
+        gbc.anchor = GridBagConstraints.EAST;
         gbc.insets = new Insets(COMPONENT_SPACE,DIFFERENT_COMPONENT_SPACE,0,0);
         panel.add( field5, gbc );
 
         gbc.gridx++;
-        gbc.anchor = gbc.WEST;
-        gbc.fill = gbc.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1.0;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
                                             0,DIFFERENT_COMPONENT_SPACE);
         panel.add( field6, gbc );
@@ -1002,16 +1002,16 @@ public class CMSAdminUtil {
 		JPanel buttonPanel = new JPanel();
 		GridBagConstraints gbc = new GridBagConstraints();
 		buttonPanel.setLayout(new GridBagLayout());
-		gbc.fill = gbc.HORIZONTAL;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
 		gbc.weightx = 1.0;
 		gbc.weighty = 0.0;
 		gbc.gridwidth = 1;
 		buttonPanel.add( Box.createGlue(), gbc );
-		gbc.fill = gbc.NONE;
+		gbc.fill = GridBagConstraints.NONE;
 		gbc.weightx = 0;
 		for( int i = 0; i < buttons.length; i++ ) {
 			if ( i == buttons.length-1 ) {
-				gbc.gridwidth = gbc.REMAINDER;
+				gbc.gridwidth = GridBagConstraints.REMAINDER;
 				if (isHelp)
 				    buttonPanel.add( Box.createHorizontalStrut(HELP_BUTTON_OFFSET));
 				else
@@ -1055,14 +1055,14 @@ public class CMSAdminUtil {
 		GridBagConstraints gbc = new GridBagConstraints();
 		buttonPanel.setLayout(new GridBagLayout());
 		resetGBC(gbc);
-		gbc.fill = gbc.NONE;
-		gbc.gridwidth = gbc.REMAINDER;
+		gbc.fill = GridBagConstraints.NONE;
+		gbc.gridwidth = GridBagConstraints.REMAINDER;
 		gbc.weightx = 1.0;
 		gbc.insets = new Insets(0, DIFFERENT_COMPONENT_SPACE, 0,0);
 
 		for( int i = 0; i < buttons.length; i++ ) {
 			if ( i == buttons.length-1 )
-				gbc.gridheight = gbc.REMAINDER;
+				gbc.gridheight = GridBagConstraints.REMAINDER;
 			buttonPanel.add( buttons[i], gbc );
 			gbc.insets = new Insets(COMPONENT_SPACE, DIFFERENT_COMPONENT_SPACE,
       		                            0, 0);

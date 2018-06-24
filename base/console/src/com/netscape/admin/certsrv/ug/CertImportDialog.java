@@ -177,9 +177,9 @@ public class CertImportDialog extends JDialog
         //content panel
         JPanel content = makeContentPane();
         CMSAdminUtil.resetGBC(gbc);
-        gbc.fill = gbc.BOTH;
-		gbc.anchor = gbc.NORTH;
-		gbc.gridwidth = gbc.REMAINDER;
+        gbc.fill = GridBagConstraints.BOTH;
+		gbc.anchor = GridBagConstraints.NORTH;
+		gbc.gridwidth = GridBagConstraints.REMAINDER;
 		gbc.weightx = 1.0;
 		gbc.weighty = 1.0;
         gb.setConstraints(content, gbc);
@@ -188,9 +188,9 @@ public class CertImportDialog extends JDialog
 		//action panel
 		JPanel action = makeActionPane();
         CMSAdminUtil.resetGBC(gbc);
-		gbc.anchor = gbc.NORTH;
-		gbc.gridwidth = gbc.REMAINDER;
-		gbc.gridheight = gbc.REMAINDER;
+		gbc.anchor = GridBagConstraints.NORTH;
+		gbc.gridwidth = GridBagConstraints.REMAINDER;
+		gbc.gridheight = GridBagConstraints.REMAINDER;
 		gbc.weightx = 1.0;
         gb.setConstraints(action, gbc);
 		center.add(action);
@@ -215,17 +215,17 @@ public class CertImportDialog extends JDialog
 
         CMSAdminUtil.resetGBC(gbc);
         JLabel label2 = CMSAdminUtil.makeJLabel(mResource, PREFIX, "B64E", null);
-        gbc.fill = gbc.NONE;
-        gbc.anchor = gbc.WEST;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.anchor = GridBagConstraints.WEST;
         gbc.weightx=0.0;
         gb3.setConstraints(label2, gbc);
         content.add(label2);
 
         CMSAdminUtil.resetGBC(gbc);
         mPaste = CMSAdminUtil.makeJButton(mResource, PREFIX, "PASTE", null, this);
-        gbc.fill = gbc.NONE;
-        gbc.anchor = gbc.EAST;
-        gbc.gridwidth =  gbc.REMAINDER;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.gridwidth =  GridBagConstraints.REMAINDER;
         gbc.weightx=1.0;
         gb3.setConstraints(mPaste, gbc);
         content.add(mPaste);
@@ -243,9 +243,9 @@ public class CertImportDialog extends JDialog
         scrollPanel.setAlignmentY(TOP_ALIGNMENT);
         scrollPanel.setBorder(BorderFactory.createLoweredBevelBorder());
 	scrollPanel.setPreferredSize(new Dimension(300, 500));
-        gbc.fill = gbc.BOTH;
-        gbc.gridwidth =  gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.gridwidth =  GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weightx=1.0;
         gbc.weighty=1.0;
         gb3.setConstraints(scrollPanel, gbc);

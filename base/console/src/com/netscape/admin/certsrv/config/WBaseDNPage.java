@@ -194,37 +194,37 @@ public class WBaseDNPage extends WizardBasePanel implements IWizardPanel {
         JTextArea desc = createTextArea(mResource.getString(
           mPanelName+"_LABEL_DN_LABEL"));
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.weighty = 0.0;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(desc, gbc);
 
         mDNComponents = makeJRadioButton("DNCOMP", true);
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(mDNComponents, gbc);
 
         cnLabel = makeJLabel("CN");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.EAST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE, 0,
           COMPONENT_SPACE);
         add(cnLabel, gbc);
 
         mCNText = new JTextField(30);
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.WEST;
+        gbc.anchor = GridBagConstraints.WEST;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE, 0,
           COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(mCNText, gbc);
 
 /*
@@ -235,16 +235,16 @@ public class WBaseDNPage extends WizardBasePanel implements IWizardPanel {
 
         ouLabel = makeJLabel("OU");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.WEST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(COMPONENT_SPACE,4*COMPONENT_SPACE, 0,
           COMPONENT_SPACE);
         add(ouLabel, gbc);
 
         mOUText = new JTextField(30);
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.WEST;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE, 0,
           COMPONENT_SPACE);
         add(mOUText, gbc);
@@ -257,18 +257,18 @@ public class WBaseDNPage extends WizardBasePanel implements IWizardPanel {
 
         oLabel = makeJLabel("O");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.EAST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE, 0,
           COMPONENT_SPACE);
         add(oLabel, gbc);
 
         mOText = new JTextField(30);
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.WEST;
+        gbc.anchor = GridBagConstraints.WEST;
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE, 0,
           COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(mOText, gbc);
 
 /*
@@ -279,18 +279,18 @@ public class WBaseDNPage extends WizardBasePanel implements IWizardPanel {
 
         lLabel = makeJLabel("LOCALITY");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.EAST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE, 0,
           COMPONENT_SPACE);
         add(lLabel, gbc);
 
         mLText = new JTextField(30);
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.WEST;
+        gbc.anchor = GridBagConstraints.WEST;
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE, 0,
           COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(mLText, gbc);
 /*
         JTextArea dummy3 = createTextArea(" ", 1, 1);
@@ -300,18 +300,18 @@ public class WBaseDNPage extends WizardBasePanel implements IWizardPanel {
 
         stLabel = makeJLabel("STATE");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.EAST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE, 0,
           COMPONENT_SPACE);
         add(stLabel, gbc);
 
         mSTText = new JTextField(30);
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.WEST;
+        gbc.anchor = GridBagConstraints.WEST;
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE, 0,
           COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(mSTText, gbc);
 /*
         JTextArea dummy4 = createTextArea(" ", 1, 1);
@@ -321,18 +321,18 @@ public class WBaseDNPage extends WizardBasePanel implements IWizardPanel {
 
         cLabel = makeJLabel("COUNTRY");
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.EAST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE, 0,
           COMPONENT_SPACE);
         add(cLabel, gbc);
 
         mCText = new JTextField(30);
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.WEST;
+        gbc.anchor = GridBagConstraints.WEST;
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE, 0,
           COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(mCText, gbc);
 /*
         JTextArea dummy5 = createTextArea(" ", 1, 1);
@@ -352,11 +352,11 @@ public class WBaseDNPage extends WizardBasePanel implements IWizardPanel {
 
         mDNString = makeJRadioButton("DNSTRING", false);
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
           COMPONENT_SPACE,COMPONENT_SPACE);
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(mDNString, gbc);
 
         ButtonGroup group = new ButtonGroup();
@@ -373,13 +373,13 @@ public class WBaseDNPage extends WizardBasePanel implements IWizardPanel {
         scrollPane.setPreferredSize(new Dimension(50, 20));
 */
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         //gbc.weighty = 1.0;
         gbc.insets = new Insets(COMPONENT_SPACE, 4*COMPONENT_SPACE, 0,
           COMPONENT_SPACE);
-        gbc.fill = gbc.BOTH;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(mSubjectStringText, gbc);
         //mSubjectStringText.setLineWrap(true);
         mActiveColor = mCNText.getBackground();
@@ -388,8 +388,8 @@ public class WBaseDNPage extends WizardBasePanel implements IWizardPanel {
         JLabel d1 = new JLabel();
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
-        gbc.gridheight = gbc.REMAINDER;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(d1, gbc);
 
 

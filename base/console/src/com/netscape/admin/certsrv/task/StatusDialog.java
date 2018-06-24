@@ -105,9 +105,9 @@ public class StatusDialog extends JDialog
         //content panel
         JPanel content = makeContentPane();
         CMSAdminUtil.resetGBC(gbc);
-		gbc.fill = gbc.BOTH;
-		gbc.anchor = gbc.NORTH;
-		gbc.gridwidth = gbc.REMAINDER;
+		gbc.fill = GridBagConstraints.BOTH;
+		gbc.anchor = GridBagConstraints.NORTH;
+		gbc.gridwidth = GridBagConstraints.REMAINDER;
 		gbc.weightx = 1.0;
 		gbc.weighty = 1.0;
         gb.setConstraints(content, gbc);
@@ -116,9 +116,9 @@ public class StatusDialog extends JDialog
 		//action panel
 		JPanel action = makeActionPane();
         CMSAdminUtil.resetGBC(gbc);
-		gbc.anchor = gbc.NORTH;
-		gbc.gridwidth = gbc.REMAINDER;
-		gbc.gridheight = gbc.REMAINDER;
+		gbc.anchor = GridBagConstraints.NORTH;
+		gbc.gridwidth = GridBagConstraints.REMAINDER;
+		gbc.gridheight = GridBagConstraints.REMAINDER;
 		gbc.weightx = 1.0;
         gb.setConstraints(action, gbc);
 		center.add(action);
@@ -144,8 +144,8 @@ public class StatusDialog extends JDialog
         content.setLayout(gb3);
 
         mTitle = new JLabel();
-        gbc.fill = gbc.HORIZONTAL;
-        gbc.gridwidth =  gbc.REMAINDER;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.gridwidth =  GridBagConstraints.REMAINDER;
         gbc.weightx=1.0;
         gbc.weighty=0.0;
         gbc.insets = new Insets(CMSAdminUtil.COMPONENT_SPACE,CMSAdminUtil.COMPONENT_SPACE, CMSAdminUtil.COMPONENT_SPACE,CMSAdminUtil.COMPONENT_SPACE);
@@ -153,8 +153,8 @@ public class StatusDialog extends JDialog
 	content.add(mTitle);
 
         mDetails = new JLabel();
-        gbc.fill = gbc.HORIZONTAL;
-        gbc.gridwidth =  gbc.REMAINDER;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.gridwidth =  GridBagConstraints.REMAINDER;
         gbc.weightx=1.0;
         gbc.weighty=0.0;
         gbc.insets = new Insets(CMSAdminUtil.COMPONENT_SPACE,CMSAdminUtil.COMPONENT_SPACE, CMSAdminUtil.COMPONENT_SPACE,CMSAdminUtil.COMPONENT_SPACE);
@@ -173,9 +173,9 @@ public class StatusDialog extends JDialog
         scrollPanel.setAlignmentY(TOP_ALIGNMENT);
         scrollPanel.setBackground(getBackground());
         //scrollPanel.setBorder(BorderFactory.createEmptyBorder());
-        gbc.fill = gbc.BOTH;
-        gbc.gridwidth =  gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.gridwidth =  GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weightx=1.0;
         gbc.weighty=1.0;
         gb3.setConstraints(scrollPanel, gbc);

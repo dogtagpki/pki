@@ -84,30 +84,30 @@ public class CMSKRAAutoPanel extends CMSBaseUGTab {
         autoPanel.setBorder(makeTitledBorder("AUTO"));
 
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
+        gbc.anchor = GridBagConstraints.NORTH;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
-        gbc.gridheight = gbc.REMAINDER;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gb3.setConstraints(autoPanel, gbc);
         mainPanel.add(autoPanel);
 
         // Auto recovery
         CMSAdminUtil.resetGBC(gbc);
         JLabel autoLabel = makeJLabel("ENABLEAUTO");
-        gbc.anchor = gbc.NORTHWEST;
-        gbc.fill = gbc.NONE;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gb.setConstraints(autoLabel, gbc);
         autoPanel.add(autoLabel);
 
         // labels
         CMSAdminUtil.resetGBC(gbc);
         mStatus = makeJLabel("ENABLESTATUS");
-        gbc.anchor = gbc.NORTHWEST;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 0.0;
         gbc.weighty = 0.0;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gb.setConstraints(mStatus, gbc);
         autoPanel.add(mStatus);
 
@@ -115,12 +115,12 @@ public class CMSKRAAutoPanel extends CMSBaseUGTab {
         mEnableAuto = makeJButton("DISABLEAUTO");
         mEnableAuto.setPreferredSize(new Dimension(78, 23));
         mEnableAuto.setActionCommand("autoButton");
-        gbc.anchor = gbc.NORTHEAST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.NORTHEAST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.weighty = 1.0;
         gbc.weightx = 1.0;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gb.setConstraints(mEnableAuto, gbc);
         autoPanel.add(mEnableAuto);
 

@@ -64,7 +64,7 @@ class WDisplayCertPage extends WizardBasePanel implements IWizardPanel {
 
     public boolean initializePanel(WizardInfo info) {
         wizardInfo = (CertSetupWizardInfo)info;
-        if (wizardInfo.getOperationType().equals(wizardInfo.REQUESTTYPE))
+        if (wizardInfo.getOperationType().equals(CertSetupWizardInfo.REQUESTTYPE))
             return false;
 
         setBorder(makeTitledBorder(PANELNAME));
@@ -167,16 +167,16 @@ class WDisplayCertPage extends WizardBasePanel implements IWizardPanel {
 
         CMSAdminUtil.resetGBC(gbc);
         JLabel label1 = makeJLabel("NAME");
-        gbc.fill = gbc.NONE;
-        gbc.anchor = gbc.WEST;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.anchor = GridBagConstraints.WEST;
         gbc.insets = new Insets(COMPONENT_SPACE,
           COMPONENT_SPACE, COMPONENT_SPACE, COMPONENT_SPACE);
         add(label1, gbc);
 
         CMSAdminUtil.resetGBC(gbc);
         mCertNameField = new JTextField(30);
-        gbc.gridwidth =  gbc.REMAINDER;
-        gbc.anchor = gbc.WEST;
+        gbc.gridwidth =  GridBagConstraints.REMAINDER;
+        gbc.anchor = GridBagConstraints.WEST;
         gbc.weightx=1.0;
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE, COMPONENT_SPACE);
@@ -189,8 +189,8 @@ class WDisplayCertPage extends WizardBasePanel implements IWizardPanel {
 
         CMSAdminUtil.resetGBC(gbc);
         JLabel certLbl = makeJLabel("CONTENT");
-        gbc.gridwidth =  gbc.REMAINDER;
-        gbc.anchor = gbc.WEST;
+        gbc.gridwidth =  GridBagConstraints.REMAINDER;
+        gbc.anchor = GridBagConstraints.WEST;
         gbc.insets = new Insets(COMPONENT_SPACE, COMPONENT_SPACE,
           COMPONENT_SPACE, COMPONENT_SPACE);
         add(certLbl, gbc);
@@ -207,9 +207,9 @@ class WDisplayCertPage extends WizardBasePanel implements IWizardPanel {
         scrollPanel.setAlignmentX(LEFT_ALIGNMENT);
         scrollPanel.setAlignmentY(TOP_ALIGNMENT);
         scrollPanel.setBorder(BorderFactory.createLoweredBevelBorder());
-        gbc.fill = gbc.BOTH;
-        gbc.gridwidth =  gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.gridwidth =  GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         //gbc.gridheight = gbc.REMAINDER;
         gbc.weightx=1.0;
         gbc.weighty=1.0;

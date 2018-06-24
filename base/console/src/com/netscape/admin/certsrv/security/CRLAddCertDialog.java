@@ -74,7 +74,7 @@ class CRLAddCertDialog extends AbstractDialog implements SuiConstants {
 
                 Response response = null;
                 try {
-                    response = _taskInfo.exec(_taskInfo.SEC_ICRL);
+                    response = _taskInfo.exec(KeyCertTaskInfo.SEC_ICRL);
                 } catch (Exception error) {
                     SuiOptionPane.showMessageDialog(
                             UtilConsoleGlobals.getActivatedFrame(),
@@ -130,7 +130,7 @@ class CRLAddCertDialog extends AbstractDialog implements SuiConstants {
         _taskInfo.put("list_type", list_type);
 
         try {
-            _taskInfo.exec(_taskInfo.SEC_ICRL);
+            _taskInfo.exec(KeyCertTaskInfo.SEC_ICRL);
         } catch (Exception error) {
             SuiOptionPane.showMessageDialog(
                     UtilConsoleGlobals.getActivatedFrame(),

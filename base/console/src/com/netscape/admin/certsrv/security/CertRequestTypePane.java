@@ -165,7 +165,7 @@ IKeyCertPage {
             if (e.getActionCommand().equals("SHOWCA")) {
                 Browser browser = new Browser();
                 browser.open("https://certs.netscape.com/server.html",
-                        browser.NEW_WINDOW);
+                        Browser.NEW_WINDOW);
             } else {
                 if (_email.isSelected()) {
                     _urlAddr.setEnabled(false);

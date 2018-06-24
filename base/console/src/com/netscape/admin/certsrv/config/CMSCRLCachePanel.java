@@ -93,9 +93,9 @@ public class CMSCRLCachePanel extends CMSBaseTab {
         JPanel cachePanel = new JPanel();
         cachePanel.setBorder(makeTitledBorder("CACHE"));
         CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = gbc.NORTH;
-        gbc.gridwidth = gbc.REMAINDER;
-        gbc.gridheight = gbc.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.gridheight = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
         gb.setConstraints(cachePanel, gbc);
@@ -108,8 +108,8 @@ public class CMSCRLCachePanel extends CMSBaseTab {
         // enable cache
         CMSAdminUtil.resetGBC(gbc);
         JLabel enableCacheLabel = makeJLabel("CACHE");
-        gbc.anchor = gbc.EAST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.gridx = 0;
         gbc.weightx = 0.0;
         gbc.gridwidth = 1;
@@ -117,10 +117,10 @@ public class CMSCRLCachePanel extends CMSBaseTab {
         cachePanel.add(enableCacheLabel, gbc);
 
         mEnableCache = makeJCheckBox();
-        gbc.anchor = gbc.WEST;
+        gbc.anchor = GridBagConstraints.WEST;
         gbc.gridx++;
         gbc.weightx = 1.0;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,0,COMPONENT_SPACE);
         cachePanel.add(mEnableCache, gbc);
 
@@ -128,8 +128,8 @@ public class CMSCRLCachePanel extends CMSBaseTab {
         // how often to save cache
         CMSAdminUtil.resetGBC(gbc);
         mCacheFreqLabel = makeJLabel("INTERVAL");
-        gbc.anchor = gbc.EAST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.gridx = 0;
         gbc.weightx = 0.0;
         gbc.gridwidth = 1;
@@ -137,17 +137,17 @@ public class CMSCRLCachePanel extends CMSBaseTab {
         cachePanel.add(mCacheFreqLabel, gbc);
 
         mCacheFreq = makeJTextField(5);
-        gbc.anchor = gbc.WEST;
+        gbc.anchor = GridBagConstraints.WEST;
         gbc.gridx++;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,0,0);
         cachePanel.add(mCacheFreq, gbc);
         mActiveColor = mCacheFreq.getBackground();
 
         mCacheFreqMinLabel = makeJLabel("MINUTES");
-        gbc.anchor = gbc.WEST;
+        gbc.anchor = GridBagConstraints.WEST;
         gbc.gridx++;
         gbc.weightx = 1.0;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,0,COMPONENT_SPACE);
         cachePanel.add(mCacheFreqMinLabel, gbc);
 
@@ -155,8 +155,8 @@ public class CMSCRLCachePanel extends CMSBaseTab {
         // enable cache recovery
         CMSAdminUtil.resetGBC(gbc);
         mEnableCacheRecoveryLabel = makeJLabel("RECOVERY");
-        gbc.anchor = gbc.EAST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.gridx = 0;
         gbc.weightx = 0.0;
         gbc.gridwidth = 1;
@@ -164,18 +164,18 @@ public class CMSCRLCachePanel extends CMSBaseTab {
         cachePanel.add(mEnableCacheRecoveryLabel, gbc );
 
         mEnableCacheRecovery = makeJCheckBox();
-        gbc.anchor = gbc.WEST;
+        gbc.anchor = GridBagConstraints.WEST;
         gbc.gridx++;
         gbc.weightx = 1.0;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,0,COMPONENT_SPACE);
         cachePanel.add(mEnableCacheRecovery, gbc);
 
         // enable cache testing
         CMSAdminUtil.resetGBC(gbc);
         mEnableCacheTestingLabel = makeJLabel("TEST");
-        gbc.anchor = gbc.EAST;
-        gbc.fill = gbc.NONE;
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.fill = GridBagConstraints.NONE;
         gbc.gridx = 0;
         gbc.weightx = 0.0;
         gbc.gridwidth = 1;
@@ -183,10 +183,10 @@ public class CMSCRLCachePanel extends CMSBaseTab {
         cachePanel.add(mEnableCacheTestingLabel, gbc );
 
         mEnableCacheTesting = makeJCheckBox();
-        gbc.anchor = gbc.WEST;
+        gbc.anchor = GridBagConstraints.WEST;
         gbc.gridx++;
         gbc.weightx = 1.0;
-        gbc.gridwidth = gbc.REMAINDER;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,0,COMPONENT_SPACE);
         cachePanel.add(mEnableCacheTesting, gbc);
 
