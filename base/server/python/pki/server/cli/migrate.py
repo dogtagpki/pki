@@ -387,8 +387,7 @@ class MigrateCLI(pki.cli.CLI):
         if self.debug:
             print('* updating secure Connector')
 
-        keystore_file = os.path.join(instance.conf_dir, 'keystore.p12')
-        keystore_password_file = os.path.join(instance.conf_dir, 'keystore.pwd')
+        full_name = instance.get_sslserver_cert_nickname()
 
         connectors = server.findall('Service/Connector')
         for connector in connectors:
@@ -402,10 +401,11 @@ class MigrateCLI(pki.cli.CLI):
 
             connector.attrib.pop('sslImplementationName', None)
 
-            connector.set('keystoreType', 'pkcs12')
-            connector.set('keystoreFile', keystore_file)
-            connector.set('keystorePassFile', keystore_password_file)
-            connector.set('keyAlias', 'sslserver')
+            connector.set('keystoreType', 'pkcs11')
+            connector.set('keystoreProvider', 'Mozilla-JSS')
+            connector.attrib.pop('keystoreFile', None)
+            connector.attrib.pop('keystorePassFile', None)
+            connector.set('keyAlias', full_name)
 
             connector.set('trustManagerClassName', 'org.dogtagpki.tomcat.PKITrustManager')
 
