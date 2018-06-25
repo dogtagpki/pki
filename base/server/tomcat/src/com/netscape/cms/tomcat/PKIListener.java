@@ -64,8 +64,6 @@ public class PKIListener implements LifecycleListener {
                 WatchdogClient.init();
             }
 
-        } else if (type.equals(Lifecycle.AFTER_INIT_EVENT)) {
-
             logger.info("PKIListener: Initializing TomcatJSS");
 
             try {
