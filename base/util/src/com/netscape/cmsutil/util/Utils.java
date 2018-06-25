@@ -336,15 +336,24 @@ public class Utils {
      * Normalize B64 input String
      *
      * @pram string base-64 string
+     * @param keepspace a boolean variable to control whether to keep spaces or not
      * @return normalized string
      */
     public static String normalizeString(String string) {
+        return normalizeString(string, false /*keepSpace*/);
+    }
+
+    public static String normalizeString(String string, Boolean keepSpace) {
         if (string == null) {
             return string;
         }
 
         StringBuffer sb = new StringBuffer();
-        StringTokenizer st = new StringTokenizer(string, "\r\n ");
+        StringTokenizer st = null;
+        if (keepSpace)
+            st = new StringTokenizer(string, "\r\n");
+        else
+            st = new StringTokenizer(string, "\r\n ");
 
         while (st.hasMoreTokens()) {
             String nextLine = st.nextToken();
@@ -353,4 +362,5 @@ public class Utils {
         }
         return sb.toString();
     }
+
 }
