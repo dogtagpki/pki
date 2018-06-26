@@ -82,14 +82,20 @@ public class CMCResponse {
 
     public Collection<CMCStatusInfoV2> getStatusInfos() throws IOException, InvalidBERException {
 
-        Collection<CMCStatusInfoV2> list = new ArrayList<>();
-
-        // assume full CMC response
-
         SignedData signedData = (SignedData) contentInfo.getInterpretedContent();
         EncapsulatedContentInfo eci = signedData.getContentInfo();
 
+        Collection<CMCStatusInfoV2> list = new ArrayList<>();
+
         OCTET_STRING content = eci.getContent();
+        if (content == null) {
+            System.out.println("CMC Simple Response.");
+            // No EncapsulatedContentInfo content; Assume simple response;
+            return null;
+        }
+        // assume full CMC response
+        System.out.println("CMC Full Response.");
+
         ByteArrayInputStream is = new ByteArrayInputStream(content.toByteArray());
         ResponseBody responseBody = (ResponseBody) (new ResponseBody.Template()).decode(is);
 
@@ -166,8 +172,10 @@ public class CMCResponse {
                 System.out.println("Invalid CMC Response Format");
             }
 
-            if (!ci.hasContent())
+            if (!ci.hasContent()) {
+                // No EncapsulatedContentInfo content; Assume simple response
                 return;
+            }
 
             OCTET_STRING content1 = ci.getContent();
             ByteArrayInputStream bbis = new ByteArrayInputStream(content1.toByteArray());
@@ -371,23 +379,25 @@ public class CMCResponse {
 
         // terminate if any of the statuses is not a SUCCESS
         Collection<CMCStatusInfoV2> statusInfos = response.getStatusInfos();
-        for (CMCStatusInfoV2 statusInfo : statusInfos) {
+        if (statusInfos != null) { // full response
+            for (CMCStatusInfoV2 statusInfo : statusInfos) {
 
-            int status = statusInfo.getStatus();
-            if (status == CMCStatusInfoV2.SUCCESS) {
-                continue;
+                int status = statusInfo.getStatus();
+                if (status == CMCStatusInfoV2.SUCCESS) {
+                    continue;
+                }
+
+                SEQUENCE bodyList = statusInfo.getBodyList();
+
+                Collection<INTEGER> list = new ArrayList<>();
+                for (int i = 0; i < bodyList.size(); i++) {
+                    INTEGER n = (INTEGER) bodyList.elementAt(i);
+                    list.add(n);
+                }
+
+                System.err.println("ERROR: CMC status for " + list + ": " + CMCStatusInfoV2.STATUS[status]);
+                System.exit(1);
             }
-
-            SEQUENCE bodyList = statusInfo.getBodyList();
-
-            Collection<INTEGER> list = new ArrayList<>();
-            for (int i = 0; i < bodyList.size(); i++) {
-                INTEGER n = (INTEGER) bodyList.elementAt(i);
-                list.add(n);
-            }
-
-            System.err.println("ERROR: CMC status for " + list + ": " + CMCStatusInfoV2.STATUS[status]);
-            System.exit(1);
         }
 
         // export PKCS #7 if requested
