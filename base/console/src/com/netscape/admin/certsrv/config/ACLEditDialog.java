@@ -524,14 +524,6 @@ public class ACLEditDialog extends JDialog
         return mainPanel;
     }
 
-    private void enableTextField(JTextField textFld, boolean enabled,
-      Color color) {
-        textFld.setEnabled(enabled);
-        textFld.setEditable(enabled);
-        textFld.setBackground(color);
-        CMSAdminUtil.repaintComp(textFld);
-    }
-
     private JScrollPane createScrollPane(JComponent component) {
 
         JScrollPane scrollPane = new JScrollPane(component,

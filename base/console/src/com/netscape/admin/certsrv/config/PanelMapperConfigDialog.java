@@ -43,7 +43,6 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.text.JTextComponent;
 
 import com.netscape.admin.certsrv.CMSAdminResources;
@@ -197,13 +196,6 @@ public class PanelMapperConfigDialog extends JDialog
      * private methods
      *==========================================================*/
 
-    private void saveEdit() {
-
-        //save any current edit component
-        Component component = mTable.getEditorComponent();
-
-    }
-
     //setup and refresh the UI components
     private boolean refresh(String mapperName) {
 
@@ -353,12 +345,6 @@ public class PanelMapperConfigDialog extends JDialog
         mListPanel.add(mScrollPane);
 
         return mListPanel;
-    }
-
-    //Set the index column's cellrender as label cell
-    private void setLabelCellRenderer(JTable table, int index) {
-        table.getColumnModel().getColumn(index).setCellRenderer(
-            new DefaultTableCellRenderer());
     }
 
     //set the index column's cell editor

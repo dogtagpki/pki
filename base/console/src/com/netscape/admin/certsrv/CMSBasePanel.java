@@ -33,7 +33,6 @@ import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -477,12 +476,5 @@ public class CMSBasePanel extends JPanel
         if (mAdminFrame != null)
            mAdminFrame.setCursor(mCursor);
        //UtilConsoleGlobals.getActivatedFrame().setCursor(mCursor);
-    }
-
-    /*==========================================================
-	 * private methods
-     *==========================================================*/
-    private void setToolTip(String compKeyword, JComponent w) {
-        CMSAdminUtil.setToolTip(mResource, mPanelName, compKeyword, w);
     }
 }

@@ -24,10 +24,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.util.Vector;
 
-import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -135,18 +133,6 @@ public class ACLPanel extends CMSBaseUGTab {
         JButton[] buttons = {mAdd,mEdit};
         JButtonFactory.resize( buttons );
         return CMSAdminUtil.makeJButtonVPanel( buttons );
-    }
-
-    private JScrollPane createScrollPane(JList<?> listbox) {
-
-        JScrollPane scrollPane = new JScrollPane(listbox,
-            JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
-            JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        scrollPane.setBackground(getBackground());
-        scrollPane.setAlignmentX(LEFT_ALIGNMENT);
-        scrollPane.setAlignmentY(TOP_ALIGNMENT);
-        scrollPane.setBorder(BorderFactory.createLoweredBevelBorder());
-        return scrollPane;
     }
 
     protected JPanel createActionPanel() {

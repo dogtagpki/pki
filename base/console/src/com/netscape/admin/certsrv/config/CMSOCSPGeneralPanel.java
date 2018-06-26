@@ -21,7 +21,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemListener;
-import java.math.BigInteger;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
@@ -179,21 +178,8 @@ public class CMSOCSPGeneralPanel extends CMSBaseTab implements ItemListener {
         }
     }
 
-    private boolean getBoolean(String str) {
-        if (str.equals(Constants.TRUE))
-            return true;
-        return false;
-    }
-
     public void actionPerformed(ActionEvent e) {
         super.actionPerformed(e);
-    }
-
-    private String hexToDecimal(String hex)
-    {
-        //String newHex = hex.substring(2);
-        BigInteger bi = new BigInteger(hex, 16);
-        return bi.toString();
     }
 
     /**

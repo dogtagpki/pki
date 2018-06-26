@@ -210,25 +210,6 @@ public class CMSAutoRecovery extends JDialog implements ActionListener,
         this.show();
     }
 
-    private JPanel makeLabelPane() {
-        JPanel labelPane = new JPanel();
-        GridBagLayout gb = new GridBagLayout();
-        GridBagConstraints gbc = new GridBagConstraints();
-        labelPane.setLayout(gb);
-
-        CMSAdminUtil.resetGBC(gbc);
-        JLabel heading = CMSAdminUtil.makeJLabel(mResource, PREFIX,
-          "HEADING", null);
-        gbc.anchor = GridBagConstraints.NORTHWEST;
-        gbc.gridwidth = GridBagConstraints.REMAINDER;
-        gbc.gridheight = GridBagConstraints.REMAINDER;
-        gbc.weightx = 1.0;
-        gbc.weighty = 1.0;
-        gb.setConstraints(heading, gbc);
-        labelPane.add(heading);
-        return labelPane;
-    }
-
     private JPanel makeActionPane() {
         mOK = CMSAdminUtil.makeJButton(mResource, PREFIX, "OK", null, this);
         mOK.setActionCommand("ok");

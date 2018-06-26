@@ -189,18 +189,6 @@ class WIKRAScheme2Page extends WizardBasePanel implements IWizardPanel {
         return true;
     }
 
-    private String getUIDPassword() {
-        String result = "";
-        for (int i=0; i<mDataModel.getRowCount(); i++) {
-            String val1 = (String)mDataModel.getValueAt(i,1);
-            String val2 = (String)mDataModel.getValueAt(i,2);
-            result = result+val1.trim()+"="+val2.trim();
-            if (i < (mDataModel.getRowCount()-1))
-                result = result+",";
-        }
-        return result;
-    }
-
     public boolean concludePanel(WizardInfo info) {
         InstallWizardInfo wizardInfo = (InstallWizardInfo)info;
 

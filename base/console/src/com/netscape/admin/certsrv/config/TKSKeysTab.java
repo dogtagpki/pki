@@ -360,27 +360,4 @@ public class TKSKeysTab extends CMSBaseUGTab {
 
 			mModel.progressStop();
 		}
-
-    private void delete() {
-        mModel.progressStart();
-        int row = mTable.getSelectedRow();
-        String nickname = (String)(mDataModel.getValueAt(row, 3))+":"+
-          (String)(mDataModel.getValueAt(row, 0));
-        String id = nickname+":SERIAL#<"+mDataModel.getValueAt(row, 1)+">"
-          +mDataModel.getValueAt(row, 2);
-
-        //send comment to server for the removal of user
-        try {
-            mConnection.delete(mDestination, ScopeDef.SC_USERCERTSLIST, id);
-        } catch (EAdminException e) {
-            //display error dialog
-            showErrorDialog(e.getMessage());
-            mModel.progressStop();
-            return;
-        }
-        mModel.progressStop();
-        //send comment to server and refetch the content
-        refresh();
-    }
-
 }

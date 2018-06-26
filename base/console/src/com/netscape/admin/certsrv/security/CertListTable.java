@@ -57,15 +57,6 @@ class CertListTable extends JPanel implements MouseListener, Runnable {
 
     ConsoleInfo _consoleInfo;
 
-    private String formatLineString(String val, String option,
-            boolean newLine) {
-        if (val != null) {
-            return val + (newLine ? option + "\n":option);
-        } else {
-            return "";
-        }
-    }
-
     public void showCert() {
 // to get it compile
 /*

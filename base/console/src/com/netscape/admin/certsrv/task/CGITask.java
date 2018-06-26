@@ -308,16 +308,6 @@ public class CGITask extends CMSTaskObject
 	}
 
 	/**
-	 *	Return the command, which should have been stored in the info.
-	 */
-	private String getCommand() {
-		String s = (String)_consoleInfo.get( "execref" );
-		if ( s != null )
-			return "bin/" + s;
-		return null;
-	}
-
-	/**
 	 *	pass the username to the admin server
 	 */
 	public String username(Object authObject, CommRecord cr) {

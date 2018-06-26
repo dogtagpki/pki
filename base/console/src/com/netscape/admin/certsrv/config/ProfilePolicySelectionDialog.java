@@ -422,13 +422,6 @@ public class ProfilePolicySelectionDialog extends JDialog
         mOK.setEnabled(true);
     }
 
-    //refresh the table content
-    private void refresh() {
-        //mScrollPane.invalidate();
-        //mScrollPane.validate();
-        //repaint();
-    }
-
     public void valueChanged(ListSelectionEvent e) {
         if (e.getSource().equals(mDefaultList)) {
             if (mDefaultList.getSelectedIndex() < 0)

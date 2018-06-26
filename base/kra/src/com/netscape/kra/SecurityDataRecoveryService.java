@@ -103,10 +103,6 @@ public class SecurityDataRecoveryService implements IService {
         signedAuditLogger.log(event);
     }
 
-    private void audit(String msg) {
-        signedAuditLogger.log(msg);
-    }
-
     private void auditRecoveryRequestProcessed(String subjectID, String status, RequestId requestID,
             KeyId keyID, String reason, String recoveryAgents) {
         audit(new SecurityDataRecoveryProcessedEvent(
