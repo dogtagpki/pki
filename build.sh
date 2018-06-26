@@ -55,7 +55,7 @@ usage() {
 
 generate_rpm_sources() {
 
-    TARBALL="$NAME-$VERSION.tar.gz"
+    TARBALL="$NAME-$VERSION${_PHASE}.tar.gz"
 
     if [ "$SOURCE_TAG" != "" ] ; then
 
@@ -66,7 +66,7 @@ generate_rpm_sources() {
         git -C "$SRC_DIR" \
             archive \
             --format=tar.gz \
-            --prefix $NAME-$VERSION/ \
+            --prefix $NAME-$VERSION${_PHASE}/ \
             -o "$WORK_DIR/SOURCES/$TARBALL" \
             $SOURCE_TAG
 
@@ -88,7 +88,7 @@ generate_rpm_sources() {
     fi
 
     tar czf "$WORK_DIR/SOURCES/$TARBALL" \
-        --transform "s,^./,$NAME-$VERSION/," \
+        --transform "s,^./,$NAME-$VERSION${_PHASE}/," \
         --exclude .git \
         --exclude .svn \
         --exclude .swp \
@@ -131,6 +131,9 @@ generate_rpm_spec() {
 
     # hard-code commit ID
     commands="${commands}; s/%{?_commit_id}/${_COMMIT_ID}/g"
+
+    # hard-code phase
+    commands="${commands}; s/%{?_phase}/${_PHASE}/g"
 
     # hard-code patch
     if [ "$PATCH" != "" ] ; then
@@ -295,6 +298,16 @@ RELEASE="`rpmspec -P "$SPEC_TEMPLATE" --undefine dist | grep "^Release:" | awk '
 
 if [ "$DEBUG" = true ] ; then
     echo "RELEASE: $RELEASE"
+fi
+
+spec=$(<"$SPEC_TEMPLATE")
+regex=$'%global *_phase *([^\n]+)'
+if [[ $spec =~ $regex ]] ; then
+    _PHASE="${BASH_REMATCH[1]}"
+fi
+
+if [ "$DEBUG" = true ] ; then
+    echo "PHASE: ${_PHASE}"
 fi
 
 if [ "$WITH_TIMESTAMP" = true ] ; then

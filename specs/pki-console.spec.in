@@ -6,13 +6,9 @@ Summary:          Dogtag PKI Console Package
 URL:              http://www.dogtagpki.org/
 License:          GPLv2
 
-%if 0%{?rhel}
 Version:          10.6.2
 Release:          1%{?_timestamp}%{?_commit_id}%{?dist}
-%else
-Version:          10.6.2
-Release:          1%{?_timestamp}%{?_commit_id}%{?dist}
-%endif
+# global           _phase -a1
 
 # To create a tarball from a version tag:
 # $ git archive \
@@ -20,7 +16,7 @@ Release:          1%{?_timestamp}%{?_commit_id}%{?dist}
 #     --prefix pki-<version>/ \
 #     -o pki-<version>.tar.gz \
 #     <version tag>
-Source: https://github.com/dogtagpki/pki/archive/v%{version}/pki-%{version}.tar.gz
+Source: https://github.com/dogtagpki/pki/archive/v%{version}%{?_phase}/pki-%{version}%{?_phase}.tar.gz
 
 # To create a patch for all changes since a version tag:
 # $ git format-patch \
@@ -308,7 +304,7 @@ following "Mutually-Exclusive" PKI Theme packages:
 %prep
 ################################################################################
 
-%autosetup -n pki-%{version} -p 1 -S git
+%autosetup -n pki-%{version}%{?_phase} -p 1 -S git
 
 ################################################################################
 %build
@@ -365,7 +361,6 @@ cd build
 
 ################################################################################
 %changelog
-
 * Tue Mar 6 2018 Dogtag PKI Team <pki-devel@redhat.com> 10.6.0-0
 - To list changes in <branch> since <tag>:
   $ git log --pretty=oneline --abbrev-commit --no-decorate <tag>..<branch>

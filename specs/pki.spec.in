@@ -7,13 +7,9 @@ URL:              http://www.dogtagpki.org/
 # The entire source code is GPLv2 except for 'pki-tps' which is LGPLv2
 License:          GPLv2 and LGPLv2
 
-%if 0%{?rhel}
 Version:          10.6.2
 Release:          1%{?_timestamp}%{?_commit_id}%{?dist}
-%else
-Version:          10.6.2
-Release:          1%{?_timestamp}%{?_commit_id}%{?dist}
-%endif
+# global           _phase -a1
 
 # To create a tarball from a version tag:
 # $ git archive \
@@ -21,7 +17,7 @@ Release:          1%{?_timestamp}%{?_commit_id}%{?dist}
 #     --prefix pki-<version>/ \
 #     -o pki-<version>.tar.gz \
 #     <version tag>
-Source: https://github.com/dogtagpki/pki/archive/v%{version}/pki-%{version}.tar.gz
+Source: https://github.com/dogtagpki/pki/archive/v%{version}%{?_phase}/pki-%{version}%{?_phase}.tar.gz
 
 # To create a patch for all changes since a version tag:
 # $ git format-patch \
@@ -1075,7 +1071,7 @@ NOTE:  As a convenience for standalone deployments, this 'dogtag-pki'
 %prep
 ################################################################################
 
-%autosetup -n pki-%{version} -p 1 -S git
+%autosetup -n pki-%{version}%{?_phase} -p 1 -S git
 
 ################################################################################
 %build
