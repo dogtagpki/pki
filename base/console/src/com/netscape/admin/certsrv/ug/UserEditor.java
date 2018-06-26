@@ -187,17 +187,6 @@ public class UserEditor extends JDialog
         this.show();
     }
 
-    private void enablePasswordFields(boolean enable, Color color) {
-        mPasswordField.setVisible(enable);
-        mPasswordLbl.setVisible(enable);
-        mPasswordConfirm.setVisible(enable);
-        mPasswordConfirmLbl.setVisible(enable);
-        CMSAdminUtil.repaintComp(mPasswordField);
-        CMSAdminUtil.repaintComp(mPasswordConfirm);
-        CMSAdminUtil.repaintComp(mPasswordLbl);
-        CMSAdminUtil.repaintComp(mPasswordConfirmLbl);
-    }
-
     public boolean isUserAdded() {
         return mUserAdded;
     }
@@ -644,12 +633,5 @@ public class UserEditor extends JDialog
 		}
 	}
     }
-
-    //refresh the table content
-    private void refreshTable() {
-        mScrollPane.repaint(1);
-    }
-
-
 }
 

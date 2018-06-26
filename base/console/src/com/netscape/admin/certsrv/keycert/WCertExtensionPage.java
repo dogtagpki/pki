@@ -17,13 +17,21 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.keycert;
 
-import javax.swing.border.*;
-import javax.swing.*;
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
-import com.netscape.admin.certsrv.wizard.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.admin.certsrv.config.*;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.border.TitledBorder;
+
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.EAdminException;
+import com.netscape.admin.certsrv.config.WBaseCertExtensionPage;
+import com.netscape.admin.certsrv.connection.AdminConnection;
+import com.netscape.admin.certsrv.wizard.IWizardPanel;
+import com.netscape.admin.certsrv.wizard.WizardInfo;
+import com.netscape.certsrv.common.ConfigConstants;
+import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.common.DestDef;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.common.ScopeDef;
 
 /**
  * Certificate Extension for setup wizard.
@@ -252,22 +260,5 @@ class WCertExtensionPage extends WBaseCertExtensionPage implements
     }
 
     public void getUpdateInfo(WizardInfo info) {
-    }
-
-    private String getScope(WizardInfo info) {
-        CertSetupWizardInfo wizardInfo = (CertSetupWizardInfo)info;
-        String certType = wizardInfo.getCertType();
-        String scope = "";
-        if (certType.equals(Constants.PR_CA_SIGNING_CERT)) {
-            scope = ScopeDef.SC_CA_SIGNINGCERT;
-        } else if (certType.equals(Constants.PR_RA_SIGNING_CERT)) {
-            scope = ScopeDef.SC_RA_SIGNINGCERT;
-        } else if (certType.equals(Constants.PR_KRA_TRANSPORT_CERT)) {
-            scope = ScopeDef.SC_KRA_TRANSPORTCERT;
-        } else if (certType.equals(Constants.PR_SERVER_CERT)) {
-            scope = ScopeDef.SC_SERVER_CERT;
-        }
-
-        return scope;
     }
 }

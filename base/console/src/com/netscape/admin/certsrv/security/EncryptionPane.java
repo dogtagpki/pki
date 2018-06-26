@@ -470,10 +470,6 @@ public class EncryptionPane extends JPanel implements ActionListener {
         return new JLabel(label, JLabel.LEFT);
     }
 
-    private void updateCipherEntry() {
-    }
-
-
     /**
       *  Update ui
       *

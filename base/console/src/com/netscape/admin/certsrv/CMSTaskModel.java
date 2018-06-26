@@ -31,7 +31,6 @@ import com.netscape.management.client.IMenuItem;
 import com.netscape.management.client.IPage;
 import com.netscape.management.client.ITaskObject;
 import com.netscape.management.client.MenuItemSeparator;
-import com.netscape.management.client.MenuItemText;
 import com.netscape.management.client.TaskModel;
 import com.netscape.management.client.TaskObject;
 import com.netscape.management.client.console.ConsoleInfo;
@@ -147,16 +146,6 @@ public class CMSTaskModel extends TaskModel implements IMenuInfo {
     /*==========================================================
 	 * private methods
      *==========================================================*/
-
-    private MenuItemText getMenuItemText(String keyword) {
-        String name = mResource.getString("GENERAL_MENU_"+keyword+"_LABEL");
-        if (name == null)
-            name = "Missing Label";
-        String desc = mResource.getString("GENERAL_MENU_"+keyword+"_DESC");
-        if (desc == null)
-            desc = " ";
-        return new MenuItemText( keyword, name, desc);
-    }
 
     private void init() {
 		TaskObject root = new TaskObject( "root", mConsoleInfo );

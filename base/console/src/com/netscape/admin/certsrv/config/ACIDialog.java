@@ -379,48 +379,6 @@ public class ACIDialog extends JDialog
         return helpPanel;
     }
 
-    private JPanel makeListPane() {
-        JPanel listPanel = new JPanel();
-
-        GridBagConstraints gbc = new GridBagConstraints();
-        GridBagLayout gb = new GridBagLayout();
-        listPanel.setLayout(gb);
-
-        CMSAdminUtil.resetGBC(gbc);
-        JLabel opsLabel = CMSAdminUtil.makeJLabel(mResource, PREFIX,
-          "RIGHTS", null);
-        gbc.anchor = GridBagConstraints.NORTHWEST;
-        gbc.gridwidth = GridBagConstraints.REMAINDER;
-        gb.setConstraints(opsLabel, gbc);
-        listPanel.add(opsLabel);
-
-        mList = CMSAdminUtil.makeJList(mDataModel, 3);
-        mScrollPane = new JScrollPane(mList,
-            JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
-            JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        mList.addMouseListener(this);
-        mScrollPane.setBackground(Color.white);
-        mScrollPane.setBorder(BorderFactory.createLoweredBevelBorder());
-
-        if (!mOperations.equals("")) {
-            StringTokenizer tokenizer = new StringTokenizer(mOperations, ",");
-            while (tokenizer.hasMoreTokens()) {
-                mDataModel.addElement(tokenizer.nextToken());
-            }
-        }
-
-        CMSAdminUtil.resetGBC(gbc);
-        gbc.anchor = GridBagConstraints.NORTHWEST;
-        gbc.weightx = 1.0;
-        gbc.weighty = 1.0;
-        gbc.gridwidth = GridBagConstraints.REMAINDER;
-        gbc.gridheight = GridBagConstraints.REMAINDER;
-        gb.setConstraints(mScrollPane, gbc);
-        listPanel.add(mScrollPane);
-
-        return listPanel;
-    }
-
     private JPanel makeContentPanel() {
         JPanel mainPanel = new JPanel();
         GridBagLayout gb = new GridBagLayout();

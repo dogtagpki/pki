@@ -17,13 +17,36 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.security;
 
+import java.awt.BorderLayout;
+import java.awt.Container;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.Box;
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JTextField;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.EtchedBorder;
+import javax.swing.border.TitledBorder;
+
 import com.netscape.management.client.console.ConsoleInfo;
-import com.netscape.management.client.util.*;
-import javax.swing.*;
-import javax.swing.border.*;
-import java.awt.*;
-import java.awt.event.*;
-import com.netscape.management.nmclf.*;
+import com.netscape.management.client.util.AbstractDialog;
+import com.netscape.management.client.util.GridBagUtil;
+import com.netscape.management.client.util.Help;
+import com.netscape.management.client.util.JButtonFactory;
+import com.netscape.management.client.util.ResourceSet;
+import com.netscape.management.client.util.UtilConsoleGlobals;
+import com.netscape.management.nmclf.SuiConstants;
 
 /**
  *
@@ -52,10 +75,6 @@ public class CRLManagementDialog extends AbstractDialog {
     AddCRLCertificateDialog addCRLCertificateDialog;
 
     CRLTable _crlTable;
-
-
-    private void parseCRLInfo(String response) {
-    }
 
     //since can't over load protected and I don't
     //want the interface to show so...
@@ -157,11 +176,11 @@ public class CRLManagementDialog extends AbstractDialog {
                     GridBagConstraints.NORTH, GridBagConstraints.BOTH,
                     0, 0, 0, 0);
 
-            GridBagUtil.constrain(p, (Component)_crl, 0, 2, 2, 1, 1.0,
+            GridBagUtil.constrain(p, _crl, 0, 2, 2, 1, 1.0,
                     0.0, GridBagConstraints.NORTH,
                     GridBagConstraints.BOTH, 0, 0, 0, 0);
 
-            GridBagUtil.constrain(p, (Component)_ckl, 0, 3, 2, 1, 1.0,
+            GridBagUtil.constrain(p, _ckl, 0, 3, 2, 1, 1.0,
                     0.0, GridBagConstraints.NORTH,
                     GridBagConstraints.BOTH, 0, 0, 0, 0);
 

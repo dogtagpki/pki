@@ -340,13 +340,6 @@ public class ProfileNonPolicySelDialog extends JDialog
         mOK.setEnabled(true);
     }
 
-    //refresh the table content
-    private void refresh() {
-        //mScrollPane.invalidate();
-        //mScrollPane.validate();
-        //repaint();
-    }
-
     //=================================================
     // RETRIEVE INFO FROM SERVER SIDE
     //=================================================

@@ -216,10 +216,6 @@ public class AsymKeyGenService implements IService {
         return true;
     }
 
-    private void audit(String msg) {
-        signedAuditLogger.log(msg);
-    }
-
     protected void audit(LogEvent event) {
         signedAuditLogger.log(event);
     }

@@ -246,24 +246,4 @@ public class CMSRAConnectorPanel  extends CMSBaseTab
         refresh();
         return true;
     }
-
-    /*==========================================================
-	 * private methods
-     *==========================================================*/
-
-    //update the UI component using the data retrieved
-    private void populate(NameValuePairs nvps) {
-/*
-        Enumeration names = nvps.getNames();
-        mDataModel.removeAllElements();
-        while (names.hasMoreElements())
-            mDataModel.addElement(names.nextElement());
-
-        if (mDataModel.size() > 0) {
-            mList.setSelectedIndex(0);
-            mEdit.setEnabled(true);
-        } else
-            mEdit.setEnabled(false);
-*/
-    }
 }

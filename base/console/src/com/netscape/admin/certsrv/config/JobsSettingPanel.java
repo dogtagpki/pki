@@ -17,13 +17,26 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config;
 
-import com.netscape.admin.certsrv.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.admin.certsrv.connection.*;
+import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ItemListener;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.CMSBaseResourceModel;
+import com.netscape.admin.certsrv.EAdminException;
+import com.netscape.admin.certsrv.connection.AdminConnection;
+import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.common.DestDef;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.common.ScopeDef;
 
 /**
  * Jobs Scheduler setting tab
@@ -145,14 +158,6 @@ public class JobsSettingPanel extends CMSBaseTab implements ItemListener {
             enableFields(true, mActiveColor);
         else
             enableFields(false, getBackground());
-    }
-
-    private int getIndex(String val, String[] array) {
-        for (int i=0; i<array.length; i++) {
-            if (val.equals(array[i]))
-                return i;
-        }
-        return -1;
     }
 
     private void enableFields(boolean enable, Color color) {

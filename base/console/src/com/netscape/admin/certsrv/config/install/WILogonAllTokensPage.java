@@ -24,7 +24,6 @@ import java.awt.Insets;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
-import javax.swing.DefaultCellEditor;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -35,10 +34,8 @@ import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
-import javax.swing.table.DefaultTableCellRenderer;
 
 import com.netscape.admin.certsrv.CMSAdminUtil;
-import com.netscape.admin.certsrv.PasswordCellRenderer;
 import com.netscape.admin.certsrv.config.ProfileComponentCellEditor;
 import com.netscape.admin.certsrv.config.ProfileDataTable;
 import com.netscape.admin.certsrv.config.ProfilePolicyEditDataModel;
@@ -266,18 +263,6 @@ class WILogonAllTokensPage extends WizardBasePanel implements IWizardPanel {
     }
 
     public void getUpdateInfo(WizardInfo info) {
-    }
-
-    private void setLabelCellRenderer(JTable table, int index) {
-        table.getColumnModel().getColumn(index).setCellRenderer(
-          new DefaultTableCellRenderer());
-    }
-
-    private void setLabelCellEditor(JTable table, int index) {
-        table.getColumnModel().getColumn(index).setCellRenderer(
-          new PasswordCellRenderer());
-        table.getColumnModel().getColumn(index).setCellEditor(
-          new DefaultCellEditor(new JPasswordField()));
     }
 }
 

@@ -1514,18 +1514,6 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         return OFFICIAL_NAME;
     }
 
-    /**
-     * Signed Audit Log
-     *
-     * This method is called to store messages to the signed audit log.
-     * <P>
-     *
-     * @param msg signed audit log message
-     */
-    private void audit(String msg) {
-        signedAuditLogger.log(msg);
-    }
-
     protected void audit(LogEvent event) {
         signedAuditLogger.log(event);
     }

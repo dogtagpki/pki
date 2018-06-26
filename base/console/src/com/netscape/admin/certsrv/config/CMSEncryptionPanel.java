@@ -660,29 +660,6 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
         panel.add( field, gbc );
     }
 
-   private static void addButtonEntryField(JPanel panel,
-      JComponent field, GridBagConstraints gbc) {
-        gbc.fill = GridBagConstraints.NONE;
-        gbc.weightx = 0.0;
-        gbc.gridwidth = 1;
-        gbc.gridx = 0;
-        gbc.anchor = GridBagConstraints.NORTHEAST;
-        gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,0,0);
-        //gbc.insets = new Insets(DIFFERENT_COMPONENT_SPACE,DIFFERENT_COMPONENT_SPACE,0,0);
-        panel.add(new JLabel(""));
-
-        gbc.gridx++;
-        gbc.anchor = GridBagConstraints.NORTHEAST;
-        gbc.fill = GridBagConstraints.NONE;
-        gbc.weightx = 0.0;
-        gbc.gridwidth = GridBagConstraints.REMAINDER;
-        //gbc.insets = new Insets(DIFFERENT_COMPONENT_SPACE,DIFFERENT_COMPONENT_SPACE,
-         //                               0,DIFFERENT_COMPONENT_SPACE);
-        gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
-                                        0,COMPONENT_SPACE);
-        panel.add( field, gbc );
-    }
-
     private static void addButtonEntryField(JPanel panel, JComponent label,
       JComponent field, GridBagConstraints gbc) {
         gbc.fill = GridBagConstraints.NONE;
@@ -708,44 +685,6 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
         gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
                                         0,COMPONENT_SPACE);
         panel.add( field, gbc );
-    }
-
-    private static void addButtonEntryField(JPanel panel, JComponent label,
-      JComponent field, JComponent field1, GridBagConstraints gbc) {
-        gbc.fill = GridBagConstraints.NONE;
-        gbc.weightx = 0.0;
-        gbc.gridwidth = 1;
-        gbc.gridx = 0;
-        gbc.anchor = GridBagConstraints.NORTHEAST;
-        //gbc.insets = new Insets(DIFFERENT_COMPONENT_SPACE,DIFFERENT_COMPONENT_SPACE,0,0);
-        gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,0,0);
-        panel.add(new JLabel(""));
-
-        gbc.gridx++;
-        gbc.weightx = 1.0;
-        panel.add( label, gbc );
-
-        gbc.gridx++;
-        gbc.anchor = GridBagConstraints.NORTHEAST;
-        gbc.fill = GridBagConstraints.NONE;
-        gbc.weightx = 0.0;
-        //gbc.gridwidth = gbc.REMAINDER;
-        //gbc.insets = new Insets(DIFFERENT_COMPONENT_SPACE,DIFFERENT_COMPONENT_SPACE,
-         //                               0,DIFFERENT_COMPONENT_SPACE);
-        gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
-                                        0,COMPONENT_SPACE);
-        panel.add( field, gbc );
-
-        gbc.gridx++;
-        gbc.anchor = GridBagConstraints.NORTHEAST;
-        gbc.fill = GridBagConstraints.NONE;
-        gbc.weightx = 0.0;
-        gbc.gridwidth = GridBagConstraints.REMAINDER;
-        //gbc.insets = new Insets(DIFFERENT_COMPONENT_SPACE,DIFFERENT_COMPONENT_SPACE,
-         //                               0,DIFFERENT_COMPONENT_SPACE);
-        gbc.insets = new Insets(COMPONENT_SPACE,COMPONENT_SPACE,
-                                        0,COMPONENT_SPACE);
-        panel.add( field1, gbc );
     }
 
     /*==========================================================

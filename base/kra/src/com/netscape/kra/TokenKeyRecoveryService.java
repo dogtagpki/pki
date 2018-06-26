@@ -717,18 +717,6 @@ public class TokenKeyRecoveryService implements IService {
         }
     }
 
-    /**
-     * Signed Audit Log
-     * y
-     * This method is called to store messages to the signed audit log.
-     * <P>
-     *
-     * @param msg signed audit log message
-     */
-    private void audit(String msg) {
-        signedAuditLogger.log(msg);
-    }
-
     protected void audit(LogEvent event) {
         signedAuditLogger.log(event);
     }

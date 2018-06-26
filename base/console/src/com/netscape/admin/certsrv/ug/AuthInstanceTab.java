@@ -17,12 +17,16 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.ug;
 
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
-import com.netscape.admin.certsrv.config.*;
-import javax.swing.*;
+import javax.swing.JFrame;
 
-import com.netscape.certsrv.common.*;
+import com.netscape.admin.certsrv.CMSBaseResourceModel;
+import com.netscape.admin.certsrv.config.CMSBaseConfigDialog;
+import com.netscape.admin.certsrv.config.CMSPluginInstanceTab;
+import com.netscape.admin.certsrv.config.PluginSelectionDialog;
+import com.netscape.admin.certsrv.connection.AdminConnection;
+import com.netscape.certsrv.common.DestDef;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.common.ScopeDef;
 
 /**
  * Auth Instances Management Tab
@@ -100,42 +104,4 @@ public class AuthInstanceTab extends CMSPluginInstanceTab {
     //=============================================
     // SEND REQUESTS TO THE SERVER SIDE
     //=============================================
-
-    private void delete() {
-
-        mModel.progressStart();
-        //get entry name
-        NameValuePairs data = (NameValuePairs)
-            mDataModel.getObjectValueAt(mTable.getSelectedRow());
-
-        //send comment to server for the removal of user
-        try {
-            mConnection.delete(DestDef.DEST_AUTH_ADMIN,
-                               ScopeDef.SC_AUTH_MGR_INSTANCE,
-                               data.get(RULE_NAME));
-        } catch (EAdminException e) {
-            //display error dialog
-            showErrorDialog(e.getMessage());
-            mModel.progressStop();
-            return;
-        }
-
-        mModel.progressStop();
-        //send comment to server and refetch the content
-        refresh();
-
-    }
-
-    //this returns the configuration
-    private NameValuePairs getConfig() throws EAdminException {
-        NameValuePairs data = (NameValuePairs)
-            mDataModel.getObjectValueAt(mTable.getSelectedRow());
-
-        NameValuePairs response;
-        response = mConnection.read(DestDef.DEST_AUTH_ADMIN,
-                               ScopeDef.SC_AUTH_MGR_INSTANCE,
-                               data.get(RULE_NAME),
-                               new NameValuePairs());
-        return response;
-    }
 }

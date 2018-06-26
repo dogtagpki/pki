@@ -24,8 +24,6 @@ import java.util.ResourceBundle;
 
 import com.netscape.management.client.FrameworkInitializer;
 import com.netscape.management.client.IPage;
-import com.netscape.management.client.TaskModel;
-import com.netscape.management.client.TaskPage;
 import com.netscape.management.client.console.ConsoleInfo;
 
 /**
@@ -134,18 +132,4 @@ public class CMSPageFeeder extends FrameworkInitializer {
                   ((CMSResourcePage)page).getTree().expandRow(0);
           }
     }
-
-
-    /*==========================================================
-	 * private methods
-     *==========================================================*/
-
-	/**
-	 * Create the directory server task tab page by finding all task
-	 * entries in the directory for this instance.
-	 */
-	private TaskPage createTaskPage() {
-		TaskModel model = new CMSTaskModel(mConsoleInfo, mServerInfo);
-		return new TaskPage( model );
-	}
 }
