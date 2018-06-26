@@ -17,9 +17,13 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.ug;
 
-import java.util.*;
-import javax.swing.*;
-import com.netscape.admin.certsrv.*;
+import java.util.Vector;
+
+import javax.swing.JLabel;
+
+import com.netscape.admin.certsrv.CMSAdminResources;
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.CMSContentTableModel;
 
 /**
  * User Data model - represents the user table information
@@ -46,7 +50,7 @@ public class UserDataModel extends CMSContentTableModel {
 	 * public methods
      *==========================================================*/
     public void processData(String uid, String name) {
-        Vector v = new Vector();
+        Vector<Object> v = new Vector<>();
 
         v.addElement(new JLabel(uid,
               CMSAdminUtil.getImage(CMSAdminResources.IMAGE_USER),
@@ -59,8 +63,8 @@ public class UserDataModel extends CMSContentTableModel {
     /**
      * get user vector for comparison
      */
-    public Vector getUsers() {
-        return  (Vector) mObjectContainer.clone();
+    public Vector<Object> getUsers() {
+        return  (Vector<Object>) mObjectContainer.clone();
     }
 
 }

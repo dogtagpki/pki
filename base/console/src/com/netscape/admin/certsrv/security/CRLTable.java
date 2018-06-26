@@ -17,17 +17,27 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.security;
 
+import java.awt.BorderLayout;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.StringTokenizer;
+import java.util.Vector;
+
+import javax.swing.DefaultListSelectionModel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JViewport;
+import javax.swing.table.JTableHeader;
+
 import com.netscape.management.client.console.ConsoleInfo;
-import com.netscape.management.client.util.*;
-import com.netscape.management.nmclf.*;
-
-import javax.swing.*;
-import javax.swing.table.*;
-
-import java.awt.event.*;
-import java.util.*;
-import java.io.*;
-import java.awt.*;
+import com.netscape.management.client.util.ResourceSet;
+import com.netscape.management.client.util.UtilConsoleGlobals;
+import com.netscape.management.nmclf.SuiOptionPane;
+import com.netscape.management.nmclf.SuiTable;
 
 
 class CRLTable extends JPanel implements MouseListener {
@@ -47,8 +57,8 @@ class CRLTable extends JPanel implements MouseListener {
     String certName;
     boolean setupComplete;
 
-    private Vector getRowData(String data) {
-        Vector rowData = new Vector();
+    private Vector<Vector<String>> getRowData(String data) {
+        Vector<Vector<String>> rowData = new Vector<>();
         BufferedReader stream = new BufferedReader(new StringReader(data));
 
         // First, read CRL's
@@ -60,11 +70,11 @@ class CRLTable extends JPanel implements MouseListener {
             while (!((line = stream.readLine()).equals(endCRL))) {
                 StringTokenizer token =
                         new StringTokenizer(line, ";", false);
-                Vector row = new Vector();
+                Vector<String> row = new Vector<>();
                 //get cert name and expire date and setup a row
                 row.addElement(token.nextToken());
                 row.addElement(token.nextToken());
-                row.addElement((String)"CRL");
+                row.addElement("CRL");
                 rowData.addElement(row);
             }
         } catch (IOException e) { /*error message here */
@@ -79,11 +89,11 @@ class CRLTable extends JPanel implements MouseListener {
             while (!((line = stream.readLine()).equals(endCKL))) {
                 StringTokenizer token =
                         new StringTokenizer(line, ";", false);
-                Vector row = new Vector();
+                Vector<String> row = new Vector<>();
                 //get cert name and expire date and setup a row
                 row.addElement(token.nextToken());
                 row.addElement(token.nextToken());
-                row.addElement((String)"CKL");
+                row.addElement("CKL");
                 rowData.addElement(row);
             }
         } catch (IOException e) { /*error message here */
@@ -92,8 +102,8 @@ class CRLTable extends JPanel implements MouseListener {
         return rowData;
     }
 
-    private Vector getColumnHeader() {
-        Vector column = new Vector();
+    private Vector<String> getColumnHeader() {
+        Vector<String> column = new Vector<>();
         column.addElement(_resource.getString("CRLTable", "column1"));
         column.addElement(_resource.getString("CRLTable", "column2"));
         column.addElement(_resource.getString("CRLTable", "column3"));

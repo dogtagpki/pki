@@ -17,7 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.security;
 
-import java.util.*;
+import java.util.Vector;
 
 import com.netscape.management.client.util.ResourceSet;
 
@@ -69,8 +69,8 @@ class CertBasicInfo {
         return nReturn;
     }
 
-    static public Vector getCertTitleLabels() {
-        Vector title = new Vector();
+    static public Vector<String> getCertTitleLabels() {
+        Vector<String> title = new Vector<>();
 
         ResourceSet resource = new ResourceSet("com.netscape.admin.certsrv.security.CertManagementResource");
         title.addElement(resource.getString("CertBasicInfo", "labelName"));

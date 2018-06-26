@@ -57,13 +57,13 @@ class StatusPane extends JPanel implements IKeyCertPage, SuiConstants {
         return error;
     }
 
-    public void setMessage(Vector messages) {
+    public void setMessage(Vector<Message> messages) {
         String status = "";
         int nMessage = messages.size();
         for (int i = 0; i < nMessage; i++) {
-            if (getMessage((Message)(messages.elementAt(i))).length() !=
+            if (getMessage((messages.elementAt(i))).length() !=
                     0) {
-                status += getMessage((Message)(messages.elementAt(i))) +
+                status += getMessage((messages.elementAt(i))) +
                         "\n\n";
             }
         }

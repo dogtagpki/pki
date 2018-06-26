@@ -17,10 +17,13 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config;
 
-import java.util.*;
-import javax.swing.*;
-import com.netscape.admin.certsrv.*;
-import com.netscape.certsrv.common.*;
+import java.util.Vector;
+
+import javax.swing.JLabel;
+
+import com.netscape.admin.certsrv.CMSAdminResources;
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.management.client.util.Debug;
 
 
@@ -48,7 +51,7 @@ public class PublisherRuleDataModel extends CMSRuleDataModel
 	}
 
     public void processData(Object data) {
-        Vector v = new Vector();
+        Vector<Object> v = new Vector<>();
         NameValuePairs obj = (NameValuePairs) data;
 
         v.addElement(new JLabel(obj.get(RULE_NAME),

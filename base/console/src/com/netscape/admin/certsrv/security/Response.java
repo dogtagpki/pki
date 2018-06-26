@@ -40,8 +40,8 @@ class Response {
 
     String _response;
     String _cert = "";
-    Vector _messages = new Vector();
-    Vector _certList = null;
+    Vector<Message> _messages = new Vector<>();
+    Vector<CertBasicInfo> _certList = null;
     CertInfo _certInfo = null;
     Hashtable<String, String> _certInstInfo = null;
 
@@ -73,7 +73,7 @@ class Response {
 
     void parseCertificateList(String response) {
         if (response.indexOf(startCertList) != -1) {
-            _certList = new Vector();
+            _certList = new Vector<>();
 
             try {
                 BufferedReader stream =
@@ -304,10 +304,10 @@ class Response {
     }
 
 
-    Vector moduleList;
-    public Vector parseModuleList(String response) {
+    Vector<String> moduleList;
+    public Vector<String> parseModuleList(String response) {
 
-        moduleList = new Vector();
+        moduleList = new Vector<>();
 
         try {
             BufferedReader stream =
@@ -355,11 +355,11 @@ class Response {
         }
     }
 
-    public Vector getFamilyList() {
+    public Vector<CipherEntry> getFamilyList() {
         return parseFamilyList(_response);
     }
 
-    public Vector getModuleList() {
+    public Vector<String> getModuleList() {
         return parseModuleList(_response);
     }
 
@@ -393,11 +393,11 @@ class Response {
     public String getCert() {
         return _fCert ? _cert : "";
     }
-    public Vector getMessages() {
+    public Vector<Message> getMessages() {
         return _messages;
     }
-    public Vector getCertList() {
-        return _fCertList ? _certList : (new Vector());
+    public Vector<CertBasicInfo> getCertList() {
+        return _fCertList ? _certList : (new Vector<CertBasicInfo>());
     }
     public CertInfo getCertInfo() {
         return _certInfo;

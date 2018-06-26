@@ -17,17 +17,37 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.security;
 
+import java.awt.BorderLayout;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Vector;
+
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.EtchedBorder;
+import javax.swing.border.TitledBorder;
+
 import com.netscape.management.client.console.ConsoleInfo;
-
-import javax.swing.*;
-import javax.swing.border.*;
-
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
-
-import com.netscape.management.client.util.*;
-import com.netscape.management.nmclf.*;
+import com.netscape.management.client.util.AbstractDialog;
+import com.netscape.management.client.util.GridBagUtil;
+import com.netscape.management.client.util.Help;
+import com.netscape.management.client.util.JButtonFactory;
+import com.netscape.management.client.util.ResourceSet;
+import com.netscape.management.client.util.UITools;
+import com.netscape.management.client.util.UtilConsoleGlobals;
+import com.netscape.management.nmclf.SuiConstants;
+import com.netscape.management.nmclf.SuiOptionPane;
 
 /**
  *
@@ -159,9 +179,9 @@ public class PKCS11ManagementDialog extends AbstractDialog {
         setModal(true);
 
         moduleList.removeAll();
-        Vector modules = taskInfo.getResponse().getModuleList();
+        Vector<String> modules = taskInfo.getResponse().getModuleList();
         for (int i = 0; i < modules.size(); i++) {
-            moduleList.add(new JLabel((String) modules.elementAt(i)));
+            moduleList.add(new JLabel(modules.elementAt(i)));
         }
 
         moduleList.doLayout();

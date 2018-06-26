@@ -17,9 +17,14 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.ug;
 
-import java.util.*;
-import javax.swing.*;
-import com.netscape.admin.certsrv.*;
+import java.util.Vector;
+
+import javax.swing.JLabel;
+
+import com.netscape.admin.certsrv.CMSAdminResources;
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.CMSContentTableModel;
+import com.netscape.admin.certsrv.IDataProcessor;
 
 /**
  * User List Data model - represents the single column user
@@ -49,7 +54,7 @@ public class UserListDataModel extends CMSContentTableModel
 	 * public methods
      *==========================================================*/
     public void processData(Object data) {
-        Vector v = new Vector();
+        Vector<Object> v = new Vector<>();
 
         //XXX NEED TO CHANGE if we are going to have multi-column table
         v.addElement(new JLabel((String)data,
@@ -61,8 +66,8 @@ public class UserListDataModel extends CMSContentTableModel
     /**
      * get user vector for comparison
      */
-    public Vector getUsers() {
-        return  (Vector) mObjectContainer.clone();
+    public Vector<Object> getUsers() {
+        return  (Vector<Object>) mObjectContainer.clone();
     }
 
 }

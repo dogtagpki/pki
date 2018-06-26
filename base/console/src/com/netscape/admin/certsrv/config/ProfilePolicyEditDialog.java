@@ -298,11 +298,11 @@ public class ProfilePolicyEditDialog extends CMSBaseConfigDialog
 
     public JPanel createDefaultListPanel()
     {
-       Vector colNames = new Vector();
+       Vector<String> colNames = new Vector<>();
        colNames.addElement("Parameter");
        colNames.addElement("Value");
-       Vector data = new Vector();
-       Vector row = new Vector();
+       Vector<Vector<Object>> data = new Vector<>();
+       Vector<Object> row = new Vector<>();
        row.addElement("x");
        row.addElement("x");
        data.addElement(row);
@@ -362,11 +362,11 @@ public class ProfilePolicyEditDialog extends CMSBaseConfigDialog
 
     public JPanel createConstraintListPanel()
     {
-       Vector colNames = new Vector();
+       Vector<String> colNames = new Vector<>();
        colNames.addElement("Parameter");
        colNames.addElement("Value");
-       Vector data = new Vector();
-       Vector row = new Vector();
+       Vector<Vector<Object>> data = new Vector<>();
+       Vector<Object> row = new Vector<>();
        row.addElement("x");
        row.addElement("x");
        data.addElement(row);
@@ -603,10 +603,10 @@ public class ProfilePolicyEditDialog extends CMSBaseConfigDialog
         }
         mModel.progressStop();
 
-        Vector defcolNames = new Vector();
+        Vector<String> defcolNames = new Vector<>();
         defcolNames.addElement("Parameter");
         defcolNames.addElement("Value");
-        Vector defdata = new Vector();
+        Vector<Vector<Object>> defdata = new Vector<>();
 
         for (String entry : response.keySet()) {
            entry = entry.trim();
@@ -615,7 +615,7 @@ public class ProfilePolicyEditDialog extends CMSBaseConfigDialog
                   Debug.println("ProfilePolicyEditDialog value= "+value);
 
             Object obj = getComponent(value);
-           Vector row = new Vector();
+           Vector<Object> row = new Vector<>();
            JLabel label = new JLabel(entry);
            ((Component)obj).addFocusListener(this);
            mHelpDesc.put(obj, getHelpDescription(value));
@@ -654,10 +654,10 @@ public class ProfilePolicyEditDialog extends CMSBaseConfigDialog
         }
         mModel.progressStop();
 
-        Vector colNames = new Vector();
+        Vector<String> colNames = new Vector<>();
         colNames.addElement("Parameter");
         colNames.addElement("Value");
-        Vector d = new Vector();
+        Vector<Vector<Object>> d = new Vector<>();
 
         for (String entry : response.keySet()) {
            entry = entry.trim();
@@ -666,7 +666,7 @@ public class ProfilePolicyEditDialog extends CMSBaseConfigDialog
                   Debug.println("value= "+value);
 
            Object obj = getComponent(value);
-           Vector row = new Vector();
+           Vector<Object> row = new Vector<>();
            JLabel label = new JLabel(entry);
            ((Component)obj).addFocusListener(this);
            mHelpDesc.put(obj, getHelpDescription(value));

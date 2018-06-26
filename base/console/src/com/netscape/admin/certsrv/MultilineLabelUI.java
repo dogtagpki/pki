@@ -145,7 +145,7 @@ public class MultilineLabelUI extends BasicLabelUI {
         		        tmpChar = '\0';
         		    }
         		    BasicGraphicsUtils.drawString(g,
-        		        (String)textVector.elementAt(i), tmpChar,
+        		        textVector.elementAt(i), tmpChar,
         		        offsetArray[0], textY+h*i);
         		        //offsetArray[i], textY+h*i);
         		}
@@ -160,7 +160,7 @@ public class MultilineLabelUI extends BasicLabelUI {
         		        tmpChar = '\0';
         		    }
         		    BasicGraphicsUtils.drawString(g,
-        		        (String)textVector.elementAt(i), tmpChar,
+        		        textVector.elementAt(i), tmpChar,
         		        offsetArray[i], textY+h*i);
         		}
         		g.setColor(Color.white);
@@ -172,7 +172,7 @@ public class MultilineLabelUI extends BasicLabelUI {
         		        tmpChar = '\0';
         		    }
         		    BasicGraphicsUtils.drawString(g,
-        		        (String)textVector.elementAt(i), tmpChar,
+        		        textVector.elementAt(i), tmpChar,
         		        offsetArray[i] + 1, textY + 1 + h*i);
         		}
     	    }
@@ -205,12 +205,12 @@ public class MultilineLabelUI extends BasicLabelUI {
         return result;
     }
 
-    private final int computeStringVWidth(FontMetrics fm, Vector strV, int[] widthA) {
+    private final int computeStringVWidth(FontMetrics fm, Vector<String> strV, int[] widthA) {
     	int w = 0, width = 0;
     	//Debug.println("computeStringWidth: vsize " + strV.size());
     	for (int i = 0; i < strV.size(); i++) {
-    	    w = SwingUtilities.computeStringWidth(fm, (String)strV.elementAt(i));
-        	//Debug.println("computeStringWidth: w for " + (String)strV.elementAt(i) + " is " + w);
+    	    w = SwingUtilities.computeStringWidth(fm, strV.elementAt(i));
+        	//Debug.println("computeStringWidth: w for " + strV.elementAt(i) + " is " + w);
     	    widthA[i] = w;
     	    if (w > width) width = w;
     	}
@@ -224,7 +224,7 @@ public class MultilineLabelUI extends BasicLabelUI {
 
     /* NOTE: " " has to be the first entry */
     static final String[] SEPARATORS = {" ", ".", ",", "?", "-", ":", ";", "!", "/", "\\"};
-    Vector textVector;
+    Vector<String> textVector;
     int[] widthArray;
     int[] offsetArray;
 
@@ -257,8 +257,8 @@ public class MultilineLabelUI extends BasicLabelUI {
      * wrapString expects the input string to be the last element
      * in the vector.
      */
-    protected void wrapString(Vector v, FontMetrics fm, int w, String[] separators) {
-        String s = (String)v.lastElement();
+    protected void wrapString(Vector<String> v, FontMetrics fm, int w, String[] separators) {
+        String s = v.lastElement();
         //Debug.println("----> calling wrapString with " + s);
         if ((null == s) || ("".equals(s))) {
             return;
@@ -300,7 +300,7 @@ public class MultilineLabelUI extends BasicLabelUI {
         }
     }
 
-    protected void parseTextV(String text, Vector textV) {
+    protected void parseTextV(String text, Vector<String> textV) {
     	if (text == null || "".equals(text)) {
     	    textV.addElement("");
     	    return;
@@ -360,7 +360,7 @@ public class MultilineLabelUI extends BasicLabelUI {
         /* NOTE: break up the text into multiple lines */
         /* TODO: clean up parseTextV and wrapString */
         if (!_parsed) {
-        textVector = new Vector();
+        textVector = new Vector<>();
         if (preferredSize != null) {
             /* remove newline before calling wrapString
             if (!textIsEmpty) {
@@ -522,9 +522,9 @@ public class MultilineLabelUI extends BasicLabelUI {
     	    }
     	}
 
-    	final int findAccChar(Vector strV, char c) {
+    	final int findAccChar(Vector<String> strV, char c) {
     	    for (int i = 0; i < strV.size(); i++) {
-    	        String s = (String)strV.elementAt(i);
+    	        String s = strV.elementAt(i);
     	        if (s.indexOf(c) != -1) {
     	            return i;
     	        }

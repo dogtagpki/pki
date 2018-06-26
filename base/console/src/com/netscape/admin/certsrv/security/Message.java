@@ -17,7 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.security;
 
-import java.util.*;
+import java.util.Vector;
 
 class Index {
     String _indexValue;
@@ -72,7 +72,7 @@ class Message {
     String NMC_Extra = "";
 
     public Message(String message) {
-        Vector indexes = new Vector();
+        Vector<Index> indexes = new Vector<>();
         int pos1 = message.indexOf(NMC_STATUS);
         if (pos1 != -1) {
             indexes.addElement(new Index(NMC_STATUS, pos1));
@@ -113,8 +113,8 @@ class Message {
 
         int size = indexes.size();
         for (int i = 0; i < size - 1; i++) {
-            Index beginIndex = (Index)(indexes.elementAt(i));
-            Index endIndex = (Index)(indexes.elementAt(i + 1));
+            Index beginIndex = (indexes.elementAt(i));
+            Index endIndex = (indexes.elementAt(i + 1));
             if (beginIndex.getIndexValue().equals(NMC_STATUS)) {
                 String val = message.substring(beginIndex.getPos() +
                         NMC_STATUS.length(), endIndex.getPos());

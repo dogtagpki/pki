@@ -135,8 +135,8 @@ public class CMSBaseResourceModel extends ResourceModel {
 		mSelection = selection;
 		if ( mSelection == null )
 			mSelection = new IResourceObject[0];
-		Vector selected = new Vector();
-		Vector toNotify = new Vector();
+		Vector<Component> selected = new Vector<>();
+		Vector<IResourceObject> toNotify = new Vector<>();
 		/* Signal all selected objects, keep track of which ones */
 		for( int i = 0; i < mSelection.length; i++ ) {
 		    IResourceObject sel = mSelection[i];
@@ -176,7 +176,7 @@ public class CMSBaseResourceModel extends ResourceModel {
 
 		for( int i = 0; i < toNotify.size(); i++ ) {
 		    IResourceObject sel =
-				(IResourceObject)toNotify.elementAt( i );
+				toNotify.elementAt( i );
 		    Component c = sel.getCustomPanel();
 			IResourceSelectionListener l =
 				(IResourceSelectionListener)c;

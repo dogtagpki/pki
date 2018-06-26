@@ -98,9 +98,9 @@ class WMNNewAgent extends WizardBasePanel
         //zap passwords
         mDataModel.removeAllRows();
 
-        Vector[] data = new Vector[mNoAgent];
+        Vector<Object>[] data = new Vector[mNoAgent];
         for (int i=0; i<data.length; i++) {
-            data[i] = new Vector();
+            data[i] = new Vector<>();
             data[i].addElement(Integer.toString(i+1));
             data[i].addElement("");
             data[i].addElement("");

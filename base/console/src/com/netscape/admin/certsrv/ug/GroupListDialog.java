@@ -17,14 +17,33 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.ug;
 
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
-import javax.swing.*;
-import java.awt.event.*;
-import java.awt.*;
-import java.util.*;
-import com.netscape.management.client.util.*;
-import com.netscape.certsrv.common.*;
+import java.awt.BorderLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ResourceBundle;
+import java.util.Vector;
+
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
+import javax.swing.ScrollPaneConstants;
+
+import com.netscape.admin.certsrv.CMSAdminResources;
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.EAdminException;
+import com.netscape.admin.certsrv.LabelCellRenderer;
+import com.netscape.admin.certsrv.connection.AdminConnection;
+import com.netscape.certsrv.common.DestDef;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.common.ScopeDef;
+import com.netscape.management.client.util.JButtonFactory;
 
 /**
  * Group Listing Dialog - <p>
@@ -49,8 +68,8 @@ public class GroupListDialog extends JDialog
     private AdminConnection mConnection;
     private ResourceBundle mResource;
     protected GroupListDataModel mDataModel;
-    protected Vector mCurrentGroups;
-    protected Vector mSelectedGroups;
+    protected Vector<String> mCurrentGroups;
+    protected Vector<Object> mSelectedGroups;
 
     private JScrollPane mScrollPane;
     private JTable mTable;
@@ -65,7 +84,7 @@ public class GroupListDialog extends JDialog
         super(parent,true);
         mParentFrame = parent;
         mConnection = conn;
-        mSelectedGroups = new Vector();
+        mSelectedGroups = new Vector<>();
         mResource = ResourceBundle.getBundle(CMSAdminResources.class.getName());
         mDataModel = new GroupListDataModel();
         setSize(350, 300);
@@ -83,7 +102,7 @@ public class GroupListDialog extends JDialog
      * show the windows
      * @param users list of current groups
      */
-    public void showDialog(Vector groups) {
+    public void showDialog(Vector<String> groups) {
 
         mCurrentGroups = groups;
         mSelectedGroups.removeAllElements();
@@ -106,7 +125,7 @@ public class GroupListDialog extends JDialog
      * otherwise, empty vector will be returned.
      * @return group names
      */
-    public Vector getSelectedGroup() {
+    public Vector<Object> getSelectedGroup() {
         return mSelectedGroups;
     }
 

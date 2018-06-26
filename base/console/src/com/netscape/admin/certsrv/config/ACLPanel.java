@@ -231,7 +231,7 @@ public class ACLPanel extends CMSBaseUGTab {
 
         for (i=0; i<vals.length; i++) {
             String name = vals[i];
-            Vector v = new Vector();
+            Vector<Object> v = new Vector<>();
             v.addElement(new JLabel(name,
                     CMSAdminUtil.getImage(CMSAdminResources.IMAGE_ACL),
                     JLabel.LEFT));

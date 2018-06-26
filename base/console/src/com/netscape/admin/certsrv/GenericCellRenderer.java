@@ -89,7 +89,7 @@ public class GenericCellRenderer
 
             value = model.getValueAt(row, column);
         }
-        Vector v = (Vector)(((CMSContentTableModel)model).getObjectValueAt(row));
+        Vector<Object> v = (Vector<Object>)(((CMSContentTableModel)model).getObjectValueAt(row));
         this.value.setValue(value, v);
         component.setBackground(isSelected ? HIGHLIGHTCOLOR : WHITECOLOR);
         component.setForeground(isSelected ? WHITECOLOR : BLACKCOLOR);
@@ -99,7 +99,7 @@ public class GenericCellRenderer
 
     protected class ValueProperty implements Serializable {
 
-        public void setValue(Object x, Vector v) {
+        public void setValue(Object x, Vector<Object> v) {
             String type = (String)v.elementAt(0);
             if (type.equals(Constants.PASSWORDTYPE)) {
                 if (mLabel == null) {

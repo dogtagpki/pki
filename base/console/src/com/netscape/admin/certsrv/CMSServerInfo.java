@@ -17,12 +17,20 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv;
 
-import java.util.*;
-import javax.swing.*;
+import java.util.ResourceBundle;
+import java.util.Vector;
 
-import com.netscape.management.client.util.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.admin.certsrv.connection.*;
+import javax.swing.JFrame;
+
+import com.netscape.admin.certsrv.connection.AdminConnection;
+import com.netscape.admin.certsrv.connection.BasicAuthenticator;
+import com.netscape.admin.certsrv.connection.SSLConnectionFactory;
+import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.common.DestDef;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.common.ScopeDef;
+import com.netscape.management.client.util.Debug;
+import com.netscape.management.client.util.UtilConsoleGlobals;
 
 /**
  * Certificate server information. Store all relevant
@@ -49,7 +57,7 @@ public class CMSServerInfo implements IConnectionListener {
 	private String mInstallDate = null;         // server install date
 	private String mPassword = null;            // user password
 	private String mPath = null;
-	private Vector mSubsystem = new Vector();
+	private Vector<String> mSubsystem = new Vector<>();
 
 	/*==========================================================
      * constructors
@@ -161,11 +169,11 @@ public class CMSServerInfo implements IConnectionListener {
 		}
 	}
 
-	public Vector getInstalledSubsystems() {
+	public Vector<String> getInstalledSubsystems() {
         return mSubsystem;
 	}
 
-	public void setInstalledSubsystems(Vector subsystem) {
+	public void setInstalledSubsystems(Vector<String> subsystem) {
 	    mSubsystem = subsystem;
 	}
 

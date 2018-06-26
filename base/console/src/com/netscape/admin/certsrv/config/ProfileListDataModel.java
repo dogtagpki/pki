@@ -31,9 +31,9 @@ import javax.swing.JLabel;
  */
 public class ProfileListDataModel extends DefaultListModel<JLabel> {
 
-    private Vector mObjectContainer = new Vector();
+    private Vector<String> mObjectContainer = new Vector<>();
 
-    public Object getObjectValueAt(int row) {
+    public String getObjectValueAt(int row) {
         return mObjectContainer.elementAt(row);
     }
 
@@ -42,7 +42,7 @@ public class ProfileListDataModel extends DefaultListModel<JLabel> {
         mObjectContainer.removeAllElements();
     }
 
-    public void addElement(JLabel displayData, Object extraData) {
+    public void addElement(JLabel displayData, String extraData) {
         super.addElement(displayData);
         mObjectContainer.addElement(extraData);
     }

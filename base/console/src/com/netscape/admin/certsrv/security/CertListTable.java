@@ -50,7 +50,7 @@ class CertListTable extends JPanel implements MouseListener, Runnable {
     String _certName;
     boolean local = false;
     boolean setupComplete;
-    Vector certList;
+    Vector<Object> certList;
  //   DBManager trustdb;
 
     //IBackgroundLoaderCallback _callback;
@@ -196,7 +196,7 @@ class CertListTable extends JPanel implements MouseListener, Runnable {
       //  trustdb = new DBManager();
      //   Enumeration e = trustdb.elements();
         //Enumeration e = null;
-        certList = new Vector();
+        certList = new Vector<>();
         Vector<CertBasicInfo> v = new Vector<>();
       //  while (e.hasMoreElements()) {
     //        X509 cert = (X509)(e.nextElement());
@@ -265,7 +265,7 @@ class CertListTable extends JPanel implements MouseListener, Runnable {
 
         _taskInfo = new KeyCertTaskInfo(_consoleInfo);
         _dataModel = new CertListTableModel(
-                CertBasicInfo.getCertTitleLabels(), new Vector());
+                CertBasicInfo.getCertTitleLabels(), new Vector<CertBasicInfo>());
         //setCertList(certName);
 
         //_dataModel.deleteAllRows();

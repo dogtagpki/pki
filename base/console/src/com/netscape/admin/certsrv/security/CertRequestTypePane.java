@@ -203,7 +203,7 @@ IKeyCertPage {
       *
       */
     private void addNumberedComponent(JPanel p, int count, Component c,
-            Vector components) {
+            Vector<Component> components) {
         //JPanel entry = new JPanel();
         //entry.setLayout(new GridBagLayout());
         GridBagUtil.constrain(p,
@@ -223,7 +223,7 @@ IKeyCertPage {
 
         for (int i = 0; i < components.size(); i++) {
             GridBagUtil.constrain(p,
-                    (Component)(components.elementAt(i)), 2,
+                    (components.elementAt(i)), 2,
                     count + i, 1, 1, 1.0, 0.0,
                     GridBagConstraints.NORTH, GridBagConstraints.BOTH,
                     0, 0, 0, 0);
@@ -358,7 +358,7 @@ IKeyCertPage {
         JPanel requestTypePane = new JPanel();
         //requestTypePane.setLayout(new BoxLayout(requestTypePane, BoxLayout.Y_AXIS));
         requestTypePane.setLayout(new GridBagLayout());
-        Vector components = new Vector();
+        Vector<Component> components = new Vector<>();
         _new.addActionListener(listener);
         _renew.addActionListener(listener);
         components.addElement(_new);
@@ -375,7 +375,7 @@ IKeyCertPage {
         JPanel requestViaPane = new JPanel();
         //requestViaPane.setLayout(new BoxLayout(requestViaPane, BoxLayout.Y_AXIS));
         requestViaPane.setLayout(new GridBagLayout());
-        components = new Vector();
+        components = new Vector<>();
         components.addElement(getRequestViaPane());
         addNumberedComponent(requestViaPane, ++y,
                 new MultilineLabel(

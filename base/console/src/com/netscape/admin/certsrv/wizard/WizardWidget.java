@@ -17,13 +17,23 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.wizard;
 
-import java.util.*;
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.border.*;
-import com.netscape.admin.certsrv.*;
-import com.netscape.management.client.util.*;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ResourceBundle;
+import java.util.Stack;
+
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
+
+import com.netscape.admin.certsrv.CMSAdminResources;
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.management.client.util.Debug;
 
 /**
  * WizardWidget provides the most fundamental functionalities
@@ -48,8 +58,8 @@ public class WizardWidget extends JDialog implements ActionListener
 
     //private variables
     private JButton mBNext_Done, mBCancel, mBBack, mBHelp;
-    private Stack mPrevScreen = new Stack();
-    private Stack mNextScreen = new Stack();
+    private Stack<JPanel> mPrevScreen = new Stack<>();
+    private Stack<JPanel> mNextScreen = new Stack<>();
     protected JPanel mCurrent = null;
     protected JPanel mDisplay;
     private String mDoneLabel, mNextLabel;
@@ -175,7 +185,7 @@ public class WizardWidget extends JDialog implements ActionListener
                     updateWizardInfo();
                     mPrevScreen.push(mCurrent);
                     mDisplay.remove(mCurrent);
-                    mCurrent = (JPanel)(mNextScreen.pop());
+                    mCurrent = (mNextScreen.pop());
                     while (!initializeWizardPanel()) {
                         //move to next
                         if (mNextScreen.empty()) {
@@ -183,7 +193,7 @@ public class WizardWidget extends JDialog implements ActionListener
                             return;
                         }
                         mPrevScreen.push(mCurrent);
-                        mCurrent = (JPanel)(mNextScreen.pop());
+                        mCurrent = (mNextScreen.pop());
                     }
                     mDisplay.add("Center",mCurrent);
                     mDisplay.invalidate();
@@ -216,14 +226,14 @@ public class WizardWidget extends JDialog implements ActionListener
             if (!(mPrevScreen.empty())) {
                 mNextScreen.push(mCurrent);
                 mDisplay.remove(mCurrent);
-                mCurrent = (JPanel)(mPrevScreen.pop());
+                mCurrent = (mPrevScreen.pop());
                 while (!initializeWizardPanel()) {
                     //move to prev
                     if (mPrevScreen.empty()) {
                         return;
                     }
                     mNextScreen.push(mCurrent);
-                    mCurrent = (JPanel)(mPrevScreen.pop());
+                    mCurrent = (mPrevScreen.pop());
                 }
                 mDisplay.add("Center",mCurrent);
                 mDisplay.invalidate();

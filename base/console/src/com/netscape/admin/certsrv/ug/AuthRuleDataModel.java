@@ -17,11 +17,14 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.ug;
 
-import java.util.*;
-import javax.swing.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.config.*;
+import java.util.Vector;
+
+import javax.swing.JLabel;
+
+import com.netscape.admin.certsrv.CMSAdminResources;
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.config.CMSRuleDataModel;
+import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.management.client.util.Debug;
 
 
@@ -49,7 +52,7 @@ public class AuthRuleDataModel extends CMSRuleDataModel
 	}
 
 	    public void processData(Object data) {
-        Vector v = new Vector();
+        Vector<Object> v = new Vector<>();
         NameValuePairs obj = (NameValuePairs) data;
 
         //XXX NEED TO ADD STUFF

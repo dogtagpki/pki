@@ -314,7 +314,7 @@ public class UserTab extends CMSBaseUGTab {
         StringTokenizer tokenizer = new StringTokenizer(responseValue, ";");
         StringTokenizer subTokenizer = null;
 
-        Vector store = new Vector();
+        Vector<String> store = new Vector<>();
         Hashtable<String, String> table = new Hashtable<>();
 
         while (tokenizer.hasMoreTokens()) {

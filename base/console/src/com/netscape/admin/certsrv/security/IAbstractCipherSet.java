@@ -33,7 +33,7 @@ public abstract interface IAbstractCipherSet {
      * Return cipher list
      *
      */
-    public Vector getCipherList();
+    public Vector<AbstractCipher> getCipherList();
 
     /**
      * Return title.

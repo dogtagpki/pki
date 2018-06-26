@@ -114,7 +114,7 @@ public class CMSUIFramework {
 
         //delegate UI loading to each subsystem loader
         UILoaderRegistry registry = new UILoaderRegistry(this);
-        Vector subsystemList = new Vector();
+        Vector<String> subsystemList = new Vector<>();
         for (int i=0; i< subsystems.length; i++) {
             try {
                 subsystemList.addElement(subsystems[i].mType);

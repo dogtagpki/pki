@@ -17,15 +17,33 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config;
 
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
-import javax.swing.*;
-import java.awt.event.*;
-import java.awt.*;
-import java.util.*;
+import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Vector;
 
-import com.netscape.management.client.util.*;
-import com.netscape.certsrv.common.*;
+import javax.swing.DefaultCellEditor;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+import javax.swing.ScrollPaneConstants;
+
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.EAdminException;
+import com.netscape.admin.certsrv.connection.AdminConnection;
+import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.common.DestDef;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.management.client.util.Debug;
 
 /**
  * Policy Parameter Configuration Dialog
@@ -234,11 +252,11 @@ public class ProfileNonPolicyNewDialog extends CMSBaseConfigDialog
 
     public JPanel createListPanel()
     {
-       Vector colNames = new Vector();
+       Vector<String> colNames = new Vector<>();
        colNames.addElement("Parameter");
        colNames.addElement("Value");
-       Vector data = new Vector();
-       Vector row = new Vector();
+       Vector<Vector<Object>> data = new Vector<>();
+       Vector<Object> row = new Vector<>();
        row.addElement("x");
        row.addElement("x");
        data.addElement(row);
@@ -376,10 +394,10 @@ setLabelCellEditor(mTable, 1);
         }
         mModel.progressStop();
 
-        Vector defcolNames = new Vector();
+        Vector<String> defcolNames = new Vector<>();
         defcolNames.addElement("Parameter");
         defcolNames.addElement("Value");
-        Vector defdata = new Vector();
+        Vector<Vector<Object>> defdata = new Vector<>();
 
         for (String entry : response.keySet()) {
            entry = entry.trim();
@@ -397,7 +415,7 @@ setLabelCellEditor(mTable, 1);
    syntaxVal = value.substring(start_pos+1, end_pos);
    val = value.substring(end_pos+1);
 
-           Vector row = new Vector();
+           Vector<Object> row = new Vector<>();
            row.addElement(entry);
            row.addElement(val);
            defdata.addElement(row);

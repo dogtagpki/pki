@@ -59,7 +59,7 @@ public class CMSOCSPGeneralPanel extends CMSBaseTab implements ItemListener {
     private JTextField mSerialNumber;
     private JTextField mMaxSerialNumber;
     private JCheckBox mValidity;
-    private Vector mGroupData;
+    private Vector<Object> mGroupData;
     private static final String OCSPHELPINDEX =
       "configuration-ocsp-general-help";
 

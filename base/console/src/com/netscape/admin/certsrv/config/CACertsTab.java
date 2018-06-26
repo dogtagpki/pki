@@ -359,7 +359,7 @@ public class CACertsTab extends CMSBaseUGTab {
             String snickname = "";
             CMSAdminUtil.quickSort(vals, 0, response.size()-1);
             for (i=0; i<vals.length; i++) {
-                Vector v = new Vector();
+                Vector<Object> v = new Vector<>();
                 String entry = vals[i];
                 String value = response.get(entry);
 

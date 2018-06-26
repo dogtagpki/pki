@@ -375,7 +375,7 @@ IKeyCertPage {
         String cList = resource.getString("CertRequestInfoPane", "country");
         StringTokenizer countryTokens =
                 new StringTokenizer(cList, ",", false);
-        Vector countries = new Vector();
+        Vector<String> countries = new Vector<>();
         while (countryTokens.hasMoreTokens()) {
             countries.addElement(countryTokens.nextToken());
         }

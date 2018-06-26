@@ -104,9 +104,9 @@ IKeyCertPage {
                 return true;
             }
 
-            Vector cipherList = taskInfo.getResponse().getFamilyList();
+            Vector<CipherEntry> cipherList = taskInfo.getResponse().getFamilyList();
             for (int i = 0; i < cipherList.size(); i++) {
-                CipherEntry cipher = (CipherEntry)(cipherList.elementAt(i));
+                CipherEntry cipher = (cipherList.elementAt(i));
                 JComboBox<String> tokenNames = cipher.getTokenComboBox();
                 for (int j = 0; j < cipher.getTokenCount(); j++) {
                     tokenSelection.addItem(tokenNames.getItemAt(j));
@@ -186,7 +186,7 @@ IKeyCertPage {
       *
       */
     private void addNumberedComponent(JPanel p, int count, Component c,
-            Vector components) {
+            Vector<Component> components) {
         //JPanel entry = new JPanel();
         //entry.setLayout(new GridBagLayout());
         GridBagUtil.constrain(p,
@@ -206,7 +206,7 @@ IKeyCertPage {
 
         for (int i = 0; i < components.size(); i++) {
             GridBagUtil.constrain(p,
-                    (Component)(components.elementAt(i)), 2,
+                    (components.elementAt(i)), 2,
                     count + i, 1, 1, 1.0, 0.0,
                     GridBagConstraints.WEST, GridBagConstraints.NONE,
                     0, 0, 0, 0);
@@ -273,7 +273,7 @@ IKeyCertPage {
 
         JLabel _pickToken =
                 new JLabel(resource.getString("SelectToken", "pickToken"));
-        Vector components = new Vector();
+        Vector<Component> components = new Vector<>();
         components.addElement(tokenSelection);
         addNumberedComponent(tokenSelectPane, ++y, _pickToken, components);
         GridBagUtil.constrain(this, tokenSelectPane, 0, y, 1, 1, 0.0,
@@ -286,7 +286,7 @@ IKeyCertPage {
         //certInstPane.setLayout(new BoxLayout(certInstPane, BoxLayout.Y_AXIS));
         certInstPane.setLayout(new GridBagLayout());
 
-        components = new Vector();
+        components = new Vector<>();
         components.addElement(_no);
         components.addElement(_yes);
         //need a radio button that can wrap the string.

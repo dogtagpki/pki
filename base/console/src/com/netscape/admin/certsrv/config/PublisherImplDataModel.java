@@ -17,10 +17,15 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config;
 
-import java.util.*;
-import javax.swing.*;
-import com.netscape.admin.certsrv.*;
-import com.netscape.certsrv.common.*;
+import java.util.Vector;
+
+import javax.swing.JLabel;
+
+import com.netscape.admin.certsrv.CMSAdminResources;
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.CMSContentTableModel;
+import com.netscape.admin.certsrv.IDataProcessor;
+import com.netscape.certsrv.common.NameValuePairs;
 
 /**
  * Policy Implementation Data model - represents the implementation
@@ -55,7 +60,7 @@ public class PublisherImplDataModel extends CMSContentTableModel
 	 * public methods
      *==========================================================*/
     public void processData(Object data) {
-        Vector v = new Vector();
+        Vector<Object> v = new Vector<>();
         NameValuePairs obj = (NameValuePairs) data;
         v.addElement(new JLabel(obj.get(IMPL_NAME),
             CMSAdminUtil.getImage(CMSAdminResources.IMAGE_RULE_PLUGIN),

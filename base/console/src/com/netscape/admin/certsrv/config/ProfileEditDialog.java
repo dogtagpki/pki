@@ -261,13 +261,13 @@ public class ProfileEditDialog extends CMSBaseConfigDialog
 
         /* Tab */
         mTabbedPane = new JTabbedPane();
-        Vector policyColNames = new Vector();
+        Vector<String> policyColNames = new Vector<>();
         policyColNames.addElement("Set Id");
         policyColNames.addElement("Id");
         policyColNames.addElement("Defaults");
         policyColNames.addElement("Constraints");
-        Vector policyData = new Vector();
-        Vector policyRow = new Vector();
+        Vector<Vector<Object>> policyData = new Vector<>();
+        Vector<Object> policyRow = new Vector<>();
         policyRow.addElement("p1");
         policyRow.addElement("p1");
         policyRow.addElement("NoDefault");
@@ -284,11 +284,11 @@ public class ProfileEditDialog extends CMSBaseConfigDialog
         JPanel lpanel = createListPanel(mPolicyTable, buttonPanel,
           policyColNames, policyData);
 
-        Vector inputColNames = new Vector();
+        Vector<String> inputColNames = new Vector<>();
         inputColNames.addElement("Id");
         inputColNames.addElement("Inputs");
-        Vector inputData = new Vector();
-        Vector inputRow = new Vector();
+        Vector<Vector<Object>> inputData = new Vector<>();
+        Vector<Object> inputRow = new Vector<>();
         inputRow.addElement("i1");
         inputRow.addElement("NoInput");
         inputData.addElement(inputRow);
@@ -303,11 +303,11 @@ public class ProfileEditDialog extends CMSBaseConfigDialog
         JPanel lpanel1 = createListPanel(mInputTable, buttonPanel1,
           inputColNames, inputData);
 
-        Vector outputColNames = new Vector();
+        Vector<String> outputColNames = new Vector<>();
         outputColNames.addElement("Id");
         outputColNames.addElement("Outputs");
-        Vector outputData = new Vector();
-        Vector outputRow = new Vector();
+        Vector<Vector<Object>> outputData = new Vector<>();
+        Vector<Object> outputRow = new Vector<>();
         outputRow.addElement("i1");
         outputRow.addElement("NoOutput");
         outputData.addElement(outputRow);
@@ -402,10 +402,10 @@ public class ProfileEditDialog extends CMSBaseConfigDialog
     }
 
     public JPanel createListPanel(JTable table, JPanel buttonPanel,
-      Vector column, Vector datav)
+      Vector<String> column, Vector<Vector<Object>> datav)
     {
-        Vector colNames = column;
-        Vector data = datav;
+        Vector<String> colNames = column;
+        Vector<Vector<Object>> data = datav;
 
         JPanel listPanel = new JPanel();
         GridBagLayout gb = new GridBagLayout();
@@ -897,7 +897,7 @@ public class ProfileEditDialog extends CMSBaseConfigDialog
         colNames.addElement("Id");
         colNames.addElement("Defaults");
         colNames.addElement("Constraints");
-        Vector<Vector<String>> d = new Vector<Vector<String>>();
+        Vector<Vector<Object>> d = new Vector<>();
 
         for (String entry : response.keySet()) {
             entry = entry.trim();
@@ -908,7 +908,7 @@ public class ProfileEditDialog extends CMSBaseConfigDialog
             StringTokenizer st = new StringTokenizer(value, ";");
             String def = st.nextToken();
             String con = st.nextToken();
-            Vector<String> row = new Vector<String>();
+            Vector<Object> row = new Vector<>();
 
             StringTokenizer st1 = new StringTokenizer(entry, ":");
             String setId = st1.nextToken();
@@ -935,7 +935,7 @@ public class ProfileEditDialog extends CMSBaseConfigDialog
             colNames.addElement("Inputs");
         else if (table == mOutputTable)
             colNames.addElement("Outputs");
-        Vector<Vector<String>> d = new Vector<Vector<String>>();
+        Vector<Vector<Object>> d = new Vector<>();
 
         for (String entry : response.keySet()) {
             entry = entry.trim();
@@ -943,7 +943,7 @@ public class ProfileEditDialog extends CMSBaseConfigDialog
             Debug.println("populateNonPolicy entry= " + entry);
             Debug.println("populateNonPolicy value= " + value);
 
-            Vector<String> row = new Vector<String>();
+            Vector<Object> row = new Vector<>();
             row.addElement(entry);
             row.addElement(value);
             d.addElement(row);

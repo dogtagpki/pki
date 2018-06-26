@@ -62,7 +62,7 @@ public class CMSCAGeneralPanel extends CMSBaseTab implements ItemListener {
     private JCheckBox mValidity;
     private JCheckBox mEnableSerialNumberManagement;
     private JCheckBox mEnableRandomSerialNumbers;
-    private Vector mGroupData;
+    private Vector<Object> mGroupData;
     private static final String HELPINDEX =
       "configuration-ca-general-help";
 

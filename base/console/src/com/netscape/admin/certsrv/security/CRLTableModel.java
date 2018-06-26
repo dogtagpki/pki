@@ -17,28 +17,29 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.security;
 
-import java.util.*;
-import javax.swing.table.*;
-import javax.swing.event.*;
+import java.util.Vector;
+
+import javax.swing.event.TableModelListener;
+import javax.swing.table.AbstractTableModel;
 
 
 class CRLTableModel extends AbstractTableModel {
 
-    Vector _header;
-    Vector _rowData = new Vector();
-    Vector _tableModelListener = new Vector();
+    Vector<String> _header;
+    Vector<Vector<String>> _rowData = new Vector<>();
+    Vector<TableModelListener> _tableModelListener = new Vector<>();
 
-    public CRLTableModel(Vector CRL, Vector columnIdentifier) {
+    public CRLTableModel(Vector<Vector<String>> CRL, Vector<String> columnIdentifier) {
         update(CRL, columnIdentifier);
     }
 
-    public void update(Vector CRL, Vector columnIdentifier) {
+    public void update(Vector<Vector<String>> CRL, Vector<String> columnIdentifier) {
         _header = columnIdentifier;
         _rowData = CRL;
     }
 
     public void addRow(String issuer, String expires, String type) {
-        Vector row = new Vector();
+        Vector<String> row = new Vector<>();
         row.addElement(issuer);
         row.addElement(expires);
         row.addElement(type);
@@ -62,7 +63,7 @@ class CRLTableModel extends AbstractTableModel {
         Object o = null;
 
         try {
-            o = ((Vector)(_rowData.elementAt(rowIndex))).elementAt(
+            o = (_rowData.elementAt(rowIndex)).elementAt(
                     columnIndex);
         } catch (Exception e) {}
 

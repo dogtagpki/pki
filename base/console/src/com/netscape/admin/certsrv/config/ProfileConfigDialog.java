@@ -310,11 +310,11 @@ public class ProfileConfigDialog extends CMSBaseConfigDialog
     //    GridBagLayout gb = new GridBagLayout();
      //   GridBagConstraints gbc = new GridBagConstraints();
 
-       Vector colNames = new Vector();
+       Vector<String> colNames = new Vector<>();
        colNames.addElement("Defaults");
        colNames.addElement("Constraints");
-       Vector data = new Vector();
-       Vector row = new Vector();
+       Vector<Vector<Object>> data = new Vector<>();
+       Vector<Object> row = new Vector<>();
        row.addElement("NoDefault");
        row.addElement("NoConstraint");
        data.addElement(row);

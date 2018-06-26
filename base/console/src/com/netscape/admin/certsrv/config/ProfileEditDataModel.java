@@ -17,8 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config;
 
-import javax.swing.table.*;
-import java.util.*;
+import java.util.Vector;
+
+import javax.swing.table.AbstractTableModel;
 
 /**
  * Policy Parameter Configuration Dialog
@@ -29,14 +30,14 @@ import java.util.*;
  */
 public class ProfileEditDataModel extends AbstractTableModel
 {
-  Vector rowData;
-  Vector columnNames;
+  Vector<Vector<Object>> rowData;
+  Vector<String> columnNames;
 
   public ProfileEditDataModel()
   {
   }
 
-  public void setInfo(Vector _rowData, Vector _columnNames)
+  public void setInfo(Vector<Vector<Object>> _rowData, Vector<String> _columnNames)
   {
     rowData = _rowData;
     columnNames = _columnNames;
@@ -57,7 +58,7 @@ public class ProfileEditDataModel extends AbstractTableModel
 
   public Object getValueAt(int row, int column)
   {
-    return ((Vector)rowData.elementAt(row)).elementAt(column);
+    return rowData.elementAt(row).elementAt(column);
   }
 
   public boolean isCellEditable(int row, int column)
@@ -67,7 +68,7 @@ public class ProfileEditDataModel extends AbstractTableModel
 
   public void setValueAt(Object value, int row, int column)
   {
-    ((Vector)rowData.elementAt(row)).setElementAt(value, column);
+    rowData.elementAt(row).setElementAt(value, column);
     fireTableCellUpdated(row, column);
   }
 

@@ -17,11 +17,16 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.ug;
 
-import com.netscape.admin.certsrv.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.management.client.util.*;
-import java.util.*;
-import javax.swing.*;
+import java.util.Vector;
+
+import javax.swing.JLabel;
+
+import com.netscape.admin.certsrv.CMSAdminResources;
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.CMSContentTableModel;
+import com.netscape.admin.certsrv.IDataProcessor;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.management.client.util.Debug;
 
 /**
  * Certificate Data Model
@@ -54,7 +59,7 @@ public class CertDataModel extends CMSContentTableModel
 	 * public methods
      *==========================================================*/
     public void processData(Object data) {
-        Vector v = new Vector();
+        Vector<Object> v = new Vector<>();
 
         NameValuePairs obj = (NameValuePairs) data;
 

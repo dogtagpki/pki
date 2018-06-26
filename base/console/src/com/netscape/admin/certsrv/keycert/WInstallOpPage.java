@@ -54,7 +54,7 @@ class WInstallOpPage extends WizardBasePanel implements IWizardPanel {
     private String mKRATransportCert;
     private String mServerCert, mServerCertRadm;
     private String mOtherCert, mCrossCert;
-    private Vector mCerts;
+    private Vector<String> mCerts;
     private static final String PANELNAME = "INSTALLOPWIZARD";
     private static final String HELPINDEX =
       "configuration-keycert-wizard-installcerttype-help";
@@ -62,14 +62,14 @@ class WInstallOpPage extends WizardBasePanel implements IWizardPanel {
     WInstallOpPage(JDialog parent) {
         super(PANELNAME);
         mParent = parent;
-        mCerts = new Vector();
+        mCerts = new Vector<>();
         init();
     }
 
     WInstallOpPage(JDialog parent, JFrame frame) {
         super(PANELNAME);
         mParent = parent;
-        mCerts = new Vector();
+        mCerts = new Vector<>();
         mAdminFrame = frame;
         init();
     }

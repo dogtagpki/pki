@@ -17,8 +17,16 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv;
 
-import com.netscape.management.client.*;
-import java.util.*;
+import java.util.ResourceBundle;
+import java.util.Vector;
+
+import com.netscape.management.client.Framework;
+import com.netscape.management.client.IMenuInfo;
+import com.netscape.management.client.IMenuItem;
+import com.netscape.management.client.IPage;
+import com.netscape.management.client.MenuItemSeparator;
+import com.netscape.management.client.MenuItemText;
+import com.netscape.management.client.ResourcePage;
 
 /**
  * This class represents the menu item selection and associated
@@ -48,11 +56,11 @@ public class CMSBaseMenuInfo implements IMenuInfo {
     //context menu items
 
 
-    protected Vector mMenuCategoryIDs;      //stores the ids
-    protected Vector mCategoryIDMenuItems;  //stores the menu items associated
+    protected Vector<String> mMenuCategoryIDs;      //stores the ids
+    protected Vector<Vector<IMenuItem>> mCategoryIDMenuItems;  //stores the menu items associated
                                             //with the specified id
-    protected Vector mMenuItemsIDs;         //stores the item ids
-    protected Vector mActionListeners;      //stores the action listeners
+    protected Vector<String> mMenuItemsIDs;         //stores the item ids
+    protected Vector<IMenuAction> mActionListeners;      //stores the action listeners
 
     protected ResourceBundle mResource;
 
@@ -61,10 +69,10 @@ public class CMSBaseMenuInfo implements IMenuInfo {
      *==========================================================*/
     public CMSBaseMenuInfo() {
         mResource = ResourceBundle.getBundle(CMSAdminResources.class.getName());
-        mMenuCategoryIDs = new Vector();
-        mCategoryIDMenuItems = new Vector();
-        mMenuItemsIDs = new Vector();
-        mActionListeners = new Vector();
+        mMenuCategoryIDs = new Vector<>();
+        mCategoryIDMenuItems = new Vector<>();
+        mMenuItemsIDs = new Vector<>();
+        mActionListeners = new Vector<>();
     }
 
     /*==========================================================
@@ -93,10 +101,10 @@ public class CMSBaseMenuInfo implements IMenuInfo {
         i = mMenuCategoryIDs.indexOf(id);
         if (i == -1) {
             mMenuCategoryIDs.addElement(id);
-            mCategoryIDMenuItems.addElement(new Vector());
+            mCategoryIDMenuItems.addElement(new Vector<IMenuItem>());
         }
         i = mMenuCategoryIDs.indexOf(id);
-        Vector items = (Vector) mCategoryIDMenuItems.elementAt(i);
+        Vector<IMenuItem> items = mCategoryIDMenuItems.elementAt(i);
         items.addElement(item);     //XXX check exist already ??
     }
 
@@ -107,11 +115,11 @@ public class CMSBaseMenuInfo implements IMenuInfo {
         int i = mMenuCategoryIDs.indexOf(id);
         if (i < 0 ) {
             mMenuCategoryIDs.addElement(id);
-            Vector items = new Vector();
+            Vector<IMenuItem> items = new Vector<>();
             items.addElement(new MenuItemSeparator());
             mCategoryIDMenuItems.addElement(items);
         } else {
-            Vector items = (Vector) mCategoryIDMenuItems.elementAt(i);
+            Vector<IMenuItem> items = mCategoryIDMenuItems.elementAt(i);
             items.addElement(new MenuItemSeparator());
         }
     }
@@ -136,7 +144,7 @@ public class CMSBaseMenuInfo implements IMenuInfo {
 	public IMenuItem[] getMenuItems(String category) {
         int i = mMenuCategoryIDs.indexOf(category);
         if (i != -1) {
-            Vector v = (Vector) mCategoryIDMenuItems.elementAt(i);
+            Vector<IMenuItem> v = mCategoryIDMenuItems.elementAt(i);
             IMenuItem[] items = new IMenuItem[v.size()];
             v.copyInto(items);
             //for(int j=0; j< items.length; j++)
@@ -153,7 +161,7 @@ public class CMSBaseMenuInfo implements IMenuInfo {
         int i = mMenuItemsIDs.indexOf(item.getID());
         if (i == -1)
             return;
-        IMenuAction act = (IMenuAction) mActionListeners.elementAt(i);
+        IMenuAction act = mActionListeners.elementAt(i);
         act.perform(viewInstance);
 	}
 

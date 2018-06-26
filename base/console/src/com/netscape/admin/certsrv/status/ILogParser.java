@@ -17,8 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.status;
 
-import java.text.*;
-import java.util.*;
+import java.text.ParseException;
+import java.util.Vector;
 
 /**
  * Interface for the log parser
@@ -34,5 +34,5 @@ public interface ILogParser {
      * in the table.
      * Currently, only String object is supported by the log viewer.
      */
-    public Vector parse(Object logEntry) throws ParseException;
+    public Vector<Object> parse(Object logEntry) throws ParseException;
 }

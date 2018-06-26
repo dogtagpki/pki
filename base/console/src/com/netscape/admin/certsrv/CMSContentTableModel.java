@@ -17,8 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv;
 
-import java.util.*;
-import com.netscape.management.client.util.*;
+import java.util.Vector;
+
+import com.netscape.management.client.util.Debug;
 
 /**
  * Generic base class for the JTable data container that will
@@ -34,7 +35,7 @@ public class  CMSContentTableModel extends CMSTableModel {
     /*==========================================================
      * variables
      *==========================================================*/
-    protected Vector mObjectContainer = new Vector();     // object container
+    protected Vector<Object> mObjectContainer = new Vector<>();     // object container
 
 	/*==========================================================
      * constructors
@@ -60,7 +61,7 @@ public class  CMSContentTableModel extends CMSTableModel {
      * @param values row values for the table
      * @param obj data object
      */
-    public void addRow(Vector values, Object obj) {
+    public void addRow(Vector<Object> values, Object obj) {
         super.addRow(values);
         mObjectContainer.addElement(obj);
     }

@@ -97,9 +97,9 @@ class WIKRAScheme2Page extends WizardBasePanel implements IWizardPanel {
         int M = Integer.parseInt(val);
         mDataModel.removeAllRows();
 
-        Vector[] data = new Vector[M];
+        Vector<Object>[] data = new Vector[M];
         for (int i=0; i<data.length; i++) {
-            data[i] = new Vector();
+            data[i] = new Vector<>();
             data[i].addElement(Integer.toString(i+1));
 		// initialize userid
             data[i].addElement("agent"+(i+1));

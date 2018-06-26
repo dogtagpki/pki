@@ -17,14 +17,19 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.security;
 
-import java.awt.*;
-import java.util.*;
-import javax.swing.*;
+import java.awt.Cursor;
+import java.util.Vector;
 
-import com.netscape.management.client.util.Help;
-import com.netscape.management.client.util.Debug;
+import javax.swing.JPanel;
+
 import com.netscape.management.client.console.ConsoleInfo;
-import com.netscape.management.client.util.*;
+import com.netscape.management.client.util.Debug;
+import com.netscape.management.client.util.Help;
+import com.netscape.management.client.util.IWizardControl;
+import com.netscape.management.client.util.IWizardPageControl;
+import com.netscape.management.client.util.ResourceSet;
+import com.netscape.management.client.util.UtilConsoleGlobals;
+import com.netscape.management.client.util.Wizard;
 
 /**
  *
@@ -42,7 +47,7 @@ public class KeyCertWizard {
     IWizardControl owner;
     Wizard wizard;
 
-    Vector pages;
+    Vector<JPanel> pages;
     int thisPage = 0;
 
     ConsoleInfo _consoleInfo;
@@ -60,7 +65,7 @@ public class KeyCertWizard {
         wizardObservable = new WizardObservable(consoleInfo);
         _consoleInfo = consoleInfo;
 
-        pages = new Vector();
+        pages = new Vector<>();
         pages.addElement(new GuideIntroPane());
         //((IKeyCertPage)(pages.elementAt(thisPage))).pageShow(wizardObservable);
         pages.addElement(new CertRequestSelectTokenPane());

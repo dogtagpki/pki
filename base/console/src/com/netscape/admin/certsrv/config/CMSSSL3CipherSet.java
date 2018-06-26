@@ -17,9 +17,13 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config;
 
-import com.netscape.admin.certsrv.security.*;
-import java.util.*;
-import com.netscape.admin.certsrv.*;
+import java.util.ResourceBundle;
+import java.util.Vector;
+
+import com.netscape.admin.certsrv.CMSAdminResources;
+import com.netscape.admin.certsrv.security.AbstractCipher;
+import com.netscape.admin.certsrv.security.IAbstractCipherSet;
+import com.netscape.admin.certsrv.security.ICipherConstants;
 
 /**
  * Constructs a SSL3 cipher suites.
@@ -29,7 +33,7 @@ import com.netscape.admin.certsrv.*;
  * @see com.netscape.admin.certsrv.config
  */
 public class CMSSSL3CipherSet implements ICipherConstants, IAbstractCipherSet {
-    Vector cipherList = new Vector();
+    Vector<AbstractCipher> cipherList = new Vector<>();
     String title;
 
     boolean defaultOn = true;
@@ -84,7 +88,7 @@ public class CMSSSL3CipherSet implements ICipherConstants, IAbstractCipherSet {
         return title;
     }
 
-    public Vector getCipherList() {
+    public Vector<AbstractCipher> getCipherList() {
         return cipherList;
     }
 }

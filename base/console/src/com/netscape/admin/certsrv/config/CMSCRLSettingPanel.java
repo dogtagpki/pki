@@ -17,15 +17,28 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config;
 
-import com.netscape.management.client.util.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
 import java.util.StringTokenizer;
 import java.util.Vector;
+
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.CMSBaseResourceModel;
+import com.netscape.admin.certsrv.EAdminException;
+import com.netscape.admin.certsrv.connection.AdminConnection;
+import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.common.DestDef;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.common.ScopeDef;
+import com.netscape.management.client.util.Debug;
 
 /**
  * CRL Publishing Setting Panel
@@ -442,11 +455,11 @@ public class CMSCRLSettingPanel extends CMSBaseTab {
         return trimmed;
     }
 
-    private Vector checkTimeList(String list) {
+    private Vector<Integer> checkTimeList(String list) {
         if (list == null || list.length() == 0) return null;
         if (list.charAt(0) == ',' || list.charAt(list.length()-1) == ',') return null;
 
-        Vector listedTimes = new Vector();
+        Vector<Integer> listedTimes = new Vector<>();
 
         StringTokenizer days = new StringTokenizer(list, ";");
         while (days.hasMoreTokens()) {
@@ -503,7 +516,7 @@ public class CMSCRLSettingPanel extends CMSBaseTab {
                 return false;
             }
 
-            Vector daily = null;
+            Vector<Integer> daily = null;
             if (mDaily.isSelected()) {
                 if (mDailyAt.getText().trim().equals("")) {
                     showMessageDialog("BLANKDAILY");
@@ -538,7 +551,7 @@ public class CMSCRLSettingPanel extends CMSBaseTab {
                 }
                 if (mDaily.isSelected() && daily != null && daily.size() == 1 &&
                     (freq >= 1440 ||
-                     freq + ((Integer)(daily.elementAt(0))).intValue() >= 1440)) {
+                     freq + (daily.elementAt(0)).intValue() >= 1440)) {
                     showMessageDialog("INTERVALTOBIG");
                     return false;
                 }

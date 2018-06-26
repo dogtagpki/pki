@@ -17,8 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config;
 
-import java.util.*;
-import com.netscape.admin.certsrv.*;
+import java.util.Vector;
+
+import com.netscape.admin.certsrv.CMSContentTableModel;
+import com.netscape.admin.certsrv.IDataProcessor;
 
 
 /**
@@ -41,7 +43,7 @@ public abstract class CMSRuleDataModel extends CMSContentTableModel
 	public static final String RULE_TYPE = "TYPE";
 
     protected static String[] mColumns = null;
-    protected Vector mRules;
+    protected Vector<String> mRules;
 
     /*==========================================================
      * constructors
@@ -50,7 +52,7 @@ public abstract class CMSRuleDataModel extends CMSContentTableModel
         super();
 		mColumns = getColumns();
         init(mColumns);
-        mRules = new Vector();
+        mRules = new Vector<>();
     }
 
     /*==========================================================
@@ -68,8 +70,8 @@ public abstract class CMSRuleDataModel extends CMSContentTableModel
     }
 
 
-    public Vector getRules() {
-        return (Vector) mRules.clone();
+    public Vector<String> getRules() {
+        return (Vector<String>) mRules.clone();
     }
 
     public boolean isCellEditable(int row, int col) {

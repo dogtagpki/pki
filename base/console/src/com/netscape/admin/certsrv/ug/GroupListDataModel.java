@@ -17,10 +17,15 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.ug;
 
-import java.util.*;
-import javax.swing.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.admin.certsrv.*;
+import java.util.Vector;
+
+import javax.swing.JLabel;
+
+import com.netscape.admin.certsrv.CMSAdminResources;
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.CMSContentTableModel;
+import com.netscape.admin.certsrv.IDataProcessor;
+import com.netscape.certsrv.common.PrefixDef;
 
 /**
  * Group List Data model - represents the group selection information
@@ -49,7 +54,7 @@ public class GroupListDataModel extends CMSContentTableModel
 	 * public methods
      *==========================================================*/
     public void processData(Object data) {
-        Vector v = new Vector();
+        Vector<Object> v = new Vector<>();
 
         String entry = (String)data;
         String name;

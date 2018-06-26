@@ -17,15 +17,36 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.managecert;
 
-import java.util.*;
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.table.*;
-import javax.swing.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.util.ResourceBundle;
+import java.util.StringTokenizer;
+import java.util.Vector;
 
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
-import com.netscape.certsrv.common.*;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableCellRenderer;
+
+import com.netscape.admin.certsrv.CMSAdminResources;
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.EAdminException;
+import com.netscape.admin.certsrv.connection.AdminConnection;
+import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.common.DestDef;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.common.ScopeDef;
 
 /**
  * This class lists out all the CA certificates from the internal token.
@@ -103,10 +124,10 @@ public class ManageCertDialog extends JDialog implements ActionListener,
         StringTokenizer tokenizer = new StringTokenizer(value, ";");
         int numTokens = tokenizer.countTokens();
         while (tokenizer.hasMoreTokens()) {
-            String token = (String)tokenizer.nextToken();
+            String token = tokenizer.nextToken();
             String expiredDate = token.substring(0, token.length()-2);
             String trust = token.substring(token.length()-1);
-            Vector v = new Vector();
+            Vector<Object> v = new Vector<>();
             v.addElement(entry);
             v.addElement(expiredDate);
             if (trust.equals("T"))

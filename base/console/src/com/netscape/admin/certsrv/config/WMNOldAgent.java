@@ -17,15 +17,30 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config;
 
-import java.awt.*;
-import java.util.*;
-import javax.swing.*;
-import javax.swing.table.*;
-import javax.swing.text.*;
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.wizard.*;
-import com.netscape.management.client.util.*;
-import com.netscape.certsrv.common.*;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.util.Vector;
+
+import javax.swing.DefaultCellEditor;
+import javax.swing.JLabel;
+import javax.swing.JPasswordField;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.text.JTextComponent;
+
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.PasswordCellRenderer;
+import com.netscape.admin.certsrv.wizard.IWizardPanel;
+import com.netscape.admin.certsrv.wizard.WizardBasePanel;
+import com.netscape.admin.certsrv.wizard.WizardInfo;
+import com.netscape.certsrv.common.Constants;
+import com.netscape.management.client.util.Debug;
 
 /**
  * Old Agent name/password for reconfiguring the Recovery MN Scheme
@@ -81,9 +96,9 @@ class WMNOldAgent extends WizardBasePanel
         //zap passwords
         mDataModel.removeAllRows();
 
-        Vector[] data = new Vector[mNoAgent];
+        Vector<Object>[] data = new Vector[mNoAgent];
         for (int i=0; i<data.length; i++) {
-            data[i] = new Vector();
+            data[i] = new Vector<>();
             data[i].addElement(Integer.toString(i+1));
             data[i].addElement("");
             data[i].addElement("");

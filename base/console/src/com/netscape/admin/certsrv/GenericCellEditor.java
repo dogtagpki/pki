@@ -17,14 +17,27 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
-import javax.swing.table.*;
-import javax.swing.*;
-import javax.swing.event.*;
+import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.awt.event.MouseEvent;
 import java.io.Serializable;
-import com.netscape.certsrv.common.*;
+import java.util.EventObject;
+import java.util.Vector;
+
+import javax.swing.JComponent;
+import javax.swing.JPasswordField;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.event.CellEditorListener;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.EventListenerList;
+import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableModel;
+
+import com.netscape.certsrv.common.Constants;
 
 /**
  * Class that will edit components correctly in table
@@ -54,7 +67,7 @@ public class GenericCellEditor implements TableCellEditor, Serializable {
 
         TableModel model = table.getModel();
 
-        Vector v = (Vector)(((CMSContentTableModel)model).getObjectValueAt(row));
+        Vector<Object> v = (Vector<Object>)(((CMSContentTableModel)model).getObjectValueAt(row));
         delegate.setValue(value, v);
 
         return editorComponent;
@@ -169,7 +182,7 @@ public class GenericCellEditor implements TableCellEditor, Serializable {
             return null;
         }
 
-        public void setValue(Object x, Vector v) {
+        public void setValue(Object x, Vector<Object> v) {
             String type = (String)v.elementAt(0);
             this.value = x;
 

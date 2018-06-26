@@ -179,7 +179,7 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
         }
 
         @Override
-        public String select(Vector certs) {
+        public String select(Vector<String> certs) {
 
             CMS.debug("SSLClientCertificatSelectionCB: Entering!");
 

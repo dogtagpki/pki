@@ -31,7 +31,7 @@ import java.util.Vector;
 public final class SSL3CipherSet implements ICipherConstants,
 IAbstractCipherSet {
 
-    Vector abstractCipherList = new Vector();
+    Vector<AbstractCipher> abstractCipherList = new Vector<>();
     String title;
 
     final boolean defaultOn = true;
@@ -113,7 +113,7 @@ IAbstractCipherSet {
       * Return cipher list
       *
       */
-    public Vector getCipherList() {
+    public Vector<AbstractCipher> getCipherList() {
         return abstractCipherList;
     }
 }

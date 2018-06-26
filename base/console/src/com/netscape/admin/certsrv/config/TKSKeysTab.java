@@ -261,7 +261,7 @@ public class TKSKeysTab extends CMSBaseUGTab {
 			int sindex = 0;
 			CMSAdminUtil.quickSort(vals, 0, response.size()-1);
 			for (i=0; i<vals.length; i++) {
-				Vector v = new Vector();
+				Vector<Object> v = new Vector<>();
 				String entry = vals[i];
 				String value = response.get(entry);
 				// look for the comma separator
@@ -339,7 +339,7 @@ public class TKSKeysTab extends CMSBaseUGTab {
                     StringTokenizer st = new StringTokenizer(value, ",");
                     int numberOfKeys = 0;
                     while (st.hasMoreTokens()) {
-                        Vector v = new Vector();
+                        Vector<Object> v = new Vector<>();
                         String currentKey = st.nextToken();
                         v.addElement(currentKey);
                         numberOfKeys++;
@@ -347,7 +347,7 @@ public class TKSKeysTab extends CMSBaseUGTab {
                     }
                     if(numberOfKeys==0)
                     {
-                        Vector v = new Vector();
+                        Vector<Object> v = new Vector<>();
                         String currentKey = new String("empty list");
                         v.addElement(currentKey);
                         mDataModel.addRow(v);

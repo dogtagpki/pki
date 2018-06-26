@@ -32,7 +32,7 @@ public final class SSL2CipherSet implements ICipherConstants,
 IAbstractCipherSet {
 
 
-    Vector abstractCipherList = new Vector();
+    Vector<AbstractCipher> abstractCipherList = new Vector<>();
     String title;
 
     final boolean defaultOn = true;
@@ -79,7 +79,7 @@ IAbstractCipherSet {
       * Return cipher list
       *
       */
-    public Vector getCipherList() {
+    public Vector<AbstractCipher> getCipherList() {
         return abstractCipherList;
     }
 }

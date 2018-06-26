@@ -17,14 +17,37 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config.install;
 
-import java.awt.*;
-import java.util.*;
-import javax.swing.*;
-import javax.swing.table.*;
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.config.*;
-import com.netscape.admin.certsrv.wizard.*;
-import com.netscape.certsrv.common.*;
+import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.util.StringTokenizer;
+import java.util.Vector;
+
+import javax.swing.DefaultCellEditor;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPasswordField;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextArea;
+import javax.swing.ListSelectionModel;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.table.DefaultTableCellRenderer;
+
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.PasswordCellRenderer;
+import com.netscape.admin.certsrv.config.ProfileComponentCellEditor;
+import com.netscape.admin.certsrv.config.ProfileDataTable;
+import com.netscape.admin.certsrv.config.ProfilePolicyEditDataModel;
+import com.netscape.admin.certsrv.wizard.IWizardPanel;
+import com.netscape.admin.certsrv.wizard.WizardBasePanel;
+import com.netscape.admin.certsrv.wizard.WizardInfo;
+import com.netscape.certsrv.common.ConfigConstants;
+import com.netscape.certsrv.common.OpDef;
+import com.netscape.certsrv.common.TaskId;
 
 /**
  * This panel asks for the information of the current internal database.
@@ -70,10 +93,10 @@ class WILogonAllTokensPage extends WizardBasePanel implements IWizardPanel {
         String inits = "";
 
         boolean logon = false;
-        Vector defcolNames = new Vector();
+        Vector<String> defcolNames = new Vector<>();
         defcolNames.addElement("Token Name");
         defcolNames.addElement("Password");
-        Vector defdata = new Vector();
+        Vector<Vector<Object>> defdata = new Vector<>();
 
         while (tokenizer.hasMoreElements()) {
             String token = (String)tokenizer.nextElement();
@@ -83,7 +106,7 @@ class WILogonAllTokensPage extends WizardBasePanel implements IWizardPanel {
            // if (loggedIn.equals("false")) {
                 // always logon to the token.
                 if (inits.equals("true")) {
-                    Vector v = new Vector();
+                    Vector<Object> v = new Vector<>();
                     v.addElement(new JLabel(token));
                     v.addElement(new JPasswordField());
                     defdata.addElement(v);
@@ -197,11 +220,11 @@ class WILogonAllTokensPage extends WizardBasePanel implements IWizardPanel {
         gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(desc, gbc);
 
-        Vector colNames = new Vector();
+        Vector<String> colNames = new Vector<>();
         colNames.addElement("Token Name");
         colNames.addElement("Password");
-        Vector data = new Vector();
-        Vector row = new Vector();
+        Vector<Vector<Object>> data = new Vector<>();
+        Vector<Object> row = new Vector<>();
         row.addElement("x");
         row.addElement("x");
         data.addElement(row);

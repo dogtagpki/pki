@@ -17,15 +17,38 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.security;
 
-import java.awt.*;
-import java.util.*;
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.border.*;
-import com.netscape.management.client.util.*;
-import com.netscape.management.nmclf.*;
-import com.netscape.management.client.console.*;
-import javax.swing.plaf.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Vector;
+
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.EtchedBorder;
+import javax.swing.plaf.BorderUIResource;
+
+import com.netscape.management.client.console.ConsoleInfo;
+import com.netscape.management.client.util.GridBagUtil;
+import com.netscape.management.client.util.JButtonFactory;
+import com.netscape.management.client.util.ResourceSet;
+import com.netscape.management.client.util.UtilConsoleGlobals;
+import com.netscape.management.nmclf.SuiConstants;
+import com.netscape.management.nmclf.SuiOptionPane;
 
 /**
  *
@@ -44,7 +67,7 @@ public class EncryptionPane extends JPanel implements ActionListener {
     JPanel top;
     JPanel cipherPane;
 
-    private Vector cipherList = new Vector();
+    private Vector<CipherEntry> cipherList = new Vector<>();
 
     boolean isFortezza = false;
     boolean isDomestic = false;
@@ -60,7 +83,7 @@ public class EncryptionPane extends JPanel implements ActionListener {
     JLabel certTitle;
 
 
-    Vector encryptionPaneListeners = new Vector();
+    Vector<IEncryptionPaneListener> encryptionPaneListeners = new Vector<>();
 
     EncryptionPaneActionListener actionListener =
             new EncryptionPaneActionListener();
@@ -81,21 +104,18 @@ public class EncryptionPane extends JPanel implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             if (e.getActionCommand().equals(".doCipherSetting")) {
                 for (int i = 0; i < encryptionPaneListeners.size(); i++) {
-                    ((IEncryptionPaneListener)
-                            (encryptionPaneListeners.elementAt(i))).
+                    (encryptionPaneListeners.elementAt(i)).
                             showCipherPreferenceDialog();
                 }
             } else if (e.getActionCommand().equals("ENABLED")) {
                 for (int i = 0; i < encryptionPaneListeners.size(); i++) {
-                    ((IEncryptionPaneListener)
-                            (encryptionPaneListeners.elementAt(i))).
+                    (encryptionPaneListeners.elementAt(i)).
                             sslStateChanged(on.isSelected());
                 }
             } else {
                 for (int i = 0; i < encryptionPaneListeners.size(); i++) {
                     Object cipher = getCipher(e.getActionCommand());
-                    ((IEncryptionPaneListener)
-                            (encryptionPaneListeners.elementAt(i))).
+                    (encryptionPaneListeners.elementAt(i)).
                             cipherStateChanged(isEnabled(cipher),
                             getCipherName(cipher), getToken(cipher),
                             getCertificateName(cipher));
@@ -238,7 +258,7 @@ public class EncryptionPane extends JPanel implements ActionListener {
       *
       * @return a vector contains cipher object as element
       */
-    public Vector getCipherList() {
+    public Vector<CipherEntry> getCipherList() {
         return cipherList;
     }
 
@@ -510,7 +530,7 @@ public class EncryptionPane extends JPanel implements ActionListener {
 
 
         for (int index = cipherList.size() - 1; index >= 0; index--) {
-            CipherEntry cipher = (CipherEntry)(cipherList.elementAt(index));
+            CipherEntry cipher = (cipherList.elementAt(index));
             cipher.getCipherCheckBox().addActionListener(this);
             cipher.getTokenComboBox().addActionListener(this);
             cipher.getCertComboBox().addActionListener(this);
@@ -557,7 +577,7 @@ public class EncryptionPane extends JPanel implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             if (e.getActionCommand().equals("WIZARD")) {
                 //save the old setting
-                Vector oldEntry = getCipherList();
+                Vector<CipherEntry> oldEntry = getCipherList();
 
                 //lunch the wizard
                 KeyCertWizard wizard = new KeyCertWizard(_consoleInfo);
@@ -592,7 +612,7 @@ public class EncryptionPane extends JPanel implements ActionListener {
     private void setEnableAll(boolean enable) {
         int count = getCipherCount();
         for (int i = 0; i < count; i++) {
-            ((CipherEntry) cipherList.elementAt(i)).setEnabledAll(enable);
+            cipherList.elementAt(i).setEnabledAll(enable);
         }
         bCipherPref.setEnabled(enable);
         cipherTitle.setEnabled(enable);

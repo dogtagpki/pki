@@ -17,11 +17,18 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.ug;
 
-import java.util.*;
-import javax.swing.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.admin.certsrv.*;
-import com.netscape.management.client.util.*;
+import java.util.Vector;
+
+import javax.swing.Icon;
+import javax.swing.JLabel;
+
+import com.netscape.admin.certsrv.CMSAdminResources;
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.CMSContentTableModel;
+import com.netscape.admin.certsrv.IDataProcessor;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.common.PrefixDef;
+import com.netscape.management.client.util.Debug;
 
 /**
  * Group Membership model - represents the group table information
@@ -45,8 +52,8 @@ public class MemberDataModel extends CMSContentTableModel
 
     private static String[] mColumns = {MEMBER};
 
-    private Vector mUsers = new Vector();
-    private Vector mGroups = new Vector();
+    private Vector<String> mUsers = new Vector<>();
+    private Vector<String> mGroups = new Vector<>();
 
     /*==========================================================
      * constructors
@@ -60,7 +67,7 @@ public class MemberDataModel extends CMSContentTableModel
 	 * public methods
      *==========================================================*/
     public void processData(Object data) {
-        Vector v = new Vector();
+        Vector<Object> v = new Vector<>();
 
         NameValuePairs rec = (NameValuePairs)data;
 
@@ -113,7 +120,7 @@ public class MemberDataModel extends CMSContentTableModel
      * @param values row values for the table
      * @param obj data object
      */
-    public void addRow(Vector values, Object obj) {
+    public void addRow(Vector<Object> values, Object obj) {
         super.addRow(values);
         mObjectContainer.addElement(obj);
         NameValuePairs rec = (NameValuePairs)obj;
@@ -126,15 +133,15 @@ public class MemberDataModel extends CMSContentTableModel
     /**
      * get user vector for comparison
      */
-    public Vector getUsers() {
-        return (Vector)mUsers.clone();
+    public Vector<String> getUsers() {
+        return (Vector<String>)mUsers.clone();
     }
 
     /**
      * get group vector for comparison
      */
-    public Vector getGroups() {
-        return (Vector)mGroups.clone();
+    public Vector<String> getGroups() {
+        return (Vector<String>)mGroups.clone();
     }
 
 }

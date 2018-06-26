@@ -201,7 +201,7 @@ IKeyCertPage {
                     return;
                 }
 
-                Vector messages = taskInfo.getResponse().getMessages();
+                Vector<Message> messages = taskInfo.getResponse().getMessages();
                 //int nMessages = messages.size();
 
                 StatusPane statusPane = (StatusPane)(obs.get("statusPane"));

@@ -17,10 +17,17 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.status;
 
-import java.util.*;
-import java.text.*;
-import javax.swing.*;
-import com.netscape.admin.certsrv.*;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
+import java.util.Vector;
+
+import javax.swing.JLabel;
+
+import com.netscape.admin.certsrv.CMSAdminResources;
 
 /**
  * Parse the log in the following default format:
@@ -52,7 +59,7 @@ class DefaultLogParser implements ILogParser {
     /*==========================================================
 	 * public methods
      *==========================================================*/
-    public Vector parse(Object entry) throws ParseException {
+    public Vector<Object> parse(Object entry) throws ParseException {
         String logEntry = (String)entry;
         //parsing the log Entry and return segments
         //Debug.println("LogDataModel: DefaultLogParser: parse() -" +logEntry);
@@ -83,7 +90,7 @@ class DefaultLogParser implements ILogParser {
             throw new ParseException(logEntry,0);
         String level = temp.substring(1,x);
         temp = temp.substring(x+2);
-        Vector row = new Vector();
+        Vector<Object> row = new Vector<>();
         row.addElement(getSourceString(source));
         row.addElement(getLevelString(level));
         row.addElement(dateColumn);

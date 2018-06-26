@@ -17,9 +17,11 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.status;
 
-import java.util.*;
-import java.text.*;
-import com.netscape.admin.certsrv.*;
+import java.text.ParseException;
+import java.util.Vector;
+
+import com.netscape.admin.certsrv.CMSTableModel;
+import com.netscape.admin.certsrv.IDataProcessor;
 
 /**
  * LogDataModel to be displayed at the right hand side
@@ -71,11 +73,11 @@ public class LogDataModel extends CMSTableModel
      * Process data called back
      */
     public void processData(Object data) {
-        Vector row;
+        Vector<Object> row;
         if (mParser == null)
             mParser = new DefaultLogParser();
         try {
-            row = mParser.parse((String) data);
+            row = mParser.parse(data);
         } catch (ParseException e) {
             //Debug.println("LogDataModel: processData()");
             return;
@@ -88,10 +90,10 @@ public class LogDataModel extends CMSTableModel
      * SINCE WE ARE PROVIDING REVERSE ORDER ENTRIES IN
      * LOG FILES
      */
-    public synchronized void addRow(Vector values) {
+    public synchronized void addRow(Vector<Object> values) {
         int row = 0;
         for (int i=0; i < values.size(); i++) {
-            Vector v = (Vector)_tableColumns.elementAt(i);
+            Vector<Object> v = _tableColumns.elementAt(i);
             v.insertElementAt(values.elementAt(i),0);
             if (i == 0)
                 row = v.size() - 1;

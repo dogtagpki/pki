@@ -80,7 +80,7 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
     private Hashtable<String, Vector<String>> mTokenCertList;        //container for tokens and certs (Vector)
     private boolean mIsDomestic = false;
     private boolean mHasFortezza =  false;
-    private Vector mCipherPrefStore;
+    private Vector<String> mCipherPrefStore;
     private CMSCipherPreferenceDialog mCipherDialog;
     private boolean updateFlag = false;
     private boolean mSelectionIgnore = false;
@@ -100,7 +100,7 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
         mConnection = mServerInfo.getAdmin();
         mCertMapping = new Hashtable<>();
         mTokenCertList = new Hashtable<>();
-        mCipherPrefStore = new Vector();
+        mCipherPrefStore = new Vector<>();
         mHelpToken = HELPINDEX;
     }
 
@@ -590,7 +590,7 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
      */
     private void updateCertSelection() {
         //get installed subsystem
-        Vector v = mServerInfo.getInstalledSubsystems();
+        Vector<String> v = mServerInfo.getInstalledSubsystems();
 
         //add default system certificate list
         String certs;
@@ -610,7 +610,7 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
 
         //create additional subsystem certificate list
         for (int i=0; i< v.size(); i++) {
-            String name = (String)v.elementAt(i);
+            String name = v.elementAt(i);
             try {
                 String certlist = mResource.getString(PANEL_NAME+"_"+name+"_CERTS");
                     if (!certlist.trim().equals("")) {

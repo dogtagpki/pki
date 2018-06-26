@@ -17,9 +17,13 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.ug;
 
-import java.util.*;
-import javax.swing.*;
-import com.netscape.admin.certsrv.*;
+import java.util.Vector;
+
+import javax.swing.JLabel;
+
+import com.netscape.admin.certsrv.CMSAdminResources;
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.CMSContentTableModel;
 
 /**
  * Group Data model - represents the group table information
@@ -46,10 +50,10 @@ public class GroupDataModel extends CMSContentTableModel {
 	 * public methods
      *==========================================================*/
     public void processData(String name, String desc) {
-        Vector v = new Vector();
+        Vector<Object> v = new Vector<>();
 
         //XXX NEED TO CHANGE if we are going to have multi-column table
-        v.addElement(new JLabel((String)name,
+        v.addElement(new JLabel(name,
             CMSAdminUtil.getImage(CMSAdminResources.IMAGE_USERGROUP),
             JLabel.LEFT));
         v.addElement(desc);

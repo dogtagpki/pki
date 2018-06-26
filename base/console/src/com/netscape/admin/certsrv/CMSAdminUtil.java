@@ -19,6 +19,7 @@ package com.netscape.admin.certsrv;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -1295,7 +1296,7 @@ public class CMSAdminUtil {
         return num;
     }
 
-    public static Object createTableCell(String syntax, String syntaxVal, String v) {
+    public static Component createTableCell(String syntax, String syntaxVal, String v) {
         if (syntax.equalsIgnoreCase("string") ||
           syntax.equalsIgnoreCase("integer")) {
             if (v == null) {
