@@ -18,6 +18,7 @@
 package com.netscape.certsrv.logging.event;
 
 import com.netscape.certsrv.logging.SignedAuditEvent;
+import com.netscape.cmsutil.util.Utils;
 
 public class ConfigRoleEvent extends SignedAuditEvent {
 
@@ -35,6 +36,6 @@ public class ConfigRoleEvent extends SignedAuditEvent {
 
         setAttribute("SubjectID", subjectID);
         setAttribute("Outcome", outcome);
-        setAttribute("ParamNameValPairs", params);
+        setAttribute("ParamNameValPairs", Utils.normalizeString(params, true /*keep space*/));
     }
 }
