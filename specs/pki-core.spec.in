@@ -6,7 +6,7 @@ Summary:          Dogtag PKI Core Package
 URL:              http://www.dogtagpki.org/
 License:          GPLv2
 
-Version:          10.6.2
+Version:          10.6.3
 Release:          1%{?_timestamp}%{?_commit_id}%{?dist}
 # global           _phase -a1
 
