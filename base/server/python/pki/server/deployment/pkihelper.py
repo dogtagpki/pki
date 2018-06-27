@@ -2284,6 +2284,13 @@ class FIPS:
             # Always initialize FIPS mode as NOT enabled
             self.mdict['pki_fips_mode_enabled'] = False
 
+            # Check if /proc/sys/crypto/fips_enabled exists
+            if not os.path.exists("/proc/sys/crypto/fips_enabled"):
+                config.pki_log.info(
+                    log.PKIHELPER_FIPS_MODE_IS_NOT_ENABLED,
+                    extra=config.PKI_INDENTATION_LEVEL_3)
+                return False
+
             # Check to see if FIPS is enabled on this system
             command = ["sysctl", "crypto.fips_enabled", "-bn"]
 
