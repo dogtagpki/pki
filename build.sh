@@ -128,14 +128,20 @@ generate_rpm_spec() {
         echo "Generating $RPM_SPEC"
     fi
 
-    # hard-code timestamp
-    commands="s/%{?_timestamp}/${_TIMESTAMP}/g"
+    if [ "$_TIMESTAMP" != "" ] ; then
+        # hard-code timestamp
+        commands="s/%{?_timestamp}/${_TIMESTAMP}/g"
+    fi
 
-    # hard-code commit ID
-    commands="${commands}; s/%{?_commit_id}/${_COMMIT_ID}/g"
+    if [ "$_COMMIT_ID" != "" ] ; then
+        # hard-code commit ID
+        commands="${commands}; s/%{?_commit_id}/${_COMMIT_ID}/g"
+    fi
 
-    # hard-code phase
-    commands="${commands}; s/%{?_phase}/${_PHASE}/g"
+    if [ "$_PHASE" != "" ] ; then
+        # hard-code phase
+        commands="${commands}; s/%{?_phase}/${_PHASE}/g"
+    fi
 
     # hard-code patch
     if [ "$PATCH" != "" ] ; then
@@ -144,9 +150,9 @@ generate_rpm_spec() {
 
     # hard-code test option
     if [ "$WITHOUT_TEST" = true ] ; then
-        commands="${commands}; s/%bcond_without *test\$/%global with_test 0/g"
+        commands="${commands}; s/%\(bcond_without *test\)\$/# \1\n%global with_test 0/g"
     else
-        commands="${commands}; s/%bcond_without *test\$/%global with_test 1/g"
+        commands="${commands}; s/%\(bcond_without *test\)\$/# \1\n%global with_test 1/g"
     fi
 
     # hard-code packages to build
@@ -155,16 +161,18 @@ generate_rpm_spec() {
         # use inclusion method by replacing
         #   %bcond_with pkgs
         # with
+        #   # bcond_with pkgs
         #   %global with_pkgs 1
-        commands="${commands}; s/^%bcond_with *pkgs\$/%global with_pkgs 1/g"
+        commands="${commands}; s/^%\(bcond_with *pkgs\)\$/# \1\n%global with_pkgs 1/g"
 
         # include specified packages by replacing
         #   %package_option <package>
         # with
+        #   # package_option <package>
         #   %global with_<package> 1
         for package in `echo $WITH_PKGS | sed 's/,/\n/g'`
         do
-            commands="${commands}; s/^%package_option *$package\$/%global with_$package 1/g"
+            commands="${commands}; s/^%\(package_option *$package\)\$/# \1\n%global with_$package 1/g"
         done
 
         # exclude other packages by removing
@@ -187,8 +195,9 @@ generate_rpm_spec() {
         # include all other packages by replacing
         #   %package_option <package>
         # with
+        #   # package_option <package>
         #   %global with_<package> 1
-        commands="${commands}; s/^%package_option *\(.*\)\$/%global with_\1 1/g"
+        commands="${commands}; s/^%\(package_option *\)\(.*\)\$/# \1\2\n%global with_\2 1/g"
     fi
 
     sed "$commands" "$SPEC_TEMPLATE" > "$WORK_DIR/SPECS/$RPM_SPEC"

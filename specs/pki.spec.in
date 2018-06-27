@@ -106,7 +106,7 @@ Source: https://github.com/dogtagpki/pki/archive/v%{version}%{?_phase}/pki-%{ver
 # By default the build will execute unit tests unless --without test
 # option is specified.
 
-%bcond_without    test
+%bcond_without test
 
 # By default all packages will be built except the ones specified with
 # --without <package> option (exclusion method).
@@ -114,7 +114,7 @@ Source: https://github.com/dogtagpki/pki/archive/v%{version}%{?_phase}/pki-%{ver
 # If --with pkgs option is specified, only packages specified with
 # --with <package> will be built (inclusion method).
 
-%bcond_with       pkgs
+%bcond_with pkgs
 
 # Define package_option macro to wrap bcond_with or bcond_without macro
 # depending on package selection method.
@@ -128,18 +128,18 @@ Source: https://github.com/dogtagpki/pki/archive/v%{version}%{?_phase}/pki-%{ver
 # Define --with <package> or --without <package> options depending on
 # package selection method.
 
-%package_option   base
-%package_option   server
-%package_option   ca
-%package_option   kra
-%package_option   ocsp
-%package_option   tks
-%package_option   tps
-%package_option   javadoc
-%package_option   console
-%package_option   theme
-%package_option   meta
-%package_option   debug
+%package_option base
+%package_option server
+%package_option ca
+%package_option kra
+%package_option ocsp
+%package_option tks
+%package_option tps
+%package_option javadoc
+%package_option console
+%package_option theme
+%package_option meta
+%package_option debug
 
 %if ! %{with debug}
 %define debug_package %{nil}
