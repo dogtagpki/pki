@@ -29,10 +29,10 @@ Source: https://github.com/dogtagpki/pki/archive/v%{version}%{?_phase}/pki-%{ver
 # NSS
 ################################################################################
 
-%if 0%{?fedora} >= 28 || 0%{?rhel} > 7
-%global nss_default_db_type sql
-%else
+%if 0%{?rhel} && 0%{?rhel} <= 7 || 0%{?fedora} && 0%{?fedora} <= 27
 %global nss_default_db_type dbm
+%else
+%global nss_default_db_type sql
 %endif
 
 ################################################################################
@@ -128,7 +128,9 @@ BuildRequires:    apache-commons-io
 BuildRequires:    apache-commons-lang
 BuildRequires:    jakarta-commons-httpclient
 BuildRequires:    slf4j
-%if 0%{?fedora} || 0%{?rhel} > 7
+%if 0%{?rhel} && 0%{?rhel} <= 7
+# no slf4j-jdk14
+%else
 BuildRequires:    slf4j-jdk14
 %endif
 BuildRequires:    nspr-devel

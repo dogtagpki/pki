@@ -6,9 +6,10 @@ Summary:          Dogtag PKI Package
 URL:              http://www.dogtagpki.org/
 # The entire source code is GPLv2 except for 'pki-tps' which is LGPLv2
 License:          GPLv2 and LGPLv2
-BuildArch:        noarch
 
-%if 0%{?fedora} >= 27 || 0%{?rhel} > 7
+%if 0%{?rhel} && 0%{?rhel} <= 7
+# no arch exclusion
+%else
 # Exclude 'aarch64' and 's390x' architectures since
 # 'esc' does not exist on these two platforms
 ExcludeArch:      aarch64 s390x
@@ -54,10 +55,10 @@ Requires:         pki-console >= %{version}
 
 # Make certain that this 'meta' package requires the latest version(s)
 # of ALL PKI clients
-%if 0%{?fedora} >= 27 || 0%{?rhel} > 7
-Requires:         esc >= 1.1.1
-%else
+%if 0%{?rhel} && 0%{?rhel} <= 7
 Requires:         esc >= 1.1.0
+%else
+Requires:         esc >= 1.1.1
 %endif
 
 %description

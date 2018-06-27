@@ -4,7 +4,16 @@ Name:             pki-core
 
 Summary:          Dogtag PKI Core Package
 URL:              http://www.dogtagpki.org/
-License:          GPLv2
+# The entire source code is GPLv2 except for 'pki-tps' which is LGPLv2
+License:          GPLv2 and LGPLv2
+
+%if 0%{?rhel} && 0%{?rhel} <= 7
+# no arch exclusion
+%else
+# Exclude 'aarch64' and 's390x' architectures since
+# 'esc' does not exist on these two platforms
+ExcludeArch:      aarch64 s390x
+%endif
 
 Version:          10.6.3
 Release:          1%{?_timestamp}%{?_commit_id}%{?dist}
@@ -29,10 +38,10 @@ Source: https://github.com/dogtagpki/pki/archive/v%{version}%{?_phase}/pki-%{ver
 # NSS
 ################################################################################
 
-%if 0%{?fedora} >= 28 || 0%{?rhel} > 7
-%global nss_default_db_type sql
-%else
+%if 0%{?rhel} && 0%{?rhel} <= 7 || 0%{?fedora} && 0%{?fedora} <= 27
 %global nss_default_db_type dbm
+%else
+%global nss_default_db_type sql
 %endif
 
 ################################################################################
@@ -137,7 +146,9 @@ BuildRequires:    apache-commons-io
 BuildRequires:    apache-commons-lang
 BuildRequires:    jakarta-commons-httpclient
 BuildRequires:    slf4j
-%if 0%{?fedora} || 0%{?rhel} > 7
+%if 0%{?rhel} && 0%{?rhel} <= 7
+# no slf4j-jdk14
+%else
 BuildRequires:    slf4j-jdk14
 %endif
 BuildRequires:    nspr-devel
@@ -895,12 +906,12 @@ cd build
 %endif
 
 # Customize client library links in /usr/share/pki/lib
-%if 0%{?fedora} || 0%{?rhel} > 7
+%if 0%{?rhel} && 0%{?rhel} <= 7
+# no link customization
+%else
     rm -f %{buildroot}%{_datadir}/pki/lib/scannotation.jar
     ln -sf /usr/share/java/jboss-logging/jboss-logging.jar %{buildroot}%{_datadir}/pki/lib/jboss-logging.jar
     ln -sf /usr/share/java/jboss-annotations-1.2-api/jboss-annotations-api_1.2_spec.jar %{buildroot}%{_datadir}/pki/lib/jboss-annotations-api_1.2_spec.jar
-%else
-
 %endif
 
 %if %{with server}
@@ -966,7 +977,9 @@ fi
 
 %endif
 
-%if 0%{?fedora} || 0%{?rhel} > 7
+%if 0%{?rhel} && 0%{?rhel} <= 7
+# no pylint
+%else
 
 ################################################################################
 echo "Scanning Python code with pylint"
@@ -1012,11 +1025,13 @@ if [ $? -ne 0 ]; then
 fi
 %endif  # with_python3
 
-%endif  # Fedora / RHEL > 7
+%endif
 
 %endif # with server
 
-%if 0%{?fedora} || 0%{?rhel} > 7
+%if 0%{?rhel} && 0%{?rhel} <= 7
+# no upgrade check
+%else
 %pretrans -n pki-base -p <lua>
 function test(a)
     if posix.stat(a) then
@@ -1033,12 +1048,12 @@ if (test("/etc/sysconfig/pki/ca") or
     test("/etc/sysconfig/pki/kra") or
     test("/etc/sysconfig/pki/ocsp") or
     test("/etc/sysconfig/pki/tks")) then
-   msg = "Unable to upgrade to Fedora 20.  There are Dogtag 9 instances\n" ..
+   msg = "Unable to upgrade to Fedora 20.  There are PKI 9 instances\n" ..
          "that will no longer work since they require Tomcat 6, and \n" ..
          "Tomcat 6 is no longer available in Fedora 20.\n\n" ..
          "Please follow these instructions to migrate the instances to \n" ..
-         "Dogtag 10:\n\n" ..
-         "http://www.dogtagpki.org/wiki/Migrating_Dogtag_9_Instances_to_Dogtag_10"
+         "PKI 10:\n\n" ..
+         "http://www.dogtagpki.org/wiki/Migrating_PKI_9_Instances_to_PKI_10"
    error(msg)
 end
 %endif
