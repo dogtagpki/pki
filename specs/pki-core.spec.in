@@ -399,7 +399,9 @@ BuildArch:        noarch
 
 Obsoletes:        pki-base-python2 < %{version}
 Provides:         pki-base-python2 = %{version}-%{release}
+%if 0%{?fedora}
 %{?python_provide:%python_provide python2-pki}
+%endif
 
 Requires:         pki-base >= %{version}-%{release}
 Requires:         python2-cryptography
@@ -428,7 +430,9 @@ BuildArch:        noarch
 
 Obsoletes:        pki-base-python3 < %{version}
 Provides:         pki-base-python3 = %{version}-%{release}
+%if 0%{?fedora}
 %{?python_provide:%python_provide python3-pki}
+%endif
 
 Requires:         pki-base >= %{version}-%{release}
 Requires:         python3-cryptography
@@ -528,7 +532,6 @@ Certificate System into a more complete and robust PKI solution.
 ################################################################################
 
 Summary:          PKI Server Package
-
 BuildArch:        noarch
 
 Provides:         pki-deploy = %{version}-%{release}
@@ -812,7 +815,6 @@ smart card.
 ################################################################################
 
 Summary:          PKI Javadoc Package
-
 BuildArch:        noarch
 
 Provides:         pki-util-javadoc = %{version}-%{release}

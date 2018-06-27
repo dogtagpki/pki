@@ -439,7 +439,9 @@ BuildArch:        noarch
 
 Obsoletes:        pki-base-python2 < %{version}
 Provides:         pki-base-python2 = %{version}-%{release}
+%if 0%{?fedora}
 %{?python_provide:%python_provide python2-pki}
+%endif
 
 Requires:         pki-base >= %{version}-%{release}
 Requires:         python2-cryptography
@@ -468,7 +470,9 @@ BuildArch:        noarch
 
 Obsoletes:        pki-base-python3 < %{version}
 Provides:         pki-base-python3 = %{version}-%{release}
+%if 0%{?fedora}
 %{?python_provide:%python_provide python3-pki}
+%endif
 
 Requires:         pki-base >= %{version}-%{release}
 Requires:         python3-cryptography
@@ -570,7 +574,6 @@ Certificate System into a more complete and robust PKI solution.
 ################################################################################
 
 Summary:          PKI Server Package
-
 BuildArch:        noarch
 
 Provides:         pki-deploy = %{version}-%{release}
@@ -604,7 +607,9 @@ Requires:         pki-base >= %{version}-%{release}
 Requires:         pki-base-java >= %{version}-%{release}
 Requires:         pki-tools >= %{version}-%{release}
 
-%if 0%{?fedora} || 0%{?rhel} > 7
+%if 0%{?rhel} && 0%{?rhel} <= 7
+# no policycoreutils-python-utils
+%else
 Requires:         policycoreutils-python-utils
 %endif
 
@@ -616,7 +621,7 @@ Requires:         python3-ldap
 %endif
 Requires:         python3-lxml
 Requires:         python3-libselinux
-Requires:         policycoreutils-python3
+Requires:         python3-policycoreutils
 %else
 %if 0%{?rhel} && 0%{?rhel} <= 7 || 0%{?fedora} && 0%{?fedora} <= 27
 Requires:         python-ldap
@@ -867,7 +872,6 @@ smart card.
 ################################################################################
 
 Summary:          PKI Javadoc Package
-
 BuildArch:        noarch
 
 Provides:         pki-util-javadoc = %{version}-%{release}
@@ -1721,7 +1725,6 @@ fi
 
 ################################################################################
 %changelog
-
 * Tue Mar 6 2018 Dogtag PKI Team <pki-devel@redhat.com> 10.6.0-0
 - To list changes in <branch> since <tag>:
   $ git log --pretty=oneline --abbrev-commit --no-decorate <tag>..<branch>
