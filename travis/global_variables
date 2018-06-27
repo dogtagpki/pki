@@ -1,5 +1,6 @@
 CONTAINER=pkitest
-SCRIPTDIR=/tmp/workdir/pki/travis
-BUILDER_RPMS=/tmp/workdir/packages/RPMS
+BUILDDIR=/tmp/workdir
+SCRIPTDIR=${BUILDDIR}/pki/travis
+BUILDER_RPMS=${BUILDDIR}/packages/RPMS
 HOST_RPMS=${TRAVIS_BUILD_DIR}/RPMS
 LOGS=logs.txt

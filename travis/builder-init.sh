@@ -32,7 +32,7 @@ docker run \
     --tmpfs /tmp \
     --tmpfs /run \
     -v /sys/fs/cgroup:/sys/fs/cgroup:ro \
-    -v $(pwd):/tmp/workdir/pki \
+    -v $(pwd):${BUILDDIR}/pki \
     -e BUILDUSER_UID=$(id -u) \
     -e BUILDUSER_GID=$(id -g) \
     -e TRAVIS=${TRAVIS} \
@@ -40,5 +40,5 @@ docker run \
     -i \
     ${IMAGE_REPO:-dogtagpki/pki-ci}:${IMAGE}
 
-docker exec -i ${CONTAINER} /bin/ls -la /tmp/workdir
+docker exec -i ${CONTAINER} /bin/ls -la ${BUILDDIR}
 docker exec -i ${CONTAINER} ${SCRIPTDIR}/pki-init.sh

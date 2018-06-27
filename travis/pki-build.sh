@@ -1,31 +1,28 @@
 #!/bin/bash
 set -e
 
-PACKAGE=$1
-SCRIPT=$2
-
-BUILDLOG=/tmp/$PACKAGE-build.log
+BUILDLOG=/tmp/pki-build.log
 
 function compose {
-    pushd ${BUILDDIR}/pki
-    sudo USE_TIMESTAMP=1 USE_GIT_COMMIT_ID=1 -u ${BUILDUSER} -- ./scripts/$SCRIPT rpms
-    popd
+    sudo -u ${BUILDUSER} -- ${BUILDDIR}/pki/build.sh --work-dir=${BUILDDIR}/packages --with-timestamp --with-commit-id "$@"
 }
 
 function upload {
     if test -f $BUILDLOG; then
-        curl -k -w "\n" --upload-file $BUILDLOG https://transfer.sh/$PACKAGE-build.txt >> /tmp/workdir/pki/logs.txt
+        curl -k -w "\n" --upload-file $BUILDLOG https://transfer.sh/pki-build.txt >> /tmp/workdir/pki/logs.txt
     fi
 }
 
-## prepare additional build dependencies
-dnf builddep -y --spec ${BUILDDIR}/pki/specs/$PACKAGE.spec.in
+echo "Installing PKI build dependencies"
+
+dnf builddep -y --spec ${BUILDDIR}/pki/specs/pki.spec.in
+
+echo "Building PKI packages"
 
 if test "${TRAVIS}" != "true"; then
     compose
 
 else
     trap "upload" EXIT
-    echo "Building $PACKAGE with $SCRIPT."
-    compose >> $BUILDLOG 2>&1
+    compose "$@" >> $BUILDLOG 2>&1
 fi
