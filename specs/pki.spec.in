@@ -7,6 +7,12 @@ URL:              http://www.dogtagpki.org/
 # The entire source code is GPLv2 except for 'pki-tps' which is LGPLv2
 License:          GPLv2 and LGPLv2
 
+%if 0%{?fedora} >= 27 || 0%{?rhel} > 7
+# Exclude 'aarch64' and 's390x' architectures since
+# 'esc' does not exist on these two platforms
+ExcludeArch: aarch64 s390x
+%endif
+
 Version:          10.6.3
 Release:          1%{?_timestamp}%{?_commit_id}%{?dist}
 # global           _phase -a1
@@ -359,6 +365,42 @@ PKI consists of the following components:
   * Online Certificate Status Protocol (OCSP) Manager
   * Token Key Service (TKS)
   * Token Processing Service (TPS)
+
+%if %{with meta}
+
+# Make certain that this 'meta' package requires the latest version(s)
+# of ALL PKI theme packages
+Requires:         %{name}-server-theme >= %{version}
+Requires:         %{name}-console-theme >= %{version}
+
+# Make certain that this 'meta' package requires the latest version(s)
+# of ALL PKI core packages
+Requires:         pki-base >= %{version}
+Requires:         pki-base-java >= %{version}
+%if 0%{?with_python3}
+Requires:         pki-base-python3 >= %{version}
+%endif
+Requires:         pki-tools >= %{version}
+Requires:         pki-server >= %{version}
+Requires:         pki-ca >= %{version}
+Requires:         pki-kra >= %{version}
+Requires:         pki-ocsp >= %{version}
+Requires:         pki-tks >= %{version}
+Requires:         pki-tps >= %{version}
+
+# Make certain that this 'meta' package requires the latest version(s)
+# of PKI console
+Requires:         pki-console >= %{version}
+
+# Make certain that this 'meta' package requires the latest version(s)
+# of ALL PKI clients
+%if 0%{?fedora} >= 27 || 0%{?rhel} > 7
+Requires:         esc >= 1.1.1
+%else
+Requires:         esc >= 1.1.0
+%endif
+
+%endif # with meta
 
 %if %{with base}
 ################################################################################
@@ -917,37 +959,37 @@ following "Mutually-Exclusive" PKI Theme packages:
 
 %if %{with theme}
 ################################################################################
-%package -n       dogtag-pki-server-theme
+%package -n       %{name}-server-theme
 ################################################################################
 
 Summary:          Dogtag PKI Server Theme Package
 BuildArch:        noarch
 
-Obsoletes:        dogtag-pki-common-theme < %{version}-%{release}
-Obsoletes:        dogtag-pki-common-ui < %{version}-%{release}
-Obsoletes:        dogtag-pki-ca-theme < %{version}-%{release}
-Obsoletes:        dogtag-pki-ca-ui < %{version}-%{release}
-Obsoletes:        dogtag-pki-kra-theme < %{version}-%{release}
-Obsoletes:        dogtag-pki-kra-ui < %{version}-%{release}
-Obsoletes:        dogtag-pki-ocsp-theme < %{version}-%{release}
-Obsoletes:        dogtag-pki-ocsp-ui < %{version}-%{release}
-Obsoletes:        dogtag-pki-tks-theme < %{version}-%{release}
-Obsoletes:        dogtag-pki-tks-ui < %{version}-%{release}
-Obsoletes:        dogtag-pki-tps-theme < %{version}-%{release}
-Obsoletes:        dogtag-pki-tps-ui < %{version}-%{release}
+Obsoletes:        %{name}-common-theme < %{version}-%{release}
+Obsoletes:        %{name}-common-ui < %{version}-%{release}
+Obsoletes:        %{name}-ca-theme < %{version}-%{release}
+Obsoletes:        %{name}-ca-ui < %{version}-%{release}
+Obsoletes:        %{name}-kra-theme < %{version}-%{release}
+Obsoletes:        %{name}-kra-ui < %{version}-%{release}
+Obsoletes:        %{name}-ocsp-theme < %{version}-%{release}
+Obsoletes:        %{name}-ocsp-ui < %{version}-%{release}
+Obsoletes:        %{name}-tks-theme < %{version}-%{release}
+Obsoletes:        %{name}-tks-ui < %{version}-%{release}
+Obsoletes:        %{name}-tps-theme < %{version}-%{release}
+Obsoletes:        %{name}-tps-ui < %{version}-%{release}
 
-Provides:         dogtag-pki-common-theme = %{version}-%{release}
-Provides:         dogtag-pki-common-ui = %{version}-%{release}
-Provides:         dogtag-pki-ca-theme = %{version}-%{release}
-Provides:         dogtag-pki-ca-ui = %{version}-%{release}
-Provides:         dogtag-pki-kra-theme = %{version}-%{release}
-Provides:         dogtag-pki-kra-ui = %{version}-%{release}
-Provides:         dogtag-pki-ocsp-theme = %{version}-%{release}
-Provides:         dogtag-pki-ocsp-ui = %{version}-%{release}
-Provides:         dogtag-pki-tks-theme = %{version}-%{release}
-Provides:         dogtag-pki-tks-ui = %{version}-%{release}
-Provides:         dogtag-pki-tps-theme = %{version}-%{release}
-Provides:         dogtag-pki-tps-ui = %{version}-%{release}
+Provides:         %{name}-common-theme = %{version}-%{release}
+Provides:         %{name}-common-ui = %{version}-%{release}
+Provides:         %{name}-ca-theme = %{version}-%{release}
+Provides:         %{name}-ca-ui = %{version}-%{release}
+Provides:         %{name}-kra-theme = %{version}-%{release}
+Provides:         %{name}-kra-ui = %{version}-%{release}
+Provides:         %{name}-ocsp-theme = %{version}-%{release}
+Provides:         %{name}-ocsp-ui = %{version}-%{release}
+Provides:         %{name}-tks-theme = %{version}-%{release}
+Provides:         %{name}-tks-ui = %{version}-%{release}
+Provides:         %{name}-tps-theme = %{version}-%{release}
+Provides:         %{name}-tps-ui = %{version}-%{release}
 
 Provides:         pki-server-theme = %{version}-%{release}
 Provides:         pki-common-theme = %{version}-%{release}
@@ -963,12 +1005,12 @@ Provides:         pki-tks-ui = %{version}-%{release}
 Provides:         pki-tps-theme = %{version}-%{release}
 Provides:         pki-tps-ui = %{version}-%{release}
 
-%description -n   dogtag-pki-server-theme
+%description -n   %{name}-server-theme
 This PKI Server Theme Package contains
 Dogtag textual and graphical user interface for PKI Server.
 
 ################################################################################
-%package -n       dogtag-pki-console-theme
+%package -n       %{name}-console-theme
 ################################################################################
 
 Summary:          Dogtag PKI Console Theme Package
@@ -983,93 +1025,11 @@ Conflicts:        redhat-pki-console-ui
 Provides:         pki-console-theme = %{version}-%{release}
 Provides:         pki-console-ui = %{version}-%{release}
 
-%description -n   dogtag-pki-console-theme
+%description -n   %{name}-console-theme
 This PKI Console Theme Package contains
 Dogtag textual and graphical user interface for PKI Console.
 
 %endif # with theme
-
-%if %{with meta}
-################################################################################
-%package -n       dogtag-pki
-################################################################################
-
-Summary:          Dogtag PKI Package
-BuildArch:        noarch
-
-%if 0%{?fedora} >= 27 || 0%{?rhel} > 7
-# Exclude 'aarch64' and 's390x' architectures since
-# 'esc' does not exist on these two platforms
-ExcludeArch: aarch64 s390x
-%endif
-
-# Make certain that this 'meta' package requires the latest version(s)
-# of ALL PKI theme packages
-Requires:         dogtag-pki-server-theme >= %{version}
-Requires:         dogtag-pki-console-theme >= %{version}
-
-# Make certain that this 'meta' package requires the latest version(s)
-# of ALL PKI core packages
-Requires:         pki-base >= %{version}
-Requires:         pki-base-java >= %{version}
-%if 0%{?with_python3}
-Requires:         pki-base-python3 >= %{version}
-%endif
-Requires:         pki-tools >= %{version}
-Requires:         pki-server >= %{version}
-Requires:         pki-ca >= %{version}
-Requires:         pki-kra >= %{version}
-Requires:         pki-ocsp >= %{version}
-Requires:         pki-tks >= %{version}
-Requires:         pki-tps >= %{version}
-
-# Make certain that this 'meta' package requires the latest version(s)
-# of PKI console
-Requires:         pki-console >= %{version}
-
-# Make certain that this 'meta' package requires the latest version(s)
-# of ALL PKI clients
-%if 0%{?fedora} >= 27 || 0%{?rhel} > 7
-Requires:         esc >= 1.1.1
-%else
-Requires:         esc >= 1.1.0
-%endif
-
-%description -n   dogtag-pki
-The Dogtag Public Key Infrastructure (PKI) Suite is comprised of the following
-five subsystems and a client (for use by a Token Management System):
-
-  * Certificate Authority (CA)
-  * Key Recovery Authority (KRA)
-  * Online Certificate Status Protocol (OCSP) Manager
-  * Token Key Service (TKS)
-  * Token Processing System (TPS)
-  * Enterprise Security Client (ESC)
-
-Additionally, it provides a console GUI application used for server and
-user/group administration of CA, KRA, OCSP, and TKS, as well as various
-command-line tools used to assist with a PKI deployment.
-
-To successfully deploy instances of a CA, KRA, OCSP, TKS, or TPS,
-a Tomcat Web Server must be up and running locally on this machine.
-
-To meet the database storage requirements of each CA, KRA, OCSP, TKS, or TPS
-instance, a 389 Directory Server must be up and running either locally on
-this machine, or remotely over the attached network connection.
-
-Finally, although they are no longer supplied by this 'meta' package,
-javadocs are available for both JSS (jss-javadoc) and portions of
-the Dogtag PKI API (pki-javadoc).
-
-NOTE:  As a convenience for standalone deployments, this 'dogtag-pki'
-       top-level meta package supplies Dogtag themes for use by the
-       certificate server packages:
-
-         * dogtag-pki-theme (Dogtag Certificate System deployments)
-           * dogtag-pki-server-theme
-           * dogtag-pki-console-theme
-
-%endif # with meta
 
 ################################################################################
 %prep
@@ -1289,12 +1249,12 @@ if (test("/etc/sysconfig/pki/ca") or
     test("/etc/sysconfig/pki/kra") or
     test("/etc/sysconfig/pki/ocsp") or
     test("/etc/sysconfig/pki/tks")) then
-   msg = "Unable to upgrade to Fedora 20.  There are Dogtag 9 instances\n" ..
+   msg = "Unable to upgrade to Fedora 20.  There are PKI 9 instances\n" ..
          "that will no longer work since they require Tomcat 6, and \n" ..
          "Tomcat 6 is no longer available in Fedora 20.\n\n" ..
          "Please follow these instructions to migrate the instances to \n" ..
-         "Dogtag 10:\n\n" ..
-         "http://www.dogtagpki.org/wiki/Migrating_Dogtag_9_Instances_to_Dogtag_10"
+         "PKI 10:\n\n" ..
+         "http://www.dogtagpki.org/wiki/Migrating_PKI_9_Instances_to_PKI_10"
    error(msg)
 end
 %endif
@@ -1371,6 +1331,16 @@ fi
 ##        PKI deployment process
 
 %endif # with server
+
+%if %{with meta}
+################################################################################
+%files
+################################################################################
+
+%defattr(-,root,root,-)
+%doc %{_datadir}/doc/pki/README
+
+%endif # with meta
 
 %if %{with base}
 ################################################################################
@@ -1686,7 +1656,7 @@ fi
 
 %if %{with theme}
 ################################################################################
-%files -n dogtag-pki-server-theme
+%files -n %{name}-server-theme
 ################################################################################
 
 %defattr(-,root,root,-)
@@ -1704,7 +1674,7 @@ fi
 %{_datadir}/pki/server/webapps/pki/tks
 
 ################################################################################
-%files -n dogtag-pki-console-theme
+%files -n %{name}-console-theme
 ################################################################################
 
 %defattr(-,root,root,-)
@@ -1712,16 +1682,6 @@ fi
 %{_javadir}/pki/pki-console-theme.jar
 
 %endif # with theme
-
-%if %{with meta}
-################################################################################
-%files -n dogtag-pki
-################################################################################
-
-%defattr(-,root,root,-)
-%doc %{_datadir}/doc/pki/README
-
-%endif # with meta
 
 ################################################################################
 %changelog
