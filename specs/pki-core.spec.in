@@ -111,9 +111,59 @@ Source: https://github.com/dogtagpki/pki/archive/v%{version}%{?_phase}/pki-%{ver
 # PKI
 ################################################################################
 
-%bcond_without    test
-%bcond_without    server
-%bcond_without    javadoc
+# By default the build will execute unit tests unless --without test
+# option is specified.
+
+# bcond_without test
+%global with_test 1
+
+# By default all packages will be built except the ones specified with
+# --without <package> option (exclusion method).
+
+# If --with pkgs option is specified, only packages specified with
+# --with <package> will be built (inclusion method).
+
+# bcond_with pkgs
+%global with_pkgs 1
+
+# Define package_option macro to wrap bcond_with or bcond_without macro
+# depending on package selection method.
+
+%if %{with pkgs}
+%define package_option() %bcond_with %1
+%else
+%define package_option() %bcond_without %1
+%endif # with pkgs
+
+# Define --with <package> or --without <package> options depending on
+# package selection method.
+
+# package_option base
+%global with_base 1
+# package_option server
+%global with_server 1
+# package_option ca
+%global with_ca 1
+# package_option kra
+%global with_kra 1
+# package_option ocsp
+%global with_ocsp 1
+# package_option tks
+%global with_tks 1
+# package_option tps
+%global with_tps 1
+# package_option javadoc
+%global with_javadoc 1
+# package_option console
+%global with_console 1
+# package_option theme
+# package_option meta
+# package_option debug
+%global with_debug 1
+
+%if ! %{with debug}
+%define debug_package %{nil}
+%endif # with debug
 
 # ignore unpackaged files from native 'tpsclient'
 # REMINDER:  Remove this '%%define' once 'tpsclient' is rewritten as a Java app
@@ -332,6 +382,43 @@ PKI consists of the following components:
   * Token Key Service (TKS)
   * Token Processing Service (TPS)
 
+%if %{with meta}
+
+# Make certain that this 'meta' package requires the latest version(s)
+# of ALL PKI theme packages
+Requires:         %{name}-server-theme >= %{version}
+Requires:         %{name}-console-theme >= %{version}
+
+# Make certain that this 'meta' package requires the latest version(s)
+# of ALL PKI core packages
+Requires:         pki-base >= %{version}
+Requires:         pki-base-java >= %{version}
+%if 0%{?with_python3}
+Requires:         pki-base-python3 >= %{version}
+%endif
+Requires:         pki-tools >= %{version}
+Requires:         pki-server >= %{version}
+Requires:         pki-ca >= %{version}
+Requires:         pki-kra >= %{version}
+Requires:         pki-ocsp >= %{version}
+Requires:         pki-tks >= %{version}
+Requires:         pki-tps >= %{version}
+
+# Make certain that this 'meta' package requires the latest version(s)
+# of PKI console
+Requires:         pki-console >= %{version}
+
+# Make certain that this 'meta' package requires the latest version(s)
+# of ALL PKI clients
+%if 0%{?rhel} && 0%{?rhel} <= 7
+Requires:         esc >= 1.1.0
+%else
+Requires:         esc >= 1.1.1
+%endif
+
+%endif # with meta
+
+%if %{with base}
 ################################################################################
 %package -n       pki-symkey
 ################################################################################
@@ -537,6 +624,8 @@ Requires:         jpackage-utils >= 0:1.7.5-10
 This package contains PKI executables that can be used to help make
 Certificate System into a more complete and robust PKI solution.
 
+%endif # with base
+
 %if %{with server}
 ################################################################################
 %package -n       pki-server
@@ -660,6 +749,9 @@ following PKI subsystems:
     the Token Key Service (TKS), and
     the Token Processing Service (TPS).
 
+%endif # with server
+
+%if %{with ca}
 ################################################################################
 %package -n       pki-ca
 ################################################################################
@@ -682,6 +774,9 @@ The Certificate Authority can be configured as a self-signing Certificate
 Authority, where it is the root CA, or it can act as a subordinate CA,
 where it obtains its own signing certificate from a public CA.
 
+%endif # with ca
+
+%if %{with kra}
 ################################################################################
 %package -n       pki-kra
 ################################################################################
@@ -710,6 +805,9 @@ protection of the public encryption keys for the users in the PKI deployment.
 Note that the KRA archives encryption keys; it does NOT archive signing keys,
 since such archival would undermine non-repudiation properties of signing keys.
 
+%endif # with kra
+
+%if %{with ocsp}
 ################################################################################
 %package -n       pki-ocsp
 ################################################################################
@@ -745,6 +843,9 @@ When an instance of OCSP Manager is set up with an instance of CA, and
 publishing is set up to this OCSP Manager, CRLs are published to it
 whenever they are issued or updated.
 
+%endif # with ocsp
+
+%if %{with tks}
 ################################################################################
 %package -n       pki-tks
 ################################################################################
@@ -774,6 +875,9 @@ TKS.  Tokens with older keys will get new token keys.
 Because of the sensitivity of the data that TKS manages, TKS should be set up
 behind the firewall with restricted access.
 
+%endif # with tks
+
+%if %{with tps}
 ################################################################################
 %package -n       pki-tps
 ################################################################################
@@ -818,7 +922,7 @@ The utility "tpsclient" is a test tool that interacts with TPS.  This
 tool is useful to test TPS server configs without risking an actual
 smart card.
 
-%endif # with server
+%endif # with tps
 
 %if %{with javadoc}
 ################################################################################
@@ -840,6 +944,108 @@ Obsoletes:        pki-common-javadoc < %{version}-%{release}
 This package contains PKI API documentation.
 
 %endif # with javadoc
+
+%if %{with console}
+################################################################################
+%package -n       pki-console
+################################################################################
+
+Summary:          PKI Console Package
+BuildArch:        noarch
+
+BuildRequires:    idm-console-framework >= 1.1.17-4
+
+Requires:         idm-console-framework >= 1.1.17-4
+Requires:         java-1.8.0-openjdk
+Requires:         ldapjdk >= 4.19-5
+Requires:         pki-base-java >= %{version}
+Requires:         pki-console-theme >= %{version}
+Requires:         jpackage-utils >= 1.7.5-10
+
+%description -n   pki-console
+The PKI Console is a Java application used to administer PKI server.
+
+For deployment purposes, a PKI Console requires ONE AND ONLY ONE of the
+following "Mutually-Exclusive" PKI Theme packages:
+
+  * dogtag-pki-console-theme (Dogtag Certificate System deployments)
+  * redhat-pki-console-theme (Red Hat Certificate System deployments)
+
+%endif # with console
+
+%if %{with theme}
+################################################################################
+%package -n       %{name}-server-theme
+################################################################################
+
+Summary:          Dogtag PKI Server Theme Package
+BuildArch:        noarch
+
+Obsoletes:        %{name}-common-theme < %{version}-%{release}
+Obsoletes:        %{name}-common-ui < %{version}-%{release}
+Obsoletes:        %{name}-ca-theme < %{version}-%{release}
+Obsoletes:        %{name}-ca-ui < %{version}-%{release}
+Obsoletes:        %{name}-kra-theme < %{version}-%{release}
+Obsoletes:        %{name}-kra-ui < %{version}-%{release}
+Obsoletes:        %{name}-ocsp-theme < %{version}-%{release}
+Obsoletes:        %{name}-ocsp-ui < %{version}-%{release}
+Obsoletes:        %{name}-tks-theme < %{version}-%{release}
+Obsoletes:        %{name}-tks-ui < %{version}-%{release}
+Obsoletes:        %{name}-tps-theme < %{version}-%{release}
+Obsoletes:        %{name}-tps-ui < %{version}-%{release}
+
+Provides:         %{name}-common-theme = %{version}-%{release}
+Provides:         %{name}-common-ui = %{version}-%{release}
+Provides:         %{name}-ca-theme = %{version}-%{release}
+Provides:         %{name}-ca-ui = %{version}-%{release}
+Provides:         %{name}-kra-theme = %{version}-%{release}
+Provides:         %{name}-kra-ui = %{version}-%{release}
+Provides:         %{name}-ocsp-theme = %{version}-%{release}
+Provides:         %{name}-ocsp-ui = %{version}-%{release}
+Provides:         %{name}-tks-theme = %{version}-%{release}
+Provides:         %{name}-tks-ui = %{version}-%{release}
+Provides:         %{name}-tps-theme = %{version}-%{release}
+Provides:         %{name}-tps-ui = %{version}-%{release}
+
+Provides:         pki-server-theme = %{version}-%{release}
+Provides:         pki-common-theme = %{version}-%{release}
+Provides:         pki-common-ui = %{version}-%{release}
+Provides:         pki-ca-theme = %{version}-%{release}
+Provides:         pki-ca-ui = %{version}-%{release}
+Provides:         pki-kra-theme = %{version}-%{release}
+Provides:         pki-kra-ui = %{version}-%{release}
+Provides:         pki-ocsp-theme = %{version}-%{release}
+Provides:         pki-ocsp-ui = %{version}-%{release}
+Provides:         pki-tks-theme = %{version}-%{release}
+Provides:         pki-tks-ui = %{version}-%{release}
+Provides:         pki-tps-theme = %{version}-%{release}
+Provides:         pki-tps-ui = %{version}-%{release}
+
+%description -n   %{name}-server-theme
+This PKI Server Theme Package contains
+Dogtag textual and graphical user interface for PKI Server.
+
+################################################################################
+%package -n       %{name}-console-theme
+################################################################################
+
+Summary:          Dogtag PKI Console Theme Package
+BuildArch:        noarch
+
+%if 0%{?rhel}
+# EPEL version of Dogtag "theme" conflicts with all versions of Red Hat "theme"
+Conflicts:        redhat-pki-console-theme
+Conflicts:        redhat-pki-console-ui
+%endif
+
+Provides:         pki-console-theme = %{version}-%{release}
+Provides:         pki-console-ui = %{version}-%{release}
+
+%description -n   %{name}-console-theme
+This PKI Console Theme Package contains
+Dogtag textual and graphical user interface for PKI Console.
+
+%endif # with theme
 
 ################################################################################
 %prep
@@ -871,8 +1077,12 @@ cd build
     -DWITH_PYTHON3_DEFAULT:BOOL=ON \
 %endif
     -DWITH_TEST:BOOL=%{?with_test:ON}%{!?with_test:OFF} \
-    -DWITH_SERVER:BOOL=%{?with_server:ON}%{!?with_server:OFF} \
+%if ! %{with server} && ! %{with ca} && ! %{with kra} && ! %{with ocsp} && ! %{with tks} && ! %{with tps}
+    -DWITH_SERVER:BOOL=OFF \
+%endif
     -DWITH_JAVADOC:BOOL=%{?with_javadoc:ON}%{!?with_javadoc:OFF} \
+    -DBUILD_PKI_CONSOLE:BOOL=%{?with_console:ON}%{!?with_console:OFF} \
+    -DBUILD_DOGTAG_PKI_THEME:BOOL=%{?with_theme:ON}%{!?with_theme:OFF} \
     ..
 
 ################################################################################
@@ -889,6 +1099,15 @@ cd build
     INSTALL="install -p" \
     --no-print-directory \
     all install
+
+%if %{with meta}
+%{__mkdir_p} %{buildroot}%{_datadir}/doc/pki
+
+cat > %{buildroot}%{_datadir}/doc/pki/README << EOF
+This package is just a "meta-package" whose dependencies pull in all of the
+packages comprising the Dogtag Public Key Infrastructure (PKI) Suite.
+EOF
+%endif # with meta
 
 # Customize system upgrade scripts in /usr/share/pki/upgrade
 %if 0%{?rhel} && 0%{?rhel} <= 7
@@ -1029,6 +1248,8 @@ fi
 
 %endif # with server
 
+%if %{with base}
+
 %if 0%{?rhel} && 0%{?rhel} <= 7
 # no upgrade check
 %else
@@ -1058,6 +1279,8 @@ if (test("/etc/sysconfig/pki/ca") or
 end
 %endif
 
+%endif # with base
+
 %if %{with server}
 
 %pre -n pki-server
@@ -1072,6 +1295,8 @@ fi
 exit 0
 
 %endif # with server
+
+%if %{with base}
 
 %post -n pki-base
 
@@ -1094,6 +1319,8 @@ then
     # On RPM uninstallation remove system upgrade tracker
     rm -f %{_sysconfdir}/pki/pki.version
 fi
+
+%endif # with base
 
 %if %{with server}
 
@@ -1125,6 +1352,17 @@ fi
 
 %endif # with server
 
+%if %{with meta}
+################################################################################
+%files
+################################################################################
+
+%defattr(-,root,root,-)
+%doc %{_datadir}/doc/pki/README
+
+%endif # with meta
+
+%if %{with base}
 ################################################################################
 %files -n pki-symkey
 ################################################################################
@@ -1268,6 +1506,8 @@ fi
 %{_mandir}/man1/pki-user-membership.1.gz
 %{_mandir}/man1/PKCS10Client.1.gz
 
+%endif # with base
+
 %if %{with server}
 ################################################################################
 %files -n pki-server
@@ -1326,6 +1566,9 @@ fi
 %{_datadir}/pki/setup/
 %{_datadir}/pki/server/
 
+%endif # with server
+
+%if %{with ca}
 ################################################################################
 %files -n pki-ca
 ################################################################################
@@ -1341,6 +1584,9 @@ fi
 %{_datadir}/pki/ca/setup/
 %{_datadir}/pki/ca/webapps/
 
+%endif # with ca
+
+%if %{with kra}
 ################################################################################
 %files -n pki-kra
 ################################################################################
@@ -1353,6 +1599,9 @@ fi
 %{_datadir}/pki/kra/setup/
 %{_datadir}/pki/kra/webapps/
 
+%endif # with kra
+
+%if %{with ocsp}
 ################################################################################
 %files -n pki-ocsp
 ################################################################################
@@ -1365,6 +1614,9 @@ fi
 %{_datadir}/pki/ocsp/setup/
 %{_datadir}/pki/ocsp/webapps/
 
+%endif # with ocsp
+
+%if %{with tks}
 ################################################################################
 %files -n pki-tks
 ################################################################################
@@ -1377,6 +1629,9 @@ fi
 %{_datadir}/pki/tks/setup/
 %{_datadir}/pki/tks/webapps/
 
+%endif # with tks
+
+%if %{with tps}
 ################################################################################
 %files -n pki-tps
 ################################################################################
@@ -1400,7 +1655,7 @@ fi
 %{_libdir}/tps/libtps.so
 %{_libdir}/tps/libtokendb.so
 
-%endif # with server
+%endif # with tps
 
 %if %{with javadoc}
 ################################################################################
@@ -1411,6 +1666,47 @@ fi
 %{_javadocdir}/pki-%{version}/
 
 %endif # with javadoc
+
+%if %{with console}
+################################################################################
+%files -n pki-console
+################################################################################
+
+%defattr(-,root,root,-)
+%doc base/console/LICENSE
+%{_bindir}/pkiconsole
+%{_javadir}/pki/pki-console.jar
+
+%endif # with console
+
+%if %{with theme}
+################################################################################
+%files -n %{name}-server-theme
+################################################################################
+
+%defattr(-,root,root,-)
+%doc dogtag/common-ui/LICENSE
+%dir %{_datadir}/pki
+%{_datadir}/pki/common-ui/
+%{_datadir}/pki/server/webapps/pki/ca
+%{_datadir}/pki/server/webapps/pki/css
+%{_datadir}/pki/server/webapps/pki/esc
+%{_datadir}/pki/server/webapps/pki/fonts
+%{_datadir}/pki/server/webapps/pki/images
+%{_datadir}/pki/server/webapps/pki/kra
+%{_datadir}/pki/server/webapps/pki/ocsp
+%{_datadir}/pki/server/webapps/pki/pki.properties
+%{_datadir}/pki/server/webapps/pki/tks
+
+################################################################################
+%files -n %{name}-console-theme
+################################################################################
+
+%defattr(-,root,root,-)
+%doc dogtag/console-ui/LICENSE
+%{_javadir}/pki/pki-console-theme.jar
+
+%endif # with theme
 
 ################################################################################
 %changelog
