@@ -37,6 +37,7 @@ public class PKCS11CertCLI extends CLI {
 
         addModule(new PKCS11CertFindCLI(this));
         addModule(new PKCS11CertShowCLI(this));
+        addModule(new PKCS11CertRemoveCLI(this));
     }
 
     public static void printCertInfo(String alias, Certificate cert) throws CertificateEncodingException, CertificateException {
