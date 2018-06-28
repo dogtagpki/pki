@@ -34,6 +34,7 @@ public class PKCS11KeyCLI extends CLI {
 
         addModule(new PKCS11KeyFindCLI(this));
         addModule(new PKCS11KeyShowCLI(this));
+        addModule(new PKCS11KeyRemoveCLI(this));
     }
 
     public static void printKeyInfo(String alias, Key key) {
