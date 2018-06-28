@@ -25,8 +25,6 @@ Source: https://github.com/dogtagpki/pki/archive/v%{version}%{?_phase}/pki-%{ver
 #     > pki-VERSION-RELEASE.patch
 # Patch: pki-VERSION-RELEASE.patch
 
-BuildArch:        noarch
-
 ################################################################################
 # Build Dependencies
 ################################################################################
@@ -51,6 +49,7 @@ exclusive!
 ################################################################################
 
 Summary:          Dogtag PKI Server Theme Package
+BuildArch:        noarch
 
 Obsoletes:        dogtag-pki-common-theme < %{version}-%{release}
 Obsoletes:        dogtag-pki-common-ui < %{version}-%{release}
@@ -93,7 +92,7 @@ Provides:         pki-tps-theme = %{version}-%{release}
 Provides:         pki-tps-ui = %{version}-%{release}
 
 %description -n   dogtag-pki-server-theme
-This PKI Server Framework User Interface contains
+This PKI Server Theme Package contains
 Dogtag textual and graphical user interface for PKI Server.
 
 ################################################################################
@@ -101,8 +100,7 @@ Dogtag textual and graphical user interface for PKI Server.
 ################################################################################
 
 Summary:          Dogtag PKI Console Theme Package
-
-Requires:         java-1.8.0-openjdk
+BuildArch:        noarch
 
 %if 0%{?rhel}
 # EPEL version of Dogtag "theme" conflicts with all versions of Red Hat "theme"

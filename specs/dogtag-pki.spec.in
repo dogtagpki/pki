@@ -24,15 +24,15 @@ Release:          1%{?_timestamp}%{?_commit_id}%{?dist}
 ################################################################################
 
 %if 0%{?rhel} && 0%{?rhel} <= 7
-%global with_python3 0
+# no python3
 %else
 %global with_python3 1
 %endif
 
 # Make certain that this 'meta' package requires the latest version(s)
 # of ALL PKI theme packages
-Requires:         dogtag-pki-server-theme >= %{version}
-Requires:         dogtag-pki-console-theme >= %{version}
+Requires:         %{name}-server-theme >= %{version}
+Requires:         %{name}-console-theme >= %{version}
 
 # Make certain that this 'meta' package requires the latest version(s)
 # of ALL PKI core packages

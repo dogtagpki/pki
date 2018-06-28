@@ -44,14 +44,14 @@ Source: https://github.com/dogtagpki/pki/archive/v%{version}%{?_phase}/pki-%{ver
 %if 0%{?rhel} && 0%{?rhel} <= 7 || 0%{?fedora} && 0%{?fedora} <= 28
 %global with_python2 1
 %else
-%global with_python2 0
+# no python2
 %endif
 %endif
 
 # Python 3 packages
 %if 0%{!?with_python3:1}
 %if 0%{?rhel} && 0%{?rhel} <= 7
-%global with_python3 0
+# no python3
 %else
 %global with_python3 1
 %endif
@@ -328,7 +328,7 @@ cd build
     -DBUILD_PKI_CORE:BOOL=ON \
     -DWITH_PYTHON2:BOOL=%{?with_python2:ON}%{!?with_python2:OFF} \
     -DWITH_PYTHON3:BOOL=%{?with_python3:ON}%{!?with_python3:OFF} \
-%if %{?with_python3_default}
+%if 0%{?with_python3_default}
     -DWITH_PYTHON3_DEFAULT:BOOL=ON \
 %endif
     -DWITH_TEST:BOOL=OFF \
