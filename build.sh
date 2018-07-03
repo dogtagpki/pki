@@ -5,13 +5,12 @@
 # All rights reserved.
 # END COPYRIGHT BLOCK
 
-NAME=pki
-
 SCRIPT_PATH=`readlink -f "$0"`
 SCRIPT_NAME=`basename "$SCRIPT_PATH"`
-
 SRC_DIR=`dirname "$SCRIPT_PATH"`
-WORK_DIR="$HOME/build/$NAME"
+
+NAME=
+WORK_DIR=
 
 SOURCE_TAG=
 SPEC_TEMPLATE=
@@ -32,9 +31,10 @@ usage() {
     echo "Usage: $SCRIPT_NAME [OPTIONS] <target>"
     echo
     echo "Options:"
-    echo "    --work-dir=<path>      Working directory (default: $WORK_DIR)."
+    echo "    --name=<name>          Package name (default: pki)."
+    echo "    --work-dir=<path>      Working directory (default: ~/build/pki)."
     echo "    --source-tag=<tag>     Generate RPM sources from a source tag."
-    echo "    --spec=<file>          Use the specified RPM spec."
+    echo "    --spec=<file>          Use the specified RPM spec as a template."
     echo "    --with-timestamp       Append timestamp to release number."
     echo "    --with-commit-id       Append commit ID to release number."
     echo "    --dist=<name>          Distribution name (e.g. fc28)."
@@ -57,7 +57,7 @@ usage() {
 
 generate_rpm_sources() {
 
-    TARBALL="$NAME-$VERSION${_PHASE}.tar.gz"
+    TARBALL="pki-$VERSION${_PHASE}.tar.gz"
 
     if [ "$SOURCE_TAG" != "" ] ; then
 
@@ -68,7 +68,7 @@ generate_rpm_sources() {
         git -C "$SRC_DIR" \
             archive \
             --format=tar.gz \
-            --prefix $NAME-$VERSION${_PHASE}/ \
+            --prefix pki-$VERSION${_PHASE}/ \
             -o "$WORK_DIR/SOURCES/$TARBALL" \
             $SOURCE_TAG
 
@@ -90,7 +90,7 @@ generate_rpm_sources() {
     fi
 
     tar czf "$WORK_DIR/SOURCES/$TARBALL" \
-        --transform "s,^./,$NAME-$VERSION${_PHASE}/," \
+        --transform "s,^./,pki-$VERSION${_PHASE}/," \
         --exclude .git \
         --exclude .svn \
         --exclude .swp \
@@ -107,7 +107,7 @@ generate_rpm_sources() {
 
 generate_patch() {
 
-    PATCH="$NAME-$VERSION-$RELEASE.patch"
+    PATCH="pki-$VERSION-$RELEASE.patch"
 
     if [ "$VERBOSE" = true ] ; then
         echo "Generating $PATCH for all changes since $SOURCE_TAG tag"
@@ -128,9 +128,12 @@ generate_rpm_spec() {
         echo "Generating $RPM_SPEC"
     fi
 
+    # hard-code package name
+    commands="s/^\(Name: *\).*\$/\1${NAME}/g"
+
     if [ "$_TIMESTAMP" != "" ] ; then
         # hard-code timestamp
-        commands="s/%{?_timestamp}/${_TIMESTAMP}/g"
+        commands="${commands}; s/%{?_timestamp}/${_TIMESTAMP}/g"
     fi
 
     if [ "$_COMMIT_ID" != "" ] ; then
@@ -214,6 +217,9 @@ while getopts v-: arg ; do
         LONG_OPTARG="${OPTARG#*=}"
 
         case $OPTARG in
+        name=?*)
+            NAME="$LONG_OPTARG"
+            ;;
         work-dir=?*)
             WORK_DIR=`readlink -f "$LONG_OPTARG"`
             ;;
@@ -263,7 +269,7 @@ while getopts v-: arg ; do
         '')
             break # "--" terminates argument processing
             ;;
-        work-dir* | source-tag* | spec* | with-pkgs* | without-pkgs* | dist*)
+        name* | work-dir* | source-tag* | spec* | with-pkgs* | without-pkgs* | dist*)
             echo "ERROR: Missing argument for --$OPTARG option" >&2
             exit 1
             ;;
@@ -289,7 +295,6 @@ else
 fi
 
 if [ "$DEBUG" = true ] ; then
-    echo "WORK_DIR: $WORK_DIR"
     echo "BUILD_TARGET: $BUILD_TARGET"
 fi
 
@@ -301,8 +306,24 @@ if [ "$BUILD_TARGET" != "src" ] &&
     exit 1
 fi
 
+if [ "$NAME" = "" ] ; then
+    NAME="pki"
+fi
+
+if [ "$DEBUG" = true ] ; then
+    echo "NAME: $NAME"
+fi
+
+if [ "$WORK_DIR" = "" ] ; then
+    WORK_DIR="$HOME/build/$NAME"
+fi
+
+if [ "$DEBUG" = true ] ; then
+    echo "WORK_DIR: $WORK_DIR"
+fi
+
 if [ "$SPEC_TEMPLATE" = "" ] ; then
-    SPEC_TEMPLATE="$SRC_DIR/specs/$NAME.spec.in"
+    SPEC_TEMPLATE="$SRC_DIR/specs/pki.spec.in"
 fi
 
 VERSION="`rpmspec -P "$SPEC_TEMPLATE" | grep "^Version:" | awk '{print $2;}'`"
