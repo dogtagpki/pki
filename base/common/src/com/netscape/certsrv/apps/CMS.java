@@ -33,7 +33,7 @@ import org.dogtagpki.legacy.policy.IGeneralNameAsConstraintsConfig;
 import org.dogtagpki.legacy.policy.IGeneralNamesAsConstraintsConfig;
 import org.dogtagpki.legacy.policy.IGeneralNamesConfig;
 import org.dogtagpki.legacy.policy.ISubjAltNameConfig;
-import org.mozilla.jss.CryptoManager.CertificateUsage;
+import org.mozilla.jss.CertificateUsage;
 import org.mozilla.jss.util.PasswordCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
