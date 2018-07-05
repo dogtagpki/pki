@@ -2,7 +2,7 @@
 Name:             pki-core
 ################################################################################
 
-Summary:          Dogtag PKI Core Package
+Summary:          PKI Core Package
 URL:              http://www.dogtagpki.org/
 # The entire source code is GPLv2 except for 'pki-tps' which is LGPLv2
 License:          GPLv2 and LGPLv2
@@ -177,6 +177,24 @@ Source: https://github.com/dogtagpki/pki/archive/v%{version}%{?_phase}/pki-%{ver
 %define pki_gid 17
 %define pki_homedir /usr/share/pki
 
+%global saveFileContext() \
+if [ -s /etc/selinux/config ]; then \
+     . %{_sysconfdir}/selinux/config; \
+     FILE_CONTEXT=%{_sysconfdir}/selinux/%1/contexts/files/file_contexts; \
+     if [ "${SELINUXTYPE}" == %1 -a -f ${FILE_CONTEXT} ]; then \
+          cp -f ${FILE_CONTEXT} ${FILE_CONTEXT}.%{name}; \
+     fi \
+fi;
+
+%global relabel() \
+. %{_sysconfdir}/selinux/config; \
+FILE_CONTEXT=%{_sysconfdir}/selinux/%1/contexts/files/file_contexts; \
+selinuxenabled; \
+if [ $? == 0  -a "${SELINUXTYPE}" == %1 -a -f ${FILE_CONTEXT}.%{name} ]; then \
+     fixfiles -C ${FILE_CONTEXT}.%{name} restore; \
+     rm -f ${FILE_CONTEXT}.%name; \
+fi;
+
 ################################################################################
 # Build Dependencies
 ################################################################################
@@ -321,8 +339,8 @@ BuildRequires:    jpackage-utils >= 0:1.7.5-10
 BuildRequires:    jss >= 4.4.0-11
 BuildRequires:    tomcatjss >= 7.2.1-4
 %else
-BuildRequires:    jss >= 4.5.0-0.2
-BuildRequires:    tomcatjss >= 7.3.0
+BuildRequires:    jss >= 4.5.0-0.3
+BuildRequires:    tomcatjss >= 7.3.2
 %endif
 BuildRequires:    systemd-units
 
@@ -350,37 +368,6 @@ BuildRequires:    pcre-devel
 BuildRequires:    systemd
 BuildRequires:    zlib
 BuildRequires:    zlib-devel
-
-%global saveFileContext() \
-if [ -s /etc/selinux/config ]; then \
-     . %{_sysconfdir}/selinux/config; \
-     FILE_CONTEXT=%{_sysconfdir}/selinux/%1/contexts/files/file_contexts; \
-     if [ "${SELINUXTYPE}" == %1 -a -f ${FILE_CONTEXT} ]; then \
-          cp -f ${FILE_CONTEXT} ${FILE_CONTEXT}.%{name}; \
-     fi \
-fi;
-
-%global relabel() \
-. %{_sysconfdir}/selinux/config; \
-FILE_CONTEXT=%{_sysconfdir}/selinux/%1/contexts/files/file_contexts; \
-selinuxenabled; \
-if [ $? == 0  -a "${SELINUXTYPE}" == %1 -a -f ${FILE_CONTEXT}.%{name} ]; then \
-     fixfiles -C ${FILE_CONTEXT}.%{name} restore; \
-     rm -f ${FILE_CONTEXT}.%name; \
-fi;
-
-%description
-
-Dogtag PKI is an enterprise software system designed
-to manage enterprise Public Key Infrastructure deployments.
-
-PKI consists of the following components:
-
-  * Certificate Authority (CA)
-  * Key Recovery Authority (KRA)
-  * Online Certificate Status Protocol (OCSP) Manager
-  * Token Key Service (TKS)
-  * Token Processing Service (TPS)
 
 %if %{with meta}
 
@@ -418,6 +405,19 @@ Requires:         esc >= 1.1.1
 
 %endif # with meta
 
+%description
+
+Dogtag PKI is an enterprise software system designed
+to manage enterprise Public Key Infrastructure deployments.
+
+PKI consists of the following components:
+
+  * Certificate Authority (CA)
+  * Key Recovery Authority (KRA)
+  * Online Certificate Status Protocol (OCSP) Manager
+  * Token Key Service (TKS)
+  * Token Processing Service (TPS)
+
 %if %{with base}
 ################################################################################
 %package -n       pki-symkey
@@ -430,7 +430,7 @@ Requires:         jpackage-utils >= 0:1.7.5-10
 %if 0%{?rhel} && 0%{?rhel} <= 7
 Requires:         jss >= 4.4.0-11
 %else
-Requires:         jss >= 4.5.0-0.2
+Requires:         jss >= 4.5.0-0.3
 %endif
 Requires:         nss >= 3.36.1
 
@@ -569,7 +569,7 @@ Requires:         jpackage-utils >= 0:1.7.5-10
 %if 0%{?rhel} && 0%{?rhel} <= 7
 Requires:         jss >= 4.4.0-11
 %else
-Requires:         jss >= 4.5.0-0.2
+Requires:         jss >= 4.5.0-0.3
 %endif
 Requires:         ldapjdk >= 4.19-5
 Requires:         pki-base >= %{version}-%{release}
@@ -719,7 +719,7 @@ Requires(pre):    shadow-utils
 %if 0%{?rhel} && 0%{?rhel} <= 7
 Requires:         tomcatjss >= 7.2.1-4
 %else
-Requires:         tomcatjss >= 7.3.0
+Requires:         tomcatjss >= 7.3.2
 %endif
 
 %if 0%{?rhel} && 0%{?rhel} <= 7
