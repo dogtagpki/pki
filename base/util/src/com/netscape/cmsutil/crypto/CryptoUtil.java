@@ -63,6 +63,7 @@ import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NicknameConflictException;
 import org.mozilla.jss.NoSuchTokenException;
 import org.mozilla.jss.NotInitializedException;
+import org.mozilla.jss.UserCertConflictException;
 import org.mozilla.jss.SecretDecoderRing.KeyManager;
 import org.mozilla.jss.asn1.ANY;
 import org.mozilla.jss.asn1.ASN1Util;
@@ -2369,7 +2370,7 @@ public class CryptoUtil {
             String nickname)
             throws NotInitializedException,
                 NicknameConflictException,
-                CryptoManager.UserCertConflictException,
+                UserCertConflictException,
                 NoSuchItemOnTokenException,
                 TokenException,
                 CertificateEncodingException {
@@ -2389,7 +2390,7 @@ public class CryptoUtil {
                 NoSuchItemOnTokenException,
                 TokenException,
                 NicknameConflictException,
-                CryptoManager.UserCertConflictException {
+                UserCertConflictException {
 
         CryptoManager cm = CryptoManager.getInstance();
         return cm.importUserCACertPackage(bytes, nickname);
