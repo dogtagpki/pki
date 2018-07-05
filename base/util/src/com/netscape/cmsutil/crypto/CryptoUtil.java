@@ -60,6 +60,7 @@ import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.NicknameConflictException;
 import org.mozilla.jss.NoSuchTokenException;
 import org.mozilla.jss.NotInitializedException;
 import org.mozilla.jss.SecretDecoderRing.KeyManager;
@@ -2367,7 +2368,7 @@ public class CryptoUtil {
     public static X509Certificate importUserCertificateChain(String c,
             String nickname)
             throws NotInitializedException,
-                CryptoManager.NicknameConflictException,
+                NicknameConflictException,
                 CryptoManager.UserCertConflictException,
                 NoSuchItemOnTokenException,
                 TokenException,
@@ -2387,7 +2388,7 @@ public class CryptoUtil {
                 CertificateEncodingException,
                 NoSuchItemOnTokenException,
                 TokenException,
-                CryptoManager.NicknameConflictException,
+                NicknameConflictException,
                 CryptoManager.UserCertConflictException {
 
         CryptoManager cm = CryptoManager.getInstance();

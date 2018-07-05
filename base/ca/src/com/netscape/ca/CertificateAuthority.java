@@ -56,6 +56,7 @@ import org.apache.commons.lang.StringUtils;
 import org.dogtagpki.legacy.ca.CAPolicy;
 import org.dogtagpki.legacy.policy.IPolicyProcessor;
 import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.NicknameConflictException;
 import org.mozilla.jss.NotInitializedException;
 import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.GeneralizedTime;
@@ -792,7 +793,7 @@ public class CertificateAuthority
             throw new ECAException("Failed to update certificate", e);
         } catch (NotInitializedException e) {
             throw new ECAException("CryptoManager not initialized", e);
-        } catch (CryptoManager.NicknameConflictException e) {
+        } catch (NicknameConflictException e) {
             throw new ECAException("Failed to update certificate; nickname conflict", e);
         } catch (CryptoManager.UserCertConflictException e) {
             throw new ECAException("Failed to update certificate; user cert conflict", e);

@@ -48,8 +48,8 @@ import java.util.StringTokenizer;
 import java.util.Vector;
 
 import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.CryptoManager.NicknameConflictException;
 import org.mozilla.jss.CryptoManager.UserCertConflictException;
+import org.mozilla.jss.NicknameConflictException;
 import org.mozilla.jss.NoSuchTokenException;
 import org.mozilla.jss.NotInitializedException;
 import org.mozilla.jss.asn1.ASN1Util;
