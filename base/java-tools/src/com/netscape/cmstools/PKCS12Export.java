@@ -22,6 +22,7 @@ import java.io.FileReader;
 
 import org.dogtagpki.util.logging.PKILogger;
 import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.InitializationValues;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.util.Password;
 import org.slf4j.Logger;
@@ -83,8 +84,8 @@ public class PKCS12Export {
 
         logger.info("Initializing database in " + databaseDirectory);
 
-        CryptoManager.InitializationValues vals =
-                new CryptoManager.InitializationValues(
+        InitializationValues vals =
+                new InitializationValues(
                         databaseDirectory, "", "", "secmod.db");
         CryptoManager.initialize(vals);
 

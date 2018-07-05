@@ -34,6 +34,7 @@ import java.security.SignatureException;
 import java.util.Date;
 
 import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.InitializationValues;
 import org.mozilla.jss.asn1.ANY;
 import org.mozilla.jss.asn1.INTEGER;
 import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
@@ -355,8 +356,8 @@ public class CMCEnroll {
                 mPath = dValue;
                 System.out.println("cert/key prefix = " + mPrefix);
                 System.out.println("path = " + mPath);
-                CryptoManager.InitializationValues vals =
-                        new CryptoManager.InitializationValues(mPath, mPrefix,
+                InitializationValues vals =
+                        new InitializationValues(mPath, mPrefix,
                                 mPrefix, "secmod.db");
 
                 CryptoManager.initialize(vals);

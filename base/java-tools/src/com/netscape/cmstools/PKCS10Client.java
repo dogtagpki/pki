@@ -23,6 +23,7 @@ import java.io.PrintStream;
 import java.security.KeyPair;
 
 import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.InitializationValues;
 import org.mozilla.jss.asn1.BMPString;
 import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
 import org.mozilla.jss.asn1.PrintableString;
@@ -198,8 +199,8 @@ public class PKCS10Client {
         try {
             // initialize CryptoManager
             String mPrefix = "";
-            CryptoManager.InitializationValues vals =
-                new CryptoManager.InitializationValues(dbdir, mPrefix,
+            InitializationValues vals =
+                new InitializationValues(dbdir, mPrefix,
                         mPrefix, "secmod.db");
 
             CryptoManager.initialize(vals);

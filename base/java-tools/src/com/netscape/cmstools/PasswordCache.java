@@ -33,6 +33,7 @@ import java.util.Hashtable;
 import java.util.StringTokenizer;
 
 import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.InitializationValues;
 import org.mozilla.jss.SecretDecoderRing.Decryptor;
 import org.mozilla.jss.SecretDecoderRing.Encryptor;
 import org.mozilla.jss.SecretDecoderRing.KeyManager;
@@ -241,8 +242,8 @@ public class PasswordCache {
             System.out.println("cert/key db path = " + mPath);
             System.out.println("password cache file = " + mCacheFile);
 
-            CryptoManager.InitializationValues vals =
-                    new CryptoManager.InitializationValues(mPath, mPrefix,
+            InitializationValues vals =
+                    new InitializationValues(mPath, mPrefix,
                             mPrefix, "secmod.db");
 
             CryptoManager.initialize(vals);

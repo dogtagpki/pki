@@ -48,6 +48,7 @@ import java.util.StringTokenizer;
 import java.util.Vector;
 
 import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.InitializationValues;
 import org.mozilla.jss.NicknameConflictException;
 import org.mozilla.jss.NoSuchTokenException;
 import org.mozilla.jss.NotInitializedException;
@@ -298,7 +299,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
         String certDir = config.getString(CONFIG_DIR, null);
         CMS.debug("JssSubsystem: NSS database: " + certDir);
 
-        CryptoManager.InitializationValues vals = new CryptoManager.InitializationValues(certDir, "", "", "secmod.db");
+        InitializationValues vals = new InitializationValues(certDir, "", "", "secmod.db");
         vals.removeSunProvider = false;
         vals.installJSSProvider = true;
 

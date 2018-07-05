@@ -28,6 +28,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 
 import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.InitializationValues;
 import org.mozilla.jss.NoSuchTokenException;
 import org.mozilla.jss.asn1.ANY;
 import org.mozilla.jss.asn1.ENUMERATED;
@@ -178,8 +179,8 @@ public class CMCRevoke {
                 mPath = dValue;
                 System.out.println("cert/key prefix = " + mPrefix);
                 System.out.println("path = " + mPath);
-                CryptoManager.InitializationValues vals =
-                    new CryptoManager.InitializationValues(mPath, mPrefix, mPrefix, "secmod.db");
+                InitializationValues vals =
+                    new InitializationValues(mPath, mPrefix, mPrefix, "secmod.db");
 
                 CryptoManager.initialize(vals);
 

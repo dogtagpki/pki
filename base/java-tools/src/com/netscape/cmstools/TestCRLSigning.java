@@ -23,6 +23,7 @@ import java.util.Date;
 import java.util.Hashtable;
 
 import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.InitializationValues;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.KeyPairAlgorithm;
 import org.mozilla.jss.crypto.KeyPairGenerator;
@@ -56,8 +57,8 @@ public class TestCRLSigning {
 
         // initialize JSS
         CryptoManager cm = null;
-        CryptoManager.InitializationValues vals =
-                new CryptoManager.InitializationValues(dir, "", "", "secmod.db");
+        InitializationValues vals =
+                new InitializationValues(dir, "", "", "secmod.db");
         CryptoManager.initialize(vals);
         cm = CryptoManager.getInstance();
 

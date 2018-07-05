@@ -20,6 +20,7 @@ package com.netscape.cmstools;
 import java.util.Enumeration;
 
 import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.InitializationValues;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.pkcs11.PK11Module;
 
@@ -45,8 +46,8 @@ public class TokenInfo {
             }
             System.out.println("Database Path: " + args[0]);
 
-            CryptoManager.InitializationValues vals =
-                    new CryptoManager.InitializationValues(args[0],
+            InitializationValues vals =
+                    new InitializationValues(args[0],
                             "", "", "secmod.db");
 
             CryptoManager.initialize(vals);

@@ -33,6 +33,7 @@ import java.net.Socket;
 import java.util.Properties;
 
 import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.InitializationValues;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.ssl.SSLHandshakeCompletedEvent;
@@ -110,8 +111,8 @@ public class HttpClient {
 
             System.out.println("Total number of bytes read = " + b.length);
             if (_secure) {
-                CryptoManager.InitializationValues vals =
-                        new CryptoManager.InitializationValues(dbdir, "", "", "secmod.db");
+                InitializationValues vals =
+                        new InitializationValues(dbdir, "", "", "secmod.db");
                 CryptoManager.initialize(vals);
                 CryptoManager cm = CryptoManager.getInstance();
                 CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);

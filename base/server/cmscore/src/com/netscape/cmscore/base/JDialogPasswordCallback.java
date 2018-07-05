@@ -38,6 +38,7 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 
 import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.InitializationValues;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.util.Password;
 import org.mozilla.jss.util.PasswordCallback;
@@ -248,8 +249,8 @@ public class JDialogPasswordCallback implements PasswordCallback {
         try {
             CryptoManager manager;
 
-            CryptoManager.InitializationValues iv = new
-                    CryptoManager.InitializationValues(args[0]);
+            InitializationValues iv = new
+                    InitializationValues(args[0]);
 
             CryptoManager.initialize(iv);
             manager = CryptoManager.getInstance();

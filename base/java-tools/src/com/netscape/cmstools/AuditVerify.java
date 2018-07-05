@@ -32,6 +32,7 @@ import java.util.StringTokenizer;
 import java.util.Vector;
 
 import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.InitializationValues;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.X509Certificate;
 
@@ -364,7 +365,7 @@ public class AuditVerify {
                     usage();
                 }
                 CryptoManager.initialize(
-                        new CryptoManager.InitializationValues(dbdir, prefix, prefix,
+                        new InitializationValues(dbdir, prefix, prefix,
                                 "secmod.db")
                         );
             }
