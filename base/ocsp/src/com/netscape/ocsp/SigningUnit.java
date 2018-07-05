@@ -24,6 +24,7 @@ import java.security.SignatureException;
 
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NoSuchTokenException;
+import org.mozilla.jss.NotInitializedException;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.PrivateKey;
@@ -164,7 +165,7 @@ public final class SigningUnit implements ISigningUnit {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_OCSP_CONVERT_X509", e.getMessage()));
             throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()), e);
 
-        } catch (CryptoManager.NotInitializedException e) {
+        } catch (NotInitializedException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_OCSP_SIGNING", e.toString()));
             throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()), e);
 

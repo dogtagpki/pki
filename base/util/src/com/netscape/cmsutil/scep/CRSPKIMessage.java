@@ -25,8 +25,7 @@ import java.security.PublicKey;
 import java.util.Arrays;
 import java.util.Hashtable;
 
-import netscape.security.pkcs.PKCS10;
-
+import org.mozilla.jss.NotInitializedException;
 import org.mozilla.jss.asn1.ANY;
 import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.INTEGER;
@@ -49,6 +48,8 @@ import org.mozilla.jss.pkcs7.SignerInfo;
 import org.mozilla.jss.pkix.cert.Certificate;
 import org.mozilla.jss.pkix.cert.CertificateInfo;
 import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
+
+import netscape.security.pkcs.PKCS10;
 
 public class CRSPKIMessage {
 
@@ -313,7 +314,7 @@ public class CRSPKIMessage {
             TokenException,
             java.security.InvalidKeyException,
             java.security.SignatureException,
-            org.mozilla.jss.CryptoManager.NotInitializedException {
+            NotInitializedException {
 
         si = new SignerInfo(sgnIASN, // issuer and serialnum
                 this.aa, // Authenticated Attributes

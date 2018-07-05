@@ -39,7 +39,7 @@ import org.dogtagpki.server.tps.engine.TPSEngine;
 import org.dogtagpki.server.tps.mapping.MappingResolverManager;
 import org.dogtagpki.tps.main.TPSException;
 import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.CryptoManager.NotInitializedException;
+import org.mozilla.jss.NotInitializedException;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.TokenException;
 

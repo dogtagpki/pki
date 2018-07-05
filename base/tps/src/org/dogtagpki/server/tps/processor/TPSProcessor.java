@@ -80,7 +80,7 @@ import org.dogtagpki.tps.msg.TPSMessage;
 import org.dogtagpki.tps.msg.TokenPDURequestMsg;
 import org.dogtagpki.tps.msg.TokenPDUResponseMsg;
 import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.CryptoManager.NotInitializedException;
+import org.mozilla.jss.NotInitializedException;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.pkcs11.PK11SymKey;

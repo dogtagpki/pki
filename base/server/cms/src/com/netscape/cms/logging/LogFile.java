@@ -59,6 +59,7 @@ import javax.servlet.ServletException;
 
 import org.apache.commons.lang.StringUtils;
 import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.NotInitializedException;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.TokenException;
@@ -645,7 +646,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
             // get a fresh start with this instance.
             pushSignature();
 
-        } catch (CryptoManager.NotInitializedException nie) {
+        } catch (NotInitializedException nie) {
             setupSigningFailure("BASE_CRYPTOMANAGER_UNINITIALIZED", nie);
         } catch (ObjectNotFoundException onfe) {
             setupSigningFailure("LOG_SIGNING_CERT_NOT_FOUND", onfe);

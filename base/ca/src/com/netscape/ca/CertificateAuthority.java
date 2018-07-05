@@ -56,6 +56,7 @@ import org.apache.commons.lang.StringUtils;
 import org.dogtagpki.legacy.ca.CAPolicy;
 import org.dogtagpki.legacy.policy.IPolicyProcessor;
 import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.NotInitializedException;
 import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.GeneralizedTime;
 import org.mozilla.jss.asn1.INTEGER;
@@ -789,7 +790,7 @@ public class CertificateAuthority
 
         } catch (CertificateException e) {
             throw new ECAException("Failed to update certificate", e);
-        } catch (CryptoManager.NotInitializedException e) {
+        } catch (NotInitializedException e) {
             throw new ECAException("CryptoManager not initialized", e);
         } catch (CryptoManager.NicknameConflictException e) {
             throw new ECAException("Failed to update certificate; nickname conflict", e);
@@ -1854,7 +1855,7 @@ public class CertificateAuthority
             mNickname = mSigningUnit.getNickname();
             logger.debug("in init - got CA name " + mName);
 
-        } catch (CryptoManager.NotInitializedException e) {
+        } catch (NotInitializedException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_OCSP_SIGNING", e.toString()));
             throw new ECAException(CMS.getUserMessage("CMS_CA_CRYPTO_NOT_INITIALIZED"), e);
 
@@ -3239,7 +3240,7 @@ public class CertificateAuthority
         CryptoManager cryptoManager;
         try {
             cryptoManager = CryptoManager.getInstance();
-        } catch (CryptoManager.NotInitializedException e) {
+        } catch (NotInitializedException e) {
             // can't happen
             throw new ECAException("CryptoManager not initialized");
         }

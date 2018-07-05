@@ -20,6 +20,7 @@ package com.netscape.kra;
 import java.security.PublicKey;
 
 import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.NotInitializedException;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.IVParameterSpec;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
@@ -104,7 +105,7 @@ public class TransportKeyUnit extends EncryptionUnit implements
                 mNewCert = mManager.findCertByNickname(newNickName);
             }
 
-        } catch (org.mozilla.jss.CryptoManager.NotInitializedException e) {
+        } catch (NotInitializedException e) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()));
 
         } catch (TokenException e) {

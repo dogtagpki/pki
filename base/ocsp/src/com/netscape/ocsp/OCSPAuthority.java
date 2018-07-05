@@ -28,6 +28,7 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 
 import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.NotInitializedException;
 import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.InvalidBERException;
 import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
@@ -311,7 +312,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
             mNickname = mSigningUnit.getNickname();
             CMS.debug("in init - got CA name " + mName);
 
-        } catch (CryptoManager.NotInitializedException e) {
+        } catch (NotInitializedException e) {
             log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSCORE_OCSP_SIGNING", e.toString()));
         } catch (CertificateException e) {

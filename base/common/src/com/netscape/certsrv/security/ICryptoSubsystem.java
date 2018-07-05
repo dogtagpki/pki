@@ -22,11 +22,7 @@ import java.security.KeyPair;
 import java.security.cert.CertificateException;
 import java.util.Locale;
 
-import netscape.security.x509.AlgorithmId;
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.X509CertImpl;
-
-import org.mozilla.jss.CryptoManager.NotInitializedException;
+import org.mozilla.jss.NotInitializedException;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.PQGParams;
 import org.mozilla.jss.crypto.TokenException;
@@ -35,6 +31,10 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.common.NameValuePairs;
+
+import netscape.security.x509.AlgorithmId;
+import netscape.security.x509.CertificateExtensions;
+import netscape.security.x509.X509CertImpl;
 
 /**
  * This interface represents the cryptographics subsystem

@@ -34,39 +34,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import netscape.ldap.LDAPAttribute;
-import netscape.ldap.LDAPAttributeSet;
-import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPEntry;
-import netscape.security.pkcs.PKCS10;
-import netscape.security.pkcs.PKCS10Attribute;
-import netscape.security.pkcs.PKCS10Attributes;
-import netscape.security.util.ObjectIdentifier;
-import netscape.security.x509.AVA;
-import netscape.security.x509.CertAttrSet;
-import netscape.security.x509.CertificateChain;
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.CertificateSubjectName;
-import netscape.security.x509.CertificateVersion;
-import netscape.security.x509.CertificateX509Key;
-import netscape.security.x509.DNSName;
-import netscape.security.x509.Extension;
-import netscape.security.x509.GeneralName;
-import netscape.security.x509.GeneralNameInterface;
-import netscape.security.x509.GeneralNames;
-import netscape.security.x509.IPAddressName;
-import netscape.security.x509.KeyUsageExtension;
-import netscape.security.x509.OIDMap;
-import netscape.security.x509.RDN;
-import netscape.security.x509.SubjectAlternativeNameExtension;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X500NameAttrMap;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
-import netscape.security.x509.X509Key;
-
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NoSuchTokenException;
+import org.mozilla.jss.NotInitializedException;
 import org.mozilla.jss.asn1.ANY;
 import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.BIT_STRING;
@@ -125,6 +95,37 @@ import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.scep.CRSPKIMessage;
 import com.netscape.cmsutil.util.Utils;
+
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPAttributeSet;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPEntry;
+import netscape.security.pkcs.PKCS10;
+import netscape.security.pkcs.PKCS10Attribute;
+import netscape.security.pkcs.PKCS10Attributes;
+import netscape.security.util.ObjectIdentifier;
+import netscape.security.x509.AVA;
+import netscape.security.x509.CertAttrSet;
+import netscape.security.x509.CertificateChain;
+import netscape.security.x509.CertificateExtensions;
+import netscape.security.x509.CertificateSubjectName;
+import netscape.security.x509.CertificateVersion;
+import netscape.security.x509.CertificateX509Key;
+import netscape.security.x509.DNSName;
+import netscape.security.x509.Extension;
+import netscape.security.x509.GeneralName;
+import netscape.security.x509.GeneralNameInterface;
+import netscape.security.x509.GeneralNames;
+import netscape.security.x509.IPAddressName;
+import netscape.security.x509.KeyUsageExtension;
+import netscape.security.x509.OIDMap;
+import netscape.security.x509.RDN;
+import netscape.security.x509.SubjectAlternativeNameExtension;
+import netscape.security.x509.X500Name;
+import netscape.security.x509.X500NameAttrMap;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509CertInfo;
+import netscape.security.x509.X509Key;
 
 /**
  * This servlet deals with PKCS#10-based certificate requests from
@@ -1104,7 +1105,7 @@ public class CRSEnrollment extends HttpServlet {
 
     public void unwrapPKCS10(CRSPKIMessage req, CryptoContext cx)
             throws ServletException,
-             CryptoManager.NotInitializedException,
+             NotInitializedException,
              CryptoContext.CryptoContextException,
              CRSFailureException {
 
@@ -1471,7 +1472,7 @@ public class CRSEnrollment extends HttpServlet {
                                  IRequest cmsRequest, CRSPKIMessage req,
                                     CRSPKIMessage crsResp, CryptoContext cx)
             throws ServletException,
-             CryptoManager.NotInitializedException,
+             NotInitializedException,
              CRSFailureException {
 
         try {
@@ -2006,7 +2007,7 @@ public class CRSEnrollment extends HttpServlet {
             } catch (InvalidBERException e) {
                 throw new CryptoContextException(
                         "Internal Error: Bad internal Certificate Representation. Not a valid RSA-signed certificate");
-            } catch (CryptoManager.NotInitializedException e) {
+            } catch (NotInitializedException e) {
                 throw new CryptoContextException("Crypto Manager not initialized");
             } catch (NoSuchAlgorithmException e) {
                 throw new CryptoContextException("Cannot create DES key generator");

@@ -24,16 +24,13 @@ import java.security.cert.CertificateException;
 import java.util.Hashtable;
 import java.util.List;
 
-import netscape.security.x509.RevocationReason;
-import netscape.security.x509.X509CertImpl;
-
 import org.dogtagpki.server.connector.IRemoteRequest;
 import org.dogtagpki.server.tps.TPSSubsystem;
 import org.dogtagpki.server.tps.engine.TPSEngine;
 import org.dogtagpki.tps.main.TPSBuffer;
 import org.dogtagpki.tps.main.Util;
 import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.CryptoManager.NotInitializedException;
+import org.mozilla.jss.NotInitializedException;
 import org.mozilla.jss.crypto.X509Certificate;
 
 import com.netscape.certsrv.apps.CMS;
@@ -44,6 +41,9 @@ import com.netscape.cmscore.connector.HttpConnector;
 import com.netscape.cmsutil.http.HttpResponse;
 import com.netscape.cmsutil.util.Utils;
 import com.netscape.cmsutil.xml.XMLObject;
+
+import netscape.security.x509.RevocationReason;
+import netscape.security.x509.X509CertImpl;
 
 /**
  * CARemoteRequestHandler is a class representing remote requests

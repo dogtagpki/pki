@@ -57,9 +57,9 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.velocity.context.Context;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.CryptoManager.NicknameConflictException;
-import org.mozilla.jss.CryptoManager.NotInitializedException;
 import org.mozilla.jss.CryptoManager.UserCertConflictException;
 import org.mozilla.jss.NoSuchTokenException;
+import org.mozilla.jss.NotInitializedException;
 import org.mozilla.jss.asn1.ANY;
 import org.mozilla.jss.asn1.BMPString;
 import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
@@ -1941,7 +1941,7 @@ public class ConfigurationUtils {
 
     public static KeyPair createECCKeyPair(String token, String curveName, IConfigStore config, String ct)
             throws NoSuchAlgorithmException, NoSuchTokenException, TokenException,
-            CryptoManager.NotInitializedException, EPropertyNotFound, EBaseException {
+            NotInitializedException, EPropertyNotFound, EBaseException {
 
         logger.debug("ConfigurationUtils.createECCKeyPair(" + token + ", " + curveName + ")");
 

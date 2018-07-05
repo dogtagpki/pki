@@ -49,9 +49,9 @@ import java.util.Vector;
 
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.CryptoManager.NicknameConflictException;
-import org.mozilla.jss.CryptoManager.NotInitializedException;
 import org.mozilla.jss.CryptoManager.UserCertConflictException;
 import org.mozilla.jss.NoSuchTokenException;
+import org.mozilla.jss.NotInitializedException;
 import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.InvalidBERException;
 import org.mozilla.jss.asn1.SET;
@@ -320,7 +320,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
             CMS.debug("JssSubsystem: initializing SSL");
             mCryptoManager = CryptoManager.getInstance();
             initSSL();
-        } catch (CryptoManager.NotInitializedException e) {
+        } catch (NotInitializedException e) {
             CMS.debug(e);
             String[] params = { mId, e.toString() };
             EBaseException ex = new EBaseException(CMS.getUserMessage("CMS_BASE_CREATE_SERVICE_FAILED", params));
@@ -1225,7 +1225,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
                         Debug.trace("getRootCerts: nickname=" + nickname + ", serialno=" +
                                 serialno + ", issuer=" + issuer);
                         continue;
-                    } catch (CryptoManager.NotInitializedException e) {
+                    } catch (NotInitializedException e) {
                         continue;
                     }
                 }
@@ -1290,7 +1290,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
                         Debug.trace("JssSubsystem getUserCerts: cant find private key "
                                 + list[i].getNickname());
                         continue;
-                    } catch (CryptoManager.NotInitializedException e) {
+                    } catch (NotInitializedException e) {
                         continue;
                     }
                 }

@@ -34,6 +34,7 @@ import javax.crypto.BadPaddingException;
 
 import org.apache.commons.codec.binary.Base64;
 import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.NotInitializedException;
 import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
 import org.mozilla.jss.crypto.Cipher;
 import org.mozilla.jss.crypto.CryptoToken;
@@ -239,7 +240,7 @@ public class StorageKeyUnit extends EncryptionUnit implements
         try {
             mManager = CryptoManager.getInstance();
             mToken = getToken();
-        } catch (org.mozilla.jss.CryptoManager.NotInitializedException e) {
+        } catch (NotInitializedException e) {
             mKRA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_STORAGE_INIT", e.toString()));
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", e.toString()));
         }

@@ -10,7 +10,7 @@ import java.util.List;
 import javax.net.ssl.X509TrustManager;
 
 import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.CryptoManager.NotInitializedException;
+import org.mozilla.jss.NotInitializedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

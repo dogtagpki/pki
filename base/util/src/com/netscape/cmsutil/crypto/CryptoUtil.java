@@ -60,8 +60,8 @@ import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.CryptoManager.NotInitializedException;
 import org.mozilla.jss.NoSuchTokenException;
+import org.mozilla.jss.NotInitializedException;
 import org.mozilla.jss.SecretDecoderRing.KeyManager;
 import org.mozilla.jss.asn1.ANY;
 import org.mozilla.jss.asn1.ASN1Util;
@@ -584,7 +584,7 @@ public class CryptoUtil {
      * Generates an ecc key pair.
      */
     public static KeyPair generateECCKeyPair(String token, int keysize)
-            throws CryptoManager.NotInitializedException,
+            throws NotInitializedException,
                 NoSuchTokenException,
                 NoSuchAlgorithmException,
                 TokenException {
@@ -594,7 +594,7 @@ public class CryptoUtil {
     public static KeyPair generateECCKeyPair(String token, int keysize,
             org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage[] usage_ops,
             org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage[] usage_mask)
-            throws CryptoManager.NotInitializedException,
+            throws NotInitializedException,
                 NoSuchTokenException,
                 NoSuchAlgorithmException,
                 TokenException {
@@ -610,7 +610,7 @@ public class CryptoUtil {
            org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage[] usage_ops,
            org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage[] usage_mask,
            boolean temporary, int sensitive, int extractable)
-        throws CryptoManager.NotInitializedException,
+        throws NotInitializedException,
                 NoSuchTokenException,
                 NoSuchAlgorithmException,
                 TokenException {
@@ -646,7 +646,7 @@ public class CryptoUtil {
      * Generates an ecc key pair by curve name
      */
     public static KeyPair generateECCKeyPair(String token, String curveName)
-            throws CryptoManager.NotInitializedException,
+            throws NotInitializedException,
                 NoSuchTokenException,
                 NoSuchAlgorithmException,
                 TokenException {
@@ -654,7 +654,7 @@ public class CryptoUtil {
     }
 
     public static KeyPair generateECCKeyPair(CryptoToken token, String curveName)
-            throws CryptoManager.NotInitializedException,
+            throws NotInitializedException,
                 NoSuchTokenException,
                 NoSuchAlgorithmException,
                 TokenException {
@@ -664,7 +664,7 @@ public class CryptoUtil {
     public static KeyPair generateECCKeyPair(String token, String curveName,
             org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage[] usage_ops,
             org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage[] usage_mask)
-            throws CryptoManager.NotInitializedException,
+            throws NotInitializedException,
                 NoSuchTokenException,
                 NoSuchAlgorithmException,
                 TokenException {
@@ -676,7 +676,7 @@ public class CryptoUtil {
            org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage[] usage_ops,
            org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage[] usage_mask,
            boolean temporary, int sensitive, int extractable)
-        throws CryptoManager.NotInitializedException,
+        throws NotInitializedException,
                 NoSuchTokenException,
                 NoSuchAlgorithmException,
                 TokenException {
@@ -689,7 +689,7 @@ public class CryptoUtil {
     public static KeyPair generateECCKeyPair(CryptoToken token, String curveName,
             org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage[] usage_ops,
             org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage[] usage_mask)
-            throws CryptoManager.NotInitializedException,
+            throws NotInitializedException,
                 NoSuchTokenException,
                 NoSuchAlgorithmException,
                 TokenException {
@@ -705,7 +705,7 @@ public class CryptoUtil {
            org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage[] usage_ops,
            org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage[] usage_mask,
            boolean temporary, int sensitive, int extractable)
-        throws CryptoManager.NotInitializedException,
+        throws NotInitializedException,
                 NoSuchTokenException,
                 NoSuchAlgorithmException,
                 TokenException {
@@ -1117,7 +1117,7 @@ public class CryptoUtil {
                      NoSuchProviderException,
                      CertificateException,
                      SignatureException,
-                     CryptoManager.NotInitializedException,
+                     NotInitializedException,
                      NoSuchAlgorithmException {
         X509Key x509key = getPublicX509Key(modulus, exponent);
         PrivateKey prik = findPrivateKeyFromID(prikdata);
@@ -1136,7 +1136,7 @@ public class CryptoUtil {
                      NoSuchProviderException,
                      CertificateException,
                      SignatureException,
-                     CryptoManager.NotInitializedException,
+                     NotInitializedException,
                      NoSuchAlgorithmException {
         X509Key x509key = getPublicX509Key(modulus, exponent);
         PrivateKey prik = findPrivateKeyFromID(prikdata);
@@ -1350,7 +1350,7 @@ public class CryptoUtil {
 
     public static void importCertificateChain(byte[] bytes)
              throws IOException,
-                    CryptoManager.NotInitializedException,
+                    NotInitializedException,
                     TokenException,
                     CertificateEncodingException,
                     CertificateException {
@@ -1563,7 +1563,7 @@ public class CryptoUtil {
     public static X509CertImpl signECCCert(PrivateKey privateKey,
             X509CertInfo certInfo)
             throws NoSuchTokenException,
-                CryptoManager.NotInitializedException,
+                NotInitializedException,
                 NoSuchAlgorithmException,
                 NoSuchTokenException,
                 TokenException,
@@ -1579,7 +1579,7 @@ public class CryptoUtil {
     public static X509CertImpl signECCCert(PrivateKey privateKey,
             X509CertInfo certInfo, String alg)
             throws NoSuchTokenException,
-                CryptoManager.NotInitializedException,
+                NotInitializedException,
                 NoSuchAlgorithmException,
                 NoSuchTokenException,
                 TokenException,
@@ -1597,7 +1597,7 @@ public class CryptoUtil {
     public static X509CertImpl signCert(PrivateKey privateKey,
             X509CertInfo certInfo, String alg)
             throws NoSuchTokenException,
-                CryptoManager.NotInitializedException,
+                NotInitializedException,
                 NoSuchAlgorithmException,
                 NoSuchTokenException,
                 TokenException,
@@ -1612,7 +1612,7 @@ public class CryptoUtil {
     public static X509CertImpl signCert(PrivateKey privateKey,
             X509CertInfo certInfo, SignatureAlgorithm sigAlg)
             throws NoSuchTokenException,
-                CryptoManager.NotInitializedException,
+                NotInitializedException,
                 NoSuchAlgorithmException,
                 NoSuchTokenException,
                 TokenException,
@@ -1954,7 +1954,7 @@ public class CryptoUtil {
      * Trusts a certificate by nickname.
      */
     public static void trustCertByNickname(String nickname)
-            throws CryptoManager.NotInitializedException,
+            throws NotInitializedException,
                 TokenException {
         CryptoManager cm = CryptoManager.getInstance();
         X509Certificate certs[] = cm.findCertsByNickname(nickname);
@@ -2204,7 +2204,7 @@ public class CryptoUtil {
      * Retrieves a private key from a unique key ID.
      */
     public static PrivateKey findPrivateKeyFromID(byte id[])
-            throws CryptoManager.NotInitializedException,
+            throws NotInitializedException,
                 TokenException {
         CryptoManager cm = CryptoManager.getInstance();
         @SuppressWarnings("unchecked")
@@ -2230,7 +2230,7 @@ public class CryptoUtil {
      * Retrieves all user certificates from all tokens.
      */
     public static X509CertImpl[] getAllUserCerts()
-            throws CryptoManager.NotInitializedException,
+            throws NotInitializedException,
                 TokenException {
         Vector<X509CertImpl> certs = new Vector<X509CertImpl>();
         CryptoManager cm = CryptoManager.getInstance();
@@ -2276,7 +2276,7 @@ public class CryptoUtil {
      * Deletes a private key.
      */
     public static void deletePrivateKey(PrivateKey prikey)
-            throws CryptoManager.NotInitializedException, TokenException {
+            throws NotInitializedException, TokenException {
 
         try {
             CryptoToken token = prikey.getOwningToken();
@@ -2291,7 +2291,7 @@ public class CryptoUtil {
      * Retrieves a private key by nickname.
      */
     public static PrivateKey getPrivateKey(String nickname)
-            throws CryptoManager.NotInitializedException, TokenException {
+            throws NotInitializedException, TokenException {
         try {
             CryptoManager cm = CryptoManager.getInstance();
             X509Certificate cert = cm.findCertByNickname(nickname);
@@ -2337,7 +2337,7 @@ public class CryptoUtil {
      * Deletes user certificates by a nickname.
      */
     public static void deleteUserCertificates(String nickname)
-            throws CryptoManager.NotInitializedException, TokenException {
+            throws NotInitializedException, TokenException {
 
         CryptoManager cm = CryptoManager.getInstance();
         X509Certificate certs[] = cm.findCertsByNickname(nickname);
@@ -2366,7 +2366,7 @@ public class CryptoUtil {
      */
     public static X509Certificate importUserCertificateChain(String c,
             String nickname)
-            throws CryptoManager.NotInitializedException,
+            throws NotInitializedException,
                 CryptoManager.NicknameConflictException,
                 CryptoManager.UserCertConflictException,
                 NoSuchItemOnTokenException,
@@ -2383,7 +2383,7 @@ public class CryptoUtil {
      * Imports a user certificate.
      */
     public static X509Certificate importUserCertificate(byte[] bytes, String nickname)
-            throws CryptoManager.NotInitializedException,
+            throws NotInitializedException,
                 CertificateEncodingException,
                 NoSuchItemOnTokenException,
                 TokenException,
