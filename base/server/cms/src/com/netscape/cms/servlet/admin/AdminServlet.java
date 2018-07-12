@@ -991,7 +991,11 @@ public class AdminServlet extends HttpServlet {
             if (name.equals(Constants.OP_TYPE)) continue;
             if (name.equals(Constants.RS_ID)) continue;
 
-            String value = req.getParameter(name);
+            String value = null;
+            if (name.equalsIgnoreCase("PASSWORD_CACHE_ADD"))
+                value = "(sensitive)";
+            else
+                value = req.getParameter(name);
             params.put(name, value);
         }
 
