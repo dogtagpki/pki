@@ -18,7 +18,10 @@
 - name: Pointing KRA to correct OCSP port
   replace: dest=/etc/pki/{{ topology }}-KRA/server.xml regexp='([0-9]+)/ca/ocsp' replace={{ variable.CA_HTTP_PORT }}/ca/ocsp
 
+- name: Picking the password in run-time from password.conf of KRA
+  shell: grep -i "internal=" /etc/pki/{{ topology }}-KRA/password.conf | awk -F"=" ' { print $2 } ' > /tmp/test_dir/certutil_password
+
 - name: Importing OCSP certificate in kra nssdb
-  shell: certutil -A -d /etc/pki/{{ topology }}-KRA/alias -n "ocspSigningCert cert-pki-ca" -t "C,," -i  /tmp/test_dir/ocsp_signing.crt
+  shell: certutil -A -d /etc/pki/{{ topology }}-KRA/alias -n "ocspSigningCert cert-pki-ca" -t "C,," -i  /tmp/test_dir/ocsp_signing.crt -f /tmp/test_dir/certutil_password
   notify:
     - STARTKRA

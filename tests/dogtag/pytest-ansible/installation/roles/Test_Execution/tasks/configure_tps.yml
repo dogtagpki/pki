@@ -19,6 +19,6 @@
   replace: dest=/etc/pki/{{ topology }}-TPS/server.xml regexp='([0-9]+)/ca/ocsp' replace={{ variable.CA_HTTP_PORT }}/ca/ocsp
 
 - name: Importing OCSP certificate in tps nssdb
-  shell: certutil -A -d /etc/pki/{{ topology }}-TPS/alias -n "ocspSigningCert cert-pki-ca" -t "C,," -i  /tmp/test_dir/ocsp_signing.crt
+  shell: certutil -A -d /etc/pki/{{ topology }}-TPS/alias -n "ocspSigningCert cert-pki-ca" -t "C,," -i  /tmp/test_dir/ocsp_signing.crt -f /tmp/test_dir/certutil_password
   notify:
     - STARTTPS

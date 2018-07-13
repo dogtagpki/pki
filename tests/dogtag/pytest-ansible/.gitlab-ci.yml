@@ -1,0 +1,31 @@
+image: bbhavsar/dogtagpki-test-essentials-container
+
+variables:
+  HOSTFILE: $CI_PROJECT_DIR/linchpin-openstack/inventories/openstack_topo.inventory
+  IMG_BRANCH: fedora28_1master
+  POST_PROV: 'https://gitlab.cee.redhat.com/snippets/393/raw'
+
+before_script:
+  - GIT_SSL_NO_VERIFY=true git clone -b $IMG_BRANCH https://gitlab.cee.redhat.com/idm/linchpin-openstack
+  - wget -O - https://gitlab.cee.redhat.com/snippets/250/raw --no-check-certificate | python
+  - linchpin -v -w linchpin-openstack --creds-path linchpin-openstack/credentials up
+  - cat linchpin-openstack/inventories/openstack_topo.inventory
+  - wget -O ssh-priv-key https://gitlab.cee.redhat.com/snippets/216/raw --no-check-certificate
+  - chmod 0600 ssh-priv-key
+  - sleep 30s
+  - wget -O repo.yml $POST_PROV --no-check-certificate
+  - ansible-playbook -u fedora --become --private-key=ssh-priv-key -i $HOSTFILE repo.yml -e 'ansible_python_interpreter="/usr/bin/python3"' -vv
+
+after_script:
+  - linchpin -w linchpin-openstack --creds-path linchpin-openstack/credentials destroy
+
+banner-cli:
+  script:
+  - ansible-playbook -u fedora --become --private-key=ssh-priv-key -i $HOSTFILE tests/dogtag/pytest-ansible/installation/main.yml -e 'ansible_python_interpreter="/usr/bin/python3"' --extra-vars "topology=topology-02" -vv  | sed 's/\\n/\n/g'
+  - py.test --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master tests/dogtag/pytest-ansible/pytest/banner/test_banner_cli.py -q -s --junitxml bannercli_junit.xml -vvvv
+  artifacts:
+    paths:
+    - bannercli_junit.xml
+  tags:
+  - pki
+
