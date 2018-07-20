@@ -15,7 +15,7 @@ License:          GPLv2 and LGPLv2
 ExcludeArch:      aarch64 s390x
 %endif
 
-Version:          10.6.3
+Version:          10.6.4
 Release:          1%{?_timestamp}%{?_commit_id}%{?dist}
 # global           _phase -a1
 
@@ -279,9 +279,13 @@ BuildRequires:    python2-pyflakes >= 1.2.3
 %endif  # with_python2
 
 %if 0%{?with_python3}
+%if 0%{?rhel} && 0%{?rhel} <= 7
+# no pylint
+%else
 BuildRequires:    python3-pylint
 BuildRequires:    python3-flake8 >= 2.5.4
 BuildRequires:    python3-pyflakes >= 1.2.3
+%endif
 %endif  # with_python3
 
 %if 0%{?with_python2}
@@ -332,8 +336,8 @@ BuildRequires:    jpackage-utils >= 0:1.7.5-10
 BuildRequires:    jss >= 4.4.0-11
 BuildRequires:    tomcatjss >= 7.2.1-4
 %else
-BuildRequires:    jss >= 4.5.0-0.3
-BuildRequires:    tomcatjss >= 7.3.2
+BuildRequires:    jss >= 4.5.0-0.4
+BuildRequires:    tomcatjss >= 7.3.3
 %endif
 BuildRequires:    systemd-units
 
@@ -423,7 +427,7 @@ Requires:         jpackage-utils >= 0:1.7.5-10
 %if 0%{?rhel} && 0%{?rhel} <= 7
 Requires:         jss >= 4.4.0-11
 %else
-Requires:         jss >= 4.5.0-0.3
+Requires:         jss >= 4.5.0-0.4
 %endif
 Requires:         nss >= 3.36.1
 
@@ -562,7 +566,7 @@ Requires:         jpackage-utils >= 0:1.7.5-10
 %if 0%{?rhel} && 0%{?rhel} <= 7
 Requires:         jss >= 4.4.0-11
 %else
-Requires:         jss >= 4.5.0-0.3
+Requires:         jss >= 4.5.0-0.4
 %endif
 Requires:         ldapjdk >= 4.19-5
 Requires:         pki-base >= %{version}-%{release}
@@ -712,7 +716,7 @@ Requires(pre):    shadow-utils
 %if 0%{?rhel} && 0%{?rhel} <= 7
 Requires:         tomcatjss >= 7.2.1-4
 %else
-Requires:         tomcatjss >= 7.3.2
+Requires:         tomcatjss >= 7.3.3
 %endif
 
 %if 0%{?rhel} && 0%{?rhel} <= 7
