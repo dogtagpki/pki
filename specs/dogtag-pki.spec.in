@@ -1160,7 +1160,7 @@ mv %{buildroot}%{_datadir}/pki/server/upgrade/10.5.5/01-AddTPSExternalRegISEtoke
 
 %endif
 
-# Customize server library links in /usr/share/pki/server/common/lib
+# Customize server common library links in /usr/share/pki/server/common/lib
 %if 0%{?fedora} || 0%{?rhel} > 7
     rm -f %{buildroot}%{_datadir}/pki/server/common/lib/scannotation.jar
     rm -f %{buildroot}%{_datadir}/pki/server/common/lib/resteasy-jaxrs-api.jar
@@ -1187,6 +1187,11 @@ if [ -f /etc/debian_version ]; then
     ln -sf /usr/share/java/xml-resolver.jar %{buildroot}%{_datadir}/pki/server/common/lib/xml-commons-resolver.jar
 fi
 
+%endif
+
+# Customize server library links in /usr/share/pki/server/lib
+%if 0%{?rhel} && 0%{?rhel} <= 7
+    rm -f %{buildroot}%{_datadir}/pki/server/lib/slf4j-jdk14.jar
 %endif
 
 %if 0%{?rhel} && 0%{?rhel} <= 7

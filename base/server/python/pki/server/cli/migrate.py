@@ -516,7 +516,8 @@ class MigrateCLI(pki.cli.CLI):
         # slf4j-jdk14.jar
         source = '/usr/share/pki/server/lib/slf4j-jdk14.jar'
         dest = os.path.join(instance.lib_dir, 'slf4j-jdk14.jar')
-        self.create_link(instance, source, dest)
+        if os.path.islink(source):
+            self.create_link(instance, source, dest)
 
     def create_link(self, instance, source, dest):
 
