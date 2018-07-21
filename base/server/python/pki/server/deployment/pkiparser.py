@@ -541,7 +541,7 @@ class PKIConfigParser:
     def ds_search(self, key=None):
         if key is None:
             key = ''
-        self.ds_connection.search_s(key, ldap.SCOPE_BASE)
+        return self.ds_connection.search_s(key, ldap.SCOPE_BASE)
 
     def ds_close(self):
         self.ds_connection.unbind_s()
@@ -586,9 +586,11 @@ class PKIConfigParser:
         try:
             info = sd.get_security_domain_info()
         except requests.exceptions.HTTPError as e:
+            config.pki_log.warning(
+                'Unable to get security domain info: %s', e,
+                extra=config.PKI_INDENTATION_LEVEL_2)
             config.pki_log.info(
-                "unable to access security domain through REST interface.  " +
-                "Trying old interface. " + str(e),
+                'Trying older interface.',
                 extra=config.PKI_INDENTATION_LEVEL_2)
             info = sd.get_old_security_domain_info()
         return info
@@ -606,8 +608,7 @@ class PKIConfigParser:
             code = e.response.status_code
             if code == 404 or code == 501:
                 config.pki_log.warning(
-                    "unable to validate security domain user/password " +
-                    "through REST interface. Interface not available",
+                    'Unable to authenticate against security domain: %s', e,
                     extra=config.PKI_INDENTATION_LEVEL_2)
             else:
                 raise

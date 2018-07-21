@@ -3173,9 +3173,11 @@ class KRAConnector:
         try:
             info = sd.get_security_domain_info()
         except requests.exceptions.HTTPError as e:
+            config.pki_log.warning(
+                'Unable to get CA list from security domain: %s', e,
+                extra=config.PKI_INDENTATION_LEVEL_2)
             config.pki_log.info(
-                "unable to access security domain through REST interface.  " +
-                "Trying old interface. " + str(e),
+                'Trying older interface.',
                 extra=config.PKI_INDENTATION_LEVEL_2)
             info = sd.get_old_security_domain_info()
         return list(info.systems['CA'].hosts.values())
@@ -3984,7 +3986,7 @@ class ConfigClient:
 
     def process_admin_cert(self, admin_cert):
         config.pki_log.debug(
-            log.PKI_CONFIG_RESPONSE_ADMIN_CERT + "\n" + admin_cert,
+            '%s\n%s', log.PKI_CONFIG_RESPONSE_ADMIN_CERT, admin_cert,
             extra=config.PKI_INDENTATION_LEVEL_2)
 
         # Store the Administration Certificate in a file
@@ -4146,7 +4148,7 @@ class ConfigClient:
         with open(self.mdict['pki_admin_csr_path'], "r") as f:
             admin_certreq = f.read()
         config.pki_log.info(
-            log.PKI_CONFIG_CDATA_REQUEST + "\n" + admin_certreq,
+            '%s\n%s', log.PKI_CONFIG_CDATA_REQUEST, admin_certreq,
             extra=config.PKI_INDENTATION_LEVEL_2)
 
     def save_admin_cert(self, input_data, output_file, subsystem_name):
@@ -4173,7 +4175,7 @@ class ConfigClient:
             f.write(csr)
         # Print this certificate request
         config.pki_log.info(
-            log.PKI_CONFIG_CDATA_REQUEST + "\n" + csr,
+            '%s\n%s', log.PKI_CONFIG_CDATA_REQUEST, csr,
             extra=config.PKI_INDENTATION_LEVEL_2)
 
     def load_system_cert(self, nssdb, cert, nickname=None):

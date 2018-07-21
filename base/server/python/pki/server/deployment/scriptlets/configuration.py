@@ -1064,7 +1064,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             json.dumps(data, cls=pki.encoder.CustomTypeEncoder))
 
         config.pki_log.debug(
-            log.PKI_CONFIG_RESPONSE_STATUS + " " + str(response['status']),
+            '%s %s', log.PKI_CONFIG_RESPONSE_STATUS, response['status'],
             extra=config.PKI_INDENTATION_LEVEL_2)
 
         # Create an empty file that designates the fact that although
@@ -1157,13 +1157,13 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
             else:
                 config.pki_log.debug(
-                    log.PKI_CONFIG_CDATA_TAG + " " + cdata['tag'],
+                    '%s %s', log.PKI_CONFIG_CDATA_TAG, cdata['tag'],
                     extra=config.PKI_INDENTATION_LEVEL_2)
                 config.pki_log.debug(
-                    log.PKI_CONFIG_CDATA_CERT + "\n" + cdata['cert'],
+                    '%s\n%s', log.PKI_CONFIG_CDATA_CERT, cdata['cert'],
                     extra=config.PKI_INDENTATION_LEVEL_2)
                 config.pki_log.debug(
-                    log.PKI_CONFIG_CDATA_REQUEST + "\n" + cdata['request'],
+                    '%s\n%s', log.PKI_CONFIG_CDATA_REQUEST, cdata['request'],
                     extra=config.PKI_INDENTATION_LEVEL_2)
 
         # Cloned PKI subsystems do not return an Admin Certificate
