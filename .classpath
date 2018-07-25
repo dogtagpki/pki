@@ -21,7 +21,7 @@
 	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/tps/src"/>
 	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/common/examples/java"/>
 	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/console/src"/>
-	<classpathentry kind="src" path="base/server/tomcat-8.0/src"/>
+	<classpathentry kind="src" path="base/server/tomcat-8.5/src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="/usr/share/java/apache-commons-cli.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/apache-commons-logging.jar"/>
@@ -68,5 +68,6 @@
 	<classpathentry kind="lib" path="/usr/share/java/jboss-logging/jboss-logging.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/jboss-annotations-1.2-api/jboss-annotations-api_1.2_spec.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/tomcat/tomcat-juli.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/tomcat/jaspic-api.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>
