@@ -23,8 +23,8 @@ import java.io.InputStream;
 import java.util.Collection;
 import java.util.Stack;
 
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.map.ObjectMapper;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
@@ -83,8 +83,8 @@ public class ExternalProcessKeyRetriever implements KeyRetriever {
      */
     private Result parseResult(InputStream in) throws IOException {
         JsonNode root = (new ObjectMapper()).readTree(in);
-        String cert = root.path("certificate").getTextValue();
-        byte[] pao = root.path("wrapped_key").getBinaryValue();
+        String cert = root.path("certificate").textValue();
+        byte[] pao = root.path("wrapped_key").binaryValue();
         if (cert == null)
             throw new RuntimeException("missing \"certificate\" field");
         if (pao == null)
