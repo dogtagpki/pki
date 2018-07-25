@@ -66,12 +66,12 @@
 Name:             pki-core
 %if 0%{?rhel}
 Version:                10.5.9
-%define redhat_release  1
+%define redhat_release  2
 %define redhat_stage    0
 %define default_release %{redhat_release}.%{redhat_stage}
 #%define default_release %{redhat_release}
 %else
-Version:                10.5.9
+Version:                10.5.10
 %define fedora_release  1
 %define fedora_stage    0
 %define default_release %{fedora_release}.%{fedora_stage}
@@ -167,12 +167,11 @@ BuildRequires:    policycoreutils-python-utils
 BuildRequires:    python-ldap
 BuildRequires:    junit
 BuildRequires:    jpackage-utils >= 0:1.7.5-10
+BuildRequires:    jss >= 4.4.4-3
 %if 0%{?rhel} && 0%{?rhel} <= 7
-BuildRequires:    jss >= 4.4.0-12
-BuildRequires:    tomcatjss >= 7.2.1-4
+BuildRequires:    tomcatjss >= 7.2.1-7
 %else
-BuildRequires:    jss >= 4.4.2-10
-BuildRequires:    tomcatjss >= 7.2.3
+BuildRequires:    tomcatjss >= 7.2.4-3
 %endif
 BuildRequires:    systemd-units
 
@@ -306,11 +305,7 @@ Group:            System Environment/Libraries
 
 Requires:         java-1.8.0-openjdk-headless
 Requires:         jpackage-utils >= 0:1.7.5-10
-%if 0%{?rhel} && 0%{?rhel} <= 7
-Requires:         jss >= 4.4.0-12
-%else
-Requires:         jss >= 4.4.2-10
-%endif
+Requires:         jss >= 4.4.4-3
 Requires:         nss >= 3.28.3
 
 Provides:         symkey = %{version}-%{release}
@@ -389,11 +384,7 @@ Requires:         slf4j-jdk14
 %endif
 Requires:         javassist
 Requires:         jpackage-utils >= 0:1.7.5-10
-%if 0%{?rhel} && 0%{?rhel} <= 7
-Requires:         jss >= 4.4.0-12
-%else
-Requires:         jss >= 4.4.2-10
-%endif
+Requires:         jss >= 4.4.4-3
 Requires:         ldapjdk >= 4.19-5
 Requires:         pki-base = %{version}-%{release}
 
@@ -546,9 +537,9 @@ Requires(preun):  systemd-units
 Requires(postun): systemd-units
 Requires(pre):    shadow-utils
 %if 0%{?rhel} && 0%{?rhel} <= 7
-Requires:         tomcatjss >= 7.2.1-4
+Requires:         tomcatjss >= 7.2.1-7
 %else
-Requires:         tomcatjss >= 7.2.3
+Requires:         tomcatjss >= 7.2.4-3
 %endif
 
 %if 0%{?rhel} && 0%{?rhel} <= 7
@@ -1345,6 +1336,20 @@ fi
 %endif # %{with server}
 
 %changelog
+* Mon Jul  2 2018 Dogtag Team <pki-devel@redhat.com> 10.5.10-1
+- Updated "jss" build and runtime requirements (mharmsen)
+- Updated "tomcatjss" build and runtime requirements (mharmsen)
+- dogtagpki Pagure Issue #2865 X500Name.directoryStringEncodingOrder
+  overridden by CSR encoding (cfu)
+- dogtagpki Pagure Issue #2920 Part2 of SharedToken Audit (cfu)
+- dogtagpki Pagure Issue #2922 IPAddressName: fix construction from
+  String (ftweedal)
+- dogtagpki Pagure Issue #2959 Address pkispawn ECC profile overrides (cfu)
+- dogtagpki Pagure Issue #2992 CMC Simple request profiles and CMCResponse
+  to support simple response (cfu)
+- dogtagpki Pagure Issue #3003 AuditVerify failure due to line breaks (cfu)
+- dogtagpki Pagure Issue #3037 CMC SharedToken SubjectDN default (cfu)
+
 * Fri Jun  8 2018 Dogtag Team <pki-devel@redhat.com> 10.5.9-1
 - dogtagpki Pagure Issue #2922 - Name Constraints: Using a Netmask
   produces an odd entry in a certifcate (ftweedal)
