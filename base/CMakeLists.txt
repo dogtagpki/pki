@@ -107,51 +107,48 @@ find_file(HTTPCORE_JAR
         /usr/share/java
 )
 
-find_file(JACKSON_CORE_JAR
+find_file(JACKSON2_CORE_JAR
     NAMES
-        jackson-core-asl.jar
+        jackson-core.jar
     PATHS
-        /usr/share/java/jackson
         /usr/share/java
 )
 
-find_file(JACKSON_JAXRS_JAR
+find_file(JACKSON2_DATABIND_JAR
     NAMES
-        jackson-jaxrs.jar
+        jackson-databind.jar
     PATHS
-        /usr/share/java/jackson
         /usr/share/java
 )
 
-find_file(JACKSON_MAPPER_JAR
+find_file(JACKSON2_ANNOTATIONS_JAR
     NAMES
-        jackson-mapper-asl.jar
+        jackson-annotations.jar
     PATHS
-        /usr/share/java/jackson
         /usr/share/java
 )
 
-find_file(JACKSON_MRBEAN_JAR
+find_file(JACKSON2_JAXRS_BASE_JAR
     NAMES
-        jackson-mrbean.jar
+        jackson-jaxrs-base.jar
     PATHS
-        /usr/share/java/jackson
+        /usr/share/java/jackson-jaxrs-providers
         /usr/share/java
 )
 
-find_file(JACKSON_SMILE_JAR
+find_file(JACKSON2_JAXRS_JSON_PROVIDER_JAR
     NAMES
-        jackson-smile.jar
+        jackson-jaxrs-json-provider.jar
     PATHS
-        /usr/share/java/jackson
+        /usr/share/java/jackson-jaxrs-providers
         /usr/share/java
 )
 
-find_file(JACKSON_XC_JAR
+find_file(JACKSON2_JAXB_ANNOTATIONS_JAR
     NAMES
-        jackson-xc.jar
+        jackson-module-jaxb-annotations.jar
     PATHS
-        /usr/share/java/jackson
+        /usr/share/java/jackson-modules
         /usr/share/java
 )
 
