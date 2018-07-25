@@ -255,7 +255,7 @@ BuildRequires:    resteasy-atom-provider >= 3.0.17-1
 BuildRequires:    resteasy-client >= 3.0.17-1
 BuildRequires:    resteasy-jaxb-provider >= 3.0.17-1
 BuildRequires:    resteasy-core >= 3.0.17-1
-BuildRequires:    resteasy-jackson-provider >= 3.0.17-1
+BuildRequires:    resteasy-jackson2-provider >= 3.0.17-1
 %endif
 
 %if 0%{?with_python2}
@@ -581,7 +581,7 @@ Requires:         resteasy-atom-provider >= 3.0.17-1
 Requires:         resteasy-client >= 3.0.17-1
 Requires:         resteasy-jaxb-provider >= 3.0.17-1
 Requires:         resteasy-core >= 3.0.17-1
-Requires:         resteasy-jackson-provider >= 3.0.17-1
+Requires:         resteasy-jackson2-provider >= 3.0.17-1
 %endif
 
 Requires:         xalan-j2
@@ -1173,12 +1173,6 @@ if [ -f /etc/debian_version ]; then
     ln -sf /usr/share/java/commons-collections3.jar %{buildroot}%{_datadir}/pki/server/common/lib/commons-collections.jar
     ln -sf /usr/share/java/httpclient.jar %{buildroot}%{_datadir}/pki/server/common/lib/httpclient.jar
     ln -sf /usr/share/java/httpcore.jar %{buildroot}%{_datadir}/pki/server/common/lib/httpcore.jar
-    ln -sf /usr/share/java/jackson-core-asl.jar %{buildroot}%{_datadir}/pki/server/common/lib/jackson-core-asl.jar
-    ln -sf /usr/share/java/jackson-jaxrs.jar %{buildroot}%{_datadir}/pki/server/common/lib/jackson-jaxrs.jar
-    ln -sf /usr/share/java/jackson-mapper-asl.jar %{buildroot}%{_datadir}/pki/server/common/lib/jackson-mapper-asl.jar
-    ln -sf /usr/share/java/jackson-mrbean.jar %{buildroot}%{_datadir}/pki/server/common/lib/jackson-mrbean.jar
-    ln -sf /usr/share/java/jackson-smile.jar %{buildroot}%{_datadir}/pki/server/common/lib/jackson-smile.jar
-    ln -sf /usr/share/java/jackson-xc.jar %{buildroot}%{_datadir}/pki/server/common/lib/jackson-xc.jar
     ln -sf /usr/share/java/jss4.jar %{buildroot}%{_datadir}/pki/server/common/lib/jss4.jar
     ln -sf /usr/share/java/symkey.jar %{buildroot}%{_datadir}/pki/server/common/lib/symkey.jar
     ln -sf /usr/share/java/xercesImpl.jar %{buildroot}%{_datadir}/pki/server/common/lib/xerces-j2.jar
