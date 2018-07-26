@@ -18,7 +18,17 @@
 - name: Pointing TPS to correct OCSP port
   replace: dest=/etc/pki/{{ topology }}-TPS/server.xml regexp='([0-9]+)/ca/ocsp' replace={{ variable.CA_HTTP_PORT }}/ca/ocsp
 
+- name: Picking the password in run-time from password.conf of TPS
+  shell: grep -i "internal=" /etc/pki/{{ topology }}-TPS/password.conf | awk -F"=" ' { print $2 } ' > /tmp/test_dir/certutil_password
+
 - name: Importing OCSP certificate in tps nssdb
   shell: certutil -A -d /etc/pki/{{ topology }}-TPS/alias -n "ocspSigningCert cert-pki-ca" -t "C,," -i  /tmp/test_dir/ocsp_signing.crt -f /tmp/test_dir/certutil_password
   notify:
     - STARTTPS
+
+- name: Removing file generated with password
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    -  /tmp/test_dir/certutil_password
