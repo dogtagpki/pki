@@ -16,7 +16,7 @@ ExcludeArch:      aarch64 s390x
 %endif
 
 Version:          10.6.4
-Release:          1%{?_timestamp}%{?_commit_id}%{?dist}
+Release:          2%{?_timestamp}%{?_commit_id}%{?dist}
 # global           _phase -a1
 
 # To create a tarball from a version tag:
@@ -147,15 +147,10 @@ Source: https://github.com/dogtagpki/pki/archive/v%{version}%{?_phase}/pki-%{ver
 # package_option kra
 %global with_kra 1
 # package_option ocsp
-%global with_ocsp 1
 # package_option tks
-%global with_tks 1
 # package_option tps
-%global with_tps 1
 # package_option javadoc
-%global with_javadoc 1
 # package_option console
-%global with_console 1
 # package_option theme
 # package_option meta
 # package_option debug
@@ -214,7 +209,7 @@ BuildRequires:    apache-commons-io
 BuildRequires:    apache-commons-lang
 BuildRequires:    jakarta-commons-httpclient
 BuildRequires:    slf4j
-%if 0%{?rhel} && 0%{?rhel} <= 7
+%if 0%{?rhel}
 # no slf4j-jdk14
 %else
 BuildRequires:    slf4j-jdk14
@@ -271,7 +266,7 @@ BuildRequires:    resteasy-jackson2-provider >= 3.0.17-1
 %endif
 
 %if 0%{?with_python2}
-%if 0%{?rhel} && 0%{?rhel} <= 7
+%if 0%{?rhel}
 # no pylint
 %else
 BuildRequires:    pylint
@@ -286,7 +281,7 @@ BuildRequires:    python2-pyflakes >= 1.2.3
 %endif  # with_python2
 
 %if 0%{?with_python3}
-%if 0%{?rhel} && 0%{?rhel} <= 7
+%if 0%{?rhel}
 # no pylint
 %else
 BuildRequires:    python3-pylint
@@ -357,7 +352,11 @@ BuildRequires:    tomcat >= 8.0.49
 %if 0%{?fedora} && 0%{?fedora} <= 28
 BuildRequires:    tomcat >= 1:8.5.23
 %else
+%if 0%{?rhel}
+BuildRequires:    pki-servlet-container
+%else
 BuildRequires:    tomcat >= 1:9.0.7
+%endif
 %endif
 %endif
 %endif
@@ -563,7 +562,7 @@ Requires:         apache-commons-lang
 Requires:         apache-commons-logging
 Requires:         jakarta-commons-httpclient
 Requires:         slf4j
-%if 0%{?rhel} && 0%{?rhel} <= 7
+%if 0%{?rhel}
 # no slf4j-jdk14
 %else
 Requires:         slf4j-jdk14
@@ -710,7 +709,11 @@ Conflicts:        tomcat >= 1:8.5
 %if 0%{?fedora} && 0%{?fedora} <= 28
 Requires:         tomcat >= 1:8.5.23
 %else
+%if 0%{?rhel}
+Requires:         pki-servlet-container >= 1:9.0.7
+%else
 Requires:         tomcat >= 1:9.0.7
+%endif
 %endif
 %endif
 %endif
@@ -1195,11 +1198,11 @@ fi
 %endif
 
 # Customize server library links in /usr/share/pki/server/lib
-%if 0%{?rhel} && 0%{?rhel} <= 7
+%if 0%{?rhel}
     rm -f %{buildroot}%{_datadir}/pki/server/lib/slf4j-jdk14.jar
 %endif
 
-%if 0%{?rhel} && 0%{?rhel} <= 7
+%if 0%{?rhel}
 # no pylint
 %else
 
@@ -1713,6 +1716,53 @@ fi
 
 ################################################################################
 %changelog
-* Tue Mar 6 2018 Dogtag PKI Team <pki-devel@redhat.com> 10.6.0-0
-- To list changes in <branch> since <tag>:
-  $ git log --pretty=oneline --abbrev-commit --no-decorate <tag>..<branch>
+* Fri Jul 27 2018 Dogtag PKI Team <pki-devel@redhat.com> - 10.6.4-2
+- Switch from Jackson to Jackson 2
+
+* Fri Jul 20 2018 Dogtag PKI Team <pki-devel@redhat.com> - 10.6.4-1
+- Rebased to PKI 10.6.4
+
+* Thu Jul 5 2018 Dogtag PKI Team <pki-devel@redhat.com> - 10.6.3-1
+- Rebased to PKI 10.6.3
+
+* Mon Jul 02 2018 Miro Hrončok <mhroncok@redhat.com> - 10.6.2-4
+- Rebuilt for Python 3.7
+
+* Thu Jun 28 2018 Dogtag PKI Team <pki-devel@redhat.com> - 10.6.2-3
+- Fixed macro expressions
+- Bugzilla #1566606: pki-core: Switch to Python 3
+- Bugzilla #1590467: pki-core: Drop pylint dependency from RHEL8
+
+* Tue Jun 19 2018 Miro Hrončok <mhroncok@redhat.com> - 10.6.2-2
+- Rebuilt for Python 3.7
+
+* Fri Jun 15 2018 Dogtag PKI Team <pki-devel@redhat.com> - 10.6.2-1
+- Rebased to PKI 10.6.2
+
+* Wed May 30 2018 Dogtag PKI Team <pki-devel@redhat.com> - 10.6.1-3
+- Updated JSS dependency
+- Updated Tomcat dependency
+- Fixed rpmlint warnings
+
+* Fri May 4 2018 Dogtag PKI Team <pki-devel@redhat.com> - 10.6.1-2
+- Bugzilla #1574711: pki-tools cannot be installed on current Rawhide
+- Fixed rpmlint warnings
+
+* Thu May 3 2018 Dogtag PKI Team <pki-devel@redhat.com> - 10.6.1-1
+- Rebased to PKI 10.6.1
+- Bugzilla #1559047: pki-core misses a dependency to pki-symkey
+- Bugzilla #1573094: FreeIPA external CA installation fails
+
+* Wed Apr 11 2018 Dogtag PKI Team <pki-devel@redhat.com> - 10.6.0-1
+- Updated project URL and package descriptions
+- Cleaned up spec file
+- Rebased to PKI 10.6.0 final
+
+* Thu Mar 29 2018 Dogtag PKI Team <pki-devel@redhat.com> - 10.6.0-0.3
+- Iryna Shcherbina <ishcherb@redhat.com>: Update Python 2 dependency declarations to new packaging standards
+  (See https://fedoraproject.org/wiki/FinalizingFedoraSwitchtoPython3)
+- Rebased to PKI 10.6.0 beta2
+
+* Thu Mar 15 2018 Dogtag PKI Team <pki-devel@redhat.com> - 10.6.0-0.2
+- Rebased to PKI 10.6.0 beta
+
