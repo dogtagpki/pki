@@ -82,20 +82,6 @@ Source: https://github.com/dogtagpki/pki/archive/v%{version}%{?_phase}/pki-%{ver
 %define java_home %{_usr}/lib/jvm/jre-1.8.0-openjdk
 
 ################################################################################
-# Tomcat
-################################################################################
-
-%if 0%{?rhel} && 0%{?rhel} <= 7
-%global app_server tomcat-7.0
-%else
-%if 0%{?fedora} && 0%{?fedora} <= 27
-%global app_server tomcat-8.0
-%else
-%global app_server tomcat-8.5
-%endif
-%endif
-
-################################################################################
 # RESTEasy
 ################################################################################
 
@@ -693,7 +679,6 @@ Requires:         tomcat >= 7.0.69
 %else
 %if 0%{?fedora} && 0%{?fedora} <= 27
 Requires:         tomcat >= 8.0.49
-Conflicts:        tomcat >= 1:8.5
 %else
 %if 0%{?fedora} && 0%{?fedora} <= 28
 Requires:         tomcat >= 1:8.5.23
@@ -1049,6 +1034,15 @@ Dogtag textual and graphical user interface for PKI Console.
 %build
 ################################################################################
 
+# get Tomcat <major>.<minor> version number
+tomcat_version=`/usr/sbin/tomcat version | sed -n 's/Server number: *\([0-9]\+\.[0-9]\+\).*/\1/p'`
+
+if [ $tomcat_version == "9.0" ]; then
+    app_server=tomcat-8.5
+else
+    app_server=tomcat-$tomcat_version
+fi
+
 %{__mkdir_p} build
 cd build
 %cmake \
@@ -1058,7 +1052,7 @@ cd build
     -DJAVA_HOME=%{java_home} \
     -DJAVA_LIB_INSTALL_DIR=%{_jnidir} \
     -DSYSTEMD_LIB_INSTALL_DIR=%{_unitdir} \
-    -DAPP_SERVER=%{app_server} \
+    -DAPP_SERVER=$app_server \
     -DJAXRS_API_JAR=%{jaxrs_api_jar} \
     -DRESTEASY_LIB=%{resteasy_lib} \
     -DNSS_DEFAULT_DB_TYPE=%{nss_default_db_type} \
