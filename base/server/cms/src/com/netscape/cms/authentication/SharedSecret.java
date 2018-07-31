@@ -30,9 +30,9 @@ import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.pkix.cmc.PKIData;
 
 import com.netscape.certsrv.apps.CMS;
-import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.IAuthCredentials;
+import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authentication.ISharedToken;
 import com.netscape.certsrv.base.EBaseException;
@@ -296,7 +296,7 @@ public class SharedSecret extends DirBasedAuthentication
             }
 
             CMS.debug(method + "found user ldap entry: userdn = " + userdn);
-            authToken.set(AuthToken.TOKEN_CERT_SUBJECT, userdn);
+            authToken.set(IAuthToken.TOKEN_CERT_SUBJECT, userdn);
 
             res = shrTokLdapConnection.search(userdn, LDAPv2.SCOPE_BASE,
                     "(objectclass=*)", new String[] { mShrTokAttr }, false);

@@ -525,6 +525,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
             CMS.debug("ProfileSubmitCMCServlet: null it out");
             ctx.set(IAuthManager.CRED_CMC_SIGNING_CERT, "");
         }
+
         String signingCertSerialS = null;
         if (authToken != null) {
             signingCertSerialS = (String) authToken.get(IAuthManager.CRED_CMC_SIGNING_CERT);
@@ -532,6 +533,14 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
         if (signingCertSerialS != null) {
             CMS.debug("ProfileSubmitCMCServlet: setting CRED_CMC_SIGNING_CERT in ctx for CMCUserSignedAuth");
             ctx.set(IAuthManager.CRED_CMC_SIGNING_CERT, signingCertSerialS);
+        }
+
+        String tmpSharedTokenAuthenticatedCertSubject = ctx.get(IAuthToken.TOKEN_SHARED_TOKEN_AUTHENTICATED_CERT_SUBJECT);
+        if (tmpSharedTokenAuthenticatedCertSubject != null) {
+            // unlikely to happen, but do this just in case
+            CMS.debug("ProfileSubmitCMCServlet: found existing TOKEN_SHARED_TOKEN_AUTHENTICATED_CERT_SUBJECT in ctx for CMCUserSignedAuth:" + tmpSharedTokenAuthenticatedCertSubject);
+            CMS.debug("ProfileSubmitCMCServlet: null it out");
+            ctx.set(IAuthToken.TOKEN_SHARED_TOKEN_AUTHENTICATED_CERT_SUBJECT, "");
         }
 
         String errorCode = null;
@@ -731,13 +740,31 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
 
                 tmpCertSerialS = reqs[k].getExtDataInString(IAuthManager.CRED_CMC_SIGNING_CERT);
                 if (tmpCertSerialS != null) {
-                    // unlikely to happenm, but do this just in case
+                    // unlikely to happen, but do this just in case
                     CMS.debug("ProfileSubmitCMCServlet: found existing CRED_CMC_SIGNING_CERT in request for CMCUserSignedAuth:" + tmpCertSerialS);
                     CMS.debug("ProfileSubmitCMCServlet: null it out");
                     reqs[k].setExtData(IAuthManager.CRED_CMC_SIGNING_CERT, "");
                 }
                 // put CMCUserSignedAuth authToken in request
                 if (signingCertSerialS != null) {
+                     CMS.debug("ProfileSubmitCMCServlet: setting CRED_CMC_SIGNING_CERT in request for CMCUserSignedAuth");
+                     reqs[k].setExtData(IAuthManager.CRED_CMC_SIGNING_CERT, signingCertSerialS);
+                 }
+
+                tmpSharedTokenAuthenticatedCertSubject = reqs[k].getExtDataInString(IAuthToken.TOKEN_SHARED_TOKEN_AUTHENTICATED_CERT_SUBJECT);
+                if (tmpSharedTokenAuthenticatedCertSubject != null) {
+                    // unlikely to happen, but do this just in case
+                    CMS.debug("ProfileSubmitCMCServlet: found existing TOKEN_SHARED_TOKEN_AUTHENTICATED_CERT_SUBJECT in request for CMCUserSignedAuth:" + tmpSharedTokenAuthenticatedCertSubject);
+                    CMS.debug("ProfileSubmitCMCServlet: null it out");
+                    reqs[k].setExtData(IAuthToken.TOKEN_SHARED_TOKEN_AUTHENTICATED_CERT_SUBJECT, "");
+                }
+                // put Shared Token authToken in request
+                String st_sbj = (String) ctx.get(IAuthToken.TOKEN_SHARED_TOKEN_AUTHENTICATED_CERT_SUBJECT);
+                if (st_sbj != null) {
+                    CMS.debug("ProfileSubmitCMCServlet: setting IAuthToken.TOKEN_SHARED_TOKEN_AUTHENTICATED_CERT_SUBJECT in req for CMCUserSignedAuth");
+                    reqs[k].setExtData(IAuthToken.TOKEN_SHARED_TOKEN_AUTHENTICATED_CERT_SUBJECT, st_sbj);
+                }
+                if (tmpSharedTokenAuthenticatedCertSubject != null) {
                     CMS.debug("ProfileSubmitCMCServlet: setting CRED_CMC_SIGNING_CERT in request for CMCUserSignedAuth");
                     reqs[k].setExtData(IAuthManager.CRED_CMC_SIGNING_CERT, signingCertSerialS);
                 }
