@@ -140,7 +140,7 @@ public class AuthTokenSubjectNameDefault extends EnrollDefault {
             X500Name name = new X500Name(
                     request.getExtDataInString(IProfileAuthenticator.AUTHENTICATED_NAME));
 
-            CMS.debug("AuthTokenSubjectNameDefault: X500Name=" + name.toString());
+            CMS.debug("AuthTokenSubjectNameDefault: X500Name=" + name.getName());
             info.set(X509CertInfo.SUBJECT, new CertificateSubjectName(name));
         } catch (Exception e) {
             // failed to insert subject name

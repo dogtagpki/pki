@@ -958,8 +958,9 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
 
                         IAuthToken tempToken = agentAuth.authenticate(agentCred);
                         netscape.security.x509.X500Name tempPrincipal = (X500Name) x509Certs[0].getSubjectDN();
-                        String ID = tempPrincipal.toString();
+                        String ID = tempPrincipal.getName();
                         CMS.debug(method + " Principal name = " + ID);
+                        authToken.set(IAuthToken.TOKEN_AUTHENTICATED_CERT_SUBJECT, ID);
 
                         BigInteger agentCertSerial = x509Certs[0].getSerialNumber();
                         authToken.set(IAuthManager.CRED_SSL_CLIENT_CERT, agentCertSerial.toString());
@@ -1046,7 +1047,7 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
     public void populate(IAuthToken token, IRequest request)
             throws EProfileException {
         request.setExtData(IProfileAuthenticator.AUTHENTICATED_NAME,
-                token.getInString(AuthToken.TOKEN_CERT_SUBJECT));
+                token.getInString(IAuthToken.TOKEN_AUTHENTICATED_CERT_SUBJECT));
     }
 
     public boolean isSSLClientRequired() {

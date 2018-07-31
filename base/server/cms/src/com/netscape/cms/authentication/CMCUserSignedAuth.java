@@ -673,7 +673,6 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
                                     if (requestCertSubject.equals("")) {
                                         requestCertSubject = ILogger.SIGNED_AUDIT_EMPTY_VALUE;
                                     }
-
                                     authToken.set(AuthToken.TOKEN_CERT_SUBJECT, ss);
                                     auditContext.put(SessionContext.CMC_REQUEST_CERT_SUBJECT, requestCertSubject);
                                     //authToken.set("uid", uid);
@@ -1159,8 +1158,9 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
 
                         IAuthToken tempToken = new AuthToken(null);
                         netscape.security.x509.X500Name tempPrincipal = (X500Name) x509Certs[0].getSubjectDN();
-                        String ID = tempPrincipal.toString(); //tempToken.get("userid");
+                        String ID = tempPrincipal.getName(); //tempToken.get("userid");
                         CMS.debug(method + " Principal name = " + ID);
+                        authToken.set(IAuthToken.TOKEN_AUTHENTICATED_CERT_SUBJECT, ID);
 
                         BigInteger certSerial = x509Certs[0].getSerialNumber();
                         CMS.debug(method + " verified cert serial=" + certSerial.toString());
@@ -1275,8 +1275,16 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
 
     public void populate(IAuthToken token, IRequest request)
             throws EProfileException {
-        request.setExtData(IProfileAuthenticator.AUTHENTICATED_NAME,
-                token.getInString(AuthToken.TOKEN_CERT_SUBJECT));
+        String method = "CMCUserSignedAuth: populate: ";
+        String authenticatedDN = token.getInString(IAuthToken.TOKEN_AUTHENTICATED_CERT_SUBJECT);
+        if (authenticatedDN != null) {
+            request.setExtData(IProfileAuthenticator.AUTHENTICATED_NAME,
+                    authenticatedDN);
+            CMS.debug(method + "IAuthToken.TOKEN_AUTHENTICATED_CERT_SUBJECT is: "+
+                    authenticatedDN);
+        } else {
+            CMS.debug(method + "AuthToken.TOKEN_AUTHENTICATED_CERT_SUBJECT is null; self-signed?");
+        }
     }
 
     public boolean isSSLClientRequired() {
