@@ -22,6 +22,7 @@ from __future__ import absolute_import
 from __future__ import print_function
 import getopt
 import os
+import re
 import sys
 
 from lxml import etree
@@ -158,14 +159,17 @@ class MigrateCLI(pki.cli.CLI):
 
         document = etree.parse(filename, self.parser)
 
-        if tomcat_version.major == 7:
-            self.migrate_server_xml_to_tomcat7(document)
+        if tomcat_version >= pki.util.Version('8.5.0'):
+            self.migrate_server_xml_to_tomcat85(instance, document)
 
-        elif tomcat_version.major == 8 or tomcat_version.major == 9:
-            self.migrate_server_xml_to_tomcat8(instance, document)
+        elif tomcat_version >= pki.util.Version('8.0.0'):
+            self.migrate_server_xml_to_tomcat80(instance, document)
+
+        elif tomcat_version >= pki.util.Version('7.0.0'):
+            self.migrate_server_xml_to_tomcat70(document)
 
         elif tomcat_version:
-            print('ERROR: invalid Tomcat version %s' % tomcat_version)
+            print('ERROR: unsupported Tomcat version %s' % tomcat_version)
             self.print_help()
             sys.exit(1)
 
@@ -173,7 +177,7 @@ class MigrateCLI(pki.cli.CLI):
             # xml as UTF-8 encoded bytes
             document.write(f, pretty_print=True, encoding='utf-8')
 
-    def migrate_server_xml_to_tomcat7(self, document):
+    def migrate_server_xml_to_tomcat70(self, document):
         server = document.getroot()
 
         jasper_comment = etree.Comment(
@@ -285,7 +289,7 @@ class MigrateCLI(pki.cli.CLI):
             if valve.get('className') == 'org.apache.catalina.valves.AccessLogValve':
                 valve.set('prefix', 'localhost_access_log.')
 
-    def migrate_server_xml_to_tomcat8(self, instance, document):
+    def migrate_server_xml_to_tomcat80(self, instance, document):
         server = document.getroot()
 
         version_logger_listener = etree.Element('Listener')
@@ -418,6 +422,32 @@ class MigrateCLI(pki.cli.CLI):
             if valve.get(
                     'className') == 'org.apache.catalina.valves.AccessLogValve':
                 valve.set('prefix', 'localhost_access_log')
+
+    def migrate_server_xml_to_tomcat85(self, instance, document):
+
+        self.migrate_server_xml_to_tomcat80(instance, document)
+
+        server = document.getroot()
+
+        services = server.findall('Service')
+        for service in services:
+
+            children = list(service)
+            for child in children:
+                if isinstance(child, etree._Comment):  # pylint: disable=protected-access
+                    if 'Java HTTP Connector: /docs/config/http.html' in child.text:
+                        child.text = child.text.replace(' (blocking & non-blocking)', '')
+                    elif 'Shared Ports:  Agent, EE, and Admin Secure Port Connector' in child.text:
+                        service.remove(child)
+                    elif 'DO NOT REMOVE - Begin define PKI secure port' in child.text:
+                        service.remove(child)
+                    elif 'DO NOT REMOVE - End define PKI secure port' in child.text:
+                        service.remove(child)
+                    elif 'protocol="AJP/1.3"' in child.text:
+                        child.text = re.sub(r'^ *([^ ]+)=',
+                                            r'               \g<1>=',
+                                            child.text,
+                                            flags=re.MULTILINE)
 
     def migrate_subsystems(self, instance, tomcat_version):
         for subsystem in instance.subsystems:
