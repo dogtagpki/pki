@@ -44,8 +44,13 @@ public interface IAuthToken {
     public static final String GROUP = "group";
     public static final String GROUPS = "groups";
 
-    /* Subject name of the certificate in the authenticating entry */
+    /* Subject name of the certificate request in the authenticating entry */
     public static final String TOKEN_CERT_SUBJECT = "tokenCertSubject";
+
+    /* Subject name of the authenticated cert */
+    public static final String TOKEN_AUTHENTICATED_CERT_SUBJECT = "tokenAuthenticatedCertSubject";
+    /* Subject DN of the Shared Token authenticated entry */
+    public static final String TOKEN_SHARED_TOKEN_AUTHENTICATED_CERT_SUBJECT = "tokenSharedTokenAuthenticatedCertSubject";
 
     /* NotBefore value of the certificate in the authenticating entry */
     public static final String TOKEN_CERT_NOTBEFORE = "tokenCertNotBefore";
