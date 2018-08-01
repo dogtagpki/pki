@@ -66,12 +66,12 @@
 Name:             pki-core
 %if 0%{?rhel}
 Version:                10.5.9
-%define redhat_release  2
+%define redhat_release  4
 %define redhat_stage    0
 %define default_release %{redhat_release}.%{redhat_stage}
 #%define default_release %{redhat_release}
 %else
-Version:                10.5.10
+Version:                10.5.11
 %define fedora_release  1
 %define fedora_stage    0
 %define default_release %{fedora_release}.%{fedora_stage}
@@ -1336,6 +1336,10 @@ fi
 %endif # %{with server}
 
 %changelog
+* Tue Jul 31 2018 Dogtag Team <pki-devel@redhat.com> 10.5.11-1
+- dogtagpki Pagure Issue #2915 - keyGen fails when only Identity
+  certificate exists (jmagne)
+
 * Mon Jul  2 2018 Dogtag Team <pki-devel@redhat.com> 10.5.10-1
 - Updated "jss" build and runtime requirements (mharmsen)
 - Updated "tomcatjss" build and runtime requirements (mharmsen)
