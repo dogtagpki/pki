@@ -82,6 +82,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.SessionContext;
+import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.CMCUserSignedRequestSigVerifyEvent;
 import com.netscape.certsrv.profile.EProfileException;
@@ -496,13 +497,27 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
                                     // to CMCOutputTemplate so that we can
                                     // have a chance to capture user identification info
                                     if (issuerANY != null) {
+                                        // get CA signing cert
+                                        ICertificateAuthority ca = null;
+                                        ca = (ICertificateAuthority) CMS.getSubsystem("ca");
+                                        X500Name caName = ca.getX500Name();
+
                                         try {
                                             byte[] issuerBytes = issuerANY.getEncoded();
-                                            X500Name issuerName = new X500Name(issuerBytes);
-                                            CMS.debug(method + "revRequest issuer name = " + issuerName.toString());
+                                            X500Name reqIssuerName = new X500Name(issuerBytes);
+                                            String reqIssuerNameStr = reqIssuerName.getName();
+                                            CMS.debug(method + "revRequest issuer name = " + reqIssuerNameStr);
+                                            if (reqIssuerNameStr.equalsIgnoreCase(caName.getName())) {
+                                                // making sure it's identical, even in encoding
+                                                reqIssuerName = caName;
+                                            } else {
+                                                // not this CA; will be bumped off later;
+                                                // make a note in debug anyway
+                                                CMS.debug(method + "revRequest issuer name doesn't match our CA; will be bumped off later;");
+                                            }
                                             // capture issuer principal to be checked against
                                             // cert issuer principal later in CMCOutputTemplate
-                                            auditContext.put(SessionContext.CMC_ISSUER_PRINCIPAL, issuerName);
+                                            auditContext.put(SessionContext.CMC_ISSUER_PRINCIPAL, reqIssuerName);
                                         } catch (Exception e) {
                                             CMS.debug(method + "failed getting issuer from RevokeRequest:" + e.toString());
                                         }
