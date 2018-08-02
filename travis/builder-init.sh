@@ -32,7 +32,7 @@ docker run \
     --tmpfs /tmp \
     --tmpfs /run \
     -v /sys/fs/cgroup:/sys/fs/cgroup:ro \
-    -v $(pwd):${BUILDDIR}/pki \
+    -v ${TRAVIS_BUILD_DIR}:${BUILDDIR}/pki \
     -e BUILDUSER_UID=$(id -u) \
     -e BUILDUSER_GID=$(id -g) \
     -e TRAVIS=${TRAVIS} \
