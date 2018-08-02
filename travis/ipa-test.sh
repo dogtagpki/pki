@@ -21,7 +21,7 @@
 #
 
 PYTHON="/usr/bin/python${TRAVIS_PYTHON_VERSION}"
-IPA_TEST_LOG="ipa-test.log"
+IPA_TEST_LOG="${TRAVIS_BUILD_DIR}/ipa-test.txt"
 
 test_set="test_caacl_plugin.py test_caacl_profile_enforcement.py test_cert_plugin.py test_certprofile_plugin.py test_vault_plugin.py"
 cert_test_file_loc=""
@@ -48,12 +48,10 @@ echo "Running IPA test in ${PWD}"
 
 ipa-docker-test-runner -l ${IPA_TEST_LOG} \
     -c travis/ipa-test.yaml \
-    --developer-mode \
     --container-environment "PYTHON=$PYTHON" \
     --container-image ${IMAGE_REPO:-dogtagpki/pki-ci}:${IMAGE} \
     --git-repo ${TRAVIS_BUILD_DIR} \
     run-tests ${cert_test_file_loc}
-
 
 exit_status="$?"
 
@@ -62,6 +60,21 @@ then
     truncate_log_to_test_failures
 fi
 
-curl -k -w "\n" --upload-file ${IPA_TEST_LOG} https://transfer.sh/ipa-test.txt >> logs.txt
+ls -la ${TRAVIS_BUILD_DIR}
+
+echo "Uploading logs"
+
+touch $LOGS
+
+curl -k -w "\n" --upload-file ${TRAVIS_BUILD_DIR}/ipaclient-install.txt https://transfer.sh >> $LOGS
+curl -k -w "\n" --upload-file ${TRAVIS_BUILD_DIR}/ipaclient-uninstall.txt https://transfer.sh >> $LOGS
+curl -k -w "\n" --upload-file ${TRAVIS_BUILD_DIR}/ipaserver-install.txt https://transfer.sh >> $LOGS
+curl -k -w "\n" --upload-file ${TRAVIS_BUILD_DIR}/ipaserver-uninstall.txt https://transfer.sh >> $LOGS
+curl -k -w "\n" --upload-file ${TRAVIS_BUILD_DIR}/krb5kdc.txt https://transfer.sh >> $LOGS
+curl -k -w "\n" --upload-file ${TRAVIS_BUILD_DIR}/systemd_journal.txt https://transfer.sh >> $LOGS
+curl -k -w "\n" --upload-file ${TRAVIS_BUILD_DIR}/var_log.tar https://transfer.sh >> $LOGS
+curl -k -w "\n" --upload-file ${IPA_TEST_LOG} https://transfer.sh >> $LOGS
+
+cat $LOGS
 
 exit $exit_status

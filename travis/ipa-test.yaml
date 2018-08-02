@@ -38,41 +38,42 @@ server:
   realm: IPA.TEST
 steps:
   build:
-  - echo "Skipping Build. Nothing to do..."
+  - echo "Skipping build"
   builddep:
   - rm -rf /var/cache/dnf/*
   - "dnf makecache || :"
   cleanup:
-  - chown -R ${uid}:${gid} ${container_working_dir}
-  - curl -k -w "\n" --upload /var/log/ipaclient-install.log https://transfer.sh/ipaclient-install.txt >> logs.txt
-  - curl -k -w "\n" --upload /var/log/ipaclient-uninstall.log https://transfer.sh/ipaclient-uninstall.txt >> logs.txt
-  - curl -k -w "\n" --upload /var/log/ipaserver-install.log https://transfer.sh/ipaserver-install.txt >> logs.txt
-  - curl -k -w "\n" --upload /var/log/ipaserver-uninstall.log https://transfer.sh/ipaserver-uninstall.txt >> logs.txt
-  - curl -k -w "\n" --upload /var/log/krb5kdc.log https://transfer.sh/krb5kdc.txt >> logs.txt
-  - journalctl -b --no-pager > systemd_journal.log
-  - curl -k -w "\n" --upload systemd_journal.log https://transfer.sh/systemd_journal.txt >> logs.txt
-  - >
-      tar --ignore-failed-read -cvf ${container_working_dir}/var_log.tar
+  - "cp /var/log/ipaclient-install.log ${container_working_dir}/ipaclient-install.txt || :"
+  - "cp /var/log/ipaclient-uninstall.log ${container_working_dir}/ipaclient-uninstall.txt || :"
+  - "cp /var/log/ipaserver-install.log ${container_working_dir}/ipaserver-install.txt || :"
+  - "cp /var/log/ipaserver-uninstall.log ${container_working_dir}/ipaserver-uninstall.txt || :"
+  - "cp /var/log/krb5kdc.log ${container_working_dir}/krb5kdc.txt || :"
+  - journalctl -b --no-pager > ${container_working_dir}/systemd_journal.txt
+  - tar --ignore-failed-read -cvf ${container_working_dir}/var_log.tar
       /var/log/dirsrv
       /var/log/httpd
       /var/log/ipa
       /var/log/pki
-  - chown ${uid}:${gid} ${container_working_dir}/var_log.tar
-  - curl -k -w "\n" --upload ${container_working_dir}/var_log.tar https://transfer.sh/var_log.tar >> logs.txt
+  - chown -R ${uid}:${gid} ${container_working_dir}
+  - ls -la ${container_working_dir}
   configure:
   - dnf repolist
   install_packages:
-  - echo "Installing recently built packages..."
+  - echo "Installing PKI packages"
   - find ${container_working_dir}/RPMS/ -name '*.rpm' -and -not -name '*debuginfo*' | xargs dnf install -y
   - rpm -qa tomcat* pki-* freeipa-* | sort
   install_server:
-  - echo "Installing ipa-server..."
+  - echo "Installing IPA server"
   - sysctl net.ipv6.conf.lo.disable_ipv6=0
-  - ipa-server-install -U --domain ${server_domain} --realm ${server_realm} -p ${server_password}
-    -a ${server_password} --setup-dns --setup-kra --auto-forwarders
+  - ipa-server-install -U
+      --domain ${server_domain}
+      --realm ${server_realm}
+      --setup-kra
+      -p ${server_password}
+      -a ${server_password}
   - systemctl restart httpd.service
   lint:
-  - echo "Skipping lint. Nothing to do here..."
+  - echo "Skipping lint"
   prepare_tests:
   - echo ${server_password} | kinit admin && ipa ping
   - cp -r /etc/ipa/* ~/.ipa/
