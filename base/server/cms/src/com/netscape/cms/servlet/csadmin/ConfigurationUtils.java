@@ -2025,7 +2025,7 @@ public class ConfigurationUtils {
             }
 
             String status = replicationStatus(replicadn, masterConn, masterAgreementName);
-            if (!status.startsWith("0 ")) {
+            if (!(status.startsWith("Error (0) ") || status.startsWith("0 "))) {
                 CMS.debug("setupReplication: consumer initialization failed. " + status);
                 throw new IOException("consumer initialization failed. " + status);
             }
