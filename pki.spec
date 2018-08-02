@@ -243,7 +243,7 @@ BuildRequires:    resteasy-atom-provider >= 3.0.17-1
 BuildRequires:    resteasy-client >= 3.0.17-1
 BuildRequires:    resteasy-jaxb-provider >= 3.0.17-1
 BuildRequires:    resteasy-core >= 3.0.17-1
-BuildRequires:    resteasy-jackson-provider >= 3.0.17-1
+BuildRequires:    resteasy-jackson2-provider >= 3.0.17-1
 %endif
 
 %if 0%{?with_python2}
@@ -568,7 +568,7 @@ Requires:         resteasy-atom-provider >= 3.0.17-1
 Requires:         resteasy-client >= 3.0.17-1
 Requires:         resteasy-jaxb-provider >= 3.0.17-1
 Requires:         resteasy-core >= 3.0.17-1
-Requires:         resteasy-jackson-provider >= 3.0.17-1
+Requires:         resteasy-jackson2-provider >= 3.0.17-1
 %endif
 
 Requires:         xalan-j2
