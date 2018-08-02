@@ -141,7 +141,7 @@ public class ReplicationUtil {
             }
 
             String status = replicationStatus(replicadn, masterConn, masterAgreementName);
-            if (!status.startsWith("0 ")) {
+            if (!(status.startsWith("Error (0) ") || status.startsWith("0 "))) {
                 logger.error("ReplicationUtil: replication consumer initialization failed: " + status);
                 throw new IOException("Replication consumer initialization failed: " + status);
             }
