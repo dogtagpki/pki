@@ -122,6 +122,7 @@ import org.mozilla.jss.pkix.primitive.Name;
 import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
 import org.mozilla.jss.ssl.SSLProtocolVariant;
 import org.mozilla.jss.ssl.SSLSocket;
+import org.mozilla.jss.ssl.SSLVersion;
 import org.mozilla.jss.ssl.SSLVersionRange;
 import org.mozilla.jss.util.Base64OutputStream;
 import org.mozilla.jss.util.Password;
@@ -169,19 +170,6 @@ import netscape.security.x509.X509Key;
 public class CryptoUtil {
 
     private static Logger logger = LoggerFactory.getLogger(CryptoUtil.class);
-
-    public static enum SSLVersion {
-        SSL_3_0(SSLVersionRange.ssl3),
-        TLS_1_0(SSLVersionRange.tls1_0),
-        TLS_1_1(SSLVersionRange.tls1_1),
-        TLS_1_2(SSLVersionRange.tls1_2);
-
-        public int value;
-
-        SSLVersion(int value) {
-            this.value = value;
-        }
-    }
 
     public final static int KEY_ID_LENGTH = 20;
 
@@ -745,13 +733,23 @@ public class CryptoUtil {
         return pair;
     }
 
+    public static SSLVersionRange boundSSLStreamVersionRange(SSLVersion min, SSLVersion max) throws SocketException {
+        SSLVersionRange range = new SSLVersionRange(min, max);
+        return SSLSocket.boundSSLVersionRange(SSLProtocolVariant.STREAM, range);
+    }
+
+    public static SSLVersionRange boundSSLDatagramVersionRange(SSLVersion min, SSLVersion max) throws SocketException {
+        SSLVersionRange range = new SSLVersionRange(min, max);
+        return SSLSocket.boundSSLVersionRange(SSLProtocolVariant.DATA_GRAM, range);
+    }
+
     public static void setSSLStreamVersionRange(SSLVersion min, SSLVersion max) throws SocketException {
-        SSLVersionRange range = new SSLVersionRange(min.value, max.value);
+        SSLVersionRange range = new SSLVersionRange(min, max);
         SSLSocket.setSSLVersionRangeDefault(SSLProtocolVariant.STREAM, range);
     }
 
     public static void setSSLDatagramVersionRange(SSLVersion min, SSLVersion max) throws SocketException {
-        SSLVersionRange range = new SSLVersionRange(min.value, max.value);
+        SSLVersionRange range = new SSLVersionRange(min, max);
         SSLSocket.setSSLVersionRangeDefault(SSLProtocolVariant.DATA_GRAM, range);
     }
 

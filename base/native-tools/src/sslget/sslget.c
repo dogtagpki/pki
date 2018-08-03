@@ -36,6 +36,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+#include <sys/param.h>
 
 #if defined(XP_UNIX)
 #include <unistd.h>
@@ -588,13 +589,25 @@ client_main(
         SSL_LIBRARY_VERSION_TLS_1_1,
         SSL_LIBRARY_VERSION_TLS_1_2
     };
+    SECStatus status;
+
+    SSLVersionRange supported_range;
 
     FPRINTF(stderr, "port: %d\n", port);
 
     /* all suites except RSA_NULL_MD5 are enabled by Domestic Policy */
     NSS_SetDomesticPolicy();
 
-    /* disable SSL 2.0 and SSL 3.0 */
+    status = SSL_VersionRangeGetSupported(ssl_variant_stream, &supported_range);
+    if( status != SECSuccess ) {
+        FPRINTF(stderr, "Cannot retrieve range of supported protocol TLS versions: %d\n", PR_GetError());
+        errExit("SSL_VersionRangeGetSupported() failed");
+    }
+
+    versions.min = MAX(supported_range.min, versions.min);
+    versions.max = MIN(supported_range.max, versions.max);
+
+    /* Set more strict version range we could support */
     SSL_VersionRangeSetDefault(ssl_variant_stream, &versions);
 
     /* disable all weak or non-FIPS compliant ciphers */
