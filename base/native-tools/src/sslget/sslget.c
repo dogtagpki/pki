@@ -589,13 +589,22 @@ client_main(
         SSL_LIBRARY_VERSION_TLS_1_2
     };
 
+    SSLVersionRange supported_range;
+
     FPRINTF(stderr, "port: %d\n", port);
 
     /* all suites except RSA_NULL_MD5 are enabled by Domestic Policy */
     NSS_SetDomesticPolicy();
 
-    /* disable SSL 2.0 and SSL 3.0 */
-    SSL_VersionRangeSetDefault(ssl_variant_stream, &versions);
+    status = SSL_VersionRangeGetSupported(ssl_variant_stream, &supported_range);
+    if( status != SECSuccess ) {
+        FPRINTF(stderr, "Cannot retrieve range of supported protocol TLS versions: %d\n", PR_GetError());
+        errExit("SSL_VersionRangeGetSupported() failed");
+    }
+
+    if ((supported_range.min < versions.min) || (supported_range.max < versions.max)) {
+        errExit("SSL_VersionRangeGetSupported() returned insecure protocol TLS versions");
+    }
 
     /* disable all weak or non-FIPS compliant ciphers */
     ssl_ciphers = SSL_GetImplementedCiphers();
