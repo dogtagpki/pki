@@ -420,6 +420,8 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
                 try {
                     CMS.debug("disconnecting connection " + i);
                     mConns[i].disconnect();
+//cfu audit: LOGGING_SIGNED_AUDIT_CS_CLIENT_ACCESS_SESSION_TERMINATED
+CMS.debug("LdapAnonConnFactory: cfu audit: LOGGING_SIGNED_AUDIT_CS_CLIENT_ACCESS_SESSION_TERMINATED");
                 } catch (LDAPException e) {
                     log(ILogger.LL_INFO,
                             "exception during disconnect: " + e.toString());

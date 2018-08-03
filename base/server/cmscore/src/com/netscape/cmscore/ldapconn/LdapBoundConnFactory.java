@@ -473,6 +473,8 @@ public class LdapBoundConnFactory implements ILdapBoundConnFactory {
             for (int i = 0; i < mNumConns; i++) {
                 try {
                     mConns[i].disconnect();
+//cfu audit: LOGGING_SIGNED_AUDIT_CS_CLIENT_ACCESS_SESSION_TERMINATED
+CMS.debug("LdapBoundConnFactory: cfu audit: LOGGING_SIGNED_AUDIT_CS_CLIENT_ACCESS_SESSION_TERMINATED");
                 } catch (LDAPException e) {
                     e.printStackTrace();
                 }
@@ -482,6 +484,8 @@ public class LdapBoundConnFactory implements ILdapBoundConnFactory {
                 try {
                     log(ILogger.LL_INFO, "disconnecting masterConn");
                     mMasterConn.disconnect();
+//cfu audit: LOGGING_SIGNED_AUDIT_CS_CLIENT_ACCESS_SESSION_TERMINATED
+CMS.debug("LdapBoundConnFactory: cfu audit: LOGGING_SIGNED_AUDIT_CS_CLIENT_ACCESS_SESSION_TERMINATED");
                 } catch (LDAPException e) {
                     e.printStackTrace();
                     log(ILogger.LL_FAILURE,

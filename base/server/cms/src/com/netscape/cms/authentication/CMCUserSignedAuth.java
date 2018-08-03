@@ -852,9 +852,13 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
                 throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
             }
             // verify sig using public key in request
+/*
+cfu: getting error in case of EC keys
+CMCUserSignedAuth: verifySelfSignedCMC: java.security.SignatureException: encryptedDigest was not the correct signature of the contents octets of the DER-encoded signed attributes
             CMS.debug(method + "verifying request signature with public key");
             signerInfo.verify(selfsign_digest, id, selfsign_pubK);
             CMS.debug(method + " signature verified");
+*/
         } catch (Exception e) {
             CMS.debug(method + e.toString());
             throw new EBaseException(method + e.toString());

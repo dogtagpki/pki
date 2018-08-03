@@ -77,12 +77,15 @@ public class LdapBoundConnection extends LDAPConnection {
             setOption(LDAPv2.REFERRALS_REBIND_PROC, rebindInfo);
         }
 
+try {
         if (authInfo.getAuthType() == LdapAuthInfo.LDAP_AUTHTYPE_SSLCLIENTAUTH) {
             // will be bound to client auth cert mapped entry.
             super.connect(connInfo.getHost(), connInfo.getPort());
             CMS.debug(
                     "Established LDAP connection with SSL client auth to " +
                             connInfo.getHost() + ":" + connInfo.getPort());
+//LdapBoundConnection: cfu audit: LOGGING_SIGNED_AUDIT_CS_CLIENT_ACCESS_SESSION_ESTABLISH_SUCCESS - clientAuth
+CMS.debug("LdapBoundConnection: cfu audit: LOGGING_SIGNED_AUDIT_CS_CLIENT_ACCESS_SESSION_ESTABLISH_SUCCESS - clientAuth");
         } else { // basic auth
             String binddn = authInfo.getParms()[0];
             String bindpw = authInfo.getParms()[1];
@@ -94,7 +97,14 @@ public class LdapBoundConnection extends LDAPConnection {
                             " host " + connInfo.getHost() +
                             " port " + connInfo.getPort() +
                             " as " + binddn);
+//LdapBoundConnection: cfu audit: LOGGING_SIGNED_AUDIT_CS_CLIENT_ACCESS_SESSION_ESTABLISH_SUCCESS - basicAuth
+CMS.debug("LdapBoundConnection: cfu audit: LOGGING_SIGNED_AUDIT_CS_CLIENT_ACCESS_SESSION_ESTABLISH_SUCCESS - basicAuth");
         }
+} catch (LDAPException auditException) {
+//LdapBoundConnection: cfu audit: LOGGING_SIGNED_AUDIT_CS_CLIENT_ACCESS_SESSION_ESTABLISH_FAILURE
+CMS.debug("LdapBoundConnection: cfu audit: LOGGING_SIGNED_AUDIT_CS_CLIENT_ACCESS_SESSION_ESTABLISH_FAILURE");
+throw auditException;
+} 
     }
 
     /**
@@ -106,11 +116,14 @@ public class LdapBoundConnection extends LDAPConnection {
             String bindDN, String bindPW)
             throws LDAPException {
         super(fac);
+try {
         if (bindDN != null) {
             super.connect(version, host, port, bindDN, bindPW);
             CMS.debug(
                     "Established LDAP connection using basic authentication " +
                             " as " + bindDN + " to " + host + ":" + port);
+//cfu audit: LOGGING_SIGNED_AUDIT_CS_CLIENT_ACCESS_SESSION_ESTABLISH_SUCCESS - basicAuth
+CMS.debug("LdapBoundConnection: cfu audit: LOGGING_SIGNED_AUDIT_CS_CLIENT_ACCESS_SESSION_ESTABLISH_SUCCESS - basicAuth 2");
         } else {
             if (fac == null && bindDN == null) {
                 throw new IllegalArgumentException(
@@ -121,7 +134,14 @@ public class LdapBoundConnection extends LDAPConnection {
             CMS.debug(
                     "Established LDAP connection using SSL client authentication " +
                             "to " + host + ":" + port);
+//cfu audit: LOGGING_SIGNED_AUDIT_CS_CLIENT_ACCESS_SESSION_ESTABLISH_SUCCESS - clientAuth
+CMS.debug("LdapBoundConnection: cfu audit: LOGGING_SIGNED_AUDIT_CS_CLIENT_ACCESS_SESSION_ESTABLISH_SUCCESS - clientAuth 2");
         }
+} catch (LDAPException auditException) {
+//LdapBoundConnection: cfu audit: LOGGING_SIGNED_AUDIT_CS_CLIENT_ACCESS_SESSION_ESTABLISH_FAILURE
+CMS.debug("LdapBoundConnection: cfu audit: LOGGING_SIGNED_AUDIT_CS_CLIENT_ACCESS_SESSION_ESTABLISH_FAILURE");
+throw auditException;
+}
     }
 
     /**

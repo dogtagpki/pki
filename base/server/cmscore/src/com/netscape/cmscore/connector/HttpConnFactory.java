@@ -290,6 +290,10 @@ public class HttpConnFactory {
         }
         mConns[mNumConns++] = boundconn;
         CMS.debug("HttpreturnConn: mNumConns now " + mNumConns);
+/*
+//HttpConnFactory.returnConn cfu - LOGGING_SIGNED_AUDIT_CS_CLIENT_ACCESS_SESSION_TERMINATED
+System.out.println("HttpConnFactory.returnConn: cfu audit: LOGGING_SIGNED_AUDIT_CS_CLIENT_ACCESS_SESSION_TERMINATED");
+*/
         notify();
     }
 

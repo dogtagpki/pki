@@ -22,6 +22,8 @@ import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPSocketFactory;
 import netscape.ldap.LDAPv2;
 
+import com.netscape.certsrv.apps.CMS;
+
 /**
  * A LDAP connection that is bound to a server host, port and secure type.
  * Makes a LDAP connection when instantiated.
@@ -41,6 +43,7 @@ public class LdapAnonConnection extends LDAPConnection {
     public LdapAnonConnection(LdapConnInfo connInfo)
             throws LDAPException {
         super(new PKISocketFactory(connInfo.getSecure()));
+try {
 
         // Set option to automatically follow referrals.
         // rebind info is also anonymous.
@@ -56,6 +59,13 @@ public class LdapAnonConnection extends LDAPConnection {
             // not authenticate with an anonymous bind.  This requires LDAPv3.
             super.connect(connInfo.getHost(), connInfo.getPort());
         }
+//cfu audit: LOGGING_SIGNED_AUDIT_CS_CLIENT_ACCESS_SESSION_ESTABLISH_SUCCESS - anon
+CMS.debug("cfu audit: LOGGING_SIGNED_AUDIT_CS_CLIENT_ACCESS_SESSION_ESTABLISH_SUCCESS - anon");
+} catch (LDAPException e) {
+//cfu audit: LOGGING_SIGNED_AUDIT_CS_CLIENT_ACCESS_SESSION_ESTABLISH_FAILURE - anon
+CMS.debug("cfu audit: LOGGING_SIGNED_AUDIT_CS_CLIENT_ACCESS_SESSION_ESTABLISH_FAILURE - anon");
+    throw e;
+}
     }
 
     /**
@@ -65,6 +75,7 @@ public class LdapAnonConnection extends LDAPConnection {
             LDAPSocketFactory fac)
             throws LDAPException {
         super(fac);
+try {
         if (version == LDAPv2.PROTOCOL_VERSION) {
             super.connect(version, host, port, null, null);
         } else {
@@ -72,6 +83,13 @@ public class LdapAnonConnection extends LDAPConnection {
             // not authenticate with an anonymous bind.  This requires LDAPv3.
             super.connect(host, port);
         }
+//cfu audit: LOGGING_SIGNED_AUDIT_CS_CLIENT_ACCESS_SESSION_ESTABLISH_SUCCESS - anon
+CMS.debug("cfu audit: LOGGING_SIGNED_AUDIT_CS_CLIENT_ACCESS_SESSION_ESTABLISH_SUCCESS - anon");
+} catch (LDAPException e) {
+//cfu audit: LOGGING_SIGNED_AUDIT_CS_CLIENT_ACCESS_SESSION_ESTABLISH_FAILURE - anon
+CMS.debug("cfu audit: LOGGING_SIGNED_AUDIT_CS_CLIENT_ACCESS_SESSION_ESTABLISH_FAILURE - anon");
+    throw e;
+}
     }
 
     /**
@@ -80,6 +98,7 @@ public class LdapAnonConnection extends LDAPConnection {
     public LdapAnonConnection(String host, int port, int version)
             throws LDAPException {
         super();
+try {
         if (version == LDAPv2.PROTOCOL_VERSION) {
             super.connect(version, host, port, null, null);
         } else {
@@ -87,6 +106,13 @@ public class LdapAnonConnection extends LDAPConnection {
             // not authenticate with an anonymous bind.  This requires LDAPv3.
             super.connect(host, port);
         }
+//cfu audit: LOGGING_SIGNED_AUDIT_CS_CLIENT_ACCESS_SESSION_ESTABLISH_SUCCESS - anon
+CMS.debug("cfu audit: LOGGING_SIGNED_AUDIT_CS_CLIENT_ACCESS_SESSION_ESTABLISH_SUCCESS - anon");
+} catch (LDAPException e) {
+//cfu audit: LOGGING_SIGNED_AUDIT_CS_CLIENT_ACCESS_SESSION_ESTABLISH_FAILURE - anon
+CMS.debug("cfu audit: LOGGING_SIGNED_AUDIT_CS_CLIENT_ACCESS_SESSION_ESTABLISH_FAILURE - anon");
+    throw e;
+}
     }
 
     /**
