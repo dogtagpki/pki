@@ -204,6 +204,8 @@ public class LdapAuthInfo implements ILdapAuthInfo {
     public void reset() {
         try {
             conn.disconnect();
+//cfu audit: LOGGING_SIGNED_AUDIT_CS_CLIENT_ACCESS_SESSION_TERMINATED
+CMS.debug("LdapAuthInfo: cfu audit: LOGGING_SIGNED_AUDIT_CS_CLIENT_ACCESS_SESSION_TERMINATED");
         } catch (LDAPException e) {
         }
     }

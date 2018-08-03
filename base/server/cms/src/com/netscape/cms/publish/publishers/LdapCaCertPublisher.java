@@ -329,6 +329,8 @@ public class LdapCaCertPublisher
                     // safely ignored
                 }
             }
+//cfu audit publish: LOGGING_SIGNED_AUDIT_CS_CLIENT_ACCESS_SESSION_TERMINATED
+CMS.debug("LdapCaCertPublisher: cfu audit publish: LOGGING_SIGNED_AUDIT_CS_CLIENT_ACCESS_SESSION_TERMINATED");
         }
 
         return;

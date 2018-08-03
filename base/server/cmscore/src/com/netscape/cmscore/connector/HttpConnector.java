@@ -130,6 +130,9 @@ public class HttpConnector implements IConnector {
         } finally {
             if (curConn != null) {
                 mConnFactory.returnConn(curConn);
+ //cfu - LOGGING_SIGNED_AUDIT_CS_CLIENT_ACCESS_SESSION_TERMINATED
+CMS.debug("HttpConnector.send 1: cfu audit: LOGGING_SIGNED_AUDIT_CS_CLIENT_ACCESS_SESSION_TERMINATED");
+
             }
         }
         return resp;
@@ -236,6 +239,8 @@ public class HttpConnector implements IConnector {
 
             if (curConn != null) {
                 mConnFactory.returnConn(curConn);
+ //cfu - LOGGING_SIGNED_AUDIT_CS_CLIENT_ACCESS_SESSION_TERMINATED
+CMS.debug("HttpConnector.send 2: cfu audit: LOGGING_SIGNED_AUDIT_CS_CLIENT_ACCESS_SESSION_TERMINATED");
             }
         }
     }

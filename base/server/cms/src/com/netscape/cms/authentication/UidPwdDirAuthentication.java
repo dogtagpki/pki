@@ -238,6 +238,8 @@ public class UidPwdDirAuthentication extends DirBasedAuthentication
             CMS.debug("Authenticating: closing bad connection");
             try {
                 conn.disconnect();
+//cfu audit: LOGGING_SIGNED_AUDIT_CS_CLIENT_ACCESS_SESSION_TERMINATED
+CMS.debug("UidPwdDirAuthentication: cfu audit: LOGGING_SIGNED_AUDIT_CS_CLIENT_ACCESS_SESSION_TERMINATED");
             } catch (Exception f) {
                 CMS.debug("Authenticating: conn.disconnect() exception =" + f.toString());
             }
@@ -248,6 +250,8 @@ public class UidPwdDirAuthentication extends DirBasedAuthentication
             CMS.debug("Authenticating: closing bad connection");
             try {
                 conn.disconnect();
+//cfu audit: LOGGING_SIGNED_AUDIT_CS_CLIENT_ACCESS_SESSION_TERMINATED
+CMS.debug("UidPwdDirAuthentication: cfu audit: LOGGING_SIGNED_AUDIT_CS_CLIENT_ACCESS_SESSION_TERMINATED");
             } catch (Exception f) {
                 CMS.debug("Authenticating: conn.disconnect() exception =" + f.toString());
             }

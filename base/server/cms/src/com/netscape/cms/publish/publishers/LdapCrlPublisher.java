@@ -297,9 +297,13 @@ public class LdapCrlPublisher implements ILdapPublisher, IExtendedPluginInfo {
             conn.modify(dn, modSet);
             log(ILogger.LL_FAILURE, "CRLDEBUG - finished modify CRL");
         } catch (CRLException e) {
+//cfu audit crl publish: LOGGING_SIGNED_AUDIT_CS_CLIENT_ACCESS_SESSION_TERMINATED
+CMS.debug("cfu audit crl publish: LOGGING_SIGNED_AUDIT_CS_CLIENT_ACCESS_SESSION_TERMINATED" + e);
             log(ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_PUBLISH_ERROR", e.toString()));
             throw new ELdapException(CMS.getUserMessage("CMS_LDAP_PUBLISH_CRL_ERROR", e.toString()));
         } catch (LDAPException e) {
+//cfu audit crl publish: LOGGING_SIGNED_AUDIT_CS_CLIENT_ACCESS_SESSION_TERMINATED
+CMS.debug("cfu audit crl publish: LOGGING_SIGNED_AUDIT_CS_CLIENT_ACCESS_SESSION_TERMINATED" + e);
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
                 // need to intercept this because message from LDAP is
                 // "DSA is unavailable" which confuses with DSA PKI.
@@ -321,6 +325,8 @@ public class LdapCrlPublisher implements ILdapPublisher, IExtendedPluginInfo {
             if (altConn != null) {
                 try {
                     altConn.disconnect();
+//cfu audit: LOGGING_SIGNED_AUDIT_CS_CLIENT_ACCESS_SESSION_TERMINATED
+CMS.debug("LdapCrlPublisher: cfu audit: LOGGING_SIGNED_AUDIT_CS_CLIENT_ACCESS_SESSION_TERMINATED");
                 } catch (LDAPException e) {
                     // safely ignored
                 }
@@ -380,9 +386,13 @@ public class LdapCrlPublisher implements ILdapPublisher, IExtendedPluginInfo {
                         "unpublish: " + dn + " already has not CRL");
             }
         } catch (CRLException e) {
+//cfu audit crl unpublish: LOGGING_SIGNED_AUDIT_CS_CLIENT_ACCESS_SESSION_TERMINATED
+CMS.debug("cfu audit crl unpublish: LOGGING_SIGNED_AUDIT_CS_CLIENT_ACCESS_SESSION_TERMINATED" + e);
             log(ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_UNPUBLISH_ERROR", e.toString()));
             throw new ELdapException(CMS.getUserMessage("CMS_LDAP_PUBLISH_CRL_ERROR", e.toString()));
         } catch (LDAPException e) {
+//cfu audit crl unpublish: LOGGING_SIGNED_AUDIT_CS_CLIENT_ACCESS_SESSION_TERMINATED
+CMS.debug("cfu audit crl unpublish: LOGGING_SIGNED_AUDIT_CS_CLIENT_ACCESS_SESSION_TERMINATED" + e);
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
                 // need to intercept this because message from LDAP is
                 // "DSA is unavailable" which confuses with DSA PKI.

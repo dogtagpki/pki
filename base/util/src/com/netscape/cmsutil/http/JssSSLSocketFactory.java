@@ -66,7 +66,8 @@ public class JssSSLSocketFactory implements ISocketFactory {
             SSLClientCertificateSelectionCallback clientCertCallback,
             int timeout // milliseconds
             ) throws IOException, UnknownHostException {
-
+//cfu - how to audit timeout?
+System.out.println("cfu audit(not): timeout set to " + timeout);
         try {
             /*
              * let inherit tls range and cipher settings

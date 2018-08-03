@@ -131,9 +131,14 @@ public class HttpConnection implements IHttpConnection {
                 mHttpClient.connect(hostname, port, timeout * 1000);
 
                 CMS.debug("HttpConnection: Connected to " + hostname + ":" + port);
+//cfu audit: LOGGING_SIGNED_AUDIT_CS_CLIENT_ACCESS_SESSION_ESTABLISH_SUCCESS
+// this is the one to talk to KRA
+CMS.debug("HttpConnection: cfu audit: LOGGING_SIGNED_AUDIT_CS_CLIENT_ACCESS_SESSION_ESTABLISH_SUCCESS");
                 return;
 
             } catch (IOException e) {
+//cfu audit: LOGGING_SIGNED_AUDIT_CS_CLIENT_ACCESS_SESSION_ESTABLISH_FAILURE
+CMS.debug("HttpConnection: cfu audit: LOGGING_SIGNED_AUDIT_CS_CLIENT_ACCESS_SESSION_ESTABLISH_FAILURE");
                 exception = e;
                 CMS.debug("HttpConnection: Unable to connect to " + hostname + ":" + port + ": " + e);
                 // try the next target immediately
