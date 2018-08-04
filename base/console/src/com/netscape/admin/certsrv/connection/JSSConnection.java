@@ -48,13 +48,13 @@ import org.mozilla.jss.ssl.SSLClientCertificateSelectionCallback;
 import org.mozilla.jss.ssl.SSLHandshakeCompletedEvent;
 import org.mozilla.jss.ssl.SSLSocket;
 import org.mozilla.jss.ssl.SSLSocketListener;
+import org.mozilla.jss.ssl.SSLVersion;
 import org.mozilla.jss.util.Password;
 import org.mozilla.jss.util.PasswordCallback;
 import org.mozilla.jss.util.PasswordCallbackInfo;
 
 import com.netscape.admin.certsrv.CMSAdminResources;
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import com.netscape.cmsutil.crypto.CryptoUtil.SSLVersion;
 import com.netscape.management.client.util.AbstractDialog;
 import com.netscape.management.client.util.Debug;
 import com.netscape.management.client.util.GridBagUtil;
@@ -124,8 +124,8 @@ public class JSSConnection implements IConnection, SSLCertificateApprovalCallbac
         } catch (Exception e) {
         }
 
-        CryptoUtil.setSSLStreamVersionRange(SSLVersion.TLS_1_0, SSLVersion.TLS_1_2);
-        CryptoUtil.setSSLDatagramVersionRange(SSLVersion.TLS_1_1, SSLVersion.TLS_1_2);
+        CryptoUtil.setSSLStreamVersionRange(SSLVersion.TLS_1_1, SSLVersion.TLS_1_3);
+        CryptoUtil.setSSLDatagramVersionRange(SSLVersion.TLS_1_1, SSLVersion.TLS_1_3);
         CryptoUtil.setDefaultSSLCiphers();
 
         s = new SSLSocket(host, port, null, 0, this, this);

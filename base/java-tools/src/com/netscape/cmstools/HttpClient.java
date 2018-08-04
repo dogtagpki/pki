@@ -39,10 +39,10 @@ import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.ssl.SSLHandshakeCompletedEvent;
 import org.mozilla.jss.ssl.SSLHandshakeCompletedListener;
 import org.mozilla.jss.ssl.SSLSocket;
+import org.mozilla.jss.ssl.SSLVersion;
 import org.mozilla.jss.util.Password;
 
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import com.netscape.cmsutil.crypto.CryptoUtil.SSLVersion;
 import com.netscape.cmsutil.util.Utils;
 
 /**
@@ -125,8 +125,8 @@ public class HttpClient {
 
                 SSLHandshakeCompletedListener listener = new ClientHandshakeCB(this);
 
-                CryptoUtil.setSSLStreamVersionRange(SSLVersion.TLS_1_0, SSLVersion.TLS_1_2);
-                CryptoUtil.setSSLDatagramVersionRange(SSLVersion.TLS_1_1, SSLVersion.TLS_1_2);
+                CryptoUtil.setSSLStreamVersionRange(SSLVersion.TLS_1_1, SSLVersion.TLS_1_3);
+                CryptoUtil.setSSLDatagramVersionRange(SSLVersion.TLS_1_1, SSLVersion.TLS_1_3);
                 CryptoUtil.setDefaultSSLCiphers();
 
                 sslSocket = new SSLSocket(_host, _port);
