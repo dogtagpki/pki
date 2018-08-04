@@ -587,7 +587,7 @@ client_main(
     SSLCipherSuiteInfo info;
     SSLVersionRange versions = {
         SSL_LIBRARY_VERSION_TLS_1_1,
-        SSL_LIBRARY_VERSION_TLS_1_2
+        SSL_LIBRARY_VERSION_TLS_1_3
     };
     SECStatus status;
 
