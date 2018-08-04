@@ -1028,9 +1028,9 @@ class PKIConfigParser:
             self.mdict['TOMCAT_SERVER_PORT_SLOT'] = \
                 self.mdict['pki_tomcat_server_port']
             self.mdict['TOMCAT_SSL_VERSION_RANGE_STREAM_SLOT'] = \
-                "tls1_1:tls1_2"
+                "tls1_1:tls1_3"
             self.mdict['TOMCAT_SSL_VERSION_RANGE_DATAGRAM_SLOT'] = \
-                "tls1_1:tls1_2"
+                "tls1_1:tls1_3"
             ##
             # Reminder: if the following cipher lists are updated, be sure
             # to remember to update pki/base/server/share/conf/ciphers.info

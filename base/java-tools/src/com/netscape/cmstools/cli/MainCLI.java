@@ -49,6 +49,7 @@ import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NotInitializedException;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
+import org.mozilla.jss.ssl.SSLVersion;
 import org.mozilla.jss.util.IncorrectPasswordException;
 import org.mozilla.jss.util.Password;
 
@@ -71,7 +72,6 @@ import com.netscape.cmstools.tks.TKSCLI;
 import com.netscape.cmstools.tps.TPSCLI;
 import com.netscape.cmstools.user.ProxyUserCLI;
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import com.netscape.cmsutil.crypto.CryptoUtil.SSLVersion;
 
 /**
  * @author Endi S. Dewata
@@ -558,8 +558,8 @@ public class MainCLI extends CLI {
         String streamVersionMax = System.getenv("SSL_STREAM_VERSION_MAX");
 
         CryptoUtil.setSSLStreamVersionRange(
-                streamVersionMin == null ? SSLVersion.TLS_1_0 : SSLVersion.valueOf(streamVersionMin),
-                streamVersionMax == null ? SSLVersion.TLS_1_2 : SSLVersion.valueOf(streamVersionMax)
+                streamVersionMin == null ? SSLVersion.TLS_1_1 : SSLVersion.valueOf(streamVersionMin),
+                streamVersionMax == null ? SSLVersion.TLS_1_3 : SSLVersion.valueOf(streamVersionMax)
         );
 
         String datagramVersionMin = System.getenv("SSL_DATAGRAM_VERSION_MIN");
@@ -567,7 +567,7 @@ public class MainCLI extends CLI {
 
         CryptoUtil.setSSLDatagramVersionRange(
                 datagramVersionMin == null ? SSLVersion.TLS_1_1 : SSLVersion.valueOf(datagramVersionMin),
-                datagramVersionMax == null ? SSLVersion.TLS_1_2 : SSLVersion.valueOf(datagramVersionMax)
+                datagramVersionMax == null ? SSLVersion.TLS_1_3 : SSLVersion.valueOf(datagramVersionMax)
         );
 
         String defaultCiphers = System.getenv("SSL_DEFAULT_CIPHERS");
