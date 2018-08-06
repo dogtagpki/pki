@@ -873,7 +873,6 @@ class PKIConfigParser:
             self.mdict['PKI_ADMIN_SECURE_PORT_CONNECTOR_NAME_SLOT'] = \
                 "Unused"
             self.mdict['PKI_ADMIN_SECURE_PORT_SERVER_COMMENT_SLOT'] = ""
-            self.mdict['PKI_AGENT_CLIENTAUTH_SLOT'] = "want"
             self.mdict['PKI_AGENT_SECURE_PORT_SLOT'] = \
                 self.mdict['pki_https_port']
             self.mdict['PKI_AJP_PORT_SLOT'] = \
