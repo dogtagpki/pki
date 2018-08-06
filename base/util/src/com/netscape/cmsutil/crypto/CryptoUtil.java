@@ -123,6 +123,7 @@ import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
 import org.mozilla.jss.ssl.SSLSocket;
 import org.mozilla.jss.ssl.SSLSocket.SSLProtocolVariant;
 import org.mozilla.jss.ssl.SSLSocket.SSLVersionRange;
+import org.mozilla.jss.ssl.SSLVersion;
 import org.mozilla.jss.util.Base64OutputStream;
 import org.mozilla.jss.util.Password;
 import org.slf4j.Logger;
@@ -170,19 +171,6 @@ public class CryptoUtil {
 
     private static Logger logger = LoggerFactory.getLogger(CryptoUtil.class);
 
-    public static enum SSLVersion {
-        SSL_3_0(SSLVersionRange.ssl3),
-        TLS_1_0(SSLVersionRange.tls1_0),
-        TLS_1_1(SSLVersionRange.tls1_1),
-        TLS_1_2(SSLVersionRange.tls1_2);
-
-        public int value;
-
-        SSLVersion(int value) {
-            this.value = value;
-        }
-    }
-
     public final static int KEY_ID_LENGTH = 20;
 
     public final static String INTERNAL_TOKEN_NAME = "internal";
@@ -197,7 +185,10 @@ public class CryptoUtil {
         SSLSocket.TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,
         SSLSocket.TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256,
         SSLSocket.TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256,
-        SSLSocket.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
+        SSLSocket.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
+        SSLSocket.TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256,
+        SSLSocket.TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256,
+        SSLSocket.TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256
     };
     static public List<Integer> clientECCipherList = new ArrayList<Integer>(Arrays.asList(clientECCiphers));
 
@@ -745,13 +736,23 @@ public class CryptoUtil {
         return pair;
     }
 
+    public static SSLVersionRange boundSSLStreamVersionRange(SSLVersion min, SSLVersion max) throws SocketException {
+        SSLVersionRange range = new SSLVersionRange(min, max);
+        return SSLSocket.boundSSLVersionRange(SSLProtocolVariant.STREAM, range);
+    }
+
+    public static SSLVersionRange boundSSLDatagramVersionRange(SSLVersion min, SSLVersion max) throws SocketException {
+        SSLVersionRange range = new SSLVersionRange(min, max);
+        return SSLSocket.boundSSLVersionRange(SSLProtocolVariant.DATA_GRAM, range);
+    }
+
     public static void setSSLStreamVersionRange(SSLVersion min, SSLVersion max) throws SocketException {
-        SSLVersionRange range = new SSLVersionRange(min.value, max.value);
+        SSLVersionRange range = new SSLVersionRange(min, max);
         SSLSocket.setSSLVersionRangeDefault(SSLProtocolVariant.STREAM, range);
     }
 
     public static void setSSLDatagramVersionRange(SSLVersion min, SSLVersion max) throws SocketException {
-        SSLVersionRange range = new SSLVersionRange(min.value, max.value);
+        SSLVersionRange range = new SSLVersionRange(min, max);
         SSLSocket.setSSLVersionRangeDefault(SSLProtocolVariant.DATA_GRAM, range);
     }
 
@@ -955,6 +956,19 @@ public class CryptoUtil {
         cipherMap.put("TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
                 SSLSocket.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256);
 
+        // TLSv1_3
+        cipherMap.put("TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256",
+                SSLSocket.TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256);
+        cipherMap.put("TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256",
+                SSLSocket.TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256);
+        cipherMap.put("TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256",
+                SSLSocket.TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256);
+        cipherMap.put("TLS_AES_128_GCM_SHA256",
+                SSLSocket.TLS_AES_128_GCM_SHA256);
+        cipherMap.put("TLS_AES_256_GCM_SHA384",
+                SSLSocket.TLS_AES_256_GCM_SHA384);
+        cipherMap.put("TLS_CHACHA20_POLY1305_SHA256",
+                SSLSocket.TLS_CHACHA20_POLY1305_SHA256);
     }
 
     public static void setClientCiphers(String list) throws SocketException {
