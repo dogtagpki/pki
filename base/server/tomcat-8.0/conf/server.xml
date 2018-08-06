@@ -232,9 +232,8 @@ Tomcat Port         = [TOMCAT_SERVER_PORT] (for shutdown)
                passwordFile="[PKI_INSTANCE_PATH]/conf/password.conf"
                passwordClass="org.apache.tomcat.util.net.jss.PlainPasswordFile"
                certdbDir="[PKI_INSTANCE_PATH]/alias"
-               keystoreType="pkcs12"
-               keystoreFile="[pki_instance_configuration_path]/keystore.p12"
-               keystorePassFile="[pki_instance_configuration_path]/keystore.pwd"
+               keystoreType="pkcs11"
+               keystoreProvider="Mozilla-JSS"
                keyAlias="sslserver"
                trustManagerClassName="org.dogtagpki.tomcat.PKITrustManager"
                />

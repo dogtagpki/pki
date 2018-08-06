@@ -152,7 +152,6 @@ Tomcat Port         = [TOMCAT_SERVER_PORT] (for shutdown)
                port="[PKI_SECURE_PORT]"
                protocol="org.dogtagpki.tomcat.Http11NioProtocol"
                SSLEnabled="true"
-               sslProtocol="SSL"
                scheme="https"
                secure="true"
                connectionTimeout="80000"
@@ -171,20 +170,23 @@ Tomcat Port         = [TOMCAT_SERVER_PORT] (for shutdown)
                ocspMaxCacheEntryDuration="120"
                ocspTimeout="10"
                strictCiphers="true"
-               clientAuth="want"
                sslVersionRangeStream="[TOMCAT_SSL_VERSION_RANGE_STREAM]"
                sslVersionRangeDatagram="[TOMCAT_SSL_VERSION_RANGE_DATAGRAM]"
                sslRangeCiphers="[TOMCAT_SSL_RANGE_CIPHERS]"
                serverCertNickFile="[PKI_INSTANCE_PATH]/conf/serverCertNick.conf"
                passwordFile="[PKI_INSTANCE_PATH]/conf/password.conf"
                passwordClass="org.apache.tomcat.util.net.jss.PlainPasswordFile"
-               certdbDir="[PKI_INSTANCE_PATH]/alias"
-               keystoreType="pkcs12"
-               keystoreFile="[pki_instance_configuration_path]/keystore.p12"
-               keystorePassFile="[pki_instance_configuration_path]/keystore.pwd"
-               keyAlias="sslserver"
-               trustManagerClassName="org.dogtagpki.tomcat.PKITrustManager"
-               />
+               certdbDir="[PKI_INSTANCE_PATH]/alias">
+
+        <SSLHostConfig sslProtocol="SSL"
+                       certificateVerification="optional"
+                       trustManagerClassName="org.dogtagpki.tomcat.PKITrustManager">
+            <Certificate certificateKeystoreType="pkcs11"
+                         certificateKeystoreProvider="Mozilla-JSS"
+                         certificateKeyAlias="sslserver"/>
+        </SSLHostConfig>
+
+    </Connector>
 
     <!-- Define an AJP 1.3 Connector on port [PKI_AJP_PORT] -->
 [PKI_OPEN_AJP_PORT_COMMENT]

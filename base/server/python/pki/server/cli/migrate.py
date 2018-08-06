@@ -449,6 +449,44 @@ class MigrateCLI(pki.cli.CLI):
                                             child.text,
                                             flags=re.MULTILINE)
 
+        if self.debug:
+            print('* adding SSLHostConfig')
+
+        full_name = instance.get_sslserver_cert_nickname()
+
+        connectors = server.findall('Service/Connector')
+        for connector in connectors:
+
+            if connector.get('secure') != 'true':
+                continue
+
+            connector.attrib.pop('sslProtocol', None)
+            connector.attrib.pop('clientAuth', None)
+            connector.attrib.pop('keystoreType', None)
+            connector.attrib.pop('keystoreProvider', None)
+            connector.attrib.pop('keyAlias', None)
+            connector.attrib.pop('trustManagerClassName', None)
+
+            sslHostConfigs = connector.findall('SSLHostConfig')
+            if len(sslHostConfigs) > 0:
+                sslHostConfig = sslHostConfigs[0]
+            else:
+                sslHostConfig = etree.SubElement(connector, 'SSLHostConfig')
+
+            sslHostConfig.set('sslProtocol', 'SSL')
+            sslHostConfig.set('certificateVerification', 'optional')
+            sslHostConfig.set('trustManagerClassName', 'org.dogtagpki.tomcat.PKITrustManager')
+
+            certificates = sslHostConfig.findall('Certificate')
+            if len(certificates) > 0:
+                certificate = certificates[0]
+            else:
+                certificate = etree.SubElement(sslHostConfig, 'Certificate')
+
+            certificate.set('certificateKeystoreType', 'pkcs11')
+            certificate.set('certificateKeystoreProvider', 'Mozilla-JSS')
+            certificate.set('certificateKeyAlias', full_name)
+
     def migrate_subsystems(self, instance, tomcat_version):
         for subsystem in instance.subsystems:
             self.migrate_subsystem(subsystem, tomcat_version)
