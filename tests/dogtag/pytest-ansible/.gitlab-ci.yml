@@ -5,6 +5,23 @@ variables:
   IMG_BRANCH: fedora28_1master
   POST_PROV: 'https://gitlab.cee.redhat.com/snippets/393/raw'
 
+stages:
+  - tier0
+  - tier1
+
+.job_template: &job_definition
+  tags:
+  - pki
+  only:
+  - tags
+  - triggers
+  - web
+  - schedules
+  artifacts:
+    paths:
+    - $CI_PROJECT_DIR/*_junit.xml
+    when: always
+
 before_script:
   - GIT_SSL_NO_VERIFY=true git clone -b $IMG_BRANCH https://gitlab.cee.redhat.com/idm/linchpin-openstack
   - wget -O - https://gitlab.cee.redhat.com/snippets/250/raw --no-check-certificate | python
@@ -19,21 +36,19 @@ before_script:
 after_script:
   - linchpin -w linchpin-openstack --creds-path linchpin-openstack/credentials destroy
 
+
 installation-sanity:
+  stage: tier0
+  <<: *job_definition
   script:
   - ansible-playbook -u fedora --become --private-key=ssh-priv-key -i $HOSTFILE tests/dogtag/pytest-ansible/installation/main.yml -e 'ansible_python_interpreter="/usr/bin/python3"' --extra-vars "topology=topology-02" -vv  | sed 's/\\n/\n/g'
-  tags:
-  - pki
 
 banner-cli:
+  stage: tier1
+  <<: *job_definition
   script:
   - ansible-playbook -u fedora --become --private-key=ssh-priv-key -i $HOSTFILE tests/dogtag/pytest-ansible/installation/main.yml -e 'ansible_python_interpreter="/usr/bin/python3"' --extra-vars "topology=topology-02" -vv  | sed 's/\\n/\n/g'
   - py.test --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master tests/dogtag/pytest-ansible/pytest/banner/test_banner_cli.py -q -s --junitxml bannercli_junit.xml -vvvv
-  artifacts:
-    paths:
-    - bannercli_junit.xml
-  tags:
-  - pki
 
 tps-config-cli:
   script:
@@ -72,11 +87,10 @@ ca-bugzillas:
   - pki
 
 securitydomain-cli:
+  stage: tier1
+  <<: *job_definition
   script:
   - ansible-playbook -u fedora --become --private-key=ssh-priv-key -i $HOSTFILE tests/dogtag/pytest-ansible/installation/main.yml -e 'ansible_python_interpreter="/usr/bin/python3"' --extra-vars "topology=topology-02" -vv  | sed 's/\\n/\n/g'
   - py.test --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master tests/dogtag/pytest-ansible/pytest/ca/securitydomain/ -q -s --junitxml securitydomain_junit.xml -vvvv
-  artifacts:
-    paths:
-    - securitydomain_junit.xml
-  tags:
-  - pki
+  only:
+  - securitydomain
