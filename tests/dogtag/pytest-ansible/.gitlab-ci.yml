@@ -70,3 +70,13 @@ ca-bugzillas:
     - BZ_1539198_junit.xml
   tags:
   - pki
+
+securitydomain-cli:
+  script:
+  - ansible-playbook -u fedora --become --private-key=ssh-priv-key -i $HOSTFILE tests/dogtag/pytest-ansible/installation/main.yml -e 'ansible_python_interpreter="/usr/bin/python3"' --extra-vars "topology=topology-02" -vv  | sed 's/\\n/\n/g'
+  - py.test --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master tests/dogtag/pytest-ansible/pytest/ca/securitydomain/ -q -s --junitxml securitydomain_junit.xml -vvvv
+  artifacts:
+    paths:
+    - securitydomain_junit.xml
+  tags:
+  - pki
