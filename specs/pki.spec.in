@@ -151,6 +151,8 @@ Source: https://github.com/dogtagpki/pki/archive/v%{version}%{?_phase}/pki-%{ver
 %define pki_gid 17
 %define pki_homedir /usr/share/pki
 
+%global brand dogtag
+
 %global saveFileContext() \
 if [ -s /etc/selinux/config ]; then \
      . %{_sysconfdir}/selinux/config; \
@@ -347,12 +349,30 @@ BuildRequires:    systemd
 BuildRequires:    zlib
 BuildRequires:    zlib-devel
 
+%description
+
+Dogtag PKI is an enterprise software system designed
+to manage enterprise Public Key Infrastructure deployments.
+
+PKI consists of the following components:
+
+  * Certificate Authority (CA)
+  * Key Recovery Authority (KRA)
+  * Online Certificate Status Protocol (OCSP) Manager
+  * Token Key Service (TKS)
+  * Token Processing Service (TPS)
+
 %if %{with meta}
+################################################################################
+%package -n       %{brand}-pki
+################################################################################
+
+Summary:          Dogtag PKI Package
 
 # Make certain that this 'meta' package requires the latest version(s)
 # of ALL PKI theme packages
-Requires:         %{name}-server-theme >= %{version}
-Requires:         %{name}-console-theme >= %{version}
+Requires:         %{brand}-pki-server-theme >= %{version}
+Requires:         %{brand}-pki-console-theme >= %{version}
 
 # Make certain that this 'meta' package requires the latest version(s)
 # of ALL PKI core packages
@@ -381,9 +401,7 @@ Requires:         esc >= 1.1.0
 Requires:         esc >= 1.1.1
 %endif
 
-%endif # with meta
-
-%description
+%description -n   %{brand}-pki
 
 Dogtag PKI is an enterprise software system designed
 to manage enterprise Public Key Infrastructure deployments.
@@ -395,6 +413,8 @@ PKI consists of the following components:
   * Online Certificate Status Protocol (OCSP) Manager
   * Token Key Service (TKS)
   * Token Processing Service (TPS)
+
+%endif # with meta
 
 %if %{with base}
 ################################################################################
@@ -878,7 +898,7 @@ following "Mutually-Exclusive" PKI Theme packages:
 
 %if %{with theme}
 ################################################################################
-%package -n       %{name}-server-theme
+%package -n       %{brand}-pki-server-theme
 ################################################################################
 
 Summary:          Dogtag PKI Server Theme Package
@@ -886,12 +906,12 @@ BuildArch:        noarch
 
 Provides:         pki-server-theme = %{version}-%{release}
 
-%description -n   %{name}-server-theme
+%description -n   %{brand}-pki-server-theme
 This PKI Server Theme Package contains
 Dogtag textual and graphical user interface for PKI Server.
 
 ################################################################################
-%package -n       %{name}-console-theme
+%package -n       %{brand}-pki-console-theme
 ################################################################################
 
 Summary:          Dogtag PKI Console Theme Package
@@ -899,7 +919,7 @@ BuildArch:        noarch
 
 Provides:         pki-console-theme = %{version}-%{release}
 
-%description -n   %{name}-console-theme
+%description -n   %{brand}-pki-console-theme
 This PKI Console Theme Package contains
 Dogtag textual and graphical user interface for PKI Console.
 
@@ -971,7 +991,7 @@ cd build
 %{__mkdir_p} %{buildroot}%{_datadir}/doc/pki
 
 cat > %{buildroot}%{_datadir}/doc/pki/README << EOF
-This package is just a "meta-package" whose dependencies pull in all of the
+This package is a "meta-package" whose dependencies pull in all of the
 packages comprising the Dogtag Public Key Infrastructure (PKI) Suite.
 EOF
 %endif # with meta
@@ -1226,7 +1246,7 @@ fi
 
 %if %{with meta}
 ################################################################################
-%files
+%files -n %{brand}-pki
 ################################################################################
 
 %defattr(-,root,root,-)
@@ -1553,11 +1573,11 @@ fi
 
 %if %{with theme}
 ################################################################################
-%files -n %{name}-server-theme
+%files -n %{brand}-pki-server-theme
 ################################################################################
 
 %defattr(-,root,root,-)
-%doc themes/dogtag/common-ui/LICENSE
+%doc themes/%{brand}/common-ui/LICENSE
 %dir %{_datadir}/pki
 %{_datadir}/pki/common-ui/
 %{_datadir}/pki/server/webapps/pki/ca
@@ -1571,11 +1591,11 @@ fi
 %{_datadir}/pki/server/webapps/pki/tks
 
 ################################################################################
-%files -n %{name}-console-theme
+%files -n %{brand}-pki-console-theme
 ################################################################################
 
 %defattr(-,root,root,-)
-%doc themes/dogtag/console-ui/LICENSE
+%doc themes/%{brand}/console-ui/LICENSE
 %{_javadir}/pki/pki-console-theme.jar
 
 %endif # with theme
