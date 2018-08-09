@@ -1,6 +1,8 @@
 Dogtag PKI
 ==========
 
+[![Build Status](https://travis-ci.org/dogtagpki/pki-nightly-test.svg?branch=master)](https://travis-ci.org/dogtagpki/pki-nightly-test)
+
 (C) 2008 Red Hat, Inc.
 All rights reserved.
 
