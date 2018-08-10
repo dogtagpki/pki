@@ -141,9 +141,6 @@ if (BUILD_PKI_CORE OR BUILD_PKI_CONSOLE)
     add_subdirectory(base)
 endif ()
 
-# 'Themes' MUST be "mutually-exclusive"!
-if (BUILD_DOGTAG_PKI_THEME)
-    add_subdirectory(dogtag)
-elseif (BUILD_REDHAT_PKI_THEME)
-    add_subdirectory(redhat)
+if (BUILD_DOGTAG_PKI_THEME OR BUILD_REDHAT_PKI_THEME)
+    add_subdirectory(themes)
 endif ()

@@ -1676,7 +1676,7 @@ fi
 ################################################################################
 
 %defattr(-,root,root,-)
-%doc dogtag/common-ui/LICENSE
+%doc themes/dogtag/common-ui/LICENSE
 %dir %{_datadir}/pki
 %{_datadir}/pki/common-ui/
 %{_datadir}/pki/server/webapps/pki/ca
@@ -1694,7 +1694,7 @@ fi
 ################################################################################
 
 %defattr(-,root,root,-)
-%doc dogtag/console-ui/LICENSE
+%doc themes/dogtag/console-ui/LICENSE
 %{_javadir}/pki/pki-console-theme.jar
 
 %endif # with theme

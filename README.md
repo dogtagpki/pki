@@ -37,18 +37,11 @@ These directories contain the following:
   components required to build a working
   Certificate System.
 
-* dogtag
+* themes
 
   Contains the scripts and user-interface
-  components necessary to build a sample
-  working "Dogtag Certificate System".
-  The scripts in this directory leverage
-  the base source code located in the
-  "base" directory, and are known to
-  work on both 32-bit and 64-bit
-  "Fedora" operating systems.  Users
-  who wish to experiment with this project
-  should focus on this directory first.
+  components to customize PKI web UI and
+  console.
 
 * scripts
 
