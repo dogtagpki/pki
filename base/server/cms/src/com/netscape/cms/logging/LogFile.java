@@ -41,7 +41,6 @@ import java.security.PrivateKey;
 import java.security.Provider;
 import java.security.Signature;
 import java.security.SignatureException;
-import java.security.interfaces.DSAPrivateKey;
 import java.security.interfaces.RSAPrivateKey;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -612,10 +611,10 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
             mSigningKey = cm.findPrivKeyByCert(cert);
 
             String sigAlgorithm;
-            if (mSigningKey instanceof RSAPrivateKey) {
+            if (mSigningKey.getAlgorithm().equalsIgnoreCase("RSA")) {
                 sigAlgorithm = "SHA-256/RSA";
-            } else if (mSigningKey instanceof DSAPrivateKey) {
-                sigAlgorithm = "SHA-256/DSA";
+            } else if (mSigningKey.getAlgorithm().equalsIgnoreCase("EC")) {
+                sigAlgorithm = "SHA-256/EC";
             } else {
                 throw new NoSuchAlgorithmException("Unknown private key type");
             }
