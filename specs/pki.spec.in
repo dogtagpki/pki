@@ -412,27 +412,6 @@ Requires:         jss >= 4.5.0-0.6
 %endif
 Requires:         nss >= 3.36.1
 
-Provides:         symkey = %{version}-%{release}
-
-Obsoletes:        symkey < %{version}-%{release}
-
-%if 0%{?rhel} && 0%{?rhel} <= 7
-## Because RHCS 9.0 does not run on RHEL 7.3+, obsolete all
-## RHCS 9.0 packages that can be replaced by RHCS 9.1 packages:
-# pki-console
-Obsoletes:        pki-console < 10.3.0
-# pki-core
-Obsoletes:        pki-core-debug = 10.2.6
-Obsoletes:        pki-ocsp < 10.3.0
-Obsoletes:        pki-tks < 10.3.0
-Obsoletes:        pki-tps < 10.3.0
-# redhat-pki
-Obsoletes:        redhat-pki < 10.3.0
-# redhat-pki-theme
-Obsoletes:        redhat-pki-console-theme < 10.3.0
-Obsoletes:        redhat-pki-server-theme < 10.3.0
-%endif
-
 %description -n   pki-symkey
 The PKI Symmetric Key Java Package supplies various native
 symmetric key operations to Java programs.
@@ -443,14 +422,6 @@ symmetric key operations to Java programs.
 
 Summary:          PKI Base Package
 BuildArch:        noarch
-
-Provides:         pki-common = %{version}-%{release}
-Provides:         pki-util = %{version}-%{release}
-
-Obsoletes:        pki-common < %{version}-%{release}
-Obsoletes:        pki-util < %{version}-%{release}
-
-Conflicts:        freeipa-server < 3.0.0
 
 Requires:         nss >= 3.36.1
 %if 0%{?with_python3_default}
@@ -585,12 +556,6 @@ written in Java.
 
 Summary:          PKI Tools Package
 
-Provides:         pki-native-tools = %{version}-%{release}
-Provides:         pki-java-tools = %{version}-%{release}
-
-Obsoletes:        pki-native-tools < %{version}-%{release}
-Obsoletes:        pki-java-tools < %{version}-%{release}
-
 Requires:         openldap-clients
 Requires:         nss-tools >= 3.36.1
 Requires:         java-1.8.0-openjdk-headless
@@ -611,14 +576,6 @@ Certificate System into a more complete and robust PKI solution.
 
 Summary:          PKI Server Package
 BuildArch:        noarch
-
-Provides:         pki-deploy = %{version}-%{release}
-Provides:         pki-setup = %{version}-%{release}
-Provides:         pki-silent = %{version}-%{release}
-
-Obsoletes:        pki-deploy < %{version}-%{release}
-Obsoletes:        pki-setup < %{version}-%{release}
-Obsoletes:        pki-silent < %{version}-%{release}
 
 Requires:         java-1.8.0-openjdk-headless
 Requires:         hostname
@@ -697,23 +654,6 @@ Requires(pre):    shadow-utils
 Requires:         tomcatjss >= 7.2.1-4
 %else
 Requires:         tomcatjss >= 7.3.4
-%endif
-
-%if 0%{?rhel} && 0%{?rhel} <= 7
-## Because RHCS 9.0 does not run on RHEL 7.3+, obsolete all
-## RHCS 9.0 packages that can be replaced by RHCS 9.1 packages:
-# pki-console
-Obsoletes:        pki-console < 10.3.0
-# pki-core
-Obsoletes:        pki-core-debug = 10.2.6
-Obsoletes:        pki-ocsp < 10.3.0
-Obsoletes:        pki-tks < 10.3.0
-Obsoletes:        pki-tps < 10.3.0
-# redhat-pki
-Obsoletes:        redhat-pki < 10.3.0
-# redhat-pki-theme
-Obsoletes:        redhat-pki-console-theme < 10.3.0
-Obsoletes:        redhat-pki-server-theme < 10.3.0
 %endif
 
 %description -n   pki-server
@@ -861,12 +801,6 @@ behind the firewall with restricted access.
 
 Summary:          PKI TPS Package
 
-Provides:         pki-tps-tomcat = %{version}-%{release}
-Provides:         pki-tps-client = %{version}-%{release}
-
-Obsoletes:        pki-tps-tomcat < %{version}-%{release}
-Obsoletes:        pki-tps-client < %{version}-%{release}
-
 Requires:         java-1.8.0-openjdk-headless
 Requires:         pki-server >= %{version}-%{release}
 Requires(post):   systemd-units
@@ -909,14 +843,6 @@ smart card.
 Summary:          PKI Javadoc Package
 BuildArch:        noarch
 
-Provides:         pki-util-javadoc = %{version}-%{release}
-Provides:         pki-java-tools-javadoc = %{version}-%{release}
-Provides:         pki-common-javadoc = %{version}-%{release}
-
-Obsoletes:        pki-util-javadoc < %{version}-%{release}
-Obsoletes:        pki-java-tools-javadoc < %{version}-%{release}
-Obsoletes:        pki-common-javadoc < %{version}-%{release}
-
 %description -n   pki-javadoc
 This package contains PKI API documentation.
 
@@ -958,45 +884,7 @@ following "Mutually-Exclusive" PKI Theme packages:
 Summary:          Dogtag PKI Server Theme Package
 BuildArch:        noarch
 
-Obsoletes:        %{name}-common-theme < %{version}-%{release}
-Obsoletes:        %{name}-common-ui < %{version}-%{release}
-Obsoletes:        %{name}-ca-theme < %{version}-%{release}
-Obsoletes:        %{name}-ca-ui < %{version}-%{release}
-Obsoletes:        %{name}-kra-theme < %{version}-%{release}
-Obsoletes:        %{name}-kra-ui < %{version}-%{release}
-Obsoletes:        %{name}-ocsp-theme < %{version}-%{release}
-Obsoletes:        %{name}-ocsp-ui < %{version}-%{release}
-Obsoletes:        %{name}-tks-theme < %{version}-%{release}
-Obsoletes:        %{name}-tks-ui < %{version}-%{release}
-Obsoletes:        %{name}-tps-theme < %{version}-%{release}
-Obsoletes:        %{name}-tps-ui < %{version}-%{release}
-
-Provides:         %{name}-common-theme = %{version}-%{release}
-Provides:         %{name}-common-ui = %{version}-%{release}
-Provides:         %{name}-ca-theme = %{version}-%{release}
-Provides:         %{name}-ca-ui = %{version}-%{release}
-Provides:         %{name}-kra-theme = %{version}-%{release}
-Provides:         %{name}-kra-ui = %{version}-%{release}
-Provides:         %{name}-ocsp-theme = %{version}-%{release}
-Provides:         %{name}-ocsp-ui = %{version}-%{release}
-Provides:         %{name}-tks-theme = %{version}-%{release}
-Provides:         %{name}-tks-ui = %{version}-%{release}
-Provides:         %{name}-tps-theme = %{version}-%{release}
-Provides:         %{name}-tps-ui = %{version}-%{release}
-
 Provides:         pki-server-theme = %{version}-%{release}
-Provides:         pki-common-theme = %{version}-%{release}
-Provides:         pki-common-ui = %{version}-%{release}
-Provides:         pki-ca-theme = %{version}-%{release}
-Provides:         pki-ca-ui = %{version}-%{release}
-Provides:         pki-kra-theme = %{version}-%{release}
-Provides:         pki-kra-ui = %{version}-%{release}
-Provides:         pki-ocsp-theme = %{version}-%{release}
-Provides:         pki-ocsp-ui = %{version}-%{release}
-Provides:         pki-tks-theme = %{version}-%{release}
-Provides:         pki-tks-ui = %{version}-%{release}
-Provides:         pki-tps-theme = %{version}-%{release}
-Provides:         pki-tps-ui = %{version}-%{release}
 
 %description -n   %{name}-server-theme
 This PKI Server Theme Package contains
@@ -1009,14 +897,7 @@ Dogtag textual and graphical user interface for PKI Server.
 Summary:          Dogtag PKI Console Theme Package
 BuildArch:        noarch
 
-%if 0%{?rhel}
-# EPEL version of Dogtag "theme" conflicts with all versions of Red Hat "theme"
-Conflicts:        redhat-pki-console-theme
-Conflicts:        redhat-pki-console-ui
-%endif
-
 Provides:         pki-console-theme = %{version}-%{release}
-Provides:         pki-console-ui = %{version}-%{release}
 
 %description -n   %{name}-console-theme
 This PKI Console Theme Package contains
