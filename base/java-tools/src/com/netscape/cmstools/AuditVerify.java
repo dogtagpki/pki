@@ -25,7 +25,6 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.security.PublicKey;
 import java.security.Signature;
-import java.security.interfaces.DSAPublicKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -34,6 +33,7 @@ import java.util.Vector;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.X509Certificate;
+import org.mozilla.jss.pkcs11.PK11ECPublicKey;
 
 import com.netscape.cmsutil.util.Utils;
 
@@ -159,8 +159,8 @@ public class AuditVerify {
         String sigAlgorithm = null;
         if (pubk instanceof RSAPublicKey) {
             sigAlgorithm = "SHA-256/RSA";
-        } else if (pubk instanceof DSAPublicKey) {
-            sigAlgorithm = "SHA-256/DSA";
+        } else if (pubk instanceof PK11ECPublicKey) {
+            sigAlgorithm = "SHA-256/EC";
         } else {
             throw new Exception("Unknown signing certificate key type: " + pubk.getAlgorithm());
         }
