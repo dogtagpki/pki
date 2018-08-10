@@ -66,13 +66,13 @@
 Name:             pki-core
 %if 0%{?rhel}
 Version:                10.5.9
-%define redhat_release  4
+%define redhat_release  5
 %define redhat_stage    0
 %define default_release %{redhat_release}.%{redhat_stage}
 #%define default_release %{redhat_release}
 %else
 Version:                10.5.11
-%define fedora_release  1
+%define fedora_release  2
 %define fedora_stage    0
 %define default_release %{fedora_release}.%{fedora_stage}
 #%define default_release %{fedora_release}
@@ -206,6 +206,8 @@ Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{
 %else
 Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{release}/%{name}-%{version}%{?prerel}.tar.gz
 %endif
+
+#Patch0:           pki-core-nsds5replicaLastInitStatus-format.patch
 
 # Obtain version phase number (e. g. - used by "alpha", "beta", etc.)
 #
@@ -798,6 +800,7 @@ This package is a part of the PKI Core used by the Certificate System.
 
 %prep
 %setup -q -n %{name}-%{version}%{?prerel}
+#%patch0 -p1
 
 %clean
 %{__rm} -rf %{buildroot}
@@ -1336,6 +1339,10 @@ fi
 %endif # %{with server}
 
 %changelog
+* Thu Aug  9 2018 Dogtag Team <pki-devel@redhat.com> 10.5.11-2
+- freeipa Pagure Issue #7627 - ipa-replica-install --setup-kra broken
+  on DL0 with latest version (abokovoy)
+
 * Tue Jul 31 2018 Dogtag Team <pki-devel@redhat.com> 10.5.11-1
 - dogtagpki Pagure Issue #2915 - keyGen fails when only Identity
   certificate exists (jmagne)
