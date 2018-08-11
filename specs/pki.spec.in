@@ -349,6 +349,8 @@ BuildRequires:    systemd
 BuildRequires:    zlib
 BuildRequires:    zlib-devel
 
+# description for top-level package (if there is a separate meta package)
+%if "%{name}" != "%{brand}-pki"
 %description
 
 Dogtag PKI is an enterprise software system designed
@@ -362,12 +364,16 @@ PKI consists of the following components:
   * Token Key Service (TKS)
   * Token Processing Service (TPS)
 
+%endif
+
 %if %{with meta}
+%if "%{name}" != "%{brand}-pki"
 ################################################################################
 %package -n       %{brand}-pki
 ################################################################################
 
 Summary:          Dogtag PKI Package
+%endif
 
 # Make certain that this 'meta' package requires the latest version(s)
 # of ALL PKI theme packages
@@ -401,7 +407,12 @@ Requires:         esc >= 1.1.0
 Requires:         esc >= 1.1.1
 %endif
 
+# description for top-level package (unless there is a separate meta package)
+%if "%{name}" == "%{brand}-pki"
+%description
+%else
 %description -n   %{brand}-pki
+%endif
 
 Dogtag PKI is an enterprise software system designed
 to manage enterprise Public Key Infrastructure deployments.
@@ -1245,9 +1256,13 @@ fi
 %endif # with server
 
 %if %{with meta}
+%if "%{name}" != "%{brand}-pki"
 ################################################################################
 %files -n %{brand}-pki
 ################################################################################
+%else
+%files
+%endif
 
 %doc %{_datadir}/doc/pki/README
 
