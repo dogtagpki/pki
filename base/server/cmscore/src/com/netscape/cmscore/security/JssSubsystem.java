@@ -74,6 +74,7 @@ import org.mozilla.jss.pkcs11.PK11SecureRandom;
 import org.mozilla.jss.pkcs7.ContentInfo;
 import org.mozilla.jss.pkcs7.SignedData;
 import org.mozilla.jss.pkix.cert.Certificate;
+import org.mozilla.jss.ssl.SSLCipher;
 import org.mozilla.jss.ssl.SSLServerSocket;
 import org.mozilla.jss.ssl.SSLSocket;
 import org.mozilla.jss.util.Password;
@@ -160,22 +161,22 @@ public final class JssSubsystem implements ICryptoSubsystem {
                     "TLS_DHE_RSA_WITH_AES_256_CBC_SHA";
 
     /* list of all ciphers JSS supports */
-    private static final int mJSSCipherSuites[] = {
-            SSLSocket.SSL2_RC4_128_WITH_MD5,
-            SSLSocket.SSL2_RC4_128_EXPORT40_WITH_MD5,
-            SSLSocket.SSL2_RC2_128_CBC_WITH_MD5,
-            SSLSocket.SSL2_RC2_128_CBC_EXPORT40_WITH_MD5,
-            SSLSocket.SSL2_DES_64_CBC_WITH_MD5,
-            SSLSocket.SSL2_DES_192_EDE3_CBC_WITH_MD5,
-            SSLSocket.SSL3_RSA_EXPORT_WITH_RC4_40_MD5,
-            SSLSocket.SSL3_RSA_WITH_RC4_128_MD5,
-            SSLSocket.SSL3_RSA_EXPORT_WITH_RC2_CBC_40_MD5,
-            SSLSocket.SSL3_RSA_WITH_DES_CBC_SHA,
-            SSLSocket.SSL3_RSA_WITH_3DES_EDE_CBC_SHA,
-            SSLSocket.SSL3_FORTEZZA_DMS_WITH_FORTEZZA_CBC_SHA,
-            SSLSocket.SSL3_FORTEZZA_DMS_WITH_RC4_128_SHA,
-            SSLSocket.TLS_RSA_EXPORT1024_WITH_DES_CBC_SHA,
-            SSLSocket.TLS_RSA_EXPORT1024_WITH_RC4_56_SHA,
+    private static final SSLCipher ciphers[] = {
+            SSLCipher.SSL2_RC4_128_WITH_MD5,
+            SSLCipher.SSL2_RC4_128_EXPORT40_WITH_MD5,
+            SSLCipher.SSL2_RC2_128_CBC_WITH_MD5,
+            SSLCipher.SSL2_RC2_128_CBC_EXPORT40_WITH_MD5,
+            SSLCipher.SSL2_DES_64_CBC_WITH_MD5,
+            SSLCipher.SSL2_DES_192_EDE3_CBC_WITH_MD5,
+            SSLCipher.SSL3_RSA_EXPORT_WITH_RC4_40_MD5,
+            SSLCipher.SSL3_RSA_WITH_RC4_128_MD5,
+            SSLCipher.SSL3_RSA_EXPORT_WITH_RC2_CBC_40_MD5,
+            SSLCipher.SSL3_RSA_WITH_DES_CBC_SHA,
+            SSLCipher.SSL3_RSA_WITH_3DES_EDE_CBC_SHA,
+            SSLCipher.SSL3_FORTEZZA_DMS_WITH_FORTEZZA_CBC_SHA,
+            SSLCipher.SSL3_FORTEZZA_DMS_WITH_RC4_128_SHA,
+            SSLCipher.TLS_RSA_EXPORT1024_WITH_DES_CBC_SHA,
+            SSLCipher.TLS_RSA_EXPORT1024_WITH_RC4_56_SHA,
         };
 
     static {
@@ -481,10 +482,9 @@ public final class JssSubsystem implements ICryptoSubsystem {
             Debug.trace("configured ssl cipher prefs is " + sslCiphers);
 
         // first, disable all ciphers, since JSS defaults to all-enabled
-        for (int i = mJSSCipherSuites.length - 1; i >= 0; i--) {
+        for (int i = ciphers.length - 1; i >= 0; i--) {
             try {
-                SSLSocket.setCipherPreferenceDefault(mJSSCipherSuites[i],
-                        false);
+                SSLSocket.setCipherPreferenceDefault(ciphers[i].getID(), false);
             } catch (SocketException e) {
             }
         }
