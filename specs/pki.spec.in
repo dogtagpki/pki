@@ -969,7 +969,7 @@ cd build
 %endif
     -DWITH_JAVADOC:BOOL=%{?with_javadoc:ON}%{!?with_javadoc:OFF} \
     -DBUILD_PKI_CONSOLE:BOOL=%{?with_console:ON}%{!?with_console:OFF} \
-    -DBUILD_DOGTAG_PKI_THEME:BOOL=%{?with_theme:ON}%{!?with_theme:OFF} \
+    -DTHEME=%{?with_theme:%{brand}} \
     ..
 
 ################################################################################

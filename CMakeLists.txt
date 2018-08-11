@@ -20,6 +20,10 @@ if (NOT DEFINED NSS_DEFAULT_DB_TYPE)
     set(NSS_DEFAULT_DB_TYPE "dbm")
 endif(NOT DEFINED NSS_DEFAULT_DB_TYPE)
 
+if (NOT DEFINED THEME)
+    set(VERSION "dogtag")
+endif(NOT DEFINED THEME)
+
 string(REGEX REPLACE "^([0-9]+).*" "\\1" APPLICATION_VERSION_MAJOR ${VERSION})
 string(REGEX REPLACE "^[0-9]+\\.([0-9]+).*" "\\1" APPLICATION_VERSION_MINOR ${VERSION})
 string(REGEX REPLACE "^[0-9]+\\.[0-9]+\\.([0-9]+).*" "\\1" APPLICATION_VERSION_PATCH ${VERSION})
@@ -141,6 +145,6 @@ if (BUILD_PKI_CORE OR BUILD_PKI_CONSOLE)
     add_subdirectory(base)
 endif ()
 
-if (BUILD_DOGTAG_PKI_THEME OR BUILD_REDHAT_PKI_THEME)
+if (NOT "${THEME}" STREQUAL "")
     add_subdirectory(themes)
 endif ()
