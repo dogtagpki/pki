@@ -1249,7 +1249,6 @@ fi
 %files -n %{brand}-pki
 ################################################################################
 
-%defattr(-,root,root,-)
 %doc %{_datadir}/doc/pki/README
 
 %endif # with meta
@@ -1259,7 +1258,6 @@ fi
 %files -n pki-symkey
 ################################################################################
 
-%defattr(-,root,root,-)
 %doc base/symkey/LICENSE
 %{_jnidir}/symkey.jar
 %{_libdir}/symkey/
@@ -1268,7 +1266,6 @@ fi
 %files -n pki-base
 ################################################################################
 
-%defattr(-,root,root,-)
 %doc base/common/LICENSE
 %doc base/common/LICENSE.LESSER
 %doc %{_datadir}/doc/pki-base/html
@@ -1294,7 +1291,6 @@ fi
 %files -n python2-pki
 ################################################################################
 
-%defattr(-,root,root,-)
 %doc base/common/LICENSE
 %doc base/common/LICENSE.LESSER
 %if %{with server} && ! %{?with_python3_default}
@@ -1307,7 +1303,6 @@ fi
 %files -n pki-base-java
 ################################################################################
 
-%defattr(-,root,root,-)
 %doc base/common/LICENSE
 %doc base/common/LICENSE.LESSER
 %{_datadir}/pki/examples/java/
@@ -1322,7 +1317,6 @@ fi
 %files -n python3-pki
 ################################################################################
 
-%defattr(-,root,root,-)
 %doc base/common/LICENSE
 %doc base/common/LICENSE.LESSER
 %if %{with server} && %{?with_python3_default}
@@ -1335,7 +1329,6 @@ fi
 %files -n pki-tools
 ################################################################################
 
-%defattr(-,root,root,-)
 %doc base/native-tools/LICENSE base/native-tools/doc/README
 %{_bindir}/pki
 %{_bindir}/p7tool
@@ -1405,7 +1398,6 @@ fi
 %files -n pki-server
 ################################################################################
 
-%defattr(-,root,root,-)
 %doc base/common/THIRD_PARTY_LICENSES
 %doc base/server/LICENSE
 %doc base/server/README
@@ -1465,7 +1457,6 @@ fi
 %files -n pki-ca
 ################################################################################
 
-%defattr(-,root,root,-)
 %doc base/ca/LICENSE
 %{_javadir}/pki/pki-ca.jar
 %dir %{_datadir}/pki/ca
@@ -1483,7 +1474,6 @@ fi
 %files -n pki-kra
 ################################################################################
 
-%defattr(-,root,root,-)
 %doc base/kra/LICENSE
 %{_javadir}/pki/pki-kra.jar
 %dir %{_datadir}/pki/kra
@@ -1498,7 +1488,6 @@ fi
 %files -n pki-ocsp
 ################################################################################
 
-%defattr(-,root,root,-)
 %doc base/ocsp/LICENSE
 %{_javadir}/pki/pki-ocsp.jar
 %dir %{_datadir}/pki/ocsp
@@ -1513,7 +1502,6 @@ fi
 %files -n pki-tks
 ################################################################################
 
-%defattr(-,root,root,-)
 %doc base/tks/LICENSE
 %{_javadir}/pki/pki-tks.jar
 %dir %{_datadir}/pki/tks
@@ -1528,7 +1516,6 @@ fi
 %files -n pki-tps
 ################################################################################
 
-%defattr(-,root,root,-)
 %doc base/tps/LICENSE
 %{_javadir}/pki/pki-tps.jar
 %dir %{_datadir}/pki/tps
@@ -1554,7 +1541,6 @@ fi
 %files -n pki-javadoc
 ################################################################################
 
-%defattr(-,root,root,-)
 %{_javadocdir}/pki-%{version}/
 
 %endif # with javadoc
@@ -1564,7 +1550,6 @@ fi
 %files -n pki-console
 ################################################################################
 
-%defattr(-,root,root,-)
 %doc base/console/LICENSE
 %{_bindir}/pkiconsole
 %{_javadir}/pki/pki-console.jar
@@ -1576,7 +1561,6 @@ fi
 %files -n %{brand}-pki-server-theme
 ################################################################################
 
-%defattr(-,root,root,-)
 %doc themes/%{brand}/common-ui/LICENSE
 %dir %{_datadir}/pki
 %{_datadir}/pki/common-ui/
@@ -1594,7 +1578,6 @@ fi
 %files -n %{brand}-pki-console-theme
 ################################################################################
 
-%defattr(-,root,root,-)
 %doc themes/%{brand}/console-ui/LICENSE
 %{_javadir}/pki/pki-console-theme.jar
 
