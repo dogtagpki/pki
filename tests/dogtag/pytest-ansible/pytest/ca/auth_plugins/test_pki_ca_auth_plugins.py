@@ -89,24 +89,13 @@ def get_log(ansible_module, subsystem='ca', audit=True, debug=False):
 
 def test_pki_ca_auth_plugins_list():
     """
-    :id: 06599604-bd84-42b2-bf0b-513aa3b07adc
-
     :Title: Test pki ca auth plugins list using REST API.
-
-    :Test: Test pki ca auth plugins list using REST API.
-
     :Description: List the CA subsystem auth plugins using REST API
-
-    :Requirement: RHCS-REQ Certificate Authority Authentication Plugins
-
     :CaseComponent: \-
-
     :Setup: Use the subsystems setup in ansible to run subsystem commands
-
     :Steps:
             1. Request to URI http://pki1.example.com:<unsecure_port>/ca/auths
             2. Pass the data OP_TYPE=OP_SEARCH&OP_SCOPE=instance&
-
     :Expectedresults:
                 1. It should return the list of auth plugins
     """
@@ -133,26 +122,15 @@ def test_pki_ca_auth_plugins_list():
 
 def test_pki_ca_auth_plugins_list_with_invalid_credentials():
     """
-    :id: 37f569f2-eeb7-4d63-b567-7b15849858f0
-
     :Title: Test pki ca auth plugins list using REST API with invalid credential.
-
-    :Test: Test pki ca auth plugins list using REST API with invalid credential.
-
     :Description: List the CA subsystem auth plugins using REST API with invalid credential
-
-    :Requirement: RHCS-REQ Certificate Authority Authentication Plugins
-
     :CaseComponent: \-
-
     :Setup: Use the subsystems setup in ansible to run subsystem commands
-
     :Steps:
-            1. Request to URI http://pki1.example.com:<unsecure_port>/ca/auths
-            2. Pass the data OP_TYPE=OP_SEARCH&OP_SCOPE=instance&
-
+        1. Request to URI http://pki1.example.com:<unsecure_port>/ca/auths
+        2. Pass the data OP_TYPE=OP_SEARCH&OP_SCOPE=instance&
     :Expectedresults:
-                1. It should return the list of auth plugins
+        1. It should return the list of auth plugins
     """
 
     data = [('OP_TYPE', 'OP_SEARCH'),
@@ -167,26 +145,15 @@ def test_pki_ca_auth_plugins_list_with_invalid_credentials():
 
 def test_pki_ca_auth_plugins_read_auth_plugins():
     """
-    :id: cc0776ea-5f3e-42d4-9d75-c843037eb7d7
-
     :Title: Test pki CA auth plugin, read the auth plugin.
-
-    :Test: Test pki CA auth plugin, read the auth plugin.
-
     :Description: Read the CA auth plugin, using REST API.
-
-    :Requirement: RHCS-REQ Certificate Authority Authentication Plugins
-
     :CaseComponent: \-
-
     :Setup: Use the subsystems setup in ansible to run subsystem commands
-
     :Steps:
-            1. Request to URI http://pki1.example.com:<unsecure_port>/ca/auths
-            2. Pass the data OP_TYPE=OP_SEARCH&OP_SCOPE=instance&RS_ID=AgentCertAuth&
-
+        1. Request to URI http://pki1.example.com:<unsecure_port>/ca/auths
+        2. Pass the data OP_TYPE=OP_SEARCH&OP_SCOPE=instance&RS_ID=AgentCertAuth&
     :Expectedresults:
-                1. It should read the auth plugin
+        1. It should read the auth plugin
     """
     data = [('OP_TYPE', 'OP_READ'),
             ('OP_SCOPE', 'instance'),
@@ -203,26 +170,15 @@ def test_pki_ca_auth_plugins_read_auth_plugins():
 
 def test_pki_ca_auth_plugins_add_agentCertAuth_plugin(ansible_module):
     """
-    :id: 6e3c335e-6dac-44b3-8b69-f54e73bb4767
-
     :Title: Test pki CA auth plugin, add AgentCertAuth plugin through REST API
-
-    :Test: Test pki CA auth plugin, add AgentCertAuth plugin through REST API.
-
     :Description: Add AgentCertPlugin through REST API
-
-    :Requirement: RHCS-REQ Certificate Authority Authentication Plugins
-
     :CaseComponent: \-
-
     :Setup: Use the subsystems setup in ansible to run subsystem commands
-
     :Steps:
-            1. Request to URI http://pki1.example.com:<unsecure_port>/ca/auths
-            2. Pass the data OP_TYPE=OP_ADD&OP_SCOPE=instance&RS_ID=AgentCertAuth&
-
+        1. Request to URI http://pki1.example.com:<unsecure_port>/ca/auths
+        2. Pass the data OP_TYPE=OP_ADD&OP_SCOPE=instance&RS_ID=AgentCertAuth&
     :Expectedresults:
-                1. Plugin should get added.
+        1. Plugin should get added.
     """
     plugin_id = 'plug{}'.format(random.randint(111, 9999))
     data_add = [('OP_TYPE', 'OP_ADD'),
@@ -265,27 +221,15 @@ def test_pki_ca_auth_plugins_add_agentCertAuth_plugin(ansible_module):
 
 def test_pki_ca_auth_plugins_add_CMCCertAuth_plugin(ansible_module):
     """
-    :id: 67ee4c3f-8f62-4217-846b-c83bf2dc2b71
-
     :Title: Test pki CA auth plugin, Add new CMCAuth Plugin
-
-    :Test: Test pki CA auth plugin, Add new CMCAuth plugin
-
     :Description: Add new CMCAuth plugin with REST API.
-
-    :Requirement: RHCS-REQ Certificate Authority Authentication Plugins
-
     :CaseComponent: \-
-
     :Setup: Use the subsystems setup in ansible to run subsystem commands
-
     :Steps:
-            1. Request to URI http://pki1.example.com:<unsecure_port>/ca/auths
-            2. Pass the data OP_TYPE=OP_ADD&OP_SCOPE=instance&RS_ID=CMCAuth&implName=CMCAuth
-
-
+        1. Request to URI http://pki1.example.com:<unsecure_port>/ca/auths
+        2. Pass the data OP_TYPE=OP_ADD&OP_SCOPE=instance&RS_ID=CMCAuth&implName=CMCAuth
     :Expectedresults:
-                1. Plugin should get added.
+        1. Plugin should get added.
     """
     plugin_id = 'plug{}'.format(random.randint(111, 9999))
     data_add = [('OP_TYPE', 'OP_ADD'),
@@ -327,31 +271,20 @@ def test_pki_ca_auth_plugins_add_CMCCertAuth_plugin(ansible_module):
 @pytest.mark.xfail(reason="BZ: 1548203")
 def test_pki_bug_1542210_ca_auth_plugins_add_uidPwdDirAuth_plugin(ansible_module):
     """
-    :id: 741f8aca-0f81-4f80-a557-2c2f2fb4752b
-
     :Title: Test Bug: 1542210 pki ca auth plugin, add UidPwdDirAuth plugin using REST API.
-
-    :Test: Test Bug: 1542210 pki ca auth plugin, add UidPwdDirAuth plugin using REST API.
-
     :Description: Add UidPwdDirAuth plugin using REST API.
-
-    :Requirement: RHCS-REQ Certificate Authority Authentication Plugins
-
     :CaseComponent: \-
-
     :Setup: Use the subsystems setup in ansible to run subsystem commands
-
     :Steps:
-            1. Request to URI http://pki1.example.com:<unsecure_port>/ca/auths
-            2. Pass the data OP_TYPE=OP_ADD&OP_SCOPE=instance&RS_ID=UidPwdDirAuth&
-            implName=UidPwdDirAuth&ldap.ldapconn.host=localhost&dnpattern=UID=test,OU=people,
-            O=netscapecertificateserver&ldapStringAttributes=mail&ldap.ldapconn.version=3&
-            ldap.ldapconn.port=3389&ldap.maxConn=10&ldap.basedn=dc=example,dc=org&ldap.password=
-            Secret123&ldap.ldapconn.secureConn=false&ldapByteAttributes=uid&
-            3. Create post request through request module.
-
+        1. Request to URI http://pki1.example.com:<unsecure_port>/ca/auths
+        2. Pass the data OP_TYPE=OP_ADD&OP_SCOPE=instance&RS_ID=UidPwdDirAuth&
+        implName=UidPwdDirAuth&ldap.ldapconn.host=localhost&dnpattern=UID=test,OU=people,
+        O=netscapecertificateserver&ldapStringAttributes=mail&ldap.ldapconn.version=3&
+        ldap.ldapconn.port=3389&ldap.maxConn=10&ldap.basedn=dc=example,dc=org&ldap.password=
+        Secret123&ldap.ldapconn.secureConn=false&ldapByteAttributes=uid&
+        3. Create post request through request module.
     :Expectedresults:
-                1. Make sure that plugin should get added.
+        1. Make sure that plugin should get added.
     """
     plugin_id = 'plug{}'.format(random.randint(111, 999))
     data = [('OP_TYPE', 'OP_ADD'),
@@ -410,35 +343,23 @@ def test_pki_bug_1542210_ca_auth_plugins_add_uidPwdDirAuth_plugin(ansible_module
 @pytest.mark.xfail(reason="BZ: 1548203")
 def test_bug_1542210_pki_ca_auth_plugins_modify_uidPwdDirAuth_plugin(ansible_module):
     """
-    :id: b74380bb-949e-4b05-b7f1-55cb915aa8c6
-
     :Title: Test Bug: 1542210 pki ca auth plugin, add UidPwdDirAuth plugin
             using REST API and modify it.
-
-    :Test: Test Bug: 1542210 pki ca auth plugin, add UidPwdDirAuth plugin
-            using REST API and modify it.
-
     :Description: Add UidPwdDirAuth plugin using REST API and modify it.
-
-    :Requirement: RHCS-REQ Certificate Authority Authentication Plugins
-
     :CaseComponent: \-
-
     :Setup: Use the subsystems setup in ansible to run subsystem commands
-
     :Steps:
-            1. Request to URI http://pki1.example.com:<unsecure_port>/ca/auths
-            2. Pass the data OP_TYPE=OP_ADD&OP_SCOPE=instance&RS_ID=UidPwdDirAuth&
-            implName=UidPwdDirAuth&ldap.ldapconn.host=localhost&dnpattern=UID=test,OU=people,
-            O=netscapecertificateserver&ldapStringAttributes=mail&ldap.ldapconn.version=3&
-            ldap.ldapconn.port=3389&ldap.maxConn=10&ldap.basedn=dc=example,dc=org&ldap.password=
-            Secret123&ldap.ldapconn.secureConn=false&ldapByteAttributes=uid&
-            3. Create post request through request module make sure that plugin get added.
-            4. Modify the plugin using REST API.
-
+        1. Request to URI http://pki1.example.com:<unsecure_port>/ca/auths
+        2. Pass the data OP_TYPE=OP_ADD&OP_SCOPE=instance&RS_ID=UidPwdDirAuth&
+        implName=UidPwdDirAuth&ldap.ldapconn.host=localhost&dnpattern=UID=test,OU=people,
+        O=netscapecertificateserver&ldapStringAttributes=mail&ldap.ldapconn.version=3&
+        ldap.ldapconn.port=3389&ldap.maxConn=10&ldap.basedn=dc=example,dc=org&ldap.password=
+        Secret123&ldap.ldapconn.secureConn=false&ldapByteAttributes=uid&
+        3. Create post request through request module make sure that plugin get added.
+        4. Modify the plugin using REST API.
     :Expectedresults:
-                1. Make sure that plugin should get added.
-                2. Make sure that plugin should get modified.
+        1. Make sure that plugin should get added.
+        2. Make sure that plugin should get modified.
     """
     plugin_id = 'plug{}'.format(random.randint(111, 999))
     data = [('OP_TYPE', 'OP_ADD'),
@@ -519,32 +440,21 @@ def test_bug_1542210_pki_ca_auth_plugins_modify_uidPwdDirAuth_plugin(ansible_mod
 @pytest.mark.xfail(reason="BZ: 1548203")
 def test_pki_bug_1542210_ca_auth_plugins_add_UidPwdPinDirAuth_plugin(ansible_module):
     """
-    :id: 1ed3851f-4653-47ef-a411-b2b3decfd498
-
     :Title: Test Bug: 1542210 pki CA auth plugin, add UidPwdPinDirAuth plugin using REST API.
-
-    :Test: Test Bug: 1542210 pki CA auth plugin, add UidPwdPinDirAuth plugin using REST API.
-
     :Description: Add UidPwdDirAuth plugin using REST API.
-
-    :Requirement: RHCS-REQ Certificate Authority Authentication Plugins
-
     :CaseComponent: \-
-
     :Setup: Use the subsystems setup in ansible to run subsystem commands
-
     :Steps:
-            1. Request to URI http://pki1.example.com:<unsecure_port>/ca/auths
-            2. Pass the data OP_TYPE=OP_ADD&OP_SCOPE=instance&RS_ID=UidPwdPinDirAuth&
-            implName=UidPwdPinDirAuth&ldap.ldapconn.host=localhost&dnpattern=UID=test,OU=people,
-            O=netscapecertificateserver&ldapStringAttributes=mail&ldap.ldapconn.version=3&
-            ldap.ldapconn.port=3389&ldap.maxConn=10&ldap.basedn=dc=example,dc=org&ldap.password=
-            Secret123&ldap.ldapconn.secureConn=false&ldapByteAttributes=uid&
-            3. Create post request through request module make sure that plugin get added.
-            4. Modify the plugin using REST API.
-
+        1. Request to URI http://pki1.example.com:<unsecure_port>/ca/auths
+        2. Pass the data OP_TYPE=OP_ADD&OP_SCOPE=instance&RS_ID=UidPwdPinDirAuth&
+        implName=UidPwdPinDirAuth&ldap.ldapconn.host=localhost&dnpattern=UID=test,OU=people,
+        O=netscapecertificateserver&ldapStringAttributes=mail&ldap.ldapconn.version=3&
+        ldap.ldapconn.port=3389&ldap.maxConn=10&ldap.basedn=dc=example,dc=org&ldap.password=
+        Secret123&ldap.ldapconn.secureConn=false&ldapByteAttributes=uid&
+        3. Create post request through request module make sure that plugin get added.
+        4. Modify the plugin using REST API.
     :Expectedresults:
-                1. Make sure that plugin should get added.
+        1. Make sure that plugin should get added.
     """
     plugin_id = 'plug{}'.format(random.randint(111, 999))
 
@@ -599,35 +509,23 @@ def test_pki_bug_1542210_ca_auth_plugins_add_UidPwdPinDirAuth_plugin(ansible_mod
 @pytest.mark.xfail(reason="BZ: 1548203")
 def test_pki_bug_1542210_ca_auth_plugins_mod_UidPwdPinDirAuth_plugin(ansible_module):
     """
-    :id: 54f0f6c4-5ce6-4bcb-8467-0da0843b9f70
-
     :Title: Test Bug: 1542210 pki ca auth plugin, add UidPwdPinDirAuth plugin using REST API and
     modify it.
-
-    :Test: Test Bug: 1542210 pki ca auth plugin, add UidPwdPinDirAuth plugin using REST API and
-    modify it.
-
     :Description: Add UidPwdPinDirAuth plugin using REST API and modify it.
-
-    :Requirement: RHCS-REQ Certificate Authority Authentication Plugins
-
     :CaseComponent: \-
-
     :Setup: Use the subsystems setup in ansible to run subsystem commands
-
     :Steps:
-            1. Request to URI http://pki1.example.com:<unsecure_port>/ca/auths
-            2. Pass the data OP_TYPE=OP_ADD&OP_SCOPE=instance&RS_ID=UidPwdPinDirAuth&
-            implName=UidPwdPinDirAuth&ldap.ldapconn.host=localhost&dnpattern=UID=test,OU=people,
-            O=netscapecertificateserver&ldapStringAttributes=mail&ldap.ldapconn.version=3&
-            ldap.ldapconn.port=3389&ldap.maxConn=10&ldap.basedn=dc=example,dc=org&ldap.password=
-            Secret123&ldap.ldapconn.secureConn=false&ldapByteAttributes=uid&
-            3. Create post request through request module make sure that plugin get added.
-            4. Modify the plugin using REST API.
-
+        1. Request to URI http://pki1.example.com:<unsecure_port>/ca/auths
+        2. Pass the data OP_TYPE=OP_ADD&OP_SCOPE=instance&RS_ID=UidPwdPinDirAuth&
+        implName=UidPwdPinDirAuth&ldap.ldapconn.host=localhost&dnpattern=UID=test,OU=people,
+        O=netscapecertificateserver&ldapStringAttributes=mail&ldap.ldapconn.version=3&
+        ldap.ldapconn.port=3389&ldap.maxConn=10&ldap.basedn=dc=example,dc=org&ldap.password=
+        Secret123&ldap.ldapconn.secureConn=false&ldapByteAttributes=uid&
+        3. Create post request through request module make sure that plugin get added.
+        4. Modify the plugin using REST API.
     :Expectedresults:
-                1. Make sure that plugin should get added.
-                2. Make sure that plugin should get modified.
+        1. Make sure that plugin should get added.
+        2. Make sure that plugin should get modified.
     """
     plugin_id = 'plug{}'.format(random.randint(111, 999))
 
@@ -736,31 +634,20 @@ def remove_added_plugins():
 @pytest.mark.xfail(reason="BZ: 1548203")
 def test_pki_bug_1542210_ca_auth_plugins_add_SharedToken_plugin(ansible_module):
     """
-    :id: 086a1e17-3da5-47ac-ad21-90d06f1ec4a1
-
     :Title: Test Bug: 1542210 pki ca auth plugin, add SharedToken plugin using REST API.
-
-    :Test: Test Bug: 1542210 pki ca auth plugin, add SharedToken plugin using REST API.
-
     :Description: Add SharedToken plugin using REST API.
-
-    :Requirement: RHCS-REQ Certificate Authority Authentication Plugins
-
     :CaseComponent: \-
-
     :Setup: Use the subsystems setup in ansible to run subsystem commands
-
     :Steps:
-            1. Request to URI http://pki1.example.com:<unsecure_port>/ca/auths
-            2. Pass the data OP_TYPE=OP_ADD&OP_SCOPE=instance&RS_ID=SharedToken&
-            implName=SharedToken&ldap.ldapconn.host=localhost&dnpattern=UID=test,OU=people,
-            O=netscapecertificateserver&ldapStringAttributes=mail&ldap.ldapconn.version=3&
-            ldap.ldapconn.port=3389&ldap.maxConn=10&ldap.basedn=dc=example,dc=org&ldap.password=
-            Secret123&ldap.ldapconn.secureConn=false&ldapByteAttributes=uid&
-            3. Create post request through request module.
-
+        1. Request to URI http://pki1.example.com:<unsecure_port>/ca/auths
+        2. Pass the data OP_TYPE=OP_ADD&OP_SCOPE=instance&RS_ID=SharedToken&
+        implName=SharedToken&ldap.ldapconn.host=localhost&dnpattern=UID=test,OU=people,
+        O=netscapecertificateserver&ldapStringAttributes=mail&ldap.ldapconn.version=3&
+        ldap.ldapconn.port=3389&ldap.maxConn=10&ldap.basedn=dc=example,dc=org&ldap.password=
+        Secret123&ldap.ldapconn.secureConn=false&ldapByteAttributes=uid&
+        3. Create post request through request module.
     :Expectedresults:
-                1. Make sure that plugin should get added.
+        1. Make sure that plugin should get added.
     """
     plugin_id = 'plug{}'.format(random.randint(111, 999))
     data = [('OP_TYPE', 'OP_ADD'),
@@ -820,35 +707,23 @@ def test_pki_bug_1542210_ca_auth_plugins_add_SharedToken_plugin(ansible_module):
 @pytest.mark.xfail(reason="BZ: 1548203")
 def test_bug_1542210_pki_ca_auth_plugins_modify_SharedToken_plugin(ansible_module):
     """
-    :id: b3108fd1-8ea7-4bb6-ae0a-e57cab4a203
-
     :Title: Test Bug: 1542210 pki ca auth plugin, add SharedToken plugin
             using REST API and modify it.
-
-    :Test: Test Bug: 1542210 pki ca auth plugin, add SharedToken plugin
-            using REST API and modify it.
-
     :Description: Add SharedToken plugin using REST API and modify it.
-
-    :Requirement: RHCS-REQ Certificate Authority Authentication Plugins
-
     :CaseComponent: \-
-
     :Setup: Use the subsystems setup in ansible to run subsystem commands
-
     :Steps:
-            1. Request to URI http://pki1.example.com:<unsecure_port>/ca/auths
-            2. Pass the data OP_TYPE=OP_ADD&OP_SCOPE=instance&RS_ID=SharedToken&
-            implName=SharedToken&ldap.ldapconn.host=localhost&dnpattern=UID=test,OU=people,
-            O=netscapecertificateserver&ldapStringAttributes=mail&ldap.ldapconn.version=3&
-            ldap.ldapconn.port=3389&ldap.maxConn=10&ldap.basedn=dc=example,dc=org&ldap.password=
-            Secret123&ldap.ldapconn.secureConn=false&ldapByteAttributes=uid&
-            3. Create post request through request module make sure that plugin get added.
-            4. Modify the plugin using REST API.
-
+        1. Request to URI http://pki1.example.com:<unsecure_port>/ca/auths
+        2. Pass the data OP_TYPE=OP_ADD&OP_SCOPE=instance&RS_ID=SharedToken&
+        implName=SharedToken&ldap.ldapconn.host=localhost&dnpattern=UID=test,OU=people,
+        O=netscapecertificateserver&ldapStringAttributes=mail&ldap.ldapconn.version=3&
+        ldap.ldapconn.port=3389&ldap.maxConn=10&ldap.basedn=dc=example,dc=org&ldap.password=
+        Secret123&ldap.ldapconn.secureConn=false&ldapByteAttributes=uid&
+        3. Create post request through request module make sure that plugin get added.
+        4. Modify the plugin using REST API.
     :Expectedresults:
-                1. Make sure that plugin should get added.
-                2. Make sure that plugin should get modified.
+        1. Make sure that plugin should get added.
+        2. Make sure that plugin should get modified.
     """
     plugin_id = 'plug{}'.format(random.randint(111, 999))
     data = [('OP_TYPE', 'OP_ADD'),
@@ -926,3 +801,4 @@ def test_bug_1542210_pki_ca_auth_plugins_modify_SharedToken_plugin(ansible_modul
             assert '{};;{}'.format(i, j) in logs
 
     newly_added_plugins.append(plugin_id)
+

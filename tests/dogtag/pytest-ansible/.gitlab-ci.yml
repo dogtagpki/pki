@@ -58,7 +58,7 @@ tps-activity-cli:
 
 ca-bugzillas:
   script:
-  - ansible-playbook -u fedora --become --private-key=ssh-priv-key -i $HOSTFILE tests/dogtag/pytest-ansible/installation/main.yml -e 'ansible_python_interpreter="/usr/bin/python3"' --extra-vars "topology=topology-02" -vv  | sed 's/\\n/\n/g'
+  - ansible-playbook -u fedora --become --private-key=ssh-priv-key -i $HOSTFILE tests/dogtag/pytest-ansible/installation/main.yml -e 'ansible_python_interpreter="/usr/bin/python3"' --extra-vars "topology=topology-02" -vv
   - py.test --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master tests/dogtag/pytest-ansible/pytest/ca/ocsp/test_bug_1523443_HAProxy_rejection.py -q -s --junitxml BZ_1523443_junit.xml -vv
   - cd $CI_PROJECT_DIR/pki/tests/dogtag/pytest-ansible/pytest/ca/bugzilla/
   - py.test --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master test_bug_1465103_missing_JDAP_filters.py -q -s --junitxml BZ_1465103_junit.xml -vv
@@ -68,5 +68,13 @@ ca-bugzillas:
     - BZ_1523443_junit.xml
     - BZ_1465103_junit.xml
     - BZ_1539198_junit.xml
+
+ca_authplugins:
+  script:
+  - ansible-playbook -u fedora --become --private-key=ssh-priv-key -i $HOSTFILE tests/dogtag/pytest-ansible/installation/main.yml -e 'ansible_python_interpreter="/usr/bin/python3"' --extra-vars "topology=topology-02" -vv
+  - py.test --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master tests/dogtag/pytest-ansible/pytest/ca/auth_plugins/ -q -s --junitxml auth_plugins_junit.xml -vvvv
+  artifacts:
+    paths:
+    - auth_plugins_junit.xml
   tags:
   - pki
