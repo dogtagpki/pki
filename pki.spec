@@ -15,7 +15,7 @@ License:          GPLv2 and LGPLv2
 ExcludeArch:      aarch64 s390x
 %endif
 
-Version:          10.6.5
+Version:          10.6.6
 Release:          1%{?_timestamp}%{?_commit_id}%{?dist}
 # global           _phase -a1
 
@@ -183,7 +183,7 @@ BuildRequires:    gcc-c++
 BuildRequires:    zip
 BuildRequires:    java-1.8.0-openjdk-devel
 BuildRequires:    redhat-rpm-config
-BuildRequires:    ldapjdk >= 4.19-5
+BuildRequires:    ldapjdk >= 4.20
 BuildRequires:    apache-commons-cli
 BuildRequires:    apache-commons-codec
 BuildRequires:    apache-commons-io
@@ -319,8 +319,8 @@ BuildRequires:    jpackage-utils >= 0:1.7.5-10
 BuildRequires:    jss >= 4.4.0-11
 BuildRequires:    tomcatjss >= 7.2.1-4
 %else
-BuildRequires:    jss >= 4.5.0-0.6
-BuildRequires:    tomcatjss >= 7.3.4
+BuildRequires:    jss >= 4.5.0-1
+BuildRequires:    tomcatjss >= 7.3.5
 %endif
 BuildRequires:    systemd-units
 
@@ -382,7 +382,6 @@ Requires:         %{brand}-pki-console-theme >= %{version}
 
 # Make certain that this 'meta' package requires the latest version(s)
 # of ALL PKI core packages
-Requires:         pki-base >= %{version}
 Requires:         pki-base-java >= %{version}
 %if 0%{?with_python3}
 Requires:         pki-base-python3 >= %{version}
@@ -439,7 +438,7 @@ Requires:         jpackage-utils >= 0:1.7.5-10
 %if 0%{?rhel} && 0%{?rhel} <= 7
 Requires:         jss >= 4.4.0-11
 %else
-Requires:         jss >= 4.5.0-0.6
+Requires:         jss >= 4.5.0-1
 %endif
 Requires:         nss >= 3.36.1
 
@@ -549,9 +548,9 @@ Requires:         jpackage-utils >= 0:1.7.5-10
 %if 0%{?rhel} && 0%{?rhel} <= 7
 Requires:         jss >= 4.4.0-11
 %else
-Requires:         jss >= 4.5.0-0.6
+Requires:         jss >= 4.5.0-1
 %endif
-Requires:         ldapjdk >= 4.19-5
+Requires:         ldapjdk >= 4.20
 Requires:         pki-base >= %{version}-%{release}
 
 %if 0%{?rhel} && 0%{?rhel} <= 7
@@ -589,10 +588,7 @@ Summary:          PKI Tools Package
 
 Requires:         openldap-clients
 Requires:         nss-tools >= 3.36.1
-Requires:         java-1.8.0-openjdk-headless
-Requires:         pki-base >= %{version}-%{release}
 Requires:         pki-base-java >= %{version}-%{release}
-Requires:         jpackage-utils >= 0:1.7.5-10
 
 %description -n   pki-tools
 This package contains PKI executables that can be used to help make
@@ -608,7 +604,6 @@ Certificate System into a more complete and robust PKI solution.
 Summary:          PKI Server Package
 BuildArch:        noarch
 
-Requires:         java-1.8.0-openjdk-headless
 Requires:         hostname
 Requires:         net-tools
 
@@ -627,7 +622,6 @@ Requires:         openssl >= 1.0.2k-11
 Requires:         openssl
 %endif
 Requires:         pki-symkey >= %{version}-%{release}
-Requires:         pki-base >= %{version}-%{release}
 Requires:         pki-base-java >= %{version}-%{release}
 Requires:         pki-tools >= %{version}-%{release}
 
@@ -684,7 +678,7 @@ Requires(pre):    shadow-utils
 %if 0%{?rhel} && 0%{?rhel} <= 7
 Requires:         tomcatjss >= 7.2.1-4
 %else
-Requires:         tomcatjss >= 7.3.4
+Requires:         tomcatjss >= 7.3.5
 %endif
 
 %description -n   pki-server
@@ -707,7 +701,6 @@ following PKI subsystems:
 Summary:          PKI CA Package
 BuildArch:        noarch
 
-Requires:         java-1.8.0-openjdk-headless
 Requires:         pki-server >= %{version}-%{release}
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
@@ -732,7 +725,6 @@ where it obtains its own signing certificate from a public CA.
 Summary:          PKI KRA Package
 BuildArch:        noarch
 
-Requires:         java-1.8.0-openjdk-headless
 Requires:         pki-server >= %{version}-%{release}
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
@@ -763,7 +755,6 @@ since such archival would undermine non-repudiation properties of signing keys.
 Summary:          PKI OCSP Package
 BuildArch:        noarch
 
-Requires:         java-1.8.0-openjdk-headless
 Requires:         pki-server >= %{version}-%{release}
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
@@ -801,7 +792,6 @@ whenever they are issued or updated.
 Summary:          PKI TKS Package
 BuildArch:        noarch
 
-Requires:         java-1.8.0-openjdk-headless
 Requires:         pki-server >= %{version}-%{release}
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
@@ -832,7 +822,6 @@ behind the firewall with restricted access.
 
 Summary:          PKI TPS Package
 
-Requires:         java-1.8.0-openjdk-headless
 Requires:         pki-server >= %{version}-%{release}
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
@@ -887,14 +876,11 @@ This package contains PKI API documentation.
 Summary:          PKI Console Package
 BuildArch:        noarch
 
-BuildRequires:    idm-console-framework >= 1.1.17-4
+BuildRequires:    idm-console-framework >= 1.2.0
 
-Requires:         idm-console-framework >= 1.1.17-4
-Requires:         java-1.8.0-openjdk
-Requires:         ldapjdk >= 4.19-5
+Requires:         idm-console-framework >= 1.2.0
 Requires:         pki-base-java >= %{version}
 Requires:         pki-console-theme >= %{version}
-Requires:         jpackage-utils >= 1.7.5-10
 
 %description -n   pki-console
 The PKI Console is a Java application used to administer PKI server.

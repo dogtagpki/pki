@@ -51,12 +51,6 @@ These directories contain the following:
   useful for building RPMS/SRPMS of the
   various certificate system components.
 
-* specs
-
-  Contains RPM spec files used for
-  building RPMS/SRPMS of the various
-  certificate system components.
-
 * tools
 
   Contains utilities useful to
