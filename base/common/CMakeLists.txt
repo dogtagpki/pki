@@ -32,12 +32,12 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${COMMONS_LOGGING_JAR} lib/commons-logging.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${HTTPCLIENT_JAR} lib/httpclient.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${HTTPCORE_JAR} lib/httpcore.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${JACKSON_CORE_JAR} lib/jackson-core-asl.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${JACKSON_JAXRS_JAR} lib/jackson-jaxrs.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${JACKSON_MAPPER_JAR} lib/jackson-mapper-asl.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${JACKSON_MRBEAN_JAR} lib/jackson-mrbean.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${JACKSON_SMILE_JAR} lib/jackson-smile.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${JACKSON_XC_JAR} lib/jackson-xc.jar
+    COMMAND ${CMAKE_COMMAND} -E create_symlink ${JACKSON2_CORE_JAR} lib/jackson-core.jar
+    COMMAND ${CMAKE_COMMAND} -E create_symlink ${JACKSON2_DATABIND_JAR} lib/jackson-databind.jar
+    COMMAND ${CMAKE_COMMAND} -E create_symlink ${JACKSON2_ANNOTATIONS_JAR} lib/jackson-annotations.jar
+    COMMAND ${CMAKE_COMMAND} -E create_symlink ${JACKSON2_JAXRS_BASE_JAR} lib/jackson-jaxrs-base.jar
+    COMMAND ${CMAKE_COMMAND} -E create_symlink ${JACKSON2_JAXRS_JSON_PROVIDER_JAR} lib/jackson-jaxrs-json-provider.jar
+    COMMAND ${CMAKE_COMMAND} -E create_symlink ${JACKSON2_JAXB_ANNOTATIONS_JAR} lib/jackson-module-jaxb-annotations.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${JAXB_API_JAR} lib/jaxb-api.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${JSS_JAR} lib/jss4.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${LDAPJDK_JAR} lib/ldapjdk.jar
@@ -47,7 +47,7 @@ add_custom_command(
     COMMAND ln -sf /usr/share/java/pki/pki-tools.jar ${CMAKE_CURRENT_BINARY_DIR}/lib/pki-tools.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${RESTEASY_ATOM_PROVIDER_JAR} lib/resteasy-atom-provider.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${RESTEASY_LIB}/resteasy-client.jar lib/resteasy-client.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${RESTEASY_LIB}/resteasy-jackson-provider.jar lib/resteasy-jackson-provider.jar
+    COMMAND ${CMAKE_COMMAND} -E create_symlink ${RESTEASY_LIB}/resteasy-jackson2-provider.jar lib/resteasy-jackson2-provider.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${RESTEASY_LIB}/resteasy-jaxb-provider.jar lib/resteasy-jaxb-provider.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${JAXRS_API_JAR} lib/jaxrs-api.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${RESTEASY_LIB}/resteasy-jaxrs.jar lib/resteasy-jaxrs.jar
