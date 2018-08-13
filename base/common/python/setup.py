@@ -24,7 +24,7 @@ In order to build wheels the wheel and setuptools packages are required:
   $ sudo yum install python-wheel python-setuptools
 
 The 'release' alias builds and uploads a source distribution and universal
-wheel. The version and release number are taken from pki-core.spec.in file.
+wheel. The version and release number are taken from pki.spec file.
 
   $ python setup.py release
 
@@ -51,7 +51,7 @@ class VersionInfo(Command):
 
     version_re = re.compile('^Version:\s*(\d+\.\d+\.\d+)')
     release_re = re.compile('^Release:.*?([\d\.]+)')
-    specfile = '../../../specs/pki-core.spec.in'
+    specfile = '../../../pki.spec'
 
     def initialize_options(self):
         self.rpm_version = None

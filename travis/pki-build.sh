@@ -15,7 +15,7 @@ function upload {
 
 echo "Installing PKI build dependencies"
 
-dnf builddep -y --allowerasing --spec ${BUILDDIR}/pki/specs/pki.spec.in
+dnf builddep -y --allowerasing --spec ${BUILDDIR}/pki/pki.spec
 
 echo "Building PKI packages"
 

@@ -323,7 +323,7 @@ if [ "$DEBUG" = true ] ; then
 fi
 
 if [ "$SPEC_TEMPLATE" = "" ] ; then
-    SPEC_TEMPLATE="$SRC_DIR/specs/pki.spec.in"
+    SPEC_TEMPLATE="$SRC_DIR/pki.spec"
 fi
 
 VERSION="`rpmspec -P "$SPEC_TEMPLATE" | grep "^Version:" | awk '{print $2;}'`"
