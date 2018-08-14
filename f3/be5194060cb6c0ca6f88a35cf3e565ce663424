@@ -1,0 +1,8 @@
+Verified+1: <pki.jenkins.bot@gmail.com>
+Code-Review+2: Matthew Harmsen <mharmsen@redhat.com>
+Workflow+1: Matthew Harmsen <mharmsen@redhat.com>
+Submitted-by: Matthew Harmsen <mharmsen@redhat.com>
+Submitted-at: Tue, 14 Aug 2018 14:56:48 +0000
+Reviewed-on: https://review.gerrithub.io/422294
+Project: dogtagpki/pki
+Branch: refs/heads/DOGTAG_10_5_BRANCH
