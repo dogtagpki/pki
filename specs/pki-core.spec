@@ -71,8 +71,8 @@ Version:                10.5.9
 %define default_release %{redhat_release}.%{redhat_stage}
 #%define default_release %{redhat_release}
 %else
-Version:                10.5.11
-%define fedora_release  2
+Version:                10.5.12
+%define fedora_release  1
 %define fedora_stage    0
 %define default_release %{fedora_release}.%{fedora_stage}
 #%define default_release %{fedora_release}
@@ -206,8 +206,6 @@ Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{
 %else
 Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{release}/%{name}-%{version}%{?prerel}.tar.gz
 %endif
-
-#Patch0:           pki-core-nsds5replicaLastInitStatus-format.patch
 
 # Obtain version phase number (e. g. - used by "alpha", "beta", etc.)
 #
@@ -800,7 +798,6 @@ This package is a part of the PKI Core used by the Certificate System.
 
 %prep
 %setup -q -n %{name}-%{version}%{?prerel}
-#%patch0 -p1
 
 %clean
 %{__rm} -rf %{buildroot}
@@ -1339,6 +1336,19 @@ fi
 %endif # %{with server}
 
 %changelog
+* Mon Aug 13 2018 Dogtag Team <pki-devel@redhat.com> 10.5.12-1
+- dogtagpki Pagure Issue #2481 - ECC keys not supported for signing
+  audit logs (cfu)
+- dogtagpki Pagure Issue #3041 -Enable all config audit events (cfu)
+- dogtagpki Pagure Issue #3043 - consumer initialization failed.
+  Error (0) Total update succeeded (abokovoy)
+- Fixed pki console configurations that involves ldap passwords leave the
+  plain text password in signed audit logs (cfu)
+- Fixed Certificate generation happens with partial attributes in CMCRequest
+  file (cfu)
+- Fixed Better understanding of NSS_USE_DECODED_CKA_EC_POINT for ECC (cfu)
+- Fixed CMC Revocations throws exception with same reqIssuer & certissuer (cfu)
+
 * Thu Aug  9 2018 Dogtag Team <pki-devel@redhat.com> 10.5.11-2
 - freeipa Pagure Issue #7627 - ipa-replica-install --setup-kra broken
   on DL0 with latest version (abokovoy)
