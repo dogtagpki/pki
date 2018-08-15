@@ -1,0 +1,19 @@
+- hosts: master
+  gather_facts: true
+  tasks:
+    - name: Including variables from Environment
+      include_vars:
+         file: /tmp/test_dir/constants.yml
+         name: variable
+
+    - name: Stop CA service
+      shell: systemctl stop pki-tomcatd@{{ variable.CA_INSTANCE_NAME}}.service
+
+    - name: Enable Audit Event Filter in CS.cfg
+      lineinfile:
+        path: /var/lib/pki/{{ variable.CA_INSTANCE_NAME }}/conf/ca/CS.cfg
+        insertafter: EOF
+        line: 'log.instance.SignedAudit.filters.CERT_REQUEST_PROCESSED=(|(InfoName=rejectReason)(InfoName=cancelReason))'
+
+    - name: Start CA service
+      shell: systemctl start pki-tomcatd@{{ variable.CA_INSTANCE_NAME}}.service
