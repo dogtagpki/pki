@@ -59,7 +59,7 @@ def test_missing_JDAP_filters(ansible_module):
 
     :Description: Bug 1465103 - Missing getter methods in JDAPFilter classes
 
-    :Requirement: RHCS-REQ Audit Logging
+    :Requirement: Audit Logging
 
     :Setup:
         Use subsystems setup via ansible playbooks
