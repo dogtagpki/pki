@@ -26,13 +26,13 @@
 # piddir:       /var/run/pki/tps
 # config:       ${PKI_INSTANCE_PATH}/conf/httpd.conf
 
-PROG_NAME=`basename $0`
-SERVICE_NAME="pki-tpsd"
-SERVICE_PROG="/sbin/service"
-PKI_PATH="/usr/share/pki/tps"
-PKI_REGISTRY="/etc/sysconfig/pki/tps"
-PKI_TYPE="pki-tps"
-PKI_TOTAL_PORTS=3
+export PROG_NAME=`basename $0`
+export SERVICE_NAME="pki-tpsd"
+export SERVICE_PROG="/sbin/service"
+export PKI_PATH="/usr/share/pki/tps"
+export PKI_REGISTRY="/etc/sysconfig/pki/tps"
+export PKI_TYPE="pki-tps"
+export PKI_TOTAL_PORTS=3
 
 # Avoid using 'systemctl' for now
 SYSTEMCTL_SKIP_REDIRECT=1
@@ -42,7 +42,7 @@ export SYSTEMCTL_SKIP_REDIRECT
 umask 00002
 
 command="$1"
-pki_instance="$2"
+export pki_instance="$2"
 
 # Source function library.
 . /etc/init.d/functions

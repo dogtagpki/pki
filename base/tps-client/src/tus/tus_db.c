@@ -1099,56 +1099,56 @@ TPS_PUBLIC int update_cert_status (char *cn, const char *status)
     if (PR_snprintf(dn, 255, "cn=%s,%s", cn, certBaseDN) < 0)
         return -1;
 
-        mods = allocate_modifications(2);
-        if (mods == NULL)
-            return -1;
+    mods = allocate_modifications(2);
+    if (mods == NULL)
+       return -1;
 
-        if ((v = create_modification_date_change()) == NULL) {
+    if ((v = create_modification_date_change()) == NULL) {
+        if( mods != NULL ) {
+            free_modifications( mods, 0 );
+            mods = NULL;
+        }
+        return -1;
+    }
+
+    mods[0]->mod_op = LDAP_MOD_REPLACE;
+    mods[0]->mod_type = tokenAttributes[I_TOKEN_M_DATE];
+    mods[0]->mod_values = v;
+    if (status != NULL && PL_strlen(status) > 0) {
+        len = PL_strlen(status);
+        if ((v = allocate_values(1, len+1)) == NULL) {
             if( mods != NULL ) {
                 free_modifications( mods, 0 );
                 mods = NULL;
             }
             return -1;
         }
+        PL_strcpy(v[0], status);
 
-        mods[0]->mod_op = LDAP_MOD_REPLACE;
-        mods[0]->mod_type = tokenAttributes[I_TOKEN_M_DATE];
-        mods[0]->mod_values = v;
-        if (status != NULL && PL_strlen(status) > 0) {
-            len = PL_strlen(status);
-            if ((v = allocate_values(1, len+1)) == NULL) {
-                if( mods != NULL ) {
-                    free_modifications( mods, 0 );
-                    mods = NULL;
-                }
-                return -1;
-            }
-            PL_strcpy(v[0], status);
+        mods[1]->mod_op = LDAP_MOD_REPLACE;
+        mods[1]->mod_type = "tokenStatus";
+        mods[1]->mod_values = v;
+    }
 
-            mods[1]->mod_op = LDAP_MOD_REPLACE;
-            mods[1]->mod_type = "tokenStatus";
-            mods[1]->mod_values = v;
-        }
-
-        for (tries = 0; tries < MAX_RETRIES; tries++) {
-            if ((rc = ldap_modify_ext_s(ld, dn, mods, NULL, NULL)) == LDAP_SUCCESS) {
+    for (tries = 0; tries < MAX_RETRIES; tries++) {
+        if ((rc = ldap_modify_ext_s(ld, dn, mods, NULL, NULL)) == LDAP_SUCCESS) {
+            break;
+        } else if (rc == LDAP_SERVER_DOWN || rc == LDAP_CONNECT_ERROR) {
+            struct berval credential;
+            credential.bv_val = bindPass;
+            credential.bv_len= strlen(bindPass);
+            rc = ldap_sasl_bind_s(ld, bindDN, LDAP_SASL_SIMPLE, &credential, NULL, NULL, NULL);
+            if (rc != LDAP_SUCCESS) {
+                bindStatus = rc;
                 break;
-            } else if (rc == LDAP_SERVER_DOWN || rc == LDAP_CONNECT_ERROR) {
-                struct berval credential;
-                credential.bv_val = bindPass;
-                credential.bv_len= strlen(bindPass);
-                rc = ldap_sasl_bind_s(ld, bindDN, LDAP_SASL_SIMPLE, &credential, NULL, NULL, NULL);
-                if (rc != LDAP_SUCCESS) {
-                    bindStatus = rc;
-                    break;
-                }
             }
         }
+    }
 
-        if( mods != NULL ) {
-            free_modifications( mods, 0 );
-            mods = NULL;
-        }
+    if( mods != NULL ) {
+        free_modifications( mods, 0 );
+        mods = NULL;
+    }
 
     return rc;
 }
@@ -1166,58 +1166,58 @@ TPS_PUBLIC int update_token_policy (char *cn, char *policy)
     if (PR_snprintf(dn, 255, "cn=%s,%s", cn, baseDN) < 0)
         return -1;
 
-        mods = allocate_modifications(2);
-        if (mods == NULL)
-            return -1;
+    mods = allocate_modifications(2);
+    if (mods == NULL)
+        return -1;
 
-        if ((v = create_modification_date_change()) == NULL) {
-            if( mods != NULL ) {
-                free_modifications( mods, 0 );
-                mods = NULL;
-            }
-            return -1;
-        }
-
-        mods[0]->mod_op = LDAP_MOD_REPLACE;
-        mods[0]->mod_type = tokenAttributes[I_TOKEN_M_DATE];
-        mods[0]->mod_values = v;
-        k = 1;
-        if (policy != NULL && PL_strlen(policy) > 0) {
-            len = PL_strlen(policy);
-            if ((v = allocate_values(1, len+1)) == NULL) {
-                if( mods != NULL ) {
-                    free_modifications( mods, 0 );
-                    mods = NULL;
-                }
-                return -1;
-            }
-            PL_strcpy(v[0], policy);
-
-            mods[k]->mod_op = LDAP_MOD_REPLACE;
-            mods[k]->mod_type = tokenAttributes[I_TOKEN_POLICY];
-            mods[k]->mod_values = v;
-            k++;
-        }
-
-        for (tries = 0; tries < MAX_RETRIES; tries++) {
-            if ((rc = ldap_modify_ext_s(ld, dn, mods, NULL, NULL)) == LDAP_SUCCESS) {
-                break;
-            } else if (rc == LDAP_SERVER_DOWN || rc == LDAP_CONNECT_ERROR) {
-                struct berval credential;
-                credential.bv_val = bindPass;
-                credential.bv_len= strlen(bindPass);
-                rc = ldap_sasl_bind_s(ld, bindDN, LDAP_SASL_SIMPLE, &credential, NULL, NULL, NULL);
-                if (rc != LDAP_SUCCESS) {
-                    bindStatus = rc;
-                    break;
-                }
-            }
-        }
-
+    if ((v = create_modification_date_change()) == NULL) {
         if( mods != NULL ) {
             free_modifications( mods, 0 );
             mods = NULL;
         }
+        return -1;
+    }
+
+    mods[0]->mod_op = LDAP_MOD_REPLACE;
+    mods[0]->mod_type = tokenAttributes[I_TOKEN_M_DATE];
+    mods[0]->mod_values = v;
+    k = 1;
+    if (policy != NULL && PL_strlen(policy) > 0) {
+        len = PL_strlen(policy);
+        if ((v = allocate_values(1, len+1)) == NULL) {
+            if( mods != NULL ) {
+                free_modifications( mods, 0 );
+                    mods = NULL;
+            }
+            return -1;
+        }
+        PL_strcpy(v[0], policy);
+
+        mods[k]->mod_op = LDAP_MOD_REPLACE;
+        mods[k]->mod_type = tokenAttributes[I_TOKEN_POLICY];
+        mods[k]->mod_values = v;
+        k++;
+    }
+
+    for (tries = 0; tries < MAX_RETRIES; tries++) {
+        if ((rc = ldap_modify_ext_s(ld, dn, mods, NULL, NULL)) == LDAP_SUCCESS) {
+            break;
+        } else if (rc == LDAP_SERVER_DOWN || rc == LDAP_CONNECT_ERROR) {
+            struct berval credential;
+            credential.bv_val = bindPass;
+            credential.bv_len= strlen(bindPass);
+            rc = ldap_sasl_bind_s(ld, bindDN, LDAP_SASL_SIMPLE, &credential, NULL, NULL, NULL);
+            if (rc != LDAP_SUCCESS) {
+                bindStatus = rc;
+                break;
+            }
+        }
+    }
+
+    if( mods != NULL ) {
+        free_modifications( mods, 0 );
+        mods = NULL;
+    }
 
     return rc;
 }
@@ -1385,43 +1385,43 @@ TPS_PUBLIC int update_tus_db_entry (const char *agentid, char *cn, const char *u
     if (PR_snprintf(dn, 255, "cn=%s,%s", cn, baseDN) < 0)
         return -1;
 
-        if (keyInfo == NULL && token_type == NULL)
-            mods = allocate_modifications(5);
-        else if (keyInfo == NULL || token_type == NULL)
-            mods = allocate_modifications(6);
-        else
-            mods = allocate_modifications(7);
-        if (mods == NULL)
-            return -1;
+    if (keyInfo == NULL && token_type == NULL)
+        mods = allocate_modifications(5);
+    else if (keyInfo == NULL || token_type == NULL)
+        mods = allocate_modifications(6);
+    else
+        mods = allocate_modifications(7);
+    if (mods == NULL)
+        return -1;
 
-        if ((v = create_modification_date_change()) == NULL) {
+    if ((v = create_modification_date_change()) == NULL) {
+        if( mods != NULL ) {
+            free_modifications( mods, 0 );
+            mods = NULL;
+        }
+        return -1;
+    }
+
+    mods[0]->mod_op = LDAP_MOD_REPLACE;
+    mods[0]->mod_type = tokenAttributes[I_TOKEN_M_DATE];
+    mods[0]->mod_values = v;
+    k = 1;
+    if (applet_version != NULL && PL_strlen(applet_version) > 0) {
+        len = PL_strlen(applet_version);
+        if ((v = allocate_values(1, len+1)) == NULL) {
             if( mods != NULL ) {
                 free_modifications( mods, 0 );
                 mods = NULL;
             }
             return -1;
         }
+        PL_strcpy(v[0], applet_version);
 
-        mods[0]->mod_op = LDAP_MOD_REPLACE;
-        mods[0]->mod_type = tokenAttributes[I_TOKEN_M_DATE];
-        mods[0]->mod_values = v;
-        k = 1;
-        if (applet_version != NULL && PL_strlen(applet_version) > 0) {
-            len = PL_strlen(applet_version);
-            if ((v = allocate_values(1, len+1)) == NULL) {
-                if( mods != NULL ) {
-                    free_modifications( mods, 0 );
-                    mods = NULL;
-                }
-                return -1;
-            }
-            PL_strcpy(v[0], applet_version);
-
-            mods[k]->mod_op = LDAP_MOD_REPLACE;
-            mods[k]->mod_type = tokenAttributes[I_TOKEN_APPLET];
-            mods[k]->mod_values = v;
-            k++;
-        }
+        mods[k]->mod_op = LDAP_MOD_REPLACE;
+        mods[k]->mod_type = tokenAttributes[I_TOKEN_APPLET];
+        mods[k]->mod_values = v;
+        k++;
+    }
 
     /* for userid */
     if (uid != NULL && PL_strlen(uid) > 0)
@@ -1444,22 +1444,22 @@ TPS_PUBLIC int update_tus_db_entry (const char *agentid, char *cn, const char *u
     mods[k]->mod_values = v;
     k++;
 
-        if (status != NULL && PL_strlen(status) > 0) {
-            len = PL_strlen(status);
-            if ((v = allocate_values(1, len+1)) == NULL) {
-                if( mods != NULL ) {
-                    free_modifications( mods, 0 );
-                    mods = NULL;
-                }
-                return -1;
+    if (status != NULL && PL_strlen(status) > 0) {
+        len = PL_strlen(status);
+        if ((v = allocate_values(1, len+1)) == NULL) {
+            if( mods != NULL ) {
+                free_modifications( mods, 0 );
+                mods = NULL;
             }
-            PL_strcpy(v[0], status);
-
-            mods[k]->mod_op = LDAP_MOD_REPLACE;
-            mods[k]->mod_type = tokenAttributes[I_TOKEN_STATUS];
-            mods[k]->mod_values = v;
-            k++;
+            return -1;
         }
+        PL_strcpy(v[0], status);
+
+        mods[k]->mod_op = LDAP_MOD_REPLACE;
+        mods[k]->mod_type = tokenAttributes[I_TOKEN_STATUS];
+        mods[k]->mod_values = v;
+        k++;
+    }
 
     /* for tokenReason */
     if (reason != NULL && PL_strlen(reason) > 0)
@@ -1528,25 +1528,25 @@ TPS_PUBLIC int update_tus_db_entry (const char *agentid, char *cn, const char *u
         k++;
     }
 
-        for (tries = 0; tries < MAX_RETRIES; tries++) {
-            if ((rc = ldap_modify_ext_s(ld, dn, mods, NULL, NULL)) == LDAP_SUCCESS) {
+    for (tries = 0; tries < MAX_RETRIES; tries++) {
+        if ((rc = ldap_modify_ext_s(ld, dn, mods, NULL, NULL)) == LDAP_SUCCESS) {
+            break;
+        } else if (rc == LDAP_SERVER_DOWN || rc == LDAP_CONNECT_ERROR) {
+            struct berval credential;
+            credential.bv_val = bindPass;
+            credential.bv_len= strlen(bindPass);
+            rc = ldap_sasl_bind_s(ld, bindDN, LDAP_SASL_SIMPLE, &credential, NULL, NULL, NULL);
+            if (rc != LDAP_SUCCESS) {
+                bindStatus = rc;
                 break;
-            } else if (rc == LDAP_SERVER_DOWN || rc == LDAP_CONNECT_ERROR) {
-                struct berval credential;
-                credential.bv_val = bindPass;
-                credential.bv_len= strlen(bindPass);
-                rc = ldap_sasl_bind_s(ld, bindDN, LDAP_SASL_SIMPLE, &credential, NULL, NULL, NULL);
-                if (rc != LDAP_SUCCESS) {
-                    bindStatus = rc;
-                    break;
-                }
             }
         }
+    }
 
-        if( mods != NULL ) {
-            free_modifications( mods, 0 );
-            mods = NULL;
-        }
+    if( mods != NULL ) {
+        free_modifications( mods, 0 );
+        mods = NULL;
+    }
 
     return rc;
 }
@@ -2646,14 +2646,14 @@ TPS_PUBLIC int find_tus_db_entry (char *cn, int max, LDAPMessage **result)
       PR_fprintf(debug_fd, "find_tus_db_entry: looking for :%s\n",dn);
 
     for (tries = 0; tries < MAX_RETRIES; tries++) {
-      if (debug_fd)
-	PR_fprintf(debug_fd, "find_tus_db_entry: tries = %d\n",tries);
+        if (debug_fd)
+            PR_fprintf(debug_fd, "find_tus_db_entry: tries = %d\n",tries);
         if ((rc = ldap_search_ext_s (ld, dn, LDAP_SCOPE_BASE, "(objectclass=*)",
                        NULL, 0, NULL, NULL, NULL, 0, result)) == LDAP_SUCCESS) {
 	  if (debug_fd)
-	    PR_fprintf(debug_fd, "find_tus_db_entry: found it\n");
+	      PR_fprintf(debug_fd, "find_tus_db_entry: found it\n");
 
-            break;
+          break;
         } else if (rc == LDAP_SERVER_DOWN || rc == LDAP_CONNECT_ERROR) {
 	  if (debug_fd)
 	    PR_fprintf(debug_fd, "find_tus_db_entry: server down or connect error\n");
@@ -3717,7 +3717,6 @@ struct berval **get_attribute_values(LDAPMessage *entry, const char *attribute)
         for (i = 0; bvals[i] != NULL; i++ ) {
 	    c++;
         }  
-        ret = (struct berval **) malloc ((sizeof (struct berval *) * c) + 1);
 
         ret = (struct berval **) calloc (sizeof (struct berval *), (c + 1));
         for (i=0; i< c; i++) {

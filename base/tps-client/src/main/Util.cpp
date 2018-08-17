@@ -215,9 +215,9 @@ TPS_PUBLIC char *Util::URLEncodeInHex (Buffer &data)
 
 TPS_PUBLIC char * Util::URLEncode1(const char *str)
 {
-	int sum = 0;
-  if (str == NULL)
-    return NULL;
+    int sum = 0;
+    if (str == NULL)
+        return NULL;
 
     // URL-encode the base-64 encoded public key. This code copies
     // From input buffer str[] to output buffer encoded_str[]
@@ -312,9 +312,9 @@ TPS_PUBLIC char * Util::URLEncode1(const char *str)
  */
 TPS_PUBLIC char * Util::URLEncode(const char *str)
 {
-	int sum = 0;
-  if (str == NULL)
-    return NULL;
+    int sum = 0;
+    if (str == NULL)
+        return NULL;
 
     // URL-encode the base-64 encoded public key. This code copies
     // From input buffer str[] to output buffer encoded_str[]
