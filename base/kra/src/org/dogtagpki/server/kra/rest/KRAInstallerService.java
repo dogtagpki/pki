@@ -63,9 +63,7 @@ public class KRAInstallerService extends SystemConfigService {
     }
 
     @Override
-    public void finalizeConfiguration(ConfigurationRequest request) {
-
-        super.finalizeConfiguration(request);
+    public void finalizeConfiguration(ConfigurationRequest request) throws Exception {
 
         try {
             String ca_host = cs.getString("preop.ca.hostname", "");
@@ -90,6 +88,8 @@ public class KRAInstallerService extends SystemConfigService {
             CMS.debug(e);
             throw new PKIException("Errors in updating next serial number ranges in DB: " + e);
         }
+
+        super.finalizeConfiguration(request);
     }
 
     public void configureKRAConnector() throws Exception {

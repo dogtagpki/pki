@@ -69,9 +69,7 @@ public class OCSPInstallerService extends SystemConfigService {
     }
 
     @Override
-    public void finalizeConfiguration(ConfigurationRequest request) {
-
-        super.finalizeConfiguration(request);
+    public void finalizeConfiguration(ConfigurationRequest request) throws Exception {
 
         try {
             String ca_host = cs.getString("preop.ca.hostname", "");
@@ -107,6 +105,8 @@ public class OCSPInstallerService extends SystemConfigService {
             CMS.debug(e);
             throw new PKIException("Errors in configuring CA publishing to OCSP: " + e);
         }
+
+        super.finalizeConfiguration(request);
     }
 
     private void configureCloneRefresh(ConfigurationRequest request) {

@@ -193,17 +193,23 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         setupSecurityDomain(data);
         setupDBUser(data);
         finalizeConfiguration(data);
+    }
 
-        cs.putInteger("cs.state", 1);
+    public void finalizeConfiguration(ConfigurationRequest request) throws Exception {
 
-        // update serial numbers for clones
+        logger.debug("SystemConfigService: finalizeConfiguration()");
 
-        // save some variables, remove remaining preops
         try {
+            cs.putInteger("cs.state", 1);
             ConfigurationUtils.removePreopConfigEntries();
-        } catch (EBaseException e) {
-            logger.error("Errors when removing preop config entries: " + e.getMessage(), e);
-            throw new PKIException("Errors when removing preop config entries: " + e, e);
+
+        } catch (PKIException e) { // normal response
+            logger.error("Configuration failed: " + e.getMessage());
+            throw e;
+
+        } catch (Throwable e) { // unexpected error
+            logger.error("Configuration failed: " + e.getMessage(), e);
+            throw e;
         }
     }
 
@@ -577,9 +583,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             logger.error("Error in creating pkcs12 to backup keys and certs: " + e.getMessage(), e);
             throw new PKIException("Error in creating pkcs12 to backup keys and certs: " + e);
         }
-    }
-
-    public void finalizeConfiguration(ConfigurationRequest request) {
     }
 
     public void configureAdministrator(ConfigurationRequest data, ConfigurationResponse response)

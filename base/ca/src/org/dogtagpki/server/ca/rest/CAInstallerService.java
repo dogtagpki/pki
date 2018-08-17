@@ -60,9 +60,7 @@ public class CAInstallerService extends SystemConfigService {
     }
 
     @Override
-    public void finalizeConfiguration(ConfigurationRequest request) {
-
-        super.finalizeConfiguration(request);
+    public void finalizeConfiguration(ConfigurationRequest request) throws Exception {
 
         CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
 
@@ -117,6 +115,8 @@ public class CAInstallerService extends SystemConfigService {
                 throw new PKIException("Unable to delete signing cert record: " + e.getMessage(), e);
             }
         }
+
+        super.finalizeConfiguration(request);
     }
 
     @Override

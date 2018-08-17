@@ -123,9 +123,7 @@ public class TPSInstallerService extends SystemConfigService  {
     }
 
     @Override
-    public void finalizeConfiguration(ConfigurationRequest request) {
-
-        super.finalizeConfiguration(request);
+    public void finalizeConfiguration(ConfigurationRequest request) throws Exception {
 
         try {
             ConfigurationUtils.addProfilesToTPSUser(request.getAdminUID());
@@ -170,5 +168,7 @@ public class TPSInstallerService extends SystemConfigService  {
             CMS.debug(e);
             throw new PKIException("Errors in registering TPS to CA, TKS or KRA: " + e);
         }
+
+        super.finalizeConfiguration(request);
     }
 }
