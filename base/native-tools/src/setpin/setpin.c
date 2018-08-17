@@ -122,13 +122,12 @@ void exitError(char *errstring) {
 
 void exitLDAPError(char *errstring) {
     char *ldaperr;
-    char *newerror;
+    char newerror[500];
     int err;
 
     ldap_get_option(ld, LDAP_OPT_ERROR_NUMBER, &err);
     ldaperr = ldap_err2string(err);
-    newerror = (char*) malloc((errstring?strlen(errstring):0) + (ldaperr?strlen(ldaperr):0) +5);
-    sprintf(newerror,"%s (%s)",errstring?errstring:"",ldaperr?ldaperr:"");
+    snprintf(newerror,500,"%s (%s)",errstring?errstring:"",ldaperr?ldaperr:"");
     exitError(newerror);
 }
 

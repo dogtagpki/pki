@@ -1095,9 +1095,9 @@ TPS_PUBLIC int update_cert_status (char *cn, const char *status)
     char **v = NULL;
     LDAPMod **mods = NULL;
 
-    tus_check_conn();
-    if (PR_snprintf(dn, 255, "cn=%s,%s", cn, certBaseDN) < 0)
-        return -1;
+        tus_check_conn();
+        if (PR_snprintf(dn, 255, "cn=%s,%s", cn, certBaseDN) < 0)
+            return -1;
 
         mods = allocate_modifications(2);
         if (mods == NULL)
@@ -1162,9 +1162,9 @@ TPS_PUBLIC int update_token_policy (char *cn, char *policy)
     char **v = NULL;
     LDAPMod **mods = NULL;
 
-    tus_check_conn();
-    if (PR_snprintf(dn, 255, "cn=%s,%s", cn, baseDN) < 0)
-        return -1;
+        tus_check_conn();
+        if (PR_snprintf(dn, 255, "cn=%s,%s", cn, baseDN) < 0)
+            return -1;
 
         mods = allocate_modifications(2);
         if (mods == NULL)
@@ -1381,9 +1381,9 @@ TPS_PUBLIC int update_tus_db_entry (const char *agentid, char *cn, const char *u
     char **v = NULL;
     LDAPMod **mods = NULL;
 
-    tus_check_conn();
-    if (PR_snprintf(dn, 255, "cn=%s,%s", cn, baseDN) < 0)
-        return -1;
+        tus_check_conn();
+        if (PR_snprintf(dn, 255, "cn=%s,%s", cn, baseDN) < 0)
+            return -1;
 
         if (keyInfo == NULL && token_type == NULL)
             mods = allocate_modifications(5);
@@ -2646,14 +2646,14 @@ TPS_PUBLIC int find_tus_db_entry (char *cn, int max, LDAPMessage **result)
       PR_fprintf(debug_fd, "find_tus_db_entry: looking for :%s\n",dn);
 
     for (tries = 0; tries < MAX_RETRIES; tries++) {
-      if (debug_fd)
-	PR_fprintf(debug_fd, "find_tus_db_entry: tries = %d\n",tries);
+        if (debug_fd)
+            PR_fprintf(debug_fd, "find_tus_db_entry: tries = %d\n",tries);
         if ((rc = ldap_search_ext_s (ld, dn, LDAP_SCOPE_BASE, "(objectclass=*)",
                        NULL, 0, NULL, NULL, NULL, 0, result)) == LDAP_SUCCESS) {
 	  if (debug_fd)
-	    PR_fprintf(debug_fd, "find_tus_db_entry: found it\n");
+	      PR_fprintf(debug_fd, "find_tus_db_entry: found it\n");
 
-            break;
+          break;
         } else if (rc == LDAP_SERVER_DOWN || rc == LDAP_CONNECT_ERROR) {
 	  if (debug_fd)
 	    PR_fprintf(debug_fd, "find_tus_db_entry: server down or connect error\n");
@@ -3717,7 +3717,6 @@ struct berval **get_attribute_values(LDAPMessage *entry, const char *attribute)
         for (i = 0; bvals[i] != NULL; i++ ) {
 	    c++;
         }  
-        ret = (struct berval **) malloc ((sizeof (struct berval *) * c) + 1);
 
         ret = (struct berval **) calloc (sizeof (struct berval *), (c + 1));
         for (i=0; i< c; i++) {

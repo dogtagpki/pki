@@ -19,6 +19,10 @@
 # --- END COPYRIGHT BLOCK ---
 #
 
+# The following variables are referenced in the sourced script
+# /usr/share/pki/scripts/operations, to the error is invalid
+
+# shellcheck disable=SC2034
 PROG_NAME=`basename $0`
 SERVICE_NAME="pkidaemon"
 SERVICE_PROG="/bin/systemctl"

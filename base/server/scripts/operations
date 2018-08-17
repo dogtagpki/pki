@@ -76,6 +76,8 @@ ARCHITECTURE=`arch`
 
 # Check to insure that this script's original invocation directory
 # has not been deleted!
+
+# shellcheck disable=SC2034
 CWD=`/bin/pwd > /dev/null 2>&1`
 if [ $? -ne 0 ] ; then
     echo "Cannot invoke '$PROG_NAME' from non-existent directory!"

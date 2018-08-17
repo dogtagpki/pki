@@ -879,6 +879,10 @@ main(int argc, char **argv)
 
     NSS_Shutdown();
     PR_Cleanup();
+    if(fp != NULL) {
+        fclose(fp);
+        fp = NULL;
+    }
     return 0;
 }
 

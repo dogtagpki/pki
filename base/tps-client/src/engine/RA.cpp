@@ -2234,8 +2234,7 @@ loser:
                 PR_Free(sig_b64);
             if (out_sig_b64)
                 PR_Free(out_sig_b64);
-            if (&signedResult)
-                SECITEM_FreeItem(&signedResult, PR_FALSE);
+            SECITEM_FreeItem(&signedResult, PR_FALSE);
         }
 
         return audit_sig_msg;
@@ -3151,11 +3150,11 @@ int RA::tdb_add_token_entry(char *userid, char* cuid, const char *status, const 
 		  "failed to add tokendb entry");
 	r = -1;
 	goto loser;
-      } else
-	RA::Debug(LL_PER_PDU, "RA::tdb_add_token_entry",
+      } else 
+	    RA::Debug(LL_PER_PDU, "RA::tdb_add_token_entry",
 		  "add tokendb entry successful");
-	r = 0;
-        goto loser;
+      r = 0;
+      goto loser;
     } else {
       RA::Debug(LL_PER_PDU, "RA::tdb_add_token_entry",
 		"entry in tokendb exists.");
@@ -3223,10 +3222,10 @@ int RA::tdb_update(const char *userid, char* cuid, char* applet_version, char *k
 		  "failed to add tokendb entry");
 	rc = -1;
 	goto loser;
-      } else
-	RA::Debug(LL_PER_PDU, "RA::tdb_update",
+      } else 
+          RA::Debug(LL_PER_PDU, "RA::tdb_update",
 		  "add tokendb entry successful");
-	rc = 0;
+      rc = 0;
     } else {
       RA::Debug(LL_PER_PDU, "RA::tdb_update",
 		"entry in tokendb exists...should modify entry");
