@@ -224,7 +224,6 @@ public class ConfigurationTest {
 
         ConfigurationResponse response = client.configure(data);
 
-        System.out.println("status: " + response.getStatus());
         System.out.println("adminCert: " + response.getAdminCert().getCert());
         List<SystemCertData> certs = response.getSystemCerts();
         Iterator<SystemCertData> iterator = certs.iterator();

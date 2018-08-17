@@ -44,9 +44,6 @@ public class ConfigurationResponse {
     @XmlElement
     protected SystemCertData adminCert;
 
-    @XmlElement
-    protected String status;
-
     public ConfigurationResponse() {
         systemCerts = new ArrayList<SystemCertData>();
         adminCert = new SystemCertData();
@@ -79,22 +76,6 @@ public class ConfigurationResponse {
     public void setAdminCert(SystemCertData adminCert) {
         this.adminCert = adminCert;
     }
-
-    /**
-     * @return the status
-     */
-    public String getStatus() {
-        return status;
-    }
-
-    /**
-     * @param status the status to set
-     */
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-
 
     public void setAdminCert(X509CertImpl x509CertImpl) throws CertificateEncodingException {
         adminCert.setCert(Utils.base64encode(x509CertImpl.getEncoded(), true));

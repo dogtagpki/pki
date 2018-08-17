@@ -760,8 +760,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             nickname = deployer.mdict['pki_self_signed_nickname']
 
             config.pki_log.info(
-                "checking existing SSL server cert: %s", nickname,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+                "Checking existing SSL server cert: %s", nickname,
+                extra=config.PKI_INDENTATION_LEVEL_0)
 
             pem_cert = nssdb.get_cert(
                 nickname=nickname)
@@ -788,8 +788,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     remove_key=True)
 
             config.pki_log.info(
-                "creating temp SSL server cert for %s", deployer.mdict['pki_hostname'],
-                extra=config.PKI_INDENTATION_LEVEL_2)
+                "Creating temp SSL server cert for %s", deployer.mdict['pki_hostname'],
+                extra=config.PKI_INDENTATION_LEVEL_0)
 
             instance.set_sslserver_cert_nickname(nickname)
 
@@ -849,8 +849,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         token = sslserver['token']
 
         config.pki_log.info(
-            "removing temp SSL server cert from internal token: %s", nickname,
-            extra=config.PKI_INDENTATION_LEVEL_2)
+            "Removing temp SSL server cert from internal token: %s", nickname,
+            extra=config.PKI_INDENTATION_LEVEL_0)
 
         nssdb = instance.open_nssdb()
 
@@ -874,8 +874,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         token = sslserver['token']
 
         config.pki_log.info(
-            "importing permanent SSL server cert into %s token: %s", token, nickname,
-            extra=config.PKI_INDENTATION_LEVEL_2)
+            "Importing permanent SSL server cert into %s token: %s", token, nickname,
+            extra=config.PKI_INDENTATION_LEVEL_0)
 
         tmpdir = tempfile.mkdtemp()
         nssdb = instance.open_nssdb(token)
@@ -1060,12 +1060,12 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             nssdb.close()
 
         # Configure the subsystem
-        response = deployer.config_client.configure_pki_data(
-            json.dumps(data, cls=pki.encoder.CustomTypeEncoder))
+        request = json.dumps(data, cls=pki.encoder.CustomTypeEncoder)
+        response = deployer.config_client.configure_pki_data(request)
 
-        config.pki_log.debug(
-            '%s %s', log.PKI_CONFIG_RESPONSE_STATUS, response['status'],
-            extra=config.PKI_INDENTATION_LEVEL_2)
+        config.pki_log.info(
+            '%s configuration complete', subsystem.type,
+            extra=config.PKI_INDENTATION_LEVEL_0)
 
         # Create an empty file that designates the fact that although
         # this server instance has been configured, it has NOT yet

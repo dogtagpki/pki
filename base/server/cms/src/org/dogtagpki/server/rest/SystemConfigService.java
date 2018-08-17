@@ -85,8 +85,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
     public boolean isMasterCA = false;
     public String instanceRoot;
 
-    public static String SUCCESS = "0";
-
     public SystemConfigService() throws EBaseException {
         cs = CMS.getConfigStore();
         csType = cs.getString("cs.type");
@@ -207,8 +205,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             logger.error("Errors when removing preop config entries: " + e.getMessage(), e);
             throw new PKIException("Errors when removing preop config entries: " + e, e);
         }
-
-        response.setStatus(SUCCESS);
     }
 
     private void setupDBUser(ConfigurationRequest data) {
