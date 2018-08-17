@@ -866,6 +866,10 @@ RA_Client::OpConnUpdate (NameValueSet * params)
   arg = (ThreadArg *) malloc (sizeof (ThreadArg) * num_threads);
   if (arg == NULL)
     {
+      if(threads) {
+          free(threads);
+          threads = NULL;
+      }
       return 0;
     }
 
@@ -905,6 +909,16 @@ RA_Client::OpConnUpdate (NameValueSet * params)
 
   status = arg[0].status;
 
+  if(arg) {
+     free(arg);
+     arg = NULL;
+  }
+
+  if(threads) {
+     free(threads);
+     threads = NULL;
+  }
+
   return status;
 }
 
@@ -925,6 +939,10 @@ RA_Client::OpConnResetPin (NameValueSet * params)
   arg = (ThreadArg *) malloc (sizeof (ThreadArg) * num_threads);
   if (arg == NULL)
     {
+      if(threads) {
+          free(threads);
+          threads = NULL;
+      }
       return 0;
     }
 
@@ -963,6 +981,16 @@ RA_Client::OpConnResetPin (NameValueSet * params)
     }
 
   status = arg[0].status;
+
+  if(arg) {
+     free(arg);
+     arg = NULL;
+  }
+
+  if(threads) {
+     free(threads);
+     threads = NULL;
+  }
 
   return status;
 }
@@ -1137,6 +1165,10 @@ RA_Client::OpConnEnroll (NameValueSet * params)
   arg = (ThreadArg *) malloc (sizeof (ThreadArg) * num_threads);
   if (arg == NULL)
     {
+      if(threads) {
+          free(threads);
+          threads = NULL;
+      }
       return 0;
     }
 
@@ -1182,6 +1214,15 @@ RA_Client::OpConnEnroll (NameValueSet * params)
 	}
     }
 
+  if(arg) {
+     free(arg);
+     arg = NULL;
+  }
+
+  if(threads) {
+     free(threads);
+     threads = NULL;
+  }
 
   return status;
 }
@@ -1321,6 +1362,10 @@ RA_Client::OpConnStart (NameValueSet * params, RequestType op_type)
   arg = (ThreadArg *) malloc (sizeof (ThreadArg) * num_threads);
   if (arg == NULL)
     {
+      if(threads) {
+          free(threads);
+          threads = NULL;
+      }
       return 0;
     }
 
@@ -1393,6 +1438,16 @@ RA_Client::OpConnStart (NameValueSet * params, RequestType op_type)
 	  PR_DestroyLock (arg[i].donelock);
 	}
     }
+
+  if(arg) {
+     free(arg);
+     arg = NULL;
+  }
+
+  if(threads) {
+     free(threads);
+     threads = NULL;
+  }
 
   return status;
 

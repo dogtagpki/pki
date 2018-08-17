@@ -234,10 +234,10 @@ ConfigStore *ConfigStore::CreateFromConfigFile(const char *cfg_path)
 
         f = PR_Open(cfg_path, PR_RDWR, 00400|00200);
         if (f == NULL)
-                goto loser;
+            goto loser;
 
-		root = new ConfigStoreRoot();
-		cfg = new ConfigStore(root,"");
+	root = new ConfigStoreRoot();
+	cfg = new ConfigStore(root,"");
 
         while (1) {
                 int n = ReadLine(f, line, MAX_CFG_LINE_LEN, &removed_return);
