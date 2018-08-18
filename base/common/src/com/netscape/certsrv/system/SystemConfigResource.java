@@ -32,6 +32,10 @@ public interface SystemConfigResource {
     public ConfigurationResponse configure(ConfigurationRequest data) throws Exception;
 
     @POST
+    @Path("setupSecurityDomain")
+    public void setupSecurityDomain(ConfigurationRequest data) throws Exception;
+
+    @POST
     @Path("setupDatabaseUser")
     public void setupDatabaseUser(ConfigurationRequest request) throws Exception;
 

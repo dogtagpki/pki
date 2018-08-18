@@ -186,10 +186,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         if (!data.isClone()) {
             configureAdministrator(data, response);
         }
-
-        // create or update security domain
-        logger.debug("=== Finalization ===");
-        setupSecurityDomain(data);
     }
 
     @Override
@@ -229,7 +225,11 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         }
     }
 
-    private void setupSecurityDomain(ConfigurationRequest data) {
+    @Override
+    public void setupSecurityDomain(ConfigurationRequest data) throws Exception {
+
+        logger.debug("SystemConfigService: setupSecurityDomain()");
+
         try {
             String securityDomainType = data.getSecurityDomainType();
             if (securityDomainType.equals(ConfigurationRequest.NEW_DOMAIN)) {
@@ -254,9 +254,14 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             cs.putString("service.securityDomainPort", CMS.getAgentPort());
             cs.putString("securitydomain.store", "ldap");
             cs.commit(false);
-        } catch (Exception e) {
-            logger.error("Error while updating security domain: " + e.getMessage(), e);
-            throw new PKIException("Error while updating security domain: " + e);
+
+        } catch (PKIException e) { // normal response
+            logger.error("Configuration failed: " + e.getMessage());
+            throw e;
+
+        } catch (Throwable e) { // unexpected error
+            logger.error("Configuration failed: " + e.getMessage(), e);
+            throw e;
         }
     }
 

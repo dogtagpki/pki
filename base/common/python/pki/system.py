@@ -278,6 +278,18 @@ class SystemConfigClient(object):
                                         headers)
         return response.json()
 
+    def setupSecurityDomain(self, data):
+        """
+        Setup security domain.
+
+        :param data: Configuration request
+        :type data: ConfigurationRequest
+        """
+        headers = {'Content-type': 'application/json',
+                   'Accept': 'application/json'}
+        self.connection.post('/rest/installer/setupSecurityDomain', data,
+                             headers)
+
     def setupDatabaseUser(self, data):
         """
         Set up database user.
