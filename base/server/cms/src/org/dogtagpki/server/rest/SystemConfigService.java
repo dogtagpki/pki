@@ -190,7 +190,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         // create or update security domain
         logger.debug("=== Finalization ===");
         setupSecurityDomain(data);
-        setupDBUser(data);
     }
 
     @Override
@@ -212,12 +211,21 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         }
     }
 
-    private void setupDBUser(ConfigurationRequest data) {
+    @Override
+    public void setupDatabaseUser(ConfigurationRequest request) throws Exception {
+
+        logger.debug("SystemConfigService: setupDatabaseUser()");
+
         try {
-            if (!data.getSharedDB()) ConfigurationUtils.setupDBUser();
-        } catch (Exception e) {
-            logger.error("Errors in creating or updating dbuser: " + e.getMessage(), e);
-            throw new PKIException("Errors in creating or updating dbuser: " + e);
+            if (!request.getSharedDB()) ConfigurationUtils.setupDBUser();
+
+        } catch (PKIException e) { // normal response
+            logger.error("Configuration failed: " + e.getMessage());
+            throw e;
+
+        } catch (Throwable e) { // unexpected error
+            logger.error("Configuration failed: " + e.getMessage(), e);
+            throw e;
         }
     }
 
