@@ -4451,20 +4451,40 @@ class ConfigClient:
                 password=self.mdict['pki_client_database_password'])
 
             try:
+                config.pki_log.info(
+                    'Loading admin cert from client database: %s',
+                    self.mdict['pki_admin_nickname'],
+                    extra=config.PKI_INDENTATION_LEVEL_0)
+
                 data.adminCert = client_nssdb.get_cert(
-                    nickname=self.mdict['pki_admin_nickname'])
-                if data.adminCert:  # already imported, return
+                    nickname=self.mdict['pki_admin_nickname'],
+                    output_format='base64',
+                    output_text=True,  # JSON encoder needs text
+                )
+
+                config.pki_log.debug(
+                    'Admin cert: %s', data.adminCert,
+                    extra=config.PKI_INDENTATION_LEVEL_0)
+
+                if data.adminCert:
                     return
 
             finally:
                 client_nssdb.close()
 
             if self.standalone or self.external and self.subsystem in ['KRA', 'OCSP']:
+
                 # Stand-alone/External PKI (Step 2)
                 #
                 # Copy the externally-issued admin certificate into
                 # 'ca_admin.cert' under the specified 'pki_client_dir'
                 # stripping the certificate HEADER/FOOTER prior to saving it.
+
+                config.pki_log.info(
+                    'Loading admin cert from %s',
+                    self.mdict['pki_admin_cert_path'],
+                    extra=config.PKI_INDENTATION_LEVEL_0)
+
                 imported_admin_cert = ""
                 with open(self.mdict['pki_admin_cert_path'], "r") as f:
                     for line in f:
@@ -4474,12 +4494,26 @@ class ConfigClient:
                             continue
                         else:
                             imported_admin_cert += line
+
+                config.pki_log.info(
+                    'Storing admin cert into %s',
+                    self.mdict['pki_admin_cert_file'],
+                    extra=config.PKI_INDENTATION_LEVEL_0)
+
                 with open(self.mdict['pki_admin_cert_file'], "w") as f:
                     f.write(imported_admin_cert)
 
-            # read config from file
+            config.pki_log.info(
+                'Loading admin cert from %s',
+                self.mdict['pki_admin_cert_file'],
+                extra=config.PKI_INDENTATION_LEVEL_0)
+
             with open(self.mdict['pki_admin_cert_file'], "r") as f:
                 b64 = f.read().replace('\n', '')
+
+            config.pki_log.debug(
+                'Admin cert: %s', b64,
+                extra=config.PKI_INDENTATION_LEVEL_0)
 
             data.adminCert = b64
 
