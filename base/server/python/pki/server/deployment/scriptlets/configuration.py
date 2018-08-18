@@ -1061,7 +1061,27 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         # Configure the subsystem
         request = json.dumps(data, cls=pki.encoder.CustomTypeEncoder)
-        response = deployer.config_client.configure_pki_data(request)
+
+        connection = pki.client.PKIConnection(
+            protocol='https',
+            hostname=deployer.mdict['pki_hostname'],
+            port=deployer.mdict['pki_https_port'],
+            subsystem=deployer.mdict['pki_subsystem_type'],
+            trust_env=False)
+
+        client = pki.system.SystemConfigClient(connection)
+
+        config.pki_log.info(
+            "Configuring %s", subsystem.type,
+            extra=config.PKI_INDENTATION_LEVEL_0)
+
+        response = client.configure(request)
+
+        config.pki_log.info(
+            "Finalizing %s configuration", subsystem.type,
+            extra=config.PKI_INDENTATION_LEVEL_0)
+
+        client.finalizeConfiguration(request)
 
         config.pki_log.info(
             '%s configuration complete', subsystem.type,

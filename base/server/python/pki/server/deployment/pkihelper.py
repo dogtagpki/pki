@@ -3968,22 +3968,6 @@ class ConfigClient:
         self.security_domain_type = self.mdict['pki_security_domain_type']
         self.san_inject = config.str2bool(self.mdict['pki_san_inject'])
 
-    def configure_pki_data(self, data):
-
-        config.pki_log.info(
-            log.PKI_CONFIG_CONFIGURING_PKI_DATA,
-            extra=config.PKI_INDENTATION_LEVEL_2)
-
-        connection = pki.client.PKIConnection(
-            protocol='https',
-            hostname=self.mdict['pki_hostname'],
-            port=self.mdict['pki_https_port'],
-            subsystem=self.mdict['pki_subsystem_type'],
-            trust_env=False)
-
-        client = pki.system.SystemConfigClient(connection)
-        return client.configure(data)
-
     def process_admin_cert(self, admin_cert):
         config.pki_log.debug(
             '%s\n%s', log.PKI_CONFIG_RESPONSE_ADMIN_CERT, admin_cert,

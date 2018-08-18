@@ -278,6 +278,18 @@ class SystemConfigClient(object):
                                         headers)
         return response.json()
 
+    def finalizeConfiguration(self, data):
+        """
+        Finalize server configuration.
+
+        :param data: Configuration request
+        :type data: ConfigurationRequest
+        """
+        headers = {'Content-type': 'application/json',
+                   'Accept': 'application/json'}
+        self.connection.post('/rest/installer/finalizeConfiguration', data,
+                             headers)
+
 
 class SystemStatusClient(object):
     """

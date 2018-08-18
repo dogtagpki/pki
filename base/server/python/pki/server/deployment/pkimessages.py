@@ -361,7 +361,6 @@ PKI_CONFIG_ADMIN_CERT_ATOB_1 = "converting %s Admin Certificate to binary:"
 PKI_CONFIG_CDATA_TAG = "tag:"
 PKI_CONFIG_CDATA_CERT = "cert:"
 PKI_CONFIG_CDATA_REQUEST = "request:"
-PKI_CONFIG_CONFIGURING_PKI_DATA = "configuring PKI configuration data."
 PKI_CONFIG_CONSTRUCTING_PKI_DATA = "constructing PKI configuration data."
 PKI_CONFIG_PKCS10_SUPPORT_ONLY = \
     "only the 'pkcs10' certificate request type is currently supported"

@@ -30,4 +30,8 @@ public interface SystemConfigResource {
     @POST
     @Path("configure")
     public ConfigurationResponse configure(ConfigurationRequest data) throws Exception;
+
+    @POST
+    @Path("finalizeConfiguration")
+    public void finalizeConfiguration(ConfigurationRequest request) throws Exception;
 }

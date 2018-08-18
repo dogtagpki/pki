@@ -126,7 +126,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
     public void configure(ConfigurationRequest data, ConfigurationResponse response) throws Exception {
 
-
         if (csState.equals("1")) {
             throw new BadRequestException("System is already configured");
         }
@@ -192,9 +191,9 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         logger.debug("=== Finalization ===");
         setupSecurityDomain(data);
         setupDBUser(data);
-        finalizeConfiguration(data);
     }
 
+    @Override
     public void finalizeConfiguration(ConfigurationRequest request) throws Exception {
 
         logger.debug("SystemConfigService: finalizeConfiguration()");
