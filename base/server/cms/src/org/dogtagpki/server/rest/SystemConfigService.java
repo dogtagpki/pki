@@ -30,14 +30,11 @@ import java.util.Collection;
 
 import org.apache.commons.lang.StringUtils;
 import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.NoSuchTokenException;
 import org.mozilla.jss.NotInitializedException;
-import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.crypto.X509Certificate;
-import org.mozilla.jss.util.IncorrectPasswordException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -135,13 +132,12 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         Collection<String> certList = getCertList(data);
 
-        // specify module and log into token
-        logger.debug("=== Token Authentication ===");
+        logger.debug("=== Token Configuration ===");
         String token = data.getToken();
         if (CryptoUtil.isInternalToken(token)) {
             token = CryptoUtil.INTERNAL_TOKEN_FULL_NAME;
         }
-        loginToken(data, token);
+        configureToken(data, token);
 
         // configure security domain
         logger.debug("=== Security Domain Configuration ===");
@@ -1025,32 +1021,8 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         }
     }
 
-    public void loginToken(ConfigurationRequest data, String token) {
+    public void configureToken(ConfigurationRequest data, String token) {
         cs.putString("preop.module.token", token);
-
-        if (!CryptoUtil.isInternalToken(token)) {
-            try {
-                logger.debug("Logging into token " + token);
-                CryptoToken ctoken = CryptoUtil.getKeyStorageToken(token);
-                String tokenpwd = data.getTokenPassword();
-                ConfigurationUtils.loginToken(ctoken, tokenpwd);
-
-            } catch (NotInitializedException e) {
-                logger.error("Token is not initialized: " + e.getMessage(), e);
-                throw new PKIException("Token is not initialized: " + e, e);
-
-            } catch (NoSuchTokenException e) {
-                logger.error("No such key storage token: " + token, e);
-                throw new BadRequestException("No such key storage token: " + token, e);
-
-            } catch (TokenException e) {
-                logger.error("Token Exception: " + e.getMessage(), e);
-                throw new PKIException("Token Exception: " + e, e);
-
-            } catch (IncorrectPasswordException e) {
-                throw new BadRequestException("Incorrect password for token " + token, e);
-            }
-        }
     }
 
     private void validateRequest(ConfigurationRequest data) throws Exception {

@@ -83,7 +83,6 @@ import org.mozilla.jss.pkcs12.SafeBag;
 import org.mozilla.jss.pkix.primitive.Attribute;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback.ValidityStatus;
-import org.mozilla.jss.util.IncorrectPasswordException;
 import org.mozilla.jss.util.Password;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -182,37 +181,6 @@ public class ConfigurationUtils {
     public static final String DBUSER = "pkidbuser";
 
     public static ConfigCertApprovalCallback certApprovalCallback = new ConfigCertApprovalCallback();
-
-    public static boolean loginToken(CryptoToken token, String tokPwd) throws TokenException,
-            IncorrectPasswordException {
-        boolean rv = true;
-        Password password = null;
-        password = new Password(tokPwd.toCharArray());
-
-        try {
-            if (token.passwordIsInitialized()) {
-                logger.debug("loginToken():token password is initialized");
-                if (!token.isLoggedIn()) {
-                    logger.debug("loginToken():Token is not logged in, try it");
-                    token.login(password);
-                } else {
-                    logger.debug("loginToken():Token has already logged on");
-                }
-            } else {
-                logger.debug("loginToken():Token password not initialized");
-                rv = false;
-            }
-
-        } catch (TokenException | IncorrectPasswordException e) {
-            throw e;
-        } finally {
-            if (password != null) {
-                password.clear();
-            }
-        }
-
-        return rv;
-    }
 
     public static String get(String hostname, int port, boolean secure,
             String path, String clientnickname,
