@@ -35,3 +35,38 @@ banner-cli:
   tags:
   - pki
 
+tps-config-cli:
+  script:
+  - ansible-playbook -u fedora --become --private-key=ssh-priv-key -i $HOSTFILE tests/dogtag/pytest-ansible/installation/main.yml -e 'ansible_python_interpreter="/usr/bin/python3"' --extra-vars "topology=topology-02" -vv  | sed 's/\\n/\n/g'
+  - py.test --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master tests/dogtag/pytest-ansible/pytest/tps/tps_config -q -s --junitxml tps_config_cli_junit.xml -vv
+  artifacts:
+    paths:
+    - tps_config_cli_junit.xml
+  tags:
+  - pki
+
+tps-activity-cli:
+  script:
+  - ansible-playbook -u fedora --become --private-key=ssh-priv-key -i $HOSTFILE tests/dogtag/pytest-ansible/installation/main.yml -e 'ansible_python_interpreter="/usr/bin/python3"' --extra-vars "topology=topology-02" -vv  | sed 's/\\n/\n/g'
+  - cd $CI_PROJECT_DIR/pki/tests/dogtag/pytest-ansible/pytest/tps/tps_activity/
+  - py.test --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master --ansible-playbook-inventory $HOSTFILE . -q -s --junitxml tps_activity_junit.xml -vv
+  artifacts:
+    paths:
+    - tps_activity_junit.xml
+  tags:
+  - pki
+
+ca-bugzillas:
+  script:
+  - ansible-playbook -u fedora --become --private-key=ssh-priv-key -i $HOSTFILE tests/dogtag/pytest-ansible/installation/main.yml -e 'ansible_python_interpreter="/usr/bin/python3"' --extra-vars "topology=topology-02" -vv  | sed 's/\\n/\n/g'
+  - py.test --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master tests/dogtag/pytest-ansible/pytest/ca/ocsp/test_bug_1523443_HAProxy_rejection.py -q -s --junitxml BZ_1523443_junit.xml -vv
+  - cd $CI_PROJECT_DIR/pki/tests/dogtag/pytest-ansible/pytest/ca/bugzilla/
+  - py.test --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master test_bug_1465103_missing_JDAP_filters.py -q -s --junitxml BZ_1465103_junit.xml -vv
+  - py.test --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master test_bug_1539198_inconsistent_cert_req_outcomes.py -q -s --junitxml BZ_1539198_junit.xml -vv
+  artifacts:
+    paths:
+    - BZ_1523443_junit.xml
+    - BZ_1465103_junit.xml
+    - BZ_1539198_junit.xml
+  tags:
+  - pki
