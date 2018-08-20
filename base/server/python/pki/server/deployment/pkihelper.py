@@ -712,39 +712,9 @@ class ConfigurationFile:
                 # pki_ca_signing_cert_path are optional.
                 pass
         elif not self.skip_configuration and self.standalone:
-            if not self.external_step_two:
 
-                # Stand-alone PKI Admin CSR (Step 1)
-                self.confirm_data_exists("pki_admin_csr_path")
+            if self.external_step_two:
 
-                # Stand-alone PKI Audit Signing CSR (Step 1)
-                self.confirm_data_exists(
-                    "pki_audit_signing_csr_path")
-
-                # Stand-alone PKI SSL Server CSR (Step 1)
-                self.confirm_data_exists("pki_sslserver_csr_path")
-
-                # Stand-alone PKI Subsystem CSR (Step 1)
-                self.confirm_data_exists("pki_subsystem_csr_path")
-
-                # Stand-alone PKI KRA CSRs
-                if self.subsystem == "KRA":
-
-                    # Stand-alone PKI KRA Storage CSR (Step 1)
-                    self.confirm_data_exists(
-                        "pki_storage_csr_path")
-
-                    # Stand-alone PKI KRA Transport CSR (Step 1)
-                    self.confirm_data_exists(
-                        "pki_transport_csr_path")
-
-                # Stand-alone PKI OCSP CSRs
-                if self.subsystem == "OCSP":
-                    # Stand-alone PKI OCSP OCSP Signing CSR (Step 1)
-                    self.confirm_data_exists(
-                        "pki_ocsp_signing_csr_path")
-
-            else:
                 # Stand-alone PKI External CA Certificate (Step 2)
                 # The pki_ca_signing_cert_path is optional.
 
