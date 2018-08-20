@@ -64,6 +64,7 @@ import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
+import com.netscape.cmsutil.util.Utils;
 
 import netscape.security.x509.X509CertImpl;
 
@@ -602,7 +603,10 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         if (data.getImportAdminCert().equalsIgnoreCase("true")) {
 
-            String b64 = CryptoUtil.stripCertBrackets(data.getAdminCert().trim());
+            String cert = data.getAdminCert();
+            logger.debug("SystemConfigService: importing admin cert: " + cert);
+
+            String b64 = CryptoUtil.stripCertBrackets(cert.trim());
             b64 = CryptoUtil.normalizeCertStr(b64);
             // standalone admin cert is already stored into CS.cfg by configuration.py
 
@@ -616,6 +620,9 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             cs.putString("preop.cert.admin.dn", adminSubjectDN);
 
             if (csType.equals("CA")) {
+
+                logger.debug("SystemConfigService: generating admin cert");
+
                 ConfigurationUtils.createAdminCertificate(data.getAdminCertRequest(),
                         data.getAdminCertRequestType(), adminSubjectDN);
 
@@ -625,6 +632,9 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 admincerts[0] = repo.getX509Certificate(new BigInteger(serialno, 16));
 
             } else {
+
+                logger.debug("SystemConfigService: requesting admin cert");
+
                 String type = cs.getString("preop.ca.type", "");
                 String ca_hostname = "";
                 int ca_port = -1;
@@ -652,7 +662,14 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         IUser user = ug.getUser(data.getAdminUID());
         user.setX509Certificates(admincerts);
         ug.addUserCert(user);
-        response.setAdminCert(admincerts[0]);
+
+        String cert = Utils.base64encodeSingleLine(admincerts[0].getEncoded());
+        logger.debug("SystemConfigService: returning admin cert: " + cert);
+
+        SystemCertData adminCert = new SystemCertData();
+        adminCert.setCert(cert);
+
+        response.setAdminCert(adminCert);
     }
 
     public void configureDatabase(ConfigurationRequest data) {

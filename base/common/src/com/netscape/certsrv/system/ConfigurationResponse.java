@@ -76,9 +76,4 @@ public class ConfigurationResponse {
     public void setAdminCert(SystemCertData adminCert) {
         this.adminCert = adminCert;
     }
-
-    public void setAdminCert(X509CertImpl x509CertImpl) throws CertificateEncodingException {
-        adminCert.setCert(Utils.base64encode(x509CertImpl.getEncoded(), true));
-    }
-
 }
