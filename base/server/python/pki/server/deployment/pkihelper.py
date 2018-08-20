@@ -4138,8 +4138,8 @@ class ConfigClient:
             nickname = cert.nickname
 
         config.pki_log.info(
-            "loading %s certificate", nickname,
-            extra=config.PKI_INDENTATION_LEVEL_2)
+            "Loading system cert: %s", nickname,
+            extra=config.PKI_INDENTATION_LEVEL_0)
 
         certdata = nssdb.get_cert(
             nickname=nickname,
