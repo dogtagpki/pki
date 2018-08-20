@@ -368,7 +368,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             csr_data = f.read()
 
         b64_csr = pki.nssdb.convert_csr(csr_data, 'pem', 'base64')
-        subsystem.config['ca.%s.certreq' % tag] = b64_csr
+        subsystem.config['%s.%s.certreq' % (subsystem.name, tag)] = b64_csr
 
     def import_ca_signing_csr(self, deployer, subsystem):
 
@@ -391,9 +391,17 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if subsystem.name == 'ca':
             self.import_ca_signing_csr(deployer, subsystem)
             self.import_system_cert_request(deployer, subsystem, 'ocsp_signing')
-            self.import_system_cert_request(deployer, subsystem, 'audit_signing')
-            self.import_system_cert_request(deployer, subsystem, 'subsystem')
-            self.import_system_cert_request(deployer, subsystem, 'sslserver')
+
+        if subsystem.name == 'kra':
+            self.import_system_cert_request(deployer, subsystem, 'storage')
+            self.import_system_cert_request(deployer, subsystem, 'transport')
+
+        if subsystem.name == 'ocsp':
+            self.import_system_cert_request(deployer, subsystem, 'signing')
+
+        self.import_system_cert_request(deployer, subsystem, 'audit_signing')
+        self.import_system_cert_request(deployer, subsystem, 'subsystem')
+        self.import_system_cert_request(deployer, subsystem, 'sslserver')
 
     def import_ca_signing_cert(self, deployer, nssdb):
 
