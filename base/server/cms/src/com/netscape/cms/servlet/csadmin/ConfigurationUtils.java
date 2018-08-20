@@ -2958,14 +2958,9 @@ public class ConfigurationUtils {
 
         CMS.debug("ConfigurationUtils.loadCertRequest(" + tag + ")");
 
-        try {
-            String certreq = config.getString(subsystem + "." + tag + ".certreq");
-            return CryptoUtil.base64Decode(certreq);
-
-        } catch (EPropertyNotFound e) {
-            // The CSR is optional for existing CA case.
-            return null;
-        }
+        // the CSR must exist in the second step of external CA scenario
+        String certreq = config.getString(subsystem + "." + tag + ".certreq");
+        return CryptoUtil.base64Decode(certreq);
     }
 
     public static void generateCertRequest(IConfigStore config, String certTag, Cert cert) throws Exception {
