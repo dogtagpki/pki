@@ -42,8 +42,11 @@ except ImportError:
 
 import pki
 
-CSR_HEADER = '-----BEGIN NEW CERTIFICATE REQUEST-----'
-CSR_FOOTER = '-----END NEW CERTIFICATE REQUEST-----'
+CSR_HEADER = '-----BEGIN CERTIFICATE REQUEST-----'
+CSR_FOOTER = '-----END CERTIFICATE REQUEST-----'
+
+LEGACY_CSR_HEADER = '-----BEGIN NEW CERTIFICATE REQUEST-----'
+LEGACY_CSR_FOOTER = '-----END NEW CERTIFICATE REQUEST-----'
 
 CERT_HEADER = '-----BEGIN CERTIFICATE-----'
 CERT_FOOTER = '-----END CERTIFICATE-----'
@@ -59,9 +62,18 @@ logger = logging.LoggerAdapter(
     extra={'indent': ''})
 
 
-def convert_data(data, input_format, output_format, header=None, footer=None):
+def convert_data(data, input_format, output_format,
+                 header=None, footer=None,
+                 headers=None, footers=None):
+
     if input_format == output_format:
         return data
+
+    if not headers:
+        headers = [header]
+
+    if not footers:
+        footers = [footer]
 
     if input_format == 'base64' and output_format == 'pem':
 
@@ -80,9 +92,9 @@ def convert_data(data, input_format, output_format, header=None, footer=None):
         lines = []
         for line in data.splitlines():
             line = line.rstrip('\r\n')
-            if line == header:
+            if line in headers:
                 continue
-            if line == footer:
+            if line in footers:
                 continue
             lines.append(line)
 
@@ -94,7 +106,9 @@ def convert_data(data, input_format, output_format, header=None, footer=None):
 
 def convert_csr(csr_data, input_format, output_format):
     return convert_data(csr_data, input_format, output_format,
-                        CSR_HEADER, CSR_FOOTER)
+                        CSR_HEADER, CSR_FOOTER,
+                        headers=[CSR_HEADER, LEGACY_CSR_HEADER],
+                        footers=[CSR_FOOTER, LEGACY_CSR_FOOTER])
 
 
 def convert_cert(cert_data, input_format, output_format):
@@ -111,7 +125,7 @@ def get_file_type(filename):
     with open(filename, 'r') as f:
         data = f.read()
 
-    if data.startswith(CSR_HEADER):
+    if data.startswith(CSR_HEADER) or data.startswith(LEGACY_CSR_HEADER):
         return 'csr'
 
     if data.startswith(CERT_HEADER):
