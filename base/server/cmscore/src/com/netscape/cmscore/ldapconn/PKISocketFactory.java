@@ -35,6 +35,8 @@ import com.netscape.certsrv.base.IConfigStore;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPSSLSocketFactoryExt;
 
+import org.dogtagpki.server.PKIClientSocketListener;
+
 /**
  * Uses HCL ssl socket.
  *
@@ -75,6 +77,8 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
     }
 
     public SSLSocket makeSSLSocket(String host, int port) throws UnknownHostException, IOException {
+String method = "ldapconn/PKISocketFactory.makeSSLSocket 1: ";
+CMS.debug(method + "begins");
 
         /*
          * let inherit TLS range and cipher settings
@@ -99,6 +103,8 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
 
         s.setUseClientMode(true);
         s.enableV2CompatibleHello(false);
+//cfu
+s.addSocketListener(new PKIClientSocketListener());
 
         SSLHandshakeCompletedListener listener = null;
 
@@ -119,6 +125,8 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
     }
 
     public Socket makeSocket(String host, int port) throws LDAPException {
+String method = "ldapconn/PKISocketFactory.makeSocket 2: ";
+CMS.debug(method + "begins");
 
         Socket s = null;
 

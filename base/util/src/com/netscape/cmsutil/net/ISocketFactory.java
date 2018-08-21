@@ -23,18 +23,31 @@ import java.net.UnknownHostException;
 
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 import org.mozilla.jss.ssl.SSLClientCertificateSelectionCallback;
+import org.mozilla.jss.ssl.SSLSocketListener;
 
 public interface ISocketFactory {
     Socket makeSocket(String host, int port)
             throws IOException, UnknownHostException;
+    Socket makeSocket(String host, int port, SSLSocketListener socListener)
+            throws IOException, UnknownHostException;
 
     Socket makeSocket(String host, int port,
             int timeout // milliseconds
+            ) throws IOException, UnknownHostException;
+    Socket makeSocket(String host, int port,
+            int timeout, // milliseconds
+            SSLSocketListener socListener // for auditing purposes
             ) throws IOException, UnknownHostException;
 
     Socket makeSocket(String host, int port,
             SSLCertificateApprovalCallback certApprovalCallback,
             SSLClientCertificateSelectionCallback clientCertCallback,
             int timeout // milliseconds
+            ) throws IOException, UnknownHostException;
+    Socket makeSocket(String host, int port,
+            SSLCertificateApprovalCallback certApprovalCallback,
+            SSLClientCertificateSelectionCallback clientCertCallback,
+            int timeout, // milliseconds
+            SSLSocketListener socListener // for auditing purposes
             ) throws IOException, UnknownHostException;
 }
