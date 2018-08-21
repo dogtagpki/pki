@@ -51,16 +51,18 @@ banner-cli:
   - py.test --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master tests/dogtag/pytest-ansible/pytest/banner/test_banner_cli.py -q -s --junitxml bannercli_junit.xml -vvvv
 
 tps-config-cli:
+  stage: tier1
+  <<: *job_definition
   script:
   - ansible-playbook -u fedora --become --private-key=ssh-priv-key -i $HOSTFILE tests/dogtag/pytest-ansible/installation/main.yml -e 'ansible_python_interpreter="/usr/bin/python3"' --extra-vars "topology=topology-02" -vv  | sed 's/\\n/\n/g'
   - py.test --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master tests/dogtag/pytest-ansible/pytest/tps/tps_config -q -s --junitxml tps_config_cli_junit.xml -vv
   artifacts:
     paths:
     - tps_config_cli_junit.xml
-  tags:
-  - pki
 
 tps-activity-cli:
+  stage: tier1
+  <<: *job_definition
   script:
   - ansible-playbook -u fedora --become --private-key=ssh-priv-key -i $HOSTFILE tests/dogtag/pytest-ansible/installation/main.yml -e 'ansible_python_interpreter="/usr/bin/python3"' --extra-vars "topology=topology-02" -vv  | sed 's/\\n/\n/g'
   - cd $CI_PROJECT_DIR/pki/tests/dogtag/pytest-ansible/pytest/tps/tps_activity/
@@ -68,10 +70,10 @@ tps-activity-cli:
   artifacts:
     paths:
     - tps_activity_junit.xml
-  tags:
-  - pki
 
 ca-bugzillas:
+  stage: tier1
+  <<: *job_definition
   script:
   - ansible-playbook -u fedora --become --private-key=ssh-priv-key -i $HOSTFILE tests/dogtag/pytest-ansible/installation/main.yml -e 'ansible_python_interpreter="/usr/bin/python3"' --extra-vars "topology=topology-02" -vv
   - py.test --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master tests/dogtag/pytest-ansible/pytest/ca/ocsp/test_bug_1523443_HAProxy_rejection.py -q -s --junitxml BZ_1523443_junit.xml -vv
@@ -85,20 +87,32 @@ ca-bugzillas:
     - BZ_1539198_junit.xml
 
 ca_authplugins:
+  stage: tier1
+  <<: *job_definition
   script:
   - ansible-playbook -u fedora --become --private-key=ssh-priv-key -i $HOSTFILE tests/dogtag/pytest-ansible/installation/main.yml -e 'ansible_python_interpreter="/usr/bin/python3"' --extra-vars "topology=topology-02" -vv
-  - py.test --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master tests/dogtag/pytest-ansible/pytest/ca/auth_plugins/ -q -s --junitxml auth_plugins_junit.xml -vvvv
+  - py.test --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master $CI_PROJECT_DIR/tests/dogtag/pytest-ansible/pytest/ca/auth_plugins/ -q -s --junitxml $CI_PROJECT_DIR/auth_plugins_junit.xml -vvvv
   artifacts:
     paths:
-    - auth_plugins_junit.xml
-  tags:
-  - pki
+    - $CI_PROJECT_DIR/*_junit.xml
 
 securitydomain-cli:
   stage: tier1
   <<: *job_definition
   script:
+  - ansible-playbook -u fedora --become --private-key=ssh-priv-key -i $HOSTFILE tests/dogtag/pytest-ansible/installation/main.yml -e 'ansible_python_interpreter="/usr/bin/python3"' --extra-vars "topology=topology-02" -vv
+  - py.test --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master tests/dogtag/pytest-ansible/pytest/ca/securitydomain/ -q -s --junitxml $CI_PROJECT_DIR/securitydomain_junit.xml -vvvv
+  artifacts:
+    paths:
+    - $CI_PROJECT_DIR/*_junit.xml
+
+pki-pkcs12-cli:
+  <<: *job_definition
+  stage: tier1
+  script:
   - ansible-playbook -u fedora --become --private-key=ssh-priv-key -i $HOSTFILE tests/dogtag/pytest-ansible/installation/main.yml -e 'ansible_python_interpreter="/usr/bin/python3"' --extra-vars "topology=topology-02" -vv  | sed 's/\\n/\n/g'
-  - py.test --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master tests/dogtag/pytest-ansible/pytest/ca/securitydomain/ -q -s --junitxml securitydomain_junit.xml -vvvv
-  only:
-  - securitydomain
+  - py.test --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master $CI_PROJECT_DIR/pytest/sanity/test_role_users.py -q -s --junitxml $CI_PROJECT_DIR/role_user_creation_junit.xml -vvv
+  - py.test --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master  --ansible-playbook-inventory $HOSTFILE --ansible-playbook-directory $CI_PROJECT_DIR/tests/dogtag/pytest-ansible/pytest/ca/pki_pkcs12/ $CI_PROJECT_DIR/pytest/ca/pki_pkcs12/ -qsvv --junitxml $CI_PROJECT_DIR/${CI_JOB_NAME}_junit.xml
+  artifacts:
+    paths:
+    - $CI_PROJECT_DIR/*_junit.xml
