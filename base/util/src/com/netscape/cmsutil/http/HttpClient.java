@@ -63,11 +63,14 @@ public class HttpClient {
             int timeout // milliseconds
             ) throws IOException {
 
+//cfu
         if (mFactory != null) {
             if (mCertApprovalCallback == null) {
                 mSocket = mFactory.makeSocket(host, port, timeout);
+System.out.println("HttpClient.connect: called makeSocket 1");
             } else {
                 mSocket = mFactory.makeSocket(host, port, mCertApprovalCallback, null, timeout);
+System.out.println("HttpClient.connect: called makeSocket 2");
             }
 
         } else {

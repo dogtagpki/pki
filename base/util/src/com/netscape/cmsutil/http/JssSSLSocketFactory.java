@@ -22,6 +22,10 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 
 import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.ssl.SSLAlertDescription;
+import org.mozilla.jss.ssl.SSLAlertEvent;
+import org.mozilla.jss.ssl.SSLAlertLevel;
+import org.mozilla.jss.ssl.SSLSocketListener;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 import org.mozilla.jss.ssl.SSLClientCertificateSelectionCallback;
 import org.mozilla.jss.ssl.SSLHandshakeCompletedEvent;
@@ -30,6 +34,7 @@ import org.mozilla.jss.ssl.SSLSocket;
 
 import com.netscape.cmsutil.net.ISocketFactory;
 import com.netscape.cmsutil.crypto.CryptoUtil;
+//import org.dogtagpki.server.PKIClientSocketListener;
 
 /**
  * Uses NSS ssl socket.
@@ -66,7 +71,7 @@ public class JssSSLSocketFactory implements ISocketFactory {
             SSLClientCertificateSelectionCallback clientCertCallback,
             int timeout // milliseconds
             ) throws IOException, UnknownHostException {
-
+        String method = "JssSSLSocketFactory.makeSocket: ";
         try {
             /*
              * let inherit tls range and cipher settings
@@ -93,6 +98,48 @@ public class JssSSLSocketFactory implements ISocketFactory {
 
                 s.setClientCertNickname(mClientAuthCertNickname);
             }
+            boolean verbose = true;
+//cfu: wish to do like PKIServerSocketListener.java, but can't reach
+//s.addSocketListener(new PKIClientSocketListener());
+
+/*
+            s.addSocketListener(new SSLSocketListener() {
+
+                @Override
+                public void alertReceived(SSLAlertEvent event) {
+
+                    int intLevel = event.getLevel();
+                    SSLAlertLevel level = SSLAlertLevel.valueOf(intLevel);
+
+                    int intDescription = event.getDescription();
+                    SSLAlertDescription description = SSLAlertDescription.valueOf(intDescription);
+
+                    if (level == SSLAlertLevel.FATAL || verbose) {
+                        System.err.println(method + "alertReceived:" +  level + ": SSL alert received: " + description);
+                    }
+                }
+
+                @Override
+                public void alertSent(SSLAlertEvent event) {
+
+                    int intLevel = event.getLevel();
+                    SSLAlertLevel level = SSLAlertLevel.valueOf(intLevel);
+
+                    int intDescription = event.getDescription();
+                    SSLAlertDescription description = SSLAlertDescription.valueOf(intDescription);
+
+                    if (level == SSLAlertLevel.FATAL || verbose) {
+                        System.err.println(method + "alertSent:" + level + ": SSL alert sent: " + description);
+                    }
+                }
+
+                @Override
+                public void handshakeCompleted(SSLHandshakeCompletedEvent event) {
+                        System.err.println(method + "handshakeCompleted called");
+                }
+
+            });
+*/
             s.forceHandshake();
 
         } catch (org.mozilla.jss.crypto.ObjectNotFoundException e) {

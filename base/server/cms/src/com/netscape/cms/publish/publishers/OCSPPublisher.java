@@ -29,6 +29,7 @@ import java.security.cert.X509CRL;
 import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.Vector;
+import org.mozilla.jss.ssl.SSLSocket;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
@@ -41,6 +42,7 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.http.HttpRequest;
 import com.netscape.cmsutil.http.JssSSLSocketFactory;
 import com.netscape.cmsutil.util.Utils;
+import org.dogtagpki.server.PKIClientSocketListener;
 
 import netscape.ldap.LDAPConnection;
 
@@ -179,7 +181,7 @@ public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
     }
 
     protected Socket Connect(String host, boolean secure, JssSSLSocketFactory factory) {
-        Socket socket = null;
+        SSLSocket socket = null;
         StringTokenizer st = new StringTokenizer(host, " ");
         while (st.hasMoreTokens()) {
             String hp = st.nextToken(); // host:port
@@ -188,10 +190,12 @@ public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
             int p = Integer.parseInt(st1.nextToken());
             try {
                 if (secure) {
-                    socket = factory.makeSocket(h, p);
+                    socket = (SSLSocket) factory.makeSocket(h, p);
                 } else {
-                    socket = new Socket(h, p);
+                    socket = new SSLSocket(h, p);
                 }
+//cfu
+socket.addSocketListener(new PKIClientSocketListener());
                 return socket;
             } catch (Exception e) {
             }
@@ -245,7 +249,7 @@ public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
             query.append(URLEncoder.encode("\n-----END CERTIFICATE REVOCATION LIST-----", "UTF-8"));
             query.append("&noui=true");
 
-            Socket socket = null;
+            SSLSocket socket = null;
             JssSSLSocketFactory factory;
 
             if (mClientAuthEnabled) {
@@ -259,13 +263,13 @@ public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
                 // host parameter can be
                 // "directory.knowledge.com:1050 people.catalog.com 199.254.1.2"
                 do {
-                    socket = Connect(mHost, secure, factory);
+                    socket = (SSLSocket) Connect(mHost, secure, factory);
                 } while (socket == null);
             } else {
                 if (secure) {
-                    socket = factory.makeSocket(host, port);
+                    socket = (SSLSocket) factory.makeSocket(host, port);
                 } else {
-                    socket = new Socket(host, port);
+                    socket = new SSLSocket(host, port);
                 }
             }
 

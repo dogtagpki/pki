@@ -135,10 +135,10 @@ public class HttpConnFactory {
             }
         } catch (Exception e) {
 
-            CMS.debug("can't make new Htpp Connection");
+            CMS.debug("can't make new HTTP Connection: " + e.toString());
 
             throw new EBaseException(
-                    "Can't create new Http Connection");
+                    "Can't create new HTTP Connection");
         }
 
         return retConn;
