@@ -760,9 +760,17 @@ def print_external_ca_step_one_information(mdict):
     print("      The %s subsystem of the '%s' instance is still incomplete." %
           (deployer.subsystem_name, mdict['pki_instance_name']))
     print()
-    print("      A CSR for the CA certificate has been generated at:\n"
-          "            %s"
-          % mdict['pki_ca_signing_csr_path'])
+    print("      NSS database: %s" % mdict['pki_database_path'])
+    print()
+
+    signing_csr = mdict['pki_ca_signing_csr_path']
+
+    if signing_csr:
+        print("      A CSR for the CA signing certificate has been generated in:")
+        print("            %s" % mdict['pki_ca_signing_csr_path'])
+    else:
+        print("      No CSR has been generated for CA signing certificate.")
+
     print(log.PKI_RUN_INSTALLATION_STEP_TWO)
     print(log.PKI_SPAWN_INFORMATION_FOOTER)
 
@@ -773,13 +781,35 @@ def print_kra_step_one_information(mdict):
     print("      The %s subsystem of the '%s' instance is still incomplete." %
           (deployer.subsystem_name, mdict['pki_instance_name']))
     print()
-    print("      The CSRs for KRA certificates have been generated in:")
-    print("          storage:       %s" % mdict['pki_storage_csr_path'])
-    print("          transport:     %s" % mdict['pki_transport_csr_path'])
-    print("          subsystem:     %s" % mdict['pki_subsystem_csr_path'])
-    print("          SSL server:    %s" % mdict['pki_sslserver_csr_path'])
-    print("          audit signing: %s" % mdict['pki_audit_signing_csr_path'])
-    print("          admin:         %s" % mdict['pki_admin_csr_path'])
+    print("      NSS database: %s" % mdict['pki_database_path'])
+    print()
+
+    storage_csr = mdict['pki_storage_csr_path']
+    transport_csr = mdict['pki_transport_csr_path']
+    subsystem_csr = mdict['pki_subsystem_csr_path']
+    sslserver_csr = mdict['pki_sslserver_csr_path']
+    audit_csr = mdict['pki_audit_signing_csr_path']
+    admin_csr = mdict['pki_admin_csr_path']
+
+    if storage_csr or transport_csr or subsystem_csr or sslserver_csr \
+            or audit_csr or admin_csr:
+        print("      The CSRs for KRA certificates have been generated in:")
+    else:
+        print("      No CSRs have been generated for KRA certificates.")
+
+    if storage_csr:
+        print("          storage:       %s" % storage_csr)
+    if transport_csr:
+        print("          transport:     %s" % transport_csr)
+    if subsystem_csr:
+        print("          subsystem:     %s" % subsystem_csr)
+    if sslserver_csr:
+        print("          SSL server:    %s" % sslserver_csr)
+    if audit_csr:
+        print("          audit signing: %s" % audit_csr)
+    if admin_csr:
+        print("          admin:         %s" % admin_csr)
+
     print(log.PKI_RUN_INSTALLATION_STEP_TWO)
     print(log.PKI_SPAWN_INFORMATION_FOOTER)
 
@@ -790,12 +820,31 @@ def print_ocsp_step_one_information(mdict):
     print("      The %s subsystem of the '%s' instance is still incomplete." %
           (deployer.subsystem_name, mdict['pki_instance_name']))
     print()
-    print("      The CSRs for OCSP certificates have been generated in:")
-    print("          OCSP signing:  %s" % mdict['pki_ocsp_signing_csr_path'])
-    print("          subsystem:     %s" % mdict['pki_subsystem_csr_path'])
-    print("          SSL server:    %s" % mdict['pki_sslserver_csr_path'])
-    print("          audit signing: %s" % mdict['pki_audit_signing_csr_path'])
-    print("          admin:         %s" % mdict['pki_admin_csr_path'])
+    print("      NSS database: %s" % mdict['pki_database_path'])
+    print()
+
+    signing_csr = mdict['pki_ocsp_signing_csr_path']
+    subsystem_csr = mdict['pki_subsystem_csr_path']
+    sslserver_csr = mdict['pki_sslserver_csr_path']
+    audit_csr = mdict['pki_audit_signing_csr_path']
+    admin_csr = mdict['pki_admin_csr_path']
+
+    if signing_csr or subsystem_csr or sslserver_csr or audit_csr or admin_csr:
+        print("      The CSRs for OCSP certificates have been generated in:")
+    else:
+        print("      No CSRs have been generated for OCSP certificates.")
+
+    if signing_csr:
+        print("          OCSP signing:  %s" % signing_csr)
+    if subsystem_csr:
+        print("          subsystem:     %s" % subsystem_csr)
+    if sslserver_csr:
+        print("          SSL server:    %s" % sslserver_csr)
+    if audit_csr:
+        print("          audit signing: %s" % audit_csr)
+    if admin_csr:
+        print("          admin:         %s" % admin_csr)
+
     print(log.PKI_RUN_INSTALLATION_STEP_TWO)
     print(log.PKI_SPAWN_INFORMATION_FOOTER)
 
