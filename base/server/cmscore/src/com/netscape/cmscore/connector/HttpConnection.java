@@ -34,6 +34,9 @@ import com.netscape.cmsutil.http.HttpRequest;
 import com.netscape.cmsutil.http.HttpResponse;
 import com.netscape.cmsutil.net.ISocketFactory;
 
+import org.mozilla.jss.ssl.SSLSocket;
+import org.dogtagpki.server.PKIClientSocketListener;
+
 public class HttpConnection implements IHttpConnection {
 
     protected IRemoteAuthority mDest = null;
@@ -128,7 +131,9 @@ public class HttpConnection implements IHttpConnection {
             try {
                 CMS.debug("HttpConnection: Connecting to " + hostname + ":" + port + " with timeout " + timeout + "s");
 
-                mHttpClient.connect(hostname, port, timeout * 1000);
+//cfu
+                PKIClientSocketListener socListener = new PKIClientSocketListener();
+                mHttpClient.connect(hostname, port, timeout * 1000, socListener);
 
                 CMS.debug("HttpConnection: Connected to " + hostname + ":" + port);
                 return;

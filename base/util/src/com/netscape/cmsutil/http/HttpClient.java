@@ -26,6 +26,7 @@ import java.io.OutputStreamWriter;
 import java.net.Socket;
 
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
+import org.mozilla.jss.ssl.SSLSocketListener;
 
 import com.netscape.cmsutil.net.ISocketFactory;
 
@@ -62,15 +63,24 @@ public class HttpClient {
     public void connect(String host, int port,
             int timeout // milliseconds
             ) throws IOException {
+    }
+    public void connect(String host, int port,
+            int timeout, // milliseconds
+            SSLSocketListener socListener // for auditing purposes
+            ) throws IOException {
 
+//cfu
         if (mFactory != null) {
             if (mCertApprovalCallback == null) {
-                mSocket = mFactory.makeSocket(host, port, timeout);
+                mSocket = mFactory.makeSocket(host, port, timeout, socListener);
+                System.out.println("HttpClient.connect: called makeSocket 1");
             } else {
-                mSocket = mFactory.makeSocket(host, port, mCertApprovalCallback, null, timeout);
+                mSocket = mFactory.makeSocket(host, port, mCertApprovalCallback, null, timeout, socListener);
+                System.out.println("HttpClient.connect: called makeSocket 2");
             }
-
         } else {
+            //cfu: will this happen?
+            System.out.println("HttpClient.connect: calling new Socket(); can't add socket listener");
             mSocket = new Socket(host, port);
             mSocket.setSoTimeout(timeout);
         }
