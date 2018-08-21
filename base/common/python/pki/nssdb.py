@@ -34,8 +34,11 @@ from cryptography.hazmat.backends import default_backend
 
 import pki
 
-CSR_HEADER = '-----BEGIN NEW CERTIFICATE REQUEST-----'
-CSR_FOOTER = '-----END NEW CERTIFICATE REQUEST-----'
+CSR_HEADER = '-----BEGIN CERTIFICATE REQUEST-----'
+CSR_FOOTER = '-----END CERTIFICATE REQUEST-----'
+
+LEGACY_CSR_HEADER = '-----BEGIN NEW CERTIFICATE REQUEST-----'
+LEGACY_CSR_FOOTER = '-----END NEW CERTIFICATE REQUEST-----'
 
 CERT_HEADER = '-----BEGIN CERTIFICATE-----'
 CERT_FOOTER = '-----END CERTIFICATE-----'
@@ -51,10 +54,18 @@ logger = logging.LoggerAdapter(
     extra={'indent': ''})
 
 
-def convert_data(data, input_format, output_format, header=None, footer=None):
+def convert_data(data, input_format, output_format,
+                 header=None, footer=None,
+                 headers=None, footers=None):
+    '''
+    This method converts a PEM file to base-64 and vice versa.
+    It supports CSR, certificate, and PKCS #7 certificate chain.
+    '''
+
     if input_format == output_format:
         return data
 
+    # converting from base-64 to PEM
     if input_format == 'base64' and output_format == 'pem':
 
         # join base-64 data into a single line
@@ -66,16 +77,30 @@ def convert_data(data, input_format, output_format, header=None, footer=None):
         # add header and footer
         return '%s\n%s\n%s\n' % (header, '\n'.join(lines), footer)
 
+    # converting from PEM to base-64
     if input_format == 'pem' and output_format == 'base64':
+
+        # initialize list of headers if not provided
+        if not headers:
+            headers = [header]
+
+        # initialize list of footers if not provided
+        if not footers:
+            footers = [footer]
 
         # join multiple lines into a single line
         lines = []
         for line in data.splitlines():
             line = line.rstrip('\r\n')
-            if line == header:
+
+            # if the line is a header, skip
+            if line in headers:
                 continue
-            if line == footer:
+
+            # if the line is a footer, skip
+            if line in footers:
                 continue
+
             lines.append(line)
 
         return ''.join(lines)
@@ -86,7 +111,9 @@ def convert_data(data, input_format, output_format, header=None, footer=None):
 
 def convert_csr(csr_data, input_format, output_format):
     return convert_data(csr_data, input_format, output_format,
-                        CSR_HEADER, CSR_FOOTER)
+                        CSR_HEADER, CSR_FOOTER,
+                        headers=[CSR_HEADER, LEGACY_CSR_HEADER],
+                        footers=[CSR_FOOTER, LEGACY_CSR_FOOTER])
 
 
 def convert_cert(cert_data, input_format, output_format):
@@ -100,10 +127,15 @@ def convert_pkcs7(pkcs7_data, input_format, output_format):
 
 
 def get_file_type(filename):
+    '''
+    This method detects the content of a PEM file. It supports
+    CSR, certificate, PKCS #7 certificate chain.
+    '''
+
     with open(filename, 'r') as f:
         data = f.read()
 
-    if data.startswith(CSR_HEADER):
+    if data.startswith(CSR_HEADER) or data.startswith(LEGACY_CSR_HEADER):
         return 'csr'
 
     if data.startswith(CERT_HEADER):
