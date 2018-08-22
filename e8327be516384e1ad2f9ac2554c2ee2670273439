@@ -1,0 +1,174 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6e2cd8c9_4f12eb99",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-08-22T15:37:25Z",
+      "side": 1,
+      "message": "The location should not matter since the PKIClientSocketListener will be treated as its base class (i.e. SSLSocketListener), but PKIClientSocketListener needs to be in a place where it can perform auditing.",
+      "revId": "e8327be516384e1ad2f9ac2554c2ee2670273439",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ed60e3a3_a30633b6",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-08-22T15:37:25Z",
+      "side": 1,
+      "message": "As mentioned in another comment, that code may be executed if the HttpClient was created with the no-argument constructor. Also, auditing is only required on SSL connection. If the code creates a plain connection do we want to audit it?",
+      "revId": "e8327be516384e1ad2f9ac2554c2ee2670273439",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "41dca2c2_49752dca",
+        "filename": "base/server/cmscore/src/com/netscape/cmscore/connector/HttpConnection.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-08-22T15:37:25Z",
+      "side": 1,
+      "message": "This code means that a new PKIClientSocketListener will be created for each Socket created. Is that the intention? If we want to reuse the PKIClientSocketListener this code can be moved before the loop.",
+      "revId": "e8327be516384e1ad2f9ac2554c2ee2670273439",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dd5854e0_bc0008ac",
+        "filename": "base/server/cmscore/src/com/netscape/cmscore/ldapconn/PKISocketFactory.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-08-22T15:37:25Z",
+      "side": 1,
+      "message": "Same question. Is the intention to create a new PKIClientSocketListener for each Socket created? If we want to reuse the PKIClientSocketListener, probably should be stored as an attribute in the PKISocketFactory class.",
+      "revId": "e8327be516384e1ad2f9ac2554c2ee2670273439",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0985ffda_a8e003c5",
+        "filename": "base/util/src/com/netscape/cmsutil/http/HttpClient.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-08-22T15:37:25Z",
+      "side": 1,
+      "message": "The HttpClient class has a no-argument constructor (line 51). Is that constructor used anywhere? If so, the mFactory could be null and the code below may be executed at some point.\n\nAlso, the code below seems to be creating a plain Socket, not an SSLSocket. Does it need to be audited?",
+      "revId": "e8327be516384e1ad2f9ac2554c2ee2670273439",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "364113f5_e994533e",
+        "filename": "base/util/src/com/netscape/cmsutil/http/JssSSLSocketFactory.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-08-22T15:37:25Z",
+      "side": 1,
+      "message": "There are two options to support a socket listener in this class:\n\n    JssSSLSocketFactory factory \u003d ...\n    // store listener in the factory\n    factory.addSocketListener(socketListener);\n    // reuse the same listener for each socket creation\n    socket \u003d factory.makeSocket(host, port);\n\nor\n\n    JssSSLSocketFactory factory \u003d ...\n    // provide a listener for each socket creation\n    socket \u003d factory.makeSocket(host, port, socketListener);\n\nThe current patch seems to be mixing the two options. It\u0027s not clear whether addSocketListener() needs to be called at all in the current patch.",
+      "revId": "e8327be516384e1ad2f9ac2554c2ee2670273439",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ebb5edae_cba73ad1",
+        "filename": "base/util/src/com/netscape/cmsutil/http/JssSSLSocketFactory.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-08-22T15:37:25Z",
+      "side": 1,
+      "message": "The if-then statement here can be collapsed since both cases are identical if the socListener is null.",
+      "revId": "e8327be516384e1ad2f9ac2554c2ee2670273439",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e64bc5d7_561a02bc",
+        "filename": "base/util/src/com/netscape/cmsutil/http/JssSSLSocketFactory.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-08-22T15:37:25Z",
+      "side": 1,
+      "message": "The if-then statement here can be collapsed since both cases are identical if the socListener is null.",
+      "revId": "e8327be516384e1ad2f9ac2554c2ee2670273439",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "000c10a6_ec019342",
+        "filename": "base/util/src/com/netscape/cmsutil/http/JssSSLSocketFactory.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-08-22T15:37:25Z",
+      "side": 1,
+      "message": "The if-then statement here can be collapsed since both cases are identical if the socListener is null.",
+      "revId": "e8327be516384e1ad2f9ac2554c2ee2670273439",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "77d9253e_d74e113c",
+        "filename": "base/util/src/com/netscape/cmsutil/http/JssSSLSocketFactory.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-08-22T15:37:25Z",
+      "side": 1,
+      "message": "If we\u0027re going to have a JssSSLSocketFactory.addSocketListener() method, I think it should simply store the socListener in JssSSLSocketFactory\u0027s attribute:\n\n    this.socListener \u003d socListener;\n\nIt shouldn\u0027t add the socListener to the Socket object since the socket may not exist yet (i.e. the result is not guaranteed).",
+      "revId": "e8327be516384e1ad2f9ac2554c2ee2670273439",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
