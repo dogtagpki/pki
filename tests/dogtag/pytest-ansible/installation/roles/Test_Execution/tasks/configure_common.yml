@@ -16,6 +16,8 @@
   lineinfile: dest=/etc/hosts regexp='.*{{ inventory_hostname }}$' create=yes insertafter=EOF line="{{ inventory_hostname }} {{ansible_fqdn}}" state=present
   tags: platform-ci
 
+- name: pip install pexpect
+  shell: pip2 install pexpect
 
 - name : fetch file in  master in  /etc/hosts
   fetch: src=/etc/hosts dest=/etc/ flat=yes validate_checksum=no
