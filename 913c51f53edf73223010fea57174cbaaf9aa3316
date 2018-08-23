@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c48e42e8_e674f9ec",
+        "filename": "base/server/cms/src/com/netscape/cms/publish/publishers/OCSPPublisher.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-08-23T13:48:30Z",
+      "side": 1,
+      "message": "The null check is redundant since factory cannot be null in any case. The \u0027new\u0027 statement will not return a null. If there\u0027s a memory allocation or initialization issue, an exception will be thrown before reaching this code.",
+      "revId": "913c51f53edf73223010fea57174cbaaf9aa3316",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7ee5dbc2_fcc9112c",
+        "filename": "base/server/cmscore/src/com/netscape/cmscore/connector/HttpConnFactory.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-08-23T13:48:30Z",
+      "side": 1,
+      "message": "Similarly, the tFactory cannot be null here.",
+      "revId": "913c51f53edf73223010fea57174cbaaf9aa3316",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b35134bc_66abbf2a",
+        "filename": "base/server/cmscore/src/com/netscape/cmscore/connector/HttpConnector.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-08-23T13:48:30Z",
+      "side": 1,
+      "message": "Similarly, the mFactory cannot be null here.",
+      "revId": "913c51f53edf73223010fea57174cbaaf9aa3316",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "463202a7_8e52b4f6",
+        "filename": "base/server/cmscore/src/com/netscape/cmscore/connector/HttpConnector.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-08-23T13:48:30Z",
+      "side": 1,
+      "message": "Similarly, the mFactory cannot be null here.",
+      "revId": "913c51f53edf73223010fea57174cbaaf9aa3316",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8fda7087_9ef21619",
+        "filename": "base/server/cmscore/src/com/netscape/cmscore/connector/Resender.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-08-23T13:48:30Z",
+      "side": 1,
+      "message": "Similarly, the factory cannot be null here.",
+      "revId": "913c51f53edf73223010fea57174cbaaf9aa3316",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9be272a7_6117bcc9",
+        "filename": "base/server/cmscore/src/com/netscape/cmscore/ldapconn/PKISocketFactory.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-08-23T13:48:30Z",
+      "side": 1,
+      "message": "The sockListener will never be null since its initialization is guaranteed. All PKISocketFactory constructors call init() before makeSSLSocket() can be invoked.",
+      "revId": "913c51f53edf73223010fea57174cbaaf9aa3316",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
