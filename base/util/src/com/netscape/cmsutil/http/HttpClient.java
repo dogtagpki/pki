@@ -46,6 +46,9 @@ public class HttpClient {
     protected BufferedReader mBufferedReader = null;
     protected SSLCertificateApprovalCallback mCertApprovalCallback = null;
     protected boolean mConnected = false;
+    // for auditing purposes
+    protected String mHost;
+    protected String mPort;
 
     public HttpClient() {
     }
@@ -62,6 +65,9 @@ public class HttpClient {
     public void connect(String host, int port,
             int timeout // milliseconds
             ) throws IOException {
+
+        mHost = host;
+        mPort = Integer.toString(port);
 
         if (mFactory != null) {
             if (mCertApprovalCallback == null) {
@@ -147,6 +153,14 @@ public class HttpClient {
 
     public Socket getSocket() {
         return mSocket;
+    }
+
+    public String getHost() {
+        return mHost;
+    }
+
+    public String getPort() {
+        return mPort;
     }
 
     /**
