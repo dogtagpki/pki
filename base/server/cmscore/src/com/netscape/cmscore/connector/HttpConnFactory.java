@@ -27,6 +27,8 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cmsutil.http.JssSSLSocketFactory;
 import com.netscape.cmsutil.net.ISocketFactory;
 
+import org.dogtagpki.server.PKIClientSocketListener;
+
 /**
  * Factory for getting HTTP Connections to a HTTPO server
  */
@@ -127,6 +129,12 @@ public class HttpConnFactory {
 
         try {
             ISocketFactory tFactory = new JssSSLSocketFactory(mNickname, mClientCiphers);
+            PKIClientSocketListener sockListener = new PKIClientSocketListener()
+;
+            if (tFactory != null) {
+                JssSSLSocketFactory factory = (JssSSLSocketFactory) tFactory;
+                factory.addSocketListener(sockListener);
+            }
 
             if (mTimeout == 0) {
                 retConn = CMS.getHttpConnection(mDest, tFactory);

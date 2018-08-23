@@ -27,6 +27,7 @@ import org.mozilla.jss.ssl.SSLClientCertificateSelectionCallback;
 import org.mozilla.jss.ssl.SSLHandshakeCompletedEvent;
 import org.mozilla.jss.ssl.SSLHandshakeCompletedListener;
 import org.mozilla.jss.ssl.SSLSocket;
+import org.mozilla.jss.ssl.SSLSocketListener;
 
 import com.netscape.cmsutil.net.ISocketFactory;
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -40,6 +41,7 @@ public class JssSSLSocketFactory implements ISocketFactory {
     private String mClientAuthCertNickname = null;
     private String mClientCiphers = null;
     private SSLSocket s = null;
+    private SSLSocketListener sockListener = null;
 
     public JssSSLSocketFactory() {
     }
@@ -83,6 +85,8 @@ public class JssSSLSocketFactory implements ISocketFactory {
 
             listener = new ClientHandshakeCB(this);
             s.addHandshakeCompletedListener(listener);
+            if (this.sockListener != null)
+                s.addSocketListener(this.sockListener);
 
             if (mClientAuthCertNickname != null) {
                 // 052799 setClientCertNickname does not
@@ -129,6 +133,10 @@ public class JssSSLSocketFactory implements ISocketFactory {
         }
 
         return s;
+    }
+
+    public void addSocketListener(SSLSocketListener sl) {
+        this.sockListener = sl;
     }
 
     public void log(int level, String msg) {
