@@ -42,6 +42,8 @@ import com.netscape.cmsutil.http.HttpRequest;
 import com.netscape.cmsutil.http.JssSSLSocketFactory;
 import com.netscape.cmsutil.util.Utils;
 
+import org.dogtagpki.server.PKIClientSocketListener;
+
 import netscape.ldap.LDAPConnection;
 
 /**
@@ -247,12 +249,14 @@ public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
 
             Socket socket = null;
             JssSSLSocketFactory factory;
+            PKIClientSocketListener sockListener = new PKIClientSocketListener();
 
             if (mClientAuthEnabled) {
                 factory = new JssSSLSocketFactory(mNickname);
             } else {
                 factory = new JssSSLSocketFactory();
             }
+            factory.addSocketListener(sockListener);
 
             if (mHost != null && mHost.indexOf(' ') != -1) {
                 // support failover hosts configuration
