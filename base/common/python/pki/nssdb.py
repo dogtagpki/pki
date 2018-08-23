@@ -223,6 +223,7 @@ class NSSDatabase(object):
                 '-P', self.token,
                 '-f', self.password_file,
                 '-n', nickname,
+                '-a',
                 '-i', cert_file,
                 '-t', ''
             ]
@@ -242,6 +243,7 @@ class NSSDatabase(object):
                 '-d', self.directory,
                 '-f', self.internal_password_file,
                 '-n', nickname,
+                '-a',
                 '-i', cert_file,
                 '-t', trust_attributes
             ]
