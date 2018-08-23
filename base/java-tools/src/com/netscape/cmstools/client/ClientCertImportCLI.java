@@ -19,7 +19,6 @@
 package com.netscape.cmstools.client;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.net.URI;
@@ -45,6 +44,7 @@ import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Cert;
+import com.netscape.cmsutil.util.Utils;
 
 import netscape.security.pkcs.PKCS12;
 import netscape.security.pkcs.PKCS7;
@@ -250,8 +250,11 @@ public class ClientCertImportCLI extends CLI {
             File certFile = File.createTempFile("pki-client-cert-import-", ".crt");
             certFile.deleteOnExit();
 
-            try (FileOutputStream out = new FileOutputStream(certFile)) {
-                out.write(bytes);
+            try (FileWriter fw = new FileWriter(certFile);
+                    PrintWriter out = new PrintWriter(fw)) {
+                out.println(PKCS7.HEADER);
+                out.print(Utils.base64encode(bytes, true));
+                out.println(PKCS7.FOOTER);
             }
 
             if (trustAttributes == null)
@@ -338,6 +341,9 @@ public class ClientCertImportCLI extends CLI {
             command.add(dbPasswordFile.getAbsolutePath());
         }
 
+        // accept PEM or PKCS #7 certificate
+        command.add("-a");
+
         command.add("-i");
         command.add(certFile);
         command.add("-n");
@@ -362,10 +368,12 @@ public class ClientCertImportCLI extends CLI {
             String trustAttributes) throws Exception {
 
         if (nickname != null) {
+            // import a single CA certificate with the provided nickname
             importCert(dbPath, dbPasswordFile, certFile, nickname, trustAttributes);
             return;
         }
 
+        // import CA certificate chain with auto-generated nicknames
         String pemCert = new String(Files.readAllBytes(Paths.get(certFile))).trim();
         byte[] binCert = Cert.parseCertificate(pemCert);
 
