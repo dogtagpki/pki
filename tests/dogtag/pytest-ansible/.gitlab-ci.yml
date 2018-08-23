@@ -90,6 +90,7 @@ ca_authplugins:
   stage: tier1
   <<: *job_definition
   script:
+  - pip install $CI_PROJECT_DIR/tests/dogtag/pytest-ansible/
   - ansible-playbook -u fedora --become --private-key=ssh-priv-key -i $HOSTFILE tests/dogtag/pytest-ansible/installation/main.yml -e 'ansible_python_interpreter="/usr/bin/python3"' --extra-vars "topology=topology-02" -vv
   - py.test --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master $CI_PROJECT_DIR/tests/dogtag/pytest-ansible/pytest/ca/auth_plugins/ -q -s --junitxml $CI_PROJECT_DIR/auth_plugins_junit.xml -vvvv
   artifacts:
@@ -100,6 +101,7 @@ securitydomain-cli:
   stage: tier1
   <<: *job_definition
   script:
+  - pip install $CI_PROJECT_DIR/tests/dogtag/pytest-ansible/
   - ansible-playbook -u fedora --become --private-key=ssh-priv-key -i $HOSTFILE tests/dogtag/pytest-ansible/installation/main.yml -e 'ansible_python_interpreter="/usr/bin/python3"' --extra-vars "topology=topology-02" -vv
   - py.test --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master tests/dogtag/pytest-ansible/pytest/ca/securitydomain/ -q -s --junitxml $CI_PROJECT_DIR/securitydomain_junit.xml -vvvv
   artifacts:
@@ -110,6 +112,7 @@ pki-pkcs12-cli:
   <<: *job_definition
   stage: tier1
   script:
+  - pip install $CI_PROJECT_DIR/tests/dogtag/pytest-ansible/
   - ansible-playbook -u fedora --become --private-key=ssh-priv-key -i $HOSTFILE tests/dogtag/pytest-ansible/installation/main.yml -e 'ansible_python_interpreter="/usr/bin/python3"' --extra-vars "topology=topology-02" -vv
   - py.test --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master $CI_PROJECT_DIR/tests/dogtag/pytest-ansible/pytest/sanity/test_role_users.py -q -s --junitxml $CI_PROJECT_DIR/role_user_creation_junit.xml -vvv
   - py.test --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master  --ansible-playbook-inventory $HOSTFILE --ansible-playbook-directory $CI_PROJECT_DIR/tests/dogtag/pytest-ansible/pytest/ca/pki_pkcs12/ $CI_PROJECT_DIR/tests/dogtag/pytest-ansible/pytest/ca/pki_pkcs12/ -qsvv --junitxml $CI_PROJECT_DIR/${CI_JOB_NAME}_junit.xml
@@ -121,6 +124,7 @@ pki_server:
   <<: *job_definition
   stage: tier1
   script:
+  - pip install $CI_PROJECT_DIR/tests/dogtag/pytest-ansible/
   - ansible-playbook -u fedora --become --private-key=ssh-priv-key -i $HOSTFILE tests/dogtag/pytest-ansible/installation/main.yml -e 'ansible_python_interpreter="/usr/bin/python3"' --extra-vars "topology=topology-02" -vv
   - py.test --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master $CI_PROJECT_DIR/tests/dogtag/pytest-ansible/pytest/sanity/test_role_users.py -q -s --junitxml $CI_PROJECT_DIR/role_user_creation_junit.xml -vvvvvvvvv
   - py.test --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master --ansible-playbook-inventory $HOSTFILE $CI_PROJECT_DIR/tests/dogtag/pytest-ansible/pytest/ca/pki_server/ -qs --junitxml $CI_PROJECT_DIR/${CI_JOB_NAME}_ca_junit.xml -vv
