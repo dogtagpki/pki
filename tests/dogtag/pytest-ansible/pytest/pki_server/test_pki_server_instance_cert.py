@@ -69,8 +69,8 @@ def test_pki_server_instance_cert_command(ansible_module):
 def test_pki_server_instance_cert_command_with_help(ansible_module):
     """
     :id: d8f26419-1d25-4ba3-8887-2bd477fcca09
-    :Title: RHCS-TC Test pki-server instance-cert --help command. BZ: 1339263
-    :Description: RHCS-TC Test pki-server instance-cert --help command. BZ: 1339263
+    :Title: Test pki-server instance-cert --help command. BZ: 1339263
+    :Description: Test pki-server instance-cert --help command. BZ: 1339263
     :Requirement: Pki Server Instance
     :CaseComponent: \-
     :Setup: Use the subsystems setup in ansible to run subsystem commands
@@ -158,8 +158,8 @@ def test_pki_server_instance_cert_export_command(ansible_module, systems):
 def test_pki_server_instance_cert_export_command_with_password_file(ansible_module, systems):
     """
     :id: cbdd77a4-b4f7-497c-b247-3ae8b9f5f8a2
-    :Title: RHCS-TC Test pki-server instance-cert-export command with wrong password file.
-    :Description: RHCS-TC Test pki-server instance-cert-export command with wrong password file.
+    :Title: Test pki-server instance-cert-export command with wrong password file.
+    :Description: Test pki-server instance-cert-export command with wrong password file.
     :Requirement: Pki Server Instance
     :CaseComponent: \-
     :Setup: Use the subsystems setup in ansible to run subsystem commands
@@ -223,7 +223,7 @@ def test_pki_server_instance_cert_export_command_when_instance_does_not_exists(a
 def test_pki_server_instance_cert_export_command_when_instance_is_stopped(ansible_module, systems):
     """
     :id: 5c7e9354-8262-480a-bab9-695bb114bf66
-    :Title: RHCS-TC Test pki-server instance-cert-export command when instance is stopped.
+    :Title: Test pki-server instance-cert-export command when instance is stopped.
     :Requirement: Pki Server Instance
     :CaseComponent: \-
     :Setup: Use the subsystems setup in ansible to run subsystem commands

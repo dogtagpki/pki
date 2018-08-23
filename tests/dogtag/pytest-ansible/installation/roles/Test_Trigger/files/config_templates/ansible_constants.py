@@ -1,4 +1,5 @@
 #common to all subsystems
+NSSDB = '/opt/pki/nssdb'
 CLIENT_PKCS12_PASSWORD = 'Secret123'
 CLIENT_DIR_PASSWORD = 'Secret123'
 BACKUP_PASSWORD = 'Secret123'
