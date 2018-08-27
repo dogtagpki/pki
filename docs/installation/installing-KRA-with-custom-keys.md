@@ -76,11 +76,11 @@ The certificates can be specified as single certificates or PKCS #7 certificate 
 Store the external CA certificate chain in a file (e.g. ca_signing.crt). The certificate chain can be specified as a single certificate or PKCS #7 certificate chain in PEM format. The certificate chain should include all CA certificates from the root CA to the external CA that issued the KRA system and admin certificates.
 
 See also:
-* [Generating KRA Storage Certificates](http://www.dogtagpki.org/wiki/Generating_KRA_Storage_Certificate)
-* [Generating KRA Transport Certificates](http://www.dogtagpki.org/wiki/Generating_KRA_Transport_Certificate)
-* [Generating Subsystem Certificates](http://www.dogtagpki.org/wiki/Generating_Subsystem_Certificate)
-* [Generating SSL Server Certificates](http://www.dogtagpki.org/wiki/Generating_SSL_Server_Certificate)
-* [Generating Audit Signing Certificates](http://www.dogtagpki.org/wiki/Generating_Audit_Signing_Certificate)
+* [Generating KRA Storage Certificate](http://www.dogtagpki.org/wiki/Generating_KRA_Storage_Certificate)
+* [Generating KRA Transport Certificate](http://www.dogtagpki.org/wiki/Generating_KRA_Transport_Certificate)
+* [Generating Subsystem Certificate](http://www.dogtagpki.org/wiki/Generating_Subsystem_Certificate)
+* [Generating SSL Server Certificate](http://www.dogtagpki.org/wiki/Generating_SSL_Server_Certificate)
+* [Generating Audit Signing Certificate](http://www.dogtagpki.org/wiki/Generating_Audit_Signing_Certificate)
 * [Generating Admin Certificate](http://www.dogtagpki.org/wiki/Generating_Admin_Certificate)
 
 Finalizing KRA Installation
