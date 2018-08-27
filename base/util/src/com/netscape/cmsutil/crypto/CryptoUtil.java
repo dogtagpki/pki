@@ -555,13 +555,16 @@ public class CryptoUtil {
      */
     public static KeyPair generateRSAKeyPair(String tokenName, int keysize)
             throws Exception {
+        logger.debug("CryptoUtil: Generating RSA Key pair for tokenName: " + tokenName);
         CryptoToken token = getKeyStorageToken(tokenName);
         return generateRSAKeyPair(token, keysize);
     }
 
     public static KeyPair generateRSAKeyPair(CryptoToken token, int keysize) throws Exception {
         KeyPairGenerator kg = token.getKeyPairGenerator(KeyPairAlgorithm.RSA);
+        logger.debug("CryptoUtil: Keypair Generator initializing for: " + token.getName());
         kg.initialize(keysize);
+        logger.debug("CryptoUtil: Initialization complete");
         return kg.genKeyPair();
     }
 

@@ -163,13 +163,20 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         }
         initializeDatabase(data);
 
+        logger.debug("=== System reinitializing ===");
         reinitSubsystems();
 
+        logger.debug("=== Configure CA Cert Chain ===");
         configureCACertChain(data, domainXML);
 
+        logger.debug("=== Process Certs ===");
         Collection<Cert> certs = new ArrayList<Cert>();
         processCerts(data, certList, certs);
+
+        logger.debug("=== Handle certs ===");
         handleCerts(certs);
+
+        logger.debug("=== Setting system Certs ===");
         response.setSystemCerts(SystemCertDataFactory.create(certs));
 
         // backup keys

@@ -88,11 +88,13 @@ public class SimpleProperties extends Hashtable<String, String> {
         return put(key, value);
     }
 
-    private static final String keyValueSeparators = "=: \t\r\n\f";
+    private static final String keyValueSeparators = "=:\t\r\n\f";
 
     private static final String strictKeyValueSeparators = "=:";
 
     private static final String whiteSpaceChars = " \t\r\n\f";
+
+    private static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SimpleProperties.class);
 
     /**
      * Reads a property list (key and element pairs) from the input stream.
@@ -107,7 +109,7 @@ public class SimpleProperties extends Hashtable<String, String> {
      * Every line other than a blank line or a comment line describes one property to be added to the table (except that
      * if a line ends with \, then the following line, if it exists, is treated as a continuation line, as described
      * below). The key consists of all the characters in the line starting with the first non-whitespace character and
-     * up to, but not including, the first ASCII <code>=</code>, <code>:</code>, or whitespace character. All of the key
+     * up to, but not including, the first ASCII <code>=</code>, or <code>:</code> character. All of the key
      * termination characters may be included in the key by preceding them with a \. Any whitespace after the key is
      * skipped; if the first non-whitespace character after the key is <code>=</code> or <code>:</code>, then it is
      * ignored and any whitespace characters after it are also skipped. All remaining characters on the line become part
@@ -128,25 +130,25 @@ public class SimpleProperties extends Hashtable<String, String> {
      * Truth			:Beauty
      * </pre>
      *
-     * As another example, the following three lines specify a single property:
+     * <p>
+     * As a second example, the line:
      * <p>
      *
      * <pre>
-     * fruits				apple, banana, pear, \
-     *                                  cantaloupe, watermelon, \
-     *                                  kiwi, mango
+     * green vegetables : broccoli, collards, \
+     *                          spinach, kale
      * </pre>
      *
-     * The key is <code>"fruits"</code> and the associated element is:
+     * The key is <code>"green vegetables"</code> and the associated element is:
      * <p>
      *
      * <pre>
-     * &quot;apple, banana, pear, cantaloupe, watermelon,kiwi, mango&quot;
-     * </pre>
+     * &quot;broccoli, collards, spinach, kale&quot;
      *
      * Note that a space appears before each <code>\</code> so that a space will appear after each comma in the final
      * result; the <code>\</code>, line terminator, and leading whitespace on the continuation line are merely discarded
      * and are <i>not</i> replaced by one or more other characters.
+     *
      * <p>
      * As a third example, the line:
      * <p>
@@ -165,6 +167,7 @@ public class SimpleProperties extends Hashtable<String, String> {
     public synchronized void load(InputStream inStream) throws IOException {
 
         BufferedReader in = new BufferedReader(new InputStreamReader(inStream, "8859_1"));
+        logger.debug("Loading properties into memory");
 
         while (true) {
             // Get next line
@@ -191,7 +194,6 @@ public class SimpleProperties extends Hashtable<String, String> {
                             if (whiteSpaceChars.indexOf(nextLine.charAt(startIndex)) == -1)
                                 break;
                         nextLine = nextLine.substring(startIndex, nextLine.length());
-
                         line = loppedLine + nextLine;
                     }
                     // Find start of key
@@ -300,7 +302,7 @@ public class SimpleProperties extends Hashtable<String, String> {
      * element string is examined to see whether it should be rendered as an escape sequence. The ASCII characters
      * <code>\</code>, tab, newline, and carriage return are written as <code>\\</code>, <code>\t</code>,
      * <code>\n</code>, and <code>\r</code>, respectively. Characters less than <code>\u0020</code> and characters
-     * greater than <code>\u007E</code> are written as <code>\\u</code><i>xxxx</i> for the appropriate hexadecimal value
+     * greater than <code>\u007E</code> are written a   s <code>\\u</code><i>xxxx</i> for the appropriate hexadecimal value
      * <i>xxxx</i>. Space characters, but not embedded or trailing space characters, are written with a preceding
      * <code>\</code>. The key and value characters <code>#</code>, <code>!</code>, <code>=</code>, and <code>:</code>
      * are written with a preceding slash to ensure that they are properly loaded.
