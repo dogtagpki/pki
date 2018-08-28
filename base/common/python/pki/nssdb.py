@@ -65,16 +65,15 @@ logger = logging.LoggerAdapter(
 def convert_data(data, input_format, output_format,
                  header=None, footer=None,
                  headers=None, footers=None):
+    '''
+    This method converts a PEM file to base-64 and vice versa.
+    It supports CSR, certificate, and PKCS #7 certificate chain.
+    '''
 
     if input_format == output_format:
         return data
 
-    if not headers:
-        headers = [header]
-
-    if not footers:
-        footers = [footer]
-
+    # converting from base-64 to PEM
     if input_format == 'base64' and output_format == 'pem':
 
         # join base-64 data into a single line
@@ -86,16 +85,30 @@ def convert_data(data, input_format, output_format,
         # add header and footer
         return '%s\n%s\n%s\n' % (header, '\n'.join(lines), footer)
 
+    # converting from PEM to base-64
     if input_format == 'pem' and output_format == 'base64':
+
+        # initialize list of headers if not provided
+        if not headers:
+            headers = [header]
+
+        # initialize list of footers if not provided
+        if not footers:
+            footers = [footer]
 
         # join multiple lines into a single line
         lines = []
         for line in data.splitlines():
             line = line.rstrip('\r\n')
+
+            # if the line is a header, skip
             if line in headers:
                 continue
+
+            # if the line is a footer, skip
             if line in footers:
                 continue
+
             lines.append(line)
 
         return ''.join(lines)
@@ -122,6 +135,11 @@ def convert_pkcs7(pkcs7_data, input_format, output_format):
 
 
 def get_file_type(filename):
+    '''
+    This method detects the content of a PEM file. It supports
+    CSR, certificate, PKCS #7 certificate chain.
+    '''
+
     with open(filename, 'r') as f:
         data = f.read()
 

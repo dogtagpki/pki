@@ -2493,6 +2493,7 @@ public class ConfigurationUtils {
 
         logger.debug("ConfigurationUtils.loadCertRequest(" + tag + ")");
 
+        // the CSR must exist in the second step of external CA scenario
         String certreq = config.getString(subsystem + "." + tag + ".certreq");
         return CryptoUtil.base64Decode(certreq);
     }
