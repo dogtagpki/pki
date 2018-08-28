@@ -101,9 +101,14 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
     def import_ca_signing_cert(self, deployer, nssdb):
 
-        cert_file = deployer.mdict.get('pki_ca_signing_cert_path')
-        if not cert_file or not os.path.exists(cert_file):
+        param = 'pki_ca_signing_cert_path'
+        cert_file = deployer.mdict.get(param)
+
+        if not cert_file:
             return
+
+        if not os.path.exists(cert_file):
+            raise Exception('Invalid certificate path: %s=%s' % (param, cert_file))
 
         nickname = deployer.mdict['pki_ca_signing_nickname']
 
