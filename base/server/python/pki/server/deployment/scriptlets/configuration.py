@@ -395,15 +395,16 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             self.import_system_cert_request(deployer, subsystem, 'subsystem')
             self.import_system_cert_request(deployer, subsystem, 'sslserver')
 
-    def import_ca_signing_cert(self, deployer, nssdb, subsystem):
+    def import_ca_signing_cert(self, deployer, nssdb):
 
         param = 'pki_ca_signing_cert_path'
         cert_file = deployer.mdict.get(param)
-        if not cert_file or not os.path.exists(cert_file):
-            if subsystem.name == 'ca':
-                raise Exception('Invalid certificate path: %s=%s' % (param, cert_file))
-            else:
-                return
+
+        if not cert_file:
+            return
+
+        if not os.path.exists(cert_file):
+            raise Exception('Invalid certificate path: %s=%s' % (param, cert_file))
 
         nickname = deployer.mdict['pki_ca_signing_nickname']
 
@@ -593,14 +594,14 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
     def import_system_certs(self, deployer, nssdb, subsystem):
 
         if subsystem.name == 'ca':
-            self.import_ca_signing_cert(deployer, nssdb, subsystem)
+            self.import_ca_signing_cert(deployer, nssdb)
             self.import_ca_ocsp_signing_cert(deployer, nssdb)
 
         if subsystem.name == 'kra':
             # Always import cert chain into internal token.
             internal_nssdb = subsystem.instance.open_nssdb()
             try:
-                self.import_ca_signing_cert(deployer, internal_nssdb, subsystem)
+                self.import_ca_signing_cert(deployer, internal_nssdb)
             finally:
                 internal_nssdb.close()
 
@@ -612,7 +613,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             # Always import cert chain into internal token.
             internal_nssdb = subsystem.instance.open_nssdb()
             try:
-                self.import_ca_signing_cert(deployer, internal_nssdb, subsystem)
+                self.import_ca_signing_cert(deployer, internal_nssdb)
             finally:
                 internal_nssdb.close()
 
