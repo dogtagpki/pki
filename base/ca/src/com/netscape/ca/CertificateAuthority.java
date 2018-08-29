@@ -1077,7 +1077,7 @@ public class CertificateAuthority
     public String getStartSerial() {
         try {
             BigInteger serial =
-                    mCertRepot.getTheSerialNumber();
+                    mCertRepot.peekNextSerialNumber();
 
             if (serial == null)
                 return "";
