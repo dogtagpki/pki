@@ -317,7 +317,15 @@ public abstract class Repository implements IRepository {
     }
 
     /**
-     * get the next serial number in cache
+     * Peek at the next serial number in cache (does not consume the
+     * number).
+     *
+     * The returned number is not necessarily the previously emitted
+     * serial number plus one, i.e. if we are going to roll into the
+     * next range.  This method does not actually switch the range.
+     *
+     * Returns null if the next number exceeds the current range and
+     * there is not a next range.
      */
     public BigInteger getTheSerialNumber() throws EBaseException {
 
@@ -327,7 +335,7 @@ public abstract class Repository implements IRepository {
         BigInteger serial = mLastSerialNo.add(BigInteger.ONE);
 
         if (mMaxSerialNo != null && serial.compareTo(mMaxSerialNo) > 0)
-            return null;
+            return hasNextRange() ? mNextMinSerialNo : null;
         else
             return serial;
     }
@@ -390,9 +398,13 @@ public abstract class Repository implements IRepository {
     }
 
     /**
-     * Checks to see if range needs to be switched.
+     * Checks if the given number is in the current range.
+     * If it does not exceed the current range, return cleanly.
+     * If it exceeds the given range, and there is a next range, switch the range.
+     * If it exceeds the given range, and there is not a next range, throw EDBException.
      *
-     * @exception EBaseException thrown when next range is not allocated
+     * @exception EDBException thrown when range switch is needed
+     *                           but next range is not allocated
      */
     protected void checkRange() throws EBaseException
     {
@@ -413,7 +425,7 @@ public abstract class Repository implements IRepository {
 
             if (mDB.getEnableSerialMgmt()) {
                 CMS.debug("Reached the end of the range.  Attempting to move to next range");
-                if ((mNextMinSerialNo == null) || (mNextMaxSerialNo == null)) {
+                if (!hasNextRange()) {
                     if (rangeLength != null && mCounter.compareTo(rangeLength) < 0) {
                         return;
                     } else {
@@ -421,23 +433,38 @@ public abstract class Repository implements IRepository {
                                                                   mLastSerialNo.toString()));
                     }
                 }
-                mMinSerialNo = mNextMinSerialNo;
-                mMaxSerialNo = mNextMaxSerialNo;
-                mLastSerialNo = mMinSerialNo;
-                mNextMinSerialNo  = null;
-                mNextMaxSerialNo  = null;
-                mCounter = BigInteger.ZERO;
-
-                // persist the changes
-                mDB.setMinSerialConfig(mRepo, mMinSerialNo.toString(mRadix));
-                mDB.setMaxSerialConfig(mRepo, mMaxSerialNo.toString(mRadix));
-                mDB.setNextMinSerialConfig(mRepo, null);
-                mDB.setNextMaxSerialConfig(mRepo, null);
+                switchToNextRange();
             } else {
                 throw new EDBException(CMS.getUserMessage("CMS_DBS_LIMIT_REACHED",
                         mLastSerialNo.toString()));
             }
         }
+    }
+
+    /**
+     * Return true iff there is a next range ready to go.
+     */
+    private boolean hasNextRange() {
+        return (mNextMinSerialNo != null) && (mNextMaxSerialNo != null);
+    }
+
+    /**
+     * Switch to the next range and persist the changes.
+     */
+    private void switchToNextRange()
+            throws EBaseException {
+        mMinSerialNo = mNextMinSerialNo;
+        mMaxSerialNo = mNextMaxSerialNo;
+        mLastSerialNo = mMinSerialNo;
+        mNextMinSerialNo  = null;
+        mNextMaxSerialNo  = null;
+        mCounter = BigInteger.ZERO;
+
+        // persist the changes
+        mDB.setMinSerialConfig(mRepo, mMinSerialNo.toString(mRadix));
+        mDB.setMaxSerialConfig(mRepo, mMaxSerialNo.toString(mRadix));
+        mDB.setNextMinSerialConfig(mRepo, null);
+        mDB.setNextMaxSerialConfig(mRepo, null);
     }
 
     /**
