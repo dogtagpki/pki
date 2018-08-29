@@ -19,7 +19,7 @@ package com.netscape.cmscore.password;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import java.nio.charset.Charset;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
@@ -121,7 +121,7 @@ public class PlainPasswordFileTest {
 
     private void writeToFileAndInit(File file, String[] strArray) throws IOException {
         for (String str : strArray) {
-            FileUtils.writeStringToFile(file, str + "\n", StandardCharsets.ISO_8859_1, true);
+            FileUtils.writeStringToFile(file, str + "\n", (Charset) null, true);
         }
         pwdFile.init(createdFile.getAbsolutePath());
     }

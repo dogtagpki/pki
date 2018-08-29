@@ -22,7 +22,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.Properties;
 import java.util.Vector;
@@ -90,16 +89,14 @@ public class PlainPasswordFile implements IPasswordStore {
         // initialize mPwdStore
         mPwdPath = pwdPath;
 
-        FileInputStream file = null;
-        BufferedReader br = null;
-        try {
-            file = new FileInputStream(mPwdPath);
-            br = new BufferedReader(new InputStreamReader(file, StandardCharsets.ISO_8859_1));
+        try (FileInputStream file = new FileInputStream(mPwdPath);
+                InputStreamReader isr = new InputStreamReader(file);
+                BufferedReader br = new BufferedReader(isr)) {
 
             String line;
             int index = 1;
             while ((line = br.readLine()) != null) {
-                // Remove any trailing spaces
+                // Remove any leading or trailing spaces
                 line = line.trim();
 
                 if (line.startsWith("#") || line.isEmpty())
@@ -107,20 +104,12 @@ public class PlainPasswordFile implements IPasswordStore {
 
                 String[] parts = line.split("=", 2);
                 if (parts.length < 2) {
-                    br.close();
                     throw new IOException("Missing delimiter '=' in file " + mPwdPath + " in line " + index);
                 }
 
                 // Load key value into the password store
                 mPwdStore.put(parts[0].trim(), parts[1].trim());
                 index++;
-            }
-        } finally {
-            if (file != null) {
-                file.close();
-            }
-            if (br != null) {
-                br.close();
             }
         }
     }
