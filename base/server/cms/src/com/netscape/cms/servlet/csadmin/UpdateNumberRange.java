@@ -187,20 +187,27 @@ public class UpdateNumberRange extends CMSServlet {
             BigInteger decrement = new BigInteger(decrementStr, radix);
             beginNum = endNum.subtract(decrement).add(oneNum);
 
-            if (beginNum.compareTo(repo.peekNextSerialNumber()) < 0) {
-                String nextEndNumStr = cs.getString(nextEndConfig, "");
-                BigInteger endNum2 = new BigInteger(nextEndNumStr, radix);
-                CMS.debug("Transferring from the end of on-deck range");
-                String newValStr = endNum2.subtract(decrement).toString(radix);
-                repo.setNextMaxSerial(newValStr);
-                cs.putString(nextEndConfig, newValStr);
-                beginNum = endNum2.subtract(decrement).add(oneNum);
-                endNum = endNum2;
-            } else {
-                CMS.debug("Transferring from the end of the current range");
-                String newValStr = beginNum.subtract(oneNum).toString(radix);
-                repo.setMaxSerial(newValStr);
-                cs.putString(endNumConfig, newValStr);
+            /* We need to synchronise on repo because we peek the next
+             * serial number, then set the max serial of the current or
+             * next range.  If we don't synchronize, we could end up
+             * using serial numbers that were transferred.
+             */
+            synchronized (repo) {
+                if (beginNum.compareTo(repo.peekNextSerialNumber()) < 0) {
+                    String nextEndNumStr = cs.getString(nextEndConfig, "");
+                    BigInteger endNum2 = new BigInteger(nextEndNumStr, radix);
+                    CMS.debug("Transferring from the end of on-deck range");
+                    String newValStr = endNum2.subtract(decrement).toString(radix);
+                    repo.setNextMaxSerial(newValStr);
+                    cs.putString(nextEndConfig, newValStr);
+                    beginNum = endNum2.subtract(decrement).add(oneNum);
+                    endNum = endNum2;
+                } else {
+                    CMS.debug("Transferring from the end of the current range");
+                    String newValStr = beginNum.subtract(oneNum).toString(radix);
+                    repo.setMaxSerial(newValStr);
+                    cs.putString(endNumConfig, newValStr);
+                }
             }
 
             if (beginNum == null) {
