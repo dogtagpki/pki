@@ -99,8 +99,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         cert_id = self.get_cert_id(subsystem, tag)
 
         config.pki_log.info(
-            "generating %s CSR in %s", cert_id, csr_path,
-            extra=config.PKI_INDENTATION_LEVEL_2)
+            "Generating %s CSR in %s", cert_id, csr_path,
+            extra=config.PKI_INDENTATION_LEVEL_0)
 
         cert = subsystem.get_subsystem_cert(tag)
         token = pki.nssdb.normalize_token(cert['token'])
@@ -390,8 +390,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             return
 
         config.pki_log.info(
-            "importing ca_signing CSR from %s", csr_path,
-            extra=config.PKI_INDENTATION_LEVEL_2)
+            "Importing ca_signing CSR from %s", csr_path,
+            extra=config.PKI_INDENTATION_LEVEL_0)
 
         with open(csr_path) as f:
             csr_data = f.read()
@@ -425,8 +425,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         nickname = deployer.mdict['pki_ca_signing_nickname']
 
         config.pki_log.info(
-            "importing ca_signing certificate from %s", cert_file,
-            extra=config.PKI_INDENTATION_LEVEL_2)
+            "Importing ca_signing certificate from %s", cert_file,
+            extra=config.PKI_INDENTATION_LEVEL_0)
 
         nssdb.import_cert_chain(
             nickname=nickname,
@@ -445,8 +445,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             return
 
         config.pki_log.info(
-            "importing %s certificate from %s", cert_id, cert_file,
-            extra=config.PKI_INDENTATION_LEVEL_2)
+            "Importing %s certificate from %s", cert_id, cert_file,
+            extra=config.PKI_INDENTATION_LEVEL_0)
 
         cert = subsystem.get_subsystem_cert(tag)
         nickname = cert['nickname']
@@ -472,8 +472,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         try:
             config.pki_log.info(
-                "importing admin certificate from %s", cert_file,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+                "Importing admin certificate from %s", cert_file,
+                extra=config.PKI_INDENTATION_LEVEL_0)
 
             client_nssdb.import_cert_chain(
                 nickname=nickname,
@@ -490,8 +490,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             return
 
         config.pki_log.info(
-            "importing certificates and keys from %s", pkcs12_file,
-            extra=config.PKI_INDENTATION_LEVEL_2)
+            "Importing certificates and keys from %s", pkcs12_file,
+            extra=config.PKI_INDENTATION_LEVEL_0)
 
         pkcs12_password = deployer.mdict['pki_external_pkcs12_password']
         nssdb.import_pkcs12(pkcs12_file, pkcs12_password)
@@ -499,14 +499,15 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
     def import_cert_chain(self, deployer, nssdb):
 
         chain_file = deployer.mdict.get('pki_cert_chain_path')
+
         if not chain_file or not os.path.exists(chain_file):
             return
 
         nickname = deployer.mdict['pki_cert_chain_nickname']
 
         config.pki_log.info(
-            "importing certificate chain from %s", chain_file,
-            extra=config.PKI_INDENTATION_LEVEL_2)
+            "Importing certificate chain from %s", chain_file,
+            extra=config.PKI_INDENTATION_LEVEL_0)
 
         nssdb.import_cert_chain(
             nickname=nickname,
@@ -580,8 +581,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
     def configure_ca_signing_cert(self, deployer, subsystem):
 
         config.pki_log.info(
-            "configuring ca_signing certificate",
-            extra=config.PKI_INDENTATION_LEVEL_2)
+            "Configuring ca_signing certificate",
+            extra=config.PKI_INDENTATION_LEVEL_0)
 
         self.configure_system_cert(deployer, subsystem, 'signing')
 
@@ -591,40 +592,40 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
     def configure_ca_ocsp_signing_cert(self, deployer, subsystem):
 
         config.pki_log.info(
-            "configuring ca_ocsp_signing certificate",
-            extra=config.PKI_INDENTATION_LEVEL_2)
+            "Configuring ca_ocsp_signing certificate",
+            extra=config.PKI_INDENTATION_LEVEL_0)
 
         self.configure_system_cert(deployer, subsystem, 'ocsp_signing')
 
     def configure_sslserver_cert(self, deployer, subsystem):
 
         config.pki_log.info(
-            "configuring sslserver certificate",
-            extra=config.PKI_INDENTATION_LEVEL_2)
+            "Configuring sslserver certificate",
+            extra=config.PKI_INDENTATION_LEVEL_0)
 
         self.configure_system_cert(deployer, subsystem, 'sslserver')
 
     def configure_subsystem_cert(self, deployer, subsystem):
 
         config.pki_log.info(
-            "configuring subsystem certificate",
-            extra=config.PKI_INDENTATION_LEVEL_2)
+            "Configuring subsystem certificate",
+            extra=config.PKI_INDENTATION_LEVEL_0)
 
         self.configure_system_cert(deployer, subsystem, 'subsystem')
 
     def configure_audit_signing_cert(self, deployer, subsystem):
 
         config.pki_log.info(
-            "configuring audit_signing certificate",
-            extra=config.PKI_INDENTATION_LEVEL_2)
+            "Configuring audit_signing certificate",
+            extra=config.PKI_INDENTATION_LEVEL_0)
 
         self.configure_system_cert(deployer, subsystem, 'audit_signing')
 
     def update_admin_cert(self, deployer, subsystem):
 
         config.pki_log.info(
-            "updating admin certificate",
-            extra=config.PKI_INDENTATION_LEVEL_2)
+            "Updating admin certificate",
+            extra=config.PKI_INDENTATION_LEVEL_0)
 
         client_nssdb = pki.nssdb.NSSDatabase(
             directory=deployer.mdict['pki_client_database_dir'],
@@ -646,24 +647,24 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
     def configure_kra_storage_cert(self, deployer, subsystem):
 
         config.pki_log.info(
-            "configuring kra_storage certificate",
-            extra=config.PKI_INDENTATION_LEVEL_2)
+            "Configuring kra_storage certificate",
+            extra=config.PKI_INDENTATION_LEVEL_0)
 
         self.configure_system_cert(deployer, subsystem, 'storage')
 
     def configure_kra_transport_cert(self, deployer, subsystem):
 
         config.pki_log.info(
-            "configuring kra_transport certificate",
-            extra=config.PKI_INDENTATION_LEVEL_2)
+            "Configuring kra_transport certificate",
+            extra=config.PKI_INDENTATION_LEVEL_0)
 
         self.configure_system_cert(deployer, subsystem, 'transport')
 
     def configure_ocsp_signing_cert(self, deployer, subsystem):
 
         config.pki_log.info(
-            "configuring ocsp_signing certificate",
-            extra=config.PKI_INDENTATION_LEVEL_2)
+            "Configuring ocsp_signing certificate",
+            extra=config.PKI_INDENTATION_LEVEL_0)
 
         self.configure_system_cert(deployer, subsystem, 'signing')
 
@@ -714,8 +715,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             return
 
         config.pki_log.info(
-            "validating %s certificate", tag,
-            extra=config.PKI_INDENTATION_LEVEL_2)
+            "Validating %s certificate", tag,
+            extra=config.PKI_INDENTATION_LEVEL_0)
 
         subsystem.validate_system_cert(tag)
 
@@ -1176,14 +1177,11 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
             else:
                 config.pki_log.debug(
-                    '%s %s', log.PKI_CONFIG_CDATA_TAG, cdata['tag'],
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                    '%s cert: %s', cdata['tag'], cdata['cert'],
+                    extra=config.PKI_INDENTATION_LEVEL_0)
                 config.pki_log.debug(
-                    '%s\n%s', log.PKI_CONFIG_CDATA_CERT, cdata['cert'],
-                    extra=config.PKI_INDENTATION_LEVEL_2)
-                config.pki_log.debug(
-                    '%s\n%s', log.PKI_CONFIG_CDATA_REQUEST, cdata['request'],
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                    '%s request: %s', cdata['tag'], cdata['request'],
+                    extra=config.PKI_INDENTATION_LEVEL_0)
 
         # Cloned PKI subsystems do not return an Admin Certificate
         if not clone:

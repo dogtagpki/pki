@@ -358,9 +358,6 @@ PKIHELPER_USER_ADD_UID_KEYERROR_1 = "KeyError:  pki_uid %s"
 
 PKI_CONFIG_ADMIN_CERT_SAVE_2 = "saving %s Admin Certificate to file: %s"
 PKI_CONFIG_ADMIN_CERT_ATOB_1 = "converting %s Admin Certificate to binary:"
-PKI_CONFIG_CDATA_TAG = "tag:"
-PKI_CONFIG_CDATA_CERT = "cert:"
-PKI_CONFIG_CDATA_REQUEST = "request:"
 PKI_CONFIG_CONSTRUCTING_PKI_DATA = "constructing PKI configuration data."
 PKI_CONFIG_PKCS10_SUPPORT_ONLY = \
     "only the 'pkcs10' certificate request type is currently supported"
@@ -396,7 +393,6 @@ PKI_CONFIG_EXTERNAL_CSR_SAVE_PKI_SUBSYSTEM_2 = (
     "saving %s Subsystem CSR to file: %s")
 PKI_CONFIG_JAVA_CONFIGURATION_EXCEPTION = \
     "Exception from Java Configuration Servlet:"
-PKI_CONFIG_RESPONSE_ADMIN_CERT = "adminCert:"
 PKI_CONFIG_RESPONSE_STATUS = "status:"
 PKI_CONFIG_NOT_YET_IMPLEMENTED_1 = " %s NOT YET IMPLEMENTED"
 PKI_CHECK_STATUS_MESSAGE = '''

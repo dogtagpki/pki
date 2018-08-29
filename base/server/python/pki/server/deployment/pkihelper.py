@@ -3940,8 +3940,8 @@ class ConfigClient:
 
     def process_admin_cert(self, admin_cert):
         config.pki_log.debug(
-            '%s\n%s', log.PKI_CONFIG_RESPONSE_ADMIN_CERT, admin_cert,
-            extra=config.PKI_INDENTATION_LEVEL_2)
+            'admin cert: %s', admin_cert,
+            extra=config.PKI_INDENTATION_LEVEL_0)
 
         # Store the Administration Certificate in a file
         admin_cert_file = self.mdict['pki_client_admin_cert']
@@ -4102,8 +4102,8 @@ class ConfigClient:
         with open(self.mdict['pki_admin_csr_path'], "r") as f:
             admin_certreq = f.read()
         config.pki_log.info(
-            '%s\n%s', log.PKI_CONFIG_CDATA_REQUEST, admin_certreq,
-            extra=config.PKI_INDENTATION_LEVEL_2)
+            'Admin request: %s', admin_certreq,
+            extra=config.PKI_INDENTATION_LEVEL_0)
 
     def save_admin_cert(self, input_data, output_file, subsystem_name):
         config.pki_log.debug(
@@ -4129,8 +4129,8 @@ class ConfigClient:
             f.write(csr)
         # Print this certificate request
         config.pki_log.info(
-            '%s\n%s', log.PKI_CONFIG_CDATA_REQUEST, csr,
-            extra=config.PKI_INDENTATION_LEVEL_2)
+            'Request:\n%s', csr,
+            extra=config.PKI_INDENTATION_LEVEL_0)
 
     def load_system_cert(self, nssdb, cert, nickname=None):
 
