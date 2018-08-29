@@ -17,10 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config.install;
 
-import javax.swing.*;
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.wizard.*;
-import com.netscape.admin.certsrv.config.*;
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.config.WBaseCertRequestPage;
+import com.netscape.admin.certsrv.wizard.IWizardPanel;
+import com.netscape.admin.certsrv.wizard.WizardInfo;
 
 /**
  * Introduction page for installation wizard.
@@ -30,8 +30,6 @@ import com.netscape.admin.certsrv.config.*;
  * @see com.netscape.admin.certsrv.config.install
  */
 class WICertRequestPage extends WBaseCertRequestPage implements IWizardPanel {
-    private JButton mCopy;
-    private JTextArea mText;
     private static final String PANELNAME = "CERTREQUESTWIZARD";
     private static final String HELPINDEX =
       "configuration-kra-wizard-change-keyscheme-help";

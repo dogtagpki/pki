@@ -133,7 +133,7 @@ public class AuthorityKeyIdentifierExtension extends Extension
      * The default constructor for this extension. Null parameters make
      * the element optional (not present).
      *
-     * @param id the KeyIdentifier associated with this extension.
+     * @param kid the KeyIdentifier associated with this extension.
      * @param names the GeneralNames associated with this extension
      * @param serialNum the CertificateSerialNumber associated with
      *            this extension.

@@ -47,8 +47,6 @@ public class CMSStop extends CGITask
      *==========================================================*/
     private static final String PREFIX = "TASKSTOP";
     public static final String STOP_TASK_CGI = "Tasks/Operation/stop";
-    private Hashtable<String, String> mCgiResponse = null;
-    private String mCgiTask = null;
 
 	/*==========================================================
      * constructors

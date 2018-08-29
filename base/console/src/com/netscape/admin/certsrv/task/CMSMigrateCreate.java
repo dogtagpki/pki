@@ -60,7 +60,6 @@ public class CMSMigrateCreate extends CGITask
 
 	//private boolean mSuccess = false; // status of last executed CGI
 	private Hashtable<String, String> mCgiResponse = null; // holds parsed contents of CGI return
-	private String mCgiTask = null; // CGI task to call
 
 	/*==========================================================
      * constructors
@@ -172,7 +171,6 @@ public class CMSMigrateCreate extends CGITask
 
 		// call the CGI program
 		Debug.println("CMSMigrateCreate: createNewInstance() before run task="+CREATE_CGI_NAME);
-		mCgiTask = CREATE_CGI_NAME;
 
         Cursor cursor = mActiveFrame.getCursor();
         int type = cursor.getType();

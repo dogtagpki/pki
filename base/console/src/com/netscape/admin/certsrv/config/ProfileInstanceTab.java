@@ -17,13 +17,20 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config;
 
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
-import javax.swing.*;
-import java.awt.event.*;
-import java.util.*;
-import com.netscape.management.client.util.*;
-import com.netscape.certsrv.common.*;
+import java.awt.event.ActionEvent;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.CMSBaseResourceModel;
+import com.netscape.admin.certsrv.connection.AdminConnection;
+import com.netscape.certsrv.common.DestDef;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.common.ScopeDef;
+import com.netscape.management.client.util.Debug;
+import com.netscape.management.client.util.JButtonFactory;
 
 /**
  * Profile Instances Management Tab
@@ -41,8 +48,6 @@ public class ProfileInstanceTab extends CMSPluginInstanceTab {
 
     protected JButton mOrder;
     private final static String HELPINDEX = "configuration-certificateprofiles";
-    private ResourceBundle mResource;
-    private String mDest;
 
 	/*==========================================================
      * constructors
@@ -53,11 +58,8 @@ public class ProfileInstanceTab extends CMSPluginInstanceTab {
         mConnection = model.getServerInfo().getAdmin();
         mDataModel = new ProfileRuleDataModel();
 		mScope = ScopeDef.SC_POLICY_RULES;
-        mDest = dest;
 		RULE_NAME = PolicyRuleDataModel.RULE_NAME;
 		RULE_STAT = PolicyRuleDataModel.RULE_STAT;
-        mResource = ResourceBundle.getBundle(
-          CMSAdminResources.class.getName());
 
         mHelpToken = HELPINDEX;
     }

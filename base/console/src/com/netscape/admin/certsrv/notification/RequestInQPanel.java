@@ -66,7 +66,6 @@ public class RequestInQPanel extends CMSBaseTab implements ItemListener {
     protected CMSBaseResourceModel mModel;
     private String mServletName;
     private CMSTabPanel mParent;
-    private String mPanelName;
 	/*
     public RequestInQPanel(String panelName, CMSTabPanel parent) {
         this(panelName, parent, true);

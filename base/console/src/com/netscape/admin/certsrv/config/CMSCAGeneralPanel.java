@@ -23,7 +23,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ItemListener;
 import java.math.BigInteger;
 import java.util.StringTokenizer;
-import java.util.Vector;
 
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -52,7 +51,6 @@ public class CMSCAGeneralPanel extends CMSBaseTab implements ItemListener {
     private static String PANEL_NAME = "CAGENERAL";
     private static CMSBaseResourceModel mModel;
     protected AdminConnection mAdmin;
-    private JCheckBox mRAEnable;
     private JCheckBox mEEEnable;
     private JCheckBox mOCSPEnable;
     private CMSTabPanel mParent;
@@ -62,7 +60,6 @@ public class CMSCAGeneralPanel extends CMSBaseTab implements ItemListener {
     private JCheckBox mValidity;
     private JCheckBox mEnableSerialNumberManagement;
     private JCheckBox mEnableRandomSerialNumbers;
-    private Vector<Object> mGroupData;
     private static final String HELPINDEX =
       "configuration-ca-general-help";
 

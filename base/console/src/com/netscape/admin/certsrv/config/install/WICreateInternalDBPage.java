@@ -60,7 +60,6 @@ class WICreateInternalDBPage extends WizardBasePanel implements IWizardPanel {
     private static final String PANELNAME = "CREATEINTERNALDBWIZARD";
     private static final String HELPINDEX =
       "install-internaldb-configuration-wizard-help";
-    private static final String EMPTYSTR = "                    ";
 
     WICreateInternalDBPage(JDialog parent) {
         super(PANELNAME);

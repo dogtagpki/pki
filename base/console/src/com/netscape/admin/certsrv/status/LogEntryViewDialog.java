@@ -17,11 +17,26 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.status;
 
-import com.netscape.admin.certsrv.*;
-import javax.swing.*;
-import java.awt.event.*;
-import java.awt.*;
-import java.util.*;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ResourceBundle;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+
+import com.netscape.admin.certsrv.CMSAdminResources;
+import com.netscape.admin.certsrv.CMSAdminUtil;
 
 /**
  * Policy Implementation Information viewer
@@ -38,7 +53,6 @@ public class LogEntryViewDialog extends JDialog
      *==========================================================*/
     private String  PREFIX = "LOGENTRYVIEWDIALOG";
 
-    private JFrame mParentFrame;
     private ResourceBundle mResource;
     private JTextArea mTextArea;
     private JLabel mSource, mLevel, mDate, mTime;
@@ -50,7 +64,6 @@ public class LogEntryViewDialog extends JDialog
      *==========================================================*/
     public LogEntryViewDialog(JFrame parent) {
         super(parent,true);
-        mParentFrame = parent;
         mResource = ResourceBundle.getBundle(CMSAdminResources.class.getName());
         setSize(600, 400);
         setTitle(mResource.getString(PREFIX+"_TITLE"));

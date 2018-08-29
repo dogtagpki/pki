@@ -22,13 +22,10 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemListener;
 import java.util.StringTokenizer;
-import java.util.Vector;
 
-import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 
 import com.netscape.admin.certsrv.CMSAdminUtil;
 import com.netscape.admin.certsrv.CMSBaseResourceModel;
@@ -51,14 +48,8 @@ public class CMSOCSPGeneralPanel extends CMSBaseTab implements ItemListener {
     private static String PANEL_NAME = "OCSPGENERAL";
     private static CMSBaseResourceModel mModel;
     protected AdminConnection mAdmin;
-    private JCheckBox mRAEnable;
-    private JCheckBox mEEEnable;
     private CMSTabPanel mParent;
     private JComboBox<String> mAlgorithms;
-    private JTextField mSerialNumber;
-    private JTextField mMaxSerialNumber;
-    private JCheckBox mValidity;
-    private Vector<Object> mGroupData;
     private static final String OCSPHELPINDEX =
       "configuration-ocsp-general-help";
 

@@ -266,7 +266,7 @@ public class CMSEngine implements ICMSEngine {
     };
 
     private static final int PW_OK =0;
-    private static final int PW_BAD_SETUP = 1;
+    //private static final int PW_BAD_SETUP = 1;
     private static final int PW_INVALID_PASSWORD = 2;
     private static final int PW_CANNOT_CONNECT = 3;
     private static final int PW_NO_USER = 4;

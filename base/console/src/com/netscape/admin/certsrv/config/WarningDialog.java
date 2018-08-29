@@ -17,12 +17,26 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config;
 
-import com.netscape.admin.certsrv.*;
-import javax.swing.*;
-import java.awt.event.*;
-import java.awt.*;
-import java.util.*;
-import com.netscape.admin.certsrv.connection.*;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ResourceBundle;
+
+import javax.swing.Icon;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+
+import com.netscape.admin.certsrv.CMSAdminResources;
+import com.netscape.admin.certsrv.CMSAdminUtil;
 
 /**
  * Certificate Information dialog
@@ -35,19 +49,12 @@ public class WarningDialog extends JDialog
     implements ActionListener {
     private String PREFIX = "WARNINGDIALOG";
 
-    private JFrame mParent;
     private ResourceBundle mResource;
-    private JTextArea mTextArea;
-    private JLabel mCertNameField;
-    private JButton mClose, mHelp, mTrust;
-    private AdminConnection mConn;
-    private String mCertName;
-    private String mCertDate;
+    private JButton mClose;
     private String mKey;
 
     public WarningDialog(JFrame parent, String key) {
         super(parent,true);
-        mParent = parent;
         mKey = key;
         mResource = ResourceBundle.getBundle(CMSAdminResources.class.getName());
         setSize(500, 300);

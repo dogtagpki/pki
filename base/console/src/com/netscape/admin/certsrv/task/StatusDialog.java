@@ -17,11 +17,25 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.task;
 
-import com.netscape.admin.certsrv.*;
-import javax.swing.*;
-import java.awt.event.*;
-import java.awt.*;
-import java.util.*;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ResourceBundle;
+
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+
+import com.netscape.admin.certsrv.CMSAdminResources;
+import com.netscape.admin.certsrv.CMSAdminUtil;
 
 /**
  * Policy Implementation Information viewer
@@ -38,7 +52,6 @@ public class StatusDialog extends JDialog
      *==========================================================*/
     private String  PREFIX = "STATUSDIALOG";
 
-    private JFrame mParentFrame;
     private ResourceBundle mResource;
     private JTextArea mTextArea;
     private JLabel mTitle, mDetails;
@@ -50,7 +63,6 @@ public class StatusDialog extends JDialog
      *==========================================================*/
     public StatusDialog(JFrame parent) {
         super(parent,true);
-        mParentFrame = parent;
         mResource = ResourceBundle.getBundle(CMSAdminResources.class.getName());
         setSize(300, 200);
         setTitle(mResource.getString(PREFIX+"_TITLE"));

@@ -17,13 +17,22 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config;
 
-import com.netscape.admin.certsrv.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.management.client.util.*;
-import com.netscape.admin.certsrv.connection.*;
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+
+import javax.swing.JCheckBox;
+import javax.swing.JPanel;
+
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.CMSBaseResourceModel;
+import com.netscape.admin.certsrv.EAdminException;
+import com.netscape.admin.certsrv.connection.AdminConnection;
+import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.common.DestDef;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.common.ScopeDef;
+import com.netscape.management.client.util.Debug;
 
 /**
  * RA General Setting
@@ -36,7 +45,6 @@ public class CMSRAGeneralPanel extends CMSBaseTab {
     private static String PANEL_NAME = "RAGENERAL";
     private static CMSBaseResourceModel mModel;
     protected AdminConnection mAdmin;
-    private JCheckBox mRAEnable;
     private JCheckBox mEEEnable;
     private CMSTabPanel mParent;
     private static final String HELPINDEX =

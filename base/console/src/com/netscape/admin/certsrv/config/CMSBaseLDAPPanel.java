@@ -72,7 +72,6 @@ public abstract class CMSBaseLDAPPanel extends CMSBaseTab implements ItemListene
     private CMSTabPanel mParent;
     private boolean mPublishing = true;
     private boolean mLDAPPublishing = true;
-    private boolean mPublishingQueue = true;
     private String mPublishingQueuePriorityLevel = "0";
     private String mMaxNumberOfPublishingThreads = "3";
     private String mPublishingQueuePageSize = "40";
@@ -97,7 +96,6 @@ public abstract class CMSBaseLDAPPanel extends CMSBaseTab implements ItemListene
         mModel = parent.getResourceModel();
         mParent = parent;
         mPublishing = flag;
-        mPublishingQueue = flag;
         mLDAPPublishing = flag;
     }
 
@@ -321,10 +319,8 @@ public abstract class CMSBaseLDAPPanel extends CMSBaseTab implements ItemListene
             } else if (name.equals(Constants.PR_PUBLISHING_QUEUE_ENABLE)) {
                 if (value.equals(Constants.TRUE)) {
                     mEnableQueue.setSelected(true);
-                    mPublishingQueue = true;
                 } else {
                     mEnableQueue.setSelected(false);
-                    mPublishingQueue = false;
                 }
             } else if (name.equals(Constants.PR_PUBLISHING_QUEUE_THREADS)) {
                 mMaxNumberOfPublishingThreads = value;
@@ -405,7 +401,6 @@ public abstract class CMSBaseLDAPPanel extends CMSBaseTab implements ItemListene
 	if (!enable) {
 		mEnable.setSelected(false);
 		mEnableQueue.setSelected(false);
-		mPublishingQueue = false;
 	}
 	enableFields(enable, color);
     }

@@ -41,8 +41,8 @@ public class AuthInstanceTab extends CMSPluginInstanceTab {
      * variables
      *==========================================================*/
     private static final String PANEL_NAME = "AUTHRULE";
-    private static final String ADMINRULE = "adminAuth";
-    private static final String AGENTRULE = "agentAuth";
+    //private static final String ADMINRULE = "adminAuth";
+    //private static final String AGENTRULE = "agentAuth";
 
     private static final String HELPINDEX =
       "authentication-certsrv-authrules-help";

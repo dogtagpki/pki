@@ -55,7 +55,6 @@ import com.netscape.certsrv.common.TaskId;
  */
 class WILogonAllTokensPage extends WizardBasePanel implements IWizardPanel {
     private ProfileDataTable mTable;
-    private static final String EMPTYSTR = " ";
     private static final String PANELNAME = "LOGONALLTOKENSWIZARD";
     private static final String HELPINDEX = "install-internaldb-configuration-wizard-help";
 

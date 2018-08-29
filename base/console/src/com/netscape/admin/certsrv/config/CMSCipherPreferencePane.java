@@ -17,13 +17,27 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config;
 
-import com.netscape.admin.certsrv.security.*;
-import java.awt.event.*;
-import java.awt.*;
-import javax.swing.*;
-import javax.swing.border.*;
-import javax.swing.plaf.*;
-import com.netscape.management.nmclf.*;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Graphics;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JCheckBox;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.EtchedBorder;
+import javax.swing.plaf.BorderUIResource;
+
+import com.netscape.admin.certsrv.security.AbstractCipherPreference;
+import com.netscape.admin.certsrv.security.IAbstractCipherSet;
+import com.netscape.admin.certsrv.security.ICipherConstants;
+import com.netscape.management.nmclf.SuiConstants;
 
 /**
  * Constructs a Cipher preference pane.
@@ -77,11 +91,9 @@ public class CMSCipherPreferencePane extends AbstractCipherPreference implements
 
     class ToggleBorder extends EtchedBorder {
         private JComponent _switchPanel;
-        private int _switchAlign;
 
         public ToggleBorder(JComponent sp, int align) {
             _switchPanel = sp;
-            _switchAlign = align;
         }
 
         public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {

@@ -54,7 +54,6 @@ import com.netscape.cmsutil.util.Cert;
  * @see com.netscape.admin.certsrv.config.install
  */
 class WIPasteCertPage extends WizardBasePanel implements IWizardPanel {
-	static private int transId = 1;
     private JRadioButton mFileBtn;
     private JRadioButton mBase64Btn;
     private JTextField mFileText;

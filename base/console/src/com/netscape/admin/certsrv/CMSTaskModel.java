@@ -19,7 +19,6 @@ package com.netscape.admin.certsrv;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.ResourceBundle;
 import java.util.StringTokenizer;
 
 import com.netscape.admin.certsrv.security.CertManagementDialog;
@@ -60,8 +59,6 @@ public class CMSTaskModel extends TaskModel implements IMenuInfo {
     /*==========================================================
      * variables
      *==========================================================*/
-    private static String PREFIX = "CMSTASKMODEL_NODE_";
-
     private static final String PREFERENCES_TASK_TAB = "TaskTab";
     private static final String PREFERENCES_TASK_LIST = "TaskList";
 
@@ -73,7 +70,6 @@ public class CMSTaskModel extends TaskModel implements IMenuInfo {
 
     protected ITaskObject mSelection;
     private ConsoleInfo mConsoleInfo;
-    private ResourceBundle mResource;
     private CMSServerInfo mServerInfo = null;
 
 	/*==========================================================
@@ -82,7 +78,6 @@ public class CMSTaskModel extends TaskModel implements IMenuInfo {
 
     public CMSTaskModel(ConsoleInfo ci, CMSServerInfo serverInfo) {
 		mServerInfo = serverInfo;
-        mResource = ResourceBundle.getBundle(CMSAdminResources.class.getName());
         mConsoleInfo = ci;
         init();
     }

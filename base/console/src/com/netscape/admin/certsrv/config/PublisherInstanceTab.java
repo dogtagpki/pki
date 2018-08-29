@@ -17,11 +17,14 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config;
 
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
-import javax.swing.*;
-import com.netscape.management.client.util.*;
-import com.netscape.certsrv.common.*;
+import javax.swing.JFrame;
+
+import com.netscape.admin.certsrv.CMSBaseResourceModel;
+import com.netscape.admin.certsrv.connection.AdminConnection;
+import com.netscape.certsrv.common.DestDef;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.common.ScopeDef;
+import com.netscape.management.client.util.Debug;
 
 /**
  * Publisher Instances Management Tab
@@ -39,7 +42,6 @@ public class PublisherInstanceTab extends CMSPluginInstanceTab {
 
     private final static String RAHELPINDEX = "configuration-ra-publisherinstances-help";
     private final static String CAHELPINDEX = "configuration-ca-publisherinstances-help";
-    private final static String KRAHELPINDEX = "configuration-kra-publisherinstances-help";
 
 
 	/*==========================================================

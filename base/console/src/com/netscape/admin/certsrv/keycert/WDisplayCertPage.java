@@ -56,7 +56,6 @@ import com.netscape.certsrv.common.ScopeDef;
 class WDisplayCertPage extends WizardBasePanel implements IWizardPanel {
     private CertSetupWizardInfo wizardInfo;
     private JButton mAdd;
-    private boolean isAdd = false;
     private static final String PANELNAME = "DISPLAYCERTWIZARD";
     private static final String HELPINDEX =
       "configuration-keycert-wizard-displaycert-help";

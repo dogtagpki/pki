@@ -18,18 +18,36 @@
 //package com.netscape.management.client.security;
 package com.netscape.admin.certsrv.connection;
 
-import com.netscape.management.nmclf.SuiConstants;
-import com.netscape.management.client.util.*;
-import com.netscape.admin.certsrv.ug.*;
-
-import java.awt.event.*;
-import java.awt.*;
-import javax.swing.*;
-import java.util.*;
-import java.text.*;
+import java.awt.Frame;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.security.cert.X509Certificate;
-import com.netscape.admin.certsrv.*;
+import java.text.SimpleDateFormat;
+import java.util.ResourceBundle;
+
+import javax.swing.Box;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.KeyStroke;
+import javax.swing.UIManager;
+
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback.ValidityStatus;
+
+import com.netscape.admin.certsrv.CMSAdminResources;
+import com.netscape.admin.certsrv.ug.CertViewDialog;
+import com.netscape.management.client.util.AbstractDialog;
+import com.netscape.management.client.util.GridBagUtil;
+import com.netscape.management.client.util.JButtonFactory;
+import com.netscape.management.client.util.ModalDialogUtil;
+import com.netscape.management.client.util.MultilineLabel;
+import com.netscape.management.nmclf.SuiConstants;
 
 /**
  * Dialog box that prompts user to either accept or reject
@@ -38,7 +56,6 @@ import org.mozilla.jss.ssl.SSLCertificateApprovalCallback.ValidityStatus;
 public class PromptForTrustDialog extends AbstractDialog implements SuiConstants {
 
     private static boolean certIsAccepted = false;
-    private static boolean acceptedForSingleSession = false;
     private X509Certificate mCert;
 
     private UserConfirmationActionListener buttonActionListener =

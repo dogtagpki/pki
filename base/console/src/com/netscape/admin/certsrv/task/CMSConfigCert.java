@@ -43,13 +43,10 @@ public class CMSConfigCert extends CGITask {
     /*==========================================================
      * variables
      *==========================================================*/
-    private static final String PREFIX = "CMSCONFIGCERT";
-
     public static final String CONFIG_CERT_CGI = "Tasks/Operation/config-cert";
 
 	//private boolean mSuccess = false; // status of last executed CGI
 	//private Hashtable mCgiResponse = null; // holds parsed contents of CGI return
-	private String mCgiTask = null; // CGI task to call
     private InstallWizardInfo mWizardInfo;
 
 	/*==========================================================

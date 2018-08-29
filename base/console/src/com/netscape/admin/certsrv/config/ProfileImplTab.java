@@ -62,7 +62,6 @@ public class ProfileImplTab extends CMSBaseUGTab {
     private static final String IMPL_DESC = ProfileImplDataModel.IMPL_DESC;
 
     private static final String PANEL_NAME = "PROFILEIMPL";
-    private static final String DIALOG_PREFIX = "PROFILEREGISTERDIALOG";
 
     private AdminConnection mConnection;
     private String mDestination;

@@ -62,7 +62,6 @@ public class PublisherImplTab extends CMSBaseUGTab {
     private static final String IMPL_DESC = PublisherImplDataModel.IMPL_DESC;
 
     private static final String PANEL_NAME = "PUBLISHERIMPL";
-    private static final String DIALOG_PREFIX = "PUBLISHERREGISTERDIALOG";
 
     private AdminConnection mConnection;
     private String mDestination;
@@ -76,7 +75,6 @@ public class PublisherImplTab extends CMSBaseUGTab {
     protected JButton mRefresh, mAdd, mDelete, mView, mHelp;
     private final static String RAHELPINDEX = "configuration-ra-publisherplugin-help";
     private final static String CAHELPINDEX = "configuration-ca-publisherplugin-help";
-    private final static String KRAHELPINDEX = "configuration-publisherkra-plugin-help";
 
     /*==========================================================
      * constructors

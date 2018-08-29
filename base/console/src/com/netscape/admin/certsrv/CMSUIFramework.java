@@ -18,7 +18,6 @@
 package com.netscape.admin.certsrv;
 
 import java.util.Hashtable;
-import java.util.ResourceBundle;
 import java.util.Vector;
 
 import com.netscape.admin.certsrv.connection.AdminConnection;
@@ -46,12 +45,10 @@ public class CMSUIFramework {
     /*==========================================================
      * variables
      *==========================================================*/
-    private ConsoleInfo mConsoleInfo;       // global information
     private CMSServerInfo mServerInfo;		// server-specific information
     private CMSPageFeeder mPageFeeder;      // KP PageFeeder
     private Framework mFramework;           // KP Framework
     private ISubSystemLocator mSubSystemLocator = null;     // subsystem locator
-    private UILoaderRegistry mUILoaders;
 
 	/*==========================================================
      * constructors
@@ -59,7 +56,6 @@ public class CMSUIFramework {
     public CMSUIFramework(ConsoleInfo info, CMSServerInfo serverInfo)
         throws EAdminException
     {
-        mConsoleInfo = info;
         mServerInfo = serverInfo;
         mPageFeeder = new CMSPageFeeder(info, serverInfo);
         setSubSystemLocator( new HTTPSSubSystemLocator(serverInfo.getAdmin()));
@@ -138,12 +134,9 @@ public class CMSUIFramework {
  * Only single instance of the UI loader should be created.
  */
 class UILoaderRegistry {
-    private final String PREFIX = "UILOADERREGISTRY_";
     private Hashtable<String, ISubSystemUILoader> mContent = new Hashtable<>();
-    private ResourceBundle mResource;       // resource boundle
 
     public UILoaderRegistry(CMSUIFramework uiFramework) {
-        mResource = ResourceBundle.getBundle(CMSAdminResources.class.getName());
         mContent.put(Constants.PR_CA_INSTANCE,new CMSCAUILoader(uiFramework));
         mContent.put(Constants.PR_KRA_INSTANCE,new CMSEAUILoader(uiFramework));
         mContent.put(Constants.PR_RA_INSTANCE,new CMSRAUILoader(uiFramework));

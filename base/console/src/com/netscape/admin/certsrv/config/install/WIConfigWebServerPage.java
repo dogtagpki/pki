@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config.install;
 
-import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -48,7 +47,6 @@ import com.netscape.management.client.console.ConsoleInfo;
  * @see com.netscape.admin.certsrv.config.install
  */
 class WIConfigWebServerPage extends WizardBasePanel implements IWizardPanel {
-    private Color mActiveColor;
     private JTextField mServerRootText;
     private JTextField mUserIDText;
 

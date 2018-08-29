@@ -17,12 +17,24 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config;
 
-import com.netscape.admin.certsrv.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.admin.certsrv.connection.*;
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.CMSBaseResourceModel;
+import com.netscape.admin.certsrv.EAdminException;
+import com.netscape.admin.certsrv.connection.AdminConnection;
+import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.common.DestDef;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.common.ScopeDef;
 
 /**
  * LDAP server setting tab
@@ -40,10 +52,7 @@ public class CMSLDAPSettingPanel extends CMSBaseTab {
     private JTextField mBindAsText;
     private JTextField mMaxConnsText;
     private JTextField mMinConnsText;
-    private JPasswordField mPasswordText;
-    private JPasswordField mPasswordAgainText;
     private JCheckBox mEnable;
-    private Color mActiveColor;
     protected AdminConnection mAdmin;
     protected CMSBaseResourceModel mModel;
     private String mServletName;
@@ -84,7 +93,6 @@ public class CMSLDAPSettingPanel extends CMSBaseTab {
         CMSAdminUtil.resetGBC(gbc);
         JLabel hostLabel = makeJLabel("HOST");
         mHostNameText = makeJTextField(30);
-        mActiveColor = mHostNameText.getBackground();
         CMSAdminUtil.addEntryField(serverInfo, hostLabel, mHostNameText, gbc);
 
         // add port number label

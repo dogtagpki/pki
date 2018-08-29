@@ -17,10 +17,22 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config;
 
-import com.netscape.admin.certsrv.*;
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+
+import com.netscape.admin.certsrv.CMSAdminUtil;
 
 /**
  * Self Tests Implementation Information viewer
@@ -36,7 +48,6 @@ public class ViewSelfTestsDialog extends JDialog
     /*==========================================================
      * variables
      *==========================================================*/
-    private JFrame mParentFrame;
     private JTextArea mTextArea;
     private JButton mOK;
 
@@ -46,7 +57,6 @@ public class ViewSelfTestsDialog extends JDialog
     public ViewSelfTestsDialog( JFrame parent, String title )
     {
         super( parent, true );
-        mParentFrame = parent;
         setSize( 550, 150 );
         setTitle( title );
         setLocationRelativeTo( parent );

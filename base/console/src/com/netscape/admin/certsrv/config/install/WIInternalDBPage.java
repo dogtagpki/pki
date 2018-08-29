@@ -17,12 +17,27 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config.install;
 
-import java.awt.event.*;
-import java.awt.*;
-import javax.swing.*;
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.wizard.*;
-import com.netscape.certsrv.common.*;
+import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+
+import javax.swing.JCheckBox;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.wizard.IWizardPanel;
+import com.netscape.admin.certsrv.wizard.WizardBasePanel;
+import com.netscape.admin.certsrv.wizard.WizardInfo;
+import com.netscape.certsrv.common.ConfigConstants;
+import com.netscape.certsrv.common.OpDef;
+import com.netscape.certsrv.common.TaskId;
 
 /**
  * Introduction page for installation wizard.
@@ -38,13 +53,12 @@ class WIInternalDBPage extends WizardBasePanel implements IWizardPanel {
     private JTextField mRMPortText, mRMBindAsText, mRMBaseText;
     private JTextField mRMHostText,mRMDBNameAsText;
     private JPasswordField mRMPasswordText;
-    private JLabel mRMHostLabel, mRMDBNameAsLabel;
+    private JLabel mRMDBNameAsLabel;
     private JLabel mRMBaseLabel, mRMBindAsLabel, mRMPasswordLabel;
 
     private static final String PANELNAME = "INTERNALDBWIZARD";
     private static final String HELPINDEX =
       "install-internaldb-configuration-wizard-help";
-    private static final String EMPTYSTR = "                    ";
 
     WIInternalDBPage(JDialog parent) {
         super(PANELNAME);

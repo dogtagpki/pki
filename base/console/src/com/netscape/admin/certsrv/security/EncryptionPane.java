@@ -631,11 +631,9 @@ public class EncryptionPane extends JPanel implements ActionListener {
 
     class ToggleBorder extends EtchedBorder {
         private JComponent _switchPanel;
-        private int _switchAlign;
 
         public ToggleBorder(JComponent sp, int align) {
             _switchPanel = sp;
-            _switchAlign = align;
         }
 
         public void paintBorder(Component c, Graphics g, int x, int y,

@@ -51,7 +51,6 @@ public class CMSStartDaemon extends CGITask {
 
 	private boolean mSuccess = false; // status of last executed CGI
 	private Hashtable<String, String> mCgiResponse = null; // holds parsed contents of CGI return
-	private String mCgiTask = null; // CGI task to call
 
 	/*==========================================================
      * constructors

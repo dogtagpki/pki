@@ -52,7 +52,7 @@ class WInstallOpPage extends WizardBasePanel implements IWizardPanel {
     private String mOCSPSigningCert;
     private String mRASigningCert;
     private String mKRATransportCert;
-    private String mServerCert, mServerCertRadm;
+    private String mServerCert;
     private String mOtherCert, mCrossCert;
     private Vector<String> mCerts;
     private static final String PANELNAME = "INSTALLOPWIZARD";
@@ -119,8 +119,6 @@ class WInstallOpPage extends WizardBasePanel implements IWizardPanel {
           PANELNAME+"_LABEL_OCSPSIGNINGCERT_LABEL");
         mServerCert = mResource.getString(
           PANELNAME+"_LABEL_SERVERCERT_LABEL");
-        mServerCertRadm = mResource.getString(
-          PANELNAME+"_LABEL_SERVERCERTRADM_LABEL");
         mCrossCert = mResource.getString(
           PANELNAME+"_LABEL_CROSSCERT_LABEL");
         mOtherCert = mResource.getString(

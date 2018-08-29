@@ -17,9 +17,11 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv;
 
-import java.awt.*;
-import com.netscape.management.client.*;
-import com.netscape.management.client.util.*;
+import java.awt.Graphics;
+import java.awt.Rectangle;
+
+import com.netscape.management.client.StatusItemProgress;
+import com.netscape.management.client.util.Debug;
 
 /**
  * Status bar item for continuous progress feedback
@@ -35,7 +37,6 @@ public class StatusItemContinuousProgress extends StatusItemProgress
     private int _val = 0;
     private static int VALUE_INCREMENT = 9;
     private static int UPDATE_INTERVAL = 50;
-    private static int INITIAL_DELAY = 0;
     private ProgressTracker _thread;
     private boolean _running = false;
 

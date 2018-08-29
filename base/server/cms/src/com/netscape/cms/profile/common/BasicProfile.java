@@ -58,7 +58,7 @@ import com.netscape.cms.logging.SignedAuditLogger;
  */
 public abstract class BasicProfile implements IProfile {
 
-    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
+    protected static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     public static final String PROP_ENABLE = "enable";
     public static final String PROP_ENABLE_BY = "enableBy";

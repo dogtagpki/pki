@@ -68,8 +68,6 @@ class WINetworkPage extends WizardBasePanel implements IWizardPanel {
     private JTextField mPortText;
 
     protected AdminConnection mAdmin;
-    private boolean mBlankFieldError = false;
-    private boolean mNumberError = false;
     private JLabel mPortLabel, mSSLPortLabel;
 
     private static final String HELPINDEX =

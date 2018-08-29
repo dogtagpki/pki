@@ -42,8 +42,6 @@ import com.netscape.certsrv.common.Constants;
  */
 class WInstallCertChainPage extends WizardBasePanel implements IWizardPanel {
     private JComboBox<String> mCertBox;
-    private String mTrustedCACert;
-    private String mTrustedCert, mOtherCert, mCrossCert;
     private static final String PANELNAME = "INSTALLCERTCHAINWIZARD";
     private static final String HELPINDEX =
       "configuration-keycert-wizard-installcerttype-help";

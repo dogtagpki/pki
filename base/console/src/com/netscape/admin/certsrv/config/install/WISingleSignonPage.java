@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config.install;
 
-import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -60,14 +59,10 @@ class WISingleSignonPage extends WizardBasePanel implements IWizardPanel, CommCl
     public static final String PW_TAG_INTERNAL_LDAP_DB = "Internal LDAP Database";
     public static final String PW_TAG_INTERNAL_STORAGE_TOKEN = "internal";
 
-    private Color mActiveColor;
 	//    private JPasswordField mSingleSignonPassword, mSingleSignonPasswordAgain;
 	private JCheckBox mPasswordConf;
     private static final String HELPINDEX = "install-single-signon-wizard-help";
     private static final String PANELNAME = "INSTALLSINGLESIGNON";
-    private boolean ca;
-    private boolean ra;
-    private boolean kra;
     private String mDBPasswd;
     private String capassword, rapassword, krapassword, sslpassword;
     private JComboBox<String> mTokenBox;
@@ -75,7 +70,6 @@ class WISingleSignonPage extends WizardBasePanel implements IWizardPanel, CommCl
     private static final String PREFIX = "CGITASK";
     private boolean mFinished = false;
     protected String mCmd = null;
-    private String mAdminURL = null;
     protected boolean mSuccess = false;
     private String mReply = null;
     protected String mSection = "";
@@ -123,10 +117,8 @@ class WISingleSignonPage extends WizardBasePanel implements IWizardPanel, CommCl
             } else {
                 capassword = password;
             }
-            ca = true;
         } else {
             capassword = "";
-            ca = false;
         }
 
         if (wizardInfo.isRAInstalled()) {
@@ -137,10 +129,8 @@ class WISingleSignonPage extends WizardBasePanel implements IWizardPanel, CommCl
             } else {
                 rapassword = password;
             }
-            ra = true;
         } else {
             rapassword = "";
-            ra = false;
         }
 
         if (wizardInfo.isKRAInstalled()) {
@@ -151,10 +141,8 @@ class WISingleSignonPage extends WizardBasePanel implements IWizardPanel, CommCl
             } else {
                 krapassword = password;
             }
-            kra = true;
         } else {
             krapassword = "";
-            kra = false;
         }
 
         tokenname = wizardInfo.getSSLTokenName();

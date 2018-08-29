@@ -66,7 +66,6 @@ public class CRLIPEditor extends JDialog implements ActionListener {
     private String mDest;
     private JCheckBox mEnableBox;
     private boolean mEnable = true;
-    private String mInstanceName;
     private Vector<String> mNames;
 
     public CRLIPEditor(AdminConnection admin, JFrame parent,
@@ -77,7 +76,6 @@ public class CRLIPEditor extends JDialog implements ActionListener {
         mAdmin = admin;
         mName = name;
         mNames = names;
-        mInstanceName = instanceName;
         mDest = dest;
         setSize(600, 180);
         setTitle(mResource.getString(PREFIX+"_TITLE"));

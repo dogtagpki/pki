@@ -17,10 +17,13 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config.install;
 
-import javax.swing.*;
-import com.netscape.admin.certsrv.wizard.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.management.client.console.*;
+import javax.swing.JFrame;
+
+import com.netscape.admin.certsrv.wizard.WizardInfo;
+import com.netscape.certsrv.common.ConfigConstants;
+import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.management.client.console.ConsoleInfo;
 
 /**
  * WizardInfo for certificate setup wizard
@@ -31,34 +34,19 @@ import com.netscape.management.client.console.*;
  * @see com.netscape.admin.certsrv.config.install
  */
 public class InstallWizardInfo extends WizardInfo {
-    private static final int DB_PORT = 38900;
+
     private static final String BINDDN = "cn=Directory Manager";
     public static final String ALL_CERT_INFO = "allInfo";
-    private static final String CA_KEY_TYPE = "caKeyType";
     private static final String CA_KEY_LEN = "caKeyLen";
     private static final String OCSP_TOKEN_NAME = "ocspTokenName";
-    private static final String OCSP_TOKEN_PASSWD = "ocspTokenPwd";
     private static final String CA_TOKEN_NAME = "caTokenName";
-    private static final String CA_TOKEN_PASSWD = "caTokenPwd";
     private static final String RA_TOKEN_NAME = "raTokenName";
-    private static final String RA_TOKEN_PASSWD = "raTokenPwd";
     private static final String KRA_TOKEN_NAME = "kraTokenName";
-    private static final String KRA_TOKEN_PASSWD = "kraTokenPwd";
     private static final String SSL_TOKEN_NAME = "sslTokenName";
-    private static final String SSL_TOKEN_PASSWD = "sslTokenPwd";
     private static final String MIGRATE_CA_TOKEN_NAME = "migrateCATokenName";
     private static final String MIGRATE_SSL_TOKEN_NAME = "migrateSSLTokenName";
     private static final String INSTALLCERT_NOW = "installCertNow";
-    private static final String CLONING = "cloning";
-    private static final String CACLONING = "cacloning";
-    private static final String RACLONING = "racloning";
-    private static final String KRACLONING = "kracloning";
-    private static final String SSLCLONING = "sslcloning";
 
-    private static final String CA_CLONING_CERT = "caSigningCert";
-    private static final String RA_CLONING_CERT = "raSigningCert";
-    private static final String KRA_CLONING_CERT = "kraTransportCert";
-    private static final String OCSP_CLONING_CERT = "ocspSigningCert";
 
 	private String mPassword = null;
 

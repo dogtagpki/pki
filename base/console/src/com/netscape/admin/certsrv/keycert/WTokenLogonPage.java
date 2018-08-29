@@ -49,7 +49,6 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
 class WTokenLogonPage extends WizardBasePanel implements IWizardPanel {
     protected JLabel mTokenNameText;
     protected JPasswordField mPasswordText, mPasswordAgainText;
-    private static final String EMPTYSTR = "                    ";
     protected JTextArea mDesc;
     protected String mTokenName;
     private static final String PANELNAME = "TOKENLOGONWIZARD";

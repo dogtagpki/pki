@@ -35,8 +35,6 @@ import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
 
-import org.mozilla.jss.CryptoManager;
-
 import com.netscape.admin.certsrv.CMSAdminUtil;
 import com.netscape.admin.certsrv.CMSBaseResourceModel;
 import com.netscape.admin.certsrv.EAdminException;
@@ -46,7 +44,6 @@ import com.netscape.admin.certsrv.ug.CMSBaseUGTab;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.common.ScopeDef;
-import com.netscape.management.client.console.ConsoleInfo;
 import com.netscape.management.client.util.Debug;
 import com.netscape.management.client.util.JButtonFactory;
 /**
@@ -62,12 +59,10 @@ public class TKSKeysTab extends CMSBaseUGTab {
      * variables
      *==========================================================*/
     private static final String PANEL_NAME = "TKSKEYS";
-    private CryptoManager mCryptoManager = null;
 
 	private AdminConnection mConnection;
     private String mDestination;
     private CMSBaseResourceModel mModel;
-    private ConsoleInfo mConsoleInfo;
     private JComboBox<String> mToken;
     protected JScrollPane mScrollPane;
     protected JTable mTable;                    //table
@@ -84,7 +79,6 @@ public class TKSKeysTab extends CMSBaseUGTab {
         super(PANEL_NAME, model);
         mConnection = model.getServerInfo().getAdmin();
         mModel = model;
-        mConsoleInfo = mModel.getConsoleInfo();
         mDataModel = new ListKeysModel();
         mDestination = destination;
         mHelpToken = HELPINDEX;

@@ -17,16 +17,33 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config;
 
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
-import com.netscape.admin.certsrv.ug.*;
-import javax.swing.*;
-import java.awt.event.*;
-import java.awt.*;
-import java.util.*;
+import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.MouseEvent;
+import java.util.Hashtable;
 
-import com.netscape.management.client.util.*;
-import com.netscape.certsrv.common.*;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
+import javax.swing.ScrollPaneConstants;
+
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.CMSBaseResourceModel;
+import com.netscape.admin.certsrv.EAdminException;
+import com.netscape.admin.certsrv.LabelCellRenderer;
+import com.netscape.admin.certsrv.connection.AdminConnection;
+import com.netscape.admin.certsrv.ug.CMSBaseUGTab;
+import com.netscape.certsrv.common.DestDef;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.common.ScopeDef;
+import com.netscape.management.client.util.Debug;
+import com.netscape.management.client.util.JButtonFactory;
 
 /**
  * Mapper Instances Management Tab
@@ -45,7 +62,6 @@ public class MapperImplTab extends CMSBaseUGTab {
     private static final String IMPL_DESC = MapperImplDataModel.IMPL_DESC;
 
     private static final String PANEL_NAME = "MAPPERIMPL";
-    private static final String DIALOG_PREFIX = "MAPPERREGISTERDIALOG";
 
     private AdminConnection mConnection;
     private String mDestination;
@@ -59,7 +75,6 @@ public class MapperImplTab extends CMSBaseUGTab {
     protected JButton mRefresh, mAdd, mDelete, mView, mHelp;
     private final static String RAHELPINDEX = "configuration-ra-mapperplugin-help";
     private final static String CAHELPINDEX = "configuration-ca-mapperplugin-help";
-    private final static String KRAHELPINDEX = "configuration-kra-mapperplugin-help";
 
     /*==========================================================
      * constructors

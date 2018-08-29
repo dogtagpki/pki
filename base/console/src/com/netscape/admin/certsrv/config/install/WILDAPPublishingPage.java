@@ -32,7 +32,6 @@ import com.netscape.admin.certsrv.CMSAdminUtil;
 import com.netscape.admin.certsrv.wizard.IWizardPanel;
 import com.netscape.admin.certsrv.wizard.WizardBasePanel;
 import com.netscape.admin.certsrv.wizard.WizardInfo;
-import com.netscape.certsrv.common.Constants;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -51,10 +50,6 @@ class WILDAPPublishingPage extends WizardBasePanel implements IWizardPanel {
     private static final String PANELNAME = "LDAPPUBLISHINGWIZARD";
     private static final String HELPINDEX =
       "configuration-kra-wizard-change-keyscheme-help";
-    private static final String EMPTYSTR = "                    ";
-    private static final String DELIMITER = ",";
-    private final static String[] AUTHTYPE = {Constants.PR_BASIC_AUTH,
-      Constants.PR_SSL_AUTH};
 
     WILDAPPublishingPage() {
         super(PANELNAME);

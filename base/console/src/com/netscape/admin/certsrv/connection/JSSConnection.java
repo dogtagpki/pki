@@ -96,13 +96,11 @@ public class JSSConnection implements IConnection, SSLCertificateApprovalCallbac
     private byte[] body;
     private int bodyLen;
     private String header;
-    private int available;
     private int totalRead;
     private boolean endOfHeader = false;
 
     private static int HTTP_OK_RESPONSE = 200;
-    private static final String PANELNAME = "SSLCLIENT";
-    private boolean abort = false;;
+    private boolean abort = false;
     private boolean mClientAuth = false;
     private boolean mCertAccepted = true;
     private boolean mClientCertFound = true;

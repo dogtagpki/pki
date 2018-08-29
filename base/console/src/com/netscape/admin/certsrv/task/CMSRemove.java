@@ -48,8 +48,6 @@ public class CMSRemove extends CGITask
      *==========================================================*/
     private static final String PREFIX = "TASKREMOVE";
     public static final String REMOVE_TASK_CGI = "Tasks/Operation/remove";
-    private Hashtable<String, String> mCgiResponse = null;
-    private String mCgiTask = null;
 
 	/*==========================================================
      * constructors

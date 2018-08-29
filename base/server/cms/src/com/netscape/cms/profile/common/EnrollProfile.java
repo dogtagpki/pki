@@ -100,8 +100,6 @@ import com.netscape.certsrv.profile.IProfileContext;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
-import com.netscape.cms.logging.Logger;
-import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.HMACDigest;
@@ -141,8 +139,6 @@ import netscape.security.x509.X509Key;
  */
 public abstract class EnrollProfile extends BasicProfile
         implements IEnrollProfile {
-
-    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     private PKIData mCMCData;
 

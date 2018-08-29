@@ -17,13 +17,31 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.task;
 
-import java.awt.*;
-import java.util.*;
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.event.*;
-import com.netscape.admin.certsrv.*;
-import com.netscape.management.client.util.*;
+import java.awt.BorderLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.util.ResourceBundle;
+
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+
+import com.netscape.admin.certsrv.CMSAdminResources;
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.management.client.util.JButtonFactory;
 
 /**
  * Display this dialog to get the instance name and password.
@@ -44,7 +62,6 @@ public class AuthDialog extends JDialog
     private JPasswordField mPasswordField;
     private boolean mCanceled = true;       // exit state of the dialog
     private String mPassword;
-    private JFrame mParentFrame;
     private ResourceBundle mResource;
     private JButton mOK, mCancel;
     private KeyListener mTextFieldKeyListener;
@@ -58,7 +75,6 @@ public class AuthDialog extends JDialog
      */
     public AuthDialog(JFrame parent) {
         super(parent, true);
-        mParentFrame = parent;
         mResource =
           ResourceBundle.getBundle(CMSAdminResources.class.getName());
         mTextFieldKeyListener = new TextFieldKeyListener();

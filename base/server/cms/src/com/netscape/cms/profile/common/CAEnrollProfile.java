@@ -38,8 +38,6 @@ import com.netscape.certsrv.profile.IProfileUpdater;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.cms.logging.Logger;
-import com.netscape.cms.logging.SignedAuditLogger;
 
 import netscape.security.x509.X500Name;
 import netscape.security.x509.X509CertImpl;
@@ -52,8 +50,6 @@ import netscape.security.x509.X509CertInfo;
  * @version $Revision$, $Date$
  */
 public class CAEnrollProfile extends EnrollProfile {
-
-    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     public CAEnrollProfile() {
     }

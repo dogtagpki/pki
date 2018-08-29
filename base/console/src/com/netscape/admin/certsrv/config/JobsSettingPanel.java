@@ -55,11 +55,9 @@ public class JobsSettingPanel extends CMSBaseTab implements ItemListener {
     protected CMSBaseResourceModel mModel;
     private String mServletName;
     private CMSTabPanel mParent;
-    private String mPanelName;
 
     public JobsSettingPanel(String panelName, CMSTabPanel parent) {
         this(panelName, parent, true);
-        mPanelName = panelName;
     }
 
     public JobsSettingPanel(String panelName, CMSTabPanel parent, boolean flag) {

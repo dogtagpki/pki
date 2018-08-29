@@ -17,14 +17,27 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config;
 
-import com.netscape.admin.certsrv.*;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.MouseEvent;
+
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.CMSBaseResourceModel;
+import com.netscape.admin.certsrv.EAdminException;
 import com.netscape.admin.certsrv.connection.AdminConnection;
-import com.netscape.management.client.util.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.admin.certsrv.ug.*;
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
+import com.netscape.admin.certsrv.ug.CMSBaseUGTab;
+import com.netscape.admin.certsrv.ug.CMSUGTabPanel;
+import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.common.DestDef;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.common.ScopeDef;
+import com.netscape.management.client.util.Debug;
 
 /**
  * KRA scheme management tab
@@ -39,8 +52,6 @@ public class CMSKRASchemePanel extends CMSBaseUGTab {
     private AdminConnection mAdmin;
     private JLabel mAvailAgentLbl;
     private JLabel mReqAgentLbl;
-    private String mAvailAgentStr;
-    private String mReqAgentStr;
     private JButton mRefresh, mHelp;
     private static final String HELPINDEX =
       "configuration-kra-schememgt-help";
@@ -50,10 +61,8 @@ public class CMSKRASchemePanel extends CMSBaseUGTab {
         super(PANEL_NAME, parent.getResourceModel());
         mModel = parent.getResourceModel();
         mAdmin = mModel.getServerInfo().getAdmin();
-        mAvailAgentStr =
-          mResource.getString(PANEL_NAME + "_LABEL_AVAILAGENT_LABEL");
-        mReqAgentStr =
-          mResource.getString(PANEL_NAME + "_LABEL_REQAGENT_LABEL");
+        // String mAvailAgentStr = mResource.getString(PANEL_NAME + "_LABEL_AVAILAGENT_LABEL");
+        // String mReqAgentStr = mResource.getString(PANEL_NAME + "_LABEL_REQAGENT_LABEL");
         mParent = parent;
         mHelpToken = HELPINDEX;
     }

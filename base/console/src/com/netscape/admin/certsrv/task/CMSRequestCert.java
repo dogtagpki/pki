@@ -41,8 +41,6 @@ public class CMSRequestCert extends CGITask {
     /*==========================================================
      * variables
      *==========================================================*/
-    private static final String PREFIX = "CGITASK";
-	private String mCgiTask = null; // CGI task to call
     private InstallWizardInfo mWizardInfo;
 	private String mPolicyMsg = null;
 

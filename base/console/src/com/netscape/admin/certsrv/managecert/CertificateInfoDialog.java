@@ -17,14 +17,31 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.managecert;
 
-import com.netscape.admin.certsrv.*;
-import javax.swing.*;
-import java.awt.event.*;
-import java.awt.*;
-import java.util.*;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ResourceBundle;
 
-import com.netscape.admin.certsrv.connection.*;
-import com.netscape.certsrv.common.*;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+
+import com.netscape.admin.certsrv.CMSAdminResources;
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.EAdminException;
+import com.netscape.admin.certsrv.connection.AdminConnection;
+import com.netscape.certsrv.common.DestDef;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.common.ScopeDef;
 
 /**
  * Certificate Information dialog
@@ -41,7 +58,7 @@ public class CertificateInfoDialog extends JDialog
     private ResourceBundle mResource;
     private JTextArea mTextArea;
     private JLabel mCertNameField, mStatusLbl;
-    private JButton mClose, mHelp, mTrust;
+    private JButton mClose, mHelp;
     private AdminConnection mConn;
     private String mCertName;
     private String mCertDate;

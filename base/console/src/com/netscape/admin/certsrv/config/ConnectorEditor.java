@@ -63,8 +63,6 @@ import com.netscape.management.client.util.JButtonFactory;
 public class ConnectorEditor extends JDialog implements ActionListener, MouseListener {
 
     private final static String PREFIX = "CONNECTOREDITOR";
-    private final static String HELPINDEX =
-      "configuration-ra-connector-editor-help";
     private final static String HELPINDEX1 =
       "configuration-overview";
     private JButton mOK, mCancel, mHelp;
@@ -72,22 +70,20 @@ public class ConnectorEditor extends JDialog implements ActionListener, MouseLis
     private ListCertsModel mDataModel;
     // Changed by beomsuk
     //private JTextField mLocalText, mURIText, mHostText, mPortText;
-    private JTextField mLocalText, mURIText, mHostText, mPortText, mTimeoutText, mNicknameText;
+    private JTextField mHostText, mPortText, mTimeoutText, mNicknameText;
     // Change end
     private ResourceBundle mResource;
     private JFrame mParentFrame;
     private AdminConnection mAdmin;
     // Changed by beomsuk
     //private JLabel idLabel, uriLabel, hostLabel, portLabel;
-    private JLabel idLabel, uriLabel, hostLabel, portLabel, timeoutLabel, timeunitLabel,
+    private JLabel hostLabel, portLabel, timeoutLabel,
       nicknameLabel;
     // Change end
     private Color mActiveColor;
     private String mDest;
     private JCheckBox mEnableBox;
     private boolean mEnable = false;
-    private String mInstanceName;
-    private boolean mColocated;
     private JTable mCertTable;
     private JTextArea mHeading;
 
@@ -98,9 +94,7 @@ public class ConnectorEditor extends JDialog implements ActionListener, MouseLis
         mResource = ResourceBundle.getBundle(CMSAdminResources.class.getName());
         mAdmin = admin;
         mName = name;
-        mInstanceName = instanceName;
         mDest = dest;
-        mColocated = colocated;
         setSize(460, 516);
         setTitle(mResource.getString(PREFIX+"_TITLE"));
         setLocationRelativeTo(parent);

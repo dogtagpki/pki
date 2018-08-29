@@ -56,8 +56,8 @@ import com.netscape.management.client.console.ConsoleInfo;
  * @see com.netscape.admin.certsrv.config.install
  */
 class WIMigrationPage extends WizardBasePanel implements IWizardPanel, ItemListener {
-    private JLabel mTransportLbl, mDBLbl;
-    private JPasswordField mTransportPassword, mDBPassword;
+    private JLabel mTransportLbl;
+    private JPasswordField mTransportPassword;
     private JLabel mCAPasswdLbl, mCAPasswdAgainLbl, mCASOPLbl;
     private JPasswordField mCAPassword, mCAPasswordAgain, mCASOPPassword;
     private JLabel mSSLPasswdLbl, mSSLPasswdAgainLbl, mSSLSOPLbl;

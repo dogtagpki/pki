@@ -64,7 +64,6 @@ public class RequestCompletePanel extends CMSBaseTab implements ItemListener {
     protected CMSBaseResourceModel mModel;
     private String mServletName;
     private CMSTabPanel mParent;
-    private String mPanelName;
 
 	/*
     public RequestCompletePanel(String panelName, CMSTabPanel parent) {

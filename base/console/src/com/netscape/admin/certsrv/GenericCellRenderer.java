@@ -49,7 +49,6 @@ public class GenericCellRenderer
      * variables
      *==========================================================*/
     protected JComponent component;
-    private JPasswordField mPasswordField;
     private JLabel mLabel;
     private JCheckBox mCheckBox;
     private JComboBox<String> mComboBox;

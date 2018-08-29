@@ -64,7 +64,6 @@ public class RequestRevokedPanel extends CMSBaseTab implements ItemListener {
     protected CMSBaseResourceModel mModel;
     private String mServletName;
     private CMSTabPanel mParent;
-    private String mPanelName;
 
 	/*
     public RequestRevokedPanel(String panelName, CMSTabPanel parent) {

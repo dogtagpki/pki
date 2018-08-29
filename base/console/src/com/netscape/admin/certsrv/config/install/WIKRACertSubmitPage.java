@@ -17,9 +17,12 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config.install;
 
-import javax.swing.*;
-import com.netscape.admin.certsrv.wizard.*;
-import com.netscape.certsrv.common.*;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+
+import com.netscape.admin.certsrv.wizard.IWizardPanel;
+import com.netscape.admin.certsrv.wizard.WizardInfo;
+import com.netscape.certsrv.common.Constants;
 
 /**
  * KRA Certificate Submission.
@@ -31,7 +34,6 @@ import com.netscape.certsrv.common.*;
 class WIKRACertSubmitPage extends WICertSubmitPage implements IWizardPanel {
     private static final String PANELNAME = "INSTALLKRACERTWIZARD";
     private static final String KRAHELPINDEX = "install-kratype-wizard-help";
-    private static final String CAKRAHELPINDEX = "install-cakratype-wizard-help";
     private static final String RAKRAHELPINDEX = "install-rakratype-wizard-help";
 
     WIKRACertSubmitPage(JDialog parent, JFrame adminFrame) {

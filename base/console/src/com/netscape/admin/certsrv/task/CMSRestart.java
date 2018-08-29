@@ -51,8 +51,6 @@ public class CMSRestart extends CGITask
     public static final String RESTART_TASK_CGI = "Tasks/Operation/restart";
     //public static final String START_TASK_CGI = "Tasks/Operation/start";
     //public static final String STOP_TASK_CGI = "Tasks/Operation/stop";
-    private Hashtable<String, String> mCgiResponse = null;
-    private String mCgiTask = null;
 
 	/*==========================================================
      * constructors

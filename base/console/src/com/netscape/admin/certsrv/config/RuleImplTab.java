@@ -62,7 +62,6 @@ public class RuleImplTab extends CMSBaseUGTab {
     private static final String IMPL_DESC = RuleImplDataModel.IMPL_DESC;
 
     private static final String PANEL_NAME = "RULEIMPL";
-    private static final String DIALOG_PREFIX = "RULEREGISTERDIALOG";
 
     private AdminConnection mConnection;
     private String mDestination;
@@ -76,7 +75,6 @@ public class RuleImplTab extends CMSBaseUGTab {
     protected JButton mRefresh, mAdd, mDelete, mView, mHelp;
     private final static String RAHELPINDEX = "configuration-ra-ruleplugin-help";
     private final static String CAHELPINDEX = "configuration-ca-ruleplugin-help";
-    private final static String KRAHELPINDEX = "configuration-kra-ruleplugin-help";
 
     /*==========================================================
      * constructors

@@ -17,14 +17,28 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config;
 
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.management.client.util.*;
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.border.*;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.CMSBaseResourceModel;
+import com.netscape.admin.certsrv.EAdminException;
+import com.netscape.admin.certsrv.connection.AdminConnection;
+import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.common.DestDef;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.common.ScopeDef;
+import com.netscape.management.client.util.Debug;
+import com.netscape.management.client.util.JButtonFactory;
 
 /**
  * Self Tests setting tab
@@ -40,7 +54,6 @@ public class CMSSelfTestsPanel extends CMSBaseTab
     private AdminConnection mAdmin;
     private JButton mOnDemand;
     private CMSBaseResourceModel mModel;
-    private CMSTabPanel mParent;
     private static final String HELPINDEX =
         "configuration-overview";
     private ViewSelfTestsDialog mViewer = null;
@@ -50,7 +63,6 @@ public class CMSSelfTestsPanel extends CMSBaseTab
     {
         super( PANEL_NAME, parent );
         mModel = parent.getResourceModel();
-        mParent = parent;
         mHelpToken = HELPINDEX;
     }
 

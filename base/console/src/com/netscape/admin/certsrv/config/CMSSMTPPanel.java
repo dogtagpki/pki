@@ -17,13 +17,23 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config;
 
-import com.netscape.admin.certsrv.*;
-import com.netscape.management.client.util.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.admin.certsrv.connection.*;
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.CMSBaseResourceModel;
+import com.netscape.admin.certsrv.EAdminException;
+import com.netscape.admin.certsrv.connection.AdminConnection;
+import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.common.DestDef;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.common.ScopeDef;
+import com.netscape.management.client.util.Debug;
 
 /**
  * SMTP setting tab
@@ -35,7 +45,6 @@ public class CMSSMTPPanel extends CMSBaseTab {
     private static String PANEL_NAME = "SMTPSETTING";
     private JTextField mServerText;
     private JTextField mPortText;
-    private Color mActiveColor;
     private AdminConnection mAdmin;
     private CMSBaseResourceModel mModel;
     private CMSTabPanel mParent;
@@ -72,7 +81,6 @@ public class CMSSMTPPanel extends CMSBaseTab {
         CMSAdminUtil.resetGBC(gbc);
         JLabel serverLabel = makeJLabel("SERVER");
         mServerText = makeJTextField(30);
-        mActiveColor = mServerText.getBackground();
         CMSAdminUtil.addEntryField(smtpInfo, serverLabel, mServerText, gbc);
 
         // add port number label and text field

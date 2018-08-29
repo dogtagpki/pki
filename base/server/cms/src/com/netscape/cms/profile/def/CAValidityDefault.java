@@ -24,11 +24,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
-import netscape.security.x509.BasicConstraintsExtension;
-import netscape.security.x509.CertificateValidity;
-import netscape.security.x509.PKIXExtensions;
-import netscape.security.x509.X509CertInfo;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.ca.ICertificateAuthority;
@@ -39,6 +34,11 @@ import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 
+import netscape.security.x509.BasicConstraintsExtension;
+import netscape.security.x509.CertificateValidity;
+import netscape.security.x509.PKIXExtensions;
+import netscape.security.x509.X509CertInfo;
+
 /**
  * This class implements a CA signing cert enrollment default policy
  * that populates a server-side configurable validity
@@ -46,6 +46,7 @@ import com.netscape.certsrv.request.IRequest;
  * It allows an agent to bypass the CA's signing cert's expiration constraint
  */
 public class CAValidityDefault extends EnrollDefault {
+
     public static final String CONFIG_RANGE = "range";
     public static final String CONFIG_RANGE_UNIT = "rangeUnit";
     public static final String CONFIG_START_TIME = "startTime";
@@ -57,7 +58,6 @@ public class CAValidityDefault extends EnrollDefault {
 
     public static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
-    private long mDefault = 86400000; // 1 days
     public ICertificateAuthority mCA = null;
 
     public CAValidityDefault() {
