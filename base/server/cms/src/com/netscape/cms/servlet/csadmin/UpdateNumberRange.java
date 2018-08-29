@@ -193,7 +193,7 @@ public class UpdateNumberRange extends CMSServlet {
             beginNum = endNum.subtract(decrement).add(oneNum);
             logger.debug("UpdateNumberRange: beginNum: " + beginNum);
 
-            if (beginNum.compareTo(repo.getTheSerialNumber()) < 0) {
+            if (beginNum.compareTo(repo.peekNextSerialNumber()) < 0) {
 
                 logger.debug("UpdateNumberRange: Transferring from the end of on-deck range");
 

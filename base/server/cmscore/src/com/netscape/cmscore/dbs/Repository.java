@@ -346,7 +346,7 @@ public abstract class Repository implements IRepository {
      * Returns null if the next number exceeds the current range and
      * there is not a next range.
      */
-    public BigInteger getTheSerialNumber() throws EBaseException {
+    public BigInteger peekNextSerialNumber() throws EBaseException {
 
         CMS.debug("Repository:In getTheSerialNumber ");
         if (mLastSerialNo == null)
