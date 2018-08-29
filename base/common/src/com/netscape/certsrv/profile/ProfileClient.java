@@ -17,14 +17,10 @@
 //--- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.profile;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.net.URISyntaxException;
 
 import javax.ws.rs.core.Response;
 
-import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
 
