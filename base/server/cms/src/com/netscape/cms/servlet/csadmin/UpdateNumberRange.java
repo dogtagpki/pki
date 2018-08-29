@@ -187,7 +187,7 @@ public class UpdateNumberRange extends CMSServlet {
             BigInteger decrement = new BigInteger(decrementStr, radix);
             beginNum = endNum.subtract(decrement).add(oneNum);
 
-            if (beginNum.compareTo(repo.getTheSerialNumber()) < 0) {
+            if (beginNum.compareTo(repo.peekNextSerialNumber()) < 0) {
                 String nextEndNumStr = cs.getString(nextEndConfig, "");
                 BigInteger endNum2 = new BigInteger(nextEndNumStr, radix);
                 CMS.debug("Transferring from the end of on-deck range");
