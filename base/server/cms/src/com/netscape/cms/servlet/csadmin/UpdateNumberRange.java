@@ -125,13 +125,9 @@ public class UpdateNumberRange extends CMSServlet {
 
             auditParams += "+type;;" + type;
 
-            BigInteger beginNum = null;
-            BigInteger endNum = null;
-            BigInteger oneNum = new BigInteger("1");
-            String endNumConfig = null;
-            String cloneNumConfig = null;
-            String nextEndConfig = null;
-            int radix = 10;
+            logger.debug(
+                "UpdateNumberRange: servicing request for "
+                + cstype + " " + type + " range.");
 
             IRepository repo = null;
             if (cstype.equals("KRA")) {
@@ -165,6 +161,11 @@ public class UpdateNumberRange extends CMSServlet {
                 repo.checkRanges();
             }
 
+            int radix = 10;
+            String endNumConfig = null;
+            String cloneNumConfig = null;
+            String nextEndConfig = null;
+
             if (type.equals("request")) {
                 radix = 10;
                 endNumConfig = "dbs.endRequestNumber";
@@ -182,44 +183,93 @@ public class UpdateNumberRange extends CMSServlet {
                 nextEndConfig = "dbs.nextEndReplicaNumber";
             }
 
+            /* UpdateNumberRange transfers a portion of this instance's
+             * number range to a clone.
+             *
+             * Each number range has a "current range" which is the range
+             * from which numbers are actively being consumed, and under
+             * normal circumstances, a "next range" which is reserved for
+             * this instance.  The next range is not necessarily adjacent to
+             * the current range.  When the current range is depleted, the
+             * instance switches to the next range and subsequently should
+             * reserve a new range to become the new next range.  (In most
+             * cases this is done by a scheduled task).
+             */
+
             String endNumStr = cs.getString(endNumConfig);
-            endNum = new BigInteger(endNumStr, radix);
+            BigInteger endNum = new BigInteger(endNumStr, radix);
             logger.debug("UpdateNumberRange: " + endNumConfig + ": " + endNum);
 
-            String decrementStr = cs.getString(cloneNumConfig);
-            BigInteger decrement = new BigInteger(decrementStr, radix);
-            logger.debug("UpdateNumberRange: " + cloneNumConfig + ": " + decrement);
+            String transferSizeStr = cs.getString(cloneNumConfig, "");
+            BigInteger transferSize = new BigInteger(transferSizeStr, radix);
+            logger.debug("UpdateNumberRange: " + cloneNumConfig + ": " + transferSize);
 
-            beginNum = endNum.subtract(decrement).add(oneNum);
+            // transferred range will start at beginNum
+            //  (which, for now, is just a candidate)
+            BigInteger beginNum = endNum.subtract(transferSize).add(BigInteger.ONE);
             logger.debug("UpdateNumberRange: beginNum: " + beginNum);
 
-            if (beginNum.compareTo(repo.peekNextSerialNumber()) < 0) {
-
-                logger.debug("UpdateNumberRange: Transferring from the end of on-deck range");
-
-                String nextEndNumStr = cs.getString(nextEndConfig);
-                BigInteger endNum2 = new BigInteger(nextEndNumStr, radix);
-                logger.debug("UpdateNumberRange: " + nextEndConfig + ": " + endNum2);
-
-                String newValStr = endNum2.subtract(decrement).toString(radix);
-                logger.debug("UpdateNumberRange: nextMaxSerial: " + newValStr);
-
-                repo.setNextMaxSerial(newValStr);
-
-                cs.putString(nextEndConfig, newValStr);
-                beginNum = endNum2.subtract(decrement).add(oneNum);
-                endNum = endNum2;
-
-            } else {
-
-                logger.debug("UpdateNumberRange: Transferring from the end of the current range");
-
-                String newValStr = beginNum.subtract(oneNum).toString(radix);
-                logger.debug("UpdateNumberRange: maxSerial: " + newValStr);
-
-                repo.setMaxSerial(newValStr);
-                cs.putString(endNumConfig, newValStr);
+            // peek at the next serial number
+            BigInteger nextSerial = repo.peekNextSerialNumber();
+            if (nextSerial == null) {
+                String msg = "Current range depleted but no next range available.";
+                logger.error(msg);
+                throw new RuntimeException(msg); // will be caught below
             }
+
+            logger.debug("Configured transfer size: " + transferSize);
+            logger.debug(
+                "Current range: " + nextSerial + ".." + endNum
+                + " (size: " + endNum.subtract(nextSerial).add(BigInteger.ONE) + ")");
+
+            if (beginNum.compareTo(nextSerial) < 0) {
+                /* beginNum = the start of the range to transfer.
+                 * nextSerial = the next number that would given out.
+                 *
+                 * If beginNum < nextSerial, then the remaining range is
+                 * less than the transfer size.  Therefore we transfer from
+                 * the end of the next range.
+                 *
+                 * If beginNum = nextSerial, then the remaining range is
+                 * equal to the transfer size, and delegating it will fully
+                 * deplete it.  We allow this to occur because:
+                 *
+                 * - a subsequent call to repo.getNextSerialNumber() will
+                 *   perform a range check and switch to the next range.
+                 * - a subsequent UpdateNumberRange will invoke
+                 *   peekNextSerialNumber(), which will correctly return a
+                 *   number from the next range.
+                 *
+                 * It is assumed that the _next range_ will not be depleted
+                 * by repeated invocations of UpdateNumberRange, and that
+                 * the current range will not be depleted in the duration
+                 * between switching ranges (which extinguishes the next
+                 * range) and reserving a new next range (performed by
+                 * scheduled task).  This is unlikely but not guaranteed.
+                 * The scheduled tasks check the size of the remaining range
+                 * (|current| + |next|) and reserve a new range if it falls
+                 * below the "low water mark".  As long as the low water
+                 * mark is an adequate multiple of the clone transfer size,
+                 * this scenario is unlikely to arise.  Furthermore,
+                 * recovery is automatic thanks to the scheduled tasks.
+                 */
+                endNum = new BigInteger(cs.getString(nextEndConfig, ""), radix);
+                BigInteger newEndNum = endNum.subtract(transferSize);
+                logger.debug("UpdateNumberRange: Transferring from the end of next range");
+                logger.debug("UpdateNumberRange:  Next range current end: " + endNum);
+                logger.debug("UpdateNumberRange:  Next range new end: " + newEndNum);
+                repo.setNextMaxSerial(newEndNum.toString(radix));
+                cs.putString(nextEndConfig, newEndNum.toString(radix));
+                beginNum = newEndNum.add(BigInteger.ONE);
+            } else {
+                logger.debug("UpdateNumberRange: Transferring from the end of the current range");
+                BigInteger newEndNum = beginNum.subtract(BigInteger.ONE);
+                String newValStr = newEndNum.toString(radix);
+                repo.setMaxSerial(newEndNum.toString(radix));
+                cs.putString(endNumConfig, newValStr);
+                logger.debug("UpdateNumberRange: New current range: " + nextSerial + ".." + newEndNum);
+            }
+            logger.debug("UpdateNumberRange: Transferring range: " + beginNum + ".." + endNum);
 
             if (beginNum == null) {
                 logger.error("UpdateNumberRange: Missing beginNum");
