@@ -185,7 +185,7 @@ public abstract class Repository implements IRepository {
      * @param serial maximum number
      * @exception EBaseException failed to set maximum serial number
      */
-    public void setMaxSerial(String serial) throws EBaseException {
+    public synchronized void setMaxSerial(String serial) throws EBaseException {
         BigInteger maxSerial = null;
         CMS.debug("Repository:setMaxSerial " + serial);
 
@@ -211,7 +211,7 @@ public abstract class Repository implements IRepository {
      * @param serial maximum number in next range
      * @exception EBaseException failed to set maximum serial number in next range
      */
-    public void setNextMaxSerial(String serial) throws EBaseException {
+    public synchronized void setNextMaxSerial(String serial) throws EBaseException {
         BigInteger maxSerial = null;
         CMS.debug("Repository:setNextMaxSerial " + serial);
 
@@ -346,7 +346,7 @@ public abstract class Repository implements IRepository {
      * Returns null if the next number exceeds the current range and
      * there is not a next range.
      */
-    public BigInteger peekNextSerialNumber() throws EBaseException {
+    public synchronized BigInteger peekNextSerialNumber() throws EBaseException {
 
         CMS.debug("Repository:In getTheSerialNumber ");
         if (mLastSerialNo == null)

@@ -251,49 +251,45 @@ public class CertificateRepository extends Repository
         return nextSerialNumber;
     }
 
-    private Object nextSerialNumberMonitor = new Object();
-
-    public BigInteger getNextSerialNumber() throws
+    public synchronized BigInteger getNextSerialNumber() throws
             EBaseException {
 
         BigInteger nextSerialNumber = null;
         BigInteger randomNumber = null;
 
-        synchronized (nextSerialNumberMonitor) {
-            super.initCacheIfNeeded();
-            CMS.debug("CertificateRepository: getNextSerialNumber  mEnableRandomSerialNumbers="+mEnableRandomSerialNumbers);
+        super.initCacheIfNeeded();
+        CMS.debug("CertificateRepository: getNextSerialNumber  mEnableRandomSerialNumbers="+mEnableRandomSerialNumbers);
 
-            if (mEnableRandomSerialNumbers) {
-                int i = 0;
-                do {
-                    if (i > 0) {
-                        CMS.debug("CertificateRepository: getNextSerialNumber  regenerating serial number");
-                    }
-                    randomNumber = getRandomNumber();
-                    nextSerialNumber = getRandomSerialNumber(randomNumber);
-                    nextSerialNumber = checkSerialNumbers(randomNumber, nextSerialNumber);
-                    i++;
-                } while (nextSerialNumber == null && i < mMaxCollisionRecoveryRegenerations);
-
-                if (nextSerialNumber == null) {
-                    CMS.debug("CertificateRepository: in getNextSerialNumber  nextSerialNumber is null");
-                    throw new EBaseException( "nextSerialNumber is null" );
+        if (mEnableRandomSerialNumbers) {
+            int i = 0;
+            do {
+                if (i > 0) {
+                    CMS.debug("CertificateRepository: getNextSerialNumber  regenerating serial number");
                 }
+                randomNumber = getRandomNumber();
+                nextSerialNumber = getRandomSerialNumber(randomNumber);
+                nextSerialNumber = checkSerialNumbers(randomNumber, nextSerialNumber);
+                i++;
+            } while (nextSerialNumber == null && i < mMaxCollisionRecoveryRegenerations);
 
-                if (mCounter.compareTo(BigInteger.ZERO) >= 0 &&
-                    mMinSerialNo != null && mMaxSerialNo != null &&
-                    nextSerialNumber != null &&
-                    nextSerialNumber.compareTo(mMinSerialNo) >= 0 &&
-                    nextSerialNumber.compareTo(mMaxSerialNo) <= 0) {
-                    mCounter = mCounter.add(BigInteger.ONE);
-                }
-                CMS.debug("CertificateRepository: getNextSerialNumber  nextSerialNumber="+
-                          nextSerialNumber+"  mCounter="+mCounter);
-
-                super.checkRange();
-            } else {
-                nextSerialNumber = super.getNextSerialNumber();
+            if (nextSerialNumber == null) {
+                CMS.debug("CertificateRepository: in getNextSerialNumber  nextSerialNumber is null");
+                throw new EBaseException( "nextSerialNumber is null" );
             }
+
+            if (mCounter.compareTo(BigInteger.ZERO) >= 0 &&
+                mMinSerialNo != null && mMaxSerialNo != null &&
+                nextSerialNumber != null &&
+                nextSerialNumber.compareTo(mMinSerialNo) >= 0 &&
+                nextSerialNumber.compareTo(mMaxSerialNo) <= 0) {
+                mCounter = mCounter.add(BigInteger.ONE);
+            }
+            CMS.debug("CertificateRepository: getNextSerialNumber  nextSerialNumber="+
+                      nextSerialNumber+"  mCounter="+mCounter);
+
+            super.checkRange();
+        } else {
+            nextSerialNumber = super.getNextSerialNumber();
         }
 
         return nextSerialNumber;
