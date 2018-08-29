@@ -406,14 +406,17 @@ public abstract class Repository implements IRepository {
             throw new EBaseException("mLastSerialNo is null");
         }
 
+        /* Advance the serial number.  checkRange() will check if it exceeds
+         * the current range and, if so, rolls to the next range and resets
+         * mLastSerialNo to the start of the new range.  Hence we return
+         * mLastSerialNo below, after the call to checkRange().
+         */
         mLastSerialNo = mLastSerialNo.add(BigInteger.ONE);
 
         checkRange();
 
-        BigInteger retSerial = new BigInteger(mLastSerialNo.toString());
-
-        CMS.debug("Repository: getNextSerialNumber: returning retSerial " + retSerial);
-        return retSerial;
+        CMS.debug("Repository: getNextSerialNumber: returning " + mLastSerialNo);
+        return mLastSerialNo;
     }
 
     /**
@@ -421,6 +424,14 @@ public abstract class Repository implements IRepository {
      * If it does not exceed the current range, return cleanly.
      * If it exceeds the given range, and there is a next range, switch the range.
      * If it exceeds the given range, and there is not a next range, throw EDBException.
+     *
+     * Precondition: the serial number should already have been advanced.
+     * This method will detect that and switch to the next range, including
+     * resetting mLastSerialNo to the start of the new (now current) range.
+     *
+     * Postcondition: the caller should again read mLastSerialNo after
+     * calling checkRange(), in case checkRange switched the range and the
+     * new range is not adjacent to the current range.
      *
      * @exception EDBException thrown when range switch is needed
      *                           but next range is not allocated
