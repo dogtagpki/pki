@@ -50,7 +50,7 @@ public interface IRepository {
      * @return serial number
      * @exception EBaseException failed to retrieve next serial number
      */
-    public BigInteger getTheSerialNumber() throws EBaseException;
+    public BigInteger peekNextSerialNumber() throws EBaseException;
 
     /**
      * Set the maximum serial number.
