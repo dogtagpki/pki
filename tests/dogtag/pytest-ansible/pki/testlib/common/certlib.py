@@ -20,17 +20,17 @@
 
 import os
 import re
+import sys
 from datetime import datetime
 from subprocess import CalledProcessError
-import OpenSSL.crypto as crypto
 
+import OpenSSL.crypto as crypto
 import pytest
+
 from pki.testlib.common.exceptions import PkiLibException
 from pki.testlib.common.profile import Setup
 
 if os.path.isfile('/tmp/test_dir/constants.py'):
-    import sys
-
     sys.path.append('/tmp/test_dir')
     import constants
 
@@ -41,13 +41,13 @@ class CertSetup(object):
     create role users
     """
     def __init__(self, **kwargs):
-        self.nssdb = kwargs['nssdb'] if 'nssdb' in kwargs.keys() else '/tmp/nssdb'
-        self.db_pass = kwargs['db_pass'] if 'db_pass' in kwargs.keys() else 'Secret123'
-        self.host = kwargs['host'] if 'host' in kwargs.keys() else 'pki1.example.com'
-        self.protocol = kwargs['protocol'] if 'protocol' in kwargs.keys() else 'http'
-        self.port = kwargs['port'] if 'port' in kwargs.keys() else constants.CA_ADMIN_PORT
-        self.nick = kwargs['nick'] if 'nick' in kwargs.keys() else constants.CA_ADMIN_NICK
-        self.subsystem = kwargs['subsystem'] if 'subsystem' in kwargs.keys() else "CA"
+        self.nssdb = kwargs.get('nssdb', '/tmp/nssdb')
+        self.db_pass = kwargs.get('db_pass', 'SECret.123')
+        self.host = kwargs.get('host', 'pki1.example.com')
+        self.protocol = kwargs.get('protocol', 'http')
+        self.port = kwargs.get('port', constants.CA_HTTP_PORT)
+        self.nick = kwargs.get('nick', constants.CA_ADMIN_NICK)
+        self.subsystem = kwargs.get('subsystem', "CA")
 
     def pkcs12_path(self, subsystem='ca'):
         """
@@ -62,12 +62,8 @@ class CertSetup(object):
         """
         Creates a certdb. Default location is /opt/pki/certdb which can be overridden
         """
-        create_cert_db = ansible_module.pki(
-            cli='client-init',
-            nssdb=self.nssdb,
-            dbpassword=self.db_pass,
-            port=self.port,
-        )
+        client_init = 'pki -d {} -c {} client-init'.format(self.nssdb, self.db_pass)
+        create_cert_db = ansible_module.command(client_init)
         for result in create_cert_db.values():
             if 'Security database already exists' in result['stdout']:
                 raise Exception('Security Database already Exists', '255')
