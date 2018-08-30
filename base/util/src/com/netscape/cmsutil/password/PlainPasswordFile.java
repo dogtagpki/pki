@@ -133,22 +133,20 @@ public class PlainPasswordFile implements IPasswordStore {
         return mPwdStore.setProperty(tag, password);
     }
 
-    public void commit()
+    public synchronized void commit()
             throws IOException, ClassCastException, NullPointerException {
         try (FileOutputStream file = new FileOutputStream(mPwdPath);
                 OutputStreamWriter osw = new OutputStreamWriter(file);
                 BufferedWriter bw = new BufferedWriter(osw)) {
 
-            // To avoid race condition
-            synchronized (this) {
-                for (Enumeration<?> e = mPwdStore.keys(); e.hasMoreElements();) {
-                    String key = ((String)e.nextElement()).trim();
-                    String val = ((String)mPwdStore.get(key)).trim();
-                    bw.write(key + "=" + val);
-                    bw.newLine();
-                }
+            for (Enumeration<?> e = mPwdStore.keys(); e.hasMoreElements();) {
+                String key = ((String) e.nextElement()).trim();
+                String val = ((String) mPwdStore.get(key)).trim();
+                bw.write(key + "=" + val);
+                bw.newLine();
             }
         }
+
     }
 
     public String getId() {
