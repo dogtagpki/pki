@@ -49,8 +49,10 @@ public class PlainPasswordFileTest {
             { " Truth = Beauty ", "Truth", "Beauty" }, // Check for spaces
             { "Welcome Message=Hello World", "Welcome Message", "Hello World" }, // No spaces
             { " Welcome Message = Hello World ", "Welcome Message", "Hello World" },
-            { "\n" }, // Empty line
+            { "" }, // Empty line
+            { " " }, // Non-empty line
             { "# Ignored line 1" }, // Commented line
+            { " # Ignored line 2" }, // Commented line with leading space
             { "hello" },
             { "hello:world" },
             { "hello world" }
@@ -91,30 +93,39 @@ public class PlainPasswordFileTest {
     @Test
     public void testEmptyLine() throws IOException {
         testHelper(4, true);
+    }
 
+    @Test
+    public void testNonEmptyLine() throws IOException {
+        testHelper(5, true);
     }
 
     @Test
     public void testComments() throws IOException {
-        testHelper(5, true);
+        testHelper(6, true);
+    }
+
+    @Test
+    public void testCommentsWithLeadingSpace() throws IOException {
+        testHelper(7, true);
     }
 
     @Test
     public void testNoValue() throws IOException {
         expectedException.expect(IOException.class);
-        testHelper(6, false);
+        testHelper(8, false);
     }
 
     @Test
     public void testWrongDelimiter() throws IOException {
         expectedException.expect(IOException.class);
-        testHelper(7,  false);
+        testHelper(9, false);
     }
 
     @Test
     public void testSpaceDelimiter() throws IOException {
         expectedException.expect(IOException.class);
-        testHelper(8, false);
+        testHelper(10, false);
     }
 
     private void writeToFileAndInit(File file, String string) throws IOException {
