@@ -18,10 +18,12 @@
 package com.netscape.cmsutil.password;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.util.Enumeration;
 import java.util.Properties;
 import java.util.Vector;
@@ -29,7 +31,6 @@ import java.util.Vector;
 public class PlainPasswordFile implements IPasswordStore {
     private String mPwdPath = "";
     private Properties mPwdStore;
-    private static final String PASSWORD_WRITER_HEADER = "";
     private String id;
 
     private static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PlainPasswordFile.class);
@@ -132,17 +133,20 @@ public class PlainPasswordFile implements IPasswordStore {
         return mPwdStore.setProperty(tag, password);
     }
 
-    public void commit()
+    public synchronized void commit()
             throws IOException, ClassCastException, NullPointerException {
-        FileOutputStream file = null;
-        try {
-            file = new FileOutputStream(mPwdPath);
-            mPwdStore.store(file, PASSWORD_WRITER_HEADER);
-        } finally {
-            if (file != null) {
-                file.close();
+        try (FileOutputStream file = new FileOutputStream(mPwdPath);
+                OutputStreamWriter osw = new OutputStreamWriter(file);
+                BufferedWriter bw = new BufferedWriter(osw)) {
+
+            for (Enumeration<?> e = mPwdStore.keys(); e.hasMoreElements();) {
+                String key = ((String) e.nextElement()).trim();
+                String val = ((String) mPwdStore.get(key)).trim();
+                bw.write(key + "=" + val);
+                bw.newLine();
             }
         }
+
     }
 
     public String getId() {
