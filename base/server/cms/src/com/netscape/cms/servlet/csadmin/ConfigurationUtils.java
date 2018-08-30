@@ -131,6 +131,7 @@ import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.ldap.LDAPUtil;
+import com.netscape.cmsutil.password.IPasswordStore;
 import com.netscape.cmsutil.util.Utils;
 import com.netscape.cmsutil.xml.XMLObject;
 
@@ -793,10 +794,9 @@ public class ConfigurationUtils {
                 String master_pwd = config.getString("preop.internaldb.master.ldapauth.password", "");
                 if (!master_pwd.equals("")) {
                     config.putString("preop.internaldb.master.ldapauth.bindPWPrompt", "master_internaldb");
-                    String passwordFile = config.getString("passwordFile");
-                    IConfigStore psStore = CMS.createFileConfigStore(passwordFile);
-                    psStore.putString("master_internaldb", master_pwd);
-                    psStore.commit(false);
+                    IPasswordStore psStore = CMS.getPasswordStore();
+                    psStore.putPassword("master_internaldb", master_pwd);
+                    psStore.commit();
                 }
 
                 return true;
