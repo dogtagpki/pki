@@ -162,10 +162,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         deployer.systemd.daemon_reload()
 
         # establish shared NSS security databases for this instance
-        deployer.directory.create(deployer.mdict['pki_database_path'])
+        deployer.directory.create(deployer.mdict['pki_server_database_path'])
         # establish instance convenience symbolic links
         deployer.symlink.create(
-            deployer.mdict['pki_database_path'],
+            deployer.mdict['pki_server_database_path'],
             deployer.mdict['pki_instance_database_link'])
         deployer.symlink.create(
             deployer.mdict['pki_instance_configuration_path'],
@@ -205,7 +205,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             deployer.directory.delete(deployer.mdict['pki_instance_log_path'])
 
         # remove shared NSS security database path for this instance
-        deployer.directory.delete(deployer.mdict['pki_database_path'])
+        deployer.directory.delete(deployer.mdict['pki_server_database_path'])
         # remove Tomcat instance configuration
         deployer.directory.delete(
             deployer.mdict['pki_instance_configuration_path'])

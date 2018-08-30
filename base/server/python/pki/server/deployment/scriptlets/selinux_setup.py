@@ -115,10 +115,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
                         config.pki_log.info(
                             "adding selinux fcontext \"%s\"",
-                            deployer.mdict['pki_database_path'] + self.suffix,
+                            deployer.mdict['pki_server_database_path'] + self.suffix,
                             extra=config.PKI_INDENTATION_LEVEL_2)
                         fcon.add(
-                            deployer.mdict['pki_database_path'] + self.suffix,
+                            deployer.mdict['pki_server_database_path'] + self.suffix,
                             config.PKI_CERTDB_SELINUX_CONTEXT, "", "s0", "")
 
                         port_records = seobject.portRecords(trans)
@@ -206,10 +206,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
                         config.pki_log.info(
                             "deleting selinux fcontext \"%s\"",
-                            deployer.mdict['pki_database_path'] + self.suffix,
+                            deployer.mdict['pki_server_database_path'] + self.suffix,
                             extra=config.PKI_INDENTATION_LEVEL_2)
                         fcon.delete(
-                            deployer.mdict['pki_database_path'] +
+                            deployer.mdict['pki_server_database_path'] +
                             self.suffix, "")
 
                         port_records = seobject.portRecords(trans)
