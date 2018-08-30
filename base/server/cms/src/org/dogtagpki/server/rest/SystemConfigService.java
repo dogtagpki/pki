@@ -64,6 +64,7 @@ import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
+import com.netscape.cmsutil.password.IPasswordStore;
 import com.netscape.cmsutil.util.Utils;
 
 import netscape.security.x509.X509CertImpl;
@@ -752,15 +753,13 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 replicationPassword = Integer.toString(random.nextInt());
             }
 
-            IConfigStore psStore = null;
-            String passwordFile = null;
-            passwordFile = cs.getString("passwordFile");
-            psStore = CMS.createFileConfigStore(passwordFile);
-            psStore.putString("internaldb", data.getBindpwd());
-            if (StringUtils.isEmpty(psStore.getString("replicationdb", null))) {
-                psStore.putString("replicationdb", replicationPassword);
+            IPasswordStore psStore = null;
+            psStore = CMS.getPasswordStore();
+            psStore.putPassword("internaldb", data.getBindpwd());
+            if (StringUtils.isEmpty(psStore.getPassword("replicationdb", 0))) {
+                psStore.putPassword("replicationdb", replicationPassword);
             }
-            psStore.commit(false);
+            psStore.commit();
 
             ConfigurationUtils.enableUSNPlugin();
             ConfigurationUtils.populateDB();
