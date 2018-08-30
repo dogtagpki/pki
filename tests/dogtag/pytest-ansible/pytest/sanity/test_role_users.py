@@ -72,10 +72,10 @@ def test_ca_audit_with_role_users(ansible_module, certnick, expected):
     """
     contacted = ansible_module.pki(
         cli='ca-audit-show',
-        nssdb='/opt/pki/certdb',
+        nssdb=constants.NSSDB,
+        port=constants.CA_HTTPS_PORT,
         protocol='https',
-        certnick=certnick
-        )
+        certnick=certnick)
     for result in contacted.values():
         for iter in expected:
             if certnick == "CA_AdminV":
