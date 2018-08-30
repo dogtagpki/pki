@@ -785,7 +785,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
             deployer.password.create_password_conf(
                 deployer.mdict['pki_shared_pfile'],
-                deployer.mdict['pki_pin'], pin_sans_token=True)
+                deployer.mdict['pki_server_database_password'], pin_sans_token=True)
 
             # only create a self signed cert for a new instance
             #
@@ -804,7 +804,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 f.write("not_so_random_data")
 
             deployer.certutil.generate_self_signed_certificate(
-                deployer.mdict['pki_database_path'],
+                deployer.mdict['pki_server_database_path'],
                 deployer.mdict['pki_self_signed_token'],
                 deployer.mdict['pki_self_signed_nickname'],
                 deployer.mdict['pki_self_signed_subject'],

@@ -13,7 +13,7 @@ Prepare a file (e.g. ocsp-step1.cfg) that contains the deployment configuration 
 
 ```
 [DEFAULT]
-pki_pin=Secret.123
+pki_server_database_password=Secret.123
 
 [CA]
 pki_admin_email=ocspadmin@example.com
